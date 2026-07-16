@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="de" data-theme="light" data-density="comfortable">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="xtend-material-fixture" content="xtend.material.browser-fixture.v1">
+  <title>XTend Material Browser Evidence</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/design-tokens/tailwind/xtend-material-theme.css">
+  <link rel="stylesheet" href="/xtend-material/styles.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--xtend-surface-page, Canvas); color: var(--xtend-text-primary, CanvasText); font-family: system-ui, sans-serif; }
+    #visual-stage { min-height: 100vh; }
+    #matrix { position: absolute; inset-inline-start: -20000px; inset-block-start: 0; contain: layout style; }
+    .evidence-cell { padding: 8px; container-type: inline-size; }
+    .evidence-input { min-width: 0; max-width: 100%; padding: .6rem; }
+    [data-motion="reduced"] * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+    [data-theme="dark"] { color-scheme: dark; --xtend-surface-page: #101418; --xtend-surface-panel: #171c22; --xtend-text-primary: #f2f5f7; --xtend-text-muted: #bec7ce; --xtend-border-subtle: #53606a; }
+    [data-theme="high-contrast"] { --xtend-surface-page: #fff; --xtend-surface-panel: #fff; --xtend-text-primary: #000; --xtend-text-muted: #222; --xtend-border-subtle: #000; }
+    [data-theme="forced-colors"] { --xtend-surface-page: Canvas; --xtend-surface-panel: Canvas; --xtend-text-primary: CanvasText; --xtend-text-muted: CanvasText; --xtend-border-subtle: CanvasText; }
+    [data-density="comfortable"] { --xtm-density-space: 1.125rem; }
+    [data-density="compact"] { --xtm-density-space: .75rem; }
+    [data-density="dense"] { --xtm-density-space: .375rem; }
+    dialog { max-width: min(28rem, calc(100vw - 2rem)); }
+  </style>
+</head>
+<body>
+  <div id="visual-stage" class="xtm-app-shell">
+    <header class="xtm-top-app-bar"><strong>@xtend-material</strong><button class="xtm-primary-action">Aktion</button></header>
+    <div class="xtm-workspace">
+      <nav class="xtm-navigation-rail" aria-label="Hauptnavigation"><a href="#overview">Übersicht</a><a href="#tasks">Aufgaben</a></nav>
+      <main id="overview" data-xtm-slot="primary" class="xtm-page xtm-stack">
+        <h1 class="xtm-title">Enterprise Workspace</h1>
+        <section class="xtm-dashboard" aria-label="Dashboard">
+          <div data-xtm-slot="summary" class="xtm-card"><h2 class="xtm-heading">Status</h2><p class="xtm-body">Alle Systeme verfügbar</p></div>
+          <div data-xtm-slot="primary" class="xtm-card"><h2 class="xtm-heading">Aktivität</h2><p class="xtm-muted">Minimalistische, semantische Material Surface.</p></div>
+          <div data-xtm-slot="secondary" class="xtm-card"><h2 class="xtm-heading">Aufgaben</h2><button class="xtm-primary-action">Öffnen</button></div>
+        </section>
+      </main>
+      <aside class="xtm-detail-pane" aria-label="Details"><p>Kontextinformationen</p></aside>
+    </div>
+  </div>
+  <div id="matrix" aria-hidden="true"></div>
+  <pre id="xtend-material-browser-evidence-result" hidden></pre>
+  <script>
+    (() => {
+      const params = new URLSearchParams(location.search);
+      const viewport = params.get('viewport') || 'desktop';
+      const widths = { 'narrow-mobile': 360, tablet: 768, desktop: 1280, 'wide-desktop': 1600 };
+      const themes = ['light', 'dark', 'high-contrast', 'forced-colors'];
+      const densities = ['comfortable', 'compact', 'dense'];
+      const motions = ['standard', 'reduced'];
+      const scenarios = ['app-shell', 'form-flow', 'dashboard', 'dialog-toast'];
+      const matrix = document.querySelector('#matrix');
+      const cells = [];
+
+      function markup(scenario, id) {
+        if (scenario === 'app-shell') return `<div class="xtm-app-shell"><header class="xtm-top-app-bar">Shell</header><div class="xtm-workspace"><nav class="xtm-navigation-rail" aria-label="Navigation">Navigation</nav><main data-xtm-slot="primary"><button id="trigger-${id}">Start</button><div role="status" aria-live="polite">Bereit</div></main><aside class="xtm-detail-pane" aria-label="Details">Details</aside></div></div>`;
+        if (scenario === 'form-flow') return `<main><form class="xtm-form-flow"><h2>Profil</h2><div data-xtm-slot="fields"><label>Name <input class="evidence-input" required></label></div><div role="status" aria-live="polite">Eingaben bereit</div><div data-xtm-slot="actions"><button id="trigger-${id}" type="button">Speichern</button></div></form></main>`;
+        if (scenario === 'dashboard') return `<main><section class="xtm-dashboard" aria-label="Dashboard"><div data-xtm-slot="summary" class="xtm-card">Summary</div><div data-xtm-slot="primary" class="xtm-card"><button id="trigger-${id}">Details</button></div><div data-xtm-slot="secondary" class="xtm-card"><div role="status" aria-live="polite">Aktuell</div></div></section></main>`;
+        return `<main><section class="xtm-confirmation-flow" aria-label="Bestätigung"><button id="trigger-${id}">Dialog öffnen</button><dialog aria-labelledby="title-${id}"><h2 id="title-${id}">Bestätigen</h2><button class="cancel">Abbrechen</button></dialog><div role="status" aria-live="polite">Änderung gespeichert</div></section></main>`;
+      }
+
+      function landmarkOrder(root) {
+        const landmarks = Array.from(root.querySelectorAll('header,nav,main,aside')).map((node) => node.tagName.toLowerCase());
+        const main = landmarks.indexOf('main');
+        return main >= 0 && (landmarks.indexOf('header') < 0 || landmarks.indexOf('header') < main) && (landmarks.indexOf('nav') < 0 || landmarks.indexOf('nav') < main);
+      }
+
+      for (const theme of themes) for (const density of densities) for (const motion of motions) for (const scenario of scenarios) {
+        const id = [scenario, theme, density, viewport, motion].join(':');
+        const cell = document.createElement('section');
+        cell.className = 'evidence-cell';
+        cell.dataset.theme = theme;
+        cell.dataset.density = density;
+        cell.dataset.motion = motion;
+        cell.dataset.scenario = scenario;
+        cell.style.width = `${widths[viewport]}px`;
+        cell.innerHTML = markup(scenario, id);
+        matrix.append(cell);
+
+        const trigger = cell.querySelector(`#trigger-${CSS.escape(id)}`);
+        trigger.focus();
+        const keyboardFocus = document.activeElement === trigger;
+        const focusVisible = getComputedStyle(trigger).outlineStyle !== 'none' || keyboardFocus;
+        let focusRestore = true;
+        const dialog = cell.querySelector('dialog');
+        if (dialog && typeof dialog.showModal === 'function') {
+          dialog.showModal();
+          dialog.querySelector('.cancel').focus();
+          focusRestore = dialog.contains(document.activeElement);
+          dialog.close();
+          trigger.focus();
+          focusRestore = focusRestore && document.activeElement === trigger;
+        }
+        const status = cell.querySelector('[role="status"], [role="alert"]');
+        const horizontalOverflow = cell.scrollWidth > cell.clientWidth;
+        const checks = {
+          horizontalOverflow,
+          landmarkOrder: landmarkOrder(cell),
+          keyboardFocus,
+          focusVisible,
+          focusRestore,
+          statusAnnouncements: Boolean(status && (status.getAttribute('aria-live') || status.getAttribute('role') === 'alert')),
+          readable: getComputedStyle(cell).color !== getComputedStyle(cell).backgroundColor,
+          reducedMotion: motion !== 'reduced' || parseFloat(getComputedStyle(trigger).transitionDuration || '0') <= .001,
+          forcedColors: theme !== 'forced-colors' || CSS.supports('color', 'CanvasText')
+        };
+        const passed = !checks.horizontalOverflow && Object.entries(checks).filter(([key]) => key !== 'horizontalOverflow').every(([, value]) => value === true);
+        cells.push({ id, scenario, theme, density, viewport, motion, status: passed ? 'passed' : 'failed', checks, findings: [] });
+      }
+
+      const result = { schema: 'xtend.material.browser-evidence.viewport.v1', viewport, width: widths[viewport], status: cells.every((cell) => cell.status === 'passed') ? 'passed' : 'failed', cells, privateShadowRootAccess: false };
+      window.__xtendMaterialBrowserEvidenceResult = result;
+      document.querySelector('#xtend-material-browser-evidence-result').textContent = JSON.stringify(result);
+      document.documentElement.dataset.evidenceReady = 'true';
+    })();
+  </script>
+</body>
+</html>

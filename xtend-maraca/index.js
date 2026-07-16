@@ -3,6 +3,18 @@ const path = require('path');
 const crypto = require('crypto');
 const os = require('os');
 const vm = require('vm');
+const {
+  CSS_PROVIDER_SOURCE_BLOCKED_CODE,
+  CSS_PROVIDER_UNAVAILABLE_CODE,
+  MARACA_CSS_BUILD_PLAN_SCHEMA,
+  createCssArtifact,
+  createCssBuildEvidence,
+  createCssBuildRequest,
+  createNativeMaracaCssProvider,
+  runCssProviderLifecycle,
+  validateCssBuildRequest,
+  validateCssProvider
+} = require('./css-provider');
 
 const MARACA_PACKAGE_SCHEMA = 'xtend.maraca.package-metadata.v1';
 const MARACA_BUILD_PLAN_SCHEMA = 'xtend.maraca.build-plan.v1';
@@ -33,6 +45,9 @@ const DEFAULT_OUT_DIR = '.xtend-build/maraca/app';
 const VALID_PROFILES = new Set(['debug', 'production', 'max']);
 const VALID_LAZY_MODES = new Set(['route', 'component', 'none']);
 const VALID_CSS_MODES = new Set(['inline', 'external']);
+const VALID_CSS_PREFLIGHT_MODES = new Set(['disabled', 'scoped', 'enabled']);
+const VALID_CSS_PROVIDER_FALLBACKS = new Set(['none', 'native']);
+const DEFAULT_CSS_PROVIDER = 'maraca-native';
 const VALID_COMPONENT_MODES = new Set(['document', 'all']);
 const VALID_STACK_MODES = new Set(['plan', 'runtime', 'full', 'none']);
 const VALID_ORCHESTRATION_MODES = new Set(['auto', 'strict', 'off']);
@@ -1798,6 +1813,21 @@ function normalizeOptions(input = {}, options = {}) {
   const profile = VALID_PROFILES.has(values.profile) ? values.profile : 'production';
   const lazy = VALID_LAZY_MODES.has(values.lazy) ? values.lazy : 'route';
   const css = VALID_CSS_MODES.has(values.css) ? values.css : 'inline';
+  const cssProvider = String(values.cssProvider || values['css-provider'] || DEFAULT_CSS_PROVIDER);
+  const cssInput = values.cssInput || values['css-input'] || null;
+  const cssSourcesValue = values.cssSources !== undefined ? values.cssSources : values['css-sources'];
+  const cssSources = (Array.isArray(cssSourcesValue) ? cssSourcesValue : (cssSourcesValue ? String(cssSourcesValue).split(',') : []))
+    .map((entry) => String(entry).trim())
+    .filter(Boolean);
+  const requestedCssPreflight = values.cssPreflight || values['css-preflight'];
+  const cssPreflight = VALID_CSS_PREFLIGHT_MODES.has(requestedCssPreflight) ? requestedCssPreflight : 'disabled';
+  const cssBudgetValue = values.cssBudget !== undefined ? values.cssBudget : values['css-budget'];
+  const cssBudget = Number.isFinite(Number(cssBudgetValue)) && Number(cssBudgetValue) > 0 ? Number(cssBudgetValue) : null;
+  const requestedCssProviderFallback = values.cssProviderFallback || values['css-provider-fallback'];
+  const cssProviderFallback = VALID_CSS_PROVIDER_FALLBACKS.has(requestedCssProviderFallback)
+    ? requestedCssProviderFallback
+    : 'none';
+  const cssProviderImplementation = values.cssProviderImplementation || values['css-provider-implementation'] || null;
   const vendor = toVendorBoolean(values.vendor || values['vendor-version']);
   const requestedComponentMode = values.components || values.componentMode || values['component-mode'];
   const componentMode = VALID_COMPONENT_MODES.has(requestedComponentMode)
@@ -1897,6 +1927,13 @@ function normalizeOptions(input = {}, options = {}) {
     profile,
     lazy,
     css,
+    cssProvider,
+    cssInput: cssInput ? String(cssInput) : null,
+    cssSources,
+    cssPreflight,
+    cssBudget,
+    cssProviderFallback,
+    cssProviderImplementation,
     vendor,
     componentMode,
     stackMode,
@@ -3880,9 +3917,213 @@ function createMaracaOrchestrationPlan(compileResult, coreDocument, componentRec
   };
 }
 
+function cssSourceRecord(sourcePath, rootDir, kind = 'content') {
+  const absolutePath = path.resolve(rootDir, sourcePath);
+  const relative = path.relative(rootDir, absolutePath);
+  const insideRoot = relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+  let sourceFingerprint = null;
+  if (insideRoot && fs.existsSync(absolutePath) && fs.statSync(absolutePath).isFile()) {
+    sourceFingerprint = hashText(fs.readFileSync(absolutePath));
+  }
+  return {
+    path: repoRelative(absolutePath, rootDir),
+    kind,
+    fingerprint: sourceFingerprint
+  };
+}
+
+function resolveCssProvider(normalized) {
+  const diagnostics = [];
+  let requestedProvider = normalized.cssProvider;
+  let resolvedProvider = requestedProvider;
+  let implementation = normalized.cssProviderImplementation;
+  if (requestedProvider === 'tailwind' && !implementation) {
+    const localAdapterPath = path.join(normalized.rootDir, 'xtend-maraca-css-tailwind');
+    try {
+      const adapter = fs.existsSync(path.join(localAdapterPath, 'index.js'))
+        ? require(localAdapterPath)
+        : require('@xtend-material/maraca-tailwind');
+      implementation = adapter.createTailwindCssProvider({ rootDir: normalized.rootDir });
+    } catch (error) {
+      diagnostics.push({
+        code: CSS_PROVIDER_UNAVAILABLE_CODE,
+        severity: 'error',
+        message: `Tailwind CSS provider could not load its local toolchain: ${error && error.message || 'unknown error'}`,
+        requestedProvider
+      });
+    }
+  }
+  if (requestedProvider === DEFAULT_CSS_PROVIDER) {
+    implementation = createNativeMaracaCssProvider();
+  } else if (!implementation || !implementation.contract || implementation.contract.id !== requestedProvider) {
+    if (normalized.cssProviderFallback === 'native') {
+      diagnostics.splice(0, diagnostics.length);
+      resolvedProvider = DEFAULT_CSS_PROVIDER;
+      implementation = createNativeMaracaCssProvider();
+      diagnostics.push({
+        code: 'xtend.maraca.css_provider.fallback',
+        severity: 'warning',
+        message: `CSS provider ${requestedProvider} is unavailable; explicit fallback maraca-native is active.`,
+        requestedProvider,
+        resolvedProvider
+      });
+    } else {
+      implementation = null;
+      if (!diagnostics.some((entry) => entry.code === CSS_PROVIDER_UNAVAILABLE_CODE)) diagnostics.push({
+        code: CSS_PROVIDER_UNAVAILABLE_CODE,
+        severity: 'error',
+        message: `CSS provider ${requestedProvider} is unavailable and no explicit fallback is configured.`,
+        requestedProvider
+      });
+    }
+  }
+  const validation = implementation ? validateCssProvider(implementation) : null;
+  if (validation && !validation.ok) diagnostics.push(...validation.diagnostics);
+  return {
+    requestedProvider,
+    resolvedProvider,
+    implementation,
+    contract: validation && validation.contract || null,
+    diagnostics
+  };
+}
+
+function createMaracaCssBuildPlan(normalized, sourceText = null) {
+  const resolution = resolveCssProvider(normalized);
+  const sourceRecords = [];
+  const seen = new Set();
+  const addSource = (record) => {
+    if (!record || !record.path || seen.has(record.path)) return;
+    seen.add(record.path);
+    sourceRecords.push(record);
+  };
+  addSource({
+    path: repoRelative(normalized.sourcePath, normalized.rootDir),
+    kind: 'rmt',
+    fingerprint: typeof sourceText === 'string'
+      ? hashText(sourceText)
+      : (fs.existsSync(normalized.sourcePath) ? hashText(fs.readFileSync(normalized.sourcePath)) : null)
+  });
+  normalized.cssSources.forEach((entry) => addSource(cssSourceRecord(entry, normalized.rootDir)));
+  if (normalized.cssInput) addSource(cssSourceRecord(normalized.cssInput, normalized.rootDir, 'css-input'));
+  const request = createCssBuildRequest({
+    provider: resolution.resolvedProvider,
+    mode: normalized.css,
+    input: normalized.cssInput,
+    output: normalized.css === 'external' ? 'xtend.maraca.css' : null,
+    profile: normalized.profile,
+    minify: normalized.profile !== 'debug',
+    strict: normalized.cssProviderFallback === 'none',
+    sources: sourceRecords,
+    sourcePolicy: {
+      root: repoRelative(normalized.rootDir, normalized.rootDir),
+      allow: sourceRecords.map((entry) => entry.path),
+      deny: [],
+      automaticDiscovery: normalized.cssPreflight === 'enabled'
+    },
+    metadata: {
+      requestedProvider: resolution.requestedProvider,
+      preflight: normalized.cssPreflight,
+      cssBudget: normalized.cssBudget
+    }
+  });
+  const requestValidation = validateCssBuildRequest(request);
+  const diagnostics = resolution.diagnostics.concat(requestValidation.diagnostics);
+  return {
+    schema: MARACA_CSS_BUILD_PLAN_SCHEMA,
+    status: diagnostics.some((entry) => entry.severity === 'error') ? 'blocked' : 'ready',
+    requestedProvider: resolution.requestedProvider,
+    resolvedProvider: resolution.resolvedProvider,
+    fallback: normalized.cssProviderFallback,
+    preflight: normalized.cssPreflight,
+    budgetBytes: normalized.cssBudget,
+    contract: resolution.contract,
+    request,
+    requestFingerprint: request.fingerprint,
+    configFingerprint: hashText(stableJson({
+      provider: resolution.resolvedProvider,
+      fallback: normalized.cssProviderFallback,
+      input: normalized.cssInput,
+      sources: sourceRecords,
+      preflight: normalized.cssPreflight,
+      budgetBytes: normalized.cssBudget,
+      mode: normalized.css
+    })),
+    evidence: null,
+    diagnostics
+  };
+}
+
+function enrichTailwindCssBuildPlan(cssBuild, normalized, sourceText, descriptors) {
+  if (!cssBuild || cssBuild.resolvedProvider !== 'tailwind') return cssBuild;
+  try {
+    const localAdapterPath = path.join(normalized.rootDir, 'xtend-maraca-css-tailwind');
+    const inventoryApi = fs.existsSync(path.join(localAdapterPath, 'source-inventory.js'))
+      ? require(path.join(localAdapterPath, 'source-inventory.js'))
+      : require('@xtend-material/maraca-tailwind/source-inventory');
+    const sourceDiagnostics = [];
+    if (normalized.cssPreflight !== 'disabled') sourceDiagnostics.push({
+      code: CSS_PROVIDER_SOURCE_BLOCKED_CODE,
+      severity: 'error',
+      message: `XTend Material Tailwind requires disabled Preflight; received ${normalized.cssPreflight}.`,
+      repairHint: 'Set cssPreflight to disabled and author only semantic xtm-* recipes.'
+    });
+    const sources = normalized.cssSources.map((sourcePath) => {
+      const absolutePath = path.resolve(normalized.rootDir, sourcePath);
+      const relative = path.relative(normalized.rootDir, absolutePath);
+      if (relative.startsWith('..') || path.isAbsolute(relative)) {
+        sourceDiagnostics.push({
+          code: 'rmt.css.utility.source_outside_policy',
+          severity: 'error',
+          message: `CSS source is outside the explicit Maraca root: ${sourcePath}`,
+          source: { file: sourcePath, line: null, column: null },
+          repairHint: 'Move the source below the application root and reference it explicitly with cssSources.'
+        });
+        return null;
+      }
+      return fs.existsSync(absolutePath) && fs.statSync(absolutePath).isFile()
+        ? { path: repoRelative(absolutePath, normalized.rootDir), content: fs.readFileSync(absolutePath, 'utf8') }
+        : null;
+    }).filter(Boolean);
+    const inventory = inventoryApi.createRmtCssSourceInventory({
+      sourceText,
+      filePath: repoRelative(normalized.sourcePath, normalized.rootDir),
+      sources,
+      descriptors,
+      diagnostics: sourceDiagnostics
+    });
+    const request = createCssBuildRequest({
+      ...cssBuild.request,
+      metadata: {
+        ...cssBuild.request.metadata,
+        candidates: inventory.candidates,
+        cssInventory: inventory
+      }
+    });
+    return {
+      ...cssBuild,
+      status: inventory.ok ? cssBuild.status : 'blocked',
+      request,
+      requestFingerprint: request.fingerprint,
+      configFingerprint: hashText(stableJson({ base: cssBuild.configFingerprint, inventoryFingerprint: inventory.fingerprint })),
+      inventory,
+      diagnostics: cssBuild.diagnostics.concat(inventory.diagnostics)
+    };
+  } catch (error) {
+    const diagnostic = {
+      code: CSS_PROVIDER_UNAVAILABLE_CODE,
+      severity: 'error',
+      message: `Tailwind source inventory is unavailable: ${error && error.message || 'unknown error'}`
+    };
+    return { ...cssBuild, status: 'blocked', diagnostics: cssBuild.diagnostics.concat(diagnostic) };
+  }
+}
+
 function createMaracaBuildPlan(input = {}, options = {}) {
   const normalized = normalizeOptions(input, options);
   const diagnostics = normalized.buildConfigDiagnostics.slice();
+  const initialCssBuild = createMaracaCssBuildPlan(normalized, normalized.sourceText);
+  diagnostics.push(...initialCssBuild.diagnostics);
 
   if (typeof normalized.sourceText !== 'string' && !fs.existsSync(normalized.sourcePath)) {
     const templateArtifacts = createMaracaTemplateArtifactsReport({
@@ -3908,6 +4149,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       profile: normalized.profile,
       lazy: normalized.lazy,
       css: normalized.css,
+      cssBuild: initialCssBuild,
       vendor: normalized.vendor,
       componentMode: normalized.componentMode,
       stackMode: normalized.stackMode,
@@ -3923,11 +4165,11 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       webAppManifest,
       pwa,
       outputDir: normalized.outputDir,
-      diagnostics: [{
+      diagnostics: diagnostics.concat({
         code: 'xtend.maraca.source_missing',
         severity: 'error',
         message: `RMT source not found: ${normalized.sourcePath}`
-      }],
+      }),
       toolchain: getMaracaToolchainAvailability(normalized.rootDir),
       components: { requiredTags: [], selected: [], unknown: [] },
       surfaces: [],
@@ -3987,6 +4229,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       profile: normalized.profile,
       lazy: normalized.lazy,
       css: normalized.css,
+      cssBuild: initialCssBuild,
       vendor: normalized.vendor,
       componentMode: normalized.componentMode,
       stackMode: normalized.stackMode,
@@ -4002,11 +4245,11 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       webAppManifest,
       pwa,
       outputDir: normalized.outputDir,
-      diagnostics: [{
+      diagnostics: diagnostics.concat({
         code: COMPILER_ERROR_CODE,
         severity: 'error',
         message: 'RMT vNext compiler did not produce a Core document.'
-      }].concat(compilerDiagnostics),
+      }, compilerDiagnostics),
       toolchain: getMaracaToolchainAvailability(normalized.rootDir),
       components: { requiredTags: [], selected: [], unknown: [] },
       surfaces: [],
@@ -4050,11 +4293,13 @@ function createMaracaBuildPlan(input = {}, options = {}) {
   });
   const componentManifest = loadComponentManifest(normalized.rootDir);
   const surfaces = collectSurfaces(coreDocument);
-  const descriptorTags = Array.from(collectBuildDescriptorTags(
-    compileResult.orchestrationArtifacts
-      && compileResult.orchestrationArtifacts.render
-      && compileResult.orchestrationArtifacts.render.descriptors
-  )).filter((tag) => componentManifest.byTag.has(tag) || isNativeMaracaComponentTag(tag));
+  const renderDescriptors = compileResult.orchestrationArtifacts
+    && compileResult.orchestrationArtifacts.render
+    && compileResult.orchestrationArtifacts.render.descriptors || [];
+  const cssBuild = enrichTailwindCssBuildPlan(initialCssBuild, normalized, sourceText, renderDescriptors);
+  diagnostics.push(...cssBuild.diagnostics.filter((entry) => !initialCssBuild.diagnostics.includes(entry)));
+  const descriptorTags = Array.from(collectBuildDescriptorTags(renderDescriptors))
+    .filter((tag) => componentManifest.byTag.has(tag) || isNativeMaracaComponentTag(tag));
   const requiredTags = Array.from(new Set(collectRequestedTags(surfaces, componentManifest, normalized).concat(descriptorTags))).sort();
   const componentRecords = createComponentRecords(requiredTags, componentManifest, normalized);
   diagnostics.push(...componentRecords.diagnostics);
@@ -4118,6 +4363,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
     profile: normalized.profile,
     lazy: normalized.lazy,
     css: normalized.css,
+    cssBuild,
     vendor: normalized.vendor,
     componentMode: normalized.componentMode,
     stackMode: normalized.stackMode,
@@ -4241,7 +4487,7 @@ function createCssText(plan = null) {
   return rules.join('');
 }
 
-function createBundleSource(plan) {
+function createBundleSource(plan, providerCssText = null) {
   const outDir = plan.outputDir;
   const stackEntries = (plan.stackModules || []).map((entry) => ({
     id: entry.id || entry.source,
@@ -4444,7 +4690,7 @@ function createBundleSource(plan) {
     bundleFiles: [],
     repoRoot: plan.rootDir || path.dirname(path.dirname(__filename))
   });
-  const css = createCssText(plan);
+  const css = typeof providerCssText === 'string' ? providerCssText : createCssText(plan);
   const header = [
     `const MARACA_COMPONENTS = Object.freeze(${jsValue(componentEntries)});`,
     `const MARACA_SURFACES = Object.freeze(${jsValue(surfaces)});`,
@@ -8025,6 +8271,12 @@ function createMaracaPwaReport(plan, bundleFiles = [], precacheUrls = []) {
     precacheUrls,
     precacheCount: precacheUrls.length,
     bundleFileCount: Array.isArray(bundleFiles) ? bundleFiles.length : 0,
+    cssBuild: plan && plan.cssBuild ? {
+      provider: plan.cssBuild.resolvedProvider,
+      mode: plan.css,
+      asset: plan.css === 'external' ? 'xtend.maraca.css' : null,
+      evidenceFingerprint: plan.cssBuild.evidence && plan.cssBuild.evidence.fingerprint || null
+    } : null,
     runtimeCaching: pwa.runtimeCaching,
     boundaries: pwa.boundaries,
     diagnostics: pwa.diagnostics || [],
@@ -8209,6 +8461,7 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
     profile: plan.profile,
     lazy: plan.lazy,
     css: plan.css,
+    cssBuild: plan.cssBuild || null,
     vendor: plan.vendor,
     componentMode: plan.componentMode,
     stackMode: plan.stackMode,
@@ -8416,15 +8669,20 @@ function createMaracaSizeBudgetReport(input) {
   }
   const baselineBytes = loaderBytes + selectedBytes + stackBytes + contractPayloadBytes;
   const bundleBytes = Number(input.entryBytes || 0);
+  const cssBytes = Number(plan.cssBuild && plan.cssBuild.evidence && plan.cssBuild.evidence.bytes || input.cssBytes || 0);
+  const cssBudgetBytes = Number(plan.cssBuild && plan.cssBuild.budgetBytes || 0) || null;
+  const cssWithinBudget = cssBudgetBytes === null || cssBytes <= cssBudgetBytes;
   const ratio = baselineBytes > 0 ? bundleBytes / baselineBytes : 1;
   const budgetMode = plan.sizeBudgetMode || 'strict';
   const enforced = plan.profile !== 'debug' && budgetMode === 'strict';
-  const ok = enforced ? baselineBytes > 0 && bundleBytes < baselineBytes : true;
+  const ok = (enforced ? baselineBytes > 0 && bundleBytes < baselineBytes : true) && cssWithinBudget;
 
   return {
     schema: MARACA_SIZE_BUDGET_REPORT_SCHEMA,
     ok,
-    status: enforced
+    status: !cssWithinBudget
+      ? 'css_over_budget'
+      : enforced
       ? (ok ? 'within_budget' : 'over_budget')
       : (budgetMode === 'off' ? 'disabled' : plan.profile === 'debug' ? 'debug_not_enforced' : 'warning_not_enforced'),
     profile: plan.profile,
@@ -8441,11 +8699,88 @@ function createMaracaSizeBudgetReport(input) {
     },
     baselineBytes,
     bundleBytes,
+    css: {
+      provider: plan.cssBuild && plan.cssBuild.resolvedProvider || DEFAULT_CSS_PROVIDER,
+      bytes: cssBytes,
+      budgetBytes: cssBudgetBytes,
+      withinBudget: cssWithinBudget,
+      requestFingerprint: plan.cssBuild && plan.cssBuild.requestFingerprint || null,
+      configFingerprint: plan.cssBuild && plan.cssBuild.configFingerprint || null,
+      evidenceFingerprint: plan.cssBuild && plan.cssBuild.evidence && plan.cssBuild.evidence.fingerprint || null,
+      outputFingerprint: plan.cssBuild && plan.cssBuild.evidence && plan.cssBuild.evidence.outputFingerprint || null,
+      sourceFingerprints: plan.cssBuild && plan.cssBuild.evidence && plan.cssBuild.evidence.sourceFingerprints || []
+    },
     ratio,
     budgets: {
       modernEsmEntryMustBeSmallerThanBaseline: enforced,
       enforcement: budgetMode
     }
+  };
+}
+
+function executeNativeCssProviderSync(plan) {
+  const cssText = createCssText(plan);
+  const artifact = createCssArtifact({
+    status: 'ready',
+    mode: plan.css,
+    fileName: plan.css === 'external' ? 'xtend.maraca.css' : null,
+    cssText
+  });
+  const providerPlan = {
+    schema: MARACA_CSS_BUILD_PLAN_SCHEMA,
+    status: 'ready',
+    provider: DEFAULT_CSS_PROVIDER,
+    mode: plan.css,
+    steps: ['create-native-css'],
+    fingerprint: hashText(stableJson({ provider: DEFAULT_CSS_PROVIDER, request: plan.cssBuild.requestFingerprint }))
+  };
+  const evidence = createCssBuildEvidence({
+    contract: plan.cssBuild.contract,
+    request: plan.cssBuild.request,
+    plan: providerPlan,
+    artifact,
+    status: 'ready',
+    diagnostics: plan.cssBuild.diagnostics
+  });
+  plan.cssBuild = {
+    ...plan.cssBuild,
+    status: 'ready',
+    providerPlan,
+    artifact: { ...artifact, cssText: undefined },
+    evidence,
+    lifecycle: ['inspect', 'plan', 'build', 'report', 'dispose']
+  };
+  return { ok: true, cssText, artifact, evidence };
+}
+
+async function executeCssProvider(plan, input, options) {
+  const normalized = normalizeOptions(input, options);
+  if (plan.cssBuild && plan.cssBuild.resolvedProvider !== normalized.cssProvider) {
+    normalized.cssProvider = plan.cssBuild.resolvedProvider;
+  }
+  const resolution = resolveCssProvider(normalized);
+  if (!resolution.implementation) {
+    return { ok: false, status: 'blocked', diagnostics: resolution.diagnostics };
+  }
+  const provider = resolution.resolvedProvider === DEFAULT_CSS_PROVIDER
+    ? createNativeMaracaCssProvider({ buildCss: () => createCssText(plan) })
+    : resolution.implementation;
+  const result = await runCssProviderLifecycle(provider, plan.cssBuild.request);
+  plan.cssBuild = {
+    ...plan.cssBuild,
+    status: result.status,
+    contract: result.contract,
+    inspection: result.inspection,
+    providerPlan: result.plan,
+    artifact: result.artifact ? { ...result.artifact, cssText: undefined } : null,
+    evidence: result.evidence,
+    diagnostics: result.diagnostics,
+    lifecycle: result.lifecycle
+  };
+  if (result.diagnostics.length > 0) plan.diagnostics.push(...result.diagnostics);
+  return {
+    ...result,
+    cssText: result.artifact && result.artifact.cssText || ''
   };
 }
 
@@ -8463,15 +8798,25 @@ function buildMaracaBundle(input = {}, options = {}) {
   }
 
   fs.mkdirSync(plan.outputDir, { recursive: true });
+  if (plan.cssBuild.resolvedProvider !== DEFAULT_CSS_PROVIDER) {
+    const diagnostic = {
+      code: 'xtend.maraca.css_provider.async_required',
+      severity: 'error',
+      message: `CSS provider ${plan.cssBuild.resolvedProvider} requires buildMaracaBundleAsync().`
+    };
+    plan.diagnostics.push(diagnostic);
+    return { schema: MARACA_BUNDLE_REPORT_SCHEMA, ok: false, status: 'css_provider_blocked', plan, bundleReport: null, sizeBudgetReport: null };
+  }
+  const cssResult = executeNativeCssProviderSync(plan);
   const kernelRuntimeAsset = copyKernelRuntimeAsset(plan);
   const kernelControllerRuntimeAsset = copyKernelControllerRuntimeAsset(plan);
   const entryPath = plan.outputs.entry;
-  const rawSource = createBundleSource(plan);
+  const rawSource = createBundleSource(plan, cssResult.cssText);
   const source = plan.profile === 'debug' ? rawSource : minifyLocalEsModule(rawSource);
   fs.writeFileSync(entryPath, `${source}\n`);
 
   if (plan.css === 'external' && plan.outputs.css) {
-    fs.writeFileSync(plan.outputs.css, `${createCssText(plan)}\n`);
+    fs.writeFileSync(plan.outputs.css, `${cssResult.cssText}\n`);
   }
 
   const entryBytes = fs.statSync(entryPath).size;
@@ -8489,7 +8834,11 @@ function buildMaracaBundle(input = {}, options = {}) {
     isDynamicEntry: false,
     imports: [],
     dynamicImports: []
-  }].concat(kernelControllerRuntimeAsset ? [kernelControllerRuntimeAsset] : []).concat(kernelRuntimeAsset ? [kernelRuntimeAsset] : []);
+  }];
+  if (plan.css === 'external' && plan.outputs.css) {
+    bundleFiles.push(createMaracaPwaAssetRecord(plan.outputs.css, path.basename(plan.outputs.css)));
+  }
+  bundleFiles = bundleFiles.concat(kernelControllerRuntimeAsset ? [kernelControllerRuntimeAsset] : []).concat(kernelRuntimeAsset ? [kernelRuntimeAsset] : []);
   const webAppManifestArtifacts = writeMaracaWebAppManifestArtifacts(plan, bundleFiles);
   bundleFiles = bundleFiles.concat(webAppManifestArtifacts.files);
   const pwaArtifacts = writeMaracaPwaArtifacts(plan, bundleFiles);
@@ -8526,10 +8875,22 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
     };
   }
 
+  const cssResult = await executeCssProvider(plan, input, options);
+  if (!cssResult.ok) {
+    return {
+      schema: MARACA_BUNDLE_REPORT_SCHEMA,
+      ok: false,
+      status: 'css_provider_failed',
+      plan,
+      bundleReport: null,
+      sizeBudgetReport: null
+    };
+  }
+
   fs.mkdirSync(plan.outputDir, { recursive: true });
   const kernelRuntimeAsset = copyKernelRuntimeAsset(plan);
   const kernelControllerRuntimeAsset = copyKernelControllerRuntimeAsset(plan);
-  const rawSource = createBundleSource(plan);
+  const rawSource = createBundleSource(plan, cssResult.cssText);
   let rollupResult;
 
   try {
@@ -8557,7 +8918,7 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   }
 
   if (plan.css === 'external' && plan.outputs.css) {
-    fs.writeFileSync(plan.outputs.css, `${createCssText(plan)}\n`);
+    fs.writeFileSync(plan.outputs.css, `${cssResult.cssText}\n`);
     const cssFile = {
       type: 'asset',
       fileName: path.basename(plan.outputs.css),
@@ -8626,7 +8987,13 @@ const MARACA_TUNE_SEMANTIC_KEYS = Object.freeze([
   'enablePwa',
   'enableServiceWorker',
   'enableWebAppManifest',
-  'allowDynamicComponents'
+  'allowDynamicComponents',
+  'cssProvider',
+  'cssInput',
+  'cssSources',
+  'cssPreflight',
+  'cssBudget',
+  'cssProviderFallback'
 ]);
 
 function maracaTuneCandidateId(profile, lazy, css) {
@@ -8689,6 +9056,7 @@ function maracaTuneCandidateRecord(result, requested) {
     metrics: {
       eagerBytes: files.filter((file) => file && file.isDynamicEntry !== true).reduce((sum, file) => sum + Number(file.bytes || 0), 0),
       totalBytes: Number(report && report.bytes || 0),
+      cssBytes: Number(result && result.sizeBudgetReport && result.sizeBudgetReport.css && result.sizeBudgetReport.css.bytes || 0),
       eagerRequests: files.filter((file) => file && file.isDynamicEntry !== true).length,
       chunkCount: files.filter((file) => file && file.type === 'chunk').length
     },
@@ -8794,7 +9162,13 @@ async function tuneMaracaBuild(input = {}, options = {}) {
     enablePwa: normalized.enablePwa,
     enableServiceWorker: normalized.enableServiceWorker,
     enableWebAppManifest: normalized.enableWebAppManifest,
-    allowDynamicComponents: normalized.allowDynamicComponents
+    allowDynamicComponents: normalized.allowDynamicComponents,
+    cssProvider: normalized.cssProvider,
+    cssInput: normalized.cssInput,
+    cssSources: normalized.cssSources,
+    cssPreflight: normalized.cssPreflight,
+    cssBudget: normalized.cssBudget,
+    cssProviderFallback: normalized.cssProviderFallback
   };
   const candidateDefinitions = [];
   ['production', 'max'].forEach((profile) => {

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-density="comfortable" data-material-pack="enterprise" data-maraca-runtime-ready="pending">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="xtend-material-runtime" content="xtend.material.workbench-runtime-host.v1">
+  <title>XTend Material Workbench Runtime</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/design-tokens/tailwind/xtend-material-theme.css">
+  <link rel="stylesheet" href="/xtend-material/styles.css">
+  <link rel="stylesheet" href="/products/xtend-material-workbench/site/workbench-theme.css">
+  <link rel="stylesheet" href="/products/xtend-material-workbench/site/workbench.css">
+</head>
+<body>
+  <div class="xtm-app-shell" data-container-layout>
+    <header class="xtm-top-app-bar">
+      <div class="xtm-brand"><span class="xtm-brand-mark" aria-hidden="true">XT</span><span class="xtm-brand-copy"><strong>Material Workbench</strong><span>Runtime diagnostics</span></span></div>
+      <span class="xtm-status-pill" role="status"><span class="xtm-status-dot" aria-hidden="true"></span><span>RMT boot probe</span></span>
+    </header>
+    <div class="xtm-workspace">
+      <nav class="xtm-navigation-rail" aria-label="Evidence navigation" data-state="open">
+        <p class="xtm-nav-label">Workspace</p>
+        <a class="xtm-nav-link" href="/products/xtend-material-workbench/site/index.html#evidence" data-route="evidence"><span class="xtm-nav-icon" aria-hidden="true">◫</span>Evidence</a>
+        <a class="xtm-nav-link" href="/products/xtend-material-workbench/site/index.html#lessons" data-route="lessons"><span class="xtm-nav-icon" aria-hidden="true">◇</span>Lessons</a>
+        <a class="xtm-nav-link" href="/products/xtend-material-workbench/site/index.html#settings" data-route="settings"><span class="xtm-nav-icon" aria-hidden="true">⚙</span>Settings</a>
+        <a class="xtm-nav-link" href="/products/xtend-material-workbench/site/runtime.html" data-route="runtime" aria-current="page"><span class="xtm-nav-icon" aria-hidden="true">⌁</span>Runtime</a>
+      </nav>
+      <main data-xtm-slot="primary" class="xtm-page xtm-stack">
+        <header class="xtm-page-intro"><p class="xtm-eyebrow">Maraca diagnostics</p><h1 class="xtm-title">RMT runtime surface</h1><p class="xtm-muted">Isolated orchestration evidence. Product navigation remains available in every reload state.</p></header>
+        <section class="xtm-runtime-dashboard" aria-label="Runtime diagnostics">
+          <article class="xtm-card xtm-runtime-diagnostic-card"><span class="xtm-detail-label">Orchestration</span><output id="xtm-runtime-boot-state" class="xtm-runtime-value">Pending</output><p class="xtm-muted">Maraca boot and orchestration state</p></article>
+          <article class="xtm-card xtm-runtime-diagnostic-card"><span class="xtm-detail-label">RMT surfaces</span><output id="xtm-runtime-surface-count" class="xtm-runtime-value">0</output><p class="xtm-muted">Connected materialized surfaces</p></article>
+          <article class="xtm-card xtm-runtime-diagnostic-card"><span class="xtm-detail-label">XTend DEV API</span><output id="xtm-runtime-dev-api-state" class="xtm-runtime-value">Pending</output><p class="xtm-muted">Synchronous v1 diagnostics contract</p></article>
+          <article class="xtm-card xtm-runtime-diagnostic-card"><span class="xtm-detail-label">Provider boundary</span><output class="xtm-runtime-value">Local</output><p class="xtm-muted">Air-gapped Tailwind build, zero browser runtime</p></article>
+        </section>
+        <div id="xtm-runtime-mount" class="xtm-runtime-mount" aria-hidden="true" inert><div id="xtend-material-workbench" data-maraca-root></div></div>
+        <output id="xtm-runtime-status" class="xtm-runtime-state">Runtime gate pending</output>
+      </main>
+      <aside class="xtm-detail-pane" aria-label="Runtime details" data-state="open"><div class="xtm-detail-section"><span class="xtm-detail-label">Boundary</span><h2 class="xtm-heading">Isolated host</h2><p class="xtm-muted">The production bundle boots here without replacing the composed evidence dashboard.</p></div></aside>
+    </div>
+  </div>
+  <script type="module" src="/products/xtend-material-workbench/src/workbench-runtime-host.mjs"></script>
+</body>
+</html>

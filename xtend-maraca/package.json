@@ -31,6 +31,10 @@
       "types": "./plan-runtime.d.ts",
       "default": "./plan-runtime.mjs"
     },
+    "./css-provider": {
+      "types": "./css-provider.d.ts",
+      "default": "./css-provider.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -40,6 +44,8 @@
     "runtime.d.ts",
     "plan-runtime.mjs",
     "plan-runtime.d.ts",
+    "css-provider.js",
+    "css-provider.d.ts",
     "README.md",
     "package.json"
   ],

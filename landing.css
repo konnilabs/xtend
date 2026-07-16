@@ -337,6 +337,11 @@ body::selection {
   --card-text-color: var(--landing-muted);
 }
 
+.landing-section x-card:hover,
+.landing-section x-card:focus-within {
+  transform: translateY(-6px);
+}
+
 .landing-section x-card h3,
 .path-card h3,
 .stack-flow h3 {

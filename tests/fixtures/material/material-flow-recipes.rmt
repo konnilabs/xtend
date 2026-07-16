@@ -1,0 +1,202 @@
+template material.enterprise.flows {
+  state material.flow.form type object preserve {
+    initial {
+      id "material-form-flow"
+      viewTemplate { class "xtm-form-flow" }
+    }
+  }
+  state material.flow.name type object preserve {
+    initial {
+      id "material-name"
+      field "name"
+      label "Name"
+      value ""
+      required true
+    }
+  }
+  state material.flow.email type object preserve {
+    initial {
+      id "material-email"
+      field "email"
+      label "Email"
+      value ""
+      inputType "email"
+      required true
+    }
+  }
+  state material.flow.submit type object preserve {
+    initial {
+      id "material-submit"
+      text "Continue"
+      tone "primary"
+      disabled true
+    }
+  }
+  state material.flow.feedback type object preserve {
+    initial {
+      id "material-feedback"
+      text "Complete the required fields."
+      tone "neutral"
+      viewTemplate { class "xtm-feedback-stack" }
+    }
+  }
+  state material.flow.dashboard type object preserve {
+    initial {
+      id "material-dashboard"
+      viewTemplate { class "xtm-dashboard" }
+    }
+  }
+  state material.flow.content type object preserve {
+    initial {
+      id "material-content-page"
+      viewTemplate { class "xtm-content-page" }
+    }
+  }
+  state material.flow.settings type object preserve {
+    initial {
+      id "material-settings-page"
+      viewTemplate { class "xtm-settings-page" }
+    }
+  }
+  state material.flow.empty type object preserve {
+    initial {
+      id "material-empty-state"
+      text "No results available."
+      tone "neutral"
+      viewTemplate { class "xtm-empty-state" }
+    }
+  }
+  state material.flow.confirmation type object preserve {
+    initial {
+      id "material-confirmation-flow"
+      title "Confirm changes"
+      open false
+      viewTemplate { class "xtm-confirmation-flow" }
+    }
+  }
+  state material.flow.toast type object preserve {
+    initial {
+      id "material-success-toast"
+      text "Changes saved."
+      tone "success"
+      open false
+    }
+  }
+
+  selector material.flow.form from state material.flow.form { output MaterialFormFlow }
+  selector material.flow.name from state material.flow.name { output MaterialFormField }
+  selector material.flow.email from state material.flow.email { output MaterialFormField }
+  selector material.flow.submit from state material.flow.submit { output MaterialFlowCommand }
+  selector material.flow.feedback from state material.flow.feedback { output MaterialFeedback }
+  selector material.flow.dashboard from state material.flow.dashboard { output MaterialDashboard }
+  selector material.flow.content from state material.flow.content { output MaterialContent }
+  selector material.flow.settings from state material.flow.settings { output MaterialSettings }
+  selector material.flow.empty from state material.flow.empty { output MaterialEmptyState }
+  selector material.flow.confirmation from state material.flow.confirmation { output MaterialConfirmation }
+  selector material.flow.toast from state material.flow.toast { output MaterialToast }
+
+  validation material.flow.contact {
+    mode blocking
+    target action material.flow.confirm
+    field material.flow.name required message "Enter a name."
+    field material.flow.email required email message "Enter a valid email address."
+  }
+
+  action material.flow.updateName {
+    input value string
+    reduce state.material.flow.name.value = input.value
+  }
+  action material.flow.updateEmail {
+    input value string
+    reduce state.material.flow.email.value = input.value
+  }
+  action material.flow.confirm {
+    input label string
+    reduce state.material.flow.feedback.text = "Ready for confirmation."
+    reduce state.material.flow.feedback.tone = "success"
+    reduce state.material.flow.confirmation.open = true
+  }
+  action material.flow.complete {
+    input label string
+    reduce state.material.flow.confirmation.open = false
+    reduce state.material.flow.toast.open = true
+  }
+
+  portal material.flow.root root "#material-flow-app" layer surface
+
+  surface material.flow.form kind window component x-form {
+    source selector material.flow.form
+    key form.id
+    portal material.flow.root
+    lane visible weight 100 { hydrate material-form-flow from selector material.flow.form }
+  }
+  surface material.flow.name kind field component x-input {
+    source selector material.flow.name
+    key name.id
+    portal material.flow.root
+    lane visible weight 90 { hydrate material-name from selector material.flow.name }
+    on input-changed "#material-name" -> action material.flow.updateName { payload value from detail.value }
+  }
+  surface material.flow.email kind field component x-input {
+    source selector material.flow.email
+    key email.id
+    portal material.flow.root
+    lane visible weight 90 { hydrate material-email from selector material.flow.email }
+    on input-changed "#material-email" -> action material.flow.updateEmail { payload value from detail.value }
+  }
+  surface material.flow.submit kind action component x-button {
+    source selector material.flow.submit
+    key submit.id
+    portal material.flow.root
+    lane visible weight 85 { mount material-submit from selector material.flow.submit }
+    on click "#material-submit" -> action material.flow.confirm {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+  surface material.flow.feedback kind card component x-status {
+    source selector material.flow.feedback
+    key feedback.id
+    portal material.flow.root
+    lane visible weight 80 { hydrate material-feedback from selector material.flow.feedback }
+  }
+  surface material.flow.dashboard kind card component x-cards {
+    source selector material.flow.dashboard
+    key dashboard.id
+    portal material.flow.root
+    lane visible weight 70 { hydrate material-dashboard from selector material.flow.dashboard }
+  }
+  surface material.flow.content kind content component x-summary {
+    source selector material.flow.content
+    key content.id
+    portal material.flow.root
+    lane visible weight 70 { hydrate material-content-page from selector material.flow.content }
+  }
+  surface material.flow.settings kind window component x-form {
+    source selector material.flow.settings
+    key settings.id
+    portal material.flow.root
+    lane visible weight 70 { hydrate material-settings-page from selector material.flow.settings }
+  }
+  surface material.flow.empty kind card component x-alert {
+    source selector material.flow.empty
+    key empty.id
+    portal material.flow.root
+    lane visible weight 55 { hydrate material-empty-state from selector material.flow.empty }
+  }
+  surface material.flow.confirmation kind modal component x-dialog {
+    source selector material.flow.confirmation
+    key confirmation.id
+    portal material.flow.root
+    lane transition weight 80 { hydrate material-confirmation-flow from selector material.flow.confirmation }
+    on click "[data-action='confirm']" -> action material.flow.complete {
+      payload label from target.dataset.label
+    }
+  }
+  surface material.flow.toast kind toast component x-toast {
+    source selector material.flow.toast
+    key toast.id
+    portal material.flow.root
+    lane idle weight 40 { hydrate material-flow-toast from selector material.flow.toast }
+  }
+}

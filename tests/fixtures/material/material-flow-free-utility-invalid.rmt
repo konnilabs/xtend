@@ -1,0 +1,16 @@
+template material.flow.invalidUtility {
+  state material.flow.invalid type object preserve {
+    initial {
+      id "invalid-flow"
+      viewTemplate { class "xtm-form-flow p-4" }
+    }
+  }
+  selector material.flow.invalid from state material.flow.invalid { output InvalidMaterialFlow }
+  portal material.flow.invalidRoot root "#material-flow-invalid" layer surface
+  surface material.flow.invalid kind window component x-form {
+    source selector material.flow.invalid
+    key invalid.id
+    portal material.flow.invalidRoot
+    lane visible { hydrate invalid-flow from selector material.flow.invalid }
+  }
+}

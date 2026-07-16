@@ -11,6 +11,7 @@ Snapshot Automation materialisiert definierte Fixture-Zustände, wartet auf stab
 - `tests/browser/visual_snapshot_automation_suite.js` prüft den Automation-Vertrag.
 - `tests/browser/visual_snapshots_suite.js` führt die eigentlichen Vergleiche aus.
 - `.xtend-test-results/` enthält Reports und erzeugte Evidence, nicht die Source of Truth der UI.
+- Der lokale Runner veröffentlicht den stabilen Contract `xtend.epic12.visual-snapshot-runner.v1`.
 
 ## Empfohlener Ablauf
 
@@ -18,6 +19,12 @@ Prüfe Vertrag und Runner zusammen:
 
 ```bash
 node scripts/run_xtend_tests.js visual-snapshot-automation visual-snapshots --json
+```
+
+Der Runner kann auch isoliert geprüft werden:
+
+```bash
+node scripts/run_xtend_tests.js visual-snapshots --json
 ```
 
 Ein Timeout weist meist auf ein nicht definiertes Element, laufende Animation oder fehlende Fixture-Bereitschaft hin. Stabilisiere den Zustand explizit. Maskiere keine dynamischen Bereiche, die für Nutzer sichtbar und produktrelevant sind.

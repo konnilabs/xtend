@@ -1,0 +1,34 @@
+{
+  "schema": "xtend.material.browser-baseline.v1",
+  "evidenceSchema": "xtend.material.browser-evidence.v1",
+  "baselineType": "dom-interaction-and-viewport-screenshot-contract",
+  "matrixCellCount": 384,
+  "dimensions": {
+    "themes": ["light", "dark", "high-contrast", "forced-colors"],
+    "densities": ["comfortable", "compact", "dense"],
+    "viewports": [
+      { "id": "narrow-mobile", "width": 360, "height": 800 },
+      { "id": "tablet", "width": 768, "height": 900 },
+      { "id": "desktop", "width": 1280, "height": 900 },
+      { "id": "wide-desktop", "width": 1600, "height": 1000 }
+    ],
+    "motions": ["standard", "reduced"],
+    "scenarios": ["app-shell", "form-flow", "dashboard", "dialog-toast"]
+  },
+  "expected": {
+    "horizontalOverflow": false,
+    "landmarkOrder": true,
+    "keyboardFocus": true,
+    "focusVisible": true,
+    "focusRestore": true,
+    "statusAnnouncements": true,
+    "readable": true,
+    "privateShadowRootAccess": false
+  },
+  "screenshotBaselines": [
+    { "id": "narrow-mobile", "width": 360, "height": 800, "artifact": ".xtend-test-results/material-browser-evidence/narrow-mobile.png", "scenarios": ["app-shell", "form-flow", "dashboard", "dialog-toast"] },
+    { "id": "tablet", "width": 768, "height": 900, "artifact": ".xtend-test-results/material-browser-evidence/tablet.png", "scenarios": ["app-shell", "form-flow", "dashboard", "dialog-toast"] },
+    { "id": "desktop", "width": 1280, "height": 900, "artifact": ".xtend-test-results/material-browser-evidence/desktop.png", "scenarios": ["app-shell", "form-flow", "dashboard", "dialog-toast"] },
+    { "id": "wide-desktop", "width": 1600, "height": 1000, "artifact": ".xtend-test-results/material-browser-evidence/wide-desktop.png", "scenarios": ["app-shell", "form-flow", "dashboard", "dialog-toast"] }
+  ]
+}

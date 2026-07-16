@@ -1,0 +1,15 @@
+{
+  "schema": "xtend.material.performance-fixture.v1",
+  "referenceApps": [
+    {
+      "id": "utility-app",
+      "sources": ["xtend-builder/templates/app/material-app.template.rmt"],
+      "cssInput": "xtend-builder/templates/app/material-app.template.css"
+    },
+    {
+      "id": "enterprise-workspace",
+      "sources": ["tests/fixtures/material/material-app-shell.rmt", "tests/fixtures/material/material-flow-recipes.rmt"],
+      "cssInput": "xtend-builder/templates/app/material-app.template.css"
+    }
+  ]
+}

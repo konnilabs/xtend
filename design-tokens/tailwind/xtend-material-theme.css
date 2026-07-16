@@ -1,0 +1,94 @@
+/* Runtime packs: x-theme remains the owner of product tokens. */
+:root,
+:where([data-material-pack="enterprise"]) {
+  --xtm-pack-surface: var(--xtend-surface-panel, Canvas);
+  --xtm-pack-raised-surface: var(--xtend-surface-raised, Canvas);
+  --xtm-pack-border: var(--xtend-border-subtle, CanvasText);
+  --xtm-pack-elevation: var(--xtend-elevation-1, none);
+  --xtm-pack-radius: var(--xtend-radius-panel, 10px);
+  --xtm-pack-space: var(--xtend-space-3, 1.125rem);
+}
+
+:where([data-material-pack="utility"]) {
+  --xtm-pack-surface: var(--xtend-surface-page, Canvas);
+  --xtm-pack-raised-surface: var(--xtend-surface-panel, Canvas);
+  --xtm-pack-border: var(--xtend-border-strong, CanvasText);
+  --xtm-pack-elevation: var(--xtend-elevation-0, none);
+  --xtm-pack-radius: var(--xtend-radius-control, 6px);
+  --xtm-pack-space: var(--xtend-space-2, 0.75rem);
+}
+
+:where([data-theme="light"]) { color-scheme: light; }
+:where([data-theme="dark"]) { color-scheme: dark; }
+:where([data-theme="high-contrast"], [data-theme="forced-colors"]) { color-scheme: light dark; }
+
+:where([data-density="comfortable"]) { --xtm-density-space: var(--xtend-density-spacing, 0.75rem); }
+:where([data-density="compact"]) { --xtm-density-space: var(--xtend-density-spacing, 0.5rem); }
+:where([data-density="dense"]) { --xtm-density-space: var(--xtend-density-spacing, 0.375rem); }
+
+:where(.xtm-app-shell) {
+  background: var(--xtend-surface-page, Canvas);
+  color: var(--xtend-text-primary, CanvasText);
+  font-family: var(--xtend-font-family-body, system-ui, sans-serif);
+}
+
+:where(.xtm-surface, .xtm-card, .xtm-toolbar) {
+  background: var(--xtm-pack-surface, var(--xtend-surface-panel, Canvas));
+  border-color: var(--xtm-pack-border, var(--xtend-border-subtle, CanvasText));
+  border-radius: var(--xtm-pack-radius, var(--xtend-radius-panel, 10px));
+  box-shadow: var(--xtm-pack-elevation, var(--xtend-elevation-1, none));
+}
+
+:where(.xtm-page, .xtm-surface, .xtm-card, .xtm-toolbar) {
+  padding: var(--xtm-density-space, var(--xtm-pack-space, var(--xtend-density-spacing, 0.75rem)));
+}
+
+:where(.xtm-stack, .xtm-stack-compact, .xtm-cluster, .xtm-grid, .xtm-actions, .xtm-toolbar) {
+  gap: var(--xtm-density-space, var(--xtend-density-spacing, 0.75rem));
+}
+
+:where(.xtm-title, .xtm-heading) {
+  color: var(--xtend-text-primary, CanvasText);
+  font-family: var(--xtend-font-family-heading, system-ui, sans-serif);
+}
+
+:where(.xtm-body) { color: var(--xtend-text-primary, CanvasText); }
+:where(.xtm-muted) { color: var(--xtend-text-muted, CanvasText); }
+
+:where(.xtm-primary-action) {
+  min-height: var(--xtend-control-height, 2.5rem);
+  background: var(--xtend-color-action, Highlight);
+  color: var(--xtend-text-on-action, HighlightText);
+  border-radius: var(--xtend-radius-control, 6px);
+  transition-duration: var(--xtend-motion-duration-fast, 160ms);
+  transition-timing-function: var(--xtend-motion-easing-standard, ease);
+}
+
+:where(.xtm-primary-action):hover { background: var(--xtend-color-action-hover, Highlight); }
+:where(.xtm-primary-action):focus-visible {
+  outline: var(--xtend-focus-ring, 2px solid Highlight);
+  outline-offset: var(--xtend-focus-outline-offset, 2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.xtm-primary-action) {
+    animation-duration: var(--xtend-motion-duration-instant, 0ms);
+    transition-duration: var(--xtend-motion-duration-instant, 0ms);
+  }
+}
+
+@media (forced-colors: active) {
+  :where(.xtm-app-shell, .xtm-surface, .xtm-card, .xtm-toolbar) {
+    background: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+    box-shadow: none;
+    forced-color-adjust: auto;
+  }
+  :where(.xtm-primary-action) {
+    background: ButtonFace;
+    color: ButtonText;
+    border: 1px solid ButtonText;
+  }
+  :where(.xtm-primary-action):focus-visible { outline-color: Highlight; }
+}

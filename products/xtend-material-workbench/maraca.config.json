@@ -1,0 +1,23 @@
+{
+  "schema": "xtend.maraca.build-config.v1",
+  "generatedBy": "XTend Scaffold XTM-09",
+  "catfoodingOwner": "XTM-12",
+  "options": {
+    "source": "src/app.rmt",
+    "out": "dist",
+    "profile": "production",
+    "lazy": "route",
+    "css": "external",
+    "cssProvider": "tailwind",
+    "cssInput": "src/app.css",
+    "cssSources": ["src/app.rmt", "src/app.css"],
+    "cssPreflight": "disabled",
+    "cssProviderFallback": "none",
+    "sizeBudget": "strict",
+    "orchestration": "strict",
+    "kernel": "strict",
+    "hydration": "strict",
+    "validation": "strict",
+    "transitions": "strict"
+  }
+}

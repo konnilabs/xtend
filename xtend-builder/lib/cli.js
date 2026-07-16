@@ -133,9 +133,10 @@ function buildHelpText() {
     '',
     'Usage:',
     '  xt --help',
+    '  xt create app --runtime maraca --design-kit material --out material-app --write --json',
     '  xt validate --json',
     '  xt maraca plan app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --json',
-    '  xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --out dist --profile production --lazy route --css external --pwa --json',
+    '  xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --out dist --profile production --lazy route --css external --css-provider maraca-native --pwa --json',
     '  xt maraca build app.rmt --out dist --web-app-manifest --json',
     '  xt maraca build app.rmt --vendor xtend --out products/xtend-vendor-maraca --lazy none --json',
     '  xt maraca tune app.rmt --config maraca.config.json --out dist --write --json',
@@ -180,6 +181,7 @@ function buildHelpText() {
     '',
     'Commands:',
     '  help      Print this help text.',
+    '  create app Create an ownership-guarded app preset; Material requires --runtime maraca --design-kit material.',
     '  layout    Print the reserved scaffold project layout.',
     '  config    Print the current scaffold configuration summary.',
     '  blueprint Print the component blueprint contract.',
@@ -307,6 +309,7 @@ function buildConfigSummary() {
     typing: config.typing,
     preview: config.preview,
     rmtAppBuild: config.rmtAppBuild,
+    materialAppScaffold: config.materialAppScaffold,
     rmtAppPlatformTooling: config.rmtAppPlatformTooling,
     rmtCompatibility: config.rmtCompatibility,
     extensions: config.extensions,
@@ -365,6 +368,53 @@ function runCli(args = process.argv.slice(2), io = {}) {
     writeLine(stdout, `CLI entry point: ${summary.entryPoints && summary.entryPoints.cli}`);
     writeLine(stdout, `Legacy CLI entry point: ${summary.entryPoints && summary.entryPoints.legacyCli}`);
     return 0;
+  }
+
+  if (command === 'create') {
+    const subcommand = options.rest[0] || 'help';
+    if (subcommand === 'help' || options.help) {
+      writeLine(stdout, [
+        'XTend App Scaffold',
+        '',
+        'Usage:',
+        '  xt create app --runtime maraca --design-kit material --out material-app --write --json',
+        '  xt create app --runtime maraca --design-kit material --out material-app --check --json',
+        '',
+        'Material preset:',
+        '  Generates RMT, CSS, Maraca config, package manifest and smoke test.',
+        '  Uses cssProvider=tailwind with explicit local sources and disabled Preflight.',
+        '  Dry-run is the default; --write records ownership and --check detects drift.',
+        '  Other design-kit presets never activate or install Tailwind through this command.'
+      ].join('\n'));
+      return 0;
+    }
+    if (subcommand !== 'app') {
+      writeLine(stderr, `Unknown XTend create command: ${subcommand}`);
+      writeLine(stderr, 'Run `xt create --help` to see available app presets.');
+      return 1;
+    }
+    const flags = parseFlagArgs(options.rest.slice(1));
+    flags.json = options.json || flags.json;
+    flags.rootDir = process.cwd();
+    const result = runGenerator('material-app', flags);
+    if (flags.json || options.json) {
+      writeLine(stdout, JSON.stringify(result, null, 2));
+    } else if (result.ok) {
+      writeLine(stdout, `XTend Material App Scaffold: ${result.status}`);
+      writeLine(stdout, `Output: ${result.outputDir}`);
+      result.files.forEach((file) => writeLine(stdout, `${file.action.padEnd(10)} ${file.path}`));
+      (result.diagnostics || []).forEach((diagnostic) => {
+        writeLine(stderr, `${String(diagnostic.severity || 'info').toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`);
+        if (diagnostic.repairHint) writeLine(stderr, `  Repair: ${diagnostic.repairHint}`);
+      });
+    } else {
+      (result.diagnostics || []).forEach((diagnostic) => {
+        writeLine(stderr, `${String(diagnostic.severity || 'info').toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`);
+        if (diagnostic.repairHint) writeLine(stderr, `  Repair: ${diagnostic.repairHint}`);
+      });
+      (result.errors || []).forEach((error) => writeLine(stderr, error));
+    }
+    return result.ok ? 0 : 1;
   }
 
   if (command === 'blueprint') {
@@ -641,7 +691,7 @@ function runCli(args = process.argv.slice(2), io = {}) {
         '',
         'Usage:',
         '  xt maraca plan app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --json',
-        '  xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --out dist --profile production --lazy route --css inline --pwa --json',
+        '  xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --out dist --profile production --lazy route --css inline --css-provider maraca-native --pwa --json',
         '  xt maraca build app.rmt --out dist --manifest --json',
         '  xt maraca build app.rmt --vendor xtend --out products/xtend-vendor-maraca --lazy none --json',
         '  xt maraca tune app.rmt --config maraca.config.json --out dist --write --json',
@@ -649,7 +699,15 @@ function runCli(args = process.argv.slice(2), io = {}) {
         'Commands:',
         '  plan   Compile an RMT document into a loaderless modern-ESM bundle plan.',
         '  build  Build a loaderless modern-ESM app entry and Maraca reports.',
-        '  tune   Evaluate twelve production candidates and write or check a build config.'
+        '  tune   Evaluate twelve production candidates and write or check a build config.',
+        '',
+        'CSS provider options:',
+        '  --css-provider <id>              Build-time CSS provider (default: maraca-native).',
+        '  --css-input <path>               Explicit provider input stylesheet.',
+        '  --css-sources <paths>            Comma-separated content/source paths.',
+        '  --css-preflight <mode>           disabled, scoped, or enabled.',
+        '  --css-budget <bytes>              Maximum provider CSS bytes.',
+        '  --css-provider-fallback native   Explicit fallback; omitted means fail closed.'
       ].join('\n'));
       return 0;
     }

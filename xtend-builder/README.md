@@ -95,6 +95,19 @@ node xtend-builder/scaffold.js rmt-app-platform \
 
 The generic `rmt-build` command emits core JSON, an XTend custom element, an app module, an HTTP host, a browser-smoke fixture, and a scaffold report. `rmt-app-platform` adds App Platform diagnostics and source maps.
 
+#### Create an XTend Material Maraca app
+
+```bash
+# Inspect the five-file plan without writing
+xt create app --runtime maraca --design-kit material --out material-app --json
+
+# Write under app-local ownership, then verify idempotence
+xt create app --runtime maraca --design-kit material --out material-app --write --json
+xt create app --runtime maraca --design-kit material --out material-app --check --json
+```
+
+The explicit Material preset generates RMT, CSS, `maraca.config.json`, `package.json`, and a smoke test. Tailwind and the Maraca adapter are development-only dependencies, source discovery is explicit, and Preflight is disabled. Other presets are not routed through this generator and never activate Tailwind implicitly.
+
 #### Build a Maraca bundle
 
 ```bash
@@ -323,6 +336,19 @@ node xtend-builder/scaffold.js rmt-app-platform \
 ```
 
 Der generische `rmt-build` erzeugt Core JSON, XTend Custom Element, App-Modul, HTTP-Host, Browser-Smoke-Fixture und Scaffold Report. `rmt-app-platform` ergänzt App-Platform-Diagnosen und Source Maps.
+
+#### XTend-Material-Maraca-App erzeugen
+
+```bash
+# Fünf Dateien planen, ohne zu schreiben
+xt create app --runtime maraca --design-kit material --out material-app --json
+
+# Mit app-lokaler Ownership schreiben und Idempotenz prüfen
+xt create app --runtime maraca --design-kit material --out material-app --write --json
+xt create app --runtime maraca --design-kit material --out material-app --check --json
+```
+
+Das explizite Material-Preset erzeugt RMT, CSS, `maraca.config.json`, `package.json` und einen Smoke Test. Tailwind und der Maraca-Adapter sind ausschließlich Development Dependencies, Sources werden explizit angegeben und Preflight bleibt deaktiviert. Andere Presets laufen nicht durch diesen Generator und aktivieren Tailwind niemals implizit.
 
 #### Maraca-Bundle bauen
 

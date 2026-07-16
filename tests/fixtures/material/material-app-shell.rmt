@@ -1,0 +1,75 @@
+template material.enterprise.appShell {
+  state material.shell.appShellRecord type object preserve {
+    initial {
+      id "material-app-shell"
+      viewTemplate { class "xtm-app-shell" }
+    }
+  }
+  state material.shell.topAppBarRecord type object preserve {
+    initial {
+      id "material-top-app-bar"
+      viewTemplate { class "xtm-top-app-bar" }
+    }
+  }
+  state material.shell.workspaceRecord type object preserve {
+    initial {
+      id "material-workspace"
+      viewTemplate { class "xtm-workspace" }
+    }
+  }
+  state material.shell.navigationRecord type object preserve {
+    initial {
+      id "material-navigation-rail"
+      viewTemplate { class "xtm-navigation-rail" }
+    }
+  }
+  state material.shell.detailRecord type object preserve {
+    initial {
+      id "material-detail-pane"
+      viewTemplate { class "xtm-detail-pane" }
+    }
+  }
+
+  selector material.shell.appShell from state material.shell.appShellRecord { output MaterialAppShell }
+  selector material.shell.topAppBar from state material.shell.topAppBarRecord { output MaterialTopAppBar }
+  selector material.shell.workspace from state material.shell.workspaceRecord { output MaterialWorkspace }
+  selector material.shell.navigation from state material.shell.navigationRecord { output MaterialNavigation }
+  selector material.shell.detail from state material.shell.detailRecord { output MaterialDetail }
+
+  portal material.shell.root root "#material-app" layer surface
+
+  surface material.shell.app kind workspace component x-surface-manager {
+    source selector material.shell.appShell
+    key appShell.id
+    portal material.shell.root
+    lane visible weight 100 { hydrate material-app-shell from selector material.shell.appShell }
+  }
+
+  surface material.shell.header kind content component x-header {
+    source selector material.shell.topAppBar
+    key topAppBar.id
+    portal material.shell.root
+    lane visible weight 95 { hydrate material-top-app-bar from selector material.shell.topAppBar }
+  }
+
+  surface material.shell.navigation kind navigation component x-drawer {
+    source selector material.shell.navigation
+    key navigation.id
+    portal material.shell.root
+    lane visible weight 80 { hydrate material-navigation-rail from selector material.shell.navigation }
+  }
+
+  surface material.shell.workspace kind content component x-surface-region {
+    source selector material.shell.workspace
+    key workspace.id
+    portal material.shell.root
+    lane visible weight 90 { hydrate material-workspace from selector material.shell.workspace }
+  }
+
+  surface material.shell.detail kind side-panel component x-side-panel {
+    source selector material.shell.detail
+    key detail.id
+    portal material.shell.root
+    lane visible weight 70 { hydrate material-detail-pane from selector material.shell.detail }
+  }
+}

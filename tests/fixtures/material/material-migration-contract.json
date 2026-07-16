@@ -1,0 +1,22 @@
+{
+  "schema": "xtend.material.migration-fixture.v1",
+  "legacyMappings": [
+    { "legacy": "app-shell", "recipe": "xtm-app-shell" },
+    { "legacy": "app-header", "recipe": "xtm-top-app-bar" },
+    { "legacy": "sidebar", "recipe": "xtm-navigation-rail" },
+    { "legacy": "workspace", "recipe": "xtm-workspace" },
+    { "legacy": "content-grid", "recipe": "xtm-dashboard" },
+    { "legacy": "profile-form", "recipe": "xtm-form-flow" },
+    { "legacy": "save-message", "recipe": "xtm-feedback-stack" }
+  ],
+  "expectedSemanticClasses": [
+    "xtm-app-shell",
+    "xtm-top-app-bar",
+    "xtm-navigation-rail",
+    "xtm-workspace",
+    "xtm-dashboard",
+    "xtm-form-flow",
+    "xtm-feedback-stack"
+  ],
+  "preservedRecords": ["states", "selectors", "actions", "validations", "transitions", "surfaces"]
+}

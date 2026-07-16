@@ -1,0 +1,4 @@
+/* Scaffold-owned, air-gapped Tailwind input. Product authors use xtm-* recipes in RMT. */
+@layer theme, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);

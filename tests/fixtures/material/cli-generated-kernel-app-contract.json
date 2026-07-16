@@ -1,0 +1,71 @@
+{
+  "schema": "xtend.material.cli-generated-app-contract.v1",
+  "workpackage": "XTM-14",
+  "owner": "CCS Labs (ccslabs)",
+  "supportStatus": "supported-opt-in",
+  "cliEntrypoint": "xtend-builder/bin/xt.js",
+  "acceptanceSequence": [
+    ["create", "app", "--runtime", "maraca", "--design-kit", "material", "--write", "--json"],
+    ["maraca", "plan", "--config", "maraca.config.json", "--json"],
+    ["maraca", "build", "--config", "maraca.config.json", "--json"],
+    ["maraca", "tune", "src/app.rmt", "--config", "maraca.tuned.config.json", "--write", "--json"]
+  ],
+  "generatedAuthoringFiles": [
+    "maraca.config.json",
+    "package.json",
+    "site/index.html",
+    "src/app.css",
+    "src/app.rmt",
+    "src/material-dev-api.mjs",
+    "src/material-runtime-host.mjs",
+    "test/material-app.smoke.test.cjs"
+  ],
+  "requiredModes": {
+    "orchestration": "strict",
+    "kernel": "strict",
+    "hydration": "strict",
+    "validation": "strict",
+    "transitions": "strict"
+  },
+  "minimumSurfaceCount": 14,
+  "browserMatrix": [
+    { "id": "desktop-light", "theme": "light", "route": "dashboard", "width": 1440, "height": 1000 },
+    { "id": "compact-dark", "theme": "dark", "route": "details", "width": 500, "height": 844 },
+    { "id": "desktop-high-contrast", "theme": "high-contrast", "route": "dashboard", "width": 1440, "height": 1000 },
+    { "id": "interaction", "driver": "chromium-devtools-protocol", "flow": "validation-focus-confirmation" }
+  ],
+  "requiredMaterialClasses": [
+    "xtm-app-shell",
+    "xtm-top-app-bar",
+    "xtm-navigation-rail",
+    "xtm-workspace",
+    "xtm-dashboard",
+    "xtm-content-page",
+    "xtm-card",
+    "xtm-form-flow",
+    "xtm-primary-action",
+    "xtm-feedback-stack",
+    "xtm-confirmation-flow",
+    "xtm-empty-state"
+  ],
+  "forbiddenSourcePatterns": [
+    "https?://",
+    "cdn.tailwindcss.com",
+    "@tailwindcss/browser",
+    "class \"(?:flex|grid|p-[0-9]|m-[0-9])"
+  ],
+  "requiredDevApiMethods": [
+    "getPerformanceSnapshot",
+    "getFabricTelemetrySnapshot",
+    "getKernelSnapshot",
+    "getHydrationSnapshot"
+  ],
+  "negativeCases": [
+    "authored-hash-drift",
+    "free-tailwind-utility",
+    "provider-unavailable",
+    "remote-css-source",
+    "preflight-enabled",
+    "kernel-disabled"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "name": "@ccslabs/xtend-material-workbench",
+  "version": "0.1.0",
+  "private": true,
+  "description": "XTM-12 catfooding product for XTend Material evidence, recipes and lessons.",
+  "scripts": {
+    "plan": "xt maraca plan --config maraca.config.json --json",
+    "build": "xt maraca build --config maraca.config.json --json",
+    "tune": "xt maraca tune src/app.rmt --config maraca.tuned.config.json --out dist --write --json",
+    "test": "node --test test/material-workbench.test.cjs"
+  },
+  "dependencies": {
+    "@ccslabs/xtend": "^0.3.1",
+    "@ccslabs/xtend-maraca": "^0.3.1",
+    "@xtend-material/core": "^0.1.0"
+  },
+  "devDependencies": {
+    "@ccslabs/xtend-cli": "^0.3.1",
+    "@xtend-material/maraca-tailwind": "^0.1.0",
+    "tailwindcss": "4.3.2"
+  },
+  "engines": { "node": ">=18" },
+  "xtend": {
+    "schema": "xtend.material.catfooding-product.v1",
+    "ticket": "XTM-12",
+    "runtime": "maraca",
+    "designKit": "material",
+    "scaffoldLineage": "xtend.scaffold.app-preset.material.v1",
+    "browserTailwindRuntime": false,
+    "monkeypatchingAllowed": false
+  }
+}

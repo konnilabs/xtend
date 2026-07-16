@@ -2644,6 +2644,74 @@
     }
   },
   {
+    "slug": "xtend-material",
+    "id": "docs.xtend.material",
+    "label": "XTend Material",
+    "group": "maraca",
+    "parent": "xtend-maraca",
+    "tier": "basic",
+    "rank": 99,
+    "labels": {
+      "de": "XTend Material",
+      "en": "XTend Material"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "maraca",
+    "keywords": {
+      "de": [
+        "XTend Material",
+        "Design Kit",
+        "Tailwind",
+        "Recipes",
+        "Themes",
+        "Dichte",
+        "Maraca"
+      ],
+      "en": [
+        "XTend Material",
+        "design kit",
+        "Tailwind",
+        "recipes",
+        "themes",
+        "density",
+        "Maraca"
+      ]
+    }
+  },
+  {
+    "slug": "xtend-material-migration",
+    "id": "docs.xtend.material.migration",
+    "label": "XTend Material Migration",
+    "group": "maraca",
+    "parent": "xtend-material",
+    "tier": "deep-dive",
+    "rank": 97,
+    "labels": {
+      "de": "XTend-Material-Migration",
+      "en": "XTend Material Migration"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "maraca",
+    "keywords": {
+      "de": [
+        "XTend-Material-Migration",
+        "Legacy CSS",
+        "nativer Provider",
+        "Tailwind Exit",
+        "Recipes"
+      ],
+      "en": [
+        "XTend Material migration",
+        "legacy CSS",
+        "native provider",
+        "Tailwind exit",
+        "recipes"
+      ]
+    }
+  },
+  {
     "slug": "xtend-maraca-orchestration",
     "id": "docs.xtend.maraca.orchestration",
     "label": "Maraca Orchestration",

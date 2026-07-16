@@ -25,6 +25,9 @@ const {
 const {
   createRmtKernelLabReport
 } = require('./rmt-kernel-lab');
+const {
+  createMaterialAppScaffold
+} = require('./material-app');
 
 const GENERATOR_REGISTRY_SCHEMA = 'xtend.scaffold.generator-registry.v1';
 
@@ -100,6 +103,14 @@ const GENERATORS = [
     owner: 'RMT-KernelLab',
     description: 'Analyzes the bundled RMT kernel and builds the clean Dashboard-free standard kernel artifacts.',
     run: createRmtKernelLabReport
+  },
+  {
+    id: 'material-app',
+    command: 'create-app',
+    status: 'productive-material-maraca-app-scaffold',
+    owner: 'XTM-09',
+    description: 'Creates an ownership-guarded XTend Material Maraca app with local Tailwind build tooling.',
+    run: createMaterialAppScaffold
   }
 ];
 

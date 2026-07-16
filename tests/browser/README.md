@@ -84,6 +84,14 @@ node scripts/run_xtend_tests.js design-tokens --json
 
 That gate validates `xtend.design-tokens.product-contract.v1`, `x-theme.getDesignTokenContract()`, `design-tokens/themes/enterprise-light.json`, shared `--xtend-*` token names in Theme Matrix and Visual Snapshot fixtures, and the absence of fixture-local token names in the visual gates.
 
+XTend Material browser evidence has a real local Chromium gate:
+
+```bash
+node scripts/run_xtend_tests.js xtend-material-browser-evidence visual-snapshots component-runtime-a11y --json
+```
+
+The `xtend.material.browser-evidence.v1` report covers 384 Material matrix cells and writes four viewport screenshots below `.xtend-test-results/material-browser-evidence/`. The committed JSON baseline tracks stable DOM, interaction and screenshot dimensions; support browsers without a deterministic hypervisor adapter remain named residuals.
+
 SurfaceManager Quality Gates have their own local gate:
 
 ```bash

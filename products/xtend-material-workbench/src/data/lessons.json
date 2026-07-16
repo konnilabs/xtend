@@ -1,0 +1,88 @@
+{
+  "schema": "xtend.material.catfooding-lessons.v1",
+  "ticket": "XTM-12",
+  "lessons": [
+    {
+      "id": "XTM12-L01",
+      "title": "Small apps retain the complete native recipe fallback",
+      "classification": "design-kit-local",
+      "decision": "accepted",
+      "owner": "@xtend-material/core",
+      "target": "XTM-13/tree-shaking-guidance",
+      "evidence": "XTM-11 utility-app unusedRecipeRatio=0.8077",
+      "rationale": "Keep the reliable native fallback for MVP and document selective recipe packaging before changing output semantics."
+    },
+    {
+      "id": "XTM12-L02",
+      "title": "Evidence projection belongs to the product adapter",
+      "classification": "app-local",
+      "decision": "accepted",
+      "owner": "products/xtend-material-workbench",
+      "target": "products/xtend-material-workbench/src/data/evidence.json",
+      "evidence": "XTM-10 and XTM-11 reports have stable public schemas",
+      "rationale": "Mapping report data into dashboard copy is product behavior, not a new framework primitive."
+    },
+    {
+      "id": "XTM12-L03",
+      "title": "A dedicated KPI recipe is unnecessary",
+      "classification": "rejected",
+      "decision": "rejected",
+      "owner": "XTM-12",
+      "target": null,
+      "evidence": "xtm-dashboard plus xtm-card composes all required KPI surfaces",
+      "rationale": "Adding a special KPI recipe would duplicate existing composition and increase the public vocabulary."
+    },
+    {
+      "id": "XTM12-L04",
+      "title": "Browser-direct hosts must install concrete product tokens",
+      "classification": "app-local",
+      "decision": "accepted",
+      "owner": "products/xtend-material-workbench",
+      "target": "products/xtend-material-workbench/site/workbench-theme.css",
+      "evidence": "Initial QS rendered Canvas fallbacks through the operating-system dark color scheme",
+      "rationale": "The Material pack consumes the public XTend token contract; choosing concrete enterprise-light values remains an application responsibility."
+    },
+    {
+      "id": "XTM12-L05",
+      "title": "Browser evidence must reject unresolved visual fallbacks",
+      "classification": "framework-native",
+      "decision": "implemented-upstream",
+      "owner": "tests/products/xtend_material_catfooding_suite.js",
+      "target": "XTM-12/browser-visual-contract",
+      "evidence": "The previous landmark-only screenshot gate passed while the product rendered system colors, an initially open dialog and a cropped nominal 390px headless viewport",
+      "rationale": "The Catfooding browser gate now blocks unless computed product colors, light color scheme, initial dialog state, overflow and the browser's effective viewport match the declared visual contract."
+    },
+    {
+      "id": "XTM12-L06",
+      "title": "Diagnostic runtime hosts must preserve product-shell navigation",
+      "classification": "app-local",
+      "decision": "accepted",
+      "owner": "products/xtend-material-workbench",
+      "target": "products/xtend-material-workbench/site/runtime.html",
+      "evidence": "The initial navigation correction kept links in the DOM, but anchor navigation scrolled the document-level sidebar out of the viewport because the workspace only declared min-height",
+      "rationale": "The workspace now owns a viewport-bounded scroll container, only the primary slot scrolls, diagnostics retain full product links and the browser gate measures actual navigation visibility after every directly loaded SPA route."
+    },
+    {
+      "id": "XTM12-L07",
+      "title": "HTML evidence projections must not impersonate an instrumented XTend app",
+      "classification": "app-local",
+      "decision": "accepted",
+      "owner": "products/xtend-material-workbench",
+      "target": "products/xtend-material-workbench/src/workbench-dev-api.mjs",
+      "evidence": "The HTML-only dashboard exposed a partial __XTEND_DEV_API__ object and caused required-method errors in XTend DevTools",
+      "rationale": "The projection now exposes no DEV API; the isolated Maraca runtime host owns a complete synchronous v1 adapter backed by current browser, Fabric, Kernel and Hydration state."
+    },
+    {
+      "id": "XTM12-L08",
+      "title": "A flat runtime surface graph is diagnostics state, not an application layout",
+      "classification": "app-local",
+      "decision": "accepted",
+      "owner": "products/xtend-material-workbench",
+      "target": "products/xtend-material-workbench/site/runtime.html",
+      "evidence": "Rendering all 15 independently materialized RMT surfaces directly produced overlapping component shells, shadows and controls",
+      "rationale": "The connected surface graph remains mounted in an inert one-pixel runtime boundary while a composed diagnostics dashboard presents live boot, surface and DEV API state without private component styling."
+    }
+  ],
+  "frameworkNativeLessonCount": 1,
+  "undecidedLessonCount": 0
+}

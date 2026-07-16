@@ -1,0 +1,6 @@
+{
+  "schema": "xtend.material.flow-negative-fixture.v1",
+  "mutation": "missing-component",
+  "recipeId": "material.form-flow",
+  "component": "x-autocomplete"
+}

@@ -86,6 +86,30 @@ npm run test:regression-priority
 node scripts/run_xtend_tests.js regression-priority --json
 ```
 
+Run the complete XTend Material Chromium, responsive, accessibility and screenshot evidence gate:
+
+```bash
+npm run test:xtend-material-browser-evidence
+```
+
+Run the XTend Material quality, performance, supply-chain and anti-monkeypatching gate:
+
+```bash
+npm run test:xtend-material-performance
+```
+
+Run the XTM-12 Material Workbench Catfooding gate (RMT/Maraca build, 12-candidate tune check, browser screenshots, lessons and ownership):
+
+```bash
+npm run test:xtend-material-catfooding
+```
+
+Run the XTM-13 bilingual Material docs, bidirectional migration and supported-opt-in release gate:
+
+```bash
+npm run test:xtend-material-docs
+```
+
 Run the XTend-Fabric runtime gates:
 
 ```bash

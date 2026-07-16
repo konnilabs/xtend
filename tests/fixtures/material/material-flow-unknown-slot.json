@@ -1,0 +1,6 @@
+{
+  "schema": "xtend.material.flow-negative-fixture.v1",
+  "mutation": "unknown-slot",
+  "recipeId": "material.dashboard",
+  "slot": "data-grid"
+}

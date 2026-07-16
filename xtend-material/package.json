@@ -1,0 +1,57 @@
+{
+  "name": "@xtend-material/core",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Minimal, enterprise-ready XTend Material design kit for elegant application shells and surfaces.",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": { "types": "./index.d.ts", "default": "./index.js" },
+    "./recipes": { "types": "./recipes.d.ts", "default": "./recipes.js" },
+    "./shell-recipes": { "types": "./shell-recipes.d.ts", "default": "./shell-recipes.js" },
+    "./flow-recipes": { "types": "./flow-recipes.d.ts", "default": "./flow-recipes.js" },
+    "./performance-contract": { "types": "./performance-contract.d.ts", "default": "./performance-contract.js" },
+    "./maraca-preset": { "types": "./maraca-preset.d.ts", "default": "./maraca-preset.js" },
+    "./styles.css": "./styles.css",
+    "./tokens.css": "./tokens.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "index.js",
+    "index.d.ts",
+    "recipes.js",
+    "recipes.d.ts",
+    "shell-recipes.js",
+    "shell-recipes.d.ts",
+    "flow-recipes.js",
+    "flow-recipes.d.ts",
+    "performance-contract.js",
+    "performance-contract.d.ts",
+    "maraca-preset.js",
+    "maraca-preset.d.ts",
+    "styles.css",
+    "tokens.css"
+  ],
+  "sideEffects": ["*.css"],
+  "dependencies": {
+    "tailwindcss": "4.3.2"
+  },
+  "peerDependencies": {
+    "@ccslabs/xtend": "^0.3.1"
+  },
+  "engines": { "node": ">=18" },
+  "publishConfig": { "access": "public", "provenance": true },
+  "xtend": {
+    "schema": "xtend.material.design-kit.v1",
+    "owner": "CCS Labs (ccslabs)",
+    "supportStatus": "supported-opt-in",
+    "releaseLine": "0.1.x",
+    "runtimeBoundary": "css-and-metadata-only",
+    "componentRegistry": false,
+    "browserTailwindRuntime": false
+  }
+}

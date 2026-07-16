@@ -4,6 +4,7 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 
 ## Unreleased
 
+- XTend Material als `supported-opt-in` Fast Path dokumentiert: zweisprachiger Quick Start, bidirektionale Migration, Compatibility Matrix, SemVer Policy, Package-Changelogs und Tailwind-Upgrade-Runbook ergänzen die XTM-00-bis-XTM-12-Evidence; ein Framework-Default bleibt ohne separaten ADR ausgeschlossen.
 - SchemaDB v2 ergaenzt authoritative Fingerprints, Versionsfamilien, Lifecycle-, Alias- und Konsolidierungsentscheidungen sowie einen maschinenlesbaren Dubletten-Audit.
 - Die identischen Chart-, Leaflet-, React-, Three- und Vue-Cleanup-Records werden unter `xtend.xtensions.host-resource-cleanup-record.v1` gebuendelt. Die bisherigen IDs bleiben fuer zwei Minor-Warnfenster als exakte Aliase lesbar; ihre Entfernung ist fruehestens in einem folgenden Major erlaubt.
 - `xtend.xtensions.host-controller-cleanup-record.v1` bleibt als separater sechs-feldriger Vertrag ohne `xtensionId` bestehen.

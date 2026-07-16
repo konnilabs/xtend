@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-density="comfortable" data-material-pack="enterprise">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="xtend-material-workbench" content="xtend.material.catfooding-product.v1">
+  <title>XTend Material Workbench</title>
+  <link rel="icon" href="data:,">
+  <!-- Direct-browser QS uses the concrete local bridge artifact; tokens.css keeps its npm-resolved import for build pipelines. -->
+  <link rel="stylesheet" href="/design-tokens/tailwind/xtend-material-theme.css">
+  <link rel="stylesheet" href="/xtend-material/styles.css">
+  <link rel="stylesheet" href="/products/xtend-material-workbench/site/workbench-theme.css">
+  <link rel="stylesheet" href="/products/xtend-material-workbench/site/workbench.css">
+</head>
+<body>
+  <div id="xtend-material-workbench" class="xtm-app-shell" data-container-layout data-xtm-visual-ready="pending">
+    <header class="xtm-top-app-bar">
+      <div class="xtm-brand">
+        <span class="xtm-brand-mark" aria-hidden="true">XT</span>
+        <span class="xtm-brand-copy"><strong>Material Workbench</strong><span>Quality operations</span></span>
+      </div>
+      <div class="xtm-header-actions">
+        <span class="xtm-status-pill" role="status" aria-live="polite"><span class="xtm-status-dot" aria-hidden="true"></span><span>All gates passing</span></span>
+      </div>
+    </header>
+    <div class="xtm-workspace">
+      <nav class="xtm-navigation-rail" aria-label="Evidence navigation" data-state="open">
+        <p class="xtm-nav-label">Workspace</p>
+        <a class="xtm-nav-link" href="#evidence" data-route="evidence" aria-current="page"><span class="xtm-nav-icon" aria-hidden="true">◫</span>Evidence</a>
+        <a class="xtm-nav-link" href="#lessons" data-route="lessons"><span class="xtm-nav-icon" aria-hidden="true">◇</span>Lessons</a>
+        <a class="xtm-nav-link" href="#settings" data-route="settings"><span class="xtm-nav-icon" aria-hidden="true">⚙</span>Settings</a>
+      </nav>
+      <main data-xtm-slot="primary" class="xtm-page xtm-stack">
+        <header class="xtm-page-intro">
+          <p class="xtm-eyebrow">XTM-12 Catfooding</p>
+          <h1 class="xtm-title">Quality evidence</h1>
+          <p class="xtm-muted">A calm operational view of the current XTend Material fast path.</p>
+        </header>
+
+        <section id="evidence" class="xtm-dashboard" aria-labelledby="evidence-title">
+          <article data-xtm-slot="summary" class="xtm-card xtm-dashboard-summary">
+            <div class="xtm-summary-copy">
+              <h2 id="evidence-title" class="xtm-heading">Release candidate is ready for review</h2>
+              <p class="xtm-body">Browser, performance and anti-monkeypatching gates pass against the local air-gapped toolchain.</p>
+              <div class="xtm-summary-meta"><span class="xtm-chip">supported-opt-in</span><span class="xtm-chip">Tailwind 4.3.2</span><span class="xtm-chip">Maraca tuned</span></div>
+            </div>
+          </article>
+          <div data-xtm-slot="primary" class="xtm-grid">
+            <article class="xtm-card xtm-metric-card"><div class="xtm-metric-header"><span>Browser coverage</span><span class="xtm-metric-icon" aria-hidden="true">▦</span></div><div><div class="xtm-metric-value">384</div><div class="xtm-metric-note">Matrix cells verified</div></div></article>
+            <article class="xtm-card xtm-metric-card"><div class="xtm-metric-header"><span>Runtime footprint</span><span class="xtm-metric-icon" aria-hidden="true">↯</span></div><div><div class="xtm-metric-value">0 B</div><div class="xtm-metric-note">Tailwind in the browser</div></div></article>
+            <article class="xtm-card xtm-metric-card"><div class="xtm-metric-header"><span>Accessibility</span><span class="xtm-metric-icon" aria-hidden="true">✓</span></div><div><div class="xtm-metric-value">0</div><div class="xtm-metric-note">Severe findings</div></div></article>
+          </div>
+          <aside data-xtm-slot="secondary" class="xtm-card xtm-build-card"><div><h2 class="xtm-heading">Deterministic build</h2><p class="xtm-muted">Air-gapped provider closure</p></div><div class="xtm-progress" aria-label="Build gate completion" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><span></span></div><p class="xtm-muted">12 of 12 tune candidates accepted</p></aside>
+        </section>
+
+        <form class="xtm-form-flow xtm-filter-bar" aria-labelledby="filter-title">
+          <div class="xtm-inline-field"><div><h2 id="filter-title" class="xtm-heading">Filter lessons</h2><p class="xtm-muted">Narrow the decision inventory</p></div><label class="xtm-field-label">Classification<select><option>All decisions</option><option>Design-kit local</option><option>App local</option><option>Rejected</option></select></label></div>
+          <button class="xtm-primary-action" type="button" commandfor="review-dialog" command="show-modal">Review evidence</button>
+        </form>
+
+        <section id="lessons" class="xtm-content-page" aria-labelledby="lessons-title">
+          <header data-xtm-slot="header"><h2 id="lessons-title" class="xtm-title">Lessons</h2><p class="xtm-muted">Resolved findings with explicit ownership</p></header>
+          <div data-xtm-slot="body" class="xtm-content-layout">
+            <div class="xtm-lesson-list">
+              <article class="xtm-surface xtm-lesson-card"><h3 class="xtm-heading">Native fallback inventory</h3><p class="xtm-body">Tree-shaking guidance is assigned to XTM-13.</p><div class="xtm-lesson-meta"><span class="xtm-chip">design-kit local</span><span class="xtm-chip">accepted</span></div></article>
+              <article class="xtm-surface xtm-lesson-card"><h3 class="xtm-heading">Evidence projection</h3><p class="xtm-body">Report-to-dashboard mapping remains app-local.</p><div class="xtm-lesson-meta"><span class="xtm-chip">app local</span><span class="xtm-chip">accepted</span></div></article>
+            </div>
+            <aside class="xtm-card xtm-side-card" aria-label="Decision summary"><h3 class="xtm-heading">Decision health</h3><div class="xtm-review-row"><span>Owned</span><strong>3 / 3</strong></div><div class="xtm-review-row"><span>Undecided</span><strong>0</strong></div><div class="xtm-review-row"><span>Upstream</span><strong>0 open</strong></div></aside>
+          </div>
+          <aside data-xtm-slot="aside" class="xtm-card"><p class="xtm-muted">No undecided upstream lesson.</p></aside>
+        </section>
+
+        <section id="settings" class="xtm-settings-page" aria-labelledby="settings-title"><h2 id="settings-title" class="xtm-heading">Workbench settings</h2><div data-xtm-slot="groups"><label class="xtm-check"><input type="checkbox" checked> Show performance evidence</label></div></section>
+        <section class="xtm-empty-state" aria-label="Unresolved lessons"><span class="xtm-empty-icon" aria-hidden="true">✓</span><h2 class="xtm-heading">No unresolved lessons</h2><p class="xtm-muted">Every identified lesson has a decision and owner.</p></section>
+
+        <dialog id="review-dialog" class="xtm-confirmation-flow" aria-labelledby="review-title"><span class="xtm-dialog-icon" aria-hidden="true">✓</span><h2 id="review-title" class="xtm-heading">Review evidence</h2><p class="xtm-body">Confirm that the current Catfooding evidence is ready for the next quality run.</p><form method="dialog" class="xtm-dialog-actions"><button class="xtm-secondary-action" value="cancel">Cancel</button><button class="xtm-primary-action" value="confirm">Confirm</button></form></dialog>
+        <div class="xtm-feedback-stack" role="status" aria-live="polite"><p class="xtm-muted">Evidence data loaded from stable XTM schemas.</p></div>
+        <output id="xtm-browser-status" class="xtm-browser-status">Visual gate pending</output>
+      </main>
+      <aside class="xtm-detail-pane" aria-label="Evidence details" data-state="open">
+        <div class="xtm-detail-section"><span class="xtm-detail-label">Current run</span><h2 class="xtm-heading">Material fast path</h2><p class="xtm-muted">Enterprise light · comfortable density</p></div>
+        <div class="xtm-detail-section"><span class="xtm-detail-label">Runtime</span><div class="xtm-runtime-state">Maraca/RMT bundle verified</div><a class="xtm-runtime-link" href="/products/xtend-material-workbench/site/runtime.html" target="_blank" rel="noopener">Open runtime diagnostics</a></div>
+        <div class="xtm-detail-section"><span class="xtm-detail-label">Quality gates</span><div class="xtm-review-row"><span>Browser</span><strong>Passed</strong></div><div class="xtm-review-row"><span>Performance</span><strong>Passed</strong></div><div class="xtm-review-row"><span>Ownership</span><strong>Passed</strong></div></div>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="/products/xtend-material-workbench/src/workbench-navigation.mjs"></script>
+  <script type="module" src="/products/xtend-material-workbench/src/workbench-visual-gate.mjs"></script>
+</body>
+</html>

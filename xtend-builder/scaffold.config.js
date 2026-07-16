@@ -52,7 +52,7 @@ module.exports = {
   },
   namingConventions: {
     componentTagPattern: "^x-[a-z0-9]+(?:-[a-z0-9]+)*$",
-    commandNames: ["help", "layout", "config", "blueprint", "generators", "templates", "component-plan", "component-files", "typing", "preview", "extensions", "workflow", "verify", "validate"],
+    commandNames: ["help", "create", "layout", "config", "blueprint", "generators", "templates", "component-plan", "component-files", "typing", "preview", "extensions", "workflow", "verify", "validate"],
     commandAliases: {
       validate: "verify"
     },
@@ -81,6 +81,7 @@ module.exports = {
     componentPerformance: "xtend-builder/performance/component-performance-profile.js",
     rmtBuild: "xtend-builder/generators/rmt-build.js",
     rmtAppPlatform: "xtend-builder/generators/rmt-app-platform.js",
+    materialApp: "xtend-builder/generators/material-app.js",
     mode: "plan-dry-run-render-type-preview-extension-and-write-plan-contract",
     defaultCommand: "component-plan",
     fileOutputMode: "dry-run-render-or-write-with-feature-type-preview-extension-ownership-manifest-patch-and-build-report"
@@ -100,6 +101,18 @@ module.exports = {
     ownership: "xtend.scaffold.generated-ownership.v1",
     httpServerCompatible: true,
     networkPolicy: "repo-local-assets-only"
+  },
+  materialAppScaffold: {
+    schema: "xtend.scaffold.app-preset.material.v1",
+    reportSchema: "xtend.scaffold.app-preset.material-report.v1",
+    generator: "xtend-builder/generators/material-app.js",
+    command: "xt create app --runtime maraca --design-kit material --out material-app --write --json",
+    checkCommand: "xt create app --runtime maraca --design-kit material --out material-app --check --json",
+    templateRoot: "xtend-builder/templates/app/",
+    cssProvider: "tailwind",
+    preflight: "disabled",
+    ownership: "xtend.scaffold.generated-ownership.v1",
+    localGate: "node scripts/run_xtend_tests.js xtend-material-scaffold maraca-rmt-source-to-bundle scaffold-ownership --json"
   },
   rmtAppPlatformTooling: {
     schema: "xtend.epic18.rmt-app-platform-tooling.v1",

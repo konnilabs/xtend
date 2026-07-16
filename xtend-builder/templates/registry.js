@@ -105,6 +105,62 @@ const TEMPLATE_REGISTRY = [
     path: 'xtend-builder/templates/app/rmt-owned-business-adapter.template.mjs',
     status: 'implemented-runtime-ownership',
     purpose: 'Business adapter stub for RMT-owned apps; intentionally contains no product UI DOM wiring.'
+  },
+  {
+    id: 'app.material.rmt',
+    artifact: 'material-app-rmt',
+    path: 'xtend-builder/templates/app/material-app.template.rmt',
+    status: 'implemented-XTM-09',
+    purpose: 'Declarative XTend Material App Shell and content starter for Maraca.'
+  },
+  {
+    id: 'app.material.css',
+    artifact: 'material-app-css',
+    path: 'xtend-builder/templates/app/material-app.template.css',
+    status: 'implemented-XTM-09',
+    purpose: 'Local Material token/style entry with an explicit RMT source.'
+  },
+  {
+    id: 'app.material.maraca-config',
+    artifact: 'material-maraca-config',
+    path: 'xtend-builder/templates/app/material-maraca-config.template.json',
+    status: 'implemented-XTM-09',
+    purpose: 'Air-gapped Maraca Tailwind build configuration with explicit sources.'
+  },
+  {
+    id: 'app.material.package',
+    artifact: 'material-package',
+    path: 'xtend-builder/templates/app/material-package.template.json',
+    status: 'implemented-XTM-09',
+    purpose: 'Material app package manifest with local plan, build, tune and test scripts.'
+  },
+  {
+    id: 'app.material.smoke',
+    artifact: 'material-smoke',
+    path: 'xtend-builder/templates/app/material-smoke.template.cjs',
+    status: 'implemented-XTM-09',
+    purpose: 'Dependency-free generated Material app contract smoke test.'
+  },
+  {
+    id: 'app.material.browser-host',
+    artifact: 'material-browser-host',
+    path: 'xtend-builder/templates/app/material-browser-host.template.html',
+    status: 'implemented-XTM-14',
+    purpose: 'Generated browser host for the CLI-owned Maraca runtime bundle.'
+  },
+  {
+    id: 'app.material.runtime-host',
+    artifact: 'material-runtime-host',
+    path: 'xtend-builder/templates/app/material-runtime-host.template.mjs',
+    status: 'implemented-XTM-14',
+    purpose: 'Generated bootstrap for strict Kernel-orchestrated Material apps.'
+  },
+  {
+    id: 'app.material.dev-api',
+    artifact: 'material-dev-api',
+    path: 'xtend-builder/templates/app/material-dev-api.template.mjs',
+    status: 'implemented-XTM-14',
+    purpose: 'Complete synchronous XTend DEV API projection owned by the generated runtime host.'
   }
 ];
 

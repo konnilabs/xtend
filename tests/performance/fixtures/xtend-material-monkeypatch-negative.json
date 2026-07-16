@@ -1,0 +1,11 @@
+{
+  "schema": "xtend.material.monkeypatch-negative-fixture.v1",
+  "cases": [
+    { "id": "prototype", "content": "HTMLElement.prototype.focus = patchedFocus;", "code": "xtend.material.monkeypatch.prototype-mutation" },
+    { "id": "registry", "content": "customElements.define = wrappedDefine;", "code": "xtend.material.monkeypatch.registry-replacement" },
+    { "id": "shadow", "content": "const root = host.shadowRoot;", "code": "xtend.material.monkeypatch.private-shadow-access" },
+    { "id": "dom-sink", "content": "surface.innerHTML = payload;", "code": "xtend.material.monkeypatch.unsafe-dom-sink" },
+    { "id": "style-injection", "content": "document.head.append(style);", "code": "xtend.material.monkeypatch.global-style-injection" },
+    { "id": "runtime-tailwind", "content": "const tailwind = require('tailwindcss');", "runtime": true, "code": "xtend.material.monkeypatch.tailwind-runtime-import" }
+  ]
+}

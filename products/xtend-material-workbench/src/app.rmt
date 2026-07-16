@@ -1,0 +1,270 @@
+// XTM-12 Catfooding product, evolved from the XTM-09 material-maraca-app scaffold.
+template xtend.material.workbench {
+  state workbench.shell type object preserve {
+    initial {
+      id "workbench-shell"
+      viewTemplate { class "xtm-app-shell" }
+    }
+  }
+  state workbench.header type object preserve {
+    initial {
+      id "workbench-header"
+      title "XTend Material Workbench"
+      viewTemplate { class "xtm-top-app-bar" }
+    }
+  }
+  state workbench.workspace type object preserve {
+    initial {
+      id "workbench-workspace"
+      viewTemplate { class "xtm-workspace" }
+    }
+  }
+  state workbench.navigation type object preserve {
+    initial {
+      id "workbench-navigation"
+      label "Evidence navigation"
+      open true
+      viewTemplate { class "xtm-navigation-rail" }
+    }
+  }
+  state workbench.dashboard type object preserve {
+    initial {
+      id "workbench-dashboard"
+      title "Quality evidence"
+      text "XTM-10 and XTM-11 are passing."
+      viewTemplate { class "xtm-dashboard" }
+    }
+  }
+  state workbench.summary type object preserve {
+    initial {
+      id "workbench-summary"
+      title "384 browser cells"
+      text "Four viewports, zero overflow, zero severe accessibility findings."
+      viewTemplate { class "xtm-card" }
+    }
+  }
+  state workbench.filter type object preserve {
+    initial {
+      id "workbench-filter"
+      viewTemplate { class "xtm-form-flow" }
+    }
+  }
+  state workbench.filterField type object preserve {
+    initial {
+      id "workbench-filter-field"
+      field "lessonFilter"
+      label "Filter lessons"
+      value ""
+      inputType "search"
+      required true
+    }
+  }
+  state workbench.feedback type object preserve {
+    initial {
+      id "workbench-feedback"
+      text "All quality gates are available."
+      tone "success"
+      viewTemplate { class "xtm-feedback-stack" }
+    }
+  }
+  state workbench.requestReview type object preserve {
+    initial {
+      id "workbench-request-review"
+      text "Review evidence"
+      tone "primary"
+      disabled true
+      viewTemplate { class "xtm-primary-action" }
+    }
+  }
+  state workbench.content type object preserve {
+    initial {
+      id "workbench-content"
+      title "Catfooding lessons"
+      text "Every lesson has an owner and a decision."
+      viewTemplate { class "xtm-content-page" }
+    }
+  }
+  state workbench.settings type object preserve {
+    initial {
+      id "workbench-settings"
+      viewTemplate { class "xtm-settings-page" }
+    }
+  }
+  state workbench.empty type object preserve {
+    initial {
+      id "workbench-empty"
+      text "No unresolved upstream lesson."
+      tone "neutral"
+      viewTemplate { class "xtm-empty-state" }
+    }
+  }
+  state workbench.confirmation type object preserve {
+    initial {
+      id "workbench-confirmation"
+      title "Confirm evidence review"
+      open false
+      viewTemplate { class "xtm-confirmation-flow" }
+    }
+  }
+  state workbench.toast type object preserve {
+    initial {
+      id "workbench-toast"
+      text "Evidence review recorded."
+      tone "success"
+      open false
+    }
+  }
+
+  selector workbench.shell from state workbench.shell { output WorkbenchShell }
+  selector workbench.header from state workbench.header { output WorkbenchHeader }
+  selector workbench.workspace from state workbench.workspace { output WorkbenchWorkspace }
+  selector workbench.navigation from state workbench.navigation { output WorkbenchNavigation }
+  selector workbench.dashboard from state workbench.dashboard { output WorkbenchDashboard }
+  selector workbench.summary from state workbench.summary { output WorkbenchSummary }
+  selector workbench.filter from state workbench.filter { output WorkbenchFilter }
+  selector workbench.filterField from state workbench.filterField { output WorkbenchFilterField }
+  selector workbench.feedback from state workbench.feedback { output WorkbenchFeedback }
+  selector workbench.requestReview from state workbench.requestReview { output WorkbenchCommand }
+  selector workbench.content from state workbench.content { output WorkbenchContent }
+  selector workbench.settings from state workbench.settings { output WorkbenchSettings }
+  selector workbench.empty from state workbench.empty { output WorkbenchEmpty }
+  selector workbench.confirmation from state workbench.confirmation { output WorkbenchConfirmation }
+  selector workbench.toast from state workbench.toast { output WorkbenchToast }
+
+  validation workbench.lessonFilter {
+    mode blocking
+    target action workbench.requestReview
+    field workbench.filterField required message "Enter a lesson filter before review."
+  }
+
+  action workbench.updateFilter {
+    input value string
+    reduce state.workbench.filterField.value = input.value
+    reduce state.workbench.feedback.text = "Lesson filter updated."
+  }
+  action workbench.requestReview {
+    input label string
+    reduce state.workbench.confirmation.open = true
+  }
+  action workbench.confirmReview {
+    input label string
+    reduce state.workbench.confirmation.open = false
+    reduce state.workbench.toast.open = true
+    reduce state.workbench.feedback.text = "Evidence review recorded."
+  }
+
+  transition workbench.reviewEvidence {
+    trigger action workbench.requestReview
+    from surfaces [workbench.dashboard workbench.summary workbench.requestReview]
+    to surfaces [workbench.confirmation]
+    effect crossfade
+    durationMs 160
+    easing "ease-out"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  portal workbench.root root "#xtend-material-workbench" layer surface
+
+  surface workbench.shell kind workspace component x-surface-manager {
+    source selector workbench.shell
+    key shell.id
+    portal workbench.root
+    lane visible weight 100 { hydrate workbench-shell from selector workbench.shell }
+  }
+  surface workbench.header kind content component x-header {
+    source selector workbench.header
+    key header.id
+    portal workbench.root
+    lane visible weight 98 { hydrate workbench-header from selector workbench.header }
+  }
+  surface workbench.navigation kind navigation component x-drawer {
+    source selector workbench.navigation
+    key navigation.id
+    portal workbench.root
+    lane visible weight 94 { hydrate workbench-navigation from selector workbench.navigation }
+  }
+  surface workbench.workspace kind content component x-surface-region {
+    source selector workbench.workspace
+    key workspace.id
+    portal workbench.root
+    lane visible weight 92 { hydrate workbench-workspace from selector workbench.workspace }
+  }
+  surface workbench.dashboard kind card component x-cards {
+    source selector workbench.dashboard
+    key dashboard.id
+    portal workbench.root
+    lane visible weight 88 { hydrate workbench-dashboard from selector workbench.dashboard }
+  }
+  surface workbench.summary kind card component x-summary {
+    source selector workbench.summary
+    key summary.id
+    portal workbench.root
+    lane visible weight 86 { hydrate workbench-summary from selector workbench.summary }
+  }
+  surface workbench.filter kind window component x-form {
+    source selector workbench.filter
+    key filter.id
+    portal workbench.root
+    lane visible weight 82 { hydrate workbench-filter from selector workbench.filter }
+  }
+  surface workbench.filterField kind field component x-input {
+    source selector workbench.filterField
+    key filterField.id
+    portal workbench.root
+    lane visible weight 80 { hydrate workbench-filter-field from selector workbench.filterField }
+    on input-changed "#workbench-filter-field" -> action workbench.updateFilter {
+      payload value from detail.value
+    }
+  }
+  surface workbench.feedback kind card component x-status {
+    source selector workbench.feedback
+    key feedback.id
+    portal workbench.root
+    lane visible weight 76 { hydrate workbench-feedback from selector workbench.feedback }
+  }
+  surface workbench.requestReview kind action component x-button {
+    source selector workbench.requestReview
+    key requestReview.id
+    portal workbench.root
+    lane visible weight 74 { hydrate workbench-request-review from selector workbench.requestReview }
+    on click "#workbench-request-review" -> action workbench.requestReview {
+      preventDefault true
+      payload label from target.dataset.label
+    }
+  }
+  surface workbench.content kind content component x-section {
+    source selector workbench.content
+    key content.id
+    portal workbench.root
+    lane visible weight 72 { hydrate workbench-content from selector workbench.content }
+  }
+  surface workbench.settings kind window component x-form {
+    source selector workbench.settings
+    key settings.id
+    portal workbench.root
+    lane visible weight 68 { hydrate workbench-settings from selector workbench.settings }
+  }
+  surface workbench.empty kind card component x-alert {
+    source selector workbench.empty
+    key empty.id
+    portal workbench.root
+    lane visible weight 60 { hydrate workbench-empty from selector workbench.empty }
+  }
+  surface workbench.confirmation kind modal component x-dialog {
+    source selector workbench.confirmation
+    key confirmation.id
+    portal workbench.root
+    lane transition weight 84 { hydrate workbench-confirmation from selector workbench.confirmation }
+    on click "[data-action='confirm']" -> action workbench.confirmReview {
+      payload label from target.dataset.label
+    }
+  }
+  surface workbench.toast kind toast component x-toast {
+    source selector workbench.toast
+    key toast.id
+    portal workbench.root
+    lane idle weight 40 { hydrate workbench-toast from selector workbench.toast }
+  }
+}

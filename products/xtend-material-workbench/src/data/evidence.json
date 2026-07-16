@@ -1,0 +1,14 @@
+{
+  "schema": "xtend.material.workbench-evidence.v1",
+  "browserEvidence": { "schema": "xtend.material.browser-evidence.v1", "matrixCells": 384, "screenshots": 4, "horizontalOverflow": 0, "severeA11yFindings": 0 },
+  "performanceEvidence": {
+    "schema": "xtend.material.performance-report.v1",
+    "tailwindRuntimeBytes": 0,
+    "deterministicBuilds": true,
+    "nativeProviderExit": true,
+    "utilityApp": { "rawCssBytes": 13722, "gzipCssBytes": 2587, "coldBuildMs": 204.99, "incrementalBuildMs": 32.356 },
+    "enterpriseWorkspace": { "rawCssBytes": 13946, "gzipCssBytes": 2619 }
+  },
+  "tuneEvidence": { "schema": "xtend.maraca.tune-report.v1", "candidateCount": 12, "acceptedCandidateCount": 12, "selected": "max-route-inline", "cssBytes": 14549 },
+  "recipeCoverage": ["xtm-app-shell", "xtm-top-app-bar", "xtm-workspace", "xtm-navigation-rail", "xtm-dashboard", "xtm-card", "xtm-form-flow", "xtm-feedback-stack", "xtm-content-page", "xtm-settings-page", "xtm-empty-state", "xtm-confirmation-flow", "xtm-primary-action"]
+}

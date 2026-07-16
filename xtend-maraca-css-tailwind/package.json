@@ -1,0 +1,58 @@
+{
+  "name": "@xtend-material/maraca-tailwind",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Air-gapped Tailwind CSS v4 build-time provider for XTend Maraca.",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./toolchain": {
+      "types": "./toolchain.d.ts",
+      "default": "./toolchain.js"
+    },
+    "./source-inventory": {
+      "types": "./source-inventory.d.ts",
+      "default": "./source-inventory.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "index.js",
+    "index.d.ts",
+    "toolchain.js",
+    "toolchain.d.ts",
+    "source-inventory.js",
+    "source-inventory.d.ts"
+  ],
+  "dependencies": {
+    "@xtend-material/core": "0.1.0",
+    "@tailwindcss/node": "4.3.2",
+    "tailwindcss": "4.3.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "peerDependencies": {
+    "@ccslabs/xtend-maraca": "^0.3.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "xtend": {
+    "schema": "xtend.material.maraca-tailwind-package.v1",
+    "owner": "CCS Labs (ccslabs)",
+    "supportStatus": "supported-opt-in",
+    "releaseLine": "0.1.x",
+    "activation": "explicit",
+    "browserTailwindRuntime": false
+  }
+}

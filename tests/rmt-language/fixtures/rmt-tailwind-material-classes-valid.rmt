@@ -1,0 +1,28 @@
+template material.inventory.valid {
+  state material.inventory.shell type object preserve {
+    initial {
+      id "material-shell"
+      text "Material shell"
+      viewTemplate {
+        class "xtm-app-shell xtm-page xtm-stack xtm-card"
+      }
+    }
+  }
+
+  selector material.inventory.shell from state material.inventory.shell {
+    output MaterialInventoryShell
+  }
+
+  portal surface.root root "#material-root" layer surface
+
+  surface material.inventory.shell kind content component main {
+    source selector material.inventory.shell
+    key shell.id
+    portal surface.root
+    bounds x 0 y 0 width 960 height 640
+
+    lane visible weight 90 {
+      hydrate material-shell from selector material.inventory.shell
+    }
+  }
+}

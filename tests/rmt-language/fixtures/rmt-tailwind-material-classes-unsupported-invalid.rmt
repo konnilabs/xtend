@@ -1,0 +1,24 @@
+template material.inventory.unsupportedInvalid {
+  state material.inventory.unsupported type object preserve {
+    initial {
+      id "unsupported-material"
+      text "Unsupported classes"
+      viewTemplate {
+        class "grid p-4 hover:bg-red-500 w-[42px] text-sm/6 xtm-unknown"
+      }
+    }
+  }
+
+  selector material.inventory.unsupported from state material.inventory.unsupported {
+    output MaterialInventoryUnsupported
+  }
+
+  portal surface.root root "#material-root" layer surface
+
+  surface material.inventory.unsupported kind content component main {
+    source selector material.inventory.unsupported
+    key unsupported.id
+    portal surface.root
+    bounds x 0 y 0 width 640 height 480
+  }
+}

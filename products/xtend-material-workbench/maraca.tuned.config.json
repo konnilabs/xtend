@@ -1,0 +1,74 @@
+{
+  "schema": "xtend.maraca.build-config.v1",
+  "source": "src/app.rmt",
+  "sourceFingerprint": "52b269127c54d77931f0f21511d888117b45a847aa72a82a3aae30c63b98ca04",
+  "output": "dist",
+  "selected": {
+    "profile": "max",
+    "lazy": "route",
+    "css": "inline"
+  },
+  "locked": {
+    "orchestration": "strict",
+    "kernel": "strict",
+    "kernelBootMode": "direct",
+    "hydration": "strict",
+    "validation": "strict",
+    "transitions": "strict",
+    "componentMode": "document",
+    "stackMode": "plan",
+    "enablePrewarmWorker": false,
+    "enableUiCoprocessor": false,
+    "enablePwa": false,
+    "enableServiceWorker": false,
+    "enableWebAppManifest": false,
+    "allowDynamicComponents": false,
+    "cssProvider": "tailwind",
+    "cssInput": "src/app.css",
+    "cssSources": [
+      "src/app.rmt",
+      "src/app.css"
+    ],
+    "cssPreflight": "disabled",
+    "cssBudget": null,
+    "cssProviderFallback": "none"
+  },
+  "options": {
+    "source": "src/app.rmt",
+    "out": "dist",
+    "profile": "max",
+    "lazy": "route",
+    "css": "inline",
+    "sizeBudget": "strict",
+    "orchestration": "strict",
+    "kernel": "strict",
+    "kernelBootMode": "direct",
+    "hydration": "strict",
+    "validation": "strict",
+    "transitions": "strict",
+    "componentMode": "document",
+    "stackMode": "plan",
+    "enablePrewarmWorker": false,
+    "enableUiCoprocessor": false,
+    "enablePwa": false,
+    "enableServiceWorker": false,
+    "enableWebAppManifest": false,
+    "allowDynamicComponents": false,
+    "cssProvider": "tailwind",
+    "cssInput": "src/app.css",
+    "cssSources": [
+      "src/app.rmt",
+      "src/app.css"
+    ],
+    "cssPreflight": "disabled",
+    "cssBudget": null,
+    "cssProviderFallback": "none"
+  },
+  "toolchain": {
+    "rollup": "4.60.4",
+    "terser": "5.48.0",
+    "mode": "rollup-terser"
+  },
+  "candidateMatrixFingerprint": "31bfe06af0d7f3c2a8c594b1aac5994f14769239e675b07405139f54487ff256",
+  "configFingerprint": "7c9ede7ae465869c7bdbff815947eaff853e9e9bb985ba9b829fa9d33489ab88"
+}

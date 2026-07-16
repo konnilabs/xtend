@@ -1,3 +1,5 @@
+import type { CssBuildEvidence, CssBuildRequest, CssProviderContract, CssProviderImplementation } from './css-provider';
+
 export const MARACA_PACKAGE_SCHEMA: 'xtend.maraca.package-metadata.v1';
 export const MARACA_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v1';
 export const MARACA_BUNDLE_REPORT_SCHEMA: 'xtend.maraca.bundle-report.v1';
@@ -24,6 +26,8 @@ export const MARACA_TUNE_REPORT_SCHEMA: 'xtend.maraca.tune-report.v1';
 export type MaracaProfile = 'debug' | 'production' | 'max';
 export type MaracaLazyMode = 'route' | 'component' | 'none';
 export type MaracaCssMode = 'inline' | 'external';
+export type MaracaCssPreflightMode = 'disabled' | 'scoped' | 'enabled';
+export type MaracaCssProviderFallback = 'none' | 'native';
 export type MaracaOrchestrationMode = 'auto' | 'strict' | 'off';
 export type MaracaKernelMode = 'auto' | 'strict' | 'off';
 export type MaracaKernelBootMode = 'direct' | 'productSurface';
@@ -46,6 +50,19 @@ export interface MaracaBuildInput {
   profile?: MaracaProfile;
   lazy?: MaracaLazyMode;
   css?: MaracaCssMode;
+  cssProvider?: string;
+  'css-provider'?: string;
+  cssInput?: string;
+  'css-input'?: string;
+  cssSources?: string | string[];
+  'css-sources'?: string | string[];
+  cssPreflight?: MaracaCssPreflightMode;
+  'css-preflight'?: MaracaCssPreflightMode;
+  cssBudget?: number | string;
+  'css-budget'?: number | string;
+  cssProviderFallback?: MaracaCssProviderFallback;
+  'css-provider-fallback'?: MaracaCssProviderFallback;
+  cssProviderImplementation?: CssProviderImplementation;
   vendor?: boolean | string;
   components?: 'document' | 'all';
   componentMode?: 'document' | 'all';
@@ -648,6 +665,22 @@ export interface MaracaBuildPlan {
   profile: MaracaProfile;
   lazy: MaracaLazyMode;
   css: MaracaCssMode;
+  cssBuild?: {
+    schema: 'xtend.maraca.css-build-plan.v1';
+    status: string;
+    requestedProvider: string;
+    resolvedProvider: string;
+    fallback: MaracaCssProviderFallback;
+    preflight: MaracaCssPreflightMode;
+    budgetBytes: number | null;
+    contract: CssProviderContract | null;
+    request: CssBuildRequest;
+    requestFingerprint: string;
+    configFingerprint: string;
+    evidence: CssBuildEvidence | null;
+    diagnostics: MaracaDiagnostic[];
+    [key: string]: unknown;
+  };
   vendor?: boolean;
   componentMode?: 'document' | 'all';
   stackMode?: 'plan' | 'runtime' | 'full' | 'none';
@@ -777,6 +810,7 @@ export interface MaracaBundleReport {
   profile: MaracaProfile;
   lazy: MaracaLazyMode;
   css: MaracaCssMode;
+  cssBuild?: MaracaBuildPlan['cssBuild'];
   vendor?: boolean;
   componentMode?: string;
   stackMode?: string;
@@ -896,6 +930,17 @@ export interface MaracaSizeBudgetReport {
   status: string;
   baselineBytes: number;
   bundleBytes: number;
+  css?: {
+    provider: string;
+    bytes: number;
+    budgetBytes: number | null;
+    withinBudget: boolean;
+    requestFingerprint: string | null;
+    configFingerprint: string | null;
+    evidenceFingerprint: string | null;
+    outputFingerprint: string | null;
+    sourceFingerprints: Array<{ path: string; fingerprint: string | null }>;
+  };
 }
 
 export interface MaracaBuildConfig {
@@ -930,6 +975,7 @@ export interface MaracaTuneCandidate {
   metrics: {
     eagerBytes: number;
     totalBytes: number;
+    cssBytes: number;
     eagerRequests: number;
     chunkCount: number;
   };

@@ -60,6 +60,40 @@ const {
   runArchitectureGateSuite
 } = require('../tests/core/architecture_gate_suite');
 const {
+  printXtendMaterialArchitectureReport,
+  runXtendMaterialArchitectureSuite
+} = require('../tests/material/xtend_material_architecture_suite');
+const {
+  printMaterialDesignKitContractReport,
+  printXtendMaterialPackageExportsReport,
+  runMaterialDesignKitContractSuite,
+  runXtendMaterialPackageExportsSuite
+} = require('../tests/material/material_design_kit_contract_suite');
+const {
+  printMaterialShellRecipesReport,
+  runMaterialShellRecipesSuite
+} = require('../tests/material/material_shell_recipes_suite');
+const {
+  printMaterialFlowRecipesReport,
+  runMaterialFlowRecipesSuite
+} = require('../tests/material/material_flow_recipes_suite');
+const {
+  printXtendMaterialScaffoldReport,
+  runXtendMaterialScaffoldSuite
+} = require('../tests/builder/xtend_material_scaffold_suite');
+const {
+  printMaracaCssProviderContractReport,
+  runMaracaCssProviderContractSuite
+} = require('../tests/maraca/maraca_css_provider_contract_suite');
+const {
+  printMaracaTailwindCssProviderReport,
+  runMaracaTailwindCssProviderSuite
+} = require('../tests/maraca/maraca_tailwind_css_provider_suite');
+const {
+  printRmtTailwindSourceInventoryReport,
+  runRmtTailwindSourceInventorySuite
+} = require('../tests/rmt/rmt_tailwind_source_inventory_suite');
+const {
   printBrowserSmokeReport,
   runBrowserSmokeSuite
 } = require('../tests/browser/browser_smoke_suite');
@@ -716,6 +750,10 @@ const {
   runVisualSnapshotsSuite
 } = require('../tests/browser/visual_snapshots_suite');
 const {
+  printMaterialBrowserEvidenceReport,
+  runMaterialBrowserEvidenceSuite
+} = require('../tests/browser/material_browser_evidence_suite');
+const {
   printDesignTokenContractReport,
   runDesignTokenContractSuite
 } = require('../tests/tokens/design_token_contract_suite');
@@ -723,6 +761,10 @@ const {
   printXThemeTokenAliasLayerReport,
   runXThemeTokenAliasLayerSuite
 } = require('../tests/tokens/xtheme_token_alias_layer_suite');
+const {
+  printTailwindTokenBridgeReport,
+  runTailwindTokenBridgeSuite
+} = require('../tests/tokens/tailwind_token_bridge_suite');
 const {
   printComponentUxAuthoringDocsReport,
   runComponentUxAuthoringDocsSuite
@@ -747,6 +789,24 @@ const {
   printComponentUxPerformanceContractReport,
   runComponentUxPerformanceContractSuite
 } = require('../tests/performance/component_ux_performance_contract_suite');
+const {
+  printXtendMaterialPackDryRunReport,
+  printXtendMaterialPerformanceReport,
+  runXtendMaterialPackDryRunSuite,
+  runXtendMaterialPerformanceSuite
+} = require('../tests/performance/xtend_material_performance_suite');
+const {
+  printXtendMaterialCatfoodingReport,
+  runXtendMaterialCatfoodingSuite
+} = require('../tests/products/xtend_material_catfooding_suite');
+const {
+  printXtendMaterialCliGeneratedAppReport,
+  runXtendMaterialCliGeneratedAppSuite
+} = require('../tests/products/xtend_material_cli_generated_app_suite');
+const {
+  printXtendMaterialDocsReport,
+  runXtendMaterialDocsSuite
+} = require('../tests/docs/xtend_material_docs_suite');
 const {
   printComponentNetworkContractReport,
   runComponentNetworkContractSuite
@@ -1199,6 +1259,96 @@ const suites = [
     }
   },
   {
+    id: 'xtend-material-architecture',
+    label: 'XTend Material Tailwind architecture decision',
+    description: 'Runs XTM-00 package naming, ownership, Tailwind baseline and dependency-boundary gates.',
+    run: () => {
+      const result = runXtendMaterialArchitectureSuite({ rootDir });
+      printXtendMaterialArchitectureReport(result);
+      return toRunnerResult('xtend-material-architecture', 'XTend Material Tailwind architecture decision', result);
+    }
+  },
+  {
+    id: 'xtend-material-contract',
+    label: 'XTend Material Design Kit Contract',
+    description: 'Runs XTM-06 package, design principles, Recipe Contract, native styles, Maraca preset and boundary gates.',
+    run: () => {
+      const result = runMaterialDesignKitContractSuite({ rootDir });
+      printMaterialDesignKitContractReport(result);
+      return toRunnerResult('xtend-material-contract', 'XTend Material Design Kit Contract', result);
+    }
+  },
+  {
+    id: 'package-exports',
+    label: 'XTend Material Package Exports',
+    description: 'Runs XTM-06 public subpath, pack-file and implementation resolution gates.',
+    run: () => {
+      const result = runXtendMaterialPackageExportsSuite({ rootDir });
+      printXtendMaterialPackageExportsReport(result);
+      return toRunnerResult('package-exports', 'XTend Material Package Exports', result);
+    }
+  },
+  {
+    id: 'xtend-material-shell-recipes',
+    label: 'XTend Material Shell Recipes',
+    description: 'Runs XTM-07 Recipe, component capability, slots, parts, responsive, A11y, RMT fixture and Shadow DOM boundary gates.',
+    run: async () => {
+      const result = await runMaterialShellRecipesSuite({ rootDir });
+      printMaterialShellRecipesReport(result);
+      return toRunnerResult('xtend-material-shell-recipes', 'XTend Material Shell Recipes', result);
+    }
+  },
+  {
+    id: 'xtend-material-flow-recipes',
+    label: 'XTend Material Flow Recipes',
+    description: 'Runs XTM-08 flow, capability, ownership, non-color status, negative claim, RMT orchestration and CSS boundary gates.',
+    run: async () => {
+      const result = await runMaterialFlowRecipesSuite({ rootDir });
+      printMaterialFlowRecipesReport(result);
+      return toRunnerResult('xtend-material-flow-recipes', 'XTend Material Flow Recipes', result);
+    }
+  },
+  {
+    id: 'xtend-material-scaffold',
+    label: 'XTend Material App Scaffold',
+    description: 'Runs XTM-09 template registry, CLI, ownership, idempotence, dependency-boundary and generated source-to-sea gates.',
+    run: async () => {
+      const result = await runXtendMaterialScaffoldSuite({ rootDir });
+      printXtendMaterialScaffoldReport(result);
+      return toRunnerResult('xtend-material-scaffold', 'XTend Material App Scaffold', result);
+    }
+  },
+  {
+    id: 'maraca-css-provider',
+    label: 'Maraca CSS Provider Contract',
+    description: 'Runs XTM-01 provider lifecycle, schemas, fingerprints, diagnostics and package-export gates.',
+    run: async () => {
+      const result = await runMaracaCssProviderContractSuite({ rootDir });
+      printMaracaCssProviderContractReport(result);
+      return toRunnerResult('maraca-css-provider', 'Maraca CSS Provider Contract', result);
+    }
+  },
+  {
+    id: 'maraca-tailwind-css-provider',
+    label: 'Maraca Tailwind CSS Provider',
+    description: 'Runs XTM-03 local toolchain, air-gap, determinism, lifecycle and browser-runtime boundary gates.',
+    run: async () => {
+      const result = await runMaracaTailwindCssProviderSuite({ rootDir });
+      printMaracaTailwindCssProviderReport(result);
+      return toRunnerResult('maraca-tailwind-css-provider', 'Maraca Tailwind CSS Provider', result);
+    }
+  },
+  {
+    id: 'rmt-tailwind-source-inventory',
+    label: 'RMT Tailwind Source Inventory',
+    description: 'Runs XTM-04 semantic Material class, recipe safelist, diagnostics and source-policy gates.',
+    run: async () => {
+      const result = await runRmtTailwindSourceInventorySuite({ rootDir });
+      printRmtTailwindSourceInventoryReport(result);
+      return toRunnerResult('rmt-tailwind-source-inventory', 'RMT Tailwind Source Inventory', result);
+    }
+  },
+  {
     id: 'components',
     label: 'Component-level contract suites',
     description: 'Runs Component-Level contract suites for prioritized XTend components.',
@@ -1346,6 +1496,16 @@ const suites = [
       const result = runScaffoldWritePlanSuite({ rootDir });
       printScaffoldWritePlanReport(result);
       return toRunnerResult('scaffold-write-plan', 'XTend Scaffold WritePlan', result);
+    }
+  },
+  {
+    id: 'scaffold-ownership',
+    label: 'XTend Scaffold Ownership',
+    description: 'Runs the canonical WritePlan ownership and re-run safety suite under the XTM-09 gate name.',
+    run: () => {
+      const result = runScaffoldWritePlanSuite({ rootDir });
+      printScaffoldWritePlanReport(result);
+      return toRunnerResult('scaffold-ownership', 'XTend Scaffold Ownership', result);
     }
   },
   {
@@ -1499,6 +1659,16 @@ const suites = [
     }
   },
   {
+    id: 'xtend-material-browser-evidence',
+    label: 'XTM-10 XTend Material Browser Evidence',
+    description: 'Runs the full Material theme, density, viewport, motion, interaction and screenshot evidence matrix in the local Chromium hypervisor.',
+    run: async () => {
+      const result = await runMaterialBrowserEvidenceSuite({ rootDir });
+      printMaterialBrowserEvidenceReport(result);
+      return toRunnerResult('xtend-material-browser-evidence', 'XTM-10 XTend Material Browser Evidence', result);
+    }
+  },
+  {
     id: 'design-tokens',
     label: 'Epic 12 Enterprise Design System Tokens',
     description: 'Runs the WP-E12-12 design-token productization contract, x-theme, theme matrix and visual snapshot alignment gates.',
@@ -1516,6 +1686,16 @@ const suites = [
       const result = runXThemeTokenAliasLayerSuite({ rootDir });
       printXThemeTokenAliasLayerReport(result);
       return toRunnerResult('xtheme-token-alias-layer', 'ECH-WP-03 XTheme Token Alias Layer', result);
+    }
+  },
+  {
+    id: 'tailwind-token-bridge',
+    label: 'XTM-05 Tailwind Token Bridge',
+    description: 'Runs XTend token SSOT, runtime theme/density packs, enterprise/utility DX and accessibility gates.',
+    run: async () => {
+      const result = await runTailwindTokenBridgeSuite({ rootDir });
+      printTailwindTokenBridgeReport(result);
+      return toRunnerResult('tailwind-token-bridge', 'XTM-05 Tailwind Token Bridge', result);
     }
   },
   {
@@ -3010,6 +3190,16 @@ const suites = [
     }
   },
   {
+    id: 'pack-dry-run',
+    label: 'XTM-11 Material Package Dry Run',
+    description: 'Runs real local package dry runs for XTend Material core and its Maraca Tailwind adapter.',
+    run: async () => {
+      const result = await runXtendMaterialPackDryRunSuite({ rootDir });
+      printXtendMaterialPackDryRunReport(result);
+      return toRunnerResult('pack-dry-run', 'XTM-11 Material Package Dry Run', result);
+    }
+  },
+  {
     id: 'component-ux-authoring-docs',
     label: 'Epic 11 Component UX Authoring Docs',
     description: 'Runs the WP-E11-16 Component UX authoring documentation and handoff gates.',
@@ -3130,6 +3320,16 @@ const suites = [
     }
   },
   {
+    id: 'component-runtime-a11y',
+    label: 'XTend Component Runtime A11y UX Contract',
+    description: 'Compatibility gate alias for the component runtime accessibility contract used by XTM-10.',
+    run: () => {
+      const result = runRuntimeA11yContractSuite({ rootDir });
+      printRuntimeA11yContractReport(result);
+      return toRunnerResult('component-runtime-a11y', 'XTend Component Runtime A11y UX Contract', result);
+    }
+  },
+  {
     id: 'component-ux-performance',
     label: 'XTend Component UX Performance Contract',
     description: 'Runs the WP-E11-05 Component UX Performance profile, budget and metadata gates.',
@@ -3137,6 +3337,46 @@ const suites = [
       const result = runComponentUxPerformanceContractSuite({ rootDir });
       printComponentUxPerformanceContractReport(result);
       return toRunnerResult('component-ux-performance', 'XTend Component UX Performance Contract', result);
+    }
+  },
+  {
+    id: 'xtend-material-performance',
+    label: 'XTM-11 XTend Material Quality and Anti-Monkeypatching',
+    description: 'Runs fixture-based CSS and build budgets, deterministic builds, supply-chain, package surface, native-provider exit and anti-monkeypatching gates.',
+    run: async () => {
+      const result = await runXtendMaterialPerformanceSuite({ rootDir });
+      printXtendMaterialPerformanceReport(result);
+      return toRunnerResult('xtend-material-performance', 'XTM-11 XTend Material Quality and Anti-Monkeypatching', result);
+    }
+  },
+  {
+    id: 'xtend-material-catfooding',
+    label: 'XTM-12 XTend Material Catfooding Workbench',
+    description: 'Builds and tunes the RMT-first Workbench, captures product browser evidence and gates lessons, Dev Surface, Trusted DOM and anti-monkeypatching ownership.',
+    run: async () => {
+      const result = await runXtendMaterialCatfoodingSuite({ rootDir });
+      printXtendMaterialCatfoodingReport(result);
+      return toRunnerResult('xtend-material-catfooding', 'XTM-12 XTend Material Catfooding Workbench', result);
+    }
+  },
+  {
+    id: 'xtend-material-cli-generated-app',
+    label: 'XTM-14 CLI-generated Kernel Material App',
+    description: 'Runs the public CLI-only scaffold, strict Kernel plan, air-gapped Tailwind double build, tune, browser and negative no-patch gates.',
+    run: async () => {
+      const result = await runXtendMaterialCliGeneratedAppSuite({ rootDir });
+      printXtendMaterialCliGeneratedAppReport(result);
+      return toRunnerResult('xtend-material-cli-generated-app', 'XTM-14 CLI-generated Kernel Material App', result);
+    }
+  },
+  {
+    id: 'xtend-material-docs',
+    label: 'XTM-13 XTend Material Docs, Migration and Release',
+    description: 'Validates bilingual third-party guidance, bidirectional provider migration, compatibility, SemVer, changelogs and the explicit support decision.',
+    run: async () => {
+      const result = await runXtendMaterialDocsSuite({ rootDir });
+      printXtendMaterialDocsReport(result);
+      return toRunnerResult('xtend-material-docs', 'XTM-13 XTend Material Docs, Migration and Release', result);
     }
   },
   {

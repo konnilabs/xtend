@@ -22,4 +22,11 @@ products/rmt-animation-testbench/dist/
 products/rmt-animation-testbench/.xtend-test-results/
 products/rmt-animation-testbench/.cache/
 products/rmt-animation-testbench/**/.DS_Store
+!products/xtend-material-workbench/
+!products/xtend-material-workbench/**
+products/xtend-material-workbench/node_modules/
+products/xtend-material-workbench/dist/
+products/xtend-material-workbench/.xtend-test-results/
+products/xtend-material-workbench/.cache/
+products/xtend-material-workbench/**/.DS_Store
 .DS_Store

@@ -82,6 +82,7 @@ function runLandingPageSuite(options = {}) {
   context.assert(css.includes('min-width: 18ch') && css.includes('--hero-reserved-block-size: calc(100svh - var(--landing-header-height))'), 'Hero reserves rotating text and first-viewport geometry');
   context.assert(css.includes('.landing-header:not(:defined)') && css.includes('.landing-hero:not(:defined) > *'), 'Undefined first-viewport components reserve geometry without exposing light DOM');
   context.assert(css.includes('@media (max-width: 700px)') && css.includes('overflow-x'), 'Landing stylesheet owns responsive and overflow-safe presentation');
+  context.assert(css.includes('.landing-section x-card:hover') && css.includes('.landing-section x-card:focus-within') && css.includes('transform: translateY(-6px);'), 'Landing cards keep their hover lift without scale-driven horizontal overflow');
   context.assert(css.includes('.landing-code-section::part(container)') && css.includes('.landing-code-section::part(content)') && css.includes('--x-code-bg: #050506') && css.includes('--x-code-padding: 1.2rem 1.5rem 1.35rem'), 'Classic example reuses the Docs XCode surface and spacing through public styling contracts');
   context.assert(css.includes('--footer-content-max: 100%') && css.includes('.landing-footer::part(root)') && css.includes('.github-link'), 'Footer owns a full-bleed surface and aligned icon links');
   context.assert(browserSmoke.includes('RUNS_PER_SCENARIO = 3'), 'Browser smoke uses three cold-cache runs per viewport');
