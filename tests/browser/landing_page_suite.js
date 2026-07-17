@@ -73,7 +73,7 @@ function runLandingPageSuite(options = {}) {
   ['#why-xtend', '#runtime-paths', '#platform-stack'].forEach((target) => {
     context.assert(html.includes(`href="${target}"`) && html.includes(`id="${target.slice(1)}"`), `Landing navigation target ${target} is stable`);
   });
-  context.assert(html.includes('docs/index.php?xtend-docs-page=quick-start-guide&amp;locale=en'), 'Primary CTA targets the English Quick Start');
+  context.assert(countMatches(html, /href="\/docs\/en\/quick-start-guide"/gu) === 4 && !html.includes('xtend-docs-page=quick-start-guide'), 'Every documentation CTA targets the canonical English Quick Start route');
   context.assert(html.includes('https://github.com/konnilabs/xtend') && html.includes('https://www.npmjs.com/package/@ccslabs/xtend'), 'Landing page exposes GitHub and npm destinations');
   context.assert(countMatches(html, /<x-icon class="github-icon" src="landing-assets\/github-invertocat-white\.svg"/gu) === 3 && countMatches(html, /class="[^"]*github-link[^"]*" href="https:\/\/github\.com\/konnilabs\/xtend"/gu) === 3, 'Every GitHub destination uses the local Invertocat through XIcon');
   context.assert(html.includes('<x-type') && html.includes('hero-static-text') && html.includes('hero-animated-text'), 'Hero retains XType with a static motion-safe fallback');
