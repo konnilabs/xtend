@@ -128,6 +128,7 @@ function createMaterialAppScaffold(input = {}, options = {}) {
   const commands = {
     plan: 'npm run plan',
     build: 'npm run build',
+    serve: 'npm run serve',
     tune: 'npm run tune',
     test: 'npm test'
   };

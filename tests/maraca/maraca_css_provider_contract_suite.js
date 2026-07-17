@@ -201,6 +201,10 @@ async function runMaracaCssProviderContractSuite(options = {}) {
     context.assert(external.sizeBudgetReport.css.sourceFingerprints.some((entry) => entry.fingerprint), 'size report retains CSS source fingerprints');
     context.assert(external.sizeBudgetReport.css.outputFingerprint === external.plan.cssBuild.evidence.outputFingerprint, 'size report retains CSS output fingerprint');
     context.assert(fs.readFileSync(external.plan.outputs.css, 'utf8').trim() === '.xtm-fixture{display:grid;}', 'external mode writes the provider artifact');
+    const externalHost = fs.readFileSync(external.plan.outputs.host, 'utf8');
+    context.assert(externalHost.includes('data-maraca-style="external"') && externalHost.includes('href="./xtend.maraca.css"'), 'external mode host links the provider CSS artifact');
+    context.assert(externalHost.includes('src="./xtend.maraca.mjs"') && externalHost.includes('data-maraca-root'), 'external mode writes a directly servable Maraca host');
+    context.assert(external.bundleReport.pwa.precacheUrls.includes('./index.html'), 'PWA precache includes the generated HTML host');
     context.assert(external.bundleReport.pwa.precacheUrls.includes('./xtend.maraca.css'), 'PWA precache includes the provider CSS asset');
 
     const inline = await buildMaracaBundleAsync({
@@ -216,6 +220,8 @@ async function runMaracaCssProviderContractSuite(options = {}) {
     context.assert(fs.readFileSync(inline.plan.outputs.entry, 'utf8').includes('.xtm-fixture{display:grid;}'), 'inline mode embeds the provider artifact in the app shell');
     context.assert(inline.plan.cssBuild.evidence.outputFingerprint === external.plan.cssBuild.evidence.outputFingerprint, 'inline and external modes preserve equivalent provider CSS output');
     context.assert(inline.plan.outputs.css === null, 'inline mode emits no standalone CSS asset');
+    const inlineHost = fs.readFileSync(inline.plan.outputs.host, 'utf8');
+    context.assert(!inlineHost.includes('rel="stylesheet"') && inlineHost.includes('src="./xtend.maraca.mjs"'), 'inline mode host relies on bundle-injected CSS and remains directly servable');
 
     const overBudget = await buildMaracaBundleAsync({
       source,

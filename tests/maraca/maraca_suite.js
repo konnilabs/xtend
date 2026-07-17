@@ -760,6 +760,8 @@ async function runMaracaRmtSourceToBundleSuite(options = {}) {
   const planIo = createCliIo();
   const buildIo = createCliIo();
   const rmtIo = createCliIo();
+  const serveIo = createCliIo();
+  const serveHelpIo = createCliIo();
   const planStatus = await runCliAsync(['maraca', 'plan', MARACA_FIXTURE, '--json'], planIo);
   const buildStatus = await runCliAsync([
     'maraca',
@@ -785,9 +787,23 @@ async function runMaracaRmtSourceToBundleSuite(options = {}) {
     MARACA_RMT_OUT_DIR,
     '--json'
   ], rmtIo);
+  const serveStatus = await runCliAsync([
+    'serve',
+    '--root',
+    resolveRepoPath(MARACA_RMT_OUT_DIR, rootDir),
+    '--port',
+    '0',
+    '--check',
+    '--json'
+  ], serveIo);
+  const serveHelpStatus = await runCliAsync(['serve', '--help'], serveHelpIo);
   const planJson = JSON.parse(planIo.readStdout());
   const buildJson = JSON.parse(buildIo.readStdout());
   const rmtJson = JSON.parse(rmtIo.readStdout());
+  const serveJson = JSON.parse(serveIo.readStdout());
+  const maracaHostPath = resolveRepoPath(`${MARACA_OUT_DIR}/index.html`, rootDir);
+  const rmtHostPath = resolveRepoPath(`${MARACA_RMT_OUT_DIR}/index.html`, rootDir);
+  const maracaHost = fs.readFileSync(maracaHostPath, 'utf8');
 
   context.assert(planStatus === 0, 'xt maraca plan exits successfully');
   context.assert(planJson.schema === MARACA_BUILD_PLAN_SCHEMA && planJson.ok === true, 'xt maraca plan returns JSON build plan');
@@ -796,9 +812,14 @@ async function runMaracaRmtSourceToBundleSuite(options = {}) {
   context.assert(rmtStatus === 0, 'xt rmt build --bundle maraca exits successfully');
   context.assert(rmtJson.schema === MARACA_BUNDLE_REPORT_SCHEMA && rmtJson.ok === true, 'xt rmt build --bundle maraca returns JSON bundle result');
   context.assert(fs.existsSync(resolveRepoPath(`${MARACA_RMT_OUT_DIR}/xtend.maraca.mjs`, rootDir)), 'RMT one-step command writes Maraca ESM entry');
+  context.assert(fs.existsSync(maracaHostPath) && fs.existsSync(rmtHostPath) && buildJson.plan.outputs.host === maracaHostPath && rmtJson.plan.outputs.host === rmtHostPath, 'both Maraca CLI build paths write the generic HTML host');
+  context.assert(maracaHost.includes('id="xtend-maraca-root"') && maracaHost.includes('data-maraca-root') && maracaHost.includes('<script type="module" src="./xtend.maraca.mjs"></script>') && !maracaHost.includes('material'), 'generic HTML host uses only design-neutral Maraca boot contracts');
+  context.assert(serveStatus === 0 && serveJson.schema === 'xtend.local-dev-server.v1' && serveJson.ok && serveJson.status === 'checked' && serveJson.defaultPath === 'index.html', 'xt serve accepts a non-Material Maraca output with default options');
+  context.assert(serveHelpStatus === 0 && serveHelpIo.readStdout().includes('XTend Local App Server') && serveHelpIo.readStdout().includes('Default: index.html'), 'xt serve exposes its command-specific help');
   context.assert(planIo.readStderr() === '', 'plan command has no stderr output');
   context.assert(buildIo.readStderr() === '', 'build command has no stderr output');
   context.assert(rmtIo.readStderr() === '', 'rmt build command has no stderr output');
+  context.assert(serveIo.readStderr() === '', 'serve command has no stderr output');
 
   return context.result({
     schema: MARACA_BUNDLE_REPORT_SCHEMA,

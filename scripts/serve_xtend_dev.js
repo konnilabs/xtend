@@ -1,14 +1,19 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const http = require('http');
 const path = require('path');
+const {
+  DEFAULT_HOST,
+  DEFAULT_INDEX,
+  DEFAULT_PORT,
+  SERVER_CONTRACT,
+  contentTypeFor,
+  createXtendDevServer,
+  listenXtendDevServer,
+  pathnameFromRequestUrl,
+  resolveSafePath
+} = require('../xtend-builder/lib/dev-server');
 
-const DEFAULT_HOST = '127.0.0.1';
-const DEFAULT_PORT = 4173;
 const DEFAULT_ROOT = path.resolve(__dirname, '..');
-const DEFAULT_INDEX = 'index.html';
-const SERVER_CONTRACT = 'xtend.local-dev-server.v1';
 const PROD_LIKE_CSP_POLICY = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -20,109 +25,6 @@ const PROD_LIKE_CSP_POLICY = [
   "frame-ancestors 'none'"
 ].join('; ');
 
-const MIME_TYPES = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.rmt': 'application/vnd.xtendrmt.rmt+json; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.webmanifest': 'application/manifest+json; charset=utf-8',
-  '.wasm': 'application/wasm',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.webp': 'image/webp',
-  '.ico': 'image/x-icon',
-  '.txt': 'text/plain; charset=utf-8',
-  '.md': 'text/markdown; charset=utf-8',
-  '.map': 'application/json; charset=utf-8'
-};
-
-function resolveSafePath(rootDir, requestPathname, defaultPath = DEFAULT_INDEX) {
-  const pathname = decodeURIComponent(requestPathname || '/');
-  const relativePath = pathname === '/' ? defaultPath : pathname.replace(/^\/+/, '');
-  const absolutePath = path.resolve(rootDir, relativePath);
-
-  if (absolutePath !== rootDir && !absolutePath.startsWith(`${rootDir}${path.sep}`)) {
-    return null;
-  }
-
-  return absolutePath;
-}
-
-function contentTypeFor(filePath) {
-  return MIME_TYPES[path.extname(filePath).toLowerCase()] || 'application/octet-stream';
-}
-
-function pathnameFromRequestUrl(requestUrl) {
-  return String(requestUrl || '/').split('?')[0] || '/';
-}
-
-function createXtendDevServer(options = {}) {
-  const rootDir = path.resolve(options.rootDir || DEFAULT_ROOT);
-  const defaultPath = options.defaultPath || DEFAULT_INDEX;
-  const server = http.createServer((request, response) => {
-    let filePath = null;
-    try {
-      filePath = resolveSafePath(rootDir, pathnameFromRequestUrl(request.url), defaultPath);
-    } catch (_) {
-      filePath = null;
-    }
-
-    if (!filePath) {
-      response.writeHead(403, { 'content-type': 'text/plain; charset=utf-8' });
-      response.end('Forbidden');
-      return;
-    }
-
-    fs.readFile(filePath, (error, content) => {
-      if (error) {
-        response.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
-        response.end('Not found');
-        return;
-      }
-
-      const headers = {
-        'cache-control': options.cacheControl || 'no-store',
-        'content-type': contentTypeFor(filePath),
-        'x-xtend-dev-server': SERVER_CONTRACT
-      };
-
-      if (options.contentSecurityPolicy) {
-        headers['content-security-policy'] = options.contentSecurityPolicy;
-      }
-
-      response.writeHead(200, headers);
-      response.end(content);
-    });
-  });
-
-  return server;
-}
-
-function listenXtendDevServer(options = {}) {
-  const host = options.host || DEFAULT_HOST;
-  const port = Number.isInteger(options.port) ? options.port : DEFAULT_PORT;
-  const server = createXtendDevServer(options);
-
-  return new Promise((resolve, reject) => {
-    server.once('error', reject);
-    server.listen(port, host, () => {
-      const address = server.address();
-      resolve({
-        schema: SERVER_CONTRACT,
-        server,
-        host,
-        port: address.port,
-        origin: `http://${host}:${address.port}`,
-        rootDir: path.resolve(options.rootDir || DEFAULT_ROOT),
-        defaultPath: options.defaultPath || DEFAULT_INDEX
-      });
-    });
-  });
-}
 
 function parseArgs(args) {
   const options = {

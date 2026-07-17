@@ -3,6 +3,7 @@ import type { XtendBuilderCliArgs, XtendBuilderCliIo, XtendBuilderFlagArgs, Xten
 export declare const COMMAND_ALIASES: Readonly<Record<string, string>>;
 export declare function buildConfigSummary(): XtendBuilderRecord;
 export declare function buildHelpText(): string;
+export declare function buildServeHelpText(): string;
 export declare function normalizeCommand(command?: string | null): string | null;
 export declare function parseArgs(args?: string[]): XtendBuilderCliArgs;
 export declare function parseFlagArgs(args?: string[]): XtendBuilderFlagArgs;

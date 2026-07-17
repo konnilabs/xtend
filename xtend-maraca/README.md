@@ -23,9 +23,12 @@ xt maraca plan app.rmt --json
 xt maraca build app.rmt --out dist --profile production --lazy route --css inline --json
 xt maraca tune app.rmt --config maraca.config.json --out dist --write --json
 xt rmt build app.rmt --bundle maraca --out dist --json
+xt serve --root dist
 ```
 
 Profiles are `debug`, `production`, and `max`. Lazy modes are `route`, `component`, and `none`; CSS can be emitted inline or externally. The `max` profile applies the strictest private-name policy while reserving public XTend, Web Component, CSS, and RMT names.
+
+Every successful Maraca build, independent of the selected design line, writes a ready-to-serve `dist/index.html` next to `xtend.maraca.mjs`. The host contains the Maraca mount point and the matching module and optional external CSS references. `xt serve --root dist` serves this generic output; Material scaffolds may additionally provide their richer project-owned host and `npm run serve` workflow.
 
 ### Programmatic API
 
@@ -133,9 +136,12 @@ xt maraca plan app.rmt --json
 xt maraca build app.rmt --out dist --profile production --lazy route --css inline --json
 xt maraca tune app.rmt --config maraca.config.json --out dist --write --json
 xt rmt build app.rmt --bundle maraca --out dist --json
+xt serve --root dist
 ```
 
 Die Profile sind `debug`, `production` und `max`. Lazy-Modi sind `route`, `component` und `none`; CSS kann inline oder extern ausgegeben werden. Das Profil `max` verwendet die strengste Private-Name-Policy, während öffentliche XTend-, Web-Component-, CSS- und RMT-Namen reserviert bleiben.
+
+Jeder erfolgreiche Maraca-Build schreibt unabhängig von der gewählten Design-Linie eine direkt auslieferbare `dist/index.html` neben `xtend.maraca.mjs`. Der Host enthält den Maraca-Mount-Point sowie die passenden Modul- und optionalen externen CSS-Referenzen. `xt serve --root dist` liefert diesen generischen Output aus; Material-Scaffolds können zusätzlich ihren umfangreicheren, projekteigenen Host und den `npm run serve`-Ablauf bereitstellen.
 
 ### Programmatische API
 

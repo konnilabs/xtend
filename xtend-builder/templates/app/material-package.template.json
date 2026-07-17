@@ -6,6 +6,7 @@
   "scripts": {
     "plan": "xt maraca plan --config maraca.config.json --json",
     "build": "xt maraca build --config maraca.config.json --json",
+    "serve": "npm run build && xt serve --root . --default site/index.html --port 4173",
     "tune": "xt maraca tune src/app.rmt --config maraca.tuned.config.json --out dist --write --json",
     "test": "node --test test/material-app.smoke.test.cjs"
   },

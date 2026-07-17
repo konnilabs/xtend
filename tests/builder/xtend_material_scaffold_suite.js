@@ -2,6 +2,7 @@
 
 const childProcess = require('child_process');
 const fs = require('fs');
+const http = require('http');
 const path = require('path');
 const { createSuiteContext, printSuiteReport } = require('../utils/assertions');
 const { buildMaracaBundleAsync, createMaracaBuildPlan } = require('../../xtend-maraca');
@@ -14,6 +15,14 @@ const {
   createMaterialAppScaffold
 } = require('../../xtend-builder/generators/material-app');
 const { getTemplateRegistry } = require('../../xtend-builder/templates/registry');
+const {
+  closeServer,
+  contentTypeFor,
+  listenXtendDevServer,
+  normalizeServeOptions,
+  pathnameFromRequestUrl,
+  resolveSafePath
+} = require('../../xtend-builder/lib/dev-server');
 
 const BACKLOG = 'development/BACKLOG-XTend-Material-Tailwind-CSS-Fast-Path.md';
 const LOCAL_GATE = 'node scripts/run_xtend_tests.js xtend-material-scaffold maraca-rmt-source-to-bundle scaffold-ownership --json';
@@ -31,6 +40,17 @@ function createIo() {
     readStdout() { return stdout; },
     readStderr() { return stderr; }
   };
+}
+
+function requestLocal(origin, pathname) {
+  return new Promise((resolve, reject) => {
+    http.get(`${origin}${pathname}`, (response) => {
+      let body = '';
+      response.setEncoding('utf8');
+      response.on('data', (chunk) => { body += chunk; });
+      response.on('end', () => resolve({ statusCode: response.statusCode, headers: response.headers, body }));
+    }).on('error', reject);
+  });
 }
 
 async function runXtendMaterialScaffoldSuite(options = {}) {
@@ -86,16 +106,51 @@ async function runXtendMaterialScaffoldSuite(options = {}) {
 
     const config = JSON.parse(read(outputRoot, 'maraca.config.json'));
     const manifest = JSON.parse(read(outputRoot, 'package.json'));
+    const rootManifest = JSON.parse(read(rootDir, 'package.json'));
     const rmt = read(outputRoot, 'src/app.rmt');
     const css = read(outputRoot, 'src/app.css');
+    const host = read(outputRoot, 'site/index.html');
     context.assert(config.schema === 'xtend.maraca.build-config.v1' && config.options.cssProvider === 'tailwind' && config.options.cssPreflight === 'disabled', 'Maraca config selects the local Tailwind provider with disabled Preflight');
     context.assert(config.options.cssInput === 'src/app.css' && config.options.cssSources.join(',') === 'src/app.rmt,src/app.css' && config.options.cssProviderFallback === 'none', 'Maraca config closes source discovery and fails closed');
     context.assert(config.options.orchestration === 'strict' && config.options.kernel === 'strict' && config.options.hydration === 'strict' && config.options.validation === 'strict' && config.options.transitions === 'strict', 'generated config fails closed across Kernel orchestration, validation and transitions');
-    context.assert(manifest.scripts.plan && manifest.scripts.build && manifest.scripts.tune && manifest.scripts.test, 'generated package exposes local plan, build, tune and test scripts');
+    context.assert(manifest.scripts.plan && manifest.scripts.build && manifest.scripts.serve === 'npm run build && xt serve --root . --default site/index.html --port 4173' && manifest.scripts.tune && manifest.scripts.test, 'generated package exposes local plan, build-first serve, tune and test scripts');
+    context.assert(written.commands.serve === 'npm run serve', 'scaffold report exposes the generated serve command');
+    context.assert(rootManifest.xtend.materialAppScaffold.artifacts.length === 8 && rootManifest.xtend.materialAppScaffold.artifacts.includes('site/index.html') && rootManifest.xtend.materialAppScaffold.serveCommand === 'npm run serve', 'root metadata exposes all eight scaffold artifacts and the serve command');
     context.assert(manifest.devDependencies.tailwindcss === '4.3.2' && manifest.devDependencies['@xtend-material/maraca-tailwind'] === '^0.1.0', 'Tailwind and its adapter are app-local development dependencies');
     context.assert(!manifest.dependencies.tailwindcss && !manifest.dependencies['@xtend-material/maraca-tailwind'], 'Tailwind tooling never enters productive runtime dependencies');
     context.assert(rmt.includes('class "xtm-app-shell"') && rmt.includes('class "xtm-content-page"') && !/class "(?:grid|flex|p-\d)/u.test(rmt), 'generated RMT uses semantic Material classes without utility authoring');
     context.assert(css.includes('tailwindcss/theme.css') && css.includes('tailwindcss/utilities.css') && !css.includes('preflight.css'), 'generated CSS uses only pinned air-gapped Tailwind imports');
+    context.assert(host.includes('<main id="material-app"') && host.includes('<link rel="stylesheet" href="../dist/xtend.maraca.css">') && host.includes('<script type="module" src="../src/material-runtime-host.mjs"></script>'), 'generated HTML host owns the mount point and local CSS/module tags');
+
+    context.assert(contentTypeFor('app.css') === 'text/css; charset=utf-8' && contentTypeFor('host.mjs') === 'text/javascript; charset=utf-8', 'packaged serve module exposes CSS and module MIME types');
+    context.assert(pathnameFromRequestUrl('/src/app.css?cache=off') === '/src/app.css' && resolveSafePath(outputRoot, '/../package.json', 'site/index.html') === null, 'packaged serve module strips query strings and blocks path traversal');
+    const invalidPort = normalizeServeOptions({ root: outputRoot, default: 'site/index.html', port: '70000' });
+    const missingDefault = normalizeServeOptions({ root: outputRoot, default: 'site/missing.html', port: '0' });
+    context.assert(!invalidPort.ok && invalidPort.errors.some((error) => error.includes('Port must be an integer')) && !missingDefault.ok && missingDefault.errors.some((error) => error.includes('Default document does not exist')), 'serve option validation blocks invalid ports and missing default documents');
+
+    const localServer = await listenXtendDevServer({ rootDir: outputRoot, defaultPath: 'site/index.html', port: 0 });
+    try {
+      const defaultResponse = await requestLocal(localServer.origin, '/?theme=dark');
+      const cssResponse = await requestLocal(localServer.origin, '/src/app.css?cache=off');
+      const moduleResponse = await requestLocal(localServer.origin, '/src/material-runtime-host.mjs');
+      const missingResponse = await requestLocal(localServer.origin, '/missing.txt');
+      const forbiddenResponse = await requestLocal(localServer.origin, '/..%2Fpackage.json');
+      context.assert(defaultResponse.statusCode === 200 && defaultResponse.body.includes('id="material-app"'), 'serve module resolves the generated default document with a query string');
+      context.assert(cssResponse.statusCode === 200 && cssResponse.headers['content-type'] === 'text/css; charset=utf-8' && moduleResponse.statusCode === 200 && moduleResponse.headers['content-type'] === 'text/javascript; charset=utf-8', 'serve module returns correct CSS and MJS content types');
+      context.assert(missingResponse.statusCode === 404 && forbiddenResponse.statusCode === 403, 'serve module distinguishes missing files from blocked traversal');
+
+      const bindFailure = childProcess.spawnSync(process.execPath, [path.join(rootDir, 'xtend-builder/bin/xt.js'), 'serve', '--root', '.', '--default', 'site/index.html', '--port', String(localServer.port), '--check', '--json'], { cwd: outputRoot, encoding: 'utf8' });
+      let bindFailureReport = null;
+      try { bindFailureReport = JSON.parse(bindFailure.stdout); } catch (_) {}
+      context.assert(bindFailure.status === 1 && bindFailureReport && bindFailureReport.ok === false && bindFailureReport.diagnostics.some((entry) => /EADDRINUSE/u.test(entry.message)), 'public xt serve reports bind failures as structured diagnostics');
+    } finally {
+      await closeServer(localServer.server);
+    }
+
+    const serveCheck = childProcess.spawnSync(process.execPath, [path.join(rootDir, 'xtend-builder/bin/xt.js'), 'serve', '--root', '.', '--default', 'site/index.html', '--port', '0', '--check', '--json'], { cwd: outputRoot, encoding: 'utf8' });
+    let serveCheckReport = null;
+    try { serveCheckReport = JSON.parse(serveCheck.stdout); } catch (_) {}
+    context.assert(serveCheck.status === 0 && serveCheckReport && serveCheckReport.schema === 'xtend.local-dev-server.v1' && serveCheckReport.ok && serveCheckReport.status === 'checked' && serveCheckReport.port > 0, 'public xt serve validates, binds and closes the generated HTML host');
 
     const check = createMaterialAppScaffold({ rootDir, runtime: 'maraca', designKit: 'material', out: outputDir, name: 'ops-console', check: true });
     context.assert(check.ok && check.status === 'current' && check.writeReport.plan.changedCount === 0, 'second --check run is current');
@@ -130,7 +185,7 @@ async function runXtendMaterialScaffoldSuite(options = {}) {
     context.assert(!otherPreset.ok && otherPreset.files.length === 0 && otherPreset.errors.some((entry) => entry.includes('does not activate Tailwind')), 'non-Material presets never install or activate Tailwind');
 
     const helpIo = createIo();
-    context.assert(runCli(['create', '--help'], helpIo) === 0 && helpIo.readStdout().includes('--runtime maraca --design-kit material') && helpIo.readStdout().includes('--check'), 'CLI help documents selection and ownership modes');
+    context.assert(runCli(['create', '--help'], helpIo) === 0 && helpIo.readStdout().includes('--runtime maraca --design-kit material') && helpIo.readStdout().includes('--check') && helpIo.readStdout().includes('eight artifacts') && helpIo.readStdout().includes('npm run serve'), 'CLI help documents selection, ownership and generated serve modes');
     context.assert(backlog.includes('| `XTM-09` | P1 | completed | WS5 |') && backlog.includes(LOCAL_GATE), 'backlog closes XTM-09 and exposes its complete local gate');
   } finally {
     fs.rmSync(outputRoot, { recursive: true, force: true });

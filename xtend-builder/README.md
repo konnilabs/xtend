@@ -98,15 +98,20 @@ The generic `rmt-build` command emits core JSON, an XTend custom element, an app
 #### Create an XTend Material Maraca app
 
 ```bash
-# Inspect the five-file plan without writing
+# Inspect the eight-artifact plan without writing
 xt create app --runtime maraca --design-kit material --out material-app --json
 
-# Write under app-local ownership, then verify idempotence
+# Write under app-local ownership and verify scaffold idempotence
 xt create app --runtime maraca --design-kit material --out material-app --write --json
 xt create app --runtime maraca --design-kit material --out material-app --check --json
+
+# Install, then build and serve
+cd material-app
+npm install
+npm run serve
 ```
 
-The explicit Material preset generates RMT, CSS, `maraca.config.json`, `package.json`, and a smoke test. Tailwind and the Maraca adapter are development-only dependencies, source discovery is explicit, and Preflight is disabled. Other presets are not routed through this generator and never activate Tailwind implicitly.
+The explicit Material preset generates eight artifacts: RMT, CSS, an HTML host, a runtime host, the DEV API bridge, `maraca.config.json`, `package.json`, and a smoke test. `npm run serve` builds `dist/` first and then serves `site/index.html` through `xt serve`; use `xt serve --help` for host, port, root, default-document, check, and JSON options. Tailwind and the Maraca adapter are development-only dependencies, source discovery is explicit, and Preflight is disabled. Other presets are not routed through this generator and never activate Tailwind implicitly.
 
 #### Build a Maraca bundle
 
@@ -117,9 +122,12 @@ xt maraca tune app.rmt --config maraca.config.json --out dist --write --json
 
 # The same bundle path under the RMT namespace
 xt rmt build app.rmt --bundle maraca --out dist --json
+
+# Serve the generated design-neutral HTML host
+xt serve --root dist
 ```
 
-Maraca compiles the RMT source, discovers the required XTend modules, and emits a loaderless ESM entry point. Profiles and bundling options are documented in the [Maraca documentation](../xtend-maraca/README.md).
+Maraca compiles the RMT source, discovers the required XTend modules, and emits a loaderless ESM entry point plus `dist/index.html`. The generated host and `xt serve --root dist` work across Material and non-Material design lines. Profiles and bundling options are documented in the [Maraca documentation](../xtend-maraca/README.md).
 
 #### Analyze and reproducibly build the kernel
 
@@ -340,15 +348,20 @@ Der generische `rmt-build` erzeugt Core JSON, XTend Custom Element, App-Modul, H
 #### XTend-Material-Maraca-App erzeugen
 
 ```bash
-# Fünf Dateien planen, ohne zu schreiben
+# Den Plan mit acht Artefakten prüfen, ohne zu schreiben
 xt create app --runtime maraca --design-kit material --out material-app --json
 
-# Mit app-lokaler Ownership schreiben und Idempotenz prüfen
+# Mit app-lokaler Ownership schreiben und Scaffold-Idempotenz prüfen
 xt create app --runtime maraca --design-kit material --out material-app --write --json
 xt create app --runtime maraca --design-kit material --out material-app --check --json
+
+# Installieren, anschließend bauen und ausliefern
+cd material-app
+npm install
+npm run serve
 ```
 
-Das explizite Material-Preset erzeugt RMT, CSS, `maraca.config.json`, `package.json` und einen Smoke Test. Tailwind und der Maraca-Adapter sind ausschließlich Development Dependencies, Sources werden explizit angegeben und Preflight bleibt deaktiviert. Andere Presets laufen nicht durch diesen Generator und aktivieren Tailwind niemals implizit.
+Das explizite Material-Preset erzeugt acht Artefakte: RMT, CSS, einen HTML-Host, einen Runtime-Host, die DEV-API-Brücke, `maraca.config.json`, `package.json` und einen Smoke Test. `npm run serve` baut zuerst `dist/` und liefert danach `site/index.html` über `xt serve` aus; `xt serve --help` dokumentiert Host, Port, Root, Default-Dokument, Check- und JSON-Optionen. Tailwind und der Maraca-Adapter sind ausschließlich Development Dependencies, Sources werden explizit angegeben und Preflight bleibt deaktiviert. Andere Presets laufen nicht durch diesen Generator und aktivieren Tailwind niemals implizit.
 
 #### Maraca-Bundle bauen
 
@@ -359,9 +372,12 @@ xt maraca tune app.rmt --config maraca.config.json --out dist --write --json
 
 # Derselbe Bundle-Pfad unter dem RMT-Namespace
 xt rmt build app.rmt --bundle maraca --out dist --json
+
+# Den generierten designneutralen HTML-Host ausliefern
+xt serve --root dist
 ```
 
-Maraca kompiliert die RMT-Quelle, ermittelt benötigte XTend-Module und erzeugt einen loaderlosen ESM-Einstieg. Profile und Bundling-Optionen sind in der [Maraca-Dokumentation](../xtend-maraca/README.md) beschrieben.
+Maraca kompiliert die RMT-Quelle, ermittelt benötigte XTend-Module und erzeugt einen loaderlosen ESM-Einstieg plus `dist/index.html`. Der generierte Host und `xt serve --root dist` funktionieren für Material- und Nicht-Material-Design-Linien. Profile und Bundling-Optionen sind in der [Maraca-Dokumentation](../xtend-maraca/README.md) beschrieben.
 
 #### Kernel analysieren und reproduzierbar bauen
 

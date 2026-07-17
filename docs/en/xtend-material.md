@@ -29,14 +29,14 @@ The current support status means the documented package exports, recipes, themes
 
 ## Create your first app
 
-You need Node.js 18 or newer and a local XTend checkout or installed XTend packages. The scaffold command creates RMT source, a Tailwind input, a Maraca config, package metadata and a smoke test.
+You need Node.js 18 or newer and a local XTend checkout or installed XTend packages. The scaffold command creates eight artifacts: RMT source, a Tailwind input, an HTML host, a runtime host, the DEV API bridge, a Maraca config, package metadata and a smoke test.
 
 ```bash
 xt create app --runtime maraca --design-kit material --name operations-console --out operations-console --write
 cd operations-console
 npm install
 npm run plan
-npm run build
+npm run serve
 npm test
 ```
 
@@ -58,7 +58,7 @@ The generated package uses `@xtend-material/core`, `@xtend-material/maraca-tailw
 }
 ```
 
-`npm run plan` is the fastest diagnostic step. It validates RMT and the source inventory without treating a browser as a compiler. `npm run build` writes the ESM bundle, CSS and evidence reports. Serve the output through a local HTTP server; opening ESM directly with a `file:` URL is not a supported deployment model.
+`npm run plan` is the fastest diagnostic step. It validates RMT and the source inventory without treating a browser as a compiler. `npm run serve` runs the deterministic Maraca build first, writes `dist/`, and then serves the generated `site/index.html` through the packaged `xt serve` command on `http://127.0.0.1:4173/`. Use `xt serve --help` to select another root, default document, host or port, or to run a bind-only `--check`. Opening ESM directly with a `file:` URL is not a supported deployment model.
 
 ## Author with semantic recipes
 

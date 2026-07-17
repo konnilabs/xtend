@@ -798,6 +798,14 @@ export interface MaracaBuildPlan {
     diagnostics: MaracaDiagnostic[];
     summary: Record<string, unknown>;
   };
+  outputs: {
+    host: string;
+    entry: string;
+    css: string | null;
+    bundleReport: string;
+    sizeBudgetReport: string;
+    [key: string]: string | null;
+  };
   publicNameReservations: string[];
 }
 

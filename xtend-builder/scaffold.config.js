@@ -108,6 +108,8 @@ module.exports = {
     generator: "xtend-builder/generators/material-app.js",
     command: "xt create app --runtime maraca --design-kit material --out material-app --write --json",
     checkCommand: "xt create app --runtime maraca --design-kit material --out material-app --check --json",
+    serveCommand: "npm run serve",
+    artifacts: ["src/app.rmt", "src/app.css", "src/material-runtime-host.mjs", "src/material-dev-api.mjs", "site/index.html", "maraca.config.json", "package.json", "test/material-app.smoke.test.cjs"],
     templateRoot: "xtend-builder/templates/app/",
     cssProvider: "tailwind",
     preflight: "disabled",

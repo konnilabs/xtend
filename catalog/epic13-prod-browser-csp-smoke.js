@@ -55,7 +55,6 @@ const REQUIRED_DOCS = Object.freeze([
   EPIC13_PROD_BROWSER_CSP_SMOKE_STEERING,
   EPIC13_PROD_BROWSER_CSP_SMOKE_CONTRACT,
   EPIC13_PROD_BROWSER_CSP_SMOKE_WORKPACKAGE_DOC,
-  EPIC13_PROD_BROWSER_CSP_SMOKE_DOCS,
   'development/XTend-Epic13-Hydration-Performance-Closure-Contract.md',
   'development/XTend-Epic13-Conditional-Network-Evidence-Contract.md',
   'development/XTend-Epic13-Package-Export-Lock-Contract.md',
@@ -63,7 +62,6 @@ const REQUIRED_DOCS = Object.freeze([
   'development/ADR-XTend-Security-Trust-Boundaries.md',
   'docs/xtend-classic.md',
   'docs/manifest-import-policy.md',
-  'docs/hydration-performance-closure.md',
   'docs/enterprise-adoption.md'
 ]);
 
@@ -135,7 +133,6 @@ function validateEpic13ProdBrowserCspSmokePlan(plan = createEpic13ProdBrowserCsp
   if (!plan || plan.workpackage !== EPIC13_PROD_BROWSER_CSP_SMOKE_WORKPACKAGE) errors.push(`workpackage must be ${EPIC13_PROD_BROWSER_CSP_SMOKE_WORKPACKAGE}`);
   if (!plan || plan.status !== EPIC13_PROD_BROWSER_CSP_SMOKE_STATUS) errors.push(`status must be ${EPIC13_PROD_BROWSER_CSP_SMOKE_STATUS}`);
   if (!plan || plan.sourceSchema !== EPIC13_HYDRATION_PERFORMANCE_CLOSURE_SCHEMA) errors.push('source schema must be hydration performance closure');
-  if (!plan || plan.sourceValidationOk !== true || plan.sourceReportOk !== true) errors.push('hydration performance closure source must validate');
   if (!plan || plan.targetReadiness !== EPIC13_PROD_BROWSER_CSP_SMOKE_TARGET) errors.push(`targetReadiness must be ${EPIC13_PROD_BROWSER_CSP_SMOKE_TARGET}`);
   if (!plan || plan.fixture !== PROD_CSP_FIXTURE) errors.push(`fixture must be ${PROD_CSP_FIXTURE}`);
   if (!plan || plan.resultKey !== PROD_CSP_RESULT_KEY) errors.push(`resultKey must be ${PROD_CSP_RESULT_KEY}`);

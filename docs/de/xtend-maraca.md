@@ -22,9 +22,10 @@ Maraca hat zwei öffentliche Einstiege. `xt maraca plan` erzeugt einen Buildplan
 xt maraca plan app.rmt --json
 xt maraca build app.rmt --out dist --profile production --lazy component --css external --json
 xt rmt build app.rmt --bundle maraca --out dist --profile production --lazy component --css external --json
+xt serve --root dist
 ```
 
-Der generierte Output enthält normalerweise `xtend.maraca.mjs`, optional `xtend.maraca.css`, dynamische `chunks/*.mjs`, `xtend.maraca.report.json` und `xtend.maraca.size.json`. Wenn der Mobile-Manifest- oder PWA-Assistant aktiviert ist, kann dasselbe Ausgabeverzeichnis zusätzlich `xtend.webmanifest`, `icons/`, `xtend.webmanifest.report.json`, `xtend.service-worker.js`, `xtend.offline.html` und `xtend.pwa.report.json` enthalten. Der Report ist das Audit-Artefakt: Er dokumentiert ausgewählte Komponenten, Runtime-Module, Lazy Imports, verbotene Loader-Abhängigkeiten, PWA-Anschlussdaten und den Status des Größenbudgets.
+Der generierte Output enthält normalerweise eine direkt auslieferbare `index.html`, `xtend.maraca.mjs`, optional `xtend.maraca.css`, dynamische `chunks/*.mjs`, `xtend.maraca.report.json` und `xtend.maraca.size.json`. Der HTML-Host ist unabhängig von der Design-Linie: Er stellt den Maraca-Mount-Point bereit und referenziert das generierte Modul sowie im externen CSS-Modus das generierte Stylesheet. Deshalb funktioniert `xt serve --root dist` gleichermaßen für Material- und Nicht-Material-Maraca-Builds. Wenn der Mobile-Manifest- oder PWA-Assistant aktiviert ist, kann dasselbe Ausgabeverzeichnis zusätzlich `xtend.webmanifest`, `icons/`, `xtend.webmanifest.report.json`, `xtend.service-worker.js`, `xtend.offline.html` und `xtend.pwa.report.json` enthalten. Der Report ist das Audit-Artefakt: Er dokumentiert ausgewählte Komponenten, Runtime-Module, Lazy Imports, verbotene Loader-Abhängigkeiten, PWA-Anschlussdaten und den Status des Größenbudgets.
 
 ## Orchestrierte App Bundles
 

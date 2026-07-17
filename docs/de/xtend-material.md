@@ -29,14 +29,14 @@ Der aktuelle Supportstatus bedeutet, dass die dokumentierten Package Exports, Re
 
 ## Erstelle deine erste App
 
-Du benötigst Node.js 18 oder neuer sowie einen lokalen XTend-Checkout oder installierte XTend-Pakete. Der Scaffold-Befehl erzeugt RMT-Source, Tailwind-Input, Maraca-Konfiguration, Package-Metadaten und einen Smoke-Test.
+Du benötigst Node.js 18 oder neuer sowie einen lokalen XTend-Checkout oder installierte XTend-Pakete. Der Scaffold-Befehl erzeugt acht Artefakte: RMT-Source, Tailwind-Input, einen HTML-Host, einen Runtime-Host, die DEV-API-Brücke, Maraca-Konfiguration, Package-Metadaten und einen Smoke-Test.
 
 ```bash
 xt create app --runtime maraca --design-kit material --name operations-console --out operations-console --write
 cd operations-console
 npm install
 npm run plan
-npm run build
+npm run serve
 npm test
 ```
 
@@ -58,7 +58,7 @@ Das erzeugte Paket verwendet `@xtend-material/core`, `@xtend-material/maraca-tai
 }
 ```
 
-`npm run plan` ist der schnellste Diagnoseschritt. Er validiert RMT und das Source-Inventar, ohne einen Browser als Compiler zu verwenden. `npm run build` schreibt ESM-Bundle, CSS und Evidence-Reports. Stelle das Ergebnis über einen lokalen HTTP-Server bereit; ein direkt mit einer `file:`-URL geöffnetes ESM-Bundle ist kein unterstütztes Deployment-Modell.
+`npm run plan` ist der schnellste Diagnoseschritt. Er validiert RMT und das Source-Inventar, ohne einen Browser als Compiler zu verwenden. `npm run serve` führt zuerst den deterministischen Maraca-Build aus, schreibt `dist/` und liefert danach die erzeugte `site/index.html` über das paketierte Kommando `xt serve` unter `http://127.0.0.1:4173/` aus. Mit `xt serve --help` lassen sich Root, Default-Dokument, Host und Port ändern oder ein reiner Bind-Check ausführen. Ein direkt mit einer `file:`-URL geöffnetes ESM-Bundle ist kein unterstütztes Deployment-Modell.
 
 ## Arbeite mit semantischen Recipes
 

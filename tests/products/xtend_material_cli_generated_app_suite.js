@@ -7,7 +7,6 @@ const path = require('path');
 const { spawn } = require('child_process');
 const { performance } = require('perf_hooks');
 const WebSocket = require('ws');
-const { listenXtendDevServer } = require('../../scripts/serve_xtend_dev');
 const { createSuiteContext, printSuiteReport } = require('../utils/assertions');
 
 const REPORT_SCHEMA = 'xtend.material.cli-generated-app-report.v1';
@@ -67,6 +66,80 @@ async function runPublicCli(cliPath, cwd, args, evidenceRoot, id, invocations, t
   fs.writeFileSync(path.join(evidenceRoot, `${id}.stdout.json`), result.stdout || '{}\n', 'utf8');
   if (result.stderr) fs.writeFileSync(path.join(evidenceRoot, `${id}.stderr.txt`), result.stderr, 'utf8');
   return { ...result, json, record };
+}
+
+function startPublicServe(cliPath, cwd, evidenceRoot, invocations) {
+  const args = ['serve', '--root', '.', '--default', 'site/index.html', '--port', '0', '--json'];
+  const startedAt = performance.now();
+  const child = spawn(process.execPath, [cliPath, ...args], { cwd, env: process.env });
+  let stdout = '';
+  let stderr = '';
+  let startupSettled = false;
+  const record = {
+    id: '08-serve',
+    executable: process.execPath,
+    argv: [cliPath, ...args],
+    cwd,
+    exitCode: null,
+    durationMs: null,
+    jsonParsed: false,
+    stderr: ''
+  };
+  invocations.push(record);
+  child.stdout.on('data', (chunk) => { stdout += chunk; });
+  child.stderr.on('data', (chunk) => { stderr += chunk; });
+  const closed = new Promise((resolve) => {
+    child.on('close', (exitCode) => {
+      record.exitCode = exitCode;
+      record.durationMs = Number((performance.now() - startedAt).toFixed(3));
+      record.stderr = stderr.trim();
+      fs.writeFileSync(path.join(evidenceRoot, '08-serve.stdout.json'), stdout || '{}\n', 'utf8');
+      if (stderr) fs.writeFileSync(path.join(evidenceRoot, '08-serve.stderr.txt'), stderr, 'utf8');
+      resolve(exitCode);
+    });
+  });
+
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      child.kill('SIGKILL');
+      reject(new Error('xt serve startup timeout'));
+    }, 10000);
+    const inspectStartup = () => {
+      const newline = stdout.indexOf('\n');
+      if (newline < 0 || startupSettled) return;
+      startupSettled = true;
+      clearTimeout(timer);
+      let payload = null;
+      try { payload = JSON.parse(stdout.slice(0, newline)); } catch (_) {}
+      record.jsonParsed = Boolean(payload);
+      if (!payload || !payload.ok || payload.status !== 'serving') {
+        child.kill('SIGTERM');
+        reject(new Error(`xt serve returned an invalid startup record: ${stdout.trim()}`));
+        return;
+      }
+      resolve({
+        origin: payload.origin,
+        payload,
+        async close() {
+          if (child.exitCode === null) child.kill('SIGTERM');
+          return closed;
+        }
+      });
+    };
+    child.stdout.on('data', inspectStartup);
+    child.once('error', (error) => {
+      if (startupSettled) return;
+      startupSettled = true;
+      clearTimeout(timer);
+      reject(error);
+    });
+    child.once('close', (exitCode) => {
+      if (startupSettled) return;
+      startupSettled = true;
+      clearTimeout(timer);
+      reject(new Error(`xt serve exited before startup (${exitCode}): ${stderr.trim()}`));
+    });
+  });
 }
 
 function inventory(root, files) {
@@ -192,10 +265,10 @@ async function interactiveBrowserEvidence(executable, url) {
   }
 }
 
-async function browserEvidence(rootDir, appRelative, evidenceRoot) {
+async function browserEvidence(rootDir, appRelative, evidenceRoot, cliPath, invocations) {
   const executable = findChromium();
   if (!executable) return { ok: false, cells: [], failures: ['Chromium unavailable'] };
-  const handle = await listenXtendDevServer({ rootDir, port: 0, defaultPath: `${appRelative}/site/index.html` });
+  const handle = await startPublicServe(cliPath, path.join(rootDir, appRelative), evidenceRoot, invocations);
   const cells = [];
   const failures = [];
   try {
@@ -205,7 +278,7 @@ async function browserEvidence(rootDir, appRelative, evidenceRoot) {
       { id: 'desktop-high-contrast', width: 1440, height: 1000, theme: 'high-contrast', route: 'dashboard' }
     ]) {
       const screenshot = path.join(evidenceRoot, `${viewport.id}.png`);
-      const url = `${handle.origin}/${appRelative}/site/index.html?theme=${viewport.theme}#/${viewport.route}`;
+      const url = `${handle.origin}/?theme=${viewport.theme}#/${viewport.route}`;
       const run = await runProcess(executable, [
         '--headless=new', '--no-sandbox', '--disable-gpu', '--hide-scrollbars',
         '--run-all-compositor-stages-before-draw', '--virtual-time-budget=6000',
@@ -237,11 +310,11 @@ async function browserEvidence(rootDir, appRelative, evidenceRoot) {
       cells.push(cell);
       if (!ready) failures.push(`${viewport.id}: runtime=${/data-maraca-runtime-ready="true"/u.test(dom)}, surfaces=${surfaceCount}, remote=${remoteAssets.length}`);
     }
-    const interaction = await interactiveBrowserEvidence(executable, `${handle.origin}/${appRelative}/site/index.html?theme=light#/dashboard`);
+    const interaction = await interactiveBrowserEvidence(executable, `${handle.origin}/?theme=light#/dashboard`);
     if (!interaction.ok) failures.push(`interaction: ${JSON.stringify(interaction)}`);
     cells.push({ viewport: { id: 'interaction', width: 800, height: 700 }, ready: interaction.ok, interaction });
   } finally {
-    await new Promise((resolve) => handle.server.close(resolve));
+    await handle.close();
   }
   return { ok: failures.length === 0 && cells.length === 4, browser: 'chromium', cells, failures, tailwindRuntimeBytes: 0 };
 }
@@ -280,7 +353,7 @@ async function runXtendMaterialCliGeneratedAppSuite(options = {}) {
     writeJson(path.join(evidenceRoot, '07-post-run-inventory.json'), after);
 
     writeJson(path.join(evidenceRoot, '08-double-build-fingerprints.json'), { buildA: buildAFingerprints, buildB: buildBFingerprints });
-    const browser = buildA.json && buildA.json.ok ? await browserEvidence(rootDir, appRelative, evidenceRoot) : { ok: false, cells: [], failures: ['build unavailable'], tailwindRuntimeBytes: null };
+    const browser = buildA.json && buildA.json.ok ? await browserEvidence(rootDir, appRelative, evidenceRoot, cliPath, invocations) : { ok: false, cells: [], failures: ['build unavailable'], tailwindRuntimeBytes: null };
 
     const negativeCreate = await runPublicCli(cliPath, rootDir, ['create', 'app', '--runtime', 'maraca', '--design-kit', 'material', '--out', negativeRelative, '--name', 'xtm14-negative', '--write', '--json'], evidenceRoot, '09-negative-scaffold', invocations);
     const negativeBefore = inventory(negativeRoot, contract.generatedAuthoringFiles);

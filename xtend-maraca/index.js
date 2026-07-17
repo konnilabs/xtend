@@ -4428,6 +4428,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       laneMapping: 'xtend.fabric.rmt-lane-mapping.v1'
     },
     outputs: {
+      host: path.join(normalized.outputDir, 'index.html'),
       entry: path.join(normalized.outputDir, 'xtend.maraca.mjs'),
       css: normalized.css === 'external' ? path.join(normalized.outputDir, 'xtend.maraca.css') : null,
       bundleReport: path.join(normalized.outputDir, 'xtend.maraca.report.json'),
@@ -4456,6 +4457,54 @@ function jsValue(value) {
 
 function cssAttributeValue(value) {
   return String(value == null ? '' : value).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
+function escapeMaracaHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/gu, '&amp;')
+    .replace(/</gu, '&lt;')
+    .replace(/>/gu, '&gt;')
+    .replace(/"/gu, '&quot;')
+    .replace(/'/gu, '&#39;');
+}
+
+function createMaracaHtmlHost(plan) {
+  const documentId = plan && plan.rmt && plan.rmt.documentId;
+  const title = escapeMaracaHtml(documentId || 'XTend Maraca App');
+  const cssLink = plan.css === 'external'
+    ? '  <link rel="stylesheet" data-maraca-style="external" href="./xtend.maraca.css">\n'
+    : '';
+  const manifestLink = plan.webAppManifest && plan.webAppManifest.enabled
+    ? `  <link rel="manifest" href="${escapeMaracaHtml(plan.webAppManifest.manifestRef || './xtend.webmanifest')}">\n`
+    : '';
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${title}</title>
+${manifestLink}${cssLink}</head>
+<body>
+  <main id="xtend-maraca-root" data-maraca-root aria-label="${title}"></main>
+  <noscript>This XTend Maraca application requires JavaScript.</noscript>
+  <script type="module" src="./xtend.maraca.mjs"></script>
+</body>
+</html>`;
+}
+
+function writeMaracaHtmlHost(plan) {
+  const content = `${createMaracaHtmlHost(plan)}\n`;
+  fs.writeFileSync(plan.outputs.host, content, 'utf8');
+  return {
+    type: 'asset',
+    fileName: path.basename(plan.outputs.host),
+    path: plan.outputs.host,
+    bytes: Buffer.byteLength(content),
+    isEntry: false,
+    isDynamicEntry: false,
+    imports: [],
+    dynamicImports: []
+  };
 }
 
 function cssLength(value) {
@@ -8839,6 +8888,7 @@ function buildMaracaBundle(input = {}, options = {}) {
     bundleFiles.push(createMaracaPwaAssetRecord(plan.outputs.css, path.basename(plan.outputs.css)));
   }
   bundleFiles = bundleFiles.concat(kernelControllerRuntimeAsset ? [kernelControllerRuntimeAsset] : []).concat(kernelRuntimeAsset ? [kernelRuntimeAsset] : []);
+  bundleFiles.push(writeMaracaHtmlHost(plan));
   const webAppManifestArtifacts = writeMaracaWebAppManifestArtifacts(plan, bundleFiles);
   bundleFiles = bundleFiles.concat(webAppManifestArtifacts.files);
   const pwaArtifacts = writeMaracaPwaArtifacts(plan, bundleFiles);
@@ -8937,6 +8987,7 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   if (kernelRuntimeAsset) {
     rollupResult.files.push(kernelRuntimeAsset);
   }
+  rollupResult.files.push(writeMaracaHtmlHost(plan));
   const webAppManifestArtifacts = writeMaracaWebAppManifestArtifacts(plan, rollupResult.files);
   rollupResult.files.push(...webAppManifestArtifacts.files);
   const pwaArtifacts = writeMaracaPwaArtifacts(plan, rollupResult.files);

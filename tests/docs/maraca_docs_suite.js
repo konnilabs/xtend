@@ -99,6 +99,8 @@ function runDocContentChecks(context, rootDir) {
     'xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --css external --json',
     'xt maraca build app.rmt --out dist --web-app-manifest --json',
     'xt maraca build app.rmt --out dist --pwa --json',
+    'xt serve --root dist',
+    'index.html',
     'xtend.maraca.web-app-manifest-plan.v1',
     'xtend.maraca.web-app-manifest-report.v1',
     'xtend.maraca.pwa-service-worker-plan.v1',

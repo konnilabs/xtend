@@ -20,10 +20,13 @@ test('Material app scaffold contract', () => {
   assert.equal(config.options.kernel, 'strict');
   assert.deepEqual(config.options.cssSources, ['src/app.rmt', 'src/app.css']);
   assert.equal(manifest.devDependencies.tailwindcss, '4.3.2');
+  assert.match(manifest.scripts.serve, /npm run build && xt serve --root \. --default site\/index\.html --port 4173/);
   assert.match(rmt, /class "xtm-app-shell"/);
   assert.match(rmt, /class "xtm-content-page"/);
   assert.match(rmt, /action material\.app\.runCheck/);
   assert.doesNotMatch(rmt, /class "(?:grid|flex|p-\d)/);
   assert.match(host, /id="material-app"/);
+  assert.match(host, /<link rel="stylesheet" href="\.\.\/dist\/xtend\.maraca\.css">/);
+  assert.match(host, /<script type="module" src="\.\.\/src\/material-runtime-host\.mjs"><\/script>/);
   assert.match(runtimeHost, /bootXtendMaraca/);
 });

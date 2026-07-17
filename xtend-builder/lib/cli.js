@@ -44,6 +44,13 @@ const {
   '../../tools/rmt-language/rmt-ai-developer-kit',
   '@ccslabs/xtend-compiler/rmt-language/rmt-ai-developer-kit'
 );
+const {
+  SERVER_CONTRACT,
+  closeServer,
+  listenXtendDevServer,
+  normalizeServeOptions,
+  waitForServerShutdown
+} = require('./dev-server');
 
 const CLI_SCHEMA = 'xtend.scaffold.cli.v1';
 const LAYOUT_SCHEMA = 'xtend.scaffold.layout.v1';
@@ -134,6 +141,7 @@ function buildHelpText() {
     'Usage:',
     '  xt --help',
     '  xt create app --runtime maraca --design-kit material --out material-app --write --json',
+    '  xt serve --root dist --port 4173',
     '  xt validate --json',
     '  xt maraca plan app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --json',
     '  xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --out dist --profile production --lazy route --css external --css-provider maraca-native --pwa --json',
@@ -182,6 +190,7 @@ function buildHelpText() {
     'Commands:',
     '  help      Print this help text.',
     '  create app Create an ownership-guarded app preset; Material requires --runtime maraca --design-kit material.',
+    '  serve     Serve a local static app host with safe paths, local-only defaults and graceful shutdown.',
     '  layout    Print the reserved scaffold project layout.',
     '  config    Print the current scaffold configuration summary.',
     '  blueprint Print the component blueprint contract.',
@@ -209,6 +218,24 @@ function buildHelpText() {
     'Boundary:',
     '  WP-E03-11 standardizes extension-point contracts without productive runtime code.',
     '  Productive file writes must use the WP-E17-01 WritePlan writer and WP-E17-03 structured patchers.'
+  ].join('\n');
+}
+
+function buildServeHelpText() {
+  return [
+    'XTend Local App Server',
+    '',
+    'Usage:',
+    '  xt serve [options]',
+    '',
+    'Options:',
+    '  --root <path>       Directory to serve. Default: current working directory',
+    '  --default <path>    File served for /. Default: index.html',
+    '  --host <host>       Host to bind. Default: 127.0.0.1',
+    '  --port <port>       Port to bind; use 0 for an ephemeral port. Default: 4173',
+    '  --check             Validate, bind and close immediately.',
+    '  --json              Print a machine-readable startup or diagnostic record.',
+    '  --help              Show this help.'
   ].join('\n');
 }
 
@@ -334,7 +361,7 @@ function runCli(args = process.argv.slice(2), io = {}) {
   const options = parseArgs(args);
   const command = normalizeCommand(options.command || (options.help ? 'help' : 'help'));
 
-  if (command === 'help' || (options.help && command !== 'rmt' && command !== 'maraca')) {
+  if (command === 'help' || (options.help && command !== 'create' && command !== 'serve' && command !== 'rmt' && command !== 'maraca')) {
     writeLine(stdout, buildHelpText());
     return 0;
   }
@@ -381,7 +408,8 @@ function runCli(args = process.argv.slice(2), io = {}) {
         '  xt create app --runtime maraca --design-kit material --out material-app --check --json',
         '',
         'Material preset:',
-        '  Generates RMT, CSS, Maraca config, package manifest and smoke test.',
+        '  Generates eight artifacts: RMT, CSS, HTML/runtime hosts, DEV API, config, package and smoke test.',
+        '  The generated npm run serve builds first, then serves site/index.html through xt serve.',
         '  Uses cssProvider=tailwind with explicit local sources and disabled Preflight.',
         '  Dry-run is the default; --write records ownership and --check detects drift.',
         '  Other design-kit presets never activate or install Tailwind through this command.'
@@ -678,6 +706,8 @@ function runCli(args = process.argv.slice(2), io = {}) {
       } else if (result.ok) {
         writeLine(stdout, `XTend Maraca Build: ${result.status}`);
         writeLine(stdout, `Entry: ${result.bundleReport.entry}`);
+        writeLine(stdout, `Host: ${result.plan.outputs.host}`);
+        writeLine(stdout, `Serve: xt serve --root ${result.bundleReport.outputDir}`);
         writeLine(stdout, `Bundle bytes: ${result.bundleReport.bytes}`);
       } else {
         printMaracaDiagnostics(stderr, result);
@@ -792,6 +822,8 @@ function runCli(args = process.argv.slice(2), io = {}) {
         } else if (result.ok) {
           writeLine(stdout, `XTend RMT Maraca Build: ${result.status}`);
           writeLine(stdout, `Entry: ${result.bundleReport.entry}`);
+          writeLine(stdout, `Host: ${result.plan.outputs.host}`);
+          writeLine(stdout, `Serve: xt serve --root ${result.bundleReport.outputDir}`);
         } else {
           printMaracaDiagnostics(stderr, result);
         }
@@ -908,6 +940,53 @@ async function runCliAsync(args = process.argv.slice(2), io = {}) {
   const options = parseArgs(args);
   const command = normalizeCommand(options.command || (options.help ? 'help' : 'help'));
 
+  if (command === 'serve') {
+    if (options.help) {
+      writeLine(stdout, buildServeHelpText());
+      return 0;
+    }
+    const flags = parseFlagArgs(options.rest);
+    flags.json = options.json || flags.json;
+    const normalized = normalizeServeOptions(flags, { rootDir: process.cwd() });
+    if (!normalized.ok) {
+      const failure = { schema: SERVER_CONTRACT, ok: false, status: 'blocked', diagnostics: normalized.errors.map((message) => ({ severity: 'error', message })) };
+      if (flags.json) writeLine(stdout, JSON.stringify(failure));
+      else normalized.errors.forEach((message) => writeLine(stderr, `ERROR: ${message}`));
+      return 1;
+    }
+
+    let handle;
+    try {
+      handle = await listenXtendDevServer(normalized.value);
+      const payload = {
+        schema: SERVER_CONTRACT,
+        ok: true,
+        status: normalized.value.check ? 'checked' : 'serving',
+        origin: handle.origin,
+        host: handle.host,
+        port: handle.port,
+        rootDir: handle.rootDir,
+        defaultPath: handle.defaultPath,
+        check: normalized.value.check
+      };
+      if (normalized.value.json) writeLine(stdout, JSON.stringify(payload));
+      else {
+        writeLine(stdout, `XTend local app server running at ${handle.origin}/`);
+        writeLine(stdout, `Serving ${handle.rootDir} (default: ${handle.defaultPath})`);
+      }
+      if (normalized.value.check) await closeServer(handle.server);
+      else await waitForServerShutdown(handle.server);
+      return 0;
+    } catch (error) {
+      if (handle && handle.server) await closeServer(handle.server).catch(() => {});
+      const message = error && error.message ? error.message : String(error);
+      const failure = { schema: SERVER_CONTRACT, ok: false, status: 'blocked', diagnostics: [{ severity: 'error', message }] };
+      if (normalized.value.json) writeLine(stdout, JSON.stringify(failure));
+      else writeLine(stderr, `ERROR: ${message}`);
+      return 1;
+    }
+  }
+
   if (command === 'maraca') {
     const subcommand = options.rest[0] || 'help';
     const flags = normalizeRmtBuildFlags(options.rest.slice(1));
@@ -920,6 +999,8 @@ async function runCliAsync(args = process.argv.slice(2), io = {}) {
       } else if (result.ok) {
         writeLine(stdout, `XTend Maraca Build: ${result.status}`);
         writeLine(stdout, `Entry: ${result.bundleReport.entry}`);
+        writeLine(stdout, `Host: ${result.plan.outputs.host}`);
+        writeLine(stdout, `Serve: xt serve --root ${result.bundleReport.outputDir}`);
         writeLine(stdout, `Bundle bytes: ${result.bundleReport.bytes}`);
       } else {
         printMaracaDiagnostics(stderr, result);
@@ -956,6 +1037,8 @@ async function runCliAsync(args = process.argv.slice(2), io = {}) {
         } else if (result.ok) {
           writeLine(stdout, `XTend RMT Maraca Build: ${result.status}`);
           writeLine(stdout, `Entry: ${result.bundleReport.entry}`);
+          writeLine(stdout, `Host: ${result.plan.outputs.host}`);
+          writeLine(stdout, `Serve: xt serve --root ${result.bundleReport.outputDir}`);
         } else {
           printMaracaDiagnostics(stderr, result);
         }
@@ -971,6 +1054,7 @@ module.exports = {
   COMMAND_ALIASES,
   buildConfigSummary,
   buildHelpText,
+  buildServeHelpText,
   normalizeCommand,
   parseArgs,
   parseFlagArgs,

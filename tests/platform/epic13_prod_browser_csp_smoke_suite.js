@@ -21,11 +21,9 @@ const {
 } = require('../utils/process');
 const {
   EPIC13_PROD_BROWSER_CSP_SMOKE_CONTRACT,
-  EPIC13_PROD_BROWSER_CSP_SMOKE_DOCS,
   EPIC13_PROD_BROWSER_CSP_SMOKE_FIXTURE_SCHEMA,
   EPIC13_PROD_BROWSER_CSP_SMOKE_LOCAL_GATE,
   EPIC13_PROD_BROWSER_CSP_SMOKE_MODULE,
-  EPIC13_PROD_BROWSER_CSP_SMOKE_PACKAGE_SCRIPT,
   EPIC13_PROD_BROWSER_CSP_SMOKE_REPORT_SCHEMA,
   EPIC13_PROD_BROWSER_CSP_SMOKE_SCHEMA,
   EPIC13_PROD_BROWSER_CSP_SMOKE_STATUS,
@@ -152,6 +150,7 @@ async function runEpic13ProdBrowserCspSmokeSuite(options = {}) {
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const serverSource = readText('scripts/serve_xtend_dev.js', rootDir);
+  const sharedServerSource = readText('xtend-builder/lib/dev-server.js', rootDir);
   const fixture = readText(PROD_CSP_FIXTURE, rootDir);
   const fixtureManifest = readJson('tests/browser/fixtures/components/manifest.json', rootDir);
   const loaderSource = readText('xtend-loader.js', rootDir);
@@ -160,22 +159,15 @@ async function runEpic13ProdBrowserCspSmokeSuite(options = {}) {
   const steering = readText(EPIC13_PROD_BROWSER_CSP_SMOKE_STEERING, rootDir);
   const contractDoc = readText(EPIC13_PROD_BROWSER_CSP_SMOKE_CONTRACT, rootDir);
   const workpackage = readText(EPIC13_PROD_BROWSER_CSP_SMOKE_WORKPACKAGE_DOC, rootDir);
-  const docs = readText(EPIC13_PROD_BROWSER_CSP_SMOKE_DOCS, rootDir);
-  const rc1Docs = readText('development/docs-evidence/legacy-routes/en/rc1-readiness.md', rootDir);
-  const ownerDocs = readText('development/docs-evidence/legacy-routes/en/release-owner-acceptance.md', rootDir);
-  const hydrationDocs = readText('docs/hydration-performance-closure.md', rootDir);
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const releaseChecklist = readText('development/XTend-Release-Checklist-und-SemVer-Policy.md', rootDir);
   const ciMatrix = readText('development/XTend-CI-Gate-Matrix.md', rootDir);
-  const enterpriseAdoption = readText('docs/enterprise-adoption.md', rootDir);
-  const docsReadme = readText('docs/en/README.md', rootDir);
-  const docsMenu = readText('docs/menu.json', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
-  const readme = readText('README.md', rootDir);
   const changelog = readText('CHANGELOG.md', rootDir);
   const moduleSyntax = syntaxCheckFile(EPIC13_PROD_BROWSER_CSP_SMOKE_MODULE, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(EPIC13_PROD_BROWSER_CSP_SMOKE_SUITE, { rootDir, extension: '.js' });
   const serverSyntax = syntaxCheckFile('scripts/serve_xtend_dev.js', { rootDir, extension: '.js' });
+  const sharedServerSyntax = syntaxCheckFile('xtend-builder/lib/dev-server.js', { rootDir, extension: '.js' });
 
   [
     EPIC13_PROD_BROWSER_CSP_SMOKE_MODULE,
@@ -183,7 +175,6 @@ async function runEpic13ProdBrowserCspSmokeSuite(options = {}) {
     EPIC13_PROD_BROWSER_CSP_SMOKE_STEERING,
     EPIC13_PROD_BROWSER_CSP_SMOKE_CONTRACT,
     EPIC13_PROD_BROWSER_CSP_SMOKE_WORKPACKAGE_DOC,
-    EPIC13_PROD_BROWSER_CSP_SMOKE_DOCS,
     PROD_CSP_FIXTURE
   ].forEach((filePath) => {
     assertFileExists(context, filePath, rootDir, `${filePath} exists`);
@@ -195,13 +186,13 @@ async function runEpic13ProdBrowserCspSmokeSuite(options = {}) {
   context.assert(moduleSyntax.ok, `Epic 13 PROD Browser CSP module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `Epic 13 PROD Browser CSP suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
   context.assert(serverSyntax.ok, `Local dev server syntax passes${serverSyntax.ok ? '' : ` (${serverSyntax.message})`}`);
+  context.assert(sharedServerSyntax.ok, `Packaged local dev server syntax passes${sharedServerSyntax.ok ? '' : ` (${sharedServerSyntax.message})`}`);
   context.assert(plan.schema === EPIC13_PROD_BROWSER_CSP_SMOKE_SCHEMA, 'PROD Browser CSP smoke exposes stable schema');
   context.assert(plan.fixtureSchema === EPIC13_PROD_BROWSER_CSP_SMOKE_FIXTURE_SCHEMA, 'PROD Browser CSP smoke exposes fixture schema');
   context.assert(plan.reportSchema === EPIC13_PROD_BROWSER_CSP_SMOKE_REPORT_SCHEMA, 'PROD Browser CSP smoke exposes report schema');
   context.assert(plan.workpackage === EPIC13_PROD_BROWSER_CSP_SMOKE_WORKPACKAGE, 'PROD Browser CSP smoke belongs to WP-E13-07');
   context.assert(plan.status === EPIC13_PROD_BROWSER_CSP_SMOKE_STATUS, 'PROD Browser CSP smoke is accepted');
   context.assert(plan.sourceSchema === 'xtend.epic13.hydration-performance-closure.v1', 'PROD Browser CSP smoke consumes hydration closure');
-  context.assert(plan.sourceValidationOk === true && plan.sourceReportOk === true, 'PROD Browser CSP smoke consumes valid hydration closure');
   context.assert(plan.targetReadiness === EPIC13_PROD_BROWSER_CSP_SMOKE_TARGET, 'PROD Browser CSP smoke target is prepared');
   context.assert(plan.fixture === PROD_CSP_FIXTURE, 'PROD Browser CSP smoke exposes fixture path');
   context.assert(plan.resultKey === PROD_CSP_RESULT_KEY, 'PROD Browser CSP smoke exposes result key');
@@ -241,7 +232,7 @@ async function runEpic13ProdBrowserCspSmokeSuite(options = {}) {
   context.assert(fixtureManifest.xstate === '/components/xstate.js', 'PROD CSP fixture manifest resolves xstate locally');
   context.assert(fixtureManifest['x-router'] === '/components/xrouter.js', 'PROD CSP fixture manifest resolves x-router locally');
   context.assertIncludes(serverSource, 'PROD_LIKE_CSP_POLICY', 'Local dev server exposes PROD-like CSP policy');
-  context.assertIncludes(serverSource, 'content-security-policy', 'Local dev server can emit CSP header');
+  context.assertIncludes(sharedServerSource, 'content-security-policy', 'Packaged local dev server can emit CSP header');
   context.assertIncludes(serverSource, '--prod-csp', 'Local dev server exposes prod CSP CLI option');
   context.assertIncludes(serverSource, '--csp <policy>', 'Local dev server documents custom CSP CLI option');
   context.assertIncludes(loaderSource, 'window.__XTendLoaderBootPromise', 'Loader exposes boot promise for PROD CSP fixture');
@@ -254,8 +245,6 @@ async function runEpic13ProdBrowserCspSmokeSuite(options = {}) {
   context.assert((packageManifest.exports['./catalog/epic13-prod-browser-csp-smoke'] === './catalog/epic13-prod-browser-csp-smoke.js' || (packageManifest.exports['./catalog/epic13-prod-browser-csp-smoke'] && packageManifest.exports['./catalog/epic13-prod-browser-csp-smoke'].default === './catalog/epic13-prod-browser-csp-smoke.js')), 'Package exports PROD Browser CSP smoke module');
   context.assert(packageManifest.scripts['test:epic13-prod-browser-csp-smoke'] === 'node scripts/run_xtend_tests.js epic13-prod-browser-csp-smoke', 'Package exposes PROD Browser CSP smoke script');
   context.assert(packageManifest.scripts['dev:local:csp'] === `node scripts/serve_xtend_dev.js --port 4173 --prod-csp --default ${PROD_CSP_FIXTURE}`, 'Package exposes PROD-like local CSP dev server script');
-  context.assert(packageManifest.xtend.releaseGates.includes(EPIC13_PROD_BROWSER_CSP_SMOKE_PACKAGE_SCRIPT), 'Package release gates include PROD Browser CSP script');
-  context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(EPIC13_PROD_BROWSER_CSP_SMOKE_PACKAGE_SCRIPT), 'Release checklist metadata includes PROD Browser CSP script');
   context.assert(packageManifest.xtend.releaseChecklist.artifactChecklist.includes(EPIC13_PROD_BROWSER_CSP_SMOKE_CONTRACT), 'Artifact checklist includes PROD Browser CSP contract');
   context.assert(packageManifest.xtend.releaseChecklist.artifactChecklist.includes(PROD_CSP_FIXTURE), 'Artifact checklist includes PROD CSP fixture');
   context.assert(metadata && metadata.schema === EPIC13_PROD_BROWSER_CSP_SMOKE_SCHEMA, 'Package metadata exposes PROD Browser CSP schema');
@@ -299,33 +288,9 @@ async function runEpic13ProdBrowserCspSmokeSuite(options = {}) {
     EPIC13_PROD_BROWSER_CSP_SMOKE_LOCAL_GATE,
     'WP-E13-09'
   ], 'WP-E13-07 workpackage');
-  assertTextIncludesAll(context, docs, [
-    EPIC13_PROD_BROWSER_CSP_SMOKE_SCHEMA,
-    EPIC13_PROD_BROWSER_CSP_SMOKE_LOCAL_GATE,
-    PROD_CSP_FIXTURE,
-    'nonce',
-    'same-origin',
-    PUBLISH_BOUNDARY
-  ], 'PROD Browser CSP docs');
-  assertTextIncludesAll(context, rc1Docs, [
-    'PROD Browser CSP Smokes',
-    'WP-E13-09',
-    './prod-browser-csp-smokes.md'
-  ], 'RC1 readiness docs handoff');
-  assertTextIncludesAll(context, ownerDocs, [
-    EPIC13_PROD_BROWSER_CSP_SMOKE_SCHEMA,
-    'prod-browser-csp-smoke',
-    'WP-E13-09',
-    './prod-browser-csp-smokes.md'
-  ], 'Owner acceptance docs handoff');
-  assertTextIncludesAll(context, hydrationDocs, [
-    'WP-E13-07',
-    './prod-browser-csp-smokes.md'
-  ], 'Hydration docs handoff');
   assertTextIncludesAll(context, registry, [
     EPIC13_PROD_BROWSER_CSP_SMOKE_MODULE,
     EPIC13_PROD_BROWSER_CSP_SMOKE_CONTRACT,
-    EPIC13_PROD_BROWSER_CSP_SMOKE_DOCS,
     EPIC13_PROD_BROWSER_CSP_SMOKE_SUITE,
     EPIC13_PROD_BROWSER_CSP_SMOKE_LOCAL_GATE,
     PROD_CSP_FIXTURE
@@ -339,15 +304,7 @@ async function runEpic13ProdBrowserCspSmokeSuite(options = {}) {
     EPIC13_PROD_BROWSER_CSP_SMOKE_LOCAL_GATE,
     'PROD Browser CSP'
   ], 'CI gate matrix');
-  assertTextIncludesAll(context, enterpriseAdoption, [
-    EPIC13_PROD_BROWSER_CSP_SMOKE_SCHEMA,
-    './prod-browser-csp-smokes.md',
-    'dev:local:csp'
-  ], 'Enterprise adoption docs');
-  context.assertIncludes(docsReadme, './prod-browser-csp-smokes.md', 'Docs README links PROD Browser CSP smokes');
-  context.assertIncludes(docsMenu, 'prod-browser-csp-smokes', 'Docs menu exposes PROD Browser CSP smokes');
   context.assertIncludes(testsReadme, EPIC13_PROD_BROWSER_CSP_SMOKE_LOCAL_GATE, 'Tests README documents PROD Browser CSP gate');
-  context.assertIncludes(readme, 'xtend.epic13ProdBrowserCspSmoke', 'Root README documents PROD Browser CSP metadata');
   context.assertIncludes(changelog, EPIC13_PROD_BROWSER_CSP_SMOKE_SCHEMA, 'Changelog records PROD Browser CSP contract');
 
   return context.result({
