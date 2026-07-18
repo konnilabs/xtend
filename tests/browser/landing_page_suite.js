@@ -73,6 +73,7 @@ function runLandingPageSuite(options = {}) {
   context.assert(html.includes('docs/index.php?xtend-docs-page=xtend-classic&amp;locale=en'), 'Landing Classic path links to the canonical English guide');
   context.assert(countMatches(html, /<article class="path-card/gu) === 3 && html.includes('class="path-card path-card-esm"'), 'Landing page presents Classic, ESM Registry and Maraca as three runtime paths');
   context.assert(html.includes('href="/docs/en/esm-registry"') && html.includes('ESM Registry'), 'Landing ESM path links to the canonical English Registry guide');
+  context.assert(html.includes('href="/docs/en/xtend-maraca"') && html.includes('Explore XTend Maraca'), 'Landing application-platform path links to the canonical English Maraca guide');
   context.assert(html.includes('await readyXTend();') && html.includes("from '@ccslabs/xtend';"), 'Landing ESM example uses the package root and explicit kernel readiness');
   context.assert(html.includes('href="/demos/esm-app/"') && html.includes('href="/demos/ts-app/"'), 'Landing ESM example links to the JavaScript and TypeScript demos');
   ['#why-xtend', '#runtime-paths', '#platform-stack'].forEach((target) => {
