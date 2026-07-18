@@ -73,7 +73,10 @@ function bindActions() {
     button.disabled = true;
     button.textContent = 'Loading…';
     try {
-      await loadComponent('x-status', { source: 'demos.esm-app' });
+      await loadComponent('x-status', {
+        source: 'demos.esm-app',
+        manifest: { 'x-status': '/components/xstatus.js' }
+      });
       const status = document.createElement('x-status');
       status.setAttribute('type', 'success');
       status.setAttribute('message', 'x-status was loaded through the ESM Registry.');

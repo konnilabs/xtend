@@ -1,4 +1,8 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+
+const registrySource = await readFile(new URL('../../xtend-registry.mjs', import.meta.url), 'utf8');
+const esmDemoSource = await readFile(new URL('../../demos/esm-app/app.js', import.meta.url), 'utf8');
 
 const loaderBeforeImport = globalThis.XTendLoader;
 const registry = await import('../../xtend.ssr.mjs');
@@ -14,6 +18,8 @@ const requiredExports = [
 requiredExports.forEach((name) => assert.equal(typeof registry[name], 'function', `${name} is exported`));
 assert.equal(globalThis.XTendLoader, loaderBeforeImport, 'registry import does not boot the Classic loader');
 assert.equal(globalThis.XTendRmtAppRuntime, undefined, 'registry import does not expose RMT globals');
+assert.ok(registrySource.includes('const bootGuard = Promise.resolve(null)') && registrySource.includes("delete target.__XTendLoaderBootPromise"), 'lazy loader interop suppresses implicit Classic auto-boot');
+assert.ok(esmDemoSource.includes("manifest: { 'x-status': '/components/xstatus.js' }"), 'ESM demo uses an explicit component mapping instead of a page-relative manifest');
 assert.throws(() => registry.createApp(), (error) => error.code === 'XTEND_NOT_READY', 'kernel mode is fail-closed before readiness');
 await registry.readyXTend({ fabric: false });
 assert.ok(registry.createApp(), 'createApp delegates to the kernel-bound RMT app runtime');

@@ -250,7 +250,19 @@ async function getClassicLoader() {
   const target = browserGlobal();
   if (!target || typeof document === 'undefined') throw new Error('XTend loader operations are browser-only. Use the RMT factories for SSR.');
   if (target.XTendLoader) return target.XTendLoader;
-  if (!loaderPromise) loaderPromise = import('./xtend-loader.js').then(() => { if (!target.XTendLoader) throw new Error('XTend Classic loader did not expose window.XTendLoader.'); return target.XTendLoader; });
+  if (!loaderPromise) {
+    const ownsBootGuard = !Object.prototype.hasOwnProperty.call(target, '__XTendLoaderBootPromise');
+    const bootGuard = Promise.resolve(null);
+    if (ownsBootGuard) target.__XTendLoaderBootPromise = bootGuard;
+    loaderPromise = import('./xtend-loader.js')
+      .then(() => {
+        if (!target.XTendLoader) throw new Error('XTend Classic loader did not expose window.XTendLoader.');
+        return target.XTendLoader;
+      })
+      .finally(() => {
+        if (ownsBootGuard && target.__XTendLoaderBootPromise === bootGuard) delete target.__XTendLoaderBootPromise;
+      });
+  }
   return loaderPromise;
 }
 
@@ -261,7 +273,15 @@ async function loaderWork(kind, callback) {
 }
 export async function loadComponent(tag, options = {}) { return loaderWork('component-load', async () => (await getClassicLoader()).ensureComponent(tag, options)); }
 export async function hydrate(root = typeof document !== 'undefined' ? document : undefined, options = {}) { return loaderWork('hydrate', async () => (await getClassicLoader()).hydrateTree(root, options)); }
-export async function boot(options = {}) { return loaderWork('hydrate', async () => (await getClassicLoader()).initiateXTend(options)); }
+export async function boot(options = {}) {
+  return loaderWork('hydrate', async () => {
+    const loader = await getClassicLoader();
+    const bootPromise = loader.initiateXTend(options);
+    const target = browserGlobal();
+    if (target) target.__XTendLoaderBootPromise = bootPromise;
+    return bootPromise;
+  });
+}
 
 export async function createFabric(options = {}) {
   if (mode() === 'kernel') { assertReady('createFabric()'); return kernelHost.fabric; }

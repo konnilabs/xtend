@@ -7,7 +7,7 @@ Demonstrated APIs:
 - `schedule()` and `afterPaint()` with shared lazy scheduling.
 - `render()` with safe DOM descriptors.
 - `createApp()` and `createStore()` aliases.
-- `loadComponent()` for deliberate Classic-loader interop.
+- `loadComponent()` for deliberate Classic-loader interop with an explicit component mapping; importing the loader module does not implicitly boot Classic.
 - `disposeXTend()` for host cleanup.
 
 From the repository root:
