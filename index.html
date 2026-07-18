@@ -86,7 +86,7 @@
       <div slot="header" class="section-heading">
         <p class="section-kicker">One native-first toolkit</p>
         <h2>A small entry point, not a small ceiling.</h2>
-        <p>Adopt the layer you need today without closing the path to a larger application tomorrow.</p>
+        <p>Start with semantic HTML, familiar ESM JavaScript or TypeScript, or declarative RMT without closing the path to a larger application tomorrow.</p>
       </div>
       <x-cards columns="3" gap="1.25rem" aria-label="XTend capabilities">
         <x-card>
@@ -126,7 +126,7 @@
       <div slot="header" class="section-heading">
         <p class="section-kicker">Progressive architecture</p>
         <h2>Choose the runtime path you need.</h2>
-        <p>XTend Classic and XTend Maraca share the same local, inspectable component foundation.</p>
+        <p>XTend Classic, the ESM Registry, and XTend Maraca share the same local, inspectable component and orchestration foundation.</p>
       </div>
       <div class="path-grid">
         <article class="path-card path-card-classic">
@@ -135,6 +135,14 @@
           <p>Author regular HTML, preload the first viewport, and let <code>xtend-loader.js</code> register deeper components as they approach the viewport.</p>
           <p class="path-best-for"><strong>Best for:</strong> landing pages, documentation, progressive enhancement, and small application shells.</p>
           <a class="landing-text-link" href="docs/index.php?xtend-docs-page=xtend-classic&amp;locale=en">Learn XTend Classic <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="path-card path-card-esm">
+          <p class="path-label">ESM Registry</p>
+          <h3>Named imports for JavaScript and TypeScript applications</h3>
+          <p>Import scheduling, rendering, typed app and store APIs from <code>@ccslabs/xtend</code>, then boot the RMT orchestration host once with <code>await readyXTend()</code>.</p>
+          <p>Imports stay side-effect-free, while browser, bundler, Vite, and DOM-neutral SSR projects use the same concise API.</p>
+          <p class="path-best-for"><strong>Best for:</strong> JavaScript and TypeScript teams that want framework-style DX with native platform boundaries.</p>
+          <a class="landing-text-link" href="/docs/en/esm-registry">Explore the ESM Registry <span aria-hidden="true">→</span></a>
         </article>
         <article class="path-card">
           <p class="path-label">Application platform</p>
@@ -171,6 +179,37 @@
       </ol>
     </x-section>
 
+    <x-section id="esm-example" class="landing-section landing-code-section landing-esm-section" layout="column" label="XTend ESM Registry example">
+      <div slot="header" class="section-heading">
+        <p class="section-kicker">ESM Registry · JavaScript and TypeScript</p>
+        <h2>Start with the module workflow you already know.</h2>
+        <p>Use the package root with a browser import map, Vite, or another ESM-aware bundler. The import is side-effect-free; readiness explicitly starts the orchestration kernel.</p>
+      </div>
+      <x-code lang="javascript" class="landing-code landing-esm-code" aria-label="XTend ESM Registry application example">
+        <template data-x-code-mode="text">
+import {
+  readyXTend,
+  createApp,
+  schedule,
+  render
+} from '@ccslabs/xtend';
+
+await readyXTend();
+const app = createApp({ initialState: { count: 0 } });
+
+schedule(() =&gt; render(document.querySelector('#app'), {
+  type: 'element',
+  tag: 'strong',
+  children: [{ type: 'text', text: String(app.getState().count) }]
+}));
+        </template>
+      </x-code>
+      <div class="example-links" aria-label="Try the XTend ESM examples">
+        <a class="landing-text-link" href="/demos/esm-app/">Open the JavaScript demo <span aria-hidden="true">→</span></a>
+        <a class="landing-text-link" href="/demos/ts-app/">Open the TypeScript demo <span aria-hidden="true">→</span></a>
+      </div>
+    </x-section>
+
     <x-section id="classic-example" class="landing-section landing-code-section" layout="column" label="XTend Classic HTML example">
       <div slot="header" class="section-heading">
         <p class="section-kicker">XTend Classic · No application build required</p>
@@ -197,7 +236,7 @@
     <section class="final-cta" aria-labelledby="final-cta-title">
       <p class="section-kicker">Keep the entry point simple</p>
       <h2 id="final-cta-title">Build one page. Keep the path to a platform.</h2>
-      <p>Explore the component catalog, learn RMT, or inspect every runtime and gate directly in the repository.</p>
+      <p>Start in semantic HTML, build a typed ESM application, learn RMT, or inspect every runtime and gate directly in the repository.</p>
       <div class="final-cta-actions">
         <a class="landing-button landing-button-primary" href="/docs/en/quick-start-guide">Explore the documentation</a>
         <a class="landing-button landing-button-secondary" href="https://www.npmjs.com/package/@ccslabs/xtend">View the npm package</a>

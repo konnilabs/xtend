@@ -60,6 +60,7 @@ function runLandingPageSuite(options = {}) {
   context.assert(!html.includes('icons/speed.png') && !html.includes('icons/simplicity.png') && !html.includes('icons/security.png'), 'Landing page no longer references missing feature icons');
   context.assert(!html.includes('https://cdn.ccs-networks.de/xtend') && !html.includes('type="importmap"'), 'Landing page has no XTend CDN or import-map bridge');
   context.assert(!/<script[^>]+(?:maraca|xtendrmt|rmt-runtime)/iu.test(html), 'Landing runtime does not load Maraca, RMT App Runtime, or SSR code');
+  context.assert(!/<script[^>]+src="[^"]*xtend(?:-registry)?(?:\.ssr)?\.(?:js|mjs)"/iu.test(html), 'ESM promotion does not boot the Registry or Kernel on the Classic landing runtime');
   context.assert(countMatches(html, /<script[^>]+src="xtend-loader\.js"/gu) === 1 && !/<script[^>]+src="xtend-classic-dev-api\.js"/u.test(html), 'Classic DEV API remains owned by the single loader script');
   context.assert(loaderSource.includes('Promise.all([') && loaderSource.includes('prepareClassicDevApi(options, loaderScript)') && loaderSource.includes('fetchManifest(manifestUrl, { moduleCacheBust })'), 'Loader starts the opt-in DEV service and manifest in parallel');
   context.assert(loaderSource.includes("Object.prototype.hasOwnProperty.call(options, 'devApi')") && loaderSource.includes('return options.devApi === true') && loaderSource.includes("getAttribute('data-dev-api')"), 'Programmatic boolean DEV API option takes precedence over the declarative opt-in');
@@ -70,6 +71,10 @@ function runLandingPageSuite(options = {}) {
   });
   context.assert(html.includes('XTend Classic') && !html.includes('>Classic HTML<') && !html.includes('uses the classic path'), 'Landing page uses the visible XTend Classic product brand');
   context.assert(html.includes('docs/index.php?xtend-docs-page=xtend-classic&amp;locale=en'), 'Landing Classic path links to the canonical English guide');
+  context.assert(countMatches(html, /<article class="path-card/gu) === 3 && html.includes('class="path-card path-card-esm"'), 'Landing page presents Classic, ESM Registry and Maraca as three runtime paths');
+  context.assert(html.includes('href="/docs/en/esm-registry"') && html.includes('ESM Registry'), 'Landing ESM path links to the canonical English Registry guide');
+  context.assert(html.includes('await readyXTend();') && html.includes("from '@ccslabs/xtend';"), 'Landing ESM example uses the package root and explicit kernel readiness');
+  context.assert(html.includes('href="/demos/esm-app/"') && html.includes('href="/demos/ts-app/"'), 'Landing ESM example links to the JavaScript and TypeScript demos');
   ['#why-xtend', '#runtime-paths', '#platform-stack'].forEach((target) => {
     context.assert(html.includes(`href="${target}"`) && html.includes(`id="${target.slice(1)}"`), `Landing navigation target ${target} is stable`);
   });
@@ -78,17 +83,20 @@ function runLandingPageSuite(options = {}) {
   context.assert(countMatches(html, /<x-icon class="github-icon" src="landing-assets\/github-invertocat-white\.svg"/gu) === 3 && countMatches(html, /class="[^"]*github-link[^"]*" href="https:\/\/github\.com\/konnilabs\/xtend"/gu) === 3, 'Every GitHub destination uses the local Invertocat through XIcon');
   context.assert(html.includes('<x-type') && html.includes('hero-static-text') && html.includes('hero-animated-text'), 'Hero retains XType with a static motion-safe fallback');
   context.assert(html.includes('<template data-x-code-mode="text">') && html.includes('&lt;meta name="xtend-preload"'), 'Classic example uses XCode text mode without double escaping');
+  context.assert(countMatches(html, /<x-code/gu) === 2 && html.includes('class="landing-code landing-esm-code"'), 'Landing exposes separate ESM and Classic XCode examples');
   context.assert(css.includes('@media (prefers-reduced-motion: reduce)') && css.includes('.hero-animated-text') && css.includes('.hero-static-text'), 'Landing stylesheet switches XType off for reduced motion');
   context.assert(css.includes('min-width: 18ch') && css.includes('--hero-reserved-block-size: calc(100svh - var(--landing-header-height))'), 'Hero reserves rotating text and first-viewport geometry');
   context.assert(css.includes('.landing-header:not(:defined)') && css.includes('.landing-hero:not(:defined) > *'), 'Undefined first-viewport components reserve geometry without exposing light DOM');
   context.assert(css.includes('@media (max-width: 700px)') && css.includes('overflow-x'), 'Landing stylesheet owns responsive and overflow-safe presentation');
   context.assert(css.includes('.landing-section x-card:hover') && css.includes('.landing-section x-card:focus-within') && css.includes('transform: translateY(-6px);'), 'Landing cards keep their hover lift without scale-driven horizontal overflow');
   context.assert(css.includes('.landing-code-section::part(container)') && css.includes('.landing-code-section::part(content)') && css.includes('--x-code-bg: #050506') && css.includes('--x-code-padding: 1.2rem 1.5rem 1.35rem'), 'Classic example reuses the Docs XCode surface and spacing through public styling contracts');
+  context.assert(css.includes('grid-template-columns: repeat(3, minmax(0, 1fr))') && css.includes('.path-card-esm') && css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))'), 'Runtime paths use a responsive three-two-one column layout with an ESM accent');
   context.assert(css.includes('--footer-content-max: 100%') && css.includes('.landing-footer::part(root)') && css.includes('.github-link'), 'Footer owns a full-bleed surface and aligned icon links');
   context.assert(browserSmoke.includes('RUNS_PER_SCENARIO = 3'), 'Browser smoke uses three cold-cache runs per viewport');
   context.assert(browserSmoke.includes("fcpBudgetMs: 1500") && browserSmoke.includes("fcpBudgetMs: 2000"), 'Browser smoke enforces desktop and mobile FCP budgets');
   context.assert(browserSmoke.includes('LCP_BUDGET_MS = 2500') && browserSmoke.includes('CLS_BUDGET = 0.05'), 'Browser smoke enforces LCP and CLS budgets');
-  context.assert(browserSmoke.includes('classicCodeSectionOverflowX') && browserSmoke.includes('double-escaped markup'), 'Browser smoke guards the classic code rendering and overflow regression');
+  context.assert(browserSmoke.includes('classicCodeSectionOverflowX') && browserSmoke.includes('esmCodeSectionOverflowX') && browserSmoke.includes('double-escaped markup'), 'Browser smoke guards both code examples and their overflow regressions');
+  context.assert(browserSmoke.includes('esmRegistryVisible') && browserSmoke.includes('esmGuideLinked'), 'Browser smoke validates visible ESM Registry promotion and canonical guide navigation');
   context.assert(browserSmoke.includes('footerFullBleed') && browserSmoke.includes('githubIconsReady'), 'Browser smoke guards footer width and GitHub icon loading');
   context.assert(browserSmoke.includes('devApiPresent') && browserSmoke.includes('fabricSupported') && browserSmoke.includes('kernelSupported'), 'Browser smoke validates the Classic DEV API and honest unsupported runtime capabilities');
   context.assert(browserSmoke.includes('classicBrandVisible') && browserSmoke.includes('classicGuideLinked'), 'Browser smoke validates visible Classic branding and canonical guide navigation');

@@ -383,7 +383,7 @@ body::selection {
 
 .path-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
 }
 
@@ -398,6 +398,18 @@ body::selection {
 .path-card-classic {
   border-color: rgba(99, 212, 255, 0.4);
   background: linear-gradient(145deg, rgba(31, 102, 128, 0.22), rgba(8, 11, 18, 0.76));
+}
+
+.path-card-esm {
+  border-color: rgba(150, 120, 255, 0.48);
+  background: linear-gradient(145deg, rgba(91, 66, 170, 0.24), rgba(8, 11, 18, 0.76));
+}
+
+.example-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  margin-block-start: 1rem;
 }
 
 .path-best-for {
@@ -535,6 +547,10 @@ code {
 }
 
 @media (max-width: 900px) {
+  .path-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .proof-strip,
   .stack-flow {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -609,6 +625,11 @@ code {
   }
 
   .final-cta-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .example-links {
     align-items: stretch;
     flex-direction: column;
   }

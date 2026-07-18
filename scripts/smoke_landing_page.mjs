@@ -176,14 +176,22 @@ async function readSnapshot(driverOrigin, sessionId) {
     const hero = document.querySelector('x-hero');
     const animated = document.querySelector('.hero-animated-text');
     const fallback = document.querySelector('.hero-static-text');
-    const codeSection = document.querySelector('.landing-code-section');
+    const codeSection = document.querySelector('#classic-example');
     const codeSectionContainer = codeSection && codeSection.shadowRoot && codeSection.shadowRoot.querySelector('.container');
     const codeSectionContent = codeSection && codeSection.shadowRoot && codeSection.shadowRoot.querySelector('main');
-    const codeBlock = document.querySelector('.landing-code');
+    const codeBlock = codeSection && codeSection.querySelector('.landing-code');
     const codePre = codeBlock && codeBlock.shadowRoot && codeBlock.shadowRoot.querySelector('pre');
     const codeElement = codeBlock && codeBlock.shadowRoot && codeBlock.shadowRoot.querySelector('code');
     const codeRect = codeBlock && codeBlock.getBoundingClientRect();
     const codeContentRect = codeSectionContent && codeSectionContent.getBoundingClientRect();
+    const esmCodeSection = document.querySelector('#esm-example');
+    const esmCodeSectionContainer = esmCodeSection && esmCodeSection.shadowRoot && esmCodeSection.shadowRoot.querySelector('.container');
+    const esmCodeSectionContent = esmCodeSection && esmCodeSection.shadowRoot && esmCodeSection.shadowRoot.querySelector('main');
+    const esmCodeBlock = esmCodeSection && esmCodeSection.querySelector('.landing-esm-code');
+    const esmCodePre = esmCodeBlock && esmCodeBlock.shadowRoot && esmCodeBlock.shadowRoot.querySelector('pre');
+    const esmCodeElement = esmCodeBlock && esmCodeBlock.shadowRoot && esmCodeBlock.shadowRoot.querySelector('code');
+    const esmCodeRect = esmCodeBlock && esmCodeBlock.getBoundingClientRect();
+    const esmCodeContentRect = esmCodeSectionContent && esmCodeSectionContent.getBoundingClientRect();
     const footer = document.querySelector('.landing-footer');
     const footerRect = footer && footer.getBoundingClientRect();
     const githubIcons = Array.from(document.querySelectorAll('a[href="https://github.com/konnilabs/xtend"] x-icon.github-icon'));
@@ -194,6 +202,7 @@ async function readSnapshot(driverOrigin, sessionId) {
     const devKernel = devApi && devApi.getKernelSnapshot();
     const devHydration = devApi && devApi.getHydrationSnapshot();
     const classicGuideLink = document.querySelector('a[href="docs/index.php?xtend-docs-page=xtend-classic&locale=en"]');
+    const esmGuideLink = document.querySelector('a[href="/docs/en/esm-registry"]');
     const visibleUndefined = Array.from(document.querySelectorAll('x-header,x-hero,x-type,x-section,x-cards,x-code,x-footer'))
       .filter((element) => !customElements.get(element.localName))
       .filter((element) => {
@@ -212,6 +221,8 @@ async function readSnapshot(driverOrigin, sessionId) {
       hydrationSupported: devHydration && devHydration.supported,
       classicBrandVisible: document.body.innerText.includes('XTend Classic'),
       classicGuideLinked: Boolean(classicGuideLink && classicGuideLink.getClientRects().length),
+      esmRegistryVisible: document.body.innerText.includes('ESM Registry'),
+      esmGuideLinked: Boolean(esmGuideLink && esmGuideLink.getClientRects().length),
       fcpMs: fcp ? fcp.startTime : null,
       lcpMs: window.__xtendLandingPerformance && window.__xtendLandingPerformance.lcpMs || 0,
       cls: window.__xtendLandingPerformance && window.__xtendLandingPerformance.cls || 0,
@@ -234,6 +245,10 @@ async function readSnapshot(driverOrigin, sessionId) {
       classicCodeSectionOverflowX: codeSectionContainer ? Math.max(0, codeSectionContainer.scrollWidth - codeSectionContainer.clientWidth) : null,
       classicCodeOverflowX: codePre ? Math.max(0, codePre.scrollWidth - codePre.clientWidth) : null,
       classicCodeContained: Boolean(codeRect && codeContentRect && codeRect.left >= codeContentRect.left - 1 && codeRect.right <= codeContentRect.right + 1),
+      esmCodeText: esmCodeElement ? esmCodeElement.textContent : null,
+      esmCodeSectionOverflowX: esmCodeSectionContainer ? Math.max(0, esmCodeSectionContainer.scrollWidth - esmCodeSectionContainer.clientWidth) : null,
+      esmCodeOverflowX: esmCodePre ? Math.max(0, esmCodePre.scrollWidth - esmCodePre.clientWidth) : null,
+      esmCodeContained: Boolean(esmCodeRect && esmCodeContentRect && esmCodeRect.left >= esmCodeContentRect.left - 1 && esmCodeRect.right <= esmCodeContentRect.right + 1),
       footerFullBleed: Boolean(footerRect && footerRect.left <= 1 && footerRect.right >= document.documentElement.clientWidth - 1),
       githubIconCount: githubIcons.length,
       githubIconsReady: githubIcons.length > 0 && githubIcons.every((icon) => {
@@ -264,6 +279,7 @@ async function runSingle(driverOrigin, pageOrigin, scenario, runNumber) {
     assert(settled.devPerformanceMeasurementCount > 0, `${scenario.id}: Classic DEV API exposes no real performance measurements`);
     assert(settled.fabricSupported === false && settled.kernelSupported === false && settled.hydrationSupported === false, `${scenario.id}: inactive runtimes are not reported as unsupported`);
     assert(settled.classicBrandVisible && settled.classicGuideLinked, `${scenario.id}: XTend Classic brand or canonical guide link is not visible`);
+    assert(settled.esmRegistryVisible && settled.esmGuideLinked, `${scenario.id}: ESM Registry brand or canonical guide link is not visible`);
     const measuredTags = new Set(settled.loaderMeasurements.map((entry) => entry.tag).filter(Boolean));
     assert(PRELOAD_COMPONENTS.every((tag) => measuredTags.has(tag)), `${scenario.id}: loader measurements miss a preload component (${JSON.stringify(settled.loaderMeasurements)})`);
     if (scenario.reducedMotion) {
@@ -288,6 +304,10 @@ async function runSingle(driverOrigin, pageOrigin, scenario, runNumber) {
     assert(afterScroll.classicCodePaddingTop >= 10 && afterScroll.classicCodePaddingInlineStart >= 8, `${scenario.id}: classic code example lacks Docs-aligned content padding (${JSON.stringify({ top: afterScroll.classicCodePaddingTop, inlineStart: afterScroll.classicCodePaddingInlineStart })})`);
     assert(afterScroll.classicCodeSectionOverflowX <= 1 && afterScroll.classicCodeOverflowX <= 1, `${scenario.id}: classic code example overflows (${JSON.stringify({ section: afterScroll.classicCodeSectionOverflowX, code: afterScroll.classicCodeOverflowX })})`);
     assert(afterScroll.classicCodeContained, `${scenario.id}: classic code example is not contained by its section`);
+    assert(afterScroll.esmCodeText && afterScroll.esmCodeText.includes('await readyXTend();'), `${scenario.id}: ESM code example does not expose explicit readiness`);
+    assert(!afterScroll.esmCodeText.includes('&lt;'), `${scenario.id}: ESM code example contains double-escaped markup`);
+    assert(afterScroll.esmCodeSectionOverflowX <= 1 && afterScroll.esmCodeOverflowX <= 1, `${scenario.id}: ESM code example overflows (${JSON.stringify({ section: afterScroll.esmCodeSectionOverflowX, code: afterScroll.esmCodeOverflowX })})`);
+    assert(afterScroll.esmCodeContained, `${scenario.id}: ESM code example is not contained by its section`);
     assert(afterScroll.footerFullBleed, `${scenario.id}: footer does not cover the full viewport width`);
     assert(afterScroll.githubIconCount === 3 && afterScroll.githubIconsReady, `${scenario.id}: GitHub Invertocat icons are incomplete (${JSON.stringify({ count: afterScroll.githubIconCount, ready: afterScroll.githubIconsReady })})`);
     const logs = await request(driverOrigin, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
