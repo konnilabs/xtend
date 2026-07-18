@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const registrySource = await readFile(new URL('../../xtend-registry.mjs', import.meta.url), 'utf8');
+const loaderSource = await readFile(new URL('../../xtend-loader.js', import.meta.url), 'utf8');
 const esmDemoSource = await readFile(new URL('../../demos/esm-app/app.js', import.meta.url), 'utf8');
 
 const loaderBeforeImport = globalThis.XTendLoader;
@@ -18,7 +19,8 @@ const requiredExports = [
 requiredExports.forEach((name) => assert.equal(typeof registry[name], 'function', `${name} is exported`));
 assert.equal(globalThis.XTendLoader, loaderBeforeImport, 'registry import does not boot the Classic loader');
 assert.equal(globalThis.XTendRmtAppRuntime, undefined, 'registry import does not expose RMT globals');
-assert.ok(registrySource.includes('const bootGuard = Promise.resolve(null)') && registrySource.includes("delete target.__XTendLoaderBootPromise"), 'lazy loader interop suppresses implicit Classic auto-boot');
+assert.ok(registrySource.includes('const needsBootGuard = !previousBootState') && registrySource.includes('target.__XTendLoaderBootPromise = previousBootState') && registrySource.includes("delete target.__XTendLoaderBootPromise"), 'lazy loader interop suppresses implicit Classic auto-boot and restores a host-owned boot slot');
+assert.ok(registrySource.includes('target.__XTendLoaderSuppressAutoBoot = true') && loaderSource.includes('window.__XTendLoaderSuppressAutoBoot !== true'), 'Registry and Classic loader share an explicit auto-boot suppression contract');
 assert.ok(esmDemoSource.includes("manifest: { 'x-status': '/components/xstatus.js' }"), 'ESM demo uses an explicit component mapping instead of a page-relative manifest');
 assert.throws(() => registry.createApp(), (error) => error.code === 'XTEND_NOT_READY', 'kernel mode is fail-closed before readiness');
 await registry.readyXTend({ fabric: false });

@@ -251,16 +251,26 @@ async function getClassicLoader() {
   if (!target || typeof document === 'undefined') throw new Error('XTend loader operations are browser-only. Use the RMT factories for SSR.');
   if (target.XTendLoader) return target.XTendLoader;
   if (!loaderPromise) {
-    const ownsBootGuard = !Object.prototype.hasOwnProperty.call(target, '__XTendLoaderBootPromise');
+    const hadBootState = Object.prototype.hasOwnProperty.call(target, '__XTendLoaderBootPromise');
+    const previousBootState = target.__XTendLoaderBootPromise;
+    const needsBootGuard = !previousBootState;
     const bootGuard = Promise.resolve(null);
-    if (ownsBootGuard) target.__XTendLoaderBootPromise = bootGuard;
+    const hadAutoBootControl = Object.prototype.hasOwnProperty.call(target, '__XTendLoaderSuppressAutoBoot');
+    const previousAutoBootControl = target.__XTendLoaderSuppressAutoBoot;
+    target.__XTendLoaderSuppressAutoBoot = true;
+    if (needsBootGuard) target.__XTendLoaderBootPromise = bootGuard;
     loaderPromise = import('./xtend-loader.js')
       .then(() => {
         if (!target.XTendLoader) throw new Error('XTend Classic loader did not expose window.XTendLoader.');
         return target.XTendLoader;
       })
       .finally(() => {
-        if (ownsBootGuard && target.__XTendLoaderBootPromise === bootGuard) delete target.__XTendLoaderBootPromise;
+        if (needsBootGuard && target.__XTendLoaderBootPromise === bootGuard) {
+          if (hadBootState) target.__XTendLoaderBootPromise = previousBootState;
+          else delete target.__XTendLoaderBootPromise;
+        }
+        if (hadAutoBootControl) target.__XTendLoaderSuppressAutoBoot = previousAutoBootControl;
+        else delete target.__XTendLoaderSuppressAutoBoot;
       });
   }
   return loaderPromise;

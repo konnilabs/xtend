@@ -2079,6 +2079,6 @@ window.XTendStyleRegistry = XTendStyleRegistry;
 window.XTendSkeletonLoader = SkeletonLoader;
 ensureRuntimeStyles({ source: 'loader.evaluate' });
 
-if (!window.__XTendLoaderBootPromise) {
+if (window.__XTendLoaderSuppressAutoBoot !== true && !window.__XTendLoaderBootPromise) {
   window.__XTendLoaderBootPromise = initiateXTend();
 }
