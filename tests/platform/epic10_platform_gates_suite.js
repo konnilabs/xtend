@@ -125,7 +125,7 @@ function runEpic10PlatformGatesSuite(options = {}) {
 
   context.assert(plan.browser.localOnly === true, 'Browser gates stay local-only');
   context.assert(plan.browser.cdnAllowed === false, 'Browser gates reject CDN loading');
-  context.assert(plan.browser.fixtures.includes('tests/browser/fixtures/rmt-first-demo-app-smoke.html'), 'Browser gates include RMT-first demo smoke');
+  context.assert(plan.browser.fixtures.includes('demos/xtendrmt/examples/first-app/browser-smoke.html'), 'Browser gates include RMT-first demo smoke');
   context.assert(plan.browser.fixtures.includes('tests/browser/fixtures/a11y-focus-keyboard-smoke.html'), 'Browser gates include A11y keyboard smoke');
   context.assertIncludes(browserSuite, 'RMT_FIRST_DEMO_SMOKE_FIXTURE_PATH', 'Browser smoke suite registers RMT-first demo fixture');
   context.assertIncludes(browserSuite, '__xtendRmtFirstDemoSmokeResult', 'Browser smoke suite registers RMT-first demo result key');

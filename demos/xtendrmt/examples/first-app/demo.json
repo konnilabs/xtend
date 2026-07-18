@@ -1,0 +1,11 @@
+{
+  "schema": "xtend.rmt.demo.v1",
+  "id": "first-app",
+  "role": "tutorial",
+  "stability": "stable",
+  "source": "source.rmt",
+  "sourceSha256": "2bcc8df1b0182cc5a277bc945418e650ab7408bf1b1ed2d5b92ff73ec4e16c7e",
+  "outputs": { "core": "generated/core.json", "app": "generated/app.js", "report": "generated/build-report.json", "browserSmoke": "browser-smoke.html" },
+  "docs": ["docs/de/rmt-first-demo-app.md", "docs/en/rmt-first-demo-app.md"],
+  "gate": "rmt-first-demo-app"
+}

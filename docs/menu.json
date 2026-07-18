@@ -2661,21 +2661,19 @@
     "keywords": {
       "de": [
         "XTend Material",
-        "Design Kit",
-        "Tailwind",
-        "Recipes",
-        "Themes",
-        "Dichte",
-        "Maraca"
+        "xtend",
+        "material",
+        "tutorial",
+        "build",
+        "maraca"
       ],
       "en": [
         "XTend Material",
-        "design kit",
-        "Tailwind",
-        "recipes",
-        "themes",
-        "density",
-        "Maraca"
+        "xtend",
+        "material",
+        "tutorial",
+        "build",
+        "maraca"
       ]
     }
   },
@@ -2697,17 +2695,21 @@
     "keywords": {
       "de": [
         "XTend-Material-Migration",
-        "Legacy CSS",
-        "nativer Provider",
-        "Tailwind Exit",
-        "Recipes"
+        "xtend",
+        "material",
+        "migration",
+        "tutorial",
+        "build",
+        "maraca"
       ],
       "en": [
-        "XTend Material migration",
-        "legacy CSS",
-        "native provider",
-        "Tailwind exit",
-        "recipes"
+        "XTend Material Migration",
+        "xtend",
+        "material",
+        "migration",
+        "tutorial",
+        "build",
+        "maraca"
       ]
     }
   },

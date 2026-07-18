@@ -3,8 +3,8 @@ const {
   readText
 } = require('./files');
 
-const DEMO_SOURCE_PATH = 'xtendrmt/xtendrmt-bestcase-demo.rmt';
-const DEMO_CORE_PATH = 'xtendrmt/xtendrmt-bestcase-demo.core.json';
+const DEMO_SOURCE_PATH = 'demos/xtendrmt/examples/flagship/source.rmt';
+const DEMO_CORE_PATH = 'demos/xtendrmt/examples/flagship/generated/core.json';
 const MINIMUM_GATE = 'node scripts/run_xtend_tests.js rmt-compatibility --json';
 const ROUTE_COMPONENTS = Object.freeze({
   kernel: 'x-rmt-route-overview',
@@ -154,7 +154,7 @@ function createProjectedMetadata(core) {
       fabricLane: 'visible',
       fabricEndpoint: 'xtendrmt.source-to-sea.render',
       sourcePointer: '/surfaces/sourceToSea/lane/visible',
-      browserProbe: 'tests/browser/fixtures/rmt-bestcase-flagship-smoke.html'
+      browserProbe: 'demos/xtendrmt/examples/flagship/browser-smoke.html'
     },
     enterpriseRemoteSurface: {
       schema: 'xtend.rmt.vnext-enterprise-browser-smoke.v1',

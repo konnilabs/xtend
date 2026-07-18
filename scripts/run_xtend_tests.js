@@ -202,6 +202,10 @@ const {
   runSurfaceManagerWorkbenchFixtureSuite
 } = require('../tests/rmt/surface_manager_workbench_fixture_suite');
 const {
+  printRmtDemoInventoryReport,
+  runRmtDemoInventorySuite
+} = require('../tests/rmt/rmt_demo_inventory_suite');
+const {
   printSurfaceManagerOverlayBridgeReport,
   runSurfaceManagerOverlayBridgeSuite
 } = require('../tests/components/surface_manager_overlay_bridge_suite');
@@ -799,10 +803,6 @@ const {
   printXtendMaterialCatfoodingReport,
   runXtendMaterialCatfoodingSuite
 } = require('../tests/products/xtend_material_catfooding_suite');
-const {
-  printXtendMaterialCliGeneratedAppReport,
-  runXtendMaterialCliGeneratedAppSuite
-} = require('../tests/products/xtend_material_cli_generated_app_suite');
 const {
   printXtendMaterialDocsReport,
   runXtendMaterialDocsSuite
@@ -3230,6 +3230,16 @@ const suites = [
     }
   },
   {
+    id: 'rmt-demo-inventory',
+    label: 'XTendRMT Demo Inventory',
+    description: 'Validates demo roles, paths, source hashes and reproducible compiler outputs.',
+    run: () => {
+      const result = runRmtDemoInventorySuite({ rootDir });
+      printRmtDemoInventoryReport(result);
+      return toRunnerResult('rmt-demo-inventory', 'XTendRMT Demo Inventory', result);
+    }
+  },
+  {
     id: 'rmt-first-demo-app',
     label: 'Epic 10 RMT-first Demo App',
     description: 'Runs the WP-E10-13 RMT-first demo app, no-manual-shell host and browser-smoke gates.',
@@ -3364,6 +3374,7 @@ const suites = [
     label: 'XTM-14 CLI-generated Kernel Material App',
     description: 'Runs the public CLI-only scaffold, strict Kernel plan, air-gapped Tailwind double build, tune, browser and negative no-patch gates.',
     run: async () => {
+      const { printXtendMaterialCliGeneratedAppReport, runXtendMaterialCliGeneratedAppSuite } = require('../tests/products/xtend_material_cli_generated_app_suite');
       const result = await runXtendMaterialCliGeneratedAppSuite({ rootDir });
       printXtendMaterialCliGeneratedAppReport(result);
       return toRunnerResult('xtend-material-cli-generated-app', 'XTM-14 CLI-generated Kernel Material App', result);

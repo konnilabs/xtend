@@ -8,7 +8,7 @@ An RMT-first application owns its shell, state, and actions in RMT source. HTML 
 
 ## Public building blocks
 
-- `xtendrmt/rmt-first-demo-app.rmt` is the minimal shell.
+- `demos/xtendrmt/examples/first-app/source.rmt` is the minimal shell.
 - `xtendrmt/rmt-app-runtime.js` accepts core records into the runtime.
 - `components/manifest.json` supplies locally allowed UI tags.
 

@@ -1,0 +1,14 @@
+{
+  "schema": "xtend.rmt.vnext-fixture-migration-report.v1",
+  "source": "demos/xtendrmt/fixtures/surface-workbench/source.rmt",
+  "runtimeCore": "demos/xtendrmt/fixtures/surface-workbench/generated/core.json",
+  "vnextCore": "demos/xtendrmt/fixtures/surface-workbench/generated/core.json",
+  "sourceSyntax": "rmt-vnext",
+  "sourceSha256": "eadc6a25c374ce09bdd4791cf8cf6a8ea7a34acc47e8e9ed5de98a881e61f668",
+  "runtimeCoreSha256": "491ea1a8c675d443162e6e070a17f81bc39d94209560268a21cd05e05005aebf",
+  "vnextCoreSha256": "491ea1a8c675d443162e6e070a17f81bc39d94209560268a21cd05e05005aebf",
+  "generator": "xtend.rmt.vnext-compiler.v1",
+  "buildCommand": "node xtend-builder/scaffold.js rmt-build --demo demos/xtendrmt/fixtures/surface-workbench/demo.json --write --json",
+  "compilerStatus": "compiled",
+  "compilerSchema": "xtend.rmt.vnext-compiler.v1"
+}

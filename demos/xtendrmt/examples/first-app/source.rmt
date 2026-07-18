@@ -1,0 +1,47 @@
+// Canonical XTendRMT First App source.
+template demo.xtend.rmtFirstApp {
+  state demoStatus type object preserve {
+    initial {
+      id "demo-status"
+      text "RMT-first demo ready"
+      tone "success"
+    }
+  }
+
+  action settingsSave {
+    input id string
+    reduce state.demoStatus.text = "Settings saved"
+    emit settingsSaved with id input.id
+  }
+
+  portal appRoot root "#rmt-first-demo-smoke-root" layer surface
+  portal overlayRoot root "body" layer overlay
+
+  surface dashboard kind page component x-section {
+    portal appRoot
+    lane visible weight 82 {
+      mount pageDashboard from endpoint demo.dashboard {
+        slot status {
+          hydrate dashboardStatus from state demoStatus
+        }
+      }
+    }
+  }
+
+  surface settings kind form component x-form {
+    portal appRoot
+    lane userBlocking weight 78 {
+      hydrate pageSettings from endpoint demo.settings
+    }
+    on submit -> action settingsSave {
+      payload id from surface.id
+    }
+  }
+
+  surface overlays kind drawer component x-drawer {
+    portal overlayRoot
+    lane userBlocking weight 72 {
+      mount pageOverlays from endpoint demo.overlays
+    }
+  }
+}

@@ -3,8 +3,8 @@
   "workpackage": "WP-E16-11",
   "demo": {
     "id": "enterprise-mfe-demo",
-    "source": "xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt",
-    "coreOutput": "xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json",
+    "source": "demos/xtendrmt/fixtures/enterprise-mfe/source.rmt",
+    "coreOutput": "demos/xtendrmt/fixtures/enterprise-mfe/generated/core.json",
     "browserSmoke": {
       "path": "tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html",
       "resultKey": "__xtendRmtVNextEnterpriseSmokeResult",
@@ -24,8 +24,8 @@
       "degradationStatus": "full"
     },
     "expectedHashes": {
-      "baseCoreSha256": "606093a4899c1e71803584b25761becedd4cc246bf513460539bde98ec3bc2c9",
-      "remoteCompilerCoreSha256": "68c60ab982501d3ac499ff8f4141867addb85e85b0775105256b43733f7af860",
+      "baseCoreSha256": "12c6a5403a4e5f01a0888dfec4be91ae656cba9a579cf232b061916cbc26bbfc",
+      "remoteCompilerCoreSha256": "55914e271f73297117992bd9a43adada44ea8044880b59897756116fe4ec99ac",
       "enterpriseRegistrySha256": "f148550ef0e79d5c6ac18ad8b570803c03f54e78ef0bfdcebd4222a084ae84fb",
       "crossSurfaceEventsSha256": "fd4a5ba4f0a118c94b66833b82733d3a188a13dbed281ec8e5cbe99f82d50737",
       "eventGovernanceSha256": "d082f1d4193386176ca1d3a21cb7b039ee30b5add653e69d33dcd640a5ba9c53",

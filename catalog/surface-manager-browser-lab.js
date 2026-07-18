@@ -21,7 +21,7 @@ const SURFACE_MANAGER_BROWSER_LAB_LOCAL_GATE = 'node scripts/run_xtend_tests.js 
 const SURFACE_MANAGER_BROWSER_LAB_PACKAGE_SCRIPT = 'npm run test:surface-browser-lab';
 const DOCS_APP_REFERENCE = 'docs/index.php';
 const DOCS_RMT_REFERENCE = 'docs/xtendrmt-parsedown-docs.rmt';
-const WORKBENCH_REFERENCE = 'tests/browser/fixtures/rmt-surface-workbench-smoke.html';
+const WORKBENCH_REFERENCE = 'demos/xtendrmt/fixtures/surface-workbench/browser-smoke.html';
 
 const VISUAL_STATES = Object.freeze([
   'cold-start',

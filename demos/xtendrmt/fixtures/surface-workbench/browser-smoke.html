@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-preload" content="xstate,x-theme,x-section,x-router,x-link,x-surface-manager,x-surface-window,x-side-panel,x-alert,x-status,x-code,x-form,x-input">
+  <title>XTend Surface Workbench Smoke</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+    }
+
+    [data-rmt-host="surface-workbench"] {
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div
+    id="surface-workbench-smoke-root"
+    data-rmt-host="surface-workbench"
+    data-rmt-document-src="/demos/xtendrmt/fixtures/surface-workbench/generated/core.json"
+    data-rmt-source-src="/demos/xtendrmt/fixtures/surface-workbench/source.rmt"></div>
+  <script>
+    window.__xtendSurfaceWorkbenchSmokeResult = {
+      status: 'pending',
+      contract: 'xtend.surface.workbench-fixture.browser-smoke.v1',
+      checks: [],
+      errors: []
+    };
+
+    function recordCheck(label, passed, details) {
+      window.__xtendSurfaceWorkbenchSmokeResult.checks.push({ label, passed: Boolean(passed), details: details || null });
+      if (!passed) {
+        window.__xtendSurfaceWorkbenchSmokeResult.errors.push(label);
+      }
+    }
+  </script>
+  <script src="/xtendrmt/rmt-runtime.browser.js"></script>
+  <script type="module" src="/xtend-loader.js" data-manifest="/components/manifest.json"></script>
+  <script type="module">
+    (async () => {
+      try {
+        await (window.__XTendLoaderBootPromise || Promise.resolve()).catch(() => {});
+        const module = await import('/demos/xtendrmt/fixtures/surface-workbench/generated/app.js');
+        const api = module.default || window.XTendSurfaceWorkbench;
+        const root = document.querySelector('[data-rmt-host="surface-workbench"]');
+        const sourceResponse = await fetch(root.getAttribute('data-rmt-source-src'));
+        const sourceText = await sourceResponse.text();
+        const documentResponse = await fetch(root.getAttribute('data-rmt-document-src'));
+        const rmtDocument = await documentResponse.json();
+        recordCheck('surface workbench source is vnext authoring', sourceText.trim().startsWith('template ') && !sourceText.trim().startsWith('{'));
+        recordCheck('surface workbench document loaded', rmtDocument.manifest.metadata.contractVersion === 'xtend.surface.workbench-fixture.v1');
+        recordCheck('surface workbench runtime core declares vnext source', rmtDocument.manifest.sourceSyntax === 'rmt-vnext');
+        const renderResult = api.renderSurfaceWorkbenchFromDocument(rmtDocument, { root });
+        await Promise.resolve();
+        const snapshot = api.collectSurfaceSnapshot(root);
+        recordCheck('surface workbench shell rendered from rmt', root.getAttribute('data-rmt-rendered-shell') === 'true' && Boolean(root.querySelector('[data-rmt-contract="xtend.surface.workbench-fixture.v1"], x-surface-manager')));
+        recordCheck('surface workbench route-bound manager rendered', Boolean(root.querySelector('x-route[data-rmt-route="workbench"] x-surface-manager')));
+        recordCheck('surface workbench two windows rendered', root.querySelectorAll('x-surface-window').length === 2);
+        recordCheck('surface workbench side panel rendered', root.querySelectorAll('x-side-panel').length === 1);
+        recordCheck('surface workbench shared snapshot visible', snapshot.schema === 'xtend.surface.snapshot.v1' && snapshot.surfaces.length >= 3);
+        recordCheck('surface workbench no static host shell', !document.body.querySelector('body > x-surface-manager, body > x-surface-window, body > x-side-panel'));
+        window.__xtendSurfaceWorkbenchSmokeResult.status = window.__xtendSurfaceWorkbenchSmokeResult.errors.length ? 'failed' : 'passed';
+        window.__xtendSurfaceWorkbenchSmokeResult.routes = renderResult.routes.length;
+        window.__xtendSurfaceWorkbenchSmokeResult.surfaces = snapshot.surfaces.length;
+        window.__xtendSurfaceWorkbenchSmokeResult.schedules = rmtDocument.schedules.length;
+        window.__xtendSurfaceWorkbenchSmokeResult.sourceSyntax = rmtDocument.manifest.sourceSyntax;
+      } catch (error) {
+        window.__xtendSurfaceWorkbenchSmokeResult.status = 'failed';
+        window.__xtendSurfaceWorkbenchSmokeResult.errors.push(error.message);
+      }
+    })();
+  </script>
+</body>
+</html>

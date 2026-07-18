@@ -50,9 +50,9 @@ const REQUIRED_RMT_DOMAINS = Object.freeze([
 
 const REQUIRED_RMT_ARTIFACTS = Object.freeze([
   'tests/fixtures/rmt-first-class-xtend-app.rmt',
-  'xtendrmt/rmt-first-demo-app.rmt',
-  'xtendrmt/rmt-first-demo-app.js',
-  'tests/browser/fixtures/rmt-first-demo-app-smoke.html',
+  'demos/xtendrmt/examples/first-app/source.rmt',
+  'demos/xtendrmt/examples/first-app/generated/app.js',
+  'demos/xtendrmt/examples/first-app/browser-smoke.html',
   'xtendrmt/rmt-core.esm.js',
   'xtendrmt/rmt-runtime.esm.js',
   'xtendrmt/rmt-runtime.browser.js',
@@ -101,7 +101,7 @@ const RMT_EVIDENCE_RECORDS = Object.freeze([
     command: 'npm run test:rmt-first-demo-app',
     schema: 'xtend.epic10.rmt-first-demo-app.v1',
     domains: ['app-shell', 'routing', 'components', 'fabric', 'lanes', 'diagnostics'],
-    evidence: 'xtendrmt/rmt-first-demo-app.rmt',
+    evidence: 'demos/xtendrmt/examples/first-app/source.rmt',
     status: 'covered'
   },
   {

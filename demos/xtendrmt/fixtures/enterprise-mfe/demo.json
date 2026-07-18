@@ -1,0 +1,11 @@
+{
+  "schema": "xtend.rmt.demo.v1",
+  "id": "enterprise-mfe",
+  "role": "regression-fixture",
+  "stability": "stable",
+  "source": "source.rmt",
+  "sourceSha256": "c602524300af2f4490d2ea7a7290f3368de4cc2e52b18c703cd8dfa2ef1b9e8a",
+  "outputs": { "core": "generated/core.json" },
+  "docs": ["docs/de/rmt-vnext-surface-registry-enterprise.md", "docs/en/rmt-vnext-surface-registry-enterprise.md"],
+  "gate": "rmt-vnext-enterprise-fixtures"
+}

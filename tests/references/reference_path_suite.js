@@ -4378,10 +4378,10 @@ function assertDemoAndFixtureLoaderMigration(context, rootDir) {
   ];
   const browserGateFixturePaths = [
     'tests/browser/fixtures/rmt-xrouter-xtend-smoke.html',
-    'tests/browser/fixtures/rmt-first-demo-app-smoke.html',
-    'tests/browser/fixtures/rmt-lifecycle-demo-smoke.html',
-    'tests/browser/fixtures/rmt-lifecycle-demo-rmt-build-smoke.html',
-    'tests/browser/fixtures/rmt-surface-workbench-smoke.html'
+    'demos/xtendrmt/examples/first-app/browser-smoke.html',
+    'demos/xtendrmt/examples/lifecycle/browser-smoke.html',
+    'demos/xtendrmt/examples/lifecycle/browser-smoke.html',
+    'demos/xtendrmt/fixtures/surface-workbench/browser-smoke.html'
   ];
 
   context.assert(
@@ -4744,7 +4744,7 @@ function assertRmtReference(context, rootDir) {
   context.assert(enterpriseTemplate && enterpriseTemplate.metadata && enterpriseTemplate.metadata.authoring && enterpriseTemplate.metadata.authoring.remoteExecution === false, 'XTendRMT demo enterprise template keeps remote execution disabled');
   context.assert(governanceTemplate && governanceTemplate.metadata && governanceTemplate.metadata.authoring && governanceTemplate.metadata.authoring.eventGovernancePolicy === 'xtend.rmt.vnext-event-governance-policy.v1', 'XTendRMT demo governance template references event governance policy');
   context.assert(nativeFirstTemplate && nativeFirstTemplate.metadata && nativeFirstTemplate.metadata.authoring && nativeFirstTemplate.metadata.authoring.nativeFirstContract === 'xtend.native-first.rmt-owned-flagship.v1', 'XTendRMT demo Native-First template references owned RMT contract');
-  context.assertIncludes(registry, '| `xtendrmt/xtendrmt-bestcase-demo.rmt` | automated-static |', 'XTendRMT RMT document is listed as automated static reference');
+  context.assertIncludes(registry, '| `demos/xtendrmt/examples/flagship/source.rmt` | automated-static |', 'XTendRMT RMT document is listed as automated static reference');
   context.assertIncludes(registry, 'XTendRMT-Pilot-Flow-RMT-basiertes-XTend-Templating.md', 'XTendRMT template pilot reference is listed');
   context.assertIncludes(registry, 'xtend.rmt.template-pilot-flow.v1', 'Reference registry documents template pilot flow schema');
   context.assertIncludes(registry, 'XTendRMT-Upstream-Handoff-Spezifikation.md', 'XTendRMT upstream handoff reference is listed');
@@ -4767,7 +4767,7 @@ function assertRmtReference(context, rootDir) {
   context.assertIncludes(registry, 'WP-E05-14-Bestcase-Demo-auf-native-Routes-und-Components-migrieren.md', 'XTendRMT native demo migration reference is listed');
   context.assertIncludes(registry, 'Component Primitives, Player Contract und Scheduler Policies', 'Reference registry documents native demo domains');
   context.assertIncludes(registry, 'RMT-vNext-Authoring fuer Bestcase Surfaces, Lanes, Lifecycle-Operationen', 'Reference registry documents vNext bestcase authoring');
-  context.assertIncludes(registry, 'xtendrmt/xtendrmt-bestcase-demo.core.json', 'Reference registry documents bestcase vNext Core output');
+  context.assertIncludes(registry, 'demos/xtendrmt/examples/flagship/generated/core.json', 'Reference registry documents bestcase vNext Core output');
   context.assertIncludes(registry, 'WP-E05-15-Contract-Schema-und-Runtime-Tests-erweitern.md', 'XTendRMT WP-15 runtime test reference is listed');
   context.assertIncludes(registry, 'tests/fixtures/rmt-app-dsl.native-bridge.rmt', 'Reference registry documents native bridge fixture path');
   context.assertIncludes(registry, 'xtend.rmt.wp15.native-bridge-fixture.v1', 'Reference registry documents native bridge fixture schema');

@@ -69,7 +69,7 @@ Der Deep-Dive [Hydration Policies](./hydration-policies.md) trennt Execution Mod
 
 ## Referenzdemo und Releasevertrag
 
-Der RMT vNext Authoring Guide ist an den Releasevertrag `xtend.rmt.vnext-release-handoff.v1` gebunden. Die Referenzquelle `xtendrmt/rmt-vnext-reference-demo.rmt` zeigt die kleinste vollständige Kombination aus `template`, `surface`, `lane`, `when`, `slot`, `stream`, `trust boundary`, `sanitize html` und Event-Action-Binding. Der erwartete Core-Output liegt in `xtendrmt/rmt-vnext-reference-demo.core.json`.
+Der RMT vNext Authoring Guide ist an den Releasevertrag `xtend.rmt.vnext-release-handoff.v1` gebunden. Die Referenzquelle `demos/xtendrmt/fixtures/vnext-reference/source.rmt` zeigt die kleinste vollständige Kombination aus `template`, `surface`, `lane`, `when`, `slot`, `stream`, `trust boundary`, `sanitize html` und Event-Action-Binding. Der erwartete Core-Output liegt in `demos/xtendrmt/fixtures/vnext-reference/generated/core.json`.
 
 ```rmt
 template xtend.vnext.reference {

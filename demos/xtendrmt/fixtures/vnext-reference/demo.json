@@ -1,0 +1,11 @@
+{
+  "schema": "xtend.rmt.demo.v1",
+  "id": "vnext-reference",
+  "role": "language-reference",
+  "stability": "stable",
+  "source": "source.rmt",
+  "sourceSha256": "2a97c94c8046d934a53746fcd78ded39575fb83ee24a4745a3bae748448e2e6d",
+  "outputs": { "core": "generated/core.json" },
+  "docs": ["docs/de/rmt-vnext-authoring.md", "docs/en/rmt-vnext-authoring.md"],
+  "gate": "rmt-vnext-regression"
+}

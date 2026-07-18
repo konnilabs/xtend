@@ -241,8 +241,8 @@ function runSurfaceManagerBrowserLabSuite(options = {}) {
     '__xtendSurfaceWorkbenchSmokeResult',
     'xtend.surface.workbench-fixture.browser-smoke.v1',
     'data-rmt-host="surface-workbench"',
-    '/xtendrmt/surface-workbench.core.json',
-    '/xtendrmt/surface-workbench.rmt'
+    '/demos/xtendrmt/fixtures/surface-workbench/generated/core.json',
+    '/demos/xtendrmt/fixtures/surface-workbench/source.rmt'
   ], 'RMT workbench Browser Lab reference');
 
   context.assert(metadata && metadata.schema === SURFACE_MANAGER_BROWSER_LAB_SCHEMA, 'Package metadata exposes Browser Lab schema');

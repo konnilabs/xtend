@@ -1,0 +1,853 @@
+{
+  "schema": "xtend.rmt.core-format.vnext.v1",
+  "kind": "rmt_document",
+  "version": "2.0-vnext",
+  "manifest": {
+    "documentId": "enterprise.shell",
+    "namespace": "enterprise",
+    "sourceSyntax": "rmt-vnext",
+    "contracts": [
+      "xtend.rmt.vnext.grammar.v1",
+      "xtend.rmt.core-format.vnext.v1"
+    ]
+  },
+  "imports": [],
+  "templates": [
+    {
+      "id": "template:enterprise.shell",
+      "name": "enterprise.shell",
+      "mode": "orchestration",
+      "surfaceRefs": [
+        "surface:enterprise.shell/root",
+        "surface:enterprise.shell/workspace.sales",
+        "surface:enterprise.shell/panel.checkoutfallback"
+      ],
+      "sourceRef": "src:template:enterprise.shell"
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "surface:enterprise.shell/root",
+      "name": "root",
+      "kind": "root",
+      "type": "region",
+      "laneRefs": [
+        "lane:enterprise.shell/root/critical"
+      ],
+      "scope": {
+        "template": "template:enterprise.shell"
+      },
+      "sourceRef": "src:surface:enterprise.shell/root"
+    },
+    {
+      "id": "surface:enterprise.shell/workspace.sales",
+      "name": "workspace.sales",
+      "kind": "named_surface",
+      "type": "window",
+      "laneRefs": [
+        "lane:enterprise.shell/workspace.sales/critical",
+        "lane:enterprise.shell/workspace.sales/idle"
+      ],
+      "scope": {
+        "template": "template:enterprise.shell"
+      },
+      "sourceRef": "src:surface:enterprise.shell/workspace.sales"
+    },
+    {
+      "id": "surface:enterprise.shell/panel.checkoutfallback",
+      "name": "panel.checkoutFallback",
+      "kind": "named_surface",
+      "type": "window",
+      "laneRefs": [
+        "lane:enterprise.shell/panel.checkoutfallback/critical"
+      ],
+      "scope": {
+        "template": "template:enterprise.shell"
+      },
+      "sourceRef": "src:surface:enterprise.shell/panel.checkoutfallback"
+    }
+  ],
+  "remoteSurfaces": [
+    {
+      "id": "remoteSurface:checkout.cart",
+      "manifestId": "remoteManifest:checkout.cart",
+      "name": "checkout.cart",
+      "kind": "remote_surface",
+      "remote": {
+        "id": "@xtend/checkout-cart",
+        "origin": "https://cdn.xtend.example",
+        "versionRange": "^3.1.0",
+        "integrity": {
+          "algorithm": "sha256",
+          "digest": "sha256-enterprisemfecheckoutcart0000000000000000000001"
+        }
+      },
+      "owner": {
+        "kind": "team",
+        "id": "checkout-platform"
+      },
+      "security": {
+        "trustBoundary": "xtend.security.remote-surface.v1",
+        "capabilityMode": "deny-by-default",
+        "sandboxRequired": true,
+        "cspRequired": true
+      },
+      "exposes": [
+        {
+          "lane": "critical",
+          "target": {
+            "type": "shell.slot",
+            "ref": "shell.slot:sidebar.cart"
+          },
+          "mode": "mount"
+        },
+        {
+          "lane": "idle",
+          "target": {
+            "type": "shell.slot",
+            "ref": "shell.slot:background.prefetch"
+          },
+          "mode": "mount"
+        }
+      ],
+      "events": {
+        "emits": [
+          {
+            "event": "checkout.cart.updated.v1",
+            "owner": {
+              "kind": "team",
+              "id": "checkout-platform"
+            },
+            "direction": "outbound",
+            "version": "v1",
+            "lane": "critical",
+            "from": null,
+            "payload": {
+              "schema": "xtend.schemas.cartUpdated.v1",
+              "shape": null
+            },
+            "scopes": [
+              "lane:critical"
+            ]
+          }
+        ],
+        "consumes": [
+          {
+            "event": "user.session.changed.v1",
+            "owner": {
+              "kind": "team",
+              "id": "identity-platform"
+            },
+            "direction": "inbound",
+            "version": "v1",
+            "lane": "critical",
+            "from": {
+              "type": "shell.session",
+              "ref": "shell.session:current"
+            },
+            "payload": {
+              "schema": "xtend.schemas.sessionChanged.v1",
+              "shape": null
+            },
+            "scopes": [
+              "lane:critical",
+              "shell.session:current"
+            ]
+          }
+        ]
+      },
+      "capabilities": [
+        {
+          "id": "surface.mount",
+          "mode": "required"
+        },
+        {
+          "id": "event.emit",
+          "mode": "required"
+        },
+        {
+          "id": "event.consume",
+          "mode": "required"
+        }
+      ],
+      "adapterBoundary": {
+        "adapterId": "xtend.remote-surface.host",
+        "capabilities": [
+          "surface.mount",
+          "event.emit",
+          "event.consume"
+        ],
+        "hostOwned": true,
+        "runtimeLoader": false
+      },
+      "fallback": {
+        "kind": "surface",
+        "ref": "panel.checkoutFallback"
+      },
+      "runtime": {
+        "kernelRemoteExecution": false,
+        "hostAdapterRequired": true,
+        "networkRequiredByKernel": false
+      },
+      "sourceRef": "src:remoteSurface:checkout.cart"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "lane:enterprise.shell/root/critical",
+      "name": "critical",
+      "scope": {
+        "surface": "surface:enterprise.shell/root",
+        "template": "template:enterprise.shell"
+      },
+      "operationRefs": [
+        "operation:enterprise.shell/root/critical/0"
+      ],
+      "weight": 10,
+      "sourceRef": "src:lane:enterprise.shell/root/critical"
+    },
+    {
+      "id": "lane:enterprise.shell/workspace.sales/critical",
+      "name": "critical",
+      "scope": {
+        "surface": "surface:enterprise.shell/workspace.sales",
+        "template": "template:enterprise.shell"
+      },
+      "operationRefs": [
+        "operation:enterprise.shell/workspace.sales/critical/0"
+      ],
+      "weight": 8,
+      "sourceRef": "src:lane:enterprise.shell/workspace.sales/critical"
+    },
+    {
+      "id": "lane:enterprise.shell/workspace.sales/idle",
+      "name": "idle",
+      "scope": {
+        "surface": "surface:enterprise.shell/workspace.sales",
+        "template": "template:enterprise.shell"
+      },
+      "operationRefs": [
+        "operation:enterprise.shell/workspace.sales/idle/0"
+      ],
+      "weight": 2,
+      "sourceRef": "src:lane:enterprise.shell/workspace.sales/idle"
+    },
+    {
+      "id": "lane:enterprise.shell/panel.checkoutfallback/critical",
+      "name": "critical",
+      "scope": {
+        "surface": "surface:enterprise.shell/panel.checkoutfallback",
+        "template": "template:enterprise.shell"
+      },
+      "operationRefs": [
+        "operation:enterprise.shell/panel.checkoutfallback/critical/0"
+      ],
+      "weight": 9,
+      "sourceRef": "src:lane:enterprise.shell/panel.checkoutfallback/critical"
+    }
+  ],
+  "operations": [
+    {
+      "id": "operation:enterprise.shell/root/critical/0",
+      "kind": "lifecycle",
+      "op": "hydrate",
+      "target": {
+        "kind": "ref",
+        "ref": "shell.root"
+      },
+      "scope": {
+        "surface": "surface:enterprise.shell/root",
+        "lane": "lane:enterprise.shell/root/critical",
+        "template": "template:enterprise.shell"
+      },
+      "source": {
+        "ref": "dataSource:enterprise.shell/root/critical/0",
+        "kind": "endpoint",
+        "id": "shell.bootstrap"
+      },
+      "sourceRef": "src:operation:enterprise.shell/root/critical/0"
+    },
+    {
+      "id": "operation:enterprise.shell/workspace.sales/critical/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "local.dashboard"
+      },
+      "scope": {
+        "surface": "surface:enterprise.shell/workspace.sales",
+        "lane": "lane:enterprise.shell/workspace.sales/critical",
+        "template": "template:enterprise.shell"
+      },
+      "source": {
+        "ref": "dataSource:enterprise.shell/workspace.sales/critical/0",
+        "kind": "endpoint",
+        "id": "local.dashboard"
+      },
+      "sourceRef": "src:operation:enterprise.shell/workspace.sales/critical/0"
+    },
+    {
+      "id": "operation:enterprise.shell/workspace.sales/idle/0",
+      "kind": "lifecycle",
+      "op": "prewarm",
+      "target": {
+        "kind": "ref",
+        "ref": "local.metrics"
+      },
+      "scope": {
+        "surface": "surface:enterprise.shell/workspace.sales",
+        "lane": "lane:enterprise.shell/workspace.sales/idle",
+        "template": "template:enterprise.shell"
+      },
+      "source": {
+        "ref": "dataSource:enterprise.shell/workspace.sales/idle/0",
+        "kind": "endpoint",
+        "id": "local.metrics"
+      },
+      "sourceRef": "src:operation:enterprise.shell/workspace.sales/idle/0"
+    },
+    {
+      "id": "operation:enterprise.shell/panel.checkoutfallback/critical/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "checkout.fallback"
+      },
+      "scope": {
+        "surface": "surface:enterprise.shell/panel.checkoutfallback",
+        "lane": "lane:enterprise.shell/panel.checkoutfallback/critical",
+        "template": "template:enterprise.shell"
+      },
+      "source": {
+        "ref": "dataSource:enterprise.shell/panel.checkoutfallback/critical/0",
+        "kind": "endpoint",
+        "id": "checkout.fallback"
+      },
+      "sourceRef": "src:operation:enterprise.shell/panel.checkoutfallback/critical/0"
+    }
+  ],
+  "slots": [],
+  "events": [],
+  "dataSources": [
+    {
+      "id": "dataSource:enterprise.shell/root/critical/0",
+      "kind": "endpoint",
+      "target": "shell.bootstrap",
+      "ownerOperation": "operation:enterprise.shell/root/critical/0",
+      "sourceRef": "src:dataSource:enterprise.shell/root/critical/0"
+    },
+    {
+      "id": "dataSource:enterprise.shell/workspace.sales/critical/0",
+      "kind": "endpoint",
+      "target": "local.dashboard",
+      "ownerOperation": "operation:enterprise.shell/workspace.sales/critical/0",
+      "sourceRef": "src:dataSource:enterprise.shell/workspace.sales/critical/0"
+    },
+    {
+      "id": "dataSource:enterprise.shell/workspace.sales/idle/0",
+      "kind": "endpoint",
+      "target": "local.metrics",
+      "ownerOperation": "operation:enterprise.shell/workspace.sales/idle/0",
+      "sourceRef": "src:dataSource:enterprise.shell/workspace.sales/idle/0"
+    },
+    {
+      "id": "dataSource:enterprise.shell/panel.checkoutfallback/critical/0",
+      "kind": "endpoint",
+      "target": "checkout.fallback",
+      "ownerOperation": "operation:enterprise.shell/panel.checkoutfallback/critical/0",
+      "sourceRef": "src:dataSource:enterprise.shell/panel.checkoutfallback/critical/0"
+    }
+  ],
+  "searchSources": [],
+  "securityPolicies": [],
+  "sourceMap": [
+    {
+      "id": "src:template:enterprise.shell",
+      "nodeType": "RmtTemplateDeclaration",
+      "corePointer": "/templates/0",
+      "astPointer": "/body/0",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 0
+        },
+        "end": {
+          "line": 22,
+          "character": 1
+        },
+        "startOffset": 0,
+        "endOffset": 492
+      }
+    },
+    {
+      "id": "src:surface:enterprise.shell/root",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/0",
+      "astPointer": "/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 1,
+          "character": 2
+        },
+        "end": {
+          "line": 5,
+          "character": 3
+        },
+        "startOffset": 30,
+        "endOffset": 139
+      }
+    },
+    {
+      "id": "src:lane:enterprise.shell/root/critical",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/0",
+      "astPointer": "/body/0/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 4
+        },
+        "end": {
+          "line": 4,
+          "character": 5
+        },
+        "startOffset": 49,
+        "endOffset": 135
+      }
+    },
+    {
+      "id": "src:dataSource:enterprise.shell/root/critical/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/0",
+      "astPointer": "/body/0/body/0/body/0/body/0/source",
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 25
+        },
+        "end": {
+          "line": 3,
+          "character": 54
+        },
+        "startOffset": 100,
+        "endOffset": 129
+      }
+    },
+    {
+      "id": "src:operation:enterprise.shell/root/critical/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/0",
+      "astPointer": "/body/0/body/0/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 6
+        },
+        "end": {
+          "line": 4,
+          "character": 0
+        },
+        "startOffset": 81,
+        "endOffset": 130
+      }
+    },
+    {
+      "id": "src:surface:enterprise.shell/workspace.sales",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/1",
+      "astPointer": "/body/0/body/1",
+      "range": {
+        "start": {
+          "line": 7,
+          "character": 2
+        },
+        "end": {
+          "line": 15,
+          "character": 3
+        },
+        "startOffset": 143,
+        "endOffset": 353
+      }
+    },
+    {
+      "id": "src:lane:enterprise.shell/workspace.sales/critical",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/1",
+      "astPointer": "/body/0/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 8,
+          "character": 4
+        },
+        "end": {
+          "line": 10,
+          "character": 5
+        },
+        "startOffset": 173,
+        "endOffset": 261
+      }
+    },
+    {
+      "id": "src:dataSource:enterprise.shell/workspace.sales/critical/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/1",
+      "astPointer": "/body/0/body/1/body/0/body/0/source",
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 28
+        },
+        "end": {
+          "line": 9,
+          "character": 57
+        },
+        "startOffset": 226,
+        "endOffset": 255
+      }
+    },
+    {
+      "id": "src:operation:enterprise.shell/workspace.sales/critical/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/1",
+      "astPointer": "/body/0/body/1/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 6
+        },
+        "end": {
+          "line": 10,
+          "character": 0
+        },
+        "startOffset": 204,
+        "endOffset": 256
+      }
+    },
+    {
+      "id": "src:lane:enterprise.shell/workspace.sales/idle",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/2",
+      "astPointer": "/body/0/body/1/body/1",
+      "range": {
+        "start": {
+          "line": 12,
+          "character": 4
+        },
+        "end": {
+          "line": 14,
+          "character": 5
+        },
+        "startOffset": 267,
+        "endOffset": 349
+      }
+    },
+    {
+      "id": "src:dataSource:enterprise.shell/workspace.sales/idle/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/2",
+      "astPointer": "/body/0/body/1/body/1/body/0/source",
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 28
+        },
+        "end": {
+          "line": 13,
+          "character": 55
+        },
+        "startOffset": 316,
+        "endOffset": 343
+      }
+    },
+    {
+      "id": "src:operation:enterprise.shell/workspace.sales/idle/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/2",
+      "astPointer": "/body/0/body/1/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 6
+        },
+        "end": {
+          "line": 14,
+          "character": 0
+        },
+        "startOffset": 294,
+        "endOffset": 344
+      }
+    },
+    {
+      "id": "src:surface:enterprise.shell/panel.checkoutfallback",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/2",
+      "astPointer": "/body/0/body/2",
+      "range": {
+        "start": {
+          "line": 17,
+          "character": 2
+        },
+        "end": {
+          "line": 21,
+          "character": 3
+        },
+        "startOffset": 357,
+        "endOffset": 490
+      }
+    },
+    {
+      "id": "src:lane:enterprise.shell/panel.checkoutfallback/critical",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/3",
+      "astPointer": "/body/0/body/2/body/0",
+      "range": {
+        "start": {
+          "line": 18,
+          "character": 4
+        },
+        "end": {
+          "line": 20,
+          "character": 5
+        },
+        "startOffset": 394,
+        "endOffset": 486
+      }
+    },
+    {
+      "id": "src:dataSource:enterprise.shell/panel.checkoutfallback/critical/0",
+      "nodeType": "RmtSourceClause",
+      "corePointer": "/dataSources/3",
+      "astPointer": "/body/0/body/2/body/0/body/0/source",
+      "range": {
+        "start": {
+          "line": 19,
+          "character": 30
+        },
+        "end": {
+          "line": 19,
+          "character": 61
+        },
+        "startOffset": 449,
+        "endOffset": 480
+      }
+    },
+    {
+      "id": "src:operation:enterprise.shell/panel.checkoutfallback/critical/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/3",
+      "astPointer": "/body/0/body/2/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 19,
+          "character": 6
+        },
+        "end": {
+          "line": 20,
+          "character": 0
+        },
+        "startOffset": 425,
+        "endOffset": 481
+      }
+    },
+    {
+      "id": "src:remoteSurface:checkout.cart",
+      "nodeType": "RmtRemoteSurfaceDeclaration",
+      "corePointer": "/remoteSurfaces/0",
+      "astPointer": "/body/1",
+      "range": {
+        "start": {
+          "line": 24,
+          "character": 0
+        },
+        "end": {
+          "line": 49,
+          "character": 1
+        },
+        "startOffset": 494,
+        "endOffset": 1275
+      }
+    },
+    {
+      "id": "src:remoteSurface:checkout.cart/0",
+      "nodeType": "RmtRemoteOwnerClause",
+      "corePointer": "/remoteSurfaces/0/body/0",
+      "astPointer": "/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 25,
+          "character": 2
+        },
+        "end": {
+          "line": 26,
+          "character": 0
+        },
+        "startOffset": 562,
+        "endOffset": 593
+      }
+    },
+    {
+      "id": "src:remoteSurface:checkout.cart/1",
+      "nodeType": "RmtRemoteVersionClause",
+      "corePointer": "/remoteSurfaces/0/body/1",
+      "astPointer": "/body/1/body/1",
+      "range": {
+        "start": {
+          "line": 26,
+          "character": 2
+        },
+        "end": {
+          "line": 27,
+          "character": 0
+        },
+        "startOffset": 595,
+        "endOffset": 612
+      }
+    },
+    {
+      "id": "src:remoteSurface:checkout.cart/2",
+      "nodeType": "RmtRemoteOriginClause",
+      "corePointer": "/remoteSurfaces/0/body/2",
+      "astPointer": "/body/1/body/2",
+      "range": {
+        "start": {
+          "line": 27,
+          "character": 2
+        },
+        "end": {
+          "line": 28,
+          "character": 0
+        },
+        "startOffset": 614,
+        "endOffset": 649
+      }
+    },
+    {
+      "id": "src:remoteSurface:checkout.cart/3",
+      "nodeType": "RmtRemoteIntegrityClause",
+      "corePointer": "/remoteSurfaces/0/body/3",
+      "astPointer": "/body/1/body/3",
+      "range": {
+        "start": {
+          "line": 28,
+          "character": 2
+        },
+        "end": {
+          "line": 29,
+          "character": 0
+        },
+        "startOffset": 651,
+        "endOffset": 725
+      }
+    },
+    {
+      "id": "src:remoteSurface:checkout.cart/4",
+      "nodeType": "RmtRemoteTrustBoundaryClause",
+      "corePointer": "/remoteSurfaces/0/body/4",
+      "astPointer": "/body/1/body/4",
+      "range": {
+        "start": {
+          "line": 29,
+          "character": 2
+        },
+        "end": {
+          "line": 30,
+          "character": 0
+        },
+        "startOffset": 727,
+        "endOffset": 777
+      }
+    },
+    {
+      "id": "src:remoteSurface:checkout.cart/5",
+      "nodeType": "RmtRemoteFallbackClause",
+      "corePointer": "/remoteSurfaces/0/body/5",
+      "astPointer": "/body/1/body/5",
+      "range": {
+        "start": {
+          "line": 30,
+          "character": 2
+        },
+        "end": {
+          "line": 32,
+          "character": 0
+        },
+        "startOffset": 779,
+        "endOffset": 820
+      }
+    },
+    {
+      "id": "src:remoteSurface:checkout.cart/6",
+      "nodeType": "RmtRemoteExposeClause",
+      "corePointer": "/remoteSurfaces/0/body/6",
+      "astPointer": "/body/1/body/6",
+      "range": {
+        "start": {
+          "line": 32,
+          "character": 2
+        },
+        "end": {
+          "line": 33,
+          "character": 0
+        },
+        "startOffset": 822,
+        "endOffset": 873
+      }
+    },
+    {
+      "id": "src:remoteSurface:checkout.cart/7",
+      "nodeType": "RmtRemoteExposeClause",
+      "corePointer": "/remoteSurfaces/0/body/7",
+      "astPointer": "/body/1/body/7",
+      "range": {
+        "start": {
+          "line": 33,
+          "character": 2
+        },
+        "end": {
+          "line": 35,
+          "character": 0
+        },
+        "startOffset": 875,
+        "endOffset": 930
+      }
+    },
+    {
+      "id": "src:remoteSurface:checkout.cart/8",
+      "nodeType": "RmtRemoteEventClause",
+      "corePointer": "/remoteSurfaces/0/body/8",
+      "astPointer": "/body/1/body/8",
+      "range": {
+        "start": {
+          "line": 35,
+          "character": 2
+        },
+        "end": {
+          "line": 40,
+          "character": 3
+        },
+        "startOffset": 932,
+        "endOffset": 1087
+      }
+    },
+    {
+      "id": "src:remoteSurface:checkout.cart/9",
+      "nodeType": "RmtRemoteEventClause",
+      "corePointer": "/remoteSurfaces/0/body/9",
+      "astPointer": "/body/1/body/9",
+      "range": {
+        "start": {
+          "line": 42,
+          "character": 2
+        },
+        "end": {
+          "line": 48,
+          "character": 3
+        },
+        "startOffset": 1091,
+        "endOffset": 1273
+      }
+    }
+  ]
+}

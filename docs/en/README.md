@@ -38,7 +38,7 @@ Choose XTend Classic for HTML-/JavaScript-first pages, dynamic catalogs and prog
 
 ## RMT vNext Release Surface
 
-The RMT vNext Authoring Guide, RMT vNext Migration Notes and RMT vNext Release contract belong together. The release path points at `xtendrmt/rmt-vnext-reference-demo.rmt` and `xtendrmt/rmt-vnext-reference-demo.core.json`, so an integrator can review the authoring example, compiler output and gate matrix in one pass.
+The RMT vNext Authoring Guide, RMT vNext Migration Notes and RMT vNext Release contract belong together. The release path points at `demos/xtendrmt/fixtures/vnext-reference/source.rmt` and `demos/xtendrmt/fixtures/vnext-reference/generated/core.json`, so an integrator can review the authoring example, compiler output and gate matrix in one pass.
 
 ## RMT vNext Enterprise Surface
 

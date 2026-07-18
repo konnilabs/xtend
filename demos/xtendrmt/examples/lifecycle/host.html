@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-preload" content="xstate,x-theme,x-rmt-lifecycle-demo-build">
+  <title>XTend RMT App Build</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div
+    id="rmt-build-root"
+    data-rmt-build-root
+    data-rmt-template-src="demos/xtendrmt/examples/lifecycle/source.rmt"
+    data-rmt-core-src="demos/xtendrmt/examples/lifecycle/generated/core.json"
+    data-scaffold-build="node xtend-builder/scaffold.js rmt-build --demo demos/xtendrmt/examples/lifecycle/demo.json --write --json"
+    aria-busy="true"></div>
+  <script type="module" src="xtend-loader.js" data-manifest="components/manifest.json"></script>
+  <script type="module">
+    window.__XTendRmtBuildBootPromise = (window.__XTendLoaderBootPromise || Promise.resolve())
+      .then(() => import('./demos/xtendrmt/examples/lifecycle/generated/app.js'))
+      .then((module) => module.bootRmtBuildApp())
+      .catch((error) => {
+        window.__XTendRmtBuildResult = {
+          status: 'failed',
+          schema: 'xtend.scaffold.rmt-app-build.v1',
+          error: error.message
+        };
+        console.error('XTend RMT app build failed', error);
+      });
+  </script>
+</body>
+</html>

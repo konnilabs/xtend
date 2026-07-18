@@ -1,0 +1,66 @@
+// Canonical Surface Workbench regression fixture.
+template demo.xtend.surfaceWorkbench {
+  action inspectorCommand {
+    input id string
+    emit inspectorCommanded with id input.id
+  }
+
+  action editorCommand {
+    input id string
+    emit editorCommanded with id input.id
+  }
+
+  action propertiesCommand {
+    input id string
+    emit propertiesCommanded with id input.id
+  }
+
+  portal workbenchRoot root "#surface-workbench-smoke-root" layer surface
+
+  surface workbenchManager kind workspace component x-surface-manager {
+    portal workbenchRoot
+    lane visible weight 82 {
+      mount workbenchManager from endpoint workbench.render {
+        slot windows {
+          mount workbenchInspector
+          mount workbenchEditor
+        }
+        slot panels {
+          mount workbenchProperties
+        }
+      }
+    }
+  }
+
+  surface workbenchInspector kind window component x-surface-window {
+    portal workbenchRoot
+    bounds x 72 y 72 width 500 height 340
+    lane userBlocking weight 90 {
+      mount inspectorContent from endpoint workbench.open
+    }
+    on click -> action inspectorCommand {
+      payload id from surface.id
+    }
+  }
+
+  surface workbenchEditor kind window component x-surface-window {
+    portal workbenchRoot
+    bounds x 610 y 96 width 560 height 390
+    lane userBlocking weight 88 {
+      mount editorContent from endpoint workbench.open
+    }
+    on click -> action editorCommand {
+      payload id from surface.id
+    }
+  }
+
+  surface workbenchProperties kind side-panel component x-side-panel {
+    portal workbenchRoot
+    lane visible weight 78 {
+      hydrate propertiesContent from endpoint workbench.properties
+    }
+    on click -> action propertiesCommand {
+      payload id from surface.id
+    }
+  }
+}

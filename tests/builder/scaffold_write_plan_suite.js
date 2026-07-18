@@ -61,7 +61,7 @@ function runScaffoldWritePlanSuite(options = {}) {
 
   [
     'xtend-builder/writing/write-plan.js',
-    'xtend-builder/generators/rmt-lifecycle-demo.js',
+    'xtend-builder/generators/rmt-build.js',
     'tests/builder/scaffold_write_plan_suite.js'
   ].forEach((relativePath) => {
     const syntax = syntaxCheckFile(relativePath, { rootDir, extension: '.js' });
@@ -69,7 +69,7 @@ function runScaffoldWritePlanSuite(options = {}) {
   });
 
   const writerSource = readText('xtend-builder/writing/write-plan.js', rootDir);
-  const lifecycleGenerator = readText('xtend-builder/generators/rmt-lifecycle-demo.js', rootDir);
+  const lifecycleGenerator = readText('xtend-builder/generators/rmt-build.js', rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const readme = readText('xtend-builder/README.md', rootDir);
   const epic = readText('development/EPIC-17-XTend-Scaffold-Produktive-Builds-und-Dateischreibpfade.md', rootDir);
@@ -80,7 +80,7 @@ function runScaffoldWritePlanSuite(options = {}) {
   context.assert(writerSource.includes(SCAFFOLD_WRITE_REPORT_SCHEMA), 'Writer exposes write report schema');
   context.assert(writerSource.includes('normalizeRelativePath'), 'Writer normalizes relative paths');
   context.assert(writerSource.includes('allowedRoots'), 'Writer enforces allowed roots');
-  context.assert(lifecycleGenerator.includes("require('../writing/write-plan')"), 'RMT lifecycle demo uses central writer');
+  context.assert(lifecycleGenerator.includes("require('../writing/write-plan')"), 'Generic RMT demo build uses central writer');
   context.assert(scaffoldConfig.includes('writing: "xtend-builder/writing/"'), 'Scaffold config declares writing module boundary');
   context.assert(readme.includes('xtend-builder/writing/'), 'Scaffold README documents writing module');
   context.assert(epic.includes('WP-E17-01'), 'Epic 17 tracks WP-E17-01');

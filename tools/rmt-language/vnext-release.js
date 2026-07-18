@@ -16,8 +16,8 @@ const RMT_VNEXT_RELEASE_WORKPACKAGE_PATH = 'development/WP-E15-18-Docs-Reference
 const RMT_VNEXT_AUTHORING_GUIDE_PATH = 'docs/rmt-vnext-authoring.md';
 const RMT_VNEXT_MIGRATION_NOTES_PATH = 'docs/rmt-vnext-migration-notes.md';
 const RMT_VNEXT_RELEASE_HANDOFF_DOC_PATH = 'docs/rmt-vnext-release-handoff.md';
-const RMT_VNEXT_REFERENCE_DEMO_PATH = 'xtendrmt/rmt-vnext-reference-demo.rmt';
-const RMT_VNEXT_REFERENCE_CORE_PATH = 'xtendrmt/rmt-vnext-reference-demo.core.json';
+const RMT_VNEXT_REFERENCE_DEMO_PATH = 'demos/xtendrmt/fixtures/vnext-reference/source.rmt';
+const RMT_VNEXT_REFERENCE_CORE_PATH = 'demos/xtendrmt/fixtures/vnext-reference/generated/core.json';
 const RMT_VNEXT_RELEASE_PACKAGE_SCRIPT = 'npm run test:rmt-vnext-release';
 const RMT_VNEXT_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js rmt-vnext-release --json';
 

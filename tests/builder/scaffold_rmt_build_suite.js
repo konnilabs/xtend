@@ -66,7 +66,7 @@ function runScaffoldRmtBuildSuite(options = {}) {
   const buildRoot = tempRoot();
   const invalidRoot = tempRoot();
   const sourcePath = 'xtendrmt/rmt-build-demo.rmt';
-  const source = readText('xtendrmt/rmt-lifecycle-demo.rmt', rootDir);
+  const source = readText('demos/xtendrmt/examples/lifecycle/source.rmt', rootDir);
 
   writeTempText(buildRoot, sourcePath, source);
   writeTempJson(buildRoot, 'components/manifest.json', {
@@ -104,7 +104,7 @@ function runScaffoldRmtBuildSuite(options = {}) {
   context.assert(readme.includes('rmt-build --source'), 'Scaffold README documents rmt-build command');
   context.assert(epic.includes('WP-E17-04'), 'Epic 17 tracks WP-E17-04');
   context.assert(workpackage.includes(RMT_APP_BUILD_SCHEMA), 'WP-E17-04 document declares RMT app build contract');
-  context.assert(packageManifest.scripts['build:rmt'] === 'node xtend-builder/scaffold.js rmt-build --source xtendrmt/rmt-lifecycle-demo.rmt --write --json', 'Package exposes generic RMT build script');
+  context.assert(packageManifest.scripts['build:rmt'] === 'node xtend-builder/scaffold.js rmt-build --demo demos/xtendrmt/examples/lifecycle/demo.json --write --json', 'Package exposes manifest-driven generic RMT build script');
   context.assert(packageManifest.scripts['test:scaffold-rmt-build'] === 'node scripts/run_xtend_tests.js scaffold-rmt-build', 'Package exposes scaffold RMT build test script');
   context.assert(runner.includes("id: 'scaffold-rmt-build'"), 'XTend test runner registers scaffold-rmt-build gate');
 

@@ -229,11 +229,11 @@ function runVsCodeBridgeChecks(context, rootDir) {
   const workflowDefinitions = createXtendCliWorkflowDefinitions();
   const cliCandidates = createXtendCliCandidates(null, extensionContext, {
     workspaceFolderPath: rootDir,
-    file: resolveRepoPath('xtendrmt/rmt-vnext-reference-demo.rmt', rootDir)
+    file: resolveRepoPath('demos/xtendrmt/fixtures/vnext-reference/source.rmt', rootDir)
   });
   const resolvedCli = resolveXtendCliInvocation(null, extensionContext, {
     workspaceFolderPath: rootDir,
-    file: resolveRepoPath('xtendrmt/rmt-vnext-reference-demo.rmt', rootDir)
+    file: resolveRepoPath('demos/xtendrmt/fixtures/vnext-reference/source.rmt', rootDir)
   });
   const resolvedBinCli = resolveXtendCliInvocation(null, extensionContext, {
     workspaceFolderPath: '/workspace/app',
@@ -247,14 +247,14 @@ function runVsCodeBridgeChecks(context, rootDir) {
   });
   const terminalCommandLine = createTerminalCommandLine(resolvedCli, ['rmt', 'lint', '${file}', '--json'], {
     workspaceFolder: rootDir,
-    file: resolveRepoPath('xtendrmt/rmt-vnext-reference-demo.rmt', rootDir)
+    file: resolveRepoPath('demos/xtendrmt/fixtures/vnext-reference/source.rmt', rootDir)
   });
   const openTerminalDryRun = openXtendCliTerminal(null, extensionContext, {
     workspaceFolderPath: rootDir
   });
   const terminalBuildDryRun = runXtendCliInTerminal(null, extensionContext, 'rmt-build-check', {
     workspaceFolderPath: rootDir,
-    file: resolveRepoPath('xtendrmt/rmt-vnext-reference-demo.rmt', rootDir)
+    file: resolveRepoPath('demos/xtendrmt/fixtures/vnext-reference/source.rmt', rootDir)
   });
   let capturedTerminalOptions = null;
   const capturedTerminal = {
@@ -280,7 +280,7 @@ function runVsCodeBridgeChecks(context, rootDir) {
   const dryRunTask = runXtendRmtTask(null, extensionContext, 'lint-active');
   const dryRunDebug = startXtendRmtDebugSession(null, extensionContext, 'Debug Active RMT Build', {
     workspaceFolderPath: rootDir,
-    file: resolveRepoPath('xtendrmt/rmt-vnext-reference-demo.rmt', rootDir)
+    file: resolveRepoPath('demos/xtendrmt/fixtures/vnext-reference/source.rmt', rootDir)
   });
   const debugConfiguration = resolveDebugConfiguration('Debug Language Server');
   const primitiveInvalidPath = resolveRepoPath(PRIMITIVE_INVALID_VNEXT_FIXTURE, rootDir);

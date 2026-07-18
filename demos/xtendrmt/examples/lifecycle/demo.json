@@ -1,0 +1,13 @@
+{
+  "schema": "xtend.rmt.demo.v1",
+  "id": "lifecycle",
+  "role": "tutorial",
+  "stability": "stable",
+  "source": "source.rmt",
+  "sourceSha256": "77ca654f845c8dd26e5c6ab58471548f24299b393baa27485653706771b06f0d",
+  "outputs": { "core": "generated/core.json", "app": "generated/app.js", "report": "generated/build-report.json", "host": "host.html", "browserSmoke": "browser-smoke.html", "component": "components/x-rmt-lifecycle-demo-build.js" },
+  "componentTag": "x-rmt-lifecycle-demo-build",
+  "docs": ["docs/de/rmt-lifecycle-demo.md", "docs/en/rmt-lifecycle-demo.md"],
+  "gate": "rmt-lifecycle-demo",
+  "buildCommand": "node xtend-builder/scaffold.js rmt-build --demo demos/xtendrmt/examples/lifecycle/demo.json --write --json"
+}

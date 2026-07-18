@@ -64,7 +64,7 @@ const COMPATIBILITY_FIXTURES = Object.freeze([
   'tests/fixtures/rmt-surface-manager-component-lab.rmt',
   'tests/fixtures/rmt-surface-native-domain.rmt',
   'tests/fixtures/rmt-surface-materialization-shell.rmt',
-  'tests/browser/fixtures/rmt-surface-workbench-smoke.html',
+  'demos/xtendrmt/fixtures/surface-workbench/browser-smoke.html',
   'tests/browser/fixtures/surface-manager-browser-lab.html',
   'tests/components/fixtures/xsurfacemanager-persistence.component.html',
   'tests/components/fixtures/xsurfacemanager-lazy-hydration.component.html',

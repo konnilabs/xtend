@@ -6,11 +6,13 @@ A small sample app as orientation for your own hosts.
 
 The demo shows the smallest complete path from an `.rmt` source through core records to a browser-ready app. It is a learning and regression fixture, not a finished product template.
 
+The demo inventory classifies it as a stable tutorial. Its `generated/core.json` is the only core contract; no parallel legacy core is maintained.
+
 ## Public building blocks
 
-- `xtendrmt/rmt-first-demo-app.rmt` is the editable source.
-- `xtendrmt/rmt-first-demo-app.vnext.core.json` shows vNext compile output.
-- `tests/browser/fixtures/rmt-first-demo-app-smoke.html` proves host materialization.
+- `demos/xtendrmt/examples/first-app/source.rmt` is the editable source.
+- `demos/xtendrmt/examples/first-app/generated/core.json` shows vNext compile output.
+- `demos/xtendrmt/examples/first-app/browser-smoke.html` proves host materialization.
 
 ## Recommended workflow
 
@@ -29,4 +31,4 @@ Change the RMT source first, compile again, and inspect the core diff. Then open
 node scripts/run_xtend_tests.js rmt-first-demo-app --json
 ```
 
-A passing run proves source, core model, loader-free host shell, and browser smoke for the same demo. Inspect `xtendrmt/rmt-first-demo-app.rmt` first when output drifts.
+A passing run proves source, core model, loader-free host shell, and browser smoke for the same demo. Inspect `demos/xtendrmt/examples/first-app/source.rmt` first when output drifts.

@@ -21,8 +21,8 @@ Wichtige Anker:
 
 - `tools/rmt-language/vnext-compatibility.js`
 - `tests/rmt-language/rmt_vnext_compatibility_suite.js`
-- `xtendrmt/rmt-vnext-reference-demo.rmt`
-- `xtendrmt/rmt-vnext-reference-demo.core.json`
+- `demos/xtendrmt/fixtures/vnext-reference/source.rmt`
+- `demos/xtendrmt/fixtures/vnext-reference/generated/core.json`
 - `docs/de/rmt-vnext-authoring.md`
 - `docs/de/rmt-vnext-migration-notes.md`
 
@@ -85,7 +85,7 @@ Der Release-Gate-Lauf prüft zusätzlich, dass die Migrationsnotizen, der Author
 - Wenn `rmt.document.extension.fallback-used` auftaucht, wurde vermutlich eine `.rmt.json` Quelle gelesen. Das ist erlaubt, sollte aber nicht als Zielpfad dokumentiert werden.
 - Wenn `rmt.vnext.migration.opt_in_required` auftaucht, fehlt die ausdrückliche Entscheidung, eine Preview oder Migration zu erzeugen.
 - Wenn `rmt.vnext.migration.lossy_domain` auftaucht, ist ein automatischer Apply nicht reviewbar.
-- Wenn der Core-Output von `xtendrmt/rmt-vnext-reference-demo.core.json` driftet, muss die Compiler-Änderung zuerst erklärt werden; danach werden Docs und Golden Output gemeinsam aktualisiert.
+- Wenn der Core-Output von `demos/xtendrmt/fixtures/vnext-reference/generated/core.json` driftet, muss die Compiler-Änderung zuerst erklärt werden; danach werden Docs und Golden Output gemeinsam aktualisiert.
 
 ## Weiterführend
 

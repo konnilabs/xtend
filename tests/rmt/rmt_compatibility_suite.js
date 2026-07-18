@@ -269,7 +269,7 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   const demo = bestcaseDemo.projection;
   const demoCore = bestcaseDemo.core;
   const demoSource = bestcaseDemo.source;
-  const demoJs = readText('xtendrmt/xtendrmt-bestcase-demo.js', rootDir);
+  const demoJs = readText('demos/xtendrmt/examples/flagship/generated/app.js', rootDir);
   const coreTypes = readText('xtendrmt/rmt-core.d.ts', rootDir);
   const scaffoldBindings = schema['x-xtendrmt'] && schema['x-xtendrmt'].scaffoldCompatibilityBindings;
   const pilotModels = schema['x-xtendrmt'] && schema['x-xtendrmt'].templatePilotFlowModels;

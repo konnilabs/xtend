@@ -28,7 +28,7 @@ const {
 const RMT_APP_BUILD_SCHEMA = 'xtend.scaffold.rmt-app-build.v1';
 const RMT_APP_BUILD_REPORT_SCHEMA = 'xtend.scaffold.rmt-app-build-report.v1';
 const RMT_APP_BROWSER_SMOKE_SCHEMA = 'xtend.scaffold.rmt-app-browser-smoke.v1';
-const DEFAULT_SOURCE_PATH = 'xtendrmt/rmt-lifecycle-demo.rmt';
+const DEFAULT_SOURCE_PATH = 'demos/xtendrmt/examples/lifecycle/source.rmt';
 const DEFAULT_LOCAL_GATE = 'node scripts/run_xtend_tests.js scaffold-rmt-build --json';
 const DEFAULT_PROFILE = Object.freeze(['display', 'stateful']);
 const DEFAULT_FEATURE = Object.freeze(['state', 'slots', 'manifest']);
@@ -76,6 +76,41 @@ function relativeImport(fromPath, toPath) {
 
 function repoPath(rootDir, relativePath) {
   return path.resolve(rootDir, relativePath);
+}
+
+function resolveDemoInput(input, rootDir) {
+  if (!input.demo) return { ok: true, input };
+  const normalized = normalizeRelativePath(input.demo);
+  if (!normalized.ok) return { ok: false, errors: [normalized.error] };
+  const manifestFile = repoPath(rootDir, normalized.path);
+  if (!fs.existsSync(manifestFile)) return { ok: false, errors: [`RMT demo manifest not found: ${normalized.path}`] };
+  let manifest;
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
+  } catch (error) {
+    return { ok: false, errors: [`Invalid RMT demo manifest ${normalized.path}: ${error.message}`] };
+  }
+  if (manifest.schema !== 'xtend.rmt.demo.v1') return { ok: false, errors: [`Unsupported RMT demo manifest schema: ${manifest.schema || 'missing'}`] };
+  const base = path.posix.dirname(normalized.path);
+  const relativeOutput = (key) => manifest.outputs && manifest.outputs[key]
+    ? (manifest.outputs[key].startsWith('components/') ? manifest.outputs[key] : path.posix.join(base, manifest.outputs[key]))
+    : undefined;
+  return {
+    ok: true,
+    manifest,
+    manifestPath: normalized.path,
+    input: {
+      ...input,
+      source: path.posix.join(base, manifest.source),
+      core: relativeOutput('core'),
+      app: relativeOutput('app'),
+      report: relativeOutput('report'),
+      host: relativeOutput('host'),
+      'browser-smoke': relativeOutput('browserSmoke'),
+      component: relativeOutput('component'),
+      tag: manifest.componentTag || input.tag
+    }
+  };
 }
 
 function outputSummary(output) {
@@ -162,7 +197,8 @@ function resolveBuildPaths(input = {}) {
     appPath: input.app || input['app-output'] || `${sourcePrefix}${baseName}.rmt-build.app.js`,
     hostPath: input.host || `${hostPrefix}${baseName}-rmt-build.html`,
     browserSmokePath: input['browser-smoke'] || input.browserSmoke || `tests/browser/fixtures/${baseName}-rmt-build-smoke.html`,
-    componentPath: `components/${tag}.js`
+    componentPath: input.component || `components/${tag}.js`,
+    demoManifestPath: input.demo || null
   };
 }
 
@@ -540,6 +576,11 @@ function createRmtAppBuild(input = {}, options = {}) {
   const rootDir = path.resolve(options.rootDir || input.rootDir || input['root-dir'] || process.cwd());
   const write = toBoolean(input.write);
   const check = toBoolean(input.check);
+  const resolvedDemo = resolveDemoInput(input, rootDir);
+  if (!resolvedDemo.ok) {
+    return { schema: RMT_APP_BUILD_SCHEMA, ok: false, status: 'invalid_demo_manifest', mode: write ? 'write' : (check ? 'check' : 'dry-run'), errors: resolvedDemo.errors, outputs: [] };
+  }
+  input = resolvedDemo.input;
   const paths = resolveBuildPaths(input);
   if (!paths.ok) {
     return {
@@ -643,8 +684,9 @@ function createRmtAppBuild(input = {}, options = {}) {
   const stages = lifecycleStages(paths, counts);
   const sourceSha = sha256(source);
   const coreSha = sha256(compileResult.coreJson);
-  const buildCommand = `node xtend-builder/scaffold.js rmt-build --source ${paths.sourcePath} --write --json`;
-  const checkCommand = `node xtend-builder/scaffold.js rmt-build --source ${paths.sourcePath} --check --json`;
+  const buildTarget = paths.demoManifestPath ? `--demo ${paths.demoManifestPath}` : `--source ${paths.sourcePath}`;
+  const buildCommand = `node xtend-builder/scaffold.js rmt-build ${buildTarget} --write --json`;
+  const checkCommand = `node xtend-builder/scaffold.js rmt-build ${buildTarget} --check --json`;
   const context = {
     rootDir,
     paths,
@@ -734,5 +776,6 @@ module.exports = {
   RMT_APP_BUILD_SCHEMA,
   SCAFFOLD_MANIFEST_PATCHER_SCHEMA,
   createRmtAppBuild,
+  resolveDemoInput,
   resolveBuildPaths
 };

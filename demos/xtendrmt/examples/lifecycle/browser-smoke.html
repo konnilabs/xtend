@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="xtend-preload" content="xstate,x-theme,x-rmt-lifecycle-demo-build">
+  <title>XTend RMT App Build Smoke</title>
+</head>
+<body>
+  <div id="rmt-build-smoke-root" data-rmt-build-root aria-busy="true"></div>
+  <script>
+    window.__xtendRmtAppBuildSmokeResult = {
+      status: 'pending',
+      contract: 'xtend.scaffold.rmt-app-browser-smoke.v1',
+      checks: [],
+      errors: []
+    };
+
+    function recordCheck(label, passed, details) {
+      window.__xtendRmtAppBuildSmokeResult.checks.push({ label, passed: Boolean(passed), details: details || null });
+      if (!passed) {
+        window.__xtendRmtAppBuildSmokeResult.errors.push(label);
+      }
+    }
+  </script>
+  <script type="module" src="/xtend-loader.js" data-manifest="/components/manifest.json"></script>
+  <script type="module">
+    (async () => {
+      try {
+        await (window.__XTendLoaderBootPromise || Promise.resolve()).catch(() => {});
+        const module = await import('/demos/xtendrmt/examples/lifecycle/generated/app.js');
+        const root = document.querySelector('[data-rmt-build-root]');
+        const result = await module.bootRmtBuildApp({ root });
+        recordCheck('rmt build source loaded', result.core.manifest.sourceSyntax === 'rmt-vnext');
+        recordCheck('rmt build component defined', customElements.get('x-rmt-lifecycle-demo-build'));
+        recordCheck('rmt build app rendered', root.getAttribute('data-rmt-build-rendered') === 'true');
+        recordCheck('rmt build core has template', result.core.templates.length >= 1);
+        recordCheck('rmt build scaffold report linked app', result.report.generated.app === 'demos/xtendrmt/examples/lifecycle/generated/app.js');
+        const externalAssets = Array.from(document.querySelectorAll('script[src], link[href], img[src]'))
+          .map((node) => node.getAttribute('src') || node.getAttribute('href') || '')
+          .filter((value) => /^https?:\/\//.test(value));
+        recordCheck('rmt build local http assets only', externalAssets.length === 0, externalAssets.join(', '));
+        window.__xtendRmtAppBuildSmokeResult.status = window.__xtendRmtAppBuildSmokeResult.errors.length ? 'failed' : 'passed';
+        window.__xtendRmtAppBuildSmokeResult.counts = result.fingerprint.counts;
+      } catch (error) {
+        window.__xtendRmtAppBuildSmokeResult.status = 'failed';
+        window.__xtendRmtAppBuildSmokeResult.errors.push(error.message);
+      }
+    })();
+  </script>
+</body>
+</html>

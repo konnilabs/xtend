@@ -33,7 +33,7 @@ const {
 const EPIC_14_PATH = 'development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Server.md';
 const TOOLING_ARCHITECTURE_PATH = 'development/XTendRMT-DSL-Tooling-Architektur.md';
 const RMT_LINTER_WP_PATH = 'development/WP-E14-06-CLI-xt-rmt-lint-und-Reporter-integrieren.md';
-const VALID_FIXTURE_PATH = 'xtendrmt/rmt-first-demo-app.core.json';
+const VALID_FIXTURE_PATH = 'demos/xtendrmt/examples/first-app/generated/core.json';
 
 function createMemoryStream() {
   const chunks = [];

@@ -30,8 +30,8 @@ Der Zielzustand für diesen Pfad ist `rmt-vnext-enterprise-mfe-ready`. Er bedeut
 
 Die dazugehörigen Dateien sind:
 
-- `xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt`
-- `xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json`
+- `demos/xtendrmt/fixtures/enterprise-mfe/source.rmt`
+- `demos/xtendrmt/fixtures/enterprise-mfe/generated/core.json`
 - `tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html`
 - `tests/rmt-language/fixtures/vnext-enterprise-mfe-fixture-matrix.json`
 
@@ -55,7 +55,7 @@ Wenn der erste Befehl scheitert, ist die Registry selbst unvollständig. Wenn de
 - Fehlender `byOwner` Index: Owner-Zuordnung im `surface.registry` Record prüfen.
 - Fehlender `byShellTarget` Index: Shell Target im Surface-Record ergänzen.
 - Doppelte Surface-ID: Registry und Core-Dokument müssen dieselbe ID-Auflösung verwenden.
-- Drift im Core Output: `xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json` nur zusammen mit der Quelle und dem Releasevertrag aktualisieren.
+- Drift im Core Output: `demos/xtendrmt/fixtures/enterprise-mfe/generated/core.json` nur zusammen mit der Quelle und dem Releasevertrag aktualisieren.
 
 ## Weiterführend
 

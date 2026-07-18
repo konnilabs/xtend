@@ -54,7 +54,7 @@ The [Hydration Policies](./hydration-policies.md) deep dive separates execution 
 
 ## Reference demo and release contract
 
-The RMT vNext Authoring Guide is bound to the release handoff `xtend.rmt.vnext-release-handoff.v1`. The reference source `xtendrmt/rmt-vnext-reference-demo.rmt` shows the smallest complete combination of `template`, `surface`, `lane`, `when`, `slot`, `stream`, `trust boundary`, `sanitize html` and event-action binding. The expected Core output lives in `xtendrmt/rmt-vnext-reference-demo.core.json`.
+The RMT vNext Authoring Guide is bound to the release handoff `xtend.rmt.vnext-release-handoff.v1`. The reference source `demos/xtendrmt/fixtures/vnext-reference/source.rmt` shows the smallest complete combination of `template`, `surface`, `lane`, `when`, `slot`, `stream`, `trust boundary`, `sanitize html` and event-action binding. The expected Core output lives in `demos/xtendrmt/fixtures/vnext-reference/generated/core.json`.
 
 ```rmt
 template xtend.vnext.reference {

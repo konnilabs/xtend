@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const vm = require('vm');
+const { verifyRmtDemoInventory } = require('./verify_rmt_demo_inventory');
 
 const ARTIFACT_PARITY_SCHEMA = 'xtend.rmt.artifact-parity.v1';
 const KERNEL_ARTIFACT_PARITY_SCHEMA = 'xtend.rmt.kernel-artifact-parity.v1';
@@ -656,6 +657,15 @@ function runXtendRmtArtifactParity(options = {}) {
     'package-metadata:rmtKernelArtifactParity-gate',
     kernelArtifactParityMetadata && kernelArtifactParityMetadata.localGate === 'node scripts/verify_xtendrmt_artifact_parity.js --json',
     'package.json exposes RKSH-WP-10 kernel artifact parity gate'
+  );
+
+  const demoInventory = verifyRmtDemoInventory();
+  addCheck(checks, 'rmt-demo-inventory', demoInventory.ok, `demo inventory and source hashes are current${demoInventory.ok ? '' : `: ${demoInventory.errors.join('; ')}`}`);
+  addCheck(
+    checks,
+    'rmt-demo-package-boundary',
+    packageJson && Array.isArray(packageJson.files) && packageJson.files.every((entry) => !String(entry).startsWith('demos/')),
+    'root package files exclude demos/ from the publish boundary'
   );
 
   const failedChecks = checks.filter((check) => check.status === 'failed');

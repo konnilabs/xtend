@@ -1,0 +1,11 @@
+{
+  "schema": "xtend.rmt.demo.v1",
+  "id": "flagship",
+  "role": "showcase",
+  "stability": "stable",
+  "source": "source.rmt",
+  "sourceSha256": "4b845d32672274250f28621e9ada52aa031bc324c4111860823b3a18cf9f4146",
+  "outputs": { "core": "generated/core.json", "app": "generated/app.js", "browserSmoke": "browser-smoke.html" },
+  "docs": ["docs/de/rmt-vnext-authoring.md", "docs/en/rmt-vnext-authoring.md"],
+  "gate": "rmt-bestcase-flagship"
+}

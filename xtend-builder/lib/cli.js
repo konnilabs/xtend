@@ -176,8 +176,7 @@ function buildHelpText() {
     '  node xtend-builder/scaffold.js typing --tag x-example --profile display --json',
     '  node xtend-builder/scaffold.js preview --tag x-example --profile display --json',
     '  node xtend-builder/scaffold.js extensions --tag x-example --profile display --json',
-    '  node xtend-builder/scaffold.js rmt-lifecycle-demo --write --json',
-    '  node xtend-builder/scaffold.js rmt-build --source xtendrmt/rmt-lifecycle-demo.rmt --write --json',
+    '  node xtend-builder/scaffold.js rmt-build --demo demos/xtendrmt/examples/lifecycle/demo.json --write --json',
     '  node xtend-builder/scaffold.js rmt-app-platform --source tests/fixtures/rmt-surface-resource-graph-runtime.rmt --write --json',
     '  node xtend-builder/scaffold.js workflow --json',
     '  node xtend-builder/scaffold.js verify --json',
@@ -201,8 +200,7 @@ function buildHelpText() {
     '  typing   Create the dry-run component type and XTendRMT attachment contract.',
     '  preview  Create the dry-run component preview and reference-gate contract.',
     '  extensions Create the dry-run templating, rendering and root-lifecycle extension contract.',
-    '  rmt-lifecycle-demo Compile the vNext RMT lifecycle template and build the generated demo app.',
-    '  rmt-build Compile an RMT vNext template into XTend app build artifacts.',
+    '  rmt-build Compile an RMT vNext template or --demo manifest into XTend app build artifacts.',
     '  rmt-app-platform Build App Platform diagnostics, source maps and scaffold reports.',
     '  workflow  Print the local dry-run developer workflow.',
     '  verify    Print the local scaffold verification plan.',
@@ -605,39 +603,6 @@ function runCli(args = process.argv.slice(2), io = {}) {
     writeLine(stdout, `${'lifecycle'.padEnd(12)} ${result.rootLifecycle.schema}`);
     writeLine(stdout, `${'template'.padEnd(12)} ${result.templating.adapter}`);
     writeLine(stdout, `${'rendering'.padEnd(12)} ${result.rendering.scheduleHint}`);
-    return 0;
-  }
-
-  if (command === 'rmt-lifecycle-demo') {
-    const result = runGenerator('rmt-lifecycle-demo', parseFlagArgs(options.rest));
-    if (!result.ok) {
-      if (options.json) {
-        writeLine(stdout, JSON.stringify(result, null, 2));
-      } else {
-        result.errors.forEach((error) => writeLine(stderr, error));
-      }
-      return 1;
-    }
-
-    if (options.json) {
-      writeLine(stdout, JSON.stringify({
-        ...result,
-        outputs: result.outputs.map((output) => ({
-          id: output.id,
-          path: output.path,
-          kind: output.kind,
-          generated: output.generated,
-          sha256: output.sha256
-        }))
-      }, null, 2));
-      return 0;
-    }
-
-    writeLine(stdout, `XTend-Scaffold RMT Lifecycle Demo: ${result.status}`);
-    writeLine(stdout, '');
-    result.outputs.forEach((output) => {
-      writeLine(stdout, `${output.id.padEnd(20)} ${output.path}`);
-    });
     return 0;
   }
 

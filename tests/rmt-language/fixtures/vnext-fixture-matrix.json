@@ -6,7 +6,7 @@
       "id": "minimal",
       "path": "tests/rmt-language/fixtures/vnext-valid-minimal.rmt",
       "expected": {
-        "coreSha256": "770987e99be01c1b02eb137115e455bc2ba319f465330ccd587216c61fcfdbf9",
+        "coreSha256": "68f3a21cc051501b951dc58689b62c044de5bc1aa537537633c6ba39327a168f",
         "domainCounts": {
           "imports": 0,
           "templates": 1,
@@ -25,7 +25,7 @@
       "id": "complex",
       "path": "tests/rmt-language/fixtures/vnext-valid-complex.rmt",
       "expected": {
-        "coreSha256": "e88883e414e01177f3d8f0759ed1a824c1bd7755c3d753b777f1c6cd714fdc41",
+        "coreSha256": "02a2afa3e98346d31cc160cf38dad1d039009cb46e2d54db1e35941e29a42512",
         "domainCounts": {
           "imports": 1,
           "templates": 1,
@@ -44,7 +44,7 @@
       "id": "lifecycle",
       "path": "tests/rmt-language/fixtures/vnext-lifecycle-valid.rmt",
       "expected": {
-        "coreSha256": "72e7262a773568e718f3d8a58e2d86b74ada4b8217c87237a7edd63bfdae327c",
+        "coreSha256": "787ed6873f9ffac3dc65651ccc8aeeb8c0490aca49028cf6d0c9de72c43175f1",
         "domainCounts": {
           "imports": 0,
           "templates": 1,
@@ -63,7 +63,7 @@
       "id": "scheduler",
       "path": "tests/rmt-language/fixtures/vnext-scheduler-valid.rmt",
       "expected": {
-        "coreSha256": "05eabf8175188ac7f5fe9aefc27b9b2ded5cd3c3ff859bd2adbfdba67b4b3471",
+        "coreSha256": "bf5f66e121cc3cfbea57a0c21e279c8d20e97d6f7a873185664bfc9832049f35",
         "domainCounts": {
           "imports": 0,
           "templates": 1,
@@ -82,7 +82,7 @@
       "id": "surfaces",
       "path": "tests/rmt-language/fixtures/vnext-surfaces-valid.rmt",
       "expected": {
-        "coreSha256": "f2ac3007ec05298da26eb563075baa21d9cc1684dbfa49ee7b7ccaa67f26d2b0",
+        "coreSha256": "1a1af92326b72cec338fa313564889aebec139cd21d566b1684501bf9c349aaf",
         "domainCounts": {
           "imports": 0,
           "templates": 1,
@@ -101,7 +101,7 @@
       "id": "conditions",
       "path": "tests/rmt-language/fixtures/vnext-conditions-valid.rmt",
       "expected": {
-        "coreSha256": "05b9866c917231ce8b8453e655427af44480bd36f923159c7d577f2767fb4073",
+        "coreSha256": "9b188546e5934bb0d2771c236a305fdad997d21222587e1dac263c9108d44325",
         "domainCounts": {
           "imports": 0,
           "templates": 1,
@@ -120,7 +120,7 @@
       "id": "composition",
       "path": "tests/rmt-language/fixtures/vnext-composition-valid.rmt",
       "expected": {
-        "coreSha256": "6b33934f1243d87e5a3d98ebba8e000f3efac49f2006a53d696801c1511159b7",
+        "coreSha256": "c24531cc28eef49b734dd634b20e353d0243b4cf5409e43e363c32623ac32956",
         "domainCounts": {
           "imports": 0,
           "templates": 1,
@@ -139,7 +139,7 @@
       "id": "events",
       "path": "tests/rmt-language/fixtures/vnext-events-valid.rmt",
       "expected": {
-        "coreSha256": "50fcebc57f906ae86f94c4bb9e01ed93b3dc09b0447971cc7198108ff7a41290",
+        "coreSha256": "55bef1dc2da23ae59cc94d316b930851718a45e1c4b333d05e0d6adab2e0395e",
         "domainCounts": {
           "imports": 0,
           "templates": 1,
@@ -158,7 +158,7 @@
       "id": "security",
       "path": "tests/rmt-language/fixtures/vnext-security-valid.rmt",
       "expected": {
-        "coreSha256": "55d06a6789f13571549b25f2a22c0da2fb466717e1e759ff7d32c0f3d0c12908",
+        "coreSha256": "c877766d21b081bd3bfc74b895ec787b06f42a78a5b6773864229b22bda981ea",
         "domainCounts": {
           "imports": 0,
           "templates": 1,
@@ -177,7 +177,7 @@
       "id": "streaming",
       "path": "tests/rmt-language/fixtures/vnext-streaming-progressive.rmt",
       "expected": {
-        "coreSha256": "2c7f8b7fe154063b7e011e92d62e3198954a0422d0e7c814fe7a2bee7230a719",
+        "coreSha256": "3f2541a39981869518204ed39e8de43a9c3aeb56388601d78d66345bf6a514a6",
         "domainCounts": {
           "imports": 0,
           "templates": 1,

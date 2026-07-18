@@ -576,12 +576,12 @@ function runSecurityAssertions(context, fixture, rendererModule) {
 function runNoManualHtmlGateAssertions(context, rootDir, rendererModule) {
   const runtimeSource = readText(RMT_DOM_DESCRIPTOR_RENDERER_RUNTIME, rootDir);
   const fixtureSource = readText(RMT_DOM_DESCRIPTOR_RENDERER_FIXTURE, rootDir);
-  const demoRuntime = readText('xtendrmt/rmt-first-demo-app.js', rootDir);
+  const demoRuntime = readText('demos/xtendrmt/examples/first-app/generated/app.js', rootDir);
   const gate = rendererModule.createNoManualHtmlGate();
   const cleanDiagnostics = gate.scanFiles({
     [RMT_DOM_DESCRIPTOR_RENDERER_RUNTIME]: runtimeSource,
     [RMT_DOM_DESCRIPTOR_RENDERER_FIXTURE]: fixtureSource,
-    'xtendrmt/rmt-first-demo-app.js': demoRuntime
+    'demos/xtendrmt/examples/first-app/generated/app.js': demoRuntime
   });
   context.assert(gate.schema === NO_MANUAL_HTML_GATE_SCHEMA, 'No-Manual-HTML gate exposes schema');
   context.assert(cleanDiagnostics.length === 0, 'No-Manual-HTML gate accepts renderer and RMT shell units');

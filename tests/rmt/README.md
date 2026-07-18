@@ -59,7 +59,7 @@ The suite is deterministic. It now validates the productive XRouter adapter cont
 
 The Epic 10 authoring gate is intentionally separate from the broad compatibility gate. It proves that a complete XTend app can be represented as an RMT document before productive Fabric ingestion and Demo-App work starts.
 
-The Epic 10 RMT-first Demo-App gate verifies that `tests/browser/fixtures/rmt-first-demo-app-smoke.html` only provides a generic RMT root, while `xtendrmt/rmt-first-demo-app.rmt` owns vNext authoring for shell, routes, templates, schedules, Fabric lane metadata and XTend component records. Runtime parity is loaded from `xtendrmt/rmt-first-demo-app.core.json`.
+The Epic 10 RMT-first Demo-App gate verifies that `demos/xtendrmt/examples/first-app/browser-smoke.html` only provides a generic RMT root, while `demos/xtendrmt/examples/first-app/source.rmt` owns vNext authoring for shell, routes, templates, schedules, Fabric lane metadata and XTend component records. Runtime parity is loaded from `demos/xtendrmt/examples/first-app/generated/core.json`.
 
 The Epic 10 existing component metadata gate verifies that prioritized legacy JS components receive RMT/Fabric-compatible Contract v2 overlays without a runtime rewrite or big-bang TypeScript migration.
 

@@ -8,7 +8,7 @@ Eine RMT-first App besitzt ihre Shell, ihren State und ihre Actions in der RMT S
 
 ## Öffentliche Bausteine
 
-- `xtendrmt/rmt-first-demo-app.rmt` dient als minimale Shell.
+- `demos/xtendrmt/examples/first-app/source.rmt` dient als minimale Shell.
 - `xtendrmt/rmt-app-runtime.js` übernimmt Core-Records in die Runtime.
 - `components/manifest.json` liefert die lokal erlaubten UI-Tags.
 

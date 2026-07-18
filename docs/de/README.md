@@ -38,7 +38,7 @@ Wähle XTend Classic für HTML-/JavaScript-first-Seiten, dynamische Kataloge und
 
 ## RMT vNext Release Surface
 
-Der RMT vNext Authoring Guide, die RMT vNext Migration Notes und der RMT vNext Releasevertrag gehören zusammen. Die Release-Spur verweist auf `xtendrmt/rmt-vnext-reference-demo.rmt` und `xtendrmt/rmt-vnext-reference-demo.core.json`, damit ein Integrator Authoring-Beispiel, Compiler-Output und gate matrix im selben Review prüfen kann.
+Der RMT vNext Authoring Guide, die RMT vNext Migration Notes und der RMT vNext Releasevertrag gehören zusammen. Die Release-Spur verweist auf `demos/xtendrmt/fixtures/vnext-reference/source.rmt` und `demos/xtendrmt/fixtures/vnext-reference/generated/core.json`, damit ein Integrator Authoring-Beispiel, Compiler-Output und gate matrix im selben Review prüfen kann.
 
 Für die englischen Prüfsuiten bleiben die öffentlichen Aliasnamen sichtbar: RMT vNext Release contract und RMT vNext Enterprise MFE contract.
 

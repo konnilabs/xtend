@@ -39,7 +39,7 @@ const BROWSER_FIXTURES = Object.freeze([
   'tests/browser/fixtures/custom-elements-smoke.html',
   'tests/browser/fixtures/core-flows-smoke.html',
   'tests/browser/fixtures/rmt-xrouter-xtend-smoke.html',
-  'tests/browser/fixtures/rmt-first-demo-app-smoke.html',
+  'demos/xtendrmt/examples/first-app/browser-smoke.html',
   'tests/browser/fixtures/a11y-focus-keyboard-smoke.html'
 ]);
 
@@ -345,7 +345,7 @@ function validateEpic10PlatformGatePlan(plan) {
     }
   });
 
-  if (!plan || !plan.browser || !plan.browser.fixtures.includes('tests/browser/fixtures/rmt-first-demo-app-smoke.html')) {
+  if (!plan || !plan.browser || !plan.browser.fixtures.includes('demos/xtendrmt/examples/first-app/browser-smoke.html')) {
     errors.push('browser gates must include the RMT-first demo smoke fixture');
   }
   if (!plan || !plan.browser || !plan.browser.fixtures.includes('tests/browser/fixtures/a11y-focus-keyboard-smoke.html')) {

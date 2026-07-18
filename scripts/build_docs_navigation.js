@@ -202,7 +202,7 @@ function buildMenu() {
       }
     };
   });
-  if (result.length !== 166) throw new Error(`Expected 166 canonical docs entries, received ${result.length}.`);
+  if (result.length !== 168) throw new Error(`Expected 168 canonical docs entries, received ${result.length}.`);
   return result;
 }
 

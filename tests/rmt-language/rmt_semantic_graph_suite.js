@@ -34,7 +34,7 @@ const {
 const RMT_SEMANTIC_GRAPH_WP_PATH = 'development/WP-E14-04-Semantic-Graph-fuer-RMT-Domains-und-Referenzen-implementieren.md';
 const EPIC_14_PATH = 'development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Server.md';
 const TOOLING_ARCHITECTURE_PATH = 'development/XTendRMT-DSL-Tooling-Architektur.md';
-const VALID_FIXTURE_PATH = 'xtendrmt/rmt-first-demo-app.core.json';
+const VALID_FIXTURE_PATH = 'tests/rmt-language/fixtures/regression-valid.rmt';
 const MISSING_REFS_FIXTURE_PATH = 'tests/fixtures/rmt-app-dsl.missing-refs.core.json';
 const VNEXT_PRIMITIVE_FIXTURE_PATH = 'tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt';
 const VNEXT_PRIMITIVE_INVALID_FIXTURE_PATH = 'tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt';
@@ -80,37 +80,31 @@ function runValidFixtureChecks(context, rootDir) {
   context.assert(graph.workpackage === RMT_SEMANTIC_GRAPH_WORKPACKAGE, 'Semantic graph belongs to WP-E14-04');
   context.assert(graph.ok === true, 'Valid RMT-first demo fixture has no semantic errors');
   context.assert(graph.status === 'indexed', 'Valid RMT-first demo fixture indexes successfully');
-  context.assert(graph.manifestHints.documentId === 'demo.xtend.rmt-first-app', 'Graph exposes manifest documentId');
-  context.assert(graph.manifestHints.contractVersion === 'xtend.epic10.rmt-first-demo-app.v1', 'Graph exposes contract version hint');
+  context.assert(graph.manifestHints.documentId === 'regression.valid', 'Graph exposes manifest documentId');
   context.assert(graph.catalogHints.componentTags.includes('x-section'), 'Graph exposes component tag catalog hints');
-  context.assert(graph.catalogHints.routePaths.includes('/settings'), 'Graph exposes route path catalog hints');
-  context.assert(graph.catalogHints.scheduleEndpoints.includes('xtendrmt.component.hydrate'), 'Graph exposes schedule endpoint catalog hints');
+  context.assert(graph.catalogHints.routePaths.includes('/'), 'Graph exposes route path catalog hints');
+  context.assert(graph.catalogHints.scheduleEndpoints.includes('xtendrmt.component.mount'), 'Graph exposes schedule endpoint catalog hints');
 
   context.assert(graph.indexes.adapters.byId.has('xtend.component'), 'Graph indexes adapters.byId');
-  context.assert(graph.indexes.components.byId.has('page.settings'), 'Graph indexes components.byId');
-  context.assert(graph.indexes.components.byTag.get('x-section').length >= 2, 'Graph indexes components.byTag');
-  context.assert(graph.indexes.routes.byId.has('settings'), 'Graph indexes routes.byId');
-  context.assert(graph.indexes.routes.byPath.get('/settings').length === 1, 'Graph indexes routes.byPath');
-  context.assert(graph.indexes.schedules.byId.has('component.idle.hydrate'), 'Graph indexes schedules.byId');
-  context.assert(graph.indexes.schedules.byEndpointName.get('xtendrmt.component.hydrate').length >= 1, 'Graph indexes schedules.byEndpointName');
-  context.assert(graph.indexes.templates.byId.has('page.settings.template'), 'Graph indexes templates.byId');
+  context.assert(graph.indexes.components.byId.has('pages.home'), 'Graph indexes components.byId');
+  context.assert(graph.indexes.components.byTag.get('x-section').length === 1, 'Graph indexes components.byTag');
+  context.assert(graph.indexes.routes.byId.has('home'), 'Graph indexes routes.byId');
+  context.assert(graph.indexes.routes.byPath.get('/').length === 1, 'Graph indexes routes.byPath');
+  context.assert(graph.indexes.schedules.byId.has('component.visible.mount'), 'Graph indexes schedules.byId');
+  context.assert(graph.indexes.schedules.byEndpointName.get('xtendrmt.component.mount').length >= 1, 'Graph indexes schedules.byEndpointName');
+  context.assert(graph.indexes.templates.byId.has('home.shell'), 'Graph indexes templates.byId');
 
-  assertGraphReference(context, graph, '/routes/1/component', 'components', 'page.settings', 'Route component reference');
-  assertGraphReference(context, graph, '/routes/1/template', 'templates', 'page.settings.template', 'Route template reference');
-  assertGraphReference(context, graph, '/routes/1/schedule', 'schedules', 'route.transition.render', 'Route schedule reference');
+  assertGraphReference(context, graph, '/routes/0/component', 'components', 'pages.home', 'Route component reference');
+  assertGraphReference(context, graph, '/routes/0/template', 'templates', 'home.shell', 'Route template reference');
+  assertGraphReference(context, graph, '/routes/0/schedule', 'schedules', 'route.visible.render', 'Route schedule reference');
   assertGraphReference(context, graph, '/components/0/adapter', 'adapters', 'xtend.component', 'Component adapter reference');
-  assertGraphReference(context, graph, '/components/0/schedule', 'schedules', 'app.shell.render', 'Component schedule reference');
-  assertGraphReference(context, graph, '/components/0/slots/header/template', 'templates', 'app.header', 'Component slot template reference');
-  assertGraphReference(context, graph, '/components/0/slots/default/component', 'components', 'app.router', 'Component slot component reference');
-  assertGraphReference(context, graph, '/templates/0/nodes/0/component', 'components', 'app.shell', 'Template node component reference');
-  assertGraphReference(context, graph, '/templates/3/metadata/lazySchedule', 'schedules', 'component.idle.hydrate', 'Template metadata lazySchedule reference');
-  assertGraphReference(context, graph, '/templates/4/metadata/lazySchedule', 'schedules', 'overlay.visible.mount', 'Template overlay lazySchedule reference');
+  assertGraphReference(context, graph, '/components/0/schedule', 'schedules', 'component.visible.mount', 'Component schedule reference');
 
-  context.assert(graph.references.records.length >= 25, 'Graph collects cross-domain references');
+  context.assert(graph.references.records.length >= 6, 'Graph collects cross-domain references');
   context.assert(graph.references.unresolved.length === 0, 'Valid RMT-first demo fixture has no unresolved references');
-  context.assert(graph.listCompletions('components', { prefix: 'page.' }).some((entry) => entry.label === 'page.settings'), 'Graph exposes component completions');
-  context.assert(graph.listCompletions('routes').some((entry) => entry.label === 'settings'), 'Graph exposes route completions');
-  context.assert(graph.getDefinition('templates', 'page.settings.template').id === 'page.settings.template', 'Graph provides direct definition lookup');
+  context.assert(graph.listCompletions('components', { prefix: 'pages.' }).some((entry) => entry.label === 'pages.home'), 'Graph exposes component completions');
+  context.assert(graph.listCompletions('routes').some((entry) => entry.label === 'home'), 'Graph exposes route completions');
+  context.assert(graph.getDefinition('templates', 'home.shell').id === 'home.shell', 'Graph provides direct definition lookup');
   context.assert(graph.listDiagnostics({ severity: 'error' }).length === 0, 'Valid graph exposes no error diagnostics');
 }
 

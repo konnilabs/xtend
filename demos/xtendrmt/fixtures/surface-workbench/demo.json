@@ -1,0 +1,11 @@
+{
+  "schema": "xtend.rmt.demo.v1",
+  "id": "surface-workbench",
+  "role": "regression-fixture",
+  "stability": "stable",
+  "source": "source.rmt",
+  "sourceSha256": "eadc6a25c374ce09bdd4791cf8cf6a8ea7a34acc47e8e9ed5de98a881e61f668",
+  "outputs": { "core": "generated/core.json", "app": "generated/app.js", "report": "generated/build-report.json", "browserSmoke": "browser-smoke.html" },
+  "docs": ["docs/de/surface-manager-workbench-fixture.md", "docs/en/surface-manager-workbench-fixture.md"],
+  "gate": "surface-workbench-fixture"
+}

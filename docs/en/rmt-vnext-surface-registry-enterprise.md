@@ -30,8 +30,8 @@ The target state for this path is `rmt-vnext-enterprise-mfe-ready`. It means:
 
 Related files:
 
-- `xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt`
-- `xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json`
+- `demos/xtendrmt/fixtures/enterprise-mfe/source.rmt`
+- `demos/xtendrmt/fixtures/enterprise-mfe/generated/core.json`
 - `tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html`
 - `tests/rmt-language/fixtures/vnext-enterprise-mfe-fixture-matrix.json`
 
@@ -55,7 +55,7 @@ If the first command fails, the registry itself is incomplete. If the second com
 - Missing `byOwner` index: check the owner mapping in the `surface.registry` record.
 - Missing `byShellTarget` index: add the shell target to the surface record.
 - Duplicate surface ID: registry and Core document must use the same ID resolution.
-- Core output drift: update `xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json` only together with the source and release handoff.
+- Core output drift: update `demos/xtendrmt/fixtures/enterprise-mfe/generated/core.json` only together with the source and release handoff.
 
 ## Related reading
 

@@ -17,8 +17,8 @@ const {
 const CUSTOM_ELEMENT_FIXTURE_PATH = 'tests/browser/fixtures/custom-elements-smoke.html';
 const CORE_FLOW_FIXTURE_PATH = 'tests/browser/fixtures/core-flows-smoke.html';
 const RMT_XROUTER_XTEND_FIXTURE_PATH = 'tests/browser/fixtures/rmt-xrouter-xtend-smoke.html';
-const RMT_FIRST_DEMO_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-first-demo-app-smoke.html';
-const RMT_LIFECYCLE_DEMO_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-lifecycle-demo-smoke.html';
+const RMT_FIRST_DEMO_SMOKE_FIXTURE_PATH = 'demos/xtendrmt/examples/first-app/browser-smoke.html';
+const RMT_LIFECYCLE_DEMO_SMOKE_FIXTURE_PATH = 'demos/xtendrmt/examples/lifecycle/browser-smoke.html';
 const SURFACE_MANAGER_QUALITY_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/surface-manager-quality-smoke.html';
 const SURFACE_MANAGER_BROWSER_LAB_FIXTURE_PATH = 'tests/browser/fixtures/surface-manager-browser-lab.html';
 const EPIC18_VENDOR_BUGFIX_FIXTURE_PATH = 'tests/browser/fixtures/epic18-vendor-bugfix-smoke.html';
@@ -29,7 +29,7 @@ const EPIC13_TRUSTED_DOM_BOUNDARY_FIXTURE_PATH = 'tests/browser/fixtures/epic13-
 const RMT_VNEXT_REFERENCE_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-vnext-reference-smoke.html';
 const RMT_VNEXT_SOURCE_TO_SEA_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-vnext-source-to-sea-smoke.html';
 const RMT_VNEXT_ENTERPRISE_MFE_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html';
-const RMT_BESTCASE_FLAGSHIP_SMOKE_FIXTURE_PATH = 'tests/browser/fixtures/rmt-bestcase-flagship-smoke.html';
+const RMT_BESTCASE_FLAGSHIP_SMOKE_FIXTURE_PATH = 'demos/xtendrmt/examples/flagship/browser-smoke.html';
 const CORE_FLOW_MANIFEST_PATH = 'tests/browser/fixtures/components/manifest.json';
 const XALERT_COMPONENT_PATH = 'components/xalert.js';
 const BROWSER_FIXTURES = [
@@ -501,19 +501,18 @@ function assertRmtXRouterXtendFixtureContract(context, rootDir) {
 
 function assertRmtFirstDemoFixtureContract(context, rootDir) {
   const fixture = readText(RMT_FIRST_DEMO_SMOKE_FIXTURE_PATH, rootDir);
-  const demoSource = readText('xtendrmt/rmt-first-demo-app.rmt', rootDir);
-  const demoDocument = readJson('xtendrmt/rmt-first-demo-app.rmt', rootDir);
-  const demoCore = readJson('xtendrmt/rmt-first-demo-app.core.json', rootDir);
-  const demoRuntime = readText('xtendrmt/rmt-first-demo-app.js', rootDir);
+  const demoSource = readText('demos/xtendrmt/examples/first-app/source.rmt', rootDir);
+  const demoCore = readJson('demos/xtendrmt/examples/first-app/generated/core.json', rootDir);
+  const demoRuntime = readText('demos/xtendrmt/examples/first-app/generated/app.js', rootDir);
 
   context.assert(fixture.includes('xtend.epic10.rmt-first-demo-app.browser-smoke.v1'), 'RMT-first demo fixture exposes stable browser contract');
   context.assert(fixture.includes('/xtend-loader.js'), 'RMT-first demo fixture loads the XTend loader');
   context.assert(fixture.includes('type="module" src="/xtend-loader.js"'), 'RMT-first demo fixture loads the canonical ESM XTend loader');
   context.assert(fixture.includes('data-manifest="/components/manifest.json"'), 'RMT-first demo fixture configures the loader manifest locally');
   context.assert(fixture.includes('/xtendrmt/rmt-runtime.browser.js'), 'RMT-first demo fixture loads the RMT browser runtime');
-  context.assert(fixture.includes('/xtendrmt/rmt-first-demo-app.js'), 'RMT-first demo fixture imports the demo renderer');
-  context.assert(fixture.includes('/xtendrmt/rmt-first-demo-app.core.json'), 'RMT-first demo fixture loads the runtime core document');
-  context.assert(fixture.includes('/xtendrmt/rmt-first-demo-app.rmt'), 'RMT-first demo fixture checks the vNext authoring source');
+  context.assert(fixture.includes('/demos/xtendrmt/examples/first-app/generated/app.js'), 'RMT-first demo fixture imports the demo renderer');
+  context.assert(fixture.includes('/demos/xtendrmt/examples/first-app/generated/core.json'), 'RMT-first demo fixture loads the runtime core document');
+  context.assert(fixture.includes('/demos/xtendrmt/examples/first-app/source.rmt'), 'RMT-first demo fixture checks the vNext authoring source');
   context.assert(!fixture.includes('https://cdn.ccs-networks.de/xtend'), 'RMT-first demo fixture has no XTend CDN dependency');
   context.assert(fixture.includes('__xtendRmtFirstDemoSmokeResult'), 'RMT-first demo fixture exposes a smoke result object');
   context.assert(fixture.includes("recordCheck('rmt-first demo source is vnext authoring'"), 'RMT-first demo fixture verifies vNext authoring source');
@@ -522,46 +521,40 @@ function assertRmtFirstDemoFixtureContract(context, rootDir) {
   context.assert(fixture.includes("recordCheck('rmt-first demo shell rendered from rmt'"), 'RMT-first demo fixture verifies shell rendering from RMT');
   context.assert(fixture.includes("recordCheck('rmt-first demo routes derived from rmt'"), 'RMT-first demo fixture verifies route derivation');
   context.assert(fixture.includes("recordCheck('rmt-first demo telemetry schedule visible'"), 'RMT-first demo fixture verifies telemetry schedule visibility');
-  context.assert(demoDocument.manifest.metadata.contractVersion === 'xtend.epic10.rmt-first-demo-app.v1', 'RMT-first demo document declares contract version');
   context.assert(demoSource.includes('template demo.xtend.rmtFirstApp'), 'RMT-first demo authoring source is vNext');
   context.assert(demoCore.manifest.sourceSyntax === 'rmt-vnext', 'RMT-first demo core records vNext source syntax');
-  context.assert(demoDocument.manifest.metadata.manualShellAllowed === false, 'RMT-first demo document forbids manual shell');
-  context.assert(demoDocument.manifest.metadata.hostShellMarkup === false, 'RMT-first demo document forbids host shell markup');
-  context.assert(demoDocument.routes.length === 3, 'RMT-first demo document declares three app routes');
-  context.assert(demoDocument.components.some((component) => component.tag === 'x-select'), 'RMT-first demo document uses x-select');
-  context.assert(demoDocument.components.some((component) => component.tag === 'x-drawer'), 'RMT-first demo document uses x-drawer');
   context.assert(fixture.includes('data-rmt-host="rmt-first-demo"'), 'RMT-first demo fixture exposes an RMT root');
   context.assert(!fixture.includes('<x-section'), 'RMT-first demo fixture contains no static shell component');
   context.assert(!fixture.includes('<x-router'), 'RMT-first demo fixture contains no static router component');
   context.assert(demoRuntime.includes('renderRmtShellFromDocument'), 'RMT-first demo runtime exposes shell renderer');
   context.assert(demoRuntime.includes('renderDomDescriptor'), 'RMT-first demo runtime exposes descriptor renderer');
   context.assert(demoRuntime.includes('createRouteElement'), 'RMT-first demo runtime creates routes from RMT');
-  context.assert(demoRuntime.includes('rmt-first-demo-app.core.json'), 'RMT-first demo runtime defaults to runtime core document');
+  context.assert(demoRuntime.includes('demos/xtendrmt/examples/first-app/generated/core.json'), 'RMT-first demo runtime defaults to the canonical vNext core document');
   context.assert(!demoRuntime.includes('parseDocument'), 'RMT-first demo runtime does not parse vNext authoring with legacy format');
   context.assert(!demoRuntime.includes('innerHTML'), 'RMT-first demo runtime avoids string HTML rendering');
 }
 
 function assertRmtLifecycleDemoFixtureContract(context, rootDir) {
   const fixture = readText(RMT_LIFECYCLE_DEMO_SMOKE_FIXTURE_PATH, rootDir);
-  const source = readText('xtendrmt/rmt-lifecycle-demo.rmt', rootDir);
-  const core = readJson('xtendrmt/rmt-lifecycle-demo.core.json', rootDir);
-  const report = readJson('xtendrmt/rmt-lifecycle-demo.scaffold.json', rootDir);
-  const app = readText('xtendrmt/rmt-lifecycle-demo.app.js', rootDir);
-  const generatedComponent = readText('components/x-rmt-lifecycle-demo.js', rootDir);
+  const source = readText('demos/xtendrmt/examples/lifecycle/source.rmt', rootDir);
+  const core = readJson('demos/xtendrmt/examples/lifecycle/generated/core.json', rootDir);
+  const report = readJson('demos/xtendrmt/examples/lifecycle/generated/build-report.json', rootDir);
+  const app = readText('demos/xtendrmt/examples/lifecycle/generated/app.js', rootDir);
+  const generatedComponent = readText('components/x-rmt-lifecycle-demo-build.js', rootDir);
 
-  context.assert(fixture.includes('xtend.rmt.lifecycle-demo.browser-smoke.v1'), 'RMT lifecycle demo fixture exposes stable browser contract');
+  context.assert(fixture.includes('xtend.scaffold.rmt-app-browser-smoke.v1'), 'RMT lifecycle demo fixture exposes generic RMT build browser contract');
   context.assert(fixture.includes('/xtend-loader.js'), 'RMT lifecycle demo fixture loads XTend loader');
   context.assert(fixture.includes('data-manifest="/components/manifest.json"'), 'RMT lifecycle demo fixture uses local manifest');
-  context.assert(fixture.includes('/xtendrmt/rmt-lifecycle-demo.app.js'), 'RMT lifecycle demo fixture imports generated app');
-  context.assert(fixture.includes('__xtendRmtLifecycleDemoSmokeResult'), 'RMT lifecycle demo fixture exposes smoke result object');
+  context.assert(fixture.includes('/demos/xtendrmt/examples/lifecycle/generated/app.js'), 'RMT lifecycle demo fixture imports generated app');
+  context.assert(fixture.includes('__xtendRmtAppBuildSmokeResult'), 'RMT lifecycle demo fixture exposes generic build smoke result object');
   context.assert(!fixture.includes('https://cdn.ccs-networks.de/xtend'), 'RMT lifecycle demo fixture has no CDN dependency');
   [
-    'lifecycle source loaded',
-    'lifecycle scaffold component defined',
-    'lifecycle generated app rendered',
-    'lifecycle core has surfaces',
-    'lifecycle scaffold report linked app',
-    'lifecycle local http assets only'
+    'rmt build source loaded',
+    'rmt build component defined',
+    'rmt build app rendered',
+    'rmt build core has template',
+    'rmt build scaffold report linked app',
+    'rmt build local http assets only'
   ].forEach((check) => {
     context.assert(fixture.includes(`recordCheck('${check}'`), `RMT lifecycle demo fixture records ${check}`);
   });
@@ -569,14 +562,14 @@ function assertRmtLifecycleDemoFixtureContract(context, rootDir) {
   context.assert(source.trim().startsWith('template xtendrmt.lifecycle.demo'), 'RMT lifecycle demo source is vNext syntax');
   context.assert(core.manifest.sourceSyntax === 'rmt-vnext', 'RMT lifecycle demo core records vNext source syntax');
   context.assert(core.surfaces.length === 4, 'RMT lifecycle demo core contains four surfaces');
-  context.assert(report.schema === 'xtend.rmt.lifecycle-demo.scaffold-build.v1', 'RMT lifecycle demo report uses Scaffold build schema');
-  context.assert(report.generated.app === 'xtendrmt/rmt-lifecycle-demo.app.js', 'RMT lifecycle demo report points at generated app');
-  context.assert(report.generated.component === 'components/x-rmt-lifecycle-demo.js', 'RMT lifecycle demo report points at generated component');
-  context.assert(fixture.includes('data-rmt-lifecycle-demo-root'), 'RMT lifecycle demo fixture exposes demo root');
-  context.assert(fixture.includes("import('/xtendrmt/rmt-lifecycle-demo.app.js')"), 'RMT lifecycle demo fixture imports generated app');
-  context.assert(app.includes('@generated by XTend Scaffold RMT lifecycle build'), 'RMT lifecycle demo app is marked generated');
-  context.assert(app.includes('bootRmtLifecycleDemo'), 'RMT lifecycle demo app exposes boot function');
-  context.assert(generatedComponent.includes("customElements.define('x-rmt-lifecycle-demo'"), 'RMT lifecycle demo generated component registers custom element');
+  context.assert(report.schema === 'xtend.scaffold.rmt-app-build-report.v1', 'RMT lifecycle demo report uses generic Scaffold build schema');
+  context.assert(report.generated.app === 'demos/xtendrmt/examples/lifecycle/generated/app.js', 'RMT lifecycle demo report points at generated app');
+  context.assert(report.generated.component === 'components/x-rmt-lifecycle-demo-build.js', 'RMT lifecycle demo report points at generated component');
+  context.assert(fixture.includes('data-rmt-build-root'), 'RMT lifecycle demo fixture exposes generic build root');
+  context.assert(fixture.includes("import('/demos/xtendrmt/examples/lifecycle/generated/app.js')"), 'RMT lifecycle demo fixture imports generated app');
+  context.assert(app.includes('@generated by XTend Scaffold RMT app build'), 'RMT lifecycle demo app is marked generated');
+  context.assert(app.includes('bootRmtBuildApp'), 'RMT lifecycle demo app exposes generic boot function');
+  context.assert(generatedComponent.includes("customElements.define('x-rmt-lifecycle-demo-build'"), 'RMT lifecycle demo generated component registers custom element');
 }
 
 function assertSurfaceManagerQualityFixtureContract(context, rootDir) {
@@ -658,7 +651,7 @@ function assertSurfaceManagerBrowserLabFixtureContract(context, rootDir) {
   context.assert(fixture.includes('data-layout-shift-budget-px="1"'), 'SurfaceManager Browser Lab fixture declares layout shift budget');
   context.assert(fixture.includes('performance.mark'), 'SurfaceManager Browser Lab fixture records performance marks');
   context.assert(fixture.includes('docs/index.php'), 'SurfaceManager Browser Lab fixture references docs app smoke');
-  context.assert(fixture.includes('tests/browser/fixtures/rmt-surface-workbench-smoke.html'), 'SurfaceManager Browser Lab fixture references workbench smoke');
+  context.assert(fixture.includes('demos/xtendrmt/fixtures/surface-workbench/browser-smoke.html'), 'SurfaceManager Browser Lab fixture references workbench smoke');
   context.assert(!fixture.includes('fetch('), 'SurfaceManager Browser Lab fixture does not fetch content during smoke');
   context.assert(!fixture.includes('https://cdn.ccs-networks.de'), 'SurfaceManager Browser Lab fixture has no XTend CDN dependency');
 

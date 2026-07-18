@@ -37,7 +37,7 @@
     },
     {
       "id": "rmt-surface-workbench",
-      "path": "tests/browser/fixtures/rmt-surface-workbench-smoke.html",
+      "path": "demos/xtendrmt/fixtures/surface-workbench/browser-smoke.html",
       "assertions": [
         "surface-manager-shell",
         "route-bound-content",

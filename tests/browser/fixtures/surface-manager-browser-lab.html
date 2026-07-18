@@ -204,7 +204,7 @@
     data-quality-gate="surface-manager-browser-lab"
     data-browser-lab-fixture="multi-surface-app-shell"
     data-docs-app-reference="docs/index.php"
-    data-reference-workbench="tests/browser/fixtures/rmt-surface-workbench-smoke.html"
+    data-reference-workbench="demos/xtendrmt/fixtures/surface-workbench/browser-smoke.html"
     data-visual-baseline="tests/browser/visual-baselines/surface-manager-browser-lab.dom-baseline.json">
     <header class="lab-toolbar" data-pixel-baseline-id="surface-lab-cold-start" data-surface-browser-lab-state="cold-start">
       <div>
@@ -461,7 +461,7 @@
           && result.performance.samples.hydrateMs <= result.performance.budgets.hydrateMs
         ), result.performance.samples);
         recordCheck('surface browser lab docs app reference smoke', shell.getAttribute('data-docs-app-reference') === 'docs/index.php');
-        recordCheck('surface browser lab workbench reference smoke', shell.getAttribute('data-reference-workbench') === 'tests/browser/fixtures/rmt-surface-workbench-smoke.html');
+        recordCheck('surface browser lab workbench reference smoke', shell.getAttribute('data-reference-workbench') === 'demos/xtendrmt/fixtures/surface-workbench/browser-smoke.html');
         const forbiddenHost = ['https://cdn', 'ccs-networks', 'de'].join('.');
         recordCheck('surface browser lab no external network dependency', !document.documentElement.outerHTML.includes(forbiddenHost));
 

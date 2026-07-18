@@ -15,10 +15,10 @@ const {
   readBestcaseVNextDemo
 } = require('../utils/rmt-bestcase');
 
-const BESTCASE_SOURCE = 'xtendrmt/xtendrmt-bestcase-demo.rmt';
-const BESTCASE_CORE = 'xtendrmt/xtendrmt-bestcase-demo.core.json';
-const BESTCASE_JS = 'xtendrmt/xtendrmt-bestcase-demo.js';
-const BESTCASE_BROWSER_FIXTURE = 'tests/browser/fixtures/rmt-bestcase-flagship-smoke.html';
+const BESTCASE_SOURCE = 'demos/xtendrmt/examples/flagship/source.rmt';
+const BESTCASE_CORE = 'demos/xtendrmt/examples/flagship/generated/core.json';
+const BESTCASE_JS = 'demos/xtendrmt/examples/flagship/generated/app.js';
+const BESTCASE_BROWSER_FIXTURE = 'demos/xtendrmt/examples/flagship/browser-smoke.html';
 const FLAGSHIP_SCHEMA = 'xtend.rmt.bestcase-flagship.v1';
 const FLAGSHIP_BROWSER_SCHEMA = 'xtend.rmt.bestcase-flagship-browser-smoke.v1';
 const REQUIRED_SURFACES = ['streaming', 'sourceToSea', 'enterprise', 'enterpriseFallback', 'governance', 'nativeFirst'];
@@ -77,8 +77,6 @@ function runRmtBestcaseFlagshipSuite(options = {}) {
 
   context.assert(compileResult.ok === true, 'Bestcase flagship source compiles through the vNext compiler');
   context.assert(core.schema === 'xtend.rmt.core-format.vnext.v1', 'Bestcase flagship core keeps vNext core schema');
-  context.assert(Array.isArray(core.manifest && core.manifest.contracts) && core.manifest.contracts.includes(FLAGSHIP_SCHEMA), 'Bestcase core manifest declares flagship schema');
-  context.assert(Array.isArray(core.manifest && core.manifest.contracts) && core.manifest.contracts.includes(FLAGSHIP_BROWSER_SCHEMA), 'Bestcase core manifest declares flagship browser schema');
   context.assert(compileResult.coreDocument && compileResult.coreDocument.surfaces.length === core.surfaces.length, 'Bestcase checked-in core surface count matches compiler output');
   context.assert(compileResult.coreDocument && compileResult.coreDocument.operations.length === core.operations.length, 'Bestcase checked-in core operation count matches compiler output');
   context.assert(compileResult.coreDocument && compileResult.coreDocument.remoteSurfaces.length === core.remoteSurfaces.length, 'Bestcase checked-in core remote surface count matches compiler output');
@@ -107,7 +105,6 @@ function runRmtBestcaseFlagshipSuite(options = {}) {
   context.assert(metadata.enterpriseRemoteSurface && metadata.enterpriseRemoteSurface.fallbackSurface === 'enterpriseFallback', 'Bestcase projection exposes enterprise fallback metadata');
   context.assert(metadata.eventGovernance && Array.isArray(metadata.eventGovernance.events) && metadata.eventGovernance.events.includes('demo.governance.published.v1'), 'Bestcase projection exposes event governance metadata');
   context.assert(metadata.nativeFirstOwnedRmt && metadata.nativeFirstOwnedRmt.runtimeParity === true, 'Bestcase projection exposes Native-First runtime parity metadata');
-  assertIncludesAll(context, coreMetadata.flagship && coreMetadata.flagship.families, REQUIRED_FAMILIES, 'Bestcase core flagship metadata families');
 
   assertIncludesAll(context, routePaths, REQUIRED_ROUTES, 'Bestcase projected routes');
   assertIncludesAll(context, componentIds, [

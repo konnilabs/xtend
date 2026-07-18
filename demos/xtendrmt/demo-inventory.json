@@ -1,0 +1,11 @@
+{
+  "schema": "xtend.rmt.demo-inventory.v1",
+  "demos": [
+    "examples/lifecycle/demo.json",
+    "examples/first-app/demo.json",
+    "examples/flagship/demo.json",
+    "fixtures/surface-workbench/demo.json",
+    "fixtures/vnext-reference/demo.json",
+    "fixtures/enterprise-mfe/demo.json"
+  ]
+}

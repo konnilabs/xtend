@@ -53,7 +53,7 @@ Remote-Surface-Architektur verwendet explizite Schichten, damit Hosts den passen
 
 ## Enterprise Fixture
 
-Die prüfbare Enterprise-Strecke liegt in `xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt`. Dieses Fixture kombiniert lokale Surfaces, eine Remote Surface, Degradation, Remote Security und Cross-Surface Events. Der Core-Output `xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json` ist das Golden-Artefakt für Reviews; der Browser-Smoke `tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html` bleibt offline und darf weder `fetch(` noch dynamische Imports brauchen.
+Die prüfbare Enterprise-Strecke liegt in `demos/xtendrmt/fixtures/enterprise-mfe/source.rmt`. Dieses Fixture kombiniert lokale Surfaces, eine Remote Surface, Degradation, Remote Security und Cross-Surface Events. Der Core-Output `demos/xtendrmt/fixtures/enterprise-mfe/generated/core.json` ist das Golden-Artefakt für Reviews; der Browser-Smoke `tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html` bleibt offline und darf weder `fetch(` noch dynamische Imports brauchen.
 
 Führe diese Gates aus, wenn Remote-Surface-Records oder Manifest-Regeln geändert werden:
 

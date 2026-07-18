@@ -206,7 +206,7 @@ async function runMaracaTuneSuite(options = {}) {
   const outDir = path.join(tempDir, 'dist');
   try {
     const writeReport = await tuneMaracaBuild({
-      source: 'xtendrmt/rmt-first-demo-app.rmt',
+      source: 'demos/xtendrmt/examples/first-app/source.rmt',
       config: configPath,
       out: outDir,
       write: true
@@ -218,7 +218,7 @@ async function runMaracaTuneSuite(options = {}) {
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     context.assert(config.schema === MARACA_BUILD_CONFIG_SCHEMA && config.configFingerprint, 'written config is fingerprinted');
     const checkReport = await tuneMaracaBuild({
-      source: 'xtendrmt/rmt-first-demo-app.rmt',
+      source: 'demos/xtendrmt/examples/first-app/source.rmt',
       config: configPath,
       out: outDir,
       check: true
@@ -228,7 +228,7 @@ async function runMaracaTuneSuite(options = {}) {
     context.assert(overridePlan.profile === 'production', 'explicit CLI-style option overrides config selection');
     const driftConfigPath = path.join(tempDir, 'drift.config.json');
     fs.writeFileSync(driftConfigPath, `${JSON.stringify({ ...config, sourceFingerprint: '0'.repeat(64) }, null, 2)}\n`);
-    const driftPlan = createMaracaBuildPlan({ config: driftConfigPath, source: 'xtendrmt/rmt-first-demo-app.rmt' }, { rootDir });
+    const driftPlan = createMaracaBuildPlan({ config: driftConfigPath, source: 'demos/xtendrmt/examples/first-app/source.rmt' }, { rootDir });
     context.assert(driftPlan.diagnostics.some((diagnostic) => diagnostic.code === 'xtend.maraca.build_config_source_drift'), 'source fingerprint drift blocks build plan');
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
@@ -244,7 +244,7 @@ function runDocsShellCatfoodingSuite(options = {}) {
   const performanceBaseline = readJson('tests/docs/fixtures/docs-shell-catfooding-performance-baseline.json', rootDir);
   const trunkSections = new Set(navigation.trunks.flatMap((trunk) => trunk.sections.map((section) => `${trunk.id}:${section.id}`)));
   context.assert(navigation.schema === 'xtend.docs.navigation.v1' && navigation.trunks.length === 6, 'navigation contract exposes six task trunks');
-  context.assert(menu.length === 166, 'menu keeps 166 canonical bilingual articles');
+  context.assert(menu.length === 168, 'menu keeps 168 canonical bilingual articles');
   context.assert(menu.every((entry) => entry.trunk && entry.section && trunkSections.has(`${entry.trunk}:${entry.section}`)), 'every article has exactly one valid primary trunk and section');
   context.assert(menu.every((entry) => entry.keywords && entry.keywords.de.length && entry.keywords.en.length), 'every article exposes DE and EN keywords');
   context.assert(performanceBaseline.schema === 'xtend.docs.shell-performance-baseline.v1' && performanceBaseline.regressionLimit === 0.05, 'browser baseline locks the five-percent FCP and transfer regression limit');
@@ -257,8 +257,8 @@ function runDocsShellCatfoodingSuite(options = {}) {
     const fulltextText = readText(fulltextPath, rootDir);
     const compact = JSON.parse(compactText);
     const fulltext = JSON.parse(fulltextText);
-    context.assert(compact.schema === 'xtend.docs.search-index.v1' && compact.entryCount === 166, `${locale} compact index has contract and full inventory`);
-    context.assert(fulltext.schema === 'xtend.docs.search-fulltext-index.v1' && fulltext.entryCount === 166, `${locale} fulltext index has contract and full inventory`);
+    context.assert(compact.schema === 'xtend.docs.search-index.v1' && compact.entryCount === 168, `${locale} compact index has contract and full inventory`);
+    context.assert(fulltext.schema === 'xtend.docs.search-fulltext-index.v1' && fulltext.entryCount === 168, `${locale} fulltext index has contract and full inventory`);
     context.assert(zlib.gzipSync(compactText, { level: 9 }).length <= 25 * 1024, `${locale} compact index stays within 25 KiB gzip`);
     context.assert(zlib.gzipSync(fulltextText, { level: 9 }).length <= 150 * 1024, `${locale} fulltext index stays within 150 KiB gzip`);
   });

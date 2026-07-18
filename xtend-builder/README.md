@@ -87,7 +87,7 @@ xt extensions --tag x-example --profile display --feature state --json
 ```bash
 xt rmt lint app.rmt --json
 xt rmt build app.rmt --json
-node xtend-builder/scaffold.js rmt-build --source xtendrmt/rmt-lifecycle-demo.rmt --write --json
+node xtend-builder/scaffold.js rmt-build --source demos/xtendrmt/examples/lifecycle/source.rmt --write --json
 node xtend-builder/scaffold.js rmt-app-platform \
   --source tests/fixtures/rmt-surface-resource-graph-runtime.rmt \
   --write --json
@@ -337,7 +337,7 @@ xt extensions --tag x-example --profile display --feature state --json
 ```bash
 xt rmt lint app.rmt --json
 xt rmt build app.rmt --json
-node xtend-builder/scaffold.js rmt-build --source xtendrmt/rmt-lifecycle-demo.rmt --write --json
+node xtend-builder/scaffold.js rmt-build --source demos/xtendrmt/examples/lifecycle/source.rmt --write --json
 node xtend-builder/scaffold.js rmt-app-platform \
   --source tests/fixtures/rmt-surface-resource-graph-runtime.rmt \
   --write --json

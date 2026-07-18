@@ -53,7 +53,7 @@ Remote-surface architecture uses explicit layers so hosts can choose the right o
 
 ## Enterprise fixture
 
-The verifiable Enterprise path lives in `xtendrmt/rmt-vnext-enterprise-mfe-demo.rmt`. This fixture combines local surfaces, one remote surface, degradation, remote security and cross-surface events. The Core output `xtendrmt/rmt-vnext-enterprise-mfe-demo.core.json` is the golden artifact for reviews; the browser smoke `tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html` stays offline and must not require `fetch(` or dynamic imports.
+The verifiable Enterprise path lives in `demos/xtendrmt/fixtures/enterprise-mfe/source.rmt`. This fixture combines local surfaces, one remote surface, degradation, remote security and cross-surface events. The Core output `demos/xtendrmt/fixtures/enterprise-mfe/generated/core.json` is the golden artifact for reviews; the browser smoke `tests/browser/fixtures/rmt-vnext-enterprise-mfe-smoke.html` stays offline and must not require `fetch(` or dynamic imports.
 
 Run these gates when remote-surface records or manifest rules change:
 
