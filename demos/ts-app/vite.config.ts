@@ -8,8 +8,11 @@ export default defineConfig({
   build: { outDir: 'dist', emptyOutDir: true },
   plugins: [{
     name: 'xtend-demo-components',
+    transformIndexHtml(html) {
+      return html.replace('./app.js', '/src/main.ts');
+    },
     configureServer(server) {
-      server.middlewares.use('/xtend-components', (request, _response, next) => {
+      server.middlewares.use('/components', (request, _response, next) => {
         request.url = `/@fs${componentsDirectory}${request.url || '/'}`;
         next();
       });

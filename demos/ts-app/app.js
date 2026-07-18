@@ -7,20 +7,13 @@ import {
   readyXTend,
   getXTendSnapshot,
   render,
-  schedule,
-  type XTendDescriptor
+  schedule
 } from '@ccslabs/xtend';
 
 await readyXTend();
 
-interface DemoState {
-  count: number;
-  status: 'ready' | 'updating' | 'component-ready';
-  componentLoaded: boolean;
-}
-
-function requiredElement(selector: string): HTMLElement {
-  const element = document.querySelector<HTMLElement>(selector);
+function requiredElement(selector) {
+  const element = document.querySelector(selector);
   if (!element) throw new Error(`Missing demo host: ${selector}`);
   return element;
 }
@@ -29,11 +22,11 @@ const root = requiredElement('#app');
 const componentRegion = requiredElement('#component-region');
 const runtimeBadge = requiredElement('#runtime-badge');
 
-const app = createApp<DemoState>({
+const app = createApp({
   initialState: { count: 0, status: 'ready', componentLoaded: false }
 });
 
-const store = createStore<DemoState>({
+const store = createStore({
   states: [
     { id: 'count', type: 'number', initial: 0 },
     { id: 'status', type: 'string', initial: 'ready' },
@@ -41,7 +34,7 @@ const store = createStore<DemoState>({
   ]
 });
 
-function view(state: DemoState): XTendDescriptor {
+function view(state) {
   return {
     type: 'element',
     tag: 'div',
@@ -64,7 +57,7 @@ function view(state: DemoState): XTendDescriptor {
   };
 }
 
-function snapshot(): DemoState {
+function snapshot() {
   return {
     count: store.getState('count'),
     status: store.getState('status'),
@@ -72,8 +65,8 @@ function snapshot(): DemoState {
   };
 }
 
-function bindActions(): void {
-  root.querySelector<HTMLButtonElement>('#increment')?.addEventListener('click', () => {
+function bindActions() {
+  root.querySelector('#increment')?.addEventListener('click', () => {
     store.setState('status', 'updating');
     schedule(() => {
       store.setState('count', store.getState('count') + 1, { source: 'ts-demo' });
@@ -82,8 +75,8 @@ function bindActions(): void {
     }, { endpointName: 'ts-demo.increment', scope: 'ts-demo', timeout: 250 });
   });
 
-  root.querySelector<HTMLButtonElement>('#load-component')?.addEventListener('click', async (event) => {
-    const button = event.currentTarget as HTMLButtonElement;
+  root.querySelector('#load-component')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget;
     button.disabled = true;
     button.textContent = 'Loading…';
     try {
@@ -98,7 +91,7 @@ function bindActions(): void {
       store.setState('componentLoaded', true);
       store.setState('status', 'component-ready');
       paint();
-    } catch (error: unknown) {
+    } catch (error) {
       componentRegion.textContent = error instanceof Error ? error.message : 'Component loading failed.';
       button.disabled = false;
       button.textContent = 'Retry x-status';
@@ -106,7 +99,7 @@ function bindActions(): void {
   });
 }
 
-function paint(): void {
+function paint() {
   render(root, view(snapshot()));
   bindActions();
 }

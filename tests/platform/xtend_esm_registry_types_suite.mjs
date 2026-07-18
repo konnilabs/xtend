@@ -47,6 +47,12 @@ try {
   assert.doesNotMatch(ssrTypes, /\b(?:Window|Document|Element|Node|ShadowRoot|HTMLElement|CustomEvent)\s*(?:\[|\||;|,|\)|>)/, 'SSR types contain no DOM globals');
   assert.doesNotMatch(ssrTypes, /from\s+['"]\.\/xtend-loader/, 'SSR types do not import loader declarations');
   assert.ok(existsSync(resolve(root, 'demos/ts-app/src/main.ts')), 'TypeScript demo source exists');
+  const tsDemoHtml = readFileSync(resolve(root, 'demos/ts-app/index.html'), 'utf8');
+  const tsDemoRuntime = readFileSync(resolve(root, 'demos/ts-app/app.js'), 'utf8');
+  const tsDemoVite = readFileSync(resolve(root, 'demos/ts-app/vite.config.ts'), 'utf8');
+  assert.ok(tsDemoHtml.includes('src="./app.js"') && !tsDemoHtml.includes('src="/src/main.ts"'), 'deployed TypeScript demo loads browser-ready JavaScript instead of raw TypeScript');
+  assert.ok(tsDemoRuntime.includes("from '@ccslabs/xtend'") && tsDemoRuntime.includes('await readyXTend()'), 'deployed TypeScript demo preserves the public Registry lifecycle');
+  assert.ok(tsDemoVite.includes("replace('./app.js', '/src/main.ts')"), 'Vite development and production builds continue to use the typed source entry');
 } finally {
   rmSync(temporaryRoot, { recursive: true, force: true });
 }
