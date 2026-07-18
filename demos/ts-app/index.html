@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Type-safe XTend ESM Registry demo">
+  <title>XTend TypeScript DX</title>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">@ccslabs/xtend · TypeScript</p>
+      <h1>Typed state. Typed UI. One public import.</h1>
+      <p>Opt-in generics and descriptor types turn the XTend registry into a strict, discoverable application API.</p>
+    </header>
+    <section class="card" aria-labelledby="demo-title">
+      <div class="heading">
+        <div><p class="eyebrow">Live PoC</p><h2 id="demo-title">Registry runtime</h2></div>
+        <span id="runtime-badge" class="badge">starting…</span>
+      </div>
+      <div id="app" aria-live="polite"></div>
+      <div id="component-region" class="component-region"></div>
+    </section>
+    <footer>Run with <code>npm run demo:ts</code>. Production proof: <code>npm run demo:ts:build</code>.</footer>
+  </main>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

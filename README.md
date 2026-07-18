@@ -35,6 +35,36 @@ npm run dev:local
 
 Node.js 18 or newer is required by the public scoped packages.
 
+### ESM registry
+
+The package root is the concise ESM entry point for XTend applications. Importing it is side-effect-free; call `await readyXTend()` once to boot the default RMT orchestration kernel, or configure `{ orchestration: 'lightweight' }` for the synchronous minimal path.
+
+```js
+import { readyXTend, schedule, render, createApp, createStore } from '@ccslabs/xtend';
+
+await readyXTend();
+const app = createApp();
+const store = createStore();
+const cancel = schedule(() => render(document.querySelector('#app'), {
+  type: 'element',
+  tag: 'p',
+  children: [{ type: 'text', text: 'Hello XTend' }]
+}));
+```
+
+Node and SSR can import the same names without browser globals. Configure a DOM implementation before rendering; DOM-neutral factories work without it.
+
+```js
+import { configureXTend, readyXTend, render, createApp } from '@ccslabs/xtend';
+
+configureXTend({ documentTarget: serverDocument });
+await readyXTend();
+const app = createApp();
+render(serverRoot, descriptor);
+```
+
+Existing Classic applications must import `@ccslabs/xtend/loader` or include `xtend-loader.js` explicitly. The package root no longer starts the Classic loader.
+
 ### XTend Classic
 
 XTend Classic is the supported HTML- and JavaScript-first delivery path. It uses the runtime manifest and `xtend-loader.js` without requiring an XTend application build. A host bundler, TypeScript, a local server, or optional XTend CLI usage can still be part of a Classic project.
@@ -147,6 +177,27 @@ npm run dev:local
 ```
 
 Die öffentlichen Scoped Packages benötigen Node.js 18 oder neuer.
+
+### ESM-Registry
+
+Der Paket-Root ist der kompakte ESM-Einstieg für XTend-Apps. Der Import ist side-effect-free; `await readyXTend()` bootet einmalig den standardmäßigen RMT-Orchestrierungskernel, alternativ erhält `{ orchestration: 'lightweight' }` den synchronen Minimalpfad.
+
+```js
+import { readyXTend, schedule, render, createApp, createStore } from '@ccslabs/xtend';
+
+await readyXTend();
+const app = createApp();
+const store = createStore();
+const cancel = schedule(() => render(document.querySelector('#app'), descriptor));
+```
+
+Node und SSR können dieselben Namen ohne Browser-Globals importieren. Vor DOM-Rendering wird ein DOM-Host mit `configureXTend({ documentTarget })` injiziert. Bestehende Classic-Apps importieren künftig `@ccslabs/xtend/loader` oder binden `xtend-loader.js` explizit ein; der Paket-Root startet den Loader nicht mehr.
+
+TypeScript-Apps können State und Descriptoren opt-in strikt typisieren. Die ausführbare Vite-PoC liegt unter [`demos/ts-app`](./demos/ts-app/README.md); `npm run demo:ts:typecheck` und `npm run demo:ts:build` prüfen sie. NodeNext verwendet einen separaten DOM-neutralen Typvertrag, sodass reine SSR-Projekte keine `DOM`-Library benötigen.
+
+Die veröffentlichte Oberfläche wird durch den Package-Metadatenvertrag `xtend.epic13PackageExportLock` geschützt.
+
+Visuelle Release-Evidence und lokale Capture-Abläufe sind in der [Visual-Snapshot-Automation](./docs/en/visual-snapshot-automation.md) dokumentiert.
 
 ### XTend Classic
 

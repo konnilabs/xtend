@@ -78,7 +78,7 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
   const implementationPlan = readText('development/XTend-Docs-Quality-Implementierungsplan.md', rootDir);
   const menuEntry = menu.find((entry) => entry.slug === ARTICLE_SLUG);
 
-  context.assert(menu.length === 168, 'Docs menu exposes exactly 168 canonical slugs');
+  context.assert(menu.length === 169, 'Docs menu exposes exactly 169 canonical slugs');
   context.assert(Boolean(menuEntry), 'Docs menu exposes the RMT AnimationEngine article');
   context.assert(menuEntry && menuEntry.id === 'docs.rmt.animation.engine', 'AnimationEngine menu id is stable');
   context.assert(menuEntry && menuEntry.group === 'rmt' && menuEntry.parent === 'rmt-vnext-authoring', 'AnimationEngine is nested below RMT Authoring');

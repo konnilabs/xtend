@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Starte lokal mit XTend Classic, lade Komponenten und wähle Maraca erst dann, wenn die Delivery-Anforderungen eine kompilierte RMT-App verlangen.
+Starte mit benannten ESM-Imports, nutze XTend Classic für buildloses HTML und wähle Maraca, wenn die Delivery-Anforderungen eine kompilierte RMT-App verlangen.
 
 ## Worum es geht
 
@@ -11,9 +11,26 @@ Dieser Artikel ist für Entwickler geschrieben, die XTend ohne internes Vorwisse
 - Lokale Entwicklung ohne CDN.
 - Bilinguale Dokumentation.
 - Stabile öffentliche Einstiegspunkte.
+- Die ESM-Registry am Paket-Root für Browser-, Bundler- und SSR-Apps.
 - XTend Classic als unterstützter HTML-/JavaScript-first-Delivery-Pfad.
 - Maraca als paralleler kompilierter Pfad für RMT, SSR/Hydration, PWA-Ausgabe und Build-Nachweise.
-## Minimales HTML
+## Minimale ESM-App
+
+```js
+import { readyXTend, schedule, render, createApp } from '@ccslabs/xtend';
+
+await readyXTend();
+const app = createApp();
+schedule(() => render(document.querySelector('#app'), {
+  type: 'element',
+  tag: 'h1',
+  children: [{ type: 'text', text: 'Hello XTend' }]
+}));
+```
+
+Der Paket-Root-Import ist side-effect-kontrolliert und bootet den Classic-Loader nicht. Die [ESM-Registry](./esm-registry.md) beschreibt Lifecycle-Konfiguration, SSR und alle Aliase.
+
+## Minimales Classic-HTML
 
 ```html
 <script type="module" src="/xtend-loader.js" data-manifest="/components/manifest.json"></script>
@@ -25,7 +42,7 @@ Dieser Artikel ist für Entwickler geschrieben, die XTend ohne internes Vorwisse
 
 ## Empfohlener Ablauf
 
-Starte den lokalen Server mit `npm run dev:local` und öffne eine kleine XTend-Classic-HTML-Seite. Classic verlangt keinen XTend-Application-Build, kann aber mit einem Host-Bundler, TypeScript, einem lokalen Server oder optionalem CLI-Tooling kombiniert werden. Wähle [XTend Maraca](./xtend-maraca.md), wenn aus `.rmt`-Quelltext ein optimiertes ESM-Bundle mit SSR/Hydration, PWA-Policy oder prüfbaren Build-Nachweisen werden soll – nicht allein, weil die Seite wächst.
+Nutze die ESM-Registry, wenn deine App bereits einen JavaScript- oder TypeScript-Modulgraphen besitzt. Starte den lokalen Server mit `npm run dev:local` und nutze XTend Classic, wenn der Host buildlos und HTML-first bleiben soll. Wähle [XTend Maraca](./xtend-maraca.md), wenn aus `.rmt`-Quelltext ein optimiertes ESM-Bundle mit SSR/Hydration, PWA-Policy oder prüfbaren Build-Nachweisen werden soll – nicht allein, weil die Seite wächst.
 
 ## RMT prüfen
 
@@ -47,6 +64,7 @@ und der [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md) bereit.
 ## Nächste Schritte
 
 - [Über XTend](./about.md)
+- [ESM-Registry](./esm-registry.md)
 - [XTend Classic](./xtend-classic.md)
 - [XTend Maraca](./xtend-maraca.md)
 - [Maraca Orchestrierung](./xtend-maraca-orchestration.md)

@@ -1,6 +1,6 @@
 # Type Exports
 
-The package export surface for loader, API, RMT, Fabric and components.
+The package export surface for the ESM Registry, loader, API, RMT, Fabric and components.
 
 ## What it covers
 
@@ -8,11 +8,19 @@ The package export surface for loader, API, RMT, Fabric and components.
 
 ## Public building blocks
 
-- `./loader` and `./api` cover browser bootstrap and UI API.
+- `.` and `./registry` expose the browser Registry through `xtend.d.ts` and the DOM-neutral Node contract through `xtend.ssr.d.ts`.
+- `./loader` and `./api` cover explicit Classic browser bootstrap and UI API.
 - `./rmt`, `./rmt/browser`, and RMT language subpaths cover runtime and tooling.
 - Fabric, Maraca, builder, and component subpaths point to co-located `.d.ts` files.
 
 ## RMT TypeScript Surface
+
+The root entry resolves named aliases from `xtend.d.ts`. Browser-aware resolvers use `xtend.js`; Node and SSR use `xtend.ssr.mjs` together with `xtend.ssr.d.ts`.
+
+```ts
+import { schedule, render, createApp, createStore } from '@ccslabs/xtend';
+import type { XTendScheduleOptions, XTendRegistryConfiguration } from '@ccslabs/xtend';
+```
 
 XTend publishes the RMT runtime and RMT tooling with stable `types` conditions. Hosts can use the declarative RMT layer without importing internal sources or build artifacts.
 
@@ -31,7 +39,8 @@ plan: xtend.type-exports.plan.v1
 drift report: xtend.type-exports.drift-report.v1
 local gate: node scripts/run_xtend_tests.js type-exports --json
 release gate: npm run test:type-exports:release
-loader types: ./xtend-loader.d.ts
+registry types: ./xtend.d.ts, ./xtend.ssr.d.ts
+loader types: ./xtend-loader.d.ts via ./loader
 api types: ./api.d.ts
 decision: types-not-required
 ```
@@ -47,6 +56,7 @@ Import entries from `package.json#exports` only and let TypeScript resolve the s
 - [Manifest](./manifest.md)
 - [API](./api.md)
 - [XTend Classic](./xtend-classic.md)
+- [ESM Registry](./esm-registry.md)
 - [Design Tokens](./design-tokens.md)
 - [XTend Loader Types](./xtend-loader-types.md)
 - [XTend API Types](./xtend-api-types.md)

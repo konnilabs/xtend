@@ -190,7 +190,7 @@ function artifactRecord(locale, kind, value, budget) {
 function main() {
   const write = process.argv.includes('--write');
   const menu = readJson(path.join(DOCS_DIR, 'menu.json'));
-  if (menu.length !== 168) throw new Error(`Expected 168 docs entries, received ${menu.length}.`);
+  if (menu.length !== 169) throw new Error(`Expected 169 docs entries, received ${menu.length}.`);
   const artifacts = [];
   LOCALES.forEach((locale) => {
     const indexes = buildLocale(locale, menu);

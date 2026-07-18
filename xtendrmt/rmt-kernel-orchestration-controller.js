@@ -97,6 +97,7 @@
     const plan = options.plan || {};
     const strict = options.strict === true || plan.strict === true;
     const scheduler = artifact && artifact.scheduler || options.scheduler || null;
+    const hostScheduler = options.schedulerTarget || options.hostScheduler || (artifact && artifact.scheduler ? options.scheduler : null);
     const schedules = toArray(scheduler && scheduler.schedules);
     const fibers = toArray(scheduler && scheduler.fibers);
     const scheduleByEndpoint = new Map(schedules.map((schedule) => [schedule.endpointName, schedule]));
@@ -657,6 +658,29 @@
         scope: fiber.operation || 'rmt.orchestration',
         lane: fiber.lane || 'visible'
       };
+      if (metadata.inline === true) {
+        const historyEntry = {
+          fiber: fiber.id,
+          kind,
+          endpointName: schedule.endpointName,
+          status: 'inline',
+          correlationId: metadata.correlationId || null
+        };
+        fiberHistory.push(historyEntry);
+        dispatchEvent('xtend-maraca:kernel-fiber', {
+          schema: 'xtend.maraca.kernel-fiber.v1',
+          ...historyEntry
+        });
+        return callback({
+          schema: 'xtend.rmt.kernel-orchestration-work.v1',
+          scheduled: true,
+          inline: true,
+          kind,
+          fiber,
+          schedule,
+          metadata: cloneSafe(metadata, {})
+        });
+      }
       dispatchEvent('xtend-maraca:kernel-schedule', {
         schema: 'xtend.maraca.kernel-schedule.v1',
         endpointName: schedule.endpointName,
@@ -697,6 +721,50 @@
       return result && result.handle && Object.prototype.hasOwnProperty.call(result.handle, 'targetResult')
         ? result.handle.targetResult
         : result;
+    }
+
+    function scheduleEndpoint(endpointName, scope, callback, metadata = {}) {
+      if (typeof callback !== 'function') throw new TypeError('scheduleEndpoint() requires a callback.');
+      if (!schedulerBridge) {
+        recordFallback('endpoint', null, { endpointName, scope, ...metadata });
+        return callback({ scheduled: false, endpointName, scope });
+      }
+      const schedule = scheduleByEndpoint.get(endpointName) || {
+        id: endpointName,
+        endpointName,
+        scope: scope || 'xtend.registry',
+        lane: metadata.lane || 'visible',
+        timeout: metadata.timeout
+      };
+      const result = schedulerBridge.scheduleEndpoint(endpointName, scope || schedule.scope, callback, {
+        ...metadata,
+        schedule,
+        metadata: { ...metadata, endpointName, scope: scope || schedule.scope }
+      });
+      fiberHistory.push({
+        fiber: metadata.fiberId || null,
+        kind: metadata.kind || 'endpoint',
+        endpointName,
+        status: result && result.status || 'scheduled',
+        correlationId: metadata.correlationId || null
+      });
+      return result && result.handle && Object.prototype.hasOwnProperty.call(result.handle, 'targetResult')
+        ? result.handle.targetResult
+        : result;
+    }
+
+    let disposed = false;
+    function dispose() {
+      if (disposed) return;
+      disposed = true;
+      [runtime, schedulerBridge, performanceRuntime].forEach((instance) => {
+        if (instance && typeof instance.dispose === 'function') instance.dispose();
+      });
+      runtime = null;
+      core = null;
+      schedulerBridge = null;
+      performanceRuntime = null;
+      runtimeStatus = 'disposed';
     }
 
     function activateSchedules() {
@@ -744,14 +812,15 @@
           });
           schedulerBridge = kernelApi.createRmtStateSchedulerDiagnosticsBridge({
             performanceRuntime,
-            schedules
+            schedules,
+            scheduler: hostScheduler
           });
           core = productSurface.createCore({
             windowTarget: options.windowTarget,
             documentTarget: options.documentTarget,
             hostAdapter,
             kernelRecords: artifact.records,
-            scheduler
+            scheduler: hostScheduler
           });
           runtime = productSurface.createRuntime({
             windowTarget: options.windowTarget,
@@ -761,7 +830,7 @@
             rmtCore: core,
             performanceRuntime,
             kernelRecords: artifact.records,
-            scheduler,
+            scheduler: hostScheduler,
             enablePrewarmWorker: isPrewarmWorkerEnabled(),
             enableUiCoprocessor: isUiCoprocessorEnabled(),
             uiCoprocessor: normalizeUiCoprocessorPlan(),
@@ -778,14 +847,15 @@
           });
           schedulerBridge = kernelApi.createRmtStateSchedulerDiagnosticsBridge({
             performanceRuntime,
-            schedules
+            schedules,
+            scheduler: hostScheduler
           });
           core = typeof kernelApi.createRmtCore === 'function' ? kernelApi.createRmtCore({
             windowTarget: options.windowTarget,
             documentTarget: options.documentTarget,
             hostAdapter,
             kernelRecords: artifact.records,
-            scheduler
+            scheduler: hostScheduler
           }) : null;
           runtime = typeof kernelApi.createRmtRuntime === 'function' ? kernelApi.createRmtRuntime({
             windowTarget: options.windowTarget,
@@ -795,7 +865,7 @@
             rmtCore: core,
             performanceRuntime,
             kernelRecords: artifact.records,
-            scheduler,
+            scheduler: hostScheduler,
             enablePrewarmWorker: isPrewarmWorkerEnabled(),
             enableUiCoprocessor: isUiCoprocessorEnabled(),
             uiCoprocessor: normalizeUiCoprocessorPlan(),
@@ -869,6 +939,8 @@
       },
       boot,
       scheduleWork,
+      scheduleEndpoint,
+      dispose,
       recordAppRuntimeBackpressure,
       listScheduledEndpoints,
       listDiagnostics,

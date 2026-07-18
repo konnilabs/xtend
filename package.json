@@ -30,7 +30,7 @@
     "xtend-maraca-css-tailwind",
     "xsurface-shard"
   ],
-  "browser": "./xtend-loader.js",
+  "browser": "./xtend.js",
   "bin": {
     "xt": "xtend-builder/bin/xt",
     "xtend": "xtend-builder/bin/xt",
@@ -41,6 +41,11 @@
     "CHANGELOG.md",
     "api.js",
     "api.d.ts",
+    "xtend.js",
+    "xtend.ssr.mjs",
+    "xtend.ssr.d.ts",
+    "xtend-registry.mjs",
+    "xtend.d.ts",
     "xtend-loader.js",
     "xtend-loader.d.ts",
     "xtend-classic-dev-api.js",
@@ -135,9 +140,26 @@
   ],
   "exports": {
     ".": {
-      "types": "./xtend-loader.d.ts",
-      "browser": "./xtend-loader.js",
-      "default": "./xtend-loader.js"
+      "node": {
+        "types": "./xtend.ssr.d.ts",
+        "import": "./xtend.ssr.mjs",
+        "default": "./xtend.ssr.mjs"
+      },
+      "types": "./xtend.d.ts",
+      "browser": "./xtend.js",
+      "import": "./xtend.ssr.mjs",
+      "default": "./xtend.ssr.mjs"
+    },
+    "./registry": {
+      "node": {
+        "types": "./xtend.ssr.d.ts",
+        "import": "./xtend.ssr.mjs",
+        "default": "./xtend.ssr.mjs"
+      },
+      "types": "./xtend.d.ts",
+      "browser": "./xtend.js",
+      "import": "./xtend.ssr.mjs",
+      "default": "./xtend.ssr.mjs"
     },
     "./loader": {
       "types": "./xtend-loader.d.ts",
@@ -883,9 +905,21 @@
       "workpackage": "XTM-05",
       "sourceOfTruth": "xtend-design-tokens",
       "runtimeProvider": "x-theme",
-      "themePacks": ["light", "dark", "high-contrast", "forced-colors"],
-      "densityPacks": ["comfortable", "compact", "dense"],
-      "experiencePacks": ["enterprise", "utility"],
+      "themePacks": [
+        "light",
+        "dark",
+        "high-contrast",
+        "forced-colors"
+      ],
+      "densityPacks": [
+        "comfortable",
+        "compact",
+        "dense"
+      ],
+      "experiencePacks": [
+        "enterprise",
+        "utility"
+      ],
       "module": "design-tokens/tailwind/xtend-tailwind-token-bridge.js",
       "types": "design-tokens/tailwind/xtend-tailwind-token-bridge.d.ts",
       "themeCss": "design-tokens/tailwind/xtend-theme.css",
@@ -921,8 +955,18 @@
       "module": "xtend-material/shell-recipes.js",
       "types": "xtend-material/shell-recipes.d.ts",
       "fixture": "tests/fixtures/material/material-app-shell.rmt",
-      "recipeIds": ["material.app-shell", "material.workspace", "material.navigation-rail", "material.top-app-bar", "material.detail-pane"],
-      "responsive": ["mobile", "tablet", "desktop"],
+      "recipeIds": [
+        "material.app-shell",
+        "material.workspace",
+        "material.navigation-rail",
+        "material.top-app-bar",
+        "material.detail-pane"
+      ],
+      "responsive": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
       "componentRegistry": false,
       "shadowRootAccess": false,
       "suite": "tests/material/material_shell_recipes_suite.js",
@@ -938,9 +982,21 @@
       "module": "xtend-material/flow-recipes.js",
       "types": "xtend-material/flow-recipes.d.ts",
       "fixture": "tests/fixtures/material/material-flow-recipes.rmt",
-      "recipeIds": ["material.form-flow", "material.feedback-stack", "material.dashboard", "material.content-page", "material.settings-page", "material.empty-state", "material.confirmation-flow"],
+      "recipeIds": [
+        "material.form-flow",
+        "material.feedback-stack",
+        "material.dashboard",
+        "material.content-page",
+        "material.settings-page",
+        "material.empty-state",
+        "material.confirmation-flow"
+      ],
       "behaviorOwner": "component-and-rmt",
-      "blockedParity": ["data-grid", "autocomplete", "command-palette"],
+      "blockedParity": [
+        "data-grid",
+        "autocomplete",
+        "command-palette"
+      ],
       "componentRegistry": false,
       "shadowRootAccess": false,
       "suite": "tests/material/material_flow_recipes_suite.js",
@@ -955,7 +1011,16 @@
       "command": "xt create app --runtime maraca --design-kit material",
       "generator": "xtend-builder/generators/material-app.js",
       "templateRoot": "xtend-builder/templates/app/",
-      "artifacts": ["src/app.rmt", "src/app.css", "src/material-runtime-host.mjs", "src/material-dev-api.mjs", "site/index.html", "maraca.config.json", "package.json", "test/material-app.smoke.test.cjs"],
+      "artifacts": [
+        "src/app.rmt",
+        "src/app.css",
+        "src/material-runtime-host.mjs",
+        "src/material-dev-api.mjs",
+        "site/index.html",
+        "maraca.config.json",
+        "package.json",
+        "test/material-app.smoke.test.cjs"
+      ],
       "serveCommand": "npm run serve",
       "cssProvider": "tailwind",
       "automaticDiscovery": false,
@@ -1039,7 +1104,12 @@
       "versionLine": "0.1.x",
       "defaultChanged": false,
       "publishExecuted": false,
-      "docs": ["docs/en/xtend-material.md", "docs/de/xtend-material.md", "docs/en/xtend-material-migration.md", "docs/de/xtend-material-migration.md"],
+      "docs": [
+        "docs/en/xtend-material.md",
+        "docs/de/xtend-material.md",
+        "docs/en/xtend-material-migration.md",
+        "docs/de/xtend-material-migration.md"
+      ],
       "contract": "development/XTend-Material-Release-Handoff.md",
       "report": ".xtend-test-results/xtend-material-docs-release-report.json",
       "localGate": "node scripts/run_xtend_tests.js xtend-material-docs docs-public-quality scoped-package-readmes package-exports references --json",
@@ -14900,7 +14970,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 155,
+      "expectedExportCount": 165,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -14925,8 +14995,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 155,
-      "lockedExportFingerprint": "114fbc8d00e923c44e71feb8ed68478b566fc79fb83959cd0c8b31c183095544",
+      "expectedExportCount": 165,
+      "lockedExportFingerprint": "b8ba985da0932a93048733886295773e138f4220a849ad6a875433e94b9cec65",
       "p0Exports": [
         ".",
         "./loader",
@@ -16664,8 +16734,8 @@
       "trustedDomHost": "docs/utils/trusted-dom-host.mjs",
       "devApi": "docs/utils/dev-api.js",
       "suite": "tests/docs/docs_shell_catfooding_suite.js",
-    "browserSmoke": "scripts/smoke_docs_shell_catfooding.mjs",
-    "performanceBaseline": "tests/docs/fixtures/docs-shell-catfooding-performance-baseline.json",
+      "browserSmoke": "scripts/smoke_docs_shell_catfooding.mjs",
+      "performanceBaseline": "tests/docs/fixtures/docs-shell-catfooding-performance-baseline.json",
       "gates": [
         "docs-shell-catfooding",
         "docs-framework-ownership",
@@ -17321,9 +17391,16 @@
     "build:components": "tsc -p tsconfig.components.json && node scripts/finalize_component_build.js",
     "test:typescript-components": "node scripts/run_xtend_tests.js typescript-components",
     "test:xscaler-source-to-sea": "node scripts/run_xtend_tests.js xscaler-source-to-sea",
-    "test:xscaler-source-to-sea:report": "node scripts/run_xtend_tests.js xscaler-source-to-sea --report .xtend-test-results/xtend-xscaler-source-to-sea-report.json"
+    "test:xscaler-source-to-sea:report": "node scripts/run_xtend_tests.js xscaler-source-to-sea --report .xtend-test-results/xtend-xscaler-source-to-sea-report.json",
+    "test:esm-registry": "node tests/platform/xtend_esm_registry_suite.mjs",
+    "test:esm-registry-types": "node tests/platform/xtend_esm_registry_types_suite.mjs",
+    "demo:ts": "vite --config demos/ts-app/vite.config.ts",
+    "demo:ts:build": "vite build --config demos/ts-app/vite.config.ts",
+    "demo:ts:typecheck": "tsc -p demos/ts-app/tsconfig.json"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "@types/node": "^24.13.3",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.6"
   }
 }

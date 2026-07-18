@@ -1,0 +1,26 @@
+:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #07111f; color: #eaf2ff; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 15% 10%, #254b9255, transparent 32rem), radial-gradient(circle at 90% 35%, #259a7450, transparent 28rem), #07111f; }
+.shell { width: min(72rem, calc(100% - 2rem)); margin: auto; padding: 5rem 0 3rem; }
+.hero { max-width: 52rem; margin-bottom: 2.5rem; }
+.hero h1 { margin: 0; font-size: clamp(2.5rem, 7vw, 5rem); line-height: .98; letter-spacing: -.055em; }
+.hero > p:last-child, .runtime-copy { color: #aebed5; line-height: 1.7; }
+.eyebrow { margin: 0 0 .7rem; color: #6ee7bd; font: 700 .75rem/1 ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; }
+.card { padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid #a5bee233; border-radius: 1.4rem; background: #0c1b2fc7; box-shadow: 0 1.5rem 5rem #0004; }
+.heading, .metric { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.heading { align-items: start; margin-bottom: 1.5rem; }
+.heading h2 { margin: 0; }
+.badge { padding: .45rem .7rem; border-radius: 999px; background: #253650; font: 700 .72rem/1 ui-monospace, monospace; }
+.badge.ready { background: #32d39924; color: #7ef0c6; }
+.counter-panel { display: grid; gap: 1.25rem; }
+.metric { padding-bottom: 1rem; border-bottom: 1px solid #a5bee229; }
+.metric-label { color: #aebed5; }
+.metric-value { font-size: 3rem; line-height: .9; }
+.actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+button { border: 0; border-radius: .75rem; padding: .8rem 1rem; background: #4f7cff; color: white; font: inherit; font-weight: 750; cursor: pointer; }
+button.secondary { background: #233a58; }
+button:focus-visible { outline: 3px solid #7ef0c6; outline-offset: 3px; }
+.component-region { margin-top: 1rem; min-height: 1.5rem; }
+footer { padding: 2rem 0 .5rem; color: #8193ad; text-align: center; }
+@media (max-width: 36rem) { .shell { padding-top: 3rem; } .heading, .metric { align-items: start; flex-direction: column; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }

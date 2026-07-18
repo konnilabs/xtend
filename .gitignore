@@ -1,6 +1,7 @@
 .xtend-test-results/
 .xtend-build/
 node_modules/
+demos/ts-app/dist/
 .DS_Store
 products/
 !products/

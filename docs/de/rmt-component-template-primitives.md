@@ -2,6 +2,8 @@
 
 Template-Primitives für wiederverwendbare komponentennahe UI-Strukturen.
 
+Contract-Schema: `xtend.epic18.rmt-component-template-primitives.v1`
+
 ## Worum es geht
 
 Component Template Primitives beschreiben wiederverwendbare UI-Strukturen als deklarative Records. Sie binden einen bekannten Custom-Element-Tag, Properties, Slots und Events, ohne Komponentenklassen in den RMT Kernel zu importieren.

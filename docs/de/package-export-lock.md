@@ -4,7 +4,7 @@ Der Package Export Lock ist die lokale Prüfung für die veröffentlichte XTend 
 
 ## Export Surface
 
-Der Lock umfasst Loader, Components, Maraca, Fabric, XTendRMT, Builder, Docs, Security, Catalog, Design Tokens und RMT Tooling. Neue Public Exports müssen bewusst im Package-Export-Catalog, in `package.json`, TypeExports, Changelog, README und dieser Dokumentation nachgezogen werden. Dadurch reicht ein einzelner lokaler Lauf, um fehlende Package Roots, vergessene Deklarationen oder versehentlich hinzugefügte Export Keys sichtbar zu machen.
+Der Lock umfasst ESM-Registry, Loader, Components, Maraca, Fabric, XTendRMT, Builder, Docs, Security, Catalog, Design Tokens und RMT Tooling. Die Registry besitzt `.` und `./registry`, mit `xtend.js` plus `xtend.d.ts` für Browser und `xtend.ssr.mjs` plus `xtend.ssr.d.ts` für Node/SSR. Classic bleibt explizit unter `./loader`. Neue Public Exports müssen bewusst im Package-Export-Catalog, in `package.json`, TypeExports, Changelog, README und dieser Dokumentation nachgezogen werden.
 
 Maraca ist als eigene Surface Group enthalten und deckt `./maraca`, `./maraca/runtime` und den Pack Root `xtend-maraca` ab. TypeExports klassifiziert diese Einträge über `./xtend-maraca/index.d.ts` und `./xtend-maraca/runtime.d.ts`. Für i18n gilt dasselbe Prinzip: Infrastrukturmodule werden im Manifest erkannt, aber nicht als visuelle Custom Elements behandelt.
 
@@ -18,11 +18,11 @@ report: xtend.epic13.package-export-lock-report.v1
 surface: xtend.epic13.package-export-surface.v1
 local gate: node scripts/run_xtend_tests.js epic13-package-export-lock --json
 capture: npm run pack:dry-run:report
-expectedExportCount: 155
+expectedExportCount: 165
 ```
 
 ```txt
-declarations: ./xtend-loader.d.ts, ./xtend-dev.d.ts, ./api.d.ts
+declarations: ./xtend.d.ts, ./xtend.ssr.d.ts, ./xtend-loader.d.ts, ./xtend-dev.d.ts, ./api.d.ts
 policy declarations: ./fabric/xtend-fabric.d.ts, ./fabric/xtend-policy-public-types.d.ts
 builder declarations: ./xtend-builder/scaffold.d.ts, ./xtend-builder/builder-public-types.d.ts
 catalog declarations: ./catalog/catalog-public-types.d.ts
@@ -46,6 +46,7 @@ Der wichtige Betriebsmodus ist "lokal zuerst". Netzwerkabhängige Evidenz gehör
 Nach neuen Public Exports lokal mindestens ausführen:
 
 ```bash
+npm run test:esm-registry
 node scripts/run_xtend_tests.js type-exports epic13-package-export-lock maraca-package-exports --json
 npm run pack:dry-run
 ```
@@ -54,4 +55,4 @@ Die Prüfung ist kein Ersatz für Produkttests, aber sie schützt die Paketgrenz
 
 ## Weiterführend
 
-Die Type-Export-Referenz listet die öffentlichen Deklarationen auf, die der Export-Lock schützt. [Verwandter Artikel](./type-exports.md)
+Die Type-Export-Referenz listet die öffentlichen Deklarationen auf, die der Export-Lock schützt. Siehe [Type Exports](./type-exports.md) und [ESM-Registry](./esm-registry.md).

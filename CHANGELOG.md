@@ -4,6 +4,8 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 
 ## Unreleased
 
+- Breaking: Der Root-Import `@ccslabs/xtend` ist jetzt eine ESM-Registry mit kompakten Scheduling-, Rendering-, State- und Runtime-Aliasen sowie einem SSR-sicheren Einstieg. XTend Classic bleibt unter `@ccslabs/xtend/loader` verfügbar; die veraltete generierte `xtend.js`-Komponentenimplementierung wurde entfernt.
+- TypeScript-DX der ESM-Registry um opt-in App-/Store-Generics, geprüfte DOM-Descriptoren, einen DOM-neutralen NodeNext-Typvertrag und eine Vite-basierte TS-App-Demo erweitert.
 - XTend Material als `supported-opt-in` Fast Path dokumentiert: zweisprachiger Quick Start, bidirektionale Migration, Compatibility Matrix, SemVer Policy, Package-Changelogs und Tailwind-Upgrade-Runbook ergänzen die XTM-00-bis-XTM-12-Evidence; ein Framework-Default bleibt ohne separaten ADR ausgeschlossen.
 - SchemaDB v2 ergaenzt authoritative Fingerprints, Versionsfamilien, Lifecycle-, Alias- und Konsolidierungsentscheidungen sowie einen maschinenlesbaren Dubletten-Audit.
 - Die identischen Chart-, Leaflet-, React-, Three- und Vue-Cleanup-Records werden unter `xtend.xtensions.host-resource-cleanup-record.v1` gebuendelt. Die bisherigen IDs bleiben fuer zwei Minor-Warnfenster als exakte Aliase lesbar; ihre Entfernung ist fruehestens in einem folgenden Major erlaubt.

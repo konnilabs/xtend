@@ -29,8 +29,8 @@ const TYPE_EXPORTS_RELEASE_STATUS = 'accepted-productive-type-exports-release-ga
 const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready';
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
-const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 155;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = '114fbc8d00e923c44e71feb8ed68478b566fc79fb83959cd0c8b31c183095544';
+const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 165;
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = 'b8ba985da0932a93048733886295773e138f4220a849ad6a875433e94b9cec65';
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',
@@ -79,15 +79,25 @@ const ASSET_EXPORTS = Object.freeze([
   './manifest',
   './components/manifest.json',
   './design-tokens/themes/enterprise-light',
+  './design-tokens/tailwind/theme.css',
+  './design-tokens/tailwind/material-theme.css',
+  './design-tokens/tailwind/token-matrix',
   './package.json'
 ]);
 
 const TYPE_EXPORT_GROUPS = Object.freeze([
   {
+    id: 'registry',
+    priority: 'P0',
+    workpackage: 'WP-TypeExports-02',
+    exports: ['.', './registry'],
+    strategy: 'esm-registry-declaration'
+  },
+  {
     id: 'loader',
     priority: 'P0',
     workpackage: 'WP-TypeExports-02',
-    exports: ['.', './loader', './legacy-loader'],
+    exports: ['./loader', './legacy-loader'],
     strategy: 'loader-global-and-boot-api-declaration'
   },
   {
@@ -116,7 +126,7 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'maraca',
     priority: 'P1',
     workpackage: 'WP-Maraca-01',
-    exports: ['./maraca', './maraca/runtime', './maraca/plan-runtime'],
+    exports: ['./maraca', './maraca/runtime', './maraca/plan-runtime', './maraca/css-provider'],
     strategy: 'maraca-package-declaration-pack'
   },
   {
@@ -201,7 +211,7 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'design-tokens',
     priority: 'P2',
     workpackage: 'WP-TypeExports-08',
-    exports: ['./design-tokens', './design-tokens/xtheme-token-alias-layer'],
+    prefix: './design-tokens',
     strategy: 'design-token-facade-declaration'
   }
 ]);
@@ -304,7 +314,8 @@ function resolveProposedTypesCondition(exportKey, target, group) {
   if (ASSET_EXPORTS.includes(exportKey)) return null;
   const currentTypesCondition = selectCurrentTypesCondition(target);
   if (currentTypesCondition) return currentTypesCondition;
-  if (exportKey === '.' || exportKey === './loader') return './xtend-loader.d.ts';
+  if (exportKey === '.' || exportKey === './registry') return './xtend.d.ts';
+  if (exportKey === './loader') return './xtend-loader.d.ts';
   if (exportKey === './legacy-loader') return './xtend-dev.d.ts';
   if (exportKey === './api') return './api.d.ts';
   if (exportKey === './components/*') return './components/*.d.ts';

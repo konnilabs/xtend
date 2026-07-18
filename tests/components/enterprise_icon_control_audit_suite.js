@@ -62,7 +62,6 @@ function runEnterpriseIconControlAuditSuite(options = {}) {
   const xToast = readText('components/xtoast.js', rootDir);
   const xLightbox = readText('components/xlightbox.js', rootDir);
   const xCode = readText('components/xcode.js', rootDir);
-  const legacyBundle = readText('xtend.js', rootDir);
   const moduleSyntax = syntaxCheckFile(ICON_AUDIT_MODULE_PATH, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(ICON_AUDIT_SUITE_PATH, { rootDir, extension: '.js' });
   const report = createEnterpriseIconControlAuditReport({ rootDir });
@@ -90,7 +89,7 @@ function runEnterpriseIconControlAuditSuite(options = {}) {
   assertIncludesAll(context, report.scanPaths, PRODUCTION_SCAN_PATHS, 'Icon Control scan paths');
   assertIncludesAll(context, report.ignoredFiles, IGNORED_FILES, 'Icon Control ignored files');
   assertIncludesAll(context, report.requiredCoreIcons, REQUIRED_CORE_ICONS, 'Icon Control required core icons');
-  context.assert(report.files.includes('xtend.js'), 'Icon Control audit scans legacy xtend.js');
+  context.assert(!report.files.includes('xtend.js'), 'Icon Control audit excludes the ESM registry entry point');
   context.assert(report.files.includes('components/xsidepanel.js'), 'Icon Control audit scans x-side-panel');
   context.assert(report.files.includes('src/components/x-status/x-status.ts'), 'Icon Control audit scans TypeScript x-status source');
 
@@ -162,8 +161,6 @@ function runEnterpriseIconControlAuditSuite(options = {}) {
   assertIncludesAll(context, xLightbox, ['part="close control"', 'part="close-icon control icon"'], 'x-lightbox close icon parts');
   assertIncludesAll(context, xCode, ['part="copy control"', 'part="copy-icon control icon"'], 'x-code copy icon parts');
 
-  context.assert(!legacyBundle.includes('&times;'), 'Legacy bundle no longer uses &times; close controls');
-  assertIncludesAll(context, legacyBundle, ['xtendLegacyControlIcon', 'part="close control"', 'part="close-icon control icon"'], 'Legacy bundle icon helper');
 
   assertIncludesAll(context, xIconDocs, [
     'ECH-WP-04',

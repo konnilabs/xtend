@@ -109,6 +109,40 @@
     }
   },
   {
+    "slug": "esm-registry",
+    "id": "docs.esm.registry",
+    "label": "ESM Registry",
+    "group": "start",
+    "parent": "quick-start-guide",
+    "tier": "basic",
+    "rank": 94,
+    "labels": {
+      "de": "ESM-Registry",
+      "en": "ESM Registry"
+    },
+    "contentType": "tutorial",
+    "trunk": "start",
+    "section": "first-app",
+    "keywords": {
+      "de": [
+        "ESM-Registry",
+        "esm",
+        "registry",
+        "tutorial",
+        "start",
+        "first-app"
+      ],
+      "en": [
+        "ESM Registry",
+        "esm",
+        "registry",
+        "tutorial",
+        "start",
+        "first-app"
+      ]
+    }
+  },
+  {
     "slug": "native-first-authoring-guide",
     "id": "docs.native.first.authoring.guide",
     "label": "Native-First Authoring Guide",

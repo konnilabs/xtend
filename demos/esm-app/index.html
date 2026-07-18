@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="XTend ESM Registry developer-experience demo">
+  <title>XTend ESM Registry Demo</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "@ccslabs/xtend": "/xtend.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <main class="demo-shell">
+    <header class="hero">
+      <p class="eyebrow">@ccslabs/xtend</p>
+      <h1>One import. Familiar JavaScript DX.</h1>
+      <p>Named ESM helpers connect scheduling, safe descriptor rendering, state and lazy XTend components.</p>
+    </header>
+
+    <section class="demo-card" aria-labelledby="live-demo-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Live registry</p>
+          <h2 id="live-demo-title">Interactive runtime</h2>
+        </div>
+        <span id="runtime-badge" class="badge">importing…</span>
+      </div>
+      <div id="app" aria-live="polite"></div>
+      <div id="component-region" class="component-region"></div>
+    </section>
+
+    <section class="demo-card code-card" aria-labelledby="code-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Public API</p>
+          <h2 id="code-title">The whole setup</h2>
+        </div>
+      </div>
+      <pre><code>import {
+  schedule, afterPaint, render,
+  createApp, createStore, loadComponent
+} from '@ccslabs/xtend';</code></pre>
+    </section>
+
+    <footer>
+      Run from the repository root with <code>npm run dev:local</code>, then open
+      <a href="/demos/esm-app/index.html">/demos/esm-app/index.html</a>.
+    </footer>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

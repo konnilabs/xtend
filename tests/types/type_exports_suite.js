@@ -147,7 +147,8 @@ function runTypeExportsSuite(options = {}) {
   context.assert(plan.packageTypesConditionsApplyInFollowUps === true, 'TypeExports keeps package types conditions in follow-up WPs');
 
   [
-    ['.', 'loader', 'WP-TypeExports-02', './xtend-loader.d.ts'],
+    ['.', 'registry', 'WP-TypeExports-02', './xtend.d.ts'],
+    ['./registry', 'registry', 'WP-TypeExports-02', './xtend.d.ts'],
     ['./loader', 'loader', 'WP-TypeExports-02', './xtend-loader.d.ts'],
     ['./legacy-loader', 'loader', 'WP-TypeExports-02', './xtend-dev.d.ts'],
     ['./api', 'core-api', 'WP-TypeExports-03', './api.d.ts'],

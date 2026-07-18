@@ -44,6 +44,7 @@ const EXPECTED_SCOPED_PACKAGES = Object.freeze([
 
 const EXPECTED_EXPORT_KEYS = Object.freeze([
   '.',
+  './registry',
   './loader',
   './legacy-loader',
   './api',
@@ -52,12 +53,18 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './components/manifest.json',
   './maraca',
   './maraca/runtime',
+  './maraca/plan-runtime',
+  './maraca/css-provider',
   './xsurface-shard',
   './components/*',
   './components/xkeymap.js',
   './xcommand',
   './design-tokens',
   './design-tokens/xtheme-token-alias-layer',
+  './design-tokens/tailwind/token-bridge',
+  './design-tokens/tailwind/theme.css',
+  './design-tokens/tailwind/material-theme.css',
+  './design-tokens/tailwind/token-matrix',
   './design-tokens/themes/enterprise-light',
   './a11y/screenreader-signals',
   './a11y/motion-contrast-policy',
@@ -160,7 +167,9 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './builder/performance/component-ux-performance-contract',
   './rmt',
   './rmt/browser',
+  './rmt/browser-scheduler',
   './rmt/dom-descriptor-renderer',
+  './rmt/safe-preview',
   './rmt/component-capability-registry',
   './rmt/state-selector-runtime',
   './rmt/action-effect-runtime',
@@ -172,6 +181,7 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './rmt/kernel-orchestration-controller',
   './rmt/native-shell-runtime',
   './rmt/node-ssr-adapter',
+  './compiler/tooling-bridge',
   './xtensions/host-controller-contract',
   './xtensions/signal-bridge-contract',
   './xtensions/maraca-manifest-contract',
@@ -205,6 +215,11 @@ const REQUIRED_PACK_ROOTS = Object.freeze([
   'CHANGELOG.md',
   'package.json',
   'api.js',
+  'xtend.js',
+  'xtend.ssr.mjs',
+  'xtend-registry.mjs',
+  'xtend.d.ts',
+  'xtend.ssr.d.ts',
   'xtend-loader.js',
   'xtend-dev.js',
   'xtend.css',
@@ -224,8 +239,13 @@ const REQUIRED_PACK_ROOTS = Object.freeze([
 
 const SURFACE_GROUPS = Object.freeze([
   {
+    id: 'registry',
+    requiredExports: ['.', './registry'],
+    requiredPackRoots: ['xtend.js', 'xtend.ssr.mjs', 'xtend-registry.mjs', 'xtend.d.ts', 'xtend.ssr.d.ts']
+  },
+  {
     id: 'loader',
-    requiredExports: ['.', './loader', './legacy-loader', './api', './style.css', './manifest', './components/manifest.json'],
+    requiredExports: ['./loader', './legacy-loader', './api', './style.css', './manifest', './components/manifest.json'],
     requiredPackRoots: ['xtend-loader.js', 'xtend-dev.js', 'api.js', 'xtend.css', 'components']
   },
   {
@@ -240,7 +260,7 @@ const SURFACE_GROUPS = Object.freeze([
   },
   {
     id: 'maraca',
-    requiredExports: ['./maraca', './maraca/runtime'],
+    requiredExports: ['./maraca', './maraca/runtime', './maraca/plan-runtime', './maraca/css-provider'],
     requiredPackRoots: ['xtend-maraca']
   },
   {
@@ -255,7 +275,7 @@ const SURFACE_GROUPS = Object.freeze([
   },
   {
     id: 'xtendrmt',
-    requiredExports: ['./rmt', './rmt/browser', './rmt/dom-descriptor-renderer', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/form-validation-runtime', './rmt/animation-engine-runtime', './rmt/surface-transition-runtime', './rmt/surface-resource-graph-runtime', './rmt/kernel-orchestration-controller', './rmt/native-shell-runtime', './rmt/node-ssr-adapter'],
+    requiredExports: ['./rmt', './rmt/browser', './rmt/browser-scheduler', './rmt/dom-descriptor-renderer', './rmt/safe-preview', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/form-validation-runtime', './rmt/animation-engine-runtime', './rmt/surface-transition-runtime', './rmt/surface-resource-graph-runtime', './rmt/kernel-orchestration-controller', './rmt/native-shell-runtime', './rmt/node-ssr-adapter'],
     requiredPackRoots: ['xtendrmt']
   },
   {
@@ -291,7 +311,7 @@ const SURFACE_GROUPS = Object.freeze([
   },
   {
     id: 'design-tokens',
-    requiredExports: ['./design-tokens', './design-tokens/xtheme-token-alias-layer', './design-tokens/themes/enterprise-light'],
+    requiredExports: ['./design-tokens', './design-tokens/xtheme-token-alias-layer', './design-tokens/themes/enterprise-light', './design-tokens/tailwind/token-bridge', './design-tokens/tailwind/theme.css', './design-tokens/tailwind/material-theme.css', './design-tokens/tailwind/token-matrix'],
     requiredPackRoots: ['design-tokens']
   },
   {
@@ -320,6 +340,7 @@ const SURFACE_GROUPS = Object.freeze([
   {
     id: 'rmt-tooling',
     requiredExports: [
+      './compiler/tooling-bridge',
       './rmt-language/source-model',
       './rmt-language/parser',
       './rmt-language/vnext-parser',

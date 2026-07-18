@@ -4,6 +4,13 @@ XTend Classic ist der produktive HTML- und JavaScript-first-Auslieferungspfad f�
 
 „Kein Application-Build erforderlich“ bedeutet, dass XTend weder Maraca noch Compiler oder CLI für die Auslieferung der Seite voraussetzt. Ein Host darf weiterhin einen eigenen Bundler, TypeScript, einen lokalen Server oder optionales XTend-Tooling verwenden. Classic ist kein Legacy-Modus: Nur `xtend-dev.js` und der Export `./legacy-loader` sind Legacy-Kompatibilitätsoberflächen.
 
+Der Paket-Root gehört jetzt der [ESM-Registry](./esm-registry.md) und startet Classic nicht. Package-basierte Classic-Hosts verwenden `@ccslabs/xtend/loader`; Script-basierte Hosts binden `xtend-loader.js` weiterhin explizit ein.
+
+```js
+// Expliziter Classic-Bootstrap in einer Package-basierten Browser-App
+import '@ccslabs/xtend/loader';
+```
+
 ## Classic oder Maraca wählen
 
 | XTend Classic | XTend Maraca |
@@ -75,6 +82,7 @@ Dadurch wird `window.__XTEND_DEV_API__` ohne weiteren Script-Tag oder Monkeypatc
 ## Technische Referenzen
 
 - [Manifest](./manifest.md)
+- [ESM-Registry](./esm-registry.md)
 - [API](./api.md)
 - [XTend Loader Types](./xtend-loader-types.md)
 - [XTend DEV API](./xtend-dev-api.md)

@@ -10,7 +10,6 @@ const ENTERPRISE_ICON_CONTROL_AUDIT_LOCAL_GATE = 'node scripts/run_xtend_tests.j
 const PRODUCTION_SCAN_PATHS = Object.freeze([
   'components',
   'src/components',
-  'xtend.js',
   'xtend-dev.js',
   'xtend-loader.js'
 ]);

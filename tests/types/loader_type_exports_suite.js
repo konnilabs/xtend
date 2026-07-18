@@ -131,14 +131,14 @@ function runTypeExportsLoaderSuite(options = {}) {
   context.assert(plan.xtendCssOptionalThemeOnly === true, 'xtend.css stays optional theme stylesheet in types');
   context.assert(plan.nextWorkpackage === 'WP-TypeExports-03', 'Loader TypeExports hands off to WP-TypeExports-03');
 
-  context.assert(getTypesCondition(packageManifest, '.') === './xtend-loader.d.ts', 'Root package export exposes loader types condition');
+  context.assert(getTypesCondition(packageManifest, '.') === './xtend.d.ts', 'Root package export exposes ESM registry types condition');
   context.assert(getTypesCondition(packageManifest, './loader') === './xtend-loader.d.ts', './loader package export exposes loader types condition');
   context.assert(getTypesCondition(packageManifest, './legacy-loader') === './xtend-dev.d.ts', './legacy-loader package export exposes legacy types condition');
   context.assert(packageManifest.files.includes('xtend-loader.d.ts'), 'Package files include xtend-loader.d.ts');
   context.assert(packageManifest.files.includes('xtend-dev.d.ts'), 'Package files include xtend-dev.d.ts');
   context.assert(packageManifest.files.includes('xtend-classic-dev-api.d.ts'), 'Package files include Classic DEV API declarations');
   context.assert(packageManifest.exports['./style.css'] === './xtend.css', 'xtend.css package export remains optional stylesheet asset');
-  context.assert(typeExportsPlan.classifications.find((entry) => entry.exportKey === '.').declarationExists === true, 'TypeExports sees root loader declaration');
+  context.assert(typeExportsPlan.classifications.find((entry) => entry.exportKey === '.').declarationExists === true, 'TypeExports sees root registry declaration');
   context.assert(typeExportsPlan.classifications.find((entry) => entry.exportKey === './legacy-loader').declarationExists === true, 'TypeExports sees legacy loader declaration');
 
   assertTextIncludesAll(context, loaderDeclarationSource, [

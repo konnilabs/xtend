@@ -244,7 +244,7 @@ function runDocsShellCatfoodingSuite(options = {}) {
   const performanceBaseline = readJson('tests/docs/fixtures/docs-shell-catfooding-performance-baseline.json', rootDir);
   const trunkSections = new Set(navigation.trunks.flatMap((trunk) => trunk.sections.map((section) => `${trunk.id}:${section.id}`)));
   context.assert(navigation.schema === 'xtend.docs.navigation.v1' && navigation.trunks.length === 6, 'navigation contract exposes six task trunks');
-  context.assert(menu.length === 168, 'menu keeps 168 canonical bilingual articles');
+  context.assert(menu.length === 169, 'menu keeps 169 canonical bilingual articles');
   context.assert(menu.every((entry) => entry.trunk && entry.section && trunkSections.has(`${entry.trunk}:${entry.section}`)), 'every article has exactly one valid primary trunk and section');
   context.assert(menu.every((entry) => entry.keywords && entry.keywords.de.length && entry.keywords.en.length), 'every article exposes DE and EN keywords');
   context.assert(performanceBaseline.schema === 'xtend.docs.shell-performance-baseline.v1' && performanceBaseline.regressionLimit === 0.05, 'browser baseline locks the five-percent FCP and transfer regression limit');
@@ -257,8 +257,8 @@ function runDocsShellCatfoodingSuite(options = {}) {
     const fulltextText = readText(fulltextPath, rootDir);
     const compact = JSON.parse(compactText);
     const fulltext = JSON.parse(fulltextText);
-    context.assert(compact.schema === 'xtend.docs.search-index.v1' && compact.entryCount === 168, `${locale} compact index has contract and full inventory`);
-    context.assert(fulltext.schema === 'xtend.docs.search-fulltext-index.v1' && fulltext.entryCount === 168, `${locale} fulltext index has contract and full inventory`);
+    context.assert(compact.schema === 'xtend.docs.search-index.v1' && compact.entryCount === 169, `${locale} compact index has contract and full inventory`);
+    context.assert(fulltext.schema === 'xtend.docs.search-fulltext-index.v1' && fulltext.entryCount === 169, `${locale} fulltext index has contract and full inventory`);
     context.assert(zlib.gzipSync(compactText, { level: 9 }).length <= 25 * 1024, `${locale} compact index stays within 25 KiB gzip`);
     context.assert(zlib.gzipSync(fulltextText, { level: 9 }).length <= 150 * 1024, `${locale} fulltext index stays within 150 KiB gzip`);
   });

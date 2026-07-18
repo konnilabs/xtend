@@ -41,6 +41,8 @@ export interface RmtKernelOrchestrationController {
   readonly hostAdapter: unknown;
   boot(): unknown;
   scheduleWork(kind: string, callback: (context: unknown) => unknown, metadata?: Record<string, unknown>): unknown;
+  scheduleEndpoint(endpointName: string, scope: string, callback: (context: unknown) => unknown, metadata?: Record<string, unknown>): unknown;
+  dispose(): void;
   recordAppRuntimeBackpressure(record?: Record<string, unknown>, metadata?: Record<string, unknown>): Record<string, unknown>;
   listScheduledEndpoints(): unknown[];
   listDiagnostics(): unknown[];

@@ -1,6 +1,6 @@
 # Type Exports
 
-Die Paket-Exportfläche für Loader, API, RMT, Fabric und Komponenten.
+Die Paket-Exportfläche für ESM-Registry, Loader, API, RMT, Fabric und Komponenten.
 
 ## Worum es geht
 
@@ -8,11 +8,19 @@ Die Paket-Exportfläche für Loader, API, RMT, Fabric und Komponenten.
 
 ## Öffentliche Bausteine
 
-- `./loader` und `./api` decken Browser-Bootstrap und UI-API ab.
+- `.` und `./registry` exponieren die Browser-Registry über `xtend.d.ts` und den DOM-neutralen Node-Vertrag über `xtend.ssr.d.ts`.
+- `./loader` und `./api` decken den expliziten Classic-Browser-Bootstrap und die UI-API ab.
 - `./rmt`, `./rmt/browser` und RMT-Language-Subpaths decken Runtime und Tooling ab.
 - Fabric-, Maraca-, Builder- und Komponenten-Subpaths verweisen auf co-located `.d.ts` Dateien.
 
 ## RMT TypeScript-Oberfläche
+
+Der Root-Einstieg löst die benannten Aliase aus `xtend.d.ts` auf. Browserfähige Resolver verwenden `xtend.js`; Node und SSR verwenden `xtend.ssr.mjs` zusammen mit `xtend.ssr.d.ts`.
+
+```ts
+import { schedule, render, createApp, createStore } from '@ccslabs/xtend';
+import type { XTendScheduleOptions, XTendRegistryConfiguration } from '@ccslabs/xtend';
+```
 
 XTend veröffentlicht die RMT-Laufzeit und die RMT-Werkzeuge mit stabilen `types` Conditions. Dadurch können Hosts die deklarative RMT-Schicht verwenden, ohne interne Quellen oder Build-Artefakte zu importieren.
 
@@ -31,7 +39,8 @@ plan: xtend.type-exports.plan.v1
 drift report: xtend.type-exports.drift-report.v1
 local gate: node scripts/run_xtend_tests.js type-exports --json
 release gate: npm run test:type-exports:release
-loader types: ./xtend-loader.d.ts
+registry types: ./xtend.d.ts, ./xtend.ssr.d.ts
+loader types: ./xtend-loader.d.ts via ./loader
 api types: ./api.d.ts
 decision: types-not-required
 ```
@@ -47,6 +56,7 @@ Importiere ausschließlich einen Eintrag aus `package.json#exports` und lasse Ty
 - [Manifest](./manifest.md)
 - [API](./api.md)
 - [XTend Classic](./xtend-classic.md)
+- [ESM-Registry](./esm-registry.md)
 - [Design Tokens](./design-tokens.md)
 - [XTend Loader Types](./xtend-loader-types.md)
 - [XTend API Types](./xtend-api-types.md)

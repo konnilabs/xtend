@@ -24,7 +24,6 @@ const LOADER_DECLARATION_FILES = Object.freeze([
 ]);
 
 const LOADER_PACKAGE_EXPORTS = Object.freeze([
-  '.',
   './loader',
   './legacy-loader'
 ]);
