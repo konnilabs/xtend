@@ -182,8 +182,10 @@ node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-test-report.j
 
 | Gate | Trigger | Command | Report | Artifact |
 |------|---------|---------|--------|----------|
-| `pr-fast` | `pull_request` | `npm run test:pr:report` | `.xtend-test-results/xtend-pr-gate-report.json` | `xtend-pr-gate-report-node-26` |
-| `full-release` | `push`, `workflow_dispatch`, `schedule` | `npm run test:release:full:report` | `.xtend-test-results/xtend-release-gate-report.json` | `xtend-release-gate-report-node-26` |
+| `pr-fast` | `pull_request` | `npm run test:pr:report` | `.xtend-test-results/xtend-pr-gate-report.json` | `xtend-pr-gate-report-{artifactSuffix}` |
+| `full-release` | `push`, `workflow_dispatch`, `schedule` | `npm run test:release:full:report` | `.xtend-test-results/xtend-release-gate-report.json` | `xtend-release-gate-report-{artifactSuffix}` |
+
+Beide Gates laufen mit npm `11.17.0` unter der primären Node-Lane `24.18.0` und der verpflichtenden Node-Lane `26.5.0`; `artifactSuffix` ist entsprechend `node-24-18-0` oder `node-26-5-0`. Publish bleibt bis zum Node-26-LTS-Cutover auf Node 24.
 
 `pr-fast` prueft Core, Architecture, Components, A11y, Catalog, Regression Priority, Fabric-Safety, References, Supply-Chain und Manifest-Policy. `full-release` fuehrt die komplette Runner-Suite inklusive Browser-, Performance-, Hydration-, Telemetry- und RMT-Kompatibilitaets-Gates aus.
 

@@ -148,8 +148,14 @@ template material.scaffold.app {
     field material.app.field required message "Enter a name before review."
   }
 
+  datasource material.app.health from host material.app.health {
+    mode invoke
+    contract "xtend.maraca.health.v1"
+  }
+
   action material.app.runCheck {
     input label string
+    effect fetch datasource material.app.health
     reduce state.material.app.feedback.text = "Compatibility check passed."
     reduce state.material.app.feedback.tone = "success"
   }

@@ -144,6 +144,9 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
   const hostCalls = [];
   const diagnostics = [];
   const pending = createPending();
+  let pendingSignal = null;
+  let resolvePendingStart;
+  const pendingStarted = new Promise((resolve) => { resolvePendingStart = resolve; });
   const stateRuntime = stateRuntimeModule.createRmtStateSelectorRuntime({
     states: fixture.state,
     selectors: fixture.selectors,
@@ -249,6 +252,8 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
       'host.pending': {
         invoke(request) {
           hostCalls.push({ adapter: 'host.pending', payload: request.payload });
+          pendingSignal = request.context && request.context.signal || null;
+          resolvePendingStart();
           return pending.promise;
         }
       },
@@ -325,8 +330,10 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
   context.assert(stateRuntime.getState('state.action-status').status === 'error', 'error patches status state');
 
   const cancelPromise = runtime.runAction('action.cancelable-load', { file: { name: 'pending.bin' } });
+  await pendingStarted;
   const cancelSignal = runtime.cancelAction('action.cancelable-load');
   context.assert(cancelSignal.cancelled === 1, 'cancelAction marks active run');
+  context.assert(pendingSignal && pendingSignal.aborted === true, 'cancelAction propagates AbortSignal to the datasource adapter');
   pending.resolve([{ id: 'late', title: 'Late' }]);
   const cancelResult = await cancelPromise;
   context.assert(cancelResult.status === 'cancelled', 'pending action resolves as cancelled');

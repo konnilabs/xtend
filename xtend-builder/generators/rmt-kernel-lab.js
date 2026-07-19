@@ -601,7 +601,7 @@ function resolveKernelVersion(rootDir, requestedVersion) {
         diagnostics: [{
           severity: 'error',
           code: 'xtend.rmt.kernel_lab.invalid_version',
-          message: `KernelLab version "${requested}" is invalid. Use semantic versions such as "0.4.0".`,
+          message: `KernelLab version "${requested}" is invalid. Use semantic versions such as "0.5.0".`,
           version: requested
         }]
       };

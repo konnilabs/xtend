@@ -6,7 +6,7 @@
 
 ## English
 
-`@ccslabs/xtend-xsurface-shard` provides server-side XSurface Shard orchestration for XTend Remote Surfaces. It consumes RMT vNext remote-surface records, Enterprise Registry snapshots, Degradation reports, and Remote Security reports, then emits deterministic shards, server-owned lifecycle state, XScaler ATC-compatible handoffs, and JSON-safe stream fragments.
+`@ccslabs/xtend-xsurface-shard` provides server-side XSurface Shard orchestration for XTend Remote Surfaces. It consumes RMT vNext remote-surface records, Enterprise Registry snapshots, Degradation reports, and Remote Security reports, then emits deterministic shards, server-owned lifecycle state, canonical public XScaler ATC handoffs, and JSON-safe stream fragments.
 
 It does not load remote bundles, call `fetch()`, execute dynamic imports, or move remote runtime execution into the RMT kernel.
 
@@ -16,7 +16,7 @@ It does not load remote bundles, call `fetch()`, execute dynamic imports, or mov
 npm install @ccslabs/xtend-xsurface-shard
 ```
 
-Node.js 18 or newer is required. XTend, the compiler, and the RMT runtime are optional peers for integrated flows.
+Node.js 24 or newer is required. XTend supplies the canonical public XScaler contract and is a required peer; the compiler and RMT runtime remain optional peers for integrated flows.
 
 ### Schemas
 
@@ -26,7 +26,7 @@ Node.js 18 or newer is required. XTend, the compiler, and the RMT runtime are op
 - `xtend.xsurface.shard-stream-fragment.v1` as `XSURFACE_SHARD_FRAGMENT_SCHEMA`
 - `xtend.xsurface.shard-surface.v1` as `XSURFACE_SHARD_SURFACE_SCHEMA`
 - `xtend.xsurface.shard.v1` as `XSURFACE_SHARD_RECORD_SCHEMA`
-- `xtend.xscaler.atc-handoff.v1` as `XSCALER_ATC_HANDOFF_SCHEMA`, the compatibility shape carried by handoff records
+- `xtend.xscaler.atc-handoff.v1` as `XSCALER_ATC_HANDOFF_SCHEMA`, the complete public contract carried by handoff records
 
 ### API
 
@@ -89,7 +89,7 @@ Invalid lifecycle transitions return a handoff with `xsurface.shard.lifecycle_in
 - Security and degradation decisions happen before attachment.
 - Handoffs preserve `remoteRuntimeExecution: false` and `kernelRemoteExecution: false`.
 - Stream fragments must be JSON-serializable.
-- XScaler ATC compatibility does not grant permission to execute remote code.
+- A canonical XScaler ATC handoff does not grant permission to execute remote code.
 
 ### Verification
 
@@ -114,7 +114,7 @@ Licensed under the Apache License 2.0. See [LICENSE](../LICENSE).
 
 [English](#english) | **Deutsch**
 
-`@ccslabs/xtend-xsurface-shard` stellt serverseitige XSurface-Shard-Orchestrierung für XTend Remote Surfaces bereit. Das Paket konsumiert RMT-vNext-Remote-Surface-Records, Enterprise-Registry-Snapshots, Degradation Reports und Remote Security Reports und erzeugt daraus deterministische Shards, serverseitig verwalteten Lifecycle-State, XScaler-ATC-kompatible Handoffs und JSON-sichere Stream-Fragmente.
+`@ccslabs/xtend-xsurface-shard` stellt serverseitige XSurface-Shard-Orchestrierung für XTend Remote Surfaces bereit. Das Paket konsumiert RMT-vNext-Remote-Surface-Records, Enterprise-Registry-Snapshots, Degradation Reports und Remote Security Reports und erzeugt daraus deterministische Shards, serverseitig verwalteten Lifecycle-State, kanonische öffentliche XScaler-ATC-Handoffs und JSON-sichere Stream-Fragmente.
 
 Es lädt keine Remote-Bundles, ruft kein `fetch()` auf, führt keine dynamischen Imports aus und verlagert keine Remote-Runtime-Ausführung in den RMT-Kernel.
 
@@ -124,7 +124,7 @@ Es lädt keine Remote-Bundles, ruft kein `fetch()` auf, führt keine dynamischen
 npm install @ccslabs/xtend-xsurface-shard
 ```
 
-Node.js 18 oder neuer wird benötigt. XTend, der Compiler und die RMT-Runtime sind optionale Peers für integrierte Abläufe.
+Node.js 24 oder neuer wird benötigt. XTend liefert den kanonischen öffentlichen XScaler-Vertrag und ist ein erforderlicher Peer; Compiler und RMT-Runtime bleiben optionale Peers für integrierte Abläufe.
 
 ### Schemas
 
@@ -134,7 +134,7 @@ Node.js 18 oder neuer wird benötigt. XTend, der Compiler und die RMT-Runtime si
 - `xtend.xsurface.shard-stream-fragment.v1` als `XSURFACE_SHARD_FRAGMENT_SCHEMA`
 - `xtend.xsurface.shard-surface.v1` als `XSURFACE_SHARD_SURFACE_SCHEMA`
 - `xtend.xsurface.shard.v1` als `XSURFACE_SHARD_RECORD_SCHEMA`
-- `xtend.xscaler.atc-handoff.v1` als `XSCALER_ATC_HANDOFF_SCHEMA`, das Kompatibilitätsformat innerhalb der Handoff-Records
+- `xtend.xscaler.atc-handoff.v1` als `XSCALER_ATC_HANDOFF_SCHEMA`, der vollständige öffentliche Vertrag innerhalb der Handoff-Records
 
 ### API
 
@@ -197,7 +197,7 @@ Ungültige Lifecycle-Übergänge liefern ein Handoff mit `xsurface.shard.lifecyc
 - Security- und Degradation-Entscheidungen erfolgen vor dem Attach.
 - Handoffs bewahren `remoteRuntimeExecution: false` und `kernelRemoteExecution: false`.
 - Stream-Fragmente müssen JSON-serialisierbar sein.
-- XScaler-ATC-Kompatibilität erteilt keine Erlaubnis zur Ausführung von Remote-Code.
+- Ein kanonischer XScaler-ATC-Handoff erteilt keine Erlaubnis zur Ausführung von Remote-Code.
 
 ### Verifikation
 

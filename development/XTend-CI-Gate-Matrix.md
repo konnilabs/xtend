@@ -6,7 +6,8 @@
 - Workpackage: `ER-WP-37`
 - Workflow: `.github/workflows/xtend-default-gates.yml`
 - Nightly Workflow: `.github/workflows/xtend-nightly-build.yml`
-- Node-Version: `26.x`
+- Node-Versionen: primär `24.18.0`, verpflichtende Current-Lane `26.5.0`
+- npm-Version: `11.17.0`
 
 ## Zweck
 
@@ -16,15 +17,17 @@ Die CI-Gate-Matrix trennt schnelles Pull-Request-Feedback von vollstaendigen Rel
 
 - `pr-fast`: schneller, deterministischer Contract-Lauf fuer Pull Requests
 - `full-release`: vollstaendiger Report-Lauf fuer Pushes, manuelle Runs und Release-Events
-- `nightly-build`: geplanter Node-26-Artefaktlauf mit Release-, RMT-Primitive- und Pack-Evidence
+- `nightly-build`: geplanter dualer Node-24-/26-Artefaktlauf mit Release-, RMT-Primitive- und Pack-Evidence
 
 ## Gate Matrix
 
 | Gate | Contract | Trigger | Command | Report | Artifact |
 |------|----------|---------|---------|--------|----------|
-| `pr-fast` | `xtend.ci.pr-fast-gate.v1` | `pull_request` | `npm run test:pr:report` | `.xtend-test-results/xtend-pr-gate-report.json` | `xtend-pr-gate-report-node-26` |
-| `full-release` | `xtend.ci.full-release-gate.v1` | `push`, `workflow_dispatch`, `release: published` | `npm run test:release:full:report` | `.xtend-test-results/xtend-release-gate-report.json` | `xtend-release-gate-report-node-26` |
-| `nightly-build` | `xtend.ci.nightly-build.v1` | `47 2 * * *` | `npm run test:release:full:report`, `npm run test:rmt-vnext-primitives:report`, `npm run release:report`, `npm run pack:dry-run` | `.xtend-test-results/xtend-nightly-build-manifest.json` | `xtend-nightly-build-node-26` |
+| `pr-fast` | `xtend.ci.pr-fast-gate.v1` | `pull_request` | `npm run test:pr:report` | `.xtend-test-results/xtend-pr-gate-report.json` | `xtend-pr-gate-report-{artifactSuffix}` |
+| `full-release` | `xtend.ci.full-release-gate.v1` | `push`, `workflow_dispatch`, `release: published` | `npm run test:release:full:report` | `.xtend-test-results/xtend-release-gate-report.json` | `xtend-release-gate-report-{artifactSuffix}` |
+| `nightly-build` | `xtend.ci.nightly-build.v1` | `47 2 * * *` | `npm run test:release:full:report`, `npm run test:rmt-vnext-primitives:report`, `npm run release:report`, `npm run pack:dry-run` | `.xtend-test-results/xtend-nightly-build-manifest.json` | `xtend-nightly-build-{artifactSuffix}` |
+
+`artifactSuffix` ist je Lane exakt `node-24-18-0` oder `node-26-5-0`. Jedes Artefakt enthält die zugehörige Runtime-Evidence; Publish bleibt bis N26-05 ausschließlich auf Node `24.18.0`.
 
 ## PR Fast Gate
 
@@ -94,9 +97,9 @@ Er umfasst damit Browser-Smokes, Performance Regression, Hydration Policies, Fab
 
 ## Nightly Policy
 
-Nightly nutzt einen eigenen GitHub Actions Workflow unter `xtend.ci.nightly-build.v1`. Der geplante Lauf sammelt Full-Release-, RMT-vNext-Primitive-, Release-Report- und Package-Dry-Run-Evidence, schreibt `npm run nightly:manifest` nach `.xtend-test-results/xtend-nightly-build-manifest.json` und laedt alles als `xtend-nightly-build-node-26` hoch. Die einzelnen Evidence-Schritte laufen mit `continue-on-error`, damit der Artefakt-Bundle auch bei einem fruehen Fehler moeglichst vollstaendig bleibt; ein abschliessender Status-Schritt markiert den Run danach rot, wenn ein Pflichtteil fehlschlug.
+Nightly nutzt einen eigenen GitHub Actions Workflow unter `xtend.ci.nightly-build.v1`. Beide exakten Runtime-Lanes sammeln Full-Release-, RMT-vNext-Primitive-, Release-Report- und Package-Dry-Run-Evidence, schreiben `npm run nightly:manifest` nach `.xtend-test-results/xtend-nightly-build-manifest.json` und laden sie getrennt als `xtend-nightly-build-{artifactSuffix}` hoch. Die einzelnen Evidence-Schritte laufen mit `continue-on-error`, damit der Artefakt-Bundle auch bei einem fruehen Fehler moeglichst vollstaendig bleibt; ein abschliessender Status-Schritt markiert den Run danach rot, wenn ein Pflichtteil fehlschlug.
 
-Browser-heavy Source-to-Sea Evidence und Audit/SBOM Network Evidence sind Nightly-Optionen, aber keine geplanten Pflichtlaeufe. Sie koennen per `workflow_dispatch` mit `run_source_to_sea=true` beziehungsweise `run_conditional_network=true` gestartet werden und laden eigene Artefakte `xtend-nightly-source-to-sea-evidence-node-26` und `xtend-nightly-conditional-network-evidence-node-26` hoch.
+Browser-heavy Source-to-Sea Evidence und Audit/SBOM Network Evidence sind Nightly-Optionen, aber keine geplanten Pflichtlaeufe. Sie koennen per `workflow_dispatch` mit `run_source_to_sea=true` beziehungsweise `run_conditional_network=true` gestartet werden und laden je Runtime-Lane eigene Artefakte `xtend-nightly-source-to-sea-evidence-{artifactSuffix}` und `xtend-nightly-conditional-network-evidence-{artifactSuffix}` hoch.
 
 Netzwerkbasierte Supply-Chain-Gates wie `npm audit --audit-level=moderate` und `npm sbom --sbom-format=cyclonedx --json` bleiben ausserhalb der lokalen Default-Matrix. `ER-WP-38` ordnet sie als Conditional Network Gates der Release Checklist zu; `DPF-WP-03` produktisiert dafuer den separaten CI-Job `conditional-network-evidence` mit `npm run conditional-network:evidence` und Owner-Deferral-Artefakten. Fuer den GitHub-basierten Publish-Pfad sperrt `npm-publish-next` Deferrals mit `XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL=0`, bevor `npm publish --tag next --provenance --access public` laeuft.
 

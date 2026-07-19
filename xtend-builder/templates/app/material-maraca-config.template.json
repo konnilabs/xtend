@@ -19,6 +19,18 @@
     "cssInput": "src/app.css",
     "cssSources": ["src/app.rmt", "src/app.css"],
     "cssPreflight": "disabled",
-    "cssProviderFallback": "none"
+    "cssProviderFallback": "none",
+    "services": {
+      "clientEntry": "src/services.ts",
+      "serverEntry": "src/server-services.ts",
+      "phpEntry": "server/server-services.php",
+      "targets": {{serviceTargetsJson}},
+      "strict": true,
+      "transport": {
+        "kind": "http-ndjson",
+        "basePath": "/api/xtend/services",
+        "credentials": "same-origin"
+      }
+    }
   }
 }

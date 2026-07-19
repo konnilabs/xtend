@@ -664,11 +664,12 @@ class VNextParser {
     const name = this.parseQualifiedIdentifierAllowReserved('Expected datasource identifier.');
     const source = this.matches('from') ? this.parsePrimitiveSourceReference() : null;
     const body = this.parseBlock(() => {
+      if (this.matches('mode')) return this.parseKeywordValueClause('mode', 'RmtDataSourceModeClause');
       if (this.matches('method')) return this.parseKeywordValueClause('method', 'RmtDataSourceMethodClause');
       if (this.matches('contract')) return this.parseKeywordValueClause('contract', 'RmtDataSourceContractClause');
       if (this.matches('result')) return this.parseKeywordValueClause('result', 'RmtDataSourceResultClause');
       if (this.matches('fallback')) return this.parseFallbackClause();
-      this.addDiagnostic(this.current(), 'DataSource blocks may contain method, contract, result and fallback clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.addDiagnostic(this.current(), 'DataSource blocks may contain mode, method, contract, result and fallback clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
       this.skipStatementOrBlock();
       return null;
     });

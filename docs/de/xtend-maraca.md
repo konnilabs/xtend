@@ -1,5 +1,7 @@
 # XTend Maraca
 
+Für TypeScript-Geschäftslogik und Node-/PHP-Serviceziele siehe [Maraca AppServices und TypeScript](./maraca-app-services.md).
+
 XTend Maraca ist der moderne ESM-Bundle-Pfad für RMT-first XTend Anwendungen. Maraca liest eine `.rmt` Quelle, leitet die tatsächlich referenzierten XTend Komponenten und RMT Runtime-Module ab und schreibt anschließend ein loaderloses Bundle mit statischer Inline-Registry statt `components/manifest.json` im Browser zu laden.
 
 ## Was es löst

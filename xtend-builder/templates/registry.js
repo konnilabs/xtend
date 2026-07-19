@@ -107,6 +107,76 @@ const TEMPLATE_REGISTRY = [
     purpose: 'Business adapter stub for RMT-owned apps; intentionally contains no product UI DOM wiring.'
   },
   {
+    id: 'app.services.typescript',
+    artifact: 'app-services',
+    path: 'xtend-builder/templates/app/app-services.template.ts',
+    status: 'implemented-XMS-07',
+    purpose: 'Typed browser-local and server-proxy AppServices entry without UI wiring.'
+  },
+  {
+    id: 'app.services.node',
+    artifact: 'server-services',
+    path: 'xtend-builder/templates/app/server-services.template.ts',
+    status: 'implemented-XMS-07',
+    purpose: 'Node-only AppServices implementation entry.'
+  },
+  {
+    id: 'app.services.php',
+    artifact: 'php-server-services',
+    path: 'xtend-builder/templates/app/server-services.template.php',
+    status: 'implemented-XMS-07',
+    purpose: 'PHP-native AppServices callable registry.'
+  },
+  {
+    id: 'app.services.tsconfig',
+    artifact: 'app-tsconfig',
+    path: 'xtend-builder/templates/app/app-tsconfig.template.json',
+    status: 'implemented-XMS-07',
+    purpose: 'Strict TypeScript configuration for generated AppServices.'
+  },
+  {
+    id: 'app.rmt.rmt',
+    artifact: 'rmt-app-rmt',
+    path: 'xtend-builder/templates/app/rmt-app.template.rmt',
+    status: 'implemented-XMS-07',
+    purpose: 'Provider-neutral declarative RMT app shell with an AppService demand.'
+  },
+  {
+    id: 'app.rmt.css',
+    artifact: 'rmt-app-css',
+    path: 'xtend-builder/templates/app/rmt-app.template.css',
+    status: 'implemented-XMS-07',
+    purpose: 'Free-CSS entry for the provider-neutral Maraca base scaffold.'
+  },
+  {
+    id: 'app.rmt.maraca-config',
+    artifact: 'rmt-maraca-config',
+    path: 'xtend-builder/templates/app/rmt-maraca-config.template.json',
+    status: 'implemented-XMS-07',
+    purpose: 'Native CSS and TypeScript AppServices configuration for the base scaffold.'
+  },
+  {
+    id: 'app.rmt.package',
+    artifact: 'rmt-package',
+    path: 'xtend-builder/templates/app/rmt-package.template.json',
+    status: 'implemented-XMS-07',
+    purpose: 'Package and one-command build scripts for a provider-neutral Maraca app.'
+  },
+  {
+    id: 'app.rmt.smoke',
+    artifact: 'rmt-smoke',
+    path: 'xtend-builder/templates/app/rmt-smoke.template.cjs',
+    status: 'implemented-XMS-07',
+    purpose: 'Dependency-free base-scaffold ownership and no-manual-wiring smoke.'
+  },
+  {
+    id: 'app.rmt.browser-host',
+    artifact: 'rmt-browser-host',
+    path: 'xtend-builder/templates/app/rmt-browser-host.template.html',
+    status: 'implemented-XMS-07',
+    purpose: 'Auto-boot browser host for the provider-neutral Maraca bundle.'
+  },
+  {
     id: 'app.material.rmt',
     artifact: 'material-app-rmt',
     path: 'xtend-builder/templates/app/material-app.template.rmt',

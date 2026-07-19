@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.xtend.dev/xscaler/remote-surface-plan.v1.schema.json",
+  "title": "XTend XScaler Remote Surface Plan v1",
+  "type": "object",
+  "required": ["schema", "protocol", "surface", "surfaceId", "owner", "origin", "integrity", "fallbackSurface", "lanes", "ssr", "runtimeBoundary"],
+  "properties": {
+    "schema": { "const": "xtend.xscaler.remote-surface-plan.v1" },
+    "protocol": { "const": "xscaler" },
+    "surface": { "type": "string", "minLength": 1 },
+    "surfaceId": { "type": "string", "pattern": "^remoteSurface:.+" },
+    "owner": { "type": "string", "minLength": 1 },
+    "origin": { "type": "string", "format": "uri", "pattern": "^https://[^/?#]+/?$" },
+    "integrity": {
+      "type": "object",
+      "required": ["algorithm", "digest"],
+      "properties": {
+        "algorithm": { "enum": ["sha256", "sha384", "sha512"] },
+        "digest": {
+          "type": "string",
+          "oneOf": [
+            { "pattern": "^sha256-[A-Za-z0-9+/]{43}=$" },
+            { "pattern": "^sha384-[A-Za-z0-9+/]{64}$" },
+            { "pattern": "^sha512-[A-Za-z0-9+/]{86}==$" }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "algorithm": { "const": "sha256" } }, "required": ["algorithm"] },
+          "then": { "properties": { "digest": { "type": "string", "pattern": "^sha256-" } } }
+        },
+        {
+          "if": { "properties": { "algorithm": { "const": "sha384" } }, "required": ["algorithm"] },
+          "then": { "properties": { "digest": { "type": "string", "pattern": "^sha384-" } } }
+        },
+        {
+          "if": { "properties": { "algorithm": { "const": "sha512" } }, "required": ["algorithm"] },
+          "then": { "properties": { "digest": { "type": "string", "pattern": "^sha512-" } } }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "fallbackSurface": { "type": "string", "minLength": 1 },
+    "lanes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["lane", "target"],
+        "properties": {
+          "lane": { "type": "string", "minLength": 1 },
+          "target": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "ssr": {
+      "type": "object",
+      "required": ["mode", "networkDuringRender"],
+      "properties": {
+        "mode": { "type": "string", "minLength": 1 },
+        "networkDuringRender": { "const": false }
+      },
+      "additionalProperties": true
+    },
+    "runtimeBoundary": {
+      "type": "object",
+      "properties": {
+        "remoteRuntimeExecution": { "const": false },
+        "kernelRemoteExecution": { "const": false },
+        "networkRequiredByKernel": { "const": false }
+      },
+      "required": ["remoteRuntimeExecution", "kernelRemoteExecution", "networkRequiredByKernel"],
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

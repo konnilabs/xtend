@@ -15,6 +15,15 @@ const {
   validateCssBuildRequest,
   validateCssProvider
 } = require('./css-provider');
+const {
+  MARACA_APP_SERVICE_MANIFEST_SCHEMA,
+  MARACA_SERVICE_BUILD_PLAN_SCHEMA,
+  MARACA_SERVICE_BUILD_REPORT_SCHEMA,
+  buildMaracaServiceArtifacts,
+  createMaracaServiceBuildPlan,
+  createTypeScriptRollupPlugin,
+  normalizeServiceBuildOptions
+} = require('./service-build-provider');
 
 const MARACA_PACKAGE_SCHEMA = 'xtend.maraca.package-metadata.v1';
 const MARACA_BUILD_PLAN_SCHEMA = 'xtend.maraca.build-plan.v1';
@@ -1778,6 +1787,28 @@ function loadMaracaBuildConfig(values, rootDir) {
   }
 }
 
+function createMaracaServiceSourceFingerprint(rawServices, rootDir) {
+  const normalized = normalizeServiceBuildOptions(rawServices, { rootDir });
+  if (!normalized.enabled) return null;
+  const entries = Object.fromEntries(Object.entries(normalized.entries || {}).map(([key, entry]) => {
+    let sourceFingerprint = null;
+    if (entry && entry.exists) {
+      sourceFingerprint = hashText(fs.readFileSync(entry.path, 'utf8'));
+    }
+    return [key, {
+      relative: entry && entry.relative || null,
+      exists: Boolean(entry && entry.exists),
+      sourceFingerprint
+    }];
+  }));
+  return hashText(stableJson({
+    strict: normalized.strict,
+    targets: normalized.targets,
+    transport: normalized.transport,
+    entries
+  }));
+}
+
 function normalizeOptions(input = {}, options = {}) {
   const explicitValues = normalizeInput(input);
   const rootDir = resolveRootDir(options.rootDir || explicitValues.rootDir);
@@ -1796,6 +1827,20 @@ function normalizeOptions(input = {}, options = {}) {
     : (values.source || values.src || values.app || positionalSource || DEFAULT_SOURCE);
   const sourcePath = path.resolve(rootDir, source);
   const buildConfigDiagnostics = buildConfigRecord.diagnostics.slice();
+  const configFingerprint = buildConfigRecord.config && typeof buildConfigRecord.config.configFingerprint === 'string'
+    ? buildConfigRecord.config.configFingerprint
+    : null;
+  if (configFingerprint) {
+    const fingerprintInput = { ...buildConfigRecord.config };
+    delete fingerprintInput.configFingerprint;
+    if (hashText(stableJson(fingerprintInput)) !== configFingerprint) {
+      buildConfigDiagnostics.push({
+        code: 'xtend.maraca.build_config_fingerprint_drift',
+        severity: 'error',
+        message: 'Maraca build config fingerprint does not match the committed configuration.'
+      });
+    }
+  }
   if (
     buildConfigRecord.config
     && buildConfigRecord.config.sourceFingerprint
@@ -1807,6 +1852,19 @@ function normalizeOptions(input = {}, options = {}) {
       severity: 'error',
       message: 'Maraca build config source fingerprint does not match the current RMT source.'
     });
+  }
+  if (buildConfigRecord.config && buildConfigRecord.config.serviceGraphFingerprint) {
+    const currentServiceGraphFingerprint = createMaracaServiceSourceFingerprint(
+      configuredValues.services,
+      rootDir
+    );
+    if (currentServiceGraphFingerprint !== buildConfigRecord.config.serviceGraphFingerprint) {
+      buildConfigDiagnostics.push({
+        code: 'xtend.maraca.build_config_service_graph_drift',
+        severity: 'error',
+        message: 'Maraca build config service graph fingerprint does not match the current AppService sources.'
+      });
+    }
   }
   const outDirValue = values.out || values.outDir || values.output || DEFAULT_OUT_DIR;
   const outputDir = path.resolve(rootDir, outDirValue);
@@ -1914,6 +1972,28 @@ function normalizeOptions(input = {}, options = {}) {
       : (values.manifest && typeof values.manifest === 'object'
         ? values.manifest
         : (toBoolean(values.webAppManifest) || enableWebAppManifest)));
+  let services = values.services;
+  if (typeof services === 'string') {
+    const normalizedServices = services.trim().toLowerCase();
+    if (['false', 'off', 'disabled', 'none'].includes(normalizedServices)) services = false;
+    else if (['true', 'on', 'enabled', 'typescript'].includes(normalizedServices)) services = true;
+  }
+  if (services === undefined && (
+    values.servicesEntry || values['services-entry']
+    || values.serverServicesEntry || values['server-services-entry']
+    || values.phpServicesEntry || values['php-services-entry']
+    || values.serviceTargets || values['service-targets']
+  )) {
+    services = {
+      clientEntry: values.servicesEntry || values['services-entry'],
+      serverEntry: values.serverServicesEntry || values['server-services-entry'],
+      phpEntry: values.phpServicesEntry || values['php-services-entry'],
+      targets: values.serviceTargets || values['service-targets'],
+      strict: values.servicesStrict !== undefined
+        ? toBoolean(values.servicesStrict)
+        : (values['services-strict'] !== undefined ? toBoolean(values['services-strict']) : true)
+    };
+  }
 
   return {
     rootDir,
@@ -1922,6 +2002,7 @@ function normalizeOptions(input = {}, options = {}) {
     sourceText,
     buildConfig: buildConfigRecord.config,
     buildConfigPath: buildConfigRecord.path,
+    configFingerprint,
     buildConfigDiagnostics,
     outputDir,
     profile,
@@ -1952,6 +2033,7 @@ function normalizeOptions(input = {}, options = {}) {
     pwa,
     enableWebAppManifest,
     webAppManifest,
+    services,
     json: toBoolean(values.json),
     allowDynamicComponents,
     policyParityReports: Array.isArray(values.policyParityReports) ? values.policyParityReports : [],
@@ -1979,6 +2061,7 @@ function requireOptional(request, baseDir) {
 function getMaracaToolchainAvailability(rootDir = process.cwd()) {
   const rollup = requireOptional('rollup', rootDir);
   const terser = requireOptional('terser', rootDir);
+  const typescript = requireOptional('typescript', rootDir);
   return {
     rollup: {
       requested: true,
@@ -1991,6 +2074,12 @@ function getMaracaToolchainAvailability(rootDir = process.cwd()) {
       available: terser.available,
       version: terser.version || null,
       mode: terser.available ? 'terser-js-api' : 'local-minifier-fallback'
+    },
+    typescript: {
+      requested: true,
+      available: typescript.available,
+      version: typescript.version || null,
+      mode: typescript.available ? 'typescript-program-and-rollup-transform' : 'unavailable'
     }
   };
 }
@@ -4143,6 +4232,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       schema: MARACA_BUILD_PLAN_SCHEMA,
       ok: false,
       status: 'source_missing',
+      configFingerprint: normalized.configFingerprint,
       source: normalized.source,
       sourcePath: normalized.sourcePath,
       rootDir: normalized.rootDir,
@@ -4222,6 +4312,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       schema: MARACA_BUILD_PLAN_SCHEMA,
       ok: false,
       status: 'compile_failed',
+      configFingerprint: normalized.configFingerprint,
       source: repoRelative(normalized.sourcePath, normalized.rootDir),
       sourcePath: normalized.sourcePath,
       rootDir: normalized.rootDir,
@@ -4337,6 +4428,12 @@ function createMaracaBuildPlan(input = {}, options = {}) {
     runtimeModules = Array.from(new Set(runtimeModules.concat(TRANSITION_RUNTIME_MODULES))).sort();
   }
   const lifecycle = createMaracaLifecycleReport(orchestration, kernel, runtimeModules, normalized);
+  const services = createMaracaServiceBuildPlan({
+    services: normalized.services,
+    demands: compileResult.appServiceDemands || null,
+    rootDir: normalized.rootDir,
+    outputDir: normalized.outputDir
+  });
   diagnostics.push(...orchestration.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...kernel.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...hydration.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
@@ -4344,6 +4441,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
   diagnostics.push(...validation.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...transitions.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...lifecycle.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
+  diagnostics.push(...services.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   const ok = diagnostics.every((diagnostic) => diagnostic.severity !== 'error');
   const stackModules = resolveStackModuleRecords(runtimeModules, normalized, orchestration, kernel, validation, transitions);
   const selectedWithPolicy = componentRecords.selected.map((entry) => ({
@@ -4356,6 +4454,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
     schema: MARACA_BUILD_PLAN_SCHEMA,
     ok,
     status: ok ? 'planned' : 'blocked',
+    configFingerprint: normalized.configFingerprint,
     source: repoRelative(normalized.sourcePath, normalized.rootDir),
     sourcePath: normalized.sourcePath,
     rootDir: normalized.rootDir,
@@ -4418,6 +4517,8 @@ function createMaracaBuildPlan(input = {}, options = {}) {
     validation,
     transitions,
     lifecycle,
+    services,
+    serviceGraphFingerprint: services.fingerprint || services.demands && services.demands.fingerprint || null,
     stack: {
       mode: normalized.stackMode,
       included: stackModules.map((entry) => entry.source),
@@ -4439,7 +4540,11 @@ function createMaracaBuildPlan(input = {}, options = {}) {
       pwaReport: pwa.outputs.report,
       pwaManifest: pwa.outputs.manifest,
       serviceWorker: pwa.outputs.serviceWorker,
-      offlineFallback: pwa.outputs.offlineFallback
+      offlineFallback: pwa.outputs.offlineFallback,
+      serviceManifest: services.outputs.manifest || null,
+      serviceDeclarations: services.outputs.declarations || null,
+      serverServices: services.outputs.serverEntry || null,
+      phpServicesReport: services.outputs.phpReport || null
     },
     publicNameReservations: Array.from(PUBLIC_NAME_RESERVATIONS),
     propertyMangling: {
@@ -4533,6 +4638,15 @@ function createCssText(plan = null) {
       rules.push(`:where([data-maraca-surface="${cssAttributeValue(surface.id)}"]){${declarations.join(';')};}`);
     }
   });
+  const cssInput = plan && plan.cssBuild && plan.cssBuild.request && plan.cssBuild.request.input;
+  if (cssInput && plan.rootDir) {
+    const inputPath = path.resolve(plan.rootDir, cssInput);
+    const relative = path.relative(plan.rootDir, inputPath);
+    const insideRoot = relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+    if (insideRoot && fs.existsSync(inputPath) && fs.statSync(inputPath).isFile()) {
+      rules.push(fs.readFileSync(inputPath, 'utf8'));
+    }
+  }
   return rules.join('');
 }
 
@@ -4739,6 +4853,23 @@ function createBundleSource(plan, providerCssText = null) {
     bundleFiles: [],
     repoRoot: plan.rootDir || path.dirname(path.dirname(__filename))
   });
+  const appServicesBundle = plan.services && plan.services.enabled ? {
+    enabled: true,
+    strict: plan.services.strict !== false,
+    status: plan.services.status,
+    targets: plan.services.targets || [],
+    transport: plan.services.transport || null,
+    manifest: plan.services.manifest || null,
+    fingerprint: plan.services.fingerprint || null
+  } : {
+    enabled: false,
+    strict: false,
+    status: 'disabled',
+    targets: [],
+    transport: null,
+    manifest: null,
+    fingerprint: null
+  };
   const css = typeof providerCssText === 'string' ? providerCssText : createCssText(plan);
   const header = [
     `const MARACA_COMPONENTS = Object.freeze(${jsValue(componentEntries)});`,
@@ -4754,6 +4885,7 @@ function createBundleSource(plan, providerCssText = null) {
     `const MARACA_PWA = Object.freeze(${jsValue(pwaBundle)});`,
     `const MARACA_VALIDATION = Object.freeze(${jsValue(validationBundle)});`,
     `const MARACA_TRANSITIONS = Object.freeze(${jsValue(transitionBundle)});`,
+    `const MARACA_APP_SERVICES = Object.freeze(${jsValue(appServicesBundle)});`,
     `const MARACA_LIFECYCLE = Object.freeze(${jsValue(lifecycleBundle)});`,
     `const MARACA_PRODUCTION_CLOSURE = Object.freeze(${jsValue(productionClosureBundle)});`,
     `const MARACA_TEMPLATE_ARTIFACTS = Object.freeze(${jsValue(plan.templateArtifacts || null)});`,
@@ -4772,6 +4904,17 @@ function createBundleSource(plan, providerCssText = null) {
     header.unshift(`import "./${KERNEL_CONTROLLER_BUNDLE_FILE}";`);
   } else {
     header.push('const XTendMaracaKernelRuntimeModule = null;');
+  }
+
+  if (appServicesBundle.enabled && plan.services.entries && plan.services.entries.client && plan.services.entries.client.exists) {
+    const runtimeModule = ensureRelativeImport(outDir, path.join(__dirname, 'app-services.mjs'));
+    const clientModule = ensureRelativeImport(outDir, plan.services.entries.client.path);
+    header.unshift(`import XTendMaracaAppServiceDefinition from ${JSON.stringify(clientModule)};`);
+    header.unshift(`import { createAppServiceRegistry, createHttpAppServiceTransport } from ${JSON.stringify(runtimeModule)};`);
+  } else {
+    header.push('const XTendMaracaAppServiceDefinition = null;');
+    header.push('const createAppServiceRegistry = null;');
+    header.push('const createHttpAppServiceTransport = null;');
   }
 
   if (plan.lazy === 'none') {
@@ -5203,6 +5346,155 @@ function adoptServerPrerenderShell(root) {
 function dispatchMaracaEvent(name, detail) {
   if (typeof window === "undefined" || typeof CustomEvent !== "function") return;
   window.dispatchEvent(new CustomEvent(name, { detail }));
+}
+
+function createMaracaAppServiceController(options = {}) {
+  if (!MARACA_APP_SERVICES.enabled || !XTendMaracaAppServiceDefinition || typeof createAppServiceRegistry !== "function") {
+    return Object.freeze({
+      enabled: false,
+      status: MARACA_APP_SERVICES.status,
+      registry: null,
+      hostServiceAdapters: options.hostServiceAdapters || options.serviceAdapters || {},
+      dataSourceAdapters: options.dataSourceAdapters || {},
+      diagnostics: [],
+      dispose() { return false; },
+      snapshot() {
+        return { schema: "xtend.maraca.app-services-runtime.v1", enabled: false, status: MARACA_APP_SERVICES.status };
+      }
+    });
+  }
+
+  const diagnostics = [];
+  const manifestServices = MARACA_APP_SERVICES.manifest && Array.isArray(MARACA_APP_SERVICES.manifest.services)
+    ? MARACA_APP_SERVICES.manifest.services
+    : [];
+  const hasServerServices = manifestServices.some((entry) => entry && entry.target === "server");
+  const transportConfig = MARACA_APP_SERVICES.transport || {};
+  const httpTransport = hasServerServices && typeof createHttpAppServiceTransport === "function"
+    ? createHttpAppServiceTransport({
+        baseUrl: options.appServiceBaseUrl || options.serviceBaseUrl || "",
+        pathPrefix: options.appServicePath || transportConfig.basePath || "/api/xtend/services",
+        credentials: options.appServiceCredentials || transportConfig.credentials || "same-origin",
+        headers: options.appServiceHeaders || options.serviceHeaders || {}
+      })
+    : null;
+  const remoteSurfaceTransport = options.remoteSurfaceTransport || null;
+  const transport = Object.freeze({
+    async invoke(request) {
+      if (request && request.target === "remote-surface") {
+        if (!remoteSurfaceTransport || typeof remoteSurfaceTransport.invoke !== "function") {
+          throw new Error("Remote-surface AppService requires an accepted XScaler transport.");
+        }
+        return remoteSurfaceTransport.invoke(request);
+      }
+      if (!httpTransport) throw new Error("HTTP AppService transport is not configured.");
+      return httpTransport.invoke(request);
+    },
+    stream(request) {
+      if (request && request.target === "remote-surface") {
+        if (!remoteSurfaceTransport || typeof remoteSurfaceTransport.stream !== "function") {
+          throw new Error("Remote-surface stream requires an accepted XScaler transport.");
+        }
+        return remoteSurfaceTransport.stream(request);
+      }
+      if (!httpTransport) throw new Error("HTTP AppService stream transport is not configured.");
+      return httpTransport.stream(request);
+    },
+    dispose(reason) {
+      if (httpTransport && typeof httpTransport.dispose === "function") httpTransport.dispose(reason);
+      if (remoteSurfaceTransport && typeof remoteSurfaceTransport.dispose === "function") remoteSurfaceTransport.dispose(reason);
+    }
+  });
+  const registry = createAppServiceRegistry(XTendMaracaAppServiceDefinition, {
+    transport,
+    disposeTransport: true
+  });
+
+  function invocationContext(context = {}) {
+    return {
+      signal: context.signal || null,
+      correlationId: context.correlationId || context.commandEnvelope && context.commandEnvelope.correlationId || null,
+      action: context.action || null,
+      effect: context.effect || null,
+      dataSource: context.dataSource || null
+    };
+  }
+
+  function adapterFor(serviceId) {
+    return Object.freeze({
+      invoke(request = {}) {
+        return registry.invoke(serviceId, request.payload, invocationContext(request.context || {}));
+      },
+      stream(request = {}, handlers = {}) {
+        return registry.stream(serviceId, request.payload, handlers, invocationContext(request.context || {}));
+      },
+      subscribe(request = {}, handlers = {}) {
+        const stream = registry.stream(serviceId, request.payload, handlers, invocationContext(request.context || {}));
+        return Object.freeze({
+          id: stream.id,
+          cancel: stream.cancel,
+          unsubscribe: stream.cancel
+        });
+      }
+    });
+  }
+
+  const generatedHostServiceAdapters = {};
+  manifestServices.forEach((entry) => {
+    if (entry && entry.id) generatedHostServiceAdapters[entry.id] = adapterFor(entry.id);
+  });
+  const generatedDataSourceAdapter = Object.freeze({
+    invoke(request = {}) {
+      const source = request.source || {};
+      const serviceId = source.endpoint || source.service || (source.adapter && source.adapter !== "host" ? source.adapter : "") || source.id;
+      return registry.invoke(serviceId, request.payload, invocationContext(request.context || {}));
+    }
+  });
+
+  function reportCollision(kind, id) {
+    const diagnostic = {
+      schema: "xtend.maraca.diagnostic.v1",
+      code: "xtend.maraca.app_services.manual_adapter_collision",
+      severity: MARACA_APP_SERVICES.strict ? "error" : "warning",
+      message: "Manual " + kind + " adapter collides with generated AppService " + id + ".",
+      details: { kind, id, winner: MARACA_APP_SERVICES.strict ? "none" : "manual" }
+    };
+    diagnostics.push(diagnostic);
+    dispatchMaracaEvent("xtend-maraca:diagnostic", diagnostic);
+    if (MARACA_APP_SERVICES.strict) throw new Error(diagnostic.message);
+  }
+
+  const manualHostServiceAdapters = options.hostServiceAdapters || options.serviceAdapters || {};
+  Object.keys(manualHostServiceAdapters).forEach((id) => {
+    if (Object.prototype.hasOwnProperty.call(generatedHostServiceAdapters, id)) reportCollision("host-service", id);
+  });
+  const manualDataSourceAdapters = options.dataSourceAdapters || {};
+  if (manualDataSourceAdapters.host && manifestServices.length > 0) reportCollision("host-datasource", "host");
+
+  const hostServiceAdapters = Object.freeze({ ...generatedHostServiceAdapters, ...manualHostServiceAdapters });
+  const dataSourceAdapters = Object.freeze({ host: generatedDataSourceAdapter, ...manualDataSourceAdapters });
+  return Object.freeze({
+    enabled: true,
+    status: "ready",
+    registry,
+    hostServiceAdapters,
+    dataSourceAdapters,
+    diagnostics,
+    dispose(reason = "XTend Maraca app disposed.") {
+      return registry.dispose(reason);
+    },
+    snapshot() {
+      return {
+        schema: "xtend.maraca.app-services-runtime.v1",
+        enabled: true,
+        status: registry.disposed ? "disposed" : "ready",
+        serviceCount: registry.listServices().length,
+        activeCount: registry.listActive().length,
+        diagnostics: diagnostics.slice(),
+        manifestFingerprint: MARACA_APP_SERVICES.manifest && MARACA_APP_SERVICES.manifest.fingerprint || null
+      };
+    }
+  });
 }
 
 function cloneMaracaValue(value, fallback = null) {
@@ -6885,6 +7177,7 @@ function createOrchestrationController(root, options = {}, kernelController = nu
     dispose() {
       if (typeof unsubState === "function") unsubState();
       if (eventRuntime && typeof eventRuntime.detachAll === "function") eventRuntime.detachAll();
+      if (actionRuntime && typeof actionRuntime.dispose === "function") actionRuntime.dispose("XTend Maraca orchestration disposed.");
     },
     listDiagnostics,
     snapshot: runtimeSnapshot
@@ -7225,12 +7518,40 @@ let currentMaracaTransitions = null;
 let currentMaracaTelemetry = null;
 let currentMaracaTemplateArtifactsRegistration = null;
 let currentMaracaPwaRegistration = null;
+let currentMaracaAppServices = null;
+
+function disposeXtendMaraca(reason = "XTend Maraca app disposed.") {
+  const disposed = {
+    orchestration: false,
+    appServices: false
+  };
+  if (currentMaracaOrchestration && typeof currentMaracaOrchestration.dispose === "function") {
+    currentMaracaOrchestration.dispose();
+    disposed.orchestration = true;
+  }
+  if (currentMaracaAppServices && typeof currentMaracaAppServices.dispose === "function") {
+    disposed.appServices = currentMaracaAppServices.dispose(reason);
+  }
+  dispatchMaracaEvent("xtend-maraca:dispose", {
+    schema: "xtend.maraca.dispose.v1",
+    reason,
+    ...disposed
+  });
+  return disposed;
+}
 
 async function bootXtendMaraca(options = {}) {
   if (typeof document === "undefined") {
     return { ok: false, status: "no_document", schema: MARACA_SCHEMA };
   }
   const root = options.root || document.querySelector("[data-maraca-root]") || document.getElementById("xtend-maraca-root") || document.body;
+  if (currentMaracaAppServices) disposeXtendMaraca("XTend Maraca app restarted.");
+  currentMaracaAppServices = createMaracaAppServiceController(options);
+  const runtimeOptions = {
+    ...options,
+    hostServiceAdapters: currentMaracaAppServices.hostServiceAdapters,
+    dataSourceAdapters: currentMaracaAppServices.dataSourceAdapters
+  };
   attachMaracaCss(root);
   const serverPrerenderShell = adoptServerPrerenderShell(root);
   const fragment = document.createDocumentFragment();
@@ -7240,22 +7561,22 @@ async function bootXtendMaraca(options = {}) {
     return { surface, element };
   });
   root.appendChild(fragment);
-  currentMaracaKernel = createKernelController(root, options);
-  currentMaracaHydration = createHydrationController(root, options, currentMaracaKernel);
-  currentMaracaOrchestration = createOrchestrationController(root, options, currentMaracaKernel, currentMaracaHydration);
+  currentMaracaKernel = createKernelController(root, runtimeOptions);
+  currentMaracaHydration = createHydrationController(root, runtimeOptions, currentMaracaKernel);
+  currentMaracaOrchestration = createOrchestrationController(root, runtimeOptions, currentMaracaKernel, currentMaracaHydration);
   currentMaracaValidation = currentMaracaOrchestration && currentMaracaOrchestration.validationRuntime || null;
   currentMaracaAnimationEngine = currentMaracaOrchestration && currentMaracaOrchestration.animationEngineRuntime || null;
   currentMaracaTransitions = currentMaracaOrchestration && currentMaracaOrchestration.transitionRuntime || null;
   currentMaracaTelemetry = createTelemetryBridge(currentMaracaKernel, currentMaracaOrchestration, currentMaracaHydration, currentMaracaValidation, currentMaracaTransitions);
-  currentMaracaTemplateArtifactsRegistration = registerMaracaTemplateArtifacts(options);
-  currentMaracaPwaRegistration = await registerMaracaPwaServiceWorker(options);
+  currentMaracaTemplateArtifactsRegistration = registerMaracaTemplateArtifacts(runtimeOptions);
+  currentMaracaPwaRegistration = await registerMaracaPwaServiceWorker(runtimeOptions);
   const activeSurfaceEntries = currentMaracaOrchestration && currentMaracaOrchestration.enabled
     ? createSurfaceEntriesFromRoot(root)
     : surfaceEntries;
-  const lazyStrategy = resolveLazyStrategy(options);
+  const lazyStrategy = resolveLazyStrategy(runtimeOptions);
   let lazyController = null;
   if (lazyStrategy === "viewport") {
-    lazyController = observeViewportComponents(activeSurfaceEntries, options, currentMaracaHydration);
+    lazyController = observeViewportComponents(activeSurfaceEntries, runtimeOptions, currentMaracaHydration);
   } else {
     if (currentMaracaHydration && currentMaracaHydration.enabled) {
       await currentMaracaHydration.hydrateAll(MARACA_COMPONENTS.map((entry) => entry.tag));
@@ -7272,6 +7593,7 @@ async function bootXtendMaraca(options = {}) {
     pendingComponentCount: lazyStrategy === "viewport" ? MARACA_COMPONENTS.length : 0,
     surfaceCount: MARACA_SURFACES.length,
     eventCount: MARACA_EVENTS.length,
+    appServices: currentMaracaAppServices.snapshot(),
     orchestration: {
       enabled: Boolean(currentMaracaOrchestration && currentMaracaOrchestration.enabled),
       mode: MARACA_ORCHESTRATION.mode,
@@ -7324,7 +7646,8 @@ async function bootXtendMaraca(options = {}) {
     },
     productionClosure: MARACA_PRODUCTION_CLOSURE,
     lazyObservedCount: lazyController ? lazyController.observedCount : 0,
-    publicNameReservations: MARACA_PUBLIC_NAMES
+    publicNameReservations: MARACA_PUBLIC_NAMES,
+    dispose: disposeXtendMaraca
   };
   window.__XTendMaracaResult = result;
   window.__XTendMaracaLazyController = lazyController;
@@ -7385,9 +7708,13 @@ const XTendMaraca = Object.freeze({
   get pwaRegistration() {
     return currentMaracaPwaRegistration;
   },
+  get appServices() {
+    return currentMaracaAppServices;
+  },
   stackModules: MARACA_STACK_MODULES,
   ensureComponent: ensureMaracaComponent,
-  boot: bootXtendMaraca
+  boot: bootXtendMaraca,
+  dispose: disposeXtendMaraca
 });
 
 function shouldAutoBootXtendMaraca() {
@@ -7422,10 +7749,11 @@ function scheduleXtendMaracaAutoBoot() {
 
 if (typeof window !== "undefined") {
   window.XTendMaraca = XTendMaraca;
+  window.addEventListener("pagehide", () => disposeXtendMaraca("XTend Maraca page hidden."), { once: true });
   scheduleXtendMaracaAutoBoot();
 }
 
-export { MARACA_COMPONENTS, MARACA_SURFACES, MARACA_EVENTS, MARACA_ORCHESTRATION, MARACA_KERNEL, MARACA_HYDRATION, MARACA_WARM_REENTRY, MARACA_UI_COPROCESSOR, MARACA_WEB_APP_MANIFEST, MARACA_PWA, MARACA_VALIDATION, MARACA_TRANSITIONS, MARACA_TEMPLATE_ARTIFACTS, MARACA_PUBLIC_NAMES, MARACA_STACK_MODULES, ensureMaracaComponent, bootXtendMaraca };
+export { MARACA_COMPONENTS, MARACA_SURFACES, MARACA_EVENTS, MARACA_ORCHESTRATION, MARACA_KERNEL, MARACA_HYDRATION, MARACA_WARM_REENTRY, MARACA_UI_COPROCESSOR, MARACA_WEB_APP_MANIFEST, MARACA_PWA, MARACA_VALIDATION, MARACA_TRANSITIONS, MARACA_APP_SERVICES, MARACA_TEMPLATE_ARTIFACTS, MARACA_PUBLIC_NAMES, MARACA_STACK_MODULES, ensureMaracaComponent, bootXtendMaraca, disposeXtendMaraca };
 export default XTendMaraca;
 `;
 }
@@ -7571,6 +7899,10 @@ async function minifyRollupChunks(plan, output, terserModule) {
 
 function writeRollupOutput(plan, output) {
   const files = [];
+  const clientEntry = plan.services && plan.services.entries && plan.services.entries.client && plan.services.entries.client.path
+    ? path.resolve(plan.services.entries.client.path)
+    : null;
+  const clientSourceDir = clientEntry ? path.dirname(clientEntry) : null;
   output.forEach((item) => {
     const filePath = path.join(plan.outputDir, item.fileName);
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -7585,6 +7917,19 @@ function writeRollupOutput(plan, output) {
     }
 
     const bytes = fs.statSync(filePath).size;
+    const modules = item.type === 'chunk' && item.modules ? Object.entries(item.modules).map(([id, metadata]) => ({
+      id: toPosix(id),
+      renderedLength: Number(metadata && metadata.renderedLength || 0),
+      appService: Boolean(clientEntry && (
+        path.resolve(id) === clientEntry
+        || (clientSourceDir && path.resolve(id).startsWith(`${clientSourceDir}${path.sep}`) && !path.resolve(id).includes(`${path.sep}node_modules${path.sep}`))
+      ))
+    })) : [];
+    const renderedBytes = modules.reduce((sum, module) => sum + module.renderedLength, 0);
+    const appServiceRenderedBytes = modules.filter((module) => module.appService).reduce((sum, module) => sum + module.renderedLength, 0);
+    const appServiceBytes = item.type === 'chunk' && renderedBytes > 0
+      ? Math.min(bytes, Math.round(bytes * appServiceRenderedBytes / renderedBytes))
+      : 0;
     files.push({
       type: item.type,
       fileName: item.fileName,
@@ -7593,7 +7938,10 @@ function writeRollupOutput(plan, output) {
       isEntry: item.type === 'chunk' && item.isEntry === true,
       isDynamicEntry: item.type === 'chunk' && item.isDynamicEntry === true,
       imports: item.type === 'chunk' ? item.imports : [],
-      dynamicImports: item.type === 'chunk' ? item.dynamicImports : []
+      dynamicImports: item.type === 'chunk' ? item.dynamicImports : [],
+      modules,
+      appServiceBytes,
+      frameworkBytes: Math.max(0, bytes - appServiceBytes)
     });
   });
   return files;
@@ -7615,10 +7963,14 @@ async function createRollupBundleFiles(plan, rawSource) {
   }
 
   const warnings = [];
+  const plugins = [createRollupVirtualEntryPlugin(plan, rawSource)];
+  if (plan.services && plan.services.enabled && plan.services.entries && plan.services.entries.client && plan.services.entries.client.exists) {
+    plugins.push(createTypeScriptRollupPlugin(plan.services, { target: 'browser' }));
+  }
   const bundle = await rollupTool.module.rollup({
     input: ROLLUP_VIRTUAL_ENTRY_ID,
     external: (id) => isKernelRuntimeExternalImport(plan, id),
-    plugins: [createRollupVirtualEntryPlugin(plan, rawSource)],
+    plugins,
     treeshake: createRollupTreeshakeOptions(plan),
     onwarn(warning) {
       warnings.push({
@@ -8500,11 +8852,38 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
   });
   const webAppManifestReport = options.webAppManifestReport || createMaracaWebAppManifestReport(plan, []);
   const pwaReport = options.pwaReport || createMaracaPwaReport(plan, bundleFiles, deriveMaracaPwaPrecacheUrls(plan, bundleFiles));
+  const serviceBuildReport = options.serviceBuildReport || {
+    schema: MARACA_SERVICE_BUILD_REPORT_SCHEMA,
+    ok: true,
+    status: plan.services && plan.services.enabled ? 'planned' : 'disabled',
+    files: [],
+    manifest: plan.services && plan.services.manifest || null,
+    diagnostics: plan.services && plan.services.diagnostics || []
+  };
+  const serviceArtifacts = (serviceBuildReport.files || []).filter((filePath) => {
+    try {
+      return fs.existsSync(filePath) && fs.statSync(filePath).isFile();
+    } catch (_) {
+      return false;
+    }
+  }).map((filePath) => {
+    const relative = repoRelative(filePath, repoRoot);
+    const target = relative.includes('/server/') || relative.endsWith('.mjs') ? 'node'
+      : relative.endsWith('.php-report.json') ? 'php'
+      : 'shared';
+    return {
+      path: relative,
+      target,
+      bytes: fs.statSync(filePath).size,
+      integrity: `sha256:${hashText(fs.readFileSync(filePath))}`
+    };
+  });
 
   return {
     schema: MARACA_BUNDLE_REPORT_SCHEMA,
     ok: productionClosure.ok && (!sizeBudgetReport || sizeBudgetReport.ok !== false),
     status: productionClosure.ok && (!sizeBudgetReport || sizeBudgetReport.ok !== false) ? 'built' : 'blocked',
+    configFingerprint: plan.configFingerprint || null,
     source: plan.source,
     outputDir: repoRelative(plan.outputDir, repoRoot),
     profile: plan.profile,
@@ -8515,6 +8894,40 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
     componentMode: plan.componentMode,
     stackMode: plan.stackMode,
     target: 'modern-esm',
+    services: {
+      schema: MARACA_SERVICE_BUILD_REPORT_SCHEMA,
+      enabled: Boolean(plan.services && plan.services.enabled),
+      ok: serviceBuildReport.ok !== false,
+      status: serviceBuildReport.status,
+      targets: plan.services && plan.services.targets || [],
+      manifest: serviceBuildReport.manifest || plan.services && plan.services.manifest || null,
+      files: (serviceBuildReport.files || []).map((filePath) => repoRelative(filePath, repoRoot)),
+      diagnostics: serviceBuildReport.diagnostics || [],
+      warnings: serviceBuildReport.warnings || [],
+      fingerprint: plan.serviceGraphFingerprint || null,
+      bytes: {
+        client: sizeBudgetReport && sizeBudgetReport.appServices ? sizeBudgetReport.appServices.clientBytes : 0,
+        server: sizeBudgetReport && sizeBudgetReport.appServices ? sizeBudgetReport.appServices.serverBytes : 0
+      },
+      budgets: plan.services && plan.services.budgets || { clientBytes: null, serverBytes: null },
+      targetFacts: (plan.services && plan.services.targets || []).map((target) => ({
+        target,
+        enabled: true,
+        isolated: true,
+        entry: plan.services && plan.services.entries && (
+          target === 'browser' ? plan.services.entries.client && plan.services.entries.client.relative
+            : target === 'node' ? plan.services.entries.server && plan.services.entries.server.relative
+              : plan.services.entries.php && plan.services.entries.php.relative
+        ) || null
+      })),
+      artifacts: serviceArtifacts,
+      integrity: {
+        manifestFingerprint: serviceBuildReport.manifest && serviceBuildReport.manifest.fingerprint || plan.services && plan.services.manifest && plan.services.manifest.fingerprint || null,
+        serviceGraphFingerprint: plan.serviceGraphFingerprint || null,
+        artifactCount: serviceArtifacts.length,
+        artifactFingerprints: serviceArtifacts.map((artifact) => artifact.integrity)
+      }
+    },
     entry: entryFile.path,
     entryRelative: repoRelative(entryFile.path, repoRoot),
     entryBytes: entryFile.bytes,
@@ -8527,7 +8940,10 @@ function createBundleReport(plan, bundleFiles, sizeBudgetReport, options = {}) {
       isEntry: file.isEntry,
       isDynamicEntry: file.isDynamicEntry,
       imports: file.imports,
-      dynamicImports: file.dynamicImports
+      dynamicImports: file.dynamicImports,
+      modules: file.modules || [],
+      appServiceBytes: Number(file.appServiceBytes || 0),
+      frameworkBytes: Number(file.frameworkBytes === undefined ? file.bytes || 0 : file.frameworkBytes)
     })),
     loader: plan.loader,
     components: {
@@ -8717,20 +9133,39 @@ function createMaracaSizeBudgetReport(input) {
     contractPayloadBytes = 0;
   }
   const baselineBytes = loaderBytes + selectedBytes + stackBytes + contractPayloadBytes;
+  const bundleFiles = Array.isArray(input.bundleFiles) ? input.bundleFiles : [];
   const bundleBytes = Number(input.entryBytes || 0);
+  const clientAppServiceBytes = bundleFiles.reduce((sum, file) => sum + Number(file && file.appServiceBytes || 0), 0);
+  const frameworkBundleBytes = Math.max(0, bundleBytes - clientAppServiceBytes);
+  const serverEntryPath = plan.services && plan.services.outputs && plan.services.outputs.serverEntry || null;
+  let serverAppServiceBytes = 0;
+  try {
+    serverAppServiceBytes = serverEntryPath && fs.existsSync(serverEntryPath) ? fs.statSync(serverEntryPath).size : 0;
+  } catch (_) {
+    serverAppServiceBytes = 0;
+  }
+  const serviceBudgets = plan.services && plan.services.budgets || {};
+  const clientBudgetBytes = Number(serviceBudgets.clientBytes || 0) || null;
+  const serverBudgetBytes = Number(serviceBudgets.serverBytes || 0) || null;
+  const clientWithinBudget = clientBudgetBytes === null || clientAppServiceBytes <= clientBudgetBytes;
+  const serverWithinBudget = serverBudgetBytes === null || serverAppServiceBytes <= serverBudgetBytes;
+  const appServicesWithinBudget = clientWithinBudget && serverWithinBudget;
   const cssBytes = Number(plan.cssBuild && plan.cssBuild.evidence && plan.cssBuild.evidence.bytes || input.cssBytes || 0);
   const cssBudgetBytes = Number(plan.cssBuild && plan.cssBuild.budgetBytes || 0) || null;
   const cssWithinBudget = cssBudgetBytes === null || cssBytes <= cssBudgetBytes;
-  const ratio = baselineBytes > 0 ? bundleBytes / baselineBytes : 1;
+  const ratio = baselineBytes > 0 ? frameworkBundleBytes / baselineBytes : 1;
   const budgetMode = plan.sizeBudgetMode || 'strict';
   const enforced = plan.profile !== 'debug' && budgetMode === 'strict';
-  const ok = (enforced ? baselineBytes > 0 && bundleBytes < baselineBytes : true) && cssWithinBudget;
+  const frameworkWithinBudget = enforced ? baselineBytes > 0 && frameworkBundleBytes < baselineBytes : true;
+  const ok = frameworkWithinBudget && cssWithinBudget && appServicesWithinBudget;
 
   return {
     schema: MARACA_SIZE_BUDGET_REPORT_SCHEMA,
     ok,
     status: !cssWithinBudget
       ? 'css_over_budget'
+      : !appServicesWithinBudget
+      ? 'app_services_over_budget'
       : enforced
       ? (ok ? 'within_budget' : 'over_budget')
       : (budgetMode === 'off' ? 'disabled' : plan.profile === 'debug' ? 'debug_not_enforced' : 'warning_not_enforced'),
@@ -8748,6 +9183,20 @@ function createMaracaSizeBudgetReport(input) {
     },
     baselineBytes,
     bundleBytes,
+    framework: {
+      bytes: frameworkBundleBytes,
+      baselineBytes,
+      withinBudget: frameworkWithinBudget
+    },
+    appServices: {
+      clientBytes: clientAppServiceBytes,
+      clientBudgetBytes,
+      clientWithinBudget,
+      serverBytes: serverAppServiceBytes,
+      serverBudgetBytes,
+      serverWithinBudget,
+      withinBudget: appServicesWithinBudget
+    },
     css: {
       provider: plan.cssBuild && plan.cssBuild.resolvedProvider || DEFAULT_CSS_PROVIDER,
       bytes: cssBytes,
@@ -8762,7 +9211,10 @@ function createMaracaSizeBudgetReport(input) {
     ratio,
     budgets: {
       modernEsmEntryMustBeSmallerThanBaseline: enforced,
-      enforcement: budgetMode
+      enforcement: budgetMode,
+      frameworkBytes: baselineBytes,
+      clientAppServiceBytes: clientBudgetBytes,
+      serverAppServiceBytes: serverBudgetBytes
     }
   };
 }
@@ -8844,6 +9296,16 @@ function buildMaracaBundle(input = {}, options = {}) {
       bundleReport: null,
       sizeBudgetReport: null
     };
+  }
+
+  if (plan.services && plan.services.enabled) {
+    const diagnostic = {
+      code: 'xtend.maraca.services.async_build_required',
+      severity: 'error',
+      message: 'TypeScript AppServices require buildMaracaBundleAsync() with the Rollup toolchain.'
+    };
+    plan.diagnostics.push(diagnostic);
+    return { schema: MARACA_BUNDLE_REPORT_SCHEMA, ok: false, status: 'service_build_requires_rollup', plan, bundleReport: null, sizeBudgetReport: null };
   }
 
   fs.mkdirSync(plan.outputDir, { recursive: true });
@@ -8938,6 +9400,24 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   }
 
   fs.mkdirSync(plan.outputDir, { recursive: true });
+  const rollupTool = requireOptional('rollup', plan.rootDir);
+  const serviceBuildReport = await buildMaracaServiceArtifacts(plan.services, {
+    rollupModule: rollupTool.available ? rollupTool.module : null
+  });
+  if (!serviceBuildReport.ok) {
+    return {
+      schema: MARACA_BUNDLE_REPORT_SCHEMA,
+      ok: false,
+      status: 'service_build_failed',
+      plan: {
+        ...plan,
+        diagnostics: plan.diagnostics.concat(serviceBuildReport.diagnostics || [])
+      },
+      serviceBuildReport,
+      bundleReport: null,
+      sizeBudgetReport: null
+    };
+  }
   const kernelRuntimeAsset = copyKernelRuntimeAsset(plan);
   const kernelControllerRuntimeAsset = copyKernelControllerRuntimeAsset(plan);
   const rawSource = createBundleSource(plan, cssResult.cssText);
@@ -9001,12 +9481,14 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   const sizeBudgetReport = createMaracaSizeBudgetReport({
     plan,
     entryPath: entryFile.path,
-    entryBytes: bundleBytes
+    entryBytes: bundleBytes,
+    bundleFiles: rollupResult.files
   });
   const bundleReport = createBundleReport(plan, rollupResult.files, sizeBudgetReport, {
     activeToolchain: 'rollup-terser',
     warnings: rollupResult.warnings,
     nameCache: rollupResult.nameCache,
+    serviceBuildReport,
     webAppManifestReport: webAppManifestArtifacts.report,
     pwaReport: pwaArtifacts.report
   });
@@ -9019,12 +9501,14 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
     ok: bundleReport.ok && sizeBudgetReport.ok,
     status: bundleReport.ok && sizeBudgetReport.ok ? 'built' : 'built_over_budget',
     plan,
+    serviceBuildReport,
     bundleReport,
     sizeBudgetReport
   };
 }
 
 const MARACA_TUNE_SEMANTIC_KEYS = Object.freeze([
+  'services',
   'orchestration',
   'kernel',
   'kernelBootMode',
@@ -9062,7 +9546,7 @@ function maracaTunePreference(candidate) {
 }
 
 function compareMaracaTuneCandidates(left, right) {
-  const metrics = ['eagerBytes', 'totalBytes', 'eagerRequests', 'chunkCount'];
+  const metrics = ['frameworkBytes', 'appServiceBytes', 'eagerBytes', 'totalBytes', 'eagerRequests', 'chunkCount'];
   for (const metric of metrics) {
     const delta = Number(left.metrics[metric] || 0) - Number(right.metrics[metric] || 0);
     if (delta !== 0) return delta;
@@ -9105,6 +9589,9 @@ function maracaTuneCandidateRecord(result, requested) {
           ? 'size-budget-failed'
           : (diagnostics.length > 0 ? 'diagnostics-failed' : 'accepted'))),
     metrics: {
+      frameworkBytes: Number(result && result.sizeBudgetReport && result.sizeBudgetReport.framework && result.sizeBudgetReport.framework.bytes || 0),
+      appServiceBytes: Number(result && result.sizeBudgetReport && result.sizeBudgetReport.appServices && result.sizeBudgetReport.appServices.clientBytes || 0),
+      serverAppServiceBytes: Number(result && result.sizeBudgetReport && result.sizeBudgetReport.appServices && result.sizeBudgetReport.appServices.serverBytes || 0),
       eagerBytes: files.filter((file) => file && file.isDynamicEntry !== true).reduce((sum, file) => sum + Number(file.bytes || 0), 0),
       totalBytes: Number(report && report.bytes || 0),
       cssBytes: Number(result && result.sizeBudgetReport && result.sizeBudgetReport.css && result.sizeBudgetReport.css.bytes || 0),
@@ -9123,6 +9610,7 @@ function createMaracaTuneConfig(input = {}) {
     schema: MARACA_BUILD_CONFIG_SCHEMA,
     source: input.source,
     sourceFingerprint: input.sourceFingerprint,
+    serviceGraphFingerprint: input.serviceGraphFingerprint || null,
     output: input.output,
     selected: input.selected,
     locked: input.locked,
@@ -9198,8 +9686,10 @@ async function tuneMaracaBuild(input = {}, options = {}) {
 
   const sourceText = typeof normalized.sourceText === 'string' ? normalized.sourceText : fs.readFileSync(normalized.sourcePath, 'utf8');
   const sourceFingerprint = hashText(sourceText);
+  const serviceGraphFingerprint = createMaracaServiceSourceFingerprint(normalized.services, rootDir);
   const outputDir = normalized.outputDir;
   const semanticOptions = {
+    services: normalized.services,
     orchestration: normalized.orchestration,
     kernel: normalized.kernel,
     kernelBootMode: normalized.kernelBootMode,
@@ -9229,6 +9719,7 @@ async function tuneMaracaBuild(input = {}, options = {}) {
   });
   const candidateMatrixFingerprint = hashText(stableJson({
     sourceFingerprint,
+    serviceGraphFingerprint,
     semanticOptions,
     candidates: candidateDefinitions,
     toolchain: { rollup: toolchain.rollup.version || null, terser: toolchain.terser.version || null }
@@ -9278,6 +9769,7 @@ async function tuneMaracaBuild(input = {}, options = {}) {
   const config = selected ? createMaracaTuneConfig({
     source: sourceRef,
     sourceFingerprint,
+    serviceGraphFingerprint,
     output: outputRef,
     selected: { profile: selected.profile, lazy: selected.lazy, css: selected.css },
     locked: MARACA_TUNE_SEMANTIC_KEYS.reduce((record, key) => {
@@ -9377,10 +9869,14 @@ module.exports = {
   MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA,
   MARACA_BUILD_CONFIG_SCHEMA,
   MARACA_TUNE_REPORT_SCHEMA,
+  MARACA_APP_SERVICE_MANIFEST_SCHEMA,
+  MARACA_SERVICE_BUILD_PLAN_SCHEMA,
+  MARACA_SERVICE_BUILD_REPORT_SCHEMA,
   COMPONENT_UNKNOWN_CODE,
   COMPONENT_DYNAMIC_CODE,
   DEFAULT_SOURCE,
   createMaracaBuildPlan,
+  createMaracaServiceBuildPlan,
   buildMaracaBundle,
   buildMaracaBundleAsync,
   tuneMaracaBuild,

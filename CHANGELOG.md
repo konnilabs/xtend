@@ -2,11 +2,15 @@
 
 Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend ist fuer RC1-Publish-Prep auf `private: false` geoeffnet; der eigentliche Publish-Befehl bleibt ein separater manueller Owner-Schritt.
 
-## Unreleased
+## 0.5.0 - 2026-07-19
 
+- Stage-A-Node-Matrix fuer CI, Nightly und native Produkt-Smokes eingefuehrt: `24.18.0` ist die primaere Runtime, `26.5.0` die verpflichtende Current-Lane, npm ist auf `11.17.0` gepinnt und jede Lane liefert eigene Runtime-Evidence sowie Artefakte nach `{artifactSuffix}` beziehungsweise `${{ matrix.artifact_suffix }}`. Der manuell freigegebene npm-Publish bleibt auf Node `24.18.0` und `xtend-npm-publish-latest-evidence-node-24-18-0` begrenzt.
 - Breaking: Der Root-Import `@ccslabs/xtend` ist jetzt eine ESM-Registry mit kompakten Scheduling-, Rendering-, State- und Runtime-Aliasen sowie einem SSR-sicheren Einstieg. XTend Classic bleibt unter `@ccslabs/xtend/loader` verfügbar; die veraltete generierte `xtend.js`-Komponentenimplementierung wurde entfernt.
 - TypeScript-DX der ESM-Registry um opt-in App-/Store-Generics, geprüfte DOM-Descriptoren, einen DOM-neutralen NodeNext-Typvertrag und eine Vite-basierte TS-App-Demo erweitert.
 - XTend Material als `supported-opt-in` Fast Path dokumentiert: zweisprachiger Quick Start, bidirektionale Migration, Compatibility Matrix, SemVer Policy, Package-Changelogs und Tailwind-Upgrade-Runbook ergänzen die XTM-00-bis-XTM-12-Evidence; ein Framework-Default bleibt ohne separaten ADR ausgeschlossen.
+- Maraca AppServices als kanonische RMT-/Business-Logic-Grenze ergänzt: generierte `services.ts`-/Node-/PHP-Ziele, striktes TypeScript-Program-Typechecking, getrennte Rollup-Graphen, versioniertes JSON/NDJSON, zentrale Abort-/Concurrency-/Stream-Semantik, Service-Manifeste und getrennte App-/Framework-Budgets.
+- XScaler als öffentliche, typisierte `@ccslabs/xtend/xscaler`-API mit JSON-Schemas, PHP-Preflight-Parität, SRI-/CSP-konformem Remote-Adapter-Loader, ATC-Lifecycle und SSR-Preflight-only-Hydration stabilisiert; XSurface Shard verwendet denselben öffentlichen Vertrag.
+- Provider-neutralen RMT-App-Scaffold samt XTM-Overlay und XTend-LLM-Catfood-Migration ergänzt; neue Apps benötigen kein manuelles Maraca-Boot-/DOM-/Adapter-Wiring und bestehende Adapter bleiben über den diagnostizierten Compatibility-Modus nutzbar.
 - SchemaDB v2 ergaenzt authoritative Fingerprints, Versionsfamilien, Lifecycle-, Alias- und Konsolidierungsentscheidungen sowie einen maschinenlesbaren Dubletten-Audit.
 - Die identischen Chart-, Leaflet-, React-, Three- und Vue-Cleanup-Records werden unter `xtend.xtensions.host-resource-cleanup-record.v1` gebuendelt. Die bisherigen IDs bleiben fuer zwei Minor-Warnfenster als exakte Aliase lesbar; ihre Entfernung ist fruehestens in einem folgenden Major erlaubt.
 - `xtend.xtensions.host-controller-cleanup-record.v1` bleibt als separater sechs-feldriger Vertrag ohne `xtensionId` bestehen.

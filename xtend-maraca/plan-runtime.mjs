@@ -56,6 +56,8 @@ export function createMaracaPlanRuntime(options = {}) {
   const plan = asRecord(options.plan);
   const root = options.root;
   const hostServices = Object.freeze({ ...asRecord(options.hostServices) });
+  const hostServiceRegistry = options.hostServiceRegistry || (typeof options.hostServices?.invoke === 'function' ? options.hostServices : null);
+  const dataSourceAdapters = Object.freeze({ ...asRecord(options.dataSourceAdapters) });
   const diagnostics = [];
   const subscriptions = new Set();
   const disposers = new Set();
@@ -295,7 +297,8 @@ export function createMaracaPlanRuntime(options = {}) {
       const action = actionFactory ? actionFactory({
         actions: asRecord(artifact.actions).actions || [], dataSources: asRecord(artifact.actions).dataSources || [],
         effects: asRecord(artifact.actions).effects || [], resources: artifact.resources || [], stateRuntime: state,
-        hostServices
+        hostServiceRegistry,
+        dataSourceAdapters
       }) : null;
       const transitions = transitionFactory && asRecord(plan.transitions).enabled ? transitionFactory({
         transitionPlan: asRecord(plan.transitions).artifact, root, kernelController: kernel,

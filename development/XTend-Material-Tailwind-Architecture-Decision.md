@@ -94,7 +94,7 @@ Die Dependency wird wie folgt klassifiziert:
 | CDN/Remote Load | nicht erlaubt |
 | Lock und Evidence | exakte aufgeloeste Version und Integrity erforderlich |
 
-XTM-03 pinnt `@tailwindcss/node` `4.3.2` im Adapter `@xtend-material/maraca-tailwind`. Die Node-API liefert den lokalen Compiler, CSS-Import-Resolver und Lightning-CSS-Optimierer. `@tailwindcss/cli` wird nicht installiert, weil Maraca weder `npx` noch Build-Subprozesse benoetigt. `@tailwindcss/oxide` bleibt keine direkte Adapter-Abhaengigkeit, damit die Node-18-Engine-Grenze des Frameworks nicht durch den Node-20-Scanner angehoben wird; die owned RMT-Source-Inventarisierung folgt in XTM-04.
+XTM-03 pinnt `@tailwindcss/node` `4.3.2` im Adapter `@xtend-material/maraca-tailwind`. Die Node-API liefert den lokalen Compiler, CSS-Import-Resolver und Lightning-CSS-Optimierer. `@tailwindcss/cli` wird nicht installiert, weil Maraca weder `npx` noch Build-Subprozesse benoetigt. `@tailwindcss/oxide` bleibt trotz der Stage-A-Floor Node 24 keine direkte Adapter-Abhaengigkeit: Native Scanner-Ownership, Lock- und Plattform-Evidence bleiben beim Upstream-Paket; die owned RMT-Source-Inventarisierung folgt in XTM-04.
 
 ## Latest-Stable Policy
 

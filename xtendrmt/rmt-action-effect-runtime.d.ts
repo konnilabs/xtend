@@ -95,7 +95,8 @@ export interface RmtResourceManager {
 export interface RmtActionEffectRuntime {
   schema: typeof RMT_ACTION_EFFECT_RUNTIME_SCHEMA;
   runAction(actionId: string, payload?: Record<string, unknown>, metadata?: Record<string, unknown>): Promise<RmtActionResult>;
-  cancelAction(actionId: string): { schema: 'xtend.epic18.rmt-action-cancel.v1'; action: string; cancelled: number };
+  cancelAction(actionId: string, reason?: string): { schema: 'xtend.epic18.rmt-action-cancel.v1'; action: string; cancelled: number };
+  dispose(reason?: string): { schema: 'xtend.epic18.rmt-action-runtime-dispose.v1'; cancelled: number; reason: string };
   runEffect(effectId: string, context?: Record<string, unknown>): Promise<unknown>;
   resourceManager: RmtResourceManager;
   listActions(): RmtActionDefinition[];

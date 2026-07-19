@@ -2,10 +2,16 @@
   "schema": "xtend.xscaler.remote-surface-plan.v1",
   "protocol": "xscaler",
   "surface": "checkout.cart",
+  "surfaceId": "remoteSurface:checkout.cart",
   "owner": "checkout-platform",
   "origin": "https://cdn.xtend.example",
-  "integrity": { "algorithm": "sha256", "digest": "abc123" },
+  "integrity": { "algorithm": "sha256", "digest": "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" },
   "fallbackSurface": "checkout.cart.fallback",
   "lanes": [{ "lane": "visible", "target": "shell.slot:checkout" }],
-  "ssr": { "mode": "preflight-only", "networkDuringRender": false }
+  "ssr": { "mode": "preflight-only", "networkDuringRender": false },
+  "runtimeBoundary": {
+    "remoteRuntimeExecution": false,
+    "kernelRemoteExecution": false,
+    "networkRequiredByKernel": false
+  }
 }

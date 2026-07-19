@@ -1117,7 +1117,7 @@ body {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 20px;
 }
 
 .xtend-llm-reset-confirmation[hidden] {

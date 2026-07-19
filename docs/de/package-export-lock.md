@@ -4,9 +4,9 @@ Der Package Export Lock ist die lokale Prüfung für die veröffentlichte XTend 
 
 ## Export Surface
 
-Der Lock umfasst ESM-Registry, Loader, Components, Maraca, Fabric, XTendRMT, Builder, Docs, Security, Catalog, Design Tokens und RMT Tooling. Die Registry besitzt `.` und `./registry`, mit `xtend.js` plus `xtend.d.ts` für Browser und `xtend.ssr.mjs` plus `xtend.ssr.d.ts` für Node/SSR. Classic bleibt explizit unter `./loader`. Neue Public Exports müssen bewusst im Package-Export-Catalog, in `package.json`, TypeExports, Changelog, README und dieser Dokumentation nachgezogen werden.
+Der Lock umfasst ESM-Registry, Loader, Components, Maraca, XScaler, Fabric, XTendRMT, Builder, Docs, Security, Catalog, Design Tokens und RMT Tooling. Die Registry besitzt `.` und `./registry`, mit `xtend.js` plus `xtend.d.ts` für Browser und `xtend.ssr.mjs` plus `xtend.ssr.d.ts` für Node/SSR. Classic bleibt explizit unter `./loader`. Neue Public Exports müssen bewusst im Package-Export-Catalog, in `package.json`, TypeExports, Changelog, README und dieser Dokumentation nachgezogen werden.
 
-Maraca ist als eigene Surface Group enthalten und deckt `./maraca`, `./maraca/runtime` und den Pack Root `xtend-maraca` ab. TypeExports klassifiziert diese Einträge über `./xtend-maraca/index.d.ts` und `./xtend-maraca/runtime.d.ts`. Für i18n gilt dasselbe Prinzip: Infrastrukturmodule werden im Manifest erkannt, aber nicht als visuelle Custom Elements behandelt.
+Maraca ist als eigene Surface Group enthalten und deckt auch die AppServices-, Server-Host- und Build-Provider-Exports im Pack Root `xtend-maraca` ab. XScaler bildet eine separate Surface Group mit nativen ESM-/CommonJS-Einstiegen, Deklarationen und den JSON-Schemas unter `./xscaler/schemas/*`; der PHP-Preflight-Evaluator wird gepackt, aber nicht als JavaScript-Subpath exportiert.
 
 ## Artefakte
 
@@ -18,7 +18,7 @@ report: xtend.epic13.package-export-lock-report.v1
 surface: xtend.epic13.package-export-surface.v1
 local gate: node scripts/run_xtend_tests.js epic13-package-export-lock --json
 capture: npm run pack:dry-run:report
-expectedExportCount: 165
+expectedExportCount: 174
 ```
 
 ```txt

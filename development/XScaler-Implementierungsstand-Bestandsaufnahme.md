@@ -77,7 +77,7 @@ Der RMT-Kernel und die Surface-Runtime besitzen starke Remote-Surface-, Policy-,
 | `xtendrmt/rmt-runtime.esm.js` | Remote-Surface-Policy-Bridge: `applyRemoteSurfacePolicy`, `registerRemoteSurface`, `governRemoteSurfaceEvent` |
 | `xtendrmt/rmt-core.esm.js` | Gleicher Remote-Surface-Policy-Pfad im Core-Bundle |
 | `xsurface-shard/index.js` | Server-seitige Shard-Orchestration und ATC-kompatibles Handoff |
-| `xsurface-shard/index.d.ts` | Typisiert `atc.protocol: "xscaler-atc-compatible"` |
+| `xsurface-shard/index.d.ts` | Typisiert den vollstaendigen oeffentlichen `XScalerAtcHandoff` mit `protocol: "xscaler"` |
 | `xsurface-shard/README.md` | Beschreibt XScaler-ATC-kompatible Handoff-Records und No-Remote-Execution-Boundary |
 | `tests/xsurface/xsurface_shard_suite.js` | Gate fuer Shard-Plan, Lifecycle, ATC-Handoff und Package-Export |
 
@@ -145,7 +145,7 @@ Das ist der konkreteste laufende XScaler-Use-Case in der Codebase.
 ```json
 {
   "atc": {
-    "protocol": "xscaler-atc-compatible"
+    "protocol": "xscaler"
   }
 }
 ```
@@ -198,7 +198,7 @@ Die Kernregel bleibt: XScaler darf Remote-Code nicht im RMT-Kernel ausfuehren. P
 4. Preflight-Evaluator bauen: Input sind Host-Capabilities, Remote-Surface-Manifest, Remote-Security-Report, Degradation-Report, optional Enterprise Registry.
 5. Testbench auf das kanonische Modul umstellen, damit Demo-Schemas nicht neben den Gate-Schemas driften.
 6. ATC-Contract konkretisieren: Session-ID, handoff signal, lifecycle state, fallback activation, cancel/detach semantics, diagnostics.
-7. XSurface Shard an den gemeinsamen ATC-Contract ankoppeln, statt nur `xscaler-atc-compatible` als String zu tragen.
+7. XSurface Shard an den gemeinsamen ATC-Contract ankoppeln und den vollstaendigen kanonischen Handoff statt eines blossen Compatibility-Strings tragen. **Erledigt.**
 8. Public API und Types definieren, falls XScaler extern nutzbar werden soll: Package Export, `.d.ts`, Root Package Export Lock, Test-Gate.
 9. End-to-End-Gate ergaenzen: Remote Manifest -> XScaler Preflight -> XSurface ATC Handoff -> Lazy Surface/Fragment Evidence.
 

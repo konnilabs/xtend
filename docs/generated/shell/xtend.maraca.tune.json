@@ -7,7 +7,7 @@
   "configPath": "docs/maraca.config.json",
   "reportPath": "docs/generated/shell/xtend.maraca.tune.json",
   "output": "docs/generated/shell",
-  "candidateMatrixFingerprint": "c998f8adef1e229066a5a524f5ff4fbb60828608e7293a3066f9dc2a1329824e",
+  "candidateMatrixFingerprint": "d50c8cf9dd8cc89f592b1cfcc1aa59a7e1c06c80e857f16e5f05596e2f2e6824",
   "candidateCount": 12,
   "acceptedCandidateCount": 12,
   "candidates": [
@@ -20,9 +20,13 @@
       "status": "built",
       "reason": "accepted",
       "metrics": {
-        "eagerBytes": 1836436,
-        "totalBytes": 2043873,
-        "eagerRequests": 3,
+        "frameworkBytes": 2062889,
+        "appServiceBytes": 0,
+        "serverAppServiceBytes": 0,
+        "eagerBytes": 1848784,
+        "totalBytes": 2062889,
+        "cssBytes": 255,
+        "eagerRequests": 4,
         "chunkCount": 8
       },
       "toolchain": "rollup-terser",
@@ -39,9 +43,13 @@
       "status": "built",
       "reason": "accepted",
       "metrics": {
-        "eagerBytes": 1836578,
-        "totalBytes": 2044020,
-        "eagerRequests": 4,
+        "frameworkBytes": 2063115,
+        "appServiceBytes": 0,
+        "serverAppServiceBytes": 0,
+        "eagerBytes": 1849007,
+        "totalBytes": 2063115,
+        "cssBytes": 255,
+        "eagerRequests": 5,
         "chunkCount": 8
       },
       "toolchain": "rollup-terser",
@@ -58,9 +66,13 @@
       "status": "built",
       "reason": "accepted",
       "metrics": {
-        "eagerBytes": 1836580,
-        "totalBytes": 2044017,
-        "eagerRequests": 3,
+        "frameworkBytes": 2063033,
+        "appServiceBytes": 0,
+        "serverAppServiceBytes": 0,
+        "eagerBytes": 1848928,
+        "totalBytes": 2063033,
+        "cssBytes": 255,
+        "eagerRequests": 4,
         "chunkCount": 8
       },
       "toolchain": "rollup-terser",
@@ -77,9 +89,13 @@
       "status": "built",
       "reason": "accepted",
       "metrics": {
-        "eagerBytes": 1836722,
-        "totalBytes": 2044164,
-        "eagerRequests": 4,
+        "frameworkBytes": 2063259,
+        "appServiceBytes": 0,
+        "serverAppServiceBytes": 0,
+        "eagerBytes": 1849151,
+        "totalBytes": 2063259,
+        "cssBytes": 255,
+        "eagerRequests": 5,
         "chunkCount": 8
       },
       "toolchain": "rollup-terser",
@@ -96,9 +112,13 @@
       "status": "built",
       "reason": "accepted",
       "metrics": {
-        "eagerBytes": 2041721,
-        "totalBytes": 2041721,
-        "eagerRequests": 3,
+        "frameworkBytes": 2060751,
+        "appServiceBytes": 0,
+        "serverAppServiceBytes": 0,
+        "eagerBytes": 2060751,
+        "totalBytes": 2060751,
+        "cssBytes": 255,
+        "eagerRequests": 4,
         "chunkCount": 1
       },
       "toolchain": "rollup-terser",
@@ -115,9 +135,13 @@
       "status": "built",
       "reason": "accepted",
       "metrics": {
-        "eagerBytes": 2041865,
-        "totalBytes": 2041865,
-        "eagerRequests": 4,
+        "frameworkBytes": 2060976,
+        "appServiceBytes": 0,
+        "serverAppServiceBytes": 0,
+        "eagerBytes": 2060976,
+        "totalBytes": 2060976,
+        "cssBytes": 255,
+        "eagerRequests": 5,
         "chunkCount": 1
       },
       "toolchain": "rollup-terser",
@@ -134,9 +158,13 @@
       "status": "built",
       "reason": "accepted",
       "metrics": {
-        "eagerBytes": 1835863,
-        "totalBytes": 2032433,
-        "eagerRequests": 3,
+        "frameworkBytes": 2050515,
+        "appServiceBytes": 0,
+        "serverAppServiceBytes": 0,
+        "eagerBytes": 1848211,
+        "totalBytes": 2050515,
+        "cssBytes": 255,
+        "eagerRequests": 4,
         "chunkCount": 8
       },
       "toolchain": "rollup-terser",
@@ -153,9 +181,13 @@
       "status": "built",
       "reason": "accepted",
       "metrics": {
-        "eagerBytes": 1836005,
-        "totalBytes": 2032580,
-        "eagerRequests": 4,
+        "frameworkBytes": 2050741,
+        "appServiceBytes": 0,
+        "serverAppServiceBytes": 0,
+        "eagerBytes": 1848434,
+        "totalBytes": 2050741,
+        "cssBytes": 255,
+        "eagerRequests": 5,
         "chunkCount": 8
       },
       "toolchain": "rollup-terser",
@@ -172,9 +204,13 @@
       "status": "built",
       "reason": "accepted",
       "metrics": {
-        "eagerBytes": 1836007,
-        "totalBytes": 2032577,
-        "eagerRequests": 3,
+        "frameworkBytes": 2050659,
+        "appServiceBytes": 0,
+        "serverAppServiceBytes": 0,
+        "eagerBytes": 1848355,
+        "totalBytes": 2050659,
+        "cssBytes": 255,
+        "eagerRequests": 4,
         "chunkCount": 8
       },
       "toolchain": "rollup-terser",
@@ -191,9 +227,13 @@
       "status": "built",
       "reason": "accepted",
       "metrics": {
-        "eagerBytes": 1836149,
-        "totalBytes": 2032724,
-        "eagerRequests": 4,
+        "frameworkBytes": 2050885,
+        "appServiceBytes": 0,
+        "serverAppServiceBytes": 0,
+        "eagerBytes": 1848578,
+        "totalBytes": 2050885,
+        "cssBytes": 255,
+        "eagerRequests": 5,
         "chunkCount": 8
       },
       "toolchain": "rollup-terser",
@@ -210,9 +250,13 @@
       "status": "built",
       "reason": "accepted",
       "metrics": {
-        "eagerBytes": 2030331,
-        "totalBytes": 2030331,
-        "eagerRequests": 3,
+        "frameworkBytes": 2048433,
+        "appServiceBytes": 0,
+        "serverAppServiceBytes": 0,
+        "eagerBytes": 2048433,
+        "totalBytes": 2048433,
+        "cssBytes": 255,
+        "eagerRequests": 4,
         "chunkCount": 1
       },
       "toolchain": "rollup-terser",
@@ -229,9 +273,13 @@
       "status": "built",
       "reason": "accepted",
       "metrics": {
-        "eagerBytes": 2030475,
-        "totalBytes": 2030475,
-        "eagerRequests": 4,
+        "frameworkBytes": 2048658,
+        "appServiceBytes": 0,
+        "serverAppServiceBytes": 0,
+        "eagerBytes": 2048658,
+        "totalBytes": 2048658,
+        "cssBytes": 255,
+        "eagerRequests": 5,
         "chunkCount": 1
       },
       "toolchain": "rollup-terser",
@@ -241,25 +289,30 @@
     }
   ],
   "selected": {
-    "id": "max-route-inline",
+    "id": "max-none-inline",
     "profile": "max",
-    "lazy": "route",
+    "lazy": "none",
     "css": "inline",
     "metrics": {
-      "eagerBytes": 1835863,
-      "totalBytes": 2032433,
-      "eagerRequests": 3,
-      "chunkCount": 8
+      "frameworkBytes": 2048433,
+      "appServiceBytes": 0,
+      "serverAppServiceBytes": 0,
+      "eagerBytes": 2048433,
+      "totalBytes": 2048433,
+      "cssBytes": 255,
+      "eagerRequests": 4,
+      "chunkCount": 1
     }
   },
   "config": {
     "schema": "xtend.maraca.build-config.v1",
     "source": "docs/xtendrmt-docs-shell-vnext.rmt",
     "sourceFingerprint": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+    "serviceGraphFingerprint": null,
     "output": "docs/generated/shell",
     "selected": {
       "profile": "max",
-      "lazy": "route",
+      "lazy": "none",
       "css": "inline"
     },
     "locked": {
@@ -276,13 +329,19 @@
       "enablePwa": false,
       "enableServiceWorker": false,
       "enableWebAppManifest": false,
-      "allowDynamicComponents": false
+      "allowDynamicComponents": false,
+      "cssProvider": "maraca-native",
+      "cssInput": null,
+      "cssSources": [],
+      "cssPreflight": "disabled",
+      "cssBudget": null,
+      "cssProviderFallback": "none"
     },
     "options": {
       "source": "docs/xtendrmt-docs-shell-vnext.rmt",
       "out": "docs/generated/shell",
       "profile": "max",
-      "lazy": "route",
+      "lazy": "none",
       "css": "inline",
       "sizeBudget": "strict",
       "orchestration": "auto",
@@ -298,20 +357,26 @@
       "enablePwa": false,
       "enableServiceWorker": false,
       "enableWebAppManifest": false,
-      "allowDynamicComponents": false
+      "allowDynamicComponents": false,
+      "cssProvider": "maraca-native",
+      "cssInput": null,
+      "cssSources": [],
+      "cssPreflight": "disabled",
+      "cssBudget": null,
+      "cssProviderFallback": "none"
     },
     "toolchain": {
       "rollup": "4.60.4",
       "terser": "5.48.0",
       "mode": "rollup-terser"
     },
-    "candidateMatrixFingerprint": "c998f8adef1e229066a5a524f5ff4fbb60828608e7293a3066f9dc2a1329824e",
-    "configFingerprint": "28872382a13e85d1d338fca63e60e144bbe94c6dc72f5c9316ada31ab4105352"
+    "candidateMatrixFingerprint": "d50c8cf9dd8cc89f592b1cfcc1aa59a7e1c06c80e857f16e5f05596e2f2e6824",
+    "configFingerprint": "0a593bcf820f9c98fb9ed5b03405ad6c29b8d723dfbeca40209cf3c37b1a1de8"
   },
   "configMatches": true,
   "finalBuild": {
     "status": "built",
-    "bytes": 2031801,
+    "bytes": 2047844,
     "entry": "docs/generated/shell/xtend.maraca.mjs",
     "toolchain": "rollup-terser"
   },

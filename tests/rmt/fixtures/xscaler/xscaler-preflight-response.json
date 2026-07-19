@@ -11,6 +11,41 @@
     "xtensionDeployment": "allowed"
   },
   "requiredAnchors": ["#schemas", "#ssr-kompatibilitaet", "#xtensions-deployment"],
+  "remoteSurfacePlan": {
+    "schema": "xtend.xscaler.remote-surface-plan.v1",
+    "protocol": "xscaler",
+    "surface": "checkout.cart",
+    "surfaceId": "remoteSurface:checkout.cart",
+    "owner": "checkout-platform",
+    "origin": "https://cdn.xtend.example",
+    "integrity": { "algorithm": "sha256", "digest": "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" },
+    "fallbackSurface": "checkout.cart.fallback",
+    "lanes": [{ "lane": "visible", "target": "shell.slot:checkout" }],
+    "ssr": { "mode": "preflight-only", "networkDuringRender": false },
+    "runtimeBoundary": {
+      "remoteRuntimeExecution": false,
+      "kernelRemoteExecution": false,
+      "networkRequiredByKernel": false
+    }
+  },
+  "atc": {
+    "schema": "xtend.xscaler.atc-handoff.v1",
+    "protocol": "xscaler",
+    "surfaceId": "remoteSurface:checkout.cart",
+    "sessionId": "xscaler:remoteSurface:checkout.cart",
+    "handoffSignal": "attach",
+    "lifecycleState": "attach",
+    "accepted": true,
+    "ok": true,
+    "status": "ready",
+    "fallback": { "surface": "checkout.cart.fallback" },
+    "runtimeBoundary": {
+      "remoteRuntimeExecution": false,
+      "kernelRemoteExecution": false,
+      "networkRequiredByHandoff": false
+    },
+    "diagnostics": []
+  },
   "rejection": null,
   "diagnostics": []
 }

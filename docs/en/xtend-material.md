@@ -29,7 +29,7 @@ The current support status means the documented package exports, recipes, themes
 
 ## Create your first app
 
-You need Node.js 18 or newer and a local XTend checkout or installed XTend packages. The scaffold command creates eight artifacts: RMT source, a Tailwind input, an HTML host, a runtime host, the DEV API bridge, a Maraca config, package metadata and a smoke test.
+You need Node.js 24 or newer and a local XTend checkout or installed XTend packages. With the default `--server both`, the scaffold command creates twelve artifacts: RMT source, Tailwind input, typed browser and Node AppServices, a PHP callable registry, strict TypeScript config, HTML/runtime hosts, the DEV API bridge, Maraca config, package metadata, and a smoke test. Use `--server none`, `node`, or `php` to omit unneeded backend targets.
 
 ```bash
 xt create app --runtime maraca --design-kit material --name operations-console --out operations-console --write
@@ -174,11 +174,11 @@ If a product needs a reusable visual pattern that the registry lacks, first comp
 
 | Area | Supported contract |
 | --- | --- |
-| Node.js | 18 or newer |
+| Node.js | 24 or newer |
 | Tailwind CSS | exact reviewed baseline `4.3.2` |
 | XTend Material | `@xtend-material/core` `0.1.x` |
 | Maraca adapter | `@xtend-material/maraca-tailwind` `0.1.x` |
-| XTend / Maraca peers | `^0.3.1` |
+| XTend / Maraca peers | `^0.5.0` |
 | Browser Tailwind runtime | not supported |
 | Tailwind Preflight | disabled |
 | Native CSS provider exit | supported |

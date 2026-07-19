@@ -4,9 +4,9 @@ The Package Export Lock is the local check for XTend's published package surface
 
 ## Export Surface
 
-The lock covers the ESM Registry, Loader, Components, Maraca, Fabric, XTendRMT, Builder, Docs, Security, Catalog, Design Tokens and RMT Tooling. The registry owns `.` and `./registry`, with `xtend.js` plus `xtend.d.ts` for browsers and `xtend.ssr.mjs` plus `xtend.ssr.d.ts` for Node/SSR. Classic remains explicit at `./loader`. New public exports must be added deliberately to the package export catalog, `package.json`, TypeExports, the changelog, README and this documentation.
+The lock covers the ESM Registry, Loader, Components, Maraca, XScaler, Fabric, XTendRMT, Builder, Docs, Security, Catalog, Design Tokens and RMT Tooling. The registry owns `.` and `./registry`, with `xtend.js` plus `xtend.d.ts` for browsers and `xtend.ssr.mjs` plus `xtend.ssr.d.ts` for Node/SSR. Classic remains explicit at `./loader`. New public exports must be added deliberately to the package export catalog, `package.json`, TypeExports, the changelog, README and this documentation.
 
-Maraca is tracked as its own surface group and covers `./maraca`, `./maraca/runtime` and the `xtend-maraca` package root. TypeExports classifies these entries through `./xtend-maraca/index.d.ts` and `./xtend-maraca/runtime.d.ts`. The same principle applies to i18n: infrastructure modules are recognized in the manifest, but they are not treated as visual Custom Elements.
+Maraca is tracked as its own surface group and also covers the AppServices, server-host and build-provider exports in the `xtend-maraca` package root. XScaler has a separate surface group with native ESM/CommonJS entry points, declarations and JSON schemas under `./xscaler/schemas/*`; the PHP preflight evaluator is packed without exposing it as a JavaScript subpath.
 
 ## Artifacts
 
@@ -18,7 +18,7 @@ report: xtend.epic13.package-export-lock-report.v1
 surface: xtend.epic13.package-export-surface.v1
 local gate: node scripts/run_xtend_tests.js epic13-package-export-lock --json
 capture: npm run pack:dry-run:report
-expectedExportCount: 165
+expectedExportCount: 174
 ```
 
 ```txt

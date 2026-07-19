@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.xtend.dev/xscaler/preflight-request.v1.schema.json",
+  "title": "XTend XScaler Preflight Request v1",
+  "type": "object",
+  "required": ["schema", "protocol", "requestId", "surface", "host", "capabilities", "constraints"],
+  "properties": {
+    "schema": { "const": "xtend.xscaler.preflight-request.v1" },
+    "protocol": { "const": "xscaler" },
+    "requestId": { "type": "string", "minLength": 1 },
+    "surface": { "type": "string", "minLength": 1 },
+    "host": {
+      "type": "object",
+      "required": ["runtime", "ssr", "xtensions"],
+      "properties": {
+        "runtime": { "type": "string", "minLength": 1 },
+        "ssr": { "type": "boolean" },
+        "xtensions": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+      },
+      "additionalProperties": true
+    },
+    "capabilities": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "contains": { "const": "remote-surface-plan" },
+      "uniqueItems": true
+    },
+    "constraints": {
+      "type": "object",
+      "required": ["allowNetworkDuringSsr"],
+      "properties": {
+        "allowNetworkDuringSsr": { "const": false },
+        "maxHydrationMs": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

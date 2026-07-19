@@ -12,6 +12,7 @@ export const RMT_NODE_SSR_STREAMING_CONTRACT_SCHEMA: 'xtend.rmt.vnext-streaming-
 export const RMT_NODE_SSR_KERNEL_BOUNDARY: 'no-rmt-kernel-import-of-xtend-types';
 export const RMT_SSR_CSP_POLICY_SCHEMA: 'xtend.rmt.ssr-csp-policy.v1';
 export const RMT_SSR_CSP_HEADER: 'Content-Security-Policy';
+export const RMT_XSCALER_SSR_HYDRATION_SCHEMA: 'xtend.xscaler.ssr-hydration.v1';
 
 export type RmtNodeSsrSeverity = 'info' | 'warning' | 'error' | 'fatal';
 
@@ -45,7 +46,17 @@ export interface RmtNodeSsrHydrationPayload {
   coreDocumentSchema?: string | null;
   streamingContractSchema?: string | null;
   cspPolicy?: RmtSsrCspPolicy;
+  xscaler: RmtXScalerSsrHydration;
   [key: string]: unknown;
+}
+
+export interface RmtXScalerSsrHydration {
+  schema: typeof RMT_XSCALER_SSR_HYDRATION_SCHEMA;
+  mode: 'preflight-only';
+  networkDuringRender: false;
+  remoteModuleExecuted: false;
+  count: number;
+  preflights: Array<Record<string, unknown>>;
 }
 
 export interface RmtSsrCspPolicy {
@@ -196,6 +207,8 @@ export interface RmtNodeSsrOptions {
   headers?: Record<string, string>;
   status?: number;
   signal?: AbortSignal;
+  xscalerPreflight?: Record<string, unknown>;
+  xscalerPreflights?: Array<Record<string, unknown>>;
   publishDiagnostic?: (diagnostic: RmtNodeSsrDiagnostic) => void;
   [key: string]: unknown;
 }
@@ -242,6 +255,7 @@ declare const api: {
   RMT_NODE_SSR_KERNEL_BOUNDARY: typeof RMT_NODE_SSR_KERNEL_BOUNDARY;
   RMT_SSR_CSP_POLICY_SCHEMA: typeof RMT_SSR_CSP_POLICY_SCHEMA;
   RMT_SSR_CSP_HEADER: typeof RMT_SSR_CSP_HEADER;
+  RMT_XSCALER_SSR_HYDRATION_SCHEMA: typeof RMT_XSCALER_SSR_HYDRATION_SCHEMA;
   createRmtNodeSsrAdapter: typeof createRmtNodeSsrAdapter;
 };
 

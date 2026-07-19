@@ -7,7 +7,6 @@ XTend Classic is the productive HTML- and JavaScript-first delivery path for XTe
 The package root now belongs to the [ESM Registry](./esm-registry.md). It does not start Classic. Package-based Classic hosts must use `@ccslabs/xtend/loader`; script-based hosts continue to include `xtend-loader.js` explicitly.
 
 ```js
-// Explicit Classic bootstrap in a package-managed browser app
 import '@ccslabs/xtend/loader';
 ```
 

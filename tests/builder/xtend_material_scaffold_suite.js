@@ -5,7 +5,7 @@ const fs = require('fs');
 const http = require('http');
 const path = require('path');
 const { createSuiteContext, printSuiteReport } = require('../utils/assertions');
-const { buildMaracaBundleAsync, createMaracaBuildPlan } = require('../../xtend-maraca');
+const { buildMaracaBundleAsync, createMaracaBuildPlan, tuneMaracaBuild } = require('../../xtend-maraca');
 const { runCli } = require('../../xtend-builder/lib/cli');
 const { getGeneratorRegistry } = require('../../xtend-builder/generators/registry');
 const {
@@ -69,12 +69,12 @@ async function runXtendMaterialScaffoldSuite(options = {}) {
     const generatorRegistry = getGeneratorRegistry();
     const templateRegistry = getTemplateRegistry();
     context.assert(generatorRegistry.generators.some((entry) => entry.id === 'material-app' && entry.command === 'create-app'), 'generator registry exposes the productive Material app preset');
-    MATERIAL_APP_TEMPLATES.forEach((definition) => context.assert(templateRegistry.templates.some((entry) => entry.artifact === definition.artifact && /^implemented-XTM-(?:09|14)$/u.test(entry.status)), `template registry exposes ${definition.artifact}`));
+    MATERIAL_APP_TEMPLATES.forEach((definition) => context.assert(templateRegistry.templates.some((entry) => entry.artifact === definition.artifact && /^implemented-(?:XTM-(?:09|14)|XMS-07)$/u.test(entry.status)), `template registry exposes ${definition.artifact}`));
 
     const dryRun = createMaterialAppScaffold({ rootDir, runtime: 'maraca', designKit: 'material', out: outputDir, name: 'ops-console' });
     context.assert(dryRun.schema === MATERIAL_APP_SCAFFOLD_REPORT_SCHEMA && dryRun.scaffoldSchema === MATERIAL_APP_SCAFFOLD_SCHEMA, 'dry run emits stable scaffold and report schemas');
     context.assert(dryRun.ok && dryRun.status === 'planned' && dryRun.writeReport.mode === 'dry-run', 'default invocation is a non-writing dry run');
-    context.assert(dryRun.files.length === 8 && dryRun.files.every((file) => file.action === 'create'), 'dry run plans the complete RMT, CSS, runtime host, config, package and smoke app');
+    context.assert(dryRun.files.length === 12 && dryRun.files.every((file) => file.action === 'create'), 'dry run plans the complete RMT, CSS, AppServices, server targets, runtime host, config, package and smoke app');
     context.assert(!fs.existsSync(outputRoot), 'dry run creates no application directory');
 
     const cliIo = createIo();
@@ -100,9 +100,9 @@ async function runXtendMaterialScaffoldSuite(options = {}) {
     context.assert(configStatus === 0 && configSummary.materialAppScaffold.reportSchema === MATERIAL_APP_SCAFFOLD_REPORT_SCHEMA, 'CLI config summary exposes the Material scaffold contract');
 
     const written = createMaterialAppScaffold({ rootDir, runtime: 'maraca', designKit: 'material', out: outputDir, name: 'ops-console', write: true });
-    context.assert(written.ok && written.status === 'written' && written.writeReport.writes.filter((entry) => entry.changed).length === 8, '--write creates all eight planned artifacts');
+    context.assert(written.ok && written.status === 'written' && written.writeReport.writes.filter((entry) => entry.changed).length === 12, '--write creates all planned AppServices artifacts');
     context.assert(fs.existsSync(path.join(outputRoot, '.xtend-build/scaffold-ownership.json')), 'write records an app-local Scaffold ownership manifest');
-    ['src/app.rmt', 'src/app.css', 'src/material-runtime-host.mjs', 'src/material-dev-api.mjs', 'site/index.html', 'maraca.config.json', 'package.json', 'test/material-app.smoke.test.cjs'].forEach((file) => context.assert(fs.existsSync(path.join(outputRoot, file)), `generated app contains ${file}`));
+    ['src/app.rmt', 'src/app.css', 'src/services.ts', 'src/server-services.ts', 'server/server-services.php', 'tsconfig.json', 'src/material-runtime-host.mjs', 'src/material-dev-api.mjs', 'site/index.html', 'maraca.config.json', 'package.json', 'test/material-app.smoke.test.cjs'].forEach((file) => context.assert(fs.existsSync(path.join(outputRoot, file)), `generated app contains ${file}`));
 
     const config = JSON.parse(read(outputRoot, 'maraca.config.json'));
     const manifest = JSON.parse(read(outputRoot, 'package.json'));
@@ -113,14 +113,21 @@ async function runXtendMaterialScaffoldSuite(options = {}) {
     context.assert(config.schema === 'xtend.maraca.build-config.v1' && config.options.cssProvider === 'tailwind' && config.options.cssPreflight === 'disabled', 'Maraca config selects the local Tailwind provider with disabled Preflight');
     context.assert(config.options.cssInput === 'src/app.css' && config.options.cssSources.join(',') === 'src/app.rmt,src/app.css' && config.options.cssProviderFallback === 'none', 'Maraca config closes source discovery and fails closed');
     context.assert(config.options.orchestration === 'strict' && config.options.kernel === 'strict' && config.options.hydration === 'strict' && config.options.validation === 'strict' && config.options.transitions === 'strict', 'generated config fails closed across Kernel orchestration, validation and transitions');
+    context.assert(config.options.services.strict === true && config.options.services.targets.join(',') === 'browser,node,php', 'generated config enables strict browser, Node and PHP AppServices targets');
     context.assert(manifest.scripts.plan && manifest.scripts.build && manifest.scripts.serve === 'npm run build && xt serve --root . --default site/index.html --port 4173' && manifest.scripts.tune && manifest.scripts.test, 'generated package exposes local plan, build-first serve, tune and test scripts');
+    context.assert(manifest.engines.node === '>=24' && manifest.packageManager === 'npm@11.17.0', 'generated package pins the Stage-A Node floor and npm toolchain');
+    context.assert(manifest.scripts.tune.includes('--config maraca.config.json') && !manifest.scripts.tune.includes('maraca.tuned.config.json'), 'generated tune command updates the same configuration consumed by plan and build');
     context.assert(written.commands.serve === 'npm run serve', 'scaffold report exposes the generated serve command');
-    context.assert(rootManifest.xtend.materialAppScaffold.artifacts.length === 8 && rootManifest.xtend.materialAppScaffold.artifacts.includes('site/index.html') && rootManifest.xtend.materialAppScaffold.serveCommand === 'npm run serve', 'root metadata exposes all eight scaffold artifacts and the serve command');
+    context.assert(rootManifest.xtend.materialAppScaffold.artifacts.length === 12 && rootManifest.xtend.materialAppScaffold.artifacts.includes('src/services.ts') && rootManifest.xtend.materialAppScaffold.artifacts.includes('site/index.html') && rootManifest.xtend.materialAppScaffold.serveCommand === 'npm run serve', 'root metadata exposes all AppServices scaffold artifacts and the serve command');
     context.assert(manifest.devDependencies.tailwindcss === '4.3.2' && manifest.devDependencies['@xtend-material/maraca-tailwind'] === '^0.1.0', 'Tailwind and its adapter are app-local development dependencies');
     context.assert(!manifest.dependencies.tailwindcss && !manifest.dependencies['@xtend-material/maraca-tailwind'], 'Tailwind tooling never enters productive runtime dependencies');
     context.assert(rmt.includes('class "xtm-app-shell"') && rmt.includes('class "xtm-content-page"') && !/class "(?:grid|flex|p-\d)/u.test(rmt), 'generated RMT uses semantic Material classes without utility authoring');
     context.assert(css.includes('tailwindcss/theme.css') && css.includes('tailwindcss/utilities.css') && !css.includes('preflight.css'), 'generated CSS uses only pinned air-gapped Tailwind imports');
     context.assert(host.includes('<main id="material-app"') && host.includes('<link rel="stylesheet" href="../dist/xtend.maraca.css">') && host.includes('<script type="module" src="../src/material-runtime-host.mjs"></script>'), 'generated HTML host owns the mount point and local CSS/module tags');
+    const runtimeHost = read(outputRoot, 'src/material-runtime-host.mjs');
+    const devApiHost = read(outputRoot, 'src/material-dev-api.mjs');
+    context.assert(host.includes('data-maraca-root') && !runtimeHost.includes('bootXtendMaraca('), 'generated runtime relies on Maraca auto-boot and contains no manual app bootstrap');
+    context.assert(!/__XTendMaraca|__XTEND_MATERIAL_APP__/u.test(runtimeHost + devApiHost) && devApiHost.includes('target.XTendMaraca'), 'generated XTM product code consumes only the public Maraca facade and lifecycle event');
 
     context.assert(contentTypeFor('app.css') === 'text/css; charset=utf-8' && contentTypeFor('host.mjs') === 'text/javascript; charset=utf-8', 'packaged serve module exposes CSS and module MIME types');
     context.assert(pathnameFromRequestUrl('/src/app.css?cache=off') === '/src/app.css' && resolveSafePath(outputRoot, '/../package.json', 'site/index.html') === null, 'packaged serve module strips query strings and blocks path traversal');
@@ -168,6 +175,33 @@ async function runXtendMaterialScaffoldSuite(options = {}) {
     context.assert(builtCss.includes('.xtm-app-shell') && builtCss.includes('container:xtm-shell'), 'source-to-sea bundle contains utility expansion and native Material composition');
     context.assert(build.plan.cssBuild.evidence.designKit.stylesFingerprint && build.plan.cssBuild.evidence.toolchain.versions.tailwindcss === '4.3.2', 'bundle Evidence identifies Material styles and the pinned Tailwind toolchain');
 
+    const tune = await tuneMaracaBuild({
+      source: 'src/app.rmt',
+      config: 'maraca.config.json',
+      out: 'dist',
+      write: true
+    }, { rootDir: outputRoot });
+    const tunedConfig = JSON.parse(read(outputRoot, 'maraca.config.json'));
+    const tunedPlan = createMaracaBuildPlan({ config: 'maraca.config.json' }, { rootDir: outputRoot });
+    context.assert(tune.ok && tune.status === 'written' && tune.configMatches === true, 'generated tune command writes a reproducible selected configuration');
+    context.assert(tunedConfig.options.services.strict === true && tunedConfig.options.services.targets.join(',') === 'browser,node,php', 'tune preserves AppServices targets and strict coverage');
+    context.assert(tunedConfig.options.orchestration === 'strict' && tunedConfig.options.kernel === 'strict' && tunedConfig.options.hydration === 'strict', 'tune preserves strict runtime semantics');
+    context.assert(tunedConfig.options.cssProvider === 'tailwind' && tunedConfig.options.cssInput === 'src/app.css' && tunedConfig.options.cssSources.join(',') === 'src/app.rmt,src/app.css', 'tune preserves the XTM CSS provider and closed source inventory');
+    context.assert(
+      tunedPlan.ok
+        && tunedPlan.configFingerprint === tune.config.configFingerprint
+        && tunedPlan.serviceGraphFingerprint === tunedPlan.services.fingerprint
+        && !tunedPlan.diagnostics.some((entry) => entry.code === 'xtend.maraca.build_config_service_graph_drift'),
+      'the next normal build consumes the tuned service-graph and configuration fingerprints'
+    );
+    const tunedConfigText = read(outputRoot, 'maraca.config.json');
+    const tamperedConfig = JSON.parse(tunedConfigText);
+    tamperedConfig.options.profile = tamperedConfig.options.profile === 'production' ? 'max' : 'production';
+    fs.writeFileSync(path.join(outputRoot, 'maraca.config.json'), `${JSON.stringify(tamperedConfig, null, 2)}\n`, 'utf8');
+    const tamperedPlan = createMaracaBuildPlan({ config: 'maraca.config.json' }, { rootDir: outputRoot });
+    context.assert(!tamperedPlan.ok && tamperedPlan.diagnostics.some((entry) => entry.code === 'xtend.maraca.build_config_fingerprint_drift'), 'normal builds fail closed when a tuned configuration no longer matches its fingerprint');
+    fs.writeFileSync(path.join(outputRoot, 'maraca.config.json'), tunedConfigText, 'utf8');
+
     fs.appendFileSync(path.join(outputRoot, 'src/app.css'), '\n/* user drift */\n', 'utf8');
     const drift = createMaterialAppScaffold({ rootDir, runtime: 'maraca', designKit: 'material', out: outputDir, name: 'ops-console', check: true });
     context.assert(!drift.ok && drift.status === 'blocked' && drift.errors.some((error) => error.includes('changed since the last Scaffold ownership record')), 'ownership guard blocks generated-file drift without overwriting it');
@@ -185,7 +219,7 @@ async function runXtendMaterialScaffoldSuite(options = {}) {
     context.assert(!otherPreset.ok && otherPreset.files.length === 0 && otherPreset.errors.some((entry) => entry.includes('does not activate Tailwind')), 'non-Material presets never install or activate Tailwind');
 
     const helpIo = createIo();
-    context.assert(runCli(['create', '--help'], helpIo) === 0 && helpIo.readStdout().includes('--runtime maraca --design-kit material') && helpIo.readStdout().includes('--check') && helpIo.readStdout().includes('eight artifacts') && helpIo.readStdout().includes('npm run serve'), 'CLI help documents selection, ownership and generated serve modes');
+    context.assert(runCli(['create', '--help'], helpIo) === 0 && helpIo.readStdout().includes('--runtime maraca --design-kit material') && helpIo.readStdout().includes('--server') && helpIo.readStdout().includes('--check') && helpIo.readStdout().includes('AppServices') && helpIo.readStdout().includes('npm run serve'), 'CLI help documents AppServices targets, ownership and generated serve modes');
     context.assert(backlog.includes('| `XTM-09` | P1 | completed | WS5 |') && backlog.includes(LOCAL_GATE), 'backlog closes XTM-09 and exposes its complete local gate');
   } finally {
     fs.rmSync(outputRoot, { recursive: true, force: true });
@@ -199,7 +233,7 @@ async function runXtendMaterialScaffoldSuite(options = {}) {
       schema: MATERIAL_APP_SCAFFOLD_REPORT_SCHEMA,
       preset: 'material',
       runtime: 'maraca',
-      artifactCount: 8,
+      artifactCount: 12,
       localGate: LOCAL_GATE
     }
   });

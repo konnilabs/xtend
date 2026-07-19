@@ -1,8 +1,8 @@
 {
   "name": "@ccslabs/xtend-maraca",
-  "version": "0.3.1",
+  "version": "0.5.0",
   "private": false,
-  "description": "XTend Maraca ESM build and bundle planner for RMT-first 0.4.0 apps, XScaler and XSurface Shard.",
+  "description": "XTend Maraca ESM build and bundle planner for RMT-first 0.5.0 apps, XScaler and XSurface Shard.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -35,6 +35,29 @@
       "types": "./css-provider.d.ts",
       "default": "./css-provider.js"
     },
+    "./app-services": {
+      "types": "./app-services.d.ts",
+      "browser": "./app-services.mjs",
+      "import": "./app-services.mjs",
+      "require": "./app-services.js",
+      "default": "./app-services.mjs"
+    },
+    "./server-services": {
+      "types": "./server-services.d.ts",
+      "import": "./server-services.mjs",
+      "require": "./server-services.js",
+      "default": "./server-services.mjs"
+    },
+    "./node-app-service-host": {
+      "types": "./node-app-service-host.d.ts",
+      "import": "./node-app-service-host.mjs",
+      "require": "./node-app-service-host.js",
+      "default": "./node-app-service-host.mjs"
+    },
+    "./service-build-provider": {
+      "types": "./service-build-provider.d.ts",
+      "default": "./service-build-provider.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -46,19 +69,31 @@
     "plan-runtime.d.ts",
     "css-provider.js",
     "css-provider.d.ts",
+    "app-services.js",
+    "app-services.mjs",
+    "app-services.d.ts",
+    "server-services.js",
+    "server-services.mjs",
+    "server-services.d.ts",
+    "node-app-service-host.js",
+    "node-app-service-host.mjs",
+    "node-app-service-host.d.ts",
+    "service-build-provider.js",
+    "service-build-provider.d.ts",
     "README.md",
     "package.json"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=24"
   },
   "dependencies": {
     "rollup": "^4.60.4",
-    "terser": "^5.48.0"
+    "terser": "^5.48.0",
+    "typescript": "^5.9.3"
   },
   "peerDependencies": {
-    "@ccslabs/xtend": "0.3.1",
-    "@ccslabs/xtend-compiler": "0.3.1"
+    "@ccslabs/xtend": "0.5.0",
+    "@ccslabs/xtend-compiler": "0.5.0"
   },
   "peerDependenciesMeta": {
     "@ccslabs/xtend": {

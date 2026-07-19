@@ -14,7 +14,6 @@ const outputDir = path.resolve(rootDir, '.xtend-test-results');
 const executeNetworkCommands = process.env.XTEND_CONDITIONAL_NETWORK_EXECUTE === '1';
 const allowDeferral = process.env.XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL !== '0';
 const fallbackReason = process.env.XTEND_CONDITIONAL_NETWORK_DEFERRAL_REASON || (executeNetworkCommands ? 'sandbox-network-unavailable' : 'network-restricted-local-default');
-const useNpxNpm10 = process.env.XTEND_CONDITIONAL_NETWORK_USE_NPX_NPM10 === '1';
 const cacheDir = process.env.XTEND_NPM_CACHE
   ? path.resolve(process.env.XTEND_NPM_CACHE)
   : path.resolve(outputDir, 'npm-cache');
@@ -59,12 +58,6 @@ function parseJson(stdout) {
 }
 
 function createNpmInvocation(args) {
-  if (useNpxNpm10) {
-    return {
-      command: 'npx',
-      args: ['--yes', 'npm@10', ...args]
-    };
-  }
   return {
     command: 'npm',
     args

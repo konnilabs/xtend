@@ -3,6 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "npm@11.17.0",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24.18.0 || ^26.5.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": "11.17.0",
+      "onFail": "error"
+    }
+  },
   "description": "Local XTend RMT, Maraca and Electron WebGPU LLM product smoke.",
   "main": "src/main/electron-main.mjs",
   "scripts": {
@@ -14,19 +27,62 @@
     "rmt:build:production": "node scripts/rmt-build.mjs --profile production",
     "model:install": "node scripts/model-install.mjs",
     "model:install:qwen3-8b": "node scripts/model-install.mjs -- --target",
-    "dev": "npm run rmt:build && env -u ELECTRON_RUN_AS_NODE electron . -- --dev",
-    "start": "npm run rmt:build && env -u ELECTRON_RUN_AS_NODE electron .",
+    "runtime:install:electron": "install-electron",
+    "dev": "npm run rmt:build && node scripts/run-electron.mjs . -- --dev",
+    "start": "npm run rmt:build && node scripts/run-electron.mjs .",
     "build:app": "node scripts/build-app.mjs",
     "build": "npm run build:app",
-    "test": "node tests/product.test.mjs",
-    "test:layout": "env -u ELECTRON_RUN_AS_NODE electron . -- --layout-smoke",
-    "test:llm": "env -u ELECTRON_RUN_AS_NODE electron tests/llm-terminal-runner.mjs -- --model=onnx-community/Qwen3-0.6B-ONNX",
-    "test:llm:qwen3-8b": "env -u ELECTRON_RUN_AS_NODE electron tests/llm-terminal-runner.mjs -- --target",
-    "test:llm:fake": "env -u ELECTRON_RUN_AS_NODE electron tests/llm-terminal-runner.mjs -- --fake",
-    "test:real-model": "npm run test:llm:qwen3-8b"
+    "test": "node tests/product.test.mjs && npm run test:n26:contracts",
+    "test:n26:contracts": "node tests/node26-product-contract.test.mjs && node tests/electron-launcher.test.mjs && node tests/tiny-onnx-identity.test.mjs",
+    "test:catfood:check": "node tests/app-services-catfood-gate.mjs",
+    "test:catfood": "node scripts/rmt-build.mjs --profile production --quiet && node scripts/run-layout-smoke.mjs && npm run test:catfood:check",
+    "test:catfood:smoke": "node scripts/rmt-build.mjs --profile production --quiet && node scripts/run-layout-smoke.mjs && npm run test:catfood:check",
+    "test:catfood:full": "npm run test:catfood",
+    "test:layout": "node scripts/run-electron.mjs . -- --layout-smoke",
+    "test:llm": "node scripts/run-electron.mjs tests/llm-terminal-runner.mjs -- --model=onnx-community/Qwen3-0.6B-ONNX",
+    "test:llm:qwen3-8b": "node scripts/run-electron.mjs tests/llm-terminal-runner.mjs -- --target",
+    "test:llm:fake": "node scripts/run-electron.mjs tests/llm-terminal-runner.mjs -- --fake",
+    "test:real-model": "npm run test:llm:qwen3-8b",
+    "test:runtime:electron:node24": "node scripts/run-electron.mjs --xtend-require-installed --xtend-headless tests/electron-runtime-evidence.mjs -- --lane=node-24-lts",
+    "test:runtime:electron:node26": "node scripts/run-electron.mjs --xtend-require-installed --xtend-headless tests/electron-runtime-evidence.mjs -- --lane=node-26-current",
+    "test:native:runtime:node24": "node scripts/run-electron.mjs --xtend-require-installed --xtend-headless tests/native-runtime-evidence.mjs -- --lane=node-24-lts",
+    "test:native:runtime:node26": "node scripts/run-electron.mjs --xtend-require-installed --xtend-headless tests/native-runtime-evidence.mjs -- --lane=node-26-current",
+    "test:node24:product": "npm run test:n26:contracts && npm run test:catfood && npm run test:runtime:electron:node24 && npm run test:native:runtime:node24",
+    "test:node26:product": "npm run test:n26:contracts && npm run test:catfood && npm run test:runtime:electron:node26 && npm run test:native:runtime:node26"
+  },
+  "engines": {
+    "node": ">=24"
   },
   "dependencies": {
     "@huggingface/transformers": "^3.8.1",
     "electron": "^42.4.0"
+  },
+  "xtendLlm": {
+    "nodeRuntimePolicy": {
+      "schema": "xtend-llm.node-runtime-policy.v1",
+      "status": "stage-a-node-24-floor-node-26-required-canary",
+      "publicEngine": ">=24",
+      "packageManager": "npm@11.17.0",
+      "hostLanes": {
+        "node-24-lts": {
+          "node": "24.18.0",
+          "npm": "11.17.0",
+          "role": "lts"
+        },
+        "node-26-current": {
+          "node": "26.5.0",
+          "npm": "11.17.0",
+          "role": "current"
+        }
+      },
+      "electron": {
+        "major": 42,
+        "embeddedNodeMajor": 24,
+        "upstreamOwnedRuntime": true
+      },
+      "runtimeEvidenceScript": "tests/electron-runtime-evidence.mjs",
+      "nativeEvidenceScript": "tests/native-runtime-evidence.mjs",
+      "nativeEvidenceBacklog": "development/N26-04-Native-Runtime-Evidence.md"
+    }
   }
 }

@@ -20,7 +20,7 @@ Dieser Contract macht `npm audit --audit-level=moderate` und `npm sbom --sbom-fo
 | SBOM | `npm sbom --sbom-format=cyclonedx --json` | `.xtend-test-results/xtend-npm-sbom.json` |
 | Aggregat | `npm run conditional-network:evidence` | `.xtend-test-results/xtend-conditional-network-evidence-report.json` |
 
-Der Workflow-Job `conditional-network-evidence` in `.github/workflows/xtend-default-gates.yml` setzt `XTEND_CONDITIONAL_NETWORK_EXECUTE=1`, fuehrt `npm run conditional-network:evidence` aus und laedt `xtend-conditional-network-evidence-node-26` hoch.
+Der Workflow-Job `conditional-network-evidence` in `.github/workflows/xtend-default-gates.yml` setzt `XTEND_CONDITIONAL_NETWORK_EXECUTE=1`, fuehrt `npm run conditional-network:evidence` unter Node `24.18.0` und `26.5.0` mit npm `11.17.0` aus und laedt je Lane `xtend-conditional-network-evidence-{artifactSuffix}` samt Runtime-Evidence hoch.
 
 ## Deferral
 

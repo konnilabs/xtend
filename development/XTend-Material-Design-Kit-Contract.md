@@ -60,9 +60,9 @@ JavaScript-Exports sind introspektierbar und erzeugen keine DOM-Side-Effects. CS
 
 | Abhängigkeit | XTM-06 Baseline |
 |--------------|-----------------|
-| XTend | `^0.3.1` Peer |
+| XTend | `^0.5.0` Peer |
 | Tailwind CSS | `4.3.2` exakte Build-Time-Dependency |
-| Node | `>=18` |
+| Node | `>=24` |
 | CSS Provider | `xtend.maraca.css-provider.v1` |
 | Token Bridge | `xtend.material.tailwind-token-bridge.v1` |
 | Preflight | `disabled` |

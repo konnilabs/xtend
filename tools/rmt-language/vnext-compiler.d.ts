@@ -1,12 +1,14 @@
 export * from './rmt-tooling-public-types';
-import type { RmtCompileResult, RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
+import type { RmtAppServiceDemandManifest, RmtCompileResult, RmtJsonValue, RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
 
 export declare const compileRmtVNextAst: RmtToolingFunction<RmtCompileResult>;
 export declare const compileRmtVNextSource: RmtToolingFunction<RmtCompileResult>;
+export declare const createRmtAppServiceDemands: (coreDocument?: RmtJsonValue) => RmtAppServiceDemandManifest;
 export declare const createRmtVNextCompiler: RmtToolingFactory;
 export declare const RMT_FILE_FALLBACK_CODE: RmtToolingConstant;
 export declare const RMT_APP_ORCHESTRATION_SCHEMA: RmtToolingConstant;
 export declare const RMT_APP_ORCHESTRATION_WORKPACKAGE: RmtToolingConstant;
+export declare const RMT_APP_SERVICE_DEMANDS_SCHEMA: RmtToolingConstant<'xtend.maraca.app-service-demands.v1'>;
 export declare const RMT_APP_PLATFORM_RECORDS_SCHEMA: RmtToolingConstant;
 export declare const RMT_FORM_VALIDATION_SCHEMA: RmtToolingConstant;
 export declare const RMT_SURFACE_TRANSITION_SCHEMA: RmtToolingConstant;

@@ -8,7 +8,7 @@ The extension does not identify XTend apps by DOM names or framework heuristics.
 
 For the local setup you need:
 
-- Node.js 18 or newer;
+- Node.js 24 or newer;
 - a Chromium-based browser such as Chrome, Chromium or Edge;
 - a local checkout of the XTend repository;
 - access to the browser extension Developer Mode.

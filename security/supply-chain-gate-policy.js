@@ -20,10 +20,24 @@ const LOCKFILE_CANDIDATES = [
 
 const ALLOWED_DEV_TOOLING_DEPENDENCIES = Object.freeze([
   {
+    name: '@types/node',
+    section: 'devDependencies',
+    versionRange: '^24.13.3',
+    purpose: 'minimum-supported-node-type-contract',
+    runtime: false
+  },
+  {
     name: 'typescript',
     section: 'devDependencies',
     versionRange: '^5.9.3',
     purpose: 'component-typescript-compiler',
+    runtime: false
+  },
+  {
+    name: 'vite',
+    section: 'devDependencies',
+    versionRange: '^7.3.6',
+    purpose: 'typescript-demo-and-dev-hmr-spike-only',
     runtime: false
   }
 ]);
@@ -64,6 +78,12 @@ const SCOPED_RELEASE_PACKAGES = Object.freeze([
     path: 'xtend-maraca',
     manifest: 'xtend-maraca/package.json',
     scope: 'maraca-bundler'
+  },
+  {
+    name: '@ccslabs/xtend-xsurface-shard',
+    path: 'xsurface-shard',
+    manifest: 'xsurface-shard/package.json',
+    scope: 'remote-surface-runtime'
   }
 ]);
 

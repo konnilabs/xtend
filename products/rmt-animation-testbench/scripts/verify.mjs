@@ -92,8 +92,10 @@ try {
 
   const preflight = await (await fetch(`${baseUrl}/api/xscaler/preflight?surface=media&reason=verify`)).json();
   assert(preflight.ok === true, 'XScaler preflight is not ok.');
+  assert(preflight.protocol === 'xscaler' && typeof preflight.requestId === 'string', 'XScaler preflight does not use the canonical public protocol envelope.');
   assert(preflight.networkDuringRender === false, 'XScaler preflight allows network during render.');
-  assert(preflight.atc && preflight.atc.mode === 'protocol-lazy', 'XScaler ATC shape is missing.');
+  assert(preflight.remoteSurfacePlan && preflight.remoteSurfacePlan.protocol === 'xscaler' && preflight.remoteSurfacePlan.ssr.networkDuringRender === false, 'XScaler remote surface plan is missing or non-canonical.');
+  assert(preflight.atc && preflight.atc.protocol === 'xscaler' && preflight.atc.accepted === true && preflight.atc.ok === true && preflight.atc.mode === 'protocol-lazy', 'XScaler ATC shape is missing or non-canonical.');
 
   const lazy = await (await fetch(`${baseUrl}/api/lazy-surface/media`)).json();
   assert(lazy.ok === true, 'Lazy surface endpoint is not ok.');

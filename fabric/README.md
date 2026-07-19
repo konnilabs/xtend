@@ -14,7 +14,7 @@
 npm install @ccslabs/xtend-fabric
 ```
 
-Node.js 18 or newer is required.
+Node.js 24 or newer is required.
 
 ### Fabric runtime
 
@@ -104,7 +104,7 @@ Licensed under the Apache License 2.0. See [LICENSE](../LICENSE).
 npm install @ccslabs/xtend-fabric
 ```
 
-Node.js 18 oder neuer wird benötigt.
+Node.js 24 oder neuer wird benötigt.
 
 ### Fabric-Runtime
 

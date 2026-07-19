@@ -32,7 +32,7 @@ Preflight remains side-effect-free and does not execute remote code. XSurface Sh
 
 ### Requirements and getting started
 
-- Node.js 18 or newer
+- Node.js 24 or newer
 - From the repository: installed workspace dependencies
 - As a package: the optional peer dependencies `@ccslabs/xtend` and `@ccslabs/xtend-compiler` for workflows that need them
 
@@ -134,7 +134,7 @@ Maraca compiles the RMT source, discovers the required XTend modules, and emits 
 ```bash
 xt kernel-lab analyze --json
 xt kernel-lab build --profile clean --check --json
-xt kernel-lab build --profile clean --version 0.4.0 --write --json
+xt kernel-lab build --profile clean --version 0.5.0 --write --json
 ```
 
 The `xt rmt kernel-lab ...` alias runs the same path. The `clean` profile builds the dashboard-free standard kernel artifacts and updates the RMT kernel module manifest.
@@ -282,7 +282,7 @@ Der Preflight bleibt seiteneffektfrei und führt keinen Remote-Code aus. XSurfac
 
 ### Voraussetzungen und Einstieg
 
-- Node.js 18 oder neuer
+- Node.js 24 oder neuer
 - Aus dem Repository: installierte Workspace-Abhängigkeiten
 - Als Paket: optionale Peer-Abhängigkeiten `@ccslabs/xtend` und `@ccslabs/xtend-compiler` für die jeweils benötigten Workflows
 
@@ -384,7 +384,7 @@ Maraca kompiliert die RMT-Quelle, ermittelt benötigte XTend-Module und erzeugt 
 ```bash
 xt kernel-lab analyze --json
 xt kernel-lab build --profile clean --check --json
-xt kernel-lab build --profile clean --version 0.4.0 --write --json
+xt kernel-lab build --profile clean --version 0.5.0 --write --json
 ```
 
 Der Alias `xt rmt kernel-lab ...` führt denselben Pfad aus. Das Profil `clean` baut die Dashboard-freien Standard-Kernelartefakte und aktualisiert das RMT-Kernel-Modulmanifest.

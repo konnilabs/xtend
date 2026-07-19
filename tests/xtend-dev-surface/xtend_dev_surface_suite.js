@@ -183,7 +183,7 @@ function createMockSnapshot() {
         atcSessions: [
           {
             sessionId: 'xscaler:testbench:settings',
-            protocol: 'xscaler-atc-compatible',
+            protocol: 'xscaler',
             route: '/api/lazy-surface/settings',
             mode: 'protocol-lazy',
             lifecycleState: 'client-hydrated-navigation',
@@ -904,7 +904,7 @@ function assertPackageAndRunner(context, rootDir) {
   context.assert(metadata && metadata.packageScript === XTEND_DEV_SURFACE_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert(metadata && metadata.reportScript === 'npm run test:xtend-dev-surface:report', 'package metadata declares report script');
   context.assert(metadata && metadata.reportPath === '.xtend-test-results/xtend-dev-surface-report.json', 'package metadata declares report path');
-  context.assert(metadata && metadata.ciArtifactName === 'xtend-dev-surface-report-node-26', 'package metadata declares CI artifact name');
+  context.assert(metadata && metadata.ciArtifactName === 'xtend-dev-surface-report-{artifactSuffix}', 'package metadata declares the per-runtime CI artifact pattern');
   context.assert(runner.includes("id: 'xtend-dev-surface'"), 'runner exposes xtend-dev-surface suite');
 }
 
@@ -946,7 +946,7 @@ function assertDocs(context, rootDir) {
   const menuEntry = docsMenu.find((entry) => entry.slug === 'xtend-dev-surface');
   const devApiMenuEntry = docsMenu.find((entry) => entry.slug === 'xtend-dev-api');
   context.assert(menuEntry && menuEntry.group === 'quality' && menuEntry.contentType === 'tutorial', 'docs menu exposes Dev Surface as a quality tutorial');
-  context.assert(docsMenu.length === 169, 'docs menu exposes 169 canonical articles after DEV API registration');
+  context.assert(docsMenu.length === 170, 'docs menu exposes 170 canonical articles after DEV API registration');
   context.assert(devApiMenuEntry && devApiMenuEntry.id === 'docs.xtend.dev.api' && devApiMenuEntry.group === 'quality', 'docs menu exposes the canonical XTend DEV API entry');
   context.assert(devApiMenuEntry && devApiMenuEntry.parent === 'xtend-dev-surface' && devApiMenuEntry.trunk === 'operate' && devApiMenuEntry.section === 'devtools', 'DEV API reference is nested in Operate Dev Tools');
   context.assert(devApiMenuEntry && devApiMenuEntry.contentType === 'reference' && devApiMenuEntry.tier === 'basic' && devApiMenuEntry.rank === 93 && devApiMenuEntry.icon === 'braces', 'DEV API menu metadata declares the planned reference profile');

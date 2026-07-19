@@ -123,7 +123,8 @@ function validateAtcHandoff(context, input, preflightEvidence) {
 
   context.assert(handoff.ok === true && handoff.status === 'ready', 'XSurface Shard accepts preflight-ready remote surface');
   context.assert(handoff.atc.schema === XSCALER_ATC_HANDOFF_SCHEMA, 'XSurface Handoff carries canonical XScaler ATC handoff schema');
-  context.assert(handoff.atc.protocol === 'xscaler-atc-compatible', 'XSurface Handoff remains XScaler ATC compatible');
+  context.assert(handoff.atc.protocol === 'xscaler', 'XSurface Handoff uses the canonical public XScaler protocol');
+  context.assert(handoff.atc.surfaceId === handoff.surfaceId && handoff.atc.accepted === true && handoff.atc.ok === true && Array.isArray(handoff.atc.diagnostics), 'XSurface Handoff satisfies the complete public ATC contract');
   context.assert(handoff.runtimeBoundary.remoteRuntimeExecution === false && handoff.runtimeBoundary.kernelRemoteExecution === false, 'XSurface Handoff preserves runtime boundary');
   context.assert(canonicalAtc.schema === XSCALER_ATC_HANDOFF_SCHEMA && canonicalAtc.ok === true, 'Canonical XScaler ATC handoff accepts XSurface handoff facts');
   context.assert(canonicalAtc.sessionId === handoff.atc.sessionId, 'Canonical ATC handoff preserves XSurface session id');

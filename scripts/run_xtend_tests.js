@@ -60,6 +60,10 @@ const {
   runArchitectureGateSuite
 } = require('../tests/core/architecture_gate_suite');
 const {
+  printNodeRuntimePolicyReport,
+  runNodeRuntimePolicySuite
+} = require('../tests/platform/node_runtime_policy_suite');
+const {
   printXtendMaterialArchitectureReport,
   runXtendMaterialArchitectureSuite
 } = require('../tests/material/xtend_material_architecture_suite');
@@ -81,6 +85,26 @@ const {
   printXtendMaterialScaffoldReport,
   runXtendMaterialScaffoldSuite
 } = require('../tests/builder/xtend_material_scaffold_suite');
+const {
+  printXtendRmtAppScaffoldReport,
+  runXtendRmtAppScaffoldSuite
+} = require('../tests/builder/xtend_rmt_app_scaffold_suite');
+const {
+  printMaracaAppServicesBuildReport,
+  runMaracaAppServicesBuildSuite
+} = require('../tests/maraca/maraca_app_services_build_suite');
+const {
+  printMaracaAppServicesRuntimeReport,
+  runMaracaAppServicesRuntimeSuite
+} = require('../tests/maraca/maraca_app_services_runtime_suite');
+const {
+  printMaracaAppServicesCrossRuntimeParityReport,
+  runMaracaAppServicesCrossRuntimeParitySuite
+} = require('../tests/maraca/maraca_app_services_cross_runtime_parity_suite');
+const {
+  printXtendLlmAppServicesCatfoodReport,
+  runXtendLlmAppServicesCatfoodSuite
+} = require('../tests/products/xtend_llm_app_services_catfood_suite');
 const {
   printMaracaCssProviderContractReport,
   runMaracaCssProviderContractSuite
@@ -330,6 +354,10 @@ const {
   runRmtPhpSsrAdapterSuite
 } = require('../tests/rmt-language/rmt_php_ssr_adapter_suite');
 const {
+  printRmtPhpAppServiceAdapterReport,
+  runRmtPhpAppServiceAdapterSuite
+} = require('../tests/rmt-language/rmt_php_app_service_adapter_suite');
+const {
   printDocsPhpSsrPrehydrationReport,
   runDocsPhpSsrPrehydrationSuite
 } = require('../tests/rmt/docs_php_ssr_prehydration_suite');
@@ -537,6 +565,18 @@ const {
   printXScalerSourceToSeaReport,
   runXScalerSourceToSeaSuite
 } = require('../tests/rmt/xscaler_source_to_sea_suite');
+const {
+  printXScalerPublicApiReport,
+  runXScalerPublicApiSuite
+} = require('../tests/rmt/xscaler_public_api_suite');
+const {
+  printXScalerPhpPreflightParityReport,
+  runXScalerPhpPreflightParitySuite
+} = require('../tests/rmt/xscaler_php_preflight_parity_suite');
+const {
+  printRmtXScalerSsrHydrationParityReport,
+  runRmtXScalerSsrHydrationParitySuite
+} = require('../tests/rmt-language/rmt_xscaler_ssr_hydration_parity_suite');
 const {
   printXSurfaceShardReport,
   runXSurfaceShardSuite
@@ -1239,6 +1279,16 @@ function printDocsStubInventoryGateReport(result) {
 
 const suites = [
   {
+    id: 'node-runtime-policy',
+    label: 'Node 24/26 runtime and support policy',
+    description: 'Verifies the staged Node >=24 contract, exact Node 24/26 CI lanes, npm pin and runtime exceptions.',
+    run: () => {
+      const result = runNodeRuntimePolicySuite({ rootDir });
+      printNodeRuntimePolicyReport(result);
+      return toRunnerResult('node-runtime-policy', 'Node 24/26 runtime and support policy', result);
+    }
+  },
+  {
     id: 'core',
     label: 'Core contract verification',
     description: 'Runs the structured core contract suite.',
@@ -1316,6 +1366,16 @@ const suites = [
       const result = await runXtendMaterialScaffoldSuite({ rootDir });
       printXtendMaterialScaffoldReport(result);
       return toRunnerResult('xtend-material-scaffold', 'XTend Material App Scaffold', result);
+    }
+  },
+  {
+    id: 'xtend-rmt-app-scaffold',
+    label: 'Provider-neutraler XTend RMT App Scaffold',
+    description: 'Runs the XMS-07 neutral RMT/CSS/AppServices scaffold, target filtering and Material overlay gates.',
+    run: () => {
+      const result = runXtendRmtAppScaffoldSuite({ rootDir });
+      printXtendRmtAppScaffoldReport(result);
+      return toRunnerResult('xtend-rmt-app-scaffold', 'Provider-neutraler XTend RMT App Scaffold', result);
     }
   },
   {
@@ -1787,6 +1847,16 @@ const suites = [
       const result = await runRmtPhpSsrAdapterSuite({ rootDir });
       printRmtPhpSsrAdapterReport(result);
       return toRunnerResult('rmt-php-ssr-adapter', 'RMT PHP/Laravel SSR Adapter', result);
+    }
+  },
+  {
+    id: 'rmt-php-app-service-adapter',
+    label: 'RMT PHP AppService Adapter',
+    description: 'Runs the PHP AppService manifest, JSON/NDJSON transport, lifecycle, packaging and security compatibility gate.',
+    run: async () => {
+      const result = await runRmtPhpAppServiceAdapterSuite({ rootDir });
+      printRmtPhpAppServiceAdapterReport(result);
+      return toRunnerResult('rmt-php-app-service-adapter', 'RMT PHP AppService Adapter', result);
     }
   },
   {
@@ -2500,6 +2570,36 @@ const suites = [
     }
   },
   {
+    id: 'xscaler-public-api',
+    label: 'XScaler Public API and Remote Adapter Loader',
+    description: 'Runs XMS-09 public exports, native ESM, CSP/SRI loader, AppService transport and lifecycle gates.',
+    run: async () => {
+      const result = await runXScalerPublicApiSuite({ rootDir });
+      printXScalerPublicApiReport(result);
+      return toRunnerResult('xscaler-public-api', 'XScaler Public API and Remote Adapter Loader', result);
+    }
+  },
+  {
+    id: 'xscaler-php-preflight-parity',
+    label: 'XScaler JS/PHP Preflight Parity',
+    description: 'Runs XMS-10 standalone PHP syntax, policy decision and byte-stable JS/PHP parity gates.',
+    run: () => {
+      const result = runXScalerPhpPreflightParitySuite({ rootDir });
+      printXScalerPhpPreflightParityReport(result);
+      return toRunnerResult('xscaler-php-preflight-parity', 'XScaler JS/PHP Preflight Parity', result);
+    }
+  },
+  {
+    id: 'rmt-xscaler-ssr-hydration-parity',
+    label: 'RMT Node/PHP XScaler SSR Hydration Parity',
+    description: 'Runs Node/PHP SSR hydration-contract parity, preflight-only rendering and zero-network/zero-remote-execution gates.',
+    run: async () => {
+      const result = await runRmtXScalerSsrHydrationParitySuite({ rootDir });
+      printRmtXScalerSsrHydrationParityReport(result);
+      return toRunnerResult('rmt-xscaler-ssr-hydration-parity', 'RMT Node/PHP XScaler SSR Hydration Parity', result);
+    }
+  },
+  {
     id: 'xscaler-source-to-sea',
     label: 'XScaler Source-to-Sea Gate',
     description: 'Runs Remote Manifest to XScaler Preflight, XSurface ATC handoff and Testbench evidence gates.',
@@ -2977,6 +3077,46 @@ const suites = [
       const result = await runMaracaBundleSuite({ rootDir });
       printMaracaBundleReport(result);
       return toRunnerResult('maraca-bundle-report', 'XTend Maraca Bundle Report', result);
+    }
+  },
+  {
+    id: 'maraca-app-services-runtime',
+    label: 'XTend Maraca AppServices Runtime',
+    description: 'Runs XMS-02/XMS-04 registry, race-safety, abort, stream, transport, Node-host and type-contract gates.',
+    run: async () => {
+      const result = await runMaracaAppServicesRuntimeSuite({ rootDir });
+      printMaracaAppServicesRuntimeReport(result);
+      return toRunnerResult('maraca-app-services-runtime', 'XTend Maraca AppServices Runtime', result);
+    }
+  },
+  {
+    id: 'maraca-app-services-cross-runtime',
+    label: 'XTend Maraca AppServices Node/PHP Cross-Runtime Parity',
+    description: 'Runs XMS-05/XMS-06 Node/PHP JSON, NDJSON, stream, cancellation, disposal and safe-error parity gates.',
+    run: async () => {
+      const result = await runMaracaAppServicesCrossRuntimeParitySuite({ rootDir });
+      printMaracaAppServicesCrossRuntimeParityReport(result);
+      return toRunnerResult('maraca-app-services-cross-runtime', 'XTend Maraca AppServices Node/PHP Cross-Runtime Parity', result);
+    }
+  },
+  {
+    id: 'xtend-llm-app-services-catfood',
+    label: 'XTend LLM AppServices Catfood',
+    description: 'Builds the XTend LLM production product through Maraca and validates its AppServices source, service graph, bundle, types and budget evidence.',
+    run: () => {
+      const result = runXtendLlmAppServicesCatfoodSuite({ rootDir });
+      printXtendLlmAppServicesCatfoodReport(result);
+      return toRunnerResult('xtend-llm-app-services-catfood', 'XTend LLM AppServices Catfood', result);
+    }
+  },
+  {
+    id: 'maraca-app-services-build',
+    label: 'XTend Maraca AppServices Build Source-to-Sea',
+    description: 'Runs XMS-01/XMS-03 service-manifest, TypeScript, split-graph, strict diagnostics and secret-barrier gates.',
+    run: async () => {
+      const result = await runMaracaAppServicesBuildSuite({ rootDir });
+      printMaracaAppServicesBuildReport(result);
+      return toRunnerResult('maraca-app-services-build', 'XTend Maraca AppServices Build Source-to-Sea', result);
     }
   },
   {
@@ -4450,6 +4590,7 @@ Examples:
   node scripts/run_xtend_tests.js rmt-vnext-component-primitives
   node scripts/run_xtend_tests.js rmt-node-ssr-adapter
   node scripts/run_xtend_tests.js rmt-php-ssr-adapter
+  node scripts/run_xtend_tests.js rmt-php-app-service-adapter
   node scripts/run_xtend_tests.js rmt-vnext-fabric-bridge
   node scripts/run_xtend_tests.js rmt-vnext-lifecycle
   node scripts/run_xtend_tests.js xtensions-host-controller
@@ -4490,6 +4631,9 @@ Examples:
   node scripts/run_xtend_tests.js rmt-vnext-release
   node scripts/run_xtend_tests.js xcommand-kernel
   node scripts/run_xtend_tests.js xscaler-protocol
+  node scripts/run_xtend_tests.js xscaler-public-api
+  node scripts/run_xtend_tests.js xscaler-php-preflight-parity
+  node scripts/run_xtend_tests.js rmt-xscaler-ssr-hydration-parity
   node scripts/run_xtend_tests.js xscaler-source-to-sea
   node scripts/run_xtend_tests.js xsurface-shard
   node scripts/run_xtend_tests.js rmt-vnext-remote-manifest
@@ -4550,6 +4694,10 @@ Examples:
   node scripts/run_xtend_tests.js maraca-plan
   node scripts/run_xtend_tests.js maraca-bundle
   node scripts/run_xtend_tests.js maraca-bundle-report
+  node scripts/run_xtend_tests.js maraca-app-services-runtime
+  node scripts/run_xtend_tests.js maraca-app-services-cross-runtime
+  node scripts/run_xtend_tests.js xtend-llm-app-services-catfood
+  node scripts/run_xtend_tests.js maraca-app-services-build
   node scripts/run_xtend_tests.js maraca-web-app-manifest
   node scripts/run_xtend_tests.js maraca-pwa-service-worker
   node scripts/run_xtend_tests.js maraca-rmt-source-to-bundle

@@ -2,97 +2,433 @@
   "schema": "xtend.maraca.bundle-report.v1",
   "ok": true,
   "status": "built",
+  "configFingerprint": null,
   "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
   "outputDir": "products/rmt-maraca-kernel-orchestration/site/build",
   "profile": "production",
   "lazy": "route",
   "css": "external",
+  "cssBuild": {
+    "schema": "xtend.maraca.css-build-plan.v1",
+    "status": "ready",
+    "requestedProvider": "maraca-native",
+    "resolvedProvider": "maraca-native",
+    "fallback": "none",
+    "preflight": "disabled",
+    "budgetBytes": null,
+    "contract": {
+      "capabilities": {
+        "external": true,
+        "inline": true,
+        "minify": false,
+        "sourceMaps": false
+      },
+      "diagnostics": {
+        "codes": [
+          "xtend.maraca.css_provider.invalid",
+          "xtend.maraca.css_provider.unavailable",
+          "xtend.maraca.css_provider.source_blocked",
+          "xtend.maraca.css_provider.build_failed",
+          "xtend.maraca.css_provider.output_missing"
+        ],
+        "schema": "xtend.maraca.css-provider-diagnostic.v1"
+      },
+      "fingerprint": "91cd3dfc66eca5d22e1f1ce5980a8589022df25477a68b147753df8b176a2de0",
+      "id": "maraca-native",
+      "label": "Maraca native CSS provider",
+      "lifecycle": [
+        "inspect",
+        "plan",
+        "build",
+        "report",
+        "dispose"
+      ],
+      "runtimeBoundary": "build-time-only",
+      "schema": "xtend.maraca.css-provider.v1",
+      "sourcePolicy": {
+        "automaticDiscovery": false,
+        "explicitSources": true,
+        "network": false
+      },
+      "version": "1"
+    },
+    "request": {
+      "schema": "xtend.maraca.css-build-request.v1",
+      "provider": "maraca-native",
+      "mode": "external",
+      "input": null,
+      "output": "xtend.maraca.css",
+      "profile": "production",
+      "minify": true,
+      "sourceMaps": false,
+      "strict": true,
+      "sources": [
+        {
+          "path": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
+          "kind": "rmt",
+          "fingerprint": "707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c"
+        }
+      ],
+      "sourcePolicy": {
+        "root": ".",
+        "allow": [
+          "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt"
+        ],
+        "deny": [],
+        "automaticDiscovery": false
+      },
+      "metadata": {
+        "cssBudget": null,
+        "preflight": "disabled",
+        "requestedProvider": "maraca-native"
+      },
+      "fingerprint": "595358250f62ca384faaef7461165af63297142a17ef676e5d504285d17d306b"
+    },
+    "requestFingerprint": "595358250f62ca384faaef7461165af63297142a17ef676e5d504285d17d306b",
+    "configFingerprint": "a2ce73ebcd744de192d9e1992443ba14899884faf74eca9596431b0a578dcb22",
+    "evidence": {
+      "bytes": 2392,
+      "diagnostics": [],
+      "fileName": "xtend.maraca.css",
+      "fingerprint": "9ef97d41f6640013d42203f9d4c4341cbaaea16901684727d7a520230b471939",
+      "mode": "external",
+      "outputFingerprint": "cc8da6df68b57de8f4f64e965f76de6368efae2bcbd6d1cacb0530dc8addd1ce",
+      "planFingerprint": "48098687401ce48c6816b038dc79b39998e650638cc32e070a31b2e21c6e39ed",
+      "provider": {
+        "capabilities": {
+          "external": true,
+          "inline": true,
+          "minify": false,
+          "sourceMaps": false
+        },
+        "diagnostics": {
+          "codes": [
+            "xtend.maraca.css_provider.invalid",
+            "xtend.maraca.css_provider.unavailable",
+            "xtend.maraca.css_provider.source_blocked",
+            "xtend.maraca.css_provider.build_failed",
+            "xtend.maraca.css_provider.output_missing"
+          ],
+          "schema": "xtend.maraca.css-provider-diagnostic.v1"
+        },
+        "fingerprint": "91cd3dfc66eca5d22e1f1ce5980a8589022df25477a68b147753df8b176a2de0",
+        "id": "maraca-native",
+        "label": "Maraca native CSS provider",
+        "lifecycle": [
+          "inspect",
+          "plan",
+          "build",
+          "report",
+          "dispose"
+        ],
+        "runtimeBoundary": "build-time-only",
+        "schema": "xtend.maraca.css-provider.v1",
+        "sourcePolicy": {
+          "automaticDiscovery": false,
+          "explicitSources": true,
+          "network": false
+        },
+        "version": "1"
+      },
+      "requestFingerprint": "595358250f62ca384faaef7461165af63297142a17ef676e5d504285d17d306b",
+      "schema": "xtend.maraca.css-build-evidence.v1",
+      "sourceFingerprints": [
+        {
+          "fingerprint": "707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
+          "path": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt"
+        }
+      ],
+      "status": "ready"
+    },
+    "diagnostics": [],
+    "inspection": {
+      "schema": "xtend.maraca.css-provider-inspection.v1",
+      "status": "ready",
+      "available": true,
+      "toolchain": {
+        "name": "maraca-native",
+        "version": "1"
+      },
+      "diagnostics": [],
+      "fingerprint": "6eebb47bf470864d1de390103634e1ba7c77b741cb6b929c9cc7d333c2d55379"
+    },
+    "providerPlan": {
+      "schema": "xtend.maraca.css-build-plan.v1",
+      "status": "ready",
+      "provider": "maraca-native",
+      "providerFingerprint": "91cd3dfc66eca5d22e1f1ce5980a8589022df25477a68b147753df8b176a2de0",
+      "requestFingerprint": "595358250f62ca384faaef7461165af63297142a17ef676e5d504285d17d306b",
+      "inspectionFingerprint": "6eebb47bf470864d1de390103634e1ba7c77b741cb6b929c9cc7d333c2d55379",
+      "mode": "external",
+      "output": "xtend.maraca.css",
+      "steps": [
+        "create-native-css"
+      ],
+      "metadata": {},
+      "diagnostics": [],
+      "fingerprint": "48098687401ce48c6816b038dc79b39998e650638cc32e070a31b2e21c6e39ed"
+    },
+    "artifact": {
+      "schema": "xtend.maraca.css-artifact.v1",
+      "status": "ready",
+      "mode": "external",
+      "fileName": "xtend.maraca.css",
+      "sourceMap": null,
+      "bytes": 2392,
+      "fingerprint": "cc8da6df68b57de8f4f64e965f76de6368efae2bcbd6d1cacb0530dc8addd1ce",
+      "diagnostics": []
+    },
+    "lifecycle": [
+      "inspect",
+      "plan",
+      "build",
+      "report",
+      "dispose"
+    ]
+  },
   "vendor": false,
   "componentMode": "document",
   "stackMode": "plan",
   "target": "modern-esm",
+  "services": {
+    "schema": "xtend.maraca.service-build-report.v1",
+    "enabled": false,
+    "ok": true,
+    "status": "disabled",
+    "targets": [],
+    "manifest": null,
+    "files": [],
+    "diagnostics": [],
+    "warnings": [],
+    "fingerprint": "b2f9944ce0db6bc33e2d3262ab531eb3b0c02db45d2bb6309170d3c9b51a1cb1",
+    "bytes": {
+      "client": 0,
+      "server": 0
+    },
+    "budgets": {
+      "clientBytes": null,
+      "serverBytes": null
+    },
+    "targetFacts": [],
+    "artifacts": [],
+    "integrity": {
+      "manifestFingerprint": null,
+      "serviceGraphFingerprint": "b2f9944ce0db6bc33e2d3262ab531eb3b0c02db45d2bb6309170d3c9b51a1cb1",
+      "artifactCount": 0,
+      "artifactFingerprints": []
+    }
+  },
   "entry": "/home/konni/Downloads/xtend-main/xtend/products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
   "entryRelative": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
-  "entryBytes": 893017,
-  "bytes": 2364866,
+  "entryBytes": 913491,
+  "bytes": 2384426,
   "bundleFiles": [
     {
       "type": "chunk",
       "fileName": "xtend.maraca.mjs",
       "path": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
-      "bytes": 893017,
+      "bytes": 913491,
       "isEntry": true,
       "isDynamicEntry": false,
       "imports": [
         "./runtime/xtendrmt-kernel-orchestration-controller.js",
         "./runtime/xtendrmt-runtime.esm.js",
-        "chunks/x-button-DbhMO_TP.mjs"
+        "chunks/x-button-Bie07t_D.mjs"
       ],
       "dynamicImports": [
-        "chunks/x-button-DbhMO_TP.mjs",
-        "chunks/x-input-B2Ax5khn.mjs",
-        "chunks/x-select-DYFzTcio.mjs",
-        "chunks/x-status-C4OWqBWV.mjs",
-        "chunks/x-textarea-Mm8M4fVN.mjs"
-      ]
+        "chunks/x-button-Bie07t_D.mjs",
+        "chunks/x-input-aim4UxR4.mjs",
+        "chunks/x-select-BLl2YLAN.mjs",
+        "chunks/x-status-BsmyACQ4.mjs",
+        "chunks/x-textarea-BEsz5ShG.mjs"
+      ],
+      "modules": [
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-surface-transition-runtime.js",
+          "renderedLength": 21422,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "renderedLength": 47839,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-state-selector-runtime.js",
+          "renderedLength": 40695,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-form-validation-runtime.js",
+          "renderedLength": 17196,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-event-routing-runtime.js",
+          "renderedLength": 34488,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-dom-descriptor-renderer.js",
+          "renderedLength": 68126,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-app-runtime.js",
+          "renderedLength": 95969,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-animation-engine-runtime.js",
+          "renderedLength": 16209,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-action-effect-runtime.js",
+          "renderedLength": 29025,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/components/xutils.js",
+          "renderedLength": 28846,
+          "appService": false
+        },
+        {
+          "id": "\u0000xtend-maraca-entry",
+          "renderedLength": 1212897,
+          "appService": false
+        }
+      ],
+      "appServiceBytes": 0,
+      "frameworkBytes": 913491
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-button-DbhMO_TP.mjs",
-      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-button-DbhMO_TP.mjs",
+      "fileName": "chunks/x-button-Bie07t_D.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-button-Bie07t_D.mjs",
       "bytes": 49322,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [],
-      "dynamicImports": []
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/components/xstate.js",
+          "renderedLength": 14295,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/components/rmt-command.js",
+          "renderedLength": 2876,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/components/icon-packs/core.js",
+          "renderedLength": 6002,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/components/icon-packs/lucide.js",
+          "renderedLength": 4716,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/components/xicon.js",
+          "renderedLength": 21014,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/components/xbutton.js",
+          "renderedLength": 24336,
+          "appService": false
+        }
+      ],
+      "appServiceBytes": 0,
+      "frameworkBytes": 49322
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-input-B2Ax5khn.mjs",
-      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-input-B2Ax5khn.mjs",
+      "fileName": "chunks/x-input-aim4UxR4.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-input-aim4UxR4.mjs",
       "bytes": 14332,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-button-DbhMO_TP.mjs"
+        "chunks/x-button-Bie07t_D.mjs"
       ],
-      "dynamicImports": []
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/components/xinput.js",
+          "renderedLength": 16821,
+          "appService": false
+        }
+      ],
+      "appServiceBytes": 0,
+      "frameworkBytes": 14332
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-select-DYFzTcio.mjs",
-      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-select-DYFzTcio.mjs",
+      "fileName": "chunks/x-select-BLl2YLAN.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-select-BLl2YLAN.mjs",
       "bytes": 16112,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-button-DbhMO_TP.mjs"
+        "chunks/x-button-Bie07t_D.mjs"
       ],
-      "dynamicImports": []
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/components/xselect.js",
+          "renderedLength": 18551,
+          "appService": false
+        }
+      ],
+      "appServiceBytes": 0,
+      "frameworkBytes": 16112
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-status-C4OWqBWV.mjs",
-      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-status-C4OWqBWV.mjs",
+      "fileName": "chunks/x-status-BsmyACQ4.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-status-BsmyACQ4.mjs",
       "bytes": 9912,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-button-DbhMO_TP.mjs"
+        "chunks/x-button-Bie07t_D.mjs"
       ],
-      "dynamicImports": []
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/components/xstatus.js",
+          "renderedLength": 12207,
+          "appService": false
+        }
+      ],
+      "appServiceBytes": 0,
+      "frameworkBytes": 9912
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-textarea-Mm8M4fVN.mjs",
-      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-textarea-Mm8M4fVN.mjs",
+      "fileName": "chunks/x-textarea-BEsz5ShG.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-textarea-BEsz5ShG.mjs",
       "bytes": 33150,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-button-DbhMO_TP.mjs"
+        "chunks/x-button-Bie07t_D.mjs"
       ],
-      "dynamicImports": []
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/components/xtextarea.js",
+          "renderedLength": 39486,
+          "appService": false
+        }
+      ],
+      "appServiceBytes": 0,
+      "frameworkBytes": 33150
     },
     {
       "type": "asset",
@@ -102,27 +438,49 @@
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
-      "dynamicImports": []
+      "dynamicImports": [],
+      "modules": [],
+      "appServiceBytes": 0,
+      "frameworkBytes": 2393
     },
     {
       "type": "asset",
       "fileName": "runtime/xtendrmt-kernel-orchestration-controller.js",
       "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtendrmt-kernel-orchestration-controller.js",
-      "bytes": 38902,
+      "bytes": 41590,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
-      "dynamicImports": []
+      "dynamicImports": [],
+      "modules": [],
+      "appServiceBytes": 0,
+      "frameworkBytes": 41590
     },
     {
       "type": "asset",
       "fileName": "runtime/xtendrmt-runtime.esm.js",
       "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtendrmt-runtime.esm.js",
-      "bytes": 1307726,
+      "bytes": 1303613,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
-      "dynamicImports": []
+      "dynamicImports": [],
+      "modules": [],
+      "appServiceBytes": 0,
+      "frameworkBytes": 1303613
+    },
+    {
+      "type": "asset",
+      "fileName": "index.html",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/index.html",
+      "bytes": 511,
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [],
+      "appServiceBytes": 0,
+      "frameworkBytes": 511
     }
   ],
   "loader": {
@@ -949,8 +1307,8 @@
         "diagnostics": [],
         "sourceToSea": {},
         "evidence": {
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
-          "artifactBundleFingerprint": "fnv1a:5c7c4cb4",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
+          "artifactBundleFingerprint": "fnv1a:38205680",
           "bundleFingerprint": null
         }
       }
@@ -974,8 +1332,8 @@
       "status": "within_budget",
       "mode": "strict",
       "profile": "production",
-      "baselineBytes": 2499262,
-      "bundleBytes": 2364866,
+      "baselineBytes": 2554128,
+      "bundleBytes": 2384426,
       "runtimeExpectedStatus": "booted"
     },
     "releaseConstraint": {
@@ -989,16 +1347,16 @@
     },
     "sourceToSea": {
       "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-      "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+      "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
       "artifactFingerprints": {
-        "templateSource": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
-        "templateBundle": "fnv1a:5c7c4cb4",
+        "templateSource": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
+        "templateBundle": "fnv1a:38205680",
         "bundle": null
       },
       "bundle": {
-        "fileCount": 9,
+        "fileCount": 10,
         "entry": "xtend.maraca.mjs",
-        "bytes": 2364866
+        "bytes": 2384426
       },
       "runtimeFeatureStatus": [
         {
@@ -1087,7 +1445,7 @@
         {
           "capability": "orchestration",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "planned",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1100,7 +1458,7 @@
         {
           "capability": "kernel",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "planned",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1113,7 +1471,7 @@
         {
           "capability": "lifecycle",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "enforced",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1126,7 +1484,7 @@
         {
           "capability": "telemetry",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "available",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1139,7 +1497,7 @@
         {
           "capability": "performance",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "budget_misses",
           "runtimeExpectedStatus": "report-only",
           "bundleFingerprint": null,
@@ -1152,7 +1510,7 @@
         {
           "capability": "policyParity",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "ready",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1165,7 +1523,7 @@
         {
           "capability": "prewarmWorker",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "disabled",
           "runtimeExpectedStatus": "disabled",
           "bundleFingerprint": null,
@@ -1178,7 +1536,7 @@
         {
           "capability": "uiCoprocessor",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "disabled",
           "runtimeExpectedStatus": "disabled",
           "bundleFingerprint": null,
@@ -1191,7 +1549,7 @@
         {
           "capability": "warmReentry",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "available",
           "runtimeExpectedStatus": "idle",
           "bundleFingerprint": null,
@@ -1204,7 +1562,7 @@
         {
           "capability": "prerender",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "available",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1217,7 +1575,7 @@
         {
           "capability": "templateArtifacts",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "prepared",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1532,8 +1890,8 @@
         "diagnostics": [],
         "sourceToSea": {},
         "evidence": {
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
-          "artifactBundleFingerprint": "fnv1a:5c7c4cb4",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
+          "artifactBundleFingerprint": "fnv1a:38205680",
           "bundleFingerprint": null
         }
       }
@@ -1557,8 +1915,8 @@
       "status": "within_budget",
       "mode": "strict",
       "profile": "production",
-      "baselineBytes": 2499262,
-      "bundleBytes": 2364866,
+      "baselineBytes": 2554128,
+      "bundleBytes": 2384426,
       "runtimeExpectedStatus": "booted"
     },
     "releaseConstraint": {
@@ -1572,16 +1930,16 @@
     },
     "sourceToSea": {
       "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-      "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+      "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
       "artifactFingerprints": {
-        "templateSource": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
-        "templateBundle": "fnv1a:5c7c4cb4",
+        "templateSource": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
+        "templateBundle": "fnv1a:38205680",
         "bundle": null
       },
       "bundle": {
-        "fileCount": 9,
+        "fileCount": 10,
         "entry": "xtend.maraca.mjs",
-        "bytes": 2364866
+        "bytes": 2384426
       },
       "runtimeFeatureStatus": [
         {
@@ -1670,7 +2028,7 @@
         {
           "capability": "orchestration",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "planned",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1683,7 +2041,7 @@
         {
           "capability": "kernel",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "planned",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1696,7 +2054,7 @@
         {
           "capability": "lifecycle",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "enforced",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1709,7 +2067,7 @@
         {
           "capability": "telemetry",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "available",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1722,7 +2080,7 @@
         {
           "capability": "performance",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "budget_misses",
           "runtimeExpectedStatus": "report-only",
           "bundleFingerprint": null,
@@ -1735,7 +2093,7 @@
         {
           "capability": "policyParity",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "ready",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1748,7 +2106,7 @@
         {
           "capability": "prewarmWorker",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "disabled",
           "runtimeExpectedStatus": "disabled",
           "bundleFingerprint": null,
@@ -1761,7 +2119,7 @@
         {
           "capability": "uiCoprocessor",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "disabled",
           "runtimeExpectedStatus": "disabled",
           "bundleFingerprint": null,
@@ -1774,7 +2132,7 @@
         {
           "capability": "warmReentry",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "available",
           "runtimeExpectedStatus": "idle",
           "bundleFingerprint": null,
@@ -1787,7 +2145,7 @@
         {
           "capability": "prerender",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "available",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1800,7 +2158,7 @@
         {
           "capability": "templateArtifacts",
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "runtimeStatus": "prepared",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1833,9 +2191,9 @@
     ],
     "documentCount": 1,
     "templateCount": 1,
-    "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
-    "artifactBundleFingerprint": "fnv1a:5c7c4cb4",
-    "bundleFingerprint": "sha256:2435cde945b6e157541e0a31fee5a80c0aa3fd49fe2a9365accfa2b1ec7ea5db",
+    "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
+    "artifactBundleFingerprint": "fnv1a:38205680",
+    "bundleFingerprint": "sha256:c069161c7e7e19f6fd7adeca2904f9b1dd236518a4e12e655b67635bc404e1fd",
     "runtimeProfileHints": [
       "browser",
       "detached_dom",
@@ -1846,7 +2204,7 @@
       {
         "kind": "rmt_template_artifact_document",
         "version": "1.0",
-        "artifactId": "artifact:product.kernel.maraca:v1a:5fc97fcf",
+        "artifactId": "artifact:product.kernel.maraca:v1a:b631011e",
         "documentId": "product.kernel.maraca",
         "namespace": "product",
         "sourceUrl": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
@@ -1857,13 +2215,13 @@
         ],
         "metadata": {
           "maraca": true,
-          "sourceHash": "607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
-          "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceHash": "707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
+          "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "compilerSchema": "xtend.rmt.vnext-compiler.v1"
         },
         "reactivityHints": {},
-        "fingerprint": "fnv1a:5fc97fcf",
-        "sourceFingerprint": "fnv1a:45ced6c7",
+        "fingerprint": "fnv1a:b631011e",
+        "sourceFingerprint": "fnv1a:3cc96de7",
         "templates": [
           {
             "kind": "rmt_prepared_template",
@@ -1935,18 +2293,18 @@
         ],
         "metadata": {
           "source": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
-          "sourceHash": "607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+          "sourceHash": "707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
           "compilerSchema": "xtend.rmt.vnext-compiler.v1"
         },
         "documentCount": 1,
         "templateCount": 1,
-        "fingerprint": "fnv1a:5c7c4cb4"
+        "fingerprint": "fnv1a:38205680"
       },
       "documents": [
         {
           "kind": "rmt_template_artifact_document",
           "version": "1.0",
-          "artifactId": "artifact:product.kernel.maraca:v1a:5fc97fcf",
+          "artifactId": "artifact:product.kernel.maraca:v1a:b631011e",
           "documentId": "product.kernel.maraca",
           "namespace": "product",
           "sourceUrl": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt",
@@ -1957,13 +2315,13 @@
           ],
           "metadata": {
             "maraca": true,
-            "sourceHash": "607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
-            "sourceFingerprint": "sha256:607b9e9104080c6affe70732d7d28e4c11c3e95100cc4743d33322e579a92138",
+            "sourceHash": "707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
+            "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
             "compilerSchema": "xtend.rmt.vnext-compiler.v1"
           },
           "reactivityHints": {},
-          "fingerprint": "fnv1a:5fc97fcf",
-          "sourceFingerprint": "fnv1a:45ced6c7",
+          "fingerprint": "fnv1a:b631011e",
+          "sourceFingerprint": "fnv1a:3cc96de7",
           "templates": [
             {
               "kind": "rmt_prepared_template",
@@ -2041,8 +2399,8 @@
       "artifactTemplateIds": [
         "template:product.kernel.maraca"
       ],
-      "bundleFileCount": 9,
-      "bundleFingerprint": "sha256:2435cde945b6e157541e0a31fee5a80c0aa3fd49fe2a9365accfa2b1ec7ea5db"
+      "bundleFileCount": 10,
+      "bundleFingerprint": "sha256:c069161c7e7e19f6fd7adeca2904f9b1dd236518a4e12e655b67635bc404e1fd"
     },
     "diagnostics": []
   },
@@ -3136,7 +3494,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "booted",
-      "bundleFingerprint": "sha256:2435cde945b6e157541e0a31fee5a80c0aa3fd49fe2a9365accfa2b1ec7ea5db"
+      "bundleFingerprint": "sha256:c069161c7e7e19f6fd7adeca2904f9b1dd236518a4e12e655b67635bc404e1fd"
     },
     "diagnostics": [
       {
@@ -3156,7 +3514,7 @@
         ]
       }
     ],
-    "bundleFingerprint": "sha256:2435cde945b6e157541e0a31fee5a80c0aa3fd49fe2a9365accfa2b1ec7ea5db"
+    "bundleFingerprint": "sha256:c069161c7e7e19f6fd7adeca2904f9b1dd236518a4e12e655b67635bc404e1fd"
   },
   "panicRecovery": {
     "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
@@ -4370,7 +4728,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "booted",
-      "bundleFingerprint": "sha256:2435cde945b6e157541e0a31fee5a80c0aa3fd49fe2a9365accfa2b1ec7ea5db"
+      "bundleFingerprint": "sha256:c069161c7e7e19f6fd7adeca2904f9b1dd236518a4e12e655b67635bc404e1fd"
     },
     "summary": {
       "schema": "xtend.rmt.kernel-orchestration.v1",
@@ -5180,7 +5538,13 @@
     },
     "precacheUrls": [],
     "precacheCount": 0,
-    "bundleFileCount": 9,
+    "bundleFileCount": 10,
+    "cssBuild": {
+      "provider": "maraca-native",
+      "mode": "external",
+      "asset": "xtend.maraca.css",
+      "evidenceFingerprint": "9ef97d41f6640013d42203f9d4c4341cbaaea16901684727d7a520230b471939"
+    },
     "runtimeCaching": {
       "allowed": [
         {
@@ -5281,15 +5645,11 @@
       "timelineCount": 0,
       "transitionCount": 6,
       "effectCounts": {
-        "crossfade": 1,
-        "slide-right": 2,
-        "slide-left": 1,
-        "scale": 1,
-        "fade": 1
+        "zoom": 6
       },
       "durationRange": {
-        "min": 180,
-        "max": 240
+        "min": 420,
+        "max": 420
       },
       "xstateModule": "components/xstate.js",
       "xutilsModule": "components/xutils.js",
@@ -5410,6 +5770,12 @@
       "version": "5.48.0",
       "mode": "terser-js-api"
     },
+    "typescript": {
+      "requested": true,
+      "available": true,
+      "version": "5.9.3",
+      "mode": "typescript-program-and-rollup-transform"
+    },
     "active": "rollup-terser",
     "warnings": [
       {
@@ -5422,11 +5788,15 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-surface-resource-graph-runtime.js (1059:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-event-routing-runtime.js (793:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-event-routing-runtime.js (793:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-animation-engine-runtime.js (406:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-surface-resource-graph-runtime.js (1059:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -5434,19 +5804,15 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-animation-engine-runtime.js (365:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
-      },
-      {
-        "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-action-effect-runtime.js (583:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
-      },
-      {
-        "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-app-runtime.js (1379:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-action-effect-runtime.js (618:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
         "message": "xtendrmt/rmt-dom-descriptor-renderer.js (1592:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-app-runtime.js (2075:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       }
     ],
     "nameCache": null
@@ -5459,18 +5825,51 @@
     "mode": "strict",
     "baseline": {
       "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
-      "loaderBytes": 53968,
-      "selectedComponentBytes": 111997,
-      "stackModuleBytes": 1725677,
-      "contractPayloadBytes": 607620,
-      "bytes": 2499262
+      "loaderBytes": 69993,
+      "selectedComponentBytes": 111971,
+      "stackModuleBytes": 1763041,
+      "contractPayloadBytes": 609123,
+      "bytes": 2554128
     },
-    "baselineBytes": 2499262,
-    "bundleBytes": 2364866,
-    "ratio": 0.9462257258342662,
+    "baselineBytes": 2554128,
+    "bundleBytes": 2384426,
+    "framework": {
+      "bytes": 2384426,
+      "baselineBytes": 2554128,
+      "withinBudget": true
+    },
+    "appServices": {
+      "clientBytes": 0,
+      "clientBudgetBytes": null,
+      "clientWithinBudget": true,
+      "serverBytes": 0,
+      "serverBudgetBytes": null,
+      "serverWithinBudget": true,
+      "withinBudget": true
+    },
+    "css": {
+      "provider": "maraca-native",
+      "bytes": 2392,
+      "budgetBytes": null,
+      "withinBudget": true,
+      "requestFingerprint": "595358250f62ca384faaef7461165af63297142a17ef676e5d504285d17d306b",
+      "configFingerprint": "a2ce73ebcd744de192d9e1992443ba14899884faf74eca9596431b0a578dcb22",
+      "evidenceFingerprint": "9ef97d41f6640013d42203f9d4c4341cbaaea16901684727d7a520230b471939",
+      "outputFingerprint": "cc8da6df68b57de8f4f64e965f76de6368efae2bcbd6d1cacb0530dc8addd1ce",
+      "sourceFingerprints": [
+        {
+          "fingerprint": "707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
+          "path": "products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt"
+        }
+      ]
+    },
+    "ratio": 0.9335577543490381,
     "budgets": {
       "modernEsmEntryMustBeSmallerThanBaseline": true,
-      "enforcement": "strict"
+      "enforcement": "strict",
+      "frameworkBytes": 2554128,
+      "clientAppServiceBytes": null,
+      "serverAppServiceBytes": null
     }
   },
   "forbiddenRuntimeDependencies": {

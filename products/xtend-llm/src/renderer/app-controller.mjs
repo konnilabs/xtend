@@ -31,7 +31,6 @@ import {
 } from './tool-usage-bridge.mjs';
 import { stripThinkMarkup } from '../llm/thinking-markup.mjs';
 
-window.__XTendMaracaDisableAutoBoot = true;
 installRmtCodeHighlighter();
 
 const CHANNELS = Object.freeze({
@@ -46,7 +45,6 @@ const CHANNELS = Object.freeze({
 const state = {
   activeConversationId: '',
   activeJobId: '',
-  activeRunId: '',
   promptDraft: '',
   submitting: false,
   conversations: [],
@@ -97,8 +95,9 @@ const state = {
 };
 
 let appRuntime = null;
-let maracaModule = null;
+let maracaBootResult = null;
 let uiCompute = null;
+let activeGenerationStream = null;
 let subscriptionsBound = false;
 let scheduledSnapshotTimer = null;
 let lastTelemetrySnapshot = null;
@@ -106,6 +105,7 @@ let lastStreamPressureLevel = 'normal';
 let lastUiComputePrewarm = null;
 const streamPressureWindow = [];
 const messageActionFeedbackTimers = new Map();
+const generationFrameChannels = new Map();
 
 const STREAM_PRESSURE_WINDOW_MS = 1000;
 const STREAM_PRESSURE_HIGH_DELTAS = 20;
@@ -208,9 +208,9 @@ function safeArray(value) {
 }
 
 function summarizeMaracaTelemetry(mainMaraca = {}) {
-  const result = window.__XTendMaracaResult || {};
-  const api = maracaModule?.default || window.XTendMaraca || {};
-  const kernelPlan = api.kernelPlan || maracaModule?.MARACA_KERNEL || result.kernel || {};
+  const result = maracaBootResult || {};
+  const api = window.XTendMaraca || {};
+  const kernelPlan = api.kernelPlan || result.kernel || {};
   const templateArtifacts = mainMaraca.templateArtifacts
     || api.templateArtifacts
     || result.templateArtifacts
@@ -377,7 +377,7 @@ function createRuntimeDiagnosticsState(snapshot = null) {
 }
 
 function readServerPrewarmTargets() {
-  const result = window.__XTendMaracaResult || {};
+  const result = maracaBootResult || {};
   const shellTargets = result.serverPrerenderShell && Array.isArray(result.serverPrerenderShell.workerPrewarmTargets)
     ? result.serverPrerenderShell.workerPrewarmTargets
     : [];
@@ -882,8 +882,8 @@ function createSnapshot() {
 }
 
 async function dispatchCommand(command, payload = {}, lane = 'user-blocking') {
-  if (!appRuntime) return null;
-  const options = {
+  if (!appRuntime || typeof appRuntime.command !== 'function') return null;
+  return appRuntime.command(command, payload, {
     lane,
     sourceKind: 'business-adapter',
     sourceId: 'products.xtend-llm.renderer',
@@ -891,23 +891,6 @@ async function dispatchCommand(command, payload = {}, lane = 'user-blocking') {
     metadata: {
       ownerId: 'products.xtend-llm.renderer'
     }
-  };
-  if (typeof appRuntime.command === 'function') {
-    return appRuntime.command(command, payload, options);
-  }
-  if (typeof appRuntime.dispatchCommand !== 'function' || typeof appRuntime.createCommandEnvelope !== 'function') return null;
-  return appRuntime.dispatchCommand(appRuntime.createCommandEnvelope({
-    command,
-    payload,
-    source: {
-      kind: 'business-adapter',
-      id: 'products.xtend-llm.renderer',
-      event: 'host',
-      surfaceId: ''
-    },
-    lane
-  }), {
-    ownerId: 'products.xtend-llm.renderer'
   });
 }
 
@@ -936,10 +919,55 @@ function scheduleSnapshot(delayMs = 180) {
   }, Math.max(0, Number(delayMs) || 0));
 }
 
-function recordGenerationStreamPatch(type, patch = {}) {
+function createGenerationFrameChannel(jobId) {
+  const frames = [];
+  let wake = null;
+  return Object.freeze({
+    jobId,
+    push(frame) {
+      frames.push(frame);
+      if (wake) wake();
+    },
+    async next(signal) {
+      while (frames.length === 0 && !signal.aborted) {
+        await new Promise((resolve) => {
+          const resume = () => {
+            signal.removeEventListener('abort', resume);
+            if (wake === resume) wake = null;
+            resolve();
+          };
+          wake = resume;
+          signal.addEventListener('abort', resume, { once: true });
+        });
+      }
+      return signal.aborted ? null : (frames.shift() || null);
+    },
+    wake() {
+      if (wake) wake();
+    }
+  });
+}
+
+export async function* streamGenerationService(payload = {}, context = {}) {
+  const jobId = String(payload.jobId || '');
+  const channel = generationFrameChannels.get(jobId);
+  if (!jobId || !channel) throw new Error(`Generation frame channel is unavailable for ${jobId || 'unknown job'}.`);
+  try {
+    while (!context.signal.aborted) {
+      const frame = await channel.next(context.signal);
+      if (!frame) return;
+      yield frame;
+    }
+  } finally {
+    if (generationFrameChannels.get(jobId) === channel) generationFrameChannels.delete(jobId);
+  }
+}
+
+function forwardGenerationServiceFrame(frame, target = 'generation.streamText') {
   if (!appRuntime || typeof appRuntime.handleStreamPatch !== 'function') return;
+  const type = frame.type || 'delta';
   const pressure = type === 'delta'
-    ? recordDeltaPressure(patch.delta)
+    ? recordDeltaPressure(frame.delta)
     : (type === 'start' ? resetDeltaPressure() : {
         schema: 'xtend-llm.renderer-stream-pressure.v1',
         level: lastStreamPressureLevel,
@@ -948,15 +976,10 @@ function recordGenerationStreamPatch(type, patch = {}) {
         windowMs: STREAM_PRESSURE_WINDOW_MS
       });
   appRuntime.handleStreamPatch({
-    type,
-    streamId: state.activeJobId || patch.streamId || '',
-    target: patch.target || 'generation.streamText',
-    correlationId: state.activeRunId || patch.correlationId || '',
-    delta: patch.delta,
-    value: patch.value,
-    error: patch.error
+    ...frame,
+    target
   }, {
-    target: patch.target || 'generation.streamText',
+    target,
     streamPressureLevel: pressure.level,
     backpressureLevel: pressure.level,
     backpressureSignal: {
@@ -973,8 +996,45 @@ function recordGenerationStreamPatch(type, patch = {}) {
   });
 }
 
-function isActiveRun(runId, jobId) {
-  return Boolean(runId && state.activeRunId === runId && state.activeJobId === jobId);
+function startGenerationServiceStream(jobId, context = {}, target = 'generation.streamText') {
+  const registry = window.XTendMaraca?.appServices?.registry;
+  if (!registry || typeof registry.stream !== 'function') {
+    throw new Error('The public Maraca AppServices registry is unavailable.');
+  }
+  if (activeGenerationStream && typeof activeGenerationStream.cancel === 'function') {
+    activeGenerationStream.cancel('Generation superseded by a newer job.');
+  }
+  const channel = createGenerationFrameChannel(jobId);
+  generationFrameChannels.set(jobId, channel);
+  const stream = registry.stream('xtend.llm.generationStream', { jobId }, {
+    onFrame(frame) {
+      forwardGenerationServiceFrame(frame, target);
+    }
+  }, {
+    correlationId: context.correlationId,
+    signal: context.signal
+  });
+  activeGenerationStream = stream;
+  stream.done.finally(() => {
+    channel.wake();
+    if (generationFrameChannels.get(jobId) === channel) generationFrameChannels.delete(jobId);
+    if (activeGenerationStream === stream) activeGenerationStream = null;
+  });
+  return stream;
+}
+
+function emitGenerationServiceFrame(frame) {
+  const channel = generationFrameChannels.get(state.activeJobId);
+  if (channel) channel.push(frame);
+}
+
+function cancelGenerationServiceStream(reason) {
+  if (!activeGenerationStream || typeof activeGenerationStream.cancel !== 'function') return false;
+  return activeGenerationStream.cancel(reason);
+}
+
+function isActiveJob(jobId) {
+  return Boolean(jobId && state.activeJobId === jobId);
 }
 
 function cloneJobForToolDecision(job, originalText) {
@@ -1029,7 +1089,7 @@ async function attachGenerationSources(job, toolResult) {
   }
 }
 
-async function runToolAwareGeneration(job, originalText, runId, options = {}) {
+async function runToolAwareGeneration(job, originalText, options = {}) {
   const forcedToolName = options.forcedToolName || '';
   setRuntimeStatus(
     forcedToolName === WEB_SEARCH_TOOL_NAME
@@ -1060,11 +1120,11 @@ async function runToolAwareGeneration(job, originalText, runId, options = {}) {
         requestId: `${job.jobId}-tool-decision`,
         timeoutMs: 60000
       });
-      if (!isActiveRun(runId, job.jobId)) return;
+      if (!isActiveJob(job.jobId)) return;
       parsed = parseToolDecision(decision.text || '');
     } catch (error) {
       console.warn('[xtend-llm] Tool decision failed; falling back to normal generation.', error);
-      if (isActiveRun(runId, job.jobId)) await runVisibleGeneration(job);
+      if (isActiveJob(job.jobId)) await runVisibleGeneration(job);
       return;
     }
   }
@@ -1088,10 +1148,10 @@ async function runToolAwareGeneration(job, originalText, runId, options = {}) {
       conversationId: job.conversationId,
       toolCall
     });
-    if (!isActiveRun(runId, job.jobId)) return;
+    if (!isActiveJob(job.jobId)) return;
     if (!isRmtKnowledge) {
       await attachGenerationSources(job, toolResult);
-      if (!isActiveRun(runId, job.jobId)) return;
+      if (!isActiveJob(job.jobId)) return;
     }
     finalJob = {
       ...job,
@@ -1104,7 +1164,7 @@ async function runToolAwareGeneration(job, originalText, runId, options = {}) {
       progressStatus: isRmtKnowledge ? 'Generating with RMT knowledge' : 'Generating with web results'
     });
   } catch (error) {
-    if (!isActiveRun(runId, job.jobId)) return;
+    if (!isActiveJob(job.jobId)) return;
     console.warn(`[xtend-llm] ${isRmtKnowledge ? 'RMT knowledge' : 'Web search'} failed; asking model to answer with failure context.`, error);
     finalJob = {
       ...job,
@@ -1118,13 +1178,12 @@ async function runToolAwareGeneration(job, originalText, runId, options = {}) {
     });
   }
 
-  if (isActiveRun(runId, job.jobId)) await runVisibleGeneration(finalJob);
+  if (isActiveJob(job.jobId)) await runVisibleGeneration(finalJob);
 }
 
 function settleGenerationComplete() {
-  recordGenerationStreamPatch('complete', { value: { jobId: state.activeJobId, runId: state.activeRunId } });
+  emitGenerationServiceFrame({ type: 'complete', value: { jobId: state.activeJobId } });
   state.activeJobId = '';
-  state.activeRunId = '';
   state.regeneratingMessageId = '';
   state.submitting = false;
   state.promptDraft = '';
@@ -1138,9 +1197,8 @@ function settleGenerationComplete() {
 
 function settleGenerationError(error = {}) {
   if (error && error.code === 'xtend-llm.app_reset') return;
-  recordGenerationStreamPatch('error', { error });
+  emitGenerationServiceFrame({ type: 'error', error });
   state.activeJobId = '';
-  state.activeRunId = '';
   state.regeneratingMessageId = '';
   state.submitting = false;
   state.progressActive = false;
@@ -1152,7 +1210,9 @@ function settleGenerationError(error = {}) {
 }
 
 function selectedToolName(context = {}) {
-  const stateRuntime = context && context.stateRuntime || null;
+  const stateRuntime = context && context.stateRuntime
+    || window.XTendMaraca?.orchestration?.stateRuntime
+    || null;
   const toolMenu = stateRuntime && typeof stateRuntime.getState === 'function'
     ? stateRuntime.getState('xtend.llm.toolMenu')
     : null;
@@ -1179,11 +1239,10 @@ async function submitPrompt(payload = {}, context = {}) {
     applyConversationPatch(result);
     if (result.job) {
       state.activeJobId = result.job.jobId;
-      state.activeRunId = `${result.job.jobId}:${Date.now().toString(36)}`;
-      recordGenerationStreamPatch('start', { value: { jobId: state.activeJobId, runId: state.activeRunId } });
+      startGenerationServiceStream(state.activeJobId, context);
       state.promptDraft = '';
       state.submitting = false;
-      runToolAwareGeneration(result.job, text, state.activeRunId, { forcedToolName }).catch(settleGenerationError);
+      runToolAwareGeneration(result.job, text, { forcedToolName }).catch(settleGenerationError);
     }
   } catch (error) {
     settleGenerationError({ message: error && error.message ? error.message : String(error) });
@@ -1236,14 +1295,10 @@ async function regenerateAssistantMessage(payload = {}, context = {}) {
     applyConversationPatch(result);
     if (result.job) {
       state.activeJobId = result.job.jobId;
-      state.activeRunId = `${result.job.jobId}:${Date.now().toString(36)}`;
-      recordGenerationStreamPatch('start', {
-        target: 'generation.regenerate',
-        value: { jobId: state.activeJobId, runId: state.activeRunId, messageId }
-      });
+      startGenerationServiceStream(state.activeJobId, context, 'generation.regenerate');
       state.submitting = false;
       const originalText = result.job.originalPrompt || (result.job.messages || []).filter((entry) => entry.role === 'user').at(-1)?.content || '';
-      runToolAwareGeneration(result.job, originalText, state.activeRunId, { forcedToolName }).catch(settleGenerationError);
+      runToolAwareGeneration(result.job, originalText, { forcedToolName }).catch(settleGenerationError);
     }
   } catch (error) {
     state.regeneratingMessageId = '';
@@ -1257,8 +1312,7 @@ async function regenerateAssistantMessage(payload = {}, context = {}) {
 async function cancelGeneration() {
   const jobId = state.activeJobId;
   if (!jobId) return createSnapshot();
-  recordGenerationStreamPatch('cancel', { value: { jobId, reason: 'user-cancelled' } });
-  state.activeRunId = '';
+  cancelGenerationServiceStream('Generation cancelled by the user.');
   state.activeJobId = '';
   state.regeneratingMessageId = '';
   state.submitting = false;
@@ -1336,172 +1390,211 @@ function bindBridgeEvents() {
     scheduleSnapshot(220);
   });
   window.xtendLlm.on(CHANNELS.generationDelta, (delta) => {
+    const jobId = typeof delta === 'object' && delta ? String(delta.jobId || '') : state.activeJobId;
+    if (!isActiveJob(jobId)) return;
     setRuntimeStatus('Streaming response...', 'info', {
       progressActive: true,
       progressStatus: 'Streaming tokens'
     });
-    recordGenerationStreamPatch('delta', { delta: typeof delta === 'string' ? delta : '' });
+    emitGenerationServiceFrame({
+      type: 'delta',
+      delta: typeof delta === 'string' ? delta : String(delta.delta || '')
+    });
     dispatchSnapshot();
   });
-  window.xtendLlm.on(CHANNELS.generationComplete, () => {
+  window.xtendLlm.on(CHANNELS.generationComplete, (complete) => {
+    if (!isActiveJob(complete && complete.jobId)) return;
     settleGenerationComplete();
   });
   window.xtendLlm.on(CHANNELS.generationError, (error) => {
+    if (error && error.jobId && !isActiveJob(error.jobId)) return;
     settleGenerationError(error);
   });
 }
 
-const hostDataSourceAdapter = Object.freeze({
-  async invoke({ source, payload, context }) {
-    const endpoint = source && (source.endpoint || source.id) || '';
-    switch (endpoint) {
-      case 'xtend.llm.bootstrap':
-        return bootstrap();
-      case 'xtend.llm.applySnapshot':
-        return createSnapshot();
-      case 'xtend.llm.updatePrompt':
-        state.promptDraft = String(payload.value || '');
-        return createSnapshot();
-      case 'xtend.llm.routePromptCommand':
-        state.promptDraft = String(payload.value || '');
-        return payload.command === 'xtend.llm.send' ? submitPrompt(payload, context) : createSnapshot();
-      case 'xtend.llm.updateConversationSearch':
-        state.conversationSearchDraft = String(payload.value || '');
-        return createSnapshot();
-      case 'xtend.llm.send':
-      case 'xtend.llm.retryGeneration':
-        return submitPrompt(payload, context);
-      case 'xtend.llm.copyAssistantMessage':
-        return copyAssistantMessage(payload);
-      case 'xtend.llm.regenerateAssistantMessage':
-        return regenerateAssistantMessage(payload, context);
-      case 'xtend.llm.cancelGeneration':
-        return cancelGeneration();
-      case 'xtend.llm.newConversation': {
-        const patch = await window.xtendLlm.createConversation();
-        state.openConversationMenuId = '';
-        applyConversationPatch(patch);
-        setRuntimeError('No runtime error.', true);
-        return createSnapshot();
-      }
-      case 'xtend.llm.selectConversation': {
-        const patch = await window.xtendLlm.selectConversation(payload.conversationId);
-        state.openConversationMenuId = '';
-        applyConversationPatch(patch);
-        setRuntimeError('No runtime error.', true);
-        return createSnapshot();
-      }
-      case 'xtend.llm.openConversationMenu':
-        state.openConversationMenuId = state.openConversationMenuId === payload.conversationId ? '' : String(payload.conversationId || '');
-        return createSnapshot();
-      case 'xtend.llm.requestDeleteConversation':
-        state.pendingDeleteConversationId = String(payload.conversationId || '');
-        state.deleteDialogOpen = Boolean(state.pendingDeleteConversationId);
-        state.openConversationMenuId = '';
-        return createSnapshot();
-      case 'xtend.llm.closeDeleteConversation':
-        state.pendingDeleteConversationId = '';
-        state.deleteDialogOpen = false;
-        return createSnapshot();
-      case 'xtend.llm.confirmDeleteConversation': {
-        const conversationId = state.pendingDeleteConversationId;
-        if (conversationId && conversationId === state.activeConversationId && state.activeJobId) {
-          state.worker.cancel(state.activeJobId);
-          state.activeJobId = '';
-          state.activeRunId = '';
-          state.regeneratingMessageId = '';
-        }
-        state.pendingDeleteConversationId = '';
-        state.deleteDialogOpen = false;
-        if (conversationId) {
-          const patch = await window.xtendLlm.deleteConversation(conversationId);
-          applyConversationPatch(patch);
-        }
-        return createSnapshot();
-      }
-      case 'xtend.llm.openSettings':
-        await refreshRuntimeDiagnostics();
-        state.settingsDraft = { ...state.settings };
-        state.settingsDirty = false;
-        state.settingsSelectedTab = 0;
-        state.settingsResetConfirm = false;
-        state.settingsOpen = true;
-        return createSnapshot();
-      case 'xtend.llm.closeSettings':
-        state.settingsDraft = { ...state.settings };
-        state.settingsDirty = false;
-        state.settingsResetConfirm = false;
-        state.settingsOpen = false;
-        applyThemeMode(state.settings.themeMode);
-        return createSnapshot();
-      case 'xtend.llm.selectSettingsTab':
-        state.settingsSelectedTab = validSettingsTabIndex(payload.selected ?? payload.index);
-        return createSnapshot();
-      case 'xtend.llm.updateSettingsTheme':
-        state.settingsDraft.themeMode = validThemeMode(payload.mode);
-        state.settingsDirty = true;
-        applyThemeMode(state.settingsDraft.themeMode);
-        return createSnapshot();
-      case 'xtend.llm.updateSettingsInstructions':
-        state.settingsDraft.customInstructions = String(payload.value || '');
-        state.settingsDirty = true;
-        return createSnapshot();
-      case 'xtend.llm.saveSettings': {
-        const patch = await window.xtendLlm.updateSettings(state.settingsDraft);
-        applySettingsPatch(patch.settings || {});
-        state.settingsOpen = false;
-        setRuntimeStatus('Settings saved.', 'success');
-        return createSnapshot();
-      }
-      case 'xtend.llm.beginSettingsReset':
-        state.settingsResetConfirm = true;
-        return createSnapshot();
-      case 'xtend.llm.cancelSettingsReset':
-        state.settingsResetConfirm = false;
-        return createSnapshot();
-      case 'xtend.llm.confirmSettingsReset': {
-        if (state.activeJobId) {
-          state.worker.cancel(state.activeJobId);
-          state.activeJobId = '';
-          state.activeRunId = '';
-          state.regeneratingMessageId = '';
-        }
-        const result = await window.xtendLlm.resetApp({ confirm: true });
-        applySettingsPatch(result.settings?.settings || result.settings || {});
-        applyConversationPatch(result.conversation || {});
-        state.promptDraft = '';
-        state.conversationSearchDraft = '';
-        state.settingsOpen = false;
-        state.settingsResetConfirm = false;
-        setRuntimeStatus('Ready.', 'success');
-        await refreshRuntimeDiagnostics();
-        return createSnapshot();
-      }
-      case 'xtend.llm.readRuntimeDiagnostics': {
-        await refreshRuntimeDiagnostics();
-        return createSnapshot();
-      }
-      default:
-        throw new Error(`Unsupported XTend LLM host datasource: ${endpoint}`);
-    }
-  }
-});
-
-async function main() {
-  maracaModule = await import('/build/xtend.maraca.mjs');
-  await maracaModule.bootXtendMaraca({
-    dataSourceAdapters: {
-      host: hostDataSourceAdapter
-    }
-  });
-  appRuntime = window.__XTendMaracaOrchestration?.appRuntime || null;
-  window.onbeforeunload = () => {
-    if (state.worker && typeof state.worker.dispose === 'function') state.worker.dispose('window-beforeunload');
-    if (uiCompute && typeof uiCompute.dispose === 'function') uiCompute.dispose('window-beforeunload');
-  };
-  await dispatchCommand('xtend.llm.bootstrap', { label: 'Bootstrap' }, 'bootstrap');
+export function bootstrapService() {
+  return bootstrap();
 }
 
-main().catch((error) => {
-  console.error('[xtend-llm] Boot failed.', error);
-});
+export function applySnapshotService() {
+  return createSnapshot();
+}
+
+export function updatePromptService(payload = {}) {
+  state.promptDraft = String(payload.value || '');
+  return createSnapshot();
+}
+
+export function routePromptCommandService(payload = {}, context = {}) {
+  state.promptDraft = String(payload.value || '');
+  return payload.command === 'xtend.llm.send' ? submitPrompt(payload, context) : createSnapshot();
+}
+
+export function updateConversationSearchService(payload = {}) {
+  state.conversationSearchDraft = String(payload.value || '');
+  return createSnapshot();
+}
+
+export function sendPromptService(payload = {}, context = {}) {
+  return submitPrompt(payload, context);
+}
+
+export function copyAssistantMessageService(payload = {}) {
+  return copyAssistantMessage(payload);
+}
+
+export function regenerateAssistantMessageService(payload = {}, context = {}) {
+  return regenerateAssistantMessage(payload, context);
+}
+
+export function cancelGenerationService() {
+  return cancelGeneration();
+}
+
+export async function newConversationService() {
+  const patch = await window.xtendLlm.createConversation();
+  state.openConversationMenuId = '';
+  applyConversationPatch(patch);
+  setRuntimeError('No runtime error.', true);
+  return createSnapshot();
+}
+
+export async function selectConversationService(payload = {}) {
+  const patch = await window.xtendLlm.selectConversation(payload.conversationId);
+  state.openConversationMenuId = '';
+  applyConversationPatch(patch);
+  setRuntimeError('No runtime error.', true);
+  return createSnapshot();
+}
+
+export function openConversationMenuService(payload = {}) {
+  state.openConversationMenuId = state.openConversationMenuId === payload.conversationId ? '' : String(payload.conversationId || '');
+  return createSnapshot();
+}
+
+export function requestDeleteConversationService(payload = {}) {
+  state.pendingDeleteConversationId = String(payload.conversationId || '');
+  state.deleteDialogOpen = Boolean(state.pendingDeleteConversationId);
+  state.openConversationMenuId = '';
+  return createSnapshot();
+}
+
+export function closeDeleteConversationService() {
+  state.pendingDeleteConversationId = '';
+  state.deleteDialogOpen = false;
+  return createSnapshot();
+}
+
+export async function confirmDeleteConversationService() {
+  const conversationId = state.pendingDeleteConversationId;
+  if (conversationId && conversationId === state.activeConversationId && state.activeJobId) {
+    cancelGenerationServiceStream('Active conversation deleted.');
+    state.worker.cancel(state.activeJobId);
+    state.activeJobId = '';
+    state.regeneratingMessageId = '';
+  }
+  state.pendingDeleteConversationId = '';
+  state.deleteDialogOpen = false;
+  if (conversationId) {
+    const patch = await window.xtendLlm.deleteConversation(conversationId);
+    applyConversationPatch(patch);
+  }
+  return createSnapshot();
+}
+
+export async function openSettingsService() {
+  await refreshRuntimeDiagnostics();
+  state.settingsDraft = { ...state.settings };
+  state.settingsDirty = false;
+  state.settingsSelectedTab = 0;
+  state.settingsResetConfirm = false;
+  state.settingsOpen = true;
+  return createSnapshot();
+}
+
+export function closeSettingsService() {
+  state.settingsDraft = { ...state.settings };
+  state.settingsDirty = false;
+  state.settingsResetConfirm = false;
+  state.settingsOpen = false;
+  applyThemeMode(state.settings.themeMode);
+  return createSnapshot();
+}
+
+export function selectSettingsTabService(payload = {}) {
+  state.settingsSelectedTab = validSettingsTabIndex(payload.selected ?? payload.index);
+  return createSnapshot();
+}
+
+export function updateSettingsThemeService(payload = {}) {
+  state.settingsDraft.themeMode = validThemeMode(payload.mode);
+  state.settingsDirty = true;
+  applyThemeMode(state.settingsDraft.themeMode);
+  return createSnapshot();
+}
+
+export function updateSettingsInstructionsService(payload = {}) {
+  state.settingsDraft.customInstructions = String(payload.value || '');
+  state.settingsDirty = true;
+  return createSnapshot();
+}
+
+export async function saveSettingsService() {
+  const patch = await window.xtendLlm.updateSettings(state.settingsDraft);
+  applySettingsPatch(patch.settings || {});
+  state.settingsOpen = false;
+  setRuntimeStatus('Settings saved.', 'success');
+  return createSnapshot();
+}
+
+export function beginSettingsResetService() {
+  state.settingsResetConfirm = true;
+  return createSnapshot();
+}
+
+export function cancelSettingsResetService() {
+  state.settingsResetConfirm = false;
+  return createSnapshot();
+}
+
+export async function confirmSettingsResetService() {
+  if (state.activeJobId) {
+    cancelGenerationServiceStream('Application reset.');
+    state.worker.cancel(state.activeJobId);
+    state.activeJobId = '';
+    state.regeneratingMessageId = '';
+  }
+  const result = await window.xtendLlm.resetApp({ confirm: true });
+  applySettingsPatch(result.settings?.settings || result.settings || {});
+  applyConversationPatch(result.conversation || {});
+  state.promptDraft = '';
+  state.conversationSearchDraft = '';
+  state.settingsOpen = false;
+  state.settingsResetConfirm = false;
+  setRuntimeStatus('Ready.', 'success');
+  await refreshRuntimeDiagnostics();
+  return createSnapshot();
+}
+
+export async function readRuntimeDiagnosticsService() {
+  await refreshRuntimeDiagnostics();
+  return createSnapshot();
+}
+
+function disposeProductRuntime(reason = 'XTend LLM page hidden.') {
+  cancelGenerationServiceStream(reason);
+  generationFrameChannels.forEach((channel) => channel.wake());
+  generationFrameChannels.clear();
+  if (state.worker && typeof state.worker.dispose === 'function') state.worker.dispose(reason);
+  if (uiCompute && typeof uiCompute.dispose === 'function') uiCompute.dispose(reason);
+}
+
+window.addEventListener('xtend-maraca:boot', (event) => {
+  maracaBootResult = event.detail || null;
+  appRuntime = window.XTendMaraca?.orchestration?.appRuntime || null;
+  dispatchCommand('xtend.llm.bootstrap', { label: 'Bootstrap' }, 'bootstrap').catch((error) => {
+    console.error('[xtend-llm] Bootstrap action failed.', error);
+  });
+}, { once: true });
+
+window.addEventListener('pagehide', () => disposeProductRuntime(), { once: true });

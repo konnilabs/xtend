@@ -90,10 +90,21 @@ function runXtendClassicBrandingSuite(options = {}) {
   context.assert(classic && classic.devApiOptIn === 'data-dev-api=true' && classic.parallelDeliveryAlternative === 'XTend Maraca', 'Classic metadata declares DEV API opt-in and parallel Maraca path');
   context.assert(packageManifest.keywords.includes('xtend-classic') && packageManifest.description.includes('XTend Classic'), 'Package discovery metadata contains XTend Classic');
   context.assert(packageManifest.xtend.maraca.compatibilityBoundary === 'xtend-classic-and-maraca-are-supported-delivery-paths', 'Maraca metadata records two supported delivery paths');
-  ['.', './loader'].forEach((entry) => {
-    const exported = packageManifest.exports[entry];
-    context.assert(exported && exported.types === './xtend-loader.d.ts' && exported.browser === './xtend-loader.js' && exported.default === './xtend-loader.js', `${entry} keeps the canonical loader export`);
-  });
+  const rootExport = packageManifest.exports['.'];
+  context.assert(
+    rootExport &&
+      rootExport.node &&
+      rootExport.node.types === './xtend.ssr.d.ts' &&
+      rootExport.node.import === './xtend.ssr.mjs' &&
+      rootExport.node.default === './xtend.ssr.mjs' &&
+      rootExport.types === './xtend.d.ts' &&
+      rootExport.browser === './xtend.js' &&
+      rootExport.import === './xtend.ssr.mjs' &&
+      rootExport.default === './xtend.ssr.mjs',
+    '. keeps the conditional Registry and SSR export contract'
+  );
+  const loaderExport = packageManifest.exports['./loader'];
+  context.assert(loaderExport && loaderExport.types === './xtend-loader.d.ts' && loaderExport.browser === './xtend-loader.js' && loaderExport.default === './xtend-loader.js', './loader keeps the canonical loader export');
   context.assert(packageManifest.exports['./legacy-loader'].default === './xtend-dev.js', 'Only the explicit legacy-loader export retains the legacy runtime');
 
   const generatedNavigation = readText(rootDir, 'docs/menu.json');

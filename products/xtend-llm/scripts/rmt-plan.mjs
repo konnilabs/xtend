@@ -46,6 +46,14 @@ function createBuildInput() {
     validation: readArg('--validation', 'strict'),
     transitions: readArg('--transitions', 'strict'),
     enablePrewarmWorker: readBooleanArg('--enable-prewarm-worker', !debug),
+    services: {
+      clientEntry: path.join(productRoot, 'src', 'services.ts'),
+      targets: ['browser'],
+      budgets: {
+        clientBytes: 65_536
+      },
+      strict: true
+    },
     json: true
   };
 }

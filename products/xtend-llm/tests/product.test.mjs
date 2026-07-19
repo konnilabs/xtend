@@ -675,7 +675,7 @@ await run('RMT knowledge tool retrieves bounded records, recipes and prompt cont
 });
 
 await run('RMT knowledge loader honors the environment knowledge directory first', () => {
-  const sourceKit = path.join(repoRoot, 'docs', 'ai', 'rmt-ai-developer-kit');
+  const sourceKit = path.join(repoRoot, 'tools', 'rmt-language', 'generated', 'rmt-ai-developer-kit');
   assert.ok(fs.existsSync(sourceKit), 'RMT AI Developer Kit must exist for product RAG tests');
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-llm-rmt-kit-'));
   const tempKit = path.join(tmp, 'kit');
@@ -921,7 +921,7 @@ await run('product package exposes model install and app build commands', () => 
   assert.equal(productPackage.scripts['build:app'], 'node scripts/build-app.mjs');
   assert.equal(productPackage.scripts.build, 'npm run build:app');
   const buildScript = fs.readFileSync(path.join(productRoot, 'scripts', 'build-app.mjs'), 'utf8');
-  assert.match(buildScript, /docs', 'ai', 'rmt-ai-developer-kit/u);
+  assert.match(buildScript, /tools', 'rmt-language', 'generated', 'rmt-ai-developer-kit/u);
   assert.match(buildScript, /knowledge', 'rmt-ai-kit/u);
 });
 
@@ -1175,13 +1175,36 @@ await run('LLM RMT source uses uniform command triggers for public UI events', (
   assert.match(rmtSource, /surface\s+xtend\.llm\.send[\s\S]*?bounds\s+x\s+1104\s+y\s+700\s+width\s+84\s+height\s+44/u);
 });
 
-await run('LLM renderer controller has no product-owned DOM wiring', () => {
+await run('LLM renderer controller has no product-owned DOM wiring beyond public lifecycle listeners', () => {
   const controllerPath = path.join(productRoot, 'src', 'renderer', 'app-controller.mjs');
-  const gate = createNoManualUiWiringGate();
+  const controllerSource = fs.readFileSync(controllerPath, 'utf8');
+  const gate = createNoManualUiWiringGate({ allowedPatternIds: ['addEventListener'] });
   const diagnostics = gate.scanFiles({
-    [controllerPath]: fs.readFileSync(controllerPath, 'utf8')
+    [controllerPath]: controllerSource
   });
   assert.deepEqual(diagnostics, []);
+  assert.equal((controllerSource.match(/window\.addEventListener\s*\(/gu) || []).length, 2);
+  assert.match(controllerSource, /signal\.addEventListener\('abort'/u);
+  assert.match(controllerSource, /window\.addEventListener\('xtend-maraca:boot'/u);
+  assert.match(controllerSource, /window\.addEventListener\('pagehide'/u);
+});
+
+await run('LLM controller is wired through the public Maraca AppServices registry', () => {
+  const controllerSource = fs.readFileSync(path.join(productRoot, 'src', 'renderer', 'app-controller.mjs'), 'utf8');
+  const servicesSource = fs.readFileSync(path.join(productRoot, 'src', 'services.ts'), 'utf8');
+  const shellSource = fs.readFileSync(path.join(productRoot, 'site', 'index.html'), 'utf8');
+  const appServerSource = fs.readFileSync(path.join(productRoot, 'src', 'main', 'app-server.mjs'), 'utf8');
+  assert.match(servicesSource, /defineAppServices\s*\(/u);
+  assert.equal((servicesSource.match(/'xtend\.llm\.[^']+':\s*service\s*\(/gu) || []).length, 27);
+  assert.match(servicesSource, /'xtend\.llm\.generationStream':\s*service\s*\(\{[\s\S]*?kind:\s*'stream'/u);
+  assert.doesNotMatch(controllerSource, /\bhostDataSourceAdapter\b|\bdataSourceAdapters\b|\bhostServiceAdapters\b|\bbootXtendMaraca\b/u);
+  assert.doesNotMatch(controllerSource, /window\.__XTend|\bactiveRunId\b/u);
+  assert.match(controllerSource, /addEventListener\('xtend-maraca:boot'/u);
+  assert.match(controllerSource, /window\.XTendMaraca\?\.appServices\?\.registry/u);
+  assert.doesNotMatch(shellSource, /app-controller\.mjs/u);
+  assert.match(shellSource, /build\/xtend\.maraca\.mjs/u);
+  assert.doesNotMatch(appServerSource, /src\/renderer\/app-controller\.mjs/u);
+  assert.match(appServerSource, /\/build\/xtend\.maraca\.mjs/u);
 });
 
 await run('LLM runtime telemetry bridge exposes RKFA and backpressure snapshots', () => {
@@ -1209,7 +1232,8 @@ await run('LLM runtime telemetry bridge exposes RKFA and backpressure snapshots'
   assert.match(controllerSource, /instructionsBusy:\s*Boolean\(state\.modelPreparing\)/u);
   assert.match(controllerSource, /instructionsTabLabel:\s*state\.modelPreparing\s*\?\s*'Instructions \(busy\)'\s*:\s*'Instructions'/u);
   assert.match(controllerSource, /validSettingsTabIndex/u);
-  assert.match(controllerSource, /case 'xtend\.llm\.selectSettingsTab'/u);
+  assert.match(controllerSource, /export function selectSettingsTabService/u);
+  assert.doesNotMatch(controllerSource, /switch\s*\(endpoint\)/u);
   assert.doesNotMatch(controllerSource, /selected:\s*0,\n\s*themeMode/u);
   assert.match(controllerSource, /xtend-llm\.telemetry-snapshot\.v1/u);
 });
@@ -1291,6 +1315,14 @@ await run('RMT source parses through Maraca plan command', () => {
   assert.equal(plan.kernelFeatureAdoption?.blockedCount, 0);
   assert.equal(plan.hydration.serverPrerender?.requested, true);
   assert.equal(plan.hydration.workerPrerender?.requested, true);
+  assert.equal(plan.services?.enabled, true);
+  assert.equal(plan.services?.strict, true);
+  assert.equal(plan.services?.ok, true);
+  assert.equal(plan.services?.entries?.client?.relative, 'products/xtend-llm/src/services.ts');
+  assert.equal(plan.services?.demands?.services?.length, 27);
+  assert.equal(plan.services?.inspections?.client?.services?.length, 27);
+  assert.deepEqual(plan.services?.diagnostics, []);
+  assert.deepEqual(plan.services?.demands?.services?.filter((service) => service.mode === 'stream').map((service) => service.id), ['xtend.llm.generationStream']);
   const rmtSource = fs.readFileSync(path.join(productRoot, 'xtend-llm.rmt'), 'utf8');
   assert.equal(/validation\s+xtend\.llm\.promptReady/u.test(rmtSource), false);
   assert.equal(/field\s+xtend\.llm\.prompt\s+required/u.test(rmtSource), false);

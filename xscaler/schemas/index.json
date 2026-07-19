@@ -1,0 +1,13 @@
+{
+  "schema": "xtend.xscaler.schema-index.v1",
+  "protocol": "xscaler",
+  "draft": "https://json-schema.org/draft/2020-12/schema",
+  "schemas": {
+    "preflightRequest": "./preflight-request.schema.json",
+    "preflightResponse": "./preflight-response.schema.json",
+    "remoteSurfacePlan": "./remote-surface-plan.schema.json",
+    "xtensionDeployment": "./xtension-deployment.schema.json",
+    "atcHandoff": "./atc-handoff.schema.json",
+    "remoteAdapterLoadResult": "./remote-adapter-load-result.schema.json"
+  }
+}

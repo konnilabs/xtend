@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -48,6 +49,14 @@ const { app, BrowserWindow, clipboard, ipcMain, shell } = require('electron');
 const productRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const dev = process.argv.includes('--dev') || process.argv.includes('--') && process.argv.includes('--dev');
 const layoutSmoke = process.argv.includes('--layout-smoke');
+
+if (layoutSmoke && process.platform === 'linux' && !process.env.DISPLAY && !process.env.WAYLAND_DISPLAY) {
+  app.commandLine.appendSwitch('headless', 'new');
+  app.commandLine.appendSwitch('ozone-platform', 'headless');
+  app.commandLine.appendSwitch('disable-gpu');
+  app.commandLine.appendSwitch('disable-dev-shm-usage');
+  if (typeof process.getuid === 'function' && process.getuid() === 0) app.commandLine.appendSwitch('no-sandbox');
+}
 
 configureElectronWebGpu(app);
 app.setName(PRODUCT_TITLE);
@@ -1096,6 +1105,20 @@ async function runLayoutSmoke() {
           }
           const copiedButton = currentCopyButton();
           const copyIconAfter = copiedButton?.querySelector('x-icon')?.getAttribute('name') || '';
+          const registry = window.XTendMaraca?.appServices?.registry || null;
+          if (registry && typeof registry.whenIdle === 'function') await registry.whenIdle();
+          const serviceHistory = registry && typeof registry.listHistory === 'function'
+            ? registry.listHistory().map((entry) => ({
+                serviceId: entry.serviceId,
+                kind: entry.kind,
+                target: entry.target,
+                concurrency: entry.concurrency,
+                invocationId: entry.invocationId,
+                correlationId: entry.correlationId,
+                sequence: entry.sequence,
+                status: entry.status
+              }))
+            : [];
           return {
             total: messages.length,
             user: messages.filter((message) => message.role === 'user').length,
@@ -1121,6 +1144,13 @@ async function runLayoutSmoke() {
             settingsOpen: document.getElementById('settings-dialog')?.hasAttribute('open') || false,
             activeConversationId: status?.conversation?.activeConversationId || '',
             conversations: status?.conversation?.conversations || [],
+            appServices: {
+              enabled: window.XTendMaraca?.appServices?.enabled === true,
+              serviceCount: registry && typeof registry.listServices === 'function' ? registry.listServices().length : 0,
+              activeCount: registry && typeof registry.listActive === 'function' ? registry.listActive().length : -1,
+              listenerErrorCount: registry && typeof registry.listListenerErrors === 'function' ? registry.listListenerErrors().length : -1,
+              history: serviceHistory
+            },
             messages: messages.map((message) => ({
               role: message.role,
               status: message.status || '',
@@ -1187,6 +1217,13 @@ async function runLayoutSmoke() {
   assertLayout(messageCounts.promptInvalid === false, `prompt reset is not visibly invalid: ${JSON.stringify(messageCounts)}`);
   assertLayout(messageCounts.progressSeen === false, `generation progress bar reappeared during streaming: ${JSON.stringify(messageCounts)}`);
   assertLayout(messageCounts.settingsOpen === false, `settings dialog reopened during streaming: ${JSON.stringify(messageCounts)}`);
+  assertLayout(messageCounts.appServices.enabled === true, `public AppServices controller is not active: ${JSON.stringify(messageCounts.appServices)}`);
+  assertLayout(messageCounts.appServices.serviceCount === 27, `unexpected AppService registry size: ${JSON.stringify(messageCounts.appServices)}`);
+  assertLayout(messageCounts.appServices.activeCount === 0, `AppService invocations remain active after generation: ${JSON.stringify(messageCounts.appServices)}`);
+  assertLayout(messageCounts.appServices.listenerErrorCount === 0, `AppService frame listener failed: ${JSON.stringify(messageCounts.appServices)}`);
+  assertLayout(messageCounts.appServices.history.some((entry) => entry.serviceId === 'xtend.llm.send' && entry.status === 'fulfilled'), `send did not traverse AppServices: ${JSON.stringify(messageCounts.appServices)}`);
+  assertLayout(messageCounts.appServices.history.some((entry) => entry.serviceId === 'xtend.llm.generationStream' && entry.kind === 'stream' && entry.status === 'fulfilled'), `generation stream did not settle through AppServices: ${JSON.stringify(messageCounts.appServices)}`);
+  assertLayout(messageCounts.appServices.history.every((entry) => Boolean(entry.invocationId && entry.correlationId)), `AppService history lacks invocation or correlation IDs: ${JSON.stringify(messageCounts.appServices)}`);
   assertLayout(codeHydration.registered === true, `x-code is not registered: ${JSON.stringify(codeHydration)}`);
   assertLayout(codeHydration.bridgePresent === true, `RMT x-code bridge is not present: ${JSON.stringify(codeHydration)}`);
   assertLayout(codeHydration.blockCount >= 1, `LLM code fence did not materialize x-code: ${JSON.stringify(codeHydration)}`);
@@ -1327,8 +1364,41 @@ async function runLayoutSmoke() {
   fs.mkdirSync(resultDir, { recursive: true });
   const screenshotPath = path.join(resultDir, 'layout-smoke.png');
   const image = await mainWindow.webContents.capturePage();
-  fs.writeFileSync(screenshotPath, image.toPNG());
+  const screenshot = image.toPNG();
+  fs.writeFileSync(screenshotPath, screenshot);
+  const reportPath = path.join(resultDir, 'layout-smoke.json');
+  fs.writeFileSync(reportPath, `${JSON.stringify({
+    schema: 'xtend-llm.layout-smoke-report.v1',
+    ok: true,
+    status: 'passed',
+    createdAt: new Date().toISOString(),
+    sourceToSea: {
+      event: 'xtend-command',
+      action: 'xtend.llm.send',
+      service: 'xtend.llm.send',
+      streamService: 'xtend.llm.generationStream',
+      state: 'xtend.llm.transcript',
+      renderedMessages: messageCounts.total
+    },
+    appServices: messageCounts.appServices,
+    messageCounts: {
+      total: messageCounts.total,
+      user: messageCounts.user,
+      assistant: messageCounts.assistant
+    },
+    actionChrome: messageCounts.actionChrome,
+    codeHydration,
+    markdownFormatting,
+    secondPromptState,
+    deleteFlow,
+    screenshot: {
+      file: path.basename(screenshotPath),
+      bytes: screenshot.byteLength,
+      sha256: crypto.createHash('sha256').update(screenshot).digest('hex')
+    }
+  }, null, 2)}\n`, 'utf8');
   console.log(`layout smoke ok: ${screenshotPath}`);
+  console.log(`layout smoke report: ${reportPath}`);
 }
 
 app.whenReady().then(async () => {

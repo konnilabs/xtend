@@ -23,6 +23,7 @@ const {
   RMT_VNEXT_COMPILER_WORKPACKAGE,
   RMT_APP_ORCHESTRATION_SCHEMA,
   RMT_APP_ORCHESTRATION_WORKPACKAGE,
+  RMT_APP_SERVICE_DEMANDS_SCHEMA,
   RMT_FORM_VALIDATION_SCHEMA,
   RMT_SURFACE_TRANSITION_SCHEMA,
   RMT_VNEXT_CORE_SCHEMA,
@@ -32,6 +33,7 @@ const {
   RMT_KERNEL_BOUNDARY,
   RMT_KERNEL_RECORDS_SCHEMA,
   compileRmtVNextSource,
+  createRmtAppServiceDemands,
   createRmtVNextCompiler,
   serializeRmtVNextCore
 } = require('../../tools/rmt-language/vnext-compiler');
@@ -132,6 +134,8 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(minimalResult.schema === RMT_VNEXT_COMPILER_SCHEMA, 'minimal fixture emits compiler schema');
   context.assert(minimalResult.ok === true, 'minimal fixture compiles successfully');
   context.assert(minimalResult.coreDocument.schema === RMT_VNEXT_CORE_SCHEMA, 'minimal core uses vNext core schema');
+  context.assert(minimalResult.appServiceDemands && minimalResult.appServiceDemands.schema === RMT_APP_SERVICE_DEMANDS_SCHEMA, 'minimal compile emits app-service demand manifest');
+  context.assert(minimalResult.appServiceDemands.services.length === 0, 'minimal compile emits an empty app-service demand list');
   context.assert(minimalResult.coreDocument.kind === 'rmt_document', 'minimal core remains RMT document');
   context.assert(minimalResult.coreDocument.manifest.documentId === 'docs.page', 'minimal manifest documentId derives from template');
   context.assert(minimalResult.coreDocument.templates.length === 1, 'minimal core has one template');
@@ -215,6 +219,75 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(primitiveResult.orchestrationArtifacts && primitiveResult.orchestrationArtifacts.schema === RMT_APP_ORCHESTRATION_SCHEMA, 'primitive compile emits app orchestration artifact');
   context.assert(primitiveResult.orchestrationArtifacts.workpackage === RMT_APP_ORCHESTRATION_WORKPACKAGE, 'primitive orchestration artifact declares workpackage');
   context.assert(primitiveResult.coreJson === parseFixture(VALID_PRIMITIVE_FIXTURE, rootDir).coreJson, 'primitive fixture compiles to byte-stable Core JSON');
+
+  const appServiceSource = `template app.services {
+  state app.result type object initial {}
+
+  datasource app.zeta from host "service.zeta" {
+    mode stream
+    contract ZetaResult
+    result records
+  }
+
+  datasource app.alpha from host "service.alpha" {
+    mode invoke
+    contract AlphaResult
+    result payload
+  }
+
+  action app.watch {
+    input cursor string
+    effect stream datasource app.zeta
+    reduce state.app.result = result.records
+  }
+
+  action app.load {
+    input zeta string
+    input query string
+    effect fetch datasource app.alpha
+    reduce state.app.result = result.payload
+  }
+
+  action app.cache {
+    effect fetch datasource app.alpha
+    reduce state.app.result = result.payload
+  }
+}`;
+  const appServiceResult = compileRmtVNextSource({
+    text: appServiceSource,
+    filePath: resolveRepoPath('tmp/rmt-vnext-app-services.rmt', rootDir)
+  });
+  const appServiceDemands = appServiceResult.appServiceDemands;
+  const repeatedAppServiceDemands = compileRmtVNextSource({
+    text: appServiceSource,
+    filePath: resolveRepoPath('tmp/rmt-vnext-app-services.rmt', rootDir)
+  }).appServiceDemands;
+  const changedContractDemands = compileRmtVNextSource({
+    text: appServiceSource.replace('contract AlphaResult', 'contract AlphaResultV2'),
+    filePath: resolveRepoPath('tmp/rmt-vnext-app-services.rmt', rootDir)
+  }).appServiceDemands;
+  const invalidAppServiceMode = compileRmtVNextSource({
+    text: appServiceSource.replace('mode invoke', 'mode parallel'),
+    filePath: resolveRepoPath('tmp/rmt-vnext-app-services-invalid-mode.rmt', rootDir)
+  });
+  const directAppServiceDemands = createRmtAppServiceDemands(appServiceResult.coreDocument);
+  const alphaServiceDemand = appServiceDemands && appServiceDemands.services.find((service) => service.id === 'service.alpha');
+  const zetaServiceDemand = appServiceDemands && appServiceDemands.services.find((service) => service.id === 'service.zeta');
+  context.assert(appServiceResult.ok === true, 'host app-service fixture compiles successfully');
+  context.assert(appServiceDemands && appServiceDemands.schema === RMT_APP_SERVICE_DEMANDS_SCHEMA, 'host datasource emits versioned app-service demand schema');
+  context.assert(appServiceDemands && appServiceDemands.sourceDocument.id === 'app.services', 'app-service demand manifest identifies its RMT source document');
+  context.assert(appServiceDemands && appServiceDemands.services.map((service) => service.id).join(',') === 'service.alpha,service.zeta', 'app-service demands sort services deterministically by host service ID');
+  context.assert(alphaServiceDemand && alphaServiceDemand.dataSource === 'app.alpha' && alphaServiceDemand.mode === 'invoke', 'fetch host datasource emits invoke service demand');
+  context.assert(alphaServiceDemand && alphaServiceDemand.contract === 'AlphaResult' && alphaServiceDemand.resultPath === 'payload', 'invoke service demand preserves declared contract and result path');
+  context.assert(alphaServiceDemand && alphaServiceDemand.actions.map((action) => action.id).join(',') === 'app.cache,app.load', 'invoke service demand sorts all referencing actions');
+  context.assert(alphaServiceDemand && alphaServiceDemand.actions[1].inputs.map((input) => input.name).join(',') === 'query,zeta' && alphaServiceDemand.actions[1].inputs[0].type === 'string', 'referencing action preserves and sorts typed input facts');
+  context.assert(zetaServiceDemand && zetaServiceDemand.mode === 'stream' && zetaServiceDemand.actions[0].mode === 'stream', 'stream effect emits stream service demand');
+  context.assert(invalidAppServiceMode.ok === false && invalidAppServiceMode.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.vnext.datasource.mode_invalid'), 'invalid explicit datasource service mode is source-diagnosed');
+  context.assert(appServiceDemands && /^[a-f0-9]{64}$/u.test(appServiceDemands.fingerprint), 'app-service demand manifest emits SHA-256 fingerprint');
+  context.assert(JSON.stringify(appServiceDemands) === JSON.stringify(repeatedAppServiceDemands), 'app-service demand manifest is byte-stable across repeated compiles');
+  context.assert(JSON.stringify(appServiceDemands) === JSON.stringify(directAppServiceDemands), 'public demand factory matches compiler result');
+  context.assert(changedContractDemands && changedContractDemands.fingerprint !== appServiceDemands.fingerprint, 'app-service demand fingerprint changes with contract facts');
+  context.assert(!appServiceResult.coreJson.includes(RMT_APP_SERVICE_DEMANDS_SCHEMA), 'app-service demand emission leaves serialized Core artifact unchanged');
 
   const responsiveBoundsResult = parseFixture(VALID_RESPONSIVE_BOUNDS_FIXTURE, rootDir);
   const responsiveSurface = responsiveBoundsResult.coreDocument && responsiveBoundsResult.coreDocument.surfaces.find((surface) => surface.name === 'responsive.window');
@@ -327,6 +400,7 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(maracaAnimationEngine.sourceMap.some((entry) => entry.nodeType === 'RmtAnimationDeclaration'), 'AnimationEngine source map points back to animation declaration records');
 
   const compiler = createRmtVNextCompiler();
+  context.assert(compiler.appServiceDemandsSchema === RMT_APP_SERVICE_DEMANDS_SCHEMA, 'compiler factory advertises app-service demand schema');
   const fallbackResult = compiler.compileSource({
     text: readText(VALID_MINIMAL_FIXTURE, rootDir),
     filePath: resolveRepoPath('tests/rmt-language/fixtures/vnext-valid-minimal.rmt.json', rootDir)

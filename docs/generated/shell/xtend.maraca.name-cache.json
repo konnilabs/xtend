@@ -117,7 +117,10 @@
       "$resolvePayload": "dt",
       "$createXtendRmtCommandDetail": "ut",
       "$XStatus": "lt",
-      "$XHEADER_BRAND_COLLAPSE_POLICIES": "We"
+      "$XHEADER_BRAND_COLLAPSE_POLICIES": "We",
+      "$MARACA_APP_SERVICES": "Ve",
+      "$currentMaracaAppServices": "Qe",
+      "$disposeXtendMaraca": "Ye"
     }
   },
   "props": {

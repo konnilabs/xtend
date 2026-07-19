@@ -36,7 +36,7 @@ const CONDITIONAL_NETWORK_EVIDENCE_CAPTURE_COMMAND = 'npm run conditional-networ
 const CONDITIONAL_NETWORK_EVIDENCE_CAPTURE_MODULE = 'scripts/capture_conditional_network_evidence.js';
 const CONDITIONAL_NETWORK_EVIDENCE_WORKFLOW = '.github/workflows/xtend-default-gates.yml';
 const CONDITIONAL_NETWORK_EVIDENCE_WORKFLOW_JOB = 'conditional-network-evidence';
-const CONDITIONAL_NETWORK_EVIDENCE_WORKFLOW_ARTIFACT = 'xtend-conditional-network-evidence-node-26';
+const CONDITIONAL_NETWORK_EVIDENCE_WORKFLOW_ARTIFACT = 'xtend-conditional-network-evidence-{artifactSuffix}';
 const NEXT_WORKPACKAGE = 'DPF-WP-04-visual-pixel-evidence-storage';
 const NEXT_DECISION = 'visual-pixel-evidence-storage';
 const PUBLISH_BOUNDARY = 'private-until-release-owner-acceptance';
@@ -119,7 +119,8 @@ function createEpic13ConditionalNetworkEvidenceCiPlan(options = {}) {
     workflow: {
       path: CONDITIONAL_NETWORK_EVIDENCE_WORKFLOW,
       jobId: CONDITIONAL_NETWORK_EVIDENCE_WORKFLOW_JOB,
-      nodeVersion: '26.x',
+      nodeVersion: '24.18.0',
+      nodeVersions: ['24.18.0', '26.5.0'],
       command: CONDITIONAL_NETWORK_EVIDENCE_CAPTURE_COMMAND,
       executeEnv: 'XTEND_CONDITIONAL_NETWORK_EXECUTE=1',
       artifactName: CONDITIONAL_NETWORK_EVIDENCE_WORKFLOW_ARTIFACT,

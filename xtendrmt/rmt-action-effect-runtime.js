@@ -426,19 +426,33 @@
       const source = action.datasource ? dataSourceIndex.get(action.datasource) : null;
       const runId = `${action.id}:${Date.now()}:${actionHistory.length}`;
       const ownerId = clampString(metadata.ownerId, action.resourceOwner || action.id);
-      const token = { cancelled: false };
+      const controller = new AbortController();
+      const externalSignal = metadata && metadata.signal || null;
+      const token = { cancelled: false, controller, cleanup: null };
+      if (externalSignal && typeof externalSignal.addEventListener === 'function') {
+        const abort = () => {
+          token.cancelled = true;
+          if (!controller.signal.aborted) controller.abort(externalSignal.reason || 'external-abort');
+        };
+        if (externalSignal.aborted) abort();
+        else {
+          externalSignal.addEventListener('abort', abort, { once: true });
+          token.cleanup = () => externalSignal.removeEventListener('abort', abort);
+        }
+      }
       activeRuns.set(runId, token);
       actionStatus[action.id] = 'loading';
       patchState(stateRuntime, action.statusState, { status: 'loading', action: action.id }, { operation: 'action.loading', action: action.id });
       if (action.loadingState) writeState(stateRuntime, action.loadingState, true, { operation: 'action.loading', action: action.id });
       diagnosticsRecorder.publish(createDiagnostic('rmt.action.loading', `RMT Action ${action.id} laeuft.`, { action: action.id }, 'info'));
       try {
-        await resourceManager.acquireMany(action.resources, ownerId, { action, payload, stateRuntime });
+        if (token.cancelled) return cancelResult(action, runId, ownerId, payload, metadata);
+        await resourceManager.acquireMany(action.resources, ownerId, { action, payload, stateRuntime, signal: controller.signal });
         if (token.cancelled) {
           return cancelResult(action, runId, ownerId, payload, metadata);
         }
         const data = source
-          ? await runDataSource(source, payload, { dataSourceAdapters: options.dataSourceAdapters, hostServiceRegistry, context: { action, payload, stateRuntime, hostServiceRegistry, commandEnvelope: metadata.commandEnvelope || null, correlationId: metadata.correlationId || null } })
+          ? await runDataSource(source, payload, { dataSourceAdapters: options.dataSourceAdapters, hostServiceRegistry, context: { action, payload, stateRuntime, hostServiceRegistry, signal: controller.signal, commandEnvelope: metadata.commandEnvelope || null, correlationId: metadata.correlationId || null } })
           : cloneValue(payload, payload);
         if (token.cancelled) {
           return cancelResult(action, runId, ownerId, payload, metadata);
@@ -464,6 +478,7 @@
             stateRuntime,
             ownerId,
             hostServiceRegistry,
+            signal: controller.signal,
             commandEnvelope: metadata.commandEnvelope || null,
             correlationId: metadata.correlationId || null
           }));
@@ -485,6 +500,9 @@
         actionHistory.push(result);
         return result;
       } catch (error) {
+        if (token.cancelled || controller.signal.aborted) {
+          return cancelResult(action, runId, ownerId, payload, metadata);
+        }
         if (action.loadingState) writeState(stateRuntime, action.loadingState, false, { operation: 'action.error', action: action.id });
         patchState(stateRuntime, action.statusState, { status: 'error', action: action.id, error: normalizeError(error) }, { operation: 'action.error', action: action.id });
         actionStatus[action.id] = 'error';
@@ -500,6 +518,7 @@
         actionHistory.push(result);
         return result;
       } finally {
+        if (typeof token.cleanup === 'function') token.cleanup();
         activeRuns.delete(runId);
       }
     }
@@ -524,12 +543,13 @@
       return result;
     }
 
-    function cancelAction(actionId) {
+    function cancelAction(actionId, reason = 'action-cancelled') {
       const id = clampString(actionId);
       let cancelled = 0;
       activeRuns.forEach((token, runId) => {
         if (runId.startsWith(`${id}:`)) {
           token.cancelled = true;
+          if (token.controller && !token.controller.signal.aborted) token.controller.abort(reason);
           cancelled += 1;
         }
       });
@@ -540,10 +560,25 @@
       };
     }
 
+    function dispose(reason = 'runtime-disposed') {
+      let cancelled = 0;
+      activeRuns.forEach((token) => {
+        token.cancelled = true;
+        if (token.controller && !token.controller.signal.aborted) token.controller.abort(reason);
+        cancelled += 1;
+      });
+      return {
+        schema: 'xtend.epic18.rmt-action-runtime-dispose.v1',
+        cancelled,
+        reason
+      };
+    }
+
     return Object.freeze({
       schema: RMT_ACTION_EFFECT_RUNTIME_SCHEMA,
       runAction,
       cancelAction,
+      dispose,
       runEffect,
       resourceManager,
       listActions() {

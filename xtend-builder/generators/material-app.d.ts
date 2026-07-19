@@ -6,6 +6,9 @@ export interface MaterialAppScaffoldInput {
   out?: string;
   name?: string;
   title?: string;
+  server?: 'none' | 'node' | 'php' | 'both';
+  serverTarget?: 'none' | 'node' | 'php' | 'both';
+  'server-target'?: 'none' | 'node' | 'php' | 'both';
   write?: boolean;
   check?: boolean;
   force?: boolean;
@@ -16,7 +19,7 @@ export interface MaterialAppScaffoldReport {
   scaffoldSchema?: 'xtend.scaffold.app-preset.material.v1';
   ok: boolean;
   status: string;
-  preset: { runtime: string; designKit: string; cssProvider?: string; preflight?: string };
+  preset: { runtime: string; designKit: string; cssProvider?: string; preflight?: string; services?: string; serverTarget?: string };
   packageName?: string;
   outputDir: string;
   ownershipPath?: string;

@@ -16,7 +16,7 @@ XTend Classic does not require the compiler: directly authored HTML and JavaScri
 npm install @ccslabs/xtend-compiler
 ```
 
-Node.js 18 or newer is required.
+Node.js 24 or newer is required.
 
 ### Compile and parse RMT
 
@@ -110,7 +110,7 @@ XTend Classic verlangt den Compiler nicht: Direkt gepflegtes HTML und JavaScript
 npm install @ccslabs/xtend-compiler
 ```
 
-Node.js 18 oder neuer wird benötigt.
+Node.js 24 oder neuer wird benötigt.
 
 ### RMT kompilieren und parsen
 

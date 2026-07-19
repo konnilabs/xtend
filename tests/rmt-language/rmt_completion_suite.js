@@ -29,7 +29,7 @@ const {
 const EPIC_14_PATH = 'development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Server.md';
 const TOOLING_ARCHITECTURE_PATH = 'development/XTendRMT-DSL-Tooling-Architektur.md';
 const RMT_COMPLETION_WP_PATH = 'development/WP-E14-07-Completion-Provider-fuer-RMT-Domains-Adapter-Tags-Routes-und-Schedules-bauen.md';
-const VALID_FIXTURE_PATH = 'demos/xtendrmt/examples/first-app/generated/core.json';
+const VALID_FIXTURE_PATH = 'tests/fixtures/rmt-component-lab-pilot.core.json';
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -152,10 +152,10 @@ function runGraphReferenceCompletionChecks(context, rootDir) {
   const input = createInput(rootDir);
   const adapters = getRmtCompletions(input, { rootDir, pointer: '/components/0/adapter' });
   const tags = getRmtCompletions(input, { rootDir, pointer: '/components/0/tag' });
-  const components = getRmtCompletions(input, { rootDir, pointer: '/routes/1/component', prefix: 'page.' });
-  const templates = getRmtCompletions(input, { rootDir, pointer: '/routes/1/template', prefix: 'page.' });
-  const schedules = getRmtCompletions(input, { rootDir, pointer: '/routes/1/schedule', prefix: 'route.' });
-  const endpoints = getRmtCompletions(input, { rootDir, pointer: '/templates/0/hydration/metadata/endpointHint', prefix: 'xtendrmt.component' });
+  const components = getRmtCompletions(input, { rootDir, pointer: '/routes/1/component', prefix: 'lab.' });
+  const templates = getRmtCompletions(input, { rootDir, pointer: '/routes/1/template', prefix: 'lab.' });
+  const schedules = getRmtCompletions(input, { rootDir, pointer: '/routes/1/schedule', prefix: 'component.' });
+  const endpoints = getRmtCompletions(input, { rootDir, pointer: '/templates/0/hydration/metadata/endpointHint', prefix: 'xtend.component' });
   const routePaths = getRmtCompletions(input, { rootDir, context: 'route-paths' });
 
   context.assert(adapters.context === 'adapter-ids', 'Adapter pointer infers adapter ID context');
@@ -169,13 +169,13 @@ function runGraphReferenceCompletionChecks(context, rootDir) {
   assertHasLabel(context, tags, 'x-icon', 'Component tag completion contains x-icon from manifest');
 
   context.assert(components.context === 'component-ids', 'Component pointer infers component ID context');
-  assertHasLabel(context, components, 'page.settings', 'Component ID completion contains page.settings');
-  context.assert(labels(components).every((label) => label.startsWith('page.')), 'Component ID completion applies prefix filtering');
+  assertHasLabel(context, components, 'lab.preview.host', 'Component ID completion contains lab.preview.host');
+  context.assert(labels(components).every((label) => label.startsWith('lab.')), 'Component ID completion applies prefix filtering');
 
-  assertHasLabel(context, templates, 'page.settings.template', 'Template ID completion contains page.settings.template');
-  assertHasLabel(context, schedules, 'route.transition.render', 'Schedule ID completion contains route.transition.render');
-  assertHasLabel(context, endpoints, 'xtendrmt.component.hydrate', 'Schedule endpoint completion contains xtendrmt.component.hydrate');
-  assertHasLabel(context, routePaths, '/settings', 'Route path completion contains /settings');
+  assertHasLabel(context, templates, 'lab.preview.template', 'Template ID completion contains lab.preview.template');
+  assertHasLabel(context, schedules, 'component.visible.mount', 'Schedule ID completion contains component.visible.mount');
+  assertHasLabel(context, endpoints, 'xtend.component.hydrate', 'Schedule endpoint completion contains xtend.component.hydrate');
+  assertHasLabel(context, routePaths, '/components/:tag', 'Route path completion contains /components/:tag');
 }
 
 function runContextInferenceChecks(context) {
@@ -200,8 +200,8 @@ function runContextInferenceChecks(context) {
 
 function runDeterministicAndFailureChecks(context, rootDir) {
   const input = createInput(rootDir);
-  const first = getRmtCompletions(input, { rootDir, pointer: '/routes/1/component', prefix: 'page.' });
-  const second = getRmtCompletions(input, { rootDir, pointer: '/routes/1/component', prefix: 'page.' });
+  const first = getRmtCompletions(input, { rootDir, pointer: '/routes/1/component', prefix: 'lab.' });
+  const second = getRmtCompletions(input, { rootDir, pointer: '/routes/1/component', prefix: 'lab.' });
   const brokenTopLevel = getRmtCompletions({
     text: '{\n  "kind": "rmt_document"\n  "version": "1.0"\n}',
     uri: 'file:///virtual/broken-completion.rmt'
@@ -217,7 +217,7 @@ function runDeterministicAndFailureChecks(context, rootDir) {
     context: 'component-ids'
   });
   const provider = createRmtCompletionProvider({ rootDir });
-  const providerReport = provider.complete(input, { pointer: '/routes/1/template', prefix: 'page.' });
+  const providerReport = provider.complete(input, { pointer: '/routes/1/template', prefix: 'lab.' });
 
   context.assert(JSON.stringify(first.items) === JSON.stringify(second.items), 'Completion output is deterministic for repeated runs');
   context.assert(brokenTopLevel.status === 'completed', 'Top-level static completion works on syntax-broken source');
@@ -225,7 +225,7 @@ function runDeterministicAndFailureChecks(context, rootDir) {
   context.assert(brokenReferences.status === 'source_unavailable', 'Reference completion reports source_unavailable on syntax-broken source');
   context.assert(brokenReferences.itemCount === 0, 'Reference completion returns no graph refs on syntax-broken source');
   context.assert(provider.schema === RMT_COMPLETION_PROVIDER_SCHEMA, 'Completion provider exposes schema');
-  assertHasLabel(context, providerReport, 'page.settings.template', 'Completion provider instance returns template completions');
+  assertHasLabel(context, providerReport, 'lab.preview.template', 'Completion provider instance returns template completions');
 }
 
 function runRmtCompletionSuite(options = {}) {

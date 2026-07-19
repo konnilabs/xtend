@@ -278,7 +278,7 @@ async function renderShellHtml(options = {}) {
   <body>
     ${shell}
     <template id="xtend-llm-ssr-hydration" data-rmt-ssr-hydration>${escapeScriptJson(hydrationPayload)}</template>
-    <script type="module" src="/src/renderer/app-controller.mjs"></script>
+    <script type="module" src="/build/xtend.maraca.mjs"></script>
   </body>
 </html>`;
 }

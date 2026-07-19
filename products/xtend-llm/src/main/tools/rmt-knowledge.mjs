@@ -95,6 +95,7 @@ export function resolveRmtKnowledgeDirectory(options = {}) {
   const candidates = [
     options.knowledgeDir,
     process.env.XTEND_LLM_RMT_KNOWLEDGE_DIR,
+    path.join(repoRoot, 'tools', 'rmt-language', 'generated', 'rmt-ai-developer-kit'),
     path.join(repoRoot, 'docs', 'ai', 'rmt-ai-developer-kit'),
     path.join(productRoot, 'knowledge', 'rmt-ai-kit')
   ];

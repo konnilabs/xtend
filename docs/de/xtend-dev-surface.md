@@ -8,7 +8,7 @@ Die Extension erkennt eine XTend-App nicht anhand von DOM-Namen oder Framework-H
 
 Für den lokalen Einstieg brauchst du:
 
-- Node.js 18 oder neuer;
+- Node.js 24 oder neuer;
 - einen Chromium-basierten Browser wie Chrome, Chromium oder Edge;
 - einen lokalen Checkout des XTend-Repositories;
 - Zugriff auf den Developer Mode der Browser-Extensions.

@@ -1,3 +1,7 @@
+import type { XScalerAtcHandoff } from "@ccslabs/xtend/xscaler";
+
+export { XSCALER_ATC_HANDOFF_SCHEMA } from "@ccslabs/xtend/xscaler";
+
 export declare const XSURFACE_SHARD_PACKAGE = "@ccslabs/xtend-xsurface-shard";
 export declare const XSURFACE_SHARD_PLAN_SCHEMA = "xtend.xsurface.shard-plan.v1";
 export declare const XSURFACE_SHARD_SNAPSHOT_SCHEMA = "xtend.xsurface.shard-snapshot.v1";
@@ -5,8 +9,6 @@ export declare const XSURFACE_SHARD_HANDOFF_SCHEMA = "xtend.xsurface.shard-atc-h
 export declare const XSURFACE_SHARD_FRAGMENT_SCHEMA = "xtend.xsurface.shard-stream-fragment.v1";
 export declare const XSURFACE_SHARD_SURFACE_SCHEMA = "xtend.xsurface.shard-surface.v1";
 export declare const XSURFACE_SHARD_RECORD_SCHEMA = "xtend.xsurface.shard.v1";
-export declare const XSCALER_ATC_HANDOFF_SCHEMA = "xtend.xscaler.atc-handoff.v1";
-
 export declare const XSURFACE_SHARD_SECURITY_BLOCKED_CODE = "xsurface.shard.security_blocked";
 export declare const XSURFACE_SHARD_DEGRADATION_BLOCKED_CODE = "xsurface.shard.degradation_blocked";
 export declare const XSURFACE_SHARD_FALLBACK_MISSING_CODE = "xsurface.shard.fallback_missing";
@@ -23,6 +25,7 @@ export declare const LIFECYCLE_FALLBACK = "fallback_active";
 
 export type XSurfaceShardDecision = "ready" | "degraded" | "refused";
 export type XSurfaceShardLifecycleState = "planned" | "attached" | "detached" | "cancelled" | "fallback_active";
+export type XSurfaceShardAtcHandoff = XScalerAtcHandoff;
 
 export interface XSurfaceShardDiagnostic {
   code: string;
@@ -129,13 +132,7 @@ export interface XSurfaceShardHandoff {
   surfaceId: string;
   enterpriseSurfaceId?: string | null;
   shardId: string;
-  atc: {
-    schema: typeof XSCALER_ATC_HANDOFF_SCHEMA;
-    protocol: "xscaler-atc-compatible";
-    sessionId: string;
-    handoffSignal: string;
-    lifecycleState: string;
-  };
+  atc: XSurfaceShardAtcHandoff;
   fallback: Record<string, unknown> | null;
   stream: {
     accepted: boolean;

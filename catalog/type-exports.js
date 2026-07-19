@@ -29,8 +29,8 @@ const TYPE_EXPORTS_RELEASE_STATUS = 'accepted-productive-type-exports-release-ga
 const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready';
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
-const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 165;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = 'b8ba985da0932a93048733886295773e138f4220a849ad6a875433e94b9cec65';
+const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 174;
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = 'b90c29bccd454312a9819ed201908c0ec248783d3f63d304da5d9e2778157705';
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',
@@ -82,6 +82,7 @@ const ASSET_EXPORTS = Object.freeze([
   './design-tokens/tailwind/theme.css',
   './design-tokens/tailwind/material-theme.css',
   './design-tokens/tailwind/token-matrix',
+  './xscaler/schemas/*',
   './package.json'
 ]);
 
@@ -126,7 +127,7 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'maraca',
     priority: 'P1',
     workpackage: 'WP-Maraca-01',
-    exports: ['./maraca', './maraca/runtime', './maraca/plan-runtime', './maraca/css-provider'],
+    exports: ['./maraca', './maraca/runtime', './maraca/plan-runtime', './maraca/css-provider', './maraca/app-services', './maraca/server-services', './maraca/node-app-service-host', './maraca/service-build-provider'],
     strategy: 'maraca-package-declaration-pack'
   },
   {
@@ -135,6 +136,13 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     workpackage: 'WP-XSurfaceShard-01',
     exports: ['./xsurface-shard'],
     strategy: 'xsurface-shard-server-orchestration-declaration-pack'
+  },
+  {
+    id: 'xscaler',
+    priority: 'P1',
+    workpackage: 'XMS-09',
+    exports: ['./xscaler', './xscaler/protocol', './xscaler/remote-adapter-loader', './xscaler/app-service-transport', './xscaler/schemas/*'],
+    strategy: 'xscaler-native-esm-cjs-declaration-pack'
   },
   {
     id: 'assets',

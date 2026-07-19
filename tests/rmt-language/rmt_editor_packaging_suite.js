@@ -386,7 +386,7 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(resolvedCli.ok && resolvedCli.selected.id === 'workspace-scaffold', 'VS Code CLI resolver prefers workspace scaffold.js in the upstream repo');
   context.assert(resolvedBinCli.ok && resolvedBinCli.selected.id === 'workspace-bin', 'VS Code CLI resolver falls back to node_modules/.bin/xt in normal projects');
   context.assert(missingCli.ok === false && missingCli.status === 'missing', 'VS Code CLI resolver reports missing CLI with diagnostics');
-  context.assert(terminalCommandLine.includes('rmt lint') && terminalCommandLine.includes('rmt-vnext-reference-demo.rmt'), 'VS Code terminal command line expands active RMT file');
+  context.assert(terminalCommandLine.includes('rmt lint') && terminalCommandLine.includes(resolveRepoPath('demos/xtendrmt/fixtures/vnext-reference/source.rmt', rootDir)), 'VS Code terminal command line expands active RMT file');
   context.assert(openTerminalDryRun.status === 'dry-run' && openTerminalDryRun.cli.ok, 'VS Code CLI terminal supports dry-run without VS Code host');
   context.assert(terminalBuildDryRun.status === 'dry-run' && terminalBuildDryRun.commandLine.includes('rmt-build'), 'VS Code terminal runner supports RMT build check dry-run');
   context.assert(terminalInjectionRun.status === 'started' && capturedTerminal.shown, 'VS Code terminal runner starts hosted terminals');

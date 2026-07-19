@@ -14,6 +14,12 @@ export const RMT_NODE_SSR_STREAMING_CONTRACT_SCHEMA = 'xtend.rmt.vnext-streaming
 export const RMT_NODE_SSR_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
 export const RMT_SSR_CSP_POLICY_SCHEMA = 'xtend.rmt.ssr-csp-policy.v1';
 export const RMT_SSR_CSP_HEADER = 'Content-Security-Policy';
+export const RMT_XSCALER_SSR_HYDRATION_SCHEMA = 'xtend.xscaler.ssr-hydration.v1';
+
+const XSCALER_PROTOCOL = 'xscaler';
+const XSCALER_PREFLIGHT_RESPONSE_SCHEMA = 'xtend.xscaler.preflight-response.v1';
+const XSCALER_REMOTE_SURFACE_PLAN_SCHEMA = 'xtend.xscaler.remote-surface-plan.v1';
+const XSCALER_ATC_HANDOFF_SCHEMA = 'xtend.xscaler.atc-handoff.v1';
 
 const BLOCKING_SEVERITIES = new Set(['error', 'fatal']);
 const TRUST_BOUNDARY_TOKENS = new Set([
@@ -252,6 +258,155 @@ function createDiagnosticsCollector(options = {}) {
         }
       });
     }
+  };
+}
+
+function isNonEmptyString(value) {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function hasOwn(record, key) {
+  return Object.prototype.hasOwnProperty.call(record, key);
+}
+
+function validXScalerDiagnostics(value) {
+  return Array.isArray(value) && value.every((entry) => {
+    const diagnostic = objectRecord(entry);
+    return isNonEmptyString(diagnostic.code)
+      && isNonEmptyString(diagnostic.severity)
+      && isNonEmptyString(diagnostic.message);
+  });
+}
+
+function validXScalerRemoteSurfacePlan(plan, response) {
+  const ssr = objectRecord(plan.ssr);
+  const boundary = objectRecord(plan.runtimeBoundary);
+  const integrity = objectRecord(plan.integrity);
+  return plan.schema === XSCALER_REMOTE_SURFACE_PLAN_SCHEMA
+    && plan.protocol === XSCALER_PROTOCOL
+    && isNonEmptyString(plan.surface)
+    && plan.surface === response.surface
+    && isNonEmptyString(plan.surfaceId)
+    && plan.surfaceId.startsWith('remoteSurface:')
+    && isNonEmptyString(plan.owner)
+    && isNonEmptyString(plan.origin)
+    && plan.origin.startsWith('https://')
+    && ['sha256', 'sha384', 'sha512'].includes(integrity.algorithm)
+    && isNonEmptyString(integrity.digest)
+    && integrity.digest.startsWith(`${integrity.algorithm}-`)
+    && isNonEmptyString(plan.fallbackSurface)
+    && Array.isArray(plan.lanes)
+    && plan.lanes.length > 0
+    && plan.lanes.every((lane) => isNonEmptyString(objectRecord(lane).lane) && isNonEmptyString(objectRecord(lane).target))
+    && isNonEmptyString(ssr.mode)
+    && ssr.networkDuringRender === false
+    && boundary.remoteRuntimeExecution === false
+    && boundary.kernelRemoteExecution === false
+    && boundary.networkRequiredByKernel === false;
+}
+
+function validXScalerAtc(atc, response, plan) {
+  const boundary = objectRecord(atc.runtimeBoundary);
+  const expectedSurfaceId = plan.surfaceId || `remoteSurface:${response.surface}`;
+  return atc.schema === XSCALER_ATC_HANDOFF_SCHEMA
+    && atc.protocol === XSCALER_PROTOCOL
+    && atc.surfaceId === expectedSurfaceId
+    && isNonEmptyString(atc.sessionId)
+    && isNonEmptyString(atc.handoffSignal)
+    && isNonEmptyString(atc.lifecycleState)
+    && typeof atc.accepted === 'boolean'
+    && atc.ok === atc.accepted
+    && atc.accepted === response.accepted
+    && isNonEmptyString(atc.status)
+    && (response.accepted ? atc.status !== 'refused' : atc.status === 'refused')
+    && hasOwn(atc, 'fallback')
+    && boundary.remoteRuntimeExecution === false
+    && boundary.kernelRemoteExecution === false
+    && boundary.networkRequiredByHandoff === false
+    && validXScalerDiagnostics(atc.diagnostics);
+}
+
+function validXScalerPreflightResponse(response) {
+  const plan = objectRecord(response.remoteSurfacePlan);
+  const atc = objectRecord(response.atc);
+  const compatibility = objectRecord(response.compatibility);
+  const anchors = response.requiredAnchors;
+  const accepted = response.accepted === true;
+  const planPresent = response.remoteSurfacePlan != null;
+  const atcPresent = response.atc != null;
+  const rejection = objectRecord(response.rejection);
+  const requiredKeys = ['schema', 'protocol', 'requestId', 'accepted', 'ok', 'surface', 'compatibility', 'requiredAnchors', 'remoteSurfacePlan', 'atc', 'rejection', 'diagnostics'];
+  const commonValid = requiredKeys.every((key) => hasOwn(response, key))
+    && response.schema === XSCALER_PREFLIGHT_RESPONSE_SCHEMA
+    && response.protocol === XSCALER_PROTOCOL
+    && isNonEmptyString(response.requestId)
+    && typeof response.accepted === 'boolean'
+    && response.ok === response.accepted
+    && isNonEmptyString(response.surface)
+    && isNonEmptyString(compatibility.ssr)
+    && isNonEmptyString(compatibility.remoteSurfacePlan)
+    && isNonEmptyString(compatibility.xtensionDeployment)
+    && Array.isArray(anchors)
+    && anchors.every(isNonEmptyString)
+    && new Set(anchors).size === anchors.length
+    && validXScalerDiagnostics(response.diagnostics);
+  if (!commonValid) return false;
+  if (planPresent && !validXScalerRemoteSurfacePlan(plan, response)) return false;
+  if (atcPresent && !validXScalerAtc(atc, response, plan)) return false;
+  if (accepted) {
+    return planPresent
+      && atcPresent
+      && response.rejection === null
+      && compatibility.ssr === 'compatible'
+      && compatibility.remoteSurfacePlan === 'required'
+      && compatibility.xtensionDeployment === 'allowed';
+  }
+  return (!atcPresent || validXScalerAtc(atc, response, plan))
+    && isNonEmptyString(rejection.code)
+    && isNonEmptyString(rejection.message)
+    && compatibility.ssr === 'blocked'
+    && compatibility.remoteSurfacePlan === 'blocked'
+    && compatibility.xtensionDeployment === 'blocked';
+}
+
+function createXScalerSsrHydration(options, diagnostics) {
+  const configured = options.xscalerPreflights !== undefined
+    ? options.xscalerPreflights
+    : options.xscalerPreflight;
+  const responses = asArray(configured);
+  const preflights = [];
+  responses.forEach((entry, index) => {
+    const response = objectRecord(entry && entry.response || entry);
+    const plan = objectRecord(response.remoteSurfacePlan);
+    const atc = objectRecord(response.atc);
+    if (!validXScalerPreflightResponse(response)) {
+      diagnostics.publish(
+        'rmt.node_ssr.xscaler_preflight_invalid',
+        'Node SSR accepts only a validated XScaler preflight response with no-network/no-remote-execution boundaries.',
+        'error',
+        { index }
+      );
+      return;
+    }
+    preflights.push({
+      schema: response.schema,
+      requestId: response.requestId || null,
+      accepted: response.accepted,
+      ok: response.ok,
+      status: response.accepted ? 'accepted' : 'rejected',
+      compatibility: cloneJson(response.compatibility || null),
+      remoteSurfacePlan: cloneJson(response.remoteSurfacePlan),
+      atc: cloneJson(response.atc),
+      rejection: cloneJson(response.rejection || null)
+    });
+  });
+  return {
+    schema: RMT_XSCALER_SSR_HYDRATION_SCHEMA,
+    mode: 'preflight-only',
+    networkDuringRender: false,
+    remoteModuleExecuted: false,
+    count: preflights.length,
+    preflights
   };
 }
 
@@ -893,6 +1048,7 @@ export function createRmtNodeSsrAdapter(options = {}) {
       resolveValue
     });
     const streamingContract = await createStreamingContract(normalized.coreDocument, mergedOptions, diagnostics);
+    const xscaler = createXScalerSsrHydration(mergedOptions, diagnostics);
     const hydration = {
       schema: RMT_NODE_SSR_HYDRATION_SCHEMA,
       requestId,
@@ -902,7 +1058,8 @@ export function createRmtNodeSsrAdapter(options = {}) {
       componentCapabilities: [...componentCapabilities.values()],
       coreDocumentSchema: normalized.coreDocument && normalized.coreDocument.schema || null,
       streamingContractSchema: streamingContract && streamingContract.schema || null,
-      cspPolicy
+      cspPolicy,
+      xscaler
     };
     const renderState = {
       requestId,
@@ -929,6 +1086,11 @@ export function createRmtNodeSsrAdapter(options = {}) {
           {
             rel: 'xtend-rmt-hydration',
             schema: RMT_NODE_SSR_HYDRATION_SCHEMA
+          },
+          {
+            rel: 'xtend-xscaler-preflight',
+            schema: RMT_XSCALER_SSR_HYDRATION_SCHEMA,
+            count: xscaler.count
           }
         ]
       },
@@ -1178,5 +1340,6 @@ export default {
   RMT_NODE_SSR_KERNEL_BOUNDARY,
   RMT_SSR_CSP_POLICY_SCHEMA,
   RMT_SSR_CSP_HEADER,
+  RMT_XSCALER_SSR_HYDRATION_SCHEMA,
   createRmtNodeSsrAdapter
 };

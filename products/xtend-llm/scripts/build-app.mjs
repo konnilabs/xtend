@@ -159,7 +159,7 @@ function main() {
     const source = path.join(productRoot, fileName);
     if (fs.existsSync(source)) fs.copyFileSync(source, path.join(appRoot, fileName));
   }
-  const sourceKnowledgeDir = path.join(repoRoot, 'docs', 'ai', 'rmt-ai-developer-kit');
+  const sourceKnowledgeDir = path.join(repoRoot, 'tools', 'rmt-language', 'generated', 'rmt-ai-developer-kit');
   if (fs.existsSync(sourceKnowledgeDir)) {
     copyPath(sourceKnowledgeDir, path.join(appRoot, 'knowledge', 'rmt-ai-kit'), {
       excludeGenerated: true

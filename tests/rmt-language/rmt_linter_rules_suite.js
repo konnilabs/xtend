@@ -29,7 +29,7 @@ const {
 const EPIC_14_PATH = 'development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Server.md';
 const TOOLING_ARCHITECTURE_PATH = 'development/XTendRMT-DSL-Tooling-Architektur.md';
 const RMT_LINTER_WP_PATH = 'development/WP-E14-05-Linter-Rule-Engine-und-Basisregeln-erstellen.md';
-const VALID_FIXTURE_PATH = 'demos/xtendrmt/examples/first-app/generated/core.json';
+const VALID_FIXTURE_PATH = 'tests/fixtures/rmt-component-lab-pilot.core.json';
 const RULE_MODULE_PATHS = [
   'tools/rmt-language/rules/index.js',
   'tools/rmt-language/rules/document-policy.js',
@@ -109,7 +109,7 @@ function runValidFixtureChecks(context, rootDir) {
   const text = readText(VALID_FIXTURE_PATH, rootDir);
   const report = lintRmtSource({
     text,
-    uri: 'file:///virtual/rmt-first-demo-app.rmt',
+    uri: 'file:///virtual/tooling-valid.rmt',
     version: 5
   }, {
     rootDir
@@ -118,26 +118,29 @@ function runValidFixtureChecks(context, rootDir) {
   context.assert(report.schema === RMT_LINTER_REPORT_SCHEMA, 'Linter emits report schema');
   context.assert(report.engineSchema === RMT_LINTER_RULE_ENGINE_SCHEMA, 'Linter emits rule engine schema');
   context.assert(report.workpackage === RMT_LINTER_WORKPACKAGE, 'Linter report belongs to WP-E14-05');
-  context.assert(report.status === 'passed', 'Valid RMT-first fixture passes linter');
-  context.assert(report.errorCount === 0, 'Valid RMT-first fixture has no linter errors');
+  context.assert(report.status === 'passed', 'Valid tooling fixture passes linter');
+  context.assert(report.errorCount === 0, 'Valid tooling fixture has no linter errors');
   context.assert(report.ruleCount === 6, 'Default linter registers five basis rules plus App Platform policy');
   context.assert(report.graphStatus === 'indexed', 'Linter report exposes graph status instead of graph internals');
   context.assert(!Object.prototype.hasOwnProperty.call(report, 'graph'), 'JSON report does not expose non-deterministic graph internals');
-  context.assert(report.manifestHints.documentId === 'demo.xtend.rmt-first-app', 'Linter report exposes manifest hints');
+  context.assert(report.manifestHints.documentId === 'fixture.xtend.component-lab', 'Linter report exposes manifest hints');
   context.assert(report.diagnostics.every((diagnostic) => diagnostic.severity !== 'error'), 'Valid fixture only produces non-blocking hints');
   context.assert(report.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.a11y.route-announcement.missing'), 'A11y route announcement rule runs on valid fixture');
 
   const overrideReport = lintRmtSource({
     text,
-    uri: 'file:///virtual/rmt-first-demo-app.rmt'
+    uri: 'file:///virtual/tooling-valid.rmt'
   }, {
     rootDir,
     severityPolicy: {
       'rmt.a11y.route-announcement.missing': 'warning'
     }
   });
+  const announcementCount = report.diagnostics.filter((diagnostic) => (
+    diagnostic.code === 'rmt.a11y.route-announcement.missing'
+  )).length;
 
-  context.assert(overrideReport.warningCount === report.infoCount, 'Severity policy can raise A11y infos to warnings');
+  context.assert(overrideReport.warningCount === announcementCount, 'Severity policy raises only A11y announcement infos to warnings');
 }
 
 function runProblemFixtureChecks(context, rootDir) {
@@ -253,7 +256,7 @@ function runCustomRuleChecks(context, rootDir) {
   });
   const report = linter.lint({
     text: readText(VALID_FIXTURE_PATH, rootDir),
-    uri: 'file:///virtual/rmt-first-demo-app.rmt'
+    uri: 'file:///virtual/tooling-valid.rmt'
   }, {
     rootDir
   });

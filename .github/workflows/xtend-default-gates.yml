@@ -29,19 +29,40 @@ concurrency:
 
 jobs:
   pr-fast-gates:
-    name: PR fast gates (Node 26.x)
+    name: PR fast gates (Node ${{ matrix.node_version }})
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - node_version: '24.18.0'
+            runtime_lane: node-24-lts
+            artifact_suffix: node-24-18-0
+          - node_version: '26.5.0'
+            runtime_lane: node-26-current
+            artifact_suffix: node-26-5-0
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Setup Node.js 26.x
-        uses: actions/setup-node@v6
+      - name: Setup Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 26.x
+          node-version: ${{ matrix.node_version }}
+          package-manager-cache: false
+
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
+
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
 
       - name: Print runtime versions
         run: |
@@ -50,6 +71,9 @@ jobs:
 
       - name: Install workspace dependencies
         run: npm ci --ignore-scripts --no-audit --fund=false
+
+      - name: Install XTend LLM browser-catfood dependencies
+        run: npm ci --prefix products/xtend-llm --no-audit --fund=false
 
       - name: Prepare Native-First release evidence artifacts
         run: npm run native-first:evidence:prepare
@@ -85,9 +109,29 @@ jobs:
         if: always()
         run: npm run test:rmt-demos:report
 
+      - name: Run Maraca AppServices Node/PHP parity report
+        if: always()
+        run: npm run test:maraca-app-services-cross-runtime:report
+
+      - name: Run XTend LLM AppServices catfood report
+        if: always()
+        run: npm run test:xtend-llm-app-services-catfood:report
+
       - name: Run XScaler protocol gate report
         if: always()
         run: npm run test:xscaler-protocol:report
+
+      - name: Run XScaler public API gate report
+        if: always()
+        run: npm run test:xscaler-public-api:report
+
+      - name: Run XScaler JS/PHP preflight parity report
+        if: always()
+        run: npm run test:xscaler-php-preflight-parity:report
+
+      - name: Run RMT Node/PHP XScaler SSR hydration parity report
+        if: always()
+        run: npm run test:rmt-xscaler-ssr-hydration-parity:report
 
       - name: Run XScaler source-to-sea gate report
         if: always()
@@ -104,10 +148,12 @@ jobs:
 
       - name: Upload XTend PR JSON report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: xtend-pr-gate-report-node-26
+          name: xtend-pr-gate-report-${{ matrix.artifact_suffix }}
           path: |
+            .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
+            .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
             .xtend-test-results/xtend-pr-gate-report.json
             .xtend-test-results/xtend-schema-inventory-report.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
@@ -117,26 +163,53 @@ jobs:
             .xtend-test-results/xtend-docs-framework-ownership-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-rmt-demos-report.json
+            .xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json
+            .xtend-test-results/xtend-llm-app-services-catfood-report.json
+            products/xtend-llm/.xtend-llm-results/app-services-catfood.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
+            .xtend-test-results/xtend-xscaler-public-api-report.json
+            .xtend-test-results/xtend-xscaler-php-preflight-parity-report.json
+            .xtend-test-results/xtend-rmt-xscaler-ssr-hydration-parity-report.json
             .xtend-test-results/xtend-xscaler-source-to-sea-report.json
             .xtend-test-results/xtend-rkfa-production-closure-report.json
             .xtend-test-results/xtend-docs-stub-inventory-report.json
           if-no-files-found: warn
 
   full-release-gates:
-    name: Full release gates (Node 26.x)
+    name: Full release gates (Node ${{ matrix.node_version }})
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - node_version: '24.18.0'
+            runtime_lane: node-24-lts
+            artifact_suffix: node-24-18-0
+          - node_version: '26.5.0'
+            runtime_lane: node-26-current
+            artifact_suffix: node-26-5-0
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Setup Node.js 26.x
-        uses: actions/setup-node@v6
+      - name: Setup Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 26.x
+          node-version: ${{ matrix.node_version }}
+          package-manager-cache: false
+
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
+
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
 
       - name: Print runtime versions
         run: |
@@ -145,6 +218,9 @@ jobs:
 
       - name: Install workspace dependencies
         run: npm ci --ignore-scripts --no-audit --fund=false
+
+      - name: Install XTend LLM browser-catfood dependencies
+        run: npm ci --prefix products/xtend-llm --no-audit --fund=false
 
       - name: Prepare Native-First release evidence artifacts
         run: npm run native-first:evidence:prepare
@@ -180,9 +256,29 @@ jobs:
         if: always()
         run: npm run test:rmt-demos:report
 
+      - name: Run Maraca AppServices Node/PHP parity report
+        if: always()
+        run: npm run test:maraca-app-services-cross-runtime:report
+
+      - name: Run XTend LLM AppServices catfood report
+        if: always()
+        run: npm run test:xtend-llm-app-services-catfood:report
+
       - name: Run XScaler protocol gate report
         if: always()
         run: npm run test:xscaler-protocol:report
+
+      - name: Run XScaler public API gate report
+        if: always()
+        run: npm run test:xscaler-public-api:report
+
+      - name: Run XScaler JS/PHP preflight parity report
+        if: always()
+        run: npm run test:xscaler-php-preflight-parity:report
+
+      - name: Run RMT Node/PHP XScaler SSR hydration parity report
+        if: always()
+        run: npm run test:rmt-xscaler-ssr-hydration-parity:report
 
       - name: Run XScaler source-to-sea gate report
         if: always()
@@ -199,10 +295,12 @@ jobs:
 
       - name: Upload XTend full JSON report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: xtend-release-gate-report-node-26
+          name: xtend-release-gate-report-${{ matrix.artifact_suffix }}
           path: |
+            .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
+            .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
             .xtend-test-results/xtend-release-gate-report.json
             .xtend-test-results/xtend-schema-inventory-report.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
@@ -212,25 +310,52 @@ jobs:
             .xtend-test-results/xtend-docs-framework-ownership-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-rmt-demos-report.json
+            .xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json
+            .xtend-test-results/xtend-llm-app-services-catfood-report.json
+            products/xtend-llm/.xtend-llm-results/app-services-catfood.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
+            .xtend-test-results/xtend-xscaler-public-api-report.json
+            .xtend-test-results/xtend-xscaler-php-preflight-parity-report.json
+            .xtend-test-results/xtend-rmt-xscaler-ssr-hydration-parity-report.json
             .xtend-test-results/xtend-xscaler-source-to-sea-report.json
             .xtend-test-results/xtend-rkfa-production-closure-report.json
             .xtend-test-results/xtend-docs-stub-inventory-report.json
           if-no-files-found: warn
 
   rmt-vnext-primitive-gates:
-    name: RMT vNext and Native-First RMT Owned gates (Node 26.x)
+    name: RMT vNext and Native-First RMT Owned gates (Node ${{ matrix.node_version }})
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - node_version: '24.18.0'
+            runtime_lane: node-24-lts
+            artifact_suffix: node-24-18-0
+          - node_version: '26.5.0'
+            runtime_lane: node-26-current
+            artifact_suffix: node-26-5-0
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Setup Node.js 26.x
-        uses: actions/setup-node@v6
+      - name: Setup Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 26.x
+          node-version: ${{ matrix.node_version }}
+          package-manager-cache: false
+
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
+
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
 
       - name: Print runtime versions
         run: |
@@ -238,7 +363,7 @@ jobs:
           npm --version
 
       - name: Install workspace dependencies
-        run: npm install --ignore-scripts --package-lock=false
+        run: npm ci --ignore-scripts --no-audit --fund=false
 
       - name: Run RMT vNext primitive gate report
         run: npm run test:rmt-vnext-primitives:report
@@ -277,26 +402,35 @@ jobs:
 
       - name: Upload RMT vNext primitive JSON report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: xtend-rmt-vnext-primitives-gate-report-node-26
-          path: .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
+          name: xtend-rmt-vnext-primitives-gate-report-${{ matrix.artifact_suffix }}
+          path: |
+            .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
+            .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
+            .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
           if-no-files-found: warn
 
       - name: Upload Native-First RMT Owned release JSON report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: xtend-native-first-rmt-owned-release-report-node-26
-          path: .xtend-test-results/xtend-native-first-rmt-owned-release-report.json
+          name: xtend-native-first-rmt-owned-release-report-${{ matrix.artifact_suffix }}
+          path: |
+            .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
+            .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
+            .xtend-test-results/xtend-native-first-rmt-owned-release-report.json
           if-no-files-found: warn
 
       - name: Upload RMT vNext source-to-sea evidence
         if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: xtend-rmt-vnext-source-to-sea-evidence-node-26
-          path: .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json
+          name: xtend-rmt-vnext-source-to-sea-evidence-${{ matrix.artifact_suffix }}
+          path: |
+            .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
+            .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
+            .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json
           if-no-files-found: error
 
       - name: Validate RMT vNext source-to-sea evidence
@@ -304,20 +438,41 @@ jobs:
         run: npm run test:rmt-vnext-source-to-sea:validate-artifact
 
   package-structure:
-    name: Package structure dry runs (Node 26.x)
+    name: Package structure dry runs (Node ${{ matrix.node_version }})
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
       NPM_CONFIG_CACHE: .xtend-test-results/npm-cache
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - node_version: '24.18.0'
+            runtime_lane: node-24-lts
+            artifact_suffix: node-24-18-0
+          - node_version: '26.5.0'
+            runtime_lane: node-26-current
+            artifact_suffix: node-26-5-0
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Setup Node.js 26.x
-        uses: actions/setup-node@v6
+      - name: Setup Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 26.x
+          node-version: ${{ matrix.node_version }}
+          package-manager-cache: false
+
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
+
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
 
       - name: Print runtime versions
         run: |
@@ -340,10 +495,12 @@ jobs:
 
       - name: Upload package structure evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: xtend-package-structure-node-26
+          name: xtend-package-structure-${{ matrix.artifact_suffix }}
           path: |
+            .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
+            .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
             .xtend-test-results/xtend-pack-dry-run.json
             .xtend-test-results/xtend-package-export-surface-lock.json
             .xtend-test-results/xtend-package-export-lock-report.json
@@ -356,19 +513,40 @@ jobs:
           if-no-files-found: warn
 
   conditional-network-evidence:
-    name: Conditional network evidence (Node 26.x)
+    name: Conditional network evidence (Node ${{ matrix.node_version }})
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - node_version: '24.18.0'
+            runtime_lane: node-24-lts
+            artifact_suffix: node-24-18-0
+          - node_version: '26.5.0'
+            runtime_lane: node-26-current
+            artifact_suffix: node-26-5-0
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Setup Node.js 26.x
-        uses: actions/setup-node@v6
+      - name: Setup Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 26.x
+          node-version: ${{ matrix.node_version }}
+          package-manager-cache: false
+
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
+
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
 
       - name: Print runtime versions
         run: |
@@ -381,28 +559,136 @@ jobs:
       - name: Capture conditional network evidence
         env:
           XTEND_CONDITIONAL_NETWORK_EXECUTE: "1"
-          XTEND_CONDITIONAL_NETWORK_USE_NPX_NPM10: "1"
         run: npm run conditional-network:evidence
 
       - name: Upload conditional network evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: xtend-conditional-network-evidence-node-26
+          name: xtend-conditional-network-evidence-${{ matrix.artifact_suffix }}
           path: |
+            .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
+            .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
             .xtend-test-results/xtend-npm-audit-report.json
             .xtend-test-results/xtend-npm-sbom.json
             .xtend-test-results/xtend-conditional-network-evidence-report.json
           if-no-files-found: warn
 
+  node-native-smoke:
+    name: N26-04 native smoke (${{ matrix.runner_label }}, Node ${{ matrix.node_version }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            runner_label: ubuntu-24.04-x64
+            expected_platform: linux
+            expected_arch: x64
+            node_version: '24.18.0'
+            runtime_lane: node-24-lts
+            product_script: test:node24:product
+            artifact_suffix: ubuntu-24-04-x64-node-24-18-0
+          - runner: ubuntu-24.04
+            runner_label: ubuntu-24.04-x64
+            expected_platform: linux
+            expected_arch: x64
+            node_version: '26.5.0'
+            runtime_lane: node-26-current
+            product_script: test:node26:product
+            artifact_suffix: ubuntu-24-04-x64-node-26-5-0
+          - runner: windows-2025
+            runner_label: windows-2025-x64
+            expected_platform: win32
+            expected_arch: x64
+            node_version: '24.18.0'
+            runtime_lane: node-24-lts
+            product_script: test:node24:product
+            artifact_suffix: windows-2025-x64-node-24-18-0
+          - runner: windows-2025
+            runner_label: windows-2025-x64
+            expected_platform: win32
+            expected_arch: x64
+            node_version: '26.5.0'
+            runtime_lane: node-26-current
+            product_script: test:node26:product
+            artifact_suffix: windows-2025-x64-node-26-5-0
+          - runner: macos-15
+            runner_label: macos-15-arm64
+            expected_platform: darwin
+            expected_arch: arm64
+            node_version: '24.18.0'
+            runtime_lane: node-24-lts
+            product_script: test:node24:product
+            artifact_suffix: macos-15-arm64-node-24-18-0
+          - runner: macos-15
+            runner_label: macos-15-arm64
+            expected_platform: darwin
+            expected_arch: arm64
+            node_version: '26.5.0'
+            runtime_lane: node-26-current
+            product_script: test:node26:product
+            artifact_suffix: macos-15-arm64-node-26-5-0
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node_version }}
+          architecture: ${{ matrix.expected_arch }}
+          package-manager-cache: false
+
+      - name: Verify runner OS and architecture
+        run: node -e "const expected={platform:'${{ matrix.expected_platform }}',arch:'${{ matrix.expected_arch }}'}; const observed={platform:process.platform,arch:process.arch}; console.log(JSON.stringify({expected,observed})); if(observed.platform!==expected.platform||observed.arch!==expected.arch){console.error('Runner OS/architecture mismatch.');process.exit(1)}"
+
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
+
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
+
+      - name: Install root native-toolchain dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
+      - name: Run Node native toolchain smoke
+        run: npm run test:node-native-toolchain
+
+      - name: Install XTend LLM Electron and native-runtime dependencies
+        run: npm ci --prefix products/xtend-llm --no-audit --fund=false
+
+      - name: Run XTend LLM Electron, Sharp and ONNX runtime smoke
+        run: npm --prefix products/xtend-llm run ${{ matrix.product_script }}
+
+      - name: Upload Node native smoke evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: xtend-node-native-smoke-${{ matrix.artifact_suffix }}
+          path: |
+            .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
+            .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
+            .xtend-test-results/xtend-node-native-toolchain-smoke.json
+            products/xtend-llm/.xtend-llm-results/electron-runtime-${{ matrix.runtime_lane }}.json
+            products/xtend-llm/.xtend-llm-results/native-runtime-${{ matrix.runtime_lane }}.json
+          if-no-files-found: error
+
   npm-publish-latest:
-    name: Publish npm latest with provenance (Node 26.x)
+    name: Publish npm latest with provenance (Node 24.18.0)
     if: github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true
     needs:
       - full-release-gates
       - rmt-vnext-primitive-gates
       - package-structure
       - conditional-network-evidence
+      - node-native-smoke
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -412,14 +698,25 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Setup Node.js 26.x for npm
-        uses: actions/setup-node@v6
+      - name: Setup Node.js 24.18.0 for npm
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 26.x
+          node-version: '24.18.0'
+          package-manager-cache: false
           registry-url: https://registry.npmjs.org
           scope: '@ccslabs'
+
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane node-24-publish
+
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane node-24-publish
 
       - name: Print runtime versions
         run: |
@@ -429,11 +726,13 @@ jobs:
       - name: Install workspace links for release evidence
         run: npm ci --ignore-scripts --no-audit --fund=false
 
+      - name: Install XTend LLM browser-catfood dependencies
+        run: npm ci --prefix products/xtend-llm --no-audit --fund=false
+
       - name: Re-run blocking release evidence
         env:
           XTEND_CONDITIONAL_NETWORK_EXECUTE: "1"
           XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL: "0"
-          XTEND_CONDITIONAL_NETWORK_USE_NPX_NPM10: "1"
         run: |
           npm run native-first:evidence:prepare
           npm run test:release:full:report
@@ -457,10 +756,12 @@ jobs:
 
       - name: Upload npm publish evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: xtend-npm-publish-latest-evidence-node-26
+          name: xtend-npm-publish-latest-evidence-node-24-18-0
           path: |
+            .xtend-test-results/runtime/xtend-node-runtime-node-24-publish.json
+            .xtend-test-results/runtime/xtend-node-warnings-node-24-publish.jsonl
             .xtend-test-results/xtend-release-gate-report.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json

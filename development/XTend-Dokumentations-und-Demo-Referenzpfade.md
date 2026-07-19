@@ -301,7 +301,7 @@ Der Contract `xtend.epic14.lsp-handoff.v1` dokumentiert die LSP Capability Matri
 | `development/ER-WP-06-Package-Export-und-Release-Strategie-festlegen.md` | automated-static | ER-WP-06-Abnahme fuer Package-Exports, Release-Scripts, README/CHANGELOG, private Package Boundary und Handoff an ER-WP-30 unter `xtend.enterprise.er-wp-06.package-export-release-strategy.v1` |
 | `development/XTend-Supply-Chain-Gate-Plan.md` | automated-static | akzeptierter Supply-Chain-Gate-Plan fuer Dependency Audit, License Policy, Vulnerability Policy, Release Gate, Offline-Verify und CI-Handoff unter `xtend.security.supply-chain-gate-plan.v1` |
 | `development/ER-WP-30-Dependency-License-und-Vulnerability-Gates-planen.md` | automated-static | ER-WP-30-Abnahme fuer Supply-Chain-Gates, `npm run test:supply-chain`, `scripts/verify_supply_chain_policy.js` und Handoff an CI-/Release-Pakete unter `xtend.enterprise.er-wp-30.supply-chain-gates.v1` |
-| `.github/workflows/xtend-default-gates.yml` | automated-static | aktiver GitHub-Actions-Workflow fuer XTend CI Gates, Node `26.x`, `npm run test:pr:report`, `npm run test:release:full:report` und getrennte JSON Artifact Uploads |
+| `.github/workflows/xtend-default-gates.yml` | automated-static | aktiver GitHub-Actions-Workflow fuer XTend CI Gates, primär Node `24.18.0`, verpflichtend Node `26.5.0`, npm `11.17.0`, Runtime-Evidence und getrennte JSON Artifact Uploads |
 | `development/XTend-CI-Default-Gates-Workflow.md` | automated-static | akzeptierter CI Default Gates Workflow Contract unter `xtend.ci.default-gates.v1` |
 | `development/ER-WP-36-CI-Workflow-fuer-Default-Gates-anlegen.md` | automated-static | ER-WP-36-Abnahme fuer GitHub Actions Default Gates, Report Artifact und Handoff an die ER-WP-37-Gate-Matrix unter `xtend.enterprise.er-wp-36.ci-default-gates.v1` |
 | `development/XTend-CI-Gate-Matrix.md` | automated-static | akzeptierte CI Gate Matrix unter `xtend.ci.gate-matrix.v1` fuer PR-Fast-, Full-Release- und Nightly-Gates |
@@ -870,13 +870,13 @@ Der Plan priorisiert `desktop-1280`, `mobile-390`, `light`, `dark`, `forced-colo
 
 `ER-WP-36` ist in `development/ER-WP-36-CI-Workflow-fuer-Default-Gates-anlegen.md` abgeschlossen und traegt `xtend.enterprise.er-wp-36.ci-default-gates.v1`.
 
-Der aktive GitHub-Actions-Workflow liegt in `.github/workflows/xtend-default-gates.yml` und fuehrt unter Node `26.x` den reportfaehigen Default-Gate `npm run test:report` aus. Der JSON-Report entsteht unter `.xtend-test-results/xtend-test-report.json` und wird als Artifact `xtend-test-report-node-26` hochgeladen. Der akzeptierte Workflow-Contract liegt in `development/XTend-CI-Default-Gates-Workflow.md` unter `xtend.ci.default-gates.v1`; `package.json` spiegelt die CI-Metadaten in `xtend.ciDefaultGates`. Die Test-/Reporting-Dokumentation liegt aktualisiert in `development/XTend-Test-Reporting-und-CI-Vorbereitung.md`.
+Der aktive GitHub-Actions-Workflow liegt in `.github/workflows/xtend-default-gates.yml` und fuehrt die reportfaehigen Gates unter Node `24.18.0` und `26.5.0` mit npm `11.17.0` aus. Jeder JSON-Report und jede Runtime-Evidence wird in einem nach `node-24-18-0` beziehungsweise `node-26-5-0` getrennten Artifact abgelegt; das provider-neutrale Metadatenmuster lautet `xtend-test-report-{artifactSuffix}`. Der akzeptierte Workflow-Contract liegt in `development/XTend-CI-Default-Gates-Workflow.md` unter `xtend.ci.default-gates.v1`; `package.json` spiegelt die CI-Metadaten in `xtend.ciDefaultGates`. Die Test-/Reporting-Dokumentation liegt aktualisiert in `development/XTend-Test-Reporting-und-CI-Vorbereitung.md`.
 
 ## ER-WP-37 CI Gate Matrix
 
 `ER-WP-37` ist in `development/ER-WP-37-Schnelle-PR-Gates-und-volle-Release-Gates-trennen.md` abgeschlossen und traegt `xtend.enterprise.er-wp-37.ci-gate-matrix.v1`.
 
-Die akzeptierte Gate-Matrix liegt in `development/XTend-CI-Gate-Matrix.md` und traegt `xtend.ci.gate-matrix.v1`. Der Workflow trennt `pr-fast` (`xtend.ci.pr-fast-gate.v1`, `npm run test:pr:report`, Artifact `xtend-pr-gate-report-node-26`) von `full-release` (`xtend.ci.full-release-gate.v1`, `npm run test:release:full:report`, Artifact `xtend-release-gate-report-node-26`). Nightly nutzt denselben Full-Release-Command unter `xtend.ci.nightly-gate.v1`. `ER-WP-38` hat die Release Checklist und SemVer Policy auf diese Matrix gesetzt.
+Die akzeptierte Gate-Matrix liegt in `development/XTend-CI-Gate-Matrix.md` und traegt `xtend.ci.gate-matrix.v1`. Der Workflow trennt `pr-fast` (`xtend.ci.pr-fast-gate.v1`, `npm run test:pr:report`, Artifact `xtend-pr-gate-report-{artifactSuffix}`) von `full-release` (`xtend.ci.full-release-gate.v1`, `npm run test:release:full:report`, Artifact `xtend-release-gate-report-{artifactSuffix}`). Nightly nutzt denselben Full-Release-Command unter `xtend.ci.nightly-gate.v1`. `ER-WP-38` hat die Release Checklist und SemVer Policy auf diese Matrix gesetzt.
 
 ## ER-WP-38 Release Checklist und SemVer Policy
 

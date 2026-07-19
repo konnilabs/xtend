@@ -46,6 +46,14 @@ function createBuildInput() {
     validation: readArg('--validation', 'strict'),
     transitions: readArg('--transitions', 'strict'),
     enablePrewarmWorker: readBooleanArg('--enable-prewarm-worker', !debug),
+    services: {
+      clientEntry: path.join(productRoot, 'src', 'services.ts'),
+      targets: ['browser'],
+      budgets: {
+        clientBytes: 65_536
+      },
+      strict: true
+    },
     json: true
   };
 }
@@ -54,5 +62,22 @@ const result = await buildMaracaBundleAsync({
   ...createBuildInput()
 }, { rootDir: repoRoot });
 
-process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+const output = process.argv.includes('--quiet')
+  ? {
+      schema: result.schema,
+      ok: result.ok,
+      status: result.status,
+      profile: result.profile,
+      services: result.serviceBuildReport ? {
+        schema: result.serviceBuildReport.schema,
+        enabled: result.serviceBuildReport.enabled,
+        ok: result.serviceBuildReport.ok,
+        status: result.serviceBuildReport.status,
+        serviceCount: result.serviceBuildReport.manifest?.services?.length || 0,
+        diagnostics: result.serviceBuildReport.diagnostics || []
+      } : null,
+      sizeBudget: result.sizeBudgetReport?.appServices || null
+    }
+  : result;
+process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
 process.exitCode = result.ok ? 0 : 1;

@@ -6,17 +6,50 @@
   "mode": "strict",
   "baseline": {
     "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
-    "loaderBytes": 69933,
+    "loaderBytes": 69993,
     "selectedComponentBytes": 250217,
-    "stackModuleBytes": 1659679,
+    "stackModuleBytes": 1663954,
     "contractPayloadBytes": 226005,
-    "bytes": 2205834
+    "bytes": 2210169
   },
-  "baselineBytes": 2205834,
-  "bundleBytes": 2044792,
-  "ratio": 0.9269926930131642,
+  "baselineBytes": 2210169,
+  "bundleBytes": 2047844,
+  "framework": {
+    "bytes": 2047844,
+    "baselineBytes": 2210169,
+    "withinBudget": true
+  },
+  "appServices": {
+    "clientBytes": 0,
+    "clientBudgetBytes": null,
+    "clientWithinBudget": true,
+    "serverBytes": 0,
+    "serverBudgetBytes": null,
+    "serverWithinBudget": true,
+    "withinBudget": true
+  },
+  "css": {
+    "provider": "maraca-native",
+    "bytes": 255,
+    "budgetBytes": null,
+    "withinBudget": true,
+    "requestFingerprint": "42a12329f49cbb9c27ed4724ca24b1e85befc34c8cfac507a7cacf7b26857d2e",
+    "configFingerprint": "054adc31bbb3b205491c7af627f7e3b41304e205f645e685d36fbaa0d7201c98",
+    "evidenceFingerprint": "d7e0bd70a81f9ca2082b4c56877c470e0e30c892709d4ceac75070b86975122f",
+    "outputFingerprint": "50c41f8c8e2be6b4fa00a8cec35056e002f23af381ff55c681a2312d0b3fffb8",
+    "sourceFingerprints": [
+      {
+        "fingerprint": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+        "path": "docs/xtendrmt-docs-shell-vnext.rmt"
+      }
+    ]
+  },
+  "ratio": 0.9265553901081772,
   "budgets": {
     "modernEsmEntryMustBeSmallerThanBaseline": true,
-    "enforcement": "strict"
+    "enforcement": "strict",
+    "frameworkBytes": 2210169,
+    "clientAppServiceBytes": null,
+    "serverAppServiceBytes": null
   }
 }

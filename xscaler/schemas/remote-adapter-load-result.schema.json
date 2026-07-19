@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.xtend.dev/xscaler/remote-adapter-load-result.v1.schema.json",
+  "title": "XTend XScaler Remote Adapter Load Result v1",
+  "type": "object",
+  "required": ["schema", "ok", "status", "surfaceId", "sessionId", "preflight", "loadAttempted", "loaded", "adapterExecuted", "atc", "runtimeBoundary", "diagnostics", "session"],
+  "properties": {
+    "schema": { "const": "xtend.xscaler.remote-adapter-load-result.v1" },
+    "ok": { "type": "boolean" },
+    "status": { "enum": ["attached", "refused", "failed", "cancelled", "detached", "disposed"] },
+    "surfaceId": { "type": "string" },
+    "sessionId": { "type": "string" },
+    "preflight": {
+      "oneOf": [
+        { "$ref": "https://schemas.xtend.dev/xscaler/preflight-response.v1.schema.json" },
+        { "type": "null" }
+      ]
+    },
+    "loadAttempted": { "type": "boolean" },
+    "loaded": { "type": "boolean" },
+    "adapterExecuted": { "type": "boolean" },
+    "atc": { "$ref": "https://schemas.xtend.dev/xscaler/atc-handoff.v1.schema.json" },
+    "runtimeBoundary": {
+      "type": "object",
+      "required": ["remoteRuntimeExecution", "kernelRemoteExecution", "networkRequiredByKernel"],
+      "properties": {
+        "remoteRuntimeExecution": { "const": false },
+        "kernelRemoteExecution": { "const": false },
+        "networkRequiredByKernel": { "const": false }
+      },
+      "additionalProperties": true
+    },
+    "diagnostics": { "type": "array", "items": { "type": "object" } },
+    "session": { "type": ["object", "null"] }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "refused" } }, "required": ["status"] },
+      "then": {
+        "properties": {
+          "loadAttempted": { "const": false },
+          "loaded": { "const": false },
+          "adapterExecuted": { "const": false }
+        }
+      }
+    }
+  ],
+  "additionalProperties": true
+}

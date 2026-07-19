@@ -14,6 +14,11 @@ if (!defined('RMT_PHP_SSR_ADAPTER_SCHEMA')) {
     define('RMT_PHP_SSR_KERNEL_BOUNDARY', 'no-rmt-kernel-import-of-xtend-types');
     define('RMT_SSR_CSP_POLICY_SCHEMA', 'xtend.rmt.ssr-csp-policy.v1');
     define('RMT_SSR_CSP_HEADER', 'Content-Security-Policy');
+    define('RMT_XSCALER_SSR_HYDRATION_SCHEMA', 'xtend.xscaler.ssr-hydration.v1');
+    define('RMT_XSCALER_PROTOCOL', 'xscaler');
+    define('RMT_XSCALER_PREFLIGHT_RESPONSE_SCHEMA', 'xtend.xscaler.preflight-response.v1');
+    define('RMT_XSCALER_REMOTE_SURFACE_PLAN_SCHEMA', 'xtend.xscaler.remote-surface-plan.v1');
+    define('RMT_XSCALER_ATC_HANDOFF_SCHEMA', 'xtend.xscaler.atc-handoff.v1');
 }
 
 if (!class_exists('RmtPhpSsrAdapter', false)) {
@@ -111,6 +116,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 ],
             ], $diagnostics);
             $streamingContract = $this->createStreamingContract($normalized['coreDocument'] ?? null);
+            $xscaler = $this->createXScalerSsrHydration($mergedOptions, $diagnostics);
             $hydration = [
                 'schema' => RMT_PHP_SSR_HYDRATION_SCHEMA,
                 'requestId' => $requestId,
@@ -121,6 +127,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 'coreDocumentSchema' => $normalized['coreDocument']['schema'] ?? null,
                 'streamingContractSchema' => $streamingContract['schema'] ?? null,
                 'cspPolicy' => $cspPolicy,
+                'xscaler' => $xscaler,
             ];
             $chunk = $this->createChunk([
                 'requestId' => $requestId,
@@ -146,6 +153,10 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                     'hints' => [[
                         'rel' => 'xtend-rmt-hydration',
                         'schema' => RMT_PHP_SSR_HYDRATION_SCHEMA,
+                    ], [
+                        'rel' => 'xtend-xscaler-preflight',
+                        'schema' => RMT_XSCALER_SSR_HYDRATION_SCHEMA,
+                        'count' => $xscaler['count'],
                     ]],
                 ],
                 'headers' => $headers,
@@ -1109,6 +1120,189 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             ], array_filter($details, function ($value) {
                 return $value !== null;
             }));
+        }
+
+        private function isNonEmptyString($value): bool
+        {
+            return is_string($value) && trim($value) !== '';
+        }
+
+        private function validXScalerDiagnostics($value): bool
+        {
+            if (!is_array($value)) return false;
+            foreach ($value as $diagnostic) {
+                if (!is_array($diagnostic)
+                    || !$this->isNonEmptyString($diagnostic['code'] ?? null)
+                    || !$this->isNonEmptyString($diagnostic['severity'] ?? null)
+                    || !$this->isNonEmptyString($diagnostic['message'] ?? null)) return false;
+            }
+            return true;
+        }
+
+        private function validXScalerRemoteSurfacePlan(array $plan, array $response): bool
+        {
+            $ssr = isset($plan['ssr']) && is_array($plan['ssr']) ? $plan['ssr'] : [];
+            $boundary = isset($plan['runtimeBoundary']) && is_array($plan['runtimeBoundary']) ? $plan['runtimeBoundary'] : [];
+            $integrity = isset($plan['integrity']) && is_array($plan['integrity']) ? $plan['integrity'] : [];
+            $algorithm = $integrity['algorithm'] ?? null;
+            $lanes = $plan['lanes'] ?? null;
+            $validLanes = is_array($lanes) && count($lanes) > 0;
+            if ($validLanes) {
+                foreach ($lanes as $lane) {
+                    if (!is_array($lane)
+                        || !$this->isNonEmptyString($lane['lane'] ?? null)
+                        || !$this->isNonEmptyString($lane['target'] ?? null)) {
+                        $validLanes = false;
+                        break;
+                    }
+                }
+            }
+            return ($plan['schema'] ?? null) === RMT_XSCALER_REMOTE_SURFACE_PLAN_SCHEMA
+                && ($plan['protocol'] ?? null) === RMT_XSCALER_PROTOCOL
+                && $this->isNonEmptyString($plan['surface'] ?? null)
+                && ($plan['surface'] ?? null) === ($response['surface'] ?? null)
+                && $this->isNonEmptyString($plan['surfaceId'] ?? null)
+                && strpos($plan['surfaceId'], 'remoteSurface:') === 0
+                && $this->isNonEmptyString($plan['owner'] ?? null)
+                && $this->isNonEmptyString($plan['origin'] ?? null)
+                && strpos($plan['origin'], 'https://') === 0
+                && in_array($algorithm, ['sha256', 'sha384', 'sha512'], true)
+                && $this->isNonEmptyString($integrity['digest'] ?? null)
+                && strpos($integrity['digest'], $algorithm . '-') === 0
+                && $this->isNonEmptyString($plan['fallbackSurface'] ?? null)
+                && $validLanes
+                && $this->isNonEmptyString($ssr['mode'] ?? null)
+                && ($ssr['networkDuringRender'] ?? null) === false
+                && ($boundary['remoteRuntimeExecution'] ?? null) === false
+                && ($boundary['kernelRemoteExecution'] ?? null) === false
+                && ($boundary['networkRequiredByKernel'] ?? null) === false;
+        }
+
+        private function validXScalerAtc(array $atc, array $response, array $plan): bool
+        {
+            $boundary = isset($atc['runtimeBoundary']) && is_array($atc['runtimeBoundary']) ? $atc['runtimeBoundary'] : [];
+            $expectedSurfaceId = $plan['surfaceId'] ?? ('remoteSurface:' . ($response['surface'] ?? ''));
+            $accepted = $response['accepted'] ?? null;
+            return ($atc['schema'] ?? null) === RMT_XSCALER_ATC_HANDOFF_SCHEMA
+                && ($atc['protocol'] ?? null) === RMT_XSCALER_PROTOCOL
+                && ($atc['surfaceId'] ?? null) === $expectedSurfaceId
+                && $this->isNonEmptyString($atc['sessionId'] ?? null)
+                && $this->isNonEmptyString($atc['handoffSignal'] ?? null)
+                && $this->isNonEmptyString($atc['lifecycleState'] ?? null)
+                && is_bool($atc['accepted'] ?? null)
+                && ($atc['ok'] ?? null) === $atc['accepted']
+                && ($atc['accepted'] ?? null) === $accepted
+                && $this->isNonEmptyString($atc['status'] ?? null)
+                && ($accepted === true ? $atc['status'] !== 'refused' : $atc['status'] === 'refused')
+                && array_key_exists('fallback', $atc)
+                && ($boundary['remoteRuntimeExecution'] ?? null) === false
+                && ($boundary['kernelRemoteExecution'] ?? null) === false
+                && ($boundary['networkRequiredByHandoff'] ?? null) === false
+                && $this->validXScalerDiagnostics($atc['diagnostics'] ?? null);
+        }
+
+        private function validXScalerPreflightResponse(array $response): bool
+        {
+            $planPresent = array_key_exists('remoteSurfacePlan', $response) && $response['remoteSurfacePlan'] !== null;
+            $atcPresent = array_key_exists('atc', $response) && $response['atc'] !== null;
+            $plan = $planPresent && is_array($response['remoteSurfacePlan']) ? $response['remoteSurfacePlan'] : [];
+            $atc = $atcPresent && is_array($response['atc']) ? $response['atc'] : [];
+            $compatibility = isset($response['compatibility']) && is_array($response['compatibility']) ? $response['compatibility'] : [];
+            $anchors = $response['requiredAnchors'] ?? null;
+            $validAnchors = is_array($anchors);
+            if ($validAnchors) {
+                foreach ($anchors as $anchor) {
+                    if (!$this->isNonEmptyString($anchor)) {
+                        $validAnchors = false;
+                        break;
+                    }
+                }
+            }
+            if ($validAnchors) $validAnchors = count(array_unique($anchors, SORT_STRING)) === count($anchors);
+            $requiredKeys = ['schema', 'protocol', 'requestId', 'accepted', 'ok', 'surface', 'compatibility', 'requiredAnchors', 'remoteSurfacePlan', 'atc', 'rejection', 'diagnostics'];
+            $hasRequiredKeys = true;
+            foreach ($requiredKeys as $requiredKey) {
+                if (!array_key_exists($requiredKey, $response)) {
+                    $hasRequiredKeys = false;
+                    break;
+                }
+            }
+            $commonValid = $hasRequiredKeys
+                && ($response['schema'] ?? null) === RMT_XSCALER_PREFLIGHT_RESPONSE_SCHEMA
+                && ($response['protocol'] ?? null) === RMT_XSCALER_PROTOCOL
+                && $this->isNonEmptyString($response['requestId'] ?? null)
+                && is_bool($response['accepted'] ?? null)
+                && ($response['ok'] ?? null) === $response['accepted']
+                && $this->isNonEmptyString($response['surface'] ?? null)
+                && $this->isNonEmptyString($compatibility['ssr'] ?? null)
+                && $this->isNonEmptyString($compatibility['remoteSurfacePlan'] ?? null)
+                && $this->isNonEmptyString($compatibility['xtensionDeployment'] ?? null)
+                && $validAnchors
+                && $this->validXScalerDiagnostics($response['diagnostics'] ?? null);
+            if (!$commonValid
+                || ($planPresent && (!is_array($response['remoteSurfacePlan']) || !$this->validXScalerRemoteSurfacePlan($plan, $response)))
+                || ($atcPresent && (!is_array($response['atc']) || !$this->validXScalerAtc($atc, $response, $plan)))) return false;
+            if ($response['accepted'] === true) {
+                return $planPresent
+                    && $atcPresent
+                    && array_key_exists('rejection', $response)
+                    && $response['rejection'] === null
+                    && $compatibility['ssr'] === 'compatible'
+                    && $compatibility['remoteSurfacePlan'] === 'required'
+                    && $compatibility['xtensionDeployment'] === 'allowed';
+            }
+            $rejection = isset($response['rejection']) && is_array($response['rejection']) ? $response['rejection'] : [];
+            return $this->isNonEmptyString($rejection['code'] ?? null)
+                && $this->isNonEmptyString($rejection['message'] ?? null)
+                && $compatibility['ssr'] === 'blocked'
+                && $compatibility['remoteSurfacePlan'] === 'blocked'
+                && $compatibility['xtensionDeployment'] === 'blocked';
+        }
+
+        private function createXScalerSsrHydration(array $options, array &$diagnostics): array
+        {
+            $configured = array_key_exists('xscalerPreflights', $options)
+                ? $options['xscalerPreflights']
+                : ($options['xscalerPreflight'] ?? []);
+            $responses = $this->asArray($configured);
+            $preflights = [];
+            foreach ($responses as $index => $entry) {
+                $response = is_array($entry) && isset($entry['response']) && is_array($entry['response'])
+                    ? $entry['response']
+                    : (is_array($entry) ? $entry : []);
+                $plan = isset($response['remoteSurfacePlan']) && is_array($response['remoteSurfacePlan'])
+                    ? $response['remoteSurfacePlan']
+                    : [];
+                $atc = isset($response['atc']) && is_array($response['atc']) ? $response['atc'] : [];
+                if (!$this->validXScalerPreflightResponse($response)) {
+                    $diagnostics[] = $this->diagnostic(
+                        'rmt.php_ssr.xscaler_preflight_invalid',
+                        'PHP SSR accepts only a validated XScaler preflight response with no-network/no-remote-execution boundaries.',
+                        'error',
+                        ['index' => $index]
+                    );
+                    continue;
+                }
+                $preflights[] = [
+                    'schema' => $response['schema'],
+                    'requestId' => $response['requestId'] ?? null,
+                    'accepted' => $response['accepted'],
+                    'ok' => $response['ok'],
+                    'status' => $response['accepted'] ? 'accepted' : 'rejected',
+                    'compatibility' => $response['compatibility'] ?? null,
+                    'remoteSurfacePlan' => $response['remoteSurfacePlan'] ?? null,
+                    'atc' => $response['atc'] ?? null,
+                    'rejection' => $response['rejection'] ?? null,
+                ];
+            }
+            return [
+                'schema' => RMT_XSCALER_SSR_HYDRATION_SCHEMA,
+                'mode' => 'preflight-only',
+                'networkDuringRender' => false,
+                'remoteModuleExecuted' => false,
+                'count' => count($preflights),
+                'preflights' => $preflights,
+            ];
         }
 
         private function hasBlockingDiagnostics(array $diagnostics): bool

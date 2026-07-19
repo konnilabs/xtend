@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.xtend.dev/xscaler/preflight-response.v1.schema.json",
+  "title": "XTend XScaler Preflight Response v1",
+  "type": "object",
+  "required": ["schema", "protocol", "requestId", "accepted", "ok", "surface", "compatibility", "requiredAnchors", "remoteSurfacePlan", "atc", "rejection", "diagnostics"],
+  "properties": {
+    "schema": { "const": "xtend.xscaler.preflight-response.v1" },
+    "protocol": { "const": "xscaler" },
+    "requestId": { "type": "string", "minLength": 1 },
+    "accepted": { "type": "boolean" },
+    "ok": { "type": "boolean" },
+    "surface": { "type": "string", "minLength": 1 },
+    "compatibility": {
+      "type": "object",
+      "required": ["ssr", "remoteSurfacePlan", "xtensionDeployment"],
+      "properties": {
+        "ssr": { "type": "string", "minLength": 1 },
+        "remoteSurfacePlan": { "type": "string", "minLength": 1 },
+        "xtensionDeployment": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
+    },
+    "requiredAnchors": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "remoteSurfacePlan": {
+      "oneOf": [
+        { "$ref": "https://schemas.xtend.dev/xscaler/remote-surface-plan.v1.schema.json" },
+        { "type": "null" }
+      ]
+    },
+    "atc": {
+      "oneOf": [
+        { "$ref": "https://schemas.xtend.dev/xscaler/atc-handoff.v1.schema.json" },
+        { "type": "null" }
+      ]
+    },
+    "rejection": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["code", "message"],
+          "properties": {
+            "code": { "type": "string", "minLength": 1 },
+            "message": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": true
+        },
+        { "type": "null" }
+      ]
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "severity", "message"],
+        "properties": {
+          "code": { "type": "string", "minLength": 1 },
+          "severity": { "type": "string", "minLength": 1 },
+          "message": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "accepted": { "const": true },
+        "ok": { "const": true },
+        "remoteSurfacePlan": { "type": "object" },
+        "atc": {
+          "type": "object",
+          "properties": {
+            "accepted": { "const": true },
+            "ok": { "const": true }
+          }
+        },
+        "rejection": { "type": "null" }
+      }
+    },
+    {
+      "properties": {
+        "accepted": { "const": false },
+        "ok": { "const": false },
+        "rejection": { "type": "object" }
+      }
+    }
+  ],
+  "additionalProperties": true
+}

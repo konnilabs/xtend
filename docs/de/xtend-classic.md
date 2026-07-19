@@ -7,7 +7,6 @@ XTend Classic ist der produktive HTML- und JavaScript-first-Auslieferungspfad f√
 Der Paket-Root geh√∂rt jetzt der [ESM-Registry](./esm-registry.md) und startet Classic nicht. Package-basierte Classic-Hosts verwenden `@ccslabs/xtend/loader`; Script-basierte Hosts binden `xtend-loader.js` weiterhin explizit ein.
 
 ```js
-// Expliziter Classic-Bootstrap in einer Package-basierten Browser-App
 import '@ccslabs/xtend/loader';
 ```
 

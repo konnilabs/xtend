@@ -197,11 +197,11 @@ function runEpic18RmtAppPlatformReleaseHandoffSuite(options = {}) {
     'pr-fast-gates:',
     GITHUB_ACTIONS.prFastCommand,
     GITHUB_ACTIONS.prFastReport,
-    GITHUB_ACTIONS.prFastArtifact,
+    GITHUB_ACTIONS.prFastArtifact.replace('{artifactSuffix}', '${{ matrix.artifact_suffix }}'),
     'full-release-gates:',
     GITHUB_ACTIONS.fullReleaseCommand,
     GITHUB_ACTIONS.fullReleaseReport,
-    GITHUB_ACTIONS.fullReleaseArtifact,
+    GITHUB_ACTIONS.fullReleaseArtifact.replace('{artifactSuffix}', '${{ matrix.artifact_suffix }}'),
     'conditional-network-evidence:',
     GITHUB_ACTIONS.conditionalNetworkCommand,
     'XTEND_CONDITIONAL_NETWORK_EXECUTE: "1"'

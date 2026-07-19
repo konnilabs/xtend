@@ -121,10 +121,43 @@ export interface RmtParseResult<TAst = RmtJsonValue> {
   sourceMap?: Record<string, RmtSourceRef>;
 }
 
+export type RmtAppServiceDemandMode = 'invoke' | 'stream';
+
+export interface RmtAppServiceActionDemand {
+  id: string;
+  mode: RmtAppServiceDemandMode;
+  inputs: Array<{
+    name: string;
+    type: string;
+  }>;
+}
+
+export interface RmtAppServiceDemand {
+  id: string;
+  dataSource: string;
+  dataSourceRef: string | null;
+  mode: RmtAppServiceDemandMode;
+  contract: string | null;
+  resultPath: string | null;
+  actions: RmtAppServiceActionDemand[];
+  sourceRef: string | null;
+}
+
+export interface RmtAppServiceDemandManifest {
+  schema: 'xtend.maraca.app-service-demands.v1';
+  sourceDocument: {
+    id: string;
+    namespace: string;
+  };
+  services: RmtAppServiceDemand[];
+  fingerprint: string;
+}
+
 export interface RmtCompileResult<TCore = RmtJsonValue> {
   ok: boolean;
   core?: TCore;
   output?: TCore;
+  appServiceDemands?: RmtAppServiceDemandManifest | null;
   diagnostics: RmtToolingDiagnostic[];
   sourceMap?: Record<string, RmtSourceRef>;
 }

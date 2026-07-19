@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.xtend.dev/xscaler/atc-handoff.v1.schema.json",
+  "title": "XTend XScaler ATC Handoff v1",
+  "type": "object",
+  "required": ["schema", "protocol", "surfaceId", "sessionId", "handoffSignal", "lifecycleState", "accepted", "ok", "status", "fallback", "runtimeBoundary", "diagnostics"],
+  "properties": {
+    "schema": { "const": "xtend.xscaler.atc-handoff.v1" },
+    "protocol": { "const": "xscaler" },
+    "surfaceId": { "type": "string", "pattern": "^remoteSurface:" },
+    "sessionId": { "type": "string", "minLength": 1 },
+    "handoffSignal": { "type": "string", "minLength": 1 },
+    "lifecycleState": { "type": "string", "minLength": 1 },
+    "accepted": { "type": "boolean" },
+    "ok": { "type": "boolean" },
+    "status": { "type": "string", "minLength": 1 },
+    "fallback": { "type": ["object", "array", "string", "number", "boolean", "null"] },
+    "runtimeBoundary": {
+      "type": "object",
+      "required": ["remoteRuntimeExecution", "kernelRemoteExecution", "networkRequiredByHandoff"],
+      "properties": {
+        "remoteRuntimeExecution": { "const": false },
+        "kernelRemoteExecution": { "const": false },
+        "networkRequiredByHandoff": { "const": false }
+      },
+      "additionalProperties": true
+    },
+    "diagnostics": { "type": "array", "items": { "$ref": "#/$defs/diagnostic" } }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "accepted": { "const": true } }, "required": ["accepted"] },
+      "then": { "properties": { "ok": { "const": true } } },
+      "else": { "properties": { "ok": { "const": false } } }
+    }
+  ],
+  "$defs": {
+    "diagnostic": {
+      "type": "object",
+      "required": ["code", "severity", "message"],
+      "properties": {
+        "code": { "type": "string", "minLength": 1 },
+        "severity": { "type": "string", "minLength": 1 },
+        "message": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

@@ -157,7 +157,12 @@ function runTypeExportsSuite(options = {}) {
     ['./xcommand', 'xcommand', 'WP-XCommand-01', './xcommand/xcommand.d.ts'],
     ['./maraca', 'maraca', 'WP-Maraca-01', './xtend-maraca/index.d.ts'],
     ['./maraca/runtime', 'maraca', 'WP-Maraca-01', './xtend-maraca/runtime.d.ts'],
+    ['./maraca/app-services', 'maraca', 'WP-Maraca-01', './xtend-maraca/app-services.d.ts'],
     ['./xsurface-shard', 'xsurface-shard', 'WP-XSurfaceShard-01', './xsurface-shard/index.d.ts'],
+    ['./xscaler', 'xscaler', 'XMS-09', './xscaler/index.d.ts'],
+    ['./xscaler/protocol', 'xscaler', 'XMS-09', './xscaler/protocol.d.ts'],
+    ['./xscaler/remote-adapter-loader', 'xscaler', 'XMS-09', './xscaler/remote-adapter-loader.d.ts'],
+    ['./xscaler/app-service-transport', 'xscaler', 'XMS-09', './xscaler/app-service-transport.d.ts'],
     ['./rmt', 'rmt-runtime', 'WP-TypeExports-04', './xtendrmt/rmt-core.d.ts'],
     ['./rmt/browser', 'rmt-runtime', 'WP-TypeExports-04', './xtendrmt/rmt-core.d.ts'],
     ['./rmt-language/parser', 'rmt-language', 'WP-TypeExports-04', './tools/rmt-language/parser.d.ts'],
@@ -175,7 +180,7 @@ function runTypeExportsSuite(options = {}) {
     context.assert(entry && entry.proposedTypesCondition === proposedTypesCondition, `${exportKey} prepares ${proposedTypesCondition}`);
   });
 
-  ['./style.css', './manifest', './components/manifest.json', './package.json'].forEach((exportKey) => {
+  ['./style.css', './manifest', './components/manifest.json', './xscaler/schemas/*', './package.json'].forEach((exportKey) => {
     const entry = findClassification(plan, exportKey);
     context.assert(entry && entry.typeDecision === 'types-not-required', `${exportKey} is a documented types-not-required boundary`);
   });

@@ -195,11 +195,11 @@ function runEpic13VisualOwnerArtifactSuite(options = {}) {
     context.assert(entry && entry.nextWorkpackage === 'WP-E13-13', `${entry && entry.schema ? entry.schema : 'Epic 13 metadata'} hands off to WP-E13-09`);
     context.assert(entry && entry.nextDecision === 'rc1-gate-matrix-ci-handoff', `${entry && entry.schema ? entry.schema : 'Epic 13 metadata'} hands off to RMT-first production readiness`);
   });
-  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 165, 'Package export lock metadata matches the current public export surface');
+  context.assert(packageLockMetadata && packageLockMetadata.expectedExportCount === 174, 'Package export lock metadata matches the current public export surface');
   context.assertIncludes(scaffoldConfig, 'epic13VisualOwnerArtifact', 'Scaffold config exposes visual owner artifact metadata');
   context.assertIncludes(scaffoldConfig, EPIC13_VISUAL_OWNER_ARTIFACT_SCHEMA, 'Scaffold config declares visual owner artifact schema');
   context.assertIncludes(scaffoldConfig, EPIC13_VISUAL_OWNER_ARTIFACT_LOCAL_GATE, 'Scaffold config references visual owner artifact local gate');
-  context.assertIncludes(scaffoldConfig, 'expectedExportCount: 165', 'Scaffold config mirrors the current package export count');
+  context.assertIncludes(scaffoldConfig, 'expectedExportCount: 174', 'Scaffold config mirrors the current package export count');
   context.assertIncludes(runner, "id: 'epic13-visual-owner-artifact'", 'Runner registers visual owner artifact suite');
 
   assertTextIncludesAll(context, steering, [

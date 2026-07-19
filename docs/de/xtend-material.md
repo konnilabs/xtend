@@ -29,7 +29,7 @@ Der aktuelle Supportstatus bedeutet, dass die dokumentierten Package Exports, Re
 
 ## Erstelle deine erste App
 
-Du benötigst Node.js 18 oder neuer sowie einen lokalen XTend-Checkout oder installierte XTend-Pakete. Der Scaffold-Befehl erzeugt acht Artefakte: RMT-Source, Tailwind-Input, einen HTML-Host, einen Runtime-Host, die DEV-API-Brücke, Maraca-Konfiguration, Package-Metadaten und einen Smoke-Test.
+Du benötigst Node.js 24 oder neuer sowie einen lokalen XTend-Checkout oder installierte XTend-Pakete. Mit dem Standard `--server both` erzeugt der Scaffold-Befehl zwölf Artefakte: RMT-Source, Tailwind-Input, typisierte Browser- und Node-AppServices, eine PHP-Callable-Registry, strikte TypeScript-Konfiguration, HTML-/Runtime-Hosts, DEV-API-Brücke, Maraca-Konfiguration, Package-Metadaten und Smoke-Test. Mit `--server none`, `node` oder `php` entfallen nicht benötigte Backendziele.
 
 ```bash
 xt create app --runtime maraca --design-kit material --name operations-console --out operations-console --write
@@ -174,11 +174,11 @@ Wenn ein Produkt ein wiederverwendbares visuelles Muster benötigt, das der Regi
 
 | Bereich | Unterstützter Vertrag |
 | --- | --- |
-| Node.js | 18 oder neuer |
+| Node.js | 24 oder neuer |
 | Tailwind CSS | exakt geprüfte Baseline `4.3.2` |
 | XTend Material | `@xtend-material/core` `0.1.x` |
 | Maraca Adapter | `@xtend-material/maraca-tailwind` `0.1.x` |
-| XTend-/Maraca-Peers | `^0.3.1` |
+| XTend-/Maraca-Peers | `^0.5.0` |
 | Tailwind-Browser-Runtime | nicht unterstützt |
 | Tailwind Preflight | deaktiviert |
 | Rückweg zum nativen CSS Provider | unterstützt |

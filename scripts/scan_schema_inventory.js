@@ -1631,7 +1631,9 @@ function buildSchemaFamilies(entries, existingFamilies) {
   });
   // Keep retired families that now consist only of tombstones.
   existingById.forEach((family, familyId) => {
-    if (!entryGroups.has(familyId)) entryGroups.set(familyId, []);
+    if (!entryGroups.has(familyId) && Array.isArray(family.tombstones) && family.tombstones.length > 0) {
+      entryGroups.set(familyId, []);
+    }
   });
   return Array.from(entryGroups.entries()).map(([familyId, familyEntries]) => {
     const previous = existingById.get(familyId) || {};

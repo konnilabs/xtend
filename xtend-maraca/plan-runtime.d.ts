@@ -25,6 +25,8 @@ export interface MaracaPlanRuntimeOptions {
   componentRegistry?: { ensureTags?(tags: string[]): Promise<unknown>; ensure?(tag: string): Promise<unknown> };
   fabric?: unknown;
   hostServices?: Readonly<Record<string, unknown>>;
+  hostServiceRegistry?: { invoke?(id: string, payload?: unknown, metadata?: Record<string, unknown>): Promise<unknown>; stream?(id: string, payload?: unknown, metadata?: Record<string, unknown>): AsyncIterable<unknown> };
+  dataSourceAdapters?: Readonly<Record<string, unknown>>;
   trustedDom?: unknown;
   documentTarget?: Document;
   windowTarget?: Window;

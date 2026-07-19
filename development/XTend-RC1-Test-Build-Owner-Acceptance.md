@@ -41,7 +41,7 @@ Diese Acceptance war keine npm-Publish-Freigabe. Die nachgelagerte Owner-Publish
 | `.xtend-test-results/xtend-pack-dry-run.json` | `npm run pack:dry-run` | Pack-Dateiliste und Dry-Run-Metadaten |
 | `.xtend-test-results/xtend-package-export-surface-lock.json` | `npm run pack:dry-run` | exportierte Package-Oberflaeche |
 | `.xtend-test-results/xtend-package-export-lock-report.json` | `npm run pack:dry-run` | Export-Lock-Status |
-| `.xtend-test-results/xtend-conditional-network-evidence-report.json` | `XTEND_CONDITIONAL_NETWORK_EXECUTE=1 XTEND_CONDITIONAL_NETWORK_USE_NPX_NPM10=1 npm run conditional-network:evidence` | Audit-/SBOM-Status `executed: 2`, `deferred: []` |
+| `.xtend-test-results/xtend-conditional-network-evidence-report.json` | `XTEND_CONDITIONAL_NETWORK_EXECUTE=1 npm run conditional-network:evidence` unter dem kanonisch gepinnten npm `11.17.0` | Audit-/SBOM-Status `executed: 2`, `deferred: []` |
 
 ## Interne Testnutzung
 

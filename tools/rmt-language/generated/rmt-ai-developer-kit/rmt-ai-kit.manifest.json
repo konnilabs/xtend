@@ -196,8 +196,8 @@
     },
     {
       "path": "docs/de/rmt-vnext-authoring.md",
-      "sha256": "ebe0d8003e6de82cb73cbd335fd6c6352e33722d6cbab5703f9e854963cb69db",
-      "bytes": 4360
+      "sha256": "55ed83085da1412624ee15e8779b4a20236e9f870b7ba903f2d9ee772d861f7b",
+      "bytes": 4389
     },
     {
       "path": "docs/de/xtend-maraca-orchestration.md",
@@ -216,13 +216,13 @@
     },
     {
       "path": "tools/rmt-language/rmt-tooling-public-types.d.ts",
-      "sha256": "90c1d973582085149616bdf3e340cfd78301509b20313ce24421e147efa02eca",
-      "bytes": 5149
+      "sha256": "db311475ff967b43b95d11b8000d1526dbeeb870d4e4a57bf25a9fdb1c8ab94e",
+      "bytes": 5910
     },
     {
       "path": "tools/rmt-language/vnext-compiler.d.ts",
-      "sha256": "6d220d4bb72656f8c9209d57e090ac5fad4dce7608006f48ef88b2b770fe07a2",
-      "bytes": 1898
+      "sha256": "7c3e3ecae257bf5ad62aa42fd81335517d6b1cb76b576f5984da47025dd02535",
+      "bytes": 2164
     },
     {
       "path": "tools/rmt-linter/reporter.d.ts",
@@ -231,8 +231,8 @@
     },
     {
       "path": "xtend-maraca/index.d.ts",
-      "sha256": "eece8529bb7230fad3a4ae10ab2a142a044fc6650cecc118eb8a899ef3dfa0c4",
-      "bytes": 34263
+      "sha256": "9d1e90e4f35986760bbe5b6ea940978231281fa2739dae791dfd5a8965a0c62a",
+      "bytes": 38036
     }
   ],
   "rootDir": ""

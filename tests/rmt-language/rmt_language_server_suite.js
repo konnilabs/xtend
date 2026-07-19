@@ -41,7 +41,7 @@ const {
 const EPIC_14_PATH = 'development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Server.md';
 const TOOLING_ARCHITECTURE_PATH = 'development/XTendRMT-DSL-Tooling-Architektur.md';
 const RMT_LANGUAGE_SERVER_WP_PATH = 'development/WP-E14-09-LSP-Server-MVP-ueber-stdio-bereitstellen.md';
-const VALID_FIXTURE_PATH = 'demos/xtendrmt/examples/first-app/generated/core.json';
+const VALID_FIXTURE_PATH = 'tests/fixtures/rmt-component-lab-pilot.core.json';
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -206,11 +206,11 @@ function runProviderMappingChecks(context, rootDir) {
 
   context.assert(pointer === '/routes/1/component', 'Language Server maps position to JSON Pointer');
   context.assert(completion.isIncomplete === false, 'Completion response is complete');
-  context.assert(completion.items.some((item) => item.label === 'page.settings'), 'Completion maps provider items to LSP CompletionItems');
+  context.assert(completion.items.some((item) => item.label === 'lab.preview.host'), 'Completion maps provider items to LSP CompletionItems');
   context.assert(hover.contents.value.includes('Manifest module: ./xsection.js'), 'Hover maps provider hover to LSP markdown hover');
   context.assert(laneHover.contents.value.includes('Visible rendering work'), 'Hover supports lane values via position mapping');
   context.assert(Array.isArray(symbols) && symbols.some((symbol) => symbol.name === 'components'), 'Document Symbols maps domain symbols to LSP symbols');
-  context.assert(findDocumentSymbol(symbols, 'page.settings'), 'Document Symbols includes nested component ID');
+  context.assert(findDocumentSymbol(symbols, 'lab.preview.host'), 'Document Symbols includes nested component ID');
   context.assert(definition.uri === fixture.uri, 'Definition maps to same-document LSP Location');
   context.assert(definition.range.start.line >= 0, 'Definition Location contains range');
   context.assert(unknown.code === -32601, 'Unknown request returns JSON-RPC method-not-found error');

@@ -46,7 +46,7 @@ const {
 const EPIC_14_PATH = 'development/EPIC-14-XTendRMT-DSL-Linter-und-Language-Server.md';
 const TOOLING_ARCHITECTURE_PATH = 'development/XTendRMT-DSL-Tooling-Architektur.md';
 const RMT_NAVIGATION_WP_PATH = 'development/WP-E14-08-Hover-Document-Symbols-und-Definition-Provider-implementieren.md';
-const VALID_FIXTURE_PATH = 'demos/xtendrmt/examples/first-app/generated/core.json';
+const VALID_FIXTURE_PATH = 'tests/fixtures/rmt-component-lab-pilot.core.json';
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -147,22 +147,22 @@ function runDefinitionChecks(context, rootDir) {
   const provider = createRmtDefinitionProvider({ rootDir });
   const direct = provider.getDefinition(input, {
     domain: 'components',
-    id: 'page.settings'
+    id: 'lab.preview.host'
   });
   const notFound = getRmtDefinition(input, {
     rootDir,
     pointer: '/routes/1/metadata/title'
   });
 
-  assertDefinition(context, input, rootDir, '/routes/1/component', 'components', 'page.settings', '/components/5/id', 'Route component definition');
-  assertDefinition(context, input, rootDir, '/routes/1/template', 'templates', 'page.settings.template', '/templates/3/id', 'Route template definition');
-  assertDefinition(context, input, rootDir, '/routes/1/schedule', 'schedules', 'route.transition.render', '/schedules/2/id', 'Route schedule definition');
-  assertDefinition(context, input, rootDir, '/components/0/slots/header/template', 'templates', 'app.header', '/templates/1/id', 'Slot template definition');
-  assertDefinition(context, input, rootDir, '/templates/3/metadata/lazySchedule', 'schedules', 'component.idle.hydrate', '/schedules/4/id', 'Lazy schedule definition');
+  assertDefinition(context, input, rootDir, '/routes/1/component', 'components', 'lab.preview.host', '/components/2/id', 'Route component definition');
+  assertDefinition(context, input, rootDir, '/routes/1/template', 'templates', 'lab.preview.template', '/templates/3/id', 'Route template definition');
+  assertDefinition(context, input, rootDir, '/routes/1/schedule', 'schedules', 'component.visible.mount', '/schedules/2/id', 'Route schedule definition');
+  assertDefinition(context, input, rootDir, '/components/0/slots/header/template', 'templates', 'lab.header', '/templates/1/id', 'Slot template definition');
+  assertDefinition(context, input, rootDir, '/components/8/schedule', 'schedules', 'component.idle.hydrate', '/schedules/3/id', 'Component schedule definition');
 
   context.assert(provider.schema === RMT_DEFINITION_PROVIDER_SCHEMA, 'Definition provider exposes schema');
   context.assert(direct.status === 'resolved', 'Definition provider supports direct domain/id lookup');
-  context.assert(direct.target && direct.target.pointer === '/components/5/id', 'Direct definition lookup points to page.settings ID');
+  context.assert(direct.target && direct.target.pointer === '/components/2/id', 'Direct definition lookup points to lab.preview.host ID');
   context.assert(notFound.status === 'not_found', 'Definition provider reports not_found for non-reference values');
 }
 
@@ -172,10 +172,10 @@ function runDocumentSymbolChecks(context, rootDir) {
   const report = provider.documentSymbols(input);
   const domainNames = report.symbols.map((symbol) => symbol.name);
   const componentsDomain = findSymbol(report.symbols, 'components');
-  const pageSettings = findSymbol(report.symbols, 'page.settings');
-  const settingsRoute = findSymbol(report.symbols, 'settings');
-  const transitionSchedule = findSymbol(report.symbols, 'route.transition.render');
-  const settingsTemplate = findSymbol(report.symbols, 'page.settings.template');
+  const previewHost = findSymbol(report.symbols, 'lab.preview.host');
+  const previewRoute = findSymbol(report.symbols, 'lab.component.preview');
+  const mountSchedule = findSymbol(report.symbols, 'component.visible.mount');
+  const previewTemplate = findSymbol(report.symbols, 'lab.preview.template');
   const orchestrationReport = getRmtDocumentSymbols(createOrchestrationJsonInput(), { rootDir });
   const validationSymbol = findSymbol(orchestrationReport.symbols, 'contact.validation');
   const transitionSymbol = findSymbol(orchestrationReport.symbols, 'contact.to.issue');
@@ -189,14 +189,14 @@ function runDocumentSymbolChecks(context, rootDir) {
     context.assert(domainNames.includes(domain), `Document Symbols contains ${domain} domain`);
   });
   context.assert(componentsDomain && componentsDomain.kind === 'namespace', 'Components domain is a namespace symbol');
-  context.assert(pageSettings && pageSettings.kind === 'component', 'Component ID is a component symbol');
-  context.assert(pageSettings && pageSettings.detail.includes('x-form'), 'Component symbol detail includes tag');
-  context.assert(settingsRoute && settingsRoute.kind === 'route', 'Route ID is a route symbol');
-  context.assert(settingsRoute && settingsRoute.detail.includes('/settings'), 'Route symbol detail includes path');
-  context.assert(transitionSchedule && transitionSchedule.kind === 'schedule', 'Schedule ID is a schedule symbol');
-  context.assert(settingsTemplate && settingsTemplate.kind === 'template', 'Template ID is a template symbol');
-  assertRange(context, pageSettings.range, 'Component symbol has range');
-  assertRange(context, pageSettings.selectionRange, 'Component symbol has selection range');
+  context.assert(previewHost && previewHost.kind === 'component', 'Component ID is a component symbol');
+  context.assert(previewHost && previewHost.detail.includes('x-section'), 'Component symbol detail includes tag');
+  context.assert(previewRoute && previewRoute.kind === 'route', 'Route ID is a route symbol');
+  context.assert(previewRoute && previewRoute.detail.includes('/components/:tag'), 'Route symbol detail includes path');
+  context.assert(mountSchedule && mountSchedule.kind === 'schedule', 'Schedule ID is a schedule symbol');
+  context.assert(previewTemplate && previewTemplate.kind === 'template', 'Template ID is a template symbol');
+  assertRange(context, previewHost.range, 'Component symbol has range');
+  assertRange(context, previewHost.selectionRange, 'Component symbol has selection range');
   context.assert(validationSymbol && validationSymbol.kind === 'validation', 'Validation record is a validation symbol');
   context.assert(validationSymbol && validationSymbol.detail.includes('blocking'), 'Validation symbol detail includes mode');
   context.assert(transitionSymbol && transitionSymbol.kind === 'transition', 'Transition record is a transition symbol');
@@ -238,7 +238,7 @@ function runHoverChecks(context, rootDir) {
   assertHover(context, orchestrationInput, rootDir, '/validations/0/fields/0/rules/1', 'validation-rule', 'email address', 'Validation rule hover');
   assertHover(context, orchestrationInput, rootDir, '/transitions/0/effect', 'transition-effect', 'Crossfade', 'Transition effect hover');
 
-  const componentRef = assertHover(context, input, rootDir, '/routes/1/component', 'reference', 'page.settings', 'Route component reference hover');
+  const componentRef = assertHover(context, input, rootDir, '/routes/1/component', 'reference', 'lab.preview.host', 'Route component reference hover');
   const domainHover = provider.hover(input, {
     pointer: '/components'
   });
@@ -247,7 +247,7 @@ function runHoverChecks(context, rootDir) {
     pointer: '/routes/1/metadata/title'
   });
 
-  context.assert(componentRef.hover.target && componentRef.hover.target.pointer === '/components/5/id', 'Reference hover exposes definition target');
+  context.assert(componentRef.hover.target && componentRef.hover.target.pointer === '/components/2/id', 'Reference hover exposes definition target');
   context.assert(provider.schema === RMT_HOVER_PROVIDER_SCHEMA, 'Hover provider exposes schema');
   context.assert(domainHover.status === 'found' && domainHover.hover.kind === 'domain', 'Hover provider explains top-level domains');
   context.assert(notFound.status === 'not_found', 'Hover provider reports not_found for plain values');

@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const {
   RMT_FILE_FALLBACK_CODE,
   RMT_VNEXT_PARSER_SCHEMA,
@@ -16,6 +17,7 @@ const RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA = 'xtend.rmt.vnext.primitive-lowering.
 const RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE = 'RMT-VNEXT-PRIM-04';
 const RMT_APP_ORCHESTRATION_SCHEMA = 'xtend.rmt.app-orchestration.v1';
 const RMT_APP_ORCHESTRATION_WORKPACKAGE = 'RMT-APP-ORCH-01';
+const RMT_APP_SERVICE_DEMANDS_SCHEMA = 'xtend.maraca.app-service-demands.v1';
 const RMT_FORM_VALIDATION_SCHEMA = 'xtend.rmt.form-validation.v1';
 const RMT_SURFACE_TRANSITION_SCHEMA = 'xtend.rmt.surface-transitions.v1';
 const RMT_ANIMATION_ENGINE_SCHEMA = 'xtend.rmt.animation-engine.v1';
@@ -291,6 +293,21 @@ function eventVersionFromName(eventName) {
 
 function toArray(value) {
   return Array.isArray(value) ? value : [];
+}
+
+function stableSortObject(value) {
+  if (Array.isArray(value)) return value.map((entry) => stableSortObject(entry));
+  if (value && typeof value === 'object') {
+    return Object.keys(value).sort().reduce((record, key) => {
+      record[key] = stableSortObject(value[key]);
+      return record;
+    }, {});
+  }
+  return value;
+}
+
+function sha256Fingerprint(value) {
+  return crypto.createHash('sha256').update(JSON.stringify(stableSortObject(value))).digest('hex');
 }
 
 function primitiveValueToCore(value) {
@@ -811,6 +828,102 @@ function createAppPlatformRecords(core) {
         payloadContract: record.payloadContract,
         options: record.options || {}
       }))
+  };
+}
+
+function compareAppServiceDemandValues(left, right) {
+  const leftValue = String(left || '');
+  const rightValue = String(right || '');
+  if (leftValue < rightValue) return -1;
+  if (leftValue > rightValue) return 1;
+  return 0;
+}
+
+function appServiceDemandMode(effect) {
+  const kind = String(effect && effect.kind || '').trim().toLowerCase();
+  return ['stream', 'stream-service', 'subscribe', 'subscription'].includes(kind) ? 'stream' : 'invoke';
+}
+
+function createRmtAppServiceDemands(coreDocument = {}) {
+  const core = coreDocument && typeof coreDocument === 'object' && !Array.isArray(coreDocument) ? coreDocument : {};
+  const actionsByRef = new Map();
+  toArray(core.actions).forEach((action) => {
+    if (action && action.id) actionsByRef.set(action.id, action);
+    if (action && action.name) actionsByRef.set(action.name, action);
+  });
+
+  const services = toArray(core.dataSources)
+    .filter((dataSource) => dataSource && dataSource.kind === 'host')
+    .map((dataSource) => {
+      const referencedEffects = toArray(core.effects).filter((effect) => {
+        const source = effect && effect.source;
+        return source && (
+          source.ref === dataSource.id
+          || source.target === dataSource.name
+          || source.id === dataSource.name
+        );
+      });
+      const actionsByDemandKey = new Map();
+
+      referencedEffects.forEach((effect) => {
+        const action = actionsByRef.get(effect.actionRef) || actionsByRef.get(effect.action) || null;
+        const actionId = String(action && (action.name || action.id) || effect.action || effect.actionRef || '').trim();
+        if (!actionId) return;
+        const mode = appServiceDemandMode(effect);
+        const key = `${actionId}\u0000${mode}`;
+        if (actionsByDemandKey.has(key)) return;
+        actionsByDemandKey.set(key, {
+          id: actionId,
+          mode,
+          inputs: toArray(action && action.inputs)
+            .map((input) => ({
+              name: String(input && input.name || '').trim(),
+              type: String(input && input.type || 'unknown').trim() || 'unknown'
+            }))
+            .filter((input) => input.name)
+            .sort((left, right) => compareAppServiceDemandValues(left.name, right.name))
+        });
+      });
+
+      const actions = Array.from(actionsByDemandKey.values()).sort((left, right) => (
+        compareAppServiceDemandValues(left.id, right.id)
+        || compareAppServiceDemandValues(left.mode, right.mode)
+      ));
+      const explicitMode = String(dataSource.mode || '').trim().toLowerCase();
+      const mode = explicitMode === 'stream' || explicitMode === 'invoke'
+        ? explicitMode
+        : actions.length > 0 && actions.every((action) => action.mode === 'stream') ? 'stream' : 'invoke';
+
+      return {
+        id: String(dataSource.target || dataSource.name || '').trim(),
+        dataSource: String(dataSource.name || dataSource.id || '').trim(),
+        dataSourceRef: dataSource.id || null,
+        mode,
+        contract: dataSource.contract || null,
+        resultPath: dataSource.result || null,
+        actions,
+        sourceRef: dataSource.sourceRef || null
+      };
+    })
+    .filter((service) => service.id)
+    .sort((left, right) => (
+      compareAppServiceDemandValues(left.id, right.id)
+      || compareAppServiceDemandValues(left.dataSource, right.dataSource)
+      || compareAppServiceDemandValues(left.mode, right.mode)
+    ));
+
+  const manifest = {
+    schema: RMT_APP_SERVICE_DEMANDS_SCHEMA,
+    sourceDocument: {
+      id: core.manifest && core.manifest.documentId || 'rmt.vnext.document',
+      namespace: core.manifest && core.manifest.namespace || 'rmt'
+    },
+    services
+  };
+
+  return {
+    ...manifest,
+    fingerprint: sha256Fingerprint(manifest)
   };
 }
 
@@ -3773,17 +3886,29 @@ class VNextCompiler {
   }
 
   compilePrimitiveDataSource(node, templateContext) {
+    const modeNode = getPrimitiveBodyNode(node, 'RmtDataSourceModeClause');
     const methodNode = getPrimitiveBodyNode(node, 'RmtDataSourceMethodClause');
     const contractNode = getPrimitiveBodyNode(node, 'RmtDataSourceContractClause');
     const resultNode = getPrimitiveBodyNode(node, 'RmtDataSourceResultClause');
     const fallbackNode = getPrimitiveBodyNode(node, 'RmtDataSourceFallbackClause');
     const source = compilePrimitiveSourceReference(node.source);
+    const mode = modeNode ? primitiveValueToString(modeNode.value) : null;
+    if (mode && mode !== 'invoke' && mode !== 'stream') {
+      this.addDiagnostic(createCompilerDiagnostic(
+        'rmt.vnext.datasource.mode_invalid',
+        `DataSource mode "${mode}" is not supported; use invoke or stream.`,
+        modeNode,
+        'error',
+        { mode }
+      ));
+    }
     const record = {
       id: primitiveRecordId('dataSource', node.name),
       name: node.name,
       primitive: true,
       kind: source && source.kind || null,
       target: source && source.target || null,
+      mode,
       method: methodNode ? primitiveValueToString(methodNode.value) : null,
       contract: contractNode ? primitiveValueToString(contractNode.value) : null,
       result: resultNode ? primitiveValueToString(resultNode.value) : null,
@@ -4530,6 +4655,7 @@ function compileRmtVNextSource(input = {}, options = {}) {
       phase: parserResult.phase || 'syntax',
       status: parserResult.status || 'syntax_error',
       parserResult,
+      appServiceDemands: null,
       orchestrationArtifacts: null,
       coreDocument: null,
       coreJson: null,
@@ -4558,6 +4684,7 @@ function compileRmtVNextSource(input = {}, options = {}) {
       status: 'semantic_error',
       parserResult,
       primitiveSemanticGraph,
+      appServiceDemands: null,
       orchestrationArtifacts: null,
       coreDocument: null,
       coreJson: null,
@@ -4606,6 +4733,7 @@ function compileRmtVNextSource(input = {}, options = {}) {
       'RmtEventBinding'
     ].includes(entry.nodeType))
   } : null;
+  const appServiceDemands = createRmtAppServiceDemands(coreDocument);
   const orchestrationArtifacts = createRmtAppOrchestrationArtifacts(coreDocument);
 
   return {
@@ -4619,6 +4747,7 @@ function compileRmtVNextSource(input = {}, options = {}) {
     parserResult,
     primitiveSemanticGraph,
     primitiveArtifacts,
+    appServiceDemands,
     orchestrationArtifacts,
     coreDocument,
     coreJson,
@@ -4640,6 +4769,7 @@ function createRmtVNextCompiler(defaultOptions = {}) {
     coreSchema: RMT_VNEXT_CORE_SCHEMA,
     primitiveLoweringSchema: RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA,
     appOrchestrationSchema: RMT_APP_ORCHESTRATION_SCHEMA,
+    appServiceDemandsSchema: RMT_APP_SERVICE_DEMANDS_SCHEMA,
     formValidationSchema: RMT_FORM_VALIDATION_SCHEMA,
     surfaceTransitionSchema: RMT_SURFACE_TRANSITION_SCHEMA,
     animationEngineSchema: RMT_ANIMATION_ENGINE_SCHEMA,
@@ -4662,6 +4792,7 @@ module.exports = {
   RMT_VNEXT_COMPILER_WORKPACKAGE,
   RMT_APP_ORCHESTRATION_SCHEMA,
   RMT_APP_ORCHESTRATION_WORKPACKAGE,
+  RMT_APP_SERVICE_DEMANDS_SCHEMA,
   RMT_FORM_VALIDATION_SCHEMA,
   RMT_SURFACE_TRANSITION_SCHEMA,
   RMT_ANIMATION_ENGINE_SCHEMA,
@@ -4674,6 +4805,7 @@ module.exports = {
   RMT_VNEXT_PARSER_WORKPACKAGE,
   compileRmtVNextAst,
   compileRmtVNextSource,
+  createRmtAppServiceDemands,
   createRmtVNextCompiler,
   serializeRmtVNextCore
 };

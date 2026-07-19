@@ -140,12 +140,14 @@ function buildHelpText() {
     '',
     'Usage:',
     '  xt --help',
+    '  xt create app --runtime maraca --design-kit none --out rmt-app --write --json',
     '  xt create app --runtime maraca --design-kit material --out material-app --write --json',
     '  xt serve --root dist --port 4173',
     '  xt validate --json',
     '  xt maraca plan app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --json',
     '  xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --out dist --profile production --lazy route --css external --css-provider maraca-native --pwa --json',
     '  xt maraca build app.rmt --out dist --web-app-manifest --json',
+    '  xt maraca build app.rmt --services-entry src/services.ts --server-services-entry src/server-services.ts --service-targets browser,node --json',
     '  xt maraca build app.rmt --vendor xtend --out products/xtend-vendor-maraca --lazy none --json',
     '  xt maraca tune app.rmt --config maraca.config.json --out dist --write --json',
     '  xt rmt build app.rmt --bundle maraca --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --out dist --json',
@@ -154,8 +156,8 @@ function buildHelpText() {
     '  xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json',
     '  xt kernel-lab analyze --json',
     '  xt kernel-lab build --profile clean --check --json',
-    '  xt kernel-lab build --profile clean --version 0.4.0 --write --json',
-    '  xt rmt kernel-lab build --profile clean --version 0.4.0 --write --json',
+    '  xt kernel-lab build --profile clean --version 0.5.0 --write --json',
+    '  xt rmt kernel-lab build --profile clean --version 0.5.0 --write --json',
     '  xt rmt lint tests/fixtures',
     '  xt component-files --tag x-example --profile display --json',
     '  xt workflow --json',
@@ -188,7 +190,7 @@ function buildHelpText() {
     '',
     'Commands:',
     '  help      Print this help text.',
-    '  create app Create an ownership-guarded app preset; Material requires --runtime maraca --design-kit material.',
+    '  create app Create a provider-neutral Maraca app or its Material/XTM overlay.',
     '  serve     Serve a local static app host with safe paths, local-only defaults and graceful shutdown.',
     '  layout    Print the reserved scaffold project layout.',
     '  config    Print the current scaffold configuration summary.',
@@ -267,9 +269,9 @@ function buildKernelLabHelpText() {
     'Usage:',
     '  xt kernel-lab analyze --json',
     '  xt kernel-lab build --profile clean --check --json',
-    '  xt kernel-lab build --profile clean --version 0.4.0 --write --json',
+    '  xt kernel-lab build --profile clean --version 0.5.0 --write --json',
     '  xt rmt kernel-lab analyze --json',
-    '  xt rmt kernel-lab build --profile clean --version 0.4.0 --write --json',
+    '  xt rmt kernel-lab build --profile clean --version 0.5.0 --write --json',
     '',
     'Commands:',
     '  analyze  Inventory the bundled RMT kernel and emit the module manifest report.',
@@ -402,11 +404,16 @@ function runCli(args = process.argv.slice(2), io = {}) {
         'XTend App Scaffold',
         '',
         'Usage:',
-        '  xt create app --runtime maraca --design-kit material --out material-app --write --json',
-        '  xt create app --runtime maraca --design-kit material --out material-app --check --json',
+        '  xt create app --runtime maraca --design-kit none --server both --out rmt-app --write --json',
+        '  xt create app --runtime maraca --design-kit material --server both --out material-app --write --json',
+        '  xt create app --runtime maraca --design-kit material --server none --out material-app --check --json',
         '',
-        'Material preset:',
-        '  Generates eight artifacts: RMT, CSS, HTML/runtime hosts, DEV API, config, package and smoke test.',
+        'Base preset:',
+        '  --design-kit none, native or neutral generates RMT, free CSS and TypeScript AppServices without product bootstrap wiring.',
+        '',
+        'Material/XTM overlay:',
+        '  Generates RMT, CSS, TypeScript AppServices, optional Node/PHP handlers, HTML/runtime hosts, config, package and smoke test.',
+        '  --server accepts none, node, php or both; both is the default.',
         '  The generated npm run serve builds first, then serves site/index.html through xt serve.',
         '  Uses cssProvider=tailwind with explicit local sources and disabled Preflight.',
         '  Dry-run is the default; --write records ownership and --check detects drift.',
@@ -422,11 +429,13 @@ function runCli(args = process.argv.slice(2), io = {}) {
     const flags = parseFlagArgs(options.rest.slice(1));
     flags.json = options.json || flags.json;
     flags.rootDir = process.cwd();
-    const result = runGenerator('material-app', flags);
+    const designKit = String(flags['design-kit'] || flags.designKit || 'none').toLowerCase();
+    const generator = designKit === 'material' || designKit === 'xtm' ? 'material-app' : 'rmt-app';
+    const result = runGenerator(generator, flags);
     if (flags.json || options.json) {
       writeLine(stdout, JSON.stringify(result, null, 2));
     } else if (result.ok) {
-      writeLine(stdout, `XTend Material App Scaffold: ${result.status}`);
+      writeLine(stdout, `XTend ${generator === 'material-app' ? 'Material ' : ''}App Scaffold: ${result.status}`);
       writeLine(stdout, `Output: ${result.outputDir}`);
       result.files.forEach((file) => writeLine(stdout, `${file.action.padEnd(10)} ${file.path}`));
       (result.diagnostics || []).forEach((diagnostic) => {
@@ -702,7 +711,15 @@ function runCli(args = process.argv.slice(2), io = {}) {
         '  --css-sources <paths>            Comma-separated content/source paths.',
         '  --css-preflight <mode>           disabled, scoped, or enabled.',
         '  --css-budget <bytes>              Maximum provider CSS bytes.',
-        '  --css-provider-fallback native   Explicit fallback; omitted means fail closed.'
+        '  --css-provider-fallback native   Explicit fallback; omitted means fail closed.',
+        '',
+        'AppServices options:',
+        '  --services <true|false>           Enable defaults or preserve the legacy no-services path.',
+        '  --services-entry <path>           Browser/local service entry (default: src/services.ts).',
+        '  --server-services-entry <path>    Node-only service entry (default: src/server-services.ts).',
+        '  --php-services-entry <path>       PHP callable registry (default: server/server-services.php).',
+        '  --service-targets <targets>       Comma-separated browser,node,php target list.',
+        '  --services-strict <true|false>    Error or compatibility diagnostics for service drift.'
       ].join('\n'));
       return 0;
     }
@@ -876,7 +893,7 @@ function runCli(args = process.argv.slice(2), io = {}) {
         '  xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json',
         '  xt rmt kernel-lab analyze --json',
         '  xt rmt kernel-lab build --profile clean --check --json',
-        '  xt rmt kernel-lab build --profile clean --version 0.4.0 --write --json',
+        '  xt rmt kernel-lab build --profile clean --version 0.5.0 --write --json',
         '  xt rmt lint tests/fixtures --fail-on warning',
         '  xt rmt lint app.rmt --format problem-matcher',
         '',

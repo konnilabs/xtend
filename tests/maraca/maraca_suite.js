@@ -1,5 +1,6 @@
 const fs = require('fs');
 const http = require('http');
+const os = require('os');
 const path = require('path');
 const { pathToFileURL } = require('url');
 const { spawnSync } = require('child_process');
@@ -74,6 +75,10 @@ const MARACA_SUITES = [
   'maraca-plan',
   'maraca-bundle',
   'maraca-bundle-report',
+  'maraca-app-services-runtime',
+  'maraca-app-services-cross-runtime',
+  'xtend-llm-app-services-catfood',
+  'maraca-app-services-build',
   'maraca-rmt-source-to-bundle',
   'maraca-orchestration',
   'maraca-kernel-orchestration',
@@ -2429,7 +2434,14 @@ function runMaracaPackageExportsSuite(options = {}) {
   const maracaPackage = readJson(MARACA_PACKAGE_PATH, rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const cli = readText('xtend-builder/lib/cli.js', rootDir);
+  const defaultWorkflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
+  const nightlyWorkflow = readText('.github/workflows/xtend-nightly-build.yml', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.maraca;
+  const appServicesMetadata = packageManifest.xtend && packageManifest.xtend.maracaAppServices;
+  const serviceBuildProviderMetadata = packageManifest.xtend && packageManifest.xtend.maracaServiceBuildProvider;
+  const scaffoldMetadata = packageManifest.xtend && packageManifest.xtend.rmtAppScaffold;
+  const defaultGatesMetadata = packageManifest.xtend && packageManifest.xtend.ciDefaultGates;
+  const gateMatrixMetadata = packageManifest.xtend && packageManifest.xtend.ciGateMatrix;
 
   context.assert(packageManifest.workspaces.includes('xtend-maraca'), 'root package registers xtend-maraca workspace');
   context.assert(packageManifest.files.includes('xtend-maraca'), 'root package includes xtend-maraca package files');
@@ -2438,6 +2450,74 @@ function runMaracaPackageExportsSuite(options = {}) {
   context.assert(packageManifest.exports['./maraca/plan-runtime'] && packageManifest.exports['./maraca/plan-runtime'].default === './xtend-maraca/plan-runtime.mjs', 'root package exports @ccslabs/xtend/maraca/plan-runtime');
   context.assert(maracaPackage.exports['./plan-runtime'] && maracaPackage.exports['./plan-runtime'].types === './plan-runtime.d.ts', 'Maraca workspace exports the typed plan runtime');
   context.assert(maracaPackage.files.includes('plan-runtime.mjs') && maracaPackage.files.includes('plan-runtime.d.ts'), 'Maraca tarball includes the plan runtime implementation and declarations');
+  const appServiceSubpaths = [
+    {
+      root: './maraca/app-services',
+      workspace: './app-services',
+      files: ['app-services.js', 'app-services.mjs', 'app-services.d.ts']
+    },
+    {
+      root: './maraca/server-services',
+      workspace: './server-services',
+      files: ['server-services.js', 'server-services.mjs', 'server-services.d.ts']
+    },
+    {
+      root: './maraca/node-app-service-host',
+      workspace: './node-app-service-host',
+      files: ['node-app-service-host.js', 'node-app-service-host.mjs', 'node-app-service-host.d.ts']
+    },
+    {
+      root: './maraca/service-build-provider',
+      workspace: './service-build-provider',
+      files: ['service-build-provider.js', 'service-build-provider.d.ts']
+    }
+  ];
+  appServiceSubpaths.forEach((surface) => {
+    const rootExport = packageManifest.exports[surface.root];
+    const workspaceExport = maracaPackage.exports[surface.workspace];
+    context.assert(rootExport && rootExport.types && rootExport.default, `root package exports the typed ${surface.root} surface`);
+    context.assert(workspaceExport && workspaceExport.types && workspaceExport.default, `@ccslabs/xtend-maraca exports the typed ${surface.workspace} subpath`);
+    if (surface.files.some((file) => file.endsWith('.mjs'))) {
+      context.assert(rootExport && rootExport.import && rootExport.require, `${surface.root} exposes explicit ESM and CommonJS conditions`);
+      context.assert(workspaceExport && workspaceExport.import && workspaceExport.require, `${surface.workspace} exposes explicit ESM and CommonJS conditions`);
+    }
+    surface.files.forEach((file) => {
+      context.assert(maracaPackage.files.includes(file), `@ccslabs/xtend-maraca tarball contract includes ${file}`);
+      context.assert(fs.existsSync(resolveRepoPath(`xtend-maraca/${file}`, rootDir)), `@ccslabs/xtend-maraca source contains ${file}`);
+    });
+  });
+  const packCache = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-maraca-pack-cache-'));
+  try {
+    const packResult = spawnSync('npm', ['pack', '--workspace', 'xtend-maraca', '--dry-run', '--json', '--ignore-scripts'], {
+      cwd: rootDir,
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
+      env: {
+        ...process.env,
+        npm_config_cache: packCache,
+        NPM_CONFIG_CACHE: packCache
+      }
+    });
+    if (packResult.error && packResult.error.code === 'EPERM') {
+      context.skip('@ccslabs/xtend-maraca npm pack dry-run skipped because the execution sandbox denies child processes');
+    } else {
+      context.assert(packResult.status === 0, `@ccslabs/xtend-maraca npm pack dry-run succeeds${packResult.stderr ? ` (${packResult.stderr.trim()})` : ''}`);
+      let packFiles = [];
+      try {
+        const packRecords = JSON.parse(packResult.stdout || '[]');
+        packFiles = Array.isArray(packRecords) && packRecords[0] && Array.isArray(packRecords[0].files)
+          ? packRecords[0].files.map((entry) => entry.path)
+          : [];
+      } catch (error) {
+        context.fail(`@ccslabs/xtend-maraca npm pack JSON is invalid: ${error.message}`);
+      }
+      appServiceSubpaths.flatMap((surface) => surface.files).forEach((file) => {
+        context.assert(packFiles.includes(file), `@ccslabs/xtend-maraca pack dry-run contains ${file}`);
+      });
+    }
+  } finally {
+    fs.rmSync(packCache, { recursive: true, force: true });
+  }
   context.assert(packageManifest.scopedPackages.some((entry) => entry.name === '@ccslabs/xtend-maraca' && entry.path === 'xtend-maraca'), 'scoped package metadata includes @ccslabs/xtend-maraca');
   context.assert(maracaPackage.dependencies.rollup && maracaPackage.dependencies.rollup.startsWith('^4.'), 'Maraca package declares Rollup as a real dependency');
   context.assert(maracaPackage.dependencies.terser && maracaPackage.dependencies.terser.startsWith('^5.'), 'Maraca package declares Terser as a real dependency');
@@ -2461,13 +2541,35 @@ function runMaracaPackageExportsSuite(options = {}) {
   context.assert(metadata && metadata.transitionPlanSchema === MARACA_TRANSITION_PLAN_SCHEMA, 'package metadata declares transition-plan schema');
   context.assert(metadata && metadata.templateArtifactsReportSchema === MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA, 'package metadata declares template-artifacts report schema');
   context.assert(metadata && metadata.performanceReportSchema === MARACA_PERFORMANCE_REPORT_SCHEMA, 'package metadata declares performance report schema');
+  context.assert(appServicesMetadata && appServicesMetadata.schema === 'xtend.maraca.app-services.v1', 'root xtend metadata declares the AppServices contract');
+  context.assert(appServicesMetadata && appServicesMetadata.suiteId === 'maraca-app-services-runtime' && appServicesMetadata.implicitRetries === false, 'AppServices metadata binds the runtime gate and no-retry policy');
+  context.assert(appServicesMetadata && appServicesMetadata.suiteIds.includes('maraca-app-services-cross-runtime') && appServicesMetadata.crossRuntimeReportArtifact === '.xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json', 'AppServices metadata binds Node/PHP parity and its report');
+  context.assert(appServicesMetadata && appServicesMetadata.suiteIds.includes('xtend-llm-app-services-catfood') && appServicesMetadata.catfoodReportArtifact === 'products/xtend-llm/.xtend-llm-results/app-services-catfood.json', 'AppServices metadata binds XMS-11 product catfood and its evidence');
+  context.assert(serviceBuildProviderMetadata && serviceBuildProviderMetadata.schema === 'xtend.maraca.service-build-provider.v1', 'root xtend metadata declares the service build provider');
+  context.assert(serviceBuildProviderMetadata && serviceBuildProviderMetadata.suiteId === 'maraca-app-services-build' && serviceBuildProviderMetadata.productionBundler === 'rollup-terser', 'service build provider metadata binds the production build gate');
+  context.assert(scaffoldMetadata && scaffoldMetadata.schema === 'xtend.scaffold.app-preset.rmt.v1', 'root xtend metadata declares the provider-neutral RMT app scaffold');
+  context.assert(scaffoldMetadata && scaffoldMetadata.suiteId === 'xtend-rmt-app-scaffold' && scaffoldMetadata.materialMode === 'overlay', 'neutral scaffold metadata binds its gate and Material overlay boundary');
   context.assert(packageManifest.scripts['build:maraca'].includes('maraca build'), 'package exposes build:maraca script');
+  context.assert(packageManifest.scripts['test:maraca-app-services'].includes('maraca-app-services-runtime maraca-app-services-cross-runtime xtend-llm-app-services-catfood maraca-app-services-build xtend-rmt-app-scaffold'), 'package exposes the focused AppServices MVP gate');
   context.assert(packageManifest.scripts['test:maraca'].includes(MARACA_SUITES.join(' ')), 'package exposes combined Maraca test script');
+  const appServicesSuiteIds = ['xtend-rmt-app-scaffold', 'maraca-app-services-runtime', 'maraca-app-services-cross-runtime', 'xtend-llm-app-services-catfood', 'maraca-app-services-build'];
+  appServicesSuiteIds.forEach((suiteId) => {
+    context.assert(defaultGatesMetadata && defaultGatesMetadata.defaultGate === 'npm run test:report' && runner.includes(`id: '${suiteId}'`), `default all-suite CI gate executes ${suiteId}`);
+    context.assert(gateMatrixMetadata && gateMatrixMetadata.prFastGate.suites.includes(suiteId), `PR gate matrix requires ${suiteId}`);
+    context.assert(gateMatrixMetadata && gateMatrixMetadata.fullReleaseGate.suites.includes(suiteId), `release gate matrix requires ${suiteId}`);
+    context.assert(packageManifest.scripts['test:pr'].includes(suiteId) && packageManifest.scripts['test:pr:report'].includes(suiteId), `PR scripts execute ${suiteId}`);
+    context.assert(packageManifest.scripts['test:release:full'].includes(suiteId) && packageManifest.scripts['test:release:full:report'].includes(suiteId) && packageManifest.scripts['release:report'].includes(suiteId), `release scripts execute ${suiteId}`);
+  });
+  context.assert(packageManifest.xtend.releaseGates.includes('npm run test:maraca-app-services'), 'release metadata includes the focused AppServices MVP gate');
+  context.assert(defaultWorkflow.includes('npm run test:maraca-app-services-cross-runtime:report') && defaultWorkflow.includes('npm run test:xtend-llm-app-services-catfood:report'), 'default CI emits dedicated AppServices parity and product catfood reports');
+  context.assert(nightlyWorkflow.includes('npm run test:maraca-app-services-cross-runtime:report') && nightlyWorkflow.includes('npm run test:xtend-llm-app-services-catfood:report'), 'nightly CI emits dedicated AppServices parity and product catfood reports');
+  context.assert(defaultWorkflow.includes('products/xtend-llm/.xtend-llm-results/app-services-catfood.json') && nightlyWorkflow.includes('products/xtend-llm/.xtend-llm-results/app-services-catfood.json'), 'default and nightly artifacts retain the product-owned XMS-11 evidence');
   MARACA_SUITES.forEach((suiteId) => {
     context.assert(runner.includes(`id: '${suiteId}'`), `test runner registers ${suiteId}`);
   });
   context.assert(cli.includes('xt maraca plan app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --json'), 'CLI help documents Maraca kernel hydration validation transition orchestration plan command');
   context.assert(cli.includes('xt maraca build app.rmt --out dist --web-app-manifest --json') && cli.includes('xt maraca build app.rmt --out dist --manifest --json'), 'CLI help documents Web App Manifest aliases');
+  context.assert(cli.includes('--services-entry <path>') && cli.includes('--server-services-entry <path>') && cli.includes('--php-services-entry <path>'), 'CLI help documents AppServices entry overrides');
   context.assert(cli.includes('xt rmt build app.rmt --bundle maraca --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict'), 'CLI help documents one-step RMT Maraca kernel hydration validation transition orchestration build');
 
   return context.result({

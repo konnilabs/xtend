@@ -161,6 +161,18 @@ function runSupplyChainVerification(options = {}) {
     ))
   ));
   checks.push(createCheck(
+    'Node 24 declarations are classified as minimum-runtime dev tooling',
+    classification.allowedDevToolingDependencies.some((dependency) => (
+      dependency.name === '@types/node' && dependency.section === 'devDependencies'
+    ))
+  ));
+  checks.push(createCheck(
+    'Vite is classified as demo and development tooling only',
+    classification.allowedDevToolingDependencies.some((dependency) => (
+      dependency.name === 'vite' && dependency.section === 'devDependencies'
+    ))
+  ));
+  checks.push(createCheck(
     'dependency sections are known to the policy',
     DEPENDENCY_SECTIONS.every((section) => plan.dependencySections.includes(section))
   ));

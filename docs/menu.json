@@ -2678,6 +2678,40 @@
     }
   },
   {
+    "slug": "maraca-app-services",
+    "id": "docs.maraca.app.services",
+    "label": "Maraca AppServices",
+    "group": "maraca",
+    "parent": "xtend-maraca",
+    "tier": "basic",
+    "rank": 99,
+    "labels": {
+      "de": "Maraca AppServices und TypeScript",
+      "en": "Maraca AppServices and TypeScript"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "maraca",
+    "keywords": {
+      "de": [
+        "Maraca AppServices und TypeScript",
+        "maraca",
+        "app",
+        "services",
+        "tutorial",
+        "build"
+      ],
+      "en": [
+        "Maraca AppServices and TypeScript",
+        "maraca",
+        "app",
+        "services",
+        "tutorial",
+        "build"
+      ]
+    }
+  },
+  {
     "slug": "xtend-material",
     "id": "docs.xtend.material",
     "label": "XTend Material",

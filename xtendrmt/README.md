@@ -14,7 +14,7 @@
 npm install @ccslabs/xtend-rmt
 ```
 
-Node.js 18 or newer is required. The package is ESM-first and exposes a browser condition for its runtime entry points.
+Node.js 24 or newer is required. The package is ESM-first and exposes a browser condition for its runtime entry points.
 
 ### Application runtime
 
@@ -66,7 +66,7 @@ The SSR adapter emits bounded render, hydration, JSONL, diagnostics, and CSP rec
 
 ### Public entry points
 
-The package exports the core/runtime/browser entries plus dedicated modules for DOM descriptors, component capabilities, state selectors, action/effect execution, event routing, app runtime, form validation, animation, surface transitions, surface-resource graphs, kernel orchestration, kernel feature adoption, native shells, and Node SSR. `./schema` and `./manifest` expose the canonical JSON artifacts.
+The package exports the core/runtime/browser entries plus dedicated modules for DOM descriptors, component capabilities, state selectors, action/effect execution, event routing, app runtime, form validation, animation, surface transitions, surface-resource graphs, kernel orchestration, kernel feature adoption, native shells, and Node SSR. `./php-app-service-adapter.php` provides the PHP-native callable registry and JSON/NDJSON wire adapter without executing TypeScript. `./schema` and `./manifest` expose the canonical JSON artifacts.
 
 ### Kernel and host boundary
 
@@ -82,6 +82,7 @@ npm run test:type-exports-rmt
 node scripts/run_xtend_tests.js rmt-app-runtime
 npm run test:rmt-dom-descriptor-renderer
 npm run test:rmt-node-ssr-adapter
+npm run test:rmt-php-app-service-adapter
 npm run test:scoped-package-readmes
 ```
 
@@ -107,7 +108,7 @@ Licensed under the Apache License 2.0. See [LICENSE](../LICENSE).
 npm install @ccslabs/xtend-rmt
 ```
 
-Node.js 18 oder neuer wird benötigt. Das Paket ist ESM-first und stellt für seine Runtime-Einstiege eine Browser-Condition bereit.
+Node.js 24 oder neuer wird benötigt. Das Paket ist ESM-first und stellt für seine Runtime-Einstiege eine Browser-Condition bereit.
 
 ### App-Runtime
 
@@ -159,7 +160,7 @@ Der SSR-Adapter erzeugt begrenzte Render-, Hydration-, JSONL-, Diagnose- und CSP
 
 ### Öffentliche Einstiegspunkte
 
-Das Paket exportiert Core-/Runtime-/Browser-Einstiege sowie eigene Module für DOM-Deskriptoren, Komponenten-Capabilities, State Selectors, Action-/Effect-Ausführung, Event Routing, App Runtime, Formularvalidierung, Animation, Surface Transitions, Surface-Resource-Graphen, Kernel-Orchestrierung, Kernel Feature Adoption, Native Shells und Node SSR. `./schema` und `./manifest` stellen die kanonischen JSON-Artefakte bereit.
+Das Paket exportiert Core-/Runtime-/Browser-Einstiege sowie eigene Module für DOM-Deskriptoren, Komponenten-Capabilities, State Selectors, Action-/Effect-Ausführung, Event Routing, App Runtime, Formularvalidierung, Animation, Surface Transitions, Surface-Resource-Graphen, Kernel-Orchestrierung, Kernel Feature Adoption, Native Shells und Node SSR. `./php-app-service-adapter.php` stellt die PHP-native Callable-Registry und den JSON-/NDJSON-Wire-Adapter bereit, ohne TypeScript auszuführen. `./schema` und `./manifest` stellen die kanonischen JSON-Artefakte bereit.
 
 ### Kernel- und Host-Grenze
 
@@ -175,6 +176,7 @@ npm run test:type-exports-rmt
 node scripts/run_xtend_tests.js rmt-app-runtime
 npm run test:rmt-dom-descriptor-renderer
 npm run test:rmt-node-ssr-adapter
+npm run test:rmt-php-app-service-adapter
 npm run test:scoped-package-readmes
 ```
 

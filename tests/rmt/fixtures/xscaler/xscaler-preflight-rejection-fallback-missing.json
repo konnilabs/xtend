@@ -10,6 +10,22 @@
     "remoteSurfacePlan": "blocked",
     "xtensionDeployment": "blocked"
   },
+  "requiredAnchors": ["#schemas", "#ssr-kompatibilitaet", "#xtensions-deployment"],
+  "remoteSurfacePlan": null,
+  "atc": {
+    "schema": "xtend.xscaler.atc-handoff.v1",
+    "protocol": "xscaler",
+    "surfaceId": "remoteSurface:checkout.cart",
+    "sessionId": "xscaler:remoteSurface:checkout.cart",
+    "handoffSignal": "refuse",
+    "lifecycleState": "refuse",
+    "accepted": false,
+    "ok": false,
+    "status": "refused",
+    "fallback": null,
+    "runtimeBoundary": { "remoteRuntimeExecution": false, "kernelRemoteExecution": false, "networkRequiredByHandoff": false },
+    "diagnostics": []
+  },
   "rejection": {
     "code": "xscaler.preflight.fallback_missing",
     "message": "Remote surface plan is missing a fallback surface."

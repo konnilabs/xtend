@@ -55,7 +55,16 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './maraca/runtime',
   './maraca/plan-runtime',
   './maraca/css-provider',
+  './maraca/app-services',
+  './maraca/server-services',
+  './maraca/node-app-service-host',
+  './maraca/service-build-provider',
   './xsurface-shard',
+  './xscaler',
+  './xscaler/protocol',
+  './xscaler/remote-adapter-loader',
+  './xscaler/app-service-transport',
+  './xscaler/schemas/*',
   './components/*',
   './components/xkeymap.js',
   './xcommand',
@@ -232,6 +241,7 @@ const REQUIRED_PACK_ROOTS = Object.freeze([
   'xtend-builder',
   'xtend-maraca',
   'xsurface-shard',
+  'xscaler',
   'tools',
   'security',
   'docs'
@@ -260,13 +270,18 @@ const SURFACE_GROUPS = Object.freeze([
   },
   {
     id: 'maraca',
-    requiredExports: ['./maraca', './maraca/runtime', './maraca/plan-runtime', './maraca/css-provider'],
+    requiredExports: ['./maraca', './maraca/runtime', './maraca/plan-runtime', './maraca/css-provider', './maraca/app-services', './maraca/server-services', './maraca/node-app-service-host', './maraca/service-build-provider'],
     requiredPackRoots: ['xtend-maraca']
   },
   {
     id: 'xsurface-shard',
     requiredExports: ['./xsurface-shard'],
     requiredPackRoots: ['xsurface-shard']
+  },
+  {
+    id: 'xscaler',
+    requiredExports: ['./xscaler', './xscaler/protocol', './xscaler/remote-adapter-loader', './xscaler/app-service-transport', './xscaler/schemas/*'],
+    requiredPackRoots: ['xscaler']
   },
   {
     id: 'fabric',

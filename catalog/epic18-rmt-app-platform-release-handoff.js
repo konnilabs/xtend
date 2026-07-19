@@ -69,13 +69,14 @@ const REQUIRED_COMMANDS = Object.freeze([
 
 const GITHUB_ACTIONS = Object.freeze({
   workflow: '.github/workflows/xtend-default-gates.yml',
-  nodeVersion: '26.x',
+  nodeVersion: '24.18.0',
+  nodeVersions: Object.freeze(['24.18.0', '26.5.0']),
   prFastCommand: 'npm run test:pr:report',
   prFastReport: '.xtend-test-results/xtend-pr-gate-report.json',
-  prFastArtifact: 'xtend-pr-gate-report-node-26',
+  prFastArtifact: 'xtend-pr-gate-report-{artifactSuffix}',
   fullReleaseCommand: 'npm run test:release:full:report',
   fullReleaseReport: '.xtend-test-results/xtend-release-gate-report.json',
-  fullReleaseArtifact: 'xtend-release-gate-report-node-26',
+  fullReleaseArtifact: 'xtend-release-gate-report-{artifactSuffix}',
   conditionalNetworkCommand: 'npm run conditional-network:evidence',
   conditionalNetworkExecuteEnv: 'XTEND_CONDITIONAL_NETWORK_EXECUTE=1'
 });

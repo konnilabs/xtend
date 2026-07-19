@@ -892,6 +892,10 @@ template xtend.llm {
   datasource xtend.llm.updateConversationSearch from host xtend.llm.updateConversationSearch { method "invoke" }
   datasource xtend.llm.send from host xtend.llm.send { method "invoke" }
   datasource xtend.llm.cancelGeneration from host xtend.llm.cancelGeneration { method "invoke" }
+  datasource xtend.llm.generationStream from host xtend.llm.generationStream {
+    mode "stream"
+    method "stream"
+  }
   datasource xtend.llm.retryGeneration from host xtend.llm.retryGeneration { method "invoke" }
   datasource xtend.llm.copyAssistantMessage from host xtend.llm.copyAssistantMessage { method "invoke" }
   datasource xtend.llm.regenerateAssistantMessage from host xtend.llm.regenerateAssistantMessage { method "invoke" }

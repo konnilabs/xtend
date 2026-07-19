@@ -1,3 +1,20 @@
+function loadPublicXScalerContract() {
+  try {
+    return require('@ccslabs/xtend/xscaler');
+  } catch (error) {
+    const publicSubpathMissing = error
+      && error.code === 'MODULE_NOT_FOUND'
+      && String(error.message).includes("'@ccslabs/xtend/xscaler'");
+    if (!publicSubpathMissing) throw error;
+    return require('../xscaler');
+  }
+}
+
+const {
+  XSCALER_ATC_HANDOFF_SCHEMA,
+  createXScalerAtcHandoff
+} = loadPublicXScalerContract();
+
 const XSURFACE_SHARD_PACKAGE = '@ccslabs/xtend-xsurface-shard';
 const XSURFACE_SHARD_PLAN_SCHEMA = 'xtend.xsurface.shard-plan.v1';
 const XSURFACE_SHARD_SNAPSHOT_SCHEMA = 'xtend.xsurface.shard-snapshot.v1';
@@ -5,8 +22,6 @@ const XSURFACE_SHARD_HANDOFF_SCHEMA = 'xtend.xsurface.shard-atc-handoff.v1';
 const XSURFACE_SHARD_FRAGMENT_SCHEMA = 'xtend.xsurface.shard-stream-fragment.v1';
 const XSURFACE_SHARD_SURFACE_SCHEMA = 'xtend.xsurface.shard-surface.v1';
 const XSURFACE_SHARD_RECORD_SCHEMA = 'xtend.xsurface.shard.v1';
-const XSCALER_ATC_HANDOFF_SCHEMA = 'xtend.xscaler.atc-handoff.v1';
-
 const XSURFACE_SHARD_SECURITY_BLOCKED_CODE = 'xsurface.shard.security_blocked';
 const XSURFACE_SHARD_DEGRADATION_BLOCKED_CODE = 'xsurface.shard.degradation_blocked';
 const XSURFACE_SHARD_FALLBACK_MISSING_CODE = 'xsurface.shard.fallback_missing';
@@ -481,6 +496,17 @@ function createXSurfaceAtcHandoff(input = {}, options = {}) {
   const action = normalizeString(input.action, 'attach');
   const surfaceId = normalizeString(input.surfaceId || surface.surfaceId, 'remoteSurface:unknown');
   const shardId = normalizeString(input.shardId || surface.shardId, createShardId(ownerId(surface.owner), surface.primaryShellTarget));
+  const fallback = cloneJson(input.fallback || surface.fallback || null, null);
+  const atc = createXScalerAtcHandoff({
+    surfaceId,
+    sessionId: normalizeString(input.sessionId || options.sessionId, `${shardId}:${surfaceId}`),
+    handoffSignal: normalizeString(input.handoffSignal, status === 'degraded' ? 'activate-fallback' : action),
+    lifecycleState: normalizeString(input.lifecycleState || input.state, action),
+    status,
+    accepted: status !== 'refused',
+    fallback,
+    diagnostics
+  });
 
   return {
     schema: XSURFACE_SHARD_HANDOFF_SCHEMA,
@@ -492,14 +518,8 @@ function createXSurfaceAtcHandoff(input = {}, options = {}) {
     surfaceId,
     enterpriseSurfaceId: normalizeString(input.enterpriseSurfaceId || surface.enterpriseSurfaceId, null),
     shardId,
-    atc: {
-      schema: XSCALER_ATC_HANDOFF_SCHEMA,
-      protocol: 'xscaler-atc-compatible',
-      sessionId: normalizeString(input.sessionId || options.sessionId, `${shardId}:${surfaceId}`),
-      handoffSignal: normalizeString(input.handoffSignal, status === 'degraded' ? 'activate-fallback' : action),
-      lifecycleState: normalizeString(input.lifecycleState || input.state, action)
-    },
-    fallback: cloneJson(input.fallback || surface.fallback || null, null),
+    atc,
+    fallback,
     stream: {
       accepted: status !== 'refused',
       fragmentSchema: XSURFACE_SHARD_FRAGMENT_SCHEMA

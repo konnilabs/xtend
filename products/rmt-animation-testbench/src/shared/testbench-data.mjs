@@ -245,9 +245,37 @@ export function createXScalerPreflight(surfaceId, reason = 'navigation') {
   const surface = findSurface(surfaceId);
   return {
     schema: XSCALER_PROTOCOL_SCHEMA,
+    protocol: 'xscaler',
+    requestId: `xscaler:testbench:preflight:${surface.id}:${reason}`,
     accepted: true,
     ok: true,
     surface: surface.id,
+    compatibility: {
+      ssr: 'compatible',
+      remoteSurfacePlan: 'required',
+      xtensionDeployment: 'allowed'
+    },
+    requiredAnchors: ['#schemas', '#ssr-kompatibilitaet', '#xtensions-deployment'],
+    remoteSurfacePlan: {
+      schema: 'xtend.xscaler.remote-surface-plan.v1',
+      protocol: 'xscaler',
+      surface: surface.id,
+      surfaceId: `remoteSurface:${surface.id}`,
+      owner: 'rmt-animation-testbench',
+      origin: 'https://testbench.xtend.invalid',
+      integrity: {
+        algorithm: 'sha256',
+        digest: 'sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='
+      },
+      fallbackSurface: 'dashboard',
+      lanes: [{ lane: 'transition', target: `shell.slot:${surface.id}` }],
+      ssr: { mode: 'preflight-only', networkDuringRender: false },
+      runtimeBoundary: {
+        remoteRuntimeExecution: false,
+        kernelRemoteExecution: false,
+        networkRequiredByKernel: false
+      }
+    },
     rmtSurface: surface.rmtId,
     reason,
     networkDuringRender: false,
@@ -255,10 +283,21 @@ export function createXScalerPreflight(surfaceId, reason = 'navigation') {
     cacheKey: `xscaler:surface:${surface.id}:v1`,
     atc: {
       schema: XSCALER_ATC_SCHEMA,
-      protocol: 'xscaler-atc-compatible',
+      protocol: 'xscaler',
+      surfaceId: `remoteSurface:${surface.id}`,
       sessionId: `xscaler:testbench:${surface.id}`,
       handoffSignal: 'attach',
       lifecycleState: 'client-hydrated-navigation',
+      accepted: true,
+      ok: true,
+      status: 'ready',
+      fallback: { surface: 'dashboard' },
+      runtimeBoundary: {
+        remoteRuntimeExecution: false,
+        kernelRemoteExecution: false,
+        networkRequiredByHandoff: false
+      },
+      diagnostics: [],
       route: `/api/lazy-surface/${surface.id}`,
       mode: 'protocol-lazy',
       activation: 'client-hydrated-navigation',

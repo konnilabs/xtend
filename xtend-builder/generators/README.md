@@ -152,7 +152,7 @@ Der Contract bleibt `dry-run-extension-contract` und implementiert keine Templat
 ```bash
 node xtend-builder/scaffold.js kernel-lab analyze --json
 node xtend-builder/scaffold.js kernel-lab build --profile clean --check --json
-node xtend-builder/scaffold.js rmt kernel-lab build --profile clean --version 0.4.0 --write --json
+node xtend-builder/scaffold.js rmt kernel-lab build --profile clean --version 0.5.0 --write --json
 ```
 
 `analyze` erzeugt das Modul-Inventar nach `xtend.rmt.kernel-module-manifest.v1`, meldet die sichtbaren 25 Bundle-Module gegen die historische Erwartung von 26 Modulen und klassifiziert erhaltene bzw. entfernte Symbolflaechen. `build --profile clean` schreibt die Dashboard-freien Standardartefakte fuer Runtime, Browser, Typen, Produktmanifest und Kernel-Modulmanifest; `--version <semver>` setzt dabei die XTendRMT Release-Version fuer Header, Runtime-API, Typen und Manifest.

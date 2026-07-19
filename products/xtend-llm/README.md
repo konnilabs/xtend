@@ -2,6 +2,10 @@
 
 Local Electron AI chat product for exercising XTendRMT, Maraca, Fabric/kernel orchestration and a Transformers.js WebGPU runtime.
 
+## Host Runtime
+
+CLI, build, test and host processes require Node.js 24 or newer. Contributor and CI runs use the pinned npm `11.17.0` with Node `24.18.0` as the primary runtime and Node `26.5.0` as the required compatibility lane. Electron owns its embedded Node 24 runtime independently; that embedded version is reported by the product gates and is not the host-Node support contract.
+
 ## Commands
 
 ```bash
@@ -15,6 +19,20 @@ npm start
 ```
 
 `npm test` runs product-local unit checks without requiring Electron or model downloads. `npm run test:real-model` is opt-in and requires Electron, WebGPU and access to the Hugging Face model assets.
+
+## Maraca AppServices Catfood
+
+The renderer business boundary is declared in `src/services.ts`. The production build checks all RMT host-datasource demands against that registry, bundles the TypeScript entry into `xtend.maraca.mjs`, and generates the service manifest plus declarations. The controller listens to the public `xtend-maraca:boot` lifecycle and does not install a manual datasource adapter or read private `window.__XTend*` state.
+
+```bash
+npm run test:catfood
+npm run test:catfood:smoke
+npm run test:catfood:full
+```
+
+- `test:catfood` performs a strict production build and a fail-closed source/build/manifest gate. Its JSON result is `.xtend-llm-results/app-services-catfood.json`.
+- `test:catfood:smoke` runs the fake Electron source-to-sea flow and records AppService invocation/stream history in `.xtend-llm-results/layout-smoke.json` alongside the screenshot.
+- The generation worker publishes business frames through `xtend.llm.generationStream`; Maraca owns stream invocation/correlation IDs, ordering, terminal-frame suppression and dispose cancellation.
 
 ## Model Installer
 
@@ -52,7 +70,7 @@ The bundle contains the Electron runtime, the product app sources, the Maraca bu
 When launching the app binary directly from a terminal that has `ELECTRON_RUN_AS_NODE=1`, unset that variable so Electron starts as an app:
 
 ```bash
-env -u ELECTRON_RUN_AS_NODE "dist/mac/XTend Local LLM.app/Contents/MacOS/XTend Local LLM"
+node scripts/run-electron.mjs --xtend-executable "dist/mac/XTend Local LLM.app/Contents/MacOS/XTend Local LLM"
 ```
 
 ## LLM Terminal Suite

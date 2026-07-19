@@ -2,10 +2,11 @@
   "schema": "xtend.maraca.build-config.v1",
   "source": "docs/xtendrmt-docs-shell-vnext.rmt",
   "sourceFingerprint": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+  "serviceGraphFingerprint": null,
   "output": "docs/generated/shell",
   "selected": {
     "profile": "max",
-    "lazy": "route",
+    "lazy": "none",
     "css": "inline"
   },
   "locked": {
@@ -22,13 +23,19 @@
     "enablePwa": false,
     "enableServiceWorker": false,
     "enableWebAppManifest": false,
-    "allowDynamicComponents": false
+    "allowDynamicComponents": false,
+    "cssProvider": "maraca-native",
+    "cssInput": null,
+    "cssSources": [],
+    "cssPreflight": "disabled",
+    "cssBudget": null,
+    "cssProviderFallback": "none"
   },
   "options": {
     "source": "docs/xtendrmt-docs-shell-vnext.rmt",
     "out": "docs/generated/shell",
     "profile": "max",
-    "lazy": "route",
+    "lazy": "none",
     "css": "inline",
     "sizeBudget": "strict",
     "orchestration": "auto",
@@ -44,13 +51,19 @@
     "enablePwa": false,
     "enableServiceWorker": false,
     "enableWebAppManifest": false,
-    "allowDynamicComponents": false
+    "allowDynamicComponents": false,
+    "cssProvider": "maraca-native",
+    "cssInput": null,
+    "cssSources": [],
+    "cssPreflight": "disabled",
+    "cssBudget": null,
+    "cssProviderFallback": "none"
   },
   "toolchain": {
     "rollup": "4.60.4",
     "terser": "5.48.0",
     "mode": "rollup-terser"
   },
-  "candidateMatrixFingerprint": "c998f8adef1e229066a5a524f5ff4fbb60828608e7293a3066f9dc2a1329824e",
-  "configFingerprint": "28872382a13e85d1d338fca63e60e144bbe94c6dc72f5c9316ada31ab4105352"
+  "candidateMatrixFingerprint": "d50c8cf9dd8cc89f592b1cfcc1aa59a7e1c06c80e857f16e5f05596e2f2e6824",
+  "configFingerprint": "0a593bcf820f9c98fb9ed5b03405ad6c29b8d723dfbeca40209cf3c37b1a1de8"
 }

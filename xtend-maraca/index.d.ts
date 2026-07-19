@@ -1,4 +1,5 @@
 import type { CssBuildEvidence, CssBuildRequest, CssProviderContract, CssProviderImplementation } from './css-provider';
+import type { MaracaServiceBuildPlan, MaracaServiceBuildReport, MaracaServicesConfig } from './service-build-provider';
 
 export const MARACA_PACKAGE_SCHEMA: 'xtend.maraca.package-metadata.v1';
 export const MARACA_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v1';
@@ -22,6 +23,9 @@ export const MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA: 'xtend.maraca.template-art
 export const MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA: 'xtend.maraca.production-bundle-closure.v1';
 export const MARACA_BUILD_CONFIG_SCHEMA: 'xtend.maraca.build-config.v1';
 export const MARACA_TUNE_REPORT_SCHEMA: 'xtend.maraca.tune-report.v1';
+export const MARACA_APP_SERVICE_MANIFEST_SCHEMA: 'xtend.maraca.app-services-manifest.v1';
+export const MARACA_SERVICE_BUILD_PLAN_SCHEMA: 'xtend.maraca.service-build-plan.v1';
+export const MARACA_SERVICE_BUILD_REPORT_SCHEMA: 'xtend.maraca.service-build-report.v1';
 
 export type MaracaProfile = 'debug' | 'production' | 'max';
 export type MaracaLazyMode = 'route' | 'component' | 'none';
@@ -114,6 +118,15 @@ export interface MaracaBuildInput {
   policyParityContracts?: Array<Record<string, unknown>>;
   policyParityRuntimeHooks?: string[];
   policyParityRequiredFactories?: string[];
+  services?: false | true | MaracaServicesConfig;
+  servicesEntry?: string;
+  'services-entry'?: string;
+  serverServicesEntry?: string;
+  'server-services-entry'?: string;
+  phpServicesEntry?: string;
+  'php-services-entry'?: string;
+  serviceTargets?: string | string[];
+  'service-targets'?: string | string[];
   write?: boolean | string;
   check?: boolean | string;
   _?: string[];
@@ -659,6 +672,7 @@ export interface MaracaBuildPlan {
   schema: typeof MARACA_BUILD_PLAN_SCHEMA;
   ok: boolean;
   status: string;
+  configFingerprint?: string | null;
   source: string;
   sourcePath: string;
   rootDir?: string;
@@ -798,6 +812,8 @@ export interface MaracaBuildPlan {
     diagnostics: MaracaDiagnostic[];
     summary: Record<string, unknown>;
   };
+  services?: MaracaServiceBuildPlan;
+  serviceGraphFingerprint?: string | null;
   outputs: {
     host: string;
     entry: string;
@@ -813,6 +829,7 @@ export interface MaracaBundleReport {
   schema: typeof MARACA_BUNDLE_REPORT_SCHEMA;
   ok: boolean;
   status: string;
+  configFingerprint?: string | null;
   source: string;
   outputDir: string;
   profile: MaracaProfile;
@@ -822,6 +839,18 @@ export interface MaracaBundleReport {
   vendor?: boolean;
   componentMode?: string;
   stackMode?: string;
+  services?: {
+    schema: 'xtend.maraca.service-build-report.v1';
+    enabled: boolean;
+    ok: boolean;
+    status: string;
+    targets: string[];
+    manifest: unknown;
+    files: string[];
+    diagnostics: MaracaDiagnostic[];
+    warnings: Array<Record<string, unknown>>;
+    fingerprint: string | null;
+  };
   kernelFeatureAdoption?: MaracaKernelFeatureAdoptionReport;
   kernelFeatureAdoptionClosure?: MaracaProductionBundleClosureReport;
   productionClosure?: MaracaProductionBundleClosureReport;
@@ -929,6 +958,9 @@ export interface MaracaBundleReport {
     isDynamicEntry?: boolean;
     imports?: string[];
     dynamicImports?: string[];
+    modules?: Array<{ id: string; renderedLength: number; appService: boolean }>;
+    appServiceBytes?: number;
+    frameworkBytes?: number;
   }>;
 }
 
@@ -938,6 +970,20 @@ export interface MaracaSizeBudgetReport {
   status: string;
   baselineBytes: number;
   bundleBytes: number;
+  framework?: {
+    bytes: number;
+    baselineBytes: number;
+    withinBudget: boolean;
+  };
+  appServices?: {
+    clientBytes: number;
+    clientBudgetBytes: number | null;
+    clientWithinBudget: boolean;
+    serverBytes: number;
+    serverBudgetBytes: number | null;
+    serverWithinBudget: boolean;
+    withinBudget: boolean;
+  };
   css?: {
     provider: string;
     bytes: number;
@@ -981,6 +1027,9 @@ export interface MaracaTuneCandidate {
   status: string;
   reason: string;
   metrics: {
+    frameworkBytes: number;
+    appServiceBytes: number;
+    serverAppServiceBytes: number;
     eagerBytes: number;
     totalBytes: number;
     cssBytes: number;
@@ -1025,6 +1074,7 @@ export interface MaracaTuneReport {
 }
 
 export function createMaracaBuildPlan(input?: string | MaracaBuildInput, options?: MaracaRunOptions): MaracaBuildPlan;
+export function createMaracaServiceBuildPlan(input?: Record<string, unknown>, options?: MaracaRunOptions): MaracaServiceBuildPlan;
 export function buildMaracaBundle(input?: string | MaracaBuildInput, options?: MaracaRunOptions): {
   schema: typeof MARACA_BUNDLE_REPORT_SCHEMA;
   ok: boolean;
@@ -1038,6 +1088,7 @@ export function buildMaracaBundleAsync(input?: string | MaracaBuildInput, option
   ok: boolean;
   status: string;
   plan: MaracaBuildPlan;
+  serviceBuildReport?: MaracaServiceBuildReport;
   bundleReport: MaracaBundleReport | null;
   sizeBudgetReport: MaracaSizeBudgetReport | null;
 }>;
@@ -1120,6 +1171,7 @@ export function createMaracaSizeBudgetReport(input: {
   plan: MaracaBuildPlan;
   entryPath: string;
   entryBytes: number;
+  bundleFiles?: Array<Record<string, unknown>>;
 }): MaracaSizeBudgetReport;
 export function getMaracaToolchainAvailability(rootDir?: string): {
   rollup: { requested: boolean; available: boolean; mode: string; version?: string };

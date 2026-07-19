@@ -2,6 +2,8 @@
 
 XTend Maraca is the modern ESM bundle path for RMT-first XTend applications. It reads an `.rmt` source, derives the XTend components and RMT runtime modules that are actually referenced, then writes a loaderless bundle with a static inline registry instead of loading `components/manifest.json` in the browser.
 
+For TypeScript business logic and Node/PHP service targets, continue with [Maraca AppServices and TypeScript](./maraca-app-services.md).
+
 ## What it solves
 
 Use Maraca when RMT source should become a compiler-selected XTend application bundle with reviewable build evidence. [XTend Classic](./xtend-classic.md) is the equally supported path for manifest-based HTML and JavaScript hosts: it fetches a component registry, resolves entries at runtime, and keeps late loading flexible. Maraca moves that selection into the build step. The build plan knows which surfaces reference `x-button`, `x-status`, `x-form`, or other tags, keeps only those modules in the Rollup graph, and writes a report that explains what entered the bundle.

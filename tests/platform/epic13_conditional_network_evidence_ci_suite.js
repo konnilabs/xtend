@@ -178,7 +178,7 @@ function runEpic13ConditionalNetworkEvidenceCiSuite(options = {}) {
     `${CONDITIONAL_NETWORK_EVIDENCE_WORKFLOW_JOB}:`,
     'XTEND_CONDITIONAL_NETWORK_EXECUTE: "1"',
     CONDITIONAL_NETWORK_EVIDENCE_CAPTURE_COMMAND,
-    CONDITIONAL_NETWORK_EVIDENCE_WORKFLOW_ARTIFACT,
+    CONDITIONAL_NETWORK_EVIDENCE_WORKFLOW_ARTIFACT.replace('{artifactSuffix}', '${{ matrix.artifact_suffix }}'),
     '.xtend-test-results/xtend-npm-audit-report.json',
     '.xtend-test-results/xtend-npm-sbom.json',
     '.xtend-test-results/xtend-conditional-network-evidence-report.json'

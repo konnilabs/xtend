@@ -26,6 +26,9 @@ const {
   createRmtVNextRemoteSecurityReport
 } = require('../../tools/rmt-language/vnext-remote-security');
 const {
+  XSCALER_ATC_HANDOFF_SCHEMA: PUBLIC_XSCALER_ATC_HANDOFF_SCHEMA
+} = require('../../xscaler');
+const {
   XSURFACE_SHARD_DEGRADATION_BLOCKED_CODE,
   XSURFACE_SHARD_FALLBACK_MISSING_CODE,
   XSURFACE_SHARD_FRAGMENT_SCHEMA,
@@ -107,6 +110,7 @@ function validateRuntimeApi(context, rootDir) {
   context.assert(moduleSyntax.ok, `XSurface Shard module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `XSurface Shard suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
   context.assert(api.XSURFACE_SHARD_PACKAGE === XSURFACE_SHARD_PACKAGE, 'Package can be loaded through CommonJS require');
+  context.assert(api.XSCALER_ATC_HANDOFF_SCHEMA === PUBLIC_XSCALER_ATC_HANDOFF_SCHEMA, 'Runtime re-exports the public XScaler ATC handoff schema constant');
   [
     'createXSurfaceShardPlan',
     'createXSurfaceShardServer',
@@ -117,6 +121,8 @@ function validateRuntimeApi(context, rootDir) {
   ].forEach((name) => context.assert(typeof api[name] === 'function', `Runtime exports ${name}`));
   context.assert(!source.includes('fetch('), 'Runtime does not call fetch');
   context.assert(!source.includes('import('), 'Runtime does not use dynamic import');
+  context.assert(source.includes("require('@ccslabs/xtend/xscaler')"), 'Runtime consumes the public XScaler contract subpath');
+  context.assert(!source.includes("const XSCALER_ATC_HANDOFF_SCHEMA = 'xtend.xscaler.atc-handoff.v1'"), 'Runtime does not duplicate the XScaler ATC handoff schema literal');
 }
 
 function validateReadyPlan(context, rootDir) {
@@ -187,7 +193,9 @@ function validateRefusalAndDegradation(context, rootDir) {
   context.assert(degradedSurface.decision === 'degraded', 'Degraded surface with fallback remains orchestratable');
   context.assert(handoff.schema === XSURFACE_SHARD_HANDOFF_SCHEMA && handoff.status === 'degraded', 'ATC handoff carries degraded status');
   context.assert(handoff.atc.schema === XSCALER_ATC_HANDOFF_SCHEMA, 'ATC handoff carries canonical XScaler handoff schema');
-  context.assert(handoff.atc.protocol === 'xscaler-atc-compatible', 'ATC handoff declares XScaler compatibility');
+  context.assert(handoff.atc.protocol === 'xscaler', 'ATC handoff uses the canonical public XScaler protocol');
+  context.assert(handoff.atc.surfaceId === handoff.surfaceId && handoff.atc.accepted === true && handoff.atc.ok === true, 'ATC handoff carries canonical surface and acceptance facts');
+  context.assert(handoff.atc.status === 'degraded' && handoff.atc.fallback && Array.isArray(handoff.atc.diagnostics), 'ATC handoff carries status, fallback and diagnostics required by the public schema');
   context.assert(handoff.runtimeBoundary.remoteRuntimeExecution === false && handoff.runtimeBoundary.kernelRemoteExecution === false, 'ATC handoff preserves no remote execution boundary');
 
   const missingFallbackRegistry = cloneJson(readyInput.enterpriseRegistry);
@@ -262,7 +270,8 @@ function validateDocsMetadataAndRegistration(context, rootDir) {
   context.assert(metadata && metadata.handoffSchema === XSURFACE_SHARD_HANDOFF_SCHEMA, 'Root package metadata declares handoff schema');
   context.assert(metadata && metadata.fragmentSchema === XSURFACE_SHARD_FRAGMENT_SCHEMA, 'Root package metadata declares fragment schema');
   context.assert(metadata && metadata.networkRequired === false && metadata.kernelRemoteExecution === false, 'Root package metadata preserves network and kernel boundary');
-  context.assert(shardPackage.engines && shardPackage.engines.node === '>=18', 'Shard package declares Node 18 engine');
+  context.assert(shardPackage.engines && shardPackage.engines.node === '>=24', 'Shard package declares the Stage-A Node 24 engine floor');
+  context.assert(shardPackage.peerDependencies && shardPackage.peerDependencies['@ccslabs/xtend'] === rootPackage.version && shardPackage.peerDependenciesMeta && shardPackage.peerDependenciesMeta['@ccslabs/xtend'].optional === true, 'Shard package declares the host-owned XTend/XScaler contract as an optional peer for workspace-safe installs');
   context.assert(shardPackage.peerDependenciesMeta && shardPackage.peerDependenciesMeta['@ccslabs/xtend-rmt'].optional === true, 'Shard package declares optional RMT peer');
   [
     XSURFACE_SHARD_PLAN_SCHEMA,
@@ -282,6 +291,10 @@ function validateDocsMetadataAndRegistration(context, rootDir) {
     'createXSurfaceStreamFragment',
     'serializeXSurfaceShardPlan'
   ].forEach((name) => context.assert(types.includes(name), `Types declare ${name}`));
+  context.assert(types.includes('import type { XScalerAtcHandoff } from "@ccslabs/xtend/xscaler"'), 'Types derive the shard ATC handoff from the public XScaler type contract');
+  context.assert(types.includes('export { XSCALER_ATC_HANDOFF_SCHEMA } from "@ccslabs/xtend/xscaler"'), 'Types re-export the public XScaler ATC handoff schema constant');
+  context.assert(types.includes('atc: XSurfaceShardAtcHandoff;'), 'Shard handoffs use the shared XScaler-derived ATC type');
+  context.assert(!types.includes('export declare const XSCALER_ATC_HANDOFF_SCHEMA = "xtend.xscaler.atc-handoff.v1"'), 'Types do not duplicate the XScaler ATC handoff schema literal');
   context.assert(runner.includes("require('../tests/xsurface/xsurface_shard_suite')"), 'Runner imports XSurface Shard suite');
   context.assert(runner.includes("id: 'xsurface-shard'"), 'Runner registers xsurface-shard gate');
   context.assert(runner.includes('node scripts/run_xtend_tests.js xsurface-shard'), 'Runner help references xsurface-shard gate');

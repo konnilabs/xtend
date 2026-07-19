@@ -1,0 +1,24 @@
+{
+  "name": "{{packageName}}",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "npm@11.17.0",
+  "description": "Generated provider-neutral XTend Maraca application.",
+  "scripts": {
+    "plan": "xt maraca plan --config maraca.config.json --json",
+    "build": "xt maraca build --config maraca.config.json --json",
+    "serve": "npm run build && xt serve --root . --default site/index.html --port 4173",
+    "tune": "xt maraca tune src/app.rmt --config maraca.config.json --out dist --write --json",
+    "test": "node --test test/app.smoke.test.cjs"
+  },
+  "dependencies": {
+    "@ccslabs/xtend": "^0.5.0",
+    "@ccslabs/xtend-maraca": "^0.5.0"
+  },
+  "devDependencies": {
+    "@ccslabs/xtend-cli": "^0.5.0"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

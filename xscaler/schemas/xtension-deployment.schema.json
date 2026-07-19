@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.xtend.dev/xscaler/xtension-deployment.v1.schema.json",
+  "title": "XTend XScaler XTension Deployment v1",
+  "type": "object",
+  "required": ["schema", "protocol", "deploymentId", "xtension", "surface", "remoteSurfacePlan", "rollout", "ssr"],
+  "properties": {
+    "schema": { "const": "xtend.xscaler.xtension-deployment.v1" },
+    "protocol": { "const": "xscaler" },
+    "deploymentId": { "type": "string", "minLength": 1 },
+    "xtension": { "type": "string", "minLength": 1 },
+    "surface": { "type": "string", "minLength": 1 },
+    "remoteSurfacePlan": { "type": "string", "minLength": 1 },
+    "rollout": {
+      "type": "object",
+      "required": ["strategy", "percent"],
+      "properties": {
+        "strategy": { "type": "string", "minLength": 1 },
+        "percent": { "type": "number", "minimum": 0, "maximum": 100 }
+      },
+      "additionalProperties": true
+    },
+    "ssr": {
+      "type": "object",
+      "required": ["hydrateAfterPreflight", "requiresDom"],
+      "properties": {
+        "hydrateAfterPreflight": { "type": "boolean" },
+        "requiresDom": { "const": false }
+      },
+      "additionalProperties": true
+    },
+    "accepted": { "type": "boolean" }
+  },
+  "additionalProperties": true
+}

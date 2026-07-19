@@ -82,7 +82,7 @@ Ab ER-WP-30 gilt:
 
 Der lokale Root-Gate-Stand hat keine externen Core-Runtime-Dependencies. Damit bleibt das Root-Dependency-Inventar leer und offline gatebar. Workspace-Tooling-Dependencies wie `xtend-maraca` mit `rollup` und `terser` sowie Editor-Dependencies wie `vscode-languageclient` werden seit `NFM-WP-04` separat in `development/XTend-Native-First-Dependency-Diet-Policy-Contract.md` und `development/XTend-Native-First-Dependency-Exit-Plan-Matrix.md` klassifiziert.
 
-Seit dem produktiven TypeScript-first Komponentenpfad ist `typescript` als erlaubtes Build-only Tooling in `devDependencies` klassifiziert. Es darf nicht in `dependencies`, `optionalDependencies` oder `peerDependencies` wandern und erhoeht den Runtime-Dependency-Zaehler nicht.
+Seit dem produktiven TypeScript-first Komponentenpfad sind `typescript`, die gegen die kleinste unterstützte Runtime gehaltenen `@types/node` 24 und Vite für Demo-/Dev-/HMR-Evidence als erlaubtes Build-only Tooling in `devDependencies` klassifiziert. Keiner dieser Einträge darf in `dependencies`, `optionalDependencies` oder `peerDependencies` wandern; Vite bleibt insbesondere außerhalb des produktiven Rollup-Pfads. Sie erhoehen den Runtime-Dependency-Zaehler nicht.
 
 ## License Policy
 

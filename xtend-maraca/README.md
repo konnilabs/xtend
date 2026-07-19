@@ -14,7 +14,7 @@
 npm install @ccslabs/xtend-maraca
 ```
 
-Node.js 18 or newer is required. Rollup and Terser are direct dependencies; `@ccslabs/xtend` and `@ccslabs/xtend-compiler` are optional peers for integrated workspace flows.
+Node.js 24 or newer is required. Rollup and Terser are direct dependencies; `@ccslabs/xtend` and `@ccslabs/xtend-compiler` are optional peers for integrated workspace flows.
 
 ### CLI workflow
 
@@ -77,6 +77,23 @@ await runtime.dispatchCommand('preview.submit', { value: 'XTend' });
 runtime.dispose();
 ```
 
+### AppServices and TypeScript
+
+Generated RMT apps use `src/services.ts` as the browser/local service entry and optional target-isolated Node/PHP implementations. The TypeScript provider performs full-program checking before the existing Rollup/Terser production build and emits a versioned service manifest plus declarations.
+
+```ts
+import { defineAppServices, service } from '@ccslabs/xtend-maraca/app-services';
+
+export default defineAppServices({
+  'orders.search': service<{ query: string }, unknown>({
+    kind: 'query',
+    target: 'server'
+  })
+});
+```
+
+`@ccslabs/xtend-maraca/server-services` defines Node handlers, `@ccslabs/xtend-maraca/node-app-service-host` attaches the importable server bundle to an existing HTTP server, and `@ccslabs/xtend-maraca/service-build-provider` exposes the `inspect → plan → build → report → dispose` provider boundary. Maraca does not create routes, authentication, or a listening backend server.
+
 ### Build capabilities
 
 - orchestration, kernel, validation, hydration, and transition plans
@@ -102,6 +119,7 @@ npm run test:maraca
 npm run test:maraca-package-exports
 npm run test:maraca-tune
 npm run test:maraca-pwa-service-worker
+npm run test:maraca-app-services
 npm run test:scoped-package-readmes
 ```
 
@@ -127,7 +145,7 @@ Licensed under the Apache License 2.0. See [LICENSE](../LICENSE).
 npm install @ccslabs/xtend-maraca
 ```
 
-Node.js 18 oder neuer wird benötigt. Rollup und Terser sind direkte Abhängigkeiten; `@ccslabs/xtend` und `@ccslabs/xtend-compiler` sind optionale Peers für integrierte Workspace-Abläufe.
+Node.js 24 oder neuer wird benötigt. Rollup und Terser sind direkte Abhängigkeiten; `@ccslabs/xtend` und `@ccslabs/xtend-compiler` sind optionale Peers für integrierte Workspace-Abläufe.
 
 ### CLI-Workflow
 
@@ -190,6 +208,23 @@ await runtime.dispatchCommand('preview.submit', { value: 'XTend' });
 runtime.dispose();
 ```
 
+### AppServices und TypeScript
+
+Generierte RMT-Apps verwenden `src/services.ts` als Browser-/Local-Service-Einstieg und optional zielisolierte Node-/PHP-Implementierungen. Der TypeScript-Provider prüft das vollständige Programm vor dem bestehenden Rollup-/Terser-Produktionsbuild und erzeugt ein versioniertes Service-Manifest sowie Deklarationen.
+
+```ts
+import { defineAppServices, service } from '@ccslabs/xtend-maraca/app-services';
+
+export default defineAppServices({
+  'orders.search': service<{ query: string }, unknown>({
+    kind: 'query',
+    target: 'server'
+  })
+});
+```
+
+`@ccslabs/xtend-maraca/server-services` definiert Node-Handler, `@ccslabs/xtend-maraca/node-app-service-host` bindet das importierbare Serverbundle an einen vorhandenen HTTP-Server und `@ccslabs/xtend-maraca/service-build-provider` stellt die Providergrenze `inspect → plan → build → report → dispose` bereit. Maraca erzeugt weder Routen noch Authentifizierung oder einen lauschenden Backendserver.
+
 ### Build-Fähigkeiten
 
 - Pläne für Orchestrierung, Kernel, Validierung, Hydration und Transitions
@@ -215,6 +250,7 @@ npm run test:maraca
 npm run test:maraca-package-exports
 npm run test:maraca-tune
 npm run test:maraca-pwa-service-worker
+npm run test:maraca-app-services
 npm run test:scoped-package-readmes
 ```
 

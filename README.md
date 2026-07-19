@@ -33,7 +33,7 @@ npm install
 npm run dev:local
 ```
 
-Node.js 18 or newer is required by the public scoped packages.
+Node.js 24 or newer is required by the public scoped packages. Repository development pins Node `24.18.0` and npm `11.17.0`; Node `26.5.0` is the required compatibility lane until the separately gated Node-26 LTS cutover. Electron and VS Code report their upstream-owned embedded Node runtimes separately.
 
 ### ESM registry
 
@@ -98,9 +98,13 @@ xt maraca build app.rmt --out dist --profile production --lazy route --css inlin
 xt rmt build app.rmt --bundle maraca --out dist --json
 ```
 
+New Maraca apps use AppServices instead of product-owned boot or datasource wiring: RMT declares the service ID and mode, `src/services.ts` supplies browser logic or a server proxy, and optional Node/PHP entries implement backend work. The TypeScript provider checks the complete program, builds isolated browser/server graphs through Rollup, and emits a shared manifest plus typed service IDs. Start with the [AppServices guide](./docs/en/maraca-app-services.md).
+
 ### XScaler and XSurface Shard
 
 XScaler evaluates a side-effect-free Preflight before remote code may enter a runtime slot. Accepted remote-surface plans can be partitioned and lifecycle-managed by XSurface Shard, which emits XScaler ATC-compatible handoffs and JSON-safe stream fragments. Neither layer turns the RMT kernel into a remote-code executor.
+
+The public contracts are available from `@ccslabs/xtend/xscaler`; only AppServices with `target: 'remote-surface'` enter the preflight/SRI/ATC path. Local and ordinary HTTP/NDJSON services do not.
 
 ### Native-first boundary
 
@@ -121,6 +125,7 @@ The bilingual Developer Center lives in `docs/en` and `docs/de`.
 - [Native-first RMT recipes](./docs/en/native-first-rmt-recipes.md)
 - [Component reference](./docs/en/components.md)
 - [Trusted DOM and sanitizing](./docs/en/trusted-dom-sanitizing.md)
+- [Maraca AppServices](./docs/en/maraca-app-services.md)
 - [XScaler protocol](./docs/en/xscaler-protocol.md)
 
 ### Verification and publishing
@@ -176,7 +181,7 @@ npm install
 npm run dev:local
 ```
 
-Die öffentlichen Scoped Packages benötigen Node.js 18 oder neuer.
+Die öffentlichen Scoped Packages benötigen Node.js 24 oder neuer. Die Repository-Entwicklung pinnt Node `24.18.0` und npm `11.17.0`; Node `26.5.0` bleibt bis zum separat freizugebenden Node-26-LTS-Cutover die verpflichtende Kompatibilitäts-Lane. Electron und VS Code weisen ihre upstream-eigenen eingebetteten Node-Runtimes getrennt aus.
 
 ### ESM-Registry
 
@@ -188,10 +193,25 @@ import { readyXTend, schedule, render, createApp, createStore } from '@ccslabs/x
 await readyXTend();
 const app = createApp();
 const store = createStore();
-const cancel = schedule(() => render(document.querySelector('#app'), descriptor));
+const cancel = schedule(() => render(document.querySelector('#app'), {
+  type: 'element',
+  tag: 'p',
+  children: [{ type: 'text', text: 'Hello XTend' }]
+}));
 ```
 
-Node und SSR können dieselben Namen ohne Browser-Globals importieren. Vor DOM-Rendering wird ein DOM-Host mit `configureXTend({ documentTarget })` injiziert. Bestehende Classic-Apps importieren künftig `@ccslabs/xtend/loader` oder binden `xtend-loader.js` explizit ein; der Paket-Root startet den Loader nicht mehr.
+Node und SSR können dieselben Namen ohne Browser-Globals importieren. Vor DOM-Rendering wird ein DOM-Host mit `configureXTend({ documentTarget })` injiziert.
+
+```js
+import { configureXTend, readyXTend, render, createApp } from '@ccslabs/xtend';
+
+configureXTend({ documentTarget: serverDocument });
+await readyXTend();
+const app = createApp();
+render(serverRoot, descriptor);
+```
+
+Bestehende Classic-Apps importieren künftig `@ccslabs/xtend/loader` oder binden `xtend-loader.js` explizit ein; der Paket-Root startet den Loader nicht mehr.
 
 TypeScript-Apps können State und Descriptoren opt-in strikt typisieren. Die ausführbare Vite-PoC liegt unter [`demos/ts-app`](./demos/ts-app/README.md); `npm run demo:ts:typecheck` und `npm run demo:ts:build` prüfen sie. NodeNext verwendet einen separaten DOM-neutralen Typvertrag, sodass reine SSR-Projekte keine `DOM`-Library benötigen.
 
@@ -232,9 +252,13 @@ xt maraca build app.rmt --out dist --profile production --lazy route --css inlin
 xt rmt build app.rmt --bundle maraca --out dist --json
 ```
 
+Neue Maraca-Apps verwenden AppServices statt produktseitigem Boot- oder Datasource-Wiring: RMT deklariert Service-ID und Modus, `src/services.ts` liefert Browserlogik oder einen Server-Proxy, optionale Node-/PHP-Einstiege implementieren Backendarbeit. Der TypeScript-Provider prüft das vollständige Programm, baut getrennte Browser-/Servergraphen über Rollup und erzeugt ein gemeinsames Manifest samt typisierten Service-IDs. Der Einstieg steht im [AppServices-Leitfaden](./docs/de/maraca-app-services.md).
+
 ### XScaler und XSurface Shard
 
 XScaler bewertet einen seiteneffektfreien Preflight, bevor Remote-Code einen Runtime-Slot belegen darf. Akzeptierte Remote-Surface-Pläne können durch XSurface Shard partitioniert und im Lifecycle verwaltet werden; dabei entstehen XScaler-ATC-kompatible Handoffs und JSON-sichere Stream-Fragmente. Keine der beiden Schichten macht den RMT-Kernel zu einem Remote-Code-Executor.
+
+Die öffentlichen Verträge liegen unter `@ccslabs/xtend/xscaler`; nur AppServices mit `target: 'remote-surface'` durchlaufen Preflight, SRI und ATC. Lokale und normale HTTP-/NDJSON-Services tun das nicht.
 
 ### Native-First-Grenze
 
@@ -255,6 +279,7 @@ Das zweisprachige Developer Center liegt unter `docs/en` und `docs/de`.
 - [Native-First-RMT-Rezepte](./docs/de/native-first-rmt-recipes.md)
 - [Komponentenreferenz](./docs/de/components.md)
 - [Trusted DOM und Sanitizing](./docs/de/trusted-dom-sanitizing.md)
+- [Maraca AppServices](./docs/de/maraca-app-services.md)
 - [XScaler-Protokoll](./docs/de/xscaler-protocol.md)
 
 ### Verifikation und Veröffentlichung
