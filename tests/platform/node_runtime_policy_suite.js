@@ -308,10 +308,24 @@ function validateCiContracts(context, rootDir) {
         && activationEnvironment.includes('XTEND_NODE_WARNING_REPORT=.xtend-test-results/runtime/xtend-node-warnings-node-26-current.jsonl'),
       'Warning policy activation persists only the allowed policy and report variables'
     );
+    const activationRecord = JSON.parse(activationExecution.stdout);
     context.assert(
-      activationExecution.stdout.includes('"activation":"explicit-step-env"')
-        && activationExecution.stdout.includes('"requiredNodeOptions":"--trace-warnings --trace-deprecation --require='),
-      'Warning policy activation reports the explicit step-env contract'
+      JSON.stringify(Object.keys(activationRecord).sort()) === JSON.stringify([
+        'lane',
+        'policy',
+        'report',
+        'schema',
+        'thirdPartyWarnings'
+      ]),
+      'Warning policy activation preserves the xtend.node-warning-policy-activation.v1 output shape'
+    );
+    context.assert(
+      activationRecord.schema === 'xtend.node-warning-policy-activation.v1'
+        && activationRecord.lane === 'node-26-current'
+        && activationRecord.policy === 'project-error'
+        && activationRecord.report === '.xtend-test-results/runtime/xtend-node-warnings-node-26-current.jsonl'
+        && activationRecord.thirdPartyWarnings === 'reported-non-blocking',
+      'Warning policy activation reports the lane policy without embedding workflow activation details'
     );
   }
   fs.rmSync(activationTempDir, { recursive: true, force: true });

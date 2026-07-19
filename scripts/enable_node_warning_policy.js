@@ -11,7 +11,6 @@ const lane = laneIndex >= 0 && process.argv[laneIndex + 1]
   : 'local';
 const report = `.xtend-test-results/runtime/xtend-node-warnings-${lane}.jsonl`;
 const preload = path.resolve(rootDir, 'scripts/node_warning_policy.cjs').replaceAll(path.sep, '/');
-const nodeOptions = `--trace-warnings --trace-deprecation --require=${preload}`;
 const githubEnv = process.env.GITHUB_ENV;
 
 if (!fs.existsSync(preload)) {
@@ -31,8 +30,6 @@ if (!fs.existsSync(preload)) {
     lane,
     policy: 'project-error',
     report,
-    activation: 'explicit-step-env',
-    requiredNodeOptions: nodeOptions,
     thirdPartyWarnings: 'reported-non-blocking'
   })}\n`);
 }
