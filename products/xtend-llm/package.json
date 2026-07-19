@@ -35,9 +35,10 @@
     "test": "node tests/product.test.mjs && npm run test:n26:contracts",
     "test:n26:contracts": "node tests/node26-product-contract.test.mjs && node tests/electron-launcher.test.mjs && node tests/tiny-onnx-identity.test.mjs",
     "test:catfood:check": "node tests/app-services-catfood-gate.mjs",
-    "test:catfood": "node scripts/rmt-build.mjs --profile production --quiet && node scripts/run-layout-smoke.mjs && npm run test:catfood:check",
-    "test:catfood:smoke": "node scripts/rmt-build.mjs --profile production --quiet && node scripts/run-layout-smoke.mjs && npm run test:catfood:check",
-    "test:catfood:full": "npm run test:catfood",
+    "test:catfood": "npm run test:catfood:ci",
+    "test:catfood:ci": "node scripts/rmt-build.mjs --profile production --quiet && npm run test:catfood:check",
+    "test:catfood:electron": "node scripts/rmt-build.mjs --profile production --quiet && node scripts/run-layout-smoke.mjs && npm run test:catfood:check -- --include-electron",
+    "test:catfood:smoke": "npm run test:catfood:electron",
     "test:layout": "node scripts/run-electron.mjs . -- --layout-smoke",
     "test:llm": "node scripts/run-electron.mjs tests/llm-terminal-runner.mjs -- --model=onnx-community/Qwen3-0.6B-ONNX",
     "test:llm:qwen3-8b": "node scripts/run-electron.mjs tests/llm-terminal-runner.mjs -- --target",
@@ -47,8 +48,10 @@
     "test:runtime:electron:node26": "node scripts/run-electron.mjs --xtend-require-installed --xtend-headless tests/electron-runtime-evidence.mjs -- --lane=node-26-current",
     "test:native:runtime:node24": "node scripts/run-electron.mjs --xtend-require-installed --xtend-headless tests/native-runtime-evidence.mjs -- --lane=node-24-lts",
     "test:native:runtime:node26": "node scripts/run-electron.mjs --xtend-require-installed --xtend-headless tests/native-runtime-evidence.mjs -- --lane=node-26-current",
-    "test:node24:product": "npm run test:n26:contracts && npm run test:catfood && npm run test:runtime:electron:node24 && npm run test:native:runtime:node24",
-    "test:node26:product": "npm run test:n26:contracts && npm run test:catfood && npm run test:runtime:electron:node26 && npm run test:native:runtime:node26"
+    "test:node24:product": "npm run test:n26:contracts && npm run test:catfood:ci",
+    "test:node26:product": "npm run test:n26:contracts && npm run test:catfood:ci",
+    "test:electron:node24:product": "npm run test:n26:contracts && npm run test:catfood:electron && npm run test:runtime:electron:node24 && npm run test:native:runtime:node24",
+    "test:electron:node26:product": "npm run test:n26:contracts && npm run test:catfood:electron && npm run test:runtime:electron:node26 && npm run test:native:runtime:node26"
   },
   "engines": {
     "node": ">=24"

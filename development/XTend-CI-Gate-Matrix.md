@@ -25,9 +25,12 @@ Die CI-Gate-Matrix trennt schnelles Pull-Request-Feedback von vollstaendigen Rel
 |------|----------|---------|---------|--------|----------|
 | `pr-fast` | `xtend.ci.pr-fast-gate.v1` | `pull_request` | `npm run test:pr:report` | `.xtend-test-results/xtend-pr-gate-report.json` | `xtend-pr-gate-report-{artifactSuffix}` |
 | `full-release` | `xtend.ci.full-release-gate.v1` | `push`, `workflow_dispatch`, `release: published` | `npm run test:release:full:report` | `.xtend-test-results/xtend-release-gate-report.json` | `xtend-release-gate-report-{artifactSuffix}` |
+| `node-native-toolchain-smoke` | `xtend.node-native-toolchain-smoke.v1` | `pull_request`, `push`, `workflow_dispatch` | `npm run test:node-native-toolchain` | `.xtend-test-results/xtend-node-native-toolchain-smoke.json` | `xtend-node-native-toolchain-smoke-{artifactSuffix}` |
 | `nightly-build` | `xtend.ci.nightly-build.v1` | `47 2 * * *` | `npm run test:release:full:report`, `npm run test:rmt-vnext-primitives:report`, `npm run release:report`, `npm run pack:dry-run` | `.xtend-test-results/xtend-nightly-build-manifest.json` | `xtend-nightly-build-{artifactSuffix}` |
 
 `artifactSuffix` ist je Lane exakt `node-24-18-0` oder `node-26-5-0`. Jedes Artefakt enthält die zugehörige Runtime-Evidence; Publish bleibt bis N26-05 ausschließlich auf Node `24.18.0`.
+
+Alle blockierenden GitHub- und Publish-Pfade sind Electron-frei. `node-native-toolchain-smoke` fuehrt ausschließlich die Root-Toolchain unter der konfigurierten Host-Node aus. XTend-LLM stellt fuer CI `test:catfood:ci` beziehungsweise dessen Alias `test:catfood` bereit; `test:catfood:electron`, der Compatibility-Alias `test:catfood:smoke` und die lokalen `test:electron:node24:product`-/`test:electron:node26:product`-Lanes bleiben manuelle, upstream-owned Desktop-Evidence.
 
 ## PR Fast Gate
 
@@ -93,7 +96,7 @@ Der Lauf entspricht dem lokalen Default-Runner:
 node scripts/run_xtend_tests.js
 ```
 
-Er umfasst damit Browser-Smokes, Performance Regression, Hydration Policies, Fabric-Performance, Component-/Route-Fibers, Telemetry Snapshot, RMT-Kompatibilitaet und alle PR-Fast-Suites.
+Er umfasst damit Browser-Smokes, Performance Regression, Hydration Policies, Fabric-Performance, Component-/Route-Fibers, Telemetry Snapshot, RMT-Kompatibilitaet und alle PR-Fast-Suites. „Browser-Smoke“ bezeichnet hier CI-faehige Browser-/DOM-Pfade und niemals einen Electron-Layout-Smoke.
 
 ## Nightly Policy
 

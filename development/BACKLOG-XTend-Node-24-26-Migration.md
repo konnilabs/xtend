@@ -18,7 +18,7 @@ Node 18 ist keine tragfähige Supportbasis mehr. Die Stage-A-Floor folgt der akt
 
 ## Grenzen
 
-- Eine Engine-Änderung ersetzt keine Laufzeitevidenz. Native Binaries, Electron, VS Code/LSP, Pack, SBOM und Publish-Dry-Run benötigen eigene Gates.
+- Eine Engine-Änderung ersetzt keine Laufzeitevidenz. Node-native Toolchain, VS Code/LSP, Pack, SBOM und Publish-Dry-Run benötigen eigene Gates. Electron-Evidenz bleibt wegen der upstream-eigenen Runtime und nicht portabel konfigurierbarer Sandbox-Voraussetzungen eine lokale/manuelle Produktprüfung; sie ist niemals Voraussetzung eines GitHub- oder Publish-Gates.
 - `engines.node` ist ein öffentlicher Supportvertrag. Eine spätere Node-26-Floor ist deshalb eine bewusste Releaseentscheidung und kein beiläufiges Tooling-Update.
 - Historische Roadmaps und abgeschlossene Evidenz bleiben unverändert; nur aktive Verträge und aktuelle Authoring-Dokumentation werden fortgeschrieben.
 - Lockfiles werden nur durch das dafür verantwortliche Arbeitspaket aktualisiert.
@@ -44,11 +44,11 @@ Der Vertrag gilt für CLI, Build, Node-SSR, AppServices-Server, Tests und Host-I
 | N26-01 | P0 | implemented | N26-00 | Manifeste, Locks, Scaffolds und aktive Dokumentation auf `>=24`; npm-Pin | `node-runtime-policy`, Scaffold-Suites |
 | N26-02 | P0 | implemented; CI run pending | N26-00, N26-01 | exakte blockierende 24/26-CI-Matrix, npm 11, Runtime-Evidence, SHA-gepinnte Actions | `.xtend-test-results/runtime/xtend-node-runtime-*.json` |
 | N26-03 | P0 | implemented; CI run pending | N26-02 | Toolchain-, SSR-, Pack-, Fetch-/NDJSON- und Warning/Deprecation-Härtung | `xtend-node-native-toolchain-smoke.json`, Gate-Reports, `xtend-node-warnings-*.jsonl` |
-| N26-04 | P0 | implemented; CI run pending | N26-02, N26-03 | Cross-OS-Native-Smokes und Electron-Catfood mit realer Sharp-/ONNX-Ausführung | `xtend-node-native-smoke-*`, `products/xtend-llm/.xtend-llm-results/*` |
+| N26-04 | P0 | implemented; CI run pending | N26-02, N26-03 | blockierende Cross-OS-Smokes der Node-nativen Toolchain; davon getrennte lokale/manuelle Electron-, Sharp- und ONNX-Produktevidenz | `xtend-node-native-toolchain-smoke-*`; lokal `products/xtend-llm/.xtend-llm-results/*` |
 | N26-05 | P0 | date-gated | N26-01 bis N26-04 | koordinierter Node-26-LTS-Cutover als Breaking Release | 14-Tage-Ledger, Release-Entscheid, Migration Guide |
 | N26-06 | P1 | deferred | N26-03 | Vite ausschließlich als Dev-/HMR-Provider neu bewerten | `development/XMS-13-Vite-Dev-HMR-Spike.md` |
 
-`implemented; CI run pending` bedeutet: Der ausführbare Gate-Pfad ist im Repository vorhanden, eine Freigabe darf aber erst erfolgen, nachdem GitHub ihn unter der angegebenen realen Runtime ausgeführt und die Artefakte gespeichert hat. Eine statische Workflow-Prüfung zählt nicht als Laufzeitevidenz.
+`implemented; CI run pending` bedeutet für die GitHub-fähigen Node-Gates: Der ausführbare Gate-Pfad ist im Repository vorhanden, eine Freigabe darf aber erst erfolgen, nachdem GitHub ihn unter der angegebenen realen Runtime ausgeführt und die Artefakte gespeichert hat. Eine statische Workflow-Prüfung zählt nicht als Laufzeitevidenz. Lokale Electron-Evidenz ist davon ausdrücklich getrennt und kann weder GitHub- noch Publish-Freigaben blockieren.
 
 ## N26-00 – Supportvertrag und ADR
 
@@ -79,7 +79,7 @@ Der Ausgangszustand hatte zwei unterschiedliche Wahrheiten: CI verwendete eine b
 - Checkout, Setup-Node und Artifact-Upload sind auf unveränderliche Commit-SHAs des v7-Vertrags gepinnt. Die eingebettete Action-Runtime ist kein Projekt-Node-Supportclaim.
 - Artefaktnamen tragen `node-24-18-0` oder `node-26-5-0`; Node-26-Evidence überschreibt keine Node-24-Evidence.
 
-**DoD:** Falsche oder unbekannte Lanes brechen vor dem Build ab; alle Uploads enthalten die Runtime-Evidence; Audit/SBOM verwenden keinen npm-10-Seitenpfad; Publish hängt von Full Release, Pack, Conditional Network und Native Smoke ab.
+**DoD:** Falsche oder unbekannte Lanes brechen vor dem Build ab; alle Uploads enthalten die Runtime-Evidence; Audit/SBOM verwenden keinen npm-10-Seitenpfad; Publish hängt von Full Release, Pack, Conditional Network und `node-native-toolchain-smoke` ab.
 
 ## N26-03 – Toolchain- und Runtime-Härtung
 
@@ -93,23 +93,22 @@ Der Ausgangszustand hatte zwei unterschiedliche Wahrheiten: CI verwendete eine b
 
 ## N26-04 – Native Komponenten und eingebettete Runtimes
 
-Die blockierende Matrix umfasst `ubuntu-24.04` x64, `windows-2025` x64 und `macos-15` arm64, jeweils unter Node 24 und 26. Plattform und Architektur werden vor dem Build fail-closed geprüft.
+Die blockierende GitHub-Matrix umfasst `ubuntu-24.04` x64, `windows-2025` x64 und `macos-15` arm64, jeweils unter Node 24 und 26. Plattform und Architektur werden vor dem Build fail-closed geprüft. Diese Matrix führt ausschließlich die von XTend kontrollierte Node-native Toolchain aus. Sie startet weder Electron noch einen von Electron abhängigen Produkt- oder Layout-Smoke.
 
-Der XTend-LLM-Produktgate führt in dieser Reihenfolge aus:
+Das XTend-LLM-Produkt trennt zwei Evidenzklassen:
 
-1. fokussierte N26-Vertrags- und Portable-Launcher-Tests,
-2. AppServices-/Layout-Catfood,
-3. getrennte Host-/Electron-Runtime-Evidence,
-4. Sharp Decode/Resize/PNG,
-5. eine echte `onnxruntime-node`-`InferenceSession` mit deterministischem, offline im Speicher erzeugtem Identity-ModelProto.
+1. Der CI-sichere AppServices-Build- und Contract-Catfood `test:catfood:ci` prüft Produktionsbuild, Servicebedarfe, Implementierungen, Strict-Diagnostik und Artefaktfrische ohne Electron; `test:catfood` bleibt der kurze Alias darauf.
+2. `test:catfood:electron` sowie die lokalen Produktlanes `test:electron:node24:product` und `test:electron:node26:product` prüfen bei Bedarf Layout, getrennte Host-/Electron-Runtimes, Sharp Decode/Resize/PNG und eine echte `onnxruntime-node`-`InferenceSession` im Electron-Prozess. `test:catfood:smoke` bleibt lediglich ein Compatibility-Alias auf die explizite Electron-Lane.
 
-Der portable Node-Launcher entfernt `ELECTRON_RUN_AS_NODE`, bewahrt Argumente, spiegelt Exit-Code und Signale und nutzt nie einen POSIX-only-`env -u`-Pfad. Fehlende oder inkompatible Electron-, Sharp- oder ONNX-Bindings blockieren das Gate. Ein ONNX-Fehler führt zu einem isolierten Transformers-/ONNX-Upgrade und nie zu einem stillen Source-Build.
+Der portable Node-Launcher entfernt für diese lokale Evidence `ELECTRON_RUN_AS_NODE`, bewahrt Argumente, spiegelt Exit-Code und Signale und nutzt nie einen POSIX-only-`env -u`-Pfad. Fehlende oder inkompatible Electron-, Sharp- oder ONNX-Bindings lassen den jeweiligen manuellen Evidenzlauf fail-closed fehlschlagen, blockieren aber weder GitHub CI/CD noch Publish. Ein ONNX-Fehler führt bei einer ausdrücklich angeforderten Desktop-Freigabe zu einem isolierten Transformers-/ONNX-Upgrade und nie zu einem stillen Source-Build.
 
-**DoD:** Sechs grüne Cross-OS-Lanes; reale native Operationen statt reiner Imports; Electron-Major und eingebetteter Node-Major separat belegt; AppServices-/Layout- und ONNX-Evidence im selben Produktgate.
+Der Grund für diese Grenze ist technisch: Die Electron-SUID-Sandbox benötigt Hostkonfiguration, die auf GitHub-Runnern nicht zuverlässig und sicher hergestellt werden kann. Ein Lauf mit `--no-sandbox` ist keine akzeptierte Ersatz-Evidenz. Electron bleibt daher eine upstream-owned eingebettete Runtime und keine Projekt-Node-Freigabevoraussetzung.
+
+**DoD:** Sechs grüne Cross-OS-Lanes der Electron-freien Node-nativen Toolchain; AppServices-Build-/Contract-Catfood in den regulären Gates; Electron-Major, eingebetteter Node-Major, Layout sowie Sharp-/ONNX-Ausführung ausschließlich als getrennte lokale/manuelle Owner-Evidence.
 
 ## N26-05 – Node-26-LTS-Cutover und Release
 
-N26-05 ist vor dem 28. Oktober 2026 nicht ausführbar. Danach sind mindestens 14 aufeinanderfolgende grüne Tage, grüne Full-Release-Gates in beiden Lanes sowie grüne Native-Smokes auf allen drei Betriebssystemen erforderlich.
+N26-05 ist vor dem 28. Oktober 2026 nicht ausführbar. Danach sind mindestens 14 aufeinanderfolgende grüne Tage, grüne Full-Release-Gates in beiden Lanes sowie grüne Electron-freie Node-Native-Smokes auf allen drei Betriebssystemen erforderlich. Lokale Electron-Evidenz ist informativ für Desktop-Owner, aber keine Cutover- oder Publish-Bedingung.
 
 Erst dann werden in einem koordinierten Breaking Release alle Engines und Templates auf `>=26`, Contributor-/Publish-Default auf eine zu diesem Zeitpunkt aktuelle signierte Node-26-LTS-Patchversion und `@types/node` auf 26 gesetzt. Die Node-24-Hostlane wird entfernt; Electrons eingebettete Node-24-Runtime darf als sichtbare Upstream-Ausnahme weiterbestehen. Migration Guide, Changelog und Release Notes nennen den Support-Drop ausdrücklich.
 
@@ -126,4 +125,4 @@ npm run test:release:full:report
 npm run pack:dry-run
 ```
 
-Die letzten vier Befehle müssen für die Freigabe aus einem frischen `npm ci` in beiden CI-Lanes stammen. Lokale Läufe unter einer nicht unterstützten Runtime und reine Workflow-Textprüfungen sind Diagnose, keine Freigabeevidenz.
+Die letzten vier Befehle müssen für die Freigabe aus einem frischen `npm ci` in beiden CI-Lanes stammen und dürfen transitiv keinen Electron-Prozess starten. Lokale Läufe unter einer nicht unterstützten Runtime, lokale Electron-Smokes und reine Workflow-Textprüfungen sind Diagnose beziehungsweise Owner-Evidence, keine GitHub-/Publish-Freigabeevidenz.

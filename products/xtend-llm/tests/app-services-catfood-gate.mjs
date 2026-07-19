@@ -10,6 +10,8 @@ const require = createRequire(import.meta.url);
 const { createMaracaBuildPlan } = require(path.join(repoRoot, 'xtend-maraca'));
 const resultDir = path.join(productRoot, '.xtend-llm-results');
 const reportPath = path.join(resultDir, 'app-services-catfood.json');
+const includeElectron = process.argv.includes('--include-electron');
+const evidenceMode = includeElectron ? 'electron' : 'ci';
 const checks = [];
 
 function read(file) {
@@ -35,10 +37,11 @@ function sorted(values) {
 function writeReport(extra = {}) {
   const ok = checks.every((entry) => entry.ok) && extra.fatal == null;
   const report = {
-    schema: 'xtend-llm.app-services-catfood-report.v1',
+    schema: 'xtend-llm.app-services-catfood-report.v2',
     ok,
     status: ok ? 'passed' : 'failed',
-    command: 'npm run test:catfood',
+    mode: evidenceMode,
+    command: includeElectron ? 'npm run test:catfood:electron' : 'npm run test:catfood:ci',
     createdAt: new Date().toISOString(),
     checks,
     ...extra
@@ -64,7 +67,11 @@ try {
     smokeReport: path.join(resultDir, 'layout-smoke.json'),
     smokeScreenshot: path.join(resultDir, 'layout-smoke.png')
   };
-  const requiredFiles = Object.entries(files).filter(([, file]) => !fs.existsSync(file)).map(([name]) => name);
+  const electronFileNames = new Set(['smokeReport', 'smokeScreenshot']);
+  const requiredFiles = Object.entries(files)
+    .filter(([name]) => includeElectron || !electronFileNames.has(name))
+    .filter(([, file]) => !fs.existsSync(file))
+    .map(([name]) => name);
   record('artifacts.required', requiredFiles.length === 0, { missing: requiredFiles });
   if (requiredFiles.length > 0) throw new Error(`Required Catfood files are missing: ${requiredFiles.join(', ')}`);
 
@@ -213,47 +220,64 @@ try {
     clientWithinBudget: sizeReport.appServices?.clientWithinBudget
   });
 
-  const smokeReport = readJson(files.smokeReport);
-  const smokeScreenshot = fs.readFileSync(files.smokeScreenshot);
-  const smokeHistory = Array.isArray(smokeReport.appServices?.history) ? smokeReport.appServices.history : [];
-  record('smoke.source-to-sea', smokeReport.schema === 'xtend-llm.layout-smoke-report.v1'
-    && smokeReport.ok === true
-    && smokeReport.status === 'passed'
-    && smokeReport.sourceToSea?.event === 'xtend-command'
-    && smokeReport.sourceToSea?.action === 'xtend.llm.send'
-    && smokeReport.sourceToSea?.service === 'xtend.llm.send'
-    && smokeReport.sourceToSea?.streamService === 'xtend.llm.generationStream'
-    && smokeReport.sourceToSea?.state === 'xtend.llm.transcript'
-    && smokeReport.sourceToSea?.renderedMessages >= 2, {
-    schema: smokeReport.schema,
-    status: smokeReport.status,
-    sourceToSea: smokeReport.sourceToSea || null
-  });
-  record('smoke.app-services', smokeReport.appServices?.enabled === true
-    && smokeReport.appServices?.serviceCount === 27
-    && smokeReport.appServices?.activeCount === 0
-    && smokeReport.appServices?.listenerErrorCount === 0
-    && smokeHistory.some((entry) => entry.serviceId === 'xtend.llm.send' && entry.status === 'fulfilled')
-    && smokeHistory.some((entry) => entry.serviceId === 'xtend.llm.generationStream' && entry.kind === 'stream' && entry.status === 'fulfilled'), {
-    serviceCount: smokeReport.appServices?.serviceCount,
-    activeCount: smokeReport.appServices?.activeCount,
-    listenerErrorCount: smokeReport.appServices?.listenerErrorCount,
-    history: smokeHistory
-  });
-  record('smoke.screenshot-integrity', smokeScreenshot.byteLength > 0
-    && smokeReport.screenshot?.bytes === smokeScreenshot.byteLength
-    && smokeReport.screenshot?.sha256 === sha256(smokeScreenshot), {
-    bytes: smokeScreenshot.byteLength,
-    expectedBytes: smokeReport.screenshot?.bytes || 0,
-    sha256: sha256(smokeScreenshot),
-    expectedSha256: smokeReport.screenshot?.sha256 || null
-  });
-  record('smoke.fresh-evidence', fs.statSync(files.smokeReport).mtimeMs >= sourceMtime
-    && fs.statSync(files.smokeScreenshot).mtimeMs >= sourceMtime, {
-    sourceMtime,
-    reportMtime: fs.statSync(files.smokeReport).mtimeMs,
-    screenshotMtime: fs.statSync(files.smokeScreenshot).mtimeMs
-  });
+  let smoke = {
+    required: false,
+    status: 'not-run',
+    owner: 'local-manual',
+    command: 'npm run test:catfood:electron'
+  };
+  if (includeElectron) {
+    const smokeReport = readJson(files.smokeReport);
+    const smokeScreenshot = fs.readFileSync(files.smokeScreenshot);
+    const smokeHistory = Array.isArray(smokeReport.appServices?.history) ? smokeReport.appServices.history : [];
+    record('smoke.source-to-sea', smokeReport.schema === 'xtend-llm.layout-smoke-report.v1'
+      && smokeReport.ok === true
+      && smokeReport.status === 'passed'
+      && smokeReport.sourceToSea?.event === 'xtend-command'
+      && smokeReport.sourceToSea?.action === 'xtend.llm.send'
+      && smokeReport.sourceToSea?.service === 'xtend.llm.send'
+      && smokeReport.sourceToSea?.streamService === 'xtend.llm.generationStream'
+      && smokeReport.sourceToSea?.state === 'xtend.llm.transcript'
+      && smokeReport.sourceToSea?.renderedMessages >= 2, {
+      schema: smokeReport.schema,
+      status: smokeReport.status,
+      sourceToSea: smokeReport.sourceToSea || null
+    });
+    record('smoke.app-services', smokeReport.appServices?.enabled === true
+      && smokeReport.appServices?.serviceCount === 27
+      && smokeReport.appServices?.activeCount === 0
+      && smokeReport.appServices?.listenerErrorCount === 0
+      && smokeHistory.some((entry) => entry.serviceId === 'xtend.llm.send' && entry.status === 'fulfilled')
+      && smokeHistory.some((entry) => entry.serviceId === 'xtend.llm.generationStream' && entry.kind === 'stream' && entry.status === 'fulfilled'), {
+      serviceCount: smokeReport.appServices?.serviceCount,
+      activeCount: smokeReport.appServices?.activeCount,
+      listenerErrorCount: smokeReport.appServices?.listenerErrorCount,
+      history: smokeHistory
+    });
+    record('smoke.screenshot-integrity', smokeScreenshot.byteLength > 0
+      && smokeReport.screenshot?.bytes === smokeScreenshot.byteLength
+      && smokeReport.screenshot?.sha256 === sha256(smokeScreenshot), {
+      bytes: smokeScreenshot.byteLength,
+      expectedBytes: smokeReport.screenshot?.bytes || 0,
+      sha256: sha256(smokeScreenshot),
+      expectedSha256: smokeReport.screenshot?.sha256 || null
+    });
+    record('smoke.fresh-evidence', fs.statSync(files.smokeReport).mtimeMs >= sourceMtime
+      && fs.statSync(files.smokeScreenshot).mtimeMs >= sourceMtime, {
+      sourceMtime,
+      reportMtime: fs.statSync(files.smokeReport).mtimeMs,
+      screenshotMtime: fs.statSync(files.smokeScreenshot).mtimeMs
+    });
+    smoke = {
+      required: true,
+      owner: 'local-manual',
+      command: 'npm run test:catfood:electron',
+      report: '.xtend-llm-results/layout-smoke.json',
+      status: smokeReport.status,
+      sourceToSea: smokeReport.sourceToSea,
+      screenshot: smokeReport.screenshot
+    };
+  }
 
   const report = writeReport({
     sourceFingerprint: sha256([rmtSource, servicesSource, controller].join('\n')),
@@ -278,13 +302,7 @@ try {
       appServiceWithinBudget: sizeReport.appServices?.clientWithinBudget === true,
       toolchain: bundleReport.toolchain?.typescript || null
     },
-    smoke: {
-      command: 'npm run test:catfood:smoke',
-      report: '.xtend-llm-results/layout-smoke.json',
-      status: smokeReport.status,
-      sourceToSea: smokeReport.sourceToSea,
-      screenshot: smokeReport.screenshot
-    }
+    smoke
   });
   console.log(`${report.ok ? 'ok' : 'not ok'} - XTend LLM AppServices Catfood (${reportPath})`);
   if (!report.ok) process.exitCode = 1;

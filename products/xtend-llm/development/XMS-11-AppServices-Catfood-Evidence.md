@@ -1,10 +1,10 @@
 # XMS-11 – AppServices-Catfood-Evidenz
 
-Stand: 2026-07-18
+Stand: 2026-07-19
 
 ## Ergebnis
 
-Der Host-Datasource-Pfad des XTend-LLM-Controllers ist auf die öffentliche Maraca-AppServices-Registry migriert. Der fail-closed Produktions-Gate `npm run test:catfood` ist implementiert und in CI verdrahtet; seine lokale Electron-Ausführung steht mangels installiertem Binary noch aus.
+Der Host-Datasource-Pfad des XTend-LLM-Controllers ist auf die öffentliche Maraca-AppServices-Registry migriert. Der fail-closed Produktions-Gate `npm run test:catfood:ci` prüft in CI ausschließlich Build und Contracts und benötigt kein Electron; `npm run test:catfood` ist der kurze Alias darauf. Der Layout-/Electron-Flow bleibt als ausdrücklich lokale/manuelle Produkt-Owner-Evidence getrennt und ist keine GitHub-, Release- oder Publish-Voraussetzung.
 
 | Evidenz | Ergebnis |
 | --- | --- |
@@ -17,7 +17,7 @@ Der Host-Datasource-Pfad des XTend-LLM-Controllers ist auf die öffentliche Mara
 | TypeScript | 5.9.3, Program-Typecheck plus Rollup-Transform |
 | AppService-Anteil im Produktionsbundle | 56.486 Byte bei explizitem 65.536-Byte-Budget |
 
-Die maschinenlesbare Evidenz wird bei jedem Lauf unter `.xtend-llm-results/app-services-catfood.json` mit dem Schema `xtend-llm.app-services-catfood-report.v1` neu erzeugt. Buildartefakte müssen vorhanden und neuer als RMT-, Service-, Controller-, Shell- und Buildquellen sein; fehlende oder veraltete Artefakte führen zum Fehler.
+Die maschinenlesbare Evidenz wird bei jedem Lauf unter `.xtend-llm-results/app-services-catfood.json` mit dem Schema `xtend-llm.app-services-catfood-report.v2` neu erzeugt. V2 unterscheidet den CI-sicheren `mode: "ci"` mit `smoke.required: false` und `smoke.status: "not-run"` explizit von `mode: "electron"` mit echter Layout-/Screenshot-Evidenz. Buildartefakte müssen vorhanden und neuer als RMT-, Service-, Controller-, Shell- und Buildquellen sein; fehlende oder veraltete Artefakte führen zum Fehler.
 
 ## Vollständig migriert
 
@@ -31,9 +31,9 @@ Die maschinenlesbare Evidenz wird bei jedem Lauf unter `.xtend-llm-results/app-s
 - Delta-, Complete- und Error-Events werden vor jeder Zustandsänderung gegen die aktive fachliche Job-ID geprüft; verspätete Worker-Events eines abgebrochenen Jobs können den Nachfolger nicht abschließen.
 - Die generierten Deklarationen enthalten alle Service-IDs und Modi. Nicht deklarierte Result-Shapes bleiben `unknown`; `any` kommt im generierten Vertrag nicht vor.
 
-## Runtime-Evidenz
+## Lokale Runtime-Evidenz
 
-Der Headless-Electron-Flow wurde um AppService-Evidenz erweitert. `npm run test:catfood:smoke` prüft zusätzlich:
+Der Headless-Electron-Flow wurde um AppService-Evidenz erweitert. `npm run test:catfood:electron` kann lokal/manuell zusätzlich prüfen; `npm run test:catfood:smoke` bleibt ein Compatibility-Alias auf denselben lokalen Lauf:
 
 - Event → RMT-Action → `xtend.llm.send` → `xtend.llm.generationStream` → State → Render,
 - genau eine User- und eine Assistant-Nachricht,
@@ -41,7 +41,7 @@ Der Headless-Electron-Flow wurde um AppService-Evidenz erweitert. `npm run test:
 - 27 registrierte Services, keine Listenerfehler und keine aktiven Invocations nach Abschluss,
 - maschinenlesbaren Report `.xtend-llm-results/layout-smoke.json` inklusive Screenshot-Hash.
 
-Der Smoke konnte in der aktuellen Workspace-Installation nicht ausgeführt werden, weil kein Electron-Binary installiert ist. Der statische Produktionsbuild ist grün; der vollständige Catfood-Gate bleibt bewusst rot beziehungsweise nicht abgenommen, bis Electron den echten Event-zu-Render-Pfad und den Screenshot erzeugt hat.
+Dieser Smoke setzt ein lokal installiertes Electron-Binary und eine korrekt konfigurierte Host-Sandbox voraus. Er wird deshalb in GitHub Actions weder direkt noch transitiv aus PR-, Full-Release-, Nightly- oder Publish-Aggregaten gestartet. Ein fehlender beziehungsweise auf GitHub nicht startbarer Electron-Smoke lässt die lokale Desktop-Evidence offen, ändert aber nicht die Abnahme des Electron-freien Produktionsbuilds und Contract-Catfoods. Ein Lauf mit deaktivierter Sandbox gilt nicht als Ersatz-Evidenz.
 
 ## Verbleibende Grenze
 

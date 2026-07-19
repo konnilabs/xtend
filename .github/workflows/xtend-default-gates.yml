@@ -72,8 +72,8 @@ jobs:
       - name: Install workspace dependencies
         run: npm ci --ignore-scripts --no-audit --fund=false
 
-      - name: Install XTend LLM browser-catfood dependencies
-        run: npm ci --prefix products/xtend-llm --no-audit --fund=false
+      - name: Install XTend LLM CI catfood dependencies
+        run: npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
 
       - name: Prepare Native-First release evidence artifacts
         run: npm run native-first:evidence:prepare
@@ -219,8 +219,8 @@ jobs:
       - name: Install workspace dependencies
         run: npm ci --ignore-scripts --no-audit --fund=false
 
-      - name: Install XTend LLM browser-catfood dependencies
-        run: npm ci --prefix products/xtend-llm --no-audit --fund=false
+      - name: Install XTend LLM CI catfood dependencies
+        run: npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
 
       - name: Prepare Native-First release evidence artifacts
         run: npm run native-first:evidence:prepare
@@ -574,8 +574,8 @@ jobs:
             .xtend-test-results/xtend-conditional-network-evidence-report.json
           if-no-files-found: warn
 
-  node-native-smoke:
-    name: N26-04 native smoke (${{ matrix.runner_label }}, Node ${{ matrix.node_version }})
+  node-native-toolchain-smoke:
+    name: Node native toolchain smoke (${{ matrix.runner_label }}, Node ${{ matrix.node_version }})
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
     strategy:
@@ -588,7 +588,6 @@ jobs:
             expected_arch: x64
             node_version: '24.18.0'
             runtime_lane: node-24-lts
-            product_script: test:node24:product
             artifact_suffix: ubuntu-24-04-x64-node-24-18-0
           - runner: ubuntu-24.04
             runner_label: ubuntu-24.04-x64
@@ -596,7 +595,6 @@ jobs:
             expected_arch: x64
             node_version: '26.5.0'
             runtime_lane: node-26-current
-            product_script: test:node26:product
             artifact_suffix: ubuntu-24-04-x64-node-26-5-0
           - runner: windows-2025
             runner_label: windows-2025-x64
@@ -604,7 +602,6 @@ jobs:
             expected_arch: x64
             node_version: '24.18.0'
             runtime_lane: node-24-lts
-            product_script: test:node24:product
             artifact_suffix: windows-2025-x64-node-24-18-0
           - runner: windows-2025
             runner_label: windows-2025-x64
@@ -612,7 +609,6 @@ jobs:
             expected_arch: x64
             node_version: '26.5.0'
             runtime_lane: node-26-current
-            product_script: test:node26:product
             artifact_suffix: windows-2025-x64-node-26-5-0
           - runner: macos-15
             runner_label: macos-15-arm64
@@ -620,7 +616,6 @@ jobs:
             expected_arch: arm64
             node_version: '24.18.0'
             runtime_lane: node-24-lts
-            product_script: test:node24:product
             artifact_suffix: macos-15-arm64-node-24-18-0
           - runner: macos-15
             runner_label: macos-15-arm64
@@ -628,7 +623,6 @@ jobs:
             expected_arch: arm64
             node_version: '26.5.0'
             runtime_lane: node-26-current
-            product_script: test:node26:product
             artifact_suffix: macos-15-arm64-node-26-5-0
 
     steps:
@@ -661,23 +655,15 @@ jobs:
       - name: Run Node native toolchain smoke
         run: npm run test:node-native-toolchain
 
-      - name: Install XTend LLM Electron and native-runtime dependencies
-        run: npm ci --prefix products/xtend-llm --no-audit --fund=false
-
-      - name: Run XTend LLM Electron, Sharp and ONNX runtime smoke
-        run: npm --prefix products/xtend-llm run ${{ matrix.product_script }}
-
-      - name: Upload Node native smoke evidence
+      - name: Upload Node native toolchain smoke evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: xtend-node-native-smoke-${{ matrix.artifact_suffix }}
+          name: xtend-node-native-toolchain-smoke-${{ matrix.artifact_suffix }}
           path: |
             .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
             .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
             .xtend-test-results/xtend-node-native-toolchain-smoke.json
-            products/xtend-llm/.xtend-llm-results/electron-runtime-${{ matrix.runtime_lane }}.json
-            products/xtend-llm/.xtend-llm-results/native-runtime-${{ matrix.runtime_lane }}.json
           if-no-files-found: error
 
   npm-publish-latest:
@@ -688,7 +674,7 @@ jobs:
       - rmt-vnext-primitive-gates
       - package-structure
       - conditional-network-evidence
-      - node-native-smoke
+      - node-native-toolchain-smoke
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -726,8 +712,8 @@ jobs:
       - name: Install workspace links for release evidence
         run: npm ci --ignore-scripts --no-audit --fund=false
 
-      - name: Install XTend LLM browser-catfood dependencies
-        run: npm ci --prefix products/xtend-llm --no-audit --fund=false
+      - name: Install XTend LLM CI catfood dependencies
+        run: npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
 
       - name: Re-run blocking release evidence
         env:

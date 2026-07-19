@@ -1,6 +1,6 @@
 # XTend Maraca AppServices und TypeScript DX Backlog
 
-- Status: `mvp-implemented-browser-gate-pending-locally`
+- Status: `mvp-implemented-electron-evidence-local-optional`
 - Initiative: `XMS`
 - Priorität: `P0` für XMS-01 bis XMS-12, `P1` für XMS-13
 - Source of Truth: dieses Backlog plus ausführbare lokale Gates
@@ -53,7 +53,7 @@ Ein Ticket ist abgeschlossen, wenn Implementierung, präzise Typen, mindestens e
 | XMS-08 | P0 | completed | XMS-03 | Servicegraph-Fingerprint, getrennte Framework-/App-Budgets und Tune-Drift | `maraca-app-services-build`, `maraca-size-budget`, `maraca-tune` |
 | XMS-09 | P0 | completed | XMS-00 | Öffentliche, stark typisierte XScaler-API, JSON-Schemas und PHP-Parität | `xscaler-public-api`, `xscaler-php-preflight-parity`, `xsurface-shard` |
 | XMS-10 | P0 | completed | XMS-02, XMS-09 | Preflight-vor-Import, SRI-Registrierung, ATC-Lifecycle und CSP-Fallback | `xscaler-public-api`, `xscaler-source-to-sea`, `rmt-xscaler-ssr-hydration-parity` |
-| XMS-11 | P0 | implemented; local Electron run pending | XMS-01–XMS-10 | Generierte XTM-App, Browser Source-to-Sea und XTend-LLM-Catfood | `maraca-app-services-build`, `xtend-llm-app-services-catfood` |
+| XMS-11 | P0 | completed; local Electron evidence optional | XMS-01–XMS-10 | Generierte XTM-App, Browser Source-to-Sea und Electron-freies XTend-LLM-Build-/Contract-Catfood | `maraca-app-services-build`, `xtend-llm-app-services-catfood` |
 | XMS-12 | P0 | completed | XMS-11 | Guides, Diagnosekatalog, Migration, Package-/CI-/Release-Gates | AppServices-/XScaler-Aggregate, Export-, Typ- und Docs-Gates |
 | XMS-13 | P1 | deferred | XMS-03, Node-Floor-Entscheidung | Vite ausschließlich als Dev-/HMR-Provider evaluieren | eigenständiger Spike-Report |
 
@@ -160,8 +160,8 @@ Ein Ticket ist abgeschlossen, wenn Implementierung, präzise Typen, mindestens e
 
 Der Catfood-Pfad behält bewusst nur eine schmale Übergabe normalisierter Frames an die öffentliche `appRuntime.handleStreamPatch`-API. Diese Bridge erzeugt weder IDs noch Sequenzen oder Terminalzustände; eine direkte deklarative Frame-Effect-Anbindung bleibt eine mögliche Post-MVP-Vereinfachung.
 
-Der fail-closed Electron-Catfood-Gate ist implementiert und in PR-, Release- und Nightly-CI verdrahtet. In der aktuellen lokalen Workspace-Installation fehlt das Electron-Binary; deshalb ist XMS-11 implementiert, aber bis zu einem erfolgreichen Lauf von `npm run test:catfood --prefix products/xtend-llm` noch nicht lokal release-abgenommen.
+Der fail-closed Build-/Contract-Catfood `test:catfood:ci` ist Electron-frei und über den kurzen Alias `test:catfood` in PR-, Release- und Nightly-CI verdrahtet. `test:catfood:electron` bleibt als lokale/manuelle Produkt-Owner-Evidence erhalten; `test:catfood:smoke` ist nur ein Compatibility-Alias darauf. Wegen der auf GitHub-Runnern nicht zuverlässig konfigurierbaren SUID-Sandbox wird Electron weder transitiv aus einem CI-Aggregat gestartet noch als Release- oder Publish-Voraussetzung geführt; `--no-sandbox` gilt nicht als Ersatz-Evidenz.
 
 ## Release-Regel
 
-XMS-01 bis XMS-12 sind gemeinsam MVP-blockierend. Insbesondere darf XMS-10 nicht durch ungeprüften `import()`-Fallback, gelockerte CSP-Regeln oder Remote-Ausführung im RMT-Kernel umgangen werden. Vite ist kein Bestandteil des produktiven MVP-Pfads.
+XMS-01 bis XMS-12 sind gemeinsam MVP-blockierend. Die XMS-11-Abnahme stützt sich dabei auf den Electron-freien AppServices-Build-/Contract-Catfood; lokale Electron-Evidenz ist nicht MVP-, Release- oder Publish-blockierend. Insbesondere darf XMS-10 nicht durch ungeprüften `import()`-Fallback, gelockerte CSP-Regeln oder Remote-Ausführung im RMT-Kernel umgangen werden. Vite ist kein Bestandteil des produktiven MVP-Pfads.

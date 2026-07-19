@@ -172,14 +172,25 @@ function validateCiContracts(context, rootDir) {
     });
   });
   const defaultWorkflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
-  context.assert(defaultWorkflow.includes('node-native-smoke:'), 'Default CI exposes a blocking cross-platform native smoke job');
+  const nightlyWorkflow = readText('.github/workflows/xtend-nightly-build.yml', rootDir);
+  context.assert(defaultWorkflow.includes('node-native-toolchain-smoke:'), 'Default CI exposes a blocking cross-platform Node-native toolchain smoke job');
   ['ubuntu-24.04', 'windows-2025', 'macos-15'].forEach((runner) => {
     context.assert(defaultWorkflow.includes(`runner: ${runner}`), `Native smoke matrix includes ${runner}`);
   });
   context.assert(defaultWorkflow.includes('expected_arch: arm64'), 'macOS native smoke is explicitly arm64');
   context.assert(defaultWorkflow.includes('npm run test:node-native-toolchain'), 'Native smoke executes the TypeScript/Rollup/Terser/Vite/native toolchain probe');
-  context.assert(defaultWorkflow.includes('test:node24:product') && defaultWorkflow.includes('test:node26:product'), 'Native smoke executes lane-specific Electron/Sharp/ONNX product gates');
-  context.assert(defaultWorkflow.includes('- node-native-smoke'), 'npm publish is blocked on the cross-platform native smoke job');
+  context.assert(
+    !/electron/iu.test(defaultWorkflow) && !/electron/iu.test(nightlyWorkflow),
+    'Blocking default and nightly GitHub workflows never install, launch or require Electron'
+  );
+  context.assert(
+    !defaultWorkflow.includes('test:node24:product')
+      && !defaultWorkflow.includes('test:node26:product')
+      && !defaultWorkflow.includes('product_script')
+      && !defaultWorkflow.includes('.xtend-llm-results/native-runtime-'),
+    'Cross-platform Node-native smoke has no product-runtime or embedded-runtime dependency'
+  );
+  context.assert(defaultWorkflow.includes('- node-native-toolchain-smoke'), 'npm publish is blocked only on the Electron-free cross-platform Node-native toolchain smoke');
   context.assert(fs.existsSync(resolveRepoPath('scripts/capture_node_runtime_evidence.js', rootDir)), 'Runtime evidence collector exists');
   context.assert(fs.existsSync(resolveRepoPath('scripts/smoke_node_native_toolchain.mjs', rootDir)), 'Native toolchain smoke exists');
   context.assert(fs.existsSync(resolveRepoPath('scripts/enable_node_warning_policy.js', rootDir)), 'Warning policy activation exists');

@@ -4,7 +4,7 @@ Local Electron AI chat product for exercising XTendRMT, Maraca, Fabric/kernel or
 
 ## Host Runtime
 
-CLI, build, test and host processes require Node.js 24 or newer. Contributor and CI runs use the pinned npm `11.17.0` with Node `24.18.0` as the primary runtime and Node `26.5.0` as the required compatibility lane. Electron owns its embedded Node 24 runtime independently; that embedded version is reported by the product gates and is not the host-Node support contract.
+CLI, build, test and host processes require Node.js 24 or newer. Contributor and CI runs use the pinned npm `11.17.0` with Node `24.18.0` as the primary runtime and Node `26.5.0` as the required compatibility lane. Electron owns its embedded Node 24 runtime independently; its runtime evidence is local/manual and is not part of the host-Node support contract or a GitHub release prerequisite.
 
 ## Commands
 
@@ -26,13 +26,17 @@ The renderer business boundary is declared in `src/services.ts`. The production 
 
 ```bash
 npm run test:catfood
+npm run test:catfood:ci
+npm run test:catfood:electron
 npm run test:catfood:smoke
-npm run test:catfood:full
 ```
 
-- `test:catfood` performs a strict production build and a fail-closed source/build/manifest gate. Its JSON result is `.xtend-llm-results/app-services-catfood.json`.
-- `test:catfood:smoke` runs the fake Electron source-to-sea flow and records AppService invocation/stream history in `.xtend-llm-results/layout-smoke.json` alongside the screenshot.
+- `test:catfood` is the CI-safe default and delegates to `test:catfood:ci`. It performs a strict production build and a fail-closed source/build/manifest gate without starting Electron, requiring a display, or reading screenshot evidence. Its JSON result is `.xtend-llm-results/app-services-catfood.json` with `mode: "ci"` and `smoke.required: false`.
+- `test:catfood:electron` is an explicit local/manual extension. It runs the fake Electron source-to-sea flow, validates AppService invocation/stream history and records `.xtend-llm-results/layout-smoke.json` plus a screenshot before writing the aggregate report with `mode: "electron"`.
+- `test:catfood:smoke` is a compatibility alias for `test:catfood:electron`; GitHub CI and release workflows must not call either Electron command.
 - The generation worker publishes business frames through `xtend.llm.generationStream`; Maraca owns stream invocation/correlation IDs, ordering, terminal-frame suppression and dispose cancellation.
+
+The Node compatibility commands follow the same boundary: `test:node24:product` and `test:node26:product` are Electron-free. Local platform owners can additionally run `test:electron:node24:product` or `test:electron:node26:product` for layout, embedded-runtime, Sharp and ONNX evidence.
 
 ## Model Installer
 

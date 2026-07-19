@@ -18,7 +18,7 @@ const PRODUCT_ROOT = 'products/xtend-llm';
 const PRODUCT_PACKAGE = `${PRODUCT_ROOT}/package.json`;
 const CATFOOD_GATE = `${PRODUCT_ROOT}/tests/app-services-catfood-gate.mjs`;
 const REPORT_PATH = `${PRODUCT_ROOT}/.xtend-llm-results/app-services-catfood.json`;
-const REPORT_SCHEMA = 'xtend-llm.app-services-catfood-report.v1';
+const REPORT_SCHEMA = 'xtend-llm.app-services-catfood-report.v2';
 
 function runXtendLlmAppServicesCatfoodSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
@@ -35,8 +35,13 @@ function runXtendLlmAppServicesCatfoodSuite(options = {}) {
 
   const productManifest = readJson(PRODUCT_PACKAGE, rootDir);
   context.assert(
-    productManifest.scripts && productManifest.scripts['test:catfood'] === 'node scripts/rmt-build.mjs --profile production --quiet && node scripts/run-layout-smoke.mjs && npm run test:catfood:check',
-    'product test:catfood script owns production build, browser source-to-sea smoke, and evidence check'
+    productManifest.scripts && productManifest.scripts['test:catfood'] === 'npm run test:catfood:ci'
+      && productManifest.scripts['test:catfood:ci'] === 'node scripts/rmt-build.mjs --profile production --quiet && npm run test:catfood:check',
+    'product test:catfood resolves to the Electron-free production build and contract gate'
+  );
+  context.assert(
+    productManifest.scripts && productManifest.scripts['test:catfood:electron'] === 'node scripts/rmt-build.mjs --profile production --quiet && node scripts/run-layout-smoke.mjs && npm run test:catfood:check -- --include-electron',
+    'local Electron catfood remains available only through an explicit product command'
   );
 
   const packageManifest = readJson('package.json', rootDir);
@@ -51,9 +56,14 @@ function runXtendLlmAppServicesCatfoodSuite(options = {}) {
   context.assert(packageManifest.scripts['test:pr'].includes('xtend-llm-app-services-catfood') && packageManifest.scripts['test:release:full'].includes('xtend-llm-app-services-catfood'), 'PR and release scripts execute product catfood');
   context.assert(gateMatrix.prFastGate.suites.includes('xtend-llm-app-services-catfood') && gateMatrix.fullReleaseGate.suites.includes('xtend-llm-app-services-catfood'), 'CI matrices require product catfood');
   context.assert(metadata && metadata.catfoodSuiteId === 'xtend-llm-app-services-catfood' && metadata.catfoodReportArtifact === REPORT_PATH, 'AppServices metadata owns the XMS-11 product evidence');
-  context.assert(defaultWorkflow.includes(REPORT_PATH) && nightlyWorkflow.includes(REPORT_PATH), 'default and nightly workflows retain the product-owned catfood artifact');
-  context.assert(defaultWorkflow.includes('npm ci --prefix products/xtend-llm') && nightlyWorkflow.includes('npm ci --prefix products/xtend-llm'), 'default and nightly workflows install the pinned browser-catfood dependency');
-  context.assert(smokeRunner.indexOf("'app-services-catfood.json'") > 0 && smokeRunner.indexOf('fs.rmSync') < smokeRunner.indexOf("require('electron')"), 'browser catfood removes stale smoke and aggregate evidence before Electron resolution');
+  context.assert(defaultWorkflow.includes(REPORT_PATH) && nightlyWorkflow.includes(REPORT_PATH), 'default and nightly workflows retain the product-owned CI catfood artifact');
+  context.assert(
+    defaultWorkflow.includes('npm ci --prefix products/xtend-llm --ignore-scripts')
+      && nightlyWorkflow.includes('npm ci --prefix products/xtend-llm --ignore-scripts'),
+    'default and nightly workflows install product dependencies without embedded-runtime install scripts'
+  );
+  context.assert(!/electron/iu.test(defaultWorkflow) && !/electron/iu.test(nightlyWorkflow), 'blocking GitHub workflows contain no Electron execution or evidence dependency');
+  context.assert(smokeRunner.indexOf("'app-services-catfood.json'") > 0 && smokeRunner.indexOf('fs.rmSync') < smokeRunner.indexOf("require('electron')"), 'local browser catfood removes stale smoke and aggregate evidence before Electron resolution');
 
   fs.rmSync(reportPath, { force: true });
   const command = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -78,7 +88,12 @@ function runXtendLlmAppServicesCatfoodSuite(options = {}) {
     context.assert(Array.isArray(report.checks) && report.checks.length > 0 && report.checks.every((entry) => entry.ok === true), 'all product-level AppServices checks pass');
     context.assert(report.serviceCoverage && report.serviceCoverage.demands === report.serviceCoverage.implementations, 'product demand and implementation coverage remain exact');
     context.assert(report.build && report.build.profile === 'production' && report.build.appServiceWithinBudget === true, 'product evidence locks the production profile and AppServices budget');
-    context.assert(report.smoke && report.smoke.status === 'passed' && report.smoke.sourceToSea && report.smoke.screenshot && report.smoke.screenshot.bytes > 0, 'product evidence requires fresh browser source-to-sea and screenshot proof');
+    context.assert(report.mode === 'ci' && report.command === 'npm run test:catfood:ci', 'blocking product evidence identifies the CI-safe execution mode');
+    context.assert(
+      report.smoke && report.smoke.required === false && report.smoke.status === 'not-run'
+        && report.smoke.owner === 'local-manual' && report.smoke.command === 'npm run test:catfood:electron',
+      'CI evidence records Electron source-to-sea proof as local and non-blocking'
+    );
   }
 
   return context.result({

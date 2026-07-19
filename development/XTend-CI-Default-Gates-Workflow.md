@@ -65,10 +65,11 @@ Der Lauf umfasst damit die Default-Suites des lokalen Runners, darunter Core, Ar
 | `pr-fast` | `xtend.ci.pr-fast-gate.v1` | `pull_request` | `npm run test:pr:report` | `xtend-pr-gate-report-${{ matrix.artifact_suffix }}` |
 | `full-release` | `xtend.ci.full-release-gate.v1` | `push`, `workflow_dispatch` | `npm run test:release:full:report` | `xtend-release-gate-report-${{ matrix.artifact_suffix }}` |
 | `package-structure` | `xtend.ci.package-structure-gate.v1` | `pull_request`, `push`, `workflow_dispatch` | `npm run pack:dry-run` + Workspace-`npm pack --dry-run --json` | `xtend-package-structure-${{ matrix.artifact_suffix }}` |
+| `node-native-toolchain-smoke` | `xtend.node-native-toolchain-smoke.v1` | `pull_request`, `push`, `workflow_dispatch` | `npm run test:node-native-toolchain` | `xtend-node-native-toolchain-smoke-${{ matrix.artifact_suffix }}` |
 | `nightly-build` | `xtend.ci.nightly-build.v1` | `47 2 * * *` in `.github/workflows/xtend-nightly-build.yml` | `npm run test:release:full:report` + `npm run test:rmt-vnext-primitives:report` + `npm run nightly:manifest` | `xtend-nightly-build-${{ matrix.artifact_suffix }}` |
 | `npm-publish-latest` | `xtend.npm.publish-latest.github-actions.v1` | `workflow_dispatch` mit `publish_to_npm=true` | `npm publish --tag latest --provenance --access public` | `xtend-npm-publish-latest-evidence-node-24-18-0` |
 
-Der Publish-Job ist nicht Teil der Node-Matrix: Er laeuft nach erfolgreicher Matrix und expliziter Owner-Freigabe ausschliesslich mit Node `24.18.0`, pinnt ebenfalls npm `11.17.0` und laedt Runtime-Evidence fuer `node-24-publish` hoch.
+Der Publish-Job ist nicht Teil der Node-Matrix: Er laeuft nach erfolgreicher Matrix und expliziter Owner-Freigabe ausschliesslich mit Node `24.18.0`, pinnt ebenfalls npm `11.17.0` und laedt Runtime-Evidence fuer `node-24-publish` hoch. Alle genannten GitHub-Pfade sind Electron-frei. Das Produktkommando `test:catfood` delegiert auf `test:catfood:ci`; lokale Electron-Kommandos sind weder direkte noch transitive Workflow- oder Publish-Abhaengigkeiten.
 
 ## Nicht im Scope
 
@@ -92,6 +93,7 @@ CI-Verifikation:
 - Workflow wird auf `pull_request`, `push` nach `main`, `master`, `develop` und manuell per `workflow_dispatch` ausgefuehrt.
 - Die primaere Lane `24.18.0` und die verpflichtende Lane `26.5.0` laufen mit `fail-fast: false`, bleiben aber beide release-blockierend.
 - Jede Lane pinnt npm `11.17.0`, validiert die Runtime-Evidence und verwendet einen kollisionsfreien `${{ matrix.artifact_suffix }}`.
+- `node-native-toolchain-smoke` prueft nur die Root-Toolchain und startet kein Electron; lokale Desktop-Evidence bleibt upstream-owned und nicht blockierend.
 - Der JSON-Report wird auch bei Fehlschlag als Artifact hochgeladen.
 - Der Workflow bleibt ohne CDN- oder externe Runtime-Abhaengigkeit im XTend-Default-Pfad.
 - Der Nightly Build wird separat ueber `.github/workflows/xtend-nightly-build.yml` geplant und laedt `xtend-nightly-build-${{ matrix.artifact_suffix }}` inklusive Runtime-Evidence und `.xtend-test-results/xtend-nightly-build-manifest.json` hoch.

@@ -12414,7 +12414,7 @@
         "rmt-vnext-primitive-gates",
         "package-structure",
         "conditional-network-evidence",
-        "node-native-smoke"
+        "node-native-toolchain-smoke"
       ],
       "permissions": [
         "contents: read",

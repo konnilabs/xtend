@@ -187,7 +187,7 @@ node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-test-report.j
 
 Beide Gates laufen mit npm `11.17.0` unter der primären Node-Lane `24.18.0` und der verpflichtenden Node-Lane `26.5.0`; `artifactSuffix` ist entsprechend `node-24-18-0` oder `node-26-5-0`. Publish bleibt bis zum Node-26-LTS-Cutover auf Node 24.
 
-`pr-fast` prueft Core, Architecture, Components, A11y, Catalog, Regression Priority, Fabric-Safety, References, Supply-Chain und Manifest-Policy. `full-release` fuehrt die komplette Runner-Suite inklusive Browser-, Performance-, Hydration-, Telemetry- und RMT-Kompatibilitaets-Gates aus.
+`pr-fast` prueft Core, Architecture, Components, A11y, Catalog, Regression Priority, Fabric-Safety, References, Supply-Chain und Manifest-Policy. `full-release` fuehrt die komplette Runner-Suite inklusive CI-faehiger Browser-, Performance-, Hydration-, Telemetry- und RMT-Kompatibilitaets-Gates aus. Beide Aggregate und der Publish-Pfad sind Electron-frei; lokale Electron-/Layout-Smokes bleiben separate, nicht blockierende Produkt-Owner-Evidence.
 
 Die Datei `.xtend-test-results/` ist fuer lokale und CI-generierte Reports ignoriert. Das maschinenlesbare CI-Contract-Dokument liegt unter `development/XTend-CI-Default-Gates-Workflow.md` und traegt `xtend.ci.default-gates.v1`; die Fast-/Full-Matrix liegt in `development/XTend-CI-Gate-Matrix.md` unter `xtend.ci.gate-matrix.v1`.
 
