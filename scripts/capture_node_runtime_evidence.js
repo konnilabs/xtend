@@ -44,8 +44,23 @@ function parseArgs(argv) {
   return options;
 }
 
+function resolveNpmVersionInvocation(platform = process.platform, environment = process.env) {
+  if (platform === 'win32') {
+    const commandInterpreter = environment.ComSpec || environment.COMSPEC || 'cmd.exe';
+    return {
+      command: commandInterpreter,
+      args: ['/d', '/s', '/c', 'npm.cmd --version']
+    };
+  }
+  return {
+    command: 'npm',
+    args: ['--version']
+  };
+}
+
 function npmVersion() {
-  const result = spawnSync('npm', ['--version'], {
+  const invocation = resolveNpmVersionInvocation();
+  const result = spawnSync(invocation.command, invocation.args, {
     cwd: ROOT_DIR,
     encoding: 'utf8'
   });
@@ -194,5 +209,6 @@ module.exports = {
   SCHEMA,
   createEvidence,
   parseArgs,
+  resolveNpmVersionInvocation,
   resolveOutputPath
 };

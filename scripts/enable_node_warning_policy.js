@@ -14,12 +14,14 @@ const preload = path.resolve(rootDir, 'scripts/node_warning_policy.cjs').replace
 const nodeOptions = `--trace-warnings --trace-deprecation --require=${preload}`;
 const githubEnv = process.env.GITHUB_ENV;
 
-if (!githubEnv) {
+if (!fs.existsSync(preload)) {
+  process.stderr.write(`Node warning policy preload is missing: ${preload}\n`);
+  process.exitCode = 1;
+} else if (!githubEnv) {
   process.stderr.write('GITHUB_ENV is required so the warning policy can be enabled for subsequent CI steps.\n');
   process.exitCode = 1;
 } else {
   fs.appendFileSync(githubEnv, [
-    `NODE_OPTIONS=${nodeOptions}`,
     'XTEND_NODE_WARNING_POLICY=project-error',
     `XTEND_NODE_WARNING_REPORT=${report}`,
     ''
@@ -29,6 +31,8 @@ if (!githubEnv) {
     lane,
     policy: 'project-error',
     report,
+    activation: 'explicit-step-env',
+    requiredNodeOptions: nodeOptions,
     thirdPartyWarnings: 'reported-non-blocking'
   })}\n`);
 }

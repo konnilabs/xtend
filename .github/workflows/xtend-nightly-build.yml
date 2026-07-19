@@ -62,72 +62,102 @@ jobs:
         run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
 
       - name: Print runtime versions
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: |
           node --version
           npm --version
 
       - name: Install workspace dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm ci --ignore-scripts --no-audit --fund=false
 
       - name: Install XTend LLM CI catfood dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
 
       - name: Prepare nightly result directories
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: mkdir -p .xtend-test-results/nightly
 
       - name: Prepare Native-First release evidence artifacts
         id: native_first_evidence_prepare
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run native-first:evidence:prepare
 
       - name: Run XTend full release gate report
         id: full_release
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:release:full:report
 
       - name: Run RMT Reference docs report
         id: rmt_reference_docs
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:rmt-reference-docs:report
 
       - name: Run XTendRMT demo structure report
         id: rmt_demos
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:rmt-demos:report
 
       - name: Run RKFA production closure report
         id: rkfa_production_closure
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:rkfa-production-closure:report
 
       - name: Run docs stub inventory report
         id: docs_stub_inventory
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:docs-stub-inventory:report
 
       - name: Run RMT vNext primitive gate report
         id: rmt_primitives
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:rmt-vnext-primitives:report
 
       - name: Run Native-First and RMT Owned release report
         id: native_first_rmt_owned
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:native-first-rmt-owned-release:report
 
       - name: Capture release report evidence
         id: release_report
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run release:report
 
       - name: Validate root package dry run
         id: pack_root
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run pack:dry-run
 
       - name: Validate workspace package dry runs
         id: pack_workspaces
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: |
           npm pack --workspace xtendrmt --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtendrmt.json
           npm pack --workspace fabric --dry-run --json > .xtend-test-results/xtend-pack-dry-run-fabric.json
@@ -139,75 +169,105 @@ jobs:
       - name: Run XTend Maraca gate report
         id: maraca
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:maraca:report
 
       - name: Run Maraca AppServices Node/PHP parity report
         id: maraca_app_services_cross_runtime
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:maraca-app-services-cross-runtime:report
 
       - name: Run XTend LLM AppServices catfood report
         id: xtend_llm_app_services_catfood
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xtend-llm-app-services-catfood:report
 
       - name: Run XTensions framework adapter report
         id: xtensions_framework_adapters
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xtensions-framework-adapters:report
 
       - name: Run XTend Dev Surface report
         id: xtend_dev_surface
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xtend-dev-surface:report
 
       - name: Run public docs quality report
         id: docs_quality
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:docs-quality:report
 
       - name: Run Docs Shell catfooding report
         id: docs_shell_catfooding
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:docs-shell-catfooding:report
 
       - name: Run Docs framework ownership report
         id: docs_framework_ownership
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:docs-framework-ownership:report
 
       - name: Run XSurface shard gate report
         id: xsurface_shard
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xsurface-shard:report
 
       - name: Run XScaler protocol gate report
         id: xscaler_protocol
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xscaler-protocol:report
 
       - name: Run XScaler public API gate report
         id: xscaler_public_api
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xscaler-public-api:report
 
       - name: Run XScaler JS/PHP preflight parity report
         id: xscaler_php_preflight_parity
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xscaler-php-preflight-parity:report
 
       - name: Run RMT Node/PHP XScaler SSR hydration parity report
         id: rmt_xscaler_ssr_hydration_parity
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:rmt-xscaler-ssr-hydration-parity:report
 
       - name: Run XScaler source-to-sea gate report
         id: xscaler_source_to_sea
         continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xscaler-source-to-sea:report
 
       - name: Create XTend nightly manifest
         if: always()
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run nightly:manifest
 
       - name: Upload XTend nightly artifact bundle
@@ -258,6 +318,8 @@ jobs:
 
       - name: Fail nightly build on required evidence failures
         if: always()
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: |
           failed=0
           if [ "${{ steps.native_first_evidence_prepare.outcome }}" != "success" ]; then echo "Native-First evidence preparation failed"; failed=1; fi
@@ -324,11 +386,17 @@ jobs:
         run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
 
       - name: Print runtime versions
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: |
           node --version
           npm --version
 
       - name: Capture RMT vNext source-to-sea browser evidence
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome
+          RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"
         run: |
           mkdir -p .xtend-test-results
           set +e
@@ -336,12 +404,10 @@ jobs:
           status=$?
           printf "%s\n" "$status" > .xtend-test-results/xtend-rmt-vnext-source-to-sea-capture.exitcode
           exit "$status"
-        env:
-          RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome
-          RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"
-
       - name: Ensure RMT vNext source-to-sea evidence artifact
         if: always()
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: |
           mkdir -p .xtend-test-results
           if [ ! -f .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json ]; then
@@ -362,6 +428,8 @@ jobs:
           retention-days: 14
 
       - name: Validate RMT vNext source-to-sea evidence
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:rmt-vnext-source-to-sea:validate-artifact
 
   optional-conditional-network:
@@ -401,15 +469,20 @@ jobs:
         run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
 
       - name: Print runtime versions
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: |
           node --version
           npm --version
 
       - name: Install workspace links for npm SBOM
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm ci --ignore-scripts --no-audit --fund=false
 
       - name: Capture conditional network evidence
         env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           XTEND_CONDITIONAL_NETWORK_EXECUTE: "1"
         run: npm run conditional-network:evidence
 

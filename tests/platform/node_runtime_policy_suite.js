@@ -6,13 +6,15 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { createSuiteContext, printSuiteReport } = require('../utils/assertions');
 const { readJson, readText, resolveRepoPath, resolveRootDir } = require('../utils/files');
-const { classifyWarning } = require('../../scripts/node_warning_policy.cjs');
+const { resolveNpmVersionInvocation } = require('../../scripts/capture_node_runtime_evidence');
+const { classifyWarning } = require('../../scripts/node_warning_policy_classifier.cjs');
 
 const NODE_RUNTIME_POLICY_SUITE_SCHEMA = 'xtend.node-runtime-policy-suite.v1';
 const PUBLIC_ENGINE = '>=24';
 const PRIMARY_NODE = '24.18.0';
 const CANARY_NODE = '26.5.0';
 const PACKAGE_MANAGER = 'npm@11.17.0';
+const WARNING_NODE_OPTIONS_YAML = 'NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs';
 
 const NODE_MANIFESTS = [
   'package.json',
@@ -53,6 +55,41 @@ const NORMATIVE_NODE_SUPPORT_DOCS = [
   'development/XTend-Material-Design-Kit-Contract.md',
   'development/XTend-Material-Release-Handoff.md'
 ];
+
+function parseWorkflowNamedSteps(source) {
+  const steps = [];
+  let inJobs = false;
+  let jobId = null;
+  let currentStep = null;
+  const flushStep = () => {
+    if (!currentStep) return;
+    steps.push({ ...currentStep, source: currentStep.lines.join('\n') });
+    currentStep = null;
+  };
+
+  String(source || '').split(/\r?\n/u).forEach((line) => {
+    if (line === 'jobs:') {
+      inJobs = true;
+      return;
+    }
+    if (!inJobs) return;
+    const jobMatch = /^  ([a-zA-Z0-9_-]+):\s*$/u.exec(line);
+    if (jobMatch) {
+      flushStep();
+      jobId = jobMatch[1];
+      return;
+    }
+    const stepMatch = /^      - name:\s*(.+?)\s*$/u.exec(line);
+    if (stepMatch) {
+      flushStep();
+      currentStep = { jobId, name: stepMatch[1], lines: [line] };
+      return;
+    }
+    if (currentStep) currentStep.lines.push(line);
+  });
+  flushStep();
+  return steps;
+}
 
 function validatePolicy(context, rootDir) {
   const rootPackage = readJson('package.json', rootDir);
@@ -194,6 +231,115 @@ function validateCiContracts(context, rootDir) {
   context.assert(fs.existsSync(resolveRepoPath('scripts/capture_node_runtime_evidence.js', rootDir)), 'Runtime evidence collector exists');
   context.assert(fs.existsSync(resolveRepoPath('scripts/smoke_node_native_toolchain.mjs', rootDir)), 'Native toolchain smoke exists');
   context.assert(fs.existsSync(resolveRepoPath('scripts/enable_node_warning_policy.js', rootDir)), 'Warning policy activation exists');
+  context.assert(fs.existsSync(resolveRepoPath('scripts/node_warning_policy_classifier.cjs', rootDir)), 'Warning classifier exists as a side-effect-free module');
+
+  const warningActivation = readText('scripts/enable_node_warning_policy.js', rootDir);
+  const warningPolicySource = readText('scripts/node_warning_policy.cjs', rootDir);
+  const warningClassifierSource = readText('scripts/node_warning_policy_classifier.cjs', rootDir);
+  context.assert(
+    !warningActivation.includes('`NODE_OPTIONS=')
+      && !warningActivation.includes('XTEND_NODE_WARNING_OPTIONS='),
+    'Warning activation never attempts to persist NODE_OPTIONS through GITHUB_ENV'
+  );
+  context.assert(
+    warningPolicySource.includes("require('./node_warning_policy_classifier.cjs')")
+      && !warningClassifierSource.includes("process.on('warning'"),
+    'Warning classification is import-safe and listener installation remains isolated in the preload'
+  );
+  workflowPaths.forEach((relativePath) => {
+    const workflow = readText(relativePath, rootDir);
+    const steps = parseWorkflowNamedSteps(workflow);
+    const stepsByJob = new Map();
+    steps.forEach((step) => {
+      if (!stepsByJob.has(step.jobId)) stepsByJob.set(step.jobId, []);
+      stepsByJob.get(step.jobId).push(step);
+    });
+    const policyCoverageFailures = [];
+    const actionBoundaryFailures = [];
+    let coveredProjectRunSteps = 0;
+    stepsByJob.forEach((jobSteps, jobId) => {
+      const enableIndex = jobSteps.findIndex((step) => step.name === 'Enable Node warning and deprecation policy');
+      jobSteps.forEach((step, stepIndex) => {
+        const hasNodeOptions = step.source.includes(WARNING_NODE_OPTIONS_YAML);
+        const isRunStep = /^\s+run:/mu.test(step.source);
+        const isActionStep = /^\s+uses:/mu.test(step.source);
+        if (isActionStep && /\bNODE_OPTIONS:/u.test(step.source)) actionBoundaryFailures.push(`${jobId}/${step.name}`);
+        if (enableIndex >= 0 && stepIndex > enableIndex && isRunStep) {
+          coveredProjectRunSteps += 1;
+          if (!hasNodeOptions) policyCoverageFailures.push(`${jobId}/${step.name}`);
+        }
+        if ((enableIndex < 0 || stepIndex <= enableIndex) && hasNodeOptions) {
+          policyCoverageFailures.push(`${jobId}/${step.name}:pre-activation`);
+        }
+      });
+    });
+    context.assert(
+      coveredProjectRunSteps > 0 && policyCoverageFailures.length === 0,
+      `${relativePath} applies the warning preload directly to every post-activation project run step${policyCoverageFailures.length ? ` (${policyCoverageFailures.join(', ')})` : ''}`
+    );
+    context.assert(
+      actionBoundaryFailures.length === 0,
+      `${relativePath} does not inject the project warning preload into GitHub action runtimes${actionBoundaryFailures.length ? ` (${actionBoundaryFailures.join(', ')})` : ''}`
+    );
+    context.assert(!workflow.includes('${{ env.XTEND_NODE_WARNING_OPTIONS }}'), `${relativePath} does not depend on dynamic GITHUB_ENV expression expansion for NODE_OPTIONS`);
+  });
+
+  const activationTempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-node-warning-activation-'));
+  const activationEnvPath = path.join(activationTempDir, 'github-env');
+  const activationExecution = spawnSync(process.execPath, [
+    resolveRepoPath('scripts/enable_node_warning_policy.js', rootDir),
+    '--lane',
+    'node-26-current'
+  ], {
+    cwd: rootDir,
+    encoding: 'utf8',
+    env: { ...process.env, GITHUB_ENV: activationEnvPath }
+  });
+  const activationEnvironment = fs.existsSync(activationEnvPath) ? fs.readFileSync(activationEnvPath, 'utf8') : '';
+  const activationSandboxDenied = activationExecution.error
+    && (activationExecution.error.code === 'EPERM' || activationExecution.error.code === 'EACCES');
+  if (activationSandboxDenied) {
+    context.skip(`Warning policy activation process fixture skipped because child processes are denied (${activationExecution.error.code})`);
+  } else {
+    context.assert(activationExecution.status === 0, 'Warning policy activation succeeds with a GitHub environment command file');
+    context.assert(!/^NODE_OPTIONS=/mu.test(activationEnvironment), 'Warning policy activation never writes the GitHub-blocked NODE_OPTIONS variable');
+    context.assert(
+      activationEnvironment.includes('XTEND_NODE_WARNING_POLICY=project-error')
+        && activationEnvironment.includes('XTEND_NODE_WARNING_REPORT=.xtend-test-results/runtime/xtend-node-warnings-node-26-current.jsonl'),
+      'Warning policy activation persists only the allowed policy and report variables'
+    );
+    context.assert(
+      activationExecution.stdout.includes('"activation":"explicit-step-env"')
+        && activationExecution.stdout.includes('"requiredNodeOptions":"--trace-warnings --trace-deprecation --require='),
+      'Warning policy activation reports the explicit step-env contract'
+    );
+  }
+  fs.rmSync(activationTempDir, { recursive: true, force: true });
+
+  const windowsNpmInvocation = resolveNpmVersionInvocation('win32', {
+    ComSpec: 'C:\\Windows\\System32\\cmd.exe'
+  });
+  const windowsNpmFallbackInvocation = resolveNpmVersionInvocation('win32', {});
+  const posixNpmInvocation = resolveNpmVersionInvocation('linux', {});
+  context.assert(
+    windowsNpmInvocation.command === 'C:\\Windows\\System32\\cmd.exe'
+      && JSON.stringify(windowsNpmInvocation.args) === JSON.stringify(['/d', '/s', '/c', 'npm.cmd --version']),
+    'Runtime evidence resolves the Windows npm.cmd shim through ComSpec without shell:true'
+  );
+  context.assert(
+    windowsNpmFallbackInvocation.command === 'cmd.exe',
+    'Runtime evidence retains a portable Windows command-interpreter fallback'
+  );
+  context.assert(
+    posixNpmInvocation.command === 'npm'
+      && JSON.stringify(posixNpmInvocation.args) === JSON.stringify(['--version']),
+    'Runtime evidence keeps direct npm execution on POSIX platforms'
+  );
+  const runtimeEvidenceCollector = readText('scripts/capture_node_runtime_evidence.js', rootDir);
+  context.assert(
+    !/shell\s*:\s*true/u.test(runtimeEvidenceCollector),
+    'Runtime evidence does not use the deprecated shell:true plus args execution path'
+  );
 
   const conditionalNetworkCapture = readText('scripts/capture_conditional_network_evidence.js', rootDir);
   context.assert(!conditionalNetworkCapture.includes('npm@10') && !conditionalNetworkCapture.includes('USE_NPX_NPM10'), 'Audit and SBOM evidence use the pinned npm 11 runtime rather than an npm 10 side path');

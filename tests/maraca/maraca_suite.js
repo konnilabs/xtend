@@ -1127,6 +1127,8 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
   context.assert(fs.existsSync(kernelRuntimePath), 'kernel runtime asset exists in the build package');
   const kernelRuntimeSource = fs.readFileSync(kernelRuntimePath, 'utf8');
   const kernelRuntimeModule = await import(`data:text/javascript;base64,${Buffer.from(kernelRuntimeSource).toString('base64')}`);
+  const browserlessKernelWindowTarget = Object.freeze({});
+  const browserlessMissingApis = ['Blob', 'Worker', 'URL.createObjectURL'];
   const kernelHostAdapter = {
     hostKind: 'node_fake_maraca_kernel',
     now: () => 0,
@@ -1148,8 +1150,8 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
     createAbortController: () => null,
     createCustomEvent: (name, init = {}) => ({ type: name, detail: init.detail || null })
   };
-  const kernelCore = kernelRuntimeModule.createRmtCore({ hostAdapter: kernelHostAdapter, documentTarget: null, windowTarget: globalThis });
-  const kernelPerformance = kernelRuntimeModule.createRmtPerformanceRuntime({ hostAdapter: kernelHostAdapter, documentTarget: null, windowTarget: globalThis });
+  const kernelCore = kernelRuntimeModule.createRmtCore({ hostAdapter: kernelHostAdapter, documentTarget: null, windowTarget: browserlessKernelWindowTarget });
+  const kernelPerformance = kernelRuntimeModule.createRmtPerformanceRuntime({ hostAdapter: kernelHostAdapter, documentTarget: null, windowTarget: browserlessKernelWindowTarget });
   const schedulerBridge = kernelRuntimeModule.createRmtStateSchedulerDiagnosticsBridge({
     performanceRuntime: kernelPerformance,
     schedules: strictPlan.kernel.artifact.scheduler.schedules
@@ -1167,13 +1169,19 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
   const prewarmRuntimeSmoke = kernelRuntimeModule.createRmtRuntime({
     hostAdapter: kernelHostAdapter,
     documentTarget: null,
-    windowTarget: globalThis,
+    windowTarget: browserlessKernelWindowTarget,
     enablePrewarmWorker: true
   });
   const prewarmRuntimeTopology = prewarmRuntimeSmoke.getPrewarmWorkerTopology();
   context.assert(prewarmRuntimeTopology && prewarmRuntimeTopology.schema === 'xtend.rmt.prewarm-worker-topology.v1', 'packaged kernel runtime exposes Prewarm Worker topology');
   context.assert(prewarmRuntimeTopology.enabled === true, 'packaged kernel runtime honors Prewarm Worker opt-in');
   context.assert(Array.isArray(prewarmRuntimeTopology.missingApis), 'packaged kernel runtime lists Prewarm Worker missing APIs');
+  context.assert(
+    browserlessMissingApis.every((api) => prewarmRuntimeTopology.missingApis.includes(api))
+      && prewarmRuntimeTopology.missingApis.length === browserlessMissingApis.length,
+    'packaged kernel runtime resolves browser APIs against the deterministic browserless window target'
+  );
+  context.assert(!('localStorage' in browserlessKernelWindowTarget), 'browserless kernel smoke never exposes Node global localStorage to the browser runtime');
   context.assert(prewarmRuntimeTopology.excludedResponsibilities.includes('dom_mutation'), 'packaged kernel runtime keeps Prewarm Worker DOM-free');
   const prewarmRuntimeDispose = prewarmRuntimeSmoke.dispose();
   context.assert(prewarmRuntimeDispose && prewarmRuntimeDispose.prewarmWorkerTerminated === true, 'packaged kernel runtime dispose terminates Prewarm Worker path');
@@ -1182,7 +1190,7 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
     artifact: strictPlan.kernel.artifact,
     plan: strictPlan.kernel,
     hostAdapter: kernelHostAdapter,
-    windowTarget: globalThis,
+    windowTarget: browserlessKernelWindowTarget,
     documentTarget: null
   });
   const sourceControllerSnapshot = sourceController.boot();
@@ -1199,8 +1207,8 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
     artifact: productSurfacePlan.kernel.artifact,
     plan: productSurfacePlan.kernel,
     hostAdapter: kernelHostAdapter,
-    windowTarget: globalThis,
-      documentTarget: null
+    windowTarget: browserlessKernelWindowTarget,
+    documentTarget: null
   });
   const productSurfaceSnapshot = productSurfaceController.boot();
   context.assert(productSurfaceSnapshot.bootMode === 'productSurface', 'product-surface controller snapshot records productSurface boot mode');
@@ -1219,13 +1227,19 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
     artifact: prewarmWorkerPlan.kernel.artifact,
     plan: prewarmWorkerPlan.kernel,
     hostAdapter: kernelHostAdapter,
-    windowTarget: globalThis,
+    windowTarget: browserlessKernelWindowTarget,
     documentTarget: null,
     enablePrewarmWorker: true
   });
   const prewarmWorkerSnapshot = prewarmWorkerController.boot();
   context.assert(prewarmWorkerSnapshot.prewarmWorker && prewarmWorkerSnapshot.prewarmWorker.enabled === true, 'prewarm worker controller honors opt-in flag');
   context.assert(prewarmWorkerSnapshot.prewarmWorker && Array.isArray(prewarmWorkerSnapshot.prewarmWorker.missingApis), 'prewarm worker topology lists missing host APIs');
+  context.assert(
+    prewarmWorkerSnapshot.prewarmWorker
+      && browserlessMissingApis.every((api) => prewarmWorkerSnapshot.prewarmWorker.missingApis.includes(api))
+      && prewarmWorkerSnapshot.prewarmWorker.missingApis.length === browserlessMissingApis.length,
+    'prewarm worker controller keeps browserless host API detection deterministic'
+  );
   context.assert(prewarmWorkerSnapshot.prewarmWorker && prewarmWorkerSnapshot.prewarmWorker.excludedResponsibilities.includes('dom_mutation'), 'prewarm worker topology excludes DOM ownership');
   context.assert(
     prewarmWorkerSnapshot.featureAdoption.capabilities.find((capability) => capability.key === 'prewarmWorker').active === true,
