@@ -191,6 +191,13 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(resumability.coreDocument.hydrationPolicies.some((policy) => policy.kind === 'resumability' && policy.mode === 'server_prerender_resume'), 'resumability policies lower to core hydration policy records');
   context.assert(resumability.coreDocument.hydrationPolicies.some((policy) => policy.snapshot === 'surface_state'), 'resumability snapshot metadata lowers to core');
   context.assert(resumability.coreDocument.hydrationPolicies.some((policy) => policy.eventReplay === 'intent_queue'), 'resumability event replay metadata lowers to core');
+  const resumabilityRecords = resumability.orchestrationArtifacts.hydration.records.filter((record) => record.resumability && record.resumability.requested);
+  context.assert(resumabilityRecords.length === 2, 'resumability lowers a typed record for hydrate and resume lifecycle operations');
+  context.assert(resumabilityRecords.every((record) => record.explicitPolicy === true), 'resumability counts as an explicit hydration policy');
+  context.assert(resumabilityRecords.every((record) => record.resumability.snapshot === 'surface_state'), 'resumability snapshot survives orchestration lowering');
+  context.assert(resumabilityRecords.every((record) => record.resumability.eventReplay === 'intent_queue'), 'resumability event replay survives orchestration lowering');
+  context.assert(resumabilityRecords.every((record) => record.resumability.integrity === 'signed_manifest'), 'resumability integrity survives orchestration lowering');
+  context.assert(resumability.orchestrationArtifacts.hydration.serverResumability.requested === true, 'server resumability capability reports the request');
 
   const primitiveResult = parseFixture(VALID_PRIMITIVE_FIXTURE, rootDir);
   const primitive = primitiveResult.coreDocument;

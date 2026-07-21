@@ -81,6 +81,11 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
 
+      - name: Install ERP resumability catfood dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm ci --prefix products/resumability-maraca-erp-demo --ignore-scripts --no-audit --fund=false
+
       - name: Prepare Native-First release evidence artifacts
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -145,6 +150,12 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xtend-llm-app-services-catfood:report
 
+      - name: Run ERP resumability catfood report
+        if: always()
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run test:erp-resumability-catfood:report
+
       - name: Run XScaler protocol gate report
         if: always()
         env:
@@ -208,6 +219,7 @@ jobs:
             .xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json
             .xtend-test-results/xtend-llm-app-services-catfood-report.json
             products/xtend-llm/.xtend-llm-results/app-services-catfood.json
+            .xtend-test-results/erp-resumability-catfood-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-public-api-report.json
             .xtend-test-results/xtend-xscaler-php-preflight-parity-report.json
@@ -269,6 +281,11 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
+
+      - name: Install ERP resumability catfood dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm ci --prefix products/resumability-maraca-erp-demo --ignore-scripts --no-audit --fund=false
 
       - name: Prepare Native-First release evidence artifacts
         env:
@@ -334,6 +351,12 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xtend-llm-app-services-catfood:report
 
+      - name: Run ERP resumability catfood report
+        if: always()
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run test:erp-resumability-catfood:report
+
       - name: Run XScaler protocol gate report
         if: always()
         env:
@@ -397,6 +420,7 @@ jobs:
             .xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json
             .xtend-test-results/xtend-llm-app-services-catfood-report.json
             products/xtend-llm/.xtend-llm-results/app-services-catfood.json
+            .xtend-test-results/erp-resumability-catfood-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-public-api-report.json
             .xtend-test-results/xtend-xscaler-php-preflight-parity-report.json

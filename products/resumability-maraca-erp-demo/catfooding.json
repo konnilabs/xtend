@@ -1,0 +1,14 @@
+{
+  "schema": "xtend.rmt.erp-resumability-catfood.v1",
+  "id": "resumability-maraca-erp-demo",
+  "status": "required",
+  "owner": "XTend RMT Runtime",
+  "source": "src/rmt/erp-shell.rmt",
+  "executionMode": "server_prerender_resume",
+  "fallbackMode": "server_prerender_hydrate",
+  "xtensionMatrix": {
+    "dom_hydrate": ["react-ledger-panel", "react-sla-matrix", "vue-process-sidebar", "vue-exception-queue", "angular-risk-workbench"],
+    "host_activate": ["three-material-flow-scene", "vanilla-legacy-lab", "openui5-procurement-worklist"]
+  },
+  "gates": ["strict-build", "maraca-tune", "signed-envelope", "node-identity", "intent-replay-exactly-once", "single-hydration-fallback", "csp", "accessibility", "telemetry", "dev-surface", "trusted-dom", "lessons-registry"]
+}

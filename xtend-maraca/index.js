@@ -166,7 +166,9 @@ const KERNEL_POLICY_PARITY_REPORT_SCHEMA = 'xtend.rmt.kernel-policy-parity-repor
 const KERNEL_POLICY_PARITY_DRIFT_SCHEMA = 'xtend.rmt.kernel-policy-parity-drift.v1';
 const KERNEL_RUNTIME_BUNDLE_FILE = 'runtime/xtendrmt-runtime.esm.js';
 const KERNEL_CONTROLLER_BUNDLE_FILE = 'runtime/xtendrmt-kernel-orchestration-controller.js';
+const KERNEL_RESUME_RUNTIME_BUNDLE_FILE = 'runtime/rmt-resume-runtime.js';
 const ORCHESTRATION_RUNTIME_MODULES = Object.freeze([
+  'xtendrmt/rmt-resume-runtime.js',
   'xtendrmt/rmt-state-selector-runtime.js',
   'xtendrmt/rmt-action-effect-runtime.js',
   'xtendrmt/rmt-event-routing-runtime.js',
@@ -189,6 +191,7 @@ const XTEND_VENDOR_STACK_MODULES = Object.freeze([
   'xtendrmt/rmt-surface-resource-graph-runtime.js',
   'xtendrmt/rmt-component-capability-registry.js',
   'xtendrmt/rmt-native-shell-runtime.js',
+  'xtendrmt/rmt-resume-runtime.js',
   'fabric/xtend-fabric.js',
   'fabric/rmt-lane-mapping.js',
   'fabric/hydration-policy.js'
@@ -2997,57 +3000,77 @@ function hydrationDiagnostic(code, severity, message, details = {}) {
 }
 
 function createMaracaServerPrerenderReport(artifact, supportedModes, records) {
-  const hasServerMode = supportedModes.has('server_prerender_hydrate');
+  const hasHydrateMode = supportedModes.has('server_prerender_hydrate');
+  const hasResumeMode = supportedModes.has('server_prerender_resume');
+  const hasServerMode = hasHydrateMode || hasResumeMode;
   const serverRecords = records.filter((record) => record && (
     record.mode === 'server_prerender_hydrate'
+    || record.mode === 'server_prerender_resume'
     || record.policy === 'server_prerender_hydrate'
+    || record.policy === 'server_prerender_resume'
     || record.executionMode === 'server_prerender_hydrate'
+    || record.executionMode === 'server_prerender_resume'
   ));
+  const resumeRecords = serverRecords.filter((record) => record && (
+    record.mode === 'server_prerender_resume'
+    || record.policy === 'server_prerender_resume'
+    || record.executionMode === 'server_prerender_resume'
+  ));
+  const hydrateRecords = serverRecords.filter((record) => !resumeRecords.includes(record));
+  const requestedMode = resumeRecords.length > 0 ? 'server_prerender_resume' : 'server_prerender_hydrate';
   const supportStatus = hasServerMode ? (serverRecords.length > 0 ? 'supported' : 'available') : 'degraded';
-  const hydrateResponseCompatible = hasServerMode;
+  const hydrateResponseCompatible = hasHydrateMode;
+  const resumeResponseCompatible = hasResumeMode;
   const adapterKinds = [
     {
       kind: 'kernel-server-runtime',
       adapterSchema: 'xtend.rmt.template-server-adapter.v1',
       supportStatus,
-      hydrateResponseCompatible
+      hydrateResponseCompatible,
+      resumeResponseCompatible
     },
     {
       kind: 'node-ssr',
       adapterSchema: 'xtend.rmt.node-ssr-adapter.v1',
       supportStatus: 'supported',
-      hydrateResponseCompatible: true
+      hydrateResponseCompatible: true,
+      resumeResponseCompatible: true
     },
     {
       kind: 'php-ssr',
       adapterSchema: 'xtend.rmt.php-ssr-adapter.v1',
       supportStatus: 'supported',
-      hydrateResponseCompatible: true
+      hydrateResponseCompatible: true,
+      resumeResponseCompatible: true
     }
   ];
 
   return {
     schema: 'xtend.maraca.server-prerender-interop.v1',
     id: 'serverPrerender',
-    mode: 'server_prerender_hydrate',
+    mode: requestedMode,
     supported: hasServerMode,
     degraded: !hasServerMode,
     status: supportStatus,
     requested: serverRecords.length > 0,
     recordCount: serverRecords.length,
+    hydrateRecordCount: hydrateRecords.length,
+    resumeRecordCount: resumeRecords.length,
     hydrateResponseCompatible,
+    resumeResponseCompatible,
     adapterKinds,
     evidence: {
       artifactSchema: artifact && artifact.schema || null,
-      sourceToSeaFlow: 'server_prerender_hydrate',
+      sourceToSeaFlow: requestedMode,
       responseEnvelopeKind: 'rmt_template_prerender_response',
-      chunkKind: 'rmt_template_chunk'
+      chunkKind: 'rmt_template_chunk',
+      resumeEnvelopeSchema: 'xtend.rmt.ssr-resume-envelope.v1'
     },
     diagnostics: hasServerMode ? [] : [hydrationDiagnostic(
       'xtend.maraca.server_prerender_mode_missing',
       'warning',
-      'Hydration artifact does not advertise server_prerender_hydrate support.',
-      { mode: 'server_prerender_hydrate' }
+      'Hydration artifact does not advertise a server prerender hydrate or resume mode.',
+      { modes: ['server_prerender_hydrate', 'server_prerender_resume'] }
     )]
   };
 }
@@ -3380,6 +3403,26 @@ function createMaracaHydrationPlan(compileResult, orchestrationPlan, kernelPlan,
         `Hydration mode ${record.mode} is not supported by the compiler hydration plan.`,
         { hydration: record.id || '', mode: record.mode }
       ));
+    }
+    if (record.mode === 'server_prerender_resume') {
+      const resumability = record.resumability || {};
+      const missing = ['snapshot', 'eventReplay', 'integrity'].filter((field) => !resumability[field]);
+      if (missing.length > 0) {
+        diagnostics.push(hydrationDiagnostic(
+          'xtend.maraca.resumability_record_incomplete',
+          strict ? 'error' : 'warning',
+          `Resume record ${record.id} is missing ${missing.join(', ')}.`,
+          { hydration: record.id || '', missing }
+        ));
+      }
+      if (resumability.fallbackMode !== 'server_prerender_hydrate') {
+        diagnostics.push(hydrationDiagnostic(
+          'xtend.maraca.resumability_fallback_invalid',
+          strict ? 'error' : 'warning',
+          `Resume record ${record.id} must declare server_prerender_hydrate fallback.`,
+          { hydration: record.id || '', fallbackMode: resumability.fallbackMode || null }
+        ));
+      }
     }
     if (strict && record.insularHydration && (!record.isolation || record.isolation.shadowRootAccess !== false)) {
       diagnostics.push(hydrationDiagnostic(
@@ -5367,7 +5410,9 @@ function resolveLazyStrategy(options) {
 
 function readServerPrerenderShellPayload() {
   if (typeof document === "undefined") return null;
-  const payloadElement = document.getElementById("xtend-llm-ssr-hydration") || document.querySelector("[data-rmt-ssr-hydration]");
+  const payloadElement = document.getElementById("xtend-llm-ssr-hydration")
+    || document.querySelector("[data-rmt-ssr-resume]")
+    || document.querySelector("[data-rmt-ssr-hydration]");
   if (!payloadElement || typeof payloadElement.textContent !== "string") return null;
   try {
     return JSON.parse(payloadElement.textContent);
@@ -5389,7 +5434,9 @@ function adoptServerPrerenderShell(root) {
       status: "absent"
     };
   }
-  const shell = root.querySelector("[data-maraca-ssr-shell]");
+  const shell = root.getAttribute && root.getAttribute("data-rmt-resume-root") === "true"
+    ? root
+    : root.querySelector('[data-rmt-resume-root="true"], [data-maraca-ssr-shell]');
   const payload = readServerPrerenderShellPayload();
   if (!shell) {
     return {
@@ -5406,18 +5453,20 @@ function adoptServerPrerenderShell(root) {
     .split(",")
     .map((entry) => entry.trim())
     .filter(Boolean);
-  if (typeof shell.remove === "function") shell.remove();
-  else if (shell.parentNode && typeof shell.parentNode.removeChild === "function") shell.parentNode.removeChild(shell);
+  const resumeEnvelope = payload && (payload.resume || payload.response && payload.response.resume || payload.schema === "xtend.rmt.ssr-resume-envelope.v1" && payload) || null;
+  const executionMode = resumeEnvelope && resumeEnvelope.executionMode || payload && payload.executionMode || "server_prerender_hydrate";
   if (typeof root.setAttribute === "function") {
-    root.setAttribute("data-rmt-ssr-adopted", "true");
-    root.setAttribute("data-rmt-hydration-mode", "server_prerender_hydrate");
+    root.setAttribute("data-rmt-ssr-preserved", "true");
+    root.setAttribute("data-rmt-hydration-mode", executionMode);
   }
   return {
     schema: "xtend.maraca.server-prerender-shell.v1",
     active: true,
-    status: "adopted",
+    status: "preserved",
     transport: "node-ssr",
-    executionMode: "server_prerender_hydrate",
+    executionMode,
+    resumeEnvelopeSchema: resumeEnvelope && resumeEnvelope.schema || null,
+    resumeRootId: shell.getAttribute && shell.getAttribute("id") || null,
     surfaceCount,
     workerPrewarmTargets: targets,
     payload
@@ -7227,10 +7276,10 @@ function createOrchestrationController(root, options = {}, kernelController = nu
         applyStateChange();
       }
     });
-    const initialRender = render();
+    const initialRender = options.adoptExisting === true ? null : render();
     Promise.resolve(initialRender).then(() => {
       if (validationRuntime && typeof validationRuntime.refresh === "function") {
-        validationRuntime.refresh({ reason: "boot" });
+        validationRuntime.refresh({ reason: options.adoptExisting === true ? "resume" : "boot" });
       }
     }).catch((error) => {
       publishDiagnostic(createMaracaErrorDiagnostic("xtend.maraca.validation_boot_refresh_error", error));
@@ -7608,6 +7657,16 @@ let currentMaracaTelemetry = null;
 let currentMaracaTemplateArtifactsRegistration = null;
 let currentMaracaPwaRegistration = null;
 let currentMaracaAppServices = null;
+let currentMaracaResume = null;
+let currentMaracaBootResult = null;
+let currentMaracaResumeIdentity = "";
+
+function resolveMaracaResumeIdentity(payload) {
+  const envelope = payload && (payload.resume || payload.response && payload.response.resume || payload.schema === "xtend.rmt.ssr-resume-envelope.v1" && payload) || null;
+  if (!envelope || !envelope.generation) return "";
+  const integrity = envelope.integrity || {};
+  return [envelope.generation, integrity.keyId || "", integrity.digest || "", integrity.signature || ""].join(":");
+}
 
 function disposeXtendMaraca(reason = "XTend Maraca app disposed.") {
   const disposed = {
@@ -7626,6 +7685,8 @@ function disposeXtendMaraca(reason = "XTend Maraca app disposed.") {
     reason,
     ...disposed
   });
+  currentMaracaBootResult = null;
+  currentMaracaResumeIdentity = "";
   return disposed;
 }
 
@@ -7634,6 +7695,15 @@ async function bootXtendMaraca(options = {}) {
     return { ok: false, status: "no_document", schema: MARACA_SCHEMA };
   }
   const root = options.root || document.querySelector("[data-maraca-root]") || document.getElementById("xtend-maraca-root") || document.body;
+  const pendingResumeIdentity = resolveMaracaResumeIdentity(readServerPrerenderShellPayload());
+  if (pendingResumeIdentity && pendingResumeIdentity === currentMaracaResumeIdentity && currentMaracaBootResult) {
+    const duplicateResult = Object.freeze({
+      ...currentMaracaBootResult,
+      duplicateBootIgnored: true
+    });
+    window.__XTendMaracaResult = duplicateResult;
+    return duplicateResult;
+  }
   if (currentMaracaAppServices) disposeXtendMaraca("XTend Maraca app restarted.");
   currentMaracaAppServices = createMaracaAppServiceController(options);
   const runtimeOptions = {
@@ -7643,13 +7713,22 @@ async function bootXtendMaraca(options = {}) {
   };
   attachMaracaCss(root);
   const serverPrerenderShell = adoptServerPrerenderShell(root);
-  const fragment = document.createDocumentFragment();
-  const surfaceEntries = MARACA_SURFACES.map((surface) => {
-    const element = createSurfaceElement(surface);
-    fragment.appendChild(element);
-    return { surface, element };
-  });
-  root.appendChild(fragment);
+  const resumeRequested = serverPrerenderShell.active === true
+    && serverPrerenderShell.executionMode === "server_prerender_resume"
+    && serverPrerenderShell.payload;
+  const surfaceEntries = [];
+  if (!serverPrerenderShell.active) {
+    const fragment = document.createDocumentFragment();
+    MARACA_SURFACES.forEach((surface) => {
+      const element = createSurfaceElement(surface);
+      fragment.appendChild(element);
+      surfaceEntries.push({ surface, element });
+    });
+    root.appendChild(fragment);
+  } else {
+    surfaceEntries.push(...createSurfaceEntriesFromRoot(root));
+  }
+  runtimeOptions.adoptExisting = Boolean(resumeRequested);
   currentMaracaKernel = createKernelController(root, runtimeOptions);
   currentMaracaHydration = createHydrationController(root, runtimeOptions, currentMaracaKernel);
   currentMaracaOrchestration = createOrchestrationController(root, runtimeOptions, currentMaracaKernel, currentMaracaHydration);
@@ -7657,6 +7736,67 @@ async function bootXtendMaraca(options = {}) {
   currentMaracaAnimationEngine = currentMaracaOrchestration && currentMaracaOrchestration.animationEngineRuntime || null;
   currentMaracaTransitions = currentMaracaOrchestration && currentMaracaOrchestration.transitionRuntime || null;
   currentMaracaTelemetry = createTelemetryBridge(currentMaracaKernel, currentMaracaOrchestration, currentMaracaHydration, currentMaracaValidation, currentMaracaTransitions);
+  let resumeResult = null;
+  if (resumeRequested) {
+    const resumeApi = getMaracaRuntimeApi("XTendRmtResumeRuntime");
+    if (resumeApi && typeof resumeApi.createRmtResumeRuntime === "function") {
+      const resumeEnvelope = serverPrerenderShell.payload.resume
+        || serverPrerenderShell.payload.response && serverPrerenderShell.payload.response.resume
+        || serverPrerenderShell.payload;
+      const resumeRoot = resumeEnvelope && resumeEnvelope.rootId && document.getElementById(resumeEnvelope.rootId) || root;
+      currentMaracaResume = resumeApi.createRmtResumeRuntime({
+        root: resumeRoot,
+        verifyResumeEnvelope: runtimeOptions.verifyResumeEnvelope || runtimeOptions.verify,
+        stateRuntime: currentMaracaOrchestration && currentMaracaOrchestration.stateRuntime,
+        adopters: runtimeOptions.resumeAdopters || runtimeOptions.adopters || {},
+        restoreState(state) {
+          const stateRuntime = currentMaracaOrchestration && currentMaracaOrchestration.stateRuntime;
+          if (!stateRuntime || typeof stateRuntime.setState !== "function") return null;
+          const known = new Set((stateRuntime.stateDefinitions || []).map((entry) => entry && entry.id).filter(Boolean));
+          Object.entries(state || {}).forEach(([id, value]) => {
+            if (known.size === 0 || known.has(id)) stateRuntime.setState(id, value, { operation: "server-resume", generation: resumeEnvelope.generation });
+          });
+          return stateRuntime.snapshot && stateRuntime.snapshot();
+        },
+        adoptRoot() {
+          return currentMaracaOrchestration && typeof currentMaracaOrchestration.attachEvents === "function"
+            ? currentMaracaOrchestration.attachEvents()
+            : null;
+        },
+        replayIntent(intent) {
+          const actionRuntime = currentMaracaOrchestration && currentMaracaOrchestration.actionRuntime;
+          return actionRuntime && typeof actionRuntime.runAction === "function"
+            ? actionRuntime.runAction(intent.action, intent.payload || {}, { operation: "resume-replay", eventId: intent.eventId })
+            : null;
+        },
+        hydrateResponse() {
+          const renderResult = currentMaracaOrchestration && typeof currentMaracaOrchestration.render === "function"
+            ? currentMaracaOrchestration.render()
+            : null;
+          const hydrateResult = currentMaracaHydration && currentMaracaHydration.enabled
+            ? currentMaracaHydration.hydrateAll(MARACA_COMPONENTS.map((entry) => entry.tag), { reason: "resume-fallback" })
+            : null;
+          return Promise.all([Promise.resolve(renderResult), Promise.resolve(hydrateResult)]).then(() => ({ ok: true, status: "hydrated" }));
+        },
+        publishDiagnostic(diagnostic) {
+          dispatchMaracaEvent("xtend-maraca:resume-diagnostic", diagnostic);
+        }
+      });
+      resumeResult = await currentMaracaResume.resumeResponse(serverPrerenderShell.payload.response || serverPrerenderShell.payload, {}, {
+        root: resumeRoot,
+        intentQueue: runtimeOptions.intentQueue || []
+      });
+      if (typeof root.setAttribute === "function") root.setAttribute("data-rmt-resume-status", resumeResult.status);
+      dispatchMaracaEvent("xtend-maraca:resume", resumeResult);
+    } else {
+      resumeResult = {
+        schema: "xtend.rmt.resume-result.v1",
+        ok: false,
+        status: "rejected",
+        reasons: ["resume_runtime_missing"]
+      };
+    }
+  }
   currentMaracaTemplateArtifactsRegistration = registerMaracaTemplateArtifacts(runtimeOptions);
   currentMaracaPwaRegistration = await registerMaracaPwaServiceWorker(runtimeOptions);
   const activeSurfaceEntries = currentMaracaOrchestration && currentMaracaOrchestration.enabled
@@ -7702,7 +7842,8 @@ async function bootXtendMaraca(options = {}) {
       enabled: Boolean(currentMaracaHydration && currentMaracaHydration.enabled),
       mode: MARACA_HYDRATION.mode,
       status: MARACA_HYDRATION.status,
-      diagnosticCount: currentMaracaHydration ? currentMaracaHydration.listDiagnostics().length : 0
+      diagnosticCount: currentMaracaHydration ? currentMaracaHydration.listDiagnostics().length : 0,
+      resume: resumeResult
     },
     validation: {
       enabled: Boolean(currentMaracaValidation),
@@ -7727,6 +7868,7 @@ async function bootXtendMaraca(options = {}) {
       registration: currentMaracaTemplateArtifactsRegistration
     },
     serverPrerenderShell,
+    resume: resumeResult,
     uiCoprocessor: MARACA_UI_COPROCESSOR,
     webAppManifest: MARACA_WEB_APP_MANIFEST,
     pwa: {
@@ -7738,11 +7880,14 @@ async function bootXtendMaraca(options = {}) {
     publicNameReservations: MARACA_PUBLIC_NAMES,
     dispose: disposeXtendMaraca
   };
+  currentMaracaBootResult = result;
+  currentMaracaResumeIdentity = pendingResumeIdentity;
   window.__XTendMaracaResult = result;
   window.__XTendMaracaLazyController = lazyController;
   window.__XTendMaracaKernel = currentMaracaKernel;
   window.__XTendMaracaOrchestration = currentMaracaOrchestration;
   window.__XTendMaracaHydration = currentMaracaHydration;
+  window.__XTendMaracaResume = currentMaracaResume;
   window.__XTendMaracaValidation = currentMaracaValidation;
   window.__XTendMaracaAnimationEngine = currentMaracaAnimationEngine;
   window.__XTendMaracaTransitions = currentMaracaTransitions;
@@ -8125,6 +8270,30 @@ function copyKernelRuntimeAsset(plan) {
   return {
     type: 'asset',
     fileName: KERNEL_RUNTIME_BUNDLE_FILE,
+    path: targetPath,
+    bytes: fs.statSync(targetPath).size,
+    isEntry: false,
+    isDynamicEntry: false,
+    imports: [],
+    dynamicImports: []
+  };
+}
+
+function copyKernelResumeRuntimeAsset(plan) {
+  if (!plan || !plan.kernel || !plan.kernel.enabled) return null;
+  const packageRoot = path.dirname(path.dirname(__filename));
+  const candidates = [
+    path.resolve(plan.rootDir || packageRoot, 'xtendrmt/rmt-resume-runtime.js'),
+    path.resolve(packageRoot, 'xtendrmt/rmt-resume-runtime.js')
+  ];
+  const sourcePath = candidates.find((candidate) => fs.existsSync(candidate));
+  if (!sourcePath) return null;
+  const targetPath = path.join(plan.outputDir, KERNEL_RESUME_RUNTIME_BUNDLE_FILE);
+  fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+  fs.copyFileSync(sourcePath, targetPath);
+  return {
+    type: 'asset',
+    fileName: KERNEL_RESUME_RUNTIME_BUNDLE_FILE,
     path: targetPath,
     bytes: fs.statSync(targetPath).size,
     isEntry: false,
@@ -9409,6 +9578,7 @@ function buildMaracaBundle(input = {}, options = {}) {
   }
   const cssResult = executeNativeCssProviderSync(plan);
   const kernelRuntimeAsset = copyKernelRuntimeAsset(plan);
+  const kernelResumeRuntimeAsset = copyKernelResumeRuntimeAsset(plan);
   const kernelControllerRuntimeAsset = copyKernelControllerRuntimeAsset(plan);
   const entryPath = plan.outputs.entry;
   const rawSource = createBundleSource(plan, cssResult.cssText);
@@ -9438,7 +9608,10 @@ function buildMaracaBundle(input = {}, options = {}) {
   if (plan.css === 'external' && plan.outputs.css) {
     bundleFiles.push(createMaracaPwaAssetRecord(plan.outputs.css, path.basename(plan.outputs.css)));
   }
-  bundleFiles = bundleFiles.concat(kernelControllerRuntimeAsset ? [kernelControllerRuntimeAsset] : []).concat(kernelRuntimeAsset ? [kernelRuntimeAsset] : []);
+  bundleFiles = bundleFiles
+    .concat(kernelControllerRuntimeAsset ? [kernelControllerRuntimeAsset] : [])
+    .concat(kernelRuntimeAsset ? [kernelRuntimeAsset] : [])
+    .concat(kernelResumeRuntimeAsset ? [kernelResumeRuntimeAsset] : []);
   bundleFiles.push(writeMaracaHtmlHost(plan));
   const webAppManifestArtifacts = writeMaracaWebAppManifestArtifacts(plan, bundleFiles);
   bundleFiles = bundleFiles.concat(webAppManifestArtifacts.files);
@@ -9508,6 +9681,7 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
     };
   }
   const kernelRuntimeAsset = copyKernelRuntimeAsset(plan);
+  const kernelResumeRuntimeAsset = copyKernelResumeRuntimeAsset(plan);
   const kernelControllerRuntimeAsset = copyKernelControllerRuntimeAsset(plan);
   const rawSource = createBundleSource(plan, cssResult.cssText);
   let rollupResult;
@@ -9555,6 +9729,9 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   }
   if (kernelRuntimeAsset) {
     rollupResult.files.push(kernelRuntimeAsset);
+  }
+  if (kernelResumeRuntimeAsset) {
+    rollupResult.files.push(kernelResumeRuntimeAsset);
   }
   rollupResult.files.push(writeMaracaHtmlHost(plan));
   const webAppManifestArtifacts = writeMaracaWebAppManifestArtifacts(plan, rollupResult.files);
@@ -9652,6 +9829,16 @@ function maracaTuneCandidateRecord(result, requested) {
   const report = result && result.bundleReport;
   const files = report && Array.isArray(report.bundleFiles) ? report.bundleFiles : [];
   const diagnostics = result && result.plan && Array.isArray(result.plan.diagnostics) ? result.plan.diagnostics : [];
+  const hydrationRecords = result && result.plan && result.plan.hydration
+    && result.plan.hydration.artifact && Array.isArray(result.plan.hydration.artifact.records)
+    ? result.plan.hydration.artifact.records
+    : [];
+  const declaredDeferredPolicies = hydrationRecords.filter((record) => {
+    const policy = String(record && record.policy || '').toLowerCase();
+    return Boolean(record && record.explicitPolicy)
+      && !['', 'eager', 'immediate', 'component-load'].includes(policy);
+  });
+  const declaredPolicyPreserved = requested.lazy !== 'none' || declaredDeferredPolicies.length === 0;
   const activeToolchain = report && report.toolchain && report.toolchain.active || 'unavailable';
   const closureOk = Boolean(report && report.productionClosure && report.productionClosure.ok);
   const sizeBudgetOk = Boolean(result && result.sizeBudgetReport && result.sizeBudgetReport.ok);
@@ -9662,6 +9849,7 @@ function maracaTuneCandidateRecord(result, requested) {
     && activeToolchain === 'rollup-terser'
     && closureOk
     && sizeBudgetOk
+    && declaredPolicyPreserved
     && diagnostics.length === 0;
   return {
     id: maracaTuneCandidateId(requested.profile, requested.lazy, requested.css),
@@ -9676,7 +9864,11 @@ function maracaTuneCandidateRecord(result, requested) {
         ? 'production-closure-failed'
         : (!sizeBudgetOk
           ? 'size-budget-failed'
-          : (diagnostics.length > 0 ? 'diagnostics-failed' : 'accepted'))),
+          : (!declaredPolicyPreserved
+            ? 'declared-lazy-policy-overridden'
+            : (diagnostics.length > 0 ? 'diagnostics-failed' : 'accepted')))),
+    declaredPolicyPreserved,
+    declaredDeferredPolicyCount: declaredDeferredPolicies.length,
     metrics: {
       frameworkBytes: Number(result && result.sizeBudgetReport && result.sizeBudgetReport.framework && result.sizeBudgetReport.framework.bytes || 0),
       appServiceBytes: Number(result && result.sizeBudgetReport && result.sizeBudgetReport.appServices && result.sizeBudgetReport.appServices.clientBytes || 0),

@@ -1,0 +1,43 @@
+{
+  "schema": "xtend.rmt.erp-resumability-catfood-lessons.v1",
+  "lessons": [
+    {
+      "id": "RMT-RESUME-L01",
+      "classification": "framework-native",
+      "decision": "implemented-upstream",
+      "title": "Hydration lifecycle sources are not streaming data sources",
+      "owner": "tools/rmt-language/vnext-streaming.js",
+      "gate": "rmt-vnext-streaming",
+      "evidence": "Selector-backed hydrate operations previously emitted false missing-data-source errors in Node SSR."
+    },
+    {
+      "id": "RMT-RESUME-L02",
+      "classification": "framework-native",
+      "decision": "implemented-upstream",
+      "title": "Maraca must preserve a verified SSR root before orchestration boot",
+      "owner": "xtend-maraca/index.js",
+      "gate": "maraca-orchestration",
+      "evidence": "The prior shell adoption path removed the SSR subtree before hydration."
+    },
+    {
+      "id": "RMT-RESUME-L03",
+      "classification": "framework-native",
+      "decision": "implemented-upstream",
+      "title": "Visibility resume and server adoption require separate XTension methods",
+      "owner": "tools/xtensions/resume-adapter-contract.js",
+      "gate": "xtensions-resume-adapter",
+      "evidence": "HostController resume(reason) remains visibility lifecycle; adopt(target, props, context) owns server adoption."
+    },
+    {
+      "id": "RMT-RESUME-L04",
+      "classification": "product-local",
+      "decision": "accepted",
+      "title": "Legacy and imperative runtimes activate inside preserved hosts",
+      "owner": "products/resumability-maraca-erp-demo",
+      "gate": "erp-resumability-catfood",
+      "evidence": "Three, OpenUI5 and iWebKit keep their server host nodes while activating adapter-owned runtime zones."
+    }
+  ],
+  "frameworkNativeLessonCount": 3,
+  "undecidedLessonCount": 0
+}

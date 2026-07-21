@@ -755,9 +755,17 @@
       "types": "./xtendrmt/rmt-node-ssr-adapter.d.ts",
       "default": "./xtendrmt/rmt-node-ssr-adapter.js"
     },
+    "./rmt/resume-runtime": {
+      "types": "./xtendrmt/rmt-resume-runtime.d.ts",
+      "default": "./xtendrmt/rmt-resume-runtime.js"
+    },
     "./xtensions/host-controller-contract": {
       "types": "./tools/xtensions/host-controller-contract.d.ts",
       "default": "./tools/xtensions/host-controller-contract.js"
+    },
+    "./xtensions/resume-adapter-contract": {
+      "types": "./tools/xtensions/resume-adapter-contract.d.ts",
+      "default": "./tools/xtensions/resume-adapter-contract.js"
     },
     "./xtensions/signal-bridge-contract": {
       "types": "./tools/xtensions/signal-bridge-contract.d.ts",
@@ -1188,6 +1196,21 @@
       "monkeypatchingAllowed": false,
       "localGate": "node scripts/run_xtend_tests.js xtend-material-catfooding --json",
       "packageScript": "npm run test:xtend-material-catfooding"
+    },
+    "erpResumabilityCatfooding": {
+      "schema": "xtend.rmt.erp-resumability-catfood-report.v1",
+      "productSchema": "xtend.rmt.erp-resumability-catfood.v1",
+      "status": "required",
+      "owner": "XTend RMT Runtime",
+      "product": "products/resumability-maraca-erp-demo",
+      "source": "products/resumability-maraca-erp-demo/src/rmt/erp-shell.rmt",
+      "tuneConfig": "products/resumability-maraca-erp-demo/maraca.tuned.config.json",
+      "lessons": "products/resumability-maraca-erp-demo/catfooding-lessons.json",
+      "evidence": "products/resumability-maraca-erp-demo/catfooding-evidence.json",
+      "report": ".xtend-test-results/erp-resumability-catfood-report.json",
+      "browserRequired": "chromium-or-chrome",
+      "localGate": "node scripts/run_xtend_tests.js erp-resumability-catfood --json",
+      "packageScript": "npm run test:erp-resumability-catfood"
     },
     "materialCliGeneratedApp": {
       "schema": "xtend.material.cli-generated-app-report.v1",
@@ -11914,7 +11937,8 @@
           "products/xtend-llm/.xtend-llm-results/app-services-catfood.json",
           ".xtend-test-results/xtend-xscaler-public-api-report.json",
           ".xtend-test-results/xtend-xscaler-php-preflight-parity-report.json",
-          ".xtend-test-results/xtend-rmt-xscaler-ssr-hydration-parity-report.json"
+          ".xtend-test-results/xtend-rmt-xscaler-ssr-hydration-parity-report.json",
+          ".xtend-test-results/erp-resumability-catfood-report.json"
         ],
         "suites": [
           "node-runtime-policy",
@@ -17459,6 +17483,8 @@
     "test:xtend-material-browser-evidence": "node scripts/run_xtend_tests.js xtend-material-browser-evidence visual-snapshots component-runtime-a11y",
     "test:xtend-material-performance": "node scripts/run_xtend_tests.js xtend-material-performance maraca-size-budget supply-chain pack-dry-run",
     "test:xtend-material-catfooding": "node scripts/run_xtend_tests.js xtend-material-catfooding",
+    "test:erp-resumability-catfood": "node scripts/run_xtend_tests.js erp-resumability-catfood",
+    "test:erp-resumability-catfood:report": "node scripts/run_xtend_tests.js erp-resumability-catfood --report .xtend-test-results/erp-resumability-catfood-report.json",
     "test:xtend-material-cli-generated-app": "node scripts/run_xtend_tests.js xtend-material-cli-generated-app",
     "test:xtend-material-docs": "node scripts/run_xtend_tests.js xtend-material-docs docs-public-quality scoped-package-readmes package-exports references",
     "test:components": "node scripts/run_xtend_tests.js components",
@@ -17494,6 +17520,7 @@
     "test:rmt-vnext-compiler": "node scripts/run_xtend_tests.js rmt-vnext-compiler",
     "test:rmt-vnext-lifecycle": "node scripts/run_xtend_tests.js rmt-vnext-lifecycle",
     "test:xtensions-host-controller": "node scripts/run_xtend_tests.js xtensions-host-controller",
+    "test:xtensions-resume-adapter": "node scripts/run_xtend_tests.js xtensions-resume-adapter",
     "test:xtensions-signal-bridge": "node scripts/run_xtend_tests.js xtensions-signal-bridge",
     "test:maraca-xtensions": "node scripts/run_xtend_tests.js maraca-xtensions",
     "test:xtensions-static-introspection": "node scripts/run_xtend_tests.js xtensions-static-introspection",
@@ -17548,6 +17575,7 @@
     "test:rmt-vnext-source-to-sea:validate-artifact:firefox": "node scripts/capture_rmt_vnext_source_to_sea_evidence.js --validate-artifact --driver firefox",
     "test:rmt-vnext-component-primitives": "node scripts/run_xtend_tests.js rmt-vnext-component-primitives",
     "test:rmt-node-ssr-adapter": "node scripts/run_xtend_tests.js rmt-node-ssr-adapter",
+    "test:rmt-resume-runtime": "node scripts/run_xtend_tests.js rmt-resume-runtime",
     "test:rmt-php-ssr-adapter": "node scripts/run_xtend_tests.js rmt-php-ssr-adapter",
     "test:rmt-php-app-service-adapter": "node scripts/run_xtend_tests.js rmt-php-app-service-adapter",
     "test:docs-php-ssr-prehydration": "node scripts/run_xtend_tests.js docs-php-ssr-prehydration",

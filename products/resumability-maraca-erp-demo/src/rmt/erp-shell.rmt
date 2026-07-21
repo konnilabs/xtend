@@ -1,0 +1,857 @@
+// Local-only Maraca/RMT resumability ERP demo.
+
+template erp.demo.shell {
+  state erp.shell.status type object preserve {
+    initial {
+      id "erp-kernel-status"
+      text "Kernel bereit"
+      tone "neutral"
+      seed "demo-seed"
+      generatedAt "2026-06-28T12:00:00.000Z"
+      hidden false
+    }
+  }
+
+  state erp.shell.menuBar type object preserve {
+    initial {
+      id "erp-menu-bar-state"
+      title "Menüband"
+      menuCount 5
+      commandCount 16
+      openMenuId ""
+      selectedCommandId "system.resume"
+      selectedCommandLabel "Resume Snapshot anzeigen"
+      lastCommand "Menüband bereit"
+      hidden false
+    }
+  }
+
+  state erp.shell.surfaceInfoDialog type object preserve {
+    initial {
+      id "erp-surface-info-dialog-state"
+      title "RMT Surface Info"
+      open false
+      loaded false
+      telemetryStatus "lazy"
+      lastOpenedAt ""
+      commandSource ""
+      hidden true
+    }
+  }
+
+  state erp.shell.xtensionControlDialog type object preserve {
+    initial {
+      id "erp-xtension-control-dialog-state"
+      title "XTension Teststeuerung"
+      open false
+      loaded false
+      configStatus "local-storage"
+      storageKey "xtend.erp.demo.xtension.boot.v1"
+      enabledCount 8
+      disabledCount 0
+      totalCount 8
+      lastAppliedAt ""
+      commandSource ""
+      hidden true
+    }
+  }
+
+  state erp.shell.sidebar type object preserve {
+    initial {
+      id "erp-process-sidebar-state"
+      title "Prozessvorrat"
+      activeProcess "Order-to-Cash"
+      processCount 5
+      queueTotal 0
+      hidden false
+    }
+  }
+
+  state erp.shell.ledger type object preserve {
+    initial {
+      id "erp-ledger-panel-state"
+      title "Hauptbuch Stichprobe"
+      openItems 6
+      exposure 0
+      credits 0
+      variance 0
+      currency "EUR"
+      hidden false
+    }
+  }
+
+  state erp.shell.audit type object preserve {
+    initial {
+      id "erp-audit-panel-state"
+      text "Noch keine Journalereignisse"
+      tone "neutral"
+      hidden false
+    }
+  }
+
+  state erp.shell.reseed type object preserve {
+    initial {
+      id "erp-reseed-command"
+      text "Neue Stichprobe"
+      tone "primary"
+      disabled false
+      hidden false
+    }
+  }
+
+  state erp.shell.seedField type object preserve {
+    initial {
+      id "erp-seed-input"
+      field "seed"
+      label "Seed"
+      placeholder "demo-seed"
+      value "demo-seed"
+      inputType "text"
+      required true
+      hidden false
+    }
+  }
+
+  state erp.shell.loadMatrix type object preserve {
+    initial {
+      id "erp-load-matrix-state"
+      title "Load Matrix"
+      cells 15
+      warningCells 0
+      hidden false
+    }
+  }
+
+  state erp.shell.schedulerTrace type object preserve {
+    initial {
+      id "erp-scheduler-trace-state"
+      title "Scheduler Trace"
+      lanes 4
+      activeFibers 0
+      hidden false
+    }
+  }
+
+  state erp.shell.exceptionSummary type object preserve {
+    initial {
+      id "erp-exception-summary-state"
+      title "Exception Summary"
+      count 0
+      blockers 0
+      hidden false
+    }
+  }
+
+  state erp.shell.throughputBand type object preserve {
+    initial {
+      id "erp-throughput-band-state"
+      title "Throughput Band"
+      documentsPerMinute 0
+      resumedSurfaces 10
+      mountedXtensions 8
+      hidden false
+    }
+  }
+
+  state erp.shell.openUi5Procurement type object preserve {
+    initial {
+      id "erp-openui5-procurement-state"
+      title "OpenUI5 Procurement"
+      orders 0
+      approvalsOpen 0
+      critical 0
+      hidden false
+    }
+  }
+
+  state erp.shell.angularRiskWorkbench type object preserve {
+    initial {
+      id "erp-angular-risk-workbench-state"
+      title "Angular Risk Workbench"
+      risks 0
+      critical 0
+      exposure 0
+      hidden false
+    }
+  }
+
+  selector erp.shell.status from state erp.shell.status {
+    output ErpKernelStatusView
+  }
+
+  selector erp.shell.menuBar from state erp.shell.menuBar {
+    output ErpMenuBarView
+  }
+
+  selector erp.shell.surfaceInfoDialog from state erp.shell.surfaceInfoDialog {
+    output ErpSurfaceInfoDialogView
+  }
+
+  selector erp.shell.xtensionControlDialog from state erp.shell.xtensionControlDialog {
+    output ErpXtensionControlDialogView
+  }
+
+  selector erp.shell.sidebar from state erp.shell.sidebar {
+    output ErpProcessSidebarView
+  }
+
+  selector erp.shell.ledger from state erp.shell.ledger {
+    output ErpLedgerView
+  }
+
+  selector erp.shell.audit from state erp.shell.audit {
+    output ErpAuditView
+  }
+
+  selector erp.shell.reseed from state erp.shell.reseed {
+    output ErpReseedCommandView
+  }
+
+  selector erp.shell.seedField from state erp.shell.seedField {
+    output ErpSeedFieldView
+  }
+
+  selector erp.shell.loadMatrix from state erp.shell.loadMatrix {
+    output ErpLoadMatrixView
+  }
+
+  selector erp.shell.schedulerTrace from state erp.shell.schedulerTrace {
+    output ErpSchedulerTraceView
+  }
+
+  selector erp.shell.exceptionSummary from state erp.shell.exceptionSummary {
+    output ErpExceptionSummaryView
+  }
+
+  selector erp.shell.throughputBand from state erp.shell.throughputBand {
+    output ErpThroughputBandView
+  }
+
+  selector erp.shell.openUi5Procurement from state erp.shell.openUi5Procurement {
+    output ErpOpenUi5ProcurementView
+  }
+
+  selector erp.shell.angularRiskWorkbench from state erp.shell.angularRiskWorkbench {
+    output ErpAngularRiskWorkbenchView
+  }
+
+  datasource erp.shell.reseed from endpoint "/api/erp/reseed" {
+    method POST
+    contract ErpSnapshotResult
+    result state
+    fallback fixture erp.shell.fixture
+  }
+
+  validation erp.shell.reseedReady {
+    mode blocking
+    target action erp.shell.reseed
+    field erp.shell.seedField required message "Seed field must be resumable."
+  }
+
+  action erp.shell.reseed {
+    input seed string
+    effect fetch datasource erp.shell.reseed
+    reduce state.erp.shell.status.text = "Neue Stichprobe geplant"
+    reduce state.erp.shell.status.tone = "warning"
+    emit erp.shell.reseeded with seed input.seed
+  }
+
+  action erp.shell.reseedRequested {
+    input seed string
+    reduce state.erp.shell.status.text = "Neue Stichprobe über App Runtime angefordert"
+    reduce state.erp.shell.status.tone = "warning"
+    emit erp.shell.reseedRequested with seed input.seed
+  }
+
+  action erp.shell.selectProcess {
+    input process string
+    reduce state.erp.shell.sidebar.activeProcess = input.process
+    reduce state.erp.shell.status.text = "Prozessauswahl im Resume-Pfad aktualisiert"
+    emit erp.shell.processSelected with process input.process
+  }
+
+  action erp.shell.selectLedgerItem {
+    input ledgerId string
+    reduce state.erp.shell.status.text = "Belegposition über App Runtime markiert"
+    reduce state.erp.shell.status.tone = "neutral"
+    emit erp.shell.ledgerItemSelected with ledgerId input.ledgerId
+  }
+
+  action erp.shell.inspectSlaCell {
+    input kpiId string
+    reduce state.erp.shell.loadMatrix.title = "Load Matrix Auswahl"
+    reduce state.erp.shell.status.text = "SLA-Zelle über App Runtime markiert"
+    emit erp.shell.slaCellInspected with kpiId input.kpiId
+  }
+
+  action erp.shell.inspectException {
+    input exceptionId string
+    reduce state.erp.shell.exceptionSummary.title = "Exception Auswahl"
+    reduce state.erp.shell.status.text = "Exception über App Runtime markiert"
+    emit erp.shell.exceptionInspected with exceptionId input.exceptionId
+  }
+
+  action erp.shell.inspectOpenUi5Order {
+    input orderId string
+    reduce state.erp.shell.openUi5Procurement.title = "OpenUI5 Procurement Auswahl"
+    reduce state.erp.shell.status.text = "OpenUI5-Bestellung über App Runtime markiert"
+    emit erp.shell.openUi5OrderInspected with orderId input.orderId
+  }
+
+  action erp.shell.inspectAngularRisk {
+    input riskId string
+    reduce state.erp.shell.angularRiskWorkbench.title = "Angular Risk Auswahl"
+    reduce state.erp.shell.status.text = "Angular-Risiko über App Runtime markiert"
+    emit erp.shell.angularRiskInspected with riskId input.riskId
+  }
+
+  action erp.shell.toggleMenu {
+    input menuId string
+    reduce state.erp.shell.menuBar.openMenuId = input.menuId
+    reduce state.erp.shell.menuBar.lastCommand = "Menü geöffnet"
+    reduce state.erp.shell.status.text = "Menüband über XState aktualisiert"
+    emit erp.shell.menuToggled with menuId input.menuId
+  }
+
+  action erp.shell.selectMenuCommand {
+    input menuId string
+    input commandId string
+    input commandLabel string
+    reduce state.erp.shell.menuBar.openMenuId = ""
+    reduce state.erp.shell.menuBar.selectedCommandId = input.commandId
+    reduce state.erp.shell.menuBar.selectedCommandLabel = input.commandLabel
+    reduce state.erp.shell.menuBar.lastCommand = input.commandLabel
+    reduce state.erp.shell.status.text = "Menübefehl im Resume-Pfad verarbeitet"
+    emit erp.shell.menuCommandSelected with commandId input.commandId
+  }
+
+  action erp.shell.openSurfaceInfo {
+    input source string
+    reduce state.erp.shell.surfaceInfoDialog.open = true
+    reduce state.erp.shell.surfaceInfoDialog.loaded = true
+    reduce state.erp.shell.surfaceInfoDialog.hidden = false
+    reduce state.erp.shell.surfaceInfoDialog.telemetryStatus = "collecting"
+    reduce state.erp.shell.surfaceInfoDialog.commandSource = input.source
+    reduce state.erp.shell.status.text = "RMT Surface Info angefordert"
+    reduce state.erp.shell.status.tone = "neutral"
+    emit erp.shell.surfaceInfoOpened with source input.source
+  }
+
+  action erp.shell.closeSurfaceInfo {
+    input source string
+    reduce state.erp.shell.surfaceInfoDialog.open = false
+    reduce state.erp.shell.surfaceInfoDialog.hidden = true
+    reduce state.erp.shell.surfaceInfoDialog.telemetryStatus = "closed"
+    reduce state.erp.shell.surfaceInfoDialog.commandSource = input.source
+    reduce state.erp.shell.status.text = "RMT Surface Info geschlossen"
+    emit erp.shell.surfaceInfoClosed with source input.source
+  }
+
+  action erp.shell.refreshSurfaceInfo {
+    input source string
+    reduce state.erp.shell.surfaceInfoDialog.telemetryStatus = "refreshed"
+    reduce state.erp.shell.surfaceInfoDialog.commandSource = input.source
+    reduce state.erp.shell.status.text = "RMT Surface Info aktualisiert"
+    emit erp.shell.surfaceInfoRefreshed with source input.source
+  }
+
+  action erp.shell.openXtensionControl {
+    input source string
+    reduce state.erp.shell.xtensionControlDialog.open = true
+    reduce state.erp.shell.xtensionControlDialog.loaded = true
+    reduce state.erp.shell.xtensionControlDialog.hidden = false
+    reduce state.erp.shell.xtensionControlDialog.configStatus = "editing"
+    reduce state.erp.shell.xtensionControlDialog.commandSource = input.source
+    reduce state.erp.shell.status.text = "XTension Teststeuerung angefordert"
+    reduce state.erp.shell.status.tone = "neutral"
+    emit erp.shell.xtensionControlOpened with source input.source
+  }
+
+  action erp.shell.closeXtensionControl {
+    input source string
+    reduce state.erp.shell.xtensionControlDialog.open = false
+    reduce state.erp.shell.xtensionControlDialog.hidden = true
+    reduce state.erp.shell.xtensionControlDialog.configStatus = "closed"
+    reduce state.erp.shell.xtensionControlDialog.commandSource = input.source
+    reduce state.erp.shell.status.text = "XTension Teststeuerung geschlossen"
+    emit erp.shell.xtensionControlClosed with source input.source
+  }
+
+  action erp.shell.applyXtensionControl {
+    input source string
+    input enabledCount number
+    input disabledCount number
+    reduce state.erp.shell.xtensionControlDialog.configStatus = "applied"
+    reduce state.erp.shell.xtensionControlDialog.enabledCount = input.enabledCount
+    reduce state.erp.shell.xtensionControlDialog.disabledCount = input.disabledCount
+    reduce state.erp.shell.xtensionControlDialog.commandSource = input.source
+    reduce state.erp.shell.status.text = "XTension Boot-Auswahl gespeichert"
+    emit erp.shell.xtensionControlApplied with source input.source
+  }
+
+  action erp.shell.closeMenu {
+    input reason string
+    reduce state.erp.shell.menuBar.openMenuId = ""
+    reduce state.erp.shell.menuBar.lastCommand = "Menü geschlossen"
+    emit erp.shell.menuClosed with reason input.reason
+  }
+
+  transition erp.shell.reseedFlow {
+    trigger action erp.shell.reseed
+    from surfaces [erp.shell.status erp.shell.ledger]
+    to surfaces [erp.shell.status erp.shell.ledger erp.shell.audit]
+    effect fade
+    durationMs 140
+    easing "linear"
+    lane transition
+  }
+
+  transition erp.shell.processFlow {
+    trigger action erp.shell.selectProcess
+    from surfaces [erp.shell.sidebar]
+    to surfaces [erp.shell.sidebar erp.shell.status]
+    effect crossfade
+    durationMs 120
+    easing "linear"
+    lane transition
+  }
+
+  transition erp.shell.menuFlow {
+    trigger action erp.shell.selectMenuCommand
+    from surfaces [erp.shell.menuBar]
+    to surfaces [erp.shell.menuBar erp.shell.status]
+    effect crossfade
+    durationMs 90
+    easing "linear"
+    lane transition
+  }
+
+  transition erp.shell.surfaceInfoFlow {
+    trigger action erp.shell.openSurfaceInfo
+    from surfaces [erp.shell.menuBar]
+    to surfaces [erp.shell.menuBar erp.shell.surfaceInfoDialog erp.shell.status]
+    effect crossfade
+    durationMs 90
+    easing "linear"
+    lane transition
+  }
+
+  transition erp.shell.xtensionControlFlow {
+    trigger action erp.shell.openXtensionControl
+    from surfaces [erp.shell.menuBar]
+    to surfaces [erp.shell.menuBar erp.shell.xtensionControlDialog erp.shell.status]
+    effect crossfade
+    durationMs 90
+    easing "linear"
+    lane transition
+  }
+
+  transition erp.shell.loadLabFlow {
+    trigger action erp.shell.reseed
+    from surfaces [erp.shell.loadMatrix erp.shell.schedulerTrace erp.shell.exceptionSummary erp.shell.throughputBand erp.shell.openUi5Procurement erp.shell.angularRiskWorkbench]
+    to surfaces [erp.shell.loadMatrix erp.shell.schedulerTrace erp.shell.exceptionSummary erp.shell.throughputBand erp.shell.openUi5Procurement erp.shell.angularRiskWorkbench erp.shell.status]
+    effect fade
+    durationMs 120
+    easing "linear"
+    lane transition
+  }
+
+  portal erp.shell.root root "#xtend-maraca-root" layer surface
+
+  resource erp.shell.session kind data owner surface.erp.shell.status {
+    dispose on surface.destroy
+  }
+
+  surface erp.shell.status kind card component div {
+    source selector erp.shell.status
+    key status.id
+    portal erp.shell.root
+    bounds x 0 y 0 width 920 height 44
+    destroy releases resource erp.shell.session
+
+    lane visible weight 100 {
+      hydrate erp-kernel-status from selector erp.shell.status {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-kernel-status {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+  }
+
+  surface erp.shell.menuBar kind navigation component nav {
+    source selector erp.shell.menuBar
+    key menuBar.id
+    portal erp.shell.root
+    bounds x 0 y 44 width 920 height 30
+
+    lane visible weight 96 {
+      hydrate erp-menu-bar from selector erp.shell.menuBar {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-menu-bar {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+
+    on click "[data-erp-menu-trigger]" -> action erp.shell.toggleMenu {
+      preventDefault true
+      payload menuId from target.dataset.menuId
+    }
+
+    on click "[data-erp-menu-command]" -> action erp.shell.selectMenuCommand {
+      preventDefault true
+      payload menuId from target.dataset.menuId
+      payload commandId from target.dataset.commandId
+      payload commandLabel from target.dataset.commandLabel
+    }
+  }
+
+  surface erp.shell.surfaceInfoDialog kind modal component div {
+    source selector erp.shell.surfaceInfoDialog
+    key surfaceInfoDialog.id
+    portal erp.shell.root
+    bounds x 120 y 92 width 880 height 560
+
+    lane visible weight 94 {
+      hydrate erp-surface-info-dialog from selector erp.shell.surfaceInfoDialog {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-surface-info-dialog {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+
+    on xtend-command "#erp-surface-info-refresh" -> action erp.shell.refreshSurfaceInfo {
+      preventDefault true
+      payload source from detail.payload.label
+    }
+
+    on xtend-command "#erp-surface-info-close" -> action erp.shell.closeSurfaceInfo {
+      preventDefault true
+      payload source from detail.payload.label
+    }
+
+    on dialog-closed "#erp-surface-info-dialog" -> action erp.shell.closeSurfaceInfo {
+      payload source from detail.source
+    }
+  }
+
+  surface erp.shell.xtensionControlDialog kind modal component div {
+    source selector erp.shell.xtensionControlDialog
+    key xtensionControlDialog.id
+    portal erp.shell.root
+    bounds x 150 y 116 width 820 height 560
+
+    lane visible weight 93 {
+      hydrate erp-xtension-control-dialog from selector erp.shell.xtensionControlDialog {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-xtension-control-dialog {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+
+    on xtend-command "#erp-xtension-control-apply" -> action erp.shell.applyXtensionControl {
+      preventDefault true
+      payload source from detail.payload.label
+      payload enabledCount from detail.payload.enabledCount
+      payload disabledCount from detail.payload.disabledCount
+    }
+
+    on xtend-command "#erp-xtension-control-close" -> action erp.shell.closeXtensionControl {
+      preventDefault true
+      payload source from detail.payload.label
+    }
+
+    on dialog-closed "#erp-xtension-control-dialog" -> action erp.shell.closeXtensionControl {
+      payload source from detail.source
+    }
+  }
+
+  surface erp.shell.sidebar kind navigation component nav {
+    source selector erp.shell.sidebar
+    key sidebar.id
+    portal erp.shell.root
+    bounds x 0 y 82 width 220 height 420
+
+    lane visible weight 80 {
+      hydrate erp-process-sidebar from selector erp.shell.sidebar {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-process-sidebar {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+  }
+
+  surface erp.shell.ledger kind workspace component section {
+    source selector erp.shell.ledger
+    key ledger.id
+    portal erp.shell.root
+    bounds x 232 y 82 width 456 height 420
+
+    lane visible weight 90 {
+      hydrate erp-ledger-panel from selector erp.shell.ledger {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-ledger-panel {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+  }
+
+  surface erp.shell.audit kind card component aside {
+    source selector erp.shell.audit
+    key audit.id
+    portal erp.shell.root
+    bounds x 700 y 82 width 220 height 420
+
+    lane visible weight 70 {
+      hydrate erp-audit-panel from selector erp.shell.audit {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-audit-panel {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+  }
+
+  surface erp.shell.reseed kind action component button {
+    source selector erp.shell.reseed
+    key reseed.id
+    portal erp.shell.root
+    bounds x 0 y 514 width 180 height 34
+
+    lane visible weight 95 {
+      hydrate erp-reseed-command from selector erp.shell.reseed {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-reseed-command {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+
+    on click "[data-erp-action='reseed']" -> action erp.shell.reseed {
+      preventDefault true
+      payload seed from target.dataset.seed
+    }
+  }
+
+  surface erp.shell.seedField kind field component x-input {
+    source selector erp.shell.seedField
+    key seedField.id
+    portal erp.shell.root
+    bounds x 192 y 514 width 220 height 64
+
+    lane visible weight 60 {
+      hydrate erp-seed-input from selector erp.shell.seedField {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-seed-input {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+  }
+
+  surface erp.shell.loadMatrix kind card component div {
+    source selector erp.shell.loadMatrix
+    key loadMatrix.id
+    portal erp.shell.root
+    bounds x 424 y 514 width 220 height 64
+
+    lane visible weight 68 {
+      hydrate erp-load-matrix from selector erp.shell.loadMatrix {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-load-matrix {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+  }
+
+  surface erp.shell.schedulerTrace kind card component div {
+    source selector erp.shell.schedulerTrace
+    key schedulerTrace.id
+    portal erp.shell.root
+    bounds x 656 y 514 width 220 height 64
+
+    lane visible weight 67 {
+      hydrate erp-scheduler-trace from selector erp.shell.schedulerTrace {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-scheduler-trace {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+  }
+
+  surface erp.shell.exceptionSummary kind card component aside {
+    source selector erp.shell.exceptionSummary
+    key exceptionSummary.id
+    portal erp.shell.root
+    bounds x 888 y 514 width 220 height 64
+
+    lane visible weight 66 {
+      hydrate erp-exception-summary from selector erp.shell.exceptionSummary {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-exception-summary {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+  }
+
+  surface erp.shell.throughputBand kind card component section {
+    source selector erp.shell.throughputBand
+    key throughputBand.id
+    portal erp.shell.root
+    bounds x 0 y 590 width 920 height 52
+
+    lane visible weight 65 {
+      hydrate erp-throughput-band from selector erp.shell.throughputBand {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-throughput-band {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+  }
+
+  surface erp.shell.openUi5Procurement kind table component section {
+    source selector erp.shell.openUi5Procurement
+    key openUi5Procurement.id
+    portal erp.shell.root
+    bounds x 0 y 652 width 920 height 74
+
+    lane visible weight 64 {
+      hydrate erp-openui5-procurement from selector erp.shell.openUi5Procurement {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-openui5-procurement {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+  }
+
+  surface erp.shell.angularRiskWorkbench kind table component section {
+    source selector erp.shell.angularRiskWorkbench
+    key angularRiskWorkbench.id
+    portal erp.shell.root
+    bounds x 0 y 738 width 920 height 74
+
+    lane visible weight 63 {
+      hydrate erp-angular-risk-workbench from selector erp.shell.angularRiskWorkbench {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume erp-angular-risk-workbench {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+    }
+  }
+}

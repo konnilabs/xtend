@@ -21,6 +21,9 @@ template app.resumable {
       }
       resume app-shell {
         resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
       }
     }
   }

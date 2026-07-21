@@ -1,0 +1,16 @@
+{
+  "schema": "xtend.rmt.erp-resumability-catfood-evidence.v1",
+  "sourceOfTruth": "generated-by-tests/products/erp_resumability_catfooding_suite.js",
+  "required": {
+    "resumeEnvelope": "xtend.rmt.ssr-resume-envelope.v1",
+    "resumeAdapter": "xtend.xtensions.resume-adapter.v1",
+    "signature": "ECDSA-P256-SHA256",
+    "maxIntentQueue": 128,
+    "nodeIdentity": true,
+    "hydrationFallbackCount": 1,
+    "telemetryRequired": true,
+    "devSurfaceRequired": true,
+    "monkeypatchingAllowed": false,
+    "externalNetworkAllowed": false
+  }
+}

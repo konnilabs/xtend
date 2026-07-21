@@ -164,7 +164,12 @@ function isStreamOperation(operation) {
 }
 
 function isChunkedHydrationOperation(operation) {
-  return !!operation && operation.kind === 'lifecycle' && operation.op === 'hydrate' && !!operation.source;
+  const source = operation && operation.source;
+  return !!operation
+    && operation.kind === 'lifecycle'
+    && operation.op === 'hydrate'
+    && !!source
+    && (source.kind === 'dataSource' || source.kind === 'data-source' || String(source.ref || '').startsWith('dataSource:'));
 }
 
 function isStreamingCandidate(operation) {

@@ -358,6 +358,10 @@ const {
   runRmtNodeSsrAdapterSuite
 } = require('../tests/rmt-language/rmt_node_ssr_adapter_suite');
 const {
+  printRmtResumeRuntimeReport,
+  runRmtResumeRuntimeSuite
+} = require('../tests/rmt-language/rmt_resume_runtime_suite');
+const {
   printRmtPhpSsrAdapterReport,
   runRmtPhpSsrAdapterSuite
 } = require('../tests/rmt-language/rmt_php_ssr_adapter_suite');
@@ -389,6 +393,10 @@ const {
   printXTensionsHostControllerReport,
   runXTensionsHostControllerSuite
 } = require('../tests/xtensions/xtensions_host_controller_suite');
+const {
+  printXTensionsResumeAdapterReport,
+  runXTensionsResumeAdapterSuite
+} = require('../tests/xtensions/xtensions_resume_adapter_suite');
 const {
   printXTensionsSignalBridgeReport,
   runXTensionsSignalBridgeSuite
@@ -851,6 +859,10 @@ const {
   printXtendMaterialCatfoodingReport,
   runXtendMaterialCatfoodingSuite
 } = require('../tests/products/xtend_material_catfooding_suite');
+const {
+  printErpResumabilityCatfoodingReport,
+  runErpResumabilityCatfoodingSuite
+} = require('../tests/products/erp_resumability_catfooding_suite');
 const {
   printXtendMaterialDocsReport,
   runXtendMaterialDocsSuite
@@ -1848,6 +1860,16 @@ const suites = [
     }
   },
   {
+    id: 'rmt-resume-runtime',
+    label: 'RMT Resume Runtime',
+    description: 'Runs signed-envelope verification, state restore, XTension adoption, exactly-once replay and hydrate fallback gates.',
+    run: async () => {
+      const result = await runRmtResumeRuntimeSuite({ rootDir });
+      printRmtResumeRuntimeReport(result);
+      return toRunnerResult('rmt-resume-runtime', 'RMT Resume Runtime', result);
+    }
+  },
+  {
     id: 'rmt-php-ssr-adapter',
     label: 'RMT PHP/Laravel SSR Adapter',
     description: 'Runs the PHP/Laravel SSR adapter render, hydration, JSONL streaming, Laravel helper and security compatibility gate.',
@@ -2105,6 +2127,16 @@ const suites = [
       const result = runXTensionsHostControllerSuite({ rootDir });
       printXTensionsHostControllerReport(result);
       return toRunnerResult('xtensions-host-controller', 'XTensions HostController Lifecycle Contract', result);
+    }
+  },
+  {
+    id: 'xtensions-resume-adapter',
+    label: 'XTensions Resume Adapter Contract',
+    description: 'Runs manifest, existing-node adoption, no-remount and explicit hydration fallback gates.',
+    run: async () => {
+      const result = await runXTensionsResumeAdapterSuite({ rootDir });
+      printXTensionsResumeAdapterReport(result);
+      return toRunnerResult('xtensions-resume-adapter', 'XTensions Resume Adapter Contract', result);
     }
   },
   {
@@ -3535,6 +3567,16 @@ const suites = [
       const result = await runXtendMaterialCatfoodingSuite({ rootDir });
       printXtendMaterialCatfoodingReport(result);
       return toRunnerResult('xtend-material-catfooding', 'XTM-12 XTend Material Catfooding Workbench', result);
+    }
+  },
+  {
+    id: 'erp-resumability-catfood',
+    label: 'RMT ERP Resumability Catfooding',
+    description: 'Builds and tunes the tracked ERP product, then gates signed resume, exact node adoption, intent replay, fallback and the eight-XTension matrix in Chromium.',
+    run: async () => {
+      const result = await runErpResumabilityCatfoodingSuite({ rootDir });
+      printErpResumabilityCatfoodingReport(result);
+      return toRunnerResult('erp-resumability-catfood', 'RMT ERP Resumability Catfooding', result);
     }
   },
   {

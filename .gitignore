@@ -38,4 +38,14 @@ products/maraca-app-services-test-bench/.data/
 products/maraca-app-services-test-bench/.xtend-test-results/
 products/maraca-app-services-test-bench/.cache/
 products/maraca-app-services-test-bench/**/.DS_Store
+!products/resumability-maraca-erp-demo/
+!products/resumability-maraca-erp-demo/**
+products/resumability-maraca-erp-demo/node_modules/
+products/resumability-maraca-erp-demo/dist/
+products/resumability-maraca-erp-demo/.angular-aot/
+products/resumability-maraca-erp-demo/.framework-provider-src/
+products/resumability-maraca-erp-demo/.xtend-test-results/
+products/resumability-maraca-erp-demo/.cache/
+products/resumability-maraca-erp-demo/.visual-*.png
+products/resumability-maraca-erp-demo/**/.DS_Store
 .DS_Store

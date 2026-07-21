@@ -1,4 +1,5 @@
 import { Readable } from 'node:stream';
+import { createHash } from 'node:crypto';
 import { createRmtComponentCapabilityRegistry } from './rmt-component-capability-registry.js';
 import { createRmtDomDescriptorRenderer } from './rmt-dom-descriptor-renderer.js';
 
@@ -10,6 +11,13 @@ export const RMT_NODE_SSR_HYDRATION_SCHEMA = 'xtend.rmt.node-ssr-hydration-paylo
 export const RMT_NODE_SSR_CHUNK_KIND = 'rmt_template_chunk';
 export const RMT_NODE_SSR_RESPONSE_KIND = 'rmt_template_prerender_response';
 export const RMT_NODE_SSR_EXECUTION_MODE = 'server_prerender_hydrate';
+export const RMT_NODE_SSR_RESUME_EXECUTION_MODE = 'server_prerender_resume';
+export const RMT_SSR_RESUME_ENVELOPE_SCHEMA = 'xtend.rmt.ssr-resume-envelope.v1';
+export const RMT_SSR_RESUME_INTEGRITY_SCHEMA = 'xtend.rmt.ssr-resume-integrity.v1';
+export const RMT_NODE_SSR_EXECUTION_MODES = Object.freeze([
+  RMT_NODE_SSR_EXECUTION_MODE,
+  RMT_NODE_SSR_RESUME_EXECUTION_MODE
+]);
 export const RMT_NODE_SSR_STREAMING_CONTRACT_SCHEMA = 'xtend.rmt.vnext-streaming-contract.v1';
 export const RMT_NODE_SSR_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
 export const RMT_SSR_CSP_POLICY_SCHEMA = 'xtend.rmt.ssr-csp-policy.v1';
@@ -77,6 +85,214 @@ function objectRecord(value) {
 function cloneJson(value) {
   if (value == null) return value;
   return JSON.parse(JSON.stringify(value));
+}
+
+export function canonicalizeRmtResumePayload(value) {
+  if (value === null) return 'null';
+  if (Array.isArray(value)) return `[${value.map((entry) => canonicalizeRmtResumePayload(entry)).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().filter((key) => value[key] !== undefined).map((key) => `${JSON.stringify(key)}:${canonicalizeRmtResumePayload(value[key])}`).join(',')}}`;
+  }
+  if (typeof value === 'number' && !Number.isFinite(value)) return 'null';
+  return JSON.stringify(value);
+}
+
+function sha256(value) {
+  return createHash('sha256').update(value).digest('base64url');
+}
+
+function normalizeExecutionMode(options, diagnostics) {
+  const requested = stableString(options && options.executionMode, RMT_NODE_SSR_EXECUTION_MODE);
+  if (requested === 'worker_prerender_resume') {
+    diagnostics.publish(
+      'rmt.node_ssr.worker_resume_unsupported',
+      'worker_prerender_resume is not implemented by the Node SSR adapter.',
+      'error',
+      { executionMode: requested }
+    );
+    return requested;
+  }
+  if (!RMT_NODE_SSR_EXECUTION_MODES.includes(requested)) {
+    diagnostics.publish(
+      'rmt.node_ssr.execution_mode_unsupported',
+      `Node SSR does not support execution mode "${requested}".`,
+      'error',
+      { executionMode: requested }
+    );
+  }
+  return requested;
+}
+
+function decorateResumeDescriptor(input, rootId, generation) {
+  let index = 0;
+  const decorate = (descriptor, path = '0') => {
+    if (!descriptor || typeof descriptor !== 'object') return descriptor;
+    if (Array.isArray(descriptor)) return descriptor.map((entry, childIndex) => decorate(entry, `${path}.${childIndex}`));
+    const copy = { ...descriptor };
+    if (copy.type === 'element' || copy.tag) {
+      copy.attributes = {
+        ...objectRecord(copy.attributes),
+        'data-rmt-resume-id': objectRecord(copy.attributes)['data-rmt-resume-id'] || `${rootId}:${path}:${index++}`,
+        'data-rmt-resume-generation': generation
+      };
+    }
+    if (Array.isArray(copy.children)) copy.children = copy.children.map((entry, childIndex) => decorate(entry, `${path}.${childIndex}`));
+    return copy;
+  };
+  const descriptor = decorate(normalizeDescriptor(input));
+  if (descriptor && (descriptor.type === 'element' || descriptor.tag)) {
+    descriptor.attributes = {
+      ...objectRecord(descriptor.attributes),
+      id: objectRecord(descriptor.attributes).id || rootId,
+      'data-rmt-resume-root': 'true',
+      'data-rmt-resume-generation': generation
+    };
+    return descriptor;
+  }
+  return {
+    type: 'element',
+    tag: 'section',
+    attributes: {
+      id: rootId,
+      'data-rmt-resume-root': 'true',
+      'data-rmt-resume-id': `${rootId}:root`,
+      'data-rmt-resume-generation': generation
+    },
+    children: [descriptor]
+  };
+}
+
+function preservedStateFromCore(coreDocument) {
+  return Object.fromEntries(asArray(coreDocument && coreDocument.states)
+    .filter((state) => state && state.preserve === true)
+    .map((state) => [state.name || state.id, cloneJson(state.initial)]));
+}
+
+function createResumeNodeManifest(descriptor) {
+  const records = [];
+  const visit = (entry) => {
+    if (!entry || typeof entry !== 'object') return;
+    if (Array.isArray(entry)) {
+      entry.forEach(visit);
+      return;
+    }
+    const attributes = objectRecord(entry.attributes);
+    const id = stableString(attributes['data-rmt-resume-id'], '').trim();
+    if (id) {
+      records.push({
+        generation: stableString(attributes['data-rmt-resume-generation'], ''),
+        id,
+        tag: stableString(entry.tag || entry.component, '').toLowerCase()
+      });
+    }
+    asArray(entry.children || entry.nodes).forEach(visit);
+  };
+  visit(descriptor);
+  return records;
+}
+
+async function createResumeEnvelope(renderState, html, renderDescriptor, hydration, diagnostics) {
+  if (renderState.executionMode !== RMT_NODE_SSR_RESUME_EXECUTION_MODE) return null;
+  const resumeOptions = objectRecord(renderState.options.resume);
+  const issuedAt = resumeOptions.issuedAt || renderState.renderedAt;
+  const expiresAt = resumeOptions.expiresAt || new Date((Date.parse(issuedAt) || Date.now()) + 5 * 60 * 1000).toISOString();
+  const resumeNodeManifest = createResumeNodeManifest(renderDescriptor);
+  const unsignedEnvelope = {
+    schema: RMT_SSR_RESUME_ENVELOPE_SCHEMA,
+    version: 1,
+    executionMode: RMT_NODE_SSR_RESUME_EXECUTION_MODE,
+    requestId: renderState.requestId,
+    rootId: renderState.rootId,
+    templateId: renderState.templateId,
+    generation: renderState.generation,
+    issuedAt,
+    expiresAt,
+    snapshot: {
+      schema: 'xtend.rmt.resume-snapshot.v1',
+      state: cloneJson(resumeOptions.state || preservedStateFromCore(renderState.coreDocument)),
+      surfaces: cloneJson(resumeOptions.surfaces || renderState.options.selectorValues || {})
+    },
+    eventReplay: {
+      schema: 'xtend.rmt.resume-intent-queue-policy.v1',
+      mode: 'intent_queue',
+      generation: renderState.generation,
+      maxEntries: 128,
+      replayExactlyOnce: true
+    },
+    xtensions: cloneJson(resumeOptions.xtensions || []),
+    manifests: cloneJson(resumeOptions.manifests || []),
+    dom: {
+      schema: 'xtend.rmt.resume-dom-digest.v1',
+      algorithm: 'SHA-256',
+      encoding: 'base64url',
+      canonicalization: 'resume-node-manifest.v1',
+      nodeCount: resumeNodeManifest.length,
+      digest: sha256(canonicalizeRmtResumePayload(resumeNodeManifest))
+    },
+    fallbackMode: RMT_NODE_SSR_EXECUTION_MODE,
+    hydrationSchema: hydration && hydration.schema || RMT_NODE_SSR_HYDRATION_SCHEMA
+  };
+  const canonicalPayload = canonicalizeRmtResumePayload(unsignedEnvelope);
+  const signer = resumeOptions.sign || renderState.options.signResumeEnvelope;
+  if (typeof signer !== 'function') {
+    diagnostics.publish(
+      'rmt.node_ssr.resume_signer_missing',
+      'server_prerender_resume requires a host-provided resume signer.',
+      'error',
+      { executionMode: renderState.executionMode, rootId: renderState.rootId }
+    );
+    return {
+      ...unsignedEnvelope,
+      integrity: {
+        schema: RMT_SSR_RESUME_INTEGRITY_SCHEMA,
+        algorithm: null,
+        encoding: 'base64url',
+        keyId: null,
+        digest: sha256(canonicalPayload),
+        signature: null,
+        verified: false
+      }
+    };
+  }
+  let signed;
+  try {
+    signed = await signer(canonicalPayload, {
+      schema: RMT_SSR_RESUME_ENVELOPE_SCHEMA,
+      requestId: renderState.requestId,
+      rootId: renderState.rootId,
+      generation: renderState.generation
+    });
+  } catch (error) {
+    diagnostics.publish(
+      'rmt.node_ssr.resume_signing_failed',
+      error && error.message ? error.message : 'Resume signer failed.',
+      'error',
+      { rootId: renderState.rootId }
+    );
+    signed = {};
+  }
+  const signature = typeof signed === 'string' ? signed : signed && signed.signature;
+  const algorithm = typeof signed === 'object' && signed && signed.algorithm || 'ECDSA-P256-SHA256';
+  const keyId = typeof signed === 'object' && signed && signed.keyId || resumeOptions.keyId || null;
+  if (!signature || !keyId) {
+    diagnostics.publish(
+      'rmt.node_ssr.resume_signature_incomplete',
+      'Resume signer must return signature and keyId.',
+      'error',
+      { rootId: renderState.rootId }
+    );
+  }
+  return {
+    ...unsignedEnvelope,
+    integrity: {
+      schema: RMT_SSR_RESUME_INTEGRITY_SCHEMA,
+      algorithm,
+      encoding: 'base64url',
+      keyId,
+      digest: sha256(canonicalPayload),
+      signature: signature || null
+    }
+  };
 }
 
 function stableString(value, fallback = '') {
@@ -474,16 +690,19 @@ function serializeAttribute(name, value, diagnostics, context) {
     diagnostics.publish('rmt.node_ssr.attribute_blocked', `Blocked unsafe attribute "${attrName}".`, 'error', context);
     return '';
   }
-  if (value == null || value === false) return '';
-  if (URL_ATTRIBUTES.has(attrName) && !isSafeUrl(value)) {
+  const resolvedValue = context && typeof context.resolveValue === 'function'
+    ? context.resolveValue(value, context)
+    : value;
+  if (resolvedValue == null || resolvedValue === false) return '';
+  if (URL_ATTRIBUTES.has(attrName) && !isSafeUrl(resolvedValue)) {
     diagnostics.publish('rmt.node_ssr.url_blocked', `Blocked unsafe URL in "${attrName}".`, 'error', { ...context, attribute: attrName });
     return '';
   }
-  if (value === true) return ` ${attrName}="true"`;
-  if (typeof value === 'object') {
-    return ` ${attrName}="${escapeAttribute(JSON.stringify(value))}"`;
+  if (resolvedValue === true) return ` ${attrName}="true"`;
+  if (typeof resolvedValue === 'object') {
+    return ` ${attrName}="${escapeAttribute(JSON.stringify(resolvedValue))}"`;
   }
-  return ` ${attrName}="${escapeAttribute(value)}"`;
+  return ` ${attrName}="${escapeAttribute(resolvedValue)}"`;
 }
 
 function mergeAttributes(...records) {
@@ -504,6 +723,11 @@ function normalizeDescriptor(input) {
   if (input.domDescriptor) return normalizeDescriptor(input.domDescriptor);
   if (input.type || input.kind || input.tag || input.component || input.html || input.text || input.children || input.nodes) return input;
   return { type: 'empty' };
+}
+
+function orchestrationDescriptor(artifacts, coreDocument) {
+  const root = artifacts && artifacts.render && artifacts.render.root;
+  return root ? normalizeDescriptor(root) : deriveDescriptorFromCore(coreDocument);
 }
 
 function descriptorWithSlot(descriptor, slotName) {
@@ -741,7 +965,9 @@ async function normalizeRenderInput(input, adapterOptions, renderOptions, diagno
     return {
       kind: 'core-document',
       coreDocument,
-      descriptor: value.descriptor ? normalizeDescriptor(value.descriptor) : deriveDescriptorFromCore(coreDocument),
+      descriptor: value.descriptor
+        ? normalizeDescriptor(value.descriptor)
+        : orchestrationDescriptor(value.orchestrationArtifacts, coreDocument),
       sourceRef: value.filePath || coreDocument.sourceRef || null
     };
   }
@@ -788,7 +1014,7 @@ async function normalizeRenderInput(input, adapterOptions, renderOptions, diagno
       source,
       compileResult,
       coreDocument: compileResult.coreDocument,
-      descriptor: deriveDescriptorFromCore(compileResult.coreDocument),
+      descriptor: orchestrationDescriptor(compileResult.orchestrationArtifacts, compileResult.coreDocument),
       sourceRef: value.filePath || compileResult.coreDocument.sourceRef || null
     };
   }
@@ -799,14 +1025,14 @@ async function normalizeRenderInput(input, adapterOptions, renderOptions, diagno
   };
 }
 
-function createChunk(renderState, html, descriptor, hydration) {
+function createChunk(renderState, html, descriptor, hydration, resume) {
   const documentId = renderState.coreDocument && renderState.coreDocument.manifest && renderState.coreDocument.manifest.id || renderState.requestId;
   const templateId = safeIdentifier(renderState.options.templateId || documentId, 'rmt-node-ssr-template');
   const qualifiedId = `${safeIdentifier(renderState.options.namespace || 'rmt')}:${templateId}`;
   return {
     kind: RMT_NODE_SSR_CHUNK_KIND,
     version: '1.0',
-    executionMode: RMT_NODE_SSR_EXECUTION_MODE,
+    executionMode: renderState.executionMode,
     transport: 'server',
     rootId: renderState.rootId,
     template: {
@@ -833,7 +1059,7 @@ function createChunk(renderState, html, descriptor, hydration) {
       slots: [],
       props: [],
       templateHydration: {
-        mode: RMT_NODE_SSR_EXECUTION_MODE,
+        mode: renderState.executionMode,
         schema: RMT_NODE_SSR_HYDRATION_SCHEMA
       },
       errorBoundary: {
@@ -844,21 +1070,22 @@ function createChunk(renderState, html, descriptor, hydration) {
       },
       ownershipMode: 'hydrate_existing',
       resourceId: `template.chunk:${qualifiedId}`,
-      metadata: hydration
+      metadata: hydration,
+      resume
     },
     modelSnapshot: renderState.model || {},
     plan: {
-      executionMode: RMT_NODE_SSR_EXECUTION_MODE,
+      executionMode: renderState.executionMode,
       rootId: renderState.rootId,
       templateQualifiedId: qualifiedId,
       namespace: renderState.options.namespace || 'rmt',
-      phases: ['server_prerender', 'html_delivery', 'client_hydrate']
+      phases: ['server_prerender', 'html_delivery', renderState.executionMode === RMT_NODE_SSR_RESUME_EXECUTION_MODE ? 'client_resume' : 'client_hydrate']
     },
     renderedAt: renderState.renderedAt
   };
 }
 
-function createPrerenderResponseEnvelope(renderState, chunk, hydration, diagnostics, ok, cspPolicy, headers) {
+function createPrerenderResponseEnvelope(renderState, chunk, hydration, resume, diagnostics, ok, cspPolicy, headers) {
   const renderedAt = Date.parse(renderState.renderedAt) || Date.now();
   const metadata = {
     adapterKind: 'node-ssr',
@@ -872,7 +1099,7 @@ function createPrerenderResponseEnvelope(renderState, chunk, hydration, diagnost
   const request = {
     kind: 'rmt_template_prerender_request',
     version: '1.0',
-    executionMode: RMT_NODE_SSR_EXECUTION_MODE,
+    executionMode: renderState.executionMode,
     transport: 'server',
     rootId: renderState.rootId,
     template: cloneJson(chunk.template),
@@ -886,7 +1113,7 @@ function createPrerenderResponseEnvelope(renderState, chunk, hydration, diagnost
     ok,
     status: ok ? 'rendered' : 'blocked',
     transport: 'server',
-    executionMode: RMT_NODE_SSR_EXECUTION_MODE,
+    executionMode: renderState.executionMode,
     adapterKind: 'node-ssr',
     supportStatus: ok ? 'supported' : 'blocked',
     rootId: renderState.rootId,
@@ -899,6 +1126,7 @@ function createPrerenderResponseEnvelope(renderState, chunk, hydration, diagnost
     chunk,
     chunks: [chunk],
     hydration,
+    resume,
     diagnostics: diagnostics.slice(),
     superseded: false,
     error: ok ? null : {
@@ -1034,10 +1262,15 @@ export function createRmtNodeSsrAdapter(options = {}) {
     const cspPolicy = createSsrCspPolicy(mergedOptions);
     const headers = createSsrSecurityHeaders(cspPolicy, mergedOptions.headers);
     const requestId = safeIdentifier(mergedOptions.requestId || mergedOptions.operationId || `rmt-node-ssr-${Date.now()}`);
+    const executionMode = normalizeExecutionMode(mergedOptions, diagnostics);
     const normalized = await normalizeRenderInput(input, adapterOptions, renderOptions, diagnostics);
     const rootId = safeIdentifier(mergedOptions.rootId || 'rmt-node-ssr-root');
+    const generation = safeIdentifier(mergedOptions.resume && mergedOptions.resume.generation || mergedOptions.generation || requestId);
+    const renderDescriptor = executionMode === RMT_NODE_SSR_RESUME_EXECUTION_MODE
+      ? decorateResumeDescriptor(normalized.descriptor, rootId, generation)
+      : normalized.descriptor;
     const componentCapabilities = new Map();
-    const html = serializeDescriptor(normalized.descriptor, {
+    const html = serializeDescriptor(renderDescriptor, {
       options: mergedOptions,
       diagnostics,
       componentRegistry: mergedOptions.componentRegistry || componentRegistry,
@@ -1052,7 +1285,7 @@ export function createRmtNodeSsrAdapter(options = {}) {
     const hydration = {
       schema: RMT_NODE_SSR_HYDRATION_SCHEMA,
       requestId,
-      executionMode: RMT_NODE_SSR_EXECUTION_MODE,
+      executionMode,
       sourceKind: normalized.kind,
       sourceRef: normalized.sourceRef,
       componentCapabilities: [...componentCapabilities.values()],
@@ -1064,12 +1297,16 @@ export function createRmtNodeSsrAdapter(options = {}) {
     const renderState = {
       requestId,
       rootId,
+      executionMode,
+      generation,
+      templateId: safeIdentifier(mergedOptions.templateId || normalized.coreDocument && normalized.coreDocument.manifest && normalized.coreDocument.manifest.id || requestId),
       options: mergedOptions,
       coreDocument: normalized.coreDocument,
       renderedAt: mergedOptions.renderedAt || new Date().toISOString(),
       model: mergedOptions.model || {}
     };
-    const chunk = createChunk(renderState, html, normalized.descriptor, hydration);
+    const resume = await createResumeEnvelope(renderState, html, renderDescriptor, hydration, diagnostics);
+    const chunk = createChunk(renderState, html, renderDescriptor, hydration, resume);
     const ok = !hasBlockingDiagnostics(diagnostics.diagnostics);
     const result = {
       schema: RMT_NODE_SSR_RENDER_RESULT_SCHEMA,
@@ -1097,8 +1334,9 @@ export function createRmtNodeSsrAdapter(options = {}) {
       headers,
       cspPolicy,
       chunks: [chunk],
-      response: createPrerenderResponseEnvelope(renderState, chunk, hydration, diagnostics.diagnostics, ok, cspPolicy, headers),
+      response: createPrerenderResponseEnvelope(renderState, chunk, hydration, resume, diagnostics.diagnostics, ok, cspPolicy, headers),
       hydration,
+      resume,
       streamingContract,
       componentCapabilities: [...componentCapabilities.values()],
       fabricTelemetryHints: {
@@ -1336,10 +1574,15 @@ export default {
   RMT_NODE_SSR_CHUNK_KIND,
   RMT_NODE_SSR_RESPONSE_KIND,
   RMT_NODE_SSR_EXECUTION_MODE,
+  RMT_NODE_SSR_RESUME_EXECUTION_MODE,
+  RMT_NODE_SSR_EXECUTION_MODES,
+  RMT_SSR_RESUME_ENVELOPE_SCHEMA,
+  RMT_SSR_RESUME_INTEGRITY_SCHEMA,
   RMT_NODE_SSR_STREAMING_CONTRACT_SCHEMA,
   RMT_NODE_SSR_KERNEL_BOUNDARY,
   RMT_SSR_CSP_POLICY_SCHEMA,
   RMT_SSR_CSP_HEADER,
   RMT_XSCALER_SSR_HYDRATION_SCHEMA,
+  canonicalizeRmtResumePayload,
   createRmtNodeSsrAdapter
 };

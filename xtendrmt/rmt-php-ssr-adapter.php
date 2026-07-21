@@ -10,6 +10,9 @@ if (!defined('RMT_PHP_SSR_ADAPTER_SCHEMA')) {
     define('RMT_PHP_SSR_CHUNK_KIND', 'rmt_template_chunk');
     define('RMT_PHP_SSR_RESPONSE_KIND', 'rmt_template_prerender_response');
     define('RMT_PHP_SSR_EXECUTION_MODE', 'server_prerender_hydrate');
+    define('RMT_PHP_SSR_RESUME_EXECUTION_MODE', 'server_prerender_resume');
+    define('RMT_SSR_RESUME_ENVELOPE_SCHEMA', 'xtend.rmt.ssr-resume-envelope.v1');
+    define('RMT_SSR_RESUME_INTEGRITY_SCHEMA', 'xtend.rmt.ssr-resume-integrity.v1');
     define('RMT_PHP_SSR_STREAMING_CONTRACT_SCHEMA', 'xtend.rmt.vnext-streaming-contract.v1');
     define('RMT_PHP_SSR_KERNEL_BOUNDARY', 'no-rmt-kernel-import-of-xtend-types');
     define('RMT_SSR_CSP_POLICY_SCHEMA', 'xtend.rmt.ssr-csp-policy.v1');
@@ -101,11 +104,21 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
         {
             $mergedOptions = array_replace($this->options, $options);
             $diagnostics = [];
+            $executionMode = (string) ($mergedOptions['executionMode'] ?? RMT_PHP_SSR_EXECUTION_MODE);
+            if ($executionMode === 'worker_prerender_resume') {
+                $diagnostics[] = $this->diagnostic('rmt.php_ssr.worker_resume_unsupported', 'worker_prerender_resume is parseable but has no PHP runtime implementation.', 'error');
+            } elseif (!in_array($executionMode, [RMT_PHP_SSR_EXECUTION_MODE, RMT_PHP_SSR_RESUME_EXECUTION_MODE], true)) {
+                $diagnostics[] = $this->diagnostic('rmt.php_ssr.execution_mode_unsupported', 'Unsupported PHP SSR execution mode "' . $executionMode . '".', 'error');
+            }
             $cspPolicy = $this->createSsrCspPolicy($mergedOptions);
             $headers = $this->createSecurityHeaders($cspPolicy, $mergedOptions['headers'] ?? []);
             $normalized = $this->normalizeRenderInput($input, $mergedOptions, $diagnostics);
             $requestId = $this->safeIdentifier($mergedOptions['requestId'] ?? $mergedOptions['operationId'] ?? ('rmt-php-ssr-' . time()));
             $rootId = $this->safeIdentifier($mergedOptions['rootId'] ?? 'rmt-php-ssr-root');
+            $generation = $this->safeIdentifier($mergedOptions['generation'] ?? ($requestId . '-generation'));
+            if ($executionMode === RMT_PHP_SSR_RESUME_EXECUTION_MODE) {
+                $normalized['descriptor'] = $this->decorateResumeDescriptor($normalized['descriptor'], $rootId, $generation);
+            }
             $componentCapabilities = [];
             $html = $this->serializeDescriptor($normalized['descriptor'], [
                 'options' => $mergedOptions,
@@ -120,7 +133,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             $hydration = [
                 'schema' => RMT_PHP_SSR_HYDRATION_SCHEMA,
                 'requestId' => $requestId,
-                'executionMode' => RMT_PHP_SSR_EXECUTION_MODE,
+                'executionMode' => $executionMode,
                 'sourceKind' => $normalized['kind'],
                 'sourceRef' => $normalized['sourceRef'] ?? null,
                 'componentCapabilities' => array_values($componentCapabilities),
@@ -136,7 +149,19 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 'coreDocument' => $normalized['coreDocument'] ?? null,
                 'renderedAt' => $mergedOptions['renderedAt'] ?? gmdate('c'),
                 'model' => $mergedOptions['model'] ?? [],
+                'executionMode' => $executionMode,
+                'generation' => $generation,
             ], $html, $normalized['descriptor'], $hydration);
+            $resume = $this->createResumeEnvelope([
+                'requestId' => $requestId,
+                'rootId' => $rootId,
+                'templateId' => $chunk['template']['qualifiedId'] ?? null,
+                'generation' => $generation,
+                'renderedAt' => $chunk['renderedAt'] ?? gmdate('c'),
+                'executionMode' => $executionMode,
+                'options' => $mergedOptions,
+                'coreDocument' => $normalized['coreDocument'] ?? null,
+            ], $html, $normalized['descriptor'], $hydration, $diagnostics);
             $ok = !$this->hasBlockingDiagnostics($diagnostics);
 
             return [
@@ -166,8 +191,10 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                     'requestId' => $requestId,
                     'rootId' => $rootId,
                     'renderedAt' => $chunk['renderedAt'] ?? gmdate('c'),
-                ], $chunk, $hydration, $diagnostics, $ok, $cspPolicy, $headers),
+                    'executionMode' => $executionMode,
+                ], $chunk, $hydration, $resume, $diagnostics, $ok, $cspPolicy, $headers),
                 'hydration' => $hydration,
+                'resume' => $resume,
                 'streamingContract' => $streamingContract,
                 'componentCapabilities' => array_values($componentCapabilities),
                 'fabricTelemetryHints' => [
@@ -458,6 +485,33 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             return ['type' => 'text', 'text' => $input];
         }
 
+        private function decorateResumeDescriptor(array $descriptor, string $rootId, string $generation, string $path = '0', int &$index = 0): array
+        {
+            $type = (string) ($descriptor['type'] ?? (isset($descriptor['tag']) || isset($descriptor['component']) ? 'element' : 'fragment'));
+            if (in_array($type, ['element', 'component'], true) || isset($descriptor['tag']) || isset($descriptor['component'])) {
+                $attributes = isset($descriptor['attributes']) && is_array($descriptor['attributes']) ? $descriptor['attributes'] : [];
+                $attributes['data-rmt-resume-id'] = $attributes['data-rmt-resume-id'] ?? ($rootId . ':' . $path . ':' . $index++);
+                $attributes['data-rmt-resume-generation'] = $generation;
+                if ($path === '0') {
+                    $attributes['id'] = $attributes['id'] ?? $rootId;
+                    $attributes['data-rmt-resume-root'] = 'true';
+                }
+                $descriptor['attributes'] = $attributes;
+            }
+            $children = $descriptor['children'] ?? ($descriptor['nodes'] ?? null);
+            if (is_array($children)) {
+                $decorated = [];
+                foreach ($children as $childIndex => $child) {
+                    $decorated[] = is_array($child)
+                        ? $this->decorateResumeDescriptor($child, $rootId, $generation, $path . '.' . $childIndex, $index)
+                        : $child;
+                }
+                if (array_key_exists('children', $descriptor)) $descriptor['children'] = $decorated;
+                else $descriptor['nodes'] = $decorated;
+            }
+            return $descriptor;
+        }
+
         private function serializeDescriptor($input, array $context, array &$diagnostics): string
         {
             $descriptor = $this->normalizeDescriptor($input);
@@ -702,8 +756,166 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             return ['value' => $value];
         }
 
+        private function canonicalizeResumeValue($value)
+        {
+            if (!is_array($value)) return $value;
+            if ($this->isList($value)) {
+                return array_map(fn ($entry) => $this->canonicalizeResumeValue($entry), $value);
+            }
+            ksort($value, SORT_STRING);
+            foreach ($value as $key => $entry) $value[$key] = $this->canonicalizeResumeValue($entry);
+            return $value;
+        }
+
+        private function canonicalResumeJson(array $value): string
+        {
+            return (string) json_encode($this->canonicalizeResumeValue($value), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
+
+        private function sha256Base64Url(string $value): string
+        {
+            return rtrim(strtr(base64_encode(hash('sha256', $value, true)), '+/', '-_'), '=');
+        }
+
+        private function preservedStateFromCore(?array $coreDocument): array
+        {
+            $state = [];
+            foreach (($coreDocument['states'] ?? []) as $entry) {
+                if (($entry['preserve'] ?? false) !== true) continue;
+                $id = $entry['name'] ?? ($entry['id'] ?? null);
+                if ($id !== null) $state[(string) $id] = $entry['initial'] ?? null;
+            }
+            return $state;
+        }
+
+        private function createResumeNodeManifest(array $descriptor): array
+        {
+            $records = [];
+            $visit = function ($entry) use (&$visit, &$records): void {
+                if (!is_array($entry)) return;
+                if ($this->isList($entry)) {
+                    foreach ($entry as $child) $visit($child);
+                    return;
+                }
+                $attributes = isset($entry['attributes']) && is_array($entry['attributes']) ? $entry['attributes'] : [];
+                $id = trim((string) ($attributes['data-rmt-resume-id'] ?? ''));
+                if ($id !== '') {
+                    $records[] = [
+                        'generation' => (string) ($attributes['data-rmt-resume-generation'] ?? ''),
+                        'id' => $id,
+                        'tag' => strtolower((string) ($entry['tag'] ?? ($entry['component'] ?? ''))),
+                    ];
+                }
+                $children = $entry['children'] ?? ($entry['nodes'] ?? []);
+                if (is_array($children)) foreach ($children as $child) $visit($child);
+            };
+            $visit($descriptor);
+            return $records;
+        }
+
+        private function createResumeEnvelope(array $state, string $html, array $descriptor, array $hydration, array &$diagnostics): ?array
+        {
+            if (($state['executionMode'] ?? null) !== RMT_PHP_SSR_RESUME_EXECUTION_MODE) return null;
+            $options = isset($state['options']) && is_array($state['options']) ? $state['options'] : [];
+            $resume = isset($options['resume']) && is_array($options['resume']) ? $options['resume'] : [];
+            $issuedAt = (string) ($resume['issuedAt'] ?? $state['renderedAt']);
+            $issuedTimestamp = strtotime($issuedAt);
+            $expiresAt = (string) ($resume['expiresAt'] ?? gmdate('c', ($issuedTimestamp === false ? time() : $issuedTimestamp) + 300));
+            $xtensions = isset($resume['xtensions']) && is_array($resume['xtensions']) ? $resume['xtensions'] : [];
+            $manifests = isset($resume['manifests']) && is_array($resume['manifests']) ? $resume['manifests'] : [];
+            $fragments = isset($resume['islandFragments']) && is_array($resume['islandFragments']) ? $resume['islandFragments'] : [];
+            $fragmentIds = [];
+            foreach ($fragments as $fragment) {
+                if (is_array($fragment) && $this->isNonEmptyString($fragment['id'] ?? null)) $fragmentIds[(string) $fragment['id']] = true;
+            }
+            foreach ($manifests as $manifest) {
+                if (!is_array($manifest) || ($manifest['adoptionStrategy'] ?? null) !== 'dom_hydrate') continue;
+                $id = (string) ($manifest['id'] ?? ($manifest['xtension'] ?? ''));
+                if (!$this->isNonEmptyString($manifest['serverEntry'] ?? null) && !isset($fragmentIds[$id])) {
+                    $diagnostics[] = $this->diagnostic('rmt.php_ssr.resume_island_fragment_missing', 'PHP resume requires a host-provided island fragment or serverEntry for DOM hydration.', 'error', ['xtension' => $id]);
+                }
+            }
+            $resumeNodeManifest = $this->createResumeNodeManifest($descriptor);
+            $unsigned = [
+                'schema' => RMT_SSR_RESUME_ENVELOPE_SCHEMA,
+                'version' => 1,
+                'executionMode' => RMT_PHP_SSR_RESUME_EXECUTION_MODE,
+                'requestId' => $state['requestId'],
+                'rootId' => $state['rootId'],
+                'templateId' => $state['templateId'],
+                'generation' => $state['generation'],
+                'issuedAt' => $issuedAt,
+                'expiresAt' => $expiresAt,
+                'snapshot' => [
+                    'schema' => 'xtend.rmt.resume-snapshot.v1',
+                    'state' => $resume['state'] ?? $this->preservedStateFromCore($state['coreDocument'] ?? null),
+                    'surfaces' => $resume['surfaces'] ?? [],
+                ],
+                'eventReplay' => [
+                    'schema' => 'xtend.rmt.resume-intent-queue-policy.v1',
+                    'mode' => 'intent_queue',
+                    'generation' => $state['generation'],
+                    'maxEntries' => 128,
+                    'replayExactlyOnce' => true,
+                ],
+                'xtensions' => $xtensions,
+                'manifests' => $manifests,
+                'islandFragments' => $fragments,
+                'dom' => [
+                    'schema' => 'xtend.rmt.resume-dom-digest.v1',
+                    'algorithm' => 'SHA-256',
+                    'encoding' => 'base64url',
+                    'canonicalization' => 'resume-node-manifest.v1',
+                    'nodeCount' => count($resumeNodeManifest),
+                    'digest' => $this->sha256Base64Url($this->canonicalResumeJson($resumeNodeManifest)),
+                ],
+                'fallbackMode' => RMT_PHP_SSR_EXECUTION_MODE,
+                'hydrationSchema' => $hydration['schema'] ?? RMT_PHP_SSR_HYDRATION_SCHEMA,
+            ];
+            $canonical = $this->canonicalResumeJson($unsigned);
+            $signer = $resume['sign'] ?? ($options['signResumeEnvelope'] ?? null);
+            if (!is_callable($signer)) {
+                $diagnostics[] = $this->diagnostic('rmt.php_ssr.resume_signer_missing', 'server_prerender_resume requires a host-provided resume signer.', 'error', ['rootId' => $state['rootId']]);
+                return array_replace($unsigned, ['integrity' => [
+                    'schema' => RMT_SSR_RESUME_INTEGRITY_SCHEMA,
+                    'algorithm' => null,
+                    'encoding' => 'base64url',
+                    'keyId' => null,
+                    'digest' => $this->sha256Base64Url($canonical),
+                    'signature' => null,
+                    'verified' => false,
+                ]]);
+            }
+            try {
+                $signed = $signer($canonical, [
+                    'schema' => RMT_SSR_RESUME_ENVELOPE_SCHEMA,
+                    'requestId' => $state['requestId'],
+                    'rootId' => $state['rootId'],
+                    'generation' => $state['generation'],
+                ]);
+            } catch (Throwable $error) {
+                $diagnostics[] = $this->diagnostic('rmt.php_ssr.resume_signing_failed', $error->getMessage(), 'error', ['rootId' => $state['rootId']]);
+                $signed = [];
+            }
+            $signature = is_string($signed) ? $signed : (is_array($signed) ? ($signed['signature'] ?? null) : null);
+            $algorithm = is_array($signed) ? ($signed['algorithm'] ?? 'ECDSA-P256-SHA256') : 'ECDSA-P256-SHA256';
+            $keyId = is_array($signed) ? ($signed['keyId'] ?? ($resume['keyId'] ?? null)) : ($resume['keyId'] ?? null);
+            if (!$this->isNonEmptyString($signature) || !$this->isNonEmptyString($keyId)) {
+                $diagnostics[] = $this->diagnostic('rmt.php_ssr.resume_signature_incomplete', 'Resume signer must return signature and keyId.', 'error', ['rootId' => $state['rootId']]);
+            }
+            return array_replace($unsigned, ['integrity' => [
+                'schema' => RMT_SSR_RESUME_INTEGRITY_SCHEMA,
+                'algorithm' => $algorithm,
+                'encoding' => 'base64url',
+                'keyId' => $keyId,
+                'digest' => $this->sha256Base64Url($canonical),
+                'signature' => $signature,
+            ]]);
+        }
+
         private function createChunk(array $state, string $html, array $descriptor, array $hydration): array
         {
+            $executionMode = (string) ($state['executionMode'] ?? RMT_PHP_SSR_EXECUTION_MODE);
             $documentId = $state['coreDocument']['manifest']['id'] ?? $state['requestId'];
             $templateId = $this->safeIdentifier($state['options']['templateId'] ?? $documentId, 'rmt-php-ssr-template');
             $namespace = (string) ($state['options']['namespace'] ?? 'rmt');
@@ -711,7 +923,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             return [
                 'kind' => RMT_PHP_SSR_CHUNK_KIND,
                 'version' => '1.0',
-                'executionMode' => RMT_PHP_SSR_EXECUTION_MODE,
+                'executionMode' => $executionMode,
                 'transport' => 'server',
                 'rootId' => $state['rootId'],
                 'template' => [
@@ -725,7 +937,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 'target' => [
                     'elementId' => $state['rootId'],
                     'selector' => '#' . $state['rootId'],
-                    'ownershipMode' => 'hydrate_existing',
+                    'ownershipMode' => $executionMode === RMT_PHP_SSR_RESUME_EXECUTION_MODE ? 'resume_existing' : 'hydrate_existing',
                     'namespace' => $namespace,
                 ],
                 'markup' => [
@@ -738,29 +950,30 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                     'slots' => [],
                     'props' => [],
                     'templateHydration' => [
-                        'mode' => RMT_PHP_SSR_EXECUTION_MODE,
+                        'mode' => $executionMode,
                         'schema' => RMT_PHP_SSR_HYDRATION_SCHEMA,
                     ],
                     'errorBoundary' => ['mode' => 'preserve-server-markup'],
                     'reactivityHints' => ['source' => 'rmt-php-ssr-adapter'],
-                    'ownershipMode' => 'hydrate_existing',
+                    'ownershipMode' => $executionMode === RMT_PHP_SSR_RESUME_EXECUTION_MODE ? 'resume_existing' : 'hydrate_existing',
                     'resourceId' => 'template.chunk:' . $qualifiedId,
                     'metadata' => $hydration,
                 ],
                 'modelSnapshot' => $state['model'],
                 'plan' => [
-                    'executionMode' => RMT_PHP_SSR_EXECUTION_MODE,
+                    'executionMode' => $executionMode,
                     'rootId' => $state['rootId'],
                     'templateQualifiedId' => $qualifiedId,
                     'namespace' => $namespace,
-                    'phases' => ['server_prerender', 'html_delivery', 'client_hydrate'],
+                    'phases' => ['server_prerender', 'html_delivery', $executionMode === RMT_PHP_SSR_RESUME_EXECUTION_MODE ? 'client_resume' : 'client_hydrate'],
                 ],
                 'renderedAt' => $state['renderedAt'],
             ];
         }
 
-        private function createPrerenderResponseEnvelope(array $state, array $chunk, array $hydration, array $diagnostics, bool $ok, array $cspPolicy, array $headers): array
+        private function createPrerenderResponseEnvelope(array $state, array $chunk, array $hydration, ?array $resume, array $diagnostics, bool $ok, array $cspPolicy, array $headers): array
         {
+            $executionMode = (string) ($state['executionMode'] ?? RMT_PHP_SSR_EXECUTION_MODE);
             $parsedAt = isset($state['renderedAt']) ? strtotime((string) $state['renderedAt']) : false;
             $timestamp = $parsedAt === false ? (int) floor(microtime(true) * 1000) : $parsedAt * 1000;
             $metadata = [
@@ -775,7 +988,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             $request = [
                 'kind' => 'rmt_template_prerender_request',
                 'version' => '1.0',
-                'executionMode' => RMT_PHP_SSR_EXECUTION_MODE,
+                'executionMode' => $executionMode,
                 'transport' => 'server',
                 'rootId' => $state['rootId'],
                 'template' => $chunk['template'] ?? null,
@@ -789,7 +1002,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 'ok' => $ok,
                 'status' => $ok ? 'rendered' : 'blocked',
                 'transport' => 'server',
-                'executionMode' => RMT_PHP_SSR_EXECUTION_MODE,
+                'executionMode' => $executionMode,
                 'adapterKind' => 'php-ssr',
                 'supportStatus' => $ok ? 'supported' : 'blocked',
                 'rootId' => $state['rootId'],
@@ -802,6 +1015,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 'chunk' => $chunk,
                 'chunks' => [$chunk],
                 'hydration' => $hydration,
+                'resume' => $resume,
                 'diagnostics' => $diagnostics,
                 'superseded' => false,
                 'error' => $ok ? null : [

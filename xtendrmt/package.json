@@ -58,6 +58,8 @@
     "rmt-native-shell-runtime.js",
     "rmt-node-ssr-adapter.d.ts",
     "rmt-node-ssr-adapter.js",
+    "rmt-resume-runtime.d.ts",
+    "rmt-resume-runtime.js",
     "rmt-php-app-service-adapter.php",
     "rmt.schema.json",
     "rmt-manifest.json",
@@ -146,6 +148,10 @@
     "./node-ssr-adapter": {
       "types": "./rmt-node-ssr-adapter.d.ts",
       "default": "./rmt-node-ssr-adapter.js"
+    },
+    "./resume-runtime": {
+      "types": "./rmt-resume-runtime.d.ts",
+      "default": "./rmt-resume-runtime.js"
     },
     "./php-app-service-adapter.php": "./rmt-php-app-service-adapter.php",
     "./schema": "./rmt.schema.json",

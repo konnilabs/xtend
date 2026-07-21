@@ -1,0 +1,26 @@
+{
+  "schema": "xtend.maraca.build-config.v1",
+  "catfoodingOwner": "RMT-RESUME-CATFOOD-01",
+  "options": {
+    "source": "src/rmt/erp-shell.rmt",
+    "out": "dist/maraca",
+    "profile": "production",
+    "lazy": "component",
+    "css": "external",
+    "sizeBudget": "strict",
+    "orchestration": "strict",
+    "kernel": "strict",
+    "kernelBootMode": "direct",
+    "hydration": "strict",
+    "validation": "strict",
+    "transitions": "strict",
+    "componentMode": "document",
+    "stackMode": "plan",
+    "enablePrewarmWorker": false,
+    "enableUiCoprocessor": false,
+    "enablePwa": false,
+    "enableServiceWorker": false,
+    "enableWebAppManifest": false,
+    "allowDynamicComponents": false
+  }
+}

@@ -2105,6 +2105,7 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
   const attributes = {
     'data-maraca-surface': literal(surface.id),
     'data-rmt-surface': literal(surface.id),
+    'data-rmt-primitive-id': surface.id,
     'data-rmt-component': literal(component),
     'data-maraca-kind': literal(surface.kind || 'surface'),
     id: surface.source ? `$model.${surface.source}.id` : undefined,
@@ -2435,7 +2436,6 @@ const SUPPORTED_ORCHESTRATION_HYDRATION_MODES = Object.freeze([
   'server_prerender_hydrate',
   'server_prerender_resume',
   'worker_prerender_hydrate',
-  'worker_prerender_resume',
   'warm',
   'prewarm',
   'visible',
@@ -2450,6 +2450,10 @@ const SUPPORTED_ORCHESTRATION_HYDRATION_MODES = Object.freeze([
   'none',
   'insular'
 ]);
+
+const RMT_SERVER_RESUME_ENVELOPE_SCHEMA = 'xtend.rmt.ssr-resume-envelope.v1';
+const RMT_RESUMABILITY_CAPABILITY_SCHEMA = 'xtend.rmt.app-resumability-capability.v1';
+const RMT_RESUME_FALLBACK_MODE = 'server_prerender_hydrate';
 
 function laneNameForOperation(core, operation) {
   const laneId = operation && operation.scope && operation.scope.lane;
@@ -2484,9 +2488,25 @@ function derivedHydrationMode(operation, policies) {
   return 'manual';
 }
 
+function collectResumabilityPolicy(policies) {
+  const records = toArray(policies).filter((policy) => policy && policy.kind === 'resumability');
+  if (records.length === 0) return null;
+  const fields = ['mode', 'snapshot', 'eventReplay', 'integrity'];
+  const result = {
+    records,
+    conflicts: []
+  };
+  fields.forEach((field) => {
+    const values = [...new Set(records.map((record) => record[field]).filter(Boolean))];
+    result[field] = values[0] || null;
+    if (values.length > 1) result.conflicts.push({ field, values });
+  });
+  return result;
+}
+
 function isWorkerPrerenderHydrationMode(modeOrPolicy) {
   const signal = String(modeOrPolicy || '').trim();
-  return signal === 'worker_prerender_hydrate' || signal === 'worker_prerender_resume';
+  return signal === 'worker_prerender_hydrate';
 }
 
 function isUiCoprocessorHydrationSignal(modeOrPolicy, operation) {
@@ -2606,6 +2626,31 @@ function createUiCoprocessorCapability(records) {
   };
 }
 
+function createServerResumabilityCapability(records) {
+  const resumeRecords = toArray(records).filter((record) => record && record.resumability && record.resumability.requested === true);
+  const unsupportedRecords = resumeRecords.filter((record) => record.resumability.supported !== true);
+  return {
+    schema: RMT_RESUMABILITY_CAPABILITY_SCHEMA,
+    id: 'serverResumability',
+    mode: 'server_prerender_resume',
+    envelopeSchema: RMT_SERVER_RESUME_ENVELOPE_SCHEMA,
+    supported: unsupportedRecords.length === 0,
+    degraded: unsupportedRecords.length > 0,
+    status: unsupportedRecords.length > 0 ? 'blocked' : (resumeRecords.length > 0 ? 'supported' : 'available'),
+    requested: resumeRecords.length > 0,
+    recordCount: resumeRecords.length,
+    fallbackMode: RMT_RESUME_FALLBACK_MODE,
+    runtimeHooks: ['resumeTemplate', 'resumeResponse', 'hydrateResponse'],
+    requirements: {
+      snapshot: 'surface_state',
+      eventReplay: 'intent_queue',
+      integrity: 'signed_manifest',
+      verificationBeforeMutation: true,
+      replayExactlyOnce: true
+    }
+  };
+}
+
 function createHydrationPlan(core, appPlatform) {
   const surfaceByCoreId = new Map(toArray(core && core.surfaces)
     .filter((surface) => surface && surface.primitive === true)
@@ -2625,6 +2670,7 @@ function createHydrationPlan(core, appPlatform) {
     const policies = operationPolicies(core, operation.id);
     const isolation = policies.find((policy) => policy.kind === 'isolation') || null;
     const hydrationPolicy = policies.find((policy) => policy.kind === 'hydration') || null;
+    const resumabilityPolicy = collectResumabilityPolicy(policies);
     const insular = policies.some((policy) => policy.kind === 'hydration' && policy.insularHydration === true);
     const mode = derivedHydrationMode(operation, policies);
     const workerPrerenderRequested = isWorkerPrerenderHydrationMode(mode)
@@ -2660,7 +2706,21 @@ function createHydrationPlan(core, appPlatform) {
       source: operation.source || null,
       clientDetermined,
       uiCoprocessorEligible,
-      explicitPolicy: Boolean(hydrationPolicy || isolation),
+      explicitPolicy: Boolean(hydrationPolicy || resumabilityPolicy || isolation),
+      resumability: resumabilityPolicy ? {
+        schema: 'xtend.rmt.app-resumability-record.v1',
+        requested: String(resumabilityPolicy.mode || mode || '').endsWith('_resume'),
+        supported: resumabilityPolicy.mode === 'server_prerender_resume',
+        status: resumabilityPolicy.mode === 'server_prerender_resume' ? 'supported' : 'blocked',
+        mode: resumabilityPolicy.mode || mode,
+        snapshot: resumabilityPolicy.snapshot,
+        eventReplay: resumabilityPolicy.eventReplay,
+        integrity: resumabilityPolicy.integrity,
+        fallbackMode: RMT_RESUME_FALLBACK_MODE,
+        envelopeSchema: RMT_SERVER_RESUME_ENVELOPE_SCHEMA,
+        verificationBeforeMutation: true,
+        replayExactlyOnce: true
+      } : null,
       insularHydration: insular,
       workerPrerender: {
         schema: 'xtend.rmt.app-hydration-worker-prerender.v1',
@@ -2704,6 +2764,38 @@ function createHydrationPlan(core, appPlatform) {
       sourceRefs: [operation.sourceRef].concat(policies.map((policyRecord) => policyRecord.sourceRef)).filter(Boolean)
     };
     records.push(record);
+    if (resumabilityPolicy && resumabilityPolicy.conflicts.length > 0) {
+      resumabilityPolicy.conflicts.forEach((conflict) => diagnostics.push({
+        code: 'rmt.app_orchestration.resumability_policy_conflict',
+        severity: 'error',
+        message: `Operation ${operation.id} declares conflicting resumability ${conflict.field} values: ${conflict.values.join(', ')}.`,
+        operation: operation.id,
+        field: conflict.field,
+        values: conflict.values
+      }));
+    }
+    if (String(mode || '').endsWith('_resume')) {
+      const missing = ['snapshot', 'eventReplay', 'integrity'].filter((field) => !resumabilityPolicy || !resumabilityPolicy[field]);
+      if (missing.length > 0) {
+        diagnostics.push({
+          code: 'rmt.app_orchestration.resumability_policy_incomplete',
+          severity: 'error',
+          message: `Operation ${operation.id} requests ${mode} without ${missing.join(', ')}.`,
+          operation: operation.id,
+          mode,
+          missing
+        });
+      }
+      if (mode === 'worker_prerender_resume') {
+        diagnostics.push({
+          code: 'rmt.app_orchestration.worker_resume_unsupported',
+          severity: 'error',
+          message: `Operation ${operation.id} requests worker_prerender_resume, which remains unsupported until a dedicated runtime is available.`,
+          operation: operation.id,
+          mode
+        });
+      }
+    }
     if (insular) {
       insularIslands.push({
         id: `island:${normalizeIdSegment(appSurface.id)}`,
@@ -2736,10 +2828,12 @@ function createHydrationPlan(core, appPlatform) {
     records,
     capabilities: [
       createWorkerPrerenderCapability(records),
-      createUiCoprocessorCapability(records)
+      createUiCoprocessorCapability(records),
+      createServerResumabilityCapability(records)
     ],
     workerPrerender: createWorkerPrerenderCapability(records),
     uiCoprocessor: createUiCoprocessorCapability(records),
+    serverResumability: createServerResumabilityCapability(records),
     insularIslands,
     diagnostics,
     security: {
@@ -5252,6 +5346,7 @@ function compileRmtVNextSource(input = {}, options = {}) {
   } : null;
   const orchestrationArtifacts = createRmtAppOrchestrationArtifacts(coreDocument);
   compilerDiagnostics.push(...toArray(orchestrationArtifacts && orchestrationArtifacts.render && orchestrationArtifacts.render.diagnostics));
+  compilerDiagnostics.push(...toArray(orchestrationArtifacts && orchestrationArtifacts.hydration && orchestrationArtifacts.hydration.diagnostics));
   const diagnostics = parserResult.diagnostics.concat(compilerDiagnostics);
 
   return {

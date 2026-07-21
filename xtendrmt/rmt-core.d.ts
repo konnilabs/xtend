@@ -1,4 +1,26 @@
 // XTendRMT 0.5.0 type definitions
+export {
+    RMT_RESUME_RUNTIME_SCHEMA,
+    RMT_RESUME_ENVELOPE_SCHEMA,
+    RMT_RESUME_RESULT_SCHEMA,
+    RMT_RESUME_INTENT_SCHEMA,
+    RMT_RESUME_ADAPTER_SCHEMA,
+    RMT_RESUME_MAX_INTENTS,
+    canonicalizeRmtResumePayload,
+    createRmtResumeRuntime,
+    installRmtPrebootIntentCapture,
+    resumeResponse,
+    resumeTemplate
+} from './rmt-resume-runtime.js';
+export type {
+    RmtResumeEnvelope,
+    RmtResumeIntegrity,
+    RmtResumeIntent,
+    RmtResumeResult,
+    RmtResumeRuntime,
+    RmtResumeRuntimeOptions,
+    RmtResumeVerifier
+} from './rmt-resume-runtime.js';
 export type RmtOwnershipMode =
     | 'observe_only'
     | 'hydrate_existing'
@@ -9,7 +31,7 @@ export type RmtBuildFormat = 'browser_classic' | 'esm' | string;
 export type RmtTemplateMode = 'html_fragment' | 'text' | 'dom_descriptor' | string;
 export type RmtTemplateBindingKind = 'text' | 'attribute' | 'property' | 'class_toggle' | 'command' | 'root_event' | 'template_outlet' | 'template_repeat' | string;
 export type RmtTemplateSlotKind = 'text' | 'html_fragment' | 'template' | string;
-export type RmtTemplateHydrationMode = 'runtime_render' | 'hydrate_prerendered' | 'worker_prerender_hydrate' | 'server_prerender_hydrate' | 'prerender_only' | string;
+export type RmtTemplateHydrationMode = 'runtime_render' | 'hydrate_prerendered' | 'worker_prerender_hydrate' | 'server_prerender_hydrate' | 'server_prerender_resume' | 'prerender_only' | string;
 
 export interface RmtRuntimeContract {
     rootLifecycle: boolean;
@@ -3018,6 +3040,7 @@ export type RmtTemplateExecutionMode =
     | 'hydrate_prerendered'
     | 'worker_prerender_hydrate'
     | 'server_prerender_hydrate'
+    | 'server_prerender_resume'
     | 'prerender_only';
 
 export interface RmtTemplateExecutionTarget {

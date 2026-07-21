@@ -1,0 +1,35 @@
+:root {
+  color-scheme: light;
+  font: 13px/1.4 system-ui, sans-serif;
+  background: #e8edf2;
+  color: #15202b;
+}
+
+body {
+  margin: 0;
+}
+
+header,
+main {
+  padding: 10px 12px;
+}
+
+header {
+  background: linear-gradient(#f7f9fb, #cbd5df);
+  border-bottom: 1px solid #8b99a8;
+}
+
+h1 {
+  margin: 0;
+  font-size: 15px;
+}
+
+a {
+  display: block;
+  padding: 8px 10px;
+  border: 1px solid #8b99a8;
+  border-radius: 4px;
+  background: #fff;
+  color: #134f82;
+  text-decoration: none;
+}

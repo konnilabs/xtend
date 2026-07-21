@@ -10177,6 +10177,7 @@
         'hydrate_prerendered',
         'worker_prerender_hydrate',
         'server_prerender_hydrate',
+        'server_prerender_resume',
         'prerender_only'
     ]);
     const OWNERSHIP_MODES = Object.freeze([

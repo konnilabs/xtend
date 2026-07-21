@@ -22,6 +22,7 @@ const RMT_NODE_SSR_ADAPTER_TYPES = 'xtendrmt/rmt-node-ssr-adapter.d.ts';
 const RMT_NODE_SSR_ADAPTER_SCHEMA = 'xtend.rmt.node-ssr-adapter.v1';
 const RMT_NODE_SSR_RENDER_RESULT_SCHEMA = 'xtend.rmt.node-ssr-render-result.v1';
 const RMT_NODE_SSR_JSONL_FRAME_SCHEMA = 'xtend.rmt.node-ssr-jsonl-frame.v1';
+const RMT_SSR_RESUME_ENVELOPE_SCHEMA = 'xtend.rmt.ssr-resume-envelope.v1';
 const RMT_SSR_CSP_POLICY_SCHEMA = 'xtend.rmt.ssr-csp-policy.v1';
 const RMT_NODE_SSR_LOCAL_GATE = 'node scripts/run_xtend_tests.js rmt-node-ssr-adapter --json';
 const RMT_NODE_SSR_PACKAGE_SCRIPT = 'npm run test:rmt-node-ssr-adapter';
@@ -77,6 +78,7 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
   context.assert(adapterApi.RMT_NODE_SSR_JSONL_FRAME_SCHEMA === RMT_NODE_SSR_JSONL_FRAME_SCHEMA, 'adapter exposes JSONL frame schema');
   context.assert(adapterApi.RMT_SSR_CSP_POLICY_SCHEMA === RMT_SSR_CSP_POLICY_SCHEMA, 'adapter exposes automatic SSR CSP policy schema');
   context.assert(typeof adapterApi.createRmtNodeSsrAdapter === 'function', 'adapter exposes createRmtNodeSsrAdapter');
+  context.assert(typeof adapterApi.canonicalizeRmtResumePayload === 'function', 'adapter exposes canonical resume serialization');
   context.assert(!adapterSource.includes('shadowRoot'), 'adapter does not patch component internals');
   context.assert(!adapterSource.includes('innerHTML'), 'adapter runtime does not use manual HTML sinks');
   context.assert(!/from ['"]\.\.?\/components|import\(['"]\.\.?\/components/u.test(adapterSource), 'adapter does not import XTend components directly');
@@ -86,6 +88,7 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
   context.assert(adapterTypes.includes('RmtNodeSsrJsonlFrame'), 'declarations expose RmtNodeSsrJsonlFrame');
   context.assert(adapterTypes.includes('RmtSsrCspPolicy'), 'declarations expose RmtSsrCspPolicy');
   context.assert(adapterTypes.includes('toHttpResponse'), 'declarations expose Node HTTP response helper');
+  context.assert(adapterTypes.includes('RmtResumeEnvelope'), 'declarations expose the resume envelope');
 
   const adapter = adapterApi.createRmtNodeSsrAdapter({ manifest, sourceTexts });
   const descriptorRender = await adapter.render({
@@ -133,6 +136,45 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
   context.assert(descriptorRender.response.headers['Content-Security-Policy'] === descriptorRender.headers['Content-Security-Policy'], 'prerender response envelope carries CSP header');
   context.assert(descriptorRender.hydration.cspPolicy.header === descriptorRender.headers['Content-Security-Policy'], 'hydration payload carries CSP policy metadata');
   context.assert(JSON.stringify(descriptorRender.hydration).includes('xtend.rmt.node-ssr-hydration-payload.v1'), 'descriptor render emits hydration payload');
+  const resumeRender = await adapter.render({
+    descriptor: {
+      type: 'element',
+      tag: 'section',
+      attributes: { 'data-test-surface': 'resume' },
+      children: [{ type: 'text', text: 'Resume me' }]
+    }
+  }, {
+    requestId: 'node-ssr-resume',
+    rootId: 'resume-root',
+    executionMode: 'server_prerender_resume',
+    resume: {
+      generation: 'resume-generation-1',
+      state: { 'app.status': { text: 'Ready' } },
+      surfaces: { 'app.shell': { text: 'Resume me' } },
+      sign(canonicalPayload) {
+        return {
+          algorithm: 'ECDSA-P256-SHA256',
+          keyId: 'test-key',
+          signature: `fixture:${canonicalPayload.length}`
+        };
+      }
+    }
+  });
+  context.assert(resumeRender.ok === true, 'signed server prerender resume succeeds');
+  context.assert(resumeRender.resume && resumeRender.resume.schema === RMT_SSR_RESUME_ENVELOPE_SCHEMA, 'resume render emits the public resume envelope');
+  context.assert(resumeRender.response.executionMode === 'server_prerender_resume', 'resume response keeps the requested execution mode');
+  context.assert(resumeRender.html.includes('data-rmt-resume-root="true"'), 'resume HTML exposes a stable root adoption marker');
+  context.assert(resumeRender.html.includes('data-rmt-resume-generation="resume-generation-1"'), 'resume HTML carries its generation');
+  context.assert(resumeRender.resume.integrity.keyId === 'test-key' && resumeRender.resume.integrity.encoding === 'base64url' && Boolean(resumeRender.resume.integrity.signature), 'resume envelope carries host-provided integrity metadata with explicit encoding');
+  context.assert(resumeRender.resume.dom.encoding === 'base64url' && resumeRender.resume.dom.canonicalization === 'resume-node-manifest.v1' && resumeRender.resume.dom.nodeCount > 0, 'resume envelope signs a browser-stable DOM identity manifest');
+  context.assert(resumeRender.resume.fallbackMode === 'server_prerender_hydrate', 'resume envelope declares the explicit hydrate fallback');
+
+  const unsignedResume = await adapter.render({ descriptor: { type: 'text', text: 'Blocked resume' } }, {
+    requestId: 'node-ssr-unsigned-resume',
+    executionMode: 'server_prerender_resume'
+  });
+  context.assert(unsignedResume.ok === false, 'resume without a signer is blocked');
+  context.assert(unsignedResume.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.node_ssr.resume_signer_missing'), 'missing signer emits a stable diagnostic');
   const httpResponse = await adapter.toHttpResponse({
     descriptor: { type: 'text', text: 'HTTP response' }
   }, { requestId: 'node-ssr-http-response' });

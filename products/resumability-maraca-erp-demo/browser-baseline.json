@@ -1,0 +1,28 @@
+{
+  "schema": "xtend.rmt.erp-resumability-browser-baseline.v1",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "expectedDataset": {
+    "kernel-enabled": "true",
+    "telemetry-ready": "true",
+    "dev-surface-ready": "true",
+    "resume-status": "resumed",
+    "resume-verified": "true",
+    "resume-fallback": "false",
+    "repeat-boot-ignored": "true",
+    "root-identity": "true",
+    "slot-identity": "true",
+    "inner-identity": "true",
+    "host-fallback-identity": "true",
+    "xtension-mounted": "8",
+    "native-surface-count": "13",
+    "fallback-degraded": "false"
+  },
+  "accessibility": {
+    "landmarks": ["main", "nav"],
+    "interactiveCommandsDeclarative": true,
+    "severeFindings": 0
+  }
+}

@@ -21,6 +21,7 @@ const RMT_PHP_SSR_ADAPTER_SCHEMA = 'xtend.rmt.php-ssr-adapter.v1';
 const RMT_PHP_SSR_RENDER_RESULT_SCHEMA = 'xtend.rmt.node-ssr-render-result.v1';
 const RMT_PHP_SSR_JSONL_FRAME_SCHEMA = 'xtend.rmt.node-ssr-jsonl-frame.v1';
 const RMT_PHP_SSR_HYDRATION_SCHEMA = 'xtend.rmt.node-ssr-hydration-payload.v1';
+const RMT_SSR_RESUME_ENVELOPE_SCHEMA = 'xtend.rmt.ssr-resume-envelope.v1';
 const RMT_SSR_CSP_POLICY_SCHEMA = 'xtend.rmt.ssr-csp-policy.v1';
 const RMT_PHP_SSR_LOCAL_GATE = 'node scripts/run_xtend_tests.js rmt-php-ssr-adapter --json';
 const RMT_PHP_SSR_PACKAGE_SCRIPT = 'npm run test:rmt-php-ssr-adapter';
@@ -131,8 +132,49 @@ $preparedRender = $adapter->render([
         ],
     ],
 ], ['requestId' => 'php-ssr-prepared']);
-
 $runtimeOnlyAdapter = createRmtPhpSsrAdapter(['manifest' => $payload['manifest']]);
+$resumeOptions = [
+    'requestId' => 'php-ssr-resume',
+    'rootId' => 'php-resume-root',
+    'generation' => 'php-generation-1',
+    'executionMode' => 'server_prerender_resume',
+    'renderedAt' => '2026-07-21T12:00:00Z',
+    'resume' => [
+        'expiresAt' => '2026-07-21T12:05:00Z',
+        'state' => ['erp.filters' => ['region' => 'EMEA']],
+        'surfaces' => ['erp.orders' => ['selected' => 7]],
+        'manifests' => [[
+            'id' => 'xtension.react',
+            'adoptionStrategy' => 'dom_hydrate',
+        ]],
+        'islandFragments' => [[
+            'id' => 'xtension.react',
+            'html' => '<div data-reactroot="true">React SSR</div>',
+        ]],
+        'sign' => fn (string $canonical) => [
+            'algorithm' => 'ECDSA-P256-SHA256',
+            'keyId' => 'php-test-p256',
+            'signature' => hash('sha256', $canonical),
+        ],
+    ],
+];
+$resumeRender = $runtimeOnlyAdapter->render([
+    'descriptor' => [
+        'type' => 'element',
+        'tag' => 'main',
+        'children' => [['type' => 'text', 'text' => 'Resume shell']],
+    ],
+], $resumeOptions);
+$unsignedResumeRender = $runtimeOnlyAdapter->render(['descriptor' => $descriptor], [
+    'requestId' => 'php-ssr-resume-unsigned',
+    'executionMode' => 'server_prerender_resume',
+    'resume' => [],
+]);
+$missingIslandRender = $runtimeOnlyAdapter->render(['descriptor' => $descriptor], array_replace($resumeOptions, [
+    'requestId' => 'php-ssr-resume-missing-island',
+    'resume' => array_replace($resumeOptions['resume'], ['islandFragments' => []]),
+]));
+
 $missingCompiler = $runtimeOnlyAdapter->render([
     'source' => $payload['source'],
     'filePath' => 'tests/rmt-language/fixtures/vnext-source-to-sea.rmt',
@@ -222,6 +264,9 @@ echo json_encode([
     'sourceRender' => $sourceRender,
     'coreRender' => $coreRender,
     'preparedRender' => $preparedRender,
+    'resumeRender' => $resumeRender,
+    'unsignedResumeRender' => $unsignedResumeRender,
+    'missingIslandRender' => $missingIslandRender,
     'missingCompiler' => $missingCompiler,
     'missingCompilerFrames' => $missingCompilerFrames,
     'streamFrames' => $streamFrames,
@@ -307,6 +352,7 @@ async function runRmtPhpSsrAdapterSuite(options = {}) {
   context.assert(adapterSource.includes(RMT_PHP_SSR_JSONL_FRAME_SCHEMA), 'adapter reuses Node JSONL frame schema');
   context.assert(adapterSource.includes(RMT_SSR_CSP_POLICY_SCHEMA), 'adapter source records automatic SSR CSP policy schema');
   context.assert(adapterSource.includes('RMT_SSR_CSP_HEADER'), 'adapter source declares CSP header constant');
+  context.assert(adapterSource.includes(RMT_SSR_RESUME_ENVELOPE_SCHEMA), 'adapter source declares the shared resume envelope schema');
   context.assert(adapterSource.includes('function createRmtPhpSsrAdapter'), 'adapter exposes createRmtPhpSsrAdapter factory');
   context.assert(adapterSource.includes('final class RmtPhpSsrAdapter'), 'adapter exposes RmtPhpSsrAdapter class');
   context.assert(!adapterSource.includes('shadowRoot'), 'adapter does not patch component shadow roots');
@@ -370,6 +416,15 @@ async function runRmtPhpSsrAdapterSuite(options = {}) {
   const preparedRender = fixture.preparedRender;
   context.assert(preparedRender.ok === true, 'prepared template render succeeds');
   context.assert(preparedRender.html.includes('<x-status'), 'prepared template render serializes descriptor content');
+
+  const resumeRender = fixture.resumeRender;
+  context.assert(resumeRender.ok === true && resumeRender.resume.schema === RMT_SSR_RESUME_ENVELOPE_SCHEMA, 'PHP adapter emits a signed resume envelope');
+  context.assert(resumeRender.response.executionMode === 'server_prerender_resume' && resumeRender.response.resume.integrity.keyId === 'php-test-p256' && resumeRender.response.resume.integrity.encoding === 'base64url', 'PHP prerender response carries resume mode, signer key ID and shared digest encoding');
+  context.assert(resumeRender.html.includes('data-rmt-resume-root="true"') && resumeRender.html.includes('data-rmt-resume-generation="php-generation-1"'), 'PHP resume HTML carries stable root and generation markers');
+  context.assert(resumeRender.resume.dom.encoding === 'base64url' && resumeRender.resume.dom.canonicalization === 'resume-node-manifest.v1' && resumeRender.resume.dom.nodeCount > 0, 'PHP envelope uses the shared browser-stable DOM identity manifest');
+  context.assert(resumeRender.resume.fallbackMode === 'server_prerender_hydrate' && resumeRender.resume.eventReplay.replayExactlyOnce === true, 'PHP envelope declares explicit hydrate fallback and exactly-once replay');
+  context.assert(fixture.unsignedResumeRender.ok === false && fixture.unsignedResumeRender.diagnostics.some((entry) => entry.code === 'rmt.php_ssr.resume_signer_missing'), 'PHP resume fails closed without a host signer');
+  context.assert(fixture.missingIslandRender.ok === false && fixture.missingIslandRender.diagnostics.some((entry) => entry.code === 'rmt.php_ssr.resume_island_fragment_missing'), 'PHP resume blocks missing host-provided DOM-hydration island fragments');
 
   const missingCompiler = fixture.missingCompiler;
   context.assert(missingCompiler.ok === false, 'source render without compiler blocks');
