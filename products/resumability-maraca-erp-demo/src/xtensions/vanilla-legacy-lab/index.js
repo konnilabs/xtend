@@ -295,6 +295,12 @@ export function createVanillaLegacyLab(options = {}) {
         });
         attachSandboxPort('server-resume');
       }
+      const iframeFallback = container.querySelector('[data-xtension-fallback="vanilla-legacy-lab-iwebkit"]');
+      if (iframe && iframeFallback) {
+        iframeFallback.hidden = true;
+        iframeFallback.setAttribute('aria-hidden', 'true');
+        iframeFallback.dataset.activationStatus = 'runtime-active';
+      }
       container.dataset.xtensionStatus = 'resumed';
       container.dataset.xtensionFramework = 'vanilla';
       container.dataset.vanillaStatus = 'host-activated';

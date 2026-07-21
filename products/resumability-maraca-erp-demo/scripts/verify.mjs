@@ -446,6 +446,10 @@ try {
     assert(browser.stdout.includes('data-slot-identity="true"'), 'Browser smoke replaced an XTension host during resume.');
     assert(browser.stdout.includes('data-inner-identity="true"'), `Browser smoke replaced a React/Vue/Angular inner root during adoption. ${browserMarker} ${browserBootError}`);
     assert(browser.stdout.includes('data-host-fallback-identity="true"'), 'Browser smoke replaced a host_activate SSR fallback subtree.');
+    assert(browser.stdout.includes('data-three-fallback-hidden="true"'), 'Three host activation left its SSR visualization visible beside the canvas.');
+    assert(browser.stdout.includes('data-iwebkit-fallback-hidden="true"'), 'Vanilla/iWebKit host activation left its SSR placeholder visible beside the iframe.');
+    assert(browser.stdout.includes('data-openui5-fallback-hidden="true"'), 'OpenUI5 host activation left its SSR table visible beside the control tree.');
+    assert(browser.stdout.includes('data-host-activation-singleton="true"'), 'A host_activate XTension exposes more than one visible materialization.');
     assert(browser.stdout.includes('data-react-status="resumed"'), 'React XTensions did not adopt their SSR roots.');
     assert(browser.stdout.includes('data-vue-status="resumed"'), 'Vue XTensions did not adopt their SSR roots.');
     assert(browser.stdout.includes('data-react-sla-status="resumed"'), 'React SLA XTension did not adopt its SSR root.');

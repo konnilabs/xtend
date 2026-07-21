@@ -334,12 +334,14 @@ export function createOpenUi5ProcurementWorklist(options = {}) {
       container.dataset.xtensionFramework = 'openui5';
       container.dataset.openui5Status = 'loading';
       const fallback = container.querySelector('.erp-openui5-fallback');
-      if (fallback) {
-        fallback.hidden = true;
-        fallback.dataset.openui5Status = 'client-hidden';
-      }
       const control = await buildControls();
       control.placeAt(container);
+      if (fallback) {
+        fallback.hidden = true;
+        fallback.setAttribute('aria-hidden', 'true');
+        fallback.dataset.openui5Status = 'client-hidden';
+        fallback.dataset.activationStatus = 'runtime-active';
+      }
       container.dataset.xtensionStatus = 'mounted';
       container.dataset.openui5Status = 'mounted';
       container.dataset.openui5ModelUpdates = String(modelUpdates);
@@ -361,6 +363,13 @@ export function createOpenUi5ProcurementWorklist(options = {}) {
         container.appendChild(runtimeZone);
       }
       control.placeAt(runtimeZone);
+      const fallback = container.querySelector('[data-xtension-fallback="openui5-procurement-worklist"]');
+      if (fallback) {
+        fallback.hidden = true;
+        fallback.setAttribute('aria-hidden', 'true');
+        fallback.dataset.openui5Status = 'client-hidden';
+        fallback.dataset.activationStatus = 'runtime-active';
+      }
       container.dataset.xtensionStatus = 'resumed';
       container.dataset.openui5Status = 'host-activated';
       return { ...push('adopt', 'resumed', resumeContext), status: 'host_activated', nodeIdentityPreserved: true, generation: resumeContext.generation || null };

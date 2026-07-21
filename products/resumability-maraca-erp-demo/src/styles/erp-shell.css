@@ -447,6 +447,10 @@ tr.is-selected td,
   height: 226px;
 }
 
+.erp-xtension-slot [data-xtension-fallback][hidden] {
+  display: none !important;
+}
+
 .erp-three-fallback {
   position: relative;
   min-height: 226px;

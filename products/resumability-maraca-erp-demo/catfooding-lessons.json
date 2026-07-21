@@ -36,6 +36,15 @@
       "owner": "products/resumability-maraca-erp-demo",
       "gate": "erp-resumability-catfood",
       "evidence": "Three, OpenUI5 and iWebKit keep their server host nodes while activating adapter-owned runtime zones."
+    },
+    {
+      "id": "RMT-RESUME-L05",
+      "classification": "product-local",
+      "decision": "implemented-and-gated",
+      "title": "Host activation needs an explicit SSR fallback visibility handoff",
+      "owner": "products/resumability-maraca-erp-demo/src/xtensions",
+      "gate": "erp-resumability-catfood",
+      "evidence": "Three, OpenUI5 and iWebKit retain their SSR fallback nodes for identity and failure recovery, but hide them after successful runtime activation so each host has one visible materialization."
     }
   ],
   "frameworkNativeLessonCount": 3,

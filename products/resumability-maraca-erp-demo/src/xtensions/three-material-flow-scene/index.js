@@ -240,6 +240,12 @@ export function createThreeMaterialFlowScene(options = {}) {
       scene.add(light);
       materialSignature = createMaterialSignature(currentProps);
       rebuildMaterialFlow();
+      const fallback = container.querySelector('[data-xtension-fallback="three-material-flow-scene"]');
+      if (fallback) {
+        fallback.hidden = true;
+        fallback.setAttribute('aria-hidden', 'true');
+        fallback.dataset.activationStatus = 'runtime-active';
+      }
       container.dataset.xtensionStatus = 'resumed';
       container.dataset.xtensionFramework = 'three';
       container.dataset.threeRebuilds = String(rebuildCount);

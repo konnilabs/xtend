@@ -16,6 +16,10 @@
     "slot-identity": "true",
     "inner-identity": "true",
     "host-fallback-identity": "true",
+    "three-fallback-hidden": "true",
+    "iwebkit-fallback-hidden": "true",
+    "openui5-fallback-hidden": "true",
+    "host-activation-singleton": "true",
     "xtension-mounted": "8",
     "native-surface-count": "13",
     "fallback-degraded": "false"

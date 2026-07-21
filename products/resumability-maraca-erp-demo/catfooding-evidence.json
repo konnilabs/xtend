@@ -7,6 +7,7 @@
     "signature": "ECDSA-P256-SHA256",
     "maxIntentQueue": 128,
     "nodeIdentity": true,
+    "singleHostActivationVisual": true,
     "hydrationFallbackCount": 1,
     "telemetryRequired": true,
     "devSurfaceRequired": true,

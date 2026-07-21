@@ -106,7 +106,7 @@ function renderAuditTrail(snapshot) {
 
 function renderThreeFallback(snapshot) {
   return `
-    <div class="erp-three-fallback" aria-label="Materialfluss Vorschau">
+    <div class="erp-three-fallback" data-xtension-fallback="three-material-flow-scene" aria-label="Materialfluss Vorschau">
       ${snapshot.loadLab.materialFlow.map((node) => {
         const left = Math.round((50 + Number(node.x || 0) * 18) * 100) / 100;
         const top = Math.round((50 + Number(node.y || 0) * 24) * 100) / 100;
@@ -134,7 +134,7 @@ function renderVanillaFallback(snapshot) {
       </div>
       <button type="button" data-xtend-command="erp.shell.legacyNavigationIntent" data-source-id="vanilla-fallback">Intent</button>
     </div>
-    <div class="erp-iwebkit-fallback">
+    <div class="erp-iwebkit-fallback" data-xtension-fallback="vanilla-legacy-lab-iwebkit">
       <span>iWebKit 5</span>
       <b>iframe-sandbox</b>
     </div>
@@ -145,7 +145,7 @@ function renderVanillaFallback(snapshot) {
 function renderOpenUi5Fallback(snapshot) {
   const orders = snapshot.loadLab.openUi5Procurement || [];
   return `
-    <div class="erp-openui5-fallback" data-openui5-status="server-fallback">
+    <div class="erp-openui5-fallback" data-xtension-fallback="openui5-procurement-worklist" data-openui5-status="server-fallback">
       <table>
         <thead>
           <tr><th>Bestellung</th><th>Lieferant</th><th>Werk</th><th>Status</th><th class="num">Wert</th></tr>

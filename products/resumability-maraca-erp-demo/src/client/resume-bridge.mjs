@@ -729,6 +729,17 @@ function updateSmokeMarker() {
     const slot = document.querySelector(`[data-xtension-slot="${key}"]`);
     return preboot.innerNodes.get(key) === slot?.firstElementChild;
   })));
+  const threeFallback = document.querySelector('[data-xtension-fallback="three-material-flow-scene"]');
+  const iwebkitFallback = document.querySelector('[data-xtension-fallback="vanilla-legacy-lab-iwebkit"]');
+  const openUi5Fallback = document.querySelector('[data-xtension-fallback="openui5-procurement-worklist"]');
+  marker.dataset.threeFallbackHidden = String(Boolean(threeFallback && threeFallback.hidden));
+  marker.dataset.iwebkitFallbackHidden = String(Boolean(iwebkitFallback && iwebkitFallback.hidden));
+  marker.dataset.openui5FallbackHidden = String(Boolean(openUi5Fallback && openUi5Fallback.hidden));
+  marker.dataset.hostActivationSingleton = String(Boolean(
+    threeFallback && threeFallback.hidden && document.querySelector('[data-three-runtime-zone] canvas')
+    && iwebkitFallback && iwebkitFallback.hidden && document.querySelector('iframe[data-iwebkit-sandbox="true"]')
+    && openUi5Fallback && openUi5Fallback.hidden && document.querySelector('[data-openui5-runtime-zone]')
+  ));
   marker.dataset.intentReplay = String(resumeResult && resumeResult.replayedIntentCount || 0);
   marker.dataset.fallbackAttempted = String(Boolean(resumeResult && resumeResult.fallbackAttempted));
   marker.dataset.resumeEventCount = String(preboot && preboot.resumeEventCount || 0);
