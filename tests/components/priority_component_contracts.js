@@ -13,7 +13,7 @@ const priorityComponentConfigs = {
     fixturePath: 'tests/components/fixtures/xrouter.component.html',
     docPath: 'docs/components/xrouter.md',
     profiles: ['routing'],
-    observedAttributes: ['mode', 'routesrc', 'reuse-component'],
+    observedAttributes: ['mode', 'routesrc', 'reuse-component', 'adopt-prerendered-route'],
     sourceContracts: [
       { pattern: 'normalizeRmtRouteRecord', message: 'x-router normalizes RMT route records' },
       { pattern: 'createRouteElementFromRecord', message: 'x-router creates route elements from RMT records' },
@@ -24,6 +24,8 @@ const priorityComponentConfigs = {
       { pattern: 'routechange', message: 'x-router keeps legacy routechange event' },
       { pattern: 'xrouter-routes-registered', message: 'x-router emits route registration event' },
       { pattern: 'xrouter-route-reused', message: 'x-router emits route reuse event' },
+      { pattern: 'xrouter-route-adopted', message: 'x-router emits prerendered route adoption event' },
+      { pattern: 'xtend.router.route-adoption.v1', message: 'x-router exposes the route adoption contract' },
       { pattern: 'updateRoute', message: 'x-router supports insular route component updates' },
       { pattern: 'data-rmt-schedule', message: 'x-router preserves RMT schedule references' },
       { pattern: 'xtend.router.scrollBoundary', message: 'x-router publishes scroll boundary diagnostics' },
@@ -53,6 +55,7 @@ const priorityComponentConfigs = {
       { pattern: 'Document Title Rewrite', message: 'x-router docs describe document title rewriting' },
       { pattern: 'data-rmt-schedule', message: 'x-router docs describe RMT schedule forwarding' },
       { pattern: 'reuse-component', message: 'x-router docs describe insular route component reuse' },
+      { pattern: 'adopt-prerendered-route', message: 'x-router docs describe opt-in prerendered route adoption' },
       { pattern: 'Scroll Boundary', message: 'x-router docs describe scroll boundary handling' },
       { pattern: 'xtend.router.closedNavigationOverlays', message: 'x-router docs describe overlay cleanup diagnostics' }
     ]
@@ -339,7 +342,7 @@ const priorityComponentConfigs = {
     fixturePath: 'tests/components/fixtures/xtextarea.component.html',
     docPath: 'docs/components/xtextarea.md',
     profiles: ['form', 'stateful'],
-    observedAttributes: ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'submit-on-enter'],
+    observedAttributes: ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'busy', 'invalid', 'density', 'fill', 'submit-on-enter', 'submit-command', 'syntax-highlight', 'highlight', 'line-numbering', 'lang', 'language'],
     sourceContracts: [
       { pattern: 'static formAssociated = true', message: 'x-textarea is form-associated' },
       { pattern: 'attachInternals', message: 'x-textarea uses ElementInternals where available' },
@@ -352,6 +355,10 @@ const priorityComponentConfigs = {
       { pattern: 'textarea-changed', message: 'x-textarea emits textarea-changed' },
       { pattern: 'textarea-invalid', message: 'x-textarea emits textarea-invalid' },
       { pattern: 'textarea-submit', message: 'x-textarea emits textarea-submit' },
+      { pattern: 'xtend-command', message: 'x-textarea emits the public RMT command bridge event' },
+      { pattern: 'trimmedLength', message: 'x-textarea payloads expose trimmed length' },
+      { pattern: 'empty', message: 'x-textarea payloads expose empty state' },
+      { pattern: 'snapshot()', message: 'x-textarea exposes diagnostic snapshots' },
       { pattern: 'role="status"', message: 'x-textarea exposes character counter live region' },
       { pattern: 'role="alert"', message: 'x-textarea exposes validation alert region' },
       { pattern: 'aria-describedby', message: 'x-textarea wires descriptive regions' },
@@ -372,6 +379,7 @@ const priorityComponentConfigs = {
       { pattern: '`textarea-changed`', message: 'x-textarea docs describe textarea-changed event' },
       { pattern: '`textarea-invalid`', message: 'x-textarea docs describe textarea-invalid event' },
       { pattern: '`textarea-submit`', message: 'x-textarea docs describe textarea-submit event' },
+      { pattern: '`xtend-command`', message: 'x-textarea docs describe xtend-command event' },
       { pattern: '`xtextarea-value-<id>`', message: 'x-textarea docs describe state key' },
       { pattern: 'xtend.rmt.component-contract.v1', message: 'x-textarea docs describe RMT contract' },
       { pattern: 'xtend.performance.component-profile.v1', message: 'x-textarea docs describe performance profile' },

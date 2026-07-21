@@ -6,12 +6,71 @@ export const MARACA_APP_SERVICE_RESPONSE_SCHEMA: 'xtend.maraca.app-service-respo
 export const MARACA_APP_SERVICE_STREAM_SCHEMA: 'xtend.maraca.app-service-stream.v1';
 export const MARACA_APP_SERVICE_STREAM_FRAME_SCHEMA: 'xtend.maraca.app-service-stream-frame.v1';
 export const MARACA_APP_SERVICE_TRANSPORT_SCHEMA: 'xtend.maraca.app-service-transport.v1';
+export const MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA: 'xtend.maraca.app-service-input-policy.v1';
+export const MARACA_APP_SERVICE_INPUT_VERDICT_SCHEMA: 'xtend.maraca.app-service-input-verdict.v1';
 
 export type AppServiceKind = 'query' | 'command' | 'stream';
 export type AppServiceTarget = 'local' | 'server' | 'remote-surface';
 export type AppServiceConcurrency = 'latest' | 'serial' | 'parallel';
 export type AppServiceScope = 'client' | 'server';
 export type AppServiceStreamFrameType = 'start' | 'delta' | 'tool-call' | 'tool-result' | 'complete' | 'error' | 'cancelled';
+
+export interface AppServiceInputFieldPolicy {
+  readonly name: string;
+  readonly type: 'string';
+  readonly boundary: 'xtend.security.sanitizing-boundary.v1';
+  readonly sanitize: 'text';
+}
+
+export interface AppServiceInputPolicy {
+  readonly schema: typeof MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA;
+  readonly fields: readonly AppServiceInputFieldPolicy[];
+}
+
+export interface AppServiceInputFieldVerdict {
+  readonly name: string;
+  readonly ok: boolean;
+  readonly changed: boolean;
+  readonly boundary: string;
+  readonly sanitize: string;
+  readonly sanitizerSchema: string;
+  readonly diagnostics: readonly string[];
+}
+
+export interface AppServiceInputVerdict {
+  readonly schema: typeof MARACA_APP_SERVICE_INPUT_VERDICT_SCHEMA;
+  readonly ok: boolean;
+  readonly sanitized: boolean;
+  readonly serviceId: string;
+  readonly phase: string;
+  readonly boundary: 'xtend.security.sanitizing-boundary.v1';
+  readonly fields: readonly AppServiceInputFieldVerdict[];
+}
+
+export interface AppServiceInputPolicyManifest {
+  readonly services: ReadonlyArray<{
+    readonly id: string;
+    readonly inputPolicy?: AppServiceInputPolicy | null;
+    readonly [key: string]: unknown;
+  }>;
+  readonly [key: string]: unknown;
+}
+
+export interface AppServiceInputPolicyApplication<TInput = unknown> {
+  readonly input: TInput;
+  readonly verdict: AppServiceInputVerdict | null;
+}
+
+export function applyAppServiceInputPolicy<TInput = unknown>(
+  input: TInput,
+  options: {
+    serviceId: string;
+    policy?: AppServiceInputPolicy | null;
+    manifest?: AppServiceInputPolicyManifest | null;
+    phase?: string;
+    onVerdict?(verdict: AppServiceInputVerdict): void;
+  }
+): AppServiceInputPolicyApplication<TInput>;
 
 declare const appServiceInputType: unique symbol;
 declare const appServiceOutputType: unique symbol;
@@ -52,6 +111,8 @@ export interface AppServiceExecutionContext {
   readonly correlationId: string;
   readonly sequence: number;
   readonly timeoutMs?: number;
+  /** Redacted result of the current browser/server input TrustBoundary, when declared by RMT. */
+  readonly inputPolicyVerdict?: AppServiceInputVerdict | null;
   /** Registers request-scoped cleanup; Node hosts run callbacks LIFO on completion, abort, disconnect, or dispose. */
   readonly defer?: (cleanup: () => unknown | Promise<unknown>) => unknown;
   readonly [key: string]: unknown;
@@ -227,6 +288,7 @@ export interface AppServiceExecutionSnapshot {
   readonly concurrencyKey: string;
   readonly status: string;
   readonly aborted?: boolean;
+  readonly inputPolicyVerdict?: AppServiceInputVerdict | null;
 }
 
 export interface AppServiceTransportRequest<TInput = unknown> {
@@ -282,6 +344,7 @@ export interface AppServiceRegistry<TServices extends AppServiceMap = AppService
   listServices(): AppServiceMarker[];
   listActive(): AppServiceExecutionSnapshot[];
   listHistory(): AppServiceExecutionSnapshot[];
+  listInputPolicyVerdicts(): AppServiceInputVerdict[];
   listListenerErrors(): Array<{ name: string; error: unknown }>;
 }
 
@@ -289,6 +352,10 @@ export interface AppServiceRegistryOptions {
   transport?: AppServiceTransport;
   historyLimit?: number;
   disposeTransport?: boolean;
+  /** RMT-generated manifest is the registry's single input-policy source of truth. */
+  manifest?: AppServiceInputPolicyManifest | null;
+  inputPolicyPhase?: string;
+  onInputPolicyVerdict?(verdict: AppServiceInputVerdict): void;
 }
 
 export function createAppServiceRegistry<const TServices extends AppServiceMap>(

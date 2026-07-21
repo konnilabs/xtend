@@ -113,7 +113,7 @@ customElements.define('x-route', XRoute);
  * Haupt-Router-Komponente, die die Navigation verwaltet.
  */
 class XRouter extends HTMLElement {
-  static get observedAttributes() { return ['mode', 'routesrc', 'reuse-component', 'skeleton', 'skeleton-profile', 'skeleton-lines', 'skeleton-min-height']; }
+  static get observedAttributes() { return ['mode', 'routesrc', 'reuse-component', 'adopt-prerendered-route', 'skeleton', 'skeleton-profile', 'skeleton-lines', 'skeleton-min-height']; }
 
   static get xtendComponentContract() {
     return {
@@ -217,8 +217,8 @@ class XRouter extends HTMLElement {
       focusRestore: 'outlet-focus-after-render',
       routeAnnouncement: 'polite-live-region',
       keyboardNavigation: 'delegated-to-x-link',
-      events: ['xrouter-before-navigate', 'route-changed', 'routechange', 'xrouter-after-navigate', 'route-announced', 'xrouter-routes-registered', 'xrouter-route-reused', 'xrouter-skeleton-shown', 'xrouter-skeleton-hidden', 'xrouter-route-hydrated', 'xrouter-scroll-boundary-normalized', 'xrouter-navigation-overlays-closed', 'xrouter-title-updated'],
-      commands: ['navigate', 'register-routes', 'focus-route', 'announce-route', 'rewrite-document-title', 'show-route-skeleton', 'hydrate-route-component', 'reuse-route-component', 'normalize-scroll-boundary', 'close-navigation-overlays', 'snapshot'],
+      events: ['xrouter-before-navigate', 'route-changed', 'routechange', 'xrouter-after-navigate', 'route-announced', 'xrouter-routes-registered', 'xrouter-route-reused', 'xrouter-route-adopted', 'xrouter-skeleton-shown', 'xrouter-skeleton-hidden', 'xrouter-route-hydrated', 'xrouter-scroll-boundary-normalized', 'xrouter-navigation-overlays-closed', 'xrouter-title-updated'],
+      commands: ['navigate', 'register-routes', 'focus-route', 'announce-route', 'rewrite-document-title', 'show-route-skeleton', 'hydrate-route-component', 'reuse-route-component', 'adopt-prerendered-route', 'normalize-scroll-boundary', 'close-navigation-overlays', 'snapshot'],
       stateKey: 'xtend.router.current',
       schedule: 'route.visible.render',
       fabric: {
@@ -670,11 +670,12 @@ class XRouter extends HTMLElement {
           }
         }
       </style>
-      <div id="outlet" part="root outlet" role="main" tabindex="-1" aria-busy="false"></div>
+      <div id="outlet" part="root outlet" role="main" tabindex="-1" aria-busy="false"><slot name="prerendered-route" data-xrouter-prerendered-slot style="display: contents;"></slot></div>
       <div id="route-announcer" class="route-announcer" part="announcer" role="status" aria-live="polite" aria-atomic="true"></div>
       <slot style="display: none;"></slot>
     `;
     this._outlet = this.shadowRoot.querySelector('#outlet');
+    this._prerenderedRouteSlot = this.shadowRoot.querySelector('[data-xrouter-prerendered-slot]');
     this._announcer = this.shadowRoot.querySelector('#route-announcer');
     this._onNavigate = this._handleNavigation.bind(this);
     this._onLinkClick = this._handleLinkClick.bind(this);
@@ -688,6 +689,8 @@ class XRouter extends HTMLElement {
     this._scrollBoundaryTimer = null;
     this._scrollBoundarySettleTimer = null;
     this._routeSkeleton = null;
+    this._prerenderedRouteCandidate = null;
+    this._navigationGeneration = 0;
     this._initialDocumentTitle = typeof document !== 'undefined' ? document.title : '';
     this._initialDocumentMeta = this._snapshotDocumentMeta();
     if (this._mode === 'history' && !window.history.pushState) {
@@ -724,6 +727,7 @@ class XRouter extends HTMLElement {
         }
       }, 'router-navigate');
     }
+    this._stagePrerenderedRouteCandidate();
     // Load routes when routesrc is set
     const src = this.getAttribute('routesrc');
     const initialRouteLoad = src
@@ -897,6 +901,332 @@ class XRouter extends HTMLElement {
     return this.hasAttribute('reuse-component') ||
       this.hasAttribute('data-reuse-component') ||
       Boolean(route && route.hasAttribute && (route.hasAttribute('reuse-component') || route.hasAttribute('data-reuse-component')));
+  }
+
+  _normalizeAdoptionPath(value) {
+    const path = String(value || '').split('?')[0].split('#')[0].replace(/\/+$/u, '');
+    return path || '/';
+  }
+
+  _emitRouteAdoption(detail = {}) {
+    const record = {
+      schema: 'xtend.router.route-adoption.v1',
+      source: 'x-router',
+      stateKey: 'xtend.router.routeAdoption',
+      scheduleRef: 'route.visible.adopt',
+      path: detail.path || this._getCurrentPath(),
+      routeId: detail.routeId || null,
+      component: detail.component || null,
+      adopted: detail.adopted === true,
+      reason: detail.reason || (detail.adopted ? 'adopted' : 'unavailable'),
+      diagnostic: detail.diagnostic || null
+    };
+    xstate.set('xtend.router.routeAdoption', record);
+    this.dispatchEvent(new CustomEvent('xrouter-route-adopted', {
+      detail: record,
+      bubbles: true,
+      composed: true
+    }));
+    return record;
+  }
+
+  _stagePrerenderedRouteCandidate() {
+    if (!this.hasAttribute('adopt-prerendered-route') || !this._outlet || this._prerenderedRouteCandidate) return null;
+    const candidates = Array.from(this.children).filter((node) => node.hasAttribute('data-xrouter-prerendered-route'));
+    if (candidates.length !== 1) {
+      if (candidates.length > 1) {
+        candidates.forEach((node) => node.remove());
+        this._emitRouteAdoption({ adopted: false, reason: 'candidate-count-mismatch' });
+      }
+      return null;
+    }
+    const candidate = candidates[0];
+    candidate.setAttribute('slot', 'prerendered-route');
+    candidate.setAttribute('data-xrouter-adoption-pending', 'true');
+    candidate.setAttribute('data-rmt-adoption-state', 'pending');
+    this._prerenderedRouteCandidate = candidate;
+    return candidate;
+  }
+
+  _rejectPrerenderedRouteCandidate(reason, detail = {}, expectedCandidate = null) {
+    const candidate = expectedCandidate || this._prerenderedRouteCandidate;
+    const isCurrentCandidate = Boolean(candidate && candidate === this._prerenderedRouteCandidate);
+    if (candidate && candidate.isConnected) candidate.remove();
+    if (isCurrentCandidate) this._prerenderedRouteCandidate = null;
+    if (isCurrentCandidate || !expectedCandidate) {
+      this._emitRouteAdoption({ ...detail, adopted: false, reason });
+    }
+    return false;
+  }
+
+  _isCurrentNavigation(generation) {
+    return generation === this._navigationGeneration;
+  }
+
+  _normalizeAdoptionDomText(content) {
+    return String(content && content.textContent || '').trim().replace(/\s+/gu, ' ');
+  }
+
+  _canonicalizeAdoptionDomStructure(content) {
+    const entries = [];
+    const sensitiveTags = new Set(['a', 'x-link', 'img', 'source', 'video', 'audio', 'object', 'embed', 'iframe', 'script', 'link', 'meta', 'base', 'form', 'button', 'input', 'svg', 'math', 'style', 'template']);
+    const proofAttributes = new Set(['href', 'src', 'srcset', 'action', 'formaction', 'poster', 'xlink:href', 'srcdoc', 'style']);
+    const visit = (parent) => {
+      Array.from(parent && parent.childNodes || []).forEach((node) => {
+        if (node.nodeType !== 1) return;
+        const tag = String(node.localName || '').toLowerCase();
+        if (!tag) return;
+        const attributes = Array.from(node.attributes || [])
+          .map((attribute) => [String(attribute.name || '').toLowerCase(), String(attribute.value || '').replace(/\r\n?|\n/gu, '\n')])
+          .filter(([name]) => proofAttributes.has(name) || name.startsWith('on'))
+          .sort(([left], [right]) => left.localeCompare(right));
+        if (sensitiveTags.has(tag) || attributes.length) entries.push([tag, attributes]);
+        visit(node);
+      });
+    };
+    visit(content);
+    return JSON.stringify(entries);
+  }
+
+  _isSafeAdoptionDomUrl(value) {
+    const normalized = String(value || '').trim().replace(/[\u0000-\u0020\u007f]+/gu, '').toLowerCase();
+    if (!normalized || normalized.startsWith('#') || normalized.startsWith('/') || normalized.startsWith('./') || normalized.startsWith('../')) return true;
+    if (normalized.startsWith('data:')) return normalized.startsWith('data:image/');
+    return !(
+      normalized.startsWith('javascript:')
+      || normalized.startsWith('vbscript:')
+      || normalized.startsWith('data:text/html')
+      || normalized.startsWith('data:text/javascript')
+    );
+  }
+
+  _validateAdoptionDomTrust(content) {
+    const blockedSelector = 'script,iframe,object,embed,link,meta,base,form,style,svg,math,template';
+    if (!content) return 'content-missing';
+    const blocked = content.querySelector(blockedSelector);
+    if (blocked) {
+      const parent = blocked.parentElement;
+      return `blocked-tag:${blocked.localName}:parent=${parent && parent.localName || 'none'}:class=${parent && parent.className || ''}`;
+    }
+    const urlAttributes = new Set(['href', 'src', 'srcset', 'action', 'formaction', 'poster', 'xlink:href']);
+    for (const element of Array.from(content.querySelectorAll('*'))) {
+      for (const attribute of Array.from(element.attributes || [])) {
+        const name = String(attribute.name || '').toLowerCase();
+        if (name === 'srcdoc' || name.startsWith('on')) return `blocked-attribute:${element.localName}:${name}`;
+        if (name === 'style' && /(?:expression\s*\(|url\s*\(\s*['"]?\s*(?:javascript|vbscript):)/iu.test(attribute.value || '')) {
+          return `blocked-style:${element.localName}`;
+        }
+        if (urlAttributes.has(name) && !this._isSafeAdoptionDomUrl(attribute.value)) {
+          return `blocked-url:${element.localName}:${name}`;
+        }
+      }
+    }
+    return '';
+  }
+
+  async _hashAdoptionValue(value) {
+    const cryptoApi = globalThis.crypto;
+    if (!cryptoApi || !cryptoApi.subtle || typeof TextEncoder === 'undefined') return '';
+    const bytes = new TextEncoder().encode(String(value || ''));
+    const digest = await cryptoApi.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+  }
+
+  async _tryAdoptPrerenderedRoute(match, context = {}) {
+    const candidate = this._prerenderedRouteCandidate;
+    if (!candidate || !match || match.child) return false;
+    const navigationGeneration = context.navigationGeneration;
+    const leaf = this._getLeafMatch(match);
+    const route = leaf && leaf.route ? leaf.route : match.route;
+    const componentTag = this._getRouteComponent(route);
+    const configuredRouteId = this._getRouteValue(route, 'id', 'data-rmt-route-id') || null;
+    const path = this._normalizeAdoptionPath(context.path || this._getCurrentPath());
+    const candidatePathValue = candidate.getAttribute('data-xrouter-route-path') || '';
+    const candidatePath = this._normalizeAdoptionPath(candidatePathValue);
+    const candidateRouteId = candidate.getAttribute('data-xrouter-route-id') || null;
+    const routeId = configuredRouteId || candidateRouteId;
+    const candidateLocale = String(candidate.getAttribute('data-xrouter-route-locale') || '').toLowerCase();
+    const documentLocale = String(document.documentElement && document.documentElement.lang || '').toLowerCase();
+    const candidateComponent = candidate.getAttribute('data-xrouter-route-component') || candidate.localName;
+    const detail = { path, routeId, component: componentTag };
+
+    if (!this._isCurrentNavigation(navigationGeneration)) {
+      return this._rejectPrerenderedRouteCandidate('navigation-superseded', detail, candidate);
+    }
+    if (!candidatePathValue || !candidateRouteId || !configuredRouteId || !candidateLocale || !documentLocale) {
+      return this._rejectPrerenderedRouteCandidate('route-proof-missing', detail, candidate);
+    }
+
+    if (!componentTag || candidate.localName !== String(componentTag).toLowerCase() || candidateComponent !== componentTag) {
+      return this._rejectPrerenderedRouteCandidate('component-mismatch', detail, candidate);
+    }
+    if (candidatePath !== path) return this._rejectPrerenderedRouteCandidate('path-mismatch', detail, candidate);
+    if (candidateRouteId !== configuredRouteId) {
+      return this._rejectPrerenderedRouteCandidate('route-id-mismatch', detail, candidate);
+    }
+    if (candidateLocale !== documentLocale) {
+      return this._rejectPrerenderedRouteCandidate('locale-mismatch', detail, candidate);
+    }
+    const contentHash = candidate.getAttribute('data-xrouter-content-sha256') || '';
+    const contentBytes = candidate.getAttribute('data-xrouter-content-bytes') || '';
+    const domHash = candidate.getAttribute('data-xrouter-dom-sha256') || '';
+    const domHashBasis = candidate.getAttribute('data-xrouter-dom-hash-basis') || '';
+    const domStructureHash = candidate.getAttribute('data-xrouter-dom-structure-sha256') || '';
+    const domStructureHashBasis = candidate.getAttribute('data-xrouter-dom-structure-hash-basis') || '';
+    const trustBoundary = candidate.getAttribute('data-xrouter-trust-boundary') || '';
+    const sanitizer = candidate.getAttribute('data-xrouter-sanitizer') || '';
+    const content = candidate.querySelector('[data-rmt-content-sha256][data-rmt-trust-boundary]');
+    if (
+      !contentHash
+      || !contentBytes
+      || !domHash
+      || domHashBasis !== 'normalized-text-content.v1'
+      || !domStructureHash
+      || domStructureHashBasis !== 'sensitive-element-sequence-attributes.v1'
+      || !content
+    ) {
+      return this._rejectPrerenderedRouteCandidate('content-proof-missing', detail, candidate);
+    }
+    if (
+      content.getAttribute('data-rmt-content-sha256') !== contentHash
+      || content.getAttribute('data-rmt-content-bytes') !== contentBytes
+      || content.getAttribute('data-rmt-dom-sha256') !== domHash
+      || content.getAttribute('data-rmt-dom-hash-basis') !== domHashBasis
+      || content.getAttribute('data-rmt-dom-structure-sha256') !== domStructureHash
+      || content.getAttribute('data-rmt-dom-structure-hash-basis') !== domStructureHashBasis
+    ) {
+      return this._rejectPrerenderedRouteCandidate('content-proof-mismatch', { ...detail, diagnostic: 'proof-attribute-mismatch' }, candidate);
+    }
+    if (
+      !trustBoundary
+      || !sanitizer
+      || candidate.getAttribute('data-xrouter-sanitized') !== 'true'
+      || content.getAttribute('data-rmt-trust-boundary') !== trustBoundary
+      || content.getAttribute('data-rmt-sanitized') !== 'true'
+      || content.getAttribute('data-rmt-sanitizer') !== sanitizer
+    ) {
+      return this._rejectPrerenderedRouteCandidate('trust-proof-missing', detail, candidate);
+    }
+    const trustFailure = this._validateAdoptionDomTrust(content);
+    if (trustFailure) {
+      return this._rejectPrerenderedRouteCandidate('trust-proof-mismatch', { ...detail, diagnostic: trustFailure }, candidate);
+    }
+
+    try {
+      const [actualDomHash, actualDomStructureHash] = await Promise.all([
+        this._hashAdoptionValue(this._normalizeAdoptionDomText(content)),
+        this._hashAdoptionValue(this._canonicalizeAdoptionDomStructure(content))
+      ]);
+      if (!this._isCurrentNavigation(navigationGeneration)) {
+        return this._rejectPrerenderedRouteCandidate('navigation-superseded', detail, candidate);
+      }
+      if (!actualDomHash || !actualDomStructureHash) {
+        return this._rejectPrerenderedRouteCandidate('content-proof-unavailable', detail, candidate);
+      }
+      if (actualDomHash !== domHash || actualDomStructureHash !== domStructureHash) {
+        const mismatch = actualDomHash !== domHash ? 'text-digest-mismatch' : 'structure-digest-mismatch';
+        return this._rejectPrerenderedRouteCandidate('content-proof-mismatch', { ...detail, diagnostic: mismatch }, candidate);
+      }
+      const importUrl = this._getRouteImportUrl(route);
+      const available = await this._ensureRouteComponent(componentTag, importUrl, route);
+      if (!this._isCurrentNavigation(navigationGeneration)) {
+        return this._rejectPrerenderedRouteCandidate('navigation-superseded', detail, candidate);
+      }
+      if (!available) return this._rejectPrerenderedRouteCandidate('component-unavailable', detail, candidate);
+      // Defining the route component is an async boundary. Revalidate the
+      // staged node immediately afterwards so a DOM/proof mutation during the
+      // import window can never be adopted on the strength of the first check.
+      const finalContent = candidate.querySelector('[data-rmt-content-sha256][data-rmt-trust-boundary]');
+      const finalProofMatches = candidate === this._prerenderedRouteCandidate
+        && candidate.isConnected
+        && this._normalizeAdoptionPath(candidate.getAttribute('data-xrouter-route-path') || '') === path
+        && candidate.getAttribute('data-xrouter-route-id') === configuredRouteId
+        && String(candidate.getAttribute('data-xrouter-route-locale') || '').toLowerCase() === documentLocale
+        && candidate.getAttribute('data-xrouter-route-component') === componentTag
+        && candidate.getAttribute('data-xrouter-content-sha256') === contentHash
+        && candidate.getAttribute('data-xrouter-content-bytes') === contentBytes
+        && candidate.getAttribute('data-xrouter-dom-sha256') === domHash
+        && candidate.getAttribute('data-xrouter-dom-hash-basis') === domHashBasis
+        && candidate.getAttribute('data-xrouter-dom-structure-sha256') === domStructureHash
+        && candidate.getAttribute('data-xrouter-dom-structure-hash-basis') === domStructureHashBasis
+        && candidate.getAttribute('data-xrouter-trust-boundary') === trustBoundary
+        && candidate.getAttribute('data-xrouter-sanitizer') === sanitizer
+        && candidate.getAttribute('data-xrouter-sanitized') === 'true'
+        && finalContent === content
+        && finalContent.getAttribute('data-rmt-content-sha256') === contentHash
+        && finalContent.getAttribute('data-rmt-content-bytes') === contentBytes
+        && finalContent.getAttribute('data-rmt-dom-sha256') === domHash
+        && finalContent.getAttribute('data-rmt-dom-hash-basis') === domHashBasis
+        && finalContent.getAttribute('data-rmt-dom-structure-sha256') === domStructureHash
+        && finalContent.getAttribute('data-rmt-dom-structure-hash-basis') === domStructureHashBasis
+        && finalContent.getAttribute('data-rmt-trust-boundary') === trustBoundary
+        && finalContent.getAttribute('data-rmt-sanitizer') === sanitizer
+        && finalContent.getAttribute('data-rmt-sanitized') === 'true';
+      if (!finalProofMatches) {
+        return this._rejectPrerenderedRouteCandidate('content-proof-mismatch', { ...detail, diagnostic: 'post-import-proof-attribute-mismatch' }, candidate);
+      }
+      const finalTrustFailure = this._validateAdoptionDomTrust(finalContent);
+      if (finalTrustFailure) {
+        return this._rejectPrerenderedRouteCandidate('trust-proof-mismatch', { ...detail, diagnostic: `post-import:${finalTrustFailure}` }, candidate);
+      }
+      const [finalDomHash, finalDomStructureHash] = await Promise.all([
+        this._hashAdoptionValue(this._normalizeAdoptionDomText(finalContent)),
+        this._hashAdoptionValue(this._canonicalizeAdoptionDomStructure(finalContent))
+      ]);
+      if (!this._isCurrentNavigation(navigationGeneration)) {
+        return this._rejectPrerenderedRouteCandidate('navigation-superseded', detail, candidate);
+      }
+      if (!finalDomHash || !finalDomStructureHash) {
+        return this._rejectPrerenderedRouteCandidate('content-proof-unavailable', { ...detail, diagnostic: 'post-import-digest-unavailable' }, candidate);
+      }
+      if (finalDomHash !== domHash || finalDomStructureHash !== domStructureHash) {
+        const mismatch = finalDomHash !== domHash ? 'post-import-text-digest-mismatch' : 'post-import-structure-digest-mismatch';
+        return this._rejectPrerenderedRouteCandidate('content-proof-mismatch', { ...detail, diagnostic: mismatch }, candidate);
+      }
+      if (this._prerenderedRouteSlot && this._prerenderedRouteSlot.isConnected) {
+        this._prerenderedRouteSlot.remove();
+      }
+      candidate.removeAttribute('slot');
+      this._outlet.appendChild(candidate);
+      candidate.params = match.params || {};
+      candidate.query = context.queryObj || {};
+      candidate.queryString = context.query || '';
+      if (this._mode === 'history' && window.history.state) candidate.state = window.history.state;
+      const adoptionContext = {
+        path,
+        route,
+        match,
+        params: this._collectParams(match),
+        query: context.query || '',
+        queryObj: context.queryObj || {},
+        documentMeta: context.documentMeta || null,
+        router: this,
+        adopted: true,
+        reused: true
+      };
+      const adopt = typeof candidate.adoptRoute === 'function'
+        ? candidate.adoptRoute.bind(candidate)
+        : (typeof candidate.updateRoute === 'function' ? candidate.updateRoute.bind(candidate) : null);
+      if (!adopt) return this._rejectPrerenderedRouteCandidate('adoption-handler-missing', detail, candidate);
+      candidate.removeAttribute('data-xrouter-adoption-pending');
+      const result = await adopt(adoptionContext);
+      if (!this._isCurrentNavigation(navigationGeneration)) {
+        return this._rejectPrerenderedRouteCandidate('navigation-superseded', detail, candidate);
+      }
+      if (result === false) return this._rejectPrerenderedRouteCandidate('adoption-refused', detail, candidate);
+      candidate.setAttribute('data-rmt-adoption-state', 'adopted');
+      candidate.setAttribute('data-xrouter-route-adopted', 'true');
+      await this._hydrateRouteTree(candidate, route);
+      if (!this._isCurrentNavigation(navigationGeneration)) {
+        return this._rejectPrerenderedRouteCandidate('navigation-superseded', detail, candidate);
+      }
+      this._prerenderedRouteCandidate = null;
+      this._emitRouteAdoption({ ...detail, adopted: true, reason: 'adopted' });
+      return true;
+    } catch (error) {
+      console.error(`Router: Fehler beim Adoptieren von <${componentTag}>:`, error);
+      return this._rejectPrerenderedRouteCandidate('adoption-error', detail, candidate);
+    }
   }
 
   async _tryReuseRouteComponent(match, context = {}) {
@@ -1190,7 +1520,7 @@ class XRouter extends HTMLElement {
 
   _getRouteValue(route, propertyName, attributeName = propertyName) {
     if (!route) return '';
-    if (typeof route[propertyName] === 'string') return route[propertyName];
+    if (typeof route[propertyName] === 'string' && route[propertyName].trim() !== '') return route[propertyName];
     return route.getAttribute && route.getAttribute(attributeName) || '';
   }
 
@@ -1628,6 +1958,7 @@ class XRouter extends HTMLElement {
   }
 
   async _handleNavigation(options = {}) {
+    const navigationGeneration = ++this._navigationGeneration;
     const raw = this._getCurrentPath();
     const { path, query, queryObj } = this._parsePathAndQuery(raw);
     const match = this._matchRoute(path);
@@ -1635,6 +1966,7 @@ class XRouter extends HTMLElement {
     // Animation hook: beforeRouteLeave for the current component
     if (this._outlet.firstElementChild && typeof this._outlet.firstElementChild.beforeRouteLeave === 'function') {
       const leaveResult = await this._outlet.firstElementChild.beforeRouteLeave();
+      if (!this._isCurrentNavigation(navigationGeneration)) return;
       if (leaveResult === false) {
         this._outlet.setAttribute('aria-busy', 'false');
         return; // Cancellation is possible
@@ -1645,6 +1977,7 @@ class XRouter extends HTMLElement {
     if (match) {
       // Route Guard: beforeEnter
       const allow = await this._runBeforeEnter(match);
+      if (!this._isCurrentNavigation(navigationGeneration)) return;
       if (!allow) {
         this._outlet.innerHTML = this._renderError(403, 'Navigation durch Guard abgebrochen.');
         this._outlet.setAttribute('aria-busy', 'false');
@@ -1658,6 +1991,7 @@ class XRouter extends HTMLElement {
         const ctor = customElements.get(componentTag);
         if (typeof ctor.beforeRouteEnter === 'function') {
           const enterResult = await ctor.beforeRouteEnter();
+          if (!this._isCurrentNavigation(navigationGeneration)) return;
           if (enterResult === false) {
             this._outlet.setAttribute('aria-busy', 'false');
             return;
@@ -1673,20 +2007,28 @@ class XRouter extends HTMLElement {
         params: this._collectParams(match),
         query: queryObj
       });
-      const reused = await this._tryReuseRouteComponent(match, {
+      const routeContext = {
         path: raw,
         query,
         queryObj,
-        documentMeta
-      });
+        documentMeta,
+        navigationGeneration
+      };
+      const adopted = await this._tryAdoptPrerenderedRoute(match, routeContext);
+      if (!this._isCurrentNavigation(navigationGeneration)) return;
+      const reused = adopted || await this._tryReuseRouteComponent(match, routeContext);
+      if (!this._isCurrentNavigation(navigationGeneration)) return;
       if (!reused) {
         this._outlet.innerHTML = '';
         this._showRouteSkeleton(route, { path: raw });
         try {
-          await this._renderRoute(match, this._outlet);
+          await this._renderRoute(match, this._outlet, { navigationGeneration });
         } finally {
-          this._clearRouteSkeleton(route, { path: raw });
+          if (this._isCurrentNavigation(navigationGeneration)) {
+            this._clearRouteSkeleton(route, { path: raw });
+          }
         }
+        if (!this._isCurrentNavigation(navigationGeneration)) return;
       }
       const routeDetail = this._buildRouteDetail(raw, match, queryObj, documentMeta);
       if (reused) routeDetail.reused = true;
@@ -1914,21 +2256,25 @@ class XRouter extends HTMLElement {
   /**
    * Rendert eine Route (und ggf. Kind-Route) rekursiv in den gegebenen Container
    */
-  async _renderRoute(match, container) {
+  async _renderRoute(match, container, context = {}) {
     const { route, params, child, query, queryObj } = match;
+    const navigationGeneration = context.navigationGeneration;
+    const isCurrent = () => navigationGeneration === undefined || this._isCurrentNavigation(navigationGeneration);
     const componentTag = this._getRouteComponent(route);
     const importUrl = this._getRouteImportUrl(route);
     if (!componentTag) {
-      container.innerHTML = this._renderError(500, 'Route definiert keine Komponente.');
-      return;
+      if (isCurrent()) container.innerHTML = this._renderError(500, 'Route definiert keine Komponente.');
+      return false;
     }
     try {
       await this._ensureRouteComponent(componentTag, importUrl, route);
     } catch (e) {
+      if (!isCurrent()) return false;
       console.error(`Router: Fehler beim dynamischen Import von ${importUrl || componentTag}:`, e);
       container.innerHTML = this._renderError(500, `Fehler beim Laden von <strong>${importUrl || componentTag}</strong>\n${e.message}`);
-      return;
+      return false;
     }
+    if (!isCurrent()) return false;
     if (customElements.get(componentTag)) {
       let component;
       try {
@@ -1941,8 +2287,8 @@ class XRouter extends HTMLElement {
           component.state = window.history.state;
         }
       } catch (e) {
-        container.innerHTML = this._renderError(500, `Fehler beim Erzeugen von <strong>${componentTag}</strong>\n${e.message}`);
-        return;
+        if (isCurrent()) container.innerHTML = this._renderError(500, `Fehler beim Erzeugen von <strong>${componentTag}</strong>\n${e.message}`);
+        return false;
       }
       // Animation hook: afterRouteEnter as an instance method
       if (typeof component.afterRouteEnter === 'function') {
@@ -1956,13 +2302,22 @@ class XRouter extends HTMLElement {
           outlet.setAttribute('slot', 'child');
           component.appendChild(outlet);
         }
-        await this._renderRoute(child, outlet);
+        await this._renderRoute(child, outlet, context);
       }
+      if (!isCurrent()) return false;
       container.appendChild(component);
       await this._hydrateRouteTree(component, route);
+      if (!isCurrent()) {
+        if (component.parentNode === container) component.remove();
+        return false;
+      }
+      return true;
     } else {
-      container.innerHTML = this._renderError(500, `Komponente <strong>${componentTag}</strong> ist nicht definiert oder konnte nicht geladen werden.`);
-      console.warn(`Router: Komponente "${componentTag}" für den Pfad "${route.path}" ist nicht definiert oder noch nicht geladen.`);
+      if (isCurrent()) {
+        container.innerHTML = this._renderError(500, `Komponente <strong>${componentTag}</strong> ist nicht definiert oder konnte nicht geladen werden.`);
+        console.warn(`Router: Komponente "${componentTag}" für den Pfad "${route.path}" ist nicht definiert oder noch nicht geladen.`);
+      }
+      return false;
     }
   }
 

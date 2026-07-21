@@ -54,12 +54,17 @@ datasource orders.search from host orders.search {
 }
 
 action orders.runSearch {
-  input query string
+  input query string {
+    trust boundary "xtend.security.sanitizing-boundary.v1"
+    sanitize text
+  }
   effect fetch datasource orders.search
 }
 ```
 
 RMT bleibt die Source of Truth für ID, `invoke`/`stream`, Contract und aufrufende Actions. Der Compiler schreibt daraus ein Bedarfsmanifest. Nicht auflösbare Payloads bleiben in den generierten Deklarationen `unknown`; App-Code kann sie mit Service-Generics konkretisieren.
+
+Der optionale Input-Policy-Block gehört ebenfalls ausschließlich RMT. `sanitize text` akzeptiert nur Strings, normalisiert CRLF zu LF und weist NUL sowie andere unzulässige Steuerzeichen zurück. Eine unvollständige Policy, eine unbekannte Boundary, ein anderes Sanitize-Format oder widersprüchliche Policies desselben Servicefelds stoppen den Build mit Source-Range. Bei servergerichteten Services prüft die Browser-Registry vor dem Transport; `createNodeAppServiceHost({ services, manifest })` prüft denselben Input vor dem Handler erneut. Der Handler erhält das redigierte Ergebnis als `executionContext.inputPolicyVerdict`; `registry.listInputPolicyVerdicts()` und die Registry-Historie liefern dieselbe Evidence ohne Rohinput.
 
 ## Browser- und Serverdefinitionen
 
@@ -102,7 +107,9 @@ export default defineServerServices({
 
 Der Browser sendet JSON beziehungsweise NDJSON standardmäßig per `POST /api/xtend/services/:serviceId`. URL, Header, Auth-Kontext und Routing bleiben Eigentum des Hosts.
 
-Node importiert `dist/server/xtend.maraca.services.mjs` und übergibt die Definition an `createNodeAppServiceHost({ services })` aus `@ccslabs/xtend-maraca/node-app-service-host`. Der Host ruft `handle(request, response)` aus seiner bestehenden HTTP-Schicht auf; Maraca öffnet keinen Server.
+Für eine vorhandene HTTP-Schicht importiert Node `dist/server/xtend.maraca.services.mjs` und übergibt die Definition an `createNodeAppServiceHost({ services })` aus `@ccslabs/xtend-maraca/node-app-service-host`. Diese Low-Level-API öffnet keinen Port.
+
+CLI-generierte Node-Apps verwenden stattdessen den expliziten Einstieg `server/index.mjs`. Er ruft `listenNodeAppHost(...)` aus `@ccslabs/xtend-maraca/node-app-host` auf, lädt das generierte Service-Manifest, liefert ausschließlich freigegebene Browserartefakte aus und delegiert `/api/xtend/services/:serviceId` an denselben Low-Level-Host. Source Maps, TypeScript-Quellen und -Deklarationen, Server-/Testverzeichnisse sowie Build-/Size-Reports werden auch unterhalb eines freigegebenen Verzeichnisses verweigert. Die generierten `start`- und `serve`-Abläufe bauen beide zuerst und führen danach ausschließlich diesen Host aus. Standard ist `127.0.0.1:4173`; `XTEND_MARACA_HOST` und `XTEND_MARACA_PORT` sind die einzigen generierten Bind-Overrides, wobei Port `0` für Tests erlaubt ist. Beim Start wird genau eine JSON-Zeile mit Schema `xtend.maraca.node-app-host-startup.v1` und `origin` geschrieben. `SIGINT` und `SIGTERM` schließen HTTP und AppServices gemeinsam. Das ist ein ausdrücklich gestarteter Deployment-Host, kein implizites Maraca-Core-Listening und kein produktlokaler Controller.
 
 PHP lädt den Paketexport `@ccslabs/xtend-rmt/php-app-service-adapter.php`, übergibt dasselbe JSON-Manifest und die Callable-Registry an `createRmtPhpAppServiceAdapter(...)` und bindet `handleHttpRequest(...)` in die vorhandene Laravel-/PHP-Route ein. PHP führt kein TypeScript aus.
 
@@ -130,9 +137,11 @@ Prüfe zuerst `dist/xtend.maraca.services.json` und `dist/xtend.maraca.report.js
 | `xtend.maraca.services.target_collision` | Ein lokaler Service besitzt zugleich eine Serverimplementierung. |
 | `xtend.maraca.services.node_import_in_browser` / `server_import_in_browser` | Der Browsergraph referenziert Servercode. |
 | `xtend.maraca.services.environment_access_in_browser` | Browsercode liest eine nicht freigegebene Host-Environment-API. Übergib öffentliche Konfiguration explizit. |
+| `xtend.maraca.services.input_policy_invalid` / `input_policy_conflict` | Die RMT-Input-Policy ist unbekannt, unvollständig oder zwischen Actions widersprüchlich. |
 | `xtend.maraca.services.typescript_<code>` | Vollständige TypeScript-Programmdiagnose; Datei, Zeile und Spalte stehen im Report. |
 | `xtend.maraca.app-service.stale` / `cancelled` / `timeout` | Die Registry hat einen überholten, abgebrochenen oder zeitüberschrittenen Lauf beendet. |
 | `xtend.maraca.app-service.stream_protocol` | Sequenz, Duplikat oder Terminalzustand verletzt den NDJSON-Streamvertrag. |
+| `xtend.maraca.app-service.input_policy_blocked` / `input_policy_mismatch` | Browser oder Server hat AppService-Input vor Handler/Transport abgewiesen. Verdict und Fehlerdetails enthalten keinen Rohinput. |
 | `xtend.maraca.app_services.manual_adapter_collision` | Ein Legacy-Boot-Adapter kollidiert mit der generierten Registry; Strict macht daraus einen Fehler. |
 
 Siehe auch [XTend Maraca](./xtend-maraca.md), [Maraca-Orchestrierung](./xtend-maraca-orchestration.md) und [RMT Actions und Events](./learn-rmt-actions-events.md).

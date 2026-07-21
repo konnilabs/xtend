@@ -121,6 +121,13 @@ const TEMPLATE_REGISTRY = [
     purpose: 'Node-only AppServices implementation entry.'
   },
   {
+    id: 'app.node.host',
+    artifact: 'node-app-host',
+    path: 'xtend-builder/templates/app/node-app-host.template.mjs',
+    status: 'implemented-XMS-08',
+    purpose: 'Framework-owned Node HTTP and static host entry for generated Maraca apps.'
+  },
+  {
     id: 'app.services.php',
     artifact: 'php-server-services',
     path: 'xtend-builder/templates/app/server-services.template.php',

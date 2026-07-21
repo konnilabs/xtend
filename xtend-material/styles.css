@@ -1,4 +1,9 @@
 /* Native fallback and public semantic surface. No Tailwind browser runtime. */
+:where(body[data-xtend-maraca-host]) {
+  min-block-size: 100dvh;
+  margin: 0;
+}
+
 :where(.xtm-app-shell) {
   min-height: 100dvh;
   isolation: isolate;
@@ -161,6 +166,7 @@
 :where(.xtm-body, .xtm-muted) { margin: 0; line-height: 1.6; }
 :where(.xtm-body) { color: var(--xtend-text-primary, CanvasText); font-size: var(--xtend-font-size-body, 0.95rem); }
 :where(.xtm-muted) { color: var(--xtend-text-muted, CanvasText); font-size: var(--xtend-font-size-label, 0.8125rem); }
+:where(.xtm-plain-text) { overflow-wrap: anywhere; white-space: pre-wrap; }
 
 :where(.xtm-primary-action) {
   display: inline-flex;
@@ -293,4 +299,27 @@
   :where(.xtm-primary-action) { background: ButtonFace; color: ButtonText; border-color: ButtonText; }
   :where(.xtm-navigation-rail, .xtm-detail-pane, .xtm-top-app-bar) { border-color: CanvasText; box-shadow: none; }
   :where(.xtm-form-flow, .xtm-feedback-stack, .xtm-dashboard, .xtm-content-page, .xtm-settings-page, .xtm-empty-state, .xtm-confirmation-flow) { forced-color-adjust: auto; }
+}
+
+/*
+ * RMT materializes recipe roots as XTend custom-element hosts. Structural
+ * recipe utilities must not replace the component-owned Shadow DOM host
+ * layout; group recipes continue to own ordinary light-DOM wrappers.
+ */
+:where(x-surface-manager.xtm-app-shell) {
+  display: block;
+  box-sizing: border-box;
+  inline-size: 100%;
+}
+
+:where(x-header.xtm-top-app-bar) {
+  display: flow-root;
+  box-sizing: border-box;
+  inline-size: 100%;
+  align-items: normal;
+  justify-content: normal;
+}
+
+:where(x-form.xtm-form-flow, x-form.xtm-settings-page) {
+  display: block;
 }

@@ -120,7 +120,12 @@
       "$XHEADER_BRAND_COLLAPSE_POLICIES": "We",
       "$MARACA_APP_SERVICES": "Ve",
       "$currentMaracaAppServices": "Qe",
-      "$disposeXtendMaraca": "Ye"
+      "$disposeXtendMaraca": "Ye",
+      "$XHEADER_SLOTS": "pt",
+      "$XHEADER_EVENTS": "ht",
+      "$XHEADER_METHODS": "mt",
+      "$XHEADER_DEFAULT_TITLE": "ft",
+      "$XHEADER_TITLE_FALLBACK_POLICY": "xt"
     }
   },
   "props": {
@@ -301,7 +306,23 @@
       "$_stopBrandTracking": "Bn",
       "$_startBrandTracking": "jn",
       "$_getBrandCollapsePolicy": "En",
-      "$_readBrandTitle": "Rn"
+      "$_readBrandTitle": "Rn",
+      "$_prerenderedRouteCandidate": "er",
+      "$_stagePrerenderedRouteCandidate": "tr",
+      "$_normalizeAdoptionPath": "rr",
+      "$_emitRouteAdoption": "nr",
+      "$_rejectPrerenderedRouteCandidate": "sr",
+      "$_tryAdoptPrerenderedRoute": "ar",
+      "$_syncTitleFallback": "ir",
+      "$_getBrandTitleSource": "dr",
+      "$_prerenderedRouteSlot": "cr",
+      "$_navigationGeneration": "lr",
+      "$_isCurrentNavigation": "ur",
+      "$_normalizeAdoptionDomText": "pr",
+      "$_canonicalizeAdoptionDomStructure": "hr",
+      "$_isSafeAdoptionDomUrl": "mr",
+      "$_validateAdoptionDomTrust": "gr",
+      "$_hashAdoptionValue": "br"
     }
   }
 }

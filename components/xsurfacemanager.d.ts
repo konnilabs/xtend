@@ -9,7 +9,7 @@ export type XSurfaceManagerRestorePolicy = 'auto' | 'manual' | 'reset';
 export type XSurfaceManagerLoadingPolicy = 'eager' | 'visible' | 'open' | 'idle' | 'route' | 'warm' | 'prewarm';
 export type XSurfaceManagerRouteLifecyclePolicy = 'global' | 'open-close' | 'open-collapse' | 'open-minimize' | 'open-keep' | 'hydrate-only' | 'manual';
 export type XSurfaceManagerModalPolicy = 'topmost' | 'none' | 'all-modal' | 'surface-modal';
-export type XSurfaceManagerLayoutEngine = 'freeform' | 'docked' | 'split' | 'tile' | 'stacked';
+export type XSurfaceManagerLayoutEngine = 'freeform' | 'docked' | 'split' | 'tile' | 'stacked' | 'document-flow';
 export type XSurfaceManagerAttributeName =
   | 'layout'
   | 'restore-key'

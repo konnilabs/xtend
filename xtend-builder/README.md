@@ -98,7 +98,7 @@ The generic `rmt-build` command emits core JSON, an XTend custom element, an app
 #### Create an XTend Material Maraca app
 
 ```bash
-# Inspect the eight-artifact plan without writing
+# Inspect the complete app plan without writing
 xt create app --runtime maraca --design-kit material --out material-app --json
 
 # Write under app-local ownership and verify scaffold idempotence
@@ -111,7 +111,7 @@ npm install
 npm run serve
 ```
 
-The explicit Material preset generates eight artifacts: RMT, CSS, an HTML host, a runtime host, the DEV API bridge, `maraca.config.json`, `package.json`, and a smoke test. `npm run serve` builds `dist/` first and then serves `site/index.html` through `xt serve`; use `xt serve --help` for host, port, root, default-document, check, and JSON options. Tailwind and the Maraca adapter are development-only dependencies, source discovery is explicit, and Preflight is disabled. Other presets are not routed through this generator and never activate Tailwind implicitly.
+The Material preset generates the RMT/CSS/AppService seed sources plus Scaffold-managed HTML, runtime, configuration, package, typecheck, and test infrastructure. With `--server node` or `both`, it also generates `server/index.mjs`; both `npm start` and `npm run serve` build `dist/` before starting only the public Maraca Node app host on loopback. `XTEND_MARACA_HOST` and `XTEND_MARACA_PORT` override the bind address for test and deployment environments. Ownership v2 preserves edited seed sources while continuing to fail closed on managed-host drift. Tailwind and the Maraca adapter are development-only dependencies, source discovery is explicit, and Preflight is disabled.
 
 #### Build a Maraca bundle
 
@@ -348,7 +348,7 @@ Der generische `rmt-build` erzeugt Core JSON, XTend Custom Element, App-Modul, H
 #### XTend-Material-Maraca-App erzeugen
 
 ```bash
-# Den Plan mit acht Artefakten prüfen, ohne zu schreiben
+# Den vollständigen App-Plan prüfen, ohne zu schreiben
 xt create app --runtime maraca --design-kit material --out material-app --json
 
 # Mit app-lokaler Ownership schreiben und Scaffold-Idempotenz prüfen
@@ -361,7 +361,7 @@ npm install
 npm run serve
 ```
 
-Das explizite Material-Preset erzeugt acht Artefakte: RMT, CSS, einen HTML-Host, einen Runtime-Host, die DEV-API-Brücke, `maraca.config.json`, `package.json` und einen Smoke Test. `npm run serve` baut zuerst `dist/` und liefert danach `site/index.html` über `xt serve` aus; `xt serve --help` dokumentiert Host, Port, Root, Default-Dokument, Check- und JSON-Optionen. Tailwind und der Maraca-Adapter sind ausschließlich Development Dependencies, Sources werden explizit angegeben und Preflight bleibt deaktiviert. Andere Presets laufen nicht durch diesen Generator und aktivieren Tailwind niemals implizit.
+Das Material-Preset erzeugt RMT-, CSS- und AppService-Seed-Quellen sowie Scaffold-gemanagte HTML-, Runtime-, Konfigurations-, Paket-, Typecheck- und Testinfrastruktur. Mit `--server node` oder `both` kommt `server/index.mjs` hinzu; sowohl `npm start` als auch `npm run serve` bauen `dist/`, bevor ausschließlich der öffentliche Maraca-Node-App-Host auf Loopback startet. `XTEND_MARACA_HOST` und `XTEND_MARACA_PORT` überschreiben die Bind-Adresse für Tests und Deployment. Ownership v2 bewahrt bearbeitete Seed-Quellen und scheitert weiterhin hart bei Drift am gemanagten Host. Tailwind und der Maraca-Adapter bleiben Development Dependencies, Sources werden explizit angegeben und Preflight bleibt deaktiviert.
 
 #### Maraca-Bundle bauen
 

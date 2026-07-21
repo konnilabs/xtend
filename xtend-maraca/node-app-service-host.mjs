@@ -5,6 +5,7 @@ import {
   MARACA_APP_SERVICE_RESPONSE_SCHEMA,
   AppServiceAbortError,
   AppServiceError,
+  applyAppServiceInputPolicy,
   createAppServiceRegistry
 } from './app-services.mjs';
 
@@ -26,7 +27,7 @@ function errorStatus(error) {
   if (error.code === 'xtend.maraca.app-service.unknown') return 404;
   if (error.code === 'xtend.maraca.app-service.method_not_allowed') return 405;
   if (error.code === 'xtend.maraca.app-service.payload_too_large') return 413;
-  if (/invalid_contract|invalid_request|mode_mismatch|target_mismatch|stream_protocol/u.test(String(error.code || ''))) return 400;
+  if (/invalid_contract|invalid_request|mode_mismatch|target_mismatch|stream_protocol|input_policy/u.test(String(error.code || ''))) return 400;
   if (/cancelled|disposed|timeout|stale/u.test(String(error.code || ''))) return 499;
   return 500;
 }
@@ -359,9 +360,26 @@ function createNodeAppServiceHost(options = {}) {
     };
   }
 
-  function concurrencyKey(wireRequest, context) {
+  function enforceWireInputPolicy(request) {
+    const result = applyAppServiceInputPolicy(request.input, {
+      serviceId: request.serviceId,
+      manifest: options.manifest || null,
+      phase: 'server',
+      onVerdict: options.onInputPolicyVerdict
+    });
+    return {
+      ...request,
+      input: result.input,
+      inputPolicyVerdict: result.verdict
+    };
+  }
+
+  function concurrencyKey(wireRequest, context, serviceDefinition = null) {
     const explicit = context && context.concurrencyKey;
     if (explicit != null && String(explicit).trim()) return String(explicit);
+    if (serviceDefinition && serviceDefinition.concurrency === 'serial') {
+      return `node.service:${wireRequest.serviceId}`;
+    }
     const clientKey = wireRequest && (wireRequest.correlationId || wireRequest.invocationId);
     if (clientKey) return `node.request:${clientKey}`;
     hostInvocationSequence += 1;
@@ -373,6 +391,7 @@ function createNodeAppServiceHost(options = {}) {
     const contextRecord = objectRecord(context);
     const serviceDefinition = registry.getService(request.serviceId);
     validateWireServiceRequest(request, serviceDefinition, 'invoke');
+    request = enforceWireInputPolicy(request);
     request = normalizeWireIdentifiers(request);
     const scope = openRequestScope(null, null, contextRecord.signal, {
       serviceId: request.serviceId,
@@ -386,7 +405,8 @@ function createNodeAppServiceHost(options = {}) {
         defer: scope.defer,
         invocationId: request.invocationId,
         correlationId: request.correlationId,
-        concurrencyKey: concurrencyKey(request, contextRecord)
+        inputPolicyVerdict: request.inputPolicyVerdict,
+        concurrencyKey: concurrencyKey(request, contextRecord, serviceDefinition)
       });
       return responseEnvelope(request, { ok: true, value });
     } finally {
@@ -399,6 +419,7 @@ function createNodeAppServiceHost(options = {}) {
     const contextRecord = objectRecord(context);
     const serviceDefinition = registry.getService(request.serviceId);
     validateWireServiceRequest(request, serviceDefinition, 'stream');
+    request = enforceWireInputPolicy(request);
     request = normalizeWireIdentifiers(request);
     const scope = openRequestScope(null, null, contextRecord.signal, {
       serviceId: request.serviceId,
@@ -414,7 +435,8 @@ function createNodeAppServiceHost(options = {}) {
         defer: scope.defer,
         invocationId: request.invocationId,
         correlationId: request.correlationId,
-        concurrencyKey: concurrencyKey(request, contextRecord)
+        inputPolicyVerdict: request.inputPolicyVerdict,
+        concurrencyKey: concurrencyKey(request, contextRecord, serviceDefinition)
       });
       for await (const frame of handle) {
         if (frame.type === 'error') {
@@ -465,6 +487,7 @@ function createNodeAppServiceHost(options = {}) {
       wireRequest = validateWireRequest(decodedRequest, routeId);
       const serviceDefinition = registry.getService(wireRequest.serviceId);
       validateWireServiceRequest(wireRequest, serviceDefinition);
+      wireRequest = enforceWireInputPolicy(wireRequest);
       wireRequest = normalizeWireIdentifiers(wireRequest);
       const hostContext = typeof options.createContext === 'function'
         ? await options.createContext(request, wireRequest)
@@ -475,7 +498,8 @@ function createNodeAppServiceHost(options = {}) {
           ...context,
           invocationId: wireRequest.invocationId,
           correlationId: wireRequest.correlationId,
-          concurrencyKey: concurrencyKey(wireRequest, context)
+          inputPolicyVerdict: wireRequest.inputPolicyVerdict,
+          concurrencyKey: concurrencyKey(wireRequest, context, serviceDefinition)
         });
         const payload = responseEnvelope(wireRequest, { ok: true, value });
         writeJson(response, 200, payload);
@@ -490,7 +514,8 @@ function createNodeAppServiceHost(options = {}) {
         ...context,
         invocationId: wireRequest.invocationId,
         correlationId: wireRequest.correlationId,
-        concurrencyKey: concurrencyKey(wireRequest, context)
+        inputPolicyVerdict: wireRequest.inputPolicyVerdict,
+        concurrencyKey: concurrencyKey(wireRequest, context, serviceDefinition)
       });
       for await (const frame of streamHandle) {
         if (requestScope.controller.signal.aborted || response.writableEnded) break;

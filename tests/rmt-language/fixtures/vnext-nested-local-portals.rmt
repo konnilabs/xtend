@@ -1,0 +1,67 @@
+// Generic local portal nesting: manager -> ordinary form -> textarea.
+template demo.nested.portals {
+  state demo.nested.shell type object preserve {
+    initial {
+      id "demo-nested-shell"
+      layoutEngine "document-flow"
+    }
+  }
+
+  state demo.nested.form type object preserve {
+    initial {
+      id "demo-nested-form"
+      viewTemplate {
+        children [
+          {
+            type "element"
+            tag "div"
+            attributes { id "demo-nested-fields" "data-xtm-slot" "fields" }
+          }
+        ]
+      }
+    }
+  }
+
+  state demo.nested.editor type object preserve {
+    initial {
+      id "demo-nested-editor"
+      label "Text"
+      value ""
+      rows 6
+    }
+  }
+
+  selector demo.nested.shell from state demo.nested.shell {
+    output NestedShell
+  }
+
+  selector demo.nested.form from state demo.nested.form {
+    output NestedForm
+  }
+
+  selector demo.nested.editor from state demo.nested.editor {
+    output NestedEditor
+  }
+
+  portal demo.nested.root root "#xtend-maraca-root" layer surface
+  portal demo.nested.shellChildren root "[data-maraca-surface='demo.nested.shell']" layer surface
+  portal demo.nested.formChildren root "#demo-nested-fields" layer surface
+
+  surface demo.nested.shell kind workspace component x-surface-manager {
+    source selector demo.nested.shell
+    key shell.id
+    portal demo.nested.root
+  }
+
+  surface demo.nested.form kind form component x-form {
+    source selector demo.nested.form
+    key form.id
+    portal demo.nested.shellChildren
+  }
+
+  surface demo.nested.editor kind field component x-textarea {
+    source selector demo.nested.editor
+    key editor.id
+    portal demo.nested.formChildren
+  }
+}

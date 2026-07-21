@@ -109,11 +109,11 @@ module.exports = {
     command: "xt create app --runtime maraca --design-kit material --out material-app --write --json",
     checkCommand: "xt create app --runtime maraca --design-kit material --out material-app --check --json",
     serveCommand: "npm run serve",
-    artifacts: ["src/app.rmt", "src/app.css", "src/material-runtime-host.mjs", "src/material-dev-api.mjs", "site/index.html", "maraca.config.json", "package.json", "test/material-app.smoke.test.cjs"],
+    artifacts: ["src/app.rmt", "src/app.css", "src/services.ts", "src/server-services.ts", "server/index.mjs", "server/server-services.php", "tsconfig.json", "src/material-runtime-host.mjs", "src/material-dev-api.mjs", "site/index.html", "maraca.config.json", "package.json", "test/material-app.smoke.test.cjs"],
     templateRoot: "xtend-builder/templates/app/",
     cssProvider: "tailwind",
     preflight: "disabled",
-    ownership: "xtend.scaffold.generated-ownership.v1",
+    ownership: "xtend.scaffold.generated-ownership.v2",
     localGate: "node scripts/run_xtend_tests.js xtend-material-scaffold maraca-rmt-source-to-bundle scaffold-ownership --json"
   },
   rmtAppPlatformTooling: {
@@ -1519,7 +1519,7 @@ module.exports = {
     packageDryRunArtifact: ".xtend-test-results/xtend-pack-dry-run.json",
     packageExportSurfaceArtifact: ".xtend-test-results/xtend-package-export-surface-lock.json",
     packageExportLockReportArtifact: ".xtend-test-results/xtend-package-export-lock-report.json",
-    expectedExportCount: 174,
+    expectedExportCount: 175,
     localGateRequiresNpmPackExecution: false,
     artifactRequiredForRc1: true,
     nextWorkpackage: "WP-E13-13",

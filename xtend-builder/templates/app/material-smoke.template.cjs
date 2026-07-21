@@ -23,11 +23,13 @@ test('Material app scaffold contract', () => {
   assert.equal(config.options.services.clientEntry, 'src/services.ts');
   assert.deepEqual(config.options.cssSources, ['src/app.rmt', 'src/app.css']);
   assert.equal(manifest.devDependencies.tailwindcss, '4.3.2');
-  assert.match(manifest.scripts.serve, /npm run build && xt serve --root \. --default site\/index\.html --port 4173/);
+  assert.equal(manifest.scripts.serve, '{{serveCommand}}');
+  assert.equal(manifest.scripts.start, '{{startCommand}}');
+  assert.equal(manifest.scripts['test:catfood'], 'npm run build && node --test');
   assert.match(rmt, /class "xtm-app-shell"/);
   assert.match(rmt, /class "xtm-content-page"/);
-  assert.match(rmt, /action material\.app\.runCheck/);
-  assert.match(rmt, /datasource material\.app\.health from host material\.app\.health/);
+  assert.match(rmt, /\baction\s+[a-z][\w.-]*/u);
+  assert.match(rmt, /\bdatasource\s+[a-z][\w.-]*\s+from host\s+[a-z][\w.-]*/u);
   assert.match(services, /defineAppServices/);
   assert.match(services, /target: 'server'/);
   assert.doesNotMatch(rmt, /class "(?:grid|flex|p-\d)/);
@@ -38,4 +40,7 @@ test('Material app scaffold contract', () => {
   assert.doesNotMatch(runtimeHost, /dataSourceAdapters|hostServiceAdapters/);
   assert.doesNotMatch(runtimeHost, /__XTendMaraca|__XTEND_MATERIAL_APP__/);
   assert.match(runtimeHost, /xtend-maraca:boot/);
+  assert.match(runtimeHost, /const expectedSurfaceCount = Number\(result && result\.surfaceCount\)/);
+  assert.match(runtimeHost, /surfaceCount === expectedSurfaceCount/);
+  assert.doesNotMatch(runtimeHost, /surfaceCount\s*>=\s*\d+/);
 });

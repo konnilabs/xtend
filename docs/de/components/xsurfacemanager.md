@@ -53,6 +53,19 @@ Für produktive Oberflächen sollten IDs stabil bleiben, wenn State-Keys oder Di
 
 Diagnose-Snapshots können zerstörte Surface-Generationen als `xtend.surface.tombstone.v1` Records einschließen. Normale Snapshots lassen sie aus, damit eine veraltete Generation nicht versehentlich erneut geöffnet wird.
 
+Für eine statisch komponierte Maraca-Seite wird
+`layout-engine="document-flow"` gesetzt. Dem Slot `windows` zugewiesene Kinder
+liegen dann in einem normalen einspaltigen Grid, der Manager wächst mit dem
+Dokument und der Workspace schneidet das Scrollen der Seite nicht ab. Dieser
+Modus schreibt keine absoluten Bounds. In RMT heißt das State-Feld
+`layoutEngine "document-flow"`; der Compiler erzeugt daraus das öffentliche
+Attribut `layout-engine`.
+
+Der versionierte Contract `xtend.surface.layout-engine.v1` unterstützt
+`freeform`, `docked`, `split`, `tile`, `stacked` und `document-flow`. Ein
+Layout-Snapshot hält angeforderte und effektive Engine nachvollziehbar. Der
+SurfaceController bleibt kanonisch; kein Modus erzeugt eine zweite Registry.
+
 Attribute:
 - `layout`
 - `restore-key`

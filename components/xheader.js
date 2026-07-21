@@ -4,6 +4,28 @@ const XHEADER_MENU_MODES = Object.freeze(['drawer', 'side-panel', 'popover', 'fu
 const XHEADER_MENU_PLACEMENTS = Object.freeze(['start', 'end', 'top', 'bottom']);
 const XHEADER_MENU_ALIGNS = Object.freeze(['start', 'center', 'end', 'stretch']);
 const XHEADER_BRAND_COLLAPSE_POLICIES = Object.freeze(['auto', 'never', 'always']);
+const XHEADER_SLOTS = Object.freeze(['logo', 'title', 'search', 'actions', 'utility', 'nav']);
+const XHEADER_EVENTS = Object.freeze([
+  'header-ready',
+  'header-layout-changed',
+  'header-brand-visibility-changed',
+  'menu-before-open',
+  'menu-before-close',
+  'menu-opened',
+  'menu-closed',
+  'menu-mode-changed',
+  'menu-placement-changed',
+  'logo-loaded'
+]);
+const XHEADER_METHODS = Object.freeze(['toggleMenu', 'isMenuOpen', 'snapshot']);
+const XHEADER_DEFAULT_TITLE = 'Seitentitel';
+const XHEADER_TITLE_FALLBACK_POLICY = Object.freeze({
+  attribute: 'title',
+  slot: 'title',
+  precedence: 'assigned-slot-over-attribute',
+  sink: 'textContent',
+  defaultText: XHEADER_DEFAULT_TITLE
+});
 const XHEADER_MENU_BREAKPOINTS = Object.freeze({
   sm: '480px',
   md: '620px',
@@ -56,14 +78,43 @@ class XHeader extends HTMLElement {
       schema: "xtend.component.contract.v2",
       tag: "x-header",
       profiles: ["display"],
-      maturity: "ux-ready"
+      maturity: "ux-ready",
+      source: {
+        strategy: 'xtend.legacy-js-with-enterprise-profile.v1',
+        state: 'js-runtime-profiled',
+        sourcePath: 'components/xheader.js'
+      },
+      runtime: {
+        format: 'esm',
+        artifact: 'components/xheader.js',
+        declaration: 'components/xheader.d.ts',
+        localOnly: true,
+        cdnAllowed: false
+      },
+      publicApi: {
+        attributes: XHeader.observedAttributes,
+        slots: XHEADER_SLOTS.slice(),
+        events: XHEADER_EVENTS.slice(),
+        methods: XHEADER_METHODS.slice(),
+        contentFallbacks: {
+          title: { ...XHEADER_TITLE_FALLBACK_POLICY }
+        }
+      }
     };
   }
   static get xtendRmtMetadata() {
     return {
       schema: "xtend.rmt.component-contract.v1",
       adapter: "xtend.component",
+      tag: 'x-header',
       schedule: "component.visible.mount",
+      attributes: XHeader.observedAttributes,
+      slots: XHEADER_SLOTS.slice(),
+      events: XHEADER_EVENTS.slice(),
+      methods: XHEADER_METHODS.slice(),
+      contentFallbacks: {
+        title: { ...XHEADER_TITLE_FALLBACK_POLICY }
+      },
       kernelBoundary: "no-rmt-kernel-import-of-xtend-types"
     };
   }
@@ -400,6 +451,8 @@ class XHeader extends HTMLElement {
         }
         header {
           display: grid;
+          inline-size: 100%;
+          min-inline-size: 0;
           grid-template-columns: var(--header-slot-template-columns);
           grid-template-areas: var(--header-slot-template-areas);
           align-items: center;
@@ -838,7 +891,7 @@ class XHeader extends HTMLElement {
       <header part="root" role="banner" aria-label="Seitenkopf" data-menu-mode="${menuMode}" data-menu-placement="${menuPlacement}" data-menu-align="${menuAlign}" data-brand-presentation="${this.hasAttribute("logo-only") ? "logo-only" : "logo-title"}">
         <div class="title" part="brand title">
           <div class="logo-container" part="logo"></div>
-          <span class="title-text"><slot name="title">Seitentitel</slot></span>
+          <span class="title-text"><slot name="title"><span class="title-fallback"></span></slot></span>
           <span class="title-measure" aria-hidden="true"></span>
         </div>
         <div class="search" part="search">
@@ -861,6 +914,7 @@ class XHeader extends HTMLElement {
         </div>
       </header>
     `;
+    this._syncTitleFallback();
     this.renderLogo();
     this._syncMenuPresentation({ source: "render" });
     this.setupBurgerMenu();
@@ -896,6 +950,17 @@ class XHeader extends HTMLElement {
   }
   _getBrandCollapsePolicy() {
     return normalizeAttribute(this.getAttribute("brand-collapse"), XHEADER_BRAND_COLLAPSE_POLICIES, "auto");
+  }
+  _syncTitleFallback() {
+    const fallback = this.shadowRoot && this.shadowRoot.querySelector('.title-fallback');
+    if (!fallback) return;
+    fallback.textContent = this.hasAttribute('title') ? this.getAttribute('title') : XHEADER_DEFAULT_TITLE;
+  }
+  _getBrandTitleSource() {
+    const slot = this.shadowRoot && this.shadowRoot.querySelector('.title-text slot[name="title"]');
+    const assigned = slot && typeof slot.assignedNodes === 'function' ? slot.assignedNodes() : [];
+    if (assigned.length > 0) return 'title-slot';
+    return this.hasAttribute('title') ? 'title-attribute' : 'default';
   }
   _readBrandTitle() {
     const slot = this.shadowRoot && this.shadowRoot.querySelector('.title-text slot[name="title"]');
@@ -1398,6 +1463,8 @@ class XHeader extends HTMLElement {
       menuOpen: this.isMenuOpen(),
       src: this.getAttribute("src"),
       logoSize: this.getAttribute("logo-size"),
+      title: this._readBrandTitle(),
+      titleSource: this._getBrandTitleSource(),
       compact: this.hasAttribute("compact"),
       brandCollapse: this._getBrandCollapsePolicy(),
       brandPresentation: this.hasAttribute("logo-only") ? "logo-only" : "logo-title",

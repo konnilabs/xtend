@@ -1,9 +1,10 @@
 'use strict';
 
 const APP_SERVICE_BASE_TEMPLATES = Object.freeze([
-  { artifact: 'app-services', id: 'app-services', target: 'src/services.ts', kind: 'typescript' },
-  { artifact: 'server-services', id: 'node-services', target: 'src/server-services.ts', kind: 'typescript', server: 'node' },
-  { artifact: 'php-server-services', id: 'php-services', target: 'server/server-services.php', kind: 'php', server: 'php' },
+  { artifact: 'app-services', id: 'app-services', target: 'src/services.ts', kind: 'typescript', ownershipMode: 'seed' },
+  { artifact: 'server-services', id: 'node-services', target: 'src/server-services.ts', kind: 'typescript', server: 'node', ownershipMode: 'seed' },
+  { artifact: 'node-app-host', id: 'node-app-host', target: 'server/index.mjs', kind: 'runtime', server: 'node' },
+  { artifact: 'php-server-services', id: 'php-services', target: 'server/server-services.php', kind: 'php', server: 'php', ownershipMode: 'seed' },
   { artifact: 'app-tsconfig', id: 'tsconfig', target: 'tsconfig.json', kind: 'config' }
 ]);
 

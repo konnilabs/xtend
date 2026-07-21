@@ -202,6 +202,9 @@ async function runRmtVNextComponentPrimitivesSuite(options = {}) {
   context.assert(selectCapability && selectCapability.slots.includes('label'), 'registry exposes slots');
   context.assert(selectCapability && selectCapability.parts.includes('control'), 'registry exposes parts');
   context.assert(selectCapability && selectCapability.kernelBoundary === 'no-rmt-kernel-import-of-xtend-types', 'registry preserves kernel boundary');
+  const headerCapability = registry.resolveComponentCapability('x-header');
+  context.assert(headerCapability && headerCapability.observedAttributes.includes('title'), 'registry exposes the x-header title attribute');
+  context.assert(headerCapability && headerCapability.slots.includes('title'), 'registry exposes the authoritative x-header title slot');
   context.assert(registry.resolveComponentCapability('x-utils').visualKind === 'non-visual-utility', 'x-utils is classified as utility module');
   context.assert(registry.resolveComponentCapability('x-rmt-lifecycle-demo-build').visualKind === 'demo-non-production', 'lifecycle demo is classified outside production UI');
   context.assert(registry.resolveComponentCapability('x-theme').visualKind === 'infrastructure-module', 'x-theme is classified as infrastructure module');

@@ -3,6 +3,7 @@ export declare const DEFAULT_CLIENT_ENTRY: "src/services.ts";
 export declare const DEFAULT_SERVER_ENTRY: "src/server-services.ts";
 export declare const DEFAULT_PHP_ENTRY: "server/server-services.php";
 export declare const MARACA_APP_SERVICE_DEMANDS_SCHEMA: "xtend.maraca.app-service-demands.v1";
+export declare const MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA: "xtend.maraca.app-service-input-policy.v1";
 export declare const MARACA_APP_SERVICE_MANIFEST_SCHEMA: "xtend.maraca.app-services-manifest.v1";
 export declare const MARACA_SERVICE_BUILD_PROVIDER_SCHEMA: "xtend.maraca.service-build-provider.v1";
 export declare const MARACA_SERVICE_BUILD_PLAN_SCHEMA: "xtend.maraca.service-build-plan.v1";
@@ -52,8 +53,25 @@ export interface MaracaAppServiceManifestEntry {
   actions: Array<{
     id: string;
     mode: "invoke" | "stream";
-    inputs: Array<{ name: string; type: string }>;
+    inputs: Array<{
+      name: string;
+      type: string;
+      inputPolicy?: {
+        schema: "xtend.maraca.app-service-input-policy.v1";
+        boundary: "xtend.security.sanitizing-boundary.v1";
+        sanitize: "text";
+      };
+    }>;
   }>;
+  inputPolicy: {
+    schema: "xtend.maraca.app-service-input-policy.v1";
+    fields: Array<{
+      name: string;
+      type: string;
+      boundary: "xtend.security.sanitizing-boundary.v1";
+      sanitize: "text";
+    }>;
+  } | null;
   implementations: { browser: boolean; node: boolean; php: boolean };
 }
 

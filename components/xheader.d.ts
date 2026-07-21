@@ -9,6 +9,7 @@ export type XHeaderMenuPlacement = 'start' | 'end' | 'top' | 'bottom';
 export type XHeaderMenuAlign = 'start' | 'center' | 'end' | 'stretch';
 export type XHeaderBrandCollapsePolicy = 'auto' | 'never' | 'always';
 export type XHeaderBrandPresentation = 'logo-title' | 'logo-only';
+export type XHeaderTitleSource = 'title-slot' | 'title-attribute' | 'default';
 
 export interface XHeaderSnapshot {
   schema: 'xtend.component.layout-display-media-snapshot.v1';
@@ -18,6 +19,9 @@ export interface XHeaderSnapshot {
   menuOpen: boolean;
   src: string | null;
   logoSize: string | null;
+  /** Effective plain-text title after applying slot > title attribute > default precedence. */
+  title: string;
+  titleSource: XHeaderTitleSource;
   compact: boolean;
   brandCollapse: XHeaderBrandCollapsePolicy;
   brandPresentation: XHeaderBrandPresentation;

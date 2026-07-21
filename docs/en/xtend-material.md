@@ -29,7 +29,7 @@ The current support status means the documented package exports, recipes, themes
 
 ## Create your first app
 
-You need Node.js 24 or newer and a local XTend checkout or installed XTend packages. With the default `--server both`, the scaffold command creates twelve artifacts: RMT source, Tailwind input, typed browser and Node AppServices, a PHP callable registry, strict TypeScript config, HTML/runtime hosts, the DEV API bridge, Maraca config, package metadata, and a smoke test. Use `--server none`, `node`, or `php` to omit unneeded backend targets.
+You need Node.js 24 or newer and a local XTend checkout or installed XTend packages. With the default `--server both`, the scaffold command creates thirteen artifacts: RMT source, Tailwind input, typed browser and Node AppServices, a PHP callable registry, the managed Node app host, strict TypeScript config, HTML/runtime hosts, the DEV API bridge, Maraca config, package metadata, and a smoke test. Use `--server none`, `node`, or `php` to omit unneeded backend targets.
 
 ```bash
 xt create app --runtime maraca --design-kit material --name operations-console --out operations-console --write
@@ -58,7 +58,7 @@ The generated package uses `@xtend-material/core`, `@xtend-material/maraca-tailw
 }
 ```
 
-`npm run plan` is the fastest diagnostic step. It validates RMT and the source inventory without treating a browser as a compiler. `npm run serve` runs the deterministic Maraca build first, writes `dist/`, and then serves the generated `site/index.html` through the packaged `xt serve` command on `http://127.0.0.1:4173/`. Use `xt serve --help` to select another root, default document, host or port, or to run a bind-only `--check`. Opening ESM directly with a `file:` URL is not a supported deployment model.
+`npm run plan` is the fastest diagnostic step. It validates RMT and the source inventory without treating a browser as a compiler. `npm run serve` runs the deterministic Maraca build first and writes `dist/`. With `--server node` or `both`, it then starts only the managed `server/index.mjs`; the public Maraca Node app host serves the generated `site/index.html` on `http://127.0.0.1:4173/`. With `none` or `php`, `xt serve` remains the static development server. `npm run test:catfood` enforces the same build-first contract before app tests. Opening ESM directly with a `file:` URL is not a supported deployment model.
 
 ## Author with semantic recipes
 
@@ -82,7 +82,7 @@ The foundation vocabulary covers common layout and typography:
 | --- | --- |
 | Layout | `xtm-page`, `xtm-stack`, `xtm-stack-compact`, `xtm-cluster`, `xtm-grid` |
 | Surfaces | `xtm-surface`, `xtm-card`, `xtm-toolbar` |
-| Typography | `xtm-title`, `xtm-heading`, `xtm-body`, `xtm-muted` |
+| Typography | `xtm-title`, `xtm-heading`, `xtm-body`, `xtm-muted`, `xtm-plain-text` for line-preserving plain text |
 | Actions | `xtm-actions`, `xtm-primary-action` |
 
 Composite shell recipes describe stable application regions:

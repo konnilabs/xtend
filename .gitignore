@@ -30,4 +30,12 @@ products/xtend-material-workbench/dist/
 products/xtend-material-workbench/.xtend-test-results/
 products/xtend-material-workbench/.cache/
 products/xtend-material-workbench/**/.DS_Store
+!products/maraca-app-services-test-bench/
+!products/maraca-app-services-test-bench/**
+products/maraca-app-services-test-bench/node_modules/
+products/maraca-app-services-test-bench/dist/
+products/maraca-app-services-test-bench/.data/
+products/maraca-app-services-test-bench/.xtend-test-results/
+products/maraca-app-services-test-bench/.cache/
+products/maraca-app-services-test-bench/**/.DS_Store
 .DS_Store

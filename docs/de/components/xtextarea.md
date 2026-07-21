@@ -56,6 +56,10 @@ Editor-Oberflächen können `line-numbering="true"` setzen. Dann rendert `x-text
 
 Prompt-Oberflächen können `submit-on-enter` setzen. In diesem Modus löst Enter `textarea-submit` aus und reicht die Eingabe an das nächste Formular weiter, sofern das Event nicht abgebrochen wird. Shift+Enter behält das native Textarea-Verhalten und erzeugt eine neue Zeile.
 
+Mit `submit-command` erhält das anschließende `xtend-command` einen expliziten RMT-Command-Namen; ohne das Attribut bleibt der Command leer und kann über die normale Event-Bindung geroutet werden.
+
+`textarea-changed` und `textarea-submit` liefern `value`, `length`, `trimmedLength`, `empty`, `maxLength` und `source`. `textarea-changed` ergänzt den Highlight-Status. `textarea-invalid` liefert `value`, `message` und `source`; `xtend-command` verwendet den öffentlichen `XtendRmtCommandDetail` mit dem jeweiligen Textarea-Payload. Ein Aufruf von `reportValidity()` emittiert pro fehlgeschlagener Prüfung genau ein natives `textarea-invalid`.
+
 ## API-Referenz
 
 Attribute:
@@ -74,6 +78,7 @@ Attribute:
 - `density`
 - `fill`
 - `submit-on-enter`
+- `submit-command`
 - `syntax-highlight`
 - `highlight`
 - `line-numbering`
@@ -166,6 +171,8 @@ Token-Tabelle:
 - RMT schedules: `component.visible.mount`, `component.idle.hydrate`, `ui.user-blocking.input`, `diagnostics.snapshot`.
 
 RMT Hosts sollten die Komponente als Custom-Element-Grenze behandeln: Attribute werden als Component Props gesetzt, DOM-Events werden an Commands gebunden, und Scheduling-Metadaten bleiben außerhalb der Komponente. Reine HTML-Hosts verwenden dieselben Attribute und Events ohne RMT Compiler.
+
+Ein RMT-State kann die gesamte Attributfläche über gleichnamige Felder steuern; für `minlength`, `maxlength`, `submit-on-enter`, `submit-command`, `syntax-highlight` und `line-numbering` werden die camelCase-Felder `minLength`, `maxLength`, `submitOnEnter`, `submitCommand`, `syntaxHighlight` und `lineNumbering` verwendet. Die Statefelder `label`, `hint` und `error` werden als echte Slots materialisiert, sodass kein Zugriff auf den Shadow DOM nötig ist.
 
 Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezieltes Skinning freigegebener Controls gedacht, während CSS Custom Properties breitere Anpassungen an Farbe, Abstand, Radius und Bewegung abdecken. Accessibility-Hooks wie Labels, Live-Regionen und Fokusverhalten sollten beim Komponieren erhalten bleiben.
 

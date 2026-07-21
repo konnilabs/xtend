@@ -120,7 +120,7 @@ class XSection extends HTMLElement {
         .container {
           display: flex;
           gap: var(--section-gap, var(--xtend-layout-gap, 1em));
-          overflow-x: auto; /* Enable horizontal scrolling */
+          overflow: visible;
           max-width: 100%;
           min-width: 0;
           box-sizing: border-box;
@@ -133,6 +133,7 @@ class XSection extends HTMLElement {
 
         :host([layout="row"]) .container {
           flex-direction: row;
+          overflow-x: auto;
           white-space: nowrap; /* Prevent wrapping of content */
         }
 

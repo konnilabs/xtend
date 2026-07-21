@@ -19,7 +19,8 @@ const {
   MARACA_APP_SERVICE_MANIFEST_SCHEMA,
   createMaracaServiceBuildPlan,
   createTypeScriptServiceBuildProvider,
-  typecheckServiceEntries
+  typecheckServiceEntries,
+  writeServiceArtifacts
 } = require('../../xtend-maraca/service-build-provider');
 const { createRmtAppScaffold } = require('../../xtend-builder/generators/rmt-app');
 const { compileRmtVNextSource } = require('../../tools/rmt-language/vnext-compiler');
@@ -393,6 +394,61 @@ async function runMaracaAppServicesBuildSuite(options = {}) {
     const compilation = compileRmtVNextSource(fs.readFileSync(path.join(appRoot, 'src/app.rmt'), 'utf8'));
     assert.equal(compilation.ok, true);
     const demands = compilation.appServiceDemands;
+    const policyDemands = JSON.parse(JSON.stringify(demands));
+    const policyField = {
+      name: 'label',
+      type: 'string',
+      boundary: 'xtend.security.sanitizing-boundary.v1',
+      sanitize: 'text'
+    };
+    policyDemands.services[0].inputPolicy = {
+      schema: 'xtend.maraca.app-service-input-policy.v1',
+      fields: [policyField]
+    };
+    policyDemands.services[0].actions[0].inputs[0].inputPolicy = {
+      schema: 'xtend.maraca.app-service-input-policy.v1',
+      boundary: policyField.boundary,
+      sanitize: policyField.sanitize
+    };
+    const policyOutput = path.join(appRoot, 'dist-policy-provider');
+    const policyPlan = createMaracaServiceBuildPlan({
+      rootDir: appRoot,
+      outputDir: policyOutput,
+      demands: policyDemands,
+      services: config.options.services
+    });
+    assert.equal(policyPlan.ok, true, JSON.stringify(policyPlan.diagnostics));
+    assert.deepEqual(policyPlan.manifest.services[0].inputPolicy.fields[0], policyField);
+    writeServiceArtifacts(policyPlan);
+    assert.match(fs.readFileSync(path.join(policyOutput, 'xtend.maraca.services.d.ts'), 'utf8'), /inputPolicy: AppServiceInputPolicy/u);
+    const conflictingPolicyDemands = JSON.parse(JSON.stringify(policyDemands));
+    conflictingPolicyDemands.services[0].inputPolicy.conflicts = [{ field: 'label', actions: ['app.runCheck'], missing: ['app.runCheck'] }];
+    const conflictingPolicyPlan = createMaracaServiceBuildPlan({
+      rootDir: appRoot,
+      outputDir: path.join(appRoot, 'dist-policy-conflict'),
+      demands: conflictingPolicyDemands,
+      services: config.options.services
+    });
+    assert.equal(conflictingPolicyPlan.ok, false);
+    assert.equal(conflictingPolicyPlan.diagnostics.some((entry) => entry.code === 'xtend.maraca.services.input_policy_conflict'), true);
+    context.pass('RMT input policy is preserved in manifest/types and conflicts block strict service builds');
+    const duplicateServiceDemands = JSON.parse(JSON.stringify(policyDemands));
+    const duplicateServiceDemand = JSON.parse(JSON.stringify(duplicateServiceDemands.services[0]));
+    duplicateServiceDemand.dataSource = `${duplicateServiceDemand.dataSource}.duplicate`;
+    duplicateServiceDemand.dataSourceRef = `${duplicateServiceDemand.dataSourceRef || duplicateServiceDemand.dataSource}:duplicate`;
+    duplicateServiceDemand.sourceRef = 'src:dataSource:duplicate';
+    duplicateServiceDemand.inputPolicy = null;
+    duplicateServiceDemand.actions[0].inputs[0].inputPolicy = null;
+    duplicateServiceDemands.services.push(duplicateServiceDemand);
+    const duplicateServicePlan = createMaracaServiceBuildPlan({
+      rootDir: appRoot,
+      outputDir: path.join(appRoot, 'dist-duplicate-service-id'),
+      demands: duplicateServiceDemands,
+      services: config.options.services
+    });
+    assert.equal(duplicateServicePlan.ok, false);
+    assert.equal(duplicateServicePlan.diagnostics.some((entry) => entry.code === 'xtend.maraca.services.duplicate_demand_id' && entry.severity === 'error'), true);
+    context.pass('service build fails closed when two datasource demands share one service ID and only one carries the RMT input policy');
     const publicProviderOutput = path.join(appRoot, 'dist-public-provider');
     const publicProvider = createTypeScriptServiceBuildProvider({ rootDir: appRoot });
     const publicProviderPlan = publicProvider.inspect({

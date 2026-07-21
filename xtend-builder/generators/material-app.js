@@ -16,8 +16,8 @@ const MATERIAL_APP_SCAFFOLD_SCHEMA = 'xtend.scaffold.app-preset.material.v1';
 const MATERIAL_APP_SCAFFOLD_REPORT_SCHEMA = 'xtend.scaffold.app-preset.material-report.v1';
 const MATERIAL_APP_OWNER = 'XTM-09-material-app';
 const MATERIAL_APP_TEMPLATES = Object.freeze([
-  { artifact: 'material-app-rmt', id: 'app-rmt', target: 'src/app.rmt', kind: 'rmt' },
-  { artifact: 'material-app-css', id: 'app-css', target: 'src/app.css', kind: 'css' },
+  { artifact: 'material-app-rmt', id: 'app-rmt', target: 'src/app.rmt', kind: 'rmt', ownershipMode: 'seed' },
+  { artifact: 'material-app-css', id: 'app-css', target: 'src/app.css', kind: 'css', ownershipMode: 'seed' },
   ...APP_SERVICE_BASE_TEMPLATES,
   { artifact: 'material-maraca-config', id: 'maraca-config', target: 'maraca.config.json', kind: 'config' },
   { artifact: 'material-package', id: 'package', target: 'package.json', kind: 'package' },
@@ -62,7 +62,8 @@ function createMaterialAppEntries(outputDir, values) {
       generated: true,
       owner: MATERIAL_APP_OWNER,
       templateId: rendered.template.id,
-      templatePath: rendered.template.path
+      templatePath: rendered.template.path,
+      ownershipMode: definition.ownershipMode || 'managed'
     };
   });
 }
@@ -114,7 +115,18 @@ function createMaterialAppScaffold(input = {}, options = {}) {
     appTitle,
     serviceId: 'material.app.health',
     serverTarget,
-    serviceTargetsJson: JSON.stringify(serviceTargets)
+    serviceTargetsJson: JSON.stringify(serviceTargets),
+    serveCommand: serverTarget === 'node' || serverTarget === 'both'
+      ? 'npm start'
+      : 'npm run build && xt serve --root . --default site/index.html --port 4173',
+    startCommand: serverTarget === 'node' || serverTarget === 'both'
+      ? 'npm run build && node server/index.mjs'
+      : 'xt serve --root . --default site/index.html --port 4173',
+    nodeTypesJson: JSON.stringify(serverTarget === 'node' || serverTarget === 'both' ? ['node'] : []),
+    nodeTypesDependencyLine: serverTarget === 'node' || serverTarget === 'both'
+      ? '"@types/node": "^24.13.3",\n    '
+      : '',
+    nodePublicPathsJson: JSON.stringify(['site/', 'dist/', 'src/material-runtime-host.mjs', 'src/material-dev-api.mjs'])
   });
   const renderErrors = rendered.filter((entry) => entry.error).map((entry) => entry.error);
   if (renderErrors.length > 0) {
@@ -140,14 +152,17 @@ function createMaterialAppScaffold(input = {}, options = {}) {
     generator: 'material-app',
     owner: MATERIAL_APP_OWNER,
     ownershipPath,
+    ownershipSchema: 'xtend.scaffold.generated-ownership.v2',
     allowedRoots: [`${outputDir}/`]
   });
   const commands = {
     plan: 'npm run plan',
     build: 'npm run build',
     serve: 'npm run serve',
+    start: 'npm run start',
     tune: 'npm run tune',
-    test: 'npm test'
+    test: 'npm test',
+    catfood: 'npm run test:catfood'
   };
   return {
     schema: MATERIAL_APP_SCAFFOLD_REPORT_SCHEMA,

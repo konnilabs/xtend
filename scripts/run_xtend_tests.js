@@ -102,9 +102,17 @@ const {
   runMaracaAppServicesCrossRuntimeParitySuite
 } = require('../tests/maraca/maraca_app_services_cross_runtime_parity_suite');
 const {
+  printMaracaNodeAppHostReport,
+  runMaracaNodeAppHostSuite
+} = require('../tests/maraca/maraca_node_app_host_suite');
+const {
   printXtendLlmAppServicesCatfoodReport,
   runXtendLlmAppServicesCatfoodSuite
 } = require('../tests/products/xtend_llm_app_services_catfood_suite');
+const {
+  printMaracaAppServicesTestBenchReport,
+  runMaracaAppServicesTestBenchSuite
+} = require('../tests/products/maraca_app_services_test_bench_suite');
 const {
   printMaracaCssProviderContractReport,
   runMaracaCssProviderContractSuite
@@ -3100,6 +3108,16 @@ const suites = [
     }
   },
   {
+    id: 'maraca-node-app-host',
+    label: 'XTend Maraca Node App Host',
+    description: 'Runs the official static/AppService HTTP host, loopback, body-limit and shutdown/cleanup gates.',
+    run: async () => {
+      const result = await runMaracaNodeAppHostSuite({ rootDir });
+      printMaracaNodeAppHostReport(result);
+      return toRunnerResult('maraca-node-app-host', 'XTend Maraca Node App Host', result);
+    }
+  },
+  {
     id: 'xtend-llm-app-services-catfood',
     label: 'XTend LLM AppServices Catfood',
     description: 'Builds the XTend LLM production product through Maraca and validates its AppServices source, service graph, bundle, types and budget evidence.',
@@ -3107,6 +3125,16 @@ const suites = [
       const result = runXtendLlmAppServicesCatfoodSuite({ rootDir });
       printXtendLlmAppServicesCatfoodReport(result);
       return toRunnerResult('xtend-llm-app-services-catfood', 'XTend LLM AppServices Catfood', result);
+    }
+  },
+  {
+    id: 'maraca-app-services-test-bench',
+    label: 'Maraca App Services Test Bench',
+    description: 'Builds and exercises the strict CLI-generated Node/SQLite AppServices catfood product.',
+    run: async () => {
+      const result = await runMaracaAppServicesTestBenchSuite({ rootDir });
+      printMaracaAppServicesTestBenchReport(result);
+      return toRunnerResult('maraca-app-services-test-bench', 'Maraca App Services Test Bench', result);
     }
   },
   {

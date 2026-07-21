@@ -24,6 +24,16 @@
 </head>
 <body>
   <main>
+    <x-header
+      id="title-attribute-fallback"
+      title="&lt;img src=x onerror=window.__xtendHeaderTitleInjected=true&gt;"
+      brand-collapse="never">
+    </x-header>
+
+    <x-header id="title-slot-override" title="Attribute must not win" brand-collapse="never">
+      <span slot="title">Assigned title slot wins</span>
+    </x-header>
+
     <x-header id="mode-drawer" menu-mode="drawer" menu-placement="end" menu-open>
       <span slot="title">Drawer Mode</span>
       <a slot="nav" href="#drawer">Drawer link</a>
@@ -52,6 +62,7 @@
 
   <script>
     window.__xtendHeaderMenuModesResult = { status: 'pending', checks: [] };
+    window.__xtendHeaderTitleInjected = false;
     window.xstate = {
       get() { return undefined; },
       set() {},
@@ -63,6 +74,19 @@
     const modes = ['drawer', 'side-panel', 'popover', 'fullscreen', 'inline-main'];
     await customElements.whenDefined('x-header');
     await Promise.resolve();
+    const attributeHeader = document.getElementById('title-attribute-fallback');
+    const attributeFallback = attributeHeader.shadowRoot.querySelector('.title-fallback');
+    const attributeSnapshot = attributeHeader.snapshot();
+    const slotHeader = document.getElementById('title-slot-override');
+    const titleSlot = slotHeader.shadowRoot.querySelector('slot[name="title"]');
+    const slotSnapshot = slotHeader.snapshot();
+    const titleChecks = {
+      attributeFallbackText: attributeFallback.textContent === '<img src=x onerror=window.__xtendHeaderTitleInjected=true>',
+      attributeFallbackPlainText: attributeFallback.childElementCount === 0 && window.__xtendHeaderTitleInjected === false,
+      attributeSnapshot: attributeSnapshot.title === '<img src=x onerror=window.__xtendHeaderTitleInjected=true>' && attributeSnapshot.titleSource === 'title-attribute',
+      slotAssigned: titleSlot.assignedElements({ flatten: true }).length === 1,
+      slotAuthoritative: slotSnapshot.title === 'Assigned title slot wins' && slotSnapshot.titleSource === 'title-slot'
+    };
     window.__xtendHeaderMenuModesResult.checks = modes.map((mode) => {
       const header = document.getElementById(`mode-${mode}`);
       const snapshot = header.snapshot();
@@ -75,9 +99,14 @@
         menuModal: snapshot.menuModal
       };
     });
+    window.__xtendHeaderMenuModesResult.title = titleChecks;
+    document.documentElement.dataset.xtendHeaderTitleChecks = JSON.stringify(titleChecks);
+    document.documentElement.dataset.xtendHeaderModeChecks = JSON.stringify(window.__xtendHeaderMenuModesResult.checks);
     window.__xtendHeaderMenuModesResult.status = window.__xtendHeaderMenuModesResult.checks.every((entry) => entry.rendered && entry.menuMode === entry.mode && entry.menuOpen)
+      && Object.values(titleChecks).every(Boolean)
       ? 'passed'
       : 'failed';
+    document.documentElement.dataset.xtendHeaderMenuModesStatus = window.__xtendHeaderMenuModesResult.status;
   </script>
 </body>
 </html>

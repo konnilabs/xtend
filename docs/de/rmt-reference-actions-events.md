@@ -8,7 +8,7 @@ Actions beschreiben State-Änderungen, Effects und emittierte Events. Event Bind
 | --- | --- | --- | --- | --- | --- | --- |
 | <a id="input"></a>`input` | `input id string` | `action` | Name, Typ | Deklariert Action-Payload-Felder. | Fehlende Typen werden gemeldet. | `payload` |
 | <a id="status"></a>`status` | `status app.request` | `action` | State-Pfad | Bindet Loading-, Success- und Error-Status. | Unbekannter State wird semantisch gemeldet. | `effect` |
-| <a id="effect"></a>`effect` | `effect fetch datasource tickets` | `action` | Effect-Art, optionale Quelle | Deklariert host-owned asynchrone Arbeit. | Effect-Quelle muss `datasource`, `resource` oder `selector` sein. | `on success ->` |
+| <a id="effect"></a>`effect` | `effect fetch datasource tickets` | `action` | Effect-Art, optionale Quelle | Deklariert host-owned asynchrone Arbeit oder einen festen Component-Command. | Effect-Quelle muss `datasource`, `resource` oder `selector` sein. Component-Commands akzeptieren nur `focus`, `reset` und `snapshot`. | `on success ->` |
 | <a id="reduce"></a>`reduce` | `reduce state.app.status.text = "Saved"` | `action` | Zielpfad, Ausdruck | Schreibt deklarativ in State. | Actions ohne Reducer können blockiert werden. | `state`, `status` |
 | <a id="emit"></a>`emit` | `emit app.saved with id input.id` | `action` | Eventname, optionale Payload | Veröffentlicht ein typisiertes RMT-Event. | Fehlende Payload-Contracts können semantisch gemeldet werden. | `with`, `emits` |
 | <a id="with"></a>`with` | `with id input.id` | `emit` | Schlüssel/Wert-Paare | Mappt Event-Payload direkt aus Action-Input oder State. | Ungültige Payload-Werte erzeugen Syntaxfehler. | `payload` |
@@ -32,6 +32,28 @@ Eventnamen, Actionnamen und Payload-Schlüssel sind Identifier. Payload-Werte si
 ## Description
 
 Actions sind deklarative Übergänge. Sie beschreiben, was geändert oder veröffentlicht werden soll; der Host entscheidet, wie konkrete Adapter ausgeführt werden.
+
+### Component-Commands
+
+Eine Action darf die öffentlichen Methoden einer geeigneten, statisch bekannten Surface über genau diese Formen aufrufen:
+
+```rmt
+action editor.focus {
+  effect focus selector maraca.testbench.editor
+}
+
+action editor.reset {
+  effect reset selector maraca.testbench.editor
+}
+
+action editor.capture {
+  effect snapshot selector maraca.testbench.editor
+}
+```
+
+`selector` ist hier die Autorisierungsform für eine statische Surface-ID; der Compiler löst sie auf ein `surface`-Ziel mit Component-Typ auf. Derzeit ist dieser Vertrag für `x-textarea` und ausschließlich für `focus()`, `reset()` und `snapshot()` freigegeben. Unbekannte Surfaces, ungeeignete Components, andere Source-Arten und beliebige Methodennamen sind harte Compilerfehler mit Source-Range.
+
+Maraca führt den Command nach Rendern und Hydration innerhalb des Orchestrierungs-Roots aus. Es gibt keinen Document-Fallback und keinen Zugriff auf Shadow Roots. Das Action-Ergebnis bleibt in `XTendMaraca.orchestration.snapshot().actions[]` sichtbar. `effects[].value.result` hat den Vertrag `xtend.maraca.component-command-result.v1` mit `command`, `surfaceId`, `component` und `result`; bei `focus` und `reset` ist `result` `null`, bei `snapshot` enthält es den öffentlichen XTextarea-Snapshot. Ein Component-Command verändert nicht automatisch RMT-State.
 
 ## Examples
 
@@ -77,7 +99,7 @@ template reference.actions {
 
 ## Diagnostics
 
-Falsche Action-Clauses, fehlende Reducer, unbekannte Overlay-Referenzen und fehlende Payload-Contracts werden vom Parser, Linter oder Semantic Graph gemeldet.
+Falsche Action-Clauses, fehlende Reducer, unbekannte Overlay-Referenzen, ungültige Component-Commands und fehlende Payload-Contracts werden vom Parser, Linter, Compiler oder Semantic Graph gemeldet.
 
 ## Related operators
 

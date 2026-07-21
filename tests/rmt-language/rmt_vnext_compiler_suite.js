@@ -24,6 +24,7 @@ const {
   RMT_APP_ORCHESTRATION_SCHEMA,
   RMT_APP_ORCHESTRATION_WORKPACKAGE,
   RMT_APP_SERVICE_DEMANDS_SCHEMA,
+  RMT_COMPONENT_COMMAND_SCHEMA,
   RMT_FORM_VALIDATION_SCHEMA,
   RMT_SURFACE_TRANSITION_SCHEMA,
   RMT_VNEXT_CORE_SCHEMA,
@@ -53,6 +54,8 @@ const VALID_RESPONSIVE_BOUNDS_FIXTURE = 'tests/rmt-language/fixtures/vnext-respo
 const VALID_MARACA_ORCHESTRATION_FIXTURE = 'tests/rmt-language/fixtures/maraca-orchestration-app.rmt';
 const VALID_MARACA_VALIDATION_FIXTURE = 'tests/rmt-language/fixtures/maraca-validation-app.rmt';
 const VALID_MARACA_TRANSITIONS_FIXTURE = 'tests/rmt-language/fixtures/maraca-transitions-app.rmt';
+const VALID_XTEXTAREA_PARITY_FIXTURE = 'tests/rmt-language/fixtures/vnext-xtextarea-parity.rmt';
+const VALID_NESTED_LOCAL_PORTALS_FIXTURE = 'tests/rmt-language/fixtures/vnext-nested-local-portals.rmt';
 const INVALID_PRIMITIVE_FIXTURE = 'tests/rmt-language/fixtures/vnext-primitives-semantic-invalid.rmt';
 const INVALID_CONDITION_CALL_FIXTURE = 'tests/rmt-language/fixtures/vnext-invalid-condition-call.rmt';
 const INVALID_RESPONSIVE_BOUNDS_FIXED_STRING_FIXTURE = 'tests/rmt-language/fixtures/vnext-responsive-bounds-fixed-string-invalid.rmt';
@@ -104,6 +107,8 @@ function runRmtVNextCompilerSuite(options = {}) {
   assertFileExists(context, VALID_MARACA_ORCHESTRATION_FIXTURE, rootDir, 'Maraca orchestration compiler fixture exists');
   assertFileExists(context, VALID_MARACA_VALIDATION_FIXTURE, rootDir, 'Maraca validation compiler fixture exists');
   assertFileExists(context, VALID_MARACA_TRANSITIONS_FIXTURE, rootDir, 'Maraca transitions compiler fixture exists');
+  assertFileExists(context, VALID_XTEXTAREA_PARITY_FIXTURE, rootDir, 'XTextarea parity compiler fixture exists');
+  assertFileExists(context, VALID_NESTED_LOCAL_PORTALS_FIXTURE, rootDir, 'Nested local portals compiler fixture exists');
   assertFileExists(context, INVALID_PRIMITIVE_FIXTURE, rootDir, 'vNext primitive invalid compiler fixture exists');
   assertFileExists(context, INVALID_RESPONSIVE_BOUNDS_FIXED_STRING_FIXTURE, rootDir, 'vNext responsive bounds fixed-string invalid fixture exists');
   assertFileExists(context, INVALID_RESPONSIVE_BOUNDS_UNQUOTED_FIXTURE, rootDir, 'vNext responsive bounds unquoted invalid fixture exists');
@@ -243,7 +248,10 @@ function runRmtVNextCompilerSuite(options = {}) {
 
   action app.load {
     input zeta string
-    input query string
+    input query string {
+      trust boundary "xtend.security.sanitizing-boundary.v1"
+      sanitize text
+    }
     effect fetch datasource app.alpha
     reduce state.app.result = result.payload
   }
@@ -270,6 +278,34 @@ function runRmtVNextCompilerSuite(options = {}) {
     text: appServiceSource.replace('mode invoke', 'mode parallel'),
     filePath: resolveRepoPath('tmp/rmt-vnext-app-services-invalid-mode.rmt', rootDir)
   });
+  const missingAppServiceInputPolicy = compileRmtVNextSource({
+    text: appServiceSource.replace('      sanitize text\n', ''),
+    filePath: resolveRepoPath('tmp/rmt-vnext-app-services-policy-missing.rmt', rootDir)
+  });
+  const unknownAppServiceInputBoundary = compileRmtVNextSource({
+    text: appServiceSource.replace('xtend.security.sanitizing-boundary.v1', 'xtend.security.unknown-boundary.v1'),
+    filePath: resolveRepoPath('tmp/rmt-vnext-app-services-policy-boundary-invalid.rmt', rootDir)
+  });
+  const unknownAppServiceInputSanitizer = compileRmtVNextSource({
+    text: appServiceSource.replace('sanitize text', 'sanitize html'),
+    filePath: resolveRepoPath('tmp/rmt-vnext-app-services-policy-sanitizer-invalid.rmt', rootDir)
+  });
+  const conflictingAppServiceInputPolicy = compileRmtVNextSource({
+    text: appServiceSource.replace('  action app.cache {', `  action app.loadAgain {
+    input query string
+    effect fetch datasource app.alpha
+    reduce state.app.result = result.payload
+  }
+
+  action app.cache {`),
+    filePath: resolveRepoPath('tmp/rmt-vnext-app-services-policy-conflict.rmt', rootDir)
+  });
+  const duplicateAppServiceId = compileRmtVNextSource({
+    text: appServiceSource
+      .replace('from host "service.zeta"', 'from host "service.alpha"')
+      .replace('input cursor string', 'input query string'),
+    filePath: resolveRepoPath('tmp/rmt-vnext-app-services-duplicate-id.rmt', rootDir)
+  });
   const directAppServiceDemands = createRmtAppServiceDemands(appServiceResult.coreDocument);
   const alphaServiceDemand = appServiceDemands && appServiceDemands.services.find((service) => service.id === 'service.alpha');
   const zetaServiceDemand = appServiceDemands && appServiceDemands.services.find((service) => service.id === 'service.zeta');
@@ -281,8 +317,17 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(alphaServiceDemand && alphaServiceDemand.contract === 'AlphaResult' && alphaServiceDemand.resultPath === 'payload', 'invoke service demand preserves declared contract and result path');
   context.assert(alphaServiceDemand && alphaServiceDemand.actions.map((action) => action.id).join(',') === 'app.cache,app.load', 'invoke service demand sorts all referencing actions');
   context.assert(alphaServiceDemand && alphaServiceDemand.actions[1].inputs.map((input) => input.name).join(',') === 'query,zeta' && alphaServiceDemand.actions[1].inputs[0].type === 'string', 'referencing action preserves and sorts typed input facts');
+  context.assert(alphaServiceDemand && alphaServiceDemand.inputPolicy && alphaServiceDemand.inputPolicy.schema === 'xtend.maraca.app-service-input-policy.v1', 'service demand emits a versioned input policy');
+  context.assert(alphaServiceDemand && alphaServiceDemand.inputPolicy.fields[0].name === 'query' && alphaServiceDemand.inputPolicy.fields[0].boundary === 'xtend.security.sanitizing-boundary.v1' && alphaServiceDemand.inputPolicy.fields[0].sanitize === 'text', 'service demand preserves the canonical per-field TrustBoundary');
   context.assert(zetaServiceDemand && zetaServiceDemand.mode === 'stream' && zetaServiceDemand.actions[0].mode === 'stream', 'stream effect emits stream service demand');
   context.assert(invalidAppServiceMode.ok === false && invalidAppServiceMode.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.vnext.datasource.mode_invalid'), 'invalid explicit datasource service mode is source-diagnosed');
+  context.assert(missingAppServiceInputPolicy.ok === false && missingAppServiceInputPolicy.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.vnext.app_service.input_policy_missing' && diagnostic.range), 'partial AppService input policy fails with a source range');
+  context.assert(unknownAppServiceInputBoundary.ok === false && unknownAppServiceInputBoundary.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.vnext.app_service.input_policy_boundary_unknown' && diagnostic.range), 'unknown AppService input boundary fails with a source range');
+  context.assert(unknownAppServiceInputSanitizer.ok === false && unknownAppServiceInputSanitizer.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.vnext.app_service.input_policy_sanitize_unknown' && diagnostic.range), 'unsupported AppService input sanitizer fails with a source range');
+  context.assert(conflictingAppServiceInputPolicy.ok === false && conflictingAppServiceInputPolicy.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.vnext.app_service.input_policy_conflict' && diagnostic.range), 'inconsistent policies for the same service field fail with a source range');
+  const duplicateServiceDiagnostic = duplicateAppServiceId.diagnostics.find((diagnostic) => diagnostic.code === 'rmt.vnext.app_service.service_id_conflict');
+  context.assert(duplicateAppServiceId.ok === false, 'two datasources cannot own the same AppService ID');
+  context.assert(Boolean(duplicateServiceDiagnostic && duplicateServiceDiagnostic.range && duplicateServiceDiagnostic.range.endOffset > duplicateServiceDiagnostic.range.startOffset), 'duplicate AppService ID fails with the conflicting datasource source range');
   context.assert(appServiceDemands && /^[a-f0-9]{64}$/u.test(appServiceDemands.fingerprint), 'app-service demand manifest emits SHA-256 fingerprint');
   context.assert(JSON.stringify(appServiceDemands) === JSON.stringify(repeatedAppServiceDemands), 'app-service demand manifest is byte-stable across repeated compiles');
   context.assert(JSON.stringify(appServiceDemands) === JSON.stringify(directAppServiceDemands), 'public demand factory matches compiler result');
@@ -338,6 +383,33 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(maracaOrchestration.portals.some((portal) => portal.id === 'surface.root'), 'Maraca orchestration artifact includes surface portal');
   context.assert(maracaOrchestration.overlays.some((overlay) => overlay.id === 'feedback.toast'), 'Maraca orchestration artifact includes overlay records');
   context.assert(maracaOrchestration.render.mode === 'dom-descriptor' && maracaOrchestration.render.descriptors.length >= 2, 'Maraca orchestration artifact emits DOM render descriptors');
+  const nestedPortalSource = readText(VALID_NESTED_LOCAL_PORTALS_FIXTURE, rootDir);
+  const nestedPortalResult = parseFixture(VALID_NESTED_LOCAL_PORTALS_FIXTURE, rootDir);
+  const nestedPortalRoot = nestedPortalResult.orchestrationArtifacts && nestedPortalResult.orchestrationArtifacts.render.root;
+  const nestedShellDescriptor = nestedPortalRoot && nestedPortalRoot.children && nestedPortalRoot.children.find((descriptor) => descriptor.surface === 'demo.nested.shell');
+  const nestedFormDescriptor = nestedShellDescriptor && nestedShellDescriptor.children && nestedShellDescriptor.children.find((descriptor) => descriptor.surface === 'demo.nested.form');
+  const nestedFieldsDescriptor = nestedFormDescriptor && nestedFormDescriptor.children && nestedFormDescriptor.children.find((descriptor) => descriptor.attributes && descriptor.attributes.id === 'demo-nested-fields');
+  const nestedEditorDescriptor = nestedFieldsDescriptor && nestedFieldsDescriptor.children && nestedFieldsDescriptor.children.find((descriptor) => descriptor.surface === 'demo.nested.editor');
+  const cyclicPortalResult = compileRmtVNextSource({
+    text: nestedPortalSource.replace('root "#xtend-maraca-root"', 'root "[data-maraca-surface=\'demo.nested.editor\']"'),
+    filePath: resolveRepoPath('tmp/vnext-nested-local-portals-cycle.rmt', rootDir)
+  });
+  const unresolvedPortalResult = compileRmtVNextSource({
+    text: nestedPortalSource.replace('root "#xtend-maraca-root"', 'root "[data-maraca-surface=\'demo.nested.missing\']"'),
+    filePath: resolveRepoPath('tmp/vnext-nested-local-portals-unresolved.rmt', rootDir)
+  });
+  const ambiguousPortalResult = compileRmtVNextSource({
+    text: nestedPortalSource.replace('root "#xtend-maraca-root"', 'root "[data-maraca-surface=\'demo.nested.shell\'], [data-maraca-surface=\'demo.nested.form\']"'),
+    filePath: resolveRepoPath('tmp/vnext-nested-local-portals-ambiguous.rmt', rootDir)
+  });
+  context.assert(nestedPortalResult.ok === true, 'Nested local portal fixture compiles successfully');
+  context.assert(nestedShellDescriptor && nestedShellDescriptor.attributes['layout-engine'] === '$model.demo.nested.shell.layoutEngine', 'RMT layoutEngine state binds the public layout-engine attribute');
+  context.assert(nestedFormDescriptor && nestedFormDescriptor.attributes.slot && nestedFormDescriptor.attributes.slot.value === 'windows', 'Direct x-surface-manager child receives the public windows slot');
+  context.assert(nestedFieldsDescriptor && nestedFieldsDescriptor.attributes['data-xtm-slot'] === 'fields', 'Static viewTemplate portal target remains an explicit light-DOM group wrapper');
+  context.assert(nestedEditorDescriptor && !nestedEditorDescriptor.attributes.slot, 'Static viewTemplate portal child is compiled into its group wrapper without a manager slot');
+  context.assert(cyclicPortalResult.ok === false && cyclicPortalResult.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.app_orchestration.portal_parent_cycle' && diagnostic.severity === 'error'), 'Cyclic local portal parents fail closed');
+  context.assert(unresolvedPortalResult.ok === false && unresolvedPortalResult.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.app_orchestration.portal_parent_unresolved' && diagnostic.severity === 'error'), 'Unknown local portal parents fail closed');
+  context.assert(ambiguousPortalResult.ok === false && ambiguousPortalResult.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.app_orchestration.portal_parent_ambiguous' && diagnostic.severity === 'error'), 'Ambiguous local portal parents fail closed');
   context.assert(maracaOrchestration.hydration && maracaOrchestration.hydration.schema === 'xtend.rmt.app-hydration-plan.v1', 'Maraca orchestration artifact emits hydration plan');
   context.assert(maracaOrchestration.hydration.records.length >= 2, 'Maraca hydration plan includes lifecycle hydration records');
   context.assert(maracaOrchestration.runtimeGraph && maracaOrchestration.runtimeGraph.schema === 'xtend.rmt.app-runtime-graph.v1', 'Maraca orchestration artifact emits runtime graph');
@@ -359,6 +431,151 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(maracaOrchestration.sourceMap.some((entry) => entry.nodeType === 'RmtActionDeclaration'), 'Maraca orchestration source map includes action records');
   context.assert(maracaOrchestration.sourceMap.some((entry) => entry.nodeType === 'RmtEventBinding'), 'Maraca orchestration source map includes event records');
   context.assert(maracaOrchestration.sourceMap.some((entry) => entry.nodeType === 'RmtSurfaceDeclaration'), 'Maraca orchestration source map includes surface records');
+
+  const textareaParityResult = parseFixture(VALID_XTEXTAREA_PARITY_FIXTURE, rootDir);
+  const textareaDescriptor = textareaParityResult.orchestrationArtifacts && textareaParityResult.orchestrationArtifacts.render.descriptors.find((descriptor) => descriptor.component === 'x-textarea');
+  const textareaAttributes = textareaDescriptor && textareaDescriptor.attributes || {};
+  const textareaSlots = textareaDescriptor && textareaDescriptor.children || [];
+  const expectedTextareaBindings = {
+    name: '$model.demo.textarea.parity.name',
+    value: '$model.demo.textarea.parity.value',
+    placeholder: '$model.demo.textarea.parity.placeholder',
+    label: '$model.demo.textarea.parity.label',
+    required: '$model.demo.textarea.parity.required',
+    disabled: '$model.demo.textarea.parity.disabled',
+    readonly: '$model.demo.textarea.parity.readonly',
+    busy: '$model.demo.textarea.parity.busy',
+    invalid: '$model.demo.textarea.parity.invalid',
+    rows: '$model.demo.textarea.parity.rows',
+    minlength: '$model.demo.textarea.parity.minLength',
+    maxlength: '$model.demo.textarea.parity.maxLength',
+    density: '$model.demo.textarea.parity.density',
+    fill: '$model.demo.textarea.parity.fill',
+    'submit-on-enter': '$model.demo.textarea.parity.submitOnEnter',
+    'submit-command': '$model.demo.textarea.parity.submitCommand',
+    highlight: '$model.demo.textarea.parity.highlight',
+    'syntax-highlight': '$model.demo.textarea.parity.syntaxHighlight',
+    'line-numbering': '$model.demo.textarea.parity.lineNumbering',
+    lang: '$model.demo.textarea.parity.lang',
+    language: '$model.demo.textarea.parity.language'
+  };
+  context.assert(textareaParityResult.ok === true, 'XTextarea parity fixture compiles successfully');
+  Object.entries(expectedTextareaBindings).forEach(([attribute, binding]) => {
+    context.assert(textareaAttributes[attribute] === binding, `XTextarea descriptor binds ${attribute}`);
+  });
+  ['label', 'hint', 'error'].forEach((slotName) => {
+    context.assert(textareaSlots.some((child) => child && child.attributes && child.attributes.slot && child.attributes.slot.value === slotName && child.text === `$model.demo.textarea.parity.${slotName}`), `XTextarea descriptor materializes ${slotName} slot`);
+  });
+  ['textarea-changed', 'textarea-invalid', 'textarea-submit'].forEach((eventName) => {
+    context.assert(textareaDescriptor && textareaDescriptor.bindings.some((binding) => binding.includes(`/${eventName}/`)), `XTextarea descriptor binds ${eventName}`);
+  });
+
+  const componentCommandSource = `template demo.commands {
+  action demo.doFocus {
+    effect focus selector demo.editor
+  }
+  action demo.doReset {
+    effect reset selector demo.editor
+  }
+  action demo.capture {
+    effect snapshot selector demo.editor
+  }
+  surface demo.editor kind field component x-textarea {
+  }
+}`;
+  const componentCommandResult = compileRmtVNextSource({
+    text: componentCommandSource,
+    filePath: resolveRepoPath('tmp/rmt-vnext-component-commands.rmt', rootDir)
+  });
+  const componentCommandEffects = componentCommandResult.orchestrationArtifacts && componentCommandResult.orchestrationArtifacts.actions.effects || [];
+  context.assert(componentCommandResult.ok === true, 'declarative XTextarea component commands compile successfully');
+  context.assert(componentCommandEffects.length === 3, 'component command actions lower three orchestration effects');
+  context.assert(
+    componentCommandEffects.every((effect) => effect.componentCommand && effect.componentCommand.schema === RMT_COMPONENT_COMMAND_SCHEMA),
+    'component command effects carry the public component-command schema'
+  );
+  context.assert(
+    componentCommandEffects.map((effect) => effect.command).join(',') === 'focus,reset,snapshot',
+    'component command effects preserve the fixed command allowlist'
+  );
+  context.assert(
+    componentCommandEffects.every((effect) => effect.target === 'demo.editor'
+      && effect.componentCommand.target.kind === 'surface'
+      && effect.componentCommand.target.id === 'demo.editor'
+      && effect.componentCommand.target.ref === 'surface:demo.commands/demo.editor'
+      && effect.componentCommand.target.component === 'x-textarea'),
+    'component command effects resolve selector authoring to a static XTextarea surface target'
+  );
+
+  const unknownComponentCommandTarget = compileRmtVNextSource({
+    text: `template demo.commands {
+  action demo.doFocus {
+    effect focus selector demo.missing
+  }
+  surface demo.editor kind field component x-textarea {
+  }
+}`,
+    filePath: resolveRepoPath('tmp/rmt-vnext-component-command-target-unknown.rmt', rootDir)
+  });
+  const unknownTargetDiagnostic = unknownComponentCommandTarget.diagnostics.find((diagnostic) => diagnostic.code === 'rmt.vnext.component_command.target_unknown');
+  context.assert(unknownComponentCommandTarget.ok === false && unknownComponentCommandTarget.phase === 'semantic', 'unknown component command surface fails before lowering');
+  context.assert(Boolean(unknownTargetDiagnostic && unknownTargetDiagnostic.range && unknownTargetDiagnostic.range.endOffset > unknownTargetDiagnostic.range.startOffset), 'unknown component command target diagnostic carries its source range');
+
+  const ineligibleComponentCommandTarget = compileRmtVNextSource({
+    text: `template demo.commands {
+  action demo.doFocus {
+    effect focus selector demo.button
+  }
+  surface demo.button kind action component x-button {
+  }
+}`,
+    filePath: resolveRepoPath('tmp/rmt-vnext-component-command-target-ineligible.rmt', rootDir)
+  });
+  const ineligibleTargetDiagnostic = ineligibleComponentCommandTarget.diagnostics.find((diagnostic) => diagnostic.code === 'rmt.vnext.component_command.target_ineligible');
+  context.assert(ineligibleComponentCommandTarget.ok === false, 'component command rejects an ineligible surface component');
+  context.assert(Boolean(ineligibleTargetDiagnostic && ineligibleTargetDiagnostic.range && ineligibleTargetDiagnostic.range.endOffset > ineligibleTargetDiagnostic.range.startOffset), 'ineligible component command diagnostic carries its target source range');
+
+  const invalidComponentCommand = compileRmtVNextSource({
+    text: `template demo.commands {
+  action demo.launch {
+    effect launch selector demo.editor
+  }
+  surface demo.editor kind field component x-textarea {
+  }
+}`,
+    filePath: resolveRepoPath('tmp/rmt-vnext-component-command-invalid.rmt', rootDir)
+  });
+  const invalidCommandDiagnostic = invalidComponentCommand.diagnostics.find((diagnostic) => diagnostic.code === 'rmt.vnext.component_command.command_invalid');
+  context.assert(invalidComponentCommand.ok === false, 'arbitrary component method names fail compilation');
+  context.assert(Boolean(invalidCommandDiagnostic && invalidCommandDiagnostic.range && invalidCommandDiagnostic.range.endOffset > invalidCommandDiagnostic.range.startOffset), 'invalid component command diagnostic carries its command source range');
+
+  const customSelectorEffect = compileRmtVNextSource({
+    text: `template demo.commands {
+  action demo.play {
+    effect remote-play selector demo.player
+  }
+  surface demo.player kind media component x-player {
+  }
+}`,
+    filePath: resolveRepoPath('tmp/rmt-vnext-custom-selector-effect.rmt', rootDir)
+  });
+  const customSelectorEffectRecord = customSelectorEffect.orchestrationArtifacts && customSelectorEffect.orchestrationArtifacts.actions.effects[0];
+  context.assert(customSelectorEffect.ok === true, 'selector effects for components outside the component-command contract remain compatible');
+  context.assert(customSelectorEffectRecord && customSelectorEffectRecord.kind === 'remote-play' && !customSelectorEffectRecord.componentCommand, 'custom selector effects remain on the generic effect-adapter path');
+
+  const invalidComponentCommandSource = compileRmtVNextSource({
+    text: `template demo.commands {
+  action demo.doFocus {
+    effect focus
+  }
+  surface demo.editor kind field component x-textarea {
+  }
+}`,
+    filePath: resolveRepoPath('tmp/rmt-vnext-component-command-source-invalid.rmt', rootDir)
+  });
+  const invalidTargetDiagnostic = invalidComponentCommandSource.diagnostics.find((diagnostic) => diagnostic.code === 'rmt.vnext.component_command.target_invalid');
+  context.assert(invalidComponentCommandSource.ok === false, 'component command without selector surface target fails compilation');
+  context.assert(Boolean(invalidTargetDiagnostic && invalidTargetDiagnostic.range && invalidTargetDiagnostic.range.endOffset > invalidTargetDiagnostic.range.startOffset), 'invalid component command source diagnostic carries its command source range');
 
   const maracaValidationResult = parseFixture(VALID_MARACA_VALIDATION_FIXTURE, rootDir);
   const maracaValidation = maracaValidationResult.orchestrationArtifacts && maracaValidationResult.orchestrationArtifacts.validation;

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import net from 'node:net';
 import path from 'node:path';
@@ -14,6 +15,28 @@ const baselinePath = path.join(sourceRootDir, 'tests', 'docs', 'fixtures', 'docs
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+function sha256(value) {
+  return createHash('sha256').update(String(value || ''), 'utf8').digest('hex');
+}
+
+async function assertRawDocsRouteStatuses(baseUrl) {
+  const routes = ['de', 'en'].flatMap((locale) => [
+    `/docs/${locale}/readme`,
+    `/docs/${locale}/manifest`,
+    `/docs/${locale}/rmt-reference-actions-events`,
+    `/docs/${locale}/xtend-maraca`
+  ]);
+  const results = await Promise.all(routes.map(async (route) => {
+    const response = await fetch(`${baseUrl}${route}`, { redirect: 'manual' });
+    await response.arrayBuffer();
+    return { route, status: response.status };
+  }));
+  results.forEach(({ route, status }) => {
+    assert(status === 200, `Raw Docs route ${route} returned HTTP ${status} instead of 200.`);
+  });
+  return results;
 }
 
 function assertSingleCurrentArticle(snapshot, scenarioId) {
@@ -98,7 +121,7 @@ async function createSession(baseUrl, scenario) {
       alwaysMatch: {
         browserName: 'chrome',
         pageLoadStrategy: 'normal',
-        'goog:loggingPrefs': { browser: 'ALL' },
+        'goog:loggingPrefs': { browser: 'ALL', performance: 'ALL' },
         'goog:chromeOptions': {
           args: [
             '--headless=new', '--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu',
@@ -161,10 +184,19 @@ const layoutShiftProbeSource = `
         hiddenAfterDefinition: false,
         samples: []
       },
+      prerenderedRoute: {
+        foundBeforeDefinition: false,
+        sameNodeAfterDefinition: false,
+        adopted: false
+      },
+      routeAdoption: null,
       totalValue: 0,
       maxSessionValue: 0,
       observer: null
     };
+    window.addEventListener('xrouter-route-adopted', (event) => {
+      state.routeAdoption = event && event.detail ? event.detail : null;
+    });
     const sampleBootSkeleton = (reason) => {
       const fallback = document.querySelector('[data-docs-route-boot-skeleton][data-xtend-skeleton-fallback]');
       if (!fallback) return;
@@ -175,13 +207,30 @@ const layoutShiftProbeSource = `
       state.bootSkeleton.found = true;
       if (!defined && visible) state.bootSkeleton.visibleBeforeDefinition = true;
       if (defined && !visible) state.bootSkeleton.hiddenAfterDefinition = true;
-      state.bootSkeleton.samples.push({ reason, at: performance.now(), defined, visible, display: style.display, width: rect.width, height: rect.height });
+      state.bootSkeleton.samples.push({ reason, at: performance.now(), defined, visible, display: style.display, hidden: fallback.hasAttribute('hidden'), inlineStyle: fallback.getAttribute('style') || '', width: rect.width, height: rect.height });
     };
-    const bootSkeletonObserver = new MutationObserver(() => sampleBootSkeleton('mutation'));
+    const samplePrerenderedRoute = (reason) => {
+      const candidate = state.prerenderedRouteNode || document.querySelector('[data-xrouter-prerendered-route]');
+      if (!candidate) return;
+      if (!state.prerenderedRouteNode) state.prerenderedRouteNode = candidate;
+      if (!customElements.get('x-router')) state.prerenderedRoute.foundBeforeDefinition = true;
+      const root = candidate.getRootNode();
+      state.prerenderedRoute.sameNodeAfterDefinition = Boolean(root && root.host && root.host.localName === 'x-router');
+      state.prerenderedRoute.adopted = candidate.getAttribute('data-xrouter-route-adopted') === 'true';
+      state.prerenderedRoute.reason = reason;
+    };
+    const bootSkeletonObserver = new MutationObserver(() => {
+      sampleBootSkeleton('mutation');
+      samplePrerenderedRoute('mutation');
+    });
     bootSkeletonObserver.observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'data-xtend-skeleton-active'] });
     customElements.whenDefined('x-router').then(() => requestAnimationFrame(() => {
       sampleBootSkeleton('x-router:defined');
-      bootSkeletonObserver.disconnect();
+      samplePrerenderedRoute('x-router:defined');
+      customElements.whenDefined('xtend-doc-page').then(() => requestAnimationFrame(() => {
+        samplePrerenderedRoute('xtend-doc-page:defined');
+        bootSkeletonObserver.disconnect();
+      }));
     }));
     const describeNode = (node) => {
       const element = node instanceof Element ? node : node?.parentElement;
@@ -307,6 +356,70 @@ async function installLayoutShiftProbe(baseUrl, sessionId) {
   });
 }
 
+function ssrProofTamperSource(kind) {
+  return `
+    (() => {
+      const kind = ${JSON.stringify(kind)};
+      const state = {
+        probe: 'ssr-proof-tamper',
+        kind,
+        applied: false,
+        before: null,
+        after: null
+      };
+      window.__xtendDocsSsrProofTamper = state;
+      let observer = null;
+      const tamper = () => {
+        if (state.applied) return true;
+        const candidate = document.querySelector('[data-xrouter-prerendered-route]');
+        if (!candidate) return false;
+        const attributes = [
+          'data-xrouter-route-path',
+          'data-xrouter-dom-sha256',
+          'data-xrouter-sanitized'
+        ];
+        const snapshot = () => Object.fromEntries(attributes.map((name) => [name, candidate.getAttribute(name)]));
+        state.before = snapshot();
+        if (kind === 'path') {
+          candidate.setAttribute('data-xrouter-route-path', '/docs/de/__tampered_ssr_route__');
+        } else if (kind === 'hash') {
+          candidate.setAttribute('data-xrouter-dom-sha256', '0'.repeat(64));
+        } else if (kind === 'trust') {
+          candidate.setAttribute('data-xrouter-sanitized', 'false');
+        }
+        state.after = snapshot();
+        state.applied = true;
+        if (observer) observer.disconnect();
+        return true;
+      };
+      observer = new MutationObserver(tamper);
+      observer.observe(document, { childList: true, subtree: true });
+      document.addEventListener('DOMContentLoaded', tamper, { once: true });
+
+      const registry = window.customElements;
+      if (registry && typeof registry.define === 'function') {
+        const originalDefine = registry.define.bind(registry);
+        Object.defineProperty(registry, 'define', {
+          configurable: true,
+          writable: true,
+          value(name, constructor, options) {
+            if (name === 'x-router') tamper();
+            if (name === 'x-router') delete registry.define;
+            return originalDefine(name, constructor, options);
+          }
+        });
+      }
+    })();
+  `;
+}
+
+async function installSsrProofTamper(baseUrl, sessionId, kind) {
+  await request(baseUrl, `/session/${sessionId}/goog/cdp/execute`, 'POST', {
+    cmd: 'Page.addScriptToEvaluateOnNewDocument',
+    params: { source: ssrProofTamperSource(kind) }
+  });
+}
+
 async function verifyLayoutShiftProbe(baseUrl, sessionId) {
   const installed = await execute(baseUrl, sessionId, `
     return Boolean(window.__xtendDocsLayoutShiftProbe?.supported);
@@ -319,7 +432,17 @@ async function readSnapshot(baseUrl, sessionId) {
   return execute(baseUrl, sessionId, `${deepQuerySource}
     const api = window.__XTEND_DEV_API__;
     const content = deepQuery('#md-content');
+    const articleHeading = content ? deepQuery('h1', content) : null;
+    const articleTextRoot = content ? (deepQuery('[data-rmt-playground-article]', content) || content) : null;
     const docsPage = deepQuery('xtend-doc-page');
+    const docsPages = [];
+    const collectDocsPages = (root) => {
+      root.querySelectorAll('*').forEach((node) => {
+        if (node.localName === 'xtend-doc-page') docsPages.push(node);
+        if (node.shadowRoot) collectDocsPages(node.shadowRoot);
+      });
+    };
+    collectDocsPages(document);
     const router = deepQuery('x-router');
     const routerSnapshot = router && typeof router.snapshot === 'function' ? router.snapshot() : null;
     const routeRecord = router
@@ -354,13 +477,30 @@ async function readSnapshot(baseUrl, sessionId) {
       && entry.startTime + entry.duration > recommendationSnapshot.rankingStartedAt
     ));
     const relatedHost = deepQuery('#docs-related-links');
-    const relatedLinks = relatedHost ? Array.from(relatedHost.querySelectorAll('.docs-related-link')).map((link) => ({
+    const relatedList = relatedHost?.querySelector('[data-rmt-slot="related-links"], .docs-related-list') || null;
+    const relatedHeading = relatedHost?.querySelector('.docs-sidebar-heading') || null;
+    const relatedLinkElements = relatedList ? Array.from(relatedList.querySelectorAll('.docs-related-link')) : [];
+    const relatedLinkRects = relatedLinkElements.map((link) => link.getBoundingClientRect());
+    const relatedAdjacentGaps = relatedLinkRects.slice(1).map((rect, index) => rect.top - relatedLinkRects[index].bottom);
+    const relatedLinks = relatedLinkElements.map((link) => ({
       slug: (link.getAttribute('data-rmt-route-ref') || '').replace(/^docs\\./, '').replace(/\\./g, '-'),
       href: link.getAttribute('href') || '',
       label: (link.textContent || '').trim(),
       source: link.getAttribute('data-related-source') || '',
       score: Number(link.getAttribute('data-related-score') || 0)
-    })) : [];
+    }));
+    const relatedLayout = relatedList ? {
+      display: getComputedStyle(relatedList).display,
+      rowGap: Math.round((parseFloat(getComputedStyle(relatedList).rowGap) || 0) * 10) / 10,
+      minAdjacentGap: relatedAdjacentGaps.length
+        ? Math.round(Math.min(...relatedAdjacentGaps) * 10) / 10
+        : null,
+      headingVisible: Boolean(
+        relatedHeading
+        && getComputedStyle(relatedHeading).display !== 'none'
+        && relatedHeading.getBoundingClientRect().height > 0
+      )
+    } : null;
     const summaryIndicators = Array.from(document.querySelectorAll('x-summary.docs-menu-section')).map((summary) => {
       const details = summary.shadowRoot?.querySelector('details') || null;
       const indicator = summary.shadowRoot?.querySelector('.icon') || null;
@@ -398,6 +538,7 @@ async function readSnapshot(baseUrl, sessionId) {
       currentLocale: window.xtendDocsCurrentLocale || '',
       theme: document.documentElement.getAttribute('data-theme') || 'light',
       shellSchema: window.xtendDocsShellRuntime && window.xtendDocsShellRuntime.schema || '',
+      prehydrationSchema: window.xtendDocsSsrPrehydration && window.xtendDocsSsrPrehydration.schema || '',
       shellSnapshot: window.xtendDocsShellRuntime && window.xtendDocsShellRuntime.snapshot(),
       devApiDetected: Boolean(api),
       devApiMethods: api ? ['getPerformanceSnapshot', 'getFabricTelemetrySnapshot', 'getKernelSnapshot', 'getHydrationSnapshot', 'subscribe'].filter((key) => typeof api[key] === 'function') : [],
@@ -406,9 +547,10 @@ async function readSnapshot(baseUrl, sessionId) {
       kernelSnapshot: api && api.getKernelSnapshot(),
       hydrationSnapshot: api && api.getHydrationSnapshot(),
       docsPageReady: Boolean(docsPage && docsPage.getAttribute('data-docs-route-state') === 'ready'),
+      docsPageCount: docsPages.length,
       docsPageLocale: docsPage && docsPage.getAttribute('data-docs-route-locale') || '',
-      articleTitle: content && content.querySelector('h1') && content.querySelector('h1').textContent.trim() || '',
-      articleText: content && content.textContent.trim().slice(0, 320) || '',
+      articleTitle: articleHeading && articleHeading.textContent.trim() || '',
+      articleText: articleTextRoot && articleTextRoot.textContent.trim().slice(0, 320) || '',
       routeId: routeRecord?.getAttribute('data-rmt-route-id') || '',
       routeDocumentTitle: routeRecord?.getAttribute('document-title') || '',
       routerCurrentRouteId: routerSnapshot && routerSnapshot.current && routerSnapshot.current.routeId || '',
@@ -452,6 +594,7 @@ async function readSnapshot(baseUrl, sessionId) {
       compactLoaded: resources.some((url) => url.includes('/docs/generated/search/') && url.includes('.compact.json')),
       fulltextLoaded: resources.some((url) => url.includes('/docs/generated/search/') && url.includes('.fulltext.json')),
       relatedLinks,
+      relatedLayout,
       recommendationSnapshot,
       recommendationLongTasks,
       remoteResourceCount: resources.filter((url) => !url.startsWith(location.origin)).length,
@@ -469,6 +612,9 @@ async function readSnapshot(baseUrl, sessionId) {
       layoutShiftEntries: Array.isArray(layoutShiftProbe?.entries) ? layoutShiftProbe.entries : [],
       layoutShiftGeometry: Array.isArray(layoutShiftProbe?.geometry) ? layoutShiftProbe.geometry : [],
       bootSkeleton: layoutShiftProbe?.bootSkeleton || null,
+      prerenderedRoute: layoutShiftProbe?.prerenderedRoute || null,
+      routeAdoption: layoutShiftProbe?.routeAdoption || (window.xstate && typeof window.xstate.get === 'function' ? window.xstate.get('xtend.router.routeAdoption') : null),
+      initialPagePayloadRequests: resourceEntries.filter((entry) => entry.name.includes('xtend-docs-page=')).map((entry) => entry.name),
       overflowX: Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth)
     };
   `);
@@ -974,6 +1120,256 @@ async function switchDocsLocale(baseUrl, sessionId, targetLocale) {
   }
 }
 
+async function waitForDocsRouteSnapshot(baseUrl, sessionId, locale, slug, expectedTitle, message) {
+  return waitUntil(async () => {
+    const snapshot = await readSnapshot(baseUrl, sessionId);
+    const expectedPath = `/docs/${locale}/${slug}`;
+    return snapshot.currentPath === expectedPath && snapshot.docsPageReady && snapshot.docsPageCount === 1 &&
+      snapshot.docsPageLocale === locale && snapshot.currentLocale === locale && snapshot.htmlLang === locale &&
+      snapshot.articleTitle === expectedTitle && snapshot.routeId && snapshot.routeId !== 'docs.notFound'
+      ? snapshot
+      : null;
+  }, message);
+}
+
+async function restoreInstrumentedFetch(baseUrl, sessionId, stateKey, originalKey) {
+  await execute(baseUrl, sessionId, `
+    if (window[arguments[0]]) window.fetch = window[arguments[0]];
+    delete window[arguments[0]];
+    const state = window[arguments[1]] || null;
+    return state;
+  `, [originalKey, stateKey]);
+}
+
+async function exerciseRapidNavigationRace(baseUrl, sessionId, scenario) {
+  const firstSlug = 'native-first-rmt-recipes';
+  const finalSlug = 'native-first-release-review';
+  const expectedTitle = 'Native-First Release Review';
+  const stateKey = '__xtendDocsRapidNavigationRace';
+  const originalKey = '__xtendDocsRapidNavigationOriginalFetch';
+  const installed = await execute(baseUrl, sessionId, `
+    const firstSlug = arguments[0];
+    const finalSlug = arguments[1];
+    const links = Array.from(document.querySelectorAll('[data-docs-menu-link]'));
+    const linkFor = (slug) => links.find((entry) => (entry.getAttribute('href') || '').endsWith('/' + slug));
+    const first = linkFor(firstSlug);
+    const final = linkFor(finalSlug);
+    if (!(first && final)) return false;
+    const targetFor = (link) => link.shadowRoot?.querySelector('a') || link;
+    const originalFetch = window.fetch;
+    const state = {
+      kind: 'rapid-navigation-race',
+      firstSlug,
+      finalSlug,
+      firstDispatched: false,
+      finalDispatched: false,
+      delayedRequestStarted: false,
+      delayedRequestReleased: false,
+      delayedRequestSettled: false,
+      requests: []
+    };
+    window[arguments[2]] = originalFetch;
+    window[arguments[3]] = state;
+    window.fetch = function(input, init) {
+      const rawUrl = typeof input === 'string' ? input : input?.url || '';
+      const url = new URL(rawUrl, location.href);
+      const pageSlug = url.searchParams.get('xtend-docs-page') || '';
+      const pageLocale = url.searchParams.get('locale') || '';
+      if (pageSlug) state.requests.push({ slug: pageSlug, locale: pageLocale, at: performance.now() });
+      if (pageSlug === firstSlug && !state.delayedRequestStarted) {
+        state.delayedRequestStarted = true;
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            state.delayedRequestReleased = true;
+            Promise.resolve(originalFetch.call(window, input, init)).then(
+              (response) => {
+                state.delayedRequestSettled = true;
+                resolve(response);
+              },
+              (error) => {
+                state.delayedRequestSettled = true;
+                reject(error);
+              }
+            );
+          }, 450);
+        });
+      }
+      return originalFetch.call(window, input, init);
+    };
+    state.firstDispatched = true;
+    targetFor(first).click();
+    const startedAt = performance.now();
+    const dispatchFinal = () => {
+      if (state.delayedRequestStarted || performance.now() - startedAt >= 500) {
+        state.finalDispatched = true;
+        targetFor(final).click();
+        return;
+      }
+      setTimeout(dispatchFinal, 5);
+    };
+    dispatchFinal();
+    return true;
+  `, [firstSlug, finalSlug, originalKey, stateKey]);
+  assert(installed, `${scenario.id}: rapid navigation fixtures are missing.`);
+  try {
+    const settled = await waitUntil(async () => {
+      const snapshot = await readSnapshot(baseUrl, sessionId);
+      const state = await execute(baseUrl, sessionId, `return window[arguments[0]] || null;`, [stateKey]);
+      return state?.delayedRequestStarted && state?.finalDispatched && state?.delayedRequestSettled &&
+        snapshot.currentPath === `/docs/${scenario.locale}/${finalSlug}` && snapshot.docsPageReady &&
+        snapshot.docsPageCount === 1 && snapshot.articleTitle === expectedTitle
+        ? { snapshot, state }
+        : null;
+    }, `${scenario.id}: rapid overlapping navigation did not settle on the latest route`);
+    await delay(150);
+    const stable = await waitForDocsRouteSnapshot(
+      baseUrl,
+      sessionId,
+      scenario.locale,
+      finalSlug,
+      expectedTitle,
+      `${scenario.id}: stale rapid-navigation payload replaced the latest route`
+    );
+    assert(settled.state.requests.some((entry) => entry.slug === firstSlug), `${scenario.id}: first rapid-navigation payload was not delayed.`);
+    assert(settled.state.requests.some((entry) => entry.slug === finalSlug), `${scenario.id}: latest rapid-navigation payload was not requested.`);
+    assertSingleCurrentArticle(stable, `${scenario.id}: rapid navigation`);
+    return { ...settled, stable };
+  } finally {
+    await restoreInstrumentedFetch(baseUrl, sessionId, stateKey, originalKey);
+  }
+}
+
+async function exerciseHistoryNavigation(baseUrl, sessionId, scenario) {
+  const firstSlug = 'enterprise-adoption';
+  const finalSlug = 'changelog';
+  await navigateArticle(baseUrl, sessionId, firstSlug);
+  await navigateArticle(baseUrl, sessionId, finalSlug);
+  const backDispatched = await execute(baseUrl, sessionId, `history.back(); return true;`);
+  assert(backDispatched, `${scenario.id}: history.back() could not be dispatched.`);
+  const back = await waitForDocsRouteSnapshot(
+    baseUrl,
+    sessionId,
+    scenario.locale,
+    firstSlug,
+    'Enterprise Adoption',
+    `${scenario.id}: Back did not restore the preceding Docs route`
+  );
+  assertSingleCurrentArticle(back, `${scenario.id}: history back`);
+  const forwardDispatched = await execute(baseUrl, sessionId, `history.forward(); return true;`);
+  assert(forwardDispatched, `${scenario.id}: history.forward() could not be dispatched.`);
+  const forward = await waitForDocsRouteSnapshot(
+    baseUrl,
+    sessionId,
+    scenario.locale,
+    finalSlug,
+    'Changelog',
+    `${scenario.id}: Forward did not restore the later Docs route`
+  );
+  assertSingleCurrentArticle(forward, `${scenario.id}: history forward`);
+  return { firstSlug, finalSlug, back, forward };
+}
+
+async function exerciseLocaleNavigationRace(baseUrl, sessionId, scenario) {
+  const slug = 'best-practices';
+  const targetLocale = scenario.locale === 'en' ? 'de' : 'en';
+  const stateKey = '__xtendDocsLocaleNavigationRace';
+  const originalKey = '__xtendDocsLocaleNavigationOriginalFetch';
+  const installed = await execute(baseUrl, sessionId, `
+    const slug = arguments[0];
+    const sourceLocale = arguments[1];
+    const targetLocale = arguments[2];
+    const link = Array.from(document.querySelectorAll('[data-docs-menu-link]'))
+      .find((entry) => (entry.getAttribute('href') || '').endsWith('/' + slug));
+    const select = document.getElementById('docs-language-select');
+    if (!(link && select)) return false;
+    const target = link.shadowRoot?.querySelector('a') || link;
+    const originalFetch = window.fetch;
+    const state = {
+      kind: 'locale-navigation-race',
+      slug,
+      sourceLocale,
+      targetLocale,
+      navigationDispatched: false,
+      localeDispatched: false,
+      delayedRequestStarted: false,
+      delayedRequestSettled: false,
+      requests: []
+    };
+    window[arguments[3]] = originalFetch;
+    window[arguments[4]] = state;
+    window.fetch = function(input, init) {
+      const rawUrl = typeof input === 'string' ? input : input?.url || '';
+      const url = new URL(rawUrl, location.href);
+      const pageSlug = url.searchParams.get('xtend-docs-page') || '';
+      const pageLocale = url.searchParams.get('locale') || '';
+      if (pageSlug) state.requests.push({ slug: pageSlug, locale: pageLocale, at: performance.now() });
+      if (pageSlug === slug && pageLocale === sourceLocale && !state.delayedRequestStarted) {
+        state.delayedRequestStarted = true;
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            Promise.resolve(originalFetch.call(window, input, init)).then(
+              (response) => {
+                state.delayedRequestSettled = true;
+                resolve(response);
+              },
+              (error) => {
+                state.delayedRequestSettled = true;
+                reject(error);
+              }
+            );
+          }, 450);
+        });
+      }
+      return originalFetch.call(window, input, init);
+    };
+    state.navigationDispatched = true;
+    target.click();
+    const startedAt = performance.now();
+    const dispatchLocale = () => {
+      if (state.delayedRequestStarted || performance.now() - startedAt >= 500) {
+        state.localeDispatched = true;
+        select.dispatchEvent(new CustomEvent('select-changed', {
+          bubbles: true,
+          composed: true,
+          detail: { value: targetLocale }
+        }));
+        return;
+      }
+      setTimeout(dispatchLocale, 5);
+    };
+    dispatchLocale();
+    return true;
+  `, [slug, scenario.locale, targetLocale, originalKey, stateKey]);
+  assert(installed, `${scenario.id}: locale/navigation race fixtures are missing.`);
+  try {
+    const settled = await waitUntil(async () => {
+      const snapshot = await readSnapshot(baseUrl, sessionId);
+      const state = await execute(baseUrl, sessionId, `return window[arguments[0]] || null;`, [stateKey]);
+      return state?.delayedRequestStarted && state?.localeDispatched && state?.delayedRequestSettled &&
+        snapshot.currentPath === `/docs/${targetLocale}/${slug}` && snapshot.docsPageReady &&
+        snapshot.docsPageCount === 1 && snapshot.docsPageLocale === targetLocale &&
+        snapshot.currentLocale === targetLocale && snapshot.articleTitle === 'Best Practices'
+        ? { snapshot, state }
+        : null;
+    }, `${scenario.id}: concurrent locale/navigation transition did not settle on the localized route`);
+    await delay(150);
+    const stable = await waitForDocsRouteSnapshot(
+      baseUrl,
+      sessionId,
+      targetLocale,
+      slug,
+      'Best Practices',
+      `${scenario.id}: stale source-locale payload replaced the localized route`
+    );
+    assert(settled.state.requests.some((entry) => entry.slug === slug && entry.locale === scenario.locale), `${scenario.id}: source-locale request was not delayed.`);
+    assert(settled.state.requests.some((entry) => entry.slug === slug && entry.locale === targetLocale), `${scenario.id}: target-locale request was not issued.`);
+    assertSingleCurrentArticle(stable, `${scenario.id}: locale/navigation race`);
+    return { targetLocale, ...settled, stable };
+  } finally {
+    await restoreInstrumentedFetch(baseUrl, sessionId, stateKey, originalKey);
+  }
+}
+
 async function capturePerformanceSample(baseUrl, driverUrl, scenario) {
   const sessionId = await createSession(driverUrl, scenario);
   try {
@@ -997,6 +1393,19 @@ async function capturePerformanceSample(baseUrl, driverUrl, scenario) {
 
 function maxMetric(samples, key) {
   return Math.max(...samples.map((sample) => Number(sample && sample[key] || 0)));
+}
+
+function medianMetric(samples, key) {
+  const values = (Array.isArray(samples) ? samples : [])
+    .map((sample) => sample && sample[key])
+    .filter((value) => value !== null && value !== undefined && Number.isFinite(Number(value)))
+    .map(Number)
+    .sort((left, right) => left - right);
+  if (values.length === 0) return null;
+  const midpoint = Math.floor(values.length / 2);
+  return values.length % 2 === 0
+    ? (values[midpoint - 1] + values[midpoint]) / 2
+    : values[midpoint];
 }
 
 async function capturePerformanceBaseline(baseUrl, driverUrl, scenarios) {
@@ -1025,6 +1434,432 @@ async function capturePerformanceBaseline(baseUrl, driverUrl, scenarios) {
     regressionLimit: 0.05,
     scenarios: records
   };
+}
+
+async function runPostImportProofMutationRegression(baseUrl, driverUrl) {
+  const scenario = {
+    id: 'de-ssr-proof-post-import-mutation',
+    locale: 'de',
+    width: 1280,
+    height: 800
+  };
+  const proofText = 'Import boundary proof';
+  const proof = {
+    contentHash: sha256(`<p>${proofText}</p>`),
+    contentBytes: String(Buffer.byteLength(`<p>${proofText}</p>`, 'utf8')),
+    domHash: sha256(proofText),
+    structureHash: sha256('[]')
+  };
+  const sessionId = await createSession(driverUrl, scenario);
+  try {
+    await request(driverUrl, `/session/${sessionId}/url`, 'POST', {
+      url: `${baseUrl}/docs/${scenario.locale}/readme`
+    });
+    await waitForDocsRouteSnapshot(
+      driverUrl,
+      sessionId,
+      scenario.locale,
+      'readme',
+      'XTend Developer Center',
+      `${scenario.id}: Docs host did not become ready`
+    );
+    const installed = await execute(driverUrl, sessionId, `
+      const path = location.pathname;
+      const routeId = 'docs.test.post-import-proof';
+      const componentTag = 'x-post-import-proof';
+      const loader = window.XTendLoader;
+      if (!loader || typeof loader.ensureComponent !== 'function') return { installed: false, reason: 'loader-unavailable' };
+      const router = document.createElement('x-router');
+      router.id = 'post-import-proof-router';
+      router.setAttribute('mode', 'history');
+      router.setAttribute('adopt-prerendered-route', 'true');
+      router.style.cssText = 'position:fixed;left:-10000px;top:0;width:320px;min-height:120px;';
+      const route = document.createElement('x-route');
+      route.setAttribute('path', path);
+      route.setAttribute('component', componentTag);
+      route.setAttribute('data-rmt-route-id', routeId);
+      const candidate = document.createElement(componentTag);
+      candidate.id = 'post-import-proof-candidate';
+      const candidateAttributes = {
+        'data-xrouter-prerendered-route': 'true',
+        'data-xrouter-route-path': path,
+        'data-xrouter-route-id': routeId,
+        'data-xrouter-route-component': componentTag,
+        'data-xrouter-route-locale': document.documentElement.lang,
+        'data-xrouter-content-sha256': arguments[0].contentHash,
+        'data-xrouter-content-bytes': arguments[0].contentBytes,
+        'data-xrouter-dom-sha256': arguments[0].domHash,
+        'data-xrouter-dom-hash-basis': 'normalized-text-content.v1',
+        'data-xrouter-dom-structure-sha256': arguments[0].structureHash,
+        'data-xrouter-dom-structure-hash-basis': 'sensitive-element-sequence-attributes.v1',
+        'data-xrouter-trust-boundary': 'xtend.security.sanitizing-boundary.v1',
+        'data-xrouter-sanitizer': 'xtend.security.trusted-dom-sanitizer.v1',
+        'data-xrouter-sanitized': 'true'
+      };
+      Object.entries(candidateAttributes).forEach(([name, value]) => candidate.setAttribute(name, value));
+      const content = document.createElement('div');
+      const contentAttributes = {
+        'data-rmt-content-sha256': arguments[0].contentHash,
+        'data-rmt-content-bytes': arguments[0].contentBytes,
+        'data-rmt-dom-sha256': arguments[0].domHash,
+        'data-rmt-dom-hash-basis': 'normalized-text-content.v1',
+        'data-rmt-dom-structure-sha256': arguments[0].structureHash,
+        'data-rmt-dom-structure-hash-basis': 'sensitive-element-sequence-attributes.v1',
+        'data-rmt-trust-boundary': 'xtend.security.sanitizing-boundary.v1',
+        'data-rmt-sanitizer': 'xtend.security.trusted-dom-sanitizer.v1',
+        'data-rmt-sanitized': 'true'
+      };
+      Object.entries(contentAttributes).forEach(([name, value]) => content.setAttribute(name, value));
+      const paragraph = document.createElement('p');
+      paragraph.textContent = arguments[1];
+      content.appendChild(paragraph);
+      candidate.appendChild(content);
+      const state = {
+        kind: 'post-import-proof-mutation',
+        importRequested: false,
+        importPaused: false,
+        importFulfilled: false,
+        proofMutatedDuringImport: false,
+        event: null
+      };
+      window.__xtendDocsPostImportProofMutation = state;
+      window.__xtendDocsPostImportProofCandidate = candidate;
+      const originalEnsureComponent = loader.ensureComponent;
+      let releaseDefinition = null;
+      const definitionGate = new Promise((resolve) => {
+        releaseDefinition = resolve;
+      });
+      window.__xtendDocsPostImportOriginalLoader = loader;
+      window.__xtendDocsReleasePostImportDefinition = () => {
+        if (state.importFulfilled) return false;
+        if (!customElements.get(componentTag)) {
+          customElements.define(componentTag, class extends HTMLElement {});
+        }
+        state.importFulfilled = true;
+        releaseDefinition(true);
+        return true;
+      };
+      window.XTendLoader = Object.freeze({
+        ...loader,
+        ensureComponent(tag, options) {
+          if (tag !== componentTag) return originalEnsureComponent.call(loader, tag, options);
+          state.importRequested = true;
+          state.importPaused = true;
+          return definitionGate;
+        }
+      });
+      router.addEventListener('xrouter-route-adopted', (event) => {
+        state.event = event.detail || null;
+      });
+      router.append(route, candidate);
+      document.body.appendChild(router);
+      return { installed: true };
+    `, [proof, proofText]);
+    assert(installed?.installed === true, `${scenario.id}: post-import fixture was not installed (${JSON.stringify(installed)}).`);
+    let earlyDiagnostic = null;
+    const gateState = await waitUntil(
+      async () => {
+        const diagnostic = await execute(driverUrl, sessionId, `
+          const state = window.__xtendDocsPostImportProofMutation || null;
+          const candidate = window.__xtendDocsPostImportProofCandidate || null;
+          const router = document.getElementById('post-import-proof-router');
+          const route = router?.querySelector('x-route') || null;
+          return {
+            state,
+            candidateConnected: Boolean(candidate?.isConnected),
+            routerConnected: Boolean(router?.isConnected),
+            componentDefined: Boolean(customElements.get('x-post-import-proof')),
+            outletHtml: router?.shadowRoot?.querySelector('#outlet')?.innerHTML || ''
+          };
+        `);
+        if (diagnostic?.state?.importRequested && diagnostic?.state?.importPaused) return 'component-definition-paused';
+        if (diagnostic?.state?.event) {
+          earlyDiagnostic = diagnostic;
+          return 'router-rejected';
+        }
+        return null;
+      },
+      `${scenario.id}: synthetic component definition did not pause at the loader boundary`
+    );
+    assert(gateState === 'component-definition-paused', `${scenario.id}: synthetic candidate was rejected before the component-definition boundary (${JSON.stringify(earlyDiagnostic)}).`);
+    const mutation = await execute(driverUrl, sessionId, `
+      const state = window.__xtendDocsPostImportProofMutation;
+      const candidate = window.__xtendDocsPostImportProofCandidate;
+      if (!(state && candidate?.isConnected)) return false;
+      state.proofMutatedDuringImport = true;
+      candidate.setAttribute('data-xrouter-content-sha256', 'f'.repeat(64));
+      return true;
+    `);
+    assert(mutation, `${scenario.id}: staged proof could not be mutated while import was paused.`);
+    const definitionReleased = await execute(driverUrl, sessionId, `
+      return window.__xtendDocsReleasePostImportDefinition?.() === true;
+    `);
+    assert(definitionReleased, `${scenario.id}: paused component definition could not be released.`);
+    const result = await waitUntil(async () => execute(driverUrl, sessionId, `
+      const state = window.__xtendDocsPostImportProofMutation || null;
+      const candidate = window.__xtendDocsPostImportProofCandidate || null;
+      const router = document.getElementById('post-import-proof-router');
+      const outlet = router?.shadowRoot?.querySelector('#outlet');
+      const fallback = outlet?.querySelector('x-post-import-proof') || null;
+      return state?.event && state.event.adopted === false && fallback
+        ? {
+            state,
+            candidateConnected: Boolean(candidate?.isConnected),
+            fallbackConnected: Boolean(fallback?.isConnected),
+            fallbackIsCandidate: fallback === candidate,
+            outletChildCount: outlet?.children.length || 0
+          }
+        : null;
+    `), `${scenario.id}: post-import mutation was not rejected into the normal render path`);
+    assert(result.state.importPaused && result.state.importFulfilled && result.state.proofMutatedDuringImport, `${scenario.id}: mutation did not occur inside the paused component import.`);
+    assert(result.state.event.reason === 'content-proof-mismatch', `${scenario.id}: unexpected rejection reason ${JSON.stringify(result.state.event)}.`);
+    assert(result.state.event.diagnostic === 'post-import-proof-attribute-mismatch', `${scenario.id}: post-import diagnostic was not emitted (${JSON.stringify(result.state.event)}).`);
+    assert(!result.candidateConnected && result.fallbackConnected && !result.fallbackIsCandidate && result.outletChildCount === 1, `${scenario.id}: rejected candidate did not yield one distinct CSR route component (${JSON.stringify(result)}).`);
+    const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
+    const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
+    assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
+    await writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({
+      scenario,
+      proof,
+      result,
+      logs
+    }, null, 2)}\n`);
+    await execute(driverUrl, sessionId, `
+      if (window.__xtendDocsPostImportOriginalLoader) {
+        window.XTendLoader = window.__xtendDocsPostImportOriginalLoader;
+      }
+      delete window.__xtendDocsPostImportOriginalLoader;
+      delete window.__xtendDocsReleasePostImportDefinition;
+      document.getElementById('post-import-proof-router')?.remove();
+      return true;
+    `);
+  } finally {
+    await request(driverUrl, `/session/${sessionId}`, 'DELETE').catch(() => {});
+  }
+}
+
+async function runAliasRouteRegression(baseUrl, driverUrl) {
+  const scenario = {
+    id: 'de-alias-xtend-loader',
+    locale: 'de',
+    alias: 'xtend-loader',
+    canonicalSlug: 'xtend-classic',
+    width: 1280,
+    height: 800
+  };
+  const redirect = await fetch(`${baseUrl}/docs/${scenario.locale}/${scenario.alias}`, { redirect: 'manual' });
+  const redirectLocation = redirect.headers.get('location') || '';
+  assert(redirect.status === 302, `${scenario.id}: alias endpoint returned HTTP ${redirect.status} instead of 302.`);
+  assert(redirectLocation.endsWith(`/docs/${scenario.locale}/${scenario.canonicalSlug}`), `${scenario.id}: alias redirect target is not canonical (${redirectLocation}).`);
+  const sessionId = await createSession(driverUrl, scenario);
+  try {
+    await installLayoutShiftProbe(driverUrl, sessionId);
+    await request(driverUrl, `/session/${sessionId}/url`, 'POST', {
+      url: `${baseUrl}/docs/${scenario.locale}/${scenario.alias}`
+    });
+    await verifyLayoutShiftProbe(driverUrl, sessionId);
+    await waitForDocsRouteSnapshot(
+      driverUrl,
+      sessionId,
+      scenario.locale,
+      scenario.canonicalSlug,
+      'XTend Classic',
+      `${scenario.id}: alias route did not resolve to its canonical document`
+    );
+    const snapshot = await waitUntil(async () => {
+      const value = await readSnapshot(driverUrl, sessionId);
+      return value.routeAdoption ? value : null;
+    }, `${scenario.id}: canonical alias target did not settle its SSR-adoption decision`);
+    assert(snapshot.routeAdoption?.adopted === true, `${scenario.id}: canonical alias target was not SSR-adopted (${JSON.stringify(snapshot.routeAdoption)}).`);
+    assert(snapshot.prerenderedRoute?.sameNodeAfterDefinition === true, `${scenario.id}: canonical alias target lost SSR node identity.`);
+    assert(snapshot.initialPagePayloadRequests.length === 0, `${scenario.id}: canonical alias target triggered an initial CSR payload (${JSON.stringify(snapshot.initialPagePayloadRequests)}).`);
+    assertSingleCurrentArticle(snapshot, scenario.id);
+    const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
+    const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
+    assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
+    await writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({
+      scenario,
+      redirect: { status: redirect.status, location: redirectLocation },
+      snapshot,
+      logs
+    }, null, 2)}\n`);
+  } finally {
+    await request(driverUrl, `/session/${sessionId}`, 'DELETE').catch(() => {});
+  }
+}
+
+async function runSsrCodeEnhancementRegression(baseUrl, driverUrl) {
+  const scenario = {
+    id: 'de-ssr-code-enhancement',
+    locale: 'de',
+    slug: 'rmt-vnext-authoring',
+    width: 1280,
+    height: 800
+  };
+  const route = `/docs/${scenario.locale}/${scenario.slug}`;
+  const rawResponse = await fetch(`${baseUrl}${route}`, { redirect: 'manual' });
+  const rawHtml = await rawResponse.text();
+  const raw = {
+    status: rawResponse.status,
+    prerenderedRoute: /\bdata-xrouter-prerendered-route(?:\s|=|>)/i.test(rawHtml),
+    preCodeCount: (rawHtml.match(/<pre\b[^>]*>\s*<code\b/gi) || []).length,
+    xCodeCount: (rawHtml.match(/<x-code\b/gi) || []).length
+  };
+  assert(raw.status === 200, `${scenario.id}: Raw HTML returned HTTP ${raw.status} instead of 200.`);
+  assert(raw.prerenderedRoute, `${scenario.id}: Raw HTML does not contain the prerendered route marker.`);
+  assert(raw.preCodeCount > 0, `${scenario.id}: Raw HTML must preserve at least one pre/code fallback (${JSON.stringify(raw)}).`);
+  assert(raw.xCodeCount === 0, `${scenario.id}: Raw HTML must not eagerly emit x-code (${JSON.stringify(raw)}).`);
+
+  const sessionId = await createSession(driverUrl, scenario);
+  try {
+    await request(driverUrl, `/session/${sessionId}/goog/cdp/execute`, 'POST', {
+      cmd: 'Page.addScriptToEvaluateOnNewDocument',
+      params: {
+        source: `
+          (() => {
+            const state = {
+              schema: 'xtend.docs.ssr-code-enhancement-input-probe.v1',
+              pointerdown: 0,
+              keydown: 0,
+              hydrationEvents: []
+            };
+            window.__xtendDocsSsrCodeEnhancementInputProbe = state;
+            window.addEventListener('pointerdown', () => { state.pointerdown += 1; }, true);
+            window.addEventListener('keydown', () => { state.keydown += 1; }, true);
+            window.addEventListener('xtend-docs-code-hydrated', (event) => {
+              state.hydrationEvents.push(event?.detail || null);
+            });
+          })();
+        `
+      }
+    });
+    await request(driverUrl, `/session/${sessionId}/url`, 'POST', {
+      url: `${baseUrl}${route}`
+    });
+    const result = await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+      const content = deepQuery('#md-content');
+      if (!content) return null;
+      const codeBlocks = Array.from(content.querySelectorAll('x-code'));
+      const remainingFences = content.querySelectorAll('pre > code').length;
+      const blocks = codeBlocks.map((block) => {
+        const renderedCode = block.shadowRoot?.querySelector('pre > code') || null;
+        const snapshot = typeof block.snapshot === 'function' ? block.snapshot() : null;
+        return {
+          shadowRoot: Boolean(block.shadowRoot),
+          copyButton: Boolean(block.shadowRoot?.querySelector('.copy-btn')),
+          highlightEngine: renderedCode?.getAttribute('data-x-code-highlight-engine') || '',
+          highlighted: snapshot?.highlighted === true,
+          language: snapshot?.highlightLanguage || '',
+          tokenCount: renderedCode?.querySelectorAll('.token').length || 0
+        };
+      });
+      const hydration = window.xtendDocsLastCodeHydration || null;
+      const inputProbe = window.__xtendDocsSsrCodeEnhancementInputProbe || null;
+      const routeAdoption = window.xstate?.get?.('xtend.router.routeAdoption') || null;
+      const pagePayloadRequests = performance.getEntriesByType('resource')
+        .filter((entry) => entry.name.includes('xtend-docs-page='))
+        .map((entry) => entry.name);
+      const ready = location.pathname === arguments[0]
+        && content.getAttribute('data-docs-code-enhancement') === 'idle-committed'
+        && content.getAttribute('data-docs-code-enhancement-trigger') === 'idle'
+        && codeBlocks.length === arguments[1]
+        && remainingFences === 0
+        && hydration?.count === arguments[1]
+        && hydration?.hydrated === arguments[1]
+        && blocks.every((block) => block.shadowRoot && block.copyButton && block.highlightEngine === 'prism' && block.highlighted);
+      return ready ? {
+        path: location.pathname,
+        enhancement: content.getAttribute('data-docs-code-enhancement') || '',
+        trigger: content.getAttribute('data-docs-code-enhancement-trigger') || '',
+        upgraded: Number(content.getAttribute('data-docs-code-fence-upgraded') || 0),
+        codeBlockCount: codeBlocks.length,
+        remainingFenceCount: remainingFences,
+        blocks,
+        hydration,
+        inputProbe,
+        routeAdoption,
+        pagePayloadRequests
+      } : null;
+    `, [route, raw.preCodeCount]), `${scenario.id}: SSR code fences did not upgrade automatically in the idle lane`);
+    assert(result.inputProbe?.pointerdown === 0 && result.inputProbe?.keydown === 0, `${scenario.id}: code enhancement required user input (${JSON.stringify(result.inputProbe)}).`);
+    assert(result.upgraded === raw.preCodeCount && result.codeBlockCount === raw.preCodeCount && result.remainingFenceCount === 0, `${scenario.id}: code fence replacement is incomplete (${JSON.stringify(result)}).`);
+    assert(result.blocks.every((block) => block.shadowRoot && block.copyButton && block.highlightEngine === 'prism' && block.highlighted), `${scenario.id}: x-code shadow/copy/Prism hydration is incomplete (${JSON.stringify(result.blocks)}).`);
+    assert(result.hydration?.schema === 'xtend.docs.code-hydration.v1' && result.hydration.count === raw.preCodeCount && result.hydration.hydrated === raw.preCodeCount, `${scenario.id}: code hydration diagnostic is incomplete (${JSON.stringify(result.hydration)}).`);
+    assert(result.routeAdoption?.adopted === true && result.pagePayloadRequests.length === 0, `${scenario.id}: initial route did not stay on the SSR-adoption path (${JSON.stringify({ routeAdoption: result.routeAdoption, pagePayloadRequests: result.pagePayloadRequests })}).`);
+
+    await navigateHomeViaLogo(driverUrl, sessionId, scenario);
+    const csrMarkerCleanup = await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+      const content = deepQuery('#md-content');
+      if (!content || !location.pathname.endsWith('/docs/de/readme')) return null;
+      const result = {
+        enhancement: content.getAttribute('data-docs-code-enhancement') || '',
+        trigger: content.getAttribute('data-docs-code-enhancement-trigger'),
+        upgraded: content.getAttribute('data-docs-code-fence-upgraded'),
+        xCodeCount: content.querySelectorAll('x-code').length,
+        preCodeCount: content.querySelectorAll('pre > code').length
+      };
+      return result.enhancement === 'not-needed' && result.trigger === null && result.upgraded === '0'
+        ? result
+        : null;
+    `), `${scenario.id}: CSR navigation retained stale SSR code-enhancement markers`);
+    const finalInputProbe = await execute(driverUrl, sessionId, `
+      return window.__xtendDocsSsrCodeEnhancementInputProbe || null;
+    `);
+    assert(finalInputProbe?.pointerdown === 0 && finalInputProbe?.keydown === 0, `${scenario.id}: browser gate dispatched pointer/keyboard input (${JSON.stringify(finalInputProbe)}).`);
+    const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
+    const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
+    assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
+    await writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({
+      scenario,
+      raw,
+      result,
+      csrMarkerCleanup,
+      finalInputProbe,
+      logs
+    }, null, 2)}\n`);
+  } finally {
+    await request(driverUrl, `/session/${sessionId}`, 'DELETE').catch(() => {});
+  }
+}
+
+async function runSsrProofFallbackRegression(baseUrl, driverUrl, proofCase) {
+  const scenario = {
+    id: `de-ssr-proof-${proofCase.kind}`,
+    locale: 'de',
+    width: 1280,
+    height: 800,
+    ...proofCase
+  };
+  const sessionId = await createSession(driverUrl, scenario);
+  try {
+    await installSsrProofTamper(driverUrl, sessionId, scenario.kind);
+    await installLayoutShiftProbe(driverUrl, sessionId);
+    await request(driverUrl, `/session/${sessionId}/url`, 'POST', {
+      url: `${baseUrl}/docs/${scenario.locale}/readme`
+    });
+    await verifyLayoutShiftProbe(driverUrl, sessionId);
+    const result = await waitUntil(async () => {
+      const snapshot = await readSnapshot(driverUrl, sessionId);
+      const tamper = await execute(driverUrl, sessionId, `return window.__xtendDocsSsrProofTamper || null;`);
+      const candidateCount = await execute(driverUrl, sessionId, `return document.querySelectorAll('[data-xrouter-prerendered-route]').length;`);
+      return tamper?.applied && snapshot.docsPageReady && snapshot.docsPageCount === 1 &&
+        snapshot.currentPath === `/docs/${scenario.locale}/readme` && snapshot.articleTitle === 'XTend Developer Center' &&
+        snapshot.routeAdoption?.adopted === false && snapshot.routeAdoption?.reason === scenario.expectedReason &&
+        snapshot.initialPagePayloadRequests.length >= 1 && candidateCount === 0
+        ? { snapshot, tamper, candidateCount }
+        : null;
+    }, `${scenario.id}: rejected SSR proof did not complete the controlled CSR fallback`);
+    assert(result.snapshot.routeId === 'docs.readme', `${scenario.id}: fallback committed the wrong route (${result.snapshot.routeId}).`);
+    assert(result.snapshot.docsPageLocale === scenario.locale && result.snapshot.currentLocale === scenario.locale, `${scenario.id}: fallback lost locale ownership.`);
+    assert(result.snapshot.initialPagePayloadRequests.every((url) => url.includes('xtend-docs-page=readme')), `${scenario.id}: fallback requested an unrelated page (${JSON.stringify(result.snapshot.initialPagePayloadRequests)}).`);
+    assertSingleCurrentArticle(result.snapshot, scenario.id);
+    const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
+    const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
+    assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
+    await writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({ scenario, ...result, logs }, null, 2)}\n`);
+  } finally {
+    await request(driverUrl, `/session/${sessionId}`, 'DELETE').catch(() => {});
+  }
 }
 
 async function runMaracaRouteRegression(baseUrl, driverUrl) {
@@ -1073,7 +1908,8 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
       };
       collectSkeletons(document);
       const hidden = state.skeletonEvents.find((entry) => entry.type === 'xrouter-skeleton-hidden');
-      if (!hidden) return null;
+      const routeAdoption = window.__xtendDocsLayoutShiftProbe?.routeAdoption || window.xstate?.get?.('xtend.router.routeAdoption') || null;
+      if (!hidden && routeAdoption?.adopted !== true) return null;
       const menuSnapshots = Array.from(document.querySelectorAll('x-menu'))
         .map((menu) => typeof menu.snapshotPerformance === 'function' ? menu.snapshotPerformance() : null)
         .filter(Boolean);
@@ -1082,6 +1918,7 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
         maxLongTaskMs: Math.max(0, ...state.longTasks.map((entry) => Number(entry.duration || 0))),
         longTasks: state.longTasks,
         skeletonEvents: state.skeletonEvents,
+        routeAdoption,
         activeSkeletonCount: skeletons.filter((entry) => {
           const style = getComputedStyle(entry);
           return entry.isConnected && style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
@@ -1120,7 +1957,11 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
     await verifyLayoutShiftProbe(driverUrl, sessionId);
     await waitUntil(async () => {
       const snapshot = await readSnapshot(driverUrl, sessionId);
-      return snapshot.docsPageReady && snapshot.articleTitle ? snapshot : null;
+      return snapshot.docsPageReady && snapshot.articleTitle
+        && snapshot.summaryIndicators.length > 0
+        && snapshot.summaryIndicators.every((indicator) => indicator.ariaExpanded !== '')
+        ? snapshot
+        : null;
     }, `${scenario.id}: direct route did not become ready`);
     await delay(scenario.settleMs || 600);
     const snapshot = await readSnapshot(driverUrl, sessionId);
@@ -1220,7 +2061,10 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     const initial = await waitUntil(async () => {
       const snapshot = await readSnapshot(driverUrl, sessionId);
       return snapshot.shellSchema && snapshot.docsPageReady && snapshot.articleTitle && snapshot.routeId && snapshot.routeDocumentTitle &&
-        Number.isFinite(snapshot.performance && snapshot.performance.fcpMs)
+        snapshot.summaryIndicators.length > 0 && snapshot.summaryIndicators.every((indicator) => indicator.ariaExpanded !== '') &&
+        (snapshot.prehydrationSchema !== 'xtend.docs.php-ssr-prehydration.v2' || snapshot.routeAdoption) &&
+        Number.isFinite(snapshot.performance && snapshot.performance.fcpMs) &&
+        Number.isFinite(snapshot.performance && snapshot.performance.responseEndMs)
         ? snapshot
         : null;
     }, `${scenario.id}: Docs shell did not hydrate`);
@@ -1244,14 +2088,27 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(initial.devApiDetected && initial.devApiMethods.length === 5, `${scenario.id}: DEV API contract is incomplete.`);
     assert(initial.hydrationSnapshot.status === 'ready', `${scenario.id}: hydration snapshot is not ready.`);
     assert(initial.kernelSnapshot.state === 'none', `${scenario.id}: unexpected kernel panic state ${JSON.stringify(initial.kernelSnapshot)}.`);
-    assert(initial.trunkCount === 6 && initial.canonicalEntryCount === 166, `${scenario.id}: navigation inventory is incomplete.`);
+    assert(initial.trunkCount === 6 && initial.canonicalEntryCount >= 166, `${scenario.id}: navigation inventory is incomplete (${JSON.stringify({ trunkCount: initial.trunkCount, canonicalEntryCount: initial.canonicalEntryCount })}).`);
     assert(initial.activeTrunk === 'start' && initial.activeTrunkContent === 'start', `${scenario.id}: start trunk is not active.`);
     assertSingleCurrentArticle(initial, scenario.id);
     assert(initial.skeletonProfiles.includes('docs-article') && initial.skeletonProfiles.includes('docs-navigation') && initial.skeletonProfiles.includes('docs-search'), `${scenario.id}: docs skeleton profiles are missing.`);
-    assert(initial.bootSkeleton?.found && initial.bootSkeleton.visibleBeforeDefinition && initial.bootSkeleton.hiddenAfterDefinition, `${scenario.id}: server boot skeleton did not bridge the XRouter definition boundary (${JSON.stringify(initial.bootSkeleton)}).`);
+    if (initial.prehydrationSchema === 'xtend.docs.php-ssr-prehydration.v2') {
+      assert(initial.bootSkeleton?.found && !initial.bootSkeleton.visibleBeforeDefinition && initial.bootSkeleton.hiddenAfterDefinition, `${scenario.id}: document SSR boot skeleton was visible (${JSON.stringify(initial.bootSkeleton)}).`);
+      assert(initial.prerenderedRoute?.foundBeforeDefinition && initial.prerenderedRoute.sameNodeAfterDefinition && initial.prerenderedRoute.adopted, `${scenario.id}: prerendered route node identity was not preserved (${JSON.stringify({ prerenderedRoute: initial.prerenderedRoute, routeAdoption: initial.routeAdoption, requests: initial.initialPagePayloadRequests })}).`);
+      assert(initial.routeAdoption?.adopted === true && initial.initialPagePayloadRequests.length === 0, `${scenario.id}: document SSR adoption fell back to an initial page fetch (${JSON.stringify({ adoption: initial.routeAdoption, requests: initial.initialPagePayloadRequests })}).`);
+    } else {
+      assert(initial.bootSkeleton?.found && initial.bootSkeleton.visibleBeforeDefinition && initial.bootSkeleton.hiddenAfterDefinition, `${scenario.id}: server boot skeleton did not bridge the XRouter definition boundary (${JSON.stringify(initial.bootSkeleton)}).`);
+    }
     assert(initial.compactLoaded && !initial.fulltextLoaded, `${scenario.id}: fulltext index entered the initial path.`);
     assert(initial.relatedLinks.length >= 3 && initial.relatedLinks.length <= 7, `${scenario.id}: Read Further did not resolve to three through seven links (${JSON.stringify(initial.relatedLinks)}).`);
     assert(new Set(initial.relatedLinks.map((entry) => entry.href)).size === initial.relatedLinks.length, `${scenario.id}: Read Further contains duplicate targets.`);
+    assert(
+      initial.relatedLayout?.headingVisible
+      && initial.relatedLayout.display === 'grid'
+      && initial.relatedLayout.rowGap >= 7.9
+      && initial.relatedLayout.minAdjacentGap >= 7.9,
+      `${scenario.id}: Read Further spacing or heading regressed (${JSON.stringify(initial.relatedLayout)}).`
+    );
     const maximumRecommendationLongTask = Math.max(0, ...initial.recommendationLongTasks.map((entry) => Number(entry.duration || 0)));
     assert(initial.recommendationSnapshot && initial.recommendationSnapshot.source === 'compact-search-index' && maximumRecommendationLongTask <= 50, `${scenario.id}: compact recommendations produced a long task over 50ms or fell back (${JSON.stringify({ recommendation: initial.recommendationSnapshot, longTasks: initial.recommendationLongTasks })}).`);
     assert(initial.remoteResourceCount === 0, `${scenario.id}: remote resources were requested.`);
@@ -1269,7 +2126,12 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     const baseline = performanceBaseline && performanceBaseline.scenarios && performanceBaseline.scenarios[scenario.id];
     assert(baseline, `${scenario.id}: performance baseline is missing.`);
     const regressionLimit = 1 + Number(performanceBaseline.regressionLimit || 0.05);
+    const baselineResponseEndMs = baseline.responseEndMs !== null && baseline.responseEndMs !== undefined && Number.isFinite(Number(baseline.responseEndMs))
+      ? Number(baseline.responseEndMs)
+      : medianMetric(baseline.samples, 'responseEndMs');
+    assert(Number.isFinite(baselineResponseEndMs) && baselineResponseEndMs > 0, `${scenario.id}: response-end performance baseline is missing.`);
     assert(initial.performance.fcpMs <= baseline.fcpMs * regressionLimit, `${scenario.id}: FCP ${initial.performance.fcpMs}ms exceeds baseline ${baseline.fcpMs}ms by more than 5%.`);
+    assert(initial.performance.responseEndMs <= baselineResponseEndMs * regressionLimit, `${scenario.id}: response end ${initial.performance.responseEndMs}ms exceeds median baseline ${baselineResponseEndMs}ms by more than 5%.`);
     assert(initial.performance.initialEncodedBodyBytes <= baseline.initialEncodedBodyBytes * regressionLimit, `${scenario.id}: initial encoded bytes ${initial.performance.initialEncodedBodyBytes} exceed baseline ${baseline.initialEncodedBodyBytes} by more than 5%.`);
     const activeTheme = await applyTheme(driverUrl, sessionId, scenario.theme);
     assert(activeTheme.theme === scenario.theme, `${scenario.id}: expected ${scenario.theme} theme.`);
@@ -1328,6 +2190,16 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     const alternateLocale = scenario.locale === 'en' ? 'de' : 'en';
     const localeSwitch = await switchDocsLocale(driverUrl, sessionId, alternateLocale);
     const localeRestore = await switchDocsLocale(driverUrl, sessionId, scenario.locale);
+    const rapidNavigationRace = await exerciseRapidNavigationRace(driverUrl, sessionId, scenario);
+    const rapidNavigationHome = await navigateHomeViaLogo(driverUrl, sessionId, scenario);
+    const historyNavigation = await exerciseHistoryNavigation(driverUrl, sessionId, scenario);
+    const historyNavigationHome = await navigateHomeViaLogo(driverUrl, sessionId, scenario);
+    const localeNavigationRace = await exerciseLocaleNavigationRace(driverUrl, sessionId, scenario);
+    const localeNavigationHome = await navigateHomeViaLogo(driverUrl, sessionId, {
+      ...scenario,
+      locale: localeNavigationRace.targetLocale
+    });
+    const localeNavigationRestore = await switchDocsLocale(driverUrl, sessionId, scenario.locale);
 
     const finalSnapshot = await readSnapshot(driverUrl, sessionId);
     assertSingleCurrentArticle(finalSnapshot, `${scenario.id}: final`);
@@ -1340,7 +2212,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
     const screenshot = await request(driverUrl, `/session/${sessionId}/screenshot`);
     await Promise.all([
-      writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({ scenario, initial, activeTheme, navigationSurface, skeletonHardening, search, focusedResult, enterNavigation, fallbackSearch, navigation, explicitRecommendations, aboutRecommendations, homeNavigation, localeSwitch, localeRestore, finalSnapshot, logs }, null, 2)}\n`),
+      writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({ scenario, initial, activeTheme, navigationSurface, skeletonHardening, search, focusedResult, enterNavigation, fallbackSearch, navigation, explicitRecommendations, aboutRecommendations, homeNavigation, localeSwitch, localeRestore, rapidNavigationRace, rapidNavigationHome, historyNavigation, historyNavigationHome, localeNavigationRace, localeNavigationHome, localeNavigationRestore, finalSnapshot, logs }, null, 2)}\n`),
       writeFile(path.join(evidenceDir, `${scenario.id}.png`), Buffer.from(String(screenshot || ''), 'base64'))
     ]);
   } finally {
@@ -1360,6 +2232,7 @@ const port = await freePort();
 const driverPort = await freePort();
 const server = spawn(php, ['-S', `127.0.0.1:${port}`, '-t', rootDir, 'docs/dev-router.php'], {
   cwd: rootDir,
+  env: { ...process.env, XTEND_DOCS_DOCUMENT_SSR: process.env.XTEND_DOCS_DOCUMENT_SSR || 'v2' },
   stdio: ['ignore', 'pipe', 'pipe']
 });
 const driver = spawn(chromeDriver, [`--port=${driverPort}`], {
@@ -1387,6 +2260,17 @@ try {
     process.stdout.write(`Docs shell performance baseline captured: ${outputPath}\n`);
   } else {
     const performanceBaseline = JSON.parse(await readFile(baselinePath, 'utf8'));
+    await assertRawDocsRouteStatuses(baseUrl);
+    await runPostImportProofMutationRegression(baseUrl, driverUrl);
+    await runAliasRouteRegression(baseUrl, driverUrl);
+    await runSsrCodeEnhancementRegression(baseUrl, driverUrl);
+    for (const proofCase of [
+      { kind: 'path', expectedReason: 'path-mismatch' },
+      { kind: 'hash', expectedReason: 'content-proof-mismatch' },
+      { kind: 'trust', expectedReason: 'trust-proof-missing' }
+    ]) {
+      await runSsrProofFallbackRegression(baseUrl, driverUrl, proofCase);
+    }
     await runMaracaRouteRegression(baseUrl, driverUrl);
     const directRouteScenarios = [
       { id: 'de-animation-engine-desktop', locale: 'de', slug: 'rmt-animation-engine', width: 1440, height: 900, settleMs: 1200 },

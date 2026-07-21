@@ -92,6 +92,7 @@ const LIFECYCLE_OPERATIONS = new Set([
 ]);
 
 const SOURCE_KINDS = new Set(['endpoint', 'sse', 'worker', 'selector', 'state', 'datasource', 'fixture', 'resource']);
+const DECLARATIVE_COMPONENT_COMMANDS = new Set(['focus', 'reset', 'snapshot']);
 const COMPARISON_OPERATORS = new Set(['==', '!=', '>', '>=', '<', '<=']);
 const PRIMITIVE_DECLARATIONS = new Set([
   'state',
@@ -1509,13 +1510,32 @@ class VNextParser {
   parseActionInputClause() {
     const start = this.expectValue('input', 'Expected input clause.');
     const name = this.parseQualifiedIdentifierAllowReserved('Expected input identifier.');
-    const dataType = this.parseTypeReference('Expected input type.');
-    this.consumeStatementEnd('Expected statement end after input clause.');
-    const end = dataType ? getNodeEndToken(dataType) : this.previous();
+    const dataType = this.parseTypeReference('Expected input type.', ['{']);
+    let policy = null;
+    if (this.matches('{')) {
+      const body = this.parseBlock(() => {
+        if (this.matches('trust')) return this.parseTrustPolicy();
+        if (this.matches('sanitize')) return this.parseSanitizePolicy();
+        this.addDiagnostic(
+          this.current(),
+          'Action input policy blocks may contain trust boundary and sanitize clauses only.',
+          RMT_VNEXT_CONTEXT_ERROR_CODE
+        );
+        this.skipStatementOrBlock();
+        return null;
+      });
+      policy = this.createNode('RmtActionInputPolicy', body.startToken, body.endToken, {
+        body: body.items
+      });
+    } else {
+      this.consumeStatementEnd('Expected statement end after input clause.');
+    }
+    const end = policy ? getNodeEndToken(policy) : (dataType ? getNodeEndToken(dataType) : this.previous());
     return this.createNode('RmtActionInputClause', start, end, {
       name: name && name.value,
       nameNode: name,
-      dataType
+      dataType,
+      policy
     });
   }
 
@@ -1534,9 +1554,30 @@ class VNextParser {
     }
     this.consumeStatementEnd('Expected statement end after effect statement.');
     const end = this.previous();
+    const effectKindNode = effectKind ? {
+      type: 'RmtIdentifier',
+      value: effectKind.value,
+      parts: [effectKind.value],
+      startToken: effectKind,
+      endToken: effectKind,
+      range: createRange(this.sourceModel, effectKind.startOffset, effectKind.endOffset)
+    } : null;
+    const componentCommand = effectKind
+      && DECLARATIVE_COMPONENT_COMMANDS.has(effectKind.value)
+      && source
+      && source.kind === 'selector'
+      ? {
+          command: effectKind.value,
+          target: source.value,
+          targetNode: source.valueNode,
+          authoringKind: 'selector'
+        }
+      : null;
     return this.createNode('RmtEffectStatement', start, end, {
       effectKind: effectKind && effectKind.value,
-      source
+      effectKindNode,
+      source,
+      componentCommand
     });
   }
 

@@ -22,10 +22,16 @@ export const xTextareaComponentContract = {
     cdnAllowed: false
   },
   publicApi: {
-    attributes: ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label'],
+    attributes: ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'busy', 'invalid', 'density', 'fill', 'submit-on-enter', 'submit-command', 'syntax-highlight', 'highlight', 'line-numbering', 'lang', 'language'],
     slots: ['label', 'hint', 'error'],
-    events: ['textarea-changed', 'textarea-invalid'],
-    methods: ['focus(): void', 'reset(): void', 'validate(): boolean']
+    events: ['textarea-changed', 'textarea-invalid', 'textarea-submit', 'xtend-command'],
+    eventPayloads: {
+      'textarea-changed': 'XTextareaChangedEventDetail',
+      'textarea-invalid': 'XTextareaInvalidEventDetail',
+      'textarea-submit': 'XTextareaSubmitEventDetail',
+      'xtend-command': 'XTextareaCommandEventDetail'
+    },
+    methods: ['checkValidity(): boolean', 'reportValidity(): boolean', 'validate(): boolean', 'reset(): void', 'focus(): void', 'snapshot(): XTextareaSnapshot']
   },
   rmt: {
     schema: 'xtend.rmt.component-contract.v1',

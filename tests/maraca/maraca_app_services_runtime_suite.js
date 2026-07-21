@@ -19,6 +19,8 @@ const {
 const {
   MARACA_APP_SERVICE_REQUEST_SCHEMA,
   MARACA_APP_SERVICE_RESPONSE_SCHEMA,
+  MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA,
+  MARACA_APP_SERVICE_INPUT_VERDICT_SCHEMA,
   AppServiceAbortError,
   createAppServiceRegistry,
   createHttpAppServiceTransport,
@@ -26,6 +28,11 @@ const {
   defineServerServices,
   service
 } = require('../../xtend-maraca/app-services');
+const {
+  SANITIZING_BOUNDARY_CONTRACT,
+  TRUSTED_TEXT_SANITIZER_CONTRACT,
+  sanitizeTrustedText
+} = require('../../security/trusted-dom-policy');
 const {
   createNodeAppServiceHost
 } = require('../../xtend-maraca/node-app-service-host');
@@ -141,6 +148,126 @@ async function runDefinitionAssertions(context) {
   context.assert(serverDefinition.services['server.lookup'].target === 'server', 'server-services entry defaults implementations to the server target');
 }
 
+async function runInputPolicyAssertions(context) {
+  const manifest = {
+    schema: 'xtend.maraca.app-services-manifest.v1',
+    services: [{
+      id: 'app.secure',
+      actions: [{
+        id: 'app.submit',
+        inputs: [{
+          name: 'text',
+          type: 'string',
+          inputPolicy: {
+            schema: MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA,
+            boundary: SANITIZING_BOUNDARY_CONTRACT,
+            sanitize: 'text'
+          }
+        }]
+      }],
+      inputPolicy: {
+        schema: MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA,
+        fields: [{
+          name: 'text',
+          type: 'string',
+          boundary: SANITIZING_BOUNDARY_CONTRACT,
+          sanitize: 'text'
+        }]
+      }
+    }]
+  };
+  const normalizedText = sanitizeTrustedText('line one\r\nline two');
+  const refusedText = sanitizeTrustedText('blocked\u0000text');
+  context.assert(normalizedText.schema === TRUSTED_TEXT_SANITIZER_CONTRACT && normalizedText.ok === true && normalizedText.text === 'line one\nline two' && normalizedText.changed === true, 'canonical text sanitizer normalizes CRLF without changing content semantics');
+  context.assert(refusedText.ok === false && refusedText.text === null && refusedText.diagnostics.includes('xtend.security.text_sanitizer.control_character_refused'), 'canonical text sanitizer rejects prohibited control characters without echoing input');
+
+  const transported = [];
+  const browserRegistry = createAppServiceRegistry(defineAppServices({
+    'app.secure': service({ kind: 'command', target: 'server' })
+  }), {
+    manifest,
+    inputPolicyPhase: 'browser',
+    transport: {
+      async invoke(request) {
+        transported.push(request.input);
+        return request.input;
+      }
+    }
+  });
+  const browserValue = await browserRegistry.invoke('app.secure', { text: 'client\r\nvalue' });
+  const browserVerdict = browserRegistry.listInputPolicyVerdicts()[0];
+  context.assert(browserValue.text === 'client\nvalue' && transported[0].text === 'client\nvalue', 'browser registry sanitizes AppService input before transport');
+  context.assert(browserVerdict && browserVerdict.schema === MARACA_APP_SERVICE_INPUT_VERDICT_SCHEMA && browserVerdict.ok === true && browserVerdict.phase === 'browser', 'browser registry records a positive redacted input-policy verdict');
+  context.assert(browserRegistry.listHistory()[0].inputPolicyVerdict === browserVerdict, 'registry history exposes the positive pre-transport verdict');
+  const transportCount = transported.length;
+  const browserBlocked = await browserRegistry.invoke('app.secure', { text: 'blocked\u0000client' }).then(() => null, (error) => error);
+  context.assert(browserBlocked && browserBlocked.code === 'xtend.maraca.app-service.input_policy_blocked' && transported.length === transportCount, 'browser TrustBoundary blocks prohibited input before any network transport');
+  context.assert(!JSON.stringify(browserBlocked.details.verdict).includes('blocked'), 'blocked browser verdict contains no hostile raw input');
+
+  const missingBrowserPolicyManifest = JSON.parse(JSON.stringify(manifest));
+  missingBrowserPolicyManifest.services[0].inputPolicy = null;
+  const missingBrowserPolicyRegistry = createAppServiceRegistry(defineAppServices({
+    'app.secure': service({ kind: 'command', target: 'server' })
+  }), {
+    manifest: missingBrowserPolicyManifest,
+    inputPolicyPhase: 'browser',
+    transport: {
+      async invoke(request) {
+        transported.push(request.input);
+        return request.input;
+      }
+    }
+  });
+  const missingBrowserPolicy = await missingBrowserPolicyRegistry.invoke('app.secure', { text: 'must not travel' }).then(() => null, (error) => error);
+  context.assert(missingBrowserPolicy && missingBrowserPolicy.code === 'xtend.maraca.app-service.input_policy_mismatch' && transported.length === transportCount, 'browser blocks before transport when an action policy is missing from the manifest aggregate');
+
+  const duplicateServiceManifest = JSON.parse(JSON.stringify(manifest));
+  duplicateServiceManifest.services.push({
+    ...JSON.parse(JSON.stringify(duplicateServiceManifest.services[0])),
+    dataSource: 'app.secure.duplicate',
+    inputPolicy: null
+  });
+  const duplicateServiceRegistry = createAppServiceRegistry(defineAppServices({
+    'app.secure': service({ kind: 'command', target: 'server' })
+  }), {
+    manifest: duplicateServiceManifest,
+    inputPolicyPhase: 'browser',
+    transport: {
+      async invoke(request) {
+        transported.push(request.input);
+        return request.input;
+      }
+    }
+  });
+  const duplicateServicePolicy = await duplicateServiceRegistry.invoke('app.secure', { text: 'must not travel either' }).then(() => null, (error) => error);
+  context.assert(duplicateServicePolicy && duplicateServicePolicy.code === 'xtend.maraca.app-service.input_policy_mismatch' && duplicateServicePolicy.details.reason === 'duplicate-service-id' && transported.length === transportCount, 'browser fail-closes duplicate manifest service IDs before policy selection or transport');
+
+  let serverExecutions = 0;
+  const host = createNodeAppServiceHost({
+    manifest,
+    services: defineServerServices({
+      'app.secure': service({
+        kind: 'command',
+        target: 'server',
+        invoke(input, execution) {
+          serverExecutions += 1;
+          return { input, verdict: execution.inputPolicyVerdict };
+        }
+      })
+    })
+  });
+  const serverResponse = await host.handleEnvelope(wireRequest('app.secure', 'command', { text: 'server\r\nvalue' }));
+  context.assert(serverResponse.value.input.text === 'server\nvalue', 'Node host independently re-sanitizes wire input before invoking the server service');
+  context.assert(serverResponse.value.verdict && serverResponse.value.verdict.ok === true && serverResponse.value.verdict.phase === 'server', 'server handler receives a stable redacted inputPolicyVerdict in its execution context');
+  context.assert(host.registry.listHistory()[0].inputPolicyVerdict.phase === 'server', 'Node registry history retains authoritative server-side policy evidence');
+  const serverBlocked = await host.handleEnvelope(wireRequest('app.secure', 'command', { text: 'forged\u0000wire' })).then(() => null, (error) => error);
+  context.assert(serverBlocked && serverBlocked.code === 'xtend.maraca.app-service.input_policy_blocked' && serverExecutions === 1, 'Node host blocks a forged unsanitized wire payload before handler execution');
+  host.dispose();
+  duplicateServiceRegistry.dispose();
+  missingBrowserPolicyRegistry.dispose();
+  browserRegistry.dispose();
+}
+
 async function runEsmAssertions(context, rootDir) {
   const syncResult = syncAppServicesEsm({
     check: true,
@@ -154,7 +281,8 @@ async function runEsmAssertions(context, rootDir) {
     'defineAppServices',
     'defineServerServices',
     'createAppServiceRegistry',
-    'createHttpAppServiceTransport'
+    'createHttpAppServiceTransport',
+    'applyAppServiceInputPolicy'
   ];
   context.assert(requiredExports.every((name) => typeof esmApi[name] === 'function'), 'AppServices exposes definition, registry and HTTP transport as native ESM exports');
   const esmDefinition = esmApi.defineAppServices({
@@ -904,6 +1032,7 @@ async function runMaracaAppServicesRuntimeSuite(options = {}) {
   context.assert(syntaxCheckFile('xtend-maraca/server-services.mjs', { rootDir }).ok, 'AppServices native ESM server entry passes syntax check');
   await runEsmAssertions(context, rootDir);
   await runDefinitionAssertions(context);
+  await runInputPolicyAssertions(context);
   await runRaceAssertions(context);
   await runConcurrencyAssertions(context);
   await runAbortAssertions(context);

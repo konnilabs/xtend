@@ -112,6 +112,15 @@ const DOCS_RMT_PLAYGROUND_HYDRATION_TAGS = Object.freeze([
   'x-type',
   'x-writer'
 ]);
+const DOCS_RMT_PLAYGROUND_LAYOUT_TAGS = Object.freeze([
+  'x-button',
+  'x-icon',
+  'x-select',
+  'x-side-panel',
+  'x-surface-manager',
+  'x-surface-window',
+  'x-textarea'
+]);
 const DOCS_RMT_PLAYGROUND_ISLANDS = Object.freeze({
   editor: Object.freeze({
     id: 'docs.rmt.playground.editor',
@@ -401,6 +410,7 @@ const DOCS_SHELL_SCOPED_CSS = `
     justify-content: flex-end;
     align-items: center;
     gap: 0.5rem;
+    min-block-size: 44px;
     margin-bottom: 0.8rem;
   }
   .docs-app-shell {
@@ -2018,6 +2028,102 @@ function getDocsSsrPrehydration() {
     : null;
 }
 
+function getAdoptedDocsContentPayload(root, shell, slug, locale, rmtMeta = {}) {
+  const prehydration = getDocsSsrPrehydration();
+  const proof = prehydration && prehydration.schema === 'xtend.docs.php-ssr-prehydration.v2'
+    ? prehydration.document
+    : null;
+  if (
+    !proof
+    || proof.htmlAlreadyInDom !== true
+    || !root
+    || !shell
+    || !shell.mdContent
+    || root.getAttribute('data-docs-ssr-proof-consumed') === 'true'
+  ) return null;
+  const normalizedLocale = normalizeDocsLocale(locale);
+  const hostHash = root.getAttribute('data-xrouter-content-sha256') || '';
+  const shellHash = shell.section.getAttribute('data-rmt-content-sha256') || '';
+  const contentHash = shell.mdContent.getAttribute('data-rmt-content-sha256') || '';
+  const hostDomHash = root.getAttribute('data-xrouter-dom-sha256') || '';
+  const contentDomHash = shell.mdContent.getAttribute('data-rmt-dom-sha256') || '';
+  const domHashBasis = root.getAttribute('data-xrouter-dom-hash-basis') || '';
+  const hostStructureHash = root.getAttribute('data-xrouter-dom-structure-sha256') || '';
+  const contentStructureHash = shell.mdContent.getAttribute('data-rmt-dom-structure-sha256') || '';
+  const structureHashBasis = root.getAttribute('data-xrouter-dom-structure-hash-basis') || '';
+  const matches = proof.slug === slug
+    && normalizeDocsLocale(proof.locale) === normalizedLocale
+    && root.getAttribute('data-docs-route-slug') === slug
+    && normalizeDocsLocale(root.getAttribute('data-docs-route-locale')) === normalizedLocale
+    && proof.sha256
+    && proof.sha256 === hostHash
+    && hostHash === shellHash
+    && shellHash === contentHash
+    && proof.domSha256
+    && proof.domSha256 === hostDomHash
+    && hostDomHash === contentDomHash
+    && proof.domHashBasis === 'normalized-text-content.v1'
+    && domHashBasis === proof.domHashBasis
+    && shell.mdContent.getAttribute('data-rmt-dom-hash-basis') === domHashBasis
+    && proof.domStructureSha256
+    && proof.domStructureSha256 === hostStructureHash
+    && hostStructureHash === contentStructureHash
+    && proof.domStructureHashBasis === 'sensitive-element-sequence-attributes.v1'
+    && structureHashBasis === proof.domStructureHashBasis
+    && shell.mdContent.getAttribute('data-rmt-dom-structure-hash-basis') === structureHashBasis
+    && shell.mdContent.getAttribute('data-rmt-sanitized') === 'true'
+    && shell.mdContent.getAttribute('data-rmt-sanitizer') === 'xtend.security.trusted-dom-sanitizer.v1'
+    && shell.mdContent.getAttribute('data-rmt-trust-boundary') === proof.trustBoundary;
+  if (!matches) return null;
+  root.setAttribute('data-docs-ssr-proof-consumed', 'true');
+  return {
+    ok: true,
+    slug,
+    locale: normalizedLocale,
+    requestedLocale: normalizedLocale,
+    resolvedLocale: normalizedLocale,
+    fallbackLocale: getDocsI18nConfig().fallbackLocale,
+    translationAvailable: true,
+    html: null,
+    meta: rmtMeta,
+    source: 'ssr-adopted',
+    cacheHit: true,
+    contentProof: proof,
+    skeletonLoader: 'xtend.loader.skeleton-loader.v1'
+  };
+}
+
+function invalidateDocsSsrContentProof(root, shell, reason = 'csr-content') {
+  if (!root || !shell || !shell.mdContent) return;
+  [
+    'data-xrouter-prerendered-route',
+    'data-xrouter-route-path',
+    'data-xrouter-route-id',
+    'data-xrouter-route-component',
+    'data-xrouter-route-locale',
+    'data-xrouter-content-sha256',
+    'data-xrouter-content-bytes',
+    'data-xrouter-dom-sha256',
+    'data-xrouter-dom-hash-basis',
+    'data-xrouter-dom-structure-sha256',
+    'data-xrouter-dom-structure-hash-basis',
+    'data-xrouter-trust-boundary',
+    'data-xrouter-sanitizer',
+    'data-xrouter-sanitized'
+  ].forEach((name) => root.removeAttribute(name));
+  shell.section.removeAttribute('data-rmt-content-sha256');
+  [
+    'data-rmt-content-sha256',
+    'data-rmt-content-bytes',
+    'data-rmt-dom-sha256',
+    'data-rmt-dom-hash-basis',
+    'data-rmt-dom-structure-sha256',
+    'data-rmt-dom-structure-hash-basis'
+  ].forEach((name) => shell.mdContent.removeAttribute(name));
+  root.setAttribute('data-docs-ssr-proof-consumed', 'true');
+  root.setAttribute('data-docs-ssr-proof-invalidated', reason);
+}
+
 function findPrehydratedDocsShell(root, slug) {
   if (!root || typeof root.querySelector !== 'function') return null;
   const selectors = [
@@ -2047,6 +2153,7 @@ function adoptPrehydratedDocsShell(shell, rmtMeta = {}) {
   const richSlot = shell.querySelector('[data-rmt-slot="rich-content"], #docs-rich-content');
   const diagnosticsSlot = shell.querySelector('[data-rmt-slot="diagnostics"], #docs-rmt-diagnostics');
   if (!layout || !article || !sidebar || !relatedSlot || !demoSlot) return null;
+  ensureDocsRelatedSidebarScaffold(relatedSlot);
   if (!mdContent.id) mdContent.id = 'md-content';
   if (!download.id) download.id = 'download-link';
   configureDocsIconButton(download, {
@@ -2148,6 +2255,28 @@ function createDocsSidebarHeading(iconName, label, options = {}) {
   return heading;
 }
 
+function ensureDocsRelatedSidebarScaffold(relatedSlot) {
+  if (!relatedSlot || typeof relatedSlot.querySelector !== 'function') return null;
+  let heading = relatedSlot.querySelector('.docs-sidebar-heading');
+  if (!heading) {
+    heading = createDocsSidebarHeading('link', 'Read Further');
+    relatedSlot.insertBefore(heading, relatedSlot.firstChild);
+  }
+  let list = relatedSlot.querySelector('[data-rmt-slot="related-links"], .docs-related-list');
+  if (!list) {
+    const directLinks = Array.from(relatedSlot.children).filter((child) => child.matches('.docs-related-link'));
+    list = document.createElement('div');
+    list.className = 'docs-related-list';
+    list.setAttribute('data-rmt-slot', 'related-links');
+    directLinks.forEach((link) => list.appendChild(link));
+    relatedSlot.appendChild(list);
+  } else {
+    list.classList.add('docs-related-list');
+    list.setAttribute('data-rmt-slot', 'related-links');
+  }
+  return list;
+}
+
 function ensureDocsShellScopedStyles(root) {
   if (!root || !root.host || typeof root.getElementById !== 'function' || typeof root.appendChild !== 'function') {
     return;
@@ -2219,11 +2348,7 @@ function createFallbackDocsShell() {
   relatedSlot.setAttribute('data-rmt-slot', 'related');
   relatedSlot.setAttribute('data-rmt-component', 'docs.relatedLinks');
   relatedSlot.setAttribute('data-rmt-schedule', 'docs.related.prepare');
-  relatedSlot.appendChild(createDocsSidebarHeading('link', 'Read Further'));
-  const relatedList = document.createElement('div');
-  relatedList.className = 'docs-related-list';
-  relatedList.setAttribute('data-rmt-slot', 'related-links');
-  relatedSlot.appendChild(relatedList);
+  ensureDocsRelatedSidebarScaffold(relatedSlot);
 
   const demoSlot = document.createElement('section');
   demoSlot.id = 'docs-component-demo';
@@ -2330,6 +2455,7 @@ function createRmtDocsShell(slug, rmtMeta = {}) {
     return fallback;
   }
 
+  ensureDocsRelatedSidebarScaffold(relatedSlot);
   if (!mdContent.id) mdContent.id = 'md-content';
   if (!download.id) download.id = 'download-link';
   configureDocsIconButton(download, {
@@ -2944,6 +3070,9 @@ function applyDocsTrustedDomHtml(target, html, options = {}) {
   });
   result.codeFenceUpgrade = codeFenceUpgrade;
   result.upgradedCodeFenceCount = codeFenceUpgrade.upgraded;
+  target.setAttribute('data-docs-code-enhancement', codeFenceUpgrade.upgraded > 0 ? 'csr-committed' : 'not-needed');
+  if (codeFenceUpgrade.upgraded > 0) target.setAttribute('data-docs-code-enhancement-trigger', 'csr');
+  else target.removeAttribute('data-docs-code-enhancement-trigger');
   target.setAttribute('data-rmt-sanitized', 'true');
   target.setAttribute('data-rmt-sanitizer', DOCS_RMT_TRUSTED_DOM_SANITIZER);
   target.setAttribute('data-rmt-trusted-dom-proof', DOCS_RMT_TRUSTED_DOM_PROOF_SCHEMA);
@@ -3365,7 +3494,8 @@ function createRelatedLink(entry) {
 
 function renderDocsRelatedSidebar(relatedSlot, slug, linksInput) {
   if (!relatedSlot) return;
-  const list = relatedSlot.querySelector('[data-rmt-slot="related-links"], .docs-related-list') || relatedSlot;
+  const list = ensureDocsRelatedSidebarScaffold(relatedSlot);
+  if (!list) return;
   while (list.firstChild) list.removeChild(list.firstChild);
   const links = Array.isArray(linksInput) ? linksInput : mergeDocsRelatedLinks(slug);
   links.forEach((entry) => list.appendChild(createRelatedLink(entry)));
@@ -3482,6 +3612,101 @@ function hydrateDocsCodeBlocks(root, metadata = {}) {
     };
     scheduleDocsAfterPaint(commit);
   });
+}
+
+function scheduleDocsSsrCodeEnhancement(root, metadata = {}) {
+  if (!root || typeof window === 'undefined') return () => {};
+  const codeFenceCount = root.querySelectorAll ? root.querySelectorAll('pre > code').length : 0;
+  if (codeFenceCount === 0) {
+    root.setAttribute('data-docs-code-fence-upgraded', '0');
+    root.setAttribute('data-docs-code-enhancement', 'not-needed');
+    root.removeAttribute('data-docs-code-enhancement-trigger');
+    return () => {};
+  }
+  let disposed = false;
+  let enhanced = false;
+  let componentReady = Boolean(customElements.get('x-code'));
+  let interactionRequested = false;
+  let idleDisposer = null;
+  const listeners = [];
+  const isActive = typeof metadata.isActive === 'function' ? metadata.isActive : () => true;
+  const scheduleId = metadata.schedule || 'docs.syntax.highlight';
+  const schedule = getRmtSchedule(scheduleId);
+  const endpointName = schedule && schedule.endpointName ? schedule.endpointName : scheduleId;
+  const deadlineMs = Number(schedule && schedule.deadlineMs) > 0 ? Number(schedule.deadlineMs) : 280;
+  const removeListeners = () => {
+    listeners.splice(0).forEach(({ type, listener }) => {
+      window.removeEventListener(type, listener, true);
+    });
+  };
+  const cancelIdleEnhancement = () => {
+    if (typeof idleDisposer !== 'function') return;
+    const dispose = idleDisposer;
+    idleDisposer = null;
+    dispose();
+  };
+  const enhance = (trigger = 'idle') => {
+    if (disposed || enhanced || !isActive()) return false;
+    if (!componentReady) {
+      if (trigger === 'interaction') interactionRequested = true;
+      return false;
+    }
+    enhanced = true;
+    cancelIdleEnhancement();
+    removeListeners();
+    const normalizedCodeEntityCount = normalizeDocsParsedownCodeEntities(root);
+    const codeFenceUpgrade = upgradeDocsParsedownCodeFences(root, { schedule: scheduleId });
+    root.setAttribute('data-docs-code-fence-upgraded', String(codeFenceUpgrade.upgraded));
+    root.setAttribute('data-docs-code-enhancement', `${trigger}-committed`);
+    root.setAttribute('data-docs-code-enhancement-trigger', trigger);
+    hydrateDocsCodeBlocks(root, metadata).catch(() => {});
+    root.setAttribute('data-docs-code-normalized-count', String(normalizedCodeEntityCount));
+    return true;
+  };
+  const scheduleIdleEnhancement = () => {
+    if (disposed || enhanced || idleDisposer || !componentReady || !isActive()) return;
+    idleDisposer = docsBrowserScheduler.scheduleEndpoint(endpointName, window.location.pathname, () => {
+      cancelIdleEnhancement();
+      enhance('idle');
+    }, { kind: 'idle', timeout: deadlineMs });
+  };
+  const prepare = window.XTendLoader && typeof window.XTendLoader.ensureComponent === 'function'
+    ? window.XTendLoader.ensureComponent('x-code', {
+        source: 'docs.ssr-code-enhancement',
+        reason: 'ssr-code-enhancement-prepare',
+        schedule: scheduleId
+      })
+    : customElements.whenDefined('x-code').then(() => true);
+  Promise.resolve(prepare).then(() => {
+    if (disposed || !isActive()) return;
+    componentReady = Boolean(customElements.get('x-code'));
+    if (!componentReady) {
+      root.setAttribute('data-docs-code-enhancement', 'component-unavailable');
+      removeListeners();
+      return;
+    }
+    if (interactionRequested) enhance('interaction');
+    else scheduleIdleEnhancement();
+  }).catch(() => {
+    if (disposed || !isActive()) return;
+    root.setAttribute('data-docs-code-enhancement', 'component-unavailable');
+    removeListeners();
+  });
+  ['pointerdown', 'keydown'].forEach((type) => {
+    const listener = () => {
+      interactionRequested = true;
+      enhance('interaction');
+    };
+    listeners.push({ type, listener });
+    window.addEventListener(type, listener, { capture: true, passive: true });
+  });
+  root.setAttribute('data-docs-code-enhancement', 'idle-pending');
+  root.removeAttribute('data-docs-code-enhancement-trigger');
+  return () => {
+    disposed = true;
+    cancelIdleEnhancement();
+    removeListeners();
+  };
 }
 
 function bindDocsDemoInteractions(container, demo) {
@@ -4487,6 +4712,19 @@ function hydrateDocsRmtPlaygroundElements(root, extraTags = []) {
   }).catch(() => {});
 }
 
+async function prepareDocsRmtPlaygroundLayoutElements() {
+  const loader = window.XTendLoader;
+  if (!loader || typeof loader.ensureComponent !== 'function' || !window.customElements) return false;
+  const results = await Promise.all(DOCS_RMT_PLAYGROUND_LAYOUT_TAGS.map((tag) => (
+    loader.ensureComponent(tag, {
+      source: 'docs.rmt-playground',
+      reason: 'rmt-playground-layout-before-commit',
+      schedule: 'docs.rmt-playground.hydrate'
+    }).catch(() => false)
+  )));
+  return results.every(Boolean) && DOCS_RMT_PLAYGROUND_LAYOUT_TAGS.every((tag) => Boolean(customElements.get(tag)));
+}
+
 function getDocsRmtPlaygroundPresetLabel(id, locale = getCurrentDocsLocale()) {
   const labels = {
     de: {
@@ -4537,7 +4775,7 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
   const articleFragment = document.createDocumentFragment();
   Array.from(container.childNodes).forEach((node) => {
     if (node.nodeType === 1 && node.matches && node.matches('[data-rmt-playground-root]')) return;
-    articleFragment.appendChild(node);
+    articleFragment.appendChild(node.cloneNode(true));
   });
   const copy = getDocsRmtPlaygroundCopy(locale);
   const root = createDocsRmtPlaygroundElement('section', {
@@ -5155,6 +5393,7 @@ class XtendDocPage extends HTMLElement {
   }
 
   connectedCallback() {
+    if (this.hasAttribute('data-xrouter-adoption-pending')) return;
     this.renderRoute({ source: 'connected-callback' });
   }
 
@@ -5164,6 +5403,11 @@ class XtendDocPage extends HTMLElement {
 
   updateRoute(context = {}) {
     return this.renderRoute({ ...context, source: context.source || 'x-router-reuse' });
+  }
+
+  adoptRoute(context = {}) {
+    this.removeAttribute('data-xrouter-adoption-pending');
+    return this.renderRoute({ ...context, adopted: true, reused: true, source: 'x-router-adoption' });
   }
 
   cancelScheduledRouteWork() {
@@ -5183,7 +5427,13 @@ class XtendDocPage extends HTMLElement {
   ensureRouteShell(slug, rmtMeta) {
     if (!this.__xtendDocsShell) {
       const ssrPrehydration = getDocsSsrPrehydration();
-      const prehydratedShell = ssrPrehydration && ssrPrehydration.ok !== false
+      const documentPrehydrated = Boolean(
+        ssrPrehydration
+        && ssrPrehydration.schema === 'xtend.docs.php-ssr-prehydration.v2'
+        && ssrPrehydration.document
+        && ssrPrehydration.document.htmlAlreadyInDom === true
+      );
+      const prehydratedShell = ssrPrehydration && (ssrPrehydration.ok !== false || documentPrehydrated)
         ? adoptPrehydratedDocsShell(findPrehydratedDocsShell(this, slug), rmtMeta)
         : null;
       if (prehydratedShell) {
@@ -5309,24 +5559,43 @@ class XtendDocPage extends HTMLElement {
     ensureMainBackgroundBinding();
 
     syncActiveHeaderLink(slug);
-    shell.mdContent.setAttribute('data-docs-content-state', 'loading');
-    const routeSkeleton = showDocsSkeleton(shell.mdContent, {
-      profile: 'docs-article',
-      variant: 'article',
-      lines: 11,
-      minHeight: '24rem',
-      label: locale === 'en' ? 'Documentation content is loading' : 'Dokumentationsinhalt wird geladen',
-      source: 'docs.parsedown',
-      schedule: parseSchedule
-    });
-    shell.mdContent.toggleAttribute('data-docs-stale-content-preserved', !routeSkeleton);
+    const adoptedContentPayload = getAdoptedDocsContentPayload(this, shell, slug, locale, rmtMeta);
+    if (context.adopted === true && !adoptedContentPayload) {
+      invalidateDocsSsrContentProof(this, shell, 'router-adoption-rejected');
+      this.setAttribute('data-docs-route-state', 'adoption-rejected');
+      this.removeAttribute('aria-busy');
+      return false;
+    }
+    let routeSkeleton = null;
+    if (adoptedContentPayload) {
+      shell.mdContent.setAttribute('data-docs-content-state', 'server-rendered');
+      shell.mdContent.removeAttribute('data-docs-stale-content-preserved');
+    } else {
+      invalidateDocsSsrContentProof(this, shell, 'csr-route-load');
+      shell.mdContent.setAttribute('data-docs-content-state', 'loading');
+      routeSkeleton = showDocsSkeleton(shell.mdContent, {
+        profile: 'docs-article',
+        variant: 'article',
+        lines: 11,
+        minHeight: '24rem',
+        label: locale === 'en' ? 'Documentation content is loading' : 'Dokumentationsinhalt wird geladen',
+        source: 'docs.parsedown',
+        schedule: parseSchedule
+      });
+      shell.mdContent.toggleAttribute('data-docs-stale-content-preserved', !routeSkeleton);
+    }
 
-    const contentPayloadPromise = loadDocsParsedownContent(slug, rmtMeta, locale);
+    const contentPayloadPromise = adoptedContentPayload
+      ? Promise.resolve(adoptedContentPayload)
+      : loadDocsParsedownContent(slug, rmtMeta, locale);
     const recommendationPromise = window.xtendDocsShellRuntime && typeof window.xtendDocsShellRuntime.recommendRelated === 'function'
       ? window.xtendDocsShellRuntime.recommendRelated({ slug, locale, resultLimit: 10 }).catch(() => ({
           status: 'degraded', source: 'navigation-fallback', fallback: true, results: []
         }))
       : Promise.resolve({ status: 'unavailable', source: 'navigation-fallback', fallback: true, results: [] });
+    const playgroundLayoutPromise = slug === 'learn-rmt-playground'
+      ? prepareDocsRmtPlaygroundLayoutElements().catch(() => false)
+      : Promise.resolve(true);
     let relatedLinks = [];
     let contentCommitted = false;
 
@@ -5335,25 +5604,46 @@ class XtendDocPage extends HTMLElement {
       const payload = await contentPayloadPromise;
       if (!this.isActiveRouteToken(token) || contentCommitted) return false;
       contentCommitted = true;
+      const ssrAdopted = Boolean(payload && payload.source === 'ssr-adopted');
       const html = payload && typeof payload.html === 'string'
         ? payload.html
-        : getDocsPageFallbackMarkup(locale);
+        : (ssrAdopted ? null : getDocsPageFallbackMarkup(locale));
       const payloadMeta = payload && payload.meta && typeof payload.meta === 'object'
         ? payload.meta
         : rmtMeta;
       applyRmtPageMetadata(shell.section, shell.mdContent, shell.richSlot, shell.diagnosticsSlot, payloadMeta, shell.sidebar, shell.relatedSlot, shell.demoSlot);
-      const trustedDomResult = measuredLane('visible', parseSchedule, 'article.trusted-dom-commit', () => applyDocsTrustedDomHtml(shell.mdContent, html, {
-        slug,
-        locale,
-        source: payloadMeta.source || rmtMeta.source || 'docs.parsedown',
-        markupClass: payloadMeta.markupClass || rmtMeta.markupClass || 'parsedownHtml',
-        trustBoundary: payloadMeta.trustBoundary || rmtMeta.trustBoundary || DOCS_RMT_TRUST_BOUNDARY,
-        syntaxSchedule: 'docs.syntax.highlight'
-      }));
+      const trustedDomResult = ssrAdopted
+        ? measuredLane('visible', parseSchedule, 'article.ssr-adopt', () => {
+            shell.mdContent.setAttribute('data-docs-ssr-adopted', 'true');
+            shell.mdContent.setAttribute('data-docs-code-fence-upgraded', '0');
+            return {
+              schema: shell.mdContent.getAttribute('data-rmt-trusted-dom-proof') || DOCS_RMT_TRUSTED_DOM_PROOF_SCHEMA,
+              sanitizer: shell.mdContent.getAttribute('data-rmt-sanitizer') || DOCS_RMT_TRUSTED_DOM_SANITIZER,
+              sanitized: true,
+              removedCount: 0,
+              boundary: shell.mdContent.getAttribute('data-rmt-trust-boundary') || DOCS_RMT_TRUST_BOUNDARY,
+              markupClass: 'parsedownHtml',
+              cacheHit: true,
+              normalizedCodeEntityCount: 0,
+              codeFenceUpgrade: {
+                schema: 'xtend.docs.xcode-fence-upgrade.v1',
+                upgraded: 0,
+                schedule: 'docs.syntax.highlight'
+              }
+            };
+          })
+        : measuredLane('visible', parseSchedule, 'article.trusted-dom-commit', () => applyDocsTrustedDomHtml(shell.mdContent, html, {
+            slug,
+            locale,
+            source: payloadMeta.source || rmtMeta.source || 'docs.parsedown',
+            markupClass: payloadMeta.markupClass || rmtMeta.markupClass || 'parsedownHtml',
+            trustBoundary: payloadMeta.trustBoundary || rmtMeta.trustBoundary || DOCS_RMT_TRUST_BOUNDARY,
+            syntaxSchedule: 'docs.syntax.highlight'
+          }));
       hideDocsSkeleton(shell.mdContent);
       shell.mdContent.setAttribute('data-docs-content-state', 'ready');
       shell.mdContent.removeAttribute('data-docs-stale-content-preserved');
-      window.xtendDocsRmtLastRender.lazyPayload = payload && payload.source !== 'inline';
+      window.xtendDocsRmtLastRender.lazyPayload = payload && !['inline', 'ssr-adopted'].includes(payload.source);
       window.xtendDocsRmtLastRender.payloadSource = payload ? payload.source : 'unknown';
       window.xtendDocsRmtLastRender.requestedLocale = payload ? payload.requestedLocale : locale;
       window.xtendDocsRmtLastRender.resolvedLocale = payload ? payload.resolvedLocale : locale;
@@ -5370,7 +5660,7 @@ class XtendDocPage extends HTMLElement {
       };
 
       relatedLinks = measuredLane('visible', relatedSchedule, 'article.related-extract', () => {
-        upgradeRoutedLinks(shell.mdContent);
+        if (!ssrAdopted) upgradeRoutedLinks(shell.mdContent);
         return extractDocsRelatedLinks(shell.mdContent);
       });
       return true;
@@ -5466,11 +5756,20 @@ class XtendDocPage extends HTMLElement {
             contentCommitDurationMs: Number((laneDurations.find((entry) => entry.operation === 'article.trusted-dom-commit') || {}).durationMs || 0)
           }
         }));
-        hydrateDocsCodeBlocks(shell.mdContent, {
+        const codeHydrationMetadata = {
           slug,
           reason: 'parsedown-code-fence-syntax-highlight',
           schedule: 'docs.syntax.highlight'
-        });
+        };
+        if (adoptedContentPayload) {
+          const codeEnhancementDisposer = scheduleDocsSsrCodeEnhancement(shell.mdContent, {
+            ...codeHydrationMetadata,
+            isActive: () => this.isActiveRouteToken(token)
+          });
+          this.scheduleRouteWork(codeEnhancementDisposer);
+        } else {
+          hydrateDocsCodeBlocks(shell.mdContent, codeHydrationMetadata);
+        }
         if (animationEngineDemoRoot) {
           animationEngineDemoRoot.setAttribute('data-content-committed-at', String(docsPerfNow()));
           const animationDemoDisposer = scheduleDocsAnimationEngineDemoHydration({
@@ -5481,9 +5780,15 @@ class XtendDocPage extends HTMLElement {
           this.scheduleRouteWork(animationDemoDisposer);
         }
         if (slug === 'learn-rmt-playground') {
-          const playgroundRoot = measuredLane('idle', richSchedule, 'rmt-playground.render', () => renderDocsRmtPlayground(shell.mdContent, locale, relatedLinks));
-          if (playgroundRoot && typeof playgroundRoot.__xtendDocsDispose === 'function') {
-            this.scheduleRouteWork(() => playgroundRoot.__xtendDocsDispose());
+          const playgroundLayoutReady = await playgroundLayoutPromise;
+          if (!this.isActiveRouteToken(token)) return;
+          if (playgroundLayoutReady) {
+            const playgroundRoot = measuredLane('idle', richSchedule, 'rmt-playground.render', () => renderDocsRmtPlayground(shell.mdContent, locale, relatedLinks));
+            if (playgroundRoot && typeof playgroundRoot.__xtendDocsDispose === 'function') {
+              this.scheduleRouteWork(() => playgroundRoot.__xtendDocsDispose());
+            }
+          } else {
+            shell.mdContent.setAttribute('data-rmt-playground-enhancement-state', 'component-definition-unavailable');
           }
         }
         finishTransition();

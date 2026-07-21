@@ -64,6 +64,7 @@ function runSurfaceManagerLayoutEnginesSuite(options = {}) {
   const report = createSurfaceManagerLayoutEnginesReport({ rootDir, plan });
   const managerRuntime = readText('components/xsurfacemanager.js', rootDir);
   const managerTypes = readText('components/xsurfacemanager.d.ts', rootDir);
+  const managerSource = readText('src/components/x-surface-manager/x-surface-manager.ts', rootDir);
   const sidePanelRuntime = readText('components/xsidepanel.js', rootDir);
   const sidePanelTypes = readText('components/xsidepanel.d.ts', rootDir);
   const windowRuntime = readText('components/xsurfacewindow.js', rootDir);
@@ -101,6 +102,8 @@ function runSurfaceManagerLayoutEnginesSuite(options = {}) {
   context.assert(plan.runtimeBoundary.snapshotCompatibleBounds === true, 'Layout bounds are snapshot compatible');
   context.assert(plan.runtimeBoundary.visibleDockingRuntime === true, 'Docking is visible runtime behavior');
   context.assert(plan.runtimeBoundary.stackedResponsiveFallback === true, 'Stacked responsive fallback is explicit');
+  context.assert(plan.runtimeBoundary.documentFlowRuntime === true, 'Document-flow is visible runtime behavior');
+  context.assert(plan.runtimeBoundary.documentFlowCommitsBounds === false, 'Document-flow leaves controller bounds untouched');
   context.assert(plan.runtimeBoundary.createsSecondRegistry === false, 'Layout engine creates no second registry');
   context.assert(validation.ok === true, 'Surface layout engine plan validates');
   context.assert(report.ok === true, 'Surface layout engine report validates');
@@ -112,7 +115,7 @@ function runSurfaceManagerLayoutEnginesSuite(options = {}) {
     "const SURFACE_LAYOUT_ENGINE_SCHEMA = 'xtend.surface.layout-engine.v1'",
     "const SURFACE_LAYOUT_ENGINE_REPORT_SCHEMA = 'xtend.surface.layout-engine-report.v1'",
     "const SURFACE_LAYOUT_ENGINE_DIAGNOSTIC_SCHEMA = 'xtend.surface.layout-engine-diagnostic.v1'",
-    "Object.freeze(['freeform', 'docked', 'split', 'tile', 'stacked'])",
+    "Object.freeze(['freeform', 'docked', 'split', 'tile', 'stacked', 'document-flow'])",
     'layout-engine',
     'surface-layout-gap',
     'surface-layout-snap',
@@ -132,7 +135,13 @@ function runSurfaceManagerLayoutEnginesSuite(options = {}) {
     'xtend.surface.layoutEngine',
     'snapshotCompatible: true',
     'controllerRemainsRegistryTruth: true',
-    'createsSecondRegistry: false'
+    'createsSecondRegistry: false',
+    ':host([layout-engine="document-flow"]) .workspace',
+    'grid-template-columns: minmax(0, 1fr)',
+    'position: static !important',
+    "!['freeform', 'document-flow'].includes(requestedEngine)",
+    "engine === 'document-flow'",
+    "engine !== 'document-flow'"
   ], 'x-surface-manager layout engine runtime');
   assertTextIncludesAll(context, managerRuntime, LAYOUT_ENGINES, 'x-surface-manager layout engine strings');
 
@@ -146,6 +155,14 @@ function runSurfaceManagerLayoutEnginesSuite(options = {}) {
     'undockSurface',
     'surface-layout-engine-applied'
   ], 'x-surface-manager layout engine public types');
+  assertTextIncludesAll(context, managerSource, [
+    'XSurfaceManagerLayoutEngine',
+    "| 'document-flow'",
+    'layoutEngineSnapshot',
+    'snapshotSurfaceLayout()',
+    'applyLayoutEngine(engine?: XSurfaceManagerLayoutEngine',
+    "layoutEngines: ['freeform', 'docked', 'split', 'tile', 'stacked', 'document-flow']"
+  ], 'x-surface-manager TypeScript source contract');
 
   assertTextIncludesAll(context, sidePanelRuntime, [
     ':host([mode="floating"])',
@@ -167,25 +184,33 @@ function runSurfaceManagerLayoutEnginesSuite(options = {}) {
     "manager.dockSurface('inspector-panel'",
     "manager.undockSurface('inspector-panel'",
     'manager.snapshotSurfaceLayout',
+    'layout-engine="document-flow"',
+    "applyLayoutEngine('document-flow'",
+    'workspacePosition',
+    'workspaceDisplay',
+    'hostOverflow',
     '__xtendComponentResult'
   ], 'Surface layout engine fixture');
 
   assertTextIncludesAll(context, docs, [
-    '# SurfaceManager Layout Engines',
+    '# x-surface-manager',
     SURFACE_MANAGER_LAYOUT_ENGINE_SCHEMA,
     'freeform',
     'docked',
     'split',
     'tile',
     'stacked',
+    'document-flow',
     'Snapshot',
-    'keine zweite Registry'
+    'no mode creates a second registry'
   ], 'Surface layout engine docs');
 
   context.assert(metadata && metadata.schema === SURFACE_MANAGER_LAYOUT_ENGINE_SCHEMA, 'Package metadata exposes surface layout engine schema');
   context.assert(metadata && metadata.localGate === SURFACE_MANAGER_LAYOUT_ENGINE_LOCAL_GATE, 'Package metadata exposes surface layout engine gate');
   context.assert(metadata && metadata.packageScript === SURFACE_MANAGER_LAYOUT_ENGINE_PACKAGE_SCRIPT, 'Package metadata exposes surface layout engine package script');
   context.assert(metadata && metadata.visibleDockingRuntime === true, 'Package metadata marks visible docking runtime');
+  context.assert(metadata && metadata.documentFlowRuntime === true, 'Package metadata marks document-flow runtime');
+  context.assert(metadata && metadata.documentFlowCommitsBounds === false, 'Package metadata marks document-flow as non-committing');
   context.assert(metadata && metadata.createsSecondRegistry === false, 'Package metadata keeps no-second-registry boundary');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-layout-engines'] === 'node scripts/run_xtend_tests.js surface-layout-engines', 'Package script test:surface-layout-engines exists');
   context.assertIncludes(runner, "require('../tests/components/surface_manager_layout_engines_suite')", 'Runner imports surface layout engines suite');

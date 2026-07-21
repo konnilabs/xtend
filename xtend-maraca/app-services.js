@@ -1,5 +1,11 @@
 'use strict';
 
+const {
+  SANITIZING_BOUNDARY_CONTRACT,
+  TRUSTED_TEXT_SANITIZER_CONTRACT,
+  sanitizeTrustedText
+} = require('./trusted-text-sanitizer');
+
 const MARACA_APP_SERVICES_SCHEMA = 'xtend.maraca.app-services.v1';
 const MARACA_APP_SERVICE_SCHEMA = 'xtend.maraca.app-service.v1';
 const MARACA_APP_SERVICE_REGISTRY_SCHEMA = 'xtend.maraca.app-service-registry.v1';
@@ -8,6 +14,8 @@ const MARACA_APP_SERVICE_RESPONSE_SCHEMA = 'xtend.maraca.app-service-response.v1
 const MARACA_APP_SERVICE_STREAM_SCHEMA = 'xtend.maraca.app-service-stream.v1';
 const MARACA_APP_SERVICE_STREAM_FRAME_SCHEMA = 'xtend.maraca.app-service-stream-frame.v1';
 const MARACA_APP_SERVICE_TRANSPORT_SCHEMA = 'xtend.maraca.app-service-transport.v1';
+const MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA = 'xtend.maraca.app-service-input-policy.v1';
+const MARACA_APP_SERVICE_INPUT_VERDICT_SCHEMA = 'xtend.maraca.app-service-input-verdict.v1';
 
 const SERVICE_KINDS = new Set(['query', 'command', 'stream']);
 const SERVICE_TARGETS = new Set(['local', 'server', 'remote-surface']);
@@ -57,6 +65,108 @@ class AppServiceStaleResultError extends AppServiceAbortError {
 
 function objectRecord(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+function inputPolicyForService(source, serviceId) {
+  if (!source || typeof source !== 'object') return null;
+  if (source.schema === MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA) return source;
+  if (Array.isArray(source.services)) {
+    const matches = source.services.filter((entry) => entry && entry.id === serviceId);
+    if (matches.length === 0) return { schema: null, fields: [], mismatch: 'service-missing' };
+    if (matches.length !== 1) return { schema: null, fields: [], mismatch: 'duplicate-service-id' };
+    const service = matches[0];
+    if (service.inputPolicy) return service.inputPolicy;
+    const actionDeclaresPolicy = (Array.isArray(service.actions) ? service.actions : []).some((action) =>
+      (Array.isArray(action && action.inputs) ? action.inputs : []).some((field) => field && field.inputPolicy)
+    );
+    return actionDeclaresPolicy
+      ? { schema: null, fields: [], mismatch: 'aggregate-policy-missing' }
+      : null;
+  }
+  return null;
+}
+
+function applyAppServiceInputPolicy(input, options = {}) {
+  const serviceId = requiredString(options.serviceId, 'App service id');
+  const policy = options.policy || inputPolicyForService(options.manifest, serviceId);
+  if (!policy) return { input, verdict: null };
+  const phase = String(options.phase || 'runtime');
+  const fields = Array.isArray(policy.fields) ? policy.fields : [];
+  const fieldNames = fields.map((field) => String(field && field.name || '')).filter(Boolean);
+  if (
+    policy.schema !== MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA
+    || fields.length === 0
+    || (Array.isArray(policy.conflicts) && policy.conflicts.length > 0)
+    || new Set(fieldNames).size !== fieldNames.length
+  ) {
+    throw new AppServiceError(`App service ${serviceId} input policy is invalid.`, {
+      code: 'xtend.maraca.app-service.input_policy_mismatch',
+      details: { serviceId, phase, schema: policy.schema || null, reason: policy.mismatch || 'invalid-policy' },
+      expose: true
+    });
+  }
+  const source = objectRecord(input);
+  const output = { ...source };
+  const fieldVerdicts = [];
+  let ok = input === source;
+  fields.forEach((field) => {
+    const name = String(field && field.name || '');
+    const boundary = String(field && field.boundary || '');
+    const sanitize = String(field && field.sanitize || '');
+    let sanitizerVerdict;
+    if (!name || boundary !== SANITIZING_BOUNDARY_CONTRACT || sanitize !== 'text' || String(field && field.type || '') !== 'string') {
+      sanitizerVerdict = {
+        schema: TRUSTED_TEXT_SANITIZER_CONTRACT,
+        ok: false,
+        changed: false,
+        diagnostics: ['xtend.maraca.app-service.input_policy_mismatch']
+      };
+    } else if (!Object.prototype.hasOwnProperty.call(source, name)) {
+      sanitizerVerdict = {
+        schema: TRUSTED_TEXT_SANITIZER_CONTRACT,
+        ok: false,
+        changed: false,
+        diagnostics: ['xtend.maraca.app-service.input_policy_field_missing']
+      };
+    } else {
+      sanitizerVerdict = sanitizeTrustedText(source[name]);
+      if (sanitizerVerdict.ok) output[name] = sanitizerVerdict.text;
+    }
+    ok = ok && sanitizerVerdict.ok === true;
+    fieldVerdicts.push(Object.freeze({
+      name,
+      ok: sanitizerVerdict.ok === true,
+      changed: sanitizerVerdict.changed === true,
+      boundary,
+      sanitize,
+      sanitizerSchema: sanitizerVerdict.schema || TRUSTED_TEXT_SANITIZER_CONTRACT,
+      diagnostics: Object.freeze((sanitizerVerdict.diagnostics || []).map(String))
+    }));
+  });
+  const verdict = Object.freeze({
+    schema: MARACA_APP_SERVICE_INPUT_VERDICT_SCHEMA,
+    ok,
+    sanitized: ok,
+    serviceId,
+    phase,
+    boundary: SANITIZING_BOUNDARY_CONTRACT,
+    fields: Object.freeze(fieldVerdicts)
+  });
+  if (typeof options.onVerdict === 'function') {
+    try {
+      options.onVerdict(verdict);
+    } catch (_) {
+      // Observability cannot change the trust decision.
+    }
+  }
+  if (!ok) {
+    throw new AppServiceError(`App service ${serviceId} input was blocked by its TrustBoundary.`, {
+      code: 'xtend.maraca.app-service.input_policy_blocked',
+      details: { serviceId, phase, verdict },
+      expose: true
+    });
+  }
+  return { input: output, verdict };
 }
 
 function requiredString(value, label) {
@@ -290,6 +400,7 @@ function createAppServiceRegistry(definitionInput, options = {}) {
   const serialTails = new Map();
   const latestByService = new Map();
   const history = [];
+  const inputPolicyVerdicts = [];
   const listenerErrors = [];
   const historyLimit = Number.isInteger(options.historyLimit) && options.historyLimit > 0 ? options.historyLimit : 100;
   let sequence = 0;
@@ -334,7 +445,8 @@ function createAppServiceRegistry(definitionInput, options = {}) {
       target: record.service.target,
       concurrency: record.service.concurrency,
       concurrencyKey: record.concurrencyKey,
-      status: record.status
+      status: record.status,
+      inputPolicyVerdict: record.inputPolicyVerdict || null
     }));
     if (history.length > historyLimit) history.splice(0, history.length - historyLimit);
   }
@@ -369,6 +481,7 @@ function createAppServiceRegistry(definitionInput, options = {}) {
       controller: linked.controller,
       timeoutHandle: null,
       status: 'queued',
+      inputPolicyVerdict: contextRecord.inputPolicyVerdict || null,
       promise: null
     };
     const timeoutMs = Number(contextRecord.timeoutMs);
@@ -456,8 +569,38 @@ function createAppServiceRegistry(definitionInput, options = {}) {
       executionId: record.id,
       invocationId: record.invocationId,
       correlationId: record.correlationId,
-      sequence: record.sequence
+      sequence: record.sequence,
+      inputPolicyVerdict: record.inputPolicyVerdict || null
     });
+  }
+
+  function recordInputPolicyVerdict(verdict) {
+    if (!verdict) return;
+    inputPolicyVerdicts.push(verdict);
+    if (inputPolicyVerdicts.length > historyLimit) inputPolicyVerdicts.splice(0, inputPolicyVerdicts.length - historyLimit);
+    if (typeof options.onInputPolicyVerdict === 'function') {
+      try {
+        options.onInputPolicyVerdict(verdict);
+      } catch (error) {
+        listenerErrors.push({ name: 'onInputPolicyVerdict', error });
+      }
+    }
+  }
+
+  function prepareInput(serviceDefinition, input) {
+    try {
+      const result = applyAppServiceInputPolicy(input, {
+        serviceId: serviceDefinition.id,
+        manifest: options.manifest || null,
+        phase: options.inputPolicyPhase || (definition.scope === 'server' ? 'server' : 'browser')
+      });
+      recordInputPolicyVerdict(result.verdict);
+      return result;
+    } catch (error) {
+      const verdict = error && error.details && error.details.verdict;
+      recordInputPolicyVerdict(verdict);
+      throw error;
+    }
   }
 
   function executesLocally(serviceDefinition) {
@@ -501,6 +644,7 @@ function createAppServiceRegistry(definitionInput, options = {}) {
   function invoke(serviceId, input, context = {}) {
     let serviceDefinition;
     let record;
+    let prepared;
     try {
       serviceDefinition = getService(serviceId);
       if (serviceDefinition.kind === 'stream') {
@@ -510,11 +654,13 @@ function createAppServiceRegistry(definitionInput, options = {}) {
           expose: true
         });
       }
+      prepared = prepareInput(serviceDefinition, input);
       record = createRecord(serviceDefinition, context);
+      if (prepared.verdict) record.inputPolicyVerdict = prepared.verdict;
     } catch (error) {
       return Promise.reject(error);
     }
-    const promise = schedule(record, () => runInvoke(record, input));
+    const promise = schedule(record, () => runInvoke(record, prepared.input));
     record.promise = promise;
     return decorateInvocation(promise, record, (reason) => cancelRecord(record, new AppServiceAbortError(String(reason || 'App service invocation cancelled.'))));
   }
@@ -531,6 +677,7 @@ function createAppServiceRegistry(definitionInput, options = {}) {
   function stream(serviceId, input, handlers = {}, context = {}) {
     let serviceDefinition;
     let record;
+    let prepared;
     try {
       serviceDefinition = getService(serviceId);
       if (serviceDefinition.kind !== 'stream') {
@@ -540,7 +687,9 @@ function createAppServiceRegistry(definitionInput, options = {}) {
           expose: true
         });
       }
+      prepared = prepareInput(serviceDefinition, input);
       record = createRecord(serviceDefinition, context);
+      if (prepared.verdict) record.inputPolicyVerdict = prepared.verdict;
     } catch (error) {
       throw error;
     }
@@ -634,7 +783,7 @@ function createAppServiceRegistry(definitionInput, options = {}) {
         const handlerContext = executionContext(record);
         let source;
         if (executesLocally(record.service)) {
-          source = await raceWithAbort(record.service.stream(input, handlerContext), record.controller.signal);
+          source = await raceWithAbort(record.service.stream(prepared.input, handlerContext), record.controller.signal);
         } else {
           if (!transport || typeof transport.stream !== 'function') {
             throw new AppServiceError(`App service stream transport for ${record.serviceId} is missing.`, {
@@ -646,7 +795,7 @@ function createAppServiceRegistry(definitionInput, options = {}) {
             serviceId: record.serviceId,
             kind: record.service.kind,
             target: record.service.target,
-            input,
+            input: prepared.input,
             invocationId: record.invocationId,
             correlationId: record.correlationId,
             signal: record.controller.signal,
@@ -761,7 +910,8 @@ function createAppServiceRegistry(definitionInput, options = {}) {
       concurrency: record.service.concurrency,
       concurrencyKey: record.concurrencyKey,
       status: record.status,
-      aborted: record.controller.signal.aborted
+      aborted: record.controller.signal.aborted,
+      inputPolicyVerdict: record.inputPolicyVerdict || null
     });
   }
 
@@ -782,6 +932,9 @@ function createAppServiceRegistry(definitionInput, options = {}) {
     },
     listHistory() {
       return history.slice();
+    },
+    listInputPolicyVerdicts() {
+      return inputPolicyVerdicts.slice();
     },
     listListenerErrors() {
       return listenerErrors.slice();
@@ -1036,12 +1189,15 @@ module.exports = {
   MARACA_APP_SERVICE_STREAM_SCHEMA,
   MARACA_APP_SERVICE_STREAM_FRAME_SCHEMA,
   MARACA_APP_SERVICE_TRANSPORT_SCHEMA,
+  MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA,
+  MARACA_APP_SERVICE_INPUT_VERDICT_SCHEMA,
   AppServiceError,
   AppServiceAbortError,
   AppServiceStaleResultError,
   service,
   defineAppServices,
   defineServerServices,
+  applyAppServiceInputPolicy,
   createAppServiceRegistry,
   createHttpAppServiceTransport
 };

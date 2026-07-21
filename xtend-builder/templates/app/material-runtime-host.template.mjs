@@ -29,21 +29,29 @@ try {
   const result = await bootResult;
   const devApi = installMaterialDevApi({ target: globalThis, bootResult: result, bootDurationMs: performance.now() - startedAt });
   const surfaceCount = root.querySelectorAll('[data-maraca-surface]').length;
+  const expectedSurfaceCount = Number(result && result.surfaceCount);
+  const surfaceGraphReady = Number.isSafeInteger(expectedSurfaceCount)
+    && expectedSurfaceCount > 0
+    && surfaceCount === expectedSurfaceCount;
   const requiredMethods = ['getPerformanceSnapshot', 'getFabricTelemetrySnapshot', 'getKernelSnapshot', 'getHydrationSnapshot'];
   const snapshotsSerializable = requiredMethods.every((method) => {
     try { return typeof devApi[method] === 'function' && Boolean(JSON.stringify(devApi[method]())); } catch (_) { return false; }
   });
   const overflow = Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth);
-  const ready = Boolean(result && result.ok && result.orchestration && result.orchestration.enabled && surfaceCount >= 14 && devApi && snapshotsSerializable && overflow === 0);
+  const ready = Boolean(result && result.ok && result.orchestration && result.orchestration.enabled && surfaceGraphReady && devApi && snapshotsSerializable && overflow === 0);
   document.documentElement.dataset.maracaRuntimeReady = String(ready);
+  document.documentElement.dataset.xtmExpectedSurfaceCount = String(Number.isSafeInteger(expectedSurfaceCount) ? expectedSurfaceCount : 0);
+  document.documentElement.dataset.xtmSurfaceGraphReady = String(surfaceGraphReady);
   document.documentElement.dataset.xtendDevApiReady = String(Boolean(devApi));
   document.documentElement.dataset.xtendDevApiSerializable = String(snapshotsSerializable);
   document.documentElement.dataset.xtmHorizontalOverflow = String(overflow);
   document.documentElement.dataset.xtmTheme = theme;
   document.documentElement.dataset.xtmColorScheme = getComputedStyle(document.documentElement).colorScheme || 'normal';
-  if (status) status.value = ready ? `{{appTitle}} ready; ${surfaceCount} orchestrated surfaces.` : '{{appTitle}} runtime degraded.';
+  if (status) status.value = ready
+    ? `{{appTitle}} ready; ${surfaceCount} orchestrated surfaces.`
+    : `{{appTitle}} runtime degraded; ${surfaceCount}/${Number.isSafeInteger(expectedSurfaceCount) ? expectedSurfaceCount : 0} surfaces rendered.`;
   dispatchEvent(new CustomEvent('xtend-material:ready', {
-    detail: Object.freeze({ schema: 'xtend.material.generated-app-runtime.v1', ready, surfaceCount })
+    detail: Object.freeze({ schema: 'xtend.material.generated-app-runtime.v1', ready, surfaceCount, expectedSurfaceCount, surfaceGraphReady })
   }));
 } catch (error) {
   document.documentElement.dataset.maracaRuntimeReady = 'false';

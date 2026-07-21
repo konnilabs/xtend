@@ -54,7 +54,7 @@ For production screens, keep IDs stable when state keys or diagnostics include `
 Attributes:
 - `src`
 - `logo-size`
-- `title`
+- `title` (plain-text fallback for the `title` slot)
 - `sticky`
 - `shadow`
 - `brand-collapse` (`auto`, `never`, or `always`; defaults to `auto`)
@@ -86,7 +86,7 @@ Methods:
 - `snapshot()`
 
 Slots:
-- `title`
+- `title` (an explicitly assigned node overrides the `title` attribute)
 - `search`
 - `actions`
 - `utility`
@@ -142,6 +142,7 @@ CSS custom properties:
 - Menu events: `menu-before-open`, `menu-before-close`, `menu-mode-changed`, `menu-placement-changed`.
 - Menu tokens: `--xtend-header-menu-width`, `--xtend-header-menu-max-height`, `--xtend-header-menu-backdrop`.
 - Brand fitting: `brand-collapse="auto"` measures the complete title against the available brand track. If it does not fit, only the logo remains visible while the title stays available to assistive technology. Use `never` to keep the title or `always` to force the logo-only presentation.
+- Title fallback: when no node is assigned to `slot="title"`, the `title` attribute is rendered as plain text. The runtime writes it through `textContent`; markup in the attribute is never interpreted. An explicitly assigned title slot always remains authoritative.
 
 RMT Hosts should treat the component as a Custom Element boundary: pass attributes as component props, bind DOM events to commands and keep scheduling metadata outside the component. Plain HTML hosts can use the same attributes and events without an RMT compiler.
 

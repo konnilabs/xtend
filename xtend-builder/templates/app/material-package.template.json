@@ -7,9 +7,11 @@
   "scripts": {
     "plan": "xt maraca plan --config maraca.config.json --json",
     "build": "xt maraca build --config maraca.config.json --json",
-    "serve": "npm run build && xt serve --root . --default site/index.html --port 4173",
+    "serve": "{{serveCommand}}",
+    "start": "{{startCommand}}",
     "tune": "xt maraca tune src/app.rmt --config maraca.config.json --out dist --write --json",
-    "test": "node --test test/material-app.smoke.test.cjs"
+    "test": "node --test test/material-app.smoke.test.cjs",
+    "test:catfood": "npm run build && node --test"
   },
   "dependencies": {
     "@ccslabs/xtend": "^0.5.0",
@@ -19,7 +21,7 @@
   "devDependencies": {
     "@ccslabs/xtend-cli": "^0.5.0",
     "@xtend-material/maraca-tailwind": "^0.1.0",
-    "tailwindcss": "4.3.2"
+    {{nodeTypesDependencyLine}}"tailwindcss": "4.3.2"
   },
   "engines": {
     "node": ">=24"

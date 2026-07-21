@@ -66,8 +66,21 @@
     </x-side-panel>
   </x-surface-manager>
 
+  <x-surface-manager
+    id="document-flow-manager"
+    manager-id="docs.document-flow"
+    layout-engine="document-flow"
+    aria-label="Document flow surfaces">
+    <section slot="windows" data-flow-child="intro">Intro content</section>
+    <form slot="windows" data-flow-child="form">
+      <label>Text <textarea rows="4"></textarea></label>
+    </form>
+    <section slot="windows" data-flow-child="history">History content</section>
+  </x-surface-manager>
+
   <script type="module">
     const manager = document.getElementById('layout-engine-manager');
+    const documentFlowManager = document.getElementById('document-flow-manager');
     await customElements.whenDefined('x-surface-manager');
     await customElements.whenDefined('x-surface-window');
     await customElements.whenDefined('x-side-panel');
@@ -76,13 +89,30 @@
     manager.dockSurface('inspector-panel', 'left', 'docked');
     manager.undockSurface('inspector-panel', { x: 40, y: 40, width: 300, height: 420 });
     const finalLayout = manager.snapshotSurfaceLayout();
+    const documentFlow = documentFlowManager.applyLayoutEngine('document-flow', {
+      source: 'fixture-document-flow',
+      commit: true
+    });
+    const documentFlowWorkspace = documentFlowManager.shadowRoot.querySelector('.workspace');
+    const documentFlowWorkspaceStyle = getComputedStyle(documentFlowWorkspace);
+    const documentFlowManagerStyle = getComputedStyle(documentFlowManager);
     window.__xtendComponentResult = {
       schema: 'xtend.surface.layout-engine.fixture-result.v1',
       ok: true,
       splitEngine: split.engine,
       finalEngine: finalLayout.engine,
       surfaceCount: finalLayout.surfaceCount,
-      snapshotCompatible: finalLayout.snapshotCompatible
+      snapshotCompatible: finalLayout.snapshotCompatible,
+      documentFlow: {
+        engine: documentFlow.engine,
+        requestedEngine: documentFlow.requestedEngine,
+        committed: documentFlow.committed,
+        surfaceCount: documentFlow.surfaceCount,
+        workspacePosition: documentFlowWorkspaceStyle.position,
+        workspaceDisplay: documentFlowWorkspaceStyle.display,
+        hostOverflow: documentFlowManagerStyle.overflow,
+        childCount: documentFlowManager.querySelectorAll('[data-flow-child]').length
+      }
     };
   </script>
 </body>

@@ -19,10 +19,13 @@ const {
   MARACA_APP_SERVICE_RESPONSE_SCHEMA,
   MARACA_APP_SERVICE_STREAM_SCHEMA,
   MARACA_APP_SERVICE_STREAM_FRAME_SCHEMA,
+  MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA,
+  MARACA_APP_SERVICE_INPUT_VERDICT_SCHEMA,
   AppServiceError,
   AppServiceAbortError,
   AppServiceStaleResultError,
   defineServerServices,
+  applyAppServiceInputPolicy,
   createAppServiceRegistry
 } = appServices;
 
@@ -34,12 +37,15 @@ export {
   MARACA_APP_SERVICE_RESPONSE_SCHEMA,
   MARACA_APP_SERVICE_STREAM_SCHEMA,
   MARACA_APP_SERVICE_STREAM_FRAME_SCHEMA,
+  MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA,
+  MARACA_APP_SERVICE_INPUT_VERDICT_SCHEMA,
   MARACA_NODE_APP_SERVICE_HOST_SCHEMA,
   AppServiceError,
   AppServiceAbortError,
   AppServiceStaleResultError,
   service,
   defineServerServices,
+  applyAppServiceInputPolicy,
   createAppServiceRegistry,
   createNodeAppServiceHost
 };

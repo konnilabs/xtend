@@ -28,8 +28,8 @@ function runXtendRmtAppScaffoldSuite() {
     const report = createRmtAppScaffold({ rootDir: root, out: 'app', server: 'both', write: true });
     assert.equal(report.ok, true);
     assert.equal(report.status, 'written');
-    assert.equal(report.files.length, 10);
-    assert.equal(RMT_APP_TEMPLATES.length, 10);
+    assert.equal(report.files.length, 11);
+    assert.equal(RMT_APP_TEMPLATES.length, 11);
     assert.equal(report.preset.cssProvider, 'maraca-native');
     assert.equal(report.preset.designKit, 'none');
 
@@ -39,19 +39,28 @@ function runXtendRmtAppScaffoldSuite() {
     assert.equal(config.options.services.strict, true);
     assert.equal(fs.existsSync(path.join(root, 'app/src/services.ts')), true);
     assert.equal(fs.existsSync(path.join(root, 'app/src/server-services.ts')), true);
+    assert.equal(fs.existsSync(path.join(root, 'app/server/index.mjs')), true);
     assert.equal(fs.existsSync(path.join(root, 'app/server/server-services.php')), true);
     const appManifest = JSON.parse(fs.readFileSync(path.join(root, 'app/package.json'), 'utf8'));
     assert.equal(appManifest.engines.node, '>=24');
     assert.equal(appManifest.packageManager, 'npm@11.17.0');
+    assert.equal(appManifest.scripts.serve, 'npm start');
+    assert.equal(appManifest.scripts.start, 'npm run build && node server/index.mjs');
+    assert.equal(appManifest.scripts['test:catfood'], 'npm run build && node --test');
+    assert.equal(appManifest.devDependencies['@types/node'], '^24.13.3');
+    assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, 'app/tsconfig.json'), 'utf8')).compilerOptions.types, ['node']);
     assert.match(appManifest.scripts.tune, /--config maraca\.config\.json/u);
     assert.doesNotMatch(appManifest.scripts.tune, /maraca\.tuned\.config\.json/u);
-    assert.doesNotMatch(fs.readFileSync(path.join(root, 'app/site/index.html'), 'utf8'), /bootXtendMaraca|dataSourceAdapters|hostServiceAdapters/);
+    const generatedHost = fs.readFileSync(path.join(root, 'app/site/index.html'), 'utf8');
+    assert.match(generatedHost, /<body data-xtend-maraca-host>/u);
+    assert.doesNotMatch(generatedHost, /bootXtendMaraca|dataSourceAdapters|hostServiceAdapters/);
     context.pass('neutral scaffold emits RMT, CSS, strict AppServices entries and target configuration without manual boot wiring');
 
     const browserOnly = createRmtAppScaffold({ rootDir: root, out: 'browser-app', server: 'none' });
     assert.equal(browserOnly.ok, true);
     assert.equal(browserOnly.files.some((file) => file.path.endsWith('server-services.ts')), false);
     assert.equal(browserOnly.files.some((file) => file.path.endsWith('server-services.php')), false);
+    assert.equal(browserOnly.files.some((file) => file.path.endsWith('server/index.mjs')), false);
     context.pass('browser-only planning excludes both server implementation entries');
 
     const material = createMaterialAppScaffold({ rootDir: root, out: 'material-app', server: 'none' }, { resolveAdapter: () => true });

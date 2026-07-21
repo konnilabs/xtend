@@ -30,7 +30,7 @@ const SURFACE_MODAL_POLICIES = Object.freeze(['topmost', 'none', 'all-modal', 's
 const SURFACE_LAYOUT_ENGINE_SCHEMA = 'xtend.surface.layout-engine.v1';
 const SURFACE_LAYOUT_ENGINE_REPORT_SCHEMA = 'xtend.surface.layout-engine-report.v1';
 const SURFACE_LAYOUT_ENGINE_DIAGNOSTIC_SCHEMA = 'xtend.surface.layout-engine-diagnostic.v1';
-const SURFACE_LAYOUT_ENGINES = Object.freeze(['freeform', 'docked', 'split', 'tile', 'stacked']);
+const SURFACE_LAYOUT_ENGINES = Object.freeze(['freeform', 'docked', 'split', 'tile', 'stacked', 'document-flow']);
 const SURFACE_LAYOUT_SURFACE_TYPES = Object.freeze(['window', 'side-panel', 'region']);
 const SURFACE_LAYOUT_PLACEMENTS = Object.freeze(['left', 'right', 'top', 'bottom', 'inline', 'center']);
 const SURFACE_REMOTE_POLICY_SCHEMA = 'xtend.surface.remote-policy-bridge.v1';
@@ -664,6 +664,11 @@ class XSurfaceManager extends HTMLElement {
         routeLifecycle: SURFACE_ROUTE_LIFECYCLE_SCHEMA,
         stackPolicy: SURFACE_STACK_POLICY_SCHEMA,
         layoutEngine: SURFACE_LAYOUT_ENGINE_SCHEMA,
+        layoutEngines: SURFACE_LAYOUT_ENGINES.slice(),
+        documentFlow: {
+          ordinaryPortalChildren: 'normal-flow-grid',
+          commitsBounds: false
+        },
         remotePolicy: SURFACE_REMOTE_POLICY_SCHEMA,
         stateKey: 'xtend.surface.registry'
       },
@@ -801,6 +806,9 @@ class XSurfaceManager extends HTMLElement {
           container-type: inline-size;
           container-name: xtend-surface-bounds;
         }
+        :host([layout-engine="document-flow"]) {
+          overflow: visible;
+        }
         .root {
           position: relative;
           min-height: inherit;
@@ -817,6 +825,26 @@ class XSurfaceManager extends HTMLElement {
         .workspace ::slotted(*),
         .panels ::slotted(*),
         .overlays ::slotted(*) {
+          pointer-events: auto;
+        }
+        :host([layout-engine="document-flow"]) .root {
+          height: auto;
+        }
+        :host([layout-engine="document-flow"]) .workspace {
+          position: relative;
+          inset: auto;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr);
+          align-content: start;
+          gap: var(--surface-manager-document-flow-gap, var(--xtend-space-4, 1rem));
+          min-height: inherit;
+          pointer-events: auto;
+        }
+        :host([layout-engine="document-flow"]) .workspace ::slotted(:not(x-surface-window):not(x-side-panel):not(x-surface-region)) {
+          position: static !important;
+          inset: auto !important;
+          transform: none !important;
+          min-width: 0;
           pointer-events: auto;
         }
         .status {
@@ -3002,10 +3030,15 @@ class XSurfaceManager extends HTMLElement {
     const requestedEngine = normalizeSurfaceLayoutEngine(options.engine || this._layoutEngine(), 'freeform');
     const viewport = this._surfaceLayoutViewport();
     const compact = viewport.compact;
-    const engine = compact && requestedEngine !== 'freeform' ? 'stacked' : requestedEngine;
+    const engine = compact && !['freeform', 'document-flow'].includes(requestedEngine) ? 'stacked' : requestedEngine;
     const records = this._stackOrderedRecords(snapshot);
     let surfaces = [];
-    if (engine === 'docked') {
+    if (engine === 'document-flow') {
+      // Document-flow owns composition only. It deliberately leaves canonical
+      // controller bounds untouched and lets ordinary portal children take part
+      // in the workspace's normal CSS grid flow.
+      surfaces = [];
+    } else if (engine === 'docked') {
       surfaces = this._applyDockedSurfaceLayout(records, viewport, { ...options, compact });
     } else if (engine === 'split') {
       const workspace = { x: this._layoutGap(), y: this._layoutGap(), width: viewport.width - this._layoutGap() * 2, height: viewport.height - this._layoutGap() * 2 };
@@ -3066,6 +3099,19 @@ class XSurfaceManager extends HTMLElement {
 
   _applySurfaceLayoutDom(report) {
     if (!report || !Array.isArray(report.surfaces)) return;
+    if (report.engine === 'document-flow') {
+      this._registeredElements.forEach((element) => {
+        if (!element || !element.style) return;
+        element.removeAttribute('data-surface-layout-engine');
+        element.removeAttribute('data-surface-layout-zone');
+        element.removeAttribute('data-surface-layout-snapshot-compatible');
+        element.style.removeProperty('--surface-layout-x');
+        element.style.removeProperty('--surface-layout-y');
+        element.style.removeProperty('--surface-layout-width');
+        element.style.removeProperty('--surface-layout-height');
+      });
+      return;
+    }
     report.surfaces.forEach((entry) => {
       const element = this._resolveStackElement(entry.surfaceId);
       this._applyLayoutEntryToElement(element, entry);
@@ -3077,7 +3123,9 @@ class XSurfaceManager extends HTMLElement {
       return this._lastSurfaceLayoutReport || this._createSurfaceLayoutModel(snapshot, options);
     }
     const engine = normalizeSurfaceLayoutEngine(options.engine || this._layoutEngine(), 'freeform');
-    const shouldCommit = options.commit === true && (options.force === true || engine !== 'freeform' || this.hasAttribute('layout-engine'));
+    const shouldCommit = engine !== 'document-flow'
+      && options.commit === true
+      && (options.force === true || engine !== 'freeform' || this.hasAttribute('layout-engine'));
     const controller = this._ensureController();
     const report = this._createSurfaceLayoutModel(snapshot, { ...options, engine });
     this._surfaceLayoutApplying = true;

@@ -136,6 +136,7 @@ function runLayoutDisplayMediaComponentSuite(tag, options = {}) {
   context.assert(types.includes('XtendLayoutDisplayMediaUxProfile'), `${tag} public types import Layout Display Media UX profile`);
   context.assert(types.includes('LayoutDisplayMediaUxProfile'), `${tag} public types export Layout Display Media profile alias`);
   if (tag === 'x-header') {
+    context.assert(source.includes('inline-size: 100%;') && source.includes('min-inline-size: 0;'), 'x-header inner grid fills its host without intrinsic flex shrinkage');
     context.assert(source.includes('fixed-full-width-overlay'), 'x-header declares fixed full-width drawer mode');
     context.assert(source.includes('position: fixed'), 'x-header drawer is removed from document layout flow');
     context.assert(source.includes('_positionDrawer()'), 'x-header keeps the fixed drawer aligned to the header');
@@ -160,6 +161,10 @@ function runLayoutDisplayMediaComponentSuite(tag, options = {}) {
     context.assert(types.includes("menuPlacement: XHeaderMenuPlacement"), 'x-header snapshot types include menuPlacement');
     context.assert(types.includes("menuModal: boolean"), 'x-header snapshot types include menuModal');
     context.assert(types.includes("drawerMode: 'fixed-full-width-overlay'"), 'x-header types expose drawer mode snapshot');
+  }
+  if (tag === 'x-section') {
+    context.assert(source.includes('.container {') && source.includes('overflow: visible;'), 'x-section column content does not become a clipping scroll container');
+    context.assert(/:host\(\[layout="row"\]\) \.container \{[\s\S]*?overflow-x: auto;/u.test(source), 'x-section keeps horizontal scrolling scoped to row layout');
   }
   if (tag === 'x-hero') {
     context.assert(source.includes('max-width: 100%;'), 'x-hero constrains itself to the host viewport width');

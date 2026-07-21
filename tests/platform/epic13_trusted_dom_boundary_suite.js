@@ -23,8 +23,10 @@ const {
   SANITIZING_BOUNDARY_CONTRACT,
   TRUSTED_DOM_POLICY_CONTRACT,
   TRUSTED_DOM_SANITIZER_CONTRACT,
+  TRUSTED_TEXT_SANITIZER_CONTRACT,
   getTrustedDomPolicy,
-  sanitizeTrustedDomHtml
+  sanitizeTrustedDomHtml,
+  sanitizeTrustedText
 } = require('../../security/trusted-dom-policy');
 const {
   EPIC13_TRUSTED_DOM_BOUNDARY_CONTRACT,
@@ -234,6 +236,8 @@ async function runEpic13TrustedDomBoundarySuite(options = {}) {
   const sanitized = sanitizeTrustedDomHtml('<p onclick="evil()">x</p><script>evil()</script><a href="javascript:evil()">x</a><iframe srcdoc="<b>x</b>"></iframe>', {
     markupClass: 'parsedownHtml'
   });
+  const sanitizedText = sanitizeTrustedText('line one\r\nline two');
+  const refusedText = sanitizeTrustedText('line one\u0000line two');
   context.assert(policy.sanitizer.schema === TRUSTED_DOM_SANITIZER_CONTRACT, 'Trusted DOM policy exposes sanitizer schema');
   context.assert(policy.markupClasses.parsedownHtml.sanitizerRequired === true, 'Trusted DOM policy requires sanitizer for Parsedown HTML');
   context.assert(policy.markupClasses.htmlFragment.sanitizerRequired === true, 'Trusted DOM policy requires sanitizer for RMT html fragments');
@@ -245,6 +249,8 @@ async function runEpic13TrustedDomBoundarySuite(options = {}) {
   context.assert(!sanitized.html.includes('javascript:'), 'Trusted DOM sanitizer removes JavaScript URLs');
   context.assert(!sanitized.html.includes('srcdoc'), 'Trusted DOM sanitizer removes srcdoc');
   context.assert(sanitized.removedCount >= 4, 'Trusted DOM sanitizer reports removed payloads');
+  context.assert(sanitizedText.schema === TRUSTED_TEXT_SANITIZER_CONTRACT && sanitizedText.ok === true && sanitizedText.text === 'line one\nline two', 'Trusted text sanitizer normalizes line endings with a positive verdict');
+  context.assert(refusedText.ok === false && refusedText.text === null && !JSON.stringify(refusedText).includes('line one'), 'Trusted text sanitizer rejects control characters without echoing hostile input');
   assertTextIncludesAll(context, policySource, [
     'TRUSTED_DOM_SANITIZER_CONTRACT',
     'sanitizeTrustedDomHtml',

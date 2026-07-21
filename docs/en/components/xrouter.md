@@ -52,12 +52,34 @@ if ('focusRoute' in component) {
 
 For production screens, keep IDs stable when state keys or diagnostics include `<id>`. Stable IDs make event logs, RMT schedules and browser tests easier to compare across deployments.
 
+### Adopt a server-prerendered route
+
+With `adopt-prerendered-route`, a host can provide exactly one already-visible direct route node. The router verifies its path, optional route ID, locale, component tag, content identity and trust markers, then moves that same node into the outlet. The route component implements `adoptRoute(context)`, or the compatible `updateRoute(context)`, to attach behavior only; the host does not need to duplicate the article in a bootstrap payload.
+
+```html
+<x-router mode="history" adopt-prerendered-route>
+  <x-route path="/docs/en/start" component="docs-page"
+    data-rmt-route-id="docs.start"></x-route>
+  <docs-page data-xrouter-prerendered-route
+    data-xrouter-route-path="/docs/en/start"
+    data-xrouter-route-id="docs.start"
+    data-xrouter-route-locale="en"
+    data-xrouter-route-component="docs-page"
+    data-xrouter-content-sha256="…">
+    <!-- server-sanitized content with a matching trust proof -->
+  </docs-page>
+</x-router>
+```
+
+Success and controlled rejection are emitted as `xrouter-route-adopted` using the `xtend.router.route-adoption.v1` schema. When a proof does not match, the router discards the candidate and continues through its normal skeleton/render path.
+
 ## API reference
 
 Attributes:
 - `mode`
 - `routesrc`
 - `reuse-component`
+- `adopt-prerendered-route`
 - `skeleton`
 - `skeleton-profile`
 - `skeleton-lines`
@@ -84,6 +106,7 @@ Events:
 - `route-announced`
 - `xrouter-routes-registered`
 - `xrouter-route-reused`
+- `xrouter-route-adopted`
 - `xrouter-skeleton-shown`
 - `xrouter-skeleton-hidden`
 - `xrouter-route-hydrated`

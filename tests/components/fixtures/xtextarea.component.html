@@ -24,12 +24,12 @@
   </style>
 </head>
 <body data-xtend-form-theme="enterprise-foreign">
-  <x-textarea id="component-textarea" name="notes" value="Initial note" maxlength="240" rows="5" required density="comfortable">
+  <x-textarea id="component-textarea" name="notes" value="Initial note" maxlength="240" minlength="1" rows="5" required density="comfortable" fill submit-on-enter submit-command="save-note" syntax-highlight line-numbering lang="text">
     <span slot="label">Notes</span>
     <span slot="hint">Keep the message concise.</span>
     <span slot="error">A note is required.</span>
   </x-textarea>
-  <x-textarea id="component-textarea-dense" name="dense-notes" value="" maxlength="80" rows="3" density="dense" invalid>
+  <x-textarea id="component-textarea-dense" name="dense-notes" value="" maxlength="80" rows="3" density="dense" invalid busy readonly highlight language="plaintext">
     <span slot="label">Dense notes</span>
     <span slot="error">Dense notes are required.</span>
   </x-textarea>
@@ -43,5 +43,68 @@
     };
   </script>
   <script type="module" src="/components/xtextarea.js"></script>
+  <script type="module">
+    await customElements.whenDefined('x-textarea');
+    const result = window.__xtendComponentResult;
+    const textarea = document.querySelector('#component-textarea');
+    const control = textarea.shadowRoot.querySelector('#control');
+    const check = (name, condition) => {
+      result.checks.push({ name, ok: Boolean(condition) });
+      if (!condition) result.errors.push(name);
+    };
+
+    let invalidCount = 0;
+    textarea.addEventListener('textarea-invalid', () => { invalidCount += 1; });
+    textarea.value = '';
+    check('passive value sync emits no invalid event', invalidCount === 0);
+
+    invalidCount = 0;
+    check('checkValidity emits one invalid event', textarea.checkValidity() === false && invalidCount === 1);
+
+    invalidCount = 0;
+    check('reportValidity emits one invalid event', textarea.reportValidity() === false && invalidCount === 1);
+
+    invalidCount = 0;
+    check('validate emits one invalid event', textarea.validate() === false && invalidCount === 1);
+
+    invalidCount = 0;
+    textarea.value = 'valid recovery';
+    check('passive valid sync clears invalid without event', invalidCount === 0 && !textarea.hasAttribute('invalid') && control.getAttribute('aria-invalid') === 'false');
+
+    let changedDetail = null;
+    let submitCount = 0;
+    let commandCount = 0;
+    let submitCommandDetail = null;
+    textarea.addEventListener('textarea-changed', (event) => { changedDetail = event.detail; });
+    textarea.addEventListener('textarea-submit', () => { submitCount += 1; });
+    textarea.addEventListener('xtend-command', (event) => {
+      commandCount += 1;
+      if (event.detail.source.event === 'textarea-submit') submitCommandDetail = event.detail;
+    });
+    textarea.value = '  first\nsecond  ';
+    control.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+    check('change payload exposes full length contract', changedDetail && changedDetail.length === 16 && changedDetail.trimmedLength === 12 && changedDetail.empty === false);
+
+    control.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', shiftKey: true, bubbles: true }));
+    check('Shift Enter preserves multiline behavior', submitCount === 0);
+    const enter = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+    control.dispatchEvent(enter);
+    check('Enter emits submit and command', submitCount === 1 && commandCount >= 2 && enter.defaultPrevented === true);
+    check('submit command keeps explicit RMT command', submitCommandDetail && submitCommandDetail.command === 'save-note' && submitCommandDetail.payload.value === '  first\nsecond  ');
+
+    textarea.lineNumbering = true;
+    textarea.setAttribute('readonly', '');
+    textarea.setAttribute('busy', '');
+    check('state attributes reflect to native control', control.readOnly === true && control.getAttribute('aria-busy') === 'true');
+    check('snapshot exposes editor state', textarea.snapshot().lineNumbering === true && textarea.snapshot().lineCount === 2 && textarea.snapshot().languageAlias === 'lang');
+    textarea.focus();
+    check('focus delegates to native control', textarea.shadowRoot.activeElement === control);
+    textarea.reset();
+    check('reset clears value', textarea.value === '');
+    check('label hint error slots stay public', ['label', 'hint', 'error'].every((name) => textarea.querySelector(`[slot="${name}"]`)));
+
+    result.status = result.errors.length === 0 ? 'passed' : 'failed';
+    document.body.dataset.xtextareaRuntimeStatus = result.status;
+  </script>
 </body>
 </html>

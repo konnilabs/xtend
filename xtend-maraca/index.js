@@ -48,6 +48,8 @@ const MARACA_TRANSITION_PLAN_SCHEMA = 'xtend.maraca.transition-plan.v1';
 const MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA = 'xtend.maraca.production-bundle-closure.v1';
 const MARACA_BUILD_CONFIG_SCHEMA = 'xtend.maraca.build-config.v1';
 const MARACA_TUNE_REPORT_SCHEMA = 'xtend.maraca.tune-report.v1';
+const MARACA_COMPONENT_COMMAND_SCHEMA = 'xtend.rmt.component-command.v1';
+const MARACA_COMPONENT_COMMAND_RESULT_SCHEMA = 'xtend.maraca.component-command-result.v1';
 
 const DEFAULT_SOURCE = 'tests/rmt-language/fixtures/maraca-known-components.rmt';
 const DEFAULT_OUT_DIR = '.xtend-build/maraca/app';
@@ -197,6 +199,7 @@ const PUBLIC_NAME_RESERVATIONS = Object.freeze([
   'XTendRMT',
   'XTendFabric',
   'ensureMaracaComponent',
+  'invokeMaracaComponentCommand',
   'bootXtendMaraca',
   'MARACA_COMPONENTS',
   'MARACA_SURFACES',
@@ -210,6 +213,8 @@ const PUBLIC_NAME_RESERVATIONS = Object.freeze([
   'MARACA_PWA',
   'MARACA_VALIDATION',
   'MARACA_TRANSITIONS',
+  'MARACA_COMPONENT_COMMAND_SCHEMA',
+  'MARACA_COMPONENT_COMMAND_RESULT_SCHEMA',
   'MARACA_PUBLIC_NAMES',
   'MARACA_STACK_MODULES',
   'XTendRmtKernelOrchestrationController',
@@ -4589,7 +4594,7 @@ function createMaracaHtmlHost(plan) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${title}</title>
 ${manifestLink}${cssLink}</head>
-<body>
+<body data-xtend-maraca-host>
   <main id="xtend-maraca-root" data-maraca-root aria-label="${title}"></main>
   <noscript>This XTend Maraca application requires JavaScript.</noscript>
   <script type="module" src="./xtend.maraca.mjs"></script>
@@ -4648,6 +4653,68 @@ function createCssText(plan = null) {
     }
   }
   return rules.join('');
+}
+
+async function invokeMaracaComponentCommand(root, commandRecord, options = {}) {
+  const commandSchema = 'xtend.rmt.component-command.v1';
+  const resultSchema = 'xtend.maraca.component-command-result.v1';
+  if (!commandRecord || commandRecord.schema !== commandSchema) {
+    throw new Error(`XTend Maraca component command requires schema ${commandSchema}.`);
+  }
+  const command = String(commandRecord.command || '').trim();
+  if (command !== 'focus' && command !== 'reset' && command !== 'snapshot') {
+    throw new Error(`XTend Maraca component command ${command || '(missing)'} is not allowed.`);
+  }
+  const target = commandRecord.target && typeof commandRecord.target === 'object'
+    ? commandRecord.target
+    : null;
+  const surfaceId = target && String(target.id || '').trim();
+  const component = target && String(target.component || '').trim().toLowerCase();
+  if (!target || target.kind !== 'surface' || !surfaceId || !component) {
+    throw new Error('XTend Maraca component command requires a statically compiled surface target.');
+  }
+  if (typeof options.ensureComponent === 'function') {
+    await options.ensureComponent(component);
+  }
+  const matchesSurface = (candidate) => Boolean(
+    candidate
+      && typeof candidate.getAttribute === 'function'
+      && candidate.getAttribute('data-maraca-surface') === surfaceId
+  );
+  let element = matchesSurface(root) ? root : null;
+  if (!element && root && typeof root.querySelectorAll === 'function') {
+    const candidates = Array.from(root.querySelectorAll('[data-maraca-surface]') || []);
+    element = candidates.find(matchesSurface) || null;
+  }
+  if (!element) {
+    throw new Error(`XTend Maraca component command surface ${surfaceId} is not materialized inside the orchestration root.`);
+  }
+  const localName = String(element.localName || '').trim().toLowerCase();
+  const declaredComponent = typeof element.getAttribute === 'function'
+    ? String(element.getAttribute('data-rmt-component') || '').trim().toLowerCase()
+    : '';
+  if (localName !== component && declaredComponent !== component) {
+    throw new Error(`XTend Maraca component command surface ${surfaceId} is not the compiled ${component} component.`);
+  }
+  let result = null;
+  if (command === 'focus') {
+    if (typeof element.focus !== 'function') throw new Error(`XTend Maraca component ${component} does not expose focus().`);
+    element.focus();
+  } else if (command === 'reset') {
+    if (typeof element.reset !== 'function') throw new Error(`XTend Maraca component ${component} does not expose reset().`);
+    element.reset();
+  } else {
+    if (typeof element.snapshot !== 'function') throw new Error(`XTend Maraca component ${component} does not expose snapshot().`);
+    result = await element.snapshot();
+    if (result && typeof result === 'object') result = JSON.parse(JSON.stringify(result));
+  }
+  return {
+    schema: resultSchema,
+    command,
+    surfaceId,
+    component,
+    result
+  };
 }
 
 function createBundleSource(plan, providerCssText = null) {
@@ -4941,6 +5008,10 @@ function createBundleSource(plan, providerCssText = null) {
   return `${header.join('\n')}
 
 const MARACA_SCHEMA = ${JSON.stringify(MARACA_BUNDLE_REPORT_SCHEMA)};
+const MARACA_COMPONENT_COMMAND_SCHEMA = ${JSON.stringify(MARACA_COMPONENT_COMMAND_SCHEMA)};
+const MARACA_COMPONENT_COMMAND_RESULT_SCHEMA = ${JSON.stringify(MARACA_COMPONENT_COMMAND_RESULT_SCHEMA)};
+
+${invokeMaracaComponentCommand.toString()}
 
 function attachMaracaCss(root) {
   if (typeof document === "undefined") return;
@@ -5058,9 +5129,15 @@ function syncMaracaStateAttributes(element, state = {}, component = "", context 
   setIfPresent("command");
   setIfPresent("required");
   setIfPresent("disabled");
+  setIfPresent("readonly");
+  setIfPresent("busy");
   setIfPresent("invalid");
   setIfPresent("rows");
   setIfPresent("density");
+  setIfPresent("fill");
+  setIfPresent("highlight");
+  setIfPresent("lang");
+  setIfPresent("language");
   setIfPresent("width");
   setIfPresent("height");
   setIfPresent("minlength", "minLength");
@@ -5124,7 +5201,11 @@ function syncMaracaStateAttributes(element, state = {}, component = "", context 
     ["initial-y", "initialY"],
     ["initial-width", "initialWidth"],
     ["initial-height", "initialHeight"],
-    ["responsive-mode", "responsiveMode"]
+    ["responsive-mode", "responsiveMode"],
+    ["submit-command", "submitCommand"],
+    ["submit-on-enter", "submitOnEnter"],
+    ["syntax-highlight", "syntaxHighlight"],
+    ["line-numbering", "lineNumbering"]
   ].forEach(([attribute, stateKey]) => setIfPresent(attribute, stateKey));
   if (component === "x-status") {
     setIfPresent("type", "tone");
@@ -5407,7 +5488,9 @@ function createMaracaAppServiceController(options = {}) {
   });
   const registry = createAppServiceRegistry(XTendMaracaAppServiceDefinition, {
     transport,
-    disposeTransport: true
+    disposeTransport: true,
+    manifest: MARACA_APP_SERVICES.manifest,
+    inputPolicyPhase: "browser"
   });
 
   function invocationContext(context = {}) {
@@ -5490,6 +5573,7 @@ function createMaracaAppServiceController(options = {}) {
         status: registry.disposed ? "disposed" : "ready",
         serviceCount: registry.listServices().length,
         activeCount: registry.listActive().length,
+        inputPolicyVerdicts: typeof registry.listInputPolicyVerdicts === "function" ? registry.listInputPolicyVerdicts() : [],
         diagnostics: diagnostics.slice(),
         manifestFingerprint: MARACA_APP_SERVICES.manifest && MARACA_APP_SERVICES.manifest.fingerprint || null
       };
@@ -6227,6 +6311,11 @@ async function materializeMaracaEffectSurface(surfaceId, surface = null, context
 }
 
 async function runDefaultMaracaEffect(effect = {}, effectContext = {}, context = {}) {
+  if (effect.componentCommand) {
+    return invokeMaracaComponentCommand(context.root || null, effect.componentCommand, {
+      ensureComponent: typeof ensureMaracaComponent === "function" ? ensureMaracaComponent : null
+    });
+  }
   if (effect.kind === "remote-play") return runDefaultRemotePlayEffect(effect, effectContext, context);
   if (effect.kind === "lightbox" || effect.kind === "open-lightbox" || effect.kind === "lightbox-open") {
     return runDefaultLightboxEffect(effect, effectContext, context);
@@ -7753,7 +7842,7 @@ if (typeof window !== "undefined") {
   scheduleXtendMaracaAutoBoot();
 }
 
-export { MARACA_COMPONENTS, MARACA_SURFACES, MARACA_EVENTS, MARACA_ORCHESTRATION, MARACA_KERNEL, MARACA_HYDRATION, MARACA_WARM_REENTRY, MARACA_UI_COPROCESSOR, MARACA_WEB_APP_MANIFEST, MARACA_PWA, MARACA_VALIDATION, MARACA_TRANSITIONS, MARACA_APP_SERVICES, MARACA_TEMPLATE_ARTIFACTS, MARACA_PUBLIC_NAMES, MARACA_STACK_MODULES, ensureMaracaComponent, bootXtendMaraca, disposeXtendMaraca };
+export { MARACA_COMPONENTS, MARACA_SURFACES, MARACA_EVENTS, MARACA_ORCHESTRATION, MARACA_KERNEL, MARACA_HYDRATION, MARACA_WARM_REENTRY, MARACA_UI_COPROCESSOR, MARACA_WEB_APP_MANIFEST, MARACA_PWA, MARACA_VALIDATION, MARACA_TRANSITIONS, MARACA_APP_SERVICES, MARACA_TEMPLATE_ARTIFACTS, MARACA_PUBLIC_NAMES, MARACA_STACK_MODULES, MARACA_COMPONENT_COMMAND_SCHEMA, MARACA_COMPONENT_COMMAND_RESULT_SCHEMA, invokeMaracaComponentCommand, ensureMaracaComponent, bootXtendMaraca, disposeXtendMaraca };
 export default XTendMaraca;
 `;
 }
@@ -9872,6 +9961,8 @@ module.exports = {
   MARACA_APP_SERVICE_MANIFEST_SCHEMA,
   MARACA_SERVICE_BUILD_PLAN_SCHEMA,
   MARACA_SERVICE_BUILD_REPORT_SCHEMA,
+  MARACA_COMPONENT_COMMAND_SCHEMA,
+  MARACA_COMPONENT_COMMAND_RESULT_SCHEMA,
   COMPONENT_UNKNOWN_CODE,
   COMPONENT_DYNAMIC_CODE,
   DEFAULT_SOURCE,
@@ -9893,5 +9984,6 @@ module.exports = {
   createMaracaPwaReport,
   createMaracaProductionBundleClosure,
   createMaracaSizeBudgetReport,
+  invokeMaracaComponentCommand,
   getMaracaToolchainAvailability
 };

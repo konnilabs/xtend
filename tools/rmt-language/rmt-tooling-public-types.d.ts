@@ -123,12 +123,29 @@ export interface RmtParseResult<TAst = RmtJsonValue> {
 
 export type RmtAppServiceDemandMode = 'invoke' | 'stream';
 
+export interface RmtAppServiceInputFieldPolicy {
+  name: string;
+  type: string;
+  boundary: 'xtend.security.sanitizing-boundary.v1';
+  sanitize: 'text';
+}
+
+export interface RmtAppServiceInputPolicy {
+  schema: 'xtend.maraca.app-service-input-policy.v1';
+  fields: RmtAppServiceInputFieldPolicy[];
+}
+
 export interface RmtAppServiceActionDemand {
   id: string;
   mode: RmtAppServiceDemandMode;
   inputs: Array<{
     name: string;
     type: string;
+    inputPolicy?: {
+      schema: 'xtend.maraca.app-service-input-policy.v1';
+      boundary: 'xtend.security.sanitizing-boundary.v1';
+      sanitize: 'text';
+    };
   }>;
 }
 
@@ -140,6 +157,7 @@ export interface RmtAppServiceDemand {
   contract: string | null;
   resultPath: string | null;
   actions: RmtAppServiceActionDemand[];
+  inputPolicy: RmtAppServiceInputPolicy | null;
   sourceRef: string | null;
 }
 

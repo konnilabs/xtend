@@ -154,8 +154,15 @@ async function runXtendMaterialDocsSuite(options = {}) {
   context.assert(combinedPublicDocs.includes('supported-opt-in') && combinedPublicDocs.includes('4.3.2') && combinedPublicDocs.includes('0.1.x'), 'public docs state support status and tested compatibility lines');
   context.assert(/not Angular Material/u.test(docs['docs/en/xtend-material.md']) && /weder Angular Material/u.test(docs['docs/de/xtend-material.md']), 'public docs clearly reject Angular Material API and complete parity claims');
   context.assert(combinedPublicDocs.includes('cssProviderFallback') && combinedPublicDocs.includes('cssPreflight') && combinedPublicDocs.includes('cssSources'), 'Quick Start documents explicit source, Preflight and fallback boundaries');
-  context.assert(docs['docs/en/xtend-material.md'].includes('npm run serve') && docs['docs/de/xtend-material.md'].includes('npm run serve') && combinedPublicDocs.includes('site/index.html') && combinedPublicDocs.includes('xt serve --help'), 'bilingual Quick Start documents the build-first generated HTML-host serve path');
-  context.assert(combinedPublicDocs.includes('xtm-form-flow') && combinedPublicDocs.includes('xtm-confirmation-flow') && registry.records.length === 26, 'public docs cover foundation, shell and flow recipe vocabulary');
+  context.assert(
+    docs['docs/en/xtend-material.md'].includes('npm run serve')
+      && docs['docs/de/xtend-material.md'].includes('npm run serve')
+      && combinedPublicDocs.includes('site/index.html')
+      && combinedPublicDocs.includes('server/index.mjs')
+      && combinedPublicDocs.includes('npm run test:catfood'),
+    'bilingual Quick Start documents generated Node hosting and the build-first serve/catfood paths'
+  );
+  context.assert(combinedPublicDocs.includes('xtm-form-flow') && combinedPublicDocs.includes('xtm-confirmation-flow') && combinedPublicDocs.includes('xtm-plain-text') && registry.records.length === 27, 'public docs cover foundation, shell and flow recipe vocabulary');
   context.assert(combinedPublicDocs.includes('data-material-pack') && combinedPublicDocs.includes('data-density') && combinedPublicDocs.includes('--xtend-*'), 'themes, density and the single XTend token source are documented');
   context.assert(/raw utilities/u.test(docs['docs/en/xtend-material.md']) && /rohe Utilities/u.test(docs['docs/de/xtend-material.md']) && combinedPublicDocs.includes('w-[37rem]'), 'unsupported raw, dynamic, variant and arbitrary Tailwind syntax is visible');
   context.assert(fixture.legacyMappings.length === 7 && migration.coverage.length === 7 && migration.coverage.every((entry) => entry.rmt && entry.tailwind && entry.native), 'legacy shell mapping compiles through both Tailwind and native semantic CSS paths');

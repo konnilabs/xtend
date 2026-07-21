@@ -285,7 +285,7 @@ Ein Workpackage darf gestartet werden, wenn:
 - Ziel:
   - App Shells koennen neben freien Fenstern auch docked Workspaces, Split Panes, Command Palettes und tiled Layouts ausdruecken
 - Scope:
-  - Layout Engine Contract fuer `freeform`, `docked`, `split`, `tile`, `stacked`
+  - Layout Engine Contract fuer `freeform`, `docked`, `split`, `tile`, `stacked`, `document-flow`
   - Dock/Undock-Operationen als Controller- oder Adapter-Contract
   - Bounds-Normalisierung mit Viewport-Constraints
   - Collision-/Snap-Regeln

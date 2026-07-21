@@ -84,7 +84,8 @@ const RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES = {
   effectSourceMissing: 'rmt.vnext.primitive.effect-source-missing',
   unsafeHtml: 'rmt.vnext.primitive.unsafe-html',
   kernelBoundary: 'rmt.vnext.primitive.kernel-boundary',
-  validationMessageMissing: 'rmt.vnext.primitive.validation-message-missing'
+  validationMessageMissing: 'rmt.vnext.primitive.validation-message-missing',
+  componentCommandTargetUnknown: 'rmt.vnext.component_command.target_unknown'
 };
 const DUPLICATE_ID_CODE = 'rmt.id.duplicate';
 const DUPLICATE_ROUTE_PATH_CODE = 'rmt.ref.route.duplicate-path';
@@ -1153,10 +1154,11 @@ function addVNextPrimitiveReference(graphState, input = {}) {
 
   if (!reference.resolved) {
     const diagnostic = createVNextPrimitiveDiagnostic(graphState.sourceModel, {
-      code: RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.unknownReference,
+      code: input.diagnosticCode || RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.unknownReference,
       severity: input.severity || 'error',
-      message: `${input.targetDomain} Primitive "${targetId}" ist nicht definiert.`,
+      message: input.diagnosticMessage || `${input.targetDomain} Primitive "${targetId}" ist nicht definiert.`,
       node: input.node,
+      range: input.range,
       pointer: sourcePointer
     });
     reference.diagnostic = diagnostic;
@@ -1362,13 +1364,47 @@ function collectVNextPrimitiveReferences(graphState, ast) {
         }));
       }
 
-      addVNextSourceReference(graphState, {
-        ...sourceInfo,
-        sourceRef: node.source,
-        field: 'effect',
-        relationship: `${sourceInfo.sourceDomain}.effect.source`,
-        node
-      });
+      const sourceRef = getPrimitiveSourceRef(node.source);
+      const componentCommand = node.componentCommand;
+      const selectorTargetIsSurface = sourceRef
+        && sourceRef.kind === 'selector'
+        && !resolveVNextPrimitiveTarget(graphState.indexes, 'selectors', sourceRef.targetId)
+        && resolveVNextPrimitiveTarget(graphState.indexes, 'surfaces', sourceRef.targetId);
+
+      if (componentCommand || selectorTargetIsSurface) {
+        const targetId = normalizeString(
+          componentCommand && componentCommand.target
+            ? componentCommand.target
+            : sourceRef && sourceRef.targetId
+        );
+        const targetNode = componentCommand && componentCommand.targetNode
+          ? componentCommand.targetNode
+          : (sourceRef && sourceRef.node) || node;
+        addVNextPrimitiveReference(graphState, {
+          ...sourceInfo,
+          sourcePointer: node.astPointer || null,
+          field: 'effect',
+          relationship: `${sourceInfo.sourceDomain}.effect.component-command-target`,
+          targetDomain: 'surfaces',
+          targetId,
+          node: targetNode,
+          range: targetNode && targetNode.range,
+          diagnosticCode: componentCommand
+            ? RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.componentCommandTargetUnknown
+            : undefined,
+          diagnosticMessage: componentCommand
+            ? `Component-Command-Ziel "${targetId}" ist keine definierte Surface.`
+            : undefined
+        });
+      } else {
+        addVNextSourceReference(graphState, {
+          ...sourceInfo,
+          sourceRef: node.source,
+          field: 'effect',
+          relationship: `${sourceInfo.sourceDomain}.effect.source`,
+          node
+        });
+      }
     }
 
     if (node.type === 'RmtReducerStatement' && normalizeString(node.target).startsWith('state.')) {

@@ -3,7 +3,7 @@
   "ok": true,
   "status": "built",
   "configFingerprint": null,
-  "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+  "source": "docs/xtendrmt-docs-document-v2.rmt",
   "outputDir": "docs/generated/shell",
   "profile": "max",
   "lazy": "none",
@@ -64,15 +64,15 @@
       "strict": true,
       "sources": [
         {
-          "path": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "path": "docs/xtendrmt-docs-document-v2.rmt",
           "kind": "rmt",
-          "fingerprint": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5"
+          "fingerprint": "6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d"
         }
       ],
       "sourcePolicy": {
         "root": ".",
         "allow": [
-          "docs/xtendrmt-docs-shell-vnext.rmt"
+          "docs/xtendrmt-docs-document-v2.rmt"
         ],
         "deny": [],
         "automaticDiscovery": false
@@ -82,18 +82,18 @@
         "preflight": "disabled",
         "requestedProvider": "maraca-native"
       },
-      "fingerprint": "42a12329f49cbb9c27ed4724ca24b1e85befc34c8cfac507a7cacf7b26857d2e"
+      "fingerprint": "ffe49eca2f6b604ef0a7d14b6c930ad84079f5c2bb2ed03b9581628255a5cefb"
     },
-    "requestFingerprint": "42a12329f49cbb9c27ed4724ca24b1e85befc34c8cfac507a7cacf7b26857d2e",
-    "configFingerprint": "054adc31bbb3b205491c7af627f7e3b41304e205f645e685d36fbaa0d7201c98",
+    "requestFingerprint": "ffe49eca2f6b604ef0a7d14b6c930ad84079f5c2bb2ed03b9581628255a5cefb",
+    "configFingerprint": "e56ec5b044c362d862cff78b14c9289d7372db0374a755b63cf0c0d164c0b235",
     "evidence": {
       "bytes": 255,
       "diagnostics": [],
       "fileName": null,
-      "fingerprint": "d7e0bd70a81f9ca2082b4c56877c470e0e30c892709d4ceac75070b86975122f",
+      "fingerprint": "5a974e146a3219cb17b29b1030c3050c222b107ebe4260031c21bd5bfa43db9e",
       "mode": "inline",
       "outputFingerprint": "50c41f8c8e2be6b4fa00a8cec35056e002f23af381ff55c681a2312d0b3fffb8",
-      "planFingerprint": "0a70a29472e6b7a78431303157c55df0ce2bbba99aa6b7a7331c5af5c6d7ebda",
+      "planFingerprint": "541408c7cfbcc6fbe10fe7936a73100a54c0d48c69b2852fd057581d1f95a147",
       "provider": {
         "capabilities": {
           "external": true,
@@ -130,12 +130,12 @@
         },
         "version": "1"
       },
-      "requestFingerprint": "42a12329f49cbb9c27ed4724ca24b1e85befc34c8cfac507a7cacf7b26857d2e",
+      "requestFingerprint": "ffe49eca2f6b604ef0a7d14b6c930ad84079f5c2bb2ed03b9581628255a5cefb",
       "schema": "xtend.maraca.css-build-evidence.v1",
       "sourceFingerprints": [
         {
-          "fingerprint": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
-          "path": "docs/xtendrmt-docs-shell-vnext.rmt"
+          "fingerprint": "6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
+          "path": "docs/xtendrmt-docs-document-v2.rmt"
         }
       ],
       "status": "ready"
@@ -157,7 +157,7 @@
       "status": "ready",
       "provider": "maraca-native",
       "providerFingerprint": "91cd3dfc66eca5d22e1f1ce5980a8589022df25477a68b147753df8b176a2de0",
-      "requestFingerprint": "42a12329f49cbb9c27ed4724ca24b1e85befc34c8cfac507a7cacf7b26857d2e",
+      "requestFingerprint": "ffe49eca2f6b604ef0a7d14b6c930ad84079f5c2bb2ed03b9581628255a5cefb",
       "inspectionFingerprint": "6eebb47bf470864d1de390103634e1ba7c77b741cb6b929c9cc7d333c2d55379",
       "mode": "inline",
       "output": null,
@@ -166,7 +166,7 @@
       ],
       "metadata": {},
       "diagnostics": [],
-      "fingerprint": "0a70a29472e6b7a78431303157c55df0ce2bbba99aa6b7a7331c5af5c6d7ebda"
+      "fingerprint": "541408c7cfbcc6fbe10fe7936a73100a54c0d48c69b2852fd057581d1f95a147"
     },
     "artifact": {
       "schema": "xtend.maraca.css-artifact.v1",
@@ -220,14 +220,14 @@
   },
   "entry": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/xtend.maraca.mjs",
   "entryRelative": "docs/generated/shell/xtend.maraca.mjs",
-  "entryBytes": 702205,
-  "bytes": 2047844,
+  "entryBytes": 730034,
+  "bytes": 2075696,
   "bundleFiles": [
     {
       "type": "chunk",
       "fileName": "xtend.maraca.mjs",
       "path": "docs/generated/shell/xtend.maraca.mjs",
-      "bytes": 702205,
+      "bytes": 730034,
       "isEntry": true,
       "isDynamicEntry": false,
       "imports": [
@@ -273,12 +273,12 @@
         },
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/components/xsection.js",
-          "renderedLength": 9460,
+          "renderedLength": 9455,
           "appService": false
         },
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/components/xrouter.js",
-          "renderedLength": 79525,
+          "renderedLength": 99274,
           "appService": false
         },
         {
@@ -288,7 +288,7 @@
         },
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/components/xheader.js",
-          "renderedLength": 63800,
+          "renderedLength": 66221,
           "appService": false
         },
         {
@@ -323,17 +323,17 @@
         },
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-action-effect-runtime.js",
-          "renderedLength": 29025,
+          "renderedLength": 31634,
           "appService": false
         },
         {
           "id": "\u0000xtend-maraca-entry",
-          "renderedLength": 593461,
+          "renderedLength": 617697,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 702205
+      "frameworkBytes": 730034
     },
     {
       "type": "asset",
@@ -365,14 +365,14 @@
       "type": "asset",
       "fileName": "index.html",
       "path": "docs/generated/shell/index.html",
-      "bytes": 436,
+      "bytes": 459,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 436
+      "frameworkBytes": 459
     }
   ],
   "loader": {
@@ -562,6 +562,13 @@
         "id": "docs.shell.ssr",
         "kind": "rest",
         "endpoint": "index.php?xtend-docs-rmt-ssr=shell&format=jsonl",
+        "adapter": "",
+        "method": "GET"
+      },
+      {
+        "id": "docs.document.ssr",
+        "kind": "rest",
+        "endpoint": "index.php?xtend-docs-rmt-ssr=document&format=jsonl",
         "adapter": "",
         "method": "GET"
       }
@@ -848,7 +855,7 @@
           }
         ],
         "sourceToSea": {
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
           "artifactSchema": "xtend.rmt.app-orchestration.v1",
           "runtimeModules": [
             "xtendrmt/rmt-state-selector-runtime.js",
@@ -875,7 +882,7 @@
         "blocked": false,
         "diagnostics": [],
         "sourceToSea": {
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
           "artifactSchema": "xtend.rmt.kernel-orchestration.v1",
           "recordsSchema": "xtend.rmt.vnext.kernel-records.v1",
           "runtimeModules": [
@@ -1056,7 +1063,7 @@
             "cacheMode": "generated-app-shell",
             "serviceWorkerControlled": false,
             "offlineEligible": false,
-            "cacheVersion": "xtend-maraca-pwa-27355b0b2064",
+            "cacheVersion": "xtend-maraca-pwa-e2da56197cb9",
             "hooks": [
               "cache-management",
               "xstate-state-management",
@@ -1139,8 +1146,8 @@
         "diagnostics": [],
         "sourceToSea": {},
         "evidence": {
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
-          "artifactBundleFingerprint": "fnv1a:9012904e",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
+          "artifactBundleFingerprint": "fnv1a:730913ef",
           "bundleFingerprint": null
         }
       }
@@ -1164,8 +1171,8 @@
       "status": "within_budget",
       "mode": "strict",
       "profile": "max",
-      "baselineBytes": 2210169,
-      "bundleBytes": 2047844,
+      "baselineBytes": 2248434,
+      "bundleBytes": 2075696,
       "runtimeExpectedStatus": "booted"
     },
     "releaseConstraint": {
@@ -1178,17 +1185,17 @@
       "blockedCapabilityKeys": []
     },
     "sourceToSea": {
-      "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-      "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+      "source": "docs/xtendrmt-docs-document-v2.rmt",
+      "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
       "artifactFingerprints": {
-        "templateSource": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
-        "templateBundle": "fnv1a:9012904e",
+        "templateSource": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
+        "templateBundle": "fnv1a:730913ef",
         "bundle": null
       },
       "bundle": {
         "fileCount": 4,
         "entry": "xtend.maraca.mjs",
-        "bytes": 2047844
+        "bytes": 2075696
       },
       "runtimeFeatureStatus": [
         {
@@ -1276,8 +1283,8 @@
       "links": [
         {
           "capability": "orchestration",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "planned",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1289,8 +1296,8 @@
         },
         {
           "capability": "kernel",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "planned",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1302,8 +1309,8 @@
         },
         {
           "capability": "lifecycle",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "enforced",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1315,8 +1322,8 @@
         },
         {
           "capability": "telemetry",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "available",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1328,8 +1335,8 @@
         },
         {
           "capability": "performance",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "budget_misses",
           "runtimeExpectedStatus": "report-only",
           "bundleFingerprint": null,
@@ -1341,8 +1348,8 @@
         },
         {
           "capability": "policyParity",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "ready",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1354,8 +1361,8 @@
         },
         {
           "capability": "prewarmWorker",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "disabled",
           "runtimeExpectedStatus": "disabled",
           "bundleFingerprint": null,
@@ -1367,8 +1374,8 @@
         },
         {
           "capability": "uiCoprocessor",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "disabled",
           "runtimeExpectedStatus": "disabled",
           "bundleFingerprint": null,
@@ -1380,8 +1387,8 @@
         },
         {
           "capability": "warmReentry",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "planned",
           "runtimeExpectedStatus": "opportunistic",
           "bundleFingerprint": null,
@@ -1393,8 +1400,8 @@
         },
         {
           "capability": "prerender",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "available",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1406,8 +1413,8 @@
         },
         {
           "capability": "templateArtifacts",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "prepared",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1455,7 +1462,7 @@
           }
         ],
         "sourceToSea": {
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
           "artifactSchema": "xtend.rmt.app-orchestration.v1",
           "runtimeModules": [
             "xtendrmt/rmt-state-selector-runtime.js",
@@ -1482,7 +1489,7 @@
         "blocked": false,
         "diagnostics": [],
         "sourceToSea": {
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
           "artifactSchema": "xtend.rmt.kernel-orchestration.v1",
           "recordsSchema": "xtend.rmt.vnext.kernel-records.v1",
           "runtimeModules": [
@@ -1663,7 +1670,7 @@
             "cacheMode": "generated-app-shell",
             "serviceWorkerControlled": false,
             "offlineEligible": false,
-            "cacheVersion": "xtend-maraca-pwa-27355b0b2064",
+            "cacheVersion": "xtend-maraca-pwa-e2da56197cb9",
             "hooks": [
               "cache-management",
               "xstate-state-management",
@@ -1746,8 +1753,8 @@
         "diagnostics": [],
         "sourceToSea": {},
         "evidence": {
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
-          "artifactBundleFingerprint": "fnv1a:9012904e",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
+          "artifactBundleFingerprint": "fnv1a:730913ef",
           "bundleFingerprint": null
         }
       }
@@ -1771,8 +1778,8 @@
       "status": "within_budget",
       "mode": "strict",
       "profile": "max",
-      "baselineBytes": 2210169,
-      "bundleBytes": 2047844,
+      "baselineBytes": 2248434,
+      "bundleBytes": 2075696,
       "runtimeExpectedStatus": "booted"
     },
     "releaseConstraint": {
@@ -1785,17 +1792,17 @@
       "blockedCapabilityKeys": []
     },
     "sourceToSea": {
-      "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-      "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+      "source": "docs/xtendrmt-docs-document-v2.rmt",
+      "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
       "artifactFingerprints": {
-        "templateSource": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
-        "templateBundle": "fnv1a:9012904e",
+        "templateSource": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
+        "templateBundle": "fnv1a:730913ef",
         "bundle": null
       },
       "bundle": {
         "fileCount": 4,
         "entry": "xtend.maraca.mjs",
-        "bytes": 2047844
+        "bytes": 2075696
       },
       "runtimeFeatureStatus": [
         {
@@ -1883,8 +1890,8 @@
       "links": [
         {
           "capability": "orchestration",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "planned",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1896,8 +1903,8 @@
         },
         {
           "capability": "kernel",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "planned",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1909,8 +1916,8 @@
         },
         {
           "capability": "lifecycle",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "enforced",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1922,8 +1929,8 @@
         },
         {
           "capability": "telemetry",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "available",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1935,8 +1942,8 @@
         },
         {
           "capability": "performance",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "budget_misses",
           "runtimeExpectedStatus": "report-only",
           "bundleFingerprint": null,
@@ -1948,8 +1955,8 @@
         },
         {
           "capability": "policyParity",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "ready",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -1961,8 +1968,8 @@
         },
         {
           "capability": "prewarmWorker",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "disabled",
           "runtimeExpectedStatus": "disabled",
           "bundleFingerprint": null,
@@ -1974,8 +1981,8 @@
         },
         {
           "capability": "uiCoprocessor",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "disabled",
           "runtimeExpectedStatus": "disabled",
           "bundleFingerprint": null,
@@ -1987,8 +1994,8 @@
         },
         {
           "capability": "warmReentry",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "planned",
           "runtimeExpectedStatus": "opportunistic",
           "bundleFingerprint": null,
@@ -2000,8 +2007,8 @@
         },
         {
           "capability": "prerender",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "available",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -2013,8 +2020,8 @@
         },
         {
           "capability": "templateArtifacts",
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "runtimeStatus": "prepared",
           "runtimeExpectedStatus": "booted",
           "bundleFingerprint": null,
@@ -2047,9 +2054,9 @@
     ],
     "documentCount": 1,
     "templateCount": 1,
-    "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
-    "artifactBundleFingerprint": "fnv1a:9012904e",
-    "bundleFingerprint": "sha256:76604bb9079adf02122fdecbefc6aca96cb5bbd2d55d8f5bc2a2ce47e9ad85cf",
+    "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
+    "artifactBundleFingerprint": "fnv1a:730913ef",
+    "bundleFingerprint": "sha256:6b3e3986d4c2e9c987877dcb7b544f79df0313ba7f9a53f87de4681c9c4b7f8b",
     "runtimeProfileHints": [
       "browser",
       "detached_dom",
@@ -2060,10 +2067,10 @@
       {
         "kind": "rmt_template_artifact_document",
         "version": "1.0",
-        "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:9369d067",
+        "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:2ac8cfa8",
         "documentId": "xtend.docs.php_ssr_shell",
         "namespace": "xtend",
-        "sourceUrl": "docs/xtendrmt-docs-shell-vnext.rmt",
+        "sourceUrl": "docs/xtendrmt-docs-document-v2.rmt",
         "contentType": "text/x-rmt",
         "templateCount": 1,
         "templateIds": [
@@ -2071,13 +2078,13 @@
         ],
         "metadata": {
           "maraca": true,
-          "sourceHash": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
-          "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "sourceHash": "6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
+          "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "compilerSchema": "xtend.rmt.vnext-compiler.v1"
         },
         "reactivityHints": {},
-        "fingerprint": "fnv1a:9369d067",
-        "sourceFingerprint": "fnv1a:05119da0",
+        "fingerprint": "fnv1a:2ac8cfa8",
+        "sourceFingerprint": "fnv1a:5b75b850",
         "templates": [
           {
             "kind": "rmt_prepared_template",
@@ -2087,7 +2094,7 @@
             "qualifiedId": "template:xtend.docs.php_ssr_shell",
             "namespace": "xtend",
             "documentId": "xtend.docs.php_ssr_shell",
-            "sourceUrl": "docs/xtendrmt-docs-shell-vnext.rmt",
+            "sourceUrl": "docs/xtendrmt-docs-document-v2.rmt",
             "loaderHint": "xtend-maraca",
             "mode": "orchestration",
             "markup": "",
@@ -2141,22 +2148,22 @@
           "server_prerender"
         ],
         "metadata": {
-          "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-          "sourceHash": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+          "source": "docs/xtendrmt-docs-document-v2.rmt",
+          "sourceHash": "6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
           "compilerSchema": "xtend.rmt.vnext-compiler.v1"
         },
         "documentCount": 1,
         "templateCount": 1,
-        "fingerprint": "fnv1a:9012904e"
+        "fingerprint": "fnv1a:730913ef"
       },
       "documents": [
         {
           "kind": "rmt_template_artifact_document",
           "version": "1.0",
-          "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:9369d067",
+          "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:2ac8cfa8",
           "documentId": "xtend.docs.php_ssr_shell",
           "namespace": "xtend",
-          "sourceUrl": "docs/xtendrmt-docs-shell-vnext.rmt",
+          "sourceUrl": "docs/xtendrmt-docs-document-v2.rmt",
           "contentType": "text/x-rmt",
           "templateCount": 1,
           "templateIds": [
@@ -2164,13 +2171,13 @@
           ],
           "metadata": {
             "maraca": true,
-            "sourceHash": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
-            "sourceFingerprint": "sha256:db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+            "sourceHash": "6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
+            "sourceFingerprint": "sha256:6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
             "compilerSchema": "xtend.rmt.vnext-compiler.v1"
           },
           "reactivityHints": {},
-          "fingerprint": "fnv1a:9369d067",
-          "sourceFingerprint": "fnv1a:05119da0",
+          "fingerprint": "fnv1a:2ac8cfa8",
+          "sourceFingerprint": "fnv1a:5b75b850",
           "templates": [
             {
               "kind": "rmt_prepared_template",
@@ -2180,7 +2187,7 @@
               "qualifiedId": "template:xtend.docs.php_ssr_shell",
               "namespace": "xtend",
               "documentId": "xtend.docs.php_ssr_shell",
-              "sourceUrl": "docs/xtendrmt-docs-shell-vnext.rmt",
+              "sourceUrl": "docs/xtendrmt-docs-document-v2.rmt",
               "loaderHint": "xtend-maraca",
               "mode": "orchestration",
               "markup": "",
@@ -2242,7 +2249,7 @@
         "template:xtend.docs.php_ssr_shell"
       ],
       "bundleFileCount": 4,
-      "bundleFingerprint": "sha256:76604bb9079adf02122fdecbefc6aca96cb5bbd2d55d8f5bc2a2ce47e9ad85cf"
+      "bundleFingerprint": "sha256:6b3e3986d4c2e9c987877dcb7b544f79df0313ba7f9a53f87de4681c9c4b7f8b"
     },
     "diagnostics": []
   },
@@ -2529,7 +2536,7 @@
       "runId": "maraca:xtend.docs.php_ssr_shell",
       "label": "XTend Maraca Build Plan",
       "metadata": {
-        "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+        "source": "docs/xtendrmt-docs-document-v2.rmt",
         "documentId": "xtend.docs.php_ssr_shell",
         "workpackage": "RKFA-03"
       },
@@ -3336,7 +3343,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "booted",
-      "bundleFingerprint": "sha256:76604bb9079adf02122fdecbefc6aca96cb5bbd2d55d8f5bc2a2ce47e9ad85cf"
+      "bundleFingerprint": "sha256:6b3e3986d4c2e9c987877dcb7b544f79df0313ba7f9a53f87de4681c9c4b7f8b"
     },
     "diagnostics": [
       {
@@ -3356,7 +3363,7 @@
         ]
       }
     ],
-    "bundleFingerprint": "sha256:76604bb9079adf02122fdecbefc6aca96cb5bbd2d55d8f5bc2a2ce47e9ad85cf"
+    "bundleFingerprint": "sha256:6b3e3986d4c2e9c987877dcb7b544f79df0313ba7f9a53f87de4681c9c4b7f8b"
   },
   "panicRecovery": {
     "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
@@ -4552,16 +4559,16 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "booted",
-      "bundleFingerprint": "sha256:76604bb9079adf02122fdecbefc6aca96cb5bbd2d55d8f5bc2a2ce47e9ad85cf"
+      "bundleFingerprint": "sha256:6b3e3986d4c2e9c987877dcb7b544f79df0313ba7f9a53f87de4681c9c4b7f8b"
     },
     "summary": {
       "schema": "xtend.rmt.kernel-orchestration.v1",
       "recordsSchema": "xtend.rmt.vnext.kernel-records.v1",
       "boundary": "no-rmt-kernel-import-of-host-runtime-types",
-      "scheduleCount": 37,
-      "fiberCount": 37,
+      "scheduleCount": 39,
+      "fiberCount": 39,
       "laneCount": 6,
-      "endpointCount": 37,
+      "endpointCount": 39,
       "runtimeModules": [
         "xtendrmt/rmt-kernel-orchestration-controller.js",
         "xtendrmt/rmt-runtime.esm.js"
@@ -4690,7 +4697,7 @@
     },
     "summary": {
       "schema": "xtend.rmt.app-hydration-plan.v1",
-      "recordCount": 10,
+      "recordCount": 11,
       "supportedModeCount": 19,
       "supportedModes": [
         "runtime_render",
@@ -4883,7 +4890,7 @@
     "stalePolicy": "discard",
     "evidenceMode": "non-blocking",
     "eligibility": {
-      "recordCount": 10,
+      "recordCount": 11,
       "eligibleRecordCount": 3,
       "activeRecordCount": 0,
       "activeRecordIds": []
@@ -4909,7 +4916,7 @@
       "cacheMode": "generated-app-shell",
       "serviceWorkerControlled": false,
       "offlineEligible": false,
-      "cacheVersion": "xtend-maraca-pwa-27355b0b2064",
+      "cacheVersion": "xtend-maraca-pwa-e2da56197cb9",
       "hooks": [
         "cache-management",
         "xstate-state-management",
@@ -5136,7 +5143,7 @@
     "strategy": "app-shell",
     "cacheMode": "generated-app-shell",
     "updateMode": "prompt",
-    "cacheVersion": "xtend-maraca-pwa-27355b0b2064",
+    "cacheVersion": "xtend-maraca-pwa-e2da56197cb9",
     "manifestRef": "./xtend.webmanifest",
     "serviceWorkerRef": "./xtend.service-worker.js",
     "serviceWorkerControlled": false,
@@ -5376,7 +5383,7 @@
       "provider": "maraca-native",
       "mode": "inline",
       "asset": null,
-      "evidenceFingerprint": "d7e0bd70a81f9ca2082b4c56877c470e0e30c892709d4ceac75070b86975122f"
+      "evidenceFingerprint": "5a974e146a3219cb17b29b1030c3050c222b107ebe4260031c21bd5bfa43db9e"
     },
     "runtimeCaching": {
       "allowed": [
@@ -5531,6 +5538,7 @@
     "XTendRMT",
     "XTendFabric",
     "ensureMaracaComponent",
+    "invokeMaracaComponentCommand",
     "bootXtendMaraca",
     "MARACA_COMPONENTS",
     "MARACA_SURFACES",
@@ -5544,6 +5552,8 @@
     "MARACA_PWA",
     "MARACA_VALIDATION",
     "MARACA_TRANSITIONS",
+    "MARACA_COMPONENT_COMMAND_SCHEMA",
+    "MARACA_COMPONENT_COMMAND_RESULT_SCHEMA",
     "MARACA_PUBLIC_NAMES",
     "MARACA_STACK_MODULES",
     "XTendRmtKernelOrchestrationController",
@@ -5617,10 +5627,6 @@
     "warnings": [
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-event-routing-runtime.js (793:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
-      },
-      {
-        "code": "THIS_IS_UNDEFINED",
         "message": "xtendrmt/rmt-surface-resource-graph-runtime.js (1059:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
@@ -5629,7 +5635,11 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-action-effect-runtime.js (618:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-event-routing-runtime.js (793:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-action-effect-runtime.js (674:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -5651,16 +5661,16 @@
     "baseline": {
       "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
       "loaderBytes": 69993,
-      "selectedComponentBytes": 250217,
-      "stackModuleBytes": 1663954,
-      "contractPayloadBytes": 226005,
-      "bytes": 2210169
+      "selectedComponentBytes": 272382,
+      "stackModuleBytes": 1666607,
+      "contractPayloadBytes": 239452,
+      "bytes": 2248434
     },
-    "baselineBytes": 2210169,
-    "bundleBytes": 2047844,
+    "baselineBytes": 2248434,
+    "bundleBytes": 2075696,
     "framework": {
-      "bytes": 2047844,
-      "baselineBytes": 2210169,
+      "bytes": 2075696,
+      "baselineBytes": 2248434,
       "withinBudget": true
     },
     "appServices": {
@@ -5677,22 +5687,22 @@
       "bytes": 255,
       "budgetBytes": null,
       "withinBudget": true,
-      "requestFingerprint": "42a12329f49cbb9c27ed4724ca24b1e85befc34c8cfac507a7cacf7b26857d2e",
-      "configFingerprint": "054adc31bbb3b205491c7af627f7e3b41304e205f645e685d36fbaa0d7201c98",
-      "evidenceFingerprint": "d7e0bd70a81f9ca2082b4c56877c470e0e30c892709d4ceac75070b86975122f",
+      "requestFingerprint": "ffe49eca2f6b604ef0a7d14b6c930ad84079f5c2bb2ed03b9581628255a5cefb",
+      "configFingerprint": "e56ec5b044c362d862cff78b14c9289d7372db0374a755b63cf0c0d164c0b235",
+      "evidenceFingerprint": "5a974e146a3219cb17b29b1030c3050c222b107ebe4260031c21bd5bfa43db9e",
       "outputFingerprint": "50c41f8c8e2be6b4fa00a8cec35056e002f23af381ff55c681a2312d0b3fffb8",
       "sourceFingerprints": [
         {
-          "fingerprint": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
-          "path": "docs/xtendrmt-docs-shell-vnext.rmt"
+          "fingerprint": "6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
+          "path": "docs/xtendrmt-docs-document-v2.rmt"
         }
       ]
     },
-    "ratio": 0.9265553901081772,
+    "ratio": 0.9231740847185197,
     "budgets": {
       "modernEsmEntryMustBeSmallerThanBaseline": true,
       "enforcement": "strict",
-      "frameworkBytes": 2210169,
+      "frameworkBytes": 2248434,
       "clientAppServiceBytes": null,
       "serverAppServiceBytes": null
     }

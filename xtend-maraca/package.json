@@ -54,6 +54,12 @@
       "require": "./node-app-service-host.js",
       "default": "./node-app-service-host.mjs"
     },
+    "./node-app-host": {
+      "types": "./node-app-host.d.ts",
+      "import": "./node-app-host.mjs",
+      "require": "./node-app-host.js",
+      "default": "./node-app-host.mjs"
+    },
     "./service-build-provider": {
       "types": "./service-build-provider.d.ts",
       "default": "./service-build-provider.js"
@@ -72,12 +78,17 @@
     "app-services.js",
     "app-services.mjs",
     "app-services.d.ts",
+    "trusted-text-sanitizer.js",
+    "trusted-text-sanitizer.mjs",
     "server-services.js",
     "server-services.mjs",
     "server-services.d.ts",
     "node-app-service-host.js",
     "node-app-service-host.mjs",
     "node-app-service-host.d.ts",
+    "node-app-host.js",
+    "node-app-host.mjs",
+    "node-app-host.d.ts",
     "service-build-provider.js",
     "service-build-provider.d.ts",
     "README.md",

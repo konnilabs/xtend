@@ -15,6 +15,8 @@ const {
 const {
   SCAFFOLD_WRITE_PLAN_SCHEMA,
   SCAFFOLD_WRITE_REPORT_SCHEMA,
+  SCAFFOLD_GENERATED_OWNERSHIP_SCHEMA_V1,
+  SCAFFOLD_GENERATED_OWNERSHIP_SCHEMA_V2,
   createWritePlan,
   sha256,
   writeScaffoldFiles
@@ -191,6 +193,68 @@ function runScaffoldWritePlanSuite(options = {}) {
   });
   context.assert(!blockedDirectory.ok, 'Writer blocks directory targets');
   context.assert(blockedDirectory.errors.some((error) => error.includes('not a file')), 'Directory target is diagnosed');
+
+  const v2Root = tempRoot();
+  const v2Entries = [
+    { id: 'managed', path: 'src/generated-host.mjs', kind: 'runtime', content: '// managed\n', ownershipMode: 'managed' },
+    { id: 'seed', path: 'src/app.rmt', kind: 'rmt', content: 'app seed {}\n', ownershipMode: 'seed' }
+  ];
+  const v2Write = writeScaffoldFiles(v2Entries, {
+    rootDir: v2Root,
+    write: true,
+    generator: 'scaffold-ownership-v2-test',
+    ownershipSchema: SCAFFOLD_GENERATED_OWNERSHIP_SCHEMA_V2,
+    allowedRoots: ['src/']
+  });
+  const v2Manifest = JSON.parse(readTempFile(v2Root, '.xtend-build/scaffold-ownership.json'));
+  context.assert(v2Write.ok && v2Write.plan.ownershipSchema === SCAFFOLD_GENERATED_OWNERSHIP_SCHEMA_V2, 'Ownership v2 write uses the requested schema');
+  context.assert(v2Manifest.schema === SCAFFOLD_GENERATED_OWNERSHIP_SCHEMA_V2 && v2Manifest.files['src/app.rmt'].mode === 'seed' && v2Manifest.files['src/generated-host.mjs'].mode === 'managed', 'Ownership v2 records managed and seed modes per file');
+  fs.appendFileSync(path.join(v2Root, 'src/app.rmt'), 'author change\n', 'utf8');
+  const v2Check = writeScaffoldFiles(v2Entries, {
+    rootDir: v2Root,
+    check: true,
+    generator: 'scaffold-ownership-v2-test',
+    ownershipSchema: SCAFFOLD_GENERATED_OWNERSHIP_SCHEMA_V2,
+    allowedRoots: ['src/']
+  });
+  const seedOperation = operationFor(v2Check, 'src/app.rmt');
+  context.assert(v2Check.ok && v2Check.status === 'current' && seedOperation.action === 'preserve' && seedOperation.changed === false, 'Ownership v2 check preserves edited seed sources as current');
+  const authoredSeed = readTempFile(v2Root, 'src/app.rmt');
+  const v2Rewrite = writeScaffoldFiles(v2Entries, {
+    rootDir: v2Root,
+    write: true,
+    generator: 'scaffold-ownership-v2-test',
+    ownershipSchema: SCAFFOLD_GENERATED_OWNERSHIP_SCHEMA_V2,
+    allowedRoots: ['src/']
+  });
+  context.assert(v2Rewrite.ok && operationFor(v2Rewrite, 'src/app.rmt').action === 'preserve' && readTempFile(v2Root, 'src/app.rmt') === authoredSeed, 'Ownership v2 write never overwrites an authored seed');
+  fs.appendFileSync(path.join(v2Root, 'src/generated-host.mjs'), 'manual drift\n', 'utf8');
+  const v2ManagedDrift = writeScaffoldFiles(v2Entries, {
+    rootDir: v2Root,
+    check: true,
+    generator: 'scaffold-ownership-v2-test',
+    ownershipSchema: SCAFFOLD_GENERATED_OWNERSHIP_SCHEMA_V2,
+    allowedRoots: ['src/']
+  });
+  context.assert(!v2ManagedDrift.ok && v2ManagedDrift.errors.some((error) => error.includes('changed since the last Scaffold ownership record')), 'Ownership v2 continues to fail closed for managed infrastructure drift');
+
+  const v1Root = tempRoot();
+  const legacyEntries = [{ id: 'legacy-seed', path: 'src/app.rmt', content: 'legacy seed\n', ownershipMode: 'seed' }];
+  const v1Write = writeScaffoldFiles(legacyEntries, {
+    rootDir: v1Root,
+    write: true,
+    generator: 'scaffold-ownership-v1-test',
+    allowedRoots: ['src/']
+  });
+  fs.appendFileSync(path.join(v1Root, 'src/app.rmt'), 'legacy drift\n', 'utf8');
+  const v1Check = writeScaffoldFiles(legacyEntries, {
+    rootDir: v1Root,
+    check: true,
+    generator: 'scaffold-ownership-v1-test',
+    ownershipSchema: SCAFFOLD_GENERATED_OWNERSHIP_SCHEMA_V2,
+    allowedRoots: ['src/']
+  });
+  context.assert(v1Write.plan.ownershipSchema === SCAFFOLD_GENERATED_OWNERSHIP_SCHEMA_V1 && !v1Check.ok && v1Check.plan.ownershipSchema === SCAFFOLD_GENERATED_OWNERSHIP_SCHEMA_V1, 'Existing ownership v1 manifests retain legacy hash-and-drift behavior when a v2 generator re-runs');
 
   return context.result({
     report: {

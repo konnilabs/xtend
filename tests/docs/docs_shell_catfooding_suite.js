@@ -266,8 +266,8 @@ function runDocsShellCatfoodingSuite(options = {}) {
     context.assert(zlib.gzipSync(fulltextText, { level: 9 }).length <= 150 * 1024, `${locale} fulltext index stays within 150 KiB gzip`);
   });
 
-  const source = readText('docs/xtendrmt-docs-shell-vnext.rmt', rootDir);
-  const compileResult = compileRmtVNextSource({ text: source, filePath: 'docs/xtendrmt-docs-shell-vnext.rmt' });
+  const source = readText('docs/xtendrmt-docs-document-v2.rmt', rootDir);
+  const compileResult = compileRmtVNextSource({ text: source, filePath: 'docs/xtendrmt-docs-document-v2.rmt' });
   const searchSources = compileResult.coreDocument && compileResult.coreDocument.searchSources || [];
   context.assert(compileResult.ok && searchSources.length === 2, 'Docs RMT source compiles two locale search sources');
   context.assert(searchSources.every((entry) => entry.debounceMs === 80 && entry.resultLimit === 8 && entry.fallbackThreshold === 0.6), 'AOT search policy locks debounce, limit and fallback');
@@ -304,6 +304,7 @@ function runDocsShellCatfoodingSuite(options = {}) {
   context.assert(!localizedPayloadBlock.includes('window.xtendDocsPages'), 'localized payload loading never reads the language-neutral legacy page cache');
   context.assert(routerSource.includes('const documentTitle = explicitDocumentTitle || templatedTitle'), 'x-router preserves explicit document titles instead of applying a second template suffix');
   context.assert(indexPhp.includes('$activeMeta = $localizedAllPagesMeta[$pageLocale][$activeSlug]'), 'SSR shell materializes only the active route before hydration');
+  context.assert(indexPhp.includes("'class' => 'docs-related-list'") && pageLoader.includes('ensureDocsRelatedSidebarScaffold(relatedSlot)'), 'SSR adoption preserves the Read Further heading and related-link grid scaffold');
   context.assert(!indexPhp.includes('/docs/utils/fabric-runtime.js'), 'SSR host does not load the retired Docs Fabric parallel runtime');
   context.assert(!indexPhp.includes("document.addEventListener('DOMContentLoaded'"), 'SSR HTML contains no imperative inline shell controller');
   context.assert(indexPhp.includes('window.xtendDocsLocalizedPages = Object.create(null);') && indexPhp.includes('window.xtendDocsPages = Object.create(null);'), 'SSR bootstrap does not embed the bilingual Parsedown corpus');
@@ -322,6 +323,7 @@ function runDocsShellCatfoodingSuite(options = {}) {
   context.assert(browserSmoke.includes("slug: 'learn-rmt-playground'") && browserSmoke.includes('inspectPlaygroundSkeleton') && browserSmoke.includes('playgroundSkeletonCount === 0'), 'ChromeDriver shell smoke rejects route skeleton artifacts inside the RMT Playground workspace');
   context.assert(browserSmoke.includes('finalSnapshot.layoutShift <= 0.01') && browserSmoke.includes('result.layoutShift <= 0.01'), 'ChromeDriver shell smoke enforces measured CLS across initial, interaction and Maraca regression paths');
   context.assert(browserSmoke.includes('regionGeometry.heroMainGap >= minimumRegionGap') && browserSmoke.includes('regionGeometry.articleSidebarTopDelta <= 1'), 'ChromeDriver shell smoke enforces visible region spacing and desktop column alignment');
+  context.assert(browserSmoke.includes('relatedLayout.rowGap >= 7.9') && browserSmoke.includes('relatedLayout.minAdjacentGap >= 7.9') && browserSmoke.includes('relatedLayout?.headingVisible'), 'ChromeDriver shell smoke enforces Read Further heading visibility and button spacing');
   context.assert(browserSmoke.includes("id: 'de-maraca-brand-wide'") && browserSmoke.includes("id: 'de-maraca-brand-compact'") && browserSmoke.includes("expectedBrandPresentation: 'logo-only'"), 'ChromeDriver shell smoke covers full and logo-only header branding at the reported compact widths');
   context.assert(browserSmoke.includes('expanded navigation indicators do not point upward') && browserSmoke.includes('collapsed navigation indicators do not point downward') && browserSmoke.includes('new DOMMatrixReadOnly(transform)'), 'ChromeDriver shell smoke verifies semantic disclosure indicator directions');
   context.assert(browserSmoke.includes('assertSingleCurrentArticle') && browserSmoke.includes('expected exactly one current article link') && browserSmoke.includes('current page is not uniquely marked inside its expanded section') && browserSmoke.includes("slug: 'a11y-keyboard-smokes'") && browserSmoke.includes('inspectNavigation: true'), 'ChromeDriver shell smoke enforces one route-matching current article inside its expanded section');

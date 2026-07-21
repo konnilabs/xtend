@@ -54,7 +54,7 @@ Für produktive Oberflächen sollten IDs stabil bleiben, wenn State-Keys oder Di
 Attribute:
 - `src`
 - `logo-size`
-- `title`
+- `title` (Plain-Text-Fallback für den Slot `title`)
 - `sticky`
 - `shadow`
 - `brand-collapse` (`auto`, `never` oder `always`; Standard ist `auto`)
@@ -86,7 +86,7 @@ Methoden:
 - `snapshot()`
 
 Slots:
-- `title`
+- `title` (ein explizit zugewiesener Knoten hat Vorrang vor dem Attribut `title`)
 - `search`
 - `actions`
 - `utility`
@@ -142,6 +142,7 @@ CSS Custom Properties:
 - Menu events: `menu-before-open`, `menu-before-close`, `menu-mode-changed`, `menu-placement-changed`.
 - Menu tokens: `--xtend-header-menu-width`, `--xtend-header-menu-max-height`, `--xtend-header-menu-backdrop`.
 - Brand-Fitting: `brand-collapse="auto"` vergleicht den vollständigen Titel mit der verfügbaren Brand-Spalte. Passt er nicht hinein, bleibt nur das Logo sichtbar; für assistive Technologien bleibt der Titel erhalten. Mit `never` bleibt der Titel sichtbar, mit `always` wird die Logo-Ansicht erzwungen.
+- Titel-Fallback: Wenn `slot="title"` kein Knoten zugewiesen ist, rendert das Attribut `title` reinen Text. Die Runtime schreibt den Wert über `textContent`; Markup im Attribut wird niemals interpretiert. Ein explizit zugewiesener Titel-Slot behält immer Vorrang.
 
 RMT Hosts sollten die Komponente als Custom-Element-Grenze behandeln: Attribute werden als Component Props gesetzt, DOM-Events werden an Commands gebunden, und Scheduling-Metadaten bleiben außerhalb der Komponente. Reine HTML-Hosts verwenden dieselben Attribute und Events ohne RMT Compiler.
 

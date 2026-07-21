@@ -8,7 +8,7 @@ Actions describe state changes, effects and emitted events. Event bindings conne
 | --- | --- | --- | --- | --- | --- | --- |
 | <a id="input"></a>`input` | `input id string` | `action` | name, type | Declares action payload fields. | Missing types are reported. | `payload` |
 | <a id="status"></a>`status` | `status app.request` | `action` | state path | Binds loading, success and error status. | Unknown state is semantic diagnostic. | `effect` |
-| <a id="effect"></a>`effect` | `effect fetch datasource tickets` | `action` | effect kind, optional source | Declares host-owned asynchronous work. | Effect source must be `datasource`, `resource` or `selector`. | `on success ->` |
+| <a id="effect"></a>`effect` | `effect fetch datasource tickets` | `action` | effect kind, optional source | Declares host-owned asynchronous work or a fixed component command. | Effect source must be `datasource`, `resource` or `selector`. Component commands accept only `focus`, `reset` and `snapshot`. | `on success ->` |
 | <a id="reduce"></a>`reduce` | `reduce state.app.status.text = "Saved"` | `action` | target path, expression | Writes declaratively to state. | Actions without reducers can be blocked. | `state`, `status` |
 | <a id="emit"></a>`emit` | `emit app.saved with id input.id` | `action` | event name, optional payload | Publishes a typed RMT event. | Missing payload contracts may be reported semantically. | `with`, `emits` |
 | <a id="with"></a>`with` | `with id input.id` | `emit` | key/value pairs | Maps event payload directly from action input or state. | Invalid payload values produce syntax errors. | `payload` |
@@ -32,6 +32,28 @@ Event names, action names and payload keys are identifiers. Payload values are p
 ## Description
 
 Actions are declarative transitions. They describe what should change or publish; the host decides how concrete adapters run.
+
+### Component commands
+
+An action may call public methods on an eligible, statically known surface through exactly these forms:
+
+```rmt
+action editor.focus {
+  effect focus selector maraca.testbench.editor
+}
+
+action editor.reset {
+  effect reset selector maraca.testbench.editor
+}
+
+action editor.capture {
+  effect snapshot selector maraca.testbench.editor
+}
+```
+
+Here, `selector` is the authoring form for a static surface ID; the compiler resolves it to a `surface` target with a component type. This contract currently permits `x-textarea` and only `focus()`, `reset()` and `snapshot()`. Unknown surfaces, ineligible components, other source kinds and arbitrary method names are hard compiler errors with a source range.
+
+Maraca runs the command after rendering and hydration, within the orchestration root. It has no document fallback and does not traverse shadow roots. The action result remains visible in `XTendMaraca.orchestration.snapshot().actions[]`. `effects[].value.result` uses schema `xtend.maraca.component-command-result.v1` with `command`, `surfaceId`, `component` and `result`; `focus` and `reset` return `null`, while `snapshot` contains the public XTextarea snapshot. A component command does not mutate RMT state automatically.
 
 ## Examples
 
@@ -77,7 +99,7 @@ template reference.actions {
 
 ## Diagnostics
 
-Wrong action clauses, missing reducers, unknown overlay references and missing payload contracts are reported by parser, linter or semantic graph.
+Wrong action clauses, missing reducers, unknown overlay references, invalid component commands and missing payload contracts are reported by parser, linter, compiler or semantic graph.
 
 ## Related operators
 

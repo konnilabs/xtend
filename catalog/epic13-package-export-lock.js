@@ -58,6 +58,7 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './maraca/app-services',
   './maraca/server-services',
   './maraca/node-app-service-host',
+  './maraca/node-app-host',
   './maraca/service-build-provider',
   './xsurface-shard',
   './xscaler',

@@ -1,0 +1,513 @@
+// Maraca App Services Test Bench — official RMT authoring surface.
+template maraca.testbench {
+  state maraca.testbench.shell type object preserve {
+    initial {
+      id "testbench-shell"
+      layoutEngine "document-flow"
+      viewTemplate { class "xtm-app-shell" }
+    }
+  }
+
+  state maraca.testbench.header type object preserve {
+    initial {
+      id "testbench-header"
+      title "Maraca App Services Test Bench"
+      viewTemplate { class "xtm-top-app-bar" }
+    }
+  }
+
+  state maraca.testbench.intro type object preserve {
+    initial {
+      id "testbench-intro"
+      title "Strict AppServices catfood"
+      text "Enter submits through a browser TrustBoundary, the generated Node host and SQLite. Shift+Enter inserts a new line."
+      label "AppServices test bench introduction"
+      layout "column"
+      viewTemplate {
+        class "xtm-content-page"
+        children [
+          { type "element" tag "h1" attributes { "data-xtm-slot" "header" } text "$model.maraca.testbench.intro.title" }
+          { type "element" tag "p" attributes { "data-xtm-slot" "body" } text "$model.maraca.testbench.intro.text" }
+        ]
+      }
+    }
+  }
+
+  state maraca.testbench.form type object preserve {
+    initial {
+      id "testbench-form"
+      viewTemplate {
+        class "xtm-form-flow"
+        children [
+          {
+            type "element"
+            tag "div"
+            attributes { id "testbench-form-fields" "data-xtm-slot" "fields" }
+          }
+          {
+            type "element"
+            tag "div"
+            class "xtm-actions"
+            attributes { id "testbench-form-actions" "data-xtm-slot" "actions" }
+          }
+          {
+            type "element"
+            tag "div"
+            class "xtm-feedback-stack"
+            attributes { id "testbench-form-status" "data-xtm-slot" "status" }
+          }
+        ]
+      }
+    }
+  }
+
+  state maraca.testbench.editor type object preserve {
+    initial {
+      id "testbench-textarea"
+      name "text"
+      value ""
+      placeholder "Type text and press Enter to persist it"
+      required true
+      disabled false
+      readonly false
+      maxLength 4000
+      minLength 1
+      rows 10
+      label "Text content"
+      hint "Plain text only; maximum 4,000 characters. Shift+Enter adds a line."
+      error "Enter between 1 and 4,000 valid plain-text characters."
+      busy false
+      invalid false
+      density "comfortable"
+      fill true
+      submitOnEnter true
+      submitCommand "maraca.testbench.save"
+      syntaxHighlight true
+      highlight true
+      lineNumbering true
+      lang "text"
+      language "text"
+      viewTemplate {
+        class "xtm-card"
+      }
+    }
+  }
+
+  state maraca.testbench.load type object preserve {
+    initial {
+      id "testbench-load"
+      text "Load latest 20"
+      tone "primary"
+      disabled false
+    }
+  }
+
+  state maraca.testbench.save type object preserve {
+    initial {
+      id "testbench-save-command"
+      text "Save text"
+      disabled true
+    }
+  }
+
+  state maraca.testbench.feedback type object preserve {
+    initial {
+      id "testbench-feedback"
+      text "Ready. No database content has been loaded yet."
+      tone "neutral"
+    }
+  }
+
+  state maraca.testbench.controlsTitle type object preserve {
+    initial {
+      id "testbench-controls-title"
+      title "XTextarea API controls"
+      text "These commands are RMT reducers; no product controller mutates the component."
+      label "XTextarea API controls"
+      layout "column"
+      viewTemplate {
+        class "xtm-card"
+        children [
+          { type "element" tag "h2" text "$model.maraca.testbench.controlsTitle.title" }
+          { type "element" tag "p" text "$model.maraca.testbench.controlsTitle.text" }
+          {
+            type "element"
+            tag "div"
+            class "xtm-actions"
+            attributes { "data-testid" "xtextarea-actions" }
+            children [
+              { type "element" tag "x-button" attributes { id "testbench-readonly-on" label "Readonly on" tone "neutral" } text "Readonly on" }
+              { type "element" tag "x-button" attributes { id "testbench-readonly-off" label "Readonly off" tone "neutral" } text "Readonly off" }
+              { type "element" tag "x-button" attributes { id "testbench-busy-on" label "Busy on" tone "neutral" } text "Busy on" }
+              { type "element" tag "x-button" attributes { id "testbench-busy-off" label "Busy off" tone "neutral" } text "Busy off" }
+              { type "element" tag "x-button" attributes { id "testbench-disabled-on" label "Disabled on" tone "neutral" } text "Disabled on" }
+              { type "element" tag "x-button" attributes { id "testbench-disabled-off" label "Disabled off" tone "neutral" } text "Disabled off" }
+              { type "element" tag "x-button" attributes { id "testbench-density-comfortable" label "Comfortable" tone "neutral" } text "Comfortable" }
+              { type "element" tag "x-button" attributes { id "testbench-density-compact" label "Compact" tone "neutral" } text "Compact" }
+              { type "element" tag "x-button" attributes { id "testbench-density-dense" label "Dense" tone "neutral" } text "Dense" }
+              { type "element" tag "x-button" attributes { id "testbench-fill-on" label "Fill on" tone "neutral" } text "Fill on" }
+              { type "element" tag "x-button" attributes { id "testbench-fill-off" label "Fill off" tone "neutral" } text "Fill off" }
+              { type "element" tag "x-button" attributes { id "testbench-highlight-on" label "Highlight on" tone "neutral" } text "Highlight on" }
+              { type "element" tag "x-button" attributes { id "testbench-highlight-off" label "Highlight off" tone "neutral" } text "Highlight off" }
+              { type "element" tag "x-button" attributes { id "testbench-lines-on" label "Line numbers on" tone "neutral" } text "Line numbers on" }
+              { type "element" tag "x-button" attributes { id "testbench-lines-off" label "Line numbers off" tone "neutral" } text "Line numbers off" }
+              { type "element" tag "x-button" attributes { id "testbench-focus" label "Focus editor" tone "neutral" } text "Focus editor" }
+              { type "element" tag "x-button" attributes { id "testbench-reset" label "Reset editor" tone "neutral" } text "Reset editor" }
+              { type "element" tag "x-button" attributes { id "testbench-snapshot" label "Snapshot editor" tone "neutral" } text "Snapshot editor" }
+            ]
+          }
+        ]
+      }
+    }
+  }
+
+  state maraca.testbench.history type object preserve {
+    initial {
+      id "testbench-history"
+      title "Persisted text"
+      label "Persisted text"
+      layout "column"
+      empty true
+      entries []
+      viewTemplate {
+        class "xtm-stack"
+        attributes { "aria-live" "polite" "data-testid" "history" }
+        children [
+          { type "element" tag "h2" text "$model.maraca.testbench.history.title" }
+          {
+            type "when"
+            when "$model.maraca.testbench.history.empty"
+            then {
+              type "element"
+              tag "p"
+              class "xtm-card"
+              text "No persisted text loaded."
+            }
+            else {
+              type "repeat"
+              source "$model.maraca.testbench.history.entries"
+              key "$item.id"
+              template {
+                type "element"
+                tag "article"
+                class "xtm-card"
+                attributes { "data-entry-id" "$item.id" }
+                children [
+                  {
+                    type "element"
+                    tag "time"
+                    attributes { datetime "$item.createdAt" }
+                    text "$item.createdAt"
+                  }
+                  {
+                    type "element"
+                    tag "p"
+                    class "xtm-plain-text"
+                    text "$item.text"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+
+  selector maraca.testbench.shell from state maraca.testbench.shell { output TestBenchShell }
+  selector maraca.testbench.header from state maraca.testbench.header { output TestBenchHeader }
+  selector maraca.testbench.intro from state maraca.testbench.intro { output TestBenchIntro }
+  selector maraca.testbench.form from state maraca.testbench.form { output TestBenchForm }
+  selector maraca.testbench.editor from state maraca.testbench.editor { output TestBenchEditor }
+  selector maraca.testbench.load from state maraca.testbench.load { output TestBenchLoad }
+  selector maraca.testbench.feedback from state maraca.testbench.feedback { output TestBenchFeedback }
+  selector maraca.testbench.controlsTitle from state maraca.testbench.controlsTitle { output TestBenchControlsTitle }
+  selector maraca.testbench.history from state maraca.testbench.history { output TestBenchHistory }
+
+  validation maraca.testbench.text {
+    mode blocking
+    target action maraca.testbench.save
+    field maraca.testbench.editor required message "Enter text before saving."
+  }
+
+  datasource maraca.testbench.save from host maraca.testbench.text.save {
+    mode invoke
+    contract "maraca.testbench.text-result.v1"
+  }
+  datasource maraca.testbench.list from host maraca.testbench.text.list {
+    mode invoke
+    contract "maraca.testbench.text-result.v1"
+  }
+
+  action maraca.testbench.updateDraft {
+    input value string
+    reduce state.maraca.testbench.editor.value = input.value
+    reduce state.maraca.testbench.editor.invalid = false
+  }
+  action maraca.testbench.invalid {
+    input message string
+    reduce state.maraca.testbench.editor.invalid = true
+    reduce state.maraca.testbench.feedback.text = input.message
+    reduce state.maraca.testbench.feedback.tone = "danger"
+  }
+  action maraca.testbench.save {
+    input text string {
+      trust boundary "xtend.security.sanitizing-boundary.v1"
+      sanitize text
+    }
+    effect fetch datasource maraca.testbench.save
+    reduce state.maraca.testbench.history.entries = result.entries
+    reduce state.maraca.testbench.history.empty = result.empty
+    reduce state.maraca.testbench.feedback.text = result.message
+    reduce state.maraca.testbench.feedback.tone = "success"
+    reduce state.maraca.testbench.editor.value = ""
+  }
+  action maraca.testbench.load {
+    input trigger string
+    effect fetch datasource maraca.testbench.list
+    reduce state.maraca.testbench.history.entries = result.entries
+    reduce state.maraca.testbench.history.empty = result.empty
+    reduce state.maraca.testbench.feedback.text = result.message
+    reduce state.maraca.testbench.feedback.tone = "success"
+  }
+  action maraca.testbench.readonlyOn {
+    input trigger string
+    reduce state.maraca.testbench.editor.readonly = true
+  }
+  action maraca.testbench.readonlyOff {
+    input trigger string
+    reduce state.maraca.testbench.editor.readonly = false
+  }
+  action maraca.testbench.busyOn {
+    input trigger string
+    reduce state.maraca.testbench.editor.busy = true
+  }
+  action maraca.testbench.busyOff {
+    input trigger string
+    reduce state.maraca.testbench.editor.busy = false
+  }
+  action maraca.testbench.disabledOn {
+    input trigger string
+    reduce state.maraca.testbench.editor.disabled = true
+  }
+  action maraca.testbench.disabledOff {
+    input trigger string
+    reduce state.maraca.testbench.editor.disabled = false
+  }
+  action maraca.testbench.densityComfortable {
+    input trigger string
+    reduce state.maraca.testbench.editor.density = "comfortable"
+  }
+  action maraca.testbench.densityCompact {
+    input trigger string
+    reduce state.maraca.testbench.editor.density = "compact"
+  }
+  action maraca.testbench.densityDense {
+    input trigger string
+    reduce state.maraca.testbench.editor.density = "dense"
+  }
+  action maraca.testbench.fillOn {
+    input trigger string
+    reduce state.maraca.testbench.editor.fill = true
+  }
+  action maraca.testbench.fillOff {
+    input trigger string
+    reduce state.maraca.testbench.editor.fill = false
+  }
+  action maraca.testbench.highlightOn {
+    input trigger string
+    reduce state.maraca.testbench.editor.syntaxHighlight = true
+    reduce state.maraca.testbench.editor.highlight = true
+  }
+  action maraca.testbench.highlightOff {
+    input trigger string
+    reduce state.maraca.testbench.editor.syntaxHighlight = false
+    reduce state.maraca.testbench.editor.highlight = false
+  }
+  action maraca.testbench.linesOn {
+    input trigger string
+    reduce state.maraca.testbench.editor.lineNumbering = true
+  }
+  action maraca.testbench.linesOff {
+    input trigger string
+    reduce state.maraca.testbench.editor.lineNumbering = false
+  }
+  action maraca.testbench.focus {
+    input trigger string
+    effect focus selector maraca.testbench.editor
+    reduce state.maraca.testbench.feedback.text = "Focus command executed through RMT."
+    reduce state.maraca.testbench.feedback.tone = "neutral"
+  }
+  action maraca.testbench.reset {
+    input trigger string
+    effect reset selector maraca.testbench.editor
+    reduce state.maraca.testbench.editor.value = ""
+    reduce state.maraca.testbench.editor.invalid = false
+    reduce state.maraca.testbench.feedback.text = "Reset command executed through RMT."
+    reduce state.maraca.testbench.feedback.tone = "neutral"
+  }
+  action maraca.testbench.capture {
+    input trigger string
+    effect snapshot selector maraca.testbench.editor
+    reduce state.maraca.testbench.feedback.text = "Snapshot captured through RMT."
+    reduce state.maraca.testbench.feedback.tone = "neutral"
+  }
+
+  transition maraca.testbench.persistFlow {
+    trigger action maraca.testbench.save
+    from surfaces [maraca.testbench.editor maraca.testbench.feedback]
+    to surfaces [maraca.testbench.history]
+    effect crossfade
+    durationMs 160
+    easing "ease-out"
+    interrupt replace
+    reducedMotion fade
+    lane transition
+  }
+
+  portal maraca.testbench.root root "#material-app" layer surface
+  portal maraca.testbench.workspace root "[data-maraca-surface='maraca.testbench.shell']" layer surface
+  portal maraca.testbench.formFields root "#testbench-form-fields" layer surface
+  portal maraca.testbench.formActions root "#testbench-form-actions" layer surface
+  portal maraca.testbench.formStatus root "#testbench-form-status" layer surface
+
+  surface maraca.testbench.shell kind workspace component x-surface-manager {
+    source selector maraca.testbench.shell
+    key shell.id
+    portal maraca.testbench.root
+    lane visible weight 100 { hydrate testbench-shell from selector maraca.testbench.shell }
+  }
+  surface maraca.testbench.header kind content component x-header {
+    source selector maraca.testbench.header
+    key header.id
+    portal maraca.testbench.workspace
+    lane visible weight 98 { hydrate testbench-header from selector maraca.testbench.header }
+  }
+  surface maraca.testbench.intro kind content component x-section {
+    source selector maraca.testbench.intro
+    key intro.id
+    portal maraca.testbench.workspace
+    lane visible weight 96 { hydrate testbench-intro from selector maraca.testbench.intro }
+  }
+  surface maraca.testbench.form kind window component x-form {
+    source selector maraca.testbench.form
+    key form.id
+    portal maraca.testbench.workspace
+    lane visible weight 94 { hydrate testbench-form from selector maraca.testbench.form }
+  }
+  surface maraca.testbench.editor kind field component x-textarea {
+    source selector maraca.testbench.editor
+    key editor.id
+    portal maraca.testbench.formFields
+    lane visible weight 92 { hydrate testbench-textarea from selector maraca.testbench.editor }
+    on textarea-changed "#testbench-textarea" -> action maraca.testbench.updateDraft {
+      payload value from detail.value
+    }
+    on textarea-invalid "#testbench-textarea" -> action maraca.testbench.invalid {
+      payload message from detail.message
+    }
+    on textarea-submit "#testbench-textarea" -> action maraca.testbench.save {
+      payload text from detail.value
+    }
+  }
+  surface maraca.testbench.load kind action component x-button {
+    source selector maraca.testbench.load
+    key load.id
+    portal maraca.testbench.formActions
+    lane visible weight 90 { hydrate testbench-load from selector maraca.testbench.load }
+    on click "#testbench-load" -> action maraca.testbench.load {
+      preventDefault true
+      payload trigger from target.id
+    }
+  }
+  surface maraca.testbench.feedback kind card component x-status {
+    source selector maraca.testbench.feedback
+    key feedback.id
+    portal maraca.testbench.formStatus
+    lane visible weight 88 { hydrate testbench-feedback from selector maraca.testbench.feedback }
+  }
+  surface maraca.testbench.controlsTitle kind content component x-section {
+    source selector maraca.testbench.controlsTitle
+    key controlsTitle.id
+    portal maraca.testbench.workspace
+    lane visible weight 86 { hydrate testbench-controls-title from selector maraca.testbench.controlsTitle }
+    on click "#testbench-readonly-on" -> action maraca.testbench.readonlyOn {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-readonly-off" -> action maraca.testbench.readonlyOff {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-busy-on" -> action maraca.testbench.busyOn {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-busy-off" -> action maraca.testbench.busyOff {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-disabled-on" -> action maraca.testbench.disabledOn {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-disabled-off" -> action maraca.testbench.disabledOff {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-density-comfortable" -> action maraca.testbench.densityComfortable {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-density-compact" -> action maraca.testbench.densityCompact {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-density-dense" -> action maraca.testbench.densityDense {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-fill-on" -> action maraca.testbench.fillOn {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-fill-off" -> action maraca.testbench.fillOff {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-highlight-on" -> action maraca.testbench.highlightOn {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-highlight-off" -> action maraca.testbench.highlightOff {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-lines-on" -> action maraca.testbench.linesOn {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-lines-off" -> action maraca.testbench.linesOff {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-focus" -> action maraca.testbench.focus {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-reset" -> action maraca.testbench.reset {
+      preventDefault true
+      payload trigger from target.id
+    }
+    on click "#testbench-snapshot" -> action maraca.testbench.capture {
+      preventDefault true
+      payload trigger from target.id
+    }
+  }
+  surface maraca.testbench.history kind content component x-section {
+    source selector maraca.testbench.history
+    key history.id
+    portal maraca.testbench.workspace
+    lane visible weight 65 { hydrate testbench-history from selector maraca.testbench.history }
+  }
+}

@@ -287,18 +287,22 @@ async function browserEvidence(rootDir, appRelative, evidenceRoot, cliPath, invo
       ], { cwd: rootDir, timeoutMs: 30000 });
       const dom = run.stdout;
       const surfaceCount = (dom.match(/data-maraca-surface=/gu) || []).length;
+      const expectedSurfaceCountMatch = dom.match(/data-xtm-expected-surface-count="(\d+)"/u);
+      const expectedSurfaceCount = expectedSurfaceCountMatch ? Number(expectedSurfaceCountMatch[1]) : 0;
       const assetUrls = Array.from(dom.matchAll(/(?:src|href)="([^"]+)"/gu)).map((match) => match[1]);
       const remoteAssets = assetUrls.filter((value) => /^(?:https?:)?\/\//u.test(value) && !value.startsWith(handle.origin));
       const ready = run.exitCode === 0
         && /data-maraca-runtime-ready="true"/u.test(dom)
         && /data-xtend-dev-api-ready="true"/u.test(dom)
         && /data-xtend-dev-api-serializable="true"/u.test(dom)
+        && /data-xtm-surface-graph-ready="true"/u.test(dom)
         && /data-xtm-horizontal-overflow="0"/u.test(dom)
         && dom.includes(`data-xtm-route="${viewport.route}"`)
         && dom.includes(`data-xtm-theme="${viewport.theme}"`)
         && new RegExp(`data-xtm-route-link="${viewport.route}"[^>]*aria-current="page"|aria-current="page"[^>]*data-xtm-route-link="${viewport.route}"`, 'u').test(dom)
         && (dom.match(/data-xtm-route-link=/gu) || []).length === 2
-        && surfaceCount >= 14
+        && expectedSurfaceCount > 0
+        && surfaceCount === expectedSurfaceCount
         && /<x-drawer\b/u.test(dom)
         && /<x-form\b/u.test(dom)
         && /<x-dialog\b/u.test(dom)
@@ -306,7 +310,7 @@ async function browserEvidence(rootDir, appRelative, evidenceRoot, cliPath, invo
         && remoteAssets.length === 0
         && fs.existsSync(screenshot)
         && fs.statSync(screenshot).size > 0;
-      const cell = { viewport, exitCode: run.exitCode, ready, surfaceCount, remoteAssets, screenshot: path.relative(rootDir, screenshot), screenshotBytes: fs.existsSync(screenshot) ? fs.statSync(screenshot).size : 0 };
+      const cell = { viewport, exitCode: run.exitCode, ready, surfaceCount, expectedSurfaceCount, remoteAssets, screenshot: path.relative(rootDir, screenshot), screenshotBytes: fs.existsSync(screenshot) ? fs.statSync(screenshot).size : 0 };
       cells.push(cell);
       if (!ready) failures.push(`${viewport.id}: runtime=${/data-maraca-runtime-ready="true"/u.test(dom)}, surfaces=${surfaceCount}, remote=${remoteAssets.length}`);
     }

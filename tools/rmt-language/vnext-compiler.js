@@ -18,6 +18,9 @@ const RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE = 'RMT-VNEXT-PRIM-04';
 const RMT_APP_ORCHESTRATION_SCHEMA = 'xtend.rmt.app-orchestration.v1';
 const RMT_APP_ORCHESTRATION_WORKPACKAGE = 'RMT-APP-ORCH-01';
 const RMT_APP_SERVICE_DEMANDS_SCHEMA = 'xtend.maraca.app-service-demands.v1';
+const RMT_APP_SERVICE_INPUT_POLICY_SCHEMA = 'xtend.maraca.app-service-input-policy.v1';
+const RMT_COMPONENT_COMMAND_SCHEMA = 'xtend.rmt.component-command.v1';
+const SANITIZING_BOUNDARY_CONTRACT = 'xtend.security.sanitizing-boundary.v1';
 const RMT_FORM_VALIDATION_SCHEMA = 'xtend.rmt.form-validation.v1';
 const RMT_SURFACE_TRANSITION_SCHEMA = 'xtend.rmt.surface-transitions.v1';
 const RMT_ANIMATION_ENGINE_SCHEMA = 'xtend.rmt.animation-engine.v1';
@@ -30,6 +33,10 @@ const RMT_KERNEL_RECORDS_SCHEMA = 'xtend.rmt.vnext.kernel-records.v1';
 const RMT_APP_PLATFORM_RECORDS_SCHEMA = 'xtend.rmt.vnext.app-platform-records.v1';
 const RMT_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-host-runtime-types';
 const RMT_VNEXT_RESOURCE_OWNER_KINDS = new Set(['overlay', 'surface']);
+const RMT_DECLARATIVE_COMPONENT_COMMANDS = new Set(['focus', 'reset', 'snapshot']);
+const RMT_COMPONENT_COMMAND_CAPABILITIES = Object.freeze({
+  'x-textarea': Object.freeze(['focus', 'reset', 'snapshot'])
+});
 const SURFACE_BOUNDS_GEOMETRY_FIELDS = new Set(['x', 'y', 'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight']);
 const SURFACE_BOUNDS_MODES = new Set(['fixed', 'responsive']);
 const SURFACE_BOUNDS_SCOPES = new Set(['viewport', 'container']);
@@ -440,6 +447,69 @@ function createCompilerDiagnostic(code, message, node, severity = 'error', detai
   };
 }
 
+function compileAppServiceInputPolicy(input, compiler) {
+  if (!input || !input.policy) return null;
+  const body = toArray(input.policy.body);
+  const boundaries = body.filter((entry) => entry && entry.type === 'RmtTrustBoundaryPolicy');
+  const sanitizers = body.filter((entry) => entry && entry.type === 'RmtSanitizePolicy');
+  const missing = [];
+  if (boundaries.length === 0) missing.push('trust boundary');
+  if (sanitizers.length === 0) missing.push('sanitize');
+  if (missing.length > 0) {
+    compiler.addDiagnostic(createCompilerDiagnostic(
+      'rmt.vnext.app_service.input_policy_missing',
+      `AppService input "${input.name || 'unknown'}" policy requires ${missing.join(' and ')}.`,
+      input.policy,
+      'error',
+      { input: input.name || null, missing }
+    ));
+  }
+  if (boundaries.length > 1 || sanitizers.length > 1) {
+    compiler.addDiagnostic(createCompilerDiagnostic(
+      'rmt.vnext.app_service.input_policy_conflict',
+      `AppService input "${input.name || 'unknown'}" declares duplicate trust or sanitize clauses.`,
+      input.policy,
+      'error',
+      { input: input.name || null }
+    ));
+  }
+  const boundary = boundaries[0] && boundaries[0].boundary || null;
+  const sanitize = sanitizers[0] && sanitizers[0].format || null;
+  if (boundary && boundary !== SANITIZING_BOUNDARY_CONTRACT) {
+    compiler.addDiagnostic(createCompilerDiagnostic(
+      'rmt.vnext.app_service.input_policy_boundary_unknown',
+      `AppService input "${input.name || 'unknown'}" uses unsupported trust boundary "${boundary}".`,
+      boundaries[0],
+      'error',
+      { input: input.name || null, boundary, expected: SANITIZING_BOUNDARY_CONTRACT }
+    ));
+  }
+  if (sanitize && sanitize !== 'text') {
+    compiler.addDiagnostic(createCompilerDiagnostic(
+      'rmt.vnext.app_service.input_policy_sanitize_unknown',
+      `AppService input "${input.name || 'unknown'}" must use sanitize text.`,
+      sanitizers[0],
+      'error',
+      { input: input.name || null, sanitize, expected: 'text' }
+    ));
+  }
+  const inputType = input.dataType && input.dataType.value || null;
+  if (inputType && inputType !== 'string') {
+    compiler.addDiagnostic(createCompilerDiagnostic(
+      'rmt.vnext.app_service.input_policy_type_invalid',
+      `AppService sanitize text policy requires a string input, not "${inputType}".`,
+      input,
+      'error',
+      { input: input.name || null, type: inputType }
+    ));
+  }
+  return {
+    schema: RMT_APP_SERVICE_INPUT_POLICY_SCHEMA,
+    boundary,
+    sanitize
+  };
+}
+
 function isQuotedPrimitiveValue(value) {
   return Boolean(value && value.kind === 'literal' && typeof value.value === 'string');
 }
@@ -844,6 +914,63 @@ function appServiceDemandMode(effect) {
   return ['stream', 'stream-service', 'subscribe', 'subscription'].includes(kind) ? 'stream' : 'invoke';
 }
 
+function createAppServiceInputPolicy(actions) {
+  const occurrences = new Map();
+  toArray(actions).forEach((action) => {
+    toArray(action && action.inputs).forEach((input) => {
+      const name = String(input && input.name || '').trim();
+      if (!name) return;
+      const list = occurrences.get(name) || [];
+      list.push({
+        actionId: String(action && (action.id || action.name) || ''),
+        type: String(input && input.type || 'unknown'),
+        inputPolicy: input && input.inputPolicy || null
+      });
+      occurrences.set(name, list);
+    });
+  });
+
+  const fields = [];
+  const conflicts = [];
+  Array.from(occurrences).sort(([left], [right]) => compareAppServiceDemandValues(left, right)).forEach(([name, records]) => {
+    const declared = records.filter((record) => record.inputPolicy);
+    if (declared.length === 0) return;
+    const variants = new Map();
+    declared.forEach((record) => {
+      const policy = record.inputPolicy;
+      const key = JSON.stringify({
+        type: record.type,
+        boundary: policy.boundary || null,
+        sanitize: policy.sanitize || null
+      });
+      if (!variants.has(key)) variants.set(key, record);
+    });
+    const missing = records.filter((record) => !record.inputPolicy).map((record) => record.actionId).filter(Boolean);
+    if (variants.size > 1 || missing.length > 0) {
+      conflicts.push({
+        field: name,
+        actions: records.map((record) => record.actionId).filter(Boolean).sort(compareAppServiceDemandValues),
+        missing: missing.sort(compareAppServiceDemandValues)
+      });
+    }
+    const first = declared[0];
+    fields.push({
+      name,
+      type: first.type,
+      boundary: first.inputPolicy.boundary,
+      sanitize: first.inputPolicy.sanitize
+    });
+  });
+
+  if (fields.length === 0 && conflicts.length === 0) return null;
+  const result = {
+    schema: RMT_APP_SERVICE_INPUT_POLICY_SCHEMA,
+    fields
+  };
+  if (conflicts.length > 0) result.conflicts = conflicts;
+  return result;
+}
+
 function createRmtAppServiceDemands(coreDocument = {}) {
   const core = coreDocument && typeof coreDocument === 'object' && !Array.isArray(coreDocument) ? coreDocument : {};
   const actionsByRef = new Map();
@@ -878,7 +1005,8 @@ function createRmtAppServiceDemands(coreDocument = {}) {
           inputs: toArray(action && action.inputs)
             .map((input) => ({
               name: String(input && input.name || '').trim(),
-              type: String(input && input.type || 'unknown').trim() || 'unknown'
+              type: String(input && input.type || 'unknown').trim() || 'unknown',
+              ...(input && input.inputPolicy ? { inputPolicy: input.inputPolicy } : {})
             }))
             .filter((input) => input.name)
             .sort((left, right) => compareAppServiceDemandValues(left.name, right.name))
@@ -894,6 +1022,7 @@ function createRmtAppServiceDemands(coreDocument = {}) {
         ? explicitMode
         : actions.length > 0 && actions.every((action) => action.mode === 'stream') ? 'stream' : 'invoke';
 
+      const inputPolicy = createAppServiceInputPolicy(actions);
       return {
         id: String(dataSource.target || dataSource.name || '').trim(),
         dataSource: String(dataSource.name || dataSource.id || '').trim(),
@@ -902,6 +1031,7 @@ function createRmtAppServiceDemands(coreDocument = {}) {
         contract: dataSource.contract || null,
         resultPath: dataSource.result || null,
         actions,
+        inputPolicy,
         sourceRef: dataSource.sourceRef || null
       };
     })
@@ -925,6 +1055,80 @@ function createRmtAppServiceDemands(coreDocument = {}) {
     ...manifest,
     fingerprint: sha256Fingerprint(manifest)
   };
+}
+
+function findAppServiceInputNode(ast, actionId, fieldName) {
+  let match = null;
+  function visit(node) {
+    if (!node || typeof node !== 'object' || match) return;
+    if (node.type === 'RmtActionDeclaration' && node.name === actionId) {
+      match = toArray(node.body).find((entry) => entry && entry.type === 'RmtActionInputClause' && entry.name === fieldName) || node;
+      return;
+    }
+    toArray(node.body).forEach(visit);
+  }
+  visit(ast);
+  return match || ast;
+}
+
+function findAppServiceDataSourceNode(ast, dataSourceId) {
+  let match = null;
+  function visit(node) {
+    if (!node || typeof node !== 'object' || match) return;
+    if (node.type === 'RmtDataSourceDeclaration' && node.name === dataSourceId) {
+      match = node;
+      return;
+    }
+    toArray(node.body).forEach(visit);
+  }
+  visit(ast);
+  return match || ast;
+}
+
+function appServiceInputPolicyDiagnostics(manifest, ast) {
+  const diagnostics = [];
+  const servicesById = new Map();
+  toArray(manifest && manifest.services).forEach((service) => {
+    const serviceId = String(service && service.id || '').trim();
+    if (!serviceId) return;
+    const records = servicesById.get(serviceId) || [];
+    records.push(service);
+    servicesById.set(serviceId, records);
+  });
+  servicesById.forEach((services, serviceId) => {
+    if (services.length < 2) return;
+    const dataSources = services.map((service) => service.dataSource).filter(Boolean);
+    services.slice(1).forEach((service) => {
+      diagnostics.push(createCompilerDiagnostic(
+        'rmt.vnext.app_service.service_id_conflict',
+        `AppService "${serviceId}" is targeted by more than one datasource; each service ID must have exactly one RMT datasource owner.`,
+        findAppServiceDataSourceNode(ast, service.dataSource),
+        'error',
+        {
+          serviceId,
+          dataSources
+        }
+      ));
+    });
+  });
+  toArray(manifest && manifest.services).forEach((service) => {
+    toArray(service && service.inputPolicy && service.inputPolicy.conflicts).forEach((conflict) => {
+      const actionId = toArray(conflict.actions)[0] || null;
+      diagnostics.push(createCompilerDiagnostic(
+        'rmt.vnext.app_service.input_policy_conflict',
+        `AppService "${service.id}" input "${conflict.field}" must use one identical input policy in every referencing action.`,
+        findAppServiceInputNode(ast, actionId, conflict.field),
+        'error',
+        {
+          serviceId: service.id,
+          input: conflict.field,
+          actions: conflict.actions,
+          missing: conflict.missing
+        }
+      ));
+    });
+  });
+  return diagnostics;
 }
 
 function createKernelRecords(core) {
@@ -1921,9 +2125,15 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
     'label',
     'required',
     'disabled',
+    'readonly',
+    'busy',
     'invalid',
     'rows',
     'density',
+    'fill',
+    'highlight',
+    'lang',
+    'language',
     'width',
     'height',
     'src',
@@ -1983,7 +2193,9 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
     boundsScope: 'bounds-scope',
     responsiveMode: 'responsive-mode',
     submitCommand: 'submit-command',
-    submitOnEnter: 'submit-on-enter'
+    submitOnEnter: 'submit-on-enter',
+    syntaxHighlight: 'syntax-highlight',
+    lineNumbering: 'line-numbering'
   };
   Object.entries(mappedStateAttributes).forEach(([field, attribute]) => {
     if (surface.source && hasStateField(field)) attributes[attribute] = bindStateField(field);
@@ -2040,6 +2252,19 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
         slot: literal('label')
       },
       text: bindStateField('label')
+    });
+  }
+  if (component === 'x-textarea' && surface.source) {
+    ['hint', 'error'].forEach((slotName) => {
+      if (!hasStateField(slotName)) return;
+      children.push({
+        type: 'element',
+        tag: 'span',
+        attributes: {
+          slot: literal(slotName)
+        },
+        text: bindStateField(slotName)
+      });
     });
   }
   if (component === 'x-select' && surface.source && Array.isArray(initialState.options)) {
@@ -3293,11 +3518,65 @@ function createPatchPlan(appPlatform, reducers, renderDescriptors, validationPla
   return plan;
 }
 
-function surfaceManagerIdFromPortalRoot(root) {
+function surfaceIdsFromPortalRoot(root) {
   const text = String(root || '');
-  const dataSurfaceMatch = text.match(/data-maraca-surface\s*=\s*(?:"([^"]+)"|'([^']+)')/u);
-  if (dataSurfaceMatch) return dataSurfaceMatch[1] || dataSurfaceMatch[2] || '';
+  const ids = [];
+  const pattern = /data-maraca-surface\s*=\s*(?:"([^"]+)"|'([^']+)')/gu;
+  let match = pattern.exec(text);
+  while (match) {
+    const id = match[1] || match[2] || '';
+    if (id && !ids.includes(id)) ids.push(id);
+    match = pattern.exec(text);
+  }
+  return ids;
+}
+
+function staticDescriptorIdFromPortalRoot(root) {
+  const match = /^#([A-Za-z][A-Za-z0-9_:.-]*)$/u.exec(String(root || '').trim());
+  return match ? match[1] : '';
+}
+
+function staticDescriptorAttributeValue(value) {
+  if (typeof value === 'string' && !value.startsWith('$')) return value;
+  if (value && typeof value === 'object' && value.op === 'literal') return String(value.value || '');
   return '';
+}
+
+function collectStaticDescriptorIdOwners(descriptor, surfaceId, owners, pointer = '') {
+  if (!descriptor || typeof descriptor !== 'object') return;
+  const staticId = staticDescriptorAttributeValue(objectValue(descriptor.attributes).id);
+  if (staticId) {
+    const records = owners.get(staticId) || [];
+    records.push({ surface: surfaceId, pointer });
+    owners.set(staticId, records);
+  }
+  toArray(descriptor.children).forEach((child, index) => {
+    collectStaticDescriptorIdOwners(child, surfaceId, owners, `${pointer}/children/${index}`);
+  });
+}
+
+function appendAtStaticDescriptorId(descriptor, targetId, nestedDescriptors) {
+  if (!descriptor || typeof descriptor !== 'object') return { descriptor, count: 0 };
+  const attributes = objectValue(descriptor.attributes);
+  if (staticDescriptorAttributeValue(attributes.id) === targetId) {
+    return {
+      descriptor: {
+        ...descriptor,
+        children: [...toArray(descriptor.children), ...toArray(nestedDescriptors)]
+      },
+      count: 1
+    };
+  }
+  let count = 0;
+  const children = toArray(descriptor.children).map((child) => {
+    const result = appendAtStaticDescriptorId(child, targetId, nestedDescriptors);
+    count += result.count;
+    return result.descriptor;
+  });
+  return {
+    descriptor: children.length > 0 ? { ...descriptor, children } : descriptor,
+    count
+  };
 }
 
 function managerSlotForSurface(surface) {
@@ -3321,57 +3600,173 @@ function withManagerSlot(descriptor, surface) {
 function createRenderRoot(appPlatform, renderDescriptors) {
   const surfaces = toArray(appPlatform && appPlatform.surfaces);
   const surfaceById = new Map(surfaces.map((surface) => [surface.id, surface]));
-  const managerSurfaces = surfaces.filter((surface) => surface && surface.component === 'x-surface-manager');
-  if (managerSurfaces.length === 0) {
-    return {
-      type: 'fragment',
-      children: renderDescriptors
-    };
-  }
-
-  const managerIds = new Set(managerSurfaces.map((surface) => surface.id));
-  const managerByPortal = new Map();
-  toArray(appPlatform && appPlatform.portals).forEach((portal) => {
-    const managerId = surfaceManagerIdFromPortalRoot(portal && portal.root);
-    if (managerId && managerIds.has(managerId)) managerByPortal.set(portal.id, managerId);
+  const descriptorBySurface = new Map(renderDescriptors.map((descriptor) => [descriptor.surface, descriptor]));
+  const diagnostics = [];
+  const parentByPortal = new Map();
+  const targetByPortal = new Map();
+  const portalRecords = new Map();
+  const staticDescriptorIdOwners = new Map();
+  renderDescriptors.forEach((descriptor) => {
+    collectStaticDescriptorIdOwners(descriptor, descriptor.surface, staticDescriptorIdOwners);
   });
 
-  if (managerByPortal.size === 0) {
-    return {
-      type: 'fragment',
-      children: renderDescriptors
-    };
-  }
+  toArray(appPlatform && appPlatform.portals).forEach((portal) => {
+    if (!portal || !portal.id) return;
+    const parentIds = surfaceIdsFromPortalRoot(portal.root);
+    const targetId = staticDescriptorIdFromPortalRoot(portal.root);
+    const previous = portalRecords.get(portal.id);
+    if (previous && (previous.root !== portal.root || previous.parentIds.join('\u0000') !== parentIds.join('\u0000') || previous.targetId !== targetId)) {
+      diagnostics.push({
+        code: 'rmt.app_orchestration.portal_parent_ambiguous',
+        severity: 'error',
+        message: `Portal ${portal.id} declares conflicting local surface parents.`,
+        portal: portal.id,
+        parents: Array.from(new Set(previous.parentIds.concat(parentIds))).sort()
+      });
+      return;
+    }
+    portalRecords.set(portal.id, { root: portal.root, parentIds, targetId });
+    if (parentIds.length > 1) {
+      diagnostics.push({
+        code: 'rmt.app_orchestration.portal_parent_ambiguous',
+        severity: 'error',
+        message: `Portal ${portal.id} references more than one local surface parent.`,
+        portal: portal.id,
+        parents: parentIds.slice().sort()
+      });
+      return;
+    }
+    if (parentIds.length === 0) {
+      const targetOwners = targetId ? toArray(staticDescriptorIdOwners.get(targetId)) : [];
+      if (targetOwners.length > 1) {
+        diagnostics.push({
+          code: 'rmt.app_orchestration.portal_target_ambiguous',
+          severity: 'error',
+          message: `Portal ${portal.id} references more than one static viewTemplate target #${targetId}.`,
+          portal: portal.id,
+          target: targetId,
+          parents: Array.from(new Set(targetOwners.map((owner) => owner.surface))).sort()
+        });
+        return;
+      }
+      if (targetOwners.length === 1) {
+        const owner = targetOwners[0];
+        if (!surfaceById.has(owner.surface) || !descriptorBySurface.has(owner.surface)) {
+          diagnostics.push({
+            code: 'rmt.app_orchestration.portal_parent_unresolved',
+            severity: 'error',
+            message: `Portal ${portal.id} references a static target owned by unknown surface ${owner.surface}.`,
+            portal: portal.id,
+            parent: owner.surface,
+            target: targetId
+          });
+          return;
+        }
+        parentByPortal.set(portal.id, owner.surface);
+        targetByPortal.set(portal.id, targetId);
+      }
+      return;
+    }
+    const parentId = parentIds[0];
+    if (!surfaceById.has(parentId) || !descriptorBySurface.has(parentId)) {
+      diagnostics.push({
+        code: 'rmt.app_orchestration.portal_parent_unresolved',
+        severity: 'error',
+        message: `Portal ${portal.id} references unknown local surface parent ${parentId}.`,
+        portal: portal.id,
+        parent: parentId
+      });
+      return;
+    }
+    parentByPortal.set(portal.id, parentId);
+  });
 
-  const descriptorBySurface = new Map(renderDescriptors.map((descriptor) => [descriptor.surface, descriptor]));
-  const managedChildren = new Map();
-  const managedSurfaceIds = new Set();
+  const parentBySurface = new Map();
+  const targetBySurface = new Map();
+  const childrenBySurface = new Map();
   renderDescriptors.forEach((descriptor) => {
     const surface = surfaceById.get(descriptor.surface);
-    const managerId = surface && managerByPortal.get(surface.portal);
-    if (!surface || !managerId || managerId === surface.id) return;
-    const list = managedChildren.get(managerId) || [];
-    list.push(withManagerSlot(descriptor, surface));
-    managedChildren.set(managerId, list);
-    managedSurfaceIds.add(surface.id);
+    const parentId = surface && parentByPortal.get(surface.portal);
+    if (!surface || !parentId) return;
+    parentBySurface.set(surface.id, parentId);
+    if (targetByPortal.has(surface.portal)) targetBySurface.set(surface.id, targetByPortal.get(surface.portal));
+    const children = childrenBySurface.get(parentId) || [];
+    children.push(surface.id);
+    childrenBySurface.set(parentId, children);
   });
 
+  const visitState = new Map();
+  const visitPath = [];
+  const visit = (surfaceId) => {
+    const state = visitState.get(surfaceId) || 0;
+    if (state === 2) return;
+    if (state === 1) {
+      const cycleStart = visitPath.indexOf(surfaceId);
+      const cycle = (cycleStart >= 0 ? visitPath.slice(cycleStart) : [surfaceId]).concat(surfaceId);
+      diagnostics.push({
+        code: 'rmt.app_orchestration.portal_parent_cycle',
+        severity: 'error',
+        message: `Local surface portal nesting contains a cycle: ${cycle.join(' -> ')}.`,
+        surfaces: cycle
+      });
+      return;
+    }
+    visitState.set(surfaceId, 1);
+    visitPath.push(surfaceId);
+    const parentId = parentBySurface.get(surfaceId);
+    if (parentId) visit(parentId);
+    visitPath.pop();
+    visitState.set(surfaceId, 2);
+  };
+  renderDescriptors.forEach((descriptor) => visit(descriptor.surface));
+
+  const uniqueDiagnostics = diagnostics.filter((diagnostic, index, values) => {
+    const key = `${diagnostic.code}:${diagnostic.portal || ''}:${diagnostic.target || ''}:${toArray(diagnostic.surfaces).join('>')}`;
+    return values.findIndex((candidate) => `${candidate.code}:${candidate.portal || ''}:${candidate.target || ''}:${toArray(candidate.surfaces).join('>')}` === key) === index;
+  });
+  if (uniqueDiagnostics.length > 0) {
+    return {
+      root: { type: 'fragment', children: renderDescriptors.slice() },
+      diagnostics: uniqueDiagnostics
+    };
+  }
+
+  const buildDescriptorTree = (surfaceId) => {
+    let descriptor = descriptorBySurface.get(surfaceId);
+    const parentSurface = surfaceById.get(surfaceId);
+    const directNested = [];
+    const nestedByTarget = new Map();
+    toArray(childrenBySurface.get(surfaceId)).forEach((childId) => {
+      const childDescriptor = buildDescriptorTree(childId);
+      const childSurface = surfaceById.get(childId);
+      const targetId = targetBySurface.get(childId);
+      const nestedDescriptor = parentSurface && parentSurface.component === 'x-surface-manager' && !targetId
+        ? withManagerSlot(childDescriptor, childSurface)
+        : childDescriptor;
+      if (targetId) {
+        const nested = nestedByTarget.get(targetId) || [];
+        nested.push(nestedDescriptor);
+        nestedByTarget.set(targetId, nested);
+      } else {
+        directNested.push(nestedDescriptor);
+      }
+    });
+    nestedByTarget.forEach((nestedDescriptors, targetId) => {
+      const result = appendAtStaticDescriptorId(descriptor, targetId, nestedDescriptors);
+      descriptor = result.descriptor;
+    });
+    if (directNested.length === 0) return descriptor;
+    return { ...descriptor, children: [...toArray(descriptor.children), ...directNested] };
+  };
+
   return {
-    type: 'fragment',
-    children: renderDescriptors
-      .filter((descriptor) => !managedSurfaceIds.has(descriptor.surface))
-      .map((descriptor) => {
-        const children = managedChildren.get(descriptor.surface);
-        if (!children || children.length === 0) return descriptor;
-        return {
-          ...descriptor,
-          children: [
-            ...toArray(descriptor.children),
-            ...children
-          ]
-        };
-      })
-      .filter((descriptor) => descriptorBySurface.has(descriptor.surface))
+    root: {
+      type: 'fragment',
+      children: renderDescriptors
+        .filter((descriptor) => !parentBySurface.has(descriptor.surface))
+        .map((descriptor) => buildDescriptorTree(descriptor.surface))
+    },
+    diagnostics: []
   };
 }
 
@@ -3534,7 +3929,7 @@ function createRmtAppOrchestrationArtifacts(core) {
   };
   const initialStates = new Map(toArray(appPlatform.state).map((state) => [state.id, state.initial || {}]));
   const renderDescriptors = toArray(appPlatform.surfaces).map((surface) => createRenderDescriptor(surface, eventBindings, initialStates));
-  const renderRoot = createRenderRoot(appPlatform, renderDescriptors);
+  const renderComposition = createRenderRoot(appPlatform, renderDescriptors);
   const hydration = createHydrationPlan(core, appPlatform);
   const validation = createValidationPlan(core, appPlatform);
   const transitions = createSurfaceTransitionPlan(core, appPlatform);
@@ -3570,7 +3965,10 @@ function createRmtAppOrchestrationArtifacts(core) {
         id: effect.id,
         kind: effect.kind || 'side-effect',
         action: effect.action || null,
-        source: effect.source || null
+        source: effect.source || null,
+        target: effect.target || null,
+        command: effect.command || null,
+        componentCommand: effect.componentCommand || null
       })),
       resources
     },
@@ -3586,7 +3984,8 @@ function createRmtAppOrchestrationArtifacts(core) {
     render: {
       mode: 'dom-descriptor',
       descriptors: renderDescriptors,
-      root: renderRoot
+      root: renderComposition.root,
+      diagnostics: renderComposition.diagnostics
     },
     hydration,
     validation,
@@ -3605,7 +4004,7 @@ function createRmtAppOrchestrationArtifacts(core) {
     },
     observability: telemetry,
     telemetry,
-    diagnostics: createOrchestrationDiagnostics(appPlatform, eventBindings).concat(hydration.diagnostics).concat(validation.diagnostics).concat(transitions.diagnostics).concat(animationEngine.diagnostics),
+    diagnostics: createOrchestrationDiagnostics(appPlatform, eventBindings).concat(renderComposition.diagnostics).concat(hydration.diagnostics).concat(validation.diagnostics).concat(transitions.diagnostics).concat(animationEngine.diagnostics),
     sourceMap: sourceMapForOrchestration(core)
   };
 }
@@ -3620,6 +4019,7 @@ class VNextCompiler {
     });
     this.diagnostics = [];
     this.semanticGraph = options.semanticGraph || null;
+    this.effectNodes = new Map();
   }
 
   addDiagnostic(diagnostic) {
@@ -3925,14 +4325,19 @@ class VNextCompiler {
 
   compilePrimitiveAction(node, templateContext) {
     const effectRefs = [];
+    const inputs = getPrimitiveBodyNodes(node, 'RmtActionInputClause').map((input) => {
+      const inputPolicy = compileAppServiceInputPolicy(input, this);
+      return {
+        name: input.name,
+        type: input.dataType && input.dataType.value || null,
+        ...(inputPolicy ? { inputPolicy } : {})
+      };
+    });
     const record = {
       id: primitiveRecordId('action', node.name),
       name: node.name,
       primitive: true,
-      inputs: getPrimitiveBodyNodes(node, 'RmtActionInputClause').map((input) => ({
-        name: input.name,
-        type: input.dataType && input.dataType.value || null
-      })),
+      inputs,
       status: null,
       reducers: [],
       emits: [],
@@ -4122,14 +4527,29 @@ class VNextCompiler {
 
   compilePrimitiveEffect(node, actionRecord, index) {
     const source = compilePrimitiveSourceReference(node.source);
-    return addRecord(this.core, 'effects', {
-      id: `effect:${normalizeIdSegment(actionRecord.name)}/${index}`,
+    const id = `effect:${normalizeIdSegment(actionRecord.name)}/${index}`;
+    const record = addRecord(this.core, 'effects', {
+      id,
       primitive: true,
       kind: node.effectKind || node.kind || 'fetch',
       action: actionRecord.name,
       actionRef: actionRecord.id,
-      source
+      source,
+      ...(node.componentCommand ? {
+        componentCommand: {
+          schema: RMT_COMPONENT_COMMAND_SCHEMA,
+          command: node.componentCommand.command,
+          target: {
+            kind: 'surface',
+            id: node.componentCommand.target || null,
+            ref: null,
+            component: null
+          }
+        }
+      } : {})
     }, node, 'RmtEffectStatement');
+    this.effectNodes.set(id, node);
+    return record;
   }
 
   compilePrimitivePortal(node, templateContext) {
@@ -4252,12 +4672,109 @@ class VNextCompiler {
   }
 
   finalizePrimitiveLowering() {
+    this.finalizeComponentCommands();
+
     if (!hasPrimitiveCoreRecords(this.core)) {
       return;
     }
 
     this.core.appPlatform = createAppPlatformRecords(this.core);
     this.core.kernelRecords = createKernelRecords(this.core);
+  }
+
+  finalizeComponentCommands() {
+    this.core.effects.forEach((effect) => {
+      const node = this.effectNodes.get(effect.id);
+      if (!node) return;
+
+      const command = String(node.effectKind || node.kind || '').trim();
+      const sourceKind = node.source && node.source.kind || '';
+      const targetId = node.source && node.source.value || '';
+      const commandIsAllowed = RMT_DECLARATIVE_COMPONENT_COMMANDS.has(command);
+      const matchingSurfaces = sourceKind === 'selector' && targetId
+        ? this.core.surfaces.filter((surface) => surface && (surface.name === targetId || surface.id === targetId))
+        : [];
+      const targetsComponentCommandSurface = matchingSurfaces.some((surface) => Object.prototype.hasOwnProperty.call(
+        RMT_COMPONENT_COMMAND_CAPABILITIES,
+        surface && surface.component
+      ));
+
+      if (commandIsAllowed && sourceKind !== 'selector') {
+        this.addDiagnostic(createCompilerDiagnostic(
+          'rmt.vnext.component_command.target_invalid',
+          `Component command "${command}" requires a static selector surface target.`,
+          node.effectKindNode || node,
+          'error',
+          { command, expectedSource: 'selector' }
+        ));
+        delete effect.componentCommand;
+        return;
+      }
+
+      if (!commandIsAllowed && targetsComponentCommandSurface) {
+        this.addDiagnostic(createCompilerDiagnostic(
+          'rmt.vnext.component_command.command_invalid',
+          `Component command "${command || '(missing)'}" is not allowed; use focus, reset or snapshot.`,
+          node.effectKindNode || node,
+          'error',
+          { command, allowedCommands: Array.from(RMT_DECLARATIVE_COMPONENT_COMMANDS) }
+        ));
+        return;
+      }
+
+      if (!commandIsAllowed) return;
+
+      if (matchingSurfaces.length === 0) {
+        this.addDiagnostic(createCompilerDiagnostic(
+          'rmt.vnext.component_command.target_unknown',
+          `Component command target "${targetId || '(missing)'}" is not a defined surface.`,
+          node.componentCommand && node.componentCommand.targetNode || node,
+          'error',
+          { command, target: targetId || null }
+        ));
+        delete effect.componentCommand;
+        return;
+      }
+
+      if (matchingSurfaces.length > 1) {
+        this.addDiagnostic(createCompilerDiagnostic(
+          'rmt.vnext.component_command.target_ambiguous',
+          `Component command target "${targetId}" resolves to more than one surface.`,
+          node.componentCommand && node.componentCommand.targetNode || node,
+          'error',
+          { command, target: targetId, matches: matchingSurfaces.map((surface) => surface.id) }
+        ));
+        delete effect.componentCommand;
+        return;
+      }
+
+      const surface = matchingSurfaces[0];
+      const supportedCommands = RMT_COMPONENT_COMMAND_CAPABILITIES[surface.component] || [];
+      if (!supportedCommands.includes(command)) {
+        this.addDiagnostic(createCompilerDiagnostic(
+          'rmt.vnext.component_command.target_ineligible',
+          `Surface "${surface.name}" component "${surface.component || '(missing)'}" does not expose the declarative ${command} command.`,
+          node.componentCommand && node.componentCommand.targetNode || node,
+          'error',
+          { command, target: surface.name, component: surface.component || null }
+        ));
+        delete effect.componentCommand;
+        return;
+      }
+
+      effect.target = surface.name;
+      effect.command = command;
+      effect.componentCommand = {
+        schema: RMT_COMPONENT_COMMAND_SCHEMA,
+        command,
+        target: {
+          kind: 'surface',
+          id: surface.name,
+          ref: surface.id,
+          component: surface.component
+        }
+      };
+    });
   }
 
   compileRemoteSurface(node) {
@@ -4699,8 +5216,8 @@ function compileRmtVNextSource(input = {}, options = {}) {
   });
   const coreDocument = compiler.compile();
   const coreJson = serializeRmtVNextCore(coreDocument);
-  const compilerDiagnostics = compiler.diagnostics.slice();
-  const diagnostics = parserResult.diagnostics.concat(compilerDiagnostics);
+  const appServiceDemands = createRmtAppServiceDemands(coreDocument);
+  const compilerDiagnostics = compiler.diagnostics.concat(appServiceInputPolicyDiagnostics(appServiceDemands, parserResult.ast));
   const primitiveArtifacts = coreDocument.appPlatform ? {
     schema: RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA,
     workpackage: RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE,
@@ -4733,8 +5250,9 @@ function compileRmtVNextSource(input = {}, options = {}) {
       'RmtEventBinding'
     ].includes(entry.nodeType))
   } : null;
-  const appServiceDemands = createRmtAppServiceDemands(coreDocument);
   const orchestrationArtifacts = createRmtAppOrchestrationArtifacts(coreDocument);
+  compilerDiagnostics.push(...toArray(orchestrationArtifacts && orchestrationArtifacts.render && orchestrationArtifacts.render.diagnostics));
+  const diagnostics = parserResult.diagnostics.concat(compilerDiagnostics);
 
   return {
     schema: RMT_VNEXT_COMPILER_SCHEMA,
@@ -4793,6 +5311,8 @@ module.exports = {
   RMT_APP_ORCHESTRATION_SCHEMA,
   RMT_APP_ORCHESTRATION_WORKPACKAGE,
   RMT_APP_SERVICE_DEMANDS_SCHEMA,
+  RMT_APP_SERVICE_INPUT_POLICY_SCHEMA,
+  RMT_COMPONENT_COMMAND_SCHEMA,
   RMT_FORM_VALIDATION_SCHEMA,
   RMT_SURFACE_TRANSITION_SCHEMA,
   RMT_ANIMATION_ENGINE_SCHEMA,

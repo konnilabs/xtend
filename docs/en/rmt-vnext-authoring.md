@@ -52,6 +52,36 @@ Strict builds expect complete payload contracts, resource ownership, hydration p
 
 The [Hydration Policies](./hydration-policies.md) deep dive separates execution mode, scheduling policy, and DOM ownership, with compilable examples for client rendering, SSR hydration, resume, and worker prerender.
 
+### Local portal composition
+
+A portal whose root is a known local surface selector composes its surfaces as
+children of that surface. Composition is recursive, so a shell manager can own
+an `x-form` that in turn owns fields and actions:
+
+```rmt
+portal app.formChildren root "[data-maraca-surface='app.form']" layer surface
+```
+
+A simple ID selector may also target an element declared inside the parent
+surface's static `viewTemplate`. This keeps layout recipes on light-DOM group
+wrappers while the child surfaces remain framework-owned:
+
+```rmt
+surface app.form component x-form {
+  viewTemplate {
+    element div {
+      attributes { id "app-form-actions" class "xtm-actions" }
+    }
+  }
+}
+portal app.formActions root "#app-form-actions" layer surface
+```
+
+Only direct children of `x-surface-manager` receive its public slot mapping.
+Children of ordinary parents remain ordinary DOM children. Unknown, ambiguous
+or cyclic local parent references are blocking compiler diagnostics. A static
+ID target must be unique across local surface templates.
+
 ## Reference demo and release contract
 
 The RMT vNext Authoring Guide is bound to the release handoff `xtend.rmt.vnext-release-handoff.v1`. The reference source `demos/xtendrmt/fixtures/vnext-reference/source.rmt` shows the smallest complete combination of `template`, `surface`, `lane`, `when`, `slot`, `stream`, `trust boundary`, `sanitize html` and event-action binding. The expected Core output lives in `demos/xtendrmt/fixtures/vnext-reference/generated/core.json`.

@@ -27,6 +27,7 @@ const PRODUCTIVE_RUNTIME_CLAIMS = Object.freeze([
   'xrouter-bound-surface-lifecycle',
   'modal-focus-inert-stack-policy',
   'layout-engines-docking-split-tile-stacked',
+  'document-flow-static-portal-composition',
   'remote-surface-trust-policy',
   'browser-lab-visual-stability'
 ]);

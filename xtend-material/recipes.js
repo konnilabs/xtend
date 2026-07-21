@@ -22,6 +22,7 @@ const DEFINITIONS = Object.freeze([
   ['heading', 'typography', ['text-lg', 'font-semibold'], ['h2', 'h3'], ['--xtend-font-family-heading', '--xtend-text-primary'], 'heading'],
   ['body', 'typography', ['text-base', 'leading-6'], ['p', 'div'], ['--xtend-font-size-body', '--xtend-text-primary'], 'text'],
   ['muted', 'typography', ['text-sm', 'opacity-70'], ['p', 'span'], ['--xtend-font-size-label', '--xtend-text-muted'], 'note'],
+  ['plain-text', 'typography', ['whitespace-pre-wrap', 'break-words'], ['p', 'div', 'span'], ['--xtend-font-size-body', '--xtend-text-primary'], 'text'],
   ['primary-action', 'action', ['inline-flex', 'items-center', 'justify-center', 'font-medium'], ['button', 'a', 'x-button'], ['--xtend-color-action', '--xtend-text-on-action', '--xtend-radius-control', '--xtend-control-height', '--xtend-focus-ring'], 'button']
 ]);
 

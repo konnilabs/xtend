@@ -81,6 +81,8 @@ runtime.dispose();
 
 Generated RMT apps use `src/services.ts` as the browser/local service entry and optional target-isolated Node/PHP implementations. The TypeScript provider performs full-program checking before the existing Rollup/Terser production build and emits a versioned service manifest plus declarations.
 
+RMT action inputs may declare the canonical plain-text TrustBoundary. The compiler keeps that policy in the service manifest as the single source of truth; the browser registry applies it before transport and the Node host validates it again before dispatch. Redacted `AppServiceInputVerdict` evidence is available to handlers and through registry snapshots without retaining rejected input.
+
 ```ts
 import { defineAppServices, service } from '@ccslabs/xtend-maraca/app-services';
 
@@ -92,7 +94,7 @@ export default defineAppServices({
 });
 ```
 
-`@ccslabs/xtend-maraca/server-services` defines Node handlers, `@ccslabs/xtend-maraca/node-app-service-host` attaches the importable server bundle to an existing HTTP server, and `@ccslabs/xtend-maraca/service-build-provider` exposes the `inspect → plan → build → report → dispose` provider boundary. Maraca does not create routes, authentication, or a listening backend server.
+`@ccslabs/xtend-maraca/server-services` defines Node handlers and `@ccslabs/xtend-maraca/node-app-service-host` attaches the importable server bundle to an existing HTTP server without listening. CLI-generated apps can explicitly start `@ccslabs/xtend-maraca/node-app-host`, which owns the standard AppService route, allowlisted static files, loopback defaults, body limits, and signal cleanup. Its static boundary refuses server/test directories, TypeScript sources and declarations, source maps, and build/size reports even below an allowlisted directory; generated service manifests remain readable browser contracts. Generated `start` and `serve` scripts build first and then execute only that host. The Maraca core still never listens implicitly and does not own authentication or product data access. `@ccslabs/xtend-maraca/service-build-provider` exposes the `inspect → plan → build → report → dispose` provider boundary.
 
 ### Build capabilities
 
@@ -212,6 +214,8 @@ runtime.dispose();
 
 Generierte RMT-Apps verwenden `src/services.ts` als Browser-/Local-Service-Einstieg und optional zielisolierte Node-/PHP-Implementierungen. Der TypeScript-Provider prüft das vollständige Programm vor dem bestehenden Rollup-/Terser-Produktionsbuild und erzeugt ein versioniertes Service-Manifest sowie Deklarationen.
 
+RMT-Action-Inputs können die kanonische Plain-Text-TrustBoundary deklarieren. Der Compiler hält diese Policy im Service-Manifest als alleiniger Source of Truth; die Browser-Registry wendet sie vor dem Transport an und der Node-Host validiert sie vor dem Dispatch erneut. Redigierte `AppServiceInputVerdict`-Nachweise stehen Handlern und Registry-Snapshots zur Verfügung, ohne abgelehnte Eingaben aufzubewahren.
+
 ```ts
 import { defineAppServices, service } from '@ccslabs/xtend-maraca/app-services';
 
@@ -223,7 +227,7 @@ export default defineAppServices({
 });
 ```
 
-`@ccslabs/xtend-maraca/server-services` definiert Node-Handler, `@ccslabs/xtend-maraca/node-app-service-host` bindet das importierbare Serverbundle an einen vorhandenen HTTP-Server und `@ccslabs/xtend-maraca/service-build-provider` stellt die Providergrenze `inspect → plan → build → report → dispose` bereit. Maraca erzeugt weder Routen noch Authentifizierung oder einen lauschenden Backendserver.
+`@ccslabs/xtend-maraca/server-services` definiert Node-Handler und `@ccslabs/xtend-maraca/node-app-service-host` bindet das importierbare Serverbundle ohne eigenes Listening an einen vorhandenen HTTP-Server. CLI-generierte Apps können ausdrücklich `@ccslabs/xtend-maraca/node-app-host` starten; diese Schicht besitzt Standardroute, freigegebene statische Dateien, Loopback-Defaults, Body-Limits und Signal-Cleanup. Ihre statische Grenze verweigert Server-/Testverzeichnisse, TypeScript-Quellen und -Deklarationen, Source Maps sowie Build-/Size-Reports auch unterhalb eines freigegebenen Verzeichnisses; generierte Service-Manifeste bleiben lesbare Browserverträge. Die generierten `start`- und `serve`-Skripte bauen zuerst und führen danach ausschließlich diesen Host aus. Der Maraca-Core lauscht weiterhin nie implizit und besitzt weder Authentifizierung noch Produktdatenzugriff. `@ccslabs/xtend-maraca/service-build-provider` stellt die Providergrenze `inspect → plan → build → report → dispose` bereit.
 
 ### Build-Fähigkeiten
 

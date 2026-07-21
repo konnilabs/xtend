@@ -14,19 +14,21 @@ App Shells koennen neben freien Fenstern auch docked Workspaces, Split Panes, Ti
 
 ## Umsetzung
 
-- `components/xsurfacemanager.js` kennt die Engines `freeform`, `docked`, `split`, `tile` und `stacked`.
+- `components/xsurfacemanager.js` kennt die Engines `freeform`, `docked`, `split`, `tile`, `stacked` und `document-flow`.
 - `snapshotSurfaceLayout()` erzeugt einen gatebaren Layout-Report mit Viewport, Gap, Snap, Bounds, Zonen, Responsive-Fallback und Snapshot-Kompatibilitaet.
 - `applyLayoutEngine()` schreibt berechnete Bounds ueber den bestehenden SurfaceController, damit Persistenz und Restore dieselben Werte sehen.
 - `dockSurface()` und `undockSurface()` sind produktive Manager-Operationen fuer sichtbares Docking/Floating.
 - `x-side-panel` unterstuetzt `mode="floating"` ueber `--surface-layout-x` und `--surface-layout-y`.
 - kompakte Viewports wechseln kontrolliert auf `stacked`.
+- `document-flow` komponiert statische Portal-Kinder als scrollbaren normalen Dokumentfluss und schreibt keine absoluten Bounds.
 
 ## Artefakte
 
 - `catalog/surface-manager-layout-engines.js`
 - `tests/components/surface_manager_layout_engines_suite.js`
 - `tests/components/fixtures/xsurfacemanager-layout-engines.component.html`
-- `docs/surface-manager-layout-engines.md`
+- `docs/en/components/xsurfacemanager.md`
+- `docs/de/components/xsurfacemanager.md`
 - `components/xsurfacemanager.js`
 - `components/xsurfacemanager.d.ts`
 - `components/xsidepanel.js`

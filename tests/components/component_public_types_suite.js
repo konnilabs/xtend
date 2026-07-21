@@ -112,10 +112,10 @@ const publicTypeContracts = [
   {
     tag: 'x-textarea',
     path: 'components/xtextarea.d.ts',
-    typeNames: ['XTextareaAttributeName', 'XTextareaEventName', 'XTextareaEventDetail', 'XTextareaEventMap', 'XTextareaPublicEventContract', 'XTextareaElement'],
-    events: ['textarea-changed', 'textarea-invalid'],
-    attributes: ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'line-numbering'],
-    methods: ['checkValidity(): boolean', 'reportValidity(): boolean', 'validate(): boolean', 'reset(): void', 'focus(): void'],
+    typeNames: ['XTextareaAttributeName', 'XTextareaEventName', 'XTextareaPayloadDetail', 'XTextareaChangedEventDetail', 'XTextareaInvalidEventDetail', 'XTextareaSubmitEventDetail', 'XTextareaCommandEventDetail', 'XTextareaEventDetail', 'XTextareaEventMap', 'XTextareaPublicEventContract', 'XTextareaSnapshot', 'XTextareaElement', 'export declare const XTextarea'],
+    events: ['textarea-changed', 'textarea-invalid', 'textarea-submit', 'xtend-command'],
+    attributes: ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'busy', 'invalid', 'density', 'fill', 'submit-on-enter', 'submit-command', 'syntax-highlight', 'highlight', 'line-numbering', 'lang', 'language'],
+    methods: ['checkValidity(): boolean', 'reportValidity(): boolean', 'validate(): boolean', 'reset(): void', 'focus(): void', 'snapshot(): XTextareaSnapshot'],
     elementMap: true
   },
   {
@@ -319,7 +319,7 @@ const publicTypeContracts = [
   {
     tag: 'x-header',
     path: 'components/xheader.d.ts',
-    typeNames: ['XHeaderEventName', 'XHeaderSnapshot', 'XHeaderEventMap', 'XHeaderPublicEventContract', 'XHeaderElement', 'XHeaderLayoutDisplayMediaUxProfile', 'XHeaderSlotAlignment', 'XHeaderMenuMode', 'XHeaderMenuPlacement', 'XHeaderMenuAlign', 'XHeaderBrandCollapsePolicy', 'XHeaderBrandPresentation', 'XHeaderToggleMenuOptions'],
+    typeNames: ['XHeaderEventName', 'XHeaderSnapshot', 'XHeaderEventMap', 'XHeaderPublicEventContract', 'XHeaderElement', 'XHeaderLayoutDisplayMediaUxProfile', 'XHeaderSlotAlignment', 'XHeaderMenuMode', 'XHeaderMenuPlacement', 'XHeaderMenuAlign', 'XHeaderBrandCollapsePolicy', 'XHeaderBrandPresentation', 'XHeaderTitleSource', 'XHeaderToggleMenuOptions'],
     events: ['header-ready', 'menu-before-open', 'menu-before-close', 'menu-opened', 'menu-closed', 'menu-mode-changed', 'menu-placement-changed', 'logo-loaded'],
     attributes: ['src', 'logo-size', 'title', 'sticky', 'shadow', 'menu-mode', 'menu-placement', 'menu-modal', 'menu-open', 'menu-breakpoint', 'menu-width', 'menu-max-height', 'menu-align'],
     methods: ['toggleMenu(open: boolean)', 'isMenuOpen(): boolean', 'snapshot(): XHeaderSnapshot'],

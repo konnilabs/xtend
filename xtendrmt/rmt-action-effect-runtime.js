@@ -1,6 +1,8 @@
 (function attachRmtActionEffectRuntime(globalTarget) {
   const RMT_ACTION_EFFECT_RUNTIME_SCHEMA = 'xtend.epic18.rmt-action-effect-runtime.v1';
   const RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-action-effect-diagnostic.v1';
+  const RMT_COMPONENT_COMMAND_SCHEMA = 'xtend.rmt.component-command.v1';
+  const RMT_COMPONENT_COMMAND_NAMES = new Set(['focus', 'reset', 'snapshot']);
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_platform.action_effect';
 
   function clampString(value, fallback = '') {
@@ -136,9 +138,39 @@
       resource: clampString(effect && effect.resource, ''),
       service: clampString(effect && (effect.service || effect.serviceId), ''),
       mode: clampString(effect && effect.mode, ''),
+      componentCommand: normalizeComponentCommand(effect && effect.componentCommand),
       payload: effect && Object.prototype.hasOwnProperty.call(effect, 'payload') ? effect.payload : '$result',
       resources: toArray(effect && effect.resources).map((entry) => typeof entry === 'string' ? entry : clampString(entry && entry.id)).filter(Boolean)
     })).filter((effect) => effect.id);
+  }
+
+  function normalizeComponentCommand(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    const record = objectRecord(value);
+    const target = objectRecord(record.target);
+    return {
+      schema: clampString(record.schema),
+      command: clampString(record.command),
+      target: {
+        kind: clampString(target.kind),
+        id: clampString(target.id),
+        ref: clampString(target.ref),
+        component: clampString(target.component)
+      }
+    };
+  }
+
+  function assertComponentCommand(commandRecord) {
+    if (!commandRecord || commandRecord.schema !== RMT_COMPONENT_COMMAND_SCHEMA) {
+      throw new Error(`RMT Component Command requires schema ${RMT_COMPONENT_COMMAND_SCHEMA}.`);
+    }
+    if (!RMT_COMPONENT_COMMAND_NAMES.has(commandRecord.command)) {
+      throw new Error(`RMT Component Command ${commandRecord.command || '(missing)'} is not allowed.`);
+    }
+    if (commandRecord.target.kind !== 'surface' || !commandRecord.target.id || !commandRecord.target.component) {
+      throw new Error('RMT Component Command requires a statically compiled surface target.');
+    }
+    return commandRecord;
   }
 
   function normalizeResources(resources) {
@@ -349,6 +381,7 @@
     const feedbackAdapter = options.feedbackAdapter || null;
     const navigationAdapter = options.navigationAdapter || null;
     const focusAdapter = options.focusAdapter || null;
+    const componentCommandAdapter = options.componentCommandAdapter || null;
     const effectAdapter = options.effectAdapter || null;
     const hostServiceRegistry = options.hostServiceRegistry || null;
     const deferCustomEffects = options.deferCustomEffects === true;
@@ -360,7 +393,29 @@
       const effect = effectIndex.get(clampString(effectId));
       if (!effect) throw new Error(`RMT Effect ${effectId} ist nicht definiert.`);
       let value = null;
-      if (effect.kind === 'toast' || effect.kind === 'feedback') {
+      if (effect.componentCommand) {
+        const componentCommand = assertComponentCommand(effect.componentCommand);
+        value = {
+          id: effect.id,
+          kind: effect.kind,
+          payload: cloneValue(context.result, context.result)
+        };
+        if (deferCustomEffects) {
+          value.deferred = true;
+          value.effect = cloneValue(effect, effect);
+          value.context = {
+            action: context.action ? cloneValue(context.action, context.action) : null,
+            payload: cloneValue(context.payload, context.payload || {}),
+            result: cloneValue(context.result, context.result),
+            ownerId: context.ownerId || null
+          };
+        } else {
+          if (!componentCommandAdapter || typeof componentCommandAdapter.invoke !== 'function') {
+            throw new Error(`RMT Component Command Adapter fuer ${effect.id} fehlt.`);
+          }
+          value.result = await componentCommandAdapter.invoke(componentCommand, context);
+        }
+      } else if (effect.kind === 'toast' || effect.kind === 'feedback') {
         value = {
           id: effect.id,
           target: effect.target,
@@ -605,6 +660,7 @@
   const api = {
     RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA,
     RMT_ACTION_EFFECT_RUNTIME_SCHEMA,
+    RMT_COMPONENT_COMMAND_SCHEMA,
     createRmtActionEffectRuntime,
     createRmtResourceManager
   };
@@ -621,6 +677,7 @@ const __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__ = globalThis.XTendRmtActionEffectR
 
 export const RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA;
 export const RMT_ACTION_EFFECT_RUNTIME_SCHEMA = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_ACTION_EFFECT_RUNTIME_SCHEMA;
+export const RMT_COMPONENT_COMMAND_SCHEMA = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_COMPONENT_COMMAND_SCHEMA;
 export const createRmtActionEffectRuntime = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.createRmtActionEffectRuntime;
 export const createRmtResourceManager = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.createRmtResourceManager;
 

@@ -6,10 +6,22 @@ import type {
 
 export const XSURFACE_MANAGER_TAG = 'x-surface-manager' as const;
 
+export type XSurfaceManagerLayoutEngine =
+  | 'freeform'
+  | 'docked'
+  | 'split'
+  | 'tile'
+  | 'stacked'
+  | 'document-flow';
+
 export interface XSurfaceManagerPublicApi {
   readonly surfaces: XtendSurfaceSnapshot['surfaces'];
   readonly activeSurfaceId: string | null;
   readonly layoutSnapshot: XtendSurfaceSnapshot;
+  readonly layoutEngineSnapshot: Record<string, unknown> & {
+    engine: XSurfaceManagerLayoutEngine;
+    requestedEngine: XSurfaceManagerLayoutEngine;
+  };
   readonly surfaceController: XtendSurfaceController;
   registerSurface(surface: HTMLElement | Record<string, unknown>): XtendSurfaceOperationResult;
   openSurface(id: string, input?: Record<string, unknown>): XtendSurfaceOperationResult;
@@ -30,6 +42,12 @@ export interface XSurfaceManagerPublicApi {
   collapseSurface(id: string): XtendSurfaceOperationResult;
   expandSurface(id: string, mode?: string): XtendSurfaceOperationResult;
   dockSurface(id: string, placement?: string, mode?: string): XtendSurfaceOperationResult;
+  undockSurface(id: string, bounds?: Record<string, unknown>): XtendSurfaceOperationResult;
+  snapshotSurfaceLayout(): Record<string, unknown> & {
+    engine: XSurfaceManagerLayoutEngine;
+    requestedEngine: XSurfaceManagerLayoutEngine;
+  };
+  applyLayoutEngine(engine?: XSurfaceManagerLayoutEngine, options?: Record<string, unknown>): Record<string, unknown>;
   snapshot(): XtendSurfaceSnapshot;
   readSnapshot(): XtendSurfaceSnapshot;
 }
@@ -44,6 +62,8 @@ export const xSurfaceManagerContract = Object.freeze({
   runtime: 'components/xsurfacemanager.js',
   declaration: 'components/xsurfacemanager.d.ts',
   slots: ['default', 'windows', 'panels', 'overlays'],
+  attributes: ['layout', 'layout-engine', 'surface-layout-gap', 'surface-layout-snap'],
+  layoutEngines: ['freeform', 'docked', 'split', 'tile', 'stacked', 'document-flow'],
   events: ['surface-manager-ready', 'surface-registered', 'surface-opened', 'surface-closed', 'surface-focused', 'surface-materialized', 'surface-updated', 'surface-destroyed', 'surface-destroy-error', 'surface-layout-changed', 'surface-panel-command', 'surface-overlay-command'],
   surfaceComponents: ['x-surface-window', 'x-side-panel', 'x-modal', 'x-dialog', 'x-drawer'],
   kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'

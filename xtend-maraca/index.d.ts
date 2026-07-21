@@ -26,6 +26,27 @@ export const MARACA_TUNE_REPORT_SCHEMA: 'xtend.maraca.tune-report.v1';
 export const MARACA_APP_SERVICE_MANIFEST_SCHEMA: 'xtend.maraca.app-services-manifest.v1';
 export const MARACA_SERVICE_BUILD_PLAN_SCHEMA: 'xtend.maraca.service-build-plan.v1';
 export const MARACA_SERVICE_BUILD_REPORT_SCHEMA: 'xtend.maraca.service-build-report.v1';
+export const MARACA_COMPONENT_COMMAND_SCHEMA: 'xtend.rmt.component-command.v1';
+export const MARACA_COMPONENT_COMMAND_RESULT_SCHEMA: 'xtend.maraca.component-command-result.v1';
+
+export type MaracaComponentCommandName = 'focus' | 'reset' | 'snapshot';
+export interface MaracaComponentCommand {
+  schema: typeof MARACA_COMPONENT_COMMAND_SCHEMA;
+  command: MaracaComponentCommandName;
+  target: {
+    kind: 'surface';
+    id: string;
+    ref: string;
+    component: 'x-textarea';
+  };
+}
+export interface MaracaComponentCommandResult<T = unknown> {
+  schema: typeof MARACA_COMPONENT_COMMAND_RESULT_SCHEMA;
+  command: MaracaComponentCommandName;
+  surfaceId: string;
+  component: 'x-textarea';
+  result: T | null;
+}
 
 export type MaracaProfile = 'debug' | 'production' | 'max';
 export type MaracaLazyMode = 'route' | 'component' | 'none';
@@ -1074,6 +1095,15 @@ export interface MaracaTuneReport {
 }
 
 export function createMaracaBuildPlan(input?: string | MaracaBuildInput, options?: MaracaRunOptions): MaracaBuildPlan;
+export function invokeMaracaComponentCommand<T = unknown>(
+  root: {
+    localName?: string;
+    getAttribute?(name: string): string | null;
+    querySelectorAll?(selector: string): ArrayLike<unknown>;
+  } | null,
+  command: MaracaComponentCommand,
+  options?: { ensureComponent?(component: string): Promise<unknown> | unknown }
+): Promise<MaracaComponentCommandResult<T>>;
 export function createMaracaServiceBuildPlan(input?: Record<string, unknown>, options?: MaracaRunOptions): MaracaServiceBuildPlan;
 export function buildMaracaBundle(input?: string | MaracaBuildInput, options?: MaracaRunOptions): {
   schema: typeof MARACA_BUNDLE_REPORT_SCHEMA;

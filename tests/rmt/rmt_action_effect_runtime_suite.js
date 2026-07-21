@@ -350,6 +350,79 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
   context.assert(diagnostics.some((entry) => entry.channel === 'rmt.app_platform.action_effect'), 'diagnostics hub receives action channel');
 }
 
+async function runComponentCommandAssertions(context, actionRuntimeModule) {
+  const command = {
+    schema: 'xtend.rmt.component-command.v1',
+    command: 'snapshot',
+    target: {
+      kind: 'surface',
+      id: 'demo.editor',
+      ref: 'surface:demo.commands/demo.editor',
+      component: 'x-textarea'
+    }
+  };
+  const invocations = [];
+  const runtime = actionRuntimeModule.createRmtActionEffectRuntime({
+    actions: [{ id: 'demo.capture', effects: ['effect:demo.capture/0'] }],
+    effects: [{
+      id: 'effect:demo.capture/0',
+      kind: 'snapshot',
+      target: 'demo.editor',
+      componentCommand: command
+    }],
+    componentCommandAdapter: {
+      invoke(record) {
+        invocations.push(record);
+        return {
+          schema: 'xtend.maraca.component-command-result.v1',
+          command: record.command,
+          surfaceId: record.target.id,
+          component: record.target.component,
+          result: { value: 'captured' }
+        };
+      }
+    }
+  });
+  const result = await runtime.runAction('demo.capture');
+  const effectValue = result.effects && result.effects[0] && result.effects[0].value;
+  const historyValue = runtime.listHistory()[0].effects[0].value;
+  context.assert(result.status === 'success' && invocations.length === 1, 'component command runs through the dedicated adapter');
+  context.assert(invocations[0].command === 'snapshot' && invocations[0].target.id === 'demo.editor', 'component command adapter receives the statically compiled command target');
+  context.assert(effectValue && effectValue.result && effectValue.result.schema === 'xtend.maraca.component-command-result.v1', 'component command result is exposed at effects[].value.result');
+  context.assert(historyValue && historyValue.result && historyValue.result.result.value === 'captured', 'component command result remains visible in action history');
+
+  const deferredRuntime = actionRuntimeModule.createRmtActionEffectRuntime({
+    actions: [{ id: 'demo.capture', effects: ['effect:demo.capture/0'] }],
+    effects: [{
+      id: 'effect:demo.capture/0',
+      kind: 'snapshot',
+      target: 'demo.editor',
+      componentCommand: command
+    }],
+    deferCustomEffects: true
+  });
+  const deferredResult = await deferredRuntime.runAction('demo.capture');
+  const deferredValue = deferredResult.effects && deferredResult.effects[0] && deferredResult.effects[0].value;
+  context.assert(deferredValue && deferredValue.deferred === true, 'Maraca can defer a component command until after render and hydration');
+  context.assert(deferredValue && deferredValue.effect && deferredValue.effect.componentCommand.command === 'snapshot', 'deferred component command retains its fixed command contract');
+
+  const invalidRuntime = actionRuntimeModule.createRmtActionEffectRuntime({
+    actions: [{ id: 'demo.invalid', effects: ['effect:demo.invalid/0'] }],
+    effects: [{
+      id: 'effect:demo.invalid/0',
+      kind: 'arbitrary',
+      componentCommand: { ...command, command: 'arbitrary' }
+    }],
+    componentCommandAdapter: {
+      invoke() {
+        throw new Error('invalid component command reached adapter');
+      }
+    }
+  });
+  const invalidResult = await invalidRuntime.runAction('demo.invalid');
+  context.assert(invalidResult.status === 'error' && invalidResult.error.message.includes('is not allowed'), 'action runtime fail-closes arbitrary component command names');
+}
+
 async function runRmtActionEffectRuntimeSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
@@ -415,6 +488,7 @@ async function runRmtActionEffectRuntimeSuite(options = {}) {
   context.assert(fixture.acceptance.resourcesReleaseByOwner === true, 'Action effect acceptance covers resource ownership');
   assertFixtureGraph(context, fixture);
   await runRuntimeAssertions(context, fixture, stateRuntimeModule, actionRuntimeModule);
+  await runComponentCommandAssertions(context, actionRuntimeModule);
 
   assertTextIncludesAll(context, runtimeSource, [
     'createRmtActionEffectRuntime',
@@ -425,6 +499,8 @@ async function runRmtActionEffectRuntimeSuite(options = {}) {
     'runDataSource',
     'object-url',
     'lazy-import',
+    'RMT_COMPONENT_COMMAND_SCHEMA',
+    'componentCommandAdapter',
     'rmt.action.error'
   ], 'Action effect runtime source');
   context.assert(!/components\/|xtend-loader|api\.js/u.test(runtimeSource), 'Action effect runtime avoids XTend UI imports');
@@ -434,6 +510,7 @@ async function runRmtActionEffectRuntimeSuite(options = {}) {
     'RmtActionDefinition',
     'RmtDataSourceDefinition',
     'RmtEffectDefinition',
+    'RmtComponentCommand',
     'RmtResourceManager',
     'createRmtActionEffectRuntime'
   ], 'Action effect runtime types');

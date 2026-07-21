@@ -10,17 +10,23 @@ const {
   resolveRootDir
 } = require('../utils/files');
 
-const DOCS_PHP_SSR_CLS_SCHEMA = 'xtend.docs.php-ssr-cls-budget.v1';
+const DOCS_PHP_SSR_CLS_SCHEMA = 'xtend.docs.php-ssr-cls-budget.v2';
+const DOCS_PHP_SSR_CLS_LEGACY_SCHEMA = 'xtend.docs.php-ssr-cls-budget.v1';
+const DOCS_PHP_SSR_CLS_REPORT_SCHEMA = 'xtend.docs.php-ssr-cls-budget-report.v2';
+const DOCS_PHP_SSR_CLS_LEGACY_REPORT_SCHEMA = 'xtend.docs.php-ssr-cls-budget-report.v1';
 const DOCS_PHP_SSR_CLS_LOCAL_GATE = 'node scripts/run_xtend_tests.js docs-php-ssr-cls-budget --json';
 
 function runDocsIndex(rootDir, getParams = {}) {
   const code = [
     `chdir(${JSON.stringify(rootDir)});`,
+    `$_SERVER['SCRIPT_NAME'] = '/docs/index.php';`,
+    `$_SERVER['REQUEST_URI'] = '/docs/de/readme';`,
     `$_GET = json_decode(${JSON.stringify(JSON.stringify(getParams))}, true);`,
     'include "docs/index.php";'
   ].join(' ');
   return spawnSync('php', ['-d', 'variables_order=EGPCS', '-r', code], {
     cwd: rootDir,
+    env: { ...process.env, XTEND_DOCS_DOCUMENT_SSR: 'v2' },
     encoding: 'utf8',
     maxBuffer: 96 * 1024 * 1024
   });
@@ -62,6 +68,9 @@ function runDocsPhpSsrClsBudgetSuite(options = {}) {
   context.assert(shell.includes('data-xtend-layout-reserve="shell route"'), 'Initial SSR shell reserves main route geometry');
   context.assert(shell.includes('data-xtend-layout-reserve="router route"'), 'Initial SSR shell reserves router geometry');
   context.assert(shell.includes('data-xtend-layout-reserve="footer"'), 'Initial SSR shell reserves footer geometry');
+  context.assert(shell.includes('data-xrouter-prerendered-route') && shell.includes('id="md-content"'), 'Initial SSR shell includes the visible active article');
+  context.assert(shell.includes('data-docs-route-boot-skeleton="true"') && /data-docs-route-boot-skeleton="true"[^>]*hidden/u.test(shell), 'Document SSR suppresses the route boot skeleton before hydration');
+  context.assert(indexPhp.includes("'ownershipMode' => $documentSsrEnabled ? 'move-preserve-node'"), 'Document SSR declares node-preserving adoption ownership');
   context.assert(!shell.includes('<x-footer') || !shell.includes('data-xtend-skeleton="inline"'), 'SSR footer no longer uses inline skeleton geometry');
   context.assert(shell.includes('--footer-reserved-block-size: var(--docs-footer-reserved-block-size);'), 'SSR footer maps docs reserve into x-footer token');
   context.assert(shell.includes('--xtend-router-reserved-block-size: var(--docs-route-reserved-block-size);'), 'SSR router maps docs reserve into x-router token');
@@ -76,11 +85,14 @@ function runDocsPhpSsrClsBudgetSuite(options = {}) {
 
   context.assert(packageManifest.scripts['test:docs-php-ssr-cls-budget'] === 'node scripts/run_xtend_tests.js docs-php-ssr-cls-budget', 'package exposes docs PHP SSR CLS budget script');
   context.assert(packageManifest.xtend.docsPhpSsrClsBudget.schema === DOCS_PHP_SSR_CLS_SCHEMA, 'package metadata records docs CLS budget schema');
+  context.assert(packageManifest.xtend.docsPhpSsrClsBudget.legacySchema === DOCS_PHP_SSR_CLS_LEGACY_SCHEMA, 'package metadata retains the V1 CLS budget reader');
+  context.assert(packageManifest.xtend.docsPhpSsrClsBudget.reportSchema === DOCS_PHP_SSR_CLS_REPORT_SCHEMA, 'package metadata records docs CLS report schema');
+  context.assert(packageManifest.xtend.docsPhpSsrClsBudget.legacyReportSchema === DOCS_PHP_SSR_CLS_LEGACY_REPORT_SCHEMA, 'package metadata retains the V1 CLS report reader');
   context.assert(packageManifest.xtend.docsPhpSsrClsBudget.localGate === DOCS_PHP_SSR_CLS_LOCAL_GATE, 'package metadata records docs CLS budget local gate');
   context.assert(runner.includes("id: 'docs-php-ssr-cls-budget'"), 'test runner registers docs PHP SSR CLS budget suite');
 
   return context.result({
-    schema: 'xtend.docs.php-ssr-cls-budget-report.v1',
+    schema: DOCS_PHP_SSR_CLS_REPORT_SCHEMA,
     clsSchema: DOCS_PHP_SSR_CLS_SCHEMA,
     localGate: DOCS_PHP_SSR_CLS_LOCAL_GATE
   });

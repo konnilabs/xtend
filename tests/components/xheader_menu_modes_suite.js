@@ -108,13 +108,18 @@ function runXHeaderMenuModesSuite(options = {}) {
   context.assert(source.includes('XHEADER_BRAND_COLLAPSE_POLICIES') && source.includes('"brand-collapse"'), 'x-header exposes auto, never and always brand collapse policies');
   context.assert(source.includes('new ResizeObserver') && source.includes('_syncBrandPresentation') && source.includes('header-brand-visibility-changed'), 'x-header measures intrinsic brand fit and emits presentation changes');
   context.assert(source.includes(':host([logo-only]) .title-text') && source.includes('clip-path: inset(50%)'), 'x-header hides an unfitting title visually while retaining accessible text');
+  context.assert(source.includes('<slot name="title"><span class="title-fallback"></span></slot>'), 'x-header retains the public title slot around its attribute fallback');
+  context.assert(source.includes("fallback.textContent = this.hasAttribute('title') ? this.getAttribute('title') : XHEADER_DEFAULT_TITLE"), 'x-header commits the title attribute through textContent');
+  context.assert(!source.includes('<slot name="title">Seitentitel</slot>'), 'x-header no longer hard-codes a fallback that masks the title attribute');
+  assertIncludesAll(context, source, ["precedence: 'assigned-slot-over-attribute'", "sink: 'textContent'", 'contentFallbacks'], 'x-header metadata declares safe title fallback precedence');
   assertIncludesAll(context, source, REQUIRED_BRAND_SNAPSHOT_FIELDS.map((field) => `${field}:`), 'x-header snapshot includes brand fit fields');
 
-  assertIncludesAll(context, types, ['XHeaderMenuMode', 'XHeaderMenuPlacement', 'XHeaderMenuAlign', 'XHeaderBrandCollapsePolicy', 'XHeaderBrandPresentation', 'XHeaderToggleMenuOptions'], 'x-header public types expose menu and brand-fit APIs');
+  assertIncludesAll(context, types, ['XHeaderMenuMode', 'XHeaderMenuPlacement', 'XHeaderMenuAlign', 'XHeaderBrandCollapsePolicy', 'XHeaderBrandPresentation', 'XHeaderTitleSource', 'XHeaderToggleMenuOptions'], 'x-header public types expose menu, title and brand-fit APIs');
   assertIncludesAll(context, types, REQUIRED_MENU_MODES.map((mode) => `'${mode}'`), 'x-header public types include required menu modes');
   assertIncludesAll(context, types, REQUIRED_SNAPSHOT_FIELDS.map((field) => `${field}:`), 'x-header public types include menu snapshot fields');
   context.assert(types.includes('@deprecated Use menuMode'), 'x-header types mark drawerMode as legacy alias');
   assertIncludesAll(context, types, REQUIRED_BRAND_SNAPSHOT_FIELDS.map((field) => `${field}:`), 'x-header public types include brand fit snapshot fields');
+  assertIncludesAll(context, types, ['title: string', 'titleSource: XHeaderTitleSource'], 'x-header public types include effective title snapshot fields');
 
   assertIncludesAll(context, docs, ['Menu Presentation Modes', '`drawer`', '`side-panel`', '`popover`', '`fullscreen`', '`inline-main`'], 'x-header docs describe menu modes');
   assertIncludesAll(context, docs, REQUIRED_MENU_ATTRIBUTES.map((attribute) => `\`${attribute}\``), 'x-header docs document menu attributes');
@@ -128,6 +133,7 @@ function runXHeaderMenuModesSuite(options = {}) {
   assertIncludesAll(context, browserFixture, REQUIRED_MENU_MODES.map((mode) => `menu-mode="${mode}"`), 'x-header browser fixture renders all menu modes');
   context.assert(browserFixture.includes('customElements.whenDefined(\'x-header\')'), 'x-header browser fixture waits for custom element');
   context.assert(browserFixture.includes('snapshot()'), 'x-header browser fixture checks snapshots');
+  assertIncludesAll(context, browserFixture, ['title-attribute-fallback', 'title-slot-override', 'attributeFallbackPlainText', 'slotAuthoritative'], 'x-header browser fixture covers safe attribute fallback and slot precedence');
 
   context.assert(runner.includes('xheader-menu-modes'), 'Runner exposes xheader-menu-modes suite');
   context.assert(packageJson.includes('"test:xheader-menu-modes"'), 'package.json exposes xheader-menu-modes script');

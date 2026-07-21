@@ -27,7 +27,7 @@ export interface MaterialAppScaffoldReport {
   diagnostics: MaterialAppScaffoldDiagnostic[];
   files: Array<{ id: string; path: string; kind: string; action: string; changed: boolean; sha256: string }>;
   writeReport: object | null;
-  commands?: Record<'plan' | 'build' | 'serve' | 'tune' | 'test', string>;
+  commands?: Record<'plan' | 'build' | 'serve' | 'start' | 'tune' | 'test' | 'catfood', string>;
 }
 export declare const MATERIAL_APP_SCAFFOLD_SCHEMA: 'xtend.scaffold.app-preset.material.v1';
 export declare const MATERIAL_APP_SCAFFOLD_REPORT_SCHEMA: 'xtend.scaffold.app-preset.material-report.v1';

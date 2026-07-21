@@ -56,6 +56,10 @@ Editor surfaces can set `line-numbering="true"`. `x-textarea` then renders a Mon
 
 Prompt-style surfaces can set `submit-on-enter`. In that mode Enter emits `textarea-submit` and asks the nearest form to submit when the event is not canceled. Shift+Enter keeps the native textarea newline behavior.
 
+Set `submit-command` to give the following `xtend-command` an explicit RMT command name. Without it, the command remains empty and can be routed through the regular event binding.
+
+`textarea-changed` and `textarea-submit` expose `value`, `length`, `trimmedLength`, `empty`, `maxLength` and `source`; `textarea-changed` also carries highlight status. `textarea-invalid` exposes `value`, `message` and `source`, while `xtend-command` uses the public `XtendRmtCommandDetail` with the corresponding textarea payload. A failed `reportValidity()` call emits exactly one native `textarea-invalid` event.
+
 ## API reference
 
 Attributes:
@@ -74,6 +78,7 @@ Attributes:
 - `density`
 - `fill`
 - `submit-on-enter`
+- `submit-command`
 - `syntax-highlight`
 - `highlight`
 - `line-numbering`
@@ -166,6 +171,8 @@ Token table:
 - RMT schedules: `component.visible.mount`, `component.idle.hydrate`, `ui.user-blocking.input`, `diagnostics.snapshot`.
 
 RMT Hosts should treat the component as a Custom Element boundary: pass attributes as component props, bind DOM events to commands and keep scheduling metadata outside the component. Plain HTML hosts can use the same attributes and events without an RMT compiler.
+
+RMT state can drive the full attribute surface through matching fields. The `minlength`, `maxlength`, `submit-on-enter`, `submit-command`, `syntax-highlight` and `line-numbering` attributes use the camelCase fields `minLength`, `maxLength`, `submitOnEnter`, `submitCommand`, `syntaxHighlight` and `lineNumbering`. State fields named `label`, `hint` and `error` are materialized as real slots, so no Shadow DOM access is needed.
 
 Theming should flow through XTend design tokens first. CSS parts are intended for targeted skinning of exposed controls, while CSS custom properties are better for broader color, spacing, radius and motion changes. Accessibility hooks such as labels, live regions and focus handling should be preserved when composing the component.
 

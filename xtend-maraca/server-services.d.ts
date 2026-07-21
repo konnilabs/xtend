@@ -1,5 +1,8 @@
 import type {
   AppServiceDefinition,
+  AppServiceInputPolicy,
+  AppServiceInputPolicyManifest,
+  AppServiceInputVerdict,
   AppServiceTarget,
   CommandAppServiceOptions,
   QueryAppServiceOptions,
@@ -14,16 +17,22 @@ export {
   MARACA_APP_SERVICE_RESPONSE_SCHEMA,
   MARACA_APP_SERVICE_STREAM_SCHEMA,
   MARACA_APP_SERVICE_STREAM_FRAME_SCHEMA,
+  MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA,
+  MARACA_APP_SERVICE_INPUT_VERDICT_SCHEMA,
   AppServiceError,
   AppServiceAbortError,
   AppServiceStaleResultError,
   defineServerServices,
+  applyAppServiceInputPolicy,
   createAppServiceRegistry
 } from './app-services';
 
 export type {
   AppServiceConcurrency,
   AppServiceDefinition,
+  AppServiceInputPolicy,
+  AppServiceInputPolicyManifest,
+  AppServiceInputVerdict,
   AppServiceExecutionContext,
   AppServiceInvocation,
   AppServiceKind,

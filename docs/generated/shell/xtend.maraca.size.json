@@ -7,16 +7,16 @@
   "baseline": {
     "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
     "loaderBytes": 69993,
-    "selectedComponentBytes": 250217,
-    "stackModuleBytes": 1663954,
-    "contractPayloadBytes": 226005,
-    "bytes": 2210169
+    "selectedComponentBytes": 272382,
+    "stackModuleBytes": 1666607,
+    "contractPayloadBytes": 239452,
+    "bytes": 2248434
   },
-  "baselineBytes": 2210169,
-  "bundleBytes": 2047844,
+  "baselineBytes": 2248434,
+  "bundleBytes": 2075696,
   "framework": {
-    "bytes": 2047844,
-    "baselineBytes": 2210169,
+    "bytes": 2075696,
+    "baselineBytes": 2248434,
     "withinBudget": true
   },
   "appServices": {
@@ -33,22 +33,22 @@
     "bytes": 255,
     "budgetBytes": null,
     "withinBudget": true,
-    "requestFingerprint": "42a12329f49cbb9c27ed4724ca24b1e85befc34c8cfac507a7cacf7b26857d2e",
-    "configFingerprint": "054adc31bbb3b205491c7af627f7e3b41304e205f645e685d36fbaa0d7201c98",
-    "evidenceFingerprint": "d7e0bd70a81f9ca2082b4c56877c470e0e30c892709d4ceac75070b86975122f",
+    "requestFingerprint": "ffe49eca2f6b604ef0a7d14b6c930ad84079f5c2bb2ed03b9581628255a5cefb",
+    "configFingerprint": "e56ec5b044c362d862cff78b14c9289d7372db0374a755b63cf0c0d164c0b235",
+    "evidenceFingerprint": "5a974e146a3219cb17b29b1030c3050c222b107ebe4260031c21bd5bfa43db9e",
     "outputFingerprint": "50c41f8c8e2be6b4fa00a8cec35056e002f23af381ff55c681a2312d0b3fffb8",
     "sourceFingerprints": [
       {
-        "fingerprint": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
-        "path": "docs/xtendrmt-docs-shell-vnext.rmt"
+        "fingerprint": "6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
+        "path": "docs/xtendrmt-docs-document-v2.rmt"
       }
     ]
   },
-  "ratio": 0.9265553901081772,
+  "ratio": 0.9231740847185197,
   "budgets": {
     "modernEsmEntryMustBeSmallerThanBaseline": true,
     "enforcement": "strict",
-    "frameworkBytes": 2210169,
+    "frameworkBytes": 2248434,
     "clientAppServiceBytes": null,
     "serverAppServiceBytes": null
   }

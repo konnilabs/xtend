@@ -1,5 +1,7 @@
 import type {
   AppServiceMap,
+  AppServiceInputPolicyManifest,
+  AppServiceInputVerdict,
   AppServiceRegistry,
   AppServiceStreamFrame,
   AppServiceTransport,
@@ -36,6 +38,8 @@ export interface NodeAppServiceHostOptions<TServices extends AppServiceMap = App
   pathPrefix?: string;
   bodyLimit?: number;
   historyLimit?: number;
+  /** RMT-generated AppService manifest used for authoritative server-side input revalidation. */
+  manifest?: AppServiceInputPolicyManifest | null;
   exposeErrors?: boolean;
   createContext?(
     request: NodeAppServiceRequest,
@@ -43,6 +47,7 @@ export interface NodeAppServiceHostOptions<TServices extends AppServiceMap = App
   ): Record<string, unknown> | Promise<Record<string, unknown>>;
   onError?(error: unknown, context: Record<string, unknown>): void;
   onCleanupError?(error: unknown, context: Record<string, unknown>): void;
+  onInputPolicyVerdict?(verdict: AppServiceInputVerdict): void;
 }
 
 export interface NodeAppServiceHost<TServices extends AppServiceMap = AppServiceMap> {

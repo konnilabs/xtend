@@ -158,6 +158,7 @@ function runTypeExportsSuite(options = {}) {
     ['./maraca', 'maraca', 'WP-Maraca-01', './xtend-maraca/index.d.ts'],
     ['./maraca/runtime', 'maraca', 'WP-Maraca-01', './xtend-maraca/runtime.d.ts'],
     ['./maraca/app-services', 'maraca', 'WP-Maraca-01', './xtend-maraca/app-services.d.ts'],
+    ['./maraca/node-app-host', 'maraca', 'WP-Maraca-01', './xtend-maraca/node-app-host.d.ts'],
     ['./xsurface-shard', 'xsurface-shard', 'WP-XSurfaceShard-01', './xsurface-shard/index.d.ts'],
     ['./xscaler', 'xscaler', 'XMS-09', './xscaler/index.d.ts'],
     ['./xscaler/protocol', 'xscaler', 'XMS-09', './xscaler/protocol.d.ts'],

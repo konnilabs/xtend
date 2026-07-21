@@ -195,6 +195,38 @@ function runRmtVNextParserSuite(options = {}) {
     'primitive selector preserves declarative contains operator text'
   );
 
+  const componentCommandResult = parseRmtVNextSource({
+    text: `template demo.commands {
+  action demo.doFocus {
+    effect focus selector demo.editor
+  }
+  action demo.doReset {
+    effect reset selector demo.editor
+  }
+  action demo.capture {
+    effect snapshot selector demo.editor
+  }
+  surface demo.editor kind field component x-textarea {
+  }
+}`,
+    filePath: resolveRepoPath('tmp/rmt-vnext-component-commands.rmt', rootDir)
+  });
+  const componentCommandEffects = collectNodes(componentCommandResult.ast, 'RmtEffectStatement');
+  context.assert(componentCommandResult.ok === true, 'declarative component command syntax parses successfully');
+  context.assert(componentCommandEffects.length === 3, 'focus, reset and snapshot parse as three effects');
+  context.assert(
+    componentCommandEffects.map((effect) => effect.componentCommand && effect.componentCommand.command).join(',') === 'focus,reset,snapshot',
+    'component command effects preserve the fixed command allowlist'
+  );
+  context.assert(
+    componentCommandEffects.every((effect) => effect.componentCommand && effect.componentCommand.target === 'demo.editor' && effect.componentCommand.authoringKind === 'selector'),
+    'component command effects preserve their static selector surface target'
+  );
+  componentCommandEffects.forEach((effect) => {
+    assertDiagnosticRange(context, { range: effect.effectKindNode && effect.effectKindNode.range }, `${effect.effectKind} command has a source range`);
+    assertDiagnosticRange(context, { range: effect.componentCommand && effect.componentCommand.targetNode && effect.componentCommand.targetNode.range }, `${effect.effectKind} target has a source range`);
+  });
+
   const parser = createRmtVNextParser();
   const fallbackResult = parser.parseSource({
     text: readText(VALID_MINIMAL_FIXTURE, rootDir),

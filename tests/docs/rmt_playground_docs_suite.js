@@ -123,6 +123,7 @@ function runRmtPlaygroundDocsSuite(options = {}) {
   context.assert(pageLoader.includes('data-maraca-phase') && pageLoader.includes("phase: 'runtime'") && pageLoader.includes('maracaRunning'), 'Playground distinguishes planned Maraca build status from booted runtime status');
   context.assert(pageLoader.includes('docs-rmt-playground-preview-app') && pageLoader.includes('__xtendRmtPreviewBounds'), 'Playground preview renders compiled surfaces in an app-like bounded root');
   context.assert(pageLoader.includes('DOCS_RMT_PLAYGROUND_HYDRATION_TAGS') && pageLoader.includes("'x-progress'"), 'Playground hydrates public XTend component previews');
+  context.assert(pageLoader.includes('DOCS_RMT_PLAYGROUND_LAYOUT_TAGS') && pageLoader.includes('prepareDocsRmtPlaygroundLayoutElements') && pageLoader.includes('playgroundLayoutReady'), 'Playground defines layout-owning custom elements before replacing the visible article workspace');
   context.assert(pageLoader.includes('getDocsRmtPlaygroundDiagnosticsEndpoint') && pageLoader.includes('runDocsRmtPlaygroundLanguageDiagnostics'), 'Playground client runs live RMT Language Server diagnostics');
   context.assert(pageLoader.includes('setDocsRmtPlaygroundEditorDiagnosticState') && pageLoader.includes("editor.toggleAttribute('invalid'"), 'Playground mirrors LSP errors into the editor invalid state');
   context.assert(pageLoader.includes('DOCS_RMT_PLAYGROUND_ISLANDS') && pageLoader.includes('data-rmt-hydration-island'), 'Playground declares SurfaceManager hydration islands');

@@ -53,6 +53,18 @@ For production screens, keep IDs stable when state keys or diagnostics include `
 
 Destroyed surface generations can be included in diagnostic snapshots as `xtend.surface.tombstone.v1` records. Normal snapshots omit them so stale generations cannot be reopened accidentally.
 
+For a statically composed Maraca page, set `layout-engine="document-flow"`.
+Children assigned to `windows` then participate in a normal one-column grid,
+the manager grows with the document, and page scrolling is not clipped by the
+workspace. This mode does not commit or apply absolute bounds. In RMT, author
+the state field as `layoutEngine "document-flow"`; the compiler emits the
+public `layout-engine` attribute.
+
+The versioned `xtend.surface.layout-engine.v1` contract supports `freeform`,
+`docked`, `split`, `tile`, `stacked` and `document-flow`. A layout Snapshot
+keeps the requested and effective engine observable. The SurfaceController
+remains canonical, and no mode creates a second registry.
+
 Attributes:
 - `layout`
 - `restore-key`

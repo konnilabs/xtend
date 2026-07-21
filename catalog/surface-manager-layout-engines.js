@@ -13,11 +13,11 @@ const SURFACE_MANAGER_LAYOUT_ENGINE_SUITE = 'tests/components/surface_manager_la
 const SURFACE_MANAGER_LAYOUT_ENGINE_FIXTURE = 'tests/components/fixtures/xsurfacemanager-layout-engines.component.html';
 const SURFACE_MANAGER_LAYOUT_ENGINE_BACKLOG = 'development/BACKLOG-XTend-SurfaceManager-App-Shell-und-RMT-Surface-Runtime.md';
 const SURFACE_MANAGER_LAYOUT_ENGINE_WORKPACKAGE_DOC = 'development/WP-SM-16-Docking-Split-Panes-Tiling-und-Layout-Engines-ergaenzen.md';
-const SURFACE_MANAGER_LAYOUT_ENGINE_DOCS = 'docs/surface-manager-layout-engines.md';
+const SURFACE_MANAGER_LAYOUT_ENGINE_DOCS = 'docs/en/components/xsurfacemanager.md';
 const SURFACE_MANAGER_LAYOUT_ENGINE_LOCAL_GATE = 'node scripts/run_xtend_tests.js surface-layout-engines --json';
 const SURFACE_MANAGER_LAYOUT_ENGINE_PACKAGE_SCRIPT = 'npm run test:surface-layout-engines';
 
-const LAYOUT_ENGINES = Object.freeze(['freeform', 'docked', 'split', 'tile', 'stacked']);
+const LAYOUT_ENGINES = Object.freeze(['freeform', 'docked', 'split', 'tile', 'stacked', 'document-flow']);
 const MANAGER_METHODS = Object.freeze([
   'snapshotSurfaceLayout',
   'applyLayoutEngine',
@@ -75,6 +75,8 @@ function createSurfaceManagerLayoutEnginesPlan(options = {}) {
       splitPaneRuntime: true,
       tileRuntime: true,
       stackedResponsiveFallback: true,
+      documentFlowRuntime: true,
+      documentFlowCommitsBounds: false,
       viewportConstrainedBounds: true,
       collisionSnapRules: true,
       sidePanelFloatingMode: true,
@@ -101,6 +103,8 @@ function validateSurfaceManagerLayoutEnginesPlan(plan = createSurfaceManagerLayo
   if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.managerOwnsLayoutPolicy !== true) errors.push('manager must own layout policy');
   if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.controllerOwnsRegistry !== true) errors.push('controller must own registry');
   if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.visibleDockingRuntime !== true) errors.push('docking must be visible runtime behavior');
+  if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.documentFlowRuntime !== true) errors.push('document-flow must be visible runtime behavior');
+  if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.documentFlowCommitsBounds !== false) errors.push('document-flow must not commit surface bounds');
   if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.snapshotCompatibleBounds !== true) errors.push('layout bounds must be snapshot compatible');
   if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.createsSecondRegistry !== false) errors.push('layout engine must not create a second registry');
   if (!plan || plan.kernelBoundary !== KERNEL_BOUNDARY) errors.push(`kernelBoundary must be ${KERNEL_BOUNDARY}`);

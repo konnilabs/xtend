@@ -46,12 +46,17 @@ datasource orders.search from host orders.search {
 }
 
 action orders.runSearch {
-  input query string
+  input query string {
+    trust boundary "xtend.security.sanitizing-boundary.v1"
+    sanitize text
+  }
   effect fetch datasource orders.search
 }
 ```
 
 RMT remains the source of truth for the ID, `invoke`/`stream` mode, contract, and calling actions. Unresolved payload shapes stay diagnosed `unknown`, never `any`, and can be refined with service generics.
+
+The optional input-policy block also belongs exclusively to RMT. `sanitize text` accepts only strings, normalizes CRLF to LF, and rejects NUL and other forbidden control characters. An incomplete policy, unknown boundary, unsupported sanitize format, or conflicting policies for the same service field stop the build with a source range. For server-targeted services, the browser registry checks before transport, and `createNodeAppServiceHost({ services, manifest })` checks the same input again before invoking the handler. The handler receives the redacted result as `executionContext.inputPolicyVerdict`; `registry.listInputPolicyVerdicts()` and registry history expose the same evidence without raw input.
 
 ## Implement browser and server services
 
@@ -91,7 +96,11 @@ Queries default to `latest`, commands to `serial`, and streams to `latest`; `par
 
 The browser uses versioned JSON/NDJSON and defaults to `POST /api/xtend/services/:serviceId`. Base URL, headers/auth context, and routing remain host-owned.
 
-Node imports `dist/server/xtend.maraca.services.mjs` and passes it to `createNodeAppServiceHost({ services })` from `@ccslabs/xtend-maraca/node-app-service-host`. Call `handle(request, response)` from the existing HTTP layer; Maraca does not listen on a port. PHP loads the `@ccslabs/xtend-rmt/php-app-service-adapter.php` package export, passes the shared manifest and callable registry to `createRmtPhpAppServiceAdapter(...)`, and mounts `handleHttpRequest(...)` in an existing PHP/Laravel route. PHP never executes TypeScript.
+For an existing HTTP layer, Node imports `dist/server/xtend.maraca.services.mjs` and passes it to `createNodeAppServiceHost({ services })` from `@ccslabs/xtend-maraca/node-app-service-host`. This low-level API never opens a port.
+
+CLI-generated Node apps instead use the explicit `server/index.mjs` entry. It calls `listenNodeAppHost(...)` from `@ccslabs/xtend-maraca/node-app-host`, loads the generated service manifest, serves only allowlisted browser artifacts, and delegates `/api/xtend/services/:serviceId` to that same low-level host. Source maps, TypeScript sources/declarations, server/test directories, and build/size reports are denied even below an allowlisted directory. Both generated `start` and `serve` workflows build before executing only this host. It defaults to `127.0.0.1:4173`; `XTEND_MARACA_HOST` and `XTEND_MARACA_PORT` are the generated bind overrides, and port `0` is valid for tests. Startup writes exactly one JSON line with schema `xtend.maraca.node-app-host-startup.v1` and the resolved `origin`. `SIGINT` and `SIGTERM` close HTTP and AppServices together. This is an explicitly started deployment host, not implicit Maraca-core listening or a product-local controller.
+
+PHP loads the `@ccslabs/xtend-rmt/php-app-service-adapter.php` package export, passes the shared manifest and callable registry to `createRmtPhpAppServiceAdapter(...)`, and mounts `handleHttpRequest(...)` in an existing PHP/Laravel route. PHP never executes TypeScript.
 
 ## Strict mode and compatibility
 

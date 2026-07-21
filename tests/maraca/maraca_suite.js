@@ -35,12 +35,15 @@ const {
   MARACA_WEB_APP_MANIFEST_REPORT_SCHEMA,
   MARACA_PWA_SERVICE_WORKER_PLAN_SCHEMA,
   MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA,
+  MARACA_COMPONENT_COMMAND_SCHEMA,
+  MARACA_COMPONENT_COMMAND_RESULT_SCHEMA,
   buildMaracaBundleAsync,
   createMaracaPerformanceReport,
   createMaracaWebAppManifestPlan,
   createMaracaPwaServiceWorkerPlan,
   createMaracaTemplateArtifactsReport,
-  createMaracaBuildPlan
+  createMaracaBuildPlan,
+  invokeMaracaComponentCommand
 } = require('../../xtend-maraca');
 const {
   runCliAsync
@@ -77,6 +80,7 @@ const MARACA_SUITES = [
   'maraca-bundle-report',
   'maraca-app-services-runtime',
   'maraca-app-services-cross-runtime',
+  'maraca-node-app-host',
   'xtend-llm-app-services-catfood',
   'maraca-app-services-build',
   'maraca-rmt-source-to-bundle',
@@ -849,6 +853,82 @@ async function runMaracaOrchestrationSuite(options = {}) {
     id: 'maraca-orchestration',
     label: 'XTend Maraca App Orchestration'
   });
+  const commandCalls = { focus: 0, reset: 0, snapshot: 0, ensured: [], queries: [] };
+  const editor = {
+    localName: 'x-textarea',
+    getAttribute(name) {
+      if (name === 'data-maraca-surface') return 'demo.editor';
+      if (name === 'data-rmt-component') return 'x-textarea';
+      return null;
+    },
+    focus() {
+      commandCalls.focus += 1;
+    },
+    reset() {
+      commandCalls.reset += 1;
+    },
+    snapshot() {
+      commandCalls.snapshot += 1;
+      return { value: 'captured', valid: true };
+    },
+    get shadowRoot() {
+      throw new Error('component command runtime must not traverse shadow roots');
+    }
+  };
+  const outsideEditor = {
+    localName: 'x-textarea',
+    focus() {
+      throw new Error('component command escaped its orchestration root');
+    }
+  };
+  const commandRoot = {
+    getAttribute() {
+      return null;
+    },
+    querySelectorAll(selector) {
+      commandCalls.queries.push(selector);
+      return [editor];
+    },
+    outsideEditor
+  };
+  const commandFor = (command) => ({
+    schema: MARACA_COMPONENT_COMMAND_SCHEMA,
+    command,
+    target: {
+      kind: 'surface',
+      id: 'demo.editor',
+      ref: 'surface:demo.commands/demo.editor',
+      component: 'x-textarea'
+    }
+  });
+  const commandOptions = {
+    ensureComponent(component) {
+      commandCalls.ensured.push(component);
+    }
+  };
+  const focusCommandResult = await invokeMaracaComponentCommand(commandRoot, commandFor('focus'), commandOptions);
+  const resetCommandResult = await invokeMaracaComponentCommand(commandRoot, commandFor('reset'), commandOptions);
+  const snapshotCommandResult = await invokeMaracaComponentCommand(commandRoot, commandFor('snapshot'), commandOptions);
+  context.assert(focusCommandResult.schema === MARACA_COMPONENT_COMMAND_RESULT_SCHEMA && focusCommandResult.result === null && commandCalls.focus === 1, 'Maraca invokes only the public focus method and returns the component-command result contract');
+  context.assert(resetCommandResult.schema === MARACA_COMPONENT_COMMAND_RESULT_SCHEMA && resetCommandResult.result === null && commandCalls.reset === 1, 'Maraca invokes only the public reset method and returns the component-command result contract');
+  context.assert(snapshotCommandResult.schema === MARACA_COMPONENT_COMMAND_RESULT_SCHEMA && snapshotCommandResult.result.value === 'captured' && commandCalls.snapshot === 1, 'Maraca exposes the public snapshot result in the component-command result contract');
+  context.assert(commandCalls.queries.every((selector) => selector === '[data-maraca-surface]') && commandCalls.ensured.every((component) => component === 'x-textarea'), 'Maraca resolves commands only through the root-scoped static surface registry');
+  const componentCommandSource = String(invokeMaracaComponentCommand);
+  context.assert(!componentCommandSource.includes('document') && !componentCommandSource.includes('shadowRoot'), 'component command runtime has no document fallback or shadow-root traversal');
+  let arbitraryCommandBlocked = false;
+  try {
+    await invokeMaracaComponentCommand(commandRoot, commandFor('arbitrary'), commandOptions);
+  } catch (error) {
+    arbitraryCommandBlocked = Boolean(error && error.message && error.message.includes('is not allowed'));
+  }
+  context.assert(arbitraryCommandBlocked, 'Maraca fail-closes arbitrary component method names');
+  let outsideRootBlocked = false;
+  try {
+    await invokeMaracaComponentCommand({ getAttribute() { return null; }, querySelectorAll() { return []; }, outsideEditor }, commandFor('focus'), commandOptions);
+  } catch (error) {
+    outsideRootBlocked = Boolean(error && error.message && error.message.includes('not materialized inside the orchestration root'));
+  }
+  context.assert(outsideRootBlocked, 'Maraca cannot resolve a component command outside its orchestration root');
   const plan = planOrchestrationFixture(rootDir);
   const incompleteStrictPlan = createMaracaBuildPlan({
     source: MARACA_ORCHESTRATION_INCOMPLETE_FIXTURE,
@@ -943,6 +1023,9 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(entrySource.includes('window.__XTendMaracaKernel'), 'bundle exposes kernel bridge handle');
   context.assert(entrySource.includes('window.__XTendMaracaHydration'), 'bundle exposes hydration bridge handle');
   context.assert(entrySource.includes('snapshot: runtimeSnapshot'), 'bundle exposes orchestration snapshot API');
+  context.assert(entrySource.includes(MARACA_COMPONENT_COMMAND_RESULT_SCHEMA), 'bundle embeds the public component-command result contract');
+  context.assert(entrySource.includes('invokeMaracaComponentCommand'), 'bundle owns declarative component-command execution');
+  context.assert(entrySource.includes('effect.componentCommand'), 'deferred Maraca effects route compiled component commands through the framework runtime');
   context.assert(entrySource.includes('shouldPatchSurfaceDescriptorStructure'), 'bundle guards structured surface patches through the framework SSOT');
   context.assert(entrySource.includes('descriptorHasNestedSurface'), 'bundle does not structured-patch x-surface-manager child surface graphs');
   context.assert(entrySource.includes('changedStates'), 'bundle scopes Maraca surface patching to changed state IDs');
@@ -2481,6 +2564,11 @@ function runMaracaPackageExportsSuite(options = {}) {
       files: ['node-app-service-host.js', 'node-app-service-host.mjs', 'node-app-service-host.d.ts']
     },
     {
+      root: './maraca/node-app-host',
+      workspace: './node-app-host',
+      files: ['node-app-host.js', 'node-app-host.mjs', 'node-app-host.d.ts']
+    },
+    {
       root: './maraca/service-build-provider',
       workspace: './service-build-provider',
       files: ['service-build-provider.js', 'service-build-provider.d.ts']
@@ -2564,9 +2652,9 @@ function runMaracaPackageExportsSuite(options = {}) {
   context.assert(scaffoldMetadata && scaffoldMetadata.schema === 'xtend.scaffold.app-preset.rmt.v1', 'root xtend metadata declares the provider-neutral RMT app scaffold');
   context.assert(scaffoldMetadata && scaffoldMetadata.suiteId === 'xtend-rmt-app-scaffold' && scaffoldMetadata.materialMode === 'overlay', 'neutral scaffold metadata binds its gate and Material overlay boundary');
   context.assert(packageManifest.scripts['build:maraca'].includes('maraca build'), 'package exposes build:maraca script');
-  context.assert(packageManifest.scripts['test:maraca-app-services'].includes('maraca-app-services-runtime maraca-app-services-cross-runtime xtend-llm-app-services-catfood maraca-app-services-build xtend-rmt-app-scaffold'), 'package exposes the focused AppServices MVP gate');
+  context.assert(packageManifest.scripts['test:maraca-app-services'].includes('maraca-app-services-runtime maraca-app-services-cross-runtime maraca-node-app-host xtend-llm-app-services-catfood maraca-app-services-build xtend-rmt-app-scaffold'), 'package exposes the focused AppServices MVP gate');
   context.assert(packageManifest.scripts['test:maraca'].includes(MARACA_SUITES.join(' ')), 'package exposes combined Maraca test script');
-  const appServicesSuiteIds = ['xtend-rmt-app-scaffold', 'maraca-app-services-runtime', 'maraca-app-services-cross-runtime', 'xtend-llm-app-services-catfood', 'maraca-app-services-build'];
+  const appServicesSuiteIds = ['xtend-rmt-app-scaffold', 'maraca-app-services-runtime', 'maraca-app-services-cross-runtime', 'maraca-node-app-host', 'xtend-llm-app-services-catfood', 'maraca-app-services-build'];
   appServicesSuiteIds.forEach((suiteId) => {
     context.assert(defaultGatesMetadata && defaultGatesMetadata.defaultGate === 'npm run test:report' && runner.includes(`id: '${suiteId}'`), `default all-suite CI gate executes ${suiteId}`);
     context.assert(gateMatrixMetadata && gateMatrixMetadata.prFastGate.suites.includes(suiteId), `PR gate matrix requires ${suiteId}`);

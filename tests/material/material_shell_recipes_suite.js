@@ -92,6 +92,8 @@ async function runMaterialShellRecipesSuite(options = {}) {
   context.assert(!validateMaterialShellRecipes(badBoundary, { knownComponents, knownTokens }).ok, 'validator blocks Shadow DOM internal access');
 
   ['.xtm-app-shell', '.xtm-workspace', '.xtm-navigation-rail', '.xtm-top-app-bar', '.xtm-detail-pane'].forEach((selector) => context.assert(styles.includes(selector), `native stylesheet includes ${selector}`));
+  context.assert(styles.includes('x-surface-manager.xtm-app-shell') && styles.includes('x-header.xtm-top-app-bar'), 'native CSS preserves component-owned host layout for RMT shell roots');
+  context.assert(styles.includes('body[data-xtend-maraca-host]') && styles.includes('margin: 0;'), 'native CSS resets only framework-generated Maraca document hosts');
   context.assert(styles.includes('container: xtm-shell / inline-size') && styles.includes('@container xtm-shell (min-width: 48rem)') && styles.includes('@container xtm-shell (min-width: 80rem)'), 'native CSS implements container-first tablet and desktop layouts');
   context.assert(styles.includes('@media (min-width: 48rem)') && styles.includes('@media (min-width: 80rem)'), 'native CSS includes viewport fallback breakpoints');
   context.assert(styles.includes('grid-template-areas: "primary"') && styles.includes('grid-template-areas: "navigation primary detail"'), 'mobile and desktop workspace degradation is explicit');
@@ -111,6 +113,7 @@ async function runMaterialShellRecipesSuite(options = {}) {
     context.assert(build.ok, 'Material shell reaches a complete Maraca bundle');
     const css = fs.readFileSync(build.plan.outputs.css, 'utf8');
     context.assert(css.includes('.xtm-app-shell') && css.includes('.xtm-workspace') && css.includes('.xtm-detail-pane'), 'built CSS contains semantic shell selectors');
+    context.assert(css.includes('x-surface-manager.xtm-app-shell') && css.includes('x-header.xtm-top-app-bar'), 'built CSS contains component-safe shell host rules');
     context.assert(build.plan.cssBuild.evidence.designKit.stylesFingerprint && build.plan.cssBuild.evidence.inventory.recipeUtilities.length === 5, 'build Evidence fingerprints styles and five Recipe expansions');
   } finally {
     fs.rmSync(outputRoot, { recursive: true, force: true });

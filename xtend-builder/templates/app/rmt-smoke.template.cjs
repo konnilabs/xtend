@@ -13,10 +13,15 @@ test('provider-neutral Maraca app scaffold contract', () => {
   const rmt = fs.readFileSync(path.join(root, 'src/app.rmt'), 'utf8');
   const services = fs.readFileSync(path.join(root, 'src/services.ts'), 'utf8');
   const host = fs.readFileSync(path.join(root, 'site/index.html'), 'utf8');
+  const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
   assert.equal(config.options.cssProvider, 'maraca-native');
   assert.equal(config.options.services.strict, true);
-  assert.match(rmt, /datasource app\.health from host app\.health/);
+  assert.match(rmt, /\btemplate\s+[a-z][\w.-]*/u);
+  assert.match(rmt, /\bdatasource\s+[a-z][\w.-]*\s+from host\s+[a-z][\w.-]*/u);
   assert.match(services, /defineAppServices/);
+  assert.equal(manifest.scripts.serve, '{{serveCommand}}');
+  assert.equal(manifest.scripts.start, '{{startCommand}}');
+  assert.equal(manifest.scripts['test:catfood'], 'npm run build && node --test');
   assert.doesNotMatch(host, /bootXtendMaraca|dataSourceAdapters|hostServiceAdapters/);
   assert.match(host, /dist\/xtend\.maraca\.mjs/);
 });

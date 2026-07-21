@@ -187,6 +187,13 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xtend-llm-app-services-catfood:report
 
+      - name: Run Maraca App Services Test Bench catfood report
+        id: maraca_app_services_test_bench
+        continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run test:maraca-app-services-test-bench:report
+
       - name: Run XTensions framework adapter report
         id: xtensions_framework_adapters
         continue-on-error: true
@@ -299,6 +306,9 @@ jobs:
             .xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json
             .xtend-test-results/xtend-llm-app-services-catfood-report.json
             products/xtend-llm/.xtend-llm-results/app-services-catfood.json
+            .xtend-test-results/xtend-maraca-app-services-test-bench-report.json
+            products/maraca-app-services-test-bench/.xtend-test-results/maraca-app-services-test-bench-evidence.json
+            products/maraca-app-services-test-bench/.xtend-test-results/maraca-app-services-test-bench.png
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-dev-surface-report.json
             .xtend-test-results/xtend-docs-quality-report.json
@@ -336,6 +346,7 @@ jobs:
           if [ "${{ steps.maraca.outcome }}" != "success" ]; then echo "Maraca gate failed"; failed=1; fi
           if [ "${{ steps.maraca_app_services_cross_runtime.outcome }}" != "success" ]; then echo "Maraca AppServices Node/PHP parity gate failed"; failed=1; fi
           if [ "${{ steps.xtend_llm_app_services_catfood.outcome }}" != "success" ]; then echo "XTend LLM AppServices catfood gate failed"; failed=1; fi
+          if [ "${{ steps.maraca_app_services_test_bench.outcome }}" != "success" ]; then echo "Maraca App Services Test Bench catfood gate failed"; failed=1; fi
           if [ "${{ steps.xtensions_framework_adapters.outcome }}" != "success" ]; then echo "XTensions framework adapter gate failed"; failed=1; fi
           if [ "${{ steps.xtend_dev_surface.outcome }}" != "success" ]; then echo "XTend Dev Surface gate failed"; failed=1; fi
           if [ "${{ steps.docs_quality.outcome }}" != "success" ]; then echo "public docs quality gate failed"; failed=1; fi

@@ -9,6 +9,8 @@ export declare const RMT_FILE_FALLBACK_CODE: RmtToolingConstant;
 export declare const RMT_APP_ORCHESTRATION_SCHEMA: RmtToolingConstant;
 export declare const RMT_APP_ORCHESTRATION_WORKPACKAGE: RmtToolingConstant;
 export declare const RMT_APP_SERVICE_DEMANDS_SCHEMA: RmtToolingConstant<'xtend.maraca.app-service-demands.v1'>;
+export declare const RMT_APP_SERVICE_INPUT_POLICY_SCHEMA: RmtToolingConstant<'xtend.maraca.app-service-input-policy.v1'>;
+export declare const RMT_COMPONENT_COMMAND_SCHEMA: RmtToolingConstant<'xtend.rmt.component-command.v1'>;
 export declare const RMT_APP_PLATFORM_RECORDS_SCHEMA: RmtToolingConstant;
 export declare const RMT_FORM_VALIDATION_SCHEMA: RmtToolingConstant;
 export declare const RMT_SURFACE_TRANSITION_SCHEMA: RmtToolingConstant;

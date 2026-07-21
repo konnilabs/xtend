@@ -1,7 +1,7 @@
 {
   "schema": "xtend.maraca.build-config.v1",
-  "source": "docs/xtendrmt-docs-shell-vnext.rmt",
-  "sourceFingerprint": "db6443e0c430dc32a114c318713d57753cae52b56ec00e819c63ecad154e00d5",
+  "source": "docs/xtendrmt-docs-document-v2.rmt",
+  "sourceFingerprint": "6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
   "serviceGraphFingerprint": null,
   "output": "docs/generated/shell",
   "selected": {
@@ -32,7 +32,7 @@
     "cssProviderFallback": "none"
   },
   "options": {
-    "source": "docs/xtendrmt-docs-shell-vnext.rmt",
+    "source": "docs/xtendrmt-docs-document-v2.rmt",
     "out": "docs/generated/shell",
     "profile": "max",
     "lazy": "none",
@@ -64,6 +64,6 @@
     "terser": "5.48.0",
     "mode": "rollup-terser"
   },
-  "candidateMatrixFingerprint": "d50c8cf9dd8cc89f592b1cfcc1aa59a7e1c06c80e857f16e5f05596e2f2e6824",
-  "configFingerprint": "0a593bcf820f9c98fb9ed5b03405ad6c29b8d723dfbeca40209cf3c37b1a1de8"
+  "candidateMatrixFingerprint": "b3f48fd5ae2752a4422eafeec6a67a826b34593d17668b36e6c3e49b633b2f0a",
+  "configFingerprint": "3f5db5f9ad7283d2d168c234bdc17a6df22e67512ee4198cb9f3e1a4323ddd53"
 }

@@ -1,5 +1,10 @@
+const {
+  SANITIZING_BOUNDARY_CONTRACT,
+  TRUSTED_TEXT_SANITIZER_CONTRACT,
+  sanitizeTrustedText
+} = require('../xtend-maraca/trusted-text-sanitizer');
+
 const TRUSTED_DOM_POLICY_CONTRACT = 'xtend.security.trusted-dom-policy.v1';
-const SANITIZING_BOUNDARY_CONTRACT = 'xtend.security.sanitizing-boundary.v1';
 const MARKUP_CLASSIFICATION_CONTRACT = 'xtend.security.markup-classification.v1';
 const TRUSTED_DOM_SINK_CONTRACT = 'xtend.security.trusted-dom-sink.v1';
 const TRUSTED_DOM_SANITIZER_CONTRACT = 'xtend.security.trusted-dom-sanitizer.v1';
@@ -205,13 +210,13 @@ function sanitizeTrustedDomHtml(html, options = {}) {
   TRUSTED_DOM_SANITIZER_POLICY.removesElements.forEach((tagName) => {
     const paired = new RegExp(`<\\s*${tagName}\\b[^>]*>[\\s\\S]*?<\\s*\\/\\s*${tagName}\\s*>`, 'gi');
     output = output.replace(paired, (match) => {
-      removed.push({ type: 'element', name: tagName, sample: match.slice(0, 80) });
+      removed.push({ type: 'element', name: tagName });
       return '';
     });
 
     const single = new RegExp(`<\\s*${tagName}\\b[^>]*\\/?\\s*>`, 'gi');
     output = output.replace(single, (match) => {
-      removed.push({ type: 'element', name: tagName, sample: match.slice(0, 80) });
+      removed.push({ type: 'element', name: tagName });
       return '';
     });
   });
@@ -229,7 +234,7 @@ function sanitizeTrustedDomHtml(html, options = {}) {
   output = output.replace(/\s+(href|src|action|poster)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, (match, name, rawValue) => {
     const unquoted = String(rawValue || '').replace(/^['"]|['"]$/g, '');
     if (!isAllowedTrustedDomUrl(unquoted)) {
-      removed.push({ type: 'url', name, value: unquoted });
+      removed.push({ type: 'url', name });
       return '';
     }
     return match;
@@ -304,6 +309,7 @@ module.exports = {
   SANITIZING_BOUNDARY_CONTRACT,
   TRUSTED_DOM_SANITIZER_CONTRACT,
   TRUSTED_DOM_SANITIZER_POLICY,
+  TRUSTED_TEXT_SANITIZER_CONTRACT,
   TRUSTED_DOM_POLICY_CONTRACT,
   TRUSTED_DOM_SINK_CONTRACT,
   URL_ATTRIBUTE_POLICY,
@@ -312,5 +318,6 @@ module.exports = {
   getSinkPolicy,
   getTrustedDomPolicy,
   isAllowedTrustedDomUrl,
-  sanitizeTrustedDomHtml
+  sanitizeTrustedDomHtml,
+  sanitizeTrustedText
 };

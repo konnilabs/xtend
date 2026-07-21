@@ -95,7 +95,7 @@ class XTextarea extends HTMLElement {
   static formAssociated = true;
 
   static get observedAttributes() {
-    return ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'busy', 'invalid', 'density', 'submit-on-enter', 'syntax-highlight', 'highlight', 'line-numbering', 'lang', 'language'];
+    return ['name', 'value', 'placeholder', 'required', 'disabled', 'readonly', 'maxlength', 'minlength', 'rows', 'label', 'busy', 'invalid', 'density', 'fill', 'submit-on-enter', 'submit-command', 'syntax-highlight', 'highlight', 'line-numbering', 'lang', 'language'];
   }
 
   static registerHighlighter(provider) {
@@ -131,6 +131,18 @@ class XTextarea extends HTMLElement {
       fabric: {
         api: '@xtend-fabric',
         defaultLane: 'user-blocking'
+      },
+      publicApi: {
+        attributes: XTextarea.observedAttributes,
+        slots: ['label', 'hint', 'error'],
+        events: ['textarea-changed', 'textarea-invalid', 'textarea-submit', 'xtend-command'],
+        eventPayloads: {
+          'textarea-changed': 'XTextareaChangedEventDetail',
+          'textarea-invalid': 'XTextareaInvalidEventDetail',
+          'textarea-submit': 'XTextareaSubmitEventDetail',
+          'xtend-command': 'XTextareaCommandEventDetail'
+        },
+        methods: ['checkValidity', 'reportValidity', 'validate', 'reset', 'focus', 'snapshot']
       }
     };
   }
@@ -142,7 +154,17 @@ class XTextarea extends HTMLElement {
       tag: 'x-textarea',
       schedules: ['component.visible.mount', 'component.idle.hydrate', 'ui.user-blocking.input', 'diagnostics.snapshot'],
       hydration: { policy: 'visible', lane: 'user-blocking' },
-      kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
+      kernelBoundary: 'no-rmt-kernel-import-of-xtend-types',
+      attributes: XTextarea.observedAttributes,
+      slots: ['label', 'hint', 'error'],
+      events: ['textarea-changed', 'textarea-invalid', 'textarea-submit', 'xtend-command'],
+      eventPayloads: {
+        'textarea-changed': 'XTextareaChangedEventDetail',
+        'textarea-invalid': 'XTextareaInvalidEventDetail',
+        'textarea-submit': 'XTextareaSubmitEventDetail',
+        'xtend-command': 'XTextareaCommandEventDetail'
+      },
+      methods: ['checkValidity', 'reportValidity', 'validate', 'reset', 'focus', 'snapshot']
     };
   }
 
@@ -977,7 +999,7 @@ class XTextarea extends HTMLElement {
   }
 
   _syncFormValue() {
-    if (this.checkValidity()) {
+    if (this._control.validity.valid) {
       this.removeAttribute('invalid');
       this._control.setAttribute('aria-invalid', 'false');
     }
@@ -1021,9 +1043,7 @@ class XTextarea extends HTMLElement {
   }
 
   reportValidity() {
-    const valid = this._control.reportValidity();
-    if (!valid) this._onInvalid();
-    return valid;
+    return this._control.reportValidity();
   }
 
   validate() {

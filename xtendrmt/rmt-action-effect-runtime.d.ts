@@ -1,8 +1,10 @@
 export const RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-action-effect-diagnostic.v1';
 export const RMT_ACTION_EFFECT_RUNTIME_SCHEMA: 'xtend.epic18.rmt-action-effect-runtime.v1';
+export const RMT_COMPONENT_COMMAND_SCHEMA: 'xtend.rmt.component-command.v1';
 
 export type RmtDataSourceKind = 'fixture' | 'rest' | 'ssr' | 'host' | 'host-service' | 'service' | string;
 export type RmtEffectKind = 'toast' | 'feedback' | 'navigation' | 'focus' | 'lazy-import' | 'host-service' | 'service' | 'stream-service' | 'side-effect' | string;
+export type RmtComponentCommandName = 'focus' | 'reset' | 'snapshot';
 export type RmtResourceKind = 'object-url' | 'stream' | 'observer' | 'timer' | 'lazy-import' | string;
 
 export interface RmtActionDefinition {
@@ -46,8 +48,20 @@ export interface RmtEffectDefinition {
   service?: string;
   serviceId?: string;
   mode?: string;
+  componentCommand?: RmtComponentCommand;
   payload?: unknown;
   resources?: string[];
+}
+
+export interface RmtComponentCommand {
+  schema: typeof RMT_COMPONENT_COMMAND_SCHEMA;
+  command: RmtComponentCommandName;
+  target: {
+    kind: 'surface';
+    id: string;
+    ref: string;
+    component: 'x-textarea';
+  };
 }
 
 export interface RmtResourceDefinition {
@@ -124,6 +138,7 @@ export interface RmtActionEffectRuntimeOptions {
   feedbackAdapter?: { publish(payload: unknown, context?: unknown): unknown };
   navigationAdapter?: { navigate(path: unknown, context?: unknown): unknown };
   focusAdapter?: { focus(target: unknown, context?: unknown): unknown };
+  componentCommandAdapter?: { invoke(command: RmtComponentCommand, context?: unknown): Promise<unknown> | unknown };
   effectAdapter?: { invoke(effect: unknown, context?: unknown): unknown };
   deferCustomEffects?: boolean;
   objectUrlFactory?: { create(value: unknown): string; revoke(value: string): unknown };

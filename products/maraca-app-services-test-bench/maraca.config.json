@@ -1,0 +1,36 @@
+{
+  "schema": "xtend.maraca.build-config.v1",
+  "generatedBy": "XTend Scaffold XTM-09",
+  "options": {
+    "source": "src/app.rmt",
+    "out": "dist",
+    "profile": "production",
+    "lazy": "route",
+    "orchestration": "strict",
+    "kernel": "strict",
+    "kernelBootMode": "direct",
+    "hydration": "strict",
+    "validation": "strict",
+    "transitions": "strict",
+    "componentMode": "document",
+    "stackMode": "plan",
+    "css": "external",
+    "cssProvider": "tailwind",
+    "cssInput": "src/app.css",
+    "cssSources": ["src/app.rmt", "src/app.css"],
+    "cssPreflight": "disabled",
+    "cssProviderFallback": "none",
+    "services": {
+      "clientEntry": "src/services.ts",
+      "serverEntry": "src/server-services.ts",
+      "phpEntry": "server/server-services.php",
+      "targets": ["browser","node"],
+      "strict": true,
+      "transport": {
+        "kind": "http-ndjson",
+        "basePath": "/api/xtend/services",
+        "credentials": "same-origin"
+      }
+    }
+  }
+}

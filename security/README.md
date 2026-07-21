@@ -4,7 +4,7 @@ Status: introduced with ER-WP-29 and extended with ER-WP-30 and ER-WP-28
 
 ## Purpose
 
-`security/` holds repo-local, machine-readable security contracts. These modules are policy surfaces, not runtime sanitizers.
+`security/` holds repo-local, machine-readable security contracts and the narrow reference sanitizers that enforce those contracts at declared framework boundaries.
 
 ## Manifest Import Policy
 
@@ -25,8 +25,10 @@ The policy classifies Manifest URLs, Manifest Records and dynamic module URLs as
 - `xtend.security.sanitizing-boundary.v1`
 - `xtend.security.markup-classification.v1`
 - `xtend.security.trusted-dom-sink.v1`
+- `xtend.security.trusted-text-sanitizer.v1`
 
 The policy classifies text, attributes, structured templates, RMT `html_fragment` and Parsedown HTML, then maps them to allowed, restricted or forbidden DOM sinks.
+`sanitizeTrustedText()` is the canonical AppService plain-text boundary: it normalizes line endings and fails closed on non-strings or prohibited control characters without recording raw input.
 
 ## Supply Chain
 

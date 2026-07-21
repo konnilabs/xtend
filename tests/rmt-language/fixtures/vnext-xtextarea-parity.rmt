@@ -1,0 +1,70 @@
+template demo.textarea.parity {
+  state demo.textarea.parity type object preserve {
+    initial {
+      id "textarea-parity"
+      label "Message"
+      hint "Plain text only"
+      error "Enter a message"
+      value ""
+      placeholder "Write something"
+      name "message"
+      required true
+      disabled false
+      readonly false
+      busy false
+      invalid false
+      rows 6
+      minLength 1
+      maxLength 4000
+      density "compact"
+      fill true
+      submitOnEnter true
+      submitCommand "save-message"
+      syntaxHighlight true
+      highlight true
+      lineNumbering true
+      lang "text"
+      language "plaintext"
+    }
+  }
+
+  selector demo.textarea.parity from state demo.textarea.parity {
+    output TextareaParity
+  }
+
+  portal surface.root root "#textarea-parity-root" layer surface
+
+  surface demo.textarea.parity kind field component x-textarea {
+    source selector demo.textarea.parity
+    key textarea.id
+    portal surface.root
+    lane visible weight 90 {
+      hydrate textarea-parity from selector demo.textarea.parity
+    }
+
+    on textarea-changed "#textarea-parity" -> action demo.textarea.change {
+      payload value from detail.value
+    }
+    on textarea-invalid "#textarea-parity" -> action demo.textarea.invalid {
+      payload value from detail.value
+    }
+    on textarea-submit "#textarea-parity" -> action demo.textarea.submit {
+      payload value from detail.value
+    }
+  }
+
+  action demo.textarea.change {
+    input value string
+    reduce state.demo.textarea.parity.value = input.value
+  }
+
+  action demo.textarea.invalid {
+    input value string
+    reduce state.demo.textarea.parity.invalid = true
+  }
+
+  action demo.textarea.submit {
+    input value string
+    reduce state.demo.textarea.parity.value = input.value
+  }
+}

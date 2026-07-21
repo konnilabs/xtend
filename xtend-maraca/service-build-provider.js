@@ -6,6 +6,8 @@ const path = require('path');
 
 const MARACA_APP_SERVICE_MANIFEST_SCHEMA = 'xtend.maraca.app-services-manifest.v1';
 const MARACA_APP_SERVICE_DEMANDS_SCHEMA = 'xtend.maraca.app-service-demands.v1';
+const MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA = 'xtend.maraca.app-service-input-policy.v1';
+const SANITIZING_BOUNDARY_CONTRACT = 'xtend.security.sanitizing-boundary.v1';
 const MARACA_SERVICE_BUILD_PROVIDER_SCHEMA = 'xtend.maraca.service-build-provider.v1';
 const MARACA_SERVICE_BUILD_PLAN_SCHEMA = 'xtend.maraca.service-build-plan.v1';
 const MARACA_SERVICE_BUILD_REPORT_SCHEMA = 'xtend.maraca.service-build-report.v1';
@@ -413,14 +415,59 @@ function normalizeDemandManifest(input = {}) {
           mode: record.mode === 'stream' ? 'stream' : 'invoke',
           inputs: (Array.isArray(record.inputs) ? record.inputs : []).map((field) => ({
             name: String(field && field.name || ''),
-            type: String(field && field.type || 'unknown') || 'unknown'
+            type: String(field && field.type || 'unknown') || 'unknown',
+            ...(field && field.inputPolicy ? { inputPolicy: {
+              schema: String(field.inputPolicy.schema || MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA),
+              boundary: String(field.inputPolicy.boundary || ''),
+              sanitize: String(field.inputPolicy.sanitize || '')
+            } } : {})
           })).filter((field) => field.name).sort((left, right) => left.name.localeCompare(right.name))
         };
       }).filter((action) => action.id).sort((left, right) => left.id.localeCompare(right.id) || left.mode.localeCompare(right.mode)),
+      inputPolicy: entry.inputPolicy && typeof entry.inputPolicy === 'object' ? {
+        schema: String(entry.inputPolicy.schema || ''),
+        fields: (Array.isArray(entry.inputPolicy.fields) ? entry.inputPolicy.fields : []).map((field) => ({
+          name: String(field && field.name || ''),
+          type: String(field && field.type || 'unknown') || 'unknown',
+          boundary: String(field && field.boundary || ''),
+          sanitize: String(field && field.sanitize || '')
+        })).filter((field) => field.name).sort((left, right) => left.name.localeCompare(right.name)),
+        ...(Array.isArray(entry.inputPolicy.conflicts) && entry.inputPolicy.conflicts.length > 0
+          ? { conflicts: entry.inputPolicy.conflicts.map((conflict) => ({
+              field: String(conflict && conflict.field || ''),
+              actions: Array.isArray(conflict && conflict.actions) ? conflict.actions.map(String).sort() : [],
+              missing: Array.isArray(conflict && conflict.missing) ? conflict.missing.map(String).sort() : []
+            })) }
+          : {})
+      } : null,
       sourceRef: entry.sourceRef || null
     })).filter((entry) => entry.id).sort((left, right) => left.id.localeCompare(right.id)),
     fingerprint: source.fingerprint || fingerprint(services)
   };
+}
+
+function validateDemandIdentity(demands) {
+  const byId = new Map();
+  (demands.services || []).forEach((service) => {
+    const records = byId.get(service.id) || [];
+    records.push(service);
+    byId.set(service.id, records);
+  });
+  const diagnostics = [];
+  byId.forEach((services, serviceId) => {
+    if (services.length < 2) return;
+    diagnostics.push(diagnostic(
+      'xtend.maraca.services.duplicate_demand_id',
+      'error',
+      `RMT AppService demand "${serviceId}" has more than one datasource owner.`,
+      {
+        id: serviceId,
+        dataSources: services.map((service) => service.dataSource).filter(Boolean),
+        sourceRefs: services.map((service) => service.sourceRef).filter(Boolean)
+      }
+    ));
+  });
+  return diagnostics;
 }
 
 function validateBrowserSourceGraph(entry, serverEntry, toolchain, rootDir) {
@@ -468,6 +515,55 @@ function validateServiceCoverage(demands, client, server, php, options) {
   const phpById = new Map(php.services.map((entry) => [entry.id, entry]));
   const demanded = new Set(demands.services.map((entry) => entry.id));
   const severity = options.strict ? 'error' : 'warning';
+
+  demands.services.forEach((demand) => {
+    const policy = demand && demand.inputPolicy;
+    const declaredActionInputs = (demand.actions || []).flatMap((action) => (action.inputs || [])
+      .filter((input) => input && input.inputPolicy)
+      .map((input) => ({ actionId: action.id, ...input })));
+    if (!policy) {
+      if (declaredActionInputs.length > 0) {
+        diagnostics.push(diagnostic('xtend.maraca.services.input_policy_missing', severity, `Service "${demand.id}" is missing its aggregated RMT input policy.`, { id: demand.id }));
+      }
+      return;
+    }
+    if (policy.schema !== MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA) {
+      diagnostics.push(diagnostic('xtend.maraca.services.input_policy_invalid', severity, `Service "${demand.id}" input policy uses an unsupported schema.`, { id: demand.id, schema: policy.schema }));
+    }
+    (policy.fields || []).forEach((field) => {
+      if (field.boundary !== SANITIZING_BOUNDARY_CONTRACT || field.sanitize !== 'text' || field.type !== 'string') {
+        diagnostics.push(diagnostic('xtend.maraca.services.input_policy_invalid', severity, `Service "${demand.id}" input "${field.name}" has an unsupported input policy.`, {
+          id: demand.id,
+          input: field.name,
+          boundary: field.boundary,
+          sanitize: field.sanitize,
+          type: field.type
+        }));
+      }
+      const occurrences = (demand.actions || []).flatMap((action) => (action.inputs || [])
+        .filter((input) => input && input.name === field.name)
+        .map((input) => ({ actionId: action.id, input })));
+      const inconsistent = occurrences.filter(({ input }) => !input.inputPolicy
+        || input.inputPolicy.boundary !== field.boundary
+        || input.inputPolicy.sanitize !== field.sanitize);
+      if (inconsistent.length > 0) {
+        diagnostics.push(diagnostic('xtend.maraca.services.input_policy_conflict', severity, `Service "${demand.id}" input "${field.name}" is not identically declared by every referencing action.`, {
+          id: demand.id,
+          input: field.name,
+          actions: occurrences.map((entry) => entry.actionId),
+          inconsistent: inconsistent.map((entry) => entry.actionId)
+        }));
+      }
+    });
+    (policy.conflicts || []).forEach((conflict) => {
+      diagnostics.push(diagnostic('xtend.maraca.services.input_policy_conflict', severity, `Service "${demand.id}" input "${conflict.field}" does not use one identical policy in every action.`, {
+        id: demand.id,
+        input: conflict.field,
+        actions: conflict.actions,
+        missing: conflict.missing
+      }));
+    });
+  });
 
   function implementationHandlerMatches(demand, implementation) {
     return implementation.hasGenericHandler === true
@@ -553,6 +649,7 @@ function buildFinalManifest(demands, inspections, normalized) {
       concurrency: client && client.concurrency || (demand.mode === 'stream' ? 'latest' : 'latest'),
       contract: demand.contract,
       actions: demand.actions,
+      inputPolicy: demand.inputPolicy,
       implementations: {
         browser: Boolean(client),
         node: serverById.has(demand.id),
@@ -598,6 +695,7 @@ function createMaracaServiceBuildPlan(input = {}, options = {}) {
   const php = inspectPhpServiceEntry(normalized.entries.php.path);
   const diagnostics = []
     .concat(client.diagnostics, server.diagnostics, php.diagnostics)
+    .concat(validateDemandIdentity(demands))
     .concat(validateBrowserSourceGraph(normalized.entries.client.path, normalized.entries.server.path, toolchain, normalized.rootDir))
     .concat(validateServiceCoverage(demands, client, server, php, normalized));
   if (!toolchain.available) {
@@ -759,6 +857,16 @@ function actionInputType(actions) {
 function createDeclarationsSource(manifest) {
   const lines = [
     '// Generated by XTend Maraca. Do not edit.',
+    'export interface AppServiceInputFieldPolicy {',
+    '  name: string;',
+    '  type: string;',
+    '  boundary: "xtend.security.sanitizing-boundary.v1";',
+    '  sanitize: "text";',
+    '}',
+    'export interface AppServiceInputPolicy {',
+    '  schema: "xtend.maraca.app-service-input-policy.v1";',
+    '  fields: AppServiceInputFieldPolicy[];',
+    '}',
     'export interface AppServiceContract {'
   ];
   (manifest && manifest.services || []).forEach((entry) => {
@@ -767,6 +875,7 @@ function createDeclarationsSource(manifest) {
     lines.push(`    mode: ${JSON.stringify(entry.mode)};`);
     lines.push(`    kind: ${JSON.stringify(entry.kind)};`);
     lines.push(`    contractName: ${contract ? JSON.stringify(contract) : 'null'};`);
+    lines.push(`    inputPolicy: ${entry.inputPolicy ? 'AppServiceInputPolicy' : 'null'};`);
     lines.push(`    input: ${actionInputType(entry.actions)};`);
     lines.push(`    output: ${rmtTypeToTypeScript(contract)};`);
     lines.push('  };');
@@ -938,6 +1047,7 @@ module.exports = {
   DEFAULT_PHP_ENTRY,
   DEFAULT_SERVER_ENTRY,
   MARACA_APP_SERVICE_DEMANDS_SCHEMA,
+  MARACA_APP_SERVICE_INPUT_POLICY_SCHEMA,
   MARACA_APP_SERVICE_MANIFEST_SCHEMA,
   MARACA_PHP_SERVICE_REPORT_SCHEMA,
   MARACA_SERVICE_BUILD_PLAN_SCHEMA,

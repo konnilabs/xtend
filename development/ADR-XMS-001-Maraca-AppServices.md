@@ -35,11 +35,13 @@ Ein lokaler oder normaler HTTP-Service darf niemals durch Remote-Surface-Preflig
 
 - Das RMT-Bedarfsmanifest heißt `xtend.maraca.app-service-demands.v1`.
 - Das vereinigte Manifest heißt `xtend.maraca.app-services-manifest.v1`.
-- Öffentliche APIs sind `defineAppServices`, `defineServerServices`, `service`, `createHttpAppServiceTransport` und `createNodeAppServiceHost`.
+- Deklarative Eingabegrenzen verwenden `xtend.maraca.app-service-input-policy.v1`; RMT ist dafür die einzige Source of Truth.
+- Öffentliche APIs sind `defineAppServices`, `defineServerServices`, `service`, `createHttpAppServiceTransport`, `createNodeAppServiceHost` sowie der explizite Deployment-Host `createNodeAppHost`/`listenNodeAppHost`.
 - Query und Stream verwenden standardmäßig `latest`, Command verwendet `serial`; `parallel` ist opt-in.
 - Jede Ausführung erhält monotone Invocation-/Correlation-IDs und ein `AbortSignal`.
 - Es gibt keine impliziten Retries.
-- Backendrouting, Authentifizierung, Datenzugriff und Deployment bleiben außerhalb von Maraca.
+- Eine deklarierte Text-Policy wird im Browser vor dem Transport und im Node-Host vor der Serviceausführung unabhängig geprüft. Das redigierte `inputPolicyVerdict` ist ExecutionContext- und Registry-Evidence; Rohinput ist kein Bestandteil des Verdicts.
+- Authentifizierung, Datenzugriff und Deploymentkonfiguration bleiben außerhalb des Maraca-Kerns. Der optionale Node-App-Host stellt ausschließlich die standardisierte AppService-Route und freigegebene statische Dateien bereit.
 
 ## Buildentscheidung
 
@@ -56,7 +58,7 @@ Projekte ohne Servicequellen behalten das bisherige Buildverhalten. Bestehende e
 - Service-IDs und Modi werden statisch zwischen RMT, Browser, Node und PHP abgeglichen.
 - App-Code kann bekannte RMT-Eingabeshapes übernehmen und unbekannte Payloads über Generics konkretisieren; `any` ist kein Fallback.
 - Zentraler Abort, Stale-Commit-Schutz und Stream-Terminalregeln ersetzen produktindividuelle Race-Logik.
-- Maraca wird dadurch nicht zum Backend-Framework und öffnet insbesondere keinen Server.
+- Maraca wird dadurch nicht zum Backend-Framework und öffnet im Core nie implizit einen Server. Nur der CLI-generierte, ausdrücklich gestartete Node-App-Host lauscht auf einem Port; Produktlogik bleibt vollständig in AppServices.
 - XScaler bleibt first-class, aber auf Remote-Surface-Adapter begrenzt.
 
 ## Abnahme

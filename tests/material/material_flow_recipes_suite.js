@@ -116,6 +116,7 @@ async function runMaterialFlowRecipesSuite(options = {}) {
   context.assert(!validateMaterialFlowRecipes(badClaim, { knownComponents, knownTokens }).ok, 'validator blocks incomplete negative parity claims');
 
   RECIPE_CLASSES.forEach((className) => context.assert(styles.includes(`.${className}`), `native stylesheet includes .${className}`));
+  context.assert(styles.includes('x-form.xtm-form-flow') && styles.includes('x-form.xtm-settings-page'), 'native CSS leaves RMT form-host layout component-owned while wrapper recipes retain structural layout');
   context.assert(styles.includes('container: xtm-flow / inline-size') && styles.includes('@container xtm-flow (min-width: 48rem)'), 'native CSS enhances intrinsic flow layouts through a container query');
   context.assert(styles.includes('grid-template-areas: "summary" "primary" "secondary"') && styles.includes('grid-template-areas: "header header" "body aside" "footer footer"'), 'dashboard and content page have explicit compact and wide compositions');
   context.assert(tokens.includes('--xtm-flow-content-width') && tokens.includes('--xtm-flow-reading-width') && tokens.includes('--xtm-flow-field-min-width'), 'flow sizing remains semantic implementation tokens');
