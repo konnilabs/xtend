@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "@huggingface/transformers": "^3.8.1",
-    "electron": "^42.4.0"
+    "electron": "^42.5.1"
   },
   "xtendLlm": {
     "nodeRuntimePolicy": {
