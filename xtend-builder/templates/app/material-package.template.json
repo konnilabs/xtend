@@ -14,12 +14,12 @@
     "test:catfood": "npm run build && node --test"
   },
   "dependencies": {
-    "@ccslabs/xtend": "^0.5.0",
-    "@ccslabs/xtend-maraca": "^0.5.0",
+    "@ccslabs/xtend": "^0.6.1",
+    "@ccslabs/xtend-maraca": "^0.6.1",
     "@xtend-material/core": "^0.1.0"
   },
   "devDependencies": {
-    "@ccslabs/xtend-cli": "^0.5.0",
+    "@ccslabs/xtend-cli": "^0.6.1",
     "@xtend-material/maraca-tailwind": "^0.1.0",
     {{nodeTypesDependencyLine}}"tailwindcss": "4.3.2"
   },

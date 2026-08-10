@@ -18,7 +18,7 @@ Surface- und Resource-Ownership wird von Dashboard-Flows, Command/Search-Popover
 Compatibility Anchors für ältere Runtime-Checks:
 
 ```txt
-runtime contract: xtend.epic18.rmt-surface-resource-graph-runtime.v1
+runtime contract: xtend.epic18.rmt-surface-resource-graph-runtime.v2
 Keyed Surface Repeater: surface instances are keyed before resource ownership is resolved
 Portal Layer Stack: portal, overlay and surface owners share cleanup diagnostics
 next workpackage: WP-E18-11

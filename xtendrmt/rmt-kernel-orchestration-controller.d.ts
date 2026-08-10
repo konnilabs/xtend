@@ -9,6 +9,11 @@ export interface RmtKernelOrchestrationControllerOptions {
   diagnostics?: unknown[];
   strict?: boolean;
   hostAdapter?: Record<string, unknown> | null;
+  hostPort?: RmtKernelOrchestrationHostPort;
+  /** Alias for hostPort for explicit controller composition. */
+  orchestrationHostPort?: RmtKernelOrchestrationHostPort;
+  /** Compatibility alias; prefer hostPort. */
+  clock?: RmtKernelOrchestrationHostPort;
   windowTarget?: unknown;
   documentTarget?: unknown;
   runtimeKind?: string;
@@ -25,8 +30,17 @@ export interface RmtKernelOrchestrationControllerOptions {
   featureAdoptionRegistry?: {
     snapshot(): Record<string, unknown>;
   } | null;
+  featureAdoptionRegistryFactory?: (options: Record<string, unknown>) => {
+    snapshot(): Record<string, unknown>;
+  } | null;
   dispatchEvent?: (name: string, detail: unknown) => void;
   publishDiagnostic?: (diagnostic: unknown) => void;
+}
+
+export interface RmtKernelOrchestrationHostPort {
+  readonly schema?: string;
+  now(): string | number | Date;
+  nowIso?(): string;
 }
 
 export interface RmtKernelOrchestrationController {

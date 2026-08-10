@@ -6,7 +6,7 @@
 - Contract: `xtend.surface.workbench-fixture.v1`
 - Report: `xtend.surface.workbench-fixture-report.v1`
 - Authoring-Basis: `xtend.rmt.surface-authoring.v1`
-- Runtime-Basis: `xtend.surface.manager.v1`, `xtend.surface.record.v1`, `xtend.surface.controller.v1`, `xtend.surface.snapshot.v1`
+- Runtime-Basis: `xtend.surface.manager.v1`, `xtend.surface.record.v1`, `xtend.surface.controller.v2`, `xtend.surface.snapshot.v1`
 - Kernel Boundary: `no-rmt-kernel-import-of-xtend-types`
 
 ## Ziel

@@ -5,7 +5,7 @@
     "id": "epic18.action-effect-runtime.fixture",
     "metadata": {
       "contractVersion": "xtend.epic18.rmt-action-effect-runtime.v1",
-      "stateSelectorContract": "xtend.epic18.rmt-state-selector-runtime.v1",
+      "stateSelectorContract": "xtend.epic18.rmt-state-selector-runtime.v2",
       "workpackage": "WP-E18-08",
       "renderMode": "component_native_dom_descriptor",
       "manualHtmlRendererAllowed": false,

@@ -135,7 +135,7 @@ class XSurfaceWindow extends HTMLElement {
       surface: {
         schema: 'xtend.surface.record.v1',
         type: 'window',
-        controller: 'xtend.surface.controller.v1'
+        controller: 'xtend.surface.controller.v2'
       },
       kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
     };

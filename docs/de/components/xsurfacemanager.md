@@ -1,6 +1,6 @@
 # x-surface-manager
 
-x-surface-manager ist eine öffentliche XTend Komponentenreferenz für Drittanbieter, die die Komponente ohne internes Projektwissen einbinden müssen. Das Element implementiert `xtend.surface.manager.v1` und delegiert kanonische Zustandsübergänge an `xtend.surface.controller.v1`.
+x-surface-manager ist eine öffentliche XTend Komponentenreferenz für Drittanbieter, die die Komponente ohne internes Projektwissen einbinden müssen. Das Element implementiert `xtend.surface.manager.v1` und delegiert kanonische Zustandsübergänge an `xtend.surface.controller.v2`.
 
 ## Was es löst
 

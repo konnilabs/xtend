@@ -1,5 +1,5 @@
 import type { RmtBrowserScheduler } from './xtendrmt/rmt-browser-scheduler';
-import type { RmtDomDescriptorRenderer, RmtDomDescriptorRenderOptions } from './xtendrmt/rmt-dom-descriptor-renderer';
+import type { RmtDomCommitRequest, RmtDomCommitResult, RmtDomDescriptorRenderer, RmtDomDescriptorRenderOptions } from './xtendrmt/rmt-dom-descriptor-renderer';
 import type { RmtAppRuntime } from './xtendrmt/rmt-app-runtime';
 import type { RmtStateSelectorRuntime, RmtStateSelectorRuntimeOptions } from './xtendrmt/rmt-state-selector-runtime';
 import type { RmtActionEffectRuntime, RmtActionEffectRuntimeOptions } from './xtendrmt/rmt-action-effect-runtime';
@@ -96,20 +96,11 @@ export interface XTendScheduleOptions {
   correlationId?: string;
 }
 
-export interface XTendKernelHost {
+export interface XTendHost {
   readonly schema: string;
-  readonly mode: 'kernel';
-  readonly artifact: Readonly<Record<string, unknown>>;
-  readonly controller: Readonly<Record<string, unknown>>;
-  readonly runtime: unknown;
-  readonly core: unknown;
-  readonly performance: unknown;
-  readonly schedulerBridge: unknown;
-  readonly fabric: XtendFabricApi | null;
+  readonly mode: 'kernel' | 'lightweight';
   snapshot(): Readonly<Record<string, unknown>>;
 }
-
-export type XTendHost = XTendKernelHost | { readonly schema: string; readonly mode: 'lightweight'; snapshot(): Readonly<Record<string, unknown>> };
 
 export declare function configureXTend(options?: XTendRegistryConfiguration): Readonly<XTendResolvedRegistryConfiguration>;
 export declare function getXTendConfiguration(): Readonly<XTendResolvedRegistryConfiguration>;
@@ -124,11 +115,45 @@ export declare function render(root: Element, descriptor: unknown, options?: Rmt
 export declare function renderNode<TDescriptor extends XTendDescriptor>(descriptor: TDescriptor, options?: RmtDomDescriptorRenderOptions): ReturnType<RmtDomDescriptorRenderer['renderNode']>;
 export declare function renderNode(descriptor: unknown, options?: RmtDomDescriptorRenderOptions): ReturnType<RmtDomDescriptorRenderer['renderNode']>;
 export declare function renderKeyed<TDescriptor extends XTendDescriptor>(root: Element, descriptors: TDescriptor[], options?: RmtDomDescriptorRenderOptions): ReturnType<RmtDomDescriptorRenderer['renderKeyed']>;
+/** @deprecated Use commit({ operation: 'merge-element', ... }). Removed in 1.0. */
 export declare function patchElement<TDescriptor extends XTendElementDescriptor>(element: Element, descriptor: TDescriptor, options?: RmtDomDescriptorRenderOptions): ReturnType<RmtDomDescriptorRenderer['patchElement']>;
+export declare function commit(request: RmtDomCommitRequest): RmtDomCommitResult;
 export declare function loadComponent(tag: string, options?: XTendEnsureComponentOptions): Promise<boolean>;
 export declare function hydrate(root?: Document | ShadowRoot | Element, options?: XTendHydrateTreeOptions): Promise<XTendHydrateTreeDetail>;
 export declare function boot(options?: XTendInitiateOptions): Promise<XTendLoaderBootResult>;
 export declare function disposeXTend(): void;
+
+export interface XTendRegistry {
+  createXTendKernelArtifact: typeof createXTendKernelArtifact;
+  configureXTend: typeof configureXTend;
+  getXTendConfiguration: typeof getXTendConfiguration;
+  readyXTend: typeof readyXTend;
+  getXTendHost: typeof getXTendHost;
+  getXTendSnapshot: typeof getXTendSnapshot;
+  schedule: typeof schedule;
+  afterPaint: typeof afterPaint;
+  render: typeof render;
+  renderNode: typeof renderNode;
+  renderKeyed: typeof renderKeyed;
+  patchElement: typeof patchElement;
+  commit: typeof commit;
+  createApp: typeof createApp;
+  createStore: typeof createStore;
+  createEffects: typeof createEffects;
+  createRouter: typeof createRouter;
+  createAnimator: typeof createAnimator;
+  createValidator: typeof createValidator;
+  createTransitions: typeof createTransitions;
+  createResources: typeof createResources;
+  loadComponent: typeof loadComponent;
+  hydrate: typeof hydrate;
+  boot: typeof boot;
+  createFabric: typeof createFabric;
+  createXtendFabric: typeof createFabric;
+  disposeXTend: typeof disposeXTend;
+}
+
+export declare function createXTendRegistry(options?: XTendRegistryConfiguration): Readonly<XTendRegistry>;
 
 export { createRmtBrowserScheduler } from './xtendrmt/rmt-browser-scheduler';
 export { createRmtDomDescriptorRenderer } from './xtendrmt/rmt-dom-descriptor-renderer';

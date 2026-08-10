@@ -1,8 +1,8 @@
 {
   "name": "@ccslabs/xtend-xsurface-shard",
-  "version": "0.5.0",
+  "version": "0.6.1",
   "private": false,
-  "description": "XSurface Shard surface-sharding package with region and controller primitives for XTend 0.5.0 surfaces.",
+  "description": "XSurface Shard surface-sharding package with region and controller primitives for XTend 0.6.1 surfaces.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -37,9 +37,9 @@
     "node": ">=24"
   },
   "peerDependencies": {
-    "@ccslabs/xtend": "0.5.0",
-    "@ccslabs/xtend-compiler": "0.5.0",
-    "@ccslabs/xtend-rmt": "0.5.0"
+    "@ccslabs/xtend": "0.6.1",
+    "@ccslabs/xtend-compiler": "0.6.1",
+    "@ccslabs/xtend-rmt": "0.6.1"
   },
   "peerDependenciesMeta": {
     "@ccslabs/xtend": {

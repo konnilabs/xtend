@@ -39,7 +39,7 @@
       },
       "compatibility": {
         "status": "supported",
-        "xtendVersionRange": "^0.5.0",
+        "xtendVersionRange": "^0.6.1",
         "maracaManifestSchema": "xtend.maraca.xtension-manifest.v1",
         "runtimeRegistrySchema": "xtend.xtensions.runtime-capability-registry.v1",
         "securityGateSchema": "xtend.xtensions.security-integrity-gate.v1"
@@ -266,7 +266,7 @@
       },
       "compatibility": {
         "status": "supported",
-        "xtendVersionRange": "^0.5.0",
+        "xtendVersionRange": "^0.6.1",
         "maracaManifestSchema": "xtend.maraca.xtension-manifest.v1",
         "runtimeRegistrySchema": "xtend.xtensions.runtime-capability-registry.v1",
         "securityGateSchema": "xtend.xtensions.security-integrity-gate.v1"

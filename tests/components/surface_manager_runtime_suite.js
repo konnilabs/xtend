@@ -153,7 +153,7 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
     "customElements.define('x-surface-manager'",
     'attachShadow({ mode: \'open\' })',
     'xtend.surface.manager.v1',
-    'xtend.surface.controller.v1',
+    'xtend.surface.controller.v2',
     'xtend.surface.snapshot.v1',
     'surface-window-command',
     'registerSurface(surface)',
@@ -235,7 +235,7 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
     'xSurfaceWindowContract',
     'xtend.surface.manager.v1',
     'xtend.surface.record.v1',
-    'xtend.surface.controller.v1',
+    'xtend.surface.controller.v2',
     'destroySurface',
     'surface-destroyed'
   ], 'SurfaceManager TypeScript source');
@@ -262,7 +262,7 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
   assertTextIncludesAll(context, managerDocs, [
     '# x-surface-manager',
     'xtend.surface.manager.v1',
-    'xtend.surface.controller.v1',
+    'xtend.surface.controller.v2',
     'surface-layout-changed',
     'destroySurface',
     'surface-destroyed',

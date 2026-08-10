@@ -24,6 +24,7 @@ export declare const SURFACE_MANAGER_QUALITY_BROWSER_FIXTURE: XtendCatalogConsta
 export declare const SURFACE_MANAGER_QUALITY_BROWSER_SMOKE_SCHEMA: string;
 export declare const SURFACE_MANAGER_QUALITY_GATES_CONTRACT: string;
 export declare const SURFACE_MANAGER_QUALITY_GATES_DOCS: readonly XtendCatalogConstant[] | XtendCatalogConstant;
+export declare const SURFACE_MANAGER_QUALITY_GATES_DOCS_DE: string;
 export declare const SURFACE_MANAGER_QUALITY_GATES_MODULE: string;
 export declare const SURFACE_MANAGER_QUALITY_GATES_PLAN: XtendCatalogConstant;
 export declare const SURFACE_MANAGER_QUALITY_GATES_REPORT_SCHEMA: string;

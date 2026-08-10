@@ -9,8 +9,10 @@ const RESULT_DIR = path.join(ROOT_DIR, '.xtend-test-results');
 const OUTPUT_PATH = path.join(RESULT_DIR, 'xtend-nightly-build-manifest.json');
 
 const COMMANDS = [
+  'npm run native-first:evidence:prepare',
   'npm run test:release:full:report',
   'npm run test:rmt-reference-docs:report',
+  'npm run test:rmt-demos:report',
   'npm run test:rkfa-production-closure:report',
   'npm run test:docs-stub-inventory:report',
   'npm run test:rmt-vnext-primitives:report',
@@ -43,6 +45,7 @@ const COMMANDS = [
 const ARTIFACT_PATHS = [
   '.xtend-test-results/xtend-release-gate-report.json',
   '.xtend-test-results/xtend-rmt-reference-docs-report.json',
+  '.xtend-test-results/xtend-rmt-demos-report.json',
   '.xtend-test-results/xtend-rkfa-production-closure-report.json',
   '.xtend-test-results/xtend-docs-stub-inventory-report.json',
   '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json',
@@ -82,11 +85,20 @@ const ARTIFACT_PATHS = [
 const REQUIRED_ARTIFACTS = new Set([
   '.xtend-test-results/xtend-release-gate-report.json',
   '.xtend-test-results/xtend-rmt-reference-docs-report.json',
+  '.xtend-test-results/xtend-rmt-demos-report.json',
   '.xtend-test-results/xtend-rkfa-production-closure-report.json',
   '.xtend-test-results/xtend-docs-stub-inventory-report.json',
   '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json',
   '.xtend-test-results/xtend-native-first-rmt-owned-release-report.json',
+  '.xtend-test-results/xtend-release-report.json',
   '.xtend-test-results/xtend-pack-dry-run.json',
+  '.xtend-test-results/xtend-package-export-surface-lock.json',
+  '.xtend-test-results/xtend-package-export-lock-report.json',
+  '.xtend-test-results/xtend-pack-dry-run-xtendrmt.json',
+  '.xtend-test-results/xtend-pack-dry-run-fabric.json',
+  '.xtend-test-results/xtend-pack-dry-run-tools.json',
+  '.xtend-test-results/xtend-pack-dry-run-xtend-builder.json',
+  '.xtend-test-results/xtend-pack-dry-run-xtend-maraca.json',
   '.xtend-test-results/xtend-pack-dry-run-xsurface-shard.json',
   '.xtend-test-results/xtend-maraca-gate-report.json',
   '.xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json',
@@ -105,7 +117,9 @@ const REQUIRED_ARTIFACTS = new Set([
   '.xtend-test-results/xtend-xscaler-public-api-report.json',
   '.xtend-test-results/xtend-xscaler-php-preflight-parity-report.json',
   '.xtend-test-results/xtend-rmt-xscaler-ssr-hydration-parity-report.json',
-  '.xtend-test-results/xtend-xscaler-source-to-sea-report.json'
+  '.xtend-test-results/xtend-xscaler-source-to-sea-report.json',
+  '.xtend-build/maraca/source-to-sea/xtend.maraca.report.json',
+  '.xtend-build/maraca/source-to-sea/xtend.maraca.size.json'
 ]);
 
 function readPackageManifest() {
@@ -174,9 +188,19 @@ function createManifest() {
 }
 
 function main() {
+  const manifest = createManifest();
   fs.mkdirSync(RESULT_DIR, { recursive: true });
-  fs.writeFileSync(OUTPUT_PATH, `${JSON.stringify(createManifest(), null, 2)}\n`);
+  fs.writeFileSync(OUTPUT_PATH, `${JSON.stringify(manifest, null, 2)}\n`);
   console.log(`XTend nightly manifest written: ${path.relative(ROOT_DIR, OUTPUT_PATH)}`);
+  if (!manifest.ok) {
+    const missingRequiredArtifacts = manifest.requiredArtifacts.filter((artifactPath) => {
+      const artifact = manifest.artifacts.find((entry) => entry.path === artifactPath);
+      return !artifact || !artifact.exists;
+    });
+    console.error(`XTend nightly manifest is incomplete; missing required artifacts: ${missingRequiredArtifacts.join(', ')}`);
+    process.exitCode = 1;
+  }
+  return manifest;
 }
 
 if (require.main === module) {
@@ -184,5 +208,6 @@ if (require.main === module) {
 }
 
 module.exports = {
-  createManifest
+  createManifest,
+  main
 };

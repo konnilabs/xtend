@@ -245,6 +245,41 @@ async function runRuntimeAssertions(context, fixture, actionRuntimeModule, surfa
       return child;
     }
   };
+  const domCommits = [];
+  const domDisposeCalls = [];
+  const domRenderer = {
+    commit(request) {
+      domCommits.push(request);
+      const descriptor = request.descriptor || {};
+      const element = documentTarget.createElement(descriptor.tag || 'div');
+      Object.entries(descriptor.attributes || {}).forEach(([name, value]) => {
+        if (name === 'style') {
+          Object.entries(value || {}).forEach(([styleName, styleValue]) => {
+            if (element.style && typeof element.style.setProperty === 'function') element.style.setProperty(styleName, styleValue);
+          });
+          return;
+        }
+        if (value !== null && value !== undefined && value !== false) element.setAttribute(name, value === true ? '' : value);
+      });
+      if (Object.prototype.hasOwnProperty.call(descriptor, 'text')) {
+        element.appendChild(documentTarget.createTextNode(descriptor.text));
+      }
+      return {
+        schema: 'xtend.rmt.dom-commit-result.v1',
+        operation: request.operation,
+        target: element,
+        nodes: [element],
+        nodeCount: 1,
+        changed: true,
+        structural: true,
+        diagnostics: [],
+        metadata: {}
+      };
+    },
+    dispose(target, options) {
+      domDisposeCalls.push({ target, options });
+    }
+  };
   const surfaceManager = {
     registerSurface(record) {
       surfaceManagerCalls.push({ operation: 'registerSurface', id: record && record.id, record });
@@ -287,6 +322,7 @@ async function runRuntimeAssertions(context, fixture, actionRuntimeModule, surfa
     portals: fixture.portals,
     resourceManager,
     surfaceManager,
+    domRenderer,
     managerId: 'fixture.surface.manager',
     documentTarget,
     eventRuntime: {
@@ -353,9 +389,12 @@ async function runRuntimeAssertions(context, fixture, actionRuntimeModule, surfa
       { id: 'gamma', title: 'Gamma', kind: 'case' }
     ]
   };
+  const registrationsBeforeRematerialize = surfaceManagerCalls.filter((call) => call.operation === 'registerSurface').length;
   const secondMaterialize = runtime.materialize(nextRecords);
+  const registrationsAfterRematerialize = surfaceManagerCalls.filter((call) => call.operation === 'registerSurface').length;
   context.assert(secondMaterialize.createdCount === 2, 're-materialize creates only new keyed instances');
   context.assert(secondMaterialize.reusedCount === 5, 're-materialize reuses existing keyed instances');
+  context.assert(registrationsAfterRematerialize - registrationsBeforeRematerialize === 2, 're-materialize registers only new Surface handles and leaves reused controller lifecycles untouched');
   context.assert(runtime.getSurface('surface.workspace:alpha').bounds.width === 720, 're-materialize preserves runtime bounds');
   context.assert(runtime.getSurface('surface.workspace:alpha').state === 'open', 're-materialize preserves runtime state');
 
@@ -399,6 +438,67 @@ async function runRuntimeAssertions(context, fixture, actionRuntimeModule, surfa
   context.assert(detachedOwners.includes('surface.workspace:alpha'), 'destroySurface detaches event owner scope');
   context.assert(runtime.listInstances().every((entry) => entry.id !== 'surface.workspace:alpha'), 'destroyed instances are hidden by default');
   context.assert(runtime.listInstances({ includeDestroyed: true }).some((entry) => entry.id === 'surface.workspace:alpha'), 'destroyed instances remain inspectable');
+  context.assert(domCommits.length >= 7, 'Surface graph shares one renderer across portal and overlay materialization');
+  context.assert(domCommits.every((request) => request.operation === 'create-node'), 'Surface graph routes portal and overlay materialization through create-node commits');
+  context.assert(domCommits.every((request) => request.ownership && request.ownership.owner === 'surface-resource-graph'), 'Surface graph commits carry explicit portal/overlay ownership');
+  context.assert(!runtime.listDiagnostics().some((entry) => entry.code === 'rmt.dom.shared-renderer-missing'), 'Injected Surface graph renderer avoids compatibility-writer diagnostics');
+
+  const disposeReport = runtime.dispose();
+  const secondDisposeReport = runtime.dispose();
+  context.assert(disposeReport.disposed === true && disposeReport.alreadyDisposed === false, 'Surface graph dispose closes owned resources and roots');
+  context.assert(secondDisposeReport.alreadyDisposed === true, 'Surface graph dispose is idempotent');
+  context.assert(domDisposeCalls.length >= 1 && domDisposeCalls.every((entry) => entry.options.clearOwnedDom === true), 'Surface graph disposes renderer-owned portal and overlay roots');
+  context.assert(portalChildren.length === 0, 'Surface graph dispose removes all owned portal roots from host targets');
+
+  const previousRendererGlobal = globalThis.XTendRmtDomDescriptorRenderer;
+  let compatibilityRendererFactoryCalls = 0;
+  globalThis.XTendRmtDomDescriptorRenderer = {
+    createRmtDomDescriptorRenderer() {
+      compatibilityRendererFactoryCalls += 1;
+      return domRenderer;
+    }
+  };
+  const compatibilityRuntime = surfaceRuntimeModule.createRmtSurfaceResourceGraphRuntime({
+    portals: [{ id: 'portal.compatibility', policy: 'stacked' }],
+    documentTarget
+  });
+  compatibilityRuntime.mountPortal('portal.compatibility', portalTarget);
+  compatibilityRuntime.mountPortal('portal.compatibility', portalTarget);
+  context.assert(compatibilityRendererFactoryCalls === 1, 'Compatibility Surface graph creates exactly one renderer through the global factory');
+  context.assert(compatibilityRuntime.listDiagnostics().filter((entry) => entry.code === 'rmt.dom.shared-renderer-missing').length === 1, 'Compatibility Surface graph reports a missing shared renderer once per runtime');
+  compatibilityRuntime.dispose();
+
+  globalThis.XTendRmtDomDescriptorRenderer = undefined;
+  const unavailablePortalChildrenBefore = portalChildren.length;
+  const unavailableRuntime = surfaceRuntimeModule.createRmtSurfaceResourceGraphRuntime({
+    portals: [{ id: 'portal.unavailable', policy: 'stacked' }],
+    documentTarget
+  });
+  let unavailableRendererError = null;
+  try {
+    unavailableRuntime.mountPortal('portal.unavailable', portalTarget);
+  } catch (error) {
+    unavailableRendererError = error;
+  }
+  context.assert(unavailableRendererError && unavailableRendererError.code === 'rmt.dom.compatibility-renderer-unavailable', 'Compatibility Surface graph fails closed when the global renderer factory is unavailable');
+  context.assert(portalChildren.length === unavailablePortalChildrenBefore, 'Unavailable compatibility Surface graph performs no direct portal DOM mutation');
+  context.assert(unavailableRuntime.listDiagnostics().filter((entry) => entry.code === 'rmt.dom.shared-renderer-missing').length === 1, 'Unavailable compatibility Surface graph diagnoses missing injection once');
+  globalThis.XTendRmtDomDescriptorRenderer = previousRendererGlobal;
+
+  const strictPortalChildrenBefore = portalChildren.length;
+  const strictRuntime = surfaceRuntimeModule.createRmtSurfaceResourceGraphRuntime({
+    portals: [{ id: 'portal.strict', policy: 'stacked' }],
+    documentTarget,
+    strict: true
+  });
+  let strictRendererError = null;
+  try {
+    strictRuntime.mountPortal('portal.strict', portalTarget);
+  } catch (error) {
+    strictRendererError = error;
+  }
+  context.assert(strictRendererError && strictRendererError.code === 'rmt.dom.shared-renderer-missing', 'Strict Surface graph fails closed without the shared renderer');
+  context.assert(portalChildren.length === strictPortalChildrenBefore, 'Strict Surface graph failure occurs before portal DOM mutation');
 
   const diagnosticsList = runtime.listDiagnostics();
   context.assert(diagnosticsList.some((entry) => entry.code === 'rmt.surface.materialized'), 'diagnostics include materialization');
@@ -462,15 +562,126 @@ async function assertSurfaceManagerBridgeRefusesHostCollisions(context, surfaceR
     }]
   });
 
-  await runtime.openSurface('host.admin.modal');
-  runtime.setBounds('host.admin.modal', { x: 1, y: 2, width: 300, height: 200 });
-  runtime.closeSurface('host.admin.modal');
+  let collisionError = null;
+  try {
+    await runtime.openSurface('host.admin.modal');
+  } catch (error) {
+    collisionError = error;
+  }
 
   const hostRecord = registry.get('host.admin.modal');
+  context.assert(collisionError && collisionError.code === 'rmt.surface.manager_proxy.denied', 'SurfaceManager bridge fails closed before projecting a host collision');
   context.assert(calls.length === 0, 'SurfaceManager bridge refuses all proxied calls for colliding host-owned ids');
+  context.assert(runtime.getSurface('host.admin.modal') === null, 'SurfaceManager refusal leaves the Resource Graph without a competing local projection');
   context.assert(hostRecord.metadata.source === 'host-shell', 'SurfaceManager bridge preserves host-owned registry metadata on id collision');
   context.assert(hostRecord.status === 'open', 'SurfaceManager bridge does not close colliding host-owned surfaces');
   context.assert(runtime.listDiagnostics().some((entry) => entry.code === 'rmt.surface.manager_proxy.denied'), 'SurfaceManager bridge emits denial diagnostics for host collisions');
+}
+
+async function assertProjectionFailureKeepsAuthoritativeLifecycle(context, rootDir, surfaceRuntimeModule) {
+  const controllerModule = await import(`file://${resolveRepoPath('components/xsurfacemanager-controller.js', rootDir)}`);
+  const controllerApi = typeof controllerModule.createSurfaceController === 'function'
+    ? controllerModule
+    : globalThis.XTendSurfaceController;
+  const controller = controllerApi.createSurfaceController({ managerId: 'projection.failure.manager' });
+  const snapshots = [];
+  controller.subscribe((snapshot) => snapshots.push(snapshot));
+  const target = { appendChild() {} };
+  const runtime = surfaceRuntimeModule.createRmtSurfaceResourceGraphRuntime({
+    strict: true,
+    managerId: 'projection.failure.manager',
+    surfaceController: controller,
+    portals: [{ id: 'portal.failure', policy: 'modal' }],
+    overlays: [{ id: 'overlay.failure', kind: 'dialog', portal: 'portal.failure' }],
+    documentTarget: { body: target },
+    domRenderer: {
+      commit() {
+        const error = new Error('synthetic projection failure');
+        error.code = 'test.projection.failed';
+        throw error;
+      },
+      dispose() {}
+    }
+  });
+  let projectionError = null;
+  try {
+    await runtime.openOverlay('overlay.failure', { ownerId: 'owner.failure' });
+  } catch (error) {
+    projectionError = error;
+  }
+  const controllerSnapshot = controller.readSnapshot({ includeDestroyed: true });
+  const controllerOverlay = controllerSnapshot.surfaces.find((entry) => entry.id.startsWith('overlay.failure:'));
+  const projectedOverlay = runtime.listOverlays({ includeClosed: true })[0];
+  context.assert(projectionError && projectionError.code === 'test.projection.failed', 'Overlay projection surfaces the downstream DOM failure');
+  context.assert(controllerOverlay && controllerOverlay.status === 'open', 'Projection failure does not create a compensating second Surface lifecycle state');
+  context.assert(snapshots.length === 1, 'Atomic register/open publishes one authoritative Surface snapshot before projection');
+  context.assert(projectedOverlay && projectedOverlay.projection && projectedOverlay.projection.retryable === true, 'Failed overlay projection remains retryable without becoming lifecycle truth');
+  context.assert(runtime.listDiagnostics().some((entry) => entry.code === 'rmt.surface.projection.retryable'), 'Projection failure emits an explicit retryable diagnostic');
+  runtime.closeOverlay(projectedOverlay.id, { reason: 'test-cleanup' });
+  runtime.dispose();
+  controller.dispose();
+}
+
+function assertUnsafeSurfacePathsFailClosed(context, surfaceRuntimeModule) {
+  let commitCount = 0;
+  const domRenderer = {
+    commit() {
+      commitCount += 1;
+      return {
+        schema: 'xtend.rmt.dom-commit-result.v1',
+        operation: 'create-node',
+        target: null,
+        nodes: [],
+        nodeCount: 0,
+        changed: false,
+        structural: false,
+        diagnostics: [],
+        metadata: {}
+      };
+    }
+  };
+  const unsafeKeyRuntime = surfaceRuntimeModule.createRmtSurfaceResourceGraphRuntime({
+    domRenderer,
+    strict: true,
+    surfaces: [{
+      id: 'surface.unsafe-key',
+      repeat: true,
+      key: '$record.__proto__.polluted',
+      component: 'x-card'
+    }]
+  });
+  let unsafeKeyError = null;
+  try {
+    unsafeKeyRuntime.materialize([{ id: 'record.one' }]);
+  } catch (error) {
+    unsafeKeyError = error;
+  }
+  context.assert(
+    unsafeKeyError && unsafeKeyError.code === 'rmt.surface.path.unsafe' && commitCount === 0,
+    'Surface graph rejects reserved key paths before materialization'
+  );
+
+  const unsafeOwnerRuntime = surfaceRuntimeModule.createRmtSurfaceResourceGraphRuntime({
+    domRenderer,
+    strict: true,
+    surfaces: [{
+      id: 'surface.unsafe-owner',
+      repeat: true,
+      key: '$record.id',
+      owner: JSON.parse('{"constructor":"prototype-pollution-attempt"}'),
+      component: 'x-card'
+    }]
+  });
+  let unsafeOwnerError = null;
+  try {
+    unsafeOwnerRuntime.materialize([{ id: 'record.one' }]);
+  } catch (error) {
+    unsafeOwnerError = error;
+  }
+  context.assert(
+    unsafeOwnerError && unsafeOwnerError.code === 'rmt.surface.path.unsafe' && commitCount === 0,
+    'Surface graph rejects reserved structured template keys before renderer use'
+  );
 }
 
 async function runRmtSurfaceResourceGraphRuntimeSuite(options = {}) {
@@ -543,6 +754,8 @@ async function runRmtSurfaceResourceGraphRuntimeSuite(options = {}) {
   assertFixtureGraph(context, fixture);
   await runRuntimeAssertions(context, fixture, actionRuntimeModule, surfaceRuntimeModule);
   await assertSurfaceManagerBridgeRefusesHostCollisions(context, surfaceRuntimeModule);
+  await assertProjectionFailureKeepsAuthoritativeLifecycle(context, rootDir, surfaceRuntimeModule);
+  assertUnsafeSurfacePathsFailClosed(context, surfaceRuntimeModule);
 
   assertTextIncludesAll(context, runtimeSource, [
     'createRmtSurfaceResourceGraphRuntime',
@@ -560,6 +773,12 @@ async function runRmtSurfaceResourceGraphRuntimeSuite(options = {}) {
   ], 'Surface graph runtime source');
   context.assert(!/components\/|xtend-loader|api\.js/u.test(runtimeSource), 'Surface graph runtime avoids XTend UI imports');
   context.assert(!/innerHTML|outerHTML|insertAdjacentHTML|document\.write/u.test(runtimeSource), 'Surface graph runtime contains no HTML sinks');
+  context.assert(
+    !/(?:\.(?:setAttribute|removeAttribute|toggleAttribute)\s*\(|\.style(?:\.[A-Za-z_$][\w$]*|\[[^\]]+\])\s*=(?!=)|\.style\.setProperty\s*\()/u.test(runtimeSource),
+    'Surface graph runtime contains no direct attribute, property, or style writer'
+  );
+  context.assert(!/documentTarget\.create(?:Element|TextNode)\s*\(/u.test(runtimeSource), 'Surface graph runtime has no manual portal or overlay node fallback');
+  context.assert(!/\.(?:insertBefore|replaceChildren)\s*\(/u.test(runtimeSource), 'Surface graph structural ownership is limited to portal and overlay append/remove');
   assertTextIncludesAll(context, typeSource, [
     'RmtSurfaceResourceGraphRuntime',
     'RmtSurfaceDefinition',

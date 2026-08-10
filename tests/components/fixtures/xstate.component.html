@@ -49,7 +49,7 @@
     const diagnostics = xstate.snapshotDiagnostics();
 
     record('boundary contract exposed', xstate.xtendStateBoundaryContract.schema === 'xtend.state.boundary-probe.v1');
-    record('rmt adapter exposed', adapter.schema === 'xtend.rmt.state-scheduler-compatibility.v1');
+    record('rmt adapter exposed', adapter.schema === 'xtend.rmt.state-scheduler-compatibility.v2');
     record('rmt bridge state readable', adapter.get('rmt.bridge.ready') === true);
     record('snapshot schema exposed', snapshot.schema === 'xtend.state.snapshot.v1');
     record('diagnostics schema exposed', diagnostics.schema === 'xtend.fabric.state-diagnostics.v1');

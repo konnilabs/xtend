@@ -11,7 +11,8 @@ const ts = require('typescript');
 const INVENTORY_PATH = 'tests/schemas/xtend-schema-inventory.json';
 const INVENTORY_SUITE_PATH = 'tests/schemas/schema_inventory_suite.js';
 const SCANNER_PATH = 'scripts/scan_schema_inventory.js';
-const FORMAL_RMT_SCHEMA_ID = 'https://xtendrmt.dev/schemas/rmt.schema.json';
+const FORMAL_RMT_SCHEMA_FAMILY_ID = 'https://xtendrmt.dev/schemas/rmt.schema.json';
+const FORMAL_RMT_SCHEMA_ID = 'https://xtendrmt.dev/schemas/rmt.v2.schema.json';
 const JSON_SCHEMA_DIALECT = 'https://json-schema.org/draft/2020-12/schema';
 const VERSIONED_IDENTIFIER_SOURCE = '[A-Za-z][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9][A-Za-z0-9_-]*)+\\.v[0-9]+(?:\\.[0-9]+)*';
 const VERSIONED_IDENTIFIER_PATTERN = new RegExp(
@@ -1188,6 +1189,15 @@ function descriptionFor(schemaId, kinds, occurrences, canonicalDefinition) {
 }
 
 function parseSchemaVersion(schemaId) {
+  const formalMatch = String(schemaId || '').match(/^https:\/\/xtendrmt\.dev\/schemas\/rmt(?:\.v([0-9]+))?\.schema\.json$/u);
+  if (formalMatch) {
+    return {
+      familyId: FORMAL_RMT_SCHEMA_FAMILY_ID,
+      version: formalMatch[1] ? Number(formalMatch[1]) : 1,
+      explicitlyVersioned: Boolean(formalMatch[1]),
+      majorOnly: true
+    };
+  }
   const match = String(schemaId || '').match(/^(.*)\.v([0-9]+)((?:\.[0-9]+)*)$/u);
   if (!match) return { familyId: String(schemaId || ''), version: 1, explicitlyVersioned: false, majorOnly: true };
   return {
@@ -1488,9 +1498,15 @@ function dynamicConsolidations(entries, duplicateReviews, duplicateAudit) {
 
 function mergeConsolidations(dynamic, existing) {
   const byKey = new Map((dynamic || []).map((item) => [consolidationKey(item), item]));
+  const dynamicIds = new Set((dynamic || []).map((item) => item.consolidationId));
   (existing || []).forEach((item) => {
     const key = consolidationKey(item);
     const generated = byKey.get(key);
+    // Scanner-generated IDs are fingerprint-stable while their member set can
+    // evolve. Once a fresh record with the same ID exists, retaining the old
+    // member set would create a duplicate consolidation and keep retired
+    // schema IDs alive as false compatibility dependencies.
+    if (!generated && dynamicIds.has(item.consolidationId)) return;
     // Curated consolidation history is intentionally retained even after all
     // legacy producers disappear; it documents aliases and rollout state.
     byKey.set(key, { ...(generated || {}), ...item, schemaIds: uniqueSorted(item.schemaIds || generated && generated.schemaIds || []) });
@@ -1629,12 +1645,9 @@ function buildSchemaFamilies(entries, existingFamilies) {
     if (!entryGroups.has(entry.familyId)) entryGroups.set(entry.familyId, []);
     entryGroups.get(entry.familyId).push(entry);
   });
-  // Keep retired families that now consist only of tombstones.
-  existingById.forEach((family, familyId) => {
-    if (!entryGroups.has(familyId) && Array.isArray(family.tombstones) && family.tombstones.length > 0) {
-      entryGroups.set(familyId, []);
-    }
-  });
+  // A retirement record is emitted only alongside an observed successor in
+  // the same family. This keeps removed one-off identifiers from becoming
+  // empty compatibility families while still reserving every migrated major.
   return Array.from(entryGroups.entries()).map(([familyId, familyEntries]) => {
     const previous = existingById.get(familyId) || {};
     const previousVersions = new Map((previous.versions || []).map((version) => [version.schemaId, version]));
@@ -1649,13 +1662,29 @@ function buildSchemaFamilies(entries, existingFamilies) {
     const current = active.slice().sort((left, right) => right.version - left.version || compareStrings(left.schemaId, right.schemaId))[0]
       || versions.slice().sort((left, right) => right.version - left.version || compareStrings(left.schemaId, right.schemaId))[0]
       || null;
+    const observedVersionIds = new Set(versions.map((version) => version.schemaId));
+    const tombstonesById = new Map((Array.isArray(previous.tombstones) ? previous.tombstones : [])
+      .map((tombstone) => [tombstone.schemaId, tombstone]));
+    (Array.isArray(previous.versions) ? previous.versions : []).forEach((version) => {
+      if (!version || typeof version.schemaId !== 'string' || observedVersionIds.has(version.schemaId)) return;
+      if (!tombstonesById.has(version.schemaId)) {
+        tombstonesById.set(version.schemaId, {
+          schemaId: version.schemaId,
+          version: version.version,
+          rationale: current
+            ? `Retired after ${current.schemaId} became the active major schema; the identifier remains reserved.`
+            : 'Retired after its last producer was removed; the identifier remains reserved.'
+        });
+      }
+    });
     return {
       ...previous,
       familyId,
-      currentVersion: current ? current.version : previous.currentVersion || null,
-      activeSchemaId: current ? current.schemaId : previous.activeSchemaId || null,
+      currentVersion: current ? current.version : null,
+      activeSchemaId: current ? current.schemaId : null,
       versions,
-      tombstones: Array.isArray(previous.tombstones) ? previous.tombstones.slice().sort((left, right) => compareStrings(left.schemaId, right.schemaId)) : []
+      tombstones: Array.from(tombstonesById.values())
+        .sort((left, right) => left.version - right.version || compareStrings(left.schemaId, right.schemaId))
     };
   }).sort((left, right) => compareStrings(left.familyId, right.familyId));
 }
@@ -1700,6 +1729,14 @@ function createInventoryDocument(scan, existingInventory = null) {
 
 function acceptCurrentBaseline(inventory) {
   const entries = Array.isArray(inventory && inventory.entries) ? inventory.entries : [];
+  const releasedDrifts = entries.filter((entry) => {
+    if (!entry || entry.aliasOf) return false;
+    return entry.releasedFingerprintSetHash !== authoritativeFingerprintSetHash(entry.shapeFingerprints);
+  });
+  if (releasedDrifts.length > 0) {
+    const ids = releasedDrifts.map((entry) => entry.schemaId).sort(compareStrings);
+    throw new Error(`Cannot accept a governance baseline with released fingerprint drift. Publish a new major schema ID first: ${ids.join(', ')}`);
+  }
   entries.forEach((entry) => {
     // Compatibility aliases inherit the canonical released fingerprint set.
     // Recomputing it from alias-only references would erase that binding.
@@ -2253,6 +2290,7 @@ function main() {
 if (require.main === module) main();
 
 module.exports = {
+  FORMAL_RMT_SCHEMA_FAMILY_ID,
   FORMAL_RMT_SCHEMA_ID,
   INVENTORY_PATH,
   auditDuplicateCandidates,

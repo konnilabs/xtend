@@ -38,16 +38,30 @@ Actions sind deklarative Übergänge. Sie beschreiben, was geändert oder veröf
 Eine Action darf die öffentlichen Methoden einer geeigneten, statisch bekannten Surface über genau diese Formen aufrufen:
 
 ```rmt
-action editor.focus {
-  effect focus selector maraca.testbench.editor
-}
+template reference.componentCommands {
+  state editor.command type object preserve {
+    initial {
+      last "idle"
+    }
+  }
 
-action editor.reset {
-  effect reset selector maraca.testbench.editor
-}
+  action editor.focus {
+    effect focus selector maraca.testbench.editor
+    reduce state.editor.command.last = "focus"
+  }
 
-action editor.capture {
-  effect snapshot selector maraca.testbench.editor
+  action editor.reset {
+    effect reset selector maraca.testbench.editor
+    reduce state.editor.command.last = "reset"
+  }
+
+  action editor.capture {
+    effect snapshot selector maraca.testbench.editor
+    reduce state.editor.command.last = "snapshot"
+  }
+
+  surface maraca.testbench.editor kind field component x-textarea {
+  }
 }
 ```
 

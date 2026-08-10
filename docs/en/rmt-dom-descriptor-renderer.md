@@ -8,7 +8,26 @@ The runtime contract is `xtend.epic18.rmt-dom-descriptor-renderer.v1`. Its imple
 
 A descriptor says what kind of node to create. It can describe an element, text, a registered XTend component, a conditional branch, a repeated record or a slot. The renderer resolves that structure against explicit model, selector, template and component registries. It then uses `createElement`, `createTextNode`, `createDocumentFragment` and `replaceChildren` to materialize the result.
 
-The root remains host-owned. Calling `render()` replaces only the children of the root supplied by the host and marks that root with the renderer schema. `renderKeyed()` reuses keyed children where possible, while `patchElement()` updates an existing owned element. None of these operations gives RMT ownership of the whole document.
+The root remains host-owned. `commit()` is the canonical write API. Its
+`create-node`, `replace-children`, `reconcile-children`, `reconcile-element`
+and `merge-element` operations make the intended mutation semantics explicit.
+Full reconcile removes renderer-owned state which disappeared from the next
+descriptor; merge keeps fields which were not supplied. The result schema is
+`xtend.rmt.dom-commit-result.v1` and reports changed nodes, structural work and
+diagnostics.
+
+The compatibility methods remain synchronous. `render()`, `renderNode()` and
+`renderKeyed()` delegate to the corresponding commit operations.
+`patchElement()` remains a merge operation during the 0.6/0.7 migration and
+emits `rmt.dom.patch-element.legacy-merge` once per renderer. New framework
+code should call `commit()` directly.
+
+Ownership is resolved before writing. Structure, content and base values
+belong to the descriptor renderer; compiled events, transition visibility and
+validation state remain reserved for their runtimes. Strict ownership
+collisions fail closed. Compatibility mode keeps the reserved owner and
+records a diagnostic. `dispose()` releases renderer-owned event, ref and
+component-binding handles and can optionally clear owned root DOM.
 
 ## Minimal example
 
@@ -40,7 +59,7 @@ Trusted rich content is a separate path. A descriptor of that kind is accepted o
 
 ## Failure behavior
 
-An invalid root, blocked tag, unsafe URL, unknown component or forbidden property throws with an `xtend.epic18.rmt-dom-renderer-diagnostic.v1` diagnostic. `listDiagnostics()` returns diagnostics observed by the renderer. A host can additionally provide `diagnosticsHub.publish()` to forward them without giving the renderer canonical application state.
+An invalid root, blocked tag, unsafe URL, unknown component or forbidden property throws with an `xtend.epic18.rmt-dom-renderer-diagnostic.v2` diagnostic. `listDiagnostics()` returns diagnostics observed by the renderer. A host can additionally provide `diagnosticsHub.publish()` to forward them without giving the renderer canonical application state.
 
 Use `createNoManualHtmlGate()` to scan source files for forbidden sinks before browser execution. The gate reports the file and sink; it does not rewrite source automatically.
 
@@ -51,6 +70,8 @@ node scripts/run_xtend_tests.js rmt-dom-descriptor-renderer rmt-renderer-dom-des
 ```
 
 The accepted result proves node materialization, event cleanup, keyed updates, source diagnostics and refusal of manual HTML sinks. A failure should be fixed in the descriptor or host policy, not hidden by bypassing the renderer.
+
+The renderer is the completed prerequisite for `WP-E18-06`.
 
 ## Related pages
 

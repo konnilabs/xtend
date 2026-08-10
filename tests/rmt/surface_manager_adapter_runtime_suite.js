@@ -110,7 +110,9 @@ function evaluateXtendRmtArtifact(context, relativePath, rootDir) {
   const source = readText(relativePath, rootDir);
   const sandbox = createSandbox();
   const executableSource = relativePath.endsWith('.esm.js')
-    ? source.replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
+    ? source
+      .replace(/^import\s+\{[^;]*\}\s+from\s+['"][^'"]+['"];\s*$/gmu, '')
+      .replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
     : source;
   try {
     vm.runInNewContext(executableSource, sandbox, { filename: relativePath });
@@ -290,8 +292,8 @@ function runSurfaceManagerAdapterRuntimeSuite(options = {}) {
     context.assert(mapping.surfaces[0].scheduleRecord && mapping.surfaces[0].scheduleRecord.id === 'surface.user-blocking.open', 'Surface mapping resolves schedule record');
     context.assert(!Object.prototype.hasOwnProperty.call(registry, 'surfaceRegistry'), 'Runtime registries still do not create a second surface registry');
     context.assert(registerResult.ok === true && registerResult.metadata.registeredCount === 6, 'Surface adapter registers mapped surfaces on x-surface-manager target');
-    context.assert(manager.getAttribute('manager-id') === 'workbench.manager', 'Surface adapter aligns manager-id from native manager reference');
-    context.assert(manager.registered.every((record) => record.manager === 'workbench.manager'), 'Registered controller records target the manager runtime id');
+    context.assert(manager.getAttribute('manager-id') === null, 'Surface adapter does not mutate manager-id on the host-owned manager element');
+    context.assert(manager.registered.every((record) => record.manager === 'workbench.manager'), 'Registered controller records use the native manager reference as their fallback runtime id');
     context.assert(manager.registered[0].contentRef === 'workbench.inspector', 'Registered controller record keeps RMT component as contentRef');
     context.assert(openResult.ok === true && manager.operations.some((operation) => operation.operation === 'openSurface' && operation.id === 'surface.editor'), 'Surface adapter opens a mapped surface');
     context.assert(closeResult.ok === true && manager.operations.some((operation) => operation.operation === 'closeSurface' && operation.reason === 'test-close'), 'Surface adapter closes a mapped surface');

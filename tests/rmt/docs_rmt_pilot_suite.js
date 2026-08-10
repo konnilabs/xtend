@@ -27,7 +27,10 @@ const SEARCH_TEMPLATE_ID = 'docs.header.search';
 function createRmtFormatFromBundle(context, rootDir) {
   const artifactPath = 'xtendrmt/rmt-core.esm.js';
   const source = readText(artifactPath, rootDir);
-  const cjsCompatibleSource = source.replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '');
+  const cjsCompatibleSource = source
+    .replace(/^\s*import\s+[\s\S]*?\s+from\s+['"][^'"]+['"];\s*$/gmu, '')
+    .replace(/^\s*import\s+['"][^'"]+['"];\s*$/gmu, '')
+    .replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '');
   function CustomEvent(type, init = {}) {
     this.type = type;
     this.detail = init.detail || null;
@@ -302,7 +305,10 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(docsShellRuntime.includes("'--body-bg': '#050506'"), 'Docs AppRuntime dark theme uses a black-weighted body background');
   context.assert(!indexPhp.includes('data-manifest="../components/manifest.json"'), 'Docs app avoids path traversal-like manifest URL');
   context.assert(indexPhp.includes(DOCS_RMT_PAGE_SCHEMA), 'Docs app emits per-page RMT schema');
-  context.assert(indexPhp.includes("renderMode: 'shell-first'"), 'Docs app exposes shell-first render mode');
+  context.assert(
+    indexPhp.includes("renderMode: <?= docsJsonEncodeForHtml($initialDocumentSsr ? 'document-first' : 'shell-first'); ?>"),
+    'Docs app exposes the dynamic document-first or shell-first render mode'
+  );
   context.assert(indexPhp.includes("shellTemplate: 'docs.app.shell'"), 'Docs app exposes shell template metadata');
   context.assert(indexPhp.includes('$Parsedown->setSafeMode(true);'), 'Docs app keeps Parsedown SafeMode enabled');
   context.assert(parsedownAdapter.includes('isHorizontalRule'), 'Docs Parsedown adapter recognizes Markdown horizontal rules');

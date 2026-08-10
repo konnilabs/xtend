@@ -45,7 +45,7 @@ export const xSurfaceWindowContract = Object.freeze({
   schema: 'xtend.component.contract.v2',
   tag: XSURFACE_WINDOW_TAG,
   surfaceContract: 'xtend.surface.record.v1',
-  controller: 'xtend.surface.controller.v1',
+  controller: 'xtend.surface.controller.v2',
   runtime: 'components/xsurfacewindow.js',
   declaration: 'components/xsurfacewindow.d.ts',
   attributes: ['surface-id', 'label', 'open', 'active', 'minimized', 'maximized', 'resizable', 'draggable', 'modal', 'bounds-mode', 'bounds-scope', 'initial-x', 'initial-y', 'initial-width', 'initial-height', 'initial-min-width', 'initial-min-height', 'initial-max-width', 'initial-max-height'],

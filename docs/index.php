@@ -4503,7 +4503,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
         runtime: 'docs/utils/docs-shell-runtime.mjs',
         ownership: 'rmt-app-runtime',
         telemetrySnapshot: 'xtend.fabric.telemetry-snapshot.v1',
-        bridge: 'xtend.rmt.app-runtime.v1'
+        bridge: 'xtend.rmt.app-runtime.v2'
       },
       trustBoundary: 'xtend.security.sanitizing-boundary.v1',
       trustedDomProofSchema: 'xtend.epic13.trusted-dom-boundary.v1',

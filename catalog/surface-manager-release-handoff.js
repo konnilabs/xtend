@@ -7,7 +7,7 @@ const SURFACE_MANAGER_RELEASE_HANDOFF_REPORT_SCHEMA = 'xtend.surface.release-han
 const SURFACE_MANAGER_COMPONENT_LAB_FIXTURE_SCHEMA = 'xtend.surface.component-lab-fixture.v1';
 const SURFACE_MANAGER_SCHEMA = 'xtend.surface.manager.v1';
 const SURFACE_RECORD_SCHEMA = 'xtend.surface.record.v1';
-const SURFACE_CONTROLLER_SCHEMA = 'xtend.surface.controller.v1';
+const SURFACE_CONTROLLER_SCHEMA = 'xtend.surface.controller.v2';
 const SURFACE_SNAPSHOT_SCHEMA = 'xtend.surface.snapshot.v1';
 const SURFACE_NATIVE_RMT_SCHEMA = 'xtend.rmt.surfaces-domain.v1';
 const SURFACE_ADAPTER_SCHEMA = 'xtend.surface.adapter.v1';
@@ -93,7 +93,7 @@ const REQUIRED_ARTIFACTS = Object.freeze([
 
 const REQUIRED_PREVIOUS_CONTRACTS = Object.freeze([
   'xtend.rmt.surface-authoring.v1',
-  'xtend.surface.controller.v1',
+  'xtend.surface.controller.v2',
   'xtend.surface.window-runtime.v1',
   'xtend.surface.side-panel-runtime.v1',
   'xtend.surface.workbench-fixture.v1',

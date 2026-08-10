@@ -5,7 +5,7 @@
     "id": "epic18.app-platform-tooling.fixture",
     "metadata": {
       "contractVersion": "xtend.epic18.rmt-app-platform-tooling.v1",
-      "surfaceGraphContract": "xtend.epic18.rmt-surface-resource-graph-runtime.v1",
+      "surfaceGraphContract": "xtend.epic18.rmt-surface-resource-graph-runtime.v2",
       "workpackage": "WP-E18-11",
       "manualHtmlRendererAllowed": false,
       "productSurfaceTaxonomyAllowed": false,

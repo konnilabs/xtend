@@ -1,5 +1,5 @@
 export const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-event-routing-diagnostic.v1';
-export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA: 'xtend.epic18.rmt-event-routing-runtime.v1';
+export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA: 'xtend.epic18.rmt-event-routing-runtime.v2';
 export const RMT_COMMAND_SCHEMA: 'xtend.rmt.command.v1';
 
 export type RmtEventRoutingKind = 'dom' | 'custom' | 'keyboard' | 'form' | 'surface' | 'drop' | string;
@@ -34,6 +34,7 @@ export interface RmtPayloadContract {
 
 export interface RmtEventBindingDefinition {
   id: string;
+  bindingId?: string;
   kind?: RmtEventRoutingKind;
   event?: string;
   eventName?: string;
@@ -45,12 +46,23 @@ export interface RmtEventBindingDefinition {
   componentId?: string;
   action?: string;
   actionId?: string;
+  command?: string;
+  commandName?: string;
   actionMode?: RmtEventActionMode;
   operation?: RmtEventActionMode;
   mode?: RmtEventActionMode;
   owner?: string;
   ownerId?: string;
   scope?: string;
+  bindingScope?: string;
+  bindingSource?: 'compiled' | 'commit' | string;
+  commandTarget?: unknown;
+  lane?: string;
+  options?: {
+    capture?: boolean;
+    passive?: boolean;
+    once?: boolean;
+  };
   payload?: unknown;
   payloadAdapter?: string | Record<string, unknown>;
   adapter?: string | Record<string, unknown>;
@@ -121,11 +133,63 @@ export interface RmtEventDetachReport {
   detachedCount: number;
 }
 
+export interface RmtEventReconcileReport {
+  schema: 'xtend.epic18.rmt-event-reconcile-report.v1';
+  changed: boolean;
+  disposed: boolean;
+  bindingCount: number;
+  attachedCount: number;
+  detachedCount: number;
+  retainedCount: number;
+  missingCount: number;
+  attached: Array<{ bindingId: string; owner: string; event: string; component: string }>;
+  detached: Array<{ bindingId: string; owner: string; event: string; component: string }>;
+  retained: Array<{ bindingId: string; owner: string; event: string; component: string }>;
+  missing: Array<{ bindingId: string; owner: string; event: string; component: string }>;
+  commit: {
+    schema: string;
+    operation: string;
+    changed: boolean;
+    structural: boolean;
+    nodeCount: number | null;
+    bindingCount: number;
+    bindingScopeId: string;
+  } | null;
+}
+
+export interface RmtEventCommitBindingScope {
+  id: string;
+  target?: Node | null;
+  roots?: readonly Node[];
+  complete?: boolean;
+  bindingIds?: readonly string[];
+  removedBindings?: ReadonlyArray<{ bindingId: string; target?: EventTarget }>;
+}
+
+export interface RmtEventDomCommitResult {
+  schema?: string;
+  operation?: string;
+  changed?: boolean;
+  structural?: boolean;
+  nodeCount?: number;
+  bindings: readonly RmtEventBindingDefinition[];
+  bindingScope: RmtEventCommitBindingScope;
+}
+
+export interface RmtEventDisposeReport {
+  schema: 'xtend.epic18.rmt-event-dispose-report.v1';
+  disposed: true;
+  alreadyDisposed: boolean;
+  detachedCount: number;
+}
+
 export interface RmtEventRoutingRuntime {
   schema: typeof RMT_EVENT_ROUTING_RUNTIME_SCHEMA;
   attach(root?: unknown): RmtEventAttachReport;
+  reconcile(root?: unknown, commitResult?: RmtEventDomCommitResult | null): RmtEventReconcileReport;
   detachOwner(ownerId?: string): RmtEventDetachReport;
   detachAll(): RmtEventDetachReport;
+  dispose(): RmtEventDisposeReport;
   routeEvent(bindingId: string, event?: unknown, metadata?: Record<string, unknown>): Promise<RmtEventRouteResult>;
   createPayload(binding: RmtEventBindingDefinition, event?: unknown, metadata?: Record<string, unknown>): unknown;
   listBindings(): RmtEventBindingDefinition[];
@@ -143,12 +207,35 @@ export interface RmtEventRoutingRuntimeOptions {
     dispatchCommand?(command: Record<string, unknown>, metadata?: Record<string, unknown>): Promise<unknown> | unknown;
     cancelAction?(actionId: string): unknown;
   };
+  commandRuntime?: RmtEventRoutingRuntimeOptions['actionRuntime'];
+  commandBus?: RmtEventRoutingRuntimeOptions['actionRuntime'];
   root?: unknown;
   targets?: Record<string, unknown>;
   targetResolver?: (binding: RmtEventBindingDefinition, root?: unknown) => unknown;
   confirmAdapter?: { confirm(message: unknown, context?: Record<string, unknown>): boolean };
+  domRenderer?: {
+    commit(request: {
+      operation: 'merge-element';
+      target: Element;
+      descriptor: unknown;
+      context?: Record<string, unknown>;
+      ownership?: Record<string, unknown>;
+      metadata?: Record<string, unknown>;
+    }): {
+      schema?: string;
+      operation?: string;
+      changed?: boolean;
+    };
+    dispose?(target?: Node, options?: { clearOwnedDom?: boolean }): void;
+  };
+  renderer?: RmtEventRoutingRuntimeOptions['domRenderer'];
+  strict?: boolean;
+  strictMaraca?: boolean;
+  documentTarget?: Document;
+  createDomRenderer?: (options: Record<string, unknown>) => NonNullable<RmtEventRoutingRuntimeOptions['domRenderer']>;
   diagnosticsHub?: { publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown };
   diagnosticChannel?: string;
+  publishDiagnostic?: (diagnostic: RmtEventRouteDiagnostic) => void;
 }
 
 export function createRmtEventRoutingRuntime(options?: RmtEventRoutingRuntimeOptions): RmtEventRoutingRuntime;

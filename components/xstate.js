@@ -8,7 +8,7 @@ const XSTATE_BOUNDARY_SCHEMA = 'xtend.state.boundary-probe.v1';
 const XSTATE_SNAPSHOT_SCHEMA = 'xtend.state.snapshot.v1';
 const XSTATE_LIFECYCLE_EVENT_SCHEMA = 'xtend.state.lifecycle-event.v1';
 const XSTATE_DIAGNOSTICS_SCHEMA = 'xtend.fabric.state-diagnostics.v1';
-const XSTATE_RMT_COMPATIBILITY_SCHEMA = 'xtend.rmt.state-scheduler-compatibility.v1';
+const XSTATE_RMT_COMPATIBILITY_SCHEMA = 'xtend.rmt.state-scheduler-compatibility.v2';
 const XSTATE_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
 
 function cloneData(data) {
@@ -459,6 +459,7 @@ const xstateObj = {
       kernelBoundary: XSTATE_KERNEL_BOUNDARY,
       get: this.get.bind(this),
       set: this.set.bind(this),
+      batchUpdate: this.batchUpdate.bind(this),
       remove: this.remove.bind(this),
       clear: this.clear.bind(this),
       subscribe: this.subscribe.bind(this),

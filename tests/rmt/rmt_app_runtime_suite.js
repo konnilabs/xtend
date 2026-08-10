@@ -20,10 +20,16 @@ const {
 } = require('../../xtend-builder/templates/registry');
 
 const RMT_APP_RUNTIME_MODULE = 'xtendrmt/rmt-app-runtime.js';
+const RMT_APP_RUNTIME_COMPAT_MODULE = 'xtendrmt/rmt-app-runtime.compat.js';
 const RMT_APP_RUNTIME_TYPES = 'xtendrmt/rmt-app-runtime.d.ts';
+const RMT_APP_RUNTIME_COMPAT_TYPES = 'xtendrmt/rmt-app-runtime.compat.d.ts';
+const RMT_APP_VIEW_PROJECTOR_MODULE = 'xtendrmt/rmt-app-view-projector.js';
+const RMT_APP_VIEW_PROJECTOR_TYPES = 'xtendrmt/rmt-app-view-projector.d.ts';
+const RMT_APP_HOST_ADAPTER_MODULE = 'xtendrmt/rmt-app-host-adapter.js';
+const RMT_APP_HOST_ADAPTER_TYPES = 'xtendrmt/rmt-app-host-adapter.d.ts';
 const RMT_APP_RUNTIME_FIXTURE = 'tests/rmt-language/fixtures/vnext-app-runtime-chat.rmt';
 const COMPONENT_COMMAND_HELPER = 'components/rmt-command.js';
-const RMT_APP_RUNTIME_SCHEMA = 'xtend.rmt.app-runtime.v1';
+const RMT_APP_RUNTIME_SCHEMA = 'xtend.rmt.app-runtime.v2';
 const RMT_COMMAND_SCHEMA = 'xtend.rmt.command.v1';
 const RMT_STREAM_PATCH_SCHEMA = 'xtend.rmt.stream-patch.v1';
 const RMT_VIEW_TEMPLATE_SCHEMA = 'xtend.rmt.view-template.v1';
@@ -38,7 +44,7 @@ let kernelControllerModulePromise = null;
 let componentCommandHelperPromise = null;
 
 function loadAppRuntimeModule(rootDir) {
-  if (!appRuntimeModulePromise) appRuntimeModulePromise = import(`file://${resolveRepoPath(RMT_APP_RUNTIME_MODULE, rootDir)}`);
+  if (!appRuntimeModulePromise) appRuntimeModulePromise = import(`file://${resolveRepoPath(RMT_APP_RUNTIME_COMPAT_MODULE, rootDir)}`);
   return appRuntimeModulePromise;
 }
 
@@ -253,6 +259,53 @@ async function runSourceToSeaAssertions(context, rootDir) {
     loadComponentCommandHelper(rootDir)
   ]);
 
+  const hostPortCalls = [];
+  const deterministicHostPort = Object.freeze({
+    schema: 'xtend.rmt.app-host-port.test.v1',
+    now: () => 23,
+    nowIso: () => '2026-08-10T10:00:00.000Z',
+    createId(prefix) {
+      hostPortCalls.push(['id', prefix]);
+      return `${prefix}:host`;
+    },
+    schedule(task, metadata) {
+      hostPortCalls.push(['schedule', metadata]);
+      task();
+      return null;
+    },
+    createSearchWorker() {
+      hostPortCalls.push(['worker']);
+      return {
+        available: false,
+        dispatchSearchEnvelope: () => Promise.reject(new Error('test worker unavailable')),
+        terminate() {},
+        snapshot: () => ({ available: false })
+      };
+    }
+  });
+  const deterministicEnvelope = appRuntimeModule.createRmtCommandEnvelope({ command: 'test.host-port' }, {
+    hostPort: deterministicHostPort
+  });
+  context.assert(
+    deterministicEnvelope.id === 'rmt.command:host'
+      && deterministicEnvelope.correlationId === 'rmt.correlation:host'
+      && deterministicEnvelope.timestamp === '2026-08-10T10:00:00.000Z',
+    'App Controller obtains command ids and timestamps exclusively through the injected Host Port'
+  );
+  const deterministicRuntime = appRuntimeModule.createRmtAppRuntime({ hostPort: deterministicHostPort });
+  const runtimeEnvelope = deterministicRuntime.createCommandEnvelope({ command: 'test.runtime-host-port' });
+  context.assert(runtimeEnvelope.id === 'rmt.command:host' && runtimeEnvelope.timestamp === '2026-08-10T10:00:00.000Z',
+    'App Runtime envelope facade remains bound to its injected Host Port');
+  const deterministicSearch = appRuntimeModule.createRmtSearchRuntime({
+    hostPort: deterministicHostPort,
+    searchSources: [{ id: 'host.search', resource: 'host.resource' }],
+    resources: { 'host.resource': [{ id: 'host', slug: 'host', title: 'Host' }] }
+  });
+  await deterministicSearch.recommend('host.search', 'host');
+  context.assert(hostPortCalls.some(([kind]) => kind === 'worker') && hostPortCalls.filter(([kind]) => kind === 'schedule').length === 2,
+    'Search Controller delegates Worker creation and both ranking yield phases to the Host Port');
+  deterministicSearch.dispose();
+
   const sourceText = readText(RMT_APP_RUNTIME_FIXTURE, rootDir);
   const compileResult = compileRmtVNextSource({
     text: sourceText,
@@ -446,9 +499,19 @@ async function runSourceToSeaAssertions(context, rootDir) {
       strict: true,
       summary: compileResult.orchestrationArtifacts.kernel.summary || {}
     },
-    strict: true
+    strict: true,
+    hostPort: {
+      schema: 'xtend.rmt.kernel-orchestration-host-port.test.v1',
+      now: () => 1234
+    }
   });
   kernelController.boot();
+  const hostTimedPressure = kernelController.recordAppRuntimeBackpressure({
+    streamId: 'stream.host-port',
+    score: 1,
+    pressureLevel: 'low'
+  });
+  context.assert(hostTimedPressure.timestamp === new Date(1234).toISOString(), 'Kernel Orchestration Controller obtains timestamps through its typed Host port');
   const scheduledActionRuntime = {
     runAction(actionId, payload, metadata = {}) {
       return kernelController.scheduleWork('action', () => ({
@@ -495,6 +558,85 @@ async function runSourceToSeaAssertions(context, rootDir) {
   context.assert(streamState.stream.text === 'tok', 'stream delta patch appends generated text');
   context.assert(streamState.stream.tools.length === 1 && streamState.stream.tools[0].text === 'result', 'tool-call and tool-result patches upsert tool records');
   context.assert(appRuntime.listStreamPatches().every((entry) => entry.schema === RMT_STREAM_PATCH_SCHEMA), 'stream patch history uses canonical schema');
+  const managedModelState = { 'stream.text': 'A' };
+  const managedModelReader = {
+    snapshot() {
+      return { schema: 'xtend.epic18.rmt-state-selector-snapshot.v1', states: { ...managedModelState } };
+    }
+  };
+  const managedAppRuntime = appRuntimeModule.createRmtAppRuntime({
+    managedModel: true,
+    modelReader: managedModelReader,
+    initialState: { stream: { text: 'must-not-become-authority' } }
+  });
+  let missingManagedReaderError = null;
+  try {
+    appRuntimeModule.createRmtAppRuntime({ managedController: true });
+  } catch (error) {
+    missingManagedReaderError = error;
+  }
+  context.assert(missingManagedReaderError && missingManagedReaderError.code === 'rmt.app.model-reader-required', 'managed controller composition fails closed without its read-only Model port');
+  const managedSnapshotBefore = managedModelReader.snapshot();
+  const managedPlan = managedAppRuntime.planStreamPatch({
+    id: 'managed-stream-delta',
+    type: 'delta',
+    streamId: 'managed-stream',
+    target: 'stream.text',
+    delta: 'B',
+    correlationId: 'managed-correlation',
+    timestamp: '2026-08-02T00:00:00.000Z'
+  }, managedSnapshotBefore);
+  context.assert(managedPlan.schema === 'xtend.rmt.stream-patch-plan.v1'
+    && managedPlan.modelOperations.length === 1
+    && managedPlan.modelOperations[0].operation === 'set'
+    && managedPlan.modelOperations[0].state === 'stream.text'
+    && managedPlan.modelOperations[0].value === 'AB'
+    && Object.isFrozen(managedPlan)
+    && Object.isFrozen(managedPlan.modelOperations),
+  'managed stream evaluation returns an immutable typed Model-operation plan');
+  context.assert(JSON.stringify(managedModelReader.snapshot()) === JSON.stringify(managedSnapshotBefore)
+    && managedAppRuntime.listStreamPatches().length === 0,
+  'stream planning is pure and does not mutate Model or telemetry');
+  const rejectedManagedPlan = managedAppRuntime.planStreamPatch({
+    type: 'complete',
+    target: 'stream.text.__proto__.polluted',
+    value: 'unsafe'
+  }, managedSnapshotBefore);
+  context.assert(rejectedManagedPlan.status === 'rejected'
+    && rejectedManagedPlan.modelOperations.length === 0
+    && rejectedManagedPlan.diagnostics.some((entry) => entry.code === 'rmt.stream.model-target-invalid'),
+  'managed stream planning rejects unsafe Model paths before producing an operation');
+  const terminalManagedPlan = appRuntimeModule.createRmtStreamPatchPlan(managedSnapshotBefore, {
+    type: 'complete',
+    target: 'stream.text',
+    value: 'Done',
+    correlationId: 'managed-terminal'
+  }, {
+    lifecycleActions: { complete: 'stream.completed' }
+  });
+  context.assert(terminalManagedPlan.postCommitEffects.length === 1
+    && terminalManagedPlan.postCommitEffects[0].type === 'dispatch-command'
+    && terminalManagedPlan.postCommitEffects[0].command === 'stream.completed',
+  'terminal stream planning returns a declarative post-commit command instead of executing an Action');
+  managedModelState['stream.text'] = managedPlan.modelOperations[0].value;
+  const managedCommit = managedAppRuntime.commitStreamPatchPlan(managedPlan, { correlationId: 'managed-correlation' });
+  context.assert(managedCommit.status === 'applied'
+    && Object.isFrozen(managedCommit)
+    && managedAppRuntime.listStreamPatches().length === 1
+    && managedAppRuntime.getState()['stream.text'] === 'AB'
+    && typeof managedAppRuntime.getState().stream === 'undefined',
+  'managed App Runtime records committed stream telemetry while reading only canonical Model state');
+  let managedMutationBlocked = 0;
+  for (const mutate of [
+    () => managedAppRuntime.applyStreamPatch({ type: 'delta', target: 'stream.text', delta: 'C' }),
+    () => managedAppRuntime.applyReducer({ op: 'set', path: 'stream.text', value: 'C' }),
+    () => managedAppRuntime.setState({ stream: { text: 'C' } })
+  ]) {
+    try { mutate(); } catch (error) {
+      if (error && error.code === 'rmt.app.managed-model-mutation-forbidden') managedMutationBlocked += 1;
+    }
+  }
+  context.assert(managedMutationBlocked === 3 && managedModelState['stream.text'] === 'AB', 'managed App Runtime blocks every legacy appState mutation path fail-closed');
   delete Object.prototype.xtendPollutedStream;
   delete Object.prototype.xtendPollutedReducer;
   delete Object.prototype.xtendPollutedRuntime;
@@ -683,6 +825,35 @@ async function runSourceToSeaAssertions(context, rootDir) {
     segments: shellState.segments
   });
   context.assert(viewTemplate.schema === RMT_VIEW_TEMPLATE_SCHEMA && viewTemplate.children.length === 3, 'view template API lowers rich text segments to descriptors');
+  const presentationModel = appRuntimeModule.createRmtAppPresentationModel({
+    schema: RMT_VIEW_TEMPLATE_SCHEMA,
+    type: 'rich-text',
+    segments: shellState.segments
+  }, { shell: shellState });
+  context.assert(
+    presentationModel.schema === 'xtend.rmt.app-presentation-model.v1'
+      && presentationModel.template.type === 'rich-text'
+      && Object.isFrozen(presentationModel)
+      && Object.isFrozen(presentationModel.template),
+    'Application Controller emits an immutable abstract presentation model'
+  );
+
+  const projectedModels = [];
+  const injectedViewRuntime = appRuntimeModule.createRmtAppRuntime({
+    presentationViewPort: {
+      project(model) {
+        projectedModels.push(model);
+        return Object.freeze({ schema: RMT_VIEW_TEMPLATE_SCHEMA, type: 'fragment', children: [] });
+      }
+    }
+  });
+  const injectedProjection = injectedViewRuntime.projectViewTemplate({ type: 'rich-text', segments: [] }, {});
+  context.assert(
+    projectedModels.length === 1
+      && projectedModels[0].schema === 'xtend.rmt.app-presentation-model.v1'
+      && injectedProjection.schema === RMT_VIEW_TEMPLATE_SCHEMA,
+    'Application Controller delegates concrete View projection through the injected typed port'
+  );
 
   const choiceMenuTemplate = appRuntimeModule.createRmtViewTemplateDescriptor({
     schema: RMT_VIEW_TEMPLATE_SCHEMA,
@@ -773,20 +944,64 @@ async function runRmtAppRuntimeSuite(options = {}) {
     label: 'RMT full app runtime'
   });
   assertFileExists(context, RMT_APP_RUNTIME_MODULE, rootDir, 'app runtime module exists');
+  assertFileExists(context, RMT_APP_RUNTIME_COMPAT_MODULE, rootDir, 'app runtime 0.6 compatibility composition exists');
   assertFileExists(context, RMT_APP_RUNTIME_TYPES, rootDir, 'app runtime type declarations exist');
+  assertFileExists(context, RMT_APP_RUNTIME_COMPAT_TYPES, rootDir, 'app runtime compatibility type declarations exist');
+  assertFileExists(context, RMT_APP_VIEW_PROJECTOR_MODULE, rootDir, 'app presentation View Projector exists');
+  assertFileExists(context, RMT_APP_VIEW_PROJECTOR_TYPES, rootDir, 'app presentation View Port types exist');
+  assertFileExists(context, RMT_APP_HOST_ADAPTER_MODULE, rootDir, 'app Host Adapter exists');
+  assertFileExists(context, RMT_APP_HOST_ADAPTER_TYPES, rootDir, 'app Host Port types exist');
   assertFileExists(context, RMT_APP_RUNTIME_FIXTURE, rootDir, 'app runtime source-to-sea fixture exists');
   assertFileExists(context, COMPONENT_COMMAND_HELPER, rootDir, 'shared component command helper exists');
   const moduleSyntax = syntaxCheckFile(RMT_APP_RUNTIME_MODULE, { rootDir, extension: '.js' });
+  const compatSyntax = syntaxCheckFile(RMT_APP_RUNTIME_COMPAT_MODULE, { rootDir, extension: '.js' });
+  const viewProjectorSyntax = syntaxCheckFile(RMT_APP_VIEW_PROJECTOR_MODULE, { rootDir, extension: '.js' });
+  const hostAdapterSyntax = syntaxCheckFile(RMT_APP_HOST_ADAPTER_MODULE, { rootDir, extension: '.js' });
   const helperSyntax = syntaxCheckFile(COMPONENT_COMMAND_HELPER, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile('tests/rmt/rmt_app_runtime_suite.js', { rootDir, extension: '.js' });
   context.assert(moduleSyntax.ok, `app runtime module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
+  context.assert(compatSyntax.ok, `app runtime compatibility composition syntax passes${compatSyntax.ok ? '' : ` (${compatSyntax.message})`}`);
+  context.assert(viewProjectorSyntax.ok, `app presentation View Projector syntax passes${viewProjectorSyntax.ok ? '' : ` (${viewProjectorSyntax.message})`}`);
+  context.assert(hostAdapterSyntax.ok, `app Host Adapter syntax passes${hostAdapterSyntax.ok ? '' : ` (${hostAdapterSyntax.message})`}`);
   context.assert(helperSyntax.ok, `component command helper syntax passes${helperSyntax.ok ? '' : ` (${helperSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `app runtime suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
   const moduleText = readText(RMT_APP_RUNTIME_MODULE, rootDir);
+  const viewProjectorText = readText(RMT_APP_VIEW_PROJECTOR_MODULE, rootDir);
+  const hostAdapterText = readText(RMT_APP_HOST_ADAPTER_MODULE, rootDir);
+  const typeText = readText(RMT_APP_RUNTIME_TYPES, rootDir);
+  const compatTypeText = readText(RMT_APP_RUNTIME_COMPAT_TYPES, rootDir);
   context.assert(moduleText.includes(RMT_APP_RUNTIME_SCHEMA), 'app runtime declares public runtime schema');
   context.assert(moduleText.includes(RMT_COMMAND_SCHEMA), 'app runtime declares public command schema');
   context.assert(moduleText.includes(RMT_STREAM_PATCH_SCHEMA), 'app runtime declares public stream patch schema');
+  context.assert(moduleText.includes('createRmtStreamPatchPlan')
+    && typeText.includes('RmtStreamPatchPlan')
+    && typeText.includes('modelOperations: RmtStreamPatchModelOperation[]')
+    && typeText.includes('postCommitEffects: RmtStreamPostCommitEffect[]'),
+  'app runtime publishes the typed pure stream-plan contract');
   context.assert(moduleText.includes(RMT_VIEW_TEMPLATE_SCHEMA), 'app runtime declares public view template schema');
+  context.assert(
+    typeText.includes('interface RmtAppPresentationViewPort')
+      && typeText.includes('presentationViewPort?: RmtAppPresentationViewPort')
+      && typeText.includes('createPresentationModel(')
+      && compatTypeText.includes('createRmtAppPresentationViewPort'),
+    'App Runtime types expose the abstract Presentation Model and typed View Port without leaking a raw adapter handle'
+  );
+  context.assert(
+    !/tag:\s*['"](?:x-code|a|button|div|strong|em|span)['"]/u.test(moduleText)
+      && viewProjectorText.includes("tag: 'x-code'")
+      && viewProjectorText.includes("tag: 'button'"),
+    'Application Controller contains no concrete View descriptors; the canonical View Projector owns them'
+  );
+  context.assert(
+    !/\b(?:globalThis|globalTarget|window)\b|\bDate\.now\s*\(|\bnew\s+Date\s*\(|\bperformance\.now\s*\(|\b(?:setTimeout|clearTimeout|queueMicrotask)\s*\(|\b(?:Worker|Blob)\s*\(|\.createObjectURL\s*\(/u.test(moduleText),
+    'Application Controller observes no Global, Clock, Scheduler, Worker, Blob or ObjectURL host capability'
+  );
+  context.assert(
+    hostAdapterText.includes('createRmtAppHostAdapter')
+      && hostAdapterText.includes('createSearchWorker')
+      && typeText.includes('hostPort?: RmtAppHostPort'),
+    'canonical Host Adapter owns clock, ids, scheduling and Search Worker creation behind the typed RmtAppHostPort'
+  );
   const templateRegistry = getTemplateRegistry();
   const templateIds = new Set(templateRegistry.templates.map((entry) => entry.id));
   context.assert(templateIds.has('app.rmt-owned-chat-shell'), 'scaffold registry exposes RMT-owned chat shell profile');

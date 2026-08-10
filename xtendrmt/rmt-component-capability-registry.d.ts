@@ -28,6 +28,7 @@ export interface RmtComponentCapability {
   a11yProfile: Record<string, unknown> | null;
   performanceProfile: Record<string, unknown> | null;
   observedAttributes: string[];
+  propertyNames: string[];
   events: string[];
   slots: string[];
   parts: string[];
@@ -123,6 +124,36 @@ export interface RmtComponentRegistryOptions {
     read?: (key: string) => unknown;
     write?: (key: string, value: unknown) => void;
   };
+  domRenderer?: RmtComponentDomRenderer;
+  renderer?: RmtComponentDomRenderer;
+  strict?: boolean;
+  strictMaraca?: boolean;
+  documentTarget?: Document;
+  createDomRenderer?: (options: Record<string, unknown>) => RmtComponentDomRenderer;
+  diagnosticsHub?: { publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown };
+  diagnosticChannel?: string;
+}
+
+export interface RmtComponentDomRenderer {
+  commit(request: {
+    operation: 'merge-element';
+    target: Element;
+    descriptor: unknown;
+    context?: Record<string, unknown>;
+    ownership?: Record<string, unknown>;
+    metadata?: Record<string, unknown>;
+  }): unknown;
+  dispose?(target?: Node, options?: { clearOwnedDom?: boolean }): void;
+}
+
+export interface RmtComponentBindingOptions extends RmtComponentRegistryOptions {
+  tag?: string;
+  bindEvents?: boolean;
+  events?: unknown;
+  eventBindings?: unknown;
+  dispatchEvent?: (event: Record<string, unknown>) => void;
+  dispatchAction?: (event: Record<string, unknown>) => void;
+  publishDiagnostic?: (diagnostic: RmtComponentDiagnostic) => void;
 }
 
 export interface RmtComponentPrimitiveMatrixReport {
@@ -152,9 +183,14 @@ export interface RmtComponentCapabilityRegistry {
   resolveComponentCapability(tag: string): RmtComponentCapability | null;
   listCapabilities(filter?: { family?: string; visualKind?: string }): RmtComponentCapability[];
   buildComponentDescriptor(input: RmtComponentDescriptorInput, options?: { source?: Record<string, unknown> }): RmtComponentDescriptor;
-  bindComponentInstance(element: Element, binding?: Record<string, unknown>, options?: Record<string, unknown>): RmtComponentBinding;
+  bindComponentInstance(element: Element, binding?: Record<string, unknown>, options?: RmtComponentBindingOptions): RmtComponentBinding;
   ensureComponentLoaded(tag: string, options?: RmtComponentRegistryOptions): Promise<Record<string, unknown>>;
   createMatrixReport(): RmtComponentPrimitiveMatrixReport;
+  dispose(): {
+    schema: typeof RMT_COMPONENT_CAPABILITY_REGISTRY_SCHEMA;
+    disposed: true;
+    alreadyDisposed: boolean;
+  };
   listDiagnostics(): RmtComponentDiagnostic[];
 }
 

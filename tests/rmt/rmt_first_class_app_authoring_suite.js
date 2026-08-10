@@ -17,7 +17,10 @@ const WORKPACKAGE_PATH = 'development/WP-E10-04-RMT-App-Authoring-Contract-fuer-
 function createRmtFormatFromBundle(context, rootDir) {
   const artifactPath = 'xtendrmt/rmt-core.esm.js';
   const source = readText(artifactPath, rootDir);
-  const cjsCompatibleSource = source.replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '');
+  const cjsCompatibleSource = source
+    .replace(/^\s*import\s+[\s\S]*?\s+from\s+['"][^'"]+['"];\s*$/gmu, '')
+    .replace(/^\s*import\s+['"][^'"]+['"];\s*$/gmu, '')
+    .replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '');
   function CustomEvent(type, init = {}) {
     this.type = type;
     this.detail = init.detail || null;

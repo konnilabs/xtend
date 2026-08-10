@@ -253,18 +253,13 @@ function summarizeMaracaTelemetry(mainMaraca = {}) {
 }
 
 function readRuntimeTelemetry() {
-  const performanceTelemetry = appRuntime && typeof appRuntime.getPerformanceTelemetrySnapshot === 'function'
-    ? appRuntime.getPerformanceTelemetrySnapshot()
-    : null;
-  const streamPressureRecords = appRuntime && typeof appRuntime.listStreamPressureRecords === 'function'
-    ? appRuntime.listStreamPressureRecords()
-    : safeArray(performanceTelemetry?.streamPressureRecords);
-  const yieldActions = appRuntime && typeof appRuntime.listYieldActions === 'function'
-    ? appRuntime.listYieldActions()
-    : safeArray(performanceTelemetry?.yieldActions);
-  const panicRecovery = appRuntime && typeof appRuntime.getPanicRecoverySnapshot === 'function'
-    ? appRuntime.getPanicRecoverySnapshot()
-    : null;
+  const runtimeSnapshot = appRuntime && typeof appRuntime.snapshot === 'function'
+    ? appRuntime.snapshot().appRuntime || {}
+    : {};
+  const performanceTelemetry = runtimeSnapshot.performanceTelemetry || null;
+  const streamPressureRecords = safeArray(runtimeSnapshot.streamPressureRecords || performanceTelemetry?.streamPressureRecords);
+  const yieldActions = safeArray(runtimeSnapshot.yieldActions || performanceTelemetry?.yieldActions);
+  const panicRecovery = runtimeSnapshot.panicRecovery || null;
   return {
     performanceTelemetry,
     streamPressureRecords,
@@ -882,8 +877,8 @@ function createSnapshot() {
 }
 
 async function dispatchCommand(command, payload = {}, lane = 'user-blocking') {
-  if (!appRuntime || typeof appRuntime.command !== 'function') return null;
-  return appRuntime.command(command, payload, {
+  if (!appRuntime || typeof appRuntime.dispatchCommand !== 'function') return null;
+  return appRuntime.dispatchCommand(command, payload, {
     lane,
     sourceKind: 'business-adapter',
     sourceId: 'products.xtend-llm.renderer',
@@ -899,13 +894,7 @@ function dispatchSnapshot() {
     clearTimeout(scheduledSnapshotTimer);
     scheduledSnapshotTimer = null;
   }
-  const dispatch = appRuntime && typeof appRuntime.refreshSnapshot === 'function'
-    ? appRuntime.refreshSnapshot('xtend.llm.applySnapshot', { reason: 'business-adapter-update' }, {
-        lane: 'render',
-        sourceKind: 'business-adapter',
-        sourceId: 'products.xtend-llm.renderer'
-      })
-    : dispatchCommand('xtend.llm.applySnapshot', { reason: 'business-adapter-update' }, 'render');
+  const dispatch = dispatchCommand('xtend.llm.applySnapshot', { reason: 'business-adapter-update' }, 'render');
   dispatch?.catch((error) => {
     console.warn('[xtend-llm] Could not dispatch RMT snapshot.', error);
   });
@@ -964,7 +953,7 @@ export async function* streamGenerationService(payload = {}, context = {}) {
 }
 
 function forwardGenerationServiceFrame(frame, target = 'generation.streamText') {
-  if (!appRuntime || typeof appRuntime.handleStreamPatch !== 'function') return;
+  if (!appRuntime || typeof appRuntime.dispatchStreamPatch !== 'function') return;
   const type = frame.type || 'delta';
   const pressure = type === 'delta'
     ? recordDeltaPressure(frame.delta)
@@ -975,7 +964,7 @@ function forwardGenerationServiceFrame(frame, target = 'generation.streamText') 
         bytesPerSecond: streamPressureWindow.reduce((total, sample) => total + sample.bytes, 0),
         windowMs: STREAM_PRESSURE_WINDOW_MS
       });
-  appRuntime.handleStreamPatch({
+  appRuntime.dispatchStreamPatch({
     ...frame,
     target
   }, {
@@ -1211,7 +1200,7 @@ function settleGenerationError(error = {}) {
 
 function selectedToolName(context = {}) {
   const stateRuntime = context && context.stateRuntime
-    || window.XTendMaraca?.orchestration?.stateRuntime
+    || window.XTendMaraca?.orchestration?.model
     || null;
   const toolMenu = stateRuntime && typeof stateRuntime.getState === 'function'
     ? stateRuntime.getState('xtend.llm.toolMenu')
@@ -1591,7 +1580,7 @@ function disposeProductRuntime(reason = 'XTend LLM page hidden.') {
 
 window.addEventListener('xtend-maraca:boot', (event) => {
   maracaBootResult = event.detail || null;
-  appRuntime = window.XTendMaraca?.orchestration?.appRuntime || null;
+  appRuntime = window.XTendMaraca?.orchestration || null;
   dispatchCommand('xtend.llm.bootstrap', { label: 'Bootstrap' }, 'bootstrap').catch((error) => {
     console.error('[xtend-llm] Bootstrap action failed.', error);
   });

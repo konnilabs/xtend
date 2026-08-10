@@ -8,7 +8,28 @@ Der Runtime-Vertrag ist `xtend.epic18.rmt-dom-descriptor-renderer.v1`. Implement
 
 Ein Descriptor sagt, welche Art von Node erzeugt werden soll. Er kann ein Element, Text, eine registrierte XTend-Komponente, eine Bedingung, wiederholte Records oder einen Slot beschreiben. Der Renderer löst diese Struktur gegen explizite Model-, Selector-, Template- und Component-Registries auf. Danach materialisiert er das Ergebnis mit `createElement`, `createTextNode`, `createDocumentFragment` und `replaceChildren`.
 
-Der Root bleibt im Besitz des Hosts. `render()` ersetzt nur die Kinder des übergebenen Roots und markiert ihn mit dem Renderer-Schema. `renderKeyed()` verwendet passende keyed Children erneut; `patchElement()` aktualisiert ein bestehendes owned Element. Keine dieser Operationen überträgt RMT die Ownership über das gesamte Dokument.
+Der Root bleibt im Besitz des Hosts. `commit()` ist die kanonische
+Schreiboberfläche. Die Operationen `create-node`, `replace-children`,
+`reconcile-children`, `reconcile-element` und `merge-element` machen die
+beabsichtigte Mutationssemantik explizit. Ein vollständiges Reconcile entfernt
+vom Renderer besessenen Zustand, der im nächsten Descriptor fehlt; Merge
+behält nicht angegebene Felder. Das Result-Schema
+`xtend.rmt.dom-commit-result.v1` meldet geänderte Nodes, strukturelle Arbeit und
+Diagnostics.
+
+Die Kompatibilitätsmethoden bleiben synchron. `render()`, `renderNode()` und
+`renderKeyed()` delegieren auf die entsprechenden Commit-Operationen.
+`patchElement()` bleibt während der Migration in 0.6/0.7 eine Merge-Operation
+und emittiert einmal pro Renderer `rmt.dom.patch-element.legacy-merge`. Neuer
+Framework-Code soll `commit()` direkt verwenden.
+
+Ownership wird vor dem Schreiben aufgelöst. Struktur, Content und Basiswerte
+gehören dem Descriptor-Renderer; kompilierte Events, Transition-Visibility und
+Validation-Zustand bleiben für ihre Runtimes reserviert. Im Strict-Modus
+brechen Ownership-Kollisionen fail-closed ab. Der Compatibility-Modus lässt
+den reservierten Owner gewinnen und zeichnet ein Diagnostic auf. `dispose()`
+beendet Renderer-eigene Event-, Ref- und Component-Binding-Handles und kann
+optional den besessenen Root-DOM leeren.
 
 ## Minimales Beispiel
 
@@ -40,7 +61,7 @@ Trusted Rich Content besitzt einen getrennten Pfad. Ein entsprechender Descripto
 
 ## Fehlerverhalten
 
-Ein ungültiger Root, gesperrter Tag, unsichere URL, unbekannte Komponente oder verbotene Property wirft einen Fehler mit einem `xtend.epic18.rmt-dom-renderer-diagnostic.v1` Diagnostic. `listDiagnostics()` liefert die vom Renderer beobachteten Diagnostics. Ein Host kann zusätzlich `diagnosticsHub.publish()` bereitstellen, um sie weiterzuleiten, ohne dem Renderer kanonischen App-State zu übertragen.
+Ein ungültiger Root, gesperrter Tag, unsichere URL, unbekannte Komponente oder verbotene Property wirft einen Fehler mit einem `xtend.epic18.rmt-dom-renderer-diagnostic.v2` Diagnostic. `listDiagnostics()` liefert die vom Renderer beobachteten Diagnostics. Ein Host kann zusätzlich `diagnosticsHub.publish()` bereitstellen, um sie weiterzuleiten, ohne dem Renderer kanonischen App-State zu übertragen.
 
 Mit `createNoManualHtmlGate()` kannst du Quelldateien bereits vor der Browser-Ausführung auf verbotene Sinks prüfen. Das Gate meldet Datei und Sink, schreibt den Source aber nicht automatisch um.
 
@@ -51,6 +72,8 @@ node scripts/run_xtend_tests.js rmt-dom-descriptor-renderer rmt-renderer-dom-des
 ```
 
 Ein akzeptiertes Ergebnis beweist Node-Materialisierung, Event-Cleanup, keyed Updates, Source Diagnostics und die Ablehnung manueller HTML-Sinks. Behebe einen Fehler im Descriptor oder in der Host-Policy, statt den Renderer zu umgehen.
+
+Der Renderer ist die abgeschlossene Voraussetzung für `WP-E18-06`.
 
 ## Verwandte Seiten
 

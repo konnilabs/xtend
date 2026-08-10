@@ -147,8 +147,8 @@ function runUiCoprocessorSuite(options = {}) {
   context.assert(plan.uiCoprocessor && plan.uiCoprocessor.ssr.ssrRoundtripCount === 0, 'Maraca UI Coprocessor plan forbids SSR roundtrips');
   context.assert(plan.uiCoprocessor && plan.uiCoprocessor.summary.releaseBlocking === false, 'Maraca UI Coprocessor evidence remains non-blocking');
   context.assert(uiCapability && uiCapability.active === true, 'Kernel feature adoption marks UI Coprocessor active');
-  assertSourceIncludes(context, maracaSource, 'MARACA_UI_COPROCESSOR', 'Generated Maraca bundle exports MARACA_UI_COPROCESSOR');
-  assertSourceIncludes(context, maracaSource, 'enableUiCoprocessor: Boolean(MARACA_UI_COPROCESSOR', 'Generated Maraca bundle passes enableUiCoprocessor into RMT runtime');
+  assertSourceIncludes(context, maracaSource, 'const MARACA_UI_COPROCESSOR = freezeMaracaSnapshot(', 'Generated Maraca bundle keeps the UI Coprocessor plan immutable');
+  assertSourceIncludes(context, maracaSource, 'uiCoprocessor: MARACA_UI_COPROCESSOR,', 'Generated Maraca bundle passes the immutable UI Coprocessor plan into the composition root');
   assertSourceIncludes(context, packageManifest.xtend.maraca.uiCoprocessorPlanSchema, 'xtend.maraca.ui-coprocessor-plan.v1', 'Package metadata declares UI Coprocessor plan schema');
   assertSourceIncludes(context, runner, "id: 'ui-coprocessor'", 'Runner registers UI Coprocessor suite');
   context.assert(packageManifest.scripts['test:ui-coprocessor'] === 'node scripts/run_xtend_tests.js ui-coprocessor', 'Package exposes UI Coprocessor test script');

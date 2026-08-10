@@ -1,8 +1,9 @@
 (function attachRmtEventRoutingRuntime(globalTarget) {
-  const RMT_EVENT_ROUTING_RUNTIME_SCHEMA = 'xtend.epic18.rmt-event-routing-runtime.v1';
+  const RMT_EVENT_ROUTING_RUNTIME_SCHEMA = 'xtend.epic18.rmt-event-routing-runtime.v2';
   const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-event-routing-diagnostic.v1';
   const RMT_COMMAND_SCHEMA = 'xtend.rmt.command.v1';
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_platform.event_routing';
+  const UNSAFE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
 
   function clampString(value, fallback = '') {
     const normalized = String(value == null ? '' : value).trim();
@@ -26,8 +27,9 @@
     if (Array.isArray(value)) return value.map((entry) => cloneValue(entry, entry));
     const prototype = Object.getPrototypeOf(value);
     if (prototype === Object.prototype || prototype === null) {
-      const result = {};
+      const result = Object.create(null);
       Object.entries(value).forEach(([key, entry]) => {
+        assertSafePathSegments(key);
         result[key] = cloneValue(entry, entry);
       });
       return result;
@@ -39,10 +41,35 @@
     }
   }
 
+  function normalizePathSegments(path) {
+    return String(path || '')
+      .replace(/\[([0-9]+)\]/gu, '.$1')
+      .split('.')
+      .filter(Boolean);
+  }
+
+  function assertSafePathSegments(path) {
+    const parts = normalizePathSegments(path);
+    const unsafeSegment = parts.find((part) => UNSAFE_PATH_SEGMENTS.has(String(part).toLowerCase()));
+    if (unsafeSegment) {
+      const diagnostic = createDiagnostic(
+        'rmt.event.path.unsafe',
+        `Unsicheres Event-Pfadsegment ${unsafeSegment}.`,
+        { path: String(path || ''), segment: unsafeSegment },
+        'error'
+      );
+      const error = new Error(diagnostic.message);
+      error.code = diagnostic.code;
+      error.diagnostic = diagnostic;
+      throw error;
+    }
+    return parts;
+  }
+
   function readPath(source, path) {
     if (!path) return source;
+    const parts = assertSafePathSegments(path);
     if (source && typeof source === 'object' && Object.prototype.hasOwnProperty.call(source, path)) return source[path];
-    const parts = String(path).split('.').filter(Boolean);
     let cursor = source;
     for (const part of parts) {
       if (cursor == null) return undefined;
@@ -54,8 +81,9 @@
 
   function toDatasetRecord(target) {
     const dataset = target && target.dataset && typeof target.dataset === 'object' ? target.dataset : {};
-    const result = {};
+    const result = Object.create(null);
     Object.keys(dataset).forEach((key) => {
+      assertSafePathSegments(key);
       result[key] = dataset[key];
     });
     return result;
@@ -181,8 +209,9 @@
   function resolveValue(value, context = {}) {
     if (Array.isArray(value)) return value.map((entry) => resolveValue(entry, context));
     if (value && typeof value === 'object') {
-      const result = {};
+      const result = Object.create(null);
       Object.entries(value).forEach(([key, entry]) => {
+        assertSafePathSegments(key);
         result[key] = resolveValue(entry, context);
       });
       return result;
@@ -258,12 +287,12 @@
         event: clampString(binding.event || readPath(commandDetail, 'source.event') || event && event.type, ''),
         surfaceId: clampString(binding.surfaceId || readPath(commandDetail, 'source.surfaceId') || readPath(detail, 'source.surfaceId') || detail.surfaceId || eventSurfaceId(event), '')
       },
-      command: clampString(binding.action || commandDetail && commandDetail.command || detail.command || detail.action, ''),
+      command: clampString(binding.action || binding.command || commandDetail && commandDetail.command || detail.command || detail.action, ''),
       payload: cloneValue(payload, {}),
-      target: binding.target || commandDetail && commandDetail.target || null,
+      target: binding.commandTarget || commandDetail && commandDetail.target || null,
       correlationId: clampString(metadata.correlationId || commandDetail && commandDetail.correlationId || detail.correlationId, randomId('rmt.correlation')),
       runId: clampString(metadata.runId || commandDetail && commandDetail.runId, ''),
-      lane: clampString(metadata.lane || commandDetail && commandDetail.lane || detail.lane, 'user-blocking'),
+      lane: clampString(metadata.lane || binding.lane || commandDetail && commandDetail.lane || detail.lane, 'user-blocking'),
       timestamp: metadata.timestamp || commandDetail && commandDetail.timestamp || nowIso()
     };
   }
@@ -271,23 +300,24 @@
   function normalizeBindings(input) {
     return toArray(input).map((binding) => {
       const source = objectRecord(binding);
+      Object.keys(source).forEach((key) => assertSafePathSegments(key));
       const eventName = clampString(source.event || source.eventName || source.type, '');
       return {
         ...source,
-        id: clampString(source.id),
+        id: clampString(source.id || source.bindingId),
         kind: clampString(source.kind, 'dom'),
         event: eventName,
         target: source.target || source.selector || source.ref || '',
         component: clampString(source.component || source.componentId, ''),
-        action: clampString(source.action || source.actionId, ''),
+        action: clampString(source.action || source.actionId || source.command || source.commandName, ''),
         actionMode: clampString(source.actionMode || source.operation || source.mode, 'run-action'),
         owner: clampString(source.owner || source.ownerId || source.scope, source.id),
         payload: Object.prototype.hasOwnProperty.call(source, 'payload') ? source.payload : '$detail',
         payloadContract: source.payloadContract || source.contract || null,
         governance: {
-          capture: Boolean(source.capture || source.governance && source.governance.capture),
-          passive: Boolean(source.passive || source.governance && source.governance.passive),
-          once: Boolean(source.once || source.governance && source.governance.once),
+          capture: Boolean(source.capture || source.options && source.options.capture || source.governance && source.governance.capture),
+          passive: Boolean(source.passive || source.options && source.options.passive || source.governance && source.governance.passive),
+          once: Boolean(source.once || source.options && source.options.once || source.governance && source.governance.once),
           preventDefault: Boolean(source.preventDefault || source.governance && source.governance.preventDefault),
           stopPropagation: Boolean(source.stopPropagation || source.governance && source.governance.stopPropagation),
           stopImmediatePropagation: Boolean(source.stopImmediatePropagation || source.governance && source.governance.stopImmediatePropagation),
@@ -298,7 +328,11 @@
         guard: source.guard || source.confirm || null,
         postAction: toArray(source.postAction || source.after || source.afterAction),
         condition: source.condition || source.when || null,
-        enabled: source.enabled !== false
+        enabled: source.enabled !== false,
+        commandTarget: Object.prototype.hasOwnProperty.call(source, 'commandTarget') ? source.commandTarget : null,
+        lane: source.lane || null,
+        bindingSource: source.bindingSource || 'compiled',
+        bindingScope: clampString(source.bindingScope || source.scopeId || source.scope, '')
       };
     }).filter((binding) => binding.id);
   }
@@ -476,11 +510,100 @@
         ? defaultResolveTarget({ ...binding, target: action.target }, options.root || null, options)
         : closestTarget(event, action.closest || binding.closest, event && event.target || null);
       if (target && Object.prototype.hasOwnProperty.call(target, 'value')) {
-        target.value = '';
-        operations.push({ kind, target: action.target || binding.target || '', reset: true });
+        const domRenderer = resolveEventDomRenderer(target, options);
+        const commitResult = domRenderer.commit({
+          operation: 'merge-element',
+          target,
+          descriptor: {
+            type: 'element',
+            tag: clampString(target.localName || target.tagName, 'input').toLowerCase(),
+            properties: { value: '' }
+          },
+          metadata: {
+            adapter: 'event-router',
+            bindingId: binding.id,
+            postAction: kind
+          }
+        });
+        operations.push({
+          kind,
+          target: action.target || binding.target || '',
+          reset: true,
+          commit: commitResult && {
+            schema: commitResult.schema,
+            operation: commitResult.operation,
+            changed: Boolean(commitResult.changed)
+          }
+        });
       }
     });
     return operations;
+  }
+
+  function domRendererError(code, message) {
+    const error = new Error(message);
+    error.code = code;
+    error.diagnostic = createDiagnostic(code, message, { adapter: 'event-router' });
+    return error;
+  }
+
+  function resolveEventDomRenderer(target, options = {}) {
+    const injected = options.domRenderer || options.renderer;
+    if (injected && typeof injected.commit === 'function') return injected;
+    if (options.strict || options.strictMaraca) {
+      throw domRendererError(
+        'rmt.dom.shared-renderer-missing',
+        'Event Router Post-Actions benoetigen den gemeinsam injizierten DOM Descriptor Renderer.'
+      );
+    }
+    const documentTarget = options.documentTarget
+      || (target && target.ownerDocument)
+      || (options.root && options.root.ownerDocument)
+      || (globalTarget && globalTarget.document);
+    const factory = options.createDomRenderer
+      || (globalTarget
+        && globalTarget.XTendRmtDomDescriptorRenderer
+        && globalTarget.XTendRmtDomDescriptorRenderer.createRmtDomDescriptorRenderer);
+    if (!documentTarget || typeof documentTarget !== 'object' || typeof factory !== 'function') {
+      throw domRendererError(
+        'rmt.dom.compatibility-renderer-unavailable',
+        'Event Router kann ohne DOM Descriptor Renderer keine Post-Action sicher ausfuehren.'
+      );
+    }
+    const record = options.compatibilityRendererRecord || {
+      diagnosed: false,
+      documentTarget: null,
+      renderer: null
+    };
+    if (record.renderer && record.documentTarget !== documentTarget) {
+      if (typeof record.renderer.dispose === 'function') record.renderer.dispose();
+      record.renderer = null;
+      record.diagnosed = false;
+    }
+    if (!record.renderer) {
+      record.documentTarget = documentTarget;
+      record.renderer = factory({
+        documentTarget,
+        diagnosticsHub: options.diagnosticsHub
+      });
+    }
+    if (!record.renderer || typeof record.renderer.commit !== 'function') {
+      throw domRendererError(
+        'rmt.dom.compatibility-renderer-unavailable',
+        'Event Router kann ohne DOM Descriptor Renderer keine Post-Action sicher ausfuehren.'
+      );
+    }
+    if (!record.diagnosed) {
+      record.diagnosed = true;
+      const diagnostic = createDiagnostic(
+        'rmt.dom.shared-renderer-missing',
+        'Event Router hat einmalig einen Compatibility-DOM-Renderer erzeugt.',
+        { adapter: 'event-router' },
+        'warning'
+      );
+      if (typeof options.publishDiagnostic === 'function') options.publishDiagnostic(diagnostic);
+    }
+    return record.renderer;
   }
 
   function surfaceDelegationTarget(binding, root) {
@@ -526,6 +649,18 @@
     };
   }
 
+  function isWithinTarget(node, target) {
+    if (!node || !target) return false;
+    if (node === target) return true;
+    if (typeof target.contains === 'function' && target.contains(node)) return true;
+    let cursor = node.parentNode || null;
+    while (cursor) {
+      if (cursor === target) return true;
+      cursor = cursor.parentNode || null;
+    }
+    return false;
+  }
+
   function createRouteResult(binding, status, payload, details = {}) {
     return {
       schema: 'xtend.epic18.rmt-event-route-result.v1',
@@ -540,13 +675,49 @@
   }
 
   function createRmtEventRoutingRuntime(options = {}) {
-    const bindings = normalizeBindings(options.bindings || options.events || options.eventBindings);
-    const bindingIndex = new Map(bindings.map((binding) => [binding.id, binding]));
+    const compiledBindings = normalizeBindings(options.bindings || options.events || options.eventBindings)
+      .map((binding) => ({ ...binding, bindingSource: 'compiled' }));
+    compiledBindings.forEach((binding) => {
+      [
+        binding.payload,
+        binding.payloadContract,
+        binding.condition,
+        binding.guard,
+        binding.postAction
+      ].forEach((value) => {
+        if (typeof value !== 'undefined' && value !== null) resolveValue(value, { binding });
+      });
+    });
+    const compiledBindingIndex = new Map(compiledBindings.map((binding) => [binding.id, binding]));
+    const dynamicBindingIndex = new Map();
+    const bindingIndex = new Map(compiledBindingIndex);
     const diagnosticsRecorder = createDiagnosticsRecorder(options);
     const actionRuntime = options.actionRuntime || null;
     const rootTarget = options.root || null;
     const routeHistory = [];
     const listenerRecords = [];
+    const compatibilityRendererRecord = {
+      diagnosed: false,
+      documentTarget: null,
+      renderer: null
+    };
+    let disposed = false;
+    let legacyRunActionDiagnosed = false;
+
+    function publishLegacyRunActionDiagnostic(binding) {
+      if (legacyRunActionDiagnosed) return;
+      legacyRunActionDiagnosed = true;
+      diagnosticsRecorder.publish(createDiagnostic(
+        'rmt.event.run-action.legacy-compatibility',
+        'runAction ist ein veralteter Event-Router-Fallback; injiziere dispatchCommand.',
+        {
+          bindingId: binding.id,
+          event: binding.event,
+          action: binding.action
+        },
+        'warning'
+      ));
+    }
 
     async function routeEvent(bindingId, event = {}, metadata = {}) {
       const binding = bindingIndex.get(clampString(bindingId));
@@ -628,7 +799,8 @@
         return blocked;
       }
 
-      if (!actionRuntime) {
+      const commandRuntime = options.commandBus || options.commandRuntime || actionRuntime;
+      if (!commandRuntime) {
         const blocked = createRouteResult(binding, 'blocked', payload, {
           reason: 'missing-action-runtime',
           governance: governanceResult
@@ -645,10 +817,10 @@
 
       let actionResult = null;
       if (binding.actionMode === 'cancel-action') {
-        if (typeof actionRuntime.cancelAction !== 'function') throw new Error('RMT Action Runtime unterstuetzt cancelAction nicht.');
-        actionResult = actionRuntime.cancelAction(binding.action);
-      } else if (typeof actionRuntime.dispatchCommand === 'function') {
-        actionResult = await actionRuntime.dispatchCommand(commandEnvelope, {
+        if (typeof commandRuntime.cancelAction !== 'function') throw new Error('RMT Action Runtime unterstuetzt cancelAction nicht.');
+        actionResult = commandRuntime.cancelAction(binding.action);
+      } else if (typeof commandRuntime.dispatchCommand === 'function') {
+        actionResult = await commandRuntime.dispatchCommand(commandEnvelope, {
           eventId: binding.id,
           eventName: binding.event,
           component: binding.component,
@@ -656,8 +828,9 @@
           ...objectRecord(metadata)
         });
       } else {
-        if (typeof actionRuntime.runAction !== 'function') throw new Error('RMT Action Runtime unterstuetzt runAction nicht.');
-        actionResult = await actionRuntime.runAction(binding.action, payload, {
+        if (typeof commandRuntime.runAction !== 'function') throw new Error('RMT Command Runtime unterstuetzt dispatchCommand nicht.');
+        publishLegacyRunActionDiagnostic(binding);
+        actionResult = await commandRuntime.runAction(binding.action, payload, {
           eventId: binding.id,
           eventName: binding.event,
           component: binding.component,
@@ -670,7 +843,11 @@
       }
 
       const status = actionResult && actionResult.status || (binding.actionMode === 'cancel-action' ? 'cancelled' : 'success');
-      const postAction = applyPostAction(binding, event, null, metadata, options);
+      const postAction = applyPostAction(binding, event, null, metadata, {
+        ...options,
+        compatibilityRendererRecord,
+        publishDiagnostic: diagnosticsRecorder.publish
+      });
       const result = createRouteResult(binding, status, payload, {
         actionResult: cloneValue(actionResult, actionResult),
         commandEnvelope: cloneValue(commandEnvelope, commandEnvelope),
@@ -690,12 +867,250 @@
       return result;
     }
 
-    function attach(root = rootTarget) {
+    function bindingSummary(binding) {
+      return {
+        bindingId: binding.id,
+        owner: binding.owner,
+        event: binding.event,
+        component: binding.component
+      };
+    }
+
+    function listenerOptionsEqual(left, right) {
+      return Boolean(left && left.capture) === Boolean(right && right.capture)
+        && Boolean(left && left.passive) === Boolean(right && right.passive)
+        && Boolean(left && left.once) === Boolean(right && right.once);
+    }
+
+    function detachRecord(record) {
+      const index = listenerRecords.indexOf(record);
+      if (index === -1) return false;
+      if (record.target && typeof record.target.removeEventListener === 'function') {
+        record.target.removeEventListener(record.event, record.listener, record.options);
+      }
+      listenerRecords.splice(index, 1);
+      return true;
+    }
+
+    function summarizeCommitResult(commitResult) {
+      if (!commitResult || typeof commitResult !== 'object') return null;
+      return {
+        schema: clampString(commitResult.schema, ''),
+        operation: clampString(commitResult.operation, ''),
+        changed: Boolean(commitResult.changed),
+        structural: Boolean(commitResult.structural),
+        nodeCount: Number.isFinite(commitResult.nodeCount) ? commitResult.nodeCount : null,
+        bindingCount: Array.isArray(commitResult.bindings) ? commitResult.bindings.length : 0,
+        bindingScopeId: clampString(commitResult.bindingScope && commitResult.bindingScope.id, '')
+      };
+    }
+
+    function rebuildBindingIndex() {
+      bindingIndex.clear();
+      compiledBindingIndex.forEach((binding, id) => bindingIndex.set(id, binding));
+      dynamicBindingIndex.forEach((binding, id) => {
+        if (!bindingIndex.has(id)) bindingIndex.set(id, binding);
+      });
+    }
+
+    function commitBindingError(code, message, details = {}) {
+      const diagnostic = createDiagnostic(code, message, details, 'error');
+      diagnosticsRecorder.publish(diagnostic);
+      const error = new Error(message);
+      error.code = code;
+      error.diagnostic = diagnostic;
+      return error;
+    }
+
+    function normalizeCommitBindings(commitResult) {
+      if (!commitResult || typeof commitResult !== 'object') return null;
+      const hasBindings = Object.prototype.hasOwnProperty.call(commitResult, 'bindings');
+      const hasScope = Object.prototype.hasOwnProperty.call(commitResult, 'bindingScope');
+      if (!hasBindings && !hasScope) return null;
+      if (!Array.isArray(commitResult.bindings)) {
+        throw commitBindingError(
+          'rmt.event.commit-bindings.invalid',
+          'DOM Commit Bindings muessen als Array vorliegen.'
+        );
+      }
+      const scope = objectRecord(commitResult.bindingScope);
+      const scopeId = clampString(scope.id, '');
+      if (!scopeId) {
+        throw commitBindingError(
+          'rmt.event.commit-binding-scope.invalid',
+          'DOM Commit Bindings benoetigen einen stabilen Binding-Scope.'
+        );
+      }
+      const roots = toArray(scope.roots || scope.target).filter(Boolean);
+      const normalized = normalizeBindings(commitResult.bindings.map((binding) => ({
+        ...objectRecord(binding),
+        bindingSource: 'commit',
+        bindingScope: scopeId
+      })));
+      if (normalized.length !== commitResult.bindings.length) {
+        throw commitBindingError(
+          'rmt.event.commit-binding.invalid',
+          'Jedes DOM Commit Binding benoetigt eine Binding-ID.',
+          { bindingScopeId: scopeId }
+        );
+      }
+      const stagedIds = new Map();
+      normalized.forEach((binding) => {
+        if (!binding.event || !binding.action || !binding.owner) {
+          throw commitBindingError(
+            'rmt.event.commit-binding.invalid',
+            `DOM Commit Binding ${binding.id} ist unvollstaendig.`,
+            { bindingId: binding.id, bindingScopeId: scopeId }
+          );
+        }
+        if (!binding.target || typeof binding.target.addEventListener !== 'function') {
+          throw commitBindingError(
+            'rmt.event.commit-binding.target-invalid',
+            `DOM Commit Binding ${binding.id} besitzt kein tatsaechliches EventTarget.`,
+            { bindingId: binding.id, bindingScopeId: scopeId }
+          );
+        }
+        if (roots.length && !roots.some((root) => isWithinTarget(binding.target, root))) {
+          throw commitBindingError(
+            'rmt.event.commit-binding.out-of-scope',
+            `DOM Commit Binding ${binding.id} liegt ausserhalb seines Binding-Scopes.`,
+            { bindingId: binding.id, bindingScopeId: scopeId }
+          );
+        }
+        const previousTarget = stagedIds.get(binding.id);
+        if (previousTarget && previousTarget !== binding.target) {
+          throw commitBindingError(
+            'rmt.event.commit-binding.duplicate',
+            `DOM Commit Binding-ID ${binding.id} ist innerhalb des Scopes nicht eindeutig.`,
+            { bindingId: binding.id, bindingScopeId: scopeId }
+          );
+        }
+        stagedIds.set(binding.id, binding.target);
+      });
+      return {
+        scope: {
+          id: scopeId,
+          complete: scope.complete !== false,
+          roots,
+          removedBindings: toArray(scope.removedBindings)
+        },
+        bindings: normalized
+      };
+    }
+
+    function applyCommitBindings(commitResult) {
+      const staged = normalizeCommitBindings(commitResult);
+      if (!staged) return;
+      staged.bindings.forEach((binding) => {
+        if (!compiledBindingIndex.has(binding.id)) return;
+        const compiled = compiledBindingIndex.get(binding.id);
+        const diagnostic = createDiagnostic(
+          'rmt.event.commit-binding.compiled-collision',
+          `DOM Commit Binding ${binding.id} kollidiert mit einem kompilierten Binding.`,
+          {
+            bindingId: binding.id,
+            compiledOwner: compiled.owner,
+            commitOwner: binding.owner,
+            bindingScopeId: staged.scope.id
+          },
+          options.strict || options.strictMaraca ? 'error' : 'warning'
+        );
+        diagnosticsRecorder.publish(diagnostic);
+        if (options.strict || options.strictMaraca) {
+          const error = new Error(diagnostic.message);
+          error.code = diagnostic.code;
+          error.diagnostic = diagnostic;
+          throw error;
+        }
+      });
+
+      staged.scope.removedBindings.forEach((removed) => {
+        const bindingId = clampString(removed && (removed.bindingId || removed.id), '');
+        const current = dynamicBindingIndex.get(bindingId);
+        if (!current) return;
+        if (removed && removed.target && current.target !== removed.target) return;
+        dynamicBindingIndex.delete(bindingId);
+      });
+      if (staged.scope.complete) {
+        const nextIdentities = staged.bindings.map((binding) => ({ id: binding.id, target: binding.target }));
+        dynamicBindingIndex.forEach((binding, id) => {
+          const belongsToScope = binding.bindingScope === staged.scope.id
+            || staged.scope.roots.some((root) => isWithinTarget(binding.target, root));
+          const retained = nextIdentities.some((entry) => entry.id === id && entry.target === binding.target);
+          if (belongsToScope && !retained) dynamicBindingIndex.delete(id);
+        });
+      }
+      staged.bindings.forEach((binding) => {
+        if (compiledBindingIndex.has(binding.id)) return;
+        dynamicBindingIndex.set(binding.id, binding);
+      });
+      rebuildBindingIndex();
+    }
+
+    function reconcile(root = rootTarget, commitResult = null) {
       const attached = [];
-      bindings.forEach((binding) => {
-        if (!binding.enabled || !binding.event) return;
+      const detached = [];
+      const retained = [];
+      const missing = [];
+      if (!disposed) applyCommitBindings(commitResult);
+      const activeBindings = [...bindingIndex.values()].filter((binding) => binding.enabled && binding.event);
+      const activeBindingIds = new Set(activeBindings.map((binding) => binding.id));
+
+      if (disposed) {
+        return {
+          schema: 'xtend.epic18.rmt-event-reconcile-report.v1',
+          changed: false,
+          disposed: true,
+          bindingCount: activeBindings.length,
+          attachedCount: 0,
+          detachedCount: 0,
+          retainedCount: 0,
+          missingCount: 0,
+          attached,
+          detached,
+          retained,
+          missing,
+          commit: summarizeCommitResult(commitResult)
+        };
+      }
+
+      listenerRecords.slice().forEach((record) => {
+        if (activeBindingIds.has(record.bindingId)) return;
+        if (detachRecord(record)) {
+          const binding = bindingIndex.get(record.bindingId);
+          detached.push(binding ? bindingSummary(binding) : {
+            bindingId: record.bindingId,
+            owner: record.owner,
+            event: record.event,
+            component: ''
+          });
+        }
+      });
+
+      activeBindings.forEach((binding) => {
         const target = defaultResolveTarget(binding, root, options);
+        const expectedOptions = listenerOptions(binding);
+        const currentRecords = listenerRecords.filter((record) => record.bindingId === binding.id);
+        const retainedRecord = target
+          ? currentRecords.find((record) => (
+            record.target === target
+            && record.event === binding.event
+            && listenerOptionsEqual(record.options, expectedOptions)
+          ))
+          : null;
+
+        currentRecords.forEach((record) => {
+          if (record === retainedRecord) return;
+          if (detachRecord(record)) detached.push(bindingSummary(binding));
+        });
+
+        if (retainedRecord) {
+          retained.push(bindingSummary(binding));
+          return;
+        }
         if (!target || typeof target.addEventListener !== 'function') {
+          const summary = bindingSummary(binding);
+          missing.push(summary);
           diagnosticsRecorder.publish(createDiagnostic('rmt.event.target.missing', `RMT Event ${binding.id} hat kein bindbares Ziel.`, {
             bindingId: binding.id,
             target: binding.target,
@@ -704,29 +1119,48 @@
           }, 'error'));
           return;
         }
-        const listener = (event) => routeEvent(binding.id, event, { source: 'listener' });
-        const optionsForListener = listenerOptions(binding);
-        target.addEventListener(binding.event, listener, optionsForListener);
-        const record = {
+
+        let record = null;
+        const listener = (event) => {
+          if (expectedOptions.once && record) detachRecord(record);
+          return routeEvent(binding.id, event, { source: 'listener' });
+        };
+        target.addEventListener(binding.event, listener, expectedOptions);
+        record = {
           bindingId: binding.id,
           owner: binding.owner,
           event: binding.event,
           target,
           listener,
-          options: optionsForListener
+          options: expectedOptions
         };
         listenerRecords.push(record);
-        attached.push({
-          bindingId: binding.id,
-          owner: binding.owner,
-          event: binding.event,
-          component: binding.component
-        });
+        attached.push(bindingSummary(binding));
       });
+
+      return {
+        schema: 'xtend.epic18.rmt-event-reconcile-report.v1',
+        changed: attached.length > 0 || detached.length > 0,
+        disposed: false,
+        bindingCount: activeBindings.length,
+        attachedCount: attached.length,
+        detachedCount: detached.length,
+        retainedCount: retained.length,
+        missingCount: missing.length,
+        attached,
+        detached,
+        retained,
+        missing,
+        commit: summarizeCommitResult(commitResult)
+      };
+    }
+
+    function attach(root = rootTarget) {
+      const report = reconcile(root);
       return {
         schema: 'xtend.epic18.rmt-event-attach-report.v1',
-        attachedCount: attached.length,
-        attached
+        attachedCount: report.attachedCount,
+        attached: report.attached
       };
     }
 
@@ -736,11 +1170,7 @@
       for (let index = listenerRecords.length - 1; index >= 0; index -= 1) {
         const record = listenerRecords[index];
         if (owner && record.owner !== owner) continue;
-        if (record.target && typeof record.target.removeEventListener === 'function') {
-          record.target.removeEventListener(record.event, record.listener, record.options);
-        }
-        listenerRecords.splice(index, 1);
-        detached += 1;
+        if (detachRecord(record)) detached += 1;
       }
       return {
         schema: 'xtend.epic18.rmt-event-detach-report.v1',
@@ -749,17 +1179,42 @@
       };
     }
 
+    function dispose() {
+      const alreadyDisposed = disposed;
+      disposed = true;
+      const detachReport = detachOwner('');
+      if (
+        compatibilityRendererRecord.renderer
+        && typeof compatibilityRendererRecord.renderer.dispose === 'function'
+      ) {
+        compatibilityRendererRecord.renderer.dispose();
+      }
+      compatibilityRendererRecord.renderer = null;
+      compatibilityRendererRecord.documentTarget = null;
+      return {
+        schema: 'xtend.epic18.rmt-event-dispose-report.v1',
+        disposed: true,
+        alreadyDisposed,
+        detachedCount: detachReport.detachedCount
+      };
+    }
+
     return Object.freeze({
       schema: RMT_EVENT_ROUTING_RUNTIME_SCHEMA,
       attach,
+      reconcile,
       detachOwner,
       detachAll() {
         return detachOwner('');
       },
+      dispose,
       routeEvent,
       createPayload,
       listBindings() {
-        return bindings.map((binding) => cloneValue(binding, binding));
+        return [...bindingIndex.values()].map((binding) => ({
+          ...cloneValue(binding, binding),
+          target: binding.target
+        }));
       },
       listAttached() {
         return listenerRecords.map((record) => ({

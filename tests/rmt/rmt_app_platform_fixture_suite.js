@@ -635,12 +635,23 @@ async function runRuntimeBehaviorChecks(context, fixture, runtimeModules) {
 function runRendererChecks(context, fixture, runtimeModules) {
   const documentTarget = createFakeDocument();
   const events = [];
-  const renderer = runtimeModules.domRenderer.createRmtDomDescriptorRenderer({ documentTarget });
+  const componentRegistry = {
+    resolveComponentCapability(tag) {
+      return tag === 'x-record-row'
+        ? { tag, allowedProperties: ['value'] }
+        : null;
+    }
+  };
+  const renderer = runtimeModules.domRenderer.createRmtDomDescriptorRenderer({
+    documentTarget,
+    componentRegistry
+  });
   const root = documentTarget.createElement('main');
   const templates = indexById(fixture.templates);
   const shellTemplate = templates.get('template.app-shell');
   const renderResult = renderer.render(root, shellTemplate.root, {
     components: fixture.components,
+    componentRegistry,
     templates: fixture.templates,
     slots: fixture.extensionSlots,
     model: {
@@ -664,7 +675,14 @@ function runRendererChecks(context, fixture, runtimeModules) {
   context.assert(row && row.getAttribute('data-rmt-key') === 'alpha', 'WP12 renderer applies stable repeat key');
   context.assert(row && row.value === 'alpha', 'WP12 renderer applies component property without HTML strings');
   row.dispatchEvent({ type: 'click', detail: { id: 'alpha' } });
-  context.assert(events.length === 1 && events[0].id === 'event.record-select', 'WP12 renderer dispatches declarative event id');
+  const rowBinding = renderResult.bindings.find((binding) => binding.target === row && binding.event === 'click');
+  context.assert(
+    events.length === 0
+      && !row._listeners.has('click')
+      && rowBinding
+      && rowBinding.command === 'event.record-select',
+    'WP12 renderer returns the declarative event binding for the Event Router'
+  );
 
   const gate = runtimeModules.domRenderer.createNoManualHtmlGate();
   context.assert(gate.scanText(JSON.stringify(fixture), { filePath: RMT_APP_PLATFORM_FIXTURE }).length === 0, 'WP12 No-Manual-HTML gate accepts fixture');

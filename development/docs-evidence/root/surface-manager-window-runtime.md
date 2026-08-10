@@ -2,7 +2,7 @@
 
 Contract: `xtend.surface.window-runtime.v1`
 
-`x-surface-manager` and `x-surface-window` form the owned multi-window Surface Runtime for XTend App Shells. The runtime consumes `xtend.surface.controller.v1` snapshots and keeps the DOM, focus stack, loading state and route lifecycle aligned with controller state.
+`x-surface-manager` and `x-surface-window` form the owned multi-window Surface Runtime for XTend App Shells. The runtime consumes `xtend.surface.controller.v2` snapshots and keeps the DOM, focus stack, loading state and route lifecycle aligned with controller state.
 
 ## Runtime Contract
 

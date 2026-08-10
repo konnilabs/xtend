@@ -28,6 +28,7 @@ function createFakeElement(tagName) {
       this.attributes[name] = String(value);
     },
     appendChild(child) {
+      child.parentNode = this;
       this.children.push(child);
       return child;
     },
@@ -61,7 +62,10 @@ function createFakeDocument() {
 function createRuntimeModules(context, rootDir, artifactPath) {
   const source = readText(artifactPath, rootDir);
   const cjsCompatibleSource = artifactPath.endsWith('.esm.js')
-    ? source.replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
+    ? source
+      .replace(/^\s*import\s+[\s\S]*?\s+from\s+['"][^'"]+['"];\s*$/gmu, '')
+      .replace(/^\s*import\s+['"][^'"]+['"];\s*$/gmu, '')
+      .replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
     : source;
   function CustomEvent(type, init = {}) {
     this.type = type;
@@ -91,6 +95,23 @@ function createRuntimeModules(context, rootDir, artifactPath) {
   if (!context.assert(sandbox.AppModules && typeof sandbox.AppModules.createRmtXtendComponentAdapter === 'function', `${artifactPath} exposes createRmtXtendComponentAdapter`)) {
     return null;
   }
+  return sandbox.AppModules;
+}
+
+function createCanonicalStateTelemetryModules(context, rootDir) {
+  const sourcePath = 'xtendrmt/kernel/modules/rmt-state-telemetry-adapter.js';
+  const sandbox = { AppModules: {} };
+  sandbox.__XTENDRMT_GLOBAL__ = sandbox;
+  try {
+    vm.runInNewContext(readText(sourcePath, rootDir), sandbox, { filename: sourcePath });
+  } catch (error) {
+    context.fail(`Canonical State Telemetry Adapter evaluates for telemetry probe (${error.message})`);
+    return null;
+  }
+  context.assert(
+    typeof sandbox.AppModules.createRmtStateSchedulerDiagnosticsBridge === 'function',
+    'Canonical State Telemetry Adapter exposes its bridge factory for telemetry projection'
+  );
   return sandbox.AppModules;
 }
 
@@ -142,8 +163,27 @@ function assertRuntimeArtifact(context, rootDir, artifactPath) {
   context.assert(telemetryCollector.some((record) => record.operation === 'mount'), `${artifactPath}: mount telemetry reaches collector`);
 
   const mountedElement = fakeRoot.children[0];
-  context.assert(mountedElement && mountedElement.listeners['alert-dismissed'], `${artifactPath}: event listener is attached`);
-  mountedElement.listeners['alert-dismissed'].handler({ detail: { reason: 'smoke' } });
+  const applicationBindings = mountResult.handle && mountResult.handle.applicationBindings;
+  context.assert(
+    Array.isArray(applicationBindings)
+      && applicationBindings.some((binding) => (
+        binding.target === mountedElement
+          && binding.event === 'alert-dismissed'
+          && binding.command
+      )),
+    `${artifactPath}: component mount hands validated application bindings to the Event Router`
+  );
+  context.assert(
+    mountedElement && !mountedElement.listeners['alert-dismissed'],
+    `${artifactPath}: component adapter does not install application listeners`
+  );
+  adapter.recordComponentTelemetry({
+    componentId: 'dashboard.health',
+    operation: 'event',
+    status: 'ok',
+    fabricContext: mountResult.metadata.fabric,
+    metadata: { eventName: 'alert-dismissed', routeOwner: 'event-router' }
+  }, { mapping });
   context.assert(telemetryCollector.some((record) => record.operation === 'event' && record.metadata.eventName === 'alert-dismissed'), `${artifactPath}: event telemetry reaches collector`);
 
   const manualResult = adapter.recordComponentTelemetry({
@@ -256,17 +296,19 @@ function assertRuntimeArtifact(context, rootDir, artifactPath) {
 function assertTelemetryBridgeEndToEnd(context, rootDir) {
   const modules = createRuntimeModules(context, rootDir, 'xtendrmt/rmt-runtime.esm.js');
   if (!modules || typeof modules.createRmtStateSchedulerDiagnosticsBridge !== 'function') return;
+  const canonicalModules = createCanonicalStateTelemetryModules(context, rootDir);
+  if (!canonicalModules) return;
 
   const xstateValues = {};
   const schedulerPressureSamples = [];
   const scheduledEndpoints = [];
-  const bridge = modules.createRmtStateSchedulerDiagnosticsBridge({
-    xstate: {
-      set(key, value) {
-        xstateValues[key] = value;
+  const bridge = canonicalModules.createRmtStateSchedulerDiagnosticsBridge({
+    stateProjectionPort: {
+      batchUpdate(updates) {
+        Object.assign(xstateValues, updates);
       },
-      get(key) {
-        return xstateValues[key];
+      get() {
+        throw new Error('State Projection Ports are output-only and must never be read as model authority.');
       }
     },
     scheduler: {
@@ -359,7 +401,9 @@ function assertTelemetryBridgeEndToEnd(context, rootDir) {
 function assertAppRuntimePerformanceDevApi(context, rootDir) {
   const artifactPath = 'xtendrmt/rmt-app-runtime.js';
   const source = readText(artifactPath, rootDir);
-  const runtimeSource = source.replace(/\nconst __XTEND_RMT_APP_RUNTIME_API__[\s\S]*$/u, '');
+  const runtimeSource = `${source
+    .replace(/^export const ([A-Za-z0-9_$]+) =/gmu, 'const $1 =')
+    .replace(/^export default __XTEND_RMT_APP_RUNTIME_API__;\s*$/mu, '')}\nthis.XTendRmtAppRuntime = __XTEND_RMT_APP_RUNTIME_API__;`;
   const sandbox = {
     console,
     setTimeout,

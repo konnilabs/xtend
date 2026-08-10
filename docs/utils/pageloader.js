@@ -6,11 +6,13 @@ const docsVersionedModuleUrl = (path) => `${path}${docsAssetVersion ? `?v=${enco
 const [
   { createRmtDomDescriptorRenderer },
   { createMaracaPlanRuntime },
-  { createRmtBrowserScheduler }
+  { createRmtBrowserScheduler },
+  { createRmtMaracaViewProjectionAdapter }
 ] = await Promise.all([
   import(docsVersionedModuleUrl('/xtendrmt/rmt-dom-descriptor-renderer.js')),
   import(docsVersionedModuleUrl('/xtend-maraca/plan-runtime.mjs')),
-  import(docsVersionedModuleUrl('/xtendrmt/rmt-browser-scheduler.js'))
+  import(docsVersionedModuleUrl('/xtendrmt/rmt-browser-scheduler.js')),
+  import(docsVersionedModuleUrl('/xtendrmt/rmt-maraca-view-projection-adapter.js'))
 ]);
 
 const DOCS_RMT_RENDER_SCHEMA = 'xtend.docs.parsedown-rmt-render.v1';
@@ -59,6 +61,7 @@ const DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES = Object.freeze([
   '/components/xutils.js',
   '/xtendrmt/rmt-runtime.esm.js',
   '/xtendrmt/rmt-kernel-orchestration-controller.js',
+  '/xtendrmt/rmt-state-binding-view-projector.js',
   '/xtendrmt/rmt-state-selector-runtime.js',
   '/xtendrmt/rmt-action-effect-runtime.js',
   '/xtendrmt/rmt-event-routing-runtime.js',
@@ -66,6 +69,7 @@ const DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES = Object.freeze([
   '/xtendrmt/rmt-animation-engine-runtime.js',
   '/xtendrmt/rmt-surface-transition-runtime.js',
   '/xtendrmt/rmt-surface-resource-graph-runtime.js',
+  '/xtendrmt/rmt-maraca-view-projection-adapter.js',
   '/xtendrmt/rmt-dom-descriptor-renderer.js'
 ]);
 const DOCS_RMT_PLAYGROUND_HYDRATION_TAGS = Object.freeze([
@@ -3635,9 +3639,7 @@ function scheduleDocsSsrCodeEnhancement(root, metadata = {}) {
   const endpointName = schedule && schedule.endpointName ? schedule.endpointName : scheduleId;
   const deadlineMs = Number(schedule && schedule.deadlineMs) > 0 ? Number(schedule.deadlineMs) : 280;
   const removeListeners = () => {
-    listeners.splice(0).forEach(({ type, listener }) => {
-      window.removeEventListener(type, listener, true);
-    });
+    listeners.splice(0).forEach((dispose) => dispose());
   };
   const cancelIdleEnhancement = () => {
     if (typeof idleDisposer !== 'function') return;
@@ -3697,8 +3699,7 @@ function scheduleDocsSsrCodeEnhancement(root, metadata = {}) {
       interactionRequested = true;
       enhance('interaction');
     };
-    listeners.push({ type, listener });
-    window.addEventListener(type, listener, { capture: true, passive: true });
+    listeners.push(bindDocsLifecycle(window, type, listener, { capture: true, passive: true }));
   });
   root.setAttribute('data-docs-code-enhancement', 'idle-pending');
   root.removeAttribute('data-docs-code-enhancement-trigger');
@@ -4269,7 +4270,37 @@ async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = g
   const runtime = createMaracaPlanRuntime({
     plan: maraca.plan,
     root: appRoot,
+    viewProjectionPort: createRmtMaracaViewProjectionAdapter({
+      root: appRoot,
+      documentTarget: document,
+      windowTarget: window
+    }),
+    ownsViewProjectionPort: true,
     moduleUrls: DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES.map((modulePath) => new URL(modulePath, window.location.origin).href),
+    moduleLoaderPort: Object.freeze({
+      schema: 'xtend.docs.rmt-playground.module-loader-port.v1',
+      async load(_plan, moduleUrls) {
+        await Promise.all((moduleUrls || []).map((url) => import(String(url))));
+        return Object.freeze({
+          state: window.XTendRmtStateSelectorRuntime,
+          stateProjection: window.XTendRmtXStateHostAdapter,
+          stateBindings: window.XTendRmtStateBindingViewProjector,
+          action: window.XTendRmtActionEffectRuntime,
+          app: window.XTendRmtAppRuntime,
+          events: window.XTendRmtEventRoutingRuntime,
+          animation: window.XTendRmtAnimationEngineRuntime,
+          validation: window.XTendRmtFormValidationRuntime,
+          transitions: window.XTendRmtSurfaceTransitionRuntime,
+          surfaces: window.XTendRmtSurfaceResourceGraphRuntime,
+          surfaceController: window.XTendSurfaceController,
+          viewProjection: window.XTendRmtMaracaViewProjectionAdapter,
+          presentation: window.XTendRmtPresentationEffectAdapter,
+          renderer: window.XTendRmtDomDescriptorRenderer,
+          kernel: window.XTendRmtKernelOrchestrationController,
+          kernelRuntime: window.AppModules || window.XTendRmtProduct || null
+        });
+      }
+    }),
     componentRegistry: {
       ensureTags(tags) { return hydrateDocsRmtPlaygroundElements(appRoot, tags); },
       hydrate(root, tags) { return hydrateDocsRmtPlaygroundElements(root, tags); }
@@ -4279,7 +4310,6 @@ async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = g
     }),
     documentTarget: document,
     windowTarget: window,
-    globalTarget: window,
     xUtils: window.XUtils,
     xstate: window.xstate
   });

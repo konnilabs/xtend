@@ -29,7 +29,7 @@ export interface XStateBoundaryContract {
 }
 
 export interface XStateRmtMetadata {
-  schema: 'xtend.rmt.state-scheduler-compatibility.v1';
+  schema: 'xtend.rmt.state-scheduler-compatibility.v2';
   moduleRef: 'xstate';
   adapterRole: 'optional-host-state-bridge';
   schedulerCompatibility: string[];
@@ -72,12 +72,13 @@ export interface XStateDiagnosticsSnapshot {
 }
 
 export interface XStateRmtStateAdapter {
-  schema: 'xtend.rmt.state-scheduler-compatibility.v1';
+  schema: 'xtend.rmt.state-scheduler-compatibility.v2';
   source: 'xstate';
   schedulerId: string;
   kernelBoundary: 'no-rmt-kernel-import-of-xtend-types';
   get<T = unknown>(key: XStateKey): T | undefined;
   set<T = unknown>(key: XStateKey, value: T): void;
+  batchUpdate(updates: Record<string, unknown>): void;
   remove(key: XStateKey): void;
   clear(): void;
   subscribe<T = unknown>(
@@ -123,7 +124,7 @@ export interface XStateApi {
 export declare const XSTATE_BOUNDARY_SCHEMA: 'xtend.state.boundary-probe.v1';
 export declare const XSTATE_DIAGNOSTICS_SCHEMA: 'xtend.fabric.state-diagnostics.v1';
 export declare const XSTATE_LIFECYCLE_EVENT_SCHEMA: 'xtend.state.lifecycle-event.v1';
-export declare const XSTATE_RMT_COMPATIBILITY_SCHEMA: 'xtend.rmt.state-scheduler-compatibility.v1';
+export declare const XSTATE_RMT_COMPATIBILITY_SCHEMA: 'xtend.rmt.state-scheduler-compatibility.v2';
 export declare const XSTATE_SNAPSHOT_SCHEMA: 'xtend.state.snapshot.v1';
 export declare const xstate: XStateApi;
 

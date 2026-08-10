@@ -3,7 +3,7 @@
 - Status: `completed`
 - Epic: `development/docs-evidence/root/epic18-media-manager-vendor-upstream.md`
 - Backlog: `development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md`
-- Contract: `xtend.epic18.rmt-event-routing-runtime.v1`
+- Contract: `xtend.epic18.rmt-event-routing-runtime.v2`
 - Runtime: `xtendrmt/rmt-event-routing-runtime.js`
 - Types: `xtendrmt/rmt-event-routing-runtime.d.ts`
 - Fixture: `tests/fixtures/rmt-event-routing-runtime.rmt`

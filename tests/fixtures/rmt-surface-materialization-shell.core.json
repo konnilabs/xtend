@@ -14,7 +14,7 @@
       "materializationSchema": "xtend.surface.materialization.v1",
       "surfaceManager": "xtend.surface.manager.v1",
       "surfaceRecord": "xtend.surface.record.v1",
-      "surfaceController": "xtend.surface.controller.v1",
+      "surfaceController": "xtend.surface.controller.v2",
       "componentRole": "content-and-manager-binding",
       "surfaceComponentGeneration": "surfaces-domain-owned",
       "kernelBoundary": "RMT owns surface intent, component refs, routes, schedules and metadata. XTend surface adapter materializes host UI elements without creating a second registry."
@@ -101,7 +101,7 @@
         "workpackage": "WP-SM-11",
         "runtimeImplemented": true,
         "materializationSchema": "xtend.surface.materialization.v1",
-        "controller": "xtend.surface.controller.v1",
+        "controller": "xtend.surface.controller.v2",
         "createsSecondRegistry": false
       }
     }

@@ -167,17 +167,26 @@ const KERNEL_POLICY_PARITY_DRIFT_SCHEMA = 'xtend.rmt.kernel-policy-parity-drift.
 const KERNEL_RUNTIME_BUNDLE_FILE = 'runtime/xtendrmt-runtime.esm.js';
 const KERNEL_CONTROLLER_BUNDLE_FILE = 'runtime/xtendrmt-kernel-orchestration-controller.js';
 const KERNEL_RESUME_RUNTIME_BUNDLE_FILE = 'runtime/rmt-resume-runtime.js';
+const PLAN_RUNTIME_BUNDLE_FILE = 'runtime/xtend-maraca-plan-runtime.mjs';
+const BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE = 'runtime/xtend-maraca-browser-composition-runtime.mjs';
+const BROWSER_HOST_ADAPTER_BUNDLE_FILE = 'runtime/browser-host-adapter.mjs';
 const ORCHESTRATION_RUNTIME_MODULES = Object.freeze([
+  'components/xsurfacemanager-controller.js',
   'xtendrmt/rmt-resume-runtime.js',
+  'xtendrmt/rmt-state-binding-view-projector.js',
+  'xtendrmt/rmt-xstate-host-adapter.js',
   'xtendrmt/rmt-state-selector-runtime.js',
   'xtendrmt/rmt-action-effect-runtime.js',
   'xtendrmt/rmt-event-routing-runtime.js',
   'xtendrmt/rmt-app-runtime.js',
+  'xtendrmt/rmt-maraca-view-projection-adapter.js',
+  'xtendrmt/rmt-presentation-effect-adapter.js',
   'xtendrmt/rmt-surface-resource-graph-runtime.js',
   'xtendrmt/rmt-dom-descriptor-renderer.js'
 ]);
 const XTEND_VENDOR_STACK_MODULES = Object.freeze([
   'api.js',
+  'components/xsurfacemanager-controller.js',
   'xtendrmt/rmt-core.esm.js',
   'xtendrmt/rmt-runtime.esm.js',
   'xtendrmt/rmt-dom-descriptor-renderer.js',
@@ -187,6 +196,10 @@ const XTEND_VENDOR_STACK_MODULES = Object.freeze([
   'xtendrmt/rmt-form-validation-runtime.js',
   'xtendrmt/rmt-animation-engine-runtime.js',
   'xtendrmt/rmt-surface-transition-runtime.js',
+  'xtendrmt/rmt-maraca-view-projection-adapter.js',
+  'xtendrmt/rmt-presentation-effect-adapter.js',
+  'xtendrmt/rmt-state-binding-view-projector.js',
+  'xtendrmt/rmt-xstate-host-adapter.js',
   'xtendrmt/rmt-state-selector-runtime.js',
   'xtendrmt/rmt-surface-resource-graph-runtime.js',
   'xtendrmt/rmt-component-capability-registry.js',
@@ -223,6 +236,7 @@ const PUBLIC_NAME_RESERVATIONS = Object.freeze([
   'XTendRmtKernelOrchestrationController',
   'XTendRmtAnimationEngineRuntime',
   'XTendRmtSurfaceTransitionRuntime',
+  'XTendRmtMaracaViewProjectionAdapter',
   'customElements',
   'HTMLElement',
   'ShadowRoot',
@@ -323,41 +337,113 @@ let rmtKernelFeatureAdoptionRegistryModule = null;
 let rmtKernelFeatureAdoptionRegistryModuleError = null;
 let rmtKernelPolicyParityModule = null;
 let rmtKernelPolicyParityModuleError = null;
-let rmtManifestCache = null;
-let rmtPerformanceRuntimeFactory = null;
-let rmtPerformanceRuntimeFactoryError = null;
+const rmtManifestCache = new Map();
+const rmtPerformanceRuntimeFactories = new Map();
+const rmtPerformanceRuntimeFactoryErrors = new Map();
+const rmtKernelLabAssemblerCache = new Map();
 
-function loadRmtManifest(rootDir) {
-  if (rmtManifestCache) return rmtManifestCache;
+function resolveXtendPeerRoot() {
+  try {
+    return path.dirname(require.resolve('@ccslabs/xtend/package.json'));
+  } catch (_) {
+    return null;
+  }
+}
+
+function resolveRmtKernelSourceRoot(rootDir) {
   const packageRoot = path.dirname(path.dirname(__filename));
   const candidates = [
-    path.resolve(rootDir || process.cwd(), 'xtendrmt/rmt-manifest.json'),
-    path.resolve(packageRoot, 'xtendrmt/rmt-manifest.json')
-  ];
-  const manifestPath = candidates.find((candidate) => fs.existsSync(candidate));
-  if (!manifestPath) return null;
+    path.resolve(rootDir || process.cwd()),
+    path.resolve(packageRoot),
+    resolveXtendPeerRoot()
+  ].filter(Boolean);
+  return candidates.find((candidate) => (
+    fs.existsSync(path.join(candidate, 'xtendrmt/kernel/rmt-kernel-sources.json'))
+    && fs.existsSync(path.join(candidate, 'xtendrmt/package.json'))
+  )) || candidates[0];
+}
+
+function loadRmtKernelLabAssembler(rootDir) {
+  const sourceRoot = resolveRmtKernelSourceRoot(rootDir);
+  if (rmtKernelLabAssemblerCache.has(sourceRoot)) {
+    return rmtKernelLabAssemblerCache.get(sourceRoot);
+  }
+  const packageRoot = path.dirname(path.dirname(__filename));
+  const peerRoot = resolveXtendPeerRoot();
+  const candidates = [
+    path.join(packageRoot, 'xtend-builder/generators/rmt-kernel-lab.js'),
+    peerRoot && path.join(peerRoot, 'xtend-builder/generators/rmt-kernel-lab.js')
+  ].filter(Boolean);
+  let assembler = null;
+  for (const candidate of candidates) {
+    if (!fs.existsSync(candidate)) continue;
+    try {
+      const candidateModule = require(candidate);
+      if (candidateModule && typeof candidateModule.createRmtKernelSourceArtifact === 'function') {
+        assembler = candidateModule;
+        break;
+      }
+    } catch (_) {
+      // Continue to the peer-package lookup below.
+    }
+  }
+  if (!assembler) {
+    try {
+      const candidateModule = require('@ccslabs/xtend/xtend-builder/generators/rmt-kernel-lab');
+      if (candidateModule && typeof candidateModule.createRmtKernelSourceArtifact === 'function') {
+        assembler = candidateModule;
+      }
+    } catch (_) {
+      assembler = null;
+    }
+  }
+  rmtKernelLabAssemblerCache.set(sourceRoot, assembler);
+  return assembler;
+}
+
+function assembleRmtSourceArtifact(rootDir, artifactPath) {
+  const sourceRoot = resolveRmtKernelSourceRoot(rootDir);
+  const assembler = loadRmtKernelLabAssembler(sourceRoot);
+  if (!assembler) {
+    const error = new Error('KernelLab source assembler is not available.');
+    error.code = 'xtend.maraca.kernel_source_assembler_unavailable';
+    throw error;
+  }
+  const result = assembler.createRmtKernelSourceArtifact({
+    rootDir: sourceRoot,
+    artifactPath
+  });
+  if (!result || !result.ok || typeof result.content !== 'string') {
+    const diagnostic = result && Array.isArray(result.diagnostics) ? result.diagnostics[0] : null;
+    const error = new Error(diagnostic && diagnostic.message
+      ? diagnostic.message
+      : `KernelLab could not assemble ${artifactPath} from canonical sources.`);
+    error.code = diagnostic && diagnostic.code || 'xtend.maraca.kernel_source_assembly_failed';
+    error.report = result || null;
+    throw error;
+  }
+  return result;
+}
+
+function loadRmtManifest(rootDir) {
+  const sourceRoot = resolveRmtKernelSourceRoot(rootDir);
+  if (rmtManifestCache.has(sourceRoot)) return rmtManifestCache.get(sourceRoot);
   try {
-    rmtManifestCache = readJson(manifestPath);
-    return rmtManifestCache;
+    const artifact = assembleRmtSourceArtifact(sourceRoot, 'xtendrmt/rmt-manifest.json');
+    const manifest = JSON.parse(artifact.content);
+    rmtManifestCache.set(sourceRoot, manifest);
+    return manifest;
   } catch (_) {
     return null;
   }
 }
 
 function loadRmtPerformanceRuntimeFactory(rootDir) {
-  if (rmtPerformanceRuntimeFactory || rmtPerformanceRuntimeFactoryError) return rmtPerformanceRuntimeFactory;
-  const packageRoot = path.dirname(path.dirname(__filename));
-  const candidates = [
-    path.resolve(rootDir || process.cwd(), 'xtendrmt/rmt-runtime.browser.js'),
-    path.resolve(packageRoot, 'xtendrmt/rmt-runtime.browser.js')
-  ];
-  const runtimePath = candidates.find((candidate) => fs.existsSync(candidate));
-  if (!runtimePath) {
-    rmtPerformanceRuntimeFactoryError = new Error('XTendRMT browser runtime bundle was not found.');
-    return null;
-  }
+  const sourceRoot = resolveRmtKernelSourceRoot(rootDir);
+  if (rmtPerformanceRuntimeFactories.has(sourceRoot)) return rmtPerformanceRuntimeFactories.get(sourceRoot);
+  if (rmtPerformanceRuntimeFactoryErrors.has(sourceRoot)) return null;
   try {
-    const runtimeSource = fs.readFileSync(runtimePath, 'utf8');
+    const artifact = assembleRmtSourceArtifact(sourceRoot, 'xtendrmt/rmt-runtime.browser.js');
     const sandbox = {
       console,
       setTimeout,
@@ -369,16 +455,26 @@ function loadRmtPerformanceRuntimeFactory(rootDir) {
       }
     };
     sandbox.globalThis = sandbox;
-    vm.runInNewContext(runtimeSource, sandbox, {
-      filename: runtimePath,
+    vm.runInNewContext(artifact.content, sandbox, {
+      filename: `${artifact.sourceManifestPath || 'xtendrmt/kernel/rmt-kernel-sources.json'}#rmt-runtime.browser.js`,
       timeout: 1000
     });
-    rmtPerformanceRuntimeFactory = sandbox.AppModules && sandbox.AppModules.createRmtPerformanceRuntime || null;
+    const factory = sandbox.AppModules && sandbox.AppModules.createRmtPerformanceRuntime || null;
+    if (typeof factory !== 'function') {
+      const error = new Error('Canonical XTendRMT browser runtime does not provide createRmtPerformanceRuntime.');
+      error.code = 'xtend.maraca.performance_runtime_factory_missing';
+      throw error;
+    }
+    rmtPerformanceRuntimeFactories.set(sourceRoot, factory);
+    return factory;
   } catch (error) {
-    rmtPerformanceRuntimeFactoryError = error;
-    rmtPerformanceRuntimeFactory = null;
+    rmtPerformanceRuntimeFactoryErrors.set(sourceRoot, error);
+    return null;
   }
-  return rmtPerformanceRuntimeFactory;
+}
+
+function getRmtPerformanceRuntimeFactoryError(rootDir) {
+  return rmtPerformanceRuntimeFactoryErrors.get(resolveRmtKernelSourceRoot(rootDir)) || null;
 }
 
 function loadUmdEsmHybridModule(modulePath, globalName) {
@@ -1538,6 +1634,7 @@ function createMaracaPerformanceReport(input = {}) {
   const manifest = input.manifest || loadRmtManifest(rootDir);
   const factories = manifest && manifest.entryPoints && manifest.entryPoints.appModulesFactories || {};
   const factory = loadRmtPerformanceRuntimeFactory(rootDir);
+  const factoryError = getRmtPerformanceRuntimeFactoryError(rootDir);
   const supported = typeof factory === 'function';
   const documentId = input.coreDocument && input.coreDocument.manifest && input.coreDocument.manifest.documentId
     ? String(input.coreDocument.manifest.documentId)
@@ -1548,8 +1645,8 @@ function createMaracaPerformanceReport(input = {}) {
     diagnostics.push({
       code: 'xtend.maraca.performance_runtime_unavailable',
       severity: 'warning',
-      message: rmtPerformanceRuntimeFactoryError && rmtPerformanceRuntimeFactoryError.message
-        ? rmtPerformanceRuntimeFactoryError.message
+      message: factoryError && factoryError.message
+        ? factoryError.message
         : 'RMT Performance Runtime factory is not available.'
     });
     return {
@@ -2486,16 +2583,24 @@ function createComponentRecords(requiredTags, componentManifest, options) {
 function buildRuntimeModuleList(coreDocument) {
   const modules = new Set([
     'xtendrmt/rmt-runtime.esm.js',
-    'xtendrmt/rmt-dom-descriptor-renderer.js'
+    'xtendrmt/rmt-dom-descriptor-renderer.js',
+    'xtendrmt/rmt-maraca-view-projection-adapter.js'
   ]);
   const hasActions = Array.isArray(coreDocument && coreDocument.actions) && coreDocument.actions.length > 0;
   const hasEvents = Array.isArray(coreDocument && coreDocument.events) && coreDocument.events.length > 0;
   const hasSelectors = Array.isArray(coreDocument && coreDocument.selectors) && coreDocument.selectors.length > 0;
   const hasSurfaces = Array.isArray(coreDocument && coreDocument.surfaces) && coreDocument.surfaces.some((surface) => surface.primitive === true);
-  if (hasActions) modules.add('xtendrmt/rmt-action-effect-runtime.js');
+  if (hasActions) {
+    modules.add('xtendrmt/rmt-action-effect-runtime.js');
+    modules.add('xtendrmt/rmt-presentation-effect-adapter.js');
+  }
   if (hasEvents) modules.add('xtendrmt/rmt-event-routing-runtime.js');
   if (hasActions || hasEvents) modules.add('xtendrmt/rmt-app-runtime.js');
-  if (hasSelectors) modules.add('xtendrmt/rmt-state-selector-runtime.js');
+  if (hasSelectors) {
+    modules.add('xtendrmt/rmt-state-binding-view-projector.js');
+    modules.add('xtendrmt/rmt-xstate-host-adapter.js');
+    modules.add('xtendrmt/rmt-state-selector-runtime.js');
+  }
   if (hasSurfaces || coreDocument && coreDocument.appPlatform) modules.add('xtendrmt/rmt-surface-resource-graph-runtime.js');
   return Array.from(modules).sort();
 }
@@ -4760,6 +4865,83 @@ async function invokeMaracaComponentCommand(root, commandRecord, options = {}) {
   };
 }
 
+function createMaracaCompatibilitySurfaceDescriptor(surface, stateRecords = {}) {
+  const tag = surface.component || 'section';
+  const state = surface && surface.source ? stateRecords[surface.source] || {} : {};
+  const attributes = {
+    'data-maraca-surface': surface.id || tag,
+    'data-rmt-component': tag,
+    'data-maraca-kind': surface.kind || null
+  };
+  const setIfPresent = (attribute, stateKey = attribute) => {
+    if (Object.prototype.hasOwnProperty.call(state, stateKey)) attributes[attribute] = state[stateKey];
+  };
+  [
+    'id', 'tone', 'hidden', 'name', 'value', 'placeholder', 'label', 'command', 'required',
+    'disabled', 'readonly', 'busy', 'invalid', 'rows', 'density', 'fill', 'highlight', 'lang',
+    'language', 'width', 'height'
+  ].forEach((attribute) => setIfPresent(attribute));
+  [
+    ['minlength', 'minLength'],
+    ['maxlength', 'maxLength'],
+    ['aria-label', 'ariaLabel'],
+    ['aria-busy', 'ariaBusy'],
+    ['icon-name', 'iconName'],
+    ['icon-pack', 'iconPack'],
+    ['data-field', 'field']
+  ].forEach(([attribute, stateKey]) => setIfPresent(attribute, stateKey));
+  if (Object.prototype.hasOwnProperty.call(state, 'inputType')) attributes.type = state.inputType;
+  if (Object.prototype.hasOwnProperty.call(state, 'mediaType')) attributes.type = state.mediaType;
+  [
+    'src', 'poster', 'title', 'subtitle', 'kind', 'count', 'selected', 'controls', 'open', 'accept',
+    'multiple', 'active', 'minimized', 'maximized', 'resizable', 'draggable', 'modal', 'pinned',
+    'collapsed', 'collapsible', 'collapsable', 'closable', 'pinnable', 'placement', 'mode'
+  ].forEach((attribute) => setIfPresent(attribute));
+  [
+    ['surface-id', 'surfaceId'],
+    ['manager-id', 'managerId'],
+    ['state-key', 'stateKey'],
+    ['data-record-id', 'recordId'],
+    ['data-media-id', 'mediaId'],
+    ['restore-key', 'restoreKey'],
+    ['persistence-mode', 'persistenceMode'],
+    ['restore-policy', 'restorePolicy'],
+    ['surface-loading-policy', 'surfaceLoadingPolicy'],
+    ['surface-skeleton', 'surfaceSkeleton'],
+    ['surface-hydration-timeout', 'surfaceHydrationTimeout'],
+    ['route-lifecycle-policy', 'routeLifecyclePolicy'],
+    ['modal-policy', 'modalPolicy'],
+    ['layout-engine', 'layoutEngine'],
+    ['surface-layout-gap', 'surfaceLayoutGap'],
+    ['surface-layout-snap', 'surfaceLayoutSnap'],
+    ['initial-x', 'initialX'],
+    ['initial-y', 'initialY'],
+    ['initial-width', 'initialWidth'],
+    ['initial-height', 'initialHeight'],
+    ['responsive-mode', 'responsiveMode'],
+    ['submit-command', 'submitCommand'],
+    ['submit-on-enter', 'submitOnEnter'],
+    ['syntax-highlight', 'syntaxHighlight'],
+    ['line-numbering', 'lineNumbering']
+  ].forEach(([attribute, stateKey]) => setIfPresent(attribute, stateKey));
+  if (tag === 'x-status') {
+    setIfPresent('type', 'tone');
+    setIfPresent('state', 'tone');
+    setIfPresent('message', 'text');
+  }
+  if (tag === 'x-button') {
+    setIfPresent('variant', 'tone');
+    setIfPresent('label', 'text');
+    setIfPresent('data-label', 'text');
+  }
+  return {
+    type: 'element',
+    tag,
+    attributes,
+    ...(Object.prototype.hasOwnProperty.call(state, 'text') ? { text: state.text } : {})
+  };
+}
+
 function createBundleSource(plan, providerCssText = null) {
   const outDir = plan.outputDir;
   const stackEntries = (plan.stackModules || []).map((entry) => ({
@@ -4781,6 +4963,10 @@ function createBundleSource(plan, providerCssText = null) {
     resources: surface.resources || [],
     events: surface.eventRefs || []
   }));
+  const compatibilityRenderDescriptor = {
+    type: 'fragment',
+    children: surfaces.map((surface) => createMaracaCompatibilitySurfaceDescriptor(surface, plan.state || {}))
+  };
   const orchestrationBundle = plan.orchestration && plan.orchestration.enabled ? {
     enabled: true,
     mode: plan.orchestration.mode,
@@ -4982,25 +5168,26 @@ function createBundleSource(plan, providerCssText = null) {
   };
   const css = typeof providerCssText === 'string' ? providerCssText : createCssText(plan);
   const header = [
-    `const MARACA_COMPONENTS = Object.freeze(${jsValue(componentEntries)});`,
-    `const MARACA_SURFACES = Object.freeze(${jsValue(surfaces)});`,
-    `const MARACA_STATE = Object.freeze(${jsValue(plan.state || {})});`,
-    `const MARACA_EVENTS = Object.freeze(${jsValue(plan.events || [])});`,
-    `const MARACA_ORCHESTRATION = Object.freeze(${jsValue(orchestrationBundle)});`,
-    `const MARACA_KERNEL = Object.freeze(${jsValue(kernelBundle)});`,
-    `const MARACA_HYDRATION = Object.freeze(${jsValue(hydrationBundle)});`,
-    `const MARACA_WARM_REENTRY = Object.freeze(${jsValue(warmReentryBundle)});`,
-    `const MARACA_UI_COPROCESSOR = Object.freeze(${jsValue(uiCoprocessorBundle)});`,
-    `const MARACA_WEB_APP_MANIFEST = Object.freeze(${jsValue(webAppManifestBundle)});`,
-    `const MARACA_PWA = Object.freeze(${jsValue(pwaBundle)});`,
-    `const MARACA_VALIDATION = Object.freeze(${jsValue(validationBundle)});`,
-    `const MARACA_TRANSITIONS = Object.freeze(${jsValue(transitionBundle)});`,
-    `const MARACA_APP_SERVICES = Object.freeze(${jsValue(appServicesBundle)});`,
-    `const MARACA_LIFECYCLE = Object.freeze(${jsValue(lifecycleBundle)});`,
-    `const MARACA_PRODUCTION_CLOSURE = Object.freeze(${jsValue(productionClosureBundle)});`,
-    `const MARACA_TEMPLATE_ARTIFACTS = Object.freeze(${jsValue(plan.templateArtifacts || null)});`,
-    `const MARACA_PUBLIC_NAMES = Object.freeze(${jsValue(plan.publicNameReservations)});`,
-    `const MARACA_STACK_MODULES = Object.freeze(${jsValue(stackEntries)});`,
+    `const MARACA_COMPONENTS = freezeMaracaSnapshot(${jsValue(componentEntries)});`,
+    `const MARACA_SURFACES = freezeMaracaSnapshot(${jsValue(surfaces)});`,
+    `const MARACA_STATE = freezeMaracaSnapshot(${jsValue(plan.state || {})});`,
+    `const MARACA_COMPATIBILITY_RENDER_DESCRIPTOR = freezeMaracaSnapshot(${jsValue(compatibilityRenderDescriptor)});`,
+    `const MARACA_EVENTS = freezeMaracaSnapshot(${jsValue(plan.events || [])});`,
+    `const MARACA_ORCHESTRATION = freezeMaracaSnapshot(${jsValue(orchestrationBundle)});`,
+    `const MARACA_KERNEL = freezeMaracaSnapshot(${jsValue(kernelBundle)});`,
+    `const MARACA_HYDRATION = freezeMaracaSnapshot(${jsValue(hydrationBundle)});`,
+    `const MARACA_WARM_REENTRY = freezeMaracaSnapshot(${jsValue(warmReentryBundle)});`,
+    `const MARACA_UI_COPROCESSOR = freezeMaracaSnapshot(${jsValue(uiCoprocessorBundle)});`,
+    `const MARACA_WEB_APP_MANIFEST = freezeMaracaSnapshot(${jsValue(webAppManifestBundle)});`,
+    `const MARACA_PWA = freezeMaracaSnapshot(${jsValue(pwaBundle)});`,
+    `const MARACA_VALIDATION = freezeMaracaSnapshot(${jsValue(validationBundle)});`,
+    `const MARACA_TRANSITIONS = freezeMaracaSnapshot(${jsValue(transitionBundle)});`,
+    `const MARACA_APP_SERVICES = freezeMaracaSnapshot(${jsValue(appServicesBundle)});`,
+    `const MARACA_LIFECYCLE = freezeMaracaSnapshot(${jsValue(lifecycleBundle)});`,
+    `const MARACA_PRODUCTION_CLOSURE = freezeMaracaSnapshot(${jsValue(productionClosureBundle)});`,
+    `const MARACA_TEMPLATE_ARTIFACTS = freezeMaracaSnapshot(${jsValue(plan.templateArtifacts || null)});`,
+    `const MARACA_PUBLIC_NAMES = freezeMaracaSnapshot(${jsValue(plan.publicNameReservations)});`,
+    `const MARACA_STACK_MODULES = freezeMaracaSnapshot(${jsValue(stackEntries)});`,
     `const MARACA_LAZY_MODE = ${JSON.stringify(plan.lazy)};`
   ];
 
@@ -5009,6 +5196,8 @@ function createBundleSource(plan, providerCssText = null) {
     if (plan.kernel && plan.kernel.enabled && entry.id === 'xtendrmt/rmt-kernel-orchestration-controller.js') return;
     header.unshift(`import "${entry.module}";`);
   });
+  header.unshift(`import { createMaracaBrowserCompositionRoot, freezeMaracaConfiguration as freezeMaracaSnapshot } from "./${BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE}";`);
+  header.unshift(`import { createMaracaPlanRuntime } from "./${PLAN_RUNTIME_BUNDLE_FILE}";`);
   if (plan.kernel && plan.kernel.enabled) {
     header.unshift(`import * as XTendMaracaKernelRuntimeModule from "./${KERNEL_RUNTIME_BUNDLE_FILE}";`);
     header.unshift(`import "./${KERNEL_CONTROLLER_BUNDLE_FILE}";`);
@@ -5054,2931 +5243,78 @@ const MARACA_SCHEMA = ${JSON.stringify(MARACA_BUNDLE_REPORT_SCHEMA)};
 const MARACA_COMPONENT_COMMAND_SCHEMA = ${JSON.stringify(MARACA_COMPONENT_COMMAND_SCHEMA)};
 const MARACA_COMPONENT_COMMAND_RESULT_SCHEMA = ${JSON.stringify(MARACA_COMPONENT_COMMAND_RESULT_SCHEMA)};
 
-${invokeMaracaComponentCommand.toString()}
-
-function attachMaracaCss(root) {
-  if (typeof document === "undefined") return;
-  if (${JSON.stringify(plan.css)} === "inline") {
-    if (document.querySelector("style[data-maraca-style]")) return;
-    const style = document.createElement("style");
-    style.setAttribute("data-maraca-style", "inline");
-    style.textContent = MARACA_CSS_TEXT;
-    (document.head || root || document.documentElement).appendChild(style);
-    return;
-  }
-  if (document.querySelector("link[data-maraca-style]")) return;
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = MARACA_CSS_HREF;
-  link.setAttribute("data-maraca-style", "external");
-  (document.head || root || document.documentElement).appendChild(link);
-}
-
-async function ensureMaracaComponent(tag) {
-  const load = MARACA_IMPORTERS[tag];
-  if (!load) {
-    throw new Error("XTend Maraca has no inline registry entry for " + tag);
-  }
-  await load();
-  return tag;
-}
-
-async function ensureMaracaComponents(tags) {
-  const uniqueTags = Array.from(new Set((tags || []).filter(Boolean)));
-  if (uniqueTags.length === 0) return [];
-  const loaded = [];
-  for (const tag of uniqueTags) {
-    loaded.push(await ensureMaracaComponent(tag));
-  }
-  return loaded;
-}
-
-function requestMaracaComponent(tag, metadata = {}) {
-  if (!tag || typeof tag !== "string") return null;
-  const load = ensureMaracaComponent(tag)
-    .then(() => {
-      dispatchMaracaEvent("xtend-maraca:component-load", {
-        tag,
-        strategy: metadata.strategy || "visibility"
-      });
-      return tag;
-    })
-    .catch((error) => {
-      dispatchMaracaEvent("xtend-maraca:component-error", {
-        tag,
-        strategy: metadata.strategy || "visibility",
-        message: error && error.message ? error.message : String(error)
-      });
-      return null;
-    });
-  return load;
-}
-
-function stateForSurface(surface) {
-  if (!surface || !surface.source) return {};
-  return MARACA_STATE[surface.source] || {};
-}
-
-function createSurfaceElement(surface) {
-  const tag = surface.component || "section";
-  const element = document.createElement(tag);
-  element.setAttribute("data-maraca-surface", surface.id || tag);
-  element.setAttribute("data-rmt-component", tag);
-  const state = stateForSurface(surface);
-  syncMaracaStateAttributes(element, state, tag);
-  if (state.text) element.textContent = String(state.text);
-  if (surface.kind) element.setAttribute("data-maraca-kind", String(surface.kind));
-  return element;
-}
-
-function syncMaracaStateAttributes(element, state = {}, component = "", context = {}) {
-  if (!element || !state || typeof state !== "object") return;
-  const setIfPresent = (attribute, stateKey = attribute) => {
-    if (Object.prototype.hasOwnProperty.call(state, stateKey)) {
-      if (attribute === "hidden" && context.transitionRuntime && typeof context.transitionRuntime.applyVisibilityPatch === "function") {
-        const nextHidden = state[stateKey] === true;
-        const previousHidden = typeof element.hasAttribute === "function" ? element.hasAttribute("hidden") : false;
-        if (!nextHidden) {
-          requestMaracaComponent(component || (element.getAttribute && element.getAttribute("data-rmt-component")) || "", {
-            strategy: "visibility"
-          });
-        }
-        const transitionResult = context.transitionRuntime.applyVisibilityPatch({
-          surface: context.surface && context.surface.id || (element.getAttribute && element.getAttribute("data-maraca-surface")) || "",
-          element,
-          nextHidden,
-          previousHidden,
-          action: context.action || "",
-          metadata: {
-            operation: context.operation || "",
-            correlationId: context.correlationId || ""
-          }
-        });
-        if (transitionResult && typeof transitionResult.then === "function") {
-          transitionResult.catch((error) => dispatchMaracaEvent("xtend-maraca:surface-transition-error", createMaracaErrorDiagnostic("xtend.maraca.surface_transition_patch_error", error)));
-        }
-        return;
-      }
-      setMaracaAttribute(element, attribute, state[stateKey]);
-    }
-  };
-  setIfPresent("id");
-  setIfPresent("tone");
-  setIfPresent("hidden");
-  setIfPresent("name");
-  setIfPresent("value");
-  setIfPresent("placeholder");
-  setIfPresent("label");
-  setIfPresent("command");
-  setIfPresent("required");
-  setIfPresent("disabled");
-  setIfPresent("readonly");
-  setIfPresent("busy");
-  setIfPresent("invalid");
-  setIfPresent("rows");
-  setIfPresent("density");
-  setIfPresent("fill");
-  setIfPresent("highlight");
-  setIfPresent("lang");
-  setIfPresent("language");
-  setIfPresent("width");
-  setIfPresent("height");
-  setIfPresent("minlength", "minLength");
-  setIfPresent("maxlength", "maxLength");
-  setIfPresent("aria-label", "ariaLabel");
-  setIfPresent("aria-busy", "ariaBusy");
-  setIfPresent("icon-name", "iconName");
-  setIfPresent("icon-pack", "iconPack");
-  setIfPresent("data-field", "field");
-  if (Object.prototype.hasOwnProperty.call(state, "inputType")) {
-    setMaracaAttribute(element, "type", state.inputType);
-  }
-  if (Object.prototype.hasOwnProperty.call(state, "mediaType")) {
-    setMaracaAttribute(element, "type", state.mediaType);
-  }
-  [
-    "src",
-    "poster",
-    "title",
-    "subtitle",
-    "kind",
-    "count",
-    "selected",
-    "controls",
-    "open",
-    "accept",
-    "multiple",
-    "active",
-    "minimized",
-    "maximized",
-    "resizable",
-    "draggable",
-    "modal",
-    "pinned",
-    "collapsed",
-    "collapsible",
-    "collapsable",
-    "closable",
-    "pinnable",
-    "placement",
-    "mode"
-  ].forEach((attribute) => setIfPresent(attribute));
-  [
-    ["surface-id", "surfaceId"],
-    ["manager-id", "managerId"],
-    ["state-key", "stateKey"],
-    ["data-record-id", "recordId"],
-    ["data-media-id", "mediaId"],
-    ["restore-key", "restoreKey"],
-    ["persistence-mode", "persistenceMode"],
-    ["restore-policy", "restorePolicy"],
-    ["surface-loading-policy", "surfaceLoadingPolicy"],
-    ["surface-skeleton", "surfaceSkeleton"],
-    ["surface-hydration-timeout", "surfaceHydrationTimeout"],
-    ["route-lifecycle-policy", "routeLifecyclePolicy"],
-    ["modal-policy", "modalPolicy"],
-    ["layout-engine", "layoutEngine"],
-    ["surface-layout-gap", "surfaceLayoutGap"],
-    ["surface-layout-snap", "surfaceLayoutSnap"],
-    ["initial-x", "initialX"],
-    ["initial-y", "initialY"],
-    ["initial-width", "initialWidth"],
-    ["initial-height", "initialHeight"],
-    ["responsive-mode", "responsiveMode"],
-    ["submit-command", "submitCommand"],
-    ["submit-on-enter", "submitOnEnter"],
-    ["syntax-highlight", "syntaxHighlight"],
-    ["line-numbering", "lineNumbering"]
-  ].forEach(([attribute, stateKey]) => setIfPresent(attribute, stateKey));
-  if (component === "x-status") {
-    setIfPresent("type", "tone");
-    setIfPresent("state", "tone");
-    setIfPresent("message", "text");
-  }
-  if (component === "x-button") {
-    setIfPresent("variant", "tone");
-    setIfPresent("label", "text");
-    setIfPresent("data-label", "text");
-  }
-}
-
-function collectSurfaceDescriptors(node, target = new Map()) {
-  if (!node || typeof node !== "object") return target;
-  if (Array.isArray(node)) {
-    node.forEach((entry) => collectSurfaceDescriptors(entry, target));
-    return target;
-  }
-  if (typeof node.surface === "string" && node.surface) {
-    target.set(node.surface, node);
-  }
-  [
-    "children",
-    "nodes",
-    "then",
-    "else",
-    "fallback",
-    "template",
-    "node",
-    "descriptor"
-  ].forEach((key) => {
-    if (Object.prototype.hasOwnProperty.call(node, key)) {
-      collectSurfaceDescriptors(node[key], target);
-    }
-  });
-  Object.values(node.slots || {}).forEach((slot) => collectSurfaceDescriptors(slot, target));
-  return target;
-}
-
-function surfaceDescriptorNeedsStructuredPatch(descriptor) {
-  if (!descriptor || typeof descriptor !== "object") return false;
-  return Boolean(
-    descriptor.children
-    || descriptor.nodes
-    || Object.prototype.hasOwnProperty.call(descriptor, "text")
-    || descriptor.slots
-  );
-}
-
-function descriptorHasNestedSurface(descriptor, ownSurfaceId = "") {
-  if (!descriptor || typeof descriptor !== "object") return false;
-  const stack = [];
-  [
-    "children",
-    "nodes",
-    "then",
-    "else",
-    "fallback",
-    "template",
-    "node",
-    "descriptor"
-  ].forEach((key) => {
-    if (Object.prototype.hasOwnProperty.call(descriptor, key)) stack.push(descriptor[key]);
-  });
-  Object.values(descriptor.slots || {}).forEach((slot) => stack.push(slot));
-  while (stack.length > 0) {
-    const node = stack.pop();
-    if (!node || typeof node !== "object") continue;
-    if (Array.isArray(node)) {
-      stack.push(...node);
-      continue;
-    }
-    if (typeof node.surface === "string" && node.surface && node.surface !== ownSurfaceId) return true;
-    [
-      "children",
-      "nodes",
-      "then",
-      "else",
-      "fallback",
-      "template",
-      "node",
-      "descriptor"
-    ].forEach((key) => {
-      if (Object.prototype.hasOwnProperty.call(node, key)) stack.push(node[key]);
-    });
-    Object.values(node.slots || {}).forEach((slot) => stack.push(slot));
-  }
-  return false;
-}
-
-function collectDescriptorComponentTags(node, target = new Set()) {
-  if (!node || typeof node !== "object") return target;
-  if (Array.isArray(node)) {
-    node.forEach((entry) => collectDescriptorComponentTags(entry, target));
-    return target;
-  }
-  const tag = String(node.tag || node.component || "").trim().toLowerCase();
-  if (tag) target.add(tag);
-  [
-    "children",
-    "nodes",
-    "then",
-    "else",
-    "fallback",
-    "template",
-    "node",
-    "descriptor"
-  ].forEach((key) => {
-    if (Object.prototype.hasOwnProperty.call(node, key)) {
-      collectDescriptorComponentTags(node[key], target);
-    }
-  });
-  Object.values(node.slots || {}).forEach((slot) => collectDescriptorComponentTags(slot, target));
-  return target;
-}
-
-function collectElementComponentTags(element, target = new Set()) {
-  if (!element || typeof element !== "object") return target;
-  const visit = (node) => {
-    if (!node || typeof node !== "object") return;
-    const tag = String(node.localName || node.tagName || "").trim().toLowerCase();
-    if (tag && tag.includes("-")) target.add(tag);
-  };
-  visit(element);
-  if (typeof element.querySelectorAll === "function") {
-    Array.from(element.querySelectorAll("*")).forEach(visit);
-  }
-  return target;
-}
-
-function shouldPatchSurfaceDescriptorStructure(descriptor, element, metadata = {}) {
-  if (!surfaceDescriptorNeedsStructuredPatch(descriptor)) return false;
-  const tag = String(
-    descriptor && (descriptor.tag || descriptor.component)
-    || element && (element.localName || element.tagName)
-    || ""
-  ).toLowerCase();
-  const surfaceId = descriptor && descriptor.surface || "";
-  if (tag === "x-surface-manager" || descriptorHasNestedSurface(descriptor, surfaceId)) return false;
-  if (metadata.operation === "surface-xstate-projection" && surfaceId !== "media.manager.dock") return false;
-  return true;
-}
-
-function createMaracaRenderContext(stateRuntime) {
-  const componentEntries = MARACA_COMPONENTS.map((entry) => ({ id: entry.tag, tag: entry.tag }));
-  return stateRuntime && typeof stateRuntime.createRenderContext === "function"
-    ? stateRuntime.createRenderContext({ components: componentEntries })
-    : { model: MARACA_STATE, components: componentEntries };
-}
-
-function resolveLazyStrategy(options) {
-  if (MARACA_LAZY_MODE === "none") return "eager";
-  const requested = options.lazyStrategy || options.lazy || "viewport";
-  if (requested === "eager" || requested === "immediate") return "eager";
-  if (requested === "viewport" && typeof IntersectionObserver === "function") return "viewport";
-  return "eager";
-}
-
-function readServerPrerenderShellPayload() {
-  if (typeof document === "undefined") return null;
-  const payloadElement = document.getElementById("xtend-llm-ssr-hydration")
-    || document.querySelector("[data-rmt-ssr-resume]")
-    || document.querySelector("[data-rmt-ssr-hydration]");
-  if (!payloadElement || typeof payloadElement.textContent !== "string") return null;
-  try {
-    return JSON.parse(payloadElement.textContent);
-  } catch (error) {
-    return {
-      schema: "xtend.maraca.server-prerender-shell.v1",
-      ok: false,
-      status: "parse_failed",
-      message: error && error.message ? error.message : String(error)
-    };
-  }
-}
-
-function adoptServerPrerenderShell(root) {
-  if (!root || typeof root.querySelector !== "function") {
-    return {
-      schema: "xtend.maraca.server-prerender-shell.v1",
-      active: false,
-      status: "absent"
-    };
-  }
-  const shell = root.getAttribute && root.getAttribute("data-rmt-resume-root") === "true"
-    ? root
-    : root.querySelector('[data-rmt-resume-root="true"], [data-maraca-ssr-shell]');
-  const payload = readServerPrerenderShellPayload();
-  if (!shell) {
-    return {
-      schema: "xtend.maraca.server-prerender-shell.v1",
-      active: false,
-      status: payload ? "payload_only" : "absent",
-      payload
-    };
-  }
-  const surfaceCount = typeof shell.querySelectorAll === "function"
-    ? shell.querySelectorAll("[data-rmt-ssr-surface]").length
-    : 0;
-  const targets = String(shell.getAttribute("data-rmt-worker-prewarm-targets") || root.getAttribute("data-rmt-worker-prewarm-targets") || "")
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-  const resumeEnvelope = payload && (payload.resume || payload.response && payload.response.resume || payload.schema === "xtend.rmt.ssr-resume-envelope.v1" && payload) || null;
-  const executionMode = resumeEnvelope && resumeEnvelope.executionMode || payload && payload.executionMode || "server_prerender_hydrate";
-  if (typeof root.setAttribute === "function") {
-    root.setAttribute("data-rmt-ssr-preserved", "true");
-    root.setAttribute("data-rmt-hydration-mode", executionMode);
-  }
-  return {
-    schema: "xtend.maraca.server-prerender-shell.v1",
-    active: true,
-    status: "preserved",
-    transport: "node-ssr",
-    executionMode,
-    resumeEnvelopeSchema: resumeEnvelope && resumeEnvelope.schema || null,
-    resumeRootId: shell.getAttribute && shell.getAttribute("id") || null,
-    surfaceCount,
-    workerPrewarmTargets: targets,
-    payload
-  };
-}
-
-function dispatchMaracaEvent(name, detail) {
-  if (typeof window === "undefined" || typeof CustomEvent !== "function") return;
-  window.dispatchEvent(new CustomEvent(name, { detail }));
-}
-
-function createMaracaAppServiceController(options = {}) {
-  if (!MARACA_APP_SERVICES.enabled || !XTendMaracaAppServiceDefinition || typeof createAppServiceRegistry !== "function") {
-    return Object.freeze({
-      enabled: false,
-      status: MARACA_APP_SERVICES.status,
-      registry: null,
-      hostServiceAdapters: options.hostServiceAdapters || options.serviceAdapters || {},
-      dataSourceAdapters: options.dataSourceAdapters || {},
-      diagnostics: [],
-      dispose() { return false; },
-      snapshot() {
-        return { schema: "xtend.maraca.app-services-runtime.v1", enabled: false, status: MARACA_APP_SERVICES.status };
-      }
-    });
-  }
-
-  const diagnostics = [];
-  const manifestServices = MARACA_APP_SERVICES.manifest && Array.isArray(MARACA_APP_SERVICES.manifest.services)
-    ? MARACA_APP_SERVICES.manifest.services
-    : [];
-  const hasServerServices = manifestServices.some((entry) => entry && entry.target === "server");
-  const transportConfig = MARACA_APP_SERVICES.transport || {};
-  const httpTransport = hasServerServices && typeof createHttpAppServiceTransport === "function"
-    ? createHttpAppServiceTransport({
-        baseUrl: options.appServiceBaseUrl || options.serviceBaseUrl || "",
-        pathPrefix: options.appServicePath || transportConfig.basePath || "/api/xtend/services",
-        credentials: options.appServiceCredentials || transportConfig.credentials || "same-origin",
-        headers: options.appServiceHeaders || options.serviceHeaders || {}
-      })
-    : null;
-  const remoteSurfaceTransport = options.remoteSurfaceTransport || null;
-  const transport = Object.freeze({
-    async invoke(request) {
-      if (request && request.target === "remote-surface") {
-        if (!remoteSurfaceTransport || typeof remoteSurfaceTransport.invoke !== "function") {
-          throw new Error("Remote-surface AppService requires an accepted XScaler transport.");
-        }
-        return remoteSurfaceTransport.invoke(request);
-      }
-      if (!httpTransport) throw new Error("HTTP AppService transport is not configured.");
-      return httpTransport.invoke(request);
-    },
-    stream(request) {
-      if (request && request.target === "remote-surface") {
-        if (!remoteSurfaceTransport || typeof remoteSurfaceTransport.stream !== "function") {
-          throw new Error("Remote-surface stream requires an accepted XScaler transport.");
-        }
-        return remoteSurfaceTransport.stream(request);
-      }
-      if (!httpTransport) throw new Error("HTTP AppService stream transport is not configured.");
-      return httpTransport.stream(request);
-    },
-    dispose(reason) {
-      if (httpTransport && typeof httpTransport.dispose === "function") httpTransport.dispose(reason);
-      if (remoteSurfaceTransport && typeof remoteSurfaceTransport.dispose === "function") remoteSurfaceTransport.dispose(reason);
-    }
-  });
-  const registry = createAppServiceRegistry(XTendMaracaAppServiceDefinition, {
-    transport,
-    disposeTransport: true,
-    manifest: MARACA_APP_SERVICES.manifest,
-    inputPolicyPhase: "browser"
-  });
-
-  function invocationContext(context = {}) {
-    return {
-      signal: context.signal || null,
-      correlationId: context.correlationId || context.commandEnvelope && context.commandEnvelope.correlationId || null,
-      action: context.action || null,
-      effect: context.effect || null,
-      dataSource: context.dataSource || null
-    };
-  }
-
-  function adapterFor(serviceId) {
-    return Object.freeze({
-      invoke(request = {}) {
-        return registry.invoke(serviceId, request.payload, invocationContext(request.context || {}));
-      },
-      stream(request = {}, handlers = {}) {
-        return registry.stream(serviceId, request.payload, handlers, invocationContext(request.context || {}));
-      },
-      subscribe(request = {}, handlers = {}) {
-        const stream = registry.stream(serviceId, request.payload, handlers, invocationContext(request.context || {}));
-        return Object.freeze({
-          id: stream.id,
-          cancel: stream.cancel,
-          unsubscribe: stream.cancel
-        });
-      }
-    });
-  }
-
-  const generatedHostServiceAdapters = {};
-  manifestServices.forEach((entry) => {
-    if (entry && entry.id) generatedHostServiceAdapters[entry.id] = adapterFor(entry.id);
-  });
-  const generatedDataSourceAdapter = Object.freeze({
-    invoke(request = {}) {
-      const source = request.source || {};
-      const serviceId = source.endpoint || source.service || (source.adapter && source.adapter !== "host" ? source.adapter : "") || source.id;
-      return registry.invoke(serviceId, request.payload, invocationContext(request.context || {}));
-    }
-  });
-
-  function reportCollision(kind, id) {
-    const diagnostic = {
-      schema: "xtend.maraca.diagnostic.v1",
-      code: "xtend.maraca.app_services.manual_adapter_collision",
-      severity: MARACA_APP_SERVICES.strict ? "error" : "warning",
-      message: "Manual " + kind + " adapter collides with generated AppService " + id + ".",
-      details: { kind, id, winner: MARACA_APP_SERVICES.strict ? "none" : "manual" }
-    };
-    diagnostics.push(diagnostic);
-    dispatchMaracaEvent("xtend-maraca:diagnostic", diagnostic);
-    if (MARACA_APP_SERVICES.strict) throw new Error(diagnostic.message);
-  }
-
-  const manualHostServiceAdapters = options.hostServiceAdapters || options.serviceAdapters || {};
-  Object.keys(manualHostServiceAdapters).forEach((id) => {
-    if (Object.prototype.hasOwnProperty.call(generatedHostServiceAdapters, id)) reportCollision("host-service", id);
-  });
-  const manualDataSourceAdapters = options.dataSourceAdapters || {};
-  if (manualDataSourceAdapters.host && manifestServices.length > 0) reportCollision("host-datasource", "host");
-
-  const hostServiceAdapters = Object.freeze({ ...generatedHostServiceAdapters, ...manualHostServiceAdapters });
-  const dataSourceAdapters = Object.freeze({ host: generatedDataSourceAdapter, ...manualDataSourceAdapters });
-  return Object.freeze({
-    enabled: true,
-    status: "ready",
-    registry,
-    hostServiceAdapters,
-    dataSourceAdapters,
-    diagnostics,
-    dispose(reason = "XTend Maraca app disposed.") {
-      return registry.dispose(reason);
-    },
-    snapshot() {
-      return {
-        schema: "xtend.maraca.app-services-runtime.v1",
-        enabled: true,
-        status: registry.disposed ? "disposed" : "ready",
-        serviceCount: registry.listServices().length,
-        activeCount: registry.listActive().length,
-        inputPolicyVerdicts: typeof registry.listInputPolicyVerdicts === "function" ? registry.listInputPolicyVerdicts() : [],
-        diagnostics: diagnostics.slice(),
-        manifestFingerprint: MARACA_APP_SERVICES.manifest && MARACA_APP_SERVICES.manifest.fingerprint || null
-      };
-    }
-  });
-}
-
-function cloneMaracaValue(value, fallback = null) {
-  if (typeof value === "undefined") return fallback;
-  if (value === null || typeof value !== "object") return value;
-  try {
-    return JSON.parse(JSON.stringify(value));
-  } catch (_) {
-    return fallback;
-  }
-}
-
-const MARACA_UNSAFE_PATH_SEGMENTS = new Set(["__proto__", "prototype", "constructor"]);
-
-function maracaPathParts(path) {
-  return String(path || "").split(".").filter(Boolean);
-}
-
-function hasUnsafeMaracaPathSegment(parts) {
-  return parts.some((part) => MARACA_UNSAFE_PATH_SEGMENTS.has(part));
-}
-
-function readMaracaPath(source, path) {
-  if (!path) return source;
-  const parts = maracaPathParts(path);
-  if (hasUnsafeMaracaPathSegment(parts)) return undefined;
-  let cursor = source;
-  for (const part of parts) {
-    if (cursor == null || typeof cursor !== "object" || !Object.prototype.hasOwnProperty.call(cursor, part)) return undefined;
-    cursor = cursor[part];
-  }
-  return cursor;
-}
-
-function writeMaracaPath(target, path, value) {
-  const parts = maracaPathParts(path);
-  if (hasUnsafeMaracaPathSegment(parts)) return target;
-  if (parts.length === 0) return target;
-  let cursor = target;
-  parts.forEach((part, index) => {
-    if (index === parts.length - 1) {
-      cursor[part] = value;
-      return;
-    }
-    if (!Object.prototype.hasOwnProperty.call(cursor, part) || !cursor[part] || typeof cursor[part] !== "object" || Array.isArray(cursor[part])) {
-      cursor[part] = Object.create(null);
-    }
-    cursor = cursor[part];
-  });
-  return target;
-}
-
-function setMaracaAttribute(element, name, value) {
-  if (!element || !name) return;
-  if (value === false && ["collapsible", "collapsable", "closable", "pinnable"].includes(String(name).toLowerCase())) {
-    if (typeof element.setAttribute === "function") element.setAttribute(name, "false");
-    return;
-  }
-  if (value === false || value === null || typeof value === "undefined" || value === "") {
-    if (typeof element.removeAttribute === "function") element.removeAttribute(name);
-    if (name === "hidden" && element.style && element.getAttribute && element.getAttribute("data-rmt-hidden-display") === "true") {
-      element.style.display = "";
-      if (typeof element.removeAttribute === "function") element.removeAttribute("data-rmt-hidden-display");
-    }
-    return;
-  }
-  if (name === "id") {
-    element.id = String(value);
-    return;
-  }
-  if (typeof element.setAttribute === "function") {
-    element.setAttribute(name, value === true ? "" : String(value));
-    if (name === "hidden" && element.style) {
-      element.style.display = "none";
-      element.setAttribute("data-rmt-hidden-display", "true");
-    }
-  }
-}
-
-function sanitizeMaracaDiagnostic(value) {
-  if (Array.isArray(value)) return value.map(sanitizeMaracaDiagnostic);
-  if (!value || typeof value !== "object") return value;
-  const result = {};
-  Object.entries(value).forEach(([key, entry]) => {
-    const normalized = key.toLowerCase();
-    if (normalized.includes("payload") || normalized.includes("secret") || normalized.includes("token") || normalized.includes("password") || normalized.includes("html") || normalized === "stack") {
-      result[key] = "[redacted]";
-      return;
-    }
-    result[key] = sanitizeMaracaDiagnostic(entry);
-  });
-  return result;
-}
-
-function createMaracaErrorDiagnostic(code, error) {
-  return {
-    code,
-    severity: "error",
-    message: error && error.message ? error.message : String(error || "Unknown orchestration error"),
-    error: {
-      name: error && error.name || "Error",
-      code: error && error.code || code
-    }
-  };
-}
-
-function getMaracaRuntimeApi(name) {
-  if (typeof globalThis === "undefined") return null;
-  return globalThis[name] || null;
-}
-
-function getMaracaKernelRuntimeApi() {
-  if (XTendMaracaKernelRuntimeModule && typeof XTendMaracaKernelRuntimeModule === "object") {
-    return XTendMaracaKernelRuntimeModule;
-  }
-  if (typeof globalThis !== "undefined" && globalThis.AppModules) {
-    return globalThis.AppModules;
-  }
-  return null;
-}
-
-function getMaracaKernelOrchestrationControllerApi() {
-  if (typeof globalThis === "undefined") return null;
-  return globalThis.XTendRmtKernelOrchestrationController || null;
-}
-
-function createMaracaKernelHostAdapter(options = {}) {
-  const windowTarget = options.windowTarget || (typeof window !== "undefined" ? window : (typeof globalThis !== "undefined" ? globalThis : null));
-  const documentTarget = options.documentTarget || (typeof document !== "undefined" ? document : null);
-  const target = windowTarget || {};
-  const now = () => target.performance && typeof target.performance.now === "function" ? target.performance.now() : Date.now();
-  return Object.freeze({
-    hostKind: "maraca_browser",
-    windowTarget,
-    documentTarget,
-    now,
-    scheduleTimeout(callback, delay = 0) {
-      return typeof target.setTimeout === "function" ? target.setTimeout(callback, Math.max(Number(delay) || 0, 0)) : null;
-    },
-    cancelTimeout(handle) {
-      if (typeof target.clearTimeout === "function" && handle != null) target.clearTimeout(handle);
-    },
-    scheduleAnimationFrame(callback) {
-      if (typeof target.requestAnimationFrame === "function") return target.requestAnimationFrame(callback);
-      if (typeof target.setTimeout === "function") return target.setTimeout(() => callback(now()), 16);
-      callback(now());
-      return null;
-    },
-    cancelAnimationFrame(handle) {
-      if (typeof target.cancelAnimationFrame === "function" && handle != null) target.cancelAnimationFrame(handle);
-      else if (typeof target.clearTimeout === "function" && handle != null) target.clearTimeout(handle);
-    },
-    scheduleIdleCallback(callback, idleOptions = {}) {
-      if (typeof target.requestIdleCallback === "function") return target.requestIdleCallback(callback, idleOptions);
-      if (typeof target.setTimeout === "function") {
-        return target.setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 0 }), Math.max(Number(idleOptions.timeout) || 1, 1));
-      }
-      callback({ didTimeout: false, timeRemaining: () => 0 });
-      return null;
-    },
-    cancelIdleCallback(handle) {
-      if (typeof target.cancelIdleCallback === "function" && handle != null) target.cancelIdleCallback(handle);
-      else if (typeof target.clearTimeout === "function" && handle != null) target.clearTimeout(handle);
-    },
-    createAbortController() {
-      return typeof target.AbortController === "function" ? new target.AbortController() : null;
-    },
-    createCustomEvent(name, init = {}) {
-      if (typeof target.CustomEvent === "function") return new target.CustomEvent(String(name || ""), init);
-      return { type: String(name || ""), detail: init.detail || null };
-    }
-  });
-}
-
-function createKernelController(root, options = {}) {
-  const diagnostics = (MARACA_KERNEL.diagnostics || []).map(sanitizeMaracaDiagnostic);
-  const artifact = MARACA_KERNEL.artifact || null;
-  const scheduler = artifact && artifact.scheduler || null;
-  const schedules = scheduler && Array.isArray(scheduler.schedules) ? scheduler.schedules : [];
-  const fibers = scheduler && Array.isArray(scheduler.fibers) ? scheduler.fibers : [];
-  const controllerApi = getMaracaKernelOrchestrationControllerApi();
-  if (controllerApi && typeof controllerApi.createRmtKernelOrchestrationController === "function") {
-    const externalHostAdapter = options.kernelHostAdapter || options.schedulerAdapter || createMaracaKernelHostAdapter(options);
-    const externalController = controllerApi.createRmtKernelOrchestrationController({
-      kernelApi: getMaracaKernelRuntimeApi(),
-      artifact,
-      plan: MARACA_KERNEL,
-      strict: MARACA_KERNEL.strict,
-      hostAdapter: externalHostAdapter,
-      windowTarget: typeof window !== "undefined" ? window : undefined,
-      documentTarget: typeof document !== "undefined" ? document : undefined,
-      runtimeKind: "maraca-kernel",
-      enablePrewarmWorker: Boolean(MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.enabled),
-      enableUiCoprocessor: Boolean(MARACA_UI_COPROCESSOR && MARACA_UI_COPROCESSOR.enabled),
-      uiCoprocessor: MARACA_UI_COPROCESSOR,
-      prewarmWorkerName: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerName || "XTendRMTPrewarmWorker",
-      prewarmWorkerType: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerType || "classic",
-      diagnostics,
-      dispatchEvent: dispatchMaracaEvent
-    });
-    externalController.boot();
-    return Object.freeze({
-      enabled: externalController.enabled,
-      mode: MARACA_KERNEL.mode,
-      bootMode: MARACA_KERNEL.bootMode || "direct",
-      get status() {
-        return externalController.status;
-      },
-      planStatus: MARACA_KERNEL.status,
-      get runtime() {
-        return externalController.runtime;
-      },
-      get core() {
-        return externalController.core;
-      },
-      get performanceRuntime() {
-        return externalController.performanceRuntime;
-      },
-      get schedulerBridge() {
-        return externalController.schedulerBridge;
-      },
-      get hostAdapter() {
-        return externalController.hostAdapter;
-      },
-      scheduleWork: externalController.scheduleWork,
-      listScheduledEndpoints: externalController.listScheduledEndpoints,
-      listDiagnostics: externalController.listDiagnostics,
-      snapshot() {
-        const snapshot = externalController.snapshot();
-        return {
-          ...snapshot,
-          schema: "xtend.maraca.kernel-snapshot.v1",
-          planStatus: MARACA_KERNEL.status
-        };
-      }
-    });
-  }
-  const scheduleByEndpoint = new Map(schedules.map((schedule) => [schedule.endpointName, schedule]));
-  let runtime = null;
-  let core = null;
-  let performanceRuntime = null;
-  let schedulerBridge = null;
-  let hostAdapter = null;
-  let productSurface = null;
-  let runtimeStatus = MARACA_KERNEL.enabled && artifact ? "pending" : MARACA_KERNEL.status;
-  const fiberHistory = [];
-  let fallbackCount = 0;
-
-  function publishDiagnostic(diagnostic) {
-    const safeDiagnostic = sanitizeMaracaDiagnostic(diagnostic);
-    diagnostics.push(safeDiagnostic);
-    return safeDiagnostic;
-  }
-
-  function listDiagnostics() {
-    return diagnostics.map((entry) => sanitizeMaracaDiagnostic(entry));
-  }
-
-  function listScheduledEndpoints() {
-    return schedulerBridge && typeof schedulerBridge.listScheduledEndpoints === "function"
-      ? schedulerBridge.listScheduledEndpoints()
-      : [];
-  }
-
-  function readPrewarmWorkerSnapshot() {
-    if (runtime && typeof runtime.getPrewarmWorkerTopology === "function") {
-      const topology = runtime.getPrewarmWorkerTopology();
-      if (topology && typeof topology === "object") {
-        return {
-          ...(MARACA_KERNEL.prewarmWorker || {}),
-          ...topology,
-          runtimeExpectedStatus: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.enabled ? "booted" : "disabled"
-        };
-      }
-    }
-    return MARACA_KERNEL.prewarmWorker || {
-      schema: "xtend.maraca.prewarm-worker-runtime.v1",
-      enabled: false,
-      status: "disabled",
-      runtimeExpectedStatus: "disabled"
-    };
-  }
-
-  function readUiCoprocessorSnapshot() {
-    if (runtime && typeof runtime.getUiCoprocessorSnapshot === "function") {
-      const snapshot = runtime.getUiCoprocessorSnapshot();
-      if (snapshot && typeof snapshot === "object") {
-        return {
-          ...(MARACA_UI_COPROCESSOR || {}),
-          ...snapshot,
-          runtimeExpectedStatus: MARACA_UI_COPROCESSOR && MARACA_UI_COPROCESSOR.enabled ? "booted" : "disabled"
-        };
-      }
-    }
-    return MARACA_UI_COPROCESSOR || {
-      schema: "xtend.maraca.ui-coprocessor-plan.v1",
-      enabled: false,
-      status: "disabled",
-      runtimeExpectedStatus: "disabled"
-    };
-  }
-
-  function snapshot() {
-    return {
-      schema: "xtend.maraca.kernel-snapshot.v1",
-      mode: MARACA_KERNEL.mode,
-      bootMode: MARACA_KERNEL.bootMode || "direct",
-      status: runtimeStatus,
-      planStatus: MARACA_KERNEL.status,
-      enabled: Boolean(runtime || core || schedulerBridge),
-      summary: MARACA_KERNEL.summary || {},
-      featureAdoption: MARACA_KERNEL.featureAdoption || null,
-      productSurface: productSurface && typeof productSurface.listEntryPoints === "function" ? {
-        ...(MARACA_KERNEL.productSurface || {}),
-        status: MARACA_KERNEL.bootMode === "productSurface" ? "active" : "available",
-        entryPoints: productSurface.listEntryPoints(),
-        entryPointCount: productSurface.listEntryPoints().length,
-        entryPointNames: productSurface.listEntryPoints().map((entry) => entry && entry.name).filter(Boolean),
-        optionalCompat: typeof productSurface.listOptionalCompat === "function" ? productSurface.listOptionalCompat() : (MARACA_KERNEL.productSurface && MARACA_KERNEL.productSurface.optionalCompat || {})
-      } : (MARACA_KERNEL.productSurface || null),
-      prewarmWorker: readPrewarmWorkerSnapshot(),
-      uiCoprocessor: readUiCoprocessorSnapshot(),
-      scheduledEndpoints: listScheduledEndpoints(),
-      fibers: fiberHistory.slice(),
-      fallbackCount,
-      diagnostics: listDiagnostics()
-    };
-  }
-
-  function resolveFiber(kind, metadata = {}) {
-    if (!fibers.length) return null;
-    const requested = String(kind || "").trim();
-    if (metadata.fiberId) {
-      const exact = fibers.find((fiber) => fiber.id === metadata.fiberId);
-      if (exact) return exact;
-    }
-    if (metadata.operation) {
-      const operation = fibers.find((fiber) => fiber.operation === metadata.operation);
-      if (operation) return operation;
-    }
-    if (metadata.action) {
-      const action = fibers.find((fiber) => fiber.kind === "action" && fiber.target && fiber.target.ref === metadata.action);
-      if (action) return action;
-    }
-    if (metadata.eventId) {
-      const event = fibers.find((fiber) => fiber.kind === "event" && fiber.target && fiber.target.ref === metadata.eventId);
-      if (event) return event;
-    }
-    if (metadata.hydrationId) {
-      const hydration = fibers.find((fiber) => fiber.kind === "hydration" && fiber.target && String(fiber.target.ref || "").includes(metadata.hydrationId));
-      if (hydration) return hydration;
-    }
-    if (requested === "destroy" || requested === "dispose" || metadata.lifecycleOperation === "destroy" || metadata.lifecycleOperation === "dispose") {
-      const lifecycle = fibers.find((fiber) => (
-        fiber.kind === "lifecycle"
-        && (
-          fiber.op === "dispose"
-          || fiber.op === "destroy"
-          || String(fiber.operation || "").includes("/dispose")
-          || String(fiber.operation || "").includes("/destroy")
-        )
-        && (!metadata.targetRef || fiber.target && String(fiber.target.ref || "").includes(metadata.targetRef))
-      ));
-      if (lifecycle) return lifecycle;
-    }
-    return fibers.find((fiber) => fiber.op === requested || fiber.kind === requested)
-      || (requested === "render" ? fibers.find((fiber) => fiber.op === "hydrate" || fiber.op === "mount") : null)
-      || null;
-  }
-
-  function scheduleWork(kind, callback, metadata = {}) {
-    if (typeof callback !== "function") return undefined;
-    const fiber = resolveFiber(kind, metadata);
-    if (!schedulerBridge || !fiber || !fiber.endpointName) {
-      fallbackCount += 1;
-      const diagnostic = publishDiagnostic({
-        code: "xtend.maraca.kernel_orchestration_fallback",
-        severity: MARACA_KERNEL.strict ? "error" : "warning",
-        message: "Kernel orchestration work could not be scheduled and used fallback execution.",
-        kind,
-        fiber: fiber && fiber.id || null
-      });
-      if (MARACA_KERNEL.strict) {
-        const error = new Error(diagnostic.message);
-        error.code = diagnostic.code;
-        error.diagnostic = diagnostic;
-        throw error;
-      }
-      fiberHistory.push({
-        fiber: fiber && fiber.id || null,
-        kind,
-        endpointName: fiber && fiber.endpointName || null,
-        status: "fallback"
-      });
-      return callback({
-        schema: "xtend.maraca.kernel-work.v1",
-        scheduled: false,
-        kind,
-        metadata
-      });
-    }
-    const schedule = scheduleByEndpoint.get(fiber.endpointName) || {
-      id: fiber.endpointName,
-      endpointName: fiber.endpointName,
-      scope: fiber.operation || "rmt.maraca",
-      lane: "visible"
-    };
-    dispatchMaracaEvent("xtend-maraca:kernel-schedule", {
-      schema: "xtend.maraca.kernel-schedule.v1",
-      endpointName: schedule.endpointName,
-      scope: schedule.scope,
-      fiber: fiber.id,
-      kind
-    });
-    const result = schedulerBridge.scheduleEndpoint(schedule.endpointName, schedule.scope || "rmt.maraca", (jobContext) => callback({
-      schema: "xtend.maraca.kernel-work.v1",
-      scheduled: true,
-      kind,
-      fiber,
-      schedule,
-      jobContext,
-      metadata
-    }), {
-      schedule,
-      runInline: true,
-      metadata: {
-        ...metadata,
-        kind,
-        fiberId: fiber.id
-      }
-    });
-    const historyEntry = {
-      fiber: fiber.id,
-      kind,
-      endpointName: schedule.endpointName,
-      status: result && result.status || "unknown"
-    };
-    fiberHistory.push(historyEntry);
-    dispatchMaracaEvent("xtend-maraca:kernel-fiber", {
-      schema: "xtend.maraca.kernel-fiber.v1",
-      ...historyEntry
-    });
-    return result && result.handle && Object.prototype.hasOwnProperty.call(result.handle, "targetResult")
-      ? result.handle.targetResult
-      : result;
-  }
-
-  function activateSchedules() {
-    if (!schedulerBridge) return;
-    schedules.forEach((schedule) => {
-      if (!schedule || !schedule.endpointName) return;
-      schedulerBridge.scheduleEndpoint(schedule.endpointName, schedule.scope || "rmt.maraca", () => ({
-        schema: "xtend.maraca.kernel-endpoint-activation.v1",
-        endpointName: schedule.endpointName
-      }), {
-        schedule,
-        runInline: true,
-        metadata: {
-          operation: "kernel.activate",
-          schedule: schedule.id
-        }
-      });
-    });
-  }
-
-  if (!MARACA_KERNEL.enabled || !artifact) {
-    return Object.freeze({
-      enabled: false,
-      mode: MARACA_KERNEL.mode,
-      status: MARACA_KERNEL.status,
-      runtime,
-      core,
-      performanceRuntime,
-      schedulerBridge,
-      hostAdapter,
-      scheduleWork,
-      listScheduledEndpoints,
-      listDiagnostics,
-      snapshot
-    });
-  }
-
-  try {
-    const kernelApi = getMaracaKernelRuntimeApi();
-    if (!kernelApi || typeof kernelApi.createRmtPerformanceRuntime !== "function" || typeof kernelApi.createRmtStateSchedulerDiagnosticsBridge !== "function") {
-      throw new Error("XTend RMT kernel runtime module is not available.");
-    }
-    hostAdapter = options.kernelHostAdapter || options.schedulerAdapter || createMaracaKernelHostAdapter(options);
-    if (MARACA_KERNEL.bootMode === "productSurface") {
-      if (typeof kernelApi.createRmtProductSurface !== "function") {
-        throw new Error("XTend RMT Product Surface is not available.");
-      }
-      productSurface = kernelApi.createRmtProductSurface();
-      performanceRuntime = productSurface.createPerformanceRuntime({
-        windowTarget: typeof window !== "undefined" ? window : undefined,
-        documentTarget: typeof document !== "undefined" ? document : undefined,
-        hostAdapter,
-        runtimeKind: "maraca-kernel",
-        schedules
-      });
-    } else {
-      performanceRuntime = kernelApi.createRmtPerformanceRuntime({
-        windowTarget: typeof window !== "undefined" ? window : undefined,
-        documentTarget: typeof document !== "undefined" ? document : undefined,
-        hostAdapter,
-        runtimeKind: "maraca-kernel",
-        schedules
-      });
-    }
-    schedulerBridge = kernelApi.createRmtStateSchedulerDiagnosticsBridge({
-      performanceRuntime,
-      schedules
-    });
-    core = MARACA_KERNEL.bootMode === "productSurface"
-      ? productSurface.createCore({
-          windowTarget: typeof window !== "undefined" ? window : undefined,
-          documentTarget: typeof document !== "undefined" ? document : undefined,
-          hostAdapter,
-          kernelRecords: artifact.records,
-          scheduler
-        })
-      : typeof kernelApi.createRmtCore === "function" ? kernelApi.createRmtCore({
-          windowTarget: typeof window !== "undefined" ? window : undefined,
-          documentTarget: typeof document !== "undefined" ? document : undefined,
-          hostAdapter,
-          kernelRecords: artifact.records,
-          scheduler
-        }) : null;
-    runtime = MARACA_KERNEL.bootMode === "productSurface"
-      ? productSurface.createRuntime({
-          windowTarget: typeof window !== "undefined" ? window : undefined,
-          documentTarget: typeof document !== "undefined" ? document : undefined,
-          hostAdapter,
-          core,
-          rmtCore: core,
-          performanceRuntime,
-          kernelRecords: artifact.records,
-          scheduler,
-          enablePrewarmWorker: Boolean(MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.enabled),
-          enableUiCoprocessor: Boolean(MARACA_UI_COPROCESSOR && MARACA_UI_COPROCESSOR.enabled),
-          uiCoprocessor: MARACA_UI_COPROCESSOR,
-          prewarmWorkerName: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerName || "XTendRMTPrewarmWorker",
-          prewarmWorkerType: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerType || "classic"
-        })
-      : typeof kernelApi.createRmtRuntime === "function" ? kernelApi.createRmtRuntime({
-          windowTarget: typeof window !== "undefined" ? window : undefined,
-          documentTarget: typeof document !== "undefined" ? document : undefined,
-          hostAdapter,
-          core,
-          rmtCore: core,
-          performanceRuntime,
-          kernelRecords: artifact.records,
-          scheduler,
-          enablePrewarmWorker: Boolean(MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.enabled),
-          enableUiCoprocessor: Boolean(MARACA_UI_COPROCESSOR && MARACA_UI_COPROCESSOR.enabled),
-          uiCoprocessor: MARACA_UI_COPROCESSOR,
-          prewarmWorkerName: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerName || "XTendRMTPrewarmWorker",
-          prewarmWorkerType: MARACA_KERNEL.prewarmWorker && MARACA_KERNEL.prewarmWorker.workerType || "classic"
-        }) : null;
-    activateSchedules();
-    runtimeStatus = "booted";
-    dispatchMaracaEvent("xtend-maraca:kernel-boot", {
-      schema: "xtend.maraca.kernel-boot.v1",
-      mode: MARACA_KERNEL.mode,
-      bootMode: MARACA_KERNEL.bootMode || "direct",
-      status: runtimeStatus,
-      summary: MARACA_KERNEL.summary,
-      scheduledEndpointCount: listScheduledEndpoints().length
-    });
-  } catch (error) {
-    runtimeStatus = "error";
-    const diagnostic = publishDiagnostic(createMaracaErrorDiagnostic("xtend.maraca.kernel_runtime_error", error));
-    dispatchMaracaEvent("xtend-maraca:kernel-error", diagnostic);
-    if (MARACA_KERNEL.strict) throw error;
-  }
-
-  return Object.freeze({
-    enabled: Boolean(runtime || core || schedulerBridge),
-    mode: MARACA_KERNEL.mode,
-    status: runtimeStatus,
-    planStatus: MARACA_KERNEL.status,
-    runtime,
-    core,
-    performanceRuntime,
-    schedulerBridge,
-    hostAdapter,
-    scheduleWork,
-    listScheduledEndpoints,
-    listDiagnostics,
-    snapshot
-  });
-}
-
-function resolveMaracaReducerValue(value, context) {
-  if (typeof value !== "string") return value;
-  if (value === "input" || value === "payload") return context.payload;
-  if (value.startsWith("input.")) return readMaracaPath(context.payload, value.slice(6));
-  if (value.startsWith("payload.")) return readMaracaPath(context.payload, value.slice(8));
-  if (value === "result") {
-    return context.result && Object.prototype.hasOwnProperty.call(context.result, "data")
-      ? context.result.data
-      : context.result;
-  }
-  if (value.startsWith("result.")) {
-    const resultPath = value.slice(7);
-    const directValue = readMaracaPath(context.result, resultPath);
-    if (typeof directValue !== "undefined") return directValue;
-    return readMaracaPath(context.result && context.result.data, resultPath);
-  }
-  return value;
-}
-
-async function runDeferredMaracaEffects(actionResult, context = {}) {
-  const effectAdapter = context.effectAdapter || null;
-  const effects = Array.isArray(actionResult && actionResult.effects) ? actionResult.effects : [];
-  const deferred = effects.filter((entry) => entry && entry.value && entry.value.deferred === true);
-  const results = [];
-  for (const entry of deferred) {
-    const effect = entry.value.effect || { id: entry.id, kind: entry.kind };
-    const effectContext = {
-      ...(entry.value.context || {}),
-      payload: context.payload || entry.value.context && entry.value.context.payload || {},
-      result: actionResult && Object.prototype.hasOwnProperty.call(actionResult, "data") ? actionResult.data : actionResult,
-      actionResult,
-      stateRuntime: context.stateRuntime || null,
-      surfaceRuntime: context.surfaceRuntime || null,
-      ownerId: entry.value.context && entry.value.context.ownerId || null,
-      phase: "after-render"
-    };
-    const adapterResult = effectAdapter && typeof effectAdapter.invoke === "function"
-      ? await effectAdapter.invoke(effect, effectContext)
-      : undefined;
-    const result = typeof adapterResult === "undefined"
-      ? await runDefaultMaracaEffect(effect, effectContext, context)
-      : adapterResult;
-    entry.value.result = cloneMaracaValue(result, result);
-    entry.value.deferred = false;
-    results.push({ id: entry.id, kind: entry.kind, result });
-  }
-  return results;
-}
-
-function maracaCssString(value) {
-  const raw = String(value || "");
-  if (typeof CSS !== "undefined" && CSS && typeof CSS.escape === "function") return CSS.escape(raw);
-  return raw.replace(/["\\\\]/gu, "\\\\$&");
-}
-
-function waitForMaracaEffectTurn() {
-  if (typeof requestAnimationFrame === "function") {
-    return new Promise((resolve) => requestAnimationFrame(() => resolve()));
-  }
-  if (typeof setTimeout === "function") {
-    return new Promise((resolve) => setTimeout(resolve, 0));
-  }
-  return Promise.resolve();
-}
-
-function nearestMaracaSurfaceManager(element, root = null) {
-  let current = element || null;
-  while (current) {
-    if (current.localName === "x-surface-manager") return current;
-    if (typeof current.closest === "function") {
-      const manager = current.closest("x-surface-manager");
-      if (manager) return manager;
-    }
-    const owner = typeof current.getRootNode === "function" ? current.getRootNode() : null;
-    current = owner && owner.host || current.parentElement || null;
-  }
-  const documentRoot = typeof document !== "undefined" ? document : null;
-  return root && typeof root.querySelector === "function" && root.querySelector("x-surface-manager")
-    || documentRoot && documentRoot.querySelector("x-surface-manager")
-    || null;
-}
-
-function snapshotMaracaSurfaceRecord(manager, surfaceId) {
-  if (!manager || !surfaceId) return null;
-  try {
-    const snapshot = typeof manager.readSnapshot === "function"
-      ? manager.readSnapshot()
-      : typeof manager.snapshot === "function"
-        ? manager.snapshot()
-        : null;
-    const surfaces = Array.isArray(snapshot && snapshot.surfaces) ? snapshot.surfaces : [];
-    return surfaces.find((record) => record && record.id === surfaceId) || null;
-  } catch (_) {
-    return null;
-  }
-}
-
-async function materializeMaracaEffectSurface(surfaceId, surface = null, context = {}) {
-  if (!surfaceId) return { materialized: false, reason: "missing-surface" };
-  const root = context.root || null;
-  const targetSurface = surface || resolveMaracaSurfaceElement(root, surfaceId);
-  const manager = nearestMaracaSurfaceManager(targetSurface, root);
-  if (!manager) return { materialized: false, reason: "no-surface-manager", surfaceId };
-  const before = snapshotMaracaSurfaceRecord(manager, surfaceId);
-  const needsMaterialization = !before
-    || before.status === "closed"
-    || before.status === "minimized"
-    || before.minimized === true
-    || before.active !== true;
-  if (!needsMaterialization) return { materialized: false, reason: "already-active", surfaceId };
-  const payload = {
-    reason: "maraca-effect",
-    source: "xtend.maraca.default-media-effect"
-  };
-  if (typeof manager.materializeSurface === "function") {
-    manager.materializeSurface(surfaceId, payload);
-  } else if (before && before.status === "closed" && typeof manager.openSurface === "function") {
-    manager.openSurface(surfaceId, payload);
-  } else if (typeof manager.restoreSurface === "function") {
-    manager.restoreSurface(surfaceId);
-  } else if (typeof manager.openSurface === "function") {
-    manager.openSurface(surfaceId, payload);
-  } else if (typeof manager.focusSurface === "function") {
-    manager.focusSurface(surfaceId);
-  } else {
-    return { materialized: false, reason: "unsupported-surface-manager", surfaceId };
-  }
-  await waitForMaracaEffectTurn();
-  const after = snapshotMaracaSurfaceRecord(manager, surfaceId);
-  return {
-    schema: "xtend.maraca.effect-surface-materialization.v1",
-    materialized: true,
-    surfaceId,
-    beforeStatus: before && before.status || null,
-    afterStatus: after && after.status || null
-  };
-}
-
-async function runDefaultMaracaEffect(effect = {}, effectContext = {}, context = {}) {
-  if (effect.componentCommand) {
-    return invokeMaracaComponentCommand(context.root || null, effect.componentCommand, {
-      ensureComponent: typeof ensureMaracaComponent === "function" ? ensureMaracaComponent : null
-    });
-  }
-  if (effect.kind === "remote-play") return runDefaultRemotePlayEffect(effect, effectContext, context);
-  if (effect.kind === "lightbox" || effect.kind === "open-lightbox" || effect.kind === "lightbox-open") {
-    return runDefaultLightboxEffect(effect, effectContext, context);
-  }
-  return undefined;
-}
-
-async function runDefaultRemotePlayEffect(effect = {}, effectContext = {}, context = {}) {
-  const stateRuntime = effectContext.stateRuntime || context.stateRuntime || null;
-  const surfaceRuntime = effectContext.surfaceRuntime || context.surfaceRuntime || null;
-  const root = context.root || null;
-  const selectorId = effect.source && effect.source.target || effect.target || "";
-  const playerState = stateRuntime && typeof stateRuntime.getState === "function"
-    ? stateRuntime.getState(selectorId)
-    : null;
-  const detail = playerState && typeof playerState === "object"
-    ? playerState
-    : effectContext.result && effectContext.result.player || {};
-  if (!detail || detail.hidden === true || detail.open === false || !detail.src) return null;
-  if (typeof ensureMaracaComponent === "function") await ensureMaracaComponent("x-player");
-  await Promise.resolve();
-  const surfaceId = detail.surfaceId || selectorId;
-  const escapedSurfaceId = maracaCssString(surfaceId);
-  const surfaceSelector = '[data-maraca-surface="' + escapedSurfaceId + '"]';
-  const playerSelector = 'x-player[data-maraca-surface="' + escapedSurfaceId + '"]';
-  let surface = root && typeof root.querySelector === "function"
-    ? root.querySelector(surfaceSelector)
-    : null;
-  const documentRoot = typeof document !== "undefined" ? document : null;
-  const materialization = await materializeMaracaEffectSurface(surfaceId, surface, context);
-  if (!surface) surface = resolveMaracaSurfaceElement(root, surfaceId);
-  await waitForMaracaEffectTurn();
-  const player = surface && surface.localName === "x-player"
-    ? surface
-    : surface && typeof surface.querySelector === "function" && surface.querySelector("x-player")
-      || documentRoot && documentRoot.querySelector(playerSelector);
-  if (!player) return null;
-  const kind = String(detail.kind || "").trim().toLowerCase();
-  const rawMediaType = String(detail.mediaType || detail.type || "").trim();
-  const rawMediaTypeKey = rawMediaType.toLowerCase();
-  const invalidMediaType = rawMediaTypeKey === "n/a"
-    || rawMediaTypeKey === "unknown"
-    || rawMediaTypeKey === "null"
-    || rawMediaTypeKey === "undefined";
-  const normalizedType = rawMediaType && !invalidMediaType
-    ? rawMediaType
-    : kind === "audio"
-      ? "audio"
-      : kind === "video"
-        ? "video"
-        : "video";
-  const payload = {
-    schema: "xtend.maraca.remote-play.v1",
-    src: detail.src,
-    source: detail.src,
-    type: normalizedType,
-    mediaType: detail.mediaType || "",
-    poster: detail.poster || "",
-    title: detail.title || detail.label || "Media",
-    label: detail.title || detail.label || "Media",
-    kind: detail.kind || "video",
-    requestedBy: "maraca-effect"
-  };
-  const remotePlayEvent = new CustomEvent("xplayer-remote-play", {
-    detail: payload,
-    bubbles: true,
-    composed: true,
-    cancelable: true
-  });
-  const eventAccepted = player.dispatchEvent(remotePlayEvent);
-  if (!eventAccepted || remotePlayEvent.defaultPrevented) return payload;
-  if (typeof player.applyRmtPlayerCommand === "function") {
-    const result = await player.applyRmtPlayerCommand("remote-play", payload);
-    return { payload, result, materialization };
-  }
-  if (typeof player.remotePlay === "function") {
-    const result = await player.remotePlay(payload);
-    return { payload, result, materialization };
-  }
-  return { payload, materialization };
-}
-
-function resolveMaracaSurfaceElement(root, surfaceId) {
-  const escapedSurfaceId = maracaCssString(surfaceId);
-  const surfaceSelector = '[data-maraca-surface="' + escapedSurfaceId + '"]';
-  const documentRoot = typeof document !== "undefined" ? document : null;
-  return root && typeof root.querySelector === "function" && root.querySelector(surfaceSelector)
-    || documentRoot && documentRoot.querySelector(surfaceSelector)
-    || null;
-}
-
-function syncClosedMaracaLightboxElement(lightbox) {
-  if (!lightbox) return;
-  if (typeof lightbox.removeAttribute === "function") {
-    lightbox.removeAttribute("open");
-    lightbox.removeAttribute("src");
-    lightbox.setAttribute("hidden", "");
-    lightbox.setAttribute("data-rmt-hidden-display", "true");
-  }
-  try {
-    lightbox.hidden = true;
-  } catch (_) {}
-  if (lightbox.style) {
-    lightbox.style.display = "none";
-    lightbox.style.visibility = "hidden";
-    lightbox.style.pointerEvents = "none";
-  }
-}
-
-async function runDefaultLightboxEffect(effect = {}, effectContext = {}, context = {}) {
-  const stateRuntime = effectContext.stateRuntime || context.stateRuntime || null;
-  const surfaceRuntime = effectContext.surfaceRuntime || context.surfaceRuntime || null;
-  const root = context.root || null;
-  const selectorId = effect.source && effect.source.target || effect.target || "";
-  const lightboxState = stateRuntime && typeof stateRuntime.getState === "function"
-    ? stateRuntime.getState(selectorId)
-    : null;
-  const detail = lightboxState && typeof lightboxState === "object"
-    ? lightboxState
-    : effectContext.result && effectContext.result.lightbox || {};
-  const surfaceId = detail && detail.surfaceId || selectorId;
-  if (!surfaceId) return null;
-  if (typeof ensureMaracaComponent === "function") await ensureMaracaComponent("x-lightbox");
-  await Promise.resolve();
-
-  let surface = resolveMaracaSurfaceElement(root, surfaceId);
-  const materialization = await materializeMaracaEffectSurface(surfaceId, surface, context);
-  if (!surface) surface = resolveMaracaSurfaceElement(root, surfaceId);
-  const documentRoot = typeof document !== "undefined" ? document : null;
-  const lightbox = surface && surface.localName === "x-lightbox"
-    ? surface
-    : surface && typeof surface.querySelector === "function" && surface.querySelector("x-lightbox")
-      || documentRoot && documentRoot.querySelector('x-lightbox[data-maraca-surface="' + maracaCssString(surfaceId) + '"]');
-  if (!lightbox) return null;
-
-  const shouldOpen = Boolean(detail && detail.hidden !== true && detail.open !== false && detail.src);
-  if (!shouldOpen) {
-    if (surfaceRuntime && typeof surfaceRuntime.listOverlays === "function" && typeof surfaceRuntime.closeOverlay === "function") {
-      try {
-        surfaceRuntime.listOverlays()
-          .filter((overlay) => overlay && (overlay.kind === "lightbox" || overlay.overlayId === "media.manager.lightboxOverlay" || overlay.surface === surfaceId))
-          .forEach((overlay) => surfaceRuntime.closeOverlay(overlay.id, { reason: "maraca-lightbox-close" }));
-      } catch (_) {}
-    }
-    if (typeof lightbox.close === "function") {
-      lightbox.close({ source: "maraca-effect", immediate: true, silent: true });
-    }
-    syncClosedMaracaLightboxElement(lightbox);
-    await waitForMaracaEffectTurn();
-    syncClosedMaracaLightboxElement(lightbox);
-    return {
-      schema: "xtend.maraca.lightbox-effect.v1",
-      open: false,
-      surfaceId,
-      materialization
-    };
-  }
-
-  if (typeof lightbox.removeAttribute === "function") {
-    lightbox.removeAttribute("hidden");
-    lightbox.removeAttribute("data-rmt-hidden-display");
-  }
-  if (lightbox.style) {
-    lightbox.style.display = "";
-    lightbox.style.visibility = "";
-    lightbox.style.pointerEvents = "";
-  }
-  if (typeof lightbox.setAttribute === "function") {
-    lightbox.setAttribute("src", detail.src);
-    if (detail.alt || detail.title || detail.label) lightbox.setAttribute("alt", detail.alt || detail.title || detail.label);
-  }
-  if (typeof lightbox.open === "function") {
-    lightbox.open(detail.src, { source: "maraca-effect", silent: true });
-  } else if (typeof lightbox.setAttribute === "function") {
-    lightbox.setAttribute("open", "");
-  }
-  return {
-    schema: "xtend.maraca.lightbox-effect.v1",
-    open: true,
-    surfaceId,
-    src: detail.src,
-    materialization
-  };
-}
-
-function createSurfaceEntriesFromRoot(root) {
-  if (!root || typeof root.querySelectorAll !== "function") return [];
-  return Array.from(root.querySelectorAll("[data-rmt-component], [data-maraca-surface]")).map((element) => {
-    const rawId = element.getAttribute("data-maraca-surface") || "";
-    const nodeId = element.getAttribute("data-rmt-node") || "";
-    const normalizedNodeId = nodeId
-      ? nodeId.replace(/^surface:/u, "").split("/").pop()
-      : "";
-    const component = element.getAttribute("data-rmt-component") || element.localName || "";
-    const id = MARACA_SURFACES.some((entry) => entry.id === rawId) ? rawId : normalizedNodeId;
-    const surface = MARACA_SURFACES.find((entry) => entry.id === id)
-      || MARACA_SURFACES.find((entry) => entry.component === component)
-      || { id, component };
-    return { surface, element };
-  });
-}
-
-function createOrchestrationController(root, options = {}, kernelController = null, hydrationController = null) {
-  const diagnostics = (MARACA_ORCHESTRATION.diagnostics || []).map(sanitizeMaracaDiagnostic);
-  const artifact = MARACA_ORCHESTRATION.artifact || null;
-  let stateRuntime = null;
-  let actionRuntime = null;
-  let eventRuntime = null;
-  let appRuntime = null;
-  let scheduledAppRuntime = null;
-  let hostServiceRegistry = null;
-  let surfaceRuntime = null;
-  let renderer = null;
-  let validationRuntime = null;
-  let animationEngineRuntime = null;
-  let transitionRuntime = null;
-  let attachReport = null;
-  let renderReport = null;
-  let surfaceReport = null;
-  let unsubState = null;
-  let surfaceDescriptorById = null;
-  let surfaceIdsByStateId = null;
-  const surfaceHydrationInflight = new Map();
-
-  function publishDiagnostic(diagnostic) {
-    const safeDiagnostic = sanitizeMaracaDiagnostic(diagnostic);
-    diagnostics.push(safeDiagnostic);
-    return safeDiagnostic;
-  }
-
-  function listDiagnostics() {
-    return diagnostics.map((entry) => sanitizeMaracaDiagnostic(entry));
-  }
-
-  function getSurfaceDescriptor(surfaceId) {
-    if (!surfaceDescriptorById) {
-      surfaceDescriptorById = collectSurfaceDescriptors(artifact && artifact.render && artifact.render.root);
-    }
-    return surfaceDescriptorById.get(surfaceId) || null;
-  }
-
-  function getSurfaceIdsByStateId() {
-    if (!surfaceIdsByStateId) {
-      surfaceIdsByStateId = new Map();
-      (artifact && artifact.surfaces || []).forEach((surface) => {
-        if (!surface || !surface.source || !surface.id) return;
-        const ids = surfaceIdsByStateId.get(surface.source) || [];
-        ids.push(surface.id);
-        surfaceIdsByStateId.set(surface.source, ids);
-      });
-    }
-    return surfaceIdsByStateId;
-  }
-
-  function surfacePatchScope(metadata = {}) {
-    const explicit = Array.isArray(metadata.surfaceIds) ? metadata.surfaceIds.filter(Boolean) : null;
-    if (explicit && explicit.length > 0) return new Set(explicit);
-    const changedStates = Array.isArray(metadata.changedStates) ? metadata.changedStates.filter(Boolean) : null;
-    if (!changedStates) return null;
-    const byState = getSurfaceIdsByStateId();
-    const ids = new Set();
-    changedStates.forEach((stateId) => {
-      (byState.get(stateId) || []).forEach((surfaceId) => ids.add(surfaceId));
-    });
-    return ids;
-  }
-
-  function patchPlanChangedKeys(value) {
-    if (Array.isArray(value)) return value.filter(Boolean);
-    if (value && typeof value === "object") return Object.keys(value).filter(Boolean);
-    return [];
-  }
-
-  function surfaceStateRequestsHydration(state = {}) {
-    if (!state || typeof state !== "object") return true;
-    if (state.hidden === true) return false;
-    if (state.open === false) return false;
-    return true;
-  }
-
-  function componentTagsForSurface(surface, descriptor, element = null) {
-    const tags = collectDescriptorComponentTags(descriptor);
-    if (surface && surface.component) tags.add(String(surface.component).trim().toLowerCase());
-    collectElementComponentTags(element, tags);
-    return Array.from(tags).filter((tag) => MARACA_COMPONENTS.some((entry) => entry.tag === tag));
-  }
-
-  function hydrateSurfaceComponent(tag, surfaceId, metadata = {}) {
-    const key = surfaceId + ":" + tag;
-    if (surfaceHydrationInflight.has(key)) return surfaceHydrationInflight.get(key);
-    const controller = hydrationController || currentMaracaHydration || null;
-    const loader = controller && controller.enabled && typeof controller.hydrateComponent === "function"
-      ? controller.hydrateComponent(tag, {
-          surface: surfaceId,
-          correlationId: metadata.correlationId || ""
-        })
-      : ensureMaracaComponent(tag);
-    const promise = Promise.resolve(loader)
-      .then((result) => {
-        dispatchMaracaEvent("xtend-maraca:component-load", {
-          tag,
-          surface: surfaceId,
-          strategy: "surface-state",
-          action: metadata.action || "",
-          operation: metadata.operation || "",
-          result
-        });
-        return result;
-      })
-      .catch((error) => {
-        const diagnostic = publishDiagnostic(createMaracaErrorDiagnostic("xtend.maraca.surface_hydration_error", error));
-        dispatchMaracaEvent("xtend-maraca:component-error", {
-          tag,
-          surface: surfaceId,
-          strategy: "surface-state",
-          action: metadata.action || "",
-          operation: metadata.operation || "",
-          diagnostic
-        });
-        if (MARACA_HYDRATION.strict) throw error;
-        return null;
-      })
-      .finally(() => {
-        surfaceHydrationInflight.delete(key);
-      });
-    surfaceHydrationInflight.set(key, promise);
-    return promise;
-  }
-
-  async function hydrateSurfaceComponents(metadata = {}) {
-    if (!artifact) return [];
-    const scopedSurfaceIds = surfacePatchScope(metadata);
-    const surfaces = scopedSurfaceIds
-      ? (artifact.surfaces || []).filter((surface) => surface && scopedSurfaceIds.has(surface.id))
-      : (artifact.surfaces || []);
-    const hydration = [];
-    surfaces.forEach((surface) => {
-      if (!surface || !surface.source || !surface.id) return;
-      const state = stateRuntime && typeof stateRuntime.getState === "function"
-        ? stateRuntime.getState(surface.source) || {}
-        : {};
-      if (!surfaceStateRequestsHydration(state)) return;
-      const descriptor = getSurfaceDescriptor(surface.id);
-      const element = root && typeof root.querySelectorAll === "function"
-        ? Array.from(root.querySelectorAll("[data-maraca-surface]")).find((entry) => entry.getAttribute("data-maraca-surface") === surface.id)
-        : null;
-      componentTagsForSurface(surface, descriptor, element).forEach((tag) => {
-        hydration.push(hydrateSurfaceComponent(tag, surface.id, metadata));
-      });
-    });
-    return Promise.all(hydration);
-  }
-
-  function runtimeSnapshot() {
-    return {
-      schema: "xtend.maraca.orchestration-snapshot.v1",
-      mode: MARACA_ORCHESTRATION.mode,
-      status: MARACA_ORCHESTRATION.status,
-      state: stateRuntime && typeof stateRuntime.snapshot === "function" ? stateRuntime.snapshot() : null,
-      actions: actionRuntime && typeof actionRuntime.listHistory === "function" ? actionRuntime.listHistory() : [],
-      events: eventRuntime && typeof eventRuntime.listRoutes === "function" ? eventRuntime.listRoutes() : [],
-      appRuntime: appRuntime && typeof appRuntime.listCommands === "function" ? {
-        schema: scheduledAppRuntime && scheduledAppRuntime.schema || appRuntime.schema,
-        rawSchema: appRuntime.schema,
-        facade: scheduledAppRuntime && scheduledAppRuntime.facade || null,
-        capabilities: {
-          commandFacade: !!(scheduledAppRuntime && typeof scheduledAppRuntime.command === "function"),
-          streamLifecycle: !!(scheduledAppRuntime && typeof scheduledAppRuntime.handleStreamPatch === "function"),
-          reducerRecipes: !!(scheduledAppRuntime && typeof scheduledAppRuntime.applyRecipe === "function")
-        },
-        commands: appRuntime.listCommands(),
-        streamPatches: typeof appRuntime.listStreamPatches === "function" ? appRuntime.listStreamPatches() : [],
-        streams: typeof appRuntime.listStreams === "function" ? appRuntime.listStreams() : [],
-        diagnostics: typeof appRuntime.listDiagnostics === "function" ? appRuntime.listDiagnostics() : []
-      } : null,
-      surfaces: surfaceRuntime && typeof surfaceRuntime.getSnapshot === "function" ? surfaceRuntime.getSnapshot() : null,
-      kernel: kernelController && typeof kernelController.snapshot === "function" ? kernelController.snapshot() : null,
-      validation: validationRuntime && typeof validationRuntime.snapshot === "function" ? validationRuntime.snapshot() : null,
-      animationEngine: animationEngineRuntime && typeof animationEngineRuntime.snapshot === "function" ? animationEngineRuntime.snapshot() : null,
-      transitions: transitionRuntime && typeof transitionRuntime.snapshot === "function" ? transitionRuntime.snapshot() : null,
-      diagnostics: listDiagnostics()
-    };
-  }
-
-  function syncSurfaceAttributes(metadata = {}) {
-    if (!stateRuntime || !artifact) return false;
-    let missing = 0;
-    let structuredPatchApplied = false;
-    const scopedSurfaceIds = surfacePatchScope(metadata);
-    const surfaces = scopedSurfaceIds
-      ? (artifact.surfaces || []).filter((surface) => surface && scopedSurfaceIds.has(surface.id))
-      : (artifact.surfaces || []);
-    if (scopedSurfaceIds && surfaces.length === 0) return true;
-    surfaces.forEach((surface) => {
-      if (!surface || !surface.source) return;
-      const element = root && typeof root.querySelectorAll === "function"
-        ? Array.from(root.querySelectorAll("[data-maraca-surface]")).find((entry) => entry.getAttribute("data-maraca-surface") === surface.id)
-        : null;
-      if (!element) {
-        missing += 1;
-        return;
-      }
-      const state = stateRuntime.getState(surface.source) || {};
-      const component = element.getAttribute("data-rmt-component") || surface.component || "";
-      syncMaracaStateAttributes(element, state, component, {
-        surface,
-        transitionRuntime,
-        action: metadata.action || "",
-        operation: metadata.operation || "",
-        correlationId: metadata.correlationId || ""
-      });
-      const descriptor = getSurfaceDescriptor(surface.id);
-      const structuredDescriptor = surfaceDescriptorNeedsStructuredPatch(descriptor);
-      if (renderer && typeof renderer.patchElement === "function" && shouldPatchSurfaceDescriptorStructure(descriptor, element, metadata)) {
-        try {
-          renderer.patchElement(element, descriptor, createMaracaRenderContext(stateRuntime));
-          structuredPatchApplied = true;
-        } catch (error) {
-          const diagnostic = publishDiagnostic(createMaracaErrorDiagnostic("xtend.maraca.structured_surface_patch_error", error));
-          dispatchMaracaEvent("xtend-maraca:render-patch", diagnostic);
-          if (MARACA_ORCHESTRATION.strict) throw error;
-        }
-      }
-      if (!structuredDescriptor && Object.prototype.hasOwnProperty.call(state, "text")) {
-        element.textContent = String(state.text == null ? "" : state.text);
-      }
-    });
-    if (structuredPatchApplied) attachEvents();
-    return missing === 0;
-  }
-
-  function attachEvents() {
-    if (!eventRuntime || typeof eventRuntime.attach !== "function") return null;
-    if (typeof eventRuntime.detachAll === "function") eventRuntime.detachAll();
-    attachReport = eventRuntime.attach(root);
-    return attachReport;
-  }
-
-  function renderNow() {
-    if (!artifact) return null;
-    if (surfaceRuntime && typeof surfaceRuntime.materialize === "function" && stateRuntime && typeof stateRuntime.getSelectorValues === "function") {
-      surfaceReport = surfaceRuntime.materialize(stateRuntime.getSelectorValues());
-      dispatchMaracaEvent("xtend-maraca:surface-change", {
-        schema: "xtend.maraca.surface-change.v1",
-        report: surfaceReport
-      });
-    }
-    if (!renderer || typeof renderer.render !== "function") {
-      syncSurfaceAttributes();
-      attachEvents();
-      return { schema: "xtend.maraca.orchestration-render.v1", fallback: "attribute-sync" };
-    }
-    const renderContext = stateRuntime && typeof stateRuntime.createRenderContext === "function"
-      ? createMaracaRenderContext(stateRuntime)
-      : createMaracaRenderContext(null);
-    renderReport = renderer.render(root, artifact.render && artifact.render.root || { type: "fragment", children: [] }, renderContext);
-    attachEvents();
-    return renderReport;
-  }
-
-  function render() {
-    return kernelController && kernelController.enabled && typeof kernelController.scheduleWork === "function"
-      ? kernelController.scheduleWork("render", renderNow, { operation: "orchestration.render" })
-      : renderNow();
-  }
-
-  if (!MARACA_ORCHESTRATION.enabled || !artifact) {
-    return Object.freeze({
-      enabled: false,
-      mode: MARACA_ORCHESTRATION.mode,
-      status: MARACA_ORCHESTRATION.status,
-      stateRuntime,
-      actionRuntime,
-      eventRuntime,
-      surfaceRuntime,
-      renderer,
-      validationRuntime,
-      transitionRuntime,
-      render,
-      attachEvents,
-      listDiagnostics,
-      snapshot: runtimeSnapshot
-    });
-  }
-
-  try {
-    const stateApi = getMaracaRuntimeApi("XTendRmtStateSelectorRuntime");
-    const actionApi = getMaracaRuntimeApi("XTendRmtActionEffectRuntime");
-    const eventApi = getMaracaRuntimeApi("XTendRmtEventRoutingRuntime");
-    const appApi = getMaracaRuntimeApi("XTendRmtAppRuntime");
-    const surfaceApi = getMaracaRuntimeApi("XTendRmtSurfaceResourceGraphRuntime");
-    const rendererApi = getMaracaRuntimeApi("XTendRmtDomDescriptorRenderer");
-    if (!stateApi || !actionApi || !eventApi || !appApi || !surfaceApi || !rendererApi) {
-      throw new Error("XTend RMT orchestration runtime modules are not available.");
-    }
-
-    stateRuntime = stateApi.createRmtStateSelectorRuntime({
-      states: artifact.state && artifact.state.states || [],
-      selectors: artifact.state && artifact.state.selectors || [],
-      reducers: artifact.state && artifact.state.reducers || [],
-      initialState: options.initialState || {},
-      xstate: options.xstate || (typeof globalThis !== "undefined" ? globalThis.xstate : null)
-    });
-    const resourceManager = actionApi.createRmtResourceManager({
-      resources: artifact.resources || [],
-      resourceAdapters: options.resourceAdapters || {}
-    });
-    hostServiceRegistry = appApi.createRmtHostServiceRegistry({
-      services: artifact.hostServices || artifact.services || [],
-      adapters: options.hostServiceAdapters || options.serviceAdapters || {}
-    });
-    const baseActionRuntime = actionApi.createRmtActionEffectRuntime({
-      actions: artifact.actions && artifact.actions.actions || [],
-      dataSources: artifact.actions && artifact.actions.dataSources || [],
-      effects: artifact.actions && artifact.actions.effects || [],
-      resources: artifact.resources || [],
-      stateRuntime,
-      resourceManager,
-      hostServiceRegistry,
-      dataSourceAdapters: options.dataSourceAdapters || {},
-      feedbackAdapter: options.feedbackAdapter || null,
-      navigationAdapter: options.navigationAdapter || null,
-      focusAdapter: options.focusAdapter || null,
-      effectAdapter: options.effectAdapter || null,
-      deferCustomEffects: true
-    });
-    if (MARACA_VALIDATION.enabled) {
-      const validationApi = getMaracaRuntimeApi("XTendRmtFormValidationRuntime");
-      if (!validationApi || typeof validationApi.createRmtFormValidationRuntime !== "function") {
-        throw new Error("XTend RMT form validation runtime module is not available.");
-      }
-      validationRuntime = validationApi.createRmtFormValidationRuntime({
-        validationPlan: MARACA_VALIDATION.artifact,
-        stateRuntime,
-        root,
-        windowTarget: typeof window !== "undefined" ? window : undefined,
-        diagnostics: MARACA_VALIDATION.diagnostics || [],
-        publishDiagnostic
-      });
-    }
-    if (MARACA_TRANSITIONS.enabled) {
-      const animationApi = getMaracaRuntimeApi("XTendRmtAnimationEngineRuntime");
-      const transitionApi = getMaracaRuntimeApi("XTendRmtSurfaceTransitionRuntime");
-      if (!animationApi || typeof animationApi.createRmtAnimationEngineRuntime !== "function") {
-        throw new Error("XTend RMT animation engine runtime module is not available.");
-      }
-      if (!transitionApi || typeof transitionApi.createRmtSurfaceTransitionRuntime !== "function") {
-        throw new Error("XTend RMT surface transition runtime module is not available.");
-      }
-      animationEngineRuntime = animationApi.createRmtAnimationEngineRuntime({
-        animationPlan: MARACA_TRANSITIONS.artifact && MARACA_TRANSITIONS.artifact.animationEngine || MARACA_TRANSITIONS.artifact,
-        xUtils: typeof globalThis !== "undefined" ? globalThis.XUtils : null,
-        windowTarget: typeof window !== "undefined" ? window : undefined,
-        diagnostics: MARACA_TRANSITIONS.diagnostics || [],
-        strict: MARACA_TRANSITIONS.strict,
-        publishDiagnostic
-      });
-      transitionRuntime = transitionApi.createRmtSurfaceTransitionRuntime({
-        transitionPlan: MARACA_TRANSITIONS.artifact,
-        animationEngine: animationEngineRuntime,
-        root,
-        kernelController,
-        xUtils: typeof globalThis !== "undefined" ? globalThis.XUtils : null,
-        xstate: typeof globalThis !== "undefined" ? globalThis.xstate : null,
-        windowTarget: typeof window !== "undefined" ? window : undefined,
-        diagnostics: MARACA_TRANSITIONS.diagnostics || [],
-        strict: MARACA_TRANSITIONS.strict,
-        publishDiagnostic
-      });
-    }
-
-    actionRuntime = Object.freeze({
-      schema: baseActionRuntime.schema,
-      resourceManager,
-      async runAction(actionId, payload = {}, metadata = {}) {
-        if (validationRuntime && typeof validationRuntime.validateAction === "function") {
-          const validationWork = () => validationRuntime.validateAction(actionId, {
-            ...metadata,
-            action: actionId,
-            report: true
-          });
-          const validationResult = await (kernelController && kernelController.enabled && typeof kernelController.scheduleWork === "function"
-            ? kernelController.scheduleWork("validation", validationWork, {
-                operation: typeof validationRuntime.operationForAction === "function" ? validationRuntime.operationForAction(actionId) : "operation:xtend.rmt/validation/action/" + actionId,
-                action: actionId,
-                correlationId: metadata && metadata.correlationId || ""
-              })
-            : validationWork());
-          if (validationResult && validationResult.valid === false) {
-            dispatchMaracaEvent("xtend-maraca:validation-blocked", validationResult);
-            return {
-              schema: "xtend.maraca.action.v1",
-              action: actionId,
-              status: "blocked",
-              reason: "validation",
-              validation: validationResult
-            };
-          }
-        }
-        const runActionWork = () => baseActionRuntime.runAction(actionId, payload, metadata);
-        const result = await (kernelController && kernelController.enabled && typeof kernelController.scheduleWork === "function"
-          ? kernelController.scheduleWork("action", runActionWork, {
-              operation: "operation:xtend.rmt/action/" + actionId,
-              action: actionId,
-              correlationId: metadata && metadata.correlationId || ""
-            })
-          : runActionWork());
-        const reducers = artifact.state && Array.isArray(artifact.state.reducers)
-          ? artifact.state.reducers.filter((reducer) => reducer.action === actionId && reducer.state)
-          : [];
-        reducers.forEach((reducer) => {
-          const value = resolveMaracaReducerValue(reducer.value, { payload, result });
-          if (reducer.recipe) {
-            if (!appApi || typeof appApi.applyRmtReducerRecipe !== "function") {
-              throw new Error("XTend RMT app runtime does not expose reducer recipe support.");
-            }
-            const current = stateRuntime.getState(reducer.state) || {};
-            const next = appApi.applyRmtReducerRecipe(current, {
-              recipe: reducer.recipe,
-              path: reducer.path || "",
-              value
-            }, {
-              payload,
-              result,
-              correlationId: metadata && metadata.correlationId || "",
-              publishDiagnostic
-            });
-            stateRuntime.setState(reducer.state, next, { operation: "orchestration.reducer.recipe", action: actionId, reducer: reducer.id });
-            return;
-          }
-          if (!reducer.path) {
-            stateRuntime.setState(reducer.state, value, { operation: "orchestration.reducer", action: actionId, reducer: reducer.id });
-            return;
-          }
-          const current = stateRuntime.getState(reducer.state) || {};
-          const next = cloneMaracaValue(current, {});
-          writeMaracaPath(next, reducer.path, value);
-          stateRuntime.setState(reducer.state, next, { operation: "orchestration.reducer", action: actionId, reducer: reducer.id });
-        });
-        const changedStates = Array.from(new Set(reducers.map((reducer) => reducer.state).filter(Boolean)));
-        const synced = syncSurfaceAttributes({
-          operation: "orchestration.action-sync",
-          action: actionId,
-          correlationId: metadata && metadata.correlationId || "",
-          changedStates
-        });
-        if (!synced) await Promise.resolve(render());
-        await hydrateSurfaceComponents({
-          operation: "orchestration.action-hydration",
-          action: actionId,
-          correlationId: metadata && metadata.correlationId || "",
-          changedStates
-        });
-        await runDeferredMaracaEffects(result, {
-          payload,
-          metadata,
-          stateRuntime,
-          surfaceRuntime,
-          effectAdapter: options.effectAdapter || null,
-          root
-        });
-        dispatchMaracaEvent("xtend-maraca:action", {
-          schema: "xtend.maraca.action.v1",
-          action: actionId,
-          status: result && result.status || "unknown"
-        });
-        return result;
-      },
-      cancelAction(actionId) {
-        return baseActionRuntime.cancelAction(actionId);
-      },
-      runEffect(effectId, context) {
-        return baseActionRuntime.runEffect(effectId, context);
-      },
-      listActions() {
-        return baseActionRuntime.listActions();
-      },
-      listDataSources() {
-        return baseActionRuntime.listDataSources();
-      },
-      listEffects() {
-        return baseActionRuntime.listEffects();
-      },
-      getActionStatus(id) {
-        return baseActionRuntime.getActionStatus(id);
-      },
-      listHistory() {
-        return baseActionRuntime.listHistory();
-      },
-      listDiagnostics() {
-        return baseActionRuntime.listDiagnostics().map(sanitizeMaracaDiagnostic);
-      }
-    });
-    appRuntime = appApi.createRmtAppRuntime({
-      actionRuntime,
-      hostServices: hostServiceRegistry,
-      initialState: options.appState || {},
-      fabric: options.fabric || null,
-      streamLifecycleActions: options.streamLifecycleActions || {}
-    });
-    function scheduleMaracaAppRuntimeWork(kind, work, metadata = {}) {
-      return kernelController && kernelController.enabled && typeof kernelController.scheduleWork === "function"
-        ? kernelController.scheduleWork(kind, work, metadata)
-        : work();
-    }
-    function commandDispatchOperation(metadata = {}) {
-      return metadata && metadata.eventId
-        ? "operation:xtend.rmt/event/" + metadata.eventId
-        : "operation:xtend.maraca/orchestration/event";
-    }
-    scheduledAppRuntime = Object.freeze({
-      schema: appRuntime.schema,
-      rawSchema: appRuntime.schema,
-      facade: "xtend.maraca.scheduled-app-runtime.v1",
-      hostServices: appRuntime.hostServices,
-      createCommandEnvelope: appRuntime.createCommandEnvelope,
-      command(commandName, payload = {}, options = {}) {
-        const command = commandName && commandName.schema === "xtend.rmt.command.v1"
-          ? commandName
-          : appRuntime.createCommandEnvelope({
-              command: commandName,
-              payload,
-              target: Object.prototype.hasOwnProperty.call(options || {}, "target") ? options.target : null
-            }, {
-              source: {
-                kind: options.sourceKind || "app-runtime",
-                id: options.sourceId || "scheduledAppRuntime.command",
-                event: options.event || "command",
-                surfaceId: options.surfaceId || ""
-              },
-              lane: options.lane || "user-blocking",
-              correlationId: options.correlationId || "",
-              runId: options.runId || ""
-            });
-        return scheduledAppRuntime.dispatchCommand(command, options.metadata || options);
-      },
-      refreshSnapshot(commandName = "xtend.app.applySnapshot", payload = {}, options = {}) {
-        return scheduledAppRuntime.command(commandName, {
-          reason: options.reason || "app-runtime-refresh",
-          ...(payload && typeof payload === "object" && !Array.isArray(payload) ? payload : { value: payload })
-        }, {
-          ...options,
-          lane: options.lane || "visible",
-          sourceId: options.sourceId || "scheduledAppRuntime.refreshSnapshot",
-          event: options.event || "snapshot-refresh"
-        });
-      },
-      async dispatchCommand(commandEnvelope, metadata = {}) {
-        const command = commandEnvelope && commandEnvelope.schema === "xtend.rmt.command.v1"
-          ? commandEnvelope
-          : appRuntime.createCommandEnvelope(commandEnvelope, metadata);
-        const routeCommandWork = () => appRuntime.dispatchCommand(command, metadata);
-        return scheduleMaracaAppRuntimeWork("event", routeCommandWork, {
-          operation: commandDispatchOperation(metadata),
-          action: command && command.command || "",
-          eventId: metadata && metadata.eventId || "",
-          eventName: metadata && metadata.eventName || "",
-          correlationId: command && command.correlationId || metadata && metadata.correlationId || ""
-        });
-      },
-      invokeService(serviceId, payload = {}, context = {}) {
-        const invokeWork = () => appRuntime.invokeService(serviceId, payload, context);
-        return scheduleMaracaAppRuntimeWork("action", invokeWork, {
-          operation: "operation:xtend.maraca/orchestration/action",
-          serviceId,
-          correlationId: context && context.correlationId || context && context.command && context.command.correlationId || ""
-        });
-      },
-      streamService(serviceId, payload = {}, options = {}) {
-        const streamWork = () => appRuntime.streamService(serviceId, payload, options);
-        return scheduleMaracaAppRuntimeWork("action", streamWork, {
-          operation: "operation:xtend.maraca/orchestration/action",
-          serviceId,
-          correlationId: options && options.correlationId || options && options.command && options.command.correlationId || ""
-        });
-      },
-      applyStreamPatch(patchInput, reducerOptions = {}) {
-        const patchWork = () => appRuntime.applyStreamPatch(patchInput, reducerOptions);
-        return scheduleMaracaAppRuntimeWork("state-change", patchWork, {
-          operation: "operation:xtend.maraca/orchestration/state-change",
-          correlationId: patchInput && patchInput.correlationId || reducerOptions && reducerOptions.correlationId || ""
-        });
-      },
-      handleStreamPatch(patchInput, reducerOptions = {}) {
-        const patchWork = () => appRuntime.handleStreamPatch(patchInput, reducerOptions);
-        return scheduleMaracaAppRuntimeWork("state-change", patchWork, {
-          operation: "operation:xtend.maraca/orchestration/state-change",
-          correlationId: patchInput && patchInput.correlationId || reducerOptions && reducerOptions.correlationId || ""
-        });
-      },
-      applyReducer(reducer, context = {}) {
-        const reducerWork = () => appRuntime.applyReducer(reducer, context);
-        return scheduleMaracaAppRuntimeWork("state-change", reducerWork, {
-          operation: "operation:xtend.maraca/orchestration/state-change",
-          correlationId: context && context.correlationId || ""
-        });
-      },
-      applyRecipe(recipe, context = {}) {
-        const recipeWork = () => appRuntime.applyRecipe(recipe, context);
-        return scheduleMaracaAppRuntimeWork("state-change", recipeWork, {
-          operation: "operation:xtend.maraca/orchestration/state-change",
-          correlationId: context && context.correlationId || ""
-        });
-      },
-      getState() {
-        return appRuntime.getState();
-      },
-      setState(value) {
-        const setStateWork = () => appRuntime.setState(value);
-        return scheduleMaracaAppRuntimeWork("state-change", setStateWork, {
-          operation: "operation:xtend.maraca/orchestration/state-change"
-        });
-      },
-      listCommands() {
-        return appRuntime.listCommands();
-      },
-      listStreamPatches() {
-        return appRuntime.listStreamPatches();
-      },
-      listStreams() {
-        return appRuntime.listStreams();
-      },
-      listDiagnostics() {
-        return appRuntime.listDiagnostics();
-      }
-    });
-    const eventActionRuntime = Object.freeze({
-      ...actionRuntime,
-      async dispatchCommand(commandEnvelope, metadata = {}) {
-        return scheduledAppRuntime.dispatchCommand(commandEnvelope, metadata);
-      },
-      async runAction(actionId, payload = {}, metadata = {}) {
-        const routeActionWork = () => actionRuntime.runAction(actionId, payload, metadata);
-        return kernelController && kernelController.enabled && typeof kernelController.scheduleWork === "function"
-          ? kernelController.scheduleWork("event", routeActionWork, {
-              operation: metadata && metadata.eventId ? "operation:xtend.rmt/event/" + metadata.eventId : "orchestration.event",
-              action: actionId,
-              eventId: metadata && metadata.eventId || "",
-              eventName: metadata && metadata.eventName || "",
-              correlationId: metadata && metadata.correlationId || ""
-            })
-          : routeActionWork();
-      }
-    });
-
-    eventRuntime = eventApi.createRmtEventRoutingRuntime({
-      events: artifact.events || [],
-      actionRuntime: eventActionRuntime,
-      root,
-      targetResolver(binding, rootTarget) {
-        if (!binding || !binding.target || !rootTarget || typeof rootTarget.querySelector !== "function") return null;
-        try {
-          return rootTarget.querySelector(binding.target);
-        } catch (_) {
-          return null;
-        }
-      }
-    });
-    surfaceRuntime = surfaceApi.createRmtSurfaceResourceGraphRuntime({
-      surfaces: artifact.surfaces || [],
-      portals: artifact.portals || [],
-      overlays: artifact.overlays || [],
-      resourceManager,
-      eventRuntime,
-      documentTarget: document
-    });
-    renderer = rendererApi.createRmtDomDescriptorRenderer({ documentTarget: document });
-    unsubState = stateRuntime.subscribe((event) => {
-      const applyStateChange = () => {
-        const operation = event && event.metadata && event.metadata.operation || "state-change";
-        const patchPlan = event && event.patchPlan || null;
-        const changedStates = patchPlan && patchPlan.changedStates
-          ? patchPlanChangedKeys(patchPlan.changedStates)
-          : null;
-        const synced = syncSurfaceAttributes({
-          operation,
-          action: event && event.metadata && event.metadata.action || "",
-          correlationId: event && event.metadata && event.metadata.correlationId || "",
-          changedStates
-        });
-        if (!synced) render();
-        hydrateSurfaceComponents({
-          operation: "orchestration.state-hydration",
-          action: event && event.metadata && event.metadata.action || "",
-          correlationId: event && event.metadata && event.metadata.correlationId || "",
-          changedStates
-        }).catch((error) => {
-          const diagnostic = publishDiagnostic(createMaracaErrorDiagnostic("xtend.maraca.state_hydration_error", error));
-          dispatchMaracaEvent("xtend-maraca:hydration-error", diagnostic);
-        });
-        dispatchMaracaEvent("xtend-maraca:state-change", {
-          schema: "xtend.maraca.state-change.v1",
-          operation,
-          patchPlan: event && event.patchPlan ? {
-            changedStates: patchPlanChangedKeys(event.patchPlan.changedStates),
-            changedSelectors: patchPlanChangedKeys(event.patchPlan.changedSelectors),
-            changedDerived: patchPlanChangedKeys(event.patchPlan.changedDerived)
-          } : null
-        });
-        if (validationRuntime && typeof validationRuntime.refresh === "function" && operation !== "validation.patch") {
-          validationRuntime.refresh({ reason: "state-change", operation });
-        }
-      };
-      if (kernelController && kernelController.enabled && typeof kernelController.scheduleWork === "function") {
-        kernelController.scheduleWork("state-change", applyStateChange, {
-          operation: event && event.metadata && event.metadata.operation || "state-change"
-        });
-      } else {
-        applyStateChange();
-      }
-    });
-    const initialRender = options.adoptExisting === true ? null : render();
-    Promise.resolve(initialRender).then(() => {
-      if (validationRuntime && typeof validationRuntime.refresh === "function") {
-        validationRuntime.refresh({ reason: options.adoptExisting === true ? "resume" : "boot" });
-      }
-    }).catch((error) => {
-      publishDiagnostic(createMaracaErrorDiagnostic("xtend.maraca.validation_boot_refresh_error", error));
-    });
-    dispatchMaracaEvent("xtend-maraca:orchestration-boot", {
-      schema: "xtend.maraca.orchestration-boot.v1",
-      mode: MARACA_ORCHESTRATION.mode,
-      summary: MARACA_ORCHESTRATION.summary,
-      attachedCount: attachReport && attachReport.attachedCount || 0
-    });
-  } catch (error) {
-    const diagnostic = publishDiagnostic(createMaracaErrorDiagnostic("xtend.maraca.orchestration_runtime_error", error));
-    dispatchMaracaEvent("xtend-maraca:orchestration-error", diagnostic);
-    if (MARACA_ORCHESTRATION.strict) throw error;
-  }
-
-  return Object.freeze({
-    enabled: Boolean(stateRuntime && actionRuntime && appRuntime && scheduledAppRuntime && eventRuntime && surfaceRuntime && renderer),
-    mode: MARACA_ORCHESTRATION.mode,
-    status: MARACA_ORCHESTRATION.status,
-    stateRuntime,
-    actionRuntime,
-    appRuntime: scheduledAppRuntime,
-    hostServiceRegistry,
-    eventRuntime,
-    surfaceRuntime,
-    renderer,
-      validationRuntime,
-      animationEngineRuntime,
-      transitionRuntime,
-    render,
-    attachEvents,
-    dispose() {
-      if (typeof unsubState === "function") unsubState();
-      if (eventRuntime && typeof eventRuntime.detachAll === "function") eventRuntime.detachAll();
-      if (actionRuntime && typeof actionRuntime.dispose === "function") actionRuntime.dispose("XTend Maraca orchestration disposed.");
-    },
-    listDiagnostics,
-    snapshot: runtimeSnapshot
-  });
-}
-
-function createTelemetryBridge(kernelController = null, orchestrationController = null, hydrationController = null, validationController = null, transitionController = null) {
-  const history = [];
-  function publish(kind, detail = {}) {
-    const entry = sanitizeMaracaDiagnostic({
-      schema: "xtend.maraca.telemetry-entry.v1",
-      kind,
-      at: Date.now(),
-      detail
-    });
-    history.push(entry);
-    dispatchMaracaEvent("xtend-maraca:telemetry", entry);
-    return entry;
-  }
-  return Object.freeze({
-    schema: "xtend.maraca.telemetry-bridge.v1",
-    publish,
-    listHistory() {
-      return history.slice();
-    },
-    snapshot() {
-      return {
-        schema: "xtend.maraca.telemetry-snapshot.v1",
-        eventCount: history.length,
-        kernel: kernelController && typeof kernelController.snapshot === "function" ? kernelController.snapshot() : null,
-        orchestration: orchestrationController && typeof orchestrationController.snapshot === "function" ? orchestrationController.snapshot() : null,
-        hydration: hydrationController && typeof hydrationController.snapshot === "function" ? hydrationController.snapshot() : null,
-        validation: validationController && typeof validationController.snapshot === "function" ? validationController.snapshot() : null,
-        transitions: transitionController && typeof transitionController.snapshot === "function" ? transitionController.snapshot() : null,
-        lifecycle: MARACA_LIFECYCLE,
-        warmReentry: MARACA_WARM_REENTRY,
-        uiCoprocessor: MARACA_UI_COPROCESSOR,
-        webAppManifest: MARACA_WEB_APP_MANIFEST,
-        pwa: {
-          plan: MARACA_PWA,
-          registration: currentMaracaPwaRegistration
-        },
-        history: history.slice(-50)
-      };
-    }
-  });
-}
-
-function createHydrationController(root, options = {}, kernelController = null) {
-  const diagnostics = (MARACA_HYDRATION.diagnostics || []).map(sanitizeMaracaDiagnostic);
-  const artifact = MARACA_HYDRATION.artifact || null;
-  const records = artifact && Array.isArray(artifact.records) ? artifact.records : [];
-  const history = [];
-  const recordsByComponent = new Map();
-  records.forEach((record) => {
-    if (!record || !record.component) return;
-    const entries = recordsByComponent.get(record.component) || [];
-    entries.push(record);
-    recordsByComponent.set(record.component, entries);
-  });
-
-  function publishDiagnostic(diagnostic) {
-    const safeDiagnostic = sanitizeMaracaDiagnostic(diagnostic);
-    diagnostics.push(safeDiagnostic);
-    return safeDiagnostic;
-  }
-
-  function listDiagnostics() {
-    return diagnostics.map((entry) => sanitizeMaracaDiagnostic(entry));
-  }
-
-  function resolveRecord(tag, metadata = {}) {
-    if (metadata.hydrationId) {
-      const exact = records.find((record) => record.id === metadata.hydrationId);
-      if (exact) return exact;
-    }
-    if (metadata.surface) {
-      const surface = records.find((record) => record.surface === metadata.surface);
-      if (surface) return surface;
-    }
-    const entries = recordsByComponent.get(tag) || [];
-    return entries[0] || null;
-  }
-
-  async function hydrateComponent(tag, metadata = {}) {
-    const record = resolveRecord(tag, metadata);
-    const correlationId = metadata.correlationId || "xtend-trace:maraca:hydration:" + (history.length + 1);
-    const runHydration = () => ensureMaracaComponent(tag);
-    const entry = {
-      schema: "xtend.maraca.hydration-history-entry.v1",
-      tag,
-      surface: record && record.surface || metadata.surface || null,
-      hydration: record && record.id || null,
-      policy: record && record.policy || "component-load",
-      mode: record && record.mode || "runtime_render",
-      insularHydration: Boolean(record && record.insularHydration),
-      correlationId,
-      status: "pending"
-    };
-    history.push(entry);
-    dispatchMaracaEvent("xtend-maraca:hydration-start", entry);
-    try {
-      const result = await (kernelController && kernelController.enabled && typeof kernelController.scheduleWork === "function"
-        ? kernelController.scheduleWork("hydration", runHydration, {
-            operation: record && record.operation || "operation:xtend.rmt/hydration/document",
-            hydrationId: record && record.id || "",
-            surface: entry.surface || "",
-            component: tag,
-            correlationId
-          })
-        : runHydration());
-      entry.status = "hydrated";
-      entry.result = result;
-      dispatchMaracaEvent(record && record.insularHydration ? "xtend-maraca:insular-hydration" : "xtend-maraca:hydration-complete", {
-        ...entry,
-        result
-      });
-      return result;
-    } catch (error) {
-      entry.status = "error";
-      const diagnostic = publishDiagnostic(createMaracaErrorDiagnostic("xtend.maraca.hydration_error", error));
-      dispatchMaracaEvent("xtend-maraca:hydration-error", {
-        ...entry,
-        diagnostic
-      });
-      if (MARACA_HYDRATION.strict) throw error;
-      return null;
-    }
-  }
-
-  async function hydrateAll(tags, metadata = {}) {
-    const loaded = [];
-    for (const tag of Array.from(new Set((tags || []).filter(Boolean)))) {
-      loaded.push(await hydrateComponent(tag, metadata));
-    }
-    return loaded;
-  }
-
-  function snapshot() {
-    return {
-      schema: "xtend.maraca.hydration-snapshot.v1",
-      mode: MARACA_HYDRATION.mode,
-      status: MARACA_HYDRATION.status,
-      enabled: MARACA_HYDRATION.enabled,
-      summary: MARACA_HYDRATION.summary || {},
-      records: records.map((record) => ({
-        id: record.id,
-        surface: record.surface,
-        component: record.component,
-        policy: record.policy,
-        mode: record.mode,
-        insularHydration: Boolean(record.insularHydration)
-      })),
-      history: history.slice(),
-      diagnostics: listDiagnostics()
-    };
-  }
-
-  return Object.freeze({
-    enabled: Boolean(MARACA_HYDRATION.enabled && artifact),
-    mode: MARACA_HYDRATION.mode,
-    status: MARACA_HYDRATION.status,
-    hydrateComponent,
-    hydrateAll,
-    listDiagnostics,
-    snapshot
-  });
-}
-
-function observeViewportComponents(surfaceEntries, options = {}, hydrationController = null) {
-  const observed = [];
-  const loadingTags = new Set();
-  const observer = new IntersectionObserver((records) => {
-    records.forEach((record) => {
-      if (!record.isIntersecting && record.intersectionRatio <= 0) return;
-      observer.unobserve(record.target);
-      const tag = record.target && record.target.getAttribute("data-rmt-component");
-      if (!tag || loadingTags.has(tag)) return;
-      loadingTags.add(tag);
-      const surface = entrySurfaceForElement(surfaceEntries, record.target);
-      const loader = hydrationController && hydrationController.enabled && typeof hydrationController.hydrateComponent === "function"
-        ? hydrationController.hydrateComponent(tag, { surface: surface && surface.id || "" })
-        : ensureMaracaComponent(tag);
-      Promise.resolve(loader)
-        .then(() => dispatchMaracaEvent("xtend-maraca:component-load", {
-          tag,
-          strategy: "viewport"
-        }))
-        .catch((error) => dispatchMaracaEvent("xtend-maraca:component-error", {
-          tag,
-          message: error && error.message ? error.message : String(error)
-        }));
-    });
-  }, {
-    root: options.viewportRoot || null,
-    rootMargin: options.rootMargin || "160px",
-    threshold: options.threshold === undefined ? 0 : options.threshold
-  });
-
-  surfaceEntries.forEach((entry) => {
-    if (!entry || !entry.element) return;
-    const tag = entry.element.getAttribute("data-rmt-component")
-      || entry.surface && entry.surface.component
-      || entry.element.localName;
-    if (!tag) return;
-    observer.observe(entry.element);
-    observed.push(tag);
-  });
-
-  return {
-    strategy: "viewport",
-    observedTags: Array.from(new Set(observed)),
-    observedCount: observed.length,
-    observer
-  };
-}
-
-function entrySurfaceForElement(surfaceEntries, element) {
-  const entry = (surfaceEntries || []).find((candidate) => candidate && candidate.element === element);
-  return entry && entry.surface || null;
-}
-
-function registerMaracaTemplateArtifacts(options = {}) {
-  const report = MARACA_TEMPLATE_ARTIFACTS;
-  const bundle = report && report.artifactBundle;
-  const base = {
-    schema: "xtend.maraca.template-artifacts-registration.v1",
-    ok: false,
-    status: "skipped",
-    documentIds: report && Array.isArray(report.documentIds) ? report.documentIds.slice() : [],
-    templateIds: report && Array.isArray(report.templateIds) ? report.templateIds.slice() : [],
-    artifactBundleFingerprint: report && report.artifactBundleFingerprint || ""
-  };
-  if (!report || !bundle || !report.registration || report.registration.eligible !== true || report.trusted !== true) {
-    return {
-      ...base,
-      status: "not_eligible",
-      reason: report && report.registration && report.registration.reason || "no_trusted_artifact_bundle"
-    };
-  }
-  if (!XTendMaracaKernelRuntimeModule || typeof XTendMaracaKernelRuntimeModule.createRmtTemplateArtifacts !== "function") {
-    return {
-      ...base,
-      status: "runtime_factory_unavailable",
-      reason: "createRmtTemplateArtifacts is not bundled"
-    };
-  }
-  try {
-    const artifactApi = XTendMaracaKernelRuntimeModule.createRmtTemplateArtifacts({
-      now: () => 0,
-      ...(options.templateArtifactsOptions || {})
-    });
-    if (!artifactApi || typeof artifactApi.registerArtifactBundle !== "function") {
-      return {
-        ...base,
-        status: "runtime_register_unavailable",
-        reason: "registerArtifactBundle is not available"
-      };
-    }
-    const registered = artifactApi.registerArtifactBundle(bundle, {
-      replace: true,
-      trusted: true
-    });
-    const result = {
-      ...base,
-      ok: Boolean(registered && registered.ok),
-      status: registered && registered.ok ? "registered" : "failed",
-      documentCount: registered && registered.documentCount || 0,
-      templateCount: registered && registered.templateCount || 0,
-      documentIds: registered && Array.isArray(registered.documentIds) ? registered.documentIds.slice() : base.documentIds
-    };
-    dispatchMaracaEvent("xtend-maraca:template-artifacts", result);
-    return result;
-  } catch (error) {
-    return {
-      ...base,
-      status: "failed",
-      reason: error && error.message ? error.message : String(error)
-    };
-  }
-}
-
-async function registerMaracaPwaServiceWorker(options = {}) {
-  const base = {
-    schema: "xtend.maraca.pwa-service-worker-registration.v1",
-    ok: false,
-    status: "disabled",
-    enabled: Boolean(MARACA_PWA && MARACA_PWA.enabled),
-    serviceWorkerControlled: false,
-    manifestRef: MARACA_PWA && MARACA_PWA.manifestRef || null,
-    cacheMode: MARACA_PWA && MARACA_PWA.cacheMode || "disabled",
-    cacheVersion: MARACA_PWA && MARACA_PWA.cacheVersion || "",
-    offlineEligible: Boolean(MARACA_PWA && MARACA_PWA.offlineEligible)
-  };
-  if (!MARACA_PWA || !MARACA_PWA.enabled || !MARACA_PWA.serviceWorker || MARACA_PWA.serviceWorker.enabled !== true) {
-    return base;
-  }
-  if (typeof navigator === "undefined" || !navigator.serviceWorker || typeof navigator.serviceWorker.register !== "function") {
-    return {
-      ...base,
-      status: "unsupported",
-      reason: "navigator.serviceWorker is unavailable"
-    };
-  }
-  const registrationUrl = options.serviceWorkerUrl || MARACA_PWA.serviceWorker.registrationUrl || MARACA_PWA.serviceWorker.ref || "./xtend.service-worker.js";
-  const scope = options.serviceWorkerScope || MARACA_PWA.serviceWorker.scope || "./";
-  try {
-    const registration = await navigator.serviceWorker.register(registrationUrl, { scope });
-    const controlled = Boolean(navigator.serviceWorker.controller || registration.active);
-    const result = {
-      ...base,
-      ok: true,
-      status: controlled ? "controlled" : "registered",
-      registrationUrl,
-      scope,
-      serviceWorkerControlled: controlled,
-      updateMode: MARACA_PWA.updateMode || "prompt"
-    };
-    dispatchMaracaEvent("xtend-maraca:pwa-service-worker", result);
-    return result;
-  } catch (error) {
-    return {
-      ...base,
-      status: "registration_failed",
-      registrationUrl,
-      scope,
-      reason: error && error.message ? error.message : String(error)
-    };
-  }
-}
-
-let currentMaracaKernel = null;
-let currentMaracaOrchestration = null;
-let currentMaracaHydration = null;
-let currentMaracaValidation = null;
-let currentMaracaAnimationEngine = null;
-let currentMaracaTransitions = null;
-let currentMaracaTelemetry = null;
-let currentMaracaTemplateArtifactsRegistration = null;
-let currentMaracaPwaRegistration = null;
-let currentMaracaAppServices = null;
-let currentMaracaResume = null;
-let currentMaracaBootResult = null;
-let currentMaracaResumeIdentity = "";
-
-function resolveMaracaResumeIdentity(payload) {
-  const envelope = payload && (payload.resume || payload.response && payload.response.resume || payload.schema === "xtend.rmt.ssr-resume-envelope.v1" && payload) || null;
-  if (!envelope || !envelope.generation) return "";
-  const integrity = envelope.integrity || {};
-  return [envelope.generation, integrity.keyId || "", integrity.digest || "", integrity.signature || ""].join(":");
-}
-
-function disposeXtendMaraca(reason = "XTend Maraca app disposed.") {
-  const disposed = {
-    orchestration: false,
-    appServices: false
-  };
-  if (currentMaracaOrchestration && typeof currentMaracaOrchestration.dispose === "function") {
-    currentMaracaOrchestration.dispose();
-    disposed.orchestration = true;
-  }
-  if (currentMaracaAppServices && typeof currentMaracaAppServices.dispose === "function") {
-    disposed.appServices = currentMaracaAppServices.dispose(reason);
-  }
-  dispatchMaracaEvent("xtend-maraca:dispose", {
-    schema: "xtend.maraca.dispose.v1",
-    reason,
-    ...disposed
-  });
-  currentMaracaBootResult = null;
-  currentMaracaResumeIdentity = "";
-  return disposed;
-}
-
-async function bootXtendMaraca(options = {}) {
-  if (typeof document === "undefined") {
-    return { ok: false, status: "no_document", schema: MARACA_SCHEMA };
-  }
-  const root = options.root || document.querySelector("[data-maraca-root]") || document.getElementById("xtend-maraca-root") || document.body;
-  const pendingResumeIdentity = resolveMaracaResumeIdentity(readServerPrerenderShellPayload());
-  if (pendingResumeIdentity && pendingResumeIdentity === currentMaracaResumeIdentity && currentMaracaBootResult) {
-    const duplicateResult = Object.freeze({
-      ...currentMaracaBootResult,
-      duplicateBootIgnored: true
-    });
-    window.__XTendMaracaResult = duplicateResult;
-    return duplicateResult;
-  }
-  if (currentMaracaAppServices) disposeXtendMaraca("XTend Maraca app restarted.");
-  currentMaracaAppServices = createMaracaAppServiceController(options);
-  const runtimeOptions = {
-    ...options,
-    hostServiceAdapters: currentMaracaAppServices.hostServiceAdapters,
-    dataSourceAdapters: currentMaracaAppServices.dataSourceAdapters
-  };
-  attachMaracaCss(root);
-  const serverPrerenderShell = adoptServerPrerenderShell(root);
-  const resumeRequested = serverPrerenderShell.active === true
-    && serverPrerenderShell.executionMode === "server_prerender_resume"
-    && serverPrerenderShell.payload;
-  const surfaceEntries = [];
-  if (!serverPrerenderShell.active) {
-    const fragment = document.createDocumentFragment();
-    MARACA_SURFACES.forEach((surface) => {
-      const element = createSurfaceElement(surface);
-      fragment.appendChild(element);
-      surfaceEntries.push({ surface, element });
-    });
-    root.appendChild(fragment);
-  } else {
-    surfaceEntries.push(...createSurfaceEntriesFromRoot(root));
-  }
-  runtimeOptions.adoptExisting = Boolean(resumeRequested);
-  currentMaracaKernel = createKernelController(root, runtimeOptions);
-  currentMaracaHydration = createHydrationController(root, runtimeOptions, currentMaracaKernel);
-  currentMaracaOrchestration = createOrchestrationController(root, runtimeOptions, currentMaracaKernel, currentMaracaHydration);
-  currentMaracaValidation = currentMaracaOrchestration && currentMaracaOrchestration.validationRuntime || null;
-  currentMaracaAnimationEngine = currentMaracaOrchestration && currentMaracaOrchestration.animationEngineRuntime || null;
-  currentMaracaTransitions = currentMaracaOrchestration && currentMaracaOrchestration.transitionRuntime || null;
-  currentMaracaTelemetry = createTelemetryBridge(currentMaracaKernel, currentMaracaOrchestration, currentMaracaHydration, currentMaracaValidation, currentMaracaTransitions);
-  let resumeResult = null;
-  if (resumeRequested) {
-    const resumeApi = getMaracaRuntimeApi("XTendRmtResumeRuntime");
-    if (resumeApi && typeof resumeApi.createRmtResumeRuntime === "function") {
-      const resumeEnvelope = serverPrerenderShell.payload.resume
-        || serverPrerenderShell.payload.response && serverPrerenderShell.payload.response.resume
-        || serverPrerenderShell.payload;
-      const resumeRoot = resumeEnvelope && resumeEnvelope.rootId && document.getElementById(resumeEnvelope.rootId) || root;
-      currentMaracaResume = resumeApi.createRmtResumeRuntime({
-        root: resumeRoot,
-        verifyResumeEnvelope: runtimeOptions.verifyResumeEnvelope || runtimeOptions.verify,
-        stateRuntime: currentMaracaOrchestration && currentMaracaOrchestration.stateRuntime,
-        adopters: runtimeOptions.resumeAdopters || runtimeOptions.adopters || {},
-        restoreState(state) {
-          const stateRuntime = currentMaracaOrchestration && currentMaracaOrchestration.stateRuntime;
-          if (!stateRuntime || typeof stateRuntime.setState !== "function") return null;
-          const known = new Set((stateRuntime.stateDefinitions || []).map((entry) => entry && entry.id).filter(Boolean));
-          Object.entries(state || {}).forEach(([id, value]) => {
-            if (known.size === 0 || known.has(id)) stateRuntime.setState(id, value, { operation: "server-resume", generation: resumeEnvelope.generation });
-          });
-          return stateRuntime.snapshot && stateRuntime.snapshot();
-        },
-        adoptRoot() {
-          return currentMaracaOrchestration && typeof currentMaracaOrchestration.attachEvents === "function"
-            ? currentMaracaOrchestration.attachEvents()
-            : null;
-        },
-        replayIntent(intent) {
-          const actionRuntime = currentMaracaOrchestration && currentMaracaOrchestration.actionRuntime;
-          return actionRuntime && typeof actionRuntime.runAction === "function"
-            ? actionRuntime.runAction(intent.action, intent.payload || {}, { operation: "resume-replay", eventId: intent.eventId })
-            : null;
-        },
-        hydrateResponse() {
-          const renderResult = currentMaracaOrchestration && typeof currentMaracaOrchestration.render === "function"
-            ? currentMaracaOrchestration.render()
-            : null;
-          const hydrateResult = currentMaracaHydration && currentMaracaHydration.enabled
-            ? currentMaracaHydration.hydrateAll(MARACA_COMPONENTS.map((entry) => entry.tag), { reason: "resume-fallback" })
-            : null;
-          return Promise.all([Promise.resolve(renderResult), Promise.resolve(hydrateResult)]).then(() => ({ ok: true, status: "hydrated" }));
-        },
-        publishDiagnostic(diagnostic) {
-          dispatchMaracaEvent("xtend-maraca:resume-diagnostic", diagnostic);
-        }
-      });
-      resumeResult = await currentMaracaResume.resumeResponse(serverPrerenderShell.payload.response || serverPrerenderShell.payload, {}, {
-        root: resumeRoot,
-        intentQueue: runtimeOptions.intentQueue || []
-      });
-      if (typeof root.setAttribute === "function") root.setAttribute("data-rmt-resume-status", resumeResult.status);
-      dispatchMaracaEvent("xtend-maraca:resume", resumeResult);
-    } else {
-      resumeResult = {
-        schema: "xtend.rmt.resume-result.v1",
-        ok: false,
-        status: "rejected",
-        reasons: ["resume_runtime_missing"]
-      };
-    }
-  }
-  currentMaracaTemplateArtifactsRegistration = registerMaracaTemplateArtifacts(runtimeOptions);
-  currentMaracaPwaRegistration = await registerMaracaPwaServiceWorker(runtimeOptions);
-  const activeSurfaceEntries = currentMaracaOrchestration && currentMaracaOrchestration.enabled
-    ? createSurfaceEntriesFromRoot(root)
-    : surfaceEntries;
-  const lazyStrategy = resolveLazyStrategy(runtimeOptions);
-  let lazyController = null;
-  if (lazyStrategy === "viewport") {
-    lazyController = observeViewportComponents(activeSurfaceEntries, runtimeOptions, currentMaracaHydration);
-  } else {
-    if (currentMaracaHydration && currentMaracaHydration.enabled) {
-      await currentMaracaHydration.hydrateAll(MARACA_COMPONENTS.map((entry) => entry.tag));
-    } else {
-      await ensureMaracaComponents(MARACA_COMPONENTS.map((entry) => entry.tag));
-    }
-  }
-  const result = {
-    ok: true,
-    status: lazyStrategy === "viewport" ? "booted_lazy" : "booted",
-    schema: MARACA_SCHEMA,
-    lazyStrategy,
-    componentTags: MARACA_COMPONENTS.map((entry) => entry.tag),
-    pendingComponentCount: lazyStrategy === "viewport" ? MARACA_COMPONENTS.length : 0,
-    surfaceCount: MARACA_SURFACES.length,
-    eventCount: MARACA_EVENTS.length,
-    appServices: currentMaracaAppServices.snapshot(),
-    orchestration: {
-      enabled: Boolean(currentMaracaOrchestration && currentMaracaOrchestration.enabled),
-      mode: MARACA_ORCHESTRATION.mode,
-      status: MARACA_ORCHESTRATION.status,
-      diagnosticCount: currentMaracaOrchestration ? currentMaracaOrchestration.listDiagnostics().length : 0
-    },
-    kernel: {
-      enabled: Boolean(currentMaracaKernel && currentMaracaKernel.enabled),
-      mode: MARACA_KERNEL.mode,
-      status: currentMaracaKernel && currentMaracaKernel.status || MARACA_KERNEL.status,
-      scheduledEndpointCount: currentMaracaKernel ? currentMaracaKernel.listScheduledEndpoints().length : 0,
-      prewarmWorker: currentMaracaKernel && typeof currentMaracaKernel.snapshot === "function" ? currentMaracaKernel.snapshot().prewarmWorker : MARACA_KERNEL.prewarmWorker,
-      uiCoprocessor: currentMaracaKernel && typeof currentMaracaKernel.snapshot === "function" ? currentMaracaKernel.snapshot().uiCoprocessor : MARACA_UI_COPROCESSOR,
-      diagnosticCount: currentMaracaKernel ? currentMaracaKernel.listDiagnostics().length : 0
-    },
-    hydration: {
-      enabled: Boolean(currentMaracaHydration && currentMaracaHydration.enabled),
-      mode: MARACA_HYDRATION.mode,
-      status: MARACA_HYDRATION.status,
-      diagnosticCount: currentMaracaHydration ? currentMaracaHydration.listDiagnostics().length : 0,
-      resume: resumeResult
-    },
-    validation: {
-      enabled: Boolean(currentMaracaValidation),
-      mode: MARACA_VALIDATION.mode,
-      status: currentMaracaValidation ? "booted" : MARACA_VALIDATION.status,
-      diagnosticCount: currentMaracaValidation && typeof currentMaracaValidation.listDiagnostics === "function" ? currentMaracaValidation.listDiagnostics().length : 0
-    },
-    transitions: {
-      enabled: Boolean(currentMaracaTransitions),
-      mode: MARACA_TRANSITIONS.mode,
-      status: currentMaracaTransitions ? "booted" : MARACA_TRANSITIONS.status,
-      animationEngineStatus: currentMaracaAnimationEngine ? "booted" : (MARACA_TRANSITIONS.summary && MARACA_TRANSITIONS.summary.animationEngineSchema ? "planned" : "disabled"),
-      activeCount: currentMaracaTransitions && typeof currentMaracaTransitions.listActiveTransitions === "function" ? currentMaracaTransitions.listActiveTransitions().length : 0,
-      diagnosticCount: currentMaracaTransitions && typeof currentMaracaTransitions.listDiagnostics === "function" ? currentMaracaTransitions.listDiagnostics().length : 0
-    },
-    templateArtifacts: {
-      enabled: Boolean(MARACA_TEMPLATE_ARTIFACTS && MARACA_TEMPLATE_ARTIFACTS.trusted),
-      status: MARACA_TEMPLATE_ARTIFACTS && MARACA_TEMPLATE_ARTIFACTS.status || "unavailable",
-      documentIds: MARACA_TEMPLATE_ARTIFACTS && Array.isArray(MARACA_TEMPLATE_ARTIFACTS.documentIds) ? MARACA_TEMPLATE_ARTIFACTS.documentIds.slice() : [],
-      templateIds: MARACA_TEMPLATE_ARTIFACTS && Array.isArray(MARACA_TEMPLATE_ARTIFACTS.templateIds) ? MARACA_TEMPLATE_ARTIFACTS.templateIds.slice() : [],
-      artifactBundleFingerprint: MARACA_TEMPLATE_ARTIFACTS && MARACA_TEMPLATE_ARTIFACTS.artifactBundleFingerprint || "",
-      registration: currentMaracaTemplateArtifactsRegistration
-    },
-    serverPrerenderShell,
-    resume: resumeResult,
-    uiCoprocessor: MARACA_UI_COPROCESSOR,
-    webAppManifest: MARACA_WEB_APP_MANIFEST,
-    pwa: {
-      plan: MARACA_PWA,
-      registration: currentMaracaPwaRegistration
-    },
-    productionClosure: MARACA_PRODUCTION_CLOSURE,
-    lazyObservedCount: lazyController ? lazyController.observedCount : 0,
-    publicNameReservations: MARACA_PUBLIC_NAMES,
-    dispose: disposeXtendMaraca
-  };
-  currentMaracaBootResult = result;
-  currentMaracaResumeIdentity = pendingResumeIdentity;
-  window.__XTendMaracaResult = result;
-  window.__XTendMaracaLazyController = lazyController;
-  window.__XTendMaracaKernel = currentMaracaKernel;
-  window.__XTendMaracaOrchestration = currentMaracaOrchestration;
-  window.__XTendMaracaHydration = currentMaracaHydration;
-  window.__XTendMaracaResume = currentMaracaResume;
-  window.__XTendMaracaValidation = currentMaracaValidation;
-  window.__XTendMaracaAnimationEngine = currentMaracaAnimationEngine;
-  window.__XTendMaracaTransitions = currentMaracaTransitions;
-  window.__XTendMaracaTelemetry = currentMaracaTelemetry;
-  window.__XTendMaracaTemplateArtifactsRegistration = currentMaracaTemplateArtifactsRegistration;
-  window.__XTendMaracaPwaRegistration = currentMaracaPwaRegistration;
-  if (currentMaracaTelemetry) currentMaracaTelemetry.publish("boot", result);
-  dispatchMaracaEvent("xtend-maraca:boot", result);
-  return result;
-}
-
-const XTendMaraca = Object.freeze({
+const MARACA_BOOT_CONFIGURATION = freezeMaracaSnapshot({
   schema: MARACA_SCHEMA,
   components: MARACA_COMPONENTS,
   surfaces: MARACA_SURFACES,
+  state: MARACA_STATE,
   events: MARACA_EVENTS,
-  orchestrationPlan: MARACA_ORCHESTRATION,
-  kernelPlan: MARACA_KERNEL,
-  hydrationPlan: MARACA_HYDRATION,
+  orchestration: MARACA_ORCHESTRATION,
+  kernel: MARACA_KERNEL,
+  hydration: MARACA_HYDRATION,
   warmReentry: MARACA_WARM_REENTRY,
   uiCoprocessor: MARACA_UI_COPROCESSOR,
   webAppManifest: MARACA_WEB_APP_MANIFEST,
   pwa: MARACA_PWA,
-  validationPlan: MARACA_VALIDATION,
-  transitionPlan: MARACA_TRANSITIONS,
+  validation: MARACA_VALIDATION,
+  transitions: MARACA_TRANSITIONS,
+  appServices: MARACA_APP_SERVICES,
+  lifecycle: MARACA_LIFECYCLE,
   productionClosure: MARACA_PRODUCTION_CLOSURE,
   templateArtifacts: MARACA_TEMPLATE_ARTIFACTS,
-  get kernel() {
-    return currentMaracaKernel;
-  },
-  get orchestration() {
-    return currentMaracaOrchestration;
-  },
-  get hydration() {
-    return currentMaracaHydration;
-  },
-  get validation() {
-    return currentMaracaValidation;
-  },
-  get animationEngine() {
-    return currentMaracaAnimationEngine;
-  },
-  get transitions() {
-    return currentMaracaTransitions;
-  },
-  get telemetry() {
-    return currentMaracaTelemetry;
-  },
-  get templateArtifactsRegistration() {
-    return currentMaracaTemplateArtifactsRegistration;
-  },
-  get pwaRegistration() {
-    return currentMaracaPwaRegistration;
-  },
-  get appServices() {
-    return currentMaracaAppServices;
-  },
+  publicNames: MARACA_PUBLIC_NAMES,
   stackModules: MARACA_STACK_MODULES,
-  ensureComponent: ensureMaracaComponent,
-  boot: bootXtendMaraca,
-  dispose: disposeXtendMaraca
+  compatibilityRenderDescriptor: MARACA_COMPATIBILITY_RENDER_DESCRIPTOR,
+  lazyMode: MARACA_LAZY_MODE,
+  css: ${JSON.stringify(plan.css)} === "inline"
+    ? { mode: "inline", text: MARACA_CSS_TEXT }
+    : { mode: "external", href: MARACA_CSS_HREF }
 });
 
+const maracaComposition = createMaracaBrowserCompositionRoot(MARACA_BOOT_CONFIGURATION, {
+  createPlanRuntime: createMaracaPlanRuntime,
+  componentImporters: MARACA_IMPORTERS,
+  kernelRuntimeModule: XTendMaracaKernelRuntimeModule,
+  appServiceDefinition: XTendMaracaAppServiceDefinition,
+  createAppServiceRegistry,
+  createHttpAppServiceTransport,
+  platformTarget: typeof globalThis !== "undefined" ? globalThis : undefined,
+  windowTarget: typeof window !== "undefined" ? window : undefined,
+  documentTarget: typeof document !== "undefined" ? document : undefined
+});
+
+const XTendMaraca = maracaComposition.facade;
+const ensureMaracaComponent = (tag) => XTendMaraca.ensureComponent(tag);
+const bootXtendMaraca = (options) => XTendMaraca.boot(options);
+const disposeXtendMaraca = (reason) => XTendMaraca.dispose(reason);
+const invokeMaracaComponentCommand = (root, commandRecord) => maracaComposition.invokeComponentCommand(root, commandRecord);
+
 function shouldAutoBootXtendMaraca() {
-  return window.__XTendMaracaDisableAutoBoot !== true
-    && window.XTendMaracaAutoBoot !== false;
+  return window.__XTendMaracaDisableAutoBoot !== true && window.XTendMaracaAutoBoot !== false;
 }
 
 function resolveAutoBootOptions() {
   const options = window.__XTendMaracaAutoBootOptions;
-  if (typeof options === "function") return options();
-  return options && typeof options === "object" ? options : {};
+  return typeof options === "function" ? options() : (options && typeof options === "object" ? options : {});
 }
 
 function scheduleXtendMaracaAutoBoot() {
   const boot = () => {
     if (!shouldAutoBootXtendMaraca()) return;
-    Promise.resolve(resolveAutoBootOptions())
-      .then((options) => bootXtendMaraca(options))
-      .catch((error) => {
-        window.__XTendMaracaAutoBootError = error;
-        dispatchMaracaEvent("xtend-maraca:boot-error", {
-          message: error && error.message ? error.message : String(error)
-        });
+    Promise.resolve(resolveAutoBootOptions()).then(bootXtendMaraca).catch((error) => {
+      window.__XTendMaracaAutoBootError = freezeMaracaSnapshot({
+        schema: "xtend.maraca.diagnostic.v1",
+        code: "xtend.maraca.auto_boot_error",
+        severity: "error",
+        message: error && error.message ? error.message : String(error)
       });
+      if (typeof CustomEvent === "function") window.dispatchEvent(new CustomEvent("xtend-maraca:boot-error", {
+        detail: window.__XTendMaracaAutoBootError
+      }));
+    });
   };
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot, { once: true });
-  } else {
-    boot();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, { once: true });
+  else boot();
 }
 
 if (typeof window !== "undefined") {
@@ -7987,9 +5323,16 @@ if (typeof window !== "undefined") {
   scheduleXtendMaracaAutoBoot();
 }
 
-export { MARACA_COMPONENTS, MARACA_SURFACES, MARACA_EVENTS, MARACA_ORCHESTRATION, MARACA_KERNEL, MARACA_HYDRATION, MARACA_WARM_REENTRY, MARACA_UI_COPROCESSOR, MARACA_WEB_APP_MANIFEST, MARACA_PWA, MARACA_VALIDATION, MARACA_TRANSITIONS, MARACA_APP_SERVICES, MARACA_TEMPLATE_ARTIFACTS, MARACA_PUBLIC_NAMES, MARACA_STACK_MODULES, MARACA_COMPONENT_COMMAND_SCHEMA, MARACA_COMPONENT_COMMAND_RESULT_SCHEMA, invokeMaracaComponentCommand, ensureMaracaComponent, bootXtendMaraca, disposeXtendMaraca };
+export {
+  MARACA_COMPONENTS, MARACA_SURFACES, MARACA_EVENTS, MARACA_ORCHESTRATION, MARACA_KERNEL, MARACA_HYDRATION,
+  MARACA_WARM_REENTRY, MARACA_UI_COPROCESSOR, MARACA_WEB_APP_MANIFEST, MARACA_PWA, MARACA_VALIDATION,
+  MARACA_TRANSITIONS, MARACA_APP_SERVICES, MARACA_TEMPLATE_ARTIFACTS, MARACA_PUBLIC_NAMES, MARACA_STACK_MODULES,
+  MARACA_COMPONENT_COMMAND_SCHEMA, MARACA_COMPONENT_COMMAND_RESULT_SCHEMA, invokeMaracaComponentCommand,
+  ensureMaracaComponent, bootXtendMaraca, disposeXtendMaraca
+};
 export default XTendMaraca;
 `;
+
 }
 
 function minifyLocalEsModule(source) {
@@ -8037,6 +5380,16 @@ function createRollupManualChunks(plan) {
 }
 
 function isKernelRuntimeExternalImport(plan, id) {
+  if (
+    id === `./${PLAN_RUNTIME_BUNDLE_FILE}`
+    || id === PLAN_RUNTIME_BUNDLE_FILE
+    || toPosix(id).endsWith(`/${PLAN_RUNTIME_BUNDLE_FILE}`)
+    || id === `./${BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE}`
+    || id === BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE
+    || toPosix(id).endsWith(`/${BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE}`)
+  ) {
+    return true;
+  }
   return Boolean(
     plan && plan.kernel && plan.kernel.enabled
     && (
@@ -8221,6 +5574,12 @@ async function createRollupBundleFiles(plan, rawSource) {
       entryFileNames: 'xtend.maraca.mjs',
       chunkFileNames: 'chunks/[name]-[hash].mjs',
       paths(id) {
+        if (toPosix(id).endsWith(`/${PLAN_RUNTIME_BUNDLE_FILE}`) || id === `./${PLAN_RUNTIME_BUNDLE_FILE}` || id === PLAN_RUNTIME_BUNDLE_FILE) {
+          return `./${PLAN_RUNTIME_BUNDLE_FILE}`;
+        }
+        if (toPosix(id).endsWith(`/${BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE}`) || id === `./${BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE}` || id === BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE) {
+          return `./${BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE}`;
+        }
         if (toPosix(id).endsWith(`/${KERNEL_CONTROLLER_BUNDLE_FILE}`) || id === `./${KERNEL_CONTROLLER_BUNDLE_FILE}` || id === KERNEL_CONTROLLER_BUNDLE_FILE) {
           return `./${KERNEL_CONTROLLER_BUNDLE_FILE}`;
         }
@@ -8255,21 +5614,21 @@ async function createRollupBundleFiles(plan, rawSource) {
   }
 }
 
-function copyKernelRuntimeAsset(plan) {
-  if (!plan || !plan.kernel || !plan.kernel.enabled) return null;
+function copyPlanRuntimeAsset(plan) {
+  if (!plan) return null;
   const packageRoot = path.dirname(path.dirname(__filename));
   const candidates = [
-    path.resolve(plan.rootDir || packageRoot, 'xtendrmt/rmt-runtime.esm.js'),
-    path.resolve(packageRoot, 'xtendrmt/rmt-runtime.esm.js')
+    path.resolve(plan.rootDir || packageRoot, 'xtend-maraca/plan-runtime.mjs'),
+    path.resolve(__dirname, 'plan-runtime.mjs')
   ];
   const sourcePath = candidates.find((candidate) => fs.existsSync(candidate));
   if (!sourcePath) return null;
-  const targetPath = path.join(plan.outputDir, KERNEL_RUNTIME_BUNDLE_FILE);
+  const targetPath = path.join(plan.outputDir, PLAN_RUNTIME_BUNDLE_FILE);
   fs.mkdirSync(path.dirname(targetPath), { recursive: true });
   fs.copyFileSync(sourcePath, targetPath);
   return {
     type: 'asset',
-    fileName: KERNEL_RUNTIME_BUNDLE_FILE,
+    fileName: PLAN_RUNTIME_BUNDLE_FILE,
     path: targetPath,
     bytes: fs.statSync(targetPath).size,
     isEntry: false,
@@ -8279,28 +5638,129 @@ function copyKernelRuntimeAsset(plan) {
   };
 }
 
-function copyKernelResumeRuntimeAsset(plan) {
+function copyMaracaBrowserRuntimeAssets(plan) {
+  if (!plan) return [];
+  const packageRoot = path.dirname(path.dirname(__filename));
+  return [
+    {
+      sourceCandidates: [
+        path.resolve(plan.rootDir || packageRoot, 'xtend-maraca/browser-composition-runtime.mjs'),
+        path.resolve(__dirname, 'browser-composition-runtime.mjs')
+      ],
+      fileName: BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE
+    },
+    {
+      sourceCandidates: [
+        path.resolve(plan.rootDir || packageRoot, 'xtend-maraca/browser-host-adapter.mjs'),
+        path.resolve(__dirname, 'browser-host-adapter.mjs')
+      ],
+      fileName: BROWSER_HOST_ADAPTER_BUNDLE_FILE
+    }
+  ].map((record) => {
+    const sourcePath = record.sourceCandidates.find((candidate) => fs.existsSync(candidate));
+    if (!sourcePath) return null;
+    const targetPath = path.join(plan.outputDir, record.fileName);
+    fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+    fs.copyFileSync(sourcePath, targetPath);
+    return {
+      type: 'asset',
+      fileName: record.fileName,
+      path: targetPath,
+      bytes: fs.statSync(targetPath).size,
+      isEntry: false,
+      isDynamicEntry: false,
+      imports: [],
+      dynamicImports: []
+    };
+  }).filter(Boolean);
+}
+
+function copyKernelRuntimeAsset(plan) {
   if (!plan || !plan.kernel || !plan.kernel.enabled) return null;
+  try {
+    const artifact = assembleRmtSourceArtifact(plan.rootDir, 'xtendrmt/rmt-runtime.esm.js');
+    const targetPath = path.join(plan.outputDir, KERNEL_RUNTIME_BUNDLE_FILE);
+    fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+    fs.writeFileSync(targetPath, artifact.content);
+    return {
+      type: 'asset',
+      fileName: KERNEL_RUNTIME_BUNDLE_FILE,
+      path: targetPath,
+      bytes: fs.statSync(targetPath).size,
+      integrity: `sha256:${artifact.sha256}`,
+      sourceManifest: artifact.sourceManifestPath,
+      sourceModuleCount: artifact.sourceModuleCount,
+      isEntry: false,
+      isDynamicEntry: false,
+      imports: [],
+      dynamicImports: []
+    };
+  } catch (error) {
+    if (Array.isArray(plan.diagnostics)) {
+      plan.diagnostics.push({
+        code: error.code || 'xtend.maraca.kernel_source_assembly_failed',
+        severity: 'error',
+        message: error && error.message ? error.message : String(error)
+      });
+    }
+    return null;
+  }
+}
+
+function collectRelativeEsmSourceClosure(entryPath, sourceRoot) {
+  const resolvedRoot = path.resolve(sourceRoot);
+  const queue = [path.resolve(entryPath)];
+  const visited = new Set();
+  const ordered = [];
+  const importPattern = /\b(?:import|export)\s+(?:[^'";]*?\s+from\s+)?['"](\.[^'"]+)['"]/gu;
+  while (queue.length > 0) {
+    const sourcePath = queue.shift();
+    if (visited.has(sourcePath)) continue;
+    if (sourcePath !== resolvedRoot && !sourcePath.startsWith(`${resolvedRoot}${path.sep}`)) {
+      throw new Error(`Maraca runtime source dependency escapes its canonical source root: ${sourcePath}`);
+    }
+    if (!fs.existsSync(sourcePath) || !fs.statSync(sourcePath).isFile()) {
+      throw new Error(`Maraca runtime source dependency is missing: ${sourcePath}`);
+    }
+    visited.add(sourcePath);
+    ordered.push(sourcePath);
+    const source = fs.readFileSync(sourcePath, 'utf8');
+    let match;
+    while ((match = importPattern.exec(source)) !== null) {
+      const dependencyPath = path.resolve(path.dirname(sourcePath), match[1]);
+      if (!visited.has(dependencyPath)) queue.push(dependencyPath);
+    }
+  }
+  return ordered;
+}
+
+function copyKernelResumeRuntimeAssets(plan) {
+  if (!plan || !plan.kernel || !plan.kernel.enabled) return [];
   const packageRoot = path.dirname(path.dirname(__filename));
   const candidates = [
     path.resolve(plan.rootDir || packageRoot, 'xtendrmt/rmt-resume-runtime.js'),
     path.resolve(packageRoot, 'xtendrmt/rmt-resume-runtime.js')
   ];
   const sourcePath = candidates.find((candidate) => fs.existsSync(candidate));
-  if (!sourcePath) return null;
-  const targetPath = path.join(plan.outputDir, KERNEL_RESUME_RUNTIME_BUNDLE_FILE);
-  fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-  fs.copyFileSync(sourcePath, targetPath);
-  return {
-    type: 'asset',
-    fileName: KERNEL_RESUME_RUNTIME_BUNDLE_FILE,
-    path: targetPath,
-    bytes: fs.statSync(targetPath).size,
-    isEntry: false,
-    isDynamicEntry: false,
-    imports: [],
-    dynamicImports: []
-  };
+  if (!sourcePath) return [];
+  const sourceRoot = path.dirname(sourcePath);
+  return collectRelativeEsmSourceClosure(sourcePath, sourceRoot).map((dependencyPath) => {
+    const relativePath = path.relative(sourceRoot, dependencyPath);
+    const fileName = path.posix.join(path.posix.dirname(KERNEL_RESUME_RUNTIME_BUNDLE_FILE), relativePath.split(path.sep).join('/'));
+    const targetPath = path.join(plan.outputDir, fileName);
+    fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+    fs.copyFileSync(dependencyPath, targetPath);
+    return {
+      type: 'asset',
+      fileName,
+      path: targetPath,
+      bytes: fs.statSync(targetPath).size,
+      isEntry: false,
+      isDynamicEntry: false,
+      imports: [],
+      dynamicImports: []
+    };
+  });
 }
 
 function copyKernelControllerRuntimeAsset(plan) {
@@ -9577,8 +7037,10 @@ function buildMaracaBundle(input = {}, options = {}) {
     return { schema: MARACA_BUNDLE_REPORT_SCHEMA, ok: false, status: 'css_provider_blocked', plan, bundleReport: null, sizeBudgetReport: null };
   }
   const cssResult = executeNativeCssProviderSync(plan);
+  const planRuntimeAsset = copyPlanRuntimeAsset(plan);
+  const browserRuntimeAssets = copyMaracaBrowserRuntimeAssets(plan);
   const kernelRuntimeAsset = copyKernelRuntimeAsset(plan);
-  const kernelResumeRuntimeAsset = copyKernelResumeRuntimeAsset(plan);
+  const kernelResumeRuntimeAssets = copyKernelResumeRuntimeAssets(plan);
   const kernelControllerRuntimeAsset = copyKernelControllerRuntimeAsset(plan);
   const entryPath = plan.outputs.entry;
   const rawSource = createBundleSource(plan, cssResult.cssText);
@@ -9609,9 +7071,11 @@ function buildMaracaBundle(input = {}, options = {}) {
     bundleFiles.push(createMaracaPwaAssetRecord(plan.outputs.css, path.basename(plan.outputs.css)));
   }
   bundleFiles = bundleFiles
+    .concat(planRuntimeAsset ? [planRuntimeAsset] : [])
+    .concat(browserRuntimeAssets)
     .concat(kernelControllerRuntimeAsset ? [kernelControllerRuntimeAsset] : [])
     .concat(kernelRuntimeAsset ? [kernelRuntimeAsset] : [])
-    .concat(kernelResumeRuntimeAsset ? [kernelResumeRuntimeAsset] : []);
+    .concat(kernelResumeRuntimeAssets);
   bundleFiles.push(writeMaracaHtmlHost(plan));
   const webAppManifestArtifacts = writeMaracaWebAppManifestArtifacts(plan, bundleFiles);
   bundleFiles = bundleFiles.concat(webAppManifestArtifacts.files);
@@ -9680,8 +7144,10 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
       sizeBudgetReport: null
     };
   }
+  const planRuntimeAsset = copyPlanRuntimeAsset(plan);
+  const browserRuntimeAssets = copyMaracaBrowserRuntimeAssets(plan);
   const kernelRuntimeAsset = copyKernelRuntimeAsset(plan);
-  const kernelResumeRuntimeAsset = copyKernelResumeRuntimeAsset(plan);
+  const kernelResumeRuntimeAssets = copyKernelResumeRuntimeAssets(plan);
   const kernelControllerRuntimeAsset = copyKernelControllerRuntimeAsset(plan);
   const rawSource = createBundleSource(plan, cssResult.cssText);
   let rollupResult;
@@ -9730,9 +7196,13 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   if (kernelRuntimeAsset) {
     rollupResult.files.push(kernelRuntimeAsset);
   }
-  if (kernelResumeRuntimeAsset) {
-    rollupResult.files.push(kernelResumeRuntimeAsset);
+  if (kernelResumeRuntimeAssets.length > 0) {
+    rollupResult.files.push(...kernelResumeRuntimeAssets);
   }
+  if (planRuntimeAsset) {
+    rollupResult.files.push(planRuntimeAsset);
+  }
+  rollupResult.files.push(...browserRuntimeAssets);
   rollupResult.files.push(writeMaracaHtmlHost(plan));
   const webAppManifestArtifacts = writeMaracaWebAppManifestArtifacts(plan, rollupResult.files);
   rollupResult.files.push(...webAppManifestArtifacts.files);

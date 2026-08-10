@@ -14,8 +14,8 @@
 - Source Syntax Contract: `xtend.native-first.rmt-syntax-growth.v1`
 - RMT Event Contract: `xtend.rmt.vnext-event-action-contract.v1`
 - Runtime Source: `xtend.epic18.rmt-action-effect-runtime.v1`
-- Runtime Source: `xtend.epic18.rmt-event-routing-runtime.v1`
-- Runtime Source: `xtend.epic18.rmt-surface-resource-graph-runtime.v1`
+- Runtime Source: `xtend.epic18.rmt-event-routing-runtime.v2`
+- Runtime Source: `xtend.epic18.rmt-surface-resource-graph-runtime.v2`
 - Local Gate: `node scripts/run_xtend_tests.js rmt-action-effect-data-resource-primitives --json`
 - Boundary: `declarative-action-resource-authoring-only`
 - Boundary: `no-free-runtime-execution`

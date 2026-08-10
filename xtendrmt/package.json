@@ -1,8 +1,8 @@
 {
   "name": "@ccslabs/xtend-rmt",
-  "version": "0.5.0",
+  "version": "0.6.1",
   "private": false,
-  "description": "XTendRMT scheduler runtime and browser bridge for 0.5.0 orchestration with XSurface Shard surface flows.",
+  "description": "XTendRMT scheduler runtime and browser bridge for 0.6.1 orchestration with XSurface Shard surface flows.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -36,14 +36,32 @@
     "rmt-component-capability-registry.js",
     "rmt-state-selector-runtime.d.ts",
     "rmt-state-selector-runtime.js",
+    "rmt-state-selector-runtime.compat.js",
+    "rmt-xstate-host-adapter.d.ts",
+    "rmt-xstate-host-adapter.js",
+    "rmt-state-binding-view-projector.d.ts",
+    "rmt-state-binding-view-projector.js",
     "rmt-action-effect-runtime.d.ts",
     "rmt-action-effect-runtime.js",
     "rmt-event-routing-runtime.d.ts",
     "rmt-event-routing-runtime.js",
+    "rmt-maraca-view-projection-adapter.d.ts",
+    "rmt-maraca-view-projection-adapter.js",
+    "rmt-presentation-effect-adapter.d.ts",
+    "rmt-presentation-effect-adapter.js",
+    "rmt-app-view-projector.d.ts",
+    "rmt-app-view-projector.js",
+    "rmt-app-host-adapter.d.ts",
+    "rmt-app-host-adapter.js",
     "rmt-app-runtime.d.ts",
     "rmt-app-runtime.js",
+    "rmt-app-runtime.compat.d.ts",
+    "rmt-app-runtime.compat.js",
     "rmt-form-validation-runtime.d.ts",
     "rmt-form-validation-runtime.js",
+    "rmt-form-validation-evaluator.js",
+    "rmt-form-validation-view-projector.js",
+    "rmt-form-validation-model-command-adapter.js",
     "rmt-animation-engine-runtime.d.ts",
     "rmt-animation-engine-runtime.js",
     "rmt-surface-transition-runtime.d.ts",
@@ -60,6 +78,11 @@
     "rmt-node-ssr-adapter.js",
     "rmt-resume-runtime.d.ts",
     "rmt-resume-runtime.js",
+    "rmt-resume-protocol.js",
+    "rmt-resume-capture-adapter.js",
+    "rmt-resume-host-adapter.js",
+    "rmt-resume-command-adapter.js",
+    "rmt-resume-command-controller.js",
     "rmt-php-app-service-adapter.php",
     "rmt.schema.json",
     "rmt-manifest.json",
@@ -103,7 +126,15 @@
     },
     "./state-selector-runtime": {
       "types": "./rmt-state-selector-runtime.d.ts",
-      "default": "./rmt-state-selector-runtime.js"
+      "default": "./rmt-state-selector-runtime.compat.js"
+    },
+    "./xstate-host-adapter": {
+      "types": "./rmt-xstate-host-adapter.d.ts",
+      "default": "./rmt-xstate-host-adapter.js"
+    },
+    "./state-binding-view-projector": {
+      "types": "./rmt-state-binding-view-projector.d.ts",
+      "default": "./rmt-state-binding-view-projector.js"
     },
     "./action-effect-runtime": {
       "types": "./rmt-action-effect-runtime.d.ts",
@@ -113,9 +144,25 @@
       "types": "./rmt-event-routing-runtime.d.ts",
       "default": "./rmt-event-routing-runtime.js"
     },
+    "./maraca-view-projection-adapter": {
+      "types": "./rmt-maraca-view-projection-adapter.d.ts",
+      "default": "./rmt-maraca-view-projection-adapter.js"
+    },
+    "./presentation-effect-adapter": {
+      "types": "./rmt-presentation-effect-adapter.d.ts",
+      "default": "./rmt-presentation-effect-adapter.js"
+    },
     "./app-runtime": {
-      "types": "./rmt-app-runtime.d.ts",
-      "default": "./rmt-app-runtime.js"
+      "types": "./rmt-app-runtime.compat.d.ts",
+      "default": "./rmt-app-runtime.compat.js"
+    },
+    "./app-view-projector": {
+      "types": "./rmt-app-view-projector.d.ts",
+      "default": "./rmt-app-view-projector.js"
+    },
+    "./app-host-adapter": {
+      "types": "./rmt-app-host-adapter.d.ts",
+      "default": "./rmt-app-host-adapter.js"
     },
     "./form-validation-runtime": {
       "types": "./rmt-form-validation-runtime.d.ts",

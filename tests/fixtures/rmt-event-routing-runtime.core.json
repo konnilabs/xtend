@@ -4,9 +4,9 @@
   "manifest": {
     "id": "epic18.event-routing-runtime.fixture",
     "metadata": {
-      "contractVersion": "xtend.epic18.rmt-event-routing-runtime.v1",
+      "contractVersion": "xtend.epic18.rmt-event-routing-runtime.v2",
       "actionEffectContract": "xtend.epic18.rmt-action-effect-runtime.v1",
-      "stateSelectorContract": "xtend.epic18.rmt-state-selector-runtime.v1",
+      "stateSelectorContract": "xtend.epic18.rmt-state-selector-runtime.v2",
       "workpackage": "WP-E18-09",
       "renderMode": "component_native_dom_descriptor",
       "manualHtmlRendererAllowed": false,

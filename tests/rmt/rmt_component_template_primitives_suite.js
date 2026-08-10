@@ -241,7 +241,23 @@ function createHarness(fixture, rendererModule) {
   const documentTarget = createFakeDocument();
   const refs = new Map();
   const events = [];
-  const renderer = rendererModule.createRmtDomDescriptorRenderer({ documentTarget });
+  const allowedPropertiesByTag = new Map([
+    ['x-input', ['value']],
+    ['x-select', ['value']],
+    ['x-checkbox', ['checked']],
+    ['x-card', ['value', 'selected']],
+    ['x-app-widget', ['value']]
+  ]);
+  const componentRegistry = {
+    resolveComponentCapability(tag) {
+      const allowedProperties = allowedPropertiesByTag.get(String(tag || '').toLowerCase());
+      return allowedProperties ? { tag, allowedProperties } : null;
+    }
+  };
+  const renderer = rendererModule.createRmtDomDescriptorRenderer({
+    documentTarget,
+    componentRegistry
+  });
   const model = {
     loading: false,
     density: 'compact',
@@ -265,6 +281,7 @@ function createHarness(fixture, rendererModule) {
     renderer,
     options: {
       components: fixture.components,
+      componentRegistry,
       templates: fixture.templates,
       slots: fixture.slots,
       refs,
@@ -314,7 +331,14 @@ function runRendererPrimitiveAssertions(context, fixture, rendererModule) {
   context.assert(textContent(row).includes('Alpha'), 'text primitive renders item body');
   context.assert(detail && detail.getAttribute('label') === 'Alpha', 'selection family renders detail panel with bound attribute');
   row.dispatchEvent({ type: 'click', detail: { id: 'alpha' } });
-  context.assert(harness.events.length === 1 && harness.events[0].id === 'event.item-selected', 'component primitive event binding uses addEventListener');
+  const rowBinding = result.bindings.find((binding) => binding.target === row && binding.event === 'click');
+  context.assert(
+    harness.events.length === 0
+      && !row._listeners.has('click')
+      && rowBinding
+      && rowBinding.command === 'event.item-selected',
+    'component primitive returns a validated application binding for the Event Router'
+  );
 
   const emptyRoot = harness.documentTarget.createElement('main');
   harness.renderer.render(emptyRoot, templates.get('template.collection').root, {

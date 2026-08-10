@@ -3,7 +3,7 @@
 - Status: `completed`
 - Prioritaet: `P0`
 - Workstream: `WS4`
-- Contract: `xtend.epic18.rmt-state-selector-runtime.v1`
+- Contract: `xtend.epic18.rmt-state-selector-runtime.v2`
 - Fixture: `xtend.epic18.rmt-state-selector-runtime-fixture.v1`
 - Local Gate: `node scripts/run_xtend_tests.js rmt-state-selector-runtime --json`
 

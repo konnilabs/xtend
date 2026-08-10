@@ -1,4 +1,6 @@
+/* xtend-kernel-mvc:compatibility-shell-start */
 (function attachRmtActionEffectRuntime(globalTarget) {
+/* xtend-kernel-mvc:compatibility-shell-end */
   const RMT_ACTION_EFFECT_RUNTIME_SCHEMA = 'xtend.epic18.rmt-action-effect-runtime.v1';
   const RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-action-effect-diagnostic.v1';
   const RMT_COMPONENT_COMMAND_SCHEMA = 'xtend.rmt.component-command.v1';
@@ -21,9 +23,9 @@
   function cloneValue(value, fallback = null) {
     if (typeof value === 'undefined') return fallback;
     if (value === null || typeof value !== 'object') return value;
-    if (typeof File !== 'undefined' && value instanceof File) return value;
-    if (typeof Blob !== 'undefined' && value instanceof Blob) return value;
-    if (typeof FileList !== 'undefined' && value instanceof FileList) return Array.from(value);
+    const objectTag = Object.prototype.toString.call(value);
+    if (objectTag === '[object File]' || objectTag === '[object Blob]') return value;
+    if (objectTag === '[object FileList]') return Array.from(value);
     if (Array.isArray(value)) return value.map((entry) => cloneValue(entry, entry));
     const prototype = Object.getPrototypeOf(value);
     if (prototype === Object.prototype || prototype === null) {
@@ -333,6 +335,54 @@
     };
   }
 
+  function createDeterministicActionHostPort() {
+    function createAbortController() {
+      const listeners = new Set();
+      const signal = {
+        aborted: false,
+        reason: undefined,
+        addEventListener(type, listener) {
+          if (type === 'abort' && typeof listener === 'function') listeners.add(listener);
+        },
+        removeEventListener(type, listener) {
+          if (type === 'abort') listeners.delete(listener);
+        }
+      };
+      return {
+        signal,
+        abort(reason) {
+          if (signal.aborted) return;
+          signal.aborted = true;
+          signal.reason = reason;
+          Array.from(listeners).forEach((listener) => {
+            try {
+              listener.call(signal, { type: 'abort', target: signal });
+            } catch (_) {}
+          });
+          listeners.clear();
+        }
+      };
+    }
+    return Object.freeze({
+      schema: 'xtend.rmt.action-host-port.deterministic.v1',
+      createAbortController
+    });
+  }
+
+  function normalizeActionHostPort(options = {}) {
+    const deterministicPort = createDeterministicActionHostPort();
+    const injectedPort = options.hostPort || options.actionHostPort || {};
+    return Object.freeze({
+      schema: clampString(injectedPort.schema, 'xtend.rmt.action-host-port.v1'),
+      createAbortController: typeof injectedPort.createAbortController === 'function'
+        ? injectedPort.createAbortController.bind(injectedPort)
+        : deterministicPort.createAbortController,
+      createRunId: typeof injectedPort.createRunId === 'function'
+        ? injectedPort.createRunId.bind(injectedPort)
+        : null
+    });
+  }
+
   function writeState(stateRuntime, stateId, value, metadata = {}) {
     if (!stateRuntime || !stateId) return null;
     if (typeof stateRuntime.setState === 'function') return stateRuntime.setState(stateId, value, metadata);
@@ -368,6 +418,29 @@
     return null;
   }
 
+  function planReducerOperation(reducer, payload, stateRuntime) {
+    const record = typeof reducer === 'string' ? { command: reducer } : objectRecord(reducer);
+    const command = clampString(record.command || record.id, '');
+    if (command) {
+      return { operation: 'dispatch', command, payload: cloneValue(payload, payload) };
+    }
+    if (record.state && Object.prototype.hasOwnProperty.call(record, 'set')) {
+      return {
+        operation: 'set',
+        state: record.state,
+        value: cloneValue(resolveValue(record.set, { payload, result: payload, stateRuntime }), null)
+      };
+    }
+    if (record.state && record.patch) {
+      const patch = {};
+      Object.entries(objectRecord(record.patch)).forEach(([key, value]) => {
+        patch[key] = cloneValue(resolveValue(value, { payload, result: payload, stateRuntime }), null);
+      });
+      return { operation: 'patch', state: record.state, patch };
+    }
+    return null;
+  }
+
   function createRmtActionEffectRuntime(options = {}) {
     const diagnosticsRecorder = createDiagnosticsRecorder(options);
     const actions = normalizeActions(options.actions);
@@ -384,15 +457,36 @@
     const componentCommandAdapter = options.componentCommandAdapter || null;
     const effectAdapter = options.effectAdapter || null;
     const hostServiceRegistry = options.hostServiceRegistry || null;
+    const hostPort = normalizeActionHostPort(options);
     const deferCustomEffects = options.deferCustomEffects === true;
+    const planningOnly = options.planningOnly === true || options.managedController === true;
     const actionStatus = {};
     const actionHistory = [];
     const activeRuns = new Map();
+    let runSequence = 0;
 
     async function runEffect(effectId, context = {}) {
       const effect = effectIndex.get(clampString(effectId));
       if (!effect) throw new Error(`RMT Effect ${effectId} ist nicht definiert.`);
       let value = null;
+      const preCommitEffect = ['lazy-import', 'host-service', 'service', 'stream-service'].includes(effect.kind);
+      if (planningOnly && !preCommitEffect) {
+        if (effect.componentCommand) assertComponentCommand(effect.componentCommand);
+        value = {
+          id: effect.id,
+          kind: effect.kind,
+          deferred: true,
+          effect: cloneValue(effect, effect),
+          payload: cloneValue(context.result, context.result),
+          context: {
+            action: context.action ? cloneValue(context.action, context.action) : null,
+            payload: cloneValue(context.payload, context.payload || {}),
+            result: cloneValue(context.result, context.result),
+            ownerId: context.ownerId || null
+          }
+        };
+        return { id: effect.id, kind: effect.kind, value: cloneValue(value, value) };
+      }
       if (effect.componentCommand) {
         const componentCommand = assertComponentCommand(effect.componentCommand);
         value = {
@@ -479,9 +573,16 @@
       const action = actionIndex.get(clampString(actionId));
       if (!action) throw new Error(`RMT Action ${actionId} ist nicht definiert.`);
       const source = action.datasource ? dataSourceIndex.get(action.datasource) : null;
-      const runId = `${action.id}:${Date.now()}:${actionHistory.length}`;
+      runSequence += 1;
+      const runId = clampString(
+        hostPort.createRunId && hostPort.createRunId(action.id, runSequence),
+        `${action.id}:${runSequence}`
+      );
       const ownerId = clampString(metadata.ownerId, action.resourceOwner || action.id);
-      const controller = new AbortController();
+      const controller = hostPort.createAbortController();
+      if (!controller || !controller.signal || typeof controller.abort !== 'function') {
+        throw new TypeError('RMT Action Host Port muss createAbortController() bereitstellen.');
+      }
       const externalSignal = metadata && metadata.signal || null;
       const token = { cancelled: false, controller, cleanup: null };
       if (externalSignal && typeof externalSignal.addEventListener === 'function') {
@@ -497,8 +598,10 @@
       }
       activeRuns.set(runId, token);
       actionStatus[action.id] = 'loading';
-      patchState(stateRuntime, action.statusState, { status: 'loading', action: action.id }, { operation: 'action.loading', action: action.id });
-      if (action.loadingState) writeState(stateRuntime, action.loadingState, true, { operation: 'action.loading', action: action.id });
+      if (!planningOnly) {
+        patchState(stateRuntime, action.statusState, { status: 'loading', action: action.id }, { operation: 'action.loading', action: action.id });
+        if (action.loadingState) writeState(stateRuntime, action.loadingState, true, { operation: 'action.loading', action: action.id });
+      }
       diagnosticsRecorder.publish(createDiagnostic('rmt.action.loading', `RMT Action ${action.id} laeuft.`, { action: action.id }, 'info'));
       try {
         if (token.cancelled) return cancelResult(action, runId, ownerId, payload, metadata);
@@ -512,18 +615,32 @@
         if (token.cancelled) {
           return cancelResult(action, runId, ownerId, payload, metadata);
         }
-        if (action.resultState) writeState(stateRuntime, action.resultState, data, { operation: 'action.success', action: action.id });
-        if (action.loadingState) writeState(stateRuntime, action.loadingState, false, { operation: 'action.success', action: action.id });
-        patchState(stateRuntime, action.statusState, { status: 'success', action: action.id }, { operation: 'action.success', action: action.id });
+        const modelOperations = [];
+        if (action.resultState) modelOperations.push({ operation: 'set', state: action.resultState, value: cloneValue(data, data) });
+        if (action.loadingState) modelOperations.push({ operation: 'set', state: action.loadingState, value: false });
+        if (action.statusState) modelOperations.push({ operation: 'patch', state: action.statusState, patch: { status: 'success', action: action.id } });
+        if (!planningOnly) {
+          if (action.resultState) writeState(stateRuntime, action.resultState, data, { operation: 'action.success', action: action.id });
+          if (action.loadingState) writeState(stateRuntime, action.loadingState, false, { operation: 'action.success', action: action.id });
+          patchState(stateRuntime, action.statusState, { status: 'success', action: action.id }, { operation: 'action.success', action: action.id });
+        }
         const effectResults = [];
         const reducerResults = [];
         for (const reducer of action.reducers) {
-          reducerResults.push(dispatchReducer(stateRuntime, reducer, data, {
-            operation: 'action.reducer',
-            action: action.id,
-            commandEnvelope: metadata.commandEnvelope || null,
-            correlationId: metadata.correlationId || null
-          }));
+          if (planningOnly) {
+            const operation = planReducerOperation(reducer, data, stateRuntime);
+            if (operation) {
+              modelOperations.push(operation);
+              reducerResults.push(operation);
+            }
+          } else {
+            reducerResults.push(dispatchReducer(stateRuntime, reducer, data, {
+              operation: 'action.reducer',
+              action: action.id,
+              commandEnvelope: metadata.commandEnvelope || null,
+              correlationId: metadata.correlationId || null
+            }));
+          }
         }
         for (const effectId of action.effects) {
           effectResults.push(await runEffect(effectId, {
@@ -547,6 +664,10 @@
           status: 'success',
           data: cloneValue(data, data),
           effects: effectResults,
+          modelOperations: planningOnly ? modelOperations.map((entry) => cloneValue(entry, entry)) : [],
+          postCommitEffects: planningOnly
+            ? effectResults.filter((entry) => entry && entry.value && entry.value.deferred === true).map((entry) => cloneValue(entry, entry))
+            : [],
           reducers: reducerResults.map((entry) => cloneValue(entry, entry)),
           commandEnvelope: metadata.commandEnvelope ? cloneValue(metadata.commandEnvelope, metadata.commandEnvelope) : null,
           correlationId: metadata.correlationId || metadata.commandEnvelope && metadata.commandEnvelope.correlationId || null,
@@ -558,8 +679,13 @@
         if (token.cancelled || controller.signal.aborted) {
           return cancelResult(action, runId, ownerId, payload, metadata);
         }
-        if (action.loadingState) writeState(stateRuntime, action.loadingState, false, { operation: 'action.error', action: action.id });
-        patchState(stateRuntime, action.statusState, { status: 'error', action: action.id, error: normalizeError(error) }, { operation: 'action.error', action: action.id });
+        const modelOperations = [];
+        if (action.loadingState) modelOperations.push({ operation: 'set', state: action.loadingState, value: false });
+        if (action.statusState) modelOperations.push({ operation: 'patch', state: action.statusState, patch: { status: 'error', action: action.id, error: normalizeError(error) } });
+        if (!planningOnly) {
+          if (action.loadingState) writeState(stateRuntime, action.loadingState, false, { operation: 'action.error', action: action.id });
+          patchState(stateRuntime, action.statusState, { status: 'error', action: action.id, error: normalizeError(error) }, { operation: 'action.error', action: action.id });
+        }
         actionStatus[action.id] = 'error';
         diagnosticsRecorder.publish(createDiagnostic('rmt.action.error', `RMT Action ${action.id} ist fehlgeschlagen.`, { action: action.id, error: normalizeError(error) }, 'error'));
         const result = {
@@ -568,6 +694,8 @@
           runId,
           status: 'error',
           error: normalizeError(error),
+          modelOperations: planningOnly ? modelOperations : [],
+          postCommitEffects: [],
           diagnostics: diagnosticsRecorder.diagnostics.slice()
         };
         actionHistory.push(result);
@@ -581,8 +709,13 @@
     function cancelResult(action, runId, ownerId, payload, metadata = {}) {
       activeRuns.delete(runId);
       actionStatus[action.id] = 'cancelled';
-      if (action.loadingState) writeState(stateRuntime, action.loadingState, false, { operation: 'action.cancelled', action: action.id });
-      patchState(stateRuntime, action.statusState, { status: 'cancelled', action: action.id }, { operation: 'action.cancelled', action: action.id });
+      const modelOperations = [];
+      if (action.loadingState) modelOperations.push({ operation: 'set', state: action.loadingState, value: false });
+      if (action.statusState) modelOperations.push({ operation: 'patch', state: action.statusState, patch: { status: 'cancelled', action: action.id } });
+      if (!planningOnly) {
+        if (action.loadingState) writeState(stateRuntime, action.loadingState, false, { operation: 'action.cancelled', action: action.id });
+        patchState(stateRuntime, action.statusState, { status: 'cancelled', action: action.id }, { operation: 'action.cancelled', action: action.id });
+      }
       resourceManager.releaseOwner(ownerId);
       diagnosticsRecorder.publish(createDiagnostic('rmt.action.cancelled', `RMT Action ${action.id} wurde abgebrochen.`, { action: action.id }, 'warning'));
       const result = {
@@ -590,6 +723,8 @@
         id: action.id,
         runId,
         status: 'cancelled',
+        modelOperations: planningOnly ? modelOperations : [],
+        postCommitEffects: [],
         payload: cloneValue(payload, payload),
         metadata: cloneValue(metadata, {}),
         diagnostics: diagnosticsRecorder.diagnostics.slice()
@@ -668,6 +803,7 @@
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;
   }
+/* xtend-kernel-mvc:compatibility-shell-start */
   if (globalTarget) {
     globalTarget.XTendRmtActionEffectRuntime = api;
   }
@@ -682,3 +818,4 @@ export const createRmtActionEffectRuntime = __XTEND_RMT_ACTION_EFFECT_RUNTIME_AP
 export const createRmtResourceManager = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.createRmtResourceManager;
 
 export default __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__;
+/* xtend-kernel-mvc:compatibility-shell-end */

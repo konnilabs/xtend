@@ -47,6 +47,14 @@ decision: types-not-required
 
 Maraca ist als Package-Export `./maraca` und `./maraca/runtime` klassifiziert und nutzt `./xtend-maraca/index.d.ts` sowie `./xtend-maraca/runtime.d.ts`.
 
+## Gepflegte Declaration-Wellen
+
+- `WP-TypeExports-03`: Core-API-Deklarationen in `./api.d.ts`; siehe `./xtend-api-types.md`.
+- `WP-TypeExports-05`: gemeinsame Policy-Deklarationen in `./fabric/xtend-policy-public-types.d.ts`; siehe `./xtend-policy-types.md`.
+- `WP-TypeExports-06`: Builder-Deklarationen teilen `./xtend-builder/builder-public-types.d.ts`; siehe `./xtend-builder-types.md`.
+- `WP-TypeExports-07`: Catalog-Deklarationen teilen `./catalog/catalog-public-types.d.ts`; siehe `./xtend-catalog-types.md`.
+- `WP-TypeExports-08`: Vendor-Deklarationen umfassen `./design-tokens/xtend-design-tokens.d.ts`, `./design-tokens/xtheme-token-alias-layer.d.ts` und `./components/prism.d.ts`; siehe `./xtend-vendor-types.md`.
+
 ## Empfohlener Ablauf
 
 Importiere ausschließlich einen Eintrag aus `package.json#exports` und lasse TypeScript mit derselben Package-Version auflösen. Prüfe Änderungen mit `node scripts/run_xtend_tests.js type-exports --json`; fehlende Types werden entweder ergänzt oder ausdrücklich als Runtime-only klassifiziert.

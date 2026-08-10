@@ -2,7 +2,7 @@ const {
   KERNEL_BOUNDARY
 } = require('./epic12-rc0-gate-matrix');
 
-const SURFACE_CONTROLLER_SCHEMA = 'xtend.surface.controller.v1';
+const SURFACE_CONTROLLER_SCHEMA = 'xtend.surface.controller.v2';
 const SURFACE_CONTROLLER_REPORT_SCHEMA = 'xtend.surface.controller-report.v1';
 const SURFACE_RECORD_SCHEMA = 'xtend.surface.record.v1';
 const SURFACE_SNAPSHOT_SCHEMA = 'xtend.surface.snapshot.v1';
@@ -64,6 +64,7 @@ const REQUIRED_METHODS = Object.freeze([
   'restoreSurface',
   'materializeSurface',
   'toggleSurface',
+  'apply',
   'destroySurface',
   'snapshot',
   'dispose'

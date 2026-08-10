@@ -134,10 +134,10 @@ Maraca compiles the RMT source, discovers the required XTend modules, and emits 
 ```bash
 xt kernel-lab analyze --json
 xt kernel-lab build --profile clean --check --json
-xt kernel-lab build --profile clean --version 0.5.0 --write --json
+xt kernel-lab build --profile clean --version 0.6.1 --write --json
 ```
 
-The `xt rmt kernel-lab ...` alias runs the same path. The `clean` profile builds the dashboard-free standard kernel artifacts and updates the RMT kernel module manifest.
+The `xt rmt kernel-lab ...` alias runs the same path. KernelLab validates the canonical MVC source manifest first and then synchronizes seven outputs together—Core ESM, Runtime ESM, Browser Runtime, types, schema, product manifest, and kernel module manifest. Existing bundles are outputs, never assembler inputs; module order and counts come from `bundle.moduleOrder`.
 
 #### Agent and automation output
 
@@ -161,7 +161,7 @@ xt rmt ai-kit export --profile compact --format md --json
 | Components | `component-plan`, `component-files`, `typing`, `preview`, `extensions` | Plans, renders, and optionally writes component artifacts. |
 | RMT | `rmt build`, `rmt lint`, `rmt ai-kit export`, `rmt-app-platform`, `rmt-lifecycle-demo` | Validates sources and emits app/tooling artifacts. |
 | Maraca | `maraca plan`, `maraca build`, `maraca tune` | Creates and optimizes modern ESM app bundles. |
-| Kernel | `kernel-lab analyze`, `kernel-lab build` | Analyzes and builds the RMT kernel. |
+| Kernel | `kernel-lab analyze`, `kernel-lab build` | Validates the strict MVC source graph and assembles every RMT kernel artifact from canonical module sources. |
 | Workflow | `workflow`, `verify`, `validate` | Prints local workflow and verification plans; `verify` does not run tests itself. |
 
 ### Verifying XScaler and XSurface Shard
@@ -384,10 +384,10 @@ Maraca kompiliert die RMT-Quelle, ermittelt benötigte XTend-Module und erzeugt 
 ```bash
 xt kernel-lab analyze --json
 xt kernel-lab build --profile clean --check --json
-xt kernel-lab build --profile clean --version 0.5.0 --write --json
+xt kernel-lab build --profile clean --version 0.6.1 --write --json
 ```
 
-Der Alias `xt rmt kernel-lab ...` führt denselben Pfad aus. Das Profil `clean` baut die Dashboard-freien Standard-Kernelartefakte und aktualisiert das RMT-Kernel-Modulmanifest.
+Der Alias `xt rmt kernel-lab ...` führt denselben Pfad aus. KernelLab arbeitet als Hybrid-Assembler: Es ergänzt den gebündelten Kernel um den kanonischen DOM-Descriptor-Renderer als 26. Modul und synchronisiert gemeinsam sieben Outputs – Core-ESM, Runtime-ESM, Browser-Runtime, Typen, Schema, Produktmanifest und Kernel-Modulmanifest.
 
 #### Agenten- und Automationsausgabe
 
@@ -411,7 +411,7 @@ xt rmt ai-kit export --profile compact --format md --json
 | Komponenten | `component-plan`, `component-files`, `typing`, `preview`, `extensions` | Plant, rendert und optional schreibt Komponentenartefakte. |
 | RMT | `rmt build`, `rmt lint`, `rmt ai-kit export`, `rmt-app-platform`, `rmt-lifecycle-demo` | Prüft Quellen und erzeugt App-/Tooling-Artefakte. |
 | Maraca | `maraca plan`, `maraca build`, `maraca tune` | Erzeugt und optimiert Modern-ESM-App-Bundles. |
-| Kernel | `kernel-lab analyze`, `kernel-lab build` | Analysiert und baut den RMT-Kernel. |
+| Kernel | `kernel-lab analyze`, `kernel-lab build` | Analysiert und assembliert den RMT-Kernel aus gebündelten Modulen und kanonischen Quellen. |
 | Workflow | `workflow`, `verify`, `validate` | Liefert lokale Arbeits- und Prüfpläne; führt bei `verify` noch keine Tests aus. |
 
 ### XScaler und XSurface Shard verifizieren

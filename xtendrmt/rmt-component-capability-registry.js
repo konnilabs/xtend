@@ -6,6 +6,7 @@
   const RMT_COMPONENT_DIAGNOSTIC_SCHEMA = 'xtend.rmt.component-capability-diagnostic.v1';
   const RMT_COMPONENT_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
   const RMT_COMPONENT_IMPORT_POLICY = 'explicit-importer-only';
+  const UNSAFE_RECORD_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
 
   const FORM_COMPONENTS = new Set(['x-calendar', 'x-checkbox', 'x-form', 'x-input', 'x-radio', 'x-select', 'x-textarea']);
   const NAVIGATION_COMPONENTS = new Set(['x-router', 'x-link', 'x-menu', 'x-drawer']);
@@ -86,6 +87,21 @@
     const pattern = new RegExp(`${escapedName}\\s*:\\s*['"]([^'"]+)['"]`, 'u');
     const match = String(sourceText || '').match(pattern);
     return match ? match[1] : '';
+  }
+
+  function extractPublicPropertyNames(sourceText) {
+    return unique(Array.from(String(sourceText || '').matchAll(
+      /\b(?:get|set)\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/gu
+    )).map((match) => match[1]));
+  }
+
+  function classPublicPropertyNames(componentClass) {
+    if (!componentClass || !componentClass.prototype) return [];
+    return Object.getOwnPropertyNames(componentClass.prototype).filter((name) => {
+      if (name === 'constructor') return false;
+      const descriptor = Object.getOwnPropertyDescriptor(componentClass.prototype, name);
+      return Boolean(descriptor && (typeof descriptor.get === 'function' || typeof descriptor.set === 'function'));
+    });
   }
 
   function extractEvents(sourceText) {
@@ -180,6 +196,12 @@
       || metadataRecord.observedAttributes
       || extractArrayGetterStrings(sourceText, 'observedAttributes')
     );
+    const propertyNames = unique([
+      ...classPublicPropertyNames(componentClass),
+      ...toArray(metadataRecord.propertyNames),
+      ...toArray(metadataRecord.allowedProperties),
+      ...extractPublicPropertyNames(sourceText)
+    ]);
     const events = unique([
       ...toArray(rmtMetadata && rmtMetadata.shellAuthoring && rmtMetadata.shellAuthoring.events),
       ...toArray(metadataRecord.events),
@@ -238,6 +260,7 @@
       a11yProfile: cloneValue(a11yProfile, null),
       performanceProfile: cloneValue(performanceProfile, null),
       observedAttributes,
+      propertyNames,
       events,
       slots,
       parts,
@@ -272,19 +295,15 @@
     return undefined;
   }
 
-  function writeElementValue(element, value) {
-    if (!element) return;
-    if ('checked' in element && typeof value === 'boolean') element.checked = value;
-    if ('value' in element) element.value = value;
-    if (typeof element.setAttribute === 'function' && (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean')) {
-      element.setAttribute('value', String(value));
-    }
-  }
-
   function datasetRecord(target) {
     const dataset = target && target.dataset && typeof target.dataset === 'object' ? target.dataset : {};
-    const result = {};
+    const result = Object.create(null);
     Object.keys(dataset).forEach((key) => {
+      if (UNSAFE_RECORD_KEYS.has(String(key).toLowerCase())) {
+        const error = new Error(`Unsicherer Component-Dataset-Key ${key}.`);
+        error.code = 'rmt.component.dataset-key.unsafe';
+        throw error;
+      }
       result[key] = dataset[key];
     });
     return result;
@@ -344,12 +363,125 @@
     const manifest = objectRecord(options.manifest);
     const diagnostics = [];
     const capabilityMap = new Map();
+    const compatibilityRendererRecord = {
+      diagnosed: false,
+      documentTarget: null,
+      renderer: null
+    };
+    let disposed = false;
 
     Object.entries(manifest).forEach(([tag, modulePath]) => {
       const capability = normalizeCapability(tag, modulePath, options);
       capabilityMap.set(capability.tag, capability);
       diagnostics.push(...capability.diagnostics);
     });
+
+    function sharedRendererDiagnostic(tag, severity = 'warning') {
+      return {
+        schema: RMT_COMPONENT_DIAGNOSTIC_SCHEMA,
+        code: 'rmt.dom.shared-renderer-missing',
+        severity,
+        tag,
+        message: 'Component Binding benoetigt den gemeinsam injizierten DOM Descriptor Renderer.'
+      };
+    }
+
+    function publishDiagnostic(diagnostic, bindOptions = {}) {
+      diagnostics.push(diagnostic);
+      if (typeof bindOptions.publishDiagnostic === 'function') {
+        bindOptions.publishDiagnostic(diagnostic);
+      }
+      const diagnosticsHub = bindOptions.diagnosticsHub || options.diagnosticsHub;
+      if (diagnosticsHub && typeof diagnosticsHub.publish === 'function') {
+        diagnosticsHub.publish(
+          bindOptions.diagnosticChannel || options.diagnosticChannel || 'rmt.app_platform.component_capability',
+          diagnostic,
+          { schema: RMT_COMPONENT_DIAGNOSTIC_SCHEMA }
+        );
+      }
+    }
+
+    function componentBindingError(diagnostic) {
+      const error = new Error(diagnostic.message);
+      error.code = diagnostic.code;
+      error.diagnostic = diagnostic;
+      return error;
+    }
+
+    function resolveBindingDomRenderer(element, tag, bindOptions = {}) {
+      const renderer = bindOptions.domRenderer
+        || bindOptions.renderer
+        || options.domRenderer
+        || options.renderer;
+      if (renderer && typeof renderer.commit === 'function') return renderer;
+      const strict = Boolean(bindOptions.strict || bindOptions.strictMaraca || options.strict || options.strictMaraca);
+      const diagnostic = sharedRendererDiagnostic(tag, strict ? 'error' : 'warning');
+      if (strict) throw componentBindingError(diagnostic);
+      const documentTarget = bindOptions.documentTarget
+        || options.documentTarget
+        || (element && element.ownerDocument)
+        || (globalTarget && globalTarget.document);
+      const factory = bindOptions.createDomRenderer
+        || options.createDomRenderer
+        || (globalTarget
+          && globalTarget.XTendRmtDomDescriptorRenderer
+          && globalTarget.XTendRmtDomDescriptorRenderer.createRmtDomDescriptorRenderer);
+      if (!documentTarget || typeof documentTarget !== 'object' || typeof factory !== 'function') {
+        throw componentBindingError(diagnostic);
+      }
+      if (
+        compatibilityRendererRecord.renderer
+        && compatibilityRendererRecord.documentTarget !== documentTarget
+      ) {
+        if (typeof compatibilityRendererRecord.renderer.dispose === 'function') {
+          compatibilityRendererRecord.renderer.dispose();
+        }
+        compatibilityRendererRecord.renderer = null;
+        compatibilityRendererRecord.diagnosed = false;
+      }
+      if (!compatibilityRendererRecord.renderer) {
+        compatibilityRendererRecord.documentTarget = documentTarget;
+        compatibilityRendererRecord.renderer = factory({
+          documentTarget,
+          diagnosticsHub: bindOptions.diagnosticsHub || options.diagnosticsHub
+        });
+      }
+      if (!compatibilityRendererRecord.renderer || typeof compatibilityRendererRecord.renderer.commit !== 'function') {
+        throw componentBindingError(diagnostic);
+      }
+      if (!compatibilityRendererRecord.diagnosed) {
+        compatibilityRendererRecord.diagnosed = true;
+        publishDiagnostic(diagnostic, bindOptions);
+      }
+      return compatibilityRendererRecord.renderer;
+    }
+
+    function commitElementValue(element, tag, value, bindOptions = {}) {
+      if (!element) return;
+      const properties = {};
+      if ('checked' in element && typeof value === 'boolean') properties.checked = value;
+      if ('value' in element) properties.value = value;
+      if (!Object.keys(properties).length) properties.value = value;
+      resolveBindingDomRenderer(element, tag, bindOptions).commit({
+        operation: 'merge-element',
+        target: element,
+        descriptor: {
+          type: 'element',
+          tag,
+          properties
+        },
+        context: {
+          componentRegistry: {
+            resolveComponentCapability
+          }
+        },
+        metadata: {
+          adapter: 'component-binding',
+          componentTag: tag,
+          phase: 'state-bridge-init'
+        }
+      });
+    }
 
     function resolveComponentCapability(tag) {
       return capabilityMap.get(normalizeTag(tag)) || null;
@@ -460,6 +592,7 @@
     }
 
     function bindComponentInstance(element, binding = {}, bindOptions = {}) {
+      if (disposed) throw new Error('RMT Component Capability Registry wurde bereits disposed.');
       const localName = normalizeTag(
         binding.tag
         || bindOptions.tag
@@ -469,22 +602,26 @@
       const dispatcher = binding.dispatchEvent || binding.dispatchAction || bindOptions.dispatchEvent || bindOptions.dispatchAction || options.dispatchEvent || options.dispatchAction;
       const stateBridge = binding.stateBridge || bindOptions.stateBridge || options.stateBridge || null;
       const explicitBindings = normalizeEventBindings(binding.events || binding.eventBindings || bindOptions.events || bindOptions.eventBindings);
-      const inferredEvents = explicitBindings.length
-        ? explicitBindings
-        : unique([
-            ...(capability ? capability.events : []),
-            ...(capability && capability.family === 'form' ? ['input', 'change'] : [])
-          ]).map((eventName) => ({ event: eventName, action: eventName }));
+      const bindEvents = binding.bindEvents !== false && bindOptions.bindEvents !== false;
+      const inferredEvents = !bindEvents
+        ? []
+        : explicitBindings.length
+          ? explicitBindings
+          : unique([
+              ...(capability ? capability.events : []),
+              ...(capability && capability.family === 'form' ? ['input', 'change'] : [])
+            ]).map((eventName) => ({ event: eventName, action: eventName }));
       const listeners = [];
 
       if (stateBridge && typeof stateBridge.read === 'function') {
         const initialValue = stateBridge.read(stateKeyForElement(localName, element));
-        if (typeof initialValue !== 'undefined') writeElementValue(element, initialValue);
+        if (typeof initialValue !== 'undefined') commitElementValue(element, localName, initialValue, bindOptions);
       }
 
       inferredEvents.forEach((entry) => {
         const eventName = clampString(entry.event || entry.eventName);
         if (!eventName || !element || typeof element.addEventListener !== 'function') return;
+        const listenerOptions = objectRecord(entry.options);
         const listener = (event) => {
           const payload = adaptComponentEventPayload(capability, event);
           if (stateBridge && typeof stateBridge.write === 'function' && capability && capability.family === 'form') {
@@ -500,8 +637,8 @@
             });
           }
         };
-        element.addEventListener(eventName, listener, objectRecord(entry.options));
-        listeners.push({ eventName, listener });
+        element.addEventListener(eventName, listener, listenerOptions);
+        listeners.push({ eventName, listener, listenerOptions });
       });
 
       return {
@@ -511,9 +648,9 @@
         eventCount: listeners.length,
         stateBridge: Boolean(stateBridge),
         destroy() {
-          listeners.forEach(({ eventName, listener }) => {
+          listeners.forEach(({ eventName, listener, listenerOptions }) => {
             if (element && typeof element.removeEventListener === 'function') {
-              element.removeEventListener(eventName, listener);
+              element.removeEventListener(eventName, listener, listenerOptions);
             }
           });
           listeners.length = 0;
@@ -587,6 +724,23 @@
       bindComponentInstance,
       ensureComponentLoaded,
       createMatrixReport,
+      dispose() {
+        const alreadyDisposed = disposed;
+        disposed = true;
+        if (
+          compatibilityRendererRecord.renderer
+          && typeof compatibilityRendererRecord.renderer.dispose === 'function'
+        ) {
+          compatibilityRendererRecord.renderer.dispose();
+        }
+        compatibilityRendererRecord.renderer = null;
+        compatibilityRendererRecord.documentTarget = null;
+        return {
+          schema: RMT_COMPONENT_CAPABILITY_REGISTRY_SCHEMA,
+          disposed: true,
+          alreadyDisposed
+        };
+      },
       listDiagnostics() {
         return diagnostics.slice();
       }

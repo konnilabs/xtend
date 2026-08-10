@@ -589,7 +589,7 @@ Naechstes Paket:
 
 ## Handoff nach WP-SM-02
 
-`WP-SM-02` ist abgeschlossen und akzeptiert den Contract `xtend.surface.controller.v1`.
+`WP-SM-02` ist abgeschlossen und akzeptiert den Contract `xtend.surface.controller.v2`.
 
 Erledigt:
 

@@ -89,7 +89,12 @@ template reference.lifecycle {
         resumability integrity signed_manifest
       }
       suspend shell.card
-      resume shell.card
+      resume shell.card {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
       invalidate shell.card
       dispose shell.card
       prewarm shell.data from worker app.prepare

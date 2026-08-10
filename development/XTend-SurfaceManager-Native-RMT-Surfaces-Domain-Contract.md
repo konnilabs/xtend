@@ -52,7 +52,7 @@ Die referenzierte `manager` Komponente ist weiter ein normales `x-surface-manage
 - `routes[*]`
 - `schedules[*]`
 - `components[*].metadata.surface` als Migrationsquelle
-- `xtend.surface.controller.v1`
+- `xtend.surface.controller.v2`
 - `xtend.surface.snapshot.v1`
 
 Operationen:

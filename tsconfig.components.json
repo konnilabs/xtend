@@ -13,7 +13,9 @@
     "noEmitOnError": true
   },
   "include": [
-    "src/components/x-toggle/x-toggle.ts"
+    "src/components/x-toggle/x-toggle.ts",
+    "src/components/x-surface-manager/surface-controller.ts",
+    "src/components/x-surface-manager/surface-state-projection-adapter.ts",
+    "src/components/x-surface-manager/surface-host-clock-adapter.ts"
   ]
 }
-

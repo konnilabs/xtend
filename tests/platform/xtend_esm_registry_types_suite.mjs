@@ -39,11 +39,16 @@ try {
 
   const browserTypes = readFileSync(resolve(root, 'xtend.d.ts'), 'utf8');
   const ssrTypes = readFileSync(resolve(root, 'xtend.ssr.d.ts'), 'utf8');
-  const runtimeExports = ['schedule', 'afterPaint', 'render', 'renderNode', 'renderKeyed', 'patchElement', 'loadComponent', 'hydrate', 'boot', 'createApp', 'createStore', 'createEffects', 'createRouter', 'createAnimator', 'createValidator', 'createTransitions', 'createResources', 'createFabric', 'configureXTend', 'getXTendConfiguration', 'readyXTend', 'getXTendHost', 'getXTendSnapshot', 'createXTendKernelArtifact', 'disposeXTend'];
+  const runtimeExports = ['schedule', 'afterPaint', 'render', 'renderNode', 'renderKeyed', 'patchElement', 'commit', 'loadComponent', 'hydrate', 'boot', 'createApp', 'createStore', 'createEffects', 'createRouter', 'createAnimator', 'createValidator', 'createTransitions', 'createResources', 'createFabric', 'createXTendRegistry', 'configureXTend', 'getXTendConfiguration', 'readyXTend', 'getXTendHost', 'getXTendSnapshot', 'createXTendKernelArtifact', 'disposeXTend'];
   runtimeExports.forEach((name) => {
     assert.match(browserTypes, new RegExp(`(?:function|const) ${name}\\b`), `${name} exists in browser types`);
     assert.match(ssrTypes, new RegExp(`(?:function|const) ${name}\\b`), `${name} exists in SSR types`);
   });
+  assert.match(ssrTypes, /export type RmtDomCommitRequest\s*=/, 'SSR types expose the discriminated DOM commit request');
+  assert.match(ssrTypes, /commit\(request: RmtDomCommitRequest\): RmtDomCommitResult;/, 'SSR renderer commit uses the canonical request and result');
+  assert.match(ssrTypes, /dispose\(target\?: XTendRoot, options\?: \{ clearOwnedDom\?: boolean \}\): void;/, 'SSR renderer dispose exposes target-scoped owned DOM cleanup');
+  assert.match(ssrTypes, /function commit\(request: RmtDomCommitRequest\): RmtDomCommitResult;/, 'SSR registry commit preserves the canonical synchronous return');
+  assert.doesNotMatch(ssrTypes, /commit\?\(request: Record<string, unknown>\)/, 'SSR renderer commit is no longer optional or untyped');
   assert.doesNotMatch(ssrTypes, /\b(?:Window|Document|Element|Node|ShadowRoot|HTMLElement|CustomEvent)\s*(?:\[|\||;|,|\)|>)/, 'SSR types contain no DOM globals');
   assert.doesNotMatch(ssrTypes, /from\s+['"]\.\/xtend-loader/, 'SSR types do not import loader declarations');
   assert.ok(existsSync(resolve(root, 'demos/ts-app/src/main.ts')), 'TypeScript demo source exists');

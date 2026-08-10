@@ -51,7 +51,7 @@ Do not map a selector merely because the screenshots look similar. Read the reci
 Install exact compatible package lines. Keep the lockfile in the same change.
 
 ```bash
-npm install @xtend-material/core@0.1 @xtend-material/maraca-tailwind@0.1 @ccslabs/xtend-maraca@^0.5.0
+npm install @xtend-material/core@0.1 @xtend-material/maraca-tailwind@0.1 @ccslabs/xtend-maraca@^0.6.1
 ```
 
 Tailwind is already a package dependency of the design kit and adapter. Do not add a browser script, CDN stylesheet, `npx` build step or a second Tailwind configuration.

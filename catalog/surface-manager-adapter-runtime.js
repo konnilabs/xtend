@@ -8,7 +8,7 @@ const SURFACE_ADAPTER_SCHEMA = 'xtend.surface.adapter.v1';
 const SURFACE_ADAPTER_ID = 'xtend.surface';
 const SURFACE_ADAPTER_KIND = 'surface_adapter';
 const SURFACE_MANAGER_SCHEMA = 'xtend.surface.manager.v1';
-const SURFACE_CONTROLLER_SCHEMA = 'xtend.surface.controller.v1';
+const SURFACE_CONTROLLER_SCHEMA = 'xtend.surface.controller.v2';
 const SURFACE_RECORD_SCHEMA = 'xtend.surface.record.v1';
 const SURFACE_SNAPSHOT_SCHEMA = 'xtend.surface.snapshot.v1';
 const SURFACE_MANAGER_ADAPTER_RUNTIME_WORKPACKAGE = 'WP-SM-10';
@@ -100,7 +100,7 @@ function createSurfaceManagerAdapterRuntimePlan(options = {}) {
       'routes[*]',
       'schedules[*]',
       'xtend.surface.manager.v1',
-      'xtend.surface.controller.v1'
+      'xtend.surface.controller.v2'
     ],
     runtimeBoundary: {
       materializesDom: false,

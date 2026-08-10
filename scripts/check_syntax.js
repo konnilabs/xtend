@@ -9,7 +9,9 @@ const {
 const rootDir = path.resolve(__dirname, '..');
 const defaultFiles = [
   'xtendrmt/rmt-dom-descriptor-renderer.js',
+  'xtendrmt/rmt-state-binding-view-projector.js',
   'xtendrmt/rmt-state-selector-runtime.js',
+  'xtendrmt/rmt-state-selector-runtime.compat.js',
   'xtendrmt/rmt-action-effect-runtime.js',
   'xtendrmt/rmt-event-routing-runtime.js',
   'xtendrmt/rmt-surface-resource-graph-runtime.js',

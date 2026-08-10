@@ -66,7 +66,7 @@ Pflichtfelder je Proof-Zeile:
 ## Pflichtgrenzen
 
 - Strukturierte RMT-UI-Ausgabe nutzt DOM Descriptor Records als Default.
-- Normale UI-Materialisierung nutzt `document.createElement`, `document.createTextNode`, `document.createDocumentFragment`, `replaceChildren`, `setAttribute`, Property-Allowlists und `addEventListener`.
+- Normale UI-Materialisierung nutzt `document.createElement`, `document.createTextNode`, `document.createDocumentFragment`, `replaceChildren`, `setAttribute` und Property-Allowlists. Der Renderer liefert validierte Application-Binding-Records; ausschließlich der Event Router materialisiert sie über `addEventListener`.
 - `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `template.innerHTML`, `document.write`, Inline-Handler und `javascript:`-URLs bleiben fuer normale UI verboten.
 - Trusted HTML ist nur ueber eine explizite Trusted-DOM- oder Sanitizing-Boundary zulaessig.
 - Renderer-Proofs duerfen keine Runtime-Dependency, kein externes UI-Framework und keine Host-Typen im RMT-Kernel einfuehren.

@@ -164,7 +164,7 @@ class XSidePanel extends HTMLElement {
         schema: 'xtend.surface.record.v1',
         type: 'side-panel',
         responsiveModes: ['docked', 'overlay', 'pinned', 'collapsed', 'fullscreen'],
-        controller: 'xtend.surface.controller.v1'
+        controller: 'xtend.surface.controller.v2'
       },
       kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
     };

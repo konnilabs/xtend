@@ -56,7 +56,7 @@ export const xSurfaceManagerContract = Object.freeze({
   schema: 'xtend.component.contract.v2',
   tag: XSURFACE_MANAGER_TAG,
   surfaceContract: 'xtend.surface.manager.v1',
-  controller: 'xtend.surface.controller.v1',
+  controller: 'xtend.surface.controller.v2',
   snapshot: 'xtend.surface.snapshot.v1',
   overlayBridge: 'xtend.surface.overlay-stack-bridge.v1',
   runtime: 'components/xsurfacemanager.js',

@@ -82,7 +82,10 @@ function createRmtAppModulesFromArtifact(context, rootDir, artifactPath, options
   const label = options.label || artifactPath;
   const source = readText(artifactPath, rootDir);
   const cjsCompatibleSource = artifactPath.endsWith('.esm.js')
-    ? source.replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
+    ? source
+      .replace(/^\s*import\s+[\s\S]*?\s+from\s+['"][^'"]+['"];\s*$/gmu, '')
+      .replace(/^\s*import\s+['"][^'"]+['"];\s*$/gmu, '')
+      .replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
     : source;
   function CustomEvent(type, init = {}) {
     this.type = type;
@@ -142,6 +145,23 @@ function createRmtAppModulesFromBundle(context, rootDir) {
   return createRmtAppModulesFromArtifact(context, rootDir, 'xtendrmt/rmt-core.esm.js', {
     label: 'RMT core bundle'
   });
+}
+
+function createCanonicalStateTelemetryAppModules(context, rootDir) {
+  const sourcePath = 'xtendrmt/kernel/modules/rmt-state-telemetry-adapter.js';
+  const sandbox = { AppModules: {} };
+  sandbox.__XTENDRMT_GLOBAL__ = sandbox;
+  try {
+    vm.runInNewContext(readText(sourcePath, rootDir), sandbox, { filename: sourcePath });
+  } catch (error) {
+    context.fail(`Canonical State Telemetry Adapter evaluates for source probe (${error.message})`);
+    return null;
+  }
+  context.assert(
+    typeof sandbox.AppModules.createRmtStateSchedulerDiagnosticsBridge === 'function',
+    'Canonical State Telemetry Adapter exposes its bridge factory'
+  );
+  return sandbox.AppModules;
 }
 
 function createRmtRuntimeAppModulesFromBundle(context, rootDir) {
@@ -264,6 +284,7 @@ function assertTypingPreviewExtensionScenario(context, modules, input) {
 
 function assertRmtSchemaAndDemo(context, rootDir) {
   const schema = readJson('xtendrmt/rmt.schema.json', rootDir);
+  const canonicalSchema = readJson('xtendrmt/kernel/templates/rmt.schema.json', rootDir);
   const manifest = readJson('xtendrmt/rmt-manifest.json', rootDir);
   const bestcaseDemo = readBestcaseVNextDemo(rootDir);
   const demo = bestcaseDemo.projection;
@@ -271,6 +292,7 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   const demoSource = bestcaseDemo.source;
   const demoJs = readText('demos/xtendrmt/examples/flagship/generated/app.js', rootDir);
   const coreTypes = readText('xtendrmt/rmt-core.d.ts', rootDir);
+  const canonicalCoreTypes = readText('xtendrmt/kernel/templates/rmt-core.d.ts', rootDir);
   const scaffoldBindings = schema['x-xtendrmt'] && schema['x-xtendrmt'].scaffoldCompatibilityBindings;
   const pilotModels = schema['x-xtendrmt'] && schema['x-xtendrmt'].templatePilotFlowModels;
   const hostAdapterLifecycleContracts = schema['x-xtendrmt'] && schema['x-xtendrmt'].hostAdapterLifecycleContracts;
@@ -281,6 +303,7 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   const xrouterAdapterContracts = schema['x-xtendrmt'] && schema['x-xtendrmt'].xrouterAdapterContracts;
   const xtendComponentAdapterContracts = schema['x-xtendrmt'] && schema['x-xtendrmt'].xtendComponentAdapterContracts;
   const stateSchedulerDiagnosticsBridgeContracts = schema['x-xtendrmt'] && schema['x-xtendrmt'].stateSchedulerDiagnosticsBridgeContracts;
+  const canonicalStateSchedulerDiagnosticsBridgeContracts = canonicalSchema['x-xtendrmt'] && canonicalSchema['x-xtendrmt'].stateSchedulerDiagnosticsBridgeContracts;
   const artifactParityContracts = schema['x-xtendrmt'] && schema['x-xtendrmt'].artifactParityContracts;
   const upstreamHandoff = schema['x-xtendrmt'] && schema['x-xtendrmt'].upstreamHandoff;
   const schemaBinding = Array.isArray(scaffoldBindings)
@@ -321,6 +344,9 @@ function assertRmtSchemaAndDemo(context, rootDir) {
     : null;
   const stateSchedulerDiagnosticsBridge = Array.isArray(stateSchedulerDiagnosticsBridgeContracts)
     ? stateSchedulerDiagnosticsBridgeContracts.find((entry) => entry.id === STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA)
+    : null;
+  const canonicalStateSchedulerDiagnosticsBridge = Array.isArray(canonicalStateSchedulerDiagnosticsBridgeContracts)
+    ? canonicalStateSchedulerDiagnosticsBridgeContracts.find((entry) => entry.id === STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA)
     : null;
   const artifactParity = Array.isArray(artifactParityContracts)
     ? artifactParityContracts.find((entry) => entry.id === ARTIFACT_PARITY_SCHEMA)
@@ -1052,8 +1078,8 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   );
   assertIncludesAll(
     context,
-    stateSchedulerDiagnosticsBridge && stateSchedulerDiagnosticsBridge.consumes,
-    ['RmtHostAdapterOperationResult', 'RmtRouteRegistryEntry.scheduleRef', 'RmtComponentRegistryEntry.scheduleRef', 'schedules[*]', 'optional xstate target', 'optional Fabric telemetry snapshot', 'optional Fabric backpressure signal'],
+    canonicalStateSchedulerDiagnosticsBridge && canonicalStateSchedulerDiagnosticsBridge.consumes,
+    ['RmtHostAdapterOperationResult', 'RmtRouteRegistryEntry.scheduleRef', 'RmtComponentRegistryEntry.scheduleRef', 'schedules[*]', 'optional typed stateProjectionPort', 'deprecated batch-capable xstate alias (0.6 compatibility)', 'optional Fabric telemetry snapshot', 'optional Fabric backpressure signal'],
     'RMT schema State/Scheduler/Diagnostics bridge consumed records'
   );
   assertIncludesAll(
@@ -1082,22 +1108,28 @@ function assertRmtSchemaAndDemo(context, rootDir) {
   );
   assertIncludesAll(
     context,
-    stateSchedulerDiagnosticsBridge && stateSchedulerDiagnosticsBridge.diagnosticCodes,
-    ['rmt.bridge.state.mirrored', 'rmt.bridge.state.unavailable', 'rmt.bridge.scheduler.endpoint.scheduled', 'rmt.bridge.scheduler.endpoint.queued', 'rmt.bridge.diagnostics.emitted', 'rmt.bridge.adapter.result.degraded', 'rmt.bridge.telemetry.snapshot.recorded', 'rmt.bridge.backpressure.signal.recorded', 'rmt.bridge.backpressure.high', 'rmt.bridge.backpressure.critical'],
+    canonicalStateSchedulerDiagnosticsBridge && canonicalStateSchedulerDiagnosticsBridge.diagnosticCodes,
+    ['rmt.bridge.state.mirrored', 'rmt.bridge.state.unavailable', 'rmt.bridge.state-projection.legacy-alias', 'rmt.bridge.scheduler.endpoint.scheduled', 'rmt.bridge.scheduler.endpoint.queued', 'rmt.bridge.diagnostics.emitted', 'rmt.bridge.adapter.result.degraded', 'rmt.bridge.telemetry.snapshot.recorded', 'rmt.bridge.backpressure.signal.recorded', 'rmt.bridge.backpressure.high', 'rmt.bridge.backpressure.critical'],
     'RMT schema State/Scheduler/Diagnostics bridge diagnostic codes'
   );
   assertIncludesAll(
     context,
-    stateSchedulerDiagnosticsBridge && stateSchedulerDiagnosticsBridge.artifactSurfaces,
-    ['createRmtStateSchedulerDiagnosticsBridge', 'RmtStateSchedulerDiagnosticsBridge', 'RmtStateBridgeHandle', 'RmtBridgeSchedulePolicy'],
+    canonicalStateSchedulerDiagnosticsBridge && canonicalStateSchedulerDiagnosticsBridge.artifactSurfaces,
+    ['createRmtStateSchedulerDiagnosticsBridge', 'RmtStateSchedulerDiagnosticsBridge', 'RmtStateSchedulerDiagnosticsBridgeOptions', 'RmtStateTelemetryProjectionPort', 'RmtStateBridgeHandle', 'RmtBridgeSchedulePolicy'],
     'RMT schema State/Scheduler/Diagnostics bridge artifact surfaces'
   );
   context.assert(
-    stateSchedulerDiagnosticsBridge && typeof stateSchedulerDiagnosticsBridge.kernelBoundary === 'string' && stateSchedulerDiagnosticsBridge.kernelBoundary.includes('never imports xstate'),
-    'RMT schema State/Scheduler/Diagnostics bridge keeps xstate outside kernel imports'
+    canonicalStateSchedulerDiagnosticsBridge
+      && typeof canonicalStateSchedulerDiagnosticsBridge.kernelBoundary === 'string'
+      && canonicalStateSchedulerDiagnosticsBridge.kernelBoundary.includes('output-only')
+      && canonicalStateSchedulerDiagnosticsBridge.kernelBoundary.includes('never imports xstate'),
+    'RMT schema State/Scheduler/Diagnostics bridge keeps typed projection output-only and xstate outside kernel imports'
   );
   context.assert(coreTypes.includes('RmtStateSchedulerDiagnosticsBridgeContract'), 'RMT types expose State/Scheduler/Diagnostics bridge contract type');
   context.assert(coreTypes.includes('RmtStateSchedulerDiagnosticsBridge'), 'RMT types expose State/Scheduler/Diagnostics bridge type');
+  context.assert(canonicalCoreTypes.includes('RmtStateSchedulerDiagnosticsBridgeOptions'), 'RMT types template exposes typed State/Scheduler/Diagnostics bridge options');
+  context.assert(canonicalCoreTypes.includes('RmtStateTelemetryProjectionPort'), 'RMT types template exposes the output-only telemetry projection port');
+  context.assert(canonicalCoreTypes.includes('stateProjectionPort?: RmtStateTelemetryProjectionPort | null'), 'RMT types template exposes stateProjectionPort as the canonical injection');
   context.assert(coreTypes.includes('RmtStateBridgeHandle'), 'RMT types expose State Bridge handle type');
   context.assert(coreTypes.includes('RmtBridgeSchedulePolicy'), 'RMT types expose Bridge schedule policy type');
   context.assert(coreTypes.includes('createRmtStateSchedulerDiagnosticsBridge'), 'RMT types expose State/Scheduler/Diagnostics bridge factory');
@@ -1511,6 +1543,7 @@ function assertRmtNativeBridgeAdapterRegression(context, rootDir) {
     xstate
   });
   const bridge = appModules.createRmtStateSchedulerDiagnosticsBridge({
+    stateProjectionPort: xstate,
     xstate,
     scheduler,
     diagnosticsHub,
@@ -1708,6 +1741,7 @@ function assertRmtBrowserNearRuntime(context, rootDir) {
     customElements: createFakeCustomElementsRegistry(['x-section', 'x-card'])
   });
   const bridge = appModules.createRmtStateSchedulerDiagnosticsBridge({
+    stateProjectionPort: xstate,
     xstate,
     scheduler,
     schedules: normalizedDocument.schedules
@@ -1821,6 +1855,7 @@ function createFakeXtendDom() {
           this.attributes[name] = String(value);
         },
         appendChild(child) {
+          child.parentNode = this;
           this.children.push(child);
           return child;
         },
@@ -1872,6 +1907,9 @@ function createFakeXState() {
   const values = {};
   return {
     values,
+    batchUpdate(updates) {
+      Object.assign(values, updates);
+    },
     set(key, value) {
       values[key] = value;
     },
@@ -1950,9 +1988,7 @@ function assertRmtXtendComponentAdapterRuntime(context, rootDir) {
   }, { mapping });
   const mountedElement = fakeDom.root.children[0];
   const mountedLabel = mountedElement && mountedElement.label;
-  if (mountedElement && mountedElement.listeners && mountedElement.listeners['section-ready']) {
-    mountedElement.listeners['section-ready'].handler({ detail: { ready: true } });
-  }
+  const mountedBindings = mountResult.handle && mountResult.handle.applicationBindings;
   const hydrateResult = adapter.hydrateComponent(fakeDom.root, 'pages.home', {
     label: 'Hydrated Home'
   }, { mapping });
@@ -1979,7 +2015,19 @@ function assertRmtXtendComponentAdapterRuntime(context, rootDir) {
   context.assert(mountedElement && mountedElement.attributes['data-route'] === 'home', 'RMT XTend component adapter applies declared attributes');
   context.assert(mountedLabel === 'Mounted Home', 'RMT XTend component adapter applies model-overridden props');
   context.assert(mountedElement && mountedElement.children.some((child) => child.textContent === 'Home slot'), 'RMT XTend component adapter appends slot text');
-  context.assert(commands.some((entry) => entry.commandName === 'fixture.section.ready'), 'RMT XTend component adapter bridges component events');
+  context.assert(
+    Array.isArray(mountedBindings)
+      && mountedBindings.length === 1
+      && mountedBindings[0].target === mountedElement
+      && mountedBindings[0].event === 'section-ready'
+      && mountedBindings[0].command === 'fixture.section.ready'
+      && mountResult.handle.commitResult.bindings === mountedBindings,
+    'RMT XTend component adapter hands validated application bindings to the Event Router'
+  );
+  context.assert(
+    (!mountedElement.listeners || !mountedElement.listeners['section-ready']) && commands.length === 0,
+    'RMT XTend component adapter does not install or dispatch application event listeners'
+  );
   context.assert(hydrateResult.ok === true && hydrateResult.operation === 'hydrateComponent', 'RMT XTend component adapter hydrates mapped component');
   context.assert(mountedElement && mountedElement.attributes['data-xtend-hydrated'] === 'true', 'RMT XTend component adapter marks hydrated component');
   context.assert(mountedElement && mountedElement.hydrateCall && mountedElement.hydrateCall.model.label === 'Hydrated Home', 'RMT XTend component adapter calls component hydrate when available');
@@ -1994,9 +2042,14 @@ function assertRmtXtendComponentAdapterRuntime(context, rootDir) {
 function assertRmtStateSchedulerDiagnosticsBridgeRuntime(context, rootDir) {
   const appModules = createRmtAppModulesFromBundle(context, rootDir);
   if (!appModules) return;
+  const canonicalModules = createCanonicalStateTelemetryAppModules(context, rootDir);
+  if (!canonicalModules) return;
   const fixture = readJson('tests/fixtures/rmt-app-dsl.normalized.rmt', rootDir);
   const xstateValues = {};
-  const xstate = {
+  const stateProjectionPort = {
+    batchUpdate(updates) {
+      Object.assign(xstateValues, updates);
+    },
     set(key, value) {
       xstateValues[key] = value;
     },
@@ -2028,7 +2081,8 @@ function assertRmtStateSchedulerDiagnosticsBridgeRuntime(context, rootDir) {
     }
   };
   const bridge = appModules.createRmtStateSchedulerDiagnosticsBridge({
-    xstate,
+    stateProjectionPort,
+    xstate: stateProjectionPort,
     scheduler,
     diagnosticsHub,
     schedules: fixture.schedules
@@ -2103,12 +2157,53 @@ function assertRmtStateSchedulerDiagnosticsBridgeRuntime(context, rootDir) {
   });
   const diagnosticCodes = bridge.listDiagnosticCodes();
 
+  const legacyProjectionValues = {};
+  const legacyProjectionDiagnostics = [];
+  const legacyProjectionBridge = canonicalModules.createRmtStateSchedulerDiagnosticsBridge({
+    xstate: {
+      batchUpdate(updates) {
+        Object.assign(legacyProjectionValues, updates);
+      }
+    },
+    diagnosticsHub: {
+      publish(diagnostic) {
+        legacyProjectionDiagnostics.push(diagnostic);
+      }
+    }
+  });
+  const legacyProjectionResult = legacyProjectionBridge.createStateBridge();
+  legacyProjectionResult.handle.set('fixture.legacy-first', true);
+  legacyProjectionResult.handle.set('fixture.legacy-second', true);
+
+  let perKeyProjectionWrites = 0;
+  const perKeyProjectionBridge = canonicalModules.createRmtStateSchedulerDiagnosticsBridge({
+    xstate: {
+      set() { perKeyProjectionWrites += 1; },
+      setState() { perKeyProjectionWrites += 1; }
+    }
+  });
+  const perKeyProjectionResult = perKeyProjectionBridge.createStateBridge();
+  const perKeyProjectionWrite = perKeyProjectionResult.handle.set('fixture.per-key-blocked', true);
+
   context.assert(bridge.schema === STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA, 'RMT bridge exposes stable schema');
   context.assert(bridge.id === 'rmt.state-scheduler-diagnostics', 'RMT bridge exposes stable adapter id');
   context.assert(bridge.kind === 'host_adapter', 'RMT bridge is represented as host adapter boundary');
   assertIncludesAll(context, bridge.runtimeSurface, ['createStateBridge', 'scheduleEndpoint', 'emitDiagnostic', 'recordAdapterResult', 'recordTelemetrySnapshot', 'recordBackpressureSignal', 'listTelemetrySnapshots', 'listBackpressureSignals', 'getTelemetryDebugSnapshot'], 'RMT bridge runtime surface');
   assertIncludesAll(context, bridge.capabilities && bridge.capabilities.providedCapabilities, ['stateBridge', 'schedulerEndpoints', 'diagnostics', 'adapterResults', 'performanceBudgets', 'lifecycleEvents', 'telemetrySnapshots', 'backpressureSignals'], 'RMT bridge capabilities');
   context.assert(stateBridgeResult.ok === true && stateBridgeResult.operation === 'createStateBridge', 'RMT bridge creates a state bridge');
+  context.assert(
+    legacyProjectionValues['fixture.legacy-first'] === true
+      && legacyProjectionValues['fixture.legacy-second'] === true
+      && legacyProjectionResult.metadata.legacyStateProjectionAlias === true
+      && legacyProjectionDiagnostics.filter((entry) => entry.code === 'rmt.bridge.state-projection.legacy-alias').length === 1,
+    'RMT bridge keeps the 0.6 xstate alias only for batch-capable ports and diagnoses it exactly once'
+  );
+  context.assert(
+    perKeyProjectionWrites === 0
+      && perKeyProjectionResult.status === 'degraded'
+      && perKeyProjectionWrite.mirrored === false,
+    'RMT bridge never adapts legacy per-key XState writers'
+  );
   context.assert(xstateValues['rmt.bridge.ready'] && xstateValues['rmt.bridge.ready'].schema === STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA, 'RMT bridge mirrors readiness into xstate');
   context.assert(xstateValues['fixture.ready'] && xstateValues['fixture.ready'].ok === true, 'RMT bridge state handle mirrors custom state');
   context.assert(routeSchedule.endpointName === 'xtendrmt.route.render', 'RMT bridge resolves route schedule endpoint');
@@ -2143,6 +2238,10 @@ function assertRmtStateSchedulerDiagnosticsBridgeRuntime(context, rootDir) {
     diagnosticCodes,
     ['rmt.bridge.state.mirrored', 'rmt.bridge.state.unavailable', 'rmt.bridge.scheduler.endpoint.scheduled', 'rmt.bridge.scheduler.endpoint.queued', 'rmt.bridge.diagnostics.emitted', 'rmt.bridge.adapter.result.degraded', 'rmt.bridge.telemetry.snapshot.recorded', 'rmt.bridge.backpressure.signal.recorded', 'rmt.bridge.backpressure.high', 'rmt.bridge.backpressure.critical'],
     'RMT bridge diagnostic code list'
+  );
+  context.assert(
+    legacyProjectionBridge.listDiagnosticCodes().includes('rmt.bridge.state-projection.legacy-alias'),
+    'Canonical RMT bridge exposes the 0.6 state projection alias diagnostic code'
   );
 }
 

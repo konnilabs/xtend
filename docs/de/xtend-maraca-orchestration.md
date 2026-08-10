@@ -54,13 +54,15 @@ Der Compiler erzeugt daraus Action Gates, Scheduler-Ziele, Patch-Pläne und Sour
 
 ## Runtime Graph
 
-Der Bootpfad erzeugt Browser-/Host-Adapter, Kernel Runtime, Core, Performance Runtime und Scheduler Diagnostics Bridge. Danach werden State, Resource, Validation, Animation, Transition, Action, Event, Surface und Renderer in dieser Reihenfolge gestartet. Maraca bleibt Host-Adapter; die Orchestrierungssemantik liegt im wiederverwendbaren XTendRMT Runtime-Layer.
+Der generierte Bootstrap ist nur Composition Root: Er friert Plan und Konfiguration ein, erzeugt genau eine Instanz von `createMaracaPlanRuntime()` und injiziert die typisierten Model-, View-, Event-, Surface-, Scheduler- und Host-Ports. `xtend-maraca/plan-runtime.mjs` ist der einzige Application Controller. RMT State ist die Model-Autorität; der Surface Controller ist die Lifecycle-Autorität. XState, DOM, Resource Graph und Browser-Globals sind ausschließlich Projektionen oder sichere Read Models.
 
-DOM wird ausschließlich über DOM Descriptor Renderer oder strukturierte `createElement`-Fallbacks materialisiert. Es gibt kein `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write` und keinen Zugriff auf private ShadowRoot-Interna. Components werden nur über öffentliche Attribute, Properties, Events, Slots, CSS Parts und Design Tokens verbunden.
+Ein Command wird einmal ausgewertet, in genau einer Model-Transaktion angewandt und danach in genau einen Descriptor-/Struktur-Commit projiziert. Anschließend reconciliiert der Event Router die vom Renderer validierten Binding Records; Hydration und Post-Commit-Effects laufen jeweils einmal. State-Subscriber beobachten nur abgeschlossene Transaktionen und starten keine DOM-Arbeit.
+
+Normale App-DOM-Schreibvorgänge laufen ausschließlich über `createRmtDomDescriptorRenderer().commit()`. Der Renderer installiert keine Application-Listener; nur der Event Router besitzt diese Listener. Es gibt keine normalen `innerHTML`-, `outerHTML`-, `insertAdjacentHTML`- oder `document.write`-Sinks und keinen Zugriff auf private ShadowRoot-Interna. Components werden nur über öffentliche Attribute, Properties, Events, Slots, CSS Parts und Design Tokens verbunden.
 
 ## Verantwortlichkeiten der Runtime-Schicht
 
-Die Maraca Runtime ist die clientseitige Ausführungsschicht der Architektur. Sie erhält nur Streams und Pläne, die bereits XScaler Preflight und, falls vorhanden, die XScaler-ATC-Übergabe passiert haben. Ihre Aufgaben sind Stream-Annahme, Normalisierung in Runtime Records, Ausführung deklarierter Actions über die öffentliche Action-/Effect-Pipeline, Event-Routing, State-Updates und Surface-Materialisierung über sichere Renderer.
+Die Maraca Runtime ist die clientseitige Controller-Fassade der Architektur. Sie erhält nur Streams und Pläne, die bereits XScaler Preflight und, falls vorhanden, die XScaler-ATC-Übergabe passiert haben. Anwendungskommandos laufen über `dispatchCommand()`, Stream-Änderungen über `dispatchStreamPatch()`. Das unveränderliche Model ist über `runtime.model` lesbar; Renderer-, Validation-, Transition-, Event-, Surface- und Resource-Handles werden nicht veröffentlicht.
 
 Maraca trifft nicht die statische Annahme-/Ablehnungsentscheidung, besitzt keine serverseitige Remote-Surface-Orchestrierung und stellt keine generischen Server-Endpunkte bereit. Wenn eine Remote Surface von einem XSurface Shard Server gestützt wird, konsumiert Maraca den übergebenen Client-Stream und Lifecycle-Signale. Wenn der Server nur generische Endpunkte anbietet, behandelt Maraca sie als Fallback-Daten-/Action-Endpunkte ohne Remote-Surface-Orchestrierungssemantik. Scheduling, Lanes, Diagnostics und Policy-Auswertung werden an RMT-Kernel-/Fabric-Signale delegiert; private Remote-Ausführung bleibt außerhalb des Kernels.
 
@@ -68,18 +70,20 @@ Maraca trifft nicht die statische Annahme-/Ablehnungsentscheidung, besitzt keine
 
 `xtend.maraca.report.json` enthält Abschnitte für `orchestration`, `kernel`, `hydration`, `validation` und `transitions`. Wichtige Felder sind `planStatus`, `runtimeExpectedStatus`, `fallbackCount`, `scheduledEndpointCount`, `strictViolations`, `hydrationPolicyCount`, `insularIslandCount`, `effectCounts`, `durationRange`, `animationEngineSchema`, `animationCount`, `timelineCount`, `runtimeModules` und redigierte `diagnostics`.
 
-Im Browser stehen redigierte Debug Bridges bereit:
+Im Browser steht dieselbe sichere Runtime-Fassade bereit, die der Bootstrap intern verwendet:
 
 ```js
-window.XTendMaraca.orchestration.snapshot();
-window.XTendMaraca.kernel.listScheduledEndpoints();
+const runtime = window.XTendMaraca.orchestration;
+runtime.snapshot();
+runtime.model.getState("product.service.form");
+runtime.subscribe((snapshot) => console.debug(snapshot));
+await runtime.dispatchCommand({ command: "product.service.nextContact", payload: {} });
+
+window.XTendMaraca.kernel.snapshot();
 window.XTendMaraca.hydration.snapshot();
-window.XTendMaraca.validation.evaluateGroup("product.service.contact");
-window.XTendMaraca.animationEngine.snapshot();
-window.XTendMaraca.transitions.listActiveTransitions();
 ```
 
-Die wichtigsten Custom Events sind `xtend-maraca:orchestration-boot`, `xtend-maraca:kernel-boot`, `xtend-maraca:kernel-schedule`, `xtend-maraca:state-change`, `xtend-maraca:validation-boot`, `xtend-maraca:validation-change`, `xtend-maraca:validation-blocked`, `xtend-rmt:animation-start`, `xtend-rmt:animation-phase`, `xtend-rmt:animation-interrupt`, `xtend-rmt:animation-complete`, `xtend-maraca:surface-transition-start`, `xtend-maraca:surface-transition-complete`, `xtend-maraca:surface-transition-cancel` und `xtend-maraca:surface-transition-error`.
+`stateRuntime` und `actionRuntime` bleiben in 0.6 diagnostizierte Kompatibilitätsaliase; mutable Raw-Adapter sind nicht Teil der Fassade. Die wichtigsten Custom Events sind `xtend-maraca:orchestration-boot`, `xtend-maraca:kernel-boot`, `xtend-maraca:kernel-schedule`, `xtend-maraca:state-change`, `xtend-maraca:dom-commit`, `xtend-maraca:validation-boot`, `xtend-maraca:validation-change`, `xtend-maraca:validation-blocked`, `xtend-rmt:animation-start`, `xtend-rmt:animation-phase`, `xtend-rmt:animation-interrupt`, `xtend-rmt:animation-complete`, `xtend-maraca:surface-transition-start`, `xtend-maraca:surface-transition-complete`, `xtend-maraca:surface-transition-cancel` und `xtend-maraca:surface-transition-error`.
 
 ## Effects und Motion Policy
 

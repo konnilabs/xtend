@@ -28,7 +28,7 @@ Dieser Contract behauptet keine produktive `xtend.surface` Runtime. `xtend.surfa
 Der Handoff setzt diese abgeschlossenen Schichten voraus:
 
 - `xtend.rmt.surface-authoring.v1`
-- `xtend.surface.controller.v1`
+- `xtend.surface.controller.v2`
 - `xtend.surface.window-runtime.v1`
 - `xtend.surface.side-panel-runtime.v1`
 - `xtend.surface.workbench-fixture.v1`

@@ -48,7 +48,7 @@ async function runFabricRouteFiberSuite(options = {}) {
 
   context.assertIncludes(routerSource, 'navigate(to, options = {})', 'XRouter exposes runtime navigate surface');
   context.assertIncludes(routerSource, 'async _handleNavigation(options = {})', 'XRouter keeps navigation handling as an instrumentable boundary');
-  context.assertIncludes(routerSource, 'async _renderRoute(match, container)', 'XRouter keeps route rendering as an instrumentable boundary');
+  context.assertIncludes(routerSource, 'async _renderRoute(match, container, context = {})', 'XRouter keeps contextual route rendering as an instrumentable boundary');
   context.assertIncludes(routerSource, 'router-navigate', 'XRouter keeps xstate navigation input for RMT adapter integration');
 
   assert(CONTRACTS.routeFiberInstrumentation === 'xtend.fabric.route-fiber-instrumentation.v1', 'Fabric exports route fiber instrumentation contract');

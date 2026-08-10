@@ -1,10 +1,10 @@
 # RMT Kernel Topography Map
 
-Stand: 2026-06-19
+Stand: 2026-08-02
 
-Diese Karte beschreibt den gebündelten RMT Kernel im XTend-Stack. Der Kernel stammt aus ehemals einzelnen Modulen und liegt heute vor allem in `xtendrmt/rmt-runtime.esm.js`, `xtendrmt/rmt-core.esm.js` und `xtendrmt/rmt-runtime.browser.js`. `xtendrmt/rmt-app-runtime.js` bleibt eine kernelnahe App-Runtime-Schicht für Commands, Host Services, Streams, Reducer und Fabric-Integration.
+Diese Karte beschreibt die kanonischen RMT-Kernelquellen im XTend-Stack. `xtendrmt/rmt-runtime.esm.js`, `xtendrmt/rmt-core.esm.js` und `xtendrmt/rmt-runtime.browser.js` sind erzeugte Auslieferungsartefakte, keine Build-Eingaben. Source of Truth ist `xtendrmt/kernel/rmt-kernel-sources.json` mit den eigenständigen Quellen unter `xtendrmt/` und `xtendrmt/kernel/modules/`.
 
-KernelLab in XTend Scaffold ist der kontrollierte Analyse- und Clean-Build-Pfad für dieses Bundle. `xt kernel-lab analyze --json` schreibt `xtendrmt/rmt-kernel-module-manifest.json`; `xt kernel-lab build --profile clean --check --json` prüft, dass der Standardkernel frei von alten Dashboard-Compat-Factories bleibt. Release-Builds können `--version <semver>` setzen, damit Header, Runtime-API-Version, Typen und Manifest synchron bleiben.
+KernelLab in XTend Scaffold ist Source-Assembler und verbindliches MVC-Gate. `xt kernel-lab analyze --json` prüft Rollen, Ports, Capabilities, Abhängigkeiten und Ownership, ohne Ausgaben zu verändern. `xt kernel-lab build --profile clean --write --json` erzeugt Runtime-, Typ-, Schema- und Manifest-Artefakte gemeinsam; `--check` weist Drift nach. Release-Builds können `--version <semver>` setzen, damit Header, Runtime-API-Version, Typen und Manifest synchron bleiben.
 
 ## Zweck
 
@@ -16,13 +16,13 @@ Die Map beantwortet drei Fragen:
 
 Die Modulbewertung blendet generierte Produkt-Bundles und Build-Kopien aus. Diese belegen Artefakt-Parität, aber keine eigenständige Framework-Integration.
 
-KernelLab gleicht aktuell die historische Erwartung von 26 Modulen mit den 25 sichtbaren Bundle-Wrappern ab und hält diese Abweichung als Report-Metadatum fest, statt sie als stille Build-Wahrheit zu behandeln.
+Modulzahl, Reihenfolge, Targets, Exports und Hashes werden aus dem Source-Manifest abgeleitet. Es gibt keine separat gepflegte historische Modulzahl. Jeder Eintrag deklariert genau eine MVC-Rolle (`shared`, `model`, `view`, `controller`, `adapter` oder `composition`), seine Ports, Adapterrichtung, Capabilities und Ownership-Domänen. Illegale Schichtkanten, Zyklen, doppelte Provider, konkurrierende Owner und nicht deklarierte Fähigkeiten blockieren den Release-Build.
 
-## Bundle-Topologie
+## Kanonische Source-Topologie
 
 | Bundle-Modul | Primäre Factory | Funktionsfläche |
 | --- | --- | --- |
-| `rmt-engine.js` | `createRmtEngine` | Root Lifecycle, Scheduler-Integration, Resources, Commands, Reaktivität und Runtime State |
+| `rmt-engine.js`, `rmt-engine-controller.js`, `rmt-engine-host-adapter.js` | `createRmtEngine` | Dünn gehaltener Composition Root, Command-/Scheduler-Controller und separater Host-Adapter für Timing und Events |
 | `rmt-priority-queue.js` | `createRmtQueue` | Priorisierte Runtime-Arbeit |
 | `rmt-diagnostics-hub.js` | `createRmtDiagnosticsHub` | Diagnostics-Publikation, Subscription und begrenzte Event-Flüsse |
 | `rmt-command-bus.js` | `createRmtCommandBus` | Command Dispatch |
@@ -30,17 +30,29 @@ KernelLab gleicht aktuell die historische Erwartung von 26 Modulen mit den 25 si
 | `rmt-policy-parity.js` | `createRmtKernelPolicyParity` | Compile-/Runtime-Policy-Parität und Security-Regressionen |
 | `rmt-browser-host-adapter.js` | `createRmtBrowserHostAdapter` | Host Timer, Idle Callbacks, Animation Frames, DOM Events und AbortController |
 | `rmt-performance-runtime.js` | `createRmtPerformanceRuntime` | Budgets, Backpressure-Profile, Browser-Signale, CI-Artefakte und Trend-Reports |
-| `rmt-format.js` | `createRmtFormat` | RMT-Normalisierung plus XRouter-, Component-, Surface- und Scheduler-Adapter |
+| `rmt-dom-descriptor-renderer.js` | `createRmtDomDescriptorRenderer` | Einziger DOM-Commit-Port für normale UI-Projektion und validierte Application-Binding-Records |
+| `rmt-format.js` | `createRmtFormat` | Reines Format-Model für RMT-Normalisierung und Referenzgraphen |
+| `rmt-input-routing-controller.js` | `createRmtXRouterAdapter` | Input-/Routing-Controller über Route- und Navigation-Ports |
+| `rmt-xtend-component-adapter.js` | `createRmtXtendComponentAdapter` | Component-Output-Adapter und Lifecycle-Telemetry |
+| `rmt-surface-adapter.js` | `createRmtSurfaceAdapter` | Surface-Projektion über Descriptor- und Lifecycle-Ports |
+| `rmt-state-telemetry-adapter.js` | `createRmtStateSchedulerDiagnosticsBridge` | State-/Scheduler-Telemetry als Output-Adapter |
 | `rmt-template-registry.js` | `createRmtTemplateRegistry` | Template- und Document-Registry |
 | `rmt-template-loader.js` | `createRmtTemplateLoader` | RMT-Source-Laden |
-| `rmt-template-compiler.js` | `createRmtTemplateCompiler` | Prepared Documents, Templates, Fingerprints und Dependency Refs |
-| `rmt-template-artifacts.js` | `createRmtTemplateArtifacts` | Artifact Bundles, Runtime Profile Hints und registerbare Prepared Documents |
+| `rmt-template-binding-model.js` | `createRmtTemplateBindingModel` | Host- und DOM-freie Binding-Normalisierung |
+| `rmt-template-compiler.js` | `createRmtTemplateCompiler` | Prepared Documents, Templates, Fingerprints und Dependency Refs über Binding-/Clock-Ports |
+| `rmt-template-artifacts.js` | `createRmtTemplateArtifacts` | Deterministische Artifact Bundles und Runtime Profile Hints |
 | `rmt-template-runtime-renderer.js` | `createRmtTemplateRuntimeRenderer` | Runtime Bindings, Trusted DOM, Panic und Recovery |
-| `rmt-template-execution-path.js` | `createRmtTemplateExecutionPath` | Execution Plans, Prerender Chunks, Hydration, Trust Verdicts und Recovery |
+| `rmt-template-trust-model.js`, `rmt-template-recovery-model.js` | Trust-/Recovery-Ports | Deterministische Trust-, Sanitize-, Panic- und Recovery-Modelle |
+| `rmt-template-execution-model.js` | Execution-Model-Port | Host- und DOM-freie Execution- und Hydration-Pläne |
+| `rmt-template-interaction-adapter.js` | Interaction-/DOM-Ports | DOM- und Host-Interaktionen als Adapter |
+| `rmt-template-execution-controller.js` | Execution-Controller-Port | Orchestriert Model und Adapter ohne konkrete View-Abhängigkeit |
+| `rmt-template-execution-path.js` | `createRmtTemplateExecutionPath` | Schlanker Composition Root für Execution, Trust, Recovery und Interaction |
 | `rmt-template-transport-adapters.js` | `createRmtTemplateWorkerAdapter`, `createRmtTemplateServerAdapter` | Worker-/Server-Prerender-Envelopes, Supersession und Hydrate Response Handling |
 | `rmt-prewarm-worker-source.js` | `createRmtPrewarmWorkerSourceBuilder` | Browser Worker Source für Template Prewarm |
 | `rmt-prewarm-worker-runtime.js` | `createRmtPrewarmWorkerRuntime` | Template Sync, Worker Health, Prerender Dispatch und Topologie-Snapshots |
-| `rmt-public-api.js` | `createRmtCore`, `createRmtDomCompat`, `createRmtTemplateApi` | Public API, DOM Compatibility und Template API Composition |
+| `rmt-dom-compat-view-adapter.js` | `createRmtDomCompat` | DOM-Compatibility als expliziter View-Adapter |
+| `rmt-public-island-controller.js` | Island-/Root-Lifecycle-Ports | Controller für öffentliche Island-Lifecycle-Operationen |
+| `rmt-public-api.js` | `createRmtCore`, `createRmtTemplateApi` | Schlanke Public-API-Composition ohne eigene DOM- oder Host-Logik |
 | `rmt-browser-runtime.js` | `createRmtBrowserRuntime`, `createRmtRuntime` | Browser Runtime, Mount, Hydrate, Render, Prerender, Performance Delegation und Prewarm-Integration |
 | `rmt-detached-dom-runtime.js` | `createRmtDetachedRuntime` | Detached DOM Runtime für hostneutrale Ausführung |
 | `rmt-worker-prerender-runtime.js` | `createRmtWorkerPrerenderRuntime`, `createRmtWorkerRuntime` | Worker-Prerender- und Hydration-Runtime |
@@ -52,7 +64,7 @@ KernelLab gleicht aktuell die historische Erwartung von 26 Modulen mit den 25 si
 | Interface | Aktueller XTend-Status |
 | --- | --- |
 | `createRmtRuntime`, `createRmtCore` | Aktiv in Maraca, Kernel-Orchestration und Kompatibilitätstests |
-| `createRmtFormat` und native Adapter | Stark genutzt in Parsing-, Surface-, Component- und Lifecycle-Suites |
+| `createRmtFormat` und getrennte native Adapter | Stark genutzt in Parsing-, Surface-, Component- und Lifecycle-Suites; Model, Controller und Output-Adapter sind physisch getrennt |
 | `createRmtStateSchedulerDiagnosticsBridge` | Aktiv in Maraca, Fabric Diagnostics, Telemetry und Backpressure-Tests |
 | `createRmtPerformanceRuntime` | Vorhanden in Maraca und Kernel-Orchestration; Advanced Reports sind noch zu wenig genutzt |
 | `createRmtTemplateExecutionPath` | In Kernel-Security-Tests genutzt, noch nicht als breite Produktions-Evidence |
@@ -62,7 +74,7 @@ KernelLab gleicht aktuell die historische Erwartung von 26 Modulen mit den 25 si
 | Worker-/Server-Prerender-Runtimes | Exportiert und typisiert, in Produktflüssen noch nicht aktiv |
 | `createRmtPrewarmWorkerRuntime` | Browser Runtime kann sie komponieren, XTend nutzt sie noch nicht als Warm-Reentry-Pfad |
 | `createRmtDetachedRuntime` | Exportiert, aber noch nicht als Standard für deterministische Runtime-Gates eingesetzt |
-| `createRmtDomCompat` | Exportiert, aber Surface Manager und Surface Adapter tragen Ownership-Logik noch weitgehend selbst |
+| `createRmtDomCompat` | Als eigener View-Adapter exportiert; Surface-Lifecycle bleibt beim Surface Controller und DOM-Ownership beim Descriptor Renderer |
 
 ## Untergenutzte Potenziale
 

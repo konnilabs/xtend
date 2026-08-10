@@ -13,7 +13,7 @@ const requiredExports = [
   'createApp', 'createStore', 'createEffects', 'createRouter', 'createAnimator',
   'createValidator', 'createTransitions', 'createResources', 'createFabric',
   'configureXTend', 'disposeXTend'
-  , 'readyXTend', 'getXTendHost', 'getXTendSnapshot', 'renderKeyed', 'patchElement'
+  , 'readyXTend', 'getXTendHost', 'getXTendSnapshot', 'renderKeyed', 'patchElement', 'commit', 'createXTendRegistry'
 ];
 
 requiredExports.forEach((name) => assert.equal(typeof registry[name], 'function', `${name} is exported`));
@@ -27,6 +27,13 @@ await registry.readyXTend({ fabric: false });
 assert.ok(registry.createApp(), 'createApp delegates to the kernel-bound RMT app runtime');
 assert.ok(registry.createStore(), 'createStore delegates to the kernel-bound state runtime');
 assert.equal(registry.getXTendHost().mode, 'kernel');
+assert.deepEqual(
+  Object.keys(registry.getXTendHost()).sort(),
+  ['mode', 'schema', 'snapshot'],
+  'managed Registry host exposes only its read-only MVC facade'
+);
+assert.equal(Object.isFrozen(registry.getXTendHost()), true, 'managed Registry host facade is frozen');
+assert.equal(Object.isFrozen(registry.getXTendSnapshot()), true, 'managed Registry snapshots are frozen');
 assert.equal(registry.getXTendSnapshot().status, 'booted');
 let kernelScheduled = false;
 const kernelCancel = registry.schedule(() => { kernelScheduled = true; }, {
@@ -37,6 +44,26 @@ await new Promise((resolve) => setTimeout(resolve, 50));
 assert.equal(kernelScheduled, true, 'kernel scheduler bridge executes custom endpoints');
 assert.ok(registry.getXTendSnapshot().fibers.some((entry) => entry.endpointName === 'test.registry.endpoint'), 'custom endpoints appear in kernel diagnostics');
 registry.disposeXTend();
+
+const isolatedSchedulerA = {
+  scheduleEndpoint(_endpoint, _scope, callback) { callback(); return () => {}; },
+  afterPaint(callback) { callback(); return () => {}; },
+  dispose() {}
+};
+const isolatedSchedulerB = {
+  scheduleEndpoint(_endpoint, _scope, callback) { callback(); return () => {}; },
+  afterPaint(callback) { callback(); return () => {}; },
+  dispose() {}
+};
+const isolatedA = registry.createXTendRegistry({ orchestration: 'lightweight', scheduler: isolatedSchedulerA });
+const isolatedB = registry.createXTendRegistry({ orchestration: 'lightweight', scheduler: isolatedSchedulerB });
+await isolatedA.readyXTend();
+assert.equal(isolatedA.getXTendSnapshot().status, 'ready', 'instance-scoped Registry can boot independently');
+assert.throws(() => isolatedB.getXTendHost(), /requires await readyXTend/, 'a second Registry context does not inherit lifecycle state');
+await isolatedB.readyXTend();
+isolatedA.disposeXTend();
+assert.equal(isolatedB.getXTendSnapshot().status, 'ready', 'disposing one Registry context leaves the other context ready');
+isolatedB.disposeXTend();
 
 let scheduled = 0;
 const fakeScheduler = {
@@ -51,16 +78,19 @@ assert.throws(() => registry.configureXTend({}), /already initialized/, 'late co
 registry.disposeXTend();
 assert.equal(scheduled, -100, 'disposeXTend disposes the singleton');
 const fakeRenderer = {
+  commit(request) { return { operation: request.operation }; },
   render(root, descriptor) { return { root, descriptor }; },
   renderNode(descriptor) { return { descriptor }; },
   dispose() {}
 };
 registry.configureXTend({ orchestration: 'lightweight', renderer: fakeRenderer });
 assert.deepEqual(registry.renderNode('descriptor'), { descriptor: 'descriptor' }, 'renderNode delegates to an injected SSR renderer');
+assert.deepEqual(registry.commit({ operation: 'create-node', descriptor: 'descriptor' }), { operation: 'create-node' }, 'commit delegates synchronously to the configured renderer');
 registry.disposeXTend();
 registry.configureXTend({ orchestration: 'lightweight' });
 assert.throws(() => registry.renderNode({ type: 'text', text: 'SSR' }), /documentTarget/, 'SSR rendering requires an injected DOM');
 await assert.rejects(() => registry.boot(), /browser-only/, 'SSR loader aliases fail explicitly');
 registry.disposeXTend();
 
+await import('./xtendrmt_esm_factory_snapshot_suite.mjs');
 console.log('XTend ESM registry contract passed.');

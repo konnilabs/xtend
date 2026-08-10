@@ -7,7 +7,7 @@ const SURFACE_MANAGER_NATIVE_RMT_REPORT_SCHEMA = 'xtend.rmt.surfaces-domain-repo
 const SURFACE_ADAPTER_SCHEMA = 'xtend.surface.adapter.v1';
 const SURFACE_MANAGER_SCHEMA = 'xtend.surface.manager.v1';
 const SURFACE_RECORD_SCHEMA = 'xtend.surface.record.v1';
-const SURFACE_CONTROLLER_SCHEMA = 'xtend.surface.controller.v1';
+const SURFACE_CONTROLLER_SCHEMA = 'xtend.surface.controller.v2';
 const SURFACE_SNAPSHOT_SCHEMA = 'xtend.surface.snapshot.v1';
 const SURFACE_QUALITY_GATES_SCHEMA = 'xtend.surface.quality-gates.v1';
 const SURFACE_MANAGER_NATIVE_RMT_WORKPACKAGE = 'WP-SM-08';
@@ -187,7 +187,7 @@ function createSurfaceManagerNativeRmtSurfacesPlan(options = {}) {
         'components[*]',
         'routes[*]',
         'schedules[*]',
-        'xtend.surface.controller.v1',
+        'xtend.surface.controller.v2',
         'xtend.surface.snapshot.v1'
       ],
       operations: SURFACE_ADAPTER_OPERATIONS.slice(),

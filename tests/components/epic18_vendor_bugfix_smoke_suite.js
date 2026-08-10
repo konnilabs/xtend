@@ -37,6 +37,9 @@ function createStateProbe() {
     set(key, value) {
       data[key] = value;
     },
+    batchUpdate(updates) {
+      Object.assign(data, updates);
+    },
     get(key) {
       return data[key];
     }

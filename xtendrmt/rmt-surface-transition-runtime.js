@@ -112,23 +112,6 @@
     }) || null;
   }
 
-  function setHidden(element, hidden) {
-    if (!element) return;
-    if (hidden) {
-      if (typeof element.setAttribute === 'function') element.setAttribute('hidden', '');
-      if (element.style) {
-        element.style.display = 'none';
-        if (typeof element.setAttribute === 'function') element.setAttribute('data-rmt-hidden-display', 'true');
-      }
-      return;
-    }
-    if (typeof element.removeAttribute === 'function') element.removeAttribute('hidden');
-    if (element.style) {
-      element.style.display = '';
-      if (typeof element.removeAttribute === 'function') element.removeAttribute('data-rmt-hidden-display');
-    }
-  }
-
   function readHidden(element) {
     if (!element) return false;
     if (typeof element.hasAttribute === 'function') return element.hasAttribute('hidden');
@@ -136,59 +119,32 @@
     return Boolean(element.hidden);
   }
 
-  function setTransitioning(element, transitioning) {
-    if (!element || typeof element.setAttribute !== 'function' || typeof element.removeAttribute !== 'function') return;
-    if (transitioning) {
-      element.setAttribute('data-xt-surface-transitioning', 'true');
-      return;
-    }
-    element.removeAttribute('data-xt-surface-transitioning');
-  }
-
-  function resetTransitionStyles(element) {
-    if (!element) return;
-    if (typeof element.getAnimations === 'function') {
-      try {
-        element.getAnimations().forEach((animation) => {
-          if (animation && typeof animation.cancel === 'function') animation.cancel();
-        });
-      } catch (_) {
-        // Best-effort cleanup: animation handles may be unavailable in test doubles.
-      }
-    }
-    if (element.style) {
-      element.style.transition = '';
-      element.style.opacity = '';
-      element.style.transform = '';
-      element.style.filter = '';
-    }
-    setTransitioning(element, false);
-  }
-
   function createRmtSurfaceTransitionRuntime(options = {}) {
     const transitionPlan = normalizePlan(options.transitionPlan || options.plan);
     const root = options.root || null;
     const kernelController = options.kernelController || null;
-    const xstate = options.xstate || (globalTarget && globalTarget.xstate) || null;
+    const transitionStatePort = options.transitionStatePort || options.telemetryPort || null;
     const xUtils = options.xUtils || (globalTarget && globalTarget.XUtils) || null;
+    const strict = options.strict === true || options.strictMaraca === true;
+    let domRenderer = options.domRenderer || options.renderer || null;
     const diagnostics = toArray(options.diagnostics).map(sanitizeDiagnostic);
     const animationRuntimeFactory = globalTarget
       && globalTarget.XTendRmtAnimationEngineRuntime
       && typeof globalTarget.XTendRmtAnimationEngineRuntime.createRmtAnimationEngineRuntime === 'function'
       ? globalTarget.XTendRmtAnimationEngineRuntime.createRmtAnimationEngineRuntime
       : null;
-    const animationEngine = options.animationEngine || (animationRuntimeFactory ? animationRuntimeFactory({
-      animationPlan: transitionPlan.animationEngine || transitionPlan,
-      xUtils,
-      windowTarget: options.windowTarget || globalTarget,
-      diagnostics,
-      strict: options.strict,
-      publishDiagnostic: options.publishDiagnostic
-    }) : null);
+    const ownsAnimationEngine = !options.animationEngine;
+    let animationEngine = options.animationEngine || null;
     const history = [];
     const active = new Map();
     const transitionGroups = new Map();
+    const knownVisibility = new Map();
     let fallbackCount = 0;
+    let sharedRendererMissingReported = false;
+    let compatibilityRendererAttempted = false;
+    let compatibilityRendererUnavailableReported = false;
+    let ownsDomRenderer = false;
+    let disposed = false;
 
     function dispatchEvent(name, detail) {
       const target = options.windowTarget || globalTarget;
@@ -203,15 +159,178 @@
       return safeDiagnostic;
     }
 
-    function writeXState(transition, status, detail = {}) {
-      if (!xstate || typeof xstate.set !== 'function' || !transition) return;
-      const base = `xtend.surface.transition.${transition.id}`;
-      xstate.set(`${base}.status`, status);
-      xstate.set(`${base}.effect`, transition.effect);
-      xstate.set(`${base}.durationMs`, transition.durationMs);
-      xstate.set(`${base}.from`, transition.from.slice());
-      xstate.set(`${base}.to`, transition.to.slice());
-      xstate.set(`${base}.lastResult`, sanitizeDiagnostic(detail));
+    if (options.xstate) {
+      publishDiagnostic(createDiagnostic(
+        'xtend.rmt.mvc.transition-xstate-ignored',
+        'warning',
+        'Direct XState projection is disabled; inject transitionStatePort instead.',
+        { adapter: 'surface-transition-runtime' }
+      ));
+    }
+
+    function sharedRenderer(target = null) {
+      if (domRenderer && typeof domRenderer.commit === 'function') return domRenderer;
+      if (!sharedRendererMissingReported) {
+        sharedRendererMissingReported = true;
+        publishDiagnostic(createDiagnostic(
+          'rmt.dom.shared-renderer-missing',
+          strict ? 'error' : 'warning',
+          strict
+            ? 'SurfaceTransition requires the shared RMT DOM renderer in strict mode.'
+            : 'SurfaceTransition is creating one compatibility renderer because no shared renderer was injected.',
+          { adapter: 'surface-transition-runtime' }
+        ));
+      }
+      if (strict) {
+        const error = new Error('Strict SurfaceTransition requires the shared RMT DOM renderer.');
+        error.code = 'rmt.dom.shared-renderer-missing';
+        throw error;
+      }
+      if (!compatibilityRendererAttempted) {
+        compatibilityRendererAttempted = true;
+        const factory = globalTarget
+          && globalTarget.XTendRmtDomDescriptorRenderer
+          && globalTarget.XTendRmtDomDescriptorRenderer.createRmtDomDescriptorRenderer;
+        const documentTarget = options.documentTarget
+          || target && target.ownerDocument
+          || root && root.ownerDocument
+          || globalTarget && globalTarget.document
+          || null;
+        if (typeof factory === 'function' && documentTarget) {
+          try {
+            domRenderer = factory({
+              documentTarget,
+              diagnosticsHub: options.diagnosticsHub,
+              diagnosticChannel: options.diagnosticChannel
+            });
+            ownsDomRenderer = Boolean(domRenderer && typeof domRenderer.commit === 'function');
+          } catch (_) {
+            domRenderer = null;
+          }
+        }
+      }
+      if (domRenderer && typeof domRenderer.commit === 'function') return domRenderer;
+      if (!compatibilityRendererUnavailableReported) {
+        compatibilityRendererUnavailableReported = true;
+        publishDiagnostic(createDiagnostic(
+          'rmt.dom.compatibility-renderer-unavailable',
+          'error',
+          'SurfaceTransition could not create the required compatibility DOM renderer.',
+          { adapter: 'surface-transition-runtime' }
+        ));
+      }
+      const error = new Error('SurfaceTransition requires a DOM renderer; compatibility renderer creation failed.');
+      error.code = 'rmt.dom.compatibility-renderer-unavailable';
+      throw error;
+    }
+
+    function commitVisibility(element, attributes, sourcePointer) {
+      if (!element) return false;
+      const renderer = sharedRenderer(element);
+      if (!renderer) return false;
+      renderer.commit({
+        operation: 'merge-element',
+        target: element,
+        descriptor: {
+          type: 'element',
+          tag: clampString(element.localName || element.tagName, 'div').toLowerCase(),
+          namespace: clampString(element.namespaceURI),
+          attributes
+        },
+        context: {
+          source: {
+            nodeId: clampString(element.getAttribute && element.getAttribute('data-maraca-surface'), 'surface-transition'),
+            pointer: sourcePointer
+          }
+        },
+          ownership: {
+            owner: 'transition-runtime',
+            domains: {
+              attributes: 'transition-runtime',
+              styleTokens: 'transition-runtime',
+              visibility: 'transition-runtime'
+            },
+          mode: strict ? 'strict' : 'compatibility'
+        }
+      });
+      return true;
+    }
+
+    function writeHidden(element, hidden) {
+      if (!element) return;
+      commitVisibility(element, {
+        hidden: hidden ? '' : null,
+        style: {
+          display: hidden ? 'none' : ''
+        }
+      }, '/transition/visibility');
+    }
+
+    function writeTransitioning(element, transitioning) {
+      if (!element) return;
+      commitVisibility(element, {
+        'data-xt-surface-transitioning': transitioning ? 'true' : null
+      }, '/transition/phase');
+    }
+
+    function resetStyles(element) {
+      if (!element) return;
+      if (typeof element.getAnimations === 'function') {
+        try {
+          element.getAnimations().forEach((animation) => {
+            if (animation && typeof animation.cancel === 'function') animation.cancel();
+          });
+        } catch (_) {
+          // Native animation handles may already have been released.
+        }
+      }
+      commitVisibility(element, {
+        'data-xt-surface-transitioning': null,
+        style: {
+          transition: '',
+          opacity: '',
+          transform: '',
+          filter: ''
+        }
+      }, '/transition/finalize');
+    }
+
+    function ensureAnimationEngine(target = null) {
+      if (animationEngine || !animationRuntimeFactory) return animationEngine;
+      const renderer = sharedRenderer(target);
+      animationEngine = animationRuntimeFactory({
+        animationPlan: transitionPlan.animationEngine || transitionPlan,
+        xUtils,
+        domRenderer: renderer,
+        documentTarget: options.documentTarget,
+        diagnosticsHub: options.diagnosticsHub,
+        diagnosticChannel: options.diagnosticChannel,
+        windowTarget: options.windowTarget || globalTarget,
+        diagnostics,
+        strict,
+        publishDiagnostic: options.publishDiagnostic
+      });
+      return animationEngine;
+    }
+
+    if (!animationEngine && animationRuntimeFactory && domRenderer && typeof domRenderer.commit === 'function') {
+      ensureAnimationEngine();
+    }
+
+    function publishTransitionState(transition, status, detail = {}) {
+      if (!transitionStatePort || !transition) return;
+      const projection = Object.freeze({
+        schema: 'xtend.rmt.surface-transition-state-projection.v1',
+        transition: transition.id,
+        status,
+        effect: transition.effect,
+        durationMs: transition.durationMs,
+        from: transition.from.slice(),
+        to: transition.to.slice(),
+        lastResult: sanitizeDiagnostic(detail)
+      });
+      if (typeof transitionStatePort.apply === 'function') transitionStatePort.apply(projection);
+      else if (typeof transitionStatePort.publish === 'function') transitionStatePort.publish(projection);
     }
 
     function resolveElement(surfaceId, explicitElement = null) {
@@ -235,9 +354,31 @@
     }
 
     function hasVisibleFromSurface(transition) {
-      return toArray(transition && transition.from).some((surfaceId) => {
-        const element = resolveElement(surfaceId);
-        return element && !readHidden(element);
+      return toArray(transition && transition.from).some((surfaceId) => knownVisibility.get(surfaceId) === false);
+    }
+
+    function adoptVisibility(input = {}) {
+      const surfaceId = clampString(input.surface || input.surfaceId);
+      const element = resolveElement(surfaceId, input.element || null);
+      if (!element) {
+        const error = new Error(`Surface transition adoption could not resolve ${surfaceId || 'surface'}.`);
+        error.code = 'rmt.surface_transition.adopt_target_missing';
+        throw error;
+      }
+      const hidden = readHidden(element);
+      knownVisibility.set(surfaceId, hidden);
+      fallbackCount += 1;
+      const diagnostic = publishDiagnostic(createDiagnostic(
+        'rmt.surface_transition.dom_visibility_adopted',
+        'warning',
+        'Surface visibility was adopted from DOM for compatibility; managed transitions must pass previousHidden.',
+        { surface: surfaceId, hidden }
+      ));
+      return Object.freeze({
+        schema: 'xtend.rmt.surface-transition-adoption.v1',
+        surface: surfaceId,
+        hidden,
+        diagnostic
       });
     }
 
@@ -276,6 +417,7 @@
     }
 
     async function runEffect(element, transition, phase, metadata = {}) {
+      ensureAnimationEngine(element);
       const input = {
         target: element,
         effect: transition.effect,
@@ -321,13 +463,38 @@
         surface: surfaceId
       });
       const nextHidden = input.nextHidden === true;
-      const previousHidden = Object.prototype.hasOwnProperty.call(input, 'previousHidden')
-        ? input.previousHidden === true
-        : readHidden(element);
+      let previousHidden;
+      if (Object.prototype.hasOwnProperty.call(input, 'previousHidden')) {
+        previousHidden = input.previousHidden === true;
+        knownVisibility.set(surfaceId, previousHidden);
+      } else if (strict) {
+        const diagnostic = publishDiagnostic(createDiagnostic(
+          'rmt.surface_transition.previous_visibility_required',
+          'error',
+          'Strict surface transitions require explicit previousHidden from the model patch plan.',
+          { surface: surfaceId, transition: transition && transition.id || null }
+        ));
+        const error = new Error(diagnostic.message);
+        error.code = diagnostic.code;
+        error.diagnostic = diagnostic;
+        throw error;
+      } else {
+        previousHidden = adoptVisibility({ surfaceId, element }).hidden;
+      }
 
+      if (disposed) {
+        return {
+          schema: RMT_SURFACE_TRANSITION_RUNTIME_SCHEMA,
+          status: 'disposed',
+          transition: transition && transition.id || null,
+          surface: surfaceId
+        };
+      }
       if (!transition || !element || nextHidden === previousHidden) {
-        setHidden(element, nextHidden);
-        if (!nextHidden) resetTransitionStyles(element);
+        if (element) sharedRenderer(element);
+        writeHidden(element, nextHidden);
+        knownVisibility.set(surfaceId, nextHidden);
+        if (!nextHidden) resetStyles(element);
         return {
           schema: RMT_SURFACE_TRANSITION_RUNTIME_SCHEMA,
           status: transition ? 'unchanged' : 'unmatched',
@@ -335,6 +502,7 @@
           hidden: nextHidden
         };
       }
+      sharedRenderer(element);
 
       const phase = nextHidden ? 'exit' : 'enter';
       const token = `${Date.now()}:${Math.random().toString(36).slice(2)}`;
@@ -347,7 +515,7 @@
           surface: surfaceId
         });
       }
-      const activeRecord = { token, transition: transition.id, surface: surfaceId, cancelled: false };
+      const activeRecord = { token, transition: transition.id, surface: surfaceId, element, cancelled: false };
       active.set(surfaceId, activeRecord);
 
       let resolveExitPromise = null;
@@ -362,9 +530,11 @@
         if (resolveExitPromise) resolveExitPromise(result);
         resolveEnterWaitersIfReady(transition);
       };
+      activeRecord.completeExitGate = completeExitGate;
 
       if (!nextHidden) {
-        setHidden(element, true);
+        writeHidden(element, true);
+        knownVisibility.set(surfaceId, true);
         const waitResult = transition.effect === 'crossfade' ? { status: 'ready' } : await waitForExitPhase(transition);
         if (waitResult && waitResult.status === 'timeout' && options.strict) {
           if (activeRecord.cancelled || active.get(surfaceId) !== activeRecord) {
@@ -387,10 +557,11 @@
             surface: surfaceId
           };
         }
-        setHidden(element, false);
+        writeHidden(element, false);
+        knownVisibility.set(surfaceId, false);
       }
-      writeXState(transition, 'running', { phase, surface: surfaceId });
-      setTransitioning(element, true);
+      publishTransitionState(transition, 'running', { phase, surface: surfaceId });
+      writeTransitioning(element, true);
       const startDetail = {
         schema: 'xtend.rmt.surface-transition-start.v1',
         transition: transition.id,
@@ -406,7 +577,7 @@
       try {
         const effectResult = await runEffect(element, transition, phase, input.metadata || {});
         if (activeRecord.cancelled || active.get(surfaceId) !== activeRecord) {
-          resetTransitionStyles(element);
+          if (active.get(surfaceId) === activeRecord) resetStyles(element);
           completeExitGate({
             schema: RMT_SURFACE_TRANSITION_RUNTIME_SCHEMA,
             status: 'cancelled',
@@ -429,18 +600,20 @@
           hidden: nextHidden,
           effect: transition.effect
         };
-        if (nextHidden) setHidden(element, true);
-        resetTransitionStyles(element);
+        if (nextHidden) writeHidden(element, true);
+        knownVisibility.set(surfaceId, nextHidden);
+        resetStyles(element);
         active.delete(surfaceId);
         completeExitGate(result);
-        writeXState(transition, result.status, result);
+        publishTransitionState(transition, result.status, result);
         history.push({ ...result, at: Date.now() });
         dispatchEvent(result.status === 'fallback' ? 'xtend-maraca:surface-transition-fallback' : 'xtend-maraca:surface-transition-complete', result);
         return result;
       } catch (error) {
         active.delete(surfaceId);
-        resetTransitionStyles(element);
-        setHidden(element, nextHidden);
+        resetStyles(element);
+        writeHidden(element, nextHidden);
+        knownVisibility.set(surfaceId, nextHidden);
         completeExitGate({
           schema: RMT_SURFACE_TRANSITION_RUNTIME_SCHEMA,
           status: 'error',
@@ -453,7 +626,7 @@
           error && error.message ? error.message : String(error || 'Surface transition failed.'),
           { transition: transition.id, surface: surfaceId, phase }
         ));
-        writeXState(transition, 'error', diagnostic);
+        publishTransitionState(transition, 'error', diagnostic);
         dispatchEvent('xtend-maraca:surface-transition-error', diagnostic);
         if (options.strict) throw error;
         return {
@@ -486,7 +659,14 @@
     }
 
     function listActiveTransitions() {
-      return Array.from(active.values()).map((entry) => cloneSafe(entry, {}));
+      return Array.from(active.values()).map((entry) => {
+        const { element, completeExitGate, ...safeEntry } = entry;
+        return {
+          ...cloneSafe(safeEntry, {}),
+          targetConnected: Boolean(element && element.isConnected),
+          hasExitGate: typeof completeExitGate === 'function'
+        };
+      });
     }
 
     function listDiagnostics() {
@@ -500,20 +680,73 @@
         transitionCount: transitionPlan.transitions.length,
         animationEngine: animationEngine && typeof animationEngine.snapshot === 'function' ? animationEngine.snapshot() : null,
         activeTransitions: listActiveTransitions(),
+        disposed,
         fallbackCount,
         history: history.slice(-50),
         diagnostics: listDiagnostics()
       };
     }
 
+    function dispose() {
+      if (disposed) {
+        return {
+          schema: 'xtend.rmt.surface-transition-dispose-report.v1',
+          disposed: true,
+          alreadyDisposed: true,
+          cancelledCount: 0
+        };
+      }
+      disposed = true;
+      const records = Array.from(active.values());
+      records.forEach((record) => {
+        record.cancelled = true;
+        resetStyles(record.element);
+        if (typeof record.completeExitGate === 'function') {
+          record.completeExitGate({
+            schema: RMT_SURFACE_TRANSITION_RUNTIME_SCHEMA,
+            status: 'disposed',
+            transition: record.transition,
+            surface: record.surface
+          });
+        }
+      });
+      active.clear();
+      knownVisibility.clear();
+      transitionGroups.forEach((group) => {
+        const waiters = group.enterWaiters.splice(0, group.enterWaiters.length);
+        waiters.forEach((resolve) => resolve({ status: 'disposed' }));
+        group.exitPromises.clear();
+      });
+      transitionGroups.clear();
+      if (ownsAnimationEngine && animationEngine && typeof animationEngine.dispose === 'function') {
+        animationEngine.dispose();
+      }
+      if (ownsDomRenderer && domRenderer && typeof domRenderer.dispose === 'function') {
+        try {
+          domRenderer.dispose(undefined, { clearOwnedDom: false });
+        } catch (_) {
+          // Compatibility renderer cleanup is best-effort and idempotent.
+        }
+      }
+      ownsDomRenderer = false;
+      return {
+        schema: 'xtend.rmt.surface-transition-dispose-report.v1',
+        disposed: true,
+        alreadyDisposed: false,
+        cancelledCount: records.length
+      };
+    }
+
     return Object.freeze({
       schema: RMT_SURFACE_TRANSITION_RUNTIME_SCHEMA,
       transitionPlan,
+      adoptVisibility,
       applyVisibilityPatch,
       findTransition: (metadata = {}) => findTransition(transitionPlan, metadata),
       listActiveTransitions,
       listDiagnostics,
-      snapshot
+      snapshot,
+      dispose
     });
   }
 

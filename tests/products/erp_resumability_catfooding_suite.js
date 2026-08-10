@@ -55,6 +55,7 @@ async function runErpResumabilityCatfoodingSuite(options = {}) {
   const rootManifest = readJson(rootDir, 'package.json');
   const source = read(rootDir, `${PRODUCT_PATH}/src/rmt/erp-shell.rmt`);
   const serverSource = read(rootDir, `${PRODUCT_PATH}/server/index.mjs`);
+  const verificationSource = read(rootDir, `${PRODUCT_PATH}/scripts/verify.mjs`);
   const resumeBridgeSource = read(rootDir, `${PRODUCT_PATH}/src/client/resume-bridge.mjs`);
   const compileResult = compileRmtVNextSource({
     text: source,
@@ -122,6 +123,17 @@ async function runErpResumabilityCatfoodingSuite(options = {}) {
   context.assert(frameworkLessons.length >= 3 && undecidedLessons.length === 0 && lessons.frameworkNativeLessonCount === frameworkLessons.length, 'Catfooding lessons are classified, owned and gated upstream');
   context.assert(!serverSource.includes('createResumePayload') && !serverSource.includes('resumeStore') && !serverSource.includes('hardcoded') && !resumeBridgeSource.includes('.innerHTML ='), 'product no longer carries a fake resume store, payload signer or app-owned innerHTML bridge');
   context.assert(serverSource.includes('createRmtNodeSsrAdapter') && serverSource.includes('ECDSA-P256-SHA256') && serverSource.includes('server_prerender_resume'), 'server uses the framework SSR adapter and host-owned P-256 signer');
+  const resumeModulePaths = [
+    '/xtendrmt/rmt-resume-runtime.js',
+    '/xtendrmt/rmt-resume-protocol.js',
+    '/xtendrmt/rmt-resume-capture-adapter.js',
+    '/xtendrmt/rmt-resume-host-adapter.js',
+    '/xtendrmt/rmt-resume-command-adapter.js',
+    '/xtendrmt/rmt-resume-command-controller.js'
+  ];
+  context.assert(resumeModulePaths.every((modulePath) => fs.existsSync(path.resolve(rootDir, modulePath.slice(1)))), 'Resume runtime and all five split Resume module sources exist');
+  context.assert(resumeModulePaths.every((modulePath) => serverSource.includes(`'${modulePath}'`)), 'ERP server allowlists the Resume runtime and all five split Resume modules');
+  context.assert(resumeModulePaths.every((modulePath) => verificationSource.includes(`'${modulePath}'`)), 'ERP verification probes the Resume runtime and all five split Resume module routes');
   context.assert(productRun.status === 0 && productRun.stdout.includes('"status": "checked"') && productRun.stdout.includes('Local resumability Maraca ERP demo verification passed.'), `build, tune check and browser hypervisor pass${productRun.status === 0 ? '' : `: ${productRun.stderr.slice(-1000)}`}`);
   const metadata = rootManifest.xtend && rootManifest.xtend.erpResumabilityCatfooding;
   context.assert(metadata && metadata.schema === REPORT_SCHEMA && metadata.product === PRODUCT_PATH && metadata.localGate === LOCAL_GATE, 'root product catalog exposes the ERP catfood gate and report');

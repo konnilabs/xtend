@@ -3882,7 +3882,7 @@ function createHostContracts() {
       'diagnostics.redact'
     ],
     adapters: {
-      browser: 'xtend.maraca.browser-host-adapter.v1',
+      browser: 'xtend.maraca.browser-host-adapter.v2',
       server: 'xtend.rmt.server-host-adapter.v1',
       worker: 'xtend.rmt.worker-host-adapter.v1',
       mfe: 'xtend.rmt.mfe-host-adapter.v1'

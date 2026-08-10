@@ -2,7 +2,7 @@
 
 - Status: Accepted Controller Contract
 - Datum: 9. Mai 2026
-- Contract: `xtend.surface.controller.v1`
+- Contract: `xtend.surface.controller.v2`
 - Snapshot: `xtend.surface.snapshot.v1`
 - Diagnostic: `xtend.surface.diagnostic.v1`
 - Workpackage: `WP-SM-02`

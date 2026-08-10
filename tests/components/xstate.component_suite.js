@@ -31,7 +31,7 @@ function runXStateComponentSuite(options = {}) {
   context.assert(syntaxCheck.ok, `xstate source passes syntax check${syntaxCheck.ok ? '' : ` (${syntaxCheck.message})`}`);
   context.assert(!source.includes('customElements.define'), 'xstate does not register a visual Custom Element');
   context.assertIncludes(source, 'xtend.state.boundary-probe.v1', 'xstate declares boundary-probe schema');
-  context.assertIncludes(source, 'xtend.rmt.state-scheduler-compatibility.v1', 'xstate declares RMT state scheduler compatibility');
+  context.assertIncludes(source, 'xtend.rmt.state-scheduler-compatibility.v2', 'xstate declares RMT state scheduler compatibility');
   context.assertIncludes(source, 'xtend.fabric.state-diagnostics.v1', 'xstate declares Fabric diagnostics schema');
   context.assertIncludes(source, 'xtend.state.lifecycle-event.v1', 'xstate declares lifecycle event schema');
   context.assertIncludes(source, 'xtendStateBoundaryContract', 'xstate exposes boundary contract metadata');
@@ -41,6 +41,7 @@ function runXStateComponentSuite(options = {}) {
   context.assertIncludes(source, 'snapshot()', 'xstate exposes snapshot API');
   context.assertIncludes(source, 'snapshotDiagnostics()', 'xstate exposes diagnostics snapshot API');
   context.assertIncludes(source, 'createRmtStateAdapter(options = {})', 'xstate exposes RMT state adapter factory');
+  context.assertIncludes(source, 'batchUpdate: this.batchUpdate.bind(this)', 'xstate RMT adapter exposes atomic batch projection');
   context.assertIncludes(source, 'no-rmt-kernel-import-of-xtend-types', 'xstate preserves RMT kernel boundary');
   context.assertIncludes(source, 'rmt.bridge.ready', 'xstate documents RMT bridge ready key');
   context.assertIncludes(source, 'rmt.scheduler.lastEndpoint', 'xstate documents RMT scheduler endpoint key');
@@ -48,6 +49,7 @@ function runXStateComponentSuite(options = {}) {
   context.assertIncludes(types, 'XStateApi', 'xstate public types declare API interface');
   context.assertIncludes(types, 'XStateBoundaryContract', 'xstate public types declare boundary contract');
   context.assertIncludes(types, 'XStateRmtStateAdapter', 'xstate public types declare RMT state adapter');
+  context.assertIncludes(types, 'batchUpdate(updates: Record<string, unknown>): void', 'xstate RMT adapter types expose atomic batch projection');
   context.assertIncludes(types, 'XStateDiagnosticsSnapshot', 'xstate public types declare diagnostics snapshot');
   context.assertIncludes(types, 'XStateLifecycleEventDetail', 'xstate public types declare lifecycle detail');
   context.assertIncludes(types, 'addEventListener<K extends keyof XStateEventMap>', 'xstate public types expose typed lifecycle event listener overload');

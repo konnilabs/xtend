@@ -95,13 +95,13 @@ const REQUIRED_METADATA = Object.freeze([
   },
   {
     key: 'rmtStateSelectorRuntime',
-    schema: 'xtend.epic18.rmt-state-selector-runtime.v1',
+    schema: 'xtend.epic18.rmt-state-selector-runtime.v2',
     localGate: 'node scripts/run_xtend_tests.js rmt-state-selector-runtime --json',
     packageScript: 'npm run test:rmt-state-selector-runtime'
   },
   {
     key: 'rmtEventRoutingRuntime',
-    schema: 'xtend.epic18.rmt-event-routing-runtime.v1',
+    schema: 'xtend.epic18.rmt-event-routing-runtime.v2',
     localGate: 'node scripts/run_xtend_tests.js rmt-event-routing-runtime --json',
     packageScript: 'npm run test:rmt-event-routing-runtime'
   },
@@ -229,7 +229,7 @@ function runNativeFirstFrameworkLeverageSuite(options = {}) {
   const shellAuthoring = readText('development/XTend-RMT-Shell-Authoring-fuer-Component-UX.md', rootDir);
   const componentNetwork = readText('development/XTend-Component-Network-Compatibility-Contract.md', rootDir);
   context.assert(!stateRuntime.includes("from '../components/xstate'") && !stateRuntime.includes("require('../components/xstate") && !stateRuntime.includes('components/xstate'), 'State selector runtime has no xstate import');
-  context.assertIncludes(eventRuntime, 'xtend.epic18.rmt-event-routing-runtime.v1', 'Event runtime declares stable schema');
+  context.assertIncludes(eventRuntime, 'xtend.epic18.rmt-event-routing-runtime.v2', 'Event runtime declares stable schema');
   context.assert(!eventRuntime.includes('mitt') && !eventRuntime.includes('EventEmitter'), 'Event runtime avoids external event bus primitives');
   context.assertIncludes(fabricLaneMapping, 'xtend.fabric.rmt-lane-mapping.v1', 'Fabric lane mapping declares contract');
   context.assert(!fabricLaneMapping.includes('rmt-runtime'), 'Fabric lane mapping does not import RMT runtime');

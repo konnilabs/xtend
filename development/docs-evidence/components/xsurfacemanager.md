@@ -1,6 +1,6 @@
 # x-surface-manager
 
-`x-surface-manager` is the public Web Component for the `xtend.surface.manager.v1` runtime. It consumes `xtend.surface.controller.v1`, hosts windows, panels and overlays, and exposes lifecycle events for product shells and RMT materialization.
+`x-surface-manager` is the public Web Component for the `xtend.surface.manager.v1` runtime. It consumes `xtend.surface.controller.v2`, hosts windows, panels and overlays, and exposes lifecycle events for product shells and RMT materialization.
 
 ## Stable API
 

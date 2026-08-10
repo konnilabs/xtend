@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const vm = require('vm');
 const {
   createSuiteContext,
   printSuiteReport
@@ -161,6 +162,141 @@ function createFakeEvent(type, options = {}) {
     }
   };
   return event;
+}
+
+async function assertCanonicalTemplateBindingOwnership(context, rootDir, eventRuntimeModule) {
+  const rendererPath = resolveRepoPath('xtendrmt/kernel/modules/rmt-template-runtime-renderer.js', rootDir);
+  const rendererSource = fs.readFileSync(rendererPath, 'utf8');
+  const sandbox = { AppModules: {}, console, Date };
+  sandbox.globalThis = sandbox;
+  vm.runInNewContext(rendererSource.replaceAll('__XTENDRMT_GLOBAL__', 'globalThis'), sandbox, {
+    filename: rendererPath
+  });
+
+  const root = createFakeTarget('template-binding-root');
+  const target = createFakeTarget('template-binding-target');
+  target.parentNode = root;
+  target.setAttribute = function setAttribute(name, value) {
+    this[name] = String(value);
+  };
+  target.removeAttribute = function removeAttribute(name) {
+    delete this[name];
+  };
+  root.querySelector = (selector) => selector === '#template-save' ? target : null;
+  const renderer = sandbox.AppModules.createRmtTemplateRuntimeRenderer({ documentTarget: {} });
+  const session = renderer.applyBindings({
+    rootId: 'template-binding-root',
+    element: root,
+    templateQualifiedId: 'fixture:template-binding',
+    bindings: [{
+      id: 'binding.template-save',
+      kind: 'command',
+      target: '#template-save',
+      eventType: 'click',
+      commandName: 'fixture.template.save',
+      payload: { source: 'template' }
+    }]
+  });
+  const commitResult = session.getApplicationBindingCommitResult();
+  context.assert(
+    (target.listeners.get('click') || []).length === 0
+      && commitResult.bindings.length === 1
+      && commitResult.bindings[0].target === target
+      && commitResult.bindings[0].command === 'fixture.template.save'
+      && commitResult.bindingScope.roots[0] === root,
+    'template renderer returns validated actual-target bindings without installing application listeners'
+  );
+
+  const commands = [];
+  const router = eventRuntimeModule.createRmtEventRoutingRuntime({
+    strict: true,
+    commandBus: {
+      dispatchCommand(command) {
+        commands.push(command);
+        return { status: 'success' };
+      }
+    }
+  });
+  const reconcile = router.reconcile(root, commitResult);
+  await target.dispatch('click', createFakeEvent('click', {
+    target,
+    detail: { ignored: true }
+  }));
+  context.assert(
+    reconcile.attachedCount === 1
+      && (target.listeners.get('click') || []).length === 1
+      && commands.length === 1
+      && commands[0].command === 'fixture.template.save',
+    'canonical Event Router exclusively materializes and dispatches template application bindings'
+  );
+  session.destroy();
+  const cleanup = router.reconcile(root, session.getApplicationBindingCommitResult());
+  context.assert(
+    cleanup.detachedCount === 1 && (target.listeners.get('click') || []).length === 0,
+    'destroyed template sessions return scoped removals for Event Router cleanup'
+  );
+
+  const interactionAdapterPath = resolveRepoPath('xtendrmt/kernel/modules/rmt-template-interaction-adapter.js', rootDir);
+  vm.runInNewContext(
+    fs.readFileSync(interactionAdapterPath, 'utf8').replaceAll('__XTENDRMT_GLOBAL__', 'globalThis'),
+    sandbox,
+    { filename: interactionAdapterPath }
+  );
+  const integratedCommands = [];
+  const integratedRouter = eventRuntimeModule.createRmtEventRoutingRuntime({
+    strict: true,
+    commandBus: {
+      dispatchCommand(command) {
+        integratedCommands.push(command);
+        return { status: 'success' };
+      }
+    }
+  });
+  const interactionAdapter = sandbox.AppModules.createRmtTemplateInteractionAdapter({
+    executionModel: {
+      normalizeChunk(chunk) {
+        return chunk;
+      }
+    },
+    runtimeRenderer: renderer,
+    eventRouter: integratedRouter,
+    documentTarget: {}
+  });
+  const routedSession = interactionAdapter.applyRuntimeBindings(root, {
+    rootId: 'template-binding-root',
+    template: { qualifiedId: 'fixture:template-binding' },
+    hydration: {
+      bindings: [{
+        id: 'binding.template-save',
+        kind: 'command',
+        target: '#template-save',
+        eventType: 'click',
+        commandName: 'fixture.template.save',
+        payload: { source: 'interaction-adapter' }
+      }],
+      reactivityHints: {}
+    },
+    modelSnapshot: {}
+  }, { rootId: 'template-binding-root' });
+  await target.dispatch('click', createFakeEvent('click', { target }));
+  context.assert(
+    routedSession
+      && (target.listeners.get('click') || []).length === 1
+      && integratedCommands.length === 1
+      && integratedCommands[0].payload.source === 'interaction-adapter',
+    'template interaction adapter forwards session bindings to its injected Event Router port'
+  );
+  routedSession.destroy();
+  context.assert(
+    (target.listeners.get('click') || []).length === 0,
+    'template interaction adapter reconciles Event Router cleanup with binding-session disposal'
+  );
+  context.assert(
+    !/\.addEventListener\s*\(/u.test(rendererSource)
+      && !/\.removeEventListener\s*\(/u.test(rendererSource)
+      && !/\.(?:dispatchCommand|emitRootEvent|dispatchEvent)\s*\(/u.test(rendererSource),
+    'template view source contains no application listener or command-dispatch implementation'
+  );
 }
 
 function assertFixtureGraph(context, fixture) {
@@ -353,6 +489,139 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
   context.assert(promptRoute.payload.command === 'xtend.llm.updatePrompt', 'xtend-command mapping can read envelope command');
   context.assert(promptRoute.payload.value === 'Hello' && promptRoute.payload.empty === false, 'xtend-command mapping can read envelope payload fields');
   context.assert(commandDispatches.length === 1 && commandDispatches[0].payload.command === 'xtend.llm.updatePrompt', 'mapped command payload is forwarded through dispatchCommand');
+  context.assert(Object.getPrototypeOf(promptRoute.payload) === null, 'resolved event payload records use a null prototype');
+  let unsafeEventPathBlocked = false;
+  try {
+    eventRuntimeModule.createRmtEventRoutingRuntime({
+      events: [{
+        id: 'event.unsafe-path',
+        event: 'click',
+        action: 'action.unsafe-path',
+        payload: '$event.constructor.prototype'
+      }]
+    });
+  } catch (error) {
+    unsafeEventPathBlocked = error && error.code === 'rmt.event.path.unsafe';
+  }
+  context.assert(unsafeEventPathBlocked, 'event payload paths reject reserved prototype segments before listener attachment');
+  let unsafeEventRecordKeyBlocked = false;
+  try {
+    eventRuntimeModule.createRmtEventRoutingRuntime({
+      events: [{
+        id: 'event.unsafe-record',
+        event: 'click',
+        action: 'action.unsafe-record',
+        payload: JSON.parse('{"constructor":"blocked"}')
+      }]
+    });
+  } catch (error) {
+    unsafeEventRecordKeyBlocked = error && error.code === 'rmt.event.path.unsafe';
+  }
+  context.assert(unsafeEventRecordKeyBlocked, 'event payload records reject reserved prototype keys');
+
+  const resetTarget = createFakeTarget('reset-target', { value: 'clear me' });
+  const postActionCommits = [];
+  const resetRuntime = eventRuntimeModule.createRmtEventRoutingRuntime({
+    events: [{
+      id: 'event.reset-input',
+      event: 'change',
+      target: 'reset-target',
+      component: 'x-input',
+      action: 'reset-action',
+      payload: {},
+      postAction: ['reset-input']
+    }],
+    actionRuntime: {
+      runAction() {
+        return { status: 'success' };
+      }
+    },
+    targets: {
+      'reset-target': resetTarget
+    },
+    domRenderer: {
+      commit(request) {
+        postActionCommits.push(request);
+        request.target.value = request.descriptor.properties.value;
+        return {
+          schema: 'xtend.rmt.dom-commit-result.v1',
+          operation: request.operation,
+          changed: true
+        };
+      }
+    }
+  });
+  const resetResult = await resetRuntime.routeEvent(
+    'event.reset-input',
+    createFakeEvent('change', { target: resetTarget })
+  );
+  context.assert(
+    resetResult.status === 'success'
+      && resetTarget.value === ''
+      && postActionCommits.length === 1
+      && postActionCommits[0].operation === 'merge-element',
+    'input reset post-actions delegate their property write to the injected DOM renderer'
+  );
+  const compatibilityResetTarget = createFakeTarget('compatibility-reset-target', { value: 'clear me too' });
+  let compatibilityRendererCreates = 0;
+  let compatibilityRendererDisposes = 0;
+  const compatibilityResetRuntime = eventRuntimeModule.createRmtEventRoutingRuntime({
+    events: [{
+      id: 'event.compatibility-reset-input',
+      event: 'change',
+      target: 'compatibility-reset-target',
+      component: 'x-input',
+      action: 'compatibility-reset-action',
+      payload: {},
+      postAction: ['reset-input']
+    }],
+    actionRuntime: {
+      runAction() {
+        return { status: 'success' };
+      }
+    },
+    targets: {
+      'compatibility-reset-target': compatibilityResetTarget
+    },
+    documentTarget: {},
+    createDomRenderer() {
+      compatibilityRendererCreates += 1;
+      return {
+        commit(request) {
+          request.target.value = request.descriptor.properties.value;
+          return {
+            schema: 'xtend.rmt.dom-commit-result.v1',
+            operation: request.operation,
+            changed: true
+          };
+        },
+        dispose() {
+          compatibilityRendererDisposes += 1;
+        }
+      };
+    }
+  });
+  await compatibilityResetRuntime.routeEvent(
+    'event.compatibility-reset-input',
+    createFakeEvent('change', { target: compatibilityResetTarget })
+  );
+  await compatibilityResetRuntime.routeEvent(
+    'event.compatibility-reset-input',
+    createFakeEvent('change', { target: compatibilityResetTarget })
+  );
+  const firstCompatibilityDispose = compatibilityResetRuntime.dispose();
+  const secondCompatibilityDispose = compatibilityResetRuntime.dispose();
+  context.assert(
+    compatibilityRendererCreates === 1
+      && compatibilityResetRuntime.listDiagnostics().filter((entry) => entry.code === 'rmt.dom.shared-renderer-missing').length === 1,
+    'event compatibility mode owns one renderer and diagnoses missing injection once'
+  );
+  context.assert(
+    compatibilityRendererDisposes === 1
+      && firstCompatibilityDispose.alreadyDisposed === false
+      && secondCompatibilityDispose.alreadyDisposed === true,
+    'event compatibility renderer lifecycle follows idempotent router disposal'
+  );
 
   const saveEvent = createFakeEvent('submit', {
     target: targets['ref.save-form'],
@@ -485,6 +754,193 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
   const detachAll = runtime.detachAll();
   context.assert(detachAll.detachedCount === fixture.events.length - 3, 'detachAll removes remaining listeners');
   context.assert(runtime.listAttached().length === 0, 'runtime has no attached listeners after detachAll');
+
+  const firstReconcileTarget = createFakeTarget('first-reconcile-target');
+  const secondReconcileTarget = createFakeTarget('second-reconcile-target');
+  let currentReconcileTarget = firstReconcileTarget;
+  const reconcileRoot = {
+    querySelector(selector) {
+      return selector === '#reconcile-target' ? currentReconcileTarget : null;
+    }
+  };
+  const reconcileCalls = [];
+  const reconcileRuntime = eventRuntimeModule.createRmtEventRoutingRuntime({
+    events: [{
+      id: 'event.reconcile-target',
+      event: 'click',
+      target: '#reconcile-target',
+      component: 'component.reconcile-target',
+      action: 'action.reconcile-target',
+      owner: 'scope.reconcile-target',
+      payload: '$detail'
+    }],
+    actionRuntime: {
+      async dispatchCommand(command) {
+        reconcileCalls.push({ action: command.command, payload: command.payload });
+        return { status: 'success' };
+      }
+    }
+  });
+  const firstReconcile = reconcileRuntime.reconcile(reconcileRoot, {
+    schema: 'xtend.rmt.dom-commit-result.v1',
+    operation: 'replace-children',
+    changed: true,
+    structural: true,
+    nodeCount: 1
+  });
+  context.assert(firstReconcile.attachedCount === 1 && firstReconcile.detachedCount === 0, 'event reconcile attaches a previously missing binding');
+  context.assert((firstReconcileTarget.listeners.get('click') || []).length === 1, 'event reconcile attaches one listener to the actual target');
+  const stableReconcile = reconcileRuntime.reconcile(reconcileRoot, {
+    schema: 'xtend.rmt.dom-commit-result.v1',
+    operation: 'reconcile-element',
+    changed: false,
+    structural: false,
+    nodeCount: 1
+  });
+  context.assert(stableReconcile.retainedCount === 1 && stableReconcile.changed === false, 'event reconcile retains a binding whose actual target is unchanged');
+  context.assert((firstReconcileTarget.listeners.get('click') || []).length === 1, 'repeated event reconcile does not stack listeners');
+  currentReconcileTarget = secondReconcileTarget;
+  const movedReconcile = reconcileRuntime.reconcile(reconcileRoot, {
+    schema: 'xtend.rmt.dom-commit-result.v1',
+    operation: 'reconcile-children',
+    changed: true,
+    structural: true,
+    nodeCount: 1
+  });
+  context.assert(movedReconcile.attachedCount === 1 && movedReconcile.detachedCount === 1, 'event reconcile replaces a listener when the actual target identity changes');
+  context.assert((firstReconcileTarget.listeners.get('click') || []).length === 0, 'event reconcile detaches the stale target listener');
+  context.assert((secondReconcileTarget.listeners.get('click') || []).length === 1, 'event reconcile attaches the replacement target listener once');
+  await firstReconcileTarget.dispatch('click', createFakeEvent('click', { detail: { source: 'stale' } }));
+  await secondReconcileTarget.dispatch('click', createFakeEvent('click', { detail: { source: 'current' } }));
+  context.assert(reconcileCalls.length === 1 && reconcileCalls[0].payload.source === 'current', 'only the reconciled target routes events');
+  const firstDispose = reconcileRuntime.dispose();
+  const secondDispose = reconcileRuntime.dispose();
+  context.assert(firstDispose.detachedCount === 1 && firstDispose.alreadyDisposed === false, 'event dispose detaches all owned listeners');
+  context.assert(secondDispose.detachedCount === 0 && secondDispose.alreadyDisposed === true, 'event dispose is idempotent');
+  const disposedReconcile = reconcileRuntime.reconcile(reconcileRoot);
+  context.assert(disposedReconcile.disposed === true && disposedReconcile.attachedCount === 0, 'disposed event runtime cannot reattach listeners');
+  context.assert((secondReconcileTarget.listeners.get('click') || []).length === 0, 'event dispose leaves no listener on the current target');
+
+  const dynamicScopeRoot = { id: 'dynamic-scope-root', parentNode: null };
+  const firstDynamicTarget = createFakeTarget('first-dynamic-target');
+  const secondDynamicTarget = createFakeTarget('second-dynamic-target');
+  firstDynamicTarget.parentNode = dynamicScopeRoot;
+  secondDynamicTarget.parentNode = dynamicScopeRoot;
+  const dynamicCommands = [];
+  const dynamicRuntime = eventRuntimeModule.createRmtEventRoutingRuntime({
+    actionRuntime: {
+      async dispatchCommand(command, metadata) {
+        dynamicCommands.push({ command, metadata });
+        return { status: 'success' };
+      }
+    },
+    strict: true
+  });
+  const dynamicBinding = (target, command = 'app.dynamic-command') => ({
+    schema: 'xtend.rmt.dom-application-binding.v1',
+    id: 'binding.dynamic-command',
+    bindingId: 'binding.dynamic-command',
+    kind: 'application',
+    target,
+    event: 'click',
+    command,
+    action: command,
+    options: { capture: false, passive: false, once: false },
+    governance: {
+      capture: false,
+      passive: false,
+      once: false,
+      preventDefault: true,
+      stopPropagation: false,
+      stopImmediatePropagation: false,
+      retarget: 'target'
+    },
+    owner: 'scope.dynamic-view',
+    component: 'component.dynamic-view',
+    payload: '$detail'
+  });
+  const dynamicCommit = (bindings, removedBindings = []) => ({
+    schema: 'xtend.rmt.dom-commit-result.v1',
+    operation: 'reconcile-children',
+    changed: true,
+    structural: true,
+    nodeCount: 1,
+    bindings,
+    bindingScope: {
+      schema: 'xtend.rmt.dom-binding-scope.v1',
+      id: 'scope.dynamic-root',
+      target: dynamicScopeRoot,
+      roots: [dynamicScopeRoot],
+      complete: true,
+      bindingIds: bindings.map((binding) => binding.bindingId),
+      removedBindings
+    }
+  });
+  const firstDynamicReconcile = dynamicRuntime.reconcile(dynamicScopeRoot, dynamicCommit([
+    dynamicBinding(firstDynamicTarget)
+  ]));
+  context.assert(
+    firstDynamicReconcile.attachedCount === 1
+      && dynamicRuntime.listBindings()[0].target === firstDynamicTarget
+      && (firstDynamicTarget.listeners.get('click') || []).length === 1,
+    'event reconcile owns listener materialization for actual-target DOM commit bindings'
+  );
+  let stableDynamicReport = null;
+  for (let index = 0; index < 100; index += 1) {
+    stableDynamicReport = dynamicRuntime.reconcile(dynamicScopeRoot, dynamicCommit([
+      dynamicBinding(firstDynamicTarget)
+    ]));
+  }
+  context.assert(
+    stableDynamicReport.retainedCount === 1
+      && stableDynamicReport.changed === false
+      && (firstDynamicTarget.listeners.get('click') || []).length === 1,
+    '100 identical commit-binding reconciles retain exactly one listener'
+  );
+  await firstDynamicTarget.dispatch('click', createFakeEvent('click', {
+    target: firstDynamicTarget,
+    detail: { value: 'first' }
+  }));
+  context.assert(
+    dynamicCommands.length === 1
+      && dynamicCommands[0].command.command === 'app.dynamic-command'
+      && dynamicCommands[0].command.payload.value === 'first',
+    'commit binding listener dispatches exclusively through dispatchCommand'
+  );
+  const movedDynamicReconcile = dynamicRuntime.reconcile(dynamicScopeRoot, dynamicCommit([
+    dynamicBinding(secondDynamicTarget, 'app.dynamic-command-v2')
+  ], [{ bindingId: 'binding.dynamic-command', target: firstDynamicTarget }]));
+  context.assert(
+    movedDynamicReconcile.attachedCount === 1
+      && movedDynamicReconcile.detachedCount === 1
+      && (firstDynamicTarget.listeners.get('click') || []).length === 0
+      && (secondDynamicTarget.listeners.get('click') || []).length === 1,
+    'commit binding reconcile diffs stable binding ID plus actual target identity'
+  );
+  await secondDynamicTarget.dispatch('click', createFakeEvent('click', {
+    target: secondDynamicTarget,
+    detail: { value: 'second' }
+  }));
+  context.assert(
+    dynamicCommands.length === 2 && dynamicCommands[1].command.command === 'app.dynamic-command-v2',
+    'retargeted commit binding routes the updated command definition'
+  );
+  const clearedDynamicReconcile = dynamicRuntime.reconcile(dynamicScopeRoot, dynamicCommit([], [
+    { bindingId: 'binding.dynamic-command', target: secondDynamicTarget }
+  ]));
+  context.assert(
+    clearedDynamicReconcile.detachedCount === 1
+      && dynamicRuntime.listBindings().length === 0
+      && (secondDynamicTarget.listeners.get('click') || []).length === 0,
+    'complete commit scope removes stale dynamic bindings and listeners'
+  );
+  const dynamicDispose = dynamicRuntime.dispose();
+  context.assert(dynamicDispose.detachedCount === 0, 'dynamic router dispose is safe after a cleared binding scope');
+
+  context.assert(
+    runtime.listDiagnostics().filter((entry) => entry.code === 'rmt.event.run-action.legacy-compatibility').length === 1,
+    'runAction compatibility is diagnosed once while dispatchCommand remains canonical'
+  );
 }
 
 async function runRmtEventRoutingRuntimeSuite(options = {}) {
@@ -505,6 +961,8 @@ async function runRmtEventRoutingRuntimeSuite(options = {}) {
   const packageManifest = readJson('package.json', rootDir);
   const xtendrmtPackage = readJson('xtendrmt/package.json', rootDir);
   const runtimeSource = readText(RMT_EVENT_ROUTING_RUNTIME_RUNTIME, rootDir);
+  const templateInteractionSource = readText('xtendrmt/kernel/modules/rmt-template-interaction-adapter.js', rootDir);
+  const xtendComponentAdapterSource = readText('xtendrmt/kernel/modules/rmt-xtend-component-adapter.js', rootDir);
   const typeSource = readText(RMT_EVENT_ROUTING_RUNTIME_TYPES, rootDir);
   const moduleSyntax = syntaxCheckFile(RMT_EVENT_ROUTING_RUNTIME_MODULE, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(RMT_EVENT_ROUTING_RUNTIME_SUITE, { rootDir, extension: '.js' });
@@ -554,12 +1012,28 @@ async function runRmtEventRoutingRuntimeSuite(options = {}) {
   context.assert(fixture.acceptance.productLocalClosestDelegationAllowed === false, 'Event routing acceptance disallows product closest delegation');
   assertFixtureGraph(context, fixture);
   await runRuntimeAssertions(context, fixture, stateRuntimeModule, actionRuntimeModule, eventRuntimeModule);
+  await assertCanonicalTemplateBindingOwnership(context, rootDir, eventRuntimeModule);
+  context.assert(
+    templateInteractionSource.includes('routeBindingSession')
+      && templateInteractionSource.includes('eventRouter.reconcile')
+      && templateInteractionSource.includes('getApplicationBindingCommitResult'),
+    'template interaction adapter reconciles renderer binding records through the Event Router port'
+  );
+  context.assert(
+    xtendComponentAdapterSource.includes('reconcileApplicationBindings')
+      && !xtendComponentAdapterSource.includes('dispatchXtendComponentDomEvent')
+      && !xtendComponentAdapterSource.includes('modelCommandPort')
+      && !/dispatchEvent\s*:\s*\(/u.test(xtendComponentAdapterSource),
+    'XTend component output adapter has no private application-event or model-write path'
+  );
 
   assertTextIncludesAll(context, runtimeSource, [
     'createRmtEventRoutingRuntime',
     'routeEvent',
     'attach',
+    'reconcile',
     'detachOwner',
+    'dispose',
     'payload_contract',
     'preventDefault',
     'stopPropagation',
@@ -569,12 +1043,25 @@ async function runRmtEventRoutingRuntimeSuite(options = {}) {
   context.assert(!/components\/|xtend-loader|api\.js/u.test(runtimeSource), 'Event routing runtime avoids XTend UI imports');
   context.assert(!/innerHTML|outerHTML|insertAdjacentHTML|document\.write/u.test(runtimeSource), 'Event routing runtime contains no HTML sinks');
   context.assert(!/\.closest\s*\(/u.test(runtimeSource), 'Event routing runtime does not rely on closest delegation');
+  context.assert(runtimeSource.includes('resolveEventDomRenderer') && runtimeSource.includes("operation: 'merge-element'"), 'Event Router post-actions use the shared DOM renderer');
+  context.assert(
+    runtimeSource.includes('normalizeCommitBindings')
+      && runtimeSource.includes('commitResult.bindings')
+      && runtimeSource.includes('bindingScope'),
+    'Event Router reconciles scoped application bindings from DOM commit results'
+  );
+  context.assert(runtimeSource.includes('rmt.event.run-action.legacy-compatibility'), 'runAction remains only as diagnosed compatibility');
+  context.assert(!/target\\.value\\s*=/u.test(runtimeSource), 'Event Router contains no direct input value writer');
   assertTextIncludesAll(context, typeSource, [
     'RmtEventRoutingRuntime',
     'RmtEventBindingDefinition',
     'RmtEventGovernance',
     'RmtPayloadContract',
     'RmtEventRouteResult',
+    'RmtEventReconcileReport',
+    'RmtEventDomCommitResult',
+    'RmtEventCommitBindingScope',
+    'RmtEventDisposeReport',
     'createRmtEventRoutingRuntime'
   ], 'Event routing runtime types');
   assertTextIncludesAll(context, docs, [

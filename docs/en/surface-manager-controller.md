@@ -1,6 +1,6 @@
 # SurfaceManager Controller
 
-The controller is the host-neutral state model behind `x-surface-manager`. Its public contract is `xtend.surface.controller.v1`. The TypeScript source lives in `src/components/x-surface-manager/surface-controller.ts`; browser output and declarations live in `components/xsurfacemanager-controller.js` and `.d.ts`.
+The controller is the host-neutral state model behind `x-surface-manager`. Its public contract is `xtend.surface.controller.v2`. The TypeScript source lives in `src/components/x-surface-manager/surface-controller.ts`; browser output and declarations live in `components/xsurfacemanager-controller.js` and `.d.ts`.
 
 ## Record model
 

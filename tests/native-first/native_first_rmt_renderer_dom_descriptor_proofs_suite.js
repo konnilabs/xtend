@@ -420,7 +420,7 @@ function runNativeFirstRmtRendererDomDescriptorProofSuite(options = {}) {
     'replaceChildren',
     'setAttributeSafe',
     'isSafeUrl',
-    'addEventListener',
+    'RMT_DOM_APPLICATION_BINDING_SCHEMA',
     'BLOCKED_PROPERTY_NAMES',
     'MANUAL_HTML_PATTERNS'
   ], 'DOM renderer runtime');

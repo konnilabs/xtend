@@ -1,3 +1,4 @@
+/* xtend-kernel-mvc:compatibility-shell-start */
 (function attachRmtKernelOrchestrationController(globalTarget, factory) {
   const api = factory(globalTarget || {});
 
@@ -8,21 +9,10 @@
   if (globalTarget && typeof globalTarget === 'object') {
     globalTarget.XTendRmtKernelOrchestrationController = Object.freeze(api);
   }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function createKernelOrchestrationControllerModule(globalTarget) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function createKernelOrchestrationControllerModule() {
+/* xtend-kernel-mvc:compatibility-shell-end */
   const RMT_KERNEL_ORCHESTRATION_CONTROLLER_SCHEMA = 'xtend.rmt.kernel-orchestration-controller.v1';
   const RMT_KERNEL_ORCHESTRATION_DIAGNOSTIC_SCHEMA = 'xtend.rmt.kernel-orchestration-diagnostic.v1';
-
-  function loadKernelFeatureAdoptionRegistry() {
-    if (globalTarget && globalTarget.XTendRmtKernelFeatureAdoptionRegistry) {
-      return globalTarget.XTendRmtKernelFeatureAdoptionRegistry;
-    }
-    if (typeof require === 'function') {
-      try {
-        return require('./rmt-kernel-feature-adoption-registry.js');
-      } catch (_) {}
-    }
-    return null;
-  }
 
   function toArray(value) {
     return Array.isArray(value) ? value : (value == null ? [] : [value]);
@@ -75,12 +65,6 @@
     return result;
   }
 
-  function defaultDispatchEvent(name, detail) {
-    const target = globalTarget && globalTarget.window ? globalTarget.window : globalTarget;
-    if (!target || typeof target.dispatchEvent !== 'function' || typeof target.CustomEvent !== 'function') return;
-    target.dispatchEvent(new target.CustomEvent(name, { detail }));
-  }
-
   function createDiagnostic(code, severity, message, metadata = {}) {
     return sanitizeDiagnostic({
       schema: RMT_KERNEL_ORCHESTRATION_DIAGNOSTIC_SCHEMA,
@@ -102,7 +86,24 @@
     const fibers = toArray(scheduler && scheduler.fibers);
     const scheduleByEndpoint = new Map(schedules.map((schedule) => [schedule.endpointName, schedule]));
     const diagnostics = toArray(options.diagnostics || plan.diagnostics).map(sanitizeDiagnostic);
-    const dispatchEvent = typeof options.dispatchEvent === 'function' ? options.dispatchEvent : defaultDispatchEvent;
+    // Browser event publication belongs to the injected host/event port. The
+    // application controller intentionally has no concrete DOM-event fallback.
+    const dispatchEvent = typeof options.dispatchEvent === 'function'
+      ? options.dispatchEvent
+      : (() => undefined);
+    const injectedHostPort = options.hostPort || options.orchestrationHostPort || options.clock || options.hostAdapter || {};
+    const readHostTime = typeof injectedHostPort.now === 'function'
+      ? injectedHostPort.now.bind(injectedHostPort)
+      : (() => 0);
+    const nowIso = typeof injectedHostPort.nowIso === 'function'
+      ? injectedHostPort.nowIso.bind(injectedHostPort)
+      : (() => {
+          const value = readHostTime();
+          if (value instanceof Date) return value.toISOString();
+          if (typeof value === 'string' && value) return value;
+          if (Number.isFinite(value)) return new Date(value).toISOString();
+          return '1970-01-01T00:00:00.000Z';
+        });
     let runtime = null;
     let core = null;
     let performanceRuntime = null;
@@ -189,9 +190,9 @@
       if (options.featureAdoptionRegistry && typeof options.featureAdoptionRegistry.snapshot === 'function') {
         return cloneSafe(options.featureAdoptionRegistry.snapshot(), {});
       }
-      const registryModule = loadKernelFeatureAdoptionRegistry();
-      if (registryModule && typeof registryModule.createRmtKernelFeatureAdoptionRegistry === 'function') {
-        const registry = registryModule.createRmtKernelFeatureAdoptionRegistry({
+      const registryFactory = options.featureAdoptionRegistryFactory;
+      if (typeof registryFactory === 'function') {
+        const registry = registryFactory({
           manifest: options.manifest || null,
           kernelApi,
           runtimeModules: plan.runtimeModules || [],
@@ -205,10 +206,27 @@
             panicRecovery: Boolean(runtime || core)
           }
         });
-        return registry.snapshot();
+        if (registry && typeof registry.snapshot === 'function') return registry.snapshot();
       }
       if (plan.featureAdoption && typeof plan.featureAdoption === 'object') {
-        return cloneSafe(plan.featureAdoption, {});
+        const snapshot = cloneSafe(plan.featureAdoption, {});
+        const activeCapabilities = {
+          productSurface: bootMode === 'productSurface' && Boolean(productSurface),
+          performanceAdvancedReports: Boolean(performanceRuntime),
+          prewarmWorker: prewarmWorkerEnabled,
+          uiCoprocessor: isUiCoprocessorEnabled(),
+          warmReentry: prewarmWorkerEnabled,
+          panicRecovery: Boolean(runtime || core)
+        };
+        if (Array.isArray(snapshot.capabilities)) {
+          snapshot.capabilities = snapshot.capabilities.map((capability) => {
+            const key = capability && capability.key;
+            return Object.prototype.hasOwnProperty.call(activeCapabilities, key)
+              ? { ...capability, active: activeCapabilities[key] }
+              : capability;
+          });
+        }
+        return snapshot;
       }
       return {
         schema: 'xtend.rmt-kernel-feature-adoption-report.v1',
@@ -494,7 +512,7 @@
       const normalized = {
         schema: 'xtend.rmt.kernel-orchestration-app-runtime-backpressure.v1',
         id: record.id || `app-runtime-backpressure.${appRuntimeBackpressureRecords.length + 1}`,
-        timestamp: record.timestamp || new Date().toISOString(),
+        timestamp: record.timestamp || nowIso(),
         source: record.source || 'rmt-app-runtime',
         streamId: streamPressure.streamId || '',
         patchType: streamPressure.patchType || '',
@@ -959,6 +977,7 @@
   });
 });
 
+/* xtend-kernel-mvc:compatibility-shell-start */
 const __XTEND_RMT_KERNEL_ORCHESTRATION_CONTROLLER_API__ = globalThis.XTendRmtKernelOrchestrationController;
 
 export const RMT_KERNEL_ORCHESTRATION_CONTROLLER_SCHEMA = __XTEND_RMT_KERNEL_ORCHESTRATION_CONTROLLER_API__.RMT_KERNEL_ORCHESTRATION_CONTROLLER_SCHEMA;
@@ -966,3 +985,4 @@ export const RMT_KERNEL_ORCHESTRATION_DIAGNOSTIC_SCHEMA = __XTEND_RMT_KERNEL_ORC
 export const createRmtKernelOrchestrationController = __XTEND_RMT_KERNEL_ORCHESTRATION_CONTROLLER_API__.createRmtKernelOrchestrationController;
 
 export default __XTEND_RMT_KERNEL_ORCHESTRATION_CONTROLLER_API__;
+/* xtend-kernel-mvc:compatibility-shell-end */

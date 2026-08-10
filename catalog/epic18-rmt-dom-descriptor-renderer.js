@@ -9,7 +9,7 @@ const {
 const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
 const RMT_DOM_DESCRIPTOR_RENDERER_REPORT_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer-report.v1';
 const RMT_DOM_DESCRIPTOR_RENDERER_FIXTURE_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer-fixture.v1';
-const RMT_DOM_RENDERER_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-dom-renderer-diagnostic.v1';
+const RMT_DOM_RENDERER_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';
 const NO_MANUAL_HTML_GATE_SCHEMA = 'xtend.epic18.no-manual-html-gate.v1';
 const RMT_DOM_DESCRIPTOR_RENDERER_WORKPACKAGE = 'WP-E18-05';
 const RMT_DOM_DESCRIPTOR_RENDERER_STATUS = 'accepted-dom-descriptor-renderer';
@@ -39,7 +39,7 @@ const REQUIRED_RENDER_OPERATIONS = Object.freeze([
   'safe-setAttribute',
   'safe-removeAttribute',
   'safe-property-setter',
-  'addEventListener',
+  'validated-application-binding-records',
   'trusted-dom-boundary-delegation',
   'diagnostic-source-map'
 ]);

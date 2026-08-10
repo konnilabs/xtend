@@ -18,7 +18,7 @@
 `components/xstate.js` enthaelt nun:
 
 - `xtendStateBoundaryContract` mit Schema `xtend.state.boundary-probe.v1`
-- `xtendRmtMetadata` mit Schema `xtend.rmt.state-scheduler-compatibility.v1`
+- `xtendRmtMetadata` mit Schema `xtend.rmt.state-scheduler-compatibility.v2`
 - `xtendComponentLifecycleTelemetry` fuer Lifecycle-/Diagnostics-Signale
 - `subscribeLifecycle(fn)` fuer Boundary-Lifecycle-Events
 - `snapshot()` fuer stabile State-Snapshots

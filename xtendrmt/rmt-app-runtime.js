@@ -1,12 +1,15 @@
-(function attachRmtAppRuntime(globalTarget) {
-  const RMT_APP_RUNTIME_SCHEMA = 'xtend.rmt.app-runtime.v1';
+const __XTEND_RMT_APP_RUNTIME_API__ = (() => {
+  const RMT_APP_RUNTIME_SCHEMA = 'xtend.rmt.app-runtime.v2';
   const RMT_APP_RUNTIME_DIAGNOSTIC_SCHEMA = 'xtend.rmt.app-runtime-diagnostic.v1';
   const RMT_COMMAND_SCHEMA = 'xtend.rmt.command.v1';
   const RMT_HOST_SERVICE_SCHEMA = 'xtend.rmt.host-service.v1';
   const RMT_STREAM_PATCH_SCHEMA = 'xtend.rmt.stream-patch.v1';
+  const RMT_STREAM_PATCH_PLAN_SCHEMA = 'xtend.rmt.stream-patch-plan.v1';
+  const RMT_STREAM_PATCH_COMMIT_SCHEMA = 'xtend.rmt.stream-patch-commit.v1';
   const RMT_STREAM_PRESSURE_SCHEMA = 'xtend.rmt.app-runtime-stream-pressure.v1';
   const RMT_YIELD_ACTION_SCHEMA = 'xtend.rmt.app-runtime-yield-action.v1';
   const RMT_VIEW_TEMPLATE_SCHEMA = 'xtend.rmt.view-template.v1';
+  const RMT_APP_PRESENTATION_MODEL_SCHEMA = 'xtend.rmt.app-presentation-model.v1';
   const RMT_SEARCH_RUNTIME_SCHEMA = 'xtend.rmt.search-runtime.v1';
   const RMT_SEARCH_RESPONSE_SCHEMA = 'xtend.rmt.search-response.v1';
   const RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA = 'xtend.rmt.search-recommendation-response.v1';
@@ -82,6 +85,15 @@
     }
   }
 
+  function cloneAndFreeze(value, fallback = null) {
+    const freeze = (entry) => {
+      if (!entry || typeof entry !== 'object' || Object.isFrozen(entry)) return entry;
+      Object.values(entry).forEach(freeze);
+      return Object.freeze(entry);
+    };
+    return freeze(cloneValue(value, fallback));
+  }
+
   const UNSAFE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
 
   function pathParts(path) {
@@ -130,13 +142,40 @@
     return target;
   }
 
-  function nowIso(clock) {
+  let fallbackIdSequence = 0;
+  const INERT_APP_HOST_PORT = Object.freeze({
+    schema: 'xtend.rmt.app-host-port.inert.v1',
+    now: () => 0,
+    nowIso: () => '1970-01-01T00:00:00.000Z',
+    createId(prefix = 'rmt') {
+      fallbackIdSequence += 1;
+      return `${String(prefix || 'rmt')}:local:${fallbackIdSequence}`;
+    },
+    schedule(task) {
+      if (typeof task === 'function') task();
+      return null;
+    },
+    createSearchWorker: () => null
+  });
+
+  function resolveAppHostPort(options = {}) {
+    const record = objectRecord(options);
+    const hostPort = record.hostPort || record.appHostPort || null;
+    return hostPort && typeof hostPort === 'object' ? hostPort : INERT_APP_HOST_PORT;
+  }
+
+  function nowIso(clock, hostPort = INERT_APP_HOST_PORT) {
+    if (hostPort && typeof hostPort.nowIso === 'function') return hostPort.nowIso(clock);
     if (typeof clock === 'function') {
       const value = clock();
       if (typeof value === 'string') return value;
-      if (Number.isFinite(value)) return new Date(value).toISOString();
     }
-    return new Date().toISOString();
+    return '1970-01-01T00:00:00.000Z';
+  }
+
+  function scheduleHostTask(hostPort, task, metadata = {}) {
+    const schedulerPort = hostPort && typeof hostPort.schedule === 'function' ? hostPort : INERT_APP_HOST_PORT;
+    return schedulerPort.schedule(task, metadata);
   }
 
   function createDiagnosticsRecorder(deps = {}) {
@@ -165,20 +204,21 @@
     };
   }
 
-  function randomId(prefix) {
-    const cryptoTarget = globalTarget && globalTarget.crypto || null;
-    if (cryptoTarget && typeof cryptoTarget.randomUUID === 'function') return `${prefix}:${cryptoTarget.randomUUID()}`;
-    return `${prefix}:${Date.now()}:${Math.random().toString(36).slice(2, 10)}`;
+  function randomId(prefix, hostPort = INERT_APP_HOST_PORT) {
+    return hostPort && typeof hostPort.createId === 'function'
+      ? hostPort.createId(prefix)
+      : INERT_APP_HOST_PORT.createId(prefix);
   }
 
   function createRmtCommandEnvelope(input = {}, defaults = {}) {
+    const hostPort = resolveAppHostPort(defaults);
     const source = objectRecord(input.source || defaults.source);
     const payload = Object.prototype.hasOwnProperty.call(input, 'payload') ? input.payload : defaults.payload;
     const command = clampString(input.command || input.action || defaults.command || defaults.action, '');
     if (!command) throw new Error('RMT command envelope requires command.');
     return Object.freeze({
       schema: RMT_COMMAND_SCHEMA,
-      id: clampString(input.id, randomId('rmt.command')),
+      id: clampString(input.id, randomId('rmt.command', hostPort)),
       source: Object.freeze({
         kind: clampString(source.kind, defaults.sourceKind || 'component'),
         id: clampString(source.id || source.component || source.surface, defaults.sourceId || ''),
@@ -188,10 +228,10 @@
       command,
       payload: cloneValue(payload, {}),
       target: input.target == null ? (defaults.target == null ? null : defaults.target) : input.target,
-      correlationId: clampString(input.correlationId || defaults.correlationId, randomId('rmt.correlation')),
+      correlationId: clampString(input.correlationId || defaults.correlationId, randomId('rmt.correlation', hostPort)),
       runId: clampString(input.runId || defaults.runId, ''),
       lane: clampString(input.lane || defaults.lane, 'user-blocking'),
-      timestamp: input.timestamp || defaults.timestamp || nowIso(defaults.clock)
+      timestamp: input.timestamp || defaults.timestamp || nowIso(defaults.clock, hostPort)
     });
   }
 
@@ -233,6 +273,7 @@
   }
 
   function createRmtHostServiceRegistry(options = {}) {
+    const hostPort = resolveAppHostPort(options);
     const diagnosticsRecorder = createDiagnosticsRecorder(options);
     const services = normalizeHostServices(options.services || options.hostServices);
     const adapters = objectRecord(options.adapters || options.hostAdapters);
@@ -284,7 +325,7 @@
         throw new Error(`RMT Host Service subscription adapter for ${service.id} is missing.`);
       }
       const subscription = adapter.subscribe({ service, payload, context }, handlers);
-      const subscriptionId = clampString(subscription && subscription.id, randomId(`rmt.subscription.${service.id}`));
+      const subscriptionId = clampString(subscription && subscription.id, randomId(`rmt.subscription.${service.id}`, hostPort));
       subscriptions.set(subscriptionId, {
         service: service.id,
         subscription,
@@ -314,7 +355,7 @@
         throw new Error(`RMT Host Service stream adapter for ${service.id} is missing.`);
       }
       const streamHandle = await adapter.stream({ service, payload, context }, handlers);
-      const streamId = clampString(streamHandle && streamHandle.id, randomId(`rmt.stream.${service.id}`));
+      const streamId = clampString(streamHandle && streamHandle.id, randomId(`rmt.stream.${service.id}`, hostPort));
       subscriptions.set(streamId, {
         service: service.id,
         subscription: streamHandle,
@@ -367,11 +408,12 @@
   }
 
   function createRmtStreamPatch(input = {}, defaults = {}) {
+    const hostPort = resolveAppHostPort(defaults);
     const type = clampString(input.type || input.kind || defaults.type, 'delta');
     if (!STREAM_PATCH_TYPES.has(type)) throw new Error(`Unsupported RMT stream patch type ${type}.`);
     return Object.freeze({
       schema: RMT_STREAM_PATCH_SCHEMA,
-      id: clampString(input.id, randomId('rmt.stream.patch')),
+      id: clampString(input.id, randomId('rmt.stream.patch', hostPort)),
       type,
       streamId: clampString(input.streamId || defaults.streamId, ''),
       target: clampString(input.target || defaults.target, ''),
@@ -381,7 +423,7 @@
       toolCall: cloneValue(input.toolCall || input.tool, null),
       toolResult: cloneValue(input.toolResult, null),
       error: cloneValue(input.error, null),
-      timestamp: input.timestamp || defaults.timestamp || nowIso(defaults.clock)
+      timestamp: input.timestamp || defaults.timestamp || nowIso(defaults.clock, hostPort)
     });
   }
 
@@ -398,7 +440,7 @@
   }
 
   function applyRmtStreamPatch(state = {}, patchInput = {}, options = {}) {
-    const patch = patchInput && patchInput.schema === RMT_STREAM_PATCH_SCHEMA ? patchInput : createRmtStreamPatch(patchInput);
+    const patch = patchInput && patchInput.schema === RMT_STREAM_PATCH_SCHEMA ? patchInput : createRmtStreamPatch(patchInput, options);
     const targetPath = clampString(patch.target || options.target, '');
     const next = cloneValue(state, {});
     if (!targetPath) return next;
@@ -420,6 +462,144 @@
       writePath(next, targetPath, { status: 'cancelled' });
     }
     return next;
+  }
+
+  function resolveStreamModelTarget(modelSnapshot = {}, targetPath = '', options = {}) {
+    const snapshot = objectRecord(modelSnapshot);
+    const states = objectRecord(snapshot.states || snapshot.state || snapshot);
+    const explicitState = clampString(options.targetState, '');
+    const configuredStateIds = toArray(options.stateIds).map((entry) => clampString(entry, '')).filter(Boolean);
+    const stateIds = configuredStateIds.length > 0 ? configuredStateIds : Object.keys(states);
+    const target = clampString(targetPath, '');
+    const stateId = explicitState || stateIds
+      .filter((candidate) => target === candidate || target.startsWith(`${candidate}.`))
+      .sort((left, right) => right.length - left.length)[0] || '';
+    if (!stateId || !Object.prototype.hasOwnProperty.call(states, stateId)) return null;
+    return {
+      state: stateId,
+      path: target === stateId ? '' : target.slice(stateId.length + 1),
+      value: cloneValue(states[stateId], states[stateId])
+    };
+  }
+
+  function createRmtStreamPatchPlan(modelSnapshot = {}, patchInput = {}, options = {}) {
+    const patch = patchInput && patchInput.schema === RMT_STREAM_PATCH_SCHEMA
+      ? patchInput
+      : createRmtStreamPatch(patchInput, options);
+    const diagnostics = [];
+    const streamRecord = objectRecord(options.streamRecord);
+    if (!patch.target || hasUnsafePathSegment(pathParts(patch.target))) {
+      diagnostics.push(createDiagnostic(
+        'rmt.stream.model-target-invalid',
+        `RMT stream patch target ${patch.target || '(empty)'} is not a safe Model path.`,
+        {
+          target: patch.target || '',
+          streamId: patch.streamId || '',
+          correlationId: patch.correlationId || ''
+        },
+        'error'
+      ));
+      return cloneAndFreeze({
+        schema: RMT_STREAM_PATCH_PLAN_SCHEMA,
+        status: 'rejected',
+        accepted: false,
+        changed: false,
+        patch,
+        target: null,
+        modelOperations: [],
+        postCommitEffects: [],
+        diagnostics,
+        metadata: cloneValue(options.metadata, {})
+      }, {});
+    }
+    if (TERMINAL_STREAM_PATCH_TYPES.has(streamRecord.status) && patch.type !== 'start') {
+      diagnostics.push(createDiagnostic(
+        'rmt.stream.patch.after_terminal',
+        `RMT stream patch ${patch.type} arrived after ${streamRecord.status}.`,
+        {
+          streamId: patch.streamId || streamRecord.streamId || streamRecord.id || '',
+          patchType: patch.type,
+          correlationId: patch.correlationId || streamRecord.correlationId || ''
+        },
+        'warning'
+      ));
+      return cloneAndFreeze({
+        schema: RMT_STREAM_PATCH_PLAN_SCHEMA,
+        status: 'ignored',
+        accepted: false,
+        changed: false,
+        patch,
+        target: null,
+        modelOperations: [],
+        postCommitEffects: [],
+        diagnostics,
+        metadata: cloneValue(options.metadata, {})
+      }, {});
+    }
+    const target = resolveStreamModelTarget(modelSnapshot, patch.target, options);
+    if (!target) {
+      diagnostics.push(createDiagnostic(
+        'rmt.stream.model-target-unresolved',
+        `RMT stream patch target ${patch.target || '(empty)'} does not resolve to a Model state.`,
+        {
+          target: patch.target || '',
+          streamId: patch.streamId || '',
+          correlationId: patch.correlationId || ''
+        },
+        'error'
+      ));
+      return cloneAndFreeze({
+        schema: RMT_STREAM_PATCH_PLAN_SCHEMA,
+        status: 'rejected',
+        accepted: false,
+        changed: false,
+        patch,
+        target: null,
+        modelOperations: [],
+        postCommitEffects: [],
+        diagnostics,
+        metadata: cloneValue(options.metadata, {})
+      }, {});
+    }
+    const wrappedState = { value: cloneValue(target.value, target.value) };
+    const relativeTarget = target.path ? `value.${target.path}` : 'value';
+    const nextWrappedState = applyRmtStreamPatch(wrappedState, {
+      ...patch,
+      target: relativeTarget
+    }, options);
+    const nextValue = nextWrappedState.value;
+    const changed = JSON.stringify(target.value) !== JSON.stringify(nextValue);
+    const lifecycleActions = objectRecord(options.lifecycleActions);
+    const lifecycleAction = TERMINAL_STREAM_PATCH_TYPES.has(patch.type)
+      ? clampString(lifecycleActions[patch.type], '')
+      : '';
+    const postCommitEffects = lifecycleAction ? [{
+      schema: 'xtend.rmt.stream-post-commit-effect.v1',
+      type: 'dispatch-command',
+      command: lifecycleAction,
+      payload: {
+        patch: cloneValue(patch, patch),
+        state: cloneValue(nextValue, nextValue)
+      },
+      metadata: {
+        lane: options.lane || 'visible',
+        correlationId: patch.correlationId || '',
+        sourceId: 'appRuntime.streamLifecycle',
+        event: `stream-${patch.type}`
+      }
+    }] : [];
+    return cloneAndFreeze({
+      schema: RMT_STREAM_PATCH_PLAN_SCHEMA,
+      status: 'planned',
+      accepted: true,
+      changed,
+      patch,
+      target: { state: target.state, path: target.path },
+      modelOperations: changed ? [{ operation: 'set', state: target.state, value: nextValue }] : [],
+      postCommitEffects,
+      diagnostics,
+      metadata: cloneValue(options.metadata, {})
+    }, {});
   }
 
   function resolveReducerValue(record, context, fallback = undefined) {
@@ -621,131 +801,28 @@
     return next;
   }
 
-  function richTextSegmentDescriptor(segment = {}) {
-    const record = objectRecord(segment);
-    const kind = clampString(record.kind || record.type, 'text');
-    if (kind === 'code') {
-      return {
-        type: 'component',
-        tag: 'x-code',
-        component: 'x-code',
-        attributes: {
-          lang: record.lang || record.language || 'text',
-          'data-rmt-rich-segment': 'code'
-        },
-        children: [{ type: 'text', text: record.text || record.code || '' }]
-      };
-    }
-    if (kind === 'citation') {
-      return {
-        type: 'element',
-        tag: 'a',
-        class: 'xtend-rmt-citation',
-        attributes: {
-          href: record.href || record.url || '#',
-          rel: 'noreferrer',
-          target: '_blank',
-          'data-rmt-rich-segment': 'citation'
-        },
-        text: record.label || record.title || record.text || 'source'
-      };
-    }
-    return {
-      type: 'element',
-      tag: kind === 'strong' ? 'strong' : kind === 'em' ? 'em' : 'span',
-      attributes: { 'data-rmt-rich-segment': kind },
-      text: record.text || ''
-    };
+  function createRmtAppPresentationModel(template = {}, model = {}) {
+    return cloneAndFreeze({
+      schema: RMT_APP_PRESENTATION_MODEL_SCHEMA,
+      template: cloneValue(objectRecord(template), {}),
+      model: cloneValue(objectRecord(model), {})
+    }, {});
   }
 
-  function createRmtViewTemplateDescriptor(template = {}, model = {}) {
-    const record = objectRecord(template);
-    if (record.schema && record.schema !== RMT_VIEW_TEMPLATE_SCHEMA) return cloneValue(record, record);
-    if (record.kind === 'choice-menu' || record.type === 'choice-menu') {
-      const modelSource = clampString(record.modelSource || record.source, '$model.choiceMenu');
-      const statePath = (field) => record[`${field}Source`] || `${modelSource}.${field}`;
-      const selectPayloadField = clampString(record.selectPayloadField || record.payloadField, 'value');
-      return {
-        schema: RMT_VIEW_TEMPLATE_SCHEMA,
-        type: 'fragment',
-        primitive: 'choice-menu',
-        children: [
-          {
-            type: 'element',
-            tag: 'button',
-            class: record.buttonClass || record.triggerClass || 'xtend-rmt-choice-menu-button',
-            attributes: {
-              id: record.buttonId || record.triggerId || 'choice-menu-button',
-              type: 'button',
-              'aria-haspopup': record.ariaHasPopup || 'menu',
-              'aria-expanded': statePath('open'),
-              'aria-pressed': { op: 'not-equals', left: statePath('activeToolAttr'), right: '' },
-              'data-active-tool': statePath('activeToolAttr'),
-              disabled: statePath('disabled')
-            },
-            command: {
-              command: record.toggleCommand || record.command || 'rmt.choiceMenu.toggle',
-              payload: record.togglePayload || { label: record.label || 'Choice menu' }
-            },
-            text: statePath('activeToolLabel')
-          },
-          {
-            type: 'element',
-            tag: 'div',
-            class: record.optionsClass || record.menuClass || 'xtend-rmt-choice-menu-options',
-            attributes: {
-              id: record.optionsId || record.menuId || 'choice-menu-options',
-              role: record.optionsRole || 'menu',
-              hidden: { op: 'not', source: statePath('open') }
-            },
-            children: [
-              {
-                type: 'repeat',
-                source: record.itemsSource || statePath('items'),
-                key: record.itemKey || 'value',
-                template: {
-                  type: 'element',
-                  tag: 'button',
-                  class: record.itemClass || 'xtend-rmt-choice-menu-item',
-                  attributes: {
-                    type: 'button',
-                    role: record.itemRole || 'menuitemradio',
-                    'data-tool-name': '$item.value',
-                    'aria-checked': { op: 'equals', left: statePath('activeTool'), right: '$item.value' }
-                  },
-                  command: {
-                    command: record.selectCommand || 'rmt.choiceMenu.select',
-                    payload: { [selectPayloadField]: '$item.value' }
-                  },
-                  text: '$item.label'
-                }
-              }
-            ]
-          }
-        ]
-      };
-    }
-    if (record.kind === 'rich-text' || record.type === 'rich-text') {
-      return {
-        schema: RMT_VIEW_TEMPLATE_SCHEMA,
-        type: 'fragment',
-        children: toArray(record.segments || readPath(model, record.source || '')).map(richTextSegmentDescriptor)
-      };
-    }
-    if (record.kind === 'repeat' || record.type === 'repeat') {
-      return {
-        schema: RMT_VIEW_TEMPLATE_SCHEMA,
-        type: 'repeat',
-        source: record.source || '$model.items',
-        key: record.key || 'id',
-        template: record.template || record.node || { type: 'text', text: '$item' }
-      };
-    }
-    return {
-      schema: RMT_VIEW_TEMPLATE_SCHEMA,
-      type: record.type || 'fragment',
-      children: toArray(record.children || record.nodes).map((child) => createRmtViewTemplateDescriptor(child, model))
-    };
+  function resolveRmtAppPresentationViewPort(explicitPort = null) {
+    if (explicitPort && typeof explicitPort.project === 'function') return explicitPort;
+    const error = new TypeError('RMT App presentation projection requires an injected RmtAppPresentationViewPort.');
+    error.code = 'rmt.app.presentation-view-port-required';
+    throw error;
+  }
+
+  function createRmtViewTemplateDescriptor(template = {}, model = {}, options = {}) {
+    const viewPort = resolveRmtAppPresentationViewPort(
+      options.presentationViewPort || options.viewProjectionPort || options.viewPort || null
+    );
+    return viewPort.project(createRmtAppPresentationModel(template, model), {
+      compatibilityApi: 'createRmtViewTemplateDescriptor'
+    });
   }
 
   function createNoManualUiWiringGate(options = {}) {
@@ -1149,86 +1226,40 @@
   }
 
   function createRmtSearchPrewarmWorker(options = {}) {
-    const windowTarget = options.windowTarget || globalTarget || {};
-    const WorkerCtor = options.Worker || windowTarget.Worker;
-    const BlobCtor = options.Blob || windowTarget.Blob;
-    const urlApi = options.URL || windowTarget.URL;
-    let worker = null;
-    let workerUrl = '';
-    let sequence = 0;
-    const pending = new Map();
-    const cachedResourceIds = new Set();
-
-    function available() {
-      return typeof WorkerCtor === 'function' && typeof BlobCtor === 'function' && urlApi && typeof urlApi.createObjectURL === 'function';
-    }
-
-    function getWorker() {
-      if (worker) return worker;
-      if (!available()) return null;
-      workerUrl = urlApi.createObjectURL(new BlobCtor([createRmtSearchWorkerSource()], { type: 'application/javascript' }));
-      worker = new WorkerCtor(workerUrl, { name: options.workerName || 'XTendRMTPrewarmSearchWorker', type: 'classic' });
-      worker.onmessage = (event) => {
-        const message = event && event.data || {};
-        const resolver = pending.get(message.id);
-        if (!resolver) return;
-        pending.delete(message.id);
-        if (message.ok === false) resolver.reject(new Error(message.error && message.error.message || 'Prewarm search failed.'));
-        else resolver.resolve(message.result);
-      };
-      return worker;
-    }
-
-    function dispatchSearchEnvelope(envelope = {}) {
-      const activeWorker = getWorker();
-      if (!activeWorker) return Promise.reject(new Error('Prewarm search worker is unavailable.'));
-      const id = ++sequence;
-      return new Promise((resolve, reject) => {
-        pending.set(id, { resolve, reject });
-        try {
-          activeWorker.postMessage({ id, action: 'search_index', envelope });
-          if (envelope.resourceId && Array.isArray(envelope.entries)) cachedResourceIds.add(envelope.resourceId);
-        } catch (error) {
-          pending.delete(id);
-          reject(error);
-        }
+    const hostPort = resolveAppHostPort(options);
+    if (hostPort && typeof hostPort.createSearchWorker === 'function') {
+      const worker = hostPort.createSearchWorker({
+        source: createRmtSearchWorkerSource(),
+        workerName: options.workerName || 'XTendRMTPrewarmSearchWorker',
+        workerType: options.workerType || 'classic'
       });
+      if (worker && typeof worker.dispatchSearchEnvelope === 'function') return worker;
     }
-
-    function terminate(reason = 'disposed') {
-      const error = new Error(`Prewarm search worker terminated: ${reason}`);
-      pending.forEach((resolver) => resolver.reject(error));
-      pending.clear();
-      if (worker && typeof worker.terminate === 'function') worker.terminate();
-      if (workerUrl && urlApi && typeof urlApi.revokeObjectURL === 'function') urlApi.revokeObjectURL(workerUrl);
-      worker = null;
-      workerUrl = '';
-      cachedResourceIds.clear();
-    }
-
     return Object.freeze({
       schema: RMT_SEARCH_WORKER_SCHEMA,
-      available: available(),
-      dispatchSearchEnvelope,
-      terminate,
+      available: false,
+      dispatchSearchEnvelope() {
+        return Promise.reject(new Error('Prewarm search worker is unavailable.'));
+      },
+      terminate() {},
       snapshot() {
-        return {
+        return Object.freeze({
           schema: RMT_SEARCH_WORKER_SCHEMA,
-          available: available(),
-          instantiated: Boolean(worker),
-          pendingJobs: pending.size,
-          submittedJobs: sequence,
+          available: false,
+          instantiated: false,
+          pendingJobs: 0,
+          submittedJobs: 0,
           resourceCache: true,
-          cachedResourceCount: cachedResourceIds.size,
-          ownership: { dom: false, events: false, state: false, trustedDomCommit: false },
-          allowedActions: ['search_index']
-        };
+          cachedResourceCount: 0,
+          ownership: Object.freeze({ dom: false, events: false, state: false, trustedDomCommit: false }),
+          allowedActions: Object.freeze(['search_index'])
+        });
       }
     });
   }
 
   function createRmtSearchRuntime(options = {}) {
-    const windowTarget = options.windowTarget || globalTarget || {};
+    const hostPort = resolveAppHostPort(options);
     const sources = new Map(toArray(options.searchSources || options.sources).map((source) => [clampString(source && source.id, ''), objectRecord(source)]).filter(([id]) => id));
     const resources = new Map(Object.entries(objectRecord(options.resources)).map(([id, entries]) => [id, cloneValue(entries, [])]));
     const diagnostics = [];
@@ -1239,9 +1270,7 @@
       ? options.prewarmWorker
       : createRmtSearchPrewarmWorker(options);
     const workerResourceIds = new Set();
-    const runtimeNow = () => windowTarget && windowTarget.performance && typeof windowTarget.performance.now === 'function'
-      ? windowTarget.performance.now()
-      : Date.now();
+    const runtimeNow = () => hostPort && typeof hostPort.now === 'function' ? Number(hostPort.now()) || 0 : 0;
     let generation = 0;
     let recommendationGeneration = 0;
 
@@ -1336,30 +1365,23 @@
       let status = 'ready';
       try {
         const entries = await resolveResource(resourceId, { source, fulltext: false, recommendation: true });
-        await new Promise((resolve) => {
-          const schedule = typeof recommendationOptions.schedule === 'function'
-            ? recommendationOptions.schedule
-            : (typeof options.scheduleRecommendation === 'function' ? options.scheduleRecommendation : null);
-          if (schedule) {
-            schedule(resolve, { lane: 'idle', sourceId, resourceId });
-            return;
-          }
-          const timer = windowTarget && typeof windowTarget.setTimeout === 'function'
-            ? windowTarget.setTimeout.bind(windowTarget)
-            : (typeof setTimeout === 'function' ? setTimeout : null);
-          if (timer) timer(resolve, 0);
-          else resolve();
-        });
+        await new Promise((resolve) => scheduleHostTask(hostPort, resolve, {
+          delayMs: 0,
+          lane: 'idle',
+          sourceId,
+          resourceId,
+          phase: 'before-ranking'
+        }));
         rankingStartedAt = runtimeNow();
         results = recommendEntries(entries, seed, recommendationOptions);
         rankingCompletedAt = runtimeNow();
-        await new Promise((resolve) => {
-          const timer = windowTarget && typeof windowTarget.setTimeout === 'function'
-            ? windowTarget.setTimeout.bind(windowTarget)
-            : (typeof setTimeout === 'function' ? setTimeout : null);
-          if (timer) timer(resolve, 0);
-          else resolve();
-        });
+        await new Promise((resolve) => scheduleHostTask(hostPort, resolve, {
+          delayMs: 0,
+          lane: 'idle',
+          sourceId,
+          resourceId,
+          phase: 'after-ranking'
+        }));
       } catch (error) {
         status = 'degraded';
         diagnostics.push({
@@ -1465,18 +1487,33 @@
 
   function createRmtAppRuntime(options = {}) {
     const diagnosticsRecorder = createDiagnosticsRecorder(options);
+    const hostPort = resolveAppHostPort(options);
+    const managedModel = options.managedModel === true || options.managedController === true;
+    const modelReader = options.modelReader || options.model || null;
+    const streamPatchDispatcher = typeof options.dispatchStreamPatch === 'function'
+      ? options.dispatchStreamPatch
+      : options.streamPatchCommandPort && typeof options.streamPatchCommandPort.dispatch === 'function'
+        ? (patch, metadata) => options.streamPatchCommandPort.dispatch(patch, metadata)
+        : null;
+    if (options.managedController === true && (!modelReader || typeof modelReader.snapshot !== 'function')) {
+      const error = new Error('Managed RMT App Runtime requires the read-only Model reader port.');
+      error.code = 'rmt.app.model-reader-required';
+      throw error;
+    }
     const actionRuntime = options.actionRuntime || null;
     const fabric = options.fabric || null;
     const kernelRuntime = options.kernelRuntime || options.rmtRuntime || options.runtime || null;
     const scheduler = options.scheduler || options.kernelScheduler || options.rmtScheduler || kernelRuntime && kernelRuntime.scheduler || null;
     const performanceRuntime = options.performanceRuntime || options.kernelPerformanceRuntime || options.rmtPerformanceRuntime || kernelRuntime && kernelRuntime.performanceRuntime || null;
     const orchestrationController = options.kernelOrchestrationController || options.orchestrationController || null;
+    const presentationViewPort = options.presentationViewPort || options.viewProjectionPort || null;
     const hostServices = options.hostServices && typeof options.hostServices.invoke === 'function'
       ? options.hostServices
       : createRmtHostServiceRegistry({
           services: options.services || options.hostServiceDefinitions,
           adapters: options.hostServiceAdapters || options.adapters,
-          diagnosticsHub: options.diagnosticsHub
+          diagnosticsHub: options.diagnosticsHub,
+          hostPort
         });
     const commandHistory = [];
     const streamHistory = [];
@@ -1486,7 +1523,18 @@
     const schedulerPressureSamples = [];
     const streamLifecycleActions = objectRecord(options.streamLifecycleActions || options.lifecycleActions);
     const telemetryLimit = Number.isInteger(options.telemetryLimit) && options.telemetryLimit > 0 ? options.telemetryLimit : 200;
-    let appState = cloneValue(options.initialState, {});
+    let appState = managedModel ? null : cloneValue(options.initialState, {});
+
+    function managedModelSnapshot() {
+      if (modelReader && typeof modelReader.snapshot === 'function') return modelReader.snapshot();
+      return { states: {} };
+    }
+
+    function managedMutationError(operation) {
+      const error = new Error(`Managed RMT App Runtime cannot ${operation}; use the Model command port through the Maraca controller.`);
+      error.code = 'rmt.app.managed-model-mutation-forbidden';
+      return error;
+    }
 
     function trimTelemetryStore(store) {
       while (store.length > telemetryLimit) store.shift();
@@ -1574,7 +1622,7 @@
       return Object.freeze({
         schema: RMT_STREAM_PRESSURE_SCHEMA,
         id: `${patch.streamId || patch.correlationId || patch.id || 'stream'}.pressure.${streamPressureRecords.length + 1}`,
-        timestamp: patch.timestamp || nowIso(options.clock),
+        timestamp: patch.timestamp || nowIso(options.clock, hostPort),
         source: 'rmt-app-runtime',
         phase: terminal ? 'stream-terminal' : 'stream',
         streamId: patch.streamId || '',
@@ -1655,7 +1703,7 @@
       return Object.freeze({
         schema: RMT_YIELD_ACTION_SCHEMA,
         id: `${record.id || record.streamId || 'stream'}.yield.${yieldActions.length + 1}`,
-        timestamp: record.timestamp || nowIso(options.clock),
+        timestamp: record.timestamp || nowIso(options.clock, hostPort),
         source: 'rmt-app-runtime',
         reason: record.terminal ? `stream-${record.patchType}` : `stream-pressure-${record.level}`,
         action: record.action,
@@ -1696,7 +1744,7 @@
     async function dispatchCommand(commandInput, metadata = {}) {
       const command = isRmtCommandEnvelope(commandInput)
         ? commandInput
-        : createRmtCommandEnvelope(commandInput, metadata);
+        : createRmtCommandEnvelope(commandInput, { ...objectRecord(metadata), hostPort });
       const fiberInput = {
         id: `fiber:${command.id}`,
         kind: 'rmt.command',
@@ -1750,7 +1798,7 @@
         command: commandName,
         payload,
         target: Object.prototype.hasOwnProperty.call(options, 'target') ? options.target : null
-      }, defaults);
+      }, { ...defaults, hostPort });
       return dispatchCommand(envelope, options.metadata || options);
     }
 
@@ -1769,7 +1817,7 @@
     async function invokeService(serviceId, payload = {}, context = {}) {
       const command = context.command || null;
       return runWithFabric(fabric, {
-        id: randomId(`fiber:rmt.service.${serviceId}`),
+        id: randomId(`fiber:rmt.service.${serviceId}`, hostPort),
         kind: 'rmt.service.invoke',
         source: 'rmt-app-runtime',
         phase: 'service',
@@ -1780,11 +1828,9 @@
       }, () => hostServices.invoke(serviceId, payload, context));
     }
 
-    function applyStreamPatch(patchInput, reducerOptions = {}) {
-      const patch = patchInput && patchInput.schema === RMT_STREAM_PATCH_SCHEMA ? patchInput : createRmtStreamPatch(patchInput, reducerOptions);
+    function recordCommittedStreamPatch(patch, reducerOptions = {}) {
       const telemetry = recordStreamPatch(patch, reducerOptions);
-      if (!telemetry.accepted) return cloneValue(appState, appState);
-      appState = applyRmtStreamPatch(appState, patch, reducerOptions);
+      if (!telemetry.accepted) return { accepted: false, telemetry, streamPressure: null, signal: null };
       streamHistory.push(patch);
       const streamPressure = recordStreamPressure(patch, telemetry, reducerOptions);
       const pressureRecord = streamPressure.pressureRecord;
@@ -1840,11 +1886,82 @@
           backpressureSignal: signal
         }, 'info'));
       }
+      return { accepted: true, telemetry, streamPressure, signal };
+    }
+
+    function planStreamPatch(patchInput, modelSnapshot = managedModelSnapshot(), reducerOptions = {}) {
+      const patch = patchInput && patchInput.schema === RMT_STREAM_PATCH_SCHEMA
+        ? patchInput
+        : createRmtStreamPatch(patchInput, { ...objectRecord(reducerOptions), hostPort });
+      const key = streamRecordKey(patch);
+      const streamRecord = key && streamRecords.has(key) ? streamRecords.get(key) : null;
+      return createRmtStreamPatchPlan(modelSnapshot, patch, {
+        ...objectRecord(reducerOptions),
+        streamRecord,
+        lifecycleActions: {
+          ...streamLifecycleActions,
+          ...objectRecord(reducerOptions.lifecycleActions)
+        },
+        metadata: reducerOptions.metadata || reducerOptions
+      });
+    }
+
+    function commitStreamPatchPlan(planInput, reducerOptions = {}) {
+      const plan = objectRecord(planInput);
+      if (plan.schema !== RMT_STREAM_PATCH_PLAN_SCHEMA) {
+        throw new TypeError('RMT App Runtime expected a validated stream patch plan.');
+      }
+      if (plan.accepted !== true) {
+        toArray(plan.diagnostics).forEach((diagnostic) => diagnosticsRecorder.publish(cloneValue(diagnostic, diagnostic)));
+        return cloneAndFreeze({
+          schema: RMT_STREAM_PATCH_COMMIT_SCHEMA,
+          status: plan.status === 'rejected' ? 'rejected' : 'ignored',
+          accepted: false,
+          changed: false,
+          patch: plan.patch || null,
+          target: plan.target || null,
+          modelOperations: [],
+          postCommitEffects: [],
+          diagnostics: plan.diagnostics || [],
+          metadata: cloneValue(reducerOptions.metadata || reducerOptions, {})
+        }, {});
+      }
+      const recorded = recordCommittedStreamPatch(plan.patch, reducerOptions);
+      return cloneAndFreeze({
+        schema: RMT_STREAM_PATCH_COMMIT_SCHEMA,
+        status: recorded.accepted ? 'applied' : 'ignored',
+        accepted: recorded.accepted,
+        changed: plan.changed === true,
+        patch: plan.patch,
+        target: plan.target,
+        modelOperations: plan.modelOperations || [],
+        postCommitEffects: plan.postCommitEffects || [],
+        diagnostics: plan.diagnostics || [],
+        stream: recorded.telemetry && recorded.telemetry.record || null,
+        streamPressure: recorded.streamPressure && recorded.streamPressure.pressureRecord || null,
+        metadata: cloneValue(reducerOptions.metadata || reducerOptions, {})
+      }, {});
+    }
+
+    function applyStreamPatch(patchInput, reducerOptions = {}) {
+      if (managedModel) throw managedMutationError('apply stream patches directly');
+      const patch = patchInput && patchInput.schema === RMT_STREAM_PATCH_SCHEMA
+        ? patchInput
+        : createRmtStreamPatch(patchInput, { ...objectRecord(reducerOptions), hostPort });
+      const recorded = recordCommittedStreamPatch(patch, reducerOptions);
+      if (!recorded.accepted) return cloneValue(appState, appState);
+      appState = applyRmtStreamPatch(appState, patch, reducerOptions);
       return cloneValue(appState, appState);
     }
 
     async function handleStreamPatch(patchInput, reducerOptions = {}) {
-      const patch = patchInput && patchInput.schema === RMT_STREAM_PATCH_SCHEMA ? patchInput : createRmtStreamPatch(patchInput, reducerOptions);
+      if (managedModel) {
+        if (streamPatchDispatcher) return streamPatchDispatcher(patchInput, reducerOptions);
+        throw managedMutationError('handle stream patches directly');
+      }
+      const patch = patchInput && patchInput.schema === RMT_STREAM_PATCH_SCHEMA
+        ? patchInput
+        : createRmtStreamPatch(patchInput, { ...objectRecord(reducerOptions), hostPort });
       const state = applyStreamPatch(patch, reducerOptions);
       const actionName = reducerOptions.lifecycleActions && reducerOptions.lifecycleActions[patch.type]
         || streamLifecycleActions[patch.type]
@@ -1898,7 +2015,7 @@
         }
       };
       return runWithFabric(fabric, {
-        id: randomId(`fiber:rmt.service.stream.${serviceId}`),
+        id: randomId(`fiber:rmt.service.stream.${serviceId}`, hostPort),
         kind: 'rmt.service.stream',
         source: 'rmt-app-runtime',
         phase: 'service',
@@ -1915,6 +2032,7 @@
     }
 
     function applyReducer(reducer, context = {}) {
+      if (managedModel) throw managedMutationError('apply reducers directly');
       appState = applyRmtReducer(appState, reducer, {
         ...objectRecord(context),
         publishDiagnostic: diagnosticsRecorder.publish
@@ -1993,16 +2111,29 @@
       dispatchCommand,
       invokeService,
       streamService,
+      planStreamPatch,
+      commitStreamPatchPlan,
       applyStreamPatch,
       handleStreamPatch,
       applyReducer,
       applyRecipe,
-      createCommandEnvelope: createRmtCommandEnvelope,
+      createPresentationModel: createRmtAppPresentationModel,
+      projectViewTemplate(template = {}, model = {}) {
+        return resolveRmtAppPresentationViewPort(presentationViewPort).project(
+          createRmtAppPresentationModel(template, model),
+          { source: 'rmt-app-runtime' }
+        );
+      },
+      createCommandEnvelope(input = {}, defaults = {}) {
+        return createRmtCommandEnvelope(input, { ...objectRecord(defaults), hostPort });
+      },
       hostServices,
       getState() {
+        if (managedModel) return cloneValue(objectRecord(managedModelSnapshot()).states, {});
         return cloneValue(appState, appState);
       },
       setState(value) {
+        if (managedModel) throw managedMutationError('set application state directly');
         appState = cloneValue(value, {});
         return cloneValue(appState, appState);
       },
@@ -2033,15 +2164,18 @@
     });
   }
 
-  const api = {
+  const api = Object.freeze({
     RMT_APP_RUNTIME_SCHEMA,
     RMT_APP_RUNTIME_DIAGNOSTIC_SCHEMA,
     RMT_COMMAND_SCHEMA,
     RMT_HOST_SERVICE_SCHEMA,
     RMT_STREAM_PATCH_SCHEMA,
+    RMT_STREAM_PATCH_PLAN_SCHEMA,
+    RMT_STREAM_PATCH_COMMIT_SCHEMA,
     RMT_STREAM_PRESSURE_SCHEMA,
     RMT_YIELD_ACTION_SCHEMA,
     RMT_VIEW_TEMPLATE_SCHEMA,
+    RMT_APP_PRESENTATION_MODEL_SCHEMA,
     RMT_SEARCH_RUNTIME_SCHEMA,
     RMT_SEARCH_RESPONSE_SCHEMA,
     RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA,
@@ -2051,9 +2185,11 @@
     commandFromComponentEvent,
     createRmtHostServiceRegistry,
     createRmtStreamPatch,
+    createRmtStreamPatchPlan,
     applyRmtStreamPatch,
     applyRmtReducer,
     applyRmtReducerRecipe,
+    createRmtAppPresentationModel,
     createRmtViewTemplateDescriptor,
     createNoManualUiWiringGate,
     normalizeSearchText,
@@ -2064,26 +2200,22 @@
     createRmtSearchPrewarmWorker,
     createRmtSearchRuntime,
     createRmtAppRuntime
-  };
+  });
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = api;
-  }
-  if (globalTarget) {
-    globalTarget.XTendRmtAppRuntime = api;
-  }
-})(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));
-
-const __XTEND_RMT_APP_RUNTIME_API__ = globalThis.XTendRmtAppRuntime;
+  return api;
+})();
 
 export const RMT_APP_RUNTIME_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_APP_RUNTIME_SCHEMA;
 export const RMT_APP_RUNTIME_DIAGNOSTIC_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_APP_RUNTIME_DIAGNOSTIC_SCHEMA;
 export const RMT_COMMAND_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_COMMAND_SCHEMA;
 export const RMT_HOST_SERVICE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_HOST_SERVICE_SCHEMA;
 export const RMT_STREAM_PATCH_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_STREAM_PATCH_SCHEMA;
+export const RMT_STREAM_PATCH_PLAN_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_STREAM_PATCH_PLAN_SCHEMA;
+export const RMT_STREAM_PATCH_COMMIT_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_STREAM_PATCH_COMMIT_SCHEMA;
 export const RMT_STREAM_PRESSURE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_STREAM_PRESSURE_SCHEMA;
 export const RMT_YIELD_ACTION_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_YIELD_ACTION_SCHEMA;
 export const RMT_VIEW_TEMPLATE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_VIEW_TEMPLATE_SCHEMA;
+export const RMT_APP_PRESENTATION_MODEL_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_APP_PRESENTATION_MODEL_SCHEMA;
 export const RMT_SEARCH_RUNTIME_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_SEARCH_RUNTIME_SCHEMA;
 export const RMT_SEARCH_RESPONSE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_SEARCH_RESPONSE_SCHEMA;
 export const RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA = __XTEND_RMT_APP_RUNTIME_API__.RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA;
@@ -2093,9 +2225,11 @@ export const isRmtCommandEnvelope = __XTEND_RMT_APP_RUNTIME_API__.isRmtCommandEn
 export const commandFromComponentEvent = __XTEND_RMT_APP_RUNTIME_API__.commandFromComponentEvent;
 export const createRmtHostServiceRegistry = __XTEND_RMT_APP_RUNTIME_API__.createRmtHostServiceRegistry;
 export const createRmtStreamPatch = __XTEND_RMT_APP_RUNTIME_API__.createRmtStreamPatch;
+export const createRmtStreamPatchPlan = __XTEND_RMT_APP_RUNTIME_API__.createRmtStreamPatchPlan;
 export const applyRmtStreamPatch = __XTEND_RMT_APP_RUNTIME_API__.applyRmtStreamPatch;
 export const applyRmtReducer = __XTEND_RMT_APP_RUNTIME_API__.applyRmtReducer;
 export const applyRmtReducerRecipe = __XTEND_RMT_APP_RUNTIME_API__.applyRmtReducerRecipe;
+export const createRmtAppPresentationModel = __XTEND_RMT_APP_RUNTIME_API__.createRmtAppPresentationModel;
 export const createRmtViewTemplateDescriptor = __XTEND_RMT_APP_RUNTIME_API__.createRmtViewTemplateDescriptor;
 export const createNoManualUiWiringGate = __XTEND_RMT_APP_RUNTIME_API__.createNoManualUiWiringGate;
 export const normalizeSearchText = __XTEND_RMT_APP_RUNTIME_API__.normalizeSearchText;

@@ -61,7 +61,10 @@ function createCoreSandbox() {
 }
 
 function stripEsmExports(source) {
-  return String(source || '').replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '');
+  return String(source || '')
+    .replace(/^\s*import\s+[\s\S]*?\s+from\s+['"][^'"]+['"];\s*$/gmu, '')
+    .replace(/^\s*import\s+['"][^'"]+['"];\s*$/gmu, '')
+    .replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '');
 }
 
 function resolveRootDir(options = {}) {

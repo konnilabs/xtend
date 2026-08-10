@@ -15,8 +15,103 @@ export interface XTendElementDescriptor {
 }
 
 export type XTendDescriptor = XTendTextDescriptor | XTendElementDescriptor;
-export type XTendHost = Record<string, unknown>;
+export interface XTendHost {
+  readonly schema: string;
+  readonly mode: 'kernel' | 'lightweight';
+  snapshot(): Readonly<Record<string, unknown>>;
+}
 export type XTendRoot = object;
+
+export type RmtDomOwnershipDomain =
+  | 'structure'
+  | 'content'
+  | 'attributes'
+  | 'properties'
+  | 'class'
+  | 'part'
+  | 'styleTokens'
+  | 'events'
+  | 'visibility'
+  | 'validation';
+
+export interface RmtDomOwnershipPolicy {
+  mode?: 'strict' | 'compatibility';
+  strict?: boolean;
+  owner?: string;
+  writer?: string;
+  domains?: Partial<Record<RmtDomOwnershipDomain, string>>;
+  owners?: Partial<Record<RmtDomOwnershipDomain, string>>;
+  domainOwners?: Partial<Record<RmtDomOwnershipDomain, string>>;
+  reservations?: Partial<Record<RmtDomOwnershipDomain, string>>;
+  claims?: Partial<Record<RmtDomOwnershipDomain, string>>;
+  domainClaims?: Partial<Record<RmtDomOwnershipDomain, string>>;
+  domainWriters?: Partial<Record<RmtDomOwnershipDomain, string>>;
+}
+
+export interface RmtDomDescriptorRenderOptions extends Record<string, unknown> {
+  model?: Record<string, unknown>;
+  selectorValues?: Record<string, unknown>;
+  metadata?: unknown;
+}
+
+interface RmtDomCommitRequestBase {
+  context?: RmtDomDescriptorRenderOptions;
+  ownership?: RmtDomOwnershipPolicy;
+  metadata?: unknown;
+}
+
+export type RmtDomCommitRequest =
+  | (RmtDomCommitRequestBase & {
+      operation: 'create-node';
+      descriptor: unknown;
+    })
+  | (RmtDomCommitRequestBase & {
+      operation: 'replace-children';
+      target: XTendRoot;
+      descriptor: unknown;
+    })
+  | (RmtDomCommitRequestBase & {
+      operation: 'reconcile-children';
+      target: XTendRoot;
+      descriptors: unknown[];
+    })
+  | (RmtDomCommitRequestBase & {
+      operation: 'reconcile-element';
+      target: XTendRoot;
+      descriptor: unknown;
+    })
+  | (RmtDomCommitRequestBase & {
+      operation: 'merge-element';
+      target: XTendRoot;
+      descriptor: unknown;
+    });
+
+export interface RmtDomDescriptorDiagnostic {
+  schema: string;
+  code: string;
+  message: string;
+  severity: 'info' | 'warning' | 'error';
+  [field: string]: unknown;
+}
+
+export interface RmtDomCommitResult {
+  schema: 'xtend.rmt.dom-commit-result.v1';
+  operation: RmtDomCommitRequest['operation'];
+  target: XTendRoot | null;
+  nodes: unknown[];
+  nodeCount: number;
+  changed: boolean;
+  structural: boolean;
+  diagnostics: RmtDomDescriptorDiagnostic[];
+  metadata: unknown;
+}
+
+export interface RmtDomRenderResult {
+  schema: 'xtend.epic18.rmt-dom-render-result.v1';
+  root: XTendRoot;
+  nodeCount: number;
+  diagnostics: RmtDomDescriptorDiagnostic[];
+}
 
 export interface XTendScheduleOptions {
   endpointName?: string;
@@ -33,9 +128,14 @@ export interface XTendScheduler {
 }
 
 export interface XTendRenderer {
-  render(root: XTendRoot, descriptor: unknown, options?: Record<string, unknown>): unknown;
-  renderNode(descriptor: unknown, options?: Record<string, unknown>): unknown;
-  dispose?(): void;
+  schema: string;
+  commit(request: RmtDomCommitRequest): RmtDomCommitResult;
+  render(root: XTendRoot, descriptor: unknown, options?: RmtDomDescriptorRenderOptions): RmtDomRenderResult;
+  renderNode(descriptor: unknown, options?: RmtDomDescriptorRenderOptions): unknown;
+  renderKeyed(root: XTendRoot, descriptors: unknown[], options?: RmtDomDescriptorRenderOptions): unknown[];
+  /** @deprecated Use commit({ operation: 'merge-element', ... }). Removed in 1.0. */
+  patchElement(element: XTendRoot, descriptor: unknown, options?: RmtDomDescriptorRenderOptions): XTendRoot;
+  dispose(target?: XTendRoot, options?: { clearOwnedDom?: boolean }): void;
 }
 
 export interface XTendRegistryConfiguration {
@@ -47,15 +147,15 @@ export interface XTendRegistryConfiguration {
   fabric?: XTendRuntime | false;
   ownsFabric?: boolean;
   replaceDefaults?: boolean;
-  windowTarget?: XTendHost;
-  documentTarget?: XTendHost;
+  windowTarget?: Record<string, unknown>;
+  documentTarget?: Record<string, unknown>;
   scheduler?: XTendScheduler;
   renderer?: XTendRenderer;
 }
 
 export interface XTendResolvedRegistryConfiguration {
-  windowTarget: XTendHost | null;
-  documentTarget: XTendHost | null;
+  windowTarget: Record<string, unknown> | null;
+  documentTarget: Record<string, unknown> | null;
   scheduler: XTendScheduler | null;
   renderer: XTendRenderer | null;
 }
@@ -99,34 +199,56 @@ export interface XTendRuntime {
 
 export declare function configureXTend(options?: XTendRegistryConfiguration): Readonly<XTendResolvedRegistryConfiguration>;
 export declare function getXTendConfiguration(): Readonly<XTendResolvedRegistryConfiguration>;
-export interface XTendKernelHost {
-  readonly schema: string;
-  readonly mode: 'kernel';
-  readonly artifact: Readonly<Record<string, unknown>>;
-  readonly controller: Readonly<Record<string, unknown>>;
-  readonly runtime: unknown;
-  readonly core: unknown;
-  readonly performance: unknown;
-  readonly schedulerBridge: unknown;
-  readonly fabric: XTendRuntime | null;
-  snapshot(): Readonly<Record<string, unknown>>;
-}
-export declare function readyXTend(options?: XTendRegistryConfiguration): Promise<XTendKernelHost | { readonly schema: string; readonly mode: 'lightweight'; snapshot(): Readonly<Record<string, unknown>> }>;
-export declare function getXTendHost(): XTendKernelHost | { readonly schema: string; readonly mode: 'lightweight'; snapshot(): Readonly<Record<string, unknown>> };
+export declare function readyXTend(options?: XTendRegistryConfiguration): Promise<XTendHost>;
+export declare function getXTendHost(): XTendHost;
 export declare function getXTendSnapshot(): Readonly<Record<string, unknown>>;
 export declare function createXTendKernelArtifact(options?: XTendRegistryConfiguration): Readonly<Record<string, unknown>>;
 export declare function schedule(callback: (deadline?: unknown) => void, options?: XTendScheduleOptions): () => void;
 export declare function afterPaint(callback: () => void): () => void;
-export declare function render<TDescriptor extends XTendDescriptor>(root: XTendRoot, descriptor: TDescriptor, options?: Record<string, unknown>): unknown;
-export declare function render(root: XTendRoot, descriptor: unknown, options?: Record<string, unknown>): unknown;
-export declare function renderNode<TDescriptor extends XTendDescriptor>(descriptor: TDescriptor, options?: Record<string, unknown>): unknown;
-export declare function renderNode(descriptor: unknown, options?: Record<string, unknown>): unknown;
-export declare function renderKeyed<TDescriptor extends XTendDescriptor>(root: XTendRoot, descriptors: TDescriptor[], options?: Record<string, unknown>): unknown;
-export declare function patchElement<TDescriptor extends XTendElementDescriptor>(element: XTendRoot, descriptor: TDescriptor, options?: Record<string, unknown>): unknown;
+export declare function render<TDescriptor extends XTendDescriptor>(root: XTendRoot, descriptor: TDescriptor, options?: RmtDomDescriptorRenderOptions): RmtDomRenderResult;
+export declare function render(root: XTendRoot, descriptor: unknown, options?: RmtDomDescriptorRenderOptions): RmtDomRenderResult;
+export declare function renderNode<TDescriptor extends XTendDescriptor>(descriptor: TDescriptor, options?: RmtDomDescriptorRenderOptions): unknown;
+export declare function renderNode(descriptor: unknown, options?: RmtDomDescriptorRenderOptions): unknown;
+export declare function renderKeyed<TDescriptor extends XTendDescriptor>(root: XTendRoot, descriptors: TDescriptor[], options?: RmtDomDescriptorRenderOptions): unknown[];
+/** @deprecated Use commit({ operation: 'merge-element', ... }). Removed in 1.0. */
+export declare function patchElement<TDescriptor extends XTendElementDescriptor>(element: XTendRoot, descriptor: TDescriptor, options?: RmtDomDescriptorRenderOptions): XTendRoot;
+export declare function commit(request: RmtDomCommitRequest): RmtDomCommitResult;
 export declare function loadComponent(tag: string, options?: Record<string, unknown>): Promise<boolean>;
 export declare function hydrate(root?: XTendRoot, options?: Record<string, unknown>): Promise<unknown>;
 export declare function boot(options?: Record<string, unknown>): Promise<unknown>;
 export declare function disposeXTend(): void;
+
+export interface XTendRegistry {
+  createXTendKernelArtifact: typeof createXTendKernelArtifact;
+  configureXTend: typeof configureXTend;
+  getXTendConfiguration: typeof getXTendConfiguration;
+  readyXTend: typeof readyXTend;
+  getXTendHost: typeof getXTendHost;
+  getXTendSnapshot: typeof getXTendSnapshot;
+  schedule: typeof schedule;
+  afterPaint: typeof afterPaint;
+  render: typeof render;
+  renderNode: typeof renderNode;
+  renderKeyed: typeof renderKeyed;
+  patchElement: typeof patchElement;
+  commit: typeof commit;
+  createApp: typeof createApp;
+  createStore: typeof createStore;
+  createEffects: typeof createEffects;
+  createRouter: typeof createRouter;
+  createAnimator: typeof createAnimator;
+  createValidator: typeof createValidator;
+  createTransitions: typeof createTransitions;
+  createResources: typeof createResources;
+  loadComponent: typeof loadComponent;
+  hydrate: typeof hydrate;
+  boot: typeof boot;
+  createFabric: typeof createFabric;
+  createXtendFabric: typeof createFabric;
+  disposeXTend: typeof disposeXTend;
+}
+
+export declare function createXTendRegistry(options?: XTendRegistryConfiguration): Readonly<XTendRegistry>;
 
 export declare function createRmtBrowserScheduler(options?: Record<string, unknown>): XTendScheduler;
 export declare function createRmtDomDescriptorRenderer(options?: Record<string, unknown>): XTendRenderer;

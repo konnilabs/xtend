@@ -1,7 +1,7 @@
 import {
   createRmtAppRuntime,
   createRmtSearchRuntime
-} from '../../xtendrmt/rmt-app-runtime.js';
+} from '../../xtendrmt/rmt-app-runtime.compat.js';
 import { createRmtDomDescriptorRenderer } from '../../xtendrmt/rmt-dom-descriptor-renderer.js';
 import { createRmtBrowserScheduler } from '../../xtendrmt/rmt-browser-scheduler.js';
 import '../../components/xutils.js';

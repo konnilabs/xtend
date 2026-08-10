@@ -323,7 +323,7 @@ jobs:
             .xtend-build/maraca/source-to-sea/xtend.maraca.report.json
             .xtend-build/maraca/source-to-sea/xtend.maraca.size.json
             .xtend-test-results/xtend-nightly-build-manifest.json
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 14
 
       - name: Fail nightly build on required evidence failures
@@ -337,7 +337,7 @@ jobs:
           if [ "${{ steps.rmt_reference_docs.outcome }}" != "success" ]; then echo "RMT Reference docs gate failed"; failed=1; fi
           if [ "${{ steps.rmt_demos.outcome }}" != "success" ]; then echo "XTendRMT demo structure gate failed"; failed=1; fi
           if [ "${{ steps.rkfa_production_closure.outcome }}" != "success" ]; then echo "RKFA production closure gate failed"; failed=1; fi
-          if [ "${{ steps.docs_stub_inventory.outcome }}" != "success" ]; then echo "docs stub inventory owner handoff remains open"; fi
+          if [ "${{ steps.docs_stub_inventory.outcome }}" != "success" ]; then echo "docs stub inventory gate failed"; failed=1; fi
           if [ "${{ steps.rmt_primitives.outcome }}" != "success" ]; then echo "RMT vNext primitive gate failed"; failed=1; fi
           if [ "${{ steps.native_first_rmt_owned.outcome }}" != "success" ]; then echo "Native-First RMT Owned release gate failed"; failed=1; fi
           if [ "${{ steps.release_report.outcome }}" != "success" ]; then echo "release report failed"; failed=1; fi

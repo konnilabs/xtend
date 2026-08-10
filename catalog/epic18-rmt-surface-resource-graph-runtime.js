@@ -10,7 +10,7 @@ const {
   RMT_EVENT_ROUTING_RUNTIME_WORKPACKAGE
 } = require('./epic18-rmt-event-routing-runtime');
 
-const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA = 'xtend.epic18.rmt-surface-resource-graph-runtime.v1';
+const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA = 'xtend.epic18.rmt-surface-resource-graph-runtime.v2';
 const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_REPORT_SCHEMA = 'xtend.epic18.rmt-surface-resource-graph-runtime-report.v1';
 const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_FIXTURE_SCHEMA = 'xtend.epic18.rmt-surface-resource-graph-runtime-fixture.v1';
 const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_WORKPACKAGE = 'WP-E18-10';

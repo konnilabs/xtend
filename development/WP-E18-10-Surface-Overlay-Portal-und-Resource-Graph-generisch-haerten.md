@@ -3,7 +3,7 @@
 - Status: `completed`
 - Epic: `development/docs-evidence/root/epic18-media-manager-vendor-upstream.md`
 - Backlog: `development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md`
-- Contract: `xtend.epic18.rmt-surface-resource-graph-runtime.v1`
+- Contract: `xtend.epic18.rmt-surface-resource-graph-runtime.v2`
 - Gate: `node scripts/run_xtend_tests.js rmt-surface-resource-graph-runtime --json`
 - Naechstes Workpackage: `WP-E18-11`
 

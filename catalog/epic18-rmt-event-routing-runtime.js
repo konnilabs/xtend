@@ -6,7 +6,7 @@ const {
   RMT_ACTION_EFFECT_RUNTIME_WORKPACKAGE
 } = require('./epic18-rmt-action-effect-runtime');
 
-const RMT_EVENT_ROUTING_RUNTIME_SCHEMA = 'xtend.epic18.rmt-event-routing-runtime.v1';
+const RMT_EVENT_ROUTING_RUNTIME_SCHEMA = 'xtend.epic18.rmt-event-routing-runtime.v2';
 const RMT_EVENT_ROUTING_RUNTIME_REPORT_SCHEMA = 'xtend.epic18.rmt-event-routing-runtime-report.v1';
 const RMT_EVENT_ROUTING_RUNTIME_FIXTURE_SCHEMA = 'xtend.epic18.rmt-event-routing-runtime-fixture.v1';
 const RMT_EVENT_ROUTING_RUNTIME_WORKPACKAGE = 'WP-E18-09';

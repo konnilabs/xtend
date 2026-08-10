@@ -133,7 +133,9 @@ function validateManifests(context, rootDir) {
     );
   });
   GENERATED_MANIFEST_TEMPLATES.forEach((relativePath) => {
-    const manifest = readJson(relativePath, rootDir);
+    const manifest = JSON.parse(
+      readText(relativePath, rootDir).replace('{{nodeTypesDependencyLine}}', '')
+    );
     context.assert(manifest.engines && manifest.engines.node === PUBLIC_ENGINE, `${relativePath} generates the canonical Node floor`);
     context.assert(manifest.packageManager === PACKAGE_MANAGER, `${relativePath} generates the pinned npm package manager`);
   });

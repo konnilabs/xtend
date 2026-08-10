@@ -1,6 +1,6 @@
 {
   "name": "@ccslabs/xtend",
-  "version": "0.5.0",
+  "version": "0.6.1",
   "packageManager": "npm@11.17.0",
   "devEngines": {
     "runtime": {
@@ -204,6 +204,10 @@
     "./maraca/plan-runtime": {
       "types": "./xtend-maraca/plan-runtime.d.ts",
       "default": "./xtend-maraca/plan-runtime.mjs"
+    },
+    "./maraca/browser-composition-runtime": {
+      "types": "./xtend-maraca/browser-composition-runtime.d.ts",
+      "default": "./xtend-maraca/browser-composition-runtime.mjs"
     },
     "./maraca/css-provider": {
       "types": "./xtend-maraca/css-provider.d.ts",
@@ -717,7 +721,15 @@
     },
     "./rmt/state-selector-runtime": {
       "types": "./xtendrmt/rmt-state-selector-runtime.d.ts",
-      "default": "./xtendrmt/rmt-state-selector-runtime.js"
+      "default": "./xtendrmt/rmt-state-selector-runtime.compat.js"
+    },
+    "./rmt/xstate-host-adapter": {
+      "types": "./xtendrmt/rmt-xstate-host-adapter.d.ts",
+      "default": "./xtendrmt/rmt-xstate-host-adapter.js"
+    },
+    "./rmt/state-binding-view-projector": {
+      "types": "./xtendrmt/rmt-state-binding-view-projector.d.ts",
+      "default": "./xtendrmt/rmt-state-binding-view-projector.js"
     },
     "./rmt/action-effect-runtime": {
       "types": "./xtendrmt/rmt-action-effect-runtime.d.ts",
@@ -726,6 +738,14 @@
     "./rmt/event-routing-runtime": {
       "types": "./xtendrmt/rmt-event-routing-runtime.d.ts",
       "default": "./xtendrmt/rmt-event-routing-runtime.js"
+    },
+    "./rmt/maraca-view-projection-adapter": {
+      "types": "./xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+      "default": "./xtendrmt/rmt-maraca-view-projection-adapter.js"
+    },
+    "./rmt/presentation-effect-adapter": {
+      "types": "./xtendrmt/rmt-presentation-effect-adapter.d.ts",
+      "default": "./xtendrmt/rmt-presentation-effect-adapter.js"
     },
     "./rmt/form-validation-runtime": {
       "types": "./xtendrmt/rmt-form-validation-runtime.d.ts",
@@ -1469,7 +1489,7 @@
       "schema": "xtend.epic18.rmt-dom-descriptor-renderer.v1",
       "reportSchema": "xtend.epic18.rmt-dom-descriptor-renderer-report.v1",
       "fixtureSchema": "xtend.epic18.rmt-dom-descriptor-renderer-fixture.v1",
-      "diagnosticSchema": "xtend.epic18.rmt-dom-renderer-diagnostic.v1",
+      "diagnosticSchema": "xtend.epic18.rmt-dom-renderer-diagnostic.v2",
       "workpackage": "WP-E18-05",
       "status": "accepted-dom-descriptor-renderer",
       "runtime": "xtendrmt/rmt-dom-descriptor-renderer.js",
@@ -1500,7 +1520,7 @@
       "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
     },
     "rmtStateSelectorRuntime": {
-      "schema": "xtend.epic18.rmt-state-selector-runtime.v1",
+      "schema": "xtend.epic18.rmt-state-selector-runtime.v2",
       "reportSchema": "xtend.epic18.rmt-state-selector-runtime-report.v1",
       "fixtureSchema": "xtend.epic18.rmt-state-selector-runtime-fixture.v1",
       "workpackage": "WP-E18-07",
@@ -1556,7 +1576,7 @@
       "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
     },
     "rmtEventRoutingRuntime": {
-      "schema": "xtend.epic18.rmt-event-routing-runtime.v1",
+      "schema": "xtend.epic18.rmt-event-routing-runtime.v2",
       "reportSchema": "xtend.epic18.rmt-event-routing-runtime-report.v1",
       "fixtureSchema": "xtend.epic18.rmt-event-routing-runtime-fixture.v1",
       "diagnosticSchema": "xtend.epic18.rmt-event-routing-diagnostic.v1",
@@ -1591,7 +1611,7 @@
       "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
     },
     "rmtSurfaceResourceGraphRuntime": {
-      "schema": "xtend.epic18.rmt-surface-resource-graph-runtime.v1",
+      "schema": "xtend.epic18.rmt-surface-resource-graph-runtime.v2",
       "reportSchema": "xtend.epic18.rmt-surface-resource-graph-runtime-report.v1",
       "fixtureSchema": "xtend.epic18.rmt-surface-resource-graph-runtime-fixture.v1",
       "diagnosticSchema": "xtend.epic18.rmt-surface-resource-graph-diagnostic.v1",
@@ -12272,18 +12292,23 @@
           "26.5.0"
         ],
         "commandSet": [
+          "npm run native-first:evidence:prepare",
           "npm run test:release:full:report",
           "npm run test:rmt-reference-docs:report",
+          "npm run test:rmt-demos:report",
           "npm run test:rkfa-production-closure:report",
           "npm run test:docs-stub-inventory:report",
-          "npm run test:docs-quality:report",
           "npm run test:rmt-vnext-primitives:report",
           "npm run test:native-first-rmt-owned-release:report",
           "npm run release:report",
           "npm run pack:dry-run",
           "npm run test:maraca:report",
+          "npm run test:maraca-app-services-cross-runtime:report",
+          "npm run test:xtend-llm-app-services-catfood:report",
+          "npm run test:maraca-app-services-test-bench:report",
           "npm run test:xtensions-framework-adapters:report",
           "npm run test:xtend-dev-surface:report",
+          "npm run test:docs-quality:report",
           "npm run test:docs-shell-catfooding:report",
           "npm run test:docs-framework-ownership:report",
           "npm run test:xsurface-shard:report",
@@ -12291,9 +12316,6 @@
           "npm run test:xscaler-public-api:report",
           "npm run test:xscaler-php-preflight-parity:report",
           "npm run test:rmt-xscaler-ssr-hydration-parity:report",
-          "npm run test:maraca-app-services-cross-runtime:report",
-          "npm run test:xtend-llm-app-services-catfood:report",
-          "npm run test:maraca-app-services-test-bench:report",
           "npm run test:xscaler-source-to-sea:report"
         ],
         "workspaceDryRunCommands": [
@@ -13085,7 +13107,7 @@
       "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
     },
     "surfaceManagerController": {
-      "schema": "xtend.surface.controller.v1",
+      "schema": "xtend.surface.controller.v2",
       "reportSchema": "xtend.surface.controller-report.v1",
       "recordSchema": "xtend.surface.record.v1",
       "snapshotSchema": "xtend.surface.snapshot.v1",
@@ -13153,7 +13175,7 @@
       "reportSchema": "xtend.surface.window-runtime-report.v1",
       "surfaceManagerSchema": "xtend.surface.manager.v1",
       "surfaceRecordSchema": "xtend.surface.record.v1",
-      "surfaceControllerSchema": "xtend.surface.controller.v1",
+      "surfaceControllerSchema": "xtend.surface.controller.v2",
       "snapshotSchema": "xtend.surface.snapshot.v1",
       "workpackage": "WP-SM-03",
       "status": "accepted-window-runtime",
@@ -13237,7 +13259,7 @@
       "reportSchema": "xtend.surface.side-panel-runtime-report.v1",
       "surfaceManagerSchema": "xtend.surface.manager.v1",
       "surfaceRecordSchema": "xtend.surface.record.v1",
-      "surfaceControllerSchema": "xtend.surface.controller.v1",
+      "surfaceControllerSchema": "xtend.surface.controller.v2",
       "snapshotSchema": "xtend.surface.snapshot.v1",
       "workpackage": "WP-SM-04",
       "status": "accepted-side-panel-runtime",
@@ -13327,7 +13349,7 @@
       "surfaceAuthoringSchema": "xtend.rmt.surface-authoring.v1",
       "surfaceManagerSchema": "xtend.surface.manager.v1",
       "surfaceRecordSchema": "xtend.surface.record.v1",
-      "surfaceControllerSchema": "xtend.surface.controller.v1",
+      "surfaceControllerSchema": "xtend.surface.controller.v2",
       "snapshotSchema": "xtend.surface.snapshot.v1",
       "workpackage": "WP-SM-05",
       "status": "accepted-rmt-first-workbench-fixture",
@@ -13389,7 +13411,7 @@
       "reportSchema": "xtend.surface.overlay-stack-bridge-report.v1",
       "surfaceManagerSchema": "xtend.surface.manager.v1",
       "surfaceRecordSchema": "xtend.surface.record.v1",
-      "surfaceControllerSchema": "xtend.surface.controller.v1",
+      "surfaceControllerSchema": "xtend.surface.controller.v2",
       "snapshotSchema": "xtend.surface.snapshot.v1",
       "workpackage": "WP-SM-06",
       "status": "accepted-overlay-stack-bridge",
@@ -13506,7 +13528,7 @@
       "visualBaselineSchema": "xtend.surface.quality-gates.visual-baseline.v1",
       "surfaceManagerSchema": "xtend.surface.manager.v1",
       "surfaceRecordSchema": "xtend.surface.record.v1",
-      "surfaceControllerSchema": "xtend.surface.controller.v1",
+      "surfaceControllerSchema": "xtend.surface.controller.v2",
       "snapshotSchema": "xtend.surface.snapshot.v1",
       "overlayBridgeSchema": "xtend.surface.overlay-stack-bridge.v1",
       "workpackage": "WP-SM-07",
@@ -13595,7 +13617,7 @@
       "adapterSchema": "xtend.surface.adapter.v1",
       "surfaceManagerSchema": "xtend.surface.manager.v1",
       "surfaceRecordSchema": "xtend.surface.record.v1",
-      "surfaceControllerSchema": "xtend.surface.controller.v1",
+      "surfaceControllerSchema": "xtend.surface.controller.v2",
       "snapshotSchema": "xtend.surface.snapshot.v1",
       "qualityGatesSchema": "xtend.surface.quality-gates.v1",
       "workpackage": "WP-SM-08",
@@ -13667,7 +13689,7 @@
       "componentLabFixtureSchema": "xtend.surface.component-lab-fixture.v1",
       "surfaceManagerSchema": "xtend.surface.manager.v1",
       "surfaceRecordSchema": "xtend.surface.record.v1",
-      "surfaceControllerSchema": "xtend.surface.controller.v1",
+      "surfaceControllerSchema": "xtend.surface.controller.v2",
       "snapshotSchema": "xtend.surface.snapshot.v1",
       "nativeRmtSchema": "xtend.rmt.surfaces-domain.v1",
       "surfaceAdapterSchema": "xtend.surface.adapter.v1",
@@ -13725,7 +13747,7 @@
       "adapterSchema": "xtend.surface.adapter.v1",
       "surfaceManagerSchema": "xtend.surface.manager.v1",
       "surfaceRecordSchema": "xtend.surface.record.v1",
-      "surfaceControllerSchema": "xtend.surface.controller.v1",
+      "surfaceControllerSchema": "xtend.surface.controller.v2",
       "snapshotSchema": "xtend.surface.snapshot.v1",
       "workpackage": "WP-SM-10",
       "status": "implemented-surface-adapter-runtime",
@@ -13755,7 +13777,7 @@
       "adapterSchema": "xtend.surface.adapter.v1",
       "surfaceManagerSchema": "xtend.surface.manager.v1",
       "surfaceRecordSchema": "xtend.surface.record.v1",
-      "surfaceControllerSchema": "xtend.surface.controller.v1",
+      "surfaceControllerSchema": "xtend.surface.controller.v2",
       "workpackage": "WP-SM-11",
       "status": "implemented-native-surface-materialization",
       "targetReadiness": "native-surfaces-template-materialization-ready",
@@ -13786,7 +13808,7 @@
       "snapshotSchema": "xtend.surface.snapshot.v1",
       "surfaceManagerSchema": "xtend.surface.manager.v1",
       "surfaceRecordSchema": "xtend.surface.record.v1",
-      "surfaceControllerSchema": "xtend.surface.controller.v1",
+      "surfaceControllerSchema": "xtend.surface.controller.v2",
       "workpackage": "WP-SM-12",
       "status": "implemented-surface-snapshot-persistence",
       "targetReadiness": "restore-key-snapshot-hydration-ready",
@@ -15286,7 +15308,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 175,
+      "expectedExportCount": 182,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15311,8 +15333,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 175,
-      "lockedExportFingerprint": "9ace954950ac98dab0085fe8a6225f648c01a83085a8c3878d74ca968ac0f027",
+      "expectedExportCount": 182,
+      "lockedExportFingerprint": "08378b3ac143eb377cb442eaa05aa5118cfd105b3f4e94fee58a920008f4a551",
       "p0Exports": [
         ".",
         "./loader",
@@ -17461,6 +17483,7 @@
     "scaffold:extensions": "node xtend-builder/scaffold.js extensions --tag x-example --profile display --feature state --json",
     "build:rmt-lifecycle-demo": "node xtend-builder/scaffold.js rmt-build --demo demos/xtendrmt/examples/lifecycle/demo.json --write --json",
     "build:rmt": "node xtend-builder/scaffold.js rmt-build --demo demos/xtendrmt/examples/lifecycle/demo.json --write --json",
+    "build:rmt-esm-entrypoints": "node scripts/generate_xtendrmt_esm_entrypoints.js",
     "demos:rmt:check": "node scripts/check_rmt_demos.js",
     "test:scaffold-write-plan": "node scripts/run_xtend_tests.js scaffold-write-plan",
     "test:scaffold-component-write": "node scripts/run_xtend_tests.js scaffold-component-write",

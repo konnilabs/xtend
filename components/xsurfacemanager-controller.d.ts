@@ -1,8 +1,9 @@
-export declare const SURFACE_CONTROLLER_SCHEMA: 'xtend.surface.controller.v1';
+export declare const SURFACE_CONTROLLER_SCHEMA: 'xtend.surface.controller.v2';
 export declare const SURFACE_RECORD_SCHEMA: 'xtend.surface.record.v1';
 export declare const SURFACE_SNAPSHOT_SCHEMA: 'xtend.surface.snapshot.v1';
 export declare const SURFACE_DIAGNOSTIC_SCHEMA: 'xtend.surface.diagnostic.v1';
 export declare const SURFACE_OPERATION_RESULT_SCHEMA: 'xtend.surface.operation-result.v1';
+export declare const SURFACE_APPLY_RESULT_SCHEMA: 'xtend.surface.apply-result.v1';
 
 export type XtendSurfaceType = 'window' | 'side-panel' | 'modal' | 'dialog' | 'drawer' | 'popover' | 'tooltip' | 'region' | 'toast' | 'lightbox' | 'menu';
 export type XtendSurfaceStatus = 'closed' | 'open' | 'minimized' | 'destroying' | 'destroyed';
@@ -103,6 +104,34 @@ export interface XtendSurfaceOperationResult {
   diagnostic: XtendSurfaceDiagnostic | null;
 }
 
+export type XtendSurfaceApplyOperation =
+  | { operation: 'register' | 'registerSurface'; record: Partial<XtendSurfaceRecord> | Record<string, unknown> }
+  | { operation: 'open' | 'openSurface'; id: string; input?: { bounds?: Partial<XtendSurfaceBounds>; recreate?: boolean } }
+  | { operation: 'close' | 'closeSurface'; id: string; reason?: string }
+  | { operation: 'destroy' | 'destroySurface'; id: string; options?: Record<string, unknown> }
+  | { operation: 'focus' | 'focusSurface'; id: string }
+  | { operation: 'update' | 'updateSurface'; id: string; patch?: Record<string, unknown> }
+  | { operation: 'move' | 'moveSurface'; id: string; bounds?: Partial<XtendSurfaceBounds> }
+  | { operation: 'resize' | 'resizeSurface'; id: string; bounds?: Partial<XtendSurfaceBounds> }
+  | { operation: 'minimize' | 'minimizeSurface'; id: string }
+  | { operation: 'maximize' | 'maximizeSurface'; id: string }
+  | { operation: 'restore' | 'restoreSurface'; id: string }
+  | { operation: 'materialize' | 'materializeSurface'; id: string; input?: Record<string, unknown> }
+  | { operation: 'toggle' | 'toggleSurface'; id: string; input?: Record<string, unknown> };
+
+export interface XtendSurfaceApplyResult {
+  schema: typeof SURFACE_APPLY_RESULT_SCHEMA;
+  ok: boolean;
+  operation: 'apply';
+  operationCount: number;
+  changed: boolean;
+  snapshotVersion: number;
+  results: XtendSurfaceOperationResult[];
+  diagnostics: XtendSurfaceDiagnostic[];
+  snapshot: XtendSurfaceSnapshot;
+  metadata: Record<string, unknown>;
+}
+
 export interface XtendSurfaceController {
   schema: typeof SURFACE_CONTROLLER_SCHEMA;
   managerId: string;
@@ -122,24 +151,36 @@ export interface XtendSurfaceController {
   restoreSurface(id: string): XtendSurfaceOperationResult;
   materializeSurface(id: string, input?: { bounds?: Partial<XtendSurfaceBounds>; recreate?: boolean }): XtendSurfaceOperationResult;
   toggleSurface(id: string, input?: { bounds?: Partial<XtendSurfaceBounds>; recreate?: boolean }): XtendSurfaceOperationResult;
+  apply(operations: XtendSurfaceApplyOperation[], metadata?: Record<string, unknown>): XtendSurfaceApplyResult;
   snapshot(options?: Record<string, unknown>): XtendSurfaceSnapshot;
   readSnapshot(options?: Record<string, unknown>): XtendSurfaceSnapshot;
+  subscribe(listener: (snapshot: XtendSurfaceSnapshot) => void, options?: { emitCurrent?: boolean }): () => void;
   dispose(): XtendSurfaceOperationResult;
+}
+
+export interface XtendSurfaceStateProjectionAdapter {
+  readonly schema?: string;
+  apply(updates: Record<string, unknown>, snapshot: XtendSurfaceSnapshot): unknown;
 }
 
 export interface XtendSurfaceControllerOptions {
   managerId?: string;
   stateKey?: string;
-  xstate?: {
-    set(key: string, value: unknown): void;
-  };
+  stateProjection?: XtendSurfaceStateProjectionAdapter;
   fabric?: {
     emitDiagnostic?(event: XtendSurfaceDiagnostic): unknown;
     runFiber?(fiber: Record<string, unknown>, callback: () => unknown): unknown;
   };
+  clock?: XtendSurfaceClockPort;
+  /** @deprecated Inject `clock` instead. */
   now?: () => string | number | Date;
   baseZIndex?: number;
   maxDiagnostics?: number;
+}
+
+export interface XtendSurfaceClockPort {
+  readonly schema?: string;
+  now(): string | number | Date;
 }
 
 export declare function normalizeSurfaceBounds(bounds?: Partial<XtendSurfaceBounds>, type?: XtendSurfaceType): XtendSurfaceBounds;

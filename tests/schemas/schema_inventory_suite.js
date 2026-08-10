@@ -20,7 +20,7 @@ const {
 const SUITE_ID = 'schema-inventory';
 const SUITE_LABEL = 'XTend Schema Inventory';
 const INVENTORY_VERSION = 2;
-const FORMAL_JSON_SCHEMA_ID = 'https://xtendrmt.dev/schemas/rmt.schema.json';
+const FORMAL_JSON_SCHEMA_ID = 'https://xtendrmt.dev/schemas/rmt.v2.schema.json';
 const XCOMMAND_CONTRACT = 'xtend.xcommand.kernel-contract.v1';
 const XKEYMAP_CONTRACT = 'xtend.xkeymap.surface-contract.v1';
 const INVENTORY_REPORT_PATH = '.xtend-test-results/xtend-schema-inventory-report.json';
@@ -1613,8 +1613,8 @@ function validateFormalJsonSchema(entries) {
   if (!Array.isArray(entry.kinds) || !entry.kinds.includes('json-schema')) {
     issues.push(`${FORMAL_JSON_SCHEMA_ID} must have kind json-schema`);
   }
-  if (!entry.canonicalDefinition || entry.canonicalDefinition.path !== 'xtendrmt/rmt.schema.json') {
-    issues.push(`${FORMAL_JSON_SCHEMA_ID} must be canonical at xtendrmt/rmt.schema.json`);
+  if (!entry.canonicalDefinition || entry.canonicalDefinition.path !== 'xtendrmt/kernel/templates/rmt.schema.json') {
+    issues.push(`${FORMAL_JSON_SCHEMA_ID} must be canonical at xtendrmt/kernel/templates/rmt.schema.json`);
   }
   return issues;
 }
@@ -1659,6 +1659,22 @@ function validateNegativeGateBehavior(inventory, scan, rootDir) {
     if (!rejectsAs(tamperedShape, ['invalid-shape-hash'], /shape.*hash|fingerprint/iu)) {
       issues.push('tampered normalized shape content does not fail its fingerprint hash');
     }
+  }
+
+  const releasedEntry = inventory.entries.find((entry) => (
+    entry && isNonEmptyString(entry.releasedFingerprintSetHash) && !entry.aliasOf
+  ));
+  if (releasedEntry && typeof schemaInventoryScanner.acceptCurrentBaseline === 'function') {
+    const unsafeAdvance = cloneJson(inventory);
+    const target = unsafeAdvance.entries.find((entry) => entry.schemaId === releasedEntry.schemaId);
+    target.releasedFingerprintSetHash = `sha256:${'0'.repeat(64)}`;
+    let refused = false;
+    try {
+      schemaInventoryScanner.acceptCurrentBaseline(unsafeAdvance);
+    } catch (error) {
+      refused = /released fingerprint drift|new major schema ID/iu.test(String(error && error.message));
+    }
+    if (!refused) issues.push('baseline acceptance does not refuse released fingerprint drift before a major schema migration');
   }
 
   const statusDrift = cloneJson(inventory);

@@ -81,6 +81,17 @@ function createDiagnosticsHub() {
   };
 }
 
+function createFakeFragment(html = '') {
+  return {
+    nodeType: 11,
+    html: String(html || ''),
+    childNodes: [],
+    cloneNode() {
+      return createFakeFragment(this.html);
+    }
+  };
+}
+
 function createFakeElement(tagName = 'div') {
   const listeners = new Map();
   const element = {
@@ -103,6 +114,9 @@ function createFakeElement(tagName = 'div') {
     },
     replaceChildren(...nodes) {
       this.childNodes = nodes;
+      this._innerHTML = nodes.map((node) => (
+        node && typeof node.html === 'string' ? node.html : String(node || '')
+      )).join('');
     },
     querySelector(selector) {
       return this._queryMap && this._queryMap[selector] ? this._queryMap[selector] : null;
@@ -114,6 +128,9 @@ function createFakeElement(tagName = 'div') {
     },
     set(value) {
       this._innerHTML = String(value || '');
+      if (this.tagName === 'TEMPLATE') {
+        this.content = createFakeFragment(this._innerHTML);
+      }
     }
   });
   element.innerHTML = '';
@@ -145,7 +162,10 @@ function createFakeDocument() {
 function createRmtAppModulesFromArtifact(context, rootDir, artifactPath) {
   const source = readText(artifactPath, rootDir);
   const cjsCompatibleSource = artifactPath.endsWith('.esm.js')
-    ? source.replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
+    ? source
+      .replace(/^\s*import\s+[\s\S]*?\s+from\s+['"][^'"]+['"];\s*$/gmu, '')
+      .replace(/^\s*import\s+['"][^'"]+['"];\s*$/gmu, '')
+      .replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
     : source;
   function CustomEvent(type, init = {}) {
     this.type = type;

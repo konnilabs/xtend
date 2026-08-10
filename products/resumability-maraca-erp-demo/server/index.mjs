@@ -45,6 +45,16 @@ const MIME_TYPES = {
   '.xml': 'application/xml; charset=UTF-8'
 };
 
+const RMT_RUNTIME_MODULE_PATHS = new Set([
+  '/xtendrmt/rmt-event-routing-runtime.js',
+  '/xtendrmt/rmt-resume-runtime.js',
+  '/xtendrmt/rmt-resume-protocol.js',
+  '/xtendrmt/rmt-resume-capture-adapter.js',
+  '/xtendrmt/rmt-resume-host-adapter.js',
+  '/xtendrmt/rmt-resume-command-adapter.js',
+  '/xtendrmt/rmt-resume-command-controller.js'
+]);
+
 function text(value) {
   return String(value ?? '');
 }
@@ -588,11 +598,8 @@ function safeStaticPath(urlPath) {
   if (urlPath === '/xcommand/xcommand.js') {
     return path.join(repoRoot, 'xcommand', 'xcommand.js');
   }
-  if (urlPath === '/xtendrmt/rmt-event-routing-runtime.js') {
-    return path.join(repoRoot, 'xtendrmt', 'rmt-event-routing-runtime.js');
-  }
-  if (urlPath === '/xtendrmt/rmt-resume-runtime.js') {
-    return path.join(repoRoot, 'xtendrmt', 'rmt-resume-runtime.js');
+  if (RMT_RUNTIME_MODULE_PATHS.has(urlPath)) {
+    return path.join(repoRoot, urlPath.slice(1));
   }
   const allowedPrefixes = ['/dist/', '/src/client/', '/src/styles/'];
   if (!allowedPrefixes.some((prefix) => urlPath.startsWith(prefix))) return null;

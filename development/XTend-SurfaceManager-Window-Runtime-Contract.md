@@ -5,7 +5,7 @@
 - Contract: `xtend.surface.window-runtime.v1`
 - Workpackage: `WP-SM-03`
 - Komponenten: `x-surface-manager`, `x-surface-window`
-- Controller: `xtend.surface.controller.v1`
+- Controller: `xtend.surface.controller.v2`
 - Snapshot: `xtend.surface.snapshot.v1`
 - Kernel Boundary: `no-rmt-kernel-import-of-xtend-types`
 

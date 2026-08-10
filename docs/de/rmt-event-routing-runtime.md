@@ -15,7 +15,7 @@ Dasselbe Event-Modell verarbeitet Browser-Component-Events, Route-Enter-Events, 
 Compatibility Anchors für ältere Runtime-Checks:
 
 ```txt
-runtime contract: xtend.epic18.rmt-event-routing-runtime.v1
+runtime contract: xtend.epic18.rmt-event-routing-runtime.v2
 next workpackage: WP-E18-10
 ```
 

@@ -166,7 +166,7 @@ function runRmtVNextParserSuite(options = {}) {
 
   const resumabilityResult = parseFixture(VALID_RESUMABILITY_FIXTURE, rootDir);
   context.assert(resumabilityResult.ok === true, 'resumability fixture parses successfully');
-  context.assert(collectNodes(resumabilityResult.ast, 'RmtResumabilityPolicy').length === 5, 'resumability fixture has five resumability policy clauses');
+  context.assert(collectNodes(resumabilityResult.ast, 'RmtResumabilityPolicy').length === 8, 'resumability fixture preserves all eight hydrate and resume policy clauses');
   context.assert(collectNodes(resumabilityResult.ast, 'RmtHydrationPolicy').some((node) => node.mode === 'server_prerender_resume'), 'resumability fixture parses server resume hydration mode');
   context.assert(collectNodes(resumabilityResult.ast, 'RmtLifecycleStatement').some((node) => node.op === 'resume'), 'resumability fixture keeps resume lifecycle operation');
 

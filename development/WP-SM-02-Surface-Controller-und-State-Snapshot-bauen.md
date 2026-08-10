@@ -2,7 +2,7 @@
 
 - Status: completed
 - Datum: 9. Mai 2026
-- Contract: `xtend.surface.controller.v1`
+- Contract: `xtend.surface.controller.v2`
 - Ergebnis: `surface-controller-state-snapshot-ready`
 - Runtime: `components/xsurfacemanager-controller.js`
 - Lokaler Gate: `node scripts/run_xtend_tests.js surface-controller --json`

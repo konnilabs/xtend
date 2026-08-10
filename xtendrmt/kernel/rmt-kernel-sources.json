@@ -1,0 +1,2462 @@
+{
+  "schema": "xtend.rmt.kernel-sources.v2",
+  "architecture": {
+    "pattern": "mvc",
+    "strict": true,
+    "migration": "staged-source-promotion"
+  },
+  "capabilities": [
+    "dom.read",
+    "dom.write",
+    "dom.trustedHtml",
+    "event.listen",
+    "event.dispatch",
+    "state.read",
+    "state.write",
+    "host.clock",
+    "host.scheduler",
+    "network",
+    "worker",
+    "storage",
+    "global.read",
+    "global.write"
+  ],
+  "legacyBundles": [],
+  "modules": [
+    {
+      "id": "rmt-browser-scheduler",
+      "sourcePath": "xtendrmt/rmt-browser-scheduler.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createRmtBrowserScheduler"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtSchedulerPort"
+      ],
+      "capabilities": [
+        "host.clock",
+        "host.scheduler",
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "host.scheduler"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-dom-descriptor-renderer",
+      "sourcePath": "xtendrmt/rmt-dom-descriptor-renderer.js",
+      "sourceMode": "canonical",
+      "mvcRole": "view",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtDomDescriptorRenderer",
+        "createNoManualHtmlGate"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtDomCommitPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "dom.trustedHtml",
+        "event.listen",
+        "event.dispatch",
+        "host.clock",
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "dom.structure",
+        "dom.content",
+        "dom.base-values"
+      ],
+      "targets": [
+        "standalone",
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-safe-preview",
+      "sourcePath": "xtendrmt/rmt-safe-preview.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtSafePreviewProjector"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtPreviewPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "preview.output"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-component-capability-registry-source",
+      "sourcePath": "xtendrmt/rmt-component-capability-registry.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createRmtComponentCapabilityRegistry"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtComponentCapabilityPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "event.listen",
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "host.component-capabilities"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-state-selector-runtime-source",
+      "sourcePath": "xtendrmt/rmt-state-selector-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "model",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtStateSelectorRuntime",
+        "planRmtStatePatch"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtModelReader",
+        "RmtModelCommandPort",
+        "RmtStateProjectionPort"
+      ],
+      "capabilities": [
+        "state.read",
+        "state.write",
+        "global.read",
+        "global.write"
+      ],
+      "compatibility": {
+        "kind": "0.6-global-mirror",
+        "since": "0.6.0",
+        "removeBy": "0.7.0",
+        "reason": "The standalone 0.6 Model source retains its global script mirror while state projection is injected through a typed output port.",
+        "allowedCapabilities": [
+          "global.read",
+          "global.write"
+        ]
+      },
+      "ownershipDomains": [
+        "model.application-state"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-xstate-host-adapter-source",
+      "sourcePath": "xtendrmt/rmt-xstate-host-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtXStateHostAdapter",
+        "createRmtXStateBridge"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtStateProjectionPort"
+      ],
+      "capabilities": [
+        "state.read",
+        "state.write",
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "output.state-projection"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-state-binding-view-projector-source",
+      "sourcePath": "xtendrmt/rmt-state-binding-view-projector.js",
+      "sourceMode": "canonical",
+      "mvcRole": "view",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtStateBindingViewProjector"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtModelReader",
+        "RmtDomCommitPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "view.state-bindings"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-state-selector-runtime-compat-source",
+      "sourcePath": "xtendrmt/rmt-state-selector-runtime.compat.js",
+      "sourceMode": "canonical",
+      "mvcRole": "composition",
+      "adapterDirection": null,
+      "provides": [
+        "applyRmtStateBindings",
+        "createRmtStateBindingAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [
+        "rmt-state-selector-runtime-source",
+        "rmt-xstate-host-adapter-source",
+        "rmt-state-binding-view-projector-source"
+      ],
+      "ports": [
+        "RmtModelReader",
+        "RmtStateProjectionPort",
+        "RmtDomCommitPort"
+      ],
+      "capabilities": [
+        "state.read",
+        "global.read",
+        "global.write"
+      ],
+      "compatibility": {
+        "kind": "0.6-compatibility-composer",
+        "since": "0.6.0",
+        "removeBy": "0.7.0",
+        "reason": "The public 0.6 facade composes Model, XState output adapter and deprecated State Binding aliases without moving their implementations into the Model.",
+        "allowedCapabilities": [
+          "state.read",
+          "global.read",
+          "global.write"
+        ]
+      },
+      "ownershipDomains": [
+        "compatibility.composition.state-binding"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-action-effect-runtime-source",
+      "sourcePath": "xtendrmt/rmt-action-effect-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "controller",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtActionEffectRuntime"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtModelCommandPort",
+        "RmtEffectPort",
+        "RmtActionHostPort"
+      ],
+      "capabilities": [
+        "state.read",
+        "state.write"
+      ],
+      "compatibility": {
+        "kind": "0.6-controller-state-writer",
+        "since": "0.6.0",
+        "removeBy": "0.7.0",
+        "reason": "The public 0.6 low-level Action Effect factory retains its direct state bridge while managed Maraca uses the Model Command port.",
+        "allowedCapabilities": [
+          "state.write"
+        ]
+      },
+      "compatibilityShell": {
+        "kind": "0.6-global-mirror",
+        "since": "0.6.0",
+        "removeBy": "0.7.0",
+        "reason": "The standalone 0.6 Action Effect entry mirrors only its immutable public factory API onto the legacy browser global."
+      },
+      "ownershipDomains": [
+        "controller.actions"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-event-routing-runtime-source",
+      "sourcePath": "xtendrmt/rmt-event-routing-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "input",
+      "provides": [
+        "createRmtEventRoutingRuntime"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtCommandDispatchPort",
+        "RmtDomBindingPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "event.listen",
+        "host.clock",
+        "global.read",
+        "global.write"
+      ],
+      "compatibility": {
+        "kind": "0.6-global-mirror",
+        "since": "0.6.0",
+        "removeBy": "0.7.0",
+        "reason": "The standalone 0.6 Event Router retains its browser-script factory mirror while managed commands flow only through the injected Command Bus port.",
+        "allowedCapabilities": [
+          "global.write"
+        ]
+      },
+      "ownershipDomains": [
+        "input.application-events"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-app-view-projector-source",
+      "sourcePath": "xtendrmt/rmt-app-view-projector.js",
+      "sourceMode": "canonical",
+      "mvcRole": "view",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtAppPresentationViewPort"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtAppPresentationViewPort"
+      ],
+      "capabilities": [
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "view.app-presentation"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-app-host-adapter-source",
+      "sourcePath": "xtendrmt/rmt-app-host-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createRmtAppHostAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtAppHostPort",
+        "RmtSearchWorkerHostPort"
+      ],
+      "capabilities": [
+        "host.clock",
+        "host.scheduler",
+        "worker",
+        "global.read"
+      ],
+      "ownershipDomains": [
+        "host.app-runtime"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-app-runtime-source",
+      "sourcePath": "xtendrmt/rmt-app-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "controller",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtAppRuntime",
+        "createRmtAppPresentationModel"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtModelReader",
+        "RmtModelCommandPort",
+        "RmtAppServicePort",
+        "RmtAppPresentationViewPort",
+        "RmtAppHostPort"
+      ],
+      "capabilities": [
+        "state.read"
+      ],
+      "ownershipDomains": [
+        "controller.app-services"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-app-runtime-compat-source",
+      "sourcePath": "xtendrmt/rmt-app-runtime.compat.js",
+      "sourceMode": "canonical",
+      "mvcRole": "composition",
+      "adapterDirection": null,
+      "provides": [
+        "rmtAppRuntimeCompatibilityApi"
+      ],
+      "consumes": [
+        "createRmtAppRuntime",
+        "createRmtAppPresentationViewPort",
+        "createRmtAppHostAdapter"
+      ],
+      "dependsOn": [
+        "rmt-app-runtime-source",
+        "rmt-app-view-projector-source",
+        "rmt-app-host-adapter-source"
+      ],
+      "ports": [
+        "RmtAppPresentationViewPort",
+        "RmtAppHostPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "composition.app-presentation"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-form-validation-evaluator-source",
+      "sourcePath": "xtendrmt/rmt-form-validation-evaluator.js",
+      "sourceMode": "canonical",
+      "mvcRole": "model",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtFormValidationEvaluator",
+        "normalizeRmtFormValidationPlan"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtModelReader"
+      ],
+      "capabilities": [
+        "state.read"
+      ],
+      "ownershipDomains": [
+        "model.form-validation-evaluation"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-form-validation-view-projector-source",
+      "sourcePath": "xtendrmt/rmt-form-validation-view-projector.js",
+      "sourceMode": "canonical",
+      "mvcRole": "view",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtFormValidationViewProjector"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtValidationProjectionPort",
+        "RmtDomCommitPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "event.dispatch",
+        "global.read",
+        "state.read"
+      ],
+      "ownershipDomains": [
+        "view.form-validation-projection"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-form-validation-model-command-adapter-source",
+      "sourcePath": "xtendrmt/rmt-form-validation-model-command-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtFormValidationModelCommandAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtModelCommandPort"
+      ],
+      "capabilities": [
+        "state.write"
+      ],
+      "ownershipDomains": [
+        "output.form-validation-model-command"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-form-validation-runtime-source",
+      "sourcePath": "xtendrmt/rmt-form-validation-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "composition",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtFormValidationRuntime"
+      ],
+      "consumes": [],
+      "dependsOn": [
+        "rmt-form-validation-evaluator-source",
+        "rmt-form-validation-view-projector-source",
+        "rmt-form-validation-model-command-adapter-source"
+      ],
+      "ports": [
+        "RmtModelReader",
+        "RmtModelCommandPort",
+        "RmtValidationProjectionPort",
+        "RmtDomCommitPort"
+      ],
+      "capabilities": [
+        "global.read",
+        "global.write"
+      ],
+      "compatibility": {
+        "kind": "0.6-compatibility-composer",
+        "since": "0.6.0",
+        "removeBy": "0.7.0",
+        "reason": "The physically split validation ports retain the 0.6 global factory mirror through a delegating compatibility composer.",
+        "allowedCapabilities": [
+          "global.read",
+          "global.write"
+        ]
+      },
+      "ownershipDomains": [
+        "compatibility.composition.form-validation"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-animation-engine-runtime-source",
+      "sourcePath": "xtendrmt/rmt-animation-engine-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtAnimationEngineRuntime"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtAnimationPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "event.dispatch",
+        "state.read",
+        "host.clock",
+        "host.scheduler",
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "view.animation"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-surface-transition-runtime-source",
+      "sourcePath": "xtendrmt/rmt-surface-transition-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtSurfaceTransitionRuntime"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtVisibilityReadPort",
+        "RmtTransitionProjectionPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "event.dispatch",
+        "state.read",
+        "host.clock",
+        "host.scheduler",
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "view.visibility"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-surface-resource-graph-runtime-source",
+      "sourcePath": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtSurfaceResourceGraphRuntime"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtSurfaceControllerPort",
+        "RmtSurfaceResourcePort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "event.dispatch",
+        "state.read",
+        "host.clock",
+        "host.scheduler",
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "view.surface-resources"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-kernel-orchestration-controller-source",
+      "sourcePath": "xtendrmt/rmt-kernel-orchestration-controller.js",
+      "sourceMode": "canonical",
+      "mvcRole": "controller",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtKernelOrchestrationController"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtKernelPort",
+        "RmtSchedulerPort",
+        "RmtEventDispatchPort",
+        "RmtKernelOrchestrationHostPort"
+      ],
+      "capabilities": [
+        "state.read"
+      ],
+      "compatibilityShell": {
+        "kind": "0.6-global-mirror",
+        "since": "0.6.0",
+        "removeBy": "0.7.0",
+        "reason": "The standalone 0.6 Kernel Orchestration entry mirrors only its immutable public factory API onto the legacy browser global."
+      },
+      "ownershipDomains": [
+        "controller.kernel-orchestration"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-kernel-feature-adoption-registry-source",
+      "sourcePath": "xtendrmt/rmt-kernel-feature-adoption-registry.js",
+      "sourceMode": "canonical",
+      "mvcRole": "model",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtKernelFeatureAdoptionRegistry"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtKernelFeatureRegistryPort"
+      ],
+      "capabilities": [
+        "state.read",
+        "state.write",
+        "global.read",
+        "global.write"
+      ],
+      "compatibility": {
+        "kind": "0.6-global-mirror",
+        "since": "0.6.0",
+        "removeBy": "0.7.0",
+        "reason": "The standalone 0.6 registry retains its AppModules mirror while its model snapshots remain the only mutable authority.",
+        "allowedCapabilities": [
+          "global.read",
+          "global.write"
+        ]
+      },
+      "ownershipDomains": [
+        "model.kernel-features"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-native-shell-runtime-source",
+      "sourcePath": "xtendrmt/rmt-native-shell-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createRmtNativeShellController"
+      ],
+      "consumes": [],
+      "ports": [
+        "RmtNativeShellPort"
+      ],
+      "capabilities": [
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "host.native-shell"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-node-ssr-adapter-source",
+      "sourcePath": "xtendrmt/rmt-node-ssr-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtNodeSsrAdapter"
+      ],
+      "consumes": [
+        "createRmtComponentCapabilityRegistry",
+        "createRmtDomDescriptorRenderer"
+      ],
+      "dependsOn": [
+        "rmt-component-capability-registry-source",
+        "rmt-dom-descriptor-renderer"
+      ],
+      "ports": [
+        "RmtSsrPort",
+        "RmtComponentCapabilityPort",
+        "RmtDomCommitPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "host.clock"
+      ],
+      "ownershipDomains": [
+        "output.ssr"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-resume-protocol-source",
+      "sourcePath": "xtendrmt/rmt-resume-protocol.js",
+      "sourceMode": "canonical",
+      "mvcRole": "shared",
+      "adapterDirection": null,
+      "provides": [],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [],
+      "capabilities": [],
+      "ownershipDomains": [
+        "shared.resume-protocol"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-resume-capture-adapter-source",
+      "sourcePath": "xtendrmt/rmt-resume-capture-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "input",
+      "provides": [
+        "createRmtResumeCaptureAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [
+        "rmt-resume-protocol-source"
+      ],
+      "ports": [
+        "RmtResumeIntentCapturePort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "event.listen"
+      ],
+      "ownershipDomains": [
+        "input.resume-capture"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-resume-host-adapter-source",
+      "sourcePath": "xtendrmt/rmt-resume-host-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createRmtResumeHostAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [
+        "rmt-resume-protocol-source"
+      ],
+      "ports": [
+        "RmtResumeHostPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "host.clock",
+        "global.read"
+      ],
+      "ownershipDomains": [
+        "host.resume-browser"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-resume-command-adapter-source",
+      "sourcePath": "xtendrmt/rmt-resume-command-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtResumeCommandAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [
+        "rmt-resume-protocol-source"
+      ],
+      "ports": [
+        "RmtResumeStatePort",
+        "RmtCommandDispatchPort"
+      ],
+      "capabilities": [
+        "state.write"
+      ],
+      "ownershipDomains": [
+        "output.resume-commands"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-resume-command-controller-source",
+      "sourcePath": "xtendrmt/rmt-resume-command-controller.js",
+      "sourceMode": "canonical",
+      "mvcRole": "controller",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtResumeCommandController"
+      ],
+      "consumes": [],
+      "dependsOn": [
+        "rmt-resume-protocol-source"
+      ],
+      "ports": [
+        "RmtResumeIntentCapturePort",
+        "RmtResumeHostPort",
+        "RmtResumeStatePort",
+        "RmtCommandDispatchPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "controller.resume-orchestration"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-resume-runtime-source",
+      "sourcePath": "xtendrmt/rmt-resume-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "composition",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtResumeRuntime"
+      ],
+      "consumes": [],
+      "dependsOn": [
+        "rmt-resume-protocol-source",
+        "rmt-resume-capture-adapter-source",
+        "rmt-resume-host-adapter-source",
+        "rmt-resume-command-adapter-source",
+        "rmt-resume-command-controller-source"
+      ],
+      "ports": [
+        "RmtResumeIntentCapturePort",
+        "RmtResumeHostPort",
+        "RmtResumeStatePort",
+        "RmtCommandDispatchPort"
+      ],
+      "capabilities": [
+        "global.read",
+        "global.write"
+      ],
+      "compatibility": {
+        "kind": "0.6-compatibility-composer",
+        "since": "0.6.0",
+        "removeBy": "0.7.0",
+        "reason": "The physically split resume ports retain the 0.6 global factory mirror through a delegating compatibility composer.",
+        "allowedCapabilities": [
+          "global.read",
+          "global.write"
+        ]
+      },
+      "ownershipDomains": [
+        "compatibility.composition.resume"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-presentation-effect-adapter-source",
+      "sourcePath": "xtendrmt/rmt-presentation-effect-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtPresentationEffectAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtPresentationEffectPort",
+        "RmtModelReader",
+        "RmtSurfaceControllerPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "event.dispatch",
+        "state.read",
+        "host.scheduler",
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "view.presentation-effects"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-maraca-view-projection-adapter-source",
+      "sourcePath": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtMaracaViewProjectionAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "MaracaViewProjectionPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "event.dispatch",
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "view.maraca-host-projection"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "xtend-surface-controller-source",
+      "sourcePath": "components/xsurfacemanager-controller.js",
+      "sourceMode": "canonical",
+      "mvcRole": "controller",
+      "adapterDirection": null,
+      "provides": [
+        "createSurfaceController"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtSurfaceControllerPort",
+        "RmtSurfaceStateProjectionPort",
+        "RmtSurfaceClockPort"
+      ],
+      "capabilities": [],
+      "compatibilityShell": {
+        "kind": "0.6-global-mirror",
+        "since": "0.6.0",
+        "removeBy": "0.7.0",
+        "reason": "The standalone 0.6 Surface Controller entry mirrors only its immutable public factory API onto the legacy browser global."
+      },
+      "ownershipDomains": [
+        "controller.surface-lifecycle"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "xtend-surface-state-projection-adapter-source",
+      "sourcePath": "components/xsurfacemanager-state-projection-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createSurfaceStateProjectionAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtSurfaceStateProjectionPort",
+        "RmtModelBatchUpdatePort"
+      ],
+      "capabilities": [
+        "state.write"
+      ],
+      "ownershipDomains": [
+        "output.surface-state-projection"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "xtend-surface-host-clock-adapter-source",
+      "sourcePath": "components/xsurfacemanager-host-clock-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createSurfaceHostClockAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtSurfaceClockPort"
+      ],
+      "capabilities": [
+        "host.clock"
+      ],
+      "ownershipDomains": [
+        "host.surface-clock"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-engine",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-engine.js",
+      "sourceMode": "canonical",
+      "mvcRole": "composition",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtEngine"
+      ],
+      "consumes": [
+        "createRmtCommandBus",
+        "createRmtDiagnostics",
+        "createRmtEngineController",
+        "createRmtEngineHostAdapter",
+        "createRmtQueue",
+        "createRmtReactivity"
+      ],
+      "dependsOn": [
+        "rmt-command-bus",
+        "rmt-diagnostics",
+        "rmt-engine-controller",
+        "rmt-engine-host-adapter",
+        "rmt-priority-queue",
+        "rmt-reactivity"
+      ],
+      "ports": [
+        "createRmtCommandBusPort",
+        "createRmtDiagnosticsPort",
+        "RmtEngineControllerPort",
+        "RmtEngineHostPort",
+        "createRmtQueuePort",
+        "createRmtReactivityPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "composition.kernel"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-engine-host-adapter",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-engine-host-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createRmtEngineHostAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtEngineHostPort"
+      ],
+      "capabilities": [
+        "event.dispatch",
+        "event.listen",
+        "global.read",
+        "global.write",
+        "host.clock",
+        "host.scheduler",
+        "host.abort"
+      ],
+      "ownershipDomains": [
+        "host.engine-runtime"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-engine-controller",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-engine-controller.js",
+      "sourceMode": "canonical",
+      "mvcRole": "controller",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtEngineController"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtEngineHostPort",
+        "RmtCommandBusPort",
+        "RmtDiagnosticsPort",
+        "RmtPriorityQueuePort",
+        "RmtReactivityPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "controller.engine-runtime"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-priority-queue",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-priority-queue.js",
+      "sourceMode": "canonical",
+      "mvcRole": "shared",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtQueue"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [],
+      "capabilities": [
+        "host.clock"
+      ],
+      "ownershipDomains": [
+        "shared.priority-queue"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-diagnostics-hub",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-diagnostics-hub.js",
+      "sourceMode": "canonical",
+      "mvcRole": "shared",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtDiagnosticsHub"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [],
+      "capabilities": [
+        "host.clock"
+      ],
+      "ownershipDomains": [
+        "shared.diagnostics-hub"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-command-bus",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-command-bus.js",
+      "sourceMode": "canonical",
+      "mvcRole": "controller",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtCommandBus"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtCommandBusPort",
+        "RmtCommandHostPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "controller.command-bus"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-reactivity",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-reactivity.js",
+      "sourceMode": "canonical",
+      "mvcRole": "model",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtReactivity"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [],
+      "capabilities": [],
+      "ownershipDomains": [
+        "model.reactivity"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-diagnostics",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-diagnostics.js",
+      "sourceMode": "canonical",
+      "mvcRole": "shared",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtDiagnostics"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [],
+      "capabilities": [
+        "host.clock"
+      ],
+      "ownershipDomains": [
+        "shared.diagnostics"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-kernel-policy-parity",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-policy-parity.js",
+      "sourceMode": "canonical",
+      "mvcRole": "shared",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtKernelPolicyParity"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [],
+      "capabilities": [],
+      "ownershipDomains": [
+        "shared.kernel-policy"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-browser-host-adapter",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-browser-host-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createRmtBrowserHostAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtBrowserHostPort"
+      ],
+      "capabilities": [
+        "global.read",
+        "global.write",
+        "host.clock",
+        "host.scheduler"
+      ],
+      "ownershipDomains": [
+        "host.browser"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-performance-runtime",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-performance-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createRmtPerformanceRuntime"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtPerformancePort"
+      ],
+      "capabilities": [
+        "global.read",
+        "global.write",
+        "host.clock",
+        "host.scheduler"
+      ],
+      "ownershipDomains": [
+        "host.performance"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-generic-host-adapter",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-generic-host-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createRmtGenericHostAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtHostClockPort",
+        "RmtHostSchedulerPort",
+        "RmtHostEventFactoryPort",
+        "RmtHostAbortPort"
+      ],
+      "capabilities": [
+        "global.read",
+        "host.clock",
+        "host.scheduler",
+        "host.abort"
+      ],
+      "ownershipDomains": [
+        "host.generic-runtime"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-format-model",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-format.js",
+      "sourceMode": "canonical",
+      "mvcRole": "model",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtFormat"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtFormatReader",
+        "RmtRuntimeRegistryReader"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "model.format-registry"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-input-routing-controller",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-input-routing-controller.js",
+      "sourceMode": "canonical",
+      "mvcRole": "controller",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtXRouterAdapter"
+      ],
+      "consumes": [
+        "createRmtFormat"
+      ],
+      "dependsOn": [
+        "rmt-format-model"
+      ],
+      "ports": [
+        "RmtFormatReader",
+        "RmtRouteRegistrationPort",
+        "RmtNavigationPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "controller.input-routing"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-xtend-component-adapter",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-xtend-component-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtXtendComponentAdapter"
+      ],
+      "consumes": [
+        "createRmtFormat",
+        "createRmtDomDescriptorRenderer"
+      ],
+      "dependsOn": [
+        "rmt-format-model",
+        "rmt-dom-descriptor-renderer"
+      ],
+      "ports": [
+        "RmtFormatReader",
+        "RmtDomCommitPort",
+        "RmtDomBindingPort",
+        "RmtEventRouterPort",
+        "RmtCommandDispatchPort",
+        "RmtComponentTelemetryPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "host.clock"
+      ],
+      "ownershipDomains": [
+        "output.component-presentation"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-surface-adapter",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-surface-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtSurfaceAdapter"
+      ],
+      "consumes": [
+        "createRmtFormat",
+        "createRmtDomDescriptorRenderer"
+      ],
+      "dependsOn": [
+        "rmt-format-model",
+        "rmt-dom-descriptor-renderer"
+      ],
+      "ports": [
+        "RmtFormatReader",
+        "RmtDomCommitPort",
+        "RmtSurfaceControllerPort",
+        "RmtSurfaceResourceProjectionPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "event.dispatch",
+        "state.read"
+      ],
+      "ownershipDomains": [
+        "output.surface-projection"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-state-telemetry-adapter",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-state-telemetry-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtStateSchedulerDiagnosticsBridge"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtStateProjectionPort",
+        "RmtSchedulerPort",
+        "RmtDiagnosticsPort",
+        "RmtTelemetryPort"
+      ],
+      "capabilities": [
+        "state.write",
+        "host.clock",
+        "host.scheduler"
+      ],
+      "ownershipDomains": [
+        "output.state-telemetry"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-template-registry",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-template-registry.js",
+      "sourceMode": "canonical",
+      "mvcRole": "model",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtTemplateRegistry"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [],
+      "capabilities": [],
+      "ownershipDomains": [
+        "model.template-registry"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-template-loader",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-template-loader.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "input",
+      "provides": [
+        "createRmtTemplateLoader"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtTemplateSourcePort"
+      ],
+      "capabilities": [
+        "network",
+        "global.write"
+      ],
+      "compatibility": {
+        "kind": "0.6-global-mirror",
+        "since": "0.6.0",
+        "removeBy": "0.7.0",
+        "reason": "The generated 0.6 browser bundle registers the canonical Template Loader factory in the temporary module compatibility mirror.",
+        "allowedCapabilities": [
+          "global.write"
+        ]
+      },
+      "ownershipDomains": [
+        "input.template-loader"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-template-binding-model",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-template-binding-model.js",
+      "sourceMode": "canonical",
+      "mvcRole": "model",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtTemplateBindingModel"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtTemplateBindingModelPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "model.template-binding"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-template-compiler",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-template-compiler.js",
+      "sourceMode": "canonical",
+      "mvcRole": "model",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtTemplateCompiler"
+      ],
+      "consumes": [
+        "createRmtFormat",
+        "createRmtTemplateRegistry",
+        "createRmtTemplateBindingModel"
+      ],
+      "dependsOn": [
+        "rmt-format-model",
+        "rmt-template-registry",
+        "rmt-template-binding-model"
+      ],
+      "ports": [
+        "RmtFormatPort",
+        "RmtTemplateRegistryPort",
+        "RmtTemplateBindingModelPort",
+        "RmtClockPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "model.template-compiler"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-template-artifacts",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-template-artifacts.js",
+      "sourceMode": "canonical",
+      "mvcRole": "model",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtTemplateArtifacts"
+      ],
+      "consumes": [
+        "createRmtTemplateCompiler",
+        "createRmtTemplateRegistry",
+        "createRmtFormat"
+      ],
+      "dependsOn": [
+        "rmt-template-compiler",
+        "rmt-template-registry",
+        "rmt-format-model"
+      ],
+      "ports": [
+        "RmtTemplateCompilerPort",
+        "RmtTemplateRegistryPort",
+        "RmtFormatPort",
+        "RmtClockPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "model.template-artifacts"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-template-runtime-renderer",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-template-runtime-renderer.js",
+      "sourceMode": "canonical",
+      "mvcRole": "view",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtTemplateRuntimeRenderer"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtDomBindingViewPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "dom.trustedHtml",
+        "host.clock"
+      ],
+      "ownershipDomains": [
+        "view.template-descriptors",
+        "view.application-binding-records"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-template-trust-model",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-template-trust-model.js",
+      "sourceMode": "canonical",
+      "mvcRole": "model",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtTemplateTrustModel"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtTemplateTrustPolicyPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "model.template-trust-policy"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-template-recovery-model",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-template-recovery-model.js",
+      "sourceMode": "canonical",
+      "mvcRole": "model",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtTemplateRecoveryModel"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtTemplateRecoveryModelPort",
+        "RmtClockPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "model.template-recovery"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-template-execution-model",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-template-execution-model.js",
+      "sourceMode": "canonical",
+      "mvcRole": "model",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtTemplateExecutionModel"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtTemplateRegistryReader",
+        "RmtTemplateExecutionModelPort",
+        "RmtClockPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "model.template-execution"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-template-interaction-adapter",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-template-interaction-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtTemplateInteractionAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtTemplateExecutionModelPort",
+        "RmtTemplateInteractionPort",
+        "RmtDomCompatPort",
+        "RmtTemplateRuntimeRendererPort",
+        "RmtDomBindingPort",
+        "RmtEventRouterPort",
+        "RmtCommandDispatchPort",
+        "RmtRootLifecyclePort",
+        "RmtClockPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "global.read"
+      ],
+      "ownershipDomains": [
+        "output.template-interaction"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-template-execution-controller",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-template-execution-controller.js",
+      "sourceMode": "canonical",
+      "mvcRole": "controller",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtTemplateExecutionController"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtTemplateExecutionModelPort",
+        "RmtTemplateInteractionPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "controller.template-execution"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-template-execution-path",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-template-execution-path.js",
+      "sourceMode": "canonical",
+      "mvcRole": "composition",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtTemplateExecutionPath"
+      ],
+      "consumes": [
+        "createRmtTemplateExecutionModel",
+        "createRmtTemplateTrustModel",
+        "createRmtTemplateRecoveryModel",
+        "createRmtTemplateInteractionAdapter",
+        "createRmtTemplateExecutionController",
+        "createRmtTemplateRuntimeRenderer"
+      ],
+      "dependsOn": [
+        "rmt-template-execution-model",
+        "rmt-template-trust-model",
+        "rmt-template-recovery-model",
+        "rmt-template-interaction-adapter",
+        "rmt-template-execution-controller",
+        "rmt-template-runtime-renderer"
+      ],
+      "ports": [
+        "RmtTemplateExecutionModelPort",
+        "RmtTemplateTrustPolicyPort",
+        "RmtTemplateRecoveryModelPort",
+        "RmtTemplateInteractionPort",
+        "RmtTemplateRuntimeRendererPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "composition.template-execution"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-template-transport-adapters",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-template-transport-adapters.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtTemplateWorkerAdapter",
+        "createRmtTemplateServerAdapter"
+      ],
+      "consumes": [
+        "createRmtTemplateExecutionPath"
+      ],
+      "dependsOn": [
+        "rmt-template-execution-path"
+      ],
+      "ports": [
+        "createRmtTemplateExecutionPathPort"
+      ],
+      "capabilities": [
+        "host.clock"
+      ],
+      "ownershipDomains": [
+        "output.template-transport"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-prewarm-worker-source",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-prewarm-worker-source.js",
+      "sourceMode": "canonical",
+      "mvcRole": "model",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtPrewarmWorkerSourceBuilder"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [],
+      "capabilities": [],
+      "ownershipDomains": [
+        "model.prewarm-source"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-prewarm-worker-runtime",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-prewarm-worker-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createRmtPrewarmWorkerRuntime"
+      ],
+      "consumes": [
+        "createRmtPrewarmWorkerSourceBuilder"
+      ],
+      "dependsOn": [
+        "rmt-prewarm-worker-source"
+      ],
+      "ports": [
+        "createRmtPrewarmWorkerSourceBuilderPort"
+      ],
+      "capabilities": [
+        "host.clock"
+      ],
+      "ownershipDomains": [
+        "host.prewarm-worker"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-dom-compat-view-adapter",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-dom-compat-view-adapter.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtDomCompat"
+      ],
+      "consumes": [
+        "createRmtGenericHostAdapter"
+      ],
+      "dependsOn": [
+        "rmt-generic-host-adapter"
+      ],
+      "ports": [
+        "RmtDomCompatPort",
+        "RmtHostAdapterPort",
+        "RmtRootLifecyclePort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "global.read"
+      ],
+      "ownershipDomains": [
+        "output.dom-compat"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-public-island-controller",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-public-island-controller.js",
+      "sourceMode": "canonical",
+      "mvcRole": "controller",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtPublicIslandController"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtRootLifecyclePort",
+        "RmtDomCompatPort",
+        "RmtCommandPort",
+        "RmtClockPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "controller.public-island-lifecycle"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-public-api",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-public-api.js",
+      "sourceMode": "canonical",
+      "mvcRole": "composition",
+      "adapterDirection": null,
+      "provides": [
+        "getRmtApiVersion",
+        "createRmtProductManifest",
+        "createRmtTemplateApi",
+        "createRmtCore",
+        "createRmtPublicApi"
+      ],
+      "consumes": [
+        "createRmtGenericHostAdapter",
+        "createRmtEngine",
+        "createRmtBrowserHostAdapter",
+        "createRmtDiagnostics",
+        "createRmtDiagnosticsHub",
+        "createRmtReactivity",
+        "createRmtCommandBus",
+        "createRmtQueue",
+        "createRmtFormat",
+        "createRmtTemplateRegistry",
+        "createRmtTemplateLoader",
+        "createRmtTemplateBindingModel",
+        "createRmtTemplateCompiler",
+        "createRmtTemplateArtifacts",
+        "createRmtTemplateRuntimeRenderer",
+        "createRmtTemplateExecutionPath",
+        "createRmtTemplateWorkerAdapter",
+        "createRmtTemplateServerAdapter",
+        "createRmtDomCompat",
+        "createRmtPublicIslandController"
+      ],
+      "dependsOn": [
+        "rmt-generic-host-adapter",
+        "rmt-engine",
+        "rmt-browser-host-adapter",
+        "rmt-diagnostics",
+        "rmt-diagnostics-hub",
+        "rmt-reactivity",
+        "rmt-command-bus",
+        "rmt-priority-queue",
+        "rmt-format-model",
+        "rmt-template-registry",
+        "rmt-template-loader",
+        "rmt-template-binding-model",
+        "rmt-template-compiler",
+        "rmt-template-artifacts",
+        "rmt-template-runtime-renderer",
+        "rmt-template-execution-path",
+        "rmt-template-transport-adapters",
+        "rmt-dom-compat-view-adapter",
+        "rmt-public-island-controller"
+      ],
+      "ports": [
+        "RmtCompositionPort",
+        "RmtHostAdapterPort",
+        "RmtModelPort",
+        "RmtTemplatePort",
+        "RmtDomCompatPort",
+        "RmtRootLifecyclePort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "composition.public-api"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-browser-runtime",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-browser-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createRmtBrowserRuntime"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtBrowserStoragePort"
+      ],
+      "capabilities": [
+        "storage"
+      ],
+      "ownershipDomains": [
+        "host.browser-runtime"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-detached-dom-runtime",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-detached-dom-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtDetachedRuntime"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtDetachedDomPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "output.detached-dom"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-worker-prerender-runtime",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-worker-prerender-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtWorkerPrerenderRuntime"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtWorkerPrerenderPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "output.worker-prerender"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-server-prerender-runtime",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-server-prerender-runtime.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createRmtServerPrerenderRuntime"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtServerPrerenderPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "output.server-prerender"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "rmt-product-surface",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-product-surface.js",
+      "sourceMode": "canonical",
+      "mvcRole": "composition",
+      "adapterDirection": null,
+      "provides": [
+        "createRmtProductSurface",
+        "installRmtProductSurface",
+        "createRmtRuntime",
+        "createRmtWorkerRuntime",
+        "createRmtServerRuntime"
+      ],
+      "consumes": [
+        "createRmtBrowserHostAdapter"
+      ],
+      "dependsOn": [
+        "rmt-browser-host-adapter"
+      ],
+      "ports": [
+        "createRmtBrowserHostAdapterPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "composition.product-surface"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
+      "id": "xtend-maraca-plan-runtime",
+      "sourcePath": "xtend-maraca/plan-runtime.mjs",
+      "sourceMode": "canonical",
+      "mvcRole": "controller",
+      "adapterDirection": null,
+      "provides": [
+        "createMaracaPlanRuntime"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtModelReader",
+        "RmtModelCommandPort",
+        "RmtDomCommitPort",
+        "RmtSurfaceLifecyclePort",
+        "RmtPresentationEffectPort"
+      ],
+      "capabilities": [
+        "state.read"
+      ],
+      "ownershipDomains": [
+        "controller.maraca-application"
+      ],
+      "targets": [
+        "maraca"
+      ]
+    },
+    {
+      "id": "xtend-maraca-browser-host-adapter",
+      "sourcePath": "xtend-maraca/browser-host-adapter.mjs",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createMaracaBrowserHostAdapter"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "MaracaBrowserHostPort",
+        "RmtDomCommitPort",
+        "RmtHydrationPort",
+        "RmtPresentationEffectPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "event.dispatch",
+        "global.read",
+        "global.write",
+        "network",
+        "worker",
+        "state.read"
+      ],
+      "ownershipDomains": [
+        "host.maraca-browser"
+      ],
+      "targets": [
+        "maraca"
+      ]
+    },
+    {
+      "id": "xtend-maraca-browser-composition-runtime",
+      "sourcePath": "xtend-maraca/browser-composition-runtime.mjs",
+      "sourceMode": "canonical",
+      "mvcRole": "composition",
+      "adapterDirection": null,
+      "provides": [
+        "createMaracaBrowserCompositionRoot"
+      ],
+      "consumes": [
+        "createMaracaBrowserHostAdapter"
+      ],
+      "dependsOn": [
+        "xtend-maraca-browser-host-adapter",
+        "xtend-maraca-plan-runtime"
+      ],
+      "ports": [
+        "MaracaBrowserHostPort",
+        "MaracaApplicationControllerPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "composition.maraca-browser"
+      ],
+      "targets": [
+        "maraca"
+      ]
+    }
+  ],
+  "bundle": {
+    "moduleOrder": [
+      "rmt-engine",
+      "rmt-engine-host-adapter",
+      "rmt-engine-controller",
+      "rmt-priority-queue",
+      "rmt-diagnostics-hub",
+      "rmt-command-bus",
+      "rmt-reactivity",
+      "rmt-diagnostics",
+      "rmt-kernel-policy-parity",
+      "rmt-browser-host-adapter",
+      "rmt-performance-runtime",
+      "rmt-generic-host-adapter",
+      "rmt-dom-descriptor-renderer",
+      "rmt-format-model",
+      "rmt-input-routing-controller",
+      "rmt-xtend-component-adapter",
+      "rmt-surface-adapter",
+      "rmt-state-telemetry-adapter",
+      "rmt-template-registry",
+      "rmt-template-loader",
+      "rmt-template-binding-model",
+      "rmt-template-compiler",
+      "rmt-template-artifacts",
+      "rmt-template-runtime-renderer",
+      "rmt-template-trust-model",
+      "rmt-template-recovery-model",
+      "rmt-template-execution-model",
+      "rmt-template-interaction-adapter",
+      "rmt-template-execution-controller",
+      "rmt-template-execution-path",
+      "rmt-template-transport-adapters",
+      "rmt-prewarm-worker-source",
+      "rmt-prewarm-worker-runtime",
+      "rmt-dom-compat-view-adapter",
+      "rmt-public-island-controller",
+      "rmt-public-api",
+      "rmt-browser-runtime",
+      "rmt-detached-dom-runtime",
+      "rmt-worker-prerender-runtime",
+      "rmt-server-prerender-runtime",
+      "rmt-product-surface"
+    ],
+    "esmPreamble": "xtendrmt/kernel/templates/rmt-esm-preamble.js",
+    "esmSuffix": "xtendrmt/kernel/templates/rmt-esm-suffix.js",
+    "browserPreamble": "xtendrmt/kernel/templates/rmt-browser-preamble.js",
+    "browserSuffix": "xtendrmt/kernel/templates/rmt-browser-suffix.js",
+    "typesTemplate": "xtendrmt/kernel/templates/rmt-core.d.ts",
+    "schemaTemplate": "xtendrmt/kernel/templates/rmt.schema.json",
+    "manifestTemplate": "xtendrmt/kernel/templates/rmt-manifest.json"
+  }
+}

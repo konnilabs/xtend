@@ -17,6 +17,7 @@ const {
 const RMT_COMPONENT_CAPABILITY_REGISTRY_PATH = 'xtendrmt/rmt-component-capability-registry.js';
 const RMT_COMPONENT_CAPABILITY_REGISTRY_TYPES = 'xtendrmt/rmt-component-capability-registry.d.ts';
 const RMT_DOM_DESCRIPTOR_RENDERER_PATH = 'xtendrmt/rmt-dom-descriptor-renderer.js';
+const RMT_EVENT_ROUTING_RUNTIME_PATH = 'xtendrmt/rmt-event-routing-runtime.js';
 const RMT_VNEXT_COMPONENT_PRIMITIVES_SCHEMA = 'xtend.rmt.component-capability-registry.v1';
 const RMT_VNEXT_COMPONENT_PRIMITIVES_REPORT_SCHEMA = 'xtend.rmt.component-capability-registry-report.v1';
 const RMT_VNEXT_COMPONENT_PRIMITIVES_LOCAL_GATE = 'node scripts/run_xtend_tests.js rmt-vnext-component-primitives --json';
@@ -167,6 +168,7 @@ async function runRmtVNextComponentPrimitivesSuite(options = {}) {
   const registrySyntax = syntaxCheckFile(RMT_COMPONENT_CAPABILITY_REGISTRY_PATH, { rootDir, extension: '.js' });
   const registryApi = await import(`file://${resolveRepoPath(RMT_COMPONENT_CAPABILITY_REGISTRY_PATH, rootDir)}`);
   const rendererApi = await import(`file://${resolveRepoPath(RMT_DOM_DESCRIPTOR_RENDERER_PATH, rootDir)}`);
+  const eventRouterApi = await import(`file://${resolveRepoPath(RMT_EVENT_ROUTING_RUNTIME_PATH, rootDir)}`);
 
   assertFileExists(context, RMT_COMPONENT_CAPABILITY_REGISTRY_PATH, rootDir, 'component capability registry runtime exists');
   assertFileExists(context, RMT_COMPONENT_CAPABILITY_REGISTRY_TYPES, rootDir, 'component capability registry declarations exist');
@@ -177,6 +179,8 @@ async function runRmtVNextComponentPrimitivesSuite(options = {}) {
   context.assert(!/from ['"]\.\.\/components|from ['"]\.\/components|import\(['"]\.\.\/components|import\(['"]\.\/components/u.test(registrySource), 'registry does not import XTend components directly');
   context.assert(!registrySource.includes('shadowRoot'), 'registry does not patch component shadowRoot internals');
   context.assert(!registrySource.includes('innerHTML'), 'registry runtime has no manual HTML sink');
+  context.assert(registrySource.includes('resolveBindingDomRenderer') && registrySource.includes('.commit({'), 'component state initialization delegates to the shared DOM renderer');
+  context.assert(!/element\.(?:setAttribute|removeAttribute)\s*\(|element\[[^\]]+\]\s*=/u.test(registrySource), 'component capability registry contains no direct DOM writer fallback');
 
   const registry = registryApi.createRmtComponentCapabilityRegistry({ manifest, sourceTexts });
   const matrix = registry.createMatrixReport();
@@ -198,6 +202,7 @@ async function runRmtVNextComponentPrimitivesSuite(options = {}) {
   const selectCapability = registry.resolveComponentCapability('x-select');
   context.assert(selectCapability && selectCapability.family === 'form', 'registry resolves x-select as form component');
   context.assert(selectCapability && selectCapability.observedAttributes.includes('value'), 'registry exposes observed attributes');
+  context.assert(selectCapability && selectCapability.propertyNames.includes('value'), 'registry explicitly declares public custom-element properties');
   context.assert(selectCapability && selectCapability.events.includes('select-changed'), 'registry exposes custom component events');
   context.assert(selectCapability && selectCapability.slots.includes('label'), 'registry exposes slots');
   context.assert(selectCapability && selectCapability.parts.includes('control'), 'registry exposes parts');
@@ -240,29 +245,123 @@ async function runRmtVNextComponentPrimitivesSuite(options = {}) {
   const documentTarget = createFakeDocument();
   const root = createFakeElement('main');
   const renderer = rendererApi.createRmtDomDescriptorRenderer({ documentTarget });
-  const nodes = renderer.renderKeyed(root, [descriptor], {
-    componentRegistry: registry,
-    dispatchEvent: (event) => dispatched.push(event),
-    stateBridge: {
-      read(key) {
-        return key === 'xselect-value-plan' ? 'starter' : undefined;
-      },
-      write(key, value) {
-        stateWrites.push({ key, value });
+  const commitResult = renderer.commit({
+    operation: 'reconcile-children',
+    target: root,
+    descriptors: [descriptor],
+    context: {
+      componentRegistry: registry,
+      stateBridge: {
+        read(key) {
+          return key === 'xselect-value-plan' ? 'starter' : undefined;
+        },
+        write(key, value) {
+          stateWrites.push({ key, value });
+        }
       }
     }
   });
-  const selectNode = nodes[0];
+  const selectNode = commitResult.nodes[0];
   context.assert(selectNode.localName === 'x-select', 'renderer materializes XTend component tag through registry');
   context.assert(selectNode.getAttribute('data-rmt-component-capability') === 'x-select', 'renderer applies registry capability marker');
   context.assert(selectNode.getAttribute('name') === 'plan', 'renderer applies component attributes');
   context.assert(selectNode.getAttribute('value') === 'starter', 'state bridge initializes component value');
-  context.assert(selectNode._listeners.get('select-changed').length >= 2, 'renderer binds descriptor and registry component events');
+  context.assert(
+    commitResult.bindings.length === 1 && !selectNode._listeners.has('select-changed'),
+    'renderer validates application bindings without installing command listeners'
+  );
+  const eventRouter = eventRouterApi.createRmtEventRoutingRuntime({
+    root,
+    strict: true,
+    actionRuntime: {
+      dispatchCommand(command, metadata) {
+        dispatched.push({ command, metadata });
+        return { status: 'success' };
+      }
+    }
+  });
+  const eventReconcile = eventRouter.reconcile(root, commitResult);
+  context.assert(
+    eventReconcile.attachedCount === 1 && selectNode._listeners.get('select-changed').length === 1,
+    'Event Router exclusively materializes the validated application binding'
+  );
   selectNode.value = 'enterprise';
-  selectNode.dispatchEvent({ type: 'select-changed', detail: { value: 'enterprise' } });
-  context.assert(dispatched.length === 2, 'component event reaches RMT dispatcher from renderer and registry');
-  context.assert(dispatched.some((entry) => entry.action === 'plan.changed'), 'registry dispatches configured component action');
-  context.assert(stateWrites.some((entry) => entry.value === 'enterprise'), 'state bridge receives component value update');
+  await selectNode._listeners.get('select-changed')[0]({
+    type: 'select-changed',
+    target: selectNode,
+    currentTarget: selectNode,
+    detail: { value: 'enterprise' }
+  });
+  context.assert(dispatched.length === 1, 'component event reaches the Command Bus exactly once');
+  context.assert(dispatched[0].command.command === 'plan.changed', 'Event Router dispatches the configured component command');
+  context.assert(dispatched[0].command.payload.value === 'enterprise', 'Event Router adapts the component event detail into the command payload');
+  context.assert(stateWrites.length === 0, 'application events do not mutate Model state through the legacy component state bridge');
+  Object.defineProperty(selectNode.dataset, 'constructor', {
+    value: 'prototype-pollution-attempt',
+    enumerable: true,
+    configurable: true
+  });
+  try {
+    await selectNode._listeners.get('select-changed')[0]({
+      type: 'select-changed',
+      target: selectNode,
+      currentTarget: selectNode,
+      detail: { value: 'safe' }
+    });
+  } finally {
+    delete selectNode.dataset.constructor;
+  }
+  context.assert(
+    dispatched[1].command.payload.value === 'safe'
+      && !Object.prototype.hasOwnProperty.call(dispatched[1].command.payload, 'constructor'),
+    'component command payloads do not copy reserved dataset keys'
+  );
+  eventRouter.dispose();
+
+  const captureElement = createFakeElement('x-select');
+  const captureListeners = [];
+  let capturedDispatchCount = 0;
+  captureElement.addEventListener = (eventName, listener, listenerOptions = {}) => {
+    captureListeners.push({
+      eventName,
+      listener,
+      capture: listenerOptions === true || listenerOptions.capture === true
+    });
+  };
+  captureElement.removeEventListener = (eventName, listener, listenerOptions = {}) => {
+    const capture = listenerOptions === true || listenerOptions.capture === true;
+    const index = captureListeners.findIndex((entry) => (
+      entry.eventName === eventName && entry.listener === listener && entry.capture === capture
+    ));
+    if (index >= 0) captureListeners.splice(index, 1);
+  };
+  const captureBinding = registry.bindComponentInstance(captureElement, {
+    events: [{
+      event: 'select-changed',
+      action: 'plan.capture',
+      options: { capture: true, passive: true }
+    }],
+    dispatchAction() {
+      capturedDispatchCount += 1;
+    }
+  });
+  captureListeners.slice().forEach((entry) => entry.listener({
+    type: entry.eventName,
+    target: captureElement,
+    currentTarget: captureElement,
+    detail: { value: 'captured' }
+  }));
+  captureBinding.destroy();
+  captureListeners.slice().forEach((entry) => entry.listener({
+    type: entry.eventName,
+    target: captureElement,
+    currentTarget: captureElement,
+    detail: { value: 'leaked' }
+  }));
+  context.assert(
+    capturedDispatchCount === 1 && captureListeners.length === 0,
+    'component binding destroy removes capture listeners with the matching listener options'
+  );
 
   const importCalls = [];
   const loadReport = await registry.ensureComponentLoaded('x-player', {
@@ -273,6 +372,10 @@ async function runRmtVNextComponentPrimitivesSuite(options = {}) {
   context.assert(loadReport.ok === true && loadReport.status === 'loaded', 'registry lazy import hook resolves component');
   context.assert(importCalls.length === 1 && importCalls[0].modulePath === './xplayer.js', 'lazy import uses manifest module path');
   context.assert(registry.ensureComponentLoaded('x-player') instanceof Promise, 'ensureComponentLoaded stays async for browser hosts');
+  const firstDispose = registry.dispose();
+  const secondDispose = registry.dispose();
+  context.assert(firstDispose.disposed === true && firstDispose.alreadyDisposed === false, 'component registry disposes its owned compatibility renderer once');
+  context.assert(secondDispose.disposed === true && secondDispose.alreadyDisposed === true, 'component registry dispose is idempotent');
 
   context.assert(packageManifest.exports[RMT_VNEXT_COMPONENT_PRIMITIVES_EXPORT] && packageManifest.exports[RMT_VNEXT_COMPONENT_PRIMITIVES_EXPORT].types === './xtendrmt/rmt-component-capability-registry.d.ts', 'package exports component capability registry types');
   context.assert(xtendrmtManifest.exports['./component-capability-registry'] && xtendrmtManifest.exports['./component-capability-registry'].types === './rmt-component-capability-registry.d.ts', 'xtendrmt package exports component capability registry types');

@@ -148,7 +148,7 @@ class XSurfaceRegion extends HTMLElement {
         schema: 'xtend.surface.record.v1',
         type: 'region',
         kinds: ['root', 'workspace', 'page', 'card', 'list', 'region', 'overlay-host'],
-        controller: 'xtend.surface.controller.v1'
+        controller: 'xtend.surface.controller.v2'
       },
       kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
     };

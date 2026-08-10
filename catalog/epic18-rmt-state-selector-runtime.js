@@ -6,7 +6,7 @@ const {
   RMT_COMPONENT_TEMPLATE_PRIMITIVES_WORKPACKAGE
 } = require('./epic18-rmt-component-template-primitives');
 
-const RMT_STATE_SELECTOR_RUNTIME_SCHEMA = 'xtend.epic18.rmt-state-selector-runtime.v1';
+const RMT_STATE_SELECTOR_RUNTIME_SCHEMA = 'xtend.epic18.rmt-state-selector-runtime.v2';
 const RMT_STATE_SELECTOR_RUNTIME_REPORT_SCHEMA = 'xtend.epic18.rmt-state-selector-runtime-report.v1';
 const RMT_STATE_SELECTOR_RUNTIME_FIXTURE_SCHEMA = 'xtend.epic18.rmt-state-selector-runtime-fixture.v1';
 const RMT_STATE_SELECTOR_RUNTIME_WORKPACKAGE = 'WP-E18-07';

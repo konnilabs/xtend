@@ -93,7 +93,7 @@ const GENERATORS = [
     command: 'kernel-lab',
     status: 'rmt-kernel-analysis-clean-build-and-module-manifest',
     owner: 'RMT-KernelLab',
-    description: 'Analyzes the bundled RMT kernel and builds the clean Dashboard-free standard kernel artifacts.',
+    description: 'Assembles the bundled RMT kernel with the canonical descriptor renderer and synchronizes bundles, types, schema and manifests.',
     run: createRmtKernelLabReport
   },
   {

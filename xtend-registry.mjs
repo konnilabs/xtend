@@ -1,6 +1,6 @@
 import { createRmtBrowserScheduler } from './xtendrmt/rmt-browser-scheduler.js';
 import { createRmtDomDescriptorRenderer } from './xtendrmt/rmt-dom-descriptor-renderer.js';
-import { createRmtAppRuntime } from './xtendrmt/rmt-app-runtime.js';
+import { createRmtAppRuntime } from './xtendrmt/rmt-app-runtime.compat.js';
 import { createRmtStateSelectorRuntime } from './xtendrmt/rmt-state-selector-runtime.js';
 import { createRmtActionEffectRuntime } from './xtendrmt/rmt-action-effect-runtime.js';
 import { createRmtEventRoutingRuntime } from './xtendrmt/rmt-event-routing-runtime.js';
@@ -16,7 +16,7 @@ export { createRmtBrowserScheduler, createRmtDomDescriptorRenderer, createRmtApp
 
 const DEFAULT_OPERATIONS = [
   ['schedule', 'xtend.registry.schedule'], ['after-paint', 'xtend.registry.after-paint'],
-  ['render', 'xtend.registry.render'], ['render-keyed', 'xtend.registry.render-keyed'],
+  ['render', 'xtend.registry.render'], ['dom-commit', 'xtend.registry.dom-commit'], ['render-keyed', 'xtend.registry.render-keyed'],
   ['patch-element', 'xtend.registry.patch-element'], ['state', 'xtend.registry.state'],
   ['command', 'xtend.registry.command'], ['component-load', 'xtend.registry.component-load'],
   ['hydrate', 'xtend.registry.hydrate'], ['dispose', 'xtend.registry.dispose']
@@ -50,16 +50,31 @@ export function createXTendKernelArtifact(options = {}) {
   };
 }
 
-let configuration = Object.create(null);
+function createXTendRegistryContext(initialOptions = {}) {
+let configuration = { ...initialOptions };
 let schedulerInstance = null;
 let rendererInstance = null;
 let loaderPromise = null;
 let kernelHost = null;
+let publicHost = null;
 let bootPromise = null;
 let bootError = null;
 let lifecycle = 'idle';
 let generation = 0;
 const owned = [];
+
+function immutableSnapshot(value, fallback = null) {
+  let cloned;
+  try { cloned = value == null ? fallback : JSON.parse(JSON.stringify(value)); } catch (_) { cloned = fallback; }
+  const seen = new WeakSet();
+  const freeze = (entry) => {
+    if (!entry || typeof entry !== 'object' || seen.has(entry)) return entry;
+    seen.add(entry);
+    Object.values(entry).forEach(freeze);
+    return Object.freeze(entry);
+  };
+  return freeze(cloned);
+}
 
 const browserGlobal = () => typeof window !== 'undefined' ? window : null;
 const mode = () => configuration.orchestration || 'kernel';
@@ -79,6 +94,18 @@ function assertReady(operation) {
   if (lifecycle !== 'ready' || !kernelHost) throw errorWithCode('XTEND_NOT_READY', `${operation} requires await readyXTend() before use.`);
 }
 
+function getPublicHost() {
+  if (!kernelHost) return null;
+  if (!publicHost) {
+    publicHost = Object.freeze({
+      schema: kernelHost.schema,
+      mode: kernelHost.mode,
+      snapshot: () => getXTendSnapshot()
+    });
+  }
+  return publicHost;
+}
+
 function getScheduler() {
   if (!schedulerInstance) schedulerInstance = configuration.scheduler || createRmtBrowserScheduler({ windowTarget: schedulerHost() });
   return schedulerInstance;
@@ -96,13 +123,13 @@ function getRenderer() {
   return rendererInstance;
 }
 
-export function configureXTend(options = {}) {
+function configureXTend(options = {}) {
   if (lifecycle !== 'idle' || schedulerInstance || rendererInstance) throw new Error('XTend is already initialized. Call disposeXTend() before configuring it again.');
   configuration = { ...options };
   return getXTendConfiguration();
 }
 
-export function getXTendConfiguration() {
+function getXTendConfiguration() {
   return Object.freeze({ ...configuration, orchestration: mode(), windowTarget: configuration.windowTarget || null, documentTarget: configuration.documentTarget || null, scheduler: configuration.scheduler || null, renderer: configuration.renderer || null, fabric: configuration.fabric ?? null });
 }
 
@@ -115,7 +142,7 @@ async function instantiateFabric(options) {
   return { fabric: api.createXtendFabric(options.fabricOptions || {}), owned: true };
 }
 
-export async function readyXTend(options = {}) {
+async function readyXTend(options = {}) {
   if (Object.keys(options).length) {
     if (lifecycle !== 'idle') throw new Error('XTend boot has already started. Dispose it before applying another configuration.');
     configuration = { ...configuration, ...options };
@@ -123,9 +150,9 @@ export async function readyXTend(options = {}) {
   if (mode() === 'lightweight') {
     lifecycle = 'ready';
     kernelHost = Object.freeze({ schema: 'xtend.registry.host.v1', mode: 'lightweight', snapshot: () => getXTendSnapshot() });
-    return kernelHost;
+    return getPublicHost();
   }
-  if (kernelHost) return kernelHost;
+  if (kernelHost) return getPublicHost();
   if (bootPromise) return bootPromise;
   lifecycle = 'booting';
   const bootGeneration = generation;
@@ -164,7 +191,7 @@ export async function readyXTend(options = {}) {
       Object.defineProperty(host, '_ownsFabric', { value: fabricResult.owned });
       kernelHost = Object.freeze(host);
       lifecycle = 'ready';
-      return kernelHost;
+      return getPublicHost();
     } catch (cause) {
       if (bootGeneration === generation) {
         lifecycle = 'failed';
@@ -178,21 +205,26 @@ export async function readyXTend(options = {}) {
   return bootPromise;
 }
 
-export function getXTendHost() { assertReady('getXTendHost()'); return kernelHost; }
-export function getXTendSnapshot() {
-  if (mode() === 'lightweight') return Object.freeze({ schema: 'xtend.registry.snapshot.v1', mode: 'lightweight', status: lifecycle });
+function getXTendHost() {
+  if (lifecycle !== 'ready' || !kernelHost) {
+    throw errorWithCode('XTEND_NOT_READY', 'getXTendHost() requires await readyXTend() before use.');
+  }
+  return getPublicHost();
+}
+function getXTendSnapshot() {
+  if (mode() === 'lightweight') return immutableSnapshot({ schema: 'xtend.registry.snapshot.v1', mode: 'lightweight', status: lifecycle }, {});
   assertReady('getXTendSnapshot()');
-  return kernelHost.snapshot();
+  return immutableSnapshot(kernelHost.snapshot(), {});
 }
 
-export function schedule(callback, options = {}) {
+function schedule(callback, options = {}) {
   if (typeof callback !== 'function') throw new TypeError('schedule(callback) requires a function.');
   if (mode() === 'lightweight') return getScheduler().scheduleEndpoint(options.endpointName || 'xtend.registry.schedule', options.scope || 'xtend.registry', callback, options);
   assertReady('schedule()');
   return kernelHost.controller.scheduleEndpoint(options.endpointName || 'xtend.registry.schedule', options.scope || 'xtend.registry', callback, options);
 }
 
-export function afterPaint(callback) {
+function afterPaint(callback) {
   if (typeof callback !== 'function') throw new TypeError('afterPaint(callback) requires a function.');
   if (mode() === 'lightweight') return getScheduler().afterPaint(callback);
   assertReady('afterPaint()');
@@ -205,10 +237,17 @@ function inline(kind, callback) {
   return kernelHost.controller.scheduleWork(kind, callback, { inline: true, runInline: true });
 }
 
-export function render(root, descriptor, options = {}) { return inline('render', () => getRenderer().render(root, descriptor, options)); }
-export function renderNode(descriptor, options = {}) { return inline('render', () => getRenderer().renderNode(descriptor, options)); }
-export function renderKeyed(root, descriptors, options = {}) { return inline('render-keyed', () => getRenderer().renderKeyed(root, descriptors, options)); }
-export function patchElement(element, descriptor, options = {}) { return inline('patch-element', () => getRenderer().patchElement(element, descriptor, options)); }
+function render(root, descriptor, options = {}) { return inline('render', () => getRenderer().render(root, descriptor, options)); }
+function renderNode(descriptor, options = {}) { return inline('render', () => getRenderer().renderNode(descriptor, options)); }
+function renderKeyed(root, descriptors, options = {}) { return inline('render-keyed', () => getRenderer().renderKeyed(root, descriptors, options)); }
+function patchElement(element, descriptor, options = {}) { return inline('patch-element', () => getRenderer().patchElement(element, descriptor, options)); }
+function commit(request) {
+  return inline('dom-commit', () => {
+    const renderer = getRenderer();
+    if (typeof renderer.commit !== 'function') throw errorWithCode('XTEND_DOM_COMMIT_UNSUPPORTED', 'The configured renderer does not implement commit(request).');
+    return renderer.commit(request);
+  });
+}
 
 function createBound(factory, options, kind) {
   if (mode() !== 'lightweight') assertReady(`${kind}()`);
@@ -216,7 +255,7 @@ function createBound(factory, options, kind) {
   return track(instance);
 }
 
-export function createApp(options = {}) {
+function createApp(options = {}) {
   const runtime = createBound(createRmtAppRuntime, options, 'createApp');
   if (mode() === 'lightweight') return runtime;
   const facade = { ...runtime };
@@ -224,7 +263,7 @@ export function createApp(options = {}) {
   if (typeof runtime.command === 'function') facade.command = (...args) => kernelHost.controller.scheduleWork('command', () => runtime.command(...args), { inline: true, runInline: true, operation: 'operation:xtend.registry/command' });
   return Object.freeze(facade);
 }
-export function createStore(options = {}) {
+function createStore(options = {}) {
   const runtime = createBound(createRmtStateSelectorRuntime, options, 'createStore');
   if (mode() === 'lightweight') return runtime;
   const facade = { ...runtime };
@@ -239,12 +278,18 @@ export function createStore(options = {}) {
   });
   return Object.freeze(facade);
 }
-export function createEffects(options = {}) { return createBound(createRmtActionEffectRuntime, options, 'createEffects'); }
-export function createRouter(options = {}) { return createBound(createRmtEventRoutingRuntime, options, 'createRouter'); }
-export function createAnimator(options = {}) { return createBound(createRmtAnimationEngineRuntime, options, 'createAnimator'); }
-export function createValidator(options = {}) { return createBound(createRmtFormValidationRuntime, options, 'createValidator'); }
-export function createTransitions(options = {}) { return createBound(createRmtSurfaceTransitionRuntime, options, 'createTransitions'); }
-export function createResources(options = {}) { return createBound(createRmtSurfaceResourceGraphRuntime, options, 'createResources'); }
+function createEffects(options = {}) { return createBound(createRmtActionEffectRuntime, options, 'createEffects'); }
+function withSharedDomRenderer(options = {}) {
+  if (options.domRenderer) return options;
+  if (options.renderer) return { ...options, domRenderer: options.renderer };
+  if (configuration.renderer || rendererInstance || rendererDocument()) return { ...options, domRenderer: getRenderer() };
+  return options;
+}
+function createRouter(options = {}) { return createBound(createRmtEventRoutingRuntime, withSharedDomRenderer(options), 'createRouter'); }
+function createAnimator(options = {}) { return createBound(createRmtAnimationEngineRuntime, withSharedDomRenderer(options), 'createAnimator'); }
+function createValidator(options = {}) { return createBound(createRmtFormValidationRuntime, withSharedDomRenderer(options), 'createValidator'); }
+function createTransitions(options = {}) { return createBound(createRmtSurfaceTransitionRuntime, withSharedDomRenderer(options), 'createTransitions'); }
+function createResources(options = {}) { return createBound(createRmtSurfaceResourceGraphRuntime, withSharedDomRenderer(options), 'createResources'); }
 
 async function getClassicLoader() {
   const target = browserGlobal();
@@ -281,9 +326,9 @@ async function loaderWork(kind, callback) {
   assertReady(`${kind}()`);
   return kernelHost.controller.scheduleWork(kind, callback, { inline: true, runInline: true });
 }
-export async function loadComponent(tag, options = {}) { return loaderWork('component-load', async () => (await getClassicLoader()).ensureComponent(tag, options)); }
-export async function hydrate(root = typeof document !== 'undefined' ? document : undefined, options = {}) { return loaderWork('hydrate', async () => (await getClassicLoader()).hydrateTree(root, options)); }
-export async function boot(options = {}) {
+async function loadComponent(tag, options = {}) { return loaderWork('component-load', async () => (await getClassicLoader()).ensureComponent(tag, options)); }
+async function hydrate(root = typeof document !== 'undefined' ? document : undefined, options = {}) { return loaderWork('hydrate', async () => (await getClassicLoader()).hydrateTree(root, options)); }
+async function boot(options = {}) {
   return loaderWork('hydrate', async () => {
     const loader = await getClassicLoader();
     const bootPromise = loader.initiateXTend(options);
@@ -293,19 +338,81 @@ export async function boot(options = {}) {
   });
 }
 
-export async function createFabric(options = {}) {
+async function createFabric(options = {}) {
   if (mode() === 'kernel') { assertReady('createFabric()'); return kernelHost.fabric; }
   return (await instantiateFabric({ ...options, fabricOptions: options })).fabric;
 }
-export const createXtendFabric = createFabric;
+const createXtendFabric = createFabric;
 
-export function disposeXTend() {
+function disposeXTend() {
   generation += 1;
   [...owned].reverse().forEach((instance) => { try { instance?.dispose?.(); } catch (_) {} });
   owned.length = 0;
   try { kernelHost?.controller?.dispose?.(); } catch (_) {}
   if (kernelHost?._ownsFabric) { try { kernelHost.fabric?.dispose?.(); } catch (_) {} }
   new Set([schedulerInstance, rendererInstance]).forEach((instance) => { try { instance?.dispose?.(); } catch (_) {} });
-  schedulerInstance = null; rendererInstance = null; loaderPromise = null; kernelHost = null; bootPromise = null; bootError = null;
+  schedulerInstance = null; rendererInstance = null; loaderPromise = null; kernelHost = null; publicHost = null; bootPromise = null; bootError = null;
   configuration = Object.create(null); lifecycle = 'idle';
 }
+
+return Object.freeze({
+  createXTendKernelArtifact,
+  configureXTend,
+  getXTendConfiguration,
+  readyXTend,
+  getXTendHost,
+  getXTendSnapshot,
+  schedule,
+  afterPaint,
+  render,
+  renderNode,
+  renderKeyed,
+  patchElement,
+  commit,
+  createApp,
+  createStore,
+  createEffects,
+  createRouter,
+  createAnimator,
+  createValidator,
+  createTransitions,
+  createResources,
+  loadComponent,
+  hydrate,
+  boot,
+  createFabric,
+  createXtendFabric,
+  disposeXTend
+});
+}
+
+export function createXTendRegistry(options = {}) { return createXTendRegistryContext(options); }
+
+const defaultRegistry = createXTendRegistry();
+
+export function configureXTend(...args) { return defaultRegistry.configureXTend(...args); }
+export function getXTendConfiguration(...args) { return defaultRegistry.getXTendConfiguration(...args); }
+export async function readyXTend(...args) { return defaultRegistry.readyXTend(...args); }
+export function getXTendHost(...args) { return defaultRegistry.getXTendHost(...args); }
+export function getXTendSnapshot(...args) { return defaultRegistry.getXTendSnapshot(...args); }
+export function schedule(...args) { return defaultRegistry.schedule(...args); }
+export function afterPaint(...args) { return defaultRegistry.afterPaint(...args); }
+export function render(...args) { return defaultRegistry.render(...args); }
+export function renderNode(...args) { return defaultRegistry.renderNode(...args); }
+export function renderKeyed(...args) { return defaultRegistry.renderKeyed(...args); }
+export function patchElement(...args) { return defaultRegistry.patchElement(...args); }
+export function commit(...args) { return defaultRegistry.commit(...args); }
+export function createApp(...args) { return defaultRegistry.createApp(...args); }
+export function createStore(...args) { return defaultRegistry.createStore(...args); }
+export function createEffects(...args) { return defaultRegistry.createEffects(...args); }
+export function createRouter(...args) { return defaultRegistry.createRouter(...args); }
+export function createAnimator(...args) { return defaultRegistry.createAnimator(...args); }
+export function createValidator(...args) { return defaultRegistry.createValidator(...args); }
+export function createTransitions(...args) { return defaultRegistry.createTransitions(...args); }
+export function createResources(...args) { return defaultRegistry.createResources(...args); }
+export async function loadComponent(...args) { return defaultRegistry.loadComponent(...args); }
+export async function hydrate(...args) { return defaultRegistry.hydrate(...args); }
+export async function boot(...args) { return defaultRegistry.boot(...args); }
+export async function createFabric(...args) { return defaultRegistry.createFabric(...args); }
+export const createXtendFabric = createFabric;
+export function disposeXTend(...args) { return defaultRegistry.disposeXTend(...args); }

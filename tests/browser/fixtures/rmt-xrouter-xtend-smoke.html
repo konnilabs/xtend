@@ -438,7 +438,7 @@
         xstate: window.xstate
       });
       const bridge = appModules.createRmtStateSchedulerDiagnosticsBridge({
-        xstate: window.xstate,
+        stateProjectionPort: window.xstate,
         scheduler,
         diagnosticsHub,
         schedules: normalizedDocument.schedules,

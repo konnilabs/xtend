@@ -1,6 +1,6 @@
 # SurfaceManager Controller
 
-Contract: `xtend.surface.controller.v1`
+Contract: `xtend.surface.controller.v2`
 
 The SurfaceManager Controller is the DOM-free state engine behind `x-surface-manager`. It lives in `components/xsurfacemanager-controller.js`, mirrors state into `xtend.surface.snapshot`, emits diagnostics and stays outside the RMT kernel boundary.
 

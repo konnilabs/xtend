@@ -127,6 +127,9 @@ template docs.hydrationResume {
       }
       resume hydration-shell {
         resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
       }
     }
   }

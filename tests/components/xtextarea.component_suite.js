@@ -55,8 +55,21 @@ function runXTextareaComponentSuite(options = {}) {
     'passive valid sync clears invalid without event',
     'Shift Enter preserves multiline behavior'
   ].every((check) => fixture.includes(check)), 'x-textarea browser fixture separates passive validity sync from explicit validation semantics');
-  assert(['readonly', 'busy', 'fill', 'highlight', 'lang', 'language'].every((attribute) => maracaRuntime.includes(`setIfPresent(\"${attribute}\")`)), 'Maraca runtime synchronizes direct XTextarea state attributes');
-  assert(['submitCommand', 'submitOnEnter', 'syntaxHighlight', 'lineNumbering'].every((stateKey) => maracaRuntime.includes(`\"${stateKey}\"`)), 'Maraca runtime synchronizes mapped XTextarea state attributes');
+  assert(
+    maracaRuntime.includes('createMaracaCompatibilitySurfaceDescriptor')
+      && maracaRuntime.includes('const setIfPresent = (attribute, stateKey = attribute)')
+      && includesAll(maracaRuntime, ['readonly', 'busy', 'fill', 'highlight', 'lang', 'language']),
+    'Maraca compatibility descriptor projection synchronizes direct XTextarea state attributes generically'
+  );
+  assert([
+    ['submit-command', 'submitCommand'],
+    ['submit-on-enter', 'submitOnEnter'],
+    ['syntax-highlight', 'syntaxHighlight'],
+    ['line-numbering', 'lineNumbering']
+  ].every(([attribute, stateKey]) => (
+    maracaRuntime.includes(`['${attribute}', '${stateKey}']`)
+      || maracaRuntime.includes(`[\"${attribute}\", \"${stateKey}\"]`)
+  )), 'Maraca compatibility descriptor projection synchronizes mapped XTextarea state attributes');
   result.ok = result.failures.length === 0;
   return result;
 }

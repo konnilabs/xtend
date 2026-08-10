@@ -115,7 +115,7 @@ const REQUIRED_METADATA = Object.freeze([
   },
   {
     key: 'rmtSurfaceResourceGraphRuntime',
-    schema: 'xtend.epic18.rmt-surface-resource-graph-runtime.v1',
+    schema: 'xtend.epic18.rmt-surface-resource-graph-runtime.v2',
     localGate: 'node scripts/run_xtend_tests.js rmt-surface-resource-graph-runtime --json'
   },
   {

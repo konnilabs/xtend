@@ -143,6 +143,7 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
   const restCalls = [];
   const hostCalls = [];
   const diagnostics = [];
+  let actionHostAbortControllerCount = 0;
   const pending = createPending();
   let pendingSignal = null;
   let resolvePendingStart;
@@ -158,6 +159,16 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
     effects: fixture.effects,
     resources: fixture.resources,
     stateRuntime,
+    hostPort: {
+      schema: 'xtend.rmt.action-host-port.test.v1',
+      createAbortController() {
+        actionHostAbortControllerCount += 1;
+        return new AbortController();
+      },
+      createRunId(actionId, sequence) {
+        return `${actionId}:host-port:${sequence}`;
+      }
+    },
     feedbackAdapter: {
       publish(payload) {
         feedback.push(payload);
@@ -277,6 +288,8 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
 
   const loadResult = await runtime.runAction('action.load-items', { file: { name: 'preview.bin' } });
   context.assert(loadResult.status === 'success', 'fixture datasource action succeeds');
+  context.assert(loadResult.runId === 'action.load-items:host-port:1', 'Action Controller delegates run-id creation to its typed Host port');
+  context.assert(actionHostAbortControllerCount === 1, 'Action Controller delegates AbortController creation to its typed Host port');
   context.assert(Array.isArray(loadResult.data) && loadResult.data.length === 2, 'fixture datasource returns records');
   context.assert(stateRuntime.getState('state.loading') === false, 'loading state resets after success');
   context.assert(stateRuntime.getState('state.items').length === 2, 'success writes collection state');
@@ -423,6 +436,44 @@ async function runComponentCommandAssertions(context, actionRuntimeModule) {
   context.assert(invalidResult.status === 'error' && invalidResult.error.message.includes('is not allowed'), 'action runtime fail-closes arbitrary component command names');
 }
 
+async function runManagedPlanningAssertions(context, actionRuntimeModule) {
+  const stateWrites = [];
+  const presentationCalls = [];
+  const stateRuntime = {
+    getState() { return {}; },
+    setState(...args) { stateWrites.push({ operation: 'set', args }); },
+    patchState(...args) { stateWrites.push({ operation: 'patch', args }); },
+    dispatch(...args) { stateWrites.push({ operation: 'dispatch', args }); }
+  };
+  const runtime = actionRuntimeModule.createRmtActionEffectRuntime({
+    planningOnly: true,
+    stateRuntime,
+    actions: [{
+      id: 'demo.managed',
+      resultState: 'state.result',
+      loadingState: 'state.loading',
+      statusState: 'state.status',
+      reducers: [{ state: 'state.selection', set: '$result.id' }],
+      effects: ['effect.feedback', 'effect.navigate', 'effect.focus']
+    }],
+    effects: [
+      { id: 'effect.feedback', kind: 'feedback', message: '$result.title' },
+      { id: 'effect.navigate', kind: 'navigation', path: '$result.path' },
+      { id: 'effect.focus', kind: 'focus', target: 'ref.editor' }
+    ],
+    feedbackAdapter: { publish(...args) { presentationCalls.push({ kind: 'feedback', args }); } },
+    navigationAdapter: { navigate(...args) { presentationCalls.push({ kind: 'navigation', args }); } },
+    focusAdapter: { focus(...args) { presentationCalls.push({ kind: 'focus', args }); } }
+  });
+  const result = await runtime.runAction('demo.managed', { id: 'record.one', title: 'Saved', path: '/one' });
+  context.assert(result.status === 'success' && stateWrites.length === 0, 'managed Action evaluation performs no direct Model mutation');
+  context.assert(presentationCalls.length === 0, 'managed Action evaluation performs no presentation side effect before commit');
+  context.assert(Array.isArray(result.modelOperations) && result.modelOperations.length === 4, 'managed Action returns one declarative Model-operation plan');
+  context.assert(result.modelOperations.some((entry) => entry.operation === 'set' && entry.state === 'state.result'), 'managed Action plan carries its result-state write');
+  context.assert(Array.isArray(result.postCommitEffects) && result.postCommitEffects.length === 3, 'managed Action returns presentation work as post-commit effects');
+  context.assert(result.postCommitEffects.every((entry) => entry.value && entry.value.deferred === true), 'all managed presentation effects are explicitly deferred');
+}
+
 async function runRmtActionEffectRuntimeSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
@@ -489,6 +540,7 @@ async function runRmtActionEffectRuntimeSuite(options = {}) {
   assertFixtureGraph(context, fixture);
   await runRuntimeAssertions(context, fixture, stateRuntimeModule, actionRuntimeModule);
   await runComponentCommandAssertions(context, actionRuntimeModule);
+  await runManagedPlanningAssertions(context, actionRuntimeModule);
 
   assertTextIncludesAll(context, runtimeSource, [
     'createRmtActionEffectRuntime',
@@ -511,6 +563,7 @@ async function runRmtActionEffectRuntimeSuite(options = {}) {
     'RmtDataSourceDefinition',
     'RmtEffectDefinition',
     'RmtComponentCommand',
+    'RmtActionHostPort',
     'RmtResourceManager',
     'createRmtActionEffectRuntime'
   ], 'Action effect runtime types');

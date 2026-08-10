@@ -72,10 +72,19 @@ function collectSurfaceFixtureRecords(fixture) {
 
 function createStateProbe() {
   const data = {};
+  const setCalls = [];
+  const batches = [];
   return {
     data,
+    setCalls,
+    batches,
     set(key, value) {
+      setCalls.push({ key, value });
       data[key] = value;
+    },
+    batchUpdate(updates) {
+      batches.push({ ...updates });
+      Object.assign(data, updates);
     },
     get(key) {
       return data[key];
@@ -95,23 +104,29 @@ async function loadSurfaceControllerRuntime(rootDir) {
 
 async function exerciseRuntime(context, rootDir) {
   const runtime = await loadSurfaceControllerRuntime(rootDir);
+  const projectionRuntime = await importEsm(rootDir, 'components/xsurfacemanager-state-projection-adapter.js');
+  const clockRuntime = await importEsm(rootDir, 'components/xsurfacemanager-host-clock-adapter.js');
   const fixture = readJson('tests/fixtures/rmt-surface-manager-workbench.rmt', rootDir);
   const state = createStateProbe();
   const fabricEvents = [];
   const controller = runtime.createSurfaceController({
     managerId: 'workbench.manager',
     stateKey: 'xtend.surface.registry',
-    xstate: state,
+    stateProjection: projectionRuntime.createSurfaceStateProjectionAdapter(state, { strict: true }),
     fabric: {
       emitDiagnostic(event) {
         fabricEvents.push(event);
       }
     },
-    now: () => '2026-05-09T00:00:00.000Z',
+    clock: clockRuntime.createSurfaceHostClockAdapter(() => '2026-05-09T00:00:00.000Z'),
     baseZIndex: 100,
     maxDiagnostics: 40
   });
   const records = collectSurfaceFixtureRecords(fixture);
+  const subscriberSnapshots = [];
+  const unsubscribe = controller.subscribe((surfaceSnapshot) => {
+    subscriberSnapshots.push(surfaceSnapshot);
+  }, { emitCurrent: true });
 
   context.assert(runtime.SURFACE_CONTROLLER_SCHEMA === SURFACE_CONTROLLER_SCHEMA, 'Runtime exposes Surface Controller schema');
   context.assert(runtime.SURFACE_RECORD_SCHEMA === SURFACE_RECORD_SCHEMA, 'Runtime exposes Surface Record schema');
@@ -209,6 +224,76 @@ async function exerciseRuntime(context, rootDir) {
   context.assert(fabricEvents.some((event) => event.code === 'xtend.surface.opened'), 'Fabric diagnostic bridge receives open diagnostics');
   context.assert(fabricEvents.every((event) => event.schema === SURFACE_CONTROLLER_DIAGNOSTIC_SCHEMA), 'Fabric diagnostic bridge receives Surface diagnostic schema only');
   context.assert(snapshot.surfaces.every((surface) => !Object.prototype.hasOwnProperty.call(surface, 'metadata')), 'Snapshot omits raw metadata payloads');
+  context.assert(state.setCalls.length === 0, 'Surface Controller projects each lifecycle snapshot through batchUpdate without per-key XState writes');
+  context.assert(state.batches.length > 0 && state.batches.every((batch) => Object.prototype.hasOwnProperty.call(batch, 'xtend.surface.snapshot')), 'Every Surface state projection is one complete batch containing the final snapshot');
+  context.assert(subscriberSnapshots.length > 1 && subscriberSnapshots.every((entry) => entry.schema === SURFACE_CONTROLLER_SNAPSHOT_SCHEMA), 'Surface Controller subscribers observe only complete lifecycle snapshots');
+
+  const previousGlobalXState = globalThis.xstate;
+  let implicitGlobalWrites = 0;
+  globalThis.xstate = { batchUpdate() { implicitGlobalWrites += 1; } };
+  try {
+    const isolatedController = runtime.createSurfaceController({
+      managerId: 'isolated.manager',
+      clock: clockRuntime.createSurfaceHostClockAdapter(() => '2026-05-09T00:00:00.000Z')
+    });
+    isolatedController.registerSurface({ id: 'isolated.surface', type: 'window' });
+    isolatedController.dispose();
+  } finally {
+    if (typeof previousGlobalXState === 'undefined') delete globalThis.xstate;
+    else globalThis.xstate = previousGlobalXState;
+  }
+  context.assert(implicitGlobalWrites === 0, 'Surface Controller never auto-adopts globalThis.xstate');
+
+  let legacyControllerWrites = 0;
+  const legacyController = runtime.createSurfaceController({
+    managerId: 'legacy-projection.manager',
+    xstate: { set() { legacyControllerWrites += 1; } },
+    clock: clockRuntime.createSurfaceHostClockAdapter(() => '2026-05-09T00:00:00.000Z')
+  });
+  legacyController.registerSurface({ id: 'legacy-projection.surface', type: 'window' });
+  const legacyControllerSnapshot = legacyController.readSnapshot();
+  context.assert(legacyControllerWrites === 0, 'Legacy xstate option cannot activate per-key state writes');
+  context.assert(legacyControllerSnapshot.diagnostics.filter((entry) => entry.code === 'xtend.surface.state-projection.batch-required').length === 1, 'Legacy xstate option emits one compatibility diagnostic');
+  legacyController.dispose();
+
+  const legacyProjectionDiagnostics = [];
+  const unsafeLegacyProjection = projectionRuntime.createSurfaceStateProjectionAdapter({ set() {} }, {
+    diagnose(event) { legacyProjectionDiagnostics.push(event); }
+  });
+  context.assert(unsafeLegacyProjection === null, 'Compatibility adapter refuses legacy per-key state writers');
+  context.assert(legacyProjectionDiagnostics.length === 1 && legacyProjectionDiagnostics[0].code === 'xtend.surface.state-projection.batch-required', 'Compatibility adapter diagnoses a missing batchUpdate port exactly once');
+  let strictProjectionError = null;
+  try {
+    projectionRuntime.createSurfaceStateProjectionAdapter({ set() {} }, { strict: true });
+  } catch (error) {
+    strictProjectionError = error;
+  }
+  context.assert(strictProjectionError && strictProjectionError.code === 'xtend.surface.state-projection.batch-required', 'Strict Surface projection fails closed without batchUpdate');
+
+  const atomicVersionBefore = controller.readSnapshot({ includeDestroyed: true }).version;
+  const atomicBatchesBefore = state.batches.length;
+  const atomicNotificationsBefore = subscriberSnapshots.length;
+  const atomicApply = controller.apply([
+    { operation: 'updateSurface', id: 'workbench.inspector', patch: { label: 'Atomic Inspector' } },
+    { operation: 'closeSurface', id: 'workbench.properties', reason: 'atomic-close' }
+  ], { commandId: 'surface.atomic.success' });
+  const atomicSnapshot = controller.readSnapshot({ includeDestroyed: true });
+  context.assert(atomicApply.ok === true && atomicApply.operationCount === 2, 'Surface Controller apply atomically accepts multiple lifecycle operations');
+  context.assert(atomicSnapshot.version === atomicVersionBefore + 1, 'Surface Controller apply advances the authoritative snapshot exactly once');
+  context.assert(state.batches.length === atomicBatchesBefore + 1, 'Surface Controller apply projects exactly one final XState batch');
+  context.assert(subscriberSnapshots.length === atomicNotificationsBefore + 1, 'Surface Controller apply publishes exactly one complete subscriber snapshot');
+  context.assert(atomicSnapshot.surfaces.some((entry) => entry.id === 'workbench.inspector' && entry.label === 'Atomic Inspector'), 'Surface Controller apply includes every successful operation in its final snapshot');
+
+  const rollbackSnapshotBefore = controller.readSnapshot({ includeDestroyed: true });
+  const rollbackInspectorBefore = rollbackSnapshotBefore.surfaces.find((entry) => entry.id === 'workbench.inspector');
+  const failedApply = controller.apply([
+    { operation: 'updateSurface', id: 'workbench.inspector', patch: { bounds: { x: 999 } } },
+    { operation: 'openSurface', id: 'workbench.missing' }
+  ], { commandId: 'surface.atomic.failure' });
+  const rollbackSnapshotAfter = controller.readSnapshot({ includeDestroyed: true });
+  const rollbackInspectorAfter = rollbackSnapshotAfter.surfaces.find((entry) => entry.id === 'workbench.inspector');
+  context.assert(failedApply.ok === false && failedApply.changed === false, 'Surface Controller apply fails closed when one operation is refused');
+  context.assert(rollbackInspectorAfter.bounds.x === rollbackInspectorBefore.bounds.x, 'Failed Surface Controller apply exposes no partial lifecycle mutation');
 
   const propertiesDestroy = controller.destroySurface('workbench.properties', {
     reason: 'test-destroy',
@@ -237,9 +322,12 @@ async function exerciseRuntime(context, rootDir) {
   context.assert(Array.isArray(state.get('xtend.surface.diagnostics')) && state.get('xtend.surface.diagnostics').some((event) => event.code === 'xtend.surface.destroyed'), 'xstate diagnostics mirror stores destroy diagnostics');
   context.assert(fabricEvents.some((event) => event.code === 'xtend.surface.destroyed'), 'Fabric diagnostic bridge receives destroy diagnostics');
 
+  const notificationsBeforeUnsubscribe = subscriberSnapshots.length;
+  unsubscribe();
   const disposeResult = controller.dispose();
   context.assert(disposeResult.ok === true, 'Controller dispose succeeds');
   context.assert(state.get('xtend.surface.snapshot').surfaceCount === 0, 'Dispose mirrors empty snapshot');
+  context.assert(subscriberSnapshots.length === notificationsBeforeUnsubscribe, 'Unsubscribed Surface observers receive no disposal projection');
 }
 
 async function runSurfaceControllerSuite(options = {}) {
@@ -355,6 +443,8 @@ async function runSurfaceControllerSuite(options = {}) {
   ].forEach((forbidden) => {
     context.assert(!runtimeText.includes(forbidden), `Runtime source omits DOM dependency: ${forbidden}`);
   });
+  context.assert(!runtimeText.includes('globalTarget && globalTarget.xstate'), 'Surface Controller source omits implicit global XState adoption');
+  context.assert(!runtimeText.includes('target.set(') && !runtimeText.includes('target.setState('), 'Surface Controller source omits direct per-key state writers');
 
   await exerciseRuntime(context, rootDir);
 

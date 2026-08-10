@@ -17,7 +17,10 @@ const FIXTURE_PATH = 'tests/fixtures/rmt-first-class-xtend-app.rmt';
 function createRuntimeModules(context, rootDir, artifactPath) {
   const source = readText(artifactPath, rootDir);
   const cjsCompatibleSource = artifactPath.endsWith('.esm.js')
-    ? source.replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
+    ? source
+      .replace(/^\s*import\s+[\s\S]*?\s+from\s+['"][^'"]+['"];\s*$/gmu, '')
+      .replace(/^\s*import\s+['"][^'"]+['"];\s*$/gmu, '')
+      .replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
     : source;
   function CustomEvent(type, init = {}) {
     this.type = type;

@@ -42,7 +42,7 @@ export const xSidePanelContract = Object.freeze({
   schema: 'xtend.component.contract.v2',
   tag: XSIDE_PANEL_TAG,
   surfaceContract: 'xtend.surface.record.v1',
-  controller: 'xtend.surface.controller.v1',
+  controller: 'xtend.surface.controller.v2',
   runtime: 'components/xsidepanel.js',
   declaration: 'components/xsidepanel.d.ts',
   attributes: [

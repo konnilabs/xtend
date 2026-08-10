@@ -4,7 +4,7 @@
   "manifest": {
     "id": "epic18.typed-state-selector.fixture",
     "metadata": {
-      "contractVersion": "xtend.epic18.rmt-state-selector-runtime.v1",
+      "contractVersion": "xtend.epic18.rmt-state-selector-runtime.v2",
       "componentPrimitiveContract": "xtend.epic18.rmt-component-template-primitives.v1",
       "workpackage": "WP-E18-07",
       "renderMode": "component_native_dom_descriptor",

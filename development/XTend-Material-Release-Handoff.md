@@ -48,8 +48,8 @@ Die Entscheidung macht XTend Material weder zum Standard-CSS-Provider noch zu ei
 | Vertrag | Unterstützt | Grenze |
 | --- | --- | --- |
 | Node.js | `>=24` | neuere Tailwind-Version darf Engine nicht still erhöhen |
-| `@ccslabs/xtend` | `^0.5.0` Peer von Core | Component-/Token-Verträge bleiben upstream-owned |
-| `@ccslabs/xtend-maraca` | `^0.5.0` Peer des Adapters | CSS Provider Contract bleibt generisch |
+| `@ccslabs/xtend` | `^0.6.1` Peer von Core | Component-/Token-Verträge bleiben upstream-owned |
+| `@ccslabs/xtend-maraca` | `^0.6.1` Peer des Adapters | CSS Provider Contract bleibt generisch |
 | Tailwind CSS | exakt `4.3.2` | Upgrade nur nach Review-Runbook |
 | RMT-Klassen | statische bekannte `xtm-*`-Namen | keine rohen Utilities, Varianten oder dynamischen Namen |
 | Themes | light, dark, high contrast, forced colors | Runtime-Wechsel durch `x-theme` |

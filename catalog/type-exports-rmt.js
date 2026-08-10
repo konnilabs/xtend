@@ -31,15 +31,20 @@ const RMT_RUNTIME_PACKAGE_EXPORTS = Object.freeze([
   './rmt/safe-preview',
   './rmt/component-capability-registry',
   './rmt/state-selector-runtime',
+  './rmt/xstate-host-adapter',
+  './rmt/state-binding-view-projector',
   './rmt/action-effect-runtime',
   './rmt/event-routing-runtime',
+  './rmt/maraca-view-projection-adapter',
+  './rmt/presentation-effect-adapter',
   './rmt/form-validation-runtime',
   './rmt/animation-engine-runtime',
   './rmt/surface-transition-runtime',
   './rmt/surface-resource-graph-runtime',
   './rmt/kernel-orchestration-controller',
   './rmt/native-shell-runtime',
-  './rmt/node-ssr-adapter'
+  './rmt/node-ssr-adapter',
+  './rmt/resume-runtime'
 ]);
 
 const RMT_TOOLING_PACKAGE_EXPORTS = Object.freeze([
@@ -136,7 +141,9 @@ const RMT_REPRESENTATIVE_DECLARATION_TOKENS = Object.freeze({
   'tools/rmt-language/kernel-policy-parity.d.ts': ['RmtKernelPolicyParityController', 'RmtKernelPolicyParityReport', 'createKernelPolicyParityController'],
   'tools/rmt-language/kernel-security-regression.d.ts': ['RmtKernelSecurityRegressionReport', 'RmtKernelSecurityRegressionFixtureSet', 'createKernelSecurityRegressionFixtures'],
   'xtendrmt/rmt-component-capability-registry.d.ts': ['RmtComponentCapabilityRegistry', 'RmtComponentCapability', 'createRmtComponentCapabilityRegistry'],
-  'xtendrmt/rmt-kernel-orchestration-controller.d.ts': ['RmtKernelOrchestrationController', 'RmtKernelOrchestrationControllerOptions', 'createRmtKernelOrchestrationController'],
+  'xtendrmt/rmt-xstate-host-adapter.d.ts': ['RmtStateProjectionPort', 'RmtXStateHostAdapter', 'createRmtXStateHostAdapter'],
+  'xtendrmt/rmt-action-effect-runtime.d.ts': ['RmtActionEffectRuntime', 'RmtActionHostPort', 'createRmtActionEffectRuntime'],
+  'xtendrmt/rmt-kernel-orchestration-controller.d.ts': ['RmtKernelOrchestrationController', 'RmtKernelOrchestrationControllerOptions', 'RmtKernelOrchestrationHostPort', 'createRmtKernelOrchestrationController'],
   'xtendrmt/rmt-form-validation-runtime.d.ts': ['RmtFormValidationRuntime', 'RmtFormValidationRuntimeOptions', 'createRmtFormValidationRuntime'],
   'xtendrmt/rmt-animation-engine-runtime.d.ts': ['RmtAnimationEngineRuntime', 'RmtAnimationEngineRuntimeOptions', 'createRmtAnimationEngineRuntime'],
   'xtendrmt/rmt-surface-transition-runtime.d.ts': ['RmtSurfaceTransitionRuntime', 'RmtSurfaceTransitionRuntimeOptions', 'createRmtSurfaceTransitionRuntime'],
@@ -207,8 +214,12 @@ function resolveDeclarationForExport(exportKey) {
   if (exportKey === './rmt/safe-preview') return './xtendrmt/rmt-safe-preview.d.ts';
   if (exportKey === './rmt/component-capability-registry') return './xtendrmt/rmt-component-capability-registry.d.ts';
   if (exportKey === './rmt/state-selector-runtime') return './xtendrmt/rmt-state-selector-runtime.d.ts';
+  if (exportKey === './rmt/xstate-host-adapter') return './xtendrmt/rmt-xstate-host-adapter.d.ts';
+  if (exportKey === './rmt/state-binding-view-projector') return './xtendrmt/rmt-state-binding-view-projector.d.ts';
   if (exportKey === './rmt/action-effect-runtime') return './xtendrmt/rmt-action-effect-runtime.d.ts';
   if (exportKey === './rmt/event-routing-runtime') return './xtendrmt/rmt-event-routing-runtime.d.ts';
+  if (exportKey === './rmt/maraca-view-projection-adapter') return './xtendrmt/rmt-maraca-view-projection-adapter.d.ts';
+  if (exportKey === './rmt/presentation-effect-adapter') return './xtendrmt/rmt-presentation-effect-adapter.d.ts';
   if (exportKey === './rmt/form-validation-runtime') return './xtendrmt/rmt-form-validation-runtime.d.ts';
   if (exportKey === './rmt/animation-engine-runtime') return './xtendrmt/rmt-animation-engine-runtime.d.ts';
   if (exportKey === './rmt/surface-transition-runtime') return './xtendrmt/rmt-surface-transition-runtime.d.ts';
@@ -216,6 +227,7 @@ function resolveDeclarationForExport(exportKey) {
   if (exportKey === './rmt/kernel-orchestration-controller') return './xtendrmt/rmt-kernel-orchestration-controller.d.ts';
   if (exportKey === './rmt/native-shell-runtime') return './xtendrmt/rmt-native-shell-runtime.d.ts';
   if (exportKey === './rmt/node-ssr-adapter') return './xtendrmt/rmt-node-ssr-adapter.d.ts';
+  if (exportKey === './rmt/resume-runtime') return './xtendrmt/rmt-resume-runtime.d.ts';
   if (exportKey === './rmt-language/snippets') return './tools/rmt-language/snippets/index.d.ts';
   if (exportKey === './rmt-language-server') return './tools/rmt-language-server/server.d.ts';
   if (exportKey === './rmt-language-server/protocol') return './tools/rmt-language-server/protocol.d.ts';
@@ -233,9 +245,13 @@ function resolveSourceForExport(exportKey) {
   if (exportKey === './rmt/dom-descriptor-renderer') return './xtendrmt/rmt-dom-descriptor-renderer.js';
   if (exportKey === './rmt/safe-preview') return './xtendrmt/rmt-safe-preview.js';
   if (exportKey === './rmt/component-capability-registry') return './xtendrmt/rmt-component-capability-registry.js';
-  if (exportKey === './rmt/state-selector-runtime') return './xtendrmt/rmt-state-selector-runtime.js';
+  if (exportKey === './rmt/state-selector-runtime') return './xtendrmt/rmt-state-selector-runtime.compat.js';
+  if (exportKey === './rmt/xstate-host-adapter') return './xtendrmt/rmt-xstate-host-adapter.js';
+  if (exportKey === './rmt/state-binding-view-projector') return './xtendrmt/rmt-state-binding-view-projector.js';
   if (exportKey === './rmt/action-effect-runtime') return './xtendrmt/rmt-action-effect-runtime.js';
   if (exportKey === './rmt/event-routing-runtime') return './xtendrmt/rmt-event-routing-runtime.js';
+  if (exportKey === './rmt/maraca-view-projection-adapter') return './xtendrmt/rmt-maraca-view-projection-adapter.js';
+  if (exportKey === './rmt/presentation-effect-adapter') return './xtendrmt/rmt-presentation-effect-adapter.js';
   if (exportKey === './rmt/form-validation-runtime') return './xtendrmt/rmt-form-validation-runtime.js';
   if (exportKey === './rmt/animation-engine-runtime') return './xtendrmt/rmt-animation-engine-runtime.js';
   if (exportKey === './rmt/surface-transition-runtime') return './xtendrmt/rmt-surface-transition-runtime.js';
@@ -243,6 +259,7 @@ function resolveSourceForExport(exportKey) {
   if (exportKey === './rmt/kernel-orchestration-controller') return './xtendrmt/rmt-kernel-orchestration-controller.js';
   if (exportKey === './rmt/native-shell-runtime') return './xtendrmt/rmt-native-shell-runtime.js';
   if (exportKey === './rmt/node-ssr-adapter') return './xtendrmt/rmt-node-ssr-adapter.js';
+  if (exportKey === './rmt/resume-runtime') return './xtendrmt/rmt-resume-runtime.js';
   if (exportKey === './rmt-language/snippets') return './tools/rmt-language/snippets/index.js';
   if (exportKey === './rmt-language-server') return './tools/rmt-language-server/server.js';
   if (exportKey === './rmt-language-server/protocol') return './tools/rmt-language-server/protocol.js';
@@ -259,8 +276,12 @@ const RMT_DECLARATION_FILES = Object.freeze([
   'xtendrmt/rmt-safe-preview.d.ts',
   'xtendrmt/rmt-component-capability-registry.d.ts',
   'xtendrmt/rmt-state-selector-runtime.d.ts',
+  'xtendrmt/rmt-xstate-host-adapter.d.ts',
+  'xtendrmt/rmt-state-binding-view-projector.d.ts',
   'xtendrmt/rmt-action-effect-runtime.d.ts',
   'xtendrmt/rmt-event-routing-runtime.d.ts',
+  'xtendrmt/rmt-maraca-view-projection-adapter.d.ts',
+  'xtendrmt/rmt-presentation-effect-adapter.d.ts',
   'xtendrmt/rmt-form-validation-runtime.d.ts',
   'xtendrmt/rmt-animation-engine-runtime.d.ts',
   'xtendrmt/rmt-surface-transition-runtime.d.ts',
@@ -268,6 +289,7 @@ const RMT_DECLARATION_FILES = Object.freeze([
   'xtendrmt/rmt-kernel-orchestration-controller.d.ts',
   'xtendrmt/rmt-native-shell-runtime.d.ts',
   'xtendrmt/rmt-node-ssr-adapter.d.ts',
+  'xtendrmt/rmt-resume-runtime.d.ts',
   RMT_SHARED_DECLARATION_FILE,
   ...RMT_TOOLING_PACKAGE_EXPORTS.map((exportKey) => toRepoRelative(resolveDeclarationForExport(exportKey)))
 ]);

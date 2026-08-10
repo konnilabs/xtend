@@ -1,6 +1,6 @@
 # Maraca App Services Test Bench
 
-Diese Anwendung ist die produktive Catfooding-Referenz für Maraca App Services in XTend 0.5.0. HTML-Host, App Shell, Runtime-Bootstrap, TypeScript-Transpilierung, Service-Manifest, Node-Host und Build-Artefakte entstehen ausschließlich über den öffentlichen XTend-/Maraca-Workflow.
+Diese Anwendung ist die produktive Catfooding-Referenz für Maraca App Services in XTend 0.6.1. HTML-Host, App Shell, Runtime-Bootstrap, TypeScript-Transpilierung, Service-Manifest, Node-Host und Build-Artefakte entstehen ausschließlich über den öffentlichen XTend-/Maraca-Workflow.
 
 ## Reproduzierbare Erzeugung
 

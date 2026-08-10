@@ -126,14 +126,14 @@ function clone(value) {
 }
 
 function getAppRuntime() {
-  return window.__XTendMaracaOrchestration && window.__XTendMaracaOrchestration.appRuntime || null;
+  return window.__XTendMaracaOrchestration || null;
 }
 
 function listAppRuntimeCommands() {
   const appRuntime = getAppRuntime();
-  if (!appRuntime || typeof appRuntime.listCommands !== 'function') return [];
+  if (!appRuntime || typeof appRuntime.snapshot !== 'function') return [];
   try {
-    return appRuntime.listCommands();
+    return appRuntime.snapshot().appRuntime?.commands || [];
   } catch {
     return [];
   }
@@ -143,20 +143,20 @@ async function dispatchAppRuntimeCommand(commandName, commandPayload = {}, metad
   const appRuntime = getAppRuntime();
   const command = String(commandName || '').trim();
   if (!command) return { status: 'skipped', reason: 'missing-command' };
-  if (!appRuntime || typeof appRuntime.command !== 'function') {
+  if (!appRuntime || typeof appRuntime.dispatchCommand !== 'function') {
     const queued = { command, payload: clone(commandPayload), metadata: clone(metadata), status: 'runtime-pending', at: Date.now() };
     window.__XTendResumeDemo.appRuntimeCommandLog.push(queued);
     window.__XTendResumeDemo.appRuntimeCommandLog.splice(0, Math.max(0, window.__XTendResumeDemo.appRuntimeCommandLog.length - 30));
     return { status: 'queued', reason: 'app-runtime-pending', command };
   }
   try {
-    const result = await appRuntime.command(command, commandPayload, {
+    const result = await appRuntime.dispatchCommand(command, commandPayload, {
+      ...metadata,
       sourceKind: metadata.sourceKind || 'app-shell',
       sourceId: metadata.sourceId || commandPayload.sourceId || metadata.eventId || 'erp-shell-command',
       event: metadata.eventName || metadata.event || 'xtend-command',
       surfaceId: metadata.surfaceId || commandPayload.surfaceId || 'erp.shell',
-      lane: metadata.lane || 'user-blocking',
-      metadata
+      lane: metadata.lane || 'user-blocking'
     });
     const entry = {
       command,

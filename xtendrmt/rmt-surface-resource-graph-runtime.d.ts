@@ -1,5 +1,5 @@
 export const RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-surface-resource-graph-diagnostic.v1';
-export const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA: 'xtend.epic18.rmt-surface-resource-graph-runtime.v1';
+export const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA: 'xtend.epic18.rmt-surface-resource-graph-runtime.v2';
 
 export type RmtSurfaceKind = 'window' | 'panel' | 'workspace' | 'overlay-host' | 'surface' | string;
 export type RmtOverlayKind = 'tooltip' | 'toast' | 'popover' | 'lightbox' | 'menu' | 'dialog' | string;
@@ -136,6 +136,7 @@ export interface RmtSurfaceResourceGraphDiagnostic {
 export interface RmtSurfaceResourceGraphSnapshot {
   schema: 'xtend.epic18.rmt-surface-resource-graph-snapshot.v1';
   runtimeSchema: typeof RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA;
+  disposed: boolean;
   surfaces: Array<Partial<RmtSurfaceInstance> & { id: string }>;
   overlays: RmtOverlayInstance[];
   portals: Array<Record<string, unknown>>;
@@ -150,7 +151,22 @@ export interface RmtEventRuntimeLike {
   detachOwner(ownerId?: string): { schema?: string; owner?: string; detachedCount: number };
 }
 
+export interface RmtDomRendererLike {
+  commit(request: Record<string, unknown>): {
+    target?: unknown;
+    nodes?: unknown[];
+    [key: string]: unknown;
+  } | unknown;
+  dispose?(target?: unknown, options?: { clearOwnedDom?: boolean }): void;
+}
+
 export interface RmtSurfaceManagerLike {
+  apply?(operations: Array<Record<string, unknown>>, metadata?: Record<string, unknown>): {
+    ok?: boolean;
+    changed?: boolean;
+    snapshot?: { version?: number; surfaces?: Array<Record<string, unknown>> };
+    code?: string;
+  };
   registerSurface?(record: Record<string, unknown>): unknown;
   openSurface?(surfaceId: string, input?: Record<string, unknown>): unknown;
   closeSurface?(surfaceId: string, reason?: string): unknown;
@@ -160,6 +176,7 @@ export interface RmtSurfaceManagerLike {
   restoreSurface?(surfaceId: string): unknown;
   materializeSurface?(surfaceId: string, input?: Record<string, unknown>): unknown;
   toggleSurface?(surfaceId: string, input?: Record<string, unknown>): unknown;
+  destroySurface?(surfaceId: string, input?: Record<string, unknown>): unknown;
   readSnapshot?(options?: Record<string, unknown>): { surfaces?: Array<Record<string, unknown>> } | null | undefined;
   snapshot?(options?: Record<string, unknown>): { surfaces?: Array<Record<string, unknown>> } | null | undefined;
 }
@@ -173,6 +190,8 @@ export interface RmtSurfaceResourceGraphRuntimeOptions {
   portals?: RmtPortalDefinition[];
   resourceManager?: RmtResourceManagerLike;
   eventRuntime?: RmtEventRuntimeLike;
+  surfaceController?: RmtSurfaceManagerLike | (() => RmtSurfaceManagerLike | null | undefined);
+  /** @deprecated 0.6 compatibility alias. Use surfaceController. */
   surfaceManager?: RmtSurfaceManagerLike | (() => RmtSurfaceManagerLike | null | undefined);
   managerElement?: RmtSurfaceManagerLike;
   xSurfaceManager?: RmtSurfaceManagerLike;
@@ -184,6 +203,11 @@ export interface RmtSurfaceResourceGraphRuntimeOptions {
     load(): RmtSurfaceResourceGraphSnapshot | null | undefined;
   };
   focusAdapter?: { focus(surface: RmtSurfaceInstance, metadata?: Record<string, unknown>): unknown };
+  domRenderer?: RmtDomRendererLike;
+  /** @deprecated Use domRenderer. */
+  renderer?: RmtDomRendererLike;
+  strict?: boolean;
+  strictMaraca?: boolean;
   documentTarget?: {
     body?: { appendChild(node: unknown): unknown };
     createElement(tag: string): unknown;
@@ -219,6 +243,14 @@ export interface RmtSurfaceResourceGraphRuntime {
   persistSnapshot(): RmtSurfaceResourceGraphSnapshot;
   hydrateSnapshot(snapshot?: RmtSurfaceResourceGraphSnapshot): { schema: 'xtend.epic18.rmt-surface-hydrate-report.v1'; hydratedCount: number };
   getSnapshot(): RmtSurfaceResourceGraphSnapshot;
+  dispose(): {
+    schema: 'xtend.epic18.rmt-surface-resource-graph-dispose-report.v1';
+    disposed: true;
+    alreadyDisposed: boolean;
+    closedOverlayCount: number;
+    releasedOwnerCount: number;
+    removedPortalCount: number;
+  };
   getSurface(surfaceRef: string): RmtSurfaceInstance | null;
   listSurfaces(): RmtSurfaceDefinition[];
   listInstances(options?: { includeDestroyed?: boolean }): RmtSurfaceInstance[];

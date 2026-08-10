@@ -277,7 +277,7 @@
     }
   ],
   "diagnostics": {
-    "schema": "xtend.epic18.rmt-dom-renderer-diagnostic.v1",
+    "schema": "xtend.epic18.rmt-dom-renderer-diagnostic.v2",
     "sourceMapRequired": true
   }
 }

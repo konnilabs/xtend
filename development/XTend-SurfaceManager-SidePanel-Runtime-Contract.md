@@ -21,7 +21,7 @@ Der Contract baut direkt auf `WP-SM-02` und `WP-SM-03` auf: `x-surface-manager` 
 | Component | `x-side-panel` |
 | Surface Type | `side-panel` |
 | Record | `xtend.surface.record.v1` |
-| Controller | `xtend.surface.controller.v1` |
+| Controller | `xtend.surface.controller.v2` |
 | Manager | `xtend.surface.manager.v1` |
 | Command Event | `surface-panel-command` |
 | Snapshot Bridge | `controller-snapshot-to-panel-attributes-css-vars` |

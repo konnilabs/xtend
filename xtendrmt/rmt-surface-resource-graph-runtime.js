@@ -1,9 +1,10 @@
 (function attachRmtSurfaceResourceGraphRuntime(globalTarget) {
-  const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA = 'xtend.epic18.rmt-surface-resource-graph-runtime.v1';
+  const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA = 'xtend.epic18.rmt-surface-resource-graph-runtime.v2';
   const RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-surface-resource-graph-diagnostic.v1';
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_platform.surface_resource_graph';
   const DEFAULT_PORTAL_ID = 'portal.app';
   const DEFAULT_BOUNDS = Object.freeze({ x: 0, y: 0, width: 480, height: 320 });
+  const UNSAFE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
 
   function clampString(value, fallback = '') {
     const normalized = String(value == null ? '' : value).trim();
@@ -37,10 +38,35 @@
     };
   }
 
+  function normalizePathSegments(path) {
+    return String(path || '')
+      .replace(/\[([0-9]+)\]/gu, '.$1')
+      .split('.')
+      .filter(Boolean);
+  }
+
+  function assertSafePathSegments(path) {
+    const parts = normalizePathSegments(path);
+    const unsafeSegment = parts.find((part) => UNSAFE_PATH_SEGMENTS.has(String(part).toLowerCase()));
+    if (unsafeSegment) {
+      const diagnostic = createDiagnostic(
+        'rmt.surface.path.unsafe',
+        `Unsicheres Surface-Pfadsegment ${unsafeSegment}.`,
+        { path: String(path || ''), segment: unsafeSegment },
+        'error'
+      );
+      const error = new Error(diagnostic.message);
+      error.code = diagnostic.code;
+      error.diagnostic = diagnostic;
+      throw error;
+    }
+    return parts;
+  }
+
   function readPath(source, path) {
     if (!path) return source;
+    const parts = assertSafePathSegments(path);
     if (source && typeof source === 'object' && Object.prototype.hasOwnProperty.call(source, path)) return source[path];
-    const parts = String(path).split('.').filter(Boolean);
     let cursor = source;
     for (const part of parts) {
       if (cursor == null) return undefined;
@@ -70,8 +96,9 @@
   function resolveTemplateValue(value, context = {}) {
     if (Array.isArray(value)) return value.map((entry) => resolveTemplateValue(entry, context));
     if (value && typeof value === 'object') {
-      const resolved = {};
+      const resolved = Object.create(null);
       Object.entries(value).forEach(([key, entry]) => {
+        assertSafePathSegments(key);
         resolved[key] = resolveTemplateValue(entry, context);
       });
       return resolved;
@@ -230,20 +257,168 @@
     const persistenceAdapter = options.persistenceAdapter || null;
     const focusAdapter = options.focusAdapter || null;
     const documentTarget = options.documentTarget || options.document || (globalTarget && globalTarget.document) || null;
-    const surfaceManagerTarget = options.surfaceManager || options.managerElement || options.xSurfaceManager || null;
+    const strict = options.strict === true || options.strictMaraca === true;
+    let domRenderer = options.domRenderer || options.renderer || null;
+    const surfaceControllerTarget = options.surfaceController || options.surfaceManager || options.managerElement || options.xSurfaceManager || null;
     const diagnosticsRecorder = createDiagnosticsRecorder(options);
     const managedSurfaceManagerIds = new Set();
     const surfaceManagerBridgeId = clampString(options.surfaceManagerBridgeId || options.runtimeId, 'rmt-surface-resource-graph-runtime');
     let focusSequence = 0;
     let overlaySequence = 0;
+    let sharedRendererMissingReported = false;
+    let compatibilityRendererAttempted = false;
+    let compatibilityRendererUnavailableReported = false;
+    let ownsDomRenderer = false;
+    let surfaceControllerMissingReported = false;
+    let surfaceControllerApplyMissingReported = false;
+    let disposed = false;
+    let disposing = false;
 
     function publish(code, message, details = {}, severity = 'info') {
       return diagnosticsRecorder.publish(createDiagnostic(code, message, details, severity));
     }
 
+    if (!options.surfaceController && options.surfaceManager) {
+      publish(
+        'rmt.surface.mvc.legacy-manager-alias',
+        'surfaceManager is a 0.6 compatibility alias; inject surfaceController as the lifecycle authority.',
+        { adapter: 'surface-resource-graph-runtime' },
+        'info'
+      );
+    }
+
+    function assertActive(operation) {
+      if (!disposed && !disposing) return;
+      const error = new Error(`RMT Surface Resource Graph is disposed and cannot run ${operation}.`);
+      error.code = 'rmt.surface.runtime.disposed';
+      throw error;
+    }
+
+    function sharedRenderer(target = null) {
+      if (domRenderer && typeof domRenderer.commit === 'function') return domRenderer;
+      if (!sharedRendererMissingReported) {
+        sharedRendererMissingReported = true;
+        publish(
+          'rmt.dom.shared-renderer-missing',
+          strict
+            ? 'Surface Resource Graph requires the shared RMT DOM renderer in strict mode.'
+            : 'Surface Resource Graph is creating one compatibility renderer because no shared renderer was injected.',
+          { adapter: 'surface-resource-graph-runtime' },
+          strict ? 'error' : 'warning'
+        );
+      }
+      if (strict) {
+        const error = new Error('Strict Surface Resource Graph requires the shared RMT DOM renderer.');
+        error.code = 'rmt.dom.shared-renderer-missing';
+        throw error;
+      }
+      if (!compatibilityRendererAttempted) {
+        compatibilityRendererAttempted = true;
+        const factory = globalTarget
+          && globalTarget.XTendRmtDomDescriptorRenderer
+          && globalTarget.XTendRmtDomDescriptorRenderer.createRmtDomDescriptorRenderer;
+        const rendererDocument = documentTarget
+          || target && target.ownerDocument
+          || null;
+        if (typeof factory === 'function' && rendererDocument) {
+          try {
+            domRenderer = factory({
+              documentTarget: rendererDocument,
+              diagnosticsHub: options.diagnosticsHub,
+              diagnosticChannel: options.diagnosticChannel
+            });
+            ownsDomRenderer = Boolean(domRenderer && typeof domRenderer.commit === 'function');
+          } catch (_) {
+            domRenderer = null;
+          }
+        }
+      }
+      if (domRenderer && typeof domRenderer.commit === 'function') return domRenderer;
+      if (!compatibilityRendererUnavailableReported) {
+        compatibilityRendererUnavailableReported = true;
+        publish(
+          'rmt.dom.compatibility-renderer-unavailable',
+          'Surface Resource Graph could not create the required compatibility DOM renderer.',
+          { adapter: 'surface-resource-graph-runtime' },
+          'error'
+        );
+      }
+      const error = new Error('Surface Resource Graph requires a DOM renderer; compatibility renderer creation failed.');
+      error.code = 'rmt.dom.compatibility-renderer-unavailable';
+      throw error;
+    }
+
+    function surfaceGraphOwnership() {
+      return {
+        owner: 'surface-resource-graph',
+        domains: {
+          structure: 'surface-resource-graph',
+          content: 'surface-resource-graph',
+          attributes: 'surface-resource-graph',
+          properties: 'surface-resource-graph',
+          class: 'surface-resource-graph',
+          part: 'surface-resource-graph',
+          styleTokens: 'surface-resource-graph'
+        },
+        mode: strict ? 'strict' : 'compatibility'
+      };
+    }
+
+    function createDescriptorNode(descriptor, target, pointer, renderContext = {}) {
+      const renderer = sharedRenderer(target);
+      if (!renderer) return null;
+      const result = renderer.commit({
+        operation: 'create-node',
+        descriptor,
+        context: {
+          ...objectRecord(renderContext),
+          source: {
+            ...objectRecord(renderContext && renderContext.source),
+            nodeId: clampString(descriptor && descriptor.attributes && (
+              descriptor.attributes['data-rmt-overlay']
+              || descriptor.attributes['portal-id']
+            ), 'surface-resource'),
+            pointer
+          }
+        },
+        ownership: surfaceGraphOwnership()
+      });
+      const nodes = toArray(result && result.nodes).filter(Boolean);
+      return nodes[0] || result && result.target || null;
+    }
+
+    function disposeDomNode(node) {
+      if (!node) return false;
+      const renderer = domRenderer && typeof domRenderer.dispose === 'function' ? domRenderer : null;
+      if (renderer) {
+        try {
+          renderer.dispose(node, { clearOwnedDom: true });
+        } catch (error) {
+          publish('rmt.surface.dom_dispose.failed', 'Owned surface DOM could not be disposed cleanly.', {
+            error: error && error.message || String(error)
+          }, 'warning');
+        }
+      }
+      try {
+        if (typeof node.remove === 'function') {
+          node.remove();
+          return true;
+        }
+        if (node.parentNode && typeof node.parentNode.removeChild === 'function') {
+          node.parentNode.removeChild(node);
+          return true;
+        }
+      } catch (error) {
+        publish('rmt.surface.dom_remove.failed', 'Owned surface DOM could not be removed cleanly.', {
+          error: error && error.message || String(error)
+        }, 'warning');
+      }
+      return false;
+    }
+
     function resolveSurfaceManagerTarget() {
-      if (typeof surfaceManagerTarget === 'function') return surfaceManagerTarget();
-      return surfaceManagerTarget;
+      if (typeof surfaceControllerTarget === 'function') return surfaceControllerTarget();
+      return surfaceControllerTarget;
     }
 
     function surfaceRuntimeType(kind) {
@@ -364,10 +539,30 @@
 
     function callSurfaceManager(methodName, args, details = {}) {
       const manager = resolveSurfaceManagerTarget();
-      if (!manager || typeof manager[methodName] !== 'function') return null;
-      if (!authorizeSurfaceManagerCall(manager, methodName, args, details)) return null;
+      if (!manager) {
+        if (!surfaceControllerMissingReported) {
+          surfaceControllerMissingReported = true;
+          publish(
+            'rmt.surface.mvc.controller-missing',
+            strict
+              ? 'Strict Surface Resource Graph requires an injected surfaceController.'
+              : 'Surface Resource Graph is running without a lifecycle controller in compatibility mode.',
+            { methodName },
+            strict ? 'error' : 'warning'
+          );
+        }
+        return strict
+          ? { ok: false, code: 'rmt.surface.mvc.controller-missing', methodName }
+          : { ok: true, compatibility: true, methodName };
+      }
+      if (typeof manager[methodName] !== 'function') {
+        return { ok: false, code: 'rmt.surface.mvc.controller-method-missing', methodName };
+      }
+      if (!authorizeSurfaceManagerCall(manager, methodName, args, details)) {
+        return { ok: false, code: 'rmt.surface.manager_proxy.denied', methodName };
+      }
       try {
-        const result = manager[methodName](...args);
+        const result = manager[methodName](...args) || { ok: true };
         if (methodName === 'registerSurface') {
           const record = objectRecord(args[0]);
           const surfaceId = clampString(record.id);
@@ -381,8 +576,111 @@
           methodName,
           error: error && error.message || String(error)
         }, 'warning');
-        return null;
+        return {
+          ok: false,
+          code: error && error.code || 'rmt.surface.manager_proxy.failed',
+          methodName,
+          error
+        };
       }
+    }
+
+    function callSurfaceControllerApply(operations, details = {}) {
+      const manager = resolveSurfaceManagerTarget();
+      if (!manager) {
+        return callSurfaceManager('apply', [operations, details], details);
+      }
+      if (typeof manager.apply !== 'function') {
+        if (!surfaceControllerApplyMissingReported) {
+          surfaceControllerApplyMissingReported = true;
+          publish(
+            'rmt.surface.mvc.atomic-apply-missing',
+            strict
+              ? 'Strict Surface Resource Graph requires surfaceController.apply() for atomic lifecycle changes.'
+              : 'Surface controller has no atomic apply(); compatibility mode will serialize legacy calls.',
+            { operationCount: operations.length },
+            strict ? 'error' : 'warning'
+          );
+        }
+        if (strict) {
+          return { ok: false, code: 'rmt.surface.mvc.atomic-apply-missing', methodName: 'apply' };
+        }
+        const results = [];
+        for (const operation of operations) {
+          const methodName = operation.operation;
+          const args = Array.isArray(operation.args) ? operation.args : [];
+          let result = callSurfaceManager(methodName, args, { ...details, operation: details.operation || methodName });
+          if (methodName === 'destroySurface' && result && result.code === 'rmt.surface.mvc.controller-method-missing') {
+            result = callSurfaceManager('closeSurface', [args[0], args[1] && args[1].reason || 'destroy'], {
+              ...details,
+              operation: 'destroy-fallback-close'
+            });
+          }
+          results.push(result);
+          if (result && result.ok === false) {
+            return { ok: false, code: result.code, methodName, results };
+          }
+        }
+        return { ok: true, compatibility: true, changed: operations.length > 0, results };
+      }
+      const registeringIds = new Set(operations
+        .filter((operation) => operation.operation === 'registerSurface')
+        .map((operation) => clampString(operation.args && operation.args[0] && operation.args[0].id))
+        .filter(Boolean));
+      for (const operation of operations) {
+        const methodName = operation.operation;
+        const args = Array.isArray(operation.args) ? operation.args : [];
+        if (methodName !== 'registerSurface' && registeringIds.has(clampString(args[0]))) continue;
+        if (!authorizeSurfaceManagerCall(manager, methodName, args, details)) {
+          return { ok: false, code: 'rmt.surface.manager_proxy.denied', methodName };
+        }
+      }
+      const requests = operations.map((operation) => {
+        const args = Array.isArray(operation.args) ? operation.args : [];
+        const methodName = operation.operation;
+        if (methodName === 'registerSurface') return { operation: methodName, record: args[0] };
+        if (methodName === 'closeSurface') return { operation: methodName, id: args[0], reason: args[1] };
+        if (methodName === 'destroySurface') return { operation: methodName, id: args[0], options: args[1] };
+        if (methodName === 'updateSurface') return { operation: methodName, id: args[0], patch: args[1] };
+        if (methodName === 'moveSurface' || methodName === 'resizeSurface') return { operation: methodName, id: args[0], bounds: args[1] };
+        return { operation: methodName, id: args[0], input: args[1] };
+      });
+      try {
+        const result = manager.apply(requests, {
+          source: 'rmt-surface-resource-graph-runtime',
+          bridgeId: surfaceManagerBridgeId,
+          ...objectRecord(details)
+        }) || { ok: true };
+        if (result.ok !== false) {
+          operations.forEach((operation) => {
+            if (operation.operation !== 'registerSurface') return;
+            const record = objectRecord(operation.args && operation.args[0]);
+            if (record.id) managedSurfaceManagerIds.add(String(record.id));
+          });
+        }
+        return result;
+      } catch (error) {
+        return {
+          ok: false,
+          code: error && error.code || 'rmt.surface.manager_proxy.failed',
+          methodName: 'apply',
+          error
+        };
+      }
+    }
+
+    function requireSurfaceControllerResult(result, operation, subjectId) {
+      if (!result || result.ok !== false) return result;
+      const diagnostic = publish(
+        result.code || 'rmt.surface.mvc.controller-refused',
+        `Surface controller refused ${operation} before resource or DOM projection.`,
+        { operation, subjectId: subjectId || null, methodName: result.methodName || null },
+        'error'
+      );
+      const error = new Error(diagnostic.message);
+      error.code = diagnostic.code;
+      error.diagnostic = diagnostic;
+      throw error;
     }
 
     function proxySurfaceManager(operation, instance, payload = {}) {
@@ -398,7 +696,7 @@
       if (operation === 'close') return callSurfaceManager('closeSurface', [instance.id, payload.reason || operation], { instanceId: instance.id, operation });
       if (operation === 'destroy') {
         const destroyResult = callSurfaceManager('destroySurface', [instance.id, payload], { instanceId: instance.id, operation });
-        if (destroyResult) return destroyResult;
+        if (!destroyResult || destroyResult.code !== 'rmt.surface.mvc.controller-method-missing') return destroyResult;
         publish('rmt.surface.manager_proxy.degraded', 'SurfaceManager target does not support destroySurface(); falling back to closeSurface().', {
           instanceId: instance.id,
           operation,
@@ -408,6 +706,54 @@
       }
       if (operation === 'update') return callSurfaceManager('updateSurface', [instance.id, payload], { instanceId: instance.id, operation });
       return null;
+    }
+
+    function controllerRecord(surfaceId, snapshotHint = null) {
+      const manager = resolveSurfaceManagerTarget();
+      const snapshot = snapshotHint && Array.isArray(snapshotHint.surfaces)
+        ? snapshotHint
+        : readSurfaceManagerSnapshot(manager);
+      const records = snapshot && Array.isArray(snapshot.surfaces) ? snapshot.surfaces : [];
+      return records.find((record) => record && record.id === surfaceId) || null;
+    }
+
+    function syncLifecycleProjection(handle, snapshotHint = null, compatibilityProjection = null) {
+      if (!handle) return handle;
+      const record = controllerRecord(handle.id, snapshotHint);
+      if (!record) {
+        if (!strict && compatibilityProjection) {
+          if (compatibilityProjection.state) handle.state = compatibilityProjection.state;
+          if (compatibilityProjection.bounds) handle.bounds = normalizeBounds(compatibilityProjection.bounds, handle.bounds);
+          handle.metadata = {
+            ...objectRecord(handle.metadata),
+            lifecycleProjection: true,
+            compatibilityProjection: true
+          };
+        }
+        return handle;
+      }
+      handle.state = clampString(record.status, handle.state);
+      handle.bounds = normalizeBounds(record.bounds, handle.bounds);
+      handle.previousBounds = cloneValue(record.previousBounds, handle.previousBounds);
+      handle.zIndex = Number.isFinite(record.zIndex) ? record.zIndex : handle.zIndex;
+      handle.metadata = {
+        ...objectRecord(handle.metadata),
+        lifecycleProjection: true,
+        controllerVersion: snapshotHint && Number.isFinite(snapshotHint.version) ? snapshotHint.version : null,
+        generation: Number(record.generation || objectRecord(handle.metadata).generation || 1)
+      };
+      return handle;
+    }
+
+    function lifecycleState(handle) {
+      const record = handle && controllerRecord(handle.id);
+      return record && clampString(record.status, '') || handle && handle.state || 'closed';
+    }
+
+    function projectHandle(handle) {
+      if (!handle) return null;
+      syncLifecycleProjection(handle);
+      return cloneValue(handle, handle);
     }
 
     function resolveRecords(surface, input) {
@@ -473,13 +819,18 @@
       const definition = surfaceIndex.get(id);
       if (!definition) throw new Error(`RMT Surface ${surfaceRef} ist nicht definiert.`);
       const created = createInstance(definition, optionsForCreate.record || null, 0, null);
+      const registration = callSurfaceControllerApply([{
+        operation: 'registerSurface',
+        args: [surfaceManagerRecordForInstance(created)]
+      }], { instanceId: created.id, operation: 'register' });
+      requireSurfaceControllerResult(registration, 'register', created.id);
+      syncLifecycleProjection(created, registration && registration.snapshot);
       instances.set(created.id, created);
       publish('rmt.surface.materialized', `RMT Surface ${created.id} wurde materialisiert.`, {
         surfaceId: definition.id,
         instanceId: created.id,
         kind: created.kind
       });
-      proxySurfaceManager('register', created);
       return created;
     }
 
@@ -496,6 +847,12 @@
         surface: cloneValue(instance, instance),
         ...objectRecord(context)
       });
+      if (disposed || disposing) {
+        if (resourceManager && typeof resourceManager.releaseOwner === 'function') {
+          resourceManager.releaseOwner(instance.owner);
+        }
+        return [];
+      }
       instance.resourcesAcquired = true;
       publish('rmt.surface.resources.acquired', `RMT Surface ${instance.id} hat Ressourcen uebernommen.`, {
         instanceId: instance.id,
@@ -523,40 +880,63 @@
 
     function focusSurface(surfaceRef, metadata = {}) {
       const instance = ensureSurface(surfaceRef);
+      requireSurfaceControllerResult(proxySurfaceManager('focus', instance, metadata), 'focus', instance.id);
+      syncLifecycleProjection(instance);
+      return projectFocus(instance, metadata);
+    }
+
+    function projectFocus(instance, metadata = {}) {
       focusSequence += 1;
       instance.focusOrder = focusSequence;
-      instance.zIndex = Math.max(instance.zIndex, 100 + focusSequence);
       if (focusAdapter && typeof focusAdapter.focus === 'function') {
-        focusAdapter.focus(cloneValue(instance, instance), metadata);
+        focusAdapter.focus(projectHandle(instance), metadata);
       }
-      proxySurfaceManager('focus', instance, metadata);
       publish('rmt.surface.focused', `RMT Surface ${instance.id} wurde fokussiert.`, {
         instanceId: instance.id,
         focusOrder: instance.focusOrder,
         zIndex: instance.zIndex
       });
-      return cloneValue(instance, instance);
+      return projectHandle(instance);
     }
 
     function materialize(recordsBySource = {}, materializeOptions = {}) {
+      assertActive('materialize');
       const created = [];
       const reused = [];
+      const pending = [];
+      const lifecycleOperations = [];
       surfaces.forEach((surface) => {
         const records = resolveRecords(surface, recordsBySource);
         records.forEach((record, index) => {
           const id = createInstanceId(surface, record, index);
           const existing = instances.get(id);
-          const next = createInstance(surface, record, index, existing && existing.state !== 'destroyed' ? existing : null);
-          instances.set(id, next);
-          if (existing && existing.state !== 'destroyed') reused.push(id);
-          else created.push(id);
-          proxySurfaceManager('register', next);
-          publish('rmt.surface.materialized', `RMT Surface ${id} wurde materialisiert.`, {
-            surfaceId: surface.id,
-            instanceId: id,
-            kind: surface.kind,
-            reused: Boolean(existing && existing.state !== 'destroyed')
-          });
+          const existingState = existing ? lifecycleState(existing) : null;
+          const reusable = Boolean(existing && existingState !== 'destroyed');
+          const next = createInstance(surface, record, index, reusable ? existing : null);
+          pending.push({ id, next, existing, reusable, surface });
+          if (!reusable) {
+            lifecycleOperations.push({
+              operation: 'registerSurface',
+              args: [surfaceManagerRecordForInstance(next)]
+            });
+          }
+        });
+      });
+      const applyResult = callSurfaceControllerApply(lifecycleOperations, {
+        operation: 'materialize',
+        instanceCount: pending.length
+      });
+      requireSurfaceControllerResult(applyResult, 'materialize', null);
+      pending.forEach(({ id, next, reusable, surface }) => {
+        syncLifecycleProjection(next, applyResult && applyResult.snapshot);
+        instances.set(id, next);
+        if (reusable) reused.push(id);
+        else created.push(id);
+        publish('rmt.surface.materialized', `RMT Surface ${id} wurde materialisiert.`, {
+          surfaceId: surface.id,
+          instanceId: id,
+          kind: surface.kind,
+          reused: reusable
         });
       });
       if (materializeOptions.hydrate === true) hydrateSnapshot();
@@ -570,66 +950,81 @@
     }
 
     async function openSurface(surfaceRef, openOptions = {}) {
+      assertActive('openSurface');
       const instance = ensureSurface(surfaceRef, openOptions);
-      if (instance.state === 'destroyed' && openOptions.recreate !== true) {
+      if (lifecycleState(instance) === 'destroyed' && openOptions.recreate !== true) {
         throw new Error(`RMT Surface ${surfaceRef} ist bereits zerstoert.`);
       }
-      if (instance.state === 'destroyed' && openOptions.recreate === true) {
-        instance.state = 'closed';
-        instance.destroyedAt = null;
+      const openResult = proxySurfaceManager('open', instance, openOptions);
+      requireSurfaceControllerResult(openResult, 'open', instance.id);
+      syncLifecycleProjection(instance, openResult && openResult.snapshot, { state: 'open' });
+      try {
+        await acquireResources(instance, openOptions);
+      } catch (error) {
         instance.metadata = {
           ...objectRecord(instance.metadata),
-          generation: Number(objectRecord(instance.metadata).generation || 1) + 1
+          projection: { status: 'failed', retryable: true, phase: 'resource-acquire', error: error && error.message || String(error) }
         };
+        publish('rmt.surface.projection.retryable', 'Surface lifecycle committed, but resource projection failed and can be retried.', {
+          instanceId: instance.id,
+          phase: 'resource-acquire'
+        }, 'error');
+        throw error;
       }
-      await acquireResources(instance, openOptions);
-      instance.state = 'open';
+      if (disposed || disposing) {
+        const error = new Error('RMT Surface Resource Graph was disposed while opening a surface.');
+        error.code = 'rmt.surface.runtime.disposed';
+        throw error;
+      }
       instance.closedAt = null;
       instance.destroyedAt = null;
+      instance.metadata = { ...objectRecord(instance.metadata), projection: { status: 'ready', retryable: false } };
       if (openOptions.focus !== false && surfaceIndex.get(instance.surfaceId).focusOnOpen) {
-        focusSurface(instance.id, openOptions);
+        projectFocus(instance, openOptions);
       }
       publish('rmt.surface.opened', `RMT Surface ${instance.id} wurde geoeffnet.`, {
         instanceId: instance.id,
         resourcesAcquired: instance.resourcesAcquired
       });
-      proxySurfaceManager('open', instance, openOptions);
-      return cloneValue(instance, instance);
+      return projectHandle(instance);
     }
 
     function minimizeSurface(surfaceRef, metadata = {}) {
       const instance = ensureSurface(surfaceRef);
-      if (instance.state === 'destroyed') throw new Error(`RMT Surface ${surfaceRef} ist bereits zerstoert.`);
+      if (lifecycleState(instance) === 'destroyed') throw new Error(`RMT Surface ${surfaceRef} ist bereits zerstoert.`);
+      const result = proxySurfaceManager('minimize', instance, metadata);
+      requireSurfaceControllerResult(result, 'minimize', instance.id);
       instance.previousBounds = cloneValue(instance.bounds, instance.bounds);
-      instance.state = 'minimized';
+      syncLifecycleProjection(instance, result && result.snapshot, { state: 'minimized' });
       instance.minimizedAt = metadata.at || 'static-local';
       publish('rmt.surface.minimized', `RMT Surface ${instance.id} wurde minimiert.`, {
         instanceId: instance.id,
         resourcesPreserved: instance.resourcesAcquired
       });
-      proxySurfaceManager('minimize', instance, metadata);
-      return cloneValue(instance, instance);
+      return projectHandle(instance);
     }
 
     function restoreSurface(surfaceRef, metadata = {}) {
       const instance = ensureSurface(surfaceRef);
-      if (instance.state === 'destroyed') throw new Error(`RMT Surface ${surfaceRef} ist bereits zerstoert.`);
-      instance.state = 'open';
-      if (instance.previousBounds) instance.bounds = normalizeBounds(instance.previousBounds, instance.bounds);
+      if (lifecycleState(instance) === 'destroyed') throw new Error(`RMT Surface ${surfaceRef} ist bereits zerstoert.`);
+      const result = proxySurfaceManager('restore', instance, metadata);
+      requireSurfaceControllerResult(result, 'restore', instance.id);
+      syncLifecycleProjection(instance, result && result.snapshot, { state: 'open' });
       publish('rmt.surface.restored', `RMT Surface ${instance.id} wurde wiederhergestellt.`, {
         instanceId: instance.id,
         bounds: instance.bounds
       });
-      if (metadata.focus !== false) focusSurface(instance.id, metadata);
-      proxySurfaceManager('restore', instance, metadata);
-      return cloneValue(instance, instance);
+      if (metadata.focus !== false) projectFocus(instance, metadata);
+      return projectHandle(instance);
     }
 
     function closeSurface(surfaceRef, metadata = {}) {
       const instance = ensureSurface(surfaceRef);
       const definition = surfaceIndex.get(instance.surfaceId) || {};
       if (definition.destroyOnClose || metadata.destroy === true) return destroySurface(instance.id, { reason: 'close' });
-      instance.state = 'closed';
+      const result = proxySurfaceManager('close', instance, metadata);
+      requireSurfaceControllerResult(result, 'close', instance.id);
+      syncLifecycleProjection(instance, result && result.snapshot, { state: 'closed' });
       instance.closedAt = metadata.at || 'static-local';
       if (definition.closeReleasesResources || metadata.releaseResources === true) {
         releaseResources(instance, 'close');
@@ -638,45 +1033,55 @@
         instanceId: instance.id,
         resourcesAcquired: instance.resourcesAcquired
       });
-      proxySurfaceManager('close', instance, metadata);
-      return cloneValue(instance, instance);
+      return projectHandle(instance);
     }
 
     function destroySurface(surfaceRef, metadata = {}) {
       const instance = ensureSurface(surfaceRef);
-      overlayStack
-        .filter((overlay) => overlay.state === 'open' && overlay.ownerId === instance.id)
-        .forEach((overlay) => closeOverlay(overlay.id, { reason: 'surface-destroy' }));
+      const releasePreview = instance.resourcesAcquired ? instance.resources.slice() : [];
+      const ownedOverlays = overlayStack
+        .filter((overlay) => lifecycleState(overlay) === 'open' && overlay.ownerId === instance.id);
+      const lifecycleOperations = ownedOverlays.map((overlay) => ({
+        operation: 'closeSurface',
+        args: [overlay.id, 'surface-destroy']
+      }));
+      lifecycleOperations.push({
+        operation: 'destroySurface',
+        args: [instance.id, { ...metadata, releasedResources: releasePreview }]
+      });
+      const result = callSurfaceControllerApply(lifecycleOperations, {
+        instanceId: instance.id,
+        operation: 'destroy-with-overlays'
+      });
+      requireSurfaceControllerResult(result, 'destroy', instance.id);
+      syncLifecycleProjection(instance, result && result.snapshot, { state: 'destroyed' });
+      ownedOverlays.forEach((overlay) => finalizeOverlayCloseProjection(overlay, { reason: 'surface-destroy' }));
       const releaseReport = releaseResources(instance, metadata.reason || 'destroy');
       if (eventRuntime && typeof eventRuntime.detachOwner === 'function') {
         eventRuntime.detachOwner(instance.owner);
       }
-      instance.state = 'destroyed';
       instance.destroyedAt = metadata.at || 'static-local';
       publish('rmt.surface.destroyed', `RMT Surface ${instance.id} wurde zerstoert.`, {
         instanceId: instance.id,
         owner: instance.owner,
         releasedCount: releaseReport && releaseReport.releasedCount || 0
       });
-      proxySurfaceManager('destroy', instance, {
-        ...metadata,
-        releasedResources: instance.resources.slice(),
-        releasedCount: releaseReport && releaseReport.releasedCount || 0
-      });
-      return cloneValue(instance, instance);
+      return projectHandle(instance);
     }
 
     function setBounds(surfaceRef, bounds, metadata = {}) {
       const instance = ensureSurface(surfaceRef);
+      const nextBounds = normalizeBounds(bounds, instance.bounds);
+      const result = proxySurfaceManager('update', instance, { bounds: nextBounds, reason: metadata.reason || 'set-bounds' });
+      requireSurfaceControllerResult(result, 'update', instance.id);
       instance.previousBounds = cloneValue(instance.bounds, instance.bounds);
-      instance.bounds = normalizeBounds(bounds, instance.bounds);
+      syncLifecycleProjection(instance, result && result.snapshot, { bounds: nextBounds });
       publish('rmt.surface.bounds.changed', `RMT Surface ${instance.id} hat neue Bounds.`, {
         instanceId: instance.id,
         bounds: instance.bounds,
         reason: metadata.reason || 'set-bounds'
       });
-      proxySurfaceManager('update', instance, { bounds: instance.bounds, reason: metadata.reason || 'set-bounds' });
-      return cloneValue(instance, instance);
+      return projectHandle(instance);
     }
 
     function moveSurface(surfaceRef, x, y) {
@@ -689,21 +1094,49 @@
       return setBounds(instance.id, { ...instance.bounds, width, height }, { reason: 'resize' });
     }
 
+    function materializePortalRoot(portal, target) {
+      if (!portal || portal.element || !target || typeof target.appendChild !== 'function') {
+        return portal && portal.element || null;
+      }
+      const descriptor = {
+        type: 'element',
+        tag: 'x-surface-portal',
+        attributes: {
+          'portal-id': portal.id,
+          policy: portal.policy,
+          layer: portal.layer,
+          'z-index-start': portal.zIndexStart,
+          'z-step': portal.zStep
+        }
+      };
+      sharedRenderer(target);
+      const portalElement = createDescriptorNode(descriptor, target, `/portals/${portal.id}`);
+      if (!portalElement) {
+        publish('rmt.surface.dom_commit.invalid_result', 'Portal DOM commit returned no materialized node.', {
+          portalId: portal.id
+        }, 'error');
+        const error = new Error(`RMT Portal ${portal.id} could not be materialized by the shared DOM renderer.`);
+        error.code = 'rmt.surface.dom_commit.invalid_result';
+        throw error;
+      }
+      target.appendChild(portalElement);
+      portal.element = portalElement;
+      portal.target = target;
+      portal.mounted = true;
+      return portalElement;
+    }
+
     function mountPortal(portalRef, target) {
       const portal = portalIndex.get(clampString(portalRef));
       if (!portal) throw new Error(`RMT Portal ${portalRef} ist nicht definiert.`);
-      portal.target = target || null;
-      portal.mounted = true;
-      if (!portal.element && portal.target && typeof portal.target.appendChild === 'function' && documentTarget && typeof documentTarget.createElement === 'function') {
-        const portalElement = documentTarget.createElement('x-surface-portal');
-        setDomAttribute(portalElement, 'portal-id', portal.id);
-        setDomAttribute(portalElement, 'policy', portal.policy);
-        setDomAttribute(portalElement, 'layer', portal.layer);
-        setDomAttribute(portalElement, 'z-index-start', portal.zIndexStart);
-        setDomAttribute(portalElement, 'z-step', portal.zStep);
-        portal.target.appendChild(portalElement);
-        portal.element = portalElement;
+      assertActive('mountPortal');
+      const nextTarget = target || portal.target || documentTarget && documentTarget.body || null;
+      sharedRenderer(nextTarget);
+      if (portal.element && nextTarget && portal.target !== nextTarget && typeof nextTarget.appendChild === 'function') {
+        nextTarget.appendChild(portal.element);
       }
+      portal.target = nextTarget;
+      portal.mounted = Boolean(materializePortalRoot(portal, nextTarget) || portal.element);
       publish('rmt.portal.mounted', `RMT Portal ${portal.id} wurde gemountet.`, {
         portalId: portal.id,
         layer: portal.layer
@@ -711,76 +1144,63 @@
       return cloneValue(portal, portal);
     }
 
-    function isSafeOverlayTag(tag) {
-      const normalized = clampString(tag).toLowerCase();
-      if (!normalized || !/^[a-z][a-z0-9._-]*$/u.test(normalized)) return false;
-      if (normalized.includes('-')) return true;
-      return ['div', 'span', 'section', 'article', 'header', 'footer', 'main', 'aside', 'nav'].includes(normalized);
-    }
-
-    function isUnsafeAttributeUrl(value) {
-      const normalized = clampString(value).replace(/[\u0000-\u001f\u007f\s]+/gu, '').toLowerCase();
-      return /^(?:javascript|vbscript|data):/u.test(normalized);
-    }
-
-    function isSafeOverlayAttribute(name, value) {
-      const normalized = clampString(name).toLowerCase();
-      if (!normalized || !/^[a-z_:][a-z0-9_:.\-]*$/u.test(normalized)) return false;
-      if (normalized.startsWith('on') || normalized === 'srcdoc' || normalized === 'style') return false;
-      if (['href', 'src', 'xlink:href', 'action', 'formaction', 'poster'].includes(normalized) && isUnsafeAttributeUrl(value)) return false;
-      return true;
-    }
-
-    function setDomAttribute(element, name, value) {
-      if (!element || typeof element.setAttribute !== 'function' || value === null || typeof value === 'undefined' || value === false) return;
-      element.setAttribute(name, value === true ? '' : String(value));
-    }
-
-    function setOverlayAttribute(element, name, value, definition) {
-      if (!isSafeOverlayAttribute(name, value)) {
-        publish('rmt.overlay.attribute.unsafe', `RMT Overlay ${definition.id} enthaelt ein unsicheres Attribut.`, {
-          overlayId: definition.id,
-          attribute: clampString(name)
-        }, 'warning');
-        return;
-      }
-      setDomAttribute(element, name, value);
-    }
-
     function resolvePortalTarget(portal, metadata = {}) {
-      if (metadata.target && typeof metadata.target.appendChild === 'function') return metadata.target;
-      if (portal && portal.target && typeof portal.target.appendChild === 'function') return portal.target;
-      if (documentTarget && documentTarget.body && typeof documentTarget.body.appendChild === 'function') return documentTarget.body;
-      return null;
+      const hostTarget = metadata.target && typeof metadata.target.appendChild === 'function'
+        ? metadata.target
+        : portal && portal.target && typeof portal.target.appendChild === 'function'
+          ? portal.target
+          : documentTarget && documentTarget.body && typeof documentTarget.body.appendChild === 'function'
+            ? documentTarget.body
+            : null;
+      if (!portal || !hostTarget) return null;
+      if (!portal.element) materializePortalRoot(portal, hostTarget);
+      return portal.element || null;
     }
 
     function materializeOverlayElement(overlay, definition, portal, metadata = {}) {
       if (metadata.materialize === false) return null;
       const target = resolvePortalTarget(portal, metadata);
-      if (!target || !documentTarget || typeof documentTarget.createElement !== 'function') return null;
+      if (!target) return null;
       const requestedTag = clampString(metadata.tag || definition.component || definition.tag, definition.kind === 'dialog' ? 'x-dialog' : definition.kind === 'lightbox' ? 'x-lightbox' : 'div');
-      const fallbackTag = definition.kind === 'dialog' ? 'x-dialog' : definition.kind === 'lightbox' ? 'x-lightbox' : 'div';
-      const tag = isSafeOverlayTag(requestedTag) ? requestedTag : fallbackTag;
-      if (tag !== requestedTag) {
-        publish('rmt.overlay.tag.unsafe', `RMT Overlay ${definition.id} enthaelt ein unsicheres Element.`, {
-          overlayId: definition.id,
-          tag: requestedTag
-        }, 'warning');
-      }
-      const element = documentTarget.createElement(tag);
-      setDomAttribute(element, 'data-rmt-overlay', overlay.id);
-      setDomAttribute(element, 'data-rmt-overlay-ref', overlay.overlayId);
-      setDomAttribute(element, 'data-rmt-owner', overlay.ownerId);
-      setDomAttribute(element, 'data-rmt-portal', overlay.portal);
-      setDomAttribute(element, 'data-overlay-kind', overlay.kind);
-      setDomAttribute(element, 'role', definition.kind === 'dialog' || definition.kind === 'lightbox' ? 'dialog' : undefined);
-      setDomAttribute(element, 'open', true);
-      Object.entries(objectRecord(definition.attributes)).forEach(([name, value]) => setOverlayAttribute(element, name, value, definition));
-      if (element.style && typeof element.style.setProperty === 'function') {
-        element.style.setProperty('z-index', String(overlay.zIndex));
-      }
-      if (metadata.text && typeof documentTarget.createTextNode === 'function' && typeof element.appendChild === 'function') {
-        element.appendChild(documentTarget.createTextNode(String(metadata.text)));
+      sharedRenderer(target);
+      const tag = requestedTag;
+      const structuredChild = metadata.descriptor
+        || (definition.template && typeof definition.template === 'object' ? definition.template : null)
+        || (definition.template && (metadata.templates || metadata.renderContext && metadata.renderContext.templates)
+          ? { type: 'template', template: definition.template }
+          : null);
+      const descriptor = {
+        type: 'element',
+        tag,
+        attributes: {
+          'data-rmt-overlay': overlay.id,
+          'data-rmt-overlay-ref': overlay.overlayId,
+          'data-rmt-owner': overlay.ownerId,
+          'data-rmt-portal': overlay.portal,
+          'data-overlay-kind': overlay.kind,
+          role: definition.kind === 'dialog' || definition.kind === 'lightbox' ? 'dialog' : undefined,
+          open: true,
+          ...objectRecord(definition.attributes),
+          style: {
+            'z-index': String(overlay.zIndex)
+          }
+        }
+      };
+      if (structuredChild) descriptor.children = [structuredChild];
+      else if (metadata.text != null) descriptor.text = String(metadata.text);
+      const element = createDescriptorNode(descriptor, target, `/overlays/${definition.id}`, {
+        ...objectRecord(metadata.renderContext),
+        templates: metadata.templates || objectRecord(metadata.renderContext).templates,
+        components: metadata.components || objectRecord(metadata.renderContext).components,
+        componentRegistry: metadata.componentRegistry || objectRecord(metadata.renderContext).componentRegistry
+      });
+      if (!element) {
+        publish('rmt.surface.dom_commit.invalid_result', 'Overlay DOM commit returned no materialized node.', {
+          overlayId: definition.id
+        }, 'error');
+        const error = new Error(`RMT Overlay ${definition.id} could not be materialized by the shared DOM renderer.`);
+        error.code = 'rmt.surface.dom_commit.invalid_result';
+        throw error;
       }
       target.appendChild(element);
       portal.mounted = true;
@@ -797,31 +1217,23 @@
     function removeOverlayElement(overlay) {
       const element = overlay && overlay.element;
       if (!element) return false;
-      if (typeof element.remove === 'function') {
-        element.remove();
-        overlay.element = null;
-        return true;
-      }
-      if (element.parentNode && typeof element.parentNode.removeChild === 'function') {
-        element.parentNode.removeChild(element);
-        overlay.element = null;
-        return true;
-      }
+      const removed = disposeDomNode(element);
       overlay.element = null;
-      return false;
+      return removed;
     }
 
     async function openOverlay(overlayRef, metadata = {}) {
+      assertActive('openOverlay');
       const definition = overlayIndex.get(clampString(overlayRef));
       if (!definition) throw new Error(`RMT Overlay ${overlayRef} ist nicht definiert.`);
       const portal = portalIndex.get(clampString(metadata.portal, definition.portal)) || portalIndex.get(DEFAULT_PORTAL_ID);
       const ownerId = clampString(metadata.ownerId || metadata.surfaceId || definition.surface, 'global');
       if (definition.singleton) {
-        const existing = overlayStack.find((entry) => entry.state === 'open' && entry.overlayId === definition.id && entry.ownerId === ownerId);
-        if (existing) return cloneOverlayInstance(existing, existing);
+        const existing = overlayStack.find((entry) => lifecycleState(entry) === 'open' && entry.overlayId === definition.id && entry.ownerId === ownerId);
+        if (existing) return projectHandle(existing);
       }
       overlaySequence += 1;
-      const openInPortal = overlayStack.filter((entry) => entry.state === 'open' && entry.portal === portal.id).length;
+      const openInPortal = overlayStack.filter((entry) => lifecycleState(entry) === 'open' && entry.portal === portal.id).length;
       const id = `${definition.id}:${ownerId}:${overlaySequence}`;
       const overlay = {
         id,
@@ -844,18 +1256,73 @@
         closedAt: null,
         element: null
       };
-      overlayStack.push(overlay);
       const overlayRecord = surfaceManagerRecordForOverlay(overlay, definition);
-      callSurfaceManager('registerSurface', [overlayRecord], { overlayId: overlay.overlayId, instanceId: overlay.id, operation: 'register-overlay' });
-      callSurfaceManager('openSurface', [overlay.id, { zIndex: overlay.zIndex, portal: overlay.portal }], { overlayId: overlay.overlayId, instanceId: overlay.id, operation: 'open-overlay' });
+      const lifecycleResult = callSurfaceControllerApply([
+        { operation: 'registerSurface', args: [overlayRecord] },
+        { operation: 'openSurface', args: [overlay.id, { zIndex: overlay.zIndex, portal: overlay.portal }] }
+      ], {
+        overlayId: overlay.overlayId,
+        instanceId: overlay.id,
+        operation: 'open-overlay'
+      });
+      requireSurfaceControllerResult(lifecycleResult, 'open-overlay', overlay.id);
+      syncLifecycleProjection(overlay, lifecycleResult && lifecycleResult.snapshot, { state: 'open' });
+      overlayStack.push(overlay);
+      try {
+        materializeOverlayElement(overlay, definition, portal, metadata);
+      } catch (error) {
+        overlay.projection = {
+          status: 'failed',
+          retryable: true,
+          phase: 'dom',
+          error: error && error.message || String(error)
+        };
+        publish('rmt.surface.projection.retryable', 'Overlay lifecycle committed, but DOM projection failed and can be retried.', {
+          overlayId: overlay.overlayId,
+          instanceId: overlay.id,
+          phase: 'dom'
+        }, 'error');
+        throw error;
+      }
+      overlay.projection = { status: 'ready', retryable: false };
       if (definition.resources.length > 0) {
         const overlayOwner = overlay.id;
         if (resourceManager && typeof resourceManager.acquireMany === 'function') {
-          await resourceManager.acquireMany(definition.resources, overlayOwner, {
-            overlay: cloneValue(overlay, overlay),
-            surface: instances.get(ownerId) || null
-          });
-          overlay.resourcesAcquired = true;
+          try {
+            await resourceManager.acquireMany(definition.resources, overlayOwner, {
+              overlay: cloneValue(overlay, overlay),
+              surface: instances.get(ownerId) || null
+            });
+            if (disposed || disposing) {
+              if (typeof resourceManager.releaseOwner === 'function') resourceManager.releaseOwner(overlayOwner);
+              overlay.projection = { status: 'failed', retryable: true, phase: 'runtime-dispose' };
+              const error = new Error('RMT Surface Resource Graph was disposed while opening an overlay.');
+              error.code = 'rmt.surface.runtime.disposed';
+              throw error;
+            }
+            overlay.resourcesAcquired = true;
+          } catch (error) {
+            if (resourceManager && typeof resourceManager.releaseOwner === 'function') {
+              try {
+                resourceManager.releaseOwner(overlayOwner);
+              } catch (_) {
+                // The original acquisition error remains the primary failure.
+              }
+            }
+            removeOverlayElement(overlay);
+            overlay.projection = {
+              status: 'failed',
+              retryable: true,
+              phase: 'resource-acquire',
+              error: error && error.message || String(error)
+            };
+            publish('rmt.surface.projection.retryable', 'Overlay lifecycle committed, but resource projection failed and can be retried.', {
+              overlayId: overlay.overlayId,
+              instanceId: overlay.id,
+              phase: 'resource-acquire'
+            }, 'error');
+            throw error;
+          }
         } else {
           publish('rmt.overlay.resources.missing_manager', `RMT Overlay ${definition.id} hat Ressourcen ohne Resource Manager.`, {
             overlayId: definition.id,
@@ -863,7 +1330,6 @@
           }, 'warning');
         }
       }
-      materializeOverlayElement(overlay, definition, portal, metadata);
       publish('rmt.overlay.opened', `RMT Overlay ${definition.id} wurde geoeffnet.`, {
         overlayId: definition.id,
         instanceId: overlay.id,
@@ -871,12 +1337,35 @@
         portal: overlay.portal,
         zIndex: overlay.zIndex
       });
-      return cloneOverlayInstance(overlay, overlay);
+      return projectHandle(overlay);
+    }
+
+    function finalizeOverlayCloseProjection(overlay, metadata = {}) {
+      if (!overlay) return false;
+      syncLifecycleProjection(overlay, null, { state: 'closed' });
+      overlay.closedAt = metadata.at || 'static-local';
+      const definition = overlayIndex.get(overlay.overlayId) || {};
+      const removedElement = removeOverlayElement(overlay);
+      if (eventRuntime && typeof eventRuntime.detachOwner === 'function') {
+        eventRuntime.detachOwner(overlay.id);
+      }
+      if (overlay.resourcesAcquired && definition.closeReleasesResources !== false && resourceManager && typeof resourceManager.releaseOwner === 'function') {
+        resourceManager.releaseOwner(overlay.id);
+        overlay.resourcesAcquired = false;
+      }
+      overlay.projection = { status: 'closed', retryable: false };
+      publish('rmt.overlay.closed', `RMT Overlay ${overlay.overlayId} wurde geschlossen.`, {
+        overlayId: overlay.overlayId,
+        instanceId: overlay.id,
+        reason: metadata.reason || 'close',
+        removedElement
+      });
+      return removedElement;
     }
 
     function closeOverlay(overlayRef, metadata = {}) {
       const ref = clampString(overlayRef);
-      const openOverlays = overlayStack.filter((entry) => entry.state === 'open');
+      const openOverlays = overlayStack.filter((entry) => lifecycleState(entry) === 'open');
       const overlay = openOverlays
         .filter((entry) => entry.id === ref || entry.overlayId === ref)
         .sort((left, right) => right.zIndex - left.zIndex)[0];
@@ -887,25 +1376,20 @@
           overlay: ref
         };
       }
-      overlay.state = 'closed';
-      overlay.closedAt = metadata.at || 'static-local';
-      const definition = overlayIndex.get(overlay.overlayId) || {};
-      const removedElement = removeOverlayElement(overlay);
-      if (overlay.resourcesAcquired && definition.closeReleasesResources !== false && resourceManager && typeof resourceManager.releaseOwner === 'function') {
-        resourceManager.releaseOwner(overlay.id);
-        overlay.resourcesAcquired = false;
-      }
-      publish('rmt.overlay.closed', `RMT Overlay ${overlay.overlayId} wurde geschlossen.`, {
-        overlayId: overlay.overlayId,
-        instanceId: overlay.id,
-        reason: metadata.reason || 'close',
-        removedElement
-      });
-      callSurfaceManager('closeSurface', [overlay.id, metadata.reason || 'close'], { overlayId: overlay.overlayId, instanceId: overlay.id, operation: 'close-overlay' });
+      requireSurfaceControllerResult(
+        callSurfaceManager('closeSurface', [overlay.id, metadata.reason || 'close'], {
+          overlayId: overlay.overlayId,
+          instanceId: overlay.id,
+          operation: 'close-overlay'
+        }),
+        'close-overlay',
+        overlay.id
+      );
+      finalizeOverlayCloseProjection(overlay, metadata);
       return {
         schema: 'xtend.epic18.rmt-overlay-close-report.v1',
         closed: true,
-        overlay: cloneOverlayInstance(overlay, overlay)
+        overlay: projectHandle(overlay)
       };
     }
 
@@ -913,7 +1397,7 @@
       const reason = clampString(metadata.reason, 'escape');
       const portal = clampString(metadata.portal, '');
       const candidate = overlayStack
-        .filter((entry) => entry.state === 'open')
+        .filter((entry) => lifecycleState(entry) === 'open')
         .filter((entry) => !portal || entry.portal === portal)
         .filter((entry) => entry.dismissible)
         .filter((entry) => reason !== 'escape' || entry.escapePolicy !== 'ignore')
@@ -929,10 +1413,12 @@
     }
 
     function getSnapshot() {
+      const projectedSurfaces = [...instances.values()].map((instance) => projectHandle(instance));
       return {
         schema: 'xtend.epic18.rmt-surface-resource-graph-snapshot.v1',
         runtimeSchema: RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA,
-        surfaces: [...instances.values()].map((instance) => ({
+        disposed,
+        surfaces: projectedSurfaces.map((instance) => ({
           id: instance.id,
           surfaceId: instance.surfaceId,
           kind: instance.kind,
@@ -946,7 +1432,7 @@
           resourcesAcquired: instance.resourcesAcquired,
           metadata: cloneValue(instance.metadata, {})
         })),
-        overlays: overlayStack.filter((entry) => entry.state === 'open').map((entry) => cloneOverlayInstance(entry, entry)),
+        overlays: overlayStack.filter((entry) => lifecycleState(entry) === 'open').map((entry) => projectHandle(entry)),
         portals: portals.map((portal) => ({
           id: portal.id,
           layer: portal.layer,
@@ -978,24 +1464,171 @@
           hydratedCount: 0
         };
       }
-      let hydratedCount = 0;
+      const pending = [];
+      const lifecycleOperations = [];
       source.surfaces.forEach((entry) => {
         const current = instances.get(entry.id);
         if (!current) return;
-        current.state = clampString(entry.state, current.state);
-        current.bounds = normalizeBounds(entry.bounds, current.bounds);
-        current.previousBounds = cloneValue(entry.previousBounds, current.previousBounds);
-        current.zIndex = Number.isFinite(entry.zIndex) ? entry.zIndex : current.zIndex;
-        current.focusOrder = Number.isFinite(entry.focusOrder) ? entry.focusOrder : current.focusOrder;
-        current.metadata = cloneValue(entry.metadata, current.metadata);
-        hydratedCount += 1;
+        const state = clampString(entry.state, lifecycleState(current));
+        const bounds = normalizeBounds(entry.bounds, current.bounds);
+        lifecycleOperations.push({ operation: 'updateSurface', args: [current.id, { bounds }] });
+        if (state === 'open') lifecycleOperations.push({ operation: 'openSurface', args: [current.id, { bounds, recreate: true }] });
+        else if (state === 'minimized') lifecycleOperations.push({ operation: 'minimizeSurface', args: [current.id] });
+        else if (state === 'destroyed') lifecycleOperations.push({ operation: 'destroySurface', args: [current.id, { reason: 'snapshot-adoption' }] });
+        else lifecycleOperations.push({ operation: 'closeSurface', args: [current.id, 'snapshot-adoption'] });
+        pending.push({ current, entry });
       });
+      const applyResult = callSurfaceControllerApply(lifecycleOperations, {
+        operation: 'adopt-snapshot',
+        source: 'persistence'
+      });
+      requireSurfaceControllerResult(applyResult, 'adopt-snapshot', null);
+      pending.forEach(({ current, entry }) => {
+        syncLifecycleProjection(current, applyResult && applyResult.snapshot, {
+          state: clampString(entry.state, current.state),
+          bounds: entry.bounds
+        });
+        current.focusOrder = Number.isFinite(entry.focusOrder) ? entry.focusOrder : current.focusOrder;
+        current.metadata = {
+          ...objectRecord(current.metadata),
+          ...objectRecord(cloneValue(entry.metadata, {})),
+          lifecycleProjection: true
+        };
+      });
+      const hydratedCount = pending.length;
+      publish('rmt.surface.mvc.lifecycle-adoption', 'Persisted Surface lifecycle was adopted through the authoritative controller.', {
+        hydratedCount
+      }, 'info');
       publish('rmt.surface.snapshot.hydrated', 'RMT Surface Graph Snapshot wurde hydriert.', {
         hydratedCount
       });
       return {
         schema: 'xtend.epic18.rmt-surface-hydrate-report.v1',
         hydratedCount
+      };
+    }
+
+    function dispose() {
+      if (disposed || disposing) {
+        return {
+          schema: 'xtend.epic18.rmt-surface-resource-graph-dispose-report.v1',
+          disposed: true,
+          alreadyDisposed: true,
+          closedOverlayCount: 0,
+          releasedOwnerCount: 0,
+          removedPortalCount: 0
+        };
+      }
+      disposing = true;
+      let closedOverlayCount = 0;
+      let releasedOwnerCount = 0;
+      let removedPortalCount = 0;
+      const disposeAttempt = (code, message, details, callback) => {
+        try {
+          return callback();
+        } catch (error) {
+          publish(code, message, {
+            ...details,
+            error: error && error.message || String(error)
+          }, 'warning');
+          return null;
+        }
+      };
+      const openOverlayHandles = overlayStack.filter((overlay) => lifecycleState(overlay) === 'open');
+      const liveInstanceHandles = [...instances.values()]
+        .filter((instance) => managedSurfaceManagerIds.has(instance.id) && lifecycleState(instance) !== 'destroyed');
+      const lifecycleOperations = [
+        ...openOverlayHandles.map((overlay) => ({ operation: 'closeSurface', args: [overlay.id, 'runtime-dispose'] })),
+        ...liveInstanceHandles.map((instance) => ({ operation: 'destroySurface', args: [instance.id, { reason: 'runtime-dispose' }] }))
+      ];
+      const lifecycleResult = callSurfaceControllerApply(lifecycleOperations, {
+        operation: 'dispose',
+        overlayCount: openOverlayHandles.length,
+        surfaceCount: liveInstanceHandles.length
+      });
+      try {
+        requireSurfaceControllerResult(lifecycleResult, 'dispose', null);
+      } catch (error) {
+        disposing = false;
+        throw error;
+      }
+      try {
+        openOverlayHandles.forEach((overlay) => {
+          syncLifecycleProjection(overlay, lifecycleResult && lifecycleResult.snapshot, { state: 'closed' });
+          finalizeOverlayCloseProjection(overlay, { reason: 'runtime-dispose' });
+          closedOverlayCount += 1;
+        });
+        overlayStack.forEach((overlay) => {
+          removeOverlayElement(overlay);
+          if (overlay.resourcesAcquired && resourceManager && typeof resourceManager.releaseOwner === 'function') {
+            const releaseReport = disposeAttempt(
+              'rmt.surface.dispose.resource_failed',
+              'An overlay resource handle failed during Surface Resource Graph disposal.',
+              { owner: overlay.id },
+              () => ({ report: resourceManager.releaseOwner(overlay.id) })
+            );
+            if (releaseReport) {
+              overlay.resourcesAcquired = false;
+              releasedOwnerCount += 1;
+            }
+          }
+          if (eventRuntime && typeof eventRuntime.detachOwner === 'function') {
+            disposeAttempt(
+              'rmt.surface.dispose.event_failed',
+              'An overlay event handle failed during Surface Resource Graph disposal.',
+              { owner: overlay.id },
+              () => eventRuntime.detachOwner(overlay.id)
+            );
+          }
+        });
+        instances.forEach((instance) => {
+          if (instance.resourcesAcquired) {
+            const releaseReport = disposeAttempt(
+              'rmt.surface.dispose.resource_failed',
+              'A surface resource handle failed during Surface Resource Graph disposal.',
+              { owner: instance.owner },
+              () => ({ report: releaseResources(instance, 'runtime-dispose') })
+            );
+            if (releaseReport) releasedOwnerCount += 1;
+          }
+          if (eventRuntime && typeof eventRuntime.detachOwner === 'function') {
+            disposeAttempt(
+              'rmt.surface.dispose.event_failed',
+              'A surface event handle failed during Surface Resource Graph disposal.',
+              { owner: instance.owner },
+              () => eventRuntime.detachOwner(instance.owner)
+            );
+          }
+          syncLifecycleProjection(instance, lifecycleResult && lifecycleResult.snapshot, { state: 'destroyed' });
+          instance.destroyedAt = instance.destroyedAt || 'runtime-dispose';
+        });
+        portals.forEach((portal) => {
+          if (portal.element && disposeDomNode(portal.element)) removedPortalCount += 1;
+          portal.element = null;
+          portal.target = null;
+          portal.mounted = false;
+        });
+        managedSurfaceManagerIds.clear();
+        if (ownsDomRenderer && domRenderer && typeof domRenderer.dispose === 'function') {
+          disposeAttempt(
+            'rmt.surface.dispose.dom_renderer_failed',
+            'The compatibility DOM renderer failed during Surface Resource Graph disposal.',
+            { adapter: 'surface-resource-graph-runtime' },
+            () => domRenderer.dispose(undefined, { clearOwnedDom: false })
+          );
+        }
+        ownsDomRenderer = false;
+      } finally {
+        disposing = false;
+        disposed = true;
+      }
+      return {
+        schema: 'xtend.epic18.rmt-surface-resource-graph-dispose-report.v1',
+        disposed: true,
+        alreadyDisposed: false,
+        closedOverlayCount,
+        releasedOwnerCount,
+        removedPortalCount
       };
     }
 
@@ -1018,22 +1651,23 @@
       persistSnapshot,
       hydrateSnapshot,
       getSnapshot,
+      dispose,
       getSurface(surfaceRef) {
         const instance = instances.get(clampString(surfaceRef));
-        return instance ? cloneValue(instance, instance) : null;
+        return instance ? projectHandle(instance) : null;
       },
       listSurfaces() {
         return surfaces.map((surface) => cloneValue(surface, surface));
       },
       listInstances(optionsForList = {}) {
         return [...instances.values()]
-          .filter((instance) => optionsForList.includeDestroyed === true || instance.state !== 'destroyed')
-          .map((instance) => cloneValue(instance, instance));
+          .filter((instance) => optionsForList.includeDestroyed === true || lifecycleState(instance) !== 'destroyed')
+          .map((instance) => projectHandle(instance));
       },
       listOverlays(optionsForList = {}) {
         return overlayStack
-          .filter((overlay) => optionsForList.includeClosed === true || overlay.state === 'open')
-          .map((overlay) => cloneOverlayInstance(overlay, overlay));
+          .filter((overlay) => optionsForList.includeClosed === true || lifecycleState(overlay) === 'open')
+          .map((overlay) => projectHandle(overlay));
       },
       listPortals() {
         return portals.map((portal) => cloneValue(portal, portal));

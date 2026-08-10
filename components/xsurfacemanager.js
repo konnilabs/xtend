@@ -656,7 +656,7 @@ class XSurfaceManager extends HTMLElement {
       hydration: { policy: 'visible', lane: 'visible' },
       surface: {
         schema: 'xtend.surface.manager.v1',
-        controller: 'xtend.surface.controller.v1',
+        controller: 'xtend.surface.controller.v2',
         overlayBridge: 'xtend.surface.overlay-stack-bridge.v1',
         snapshot: 'xtend.surface.snapshot.v1',
         persistence: SURFACE_MANAGER_PERSISTENCE_SCHEMA,

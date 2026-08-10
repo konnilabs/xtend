@@ -156,8 +156,8 @@ function buildHelpText() {
     '  xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json',
     '  xt kernel-lab analyze --json',
     '  xt kernel-lab build --profile clean --check --json',
-    '  xt kernel-lab build --profile clean --version 0.5.0 --write --json',
-    '  xt rmt kernel-lab build --profile clean --version 0.5.0 --write --json',
+    '  xt kernel-lab build --profile clean --version 0.6.1 --write --json',
+    '  xt rmt kernel-lab build --profile clean --version 0.6.1 --write --json',
     '  xt rmt lint tests/fixtures',
     '  xt component-files --tag x-example --profile display --json',
     '  xt workflow --json',
@@ -213,7 +213,7 @@ function buildHelpText() {
     '  rmt build     Build an RMT document; pass --bundle maraca for the one-step Maraca path.',
     '  rmt lint  Lint native .rmt files and fallback .rmt.json files.',
     '  rmt ai-kit export  Export the RMT AI Developer Kit for agent ingest.',
-    '  kernel-lab analyze|build  Analyze and rebuild clean RMT kernel artifacts.',
+    '  kernel-lab analyze|build  Analyze and assemble clean RMT kernel artifacts from bundled modules and canonical sources.',
     '',
     'Boundary:',
     '  WP-E03-11 standardizes extension-point contracts without productive runtime code.',
@@ -269,13 +269,13 @@ function buildKernelLabHelpText() {
     'Usage:',
     '  xt kernel-lab analyze --json',
     '  xt kernel-lab build --profile clean --check --json',
-    '  xt kernel-lab build --profile clean --version 0.5.0 --write --json',
+    '  xt kernel-lab build --profile clean --version 0.6.1 --write --json',
     '  xt rmt kernel-lab analyze --json',
-    '  xt rmt kernel-lab build --profile clean --version 0.5.0 --write --json',
+    '  xt rmt kernel-lab build --profile clean --version 0.6.1 --write --json',
     '',
     'Commands:',
-    '  analyze  Inventory the bundled RMT kernel and emit the module manifest report.',
-    '  build    Build the Dashboard-free standard kernel artifacts from the bundled kernel.',
+    '  analyze  Inventory all 26 kernel modules and emit the module manifest report.',
+    '  build    Assemble and synchronize seven outputs from bundled modules and canonical sources.',
     '',
     'Options:',
     '  --version <semver>  Set the XTendRMT kernel release version for headers, runtime API and manifest.'
@@ -893,7 +893,7 @@ function runCli(args = process.argv.slice(2), io = {}) {
         '  xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json',
         '  xt rmt kernel-lab analyze --json',
         '  xt rmt kernel-lab build --profile clean --check --json',
-        '  xt rmt kernel-lab build --profile clean --version 0.5.0 --write --json',
+        '  xt rmt kernel-lab build --profile clean --version 0.6.1 --write --json',
         '  xt rmt lint tests/fixtures --fail-on warning',
         '  xt rmt lint app.rmt --format problem-matcher',
         '',
@@ -901,7 +901,7 @@ function runCli(args = process.argv.slice(2), io = {}) {
         '  build Build an RMT document; pass --bundle maraca for a loaderless ESM app bundle.',
         '  lint  Run the native RMT linter.',
         '  ai-kit export  Export the RMT AI Developer Kit for agent ingest.',
-        '  kernel-lab analyze|build  Analyze and rebuild clean RMT kernel artifacts.'
+        '  kernel-lab analyze|build  Analyze and assemble clean RMT kernel artifacts from bundled modules and canonical sources.'
       ].join('\n'));
       return 0;
     }

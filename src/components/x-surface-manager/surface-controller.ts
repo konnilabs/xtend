@@ -1,11 +1,14 @@
 import {
   SURFACE_CONTROLLER_SCHEMA,
+  SURFACE_APPLY_RESULT_SCHEMA,
   SURFACE_DIAGNOSTIC_SCHEMA,
   SURFACE_OPERATION_RESULT_SCHEMA,
   SURFACE_RECORD_SCHEMA,
   SURFACE_SNAPSHOT_SCHEMA,
   XTEND_SURFACE_STATE_KEYS,
   XtendSurfaceBounds,
+  XtendSurfaceApplyOperation,
+  XtendSurfaceApplyResult,
   XtendSurfaceController,
   XtendSurfaceControllerOptions,
   XtendSurfaceDiagnostic,
@@ -35,6 +38,8 @@ const DEFAULT_CAPABILITIES: Readonly<Record<XtendSurfaceType, readonly string[]>
   menu: Object.freeze(['open', 'focus', 'close', 'destroy', 'update', 'snapshot'])
 });
 
+const DETERMINISTIC_TIMESTAMP = '1970-01-01T00:00:00.000Z';
+
 function nowIso(nowProvider?: () => string | number | Date): string {
   if (nowProvider) {
     const value = nowProvider();
@@ -42,7 +47,7 @@ function nowIso(nowProvider?: () => string | number | Date): string {
     if (typeof value === 'number') return new Date(value).toISOString();
     if (typeof value === 'string' && value) return value;
   }
-  return new Date().toISOString();
+  return DETERMINISTIC_TIMESTAMP;
 }
 
 function unique(values: string[]): string[] {
@@ -135,23 +140,43 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
   const stateKeyRoot = options.stateKey || XTEND_SURFACE_STATE_KEYS.registry;
   const registry = new Map<string, XtendSurfaceRecord>();
   const diagnostics: XtendSurfaceDiagnostic[] = [];
+  const subscribers = new Set<(snapshot: XtendSurfaceSnapshot) => void>();
+  const stateProjection = options.stateProjection || null;
+  const legacyStateProjectionRequested = Object.prototype.hasOwnProperty.call(options, 'xstate');
+  const nowProvider = options.clock && typeof options.clock.now === 'function'
+    ? () => options.clock!.now()
+    : options.now;
   const maxDiagnostics = Math.max(1, toFiniteNumber(options.maxDiagnostics, 50));
   let activeSurfaceId: string | null = null;
   let zIndexCursor = Math.max(1, toFiniteNumber(options.baseZIndex, 1000));
   let snapshotVersion = 0;
+  let disposed = false;
+  let applying = false;
+  let applyChanged = false;
+  let pendingFabricDiagnostics: XtendSurfaceDiagnostic[] = [];
 
   function mirror(): void {
-    if (!options.xstate || typeof options.xstate.set !== 'function') return;
+    if (applying) return;
     const records = Array.from(registry.values());
-    options.xstate.set(XTEND_SURFACE_STATE_KEYS.registry, records);
-    options.xstate.set(XTEND_SURFACE_STATE_KEYS.active, activeSurfaceId);
+    const updates: Record<string, unknown> = Object.create(null);
+    updates[XTEND_SURFACE_STATE_KEYS.registry] = records;
+    updates[XTEND_SURFACE_STATE_KEYS.active] = activeSurfaceId;
     records.forEach((record) => {
-      options.xstate!.set(stateKey(XTEND_SURFACE_STATE_KEYS.state, record.id), record);
-      options.xstate!.set(stateKey(XTEND_SURFACE_STATE_KEYS.bounds, record.id), record.bounds);
-      options.xstate!.set(stateKey(XTEND_SURFACE_STATE_KEYS.lifecycle, record.id), record.lifecycle);
+      updates[stateKey(XTEND_SURFACE_STATE_KEYS.state, record.id)] = record;
+      updates[stateKey(XTEND_SURFACE_STATE_KEYS.bounds, record.id)] = record.bounds;
+      updates[stateKey(XTEND_SURFACE_STATE_KEYS.lifecycle, record.id)] = record.lifecycle;
     });
-    options.xstate.set(XTEND_SURFACE_STATE_KEYS.diagnostics, diagnostics.slice(-maxDiagnostics));
-    options.xstate.set(XTEND_SURFACE_STATE_KEYS.snapshot, buildSnapshot());
+    updates[XTEND_SURFACE_STATE_KEYS.diagnostics] = diagnostics.slice(-maxDiagnostics);
+    const currentSnapshot = buildSnapshot();
+    updates[XTEND_SURFACE_STATE_KEYS.snapshot] = currentSnapshot;
+    stateProjection?.apply(updates, currentSnapshot);
+    subscribers.forEach((listener) => {
+      try {
+        listener(currentSnapshot);
+      } catch (_) {
+        // Observers cannot interrupt the authoritative controller commit.
+      }
+    });
   }
 
   function emit(code: string, record: XtendSurfaceRecord | null, operation: string, message: string, detail: Record<string, unknown> = {}): XtendSurfaceDiagnostic {
@@ -164,12 +189,13 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
       operation,
       lane: operationLane(operation),
       message,
-      timestamp: nowIso(options.now),
+      timestamp: nowIso(nowProvider),
       detail
     };
     diagnostics.push(event);
     while (diagnostics.length > maxDiagnostics) diagnostics.shift();
-    options.fabric?.emitDiagnostic?.(event);
+    if (applying) pendingFabricDiagnostics.push(event);
+    else options.fabric?.emitDiagnostic?.(event);
     return event;
   }
 
@@ -192,17 +218,18 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
   }
 
   function commit(record: XtendSurfaceRecord | null, operation: string, phase: string, code: string, message: string): XtendSurfaceOperationResult {
-    snapshotVersion += 1;
+    if (!applying) snapshotVersion += 1;
     if (record) {
       record.lifecycle = {
         phase,
         operation,
         lane: operationLane(operation),
-        timestamp: nowIso(options.now)
+        timestamp: nowIso(nowProvider)
       };
     }
     const event = emit(code, record, operation, message);
     mirror();
+    if (applying) applyChanged = true;
     return result(operation, record, true, event);
   }
 
@@ -239,11 +266,11 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
       surfaces,
       stack,
       diagnostics: diagnostics.slice(-maxDiagnostics),
-      updatedAt: nowIso(options.now)
+      updatedAt: nowIso(nowProvider)
     };
   }
 
-  return {
+  const controller: XtendSurfaceController = {
     schema: SURFACE_CONTROLLER_SCHEMA,
     managerId,
     stateKey: stateKeyRoot,
@@ -288,7 +315,7 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
       if (record.status === 'destroyed') {
         return commit(record, 'destroySurface', 'destroy', 'xtend.surface.already-destroyed', `Surface ${record.id} is already destroyed.`);
       }
-      const destroyedAt = nowIso(options.now);
+      const destroyedAt = nowIso(nowProvider);
       const releasedResources = Array.isArray(destroyOptions.releasedResources)
         ? destroyOptions.releasedResources.map(String)
         : [];
@@ -392,6 +419,115 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
       if (record.status === 'closed' || record.status === 'minimized' || record.minimized) return this.materializeSurface(id, input);
       return this.minimizeSurface(id);
     },
+    apply(operations: XtendSurfaceApplyOperation[], metadata: Record<string, unknown> = {}): XtendSurfaceApplyResult {
+      if (!Array.isArray(operations)) throw new TypeError('Surface Controller apply() requires an operation array.');
+      if (applying) throw new Error('Surface Controller apply() cannot be nested.');
+      if (operations.length === 0) {
+        return {
+          schema: SURFACE_APPLY_RESULT_SCHEMA,
+          ok: true,
+          operation: 'apply',
+          operationCount: 0,
+          changed: false,
+          snapshotVersion,
+          results: [],
+          diagnostics: [],
+          snapshot: buildSnapshot({ includeDestroyed: true }),
+          metadata: { ...metadata }
+        };
+      }
+      const beforeRecords = Array.from(registry.entries()).map(([id, record]) => [id, {
+        ...record,
+        bounds: { ...record.bounds },
+        previousBounds: record.previousBounds ? { ...record.previousBounds } : null,
+        capabilities: record.capabilities.slice(),
+        persistence: { ...record.persistence },
+        metadataKeys: record.metadataKeys.slice(),
+        lifecycle: { ...record.lifecycle }
+      } as XtendSurfaceRecord] as const);
+      const beforeDiagnostics = diagnostics.slice();
+      const beforeActive = activeSurfaceId;
+      const beforeZIndex = zIndexCursor;
+      const beforeVersion = snapshotVersion;
+      const results: XtendSurfaceOperationResult[] = [];
+      pendingFabricDiagnostics = [];
+      applyChanged = false;
+      applying = true;
+      let failed = false;
+      try {
+        operations.forEach((operation) => {
+          if (failed) return;
+          const raw = operation as unknown as Record<string, unknown>;
+          const name = String(raw.operation || '');
+          const method = ({
+            register: 'registerSurface', open: 'openSurface', close: 'closeSurface', destroy: 'destroySurface',
+            focus: 'focusSurface', update: 'updateSurface', move: 'moveSurface', resize: 'resizeSurface',
+            minimize: 'minimizeSurface', maximize: 'maximizeSurface', restore: 'restoreSurface',
+            materialize: 'materializeSurface', toggle: 'toggleSurface'
+          } as Record<string, string>)[name] || name;
+          let operationResult: XtendSurfaceOperationResult;
+          if (method === 'registerSurface') operationResult = controller.registerSurface(raw.record as Record<string, unknown>);
+          else if (method === 'closeSurface') operationResult = controller.closeSurface(String(raw.id || raw.surfaceId || ''), raw.reason as string | undefined);
+          else if (method === 'destroySurface') operationResult = controller.destroySurface(String(raw.id || raw.surfaceId || ''), raw.options as Record<string, unknown> | undefined);
+          else if (method === 'focusSurface' || method === 'minimizeSurface' || method === 'maximizeSurface' || method === 'restoreSurface') {
+            const callable = (controller as unknown as Record<string, (id: string) => XtendSurfaceOperationResult>)[method];
+            if (typeof callable !== 'function') throw new TypeError(`Unsupported Surface apply operation: ${name}.`);
+            operationResult = callable(String(raw.id || raw.surfaceId || ''));
+          } else {
+            const id = String(raw.id || raw.surfaceId || '');
+            const payload = raw.input || raw.patch || raw.bounds || raw.options || {};
+            const callable = (controller as unknown as Record<string, (surfaceId: string, input?: Record<string, unknown>) => XtendSurfaceOperationResult>)[method];
+            if (typeof callable !== 'function') throw new TypeError(`Unsupported Surface apply operation: ${name}.`);
+            operationResult = callable(id, payload as Record<string, unknown>);
+          }
+          results.push(operationResult);
+          if (!operationResult.ok) failed = true;
+        });
+      } finally {
+        applying = false;
+      }
+      if (failed) {
+        registry.clear();
+        beforeRecords.forEach(([id, record]) => registry.set(id, record));
+        diagnostics.splice(0, diagnostics.length, ...beforeDiagnostics);
+        activeSurfaceId = beforeActive;
+        zIndexCursor = beforeZIndex;
+        snapshotVersion = beforeVersion;
+        pendingFabricDiagnostics = [];
+        const failure = emit('xtend.surface.apply.operation-failed', null, 'apply', 'Atomic Surface Controller apply failed before projection.');
+        mirror();
+        return {
+          schema: SURFACE_APPLY_RESULT_SCHEMA,
+          ok: false,
+          operation: 'apply',
+          operationCount: operations.length,
+          changed: false,
+          snapshotVersion,
+          results,
+          diagnostics: [failure],
+          snapshot: buildSnapshot({ includeDestroyed: true }),
+          metadata: { ...metadata }
+        };
+      }
+      snapshotVersion += 1;
+      results.forEach((entry) => { entry.snapshotVersion = snapshotVersion; });
+      pendingFabricDiagnostics.forEach((entry) => options.fabric?.emitDiagnostic?.(entry));
+      const applyDiagnostics = pendingFabricDiagnostics.slice();
+      pendingFabricDiagnostics = [];
+      mirror();
+      return {
+        schema: SURFACE_APPLY_RESULT_SCHEMA,
+        ok: true,
+        operation: 'apply',
+        operationCount: operations.length,
+        changed: applyChanged,
+        snapshotVersion,
+        results,
+        diagnostics: applyDiagnostics,
+        snapshot: buildSnapshot({ includeDestroyed: true }),
+        metadata: { ...metadata }
+      };
+    },
     snapshot() {
       snapshotVersion += 1;
       emit('xtend.surface.snapshot', null, 'snapshot', 'Surface snapshot captured.');
@@ -401,13 +537,31 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
     readSnapshot() {
       return buildSnapshot();
     },
+    subscribe(listener, subscribeOptions = {}) {
+      if (typeof listener !== 'function') throw new TypeError('Surface Controller subscribe() requires a listener.');
+      subscribers.add(listener);
+      if (subscribeOptions.emitCurrent === true) listener(buildSnapshot());
+      return () => subscribers.delete(listener);
+    },
     dispose() {
+      if (disposed) return result('dispose', null, true, null);
+      disposed = true;
       registry.clear();
       activeSurfaceId = null;
       snapshotVersion += 1;
       const event = emit('xtend.surface.disposed', null, 'dispose', 'Surface controller disposed.');
       mirror();
+      subscribers.clear();
       return result('dispose', null, true, event);
     }
   };
+  if (legacyStateProjectionRequested && !stateProjection) {
+    emit(
+      'xtend.surface.state-projection.batch-required',
+      null,
+      'state-projection',
+      'Legacy xstate projection is disabled; inject the batch-only stateProjection port.'
+    );
+  }
+  return controller;
 }

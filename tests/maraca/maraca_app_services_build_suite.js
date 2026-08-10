@@ -358,8 +358,10 @@ async function runMaracaAppServicesBuildSuite(options = {}) {
     assert.doesNotMatch(readClientEvidence(path.join(appRoot, 'dist')), new RegExp(SENTINEL));
     assert.doesNotMatch(JSON.stringify(result), new RegExp(`${SENTINEL}|${PHP_SENTINEL}`));
     const browserBundle = fs.readFileSync(path.join(appRoot, 'dist/xtend.maraca.mjs'), 'utf8');
+    const browserCompositionRuntime = fs.readFileSync(path.join(appRoot, 'dist/runtime/xtend-maraca-browser-composition-runtime.mjs'), 'utf8');
     assert.match(browserBundle, /app\.health/);
-    assert.match(browserBundle, /createMaracaAppServiceController|app-services-runtime/u);
+    assert.match(browserBundle, /createMaracaBrowserCompositionRoot/u);
+    assert.match(browserCompositionRuntime, /createAppServicesPort|app-services-runtime/u);
     assert.doesNotMatch(browserBundle, /server-services\.ts/u);
     assert.ok(result.sizeBudgetReport.appServices.clientBytes > 0);
     assert.ok(result.sizeBudgetReport.appServices.serverBytes > 0);

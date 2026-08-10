@@ -1,11 +1,11 @@
 (function attachRmtStateSelectorRuntime(globalTarget) {
-  const RMT_STATE_SELECTOR_RUNTIME_SCHEMA = 'xtend.epic18.rmt-state-selector-runtime.v1';
+  const RMT_STATE_SELECTOR_RUNTIME_SCHEMA = 'xtend.epic18.rmt-state-selector-runtime.v2';
   const RMT_STATE_SELECTOR_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-state-selector-diagnostic.v1';
+  const RMT_MODEL_READER_SCHEMA = 'xtend.rmt.model-reader.v1';
+  const RMT_MODEL_COMMAND_PORT_SCHEMA = 'xtend.rmt.model-command-port.v1';
+  const RMT_STATE_PROJECTION_PORT_SCHEMA = 'xtend.rmt.state-projection-port.v1';
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_platform.state_selector';
-  const URL_ATTRIBUTE_NAMES = new Set(['href', 'src', 'action', 'formaction', 'poster']);
-  const BLOCKED_ATTRIBUTE_NAMES = new Set(['srcdoc']);
-  const BLOCKED_PROPERTY_NAMES = new Set(['innerHTML', 'outerHTML', 'insertAdjacentHTML']);
-
+  const UNSAFE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
 
   function clampString(value, fallback = '') {
     const normalized = String(value == null ? '' : value).trim();
@@ -20,28 +20,6 @@
     return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
   }
 
-  function isSafeUrl(value) {
-    const normalized = String(value == null ? '' : value).trim().toLowerCase();
-    if (!normalized) return true;
-    if (normalized.startsWith('#') || normalized.startsWith('/') || normalized.startsWith('./') || normalized.startsWith('../')) return true;
-    return /^(https?:|mailto:|tel:|blob:)/u.test(normalized);
-  }
-
-  function isSafeAttributeName(name) {
-    const normalized = clampString(name).toLowerCase();
-    if (!normalized) return false;
-    if (normalized.startsWith('on')) return false;
-    if (BLOCKED_ATTRIBUTE_NAMES.has(normalized)) return false;
-    return /^[a-z_:][a-z0-9_.:-]*$/u.test(normalized);
-  }
-
-  function isSafePropertyName(name) {
-    const normalized = clampString(name);
-    if (!normalized) return false;
-    if (normalized.startsWith('on')) return false;
-    return !BLOCKED_PROPERTY_NAMES.has(normalized);
-  }
-
   function cloneValue(value, fallback = null) {
     if (typeof value === 'undefined') return fallback;
     if (value === null || typeof value !== 'object') return value;
@@ -52,6 +30,25 @@
     }
   }
 
+  function cloneAndFreeze(value) {
+    const seen = new WeakMap();
+    const cloneGraph = (entry) => {
+      if (entry === null || typeof entry !== 'object') return entry;
+      if (seen.has(entry)) return seen.get(entry);
+      if (entry instanceof Date) return Object.freeze(new Date(entry.getTime()));
+      const cloned = Array.isArray(entry)
+        ? []
+        : Object.create(Object.getPrototypeOf(entry) === null ? null : Object.prototype);
+      seen.set(entry, cloned);
+      Reflect.ownKeys(entry).forEach((key) => {
+        if (!Object.prototype.propertyIsEnumerable.call(entry, key)) return;
+        cloned[key] = cloneGraph(entry[key]);
+      });
+      return Object.freeze(cloned);
+    };
+    return cloneGraph(value);
+  }
+
   function normalizePathSegments(path) {
     return String(path || '')
       .replace(/\[([0-9]+)\]/gu, '.$1')
@@ -59,12 +56,29 @@
       .filter(Boolean);
   }
 
+  function assertSafePathSegments(path) {
+    const parts = normalizePathSegments(path);
+    const unsafeSegment = parts.find((part) => UNSAFE_PATH_SEGMENTS.has(String(part).toLowerCase()));
+    if (unsafeSegment) {
+      const diagnostic = createDiagnostic(
+        'rmt.state.path.unsafe',
+        `Unsicheres State-Pfadsegment ${unsafeSegment}.`,
+        { path: String(path || ''), segment: unsafeSegment }
+      );
+      const error = new Error(diagnostic.message);
+      error.code = diagnostic.code;
+      error.diagnostic = diagnostic;
+      throw error;
+    }
+    return parts;
+  }
+
   function readPath(source, path) {
     if (!path) return source;
+    const parts = assertSafePathSegments(path);
     if (source && typeof source === 'object' && Object.prototype.hasOwnProperty.call(source, path)) {
       return source[path];
     }
-    const parts = normalizePathSegments(path);
     let cursor = source;
     for (const part of parts) {
       if (cursor == null) return undefined;
@@ -78,7 +92,7 @@
   }
 
   function writePath(target, path, value) {
-    const parts = String(path || '').split('.').filter(Boolean);
+    const parts = assertSafePathSegments(path);
     if (!parts.length) return target;
     let cursor = target;
     parts.forEach((part, index) => {
@@ -87,7 +101,7 @@
         return;
       }
       if (!cursor[part] || typeof cursor[part] !== 'object' || Array.isArray(cursor[part])) {
-        cursor[part] = {};
+        cursor[part] = Object.create(null);
       }
       cursor = cursor[part];
     });
@@ -179,63 +193,40 @@
     return true;
   }
 
-  function createRmtXStateBridge(options = {}) {
-    const xstate = options.xstate || null;
-    const writes = [];
-    const reads = [];
+  function createPortError(code, message) {
+    const error = new TypeError(message);
+    error.code = code;
+    return error;
+  }
 
-    function set(key, value, metadata = {}) {
-      const safeKey = clampString(key);
-      if (!safeKey) return false;
-      let mirrored = false;
-      if (xstate && typeof xstate.set === 'function') {
-        xstate.set(safeKey, cloneValue(value, value));
-        mirrored = true;
-      } else if (xstate && typeof xstate.setState === 'function') {
-        xstate.setState(safeKey, cloneValue(value, value));
-        mirrored = true;
-      }
-      writes.push({ key: safeKey, value: cloneValue(value, value), mirrored, metadata: cloneValue(metadata, {}) });
-      return mirrored;
+  function resolveStateProjectionPort(options, strict) {
+    const factory = typeof options.createStateProjectionPort === 'function'
+      ? options.createStateProjectionPort
+      : null;
+    let port = options.stateProjectionPort || null;
+    if (!port && factory) {
+      port = factory({
+        target: options.stateProjectionTarget || null,
+        strict,
+        strictMaraca: options.strictMaraca === true
+      });
     }
-
-    function get(key, fallbackValue) {
-      const safeKey = clampString(key);
-      let value;
-      if (xstate && typeof xstate.get === 'function') {
-        value = xstate.get(safeKey);
-      } else if (xstate && typeof xstate.getState === 'function') {
-        value = xstate.getState(safeKey);
-      }
-      reads.push({ key: safeKey, hit: typeof value !== 'undefined' });
-      return typeof value === 'undefined' ? fallbackValue : value;
+    if (!port && options.stateProjectionTarget) {
+      throw createPortError(
+        'rmt.state.projection-factory-required',
+        'RMT Model projection targets require an injected createStateProjectionPort factory.'
+      );
     }
-
-    function mirrorSnapshot(snapshot, metadata = {}) {
-      Object.entries(snapshot.states || {}).forEach(([key, value]) => set(key, value, metadata));
-      Object.entries(snapshot.selectors || {}).forEach(([key, value]) => set(key, value, metadata));
-      Object.entries(snapshot.derived || {}).forEach(([key, value]) => set(key, value, metadata));
+    if (!port) return null;
+    if (typeof port.batchUpdate !== 'function') {
+      throw createPortError(
+        strict ? 'rmt.state.xstate-batch-required' : 'rmt.state.projection-port-invalid',
+        strict
+          ? 'Strict RMT Model projection requires batchUpdate().'
+          : 'RMT Model stateProjectionPort requires batchUpdate().'
+      );
     }
-
-    function subscribe(listener) {
-      if (xstate && typeof xstate.subscribe === 'function') return xstate.subscribe(listener);
-      return () => undefined;
-    }
-
-    return Object.freeze({
-      schema: RMT_STATE_SELECTOR_RUNTIME_SCHEMA,
-      external: !!xstate,
-      set,
-      get,
-      mirrorSnapshot,
-      subscribe,
-      listWrites() {
-        return writes.map((entry) => cloneValue(entry, entry));
-      },
-      listReads() {
-        return reads.map((entry) => cloneValue(entry, entry));
-      }
-    });
+    return port;
   }
 
   function createEvaluationContext(stateValues, selectorValues = {}, derivedValues = {}, payload = {}, params = {}) {
@@ -396,10 +387,11 @@
         break;
       case 'countBy':
       case 'count-by':
-        result = {};
+        result = Object.create(null);
         if (Array.isArray(source)) {
           source.forEach((entry) => {
             const key = clampString(record.path ? readPath(entry, record.path) : resolveReference(record.key || '$item', context, entry), 'unknown');
+            assertSafePathSegments(key);
             result[key] = (result[key] || 0) + 1;
           });
         }
@@ -508,11 +500,12 @@
     if (selector.transform) value = evaluateTransformExpression({ ...objectRecord(selector.transform), value }, context);
     if (selector.compute === 'count') return Array.isArray(value) || typeof value === 'string' ? value.length : Object.keys(objectRecord(value)).length;
     if (selector.compute === 'countBy' || selector.compute === 'count-by') {
-      const result = {};
+      const result = Object.create(null);
       if (Array.isArray(value)) {
         const path = selector.countBy || selector.path || selector.key || '';
         value.forEach((item) => {
           const key = clampString(path ? readPath(item, path) : item, 'unknown');
+          assertSafePathSegments(key);
           result[key] = (result[key] || 0) + 1;
         });
       }
@@ -548,20 +541,23 @@
   }
 
   function buildRenderModel(states, selectors, derived) {
-    const model = {};
+    const model = Object.create(null);
     Object.entries(states).forEach(([key, value]) => {
+      assertSafePathSegments(key);
       const cloned = cloneValue(value, value);
       model[key] = cloned;
       writePath(model, key, cloned);
       if (key.startsWith('state.')) model[key.slice(6)] = cloned;
     });
     Object.entries(selectors).forEach(([key, value]) => {
+      assertSafePathSegments(key);
       const cloned = cloneValue(value, value);
       model[key] = cloned;
       writePath(model, key, cloned);
       if (key.startsWith('selector.')) model[key.slice(9)] = cloned;
     });
     Object.entries(derived).forEach(([key, value]) => {
+      assertSafePathSegments(key);
       const cloned = cloneValue(value, value);
       model[key] = cloned;
       writePath(model, key, cloned);
@@ -614,19 +610,58 @@
     const selectorDefinitions = normalizeSelectorDefinitions(options.selectors);
     const derivedDefinitions = normalizeDerivedDefinitions(options.derive || options.derived);
     const reducers = normalizeReducerDefinitions(options.reducers || options.commands);
-    const xstateBridge = createRmtXStateBridge({ xstate: options.xstate });
+    const strict = options.strict === true || options.strictMaraca === true;
+    const stateProjectionPort = resolveStateProjectionPort(options, strict);
     const listeners = new Set();
     const stateDefinitionMap = new Map(stateDefinitions.map((state) => [state.id, state]));
     const selectorDefinitionMap = new Map(selectorDefinitions.map((selector) => [selector.id, selector]));
     const derivedDefinitionMap = new Map(derivedDefinitions.map((entry) => [entry.id, entry]));
     const preserveStates = new Set(stateDefinitions.filter((state) => state.preserve === 'attribute-sync' || state.preserve === 'component-state').map((state) => state.id));
-    const stateValues = {};
+    [...stateDefinitions, ...selectorDefinitions, ...derivedDefinitions, ...reducers].forEach((definition) => {
+      if (definition && definition.id) assertSafePathSegments(definition.id);
+    });
+    stateDefinitions.forEach((definition) => {
+      if (definition && definition.xstateKey) assertSafePathSegments(definition.xstateKey);
+    });
+    reducers.forEach((definition) => {
+      if (definition && definition.state) assertSafePathSegments(definition.state);
+      if (definition && definition.toggle) assertSafePathSegments(definition.toggle);
+    });
+    const stateValues = Object.create(null);
+    let transactionContext = null;
+    let runtimeApi = null;
 
+    const adoptStateProjection = options.adoptStateProjection === true;
+    if (adoptStateProjection) {
+      if (strict) {
+        const error = new Error('Strict RMT Model boot does not adopt state from XState; pass verified initialState instead.');
+        error.code = 'rmt.state.xstate-adoption-forbidden';
+        throw error;
+      }
+      if (!stateProjectionPort || typeof stateProjectionPort.get !== 'function') {
+        throw createPortError(
+          'rmt.state.projection-read-port-required',
+          'State projection adoption requires an injected port with get().'
+        );
+      }
+      diagnosticsRecorder.publish(createDiagnostic(
+        'rmt.state.xstate-adoption.legacy',
+        'XState boot adoption is a compatibility path; provide verified initialState so RMT remains authoritative.',
+        {},
+        'warning'
+      ));
+    }
     stateDefinitions.forEach((state) => {
-      const externalValue = xstateBridge.get(state.xstateKey, undefined);
-      const initialValue = typeof externalValue === 'undefined'
-        ? cloneValue((options.initialState && Object.prototype.hasOwnProperty.call(options.initialState, state.id)) ? options.initialState[state.id] : state.initial, null)
-        : cloneValue(externalValue, externalValue);
+      const configuredValue = cloneValue(
+        (options.initialState && Object.prototype.hasOwnProperty.call(options.initialState, state.id))
+          ? options.initialState[state.id]
+          : state.initial,
+        null
+      );
+      const externalValue = adoptStateProjection ? stateProjectionPort.get(state.xstateKey, undefined) : undefined;
+      const initialValue = adoptStateProjection && typeof externalValue !== 'undefined'
+        ? cloneValue(externalValue, externalValue)
+        : configuredValue;
       if (!validateTypedValue(state, initialValue)) {
         diagnosticsRecorder.publish(createDiagnostic('rmt.state.type.invalid', `State ${state.id} passt nicht zum Typ ${state.type}.`, { state: state.id, type: state.type }));
       }
@@ -634,7 +669,7 @@
     });
 
     function evaluateSelectors() {
-      const selectorValues = {};
+      const selectorValues = Object.create(null);
       selectorDefinitions.forEach((selector) => {
         const context = createEvaluationContext(stateValues, selectorValues, {}, {}, {});
         const source = resolveReference(selector.from, context);
@@ -644,7 +679,7 @@
     }
 
     function evaluateDerivedValues(selectorValues = evaluateSelectors()) {
-      const derivedValues = {};
+      const derivedValues = Object.create(null);
       derivedDefinitions.forEach((entry) => {
         const context = createEvaluationContext(stateValues, selectorValues, derivedValues, {}, {});
         derivedValues[entry.id] = evaluateDerived(entry, context);
@@ -664,6 +699,22 @@
       };
     }
 
+    function createStateProjection(currentSnapshot) {
+      const projection = Object.create(null);
+      stateDefinitions.forEach((definition) => {
+        projection[definition.xstateKey] = currentSnapshot.states[definition.id];
+      });
+      Object.assign(projection, currentSnapshot.selectors, currentSnapshot.derived);
+      return projection;
+    }
+
+    function restoreStates(previousSnapshot) {
+      Object.keys(stateValues).forEach((key) => delete stateValues[key]);
+      stateDefinitions.forEach((definition) => {
+        stateValues[definition.id] = cloneValue(previousSnapshot.states[definition.id], previousSnapshot.states[definition.id]);
+      });
+    }
+
     function notify(previousSnapshot, metadata = {}) {
       const nextSnapshot = snapshot();
       const patchPlan = planRmtStatePatch(previousSnapshot, nextSnapshot, {
@@ -671,15 +722,28 @@
         derived: derivedDefinitions,
         preserveStates
       });
-      xstateBridge.mirrorSnapshot(nextSnapshot, metadata);
+      if (stateProjectionPort) {
+        stateProjectionPort.batchUpdate(createStateProjection(nextSnapshot), metadata);
+      }
       const event = Object.freeze({
         schema: 'xtend.epic18.rmt-state-change.v1',
+        pending: false,
         previous: previousSnapshot,
         next: nextSnapshot,
         patchPlan,
         metadata: cloneValue(metadata, {})
       });
-      listeners.forEach((listener) => listener(event));
+      listeners.forEach((listener) => {
+        try {
+          listener(event);
+        } catch (error) {
+          diagnosticsRecorder.publish(createDiagnostic(
+            'rmt.state.subscriber.failed',
+            'Ein State-Subscriber konnte den finalen Commit nicht verarbeiten.',
+            { message: clampString(error && error.message, 'unknown subscriber error') }
+          ));
+        }
+      });
       return event;
     }
 
@@ -692,10 +756,19 @@
       if (!validateTypedValue(definition, value)) {
         throw new Error(`RMT State ${stateId} erwartet Typ ${definition.type}.`);
       }
-      const previousSnapshot = snapshot();
+      const mutationMetadata = { operation: 'setState', state: stateId, ...objectRecord(metadata) };
+      const previousSnapshot = transactionContext ? null : snapshot();
       stateValues[stateId] = cloneValue(value, value);
-      xstateBridge.set(definition.xstateKey, stateValues[stateId], metadata);
-      return notify(previousSnapshot, { operation: 'setState', state: stateId, ...metadata });
+      if (transactionContext) {
+        transactionContext.mutations.push(cloneValue(mutationMetadata, mutationMetadata));
+        return transactionContext.handles[0];
+      }
+      try {
+        return notify(previousSnapshot, mutationMetadata);
+      } catch (error) {
+        restoreStates(previousSnapshot);
+        throw error;
+      }
     }
 
     function patchState(id, patch, metadata = {}) {
@@ -712,13 +785,15 @@
       const reducer = reducers.find((entry) => entry.command === command || entry.id === command);
       if (!reducer) throw new Error(`RMT Reducer ${command} ist nicht definiert.`);
       const current = stateValues[reducer.state];
-      const context = createEvaluationContext(stateValues, evaluateSelectors(), evaluateDerivedValues(), payload, {});
+      const selectorValues = evaluateSelectors();
+      const context = createEvaluationContext(stateValues, selectorValues, evaluateDerivedValues(selectorValues), payload, {});
       if (reducer.set) {
         return setState(reducer.state, resolveReference(reducer.set, context), { operation: 'dispatch', command, ...metadata });
       }
       if (reducer.patch) {
-        const patch = {};
+        const patch = Object.create(null);
         Object.entries(objectRecord(reducer.patch)).forEach(([key, value]) => {
+          assertSafePathSegments(key);
           patch[key] = resolveReference(value, context);
         });
         return patchState(reducer.state, patch, { operation: 'dispatch', command, ...metadata });
@@ -732,6 +807,109 @@
       return setState(reducer.state, cloneValue(payload, payload), { operation: 'dispatch', command, ...metadata });
     }
 
+    function transaction(callback, metadata = {}) {
+      if (typeof callback !== 'function') {
+        throw new TypeError('RMT State transaction erwartet einen synchronen Callback.');
+      }
+      const outermost = transactionContext === null;
+      if (outermost) {
+        transactionContext = {
+          previousSnapshot: snapshot(),
+          metadata: cloneValue(objectRecord(metadata), {}),
+          mutations: [],
+          handles: [],
+          depth: 0,
+          error: null
+        };
+      }
+      const activeContext = transactionContext;
+      const handle = {
+        schema: 'xtend.epic18.rmt-state-change.v1',
+        pending: true,
+        previous: activeContext.previousSnapshot,
+        next: null,
+        patchPlan: null,
+        metadata: cloneValue(objectRecord(metadata), {})
+      };
+      activeContext.handles.push(handle);
+      activeContext.depth += 1;
+
+      let callbackError = null;
+      try {
+        const result = callback(runtimeApi);
+        if (result && typeof result.then === 'function') {
+          throw new TypeError('RMT State transaction unterstuetzt nur synchrone Callbacks.');
+        }
+      } catch (error) {
+        callbackError = error;
+        activeContext.error = activeContext.error || error;
+      } finally {
+        activeContext.depth -= 1;
+      }
+
+      if (!outermost) {
+        if (callbackError) throw callbackError;
+        return handle;
+      }
+
+      callbackError = activeContext.error || callbackError;
+
+      if (callbackError) {
+        transactionContext = null;
+        restoreStates(activeContext.previousSnapshot);
+        const abortedPatchPlan = planRmtStatePatch(activeContext.previousSnapshot, activeContext.previousSnapshot, {
+          selectors: selectorDefinitions,
+          derived: derivedDefinitions,
+          preserveStates
+        });
+        const abortedMetadata = Object.freeze({
+          ...activeContext.metadata,
+          operation: 'transaction',
+          aborted: true,
+          mutationCount: activeContext.mutations.length,
+          mutations: activeContext.mutations.map((entry) => cloneValue(entry, entry))
+        });
+        activeContext.handles.forEach((transactionHandle) => {
+          transactionHandle.pending = false;
+          transactionHandle.previous = activeContext.previousSnapshot;
+          transactionHandle.next = activeContext.previousSnapshot;
+          transactionHandle.patchPlan = abortedPatchPlan;
+          transactionHandle.metadata = abortedMetadata;
+          Object.freeze(transactionHandle);
+        });
+        throw callbackError;
+      }
+
+      let event = null;
+      let notifyError = null;
+      transactionContext = null;
+      try {
+        event = notify(activeContext.previousSnapshot, {
+          ...activeContext.metadata,
+          operation: 'transaction',
+          mutationCount: activeContext.mutations.length,
+          mutations: activeContext.mutations
+        });
+      } catch (error) {
+        restoreStates(activeContext.previousSnapshot);
+        notifyError = error;
+      } finally {
+        activeContext.handles.forEach((transactionHandle) => {
+          transactionHandle.pending = false;
+          if (event) {
+            transactionHandle.previous = event.previous;
+            transactionHandle.next = event.next;
+            transactionHandle.patchPlan = event.patchPlan;
+            transactionHandle.metadata = event.metadata;
+          }
+          Object.freeze(transactionHandle);
+        });
+      }
+
+      if (notifyError) throw notifyError;
+      return handle;
+    }
+
     function select(selectorId, params = {}) {
       const id = clampString(selectorId);
       if (!selectorDefinitionMap.has(id)) throw new Error(`RMT Selector ${id} ist nicht definiert.`);
@@ -742,21 +920,122 @@
       return applySelectorOperations(resolveReference(selector.from, context), selector, context);
     }
 
-    const initialSnapshot = snapshot();
-    xstateBridge.mirrorSnapshot(initialSnapshot, { operation: 'init' });
+    function createModelReader() {
+      const reader = {
+        schema: RMT_MODEL_READER_SCHEMA,
+        getState(id) {
+          const stateId = clampString(id);
+          return cloneAndFreeze(stateValues[stateId]);
+        },
+        select(selectorId, params = {}) {
+          return cloneAndFreeze(select(selectorId, params));
+        },
+        getSelectorValues() {
+          return cloneAndFreeze(evaluateSelectors());
+        },
+        getDerivedValues() {
+          return cloneAndFreeze(evaluateDerivedValues());
+        },
+        snapshot() {
+          return cloneAndFreeze(snapshot());
+        },
+        subscribe(listener) {
+          if (typeof listener !== 'function') {
+            throw new TypeError('RMT Model Reader subscribe erwartet einen Callback.');
+          }
+          const readOnlyListener = (event) => listener(cloneAndFreeze(event));
+          listeners.add(readOnlyListener);
+          return () => listeners.delete(readOnlyListener);
+        }
+      };
+      return Object.freeze(reader);
+    }
 
-    return Object.freeze({
+    function normalizeModelOperation(operation, index) {
+      const request = objectRecord(operation);
+      const kind = clampString(request.operation);
+      if (!['set', 'patch', 'dispatch'].includes(kind)) {
+        throw new TypeError(`RMT Model Operation ${index} verwendet eine unbekannte Operation ${kind || '(leer)'}.`);
+      }
+      if (kind === 'dispatch') {
+        const command = clampString(request.command);
+        if (!reducers.some((entry) => entry.command === command || entry.id === command)) {
+          throw new Error(`RMT Reducer ${command} ist nicht definiert.`);
+        }
+        return {
+          operation: kind,
+          command,
+          payload: cloneValue(objectRecord(request.payload), {})
+        };
+      }
+      const state = clampString(request.state);
+      const definition = stateDefinitionMap.get(state);
+      if (!definition) throw new Error(`RMT State ${state} ist nicht definiert.`);
+      if (kind === 'set') {
+        if (!validateTypedValue(definition, request.value)) {
+          throw new Error(`RMT State ${state} erwartet Typ ${definition.type}.`);
+        }
+        return { operation: kind, state, value: cloneValue(request.value, request.value) };
+      }
+      if (!request.patch || typeof request.patch !== 'object' || Array.isArray(request.patch)) {
+        throw new TypeError(`RMT Model Patch ${index} erwartet ein Objekt.`);
+      }
+      return { operation: kind, state, patch: cloneValue(request.patch, {}) };
+    }
+
+    function createModelCommandPort() {
+      return Object.freeze({
+        schema: RMT_MODEL_COMMAND_PORT_SCHEMA,
+        apply(operations, metadata = {}) {
+          const normalizedOperations = toArray(operations).map(normalizeModelOperation);
+          return transaction(() => {
+            normalizedOperations.forEach((operation, index) => {
+              const operationMetadata = {
+                ...objectRecord(metadata),
+                modelOperationIndex: index,
+                modelOperation: operation.operation
+              };
+              if (operation.operation === 'set') {
+                setState(operation.state, operation.value, operationMetadata);
+              } else if (operation.operation === 'patch') {
+                patchState(operation.state, operation.patch, operationMetadata);
+              } else {
+                dispatch(operation.command, operation.payload, operationMetadata);
+              }
+            });
+          }, {
+            ...objectRecord(metadata),
+            port: 'model-command',
+            operationCount: normalizedOperations.length
+          });
+        }
+      });
+    }
+
+    const initialSnapshot = snapshot();
+    if (stateProjectionPort) {
+      stateProjectionPort.batchUpdate(createStateProjection(initialSnapshot), { operation: 'init' });
+    }
+
+    const modelReader = createModelReader();
+    const modelCommandPort = createModelCommandPort();
+
+    runtimeApi = Object.freeze({
       schema: RMT_STATE_SELECTOR_RUNTIME_SCHEMA,
       stateDefinitions: stateDefinitions.slice(),
       selectorDefinitions: selectorDefinitions.slice(),
       derivedDefinitions: derivedDefinitions.slice(),
       reducers: reducers.slice(),
+      model: modelReader,
+      modelReader,
+      modelCommandPort,
       getState(id) {
         return cloneValue(stateValues[clampString(id)], stateValues[clampString(id)]);
       },
       setState,
       patchState,
       dispatch,
+      transaction,
       select,
       getSelectorValues() {
         return cloneValue(evaluateSelectors(), {});
@@ -796,96 +1075,35 @@
         listeners.add(listener);
         return () => listeners.delete(listener);
       },
-      connectXState(target) {
-        return createRmtXStateBridge({ xstate: target });
+      connectStateProjection(target, connectionOptions = {}) {
+        if (typeof options.createStateProjectionPort !== 'function') {
+          throw createPortError(
+            'rmt.state.projection-factory-required',
+            'connectStateProjection() requires an injected createStateProjectionPort factory.'
+          );
+        }
+        return options.createStateProjectionPort({
+          ...objectRecord(connectionOptions),
+          target,
+          strict: strict || connectionOptions.strict === true,
+          strictMaraca: options.strictMaraca === true || connectionOptions.strictMaraca === true
+        });
       },
-      xstateBridge,
+      stateProjectionPort,
       listDiagnostics() {
         return diagnosticsRecorder.diagnostics.slice();
       }
     });
-  }
-
-  function setClassToken(element, token, enabled) {
-    const current = String((element.getAttribute && element.getAttribute('class')) || '').split(/\s+/u).filter(Boolean);
-    const next = new Set(current);
-    if (enabled) next.add(token);
-    else next.delete(token);
-    if (element.setAttribute) element.setAttribute('class', [...next].join(' '));
-  }
-
-  function applyRmtStateBindings(root, bindings, runtime, options = {}) {
-    const operations = [];
-    toArray(bindings).forEach((binding) => {
-      const source = runtime.resolve(binding.source);
-      const items = Array.isArray(source) ? source : [source];
-      items.filter((item) => item != null).forEach((item) => {
-        const keyPath = clampString(binding.key || (binding.target && binding.target.key), 'id');
-        const key = String(readPath(item, keyPath));
-        const targetAttribute = clampString(binding.target && (binding.target.attribute || binding.target.byKeyAttribute), 'data-rmt-key');
-        const selector = `[${targetAttribute}="${key}"]`;
-        const element = root && typeof root.querySelector === 'function' ? root.querySelector(selector) : null;
-        if (!element) return;
-        Object.entries(objectRecord(binding.attributes)).forEach(([name, expression]) => {
-          const normalizedName = clampString(name);
-          const value = typeof expression === 'object'
-            ? evaluateRule(expression, createEvaluationContext(runtime.snapshot().states, runtime.getSelectorValues(), runtime.getDerivedValues(), {}, {}), item)
-            : runtime.resolve(expression, item);
-          if (!isSafeAttributeName(normalizedName) || (URL_ATTRIBUTE_NAMES.has(normalizedName.toLowerCase()) && !isSafeUrl(value))) {
-            operations.push({ binding: binding.id, target: key, kind: 'attribute', name: normalizedName, value, skipped: true, reason: 'unsafe' });
-            return;
-          }
-          if (value == null || (value === false && !String(normalizedName).startsWith('aria-'))) {
-            if (element.removeAttribute) element.removeAttribute(normalizedName);
-          } else if (element.setAttribute) {
-            element.setAttribute(normalizedName, value === true ? 'true' : String(value));
-          }
-          operations.push({ binding: binding.id, target: key, kind: 'attribute', name: normalizedName, value });
-        });
-        Object.entries(objectRecord(binding.classes)).forEach(([token, expression]) => {
-          const enabled = typeof expression === 'object'
-            ? evaluateRule(expression, createEvaluationContext(runtime.snapshot().states, runtime.getSelectorValues(), runtime.getDerivedValues(), {}, {}), item)
-            : !!runtime.resolve(expression, item);
-          setClassToken(element, token, enabled);
-          operations.push({ binding: binding.id, target: key, kind: 'class', name: token, value: enabled });
-        });
-        Object.entries(objectRecord(binding.properties)).forEach(([name, expression]) => {
-          const normalizedName = clampString(name);
-          const value = runtime.resolve(expression, item);
-          if (!isSafePropertyName(normalizedName)) {
-            operations.push({ binding: binding.id, target: key, kind: 'property', name: normalizedName, value, skipped: true, reason: 'unsafe' });
-            return;
-          }
-          element[normalizedName] = value;
-          operations.push({ binding: binding.id, target: key, kind: 'property', name: normalizedName, value: element[normalizedName] });
-        });
-      });
-    });
-    return {
-      schema: 'xtend.epic18.rmt-state-binding-application.v1',
-      strategy: options.strategy || 'attribute-sync',
-      replacedRoot: false,
-      operationCount: operations.length,
-      operations
-    };
-  }
-
-  function createRmtStateBindingAdapter(options = {}) {
-    return Object.freeze({
-      schema: RMT_STATE_SELECTOR_RUNTIME_SCHEMA,
-      apply(root, bindings, runtime) {
-        return applyRmtStateBindings(root, bindings, runtime, options);
-      }
-    });
+    return runtimeApi;
   }
 
   const api = {
+    RMT_MODEL_COMMAND_PORT_SCHEMA,
+    RMT_MODEL_READER_SCHEMA,
+    RMT_STATE_PROJECTION_PORT_SCHEMA,
     RMT_STATE_SELECTOR_DIAGNOSTIC_SCHEMA,
     RMT_STATE_SELECTOR_RUNTIME_SCHEMA,
-    applyRmtStateBindings,
-    createRmtStateBindingAdapter,
     createRmtStateSelectorRuntime,
-    createRmtXStateBridge,
     planRmtStatePatch
   };
 
@@ -899,12 +1117,12 @@
 
 const __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__ = globalThis.XTendRmtStateSelectorRuntime;
 
+export const RMT_MODEL_COMMAND_PORT_SCHEMA = __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__.RMT_MODEL_COMMAND_PORT_SCHEMA;
+export const RMT_MODEL_READER_SCHEMA = __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__.RMT_MODEL_READER_SCHEMA;
+export const RMT_STATE_PROJECTION_PORT_SCHEMA = __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__.RMT_STATE_PROJECTION_PORT_SCHEMA;
 export const RMT_STATE_SELECTOR_DIAGNOSTIC_SCHEMA = __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__.RMT_STATE_SELECTOR_DIAGNOSTIC_SCHEMA;
 export const RMT_STATE_SELECTOR_RUNTIME_SCHEMA = __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__.RMT_STATE_SELECTOR_RUNTIME_SCHEMA;
-export const applyRmtStateBindings = __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__.applyRmtStateBindings;
-export const createRmtStateBindingAdapter = __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__.createRmtStateBindingAdapter;
 export const createRmtStateSelectorRuntime = __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__.createRmtStateSelectorRuntime;
-export const createRmtXStateBridge = __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__.createRmtXStateBridge;
 export const planRmtStatePatch = __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__.planRmtStatePatch;
 
 export default __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__;

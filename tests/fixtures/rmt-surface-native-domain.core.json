@@ -15,7 +15,7 @@
       "qualityRegressionBase": "WP-SM-07",
       "surfaceManager": "xtend.surface.manager.v1",
       "surfaceRecord": "xtend.surface.record.v1",
-      "surfaceController": "xtend.surface.controller.v1",
+      "surfaceController": "xtend.surface.controller.v2",
       "surfaceSnapshot": "xtend.surface.snapshot.v1",
       "kernelBoundary": "RMT owns surface intent, component refs, routes, schedules and metadata only. XTend surface execution, xstate access, Fabric execution and DOM materialization stay in host adapters."
     },
@@ -103,7 +103,7 @@
         "workpackage": "WP-SM-08",
         "runtimeImplemented": false,
         "handoffOnly": true,
-        "controller": "xtend.surface.controller.v1",
+        "controller": "xtend.surface.controller.v2",
         "snapshot": "xtend.surface.snapshot.v1"
       }
     }

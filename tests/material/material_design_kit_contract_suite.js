@@ -93,7 +93,7 @@ function runMaterialDesignKitContractSuite(options = {}) {
 
   context.assert(manifest.name === '@xtend-material/core' && manifest.private !== true, 'core is a public scoped package');
   context.assert(manifest.dependencies.tailwindcss === '4.3.2', 'core pins the accepted Tailwind baseline exactly');
-  context.assert(manifest.peerDependencies['@ccslabs/xtend'] === '^0.5.0', 'core declares XTend 0.5 as its semantic peer');
+  context.assert(manifest.peerDependencies['@ccslabs/xtend'] === '^0.6.1', 'core declares the current XTend 0.6 patch line as its semantic peer');
   context.assert(manifest.peerDependenciesMeta['@ccslabs/xtend'].optional === true, 'core keeps the host-owned XTend peer optional for workspace and consumer installs');
   context.assert(manifest.sideEffects.length === 1 && manifest.sideEffects[0] === '*.css', 'only CSS exports are side-effectful');
   context.assert(!fs.existsSync(path.resolve(rootDir, 'xtend-material/components')) && !manifest.files.includes('components'), 'package contains no component catalog or registry directory');

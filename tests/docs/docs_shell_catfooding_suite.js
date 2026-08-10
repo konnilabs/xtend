@@ -33,7 +33,7 @@ function readJson(relativePath, rootDir) {
 }
 
 function loadAppRuntime(rootDir) {
-  if (!appRuntimePromise) appRuntimePromise = import(`file://${resolveRepoPath('xtendrmt/rmt-app-runtime.js', rootDir)}`);
+  if (!appRuntimePromise) appRuntimePromise = import(`file://${resolveRepoPath('xtendrmt/rmt-app-runtime.compat.js', rootDir)}`);
   return appRuntimePromise;
 }
 

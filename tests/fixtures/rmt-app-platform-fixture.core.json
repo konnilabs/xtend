@@ -6,10 +6,10 @@
     "metadata": {
       "contractVersion": "xtend.epic18.rmt-app-platform-fixture.v1",
       "toolingContract": "xtend.epic18.rmt-app-platform-tooling.v1",
-      "stateContract": "xtend.epic18.rmt-state-selector-runtime.v1",
+      "stateContract": "xtend.epic18.rmt-state-selector-runtime.v2",
       "actionContract": "xtend.epic18.rmt-action-effect-runtime.v1",
-      "eventContract": "xtend.epic18.rmt-event-routing-runtime.v1",
-      "surfaceGraphContract": "xtend.epic18.rmt-surface-resource-graph-runtime.v1",
+      "eventContract": "xtend.epic18.rmt-event-routing-runtime.v2",
+      "surfaceGraphContract": "xtend.epic18.rmt-surface-resource-graph-runtime.v2",
       "workpackage": "WP-E18-12",
       "manualHtmlRendererAllowed": false,
       "productSurfaceTaxonomyAllowed": false,

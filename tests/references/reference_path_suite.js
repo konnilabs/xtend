@@ -518,7 +518,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'xtend.epic12.wp08.xstate-adapter-typing-lifecycle-boundary.v1', message: 'declares WP-E12-08 contract' },
       { pattern: 'Status: `completed`', message: 'marks WP-E12-08 completed' },
       { pattern: '`xtend.state.boundary-probe.v1`', message: 'documents xstate boundary schema' },
-      { pattern: '`xtend.rmt.state-scheduler-compatibility.v1`', message: 'documents RMT state adapter schema' },
+      { pattern: '`xtend.rmt.state-scheduler-compatibility.v2`', message: 'documents RMT state adapter schema' },
       { pattern: '`subscribeLifecycle(fn)`', message: 'documents xstate lifecycle subscription API' },
       { pattern: '`snapshotDiagnostics()`', message: 'documents Fabric diagnostics snapshot API' },
       { pattern: '`createRmtStateAdapter(options?)`', message: 'documents RMT state adapter API' },
@@ -7104,6 +7104,21 @@ function assertCiDefaultGatesReference(context, rootDir) {
   const workflow = readText(workflowPath, rootDir);
   const nightlyWorkflow = readText(nightlyWorkflowPath, rootDir);
   const nightlyManifestScript = readText(nightlyManifestScriptPath, rootDir);
+  const primaryNightlyWorkflow = nightlyWorkflow.slice(0, nightlyWorkflow.indexOf('\n  optional-source-to-sea:'));
+  const requiredUploadStart = primaryNightlyWorkflow.indexOf('      - name: Upload XTend nightly artifact bundle');
+  const requiredUploadEnd = primaryNightlyWorkflow.indexOf('      - name: Fail nightly build on required evidence failures', requiredUploadStart);
+  const requiredUpload = primaryNightlyWorkflow.slice(requiredUploadStart, requiredUploadEnd);
+  const optionalConditionalNetworkWorkflow = nightlyWorkflow.slice(nightlyWorkflow.indexOf('\n  optional-conditional-network:'));
+  const trackedArtifactsStart = nightlyManifestScript.indexOf('const ARTIFACT_PATHS = [');
+  const requiredArtifactsStart = nightlyManifestScript.indexOf('const REQUIRED_ARTIFACTS = new Set([');
+  const trackedArtifactsSource = nightlyManifestScript.slice(trackedArtifactsStart, requiredArtifactsStart);
+  const requiredArtifactsEnd = nightlyManifestScript.indexOf('\n]);', requiredArtifactsStart) + 4;
+  const requiredArtifactsSource = nightlyManifestScript.slice(requiredArtifactsStart, requiredArtifactsEnd);
+  const artifactLiteralPattern = /^\s+'([^']+)'/gm;
+  const trackedArtifactPaths = Array.from(trackedArtifactsSource.matchAll(artifactLiteralPattern), (match) => match[1]);
+  const requiredArtifactPaths = Array.from(requiredArtifactsSource.matchAll(artifactLiteralPattern), (match) => match[1]);
+  const nightlyWorkflowCommandSet = Array.from(primaryNightlyWorkflow.matchAll(/^\s+run: (npm run [^\n]+)$/gm), (match) => match[1])
+    .filter((command) => command !== 'npm run nightly:manifest');
   const ciMetadata = packageManifest.xtend && packageManifest.xtend.ciDefaultGates;
   const gateMatrix = packageManifest.xtend && packageManifest.xtend.ciGateMatrix;
   const prFastGate = (gateMatrix && gateMatrix.prFastGate) || {};
@@ -7206,7 +7221,9 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(nightlyWorkflow, 'npm install --global npm@11.17.0 --no-audit --fund=false', 'Nightly workflow pins npm 11.17.0');
   context.assertIncludes(nightlyWorkflow, 'node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}', 'Nightly workflow captures per-lane runtime evidence');
   context.assertIncludes(nightlyWorkflow, '.xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json', 'Nightly workflow uploads per-lane runtime evidence');
+  context.assertIncludes(nightlyWorkflow, 'npm run native-first:evidence:prepare', 'Nightly workflow prepares Native-First release evidence');
   context.assertIncludes(nightlyWorkflow, 'npm run test:release:full:report', 'Nightly workflow runs full release gate report');
+  context.assertIncludes(nightlyWorkflow, 'npm run test:rmt-demos:report', 'Nightly workflow runs the RMT demo structure report');
   context.assertIncludes(nightlyWorkflow, 'npm run test:rmt-vnext-primitives:report', 'Nightly workflow runs RMT vNext primitive report');
   context.assertIncludes(nightlyWorkflow, 'npm run test:native-first-rmt-owned-release:report', 'Nightly workflow runs Native-First RMT Owned release report');
   context.assertIncludes(nightlyWorkflow, 'npm run test:xtensions-framework-adapters:report', 'Nightly workflow runs XTensions framework adapter report');
@@ -7217,6 +7234,10 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(nightlyWorkflow, 'npm run release:report', 'Nightly workflow captures release report evidence');
   context.assertIncludes(nightlyWorkflow, 'npm run pack:dry-run', 'Nightly workflow captures package dry-run evidence');
   context.assertIncludes(nightlyWorkflow, 'npm run nightly:manifest', 'Nightly workflow writes nightly manifest');
+  context.assertIncludes(requiredUpload, 'if-no-files-found: error', 'Nightly required artifact upload fails closed when evidence is absent');
+  context.assert(!requiredUpload.includes('if-no-files-found: warn'), 'Nightly required artifact upload does not downgrade missing evidence to a warning');
+  context.assertIncludes(optionalConditionalNetworkWorkflow, 'if-no-files-found: warn', 'Optional conditional-network upload remains non-blocking when it produces no evidence');
+  context.assertIncludes(nightlyWorkflow, '.xtend-test-results/xtend-rmt-demos-report.json', 'Nightly workflow uploads RMT demo structure evidence');
   context.assertIncludes(nightlyWorkflow, '.xtend-test-results/xtend-xtensions-framework-adapters-report.json', 'Nightly workflow uploads XTensions framework adapter evidence');
   context.assertIncludes(nightlyWorkflow, '.xtend-test-results/xtend-dev-surface-report.json', 'Nightly workflow uploads XTend Dev Surface evidence');
   context.assertIncludes(nightlyWorkflow, '.xtend-test-results/xtend-docs-quality-report.json', 'Nightly workflow uploads public docs quality evidence');
@@ -7227,6 +7248,9 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(nightlyWorkflow, 'public docs quality gate failed', 'Nightly workflow fails on missing public docs quality evidence');
   context.assertIncludes(nightlyWorkflow, 'Docs Shell catfooding gate failed', 'Nightly workflow fails on missing Docs Shell catfooding evidence');
   context.assertIncludes(nightlyWorkflow, 'Docs framework ownership gate failed', 'Nightly workflow fails on missing Docs framework ownership evidence');
+  context.assertIncludes(nightlyWorkflow, 'if [ "${{ steps.docs_stub_inventory.outcome }}" != "success" ]; then echo "docs stub inventory gate failed"; failed=1; fi', 'Nightly workflow treats the required docs stub inventory as a blocking gate');
+  context.assertIncludes(nightlyManifestScript, "'npm run native-first:evidence:prepare'", 'Nightly manifest tracks Native-First evidence preparation');
+  context.assertIncludes(nightlyManifestScript, "'npm run test:rmt-demos:report'", 'Nightly manifest tracks the RMT demo structure command');
   context.assertIncludes(nightlyManifestScript, "'npm run test:xtend-dev-surface:report'", 'Nightly manifest tracks XTend Dev Surface command');
   context.assertIncludes(nightlyManifestScript, "'npm run test:docs-quality:report'", 'Nightly manifest tracks public docs quality command');
   context.assertIncludes(nightlyManifestScript, "'npm run test:docs-shell-catfooding:report'", 'Nightly manifest tracks Docs Shell catfooding command');
@@ -7235,6 +7259,16 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-docs-quality-report.json'", 'Nightly manifest requires public docs quality evidence');
   context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-docs-shell-catfooding-report.json'", 'Nightly manifest requires Docs Shell catfooding evidence');
   context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-docs-framework-ownership-report.json'", 'Nightly manifest requires Docs framework ownership evidence');
+  context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-rmt-demos-report.json'", 'Nightly manifest requires RMT demo structure evidence');
+  context.assertIncludes(requiredArtifactsSource, "'.xtend-test-results/xtend-release-report.json'", 'Nightly manifest requires release report evidence');
+  context.assertIncludes(requiredArtifactsSource, "'.xtend-test-results/xtend-package-export-surface-lock.json'", 'Nightly manifest requires package export surface evidence');
+  context.assertIncludes(requiredArtifactsSource, "'.xtend-test-results/xtend-package-export-lock-report.json'", 'Nightly manifest requires package export lock evidence');
+  context.assertIncludes(requiredArtifactsSource, "'.xtend-test-results/xtend-pack-dry-run-xtendrmt.json'", 'Nightly manifest requires workspace package dry-run evidence');
+  context.assertIncludes(requiredArtifactsSource, "'.xtend-build/maraca/source-to-sea/xtend.maraca.report.json'", 'Nightly manifest requires Maraca bundle report evidence');
+  context.assertIncludes(requiredArtifactsSource, "'.xtend-build/maraca/source-to-sea/xtend.maraca.size.json'", 'Nightly manifest requires Maraca size report evidence');
+  context.assert(trackedArtifactPaths.length > 0 && trackedArtifactPaths.every((artifactPath) => requiredArtifactPaths.includes(artifactPath)), 'Every tracked artifact from a blocking nightly command is classified as required');
+  context.assertIncludes(nightlyManifestScript, 'process.exitCode = 1;', 'Nightly manifest CLI exits nonzero when required evidence is missing');
+  context.assertIncludes(nightlyManifestScript, 'XTend nightly manifest is incomplete; missing required artifacts:', 'Nightly manifest CLI reports missing required evidence');
   context.assertIncludes(nightlyWorkflow, 'xtend-nightly-build-${{ matrix.artifact_suffix }}', 'Nightly workflow uploads per-runtime artifact bundles');
   context.assertIncludes(nightlyWorkflow, 'optional-source-to-sea:', 'Nightly workflow isolates optional Source-to-Sea browser evidence');
   context.assertIncludes(nightlyWorkflow, "github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true", 'Nightly Source-to-Sea job is manual only');
@@ -7329,6 +7363,9 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(nightlyBuild.workflow === nightlyWorkflowPath, 'Package metadata exposes nightly build workflow path');
   context.assert(nightlyBuild.nodeVersion === '24.18.0', 'Package metadata exposes the primary nightly Node version');
   context.assert(Array.isArray(nightlyBuild.nodeVersions) && nightlyBuild.nodeVersions.join(',') === '24.18.0,26.5.0', 'Package metadata exposes both required nightly Node versions');
+  context.assert(Array.isArray(nightlyBuild.commandSet) && JSON.stringify(nightlyBuild.commandSet) === JSON.stringify(nightlyWorkflowCommandSet), 'Package metadata lists nightly commands in exact workflow order');
+  context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run native-first:evidence:prepare'), 'Package metadata includes Native-First evidence preparation in nightly build');
+  context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:rmt-demos:report'), 'Package metadata includes the RMT demo structure command in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:rmt-vnext-primitives:report'), 'Package metadata includes RMT vNext primitive command in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:native-first-rmt-owned-release:report'), 'Package metadata includes Native-First RMT Owned release command in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:xtensions-framework-adapters:report'), 'Package metadata includes XTensions framework adapter command in nightly build');
@@ -9371,7 +9408,7 @@ function assertReleasePreparationReference(context, rootDir) {
     'rmt-playground-security'
   ];
 
-  context.assert(packageManifest.version === '0.5.0', 'Root package version is prepared for 0.5.0');
+  context.assert(packageManifest.version === '0.6.1', 'Root package version is prepared for 0.6.1');
   docsGates.forEach((gate) => {
     context.assert(Array.isArray(xtend.releaseGates) && xtend.releaseGates.includes(gate), `Release gates include ${gate}`);
     context.assert(xtend.releaseChecklist && Array.isArray(xtend.releaseChecklist.candidateGates) && xtend.releaseChecklist.candidateGates.includes(gate), `Release checklist includes ${gate}`);

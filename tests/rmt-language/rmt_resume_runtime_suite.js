@@ -14,6 +14,10 @@ const { syntaxCheckFile } = require('../utils/process');
 
 const RMT_RESUME_RUNTIME_PATH = 'xtendrmt/rmt-resume-runtime.js';
 const RMT_RESUME_RUNTIME_TYPES = 'xtendrmt/rmt-resume-runtime.d.ts';
+const RMT_RESUME_CAPTURE_ADAPTER_PATH = 'xtendrmt/rmt-resume-capture-adapter.js';
+const RMT_RESUME_COMMAND_ADAPTER_PATH = 'xtendrmt/rmt-resume-command-adapter.js';
+const RMT_RESUME_COMMAND_CONTROLLER_PATH = 'xtendrmt/rmt-resume-command-controller.js';
+const RMT_RESUME_HOST_ADAPTER_PATH = 'xtendrmt/rmt-resume-host-adapter.js';
 const RMT_RESUME_RUNTIME_SCHEMA = 'xtend.rmt.resume-runtime.v1';
 const RMT_RESUME_ENVELOPE_SCHEMA = 'xtend.rmt.ssr-resume-envelope.v1';
 
@@ -98,6 +102,10 @@ async function runRmtResumeRuntimeSuite(options = {}) {
   const context = createSuiteContext({ id: 'rmt-resume-runtime', label: 'RMT Resume Runtime' });
   const syntax = syntaxCheckFile(RMT_RESUME_RUNTIME_PATH, { rootDir, extension: '.js' });
   const source = readText(RMT_RESUME_RUNTIME_PATH, rootDir);
+  const captureSource = readText(RMT_RESUME_CAPTURE_ADAPTER_PATH, rootDir);
+  const commandSource = readText(RMT_RESUME_COMMAND_ADAPTER_PATH, rootDir);
+  const controllerSource = readText(RMT_RESUME_COMMAND_CONTROLLER_PATH, rootDir);
+  const hostSource = readText(RMT_RESUME_HOST_ADAPTER_PATH, rootDir);
   const types = readText(RMT_RESUME_RUNTIME_TYPES, rootDir);
   const rootManifest = readJson('package.json', rootDir);
   const runtimeManifest = readJson('xtendrmt/package.json', rootDir);
@@ -114,6 +122,26 @@ async function runRmtResumeRuntimeSuite(options = {}) {
   context.assert(rootManifest.exports['./rmt/resume-runtime'].default === './xtendrmt/rmt-resume-runtime.js', 'root package exports resume runtime');
   context.assert(runtimeManifest.exports['./resume-runtime'].default === './rmt-resume-runtime.js', 'RMT package exports resume runtime');
   context.assert(!source.includes('innerHTML'), 'resume runtime does not replace server markup');
+  context.assert(
+    source.includes("from './rmt-resume-capture-adapter.js'")
+      && source.includes("from './rmt-resume-host-adapter.js'")
+      && source.includes("from './rmt-resume-command-adapter.js'")
+      && source.includes("from './rmt-resume-command-controller.js'"),
+    'resume compatibility runtime delegates to physically separate capture, host, command and controller ports'
+  );
+  context.assert(
+    !/\.(?:addEventListener|removeEventListener|getAttribute|querySelector|setState)\s*\(/u.test(source),
+    'resume compatibility composer performs no concrete DOM, event or state work'
+  );
+  context.assert(/\.addEventListener\s*\(/u.test(captureSource)
+    && !/\.setState\s*\(/u.test(captureSource),
+  'resume input adapter exclusively owns preboot event capture');
+  context.assert(/\.setState\s*\(/u.test(commandSource)
+    && !/\.(?:addEventListener|removeEventListener|getAttribute|querySelector)\s*\(/u.test(commandSource),
+  'resume command adapter exclusively owns legacy state restoration');
+  context.assert(!/\.(?:addEventListener|removeEventListener|dispatchEvent|getAttribute|querySelector|setState)\s*\(/u.test(controllerSource)
+    && /\.getAttribute\s*\(/u.test(hostSource),
+  'resume controller orchestrates typed ports while host inspection stays in the host adapter');
 
   const order = [];
   const root = createRoot('generation-1');
@@ -147,7 +175,19 @@ async function runRmtResumeRuntimeSuite(options = {}) {
   });
   const envelope = createEnvelope('generation-1');
   const response = { kind: 'rmt_template_prerender_response', ok: true, rootId: 'resume-root', resume: envelope, chunk: { kind: 'rmt_template_chunk' } };
-  const resumed = await runtime.resumeResponse(response, {}, { root });
+  const preflight = await runtime.verifyResponse(response, {}, { root });
+  context.assert(preflight.ok === true
+    && preflight.verified === true
+    && preflight.state['app.status'].text === 'Ready'
+    && Object.isFrozen(preflight)
+    && Object.isFrozen(preflight.state)
+    && Object.isFrozen(preflight.state['app.status']),
+  'resume preflight exposes only a deeply frozen verified initial Model snapshot');
+  context.assert(order.length === 0
+    && runtime.snapshot().history.length === 0
+    && runtime.snapshot().consumedGenerations.length === 0,
+  'resume preflight performs no state, DOM, adoption, replay, or lifecycle mutation');
+  const resumed = await runtime.resumeResponse(response, {}, { root, preflight });
   context.assert(resumed.ok === true && resumed.status === 'resumed' && resumed.verified === true, `valid envelope resumes successfully${resumed.reasons && resumed.reasons.length ? ` (${resumed.reasons.join(',')})` : ''}`);
   context.assert(resumed.rootPreserved === true && resumed.fallbackAttempted === false, 'valid resume preserves root and avoids fallback');
   context.assert(resumed.restoredStateCount === 1 && resumed.adoptedXtensionCount === 1 && resumed.replayedIntentCount === 1, 'resume restores state, adopts XTensions and replays intents');

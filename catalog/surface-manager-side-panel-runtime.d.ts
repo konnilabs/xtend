@@ -28,6 +28,7 @@ export declare const SURFACE_CONTROLLER_SCHEMA: string;
 export declare const SURFACE_MANAGER_SCHEMA: string;
 export declare const SURFACE_MANAGER_SIDE_PANEL_CONTRACT: string;
 export declare const SURFACE_MANAGER_SIDE_PANEL_DOCS: readonly XtendCatalogConstant[] | XtendCatalogConstant;
+export declare const SURFACE_MANAGER_SIDE_PANEL_DOCS_DE: string;
 export declare const SURFACE_MANAGER_SIDE_PANEL_LOCAL_GATE: string;
 export declare const SURFACE_MANAGER_SIDE_PANEL_MODULE: string;
 export declare const SURFACE_MANAGER_SIDE_PANEL_PACKAGE_SCRIPT: string;

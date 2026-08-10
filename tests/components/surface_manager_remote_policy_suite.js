@@ -91,7 +91,10 @@ function evaluateXtendRmtArtifact(context, relativePath, rootDir) {
   const source = readText(relativePath, rootDir);
   const sandbox = createSandbox();
   const executableSource = relativePath.endsWith('.esm.js')
-    ? source.replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
+    ? source
+      .replace(/^\s*import\s+[\s\S]*?\s+from\s+['"][^'"]+['"];\s*$/gmu, '')
+      .replace(/^\s*import\s+['"][^'"]+['"];\s*$/gmu, '')
+      .replace(/\nexport\s+\{[\s\S]*?\};\s*\nexport default XtendRmtProduct;\s*$/u, '')
     : source;
   try {
     vm.runInNewContext(executableSource, sandbox, { filename: relativePath });

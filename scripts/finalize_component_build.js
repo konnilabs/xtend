@@ -20,6 +20,34 @@ const artifacts = [
         .replace("from '../../../components/xstate.js'", "from './xstate.js'")
         .replace("from '../../../components/xtend-public-types'", "from './xtend-public-types'");
     }
+  },
+  {
+    source: '.xtend-build/components-ts/x-surface-manager/surface-state-projection-adapter.js',
+    target: 'components/xsurfacemanager-state-projection-adapter.js',
+    transform(content) {
+      return content;
+    }
+  },
+  {
+    source: '.xtend-build/components-ts/x-surface-manager/surface-state-projection-adapter.d.ts',
+    target: 'components/xsurfacemanager-state-projection-adapter.d.ts',
+    transform(content) {
+      return content.replace("from './surface-record'", "from './xsurfacemanager-controller.js'");
+    }
+  },
+  {
+    source: '.xtend-build/components-ts/x-surface-manager/surface-host-clock-adapter.js',
+    target: 'components/xsurfacemanager-host-clock-adapter.js',
+    transform(content) {
+      return content;
+    }
+  },
+  {
+    source: '.xtend-build/components-ts/x-surface-manager/surface-host-clock-adapter.d.ts',
+    target: 'components/xsurfacemanager-host-clock-adapter.d.ts',
+    transform(content) {
+      return content.replace("from './surface-record'", "from './xsurfacemanager-controller.js'");
+    }
   }
 ];
 

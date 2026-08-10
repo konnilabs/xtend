@@ -2,6 +2,16 @@
 
 Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend ist fuer RC1-Publish-Prep auf `private: false` geoeffnet; der eigentliche Publish-Befehl bleibt ein separater manueller Owner-Schritt.
 
+## 0.6.1 - 2026-08-10
+
+- Der moderne Maraca-Pfad nutzt einen atomaren RMT-Model-Command-Port und veröffentlicht pro Kommando nur abgeschlossene Model-, Selector- und Derived-Snapshots.
+- DOM-, Event-, Validation-, Transition-, Presentation- und Surface-Projektionen sind über explizite Ports vom Application Controller getrennt; Legacy-Zugriffe bleiben diagnostizierte 0.6-Kompatibilitätsfassaden.
+- Der Surface Controller ist alleinige Lifecycle-Autorität und projiziert atomare Lifecycle-Operationen in Resource Graph, Portal- und Overlay-Handles.
+- KernelLab baut ESM-, Browser-, Typ-, Schema- und Manifest-Artefakte ausschließlich aus kanonischen Modulquellen und blockiert MVC-Verstöße, nicht deklarierte Abhängigkeiten sowie Legacy-Bundle-Eingaben.
+- State Binding wurde in ein reines Model und einen eigenständigen View-Projektor getrennt; die bisherige gemischte API lebt nur in einer Compatibility-Composition-Fassade weiter.
+- Die geänderten Runtime-Verträge werden als neue v2-Schemafamilien geführt; das Schema-Gate schützt veröffentlichte Fingerprints und reserviert abgelöste v1-IDs als Tombstones.
+- Nightly-Manifest, verpflichtende Build-Reports und gesplittete Resume-Module wurden an die produktiven Workflows angeglichen.
+
 ## 0.5.0 - 2026-07-19
 
 - Stage-A-Node-Matrix fuer CI, Nightly und native Produkt-Smokes eingefuehrt: `24.18.0` ist die primaere Runtime, `26.5.0` die verpflichtende Current-Lane, npm ist auf `11.17.0` gepinnt und jede Lane liefert eigene Runtime-Evidence sowie Artefakte nach `{artifactSuffix}` beziehungsweise `${{ matrix.artifact_suffix }}`. Der manuell freigegebene npm-Publish bleibt auf Node `24.18.0` und `xtend-npm-publish-latest-evidence-node-24-18-0` begrenzt.

@@ -72,6 +72,20 @@ export interface RmtAnimationEngineRuntimeOptions {
   plan?: RmtAnimationEnginePlan;
   transitionPlan?: RmtAnimationEnginePlan;
   xUtils?: unknown;
+  domRenderer?: {
+    commit(request: Record<string, unknown>): unknown;
+    dispose?(target?: Node, options?: { clearOwnedDom?: boolean }): void;
+  };
+  /** @deprecated Use domRenderer. */
+  renderer?: {
+    commit(request: Record<string, unknown>): unknown;
+    dispose?(target?: Node, options?: { clearOwnedDom?: boolean }): void;
+  };
+  documentTarget?: Document | null;
+  diagnosticsHub?: {
+    publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown;
+  };
+  diagnosticChannel?: string;
   windowTarget?: Window | typeof globalThis;
   diagnostics?: unknown[];
   strict?: boolean;
@@ -102,6 +116,12 @@ export interface RmtAnimationEngineRuntime {
   listActiveAnimations(): unknown[];
   listDiagnostics(): unknown[];
   snapshot(): unknown;
+  dispose(): {
+    schema: 'xtend.rmt.animation-engine-dispose-report.v1';
+    disposed: true;
+    alreadyDisposed: boolean;
+    cancelledCount: number;
+  };
 }
 
 export function createRmtAnimationEngineRuntime(options?: RmtAnimationEngineRuntimeOptions): RmtAnimationEngineRuntime;

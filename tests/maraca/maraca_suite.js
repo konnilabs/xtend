@@ -37,6 +37,7 @@ const {
   MARACA_PWA_SERVICE_WORKER_REPORT_SCHEMA,
   MARACA_COMPONENT_COMMAND_SCHEMA,
   MARACA_COMPONENT_COMMAND_RESULT_SCHEMA,
+  buildMaracaBundle,
   buildMaracaBundleAsync,
   createMaracaPerformanceReport,
   createMaracaWebAppManifestPlan,
@@ -45,6 +46,10 @@ const {
   createMaracaBuildPlan,
   invokeMaracaComponentCommand
 } = require('../../xtend-maraca');
+const {
+  RMT_KERNEL_SOURCE_ARTIFACT_SCHEMA,
+  createRmtKernelSourceArtifact
+} = require('../../xtend-builder/generators/rmt-kernel-lab');
 const {
   runCliAsync
 } = require('../../xtend-builder/lib/cli');
@@ -102,6 +107,50 @@ async function importRepoEsmModule(relativePath, rootDir) {
     maracaEsmModuleCache.set(moduleUrl, import(moduleUrl).then((moduleApi) => moduleApi.default || moduleApi));
   }
   return maracaEsmModuleCache.get(moduleUrl);
+}
+
+function createDomCommitHarness() {
+  const commits = [];
+  const disposals = [];
+  const renderer = {
+    commit(request) {
+      commits.push(request);
+      const target = request && request.target;
+      const descriptor = request && request.descriptor || {};
+      const attributes = descriptor.attributes || {};
+      Object.entries(attributes).forEach(([name, value]) => {
+        if (name === 'style') {
+          Object.entries(value || {}).forEach(([styleName, styleValue]) => {
+            if (!target || !target.style) return;
+            if (typeof target.style.setProperty === 'function') target.style.setProperty(styleName, styleValue == null ? '' : String(styleValue));
+            else target.style[styleName] = styleValue == null ? '' : String(styleValue);
+          });
+          return;
+        }
+        if (!target) return;
+        if (value === null || value === undefined || value === false) {
+          if (typeof target.removeAttribute === 'function') target.removeAttribute(name);
+        } else if (typeof target.setAttribute === 'function') {
+          target.setAttribute(name, value === true ? '' : String(value));
+        }
+      });
+      return {
+        schema: 'xtend.rmt.dom-commit-result.v1',
+        operation: request.operation,
+        target,
+        nodes: target ? [target] : [],
+        nodeCount: target ? 1 : 0,
+        changed: true,
+        structural: false,
+        diagnostics: [],
+        metadata: {}
+      };
+    },
+    dispose(target, options) {
+      disposals.push({ target, options });
+    }
+  };
+  return { renderer, commits, disposals };
 }
 
 function loadRmtKernelFeatureAdoptionApi(rootDir) {
@@ -265,6 +314,91 @@ function createCliIo() {
       return stderr.join('');
     }
   };
+}
+
+function copyCanonicalKernelSourceCheckout(rootDir) {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-maraca-kernel-source-'));
+  const sourceManifest = readJson('xtendrmt/kernel/rmt-kernel-sources.json', rootDir);
+  const sourcePaths = new Set([
+    'xtendrmt/kernel/rmt-kernel-sources.json',
+    'xtendrmt/package.json',
+    'xtendrmt/rmt-dom-descriptor-renderer.js',
+    'xtendrmt/rmt-dom-descriptor-renderer.d.ts'
+  ]);
+  (sourceManifest.modules || []).forEach((entry) => {
+    if (entry && entry.sourcePath) sourcePaths.add(entry.sourcePath);
+  });
+  Object.values(sourceManifest.bundle || {}).forEach((sourcePath) => {
+    if (typeof sourcePath === 'string') sourcePaths.add(sourcePath);
+  });
+  sourcePaths.forEach((relativePath) => {
+    const sourcePath = resolveRepoPath(relativePath, rootDir);
+    const targetPath = path.join(tempRoot, relativePath);
+    fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+    fs.copyFileSync(sourcePath, targetPath);
+  });
+  return tempRoot;
+}
+
+function runMaracaKernelSourceIndependenceProbe(rootDir) {
+  const tempRoot = copyCanonicalKernelSourceCheckout(rootDir);
+  const poisonManifest = JSON.stringify({
+    entryPoints: { appModulesFactories: { performanceRuntime: 'createPoisonPerformanceRuntime' } }
+  });
+  const poisonBrowserRuntime = 'throw new Error("generated browser runtime was used as source");\n';
+  const poisonEsmRuntime = 'throw new Error("generated ESM runtime was used as source");\n';
+  try {
+    fs.writeFileSync(path.join(tempRoot, 'xtendrmt/rmt-manifest.json'), poisonManifest);
+    fs.writeFileSync(path.join(tempRoot, 'xtendrmt/rmt-runtime.browser.js'), poisonBrowserRuntime);
+    fs.writeFileSync(path.join(tempRoot, 'xtendrmt/rmt-runtime.esm.js'), poisonEsmRuntime);
+
+    const manifestArtifact = createRmtKernelSourceArtifact({
+      rootDir: tempRoot,
+      artifactPath: 'xtendrmt/rmt-manifest.json'
+    });
+    const browserArtifact = createRmtKernelSourceArtifact({
+      rootDir: tempRoot,
+      artifactPath: 'xtendrmt/rmt-runtime.browser.js'
+    });
+    const esmArtifact = createRmtKernelSourceArtifact({
+      rootDir: tempRoot,
+      artifactPath: 'xtendrmt/rmt-runtime.esm.js'
+    });
+    const performanceReport = createMaracaPerformanceReport({ rootDir: tempRoot });
+    const outputDir = path.join(tempRoot, 'maraca-output');
+    const build = buildMaracaBundle({
+      sourceText: readText(MARACA_FIXTURE, rootDir),
+      virtualSourcePath: MARACA_FIXTURE,
+      out: outputDir,
+      profile: 'debug',
+      lazy: 'none',
+      css: 'inline',
+      orchestration: 'strict',
+      kernel: 'strict'
+    }, { rootDir: tempRoot });
+    const runtimeAsset = build.bundleReport && build.bundleReport.bundleFiles.find((entry) => (
+      entry.fileName === 'runtime/xtendrmt-runtime.esm.js'
+    ));
+    const runtimeAssetSource = runtimeAsset
+      ? fs.readFileSync(path.join(tempRoot, runtimeAsset.path), 'utf8')
+      : '';
+
+    return {
+      schema: 'xtend.maraca.kernel-source-independence.v1',
+      sourceArtifactSchema: RMT_KERNEL_SOURCE_ARTIFACT_SCHEMA,
+      manifestArtifact,
+      browserArtifact,
+      esmArtifact,
+      performanceReport,
+      build,
+      runtimeAssetSource,
+      generatedInputsUnchanged: fs.readFileSync(path.join(tempRoot, 'xtendrmt/rmt-manifest.json'), 'utf8') === poisonManifest
+        && fs.readFileSync(path.join(tempRoot, 'xtendrmt/rmt-runtime.browser.js'), 'utf8') === poisonBrowserRuntime
+        && fs.readFileSync(path.join(tempRoot, 'xtendrmt/rmt-runtime.esm.js'), 'utf8') === poisonEsmRuntime
+    };
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true });
+  }
 }
 
 function planFixture(rootDir, overrides = {}) {
@@ -509,6 +643,8 @@ function runMaracaPlanSuite(options = {}) {
     css: 'inline',
     allowDynamicComponents: true
   }, { rootDir });
+  const kernelSourceIndependence = runMaracaKernelSourceIndependenceProbe(rootDir);
+  const maracaGeneratorSource = readText(MARACA_MODULE_PATH, rootDir);
 
   assertFileExists(context, MARACA_MODULE_PATH, rootDir, 'Maraca module exists');
   assertFileExists(context, MARACA_RUNTIME_PATH, rootDir, 'Maraca runtime helper exists');
@@ -517,6 +653,42 @@ function runMaracaPlanSuite(options = {}) {
   assertFileExists(context, MARACA_ORCHESTRATION_FIXTURE, rootDir, 'Maraca orchestration fixture exists');
   context.assert(syntaxCheckFile(MARACA_MODULE_PATH, { rootDir, extension: '.js' }).ok, 'Maraca module syntax passes');
   context.assert(syntaxCheckFile(MARACA_RUNTIME_PATH, { rootDir, extension: '.js' }).ok, 'Maraca runtime helper syntax passes');
+  context.assert(
+    maracaGeneratorSource.includes("assembleRmtSourceArtifact(sourceRoot, 'xtendrmt/rmt-manifest.json')")
+      && maracaGeneratorSource.includes("assembleRmtSourceArtifact(sourceRoot, 'xtendrmt/rmt-runtime.browser.js')")
+      && maracaGeneratorSource.includes("assembleRmtSourceArtifact(plan.rootDir, 'xtendrmt/rmt-runtime.esm.js')"),
+    'Maraca resolves manifest, performance runtime and bundled Kernel runtime through the KernelLab source assembler'
+  );
+  context.assert(
+    kernelSourceIndependence.manifestArtifact.schema === RMT_KERNEL_SOURCE_ARTIFACT_SCHEMA
+      && kernelSourceIndependence.manifestArtifact.ok === true
+      && kernelSourceIndependence.browserArtifact.ok === true
+      && kernelSourceIndependence.esmArtifact.ok === true,
+    'KernelLab assembles every Maraca Kernel input from canonical sources in an output-independent checkout'
+  );
+  context.assert(
+    kernelSourceIndependence.manifestArtifact.versionSource === 'source-package'
+      && kernelSourceIndependence.manifestArtifact.sourceManifestPath === 'xtendrmt/kernel/rmt-kernel-sources.json',
+    'Maraca Kernel artifacts derive version and topology from canonical source metadata'
+  );
+  context.assert(
+    JSON.parse(kernelSourceIndependence.manifestArtifact.content).entryPoints.appModulesFactories.performanceRuntime === 'createRmtPerformanceRuntime',
+    'Maraca ignores a poisoned generated RMT manifest'
+  );
+  context.assert(
+    kernelSourceIndependence.performanceReport.supported === true
+      && kernelSourceIndependence.performanceReport.factory.name === 'createRmtPerformanceRuntime',
+    'Maraca evaluates Performance Runtime from canonical modules when the generated browser runtime is corrupt'
+  );
+  context.assert(
+    kernelSourceIndependence.build.ok === true
+      && kernelSourceIndependence.runtimeAssetSource === kernelSourceIndependence.esmArtifact.content,
+    'Maraca bundles the exact KernelLab-assembled ESM runtime when the generated ESM product is corrupt'
+  );
+  context.assert(
+    kernelSourceIndependence.generatedInputsUnchanged === true,
+    'Maraca neither reads as authority nor rewrites poisoned generated RMT products during source assembly'
+  );
   context.assert(plan.schema === MARACA_BUILD_PLAN_SCHEMA, 'plan uses Maraca build-plan schema');
   context.assert(plan.ok === true, `known-component plan passes${plan.ok ? '' : ` (${plan.diagnostics.map((d) => d.message).join(', ')})`}`);
   context.assert(plan.loader && plan.loader.mode === 'inline-registry', 'plan selects inline registry loader mode');
@@ -527,6 +699,8 @@ function runMaracaPlanSuite(options = {}) {
   context.assert(plan.runtimeModules.includes('xtendrmt/rmt-runtime.esm.js'), 'plan includes the RMT ESM runtime module need');
   context.assert(plan.runtimeModules.includes('xtendrmt/rmt-event-routing-runtime.js'), 'plan includes the event routing runtime when RMT events exist');
   context.assert(plan.runtimeModules.includes('xtendrmt/rmt-state-selector-runtime.js'), 'plan includes state selector runtime when selectors exist');
+  context.assert(plan.runtimeModules.includes('xtendrmt/rmt-state-binding-view-projector.js'), 'plan includes the State Binding View projector when selectors exist');
+  context.assert(plan.runtimeModules.includes('xtendrmt/rmt-maraca-view-projection-adapter.js'), 'plan includes the canonical Maraca View projection adapter');
   context.assert(plan.orchestration && plan.orchestration.schema === MARACA_ORCHESTRATION_PLAN_SCHEMA, 'plan records orchestration plan schema');
   context.assert(plan.orchestration && plan.orchestration.mode === 'auto', 'plan defaults orchestration mode to auto');
   context.assert(plan.orchestration && plan.orchestration.enabled === true, 'auto orchestration is enabled for complete primitive Maraca fixture');
@@ -731,6 +905,9 @@ async function runMaracaBundleSuite(options = {}) {
   context.assert(!bundleText.includes('data-manifest'), 'bundle does not reference a data-manifest attribute');
   context.assert(!bundleText.includes('xtend-loader.js'), 'bundle does not reference the legacy loader file');
   context.assert(bundleFiles.some((file) => file.fileName === 'runtime/xtendrmt-runtime.esm.js'), 'bundle package includes the RMT kernel runtime asset');
+  context.assert(bundleFiles.some((file) => file.fileName === 'runtime/xtend-maraca-plan-runtime.mjs'), 'bundle package includes the canonical Maraca Plan Runtime asset');
+  context.assert(bundleFiles.some((file) => file.fileName === 'runtime/xtend-maraca-browser-composition-runtime.mjs'), 'bundle package includes the canonical Maraca browser composition root');
+  context.assert(bundleFiles.some((file) => file.fileName === 'runtime/browser-host-adapter.mjs'), 'bundle package includes the canonical Maraca browser host adapter');
   context.assert(bundleFiles.some((file) => file.fileName.includes('x-status')), 'bundle writes an x-status lazy chunk');
   context.assert(bundleFiles.some((file) => file.fileName.includes('x-toast')), 'bundle writes an x-toast lazy chunk');
   context.assert(bundleFiles.some((file) => file.fileName.includes('x-progress')), 'bundle writes an x-progress lazy chunk');
@@ -740,10 +917,10 @@ async function runMaracaBundleSuite(options = {}) {
   context.assert(entrySource.includes('MARACA_ORCHESTRATION'), 'entry includes orchestration bootstrap metadata');
   context.assert(entrySource.includes('MARACA_TEMPLATE_ARTIFACTS'), 'entry includes template artifact bootstrap metadata');
   context.assert(entrySource.includes('productionClosure'), 'entry includes production closure bootstrap metadata');
-  context.assert(entrySource.includes('xtend-maraca:template-artifacts'), 'entry emits guarded template artifact runtime registration telemetry');
-  context.assert(entrySource.includes('__XTendMaracaTemplateArtifactsRegistration'), 'entry exposes template artifact runtime registration debug bridge');
+  context.assert(appBundleText.includes('xtend-maraca:template-artifacts'), 'host adapter emits guarded template artifact runtime registration telemetry');
+  context.assert(appBundleText.includes('__XTendMaracaTemplateArtifactsRegistration'), 'composition root exposes a read-only template artifact registration debug snapshot');
   context.assert(entrySource.includes('import('), 'default lazy build uses native ESM import chunks');
-  context.assert(entrySource.includes('IntersectionObserver'), 'boot path supports viewport-driven lazy component loading');
+  context.assert(appBundleText.includes('IntersectionObserver'), 'browser host adapter supports viewport-driven lazy component loading');
   context.assert(!entrySource.includes('Promise.all(MARACA_COMPONENTS.map'), 'boot path avoids unconditional eager Promise.all component loading');
 
   return context.result({
@@ -939,9 +1116,19 @@ async function runMaracaOrchestrationSuite(options = {}) {
   const entryPath = result.bundleReport && result.bundleReport.entry;
   const reportPath = resolveRepoPath(`${MARACA_ORCHESTRATION_OUT_DIR}/xtend.maraca.report.json`, rootDir);
   const cssPath = resolveRepoPath(`${MARACA_ORCHESTRATION_OUT_DIR}/xtend.maraca.css`, rootDir);
+  const planRuntimePath = resolveRepoPath(`${MARACA_ORCHESTRATION_OUT_DIR}/runtime/xtend-maraca-plan-runtime.mjs`, rootDir);
+  const compositionRuntimePath = resolveRepoPath(`${MARACA_ORCHESTRATION_OUT_DIR}/runtime/xtend-maraca-browser-composition-runtime.mjs`, rootDir);
+  const browserHostAdapterPath = resolveRepoPath(`${MARACA_ORCHESTRATION_OUT_DIR}/runtime/browser-host-adapter.mjs`, rootDir);
   const entrySource = entryPath && fs.existsSync(entryPath) ? fs.readFileSync(entryPath, 'utf8') : '';
   const cssSource = fs.existsSync(cssPath) ? fs.readFileSync(cssPath, 'utf8') : '';
+  const planRuntimeSource = fs.existsSync(planRuntimePath) ? fs.readFileSync(planRuntimePath, 'utf8') : '';
+  const compositionRuntimeSource = fs.existsSync(compositionRuntimePath) ? fs.readFileSync(compositionRuntimePath, 'utf8') : '';
+  const browserHostAdapterSource = fs.existsSync(browserHostAdapterPath) ? fs.readFileSync(browserHostAdapterPath, 'utf8') : '';
+  const canonicalPlanRuntimeSource = fs.readFileSync(resolveRepoPath('xtend-maraca/plan-runtime.mjs', rootDir), 'utf8');
+  const maracaGeneratorSource = fs.readFileSync(resolveRepoPath('xtend-maraca/index.js', rootDir), 'utf8');
+  const mediaEffectSource = fs.readFileSync(resolveRepoPath('xtendrmt/rmt-presentation-effect-adapter.js', rootDir), 'utf8');
   const report = fs.existsSync(reportPath) ? readJson(`${MARACA_ORCHESTRATION_OUT_DIR}/xtend.maraca.report.json`, rootDir) : null;
+  const bundleFiles = report && Array.isArray(report.bundleFiles) ? report.bundleFiles : [];
   const cliIo = createCliIo();
   const cliStatus = await runCliAsync([
     'maraca',
@@ -977,8 +1164,17 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(plan.runtimeModules.includes('xtendrmt/rmt-action-effect-runtime.js'), 'strict orchestration requires action runtime module');
   context.assert(plan.runtimeModules.includes('xtendrmt/rmt-runtime.esm.js'), 'strict orchestration requires kernel runtime module');
   context.assert(plan.runtimeModules.includes('xtendrmt/rmt-dom-descriptor-renderer.js'), 'strict orchestration requires DOM descriptor renderer module');
+  context.assert(plan.runtimeModules.includes('components/xsurfacemanager-controller.js'), 'strict orchestration requires the Surface Controller lifecycle module');
+  context.assert(plan.runtimeModules.includes('xtendrmt/rmt-presentation-effect-adapter.js'), 'strict orchestration requires the PresentationEffectPort adapter module');
+  context.assert(plan.runtimeModules.includes('xtendrmt/rmt-state-binding-view-projector.js'), 'strict orchestration uses the canonical State Binding View projector module');
+  context.assert(plan.runtimeModules.includes('xtendrmt/rmt-maraca-view-projection-adapter.js'), 'strict orchestration requires the Maraca View projection adapter module');
   context.assert(plan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-runtime.esm.js'), 'strict plan includes kernel runtime in the bundle graph');
   context.assert(plan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-state-selector-runtime.js'), 'strict plan includes orchestration runtime modules in bundle graph');
+  context.assert(plan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-state-binding-view-projector.js'), 'strict plan includes the State Binding View projector in the composition graph');
+  context.assert(plan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-maraca-view-projection-adapter.js'), 'strict plan includes the Maraca View projection adapter in the composition graph');
+  context.assert(plan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-xstate-host-adapter.js'), 'strict plan includes the XState output adapter in the composition graph');
+  context.assert(plan.stackModules.some((entry) => entry.source === 'components/xsurfacemanager-controller.js'), 'strict plan includes the Surface Controller composition port');
+  context.assert(plan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-presentation-effect-adapter.js'), 'strict plan includes the presentation adapter in the composition graph');
   context.assert(incompleteStrictPlan.ok === false, 'strict orchestration blocks incomplete graph');
   context.assert(incompleteStrictPlan.diagnostics.some((diagnostic) => diagnostic.code === 'xtend.maraca.orchestration_event_contract_missing' || diagnostic.code === 'rmt.vnext.primitive.payload-contract-missing'), 'strict diagnostics include missing payload contract');
 
@@ -991,51 +1187,187 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(report && report.kernel && report.kernel.summary.scheduleCount >= 10, 'bundle report summarizes detailed kernel schedules including hydration endpoints');
   context.assert(report && report.orchestration && report.orchestration.summary.reducerCount >= 3, 'bundle report summarizes reducer patch plan');
   context.assert(report && report.orchestration && report.orchestration.diagnostics.every((diagnostic) => diagnostic.severity !== 'error'), 'bundle report diagnostics are non-blocking for complete fixture');
-  context.assert(entrySource.includes('createOrchestrationController'), 'bundle initializes orchestration controller');
-  context.assert(entrySource.includes('createKernelController'), 'bundle initializes kernel controller');
-  context.assert(entrySource.includes('createHydrationController'), 'bundle initializes hydration controller');
+  context.assert(entrySource.includes('createMaracaBrowserCompositionRoot') && compositionRuntimeSource.includes('dependencies.createPlanRuntime('), 'thin bundle delegates boot to the canonical composition root and Plan Runtime');
+  context.assert(browserHostAdapterSource.includes('function createKernelController'), 'browser host adapter initializes the injected kernel controller port');
+  context.assert(browserHostAdapterSource.includes('function createHydrationPort'), 'browser host adapter owns component hydration and viewport observation');
   context.assert(entrySource.includes('MARACA_HYDRATION'), 'bundle embeds hydration plan');
   context.assert(entrySource.includes('MARACA_WARM_REENTRY'), 'bundle embeds Warm Reentry report');
   context.assert(entrySource.includes('XTendMaracaKernelRuntimeModule'), 'bundle imports the RMT kernel runtime module');
   context.assert(entrySource.includes('xtendrmt-kernel-orchestration-controller.js'), 'bundle imports reusable kernel orchestration controller asset');
   context.assert(entrySource.includes('XTendRmtStateSelectorRuntime'), 'bundle wires state runtime');
+  context.assert(entrySource.includes('XTendRmtXStateHostAdapter'), 'bundle wires the typed XState host adapter');
   context.assert(entrySource.includes('XTendRmtActionEffectRuntime'), 'bundle wires action runtime');
   context.assert(entrySource.includes('XTendRmtEventRoutingRuntime'), 'bundle wires event runtime');
   context.assert(entrySource.includes('XTendRmtSurfaceResourceGraphRuntime'), 'bundle wires surface runtime');
+  context.assert(entrySource.includes('components/xsurfacemanager-controller.js'), 'bundle imports the Surface Controller lifecycle runtime');
+  context.assert(entrySource.includes('XTendRmtPresentationEffectAdapter'), 'bundle wires the canonical PresentationEffectPort adapter');
+  context.assert(compositionRuntimeSource.includes("runtimeApi('XTendRmtMaracaViewProjectionAdapter')") && compositionRuntimeSource.includes('viewProjectionPort'), 'composition root wires the canonical ViewProjectionPort adapter');
   context.assert(entrySource.includes('XTendRmtDomDescriptorRenderer'), 'bundle wires DOM descriptor renderer');
-  context.assert(entrySource.includes('scheduledAppRuntime = Object.freeze'), 'bundle wraps the public app runtime in a Maraca-scheduled facade');
-  context.assert(entrySource.includes('facade: "xtend.maraca.scheduled-app-runtime.v1"'), 'bundle exposes the scheduled app runtime facade contract');
-  context.assert(entrySource.includes('command(commandName, payload = {}, options = {})'), 'bundle exposes scheduled appRuntime.command facade');
-  context.assert(entrySource.includes('handleStreamPatch(patchInput, reducerOptions = {})'), 'bundle exposes scheduled stream lifecycle facade');
-  context.assert(entrySource.includes('streamService(serviceId, payload = {}, options = {})'), 'bundle exposes scheduled host stream service facade');
-  context.assert(entrySource.includes('applyRecipe(recipe, context = {})'), 'bundle exposes scheduled reducer recipe facade');
-  context.assert(entrySource.includes('"operation:xtend.maraca/orchestration/event"'), 'bundle schedules direct app-runtime commands on the generic orchestration event fiber');
-  context.assert(entrySource.includes('appRuntime: scheduledAppRuntime'), 'bundle exposes the scheduled app runtime instead of the raw core runtime');
-  context.assert(!entrySource.includes('rawAppRuntime'), 'bundle does not expose a raw app-runtime bypass handle');
-  context.assert(entrySource.includes('querySelectorAll("[data-rmt-component], [data-maraca-surface]")'), 'bundle lazy loader observes orchestrated component tags after descriptor render');
-  context.assert(entrySource.includes('entry.element.getAttribute("data-rmt-component")'), 'bundle lazy loader resolves component tags from rendered RMT component attributes');
+  context.assert(/import\s*\{\s*createMaracaPlanRuntime\s*\}\s*from\s*["']\.\/runtime\/xtend-maraca-plan-runtime\.mjs["']/u.test(entrySource), 'bundle imports the packaged canonical Maraca Plan Runtime');
+  context.assert(bundleFiles.some((file) => file.fileName === 'runtime/xtend-maraca-plan-runtime.mjs'), 'bundle report includes the canonical Maraca Plan Runtime asset');
+  context.assert(planRuntimeSource === canonicalPlanRuntimeSource, 'packaged Plan Runtime is copied byte-for-byte from the canonical source');
+  context.assert(!entrySource.includes('function createOrchestrationController') && !entrySource.includes('function createHydrationController'), 'bundle contains no second application or hydration controller');
+  context.assert((compositionRuntimeSource.match(/dependencies\.createPlanRuntime\(/gu) || []).length === 1
+    && compositionRuntimeSource.includes('createRuntimeConfiguration(config, options, host,'),
+  'canonical composition root creates the Plan Runtime exactly once from immutable configuration');
+  context.assert(compositionRuntimeSource.includes('domRenderer: handles.renderer')
+    && compositionRuntimeSource.includes('kernelController: handles.kernel')
+    && compositionRuntimeSource.includes('invokeComponentCommand: (record) => host.invokeComponentCommand')
+    && compositionRuntimeSource.includes('postCommitEffects: options.postCommitEffects || null'),
+  'composition root injects the shared renderer, kernel, presentation, and additive host hooks');
+  context.assert(planRuntimeSource.includes("facade: 'xtend.maraca.scheduled-app-runtime.v1'"), 'canonical Plan Runtime owns the scheduled app-runtime facade');
+  context.assert(planRuntimeSource.includes('handleStreamPatch(patchInput, reducerOptions = {})'), 'canonical Plan Runtime owns the scheduled stream lifecycle facade');
+  context.assert(planRuntimeSource.includes("'operation:xtend.maraca/orchestration/event'"), 'canonical Plan Runtime schedules app commands on the orchestration event lane');
+  context.assert(planRuntimeSource.includes('dispatchStreamPatch(patchInput, metadata = {})'), 'canonical Plan Runtime exposes stream patches only through its application-controller facade');
+  context.assert(planRuntimeSource.includes('createStateProjectionPort: stateProjectionFactory')
+    && planRuntimeSource.includes('stateProjectionTarget: options.xstate || null')
+    && planRuntimeSource.includes("error.code = 'rmt.state.xstate-batch-required'"),
+  'canonical Plan Runtime injects XState only through the typed state projection factory and target');
+  context.assert(!planRuntimeSource.includes('getRuntimeAdapters()')
+    && !planRuntimeSource.includes('get rawActionRuntime()')
+    && !planRuntimeSource.includes('get renderer()')
+    && !planRuntimeSource.includes('get appRuntime()'),
+  'canonical Plan Runtime does not publish mutable MVC adapter handles');
+  context.assert(/const MARACA_COMPONENTS = freezeMaraca(?:Snapshot|Configuration)\(/u.test(entrySource)
+    && /const MARACA_ORCHESTRATION = freezeMaraca(?:Snapshot|Configuration)\(/u.test(entrySource)
+    && /const MARACA_KERNEL = freezeMaraca(?:Snapshot|Configuration)\(/u.test(entrySource)
+    && /const MARACA_VALIDATION = freezeMaraca(?:Snapshot|Configuration)\(/u.test(entrySource)
+    && /const MARACA_BOOT_CONFIGURATION = freezeMaraca(?:Snapshot|Configuration)\(\{/u.test(entrySource),
+  'generated composition plans and controller configuration are deeply frozen before publication');
+  context.assert(compositionRuntimeSource.includes('bootResult = deepFreeze({')
+    && compositionRuntimeSource.includes("const report = deepFreeze({ schema: 'xtend.maraca.dispose.v1'")
+    && !entrySource.includes('window.__XTendMaracaAutoBootError = error'),
+  'composition boot, dispose, and generated auto-boot diagnostics expose immutable snapshots instead of mutable runtime values');
+  const forbiddenControllerDomPrimitives = [
+    /\.querySelector\s*\(/u,
+    /\.querySelectorAll\s*\(/u,
+    /\.getAttribute\s*\(/u,
+    /\.replaceChildren\s*\(/u,
+    /\.setAttribute\s*\(/u,
+    /\.removeAttribute\s*\(/u,
+    /\.innerHTML\b/u,
+    /\.outerHTML\b/u,
+    /\.insertAdjacentHTML\s*\(/u,
+    /\.ownerDocument\b/u,
+    /\bCustomEvent\b/u,
+    /\.dispatchEvent\s*\(/u,
+    /\bxstate\.(?:set|setState)\s*\(/u
+  ];
+  context.assert(forbiddenControllerDomPrimitives.every((pattern) => !pattern.test(planRuntimeSource)),
+    'canonical Plan Runtime reaches browser and DOM capabilities only through injected View ports');
+  context.assert(entrySource.includes('const XTendMaraca = maracaComposition.facade')
+    && compositionRuntimeSource.includes('host.installPublicFacades({')
+    && !entrySource.includes('get appRuntime()')
+    && !entrySource.includes('get renderer()')
+    && !entrySource.includes('attachEvents(commitResult'),
+  'generated bootstrap exposes the canonical safe runtime facade itself and no live View adapters');
+  context.assert(!entrySource.includes('scheduledAppRuntime = Object.freeze') && !entrySource.includes('rawAppRuntime'), 'generated entry contains no second app-runtime orchestrator or raw bypass handle');
+  const generatedCompositionSource = entrySource.slice(entrySource.indexOf('const MARACA_BOOT_CONFIGURATION'));
+  context.assert(!/\.querySelectorAll\s*\(/u.test(generatedCompositionSource) && browserHostAdapterSource.includes("querySelectorAll('[data-rmt-component], [data-maraca-surface]')"), 'generated composition shell delegates Surface discovery to the browser host adapter');
+  context.assert(browserHostAdapterSource.includes("entry.target.getAttribute('data-rmt-component')"), 'browser host adapter resolves component tags from rendered RMT component attributes');
   context.assert(entrySource.includes('"type": "$model.demo.orchestration.status.tone"'), 'bundle maps RMT tone state onto x-status public type attribute');
   context.assert(entrySource.includes('"variant": "$model.demo.orchestration.command.tone"'), 'bundle maps RMT tone state onto x-button public variant attribute');
   context.assert(entrySource.includes('"collapsible": "$model.demo.orchestration.panel.collapsible"'), 'bundle maps RMT side panel collapsible capability onto x-side-panel public attribute');
   context.assert(entrySource.includes('"closable": "$model.demo.orchestration.panel.closable"'), 'bundle maps RMT side panel close capability onto x-side-panel public attribute');
   context.assert(entrySource.includes('"pinnable": "$model.demo.orchestration.panel.pinnable"'), 'bundle maps RMT side panel pin capability onto x-side-panel public attribute');
-  context.assert(entrySource.includes('window.__XTendMaracaOrchestration'), 'bundle exposes orchestration bridge handle');
-  context.assert(entrySource.includes('window.__XTendMaracaKernel'), 'bundle exposes kernel bridge handle');
-  context.assert(entrySource.includes('window.__XTendMaracaHydration'), 'bundle exposes hydration bridge handle');
-  context.assert(entrySource.includes('snapshot: runtimeSnapshot'), 'bundle exposes orchestration snapshot API');
+  context.assert(compositionRuntimeSource.includes('host.installPublicFacades({') && browserHostAdapterSource.includes('windowTarget.__XTendMaracaOrchestration = values.orchestrationFacade'), 'composition delegates publication of the safe orchestration facade to the host adapter');
+  context.assert(compositionRuntimeSource.includes("Object.defineProperty(facadeMembers, 'orchestration'")
+    && compositionRuntimeSource.includes('get() { return facade; }'),
+  'window.XTendMaraca.orchestration resolves to the same safe MVC facade');
+  context.assert(browserHostAdapterSource.includes("readOnlySnapshotHandle(values.kernel, 'xtend.maraca.kernel-snapshot-facade.v1')"), 'host adapter exposes a read-only kernel snapshot handle');
+  context.assert(browserHostAdapterSource.includes("readOnlySnapshotHandle(values.hydration, 'xtend.maraca.hydration-snapshot-facade.v1')"), 'host adapter exposes a read-only hydration snapshot handle');
+  context.assert(planRuntimeSource.includes('snapshot,') && compositionRuntimeSource.includes('return deepFreeze(clone(runtime.snapshot()))'), 'composition exposes only immutable canonical orchestration snapshots');
   context.assert(entrySource.includes(MARACA_COMPONENT_COMMAND_RESULT_SCHEMA), 'bundle embeds the public component-command result contract');
   context.assert(entrySource.includes('invokeMaracaComponentCommand'), 'bundle owns declarative component-command execution');
   context.assert(entrySource.includes('effect.componentCommand'), 'deferred Maraca effects route compiled component commands through the framework runtime');
-  context.assert(entrySource.includes('shouldPatchSurfaceDescriptorStructure'), 'bundle guards structured surface patches through the framework SSOT');
-  context.assert(entrySource.includes('descriptorHasNestedSurface'), 'bundle does not structured-patch x-surface-manager child surface graphs');
-  context.assert(entrySource.includes('changedStates'), 'bundle scopes Maraca surface patching to changed state IDs');
-  context.assert(entrySource.includes('patchPlanChangedKeys'), 'bundle normalizes array and object patch-plan changed keys');
-  context.assert(entrySource.includes('hydrateSurfaceComponents'), 'bundle hydrates visible surface component islands after action/state patches');
-  context.assert(entrySource.includes('surface-state'), 'bundle records state-driven surface hydration strategy');
-  context.assert(!entrySource.includes('Object.keys(patchPlan.changedStates)'), 'bundle preserves patch-plan changed state IDs instead of array indexes');
+  context.assert(planRuntimeSource.includes('affectedSurfaceIds(commandId, reducers, patchPlan, validationStage')
+    && planRuntimeSource.includes("operation: 'reconcile-children'")
+    && planRuntimeSource.includes('descriptors: Array.isArray(projectedRoot) ? projectedRoot : [projectedRoot]'),
+  'canonical Plan Runtime uses one root reconciliation while scoping hydration and post-commit work to affected surfaces');
+  context.assert(planRuntimeSource.includes('createActionModelReaderPort')
+    && planRuntimeSource.includes("schema: 'xtend.maraca.action-model-reader.v1'")
+    && !planRuntimeSource.includes('createActionStateBuffer')
+    && !/runtimes\.state\.(?:setState|patchState|dispatch|transaction)\s*\(/u.test(planRuntimeSource),
+  'canonical Plan Runtime gives Actions a read-only Model port and commits their operations through one Model command transaction');
+  context.assert(planRuntimeSource.includes('materializeSurfaces('), 'canonical Plan Runtime retains Surface Resource Graph materialization');
+  const controllerOrdering = [
+    ['async function commitCommand', 'materializeSurfaces(prepared.transaction.next', 'stateDomCommit(prepared.commandId'],
+    ['async function dispatchStreamPatchNow', 'materializeSurfaces(transaction.next', "stateDomCommit('xtend.stream.patch'"],
+    ['async function renderView', 'materializeSurfaces(stateSnapshot', 'const report = fullRender'],
+    ['async function boot()', 'materializeSurfaces(initialStateSnapshot', 'let initialCommit']
+  ];
+  context.assert(controllerOrdering.every(([scope, lifecycleCall, domCall]) => {
+    const scopeStart = planRuntimeSource.indexOf(scope);
+    const lifecycleIndex = planRuntimeSource.indexOf(lifecycleCall, scopeStart);
+    const domIndex = planRuntimeSource.indexOf(domCall, scopeStart);
+    return scopeStart >= 0 && lifecycleIndex > scopeStart && domIndex > lifecycleIndex;
+  }), 'Surface lifecycle authority succeeds before every command, stream, refresh, or boot DOM projection');
+  context.assert(planRuntimeSource.includes("const SYSTEM_REFRESH_COMMAND = 'xtend.system.refresh'")
+    && planRuntimeSource.includes('if (commandId === SYSTEM_REFRESH_COMMAND)')
+    && !/function render\(metadata = \{\}\) \{[\s\S]*?return renderView\(/u.test(planRuntimeSource)
+    && !/function refresh\(metadata = \{\}\) \{[\s\S]*?return renderView\(/u.test(planRuntimeSource),
+  'render and refresh compatibility APIs dispatch the canonical system command instead of bypassing the Command Bus');
+  context.assert(planRuntimeSource.includes("runtimeFactory(api.surfaceController, 'createSurfaceController')")
+    && planRuntimeSource.includes('surfaceControllerFactory')
+    && planRuntimeSource.includes('surfaceController,'),
+  'canonical Plan Runtime creates and injects one Surface Controller lifecycle authority');
+  context.assert(planRuntimeSource.includes('await hydrate(committed.surfaceIds'), 'canonical Plan Runtime hydrates affected component islands once after commit');
+  context.assert(!entrySource.includes('syncSurfaceAttributes')
+    && !entrySource.includes('patchPlanChangedKeys')
+    && !entrySource.includes('hydrateSurfaceComponents')
+    && !entrySource.includes('hydrateAll(')
+    && !entrySource.includes('createActionStateBuffer')
+    && !entrySource.includes('transactionState('),
+  'generated entry contains no duplicate state, surface, action, or hydration orchestrator');
+  context.assert(!maracaGeneratorSource.includes('function runDefaultRemotePlayEffect')
+    && !maracaGeneratorSource.includes('function runDefaultLightboxEffect')
+    && !planRuntimeSource.includes("'x-surface-manager'")
+    && !planRuntimeSource.includes("'x-player'")
+    && !planRuntimeSource.includes("'x-lightbox'")
+    && planRuntimeSource.includes('presentationEffectPort.invoke(effect, effectContext)')
+    && mediaEffectSource.includes('function runRemotePlay')
+    && mediaEffectSource.includes('function runLightbox'),
+  'concrete media and lightbox semantics live only behind the canonical PresentationEffectPort');
+  context.assert(!entrySource.includes('function createSurfaceElement')
+    && !entrySource.includes('function commitMaracaSurfaceState')
+    && !entrySource.includes('function stateForSurface')
+    && !entrySource.includes('function createStaticMaracaSurfaceDescriptor')
+    && entrySource.includes('MARACA_COMPATIBILITY_RENDER_DESCRIPTOR')
+    && browserHostAdapterSource.includes('function renderCompatibility')
+    && browserHostAdapterSource.includes("operation: 'replace-children'"),
+  'compatibility bootstrap passes a build-time descriptor to the host adapter and shared renderer without a runtime Surface projector');
+  context.assert(browserHostAdapterSource.includes('function commitRootMetadata')
+    && browserHostAdapterSource.includes("operation: 'merge-element'")
+    && !/\broot\.(?:setAttribute|removeAttribute|toggleAttribute)\s*\(/u.test(browserHostAdapterSource),
+  'SSR, hydration, and resume root metadata are committed through the shared renderer');
+  context.assert(!mediaEffectSource.includes('documentRoot') && !mediaEffectSource.includes('document.querySelector'), 'media and lightbox effects resolve targets only inside the registered app/surface root');
+  context.assert(!/lightbox\.(?:setAttribute|removeAttribute)\s*\(|lightbox\.style\b/u.test(mediaEffectSource)
+    && mediaEffectSource.includes('commitElement(lightbox,'),
+  'media and lightbox fallbacks route attribute, URL, and visibility writes through the shared renderer');
+  context.assert(mediaEffectSource.includes('domRenderer.isUrlAllowed(value)')
+    && mediaEffectSource.indexOf("assertAllowedUrl(detail.src, 'remote-play')") < mediaEffectSource.indexOf('player.applyRmtPlayerCommand'),
+  'media effects pass URL-bearing public component calls through the renderer policy first');
+  context.assert(compositionRuntimeSource.includes("close('hydration', hydration)")
+    && compositionRuntimeSource.includes("close('kernel', kernel)")
+    && compositionRuntimeSource.includes("close('renderer', renderer, root || undefined, { clearOwnedDom: false })")
+    && compositionRuntimeSource.includes('host.clearPublicFacades()')
+    && browserHostAdapterSource.includes("'__XTendMaracaKernel'")
+    && compositionRuntimeSource.includes('generation !== bootGeneration'),
+  'composition root has one fail-safe observer, renderer, kernel, and boot-generation dispose chain');
+  const resumeHydrationSource = compositionRuntimeSource.slice(
+    compositionRuntimeSource.indexOf('hydrateResponse()'),
+    compositionRuntimeSource.indexOf('publishDiagnostic(value)', compositionRuntimeSource.indexOf('hydrateResponse()'))
+  );
+  context.assert((resumeHydrationSource.match(/runtime\.refresh\(/gu) || []).length === 1
+    && (resumeHydrationSource.match(/hydration\.hydrate\(/gu) || []).length === 1
+    && resumeHydrationSource.includes('runtime && runtime.refresh ?'),
+  'resume fallback selects either the canonical controller or its injected Component Registry port, never a second hydration controller');
+  context.assert(browserHostAdapterSource.includes("runtimeApi('XTendRmtKernelOrchestrationController')")
+    && browserHostAdapterSource.includes('controller.boot()'),
+  'production kernel scheduling is delegated to the canonical kernel controller port');
   context.assert(entrySource.includes('xtend-maraca:kernel-boot'), 'bundle dispatches kernel boot event');
   context.assert(entrySource.includes('xtend-maraca:kernel-schedule'), 'bundle dispatches kernel schedule event');
-  context.assert(entrySource.includes('xtend-maraca:orchestration-boot'), 'bundle dispatches orchestration boot event');
+  context.assert(compositionRuntimeSource.includes('xtend-maraca:orchestration-boot'), 'composition root dispatches orchestration boot event');
   context.assert(entrySource.includes('xtend-maraca:state-change'), 'bundle dispatches state change event');
   context.assert(entrySource.includes('xtend-maraca:hydration-start'), 'bundle dispatches hydration telemetry');
   context.assert(!/\.innerHTML\s*=/u.test(entrySource), 'bundle entry has no innerHTML assignment sink');
@@ -1110,6 +1442,8 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
   const reportPath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/xtend.maraca.report.json`, rootDir);
   const kernelRuntimePath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/runtime/xtendrmt-runtime.esm.js`, rootDir);
   const entrySource = entryPath && fs.existsSync(entryPath) ? fs.readFileSync(entryPath, 'utf8') : '';
+  const browserHostAdapterSource = readText('xtend-maraca/browser-host-adapter.mjs', rootDir);
+  const kernelControllerSource = readText('xtendrmt/rmt-kernel-orchestration-controller.js', rootDir);
   const report = fs.existsSync(reportPath) ? readJson(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/xtend.maraca.report.json`, rootDir) : null;
   const cliIo = createCliIo();
   const cliStatus = await runCliAsync([
@@ -1208,8 +1542,7 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
   context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === 'runtime/xtendrmt-runtime.esm.js'), 'kernel runtime is packaged as a runtime asset');
   context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === 'runtime/xtendrmt-kernel-orchestration-controller.js'), 'kernel orchestration controller is packaged as a runtime asset');
   context.assert(fs.existsSync(kernelRuntimePath), 'kernel runtime asset exists in the build package');
-  const kernelRuntimeSource = fs.readFileSync(kernelRuntimePath, 'utf8');
-  const kernelRuntimeModule = await import(`data:text/javascript;base64,${Buffer.from(kernelRuntimeSource).toString('base64')}`);
+  const kernelRuntimeModule = await import(`${pathToFileURL(kernelRuntimePath).href}?suite=maraca-kernel-orchestration`);
   const browserlessKernelWindowTarget = Object.freeze({});
   const browserlessMissingApis = ['Blob', 'Worker', 'URL.createObjectURL'];
   const kernelHostAdapter = {
@@ -1334,9 +1667,15 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
   context.assert(entrySource.includes('createRmtCore'), 'entry creates an RMT core instance');
   context.assert(entrySource.includes('createRmtPerformanceRuntime'), 'entry creates a performance runtime instance');
   context.assert(entrySource.includes('createRmtStateSchedulerDiagnosticsBridge'), 'entry creates a scheduler diagnostics bridge');
-  context.assert(entrySource.includes('enablePrewarmWorker'), 'entry passes Prewarm Worker opt-in to the kernel runtime');
-  context.assert(entrySource.includes('window.__XTendMaracaKernel'), 'entry exposes kernel bridge handle');
-  context.assert(entrySource.includes('listScheduledEndpoints'), 'entry exposes scheduled endpoint inspection');
+  context.assert(browserHostAdapterSource.includes('plan,')
+    && kernelControllerSource.includes('enablePrewarmWorker: isPrewarmWorkerEnabled()'),
+  'browser composition passes the immutable Prewarm Worker plan through the kernel controller port');
+  context.assert(browserHostAdapterSource.includes("readOnlySnapshotHandle(values.kernel, 'xtend.maraca.kernel-snapshot-facade.v1')")
+    && !entrySource.includes('window.__XTendMaracaKernel ='),
+  'browser composition exposes only the read-only kernel snapshot facade');
+  context.assert(kernelControllerSource.includes('scheduledEndpoints: listScheduledEndpoints()')
+    && browserHostAdapterSource.includes('snapshot: () => freeze(clone(handle.snapshot()))'),
+  'scheduled endpoint inspection is available only through immutable kernel snapshots');
   context.assert(entrySource.includes('xtend-maraca:kernel-fiber'), 'entry dispatches kernel fiber telemetry');
   context.assert(!/\.innerHTML\s*=/u.test(entrySource), 'kernel-backed entry has no innerHTML assignment sink');
   context.assert(!/\.outerHTML\s*=/u.test(entrySource), 'kernel-backed entry has no outerHTML assignment sink');
@@ -1539,7 +1878,7 @@ function writeKernelIntegritySmokeFixture(rootDir) {
       return snapshot && Array.isArray(snapshot.surfaces) ? snapshot.surfaces.find((entry) => entry.id === id) : null;
     }
     async function run(action, payload = {}) {
-      const output = await window.__XTendMaracaOrchestration.actionRuntime.runAction(action, payload, {
+      const output = await window.__XTendMaracaOrchestration.dispatchCommand(action, payload, {
         eventId: 'integrity:' + action,
         eventName: 'integrity'
       });
@@ -1549,20 +1888,14 @@ function writeKernelIntegritySmokeFixture(rootDir) {
       return output;
     }
     async function dispatchCommand(action, payload = {}) {
-      const command = window.__XTendMaracaOrchestration.appRuntime.createCommandEnvelope({
-        source: {
-          kind: 'component',
-          id: 'kernel-integrity-command',
-          event: 'xtend-command',
-          surfaceId: 'demo.kernel.shell'
-        },
+      const output = await window.__XTendMaracaOrchestration.dispatchCommand({
         command: action,
-        payload
-      });
-      const output = await window.__XTendMaracaOrchestration.appRuntime.dispatchCommand(command, {
+        payload,
+        correlationId: 'kernel-integrity-command:' + action
+      }, {
         eventName: 'xtend-command'
       });
-      if (!output || output.schema !== 'xtend.rmt.command-dispatch-result.v1' || !output.result || output.result.status !== 'success') {
+      if (!output || output.status !== 'success') {
         throw new Error('Command ' + action + ' did not return a command dispatch success result.');
       }
       return output;
@@ -1599,7 +1932,7 @@ function writeKernelIntegritySmokeFixture(rootDir) {
 
     try {
       const maraca = await import('./xtend.maraca.mjs');
-      const boot = await maraca.bootXtendMaraca({
+      const bootOptions = {
         root: document.getElementById('xtend-maraca-root'),
         lazyStrategy: 'eager',
         dataSourceAdapters: {
@@ -1610,7 +1943,8 @@ function writeKernelIntegritySmokeFixture(rootDir) {
             }
           }
         }
-      });
+      };
+      const boot = await maraca.bootXtendMaraca(bootOptions);
       if (!boot.ok || !window.__XTendMaracaKernel || !window.__XTendMaracaOrchestration) {
         throw new Error('Maraca kernel boot did not expose runtime handles.');
       }
@@ -1620,7 +1954,7 @@ function writeKernelIntegritySmokeFixture(rootDir) {
       await customElements.whenDefined('x-lightbox');
 
       const firstDispatch = await dispatchCommand('demo.kernel.play', { mediaId: 'video-one' });
-      const first = firstDispatch.result;
+      const first = firstDispatch;
       await waitFor('first player src', () => player() && player().getAttribute('src') === media['video-one'].src);
       await waitFor('first player materialized', () => {
         const record = managerRecord('demo.kernel.player');
@@ -1665,7 +1999,7 @@ function writeKernelIntegritySmokeFixture(rootDir) {
       const orchestrationSnapshot = window.__XTendMaracaOrchestration.snapshot();
       const hydrationSnapshot = window.__XTendMaracaHydration.snapshot();
       const checks = {
-        firstCommandResult: firstDispatch.schema === 'xtend.rmt.command-dispatch-result.v1',
+        firstCommandResult: firstDispatch.schema === 'xtend.epic18.rmt-action-result.v1',
         firstActionResult: first.schema === 'xtend.epic18.rmt-action-result.v1',
         secondActionResult: second.schema === 'xtend.epic18.rmt-action-result.v1',
         thirdActionResult: third.schema === 'xtend.epic18.rmt-action-result.v1',
@@ -1677,10 +2011,44 @@ function writeKernelIntegritySmokeFixture(rootDir) {
         kernelFibers: kernelSnapshot.fibers.some((entry) => entry.kind === 'action') && kernelSnapshot.fibers.some((entry) => entry.kind === 'hydration'),
         commandEventFiber: kernelSnapshot.fibers.some((entry) => entry.kind === 'event' && String(entry.fiber || '').includes('/orchestration/event')),
         commandActionFiber: kernelSnapshot.fibers.some((entry) => entry.kind === 'action' && String(entry.fiber || '').includes('/action/demo.kernel.play')),
-        scheduledAppRuntimeFacade: orchestrationSnapshot.appRuntime && orchestrationSnapshot.appRuntime.facade === 'xtend.maraca.scheduled-app-runtime.v1',
-        appRuntimeCommandRecorded: orchestrationSnapshot.appRuntime && orchestrationSnapshot.appRuntime.commands.some((entry) => entry.command && entry.command.command === 'demo.kernel.play'),
+        managedControllerCommitted: orchestrationSnapshot.stateCommitCount >= 5 && orchestrationSnapshot.commitCount >= orchestrationSnapshot.stateCommitCount,
+        modelReaderContract: window.__XTendMaracaOrchestration.model.schema === 'xtend.rmt.model-reader.v1',
+        publicMvcFacade: !('appRuntime' in window.__XTendMaracaOrchestration)
+          && !('renderer' in window.__XTendMaracaOrchestration)
+          && !('eventRuntime' in window.__XTendMaracaOrchestration)
+          && !('rawActionRuntime' in window.__XTendMaracaOrchestration)
+          && Object.isFrozen(boot)
+          && Object.isFrozen(boot.orchestration)
+          && Object.isFrozen(maraca.MARACA_COMPONENTS)
+          && Object.isFrozen(maraca.MARACA_COMPONENTS[0])
+          && Object.isFrozen(window.__XTendMaracaOrchestration.model.snapshot())
+          && !('scheduleWork' in window.__XTendMaracaKernel)
+          && !('hydrateAll' in window.__XTendMaracaHydration)
+          && !('publish' in window.__XTendMaracaTelemetry),
         hydrationRecords: hydrationSnapshot.records.some((entry) => entry.component === 'x-player') && hydrationSnapshot.records.some((entry) => entry.component === 'x-lightbox')
       };
+      const firstKernelHandle = window.__XTendMaracaKernel;
+      const firstOrchestrationHandle = window.__XTendMaracaOrchestration;
+      const firstDispose = boot.dispose('kernel-integrity-lifecycle');
+      const secondDispose = boot.dispose('kernel-integrity-lifecycle-repeat');
+      checks.lifecycleDisposed = firstDispose.kernel === true
+        && firstDispose.orchestration === true
+        && firstKernelHandle.status === 'disposed'
+        && firstOrchestrationHandle.snapshot().phase === 'disposed';
+      checks.lifecycleDebugHandlesCleared = window.__XTendMaracaKernel === null
+        && window.__XTendMaracaOrchestration === null
+        && window.__XTendMaracaHydration === null
+        && window.__XTendMaracaTelemetry === null;
+      checks.lifecycleDoubleDispose = Object.values(secondDispose).every((value) => value === false);
+      const reboot = await maraca.bootXtendMaraca(bootOptions);
+      const rebootAction = await window.__XTendMaracaOrchestration.dispatchCommand('demo.kernel.dismiss', {}, {
+        eventId: 'integrity:reboot',
+        eventName: 'integrity'
+      });
+      checks.lifecycleReboot = reboot.ok === true
+        && window.__XTendMaracaKernel !== firstKernelHandle
+        && window.__XTendMaracaOrchestration !== firstOrchestrationHandle
+        && rebootAction && rebootAction.status === 'success';
       write({
         ok: Object.values(checks).every(Boolean),
         schema: 'xtend.maraca.kernel-integrity.browser-smoke.v1',
@@ -1791,7 +2159,11 @@ async function runMaracaKernelIntegritySuite(options = {}) {
   const entryPath = result.bundleReport && result.bundleReport.entry;
   const reportPath = resolveRepoPath(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/xtend.maraca.report.json`, rootDir);
   const controllerPath = resolveRepoPath(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/runtime/xtendrmt-kernel-orchestration-controller.js`, rootDir);
+  const planRuntimePath = resolveRepoPath(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/runtime/xtend-maraca-plan-runtime.mjs`, rootDir);
+  const browserHostPath = resolveRepoPath(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/runtime/browser-host-adapter.mjs`, rootDir);
   const entrySource = entryPath && fs.existsSync(entryPath) ? fs.readFileSync(entryPath, 'utf8') : '';
+  const planRuntimeSource = fs.existsSync(planRuntimePath) ? fs.readFileSync(planRuntimePath, 'utf8') : '';
+  const browserHostSource = fs.existsSync(browserHostPath) ? fs.readFileSync(browserHostPath, 'utf8') : '';
   const report = fs.existsSync(reportPath) ? readJson(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/xtend.maraca.report.json`, rootDir) : null;
 
   context.assert(strictPlan.ok === true, `kernel integrity plan passes${strictPlan.ok ? '' : ` (${strictPlan.diagnostics.map((d) => d.message).join(', ')})`}`);
@@ -1809,9 +2181,13 @@ async function runMaracaKernelIntegritySuite(options = {}) {
   context.assert(report && report.hydration && report.hydration.enabled === true, 'kernel integrity bundle report records enabled hydration');
   context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === 'runtime/xtendrmt-kernel-orchestration-controller.js'), 'kernel integrity bundle packages the reusable controller');
   context.assert(fs.existsSync(controllerPath), 'kernel integrity controller runtime asset exists');
-  context.assert(entrySource.includes('effect-surface-materialization'), 'bundle includes generic media-effect surface materialization');
-  context.assert(entrySource.includes('remote-play') && entrySource.includes('lightbox'), 'bundle includes remote-play and lightbox default effects');
-  context.assert(entrySource.includes('window.__XTendMaracaKernel'), 'bundle exposes the kernel handle');
+  context.assert(!planRuntimeSource.includes("'x-player'") && !planRuntimeSource.includes("'x-lightbox'"), 'canonical bundle controller contains no concrete media-component tags');
+  context.assert(report && report.stackModules && report.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-presentation-effect-adapter.js'), 'kernel integrity bundle packages the PresentationEffectPort adapter');
+  context.assert(
+    !entrySource.includes('window.__XTendMaracaKernel')
+      && browserHostSource.includes("windowTarget.__XTendMaracaKernel = readOnlySnapshotHandle"),
+    'bundle exposes only the read-only kernel snapshot facade through the host adapter'
+  );
   context.assert(!/\.innerHTML\s*=/u.test(entrySource), 'kernel integrity entry has no innerHTML assignment sink');
   context.assert(!/\.outerHTML\s*=/u.test(entrySource), 'kernel integrity entry has no outerHTML assignment sink');
   context.assert(!/\.insertAdjacentHTML\s*\(/u.test(entrySource), 'kernel integrity entry has no insertAdjacentHTML sink');
@@ -1846,7 +2222,11 @@ async function runMaracaValidationSuite(options = {}) {
   const result = await buildValidationFixtureAsync(rootDir);
   const entryPath = result.bundleReport && result.bundleReport.entry;
   const reportPath = resolveRepoPath(`${MARACA_VALIDATION_OUT_DIR}/xtend.maraca.report.json`, rootDir);
+  const planRuntimePath = resolveRepoPath(`${MARACA_VALIDATION_OUT_DIR}/runtime/xtend-maraca-plan-runtime.mjs`, rootDir);
+  const compositionRuntimePath = resolveRepoPath(`${MARACA_VALIDATION_OUT_DIR}/runtime/xtend-maraca-browser-composition-runtime.mjs`, rootDir);
   const entrySource = entryPath && fs.existsSync(entryPath) ? fs.readFileSync(entryPath, 'utf8') : '';
+  const planRuntimeSource = fs.existsSync(planRuntimePath) ? fs.readFileSync(planRuntimePath, 'utf8') : '';
+  const compositionRuntimeSource = fs.existsSync(compositionRuntimePath) ? fs.readFileSync(compositionRuntimePath, 'utf8') : '';
   const report = fs.existsSync(reportPath) ? readJson(`${MARACA_VALIDATION_OUT_DIR}/xtend.maraca.report.json`, rootDir) : null;
   const cliIo = createCliIo();
   const cliStatus = await runCliAsync([
@@ -1886,13 +2266,27 @@ async function runMaracaValidationSuite(options = {}) {
   context.assert(report && report.validation && report.validation.diagnostics.every((diagnostic) => diagnostic.severity !== 'error'), 'bundle report validation diagnostics are non-blocking');
   context.assert(entrySource.includes('MARACA_VALIDATION'), 'bundle embeds validation plan');
   context.assert(entrySource.includes('XTendRmtFormValidationRuntime'), 'bundle wires form validation runtime');
-  context.assert(entrySource.includes('createRmtFormValidationRuntime'), 'bundle creates form validation runtime');
+  context.assert(entrySource.includes('createRmtFormValidationEvaluator')
+    && entrySource.includes('createRmtFormValidationViewProjector'),
+  'bundle creates separate validation evaluator and View projector ports');
   context.assert(entrySource.includes('globalTarget.XTendRmtFormValidationRuntime = api'), 'bundle materializes form validation runtime global API');
-  context.assert(entrySource.includes('validationRuntime.validateAction'), 'bundle gates actions through validation runtime');
-  context.assert(entrySource.includes('window.__XTendMaracaValidation'), 'bundle exposes validation bridge handle');
-  context.assert(entrySource.includes('validationPlan: MARACA_VALIDATION'), 'bundle exposes validation plan on XTendMaraca');
-  context.assert(entrySource.includes('xtend-maraca:validation-blocked'), 'bundle dispatches validation-blocked telemetry');
-  context.assert(entrySource.includes('setIfPresent("invalid")'), 'bundle syncs public invalid attribute');
+  context.assert(planRuntimeSource.includes('evaluateCommandValidation(commandId, metadata)')
+    && planRuntimeSource.includes('modelCommandPort.apply(modelOperations')
+    && !/runtimes\.state\.(?:setState|patchState|dispatch|transaction)\s*\(/u.test(planRuntimeSource)
+    && planRuntimeSource.includes('runtimes.validationViewProjector.prepare(evaluation')
+    && planRuntimeSource.includes('runtimes.validationViewProjector.finalize(')
+    && planRuntimeSource.includes("operation: 'reconcile-children'")
+    && !planRuntimeSource.includes('runtimes.validationViewProjector.project(')
+    && !planRuntimeSource.includes('runtimes.validation.apply(validationStage.evaluation'),
+  'canonical plan runtime prepares validation once and folds it into the atomic Model and DOM commit path');
+  const browserHostAdapterSource = readText('xtend-maraca/browser-host-adapter.mjs', rootDir);
+  context.assert(compositionRuntimeSource.includes('host.installPublicFacades({') && browserHostAdapterSource.includes('windowTarget.__XTendMaracaValidation = freeze(clone(values.validation))'), 'composition delegates immutable validation snapshot publication to the host adapter');
+  context.assert(compositionRuntimeSource.includes('validationPlan: config.validation'), 'safe facade exposes the immutable validation plan');
+  context.assert(planRuntimeSource.includes('xtend-maraca:validation-blocked'), 'bundle dispatches validation-blocked telemetry');
+  context.assert(planRuntimeSource.includes("validationMode: runtimes && runtimes.validationEvaluator ? 'ports'")
+    && planRuntimeSource.includes("operation: 'maraca.validation.view-projection.prepare'")
+    && planRuntimeSource.includes("operation: 'maraca.validation.view-projection.finalize'"),
+  'canonical validation telemetry identifies the typed prepare/commit/finalize port path');
   context.assert(!/\.innerHTML\s*=/u.test(entrySource), 'validation bundle entry has no innerHTML assignment sink');
   context.assert(!/\.outerHTML\s*=/u.test(entrySource), 'validation bundle entry has no outerHTML assignment sink');
   context.assert(!/\.insertAdjacentHTML\s*\(/u.test(entrySource), 'validation bundle entry has no insertAdjacentHTML sink');
@@ -1900,7 +2294,19 @@ async function runMaracaValidationSuite(options = {}) {
 
   const runtimePath = resolveRepoPath('xtendrmt/rmt-form-validation-runtime.js', rootDir);
   const runtimeSource = fs.readFileSync(runtimePath, 'utf8');
-  const validationModule = await import(`data:text/javascript;base64,${Buffer.from(runtimeSource).toString('base64')}`);
+  const directDomWriterPattern = /(?:\.(?:setAttribute|removeAttribute|toggleAttribute)\s*\(|\.style(?:\.[A-Za-z_$][\w$]*|\[[^\]]+\])\s*=(?!=)|\.style\.setProperty\s*\()/u;
+  context.assert(!directDomWriterPattern.test(runtimeSource), 'Validation runtime source has no direct attribute, property, or style writer');
+  context.assert(
+    runtimeSource.includes("from './rmt-form-validation-evaluator.js'")
+      && runtimeSource.includes("from './rmt-form-validation-view-projector.js'")
+      && runtimeSource.includes("from './rmt-form-validation-model-command-adapter.js'"),
+    'Validation compatibility runtime delegates to physically separate Model, View and command-port sources'
+  );
+  context.assert(
+    !/\.(?:getState|setState|querySelectorAll|dispatchEvent)\s*\(/u.test(runtimeSource),
+    'Validation compatibility composer performs no concrete Model, DOM or event work'
+  );
+  const validationModule = await import(`${pathToFileURL(runtimePath).href}?suite=maraca-validation-ports`);
   const values = {
     'demo.validation.name': { value: '', field: 'name' },
     'demo.validation.email': { value: '', field: 'email' },
@@ -1931,6 +2337,10 @@ async function runMaracaValidationSuite(options = {}) {
       },
       hasAttribute(name) {
         return attributes.has(name);
+      },
+      reportValidity() {
+        this.reportCount = (this.reportCount || 0) + 1;
+        return false;
       }
     };
   });
@@ -1940,10 +2350,52 @@ async function runMaracaValidationSuite(options = {}) {
       return [];
     }
   };
+  const splitValidationDom = createDomCommitHarness();
+  const splitViewProjector = validationModule.createRmtFormValidationViewProjector({
+    root: fakeRoot,
+    domRenderer: splitValidationDom.renderer,
+    strict: true
+  });
+  const splitEvaluation = Object.freeze({
+    schema: 'xtend.rmt.form-validation-evaluation.v1',
+    valid: false,
+    viewProjection: Object.freeze(strictPlan.validation.artifact.fields.map((field) => Object.freeze({
+      schema: 'xtend.rmt.form-validation-view-projection.v1',
+      group: 'demo.validation.contact',
+      target: Object.freeze({ surface: field.surface, state: field.state }),
+      invalid: true,
+      revealed: true,
+      report: true,
+      message: field.message || 'Invalid'
+    })))
+  });
+  const preparedViewProjection = splitViewProjector.prepare(splitEvaluation, { operation: 'test.prepare' });
+  context.assert(Object.isFrozen(preparedViewProjection)
+    && Object.isFrozen(preparedViewProjection.projections)
+    && preparedViewProjection.projectionCount === strictPlan.validation.artifact.fields.length
+    && splitValidationDom.commits.length === 0,
+  'split Validation View preparation is immutable and performs no renderer commit');
+  const finalizedViewProjection = splitViewProjector.finalize(preparedViewProjection, { operation: 'test.finalize' });
+  context.assert(finalizedViewProjection.reportedCount === strictPlan.validation.artifact.fields.length
+    && splitValidationDom.commits.length === 0
+    && fakeElements.every((element) => element.reportCount === 1),
+  'split Validation finalization only invokes native validity reporting after the shared commit');
+  splitViewProjector.project(splitEvaluation, { operation: 'test.compatibility-project' });
+  context.assert(splitValidationDom.commits.length === strictPlan.validation.artifact.fields.length
+    && splitValidationDom.commits.every((request) => request.operation === 'merge-element'),
+  'the explicit 0.6 compatibility project API retains its merge-element behavior outside managed Maraca');
+  fakeElements.forEach((element) => {
+    element.removeAttribute('invalid');
+    element.removeAttribute('aria-invalid');
+    element.removeAttribute('data-validation-message');
+    element.reportCount = 0;
+  });
+  const validationDom = createDomCommitHarness();
   const validationRuntime = validationModule.createRmtFormValidationRuntime({
     validationPlan: strictPlan.validation.artifact,
     stateRuntime,
     root: fakeRoot,
+    domRenderer: validationDom.renderer,
     windowTarget: null
   });
   validationRuntime.refresh({ reason: 'boot' });
@@ -1971,6 +2423,77 @@ async function runMaracaValidationSuite(options = {}) {
   validationRuntime.refresh({ reason: 'unsafe-patch-smoke' });
   context.assert({}.xtendPollutedValidation === undefined && !Object.prototype.hasOwnProperty.call(values['demo.validation.next'], 'xtendPollutedValidation'), 'Validation runtime rejects prototype pollution state patch paths');
   delete Object.prototype.xtendPollutedValidation;
+  context.assert(validationDom.commits.length > 0 && validationDom.commits.every((request) => request.operation === 'merge-element'), 'Validation DOM state is applied through merge-element commits');
+  context.assert(validationDom.commits.every((request) => request.ownership && request.ownership.owner === 'validation-runtime'), 'Validation commits reserve the validation ownership domain');
+  context.assert(!validationRuntime.listDiagnostics().some((entry) => entry.code === 'rmt.dom.shared-renderer-missing'), 'Injected validation renderer avoids compatibility-writer diagnostics');
+  const validationDispose = validationRuntime.dispose();
+  const validationDisposeAgain = validationRuntime.dispose();
+  context.assert(validationDispose.alreadyDisposed === false && validationDisposeAgain.alreadyDisposed === true, 'Validation runtime dispose is idempotent');
+
+  const previousRendererGlobal = globalThis.XTendRmtDomDescriptorRenderer;
+  const compatibilityValidationDom = createDomCommitHarness();
+  let compatibilityValidationFactoryCalls = 0;
+  globalThis.XTendRmtDomDescriptorRenderer = {
+    createRmtDomDescriptorRenderer() {
+      compatibilityValidationFactoryCalls += 1;
+      return compatibilityValidationDom.renderer;
+    }
+  };
+  const compatibilityValidationRuntime = validationModule.createRmtFormValidationRuntime({
+    validationPlan: strictPlan.validation.artifact,
+    stateRuntime,
+    root: fakeRoot,
+    documentTarget: {},
+    windowTarget: null
+  });
+  compatibilityValidationRuntime.validateAction('demo.validation.next', { report: true });
+  compatibilityValidationRuntime.validateAction('demo.validation.next', { report: true });
+  context.assert(compatibilityValidationFactoryCalls === 1, 'Compatibility validation creates exactly one renderer through the global factory');
+  context.assert(compatibilityValidationDom.commits.length > 0, 'Compatibility validation writes only through renderer commits');
+  context.assert(compatibilityValidationRuntime.listDiagnostics().filter((entry) => entry.code === 'rmt.dom.shared-renderer-missing').length === 1, 'Compatibility validation diagnoses missing injection once');
+  compatibilityValidationRuntime.dispose();
+  context.assert(compatibilityValidationDom.disposals.length === 1, 'Compatibility validation disposes its owned renderer once');
+
+  globalThis.XTendRmtDomDescriptorRenderer = undefined;
+  const unavailableValidationTarget = fakeElements[0];
+  const unavailableValidationWasInvalid = unavailableValidationTarget.hasAttribute('invalid');
+  const unavailableValidationRuntime = validationModule.createRmtFormValidationRuntime({
+    validationPlan: strictPlan.validation.artifact,
+    stateRuntime,
+    root: fakeRoot,
+    documentTarget: {},
+    windowTarget: null
+  });
+  let unavailableValidationError = null;
+  try {
+    unavailableValidationRuntime.validateAction('demo.validation.next', { report: true });
+  } catch (error) {
+    unavailableValidationError = error;
+  }
+  context.assert(unavailableValidationError && unavailableValidationError.code === 'rmt.dom.compatibility-renderer-unavailable', 'Compatibility validation fails closed when the global renderer factory is unavailable');
+  context.assert(unavailableValidationTarget.hasAttribute('invalid') === unavailableValidationWasInvalid, 'Unavailable compatibility validation performs no direct DOM mutation');
+  context.assert(unavailableValidationRuntime.listDiagnostics().filter((entry) => entry.code === 'rmt.dom.shared-renderer-missing').length === 1, 'Unavailable compatibility validation diagnoses missing injection once');
+  globalThis.XTendRmtDomDescriptorRenderer = previousRendererGlobal;
+
+  const strictMissingRendererRuntime = validationModule.createRmtFormValidationRuntime({
+    validationPlan: strictPlan.validation.artifact,
+    stateRuntime: {
+      getState() {
+        return { value: '' };
+      },
+      setState() {}
+    },
+    root: fakeRoot,
+    strict: true,
+    windowTarget: null
+  });
+  let strictMissingRendererError = null;
+  try {
+    strictMissingRendererRuntime.validateAction('demo.validation.next', { report: true });
+  } catch (error) {
+    strictMissingRendererError = error;
+  }
+  context.assert(strictMissingRendererError && strictMissingRendererError.code === 'rmt.dom.shared-renderer-missing', 'Strict validation fails closed before a DOM write without the shared renderer');
 
   context.assert(cliStatus === 0, 'xt maraca plan --validation strict exits successfully');
   context.assert(cliPlan.validation && cliPlan.validation.enabled === true, 'CLI returns strict validation plan JSON');
@@ -2003,6 +2526,8 @@ async function runMaracaTransitionSuite(options = {}) {
   const entryPath = result.bundleReport && result.bundleReport.entry;
   const reportPath = resolveRepoPath(`${MARACA_TRANSITIONS_OUT_DIR}/xtend.maraca.report.json`, rootDir);
   const entrySource = entryPath && fs.existsSync(entryPath) ? fs.readFileSync(entryPath, 'utf8') : '';
+  const compositionRuntimeSource = readText('xtend-maraca/browser-composition-runtime.mjs', rootDir);
+  const planRuntimeSource = readText('xtend-maraca/plan-runtime.mjs', rootDir);
   const report = fs.existsSync(reportPath) ? readJson(`${MARACA_TRANSITIONS_OUT_DIR}/xtend.maraca.report.json`, rootDir) : null;
   const cliIo = createCliIo();
   const cliStatus = await runCliAsync([
@@ -2055,14 +2580,15 @@ async function runMaracaTransitionSuite(options = {}) {
   context.assert(entrySource.includes('XTendRmtSurfaceTransitionRuntime'), 'bundle wires surface transition runtime');
   context.assert(entrySource.includes('createRmtSurfaceTransitionRuntime'), 'bundle creates surface transition runtime');
   context.assert(entrySource.includes('globalTarget.XTendRmtSurfaceTransitionRuntime = api'), 'bundle materializes surface transition runtime global API');
-  context.assert(entrySource.includes('transitionRuntime.applyVisibilityPatch'), 'bundle routes hidden patches through transition runtime');
-  context.assert(entrySource.includes('window.__XTendMaracaAnimationEngine'), 'bundle exposes animation engine bridge handle');
-  context.assert(entrySource.includes('window.__XTendMaracaTransitions'), 'bundle exposes transition bridge handle');
-  context.assert(entrySource.includes('transitionPlan: MARACA_TRANSITIONS'), 'bundle exposes transition plan on XTendMaraca');
+  context.assert(planRuntimeSource.includes('runtimes.transitions.applyVisibilityPatch'), 'canonical Plan Runtime routes hidden patches through transition runtime');
+  const browserHostAdapterSource = readText('xtend-maraca/browser-host-adapter.mjs', rootDir);
+  context.assert(compositionRuntimeSource.includes('host.installPublicFacades({') && browserHostAdapterSource.includes('windowTarget.__XTendMaracaAnimationEngine = freeze(clone(values.animationEngine))'), 'composition delegates immutable animation-engine snapshot publication to the host adapter');
+  context.assert(browserHostAdapterSource.includes('windowTarget.__XTendMaracaTransitions = freeze(clone(values.transitions))'), 'host adapter exposes an immutable transition snapshot bridge');
+  context.assert(compositionRuntimeSource.includes('transitionPlan: config.transitions'), 'safe facade exposes the immutable transition plan');
   context.assert(entrySource.includes('xtend-maraca:surface-transition-start'), 'bundle dispatches transition start telemetry');
   context.assert(entrySource.includes('xtend-maraca:surface-transition-complete'), 'bundle dispatches transition complete telemetry');
   context.assert(entrySource.includes('runUiTransition'), 'bundle integrates x-utils transition runner');
-  context.assert(entrySource.includes('xstate.set'), 'bundle integrates xstate transition mirror');
+  context.assert(entrySource.includes('transitionStatePort'), 'bundle integrates the controller-owned transition telemetry port');
   context.assert(!/\.innerHTML\s*=/u.test(entrySource), 'transition bundle entry has no innerHTML assignment sink');
   context.assert(!/\.outerHTML\s*=/u.test(entrySource), 'transition bundle entry has no outerHTML assignment sink');
   context.assert(!/\.insertAdjacentHTML\s*\(/u.test(entrySource), 'transition bundle entry has no insertAdjacentHTML sink');
@@ -2070,9 +2596,12 @@ async function runMaracaTransitionSuite(options = {}) {
 
   const animationRuntimePath = resolveRepoPath('xtendrmt/rmt-animation-engine-runtime.js', rootDir);
   const animationRuntimeSource = fs.readFileSync(animationRuntimePath, 'utf8');
+  const directTransitionDomWriterPattern = /(?:\.(?:setAttribute|removeAttribute|toggleAttribute)\s*\(|\.style(?:\.[A-Za-z_$][\w$]*|\[[^\]]+\])\s*=(?!=)|\.style\.setProperty\s*\()/u;
+  context.assert(!directTransitionDomWriterPattern.test(animationRuntimeSource), 'Animation runtime source has no direct attribute, property, or style writer');
   const animationModule = await import(`data:text/javascript;base64,${Buffer.from(animationRuntimeSource).toString('base64')}`);
   const runtimePath = resolveRepoPath('xtendrmt/rmt-surface-transition-runtime.js', rootDir);
   const runtimeSource = fs.readFileSync(runtimePath, 'utf8');
+  context.assert(!directTransitionDomWriterPattern.test(runtimeSource), 'Transition runtime source has no direct attribute, property, or style writer');
   const transitionModule = await import(`data:text/javascript;base64,${Buffer.from(runtimeSource).toString('base64')}`);
   const attributes = new Map([['data-maraca-surface', 'demo.transitions.contact']]);
   const fakeElement = {
@@ -2096,18 +2625,20 @@ async function runMaracaTransitionSuite(options = {}) {
       return [];
     }
   };
-  const xstateValues = {};
+  const transitionStateProjections = [];
+  const transitionDom = createDomCommitHarness();
   const transitionRuntime = transitionModule.createRmtSurfaceTransitionRuntime({
     transitionPlan: strictPlan.transitions.artifact,
     root: fakeRoot,
+    domRenderer: transitionDom.renderer,
     xUtils: {
       runUiTransition(input) {
         return Promise.resolve({ schema: 'xtend.utility.ui-transition-result.v1', status: input.effect === 'none' ? 'fallback' : 'complete' });
       }
     },
-    xstate: {
-      set(key, value) {
-        xstateValues[key] = value;
+    transitionStatePort: {
+      apply(projection) {
+        transitionStateProjections.push(projection);
       }
     },
     windowTarget: null
@@ -2138,10 +2669,51 @@ async function runMaracaTransitionSuite(options = {}) {
   context.assert(enterResult && enterResult.status === 'complete', 'Node transition smoke completes an enter transition');
   context.assert(!fakeElement.hasAttribute('hidden'), 'Node transition smoke removes hidden state before enter transition');
   context.assert(fakeElement.style.opacity === '' && fakeElement.style.transform === '' && fakeElement.style.transition === '', 'Node transition smoke clears stale enter animation styles');
-  context.assert(Object.keys(xstateValues).some((key) => key.includes('xtend.surface.transition.demo.transitions')), 'Node transition smoke mirrors transition state into xstate');
+  context.assert(transitionStateProjections.length > 0
+    && transitionStateProjections.every((projection) => projection.transition === 'demo.transitions.contactToIssue'
+      || projection.transition === 'demo.transitions.issueToContact'),
+  'Node transition smoke publishes transition telemetry only through the injected controller port');
   context.assert(transitionRuntime.snapshot().transitionCount === 2, 'Transition runtime snapshot exposes transition count');
   context.assert(transitionRuntime.snapshot().animationEngine && transitionRuntime.snapshot().animationEngine.transitionCount === 2, 'Transition runtime snapshot includes AnimationEngine snapshot');
   context.assert(animationModule.RMT_ANIMATION_ENGINE_RUNTIME_SCHEMA === 'xtend.rmt.animation-engine-runtime.v1', 'AnimationEngine runtime module exports runtime schema');
+  context.assert(transitionDom.commits.length > 0 && transitionDom.commits.every((request) => request.operation === 'merge-element'), 'Transition visibility and cleanup are applied through merge-element commits');
+  context.assert(transitionDom.commits.every((request) => request.ownership && request.ownership.owner === 'transition-runtime'), 'Transition commits reserve the visibility ownership domain');
+  const transitionDispose = transitionRuntime.dispose();
+  const transitionDisposeAgain = transitionRuntime.dispose();
+  context.assert(transitionDispose.alreadyDisposed === false && transitionDisposeAgain.alreadyDisposed === true, 'Transition runtime dispose is idempotent');
+
+  const animationDom = createDomCommitHarness();
+  let resolveAnimationWork = null;
+  fakeElement.style.opacity = '1';
+  const disposableAnimationRuntime = animationModule.createRmtAnimationEngineRuntime({
+    animationPlan: strictPlan.transitions.artifact,
+    domRenderer: animationDom.renderer,
+    strict: true,
+    windowTarget: null,
+    xUtils: {
+      runUiTransition(input) {
+        input.target.style.opacity = '0';
+        return new Promise((resolve) => {
+          resolveAnimationWork = () => resolve({ schema: 'xtend.utility.ui-transition-result.v1', status: 'complete' });
+        });
+      }
+    }
+  });
+  const pendingAnimation = disposableAnimationRuntime.runSurfaceTransitionPhase({
+    target: fakeElement,
+    transition: strictPlan.transitions.artifact.transitions[0],
+    phase: 'enter'
+  });
+  await Promise.resolve();
+  const animationDispose = disposableAnimationRuntime.dispose();
+  const animationDisposeAgain = disposableAnimationRuntime.dispose();
+  resolveAnimationWork();
+  const cancelledAnimation = await pendingAnimation;
+  context.assert(cancelledAnimation.status === 'cancelled' && fakeElement.style.opacity === '1', 'Animation dispose cancels in-flight work and restores its visibility snapshot through the renderer');
+  context.assert(animationDispose.cancelledCount === 1 && animationDisposeAgain.alreadyDisposed === true, 'Animation runtime dispose is idempotent');
+  context.assert(animationDom.commits.some((request) => request.ownership && request.ownership.owner === 'transition-runtime'), 'Animation cleanup uses the Transition Runtime visibility owner');
+  context.assert(animationDom.commits.every((request) => !Object.prototype.hasOwnProperty.call(request.descriptor.attributes || {}, 'aria-hidden')), 'Animation cleanup never snapshots or restores aria-hidden');
+  context.assert(animationDom.commits.every((request) => request.ownership && request.ownership.domains && !Object.prototype.hasOwnProperty.call(request.ownership.domains, 'attributes')), 'Animation cleanup reserves only transition visibility and style ownership');
 
   const createFakeSurfaceElement = (surfaceId, hidden = false) => {
     const attrs = new Map([['data-maraca-surface', surfaceId]]);
@@ -2174,6 +2746,7 @@ async function runMaracaTransitionSuite(options = {}) {
         return [];
       }
     },
+    domRenderer: createDomCommitHarness().renderer,
     xUtils: {
       runUiTransition(input) {
         if (input.phase === 'exit') {
@@ -2211,6 +2784,181 @@ async function runMaracaTransitionSuite(options = {}) {
   context.assert(exitSurface.hasAttribute('hidden'), 'Node transition smoke hides exiting surface after transition');
   context.assert(!enterSurface.hasAttribute('hidden'), 'Node transition smoke keeps entering surface materialized after crossfade exit completes');
   context.assert(enterEffectStarted === true, 'Node transition smoke keeps overlap enter effect recorded after exit completes');
+  delayedRuntime.dispose();
+
+  const previousRendererGlobal = globalThis.XTendRmtDomDescriptorRenderer;
+  const compatibilityAnimationDom = createDomCommitHarness();
+  let compatibilityAnimationFactoryCalls = 0;
+  globalThis.XTendRmtDomDescriptorRenderer = {
+    createRmtDomDescriptorRenderer() {
+      compatibilityAnimationFactoryCalls += 1;
+      return compatibilityAnimationDom.renderer;
+    }
+  };
+  let resolveCompatibilityAnimation = null;
+  const compatibilityAnimationTarget = createFakeSurfaceElement('demo.transitions.compat-animation', false);
+  compatibilityAnimationTarget.ownerDocument = {};
+  compatibilityAnimationTarget.style.opacity = '1';
+  const compatibilityAnimationRuntime = animationModule.createRmtAnimationEngineRuntime({
+    animationPlan: strictPlan.transitions.artifact,
+    documentTarget: {},
+    windowTarget: null,
+    xUtils: {
+      runUiTransition(input) {
+        input.target.style.opacity = '0';
+        return new Promise((resolve) => {
+          resolveCompatibilityAnimation = () => resolve({ status: 'complete' });
+        });
+      }
+    }
+  });
+  const compatibilityAnimationWork = compatibilityAnimationRuntime.runSurfaceTransitionPhase({
+    target: compatibilityAnimationTarget,
+    transition: strictPlan.transitions.artifact.transitions[0],
+    phase: 'enter'
+  });
+  await Promise.resolve();
+  compatibilityAnimationRuntime.dispose();
+  resolveCompatibilityAnimation();
+  await compatibilityAnimationWork;
+  context.assert(compatibilityAnimationFactoryCalls === 1, 'Compatibility AnimationEngine creates exactly one renderer through the global factory');
+  context.assert(compatibilityAnimationDom.commits.length === 1, 'Compatibility AnimationEngine cleanup writes only through one renderer commit');
+  context.assert(compatibilityAnimationRuntime.listDiagnostics().filter((entry) => entry.code === 'rmt.dom.shared-renderer-missing').length === 1, 'Compatibility AnimationEngine diagnoses missing injection once');
+  context.assert(compatibilityAnimationDom.disposals.length === 1, 'Compatibility AnimationEngine disposes its owned renderer once');
+
+  globalThis.XTendRmtDomDescriptorRenderer = undefined;
+  const unavailableAnimationTarget = createFakeSurfaceElement('demo.transitions.unavailable-animation', false);
+  unavailableAnimationTarget.ownerDocument = {};
+  unavailableAnimationTarget.style.opacity = '1';
+  const unavailableAnimationRuntime = animationModule.createRmtAnimationEngineRuntime({
+    animationPlan: strictPlan.transitions.artifact,
+    documentTarget: {},
+    windowTarget: null,
+    xUtils: {
+      runUiTransition(input) {
+        input.target.style.opacity = '0';
+        return Promise.resolve({ status: 'complete' });
+      }
+    }
+  });
+  let unavailableAnimationError = null;
+  try {
+    await unavailableAnimationRuntime.runSurfaceTransitionPhase({
+      target: unavailableAnimationTarget,
+      transition: strictPlan.transitions.artifact.transitions[0],
+      phase: 'enter'
+    });
+  } catch (error) {
+    unavailableAnimationError = error;
+  }
+  context.assert(unavailableAnimationError && unavailableAnimationError.code === 'rmt.dom.compatibility-renderer-unavailable', 'Compatibility AnimationEngine fails closed when the global renderer factory is unavailable');
+  context.assert(unavailableAnimationTarget.style.opacity === '1', 'Unavailable compatibility AnimationEngine performs no direct DOM mutation');
+  context.assert(unavailableAnimationRuntime.listDiagnostics().filter((entry) => entry.code === 'rmt.dom.shared-renderer-missing').length === 1, 'Unavailable compatibility AnimationEngine diagnoses missing injection once');
+
+  const compatibilityTransitionDom = createDomCommitHarness();
+  let compatibilityTransitionFactoryCalls = 0;
+  globalThis.XTendRmtDomDescriptorRenderer = {
+    createRmtDomDescriptorRenderer() {
+      compatibilityTransitionFactoryCalls += 1;
+      return compatibilityTransitionDom.renderer;
+    }
+  };
+  const compatibilityTransitionTarget = createFakeSurfaceElement('demo.transitions.contact', false);
+  compatibilityTransitionTarget.ownerDocument = {};
+  const compatibilityTransitionRuntime = transitionModule.createRmtSurfaceTransitionRuntime({
+    transitionPlan: strictPlan.transitions.artifact,
+    root: {
+      ownerDocument: {},
+      querySelectorAll() {
+        return [compatibilityTransitionTarget];
+      }
+    },
+    documentTarget: {},
+    xUtils: {
+      runUiTransition() {
+        return Promise.resolve({ status: 'complete' });
+      }
+    },
+    windowTarget: null
+  });
+  await compatibilityTransitionRuntime.applyVisibilityPatch({
+    surface: 'demo.transitions.contact',
+    element: compatibilityTransitionTarget,
+    nextHidden: true,
+    previousHidden: false,
+    action: 'demo.transitions.next'
+  });
+  context.assert(compatibilityTransitionFactoryCalls === 1, 'Compatibility transitions create exactly one renderer shared with AnimationEngine');
+  context.assert(compatibilityTransitionDom.commits.length > 0, 'Compatibility transitions write only through renderer commits');
+  context.assert(compatibilityTransitionRuntime.listDiagnostics().filter((entry) => entry.code === 'rmt.dom.shared-renderer-missing').length === 1, 'Compatibility transitions diagnose missing injection once');
+  compatibilityTransitionRuntime.dispose();
+  context.assert(compatibilityTransitionDom.disposals.length === 1, 'Compatibility transitions dispose their owned renderer once');
+
+  globalThis.XTendRmtDomDescriptorRenderer = undefined;
+  const unavailableTransitionTarget = createFakeSurfaceElement('demo.transitions.contact', false);
+  const unavailableTransitionRuntime = transitionModule.createRmtSurfaceTransitionRuntime({
+    transitionPlan: strictPlan.transitions.artifact,
+    root: {
+      ownerDocument: {},
+      querySelectorAll() {
+        return [unavailableTransitionTarget];
+      }
+    },
+    documentTarget: {},
+    xUtils: {
+      runUiTransition() {
+        return Promise.resolve({ status: 'complete' });
+      }
+    },
+    windowTarget: null
+  });
+  let unavailableTransitionError = null;
+  try {
+    await unavailableTransitionRuntime.applyVisibilityPatch({
+      surface: 'demo.transitions.contact',
+      element: unavailableTransitionTarget,
+      nextHidden: true,
+      previousHidden: false,
+      action: 'demo.transitions.next'
+    });
+  } catch (error) {
+    unavailableTransitionError = error;
+  }
+  context.assert(unavailableTransitionError && unavailableTransitionError.code === 'rmt.dom.compatibility-renderer-unavailable', 'Compatibility transitions fail closed when the global renderer factory is unavailable');
+  context.assert(!unavailableTransitionTarget.hasAttribute('hidden'), 'Unavailable compatibility transitions perform no direct DOM mutation');
+  context.assert(unavailableTransitionRuntime.listDiagnostics().filter((entry) => entry.code === 'rmt.dom.shared-renderer-missing').length === 1, 'Unavailable compatibility transitions diagnose missing injection once');
+  globalThis.XTendRmtDomDescriptorRenderer = previousRendererGlobal;
+
+  const strictMissingTarget = createFakeSurfaceElement('demo.transitions.contact', false);
+  const strictMissingTransitionRuntime = transitionModule.createRmtSurfaceTransitionRuntime({
+    transitionPlan: strictPlan.transitions.artifact,
+    root: {
+      querySelectorAll() {
+        return [strictMissingTarget];
+      }
+    },
+    xUtils: {
+      runUiTransition() {
+        return Promise.resolve({ status: 'complete' });
+      }
+    },
+    strict: true,
+    windowTarget: null
+  });
+  let strictMissingTransitionError = null;
+  try {
+    await strictMissingTransitionRuntime.applyVisibilityPatch({
+      surface: 'demo.transitions.contact',
+      element: strictMissingTarget,
+      nextHidden: true,
+      previousHidden: false,
+      action: 'demo.transitions.next'
+    });
+  } catch (error) {
+    strictMissingTransitionError = error;
+  }
+  context.assert(strictMissingTransitionError && strictMissingTransitionError.code === 'rmt.dom.shared-renderer-missing', 'Strict transitions fail closed before a DOM write without the shared renderer');
+  context.assert(!strictMissingTarget.hasAttribute('hidden'), 'Strict transition failure leaves visibility unchanged');
 
   context.assert(cliStatus === 0, 'xt maraca plan --transitions strict exits successfully');
   context.assert(cliPlan.transitions && cliPlan.transitions.enabled === true, 'CLI returns strict transition plan JSON');
@@ -2418,9 +3166,13 @@ async function runMaracaPwaServiceWorkerSuite(options = {}) {
   const offlinePath = resolveRepoPath(`${out}/xtend.offline.html`, rootDir);
   const reportPath = resolveRepoPath(`${out}/xtend.pwa.report.json`, rootDir);
   const entryPath = resolveRepoPath(`${out}/xtend.maraca.mjs`, rootDir);
+  const compositionRuntimePath = resolveRepoPath(`${out}/runtime/xtend-maraca-browser-composition-runtime.mjs`, rootDir);
+  const browserHostPath = resolveRepoPath(`${out}/runtime/browser-host-adapter.mjs`, rootDir);
   const cssPath = resolveRepoPath(`${out}/xtend.maraca.css`, rootDir);
   const serviceWorker = fs.existsSync(serviceWorkerPath) ? fs.readFileSync(serviceWorkerPath, 'utf8') : '';
   const entry = fs.existsSync(entryPath) ? fs.readFileSync(entryPath, 'utf8') : '';
+  const compositionRuntime = fs.existsSync(compositionRuntimePath) ? fs.readFileSync(compositionRuntimePath, 'utf8') : '';
+  const browserHost = fs.existsSync(browserHostPath) ? fs.readFileSync(browserHostPath, 'utf8') : '';
   const manifest = fs.existsSync(manifestPath) ? readJson(`${out}/xtend.webmanifest`, rootDir) : null;
   const writtenPwaReport = fs.existsSync(reportPath) ? readJson(`${out}/xtend.pwa.report.json`, rootDir) : null;
   const swSyntax = fs.existsSync(serviceWorkerPath)
@@ -2476,10 +3228,50 @@ async function runMaracaPwaServiceWorkerSuite(options = {}) {
   context.assert(serviceWorker.includes('replacesUiCoprocessor: false') && serviceWorker.includes('replacesSsr: false'), 'Generated Service Worker does not replace SSR or UI Coprocessor');
   context.assert(writtenPwaReport && writtenPwaReport.runtimeCaching.blockedByDefault.includes('api-responses-without-explicit-app-policy'), 'PWA report blocks API caching without explicit policy');
   context.assert(writtenPwaReport && writtenPwaReport.runtimeCaching.blockedByDefault.includes('offline-mutations'), 'PWA report keeps offline mutations out of v1');
-  context.assert(entry.includes('const MARACA_PWA = Object.freeze'), 'Generated Maraca entry embeds PWA plan');
-  context.assert(entry.includes('const MARACA_WEB_APP_MANIFEST = Object.freeze'), 'Generated Maraca entry embeds Web App Manifest plan');
-  context.assert(entry.includes('registerMaracaPwaServiceWorker'), 'Generated Maraca entry registers Service Worker at boot');
-  context.assert(entry.includes('__XTendMaracaPwaRegistration'), 'Generated Maraca entry exposes PWA registration snapshot');
+  context.assert(
+    entry.includes('MARACA_PWA')
+      && /pwa\s*:\s*MARACA_PWA/u.test(entry)
+      && compositionRuntime.includes('const config = freezeMaracaConfiguration(configuration || {})'),
+    'Generated Maraca entry passes an immutable PWA plan to the composition root'
+  );
+  context.assert(
+    entry.includes('MARACA_WEB_APP_MANIFEST')
+      && /webAppManifest\s*:\s*MARACA_WEB_APP_MANIFEST/u.test(entry),
+    'Generated Maraca entry passes the immutable Web App Manifest plan to the composition root'
+  );
+  context.assert(
+    compositionRuntime.includes('pwaRegistration = await host.registerPwa(options)')
+      && browserHost.includes('async function registerPwa(options = {})'),
+    'Maraca composition registers the Service Worker through the browser host port at boot'
+  );
+  context.assert(
+    browserHost.includes('windowTarget.__XTendMaracaPwaRegistration = freeze(clone(values.pwaRegistration))'),
+    'Browser host exposes only an immutable PWA registration snapshot'
+  );
+  const browserHostApi = await import(`${pathToFileURL(browserHostPath).href}?suite=maraca-pwa-host-port`);
+  const pwaRegistrations = [];
+  const pwaHost = browserHostApi.createMaracaBrowserHostAdapter({ pwa: plan.pwa }, {
+    platformTarget: {},
+    windowTarget: {
+      navigator: {
+        serviceWorker: {
+          async register(url, registrationOptions) {
+            pwaRegistrations.push({ url, options: registrationOptions });
+            return { scope: registrationOptions.scope };
+          }
+        }
+      }
+    },
+    documentTarget: null
+  });
+  const pwaRegistrationResult = await pwaHost.registerPwa();
+  context.assert(
+    pwaRegistrationResult.registered === true
+      && pwaRegistrations.length === 1
+      && pwaRegistrations[0].url === plan.pwa.serviceWorker.registrationUrl
+      && pwaRegistrations[0].options.scope === plan.pwa.serviceWorker.scope,
+    'Browser host registers the generated Service Worker URL and scope from the immutable PWA plan'
+  );
 
   let serverHandle = null;
   try {
@@ -2529,6 +3321,7 @@ function runMaracaPackageExportsSuite(options = {}) {
   const packageManifest = readJson('package.json', rootDir);
   const lockfile = readJson('package-lock.json', rootDir);
   const maracaPackage = readJson(MARACA_PACKAGE_PATH, rootDir);
+  const rmtPackage = readJson('xtendrmt/package.json', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const cli = readText('xtend-builder/lib/cli.js', rootDir);
   const defaultWorkflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
@@ -2547,6 +3340,25 @@ function runMaracaPackageExportsSuite(options = {}) {
   context.assert(packageManifest.exports['./maraca/plan-runtime'] && packageManifest.exports['./maraca/plan-runtime'].default === './xtend-maraca/plan-runtime.mjs', 'root package exports @ccslabs/xtend/maraca/plan-runtime');
   context.assert(maracaPackage.exports['./plan-runtime'] && maracaPackage.exports['./plan-runtime'].types === './plan-runtime.d.ts', 'Maraca workspace exports the typed plan runtime');
   context.assert(maracaPackage.files.includes('plan-runtime.mjs') && maracaPackage.files.includes('plan-runtime.d.ts'), 'Maraca tarball includes the plan runtime implementation and declarations');
+  context.assert(!packageManifest.exports['./maraca/browser-host-adapter'] && !maracaPackage.exports['./browser-host-adapter'], 'mutable Maraca browser host capabilities remain internal to the managed composition root');
+  context.assert(packageManifest.exports['./rmt/presentation-effect-adapter']
+    && packageManifest.exports['./rmt/presentation-effect-adapter'].types === './xtendrmt/rmt-presentation-effect-adapter.d.ts',
+  'root package exports the typed RMT PresentationEffectPort adapter');
+  context.assert(rmtPackage.exports['./presentation-effect-adapter']
+    && rmtPackage.exports['./presentation-effect-adapter'].default === './rmt-presentation-effect-adapter.js'
+    && rmtPackage.files.includes('rmt-presentation-effect-adapter.js')
+    && rmtPackage.files.includes('rmt-presentation-effect-adapter.d.ts'),
+  'RMT workspace publishes the canonical PresentationEffectPort implementation and declarations');
+  context.assert(packageManifest.exports['./rmt/maraca-view-projection-adapter']
+    && packageManifest.exports['./rmt/maraca-view-projection-adapter'].types === './xtendrmt/rmt-maraca-view-projection-adapter.d.ts'
+    && packageManifest.exports['./rmt/maraca-view-projection-adapter'].default === './xtendrmt/rmt-maraca-view-projection-adapter.js',
+  'root package exports the typed Maraca ViewProjectionPort adapter');
+  context.assert(rmtPackage.exports['./maraca-view-projection-adapter']
+    && rmtPackage.exports['./maraca-view-projection-adapter'].types === './rmt-maraca-view-projection-adapter.d.ts'
+    && rmtPackage.exports['./maraca-view-projection-adapter'].default === './rmt-maraca-view-projection-adapter.js'
+    && rmtPackage.files.includes('rmt-maraca-view-projection-adapter.js')
+    && rmtPackage.files.includes('rmt-maraca-view-projection-adapter.d.ts'),
+  'RMT workspace publishes the canonical Maraca ViewProjectionPort implementation and declarations');
   const appServiceSubpaths = [
     {
       root: './maraca/app-services',

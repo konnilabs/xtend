@@ -93,6 +93,12 @@ export interface RmtActionResult {
   payload?: unknown;
   metadata?: Record<string, unknown>;
   effects?: unknown[];
+  modelOperations?: Array<
+    | { operation: 'set'; state: string; value: unknown }
+    | { operation: 'patch'; state: string; patch: Record<string, unknown> }
+    | { operation: 'dispatch'; command: string; payload?: unknown }
+  >;
+  postCommitEffects?: unknown[];
   diagnostics?: RmtActionEffectDiagnostic[];
 }
 
@@ -134,6 +140,9 @@ export interface RmtActionEffectRuntimeOptions {
     invoke(serviceId: string, payload?: unknown, context?: Record<string, unknown>): Promise<unknown> | unknown;
     stream?(serviceId: string, payload?: unknown, handlers?: Record<string, Function>, context?: Record<string, unknown>): Promise<unknown> | unknown;
   };
+  hostPort?: RmtActionHostPort;
+  /** Alias for hostPort for explicit Action-Controller composition. */
+  actionHostPort?: RmtActionHostPort;
   resourceAdapters?: Record<string, unknown>;
   feedbackAdapter?: { publish(payload: unknown, context?: unknown): unknown };
   navigationAdapter?: { navigate(path: unknown, context?: unknown): unknown };
@@ -141,11 +150,33 @@ export interface RmtActionEffectRuntimeOptions {
   componentCommandAdapter?: { invoke(command: RmtComponentCommand, context?: unknown): Promise<unknown> | unknown };
   effectAdapter?: { invoke(effect: unknown, context?: unknown): unknown };
   deferCustomEffects?: boolean;
+  /** Produces Model operations and deferred presentation effects without mutating State or View ports. */
+  planningOnly?: boolean;
+  /** Alias for planningOnly used by managed application controllers. */
+  managedController?: boolean;
   objectUrlFactory?: { create(value: unknown): string; revoke(value: string): unknown };
   importAdapter?: { load(id: string, context?: unknown): Promise<unknown> | unknown };
   timerAdapter?: { set(delayMs: number, context?: unknown): unknown; clear(handle: unknown): unknown };
   diagnosticsHub?: { publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown };
   diagnosticChannel?: string;
+}
+
+export interface RmtActionAbortSignal {
+  readonly aborted: boolean;
+  readonly reason?: unknown;
+  addEventListener(type: 'abort', listener: (event: unknown) => void, options?: { once?: boolean }): void;
+  removeEventListener(type: 'abort', listener: (event: unknown) => void): void;
+}
+
+export interface RmtActionAbortController {
+  readonly signal: RmtActionAbortSignal;
+  abort(reason?: unknown): void;
+}
+
+export interface RmtActionHostPort {
+  readonly schema?: string;
+  createAbortController(): RmtActionAbortController;
+  createRunId?(actionId: string, sequence: number): string;
 }
 
 export function createRmtResourceManager(options?: RmtActionEffectRuntimeOptions): RmtResourceManager;

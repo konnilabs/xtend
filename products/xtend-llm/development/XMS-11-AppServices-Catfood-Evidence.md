@@ -45,7 +45,7 @@ Dieser Smoke setzt ein lokal installiertes Electron-Binary und eine korrekt konf
 
 ## Verbleibende Grenze
 
-Ein schmaler Produkt-Bridge bleibt bestehen: `forwardGenerationServiceFrame` übergibt die bereits von AppServices normalisierten Frames an die öffentliche `appRuntime.handleStreamPatch`-API, damit die vorhandenen RMT-Stream-Reducer, Backpressure-Telemetrie und Rendersemantik unverändert bleiben. Diese Bridge erzeugt keine IDs, führt keine Sequenzierung durch und entscheidet nicht über Terminalzustände.
+Ein schmaler Produkt-Bridge bleibt bestehen: `forwardGenerationServiceFrame` übergibt die bereits von AppServices normalisierten Frames an `orchestration.dispatchStreamPatch`. Backpressure-Telemetrie wird ausschließlich aus dem eingefrorenen Orchestrierungs-Snapshot gelesen; veränderliche App-Runtime-Adapter sind nicht mehr öffentlich. Die Bridge erzeugt keine IDs, führt keine Sequenzierung durch und entscheidet nicht über Terminalzustände.
 
 Für ihre vollständige Entfernung benötigt die zentrale Maraca/RMT-Integration einen direkten Adapter von `AppServiceStreamFrame` auf `scheduledAppRuntime.streamService` beziehungsweise einen deklarativen Stream-Effect, der gleichzeitig den sofortigen Snapshot-Return des bestehenden Send-Actions erhält. Das ist kein produktlokaler Fix, ohne die derzeitige Action-/UI-Semantik zu verändern.
 

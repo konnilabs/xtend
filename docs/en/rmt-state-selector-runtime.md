@@ -8,12 +8,13 @@ The state selector runtime separates canonical RMT state from derived view model
 
 ## Public building blocks
 
-- `xtendrmt/rmt-state-selector-runtime.js` implements state, selectors, and reducers.
+- `xtendrmt/rmt-state-selector-runtime.js` implements state, selectors, and reducers without a DOM capability.
+- `xtendrmt/rmt-state-binding-view-projector.js` projects frozen model snapshots through the shared DOM renderer; the former binding helpers remain compatibility delegates for 0.6.
 - `xtendrmt/rmt-state-selector-runtime.d.ts` describes the public runtime surface.
 - `tests/fixtures/rmt-state-selector-runtime.rmt` covers compile and host integration.
 
 ```txt
-runtime contract: xtend.epic18.rmt-state-selector-runtime.v1
+runtime contract: xtend.epic18.rmt-state-selector-runtime.v2
 xstateBridge: injected-host-adapter
 preservePatchPlan: selection updates keep the existing DOM patch plan
 next workpackage: WP-E18-08
