@@ -292,8 +292,7 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(!/\.docs-page-sidebar\s*\{[^}]*position:\s*sticky/u.test(indexPhp), 'Docs app sidebar scrolls with the page instead of sticking to the viewport');
   context.assert(indexPhp.includes('x-button,x-icon'), 'Docs app preloads icon button shell components');
   context.assert(indexPhp.includes('id="theme-toggle-icon" name="moon" pack="core"') || (indexPhp.includes("'id' => 'theme-toggle-icon'") && indexPhp.includes("'name' => 'moon'") && indexPhp.includes("'pack' => 'core'")), 'Docs theme toggle uses the bundled core icon pack');
-  context.assert(indexPhp.includes('docsMenuIconForSlug'), 'Docs server-rendered fallback nav assigns icons to menu links');
-  context.assert(indexPhp.includes("'class' => 'docs-menu-link-icon'"), 'Docs SSR task navigation renders x-icon icons for initial menu links');
+  context.assert(!indexPhp.includes('docsMenuIconForSlug') && !indexPhp.includes("'class' => 'docs-menu-link-icon'"), 'Docs server-rendered task navigation keeps article labels uniformly icon-free');
   context.assert(indexPhp.includes('.docs-menu-section x-link::part(link)'), 'Docs menu styles the x-link part inside constrained menu cards');
   context.assert(indexPhp.includes('overflow-wrap: anywhere'), 'Docs menu wraps long navigation labels instead of overflowing cards');
   context.assert(!indexPhp.includes('x-link,x-input,x-form,x-header,x-hero,x-router,x-footer') && docsResumeBootstrap.includes("import('../generated/shell/xtend.maraca.mjs')"), 'Docs app lets generated Maraca resume XLink/XRouter before the deferred compatibility loader');
@@ -341,8 +340,7 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(pageLoader.includes('missing-sidebar-slots'), 'Docs page loader falls back to a complete shell when sidebar slots are missing');
   context.assert(pageLoader.includes('ensureDocsShellScopedStyles(this.getRootNode())'), 'Docs page loader injects shell styles into the XRouter shadow route root');
   context.assert(pageLoader.includes('DOCS_SHELL_SHADOW_STYLE_ID'), 'Docs page loader de-duplicates scoped shadow styles');
-  context.assert(docsShellRuntime.includes('function iconFor(entry)'), 'Docs AppRuntime maps every menu entry to an icon');
-  context.assert(docsShellRuntime.includes("class: 'docs-menu-link-icon'"), 'Docs AppRuntime renders x-icon elements inside routed menu links');
+  context.assert(!docsShellRuntime.includes('function iconFor(entry)') && !docsShellRuntime.includes("class: 'docs-menu-link-icon'"), 'Docs AppRuntime keeps routed article labels uniformly icon-free');
   context.assert(indexPhp.includes("docsDescriptorComponent('x-summary'") && docsShellRuntime.includes("component('x-summary'"), 'Docs task navigation uses x-summary for collapsible sections in SSR and hydration');
   context.assert(docsShellRuntime.includes("open: section.id === activeSection ? '' : null"), 'Docs task navigation opens only the active branch');
   context.assert(docsShellRuntime.includes("entries.filter((entry) => entry.trunk === activeTrunk"), 'Docs task navigation renders only the active trunk instead of legacy Deep Dive trees');
@@ -367,6 +365,7 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(pageLoader.includes('ensureDocsDemoScaffold'), 'Docs page loader repairs incomplete RMT demo slots before rendering snippets');
   context.assert(pageLoader.includes('hydrateDocsCodeBlocks(shell.demoSlot'), 'Docs page loader hydrates x-code demo blocks after each route render');
   context.assert(pageLoader.includes('window.XTendLoader.hydrateTree'), 'Docs page loader delegates dynamic component hydration to the XTend loader');
+  context.assert(pageLoader.includes('hydrateDocsComponentPreview(preview, demo') && pageLoader.includes("schema: 'xtend.docs.component-demo-hydration.v1'"), 'Docs component demo islands hydrate their trigger and target nodes through an observable RMT contract');
   context.assert(pageLoader.includes('xtend-docs-code-hydrated'), 'Docs page loader emits a code hydration route diagnostic event');
   context.assert(xcodeSource.includes('_readTemplateCode'), 'x-code reads templates through a shared code extraction helper');
   context.assert(xcodeSource.includes("data-x-code-mode') === 'text'"), 'x-code supports text-mode templates for RMT snippets');

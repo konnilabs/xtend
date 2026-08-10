@@ -74,7 +74,8 @@ function currentSlug() {
 
 function pathFor(slug, activeLocale = locale()) {
   const base = String(window.xtendDocsI18n && window.xtendDocsI18n.basePath || '/docs').replace(/\/$/, '');
-  return `${base}/${activeLocale}/${slug}`;
+  const normalizedSlug = String(slug || 'readme').replace(/^\/+|\/+$/g, '') || 'readme';
+  return `${base}/${activeLocale}/${normalizedSlug}${normalizedSlug === 'components' ? '/' : ''}`;
 }
 
 function menuConfig() {
@@ -94,17 +95,6 @@ function sortEntries(entries) {
   });
 }
 
-function iconFor(entry) {
-  if (entry && entry.icon) return entry.icon;
-  const slug = String(entry && entry.slug || '');
-  if (slug.includes('security') || slug.includes('trusted-dom') || slug.includes('supply-chain')) return 'shield-check';
-  if (slug.includes('performance') || slug.includes('hydration')) return 'gauge';
-  if (slug.includes('animation')) return 'sparkles';
-  if (slug.startsWith('components-')) return 'component';
-  if (slug.includes('rmt') || slug.includes('router')) return 'route';
-  return 'file-text';
-}
-
 function menuLinkDescriptor(entry, activeSlug) {
   const active = entry.slug === activeSlug;
   return element('a', {
@@ -122,13 +112,6 @@ function menuLinkDescriptor(entry, activeSlug) {
     'aria-current': active ? 'page' : null,
     active: active ? '' : null
   }, [
-    component('x-icon', {
-      class: 'docs-menu-link-icon',
-      name: iconFor(entry),
-      pack: 'lucide',
-      decorative: '',
-      size: '0.95rem'
-    }),
     element('span', { class: 'docs-menu-link-label' }, [text(localized(entry))])
   ]);
 }

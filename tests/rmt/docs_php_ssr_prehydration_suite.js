@@ -407,6 +407,7 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   const bridgeResult = await runCompilerBridge(rootDir, source);
   const legacyHtmlResult = runDocsIndex(rootDir, {}, { documentSsr: 'off' });
   const htmlResult = runDocsIndex(rootDir, {});
+  const componentsHtmlResult = runDocsIndex(rootDir, {}, { requestUri: '/docs/de/components/' });
   const routeFragmentResult = runDocsIndex(rootDir, {}, {
     requestUri: '/docs/en/components-xbutton',
     accept: 'application/vnd.xtend.rmt-route+json'
@@ -424,6 +425,7 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
     locale: 'de'
   }, { documentSsr: 'v2' });
   const html = htmlResult.stdout || '';
+  const componentsHtml = componentsHtmlResult.stdout || '';
   const legacyHtml = legacyHtmlResult.stdout || '';
   const routeFragment = routeFragmentResult.status === 0
     ? JSON.parse(routeFragmentResult.stdout || '{}')
@@ -474,6 +476,10 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   context.assert(fileExists('xtendrmt/rmt-php-ssr-adapter.php', rootDir), 'PHP SSR adapter exists for docs host');
   const indexSyntax = phpSyntax('docs/index.php', rootDir);
   context.assert(indexSyntax.ok, `docs/index.php passes PHP syntax${indexSyntax.ok ? '' : ` (${indexSyntax.message})`}`);
+  ['docs/de/components/index.php', 'docs/en/components/index.php'].forEach((relativePath) => {
+    const syntax = phpSyntax(relativePath, rootDir);
+    context.assert(syntax.ok, `${relativePath} passes PHP syntax${syntax.ok ? '' : ` (${syntax.message})`}`);
+  });
   const adapterSyntax = phpSyntax('xtendrmt/rmt-php-ssr-adapter.php', rootDir);
   context.assert(adapterSyntax.ok, `PHP SSR adapter passes syntax${adapterSyntax.ok ? '' : ` (${adapterSyntax.message})`}`);
   const bridgeSyntax = nodeCheck('scripts/compile_rmt_vnext_bridge.js', rootDir);
@@ -512,6 +518,8 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   context.assert(indexPhp.includes('server_prerender_hydrate'), 'Docs host uses server prerender hydrate mode');
 
   context.assert(htmlResult.status === 0, `Docs initial HTML renders through PHP${htmlResult.status === 0 ? '' : ` (${htmlResult.stderr})`}`);
+  context.assert(componentsHtmlResult.status === 0 && componentsHtml.includes('Komponenten-Entwicklung'), 'Physical /docs/de/components/ directory route renders the complete localized article through PHP SSR');
+  context.assert(componentsHtml.includes('<link rel="canonical" href="http://localhost/docs/de/components/">'), 'Components article exposes its reachable trailing-slash URL as canonical');
   context.assert(inlineScriptSyntax.ok, `Docs initial inline bootstrap scripts pass node --check${inlineScriptSyntax.ok ? '' : ` (${inlineScriptSyntax.message})`}`);
   context.assert(!html.includes('window.xtendDocsLocalizedPagesMeta = ;'), 'Docs bootstrap never emits an empty localized metadata assignment');
   context.assert(html.includes('window.xtendDocsSsrPrehydration'), 'Initial HTML exposes SSR prehydration payload');
@@ -534,6 +542,7 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   context.assert(html.includes('id="md-content"') && html.includes('<h1'), 'Document SSR includes parsed article content in the raw response');
   context.assert(html.includes('class="docs-sidebar-heading"') && html.includes('Read Further'), 'Document SSR preserves the Read Further heading scaffold');
   context.assert(html.includes('class="docs-related-list"') && html.includes('data-rmt-slot="related-links"'), 'Document SSR preserves the related-link grid needed for stable button spacing');
+  context.assert(!html.includes('class="docs-menu-link-icon"'), 'Document SSR keeps main-navigation article links uniformly icon-free');
   context.assert(html.includes('data-rmt-sanitizer="xtend.security.trusted-dom-sanitizer.v1"'), 'Document SSR records its server sanitizer proof');
   context.assert(html.includes('data-xrouter-content-sha256='), 'Document SSR records a route content identity proof');
   context.assert(!html.includes('window.xtendDocsPages = {'), 'Document SSR does not duplicate article HTML in the bootstrap page cache');
@@ -569,8 +578,9 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
       context.assert(internalLinkPattern.test(seoCase.articleHtml), `${label} rewrites an article-internal link to a localized progressive XLink anchor`);
     }
     (seoCase.expectedLocalizedTargets || []).forEach((target) => {
+      const canonicalTarget = target === 'components' ? 'components/' : target;
       context.assert(
-        new RegExp(`<a\\b(?=[^>]*\\bis-x-link(?:="true")?)(?=[^>]*\\bhref="/docs/${seoCase.locale}/${target}")`, 'iu').test(seoCase.articleHtml),
+        new RegExp(`<a\\b(?=[^>]*\\bis-x-link(?:="true")?)(?=[^>]*\\bhref="/docs/${seoCase.locale}/${canonicalTarget}")`, 'iu').test(seoCase.articleHtml),
         `${label} resolves ${target} relative to the current Markdown directory`
       );
     });
@@ -631,7 +641,7 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   context.assert(markdownLinkProbe.status === 0 && markdownLinkProbe.payload && typeof markdownLinkProbe.payload.html === 'string', 'Server Markdown link resolver probe completes');
   const normalizedMarkdownLinks = markdownLinkProbe.payload && markdownLinkProbe.payload.html || '';
   context.assert(/<a\b(?=[^>]*\bis-x-link(?:="true")?)(?=[^>]*\bhref="\/docs\/en\/components-xstate\?view=api#events")[^>]*>sibling<\/a>/iu.test(normalizedMarkdownLinks), 'Server Markdown link resolver preserves query and fragment on a progressive sibling anchor');
-  context.assert(/<a\b(?=[^>]*\bis-x-link(?:="true")?)(?=[^>]*\bhref="\/docs\/en\/components#overview")[^>]*>parent<\/a>/iu.test(normalizedMarkdownLinks), 'Server Markdown link resolver resolves a progressive parent-directory anchor');
+  context.assert(/<a\b(?=[^>]*\bis-x-link(?:="true")?)(?=[^>]*\bhref="\/docs\/en\/components\/#overview")[^>]*>parent<\/a>/iu.test(normalizedMarkdownLinks), 'Server Markdown link resolver resolves a progressive parent-directory anchor');
   [
     '<a href="./missing.md">missing</a>',
     '<a href="../../escape.md">escape</a>',

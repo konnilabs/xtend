@@ -595,6 +595,7 @@ async function readSnapshot(baseUrl, sessionId) {
       activeTrunkContent: document.querySelector('[data-docs-active-trunk-content]')?.getAttribute('data-docs-active-trunk-content') || '',
       summaryIndicators,
       articleNavigation,
+      navigationIconCount: document.querySelectorAll('[data-docs-menu-shell] [data-docs-menu-link] x-icon').length,
       trunkCount: document.querySelectorAll('[data-docs-trunk-link]').length,
       canonicalEntryCount: Array.isArray(window.xtendMenuConfig) ? window.xtendMenuConfig.length : 0,
       skeletonProfiles: window.XTendSkeletonLoader && typeof window.XTendSkeletonLoader.listProfiles === 'function'
@@ -909,6 +910,7 @@ async function exerciseNavigationSurface(baseUrl, sessionId, scenarioId) {
       menuMode: drawer.getAttribute('data-menu-mode'),
       trunkCount: nav.querySelectorAll('[data-docs-trunk-link]').length,
       currentPageCount: markedPages.length,
+      navigationIconCount: nav.querySelectorAll('[data-docs-menu-link] x-icon').length,
       currentPageSection: activePageSection?.getAttribute('data-docs-menu-section') || '',
       currentPageSectionOpen: Boolean(activePageSection?.shadowRoot?.querySelector('details')?.open),
       columnGeometry,
@@ -970,12 +972,14 @@ async function runHydrateFallbackNavigationRegression(baseUrl, driverUrl) {
         linkCount: links.length,
         nativeLinkCount: links.filter((link) => link.localName === 'a' && link.hasAttribute('is-x-link')).length,
         customLinkCount: links.filter((link) => link.localName === 'x-link').length,
+        iconCount: root.querySelectorAll('[data-docs-menu-link] x-icon').length,
         openLinkCount: openLinks.length,
         visibleOpenLinkCount: visibleOpenLinks.length
       };
     `), 'Hydrate fallback did not expose the adopted SSR navigation');
     assert(initial.executionMode === 'hydrate' && initial.activation === 'adopted', `Hydrate fallback did not adopt the SSR navigation (${JSON.stringify(initial)}).`);
     assert(initial.linkCount === initial.nativeLinkCount && initial.customLinkCount === 0, `Hydrate fallback replaced progressive anchors with custom hosts (${JSON.stringify(initial)}).`);
+    assert(initial.iconCount === 0, `Hydrate fallback retained inconsistent article icons in the SSR navigation (${JSON.stringify(initial)}).`);
     assert(initial.openLinkCount > 0 && initial.visibleOpenLinkCount === initial.openLinkCount, `Hydrate fallback hid links inside the active navigation section (${JSON.stringify(initial)}).`);
 
     const clicked = await execute(driverUrl, sessionId, `
@@ -1013,11 +1017,13 @@ async function runHydrateFallbackNavigationRegression(baseUrl, driverUrl) {
         linkCount: links.length,
         nativeLinkCount: links.filter((link) => link.localName === 'a' && link.hasAttribute('is-x-link')).length,
         customLinkCount: links.filter((link) => link.localName === 'x-link').length,
+        iconCount: root.querySelectorAll('[data-docs-menu-link] x-icon').length,
         openLinkCount: openLinks.length,
         visibleOpenLinkCount: visibleOpenLinks.length
       };
     `), 'Hydrate fallback did not materialize the routed navigation trunk');
     assert(routed.activation === 'rendered' && routed.linkCount === routed.nativeLinkCount && routed.customLinkCount === 0, `Hydrate fallback routed navigation is not progressive (${JSON.stringify(routed)}).`);
+    assert(routed.iconCount === 0, `Hydrate fallback materialized inconsistent article icons after navigation (${JSON.stringify(routed)}).`);
     assert(routed.openLinkCount > 0 && routed.visibleOpenLinkCount === routed.openLinkCount, `Hydrate fallback hid links after trunk navigation (${JSON.stringify(routed)}).`);
 
     const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
@@ -2132,6 +2138,29 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
         `${scenario.id}: visible RMT Playground island did not activate`
       );
     }
+    const overlayDemo = scenario.inspectOverlayDemo
+      ? await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+        const slot = deepQuery('[data-demo-component="${scenario.inspectOverlayDemo.tag}"]');
+        const preview = slot && slot.querySelector('[data-demo-preview]');
+        const trigger = preview && preview.querySelector('[data-demo-action="${scenario.inspectOverlayDemo.action}"]');
+        const target = deepQuery('#${scenario.inspectOverlayDemo.targetId}');
+        if (!slot || !preview || !trigger || !target || preview.getAttribute('data-rmt-island-state') !== 'ready') return null;
+        const triggerRect = trigger.getBoundingClientRect();
+        const triggerStyle = getComputedStyle(trigger);
+        return {
+          description: (slot.querySelector('[data-demo-description]')?.textContent || '').trim(),
+          islandState: preview.getAttribute('data-rmt-island-state'),
+          triggerText: (trigger.textContent || '').trim(),
+          triggerDefined: Boolean(customElements.get('x-button')),
+          targetDefined: Boolean(customElements.get('${scenario.inspectOverlayDemo.tag}')),
+          triggerVisible: triggerRect.width > 0 && triggerRect.height > 0 && triggerStyle.display !== 'none' && triggerStyle.visibility !== 'hidden'
+        };
+      `), `${scenario.id}: overlay demo trigger and target did not hydrate`)
+      : null;
+    if (overlayDemo) {
+      assert(overlayDemo.description === scenario.inspectOverlayDemo.description, `${scenario.id}: localized demo copy regressed (${JSON.stringify(overlayDemo)}).`);
+      assert(overlayDemo.triggerText === scenario.inspectOverlayDemo.triggerText && overlayDemo.triggerDefined && overlayDemo.targetDefined && overlayDemo.triggerVisible, `${scenario.id}: overlay demo trigger is not usable (${JSON.stringify(overlayDemo)}).`);
+    }
     await delay(scenario.settleMs || 600);
     const snapshot = await readSnapshot(driverUrl, sessionId);
     if (scenario.expectedArticleTitle) {
@@ -2174,6 +2203,25 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
       .sort((left, right) => right.value - left.value)
       .slice(0, 8);
     assert(snapshot.layoutShift <= 0.01, `${scenario.id}: CLS ${snapshot.layoutShift} exceeds 0.01 (${JSON.stringify(largestShifts)}).`);
+    assert(snapshot.navigationIconCount === 0, `${scenario.id}: main navigation retained ${snapshot.navigationIconCount} inconsistent article icons.`);
+    if (overlayDemo) {
+      await execute(driverUrl, sessionId, `${deepQuerySource}
+        const trigger = deepQuery('[data-demo-action="${scenario.inspectOverlayDemo.action}"]');
+        const control = trigger && trigger.shadowRoot && trigger.shadowRoot.querySelector('button');
+        if (!control) throw new Error('Hydrated x-button control unavailable.');
+        control.click();
+        return true;
+      `);
+      await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+        const target = deepQuery('#${scenario.inspectOverlayDemo.targetId}');
+        return Boolean(target && typeof target.snapshot === 'function' && target.snapshot().open);
+      `), `${scenario.id}: hydrated trigger did not open its overlay target`);
+      await execute(driverUrl, sessionId, `${deepQuerySource}
+        const target = deepQuery('#${scenario.inspectOverlayDemo.targetId}');
+        if (target && typeof target.close === 'function') target.close({ source: 'browser-smoke' });
+        return true;
+      `);
+    }
     if (scenario.expectedBrandPresentation) {
       assert(snapshot.headerBrand && snapshot.headerBrand.presentation === scenario.expectedBrandPresentation, `${scenario.id}: unexpected header brand presentation (${JSON.stringify(snapshot.headerBrand)}).`);
       if (scenario.expectedBrandPresentation === 'logo-only') {
@@ -2207,7 +2255,7 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
     const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
     const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
     assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
-    const evidence = { scenario, snapshot, visibleSkeletonCount, visibleSkeletonDetails, playgroundSkeletonCount, playgroundLoadingSnapshot, navigationSurface, logs };
+    const evidence = { scenario, snapshot, visibleSkeletonCount, visibleSkeletonDetails, playgroundSkeletonCount, playgroundLoadingSnapshot, overlayDemo, navigationSurface, logs };
     const screenshot = await request(driverUrl, `/session/${sessionId}/screenshot`);
     await Promise.all([
       writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify(evidence, null, 2)}\n`),
@@ -2261,6 +2309,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(initial.hydrationSnapshot.status === 'ready', `${scenario.id}: hydration snapshot is not ready.`);
     assert(initial.kernelSnapshot.state === 'none', `${scenario.id}: unexpected kernel panic state ${JSON.stringify(initial.kernelSnapshot)}.`);
     assert(initial.trunkCount === 6 && initial.canonicalEntryCount >= 166, `${scenario.id}: navigation inventory is incomplete (${JSON.stringify({ trunkCount: initial.trunkCount, canonicalEntryCount: initial.canonicalEntryCount })}).`);
+    assert(initial.navigationIconCount === 0, `${scenario.id}: SSR navigation retained ${initial.navigationIconCount} inconsistent article icons.`);
     assert(initial.activeTrunk === 'start' && initial.activeTrunkContent === 'start', `${scenario.id}: start trunk is not active.`);
     assertSingleCurrentArticle(initial, scenario.id);
     assert(initial.skeletonProfiles.includes('docs-article') && initial.skeletonProfiles.includes('docs-navigation') && initial.skeletonProfiles.includes('docs-search'), `${scenario.id}: docs skeleton profiles are missing.`);
@@ -2311,6 +2360,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     const navigationSurface = await exerciseNavigationSurface(driverUrl, sessionId, scenario.id);
     const navigationAppearances = [navigationSurface.activeTrunk, navigationSurface.inactiveTrunk, navigationSurface.activePage, navigationSurface.inactivePage];
     assert(navigationSurface.trunkCount === 6 && navigationAppearances.every((entry) => entry && entry.contrast >= 4.5), `${scenario.id}: task navigation contrast is insufficient (${JSON.stringify(navigationSurface)}).`);
+    assert(navigationSurface.navigationIconCount === 0, `${scenario.id}: AppRuntime navigation materialized ${navigationSurface.navigationIconCount} inconsistent article icons.`);
     assert(navigationSurface.horizontalOverflow <= 1 && !navigationSurface.inactiveUsesPrimarySurface, `${scenario.id}: task navigation overflows or inherited the global primary menuitem surface (${JSON.stringify(navigationSurface)}).`);
     assert(navigationSurface.activeTrunk.background !== navigationSurface.inactiveTrunk.background && navigationSurface.activePage.background !== navigationSurface.inactivePage.background, `${scenario.id}: active navigation states are not visually distinguishable (${JSON.stringify(navigationSurface)}).`);
     assert(navigationSurface.currentPageCount === 1 && navigationSurface.currentPageSection && navigationSurface.currentPageSectionOpen, `${scenario.id}: current page is not uniquely marked inside its expanded section (${JSON.stringify(navigationSurface)}).`);
@@ -2376,6 +2426,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
 
     const finalSnapshot = await readSnapshot(driverUrl, sessionId);
     assertSingleCurrentArticle(finalSnapshot, `${scenario.id}: final`);
+    assert(finalSnapshot.navigationIconCount === 0, `${scenario.id}: navigation icons returned after route and locale transitions.`);
     assert(finalSnapshot.layoutShift <= 0.01, `${scenario.id}: cumulative interaction CLS ${finalSnapshot.layoutShift} exceeds 0.01.`);
     assert(finalSnapshot.theme === scenario.theme, `${scenario.id}: theme state changed during navigation.`);
     assert(finalSnapshot.documentTitle === expectedHomeTitle && finalSnapshot.routeId !== 'docs.notFound', `${scenario.id}: locale round-trip left a stale document title.`);
@@ -2454,7 +2505,7 @@ try {
   await waitForServer(`${baseUrl}/docs/de/readme`, server);
   await waitForServer(`${hydrateFallbackBaseUrl}/docs/de/readme`, hydrateFallbackServer);
   await waitForDriver(driverUrl, driver);
-  if (!captureBaseline) await runHydrateFallbackNavigationRegression(hydrateFallbackBaseUrl, driverUrl);
+  if (!captureBaseline && !requestedScenario) await runHydrateFallbackNavigationRegression(hydrateFallbackBaseUrl, driverUrl);
   const scenarios = [
     { id: 'de-desktop', locale: 'de', theme: 'light', width: 1440, height: 900 },
     { id: 'en-mobile', locale: 'en', theme: 'dark', width: 390, height: 844 }
@@ -2485,6 +2536,8 @@ try {
       { id: 'de-rmt-playground-desktop', locale: 'de', slug: 'learn-rmt-playground', width: 1440, height: 900, settleMs: 1200, expectedArticleTitle: 'RMT Playground', inspectPlaygroundSkeleton: true, ownsRouteWorkspace: true },
       { id: 'de-authoring-desktop', locale: 'de', slug: 'native-first-authoring-guide', width: 1440, height: 900, settleMs: 700 },
       { id: 'de-a11y-current-page-desktop', locale: 'de', slug: 'a11y-keyboard-smokes', width: 1440, height: 900, settleMs: 700, inspectNavigation: true },
+      { id: 'de-xdialog-demo-desktop', locale: 'de', slug: 'components-xdialog', width: 1440, height: 900, settleMs: 700, inspectOverlayDemo: { tag: 'x-dialog', action: 'open-dialog', targetId: 'docs-demo-dialog', triggerText: 'Dialog testen', description: 'Dialog-Surface für bestätigende UI-Flows.' } },
+      { id: 'de-xmodal-demo-desktop', locale: 'de', slug: 'components-xmodal', width: 1440, height: 900, settleMs: 700, inspectOverlayDemo: { tag: 'x-modal', action: 'open-modal', targetId: 'docs-demo-modal', triggerText: 'Modal testen', description: 'Modales Overlay mit Focus Trap, Escape und xstate-Sync.' } },
       { id: 'en-dev-surface-mobile', locale: 'en', slug: 'xtend-dev-surface', width: 390, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only' },
       { id: 'de-dev-api-desktop', locale: 'de', slug: 'xtend-dev-api', width: 1440, height: 900, settleMs: 700, inspectNavigation: true, expectedArticleTitle: 'XTend DEV API', expectedSection: 'devtools' },
       { id: 'en-dev-api-mobile', locale: 'en', slug: 'xtend-dev-api', width: 390, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only', expectedArticleTitle: 'XTend DEV API' },

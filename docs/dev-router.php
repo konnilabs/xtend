@@ -16,6 +16,14 @@ if (($requestPath === '/docs' || $requestPath === '/docs/' || $requestPath === '
     return true;
 }
 
+if (preg_match('#^/docs/(de|en)/components$#', $requestPath, $matches) === 1) {
+    if (function_exists('header_remove')) {
+        header_remove('X-Powered-By');
+    }
+    header('Location: /docs/' . $matches[1] . '/components/', true, 308);
+    return true;
+}
+
 if ($candidate && str_starts_with($candidate, $repoRoot) && is_file($candidate)) {
     $acceptEncoding = strtolower((string) ($_SERVER['HTTP_ACCEPT_ENCODING'] ?? ''));
     $extension = strtolower((string) pathinfo($candidate, PATHINFO_EXTENSION));

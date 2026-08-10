@@ -320,7 +320,9 @@ function docsRoutePathFromRequest($basePath) {
 
 function docsBuildHistoryRoutePath($slug, $locale, $basePath = '') {
     $base = docsNormalizeBasePath($basePath);
-    return ($base === '' ? '' : $base) . '/' . docsNormalizeLocale($locale, $GLOBALS['docsAvailableLocales'], $GLOBALS['docsFallbackLocale']) . '/' . trim((string) ($slug ?: 'readme'), '/');
+    $normalizedSlug = trim((string) ($slug ?: 'readme'), '/');
+    $path = ($base === '' ? '' : $base) . '/' . docsNormalizeLocale($locale, $GLOBALS['docsAvailableLocales'], $GLOBALS['docsFallbackLocale']) . '/' . $normalizedSlug;
+    return $normalizedSlug === 'components' ? $path . '/' : $path;
 }
 
 function docsBuildHistoryRootPath($basePath = '') {
@@ -431,54 +433,6 @@ $docsNavigationConfig = docsLoadJsonContract($docsRoot . '/navigation.json', 'xt
 
 function docsRouteIdFromSlug($slug) {
     return 'docs.' . str_replace('-', '.', $slug);
-}
-
-function docsMenuIconForSlug($slug) {
-    $slug = (string) $slug;
-    $exact = [
-        'readme' => 'home',
-        'quick-start-guide' => 'book-open',
-        'about' => 'info',
-        'best-practices' => 'success',
-        'learn-rmt' => 'book-open',
-        'learn-rmt-playground' => 'terminal',
-        'xtend-maraca' => 'rocket',
-        'xtend-maraca-orchestration' => 'route',
-        'manifest' => 'file',
-        'api' => 'terminal',
-        'xtend-loader' => 'download',
-        'xtend-fabric' => 'zap',
-        'components' => 'component',
-        'component-platform' => 'layers',
-        'component-catalog-coverage' => 'boxes',
-        'design-tokens' => 'palette',
-        'xtendrmt-overview' => 'route',
-        'rmt-animation-engine' => 'sparkles',
-        'rmt-linter' => 'terminal',
-        'rmt-language-server' => 'server',
-        'performance' => 'gauge',
-        'hydration-policies' => 'zap',
-        'a11y-keyboard-smokes' => 'accessibility',
-        'trusted-dom-sanitizing' => 'shield-check',
-        'supply-chain-gates' => 'shield-check',
-        'rc0-gate-matrix' => 'package',
-        'rc1-readiness' => 'rocket',
-        'enterprise-adoption' => 'layers'
-    ];
-    if (isset($exact[$slug])) return $exact[$slug];
-    if (str_starts_with($slug, 'components-xcode')) return 'code';
-    if (str_starts_with($slug, 'components-xicon') || str_starts_with($slug, 'components-xtheme')) return 'palette';
-    if (str_starts_with($slug, 'components-xstate')) return 'database';
-    if (str_starts_with($slug, 'learn-rmt-')) return str_contains($slug, 'playground') ? 'terminal' : 'book-open';
-    if (str_starts_with($slug, 'xtend-maraca')) return 'rocket';
-    if (str_starts_with($slug, 'components-xrouter') || str_starts_with($slug, 'xtendrmt') || str_starts_with($slug, 'rmt-')) return 'route';
-    if (str_starts_with($slug, 'components-')) return 'component';
-    if (str_contains($slug, 'security') || str_contains($slug, 'trusted-dom') || str_contains($slug, 'supply-chain') || str_contains($slug, 'csp') || str_contains($slug, 'network')) return 'shield-check';
-    if (str_contains($slug, 'performance') || str_contains($slug, 'hydration')) return 'gauge';
-    if (str_contains($slug, 'a11y') || str_contains($slug, 'screenreader') || str_contains($slug, 'motion-contrast')) return 'accessibility';
-    if (str_contains($slug, 'release') || str_starts_with($slug, 'rc') || str_starts_with($slug, 'epic')) return 'rocket';
-    if (str_contains($slug, 'component') || str_contains($slug, 'surface') || str_contains($slug, 'visual')) return 'layers';
-    return 'docs';
 }
 
 function docsFallbackTitleFromPath($rel) {
@@ -1494,13 +1448,6 @@ function docsBuildMenuShellDescriptor($menuConfig, $navigationConfig, $activeSlu
                     'aria-current' => $isActive ? 'page' : null,
                     'active' => $isActive ? true : null
                 ], [
-                    docsDescriptorComponent('x-icon', [
-                        'class' => 'docs-menu-link-icon',
-                        'name' => docsMenuIconForSlug($slug),
-                        'pack' => 'lucide',
-                        'decorative' => true,
-                        'size' => '0.95rem'
-                    ], []),
                     docsDescriptorElement('span', ['class' => 'docs-menu-link-label'], [
                         docsDescriptorText(docsMenuEntryLabel($entry, $locale, $fallbackLocale))
                     ])
@@ -4015,12 +3962,10 @@ header('Vary: Accept');
           transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
         }
         .docs-menu-section x-link::part(link),
-        .docs-nav-link::part(link),
         .docs-menu-section a[is-x-link] {
           display: grid;
-          grid-template-columns: auto minmax(0, 1fr);
+          grid-template-columns: minmax(0, 1fr);
           align-items: center;
-          gap: 0.45rem;
           width: 100%;
           max-width: 100%;
           min-width: 0;
@@ -4029,14 +3974,7 @@ header('Vary: Accept');
           text-decoration: none;
           overflow-wrap: anywhere;
         }
-        .docs-menu-link-icon,
-        .docs-nav-link-icon {
-          color: var(--primary-color);
-          flex: none;
-          opacity: 0.92;
-        }
-        .docs-menu-link-label,
-        .docs-nav-link-label {
+        .docs-menu-link-label {
           min-width: 0;
           overflow-wrap: anywhere;
         }

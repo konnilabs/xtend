@@ -1616,7 +1616,8 @@ function getCurrentDocsLocale() {
 }
 
 function getLocalizedDocsPath(slug, locale = getCurrentDocsLocale()) {
-  return getDocsBrowserPath('/' + normalizeDocsLocale(locale) + '/' + (slug || 'readme'));
+  const normalizedSlug = String(slug || 'readme').replace(/^\/+|\/+$/g, '') || 'readme';
+  return getDocsBrowserPath('/' + normalizeDocsLocale(locale) + '/' + normalizedSlug + (normalizedSlug === 'components' ? '/' : ''));
 }
 
 function normalizeDocsRouteHref(slugOrHref, locale = getCurrentDocsLocale()) {
@@ -1828,7 +1829,7 @@ function createDocsComponentDemos() {
       title,
       description,
       html,
-      descriptor: { type: 'element', tag, attributes: options.attributes || {}, children: options.children || [] },
+      descriptor: options.descriptor || { type: 'element', tag, attributes: options.attributes || {}, children: options.children || [] },
       rmt: options.rmt || createRmtSnippet(tag, options.attributes || {}, options.children || []),
       actions: options.actions || []
     };
@@ -1899,13 +1900,37 @@ function createDocsComponentDemos() {
     children: ['Gespeichert'],
     actions: ['toast']
   });
-  add('components-xmodal', 'x-modal', 'x-modal', 'Modales Overlay mit Focus Trap, Escape und xstate-Sync.', '<div class="docs-demo-actions"><x-button data-demo-action="open-modal" variant="primary">Modal testen</x-button></div><x-modal id="docs-demo-modal" title="Release Check" content="XTend Modal laeuft in der Docs Shell." overlay></x-modal>', {
-    attributes: { id: 'docs-demo-modal', title: 'Release Check', content: 'XTend Modal laeuft in der Docs Shell.', overlay: true },
+  add('components-xmodal', 'x-modal', 'x-modal', 'Modales Overlay mit Focus Trap, Escape und xstate-Sync.', '<div class="docs-demo-actions"><x-button data-demo-action="open-modal" variant="primary">Modal testen</x-button></div><x-modal id="docs-demo-modal" title="Release Check" content="XTend Modal läuft in der Docs Shell." overlay></x-modal>', {
+    attributes: { id: 'docs-demo-modal', title: 'Release Check', content: 'XTend Modal läuft in der Docs Shell.', overlay: true },
+    descriptor: {
+      type: 'fragment',
+      children: [
+        {
+          type: 'element',
+          tag: 'div',
+          attributes: { class: 'docs-demo-actions' },
+          children: [{ type: 'element', tag: 'x-button', attributes: { 'data-demo-action': 'open-modal', variant: 'primary' }, children: ['Modal testen'] }]
+        },
+        { type: 'element', tag: 'x-modal', attributes: { id: 'docs-demo-modal', title: 'Release Check', content: 'XTend Modal läuft in der Docs Shell.', overlay: true }, children: [] }
+      ]
+    },
     actions: ['open-modal']
   });
-  add('components-xdialog', 'x-dialog', 'x-dialog', 'Dialog-Surface fuer bestaetigende UI-Flows.', '<div class="docs-demo-actions"><x-button data-demo-action="open-dialog" variant="secondary">Dialog testen</x-button></div><x-dialog id="docs-demo-dialog" title="Dialog Surface" width="420px" height="220px" overlay>RMT kann Dialoge als Shell-Surfaces beschreiben.</x-dialog>', {
+  add('components-xdialog', 'x-dialog', 'x-dialog', 'Dialog-Surface für bestätigende UI-Flows.', '<div class="docs-demo-actions"><x-button data-demo-action="open-dialog" variant="secondary">Dialog testen</x-button></div><x-dialog id="docs-demo-dialog" title="Dialog Surface" width="420px" height="220px" overlay>RMT kann Dialoge als Shell-Surfaces beschreiben.</x-dialog>', {
     attributes: { id: 'docs-demo-dialog', title: 'Dialog Surface', width: '420px', height: '220px', overlay: true },
     children: ['RMT kann Dialoge als Shell-Surfaces beschreiben.'],
+    descriptor: {
+      type: 'fragment',
+      children: [
+        {
+          type: 'element',
+          tag: 'div',
+          attributes: { class: 'docs-demo-actions' },
+          children: [{ type: 'element', tag: 'x-button', attributes: { 'data-demo-action': 'open-dialog', variant: 'secondary' }, children: ['Dialog testen'] }]
+        },
+        { type: 'element', tag: 'x-dialog', attributes: { id: 'docs-demo-dialog', title: 'Dialog Surface', width: '420px', height: '220px', overlay: true }, children: ['RMT kann Dialoge als Shell-Surfaces beschreiben.'] }
+      ]
+    },
     actions: ['open-dialog']
   });
   add('components-xdrawer', 'x-drawer', 'x-drawer', 'Drawer mit Trigger-Slot fuer Tooling- und Navigationsflaechen.', '<x-drawer id="docs-demo-drawer" label="Inspector" placement="right"><x-button slot="trigger" variant="secondary">Drawer oeffnen</x-button><p>Inspector-Panel fuer Shell-Metadaten.</p></x-drawer>', {
@@ -3978,6 +4003,49 @@ function bindDocsDemoInteractions(container, demo) {
   }
 }
 
+async function hydrateDocsComponentPreview(preview, demo, metadata = {}) {
+  if (!preview || !demo) return null;
+  const tags = Array.from(new Set(Array.from(preview.querySelectorAll('*'))
+    .map((element) => String(element.localName || '').toLowerCase())
+    .filter((tag) => tag.startsWith('x-'))));
+  if (!tags.length) {
+    preview.setAttribute('data-rmt-island-state', 'not-needed');
+    return null;
+  }
+
+  preview.setAttribute('data-rmt-island-state', 'hydrating');
+  preview.removeAttribute('data-rmt-island-error');
+  if ((!window.XTendLoader || typeof window.XTendLoader.hydrateTree !== 'function') && window.xtendDocsRmtBootPromise) {
+    await Promise.resolve(window.xtendDocsRmtBootPromise).catch(() => null);
+  }
+  if (!window.XTendLoader || typeof window.XTendLoader.hydrateTree !== 'function') {
+    throw new Error('XTend loader is unavailable for the component demo island.');
+  }
+
+  const loaderSnapshot = await window.XTendLoader.hydrateTree(preview, {
+    tags,
+    source: 'docs.component-demo',
+    reason: metadata.reason || 'component-demo-visible-or-intent',
+    schedule: metadata.schedule || 'docs.demo.prepare'
+  });
+  const missingTags = tags.filter((tag) => !customElements.get(tag));
+  if (missingTags.length) {
+    throw new Error(`Component demo definitions unavailable: ${missingTags.join(', ')}`);
+  }
+
+  const snapshot = {
+    schema: 'xtend.docs.component-demo-hydration.v1',
+    slug: metadata.slug || '',
+    component: demo.tag,
+    tags,
+    hydrated: Number(loaderSnapshot && loaderSnapshot.hydrated) || 0
+  };
+  preview.setAttribute('data-rmt-island-state', 'ready');
+  window.xtendDocsLastComponentDemoHydration = snapshot;
+  window.dispatchEvent(new CustomEvent('xtend-docs-component-demo-hydrated', { detail: snapshot }));
+  return snapshot;
+}
+
 function renderDocsComponentDemo(demoSlot, slug) {
   if (!demoSlot) return;
   const demo = DOCS_COMPONENT_DEMOS[slug];
@@ -3995,6 +4063,15 @@ function renderDocsComponentDemo(demoSlot, slug) {
   if (preview) {
     docsRmtDescriptorRenderer.render(preview, demo.descriptor, { source: { inputKind: 'docs-component-demo', slug } });
     bindDocsDemoInteractions(preview, demo);
+    hydrateDocsComponentPreview(preview, demo, {
+      slug,
+      reason: 'component-demo-visible-or-intent',
+      schedule: 'docs.demo.prepare'
+    }).catch((error) => {
+      if (!preview.isConnected) return;
+      preview.setAttribute('data-rmt-island-state', 'degraded');
+      preview.setAttribute('data-rmt-island-error', error && error.message ? error.message : String(error));
+    });
   }
   if (code) {
     while (code.firstChild) code.removeChild(code.firstChild);
