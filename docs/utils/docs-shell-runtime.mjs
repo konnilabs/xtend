@@ -107,9 +107,13 @@ function iconFor(entry) {
 
 function menuLinkDescriptor(entry, activeSlug) {
   const active = entry.slug === activeSlug;
-  return component('x-link', {
+  return element('a', {
+    'is-x-link': 'true',
+    'data-xtend-component': 'x-link',
+    navigation: 'auto',
     class: 'docs-menu-link',
     href: pathFor(entry.slug),
+    role: 'menuitem',
     'data-docs-menu-link': '',
     'data-doc-id': entry.id,
     'data-doc-rank': String(entry.rank || 0),
@@ -129,7 +133,38 @@ function menuLinkDescriptor(entry, activeSlug) {
   ]);
 }
 
-function renderNavigation(activeSlug = currentSlug()) {
+function syncNavigationLinkState(link, active) {
+  link.toggleAttribute('active', active);
+  link.classList.toggle('active', active);
+  if (active) link.setAttribute('aria-current', 'page');
+  else link.removeAttribute('aria-current');
+}
+
+function syncNavigationState(root, entries, activeEntry, activeTrunk, activeSection) {
+  const expectedEntries = sortEntries(entries.filter((entry) => entry.trunk === activeTrunk));
+  const existingLinks = XUtils.findAll('[data-docs-menu-link]', root);
+  const expectedIds = new Set(expectedEntries.map((entry) => entry.id));
+  const existingIds = new Set(existingLinks.map((link) => link.getAttribute('data-doc-id')));
+  const canAdopt = root.getAttribute('data-docs-active-trunk-content') === activeTrunk
+    && existingLinks.length === expectedEntries.length
+    && existingIds.size === expectedIds.size
+    && expectedEntries.every((entry) => existingIds.has(entry.id));
+  if (!canAdopt) return false;
+
+  existingLinks.forEach((link) => {
+    syncNavigationLinkState(link, link.getAttribute('data-doc-id') === activeEntry.id);
+  });
+  XUtils.findAll('[data-docs-menu-section]', root).forEach((section) => {
+    section.toggleAttribute('open', section.getAttribute('data-docs-menu-section') === activeSection);
+  });
+  XUtils.findAll('[data-docs-trunk-link]').forEach((link) => {
+    syncNavigationLinkState(link, link.getAttribute('data-docs-trunk-link') === activeTrunk);
+  });
+  root.setAttribute('data-docs-navigation-activation', 'adopted');
+  return true;
+}
+
+function renderNavigation(activeSlug = currentSlug(), options = {}) {
   const entries = menuConfig();
   const activeEntry = entries.find((entry) => entry.slug === activeSlug) || entries.find((entry) => entry.slug === 'readme');
   if (!activeEntry) return false;
@@ -139,6 +174,7 @@ function renderNavigation(activeSlug = currentSlug()) {
   if (!root) return false;
   const trunk = navigationConfig().trunks.find((entry) => entry.id === activeTrunk);
   if (!trunk) return false;
+  if (!options.force && syncNavigationState(root, entries, activeEntry, activeTrunk, activeSection)) return true;
 
   const sections = (trunk.sections || []).map((section) => {
     const sectionEntries = sortEntries(entries.filter((entry) => entry.trunk === activeTrunk && entry.section === section.id));
@@ -174,13 +210,12 @@ function renderNavigation(activeSlug = currentSlug()) {
     source: { kind: 'docs-navigation', id: activeTrunk }
   });
   root.setAttribute('data-docs-active-trunk-content', activeTrunk);
+  root.setAttribute('data-docs-navigation-activation', 'rendered');
   const shell = XUtils.find('[data-docs-menu-shell]');
   if (shell) shell.setAttribute('data-docs-active-trunk', activeTrunk);
   XUtils.findAll('[data-docs-trunk-link]').forEach((link) => {
     const active = link.getAttribute('data-docs-trunk-link') === activeTrunk;
-    link.toggleAttribute('active', active);
-    if (active) link.setAttribute('aria-current', 'page');
-    else link.removeAttribute('aria-current');
+    syncNavigationLinkState(link, active);
   });
   return true;
 }
@@ -697,7 +732,7 @@ function bindShellEvents() {
     registeredRouteLocale = '';
     renderedSearchSignature = '';
     ensureRouterRoutes();
-    renderNavigation(currentSlug());
+    renderNavigation(currentSlug(), { force: true });
     currentQuery = '';
     hideSearchResults();
   }));

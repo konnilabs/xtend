@@ -938,6 +938,101 @@ async function exerciseNavigationSurface(baseUrl, sessionId, scenarioId) {
   return result;
 }
 
+async function runHydrateFallbackNavigationRegression(baseUrl, driverUrl) {
+  const scenario = { id: 'de-hydrate-fallback-navigation', locale: 'de', width: 1440, height: 900 };
+  const sessionId = await createSession(driverUrl, scenario);
+  try {
+    await request(driverUrl, `/session/${sessionId}/url`, 'POST', { url: `${baseUrl}/docs/de/readme` });
+    await waitUntil(async () => execute(driverUrl, sessionId, `
+      const header = document.querySelector('x-header');
+      const trigger = header?.shadowRoot?.querySelector('.burger-menu');
+      const drawer = header?.shadowRoot?.querySelector('#drawer-menu');
+      if (!header || !trigger || !drawer) return null;
+      if (!header.hasAttribute('menu-open')) trigger.click();
+      return header.hasAttribute('menu-open') && drawer.getAttribute('aria-hidden') === 'false';
+    `), 'Hydrate fallback navigation drawer did not open');
+    const initial = await waitUntil(async () => execute(driverUrl, sessionId, `
+      const root = document.querySelector('[data-docs-active-trunk-content]');
+      const shell = document.querySelector('[data-docs-menu-shell]');
+      if (!root || !shell || !window.xtendDocsShellRuntime || !customElements.get('x-summary') || !customElements.get('x-menu')) return null;
+      const links = Array.from(root.querySelectorAll('[data-docs-menu-link]'));
+      const openLinks = links.filter((link) => link.closest('x-summary')?.shadowRoot?.querySelector('details')?.open);
+      const visibleOpenLinks = openLinks.filter((link) => {
+        const rect = link.getBoundingClientRect();
+        const style = getComputedStyle(link);
+        return style.visibility === 'visible' && style.display !== 'none' && rect.width > 0 && rect.height > 0;
+      });
+      if (!links.length || !openLinks.length || visibleOpenLinks.length !== openLinks.length) return null;
+      return {
+        executionMode: document.documentElement.getAttribute('data-xtend-docs-rmt-activation'),
+        activation: root.getAttribute('data-docs-navigation-activation'),
+        activeTrunk: shell.getAttribute('data-docs-active-trunk'),
+        linkCount: links.length,
+        nativeLinkCount: links.filter((link) => link.localName === 'a' && link.hasAttribute('is-x-link')).length,
+        customLinkCount: links.filter((link) => link.localName === 'x-link').length,
+        openLinkCount: openLinks.length,
+        visibleOpenLinkCount: visibleOpenLinks.length
+      };
+    `), 'Hydrate fallback did not expose the adopted SSR navigation');
+    assert(initial.executionMode === 'hydrate' && initial.activation === 'adopted', `Hydrate fallback did not adopt the SSR navigation (${JSON.stringify(initial)}).`);
+    assert(initial.linkCount === initial.nativeLinkCount && initial.customLinkCount === 0, `Hydrate fallback replaced progressive anchors with custom hosts (${JSON.stringify(initial)}).`);
+    assert(initial.openLinkCount > 0 && initial.visibleOpenLinkCount === initial.openLinkCount, `Hydrate fallback hid links inside the active navigation section (${JSON.stringify(initial)}).`);
+
+    const clicked = await execute(driverUrl, sessionId, `
+      const link = document.querySelector('[data-docs-trunk-link="operate"]');
+      if (!link) return false;
+      link.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+      link.click();
+      return true;
+    `);
+    assert(clicked, 'Hydrate fallback operation trunk link is missing.');
+    await waitUntil(async () => execute(driverUrl, sessionId, `
+      const root = document.querySelector('[data-docs-active-trunk-content="operate"]');
+      if (!root || !location.pathname.startsWith('/docs/de/')) return null;
+      const header = document.querySelector('x-header');
+      const trigger = header?.shadowRoot?.querySelector('.burger-menu');
+      const drawer = header?.shadowRoot?.querySelector('#drawer-menu');
+      if (!header || !trigger || !drawer) return null;
+      if (!header.hasAttribute('menu-open')) trigger.click();
+      return header.hasAttribute('menu-open') && drawer.getAttribute('aria-hidden') === 'false';
+    `), 'Hydrate fallback routed navigation drawer did not reopen');
+    const routed = await waitUntil(async () => execute(driverUrl, sessionId, `
+      const root = document.querySelector('[data-docs-active-trunk-content="operate"]');
+      if (!root || !location.pathname.startsWith('/docs/de/')) return null;
+      const links = Array.from(root.querySelectorAll('[data-docs-menu-link]'));
+      const openLinks = links.filter((link) => link.closest('x-summary')?.shadowRoot?.querySelector('details')?.open);
+      const visibleOpenLinks = openLinks.filter((link) => {
+        const rect = link.getBoundingClientRect();
+        const style = getComputedStyle(link);
+        return style.visibility === 'visible' && style.display !== 'none' && rect.width > 0 && rect.height > 0;
+      });
+      if (!links.length || !openLinks.length || visibleOpenLinks.length !== openLinks.length) return null;
+      return {
+        path: location.pathname,
+        activation: root.getAttribute('data-docs-navigation-activation'),
+        linkCount: links.length,
+        nativeLinkCount: links.filter((link) => link.localName === 'a' && link.hasAttribute('is-x-link')).length,
+        customLinkCount: links.filter((link) => link.localName === 'x-link').length,
+        openLinkCount: openLinks.length,
+        visibleOpenLinkCount: visibleOpenLinks.length
+      };
+    `), 'Hydrate fallback did not materialize the routed navigation trunk');
+    assert(routed.activation === 'rendered' && routed.linkCount === routed.nativeLinkCount && routed.customLinkCount === 0, `Hydrate fallback routed navigation is not progressive (${JSON.stringify(routed)}).`);
+    assert(routed.openLinkCount > 0 && routed.visibleOpenLinkCount === routed.openLinkCount, `Hydrate fallback hid links after trunk navigation (${JSON.stringify(routed)}).`);
+
+    const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
+    const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
+    assert(severe.length === 0, `Hydrate fallback emitted severe console errors: ${JSON.stringify(severe)}`);
+    const screenshot = await request(driverUrl, `/session/${sessionId}/screenshot`);
+    await Promise.all([
+      writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({ scenario, initial, routed, logs }, null, 2)}\n`),
+      writeFile(path.join(evidenceDir, `${scenario.id}.png`), Buffer.from(String(screenshot || ''), 'base64'))
+    ]);
+  } finally {
+    await request(driverUrl, `/session/${sessionId}`, 'DELETE').catch(() => {});
+  }
+}
+
 async function navigateTrunk(baseUrl, sessionId, trunk) {
   const clicked = await execute(baseUrl, sessionId, `
     const link = document.querySelector('[data-docs-trunk-link="' + arguments[0] + '"]');
@@ -2307,6 +2402,7 @@ if (!php || !chromeDriver) {
 
 await mkdir(evidenceDir, { recursive: true });
 const port = await freePort();
+const hydrateFallbackPort = await freePort();
 const driverPort = await freePort();
 let generatedResumeKeyPath = null;
 let resumeKeyPath = process.env.XTEND_DOCS_RESUME_PRIVATE_KEY_FILE || '';
@@ -2328,20 +2424,37 @@ const server = spawn(php, ['-S', `127.0.0.1:${port}`, '-t', rootDir, 'docs/dev-r
   },
   stdio: ['ignore', 'pipe', 'pipe']
 });
+const hydrateFallbackServer = spawn(php, ['-S', `127.0.0.1:${hydrateFallbackPort}`, '-t', rootDir, 'docs/dev-router.php'], {
+  cwd: rootDir,
+  env: {
+    ...process.env,
+    XTEND_DOCS_DOCUMENT_SSR: process.env.XTEND_DOCS_DOCUMENT_SSR || 'v2',
+    XTEND_DOCS_SSR_MODE: 'resume',
+    XTEND_DOCS_RESUME_PRIVATE_KEY_FILE: '',
+    XTEND_DOCS_RESUME_KEY_ID: process.env.XTEND_DOCS_RESUME_KEY_ID || 'docs-smoke-p256',
+    XTEND_DOCS_PUBLIC_ORIGIN: `http://127.0.0.1:${hydrateFallbackPort}`
+  },
+  stdio: ['ignore', 'pipe', 'pipe']
+});
 const driver = spawn(chromeDriver, [`--port=${driverPort}`], {
   cwd: rootDir,
   stdio: ['ignore', 'pipe', 'pipe']
 });
 server.stdout.resume();
 server.stderr.resume();
+hydrateFallbackServer.stdout.resume();
+hydrateFallbackServer.stderr.resume();
 driver.stdout.resume();
 driver.stderr.resume();
 
 try {
   const baseUrl = `http://127.0.0.1:${port}`;
+  const hydrateFallbackBaseUrl = `http://127.0.0.1:${hydrateFallbackPort}`;
   const driverUrl = `http://127.0.0.1:${driverPort}`;
   await waitForServer(`${baseUrl}/docs/de/readme`, server);
+  await waitForServer(`${hydrateFallbackBaseUrl}/docs/de/readme`, hydrateFallbackServer);
   await waitForDriver(driverUrl, driver);
+  if (!captureBaseline) await runHydrateFallbackNavigationRegression(hydrateFallbackBaseUrl, driverUrl);
   const scenarios = [
     { id: 'de-desktop', locale: 'de', theme: 'light', width: 1440, height: 900 },
     { id: 'en-mobile', locale: 'en', theme: 'dark', width: 390, height: 844 }
@@ -2389,6 +2502,7 @@ try {
   }
 } finally {
   stopProcess(server);
+  stopProcess(hydrateFallbackServer);
   await fetch(`http://127.0.0.1:${driverPort}/shutdown`).catch(() => {});
   stopProcess(driver);
   if (generatedResumeKeyPath) await unlink(generatedResumeKeyPath).catch(() => {});
