@@ -1030,6 +1030,85 @@ async function runMaracaOrchestrationSuite(options = {}) {
     id: 'maraca-orchestration',
     label: 'XTend Maraca App Orchestration'
   });
+  const browserCompositionApi = await importRepoEsmModule('xtend-maraca/browser-composition-runtime.mjs', rootDir);
+  const surfaceControllerProvider = Object.freeze({
+    createSurfaceController() {
+      throw new Error('Composition port identity test must not instantiate the provider.');
+    }
+  });
+  const explicitSurfaceController = Object.freeze({
+    apply() {},
+    readSnapshot() { return {}; },
+    subscribe() { return () => {}; },
+    dispose() { return false; }
+  });
+  const compatibilitySurfaceStateProjection = Object.freeze({
+    snapshot() { return {}; }
+  });
+  const compositionRootTarget = {
+    localName: 'main',
+    getAttribute() { return null; },
+    querySelector() { return null; },
+    querySelectorAll() { return []; }
+  };
+  const compositionDocumentTarget = {
+    head: { appendChild() {} },
+    body: compositionRootTarget,
+    documentElement: compositionRootTarget,
+    querySelector() { return null; },
+    getElementById() { return null; },
+    createElement() {
+      return { setAttribute() {} };
+    }
+  };
+  const compositionPlatformTarget = {
+    XTendSurfaceController: surfaceControllerProvider
+  };
+  let capturedRuntimeConfiguration = null;
+  const compositionRuntime = browserCompositionApi.createMaracaBrowserCompositionRoot({
+    schema: MARACA_BUNDLE_REPORT_SCHEMA,
+    orchestration: { enabled: true, strict: false, mode: 'compatibility', status: 'ready', artifact: {} },
+    kernel: { enabled: false, status: 'disabled' },
+    hydration: { enabled: false, status: 'disabled' },
+    components: [],
+    surfaces: [],
+    state: {}
+  }, {
+    platformTarget: compositionPlatformTarget,
+    windowTarget: compositionPlatformTarget,
+    documentTarget: compositionDocumentTarget,
+    createPlanRuntime(runtimeConfiguration) {
+      capturedRuntimeConfiguration = runtimeConfiguration;
+      return {
+        model: Object.freeze({ snapshot() { return Object.freeze({}); } }),
+        async boot() { return this.snapshot(); },
+        async dispatchCommand() { return this.snapshot(); },
+        async dispatchStreamPatch() { return this.snapshot(); },
+        snapshot() {
+          return { phase: 'booted', enabled: true, diagnostics: [] };
+        },
+        subscribe() { return () => {}; },
+        dispose() { return true; }
+      };
+    }
+  });
+  const compositionRenderer = { commit() { return null; }, dispose() { return false; } };
+  await compositionRuntime.boot({
+    root: compositionRootTarget,
+    domRenderer: compositionRenderer,
+    surfaceController: explicitSurfaceController,
+    surfaceControllerId: 'demo.surface-controller',
+    surfaceStateProjection: compatibilitySurfaceStateProjection,
+    registerServiceWorker: false
+  });
+  const loadedCompositionModules = await capturedRuntimeConfiguration.moduleLoaderPort.load();
+  context.assert(loadedCompositionModules.surfaceController === surfaceControllerProvider,
+    'browser composition exposes the exact XTendSurfaceController provider through its module-loader port');
+  context.assert(capturedRuntimeConfiguration.surfaceController === explicitSurfaceController
+    && capturedRuntimeConfiguration.surfaceControllerId === 'demo.surface-controller'
+    && capturedRuntimeConfiguration.surfaceStateProjection === compatibilitySurfaceStateProjection,
+  'browser composition preserves explicit Surface Controller and compatibility projection ports for Plan Runtime');
+  compositionRuntime.dispose();
   const commandCalls = { focus: 0, reset: 0, snapshot: 0, ensured: [], queries: [] };
   const editor = {
     localName: 'x-textarea',
@@ -1212,9 +1291,13 @@ async function runMaracaOrchestrationSuite(options = {}) {
   'canonical composition root creates the Plan Runtime exactly once from immutable configuration');
   context.assert(compositionRuntimeSource.includes('domRenderer: handles.renderer')
     && compositionRuntimeSource.includes('kernelController: handles.kernel')
+    && compositionRuntimeSource.includes("surfaceController: host.runtimeApi('XTendSurfaceController')")
+    && compositionRuntimeSource.includes('surfaceController: options.surfaceController || null')
+    && compositionRuntimeSource.includes('surfaceControllerId: options.surfaceControllerId')
+    && compositionRuntimeSource.includes('surfaceStateProjection: options.surfaceStateProjection || null')
     && compositionRuntimeSource.includes('invokeComponentCommand: (record) => host.invokeComponentCommand')
     && compositionRuntimeSource.includes('postCommitEffects: options.postCommitEffects || null'),
-  'composition root injects the shared renderer, kernel, presentation, and additive host hooks');
+  'composition root injects the shared renderer, kernel, Surface Controller, presentation, and additive host hooks');
   context.assert(planRuntimeSource.includes("facade: 'xtend.maraca.scheduled-app-runtime.v1'"), 'canonical Plan Runtime owns the scheduled app-runtime facade');
   context.assert(planRuntimeSource.includes('handleStreamPatch(patchInput, reducerOptions = {})'), 'canonical Plan Runtime owns the scheduled stream lifecycle facade');
   context.assert(planRuntimeSource.includes("'operation:xtend.maraca/orchestration/event'"), 'canonical Plan Runtime schedules app commands on the orchestration event lane');

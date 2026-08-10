@@ -13,9 +13,9 @@
     "bytes": 3006871
   },
   "baselineBytes": 3006871,
-  "bundleBytes": 2864157,
+  "bundleBytes": 2864409,
   "framework": {
-    "bytes": 2864157,
+    "bytes": 2864409,
     "baselineBytes": 3006871,
     "withinBudget": true
   },
@@ -44,7 +44,7 @@
       }
     ]
   },
-  "ratio": 0.9525373719058783,
+  "ratio": 0.952621179957504,
   "budgets": {
     "modernEsmEntryMustBeSmallerThanBaseline": true,
     "enforcement": "strict",

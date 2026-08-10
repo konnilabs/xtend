@@ -221,7 +221,7 @@
   "entry": "/Users/konnitroetscher/xtend/xtend/products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
   "entryRelative": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
   "entryBytes": 1018167,
-  "bytes": 2864157,
+  "bytes": 2864409,
   "bundleFiles": [
     {
       "type": "chunk",
@@ -636,14 +636,14 @@
       "type": "asset",
       "fileName": "runtime/xtend-maraca-browser-composition-runtime.mjs",
       "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-browser-composition-runtime.mjs",
-      "bytes": 21888,
+      "bytes": 22140,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 21888
+      "frameworkBytes": 22140
     },
     {
       "type": "asset",
@@ -1528,7 +1528,7 @@
       "mode": "strict",
       "profile": "production",
       "baselineBytes": 3006871,
-      "bundleBytes": 2864157,
+      "bundleBytes": 2864409,
       "runtimeExpectedStatus": "booted"
     },
     "releaseConstraint": {
@@ -1551,7 +1551,7 @@
       "bundle": {
         "fileCount": 19,
         "entry": "xtend.maraca.mjs",
-        "bytes": 2864157
+        "bytes": 2864409
       },
       "runtimeFeatureStatus": [
         {
@@ -2117,7 +2117,7 @@
       "mode": "strict",
       "profile": "production",
       "baselineBytes": 3006871,
-      "bundleBytes": 2864157,
+      "bundleBytes": 2864409,
       "runtimeExpectedStatus": "booted"
     },
     "releaseConstraint": {
@@ -2140,7 +2140,7 @@
       "bundle": {
         "fileCount": 19,
         "entry": "xtend.maraca.mjs",
-        "bytes": 2864157
+        "bytes": 2864409
       },
       "runtimeFeatureStatus": [
         {
@@ -2394,7 +2394,7 @@
     "templateCount": 1,
     "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
     "artifactBundleFingerprint": "fnv1a:38205680",
-    "bundleFingerprint": "sha256:18d4496605a774fd16acc2b5435f99fafbf2cb891be696d617a50501cd577d92",
+    "bundleFingerprint": "sha256:76a1a597720b782d214a282724463cc5f8a55113a9fff81b30502ff23fce80b0",
     "runtimeProfileHints": [
       "browser",
       "detached_dom",
@@ -2601,7 +2601,7 @@
         "template:product.kernel.maraca"
       ],
       "bundleFileCount": 19,
-      "bundleFingerprint": "sha256:18d4496605a774fd16acc2b5435f99fafbf2cb891be696d617a50501cd577d92"
+      "bundleFingerprint": "sha256:76a1a597720b782d214a282724463cc5f8a55113a9fff81b30502ff23fce80b0"
     },
     "diagnostics": []
   },
@@ -3695,7 +3695,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "booted",
-      "bundleFingerprint": "sha256:18d4496605a774fd16acc2b5435f99fafbf2cb891be696d617a50501cd577d92"
+      "bundleFingerprint": "sha256:76a1a597720b782d214a282724463cc5f8a55113a9fff81b30502ff23fce80b0"
     },
     "diagnostics": [
       {
@@ -3715,7 +3715,7 @@
         ]
       }
     ],
-    "bundleFingerprint": "sha256:18d4496605a774fd16acc2b5435f99fafbf2cb891be696d617a50501cd577d92"
+    "bundleFingerprint": "sha256:76a1a597720b782d214a282724463cc5f8a55113a9fff81b30502ff23fce80b0"
   },
   "panicRecovery": {
     "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
@@ -4970,7 +4970,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "booted",
-      "bundleFingerprint": "sha256:18d4496605a774fd16acc2b5435f99fafbf2cb891be696d617a50501cd577d92"
+      "bundleFingerprint": "sha256:76a1a597720b782d214a282724463cc5f8a55113a9fff81b30502ff23fce80b0"
     },
     "summary": {
       "schema": "xtend.rmt.kernel-orchestration.v1",
@@ -6047,7 +6047,7 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-state-binding-view-projector.js (579:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-presentation-effect-adapter.js (551:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -6055,7 +6055,7 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-presentation-effect-adapter.js (551:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-state-binding-view-projector.js (579:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -6063,15 +6063,7 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-animation-engine-runtime.js (581:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
-      },
-      {
-        "code": "THIS_IS_UNDEFINED",
         "message": "xtendrmt/rmt-event-routing-runtime.js (1248:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
-      },
-      {
-        "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-action-effect-runtime.js (810:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -6079,7 +6071,15 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-animation-engine-runtime.js (581:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
         "message": "components/xsurfacemanager-controller.js (12:52): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-action-effect-runtime.js (810:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -6103,9 +6103,9 @@
       "bytes": 3006871
     },
     "baselineBytes": 3006871,
-    "bundleBytes": 2864157,
+    "bundleBytes": 2864409,
     "framework": {
-      "bytes": 2864157,
+      "bytes": 2864409,
       "baselineBytes": 3006871,
       "withinBudget": true
     },
@@ -6134,7 +6134,7 @@
         }
       ]
     },
-    "ratio": 0.9525373719058783,
+    "ratio": 0.952621179957504,
     "budgets": {
       "modernEsmEntryMustBeSmallerThanBaseline": true,
       "enforcement": "strict",
