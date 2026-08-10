@@ -1590,8 +1590,6 @@ class XRouter extends HTMLElement {
       source: 'x-router',
       stateKey: 'xtend.router.current',
       mode: this._mode,
-      navigationPolicy: this._getNavigationPolicy(),
-      ready: this._routerReady,
       current: this._lastRouteDetail,
       routeCount: this._getRoutes().length,
       scheduleRef: 'diagnostics.snapshot'

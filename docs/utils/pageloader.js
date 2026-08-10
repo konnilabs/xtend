@@ -5865,14 +5865,6 @@ class XtendDocPage extends HTMLElement {
     }
 
     let animationEngineDemoRoot = reconcileDocsAnimationEngineDemoSlot(shell.article, shell.mdContent, slug, locale);
-    if (animationEngineDemoRoot) {
-      this.scheduleRouteWork(scheduleDocsAnimationEngineDemoHydration({
-        root: animationEngineDemoRoot,
-        target: shell.mdContent,
-        locale
-      }));
-    }
-
     completeDocsLocaleTransition(locale, slug, { status: 'ready', source: context.source || 'resume' });
     window.dispatchEvent(new CustomEvent('xtend-docs-content-ready', {
       detail: {
@@ -5886,6 +5878,13 @@ class XtendDocPage extends HTMLElement {
         insularHydration: true
       }
     }));
+    if (animationEngineDemoRoot) {
+      this.scheduleRouteWork(scheduleDocsAnimationEngineDemoHydration({
+        root: animationEngineDemoRoot,
+        target: shell.mdContent,
+        locale
+      }));
+    }
     return true;
   }
 

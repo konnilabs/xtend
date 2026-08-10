@@ -208,8 +208,6 @@ export interface XRouterSnapshot {
   source: 'x-router';
   stateKey: 'xtend.router.current';
   mode: XtendRouteMode;
-  navigationPolicy: XRouterNavigationPolicy;
-  ready: boolean;
   current: XRouterRouteChangeDetail | null;
   routeCount: number;
   scheduleRef: 'diagnostics.snapshot';

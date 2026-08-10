@@ -1106,7 +1106,9 @@ function buildUsages(record, exportMappings) {
       });
     });
     group.symbols.forEach((symbol) => {
-      if (symbol.path.endsWith('.json') && String(symbol.symbol).startsWith('/')) {
+      if (isGeneratedPath(symbol.path)) {
+        references.push({ type: 'repo-symbol', path: symbol.path, symbol: null });
+      } else if (symbol.path.endsWith('.json') && String(symbol.symbol).startsWith('/')) {
         references.push({ type: 'json-pointer', path: symbol.path, pointer: symbol.symbol });
       } else {
         references.push({ type: 'symbol', path: symbol.path, symbol: symbol.symbol });

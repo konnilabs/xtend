@@ -756,7 +756,6 @@ class XLink extends HTMLElement {
       source: 'x-link',
       stateKey: `xlink-active-${this.id}`,
       href: this.getAttribute('href') || '',
-      navigation: this._getNavigation(),
       active: this.hasAttribute('active'),
       external: this._isExternal(this.getAttribute('href') || ''),
       scheduleRef: 'diagnostics.snapshot'

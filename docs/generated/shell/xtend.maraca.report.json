@@ -221,7 +221,7 @@
   "entry": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/xtend.maraca.mjs",
   "entryRelative": "docs/generated/shell/xtend.maraca.mjs",
   "entryBytes": 558181,
-  "bytes": 943706,
+  "bytes": 943665,
   "bundleFiles": [
     {
       "type": "chunk",
@@ -238,7 +238,7 @@
         "chunks/x-footer-Clivp2-s.mjs",
         "chunks/x-header-CvMi2P3Z.mjs",
         "chunks/x-hero-BGhTnwr_.mjs",
-        "chunks/x-router-C2liJ4Pv.mjs",
+        "chunks/x-router-CnvvVLzP.mjs",
         "chunks/x-section-CujW4WBS.mjs",
         "chunks/x-status-BB8O2AVV.mjs",
         "chunks/x-theme-CkQ9-vbQ.mjs"
@@ -421,9 +421,9 @@
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-router-C2liJ4Pv.mjs",
-      "path": "docs/generated/shell/chunks/x-router-C2liJ4Pv.mjs",
-      "bytes": 58124,
+      "fileName": "chunks/x-router-CnvvVLzP.mjs",
+      "path": "docs/generated/shell/chunks/x-router-CnvvVLzP.mjs",
+      "bytes": 58083,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
@@ -433,12 +433,12 @@
       "modules": [
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/components/xrouter.js",
-          "renderedLength": 104966,
+          "renderedLength": 104881,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 58124
+      "frameworkBytes": 58083
     },
     {
       "type": "chunk",
@@ -1347,8 +1347,8 @@
       "status": "within_budget",
       "mode": "strict",
       "profile": "max",
-      "baselineBytes": 1124086,
-      "bundleBytes": 943706,
+      "baselineBytes": 1124001,
+      "bundleBytes": 943665,
       "runtimeExpectedStatus": "report-only"
     },
     "releaseConstraint": {
@@ -1371,7 +1371,7 @@
       "bundle": {
         "fileCount": 12,
         "entry": "xtend.maraca.mjs",
-        "bytes": 943706
+        "bytes": 943665
       },
       "runtimeFeatureStatus": [
         {
@@ -1949,8 +1949,8 @@
       "status": "within_budget",
       "mode": "strict",
       "profile": "max",
-      "baselineBytes": 1124086,
-      "bundleBytes": 943706,
+      "baselineBytes": 1124001,
+      "bundleBytes": 943665,
       "runtimeExpectedStatus": "report-only"
     },
     "releaseConstraint": {
@@ -1973,7 +1973,7 @@
       "bundle": {
         "fileCount": 12,
         "entry": "xtend.maraca.mjs",
-        "bytes": 943706
+        "bytes": 943665
       },
       "runtimeFeatureStatus": [
         {
@@ -2227,7 +2227,7 @@
     "templateCount": 1,
     "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
     "artifactBundleFingerprint": "fnv1a:76525cea",
-    "bundleFingerprint": "sha256:6b938eb86644b91a8929a644b39fe311fa927168e93925610b062e61945235a7",
+    "bundleFingerprint": "sha256:7b21228a26bd1d788e81f3b766f68be98e08a1ccb90ffb8cfc1520a08213e583",
     "runtimeProfileHints": [
       "browser",
       "detached_dom",
@@ -2418,7 +2418,7 @@
         "template:xtend.docs.php_ssr_shell"
       ],
       "bundleFileCount": 12,
-      "bundleFingerprint": "sha256:6b938eb86644b91a8929a644b39fe311fa927168e93925610b062e61945235a7"
+      "bundleFingerprint": "sha256:7b21228a26bd1d788e81f3b766f68be98e08a1ccb90ffb8cfc1520a08213e583"
     },
     "diagnostics": []
   },
@@ -3512,7 +3512,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "report-only",
-      "bundleFingerprint": "sha256:6b938eb86644b91a8929a644b39fe311fa927168e93925610b062e61945235a7"
+      "bundleFingerprint": "sha256:7b21228a26bd1d788e81f3b766f68be98e08a1ccb90ffb8cfc1520a08213e583"
     },
     "diagnostics": [
       {
@@ -3532,7 +3532,7 @@
         ]
       }
     ],
-    "bundleFingerprint": "sha256:6b938eb86644b91a8929a644b39fe311fa927168e93925610b062e61945235a7"
+    "bundleFingerprint": "sha256:7b21228a26bd1d788e81f3b766f68be98e08a1ccb90ffb8cfc1520a08213e583"
   },
   "panicRecovery": {
     "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
@@ -4439,7 +4439,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "report-only",
-      "bundleFingerprint": "sha256:6b938eb86644b91a8929a644b39fe311fa927168e93925610b062e61945235a7"
+      "bundleFingerprint": "sha256:7b21228a26bd1d788e81f3b766f68be98e08a1ccb90ffb8cfc1520a08213e583"
     },
     "summary": {
       "schema": null,
@@ -5520,6 +5520,10 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-maraca-view-projection-adapter.js (242:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
         "message": "xtendrmt/rmt-state-binding-view-projector.js (579:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
@@ -5528,15 +5532,11 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-maraca-view-projection-adapter.js (242:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
-      },
-      {
-        "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-surface-resource-graph-runtime.js (1693:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
-      },
-      {
-        "code": "THIS_IS_UNDEFINED",
         "message": "xtendrmt/rmt-state-selector-runtime.js (1116:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-action-effect-runtime.js (813:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -5544,7 +5544,7 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-action-effect-runtime.js (813:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-surface-resource-graph-runtime.js (1693:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -5566,16 +5566,16 @@
     "baseline": {
       "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
       "loaderBytes": 69993,
-      "selectedComponentBytes": 278074,
+      "selectedComponentBytes": 277989,
       "stackModuleBytes": 574838,
       "contractPayloadBytes": 201181,
-      "bytes": 1124086
+      "bytes": 1124001
     },
-    "baselineBytes": 1124086,
-    "bundleBytes": 943706,
+    "baselineBytes": 1124001,
+    "bundleBytes": 943665,
     "framework": {
-      "bytes": 943706,
-      "baselineBytes": 1124086,
+      "bytes": 943665,
+      "baselineBytes": 1124001,
       "withinBudget": true
     },
     "appServices": {
@@ -5603,11 +5603,11 @@
         }
       ]
     },
-    "ratio": 0.8395318507658667,
+    "ratio": 0.8395588616024363,
     "budgets": {
       "modernEsmEntryMustBeSmallerThanBaseline": true,
       "enforcement": "strict",
-      "frameworkBytes": 1124086,
+      "frameworkBytes": 1124001,
       "clientAppServiceBytes": null,
       "serverAppServiceBytes": null
     }
