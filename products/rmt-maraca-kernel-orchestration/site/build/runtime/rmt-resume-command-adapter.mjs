@@ -3,7 +3,7 @@ import {
   cloneSafe,
   objectRecord,
   toArray
-} from './rmt-resume-protocol.js';
+} from './rmt-resume-protocol.mjs';
 
 function resolveAdopter(adopters, record) {
   if (adopters instanceof Map) return adopters.get(record.id || record.key || record.surfaceId) || null;

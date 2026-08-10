@@ -72,6 +72,8 @@ const MARACA_OUT_DIR = '.xtend-build/maraca/source-to-sea';
 const MARACA_RMT_OUT_DIR = '.xtend-build/maraca/rmt-command';
 const MARACA_ORCHESTRATION_OUT_DIR = '.xtend-build/maraca/orchestration';
 const MARACA_KERNEL_ORCHESTRATION_OUT_DIR = '.xtend-build/maraca/kernel-orchestration';
+const MARACA_KERNEL_RUNTIME_ASSET = 'runtime/xtendrmt-runtime.esm.mjs';
+const MARACA_KERNEL_CONTROLLER_ASSET = 'runtime/xtendrmt-kernel-orchestration-controller.mjs';
 const MARACA_KERNEL_INTEGRITY_OUT_DIR = '.xtend-build/maraca/kernel-integrity';
 const MARACA_VALIDATION_OUT_DIR = '.xtend-build/maraca/validation';
 const MARACA_TRANSITIONS_OUT_DIR = '.xtend-build/maraca/transitions';
@@ -377,7 +379,7 @@ function runMaracaKernelSourceIndependenceProbe(rootDir) {
       kernel: 'strict'
     }, { rootDir: tempRoot });
     const runtimeAsset = build.bundleReport && build.bundleReport.bundleFiles.find((entry) => (
-      entry.fileName === 'runtime/xtendrmt-runtime.esm.js'
+      entry.fileName === MARACA_KERNEL_RUNTIME_ASSET
     ));
     const runtimeAssetSource = runtimeAsset
       ? fs.readFileSync(path.join(tempRoot, runtimeAsset.path), 'utf8')
@@ -399,6 +401,13 @@ function runMaracaKernelSourceIndependenceProbe(rootDir) {
   } finally {
     fs.rmSync(tempRoot, { recursive: true, force: true });
   }
+}
+
+function expectedPackagedEsmSource(source) {
+  return String(source || '').replace(
+    /(\b(?:import|export)\s+(?:[^'";]*?\s+from\s+)?['"])(\.[^'"]+)\.js(['"])/gu,
+    '$1$2.mjs$3'
+  );
 }
 
 function planFixture(rootDir, overrides = {}) {
@@ -682,8 +691,8 @@ function runMaracaPlanSuite(options = {}) {
   );
   context.assert(
     kernelSourceIndependence.build.ok === true
-      && kernelSourceIndependence.runtimeAssetSource === kernelSourceIndependence.esmArtifact.content,
-    'Maraca bundles the exact KernelLab-assembled ESM runtime when the generated ESM product is corrupt'
+      && kernelSourceIndependence.runtimeAssetSource === expectedPackagedEsmSource(kernelSourceIndependence.esmArtifact.content),
+    'Maraca packages the exact KernelLab-assembled ESM runtime with only explicit .mjs dependency paths when the generated ESM product is corrupt'
   );
   context.assert(
     kernelSourceIndependence.generatedInputsUnchanged === true,
@@ -814,7 +823,7 @@ async function runMaracaBundleSuite(options = {}) {
     .map((file) => fs.existsSync(resolveRepoPath(file.path, rootDir)) ? fs.readFileSync(resolveRepoPath(file.path, rootDir), 'utf8') : '')
     .join('\n');
   const appBundleText = bundleFiles
-    .filter((file) => file.fileName !== 'runtime/xtendrmt-runtime.esm.js')
+    .filter((file) => file.fileName !== MARACA_KERNEL_RUNTIME_ASSET)
     .map((file) => fs.existsSync(resolveRepoPath(file.path, rootDir)) ? fs.readFileSync(resolveRepoPath(file.path, rootDir), 'utf8') : '')
     .join('\n');
 
@@ -904,7 +913,7 @@ async function runMaracaBundleSuite(options = {}) {
   context.assert(!bundleText.includes('components/manifest.json'), 'bundle does not reference the component manifest JSON file');
   context.assert(!bundleText.includes('data-manifest'), 'bundle does not reference a data-manifest attribute');
   context.assert(!bundleText.includes('xtend-loader.js'), 'bundle does not reference the legacy loader file');
-  context.assert(bundleFiles.some((file) => file.fileName === 'runtime/xtendrmt-runtime.esm.js'), 'bundle package includes the RMT kernel runtime asset');
+  context.assert(bundleFiles.some((file) => file.fileName === MARACA_KERNEL_RUNTIME_ASSET), 'bundle package includes the RMT kernel runtime as an explicit ESM asset');
   context.assert(bundleFiles.some((file) => file.fileName === 'runtime/xtend-maraca-plan-runtime.mjs'), 'bundle package includes the canonical Maraca Plan Runtime asset');
   context.assert(bundleFiles.some((file) => file.fileName === 'runtime/xtend-maraca-browser-composition-runtime.mjs'), 'bundle package includes the canonical Maraca browser composition root');
   context.assert(bundleFiles.some((file) => file.fileName === 'runtime/browser-host-adapter.mjs'), 'bundle package includes the canonical Maraca browser host adapter');
@@ -1439,7 +1448,7 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(entrySource.includes('MARACA_HYDRATION'), 'bundle embeds hydration plan');
   context.assert(entrySource.includes('MARACA_WARM_REENTRY'), 'bundle embeds Warm Reentry report');
   context.assert(entrySource.includes('XTendMaracaKernelRuntimeModule'), 'bundle imports the RMT kernel runtime module');
-  context.assert(entrySource.includes('xtendrmt-kernel-orchestration-controller.js'), 'bundle imports reusable kernel orchestration controller asset');
+  context.assert(entrySource.includes(MARACA_KERNEL_CONTROLLER_ASSET), 'bundle imports reusable kernel orchestration controller asset');
   context.assert(entrySource.includes('XTendRmtStateSelectorRuntime'), 'bundle wires state runtime');
   context.assert(entrySource.includes('XTendRmtXStateHostAdapter'), 'bundle wires the typed XState host adapter');
   context.assert(entrySource.includes('XTendRmtActionEffectRuntime'), 'bundle wires action runtime');
@@ -1701,7 +1710,11 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
   const result = await buildKernelOrchestrationFixtureAsync(rootDir);
   const entryPath = result.bundleReport && result.bundleReport.entry;
   const reportPath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/xtend.maraca.report.json`, rootDir);
-  const kernelRuntimePath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/runtime/xtendrmt-runtime.esm.js`, rootDir);
+  const kernelRuntimePath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/${MARACA_KERNEL_RUNTIME_ASSET}`, rootDir);
+  const kernelControllerPath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/${MARACA_KERNEL_CONTROLLER_ASSET}`, rootDir);
+  const legacyKernelRuntimePath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/runtime/xtendrmt-runtime.esm.js`, rootDir);
+  const legacyKernelControllerPath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/runtime/xtendrmt-kernel-orchestration-controller.js`, rootDir);
+  const legacyResumeRuntimePath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/runtime/rmt-resume-runtime.js`, rootDir);
   const entrySource = entryPath && fs.existsSync(entryPath) ? fs.readFileSync(entryPath, 'utf8') : '';
   const browserHostAdapterSource = readText('xtend-maraca/browser-host-adapter.mjs', rootDir);
   const kernelControllerSource = readText('xtendrmt/rmt-kernel-orchestration-controller.js', rootDir);
@@ -1800,9 +1813,24 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
     degradedRegistry.diagnostics.some((diagnostic) => diagnostic.code === 'xtend.rmt.kernel_feature_adoption.unsupported' && diagnostic.capabilityKey === 'policyParity'),
     'registry emits unsupported capability diagnostics instead of silent no-op status'
   );
-  context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === 'runtime/xtendrmt-runtime.esm.js'), 'kernel runtime is packaged as a runtime asset');
-  context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === 'runtime/xtendrmt-kernel-orchestration-controller.js'), 'kernel orchestration controller is packaged as a runtime asset');
+  context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === MARACA_KERNEL_RUNTIME_ASSET), 'kernel runtime is packaged as an explicit ESM runtime asset');
+  context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === MARACA_KERNEL_CONTROLLER_ASSET), 'kernel orchestration controller is packaged as an explicit ESM runtime asset');
   context.assert(fs.existsSync(kernelRuntimePath), 'kernel runtime asset exists in the build package');
+  context.assert(fs.existsSync(kernelControllerPath), 'kernel orchestration controller asset exists in the build package');
+  context.assert(!fs.existsSync(legacyKernelRuntimePath), 'kernel packaging removes the obsolete typeless .js runtime asset');
+  context.assert(!fs.existsSync(legacyKernelControllerPath), 'kernel packaging removes the obsolete typeless .js controller asset');
+  context.assert(!fs.existsSync(legacyResumeRuntimePath), 'kernel packaging removes the obsolete typeless .js resume runtime asset');
+  const kernelRuntimeImportProbe = spawnSync(process.execPath, [
+    '--input-type=module',
+    '--eval',
+    `await Promise.all([import(${JSON.stringify(`${pathToFileURL(kernelRuntimePath).href}?probe=module-format`)}), import(${JSON.stringify(`${pathToFileURL(kernelControllerPath).href}?probe=module-format`)})])`
+  ], {
+    cwd: rootDir,
+    encoding: 'utf8',
+    env: process.env
+  });
+  context.assert(kernelRuntimeImportProbe.status === 0, `Node imports the packaged kernel runtime and controller${kernelRuntimeImportProbe.status === 0 ? '' : ` (${String(kernelRuntimeImportProbe.stderr || kernelRuntimeImportProbe.error || '').trim()})`}`);
+  context.assert(!String(kernelRuntimeImportProbe.stderr || '').includes('MODULE_TYPELESS_PACKAGE_JSON'), 'packaged kernel runtime and controller declare ESM through their .mjs asset names');
   const kernelRuntimeModule = await import(`${pathToFileURL(kernelRuntimePath).href}?suite=maraca-kernel-orchestration`);
   const browserlessKernelWindowTarget = Object.freeze({});
   const browserlessMissingApis = ['Blob', 'Worker', 'URL.createObjectURL'];
@@ -1922,8 +1950,8 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
     prewarmWorkerSnapshot.featureAdoption.capabilities.find((capability) => capability.key === 'prewarmWorker').active === true,
     'prewarm worker controller marks feature adoption active'
   );
-  context.assert(entrySource.includes('XTendMaracaKernelRuntimeModule') && entrySource.includes('./runtime/xtendrmt-runtime.esm.js'), 'entry imports the packaged kernel runtime asset');
-  context.assert(entrySource.includes('./runtime/xtendrmt-kernel-orchestration-controller.js'), 'entry imports the reusable kernel orchestration controller asset');
+  context.assert(entrySource.includes('XTendMaracaKernelRuntimeModule') && entrySource.includes(`./${MARACA_KERNEL_RUNTIME_ASSET}`), 'entry imports the packaged kernel runtime asset');
+  context.assert(entrySource.includes(`./${MARACA_KERNEL_CONTROLLER_ASSET}`), 'entry imports the reusable kernel orchestration controller asset');
   context.assert(entrySource.includes('createRmtRuntime'), 'entry creates an RMT runtime instance');
   context.assert(entrySource.includes('createRmtCore'), 'entry creates an RMT core instance');
   context.assert(entrySource.includes('createRmtPerformanceRuntime'), 'entry creates a performance runtime instance');
@@ -2419,7 +2447,7 @@ async function runMaracaKernelIntegritySuite(options = {}) {
   const result = await buildKernelIntegrityFixtureAsync(rootDir);
   const entryPath = result.bundleReport && result.bundleReport.entry;
   const reportPath = resolveRepoPath(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/xtend.maraca.report.json`, rootDir);
-  const controllerPath = resolveRepoPath(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/runtime/xtendrmt-kernel-orchestration-controller.js`, rootDir);
+  const controllerPath = resolveRepoPath(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/${MARACA_KERNEL_CONTROLLER_ASSET}`, rootDir);
   const planRuntimePath = resolveRepoPath(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/runtime/xtend-maraca-plan-runtime.mjs`, rootDir);
   const browserHostPath = resolveRepoPath(`${MARACA_KERNEL_INTEGRITY_OUT_DIR}/runtime/browser-host-adapter.mjs`, rootDir);
   const entrySource = entryPath && fs.existsSync(entryPath) ? fs.readFileSync(entryPath, 'utf8') : '';
@@ -2440,7 +2468,7 @@ async function runMaracaKernelIntegritySuite(options = {}) {
   context.assert(result.ok === true, `kernel integrity bundle passes${result.ok ? '' : ` (${result.status})`}`);
   context.assert(report && report.kernel && report.kernel.enabled === true, 'kernel integrity bundle report records enabled kernel');
   context.assert(report && report.hydration && report.hydration.enabled === true, 'kernel integrity bundle report records enabled hydration');
-  context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === 'runtime/xtendrmt-kernel-orchestration-controller.js'), 'kernel integrity bundle packages the reusable controller');
+  context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === MARACA_KERNEL_CONTROLLER_ASSET), 'kernel integrity bundle packages the reusable controller');
   context.assert(fs.existsSync(controllerPath), 'kernel integrity controller runtime asset exists');
   context.assert(!planRuntimeSource.includes("'x-player'") && !planRuntimeSource.includes("'x-lightbox'"), 'canonical bundle controller contains no concrete media-component tags');
   context.assert(report && report.stackModules && report.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-presentation-effect-adapter.js'), 'kernel integrity bundle packages the PresentationEffectPort adapter');

@@ -5,7 +5,7 @@ import {
   cloneSafe,
   createResumeDiagnostic,
   toArray
-} from './rmt-resume-protocol.js';
+} from './rmt-resume-protocol.mjs';
 
 export function createRmtResumeCaptureAdapter(options = {}) {
   const queuedIntents = [];

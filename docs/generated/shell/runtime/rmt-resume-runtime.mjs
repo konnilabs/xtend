@@ -6,11 +6,11 @@ import {
   RMT_RESUME_RESULT_SCHEMA,
   RMT_RESUME_RUNTIME_SCHEMA,
   canonicalizeRmtResumePayload
-} from './rmt-resume-protocol.js';
-import { createRmtResumeCaptureAdapter } from './rmt-resume-capture-adapter.js';
-import { createRmtResumeHostAdapter } from './rmt-resume-host-adapter.js';
-import { createRmtResumeCommandAdapter } from './rmt-resume-command-adapter.js';
-import { createRmtResumeCommandController } from './rmt-resume-command-controller.js';
+} from './rmt-resume-protocol.mjs';
+import { createRmtResumeCaptureAdapter } from './rmt-resume-capture-adapter.mjs';
+import { createRmtResumeHostAdapter } from './rmt-resume-host-adapter.mjs';
+import { createRmtResumeCommandAdapter } from './rmt-resume-command-adapter.mjs';
+import { createRmtResumeCommandController } from './rmt-resume-command-controller.mjs';
 
 export {
   RMT_RESUME_ADAPTER_SCHEMA,

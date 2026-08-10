@@ -220,19 +220,19 @@
   },
   "entry": "/Users/konnitroetscher/xtend/xtend/products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
   "entryRelative": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
-  "entryBytes": 1023494,
-  "bytes": 2880822,
+  "entryBytes": 1023496,
+  "bytes": 2880834,
   "bundleFiles": [
     {
       "type": "chunk",
       "fileName": "xtend.maraca.mjs",
       "path": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
-      "bytes": 1023494,
+      "bytes": 1023496,
       "isEntry": true,
       "isDynamicEntry": false,
       "imports": [
-        "./runtime/xtendrmt-kernel-orchestration-controller.js",
-        "./runtime/xtendrmt-runtime.esm.js",
+        "./runtime/xtendrmt-kernel-orchestration-controller.mjs",
+        "./runtime/xtendrmt-runtime.esm.mjs",
         "./runtime/xtend-maraca-plan-runtime.mjs",
         "./runtime/xtend-maraca-browser-composition-runtime.mjs",
         "chunks/x-button-CttlflpO.mjs"
@@ -372,7 +372,7 @@
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 1023494
+      "frameworkBytes": 1023496
     },
     {
       "type": "chunk",
@@ -517,8 +517,8 @@
     },
     {
       "type": "asset",
-      "fileName": "runtime/xtendrmt-kernel-orchestration-controller.js",
-      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtendrmt-kernel-orchestration-controller.js",
+      "fileName": "runtime/xtendrmt-kernel-orchestration-controller.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtendrmt-kernel-orchestration-controller.mjs",
       "bytes": 42705,
       "isEntry": false,
       "isDynamicEntry": false,
@@ -530,34 +530,34 @@
     },
     {
       "type": "asset",
-      "fileName": "runtime/xtendrmt-runtime.esm.js",
-      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtendrmt-runtime.esm.js",
-      "bytes": 1485772,
+      "fileName": "runtime/xtendrmt-runtime.esm.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtendrmt-runtime.esm.mjs",
+      "bytes": 1485773,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 1485772
+      "frameworkBytes": 1485773
     },
     {
       "type": "asset",
-      "fileName": "runtime/rmt-resume-runtime.js",
-      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/rmt-resume-runtime.js",
-      "bytes": 2179,
+      "fileName": "runtime/rmt-resume-runtime.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/rmt-resume-runtime.mjs",
+      "bytes": 2184,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 2179
+      "frameworkBytes": 2184
     },
     {
       "type": "asset",
-      "fileName": "runtime/rmt-resume-protocol.js",
-      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/rmt-resume-protocol.js",
+      "fileName": "runtime/rmt-resume-protocol.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/rmt-resume-protocol.mjs",
       "bytes": 3011,
       "isEntry": false,
       "isDynamicEntry": false,
@@ -569,55 +569,55 @@
     },
     {
       "type": "asset",
-      "fileName": "runtime/rmt-resume-capture-adapter.js",
-      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/rmt-resume-capture-adapter.js",
-      "bytes": 4483,
+      "fileName": "runtime/rmt-resume-capture-adapter.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/rmt-resume-capture-adapter.mjs",
+      "bytes": 4484,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 4483
+      "frameworkBytes": 4484
     },
     {
       "type": "asset",
-      "fileName": "runtime/rmt-resume-host-adapter.js",
-      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/rmt-resume-host-adapter.js",
-      "bytes": 3548,
+      "fileName": "runtime/rmt-resume-host-adapter.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/rmt-resume-host-adapter.mjs",
+      "bytes": 3549,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 3548
+      "frameworkBytes": 3549
     },
     {
       "type": "asset",
-      "fileName": "runtime/rmt-resume-command-adapter.js",
-      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/rmt-resume-command-adapter.js",
-      "bytes": 4440,
+      "fileName": "runtime/rmt-resume-command-adapter.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/rmt-resume-command-adapter.mjs",
+      "bytes": 4441,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 4440
+      "frameworkBytes": 4441
     },
     {
       "type": "asset",
-      "fileName": "runtime/rmt-resume-command-controller.js",
-      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/rmt-resume-command-controller.js",
-      "bytes": 16100,
+      "fileName": "runtime/rmt-resume-command-controller.mjs",
+      "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/rmt-resume-command-controller.mjs",
+      "bytes": 16101,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 16100
+      "frameworkBytes": 16101
     },
     {
       "type": "asset",
@@ -1528,7 +1528,7 @@
       "mode": "strict",
       "profile": "production",
       "baselineBytes": 3007391,
-      "bundleBytes": 2880822,
+      "bundleBytes": 2880834,
       "runtimeExpectedStatus": "booted"
     },
     "releaseConstraint": {
@@ -1551,7 +1551,7 @@
       "bundle": {
         "fileCount": 19,
         "entry": "xtend.maraca.mjs",
-        "bytes": 2880822
+        "bytes": 2880834
       },
       "runtimeFeatureStatus": [
         {
@@ -2117,7 +2117,7 @@
       "mode": "strict",
       "profile": "production",
       "baselineBytes": 3007391,
-      "bundleBytes": 2880822,
+      "bundleBytes": 2880834,
       "runtimeExpectedStatus": "booted"
     },
     "releaseConstraint": {
@@ -2140,7 +2140,7 @@
       "bundle": {
         "fileCount": 19,
         "entry": "xtend.maraca.mjs",
-        "bytes": 2880822
+        "bytes": 2880834
       },
       "runtimeFeatureStatus": [
         {
@@ -2394,7 +2394,7 @@
     "templateCount": 1,
     "sourceFingerprint": "sha256:707888ddc576024742b6eb2888c56e0df6f4e28b048a26df100b25d13e83e58c",
     "artifactBundleFingerprint": "fnv1a:38205680",
-    "bundleFingerprint": "sha256:37bc77bc4e4c5c5180d6fac6bf09026aec7b59230124e683ae86af271f976e26",
+    "bundleFingerprint": "sha256:bcde3183d50b9147f3d843300df526e23f5b449801782cae28004a6fc4d90822",
     "runtimeProfileHints": [
       "browser",
       "detached_dom",
@@ -2601,7 +2601,7 @@
         "template:product.kernel.maraca"
       ],
       "bundleFileCount": 19,
-      "bundleFingerprint": "sha256:37bc77bc4e4c5c5180d6fac6bf09026aec7b59230124e683ae86af271f976e26"
+      "bundleFingerprint": "sha256:bcde3183d50b9147f3d843300df526e23f5b449801782cae28004a6fc4d90822"
     },
     "diagnostics": []
   },
@@ -3695,7 +3695,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "booted",
-      "bundleFingerprint": "sha256:37bc77bc4e4c5c5180d6fac6bf09026aec7b59230124e683ae86af271f976e26"
+      "bundleFingerprint": "sha256:bcde3183d50b9147f3d843300df526e23f5b449801782cae28004a6fc4d90822"
     },
     "diagnostics": [
       {
@@ -3715,7 +3715,7 @@
         ]
       }
     ],
-    "bundleFingerprint": "sha256:37bc77bc4e4c5c5180d6fac6bf09026aec7b59230124e683ae86af271f976e26"
+    "bundleFingerprint": "sha256:bcde3183d50b9147f3d843300df526e23f5b449801782cae28004a6fc4d90822"
   },
   "panicRecovery": {
     "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
@@ -4970,7 +4970,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "booted",
-      "bundleFingerprint": "sha256:37bc77bc4e4c5c5180d6fac6bf09026aec7b59230124e683ae86af271f976e26"
+      "bundleFingerprint": "sha256:bcde3183d50b9147f3d843300df526e23f5b449801782cae28004a6fc4d90822"
     },
     "summary": {
       "schema": "xtend.rmt.kernel-orchestration.v1",
@@ -6047,11 +6047,7 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-state-binding-view-projector.js (579:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
-      },
-      {
-        "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-state-selector-runtime.js (1116:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-presentation-effect-adapter.js (551:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -6059,11 +6055,11 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-presentation-effect-adapter.js (551:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-state-selector-runtime.js (1116:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-event-routing-runtime.js (1248:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-state-binding-view-projector.js (579:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -6071,7 +6067,7 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "components/xsurfacemanager-controller.js (12:52): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-action-effect-runtime.js (813:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -6079,7 +6075,11 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-action-effect-runtime.js (813:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-event-routing-runtime.js (1248:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "components/xsurfacemanager-controller.js (12:52): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -6103,9 +6103,9 @@
       "bytes": 3007391
     },
     "baselineBytes": 3007391,
-    "bundleBytes": 2880822,
+    "bundleBytes": 2880834,
     "framework": {
-      "bytes": 2880822,
+      "bytes": 2880834,
       "baselineBytes": 3007391,
       "withinBudget": true
     },
@@ -6134,7 +6134,7 @@
         }
       ]
     },
-    "ratio": 0.9579140191614592,
+    "ratio": 0.9579180093310115,
     "budgets": {
       "modernEsmEntryMustBeSmallerThanBaseline": true,
       "enforcement": "strict",

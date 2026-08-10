@@ -22,11 +22,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 0,
       "metrics": {
-        "frameworkBytes": 2564405,
+        "frameworkBytes": 2564417,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 2336615,
-        "totalBytes": 2564405,
+        "eagerBytes": 2336627,
+        "totalBytes": 2564417,
         "cssBytes": 255,
         "eagerRequests": 13,
         "chunkCount": 8
@@ -47,11 +47,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 0,
       "metrics": {
-        "frameworkBytes": 2564615,
+        "frameworkBytes": 2564627,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 2336825,
-        "totalBytes": 2564615,
+        "eagerBytes": 2336837,
+        "totalBytes": 2564627,
         "cssBytes": 255,
         "eagerRequests": 14,
         "chunkCount": 8
@@ -72,11 +72,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 0,
       "metrics": {
-        "frameworkBytes": 2564553,
+        "frameworkBytes": 2564565,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 2336763,
-        "totalBytes": 2564553,
+        "eagerBytes": 2336775,
+        "totalBytes": 2564565,
         "cssBytes": 255,
         "eagerRequests": 13,
         "chunkCount": 8
@@ -97,11 +97,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 0,
       "metrics": {
-        "frameworkBytes": 2564763,
+        "frameworkBytes": 2564775,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 2336973,
-        "totalBytes": 2564763,
+        "eagerBytes": 2336985,
+        "totalBytes": 2564775,
         "cssBytes": 255,
         "eagerRequests": 14,
         "chunkCount": 8
@@ -122,11 +122,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 0,
       "metrics": {
-        "frameworkBytes": 2563568,
+        "frameworkBytes": 2563580,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 2563568,
-        "totalBytes": 2563568,
+        "eagerBytes": 2563580,
+        "totalBytes": 2563580,
         "cssBytes": 255,
         "eagerRequests": 13,
         "chunkCount": 1
@@ -147,11 +147,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 0,
       "metrics": {
-        "frameworkBytes": 2563778,
+        "frameworkBytes": 2563790,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 2563778,
-        "totalBytes": 2563778,
+        "eagerBytes": 2563790,
+        "totalBytes": 2563790,
         "cssBytes": 255,
         "eagerRequests": 14,
         "chunkCount": 1
@@ -172,11 +172,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 0,
       "metrics": {
-        "frameworkBytes": 2549995,
+        "frameworkBytes": 2550007,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 2336250,
-        "totalBytes": 2549995,
+        "eagerBytes": 2336262,
+        "totalBytes": 2550007,
         "cssBytes": 255,
         "eagerRequests": 13,
         "chunkCount": 8
@@ -197,11 +197,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 0,
       "metrics": {
-        "frameworkBytes": 2550205,
+        "frameworkBytes": 2550217,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 2336460,
-        "totalBytes": 2550205,
+        "eagerBytes": 2336472,
+        "totalBytes": 2550217,
         "cssBytes": 255,
         "eagerRequests": 14,
         "chunkCount": 8
@@ -222,11 +222,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 0,
       "metrics": {
-        "frameworkBytes": 2550143,
+        "frameworkBytes": 2550155,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 2336398,
-        "totalBytes": 2550143,
+        "eagerBytes": 2336410,
+        "totalBytes": 2550155,
         "cssBytes": 255,
         "eagerRequests": 13,
         "chunkCount": 8
@@ -247,11 +247,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 0,
       "metrics": {
-        "frameworkBytes": 2550353,
+        "frameworkBytes": 2550365,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 2336608,
-        "totalBytes": 2550353,
+        "eagerBytes": 2336620,
+        "totalBytes": 2550365,
         "cssBytes": 255,
         "eagerRequests": 14,
         "chunkCount": 8
@@ -272,11 +272,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 0,
       "metrics": {
-        "frameworkBytes": 2549239,
+        "frameworkBytes": 2549251,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 2549239,
-        "totalBytes": 2549239,
+        "eagerBytes": 2549251,
+        "totalBytes": 2549251,
         "cssBytes": 255,
         "eagerRequests": 13,
         "chunkCount": 1
@@ -297,11 +297,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 0,
       "metrics": {
-        "frameworkBytes": 2549449,
+        "frameworkBytes": 2549461,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 2549449,
-        "totalBytes": 2549449,
+        "eagerBytes": 2549461,
+        "totalBytes": 2549461,
         "cssBytes": 255,
         "eagerRequests": 14,
         "chunkCount": 1
@@ -318,11 +318,11 @@
     "lazy": "none",
     "css": "inline",
     "metrics": {
-      "frameworkBytes": 2549239,
+      "frameworkBytes": 2549251,
       "appServiceBytes": 0,
       "serverAppServiceBytes": 0,
-      "eagerBytes": 2549239,
-      "totalBytes": 2549239,
+      "eagerBytes": 2549251,
+      "totalBytes": 2549251,
       "cssBytes": 255,
       "eagerRequests": 13,
       "chunkCount": 1
@@ -400,7 +400,7 @@
   "configMatches": true,
   "finalBuild": {
     "status": "built",
-    "bytes": 2546806,
+    "bytes": 2546818,
     "entry": "docs/generated/shell/xtend.maraca.mjs",
     "toolchain": "rollup-terser"
   },

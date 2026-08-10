@@ -12,7 +12,7 @@ import {
   objectRecord,
   toArray,
   unsignedEnvelope
-} from './rmt-resume-protocol.js';
+} from './rmt-resume-protocol.mjs';
 
 export function createRmtResumeCommandController(options = {}) {
   const capturePort = options.capturePort;

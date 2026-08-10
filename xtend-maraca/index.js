@@ -164,9 +164,9 @@ const KERNEL_POLICY_PARITY_MODULE = 'tools/rmt-language/kernel-policy-parity.js'
 const KERNEL_POLICY_PARITY_SCHEMA = 'xtend.rmt.kernel-policy-parity.v1';
 const KERNEL_POLICY_PARITY_REPORT_SCHEMA = 'xtend.rmt.kernel-policy-parity-report.v1';
 const KERNEL_POLICY_PARITY_DRIFT_SCHEMA = 'xtend.rmt.kernel-policy-parity-drift.v1';
-const KERNEL_RUNTIME_BUNDLE_FILE = 'runtime/xtendrmt-runtime.esm.js';
-const KERNEL_CONTROLLER_BUNDLE_FILE = 'runtime/xtendrmt-kernel-orchestration-controller.js';
-const KERNEL_RESUME_RUNTIME_BUNDLE_FILE = 'runtime/rmt-resume-runtime.js';
+const KERNEL_RUNTIME_BUNDLE_FILE = 'runtime/xtendrmt-runtime.esm.mjs';
+const KERNEL_CONTROLLER_BUNDLE_FILE = 'runtime/xtendrmt-kernel-orchestration-controller.mjs';
+const KERNEL_RESUME_RUNTIME_BUNDLE_FILE = 'runtime/rmt-resume-runtime.mjs';
 const PLAN_RUNTIME_BUNDLE_FILE = 'runtime/xtend-maraca-plan-runtime.mjs';
 const BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE = 'runtime/xtend-maraca-browser-composition-runtime.mjs';
 const BROWSER_HOST_ADAPTER_BUNDLE_FILE = 'runtime/browser-host-adapter.mjs';
@@ -5687,15 +5687,17 @@ function copyKernelRuntimeAsset(plan) {
   if (!plan || !plan.kernel || !plan.kernel.enabled) return null;
   try {
     const artifact = assembleRmtSourceArtifact(plan.rootDir, 'xtendrmt/rmt-runtime.esm.js');
+    const content = rewriteRelativeEsmImportsToMjs(artifact.content);
     const targetPath = path.join(plan.outputDir, KERNEL_RUNTIME_BUNDLE_FILE);
     fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-    fs.writeFileSync(targetPath, artifact.content);
+    removeLegacyGeneratedEsmAsset(targetPath);
+    fs.writeFileSync(targetPath, content);
     return {
       type: 'asset',
       fileName: KERNEL_RUNTIME_BUNDLE_FILE,
       path: targetPath,
       bytes: fs.statSync(targetPath).size,
-      integrity: `sha256:${artifact.sha256}`,
+      integrity: `sha256:${hashText(content)}`,
       sourceManifest: artifact.sourceManifestPath,
       sourceModuleCount: artifact.sourceModuleCount,
       isEntry: false,
@@ -5712,6 +5714,20 @@ function copyKernelRuntimeAsset(plan) {
       });
     }
     return null;
+  }
+}
+
+function rewriteRelativeEsmImportsToMjs(source) {
+  return String(source || '').replace(
+    /(\b(?:import|export)\s+(?:[^'";]*?\s+from\s+)?['"])(\.[^'"]+)\.js(['"])/gu,
+    '$1$2.mjs$3'
+  );
+}
+
+function removeLegacyGeneratedEsmAsset(targetPath) {
+  const legacyTargetPath = String(targetPath || '').replace(/\.mjs$/u, '.js');
+  if (legacyTargetPath !== targetPath && fs.existsSync(legacyTargetPath)) {
+    fs.unlinkSync(legacyTargetPath);
   }
 }
 
@@ -5754,10 +5770,13 @@ function copyKernelResumeRuntimeAssets(plan) {
   const sourceRoot = path.dirname(sourcePath);
   return collectRelativeEsmSourceClosure(sourcePath, sourceRoot).map((dependencyPath) => {
     const relativePath = path.relative(sourceRoot, dependencyPath);
-    const fileName = path.posix.join(path.posix.dirname(KERNEL_RESUME_RUNTIME_BUNDLE_FILE), relativePath.split(path.sep).join('/'));
+    const relativeAssetPath = relativePath.split(path.sep).join('/').replace(/\.js$/u, '.mjs');
+    const fileName = path.posix.join(path.posix.dirname(KERNEL_RESUME_RUNTIME_BUNDLE_FILE), relativeAssetPath);
     const targetPath = path.join(plan.outputDir, fileName);
+    const content = rewriteRelativeEsmImportsToMjs(fs.readFileSync(dependencyPath, 'utf8'));
     fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-    fs.copyFileSync(dependencyPath, targetPath);
+    removeLegacyGeneratedEsmAsset(targetPath);
+    fs.writeFileSync(targetPath, content);
     return {
       type: 'asset',
       fileName,
@@ -5782,6 +5801,7 @@ function copyKernelControllerRuntimeAsset(plan) {
   if (!sourcePath) return null;
   const targetPath = path.join(plan.outputDir, KERNEL_CONTROLLER_BUNDLE_FILE);
   fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+  removeLegacyGeneratedEsmAsset(targetPath);
   fs.copyFileSync(sourcePath, targetPath);
   return {
     type: 'asset',

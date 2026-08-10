@@ -1,7 +1,7 @@
 import {
   canonicalizeRmtResumePayload,
   clampString
-} from './rmt-resume-protocol.js';
+} from './rmt-resume-protocol.mjs';
 
 function bytesToHex(bytes) {
   return Array.from(new Uint8Array(bytes)).map((value) => value.toString(16).padStart(2, '0')).join('');
