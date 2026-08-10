@@ -8,15 +8,15 @@
     "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
     "loaderBytes": 69993,
     "selectedComponentBytes": 113066,
-    "stackModuleBytes": 2210470,
+    "stackModuleBytes": 2210990,
     "contractPayloadBytes": 613342,
-    "bytes": 3006871
+    "bytes": 3007391
   },
-  "baselineBytes": 3006871,
-  "bundleBytes": 2864409,
+  "baselineBytes": 3007391,
+  "bundleBytes": 2880822,
   "framework": {
-    "bytes": 2864409,
-    "baselineBytes": 3006871,
+    "bytes": 2880822,
+    "baselineBytes": 3007391,
     "withinBudget": true
   },
   "appServices": {
@@ -44,11 +44,11 @@
       }
     ]
   },
-  "ratio": 0.952621179957504,
+  "ratio": 0.9579140191614592,
   "budgets": {
     "modernEsmEntryMustBeSmallerThanBaseline": true,
     "enforcement": "strict",
-    "frameworkBytes": 3006871,
+    "frameworkBytes": 3007391,
     "clientAppServiceBytes": null,
     "serverAppServiceBytes": null
   }

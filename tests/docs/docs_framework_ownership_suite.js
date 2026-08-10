@@ -733,13 +733,14 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     },
     dispose() {}
   };
+  const effectActionHistory = [];
   const effectModules = {
     state: { createRmtStateSelectorRuntime: () => effectStateRuntime },
     viewProjection: viewProjectionApi,
     presentation: presentationEffectApi,
     action: { createRmtActionEffectRuntime: () => ({
       async runAction() {
-        return {
+        const result = {
           status: 'success',
           effects: [{
             id: 'play-effect',
@@ -749,9 +750,21 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
               effect: { id: 'play-effect', kind: 'remote-play', source: { target: 'effect.player' } },
               context: {}
             }
+          }],
+          postCommitEffects: [{
+            id: 'play-effect',
+            kind: 'remote-play',
+            value: {
+              deferred: true,
+              effect: { id: 'play-effect', kind: 'remote-play', source: { target: 'effect.player' } },
+              context: {}
+            }
           }]
         };
+        effectActionHistory.push(result);
+        return result;
       },
+      listHistory() { return effectActionHistory; },
       dispose() {}
     }) }
   };
@@ -786,7 +799,9 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     postCommitEffects(_result, hookContext) { effectOrder.push('host-hook'); effectHostContext = hookContext; }
   });
   await effectRuntime.boot();
-  await effectRuntime.dispatchCommand('effect.play');
+  const completedEffectResult = await effectRuntime.dispatchCommand('effect.play');
+  const completedEffectHistory = effectRuntime.snapshot().actions[0].effects[0].value;
+  const completedQueuedEffect = completedEffectResult.postCommitEffects[0].value;
   context.assert(effectPlayer.lastPayload && effectPlayer.lastPayload.src === effectStateValue.src
     && effectOrder.join(',') === 'url-policy,ensure-component,event,public-method,host-hook'
     && effectHostContext
@@ -795,7 +810,13 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     && !Object.prototype.hasOwnProperty.call(effectHostContext, 'renderer')
     && !Object.prototype.hasOwnProperty.call(effectHostContext, 'validationRuntime')
     && !Object.prototype.hasOwnProperty.call(effectHostContext, 'transitionRuntime')
-    && !Object.prototype.hasOwnProperty.call(effectHostContext, 'resourceManager'),
+    && !Object.prototype.hasOwnProperty.call(effectHostContext, 'resourceManager')
+    && completedEffectHistory.deferred === false
+    && completedEffectHistory.result
+    && completedEffectHistory.result.payload.schema === 'xtend.maraca.remote-play.v1'
+    && completedEffectResult.effects[0].value.deferred === false
+    && completedQueuedEffect.deferred === false
+    && completedQueuedEffect.result.payload.schema === 'xtend.maraca.remote-play.v1',
   'canonical Plan Runtime applies root-scoped media defaults through URL policy and public component methods before additive host hooks');
   const publicCallsBeforeUnsafeUrl = effectOrder.filter((entry) => entry === 'public-method').length;
   effectStateValue.src = 'javascript:alert(1)';
@@ -1270,6 +1291,248 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
 
   const stateRuntimeApi = await import(`file://${resolveRepoPath('xtendrmt/rmt-state-selector-runtime.js', rootDir)}`);
   const actionRuntimeApi = await import(`file://${resolveRepoPath('xtendrmt/rmt-action-effect-runtime.js', rootDir)}`);
+  const bootRaceRoot = createRoot();
+  let releaseBootRaceHydration;
+  let signalBootRaceHydration;
+  const bootRaceHydrationBarrier = new Promise((resolve) => { releaseBootRaceHydration = resolve; });
+  const bootRaceHydrationStarted = new Promise((resolve) => { signalBootRaceHydration = resolve; });
+  let bootRaceCommandBus = null;
+  let bootRaceActionCount = 0;
+  let bootRaceAppDispatchCount = 0;
+  let bootRaceStreamPlanCount = 0;
+  let bootRaceStreamCommitCount = 0;
+  let bootRaceHydrationCount = 0;
+  let bootRaceRendererCommitCount = 0;
+  const bootRaceCommands = [];
+  const bootRaceStreamPatches = [];
+  const bootRaceRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+    plan: {
+      orchestration: {
+        artifact: {
+          state: {
+            states: [{ id: 'boot.race', type: 'object', initial: { value: 'initial' } }],
+            reducers: [{ id: 'boot-race-command', action: 'boot.race.command', state: 'boot.race', path: 'value', value: 'input.value' }]
+          },
+          actions: { actions: [{ id: 'boot.race.command' }] },
+          events: [{ id: 'boot-race-event', event: 'click', action: 'boot.race.command' }],
+          render: { root: { type: 'fragment', children: [] } },
+          patchPlan: {
+            reducers: [{ reducer: 'boot-race-command', action: 'boot.race.command', strategy: 'attribute-sync' }]
+          }
+        }
+      }
+    },
+    root: bootRaceRoot,
+    viewProjectionPort: createViewProjectionPort(bootRaceRoot),
+    kernelController: {
+      scheduleWork(_kind, work) {
+        return Promise.resolve().then(work);
+      },
+      snapshot() { return { schema: 'test-external-kernel', status: 'ready' }; },
+      dispose() {}
+    },
+    domRenderer: {
+      commit(request) {
+        bootRaceRendererCommitCount += 1;
+        if (request.operation === 'replace-children') request.target.replaceChildren();
+        return {
+          operation: request.operation,
+          target: request.target,
+          nodes: request.target.children,
+          nodeCount: request.target.children.length,
+          changed: request.operation === 'replace-children',
+          structural: request.operation === 'replace-children',
+          diagnostics: [],
+          metadata: request.context && request.context.metadata || {}
+        };
+      },
+      dispose() {}
+    },
+    componentRegistry: {
+      hydrate() {
+        bootRaceHydrationCount += 1;
+        signalBootRaceHydration();
+        return bootRaceHydrationBarrier;
+      }
+    },
+    loadModules: async () => ({
+      viewProjection: viewProjectionApi,
+      state: stateRuntimeApi,
+      action: {
+        createRmtActionEffectRuntime: () => ({
+          async runAction(id, payload) {
+            bootRaceActionCount += 1;
+            return { id, status: 'success', data: payload };
+          },
+          dispose() {}
+        })
+      },
+      app: {
+        createRmtAppRuntime: ({ actionRuntime }) => ({
+          createCommandEnvelope(input = {}, metadata = {}) {
+            return {
+              command: input.command || input.id || input.action,
+              payload: input.payload || {},
+              correlationId: metadata.correlationId || input.correlationId || ''
+            };
+          },
+          async dispatchCommand(command, metadata = {}) {
+            bootRaceAppDispatchCount += 1;
+            const result = await actionRuntime.runAction(command.command, command.payload || {}, {
+              ...metadata,
+              commandEnvelope: command
+            });
+            const record = { status: result.status, command, result };
+            bootRaceCommands.push(record);
+            return record;
+          },
+          planStreamPatch(patch, snapshot, metadata = {}) {
+            bootRaceStreamPlanCount += 1;
+            return Object.freeze({
+              status: 'planned',
+              accepted: true,
+              changed: snapshot.states['boot.race'].value !== patch.value,
+              patch: Object.freeze({ ...patch }),
+              target: Object.freeze({ state: 'boot.race', path: 'value' }),
+              modelOperations: Object.freeze([Object.freeze({
+                operation: 'set',
+                state: 'boot.race',
+                value: Object.freeze({ value: patch.value })
+              })]),
+              postCommitEffects: Object.freeze([]),
+              diagnostics: Object.freeze([]),
+              metadata: Object.freeze({ ...metadata })
+            });
+          },
+          commitStreamPatchPlan(streamPlan, metadata = {}) {
+            bootRaceStreamCommitCount += 1;
+            bootRaceStreamPatches.push(streamPlan.patch);
+            return Object.freeze({
+              status: 'applied',
+              accepted: true,
+              changed: streamPlan.changed,
+              patch: streamPlan.patch,
+              target: streamPlan.target,
+              modelOperations: streamPlan.modelOperations,
+              postCommitEffects: streamPlan.postCommitEffects,
+              diagnostics: streamPlan.diagnostics,
+              metadata: Object.freeze({ ...metadata })
+            });
+          },
+          listCommands() { return bootRaceCommands.slice(); },
+          listStreamPatches() { return bootRaceStreamPatches.slice(); },
+          dispose() {}
+        })
+      },
+      events: {
+        createRmtEventRoutingRuntime: ({ commandBus }) => {
+          bootRaceCommandBus = commandBus;
+          return {
+            reconcile() { return { attachedCount: 0, detachedCount: 0, retainedCount: 0 }; },
+            dispose() {}
+          };
+        }
+      }
+    })
+  });
+  const bootRaceBootPromise = bootRaceRuntime.boot();
+  await bootRaceHydrationStarted;
+  const bootRaceCommandPromise = bootRaceCommandBus.dispatchCommand({
+    command: 'boot.race.command',
+    payload: { value: 'command' },
+    correlationId: 'boot-race-event'
+  }, {
+    eventId: 'boot-race-event',
+    eventName: 'click'
+  });
+  const bootRaceStreamPromise = bootRaceRuntime.dispatchStreamPatch({
+    type: 'complete',
+    target: 'boot.race.value',
+    value: 'stream'
+  }, { correlationId: 'boot-race-stream' });
+  await Promise.resolve();
+  context.assert(bootRaceRuntime.snapshot().phase === 'booting'
+    && bootRaceActionCount === 0
+    && bootRaceAppDispatchCount === 1
+    && bootRaceStreamPlanCount === 0,
+  'event commands and stream patches submitted during boot wait without entering Model or View work early');
+  releaseBootRaceHydration();
+  const [bootRaceBootResult, bootRaceCommandResult, bootRaceStreamResult] = await Promise.all([
+    bootRaceBootPromise,
+    bootRaceCommandPromise,
+    bootRaceStreamPromise
+  ]);
+  context.assert(bootRaceBootResult.phase === 'ready'
+    && bootRaceCommandResult.status === 'success'
+    && bootRaceStreamResult.status === 'applied'
+    && bootRaceActionCount === 1
+    && bootRaceAppDispatchCount === 1
+    && bootRaceStreamPlanCount === 1
+    && bootRaceStreamCommitCount === 1
+    && bootRaceCommands.length === 1
+    && bootRaceStreamPatches.length === 1
+    && bootRaceRuntime.model.getState('boot.race').value === 'stream'
+    && bootRaceRuntime.snapshot().stateCommitCount === 2
+    && bootRaceRendererCommitCount === 3
+    && bootRaceHydrationCount === 3,
+  'booting Event/Command and stream work resumes after the shared boot promise and commits exactly once in queue order');
+  bootRaceRuntime.dispose();
+
+  const disposedBootRoot = createRoot();
+  let releaseDisposedBootModules;
+  let signalDisposedBootModules;
+  const disposedBootModulesGate = new Promise((resolve) => { releaseDisposedBootModules = resolve; });
+  const disposedBootModulesStarted = new Promise((resolve) => { signalDisposedBootModules = resolve; });
+  const disposedBootRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+    plan: {
+      orchestration: {
+        artifact: {
+          state: { states: [], reducers: [] },
+          actions: { actions: [] },
+          events: [],
+          render: { root: { type: 'fragment', children: [] } },
+          patchPlan: { reducers: [] }
+        }
+      }
+    },
+    root: disposedBootRoot,
+    viewProjectionPort: createViewProjectionPort(disposedBootRoot),
+    loadModules() {
+      signalDisposedBootModules();
+      return disposedBootModulesGate;
+    }
+  });
+  const disposedBootPromise = disposedBootRuntime.boot();
+  const duplicateDisposedBootPromise = disposedBootRuntime.boot();
+  await disposedBootModulesStarted;
+  const disposedBootCommandPromise = disposedBootRuntime.dispatchCommand('disposed.boot.command');
+  const disposedBootStreamPromise = disposedBootRuntime.dispatchStreamPatch({
+    type: 'complete',
+    target: 'disposed.boot.value',
+    value: 'ignored'
+  });
+  await Promise.resolve();
+  disposedBootRuntime.dispose();
+  let disposedBootTimeout;
+  const disposedBootSettled = await Promise.race([
+    Promise.allSettled([
+      disposedBootPromise,
+      duplicateDisposedBootPromise,
+      disposedBootCommandPromise,
+      disposedBootStreamPromise
+    ]),
+    new Promise((resolve) => { disposedBootTimeout = setTimeout(() => resolve(null), 250); })
+  ]);
+  clearTimeout(disposedBootTimeout);
+  releaseDisposedBootModules({});
+  await Promise.resolve();
+  await Promise.resolve();
+  context.assert(Array.isArray(disposedBootSettled)
+    && disposedBootSettled.every((entry) => entry.status === 'rejected'
+      && entry.reason && entry.reason.code === 'maraca.plan-runtime.disposed')
+    && disposedBootRuntime.snapshot().phase === 'disposed',
+  'disposing a booting Plan Runtime rejects boot, command, and stream waiters without waiting for the blocked boot dependency');
+
   const transactionRoot = createRoot();
   let transactionNotifyCount = 0;
   let transactionEvent = null;
@@ -1286,6 +1549,9 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   let managedStreamPlanCount = 0;
   let managedStreamCommitCount = 0;
   let legacyAppStateMutationCount = 0;
+  let failedActionPostCommitCount = 0;
+  let failedActionTransitionFindCount = 0;
+  const failedActionTransitionCalls = [];
   const scheduledKinds = [];
   const transactionRendererRequests = [];
   const firstTransactionNode = createSurfaceNode('first.surface');
@@ -1335,12 +1601,14 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
             { id: 'first', type: 'object', initial: { value: '' } },
             { id: 'second', type: 'object', initial: { value: '' } },
             { id: 'validation.status', type: 'object', initial: { valid: null } },
-            { id: 'blocked.target', type: 'object', initial: { value: 'unchanged' } }
+            { id: 'blocked.target', type: 'object', initial: { value: 'unchanged' } },
+            { id: 'failure.status', type: 'object', initial: { status: 'idle' } }
           ],
           reducers: [
             { id: 'set-first', action: 'save', state: 'first', path: 'value', value: 'input.first' },
             { id: 'set-second', action: 'save', state: 'second', path: 'value', value: 'input.second' },
-            { id: 'blocked-write', action: 'blocked-save', state: 'blocked.target', path: 'value', value: 'input.value' }
+            { id: 'blocked-write', action: 'blocked-save', state: 'blocked.target', path: 'value', value: 'input.value' },
+            { id: 'failed-success-write', action: 'failed-save', state: 'first', path: 'value', value: 'input.value' }
           ]
         },
         actions: {
@@ -1350,7 +1618,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
             resultState: 'save.result',
             loadingState: 'save.loading',
             resources: ['save.timer']
-          }, { id: 'blocked-save' }]
+          }, { id: 'blocked-save' }, { id: 'failed-save' }]
         },
         resources: [{ id: 'save.timer', kind: 'timer' }],
         surfaces: [
@@ -1374,10 +1642,15 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
           reducers: [
             { reducer: 'set-first', action: 'save', surface: 'first.surface', strategy: 'attribute-sync' },
             { reducer: 'set-second', action: 'save', surface: 'second.surface', strategy: 'attribute-sync' },
-            { reducer: 'blocked-write', action: 'blocked-save', surface: 'first.surface', strategy: 'attribute-sync' }
+            { reducer: 'blocked-write', action: 'blocked-save', surface: 'first.surface', strategy: 'attribute-sync' },
+            { reducer: 'failed-success-write', action: 'failed-save', surface: 'first.surface', strategy: 'surface-transition' }
           ]
         }
       }
+    },
+    transitions: {
+      enabled: true,
+      artifact: {}
     },
     validation: {
       enabled: true,
@@ -1393,6 +1666,12 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     domRenderer: transactionRenderer,
     kernelController: externalKernel,
     componentRegistry: { async hydrate() { transactionHydrationCount += 1; } },
+    presentationEffectPort: {
+      invoke() {
+        failedActionPostCommitCount += 1;
+        return { status: 'unexpected' };
+      }
+    },
     resourceAdapters: {
       timer: {
         set() { resourceCreateCount += 1; return { id: resourceCreateCount }; },
@@ -1402,7 +1681,58 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     loadModules: async () => ({
       viewProjection: viewProjectionApi,
       state: stateRuntimeApi,
-      action: actionRuntimeApi,
+      action: {
+        ...actionRuntimeApi,
+        createRmtActionEffectRuntime(options) {
+          const runtime = actionRuntimeApi.createRmtActionEffectRuntime(options);
+          return Object.freeze({
+            ...runtime,
+            async runAction(id, payload, metadata) {
+              if (id !== 'failed-save') return runtime.runAction(id, payload, metadata);
+              return {
+                schema: 'xtend.epic18.rmt-action-result.v1',
+                id,
+                status: 'error',
+                error: { code: 'test.failed-save', message: 'Expected failure.' },
+                modelOperations: [{
+                  operation: 'set',
+                  state: 'failure.status',
+                  value: { status: 'error', code: 'test.failed-save' }
+                }],
+                postCommitEffects: [{
+                  id: 'failed-save-post-commit',
+                  kind: 'custom',
+                  value: {
+                    deferred: true,
+                    effect: { id: 'failed-save-post-commit', kind: 'custom' },
+                    context: {}
+                  }
+                }],
+                diagnostics: []
+              };
+            }
+          });
+        }
+      },
+      transitions: {
+        createRmtSurfaceTransitionRuntime() {
+          return {
+            findTransition({ action }) {
+              failedActionTransitionFindCount += 1;
+              return action === 'failed-save'
+                ? { id: 'failed-save-transition', from: ['first.surface'], to: ['second.surface'] }
+                : null;
+            },
+            applyVisibilityPatch(input) {
+              failedActionTransitionCalls.push(input);
+              const target = input.surface === 'first.surface' ? firstTransactionNode : secondTransactionNode;
+              target.toggleAttribute('hidden', input.nextHidden === true);
+              return Promise.resolve({ status: 'complete' });
+            },
+            dispose() {}
+          };
+        }
+      },
       app: {
         createRmtAppRuntime: ({ actionRuntime, modelReader, managedModel }) => {
           const commands = [];
@@ -1591,6 +1921,39 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     && gatePrepareCount === 2
     && gateFinalizeCount === 2,
   'invalid Action gates run one preflight evaluation and block Action effects and reducers before the final projected commit');
+  const beforeFailedActionSnapshot = transactionRuntime.snapshot();
+  const beforeFailedActionFirstState = transactionRuntime.model.getState('first');
+  const beforeFailedActionNotifyCount = transactionNotifyCount;
+  const beforeFailedActionRendererCount = transactionRendererRequests.length;
+  const beforeFailedActionHydrationCount = transactionHydrationCount;
+  const beforeFailedActionTransitionFindCount = failedActionTransitionFindCount;
+  const beforeFailedActionTransitionCallCount = failedActionTransitionCalls.length;
+  const beforeFailedActionVisibility = {
+    firstHidden: firstTransactionNode.hasAttribute('hidden'),
+    secondHidden: secondTransactionNode.hasAttribute('hidden')
+  };
+  scheduledKinds.length = 0;
+  const failedActionResult = await transactionRuntime.dispatchCommand('failed-save', { value: 'must-not-commit' });
+  const afterFailedActionSnapshot = transactionRuntime.snapshot();
+  context.assert(failedActionResult && failedActionResult.status === 'error'
+    && Object.isFrozen(failedActionResult)
+    && transactionRuntime.model.getState('first').value === beforeFailedActionFirstState.value
+    && transactionRuntime.model.getState('failure.status').status === 'error'
+    && transactionRuntime.model.getState('failure.status').code === 'test.failed-save'
+    && failedActionPostCommitCount === 0
+    && failedActionResult.postCommitEffects[0].value.deferred === true
+    && failedActionTransitionFindCount === beforeFailedActionTransitionFindCount
+    && failedActionTransitionCalls.length === beforeFailedActionTransitionCallCount
+    && firstTransactionNode.hasAttribute('hidden') === beforeFailedActionVisibility.firstHidden
+    && secondTransactionNode.hasAttribute('hidden') === beforeFailedActionVisibility.secondHidden
+    && transactionNotifyCount === beforeFailedActionNotifyCount + 1
+    && transactionRendererRequests.length === beforeFailedActionRendererCount + 1
+    && transactionHydrationCount === beforeFailedActionHydrationCount + 1
+    && afterFailedActionSnapshot.stateCommitCount === beforeFailedActionSnapshot.stateCommitCount + 1
+    && afterFailedActionSnapshot.commitCount === beforeFailedActionSnapshot.commitCount + 1
+    && afterFailedActionSnapshot.renderCount === beforeFailedActionSnapshot.renderCount
+    && scheduledKinds.join(',') === 'action,state-change',
+  'failed Actions retain explicit error Model operations in one commit while suppressing success reducers, transitions and PostCommit effects');
   scheduledKinds.length = 0;
   const appDispatchResult = await transactionRuntime.dispatchCommand({
     schema: 'xtend.rmt.command.v1',

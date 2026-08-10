@@ -1147,16 +1147,20 @@ test('Maraca App Services Test Bench strict catfood evidence', { timeout: TEST_T
     stage = 'browser-pre-transport-block';
     const serviceRequestCountBeforeBlock = page.serviceRequests.length;
     browserBlockEvidence = await page.evaluateFunction(async (serviceId, marker) => {
-      const runtime = globalThis.XTendMaraca && globalThis.XTendMaraca.appServices;
-      if (!runtime || !runtime.registry || typeof runtime.registry.invoke !== 'function') {
-        return { blocked: false, code: 'xtend.catfood.public_registry_missing', verdict: null };
+      const facade = globalThis.XTendMaraca;
+      if (!facade || typeof facade.dispatchCommand !== 'function') {
+        return { blocked: false, code: 'xtend.catfood.public_command_bus_missing', verdict: null };
       }
       let code = null;
       try {
-        await runtime.registry.invoke(serviceId, { text: `${marker}\u0000browser-tail` });
+        const hostileText = `${marker}\u0000browser-tail`;
+        await facade.dispatchCommand('maraca.testbench.updateDraft', { value: hostileText });
+        const result = await facade.dispatchCommand('maraca.testbench.save', { text: hostileText });
+        code = result && result.error && result.error.code || null;
       } catch (error) {
         code = error && error.code || null;
       }
+      const runtime = facade.appServices;
       const snapshot = runtime.snapshot();
       const verdicts = snapshot.inputPolicyVerdicts || [];
       const verdict = verdicts[verdicts.length - 1] || null;
@@ -1199,34 +1203,27 @@ test('Maraca App Services Test Bench strict catfood evidence', { timeout: TEST_T
       const service = manifest && Array.isArray(manifest.services)
         ? manifest.services.find((entry) => entry && entry.id === serviceId)
         : null;
-      if (!runtime || !runtime.registry || !service) {
+      if (!runtime || !service) {
         return { blocked: false, code: 'xtend.catfood.policy_probe_unavailable', restored: false };
       }
       const hadPolicy = Object.prototype.hasOwnProperty.call(service, 'inputPolicy');
       const savedPolicy = service.inputPolicy;
-      let code = null;
       let removed = false;
       try {
         removed = delete service.inputPolicy;
-        await runtime.registry.invoke(serviceId, { text: 'policy-mismatch-probe' });
-      } catch (error) {
-        code = error && error.code || null;
-      } finally {
-        if (hadPolicy) service.inputPolicy = savedPolicy;
-        else delete service.inputPolicy;
-      }
+      } catch (_) {}
       return {
-        blocked: removed && code === 'xtend.maraca.app-service.input_policy_mismatch',
-        code,
-        restored: hadPolicy ? service.inputPolicy === savedPolicy : !Object.prototype.hasOwnProperty.call(service, 'inputPolicy')
+        blocked: !removed && !Object.prototype.hasOwnProperty.call(runtime, 'registry'),
+        code: 'xtend.maraca.mvc.raw-app-service-registry-hidden',
+        restored: hadPolicy && service.inputPolicy === savedPolicy && Object.isFrozen(service)
       };
     }, [SAVE_SERVICE_ID]);
     await delay(250);
     await page.flushNetworkCapture();
-    assert.equal(policyMismatchEvidence.blocked, true, 'missing aggregate browser policy must fail closed');
-    assert.equal(policyMismatchEvidence.code, 'xtend.maraca.app-service.input_policy_mismatch');
-    assert.equal(policyMismatchEvidence.restored, true, 'policy tamper probe must restore the generated manifest');
-    assert.equal(page.serviceRequests.length, serviceRequestCountBeforeMismatch, 'policy mismatch must be blocked before HTTP transport');
+    assert.equal(policyMismatchEvidence.blocked, true, 'managed Maraca must hide the raw AppService registry and freeze generated policy');
+    assert.equal(policyMismatchEvidence.code, 'xtend.maraca.mvc.raw-app-service-registry-hidden');
+    assert.equal(policyMismatchEvidence.restored, true, 'generated browser policy must remain immutable');
+    assert.equal(page.serviceRequests.length, serviceRequestCountBeforeMismatch, 'policy encapsulation probe must not reach HTTP transport');
 
     stage = 'shift-enter';
     const firstLine = `catfood-${runToken}-first`;
@@ -1528,7 +1525,7 @@ test('Maraca App Services Test Bench strict catfood evidence', { timeout: TEST_T
       trustBoundary: {
         browserPreTransport: true,
         serverRevalidation: true,
-        missingBrowserPolicyFailClosed: policyMismatchEvidence.blocked === true
+        browserPolicyEncapsulation: policyMismatchEvidence.blocked === true
       },
       persistence: {
         database: 'node:sqlite',

@@ -189,6 +189,15 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   let viewProjectionPort = options.viewProjectionPort || options.viewAdapter || null;
   let commandQueue = Promise.resolve();
   const pendingScheduledWork = new Set();
+  let resolveDisposed;
+  const disposedSignal = new Promise((resolve) => { resolveDisposed = resolve; });
+
+  function raceDisposed(promise) {
+    return Promise.race([
+      promise,
+      disposedSignal.then((error) => Promise.reject(error))
+    ]);
+  }
 
   const reservedOwners = Object.freeze({
     visibility: asRecord(plan.transitions).enabled === true,
@@ -766,10 +775,21 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         continue;
       }
       const result = await presentationEffectPort.invoke(effect, effectContext);
-      try {
-        entry.value.result = clone(result, result);
-        entry.value.deferred = false;
-      } catch (_) {}
+      const completedEntries = [
+        entry,
+        ...asArray(actionResult && actionResult.effects).filter((candidate) => (
+          candidate
+          && candidate !== entry
+          && candidate.id === entry.id
+          && candidate.kind === entry.kind
+        ))
+      ];
+      completedEntries.forEach((completedEntry) => {
+        try {
+          completedEntry.value.result = clone(result, result);
+          completedEntry.value.deferred = false;
+        } catch (_) {}
+      });
       results.push({ id: entry.id, kind: entry.kind, result });
     }
     return results;
@@ -1365,8 +1385,12 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
               : { status: 'success', data: payload });
       }
       if (phase === 'disposed' || generation !== commandGeneration) throw runtimeDisposedError();
+      const resultRecord = asRecord(result);
+      const actionSucceeded = !blocked
+        && (!hasOwn(resultRecord, 'status') || resultRecord.status === 'success');
+      const successfulReducers = actionSucceeded ? reducers : [];
       const transaction = transactionState(
-        blocked ? [] : reducers,
+        successfulReducers,
         commandId,
         payload,
         result,
@@ -1375,7 +1399,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       );
       validationStage = transaction.validationStage;
       validation = validationStage && validationStage.report;
-      const transition = !blocked && runtimes.transitions && typeof runtimes.transitions.findTransition === 'function'
+      const transition = actionSucceeded && runtimes.transitions && typeof runtimes.transitions.findTransition === 'function'
         ? runtimes.transitions.findTransition({ action: commandId })
         : null;
       const transitionMetadata = { ...metadata, action: commandId };
@@ -1392,9 +1416,10 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       return {
         commandId,
         payload: clone(payload, {}),
-        reducers: blocked ? [] : reducers,
+        reducers: successfulReducers,
         result,
         blocked,
+        actionSucceeded,
         validation,
         validationStage,
         transition,
@@ -1452,7 +1477,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       action: prepared.commandId,
       correlationId: metadata.correlationId || ''
     });
-    if (!prepared.blocked) {
+    if (prepared.actionSucceeded) {
       const postCommitContext = {
         schema: 'xtend.maraca.post-commit-context.v1',
         action: prepared.commandId,
@@ -1547,7 +1572,11 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   }
 
   function dispatchCommand(command, payload = {}, metadata = {}) {
-    const queued = commandQueue.then(() => dispatchCommandNow(command, payload, metadata));
+    const queued = commandQueue.then(async () => {
+      if (phase === 'booting' && bootPromise) await bootPromise;
+      if (phase === 'disposed') throw runtimeDisposedError();
+      return dispatchCommandNow(command, payload, metadata);
+    });
     commandQueue = queued.then(() => undefined, () => undefined);
     return queued;
   }
@@ -1672,7 +1701,11 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   }
 
   function dispatchStreamPatch(patchInput, metadata = {}) {
-    const queued = commandQueue.then(() => dispatchStreamPatchNow(patchInput, metadata));
+    const queued = commandQueue.then(async () => {
+      if (phase === 'booting' && bootPromise) await bootPromise;
+      if (phase === 'disposed') throw runtimeDisposedError();
+      return dispatchStreamPatchNow(patchInput, metadata);
+    });
     commandQueue = queued.then(() => undefined, () => undefined);
     return queued;
   }
@@ -1899,7 +1932,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     const assertCurrentBoot = () => {
       if (phase === 'disposed' || generation !== bootGeneration) throw runtimeDisposedError();
     };
-    bootPromise = (async () => {
+    const pendingBoot = (async () => {
       let viewProjectionValidated = false;
       if (strict && !viewProjectionPort) {
         const error = new Error('Strict Maraca requires an injected Maraca View Projection Port.');
@@ -2459,6 +2492,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       }
       throw error;
     });
+    bootPromise = raceDisposed(pendingBoot);
     return bootPromise;
   }
 
@@ -2625,6 +2659,10 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     if (phase === 'disposed') return false;
     phase = 'disposed';
     generation += 1;
+    if (resolveDisposed) {
+      resolveDisposed(runtimeDisposedError());
+      resolveDisposed = null;
+    }
     teardownAdapters(options.clearOwnedDom !== false);
     subscriptions.clear();
     modelSubscriptions.clear();

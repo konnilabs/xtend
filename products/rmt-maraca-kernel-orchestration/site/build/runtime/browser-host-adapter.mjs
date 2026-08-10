@@ -30,6 +30,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
   const globalTarget = dependencies.platformTarget || dependencies.globalTarget || globalThis;
   const windowTarget = dependencies.windowTarget || globalTarget.window || globalTarget;
   const documentTarget = dependencies.documentTarget || globalTarget.document || null;
+  const runtimeApis = dependencies.runtimeApis && typeof dependencies.runtimeApis === 'object' ? dependencies.runtimeApis : {};
   const importers = dependencies.componentImporters || {};
   const handles = new Set();
 
@@ -41,6 +42,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
   }
 
   function runtimeApi(name) {
+    if (Object.prototype.hasOwnProperty.call(runtimeApis, name)) return runtimeApis[name];
     return globalTarget && globalTarget[name] || null;
   }
 

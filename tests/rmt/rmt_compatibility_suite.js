@@ -164,6 +164,31 @@ function createCanonicalStateTelemetryAppModules(context, rootDir) {
   return sandbox.AppModules;
 }
 
+function createCanonicalTemplateAppModules(context, rootDir) {
+  const sourcePaths = [
+    'xtendrmt/kernel/modules/rmt-format.js',
+    'xtendrmt/kernel/modules/rmt-template-registry.js',
+    'xtendrmt/kernel/modules/rmt-template-binding-model.js',
+    'xtendrmt/kernel/modules/rmt-template-compiler.js',
+    'xtendrmt/kernel/modules/rmt-template-artifacts.js'
+  ];
+  const sandbox = { AppModules: {} };
+  sandbox.__XTENDRMT_GLOBAL__ = sandbox;
+  try {
+    sourcePaths.forEach((sourcePath) => {
+      vm.runInNewContext(readText(sourcePath, rootDir), sandbox, { filename: sourcePath });
+    });
+  } catch (error) {
+    context.fail(`Canonical template modules evaluate for source probe (${error.message})`);
+    return null;
+  }
+  context.assert(
+    typeof sandbox.AppModules.createRmtTemplateArtifacts === 'function',
+    'Canonical Template Artifacts exposes its factory'
+  );
+  return sandbox.AppModules;
+}
+
 function createRmtRuntimeAppModulesFromBundle(context, rootDir) {
   return createRmtAppModulesFromArtifact(context, rootDir, 'xtendrmt/rmt-runtime.esm.js', {
     label: 'RMT runtime ESM bundle'
@@ -1703,6 +1728,89 @@ function assertRmtRuntimeEsmBundleSurface(context, rootDir) {
   context.assert(hydrationResult.chunk && hydrationResult.chunk.executionMode === 'server_prerender_hydrate', 'RMT runtime ESM bundle preserves server prerender hydrate chunk mode');
 }
 
+function assertRmtTemplateArtifactRegistryIdentity(context, rootDir) {
+  const appModules = createCanonicalTemplateAppModules(context, rootDir);
+  if (!appModules) return;
+
+  const createdFormats = [];
+  const createdRegistries = [];
+  const compilerFactoryInputs = [];
+  const templateArtifacts = appModules.createRmtTemplateArtifacts({
+    createRmtFormat() {
+      const rmtFormat = appModules.createRmtFormat();
+      createdFormats.push(rmtFormat);
+      return rmtFormat;
+    },
+    createRmtTemplateRegistry(deps) {
+      const registry = appModules.createRmtTemplateRegistry(deps);
+      createdRegistries.push({ deps, registry });
+      return registry;
+    },
+    createRmtTemplateCompiler(deps) {
+      compilerFactoryInputs.push(deps);
+      return appModules.createRmtTemplateCompiler(deps);
+    }
+  });
+
+  context.assert(createdFormats.length === 1, 'Template Artifacts creates one shared RMT Format instance');
+  context.assert(createdRegistries.length === 1, 'Template Artifacts creates one shared Template Registry instance');
+  context.assert(compilerFactoryInputs.length === 1, 'Template Artifacts creates one Template Compiler instance');
+  context.assert(
+    compilerFactoryInputs[0] && compilerFactoryInputs[0].rmtFormat === createdFormats[0],
+    'Template Artifacts injects its RMT Format instance into the Template Compiler'
+  );
+  context.assert(
+    compilerFactoryInputs[0]
+      && compilerFactoryInputs[0].registry === createdRegistries[0].registry
+      && compilerFactoryInputs[0].templateRegistry === createdRegistries[0].registry,
+    'Template Artifacts injects the registering Template Registry into the Template Compiler'
+  );
+  let injectedFormatFactoryCalls = 0;
+  const injectedTemplateArtifacts = appModules.createRmtTemplateArtifacts({
+    registry: { registerDocument() {} },
+    compiler: { prepareDocument() {} },
+    createRmtFormat() {
+      injectedFormatFactoryCalls += 1;
+      throw new Error('Injected Template Artifact handles must not create an unused RMT Format.');
+    }
+  });
+  context.assert(injectedTemplateArtifacts && injectedFormatFactoryCalls === 0,
+    'Template Artifacts does not materialize an unused RMT Format for fully injected Registry and Compiler handles');
+
+  const artifactBundle = templateArtifacts.createArtifactBundle({
+    kind: 'rmt_document',
+    version: '1.0',
+    manifest: {
+      documentId: 'registry-identity-document',
+      namespace: 'registry-identity'
+    },
+    templates: [{
+      id: 'status',
+      mode: 'html_fragment',
+      markup: '<x-status>Ready</x-status>'
+    }]
+  });
+  let registration = null;
+  try {
+    registration = templateArtifacts.registerArtifactBundle(artifactBundle);
+    context.pass('Template Artifacts registers a bundle and prepares its documentId without parsing it as JSON');
+  } catch (error) {
+    context.fail(`Template Artifacts registers a bundle and prepares its documentId without parsing it as JSON (${error.message})`);
+  }
+  context.assert(
+    registration && registration.ok === true && registration.documentIds.includes('registry-identity-document'),
+    'Template Artifacts reports the registered document from the shared registry'
+  );
+  const preparedTemplate = templateArtifacts.resolvePreparedTemplate({
+    id: 'status',
+    namespace: 'registry-identity'
+  });
+  context.assert(
+    preparedTemplate && preparedTemplate.qualifiedId === 'registry-identity:status',
+    'Template Compiler resolves the artifact template through the shared registry'
+  );
+}
+
 function assertRmtBrowserNearRuntime(context, rootDir) {
   const appModules = createRmtBrowserAppModulesFromBundle(context, rootDir);
   if (!appModules) return;
@@ -2342,6 +2450,7 @@ function runRmtCompatibilitySuite(options = {}) {
   assertRmtRuntimeRegistryRuntime(context, rootDir);
   assertRmtNativeBridgeFixtureRuntime(context, rootDir);
   assertRmtNativeBridgeAdapterRegression(context, rootDir);
+  assertRmtTemplateArtifactRegistryIdentity(context, rootDir);
   assertRmtRuntimeEsmBundleSurface(context, rootDir);
   assertRmtBrowserNearRuntime(context, rootDir);
   assertRmtBrowserSmokeFixtureContract(context, rootDir);

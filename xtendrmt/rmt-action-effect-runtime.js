@@ -329,10 +329,13 @@
   }
 
   function normalizeError(error) {
-    return {
+    const normalized = {
       name: clampString(error && error.name, 'Error'),
       message: clampString(error && error.message, String(error || 'Unbekannter RMT Action Fehler.'))
     };
+    const code = clampString(error && error.code);
+    if (code) normalized.code = code;
+    return normalized;
   }
 
   function createDeterministicActionHostPort() {

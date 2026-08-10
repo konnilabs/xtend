@@ -4948,6 +4948,12 @@ function createBundleSource(plan, providerCssText = null) {
     id: entry.id || entry.source,
     module: ensureRelativeImport(outDir, entry.absolutePath)
   }));
+  const runtimeModuleApiEntries = stackEntries
+    .filter((entry) => !(plan.kernel && plan.kernel.enabled && (
+      entry.id === 'xtendrmt/rmt-runtime.esm.js'
+      || entry.id === 'xtendrmt/rmt-kernel-orchestration-controller.js'
+    )))
+    .map((entry, index) => ({ ...entry, importName: `XTendMaracaRuntimeModule${index}` }));
   const componentEntries = plan.components.selected.map((entry) => ({
     tag: entry.tag,
     module: entry.native ? null : ensureRelativeImport(outDir, entry.absolutePath),
@@ -5191,10 +5197,8 @@ function createBundleSource(plan, providerCssText = null) {
     `const MARACA_LAZY_MODE = ${JSON.stringify(plan.lazy)};`
   ];
 
-  stackEntries.forEach((entry) => {
-    if (plan.kernel && plan.kernel.enabled && entry.id === 'xtendrmt/rmt-runtime.esm.js') return;
-    if (plan.kernel && plan.kernel.enabled && entry.id === 'xtendrmt/rmt-kernel-orchestration-controller.js') return;
-    header.unshift(`import "${entry.module}";`);
+  runtimeModuleApiEntries.forEach((entry) => {
+    header.unshift(`import * as ${entry.importName} from "${entry.module}";`);
   });
   header.unshift(`import { createMaracaBrowserCompositionRoot, freezeMaracaConfiguration as freezeMaracaSnapshot } from "./${BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE}";`);
   header.unshift(`import { createMaracaPlanRuntime } from "./${PLAN_RUNTIME_BUNDLE_FILE}";`);
@@ -5204,6 +5208,9 @@ function createBundleSource(plan, providerCssText = null) {
   } else {
     header.push('const XTendMaracaKernelRuntimeModule = null;');
   }
+  header.push(`const MARACA_RUNTIME_MODULE_APIS = Object.freeze({${runtimeModuleApiEntries
+    .map((entry) => `\n  ${JSON.stringify(entry.id)}: ${entry.importName}`)
+    .join(',')}\n});`);
 
   if (appServicesBundle.enabled && plan.services.entries && plan.services.entries.client && plan.services.entries.client.exists) {
     const runtimeModule = ensureRelativeImport(outDir, path.join(__dirname, 'app-services.mjs'));
@@ -5273,6 +5280,7 @@ const MARACA_BOOT_CONFIGURATION = freezeMaracaSnapshot({
 
 const maracaComposition = createMaracaBrowserCompositionRoot(MARACA_BOOT_CONFIGURATION, {
   createPlanRuntime: createMaracaPlanRuntime,
+  runtimeModuleApis: MARACA_RUNTIME_MODULE_APIS,
   componentImporters: MARACA_IMPORTERS,
   kernelRuntimeModule: XTendMaracaKernelRuntimeModule,
   appServiceDefinition: XTendMaracaAppServiceDefinition,

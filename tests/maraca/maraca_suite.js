@@ -1036,6 +1036,11 @@ async function runMaracaOrchestrationSuite(options = {}) {
       throw new Error('Composition port identity test must not instantiate the provider.');
     }
   });
+  const appRuntimeProvider = Object.freeze({
+    createRmtAppRuntime() {
+      throw new Error('Composition port identity test must not instantiate the provider.');
+    }
+  });
   const explicitSurfaceController = Object.freeze({
     apply() {},
     readSnapshot() { return {}; },
@@ -1065,6 +1070,12 @@ async function runMaracaOrchestrationSuite(options = {}) {
     XTendSurfaceController: surfaceControllerProvider
   };
   let capturedRuntimeConfiguration = null;
+  let compositionRuntimeCreateCount = 0;
+  let compositionRuntimeDisposeCount = 0;
+  let releaseCompositionBoot;
+  let markCompositionBootStarted;
+  const compositionBootGate = new Promise((resolve) => { releaseCompositionBoot = resolve; });
+  const compositionBootStarted = new Promise((resolve) => { markCompositionBootStarted = resolve; });
   const compositionRuntime = browserCompositionApi.createMaracaBrowserCompositionRoot({
     schema: MARACA_BUNDLE_REPORT_SCHEMA,
     orchestration: { enabled: true, strict: false, mode: 'compatibility', status: 'ready', artifact: {} },
@@ -1077,23 +1088,31 @@ async function runMaracaOrchestrationSuite(options = {}) {
     platformTarget: compositionPlatformTarget,
     windowTarget: compositionPlatformTarget,
     documentTarget: compositionDocumentTarget,
+    runtimeModuleApis: Object.freeze({
+      'xtendrmt/rmt-app-runtime.js': appRuntimeProvider
+    }),
     createPlanRuntime(runtimeConfiguration) {
+      compositionRuntimeCreateCount += 1;
       capturedRuntimeConfiguration = runtimeConfiguration;
       return {
         model: Object.freeze({ snapshot() { return Object.freeze({}); } }),
-        async boot() { return this.snapshot(); },
+        async boot() {
+          markCompositionBootStarted();
+          await compositionBootGate;
+          return this.snapshot();
+        },
         async dispatchCommand() { return this.snapshot(); },
         async dispatchStreamPatch() { return this.snapshot(); },
         snapshot() {
           return { phase: 'booted', enabled: true, diagnostics: [] };
         },
         subscribe() { return () => {}; },
-        dispose() { return true; }
+        dispose() { compositionRuntimeDisposeCount += 1; return true; }
       };
     }
   });
   const compositionRenderer = { commit() { return null; }, dispose() { return false; } };
-  await compositionRuntime.boot({
+  const initialCompositionBootPromise = compositionRuntime.boot({
     root: compositionRootTarget,
     domRenderer: compositionRenderer,
     surfaceController: explicitSurfaceController,
@@ -1101,14 +1120,162 @@ async function runMaracaOrchestrationSuite(options = {}) {
     surfaceStateProjection: compatibilitySurfaceStateProjection,
     registerServiceWorker: false
   });
+  await compositionBootStarted;
+  const concurrentCompositionBootPromise = compositionRuntime.boot({
+    root: compositionRootTarget,
+    domRenderer: compositionRenderer,
+    registerServiceWorker: false
+  });
+  releaseCompositionBoot();
+  const [initialCompositionBoot, concurrentCompositionBoot] = await Promise.all([
+    initialCompositionBootPromise,
+    concurrentCompositionBootPromise
+  ]);
+  const repeatedCompositionBoot = await compositionRuntime.boot({
+    root: compositionRootTarget,
+    domRenderer: compositionRenderer,
+    registerServiceWorker: false
+  });
   const loadedCompositionModules = await capturedRuntimeConfiguration.moduleLoaderPort.load();
+  context.assert(loadedCompositionModules.app === appRuntimeProvider,
+    'browser composition exposes the exact injected ESM App Runtime provider without requiring a global mirror');
   context.assert(loadedCompositionModules.surfaceController === surfaceControllerProvider,
     'browser composition exposes the exact XTendSurfaceController provider through its module-loader port');
   context.assert(capturedRuntimeConfiguration.surfaceController === explicitSurfaceController
     && capturedRuntimeConfiguration.surfaceControllerId === 'demo.surface-controller'
     && capturedRuntimeConfiguration.surfaceStateProjection === compatibilitySurfaceStateProjection,
   'browser composition preserves explicit Surface Controller and compatibility projection ports for Plan Runtime');
+  context.assert(initialCompositionBoot.duplicateBootIgnored !== true
+    && concurrentCompositionBoot.duplicateBootIgnored === true
+    && repeatedCompositionBoot.duplicateBootIgnored === true
+    && Object.isFrozen(concurrentCompositionBoot)
+    && Object.isFrozen(repeatedCompositionBoot)
+    && compositionRuntimeCreateCount === 1
+    && compositionRuntimeDisposeCount === 0,
+  'browser composition coalesces concurrent and repeated managed boot without replacing the runtime or rematerializing the root');
   compositionRuntime.dispose();
+
+  let releaseDisposedCompositionBoot;
+  let signalDisposedCompositionBoot;
+  const disposedCompositionBootGate = new Promise((resolve) => { releaseDisposedCompositionBoot = resolve; });
+  const disposedCompositionBootStarted = new Promise((resolve) => { signalDisposedCompositionBoot = resolve; });
+  const disposedCompositionRuntimeIds = [];
+  let disposedCompositionRuntimeCount = 0;
+  const disposedCompositionPlatformTarget = {};
+  const disposedComposition = browserCompositionApi.createMaracaBrowserCompositionRoot({
+    schema: MARACA_BUNDLE_REPORT_SCHEMA,
+    orchestration: { enabled: true, strict: false, mode: 'compatibility', status: 'ready', artifact: {} },
+    kernel: { enabled: false, status: 'disabled' },
+    hydration: { enabled: false, status: 'disabled' },
+    components: [],
+    surfaces: [],
+    state: {}
+  }, {
+    platformTarget: disposedCompositionPlatformTarget,
+    windowTarget: disposedCompositionPlatformTarget,
+    documentTarget: compositionDocumentTarget,
+    createPlanRuntime() {
+      disposedCompositionRuntimeCount += 1;
+      const runtimeId = disposedCompositionRuntimeCount;
+      return {
+        model: Object.freeze({ snapshot() { return Object.freeze({}); } }),
+        async boot() {
+          if (runtimeId === 1) {
+            signalDisposedCompositionBoot();
+            await disposedCompositionBootGate;
+          }
+          return this.snapshot();
+        },
+        async dispatchCommand() { return this.snapshot(); },
+        async dispatchStreamPatch() { return this.snapshot(); },
+        snapshot() { return { phase: 'ready', enabled: true, diagnostics: [], runtimeId }; },
+        subscribe() { return () => {}; },
+        dispose() { disposedCompositionRuntimeIds.push(runtimeId); return true; }
+      };
+    }
+  });
+  const disposedCompositionRoot = { ...compositionRootTarget };
+  const replacementCompositionRoot = { ...compositionRootTarget };
+  const staleCompositionBoot = disposedComposition.boot({
+    root: disposedCompositionRoot,
+    domRenderer: { commit() { return null; }, dispose() { return true; } },
+    registerServiceWorker: false
+  });
+  await disposedCompositionBootStarted;
+  const duplicateDisposedCompositionBoot = disposedComposition.boot({
+    root: disposedCompositionRoot,
+    registerServiceWorker: false
+  });
+  await Promise.resolve();
+  disposedComposition.dispose('Dispose the pending composition boot.');
+  let disposedCompositionTimeout;
+  const disposedCompositionSettled = await Promise.race([
+    Promise.allSettled([staleCompositionBoot, duplicateDisposedCompositionBoot]),
+    new Promise((resolve) => { disposedCompositionTimeout = setTimeout(() => resolve(null), 250); })
+  ]);
+  clearTimeout(disposedCompositionTimeout);
+  const replacementCompositionBoot = await disposedComposition.boot({
+    root: replacementCompositionRoot,
+    domRenderer: { commit() { return null; }, dispose() { return true; } },
+    registerServiceWorker: false
+  });
+  releaseDisposedCompositionBoot();
+  await Promise.resolve();
+  await Promise.resolve();
+  context.assert(Array.isArray(disposedCompositionSettled)
+    && disposedCompositionSettled.every((entry) => entry.status === 'rejected'
+      && entry.reason && entry.reason.code === 'xtend.maraca.boot_cancelled')
+    && replacementCompositionBoot.runtimeId === 2
+    && disposedCompositionRuntimeCount === 2
+    && disposedCompositionRuntimeIds.filter((runtimeId) => runtimeId === 1).length === 1
+    && disposedComposition.facade.model
+    && disposedCompositionPlatformTarget.__XTendMaracaResult.runtimeId === 2,
+  'disposing a pending composition boot rejects all coalesced callers and isolates a replacement boot from stale completion');
+  disposedComposition.dispose();
+
+  let strictCollisionRegistryCreations = 0;
+  let strictCollisionTransportCreations = 0;
+  const strictCollisionComposition = browserCompositionApi.createMaracaBrowserCompositionRoot({
+    schema: MARACA_BUNDLE_REPORT_SCHEMA,
+    orchestration: { enabled: false, strict: true, mode: 'strict', status: 'disabled' },
+    kernel: { enabled: false, status: 'disabled' },
+    hydration: { enabled: false, status: 'disabled' },
+    appServices: {
+      enabled: true,
+      strict: true,
+      manifest: { services: [{ id: 'demo.generated-service', target: 'server' }] }
+    },
+    components: [],
+    surfaces: [],
+    state: {}
+  }, {
+    platformTarget: compositionPlatformTarget,
+    windowTarget: compositionPlatformTarget,
+    documentTarget: compositionDocumentTarget,
+    appServiceDefinition: {},
+    createAppServiceRegistry() {
+      strictCollisionRegistryCreations += 1;
+      return {};
+    },
+    createHttpAppServiceTransport() {
+      strictCollisionTransportCreations += 1;
+      return {};
+    }
+  });
+  let strictAliasCollision = null;
+  try {
+    await strictCollisionComposition.boot({
+      root: compositionRootTarget,
+      serviceAdapters: { 'demo.generated-service': { invoke() {} } }
+    });
+  } catch (error) {
+    strictAliasCollision = error;
+  }
+  context.assert(strictAliasCollision
+    && strictAliasCollision.code === 'xtend.maraca.app_services.manual_adapter_collision'
+    && strictCollisionRegistryCreations === 0
+    && strictCollisionTransportCreations === 0,
+  'strict AppServices detects the serviceAdapters alias collision before creating registry or transport resources');
   const commandCalls = { focus: 0, reset: 0, snapshot: 0, ensured: [], queries: [] };
   const editor = {
     localName: 'x-textarea',
@@ -1276,6 +1443,13 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(entrySource.includes('XTendRmtStateSelectorRuntime'), 'bundle wires state runtime');
   context.assert(entrySource.includes('XTendRmtXStateHostAdapter'), 'bundle wires the typed XState host adapter');
   context.assert(entrySource.includes('XTendRmtActionEffectRuntime'), 'bundle wires action runtime');
+  context.assert(entrySource.includes('MARACA_RUNTIME_MODULE_APIS')
+    && entrySource.includes('"xtendrmt/rmt-app-runtime.js"')
+    && entrySource.includes('runtimeModuleApis: MARACA_RUNTIME_MODULE_APIS'),
+  'bundle passes canonical ESM Runtime Module namespaces explicitly into the browser composition root');
+  context.assert(!entrySource.includes('globalThis.XTendRmtAppRuntime')
+    && !entrySource.includes('globalTarget.XTendRmtAppRuntime ='),
+  'bundle consumes the App Runtime module namespace without reintroducing a global mirror');
   context.assert(entrySource.includes('XTendRmtEventRoutingRuntime'), 'bundle wires event runtime');
   context.assert(entrySource.includes('XTendRmtSurfaceResourceGraphRuntime'), 'bundle wires surface runtime');
   context.assert(entrySource.includes('components/xsurfacemanager-controller.js'), 'bundle imports the Surface Controller lifecycle runtime');
@@ -1295,6 +1469,8 @@ async function runMaracaOrchestrationSuite(options = {}) {
     && compositionRuntimeSource.includes('surfaceController: options.surfaceController || null')
     && compositionRuntimeSource.includes('surfaceControllerId: options.surfaceControllerId')
     && compositionRuntimeSource.includes('surfaceStateProjection: options.surfaceStateProjection || null')
+    && compositionRuntimeSource.includes("XTendRmtAppRuntime: Object.freeze(['xtendrmt/rmt-app-runtime.js', 'XTendRmtAppRuntime'])")
+    && compositionRuntimeSource.includes('createInjectedRuntimeApis(dependencies)')
     && compositionRuntimeSource.includes('invokeComponentCommand: (record) => host.invokeComponentCommand')
     && compositionRuntimeSource.includes('postCommitEffects: options.postCommitEffects || null'),
   'composition root injects the shared renderer, kernel, Surface Controller, presentation, and additive host hooks');
@@ -1317,7 +1493,8 @@ async function runMaracaOrchestrationSuite(options = {}) {
     && /const MARACA_VALIDATION = freezeMaraca(?:Snapshot|Configuration)\(/u.test(entrySource)
     && /const MARACA_BOOT_CONFIGURATION = freezeMaraca(?:Snapshot|Configuration)\(\{/u.test(entrySource),
   'generated composition plans and controller configuration are deeply frozen before publication');
-  context.assert(compositionRuntimeSource.includes('bootResult = deepFreeze({')
+  context.assert(compositionRuntimeSource.includes('const result = deepFreeze({')
+    && compositionRuntimeSource.includes('bootResult = result;')
     && compositionRuntimeSource.includes("const report = deepFreeze({ schema: 'xtend.maraca.dispose.v1'")
     && !entrySource.includes('window.__XTendMaracaAutoBootError = error'),
   'composition boot, dispose, and generated auto-boot diagnostics expose immutable snapshots instead of mutable runtime values');
@@ -1430,20 +1607,21 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(mediaEffectSource.includes('domRenderer.isUrlAllowed(value)')
     && mediaEffectSource.indexOf("assertAllowedUrl(detail.src, 'remote-play')") < mediaEffectSource.indexOf('player.applyRmtPlayerCommand'),
   'media effects pass URL-bearing public component calls through the renderer policy first');
-  context.assert(compositionRuntimeSource.includes("close('hydration', hydration)")
-    && compositionRuntimeSource.includes("close('kernel', kernel)")
-    && compositionRuntimeSource.includes("close('renderer', renderer, root || undefined, { clearOwnedDom: false })")
+  context.assert(compositionRuntimeSource.includes("closeHandle(disposed, 'hydration', hydration)")
+    && compositionRuntimeSource.includes("closeHandle(disposed, 'kernel', kernel)")
+    && compositionRuntimeSource.includes("closeHandle(disposed, 'renderer', renderer, root || undefined, { clearOwnedDom: false })")
     && compositionRuntimeSource.includes('host.clearPublicFacades()')
     && browserHostAdapterSource.includes("'__XTendMaracaKernel'")
-    && compositionRuntimeSource.includes('generation !== bootGeneration'),
+    && compositionRuntimeSource.includes('generation !== attempt.generation')
+    && compositionRuntimeSource.includes('cleanupBootAttempt(pendingAttempt, disposed, reason)'),
   'composition root has one fail-safe observer, renderer, kernel, and boot-generation dispose chain');
   const resumeHydrationSource = compositionRuntimeSource.slice(
     compositionRuntimeSource.indexOf('hydrateResponse()'),
     compositionRuntimeSource.indexOf('publishDiagnostic(value)', compositionRuntimeSource.indexOf('hydrateResponse()'))
   );
-  context.assert((resumeHydrationSource.match(/runtime\.refresh\(/gu) || []).length === 1
-    && (resumeHydrationSource.match(/hydration\.hydrate\(/gu) || []).length === 1
-    && resumeHydrationSource.includes('runtime && runtime.refresh ?'),
+  context.assert((resumeHydrationSource.match(/attempt\.runtime\.refresh\(/gu) || []).length === 1
+    && (resumeHydrationSource.match(/attempt\.hydration\.hydrate\(/gu) || []).length === 1
+    && resumeHydrationSource.includes('attempt.runtime && attempt.runtime.refresh'),
   'resume fallback selects either the canonical controller or its injected Component Registry port, never a second hydration controller');
   context.assert(browserHostAdapterSource.includes("runtimeApi('XTendRmtKernelOrchestrationController')")
     && browserHostAdapterSource.includes('controller.boot()'),

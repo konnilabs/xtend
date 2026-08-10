@@ -355,7 +355,7 @@ template maraca.testbench {
 
   transition maraca.testbench.persistFlow {
     trigger action maraca.testbench.save
-    from surfaces [maraca.testbench.editor maraca.testbench.feedback]
+    from surfaces [maraca.testbench.feedback]
     to surfaces [maraca.testbench.history]
     effect crossfade
     durationMs 160

@@ -270,7 +270,9 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
       },
       'host.error': {
         invoke() {
-          throw new Error('host adapter failed');
+          const error = new Error('host adapter failed');
+          error.code = 'host.adapter.failed';
+          throw error;
         }
       }
     },
@@ -338,7 +340,9 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
 
   const errorResult = await runtime.runAction('action.error-flow');
   context.assert(errorResult.status === 'error', 'host error datasource returns error result');
-  context.assert(errorResult.error && errorResult.error.message === 'host adapter failed', 'error result normalizes host error');
+  context.assert(errorResult.error && errorResult.error.message === 'host adapter failed'
+    && errorResult.error.code === 'host.adapter.failed',
+  'error result preserves a safe machine-readable code across the Action boundary');
   context.assert(stateRuntime.getState('state.loading') === false, 'loading state resets after error');
   context.assert(stateRuntime.getState('state.action-status').status === 'error', 'error patches status state');
 

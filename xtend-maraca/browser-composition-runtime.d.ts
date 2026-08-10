@@ -31,6 +31,8 @@ export function createMaracaBrowserCompositionRoot(
   configuration?: Readonly<Record<string, unknown>>,
   dependencies?: Readonly<{
     createPlanRuntime?: (options: MaracaPlanRuntimeOptions) => MaracaPlanRuntime;
+    runtimeModuleApis?: Readonly<Record<string, Readonly<Record<string, unknown>>>>;
+    runtimeApis?: Readonly<Record<string, unknown>>;
     [key: string]: unknown;
   }>
 ): MaracaBrowserCompositionRoot;

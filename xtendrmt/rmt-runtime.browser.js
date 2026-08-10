@@ -20369,35 +20369,48 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
         const createRmtTemplateRegistryFactory = resolveFactory('createRmtTemplateRegistry', deps.createRmtTemplateRegistry);
         const createRmtFormatFactory = resolveFactory('createRmtFormat', deps.createRmtFormat);
 
-        const compiler = deps.compiler && typeof deps.compiler === 'object'
-            ? deps.compiler
-            : (deps.templateCompiler && typeof deps.templateCompiler === 'object'
-                ? deps.templateCompiler
-                : ((templateApi && typeof templateApi.getCompiler === 'function')
-                    ? templateApi.getCompiler()
-                    : (typeof createRmtTemplateCompilerFactory === 'function'
-                        ? createRmtTemplateCompilerFactory(deps)
-                        : null)));
-        if (!compiler || typeof compiler.prepareDocument !== 'function') {
-            throw new Error('RmtTemplateArtifacts benoetigt einen gueltigen TemplateCompiler.');
-        }
-
-        const registry = deps.registry && typeof deps.registry === 'object'
+        const suppliedRegistry = deps.registry && typeof deps.registry === 'object'
             ? deps.registry
             : (deps.templateRegistry && typeof deps.templateRegistry === 'object'
                 ? deps.templateRegistry
                 : ((templateApi && typeof templateApi.getRegistry === 'function')
                     ? templateApi.getRegistry()
-                    : (typeof createRmtTemplateRegistryFactory === 'function'
-                        ? createRmtTemplateRegistryFactory({
-                            rmtFormat: deps.rmtFormat
-                                || (typeof createRmtFormatFactory === 'function'
-                                    ? createRmtFormatFactory()
-                                    : null)
-                        })
-                        : null)));
+                    : null));
+        const suppliedCompiler = deps.compiler && typeof deps.compiler === 'object'
+            ? deps.compiler
+            : (deps.templateCompiler && typeof deps.templateCompiler === 'object'
+                ? deps.templateCompiler
+                : ((templateApi && typeof templateApi.getCompiler === 'function')
+                    ? templateApi.getCompiler()
+                    : null));
+        const needsRmtFormat = !suppliedRegistry || !suppliedCompiler;
+        const rmtFormat = deps.rmtFormat && typeof deps.rmtFormat === 'object'
+            ? deps.rmtFormat
+            : (needsRmtFormat && typeof createRmtFormatFactory === 'function'
+                ? createRmtFormatFactory()
+                : null);
+        const registry = suppliedRegistry
+            || (typeof createRmtTemplateRegistryFactory === 'function'
+                ? createRmtTemplateRegistryFactory({
+                    ...deps,
+                    rmtFormat
+                })
+                : null);
         if (!registry || typeof registry.registerDocument !== 'function') {
             throw new Error('RmtTemplateArtifacts benoetigt eine gueltige TemplateRegistry.');
+        }
+
+        const compiler = suppliedCompiler
+            || (typeof createRmtTemplateCompilerFactory === 'function'
+                ? createRmtTemplateCompilerFactory({
+                    ...deps,
+                    rmtFormat,
+                    registry,
+                    templateRegistry: registry
+                })
+                : null);
+        if (!compiler || typeof compiler.prepareDocument !== 'function') {
+            throw new Error('RmtTemplateArtifacts benoetigt einen gueltigen TemplateCompiler.');
         }
 
         let logicalClock = 0;
