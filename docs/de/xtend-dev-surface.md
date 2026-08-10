@@ -158,7 +158,7 @@ Die XTend Docs stellen die DEV API selbst bereit. Du brauchst für diesen Test w
 php -S 127.0.0.1:9187 -t . docs/dev-router.php
 ```
 
-Öffne `http://127.0.0.1:9187/docs/de/readme`, danach die Chromium DevTools und das Panel `XTend`. Während des frühen Boots dürfen die synchronen Methoden einen gültigen `degraded`-Snapshot liefern. Sobald die Shell bereit ist, erwartest du `server_prerender_hydrate`, einen Kernel-Zustand `none`, AppRuntime-Fibers in `Fabric` und Messungen für SSR, FCP, Content-Commit und Route-Übergänge.
+Öffne `http://127.0.0.1:9187/docs/de/readme`, danach die Chromium DevTools und das Panel `XTend`. Während des frühen Boots dürfen die synchronen Methoden einen gültigen `degraded`-Snapshot liefern. Sobald die Shell bereit ist, erwartest du standardmäßig `server_prerender_resume`, einen Kernel-Zustand `none`, AppRuntime-Fibers in `Fabric` und Messungen für SSR, FCP, Content-Commit und Route-Übergänge. Ohne gültigen Resume-Schlüssel bleibt das vollständige SSR-Dokument erhalten und meldet einmalig `server_prerender_hydrate` als Fallback.
 
 Navigation und Suche laufen durch dieselbe AppRuntime, die auch die Snapshots speist. Suche beispielsweise nach `hydratoin`, öffne einen Treffer und prüfe, ob Route, Lane-Zähler und Search Measurement gemeinsam aktualisiert werden. So erkennst du auch veraltete Snapshots, die bei einem statischen DEV-API-Mock verborgen blieben.
 

@@ -112,6 +112,7 @@ function runDocsRmtPilotSuite(options = {}) {
   const indexPhp = readText('docs/index.php', rootDir);
   const pageLoader = readText('docs/utils/pageloader.js', rootDir);
   const docsShellRuntime = readText('docs/utils/docs-shell-runtime.mjs', rootDir);
+  const docsResumeBootstrap = readText('docs/utils/docs-resume-bootstrap.mjs', rootDir);
   const xtendLoader = readText('xtend-loader.js', rootDir);
   const xrouterSource = readText('components/xrouter.js', rootDir);
   const xcodeSource = readText('components/xcode.js', rootDir);
@@ -251,7 +252,7 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(indexPhp.includes('import\' => \'/docs/utils/pageloader.js?v=\''), 'Docs app routes import the absolute versioned page loader module');
   context.assert(indexPhp.includes('src="/docs/utils/pageloader.js?v='), 'Docs app loads the absolute page loader with cache busting');
   context.assert(!indexPhp.includes('components/xtend-doc-page.js'), 'Docs app avoids stale missing route component imports');
-  context.assert(indexPhp.includes('data-manifest="/components/manifest.json?v='), 'Docs app uses versioned root-local manifest URL accepted by loader policy');
+  context.assert(indexPhp.includes('data-loader-manifest="/components/manifest.json?v='), 'Docs app passes a versioned root-local manifest URL to the deferred loader');
   context.assert(indexPhp.includes('data-module-cache-bust='), 'Docs app forwards module cache busting to the loader');
   const xtendMainRule = xtendCss.match(/(?:^|\n)main\s*\{([\s\S]*?)\n\}/u);
   const xtendMainCss = xtendMainRule ? xtendMainRule[1] : '';
@@ -295,13 +296,13 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(indexPhp.includes("'class' => 'docs-menu-link-icon'"), 'Docs SSR task navigation renders x-icon icons for initial menu links');
   context.assert(indexPhp.includes('.docs-menu-section x-link::part(link)'), 'Docs menu styles the x-link part inside constrained menu cards');
   context.assert(indexPhp.includes('overflow-wrap: anywhere'), 'Docs menu wraps long navigation labels instead of overflowing cards');
-  context.assert(indexPhp.includes('x-link,x-input,x-form,x-header,x-hero,x-router,x-footer'), 'Docs app preloads shell components without stale x-tabs preload');
+  context.assert(!indexPhp.includes('x-link,x-input,x-form,x-header,x-hero,x-router,x-footer') && docsResumeBootstrap.includes("import('../generated/shell/xtend.maraca.mjs')"), 'Docs app lets generated Maraca resume XLink/XRouter before the deferred compatibility loader');
   context.assert(docsShellRuntime.includes("'--input-bg-dark': '#0f0f12'"), 'Docs AppRuntime dark theme exposes black-weighted x-input dark background token');
   context.assert(docsShellRuntime.includes("'--input-placeholder-color-dark': '#a1a1aa'"), 'Docs AppRuntime dark theme exposes x-input placeholder token');
   context.assert(docsShellRuntime.includes("'--xtend-surface': '#0b0b0d'"), 'Docs AppRuntime dark theme overrides canonical XTend surface token');
   context.assert(docsShellRuntime.includes("'--xtend-text': '#f4f4f5'"), 'Docs AppRuntime dark theme overrides canonical XTend text token');
   context.assert(docsShellRuntime.includes("'--xtend-overlay-bg': 'rgba(0, 0, 0, 0.72)'"), 'Docs AppRuntime dark theme overrides canonical XTend overlay token');
-  context.assert(indexPhp.includes('x-code,x-modal,x-dialog'), 'Docs app preloads hands-on demo components');
+  context.assert(!indexPhp.includes('x-code,x-modal,x-dialog') && pageLoader.includes('scheduleDocsVisibleOrIntentIsland'), 'Docs app keeps hands-on demo components out of the initial preload path');
   context.assert(docsShellRuntime.includes("'--body-bg': '#050506'"), 'Docs AppRuntime dark theme uses a black-weighted body background');
   context.assert(!indexPhp.includes('data-manifest="../components/manifest.json"'), 'Docs app avoids path traversal-like manifest URL');
   context.assert(indexPhp.includes(DOCS_RMT_PAGE_SCHEMA), 'Docs app emits per-page RMT schema');

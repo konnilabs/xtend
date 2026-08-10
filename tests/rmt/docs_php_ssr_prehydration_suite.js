@@ -65,7 +65,7 @@ function nodeCheck(relativePath, rootDir) {
 }
 
 function checkInlineScriptSyntax(html, rootDir) {
-  const scripts = Array.from(String(html || '').matchAll(/<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/giu))
+  const scripts = Array.from(String(html || '').matchAll(/<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/json["'])[^>]*>([\s\S]*?)<\/script>/giu))
     .map((match) => match[1]);
   const failures = [];
   scripts.forEach((script, index) => {
@@ -91,12 +91,19 @@ function runDocsIndex(rootDir, getParams = {}, options = {}) {
     `chdir(${JSON.stringify(rootDir)});`,
     `$_SERVER['SCRIPT_NAME'] = '/docs/index.php';`,
     `$_SERVER['REQUEST_URI'] = ${JSON.stringify(options.requestUri || '/docs/de/readme')};`,
+    `$_SERVER['HTTP_ACCEPT'] = ${JSON.stringify(options.accept || 'text/html')};`,
     `$_GET = json_decode(${JSON.stringify(JSON.stringify(getParams))}, true);`,
     'include "docs/index.php";'
   ].join(' ');
   return spawnSync('php', ['-d', 'variables_order=EGPCS', '-r', code], {
     cwd: rootDir,
-    env: { ...process.env, XTEND_DOCS_DOCUMENT_SSR: options.documentSsr || 'off' },
+    env: {
+      ...process.env,
+      ...(Object.prototype.hasOwnProperty.call(options, 'documentSsr')
+        ? { XTEND_DOCS_DOCUMENT_SSR: options.documentSsr }
+        : {}),
+      ...(options.env || {})
+    },
     encoding: 'utf8',
     maxBuffer: 96 * 1024 * 1024
   });
@@ -398,8 +405,12 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   const documentV2Core = readJson(DOCS_DOCUMENT_V2_CORE, rootDir);
   const documentV2SourceSha256 = crypto.createHash('sha256').update(documentV2Source).digest('hex');
   const bridgeResult = await runCompilerBridge(rootDir, source);
-  const legacyHtmlResult = runDocsIndex(rootDir, {});
-  const htmlResult = runDocsIndex(rootDir, {}, { documentSsr: 'v2' });
+  const legacyHtmlResult = runDocsIndex(rootDir, {}, { documentSsr: 'off' });
+  const htmlResult = runDocsIndex(rootDir, {});
+  const routeFragmentResult = runDocsIndex(rootDir, {}, {
+    requestUri: '/docs/en/components-xbutton',
+    accept: 'application/vnd.xtend.rmt-route+json'
+  });
   const jsonlResult = runDocsIndex(rootDir, {
     'xtend-docs-rmt-ssr': 'shell',
     format: 'jsonl',
@@ -414,6 +425,9 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   }, { documentSsr: 'v2' });
   const html = htmlResult.stdout || '';
   const legacyHtml = legacyHtmlResult.stdout || '';
+  const routeFragment = routeFragmentResult.status === 0
+    ? JSON.parse(routeFragmentResult.stdout || '{}')
+    : null;
   const inlineScriptSyntax = checkInlineScriptSyntax(html, rootDir);
   const jsonl = jsonlResult.stdout || '';
   const frames = jsonlResult.status === 0 ? parseJsonl(jsonl) : [];
@@ -504,6 +518,9 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   context.assert(html.includes(DOCS_PHP_SSR_SCHEMA), 'Initial HTML includes docs SSR prehydration schema');
   context.assert(legacyHtml.includes(DOCS_PHP_SSR_LEGACY_SCHEMA), 'Feature flag off keeps the legacy shell-only response available');
   context.assert(html.includes(DOCS_DOCUMENT_V2_SOURCE), 'Document SSR compiles and reports the V2 document source');
+  context.assert(routeFragmentResult.status === 0 && routeFragment && routeFragment.schema === 'xtend.docs.route-fragment.v1', 'Canonical route Accept negotiation emits the route-fragment v1 contract');
+  context.assert(routeFragment && routeFragment.ok === true && typeof routeFragment.routeHtml === 'string' && routeFragment.routeHtml.includes('data-xrouter-prerendered-route'), 'Route fragment carries one server-rendered adoptable route root');
+  context.assert(routeFragment && routeFragment.headPatch && routeFragment.contentProof && routeFragment.islandManifest && Array.isArray(routeFragment.islandManifest.islands), 'Route fragment carries head, content proof and route-local island manifest');
   context.assert(legacyHtml.includes(DOCS_SHELL_SOURCE) && !legacyHtml.includes(DOCS_DOCUMENT_V2_SOURCE), 'Feature flag off compiles and reports only the V1 shell source');
   context.assert(html.includes('rmt_template_chunk'), 'Initial HTML exposes Rmt template chunk shape');
   context.assert(html.includes('server_prerender_hydrate'), 'Initial HTML exposes server prerender hydrate mode');
@@ -532,7 +549,7 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
       && !/(?:^|\s)hidden(?:\s|=|$)/iu.test(seoCase.articleAttributes)
       && !/aria-hidden\s*=\s*["']?true/iu.test(seoCase.articleAttributes)
       && !/display\s*:\s*none/iu.test(seoCase.articleAttributes);
-    const internalLinkPattern = new RegExp(`<x-link\\b[^>]*\\bhref="/docs/${seoCase.locale}/[^"#]+"`, 'iu');
+    const internalLinkPattern = new RegExp(`<a\\b(?=[^>]*\\bis-x-link(?:="true")?)(?=[^>]*\\bdata-xtend-component="x-link")(?=[^>]*\\bhref="/docs/${seoCase.locale}/[^"#]+")`, 'iu');
     context.assert(Boolean(seoCase.markdownPath && seoCase.markdown.length > 0 && seoCase.slug), `${label} resolves its localized Markdown source`);
     context.assert(seoCase.result.status === 0, `${label} renders without JavaScript${seoCase.result.status === 0 ? '' : ` (${seoCase.result.stderr})`}`);
     context.assert(seoCase.seo.title.length > 0 && seoCase.seo.lead.length >= 24, `${label} fixture provides an H1 and distinctive lead`);
@@ -549,11 +566,11 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
     context.assert(seoCase.html.includes(DOCS_PHP_SSR_SCHEMA), `${label} carries the V2 document prehydration contract`);
     context.assert(/\bhidden(?:="(?:true|hidden)")?/iu.test(seoCase.bootSkeletonTag), `${label} keeps the boot skeleton hidden beside SSR content`);
     if (seoCase.requiresInternalLink) {
-      context.assert(internalLinkPattern.test(seoCase.articleHtml), `${label} rewrites an article-internal link to a localized x-link target`);
+      context.assert(internalLinkPattern.test(seoCase.articleHtml), `${label} rewrites an article-internal link to a localized progressive XLink anchor`);
     }
     (seoCase.expectedLocalizedTargets || []).forEach((target) => {
       context.assert(
-        seoCase.articleHtml.includes(`<x-link href="/docs/${seoCase.locale}/${target}"`),
+        new RegExp(`<a\\b(?=[^>]*\\bis-x-link(?:="true")?)(?=[^>]*\\bhref="/docs/${seoCase.locale}/${target}")`, 'iu').test(seoCase.articleHtml),
         `${label} resolves ${target} relative to the current Markdown directory`
       );
     });
@@ -588,7 +605,7 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
     context.assert(!jsonl.includes(documentToken), `V1 shell JSONL excludes V2 document token ${documentToken}`);
   });
   context.assert(documentJsonlResult.status === 0, `Docs V2 document JSONL endpoint renders through PHP${documentJsonlResult.status === 0 ? '' : ` (${documentJsonlResult.stderr})`}`);
-  context.assert(documentFrames.length === 30, 'V2 document JSONL endpoint emits its 30-frame document contract');
+  context.assert(documentFrames.length === 26, 'V2 document JSONL endpoint emits its static-sidebar-free 26-frame document contract');
   context.assert(
     documentFrames.filter((frame) => frame.payload && frame.payload.dataSourceId === 'dataSource:xtend.docs.php_ssr_shell/docs.page/critical/0').length === 1,
     'V2 document JSONL endpoint emits exactly one critical document mount frame'
@@ -613,8 +630,8 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
 
   context.assert(markdownLinkProbe.status === 0 && markdownLinkProbe.payload && typeof markdownLinkProbe.payload.html === 'string', 'Server Markdown link resolver probe completes');
   const normalizedMarkdownLinks = markdownLinkProbe.payload && markdownLinkProbe.payload.html || '';
-  context.assert(normalizedMarkdownLinks.includes('<x-link href="/docs/en/components-xstate?view=api#events">sibling</x-link>'), 'Server Markdown link resolver preserves query and fragment on a sibling target');
-  context.assert(normalizedMarkdownLinks.includes('<x-link href="/docs/en/components#overview">parent</x-link>'), 'Server Markdown link resolver resolves a parent-directory target');
+  context.assert(/<a\b(?=[^>]*\bis-x-link(?:="true")?)(?=[^>]*\bhref="\/docs\/en\/components-xstate\?view=api#events")[^>]*>sibling<\/a>/iu.test(normalizedMarkdownLinks), 'Server Markdown link resolver preserves query and fragment on a progressive sibling anchor');
+  context.assert(/<a\b(?=[^>]*\bis-x-link(?:="true")?)(?=[^>]*\bhref="\/docs\/en\/components#overview")[^>]*>parent<\/a>/iu.test(normalizedMarkdownLinks), 'Server Markdown link resolver resolves a progressive parent-directory anchor');
   [
     '<a href="./missing.md">missing</a>',
     '<a href="../../escape.md">escape</a>',
@@ -663,9 +680,9 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
       && pageLoader.includes("data-docs-code-enhancement-trigger', 'csr'"),
     'Code enhancement reports idle, interaction and CSR commits without retaining a stale SSR marker after navigation'
   );
-  context.assert(indexPhp.includes('docsRenderedDocumentMatchesProof') && indexPhp.includes('xtend.docs.document_ssr_fallback_v1'), 'Docs host verifies final renderer output and records the controlled V1 fallback');
+  context.assert(indexPhp.includes('docsRenderedDocumentMatchesProof') && indexPhp.includes('xtend.docs.document_ssr_adapter_fallback_hydrate'), 'Docs host verifies final renderer output and retains the complete document for controlled hydrate fallback');
   context.assert(indexPhp.includes('xtend.docs.document_ssr_sanitizer_failed') && indexPhp.includes('xtend.docs.document_ssr_structure_proof_failed'), 'Docs host records explicit sanitizer and proof-preparation fallback diagnostics');
-  context.assert(indexPhp.includes("$streamKind === 'document' && $streamDocumentSsr ? $docsRmtDocumentV2Path : $docsRmtVNextShellPath"), 'Document stream preparation failures fall back to the unchanged V1 source');
+  context.assert(indexPhp.includes('xtend.docs.document_ssr_emergency_document') && indexPhp.includes('xtend.docs.document_ssr_adapter_fallback_hydrate'), 'Document preparation and adapter failures retain an emergency complete SSR document');
 
   context.assert(packageManifest.scripts['test:docs-php-ssr-prehydration'] === 'node scripts/run_xtend_tests.js docs-php-ssr-prehydration', 'package exposes docs PHP SSR prehydration script');
   context.assert(runner.includes("id: 'docs-php-ssr-prehydration'"), 'test runner registers docs PHP SSR prehydration suite');

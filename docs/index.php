@@ -21,7 +21,7 @@ $docsRmtVNextShellPath = $docsRoot . '/' . $docsRmtVNextShellDocument;
 $docsRmtDocumentV2 = 'xtendrmt-docs-document-v2.rmt';
 $docsRmtDocumentV2Path = $docsRoot . '/' . $docsRmtDocumentV2;
 $docsRmtDocumentV2CorePath = $docsRoot . '/xtendrmt-docs-document-v2.core.json';
-$docsRmtDocumentV2SourceSha256 = '6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d';
+$docsRmtDocumentV2SourceSha256 = '56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718';
 $rmtPhpSsrAdapterFile = $repoRoot . '/xtendrmt/rmt-php-ssr-adapter.php';
 $docsRmtCompilerBridgePath = $repoRoot . '/tools/tooling-bridge-cli.js';
 $docsRmtLspBridgePath = $repoRoot . '/tools/tooling-bridge-cli.js';
@@ -326,6 +326,26 @@ function docsBuildHistoryRoutePath($slug, $locale, $basePath = '') {
 function docsBuildHistoryRootPath($basePath = '') {
     $base = docsNormalizeBasePath($basePath);
     return $base === '' ? '/' : $base;
+}
+
+function docsPublicOrigin() {
+    $configured = rtrim(trim((string) getenv('XTEND_DOCS_PUBLIC_ORIGIN')), '/');
+    if ($configured !== '') {
+        $parts = parse_url($configured);
+        if (is_array($parts) && in_array(strtolower((string) ($parts['scheme'] ?? '')), ['http', 'https'], true) && !empty($parts['host'])) {
+            $port = isset($parts['port']) ? ':' . (int) $parts['port'] : '';
+            return strtolower((string) $parts['scheme']) . '://' . $parts['host'] . $port;
+        }
+    }
+    $https = strtolower((string) ($_SERVER['HTTPS'] ?? ''));
+    $scheme = $https !== '' && $https !== 'off' ? 'https' : 'http';
+    $host = strtolower(trim((string) ($_SERVER['HTTP_HOST'] ?? 'localhost')));
+    if (!preg_match('/^(?:\[[0-9a-f:]+\]|[a-z0-9.-]+)(?::[0-9]{1,5})?$/i', $host)) $host = 'localhost';
+    return $scheme . '://' . $host;
+}
+
+function docsAbsolutePublicUrl($path) {
+    return docsPublicOrigin() . '/' . ltrim((string) $path, '/');
 }
 
 function docsLocaleTitleSuffix($locale, $availableLocales) {
@@ -737,7 +757,139 @@ function docsTrustedHtmlDescriptor($html, $trustBoundary = 'xtend.security.sanit
 }
 
 function docsDocumentSsrMode() {
-    return strtolower(trim((string) getenv('XTEND_DOCS_DOCUMENT_SSR'))) === 'v2' ? 'v2' : 'off';
+    $legacy = strtolower(trim((string) getenv('XTEND_DOCS_DOCUMENT_SSR')));
+    return $legacy === 'off' ? 'off' : 'v2';
+}
+
+function docsRequestedSsrExecutionMode() {
+    $mode = strtolower(trim((string) getenv('XTEND_DOCS_SSR_MODE')));
+    return $mode === 'hydrate' ? 'server_prerender_hydrate' : 'server_prerender_resume';
+}
+
+function docsBase64UrlEncode($value) {
+    return rtrim(strtr(base64_encode((string) $value), '+/', '-_'), '=');
+}
+
+function docsReadDerLength($der, &$offset) {
+    if ($offset >= strlen($der)) return null;
+    $length = ord($der[$offset++]);
+    if (($length & 0x80) === 0) return $length;
+    $octets = $length & 0x7f;
+    if ($octets < 1 || $octets > 4 || $offset + $octets > strlen($der)) return null;
+    $length = 0;
+    for ($index = 0; $index < $octets; $index++) {
+        $length = ($length << 8) | ord($der[$offset++]);
+    }
+    return $length;
+}
+
+function docsEcdsaDerToP1363($der, $partLength = 32) {
+    $der = (string) $der;
+    $offset = 0;
+    if ($der === '' || ord($der[$offset++]) !== 0x30) return null;
+    $sequenceLength = docsReadDerLength($der, $offset);
+    if (!is_int($sequenceLength) || $offset + $sequenceLength !== strlen($der)) return null;
+    $parts = [];
+    for ($part = 0; $part < 2; $part++) {
+        if ($offset >= strlen($der) || ord($der[$offset++]) !== 0x02) return null;
+        $length = docsReadDerLength($der, $offset);
+        if (!is_int($length) || $length < 1 || $offset + $length > strlen($der)) return null;
+        $integer = substr($der, $offset, $length);
+        $offset += $length;
+        $integer = ltrim($integer, "\0");
+        if (strlen($integer) > $partLength) return null;
+        $parts[] = str_pad($integer, $partLength, "\0", STR_PAD_LEFT);
+    }
+    return $offset === strlen($der) ? implode('', $parts) : null;
+}
+
+function docsResumeSigningConfiguration() {
+    static $configuration = null;
+    if (is_array($configuration)) return $configuration;
+    $keyFile = trim((string) getenv('XTEND_DOCS_RESUME_PRIVATE_KEY_FILE'));
+    $keyId = trim((string) getenv('XTEND_DOCS_RESUME_KEY_ID'));
+    $unavailable = function ($code, $message) use (&$configuration) {
+        $configuration = [
+            'available' => false,
+            'diagnostic' => [
+                'code' => $code,
+                'severity' => 'warning',
+                'message' => $message
+            ]
+        ];
+        return $configuration;
+    };
+    if ($keyFile === '' || $keyId === '') {
+        return $unavailable('xtend.docs.resume_key_unavailable', 'Resume signing is not configured; the complete SSR document will use hydrate activation.');
+    }
+    if (!function_exists('openssl_pkey_get_private') || !function_exists('openssl_sign')) {
+        return $unavailable('xtend.docs.resume_openssl_unavailable', 'OpenSSL signing is unavailable; the complete SSR document will use hydrate activation.');
+    }
+    if (!is_file($keyFile) || !is_readable($keyFile)) {
+        return $unavailable('xtend.docs.resume_key_unreadable', 'The configured resume key is unreadable; the complete SSR document will use hydrate activation.');
+    }
+    $privatePem = file_get_contents($keyFile);
+    $privateKey = is_string($privatePem) ? openssl_pkey_get_private($privatePem) : false;
+    $details = $privateKey ? openssl_pkey_get_details($privateKey) : false;
+    $curve = is_array($details) ? strtolower((string) ($details['ec']['curve_name'] ?? '')) : '';
+    if (!$privateKey || !is_array($details) || ($details['type'] ?? null) !== OPENSSL_KEYTYPE_EC || !in_array($curve, ['prime256v1', 'secp256r1'], true)) {
+        return $unavailable('xtend.docs.resume_key_invalid', 'The configured resume key must be an EC P-256 private key; the complete SSR document will use hydrate activation.');
+    }
+    $publicPem = (string) ($details['key'] ?? '');
+    $publicDer = base64_decode((string) preg_replace('/-----[^-]+-----|\s+/u', '', $publicPem), true);
+    if (!is_string($publicDer) || $publicDer === '') {
+        return $unavailable('xtend.docs.resume_public_key_invalid', 'The resume public key could not be exported; the complete SSR document will use hydrate activation.');
+    }
+    $configuration = [
+        'available' => true,
+        'keyId' => $keyId,
+        'publicKey' => [
+            'schema' => 'xtend.docs.resume-public-key.v1',
+            'keyId' => $keyId,
+            'algorithm' => 'ECDSA-P256-SHA256',
+            'format' => 'spki',
+            'encoding' => 'base64',
+            'value' => base64_encode($publicDer)
+        ],
+        'sign' => function ($canonical) use ($privateKey, $keyId) {
+            $derSignature = '';
+            if (!openssl_sign((string) $canonical, $derSignature, $privateKey, OPENSSL_ALGO_SHA256)) {
+                throw new RuntimeException('The host P-256 signer rejected the resume envelope.');
+            }
+            $signature = docsEcdsaDerToP1363($derSignature, 32);
+            if (!is_string($signature)) {
+                throw new RuntimeException('The host P-256 signature could not be converted to IEEE P1363.');
+            }
+            return [
+                'algorithm' => 'ECDSA-P256-SHA256',
+                'keyId' => $keyId,
+                'signature' => docsBase64UrlEncode($signature)
+            ];
+        }
+    ];
+    return $configuration;
+}
+
+function docsDescriptorWithExecutionMode($descriptor, $executionMode) {
+    if (!is_array($descriptor)) return $descriptor;
+    if (array_is_list($descriptor)) {
+        return array_map(fn($entry) => docsDescriptorWithExecutionMode($entry, $executionMode), $descriptor);
+    }
+    if (isset($descriptor['attributes']) && is_array($descriptor['attributes'])) {
+        if (array_key_exists('data-rmt-hydration-mode', $descriptor['attributes'])) {
+            $descriptor['attributes']['data-rmt-hydration-mode'] = $executionMode;
+        }
+        if (($descriptor['attributes']['data-rmt-resume-root'] ?? null) !== null) {
+            $descriptor['attributes']['data-rmt-activation-mode'] = $executionMode;
+        }
+    }
+    if (isset($descriptor['children']) && is_array($descriptor['children'])) {
+        $descriptor['children'] = docsDescriptorWithExecutionMode($descriptor['children'], $executionMode);
+    }
+    if (isset($descriptor['nodes']) && is_array($descriptor['nodes'])) {
+        $descriptor['nodes'] = docsDescriptorWithExecutionMode($descriptor['nodes'], $executionMode);
+    }
+    return $descriptor;
 }
 
 function docsIsSafeTrustedDomUrl($value) {
@@ -813,7 +965,7 @@ function docsNormalizeServerMarkdownLinks($html, $sourceRel, $fileToSlug, $local
         $target = docsBuildHistoryRoutePath($slug, $locale, $docsBasePath) . $suffix;
         $attributes = trim((string) $matches[1] . ' ' . (string) $matches[4]);
         $attributes = $attributes === '' ? '' : ' ' . $attributes;
-        return '<x-link href="' . htmlspecialchars($target, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '"' . $attributes . '>' . $matches[5] . '</x-link>';
+        return '<a is-x-link="true" data-xtend-component="x-link" navigation="auto" href="' . htmlspecialchars($target, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '"' . $attributes . '>' . $matches[5] . '</a>';
     }, (string) $html);
 }
 
@@ -855,6 +1007,32 @@ function docsCanonicalizeDocumentStructureForProof($html) {
         $entries[] = [$tag, $attributePairs];
     }
     return json_encode($entries, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+}
+
+function docsBuildStaticRelatedLinkDescriptors($html, $currentPath, $locale, $limit = 6) {
+    $matches = [];
+    $matched = preg_match_all('/<a\b[^>]*\bhref=(?:"([^"]+)"|\'([^\']+)\')[^>]*>([\s\S]*?)<\/a>/iu', (string) $html, $matches, PREG_SET_ORDER);
+    if ($matched === false || $matched === 0) return [];
+    $seen = [];
+    $descriptors = [];
+    foreach ($matches as $match) {
+        $href = html_entity_decode((string) (($match[1] ?? '') !== '' ? $match[1] : ($match[2] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        if ($href === '' || !str_starts_with($href, '/docs/') || $href === (string) $currentPath || isset($seen[$href])) continue;
+        $label = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string) ($match[3] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+        if ($label === '') continue;
+        $seen[$href] = true;
+        $descriptors[] = docsDescriptorElement('a', [
+            'is-x-link' => true,
+            'data-xtend-component' => 'x-link',
+            'navigation' => 'auto',
+            'class' => 'docs-related-link',
+            'href' => $href,
+            'data-docs-related-source' => 'server-markdown',
+            'data-docs-related-locale' => $locale
+        ], [docsDescriptorText($label)]);
+        if (count($descriptors) >= max(1, (int) $limit)) break;
+    }
+    return $descriptors;
 }
 
 function docsBuildDocumentSsrRecord($html, $meta, $slug, $locale, $path, $sourceRel, $fileToSlug, $docsBasePath = '', &$failureDiagnostic = null) {
@@ -899,6 +1077,7 @@ function docsBuildDocumentSsrRecord($html, $meta, $slug, $locale, $path, $source
     }
     $domStructureHash = hash('sha256', $canonicalDomStructure);
     $byteLength = strlen($normalized);
+    $staticRelatedLinks = docsBuildStaticRelatedLinkDescriptors($normalized, $path, $locale);
     $routeId = (string) ($meta['routeId'] ?? ($meta['route']['id'] ?? ('docs.' . str_replace('-', '.', (string) $slug))));
     $trustBoundary = (string) ($meta['trustBoundary'] ?? 'xtend.security.sanitizing-boundary.v1');
     $proof = [
@@ -954,7 +1133,7 @@ function docsBuildDocumentSsrRecord($html, $meta, $slug, $locale, $path, $source
             'data-rmt-shell' => 'docs.app.shell',
             'data-rmt-shell-mode' => 'document-first',
             'data-rmt-shell-prehydrated' => 'true',
-            'data-rmt-hydration-mode' => 'server_prerender_hydrate',
+            'data-rmt-hydration-mode' => docsRequestedSsrExecutionMode(),
             'data-rmt-contract' => 'xtend.docs.rmt-shell-primitives.v2',
             'data-rmt-content-sha256' => $hash,
             'data-rmt-component' => 'docs.page',
@@ -1031,12 +1210,12 @@ function docsBuildDocumentSsrRecord($html, $meta, $slug, $locale, $path, $source
                                 'decorative' => true,
                                 'size' => '1rem'
                             ], []),
-                            docsDescriptorElement('span', [], [docsDescriptorText('Read Further')])
+                            docsDescriptorElement('span', [], [docsDescriptorText($locale === 'en' ? 'Read Further' : 'Weiterlesen')])
                         ]),
                         docsDescriptorElement('div', [
                             'class' => 'docs-related-list',
                             'data-rmt-slot' => 'related-links'
-                        ], [])
+                        ], $staticRelatedLinks)
                     ]),
                     docsDescriptorElement('section', [
                         'id' => 'docs-component-demo',
@@ -1280,6 +1459,7 @@ function docsBuildMenuShellDescriptor($menuConfig, $navigationConfig, $activeSlu
         $label = (string) (($trunk['labels'][$locale] ?? null) ?: ($trunk['labels'][$fallbackLocale] ?? $trunkId));
         $trunkLinks[] = docsDescriptorComponent('x-link', [
             'class' => 'docs-trunk-link',
+            'role' => 'menuitem',
             'href' => docsBuildHistoryRoutePath($target, $locale, $docsBasePath),
             'data-docs-trunk-link' => $trunkId,
             'data-rmt-action' => 'docs.route.navigate',
@@ -1304,6 +1484,7 @@ function docsBuildMenuShellDescriptor($menuConfig, $navigationConfig, $activeSlu
                 $isActive = $slug === $activeSlug;
                 $links[] = docsDescriptorComponent('x-link', [
                     'class' => 'docs-menu-link',
+                    'role' => 'menuitem',
                     'href' => docsBuildHistoryRoutePath($slug, $locale, $docsBasePath),
                     'data-docs-menu-link' => true,
                     'data-doc-id' => (string) ($entry['id'] ?? ('docs.' . str_replace('-', '.', $slug))),
@@ -1393,11 +1574,11 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
         'data-rmt-ssr-root' => 'docs.app.root-shell',
         'data-rmt-ssr-chunk' => 'rmt:docs.app.root-shell',
         'data-rmt-shell-prehydrated' => 'true',
-        'data-rmt-hydration-mode' => 'server_prerender_hydrate',
+        'data-rmt-hydration-mode' => docsRequestedSsrExecutionMode(),
         'data-rmt-contract' => $shellContract
     ];
     $routeChildren = [];
-    $activeMeta = $localizedAllPagesMeta[$pageLocale][$activeSlug] ?? $allPagesMeta[$activeSlug] ?? $allPagesMeta['readme'] ?? null;
+    $activeMeta = $localizedAllPagesMeta[$pageLocale][$activeSlug] ?? $allPagesMeta[$activeSlug] ?? null;
     if (is_array($activeMeta) && isset($activeMeta['route'])) {
         $routeChildren[] = docsRouteDescriptor($activeMeta['route'], docsBuildHistoryRoutePath($activeSlug, $pageLocale, $docsBasePath));
     }
@@ -1430,9 +1611,13 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
     $searchShell = docsBuildSearchShellDescriptor($pageLocale);
     $homePath = docsBuildHistoryRoutePath('readme', $pageLocale, $docsBasePath);
 
-    return [
-        'type' => 'fragment',
-        'children' => [
+    return docsDescriptorElement('div', [
+        'id' => 'xtend-docs-rmt-root',
+        'data-rmt-resume-root' => 'true',
+        'data-rmt-contract' => 'xtend.docs.php-ssr-resume.v3',
+        'data-docs-app-shell' => 'true',
+        'style' => 'display:contents;'
+    ], [
             docsDescriptorComponent('x-theme', array_replace($ssrRoot, [
                 'data-rmt-surface-id' => 'docs.root',
                 'data-rmt-shell-surface' => 'docs.root'
@@ -1534,6 +1719,7 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
             ]), [
                 docsDescriptorComponent('x-router', [
                     'mode' => 'history',
+                    'navigation-policy' => 'progressive',
                     'reuse-component' => true,
                     'adopt-prerendered-route' => $documentSsrEnabled ? true : null,
                     'skeleton' => 'article',
@@ -1550,7 +1736,7 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
                     'data-rmt-ssr-root' => 'docs.router',
                     'data-rmt-ssr-chunk' => 'rmt:docs.router',
                     'data-rmt-shell-prehydrated' => 'true',
-                    'data-rmt-hydration-mode' => 'server_prerender_hydrate',
+                    'data-rmt-hydration-mode' => docsRequestedSsrExecutionMode(),
                     'data-rmt-surface-id' => 'docs.router',
                     'data-rmt-shell-surface' => 'docs.router'
                 ], array_merge(
@@ -1572,14 +1758,17 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
                 docsDescriptorElement('span', ['slot' => 'title'], [docsDescriptorText('(c) 2026 - CCS Networks | Powered by XRouter PHP Extension')])
             ])
         ]
-    ];
+    );
 }
 
 function docsRenderDescriptor($descriptor) {
     if (!is_array($descriptor) || !function_exists('createRmtPhpSsrAdapter')) {
         throw new RuntimeException('The official RMT PHP descriptor renderer is required by the Docs product.');
     }
-    $result = createRmtPhpSsrAdapter()->renderDescriptor($descriptor, ['requestId' => uniqid('docs-descriptor-', true)]);
+    $result = createRmtPhpSsrAdapter()->renderDescriptor($descriptor, [
+        'requestId' => uniqid('docs-descriptor-', true),
+        'progressiveLinks' => true
+    ]);
     return (string) ($result['html'] ?? '');
 }
 
@@ -2354,6 +2543,49 @@ function docsSsrEndpointUrl($page, $locale, $kind = 'shell') {
     return docsEndpointPath('xtend-docs-rmt-ssr=' . $kind . '&format=jsonl&page=' . rawurlencode((string) $page) . '&locale=' . rawurlencode((string) $locale));
 }
 
+function docsRequestAcceptsRouteFragment() {
+    $accept = strtolower((string) ($_SERVER['HTTP_ACCEPT'] ?? ''));
+    return str_contains($accept, 'application/vnd.xtend.rmt-route+json');
+}
+
+function docsBuildRouteIslandManifest($slug) {
+    $islands = [[
+        'id' => 'docs.code-enhancements',
+        'activation' => 'visible-or-intent',
+        'schedule' => 'docs.syntax.highlight',
+        'module' => '/components/xcode.js'
+    ]];
+    if (str_starts_with((string) $slug, 'components-')) {
+        $islands[] = [
+            'id' => 'docs.component-demo',
+            'activation' => 'visible-or-intent',
+            'schedule' => 'docs.demo.prepare',
+            'module' => '/docs/utils/pageloader.js'
+        ];
+    }
+    if ($slug === 'learn-rmt-playground') {
+        $islands[] = [
+            'id' => 'docs.rmt-playground',
+            'activation' => 'route-local-intent',
+            'schedule' => 'docs.rich-content.prepare',
+            'module' => '/docs/utils/pageloader.js'
+        ];
+    }
+    if ($slug === 'rmt-animation-engine') {
+        $islands[] = [
+            'id' => 'docs.animation-engine-demo',
+            'activation' => 'route-local-visible-or-intent',
+            'schedule' => 'docs.animation-engine-demo.hydrate',
+            'module' => '/docs/utils/animation-engine-demo.mjs'
+        ];
+    }
+    return [
+        'schema' => 'xtend.docs.route-island-manifest.v1',
+        'disposal' => 'before-route-commit',
+        'islands' => $islands
+    ];
+}
+
 function docsCreateDocsSsrAdapter($repoRoot, $bridgePath, $sourcePath = null) {
     global $docsRmtDocumentV2Path, $docsRmtDocumentV2CorePath, $docsRmtDocumentV2SourceSha256;
     if (!function_exists('createRmtPhpSsrAdapter')) return null;
@@ -2371,6 +2603,7 @@ function docsCreateDocsSsrAdapter($repoRoot, $bridgePath, $sourcePath = null) {
         );
     }
     return createRmtPhpSsrAdapter([
+        'progressiveLinks' => true,
         'manifest' => docsLoadComponentManifest($repoRoot),
         'compileRmtVNextSource' => $compiler,
         'defaultTrustBoundary' => $boundary,
@@ -2492,6 +2725,7 @@ function docsCompactRenderResultForBootstrap($renderResult) {
         'ok' => $renderResult['ok'] ?? false,
         'status' => $renderResult['status'] ?? null,
         'requestId' => $renderResult['requestId'] ?? null,
+        'executionMode' => $renderResult['hydration']['executionMode'] ?? null,
         'htmlAlreadyInDom' => true,
         'htmlByteLength' => isset($renderResult['html']) ? strlen((string) $renderResult['html']) : null,
         'head' => $renderResult['head'] ?? null,
@@ -2518,6 +2752,11 @@ function docsCompactDocsSsrPrehydrationForBootstrap($payload) {
         'ssrEndpoint',
         'shellPrimitives',
         'document',
+        'requestedExecutionMode',
+        'executionMode',
+        'resumeContract',
+        'resumePublicKey',
+        'resume',
         'hydration',
         'diagnostics'
     ] as $key) {
@@ -2540,8 +2779,19 @@ function docsRenderedDocumentMatchesProof($html, $proof) {
     return hash_equals((string) $proof['sha256'], hash('sha256', (string) ($content[1] ?? '')));
 }
 
-function docsRenderDocsSsrPrehydration($repoRoot, $bridgePath, $sourcePath, $descriptor, $page, $locale, $documentSsr = null) {
+function docsRenderDocsSsrPrehydration($repoRoot, $bridgePath, $sourcePath, $descriptor, $page, $locale, $documentSsr = null, $rootId = 'xtend-docs-rmt-root') {
     $documentSsrEnabled = is_array($documentSsr) && isset($documentSsr['proof']);
+    $requestedExecutionMode = $documentSsrEnabled ? docsRequestedSsrExecutionMode() : 'server_prerender_hydrate';
+    $executionMode = $requestedExecutionMode;
+    $signingConfiguration = docsResumeSigningConfiguration();
+    $activationDiagnostics = [];
+    if ($executionMode === 'server_prerender_resume' && empty($signingConfiguration['available'])) {
+        $executionMode = 'server_prerender_hydrate';
+        if (is_array($signingConfiguration['diagnostic'] ?? null)) {
+            $activationDiagnostics[] = $signingConfiguration['diagnostic'];
+        }
+    }
+    $descriptor = docsDescriptorWithExecutionMode($descriptor, $executionMode);
     $endpoint = docsSsrEndpointUrl($page, $locale, $documentSsrEnabled ? 'document' : 'shell');
     $sourceRef = 'docs/' . basename((string) $sourcePath);
     $source = is_readable($sourcePath) ? file_get_contents($sourcePath) : '';
@@ -2574,13 +2824,19 @@ function docsRenderDocsSsrPrehydration($repoRoot, $bridgePath, $sourcePath, $des
             'rootSurfaces' => ['docs.root', 'docs.header', 'docs.hero', 'docs.router', 'docs.page', 'docs.sidebar', 'docs.footer', 'docs.diagnostics'],
             'contentSurfaces' => $documentSsrEnabled ? ['docs.page', 'docs.article', 'docs.sidebar'] : [],
             'ownershipMode' => $documentSsrEnabled ? 'move-preserve-node' : 'hydrate_existing',
-            'hydrationMode' => 'server_prerender_hydrate'
+            'hydrationMode' => $executionMode,
+            'resumeContract' => 'xtend.docs.php-ssr-resume.v3'
         ],
         'document' => $documentSsrEnabled ? $documentSsr['proof'] : null,
+        'requestedExecutionMode' => $requestedExecutionMode,
+        'executionMode' => $executionMode,
+        'resumeContract' => 'xtend.docs.php-ssr-resume.v3',
+        'resumePublicKey' => !empty($signingConfiguration['available']) ? $signingConfiguration['publicKey'] : null,
+        'resume' => null,
         'renderResult' => null,
         'hydration' => null,
         'chunks' => [],
-        'diagnostics' => [],
+        'diagnostics' => $activationDiagnostics,
         'html' => $fallbackHtml
     ];
     if ($fallbackError) {
@@ -2609,17 +2865,51 @@ function docsRenderDocsSsrPrehydration($repoRoot, $bridgePath, $sourcePath, $des
         return $result;
     }
     try {
-        $renderResult = $adapter->render(docsBuildDocsSsrInput($source, $sourceRef, $descriptor), [
+        $renderOptions = [
             'requestId' => 'docs-php-ssr-' . preg_replace('/[^a-z0-9_-]+/i', '-', (string) $locale . '-' . (string) $page),
-            'rootId' => 'xtend-docs-rmt-root',
+            'rootId' => (string) $rootId,
             'namespace' => 'docs',
             'templateId' => 'docs.app.root-shell',
+            'executionMode' => $executionMode,
+            'progressiveLinks' => true,
             'model' => [
                 'page' => $page,
                 'locale' => $locale,
                 'ssrEndpoint' => $endpoint
             ]
-        ]);
+        ];
+        if ($executionMode === 'server_prerender_resume') {
+            $renderOptions['resume'] = [
+                'keyId' => $signingConfiguration['keyId'],
+                'sign' => $signingConfiguration['sign'],
+                'state' => [
+                    'xtend.docs.route' => ['slug' => $page, 'locale' => $locale],
+                    'xtend.docs.shell.ready' => true
+                ],
+                'surfaces' => [
+                    'docs.root' => ['status' => 'server-rendered'],
+                    'docs.router' => ['path' => docsBuildHistoryRoutePath($page, $locale, $GLOBALS['docsBasePath'] ?? '')],
+                    'docs.page' => ['slug' => $page, 'locale' => $locale]
+                ],
+                'manifests' => [],
+                'islandFragments' => []
+            ];
+        }
+        $renderResult = $adapter->render(docsBuildDocsSsrInput($source, $sourceRef, $descriptor), $renderOptions);
+        if ($executionMode === 'server_prerender_resume' && ($renderResult['ok'] ?? false) !== true) {
+            $resumeDiagnostics = $renderResult['diagnostics'] ?? [];
+            $executionMode = 'server_prerender_hydrate';
+            $descriptor = docsDescriptorWithExecutionMode($descriptor, $executionMode);
+            $renderOptions['executionMode'] = $executionMode;
+            unset($renderOptions['resume']);
+            $renderResult = $adapter->render(docsBuildDocsSsrInput($source, $sourceRef, $descriptor), $renderOptions);
+            $activationDiagnostics[] = [
+                'code' => 'xtend.docs.resume_signing_fallback_hydrate',
+                'severity' => 'warning',
+                'message' => 'Resume signing failed; the complete SSR document was retained and activated through hydration.',
+                'resumeDiagnostics' => $resumeDiagnostics
+            ];
+        }
     } catch (Throwable $error) {
         $result['diagnostics'][] = [
             'code' => 'xtend.docs.php_ssr_adapter_render_failed',
@@ -2642,12 +2932,15 @@ function docsRenderDocsSsrPrehydration($repoRoot, $bridgePath, $sourcePath, $des
     }
     $result['renderResult'] = $renderResult;
     $result['hydration'] = $renderResult['hydration'] ?? null;
+    $result['executionMode'] = $executionMode;
+    $result['shellPrimitives']['hydrationMode'] = $executionMode;
+    $result['resume'] = $renderResult['resume'] ?? null;
     $result['chunks'] = $renderResult['chunks'] ?? [];
-    $result['diagnostics'] = $renderResult['diagnostics'] ?? [];
+    $result['diagnostics'] = array_merge($activationDiagnostics, $renderResult['diagnostics'] ?? []);
     $result['html'] = ($renderResult['html'] ?? '') !== '' ? $renderResult['html'] : $fallbackHtml;
     $result['ok'] = ($renderResult['ok'] ?? false) === true;
     $result['status'] = $result['ok']
-        ? ($documentSsrEnabled ? 'document-prehydrated' : 'prehydrated')
+        ? ($documentSsrEnabled ? ($executionMode === 'server_prerender_resume' ? 'document-resumed' : 'document-prehydrated') : 'prehydrated')
         : ($documentSsrEnabled ? 'document-degraded' : 'degraded');
     $result['compilerBridge']['injected'] = true;
     $result['compilerBridge']['coreSchema'] = $renderResult['hydration']['coreDocumentSchema'] ?? null;
@@ -2702,21 +2995,22 @@ function docsResolveLocalizedPage($rawSlug, $rawLocale, $localizedSlugToFile, $a
 $docsRequestRoutePath = docsRoutePathFromRequest($docsBasePath);
 $pageRequest = docsResolveLocalizedPage($_GET['page'] ?? $docsRequestRoutePath, $_GET['locale'] ?? $docsDefaultLocale, $localizedSlugToFile, $docsAvailableLocales, $docsFallbackLocale);
 if ($pageRequest && $pageRequest['aliased'] && !isset($_GET['page']) && !isset($_GET['download']) && !isset($_GET['xtend-docs-page']) && !isset($_GET['xtend-docs-rmt-ssr'])) {
-    header('Location: ' . docsBuildHistoryRoutePath($pageRequest['canonicalSlug'], $pageRequest['requestedLocale'], $docsBasePath), true, 302);
+    header('Location: ' . docsBuildHistoryRoutePath($pageRequest['canonicalSlug'], $pageRequest['requestedLocale'], $docsBasePath), true, 308);
     exit;
 }
+$docsRouteNotFound = $pageRequest === null;
 if ($pageRequest) {
     $page = $pageRequest['slug'];
     $pageLocale = $pageRequest['resolvedLocale'];
     $pageRel = $pageRequest['rel'];
     $mdFile = $localizedMdFiles[$pageLocale][$pageRel];
 } else {
-    // Default: README.md
-    $page = 'readme';
-    $pageLocale = $docsDefaultLocale;
+    $routeParts = docsSplitLocalizedPath($docsRequestRoutePath, $docsAvailableLocales);
+    $page = slugify((string) ($routeParts['slug'] ?? 'not-found')) ?: 'not-found';
+    $pageLocale = docsNormalizeLocale($routeParts['locale'] ?? $docsDefaultLocale, $docsAvailableLocales, $docsFallbackLocale);
     $pageRel = 'README.md';
-    $mdFile = $localizedMdFiles[$pageLocale][$pageRel] ?? ($docsRoot . '/' . $pageLocale . '/README.md');
-    $page = $fileToSlug['README.md'] ?? slugify('README.md');
+    $mdFile = $localizedMdFiles[$docsFallbackLocale][$pageRel] ?? ($docsRoot . '/' . $docsFallbackLocale . '/README.md');
+    http_response_code(404);
 }
 
 // Download-Handler
@@ -2745,6 +3039,110 @@ if (is_readable($docsToolingBridgeClientFile)) {
 }
 $Parsedown = new Parsedown();
 $Parsedown->setSafeMode(true);
+
+if (docsRequestAcceptsRouteFragment()) {
+    header('Content-Type: application/vnd.xtend.rmt-route+json; charset=UTF-8');
+    header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: no-store');
+    header('Vary: Accept');
+    if (!$pageRequest) {
+        http_response_code(404);
+        echo json_encode([
+            'schema' => 'xtend.docs.route-fragment.v1',
+            'ok' => false,
+            'status' => 404,
+            'error' => 'route-not-found',
+            'fallbackHref' => docsBuildHistoryRoutePath($page, $pageLocale, $docsBasePath)
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+    $fragmentSlug = $pageRequest['slug'];
+    $fragmentLocale = $pageRequest['resolvedLocale'];
+    $fragmentRel = $pageRequest['rel'];
+    $fragmentMarkdown = file_get_contents($localizedMdFiles[$fragmentLocale][$fragmentRel]);
+    $fragmentMeta = docsBuildPageMeta(
+        $fragmentSlug,
+        $fragmentRel,
+        $fragmentMarkdown,
+        $fragmentLocale,
+        $pageRequest['requestedLocale'],
+        $pageRequest['translationAvailable']
+    );
+    $fragmentPath = docsBuildHistoryRoutePath($fragmentSlug, $fragmentLocale, $docsBasePath);
+    $fragmentDiagnostic = null;
+    $fragmentDocument = docsBuildDocumentSsrRecord(
+        $Parsedown->text($fragmentMarkdown),
+        $fragmentMeta,
+        $fragmentSlug,
+        $fragmentLocale,
+        $fragmentPath,
+        $fragmentRel,
+        $localizedFileToSlug[$fragmentLocale] ?? $fileToSlug,
+        $docsBasePath,
+        $fragmentDiagnostic
+    );
+    if (!is_array($fragmentDocument)) {
+        http_response_code(500);
+        echo json_encode([
+            'schema' => 'xtend.docs.route-fragment.v1',
+            'ok' => false,
+            'status' => 500,
+            'error' => 'route-fragment-preparation-failed',
+            'diagnostics' => array_values(array_filter([$fragmentDiagnostic])),
+            'fallbackHref' => $fragmentPath
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+    $fragmentRender = docsRenderDocsSsrPrehydration(
+        $repoRoot,
+        $docsRmtCompilerBridgePath,
+        $docsRmtDocumentV2Path,
+        $fragmentDocument['descriptor'],
+        $fragmentSlug,
+        $fragmentLocale,
+        $fragmentDocument,
+        'xtend-docs-route-root'
+    );
+    $fragmentHreflang = [];
+    foreach ($docsAvailableLocales as $locale => $localeConfig) {
+        if (!isset($localizedSlugToFile[$locale][$fragmentSlug])) continue;
+        $fragmentHreflang[$localeConfig['htmlLang'] ?? $locale] = docsAbsolutePublicUrl(
+            docsBuildHistoryRoutePath($fragmentSlug, $locale, $docsBasePath)
+        );
+    }
+    echo json_encode([
+        'schema' => 'xtend.docs.route-fragment.v1',
+        'ok' => ($fragmentRender['ok'] ?? false) === true,
+        'status' => 200,
+        'href' => $fragmentPath,
+        'fallbackHref' => $fragmentPath,
+        'slug' => $fragmentSlug,
+        'locale' => $fragmentLocale,
+        'requestedLocale' => $pageRequest['requestedLocale'],
+        'resolvedLocale' => $fragmentLocale,
+        'translationAvailable' => $pageRequest['translationAvailable'],
+        'html' => $fragmentDocument['html'],
+        'routeHtml' => $fragmentRender['html'] ?? '',
+        'headPatch' => [
+            'schema' => 'xtend.docs.route-head-patch.v1',
+            'lang' => $docsAvailableLocales[$fragmentLocale]['htmlLang'] ?? $fragmentLocale,
+            'title' => $fragmentMeta['documentTitle'] ?? $fragmentMeta['title'] ?? '',
+            'description' => $fragmentMeta['metaDescription'] ?? '',
+            'canonical' => docsAbsolutePublicUrl($fragmentPath),
+            'hreflang' => $fragmentHreflang,
+            'robots' => $pageRequest['translationAvailable'] ? 'index,follow' : 'noindex,follow'
+        ],
+        'meta' => $fragmentMeta,
+        'contentProof' => $fragmentDocument['proof'],
+        'islandManifest' => docsBuildRouteIslandManifest($fragmentSlug),
+        'executionMode' => $fragmentRender['executionMode'] ?? 'server_prerender_hydrate',
+        'resumeContract' => 'xtend.docs.php-ssr-resume.v3',
+        'resumeEnvelope' => $fragmentRender['resume'] ?? null,
+        'resumePublicKey' => $fragmentRender['resumePublicKey'] ?? null,
+        'diagnostics' => $fragmentRender['diagnostics'] ?? []
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+    exit;
+}
 
 if (isset($_GET['xtend-docs-page'])) {
     $pagePayloadRequest = docsResolveLocalizedPage($_GET['xtend-docs-page'], $_GET['locale'] ?? $docsDefaultLocale, $localizedSlugToFile, $docsAvailableLocales, $docsFallbackLocale);
@@ -2853,7 +3251,9 @@ $docsRmtRoutes[] = array_replace_recursive($allPagesMeta['readme']['route'] ?? [
     ]
 ]);
 $rmtPilotDocumentData = docsMergeRmtRoutes($rmtPilotDocumentData, $docsRmtRoutes);
-$initialDocsSlug = isset($localizedAllPagesMeta[$pageLocale][$page]) ? $page : 'readme';
+$initialDocsSlug = $docsRouteNotFound
+    ? $page
+    : (isset($localizedAllPagesMeta[$pageLocale][$page]) ? $page : 'readme');
 $initialDocumentRel = $initialDocsSlug === $page ? $pageRel : array_search($initialDocsSlug, $localizedFileToSlug[$pageLocale] ?? [], true);
 if (!is_string($initialDocumentRel) || $initialDocumentRel === '') $initialDocumentRel = 'README.md';
 $rmtPilotDocumentJson = docsJsonEncodeForHtml(docsCompactRmtDocumentForBootstrap($rmtPilotDocumentData));
@@ -2874,15 +3274,41 @@ $docsBootstrapPageMeta = isset($localizedAllPagesMeta[$pageLocale][$initialDocsS
 $docsBootstrapTitles = isset($localizedTitles[$pageLocale][$initialDocsSlug])
     ? [$initialDocsSlug => $localizedTitles[$pageLocale][$initialDocsSlug]]
     : [];
-$initialTitle = $localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['documentTitle'] ?? 'XTend Dokumentation';
-$initialDescription = $localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['metaDescription'] ?? 'XTend Dokumentation';
-$initialKeywords = implode(', ', $localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['metaKeywords'] ?? ['xtend', 'dokumentation']);
+$notFoundPageTitle = $pageLocale === 'en' ? 'Page not found' : 'Seite nicht gefunden';
+$notFoundPageDescription = $pageLocale === 'en'
+    ? 'The requested XTend documentation page does not exist or has been moved.'
+    : 'Die angeforderte XTend-Dokumentationsseite existiert nicht oder wurde verschoben.';
+$initialTitle = $docsRouteNotFound
+    ? $notFoundPageTitle . ' | ' . docsLocaleTitleSuffix($pageLocale, $docsAvailableLocales)
+    : ($localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['documentTitle'] ?? 'XTend Dokumentation');
+$initialDescription = $docsRouteNotFound
+    ? $notFoundPageDescription
+    : ($localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['metaDescription'] ?? 'XTend Dokumentation');
+$initialKeywords = $docsRouteNotFound
+    ? 'xtend, documentation, 404'
+    : implode(', ', $localizedAllPagesMeta[$pageLocale][$initialDocsSlug]['metaKeywords'] ?? ['xtend', 'dokumentation']);
 $docsDocumentSsrMode = docsDocumentSsrMode();
 $initialDocumentSsr = null;
 $initialDocumentSsrPreparationDiagnostic = null;
 if ($docsDocumentSsrMode === 'v2') {
-    $initialDocumentHtml = $localizedAllPages[$pageLocale][$initialDocsSlug] ?? null;
-    $initialDocumentMeta = $localizedAllPagesMeta[$pageLocale][$initialDocsSlug] ?? null;
+    $initialDocumentHtml = $docsRouteNotFound
+        ? '<h1>' . htmlspecialchars($notFoundPageTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</h1><p>' . htmlspecialchars($notFoundPageDescription, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>'
+        : ($localizedAllPages[$pageLocale][$initialDocsSlug] ?? null);
+    $initialDocumentMeta = $docsRouteNotFound
+        ? array_replace($localizedAllPagesMeta[$pageLocale]['readme'] ?? $allPagesMeta['readme'] ?? [], [
+            'routeId' => 'docs.notFound',
+            'title' => $notFoundPageTitle,
+            'documentTitle' => $initialTitle,
+            'metaDescription' => $notFoundPageDescription,
+            'metaKeywords' => ['xtend', 'documentation', '404'],
+            'translationAvailable' => false,
+            'route' => [
+                'id' => 'docs.notFound',
+                'path' => '*',
+                'component' => 'xtend-doc-page'
+            ]
+        ])
+        : ($localizedAllPagesMeta[$pageLocale][$initialDocsSlug] ?? null);
     if (is_string($initialDocumentHtml) && is_array($initialDocumentMeta)) {
         $initialDocumentSsr = docsBuildDocumentSsrRecord(
             $initialDocumentHtml,
@@ -2931,44 +3357,21 @@ $docsSsrPrehydration = docsRenderDocsSsrPrehydration(
 );
 if ($docsDocumentSsrMode === 'v2' && !$initialDocumentSsr && is_array($initialDocumentSsrPreparationDiagnostic)) {
     $docsSsrPrehydration['diagnostics'][] = [
-        'code' => 'xtend.docs.document_ssr_fallback_v1',
+        'code' => 'xtend.docs.document_ssr_emergency_document',
         'severity' => 'warning',
-        'message' => 'Document SSR preparation was rejected; the request was rendered with the V1 shell and client content loading.',
+        'message' => 'Document SSR preparation was rejected; the request retained the server-rendered shell and an emergency route document.',
         'documentDiagnostics' => [$initialDocumentSsrPreparationDiagnostic]
     ];
 }
 if ($initialDocumentSsr && ($docsSsrPrehydration['ok'] ?? false) !== true) {
     $documentSsrDiagnostics = $docsSsrPrehydration['diagnostics'] ?? [];
-    $initialDocumentSsr = null;
-    $docsRootShellDescriptor = docsBuildDocsRootShellDescriptor(
-        $allPagesMeta,
-        $localizedAllPagesMeta,
-        $fileToSlug,
-        $docsAvailableLocales,
-        $pageLocale,
-        $docsDefaultLocale,
-        htmlspecialchars_decode($docsLogoUrl, ENT_QUOTES),
-        $xtendAssetVersionAttr,
-        $docsBasePath,
-        $docsMenuConfig,
-        $docsNavigationConfig,
-        $initialDocsSlug,
-        null
-    );
-    $docsSsrEndpoint = docsSsrEndpointUrl($initialDocsSlug, $pageLocale, 'shell');
-    $docsSsrPrehydration = docsRenderDocsSsrPrehydration(
-        $repoRoot,
-        $docsRmtCompilerBridgePath,
-        $docsRmtVNextShellPath,
-        $docsRootShellDescriptor,
-        $initialDocsSlug,
-        $pageLocale,
-        null
-    );
+    $docsSsrPrehydration['html'] = docsRenderDescriptor(docsDescriptorWithExecutionMode($docsRootShellDescriptor, 'server_prerender_hydrate'));
+    $docsSsrPrehydration['executionMode'] = 'server_prerender_hydrate';
+    $docsSsrPrehydration['shellPrimitives']['hydrationMode'] = 'server_prerender_hydrate';
     $docsSsrPrehydration['diagnostics'][] = [
-        'code' => 'xtend.docs.document_ssr_fallback_v1',
+        'code' => 'xtend.docs.document_ssr_adapter_fallback_hydrate',
         'severity' => 'warning',
-        'message' => 'Document SSR was rejected; the request was rendered with the V1 shell and client content loading.',
+        'message' => 'The RMT adapter rejected activation; the complete SSR document was retained for hydrate fallback.',
         'documentDiagnostics' => $documentSsrDiagnostics
     ];
 }
@@ -3062,6 +3465,26 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
     }
     exit;
 }
+$initialCanonicalUrl = $docsRouteNotFound
+    ? null
+    : docsAbsolutePublicUrl(docsBuildHistoryRoutePath($initialDocsSlug, $pageLocale, $docsBasePath));
+$initialTranslationFallback = is_array($pageRequest) && empty($pageRequest['translationAvailable']);
+$initialHreflangUrls = [];
+if (!$docsRouteNotFound) {
+    foreach ($docsAvailableLocales as $locale => $localeConfig) {
+        if (!isset($localizedSlugToFile[$locale][$initialDocsSlug])) continue;
+        $initialHreflangUrls[$localeConfig['htmlLang'] ?? $locale] = docsAbsolutePublicUrl(
+            docsBuildHistoryRoutePath($initialDocsSlug, $locale, $docsBasePath)
+        );
+    }
+    if (isset($localizedSlugToFile[$docsFallbackLocale][$initialDocsSlug])) {
+        $initialHreflangUrls['x-default'] = docsAbsolutePublicUrl(
+            docsBuildHistoryRoutePath($initialDocsSlug, $docsFallbackLocale, $docsBasePath)
+        );
+    }
+}
+header('Content-Language: ' . ($initialLocaleConfig['htmlLang'] ?? $pageLocale));
+header('Vary: Accept');
 ?><!DOCTYPE html>
 <html lang="<?= htmlspecialchars($initialLocaleConfig['htmlLang'] ?? $pageLocale, ENT_QUOTES, 'UTF-8') ?>">
 <head>
@@ -3069,15 +3492,64 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
     <title><?= htmlspecialchars($initialTitle, ENT_QUOTES, 'UTF-8') ?></title>
     <meta name="description" content="<?= htmlspecialchars($initialDescription, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="keywords" content="<?= htmlspecialchars($initialKeywords, ENT_QUOTES, 'UTF-8') ?>">
+<?php if ($docsRouteNotFound || $initialTranslationFallback): ?>
+    <meta name="robots" content="noindex,follow">
+<?php endif; ?>
+<?php if (is_string($initialCanonicalUrl)): ?>
+    <link rel="canonical" href="<?= htmlspecialchars($initialCanonicalUrl, ENT_QUOTES, 'UTF-8') ?>">
+<?php endif; ?>
+<?php foreach ($initialHreflangUrls as $hreflang => $href): ?>
+    <link rel="alternate" hreflang="<?= htmlspecialchars($hreflang, ENT_QUOTES, 'UTF-8') ?>" href="<?= htmlspecialchars($href, ENT_QUOTES, 'UTF-8') ?>">
+<?php endforeach; ?>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="xtend-preload" content="x-utils,x-theme,x-button,x-icon,x-link,x-input,x-form,x-header,x-hero,x-router,x-footer,x-select,x-section,x-summary,x-code,x-modal,x-dialog">
+    <meta name="xtend-preload" content="x-utils,x-theme,x-button,x-icon,x-input,x-form,x-header,x-hero,x-footer,x-select,x-menu,x-popover,x-summary">
     <link rel="icon" href="<?= $docsFaviconIcoUrl ?>" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="<?= $docsFavicon32Url ?>">
     <link rel="icon" type="image/png" sizes="16x16" href="<?= $docsFavicon16Url ?>">
     <link rel="apple-touch-icon" href="<?= $docsAppleTouchIconUrl ?>">
     <link rel="stylesheet" href="/xtend.css?v=<?= $xtendAssetVersionAttr ?>">
     <script src="/fabric/xtend-fabric.js?v=<?= $xtendAssetVersionAttr ?>"></script>
-    <script type="module" src="/xtend-loader.js?v=<?= $xtendAssetVersionAttr ?>" data-manifest="/components/manifest.json?v=<?= $xtendAssetVersionAttr ?>" data-module-cache-bust="<?= $xtendAssetVersionAttr ?>"></script>
+<?php if (($docsSsrPrehydration['executionMode'] ?? null) === 'server_prerender_resume'): ?>
+    <script nonce="<?= $nonce ?>">
+    // XTEND_DOCS_DECLARED_PREBOOT_START
+    (() => {
+      const intents = [];
+      let sequence = 0;
+      const records = [
+        { type: 'submit', selector: '#xtend-search-form', action: 'docs.search.submit' },
+        { type: 'change', selector: '[data-docs-language-select]', action: 'docs.route.navigate' }
+      ];
+      const listeners = records.map((record) => {
+        const listener = (event) => {
+          const target = event.target && event.target.closest ? event.target.closest(record.selector) : null;
+          if (!target || !document.getElementById('xtend-docs-rmt-root')?.contains(target)) return;
+          event.preventDefault();
+          intents.push({
+            eventId: `docs-preboot-${++sequence}`,
+            action: record.action,
+            payload: {
+              id: target.id || null,
+              query: record.action === 'docs.search.submit'
+                ? (target.querySelector('[name="query"],input')?.value || '')
+                : null,
+              path: record.action === 'docs.route.navigate'
+                ? '/docs/' + encodeURIComponent(target.value || 'de') + '/' + <?= docsJsonEncodeForHtml($initialDocsSlug) ?>
+                : null
+            }
+          });
+          if (intents.length > 128) intents.shift();
+        };
+        document.addEventListener(record.type, listener, true);
+        return [record.type, listener];
+      });
+      window.__xtendDocsConsumePrebootIntents = () => {
+        listeners.splice(0).forEach(([type, listener]) => document.removeEventListener(type, listener, true));
+        return intents.splice(0);
+      };
+    })();
+    // XTEND_DOCS_DECLARED_PREBOOT_END
+    </script>
+<?php endif; ?>
     <script nonce="<?= $nonce ?>">window.Prism = window.Prism || {}; window.Prism.manual = true;</script>
     <script src="/components/prism.js" nonce="<?= $nonce ?>"></script>
     <script src="/components/prism-rmt.js" nonce="<?= $nonce ?>"></script>
@@ -3372,7 +3844,8 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
         .docs-trunk-link {
           white-space: nowrap;
         }
-        .docs-menu-shell x-link[role="menuitem"] {
+        .docs-menu-shell x-link[role="menuitem"],
+        .docs-menu-shell a[is-x-link][role="menuitem"] {
           display: block;
           max-width: 100%;
           min-width: 0;
@@ -3397,6 +3870,10 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
           text-decoration: none;
           box-shadow: none;
         }
+        .docs-menu-shell a[is-x-link][role="menuitem"] {
+          text-decoration: none;
+          box-shadow: none;
+        }
         .docs-menu-shell .docs-trunk-link[role="menuitem"] {
           padding: 0.52rem 0.72rem;
           text-align: center;
@@ -3404,13 +3881,16 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
         .docs-menu-shell .docs-menu-link[role="menuitem"] {
           padding: 0.42rem 0.55rem;
         }
-        .docs-menu-shell x-link[role="menuitem"]:hover {
+        .docs-menu-shell x-link[role="menuitem"]:hover,
+        .docs-menu-shell a[is-x-link][role="menuitem"]:hover {
           border-color: var(--docs-navigation-item-border);
           background: var(--docs-navigation-item-hover);
           color: var(--docs-navigation-item-text);
         }
         .docs-menu-shell x-link[role="menuitem"][active],
-        .docs-menu-shell x-link[role="menuitem"][aria-current="page"] {
+        .docs-menu-shell x-link[role="menuitem"][aria-current="page"],
+        .docs-menu-shell a[is-x-link][role="menuitem"][active],
+        .docs-menu-shell a[is-x-link][role="menuitem"][aria-current="page"] {
           border-color: color-mix(in srgb, var(--docs-navigation-item-rail) 42%, transparent);
           background: var(--docs-navigation-item-active);
           color: var(--docs-navigation-item-active-text);
@@ -3424,7 +3904,8 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
         .docs-menu-shell .docs-menu-link[role="menuitem"][aria-current="page"] {
           box-shadow: inset 3px 0 0 var(--docs-navigation-item-rail);
         }
-        .docs-menu-shell x-link[role="menuitem"]:focus-visible {
+        .docs-menu-shell x-link[role="menuitem"]:focus-visible,
+        .docs-menu-shell a[is-x-link][role="menuitem"]:focus-visible {
           outline: 2px solid var(--focus-color);
           outline-offset: 2px;
         }
@@ -3506,14 +3987,18 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
           max-width: 100%;
           isolation: isolate;
         }
-        .docs-menu-node[data-doc-depth="0"] > x-link {
+        .docs-menu-node[data-doc-depth="0"] > x-link,
+        .docs-menu-node[data-doc-depth="0"] > a[is-x-link] {
           font-weight: 650;
         }
         .docs-menu-node[data-doc-depth="1"] > x-link,
-        .docs-menu-node[data-doc-depth="2"] > x-link {
+        .docs-menu-node[data-doc-depth="2"] > x-link,
+        .docs-menu-node[data-doc-depth="1"] > a[is-x-link],
+        .docs-menu-node[data-doc-depth="2"] > a[is-x-link] {
           font-size: 0.94rem;
         }
-        .docs-menu-section x-link {
+        .docs-menu-section x-link,
+        .docs-menu-section a[is-x-link] {
           --link-active-decoration: none;
           --link-hover-decoration: none;
           --xtend-link-current-indicator: transparent;
@@ -3530,7 +4015,8 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
           transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
         }
         .docs-menu-section x-link::part(link),
-        .docs-nav-link::part(link) {
+        .docs-nav-link::part(link),
+        .docs-menu-section a[is-x-link] {
           display: grid;
           grid-template-columns: auto minmax(0, 1fr);
           align-items: center;
@@ -3555,12 +4041,16 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
           overflow-wrap: anywhere;
         }
         .docs-menu-section x-link:hover,
-        .docs-menu-section x-link[active] {
+        .docs-menu-section x-link[active],
+        .docs-menu-section a[is-x-link]:hover,
+        .docs-menu-section a[is-x-link][active] {
           background: var(--docs-navigation-item-hover);
           border-color: var(--docs-navigation-item-border);
           color: var(--docs-navigation-item-text);
         }
-        .docs-menu-section x-link[active] {
+        .docs-menu-section x-link[active],
+        .docs-menu-section a[is-x-link][active],
+        .docs-menu-section a[is-x-link][aria-current="page"] {
           background: var(--docs-navigation-item-active);
           border-color: color-mix(in srgb, var(--docs-navigation-item-rail) 42%, transparent);
           color: var(--docs-navigation-item-active-text);
@@ -3742,14 +4232,14 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
           overflow-y: auto;
           overflow-x: hidden;
           overscroll-behavior: contain;
-          scrollbar-gutter: stable;
+          scrollbar-gutter: auto;
           scrollbar-color: var(--docs-search-border) transparent;
           scrollbar-width: thin;
           background: transparent;
           color: var(--docs-search-result-text);
         }
         .docs-search-result-menu {
-          width: 100%;
+          width: auto;
           max-width: 100%;
           min-width: 0;
           box-sizing: border-box;
@@ -3770,7 +4260,8 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
           --xtend-menu-item-padding-x: 0;
           --xtend-menu-motion-duration: 100ms;
         }
-        .docs-search-result::part(link) {
+        .docs-search-result::part(link),
+        .docs-search-result[is-x-link] {
           display: grid;
           grid-template-columns: minmax(0, 1fr) auto;
           gap: 0.75rem;
@@ -3787,6 +4278,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
           font-size: 0.75rem;
           font-variant-numeric: tabular-nums;
           font-weight: 600;
+          margin-inline-start: auto;
           padding-inline-end: 0.2rem;
           white-space: nowrap;
         }
@@ -3796,7 +4288,7 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        #search-results x-link[role="menuitem"] {
+        #search-results :is(x-link, a[is-x-link])[role="menuitem"] {
           display: block;
           width: 100%;
           max-width: 100%;
@@ -3820,18 +4312,25 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
           --link-hover-decoration: none;
           --link-active-decoration: none;
         }
-        #search-results x-link[role="menuitem"]:hover {
+        #search-results a[is-x-link][role="menuitem"] {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          width: auto;
+          min-width: 0;
+          align-self: stretch;
+        }
+        #search-results :is(x-link, a[is-x-link])[role="menuitem"]:hover {
           background: var(--docs-search-result-hover);
           color: var(--docs-search-result-text);
         }
-        #search-results x-link[role="menuitem"][aria-current="page"],
-        #search-results x-link[role="menuitem"].active {
+        #search-results :is(x-link, a[is-x-link])[role="menuitem"][aria-current="page"],
+        #search-results :is(x-link, a[is-x-link])[role="menuitem"].active {
           border-color: color-mix(in srgb, var(--docs-search-result-rail) 42%, transparent);
           background: var(--docs-search-result-active);
           color: var(--docs-search-result-text);
           box-shadow: inset 3px 0 0 var(--docs-search-result-rail);
         }
-        #search-results x-link[role="menuitem"]:focus-visible {
+        #search-results :is(x-link, a[is-x-link])[role="menuitem"]:focus-visible {
           outline: 2px solid var(--focus-color);
           outline-offset: -2px;
         }
@@ -4533,6 +5032,25 @@ if (isset($_GET['xtend-docs-rmt-ssr']) && in_array($_GET['xtend-docs-rmt-ssr'], 
 </head>
 <body xt-ui-effects="none">
 <?= $docsSsrPrehydration['html'] ?? docsRenderDescriptor($docsRootShellDescriptor) ?>
+<script id="xtend-llm-ssr-hydration" type="application/json" nonce="<?= $nonce ?>"><?= docsJsonEncodeForHtml([
+    'schema' => 'xtend.docs.php-ssr-resume.v3',
+    'executionMode' => $docsSsrPrehydration['executionMode'] ?? 'server_prerender_hydrate',
+    'resume' => $docsSsrPrehydration['resume'] ?? null
+]) ?></script>
+<script nonce="<?= $nonce ?>">
+window.xtendDocsRmtBootPromise = new Promise((resolve) => {
+  window.__xtendDocsResolveRmtBoot = resolve;
+});
+</script>
+<script
+    id="xtend-docs-resume-bootstrap"
+    type="module"
+    src="/docs/utils/docs-resume-bootstrap.mjs?v=<?= $xtendAssetVersionAttr ?>"
+    data-loader-src="/xtend-loader.js?v=<?= $xtendAssetVersionAttr ?>"
+    data-loader-manifest="/components/manifest.json?v=<?= $xtendAssetVersionAttr ?>"
+    data-module-cache-bust="<?= $xtendAssetVersionAttr ?>"
+    nonce="<?= $nonce ?>"
+></script>
 <script type="module" src="/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">
 </script>
 <script type="module" src="/docs/utils/docs-shell-runtime.mjs?v=<?= $xtendAssetVersionAttr ?>"></script>

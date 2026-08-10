@@ -7,16 +7,16 @@
   "baseline": {
     "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
     "loaderBytes": 69993,
-    "selectedComponentBytes": 272382,
-    "stackModuleBytes": 2103315,
-    "contractPayloadBytes": 242598,
-    "bytes": 2688288
+    "selectedComponentBytes": 278074,
+    "stackModuleBytes": 574838,
+    "contractPayloadBytes": 201181,
+    "bytes": 1124086
   },
-  "baselineBytes": 2688288,
-  "bundleBytes": 2546818,
+  "baselineBytes": 1124086,
+  "bundleBytes": 943706,
   "framework": {
-    "bytes": 2546818,
-    "baselineBytes": 2688288,
+    "bytes": 943706,
+    "baselineBytes": 1124086,
     "withinBudget": true
   },
   "appServices": {
@@ -33,22 +33,22 @@
     "bytes": 255,
     "budgetBytes": null,
     "withinBudget": true,
-    "requestFingerprint": "ffe49eca2f6b604ef0a7d14b6c930ad84079f5c2bb2ed03b9581628255a5cefb",
-    "configFingerprint": "e56ec5b044c362d862cff78b14c9289d7372db0374a755b63cf0c0d164c0b235",
-    "evidenceFingerprint": "5a974e146a3219cb17b29b1030c3050c222b107ebe4260031c21bd5bfa43db9e",
+    "requestFingerprint": "559b1445da7b289b29af30cfda4581116b18ab9a9ccfedbd0730b97c292bdc6d",
+    "configFingerprint": "e7bf41c7a5787b485ac196a24b1e88f51501f5d923f7df012ab2da7fd91bd16f",
+    "evidenceFingerprint": "87c99d9f6abf0ba96b7eaa0fbf34a7aaaa4bcc2c9e5b1698d090f2ec08a397f4",
     "outputFingerprint": "50c41f8c8e2be6b4fa00a8cec35056e002f23af381ff55c681a2312d0b3fffb8",
     "sourceFingerprints": [
       {
-        "fingerprint": "6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
+        "fingerprint": "56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
         "path": "docs/xtendrmt-docs-document-v2.rmt"
       }
     ]
   },
-  "ratio": 0.9473754300134509,
+  "ratio": 0.8395318507658667,
   "budgets": {
     "modernEsmEntryMustBeSmallerThanBaseline": true,
     "enforcement": "strict",
-    "frameworkBytes": 2688288,
+    "frameworkBytes": 1124086,
     "clientAppServiceBytes": null,
     "serverAppServiceBytes": null
   }

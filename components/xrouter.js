@@ -113,7 +113,7 @@ customElements.define('x-route', XRoute);
  * Haupt-Router-Komponente, die die Navigation verwaltet.
  */
 class XRouter extends HTMLElement {
-  static get observedAttributes() { return ['mode', 'routesrc', 'reuse-component', 'adopt-prerendered-route', 'skeleton', 'skeleton-profile', 'skeleton-lines', 'skeleton-min-height']; }
+  static get observedAttributes() { return ['mode', 'routesrc', 'reuse-component', 'adopt-prerendered-route', 'navigation-policy', 'skeleton', 'skeleton-profile', 'skeleton-lines', 'skeleton-min-height']; }
 
   static get xtendComponentContract() {
     return {
@@ -691,6 +691,7 @@ class XRouter extends HTMLElement {
     this._routeSkeleton = null;
     this._prerenderedRouteCandidate = null;
     this._navigationGeneration = 0;
+    this._routerReady = false;
     this._initialDocumentTitle = typeof document !== 'undefined' ? document.title : '';
     this._initialDocumentMeta = this._snapshotDocumentMeta();
     if (this._mode === 'history' && !window.history.pushState) {
@@ -711,6 +712,8 @@ class XRouter extends HTMLElement {
   }
 
   connectedCallback() {
+    this._routerReady = false;
+    this.removeAttribute('data-xrouter-ready');
     this._enableManualScrollRestoration();
     if (this._mode === 'history') {
       window.addEventListener('popstate', this._onNavigate);
@@ -764,10 +767,18 @@ class XRouter extends HTMLElement {
         }
       });
     }
-    initialRouteLoad.then(() => this._handleNavigation({ focus: false, source: 'initial-load' }));
+    initialRouteLoad
+      .then(() => this._handleNavigation({ focus: false, source: 'initial-load' }))
+      .finally(() => {
+        if (!this.isConnected) return;
+        this._routerReady = true;
+        this.setAttribute('data-xrouter-ready', 'true');
+      });
   }
 
   disconnectedCallback() {
+    this._routerReady = false;
+    this.removeAttribute('data-xrouter-ready');
     if (this._mode === 'history') {
       window.removeEventListener('popstate', this._onNavigate);
     } else {
@@ -794,6 +805,85 @@ class XRouter extends HTMLElement {
       if (search && hash) return hash + search;
       return hash;
     }
+  }
+
+  _getNavigationPolicy() {
+    const value = (this.getAttribute('navigation-policy') || 'spa').trim().toLowerCase();
+    return ['progressive', 'spa', 'document'].includes(value) ? value : 'spa';
+  }
+
+  /**
+   * Decides whether this router can safely overlay client navigation on top of
+   * a native anchor. A negative result deliberately leaves the anchor alone.
+   */
+  canNavigate(href, context = {}) {
+    const policy = this._getNavigationPolicy();
+    const navigation = ['auto', 'client', 'document'].includes(String(context.navigation || '').toLowerCase())
+      ? String(context.navigation).toLowerCase()
+      : 'auto';
+    const result = (capable, reason, extra = {}) => ({
+      schema: 'xtend.router.navigation-capability.v1',
+      capable,
+      navigationKind: capable ? 'client' : 'document',
+      reason,
+      href: String(href || ''),
+      path: extra.path || String(href || ''),
+      policy,
+      routeId: extra.routeId || null
+    });
+
+    if (!href) return result(false, 'href-missing');
+    if (policy === 'document') return result(false, 'navigation-policy-document');
+    if (navigation === 'document') return result(false, 'link-navigation-document');
+
+    const event = context.event;
+    if (event && (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) {
+      return result(false, 'modified-activation');
+    }
+    const element = context.element;
+    const target = context.target || (element && element.getAttribute && element.getAttribute('target')) || '';
+    if (target && target.toLowerCase() !== '_self') return result(false, 'target-not-self');
+    if (context.download || (element && element.hasAttribute && element.hasAttribute('download'))) {
+      return result(false, 'download-navigation');
+    }
+    if (element && element.getAttribute && element.getAttribute('rel') === 'external') {
+      return result(false, 'external-relation');
+    }
+
+    const baseUrl = typeof document !== 'undefined' ? document.baseURI : undefined;
+    const currentUrl = safeXRouterUrl(typeof window !== 'undefined' ? window.location.href : baseUrl, baseUrl);
+    const targetUrl = safeXRouterUrl(href, baseUrl);
+    if (!currentUrl || !targetUrl) return result(false, 'invalid-url');
+    if (!['http:', 'https:', 'file:'].includes(targetUrl.protocol)) return result(false, 'unsupported-protocol');
+    if (targetUrl.origin !== currentUrl.origin && !(targetUrl.protocol === 'file:' && currentUrl.protocol === 'file:')) {
+      return result(false, 'cross-origin');
+    }
+    if (!this._routerReady || !this.isConnected) return result(false, 'router-not-ready');
+    if (this._mode === 'history' && (!window.history || typeof window.history.pushState !== 'function')) {
+      return result(false, 'history-unavailable');
+    }
+
+    let targetPath;
+    if (this._mode === 'hash' && String(href).startsWith('#')) {
+      targetPath = String(href).replace(/^#\/?/, '/');
+    } else {
+      targetPath = `${targetUrl.pathname}${targetUrl.search}` || '/';
+    }
+    const routePath = this._parsePathAndQuery(targetPath).path;
+    const match = this._matchRoute(routePath, null, {
+      navigateRedirect: false,
+      includeNotFound: false
+    });
+    if ((policy === 'progressive' || navigation === 'client') && !match) {
+      return result(false, 'route-not-registered', { path: targetPath });
+    }
+
+    const leaf = match ? this._getLeafMatch(match) : null;
+    const route = leaf && leaf.route ? leaf.route : (match && match.route);
+    return result(true, 'client-navigation-capable', {
+      path: targetPath,
+      routeId: route ? this._getRouteValue(route, 'id', 'data-rmt-route-id') : null
+    });
   }
 
   _parsePathAndQuery(path) {
@@ -867,17 +957,56 @@ class XRouter extends HTMLElement {
 
     if (!linkCandidate) return;
 
+    // Autonomous x-link owns its shadow anchor event and delegates through
+    // canNavigate(). Native progressive anchors are handled here.
+    if (linkCandidate.tagName === 'X-LINK' && linkCandidate.shadowRoot) return;
+
     const href = linkCandidate.getAttribute('href');
-    const target = linkCandidate.getAttribute('target');
-    if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+    if (!href) return;
+
+    const capability = this.canNavigate(href, {
+      source: 'native-x-link',
+      element: linkCandidate,
+      event: e,
+      navigation: linkCandidate.getAttribute('navigation') || 'auto',
+      target: linkCandidate.getAttribute('target'),
+      download: linkCandidate.hasAttribute('download')
+    });
+    const linkDetail = {
+      href: capability.path || href,
+      mode: this._mode,
+      navigationKind: capability.navigationKind,
+      fallbackReason: capability.capable ? null : capability.reason,
+      source: 'x-link',
+      stateKey: `xlink-active-${linkCandidate.id || ''}`,
+      scheduleRef: 'ui.user-blocking.navigation'
+    };
+    const accepted = linkCandidate.dispatchEvent(new CustomEvent('before-navigate', {
+      detail: linkDetail,
+      cancelable: true,
+      bubbles: true,
+      composed: true
+    }));
+    if (!accepted) {
+      e.preventDefault();
       return;
     }
-    if (target && target !== '_self') {
+    if (!capability.capable) {
+      linkCandidate.dispatchEvent(new CustomEvent('after-navigate', {
+        detail: linkDetail,
+        bubbles: true,
+        composed: true
+      }));
       return;
     }
 
     e.preventDefault();
-    this._navigateTo(href.replace(/^#\/?/, '/'));
+    this._navigateTo(capability.path);
+    linkCandidate.dispatchEvent(new CustomEvent('after-navigate', {
+      detail: linkDetail,
+      bubbles: true,
+      composed: true
+    }));
   }
 
   _collectParams(match, target = {}) {
@@ -1461,6 +1590,8 @@ class XRouter extends HTMLElement {
       source: 'x-router',
       stateKey: 'xtend.router.current',
       mode: this._mode,
+      navigationPolicy: this._getNavigationPolicy(),
+      ready: this._routerReady,
       current: this._lastRouteDetail,
       routeCount: this._getRoutes().length,
       scheduleRef: 'diagnostics.snapshot'
@@ -1872,6 +2003,8 @@ class XRouter extends HTMLElement {
     }
     if (!targetPath) return false;
     this._navigateTo(targetPath, {
+      ...(options.state && typeof options.state === 'object' ? options.state : {}),
+      ...(rawTarget.state && typeof rawTarget.state === 'object' ? rawTarget.state : {}),
       routeId,
       params: rawTarget.params || {},
       query: rawTarget.query || {},
@@ -1884,7 +2017,7 @@ class XRouter extends HTMLElement {
   /**
    * Rekursive Suche nach passender Route inkl. Nested Routes, Aliases und Redirects
    */
-  _matchRoute(path, routes = null) {
+  _matchRoute(path, routes = null, options = {}) {
     routes = routes || this._getRoutes();
     const pathSegments = path.split('/').filter(Boolean);
     for (const route of routes) {
@@ -1913,15 +2046,16 @@ class XRouter extends HTMLElement {
           // Redirect: route kann ein redirect-Attribut haben
           const redirect = route.getAttribute && route.getAttribute('redirect');
           if (redirect) {
-            // Sofortige Weiterleitung
-            this._navigateTo(redirect);
+            if (options.navigateRedirect !== false) {
+              this._navigateTo(redirect);
+            }
             return null;
           }
           // Check for nested routes
           const childRoutes = this._getTopLevelChildRoutes(route);
           if (childRoutes.length && pathSegments.length > routeSegments.length) {
             const restPath = '/' + pathSegments.slice(routeSegments.length).join('/');
-            const childMatch = this._matchRoute(restPath, childRoutes);
+            const childMatch = this._matchRoute(restPath, childRoutes, options);
             if (childMatch) {
               return { route, params, child: childMatch };
             }
@@ -1931,7 +2065,9 @@ class XRouter extends HTMLElement {
       }
     }
 
-    const notFoundRoute = (routes || []).find(r => r.path === '*');
+    const notFoundRoute = options.includeNotFound === false
+      ? null
+      : (routes || []).find(r => this._getRoutePath(r) === '*');
     return notFoundRoute ? { route: notFoundRoute, params: {} } : null;
   }
 

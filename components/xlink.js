@@ -1,6 +1,6 @@
 class XLink extends HTMLElement {
   static get observedAttributes() {
-    return ['href', 'disabled'];
+    return ['href', 'disabled', 'navigation', 'target', 'rel', 'download'];
   }
 
   static get xtendComponentContract() {
@@ -401,7 +401,7 @@ class XLink extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
-    if (name === 'href' || name === 'disabled') {
+    if (['href', 'disabled', 'navigation', 'target', 'rel', 'download'].includes(name)) {
       this._syncAnchorState();
       this._updateActive();
     }
@@ -442,7 +442,13 @@ class XLink extends HTMLElement {
   }
 
   _isExternal(href) {
-    return /^(https?:|mailto:|tel:)/.test(href);
+    if (/^(mailto:|tel:)/i.test(href)) return true;
+    if (!/^https?:/i.test(href)) return false;
+    try {
+      return new URL(href, document.baseURI).origin !== window.location.origin;
+    } catch (_) {
+      return true;
+    }
   }
 
   _getCurrentPath() {
@@ -455,6 +461,12 @@ class XLink extends HTMLElement {
 
   _normalizePath(path) {
     if (!path) return '/';
+    if (/^https?:/i.test(path)) {
+      try {
+        const url = new URL(path, document.baseURI);
+        path = `${url.pathname}${url.search}`;
+      } catch (_) {}
+    }
     const [purePath, query = ''] = path.split('?');
     let normalizedPath = purePath.startsWith('/') ? purePath : '/' + purePath;
     if (normalizedPath.length > 1) {
@@ -465,14 +477,68 @@ class XLink extends HTMLElement {
 
   _syncExternalAttributes() {
     const href = this.getAttribute('href') || '';
+    const target = this.getAttribute('target');
+    const rel = this.getAttribute('rel');
+    const download = this.getAttribute('download');
     if (this._isExternal(href)) {
-      this._anchor.setAttribute('target', this.getAttribute('target') || '_blank');
-      this._anchor.setAttribute('rel', this.getAttribute('rel') || 'noopener noreferrer');
-      return;
+      this._anchor.setAttribute('target', target || '_blank');
+      this._anchor.setAttribute('rel', rel || 'noopener noreferrer');
+    } else {
+      if (target) this._anchor.setAttribute('target', target);
+      else this._anchor.removeAttribute('target');
+      if (rel) this._anchor.setAttribute('rel', rel);
+      else this._anchor.removeAttribute('rel');
     }
+    if (download !== null) this._anchor.setAttribute('download', download);
+    else this._anchor.removeAttribute('download');
+  }
 
-    this._anchor.removeAttribute('target');
-    this._anchor.removeAttribute('rel');
+  _getNavigation() {
+    const value = (this.getAttribute('navigation') || 'auto').trim().toLowerCase();
+    return ['auto', 'client', 'document'].includes(value) ? value : 'auto';
+  }
+
+  _findRouter() {
+    return document.querySelector('x-router');
+  }
+
+  _getNavigationCapability(href, event, router = this._findRouter()) {
+    const navigation = this._getNavigation();
+    if (navigation === 'document') {
+      return {
+        schema: 'xtend.router.navigation-capability.v1',
+        capable: false,
+        navigationKind: 'document',
+        reason: 'link-navigation-document',
+        href
+      };
+    }
+    if (!router) {
+      return {
+        schema: 'xtend.router.navigation-capability.v1',
+        capable: false,
+        navigationKind: 'document',
+        reason: 'router-missing',
+        href
+      };
+    }
+    if (typeof router.canNavigate === 'function') {
+      return router.canNavigate(href, {
+        source: 'x-link',
+        element: this,
+        event,
+        navigation,
+        target: this.getAttribute('target'),
+        download: this.hasAttribute('download')
+      });
+    }
+    return {
+      schema: 'xtend.router.navigation-capability.v1',
+      capable: true,
+      navigationKind: 'client',
+      reason: 'legacy-router-capable',
+      href
+    };
   }
 
   _updateActive() {
@@ -528,6 +594,7 @@ class XLink extends HTMLElement {
   }
 
   _onClick(event) {
+    if (event.defaultPrevented) return;
     if (this._isDisabled()) {
       event.preventDefault();
       return;
@@ -538,10 +605,10 @@ class XLink extends HTMLElement {
       this._syncExternalAttributes();
       return; // Default behavior for external links
     }
-    event.preventDefault();
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     // Detect hash or history mode
     let mode = 'hash';
-    const router = document.querySelector('x-router');
+    const router = this._findRouter();
     if (router && router.getAttribute('mode') === 'history') mode = 'history';
     // Support query string and state object when present
     let state = undefined;
@@ -549,12 +616,17 @@ class XLink extends HTMLElement {
       try { state = JSON.parse(this.getAttribute('state')); } catch {}
     }
     const normalizedHref = this._normalizePath(href.replace(/^#/, ''));
+    const capability = this._getNavigationCapability(href, event, router);
+    const navigationKind = capability && capability.capable ? 'client' : 'document';
+    const fallbackReason = capability && capability.reason ? capability.reason : null;
     // before-navigate Event
     const before = this.dispatchEvent(new CustomEvent('before-navigate', {
       detail: {
         href: normalizedHref,
         mode,
         state,
+        navigationKind,
+        fallbackReason,
         source: 'x-link',
         stateKey: `xlink-active-${this.id}`,
         scheduleRef: 'ui.user-blocking.navigation'
@@ -563,7 +635,50 @@ class XLink extends HTMLElement {
       bubbles: true,
       composed: true
     }));
-    if (!before) return;
+    if (!before) {
+      event.preventDefault();
+      return;
+    }
+
+    if (navigationKind === 'document') {
+      this.dispatchEvent(new CustomEvent('after-navigate', {
+        detail: {
+          href: normalizedHref,
+          mode,
+          state,
+          navigationKind,
+          fallbackReason,
+          source: 'x-link',
+          stateKey: `xlink-active-${this.id}`,
+          scheduleRef: 'ui.user-blocking.navigation'
+        },
+        bubbles: true,
+        composed: true
+      }));
+      return;
+    }
+
+    event.preventDefault();
+
+    if (router && typeof router.navigate === 'function') {
+      router.navigate(normalizedHref, { source: 'x-link', state });
+      this._updateActive();
+      this.dispatchEvent(new CustomEvent('after-navigate', {
+        detail: {
+          href: normalizedHref,
+          mode,
+          state,
+          navigationKind,
+          fallbackReason,
+          source: 'x-link',
+          stateKey: `xlink-active-${this.id}`,
+          scheduleRef: 'ui.user-blocking.navigation'
+        },
+        bubbles: true,
+        composed: true
+      }));
+      return;
+    }
 
     if (mode === 'history') {
       if (normalizedHref !== this._normalizePath(window.location.pathname + window.location.search)) {
@@ -609,6 +724,8 @@ class XLink extends HTMLElement {
         href: normalizedHref,
         mode,
         state,
+        navigationKind,
+        fallbackReason,
         source: 'x-link',
         stateKey: `xlink-active-${this.id}`,
         scheduleRef: 'ui.user-blocking.navigation'
@@ -639,6 +756,7 @@ class XLink extends HTMLElement {
       source: 'x-link',
       stateKey: `xlink-active-${this.id}`,
       href: this.getAttribute('href') || '',
+      navigation: this._getNavigation(),
       active: this.hasAttribute('active'),
       external: this._isExternal(this.getAttribute('href') || ''),
       scheduleRef: 'diagnostics.snapshot'

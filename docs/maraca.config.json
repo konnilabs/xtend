@@ -1,17 +1,17 @@
 {
   "schema": "xtend.maraca.build-config.v1",
   "source": "docs/xtendrmt-docs-document-v2.rmt",
-  "sourceFingerprint": "6d858118444963a351e584fc3a66b3481dbca8795dcee245b4c6916d80bd088d",
+  "sourceFingerprint": "56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
   "serviceGraphFingerprint": null,
   "output": "docs/generated/shell",
   "selected": {
     "profile": "max",
-    "lazy": "none",
+    "lazy": "route",
     "css": "inline"
   },
   "locked": {
     "orchestration": "auto",
-    "kernel": "auto",
+    "kernel": "off",
     "kernelBootMode": "direct",
     "hydration": "auto",
     "validation": "auto",
@@ -35,11 +35,11 @@
     "source": "docs/xtendrmt-docs-document-v2.rmt",
     "out": "docs/generated/shell",
     "profile": "max",
-    "lazy": "none",
+    "lazy": "route",
     "css": "inline",
     "sizeBudget": "strict",
     "orchestration": "auto",
-    "kernel": "auto",
+    "kernel": "off",
     "kernelBootMode": "direct",
     "hydration": "auto",
     "validation": "auto",
@@ -64,6 +64,6 @@
     "terser": "5.48.0",
     "mode": "rollup-terser"
   },
-  "candidateMatrixFingerprint": "b3f48fd5ae2752a4422eafeec6a67a826b34593d17668b36e6c3e49b633b2f0a",
-  "configFingerprint": "3f5db5f9ad7283d2d168c234bdc17a6df22e67512ee4198cb9f3e1a4323ddd53"
+  "candidateMatrixFingerprint": "851a22f28bd3feb6e4d17dd38c80a63cd84a7374bde8d535e49b6b934a0836c7",
+  "configFingerprint": "87c4534f59be39aa243c26f02c036bbfdd68619ff026276b1a73e5a90da9d921"
 }

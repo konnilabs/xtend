@@ -6,6 +6,10 @@ import { createRmtDomDescriptorRenderer } from '../../xtendrmt/rmt-dom-descripto
 import { createRmtBrowserScheduler } from '../../xtendrmt/rmt-browser-scheduler.js';
 import '../../components/xutils.js';
 
+if (window.xtendDocsRmtBootPromise) {
+  await window.xtendDocsRmtBootPromise;
+}
+
 const DOCS_SHELL_RUNTIME_SCHEMA = 'xtend.docs.shell-runtime.v1';
 const SEARCH_SOURCE_PREFIX = 'searchSource:docs.search.';
 const SEARCH_WEIGHTS = Object.freeze({
@@ -342,9 +346,12 @@ function showSearchResults(results, query) {
         class: 'docs-search-result-menu',
         orientation: 'vertical',
         'aria-label': activeLocale === 'en' ? 'Search results' : 'Suchergebnisse'
-      }, results.map((result, index) => component('x-link', {
+      }, results.map((result, index) => element('a', {
         class: 'docs-search-result',
         href: pathFor(result.slug, activeLocale),
+        'is-x-link': 'true',
+        'data-xtend-component': 'x-link',
+        navigation: 'auto',
         role: 'option',
         'data-docs-search-result': result.slug,
         'data-docs-search-rank': String(index + 1),
@@ -819,5 +826,12 @@ window.xtendDocsShellRuntime = Object.freeze({
     };
   }
 });
+
+window.dispatchEvent(new CustomEvent('xtend-docs-shell-runtime-ready', {
+  detail: {
+    schema: DOCS_SHELL_RUNTIME_SCHEMA,
+    status: 'ready'
+  }
+}));
 
 export { DOCS_SHELL_RUNTIME_SCHEMA, appRuntime, fabric, searchRuntime, createFabricSnapshot, renderNavigation };

@@ -1,6 +1,7 @@
 import type { XtendCustomEventMap, XtendNavigationRoutingUxProfile, XtendPublicEventContract, XtendRouteMode } from './xtend-public-types';
 
-export type XRouterAttributeName = 'mode' | 'routesrc' | 'reuse-component' | 'adopt-prerendered-route' | 'skeleton' | 'skeleton-profile' | 'skeleton-lines' | 'skeleton-min-height' | 'title-template' | 'document-title-template' | 'title-prefix' | 'title-suffix' | 'default-title';
+export type XRouterNavigationPolicy = 'progressive' | 'spa' | 'document';
+export type XRouterAttributeName = 'mode' | 'routesrc' | 'reuse-component' | 'adopt-prerendered-route' | 'navigation-policy' | 'skeleton' | 'skeleton-profile' | 'skeleton-lines' | 'skeleton-min-height' | 'title-template' | 'document-title-template' | 'title-prefix' | 'title-suffix' | 'default-title';
 export type XRouteAttributeName = 'path' | 'component' | 'import' | 'title' | 'document-title' | 'title-template' | 'meta-description' | 'meta-keywords' | 'skeleton' | 'skeleton-profile' | 'skeleton-lines' | 'skeleton-min-height' | 'hydrate-schedule';
 export type XRouterEventName = 'xrouter-before-navigate' | 'route-changed' | 'routechange' | 'xrouter-after-navigate' | 'route-announced' | 'xrouter-routes-registered' | 'xrouter-route-reused' | 'xrouter-route-adopted' | 'xrouter-skeleton-shown' | 'xrouter-skeleton-hidden' | 'xrouter-route-hydrated' | 'xrouter-scroll-boundary-normalized' | 'xrouter-navigation-overlays-closed' | 'xrouter-title-updated';
 export type XRouterNavigationRoutingUxProfile = XtendNavigationRoutingUxProfile<'x-router'>;
@@ -207,9 +208,31 @@ export interface XRouterSnapshot {
   source: 'x-router';
   stateKey: 'xtend.router.current';
   mode: XtendRouteMode;
+  navigationPolicy: XRouterNavigationPolicy;
+  ready: boolean;
   current: XRouterRouteChangeDetail | null;
   routeCount: number;
   scheduleRef: 'diagnostics.snapshot';
+}
+
+export interface XRouterNavigationCapability {
+  schema: 'xtend.router.navigation-capability.v1';
+  capable: boolean;
+  navigationKind: 'client' | 'document';
+  reason: string;
+  href: string;
+  path: string;
+  policy: XRouterNavigationPolicy;
+  routeId: string | null;
+}
+
+export interface XRouterNavigationContext {
+  source?: string;
+  element?: Element | null;
+  event?: MouseEvent | PointerEvent | null;
+  navigation?: 'auto' | 'client' | 'document';
+  target?: string | null;
+  download?: boolean;
 }
 
 export interface RenderRouteResult {
@@ -260,6 +283,7 @@ export interface XRouteElement extends HTMLElement {
 export interface XRouterElement extends HTMLElement {
   registerRoutes(routes?: XRouterRmtRouteRecord[] | { routes: XRouterRmtRouteRecord[] }, options?: { replace?: boolean; adapterId?: string; source?: string; render?: boolean }): XRouterRoutesRegisteredDetail;
   navigate(to: string | { path?: string; routeId?: string; state?: unknown }, options?: Record<string, unknown>): boolean;
+  canNavigate(href: string, context?: XRouterNavigationContext): XRouterNavigationCapability;
   focusRoute(detail?: XRouterRouteChangeDetail | null): boolean;
   announceRoute(detail?: XRouterRouteChangeDetail | null): XRouterRouteAnnouncedDetail;
   snapshot(): XRouterSnapshot;

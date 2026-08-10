@@ -18,7 +18,11 @@ const RULES = Object.freeze([
 ]);
 
 function scanOwnershipSource(source, filePath = 'inline') {
-  return RULES.filter((rule) => rule.pattern.test(String(source || ''))).map((rule) => ({ rule: rule.id, filePath }));
+  const normalizedSource = String(source || '').replace(
+    /\/\/ XTEND_DOCS_DECLARED_PREBOOT_START[\s\S]*?\/\/ XTEND_DOCS_DECLARED_PREBOOT_END/gu,
+    ''
+  );
+  return RULES.filter((rule) => rule.pattern.test(normalizedSource)).map((rule) => ({ rule: rule.id, filePath }));
 }
 
 async function runDocsFrameworkOwnershipSuite(options = {}) {

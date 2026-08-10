@@ -571,12 +571,21 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             foreach ($this->asArray($descriptor['children'] ?? ($descriptor['nodes'] ?? [])) as $child) {
                 $children[] = $child;
             }
-            $open = '<' . $normalizedTag . $this->serializeAttributes($attributes, $diagnostics) . '>';
+            $renderTag = $normalizedTag;
+            if ($normalizedTag === 'x-link' && !empty($context['options']['progressiveLinks'])) {
+                $renderTag = 'a';
+                $attributes = array_replace([
+                    'is-x-link' => 'true',
+                    'data-xtend-component' => 'x-link',
+                    'navigation' => 'auto',
+                ], $attributes);
+            }
+            $open = '<' . $renderTag . $this->serializeAttributes($attributes, $diagnostics) . '>';
             $html = '';
             foreach ($children as $child) {
                 $html .= $this->serializeDescriptor($child, $context, $diagnostics);
             }
-            return $open . $html . '</' . $normalizedTag . '>';
+            return $open . $html . '</' . $renderTag . '>';
         }
 
         private function serializeElement(array $descriptor, array $context, array &$diagnostics): string
@@ -788,10 +797,10 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             return $state;
         }
 
-        private function createResumeNodeManifest(array $descriptor): array
+        private function createResumeNodeManifest(array $descriptor, array $options = []): array
         {
             $records = [];
-            $visit = function ($entry) use (&$visit, &$records): void {
+            $visit = function ($entry) use (&$visit, &$records, $options): void {
                 if (!is_array($entry)) return;
                 if ($this->isList($entry)) {
                     foreach ($entry as $child) $visit($child);
@@ -800,10 +809,12 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 $attributes = isset($entry['attributes']) && is_array($entry['attributes']) ? $entry['attributes'] : [];
                 $id = trim((string) ($attributes['data-rmt-resume-id'] ?? ''));
                 if ($id !== '') {
+                    $tag = strtolower((string) ($entry['tag'] ?? ($entry['componentTag'] ?? ($entry['host'] ?? ($entry['component'] ?? '')))));
+                    if ($tag === 'x-link' && !empty($options['progressiveLinks'])) $tag = 'a';
                     $records[] = [
                         'generation' => (string) ($attributes['data-rmt-resume-generation'] ?? ''),
                         'id' => $id,
-                        'tag' => strtolower((string) ($entry['tag'] ?? ($entry['component'] ?? ''))),
+                        'tag' => $tag,
                     ];
                 }
                 $children = $entry['children'] ?? ($entry['nodes'] ?? []);
@@ -835,7 +846,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                     $diagnostics[] = $this->diagnostic('rmt.php_ssr.resume_island_fragment_missing', 'PHP resume requires a host-provided island fragment or serverEntry for DOM hydration.', 'error', ['xtension' => $id]);
                 }
             }
-            $resumeNodeManifest = $this->createResumeNodeManifest($descriptor);
+            $resumeNodeManifest = $this->createResumeNodeManifest($descriptor, $options);
             $unsigned = [
                 'schema' => RMT_SSR_RESUME_ENVELOPE_SCHEMA,
                 'version' => 1,

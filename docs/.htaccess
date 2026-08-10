@@ -33,6 +33,15 @@ DirectoryIndex index.php
   Header always unset X-Powered-By
 </IfModule>
 
+# Keep the loaderless RMT entry and route-local islands inside the existing
+# transfer budget without requiring a separate Node or proxy service. Plesk's
+# NGINX layer may apply Brotli/gzip first; Apache compression is the fallback.
+<IfModule mod_filter.c>
+  <IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE application/javascript application/json image/svg+xml text/css text/html text/javascript text/plain
+  </IfModule>
+</IfModule>
+
 # Hide dotfiles such as .htaccess, .env or editor metadata if they appear here.
 <FilesMatch "^\.">
   <IfModule mod_authz_core.c>

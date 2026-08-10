@@ -158,7 +158,7 @@ XTend Docs exposes the DEV API itself. This check needs neither a mock nor Anima
 php -S 127.0.0.1:9187 -t . docs/dev-router.php
 ```
 
-Open `http://127.0.0.1:9187/docs/en/readme`, then Chromium DevTools and the `XTend` panel. During early boot, synchronous methods may return a valid `degraded` snapshot. Once the shell is ready, expect `server_prerender_hydrate`, kernel state `none`, AppRuntime fibers under `Fabric`, and measurements for SSR, FCP, content commit and route transitions.
+Open `http://127.0.0.1:9187/docs/en/readme`, then Chromium DevTools and the `XTend` panel. During early boot, synchronous methods may return a valid `degraded` snapshot. Once the shell is ready, expect `server_prerender_resume` by default, kernel state `none`, AppRuntime fibers under `Fabric`, and measurements for SSR, FCP, content commit and route transitions. Without a valid resume key, the complete SSR document remains in place and reports a one-time `server_prerender_hydrate` fallback.
 
 Navigation and search use the same AppRuntime that produces these snapshots. Search for `hydratoin`, open a result and verify that route state, lane counts and the Search measurement update together. This also reveals stale snapshots that a static DEV API mock would hide.
 

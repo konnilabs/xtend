@@ -441,7 +441,9 @@
       "$_canonicalizeAdoptionDomStructure": "hr",
       "$_isSafeAdoptionDomUrl": "mr",
       "$_validateAdoptionDomTrust": "gr",
-      "$_hashAdoptionValue": "br"
+      "$_hashAdoptionValue": "br",
+      "$_routerReady": "On",
+      "$_getNavigationPolicy": "Nn"
     }
   }
 }

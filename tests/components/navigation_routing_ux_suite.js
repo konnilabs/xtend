@@ -190,6 +190,15 @@ function runNavigationRoutingUxSuite(options = {}) {
       context.assert(source.includes('if (options.focus === false)'), 'x-router can skip route outlet focus restore for non-interactive renders');
       context.assert(source.includes('this.focusRoute(enrichedDetail)'), 'x-router keeps focus restore for interactive route changes');
       context.assert(source.includes('#outlet[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] > :not([data-xtend-skeleton-loader])'), 'x-router prevents route content from becoming interactive beneath its loading skeleton');
+      context.assert(source.includes("'navigation-policy'") && source.includes('canNavigate(href, context = {})'), 'x-router exposes progressive navigation policy and capability inspection');
+      context.assert(source.includes("schema: 'xtend.router.navigation-capability.v1'"), 'x-router capability result uses the public navigation capability schema');
+      context.assert(types.includes('XRouterNavigationPolicy') && types.includes('XRouterNavigationCapability'), 'x-router types expose progressive policy and capability results');
+      context.assert(docs.includes('navigation-policy') && docs.includes('canNavigate'), 'x-router docs describe progressive capability checks');
+    } else if (profile.tag === 'x-link') {
+      context.assert(source.includes("'navigation'") && source.includes("['auto', 'client', 'document']"), 'x-link exposes auto, client and document navigation modes');
+      context.assert(source.includes('navigationKind') && source.includes('fallbackReason'), 'x-link events report client/document choice and fallback reason');
+      context.assert(types.includes('XLinkNavigation') && types.includes('XLinkNavigationKind'), 'x-link types expose progressive navigation modes');
+      context.assert(docs.includes('navigation="auto"') && docs.includes('fallbackReason'), 'x-link docs describe native-anchor progressive enhancement');
     }
     context.assert(source.includes('prefers-reduced-motion'), `${profile.tag} source is reduced-motion safe`);
     context.assert(source.includes('forced-colors'), `${profile.tag} source is forced-colors safe`);

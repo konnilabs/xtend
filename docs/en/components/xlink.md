@@ -49,6 +49,19 @@ if ('updateActive' in component) {
 
 For production screens, keep IDs stable when state keys or diagnostics include `<id>`. Stable IDs make event logs, RMT schedules and browser tests easier to compare across deployments.
 
+### Progressive navigation and SSR
+
+`navigation="auto"` is the default. XLink asks its nearest XRouter capability contract whether the current URL can safely be handled on the client. If the runtime is unavailable, the URL is cross-origin, the route is not registered, a modifier is pressed, `download` is present, the target is not `_self`, or navigation is opted out, the native document navigation remains untouched. `client` requests router navigation but still fails safely to the document; `document` explicitly disables interception.
+
+RMT and SSR hosts can emit the same semantics as a node-preserving anchor:
+
+```html
+<a is-x-link data-xtend-component="x-link"
+  navigation="auto" href="/docs/en/manifest">Manifest</a>
+```
+
+The link therefore works without JavaScript and is not replaced by a second link node after upgrade. `before-navigate` and `after-navigate` additionally expose `navigationKind` (`client` or `document`) and a machine-readable `fallbackReason`.
+
 ## API reference
 
 Attributes:
@@ -58,6 +71,7 @@ Attributes:
 - `state`
 - `active`
 - `disabled`
+- `navigation` (`auto`, `client`, `document`)
 
 Events:
 - `before-navigate`

@@ -497,7 +497,11 @@ class XMenu extends HTMLElement {
           }
         }
         @media (max-width: 700px) {
-          nav { flex-direction: column; gap: 0.2em; padding: 0.5em 0.5em; }
+          nav {
+            flex-direction: column;
+            gap: 0.2em;
+            padding: min(0.5em, var(--xtend-menu-padding-y)) min(0.5em, var(--xtend-menu-padding-x));
+          }
           ::slotted(a), ::slotted(button), ::slotted(x-link), ::slotted([role="menuitem"]) { width: 100%; justify-content: flex-start; }
         }
       </style>

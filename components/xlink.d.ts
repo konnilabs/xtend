@@ -1,6 +1,8 @@
 import type { XtendCustomEventMap, XtendNavigationRoutingUxProfile, XtendPublicEventContract, XtendRouteMode } from './xtend-public-types';
 
-export type XLinkAttributeName = 'href' | 'target' | 'rel' | 'state' | 'active';
+export type XLinkNavigation = 'auto' | 'client' | 'document';
+export type XLinkNavigationKind = 'client' | 'document';
+export type XLinkAttributeName = 'href' | 'target' | 'rel' | 'state' | 'active' | 'navigation' | 'download';
 export type XLinkEventName = 'before-navigate' | 'after-navigate';
 export type XLinkNavigationRoutingUxProfile = XtendNavigationRoutingUxProfile<'x-link'>;
 
@@ -8,6 +10,8 @@ export interface XLinkNavigationEventDetail {
   href: string;
   mode: XtendRouteMode;
   state?: unknown;
+  navigationKind: XLinkNavigationKind;
+  fallbackReason: string | null;
   source: 'x-link';
   stateKey: string;
   scheduleRef: 'ui.user-blocking.navigation';
@@ -35,6 +39,7 @@ export interface XLinkSnapshot {
   source: 'x-link';
   stateKey: string;
   href: string;
+  navigation: XLinkNavigation;
   active: boolean;
   external: boolean;
   scheduleRef: 'diagnostics.snapshot';

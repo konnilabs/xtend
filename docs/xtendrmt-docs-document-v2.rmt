@@ -14,7 +14,7 @@ template xtend.docs.php_ssr_shell {
       components 12
       jsonlStreaming true
       documentSsr true
-      hydrationMode "server_prerender_hydrate"
+      hydrationMode "server_prerender_resume"
     }
   }
 
@@ -33,6 +33,13 @@ template xtend.docs.php_ssr_shell {
   datasource docs.page.payload from endpoint "index.php?xtend-docs-page={slug}&locale={locale}" {
     method GET
     contract DocsParsedownPagePayload
+    result html
+    fallback fixture docs.page.initial
+  }
+
+  datasource docs.route.fragment from endpoint "/docs/{locale}/{slug}" {
+    method GET
+    contract DocsRouteFragmentV1
     result html
     fallback fixture docs.page.initial
   }
@@ -75,19 +82,19 @@ template xtend.docs.php_ssr_shell {
     dispose on surface.destroy
   }
 
-  resource docs.search.compact.de kind lazy-import owner surface.docs.sidebar {
+  resource docs.search.compact.de kind lazy-import owner surface.docs.header {
     import "./generated/search/de.compact.json"
   }
 
-  resource docs.search.fulltext.de kind lazy-import owner surface.docs.sidebar {
+  resource docs.search.fulltext.de kind lazy-import owner surface.docs.header {
     import "./generated/search/de.fulltext.json"
   }
 
-  resource docs.search.compact.en kind lazy-import owner surface.docs.sidebar {
+  resource docs.search.compact.en kind lazy-import owner surface.docs.header {
     import "./generated/search/en.compact.json"
   }
 
-  resource docs.search.fulltext.en kind lazy-import owner surface.docs.sidebar {
+  resource docs.search.fulltext.en kind lazy-import owner surface.docs.header {
     import "./generated/search/en.fulltext.json"
   }
 
@@ -137,11 +144,21 @@ template xtend.docs.php_ssr_shell {
 
     lane critical weight 100 {
       mount docs-root-shell from endpoint xtendrmt.docs.php-ssr.shell
+      hydrate docs-root-resume from selector docs.shell.model {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume docs-root-resume {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
     }
 
-    lane idle weight 20 {
-      hydrate docs-root-hydration from datasource docs.shell.ssr
-    }
   }
 
   surface docs.header kind header component x-header {
@@ -151,6 +168,19 @@ template xtend.docs.php_ssr_shell {
 
     lane critical weight 96 {
       mount docs-header from endpoint xtendrmt.docs.php-ssr.shell
+      hydrate docs-header-resume from selector docs.shell.model {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume docs-header-resume {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
     }
 
     on click "[data-docs-language-select]" -> action docs.route.navigate {
@@ -175,11 +205,21 @@ template xtend.docs.php_ssr_shell {
 
     lane visible weight 92 {
       mount docs-router from endpoint xtendrmt.docs.php-ssr.shell
+      hydrate docs-router-resume from selector docs.shell.model {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume docs-router-resume {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
     }
 
-    lane idle weight 24 {
-      prewarm docs-page-payload from datasource docs.page.payload
-    }
   }
 
   surface docs.page kind page component x-section {
@@ -192,22 +232,21 @@ template xtend.docs.php_ssr_shell {
     }
 
     lane visible weight 90 {
-      hydrate docs-page-behavior from endpoint xtendrmt.docs.parsedown.parse
+      hydrate docs-page-behavior from selector docs.shell.model {
+        hydration mode server_prerender_resume
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
+      resume docs-page-behavior {
+        resumability mode server_prerender_resume
+        resumability snapshot surface_state
+        resumability event replay intent_queue
+        resumability integrity signed_manifest
+      }
     }
 
-    lane idle weight 18 {
-      prewarm docs-related-links from worker xtendrmt.docs.related.prepare
-    }
-  }
-
-  surface docs.sidebar kind panel component x-section {
-    source selector docs.shell.capabilityModel
-    key id
-    portal docs.shell.root
-
-    lane visible weight 60 {
-      hydrate docs-sidebar from endpoint xtendrmt.docs.php-ssr.shell
-    }
   }
 
   surface docs.footer kind footer component x-footer {

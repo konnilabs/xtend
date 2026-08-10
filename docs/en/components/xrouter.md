@@ -73,6 +73,10 @@ With `adopt-prerendered-route`, a host can provide exactly one already-visible d
 
 Success and controlled rejection are emitted as `xrouter-route-adopted` using the `xtend.router.route-adoption.v1` schema. When a proof does not match, the router discards the candidate and continues through its normal skeleton/render path.
 
+### Progressive enhancement
+
+`navigation-policy="progressive"` overlays SPA navigation on normal anchors. `canNavigate(href, context)` returns `xtend.router.navigation-capability.v1` and only permits interception when the router is ready, the URL is same-origin, the target is `_self`, the route is registered and native anchor semantics are unchanged. Otherwise the result carries a stable `reason`, and the browser follows the existing `href` as a document navigation. `spa` remains the general compatibility default; `document` disables client navigation. The Docs app explicitly opts into `progressive`.
+
 ## API reference
 
 Attributes:
@@ -80,6 +84,7 @@ Attributes:
 - `routesrc`
 - `reuse-component`
 - `adopt-prerendered-route`
+- `navigation-policy` (`progressive`, `spa`, `document`)
 - `skeleton`
 - `skeleton-profile`
 - `skeleton-lines`
@@ -118,6 +123,7 @@ Events:
 Methods:
 - `focusRoute(detail?: XRouterRouteChangeDetail | null)`
 - `announceRoute(detail?: XRouterRouteChangeDetail | null)`
+- `canNavigate(href: string, context?: XRouterNavigationContext)`
 - `snapshot()`
 
 Slots:

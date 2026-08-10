@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import { spawn, spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { createHash, generateKeyPairSync } from 'node:crypto';
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import net from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,11 +10,17 @@ import { fileURLToPath } from 'node:url';
 const sourceRootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const rootDir = path.resolve(process.env.XTEND_DOCS_SMOKE_ROOT || sourceRootDir);
 const captureBaseline = process.argv.includes('--capture-baseline');
+const requestedScenario = (process.argv.find((argument) => argument.startsWith('--scenario=')) || '').slice('--scenario='.length);
 const evidenceDir = path.join(sourceRootDir, '.xtend-test-results', captureBaseline ? 'docs-shell-baseline-capture' : 'docs-shell-catfooding');
 const baselinePath = path.join(sourceRootDir, 'tests', 'docs', 'fixtures', 'docs-shell-catfooding-performance-baseline.json');
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+function hasNoInternalLinkIndicator(entry = {}) {
+  return (!entry.internalBoxShadow || entry.internalBoxShadow === 'none')
+    && (!entry.internalTextDecoration || entry.internalTextDecoration === 'none');
 }
 
 function sha256(value) {
@@ -539,6 +545,9 @@ async function readSnapshot(baseUrl, sessionId) {
       theme: document.documentElement.getAttribute('data-theme') || 'light',
       shellSchema: window.xtendDocsShellRuntime && window.xtendDocsShellRuntime.schema || '',
       prehydrationSchema: window.xtendDocsSsrPrehydration && window.xtendDocsSsrPrehydration.schema || '',
+      resumeActivation: document.documentElement.getAttribute('data-xtend-docs-rmt-activation') || '',
+      resumeStatus: document.getElementById('xtend-docs-rmt-root')?.getAttribute('data-rmt-resume-status') || '',
+      initialRouteReplay: window.xtendDocsInitialRouteReplay || null,
       shellSnapshot: window.xtendDocsShellRuntime && window.xtendDocsShellRuntime.snapshot(),
       devApiDetected: Boolean(api),
       devApiMethods: api ? ['getPerformanceSnapshot', 'getFabricTelemetrySnapshot', 'getKernelSnapshot', 'getHydrationSnapshot', 'subscribe'].filter((key) => typeof api[key] === 'function') : [],
@@ -614,7 +623,12 @@ async function readSnapshot(baseUrl, sessionId) {
       bootSkeleton: layoutShiftProbe?.bootSkeleton || null,
       prerenderedRoute: layoutShiftProbe?.prerenderedRoute || null,
       routeAdoption: layoutShiftProbe?.routeAdoption || (window.xstate && typeof window.xstate.get === 'function' ? window.xstate.get('xtend.router.routeAdoption') : null),
-      initialPagePayloadRequests: resourceEntries.filter((entry) => entry.name.includes('xtend-docs-page=')).map((entry) => entry.name),
+      initialPagePayloadRequests: resourceEntries.filter((entry) => {
+        if (entry.name.includes('xtend-docs-page=')) return true;
+        if (entry.initiatorType !== 'fetch') return false;
+        try { return /^\\/docs\\/(?:de|en)\\/[a-z0-9-]+$/u.test(new URL(entry.name).pathname); }
+        catch (_) { return false; }
+      }).map((entry) => entry.name),
       overflowX: Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth)
     };
   `);
@@ -692,10 +706,35 @@ async function runSearch(baseUrl, sessionId, query) {
       : firstStyle?.backgroundColor;
     const probe = window.__docsSearchPerformanceProbe || { longTasks: [] };
     const status = deepQuery('#docs-search-status');
+    const resultsRect = results?.getBoundingClientRect() || null;
+    const menu = results?.querySelector('x-menu') || null;
+    const menuRect = menu?.getBoundingClientRect() || null;
+    const firstRect = first?.getBoundingClientRect() || null;
+    const scoreRect = score?.getBoundingClientRect() || null;
     return {
       textContrast: contrast(firstStyle?.color, background),
       scoreContrast: contrast(scoreStyle?.color, background),
       horizontalOverflow: results ? Math.max(0, results.scrollWidth - results.clientWidth) : 0,
+      horizontalGeometry: results ? {
+        clientWidth: results.clientWidth,
+        scrollWidth: results.scrollWidth,
+        offsetWidth: results.offsetWidth,
+        rectWidth: resultsRect?.width || 0,
+        menuClientWidth: menu?.clientWidth || 0,
+        menuScrollWidth: menu?.scrollWidth || 0,
+        menuRectWidth: menuRect?.width || 0,
+        firstClientWidth: first?.clientWidth || 0,
+        firstScrollWidth: first?.scrollWidth || 0,
+        firstRectWidth: firstRect?.width || 0,
+        firstComputedWidth: firstStyle?.width || '',
+        firstDisplay: firstStyle?.display || '',
+        firstGridTemplateColumns: firstStyle?.gridTemplateColumns || '',
+        firstJustifyContent: firstStyle?.justifyContent || '',
+        scoreMarginInlineStart: scoreStyle?.marginInlineStart || '',
+        scoreLeft: scoreRect?.left || 0,
+        scoreRight: scoreRect?.right || 0,
+        scoreTrailingGap: firstRect && scoreRect ? firstRect.right - scoreRect.right : null
+      } : null,
       statusHidden: Boolean(status?.hasAttribute('hidden') && getComputedStyle(status).display === 'none'),
       maxLongTaskMs: Math.max(0, ...probe.longTasks.map((entry) => Number(entry.duration || 0))),
       longTasks: probe.longTasks,
@@ -1034,9 +1073,9 @@ async function exerciseSkeletonHardening(baseUrl, sessionId) {
 }
 
 async function navigateHomeViaLogo(baseUrl, sessionId, scenario) {
-  const clicked = await execute(baseUrl, sessionId, `
-    const link = document.querySelector('[data-docs-home-logo]');
-    const anchor = link && link.shadowRoot && link.shadowRoot.querySelector('a');
+  const clicked = await execute(baseUrl, sessionId, `${deepQuerySource}
+    const link = deepQuery('[data-docs-home-logo]');
+    const anchor = link?.localName === 'a' ? link : link?.shadowRoot?.querySelector('a');
     if (!link || !anchor) return null;
     const href = link.getAttribute('href');
     anchor.click();
@@ -1173,8 +1212,11 @@ async function exerciseRapidNavigationRace(baseUrl, sessionId, scenario) {
     window.fetch = function(input, init) {
       const rawUrl = typeof input === 'string' ? input : input?.url || '';
       const url = new URL(rawUrl, location.href);
-      const pageSlug = url.searchParams.get('xtend-docs-page') || '';
-      const pageLocale = url.searchParams.get('locale') || '';
+      const routeMatch = url.pathname.match(/^\\/docs\\/(de|en)\\/([a-z0-9-]+)$/u);
+      const headers = new Headers(init?.headers || input?.headers || {});
+      const routeFragment = headers.get('Accept') === 'application/vnd.xtend.rmt-route+json';
+      const pageSlug = routeFragment && routeMatch ? routeMatch[2] : (url.searchParams.get('xtend-docs-page') || '');
+      const pageLocale = routeFragment && routeMatch ? routeMatch[1] : (url.searchParams.get('locale') || '');
       if (pageSlug) state.requests.push({ slug: pageSlug, locale: pageLocale, at: performance.now() });
       if (pageSlug === firstSlug && !state.delayedRequestStarted) {
         state.delayedRequestStarted = true;
@@ -1300,8 +1342,11 @@ async function exerciseLocaleNavigationRace(baseUrl, sessionId, scenario) {
     window.fetch = function(input, init) {
       const rawUrl = typeof input === 'string' ? input : input?.url || '';
       const url = new URL(rawUrl, location.href);
-      const pageSlug = url.searchParams.get('xtend-docs-page') || '';
-      const pageLocale = url.searchParams.get('locale') || '';
+      const routeMatch = url.pathname.match(/^\\/docs\\/(de|en)\\/([a-z0-9-]+)$/u);
+      const headers = new Headers(init?.headers || input?.headers || {});
+      const routeFragment = headers.get('Accept') === 'application/vnd.xtend.rmt-route+json';
+      const pageSlug = routeFragment && routeMatch ? routeMatch[2] : (url.searchParams.get('xtend-docs-page') || '');
+      const pageLocale = routeFragment && routeMatch ? routeMatch[1] : (url.searchParams.get('locale') || '');
       if (pageSlug) state.requests.push({ slug: pageSlug, locale: pageLocale, at: performance.now() });
       if (pageSlug === slug && pageLocale === sourceLocale && !state.delayedRequestStarted) {
         state.delayedRequestStarted = true;
@@ -1462,6 +1507,12 @@ async function runPostImportProofMutationRegression(baseUrl, driverUrl) {
       'readme',
       'XTend Developer Center',
       `${scenario.id}: Docs host did not become ready`
+    );
+    await waitUntil(
+      async () => execute(driverUrl, sessionId, `
+        return Boolean(window.XTendLoader && typeof window.XTendLoader.ensureComponent === 'function');
+      `),
+      `${scenario.id}: deferred XTend component loader did not become ready`
     );
     const installed = await execute(driverUrl, sessionId, `
       const path = location.pathname;
@@ -1649,7 +1700,7 @@ async function runAliasRouteRegression(baseUrl, driverUrl) {
   };
   const redirect = await fetch(`${baseUrl}/docs/${scenario.locale}/${scenario.alias}`, { redirect: 'manual' });
   const redirectLocation = redirect.headers.get('location') || '';
-  assert(redirect.status === 302, `${scenario.id}: alias endpoint returned HTTP ${redirect.status} instead of 302.`);
+  assert(redirect.status === 308, `${scenario.id}: alias endpoint returned HTTP ${redirect.status} instead of permanent 308.`);
   assert(redirectLocation.endsWith(`/docs/${scenario.locale}/${scenario.canonicalSlug}`), `${scenario.id}: alias redirect target is not canonical (${redirectLocation}).`);
   const sessionId = await createSession(driverUrl, scenario);
   try {
@@ -1756,8 +1807,15 @@ async function runSsrCodeEnhancementRegression(baseUrl, driverUrl) {
       const hydration = window.xtendDocsLastCodeHydration || null;
       const inputProbe = window.__xtendDocsSsrCodeEnhancementInputProbe || null;
       const routeAdoption = window.xstate?.get?.('xtend.router.routeAdoption') || null;
+      const resumeStatus = document.getElementById('xtend-docs-rmt-root')?.getAttribute('data-rmt-resume-status') || '';
+      const initialRouteReplay = window.xtendDocsInitialRouteReplay || null;
       const pagePayloadRequests = performance.getEntriesByType('resource')
-        .filter((entry) => entry.name.includes('xtend-docs-page='))
+        .filter((entry) => {
+          if (entry.name.includes('xtend-docs-page=')) return true;
+          if (entry.initiatorType !== 'fetch') return false;
+          try { return /^\\/docs\\/(?:de|en)\\/[a-z0-9-]+$/u.test(new URL(entry.name).pathname); }
+          catch (_) { return false; }
+        })
         .map((entry) => entry.name);
       const ready = location.pathname === arguments[0]
         && content.getAttribute('data-docs-code-enhancement') === 'idle-committed'
@@ -1778,6 +1836,8 @@ async function runSsrCodeEnhancementRegression(baseUrl, driverUrl) {
         hydration,
         inputProbe,
         routeAdoption,
+        resumeStatus,
+        initialRouteReplay,
         pagePayloadRequests
       } : null;
     `, [route, raw.preCodeCount]), `${scenario.id}: SSR code fences did not upgrade automatically in the idle lane`);
@@ -1785,12 +1845,13 @@ async function runSsrCodeEnhancementRegression(baseUrl, driverUrl) {
     assert(result.upgraded === raw.preCodeCount && result.codeBlockCount === raw.preCodeCount && result.remainingFenceCount === 0, `${scenario.id}: code fence replacement is incomplete (${JSON.stringify(result)}).`);
     assert(result.blocks.every((block) => block.shadowRoot && block.copyButton && block.highlightEngine === 'prism' && block.highlighted), `${scenario.id}: x-code shadow/copy/Prism hydration is incomplete (${JSON.stringify(result.blocks)}).`);
     assert(result.hydration?.schema === 'xtend.docs.code-hydration.v1' && result.hydration.count === raw.preCodeCount && result.hydration.hydrated === raw.preCodeCount, `${scenario.id}: code hydration diagnostic is incomplete (${JSON.stringify(result.hydration)}).`);
-    assert(result.routeAdoption?.adopted === true && result.pagePayloadRequests.length === 0, `${scenario.id}: initial route did not stay on the SSR-adoption path (${JSON.stringify({ routeAdoption: result.routeAdoption, pagePayloadRequests: result.pagePayloadRequests })}).`);
+    assert(result.resumeStatus === 'resumed' && result.initialRouteReplay?.pageFetches === 0 && result.initialRouteReplay?.renderRouteCalls === 0 && result.pagePayloadRequests.length === 0, `${scenario.id}: initial route did not stay on the Resume adoption path (${JSON.stringify({ resumeStatus: result.resumeStatus, initialRouteReplay: result.initialRouteReplay, pagePayloadRequests: result.pagePayloadRequests })}).`);
 
     await navigateHomeViaLogo(driverUrl, sessionId, scenario);
     const csrMarkerCleanup = await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
       const content = deepQuery('#md-content');
-      if (!content || !location.pathname.endsWith('/docs/de/readme')) return null;
+      const page = deepQuery('xtend-doc-page');
+      if (!content || !location.pathname.endsWith('/docs/de/readme') || page?.getAttribute('data-docs-route-slug') !== 'readme' || page?.getAttribute('data-docs-route-state') !== 'ready') return null;
       const result = {
         enhancement: content.getAttribute('data-docs-code-enhancement') || '',
         trigger: content.getAttribute('data-docs-code-enhancement-trigger'),
@@ -1798,10 +1859,15 @@ async function runSsrCodeEnhancementRegression(baseUrl, driverUrl) {
         xCodeCount: content.querySelectorAll('x-code').length,
         preCodeCount: content.querySelectorAll('pre > code').length
       };
-      return result.enhancement === 'not-needed' && result.trigger === null && result.upgraded === '0'
-        ? result
-        : null;
+      return result;
     `), `${scenario.id}: CSR navigation retained stale SSR code-enhancement markers`);
+    assert(
+      csrMarkerCleanup.enhancement === 'csr-committed'
+      && csrMarkerCleanup.trigger === 'csr'
+      && Number(csrMarkerCleanup.upgraded) === csrMarkerCleanup.xCodeCount
+      && csrMarkerCleanup.preCodeCount === 0,
+      `${scenario.id}: CSR navigation retained stale SSR code-enhancement markers (${JSON.stringify(csrMarkerCleanup)}).`
+    );
     const finalInputProbe = await execute(driverUrl, sessionId, `
       return window.__xtendDocsSsrCodeEnhancementInputProbe || null;
     `);
@@ -1838,20 +1904,19 @@ async function runSsrProofFallbackRegression(baseUrl, driverUrl, proofCase) {
       url: `${baseUrl}/docs/${scenario.locale}/readme`
     });
     await verifyLayoutShiftProbe(driverUrl, sessionId);
-    const result = await waitUntil(async () => {
-      const snapshot = await readSnapshot(driverUrl, sessionId);
-      const tamper = await execute(driverUrl, sessionId, `return window.__xtendDocsSsrProofTamper || null;`);
-      const candidateCount = await execute(driverUrl, sessionId, `return document.querySelectorAll('[data-xrouter-prerendered-route]').length;`);
-      return tamper?.applied && snapshot.docsPageReady && snapshot.docsPageCount === 1 &&
-        snapshot.currentPath === `/docs/${scenario.locale}/readme` && snapshot.articleTitle === 'XTend Developer Center' &&
-        snapshot.routeAdoption?.adopted === false && snapshot.routeAdoption?.reason === scenario.expectedReason &&
-        snapshot.initialPagePayloadRequests.length >= 1 && candidateCount === 0
-        ? { snapshot, tamper, candidateCount }
-        : null;
-    }, `${scenario.id}: rejected SSR proof did not complete the controlled CSR fallback`);
+    const tamper = await waitUntil(
+      () => execute(driverUrl, sessionId, `return window.__xtendDocsSsrProofTamper?.applied ? window.__xtendDocsSsrProofTamper : null;`),
+      `${scenario.id}: SSR proof tamper did not run`
+    );
+    await delay(1500);
+    const snapshot = await readSnapshot(driverUrl, sessionId);
+    const candidateCount = await execute(driverUrl, sessionId, `return document.querySelectorAll('[data-xrouter-prerendered-route]').length;`);
+    const result = { snapshot, tamper, candidateCount };
+    assert(snapshot.docsPageReady && snapshot.docsPageCount === 1 && snapshot.currentPath === `/docs/${scenario.locale}/readme` && snapshot.articleTitle === 'XTend Developer Center', `${scenario.id}: rejected SSR proof did not retain a complete usable document (${JSON.stringify(result)}).`);
+    assert(result.snapshot.routeAdoption?.adopted === false && result.snapshot.routeAdoption?.reason === scenario.expectedReason, `${scenario.id}: tampered SSR proof was not rejected for the expected reason (${JSON.stringify(result)}).`);
     assert(result.snapshot.routeId === 'docs.readme', `${scenario.id}: fallback committed the wrong route (${result.snapshot.routeId}).`);
     assert(result.snapshot.docsPageLocale === scenario.locale && result.snapshot.currentLocale === scenario.locale, `${scenario.id}: fallback lost locale ownership.`);
-    assert(result.snapshot.initialPagePayloadRequests.every((url) => url.includes('xtend-docs-page=readme')), `${scenario.id}: fallback requested an unrelated page (${JSON.stringify(result.snapshot.initialPagePayloadRequests)}).`);
+    assert(result.snapshot.initialPagePayloadRequests.every((url) => new URL(url).pathname.endsWith('/docs/de/readme')), `${scenario.id}: fallback requested an unrelated page (${JSON.stringify(result.snapshot.initialPagePayloadRequests)}).`);
     assertSingleCurrentArticle(result.snapshot, scenario.id);
     const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
     const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
@@ -1913,6 +1978,7 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
       const menuSnapshots = Array.from(document.querySelectorAll('x-menu'))
         .map((menu) => typeof menu.snapshotPerformance === 'function' ? menu.snapshotPerformance() : null)
         .filter(Boolean);
+      if (menuSnapshots.length < 2) return null;
       return {
         schema: 'xtend.docs.maraca-route-regression.v1',
         maxLongTaskMs: Math.max(0, ...state.longTasks.map((entry) => Number(entry.duration || 0))),
@@ -1932,7 +1998,7 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
           ? window.__xtendDocsLayoutShiftProbe.entries
           : []
       };
-    `), 'Maraca regression route did not clear its router skeleton');
+    `), 'Maraca regression route did not clear its router skeleton and materialize its task navigation menus');
     assert(result.menuCount >= 2, 'Maraca regression route did not materialize its task navigation menus.');
     assert(result.activeSkeletonCount === 0, `Maraca regression route left ${result.activeSkeletonCount} active skeleton layers.`);
     assert(result.maxLongTaskMs <= 1000, `Maraca regression route produced a ${result.maxLongTaskMs}ms long task.`);
@@ -1963,6 +2029,14 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
         ? snapshot
         : null;
     }, `${scenario.id}: direct route did not become ready`);
+    if (scenario.inspectPlaygroundSkeleton) {
+      await waitUntil(
+        async () => execute(driverUrl, sessionId, `${deepQuerySource}
+          return Boolean(deepQuery('[data-rmt-playground-root]'));
+        `),
+        `${scenario.id}: visible RMT Playground island did not activate`
+      );
+    }
     await delay(scenario.settleMs || 600);
     const snapshot = await readSnapshot(driverUrl, sessionId);
     if (scenario.expectedArticleTitle) {
@@ -2063,6 +2137,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
       return snapshot.shellSchema && snapshot.docsPageReady && snapshot.articleTitle && snapshot.routeId && snapshot.routeDocumentTitle &&
         snapshot.summaryIndicators.length > 0 && snapshot.summaryIndicators.every((indicator) => indicator.ariaExpanded !== '') &&
         (snapshot.prehydrationSchema !== 'xtend.docs.php-ssr-prehydration.v2' || snapshot.routeAdoption) &&
+        snapshot.recommendationSnapshot &&
         Number.isFinite(snapshot.performance && snapshot.performance.fcpMs) &&
         Number.isFinite(snapshot.performance && snapshot.performance.responseEndMs)
         ? snapshot
@@ -2073,6 +2148,8 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     const expectedLead = scenario.locale === 'en' ? 'Welcome to the XTend Developer Center' : 'Willkommen im XTend Developer Center';
     const expectedSearchPlaceholder = scenario.locale === 'en' ? 'Search documentation' : 'Dokumentation durchsuchen';
     assert(initial.shellSchema === 'xtend.docs.shell-runtime.v1', `${scenario.id}: AppRuntime shell is missing.`);
+    assert(initial.resumeActivation === 'resumed' && initial.resumeStatus === 'resumed', `${scenario.id}: signed RMT document was not resumed (${JSON.stringify({ activation: initial.resumeActivation, status: initial.resumeStatus })}).`);
+    assert(initial.initialRouteReplay?.pageFetches === 0 && initial.initialRouteReplay?.renderRouteCalls === 0, `${scenario.id}: initial route performed a client fetch or render replay (${JSON.stringify(initial.initialRouteReplay)}).`);
     assert(
       initial.documentTitle === expectedHomeTitle && initial.routeDocumentTitle === expectedHomeTitle,
       `${scenario.id}: document title does not match the active route (${JSON.stringify({ expectedHomeTitle, documentTitle: initial.documentTitle, routeDocumentTitle: initial.routeDocumentTitle, routeId: initial.routeId })}).`
@@ -2144,7 +2221,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(navigationSurface.currentPageCount === 1 && navigationSurface.currentPageSection && navigationSurface.currentPageSectionOpen, `${scenario.id}: current page is not uniquely marked inside its expanded section (${JSON.stringify(navigationSurface)}).`);
     assert(navigationSurface.columnCount === 2 && navigationSurface.sectionOrderPreserved && navigationSurface.minInternalColumnGap >= 7 && navigationSurface.maxInternalColumnGap <= 9, `${scenario.id}: navigation sections do not keep a stable order-preserving per-column rhythm (${JSON.stringify(navigationSurface.columnGeometry)}).`);
     assert(scenario.width <= 700 ? navigationSurface.columnsStacked : navigationSurface.columnsSideBySide, `${scenario.id}: navigation columns do not match the responsive layout (${JSON.stringify(navigationSurface.columnGeometry)}).`);
-    assert([navigationSurface.activeTrunk, navigationSurface.activePage].every((entry) => entry.internalBoxShadow === 'none' && entry.internalTextDecoration === 'none'), `${scenario.id}: x-link rendered a second active indicator inside the navigation label (${JSON.stringify(navigationSurface)}).`);
+    assert([navigationSurface.activeTrunk, navigationSurface.activePage].every(hasNoInternalLinkIndicator), `${scenario.id}: x-link rendered a second active indicator inside the navigation label (${JSON.stringify(navigationSurface)}).`);
     const skeletonHardening = await exerciseSkeletonHardening(driverUrl, sessionId);
     assert(skeletonHardening && skeletonHardening.visualRecordCount >= 1, `${scenario.id}: invalid SkeletonLoader input produced no visual records.`);
     assert(skeletonHardening.visibleRecordCount === skeletonHardening.visualRecordCount, `${scenario.id}: SkeletonLoader records have no visible geometry.`);
@@ -2157,14 +2234,15 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(search.worker && search.worker.resourceCache === true && search.worker.cachedResourceCount >= 1, `${scenario.id}: search worker did not retain its compact index.`);
     assert(search.presentation.textContrast >= 4.5 && search.presentation.scoreContrast >= 4.5, `${scenario.id}: search result contrast is insufficient (${JSON.stringify(search.presentation)}).`);
     assert(search.presentation.horizontalOverflow <= 1 && search.presentation.statusHidden, `${scenario.id}: search surface overflows or exposes an empty status row (${JSON.stringify(search.presentation)}).`);
-    assert(search.presentation.internalBoxShadow === 'none' && search.presentation.internalTextDecoration === 'none', `${scenario.id}: x-link rendered a second indicator inside the highlighted search result (${JSON.stringify(search.presentation)}).`);
+    assert(search.presentation.horizontalGeometry?.scoreTrailingGap >= -1 && search.presentation.horizontalGeometry.scoreTrailingGap <= 24, `${scenario.id}: search plausibility score is not aligned to the result row end (${JSON.stringify(search.presentation.horizontalGeometry)}).`);
+    assert(hasNoInternalLinkIndicator(search.presentation), `${scenario.id}: x-link rendered a second indicator inside the highlighted search result (${JSON.stringify(search.presentation)}).`);
     assert(search.presentation.maxLongTaskMs <= 120, `${scenario.id}: compact search blocked the main thread (${JSON.stringify(search.presentation.longTasks)}).`);
     const focusedResult = await focusFirstSearchResult(driverUrl, sessionId);
     assert(search.slugs.includes(focusedResult), `${scenario.id}: ArrowDown focus left the result set.`);
     const enterNavigation = await activateHighlightedSearchResult(driverUrl, sessionId);
     assert(search.slugs.includes(enterNavigation.slug), `${scenario.id}: Enter navigated outside the highlighted result set (${JSON.stringify(enterNavigation)}).`);
     assert(enterNavigation.inputSource === 'keyboard', `${scenario.id}: Enter activation was not recorded as keyboard input (${JSON.stringify(enterNavigation)}).`);
-    assert(enterNavigation.selectedActive && enterNavigation.internalBoxShadow === 'none' && enterNavigation.internalTextDecoration === 'none', `${scenario.id}: active search result rendered more than one selection indicator (${JSON.stringify(enterNavigation)}).`);
+    assert(enterNavigation.selectedActive && hasNoInternalLinkIndicator(enterNavigation), `${scenario.id}: active search result rendered more than one selection indicator (${JSON.stringify(enterNavigation)}).`);
     const fallbackSearch = await runSearch(driverUrl, sessionId, 'backpressure');
     assert(fallbackSearch.usedFulltext && fallbackSearch.fulltextLoaded, `${scenario.id}: sparse results did not activate fulltext fallback.`);
     assert(fallbackSearch.worker && fallbackSearch.worker.cachedResourceCount >= 2, `${scenario.id}: fulltext index was not retained by the search worker.`);
@@ -2230,9 +2308,24 @@ if (!php || !chromeDriver) {
 await mkdir(evidenceDir, { recursive: true });
 const port = await freePort();
 const driverPort = await freePort();
+let generatedResumeKeyPath = null;
+let resumeKeyPath = process.env.XTEND_DOCS_RESUME_PRIVATE_KEY_FILE || '';
+if (!resumeKeyPath) {
+  const pair = generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
+  generatedResumeKeyPath = path.join('/tmp', `xtend-docs-smoke-resume-${process.pid}.pem`);
+  await writeFile(generatedResumeKeyPath, pair.privateKey.export({ format: 'pem', type: 'pkcs8' }));
+  resumeKeyPath = generatedResumeKeyPath;
+}
 const server = spawn(php, ['-S', `127.0.0.1:${port}`, '-t', rootDir, 'docs/dev-router.php'], {
   cwd: rootDir,
-  env: { ...process.env, XTEND_DOCS_DOCUMENT_SSR: process.env.XTEND_DOCS_DOCUMENT_SSR || 'v2' },
+  env: {
+    ...process.env,
+    XTEND_DOCS_DOCUMENT_SSR: process.env.XTEND_DOCS_DOCUMENT_SSR || 'v2',
+    XTEND_DOCS_SSR_MODE: process.env.XTEND_DOCS_SSR_MODE || 'resume',
+    XTEND_DOCS_RESUME_PRIVATE_KEY_FILE: resumeKeyPath,
+    XTEND_DOCS_RESUME_KEY_ID: process.env.XTEND_DOCS_RESUME_KEY_ID || 'docs-smoke-p256',
+    XTEND_DOCS_PUBLIC_ORIGIN: process.env.XTEND_DOCS_PUBLIC_ORIGIN || `http://127.0.0.1:${port}`
+  },
   stdio: ['ignore', 'pipe', 'pipe']
 });
 const driver = spawn(chromeDriver, [`--port=${driverPort}`], {
@@ -2260,18 +2353,20 @@ try {
     process.stdout.write(`Docs shell performance baseline captured: ${outputPath}\n`);
   } else {
     const performanceBaseline = JSON.parse(await readFile(baselinePath, 'utf8'));
-    await assertRawDocsRouteStatuses(baseUrl);
-    await runPostImportProofMutationRegression(baseUrl, driverUrl);
-    await runAliasRouteRegression(baseUrl, driverUrl);
-    await runSsrCodeEnhancementRegression(baseUrl, driverUrl);
-    for (const proofCase of [
-      { kind: 'path', expectedReason: 'path-mismatch' },
-      { kind: 'hash', expectedReason: 'content-proof-mismatch' },
-      { kind: 'trust', expectedReason: 'trust-proof-missing' }
-    ]) {
-      await runSsrProofFallbackRegression(baseUrl, driverUrl, proofCase);
+    if (!requestedScenario) {
+      await assertRawDocsRouteStatuses(baseUrl);
+      await runPostImportProofMutationRegression(baseUrl, driverUrl);
+      await runAliasRouteRegression(baseUrl, driverUrl);
+      await runSsrCodeEnhancementRegression(baseUrl, driverUrl);
+      for (const proofCase of [
+        { kind: 'path', expectedReason: 'path-mismatch' },
+        { kind: 'hash', expectedReason: 'content-proof-mismatch' },
+        { kind: 'trust', expectedReason: 'trust-proof-missing' }
+      ]) {
+        await runSsrProofFallbackRegression(baseUrl, driverUrl, proofCase);
+      }
+      await runMaracaRouteRegression(baseUrl, driverUrl);
     }
-    await runMaracaRouteRegression(baseUrl, driverUrl);
     const directRouteScenarios = [
       { id: 'de-animation-engine-desktop', locale: 'de', slug: 'rmt-animation-engine', width: 1440, height: 900, settleMs: 1200 },
       { id: 'de-rmt-playground-desktop', locale: 'de', slug: 'learn-rmt-playground', width: 1440, height: 900, settleMs: 1200, expectedArticleTitle: 'RMT Playground', inspectPlaygroundSkeleton: true, ownsRouteWorkspace: true },
@@ -2285,10 +2380,10 @@ try {
       { id: 'de-maraca-brand-wide', locale: 'de', slug: 'xtend-maraca', width: 593, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-title' },
       { id: 'de-maraca-brand-compact', locale: 'de', slug: 'xtend-maraca', width: 500, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only' }
     ];
-    for (const scenario of directRouteScenarios) {
+    for (const scenario of directRouteScenarios.filter((entry) => !requestedScenario || entry.id === requestedScenario)) {
       await runInitialRouteLayoutStability(baseUrl, driverUrl, scenario);
     }
-    for (const scenario of scenarios) {
+    for (const scenario of scenarios.filter((entry) => !requestedScenario || entry.id === requestedScenario)) {
       await runScenario(baseUrl, driverUrl, scenario, performanceBaseline);
     }
   }
@@ -2296,6 +2391,7 @@ try {
   stopProcess(server);
   await fetch(`http://127.0.0.1:${driverPort}/shutdown`).catch(() => {});
   stopProcess(driver);
+  if (generatedResumeKeyPath) await unlink(generatedResumeKeyPath).catch(() => {});
 }
 
 if (!captureBaseline) process.stdout.write(`Docs shell catfooding browser smoke passed. Evidence: ${path.relative(sourceRootDir, evidenceDir)}\n`);

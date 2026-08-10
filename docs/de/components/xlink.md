@@ -49,6 +49,19 @@ if ('updateActive' in component) {
 
 Für produktive Oberflächen sollten IDs stabil bleiben, wenn State-Keys oder Diagnoseeinträge `<id>` enthalten. Stabile IDs machen Ereignisprotokolle, RMT Schedules und Browser-Tests zwischen Deployments vergleichbar.
 
+### Progressive Navigation und SSR
+
+`navigation="auto"` ist der Standard. XLink fragt den nächsten XRouter über dessen Capability-Vertrag, ob die aktuelle URL sicher clientseitig übernommen werden kann. Bei fehlender Runtime, fremder Origin, nicht registrierter Route, Modifier-Taste, `download`, einem anderen Target oder einem Opt-out bleibt die native Dokumentnavigation erhalten. `client` fordert die Router-Navigation an, fällt aber weiterhin sicher auf das Dokument zurück; `document` deaktiviert das Abfangen ausdrücklich.
+
+RMT-/SSR-Hosts können dieselbe Semantik als node-erhaltenden Anchor ausgeben:
+
+```html
+<a is-x-link data-xtend-component="x-link"
+  navigation="auto" href="/docs/de/manifest">Manifest</a>
+```
+
+Damit funktioniert der Link ohne JavaScript und wird nach dem Upgrade nicht durch einen zweiten Linkknoten ersetzt. `before-navigate` und `after-navigate` liefern zusätzlich `navigationKind` (`client` oder `document`) und einen maschinenlesbaren `fallbackReason`.
+
 ## API-Referenz
 
 Attribute:
@@ -58,6 +71,7 @@ Attribute:
 - `state`
 - `active`
 - `disabled`
+- `navigation` (`auto`, `client`, `document`)
 
 Events:
 - `before-navigate`

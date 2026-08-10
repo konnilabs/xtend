@@ -17,6 +17,30 @@ if (($requestPath === '/docs' || $requestPath === '/docs/' || $requestPath === '
 }
 
 if ($candidate && str_starts_with($candidate, $repoRoot) && is_file($candidate)) {
+    $acceptEncoding = strtolower((string) ($_SERVER['HTTP_ACCEPT_ENCODING'] ?? ''));
+    $extension = strtolower((string) pathinfo($candidate, PATHINFO_EXTENSION));
+    $compressibleTypes = [
+        'css' => 'text/css; charset=UTF-8',
+        'html' => 'text/html; charset=UTF-8',
+        'js' => 'text/javascript; charset=UTF-8',
+        'json' => 'application/json; charset=UTF-8',
+        'mjs' => 'text/javascript; charset=UTF-8',
+        'rmt' => 'text/plain; charset=UTF-8',
+        'svg' => 'image/svg+xml',
+        'txt' => 'text/plain; charset=UTF-8'
+    ];
+    if (isset($compressibleTypes[$extension]) && str_contains($acceptEncoding, 'gzip') && function_exists('gzencode')) {
+        $contents = file_get_contents($candidate);
+        $compressed = is_string($contents) ? gzencode($contents, 6) : false;
+        if (is_string($compressed)) {
+            header('Content-Type: ' . $compressibleTypes[$extension]);
+            header('Content-Encoding: gzip');
+            header('Vary: Accept-Encoding');
+            header('Content-Length: ' . strlen($compressed));
+            echo $compressed;
+            return true;
+        }
+    }
     return false;
 }
 
