@@ -920,9 +920,12 @@ await run('product package exposes model install and app build commands', () => 
   assert.equal(productPackage.scripts['model:install:qwen3-8b'], 'node scripts/model-install.mjs -- --target');
   assert.equal(productPackage.scripts['build:app'], 'node scripts/build-app.mjs');
   assert.equal(productPackage.scripts.build, 'npm run build:app');
+  assert.equal(productPackage.dependencies['@ccslabs/xtend-mcp'], 'file:../xtend-mcp');
   const buildScript = fs.readFileSync(path.join(productRoot, 'scripts', 'build-app.mjs'), 'utf8');
-  assert.match(buildScript, /tools', 'rmt-language', 'generated', 'rmt-ai-developer-kit/u);
-  assert.match(buildScript, /knowledge', 'rmt-ai-kit/u);
+  assert.match(buildScript, /function stageMcpRuntime\(/u);
+  assert.match(buildScript, /products', 'xtend-mcp/u);
+  assert.match(buildScript, /generated', 'knowledge-manifest\.json/u);
+  assert.doesNotMatch(buildScript, /knowledge', 'rmt-ai-kit/u);
 });
 
 await run('model profile resolves current Qwen3 WebGPU ONNX Runtime layout', () => {
@@ -1220,11 +1223,11 @@ await run('LLM runtime telemetry bridge exposes RKFA and backpressure snapshots'
   assert.match(mainSource, /clipboard\.writeText/u);
   assert.match(mainSource, /regenerateAssistantMessage/u);
   assert.match(mainSource, /productionClosure/u);
-  assert.match(controllerSource, /getPerformanceTelemetrySnapshot/u);
+  assert.match(controllerSource, /function readRuntimeTelemetry\(/u);
   assert.match(controllerSource, /assistantMessageActions/u);
   assert.match(controllerSource, /copyAssistantMessage/u);
   assert.match(controllerSource, /regenerateAssistantMessage/u);
-  assert.match(controllerSource, /getPanicRecoverySnapshot/u);
+  assert.match(controllerSource, /panicRecovery/u);
   assert.match(controllerSource, /streamPressureLevel/u);
   assert.match(controllerSource, /UiComputeWorkerClient/u);
   assert.match(controllerSource, /serverPrerenderShell/u);

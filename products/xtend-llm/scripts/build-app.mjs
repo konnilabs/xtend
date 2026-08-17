@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
@@ -14,6 +15,11 @@ const distRoot = path.join(productRoot, 'dist');
 const appName = `${PRODUCT_TITLE}.app`;
 const outApp = path.join(distRoot, 'mac', appName);
 const require = createRequire(import.meta.url);
+const MCP_LOCAL_PACKAGES = new Map([
+  ['@ccslabs/xtend-compiler', 'tools'],
+  ['@ccslabs/xtend-maraca', 'xtend-maraca'],
+  ['@ccslabs/xtend-rmt', 'xtendrmt']
+]);
 
 function log(message) {
   console.log(`[xtend-llm-build] ${message}`);
@@ -67,6 +73,69 @@ function copyPath(source, target, options = {}) {
   });
 }
 
+function packagePath(root, packageName) {
+  return path.join(root, ...packageName.split('/'));
+}
+
+function mcpPackageSource(packageName) {
+  const localSource = MCP_LOCAL_PACKAGES.get(packageName);
+  return localSource
+    ? path.join(repoRoot, localSource)
+    : packagePath(path.join(repoRoot, 'node_modules'), packageName);
+}
+
+function copyPublishedPackage(sourceRoot, targetRoot) {
+  const pkg = JSON.parse(fs.readFileSync(path.join(sourceRoot, 'package.json'), 'utf8'));
+  const declaredEntries = Array.isArray(pkg.files) && pkg.files.length > 0
+    ? [...pkg.files, 'package.json']
+    : fs.readdirSync(sourceRoot).filter((entry) => entry !== 'node_modules');
+  const entries = declaredEntries.flatMap((entry) => (
+    entry === '*.d.ts'
+      ? fs.readdirSync(sourceRoot).filter((fileName) => fileName.endsWith('.d.ts'))
+      : [entry]
+  ));
+  fs.mkdirSync(targetRoot, { recursive: true });
+  new Set(entries).forEach((entry) => {
+    const source = path.join(sourceRoot, entry);
+    if (!fs.existsSync(source)) return;
+    copyPath(source, path.join(targetRoot, entry), { excludeGenerated: false });
+  });
+  return pkg;
+}
+
+function stageMcpRuntimePackage(appNodeModules, packageName, seen = new Set()) {
+  if (seen.has(packageName)) return;
+  seen.add(packageName);
+  const sourceRoot = mcpPackageSource(packageName);
+  if (!fs.existsSync(path.join(sourceRoot, 'package.json'))) {
+    throw new Error(`Missing installed XTend MCP runtime dependency: ${packageName}`);
+  }
+  const targetRoot = packagePath(appNodeModules, packageName);
+  fs.rmSync(targetRoot, { recursive: true, force: true });
+  const pkg = MCP_LOCAL_PACKAGES.has(packageName)
+    ? copyPublishedPackage(sourceRoot, targetRoot)
+    : (copyPath(sourceRoot, targetRoot, { excludeGenerated: false }), JSON.parse(fs.readFileSync(path.join(sourceRoot, 'package.json'), 'utf8')));
+  Object.keys({ ...(pkg.dependencies || {}), ...(pkg.optionalDependencies || {}) })
+    .filter((dependency) => fs.existsSync(path.join(mcpPackageSource(dependency), 'package.json')))
+    .forEach((dependency) => stageMcpRuntimePackage(appNodeModules, dependency, seen));
+}
+
+function stageMcpRuntime(appRoot) {
+  const appNodeModules = path.join(appRoot, 'node_modules');
+  const sourceRoot = path.join(repoRoot, 'products', 'xtend-mcp');
+  const targetRoot = packagePath(appNodeModules, '@ccslabs/xtend-mcp');
+  fs.rmSync(targetRoot, { recursive: true, force: true });
+  const pkg = copyPublishedPackage(sourceRoot, targetRoot);
+  const seen = new Set();
+  Object.keys(pkg.dependencies || {}).forEach((dependency) => stageMcpRuntimePackage(appNodeModules, dependency, seen));
+  const manifest = fs.readFileSync(path.join(targetRoot, 'generated', 'knowledge-manifest.json'));
+  return {
+    package: pkg.name,
+    version: pkg.version,
+    knowledgeManifestSha256: crypto.createHash('sha256').update(manifest).digest('hex')
+  };
+}
+
 function setPlistValue(plist, key, value) {
   const pattern = new RegExp(`(<key>${key}</key>\\s*<string>)([^<]*)(</string>)`, 'u');
   if (!pattern.test(plist)) return plist;
@@ -116,6 +185,7 @@ function writePackageJson(targetRoot) {
     main: 'src/main/electron-main.cjs',
     description: sourcePackage.description,
     dependencies: {
+      '@ccslabs/xtend-mcp': '0.1.0',
       '@huggingface/transformers': sourcePackage.dependencies['@huggingface/transformers']
     }
   };
@@ -159,18 +229,13 @@ function main() {
     const source = path.join(productRoot, fileName);
     if (fs.existsSync(source)) fs.copyFileSync(source, path.join(appRoot, fileName));
   }
-  const sourceKnowledgeDir = path.join(repoRoot, 'tools', 'rmt-language', 'generated', 'rmt-ai-developer-kit');
-  if (fs.existsSync(sourceKnowledgeDir)) {
-    copyPath(sourceKnowledgeDir, path.join(appRoot, 'knowledge', 'rmt-ai-kit'), {
-      excludeGenerated: true
-    });
-  }
   writePackageJson(appRoot);
   copyPath(path.join(productRoot, 'node_modules'), path.join(appRoot, 'node_modules'), {
     excludeElectronNodeModule: true,
     excludeNodeBin: true,
     excludeGenerated: true
   });
+  const mcpRuntime = stageMcpRuntime(appRoot);
 
   const packagedXtendRoot = path.join(outApp, 'Contents', 'xtendrmt');
   fs.rmSync(packagedXtendRoot, { recursive: true, force: true });
@@ -183,6 +248,7 @@ function main() {
     appName: PRODUCT_TITLE,
     appPath: outApp,
     productRoot,
+    mcpRuntime,
     builtAt: new Date().toISOString()
   };
   log('ad-hoc signing app bundle');

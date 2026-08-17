@@ -41,6 +41,7 @@
     "xtend-maraca",
     "xtend-material",
     "xtend-maraca-css-tailwind",
+    "products/xtend-mcp",
     "xsurface-shard"
   ],
   "browser": "./xtend.js",
@@ -126,6 +127,12 @@
       "path": "tools",
       "install": "npm install @ccslabs/xtend-compiler",
       "scope": "rmt-compiler-tooling"
+    },
+    {
+      "name": "@ccslabs/xtend-mcp",
+      "path": "products/xtend-mcp",
+      "install": "npm install @ccslabs/xtend-mcp",
+      "scope": "ai-knowledge-mcp-server"
     },
     {
       "name": "@ccslabs/xtend-maraca",
@@ -12025,6 +12032,7 @@
         "reportPath": ".xtend-test-results/xtend-pr-gate-report.json",
         "artifactName": "xtend-pr-gate-report-{artifactSuffix}",
         "additionalReportPaths": [
+          ".xtend-test-results/xtend-mcp-gate-report.json",
           ".xtend-test-results/xtend-schema-inventory-report.json",
           ".xtend-test-results/xtend-xtensions-framework-adapters-report.json",
           ".xtend-test-results/xtend-dev-surface-report.json",
@@ -12191,6 +12199,7 @@
         "reportPath": ".xtend-test-results/xtend-release-gate-report.json",
         "artifactName": "xtend-release-gate-report-{artifactSuffix}",
         "additionalReportPaths": [
+          ".xtend-test-results/xtend-mcp-gate-report.json",
           ".xtend-test-results/xtend-schema-inventory-report.json",
           ".xtend-test-results/xtend-xtensions-framework-adapters-report.json",
           ".xtend-test-results/xtend-dev-surface-report.json",
@@ -12375,6 +12384,7 @@
         "commandSet": [
           "npm run native-first:evidence:prepare",
           "npm run test:release:full:report",
+          "npm run test:xtend-mcp:report",
           "npm run test:feature-adoption-observatory",
           "npm run test:rmt-reference-docs:report",
           "npm run test:rmt-demos:report",
@@ -12401,12 +12411,13 @@
           "npm run test:xscaler-source-to-sea:report"
         ],
         "workspaceDryRunCommands": [
-          "npm pack --workspace xtendrmt --dry-run --json",
-          "npm pack --workspace fabric --dry-run --json",
-          "npm pack --workspace tools --dry-run --json",
-          "npm pack --workspace xtend-builder --dry-run --json",
-          "npm pack --workspace xtend-maraca --dry-run --json",
-          "npm pack --workspace xsurface-shard --dry-run --json"
+          "npm pack --workspace xtendrmt --dry-run --json --silent",
+          "npm pack --workspace fabric --dry-run --json --silent",
+          "npm pack --workspace tools --dry-run --json --silent",
+          "npm pack --workspace xtend-builder --dry-run --json --silent",
+          "npm pack --workspace xtend-maraca --dry-run --json --silent",
+          "npm pack --workspace @ccslabs/xtend-mcp --dry-run --json --silent",
+          "npm pack --workspace xsurface-shard --dry-run --json --silent"
         ],
         "manifestCommand": "npm run nightly:manifest",
         "manifestPath": ".xtend-test-results/xtend-nightly-build-manifest.json",
@@ -12474,7 +12485,28 @@
         "schema": "xtend.ci.package-structure-gate.v1",
         "command": "npm run pack:dry-run",
         "publishDryRunDelegatedTo": "npm-publish-latest",
-        "artifactName": "xtend-package-structure-{artifactSuffix}"
+        "artifactName": "xtend-package-structure-{artifactSuffix}",
+        "workspacePackages": [
+          "@ccslabs/xtend-rmt",
+          "@ccslabs/xtend-fabric",
+          "@ccslabs/xtend-compiler",
+          "@ccslabs/xtend-cli",
+          "@ccslabs/xtend-maraca",
+          "@ccslabs/xtend-mcp",
+          "@ccslabs/xtend-xsurface-shard"
+        ]
+      },
+      "xtendMcpGate": {
+        "schema": "xtend.ci.mcp-gate.v1",
+        "command": "npm run test:xtend-mcp:report",
+        "reportPath": ".xtend-test-results/xtend-mcp-gate-report.json",
+        "package": "@ccslabs/xtend-mcp",
+        "nodeMinimum": 24,
+        "workflow": ".github/workflows/xtend-default-gates.yml",
+        "nightlyWorkflow": ".github/workflows/xtend-nightly-build.yml",
+        "vsixSmokeJob": "xtend-mcp-vscode-smoke",
+        "vsixEvidencePath": ".xtend-test-results/xtend-mcp-vsix-smoke.json",
+        "vsixArtifactName": "xtend-mcp-vsix-{os}"
       },
       "xtensionsFrameworkAdapterGate": {
         "schema": "xtend.ci.xtensions-framework-adapter-gate.v1",
@@ -12547,15 +12579,31 @@
       "tag": "latest",
       "dryRunCommand": "npm publish --dry-run --tag latest --access public",
       "command": "npm publish --tag latest --provenance --access public",
+      "dryRunCommands": [
+        "npm publish --dry-run --workspace @ccslabs/xtend-rmt --tag latest --access public",
+        "npm publish --dry-run --workspace @ccslabs/xtend-compiler --tag latest --access public",
+        "npm publish --dry-run --workspace @ccslabs/xtend-maraca --tag latest --access public",
+        "npm publish --dry-run --workspace @ccslabs/xtend-mcp --tag latest --access public",
+        "npm publish --dry-run --tag latest --access public"
+      ],
+      "commands": [
+        "npm publish --workspace @ccslabs/xtend-rmt --tag latest --provenance --access public",
+        "npm publish --workspace @ccslabs/xtend-compiler --tag latest --provenance --access public",
+        "npm publish --workspace @ccslabs/xtend-maraca --tag latest --provenance --access public",
+        "npm publish --tag latest --provenance --access public",
+        "npm publish --workspace @ccslabs/xtend-mcp --tag latest --provenance --access public"
+      ],
       "evidenceArtifactName": "xtend-npm-publish-latest-evidence-node-24-18-0",
       "requiredCommands": [
         "npm run native-first:evidence:prepare",
         "npm run test:release:full:report",
+        "npm run test:feature-adoption-observatory",
         "npm run test:xtensions-framework-adapters:report",
         "npm run test:xtend-dev-surface:report",
         "npm run test:rmt-vnext-primitives:report",
         "npm run test:native-first-rmt-owned-release:report",
         "npm run test:rkfa-production-closure:report",
+        "npm run test:xtend-mcp:report",
         "npm run release:report",
         "npm run pack:dry-run",
         "npm run conditional-network:evidence",
@@ -12567,14 +12615,19 @@
         "rmt-vnext-primitive-gates",
         "package-structure",
         "conditional-network-evidence",
-        "node-native-toolchain-smoke"
+        "node-native-toolchain-smoke",
+        "xtend-mcp-vscode-smoke"
       ],
       "permissions": [
         "contents: read",
         "id-token: write"
       ],
       "packageSet": [
-        "@ccslabs/xtend"
+        "@ccslabs/xtend-rmt",
+        "@ccslabs/xtend-compiler",
+        "@ccslabs/xtend-maraca",
+        "@ccslabs/xtend",
+        "@ccslabs/xtend-mcp"
       ],
       "repository": "git+https://github.com/konnilabs/xtend.git",
       "provenance": true,
@@ -12603,6 +12656,7 @@
         "npm run release:sync-versions:check",
         "npm run test:pr:report",
         "npm run test:release:full:report",
+        "npm run test:xtend-mcp:report",
         "npm run test:type-exports",
         "npm run test:type-exports-loader",
         "npm run test:type-exports-api",
@@ -17713,6 +17767,10 @@
     "test:rmt-code-actions": "node scripts/run_xtend_tests.js rmt-code-actions",
     "test:rmt-agent-report": "node scripts/run_xtend_tests.js rmt-agent-report",
     "test:rmt-ai-developer-kit": "node scripts/run_xtend_tests.js rmt-ai-developer-kit",
+    "build:xtend-mcp-knowledge": "node products/xtend-mcp/scripts/build-knowledge.mjs",
+    "test:xtend-mcp": "node products/xtend-mcp/scripts/run-gates.mjs",
+    "test:xtend-mcp:report": "node products/xtend-mcp/scripts/run-gates.mjs --report .xtend-test-results/xtend-mcp-gate-report.json",
+    "test:xtend-mcp-vsix-smoke": "node products/xtend-mcp/scripts/smoke-vsix.mjs",
     "test:rmt-editor-packaging": "node scripts/run_xtend_tests.js rmt-editor-packaging",
     "build:rmt-editor:vscode": "node tools/rmt-editor/vscode/build-vsix.js --out xtend-rmt-language-0.1.0-rc.1.vsix",
     "test:rmt-language-regression": "node scripts/run_xtend_tests.js rmt-language-regression",

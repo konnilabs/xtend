@@ -14,6 +14,85 @@ Die aktuelle öffentliche Oberfläche umfasst drei component-orientierte Record-
 
 Der RMT-Kernel bleibt neutral: Er speichert IDs, Tags, Adapter-Namen, Attribute, Props und Source-Map-Einträge, importiert aber keine XTend-Component-Typen oder browserspezifischen Host-Typen.
 
+## Minimale App Shell mit drei Primitives
+
+Die JSON-Blöcke in den folgenden Abschnitten zeigen kompilierte Core Records. Sie sind **kein** `.rmt`-Quelltext. Wenn eine RMT App Shell verlangt wird, beginnt die Antwort mit `template` und verwendet die Authoring-Operatoren. Dieses minimale Beispiel besitzt genau drei sichtbare Component Primitives (`x-section`, `x-status`, `x-button`) und muss vor der Ausgabe mit dem RMT-Compiler geprüft werden:
+
+```rmt
+template app.shell {
+  state app.shell type object preserve {
+    initial {
+      id "app-shell"
+      title "XTend App Shell"
+      text "Willkommen bei XTend"
+    }
+  }
+
+  state app.status type object preserve {
+    initial {
+      id "app-status"
+      text "Bereit"
+      tone "success"
+    }
+  }
+
+  state app.start type object preserve {
+    initial {
+      id "app-start"
+      text "Start"
+      tone "primary"
+      disabled false
+    }
+  }
+
+  selector app.shell from state app.shell { output AppShell }
+  selector app.status from state app.status { output AppStatus }
+  selector app.start from state app.start { output AppStart }
+
+  action app.start {
+    input label string
+    reduce state.app.status.text = "Gestartet"
+  }
+
+  portal app.root root "#app" layer surface
+
+  surface app.shell kind page component x-section {
+    source selector app.shell
+    key shell.id
+    portal app.root
+    bounds x 0 y 0 width 960 height 640
+    lane visible weight 90 {
+      hydrate app-shell from selector app.shell
+    }
+  }
+
+  surface app.status kind card component x-status {
+    source selector app.status
+    key status.id
+    portal app.root
+    bounds x 24 y 96 width 420 height 96
+    lane visible weight 80 {
+      hydrate app-status from selector app.status
+    }
+  }
+
+  surface app.start kind action component x-button {
+    source selector app.start
+    key start.id
+    portal app.root
+    bounds x 24 y 216 width 180 height 56
+    lane visible weight 80 {
+      mount app-start from selector app.start
+    }
+    on click "#app-start" -> action app.start {
+      payload label from target.dataset.label
+    }
+  }
+}
+```
+
+Für AI-Hosts gilt der überprüfbare Ablauf: zuerst `xtend_knowledge_search`, danach `xtend_rmt_compile_check` mit exakt dem auszugebenden Quelltext. Nur `ok: true` mit `status: "compiled"` bestätigt eine valide RMT App.
+
 ## Component Records
 
 Ein Component Record ist ein öffentlicher Adaptervertrag, kein Versprechen über generiertes DOM. Der Host kann `x-section`, `x-cards`, `x-summary`, `x-status`, `x-progress`, `x-alert`, `x-button`, `x-popover`, `x-input`, `x-menu` und `x-icon` rendern, während RMT nur die adapterseitige Form beschreibt.

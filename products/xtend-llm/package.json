@@ -57,6 +57,10 @@
     "node": ">=24"
   },
   "dependencies": {
+    "@ccslabs/xtend-compiler": "file:../../tools",
+    "@ccslabs/xtend-maraca": "file:../../xtend-maraca",
+    "@ccslabs/xtend-mcp": "file:../xtend-mcp",
+    "@ccslabs/xtend-rmt": "file:../../xtendrmt",
     "@huggingface/transformers": "^3.8.1",
     "electron": "^42.4.0"
   },

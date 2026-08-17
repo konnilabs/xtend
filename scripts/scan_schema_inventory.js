@@ -29,6 +29,13 @@ const SOURCE_EXCLUDES = new Set([
   'package-lock.json'
 ]);
 
+// Materialized knowledge aggregates preserve their canonical sources verbatim.
+// Scanning those packaged mirrors would manufacture duplicate schema usages and
+// make generated output look like an independent source of truth.
+const MATERIALIZED_AGGREGATE_EXCLUDED_PREFIXES = Object.freeze([
+  'products/xtend-mcp/generated/'
+]);
+
 const BINARY_EXTENSIONS = new Set([
   '.gif', '.ico', '.jpeg', '.jpg', '.pdf', '.png', '.ttf', '.vsix', '.webp', '.woff', '.woff2', '.zip'
 ]);
@@ -153,6 +160,7 @@ function isGeneratedPath(relativePath) {
 
 function shouldReadFile(relativePath, absolutePath) {
   if (SOURCE_EXCLUDES.has(relativePath) || path.posix.basename(relativePath) === 'package-lock.json') return false;
+  if (MATERIALIZED_AGGREGATE_EXCLUDED_PREFIXES.some((prefix) => relativePath.startsWith(prefix))) return false;
   if (BINARY_EXTENSIONS.has(path.extname(relativePath).toLowerCase())) return false;
   let stat;
   try {
@@ -1711,6 +1719,7 @@ function createInventoryDocument(scan, existingInventory = null) {
       canonicalPrecedence: ['runtime-definition', 'public-declaration', 'package-metadata', 'test-or-fixture', 'documentation', 'generated-mirror'],
       generatedPathsAreCanonical: false,
       executesRepositoryModules: false,
+      materializedAggregateExcludedPrefixes: Array.from(MATERIALIZED_AGGREGATE_EXCLUDED_PREFIXES),
       selfExcludedPaths: [INVENTORY_PATH, INVENTORY_SUITE_PATH, SCANNER_PATH]
     },
     relatedRegistries: [
@@ -1870,6 +1879,7 @@ function validateInventoryDocument(inventory, scan, options = {}) {
   if (!scanPolicy || scanPolicy.source !== 'git-tracked-text-files'
     || scanPolicy.executesRepositoryModules !== false
     || scanPolicy.generatedPathsAreCanonical !== false
+    || !stableEqual(scanPolicy.materializedAggregateExcludedPrefixes, Array.from(MATERIALIZED_AGGREGATE_EXCLUDED_PREFIXES))
     || scanPolicy.versionedIdentifierPattern !== VERSIONED_IDENTIFIER_SOURCE) {
     errors.push(issue('invalid-scan-policy', 'scanPolicy must describe the static tracked-file scanner and generated-mirror boundary.'));
   }

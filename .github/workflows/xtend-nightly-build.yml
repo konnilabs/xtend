@@ -27,7 +27,7 @@ jobs:
   nightly-build:
     name: Nightly build artifact bundle (Node ${{ matrix.node_version }})
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     env:
       NPM_CONFIG_CACHE: .xtend-test-results/npm-cache
     strategy:
@@ -96,6 +96,13 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:release:full:report
+
+      - name: Run XTend MCP contract, security, parity, and evidence gates
+        id: xtend_mcp
+        continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run test:xtend-mcp:report
 
       - name: Run Feature Adoption Observatory gates
         id: feature_adoption_observatory
@@ -166,12 +173,13 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: |
-          npm pack --workspace xtendrmt --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtendrmt.json
-          npm pack --workspace fabric --dry-run --json > .xtend-test-results/xtend-pack-dry-run-fabric.json
-          npm pack --workspace tools --dry-run --json > .xtend-test-results/xtend-pack-dry-run-tools.json
-          npm pack --workspace xtend-builder --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
-          npm pack --workspace xtend-maraca --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
-          npm pack --workspace xsurface-shard --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
+          npm pack --workspace xtendrmt --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtendrmt.json
+          npm pack --workspace fabric --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-fabric.json
+          npm pack --workspace tools --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-tools.json
+          npm pack --workspace xtend-builder --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
+          npm pack --workspace xtend-maraca --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
+          npm pack --workspace @ccslabs/xtend-mcp --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtend-mcp.json
+          npm pack --workspace xsurface-shard --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
 
       - name: Run XTend Maraca gate report
         id: maraca
@@ -293,6 +301,7 @@ jobs:
             .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
             .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
             .xtend-test-results/xtend-release-gate-report.json
+            .xtend-test-results/xtend-mcp-gate-report.json
             .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-rmt-demos-report.json
             .xtend-test-results/xtend-rkfa-production-closure-report.json
@@ -308,6 +317,7 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run-tools.json
             .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
             .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
+            .xtend-test-results/xtend-pack-dry-run-xtend-mcp.json
             .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
             .xtend-test-results/xtend-maraca-gate-report.json
             .xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json
@@ -341,6 +351,7 @@ jobs:
           failed=0
           if [ "${{ steps.native_first_evidence_prepare.outcome }}" != "success" ]; then echo "Native-First evidence preparation failed"; failed=1; fi
           if [ "${{ steps.full_release.outcome }}" != "success" ]; then echo "full release gate failed"; failed=1; fi
+          if [ "${{ steps.xtend_mcp.outcome }}" != "success" ]; then echo "XTend MCP gate failed"; failed=1; fi
           if [ "${{ steps.feature_adoption_observatory.outcome }}" != "success" ]; then echo "Feature Adoption Observatory gate failed"; failed=1; fi
           if [ "${{ steps.rmt_reference_docs.outcome }}" != "success" ]; then echo "RMT Reference docs gate failed"; failed=1; fi
           if [ "${{ steps.rmt_demos.outcome }}" != "success" ]; then echo "XTendRMT demo structure gate failed"; failed=1; fi

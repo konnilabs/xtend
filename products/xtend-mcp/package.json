@@ -1,0 +1,66 @@
+{
+  "name": "@ccslabs/xtend-mcp",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Local-first MCP server for XTend documentation, XTendRMT knowledge and deterministic language tooling.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konnilabs/xtend.git",
+    "directory": "products/xtend-mcp"
+  },
+  "bin": {
+    "xtend-mcp": "./bin/xtend-mcp.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./src/server.mjs"
+    },
+    "./knowledge": {
+      "types": "./knowledge.d.ts",
+      "import": "./src/knowledge.mjs"
+    },
+    "./client": {
+      "types": "./client.d.ts",
+      "import": "./src/client.mjs"
+    },
+    "./transports": {
+      "types": "./transports.d.ts",
+      "import": "./src/transports.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin",
+    "generated",
+    "src",
+    "*.d.ts",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "build:knowledge": "node scripts/build-knowledge.mjs",
+    "check:knowledge": "node scripts/build-knowledge.mjs --check",
+    "test": "npm run check:knowledge && node --test tests/*.test.mjs",
+    "prepack": "node scripts/build-knowledge.mjs --check --quiet"
+  },
+  "dependencies": {
+    "@ccslabs/xtend-compiler": "0.6.1",
+    "@ccslabs/xtend-maraca": "0.6.1",
+    "@ccslabs/xtend-rmt": "0.6.1",
+    "@modelcontextprotocol/client": "2.0.0",
+    "@modelcontextprotocol/node": "2.0.0",
+    "@modelcontextprotocol/server": "2.0.0",
+    "zod": "^4.4.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "tag": "latest"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

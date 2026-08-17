@@ -32,7 +32,7 @@ jobs:
     name: PR fast gates (Node ${{ matrix.node_version }})
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -95,6 +95,12 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:pr:report
+
+      - name: Run XTend MCP contract, security, parity, and evidence gates
+        if: always()
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run test:xtend-mcp:report
 
       - name: Run Feature Adoption Observatory gates
         env:
@@ -213,6 +219,7 @@ jobs:
             .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
             .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
             .xtend-test-results/xtend-pr-gate-report.json
+            .xtend-test-results/xtend-mcp-gate-report.json
             .xtend-test-results/xtend-schema-inventory-report.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-dev-surface-report.json
@@ -238,7 +245,7 @@ jobs:
     name: Full release gates (Node ${{ matrix.node_version }})
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     strategy:
       fail-fast: false
       matrix:
@@ -301,6 +308,12 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:release:full:report
+
+      - name: Run XTend MCP contract, security, parity, and evidence gates
+        if: always()
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run test:xtend-mcp:report
 
       - name: Run Feature Adoption Observatory gates
         env:
@@ -419,6 +432,7 @@ jobs:
             .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
             .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
             .xtend-test-results/xtend-release-gate-report.json
+            .xtend-test-results/xtend-mcp-gate-report.json
             .xtend-test-results/xtend-schema-inventory-report.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-dev-surface-report.json
@@ -625,12 +639,13 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: |
-          npm pack --workspace xtendrmt --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtendrmt.json
-          npm pack --workspace fabric --dry-run --json > .xtend-test-results/xtend-pack-dry-run-fabric.json
-          npm pack --workspace tools --dry-run --json > .xtend-test-results/xtend-pack-dry-run-tools.json
-          npm pack --workspace xtend-builder --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
-          npm pack --workspace xtend-maraca --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
-          npm pack --workspace xsurface-shard --dry-run --json > .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
+          npm pack --workspace xtendrmt --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtendrmt.json
+          npm pack --workspace fabric --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-fabric.json
+          npm pack --workspace tools --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-tools.json
+          npm pack --workspace xtend-builder --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
+          npm pack --workspace xtend-maraca --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
+          npm pack --workspace @ccslabs/xtend-mcp --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtend-mcp.json
+          npm pack --workspace xsurface-shard --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
 
       - name: Upload package structure evidence
         if: always()
@@ -648,6 +663,7 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run-tools.json
             .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
             .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
+            .xtend-test-results/xtend-pack-dry-run-xtend-mcp.json
             .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
           if-no-files-found: warn
 
@@ -814,6 +830,65 @@ jobs:
             .xtend-test-results/xtend-node-native-toolchain-smoke.json
           if-no-files-found: error
 
+  xtend-mcp-vscode-smoke:
+    name: XTend MCP VSIX smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Node.js 24.18.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane node-24-lts
+
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane node-24-lts
+
+      - name: Install workspace dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
+      - name: Build hash-checked VSIX
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run build:rmt-editor:vscode
+
+      - name: Start bundled read-only and write-opt-in servers
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run test:xtend-mcp-vsix-smoke
+
+      - name: Upload VSIX smoke artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: xtend-mcp-vsix-${{ matrix.os }}
+          path: |
+            tools/rmt-editor/vscode/xtend-rmt-language-0.1.0-rc.1.vsix
+            .xtend-test-results/runtime/xtend-node-runtime-node-24-lts.json
+            .xtend-test-results/runtime/xtend-node-warnings-node-24-lts.jsonl
+            .xtend-test-results/xtend-mcp-vsix-smoke.json
+          if-no-files-found: error
+
   npm-publish-latest:
     name: Publish npm latest with provenance (Node 24.18.0)
     if: github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true
@@ -823,8 +898,9 @@ jobs:
       - package-structure
       - conditional-network-evidence
       - node-native-toolchain-smoke
+      - xtend-mcp-vscode-smoke
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     permissions:
       contents: read
       id-token: write
@@ -882,6 +958,7 @@ jobs:
           npm run test:rmt-vnext-primitives:report
           npm run test:native-first-rmt-owned-release:report
           npm run test:rkfa-production-closure:report
+          npm run test:xtend-mcp:report
           npm run release:report
           npm run pack:dry-run
           npm run conditional-network:evidence
@@ -890,13 +967,33 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --dry-run --tag latest --access public
+        run: |
+          npm publish --dry-run --workspace @ccslabs/xtend-rmt --tag latest --access public
+          npm publish --dry-run --workspace @ccslabs/xtend-compiler --tag latest --access public
+          npm publish --dry-run --workspace @ccslabs/xtend-maraca --tag latest --access public
+          npm publish --dry-run --workspace @ccslabs/xtend-mcp --tag latest --access public
+          npm publish --dry-run --tag latest --access public
+
+      - name: Publish XTend MCP runtime dependency train
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish --workspace @ccslabs/xtend-rmt --tag latest --provenance --access public
+          npm publish --workspace @ccslabs/xtend-compiler --tag latest --provenance --access public
+          npm publish --workspace @ccslabs/xtend-maraca --tag latest --provenance --access public
 
       - name: Publish root package to npm latest
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --tag latest --provenance --access public
+
+      - name: Publish XTend MCP 0.1 to npm latest
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --workspace @ccslabs/xtend-mcp --tag latest --provenance --access public
 
       - name: Upload npm publish evidence
         if: always()
@@ -907,6 +1004,7 @@ jobs:
             .xtend-test-results/runtime/xtend-node-runtime-node-24-publish.json
             .xtend-test-results/runtime/xtend-node-warnings-node-24-publish.jsonl
             .xtend-test-results/xtend-release-gate-report.json
+            .xtend-test-results/xtend-mcp-gate-report.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
             .xtend-test-results/xtend-native-first-rmt-owned-release-report.json

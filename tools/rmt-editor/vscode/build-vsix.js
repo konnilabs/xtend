@@ -3,6 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 
 const EXTENSION_DIR = __dirname;
@@ -11,6 +12,7 @@ const BUILD_ROOT = path.join(EXTENSION_DIR, '.xtend-test-results', 'vscode-vsix-
 const STAGE_DIR = path.join(BUILD_ROOT, 'stage');
 const EXTENSION_STAGE_DIR = path.join(STAGE_DIR, 'extension');
 const LEGACY_DEPENDENCY_VSIX = path.join(EXTENSION_DIR, 'xtend-rmt-language-0.0.0-enterprise-readiness.vsix');
+const EXPECTED_MCP_VERSION = '0.1.0';
 
 const FILES_TO_STAGE = [
   'extension.js',
@@ -31,6 +33,12 @@ const REPO_DIRECTORIES_TO_STAGE = [
   'tools/rmt-language-server',
   'tools/rmt-language'
 ];
+
+const MCP_LOCAL_PACKAGES = new Map([
+  ['@ccslabs/xtend-compiler', 'tools'],
+  ['@ccslabs/xtend-maraca', 'xtend-maraca'],
+  ['@ccslabs/xtend-rmt', 'xtendrmt']
+]);
 
 function xmlEscape(value) {
   return String(value == null ? '' : value)
@@ -67,6 +75,81 @@ function copyRepoDir(relativePath) {
     return;
   }
   fs.cpSync(source, target, { recursive: true });
+}
+
+function packageTarget(root, packageName) {
+  return path.join(root, 'node_modules', ...packageName.split('/'));
+}
+
+function packageSource(packageName) {
+  const localSource = MCP_LOCAL_PACKAGES.get(packageName);
+  return localSource
+    ? path.join(REPO_ROOT, localSource)
+    : path.join(REPO_ROOT, 'node_modules', ...packageName.split('/'));
+}
+
+function copyPublishedPackage(sourceRoot, targetRoot) {
+  const pkg = JSON.parse(fs.readFileSync(path.join(sourceRoot, 'package.json'), 'utf8'));
+  const declaredEntries = Array.isArray(pkg.files) && pkg.files.length > 0
+    ? [...pkg.files, 'package.json']
+    : fs.readdirSync(sourceRoot).filter((entry) => entry !== 'node_modules');
+  const entries = declaredEntries.flatMap((entry) => {
+    if (entry === '*.d.ts') return fs.readdirSync(sourceRoot).filter((fileName) => fileName.endsWith('.d.ts'));
+    return [entry];
+  });
+  ensureDir(targetRoot);
+  new Set(entries).forEach((entry) => {
+    const source = path.join(sourceRoot, entry);
+    if (!fs.existsSync(source)) return;
+    const target = path.join(targetRoot, entry);
+    ensureDir(path.dirname(target));
+    fs.cpSync(source, target, { recursive: true });
+  });
+  return pkg;
+}
+
+function stageRuntimePackage(packageName, seen = new Set()) {
+  if (seen.has(packageName)) return;
+  seen.add(packageName);
+  const sourceRoot = packageSource(packageName);
+  if (!fs.existsSync(path.join(sourceRoot, 'package.json'))) {
+    throw new Error(`Missing installed MCP runtime dependency: ${packageName}`);
+  }
+  const targetRoot = packageTarget(EXTENSION_STAGE_DIR, packageName);
+  ensureDir(path.dirname(targetRoot));
+  fs.rmSync(targetRoot, { recursive: true, force: true });
+  const pkg = MCP_LOCAL_PACKAGES.has(packageName)
+    ? copyPublishedPackage(sourceRoot, targetRoot)
+    : (fs.cpSync(sourceRoot, targetRoot, { recursive: true }), JSON.parse(fs.readFileSync(path.join(sourceRoot, 'package.json'), 'utf8')));
+  Object.keys({ ...(pkg.dependencies || {}), ...(pkg.optionalDependencies || {}) })
+    .filter((dependency) => fs.existsSync(path.join(packageSource(dependency), 'package.json')))
+    .forEach((dependency) => stageRuntimePackage(dependency, seen));
+}
+
+function stageMcpPackage() {
+  const sourceRoot = path.join(REPO_ROOT, 'products', 'xtend-mcp');
+  const targetRoot = path.join(EXTENSION_STAGE_DIR, 'products', 'xtend-mcp');
+  const pkg = copyPublishedPackage(sourceRoot, targetRoot);
+  if (pkg.version !== EXPECTED_MCP_VERSION) {
+    throw new Error(`VSIX expects XTend MCP ${EXPECTED_MCP_VERSION}, found ${pkg.version}.`);
+  }
+  const seen = new Set();
+  Object.keys(pkg.dependencies || {}).forEach((dependency) => stageRuntimePackage(dependency, seen));
+  const manifest = fs.readFileSync(path.join(targetRoot, 'generated', 'knowledge-manifest.json'));
+  const parsedManifest = JSON.parse(manifest.toString('utf8'));
+  if (parsedManifest.version !== pkg.version) {
+    throw new Error(`XTend MCP package/knowledge version mismatch: ${pkg.version} versus ${parsedManifest.version}.`);
+  }
+  const docsArtifact = fs.readFileSync(path.join(targetRoot, 'generated', parsedManifest.docs.artifact));
+  const docsArtifactSha256 = crypto.createHash('sha256').update(docsArtifact).digest('hex');
+  if (docsArtifactSha256 !== parsedManifest.docs.artifactSha256) {
+    throw new Error('XTend MCP packaged docs artifact hash does not match its knowledge manifest.');
+  }
+  return {
+    version: pkg.version,
+    knowledgeManifestSha256: crypto.createHash('sha256').update(manifest).digest('hex'),
+    docsArtifactSha256
+  };
 }
 
 function readPackage() {
@@ -131,10 +214,19 @@ function stageDependencyTree() {
     return false;
   }
 
-  execFileSync('unzip', ['-q', LEGACY_DEPENDENCY_VSIX, 'extension/node_modules/*', '-d', STAGE_DIR], {
-    cwd: EXTENSION_DIR,
-    stdio: 'pipe'
-  });
+  if (process.platform === 'win32') {
+    const legacyStage = path.join(BUILD_ROOT, 'legacy-vsix');
+    ensureDir(legacyStage);
+    execFileSync('tar', ['-xf', LEGACY_DEPENDENCY_VSIX, '-C', legacyStage], { cwd: EXTENSION_DIR, stdio: 'pipe' });
+    const source = path.join(legacyStage, 'extension', 'node_modules');
+    if (fs.existsSync(source)) fs.cpSync(source, path.join(EXTENSION_STAGE_DIR, 'node_modules'), { recursive: true });
+    fs.rmSync(legacyStage, { recursive: true, force: true });
+  } else {
+    execFileSync('unzip', ['-q', LEGACY_DEPENDENCY_VSIX, 'extension/node_modules/*', '-d', STAGE_DIR], {
+      cwd: EXTENSION_DIR,
+      stdio: 'pipe'
+    });
+  }
   return fs.existsSync(path.join(EXTENSION_STAGE_DIR, 'node_modules', 'vscode-languageclient'));
 }
 
@@ -146,20 +238,28 @@ function stageExtension() {
   FILES_TO_STAGE.forEach(copyFile);
   DIRECTORIES_TO_STAGE.forEach(copyDir);
   REPO_DIRECTORIES_TO_STAGE.forEach(copyRepoDir);
+  const mcpPackage = stageMcpPackage();
 
   const pkg = readPackage();
   fs.writeFileSync(path.join(STAGE_DIR, 'extension.vsixmanifest'), manifestXml(pkg));
   fs.writeFileSync(path.join(STAGE_DIR, '[Content_Types].xml'), contentTypesXml());
 
-  return { pkg, dependencyTreeStaged };
+  return { pkg, dependencyTreeStaged, mcpPackage };
 }
 
 function packageVsix(outputPath) {
   fs.rmSync(outputPath, { force: true });
-  execFileSync('zip', ['-qr', outputPath, 'extension', 'extension.vsixmanifest', '[Content_Types].xml'], {
-    cwd: STAGE_DIR,
-    stdio: 'pipe'
-  });
+  if (process.platform === 'win32') {
+    const zipPath = `${outputPath}.zip`;
+    fs.rmSync(zipPath, { force: true });
+    execFileSync('tar', ['-a', '-cf', zipPath, 'extension', 'extension.vsixmanifest', '[Content_Types].xml'], { cwd: STAGE_DIR, stdio: 'pipe' });
+    fs.renameSync(zipPath, outputPath);
+  } else {
+    execFileSync('zip', ['-qr', outputPath, 'extension', 'extension.vsixmanifest', '[Content_Types].xml'], {
+      cwd: STAGE_DIR,
+      stdio: 'pipe'
+    });
+  }
 }
 
 function main() {
@@ -182,6 +282,7 @@ function main() {
     output: path.relative(EXTENSION_DIR, outputPath),
     bytes: stat.size,
     dependencyTreeStaged: result.dependencyTreeStaged,
+    mcpPackage: result.mcpPackage,
     networkRequired: false
   }, null, 2)}\n`);
 }

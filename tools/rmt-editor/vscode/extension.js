@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 const { pathToFileURL } = require('url');
 
 const RMT_VSCODE_BRIDGE_SCHEMA = 'xtend.rmt.editor.vscode-bridge.v1';
@@ -14,6 +15,9 @@ const DEFAULT_WORKSPACE_SERVER_RELATIVE_PATH = 'tools/rmt-language-server/server
 const DEFAULT_LANGUAGE_SERVER_ARGS = Object.freeze([]);
 const PACKAGED_SERVER_RELATIVE_PATH = 'tools/rmt-language-server/server.js';
 const DEVELOPMENT_SERVER_RELATIVE_PATH = '../../rmt-language-server/server.js';
+const XTEND_MCP_PROVIDER_ID = 'xtend.mcp';
+const PACKAGED_MCP_SERVER_RELATIVE_PATH = 'products/xtend-mcp/bin/xtend-mcp.mjs';
+const DEVELOPMENT_MCP_SERVER_RELATIVE_PATH = '../../../products/xtend-mcp/bin/xtend-mcp.mjs';
 const DEFAULT_XTEND_CLI_RELATIVE_PATH = '../../../xtend-builder/scaffold.js';
 const DEFAULT_XTEND_CLI_ARGS = Object.freeze(['${workspaceFolder}/xtend-builder/scaffold.js']);
 const TASKS_TEMPLATE_RELATIVE_PATH = 'templates/tasks.json';
@@ -72,6 +76,128 @@ function createServerCommand(context = {}, options = {}) {
     sourceOfTruth: 'tools/rmt-language-server/server.js',
     networkRequired: false,
     kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
+  };
+}
+
+function resolveXtendMcpServerModule(context = {}, options = {}) {
+  if (options.serverModule) return path.resolve(options.serverModule);
+  const extensionPath = context.extensionPath || __dirname;
+  const packaged = path.resolve(extensionPath, PACKAGED_MCP_SERVER_RELATIVE_PATH);
+  const development = path.resolve(extensionPath, DEVELOPMENT_MCP_SERVER_RELATIVE_PATH);
+  return [packaged, development].find((candidate) => pathExists(candidate, options)) || development;
+}
+
+function getXtendMcpConfigurationValue(vscodeApi, key, fallback) {
+  const configuration = vscodeApi && vscodeApi.workspace && typeof vscodeApi.workspace.getConfiguration === 'function'
+    ? vscodeApi.workspace.getConfiguration('xtend')
+    : null;
+  const configured = configuration && typeof configuration.get === 'function' ? configuration.get(key) : undefined;
+  return configured === undefined || configured === null ? fallback : configured;
+}
+
+function createXtendMcpServerDefinitionConfig(vscodeApi, context = {}, options = {}) {
+  const folders = toArray(options.workspaceFolders || (vscodeApi && vscodeApi.workspace && vscodeApi.workspace.workspaceFolders));
+  const roots = folders.map(normalizeWorkspaceFolderPath).filter(Boolean);
+  const cwd = roots[0] || process.cwd();
+  const command = options.nodePath || getXtendMcpConfigurationValue(vscodeApi, 'mcp.nodePath', '') || process.execPath;
+  const electronNodeMode = options.electronNodeMode !== undefined
+    ? options.electronNodeMode === true
+    : command === process.execPath && Boolean(process.versions && process.versions.electron);
+  const env = electronNodeMode ? { ELECTRON_RUN_AS_NODE: '1' } : {};
+  const allowWorkspaceWrite = options.allowWorkspaceWrite !== undefined
+    ? options.allowWorkspaceWrite
+    : getXtendMcpConfigurationValue(vscodeApi, 'mcp.allowWorkspaceWrites', false) === true;
+  const args = [resolveXtendMcpServerModule(context, options), 'stdio'];
+  roots.forEach((root) => args.push('--workspace', root));
+  if (allowWorkspaceWrite) args.push('--allow-workspace-write');
+  return {
+    schema: 'xtend.rmt.editor.vscode-mcp-definition.v1',
+    providerId: XTEND_MCP_PROVIDER_ID,
+    label: 'XTend MCP',
+    command,
+    args,
+    env,
+    cwd,
+    version: '0.1.0',
+    workspaceRoots: roots,
+    workspaceWrites: allowWorkspaceWrite,
+    sourceOfTruth: '@ccslabs/xtend-mcp'
+  };
+}
+
+function probeXtendMcpNode(command, options = {}) {
+  const probe = (options.spawnSync || spawnSync)(command, ['--version'], {
+    cwd: options.cwd || process.cwd(),
+    env: { ...process.env, ...(options.env || {}) },
+    encoding: 'utf8',
+    timeout: 5000,
+    windowsHide: true
+  });
+  const versionText = `${probe.stdout || ''} ${probe.stderr || ''}`.trim();
+  const match = versionText.match(/v?(\d+)(?:\.\d+){0,2}/u);
+  const major = match ? Number(match[1]) : 0;
+  return {
+    schema: 'xtend.rmt.editor.vscode-mcp-node-probe.v1',
+    ok: probe.status === 0 && major >= 24,
+    status: probe.status,
+    version: match ? match[0] : '',
+    major,
+    command,
+    error: probe.error ? probe.error.message : null
+  };
+}
+
+function registerXtendMcpServerDefinitionProvider(vscodeApi, context = {}, output = null, options = {}) {
+  if (!vscodeApi || !vscodeApi.lm || typeof vscodeApi.lm.registerMcpServerDefinitionProvider !== 'function'
+    || typeof vscodeApi.McpStdioServerDefinition !== 'function') {
+    if (output && typeof output.appendLine === 'function') output.appendLine('XTend MCP requires a VS Code release with the stable MCP extension API.');
+    return null;
+  }
+  const emitter = typeof vscodeApi.EventEmitter === 'function' ? new vscodeApi.EventEmitter() : { event: undefined, fire() {}, dispose() {} };
+  const enabled = () => getXtendMcpConfigurationValue(vscodeApi, 'mcp.enabled', true) !== false;
+  const provider = {
+    onDidChangeMcpServerDefinitions: emitter.event,
+    provideMcpServerDefinitions: async () => {
+      if (!enabled()) return [];
+      const definition = createXtendMcpServerDefinitionConfig(vscodeApi, context, options);
+      return [new vscodeApi.McpStdioServerDefinition({
+        label: definition.label,
+        command: definition.command,
+        args: definition.args,
+        cwd: vscodeApi.Uri.file(definition.cwd),
+        env: definition.env,
+        version: definition.version
+      })];
+    },
+    resolveMcpServerDefinition: async (server) => {
+      const definition = createXtendMcpServerDefinitionConfig(vscodeApi, context, options);
+      const probe = probeXtendMcpNode(definition.command, { cwd: definition.cwd, env: definition.env, spawnSync: options.spawnSync });
+      if (!probe.ok) {
+        const message = `XTend MCP requires Node.js >=24. Configure xtend.mcp.nodePath; current probe: ${probe.version || probe.error || 'unavailable'}.`;
+        if (output && typeof output.appendLine === 'function') output.appendLine(message);
+        if (vscodeApi.window && typeof vscodeApi.window.showErrorMessage === 'function') vscodeApi.window.showErrorMessage(message);
+        return undefined;
+      }
+      return server;
+    }
+  };
+  const registration = vscodeApi.lm.registerMcpServerDefinitionProvider(XTEND_MCP_PROVIDER_ID, provider);
+  const configListener = vscodeApi.workspace && typeof vscodeApi.workspace.onDidChangeConfiguration === 'function'
+    ? vscodeApi.workspace.onDidChangeConfiguration((event) => {
+      if (!event || typeof event.affectsConfiguration !== 'function' || event.affectsConfiguration('xtend.mcp')) emitter.fire();
+    })
+    : null;
+  return {
+    schema: 'xtend.rmt.editor.vscode-mcp-provider.v1',
+    ok: true,
+    provider,
+    registration,
+    emitter,
+    dispose() {
+      if (configListener && typeof configListener.dispose === 'function') configListener.dispose();
+      if (registration && typeof registration.dispose === 'function') registration.dispose();
+      if (emitter && typeof emitter.dispose === 'function') emitter.dispose();
+    }
   };
 }
 
@@ -1704,6 +1830,7 @@ function executePrimitiveCommandHandoff(action = {}, context = {}, options = {})
 function activate(context) {
   const vscode = require('vscode');
   const output = vscode.window.createOutputChannel('XTendRMT');
+  const mcpProviderState = registerXtendMcpServerDefinitionProvider(vscode, context, output);
   const serverInvocation = resolveLanguageServerInvocation(vscode, context);
   const serverCommand = createServerCommand(context, serverInvocation);
   let languageClientState = startLanguageClient(vscode, context, output, serverInvocation);
@@ -1841,12 +1968,16 @@ function activate(context) {
   if (taskProviderDisposable) {
     context.subscriptions.push(taskProviderDisposable);
   }
+  if (mcpProviderState) {
+    context.subscriptions.push(mcpProviderState);
+  }
   return {
     ...serverCommand,
     languageClient: languageClientState.status,
     dxSchema: RMT_VSCODE_DX_SCHEMA,
     taskSchema: RMT_VSCODE_TASKS_SCHEMA,
-    launchSchema: RMT_VSCODE_LAUNCH_SCHEMA
+    launchSchema: RMT_VSCODE_LAUNCH_SCHEMA,
+    mcpProvider: mcpProviderState ? 'registered' : 'unsupported-vscode-api'
   };
 }
 
@@ -1855,6 +1986,7 @@ function deactivate() {
 }
 
 module.exports = {
+  XTEND_MCP_PROVIDER_ID,
   RMT_VSCODE_PRIMITIVE_AUTHORING_COMMANDS,
   RMT_VSCODE_PRIMITIVE_AUTHORING_EXPERIENCE_SCHEMA,
   RMT_VSCODE_DX_COMMANDS,
@@ -1868,6 +2000,7 @@ module.exports = {
   applyPrimitiveAuthoringWorkspaceEdit,
   createActiveDocumentPrimitiveAuthoringExperience,
   createRuntimeLanguageClientServerOptions,
+  createXtendMcpServerDefinitionConfig,
   createTerminalCommandLine,
   createXtendCliCandidates,
   createXtendCliWorkflowDefinitions,
@@ -1882,11 +2015,14 @@ module.exports = {
   executePrimitiveCommandHandoff,
   openXtendCliTerminal,
   openVsCodeTemplate,
+  probeXtendMcpNode,
+  registerXtendMcpServerDefinitionProvider,
   renderPrimitiveAuthoringApplyExperience,
   requestPrimitiveCodeActionsForDocument,
   resolveDebugConfiguration,
   resolveLanguageServerInvocation,
   resolveServerModule,
+  resolveXtendMcpServerModule,
   resolveXtendCliInvocation,
   runXtendCliInTerminal,
   runXtendRmtTask,

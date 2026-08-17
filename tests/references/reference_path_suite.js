@@ -7126,6 +7126,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   const nightlyGate = (gateMatrix && gateMatrix.nightlyGate) || {};
   const nightlyBuild = (gateMatrix && gateMatrix.nightlyBuild) || {};
   const packageStructureGate = (gateMatrix && gateMatrix.packageStructureGate) || {};
+  const xtendMcpGate = (gateMatrix && gateMatrix.xtendMcpGate) || {};
   const xtensionsFrameworkAdapterGate = (gateMatrix && gateMatrix.xtensionsFrameworkAdapterGate) || {};
   const devSurfaceGate = (gateMatrix && gateMatrix.devSurfaceGate) || {};
   const docsFrameworkOwnershipGate = (gateMatrix && gateMatrix.docsFrameworkOwnershipGate) || {};
@@ -7157,6 +7158,10 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'npm run test:docs-quality:report', 'CI workflow runs blocking public docs quality report');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-docs-quality-report.json', 'CI workflow uploads public docs quality report');
   context.assertIncludes(workflow, 'npm run test:release:full:report', 'CI workflow runs full release report gate');
+  context.assert((workflow.match(/npm run test:xtend-mcp:report/gu) || []).length === 3, 'CI workflow runs report-producing MCP gates for PR, release, and publish jobs');
+  context.assertIncludes(workflow, '.xtend-test-results/xtend-mcp-gate-report.json', 'CI workflow uploads MCP gate evidence');
+  context.assertIncludes(workflow, 'xtend-mcp-vscode-smoke:', 'CI workflow declares cross-platform MCP VSIX smoke job');
+  context.assertIncludes(workflow, '.xtend-test-results/xtend-mcp-vsix-smoke.json', 'CI workflow uploads MCP VSIX smoke evidence');
   context.assertIncludes(workflow, 'npm run test:xtensions-framework-adapters:report', 'CI workflow runs XTensions framework adapter report gate');
   context.assertIncludes(workflow, 'npm run test:xtend-dev-surface:report', 'CI workflow runs XTend Dev Surface report gate');
   context.assert((workflow.match(/npm run test:docs-framework-ownership:report/gu) || []).length === 2, 'CI workflow runs the standalone Docs framework ownership report for PR and release jobs');
@@ -7191,6 +7196,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'xtend-rmt-vnext-source-to-sea-evidence-${{ matrix.artifact_suffix }}', 'CI workflow uses the per-runtime RMT vNext source-to-sea artifact pattern');
   context.assertIncludes(workflow, 'package-structure:', 'CI workflow declares package structure job');
   context.assertIncludes(workflow, 'npm run pack:dry-run', 'CI workflow runs package dry run');
+  context.assertIncludes(workflow, 'npm pack --workspace @ccslabs/xtend-mcp --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtend-mcp.json', 'CI workflow writes machine-readable MCP package dry-run evidence');
   context.assertIncludes(workflow, 'npm publish --dry-run --tag latest --access public', 'CI publish job runs npm publish dry run with latest tag');
   context.assertIncludes(workflow, 'xtend-package-structure-${{ matrix.artifact_suffix }}', 'CI workflow uploads per-runtime package structure artifacts');
   context.assertIncludes(workflow, 'npm-publish-latest:', 'CI workflow declares manual npm publish job');
@@ -7223,6 +7229,10 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(nightlyWorkflow, '.xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json', 'Nightly workflow uploads per-lane runtime evidence');
   context.assertIncludes(nightlyWorkflow, 'npm run native-first:evidence:prepare', 'Nightly workflow prepares Native-First release evidence');
   context.assertIncludes(nightlyWorkflow, 'npm run test:release:full:report', 'Nightly workflow runs full release gate report');
+  context.assertIncludes(nightlyWorkflow, 'npm run test:xtend-mcp:report', 'Nightly workflow runs the report-producing MCP gate');
+  context.assertIncludes(nightlyWorkflow, '.xtend-test-results/xtend-mcp-gate-report.json', 'Nightly workflow uploads MCP gate evidence');
+  context.assertIncludes(nightlyWorkflow, 'XTend MCP gate failed', 'Nightly workflow fails closed when the MCP gate fails');
+  context.assertIncludes(nightlyWorkflow, 'npm pack --workspace @ccslabs/xtend-mcp --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtend-mcp.json', 'Nightly workflow writes machine-readable MCP package dry-run evidence');
   context.assertIncludes(nightlyWorkflow, 'npm run test:rmt-demos:report', 'Nightly workflow runs the RMT demo structure report');
   context.assertIncludes(nightlyWorkflow, 'npm run test:rmt-vnext-primitives:report', 'Nightly workflow runs RMT vNext primitive report');
   context.assertIncludes(nightlyWorkflow, 'npm run test:native-first-rmt-owned-release:report', 'Nightly workflow runs Native-First RMT Owned release report');
@@ -7250,6 +7260,8 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(nightlyWorkflow, 'Docs framework ownership gate failed', 'Nightly workflow fails on missing Docs framework ownership evidence');
   context.assertIncludes(nightlyWorkflow, 'if [ "${{ steps.docs_stub_inventory.outcome }}" != "success" ]; then echo "docs stub inventory gate failed"; failed=1; fi', 'Nightly workflow treats the required docs stub inventory as a blocking gate');
   context.assertIncludes(nightlyManifestScript, "'npm run native-first:evidence:prepare'", 'Nightly manifest tracks Native-First evidence preparation');
+  context.assertIncludes(nightlyManifestScript, "'npm run test:xtend-mcp:report'", 'Nightly manifest tracks the MCP gate command');
+  context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-mcp-gate-report.json'", 'Nightly manifest requires MCP gate evidence');
   context.assertIncludes(nightlyManifestScript, "'npm run test:rmt-demos:report'", 'Nightly manifest tracks the RMT demo structure command');
   context.assertIncludes(nightlyManifestScript, "'npm run test:xtend-dev-surface:report'", 'Nightly manifest tracks XTend Dev Surface command');
   context.assertIncludes(nightlyManifestScript, "'npm run test:docs-quality:report'", 'Nightly manifest tracks public docs quality command');
@@ -7264,6 +7276,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(requiredArtifactsSource, "'.xtend-test-results/xtend-package-export-surface-lock.json'", 'Nightly manifest requires package export surface evidence');
   context.assertIncludes(requiredArtifactsSource, "'.xtend-test-results/xtend-package-export-lock-report.json'", 'Nightly manifest requires package export lock evidence');
   context.assertIncludes(requiredArtifactsSource, "'.xtend-test-results/xtend-pack-dry-run-xtendrmt.json'", 'Nightly manifest requires workspace package dry-run evidence');
+  context.assertIncludes(requiredArtifactsSource, "'.xtend-test-results/xtend-pack-dry-run-xtend-mcp.json'", 'Nightly manifest requires MCP package dry-run evidence');
   context.assertIncludes(requiredArtifactsSource, "'.xtend-build/maraca/source-to-sea/xtend.maraca.report.json'", 'Nightly manifest requires Maraca bundle report evidence');
   context.assertIncludes(requiredArtifactsSource, "'.xtend-build/maraca/source-to-sea/xtend.maraca.size.json'", 'Nightly manifest requires Maraca size report evidence');
   context.assert(trackedArtifactPaths.length > 0 && trackedArtifactPaths.every((artifactPath) => requiredArtifactPaths.includes(artifactPath)), 'Every tracked artifact from a blocking nightly command is classified as required');
@@ -7299,6 +7312,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(prFastGate.reportPath === '.xtend-test-results/xtend-pr-gate-report.json', 'Package metadata exposes PR fast report path');
   context.assert(prFastGate.artifactName === 'xtend-pr-gate-report-{artifactSuffix}', 'Package metadata exposes the per-runtime PR fast artifact pattern');
   context.assert(Array.isArray(prFastGate.additionalReportPaths) && prFastGate.additionalReportPaths.includes('.xtend-test-results/xtend-xtensions-framework-adapters-report.json'), 'PR fast gate exposes XTensions framework adapter report path');
+  context.assert(Array.isArray(prFastGate.additionalReportPaths) && prFastGate.additionalReportPaths.includes('.xtend-test-results/xtend-mcp-gate-report.json'), 'PR fast gate exposes MCP report path');
   context.assert(Array.isArray(prFastGate.additionalReportPaths) && prFastGate.additionalReportPaths.includes('.xtend-test-results/xtend-dev-surface-report.json'), 'PR fast gate exposes XTend Dev Surface report path');
   context.assert(Array.isArray(prFastGate.additionalReportPaths) && prFastGate.additionalReportPaths.includes('.xtend-test-results/xtend-docs-quality-report.json'), 'PR fast gate exposes public docs quality report path');
   context.assert(Array.isArray(prFastGate.additionalReportPaths) && prFastGate.additionalReportPaths.includes('.xtend-test-results/xtend-docs-framework-ownership-report.json'), 'PR fast gate exposes Docs framework ownership report path');
@@ -7347,6 +7361,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(fullReleaseGate.reportPath === '.xtend-test-results/xtend-release-gate-report.json', 'Package metadata exposes full release report path');
   context.assert(fullReleaseGate.artifactName === 'xtend-release-gate-report-{artifactSuffix}', 'Package metadata exposes the per-runtime full release artifact pattern');
   context.assert(Array.isArray(fullReleaseGate.additionalReportPaths) && fullReleaseGate.additionalReportPaths.includes('.xtend-test-results/xtend-xtensions-framework-adapters-report.json'), 'Full release gate exposes XTensions framework adapter report path');
+  context.assert(Array.isArray(fullReleaseGate.additionalReportPaths) && fullReleaseGate.additionalReportPaths.includes('.xtend-test-results/xtend-mcp-gate-report.json'), 'Full release gate exposes MCP report path');
   context.assert(Array.isArray(fullReleaseGate.additionalReportPaths) && fullReleaseGate.additionalReportPaths.includes('.xtend-test-results/xtend-dev-surface-report.json'), 'Full release gate exposes XTend Dev Surface report path');
   context.assert(Array.isArray(fullReleaseGate.additionalReportPaths) && fullReleaseGate.additionalReportPaths.includes('.xtend-test-results/xtend-docs-framework-ownership-report.json'), 'Full release gate exposes Docs framework ownership report path');
   context.assert(Array.isArray(fullReleaseGate.suites) && fullReleaseGate.suites.includes('rmt-tooling-docs'), 'Full release gate includes RMT tooling docs');
@@ -7365,6 +7380,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(Array.isArray(nightlyBuild.nodeVersions) && nightlyBuild.nodeVersions.join(',') === '24.18.0,26.5.0', 'Package metadata exposes both required nightly Node versions');
   context.assert(Array.isArray(nightlyBuild.commandSet) && JSON.stringify(nightlyBuild.commandSet) === JSON.stringify(nightlyWorkflowCommandSet), 'Package metadata lists nightly commands in exact workflow order');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run native-first:evidence:prepare'), 'Package metadata includes Native-First evidence preparation in nightly build');
+  context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:xtend-mcp:report'), 'Package metadata includes the MCP report gate in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:rmt-demos:report'), 'Package metadata includes the RMT demo structure command in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:rmt-vnext-primitives:report'), 'Package metadata includes RMT vNext primitive command in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:native-first-rmt-owned-release:report'), 'Package metadata includes Native-First RMT Owned release command in nightly build');
@@ -7374,7 +7390,8 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:docs-shell-catfooding:report'), 'Package metadata includes Docs Shell catfooding command in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:docs-framework-ownership:report'), 'Package metadata includes Docs framework ownership command in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run release:report'), 'Package metadata includes release report command in nightly build');
-  context.assert(Array.isArray(nightlyBuild.workspaceDryRunCommands) && nightlyBuild.workspaceDryRunCommands.includes('npm pack --workspace xtendrmt --dry-run --json'), 'Package metadata includes workspace dry-run commands in nightly build');
+  context.assert(Array.isArray(nightlyBuild.workspaceDryRunCommands) && nightlyBuild.workspaceDryRunCommands.includes('npm pack --workspace xtendrmt --dry-run --json --silent'), 'Package metadata includes machine-readable workspace dry-run commands in nightly build');
+  context.assert(Array.isArray(nightlyBuild.workspaceDryRunCommands) && nightlyBuild.workspaceDryRunCommands.includes('npm pack --workspace @ccslabs/xtend-mcp --dry-run --json --silent'), 'Package metadata includes the machine-readable MCP workspace dry-run command');
   context.assert(nightlyBuild.manifestCommand === 'npm run nightly:manifest', 'Package metadata exposes nightly build manifest command');
   context.assert(nightlyBuild.manifestPath === '.xtend-test-results/xtend-nightly-build-manifest.json', 'Package metadata exposes nightly build manifest path');
   context.assert(nightlyBuild.artifactName === 'xtend-nightly-build-{artifactSuffix}', 'Package metadata exposes the per-runtime nightly build artifact pattern');
@@ -7440,6 +7457,12 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(packageStructureGate.command === 'npm run pack:dry-run', 'Package metadata exposes package structure pack command');
   context.assert(packageStructureGate.publishDryRunDelegatedTo === 'npm-publish-latest', 'Package metadata delegates publish dry-run to npm publish job');
   context.assert(packageStructureGate.artifactName === 'xtend-package-structure-{artifactSuffix}', 'Package metadata exposes the per-runtime package structure artifact pattern');
+  context.assert(Array.isArray(packageStructureGate.workspacePackages) && packageStructureGate.workspacePackages.includes('@ccslabs/xtend-mcp'), 'Package structure metadata includes the MCP package');
+  context.assert(xtendMcpGate.schema === 'xtend.ci.mcp-gate.v1', 'Package metadata exposes the MCP gate schema');
+  context.assert(xtendMcpGate.command === 'npm run test:xtend-mcp:report', 'Package metadata exposes the MCP report command');
+  context.assert(xtendMcpGate.reportPath === '.xtend-test-results/xtend-mcp-gate-report.json', 'Package metadata exposes the MCP report path');
+  context.assert(xtendMcpGate.workflow === workflowPath && xtendMcpGate.nightlyWorkflow === nightlyWorkflowPath, 'Package metadata connects MCP to default and nightly workflows');
+  context.assert(xtendMcpGate.vsixSmokeJob === 'xtend-mcp-vscode-smoke', 'Package metadata exposes the MCP VSIX smoke job');
   context.assert(npmPublishLatest && npmPublishLatest.schema === 'xtend.npm.publish-latest.github-actions.v1', 'Package metadata exposes npm publish-latest schema');
   context.assert(npmPublishLatest.workflow === workflowPath, 'Package metadata exposes npm publish workflow path');
   context.assert(npmPublishLatest.job === 'npm-publish-latest', 'Package metadata exposes npm publish job id');
@@ -7453,6 +7476,9 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(Array.isArray(npmPublishLatest.requiredCommands) && npmPublishLatest.requiredCommands.includes('npm run test:xtensions-framework-adapters:report'), 'Package metadata requires XTensions framework adapter report before npm publish');
   context.assert(Array.isArray(npmPublishLatest.requiredCommands) && npmPublishLatest.requiredCommands.includes('npm run test:xtend-dev-surface:report'), 'Package metadata requires XTend Dev Surface report before npm publish');
   context.assert(Array.isArray(npmPublishLatest.requiredCommands) && npmPublishLatest.requiredCommands.includes('npm run test:native-first-rmt-owned-release:report'), 'Package metadata requires Native-First RMT Owned release report before npm publish');
+  context.assert(Array.isArray(npmPublishLatest.requiredCommands) && npmPublishLatest.requiredCommands.includes('npm run test:xtend-mcp:report'), 'Package metadata requires MCP evidence before npm publish');
+  context.assert(Array.isArray(npmPublishLatest.requires) && npmPublishLatest.requires.includes('xtend-mcp-vscode-smoke'), 'Package metadata requires the cross-platform MCP VSIX smoke before npm publish');
+  context.assert(Array.isArray(npmPublishLatest.packageSet) && npmPublishLatest.packageSet.includes('@ccslabs/xtend-mcp'), 'Package metadata includes MCP in the publish set');
   context.assert(npmPublishLatest.provenance === true, 'Package metadata requires npm provenance');
   context.assert(packageManifest.repository && packageManifest.repository.url === 'git+https://github.com/konnilabs/xtend.git', 'Package metadata exposes GitHub repository for provenance');
   context.assert(packageManifest.scripts['test:rmt-vnext-fabric-bridge'] === 'node scripts/run_xtend_tests.js rmt-vnext-fabric-bridge', 'Package exposes RMT vNext fabric bridge script');

@@ -16,6 +16,11 @@ products/xtend-llm/.cache/
 products/xtend-llm/dist/
 products/xtend-llm/site/build/
 products/xtend-llm/**/.DS_Store
+!products/xtend-mcp/
+!products/xtend-mcp/**
+products/xtend-mcp/node_modules/
+products/xtend-mcp/.xtend-test-results/
+products/xtend-mcp/**/.DS_Store
 !products/rmt-animation-testbench/
 !products/rmt-animation-testbench/**
 products/rmt-animation-testbench/node_modules/

@@ -1,0 +1,46 @@
+{
+  "schema": "xtend.rmt.ai-developer-kit.guardrails.v1",
+  "status": "accepted-agent-ingest-kit",
+  "forbiddenSyntax": [
+    "if",
+    "else",
+    "for",
+    "while",
+    "switch",
+    "try",
+    "catch",
+    "function",
+    "return",
+    "await",
+    "async",
+    "class",
+    "new",
+    "eval",
+    "inline JavaScript",
+    "inline HTML",
+    "dynamic imports",
+    "free function calls in when"
+  ],
+  "securityBoundaries": [
+    "no-rmt-kernel-import-of-host-runtime-types",
+    "no-rmt-kernel-import-of-xtend-types",
+    "no manual HTML sinks in normal App Platform authoring",
+    "trusted output requires explicit trust boundary and sanitize policy"
+  ],
+  "workflow": [
+    "Load compact markdown first.",
+    "Load JSONL records matching the task domain.",
+    "Use a recipe before inventing syntax.",
+    "Run xt rmt lint --agent before and after repairs.",
+    "Use Maraca plan/build for production app bundles."
+  ],
+  "repairPolicy": {
+    "applySafeWorkspaceEditsOnly": true,
+    "rerunLintAfterEachBatch": true,
+    "noOpReasonsRequireHumanReview": [
+      "unsafe-automatic-edit",
+      "component-stub-needs-authoring-context",
+      "source-not-parseable"
+    ]
+  }
+}

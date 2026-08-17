@@ -42,6 +42,7 @@ import {
   shouldOpenExternalUrl
 } from './external-navigation.mjs';
 import { executeWebSearch } from './tools/web-search.mjs';
+import { closeXtendMcpClient } from '@ccslabs/xtend-mcp/client';
 import { executeRmtKnowledge } from './tools/rmt-knowledge.mjs';
 
 const require = createRequire(import.meta.url);
@@ -1450,5 +1451,6 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', async () => {
+  await closeXtendMcpClient();
   if (appServer) await appServer.close();
 });

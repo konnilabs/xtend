@@ -1,14 +1,14 @@
 {
   "name": "xtend-rmt-language",
   "displayName": "XTendRMT Language Support",
-  "description": "VS Code DX integration for native .rmt authoring through the XTendRMT Language Server and XTend CLI.",
+  "description": "VS Code DX integration for native .rmt authoring plus the bundled XTend MCP knowledge and tooling server.",
   "version": "0.1.0-rc.1",
   "private": false,
   "publisher": "CCS Networks",
   "license": "Apache-2.0",
   "icon": "XTend-Logo.png",
   "engines": {
-    "vscode": "^1.90.0"
+    "vscode": "^1.131.0"
   },
   "categories": [
     "Programming Languages",
@@ -19,6 +19,7 @@
     "vscode-languageclient": "^9.0.1"
   },
   "activationEvents": [
+    "onStartupFinished",
     "onLanguage:rmt",
     "onCommand:xtendRmt.showLanguageServerCommand",
     "onCommand:xtendRmt.restartLanguageServer",
@@ -50,12 +51,19 @@
     "syntaxes/**",
     "snippets/**",
     "templates/**",
+    "products/xtend-mcp/**",
     "tools/rmt-language-server/**",
     "tools/rmt-language/**",
     "XTend-Logo.png",
     "README.md"
   ],
   "contributes": {
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "xtend.mcp",
+        "label": "XTend MCP"
+      }
+    ],
     "languages": [
       {
         "id": "rmt",
@@ -270,6 +278,21 @@
             "write"
           ],
           "description": "Default RMT build mode used by VS Code commands."
+        },
+        "xtend.mcp.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Register the bundled XTend MCP server with VS Code."
+        },
+        "xtend.mcp.nodePath": {
+          "type": "string",
+          "default": "",
+          "description": "Optional Node.js >=24 executable used to start the bundled XTend MCP server. By default the extension uses VS Code's Node runtime."
+        },
+        "xtend.mcp.allowWorkspaceWrites": {
+          "type": "boolean",
+          "default": false,
+          "description": "Opt in to registering the separately confirmed XTend MCP safe-repair write tool."
         }
       }
     }

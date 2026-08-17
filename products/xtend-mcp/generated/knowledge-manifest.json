@@ -1,0 +1,62 @@
+{
+  "schema": "xtend.mcp.knowledge-manifest.v1",
+  "version": "0.1.0",
+  "generatedAt": "static-local",
+  "sourceOfTruth": {
+    "docs": [
+      "docs/de",
+      "docs/en",
+      "docs/menu.json"
+    ],
+    "rmtKit": "tools/rmt-language/generated/rmt-ai-developer-kit",
+    "retrieval": "@ccslabs/xtend-mcp/knowledge"
+  },
+  "docs": {
+    "schema": "xtend.mcp.docs-resource.v1",
+    "count": 342,
+    "counts": {
+      "de": 171,
+      "en": 171
+    },
+    "menuEntries": 171,
+    "menuSha256": "90b6c3ce7f3851fc2f2effb13753eee25651b191ba8cc644bc732a565a1b16f0",
+    "artifact": "docs.jsonl",
+    "artifactSha256": "442033a3911cf708cf4140247d4dc4eb985cf945b6702cab6e221ca3d9095d4d",
+    "missingMenuDocs": []
+  },
+  "rmtKit": {
+    "version": "0.1.0",
+    "kitSchema": "xtend.rmt.ai-developer-kit.v1",
+    "recordCounts": {
+      "reference": 31,
+      "recipes": 6,
+      "sources": 32
+    },
+    "artifacts": {
+      "rmt-ai-kit.compact.md": {
+        "sha256": "1aaee75ed68ce5c4c8e23762e837bac65ae25449347a6f69aa39b43df7793a43",
+        "bytes": 3158
+      },
+      "rmt-ai-kit.guardrails.json": {
+        "sha256": "3be3d10f21e6806e09464165ed12cca4fccdc8b2e613ac7d599ccb06792f02cc",
+        "bytes": 1187
+      },
+      "rmt-ai-kit.manifest.json": {
+        "sha256": "02933ccf7bdfa9606d41a2cf39c8e1fb707b4a161f50935db52110aba2bdbeef",
+        "bytes": 7890
+      },
+      "rmt-ai-kit.prompts.md": {
+        "sha256": "14f60458d667022de268c6129fd9fde2bd9f22c488ef754644d7828fbf7d7c9c",
+        "bytes": 880
+      },
+      "rmt-ai-kit.recipes.jsonl": {
+        "sha256": "40def8ea5032e8f975266e928e471f54c9eb7dbb2d7e3ea3d84462540d49c583",
+        "bytes": 4393
+      },
+      "rmt-ai-kit.reference.jsonl": {
+        "sha256": "d757d52a1b2148ae28c4cc450b46bffb5e3835e233a55b734a0341e5f9dd6c73",
+        "bytes": 18783
+      }
+    }
+  }
+}

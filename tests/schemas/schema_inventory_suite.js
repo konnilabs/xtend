@@ -33,6 +33,10 @@ const REQUIRED_SELF_EXCLUDED_PATHS = Object.freeze([
   'scripts/scan_schema_inventory.js'
 ]);
 
+const REQUIRED_MATERIALIZED_AGGREGATE_EXCLUDED_PREFIXES = Object.freeze([
+  'products/xtend-mcp/generated/'
+]);
+
 const REQUIRED_CANONICAL_PRECEDENCE = Object.freeze([
   'runtime-definition',
   'public-declaration',
@@ -555,6 +559,13 @@ function validateInventoryMetadata(inventory, inventoryIds, rootDir) {
     if (!isNonEmptyString(scanPolicy.versionedIdentifierPattern)) issues.push('scanPolicy.versionedIdentifierPattern is missing');
     if (JSON.stringify(scanPolicy.canonicalPrecedence) !== JSON.stringify(REQUIRED_CANONICAL_PRECEDENCE)) {
       issues.push('scanPolicy.canonicalPrecedence does not match the documented precedence');
+    }
+    if (JSON.stringify(scanPolicy.materializedAggregateExcludedPrefixes) !== JSON.stringify(REQUIRED_MATERIALIZED_AGGREGATE_EXCLUDED_PREFIXES)) {
+      issues.push('scanPolicy.materializedAggregateExcludedPrefixes does not preserve the packaged knowledge mirror boundary');
+    } else {
+      scanPolicy.materializedAggregateExcludedPrefixes.forEach((excludedPrefix) => {
+        if (!isRepoLocalExistingPath(excludedPrefix, rootDir)) issues.push(`scanPolicy materialized aggregate prefix does not exist: ${excludedPrefix}`);
+      });
     }
     if (!Array.isArray(scanPolicy.selfExcludedPaths)) {
       issues.push('scanPolicy.selfExcludedPaths must be an array');

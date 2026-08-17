@@ -76,6 +76,10 @@ const CURATED_KEYWORDS = Object.freeze({
     de: ['Build', 'Bundling', 'Rollup', 'Terser', 'AOT', 'Tune'],
     en: ['build', 'bundling', 'Rollup', 'Terser', 'AOT', 'tune']
   },
+  'xtend-mcp': {
+    de: ['XTend MCP', 'Model Context Protocol', 'AI Knowledge Kit', 'VS Code', 'RAG', 'stdio', 'Streamable HTTP'],
+    en: ['XTend MCP', 'Model Context Protocol', 'AI Knowledge Kit', 'VS Code', 'RAG', 'stdio', 'Streamable HTTP']
+  },
   'rmt-vnext-remote-surfaces': {
     de: ['Microfrontend', 'MFE', 'Remote Surface', 'XScaler'],
     en: ['microfrontend', 'MFE', 'remote surface', 'XScaler']
@@ -122,7 +126,7 @@ function classifyLearnRmt(slug) {
 
 function classifyRmt(slug) {
   if (/remote-surfaces|surface-registry|cross-surface|xscaler/.test(slug)) return ['build', 'surfaces'];
-  if (/linter|language-server|tooling|source-to-sea|release-gate/.test(slug)) return ['build', 'rmt-tooling'];
+  if (/linter|language-server|tooling|source-to-sea|release-gate|mcp/.test(slug)) return ['build', 'rmt-tooling'];
   if (/authoring|animation|migration|first-|demo-app|app-platform-fixture|native-authoring/.test(slug)) return ['build', 'rmt-authoring'];
   return ['build', 'rmt-runtime'];
 }
@@ -202,7 +206,7 @@ function buildMenu() {
       }
     };
   });
-  if (result.length !== 170) throw new Error(`Expected 170 canonical docs entries, received ${result.length}.`);
+  if (result.length !== 171) throw new Error(`Expected 171 canonical docs entries, received ${result.length}.`);
   return result;
 }
 

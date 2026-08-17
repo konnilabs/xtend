@@ -946,7 +946,7 @@ function assertDocs(context, rootDir) {
   const menuEntry = docsMenu.find((entry) => entry.slug === 'xtend-dev-surface');
   const devApiMenuEntry = docsMenu.find((entry) => entry.slug === 'xtend-dev-api');
   context.assert(menuEntry && menuEntry.group === 'quality' && menuEntry.contentType === 'tutorial', 'docs menu exposes Dev Surface as a quality tutorial');
-  context.assert(docsMenu.length === 170, 'docs menu exposes 170 canonical articles after DEV API registration');
+  context.assert(docsMenu.length === 171, 'docs menu exposes 171 canonical articles after DEV API registration');
   context.assert(devApiMenuEntry && devApiMenuEntry.id === 'docs.xtend.dev.api' && devApiMenuEntry.group === 'quality', 'docs menu exposes the canonical XTend DEV API entry');
   context.assert(devApiMenuEntry && devApiMenuEntry.parent === 'xtend-dev-surface' && devApiMenuEntry.trunk === 'operate' && devApiMenuEntry.section === 'devtools', 'DEV API reference is nested in Operate Dev Tools');
   context.assert(devApiMenuEntry && devApiMenuEntry.contentType === 'reference' && devApiMenuEntry.tier === 'basic' && devApiMenuEntry.rank === 93 && devApiMenuEntry.icon === 'braces', 'DEV API menu metadata declares the planned reference profile');

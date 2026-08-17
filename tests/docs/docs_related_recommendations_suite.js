@@ -44,7 +44,7 @@ async function runDocsRelatedRecommendationsSuite(options = {}) {
   const shellRuntime = readText('docs/utils/docs-shell-runtime.mjs', rootDir);
   const workerSource = runtime.createRmtSearchWorkerSource();
 
-  context.assert(menu.length === 170 && en.entryCount === menu.length && de.entryCount === menu.length, 'localized compact indexes cover all 170 documentation articles');
+  context.assert(menu.length === 171 && en.entryCount === menu.length && de.entryCount === menu.length, 'localized compact indexes cover all 171 documentation articles');
   context.assert(en.entries.every((entry) => Object.hasOwn(entry, 'parent') && Object.hasOwn(entry, 'rank') && Array.isArray(entry.relatedSlugs)), 'compact entries carry navigation rank and normalized internal-link signals');
   context.assert(en.entries.every((entry) => entry.locale === 'en') && de.entries.every((entry) => entry.locale === 'de'), 'compact recommendation corpora remain locale-separated');
   context.assert(runtime.RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA === 'xtend.rmt.search-recommendation-response.v1', 'recommendation response schema is public and stable');

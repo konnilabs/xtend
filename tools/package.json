@@ -74,6 +74,10 @@
       "types": "./rmt-linter/cli.d.ts",
       "default": "./rmt-linter/cli.js"
     },
+    "./rmt-linter/reporter": {
+      "types": "./rmt-linter/reporter.d.ts",
+      "default": "./rmt-linter/reporter.js"
+    },
     "./rmt-language-server/server": {
       "types": "./rmt-language-server/server.d.ts",
       "default": "./rmt-language-server/server.js"

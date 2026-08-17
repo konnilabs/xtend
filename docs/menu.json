@@ -1697,6 +1697,56 @@
     }
   },
   {
+    "slug": "xtend-mcp",
+    "id": "docs.xtend.mcp",
+    "label": "XTend MCP 0.1",
+    "group": "rmt",
+    "parent": "rmt-language-server",
+    "tier": "basic",
+    "rank": 91,
+    "labels": {
+      "de": "XTend MCP 0.1",
+      "en": "XTend MCP 0.1"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-tooling",
+    "keywords": {
+      "de": [
+        "XTend MCP 0.1",
+        "xtend",
+        "mcp",
+        "tutorial",
+        "build",
+        "rmt-tooling",
+        "RMT",
+        "XTend MCP",
+        "Model Context Protocol",
+        "AI Knowledge Kit",
+        "VS Code",
+        "RAG",
+        "stdio",
+        "Streamable HTTP"
+      ],
+      "en": [
+        "XTend MCP 0.1",
+        "xtend",
+        "mcp",
+        "tutorial",
+        "build",
+        "rmt-tooling",
+        "RMT",
+        "XTend MCP",
+        "Model Context Protocol",
+        "AI Knowledge Kit",
+        "VS Code",
+        "RAG",
+        "stdio",
+        "Streamable HTTP"
+      ]
+    }
+  },
+  {
     "slug": "xtendrmt-app-dsl",
     "id": "docs.xtendrmt.app.dsl",
     "label": "XTendRMT App DSL",
