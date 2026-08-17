@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en" data-observatory-lab="pending">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XTend Observatory Adoption Lab</title>
+  <style>
+    #anchor { anchor-name: --observatory-trigger; }
+    #popover { position-anchor: --observatory-trigger; position-area: bottom; }
+    @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.001ms !important; } }
+  </style>
+</head>
+<body>
+  <button id="anchor" popovertarget="popover">Open non-modal lab popover</button>
+  <div id="popover" popover="auto" role="status">Popover lab</div>
+  <dialog id="dialog" closedby="closerequest"><button autofocus>Dialog focus probe</button></dialog>
+  <section id="registry-a" aria-label="registry scope A"></section>
+  <section id="registry-b" aria-label="registry scope B"></section>
+  <div id="hydration"></div>
+  <pre id="report" aria-live="polite"></pre>
+  <script>
+    (async () => {
+      const report = {
+        schema: 'xtend.native-first.observatory-browser-lab-report.v1',
+        capabilities: {
+          dialog: typeof HTMLDialogElement === 'function',
+          popover: typeof HTMLElement.prototype.showPopover === 'function',
+          anchorPositioning: CSS.supports('anchor-name: --observatory-trigger'),
+          schedulerYield: Boolean(globalThis.scheduler && typeof globalThis.scheduler.yield === 'function'),
+          scopedRegistry: typeof CustomElementRegistry === 'function'
+        },
+        registry: { attempted: false, isolated: false },
+        hydration: { units: 0, slices: 0, yieldCount: 0, maxSliceMs: 0, strategy: 'timer' },
+        boundaries: { modalPopoverMigration: false, publicEventsChanged: false, surfaceRecordsChanged: false }
+      };
+
+      if (report.capabilities.scopedRegistry) {
+        try {
+          const registryA = new CustomElementRegistry();
+          const registryB = new CustomElementRegistry();
+          class ScopeA extends HTMLElement { connectedCallback() { this.dataset.scope = 'a'; } }
+          class ScopeB extends HTMLElement { connectedCallback() { this.dataset.scope = 'b'; } }
+          registryA.define('x-observatory-scope', ScopeA);
+          registryB.define('x-observatory-scope', ScopeB);
+          const rootA = document.querySelector('#registry-a').attachShadow({ mode: 'open', customElementRegistry: registryA });
+          const rootB = document.querySelector('#registry-b').attachShadow({ mode: 'open', customElementRegistry: registryB });
+          rootA.innerHTML = '<x-observatory-scope></x-observatory-scope>';
+          rootB.innerHTML = '<x-observatory-scope></x-observatory-scope>';
+          report.registry = {
+            attempted: true,
+            isolated: rootA.firstElementChild.constructor !== rootB.firstElementChild.constructor,
+            constructors: [rootA.firstElementChild.constructor.name, rootB.firstElementChild.constructor.name]
+          };
+        } catch (error) {
+          report.registry = { attempted: true, isolated: false, capabilityRejected: true, error: error.name };
+        }
+      }
+
+      const hydration = document.querySelector('#hydration');
+      let next = 0;
+      while (next < 500) {
+        const started = performance.now();
+        let sliceUnits = 0;
+        do {
+          const component = document.createElement('span');
+          component.dataset.hydrationOrder = String(next);
+          hydration.append(component);
+          next += 1;
+          sliceUnits += 1;
+        } while (next < 500 && sliceUnits < 50 && performance.now() - started < 4);
+        report.hydration.slices += 1;
+        report.hydration.maxSliceMs = Math.max(report.hydration.maxSliceMs, performance.now() - started);
+        if (next < 500) {
+          if (report.capabilities.schedulerYield) {
+            report.hydration.strategy = 'scheduler.yield';
+            report.hydration.yieldCount += 1;
+            await globalThis.scheduler.yield();
+          } else {
+            report.hydration.yieldCount += 1;
+            await new Promise((resolve) => setTimeout(resolve, 0));
+          }
+        }
+      }
+      report.hydration.units = next;
+      report.hydration.orderPreserved = [...hydration.children].every((node, index) => node.dataset.hydrationOrder === String(index));
+      document.querySelector('#report').textContent = JSON.stringify(report, null, 2);
+      document.documentElement.dataset.observatoryLab = 'complete';
+    })();
+  </script>
+</body>
+</html>

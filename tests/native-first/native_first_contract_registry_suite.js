@@ -118,6 +118,19 @@ const REQUIRED_NATIVE_CONTRACTS = Object.freeze([
     phase: 'Phase 1'
   },
   {
+    contractId: 'xtend.native-first.observatory-intake.v1',
+    workpackage: 'OBS-2026-08-17',
+    status: 'accepted-internal-intake',
+    owner: 'architecture-governance-owner',
+    reportSchema: 'xtend.native-first.browser-primitive-radar-report.v1',
+    localGate: 'browser-primitive-radar',
+    docsPath: 'development/XTend-Native-First-Feature-Adoption-Observatory-Contract.md',
+    sourceOfTruth: 'feature-adoption-observatory',
+    domain: 'native-first',
+    evidenceRole: 'source-contract',
+    phase: 'Continuous Review'
+  },
+  {
     contractId: 'xtend.native-first.dependency-diet-policy.v1',
     workpackage: 'NFM-WP-04',
     status: 'accepted',

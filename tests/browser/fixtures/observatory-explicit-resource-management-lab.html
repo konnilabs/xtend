@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>XTend Observatory Explicit Resource Management Lab</title>
+</head>
+<body>
+  <output id="result">pending</output>
+  <script type="module">
+    const events = [];
+    const capability = typeof DisposableStack === 'function'
+      && typeof Symbol.dispose === 'symbol'
+      && typeof Symbol.asyncDispose === 'symbol';
+    const fallback = [];
+    const callbacks = [
+      () => fallback.push('scheduler-cancel'),
+      () => fallback.push('worker-terminate'),
+      () => fallback.push('surface-release')
+    ];
+    while (callbacks.length > 0) callbacks.pop()();
+
+    let dynamicModuleStatus = 'capability-fallback';
+    if (capability) {
+      try {
+        const nativeModule = await import('./observatory-explicit-resource-management-native.mjs');
+        await nativeModule.runNativeUsingProbe((event) => events.push(event));
+        await nativeModule.runNativeAwaitUsingProbe((event) => events.push(event));
+        dynamicModuleStatus = 'native-syntax-exercised';
+      } catch (error) {
+        dynamicModuleStatus = 'native-syntax-rejected';
+      }
+    }
+
+    window.__xtendObservatoryErmResult = {
+      schema: 'xtend.native-first.observatory-erm-browser-evidence.v1',
+      capability,
+      dynamicModuleStatus,
+      events,
+      fallback,
+      claimBoundary: 'lab-only-not-shipping-support'
+    };
+    document.querySelector('#result').textContent = JSON.stringify(window.__xtendObservatoryErmResult);
+  </script>
+</body>
+</html>

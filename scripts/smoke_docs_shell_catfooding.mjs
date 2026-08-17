@@ -2157,9 +2157,49 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
         };
       `), `${scenario.id}: overlay demo trigger and target did not hydrate`)
       : null;
+    const toastDemo = scenario.inspectToastDemo
+      ? await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+        const slot = deepQuery('[data-demo-component="x-toast"]');
+        const preview = slot && slot.querySelector('[data-demo-preview]');
+        const trigger = preview && preview.querySelector('[data-demo-action="toast"]');
+        if (!slot || !preview || !trigger || preview.getAttribute('data-rmt-island-state') !== 'ready') return null;
+        const triggerRect = trigger.getBoundingClientRect();
+        const triggerStyle = getComputedStyle(trigger);
+        return {
+          triggerText: (trigger.textContent || '').trim(),
+          triggerDefined: Boolean(customElements.get('x-button')),
+          triggerVisible: triggerRect.width > 0 && triggerRect.height > 0 && triggerStyle.display !== 'none' && triggerStyle.visibility !== 'hidden',
+          inlineToastCount: preview.querySelectorAll('x-toast').length
+        };
+      `), `${scenario.id}: toast demo trigger did not hydrate`)
+      : null;
+    const activatableDemo = scenario.inspectActivatableDemo
+      ? await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+        const slot = deepQuery('[data-demo-component="${scenario.inspectActivatableDemo.tag}"]');
+        const preview = slot && slot.querySelector('[data-demo-preview]');
+        const trigger = preview && preview.querySelector('${scenario.inspectActivatableDemo.triggerSelector}');
+        const target = deepQuery('#${scenario.inspectActivatableDemo.targetId}');
+        if (!slot || !preview || !trigger || !target || preview.getAttribute('data-rmt-island-state') !== 'ready') return null;
+        const triggerRect = trigger.getBoundingClientRect();
+        const triggerStyle = getComputedStyle(trigger);
+        return {
+          triggerText: (trigger.textContent || '').trim(),
+          triggerDefined: Boolean(customElements.get('x-button')),
+          targetDefined: Boolean(customElements.get('${scenario.inspectActivatableDemo.tag}')),
+          triggerVisible: triggerRect.width > 0 && triggerRect.height > 0 && triggerStyle.display !== 'none' && triggerStyle.visibility !== 'hidden'
+        };
+      `), `${scenario.id}: activatable demo trigger and target did not hydrate`)
+      : null;
     if (overlayDemo) {
       assert(overlayDemo.description === scenario.inspectOverlayDemo.description, `${scenario.id}: localized demo copy regressed (${JSON.stringify(overlayDemo)}).`);
       assert(overlayDemo.triggerText === scenario.inspectOverlayDemo.triggerText && overlayDemo.triggerDefined && overlayDemo.targetDefined && overlayDemo.triggerVisible, `${scenario.id}: overlay demo trigger is not usable (${JSON.stringify(overlayDemo)}).`);
+    }
+    if (toastDemo) {
+      assert(toastDemo.triggerText === scenario.inspectToastDemo.triggerText && toastDemo.triggerDefined && toastDemo.triggerVisible, `${scenario.id}: toast demo trigger is not usable (${JSON.stringify(toastDemo)}).`);
+      assert(toastDemo.inlineToastCount === 0, `${scenario.id}: toast demo materialized ${toastDemo.inlineToastCount} inline toast elements in the sidebar.`);
+    }
+    if (activatableDemo) {
+      assert(activatableDemo.triggerText === scenario.inspectActivatableDemo.triggerText && activatableDemo.triggerDefined && activatableDemo.targetDefined && activatableDemo.triggerVisible, `${scenario.id}: activatable demo does not expose a usable x-button (${JSON.stringify(activatableDemo)}).`);
     }
     await delay(scenario.settleMs || 600);
     const snapshot = await readSnapshot(driverUrl, sessionId);
@@ -2216,9 +2256,80 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
         const target = deepQuery('#${scenario.inspectOverlayDemo.targetId}');
         return Boolean(target && typeof target.snapshot === 'function' && target.snapshot().open);
       `), `${scenario.id}: hydrated trigger did not open its overlay target`);
+      if (scenario.inspectOverlayDemo.chromeSurfaceSelector) {
+        const chrome = await execute(driverUrl, sessionId, `${deepQuerySource}
+          const target = deepQuery('#${scenario.inspectOverlayDemo.targetId}');
+          const surface = target && target.shadowRoot && target.shadowRoot.querySelector('${scenario.inspectOverlayDemo.chromeSurfaceSelector}');
+          const title = target && target.shadowRoot && target.shadowRoot.querySelector('${scenario.inspectOverlayDemo.chromeTitleSelector}');
+          const close = target && target.shadowRoot && target.shadowRoot.querySelector('${scenario.inspectOverlayDemo.chromeCloseSelector}');
+          if (!surface || !title || !close) return null;
+          const surfaceStyle = getComputedStyle(surface);
+          const closeStyle = getComputedStyle(close);
+          const titleRect = title.getBoundingClientRect();
+          const closeRect = close.getBoundingClientRect();
+          return {
+            display: surfaceStyle.display,
+            gridTemplateAreas: surfaceStyle.gridTemplateAreas,
+            closePosition: closeStyle.position,
+            titleCloseTopDelta: Math.abs(titleRect.top - closeRect.top)
+          };
+        `);
+        assert(chrome && chrome.display === 'grid' && chrome.gridTemplateAreas.includes('title close') && chrome.closePosition === 'static' && chrome.titleCloseTopDelta <= 2, `${scenario.id}: overlay chrome is not aligned in a stable grid header (${JSON.stringify(chrome)}).`);
+      }
       await execute(driverUrl, sessionId, `${deepQuerySource}
         const target = deepQuery('#${scenario.inspectOverlayDemo.targetId}');
         if (target && typeof target.close === 'function') target.close({ source: 'browser-smoke' });
+        return true;
+      `);
+    }
+    if (toastDemo) {
+      await execute(driverUrl, sessionId, `${deepQuerySource}
+        const trigger = deepQuery('[data-demo-action="toast"]');
+        const control = trigger && trigger.shadowRoot && trigger.shadowRoot.querySelector('button');
+        if (!control) throw new Error('Hydrated toast x-button control unavailable.');
+        control.click();
+        return true;
+      `);
+      const toastSurface = await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+        const container = document.getElementById('xtoast-container');
+        const toast = container && container.querySelector('x-toast');
+        const preview = deepQuery('[data-demo-component="x-toast"] [data-demo-preview]');
+        if (!container || !toast) return null;
+        return {
+          containerParent: container.parentElement && container.parentElement.localName,
+          surface: container.getAttribute('data-xtend-surface'),
+          position: getComputedStyle(container).position,
+          message: (toast.textContent || '').trim(),
+          inlineToastCount: preview ? preview.querySelectorAll('x-toast').length : -1
+        };
+      `), `${scenario.id}: x-button did not materialize the toast stack`);
+      assert(toastSurface.containerParent === 'body' && toastSurface.surface === 'toast-stack' && toastSurface.position === 'fixed' && toastSurface.inlineToastCount === 0 && toastSurface.message === 'XTend Demo Toast', `${scenario.id}: toast materialized outside the document toast stack (${JSON.stringify(toastSurface)}).`);
+      await execute(driverUrl, sessionId, `
+        const toast = document.querySelector('#xtoast-container x-toast');
+        if (toast && typeof toast.dismiss === 'function') toast.dismiss('browser-smoke');
+        return true;
+      `);
+    }
+    if (activatableDemo) {
+      await execute(driverUrl, sessionId, `${deepQuerySource}
+        const target = deepQuery('#${scenario.inspectActivatableDemo.targetId}');
+        const preview = deepQuery('[data-demo-component="${scenario.inspectActivatableDemo.tag}"] [data-demo-preview]');
+        const trigger = preview && preview.querySelector('${scenario.inspectActivatableDemo.triggerSelector}');
+        const control = trigger && trigger.shadowRoot && trigger.shadowRoot.querySelector('button');
+        if (!target || !control) throw new Error('Hydrated activatable x-button control unavailable.');
+        ${scenario.inspectActivatableDemo.activation === 'focus' ? 'control.focus();' : 'control.click();'}
+        return true;
+      `);
+      await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+        const target = deepQuery('#${scenario.inspectActivatableDemo.targetId}');
+        return Boolean(target && typeof target.snapshot === 'function' && target.snapshot().open);
+      `), `${scenario.id}: x-button did not activate its demo target`);
+      await execute(driverUrl, sessionId, `${deepQuerySource}
+        const target = deepQuery('#${scenario.inspectActivatableDemo.targetId}');
+        if (!target) return false;
+        if (typeof target.closeDrawer === 'function') target.closeDrawer({ source: 'browser-smoke' });
+        else if (typeof target.close === 'function') target.close({ source: 'browser-smoke' });
+        else if (typeof target.hide === 'function') target.hide({ source: 'browser-smoke', immediate: true });
         return true;
       `);
     }
@@ -2536,8 +2647,13 @@ try {
       { id: 'de-rmt-playground-desktop', locale: 'de', slug: 'learn-rmt-playground', width: 1440, height: 900, settleMs: 1200, expectedArticleTitle: 'RMT Playground', inspectPlaygroundSkeleton: true, ownsRouteWorkspace: true },
       { id: 'de-authoring-desktop', locale: 'de', slug: 'native-first-authoring-guide', width: 1440, height: 900, settleMs: 700 },
       { id: 'de-a11y-current-page-desktop', locale: 'de', slug: 'a11y-keyboard-smokes', width: 1440, height: 900, settleMs: 700, inspectNavigation: true },
-      { id: 'de-xdialog-demo-desktop', locale: 'de', slug: 'components-xdialog', width: 1440, height: 900, settleMs: 700, inspectOverlayDemo: { tag: 'x-dialog', action: 'open-dialog', targetId: 'docs-demo-dialog', triggerText: 'Dialog testen', description: 'Dialog-Surface für bestätigende UI-Flows.' } },
-      { id: 'de-xmodal-demo-desktop', locale: 'de', slug: 'components-xmodal', width: 1440, height: 900, settleMs: 700, inspectOverlayDemo: { tag: 'x-modal', action: 'open-modal', targetId: 'docs-demo-modal', triggerText: 'Modal testen', description: 'Modales Overlay mit Focus Trap, Escape und xstate-Sync.' } },
+      { id: 'de-xtoast-demo-desktop', locale: 'de', slug: 'components-xtoast', width: 1440, height: 900, settleMs: 700, inspectToastDemo: { triggerText: 'Toast anzeigen' } },
+      { id: 'de-xdialog-demo-desktop', locale: 'de', slug: 'components-xdialog', width: 1440, height: 900, settleMs: 700, inspectOverlayDemo: { tag: 'x-dialog', action: 'open-dialog', targetId: 'docs-demo-dialog', triggerText: 'Dialog testen', description: 'Dialog-Surface für bestätigende UI-Flows.', chromeSurfaceSelector: '.xdialog', chromeTitleSelector: '.xdialog-title', chromeCloseSelector: '.xdialog-close' } },
+      { id: 'de-xmodal-demo-desktop', locale: 'de', slug: 'components-xmodal', width: 1440, height: 900, settleMs: 700, inspectOverlayDemo: { tag: 'x-modal', action: 'open-modal', targetId: 'docs-demo-modal', triggerText: 'Modal testen', description: 'Modales Overlay mit Focus Trap, Escape und xstate-Sync.', chromeSurfaceSelector: '.x-modal', chromeTitleSelector: '.x-modal-title', chromeCloseSelector: '.x-modal-close' } },
+      { id: 'de-xdrawer-demo-desktop', locale: 'de', slug: 'components-xdrawer', width: 1440, height: 900, settleMs: 700, inspectActivatableDemo: { tag: 'x-drawer', targetId: 'docs-demo-drawer', triggerSelector: 'x-button[slot="trigger"]', triggerText: 'Drawer oeffnen', activation: 'click' } },
+      { id: 'de-xpopover-demo-desktop', locale: 'de', slug: 'components-xpopover', width: 1440, height: 900, settleMs: 700, inspectActivatableDemo: { tag: 'x-popover', targetId: 'docs-demo-popover', triggerSelector: 'x-button[slot="trigger"]', triggerText: 'Popover', activation: 'click' } },
+      { id: 'de-xtooltip-demo-desktop', locale: 'de', slug: 'components-xtooltip', width: 1440, height: 900, settleMs: 700, inspectActivatableDemo: { tag: 'x-tooltip', targetId: 'docs-demo-tooltip', triggerSelector: 'x-button[slot="trigger"]', triggerText: 'Tooltip testen', activation: 'click' } },
+      { id: 'de-xlightbox-demo-desktop', locale: 'de', slug: 'components-xlightbox', width: 1440, height: 900, settleMs: 700, inspectActivatableDemo: { tag: 'x-lightbox', targetId: 'docs-demo-lightbox', triggerSelector: 'x-button[slot="trigger"]', triggerText: 'Logo ansehen', activation: 'click' } },
       { id: 'en-dev-surface-mobile', locale: 'en', slug: 'xtend-dev-surface', width: 390, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only' },
       { id: 'de-dev-api-desktop', locale: 'de', slug: 'xtend-dev-api', width: 1440, height: 900, settleMs: 700, inspectNavigation: true, expectedArticleTitle: 'XTend DEV API', expectedSection: 'devtools' },
       { id: 'en-dev-api-mobile', locale: 'en', slug: 'xtend-dev-api', width: 390, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only', expectedArticleTitle: 'XTend DEV API' },

@@ -892,6 +892,22 @@ const {
   runNativeFirstOverlayFocusSuite
 } = require('../tests/native-first/native_first_overlay_focus_suite');
 const {
+  printBrowserPrimitiveRadarReport,
+  runBrowserPrimitiveRadarSuite
+} = require('../tests/native-first/browser_primitive_radar_suite');
+const {
+  printPrimitiveAdoptionGateReport,
+  runPrimitiveAdoptionGateSuite
+} = require('../tests/native-first/primitive_adoption_gate_suite');
+const {
+  printObservatoryAdoptionLabsReport,
+  runObservatoryAdoptionLabsSuite
+} = require('../tests/native-first/observatory_adoption_labs_suite');
+const {
+  printAriaInHtmlConformanceReport,
+  runAriaInHtmlConformanceSuite
+} = require('../tests/a11y/aria_in_html_conformance_suite');
+const {
   printNativeFirstFormNavigationMediaReport,
   runNativeFirstFormNavigationMediaSuite
 } = require('../tests/native-first/native_first_form_navigation_media_suite');
@@ -3500,6 +3516,16 @@ const suites = [
     }
   },
   {
+    id: 'aria-in-html-conformance',
+    label: 'ARIA in HTML 2026 author-conformance gate',
+    description: 'Validates XTend author markup against the versioned 2026 Recommendation subset without making browser, AOM or AT claims.',
+    run: () => {
+      const result = runAriaInHtmlConformanceSuite({ rootDir });
+      printAriaInHtmlConformanceReport(result);
+      return toRunnerResult('aria-in-html-conformance', 'ARIA in HTML 2026 author-conformance gate', result);
+    }
+  },
+  {
     id: 'screenreader-signals',
     label: 'Screenreader signal contract gates',
     description: 'Runs aria-live, status region, error region and announcement contract gates.',
@@ -3658,6 +3684,36 @@ const suites = [
       const result = runOverlayInteractionUxSuite({ rootDir });
       printOverlayInteractionUxReport(result);
       return toRunnerResult('overlay-interaction-ux', 'XTend Overlay and Interaction UX maturity', result);
+    }
+  },
+  {
+    id: 'browser-primitive-radar',
+    label: 'Browser Primitive Radar and Observatory Intake',
+    description: 'Validates untrusted Observatory intake, reviewed claims, sources, repo symbols and radar IDs.',
+    run: () => {
+      const result = runBrowserPrimitiveRadarSuite({ rootDir });
+      printBrowserPrimitiveRadarReport(result);
+      return toRunnerResult('browser-primitive-radar', 'Browser Primitive Radar and Observatory Intake', result);
+    }
+  },
+  {
+    id: 'primitive-adoption-gate',
+    label: 'Native Primitive Adoption Gate',
+    description: 'Validates Observatory adoption ADR outcomes, evidence, fallbacks and runtime boundaries.',
+    run: () => {
+      const result = runPrimitiveAdoptionGateSuite({ rootDir });
+      printPrimitiveAdoptionGateReport(result);
+      return toRunnerResult('primitive-adoption-gate', 'Native Primitive Adoption Gate', result);
+    }
+  },
+  {
+    id: 'observatory-adoption-labs',
+    label: 'Observatory Adoption Labs',
+    description: 'Runs opt-in overlay, scheduler, scoped-registry, navigation, view-transition and explicit-resource-management lab gates.',
+    run: () => {
+      const result = runObservatoryAdoptionLabsSuite({ rootDir });
+      printObservatoryAdoptionLabsReport(result);
+      return toRunnerResult('observatory-adoption-labs', 'Observatory Adoption Labs', result);
     }
   },
   {

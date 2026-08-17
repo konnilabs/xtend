@@ -33,12 +33,14 @@ Ein Primitive darf im Radar vorkommen, ohne dass XTend es adoptiert. Eine Runtim
 | `navigation` | History, URLPattern, Navigation APIs | x-router, RMT routes, surface navigation |
 | `animation` | Web Animations, View Transitions, Scroll Timelines | surface transitions, motion policy |
 | `scheduling` | requestAnimationFrame, requestIdleCallback, scheduler APIs, queueMicrotask | RMT Scheduler, Fabric lanes, hydration |
+| `lifecycle` | `using`, `DisposableStack`, `Symbol.dispose`, lexikalisches Resource Cleanup | Runtime, Components, Fabric, RMT Resources |
 | `observability` | IntersectionObserver, ResizeObserver, MutationObserver, Performance APIs | lazy hydration, diagnostics, budgets |
 | `storage` | IndexedDB, Cache APIs, Storage Buckets | resource graph, offline state, docs cache |
 | `security` | Trusted Types, Sanitizer-like APIs, CSP-adjacent browser primitives | Trusted DOM, URL/import policies |
 | `network` | fetch streams, AbortSignal, WebSocket, BroadcastChannel | resource primitives, effects, collaboration |
 | `media` | Media Session, Picture-in-Picture, WebCodecs-style primitives | media Components, docs demos |
 | `accessibility` | focus management, inert, forced-colors, prefers-reduced-motion | overlays, forms, a11y gates |
+| `compute` | browsernahes WebAssembly, JSPI, Compute-Capabilities | Runtime, Tooling, Security |
 
 ## Radar Entry Schema
 
@@ -134,3 +136,13 @@ Ein Radar-Eintrag blockiert Adoption, wenn:
 | Adoption Gate kann `primitiveRadarRef` nutzen | erfuellt |
 | Produktadoption ohne Evidence bleibt blockiert | erfuellt |
 | Dependency- und Security-Grenzen sind angebunden | erfuellt |
+
+## Verifikation
+
+Der Radar- und Observatory-Intake-Gate ist ausfuehrbar:
+
+```bash
+node scripts/run_xtend_tests.js browser-primitive-radar --json
+```
+
+Er prueft den gebundenen Raw-Intake, genau einen Review-Ausgang je Finding, sichere Quellen, getrennte Fakten und Hypothesen, reale Repo-Symbole, Radar-IDs sowie engine-spezifische Shipping-Evidence. Negativtests decken ungueltige Schemas, fehlende Quellen, unsichere URLs, doppelte IDs, widerspruechliche Daten, erfundene XTend-Symbole und unbelegte Engine-Claims ab.

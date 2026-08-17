@@ -566,24 +566,38 @@
             border-radius: var(--xmodal-radius);
             box-shadow: var(--xmodal-shadow);
             padding: 2.2rem 1.5rem 1.5rem;
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-rows: auto minmax(0, 1fr) auto;
+            grid-template-areas:
+              "title close"
+              "content content"
+              "actions actions";
+            align-items: start;
+            column-gap: var(--modal-chrome-column-gap, 1rem);
+            row-gap: var(--modal-chrome-row-gap, 1rem);
             outline: none;
             border: var(--xtend-border, 1.5px solid rgba(255,255,255,0.12));
             backdrop-filter: blur(var(--xtend-glass-blur, 18px));
             animation: fadeInScale 0.25s cubic-bezier(.4,1.4,.6,1);
           }
           .x-modal-title {
+            grid-area: title;
+            min-width: 0;
             font-size: 1.3em;
             font-weight: 600;
-            margin-bottom: 1em;
+            margin: 0;
             color: var(--xmodal-accent);
             text-shadow: 0 2px 8px rgba(79,195,247,0.18);
           }
           .x-modal-content {
-            margin-bottom: 1.5em;
+            grid-area: content;
+            min-width: 0;
+            overflow: auto;
+            margin: 0;
           }
           .x-modal-actions {
+            grid-area: actions;
             display: flex;
             flex-wrap: wrap;
             gap: 1em;
@@ -607,9 +621,10 @@
             transform: scale(1.04);
           }
           .x-modal-close {
-            position: absolute;
-            top: 1.2em;
-            right: 1.2em;
+            grid-area: close;
+            position: static;
+            justify-self: end;
+            align-self: start;
             background: var(--xmodal-close-bg);
             border: none;
             color: var(--xmodal-text);
@@ -638,6 +653,7 @@
             height: 1.15em;
           }
           .x-modal-fallback {
+            grid-area: content;
             display: none;
             padding: 0.8em;
             background: #fff0f0;

@@ -6,6 +6,9 @@ const {
   readText,
   resolveRootDir
 } = require('../utils/files');
+const {
+  runAriaInHtmlConformanceSuite
+} = require('../a11y/aria_in_html_conformance_suite');
 
 const COMPONENT_GATES = [
   {
@@ -215,9 +218,19 @@ function runAccessibilityHydrationSuite(options = {}) {
     assertContracts(context, fixture, fixtureGate.contracts, fixtureGate.label);
   });
 
+  const ariaInHtml = runAriaInHtmlConformanceSuite({ rootDir });
+  ariaInHtml.passes.forEach((message) => context.pass(`ARIA in HTML 2026: ${message}`));
+  ariaInHtml.failures.forEach((message) => context.fail(`ARIA in HTML 2026: ${message}`));
+
   return context.result({
     components: COMPONENT_GATES.map((target) => target.tag),
-    browserFixtures: BROWSER_HYDRATION_GATES.map((fixtureGate) => fixtureGate.path)
+    browserFixtures: BROWSER_HYDRATION_GATES.map((fixtureGate) => fixtureGate.path),
+    ariaInHtmlConformance: {
+      schema: ariaInHtml.schema,
+      ok: ariaInHtml.ok,
+      baseline: ariaInHtml.baseline,
+      claimBoundary: ariaInHtml.claimBoundary
+    }
   });
 }
 

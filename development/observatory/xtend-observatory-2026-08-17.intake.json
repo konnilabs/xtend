@@ -1,0 +1,41 @@
+{
+  "schema": "xtend.native-first.observatory-intake.v1",
+  "intakeId": "NFM-OBS-2026-08-17",
+  "trust": "untrusted-ai-generated",
+  "rawArtifact": {
+    "path": "development/observatory/raw/xtend-observatory-2026-08-17.json",
+    "sha256": "2b05c59a1f3adcc80fbc45e59f9fcfaf4ad480203080d04c6edb6009e0434e21",
+    "repositoryCopySha256": "f5d855bfc548cda90097d6e5e0d82c5e067d436205a72150b5e70576de49cb34",
+    "storageNormalization": "single-terminal-newline-added",
+    "immutable": true
+  },
+  "provenance": {
+    "agent": "unknown-unreported",
+    "model": "unknown-unreported",
+    "reportDate": "2026-08-17",
+    "reportDateBasis": "filename",
+    "accessedAt": "2026-08-17",
+    "repositoryCommit": "aaca1bbf42f7f91358081fb75c4c3df7585674e2"
+  },
+  "findingIds": [
+    "fetch-request-streaming-webkit-tp250",
+    "explicit-resource-management-webkit-tp250",
+    "aria-in-html-recommendation-2026",
+    "scoped-custom-element-registries",
+    "scheduler-yield",
+    "navigation-api",
+    "dialogs-popovers",
+    "a11y-testing-interop",
+    "jspi-wasm",
+    "declarative-shadow-slot-assignment",
+    "cross-document-view-transitions",
+    "css-anchor-positioning"
+  ],
+  "automationPolicy": {
+    "mayMutateRadar": false,
+    "mayMutateRuntime": false,
+    "mayCreateShippingClaim": false,
+    "rawVerdictsAreSuggestionsOnly": true,
+    "requiredReviewSchema": "xtend.native-first.observatory-review.v1"
+  }
+}

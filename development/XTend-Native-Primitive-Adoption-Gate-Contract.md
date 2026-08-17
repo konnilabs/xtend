@@ -64,7 +64,7 @@ Eine gueltige Adoption-ADR muss mindestens diese Felder enthalten:
 | `status` | ja | `draft`, `accepted`, `accepted-with-residuals`, `rejected`, `superseded` |
 | `decisionId` | ja | stabile ID der Entscheidung |
 | `primitiveName` | ja | Browser-Primitive, API, Platform-Faehigkeit oder Pattern |
-| `primitiveCategory` | ja | `dom`, `component`, `form`, `layout`, `navigation`, `animation`, `scheduling`, `observability`, `storage`, `security`, `network`, `media`, `other` |
+| `primitiveCategory` | ja | `dom`, `component`, `form`, `layout`, `navigation`, `animation`, `scheduling`, `lifecycle`, `observability`, `storage`, `security`, `network`, `media`, `accessibility`, `compute`, `other` |
 | `targetSurface` | ja | `runtime`, `component`, `rmt`, `fabric`, `docs`, `tooling`, `security` |
 | `decisionOutcome` | ja | erlaubtes Outcome aus der Native-First-Mission |
 | `owner` | ja | Owner oder Owner-Rolle |
@@ -170,21 +170,13 @@ Das Template ist absichtlich ausfuehrungsfrei. Es ist ein Review- und Evidence-F
 
 ## Verifikation
 
-Fuer `NFM-WP-03` ist das Gate ein Dokumentations- und Contract-Gate.
-
-Aktueller lokaler Gate:
+Der urspruengliche Dokumentations- und Contract-Gate aus `NFM-WP-03` ist nun als ausfuehrbarer lokaler Adoption Gate umgesetzt:
 
 ```bash
-node scripts/run_xtend_tests.js references --json
+node scripts/run_xtend_tests.js primitive-adoption-gate --json
 ```
 
-Ziel-Gate fuer spaetere Produktisierung:
-
-```bash
-node scripts/run_xtend_tests.js native-primitive-adoption-gate --json
-```
-
-Das Ziel-Gate soll spaeter pruefen, ob Primitive-ADR-Dateien Pflichtfelder, erlaubte Outcomes, Radar-Refs und Evidence-Bloecke enthalten.
+Das Gate prueft Primitive-ADR-Pflichtfelder, erlaubte Outcomes, Radar-Refs, Evidence-Bloecke, Fallback, Security, RMT-Kernel-Neutralitaet, Runtime-Dependencies und blockierende `insufficient-evidence`-Engine-Artefakte. Seine Negativtests belegen, dass fehlende Felder, ungueltige Outcomes, unbekannte Radar-IDs, unvollstaendige Evidence, Runtime-Dependencies und Adoption ohne ausreichende Engine-Evidence abgewiesen werden.
 
 ## Handoff
 

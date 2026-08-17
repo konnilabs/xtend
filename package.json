@@ -5614,6 +5614,63 @@
       "rmtKernelBoundary": "no-rmt-kernel-import-of-xtend-types",
       "createsSecondRegistry": false
     },
+    "nativeFirstFeatureAdoptionObservatory": {
+      "schema": "xtend.native-first.observatory-intake.v1",
+      "reviewSchema": "xtend.native-first.observatory-review.v1",
+      "runIndexSchema": "xtend.native-first.observatory-run-index.v1",
+      "labSchema": "xtend.native-first.observatory-lab.v1",
+      "decisionSchema": "xtend.native-first.observatory-adoption-decisions.v1",
+      "radarReportSchema": "xtend.native-first.browser-primitive-radar-report.v1",
+      "adoptionReportSchema": "xtend.native-first.primitive-adoption-gate-report.v1",
+      "labReportSchema": "xtend.native-first.observatory-lab-report.v1",
+      "status": "accepted-internal-intake",
+      "contract": "development/XTend-Native-First-Feature-Adoption-Observatory-Contract.md",
+      "runIndex": "development/observatory/observatory-run-index.json",
+      "currentRun": "NFM-OBS-2026-08-17",
+      "intake": "development/observatory/xtend-observatory-2026-08-17.intake.json",
+      "review": "development/observatory/xtend-observatory-2026-08-17.review.json",
+      "decisions": "development/observatory/observatory-adoption-decisions.json",
+      "labReport": "development/XTend-Observatory-Prototype-Lab-Report-2026-08-17.md",
+      "suites": [
+        "tests/native-first/browser_primitive_radar_suite.js",
+        "tests/native-first/primitive_adoption_gate_suite.js",
+        "tests/native-first/observatory_adoption_labs_suite.js",
+        "tests/a11y/aria_in_html_conformance_suite.js"
+      ],
+      "localGates": [
+        "node scripts/run_xtend_tests.js browser-primitive-radar --json",
+        "node scripts/run_xtend_tests.js primitive-adoption-gate --json",
+        "node scripts/run_xtend_tests.js observatory-adoption-labs --json",
+        "node scripts/run_xtend_tests.js aria-in-html-conformance --json"
+      ],
+      "radarRefs": [
+        "NFM-BPR-006",
+        "NFM-BPR-007",
+        "NFM-BPR-008",
+        "NFM-BPR-011",
+        "NFM-BPR-012",
+        "NFM-BPR-015",
+        "NFM-BPR-021",
+        "NFM-BPR-022",
+        "NFM-BPR-023",
+        "NFM-BPR-024"
+      ],
+      "ariaInHtmlConformance": {
+        "schema": "xtend.a11y.aria-in-html-conformance.v1",
+        "reportSchema": "xtend.a11y.aria-in-html-conformance-report.v1",
+        "contract": "development/XTend-ARIA-in-HTML-2026-Conformance-Contract.md",
+        "matrix": "tests/fixtures/native-first/aria-in-html-2026-conformance.json",
+        "localGate": "aria-in-html-conformance",
+        "claimBoundary": "author-conformance-only-no-browser-aom-or-assistive-technology-support-claim"
+      },
+      "untrustedInput": true,
+      "rawVerdictsAreSuggestionsOnly": true,
+      "noAutomaticRadarMutation": true,
+      "noAutomaticRuntimeMutation": true,
+      "noRuntimeDependency": true,
+      "publicExportsAdded": false,
+      "rmtKernelBoundary": "rmt-kernel-remains-host-neutral"
+    },
     "nativeFirstFormNavigationMediaHardening": {
       "schema": "xtend.native-first.form-navigation-media-hardening.v1",
       "matrixSchema": "xtend.native-first.form-navigation-media-hardening-matrix.v1",
@@ -5945,6 +6002,19 @@
           "sourceOfTruth": "primitive-adoption-gate",
           "domain": "native-first",
           "evidenceRole": "gate-plan"
+        },
+        {
+          "contractId": "xtend.native-first.observatory-intake.v1",
+          "status": "accepted-internal-intake",
+          "owner": "architecture-governance-owner",
+          "workpackage": "OBS-2026-08-17",
+          "phase": "Continuous Review",
+          "reportSchema": "xtend.native-first.browser-primitive-radar-report.v1",
+          "localGate": "browser-primitive-radar",
+          "docsPath": "development/XTend-Native-First-Feature-Adoption-Observatory-Contract.md",
+          "sourceOfTruth": "feature-adoption-observatory",
+          "domain": "native-first",
+          "evidenceRole": "source-contract"
         },
         {
           "contractId": "xtend.native-first.dependency-diet-policy.v1",
@@ -12305,6 +12375,7 @@
         "commandSet": [
           "npm run native-first:evidence:prepare",
           "npm run test:release:full:report",
+          "npm run test:feature-adoption-observatory",
           "npm run test:rmt-reference-docs:report",
           "npm run test:rmt-demos:report",
           "npm run test:rkfa-production-closure:report",
@@ -17708,7 +17779,8 @@
     "test:surface-runtime-release-handoff": "node scripts/run_xtend_tests.js surface-runtime-release-handoff",
     "test:rmt-component-fabric-ingestion": "node scripts/run_xtend_tests.js rmt-component-fabric-ingestion",
     "test:rmt-component-lifecycle-telemetry": "node scripts/run_xtend_tests.js rmt-component-lifecycle-telemetry",
-    "test:a11y": "node scripts/run_xtend_tests.js a11y-hydration",
+    "test:a11y": "node scripts/run_xtend_tests.js a11y-hydration aria-in-html-conformance",
+    "test:aria-in-html-conformance": "node scripts/run_xtend_tests.js aria-in-html-conformance",
     "test:screenreader-signals": "node scripts/run_xtend_tests.js screenreader-signals",
     "test:motion-contrast": "node scripts/run_xtend_tests.js motion-contrast",
     "test:runtime-a11y-contract": "node scripts/run_xtend_tests.js runtime-a11y-contract",
@@ -17720,6 +17792,10 @@
     "test:navigation-routing-ux": "node scripts/run_xtend_tests.js navigation-routing-ux",
     "test:overlay-interaction-ux": "node scripts/run_xtend_tests.js overlay-interaction-ux",
     "test:native-first-overlay-focus": "node scripts/run_xtend_tests.js native-first-overlay-focus",
+    "test:browser-primitive-radar": "node scripts/run_xtend_tests.js browser-primitive-radar",
+    "test:primitive-adoption-gate": "node scripts/run_xtend_tests.js primitive-adoption-gate",
+    "test:observatory-adoption-labs": "node scripts/run_xtend_tests.js observatory-adoption-labs",
+    "test:feature-adoption-observatory": "node scripts/run_xtend_tests.js browser-primitive-radar primitive-adoption-gate observatory-adoption-labs aria-in-html-conformance",
     "test:native-first-form-navigation-media": "node scripts/run_xtend_tests.js native-first-form-navigation-media",
     "test:native-first-framework-leverage": "node scripts/run_xtend_tests.js native-first-framework-leverage",
     "test:native-first-market-pattern-parity": "node scripts/run_xtend_tests.js native-first-market-pattern-parity",

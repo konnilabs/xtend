@@ -167,7 +167,7 @@ class XSummary extends HTMLElement {
         }
       </style>
       <details part="container">
-        <summary part="summary" role="button" aria-expanded="false">
+        <summary part="summary">
           <span class="icon">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 10l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </span>
@@ -200,7 +200,6 @@ class XSummary extends HTMLElement {
     this._details.addEventListener("toggle", this._onDetailsToggle);
     this._summary.addEventListener("keydown", this._onSummaryKeydown);
 
-    this._syncAria(this._isOpen());
   }
 
   disconnectedCallback() {
@@ -234,10 +233,6 @@ class XSummary extends HTMLElement {
     return Boolean(this._details && this._details.open);
   }
 
-  _syncAria(isOpen) {
-    if (this._summary) this._summary.setAttribute("aria-expanded", String(Boolean(isOpen)));
-  }
-
   _setXStateOpen(isOpen) {
     if (!this._stateKey) return;
     if (typeof xstate.get === "function" && xstate.get(this._stateKey) === isOpen) return;
@@ -257,7 +252,6 @@ class XSummary extends HTMLElement {
         this._syncingAttribute = false;
       }
     }
-    this._syncAria(nextOpen);
     if (options.syncState !== false) {
       this._setXStateOpen(nextOpen);
     }

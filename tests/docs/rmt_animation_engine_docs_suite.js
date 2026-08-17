@@ -170,7 +170,10 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
   context.assert(browserSmoke.includes('webDriverRequest(baseUrl, `/session/${sessionId}/screenshot`)'), 'Browser smoke captures screenshots from the verified WebDriver session');
 
   context.assert(builderSource.includes("const DEMO_SCHEMA = 'xtend.docs.animation-engine-demo.v1'"), 'Builder owns the docs artifact schema');
-  context.assert(indexPhp.includes("'rmt-animation-engine' => 'sparkles'"), 'PHP SSR icon mapping recognizes the article');
+  context.assert(
+    indexPhp.includes("foreach (['id', 'slug', 'label', 'labels', 'parent', 'rank', 'tier', 'icon', 'trunk', 'section'] as $key)"),
+    'PHP SSR bootstrap preserves canonical menu icon metadata'
+  );
   context.assert(implementationPlan.includes('XDQ-WP-09') && implementationPlan.includes('165 kanonische'), 'Docs quality plan tracks the AnimationEngine work and new corpus size');
 
   const metadata = packageManifest.xtend && packageManifest.xtend.docsAnimationEngine;

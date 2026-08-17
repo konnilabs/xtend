@@ -11,6 +11,7 @@ const OUTPUT_PATH = path.join(RESULT_DIR, 'xtend-nightly-build-manifest.json');
 const COMMANDS = [
   'npm run native-first:evidence:prepare',
   'npm run test:release:full:report',
+  'npm run test:feature-adoption-observatory',
   'npm run test:rmt-reference-docs:report',
   'npm run test:rmt-demos:report',
   'npm run test:rkfa-production-closure:report',

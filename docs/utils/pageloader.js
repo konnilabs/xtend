@@ -1898,6 +1898,14 @@ function createDocsComponentDemos() {
   add('components-xtoast', 'x-toast', 'x-toast', 'Toast Feedback per API oder direktes Element.', '<div class="docs-demo-actions"><x-button data-demo-action="toast" variant="primary">Toast anzeigen</x-button></div>', {
     attributes: { type: 'success', duration: '3000' },
     children: ['Gespeichert'],
+    descriptor: {
+      type: 'element',
+      tag: 'div',
+      attributes: { class: 'docs-demo-actions' },
+      children: [
+        { type: 'element', tag: 'x-button', attributes: { 'data-demo-action': 'toast', variant: 'primary' }, children: ['Toast anzeigen'] }
+      ]
+    },
     actions: ['toast']
   });
   add('components-xmodal', 'x-modal', 'x-modal', 'Modales Overlay mit Focus Trap, Escape und xstate-Sync.', '<div class="docs-demo-actions"><x-button data-demo-action="open-modal" variant="primary">Modal testen</x-button></div><x-modal id="docs-demo-modal" title="Release Check" content="XTend Modal läuft in der Docs Shell." overlay></x-modal>', {
@@ -1947,9 +1955,13 @@ function createDocsComponentDemos() {
       { tag: 'p', children: ['Microcopy, Actions oder kurze Settings.'] }
     ]
   });
-  add('components-xtooltip', 'x-tooltip', 'x-tooltip', 'Nicht-modale Hilfe am Control.', '<span id="docs-demo-tooltip-anchor">Hover oder Fokus</span><x-tooltip for="docs-demo-tooltip-anchor" placement="top" label="Tooltip">Kontext ohne Layoutsprung.</x-tooltip>', {
-    attributes: { for: 'docs-demo-tooltip-anchor', placement: 'top', label: 'Tooltip' },
-    children: ['Kontext ohne Layoutsprung.']
+  add('components-xtooltip', 'x-tooltip', 'x-tooltip', 'Nicht-modale Hilfe am Control.', '<x-tooltip id="docs-demo-tooltip" placement="top" label="Tooltip"><x-button slot="trigger" data-demo-action="toggle-tooltip" variant="secondary">Tooltip testen</x-button>Kontext ohne Layoutsprung.</x-tooltip>', {
+    attributes: { id: 'docs-demo-tooltip', placement: 'top', label: 'Tooltip' },
+    children: [
+      { tag: 'x-button', attributes: { slot: 'trigger', 'data-demo-action': 'toggle-tooltip', variant: 'secondary' }, children: ['Tooltip testen'] },
+      'Kontext ohne Layoutsprung.'
+    ],
+    actions: ['toggle-tooltip']
   });
   add('components-xtabs', 'x-tabs', 'x-tabs', 'Tab-Shell fuer dichte Tool- oder Contentbereiche.', '<x-tabs selected="0"><x-tab name="Preview">Preview</x-tab><x-tab name="RMT">RMT Descriptor</x-tab><x-tab name="Events">Events</x-tab></x-tabs>', {
     attributes: { selected: '0' },
@@ -3998,6 +4010,15 @@ function bindDocsDemoInteractions(container, demo) {
         const dialog = container.querySelector('#docs-demo-dialog');
         if (dialog && typeof dialog.open === 'function') dialog.open();
         else if (dialog) dialog.setAttribute('open', '');
+      });
+    });
+  }
+  if (demo.actions.includes('toggle-tooltip')) {
+    container.querySelectorAll('[data-demo-action="toggle-tooltip"]').forEach((button) => {
+      bindDocsButtonAction(button, () => {
+        const tooltip = container.querySelector('#docs-demo-tooltip');
+        if (tooltip && typeof tooltip.toggle === 'function') tooltip.toggle();
+        else if (tooltip) tooltip.toggleAttribute('open');
       });
     });
   }

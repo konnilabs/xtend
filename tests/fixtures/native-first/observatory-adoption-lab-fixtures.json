@@ -1,0 +1,46 @@
+{
+  "schema": "xtend.native-first.observatory-browser-evidence.v1",
+  "capturedAt": "2026-08-17",
+  "evidenceMode": "chromium-lab-captured-firefox-webkit-pending",
+  "engines": [
+    { "engine": "Chromium", "version": "151.0.7922.108", "status": "lab-evidence", "artifact": "tests/fixtures/native-first/observatory-browser-evidence-chromium-151.json" },
+    { "engine": "Firefox", "version": null, "status": "insufficient-evidence", "artifact": null },
+    { "engine": "WebKit", "version": null, "status": "insufficient-evidence", "artifact": null }
+  ],
+  "wave1": {
+    "overlayAnchor": {
+      "radarRefs": ["NFM-BPR-006", "NFM-BPR-007", "NFM-BPR-008"],
+      "components": ["x-tooltip", "x-popover", "x-dialog"],
+      "requirements": ["keyboard", "focus-return", "escape", "light-dismiss", "nested-overlays", "rtl", "zoom", "scroll-resize", "reduced-motion", "js-fallback", "surface-record-parity", "public-event-parity"]
+    },
+    "scheduler": {
+      "radarRefs": ["NFM-BPR-012"],
+      "unitCount": 500,
+      "sliceBudgetMs": 4,
+      "longTaskLimitMs": 50,
+      "standardHydrationBudgetMs": 32,
+      "maxThroughputOrInputDelayRegressionPercent": 5,
+      "strategies": ["scheduler.yield", "requestIdleCallback", "timer"]
+    },
+    "scopedRegistries": {
+      "radarRefs": ["NFM-BPR-021"],
+      "requirements": ["two-scope-hosts", "identical-tags", "different-constructors", "programmatic-dom", "upgrade", "hydration", "surface-mount", "global-fallback", "negative-firefox-capability"]
+    }
+  },
+  "wave2": {
+    "navigation": {
+      "radarRefs": ["NFM-BPR-015"],
+      "requirements": ["back-forward", "superseded", "abort", "query-hash", "external-links", "target", "download", "unregistered-routes", "scroll-restore", "focus", "title-announcement", "ssr-adoption", "route-reuse"]
+    },
+    "crossDocumentViewTransitions": {
+      "radarRefs": ["NFM-BPR-011"],
+      "artifacts": ["tests/browser/fixtures/observatory-view-transition-a.html", "tests/browser/fixtures/observatory-view-transition-b.html"],
+      "docsPilotAllowed": false
+    }
+  },
+  "watchpoints": {
+    "accessibility": "published-wpt-automation-required",
+    "jspi": "safari-27-stable-and-concrete-async-import-use-case-required",
+    "shadowrootslotassignment": "xtend-dsd-contract-or-second-engine-required"
+  }
+}

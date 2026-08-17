@@ -513,30 +513,43 @@
             z-index: 1;
             padding: 2em 2em 1.5em;
             animation: fadeInScale 0.25s cubic-bezier(.4,1.4,.6,1);
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            justify-content: flex-start;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-rows: auto minmax(0, 1fr) auto;
+            grid-template-areas:
+              "title close"
+              "content content"
+              "actions actions";
+            align-items: start;
+            column-gap: var(--dialog-chrome-column-gap, 1rem);
+            row-gap: var(--dialog-chrome-row-gap, 0.9rem);
             backdrop-filter: blur(var(--xdialog-glass-blur));
             border: var(--xtend-border, 1.5px solid rgba(255,255,255,0.12));
             outline: none;
           }
           .xdialog-title {
+            grid-area: title;
+            min-width: 0;
             font-size: 1.3em;
             font-weight: 600;
-            margin-bottom: 0.7em;
+            margin: 0;
             letter-spacing: 0.02em;
             color: var(--xdialog-primary);
             text-shadow: 0 2px 8px rgba(79,195,247,0.18);
           }
           .xdialog-content {
+            grid-area: content;
+            min-width: 0;
+            overflow: auto;
             color: inherit;
           }
           .xdialog-actions {
+            grid-area: actions;
             display: flex;
+            flex-wrap: wrap;
             justify-content: flex-end;
             gap: 0.7em;
-            margin-top: var(--dialog-actions-margin-top, 1.5em);
+            margin: 0;
           }
           .xdialog-actions button {
             background: var(--xdialog-primary);
@@ -559,9 +572,10 @@
             transform: scale(1.08);
           }
           .xdialog-close {
-            position: absolute;
-            top: 1.1em;
-            right: 1.3em;
+            grid-area: close;
+            position: static;
+            justify-self: end;
+            align-self: start;
             background: var(--xdialog-close-bg);
             border: none;
             width: 2.2em;
@@ -586,6 +600,7 @@
             transform: scale(1.08);
           }
           .xdialog-fallback {
+            grid-area: content;
             color: #fff;
             background: #c00;
             padding: 1em;
@@ -639,7 +654,7 @@
         <div class="xdialog-wrapper" part="root overlay-root" role="presentation">
           ${state.overlay ? '<div class="xdialog-overlay" part="backdrop overlay" tabindex="-1" aria-hidden="true"></div>' : ''}
           <div class="xdialog" part="surface overlay-surface" role="dialog" aria-modal="true" aria-hidden="${state.open ? 'false' : 'true'}" tabindex="0">
-            <button class="xdialog-close" part="close control" aria-label="Schliessen">
+            <button class="xdialog-close" part="close control" type="button" aria-label="Schliessen">
               <svg part="close-icon control icon" width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.10)"></circle>
                 <path d="M8 8l8 8M16 8l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>

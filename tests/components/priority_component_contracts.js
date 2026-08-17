@@ -1107,8 +1107,7 @@ const priorityComponentConfigs = {
     sourceContracts: [
       { pattern: 'xsummary-open-', message: 'x-summary syncs open state key' },
       { pattern: 'new CustomEvent(isOpen ? "open" : "close"', message: 'x-summary emits open/close events' },
-      { pattern: 'role="button"', message: 'x-summary exposes button role' },
-      { pattern: 'aria-expanded', message: 'x-summary mirrors expanded state' },
+      { pattern: '<summary part="summary">', message: 'x-summary preserves native details/summary semantics without a redundant explicit role' },
       { pattern: 'details[open] .icon {\n          transform: rotate(180deg);', message: 'x-summary points its disclosure indicator upward while expanded' },
       { pattern: 'e.key === "Enter" || e.key === " "', message: 'x-summary supports keyboard toggle' },
       { pattern: '_applyOpenState', message: 'x-summary centralizes open-state synchronization' },
@@ -1132,7 +1131,7 @@ const priorityComponentConfigs = {
       { pattern: '`close`', message: 'x-summary docs describe close event' },
       { pattern: 'xsummary-open-<id>', message: 'x-summary docs describe state key' },
       { pattern: 'reentrant-sicher', message: 'x-summary docs describe loop-safe xstate synchronization' },
-      { pattern: 'aria-expanded', message: 'x-summary docs describe aria-expanded' }
+      { pattern: 'native expanded-state contract', message: 'x-summary docs describe native expanded-state ownership' }
     ]
   },
   'x-player': {

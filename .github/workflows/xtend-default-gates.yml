@@ -96,6 +96,11 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:pr:report
 
+      - name: Run Feature Adoption Observatory gates
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run test:feature-adoption-observatory
+
       - name: Run XTensions framework adapter report
         if: always()
         env:
@@ -296,6 +301,11 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:release:full:report
+
+      - name: Run Feature Adoption Observatory gates
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run test:feature-adoption-observatory
 
       - name: Run XTensions framework adapter report
         if: always()
@@ -867,6 +877,7 @@ jobs:
         run: |
           npm run native-first:evidence:prepare
           npm run test:release:full:report
+          npm run test:feature-adoption-observatory
           npm run test:xtensions-framework-adapters:report
           npm run test:rmt-vnext-primitives:report
           npm run test:native-first-rmt-owned-release:report
