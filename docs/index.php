@@ -1079,6 +1079,7 @@ function docsBuildDocumentSsrRecord($html, $meta, $slug, $locale, $path, $source
         'data-docs-route-state' => 'server-rendered',
         'data-xrouter-adoption-pending' => 'true',
         'data-rmt-adoption-state' => 'pending',
+        'inert' => '',
         'style' => 'display:block;'
     ], [
         docsDescriptorElement('section', [
@@ -3455,6 +3456,7 @@ header('Vary: Accept');
     <link rel="icon" type="image/png" sizes="16x16" href="<?= $docsFavicon16Url ?>">
     <link rel="apple-touch-icon" href="<?= $docsAppleTouchIconUrl ?>">
     <link rel="stylesheet" href="/xtend.css?v=<?= $xtendAssetVersionAttr ?>">
+    <script type="module" src="/xtend.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>"></script>
     <script src="/fabric/xtend-fabric.js?v=<?= $xtendAssetVersionAttr ?>"></script>
 <?php if (($docsSsrPrehydration['executionMode'] ?? null) === 'server_prerender_resume'): ?>
     <script nonce="<?= $nonce ?>">
