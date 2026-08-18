@@ -1,28 +1,22 @@
-export {};
+import {
+  readyXTend,
+  getXTendHost,
+  render,
+  renderKeyed,
+  patchElement,
+  schedule,
+  afterPaint,
+  hydrate
+} from '/xtend.js';
 
-// The route host and its scoped styles must exist before the RMT shell adopts the
-// server-rendered document.  This module deliberately starts in parallel with the
-// resume bootstrap; the prerendered page remains inert while
-// data-xrouter-adoption-pending is present.
-await import('../../components/xutils.js');
-
-const docsPageLoaderScript = Array.from(document.scripts).find((script) => /\/docs\/utils\/pageloader\.js(?:\?|$)/u.test(script.src || ''));
-const docsAssetVersion = docsPageLoaderScript ? new URL(docsPageLoaderScript.src, window.location.href).searchParams.get('v') || '' : '';
-const docsVersionedModuleUrl = (path) => `${path}${docsAssetVersion ? `?v=${encodeURIComponent(docsAssetVersion)}` : ''}`;
-const [
-  { createRmtDomDescriptorRenderer },
-  { createMaracaPlanRuntime },
-  { createRmtBrowserScheduler },
-  { createRmtMaracaViewProjectionAdapter }
-] = await Promise.all([
-  import(docsVersionedModuleUrl('/xtendrmt/rmt-dom-descriptor-renderer.js')),
-  import(docsVersionedModuleUrl('/xtend-maraca/plan-runtime.mjs')),
-  import(docsVersionedModuleUrl('/xtendrmt/rmt-browser-scheduler.js')),
-  import(docsVersionedModuleUrl('/xtendrmt/rmt-maraca-view-projection-adapter.js'))
-]);
-
-const DOCS_RMT_RENDER_SCHEMA = 'xtend.docs.parsedown-rmt-render.v1';
-const docsBrowserScheduler = createRmtBrowserScheduler({ windowTarget: window });
+let window;
+let document;
+let customElements;
+let HTMLElement;
+let location;
+let history;
+let docsAssetVersion = '';
+let docsVersionedModuleUrl = (path) => path;
 const docsProductDisposers = new Set();
 
 async function requireDocsLifecycleBinding() {
@@ -34,14 +28,14 @@ async function requireDocsLifecycleBinding() {
   throw new Error('XTend XUtils lifecycle binding is required after loader boot.');
 }
 
-await requireDocsLifecycleBinding();
-
 function bindDocsLifecycle(target, eventName, listener, options) {
   if (!window.XUtils || typeof window.XUtils.on !== 'function') throw new Error('XTend XUtils lifecycle binding is required.');
   const dispose = window.XUtils.on(target, eventName, listener, options);
   docsProductDisposers.add(dispose);
   return () => { docsProductDisposers.delete(dispose); dispose(); };
 }
+
+const DOCS_RMT_RENDER_SCHEMA = 'xtend.docs.parsedown-rmt-render.v1';
 const DOCS_RMT_PRODUCTION_HARDENING_SCHEMA = 'xtend.epic13.docs-rmt-production-hardening.v1';
 const DOCS_RMT_TRUST_BOUNDARY = 'xtend.security.sanitizing-boundary.v1';
 const DOCS_RMT_TRUSTED_DOM_PROOF_SCHEMA = 'xtend.epic13.trusted-dom-boundary.v1';
@@ -161,7 +155,6 @@ const DOCS_RMT_PLAYGROUND_ISLANDS = Object.freeze({
     schedule: 'docs.rmt-playground.diagnostics.hydrate'
   })
 });
-const docsRmtDescriptorRenderer = createRmtDomDescriptorRenderer({ documentTarget: document });
 let docsAnimationEngineDemoModulePromise = null;
 let docsAnimationEngineDemoArtifactPromise = null;
 const DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE = `template learn.rmt.playground {
@@ -1717,12 +1710,21 @@ function runDocsMeasuredLane(detail, callback) {
   return result;
 }
 
+function scheduleDocsWork(scheduleId, callback, options = {}) {
+  return schedule(callback, {
+    endpointName: scheduleId,
+    scope: window.location.pathname,
+    source: { inputKind: 'docs-page-loader', schedule: scheduleId },
+    ...options
+  });
+}
+
 function scheduleDocsAfterPaint(callback) {
-  return docsBrowserScheduler.afterPaint(callback);
+  return scheduleDocsWork('docs.route.after-paint', callback, { kind: 'after_paint' });
 }
 
 function scheduleDocsIdle(callback, timeout = DOCS_ROUTE_IDLE_TIMEOUT_MS) {
-  return docsBrowserScheduler.scheduleEndpoint('docs.route.idle', window.location.pathname, callback, { kind: 'idle', timeout });
+  return scheduleDocsWork('docs.route.idle', callback, { kind: 'idle', timeout });
 }
 
 function getXtendSkeletonLoader() {
@@ -2278,9 +2280,14 @@ function getTemplateDescriptorNodes(template) {
 
 function renderRmtDomTemplate(templateId, model = {}) {
   const template = getRmtTemplate(templateId);
-  const fragment = document.createDocumentFragment();
   const nodes = getTemplateDescriptorNodes(template);
-  nodes.forEach((node) => fragment.appendChild(docsRmtDescriptorRenderer.renderNode(node, { model })));
+  const stagingRoot = document.createElement('div');
+  render(stagingRoot, nodes, {
+    model,
+    source: { inputKind: 'docs-rmt-template', templateId, schedule: 'docs.template.render' }
+  });
+  const fragment = document.createDocumentFragment();
+  fragment.append(...stagingRoot.childNodes);
   return { template, fragment, rendered: nodes.length > 0 };
 }
 
@@ -3893,7 +3900,7 @@ function scheduleDocsSsrCodeEnhancement(root, metadata = {}) {
   };
   const scheduleIdleEnhancement = () => {
     if (disposed || enhanced || idleDisposer || !componentReady || !isActive()) return;
-    idleDisposer = docsBrowserScheduler.scheduleEndpoint(endpointName, window.location.pathname, () => {
+    idleDisposer = scheduleDocsWork(endpointName, () => {
       cancelIdleEnhancement();
       enhance('idle');
     }, { kind: 'idle', timeout: deadlineMs });
@@ -4082,7 +4089,7 @@ function renderDocsComponentDemo(demoSlot, slug) {
   if (title) title.textContent = `${demo.title} Hands-on`;
   if (description) description.textContent = demo.description;
   if (preview) {
-    docsRmtDescriptorRenderer.render(preview, demo.descriptor, { source: { inputKind: 'docs-component-demo', slug } });
+    render(preview, demo.descriptor, { source: { inputKind: 'docs-component-demo', slug, schedule: 'docs.component-demo.render' } });
     bindDocsDemoInteractions(preview, demo);
     hydrateDocsComponentPreview(preview, demo, {
       slug,
@@ -4522,7 +4529,11 @@ function collectDocsRmtPlaygroundDescriptorTags(descriptor, tags = new Set()) {
 }
 
 function ensureDocsRmtPlaygroundRenderer() {
-  return Promise.resolve(docsRmtDescriptorRenderer);
+  return Promise.resolve(Object.freeze({
+    render,
+    renderKeyed,
+    patchElement
+  }));
 }
 
 function normalizeDocsRmtPlaygroundPreviewBounds(bounds = {}) {
@@ -4662,15 +4673,11 @@ async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = g
   target.replaceChildren(renderDocsRmtPlaygroundMaracaToolbar(maraca, copy), appRoot);
   const previous = target.__xtendDocsMaracaPlanRuntime;
   if (previous && typeof previous.dispose === 'function') previous.dispose();
-  const runtime = createMaracaPlanRuntime({
+  const { createDocsRmtPlaygroundPlanRuntime } = await import(docsVersionedModuleUrl('/docs/utils/rmt-playground-island.mjs'));
+  const runtime = createDocsRmtPlaygroundPlanRuntime({
     plan: maraca.plan,
+    appRoot,
     root: appRoot,
-    viewProjectionPort: createRmtMaracaViewProjectionAdapter({
-      root: appRoot,
-      documentTarget: document,
-      windowTarget: window
-    }),
-    ownsViewProjectionPort: true,
     moduleUrls: DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES.map((modulePath) => new URL(modulePath, window.location.origin).href),
     moduleLoaderPort: Object.freeze({
       schema: 'xtend.docs.rmt-playground.module-loader-port.v1',
@@ -5393,7 +5400,7 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
   };
   const scheduleDiagnostics = () => {
     if (diagnosticsDisposer) diagnosticsDisposer();
-    diagnosticsDisposer = docsBrowserScheduler.scheduleEndpoint('docs.playground.diagnostics', window.location.pathname, () => {
+    diagnosticsDisposer = scheduleDocsWork('docs.playground.diagnostics', () => {
       diagnosticsDisposer = null;
       runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch((error) => {
         updateDocsRmtPlaygroundDiagnostics(root, [{
@@ -5409,7 +5416,7 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     setDocsRmtPlaygroundOutputPending(root, getDocsRmtPlaygroundEditorValue(editor), copy);
     setDocsRmtPlaygroundStatus(status, copy.compiling, 'loading');
     if (compileDisposer) compileDisposer();
-    compileDisposer = docsBrowserScheduler.scheduleEndpoint('docs.playground.compile', window.location.pathname, () => {
+    compileDisposer = scheduleDocsWork('docs.playground.compile', () => {
       compileDisposer = null;
       compileDocsRmtPlayground(root, locale).catch((error) => {
         const payload = {
@@ -5809,7 +5816,10 @@ function resolveDocsSlugFromRouteContext(context = {}) {
   return slug;
 }
 
-class XtendDocPage extends HTMLElement {
+let XtendDocPage;
+
+function createDocsPageElementClass() {
+  return class XtendDocPage extends HTMLElement {
   constructor() {
     super();
     this.__xtendDocsShell = null;
@@ -6454,7 +6464,26 @@ class XtendDocPage extends HTMLElement {
 
     return true;
   }
+  };
 }
+
+export async function createDocsPageController(options = {}) {
+  window = options.windowTarget || globalThis.window;
+  document = options.documentTarget || window?.document;
+  customElements = options.customElementsTarget || window?.customElements;
+  HTMLElement = options.HTMLElementTarget || window?.HTMLElement;
+  location = options.locationTarget || window?.location;
+  history = options.historyTarget || window?.history;
+  if (!window || !document || !customElements || !HTMLElement) throw new Error('Docs PageLoader requires injected browser targets.');
+
+  const docsPageLoaderScript = Array.from(document.scripts).find((script) => /\/docs\/utils\/pageloader\.js(?:\?|$)/u.test(script.src || ''));
+  docsAssetVersion = options.assetVersion ?? (docsPageLoaderScript ? new URL(docsPageLoaderScript.src, window.location.href).searchParams.get('v') || '' : '');
+  docsVersionedModuleUrl = (path) => `${path}${docsAssetVersion ? `?v=${encodeURIComponent(docsAssetVersion)}` : ''}`;
+  await import(docsVersionedModuleUrl('/components/xutils.js'));
+  await requireDocsLifecycleBinding();
+  await readyXTend();
+  const host = getXTendHost();
+  XtendDocPage ||= createDocsPageElementClass();
 
 if (!customElements.get('xtend-doc-page')) {
   customElements.define('xtend-doc-page', XtendDocPage);
@@ -6471,3 +6500,12 @@ window.xtendDocsI18n = {
 publishDocsLocale(getCurrentDocsLocale(), 'initial');
 syncLegacyDocsGlobals(getCurrentDocsLocale());
 ensureDocsLanguageSelectBinding();
+  return Object.freeze({
+    host,
+    elementClass: XtendDocPage,
+    dispose() {
+      docsProductDisposers.forEach((dispose) => dispose());
+      docsProductDisposers.clear();
+    }
+  });
+}

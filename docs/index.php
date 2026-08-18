@@ -4989,7 +4989,9 @@ window.xtendDocsRmtBootPromise = new Promise((resolve) => {
     data-module-cache-bust="<?= $xtendAssetVersionAttr ?>"
     nonce="<?= $nonce ?>"
 ></script>
-<script type="module" src="/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">
+<script type="module" nonce="<?= $nonce ?>">
+import { createDocsPageController } from '/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>';
+await createDocsPageController({ assetVersion: '<?= $xtendAssetVersionAttr ?>' });
 </script>
 <script type="module" src="/docs/utils/docs-shell-runtime.mjs?v=<?= $xtendAssetVersionAttr ?>"></script>
 </body>
