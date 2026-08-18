@@ -1,5 +1,10 @@
 export {};
 
+import { getDocsAppServices } from './docs-app-services.mjs';
+
+const docsAppServices = getDocsAppServices(document, window);
+const docsBootDescriptor = docsAppServices.descriptor;
+
 // The route host and its scoped styles must exist before the RMT shell adopts the
 // server-rendered document.  This module deliberately starts in parallel with the
 // resume bootstrap; the prerendered page remains inert while
@@ -1321,12 +1326,8 @@ function docsRoundDuration(value) {
 }
 
 function getDocsI18nConfig() {
-  const config = window.xtendDocsI18n && typeof window.xtendDocsI18n === 'object'
-    ? window.xtendDocsI18n
-    : {};
-  const locales = window.xtendDocsLocales && typeof window.xtendDocsLocales === 'object'
-    ? window.xtendDocsLocales
-    : { de: { label: 'Deutsch', nativeLabel: 'Deutsch' } };
+  const config = docsAppServices.locale.config;
+  const locales = config.locales || { de: { label: 'Deutsch', nativeLabel: 'Deutsch' } };
   const available = Array.isArray(config.available) && config.available.length
     ? config.available.slice()
     : Object.keys(locales);
@@ -2054,14 +2055,11 @@ async function waitForDocsToastApi() {
   });
 }
 
-window.xtendShowToast = async function(message, type = 'info', duration = 3000) {
+async function showDocsToast(message, type = 'info', duration = 3000) {
   const toastApi = await waitForDocsToastApi();
   if (toastApi) return toastApi.show(message, type, duration);
-  window.dispatchEvent(new CustomEvent('xtend-docs-toast-dropped', {
-    detail: { schema: 'xtend.docs.toast-bridge.v1', reason: 'xtend-toast-api-unavailable' }
-  }));
-  return null;
-};
+  return docsAppServices.toast(message, type, duration);
+}
 
 function getDocsRmtDocument() {
   return window.xtendDocsRmtDocument && typeof window.xtendDocsRmtDocument === 'object'
@@ -2729,9 +2727,9 @@ function wireDownloadButton(download, slug) {
         a.remove();
         URL.revokeObjectURL(url);
       });
-      await window.xtendShowToast(locale === 'en' ? 'Download complete.' : 'Download erfolgreich!', 'success', 3000);
+      await showDocsToast(locale === 'en' ? 'Download complete.' : 'Download erfolgreich!', 'success', 3000);
     } catch (err) {
-      await window.xtendShowToast(getCurrentDocsLocale() === 'en' ? 'Download failed.' : 'Download fehlgeschlagen!', 'error', 3000);
+      await showDocsToast(getCurrentDocsLocale() === 'en' ? 'Download failed.' : 'Download fehlgeschlagen!', 'error', 3000);
     } finally {
       setDocsButtonBusy(download, false);
     }
@@ -3992,7 +3990,7 @@ function bindDocsDemoInteractions(container, demo) {
   if (!container || !demo || !Array.isArray(demo.actions)) return;
   if (demo.actions.includes('toast')) {
     container.querySelectorAll('[data-demo-action="toast"]').forEach((button) => {
-      bindDocsButtonAction(button, () => window.xtendShowToast('XTend Demo Toast', 'success', 2800));
+      bindDocsButtonAction(button, () => showDocsToast('XTend Demo Toast', 'success', 2800));
     });
   }
   if (demo.actions.includes('open-modal')) {
@@ -6460,14 +6458,6 @@ if (!customElements.get('xtend-doc-page')) {
   customElements.define('xtend-doc-page', XtendDocPage);
 }
 
-window.xtendDocsI18n = {
-  ...getDocsI18nConfig(),
-  normalizeLocale: normalizeDocsLocale,
-  getCurrentLocale: getCurrentDocsLocale,
-  getTransition: () => window.__xtendDocsLocaleTransition || window.__xtendDocsLocaleLastTransition || null,
-  navigate: navigateDocsLocale,
-  sync: syncLegacyDocsGlobals
-};
 publishDocsLocale(getCurrentDocsLocale(), 'initial');
 syncLegacyDocsGlobals(getCurrentDocsLocale());
 ensureDocsLanguageSelectBinding();

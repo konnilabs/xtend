@@ -3456,6 +3456,36 @@ header('Vary: Accept');
     <link rel="apple-touch-icon" href="<?= $docsAppleTouchIconUrl ?>">
     <link rel="stylesheet" href="/xtend.css?v=<?= $xtendAssetVersionAttr ?>">
     <script src="/fabric/xtend-fabric.js?v=<?= $xtendAssetVersionAttr ?>"></script>
+    <script id="xtend-docs-boot" type="application/json" nonce="<?= $nonce ?>"><?= docsJsonEncodeForHtml([
+      'schema' => 'xtend.docs.boot.v1',
+      'configuration' => [
+        'i18n' => [
+          'schema' => 'xtend.docs.i18n.v1',
+          'defaultLocale' => $docsDefaultLocale,
+          'fallbackLocale' => $docsFallbackLocale,
+          'storageKey' => 'xtend.docs.locale',
+          'available' => array_keys($docsAvailableLocales),
+          'locales' => $docsAvailableLocales
+        ],
+        'basePath' => $docsBasePath,
+        'routingMode' => 'history',
+        'pageEndpoint' => docsEndpointPath('xtend-docs-page={slug}&locale={locale}'),
+        'ssrEndpoint' => $docsSsrEndpoint
+      ],
+      'document' => [
+        'slug' => $initialDocsSlug,
+        'locale' => $pageLocale,
+        'menu' => $docsBootstrapMenuConfig,
+        'navigation' => $docsNavigationConfig,
+        'aliases' => $docsSlugAliases,
+        'pagesMeta' => $docsBootstrapPageMeta,
+        'localizedPagesMeta' => $docsBootstrapLocalizedMeta,
+        'titles' => $docsBootstrapTitles,
+        'localizedTitles' => $docsBootstrapLocalizedTitles,
+        'ssrPrehydration' => docsCompactDocsSsrPrehydrationForBootstrap($docsSsrPrehydration),
+        'rmtDocument' => json_decode($rmtPilotDocumentJson, true)
+      ]
+    ]); ?></script>
 <?php if (($docsSsrPrehydration['executionMode'] ?? null) === 'server_prerender_resume'): ?>
     <script nonce="<?= $nonce ?>">
     // XTEND_DOCS_DECLARED_PREBOOT_START
@@ -4774,24 +4804,6 @@ header('Vary: Accept');
     window.xtendDocsLocales = <?php echo docsJsonEncodeForHtml($docsAvailableLocales); ?>;
     window.xtendMenuConfig = <?php echo docsJsonEncodeForHtml($docsBootstrapMenuConfig); ?>;
     window.xtendDocsNavigation = <?php echo docsJsonEncodeForHtml($docsNavigationConfig); ?>;
-    window.xtendDocsI18n = {
-      schema: 'xtend.docs.i18n.v1',
-      defaultLocale: <?= docsJsonEncodeForHtml($docsDefaultLocale); ?>,
-      fallbackLocale: <?= docsJsonEncodeForHtml($docsFallbackLocale); ?>,
-      storageKey: 'xtend.docs.locale',
-      stateKeys: {
-        locale: 'xtend.docs.locale',
-        target: 'xtend.docs.locale.target',
-        source: 'xtend.docs.locale.source',
-        status: 'xtend.docs.locale.status',
-        busy: 'xtend.docs.locale.busy',
-        transition: 'xtend.docs.locale.transition',
-        error: 'xtend.docs.locale.error',
-        available: 'xtend.docs.locale.available',
-        fallback: 'xtend.docs.locale.fallback'
-      },
-      available: Object.keys(window.xtendDocsLocales || {})
-    };
     window.xtendDocsLocalizedPages = Object.create(null);
     window.xtendDocsLocalizedPagesMeta = <?php echo docsJsonEncodeForHtml($docsBootstrapLocalizedMeta); ?>;
     window.xtendDocsLocalizedTitles = <?php echo docsJsonEncodeForHtml($docsBootstrapLocalizedTitles); ?>;
@@ -4799,10 +4811,11 @@ header('Vary: Accept');
     window.xtendDocsBasePath = <?= docsJsonEncodeForHtml($docsBasePath); ?>;
     window.xtendDocsRoutingMode = 'history';
     (function() {
-      const config = window.xtendDocsI18n || {};
+      const descriptor = JSON.parse(document.getElementById('xtend-docs-boot').textContent || '{}');
+      const config = descriptor.configuration.i18n;
       const available = config.available || ['de'];
       const fallback = config.fallbackLocale || 'de';
-      const basePath = String(window.xtendDocsBasePath || '').replace(/\/+$/, '');
+      const basePath = String(descriptor.configuration.basePath || '').replace(/\/+$/, '');
       const normalizeLocale = (value) => {
         const raw = String(value || '').toLowerCase();
         if (available.includes(raw)) return raw;
