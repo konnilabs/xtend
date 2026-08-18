@@ -13,12 +13,14 @@ const [
   { createRmtDomDescriptorRenderer },
   { createMaracaPlanRuntime },
   { createRmtBrowserScheduler },
-  { createRmtMaracaViewProjectionAdapter }
+  { createRmtMaracaViewProjectionAdapter },
+  { render: renderXtendDescriptor, renderKeyed, patchElement }
 ] = await Promise.all([
   import(docsVersionedModuleUrl('/xtendrmt/rmt-dom-descriptor-renderer.js')),
   import(docsVersionedModuleUrl('/xtend-maraca/plan-runtime.mjs')),
   import(docsVersionedModuleUrl('/xtendrmt/rmt-browser-scheduler.js')),
-  import(docsVersionedModuleUrl('/xtendrmt/rmt-maraca-view-projection-adapter.js'))
+  import(docsVersionedModuleUrl('/xtendrmt/rmt-maraca-view-projection-adapter.js')),
+  import(docsVersionedModuleUrl('/xtend.js'))
 ]);
 
 const DOCS_RMT_RENDER_SCHEMA = 'xtend.docs.parsedown-rmt-render.v1';
@@ -162,6 +164,30 @@ const DOCS_RMT_PLAYGROUND_ISLANDS = Object.freeze({
   })
 });
 const docsRmtDescriptorRenderer = createRmtDomDescriptorRenderer({ documentTarget: document });
+
+function descriptorElement(tag, attributes = {}, children = []) {
+  return { tag, attributes, children: Array.isArray(children) ? children : [children] };
+}
+
+function createDocsDescriptorElement(tag) {
+  return docsRmtDescriptorRenderer.renderNode(descriptorElement(tag));
+}
+
+function createDocsDescriptorText(text) {
+  return docsRmtDescriptorRenderer.renderNode({ text: String(text) });
+}
+
+function createDocsDescriptorFragment() {
+  return docsRmtDescriptorRenderer.renderNode(descriptorElement('div', { 'data-rmt-transient-render-root': true }));
+}
+
+function replaceDocsChildren(target, ...nodes) {
+  // Nodes originate exclusively from descriptor functions. Preserve their identity so
+  // lifecycle bindings and custom-element state survive the structural commit.
+  target.textContent = '';
+  target.append(...nodes);
+}
+
 let docsAnimationEngineDemoModulePromise = null;
 let docsAnimationEngineDemoArtifactPromise = null;
 const DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE = `template learn.rmt.playground {
@@ -360,7 +386,6 @@ const DOCS_RMT_PLAYGROUND_PRESETS = Object.freeze([
   Object.freeze({ id: 'transitions', source: DOCS_RMT_PLAYGROUND_TRANSITIONS_SOURCE, filePath: 'docs/rmt-playground-transitions.rmt' }),
   Object.freeze({ id: 'customer-service-kernel', endpoint: 'customer-service-kernel', filePath: 'products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt' })
 ]);
-const DOCS_SHELL_SHADOW_STYLE_ID = 'xtend-docs-shell-shadow-styles';
 const DOCS_RMT_EXTENSION_SLOTS = Object.freeze([
   'docs.slot.content',
   'docs.slot.sidebar',
@@ -388,914 +413,7 @@ const DOCS_ROUTE_CONTENT_CACHE = new Map();
 const DOCS_ROUTE_PAYLOAD_PROMISES = new Map();
 const DOCS_I18N_SCHEMA = 'xtend.docs.i18n.v1';
 const DOCS_I18N_STORAGE_KEY = 'xtend.docs.locale';
-const DOCS_SHELL_SCOPED_CSS = `
-  #outlet {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-  }
-  xtend-doc-page {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.16s ease, transform 0.16s ease;
-  }
-  xtend-doc-page[data-docs-route-state="loading"] {
-    opacity: 0.72;
-    transform: translateY(4px);
-  }
-  xtend-doc-page [data-rmt-shell] {
-    transition: border-color 0.16s ease, box-shadow 0.16s ease;
-  }
-  xtend-doc-page[data-docs-route-state="ready"] [data-rmt-shell] {
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-  }
-  .docs-shell-toolbar {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 0.5rem;
-    min-block-size: 44px;
-    margin-bottom: 0.8rem;
-  }
-  .docs-app-shell {
-    display: block;
-    width: 100%;
-    max-width: none;
-    min-width: 0;
-    box-sizing: border-box;
-    --section-bg: var(--docs-shell-bg);
-    --section-padding: 0;
-    --main-content-padding: 0;
-    --section-gap: 0;
-    --border-radius: 0;
-  }
-  x-section.docs-app-shell::part(container),
-  x-section.docs-app-shell::part(content) {
-    display: block;
-    width: 100%;
-    max-width: none;
-    min-width: 0;
-    flex: 1 1 auto;
-    box-sizing: border-box;
-    padding: 0;
-    overflow: visible;
-  }
-  .docs-shell-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--docs-sidebar-width, clamp(20rem, 24vw, 27rem));
-    gap: var(--docs-layout-gap, clamp(1rem, 2.2vw, 2.5rem));
-    align-items: start;
-    width: calc(100% - var(--docs-viewport-gutter, 0.5rem) - var(--docs-viewport-gutter, 0.5rem));
-    max-width: calc(100% - var(--docs-viewport-gutter, 0.5rem) - var(--docs-viewport-gutter, 0.5rem));
-    margin-inline: var(--docs-viewport-gutter, 0.5rem);
-    min-width: 0;
-    box-sizing: border-box;
-  }
-  .docs-article-surface,
-  .docs-page-sidebar {
-    min-width: 0;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-  .docs-article-surface {
-    background: var(--section-bg);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: clamp(1rem, 2vw, 2rem);
-    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
-  }
-  .docs-animation-engine-demo {
-    --docs-animation-field-slot-size: 4.55rem;
-    --docs-animation-action-slot-size: 4rem;
-    --docs-animation-replay-slot-inline-size: 13rem;
-    --docs-animation-status-slot-size: 5.5rem;
-    display: grid;
-    gap: 0.8rem;
-    min-block-size: 15.1rem;
-    margin: 0 0 1.25rem;
-    padding: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background: color-mix(in srgb, var(--surface-muted) 84%, var(--section-bg));
-    color: var(--text-color);
-    box-sizing: border-box;
-    contain: layout style;
-  }
-  .docs-animation-engine-demo-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    margin: 0;
-    font-size: 1rem;
-    line-height: 1.35;
-    letter-spacing: 0;
-  }
-  .docs-animation-engine-demo-skeleton-controls {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(8.5rem, 1fr)) var(--docs-animation-replay-slot-inline-size);
-    grid-template-areas:
-      "effect duration easing motion replay"
-      "status status status status status";
-    grid-template-rows: minmax(var(--docs-animation-field-slot-size), auto) var(--docs-animation-status-slot-size);
-    gap: 0.7rem;
-    align-items: stretch;
-    min-width: 0;
-  }
-  .docs-animation-engine-demo-control-slot {
-    display: flex;
-    align-items: flex-end;
-    min-width: 0;
-    min-block-size: var(--docs-animation-field-slot-size);
-  }
-  .docs-animation-engine-demo-control-slot[data-slot="effect"] {
-    grid-area: effect;
-  }
-  .docs-animation-engine-demo-control-slot[data-slot="duration"] {
-    grid-area: duration;
-  }
-  .docs-animation-engine-demo-control-slot[data-slot="easing"] {
-    grid-area: easing;
-  }
-  .docs-animation-engine-demo-control-slot[data-slot="motion"] {
-    grid-area: motion;
-  }
-  .docs-animation-engine-demo-control-slot[data-slot="replay"] {
-    grid-area: replay;
-    inline-size: var(--docs-animation-replay-slot-inline-size);
-    max-inline-size: 100%;
-    min-block-size: var(--docs-animation-action-slot-size);
-  }
-  .docs-animation-engine-demo-control-slot[data-slot="status"] {
-    grid-area: status;
-    align-items: stretch;
-    block-size: var(--docs-animation-status-slot-size);
-    min-block-size: var(--docs-animation-status-slot-size);
-  }
-  .docs-animation-engine-demo-skeleton-field,
-  .docs-animation-engine-demo-skeleton-action,
-  .docs-animation-engine-demo-skeleton-status {
-    display: block;
-    min-width: 0;
-    min-height: 4rem;
-    border: 1px solid color-mix(in srgb, var(--border-color) 76%, transparent);
-    border-radius: 7px;
-    background: color-mix(in srgb, var(--docs-code-bg) 76%, var(--surface-muted));
-    box-sizing: border-box;
-  }
-  .docs-animation-engine-demo-skeleton-field {
-    inline-size: 100%;
-    block-size: var(--docs-animation-field-slot-size);
-  }
-  .docs-animation-engine-demo-skeleton-action {
-    inline-size: 100%;
-    block-size: 2.75rem;
-    min-height: 2.75rem;
-  }
-  .docs-animation-engine-demo-skeleton-status {
-    inline-size: 100%;
-    block-size: 100%;
-    min-height: 100%;
-  }
-  .docs-animation-engine-demo-assistive {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-  @media (max-width: 880px) {
-    .docs-animation-engine-demo {
-      min-block-size: 25rem;
-    }
-    .docs-animation-engine-demo-skeleton-controls {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-template-areas:
-        "effect duration"
-        "easing motion"
-        "replay replay"
-        "status status";
-      grid-template-rows:
-        repeat(2, minmax(var(--docs-animation-field-slot-size), auto))
-        minmax(var(--docs-animation-action-slot-size), auto)
-        var(--docs-animation-status-slot-size);
-    }
-  }
-  @media (max-width: 520px) {
-    .docs-animation-engine-demo {
-      min-block-size: 35.5rem;
-    }
-    .docs-animation-engine-demo-skeleton-controls {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-areas:
-        "effect"
-        "duration"
-        "easing"
-        "motion"
-        "replay"
-        "status";
-      grid-template-rows:
-        repeat(4, minmax(var(--docs-animation-field-slot-size), auto))
-        minmax(var(--docs-animation-action-slot-size), auto)
-        var(--docs-animation-status-slot-size);
-    }
-    .docs-animation-engine-demo-control-slot[data-slot="replay"] {
-      inline-size: 100%;
-    }
-  }
-  .docs-page-sidebar {
-    position: static;
-    display: grid;
-    gap: 0.85rem;
-    align-self: start;
-  }
-  .docs-sidebar-section {
-    background: var(--docs-sidebar-bg);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 0.9rem;
-    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
-    box-sizing: border-box;
-  }
-  .docs-sidebar-heading {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
-    margin: 0 0 0.65rem;
-    font-size: 0.86rem;
-    line-height: 1.2;
-    color: var(--text-color);
-  }
-  .docs-sidebar-heading x-icon,
-  .docs-related-link x-icon {
-    color: var(--primary-color);
-    flex: none;
-  }
-  .docs-sidebar-copy {
-    margin: -0.2rem 0 0.75rem;
-    color: var(--muted-text-color);
-    font-size: 0.88rem;
-    line-height: 1.45;
-  }
-  .docs-related-list {
-    display: grid;
-    gap: 0.5rem;
-  }
-  .docs-related-link {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 0.55rem;
-    max-width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-    min-height: 42px;
-    padding: 0.55rem 0.62rem;
-    border: 1px solid var(--border-color);
-    border-radius: 7px;
-    background: var(--docs-sidebar-link-bg);
-    color: var(--text-color);
-    text-decoration: none;
-    transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
-  }
-  x-link.docs-related-link::part(link) {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 0.55rem;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-    color: inherit;
-    text-decoration: none;
-  }
-  .docs-related-link:hover,
-  .docs-related-link:focus-visible {
-    background: var(--docs-sidebar-link-hover-bg);
-    border-color: color-mix(in srgb, var(--primary-color) 56%, var(--border-color));
-    color: var(--primary-color);
-    transform: translateX(2px);
-    outline: none;
-  }
-  .docs-related-link span {
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-  .docs-component-demo[hidden],
-  .docs-sidebar-section[hidden] {
-    display: none;
-  }
-  .docs-demo-preview {
-    display: grid;
-    gap: 0.7rem;
-    min-height: 4rem;
-    padding: 0.85rem;
-    border: 1px solid var(--border-color);
-    border-radius: 7px;
-    background: var(--surface-muted);
-    overflow: visible;
-  }
-  .docs-demo-preview x-button,
-  .docs-demo-preview x-input,
-  .docs-demo-preview x-select,
-  .docs-demo-preview x-textarea,
-  .docs-demo-preview x-status,
-  .docs-demo-preview x-progress,
-  .docs-demo-preview x-alert,
-  .docs-demo-preview x-toast,
-  .docs-demo-preview x-tabs,
-  .docs-demo-preview x-code,
-  .docs-demo-preview x-summary {
-    max-width: 100%;
-  }
-  .docs-demo-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
-    align-items: center;
-  }
-  .docs-demo-code-grid {
-    display: grid;
-    gap: 0.7rem;
-    margin-top: 0.75rem;
-  }
-  .docs-demo-code-block h3 {
-    margin: 0 0 0.35rem;
-    color: var(--muted-text-color);
-    font-size: 0.78rem;
-    text-transform: uppercase;
-  }
-  .docs-demo-code-block x-code {
-    display: block;
-    width: 100%;
-    min-width: 0;
-    margin: 0;
-    max-height: 18rem;
-    max-width: 100%;
-    box-sizing: border-box;
-    background: var(--docs-code-bg);
-    color: var(--x-code-text, #f8fafc);
-    border-radius: 8px;
-  }
-  .docs-demo-surface-zone {
-    position: relative;
-    min-height: 15rem;
-    overflow: hidden;
-    border-radius: 7px;
-    background: color-mix(in srgb, var(--surface-muted) 80%, transparent);
-  }
-  .docs-demo-surface-zone x-surface-window,
-  .docs-demo-surface-zone x-side-panel {
-    position: absolute;
-  }
-  xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] .docs-shell-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-    width: calc(100% - var(--docs-viewport-gutter, 0.5rem) - var(--docs-viewport-gutter, 0.5rem));
-    max-width: calc(100% - var(--docs-viewport-gutter, 0.5rem) - var(--docs-viewport-gutter, 0.5rem));
-  }
-  xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] .docs-page-sidebar,
-  xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] .docs-shell-toolbar {
-    display: none;
-  }
-  xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] .docs-article-surface {
-    min-block-size: max(46rem, calc(100svh - var(--docs-header-reserved-block-size, 4rem) - var(--docs-footer-reserved-block-size, 4rem) - 2.5rem));
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-  }
-  xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] #md-content {
-    min-block-size: inherit;
-  }
-  .docs-rmt-playground {
-    display: grid;
-    gap: 0;
-    margin: 0;
-    min-width: 0;
-    max-width: 100%;
-    min-height: max(46rem, calc(100svh - var(--docs-header-reserved-block-size, 4rem) - var(--docs-footer-reserved-block-size, 4rem) - 2.5rem));
-    height: max(46rem, calc(100svh - var(--docs-header-reserved-block-size, 4rem) - var(--docs-footer-reserved-block-size, 4rem) - 2.5rem));
-    box-sizing: border-box;
-  }
-  .docs-rmt-playground-manager {
-    display: block;
-    width: 100%;
-    height: 100%;
-    min-height: inherit;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--surface-muted);
-    overflow: hidden;
-    --surface-manager-min-height: max(46rem, calc(100svh - var(--docs-header-reserved-block-size, 4rem) - var(--docs-footer-reserved-block-size, 4rem) - 2.5rem));
-    --surface-manager-bg: var(--surface-muted);
-    --surface-manager-color: var(--text-color);
-    --surface-window-bg: var(--xtend-surface, var(--section-bg));
-    --surface-window-color: var(--text-color);
-    --surface-window-border: var(--border-color);
-    --surface-window-chrome: color-mix(in srgb, var(--xtend-surface-muted, var(--surface-muted)) 88%, var(--xtend-surface, var(--section-bg)));
-    --surface-window-button-hover: color-mix(in srgb, var(--primary-color) 18%, var(--surface-muted));
-    --surface-window-active-border: var(--focus-color);
-    --surface-window-content-padding: 0;
-    --side-panel-bg: var(--xtend-surface, var(--section-bg));
-    --side-panel-color: var(--text-color);
-    --side-panel-border: var(--border-color);
-    --side-panel-chrome: color-mix(in srgb, var(--xtend-surface-muted, var(--surface-muted)) 88%, var(--xtend-surface, var(--section-bg)));
-    --side-panel-button-hover: color-mix(in srgb, var(--primary-color) 18%, var(--surface-muted));
-    --side-panel-content-padding: 0;
-    --xtend-form-control-surface: var(--docs-code-bg);
-    --xtend-form-control-text: #f8fafc;
-    --xtend-form-label-text: var(--text-color);
-    --xtend-form-helper-text: var(--muted-text-color);
-    --xtend-form-border-color: color-mix(in srgb, var(--border-color) 72%, transparent);
-    --xtend-form-control-shadow: none;
-  }
-  .docs-rmt-playground-manager x-surface-window,
-  .docs-rmt-playground-manager x-side-panel {
-    max-width: 100%;
-    max-height: 100%;
-    contain: layout paint;
-  }
-  .docs-rmt-playground-editor,
-  .docs-rmt-playground-panel {
-    display: grid;
-    gap: 0;
-    min-width: 0;
-    height: 100%;
-    min-height: 0;
-    padding: 0;
-    box-sizing: border-box;
-    overflow: hidden;
-  }
-  .docs-rmt-playground-editor {
-    grid-template-rows: auto minmax(0, 1fr) minmax(3.35rem, auto);
-    background: var(--xtend-surface, var(--section-bg));
-  }
-  .docs-rmt-playground-template-bar {
-    display: grid;
-    grid-template-columns: minmax(14rem, 22rem) minmax(0, 1fr);
-    align-items: end;
-    gap: 0.75rem;
-    min-width: 0;
-    padding: 0.8rem 0.85rem 0.65rem;
-    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
-    background: color-mix(in srgb, var(--xtend-surface-muted, var(--surface-muted)) 82%, transparent);
-    box-sizing: border-box;
-  }
-  .docs-rmt-playground-template-bar x-select {
-    width: 100%;
-    min-width: 0;
-    --xtend-form-control-height: 2.45rem;
-    --xtend-form-control-padding: 0.5rem 0.7rem;
-    --xtend-form-label-font-size: 0.78rem;
-    --xtend-form-label-font-weight: 700;
-    --xtend-form-gap: 0.18rem;
-  }
-  .docs-rmt-playground-template-bar x-select::part(label) {
-    color: var(--muted-text-color);
-    text-transform: uppercase;
-    letter-spacing: 0;
-  }
-  .docs-rmt-playground-editor x-textarea {
-    display: block;
-    width: 100%;
-    height: auto;
-    min-width: 0;
-    min-height: 0;
-    align-self: stretch;
-    padding: 0.85rem 0.85rem 0;
-    box-sizing: border-box;
-    --textarea-resize: none;
-    --xtend-textarea-code-font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    --xtend-textarea-line-number-width: 3.25rem;
-    --xtend-textarea-line-number-text: var(--muted-text-color);
-    --xtend-textarea-line-number-border: color-mix(in srgb, var(--border-color) 66%, transparent);
-    --xtend-textarea-line-number-surface: color-mix(in srgb, var(--x-code-bg, var(--docs-code-bg, #06080d)) 88%, var(--xtend-surface-muted, var(--surface-muted)));
-    --xtend-form-control-line-height: 1.45;
-  }
-  .docs-rmt-playground-editor x-textarea::part(label) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    clip-path: inset(50%);
-    overflow: hidden;
-    white-space: nowrap;
-  }
-  .docs-rmt-playground-editor x-textarea::part(editor) {
-    height: 100%;
-    min-height: 0;
-  }
-  .docs-rmt-playground-editor x-textarea::part(control),
-  .docs-rmt-playground-editor x-textarea::part(highlight),
-  .docs-rmt-playground-editor x-textarea::part(highlight-code) {
-    font-family: var(--xtend-textarea-code-font-family);
-    line-height: var(--xtend-form-control-line-height);
-    tab-size: 2;
-  }
-  .docs-rmt-playground-editor x-textarea::part(control) {
-    height: 100%;
-    min-height: 0;
-    max-height: 100%;
-    resize: none;
-    overflow: auto;
-  }
-  .docs-rmt-playground-actions {
-    display: grid;
-    grid-template-columns: auto auto minmax(14rem, 1fr);
-    align-items: center;
-    gap: 0.55rem;
-    min-height: 3.35rem;
-    padding: 0.55rem 0.85rem 0.85rem;
-    border-top: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
-    background: color-mix(in srgb, var(--xtend-surface-muted, var(--surface-muted)) 84%, transparent);
-    box-sizing: border-box;
-    flex: none;
-  }
-  .docs-rmt-playground-actions x-button {
-    width: max-content;
-    min-width: 8.5rem;
-    justify-self: start;
-  }
-  .docs-rmt-playground-status {
-    justify-self: end;
-    color: var(--muted-text-color);
-    font-size: 0.86rem;
-    min-width: 0;
-    max-width: 100%;
-    overflow-wrap: anywhere;
-    text-align: end;
-  }
-  @media (max-width: 42rem) {
-    .docs-rmt-playground-template-bar,
-    .docs-rmt-playground-actions {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    .docs-rmt-playground-actions x-button,
-    .docs-rmt-playground-status {
-      width: 100%;
-      justify-self: stretch;
-      text-align: start;
-    }
-  }
-  .docs-rmt-playground-preview,
-  .docs-rmt-playground-output,
-  .docs-rmt-playground-diagnostics {
-    min-height: 8rem;
-    height: 100%;
-    max-height: 100%;
-    max-width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-    overflow: auto;
-  }
-  .docs-rmt-playground-preview {
-    display: grid;
-    gap: 0.7rem;
-    align-content: start;
-    padding: 0.85rem;
-  }
-  .docs-rmt-playground-preview-app {
-    display: grid;
-    gap: 0.75rem;
-    align-content: start;
-    min-width: 0;
-    min-height: 100%;
-  }
-  .docs-rmt-playground-preview-app[data-bounded="true"] {
-    position: relative;
-    display: block;
-    min-height: 38rem;
-  }
-  .docs-rmt-playground-maraca-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.45rem;
-    margin-block-end: 0.55rem;
-  }
-  .docs-rmt-playground-maraca-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.28rem;
-    max-width: 100%;
-    min-height: 1.85rem;
-    padding: 0.25rem 0.48rem;
-    border: 1px solid color-mix(in srgb, var(--border-color) 78%, transparent);
-    border-radius: 7px;
-    background: color-mix(in srgb, var(--xtend-surface, var(--section-bg)) 88%, var(--primary-color) 12%);
-    color: var(--text-color);
-    font-size: 0.78rem;
-    line-height: 1.2;
-    box-sizing: border-box;
-  }
-  .docs-rmt-playground-maraca-badge[data-enabled="false"] {
-    color: var(--muted-text-color);
-    background: var(--xtend-surface-muted, var(--surface-muted));
-  }
-  .docs-rmt-playground-maraca-root {
-    display: grid;
-    gap: 0.75rem;
-    align-content: start;
-    min-width: 0;
-    min-height: 100%;
-  }
-  .docs-rmt-playground-maraca-root[data-bounded="true"] {
-    position: relative;
-    display: block;
-    min-height: 42rem;
-  }
-  .docs-rmt-playground-maraca-root[data-bounded="true"] > [data-maraca-surface] {
-    position: absolute;
-    box-sizing: border-box;
-  }
-  .docs-rmt-playground-maraca-root [data-maraca-surface] {
-    max-width: 100%;
-  }
-  .docs-rmt-playground-maraca-root [data-maraca-surface][hidden] {
-    display: none;
-  }
-  .docs-rmt-playground-preview-surface {
-    min-width: 0;
-  }
-  .docs-rmt-playground-preview-surface > * {
-    width: 100%;
-  }
-  .docs-rmt-playground-preview-surface[data-bounded="true"] {
-    position: absolute;
-    overflow: auto;
-    box-sizing: border-box;
-    padding: 0.4rem;
-  }
-  .docs-rmt-playground-preview-card {
-    display: grid;
-    gap: 0.35rem;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 7px;
-    background: var(--xtend-surface, var(--section-bg));
-  }
-  .docs-rmt-playground-preview-card strong {
-    color: var(--text-color);
-  }
-  .docs-rmt-playground-preview-component {
-    display: grid;
-    gap: 0.55rem;
-  }
-  .docs-rmt-playground-preview-component > * {
-    width: 100%;
-  }
-  .docs-rmt-playground-output {
-    overflow: auto;
-    margin: 0;
-    padding: 0.85rem;
-    border-radius: 7px;
-    background: var(--docs-code-bg);
-    color: #f8fafc;
-    font-size: 0.86rem;
-    line-height: 1.55;
-    white-space: pre;
-  }
-  .docs-rmt-playground-diagnostics {
-    display: grid;
-    gap: 0.5rem;
-    align-content: start;
-    padding: 0.85rem;
-  }
-  .docs-rmt-playground-diagnostic {
-    display: grid;
-    gap: 0.18rem;
-    padding: 0.6rem;
-    border: 1px solid var(--border-color);
-    border-radius: 7px;
-    background: var(--xtend-surface, var(--section-bg));
-  }
-  .docs-rmt-playground-diagnostic[data-severity="error"] {
-    border-color: color-mix(in srgb, #dc2626 56%, var(--border-color));
-  }
-  .docs-rmt-playground-diagnostic small {
-    color: var(--muted-text-color);
-  }
-  .docs-rmt-playground-article,
-  .docs-rmt-playground-related {
-    display: block;
-    height: 100%;
-    min-height: 0;
-    max-width: 100%;
-    overflow: auto;
-    padding: 0.95rem;
-    box-sizing: border-box;
-    line-height: 1.55;
-  }
-  .docs-rmt-playground-article > :first-child,
-  .docs-rmt-playground-related > :first-child {
-    margin-top: 0;
-  }
-  .docs-rmt-playground-article > :last-child,
-  .docs-rmt-playground-related > :last-child {
-    margin-bottom: 0;
-  }
-  .docs-rmt-playground-related .docs-related-list {
-    margin-top: 0.7rem;
-  }
-  .docs-rmt-playground-empty-related {
-    color: var(--muted-text-color);
-    margin: 0;
-  }
-  @media (max-width: 980px) {
-    xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] .docs-shell-layout {
-      width: 100%;
-      max-width: 100%;
-      margin-inline: 0;
-    }
-    xtend-doc-page[data-docs-route-slug="learn-rmt-playground"] .docs-article-surface,
-    .docs-rmt-playground,
-    .docs-rmt-playground-manager {
-      border-radius: 0;
-    }
-  }
-  .download-link {
-    float: none;
-    font-size: 0.9em;
-  }
-  .docs-icon-button {
-    --xtend-button-min-touch-target: 44px;
-    color: var(--text-color);
-    flex: none;
-  }
-  .docs-icon-button::part(button) {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0;
-    border: 1px solid var(--border-color);
-    border-radius: 999px;
-    background: var(--surface-muted);
-    color: var(--text-color);
-    box-shadow: none;
-    backdrop-filter: none;
-    transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
-  }
-  .docs-icon-button:hover::part(button) {
-    transform: translateY(-1px);
-    border-color: color-mix(in srgb, var(--primary-color) 60%, var(--border-color));
-    background: var(--primary-color);
-    color: var(--section-bg);
-  }
-  .docs-icon-button:focus-visible::part(button) {
-    outline: 2px solid var(--focus-color);
-    outline-offset: 2px;
-  }
-  .docs-icon-button x-icon {
-    pointer-events: none;
-  }
-  .docs-visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-  #md-content {
-    min-width: 0;
-    max-width: 100%;
-    box-sizing: border-box;
-    line-height: 1.65;
-  }
-  #md-content[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="flow"] {
-    min-height: var(--docs-content-skeleton-min-height, 24rem);
-  }
-  #md-content[data-xtend-skeleton-active="true"] > :not([data-xtend-skeleton-loader]) {
-    visibility: hidden;
-  }
-  #md-content[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] {
-    position: relative;
-  }
-  #md-content[data-xtend-skeleton-cache="overlay"] {
-    position: relative;
-  }
-  #md-content[data-xtend-skeleton-active="true"][data-xtend-skeleton-mode="overlay"] > [data-xtend-skeleton-loader] {
-    position: absolute;
-    inset: 0 0 auto 0;
-    z-index: var(--xtend-skeleton-z-index, 1);
-  }
-  #md-content[data-xtend-skeleton-cache="overlay"] > [data-xtend-skeleton-loader][data-xtend-skeleton-hidden="true"] {
-    position: absolute;
-    inset: 0 0 auto 0;
-    z-index: var(--xtend-skeleton-z-index, 1);
-    opacity: 0;
-    pointer-events: none;
-  }
-  [data-xtend-skeleton-loader] {
-    display: grid;
-    align-content: start;
-    gap: 0.68rem;
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-    min-height: var(--docs-content-skeleton-min-height, 24rem);
-    padding: 0;
-    border-radius: 8px;
-    background: transparent;
-    contain: layout paint;
-  }
-  [data-xtend-skeleton-line] {
-    display: block;
-    height: 0.82rem;
-    border-radius: 999px;
-    background: var(--xtend-skeleton-line-bg, rgba(148, 163, 184, 0.24));
-  }
-  [data-xtend-skeleton-line]:first-child {
-    height: 1.35rem;
-  }
-  #md-content > :first-child {
-    margin-top: 0;
-  }
-  #md-content > :last-child {
-    margin-bottom: 0;
-  }
-  #md-content h1,
-  #md-content h2,
-  #md-content h3 {
-    line-height: 1.18;
-    color: var(--text-color);
-  }
-  #md-content p,
-  #md-content li {
-    color: var(--text-color);
-  }
-  #md-content a,
-  #md-content x-link {
-    color: var(--primary-color);
-  }
-  #md-content pre {
-    max-width: 100%;
-    overflow: auto;
-    padding: 1rem;
-    border-radius: 8px;
-    background: var(--docs-code-bg);
-    color: #f8fafc;
-  }
-  #md-content code {
-    overflow-wrap: anywhere;
-  }
-  #md-content blockquote {
-    margin: 1rem 0;
-    padding: 0.7rem 1rem;
-    border-left: 3px solid var(--primary-color);
-    background: var(--surface-muted);
-    border-radius: 0 7px 7px 0;
-  }
-  #md-content hr {
-    height: 1px;
-    margin: 1.75rem 0;
-    border: 0;
-    background: var(--border-color);
-  }
-  #md-content table {
-    width: 100%;
-    border-collapse: collapse;
-    display: block;
-    overflow-x: auto;
-  }
-  #md-content th,
-  #md-content td {
-    border: 1px solid var(--border-color);
-    padding: 0.55rem;
-  }
-  @media (max-width: 700px) {
-    .docs-shell-layout {
-      grid-template-columns: 1fr;
-    }
-    .docs-page-sidebar {
-      position: static;
-    }
-    .docs-related-link:hover,
-    .docs-related-link:focus-visible,
-    xtend-doc-page[data-docs-route-state="loading"] {
-      transform: none;
-    }
-  }
-`;
+
 
 function getDocsAssetUrl(key, fallback) {
   const assets = window.xtendDocsAssetUrls || {};
@@ -2198,12 +1316,13 @@ function adoptPrehydratedDocsShell(shell, rmtMeta = {}) {
   );
   const layout = shell.querySelector('[data-rmt-layout="main-sidebar"], .docs-shell-layout');
   const article = shell.querySelector('[data-rmt-slot="article"], .docs-article-surface');
-  const mdContent = shell.querySelector('[data-rmt-slot="content"], #md-content') || document.createElement('div');
-  const download = shell.querySelector('[data-rmt-action="docs.download.markdown"], #download-link') || document.createElement('x-button');
+  const mdContent = shell.querySelector('[data-rmt-slot="content"], #md-content') || createDocsDescriptorElement('div');
+  const download = shell.querySelector('[data-rmt-action="docs.download.markdown"], #download-link') || createDocsDescriptorElement('x-button');
   const sidebar = shell.querySelector('[data-rmt-slot="sidebar"], #docs-page-sidebar');
   const relatedSlot = shell.querySelector('[data-rmt-slot="related"], #docs-related-links');
   const demoSlot = shell.querySelector('[data-rmt-slot="component-demo"], #docs-component-demo');
   const richSlot = shell.querySelector('[data-rmt-slot="rich-content"], #docs-rich-content');
+  const mediaSlot = shell.querySelector('[data-rmt-slot="media"], #docs-media-slot');
   const diagnosticsSlot = shell.querySelector('[data-rmt-slot="diagnostics"], #docs-rmt-diagnostics');
   if (!layout || !article || !sidebar || !relatedSlot || !demoSlot) return null;
   ensureDocsRelatedSidebarScaffold(relatedSlot);
@@ -2224,6 +1343,7 @@ function adoptPrehydratedDocsShell(shell, rmtMeta = {}) {
     demoSlot,
     download,
     richSlot,
+    mediaSlot,
     diagnosticsSlot,
     shellTemplate: getRmtTemplate(rmtMeta.shellTemplate || DOCS_RMT_DEFAULT_SHELL_TEMPLATE),
     prehydrated: true
@@ -2278,9 +1398,9 @@ function getTemplateDescriptorNodes(template) {
 
 function renderRmtDomTemplate(templateId, model = {}) {
   const template = getRmtTemplate(templateId);
-  const fragment = document.createDocumentFragment();
+  const fragment = createDocsDescriptorFragment();
   const nodes = getTemplateDescriptorNodes(template);
-  nodes.forEach((node) => fragment.appendChild(docsRmtDescriptorRenderer.renderNode(node, { model })));
+  if (nodes.length) renderXtendDescriptor(fragment, nodes, { model });
   return { template, fragment, rendered: nodes.length > 0 };
 }
 
@@ -2292,20 +1412,15 @@ function getDocsPageMeta(slug, locale = getCurrentDocsLocale()) {
     : null;
 }
 
+function docsSidebarHeadingDescriptor(iconName, label, options = {}) {
+  return descriptorElement('h2', { class: 'docs-sidebar-heading' }, [
+    descriptorElement('x-icon', { name: iconName || 'link', pack: 'lucide', decorative: true, size: '1rem' }),
+    descriptorElement('span', options.demoTitle ? { 'data-demo-title': true } : {}, [{ text: label }])
+  ]);
+}
+
 function createDocsSidebarHeading(iconName, label, options = {}) {
-  const heading = document.createElement('h2');
-  heading.className = 'docs-sidebar-heading';
-  const icon = document.createElement('x-icon');
-  icon.setAttribute('name', iconName || 'link');
-  icon.setAttribute('pack', 'lucide');
-  icon.setAttribute('decorative', '');
-  icon.setAttribute('size', '1rem');
-  const text = document.createElement('span');
-  if (options.demoTitle) text.setAttribute('data-demo-title', '');
-  text.textContent = label;
-  heading.appendChild(icon);
-  heading.appendChild(text);
-  return heading;
+  return docsRmtDescriptorRenderer.renderNode(docsSidebarHeadingDescriptor(iconName, label, options));
 }
 
 function ensureDocsRelatedSidebarScaffold(relatedSlot) {
@@ -2313,161 +1428,21 @@ function ensureDocsRelatedSidebarScaffold(relatedSlot) {
   let heading = relatedSlot.querySelector('.docs-sidebar-heading');
   if (!heading) {
     heading = createDocsSidebarHeading('link', 'Read Further');
-    relatedSlot.insertBefore(heading, relatedSlot.firstChild);
+    relatedSlot.prepend(heading);
   }
   let list = relatedSlot.querySelector('[data-rmt-slot="related-links"], .docs-related-list');
   if (!list) {
     const directLinks = Array.from(relatedSlot.children).filter((child) => child.matches('.docs-related-link'));
-    list = document.createElement('div');
+    list = createDocsDescriptorElement('div');
     list.className = 'docs-related-list';
     list.setAttribute('data-rmt-slot', 'related-links');
-    directLinks.forEach((link) => list.appendChild(link));
-    relatedSlot.appendChild(list);
+    directLinks.forEach((link) => list.append(link));
+    relatedSlot.append(list);
   } else {
     list.classList.add('docs-related-list');
     list.setAttribute('data-rmt-slot', 'related-links');
   }
   return list;
-}
-
-function ensureDocsShellScopedStyles(root) {
-  if (!root || !root.host || typeof root.getElementById !== 'function' || typeof root.appendChild !== 'function') {
-    return;
-  }
-  if (root.getElementById(DOCS_SHELL_SHADOW_STYLE_ID)) return;
-  const style = document.createElement('style');
-  style.id = DOCS_SHELL_SHADOW_STYLE_ID;
-  style.setAttribute('data-rmt-style-scope', 'docs.shell');
-  style.textContent = DOCS_SHELL_SCOPED_CSS;
-  root.appendChild(style);
-}
-
-function createFallbackDocsShell() {
-  const section = document.createElement('section');
-  section.className = 'docs-app-shell';
-  section.setAttribute('aria-label', 'XTend Developer Center Content Shell');
-  section.setAttribute('data-rmt-shell', DOCS_RMT_DEFAULT_SHELL_TEMPLATE);
-  section.setAttribute('data-rmt-shell-mode', 'shell-first');
-  section.setAttribute('data-xtend-layout-reserve', 'shell route');
-  section.setAttribute('data-xtend-cls-anchor', 'docs.page.shell');
-
-  const layout = document.createElement('div');
-  layout.className = 'docs-shell-layout';
-  layout.setAttribute('data-rmt-layout', 'main-sidebar');
-  layout.setAttribute('data-rmt-component', 'docs.shellLayout');
-  layout.setAttribute('data-xtend-layout-reserve', 'shell route');
-
-  const article = document.createElement('article');
-  article.className = 'docs-article-surface';
-  article.setAttribute('data-rmt-slot', 'article');
-  article.setAttribute('data-rmt-component', 'docs.article');
-  article.setAttribute('data-xtend-layout-reserve', 'route content');
-  article.setAttribute('data-xtend-cls-anchor', 'docs.article');
-
-  const toolbar = document.createElement('div');
-  toolbar.className = 'docs-shell-toolbar';
-  toolbar.setAttribute('data-rmt-slot', 'actions');
-
-  const download = document.createElement('x-button');
-  download.className = 'download-link';
-  download.id = 'download-link';
-  download.setAttribute('type', 'button');
-  download.setAttribute('data-rmt-action', 'docs.download.markdown');
-  configureDocsIconButton(download, {
-    icon: 'download',
-    pack: 'core',
-    label: 'Download als Markdown'
-  });
-
-  const mdContent = document.createElement('div');
-  mdContent.id = 'md-content';
-  mdContent.setAttribute('data-rmt-slot', 'content');
-  mdContent.setAttribute('data-rmt-extension-slot', 'docs.slot.content');
-  mdContent.setAttribute('data-rmt-content-kind', 'parsedownHtml');
-  mdContent.setAttribute('data-rmt-trust-boundary', DOCS_RMT_TRUST_BOUNDARY);
-  mdContent.setAttribute('data-xtend-layout-reserve', 'content');
-
-  const sidebar = document.createElement('aside');
-  sidebar.id = 'docs-page-sidebar';
-  sidebar.className = 'docs-page-sidebar';
-  sidebar.setAttribute('data-rmt-slot', 'sidebar');
-  sidebar.setAttribute('data-rmt-extension-slot', 'docs.slot.sidebar');
-  sidebar.setAttribute('data-rmt-component', 'docs.sidebar');
-  sidebar.setAttribute('aria-label', 'Seitliche Dokumentationswerkzeuge');
-
-  const relatedSlot = document.createElement('section');
-  relatedSlot.id = 'docs-related-links';
-  relatedSlot.className = 'docs-sidebar-section docs-related-section';
-  relatedSlot.setAttribute('data-rmt-slot', 'related');
-  relatedSlot.setAttribute('data-rmt-component', 'docs.relatedLinks');
-  relatedSlot.setAttribute('data-rmt-schedule', 'docs.related.prepare');
-  ensureDocsRelatedSidebarScaffold(relatedSlot);
-
-  const demoSlot = document.createElement('section');
-  demoSlot.id = 'docs-component-demo';
-  demoSlot.className = 'docs-sidebar-section docs-component-demo';
-  demoSlot.hidden = true;
-  demoSlot.setAttribute('data-rmt-slot', 'component-demo');
-  demoSlot.setAttribute('data-rmt-component', 'docs.componentDemo');
-  demoSlot.setAttribute('data-rmt-schedule', 'docs.demo.prepare');
-  demoSlot.appendChild(createDocsSidebarHeading('play', 'Hands-on Demo', { demoTitle: true }));
-  const demoCopy = document.createElement('p');
-  demoCopy.className = 'docs-sidebar-copy';
-  demoCopy.setAttribute('data-demo-description', '');
-  demoCopy.textContent = 'Direkt testen, danach HTML und RMT uebernehmen.';
-  const demoPreview = document.createElement('div');
-  demoPreview.className = 'docs-demo-preview';
-  demoPreview.setAttribute('data-demo-preview', '');
-  const demoCode = document.createElement('div');
-  demoCode.className = 'docs-demo-code-grid';
-  demoCode.setAttribute('data-demo-code', '');
-  demoSlot.appendChild(demoCopy);
-  demoSlot.appendChild(demoPreview);
-  demoSlot.appendChild(demoCode);
-
-  const richSlot = document.createElement('aside');
-  richSlot.id = 'docs-rich-content';
-  richSlot.hidden = true;
-  richSlot.setAttribute('data-rmt-slot', 'rich-content');
-  richSlot.setAttribute('data-rmt-extension-slot', 'docs.slot.rich-content');
-  richSlot.setAttribute('data-rmt-content-kinds', 'richHtml,xplayerTutorial');
-  richSlot.setAttribute('data-rmt-schedule', 'docs.rich-content.prepare');
-  richSlot.setAttribute('data-rmt-media-schedule', 'docs.media.lazy');
-  richSlot.setAttribute('data-rmt-production-hardening', DOCS_RMT_PRODUCTION_HARDENING_SCHEMA);
-
-  const diagnosticsSlot = document.createElement('div');
-  diagnosticsSlot.id = 'docs-rmt-diagnostics';
-  diagnosticsSlot.hidden = true;
-  diagnosticsSlot.setAttribute('data-rmt-slot', 'diagnostics');
-  diagnosticsSlot.setAttribute('data-rmt-extension-slot', 'docs.slot.diagnostics');
-  diagnosticsSlot.setAttribute('data-rmt-schedule', DOCS_RMT_DEFAULT_DIAGNOSTICS_SCHEDULE);
-  diagnosticsSlot.setAttribute('data-rmt-content-kind', 'diagnostics');
-  diagnosticsSlot.setAttribute('data-rmt-production-hardening', DOCS_RMT_PRODUCTION_HARDENING_SCHEMA);
-
-  toolbar.appendChild(download);
-  article.appendChild(toolbar);
-  article.appendChild(mdContent);
-  sidebar.appendChild(relatedSlot);
-  sidebar.appendChild(demoSlot);
-  sidebar.appendChild(richSlot);
-  sidebar.appendChild(diagnosticsSlot);
-  layout.appendChild(article);
-  layout.appendChild(sidebar);
-  section.appendChild(layout);
-
-  return {
-    section,
-    layout,
-    article,
-    mdContent,
-    sidebar,
-    relatedSlot,
-    demoSlot,
-    download,
-    richSlot,
-    diagnosticsSlot,
-    shellTemplate: null
-  };
 }
 
 function createRmtDocsShell(slug, rmtMeta = {}) {
@@ -2481,31 +1456,28 @@ function createRmtDocsShell(slug, rmtMeta = {}) {
   });
 
   if (!rendered.rendered) {
-    const fallback = createFallbackDocsShell();
-    fallback.shellTemplate = rendered.template;
-    return fallback;
+    throw new Error(`RMT shell descriptor ${shellTemplateId} is required; no imperative fallback is available.`);
   }
 
   const section = rendered.fragment.querySelector
     ? rendered.fragment.querySelector('[data-rmt-shell], .docs-app-shell')
     : null;
-  const shell = section || rendered.fragment.firstElementChild || createFallbackDocsShell().section;
+  const shell = section || rendered.fragment.firstElementChild;
+  if (!shell) throw new Error(`RMT shell descriptor ${shellTemplateId} rendered no shell root.`);
   shell.classList.add('docs-app-shell');
   const layout = shell.querySelector('[data-rmt-layout="main-sidebar"], .docs-shell-layout');
   const article = shell.querySelector('[data-rmt-slot="article"], .docs-article-surface');
-  const mdContent = shell.querySelector('[data-rmt-slot="content"], #md-content') || document.createElement('div');
-  const download = shell.querySelector('[data-rmt-action="docs.download.markdown"], #download-link') || document.createElement('x-button');
+  const mdContent = shell.querySelector('[data-rmt-slot="content"], #md-content') || createDocsDescriptorElement('div');
+  const download = shell.querySelector('[data-rmt-action="docs.download.markdown"], #download-link') || createDocsDescriptorElement('x-button');
   const sidebar = shell.querySelector('[data-rmt-slot="sidebar"], #docs-page-sidebar');
   const relatedSlot = shell.querySelector('[data-rmt-slot="related"], #docs-related-links');
   const demoSlot = shell.querySelector('[data-rmt-slot="component-demo"], #docs-component-demo');
   const richSlot = shell.querySelector('[data-rmt-slot="rich-content"], #docs-rich-content');
+  const mediaSlot = shell.querySelector('[data-rmt-slot="media"], #docs-media-slot');
   const diagnosticsSlot = shell.querySelector('[data-rmt-slot="diagnostics"], #docs-rmt-diagnostics');
 
-  if (!layout || !article || !sidebar || !relatedSlot || !demoSlot) {
-    const fallback = createFallbackDocsShell();
-    fallback.shellTemplate = rendered.template;
-    fallback.section.setAttribute('data-rmt-shell-fallback', 'missing-sidebar-slots');
-    return fallback;
+  if (!layout || !article || !mdContent || !download || !sidebar || !relatedSlot || !demoSlot || !richSlot || !mediaSlot || !diagnosticsSlot) {
+    throw new Error(`RMT shell descriptor ${shellTemplateId} is missing a required structural slot.`);
   }
 
   ensureDocsRelatedSidebarScaffold(relatedSlot);
@@ -2516,8 +1488,8 @@ function createRmtDocsShell(slug, rmtMeta = {}) {
     pack: 'core',
     label: 'Download als Markdown'
   });
-  if (!download.parentNode) shell.insertBefore(download, shell.firstChild);
-  if (!mdContent.parentNode) shell.appendChild(mdContent);
+  if (!download.parentNode) shell.prepend(download);
+  if (!mdContent.parentNode) shell.append(mdContent);
 
   return {
     section: shell,
@@ -2529,6 +1501,7 @@ function createRmtDocsShell(slug, rmtMeta = {}) {
     demoSlot,
     download,
     richSlot,
+    mediaSlot,
     diagnosticsSlot,
     shellTemplate: rendered.template
   };
@@ -2559,16 +1532,16 @@ function configureDocsIconButton(button, options = {}) {
   if (existingIcon && existingLabel) return;
 
   button.textContent = '';
-  const icon = document.createElement('x-icon');
+  const icon = createDocsDescriptorElement('x-icon');
   icon.setAttribute('name', iconName);
   icon.setAttribute('pack', pack);
   icon.setAttribute('decorative', '');
   icon.setAttribute('size', '1.1rem');
-  const hiddenLabel = document.createElement('span');
+  const hiddenLabel = createDocsDescriptorElement('span');
   hiddenLabel.className = 'docs-visually-hidden';
   hiddenLabel.textContent = label;
-  button.appendChild(icon);
-  button.appendChild(hiddenLabel);
+  button.append(icon);
+  button.append(hiddenLabel);
 }
 
 function setDocsButtonBusy(button, busy) {
@@ -2719,11 +1692,11 @@ function wireDownloadButton(download, slug) {
       if (!resp.ok) throw new Error('Download fehlgeschlagen');
       const blob = await resp.blob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = createDocsDescriptorElement('a');
       a.style.display = 'none';
       a.href = url;
       a.download = `${activeSlug}.md`;
-      document.body.appendChild(a);
+      document.body.append(a);
       a.click();
       scheduleDocsAfterPaint(() => {
         a.remove();
@@ -2866,9 +1839,9 @@ function applyDocsRouteHeadPatch(patch) {
     if (typeof content !== 'string' || !content) return;
     let node = document.head.querySelector(`meta[name="${name}"]`);
     if (!node) {
-      node = document.createElement('meta');
+      node = createDocsDescriptorElement('meta');
       node.name = name;
-      document.head.appendChild(node);
+      document.head.append(node);
     }
     node.content = content;
   };
@@ -2881,9 +1854,9 @@ function applyDocsRouteHeadPatch(patch) {
       : `link[rel="${rel}"]`;
     let node = document.head.querySelector(selector);
     if (!node) {
-      node = document.createElement('link');
+      node = createDocsDescriptorElement('link');
       node.rel = rel;
-      document.head.appendChild(node);
+      document.head.append(node);
     }
     Object.entries(attributes).forEach(([name, value]) => node.setAttribute(name, value));
   };
@@ -3219,7 +2192,7 @@ function upgradeDocsParsedownCodeFences(root, options = {}) {
     if (!pre || pre.closest('x-code') || pre.hasAttribute('data-docs-code-fence-upgraded')) return;
     const language = readDocsCodeLanguage(codeNode);
     const reservedBlockSize = pre.getBoundingClientRect().height;
-    const codeElement = document.createElement('x-code');
+    const codeElement = createDocsDescriptorElement('x-code');
     codeElement.className = 'docs-code-fence';
     codeElement.setAttribute('lang', language);
     codeElement.setAttribute('data-docs-code-fence-upgraded', 'true');
@@ -3230,10 +2203,10 @@ function upgradeDocsParsedownCodeFences(root, options = {}) {
       codeElement.setAttribute('data-xtend-layout-reserve', 'code-fence');
       codeElement.style.minHeight = `${Math.ceil(reservedBlockSize * 10) / 10}px`;
     }
-    const template = document.createElement('template');
+    const template = createDocsDescriptorElement('template');
     template.setAttribute('data-x-code-mode', 'text');
-    template.content.appendChild(document.createTextNode(codeNode.textContent || ''));
-    codeElement.appendChild(template);
+    template.content.append(createDocsDescriptorText(codeNode.textContent || ''));
+    codeElement.append(template);
     pre.replaceWith(codeElement);
     count += 1;
   });
@@ -3326,7 +2299,7 @@ function upgradeRoutedLinks(root) {
     if (!(node instanceof HTMLElement)) return;
     const href = node.getAttribute('href');
     const text = node.textContent;
-    const real = document.createElement('x-link');
+    const real = createDocsDescriptorElement('x-link');
     if (href) real.setAttribute('href', href);
     real.textContent = text;
     node.replaceWith(real);
@@ -3689,107 +2662,80 @@ function mergeDocsRelatedLinks(slug, explicitLinks = [], recommendationResults =
   return merged.slice(0, maximum);
 }
 
-function createRelatedLink(entry) {
-  const link = document.createElement('x-link');
-  link.className = 'docs-related-link';
+function docsRelatedLinkDescriptor(entry) {
   const href = entry.href || (entry.slug ? getLocalizedDocsPath(entry.slug) : '#');
-  link.setAttribute('href', href);
-  link.setAttribute('data-rmt-component', 'docs.relatedLinks');
-  link.setAttribute('data-related-source', entry.source || 'unknown');
-  if (Number.isFinite(Number(entry.score))) link.setAttribute('data-related-score', String(entry.score));
-  if (entry.slug) {
-    link.setAttribute('data-rmt-route-ref', 'docs.' + entry.slug.replace(/-/g, '.'));
-  }
+  const attributes = {
+    class: 'docs-related-link',
+    href,
+    'data-rmt-component': 'docs.relatedLinks',
+    'data-related-source': entry.source || 'unknown'
+  };
+  if (Number.isFinite(Number(entry.score))) attributes['data-related-score'] = String(entry.score);
+  if (entry.slug) attributes['data-rmt-route-ref'] = `docs.${entry.slug.replace(/-/g, '.')}`;
+  return {
+    ...descriptorElement('x-link', attributes, [
+      descriptorElement('x-icon', { name: 'arrow-up-right', pack: 'lucide', decorative: true, size: '1rem' }),
+      descriptorElement('span', {}, [{ text: entry.label || (entry.slug ? docsTitleForSlug(entry.slug) : href) }]),
+      descriptorElement('x-icon', { name: 'chevron-right', pack: 'lucide', decorative: true, size: '1rem' })
+    ]),
+    key: entry.slug || href
+  };
+}
 
-  const icon = document.createElement('x-icon');
-  icon.setAttribute('name', 'arrow-up-right');
-  icon.setAttribute('pack', 'lucide');
-  icon.setAttribute('decorative', '');
-  icon.setAttribute('size', '1rem');
-
-  const label = document.createElement('span');
-  label.textContent = entry.label || (entry.slug ? docsTitleForSlug(entry.slug) : href);
-
-  const chevron = document.createElement('x-icon');
-  chevron.setAttribute('name', 'chevron-right');
-  chevron.setAttribute('pack', 'lucide');
-  chevron.setAttribute('decorative', '');
-  chevron.setAttribute('size', '1rem');
-
-  link.appendChild(icon);
-  link.appendChild(label);
-  link.appendChild(chevron);
-  return link;
+function createRelatedLink(entry) {
+  return docsRmtDescriptorRenderer.renderNode(docsRelatedLinkDescriptor(entry));
 }
 
 function renderDocsRelatedSidebar(relatedSlot, slug, linksInput) {
   if (!relatedSlot) return;
   const list = ensureDocsRelatedSidebarScaffold(relatedSlot);
   if (!list) return;
-  while (list.firstChild) list.removeChild(list.firstChild);
   const links = Array.isArray(linksInput) ? linksInput : mergeDocsRelatedLinks(slug);
-  links.forEach((entry) => list.appendChild(createRelatedLink(entry)));
-  relatedSlot.hidden = links.length === 0;
-  relatedSlot.setAttribute('data-related-count', String(links.length));
+  renderKeyed(list, links.map(docsRelatedLinkDescriptor), { forceKeys: true });
+  patchElement(relatedSlot, {
+    tag: relatedSlot.localName,
+    attributes: { hidden: links.length === 0, 'data-related-count': String(links.length) }
+  });
 }
 
 function createDemoCodeBlock(title, lang, code, mode = 'html') {
-  const block = document.createElement('div');
+  const block = createDocsDescriptorElement('div');
   block.className = 'docs-demo-code-block';
-  const heading = document.createElement('h3');
+  const heading = createDocsDescriptorElement('h3');
   heading.textContent = title;
-  const codeElement = document.createElement('x-code');
+  const codeElement = createDocsDescriptorElement('x-code');
   codeElement.setAttribute('lang', lang);
-  const template = document.createElement('template');
+  const template = createDocsDescriptorElement('template');
   const snippetCode = code == null ? '' : String(code);
   template.setAttribute('data-x-code-mode', 'text');
-  template.content.appendChild(document.createTextNode(snippetCode));
-  codeElement.appendChild(template);
-  block.appendChild(heading);
-  block.appendChild(codeElement);
+  template.content.append(createDocsDescriptorText(snippetCode));
+  codeElement.append(template);
+  block.append(heading);
+  block.append(codeElement);
   return block;
 }
 
+function docsDemoScaffoldDescriptors() {
+  return [
+    { ...docsSidebarHeadingDescriptor('play', 'Hands-on Demo', { demoTitle: true }), key: 'demo-heading' },
+    { ...descriptorElement('p', { class: 'docs-sidebar-copy', 'data-demo-description': true }), key: 'demo-description' },
+    { ...descriptorElement('div', { class: 'docs-demo-preview', 'data-demo-preview': true }), key: 'demo-preview' },
+    { ...descriptorElement('div', { class: 'docs-demo-code-grid', 'data-demo-code': true }), key: 'demo-code' }
+  ];
+}
+
 function ensureDocsDemoScaffold(demoSlot) {
-  let title = demoSlot.querySelector('[data-demo-title]');
-  if (!title) {
-    let heading = demoSlot.querySelector('.docs-sidebar-heading');
-    if (!heading) {
-      heading = createDocsSidebarHeading('play', 'Hands-on Demo', { demoTitle: true });
-      demoSlot.insertBefore(heading, demoSlot.firstChild);
-      title = heading.querySelector('[data-demo-title]');
-    } else {
-      title = document.createElement('span');
-      title.setAttribute('data-demo-title', '');
-      heading.appendChild(title);
-    }
-  }
-
-  let description = demoSlot.querySelector('[data-demo-description]');
-  if (!description) {
-    description = document.createElement('p');
-    description.className = 'docs-sidebar-copy';
-    description.setAttribute('data-demo-description', '');
-    demoSlot.appendChild(description);
-  }
-
-  let preview = demoSlot.querySelector('[data-demo-preview]');
-  if (!preview) {
-    preview = document.createElement('div');
-    preview.className = 'docs-demo-preview';
-    preview.setAttribute('data-demo-preview', '');
-    demoSlot.appendChild(preview);
-  }
-
-  let code = demoSlot.querySelector('[data-demo-code]');
-  if (!code) {
-    code = document.createElement('div');
-    code.className = 'docs-demo-code-grid';
-    code.setAttribute('data-demo-code', '');
-    demoSlot.appendChild(code);
-  }
-
-  return { title, description, preview, code };
+  const complete = demoSlot.querySelector('[data-demo-title]')
+    && demoSlot.querySelector('[data-demo-description]')
+    && demoSlot.querySelector('[data-demo-preview]')
+    && demoSlot.querySelector('[data-demo-code]');
+  if (!complete) renderKeyed(demoSlot, docsDemoScaffoldDescriptors(), { forceKeys: true });
+  return {
+    title: demoSlot.querySelector('[data-demo-title]'),
+    description: demoSlot.querySelector('[data-demo-description]'),
+    preview: demoSlot.querySelector('[data-demo-preview]'),
+    code: demoSlot.querySelector('[data-demo-code]')
+  };
 }
 
 function hydrateDocsCodeBlocks(root, metadata = {}) {
@@ -4096,8 +3042,8 @@ function renderDocsComponentDemo(demoSlot, slug) {
   }
   if (code) {
     while (code.firstChild) code.removeChild(code.firstChild);
-    code.appendChild(createDemoCodeBlock('HTML', 'html', demo.html, 'html'));
-    code.appendChild(createDemoCodeBlock('RMT', 'rmt', demo.rmt, 'text'));
+    code.append(createDemoCodeBlock('HTML', 'html', demo.html, 'html'));
+    code.append(createDemoCodeBlock('RMT', 'rmt', demo.rmt, 'text'));
   }
 }
 
@@ -4157,25 +3103,26 @@ function scheduleDocsVisibleOrIntentIsland(root, activate, options = {}) {
   };
 }
 
+function docsRmtPlaygroundElementDescriptor(tagName, attributes = {}, text = '') {
+  const normalizedAttributes = Object.fromEntries(Object.entries(attributes)
+    .filter(([, value]) => value !== false && value !== null && value !== undefined)
+    .map(([name, value]) => [name, value === true ? true : String(value)]));
+  return descriptorElement(tagName, normalizedAttributes, text === '' ? [] : [{ text: String(text) }]);
+}
+
 function createDocsRmtPlaygroundElement(tagName, attributes = {}, text = '') {
-  const element = document.createElement(tagName);
-  Object.entries(attributes).forEach(([name, value]) => {
-    if (value === false || value === null || value === undefined) return;
-    element.setAttribute(name, value === true ? '' : String(value));
-  });
-  if (text !== '') element.textContent = String(text);
-  return element;
+  return docsRmtDescriptorRenderer.renderNode(docsRmtPlaygroundElementDescriptor(tagName, attributes, text));
 }
 
 function createDocsRmtPlaygroundButton(label, iconName, attributes = {}) {
   const button = createDocsRmtPlaygroundElement('x-button', attributes);
-  button.appendChild(createDocsRmtPlaygroundElement('x-icon', {
+  button.append(createDocsRmtPlaygroundElement('x-icon', {
     name: iconName,
     pack: 'lucide',
     decorative: '',
     size: '1rem'
   }));
-  button.appendChild(createDocsRmtPlaygroundElement('span', {}, label));
+  button.append(createDocsRmtPlaygroundElement('span', {}, label));
   return button;
 }
 
@@ -4444,7 +3391,7 @@ function renderDocsRmtPlaygroundDiagnostics(target, diagnostics = [], copy = get
     ? diagnostics.map(normalizeDocsRmtPlaygroundDiagnosticItem)
     : [];
   if (!items.length) {
-    target.replaceChildren(createDocsRmtPlaygroundElement('p', {}, copy.noDiagnostics));
+    replaceDocsChildren(target, createDocsRmtPlaygroundElement('p', {}, copy.noDiagnostics));
     return;
   }
   const nodes = items.map((diagnostic) => {
@@ -4458,12 +3405,12 @@ function renderDocsRmtPlaygroundDiagnostics(target, diagnostics = [], copy = get
       class: 'docs-rmt-playground-diagnostic',
       'data-severity': severity
     });
-    card.appendChild(createDocsRmtPlaygroundElement('strong', {}, severity.toUpperCase()));
-    card.appendChild(createDocsRmtPlaygroundElement('span', {}, message));
-    card.appendChild(createDocsRmtPlaygroundElement('small', {}, [diagnostic && diagnostic.code, location].filter(Boolean).join(' · ')));
+    card.append(createDocsRmtPlaygroundElement('strong', {}, severity.toUpperCase()));
+    card.append(createDocsRmtPlaygroundElement('span', {}, message));
+    card.append(createDocsRmtPlaygroundElement('small', {}, [diagnostic && diagnostic.code, location].filter(Boolean).join(' · ')));
     return card;
   });
-  target.replaceChildren(...nodes);
+  replaceDocsChildren(target, ...nodes);
 }
 
 function formatDocsRmtPlaygroundCore(payload = {}) {
@@ -4584,13 +3531,13 @@ function renderDocsRmtPlaygroundDescriptorPreviews(target) {
       try {
         renderer.render(frame, descriptor, frame.__xtendRmtDescriptorOptions || {});
       } catch (error) {
-        frame.replaceChildren(createDocsRmtPlaygroundElement('p', {}, error && error.message ? error.message : 'Preview render failed.'));
+        replaceDocsChildren(frame, createDocsRmtPlaygroundElement('p', {}, error && error.message ? error.message : 'Preview render failed.'));
       }
     });
     return hydrateDocsRmtPlaygroundElements(target, Array.from(tags));
   }).catch((error) => {
     frames.forEach((frame) => {
-      frame.replaceChildren(createDocsRmtPlaygroundElement('p', {}, error && error.message ? error.message : 'Preview renderer failed.'));
+      replaceDocsChildren(frame, createDocsRmtPlaygroundElement('p', {}, error && error.message ? error.message : 'Preview renderer failed.'));
     });
   });
 }
@@ -4632,7 +3579,7 @@ function renderDocsRmtPlaygroundMaracaToolbar(maraca = {}, copy = getDocsRmtPlay
     ? (copy.maracaRunning || 'running')
     : formatDocsRmtPlaygroundMaracaPlanStatus(maraca.status || 'unknown', maraca.ok === true, copy);
   toolbar.setAttribute('data-maraca-phase', phase);
-  toolbar.appendChild(createDocsRmtPlaygroundMaracaBadge(copy.maracaPreview, maraca.ok === true, rootStatus));
+  toolbar.append(createDocsRmtPlaygroundMaracaBadge(copy.maracaPreview, maraca.ok === true, rootStatus));
   ['kernel', 'hydration', 'validation', 'transitions'].forEach((feature) => {
     const entry = features[feature] || {};
     const enabled = entry.enabled === true;
@@ -4646,7 +3593,7 @@ function renderDocsRmtPlaygroundMaracaToolbar(maraca = {}, copy = getDocsRmtPlay
     const status = phase === 'runtime'
       ? formatDocsRmtPlaygroundMaracaRuntimeStatus(feature, runtimeEnabled, copy)
       : formatDocsRmtPlaygroundMaracaPlanStatus(entry.status || 'unknown', enabled, copy);
-    toolbar.appendChild(createDocsRmtPlaygroundMaracaBadge(feature, phase === 'runtime' ? runtimeEnabled : enabled, status));
+    toolbar.append(createDocsRmtPlaygroundMaracaBadge(feature, phase === 'runtime' ? runtimeEnabled : enabled, status));
   });
   return toolbar;
 }
@@ -4659,7 +3606,7 @@ async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = g
     'data-rmt-playground-maraca-root': '',
     'data-maraca-root': ''
   });
-  target.replaceChildren(renderDocsRmtPlaygroundMaracaToolbar(maraca, copy), appRoot);
+  replaceDocsChildren(target, renderDocsRmtPlaygroundMaracaToolbar(maraca, copy), appRoot);
   const previous = target.__xtendDocsMaracaPlanRuntime;
   if (previous && typeof previous.dispose === 'function') previous.dispose();
   const runtime = createMaracaPlanRuntime({
@@ -4722,11 +3669,11 @@ async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = g
 function renderDocsRmtPlaygroundPreview(target, payload = {}, copy = getDocsRmtPlaygroundCopy()) {
   if (!target) return;
   if (!payload || payload.ok !== true) {
-    target.replaceChildren(createDocsRmtPlaygroundElement('p', {}, copy.blocked));
+    replaceDocsChildren(target, createDocsRmtPlaygroundElement('p', {}, copy.blocked));
     return;
   }
   if (payload.maraca && payload.maraca.ok === true && payload.maraca.plan) {
-    target.replaceChildren(createDocsRmtPlaygroundElement('p', {}, copy.maracaLoading));
+    replaceDocsChildren(target, createDocsRmtPlaygroundElement('p', {}, copy.maracaLoading));
     bootDocsRmtPlaygroundMaracaPreview(target, payload, copy)
       .then((runtime) => {
         if (runtime && typeof runtime.snapshot === 'function') {
@@ -4734,7 +3681,7 @@ function renderDocsRmtPlaygroundPreview(target, payload = {}, copy = getDocsRmtP
         }
       })
       .catch((error) => {
-        target.replaceChildren(
+        replaceDocsChildren(target,
           renderDocsRmtPlaygroundMaracaToolbar(payload.maraca, copy),
           createDocsRmtPlaygroundElement('p', {}, error && error.message ? error.message : copy.maracaBlocked)
         );
@@ -4745,7 +3692,7 @@ function renderDocsRmtPlaygroundPreview(target, payload = {}, copy = getDocsRmtP
     const status = String(payload.maraca.status || 'bridge-error');
     const diagnostics = Array.isArray(payload.maraca.diagnostics) ? payload.maraca.diagnostics : [];
     const message = diagnostics.find((entry) => entry && entry.message)?.message || copy.maracaBlocked;
-    target.replaceChildren(
+    replaceDocsChildren(target,
       renderDocsRmtPlaygroundMaracaToolbar(payload.maraca, copy),
       createDocsRmtPlaygroundElement('p', {
         'data-rmt-playground-maraca-blocked': '',
@@ -4763,7 +3710,7 @@ function renderDocsRmtPlaygroundPreview(target, payload = {}, copy = getDocsRmtP
   const preview = payload.preview && typeof payload.preview === 'object' ? payload.preview : {};
   const surfaces = Array.isArray(preview.surfaces) ? preview.surfaces : [];
   if (!surfaces.length) {
-    target.replaceChildren(createDocsRmtPlaygroundElement('p', {}, copy.noPreview));
+    replaceDocsChildren(target, createDocsRmtPlaygroundElement('p', {}, copy.noPreview));
     return;
   }
   const descriptorFrames = [];
@@ -4775,8 +3722,8 @@ function renderDocsRmtPlaygroundPreview(target, payload = {}, copy = getDocsRmtP
       return;
     }
     const card = createDocsRmtPlaygroundElement('article', { class: 'docs-rmt-playground-preview-card' });
-    card.appendChild(createDocsRmtPlaygroundElement('strong', {}, surface.id || surface.surfaceId || 'surface'));
-    card.appendChild(createDocsRmtPlaygroundElement('small', {}, [
+    card.append(createDocsRmtPlaygroundElement('strong', {}, surface.id || surface.surfaceId || 'surface'));
+    card.append(createDocsRmtPlaygroundElement('small', {}, [
       surface.kind ? `kind: ${surface.kind}` : '',
       surface.component ? `component: ${surface.component}` : ''
     ].filter(Boolean).join(' · ')));
@@ -4784,7 +3731,7 @@ function renderDocsRmtPlaygroundPreview(target, payload = {}, copy = getDocsRmtP
       if (typeof lane === 'string') return lane;
       return [lane && lane.name, lane && lane.weight ? `weight ${lane.weight}` : ''].filter(Boolean).join(' ');
     }).filter(Boolean) : [];
-    card.appendChild(createDocsRmtPlaygroundElement('small', {}, lanes.length ? `lanes: ${lanes.join(', ')}` : 'lanes: none'));
+    card.append(createDocsRmtPlaygroundElement('small', {}, lanes.length ? `lanes: ${lanes.join(', ')}` : 'lanes: none'));
     fallbackCards.push(card);
   });
   const nodes = [];
@@ -4800,11 +3747,11 @@ function renderDocsRmtPlaygroundPreview(target, payload = {}, copy = getDocsRmtP
       appRoot.style.minWidth = `${Math.ceil(maxX + 24)}px`;
       appRoot.style.minHeight = `${Math.ceil(maxY + 24)}px`;
     }
-    descriptorFrames.forEach((frame) => appRoot.appendChild(frame));
+    descriptorFrames.forEach((frame) => appRoot.append(frame));
     nodes.push(appRoot);
   }
   nodes.push(...fallbackCards);
-  target.replaceChildren(...nodes);
+  replaceDocsChildren(target, ...nodes);
   renderDocsRmtPlaygroundDescriptorPreviews(target);
 }
 
@@ -4987,7 +3934,7 @@ async function runDocsRmtPlaygroundLanguageDiagnostics(root, locale = getCurrent
       sourceHash: hashDocsRmtPlaygroundSource(source)
     });
     if (!diagnostics.querySelector('.docs-rmt-playground-diagnostic')) {
-      diagnostics.replaceChildren(createDocsRmtPlaygroundElement('p', {}, copy.analyzing));
+      replaceDocsChildren(diagnostics, createDocsRmtPlaygroundElement('p', {}, copy.analyzing));
     }
   }
 
@@ -5197,10 +4144,10 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     if (typeof existing.__xtendDocsDispose === 'function') existing.__xtendDocsDispose();
     existing.remove();
   }
-  const articleFragment = document.createDocumentFragment();
+  const articleFragment = createDocsDescriptorFragment();
   Array.from(container.childNodes).forEach((node) => {
     if (node.nodeType === 1 && node.matches && node.matches('[data-rmt-playground-root]')) return;
-    articleFragment.appendChild(node.cloneNode(true));
+    articleFragment.append(node.cloneNode(true));
   });
   const copy = getDocsRmtPlaygroundCopy(locale);
   const root = createDocsRmtPlaygroundElement('section', {
@@ -5256,7 +4203,7 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     'data-rmt-playground-preset': ''
   });
   DOCS_RMT_PLAYGROUND_PRESETS.forEach((preset) => {
-    presetSelect.appendChild(createDocsRmtPlaygroundElement('option', {
+    presetSelect.append(createDocsRmtPlaygroundElement('option', {
       value: preset.id,
       selected: preset.id === 'minimal'
     }, getDocsRmtPlaygroundPresetLabel(preset.id, locale)));
@@ -5276,14 +4223,14 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     class: 'docs-rmt-playground-status',
     'data-rmt-playground-status': ''
   }, copy.ready);
-  templateBar.appendChild(presetSelect);
-  actions.appendChild(runButton);
-  actions.appendChild(resetButton);
-  actions.appendChild(status);
-  editorBody.appendChild(templateBar);
-  editorBody.appendChild(editor);
-  editorBody.appendChild(actions);
-  editorPanel.appendChild(editorBody);
+  templateBar.append(presetSelect);
+  actions.append(runButton);
+  actions.append(resetButton);
+  actions.append(status);
+  editorBody.append(templateBar);
+  editorBody.append(editor);
+  editorBody.append(actions);
+  editorPanel.append(editorBody);
 
   const previewWindow = createDocsRmtPlaygroundElement('x-surface-window', decorateDocsRmtPlaygroundIslandAttributes({
     slot: 'windows',
@@ -5294,7 +4241,7 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     open: true,
     'data-rmt-playground-preview-window': ''
   }, 'preview'));
-  previewWindow.appendChild(createDocsRmtPlaygroundElement('div', {
+  previewWindow.append(createDocsRmtPlaygroundElement('div', {
     class: 'docs-rmt-playground-preview',
     'data-rmt-playground-preview': ''
   }, copy.blocked));
@@ -5308,7 +4255,7 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     open: true,
     'data-rmt-playground-diagnostics-window': ''
   }, 'diagnostics'));
-  diagnosticsWindow.appendChild(createDocsRmtPlaygroundElement('div', {
+  diagnosticsWindow.append(createDocsRmtPlaygroundElement('div', {
     class: 'docs-rmt-playground-diagnostics',
     'data-rmt-playground-diagnostics': ''
   }, copy.noDiagnostics));
@@ -5322,7 +4269,7 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     open: true,
     'data-rmt-playground-output-window': ''
   }, 'output'));
-  outputWindow.appendChild(createDocsRmtPlaygroundElement('pre', {
+  outputWindow.append(createDocsRmtPlaygroundElement('pre', {
     class: 'docs-rmt-playground-output',
     'data-rmt-playground-output': ''
   }, '{}'));
@@ -5341,11 +4288,11 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     'data-rmt-playground-article': ''
   });
   if (articleFragment.childNodes.length) {
-    infoBody.appendChild(articleFragment);
+    infoBody.append(articleFragment);
   } else {
-    infoBody.appendChild(createDocsRmtPlaygroundElement('p', {}, copy.title));
+    infoBody.append(createDocsRmtPlaygroundElement('p', {}, copy.title));
   }
-  infoWindow.appendChild(infoBody);
+  infoWindow.append(infoBody);
 
   const relatedPanel = createDocsRmtPlaygroundElement('x-side-panel', {
     slot: 'panels',
@@ -5363,24 +4310,24 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
   });
   const relatedList = createDocsRmtPlaygroundElement('div', { class: 'docs-related-list' });
   const links = Array.isArray(relatedLinks) && relatedLinks.length ? relatedLinks : mergeDocsRelatedLinks('learn-rmt-playground');
-  links.forEach((entry) => relatedList.appendChild(createRelatedLink(entry)));
+  links.forEach((entry) => relatedList.append(createRelatedLink(entry)));
   if (links.length) {
-    relatedBody.appendChild(relatedList);
+    relatedBody.append(relatedList);
   } else {
-    relatedBody.appendChild(createDocsRmtPlaygroundElement('p', {
+    relatedBody.append(createDocsRmtPlaygroundElement('p', {
       class: 'docs-rmt-playground-empty-related'
     }, copy.noRelated));
   }
-  relatedPanel.appendChild(relatedBody);
+  relatedPanel.append(relatedBody);
 
-  manager.appendChild(editorPanel);
-  manager.appendChild(previewWindow);
-  manager.appendChild(outputWindow);
-  manager.appendChild(diagnosticsWindow);
-  manager.appendChild(infoWindow);
-  manager.appendChild(relatedPanel);
-  root.appendChild(manager);
-  container.replaceChildren(root);
+  manager.append(editorPanel);
+  manager.append(previewWindow);
+  manager.append(outputWindow);
+  manager.append(diagnosticsWindow);
+  manager.append(infoWindow);
+  manager.append(relatedPanel);
+  root.append(manager);
+  replaceDocsChildren(container, root);
 
   let compileDisposer = null;
   let diagnosticsDisposer = null;
@@ -5522,7 +4469,7 @@ function docsAnimationEngineDemoCopy(locale = getCurrentDocsLocale()) {
 
 function createDocsAnimationEngineDemoSkeleton(locale = getCurrentDocsLocale()) {
   const copy = docsAnimationEngineDemoCopy(locale);
-  const root = document.createElement('section');
+  const root = createDocsDescriptorElement('section');
   root.id = 'docs-animation-engine-demo';
   root.className = 'docs-animation-engine-demo';
   root.setAttribute('role', 'region');
@@ -5539,32 +4486,32 @@ function createDocsAnimationEngineDemoSkeleton(locale = getCurrentDocsLocale()) 
   root.setAttribute('data-xtend-layout-reserve', 'demo');
   root.setAttribute('data-xtend-cls-anchor', 'docs.animation-engine.demo');
 
-  const heading = document.createElement('h2');
+  const heading = createDocsDescriptorElement('h2');
   heading.className = 'docs-animation-engine-demo-heading';
   heading.textContent = copy.title;
-  const controls = document.createElement('div');
+  const controls = createDocsDescriptorElement('div');
   controls.className = 'docs-animation-engine-demo-skeleton-controls';
   controls.setAttribute('aria-hidden', 'true');
   controls.setAttribute('data-slot-layout', 'fixed-responsive-grid');
   const createSlot = (name, content) => {
-    const slot = document.createElement('div');
+    const slot = createDocsDescriptorElement('div');
     slot.className = 'docs-animation-engine-demo-control-slot';
     slot.setAttribute('data-slot', name);
     slot.setAttribute('data-rmt-slot', `docs.animation-engine.demo.controls.${name}`);
-    slot.appendChild(content);
+    slot.append(content);
     return slot;
   };
   ['effect', 'duration', 'easing', 'motion'].forEach((name) => {
-    const field = document.createElement('span');
+    const field = createDocsDescriptorElement('span');
     field.className = 'docs-animation-engine-demo-skeleton-field';
-    controls.appendChild(createSlot(name, field));
+    controls.append(createSlot(name, field));
   });
-  const action = document.createElement('span');
+  const action = createDocsDescriptorElement('span');
   action.className = 'docs-animation-engine-demo-skeleton-action';
-  const status = document.createElement('span');
+  const status = createDocsDescriptorElement('span');
   status.className = 'docs-animation-engine-demo-skeleton-status';
   controls.append(createSlot('replay', action), createSlot('status', status));
-  const loading = document.createElement('span');
+  const loading = createDocsDescriptorElement('span');
   loading.className = 'docs-animation-engine-demo-assistive';
   loading.textContent = copy.loading;
   root.append(heading, controls, loading);
@@ -5580,7 +4527,7 @@ function reconcileDocsAnimationEngineDemoSlot(article, mdContent, slug, locale) 
   if (existing) existing.remove();
   if (slug !== DOCS_ANIMATION_ENGINE_DEMO_SLUG) return null;
   const root = createDocsAnimationEngineDemoSkeleton(locale);
-  article.insertBefore(root, mdContent);
+  mdContent.insertAdjacentElement('beforebegin', root);
   return root;
 }
 
@@ -5627,14 +4574,14 @@ function loadDocsAnimationEngineDemoArtifact() {
 function renderDocsAnimationEngineDemoFailure(root, locale, error) {
   if (!root) return;
   const copy = docsAnimationEngineDemoCopy(locale);
-  const heading = document.createElement('h2');
+  const heading = createDocsDescriptorElement('h2');
   heading.className = 'docs-animation-engine-demo-heading';
   heading.textContent = copy.title;
-  const message = document.createElement('p');
+  const message = createDocsDescriptorElement('p');
   message.textContent = copy.unavailable;
-  const diagnostic = document.createElement('code');
+  const diagnostic = createDocsDescriptorElement('code');
   diagnostic.textContent = error && error.message ? error.message : String(error || 'AnimationEngine demo unavailable');
-  root.replaceChildren(heading, message, diagnostic);
+  replaceDocsChildren(root, heading, message, diagnostic);
   root.removeAttribute('tabindex');
   root.setAttribute('aria-busy', 'false');
   root.setAttribute('data-rmt-hydration-state', 'degraded');
@@ -5876,7 +4823,6 @@ class XtendDocPage extends HTMLElement {
     shell.mdContent.setAttribute('data-docs-content-state', 'server-rendered');
     shell.mdContent.setAttribute('data-docs-ssr-adopted', proofVerified ? 'true' : 'preserved');
     hideDocsSkeleton(shell.mdContent);
-    ensureDocsShellScopedStyles(this.getRootNode());
     applyRmtPageMetadata(
       shell.section,
       shell.mdContent,
@@ -6023,7 +4969,7 @@ class XtendDocPage extends HTMLElement {
         return this.__xtendDocsShell;
       }
       this.__xtendDocsShell = createRmtDocsShell(slug, rmtMeta);
-      this.replaceChildren(this.__xtendDocsShell.section);
+      replaceDocsChildren(this, this.__xtendDocsShell.section);
       this.setAttribute('data-docs-shell-reused', 'false');
       return this.__xtendDocsShell;
     }
@@ -6067,7 +5013,6 @@ class XtendDocPage extends HTMLElement {
     this.setAttribute('data-docs-route-locale', locale);
     this.setAttribute('data-docs-route-reused', reused ? 'true' : 'false');
     this.setAttribute('aria-busy', 'true');
-    ensureDocsShellScopedStyles(this.getRootNode());
 
     const rmtMeta = getDocsPageMeta(slug, locale) || {};
     const hadShell = Boolean(this.__xtendDocsShell);

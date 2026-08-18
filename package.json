@@ -18044,7 +18044,8 @@
     "test:node-runtime-policy": "node scripts/run_xtend_tests.js node-runtime-policy",
     "demo:ts": "vite --config demos/ts-app/vite.config.ts",
     "demo:ts:build": "vite build --config demos/ts-app/vite.config.ts",
-    "demo:ts:typecheck": "tsc -p demos/ts-app/tsconfig.json"
+    "demo:ts:typecheck": "tsc -p demos/ts-app/tsconfig.json",
+    "test:docs-pageloader-architecture": "node scripts/verify_docs_pageloader_architecture.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
