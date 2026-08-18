@@ -1088,6 +1088,17 @@ class XRouter extends HTMLElement {
     return false;
   }
 
+  _releasePrerenderedRoutePending(candidate) {
+    if (!candidate || !candidate.hasAttribute('data-xrouter-adoption-pending')) return false;
+    candidate.removeAttribute('data-xrouter-adoption-pending');
+    candidate.dispatchEvent(new CustomEvent('xrouter-adoption-pending-released', {
+      detail: { schema: 'xtend.router.adoption-pending-release.v1', owner: 'x-router' },
+      bubbles: true,
+      composed: true
+    }));
+    return true;
+  }
+
   _isCurrentNavigation(generation) {
     return generation === this._navigationGeneration;
   }
@@ -1337,12 +1348,12 @@ class XRouter extends HTMLElement {
         ? candidate.adoptRoute.bind(candidate)
         : (typeof candidate.updateRoute === 'function' ? candidate.updateRoute.bind(candidate) : null);
       if (!adopt) return this._rejectPrerenderedRouteCandidate('adoption-handler-missing', detail, candidate);
-      candidate.removeAttribute('data-xrouter-adoption-pending');
       const result = await adopt(adoptionContext);
       if (!this._isCurrentNavigation(navigationGeneration)) {
         return this._rejectPrerenderedRouteCandidate('navigation-superseded', detail, candidate);
       }
       if (result === false) return this._rejectPrerenderedRouteCandidate('adoption-refused', detail, candidate);
+      this._releasePrerenderedRoutePending(candidate);
       candidate.setAttribute('data-rmt-adoption-state', 'adopted');
       candidate.setAttribute('data-xrouter-route-adopted', 'true');
       await this._hydrateRouteTree(candidate, route);

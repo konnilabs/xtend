@@ -56,6 +56,8 @@ For production screens, keep IDs stable when state keys or diagnostics include `
 
 With `adopt-prerendered-route`, a host can provide exactly one already-visible direct route node. The router verifies its path, optional route ID, locale, component tag, content identity and trust markers, then moves that same node into the outlet. The route component implements `adoptRoute(context)`, or the compatible `updateRoute(context)`, to attach behavior only; the host does not need to duplicate the article in a bootstrap payload.
 
+While verification and the adoption callback run, XRouter owns the `data-xrouter-adoption-pending` marker. Route components must not remove it. XRouter removes it exactly once after the callback accepts the existing node and emits `xrouter-adoption-pending-released`; rejected descriptors are discarded and rendered normally.
+
 ```html
 <x-router mode="history" adopt-prerendered-route>
   <x-route path="/docs/en/start" component="docs-page"

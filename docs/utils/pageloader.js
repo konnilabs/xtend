@@ -2184,37 +2184,56 @@ function findPrehydratedDocsShell(root, slug) {
   return shell;
 }
 
-function adoptPrehydratedDocsShell(shell, rmtMeta = {}) {
-  if (!shell || typeof shell.querySelector !== 'function') return null;
-  shell.classList.add('docs-app-shell');
-  shell.setAttribute('data-rmt-ssr-reused', 'true');
-  shell.setAttribute('data-rmt-shell-prehydrated', 'true');
-  const prehydration = getDocsSsrPrehydration();
-  shell.setAttribute(
-    'data-rmt-hydration-mode',
-    prehydration && prehydration.executionMode === 'server_prerender_resume'
-      ? 'server_prerender_resume'
-      : 'server_prerender_hydrate'
-  );
-  const layout = shell.querySelector('[data-rmt-layout="main-sidebar"], .docs-shell-layout');
-  const article = shell.querySelector('[data-rmt-slot="article"], .docs-article-surface');
-  const mdContent = shell.querySelector('[data-rmt-slot="content"], #md-content') || document.createElement('div');
-  const download = shell.querySelector('[data-rmt-action="docs.download.markdown"], #download-link') || document.createElement('x-button');
-  const sidebar = shell.querySelector('[data-rmt-slot="sidebar"], #docs-page-sidebar');
-  const relatedSlot = shell.querySelector('[data-rmt-slot="related"], #docs-related-links');
-  const demoSlot = shell.querySelector('[data-rmt-slot="component-demo"], #docs-component-demo');
-  const richSlot = shell.querySelector('[data-rmt-slot="rich-content"], #docs-rich-content');
-  const diagnosticsSlot = shell.querySelector('[data-rmt-slot="diagnostics"], #docs-rmt-diagnostics');
-  if (!layout || !article || !sidebar || !relatedSlot || !demoSlot) return null;
-  ensureDocsRelatedSidebarScaffold(relatedSlot);
-  if (!mdContent.id) mdContent.id = 'md-content';
-  if (!download.id) download.id = 'download-link';
-  configureDocsIconButton(download, {
-    icon: 'download',
-    pack: 'core',
-    label: 'Download als Markdown'
+const DOCS_ADOPTION_SLOT_CONTRACT = Object.freeze({
+  layout: { selector: '[data-rmt-layout="main-sidebar"]' },
+  article: { selector: '[data-rmt-slot="article"]' },
+  mdContent: { selector: '#md-content[data-rmt-slot="content"]' },
+  download: { selector: '#download-link[data-rmt-action="docs.download.markdown"]' },
+  sidebar: { selector: '#docs-page-sidebar[data-rmt-slot="sidebar"]' },
+  relatedSlot: { selector: '#docs-related-links[data-rmt-slot="related"]' },
+  demoSlot: { selector: '#docs-component-demo[data-rmt-slot="component-demo"]' },
+  richSlot: { selector: '#docs-rich-content[data-rmt-slot="rich-content"]', optional: true },
+  diagnosticsSlot: { selector: '#docs-rmt-diagnostics[data-rmt-slot="diagnostics"]', optional: true }
+});
+
+function createDocsShellAdoptionDescriptor(shell, rmtMeta = {}) {
+  if (!shell || typeof shell.querySelectorAll !== 'function') {
+    return { ok: false, schema: 'xtend.docs.shell-adoption-error.v1', code: 'shell-missing', missing: ['shell'], invalid: [] };
+  }
+  const slots = {};
+  const missing = [];
+  const invalid = [];
+  Object.entries(DOCS_ADOPTION_SLOT_CONTRACT).forEach(([name, contract]) => {
+    const matches = Array.from(shell.querySelectorAll(contract.selector));
+    if (matches.length === 1) slots[name] = matches[0];
+    else if (!contract.optional && matches.length === 0) missing.push(name);
+    else if (matches.length > 1) invalid.push({ slot: name, reason: 'not-unique', count: matches.length });
   });
+  if (missing.length || invalid.length) {
+    return {
+      ok: false,
+      schema: 'xtend.docs.shell-adoption-error.v1',
+      code: missing.length ? 'required-slots-missing' : 'slot-identity-invalid',
+      missing,
+      invalid
+    };
+  }
+  return Object.freeze({
+    ok: true,
+    schema: 'xtend.docs.shell-adoption-descriptor.v1',
+    shell,
+    slots: Object.freeze(slots),
+    rmtMeta
+  });
+}
+
+function adoptPrehydratedDocsShell(shell, rmtMeta = {}) {
+  const descriptor = createDocsShellAdoptionDescriptor(shell, rmtMeta);
+  if (!descriptor.ok) return descriptor;
+  const { layout, article, mdContent, download, sidebar, relatedSlot, demoSlot, richSlot, diagnosticsSlot } = descriptor.slots;
   return {
+    ok: true,
+    adoptionDescriptor: descriptor,
     section: shell,
     layout,
     article,
@@ -5816,6 +5835,18 @@ class XtendDocPage extends HTMLElement {
     this.__xtendDocsRouteToken = 0;
     this.__xtendDocsScheduledDisposers = [];
     this.__xtendDocsRouteAbortController = null;
+    this.__xtendDocsRouteMachine = { phase: 'pending', history: ['pending'], error: null };
+  }
+
+  transitionRoutePhase(phase, error = null) {
+    const phases = ['pending', 'validated', 'adopted', 'rendered', 'ready', 'failed'];
+    if (!phases.includes(phase)) throw new TypeError(`Unknown docs route phase: ${phase}`);
+    this.__xtendDocsRouteMachine.phase = phase;
+    this.__xtendDocsRouteMachine.error = error;
+    this.__xtendDocsRouteMachine.history.push(phase);
+    this.setAttribute('data-docs-route-phase', phase);
+    if (phase === 'failed') this.setAttribute('data-docs-route-error', error && error.code || 'route-failed');
+    return this.__xtendDocsRouteMachine;
   }
 
   connectedCallback() {
@@ -5834,11 +5865,16 @@ class XtendDocPage extends HTMLElement {
   }
 
   adoptRoute(context = {}) {
-    this.removeAttribute('data-xrouter-adoption-pending');
+    this.transitionRoutePhase('pending');
     if (this.resumeInitialRoute({ ...context, adopted: true, reused: true, source: 'x-router-adoption' })) {
       return true;
     }
-    return this.renderRoute({ ...context, adopted: true, reused: true, source: 'x-router-adoption' });
+    if (this.__xtendDocsShell && this.__xtendDocsShell.prehydrated) {
+      invalidateDocsSsrContentProof(this, this.__xtendDocsShell, 'adoption-proof-invalid');
+      this.__xtendDocsShell = null;
+      this.__xtendDocsForceDescriptorRender = true;
+    }
+    return this.renderRoute({ ...context, adopted: false, adoptionFallback: true, reused: true, source: 'x-router-adoption-fallback' });
   }
 
   resumeInitialRoute(context = {}) {
@@ -5865,6 +5901,8 @@ class XtendDocPage extends HTMLElement {
 
     const adoptedPayload = getAdoptedDocsContentPayload(this, shell, slug, locale, rmtMeta);
     if (!adoptedPayload) return false;
+    this.transitionRoutePhase('validated');
+    this.transitionRoutePhase('adopted');
     const proofVerified = true;
     this.setAttribute('data-docs-route-state', 'ready');
     this.setAttribute('data-docs-route-slug', slug);
@@ -5906,6 +5944,7 @@ class XtendDocPage extends HTMLElement {
     document.documentElement.setAttribute('data-docs-initial-route-replay', 'skipped');
     document.documentElement.setAttribute('data-docs-initial-page-fetches', '0');
     document.documentElement.setAttribute('data-docs-initial-render-calls', '0');
+    this.transitionRoutePhase('ready');
     window.xtendDocsRmtLastRender = {
       schema: DOCS_RMT_RENDER_SCHEMA,
       slug,
@@ -6013,16 +6052,21 @@ class XtendDocPage extends HTMLElement {
         && ssrPrehydration.document
         && ssrPrehydration.document.htmlAlreadyInDom === true
       );
-      const prehydratedShell = ssrPrehydration && (ssrPrehydration.ok !== false || documentPrehydrated)
+      const prehydratedShell = !this.__xtendDocsForceDescriptorRender && ssrPrehydration && (ssrPrehydration.ok !== false || documentPrehydrated)
         ? adoptPrehydratedDocsShell(findPrehydratedDocsShell(this, slug), rmtMeta)
         : null;
-      if (prehydratedShell) {
+      if (prehydratedShell && prehydratedShell.ok) {
         this.__xtendDocsShell = prehydratedShell;
         this.setAttribute('data-docs-shell-reused', 'ssr');
         this.setAttribute('data-rmt-ssr-reused', 'true');
         return this.__xtendDocsShell;
       }
+      if (prehydratedShell && prehydratedShell.ok === false) {
+        this.__xtendDocsAdoptionError = prehydratedShell;
+        this.transitionRoutePhase('failed', prehydratedShell);
+      }
       this.__xtendDocsShell = createRmtDocsShell(slug, rmtMeta);
+      this.__xtendDocsForceDescriptorRender = false;
       this.replaceChildren(this.__xtendDocsShell.section);
       this.setAttribute('data-docs-shell-reused', 'false');
       return this.__xtendDocsShell;
@@ -6032,6 +6076,7 @@ class XtendDocPage extends HTMLElement {
   }
 
   renderRoute(context = {}) {
+    this.transitionRoutePhase('pending');
     window.xtendDocsRouteExecution = window.xtendDocsRouteExecution || {
       schema: 'xtend.docs.route-execution-counters.v1',
       pageFetches: 0,
@@ -6072,6 +6117,7 @@ class XtendDocPage extends HTMLElement {
     const rmtMeta = getDocsPageMeta(slug, locale) || {};
     const hadShell = Boolean(this.__xtendDocsShell);
     const shell = this.ensureRouteShell(slug, rmtMeta);
+    this.transitionRoutePhase('rendered');
     applyRmtPageMetadata(shell.section, shell.mdContent, shell.richSlot, shell.diagnosticsSlot, rmtMeta, shell.sidebar, shell.relatedSlot, shell.demoSlot);
     wireDownloadButton(shell.download, slug);
     let animationEngineDemoRoot = reconcileDocsAnimationEngineDemoSlot(shell.article, shell.mdContent, slug, locale);
@@ -6148,12 +6194,7 @@ class XtendDocPage extends HTMLElement {
 
     syncActiveHeaderLink(slug);
     const adoptedContentPayload = getAdoptedDocsContentPayload(this, shell, slug, locale, rmtMeta);
-    if (context.adopted === true && !adoptedContentPayload) {
-      invalidateDocsSsrContentProof(this, shell, 'router-adoption-rejected');
-      this.setAttribute('data-docs-route-state', 'adoption-rejected');
-      this.removeAttribute('aria-busy');
-      return false;
-    }
+    if (context.adopted === true && !adoptedContentPayload) invalidateDocsSsrContentProof(this, shell, 'router-adoption-rejected');
     let routeSkeleton = null;
     if (adoptedContentPayload) {
       shell.mdContent.setAttribute('data-docs-content-state', 'server-rendered');
@@ -6210,7 +6251,7 @@ class XtendDocPage extends HTMLElement {
       serverRouteFragmentAdopted = Boolean(!ssrAdopted && nextRouteShell);
       if (!ssrAdopted && nextRouteShell) {
         const adoptedNextShell = adoptPrehydratedDocsShell(nextRouteShell, payloadMeta);
-        if (!adoptedNextShell) throw new Error('route-fragment-shell-adoption-failed');
+        if (!adoptedNextShell || !adoptedNextShell.ok) throw new Error('route-fragment-shell-adoption-failed');
         shell.section.replaceWith(nextRouteShell);
         Object.assign(shell, adoptedNextShell);
         this.__xtendDocsShell = shell;
@@ -6282,6 +6323,7 @@ class XtendDocPage extends HTMLElement {
       if (!this.isActiveRouteToken(token) || transitionCompleted) return;
       transitionCompleted = true;
       this.setAttribute('data-docs-route-state', 'ready');
+      this.transitionRoutePhase(status === 'failed' ? 'failed' : 'ready', error);
       this.removeAttribute('aria-busy');
       completeDocsLocaleTransition(locale, slug, {
         status,
