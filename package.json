@@ -17923,6 +17923,7 @@
     "check:syntax": "node scripts/check_syntax.js",
     "test:epic18-rmt-app-platform": "node scripts/run_xtend_tests.js epic18-rmt-app-platform",
     "test:docs-rmt-pilot": "node scripts/run_xtend_tests.js docs-rmt-pilot",
+    "test:docs-pageloader-target-architecture": "node scripts/run_xtend_tests.js docs-pageloader-target-architecture",
     "test:rmt-artifact-parity": "node scripts/verify_xtendrmt_artifact_parity.js",
     "test:browser": "node scripts/run_xtend_tests.js browser",
     "test:browser:local": "node scripts/run_xtend_tests.js browser",
