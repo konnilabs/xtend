@@ -5,6 +5,10 @@ import {
 import { createRmtDomDescriptorRenderer } from '../../xtendrmt/rmt-dom-descriptor-renderer.js';
 import { createRmtBrowserScheduler } from '../../xtendrmt/rmt-browser-scheduler.js';
 import '../../components/xutils.js';
+import { getDocsAppServices, immutable, TOAST_COMMAND } from './docs-app-services.mjs';
+
+const docsAppServices = getDocsAppServices(document, window);
+const docsBootDescriptor = docsAppServices.descriptor;
 
 if (window.xtendDocsRmtBootPromise) {
   await window.xtendDocsRmtBootPromise;
@@ -55,7 +59,7 @@ function component(tag, attributes = {}, children = []) {
 }
 
 function locale() {
-  return window.xtendDocsCurrentLocale === 'en' ? 'en' : 'de';
+  return docsAppServices.locale.current();
 }
 
 function localized(record, activeLocale = locale()) {
@@ -68,22 +72,22 @@ function currentSlug() {
   const docsIndex = parts.lastIndexOf('docs');
   const routeParts = docsIndex >= 0 ? parts.slice(docsIndex + 1) : parts;
   const offset = routeParts[0] === 'de' || routeParts[0] === 'en' ? 1 : 0;
-  const requested = routeParts.slice(offset).join('/') || window.xtendInitialDocsSlug || 'readme';
-  return window.xtendDocsSlugAliases && window.xtendDocsSlugAliases[requested] || requested;
+  const requested = routeParts.slice(offset).join('/') || docsBootDescriptor.document.slug || 'readme';
+  return docsBootDescriptor.document.aliases[requested] || requested;
 }
 
 function pathFor(slug, activeLocale = locale()) {
-  const base = String(window.xtendDocsI18n && window.xtendDocsI18n.basePath || '/docs').replace(/\/$/, '');
+  const base = String(docsBootDescriptor.configuration.basePath || '/docs').replace(/\/$/, '');
   const normalizedSlug = String(slug || 'readme').replace(/^\/+|\/+$/g, '') || 'readme';
   return `${base}/${activeLocale}/${normalizedSlug}${normalizedSlug === 'components' ? '/' : ''}`;
 }
 
 function menuConfig() {
-  return Array.isArray(window.xtendMenuConfig) ? window.xtendMenuConfig : [];
+  return Array.isArray(docsBootDescriptor.document.menu) ? docsBootDescriptor.document.menu : [];
 }
 
 function navigationConfig() {
-  const value = window.xtendDocsNavigation;
+  const value = docsBootDescriptor.document.navigation;
   return value && value.schema === 'xtend.docs.navigation.v1' ? value : { trunks: [] };
 }
 
@@ -209,7 +213,7 @@ function routeRecord(entry, activeLocale) {
     id: entry.id || `docs.${String(entry.slug || '').replace(/-/g, '.')}`,
     path: pathFor(entry.slug, activeLocale),
     component: 'xtend-doc-page',
-    import: '/docs/utils/pageloader.js',
+    import: '/docs/utils/page/index.mjs',
     title,
     documentTitle: activeLocale === 'en' ? `${title} | XTend Documentation` : `${title} | XTend Dokumentation`,
     skeleton: 'article',
@@ -236,7 +240,7 @@ function registerRouterRoutes(activeLocale = locale()) {
     id: 'docs.notFound',
     path: '*',
     component: 'xtend-doc-page',
-    import: '/docs/utils/pageloader.js',
+    import: '/docs/utils/page/index.mjs',
     title: activeLocale === 'en' ? 'Page not found' : 'Seite nicht gefunden',
     documentTitle: activeLocale === 'en' ? 'Page not found | XTend Documentation' : 'Seite nicht gefunden | XTend Dokumentation',
     skeleton: 'article',
@@ -305,6 +309,14 @@ const appRuntime = createRmtAppRuntime({
     }
   }
 });
+
+disposers.push(XUtils.on(window, TOAST_COMMAND, (event) => {
+  appRuntime.command(TOAST_COMMAND, event.detail, {
+    lane: 'user-blocking',
+    sourceId: 'docs.toast.service',
+    event: TOAST_COMMAND
+  });
+}));
 
 function createFabricSnapshot(reason = 'dev-api-read', metadata = {}) {
   if (!fabric || typeof fabric.createTelemetrySnapshot !== 'function') {
@@ -832,7 +844,7 @@ window.xtendDocsShellRuntime = Object.freeze({
   },
   dispose,
   snapshot() {
-    return {
+    return immutable({
       schema: DOCS_SHELL_RUNTIME_SCHEMA,
       status: 'ready',
       locale: locale(),
@@ -841,7 +853,7 @@ window.xtendDocsShellRuntime = Object.freeze({
       commandCount: appRuntime.listCommands().length,
       registeredRouteLocale,
       diagnostics: appRuntime.listDiagnostics()
-    };
+    });
   }
 });
 
@@ -852,4 +864,4 @@ window.dispatchEvent(new CustomEvent('xtend-docs-shell-runtime-ready', {
   }
 }));
 
-export { DOCS_SHELL_RUNTIME_SCHEMA, appRuntime, fabric, searchRuntime, createFabricSnapshot, renderNavigation };
+export { DOCS_SHELL_RUNTIME_SCHEMA, appRuntime, docsAppServices, fabric, searchRuntime, createFabricSnapshot, renderNavigation };

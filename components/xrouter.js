@@ -565,6 +565,7 @@ class XRouter extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
       <style>
+        @import url('/components/xrouter-docs-shell.css');
         :host {
           display: block;
           min-block-size: var(--xtend-router-reserved-block-size, var(--xtend-layout-reserved-block-size, 1px));
@@ -1348,6 +1349,8 @@ class XRouter extends HTMLElement {
         ? candidate.adoptRoute.bind(candidate)
         : (typeof candidate.updateRoute === 'function' ? candidate.updateRoute.bind(candidate) : null);
       if (!adopt) return this._rejectPrerenderedRouteCandidate('adoption-handler-missing', detail, candidate);
+      candidate.removeAttribute('data-xrouter-adoption-pending');
+      candidate.removeAttribute('inert');
       const result = await adopt(adoptionContext);
       if (!this._isCurrentNavigation(navigationGeneration)) {
         return this._rejectPrerenderedRouteCandidate('navigation-superseded', detail, candidate);

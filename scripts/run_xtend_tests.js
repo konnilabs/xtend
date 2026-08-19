@@ -2,6 +2,10 @@
 
 const path = require('path');
 const {
+  printDocsPageLoaderTargetArchitectureReport,
+  runDocsPageLoaderTargetArchitectureSuite
+} = require('../tests/docs/docs_pageloader_target_architecture_suite');
+const {
   printDocsPublicQualityReport,
   runDocsPublicQualityCheck
 } = require('./verify_docs_public_quality');
@@ -4634,6 +4638,16 @@ const suites = [
       const result = runDocsRmtPilotSuite({ rootDir });
       printDocsRmtPilotReport(result);
       return toRunnerResult('docs-rmt-pilot', 'Docs-App RMT Parsedown scheduling pilot', result);
+    }
+  },
+  {
+    id: 'docs-pageloader-target-architecture',
+    label: 'Docs PageLoader target architecture',
+    description: 'Enforces descriptor-only Docs PageLoader and resume browser evidence gates.',
+    run: () => {
+      const result = runDocsPageLoaderTargetArchitectureSuite({ rootDir });
+      printDocsPageLoaderTargetArchitectureReport(result);
+      return toRunnerResult('docs-pageloader-target-architecture', 'Docs PageLoader target architecture', result);
     }
   },
   {

@@ -233,7 +233,15 @@ $xtendAssetVersion = xtendAssetVersion([
     __DIR__ . '/../icons/apple-touch-icon.png',
     __DIR__ . '/../icons/xtend-scaffold.webp',
     __DIR__ . '/../XTend-Logo.png',
-    __DIR__ . '/../docs/utils/pageloader.js',
+    __DIR__ . '/../docs/utils/page/index.mjs',
+    __DIR__ . '/../docs/utils/page/route-controller.mjs',
+    __DIR__ . '/../docs/utils/page/shell-descriptor.mjs',
+    __DIR__ . '/../docs/utils/page/content-service.mjs',
+    __DIR__ . '/../docs/utils/page/locale-service.mjs',
+    __DIR__ . '/../docs/utils/page/trusted-content.mjs',
+    __DIR__ . '/../docs/utils/page/diagnostics.mjs',
+    __DIR__ . '/../docs/utils/page/island-scheduler.mjs',
+    __DIR__ . '/../docs/utils/page/playground-island.mjs',
     __DIR__ . '/../docs/utils/dev-api.js',
     __DIR__ . '/../docs/utils/trusted-dom-host.mjs',
     __DIR__ . '/../docs/utils/docs-shell-runtime.mjs',
@@ -640,7 +648,7 @@ function docsRouteAttributes($route, $pathOverride = null) {
     return [
         'path' => $pathOverride ?? ($route['path'] ?? ''),
         'component' => 'xtend-doc-page',
-        'import' => '/docs/utils/pageloader.js?v=' . $xtendAssetVersionAttr,
+        'import' => '/docs/utils/page/index.mjs?v=' . $xtendAssetVersionAttr,
         'title' => $route['title'] ?? '',
         'document-title' => $route['documentTitle'] ?? '',
         'title-template' => $route['titleTemplate'] ?? '',
@@ -1079,6 +1087,7 @@ function docsBuildDocumentSsrRecord($html, $meta, $slug, $locale, $path, $source
         'data-docs-route-state' => 'server-rendered',
         'data-xrouter-adoption-pending' => 'true',
         'data-rmt-adoption-state' => 'pending',
+        'inert' => '',
         'style' => 'display:block;'
     ], [
         docsDescriptorElement('section', [
@@ -1532,7 +1541,7 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
     $routeChildren[] = docsDescriptorElement('x-route', [
         'path' => '*',
         'component' => 'xtend-doc-page',
-        'import' => '/docs/utils/pageloader.js?v=' . $xtendAssetVersionAttr,
+        'import' => '/docs/utils/page/index.mjs?v=' . $xtendAssetVersionAttr,
         'title' => $notFoundTitle,
         'document-title' => $notFoundTitle . ' | ' . $docsTitle,
         'meta-description' => $notFoundDescription,
@@ -2507,7 +2516,7 @@ function docsBuildRouteIslandManifest($slug) {
             'id' => 'docs.component-demo',
             'activation' => 'visible-or-intent',
             'schedule' => 'docs.demo.prepare',
-            'module' => '/docs/utils/pageloader.js'
+            'module' => '/docs/utils/page/index.mjs'
         ];
     }
     if ($slug === 'learn-rmt-playground') {
@@ -2515,7 +2524,7 @@ function docsBuildRouteIslandManifest($slug) {
             'id' => 'docs.rmt-playground',
             'activation' => 'route-local-intent',
             'schedule' => 'docs.rich-content.prepare',
-            'module' => '/docs/utils/pageloader.js'
+            'module' => '/docs/utils/page/index.mjs'
         ];
     }
     if ($slug === 'rmt-animation-engine') {
@@ -3455,7 +3464,38 @@ header('Vary: Accept');
     <link rel="icon" type="image/png" sizes="16x16" href="<?= $docsFavicon16Url ?>">
     <link rel="apple-touch-icon" href="<?= $docsAppleTouchIconUrl ?>">
     <link rel="stylesheet" href="/xtend.css?v=<?= $xtendAssetVersionAttr ?>">
+    <script type="module" src="/xtend.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>"></script>
     <script src="/fabric/xtend-fabric.js?v=<?= $xtendAssetVersionAttr ?>"></script>
+    <script id="xtend-docs-boot" type="application/json" nonce="<?= $nonce ?>"><?= docsJsonEncodeForHtml([
+      'schema' => 'xtend.docs.boot.v1',
+      'configuration' => [
+        'i18n' => [
+          'schema' => 'xtend.docs.i18n.v1',
+          'defaultLocale' => $docsDefaultLocale,
+          'fallbackLocale' => $docsFallbackLocale,
+          'storageKey' => 'xtend.docs.locale',
+          'available' => array_keys($docsAvailableLocales),
+          'locales' => $docsAvailableLocales
+        ],
+        'basePath' => $docsBasePath,
+        'routingMode' => 'history',
+        'pageEndpoint' => docsEndpointPath('xtend-docs-page={slug}&locale={locale}'),
+        'ssrEndpoint' => $docsSsrEndpoint
+      ],
+      'document' => [
+        'slug' => $initialDocsSlug,
+        'locale' => $pageLocale,
+        'menu' => $docsBootstrapMenuConfig,
+        'navigation' => $docsNavigationConfig,
+        'aliases' => $docsSlugAliases,
+        'pagesMeta' => $docsBootstrapPageMeta,
+        'localizedPagesMeta' => $docsBootstrapLocalizedMeta,
+        'titles' => $docsBootstrapTitles,
+        'localizedTitles' => $docsBootstrapLocalizedTitles,
+        'ssrPrehydration' => docsCompactDocsSsrPrehydrationForBootstrap($docsSsrPrehydration),
+        'rmtDocument' => json_decode($rmtPilotDocumentJson, true)
+      ]
+    ]); ?></script>
 <?php if (($docsSsrPrehydration['executionMode'] ?? null) === 'server_prerender_resume'): ?>
     <script nonce="<?= $nonce ?>">
     // XTEND_DOCS_DECLARED_PREBOOT_START
@@ -4774,24 +4814,6 @@ header('Vary: Accept');
     window.xtendDocsLocales = <?php echo docsJsonEncodeForHtml($docsAvailableLocales); ?>;
     window.xtendMenuConfig = <?php echo docsJsonEncodeForHtml($docsBootstrapMenuConfig); ?>;
     window.xtendDocsNavigation = <?php echo docsJsonEncodeForHtml($docsNavigationConfig); ?>;
-    window.xtendDocsI18n = {
-      schema: 'xtend.docs.i18n.v1',
-      defaultLocale: <?= docsJsonEncodeForHtml($docsDefaultLocale); ?>,
-      fallbackLocale: <?= docsJsonEncodeForHtml($docsFallbackLocale); ?>,
-      storageKey: 'xtend.docs.locale',
-      stateKeys: {
-        locale: 'xtend.docs.locale',
-        target: 'xtend.docs.locale.target',
-        source: 'xtend.docs.locale.source',
-        status: 'xtend.docs.locale.status',
-        busy: 'xtend.docs.locale.busy',
-        transition: 'xtend.docs.locale.transition',
-        error: 'xtend.docs.locale.error',
-        available: 'xtend.docs.locale.available',
-        fallback: 'xtend.docs.locale.fallback'
-      },
-      available: Object.keys(window.xtendDocsLocales || {})
-    };
     window.xtendDocsLocalizedPages = Object.create(null);
     window.xtendDocsLocalizedPagesMeta = <?php echo docsJsonEncodeForHtml($docsBootstrapLocalizedMeta); ?>;
     window.xtendDocsLocalizedTitles = <?php echo docsJsonEncodeForHtml($docsBootstrapLocalizedTitles); ?>;
@@ -4799,10 +4821,11 @@ header('Vary: Accept');
     window.xtendDocsBasePath = <?= docsJsonEncodeForHtml($docsBasePath); ?>;
     window.xtendDocsRoutingMode = 'history';
     (function() {
-      const config = window.xtendDocsI18n || {};
+      const descriptor = JSON.parse(document.getElementById('xtend-docs-boot').textContent || '{}');
+      const config = descriptor.configuration.i18n;
       const available = config.available || ['de'];
       const fallback = config.fallbackLocale || 'de';
-      const basePath = String(window.xtendDocsBasePath || '').replace(/\/+$/, '');
+      const basePath = String(descriptor.configuration.basePath || '').replace(/\/+$/, '');
       const normalizeLocale = (value) => {
         const raw = String(value || '').toLowerCase();
         if (available.includes(raw)) return raw;
@@ -4989,7 +5012,7 @@ window.xtendDocsRmtBootPromise = new Promise((resolve) => {
     data-module-cache-bust="<?= $xtendAssetVersionAttr ?>"
     nonce="<?= $nonce ?>"
 ></script>
-<script type="module" src="/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">
+<script type="module" src="/docs/utils/page/index.mjs?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">
 </script>
 <script type="module" src="/docs/utils/docs-shell-runtime.mjs?v=<?= $xtendAssetVersionAttr ?>"></script>
 </body>

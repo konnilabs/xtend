@@ -33,7 +33,7 @@ function runDocsIndex(rootDir, getParams = {}) {
 }
 
 function extractBodyShell(html) {
-  const match = String(html || '').match(/<body[^>]*>\s*([\s\S]*?)<script\b(?=[^>]*\bsrc="\/docs\/utils\/pageloader\.js(?:\?[^" ]*)?")[^>]*>/su);
+  const match = String(html || '').match(/<body[^>]*>\s*([\s\S]*?)<script\b(?=[^>]*\bsrc="\/docs\/utils\/page\/index\.mjs(?:\?[^" ]*)?")[^>]*>/su);
   return match ? match[1] : '';
 }
 
@@ -46,7 +46,7 @@ function runDocsPhpSsrClsBudgetSuite(options = {}) {
   const packageManifest = readJson('package.json', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const indexPhp = readText('docs/index.php', rootDir);
-  const pageLoader = readText('docs/utils/pageloader.js', rootDir);
+  const shellDescriptor = readText('docs/utils/page/shell-descriptor.mjs', rootDir);
   const result = runDocsIndex(rootDir, {});
   const html = result.stdout || '';
   const shell = extractBodyShell(html);
@@ -78,10 +78,9 @@ function runDocsPhpSsrClsBudgetSuite(options = {}) {
   context.assert(shell.includes('--hero-reserved-block-size: var(--docs-hero-reserved-block-size);'), 'SSR hero maps the responsive reserve into x-hero');
   context.assert(indexPhp.includes('--hero-padding: 0;'), 'Docs hero avoids duplicate root and content padding after upgrade');
 
-  context.assert(pageLoader.includes("section.setAttribute('data-xtend-layout-reserve', 'shell route')"), 'Client fallback shell reserves page geometry');
-  context.assert(pageLoader.includes("article.setAttribute('data-xtend-layout-reserve', 'route content')"), 'Client fallback article reserves content geometry');
-  context.assert(pageLoader.includes("mdContent.setAttribute('data-xtend-layout-reserve', 'content')"), 'Client content slot preserves layout reserve');
-  context.assert(pageLoader.includes("section.setAttribute('data-xtend-cls-anchor'"), 'Client shell preserves CLS anchor metadata');
+  context.assert(shellDescriptor.includes('export function createShellDescriptor'), 'Client fallback shell is owned by the shell descriptor factory');
+  context.assert(shellDescriptor.includes('renderDescriptor') && shellDescriptor.includes('createFallbackShell'), 'Shell descriptor declares explicit render and fallback dependencies');
+  context.assert(shellDescriptor.includes('dispose()'), 'Shell descriptor exposes the lifecycle disposal contract');
 
   context.assert(packageManifest.scripts['test:docs-php-ssr-cls-budget'] === 'node scripts/run_xtend_tests.js docs-php-ssr-cls-budget', 'package exposes docs PHP SSR CLS budget script');
   context.assert(packageManifest.xtend.docsPhpSsrClsBudget.schema === DOCS_PHP_SSR_CLS_SCHEMA, 'package metadata records docs CLS budget schema');
