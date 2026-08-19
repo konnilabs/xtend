@@ -56,6 +56,8 @@ Für produktive Oberflächen sollten IDs stabil bleiben, wenn State-Keys oder Di
 
 Mit `adopt-prerendered-route` kann ein Host genau einen bereits sichtbaren, direkten Route-Knoten bereitstellen. Der Router prüft Pfad, optionale Route-ID, Locale, Component-Tag sowie Content- und Trust-Marker und verschiebt denselben Knoten in sein Outlet. Die Route-Komponente implementiert dafür `adoptRoute(context)` oder kompatibel `updateRoute(context)` und ergänzt nur Verhalten; der Host muss den Artikel nicht nochmals in einem Bootstrap-Payload ablegen.
 
+Während Prüfung und Adoption-Callback besitzt XRouter den Marker `data-xrouter-adoption-pending`. Route-Komponenten dürfen ihn nicht entfernen. XRouter entfernt ihn nach Annahme des vorhandenen Knotens genau einmal und sendet `xrouter-adoption-pending-released`; abgelehnte Descriptoren werden verworfen und vollständig gerendert.
+
 ```html
 <x-router mode="history" adopt-prerendered-route>
   <x-route path="/docs/de/start" component="docs-page"

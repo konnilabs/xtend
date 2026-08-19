@@ -1089,6 +1089,17 @@ class XRouter extends HTMLElement {
     return false;
   }
 
+  _releasePrerenderedRoutePending(candidate) {
+    if (!candidate || !candidate.hasAttribute('data-xrouter-adoption-pending')) return false;
+    candidate.removeAttribute('data-xrouter-adoption-pending');
+    candidate.dispatchEvent(new CustomEvent('xrouter-adoption-pending-released', {
+      detail: { schema: 'xtend.router.adoption-pending-release.v1', owner: 'x-router' },
+      bubbles: true,
+      composed: true
+    }));
+    return true;
+  }
+
   _isCurrentNavigation(generation) {
     return generation === this._navigationGeneration;
   }
@@ -1345,6 +1356,7 @@ class XRouter extends HTMLElement {
         return this._rejectPrerenderedRouteCandidate('navigation-superseded', detail, candidate);
       }
       if (result === false) return this._rejectPrerenderedRouteCandidate('adoption-refused', detail, candidate);
+      this._releasePrerenderedRoutePending(candidate);
       candidate.setAttribute('data-rmt-adoption-state', 'adopted');
       candidate.setAttribute('data-xrouter-route-adopted', 'true');
       await this._hydrateRouteTree(candidate, route);

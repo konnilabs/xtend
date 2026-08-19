@@ -385,6 +385,7 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const indexPhp = readText('docs/index.php', rootDir);
   const pageLoader = readText('docs/utils/pageloader.js', rootDir);
+  const routerSource = readText('components/xrouter.js', rootDir);
   const ssrCodeEnhancementSource = (pageLoader.match(
     /function scheduleDocsSsrCodeEnhancement\([\s\S]*?(?=\nfunction bindDocsDemoInteractions)/u
   ) || [''])[0];
@@ -654,6 +655,19 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   context.assert(pageLoader.includes('getDocsSsrPrehydration'), 'Page loader detects SSR prehydration state');
   context.assert(pageLoader.includes('findPrehydratedDocsShell'), 'Page loader can discover prehydrated docs shells');
   context.assert(pageLoader.includes('adoptPrehydratedDocsShell'), 'Page loader can adopt server-rendered docs shells');
+  context.assert(pageLoader.includes('createDocsShellAdoptionDescriptor') && pageLoader.includes('xtend.docs.shell-adoption-error.v1'), 'Page loader exposes a pure, structured shell adoption descriptor');
+  context.assert(pageLoader.includes('#md-content[data-rmt-slot="content"]') && pageLoader.includes('#download-link[data-rmt-action="docs.download.markdown"]'), 'Shell adoption validates stable IDs and RMT slot identities');
+  const adoptionFunction = pageLoader.slice(pageLoader.indexOf('function adoptPrehydratedDocsShell'), pageLoader.indexOf('function indexRmtRecords'));
+  context.assert(!adoptionFunction.includes('document.createElement') && !adoptionFunction.includes('appendChild') && !adoptionFunction.includes('replaceWith'), 'Shell adoption never creates, moves, or replaces nodes');
+  ['layout', 'article', 'mdContent', 'download', 'sidebar', 'relatedSlot', 'demoSlot'].forEach((slot) => {
+    context.assert(pageLoader.includes(`${slot}: { selector:`), `Shell adoption requires ${slot}`);
+  });
+  ['pending', 'validated', 'adopted', 'rendered', 'ready', 'failed'].forEach((phase) => {
+    context.assert(pageLoader.includes(`'${phase}'`), `Docs route state machine declares ${phase}`);
+  });
+  context.assert(!pageLoader.includes("removeAttribute('data-xrouter-adoption-pending')"), 'Page controller leaves adoption-pending release exclusively to XRouter');
+  context.assert(routerSource.includes('_releasePrerenderedRoutePending(candidate)') && routerSource.includes('xrouter-adoption-pending-released'), 'XRouter owns the exactly-once pending release API');
+  context.assert(routerSource.indexOf('const result = await adopt(adoptionContext);') < routerSource.indexOf('this._releasePrerenderedRoutePending(candidate);'), 'XRouter releases pending only after successful adoption');
   context.assert(pageLoader.includes('data-rmt-ssr-reused'), 'Page loader marks reused SSR shells');
   context.assert(pageLoader.includes('createRmtDocsShell'), 'Page loader keeps the client fallback shell');
   context.assert(pageLoader.includes("data-docs-shell-reused', 'ssr'"), 'Page loader prefers SSR shell reuse before fallback');
