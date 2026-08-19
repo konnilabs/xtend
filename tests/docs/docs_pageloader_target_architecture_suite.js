@@ -46,6 +46,8 @@ function runDocsPageLoaderTargetArchitectureSuite(options = {}) {
   const browserSmoke = readText(BROWSER_SMOKE, rootDir);
   const indexPhp = readText('docs/index.php', rootDir);
   const resumeBootstrap = readText('docs/utils/docs-resume-bootstrap.mjs', rootDir);
+  const routeController = readText('docs/utils/page/route-controller.mjs', rootDir);
+  const shellRuntime = readText('docs/utils/docs-shell-runtime.mjs', rootDir);
   const packageJson = readText('package.json', rootDir);
 
   // Prove every prohibited spelling is executable policy, rather than a passive
@@ -65,6 +67,15 @@ function runDocsPageLoaderTargetArchitectureSuite(options = {}) {
   context.assert(!pageLoader.includes('new MutationObserver('), 'PageLoader does not introduce an unmanaged observer/listener lifecycle');
 
   context.assert(`${indexPhp}\n${resumeBootstrap}`.includes('/xtend.js'), 'Docs production host loads /xtend.js');
+  context.assert(
+    resumeBootstrap.indexOf('const classicLoaderBoot = startClassicLoader();') < resumeBootstrap.indexOf("await import('../generated/shell/xtend.maraca.mjs')")
+      && resumeBootstrap.includes('window.__XTendDocsClassicLoaderBootPromise = classicLoaderPromise;')
+      && routeController.includes('window.__XTendLoaderBootPromise || window.__XTendDocsClassicLoaderBootPromise')
+      && shellRuntime.includes('window.__XTendDocsClassicLoaderBootPromise || window.__XTendLoaderBootPromise')
+      && !shellRuntime.includes('await window.xtendDocsRmtBootPromise')
+      && resumeBootstrap.includes('await classicLoaderBoot;'),
+    'Resume bootstrap starts Classic component hydration in parallel before Maraca adopts the shell'
+  );
   ['render(', 'renderKeyed(', 'patchElement('].forEach((operation) => {
     context.assert(renderer.includes(operation), `central renderer exposes ${operation.slice(0, -1)}`);
   });
