@@ -2,8 +2,8 @@ export {};
 
 // The route host and its scoped styles must exist before the RMT shell adopts the
 // server-rendered document.  This module deliberately starts in parallel with the
-// resume bootstrap; the prerendered page remains inert while
-// data-xrouter-adoption-pending is present.
+// resume bootstrap; data-xrouter-adoption-pending records ownership while the
+// trusted prerendered page remains available through progressive enhancement.
 await import('../../../components/xutils.js');
 
 const docsPageLoaderScript = Array.from(document.scripts).find((script) => /\/docs\/utils\/(?:pageloader\.js|page\/index\.mjs)(?:\?|$)/u.test(script.src || ''));

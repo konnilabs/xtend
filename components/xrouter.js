@@ -1074,6 +1074,10 @@ class XRouter extends HTMLElement {
     candidate.setAttribute('slot', 'prerendered-route');
     candidate.setAttribute('data-xrouter-adoption-pending', 'true');
     candidate.setAttribute('data-rmt-adoption-state', 'pending');
+    // Keep the trusted SSR route natively usable while its asynchronous
+    // adoption proof and component import complete. Making it inert turns a
+    // harmless timing delay into a frozen page with unselectable text.
+    candidate.removeAttribute('inert');
     this._prerenderedRouteCandidate = candidate;
     return candidate;
   }

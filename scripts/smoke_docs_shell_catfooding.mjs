@@ -192,7 +192,7 @@ const layoutShiftProbeSource = `
       },
       prerenderedRoute: {
         foundBeforeDefinition: false,
-        inertWhileAdoptionPending: false,
+        progressiveWhileAdoptionPending: false,
         sameNodeAfterDefinition: false,
         adopted: false
       },
@@ -221,8 +221,8 @@ const layoutShiftProbeSource = `
       if (!candidate) return;
       if (!state.prerenderedRouteNode) state.prerenderedRouteNode = candidate;
       if (!customElements.get('x-router')) state.prerenderedRoute.foundBeforeDefinition = true;
-      if (candidate.hasAttribute('data-xrouter-adoption-pending') && candidate.hasAttribute('inert')) {
-        state.prerenderedRoute.inertWhileAdoptionPending = true;
+      if (candidate.hasAttribute('data-xrouter-adoption-pending') && !candidate.hasAttribute('inert')) {
+        state.prerenderedRoute.progressiveWhileAdoptionPending = true;
       }
       const root = candidate.getRootNode();
       state.prerenderedRoute.sameNodeAfterDefinition = Boolean(root && root.host && root.host.localName === 'x-router');
@@ -2430,7 +2430,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(initial.skeletonProfiles.includes('docs-article') && initial.skeletonProfiles.includes('docs-navigation') && initial.skeletonProfiles.includes('docs-search'), `${scenario.id}: docs skeleton profiles are missing.`);
     if (initial.prehydrationSchema === 'xtend.docs.php-ssr-prehydration.v2') {
       assert(initial.bootSkeleton?.found && !initial.bootSkeleton.visibleBeforeDefinition && initial.bootSkeleton.hiddenAfterDefinition, `${scenario.id}: document SSR boot skeleton was visible (${JSON.stringify(initial.bootSkeleton)}).`);
-      assert(initial.prerenderedRoute?.foundBeforeDefinition && initial.prerenderedRoute.inertWhileAdoptionPending && initial.prerenderedRoute.sameNodeAfterDefinition && initial.prerenderedRoute.adopted, `${scenario.id}: prerendered route was interactive before adoption or its node identity was not preserved (${JSON.stringify({ prerenderedRoute: initial.prerenderedRoute, routeAdoption: initial.routeAdoption, requests: initial.initialPagePayloadRequests })}).`);
+      assert(initial.prerenderedRoute?.foundBeforeDefinition && initial.prerenderedRoute.progressiveWhileAdoptionPending && initial.prerenderedRoute.sameNodeAfterDefinition && initial.prerenderedRoute.adopted, `${scenario.id}: prerendered route lost progressive interaction or its node identity was not preserved (${JSON.stringify({ prerenderedRoute: initial.prerenderedRoute, routeAdoption: initial.routeAdoption, requests: initial.initialPagePayloadRequests })}).`);
       assert(initial.routeAdoption?.adopted === true && initial.initialPagePayloadRequests.length === 0, `${scenario.id}: document SSR adoption fell back to an initial page fetch (${JSON.stringify({ adoption: initial.routeAdoption, requests: initial.initialPagePayloadRequests })}).`);
     } else {
       assert(initial.bootSkeleton?.found && initial.bootSkeleton.visibleBeforeDefinition && initial.bootSkeleton.hiddenAfterDefinition, `${scenario.id}: server boot skeleton did not bridge the XRouter definition boundary (${JSON.stringify(initial.bootSkeleton)}).`);

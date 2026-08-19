@@ -1087,7 +1087,6 @@ function docsBuildDocumentSsrRecord($html, $meta, $slug, $locale, $path, $source
         'data-docs-route-state' => 'server-rendered',
         'data-xrouter-adoption-pending' => 'true',
         'data-rmt-adoption-state' => 'pending',
-        'inert' => '',
         'style' => 'display:block;'
     ], [
         docsDescriptorElement('section', [
