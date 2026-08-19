@@ -1338,6 +1338,7 @@ class XRouter extends HTMLElement {
         : (typeof candidate.updateRoute === 'function' ? candidate.updateRoute.bind(candidate) : null);
       if (!adopt) return this._rejectPrerenderedRouteCandidate('adoption-handler-missing', detail, candidate);
       candidate.removeAttribute('data-xrouter-adoption-pending');
+      candidate.removeAttribute('inert');
       const result = await adopt(adoptionContext);
       if (!this._isCurrentNavigation(navigationGeneration)) {
         return this._rejectPrerenderedRouteCandidate('navigation-superseded', detail, candidate);
