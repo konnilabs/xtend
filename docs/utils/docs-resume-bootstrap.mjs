@@ -11,6 +11,7 @@ function startClassicLoader() {
     classicLoaderPromise = window.__XTendLoaderBootPromise
       ? Promise.resolve(window.__XTendLoaderBootPromise)
       : Promise.resolve();
+    window.__XTendDocsClassicLoaderBootPromise = classicLoaderPromise;
     return classicLoaderPromise;
   }
   const loader = document.createElement('script');
@@ -25,6 +26,7 @@ function startClassicLoader() {
     }, { once: true });
     loader.addEventListener('error', resolve, { once: true });
   });
+  window.__XTendDocsClassicLoaderBootPromise = classicLoaderPromise;
   document.head.append(loader);
   return classicLoaderPromise;
 }
@@ -74,6 +76,13 @@ window.xtendDocsVerifyResumeEnvelope = verifyResumeEnvelope;
 
 window.__XTendMaracaDisableAutoBoot = true;
 
+// The page entry requires XUtils before it can define <xtend-doc-page> and bind
+// the adopted shell. Start the Classic component loader in parallel with the
+// Maraca resume instead of waiting for resume to finish. Waiting here creates a
+// boot cycle: the page controller cannot activate without the loader, while the
+// resumed router cannot finish adopting the page without the controller.
+const classicLoaderBoot = startClassicLoader();
+
 try {
   const maraca = await import('../generated/shell/xtend.maraca.mjs');
   const capturedIntents = typeof window.__xtendDocsConsumePrebootIntents === 'function'
@@ -101,7 +110,7 @@ try {
   if (resumeReasons.length > 0) {
     root.setAttribute('data-rmt-resume-reasons', resumeReasons.join(','));
   }
-  await startClassicLoader();
+  await classicLoaderBoot;
 } catch (error) {
   document.documentElement.setAttribute('data-xtend-docs-rmt-activation', 'degraded');
   if (root) root.setAttribute('data-rmt-resume-error', error && error.message ? error.message : String(error));
@@ -111,7 +120,7 @@ try {
       message: error && error.message ? error.message : String(error)
     }
   }));
-  await startClassicLoader();
+  await classicLoaderBoot;
 } finally {
   if (typeof window.__xtendDocsResolveRmtBoot === 'function') {
     window.__xtendDocsResolveRmtBoot(window.xtendDocsMaracaBootResult || null);

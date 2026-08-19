@@ -10,8 +10,13 @@ import { getDocsAppServices, immutable, TOAST_COMMAND } from './docs-app-service
 const docsAppServices = getDocsAppServices(document, window);
 const docsBootDescriptor = docsAppServices.descriptor;
 
-if (window.xtendDocsRmtBootPromise) {
-  await window.xtendDocsRmtBootPromise;
+// Shell controls are progressive enhancements and must not be gated on the
+// complete Maraca resume. The resume itself adopts <xtend-doc-page>, so waiting
+// for it here can leave every control below the header inert when adoption is
+// waiting on the shell runtime. Component readiness is the actual prerequisite.
+const docsComponentBoot = window.__XTendDocsClassicLoaderBootPromise || window.__XTendLoaderBootPromise;
+if (docsComponentBoot) {
+  await Promise.resolve(docsComponentBoot).catch(() => null);
 }
 
 const DOCS_SHELL_RUNTIME_SCHEMA = 'xtend.docs.shell-runtime.v1';

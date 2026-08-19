@@ -3457,7 +3457,7 @@ header('Vary: Accept');
     <link rel="alternate" hreflang="<?= htmlspecialchars($hreflang, ENT_QUOTES, 'UTF-8') ?>" href="<?= htmlspecialchars($href, ENT_QUOTES, 'UTF-8') ?>">
 <?php endforeach; ?>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="xtend-preload" content="x-utils,x-theme,x-button,x-icon,x-select,x-menu,x-popover,x-summary,x-link,x-input,x-form,x-header,x-hero,x-footer">
+    <meta name="xtend-preload" content="x-utils,x-theme,x-button,x-icon,x-select,x-menu,x-popover,x-summary,x-link,x-input,x-form,x-header,x-hero,x-router,x-footer">
     <link rel="icon" href="<?= $docsFaviconIcoUrl ?>" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="<?= $docsFavicon32Url ?>">
     <link rel="icon" type="image/png" sizes="16x16" href="<?= $docsFavicon16Url ?>">

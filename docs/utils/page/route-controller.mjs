@@ -27,8 +27,9 @@ const docsProductDisposers = new Set();
 
 async function requireDocsLifecycleBinding() {
   if (window.XUtils && typeof window.XUtils.on === 'function') return window.XUtils;
-  if (window.__XTendLoaderBootPromise) {
-    await Promise.resolve(window.__XTendLoaderBootPromise).catch(() => null);
+  const loaderBoot = window.__XTendLoaderBootPromise || window.__XTendDocsClassicLoaderBootPromise;
+  if (loaderBoot) {
+    await Promise.resolve(loaderBoot).catch(() => null);
   }
   if (window.XUtils && typeof window.XUtils.on === 'function') return window.XUtils;
   throw new Error('XTend XUtils lifecycle binding is required after loader boot.');
