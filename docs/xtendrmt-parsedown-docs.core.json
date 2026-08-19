@@ -695,6 +695,17 @@
                     {
                       "tag": "div",
                       "attributes": {
+                        "id": "docs-media-slot",
+                        "data-rmt-slot": "media",
+                        "data-rmt-extension-slot": "docs.slot.media",
+                        "data-rmt-schedule": "docs.media.lazy",
+                        "data-rmt-content-kind": "media",
+                        "hidden": true
+                      }
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": {
                         "id": "docs-rmt-diagnostics",
                         "data-rmt-slot": "diagnostics",
                         "data-rmt-extension-slot": "docs.slot.diagnostics",
@@ -721,6 +732,7 @@
       },
       "metadata": {
         "descriptorContract": "xtend.docs.rmt-shell-template.v1",
+        "structuralSource": true,
         "contentSlot": "content",
         "actionSlot": "actions",
         "sidebarSlot": "sidebar",
@@ -731,6 +743,7 @@
           "related",
           "component-demo",
           "rich-content",
+          "media",
           "diagnostics"
         ]
       }
