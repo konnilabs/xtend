@@ -65,11 +65,14 @@ const DOCS_RMT_PLAYGROUND_MARACA_SCHEMA = 'xtend.docs.rmt-playground.maraca-prev
 const DOCS_RMT_PLAYGROUND_MARACA_MODE = 'maraca-preview';
 const DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES = Object.freeze([
   '/components/xstate.js',
+  '/components/xsurfacemanager-controller.js',
   '/components/xutils.js',
   '/xtendrmt/rmt-runtime.esm.js',
+  '/xtendrmt/rmt-app-runtime.js',
   '/xtendrmt/rmt-kernel-orchestration-controller.js',
   '/xtendrmt/rmt-state-binding-view-projector.js',
   '/xtendrmt/rmt-state-selector-runtime.js',
+  '/xtendrmt/rmt-xstate-host-adapter.js',
   '/xtendrmt/rmt-action-effect-runtime.js',
   '/xtendrmt/rmt-event-routing-runtime.js',
   '/xtendrmt/rmt-form-validation-runtime.js',
@@ -77,6 +80,7 @@ const DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES = Object.freeze([
   '/xtendrmt/rmt-surface-transition-runtime.js',
   '/xtendrmt/rmt-surface-resource-graph-runtime.js',
   '/xtendrmt/rmt-maraca-view-projection-adapter.js',
+  '/xtendrmt/rmt-presentation-effect-adapter.js',
   '/xtendrmt/rmt-dom-descriptor-renderer.js'
 ]);
 const DOCS_RMT_PLAYGROUND_HYDRATION_TAGS = Object.freeze([
