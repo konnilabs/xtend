@@ -17,20 +17,20 @@
 | `xtend.component.form-controls-ux.v1` | `x-input`, `x-select`, `x-checkbox`, `x-radio`, `x-textarea`, `x-calendar`, `x-form`, `x-writer` sind gatebar |
 | `xtend.component.navigation-routing-ux.v1` | `x-router`, `x-link` sind als Router/Link UX gatebar; `x-tabs` und `x-menu` besitzen Navigation UX Profile |
 | `xtend.component.layout-display-media-ux.v1` | Layout, Display, list-like Cards und Media Shells sind gatebar |
-| `xtend.native-first.browser-primitive-radar.v1` | Form-, Navigation-, Layout- und Media-Primitives bleiben radar-linked |
+| `xtend.native-first.browser-primitive-radar.v2` | Form-, Navigation-, Layout- und Media-Primitives besitzen atomare terminale Entscheidungen |
 
 ## Hardening-Matrix
 
 | ID | Primitive-Gruppe | Klasse | Status | Artefakte | Radar-Refs | Gate-Evidence | Naechster Schritt |
 |----|------------------|--------|--------|-----------|------------|---------------|-------------------|
-| `NFM-FNM-01` | Text Inputs und Textarea | `owned-native-backed` | `hardened-owned-with-watch` | `x-input`, `x-textarea` | `NFM-BPR-003`, `NFM-BPR-004`, `NFM-BPR-020` | `form-controls-ux` | ElementInternals ADR erst mit Browser-Lab Evidence |
-| `NFM-FNM-02` | Selection Controls und Calendar | `owned-native-backed` | `hardened-owned-with-watch` | `x-select`, `x-checkbox`, `x-radio`, `x-calendar` | `NFM-BPR-003`, `NFM-BPR-004`, `NFM-BPR-020` | `form-controls-ux` | Selection bleibt nicht Autocomplete-/Command-Palette-Claim |
-| `NFM-FNM-03` | Form Host, Validation und FormData Aggregation | `owned-native-backed` | `hardened-owned-with-watch` | `x-form`, validation events, error regions, form data aggregation | `NFM-BPR-004` | `form-controls-ux` | Constraint Validation/FormData Adoption bleibt ADR-pflichtig |
+| `NFM-FNM-01` | Text Inputs und Textarea | `owned-native-backed` | `hardened-owned-terminal` | `x-input`, `x-textarea` | `NFM-BPR-003`, `NFM-BPR-004`, `NFM-BPR-020` | `form-controls-ux` | ElementInternals/Form Association bleiben XTend-gewrappte Pfade |
+| `NFM-FNM-02` | Selection Controls und Calendar | `owned-native-backed` | `hardened-owned-terminal` | `x-select`, `x-checkbox`, `x-radio`, `x-calendar` | `NFM-BPR-003`, `NFM-BPR-004`, `NFM-BPR-020` | `form-controls-ux` | Selection bleibt nicht Autocomplete-/Command-Palette-Claim |
+| `NFM-FNM-03` | Form Host, Validation und FormData Aggregation | `owned-native-backed` | `hardened-owned-terminal` | `x-form`, validation events, error regions, form data aggregation | `NFM-BPR-004` | `form-controls-ux` | Constraint Validation/FormData sind als XTend-Wrapper akzeptiert |
 | `NFM-FNM-04` | Rich Text Entry und Writer | `owned-with-vendor-residual` | `hardened-owned-with-residual` | `x-writer`, form aggregation, Turndown residual | `NFM-BPR-001`, `NFM-BPR-016` | `form-controls-ux`, `supply-chain` | Vendor residual in `NFM-CAP-12` bleibt WP18/WP21 |
 | `NFM-FNM-05` | Router und Link | `owned-native-backed` | `hardened-owned-with-rmt-followup` | `x-router`, `x-link`, route announcements, focus restore | `NFM-BPR-015`, `NFM-BPR-011`, `NFM-BPR-020` | `navigation-routing-ux` | WP14 quantifiziert RMT Route-/App-Shell-Gaps |
 | `NFM-FNM-06` | Menu und Tabs Navigation | `owned` | `hardened-owned` | `x-menu`, `x-tabs`, nav tokens, keyboard path | `NFM-BPR-020` | `navigation-routing-ux`, `catalog-coverage` | WP09 kann Event/State/Scheduler-Hebel schneiden |
-| `NFM-FNM-07` | List-like Display und Cards | `owned-native-backed` | `hardened-owned-with-watch` | `x-cards`, `x-masonry`, `x-summary`, `x-section` | `NFM-BPR-009`, `NFM-BPR-013` | `layout-display-media-ux` | kein Table/Tree/VirtualList Claim |
-| `NFM-FNM-08` | Media Player und Lightbox | `owned-native-backed` | `hardened-owned-with-watch` | `x-player`, `x-lightbox`, lazy media, media commands | `NFM-BPR-018`, `NFM-BPR-010`, `NFM-BPR-020` | `layout-display-media-ux` | Media Session/PiP bleiben Browser-Lab ADR |
+| `NFM-FNM-07` | List-like Display und Cards | `owned-native-backed` | `hardened-owned-terminal` | `x-cards`, `x-masonry`, `x-summary`, `x-section` | `NFM-BPR-009`, `NFM-BPR-013` | `layout-display-media-ux` | Container Queries akzeptiert; kein Table/Tree/VirtualList Claim |
+| `NFM-FNM-08` | Media Player und Lightbox | `owned-native-backed` | `hardened-owned-terminal` | `x-player`, `x-lightbox`, lazy media, media commands | `NFM-BPR-018`, `NFM-BPR-010`, `NFM-BPR-020` | `layout-display-media-ux` | PiP capability-gated akzeptiert; Media Session abgelehnt |
 | `NFM-FNM-09` | Data Display Table/Tree/VirtualList | `missing` | `missing-owned-primitive` | keine dedizierten `x-table`, `x-tree`, `x-list`, `x-virtual-list` Manifest-Komponenten | `NFM-BPR-013`, `NFM-BPR-009` | `native-first-form-navigation-media` negative claim check | `NFM-WP-10` oder Folgeepic |
 | `NFM-FNM-10` | Command Palette, Autocomplete und rich Combobox | `missing` | `missing-owned-primitive` | keine dedizierten `x-command-palette`, `x-autocomplete`, `x-combobox` Manifest-Komponenten | `NFM-BPR-003`, `NFM-BPR-013` | `native-first-form-navigation-media` negative claim check | Folgepaket nach Market-Pattern-Priorisierung |
 | `NFM-FNM-11` | RMT App Forms, Navigation und Media Authoring | `owned` | `hardened-owned-with-rmt-followup` | RMT fixtures fuer forms, navigation, layout/media | `NFM-BPR-001`, `NFM-BPR-012`, `NFM-BPR-013` | `form-controls-ux`, `navigation-routing-ux`, `layout-display-media-ux` | WP14 quantifiziert verbleibende UI Maximality |
@@ -42,19 +42,21 @@
 |-----------|--------------|--------|
 | `ElementInternals` und form-associated Custom Elements | `wrap-as-xtend-primitive` | owned Forms bleiben fuehrend |
 | Constraint Validation und FormData APIs | `wrap-as-xtend-primitive` | native Interop bleibt ADR-pflichtig |
-| History, URLPattern und Navigation API | `defer-with-watch` | owned Router/Link bleiben fuehrend |
-| CSS Container Queries | `adopt-candidate` | Layout-Use braucht Browser-Lab Evidence |
-| Media Session und Picture-in-Picture | `defer-with-watch` | owned Media bleibt fuehrend |
+| History API | `wrap-as-xtend-primitive` | `x-router` bleibt Owner |
+| URLPattern und Navigation API | `reject-for-now` | `closed`; `x-router` bleibt Owner |
+| CSS Container Queries | `adopt-native` | bestehender Layout-Pfad ist akzeptiert |
+| Picture-in-Picture | `wrap-as-xtend-primitive` | capability-gated `x-player`-Pfad |
+| Media Session | `reject-for-now` | `closed`; owned Media bleibt fuehrend |
 | `focus-visible`, forced-colors, reduced-motion | `adopt-native` | bestehende A11y-CSS-Primitives bleiben erlaubt |
 
 ## Capability-Handoff
 
 | Capability | WP-06 Status | WP-08 Entscheidung |
 |------------|--------------|--------------------|
-| `NFM-CAP-04` Forms, Validation und Input Composition | `needs-hardening` | owned Form Controls sind gehaertet; ElementInternals/Constraint Validation bleiben Radar-Watch |
+| `NFM-CAP-04` Forms, Validation und Input Composition | `ready-with-terminal-radar-decision` | owned Form Controls sind gehaertet; ElementInternals/Constraint Validation sind als Wrapper akzeptiert |
 | `NFM-CAP-08` Navigation, Routing und App Shell | `needs-rmt-gap-analysis` | owned Router/Link/Tabs/Menu sind gehaertet; RMT Route-Ausdruckskraft bleibt WP14 |
-| `NFM-CAP-09` Layout, Display und Content Surfaces | `ready-with-radar-watch` | list-like Layout/Display ist gehaertet; Data Grid/List wird nicht geclaimt |
-| `NFM-CAP-10` Media Shells und Rich Media | `ready-with-radar-watch` | owned Media Shells sind gehaertet; Media Session/PiP bleiben Radar-Watch |
+| `NFM-CAP-09` Layout, Display und Content Surfaces | `ready-with-terminal-radar-decision` | list-like Layout/Display ist gehaertet; Container Queries sind akzeptiert; Data Grid/List wird nicht geclaimt |
+| `NFM-CAP-10` Media Shells und Rich Media | `ready-with-terminal-radar-decision` | PiP ist capability-gated akzeptiert; Media Session ist terminal abgelehnt |
 | `NFM-CAP-16` Data Display: Table, Tree, Virtual List und Collection Controls | `missing-owned-primitive` | bestaetigt missing; kein Framework-Parity-Claim |
 | `NFM-CAP-17` Command Palette, Combobox und Autocomplete | `missing-owned-primitive` | bestaetigt missing; `x-select` bleibt Selection Control |
 
@@ -62,10 +64,10 @@
 
 | Residual | Status | Owner-Folge |
 |----------|--------|--------------|
-| `ElementInternals` produktiv nutzen | `wrap-candidate` | Browser-Lab ADR nach `NFM-BPR-003` |
-| Constraint Validation/FormData tiefer nativ integrieren | `wrap-candidate` | Browser-Lab ADR nach `NFM-BPR-004` |
-| Navigation API/URLPattern produktiv nutzen | `defer-with-watch` | WP14/WP18 Evidence nach `NFM-BPR-015` |
-| Media Session/PiP produktiv nutzen | `defer-with-watch` | Browser-Lab ADR nach `NFM-BPR-018` |
+| `ElementInternals` produktiv nutzen | `accepted-existing` | Wrapper- und Fallback-Vertrag aus `NFM-BPR-003` |
+| Constraint Validation/FormData tiefer nativ integrieren | `accepted-existing` | Wrapper- und Fallback-Vertrag aus `NFM-BPR-004` |
+| Navigation API/URLPattern produktiv nutzen | `closed` | `followUp: none` nach `NFM-BPR-015` |
+| Media Session produktiv nutzen | `closed` | `followUp: none` nach `NFM-BPR-018`; PiP ist separat akzeptiert |
 | Data Display Table/Tree/VirtualList | `missing-owned-primitive` | `NFM-WP-10` oder Folgeepic |
 | Command Palette/Autocomplete/rich Combobox | `missing-owned-primitive` | Market-Pattern-Priorisierung |
 
@@ -80,4 +82,3 @@
 | `catalog-coverage` | Manifest und Component-Reife bleiben stabil |
 | `references` | neue WP-08-Artefakte bleiben referenzierbar |
 | `supply-chain` | keine neue Runtime-Dependency wurde eingefuehrt |
-

@@ -25,6 +25,7 @@ const {
 const { createRmtAppScaffold } = require('../../xtend-builder/generators/rmt-app');
 const { compileRmtVNextSource } = require('../../tools/rmt-language/vnext-compiler');
 const { listenXtendDevServer } = require('../../scripts/serve_xtend_dev');
+const { detectAvailableEngine, runFixture } = require('../../tools/browser-hypervisor');
 
 const REPO_ROOT = path.resolve(__dirname, '../..');
 const SENTINEL = 'XMS_SENTINEL_DO_NOT_LEAK_71ad';
@@ -58,37 +59,23 @@ function readClientEvidence(distDir) {
   return evidence.join('\n');
 }
 
-function findChromium() {
-  return ['/usr/bin/chromium-browser', '/usr/bin/chromium', '/usr/bin/google-chrome']
-    .find((candidate) => fs.existsSync(candidate)) || null;
-}
-
-function runBrowserDump(chromium, url) {
-  return new Promise((resolve) => {
-    const child = spawn(chromium, [
-      '--headless=new',
-      '--no-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-      '--run-all-compositor-stages-before-draw',
-      '--virtual-time-budget=20000',
-      '--dump-dom',
-      url
-    ], { stdio: ['ignore', 'pipe', 'pipe'] });
-    let stdout = '';
-    let stderr = '';
-    const timer = setTimeout(() => child.kill('SIGKILL'), 45000);
-    child.stdout.on('data', (chunk) => { stdout += String(chunk); });
-    child.stderr.on('data', (chunk) => { stderr += String(chunk); });
-    child.once('error', (error) => {
-      clearTimeout(timer);
-      resolve({ status: -1, stdout, stderr, error });
+async function runBrowserDump(engine, url, rootDir, fixturePath) {
+  const resultKey = '__xtendMaracaAppServicesBrowserResult';
+  try {
+    const execution = await runFixture({
+      rootDir,
+      engine,
+      fixturePath,
+      url,
+      resultKey,
+      timeoutMs: 45000,
+      scripts: [{ script: `(() => { const key = ${JSON.stringify(resultKey)}; Object.defineProperty(window, key, { configurable: true, get() { const text = document.getElementById('result')?.textContent || ''; try { const payload = JSON.parse(text); return { status: 'passed', payload, html: document.documentElement.outerHTML }; } catch (_) { return { status: 'pending' }; } } }); })();` }],
+      accept: (result) => result && result.status === 'passed'
     });
-    child.once('close', (status) => {
-      clearTimeout(timer);
-      resolve({ status, stdout, stderr });
-    });
-  });
+    return { status: 0, stdout: execution.result.html, payload: execution.result.payload, stderr: '' };
+  } catch (error) {
+    return { status: -1, stdout: '', stderr: error.message, error };
+  }
 }
 
 function runGeneratedCliBuild(appRoot, rootDir) {
@@ -117,9 +104,9 @@ function runGeneratedCliBuild(appRoot, rootDir) {
 }
 
 async function runBrowserSourceToSea(context, appRoot, config) {
-  const chromium = findChromium();
-  if (!chromium) {
-    context.skip('AppServices browser source-to-sea smoke skipped because Chromium is unavailable');
+  const engine = detectAvailableEngine({ engine: process.env.XTEND_BROWSER_HYPERVISOR_ENGINE || 'chromium' });
+  if (!engine) {
+    context.skip('AppServices browser source-to-sea smoke skipped because no Hypervisor provider is available');
     return null;
   }
   write(path.join(appRoot, 'src/services.ts'), `
@@ -261,7 +248,7 @@ export default defineAppServices({
   let handle = null;
   try {
     handle = await listenXtendDevServer({ rootDir: appRoot, defaultPath: 'browser-smoke.html', port: 0 });
-    const browser = await runBrowserDump(chromium, `${handle.origin}/browser-smoke.html`);
+    const browser = await runBrowserDump(engine, `${handle.origin}/browser-smoke.html`, appRoot, 'browser-smoke.html');
     assert.equal(browser.status, 0, browser.error && browser.error.message || browser.stderr);
     const match = /<pre id="result">([^<]+)<\/pre>/u.exec(browser.stdout);
     assert.ok(match, 'browser smoke did not expose its result payload');
@@ -269,13 +256,13 @@ export default defineAppServices({
     assert.equal(payload.ok, true, payload.error || JSON.stringify(payload));
     assert.deepEqual(payload.checks, { event: true, action: true, service: true, state: true, render: true });
     context.pass('browser proves Event → Action → Service → State → Render without product boot or DOM wiring');
-    const compatibilityBrowser = await runBrowserDump(chromium, `${handle.origin}/browser-compatibility-smoke.html`);
+    const compatibilityBrowser = await runBrowserDump(engine, `${handle.origin}/browser-compatibility-smoke.html`, appRoot, 'browser-compatibility-smoke.html');
     assert.equal(compatibilityBrowser.status, 0, compatibilityBrowser.error && compatibilityBrowser.error.message || compatibilityBrowser.stderr);
     const compatibilityMatch = /<pre id="result">([^<]+)<\/pre>/u.exec(compatibilityBrowser.stdout);
     assert.ok(compatibilityMatch, 'compatibility smoke did not expose its result payload');
     const compatibilityPayload = JSON.parse(compatibilityMatch[1].replace(/&quot;/gu, '"').replace(/&amp;/gu, '&'));
     assert.equal(compatibilityPayload.ok, true, JSON.stringify(compatibilityPayload));
-    const strictBrowser = await runBrowserDump(chromium, `${handle.origin}/browser-strict-collision-smoke.html`);
+    const strictBrowser = await runBrowserDump(engine, `${handle.origin}/browser-strict-collision-smoke.html`, appRoot, 'browser-strict-collision-smoke.html');
     assert.equal(strictBrowser.status, 0, strictBrowser.error && strictBrowser.error.message || strictBrowser.stderr);
     const strictMatch = /<pre id="result">([^<]+)<\/pre>/u.exec(strictBrowser.stdout);
     assert.ok(strictMatch, 'strict collision smoke did not expose its result payload');

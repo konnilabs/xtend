@@ -33,6 +33,7 @@ function runObservatoryAdoptionLabsSuite(options = {}) {
   const ermBrowserLab = readText('tests/browser/fixtures/observatory-explicit-resource-management-lab.html', rootDir);
   const ermNativeModule = readText('tests/browser/fixtures/observatory-explicit-resource-management-native.mjs', rootDir);
   const ermBrowserEvidence = readJson('tests/fixtures/native-first/observatory-erm-browser-evidence-chromium-151.json', rootDir);
+  const terminalEvidence = readJson('tests/fixtures/native-first/observatory-browser-evidence-2026-09-03.json', rootDir);
   const labReport = readText('development/XTend-Observatory-Prototype-Lab-Report-2026-08-17.md', rootDir);
   const packageManifest = readJson('package.json', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
@@ -40,18 +41,18 @@ function runObservatoryAdoptionLabsSuite(options = {}) {
   const nonModal = selectOverlayStrategy({ kind: 'popover', modal: false, capabilities: { popover: true, anchorPositioning: true } });
   const modal = selectOverlayStrategy({ kind: 'popover', modal: true, capabilities: { popover: true, anchorPositioning: true } });
   const dialog = selectOverlayStrategy({ kind: 'dialog', capabilities: { dialog: true } });
-  context.assert(nonModal.schema === LAB_SCHEMA && nonModal.strategy === 'native-non-modal-popover-lab' && nonModal.positioning === 'css-anchor-lab', 'Non-modal overlay can select native popover and CSS anchor lab paths');
-  context.assert(nonModal.publicEventsUnchanged && nonModal.ownedSurfaceRecords, 'Native non-modal lab preserves public events and Surface records');
+  context.assert(nonModal.schema === LAB_SCHEMA && nonModal.strategy === 'owned-xtend-overlay' && nonModal.positioning === 'owned-js-measurement', 'Rejected Popover and Anchor candidates keep the owned overlay path');
+  context.assert(nonModal.publicEventsUnchanged && nonModal.ownedSurfaceRecords, 'Owned non-modal path preserves public events and Surface records');
   context.assert(modal.strategy === 'owned-xtend-overlay' && modal.browserOwns.length === 0, 'Modal popover stays fully owned and avoids duplicate browser modality');
   context.assert(includesAll(modal.xtendOwns, ['focus-trap', 'inert', 'escape', 'scroll-lock']), 'Modal owned path retains focus, inert, Escape and scroll-lock ownership');
-  context.assert(dialog.strategy === 'native-dialog-lab' && !dialog.xtendOwns.includes('escape'), 'Dialog lab assigns Escape to one owner only');
+  context.assert(dialog.strategy === 'owned-xtend-overlay' && dialog.browserOwns.length === 0 && dialog.xtendOwns.includes('escape'), 'Rejected native Dialog keeps Escape under one XTend owner');
 
   const scheduler = compareSchedulerStrategies({ unitCount: 500, sliceBudgetMs: 4, unitCostMs: 0.25 });
   context.assert(scheduler.plan.unitCount === 500 && scheduler.plan.sliceBudgetMs === 4, 'Scheduler lab models 500 hydration units in 4 ms slices');
   context.assert(scheduler.acceptance.sliceBudgetMet && scheduler.acceptance.noLongTaskOver50Ms, 'Scheduler model meets slice and long-task limits');
   context.assert(scheduler.acceptance.standardHydrationBudgetMet && scheduler.acceptance.throughputRegressionWithinFivePercent, 'Scheduler model meets standard hydration and five-percent throughput limits');
   context.assert(scheduler.acceptance.orderUnchanged && scheduler.plan.cancellationOwner === 'rmt-lanes' && scheduler.plan.backpressureOwner === 'rmt-lanes', 'Scheduler model preserves order, cancellation and backpressure ownership');
-  context.assert(createYieldContinuation({ scheduler: { yield() { return Promise.resolve(); } } }).strategy === 'scheduler.yield', 'yieldContinuation selects scheduler.yield when available');
+  context.assert(createYieldContinuation({ scheduler: { yield() { return Promise.resolve(); } }, requestIdleCallback() {} }).strategy === 'requestIdleCallback', 'Rejected scheduler.yield does not replace the accepted idle fallback');
   context.assert(createYieldContinuation({ requestIdleCallback() {} }).strategy === 'requestIdleCallback', 'yieldContinuation preserves requestIdleCallback fallback');
   context.assert(createYieldContinuation({ setTimeout() {} }).strategy === 'timer', 'yieldContinuation preserves timer fallback');
 
@@ -63,7 +64,7 @@ function runObservatoryAdoptionLabsSuite(options = {}) {
   const navigationDefault = selectNavigationHost({ optIn: false, navigationApi: true });
   const navigationLab = selectNavigationHost({ optIn: true, navigationApi: true });
   context.assert(navigationDefault.strategy === 'history-hash-owned', 'Navigation API never activates without opt-in');
-  context.assert(navigationLab.strategy === 'navigation-api-host-adapter-lab' && navigationLab.fallbackOwner === 'history-hash-owned', 'Navigation lab retains History/Hash fallback ownership');
+  context.assert(navigationLab.strategy === 'history-hash-owned' && navigationLab.fallbackOwner === 'history-hash-owned', 'Rejected Navigation API retains History/Hash ownership');
   context.assert(!navigationLab.changesPublicContract && includesAll(navigationLab.mapsToExistingEvents, ['xrouter-before-navigate', 'xrouter-after-navigate']), 'Navigation lab maps to existing public events');
 
   class FixtureDisposableStack {
@@ -101,15 +102,16 @@ function runObservatoryAdoptionLabsSuite(options = {}) {
 
   context.assert(fixture.schema === 'xtend.native-first.observatory-browser-evidence.v1', 'Browser evidence fixture declares schema');
   context.assert(fixture.engines.length === 3 && fixture.engines.some((engine) => engine.engine === 'Chromium' && engine.version === '151.0.7922.108' && engine.status === 'lab-evidence'), 'Chromium has version-bound lab evidence');
-  context.assert(fixture.engines.filter((engine) => engine.status === 'insufficient-evidence').length === 2, 'Firefox and WebKit retain explicit insufficient-evidence records');
+  context.assert(fixture.engines.filter((engine) => engine.status === 'unsupported-with-valid-fallback').length === 2, 'Firefox and WebKit carry terminal fallback evidence');
   context.assert(fixture.wave1.scheduler.unitCount === 500 && fixture.wave1.scheduler.sliceBudgetMs === 4, 'Fixture carries scheduler acceptance budgets');
   context.assert(includesAll(fixture.wave1.overlayAnchor.requirements, ['keyboard', 'focus-return', 'escape', 'light-dismiss', 'nested-overlays', 'rtl', 'zoom', 'scroll-resize', 'reduced-motion', 'js-fallback']), 'Overlay fixture records interaction and fallback acceptance');
   context.assert(includesAll(fixture.wave2.navigation.requirements, ['back-forward', 'superseded', 'abort', 'query-hash', 'external-links', 'target', 'download', 'unregistered-routes', 'scroll-restore', 'focus', 'title-announcement', 'ssr-adoption', 'route-reuse']), 'Navigation fixture records lifecycle acceptance');
   context.assert(fixture.wave2.crossDocumentViewTransitions.docsPilotAllowed === false, 'Cross-document fixture does not authorize a Docs pilot');
   context.assert(chromiumEvidence.engine === 'Chromium' && chromiumEvidence.version === '151.0.7922.108' && chromiumEvidence.completed === true, 'Chromium evidence is engine- and version-bound');
-  context.assert(chromiumEvidence.harnessSha256 === crypto.createHash('sha256').update(browserLab).digest('hex'), 'Chromium evidence matches the exact browser harness');
+  context.assert(/^[a-f0-9]{64}$/u.test(chromiumEvidence.harnessSha256), 'Historical Chromium evidence keeps its immutable harness digest');
+  context.assert(terminalEvidence.harnessSha256 === crypto.createHash('sha256').update(browserLab).digest('hex'), 'September evidence matches the current parse-safe browser harness');
   context.assert(chromiumEvidence.registry.isolated === true && chromiumEvidence.hydration.units === 500 && chromiumEvidence.hydration.slices === 10, 'Chromium evidence records registry isolation and segmented hydration');
-  context.assert(chromiumEvidence.hydration.strategy === 'scheduler.yield' && chromiumEvidence.hydration.yieldCount === 9 && chromiumEvidence.hydration.maxSliceMs <= 4, 'Chromium evidence exercises scheduler.yield within the slice budget');
+  context.assert(chromiumEvidence.hydration.strategy === 'scheduler.yield' && chromiumEvidence.hydration.yieldCount === 9 && chromiumEvidence.hydration.maxSliceMs <= 4, 'Historical Chromium comparison evidence remains preserved without authorizing scheduler.yield');
   context.assert(chromiumEvidence.claimBoundary === 'single-local-lab-not-shipping-support', 'Single-engine evidence cannot become a shipping claim');
 
   ['popover="auto"', 'closedby="closerequest"', 'anchor-name:', 'position-anchor:', 'scheduler.yield', 'new CustomElementRegistry()', 'next < 500', 'sliceUnits < 50', 'performance.now() - started < 4'].forEach((token) => {
@@ -130,10 +132,10 @@ function runObservatoryAdoptionLabsSuite(options = {}) {
   const ermChromium = ermBrowserEvidence.engines.find((engine) => engine.engine === 'Chromium');
   context.assert(ermChromium && ermChromium.version === '151.0.7922.108' && ermChromium.dynamicModuleStatus === 'native-syntax-exercised', 'Chromium 151 executed using and await using through the dynamic module');
   context.assert(includesAll(ermChromium.events, ['using-body', 'using-dispose', 'await-using-body', 'await-using-dispose']), 'Chromium evidence records synchronous and asynchronous native disposal');
-  context.assert(ermBrowserEvidence.engines.filter((engine) => engine.status === 'insufficient-evidence').length === 2, 'ERM evidence keeps Firefox and WebKit explicitly insufficient');
-  context.assert(ermBrowserEvidence.adoptionBlocked === true && ermBrowserEvidence.claimBoundary === 'single-local-lab-not-shipping-support', 'Single-engine ERM evidence remains adoption-blocking');
+  context.assert(ermBrowserEvidence.engines.filter((engine) => engine.status === 'insufficient-evidence').length === 2, 'Historical ERM evidence remains immutable');
+  context.assert(terminalEvidence.summary.insufficientEvidence === 0 && terminalEvidence.summary.resolved === 24, 'September Hypervisor evidence supersedes historical adoption blockers');
 
-  ['components/xtooltip.js', 'components/xpopover.js', 'components/xdialog.js', 'components/xsurfacewindow.js', 'options.customElements', 'insufficient-evidence', 'JSPI', 'shadowrootslotassignment'].forEach((token) => {
+  ['components/xtooltip.js', 'components/xpopover.js', 'components/xdialog.js', 'components/xsurfacewindow.js', 'options.customElements', 'JSPI', 'shadowrootslotassignment'].forEach((token) => {
     context.assertIncludes(labReport, token, `Lab report documents ${token}`);
   });
   context.assertIncludes(runner, "id: 'observatory-adoption-labs'", 'Runner registers Observatory adoption labs');

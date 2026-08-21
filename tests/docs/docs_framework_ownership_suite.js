@@ -38,7 +38,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   const findings = productFiles.flatMap((file) => scanOwnershipSource(read(file), file));
   context.assert(findings.length === 0, `executable Docs product has no parallel runtime structures (${findings.map((entry) => `${entry.filePath}:${entry.rule}`).join(', ') || 'clean'})`);
 
-  const pageLoader = read('docs/utils/pageloader.js');
+  const pageLoader = read('docs/utils/page/route-controller.mjs');
   const phpHost = read('docs/index.php');
   const animationDemo = read('docs/utils/animation-engine-demo.mjs');
   const maracaBuilder = read('xtend-maraca/index.js');
@@ -1902,9 +1902,9 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     && transactionState.first.value === 'A'
     && transactionState.second.value === 'B',
   'the single transaction contains Action status/result/loading state and every compiled reducer result');
-  context.assert(gateEvaluateCount === 1
+  context.assert(gateEvaluateCount === 2
     && gateApplyCount === 0
-    && gatePrepareCount === 1
+    && gatePrepareCount === 2
     && gateFinalizeCount === 1
     && validationModelReader && typeof validationModelReader.getState === 'function'
     && typeof validationModelReader.setState === 'undefined'
@@ -1914,15 +1914,15 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     && saveDescriptors.length === 2
     && saveDescriptors.every((descriptor) => Object.prototype.hasOwnProperty.call(descriptor.attributes, 'aria-invalid'))
     && transactionHydrationCount === hydrationsBeforeSave + 1,
-  'validation evaluates once through the read-only Model port and joins one renderer commit and one hydration');
+  'validation evaluates the preflight and prospective Model state through the read-only port and joins one renderer commit and one hydration');
   const blockedResult = await transactionRuntime.dispatchCommand('blocked-save', { value: 'must-not-write' });
   context.assert(blockedResult && blockedResult.status === 'blocked'
     && transactionRuntime.stateRuntime.getState('blocked.target').value === 'unchanged'
     && transactionRuntime.stateRuntime.getState('validation.status').valid === false
     && transactionRuntime.snapshot().actions.length === 1
-    && gateEvaluateCount === 2
+    && gateEvaluateCount === 3
     && gateApplyCount === 0
-    && gatePrepareCount === 2
+    && gatePrepareCount === 3
     && gateFinalizeCount === 2,
   'invalid Action gates run one preflight evaluation and block Action effects and reducers before the final projected commit');
   const beforeFailedActionSnapshot = transactionRuntime.snapshot();
@@ -1995,14 +1995,14 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     && afterStreamSnapshot.stateCommitCount === beforeStreamSnapshot.stateCommitCount + 1
     && afterStreamSnapshot.commitCount === beforeStreamSnapshot.commitCount + 1
     && afterStreamSnapshot.renderCount === beforeStreamSnapshot.renderCount
-    && gateEvaluateCount === beforeStreamValidationCount + 1
+    && gateEvaluateCount === beforeStreamValidationCount + 2
     && streamRendererRequests.length === 1
     && streamRendererRequests[0].operation === 'reconcile-children'
     && managedStreamPlanCount === 1
     && managedStreamCommitCount === 1
     && legacyAppStateMutationCount === 0
     && scheduledKinds.join(',') === 'state-change',
-  'managed stream patches use one Model transaction, validation pass and targeted DOM commit without mutating a parallel appState');
+  'managed stream patches use one Model transaction, prospective validation refresh and targeted DOM commit without mutating a parallel appState');
   transactionRuntime.dispose();
   transactionRuntime.dispose();
   context.assert(externalKernelDisposeCount === 0

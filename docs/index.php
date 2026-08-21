@@ -4808,20 +4808,22 @@ header('Vary: Accept');
         }
     </style>
     <script nonce="<?= $nonce ?>">
-    window.xtendInitialDocsSlug = <?= docsJsonEncodeForHtml($initialDocsSlug); ?>;
-    window.xtendInitialDocsLocale = <?= docsJsonEncodeForHtml($pageLocale); ?>;
-    window.xtendDocsLocales = <?php echo docsJsonEncodeForHtml($docsAvailableLocales); ?>;
-    window.xtendMenuConfig = <?php echo docsJsonEncodeForHtml($docsBootstrapMenuConfig); ?>;
-    window.xtendDocsNavigation = <?php echo docsJsonEncodeForHtml($docsNavigationConfig); ?>;
+    const xtendDocsBootDescriptor = JSON.parse(document.getElementById('xtend-docs-boot').textContent || '{}');
+    const xtendDocsBootConfiguration = xtendDocsBootDescriptor.configuration || {};
+    const xtendDocsBootDocument = xtendDocsBootDescriptor.document || {};
+    window.xtendInitialDocsSlug = xtendDocsBootDocument.slug || 'readme';
+    window.xtendInitialDocsLocale = xtendDocsBootDocument.locale || 'de';
+    window.xtendDocsLocales = (xtendDocsBootConfiguration.i18n && xtendDocsBootConfiguration.i18n.locales) || {};
+    window.xtendMenuConfig = xtendDocsBootDocument.menu || [];
+    window.xtendDocsNavigation = xtendDocsBootDocument.navigation || {};
     window.xtendDocsLocalizedPages = Object.create(null);
-    window.xtendDocsLocalizedPagesMeta = <?php echo docsJsonEncodeForHtml($docsBootstrapLocalizedMeta); ?>;
-    window.xtendDocsLocalizedTitles = <?php echo docsJsonEncodeForHtml($docsBootstrapLocalizedTitles); ?>;
-    window.xtendDocsSlugAliases = <?php echo docsJsonEncodeForHtml($docsSlugAliases); ?>;
-    window.xtendDocsBasePath = <?= docsJsonEncodeForHtml($docsBasePath); ?>;
-    window.xtendDocsRoutingMode = 'history';
+    window.xtendDocsLocalizedPagesMeta = xtendDocsBootDocument.localizedPagesMeta || {};
+    window.xtendDocsLocalizedTitles = xtendDocsBootDocument.localizedTitles || {};
+    window.xtendDocsSlugAliases = xtendDocsBootDocument.aliases || {};
+    window.xtendDocsBasePath = xtendDocsBootConfiguration.basePath || '/docs';
+    window.xtendDocsRoutingMode = xtendDocsBootConfiguration.routingMode || 'history';
     (function() {
-      const descriptor = JSON.parse(document.getElementById('xtend-docs-boot').textContent || '{}');
-      const config = descriptor.configuration.i18n;
+      const config = xtendDocsBootConfiguration.i18n;
       const available = config.available || ['de'];
       const fallback = config.fallbackLocale || 'de';
       const basePath = String(descriptor.configuration.basePath || '').replace(/\/+$/, '');
@@ -4869,11 +4871,11 @@ header('Vary: Accept');
       }
     })();
     window.xtendDocsPages = Object.create(null);
-    window.xtendDocsPageEndpoint = <?= docsJsonEncodeForHtml(docsEndpointPath('xtend-docs-page={slug}&locale={locale}')); ?>;
-    window.xtendDocsRmtSsrEndpoint = <?= docsJsonEncodeForHtml($docsSsrEndpoint); ?>;
-    window.xtendDocsSsrPrehydration = <?php echo docsJsonEncodeForHtml(docsCompactDocsSsrPrehydrationForBootstrap($docsSsrPrehydration)); ?>;
-    window.xtendDocsPagesMeta = <?php echo docsJsonEncodeForHtml($docsBootstrapPageMeta); ?>;
-    window.xtendDocsTitles = <?php echo docsJsonEncodeForHtml($docsBootstrapTitles); ?>;
+    window.xtendDocsPageEndpoint = xtendDocsBootConfiguration.pageEndpoint || '';
+    window.xtendDocsRmtSsrEndpoint = xtendDocsBootConfiguration.ssrEndpoint || '';
+    window.xtendDocsSsrPrehydration = xtendDocsBootDocument.ssrPrehydration || null;
+    window.xtendDocsPagesMeta = xtendDocsBootDocument.pagesMeta || {};
+    window.xtendDocsTitles = xtendDocsBootDocument.titles || {};
     window.xtendDocsAssetUrls = {
       favicon: '<?= $docsFaviconIcoUrl ?>',
       favicon32: '<?= $docsFavicon32Url ?>',
@@ -4883,7 +4885,7 @@ header('Vary: Accept');
       lightboxLogo: '<?= $docsLightboxLogoUrl ?>'
     };
     window.xtendDocsRmtRuntimeModule = '/xtendrmt/rmt-runtime.esm.js?v=<?= $xtendAssetVersionAttr ?>';
-    window.xtendDocsRmtDocument = <?php echo $rmtPilotDocumentJson; ?>;
+    window.xtendDocsRmtDocument = xtendDocsBootDocument.rmtDocument || null;
     window.xtendDocsRmtPilot = {
       schema: 'xtend.docs.parsedown-rmt-pilot.v1',
       workpackage: 'ER-WP-40',

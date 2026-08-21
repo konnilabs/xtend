@@ -105,12 +105,12 @@
       "generator": "material-app",
       "kind": "runtime",
       "path": "products/maraca-app-services-test-bench/src/material-runtime-host.mjs",
-      "sha256": "e985f616c04e9c6d70cfc4bc6327dbc06978235b603b2c61dc4bb1d34bdd2f89",
-      "bytes": 3821,
+      "sha256": "d63ddbd1eda6f1332a4425c62492102d848892262c35b8a8fed5df321c61c072",
+      "bytes": 4462,
       "templateId": "app.material.runtime-host",
       "templatePath": "xtend-builder/templates/app/material-runtime-host.template.mjs",
       "sourceSha256": null,
-      "buildSha256": "3f1e5879dd6b47e756928be9bb75cb5814e280231523624206712a1ed5898e08",
+      "buildSha256": "eaf6bdbde93fb68b945cf17b2f51b35e8c4e9f84224fa2423dbf702ee0dbb534",
       "mode": "managed"
     },
     "products/maraca-app-services-test-bench/src/server-services.ts": {

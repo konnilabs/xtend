@@ -1,0 +1,111 @@
+name: XTend Browser Hypervisor Matrix
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 3 9 *'
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    name: ${{ matrix.engine }} evidence
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - engine: chromium
+            os: ubuntu-latest
+          - engine: firefox
+            os: ubuntu-latest
+          - engine: webkit
+            os: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+
+      - name: Pin npm
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+
+      - name: Install repository dependencies
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
+      - name: Enable Safari WebDriver provider
+        if: matrix.engine == 'webkit'
+        run: sudo safaridriver --enable
+
+      - name: Validate Hypervisor contract
+        run: npm run test:browser-hypervisor
+
+      - name: Capture immutable engine evidence
+        env:
+          XTEND_BROWSER_HYPERVISOR_ENGINE: ${{ matrix.engine }}
+          XTEND_BROWSER_HYPERVISOR_RUN_ID: NFM-OBS-2026-09-03
+        run: >-
+          node scripts/capture_browser_hypervisor_evidence.js
+          --engine "${{ matrix.engine }}"
+          --run-id NFM-OBS-2026-09-03
+          --output ".xtend-test-results/browser-hypervisor/${{ matrix.engine }}.json"
+
+      - name: Upload engine evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: xtend-browser-hypervisor-${{ matrix.engine }}
+          path: .xtend-test-results/browser-hypervisor/${{ matrix.engine }}.json
+          if-no-files-found: error
+          retention-days: 90
+
+  merge:
+    name: Merge and gate browser evidence
+    needs: capture
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+
+      - name: Download engine evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: xtend-browser-hypervisor-*
+          path: .xtend-test-results/browser-hypervisor
+          merge-multiple: true
+
+      - name: Merge by Run ID and Harness SHA
+        run: >-
+          node scripts/capture_browser_hypervisor_evidence.js
+          --merge
+          --run-id NFM-OBS-2026-09-03
+          --input .xtend-test-results/browser-hypervisor/chromium.json
+          --input .xtend-test-results/browser-hypervisor/firefox.json
+          --input .xtend-test-results/browser-hypervisor/webkit.json
+          --output .xtend-test-results/browser-hypervisor/matrix.json
+
+      - name: Run terminal Radar gate
+        env:
+          XTEND_BROWSER_HYPERVISOR_MATRIX: .xtend-test-results/browser-hypervisor/matrix.json
+        run: npm run test:feature-adoption-observatory
+
+      - name: Upload merged matrix
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: xtend-browser-hypervisor-matrix
+          path: .xtend-test-results/browser-hypervisor/matrix.json
+          if-no-files-found: error
+          retention-days: 90

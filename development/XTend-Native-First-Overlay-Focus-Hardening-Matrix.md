@@ -23,8 +23,8 @@
 
 | ID | Primitive-Gruppe | Klasse | Status | Artefakte | Radar-Refs | Gate-Evidence | Naechster Schritt |
 |----|------------------|--------|--------|-----------|------------|---------------|-------------------|
-| `NFM-OF-01` | Modal und Dialog | `owned-native-backed` | `hardened-owned-with-watch` | `x-modal`, `x-dialog`, `x-surface-manager`, Overlay UX profile | `NFM-BPR-005`, `NFM-BPR-006`, `NFM-BPR-020` | `overlay-interaction-ux`, `surface-stack-policy` | HTMLDialogElement ADR erst mit Browser-Lab Evidence |
-| `NFM-OF-02` | Popover und Tooltip | `owned-native-backed` | `hardened-owned-with-watch` | `x-popover`, `x-tooltip`, Overlay UX profile | `NFM-BPR-007`, `NFM-BPR-008`, `NFM-BPR-020` | `overlay-interaction-ux`, `surface-overlay-bridge` | Popover API und Anchor Positioning bleiben Radar-Watch |
+| `NFM-OF-01` | Modal und Dialog | `owned-native-backed` | `hardened-owned-terminal` | `x-modal`, `x-dialog`, `x-surface-manager`, Overlay UX profile | `NFM-BPR-005`, `NFM-BPR-006`, `NFM-BPR-020` | `overlay-interaction-ux`, `surface-stack-policy` | `inert` bleibt gewrappt; native Dialog-Uebernahme ist terminal abgelehnt |
+| `NFM-OF-02` | Popover und Tooltip | `owned-native-backed` | `hardened-owned-terminal` | `x-popover`, `x-tooltip`, Overlay UX profile | `NFM-BPR-007`, `NFM-BPR-008`, `NFM-BPR-020` | `overlay-interaction-ux`, `surface-overlay-bridge` | Popover API und Anchor Positioning sind terminal abgelehnt |
 | `NFM-OF-03` | Drawer und Side Panel | `owned` | `hardened-owned` | `x-drawer`, `x-side-panel`, `x-surface-manager` | `NFM-BPR-005`, `NFM-BPR-013` | `surface-side-panel`, `surface-stack-policy`, `surface-manager-quality` | WP08 kann Navigation/Media-Verzahnung pruefen |
 | `NFM-OF-04` | Lightbox und Media Overlay | `owned` | `hardened-owned` | `x-lightbox`, Overlay Bridge profile | `NFM-BPR-005`, `NFM-BPR-020` | `surface-overlay-bridge`, `layout-display-media-ux` | WP08 Media Hardening |
 | `NFM-OF-05` | Surface Portal und Surface Region | `owned` | `hardened-owned` | `x-surface-portal`, `x-surface-window`, `x-surface-region` | `NFM-BPR-001`, `NFM-BPR-013` | `surface-workbench-fixture`, `surface-native-rmt`, `surface-native-materialization` | WP14 bewertet RMT Maximality |
@@ -39,16 +39,16 @@
 | Primitive | Entscheidung | Status |
 |-----------|--------------|--------|
 | `inert` und Focus-Isolation | `wrap-as-xtend-primitive` | owned Stack Policy bleibt fuehrend |
-| `HTMLDialogElement` | `defer-with-watch` | keine Produktadoption ohne Browser-Lab ADR |
-| Popover API | `defer-with-watch` | keine Produktadoption ohne A11y-/Positioning-Evidence |
-| CSS Anchor Positioning | `defer-with-watch` | keine Produktadoption ohne Layout-/Fallback-Evidence |
+| `HTMLDialogElement` | `reject-for-now` | `closed`; owned `x-dialog`/`x-modal` bleibt fuehrend |
+| Popover API | `reject-for-now` | `closed`; owned Popover-/Tooltip-Pfad bleibt fuehrend |
+| CSS Anchor Positioning | `reject-for-now` | `closed`; owned Positioning bleibt fuehrend |
 | `focus-visible`, forced-colors, reduced-motion | `adopt-native` | bestehende A11y-CSS-Primitives bleiben erlaubt |
 
 ## Capability-Handoff
 
 | Capability | WP-06 Status | WP-07 Entscheidung |
 |------------|--------------|--------------------|
-| `NFM-CAP-06` Overlay, Dialog, Popover, Drawer und Focus | `needs-hardening` | owned Overlay-/Focus-Pfad ist gehaertet; native Dialog/Popover/Anchor bleiben Radar-Watch |
+| `NFM-CAP-06` Overlay, Dialog, Popover, Drawer und Focus | `ready-with-terminal-radar-decision` | owned Overlay-/Focus-Pfad ist gehaertet; native Dialog/Popover/Anchor sind terminal abgelehnt |
 | `NFM-CAP-07` Surface Runtime und Multi-Window Shell | `needs-rmt-gap-analysis` | Stack- und Focus-Policy ist gehaertet; RMT Maximality bleibt WP14 |
 | `NFM-CAP-18` Native Shell, Drawer/Panel/App Workspace Composition | `needs-rmt-gap-analysis` | Drawer/Panel/Surface Stack ist owned; Shell-Migration bleibt WP14/WP21 |
 
@@ -56,9 +56,9 @@
 
 | Residual | Status | Owner-Folge |
 |----------|--------|--------------|
-| `HTMLDialogElement` produktiv nutzen | `defer-with-watch` | Browser-Lab ADR nach `NFM-BPR-006` |
-| Popover API produktiv nutzen | `defer-with-watch` | Browser-Lab ADR nach `NFM-BPR-007` |
-| CSS Anchor Positioning produktiv nutzen | `defer-with-watch` | Layout-/Fallback Evidence nach `NFM-BPR-008` |
+| `HTMLDialogElement` produktiv nutzen | `closed` | `followUp: none` nach `NFM-BPR-006` |
+| Popover API produktiv nutzen | `closed` | `followUp: none` nach `NFM-BPR-007` |
+| CSS Anchor Positioning produktiv nutzen | `closed` | `followUp: none` nach `NFM-BPR-008` |
 | Vollstaendige RMT Overlay Syntax | `needs-rmt-gap-analysis` | `NFM-WP-14`, danach `NFM-WP-15` |
 | Surface Shell Migration | `planned-followup` | `NFM-WP-21` |
 

@@ -301,7 +301,7 @@ function runDocsRmtPilotSuite(options = {}) {
   context.assert(!indexPhp.includes('docsMenuIconForSlug') && !indexPhp.includes("'class' => 'docs-menu-link-icon'"), 'Docs server-rendered task navigation keeps article labels uniformly icon-free');
   context.assert(indexPhp.includes('.docs-menu-section x-link::part(link)'), 'Docs menu styles the x-link part inside constrained menu cards');
   context.assert(indexPhp.includes('overflow-wrap: anywhere'), 'Docs menu wraps long navigation labels instead of overflowing cards');
-  context.assert(!indexPhp.includes('x-link,x-input,x-form,x-header,x-hero,x-router,x-footer') && docsResumeBootstrap.includes("import('../generated/shell/xtend.maraca.mjs')"), 'Docs app lets generated Maraca resume XLink/XRouter before the deferred compatibility loader');
+  context.assert(indexPhp.includes('x-link,x-input,x-form,x-header,x-hero,x-router,x-footer') && docsResumeBootstrap.includes("import('../generated/shell/xtend.maraca.mjs')"), 'Docs app preloads resumed XLink/XRouter while generated Maraca owns the shell resume');
   context.assert(docsShellRuntime.includes("'--input-bg-dark': '#0f0f12'"), 'Docs AppRuntime dark theme exposes black-weighted x-input dark background token');
   context.assert(docsShellRuntime.includes("'--input-placeholder-color-dark': '#a1a1aa'"), 'Docs AppRuntime dark theme exposes x-input placeholder token');
   context.assert(docsShellRuntime.includes("'--xtend-surface': '#0b0b0d'"), 'Docs AppRuntime dark theme overrides canonical XTend surface token');

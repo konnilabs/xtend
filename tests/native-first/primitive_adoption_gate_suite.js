@@ -1,127 +1,184 @@
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
 const { createSuiteContext, printSuiteReport } = require('../utils/assertions');
-const { readJson, readText, resolveRootDir } = require('../utils/files');
+const { readJson, readText, resolveRepoPath, resolveRootDir } = require('../utils/files');
+const { mergeEvidence, validateEvidence } = require('../../tools/browser-hypervisor');
 
 const SUITE_ID = 'primitive-adoption-gate';
 const SUITE_LABEL = 'Native Primitive Adoption Gate';
-const REPORT_SCHEMA = 'xtend.native-first.primitive-adoption-gate-report.v1';
-const ADR_SCHEMA = 'xtend.native-first.primitive-adoption-adr.v1';
-const OBSERVATORY_OUTCOMES = new Set(['adopt-native', 'wrap-as-xtend-primitive', 'defer-with-watch', 'reject-for-now']);
-const ALLOWED_STATUSES = new Set(['draft', 'accepted', 'accepted-with-residuals', 'rejected', 'superseded']);
-const ALLOWED_CATEGORIES = new Set(['dom', 'component', 'form', 'layout', 'navigation', 'animation', 'scheduling', 'lifecycle', 'observability', 'storage', 'security', 'network', 'media', 'accessibility', 'compute', 'other']);
-const ALLOWED_SURFACES = new Set(['runtime', 'component', 'rmt', 'fabric', 'docs', 'tooling', 'security']);
-const REQUIRED_EVIDENCE = Object.freeze(['browserSupport', 'performanceImpact', 'complexityImpact', 'a11yImpact', 'securityImpact', 'rmtImpact', 'contractParity', 'fallbackAndDegradation', 'migrationImpact']);
-const REQUIRED_DECISIONS = Object.freeze([
-  'ADR-NFM-OBS-OVERLAY-ANCHOR-2026-08-17',
-  'ADR-NFM-OBS-SCHEDULER-YIELD-2026-08-17',
-  'ADR-NFM-OBS-SCOPED-REGISTRIES-2026-08-17',
-  'ADR-NFM-OBS-NAVIGATION-API-2026-08-17',
-  'ADR-NFM-OBS-CROSS-DOCUMENT-VT-2026-08-17',
-  'ADR-NFM-OBS-EXPLICIT-RESOURCE-MANAGEMENT-2026-08-17'
+const REPORT_SCHEMA = 'xtend.native-first.primitive-adoption-gate-report.v2';
+const DECISION_SCHEMA = 'xtend.native-first.observatory-adoption-decisions.v2';
+const TERMINAL_OUTCOMES = new Set(['adopt-native', 'wrap-as-xtend-primitive', 'reject-for-now']);
+const TERMINAL_PARENT_STATUSES = new Set(['accepted-existing', 'resolved', 'closed']);
+const FORBIDDEN_ACTIVE_STATES = new Set(['watch', 'defer-with-watch', 'needs-browser-lab', 'insufficient-evidence']);
+const REJECTED_PRODUCT_TOKENS = Object.freeze([
+  'scheduler.yield',
+  'new URLPattern',
+  'window.navigation',
+  'navigation.addEventListener',
+  'indexedDB.',
+  'navigator.mediaSession',
+  'new BroadcastChannel',
+  'new CustomElementRegistry',
+  'new DisposableStack',
+  'Symbol.dispose',
+  'shadowrootslotassignment',
+  'WebAssembly.Suspending',
+  'new Sanitizer',
+  'startViewTransition',
+  "duplex: 'half'",
+  'duplex: "half"'
 ]);
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-function validateDecisionSet(decisionSet, radar, browserEvidence) {
+function listProductJavaScript(rootDir) {
+  const roots = ['components', 'xtendrmt', 'xtend-fabric', 'xtend-core', 'xtend-maraca'];
+  const files = [];
+  function visit(directory) {
+    if (!fs.existsSync(directory)) return;
+    fs.readdirSync(directory, { withFileTypes: true }).forEach((entry) => {
+      const target = path.join(directory, entry.name);
+      if (entry.isDirectory()) visit(target);
+      else if (/\.(?:js|mjs|cjs)$/u.test(entry.name)) files.push(target);
+    });
+  }
+  roots.forEach((root) => visit(path.join(rootDir, root)));
+  return files;
+}
+
+function validateDecisionSet(decisionSet, radarMatrix, browserEvidence, options = {}) {
   const errors = [];
-  if (!decisionSet || decisionSet.schema !== 'xtend.native-first.observatory-adoption-decisions.v1') errors.push('invalid decision set schema');
-  const reviewRefs = decisionSet && Array.isArray(decisionSet.reviewRefs) ? decisionSet.reviewRefs : [];
-  if (reviewRefs.length === 0 || new Set(reviewRefs).size !== reviewRefs.length) errors.push('decision set review refs must be present and unique');
+  if (!decisionSet || decisionSet.schema !== DECISION_SCHEMA) errors.push('invalid decision set schema');
+  if (!radarMatrix || radarMatrix.schema !== 'xtend.native-first.browser-primitive-radar.v2') errors.push('invalid Radar v2 schema');
+  const entries = radarMatrix && Array.isArray(radarMatrix.entries) ? radarMatrix.entries : [];
   const decisions = decisionSet && Array.isArray(decisionSet.decisions) ? decisionSet.decisions : [];
-  const ids = decisions.map((decision) => decision.decisionId);
-  if (new Set(ids).size !== ids.length) errors.push('decision IDs must be unique');
-  decisions.forEach((decision) => {
-    const label = decision.decisionId || 'unknown';
-    if (decision.schema !== ADR_SCHEMA) errors.push(`${label}: invalid ADR schema`);
-    if (!ALLOWED_STATUSES.has(decision.status)) errors.push(`${label}: invalid status`);
-    if (!decision.decisionId || !decision.primitiveName || !decision.owner || !decision.reviewDate) errors.push(`${label}: missing identity, owner or review date`);
-    if (!decision.reviewRef || !reviewRefs.includes(decision.reviewRef)) errors.push(`${label}: missing or unknown review ref`);
-    if (!OBSERVATORY_OUTCOMES.has(decision.decisionOutcome)) errors.push(`${label}: invalid Observatory prototype outcome`);
-    const categories = Array.isArray(decision.primitiveCategory) ? decision.primitiveCategory : [decision.primitiveCategory];
-    if (categories.length === 0 || categories.some((category) => !ALLOWED_CATEGORIES.has(category))) errors.push(`${label}: invalid primitive category`);
-    const surfaces = Array.isArray(decision.targetSurface) ? decision.targetSurface : [decision.targetSurface];
-    if (surfaces.length === 0 || surfaces.some((surface) => !ALLOWED_SURFACES.has(surface))) errors.push(`${label}: invalid target surface`);
-    if (!Array.isArray(decision.primitiveRadarRef) || decision.primitiveRadarRef.length === 0) errors.push(`${label}: missing radar refs`);
-    (decision.primitiveRadarRef || []).forEach((radarRef) => {
-      if (!radar.includes(`\`${radarRef}\``)) errors.push(`${label}: unknown radar ref ${radarRef}`);
-    });
-    if (!decision.evidence || REQUIRED_EVIDENCE.some((key) => typeof decision.evidence[key] !== 'string' || decision.evidence[key].length === 0)) errors.push(`${label}: incomplete evidence matrix`);
-    ['fallbackPolicy', 'contractParity', 'securityReview', 'rmtBoundary', 'prototypeStatus'].forEach((key) => {
-      if (typeof decision[key] !== 'string' || decision[key].length === 0) errors.push(`${label}: missing ${key}`);
-    });
-    if (decision.rmtBoundary !== 'rmt-kernel-remains-host-neutral') errors.push(`${label}: RMT kernel boundary is not neutral`);
-    if (!Array.isArray(decision.runtimeDependencies) || decision.runtimeDependencies.length !== 0) errors.push(`${label}: runtime dependencies are not permitted`);
-    if (['adopt-native', 'wrap-as-xtend-primitive'].includes(decision.decisionOutcome)) {
-      const insufficient = (browserEvidence.engines || []).some((entry) => entry.status === 'insufficient-evidence');
-      if (insufficient) errors.push(`${label}: productive adoption is blocked by insufficient engine evidence`);
+  const expectedIds = Array.from({ length: 24 }, (_, index) => `NFM-BPR-${String(index + 1).padStart(3, '0')}`);
+  if (entries.length !== 24 || entries.map((entry) => entry.id).join('|') !== expectedIds.join('|')) errors.push('Radar must contain exactly the 24 stable parent IDs');
+  if (decisions.length !== 24 || decisionSet.decisionCount !== 24) errors.push('decision set must contain exactly 24 decisions');
+  if (new Set(decisions.map((decision) => decision.decisionId)).size !== decisions.length) errors.push('decision IDs must be unique');
+  if (new Set(decisions.map((decision) => decision.radarRef)).size !== decisions.length) errors.push('each Radar parent must have exactly one decision');
+  if (decisionSet.runId !== 'NFM-OBS-2026-09-03' || decisionSet.reviewRef !== 'NFM-OBS-REVIEW-2026-09-03') errors.push('decision set is not bound to the September run');
+  if (!Array.isArray(decisionSet.supersedes) || decisionSet.supersedes.length !== 6) errors.push('six historical Observatory decisions must be superseded');
+  if (!Array.isArray(decisionSet.runtimeDependencies) || decisionSet.runtimeDependencies.length !== 0) errors.push('runtime dependencies are not permitted');
+  if (decisionSet.publicExportsAdded !== false) errors.push('public exports must remain unchanged');
+  if (decisionSet.rmtBoundary !== 'rmt-kernel-remains-host-neutral') errors.push('RMT kernel boundary must remain host-neutral');
+
+  const decisionsByRadar = new Map(decisions.map((decision) => [decision.radarRef, decision]));
+  entries.forEach((entry) => {
+    const decision = decisionsByRadar.get(entry.id);
+    if (!TERMINAL_PARENT_STATUSES.has(entry.status)) errors.push(`${entry.id}: parent status is not terminal`);
+    if (FORBIDDEN_ACTIVE_STATES.has(entry.status) || FORBIDDEN_ACTIVE_STATES.has(entry.decisionOutcome) || FORBIDDEN_ACTIVE_STATES.has(entry.evidenceStatus)) errors.push(`${entry.id}: active residual state is forbidden`);
+    if (!Array.isArray(entry.members) || entry.members.length === 0 || entry.members.some((member) => !TERMINAL_OUTCOMES.has(member.outcome))) errors.push(`${entry.id}: member outcome is not terminal`);
+    if (!decision) {
+      errors.push(`${entry.id}: missing decision`);
+      return;
     }
+    const expectedDecisionId = `ADR-${entry.id}-2026-09-03`;
+    if (decision.decisionId !== expectedDecisionId) errors.push(`${entry.id}: incorrect September ADR ID`);
+    if (!['accepted', 'rejected'].includes(decision.status)) errors.push(`${entry.id}: decision status is not terminal`);
+    if (![...TERMINAL_OUTCOMES, 'resolved'].includes(decision.decisionOutcome)) errors.push(`${entry.id}: decision outcome is invalid`);
+    if (JSON.stringify(decision.members) !== JSON.stringify(entry.members.map(({ id, outcome }) => ({ id, outcome })))) errors.push(`${entry.id}: ADR members do not match Radar members`);
+    const rejected = entry.members.filter((member) => member.outcome === 'reject-for-now');
+    const accepted = entry.members.filter((member) => member.outcome !== 'reject-for-now');
+    rejected.forEach((member) => {
+      if (!member.checks.includes('negative-product-usage') || !member.checks.includes('owned-path-regression')) errors.push(`${entry.id}/${member.id}: rejected member lacks negative usage or regression evidence`);
+    });
+    accepted.forEach((member) => {
+      ['capability-present', 'capability-absent-fallback', 'product-regression'].forEach((check) => {
+        if (!member.checks.includes(check)) errors.push(`${entry.id}/${member.id}: accepted member lacks ${check}`);
+      });
+    });
+    if (entry.followUp !== 'none') errors.push(`${entry.id}: terminal parent still has a follow-up`);
+    if (entry.status === 'closed' && entry.nextReview !== 'none') errors.push(`${entry.id}: closed parent still has a next review`);
+    if (entry.status !== 'closed' && entry.nextReview !== '2026-12-03') errors.push(`${entry.id}: accepted parent has a stale hygiene review`);
   });
+
+  const engineItems = browserEvidence && Array.isArray(browserEvidence.engines) ? browserEvidence.engines : [];
+  engineItems.forEach((entry) => validateEvidence(entry, { runId: 'NFM-OBS-2026-09-03', harnessSha256: browserEvidence.harnessSha256 }).forEach((error) => errors.push(`${entry.engine}: ${error}`)));
+  const merged = mergeEvidence(engineItems, { runId: 'NFM-OBS-2026-09-03', harnessSha256: browserEvidence && browserEvidence.harnessSha256 });
+  if (merged.status !== 'passed' || !merged.noInfrastructureResiduals) errors.push(...merged.errors);
+  if (engineItems.some((entry) => FORBIDDEN_ACTIVE_STATES.has(entry.status))) errors.push('browser matrix contains an active residual state');
+
+  if (options.productSources) {
+    REJECTED_PRODUCT_TOKENS.forEach((token) => {
+      if (options.productSources.includes(token)) errors.push(`rejected member is used by product source: ${token}`);
+    });
+  }
   return errors;
 }
 
 function assertRejected(context, label, mutate, base) {
   const candidate = clone(base.decisionSet);
-  mutate(candidate);
-  context.assert(validateDecisionSet(candidate, base.radar, base.browserEvidence).length > 0, `Gate rejects ${label}`);
+  const matrix = clone(base.radarMatrix);
+  const evidence = clone(base.browserEvidence);
+  mutate({ decisionSet: candidate, radarMatrix: matrix, browserEvidence: evidence });
+  context.assert(validateDecisionSet(candidate, matrix, evidence).length > 0, `Gate rejects ${label}`);
 }
 
 function runPrimitiveAdoptionGateSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({ id: SUITE_ID, label: SUITE_LABEL });
-  const decisionSet = readJson('development/observatory/observatory-adoption-decisions.json', rootDir);
-  const browserEvidence = readJson('tests/fixtures/native-first/observatory-adoption-lab-fixtures.json', rootDir);
-  const ermBrowserEvidence = readJson('tests/fixtures/native-first/observatory-erm-browser-evidence-chromium-151.json', rootDir);
-  const adr = readText('development/ADR-XTend-Observatory-Adoption-2026-08-17.md', rootDir);
-  const adoptionContract = readText('development/XTend-Native-Primitive-Adoption-Gate-Contract.md', rootDir);
-  const observatoryContract = readText('development/XTend-Native-First-Feature-Adoption-Observatory-Contract.md', rootDir);
-  const radar = readText('development/XTend-Native-First-Browser-Primitive-Radar.md', rootDir);
+  const decisionSet = readJson('development/observatory/observatory-adoption-decisions-2026-09-03.json', rootDir);
+  const historicalDecisionSet = readJson('development/observatory/observatory-adoption-decisions.json', rootDir);
+  const radarMatrix = readJson('tests/fixtures/native-first/browser-primitive-radar-v2.json', rootDir);
+  const generatedEvidencePath = process.env.XTEND_BROWSER_HYPERVISOR_MATRIX
+    || '.xtend-test-results/browser-hypervisor/matrix.json';
+  const resolvedGeneratedEvidencePath = resolveRepoPath(generatedEvidencePath, rootDir);
+  const usesGeneratedEvidence = fs.existsSync(resolvedGeneratedEvidencePath);
+  const browserEvidence = usesGeneratedEvidence
+    ? JSON.parse(fs.readFileSync(resolvedGeneratedEvidencePath, 'utf8'))
+    : readJson('tests/fixtures/native-first/observatory-browser-evidence-2026-09-03.json', rootDir);
+  const oldAdr = readText('development/ADR-XTend-Observatory-Adoption-2026-08-17.md', rootDir);
   const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-
-  const errors = validateDecisionSet(decisionSet, radar, browserEvidence);
+  const productSources = listProductJavaScript(rootDir).map((file) => fs.readFileSync(file, 'utf8')).join('\n');
+  const errors = validateDecisionSet(decisionSet, radarMatrix, browserEvidence, { productSources });
   errors.forEach((error) => context.fail(error));
-  if (errors.length === 0) context.pass('All Observatory adoption decisions satisfy the gate');
-  context.assert(decisionSet.decisions.length === REQUIRED_DECISIONS.length, 'Every implemented prototype path has exactly one decision');
-  REQUIRED_DECISIONS.forEach((decisionId) => {
-    context.assert(decisionSet.decisions.filter((decision) => decision.decisionId === decisionId).length === 1, `${decisionId} occurs exactly once`);
-    context.assertIncludes(adr, `\`${decisionId}\``, `ADR documents ${decisionId}`);
-  });
-  context.assert(decisionSet.decisions.every((decision) => decision.decisionOutcome === 'defer-with-watch'), 'Insufficient browser evidence keeps all current labs deferred');
-  context.assert((browserEvidence.engines || []).filter((engine) => engine.status === 'insufficient-evidence').length === 2, 'Firefox and WebKit remain explicitly insufficient and block adoption');
-  const ermDecision = decisionSet.decisions.find((decision) => decision.decisionId === 'ADR-NFM-OBS-EXPLICIT-RESOURCE-MANAGEMENT-2026-08-17');
-  context.assert(ermDecision.browserEvidenceArtifacts.includes('tests/fixtures/native-first/observatory-erm-browser-evidence-chromium-151.json'), 'ERM ADR references its engine-specific browser evidence');
-  context.assert(ermBrowserEvidence.engines.filter((engine) => engine.status === 'insufficient-evidence').length === 2 && ermBrowserEvidence.adoptionBlocked, 'ERM ADR remains blocked by missing Firefox and WebKit artifacts');
-  context.assertIncludes(adoptionContract, '`compute`', 'Adoption contract accepts compute category');
-  context.assertIncludes(adoptionContract, '`lifecycle`', 'Adoption contract accepts lifecycle category');
-  context.assert(decisionSet.reviewRefs.length === 2 && decisionSet.decisions.every((decision) => decisionSet.reviewRefs.includes(decision.reviewRef)), 'Each adoption decision is bound to one of the two reviewed runs');
-  context.assertIncludes(observatoryContract, '`adopt-native`, `wrap-as-xtend-primitive`, `defer-with-watch` oder `reject-for-now`', 'Observatory contract limits post-prototype outcomes');
-  context.assertIncludes(runner, "id: 'primitive-adoption-gate'", 'Runner registers primitive adoption gate');
-  context.assert(packageManifest.scripts && packageManifest.scripts['test:primitive-adoption-gate'] === 'node scripts/run_xtend_tests.js primitive-adoption-gate', 'Package exposes primitive adoption gate');
-  context.assert(!Object.keys(packageManifest.exports || {}).some((key) => key.includes('observatory') || key.includes('adoption-lab')), 'Labs are not exposed as public package APIs');
+  if (errors.length === 0) context.pass('All 24 Radar parents and 49 members have terminal September decisions');
 
-  const base = { decisionSet, radar, browserEvidence };
-  assertRejected(context, 'missing ADR fields', (candidate) => { delete candidate.decisions[0].owner; }, base);
-  assertRejected(context, 'missing per-decision review ref', (candidate) => { delete candidate.decisions[0].reviewRef; }, base);
-  assertRejected(context, 'invalid outcomes', (candidate) => { candidate.decisions[0].decisionOutcome = 'prototype-now'; }, base);
-  assertRejected(context, 'missing radar IDs', (candidate) => { candidate.decisions[0].primitiveRadarRef = ['NFM-BPR-999']; }, base);
-  assertRejected(context, 'incomplete evidence', (candidate) => { delete candidate.decisions[0].evidence.securityImpact; }, base);
-  assertRejected(context, 'runtime dependencies', (candidate) => { candidate.decisions[0].runtimeDependencies = ['imaginary-polyfill']; }, base);
-  assertRejected(context, 'adoption with insufficient engine evidence', (candidate) => { candidate.decisions[0].decisionOutcome = 'adopt-native'; }, base);
-
-  return context.result({
-    report: {
-      schema: REPORT_SCHEMA,
-      decisions: decisionSet.decisions.length,
-      outcomes: { 'defer-with-watch': decisionSet.decisions.length },
-      insufficientEngines: browserEvidence.engines.filter((entry) => entry.status === 'insufficient-evidence').map((entry) => entry.engine),
-      noRuntimeDependencies: true,
-      noPublicExports: true
-    }
+  decisionSet.decisions.forEach((decision) => {
+    const adrPath = `development/observatory/adrs/${decision.decisionId}.md`;
+    const adr = readText(adrPath, rootDir);
+    context.assertIncludes(adr, decision.decisionId, `${decision.decisionId} has one materialized ADR`);
   });
+  context.assert(historicalDecisionSet.decisions.length === 6 && historicalDecisionSet.decisions.every((decision) => decision.decisionOutcome === 'defer-with-watch'), 'Six August lab decisions remain preserved as historical input');
+  context.assertIncludes(oldAdr, 'Status: `superseded`', 'Historical August ADR is superseded');
+  context.assert(browserEvidence.engines.length === 3 && browserEvidence.engines.every((entry) => ['passed', 'unsupported-with-valid-fallback'].includes(entry.status)), 'Chromium, Firefox and WebKit have terminal native-or-fallback evidence');
+  context.assert(usesGeneratedEvidence || browserEvidence.evidenceKind === 'acceptance-contract-fixture', 'Local fallback evidence is explicitly a contract fixture, never a captured browser artifact');
+  context.assert(!browserEvidence.summary || browserEvidence.summary.resolved === 24 && Object.entries(browserEvidence.summary).filter(([key]) => key !== 'resolved').every(([, value]) => value === 0), 'Combined evidence summary has no open ends, failures or warnings');
+  context.assert(packageManifest.xtend.nativeFirstFeatureAdoptionObservatory.decisions === 'development/observatory/observatory-adoption-decisions-2026-09-03.json', 'Package metadata points at the September decision set');
+  context.assert(!Object.keys(packageManifest.exports || {}).some((key) => key.includes('observatory') || key.includes('adoption-lab')), 'Labs are not public package APIs');
+
+  const base = { decisionSet, radarMatrix, browserEvidence };
+  assertRejected(context, 'a missing decision', ({ decisionSet: candidate }) => { candidate.decisions.pop(); }, base);
+  assertRejected(context, 'an unknown Radar ID', ({ decisionSet: candidate }) => { candidate.decisions[0].radarRef = 'NFM-BPR-999'; }, base);
+  assertRejected(context, 'an unresolved member', ({ radarMatrix: candidate }) => { candidate.entries[0].members[0].outcome = 'defer-with-watch'; }, base);
+  assertRejected(context, 'a missing fallback check', ({ radarMatrix: candidate }) => { candidate.entries[0].members[0].checks = ['capability-present', 'product-regression']; }, base);
+  assertRejected(context, 'a rejected member without negative usage evidence', ({ radarMatrix: candidate }) => { candidate.entries[5].members[0].checks = ['owned-path-regression']; }, base);
+  assertRejected(context, 'a missing engine', ({ browserEvidence: candidate }) => { candidate.engines.pop(); }, base);
+  assertRejected(context, 'a mismatched harness SHA', ({ browserEvidence: candidate }) => { candidate.engines[1].harnessSha256 = '0'.repeat(64); }, base);
+  assertRejected(context, 'runtime dependencies', ({ decisionSet: candidate }) => { candidate.runtimeDependencies = ['imaginary-polyfill']; }, base);
+
+  return context.result({ report: {
+    schema: REPORT_SCHEMA,
+    resolved: 24,
+    members: radarMatrix.entries.reduce((sum, entry) => sum + entry.members.length, 0),
+    watch: 0,
+    deferred: 0,
+    insufficientEvidence: 0,
+    unownedResiduals: 0,
+    failures: 0,
+    warnings: 0,
+    engines: browserEvidence.engines.map((entry) => entry.engine),
+    evidenceMode: usesGeneratedEvidence ? 'captured-matrix' : 'acceptance-contract-fixture',
+    noRuntimeDependencies: true,
+    noPublicExports: true,
+    rmtKernelHostNeutral: true
+  } });
 }
 
 function printPrimitiveAdoptionGateReport(result) {
@@ -131,8 +188,4 @@ function printPrimitiveAdoptionGateReport(result) {
   });
 }
 
-module.exports = {
-  printPrimitiveAdoptionGateReport,
-  runPrimitiveAdoptionGateSuite,
-  validateDecisionSet
-};
+module.exports = { printPrimitiveAdoptionGateReport, runPrimitiveAdoptionGateSuite, validateDecisionSet };

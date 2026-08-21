@@ -40,7 +40,7 @@ async function runDocsRelatedRecommendationsSuite(options = {}) {
   const en = readJson('docs/generated/search/en.compact.json', rootDir);
   const de = readJson('docs/generated/search/de.compact.json', rootDir);
   const golden = readJson('tests/docs/fixtures/docs-related-recommendations.json', rootDir);
-  const pageLoader = readText('docs/utils/pageloader.js', rootDir);
+  const pageLoader = readText('docs/utils/page/route-controller.mjs', rootDir);
   const shellRuntime = readText('docs/utils/docs-shell-runtime.mjs', rootDir);
   const workerSource = runtime.createRmtSearchWorkerSource();
 

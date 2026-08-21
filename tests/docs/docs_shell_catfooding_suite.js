@@ -168,7 +168,7 @@ function runXtendLoaderSkeletonProfilesSuite(options = {}) {
   const types = readText('xtend-loader.d.ts', rootDir);
   const router = readText('components/xrouter.js', rootDir);
   const docsRuntime = readText('docs/utils/docs-shell-runtime.mjs', rootDir);
-  const pageLoader = readText('docs/utils/pageloader.js', rootDir);
+  const pageLoader = readText('docs/utils/page/route-controller.mjs', rootDir);
   const docsHost = readText('docs/index.php', rootDir);
   const docsBundleReport = readJson('docs/generated/shell/xtend.maraca.report.json', rootDir);
   const generatedRouterRecord = (docsBundleReport.bundleFiles || []).find((entry) =>
@@ -273,7 +273,7 @@ function runDocsShellCatfoodingSuite(options = {}) {
   context.assert(searchSources.every((entry) => entry.debounceMs === 80 && entry.resultLimit === 8 && entry.fallbackThreshold === 0.6), 'AOT search policy locks debounce, limit and fallback');
 
   const shellRuntime = readText('docs/utils/docs-shell-runtime.mjs', rootDir);
-  const pageLoader = readText('docs/utils/pageloader.js', rootDir);
+  const pageLoader = readText('docs/utils/page/route-controller.mjs', rootDir);
   const indexPhp = readText('docs/index.php', rootDir);
   const docsHtaccess = readText('docs/.htaccess', rootDir);
   const docsDevRouter = readText('docs/dev-router.php', rootDir);

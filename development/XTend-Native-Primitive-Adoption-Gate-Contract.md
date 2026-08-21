@@ -1,15 +1,16 @@
 # XTend Native Primitive Adoption Gate Contract
 
-- Status: `accepted by NFM-WP-03`
-- Datum: 3. Juni 2026
+- Status: `resolved by NFM-OBS-2026-09-03`
+- Datum: 3. September 2026
 - Roadmap: `development/ROADMAP-XTend-Native-First-Framework-Mission.md`
 - Workpackage: `development/NFM-WP-03-Native-Primitive-Adoption-Gate-und-ADR-Template-definieren.md`
 - Mission Contract: `xtend.native-first.mission-source-of-truth.v1`
-- Gate Contract: `xtend.native-first.primitive-adoption-gate.v1`
+- Gate Contract: `xtend.native-first.primitive-adoption-gate.v2`
 - ADR Contract: `xtend.native-first.primitive-adoption-adr.v1`
 - Evidence Contract: `xtend.native-first.primitive-adoption-evidence.v1`
 - ADR Template: `development/ADR-TEMPLATE-XTend-Native-Primitive-Adoption.md`
-- Browser Primitive Radar: `xtend.native-first.browser-primitive-radar.v1`
+- Browser Primitive Radar: `xtend.native-first.browser-primitive-radar.v2`
+- Browser Evidence: `xtend.browser-hypervisor-evidence.v1`
 - Boundary: `native-primitive-adoption-requires-recorded-decision`
 - Boundary: `runtime-adoption-requires-gate-evidence`
 - Boundary: `rmt-kernel-remains-host-neutral`
@@ -69,7 +70,7 @@ Eine gueltige Adoption-ADR muss mindestens diese Felder enthalten:
 | `decisionOutcome` | ja | erlaubtes Outcome aus der Native-First-Mission |
 | `owner` | ja | Owner oder Owner-Rolle |
 | `reviewDate` | ja | naechstes Review-Datum |
-| `primitiveRadarRef` | ja | Radar-ID aus `xtend.native-first.browser-primitive-radar.v1`; `pre-radar` nur fuer historische Uebergangs-ADRs |
+| `primitiveRadarRef` | ja | Radar-ID aus `xtend.native-first.browser-primitive-radar.v2`; `pre-radar` nur fuer historische Uebergangs-ADRs |
 | `evidence` | ja | strukturierte Evidence nach diesem Contract |
 | `fallbackPolicy` | ja | Fallback, Degradation oder Nicht-Fallback-Entscheidung |
 | `contractParity` | ja | Contract-, Runtime-, Test-, Docs- und Report-Gegenstuecke |
@@ -99,10 +100,11 @@ Das Gate uebernimmt die Outcomes aus `xtend.native-first.decision-matrix.v1` und
 | `adopt-native` | Native Primitive darf direkt oder ueber duenne Utility-Schicht verwendet werden. |
 | `wrap-as-xtend-primitive` | Native Primitive braucht XTend-Contract, Fallback, Diagnostics oder Scheduler-Anbindung. |
 | `build-owned-primitive` | XTend baut eigene Komponente oder Runtime-Faehigkeit, weil native Primitive nicht reicht. |
-| `keep-existing-owned-path` | Bestehende XTend-Loesung bleibt fuehrend; Radar-Watch bleibt moeglich. |
-| `defer-with-watch` | Keine Produktadoption; Radar-Review und Kriterien sind dokumentiert. |
+| `keep-existing-owned-path` | Bestehende XTend-Loesung bleibt fuehrend; fuer den September-Abschluss ist ein terminales Member-Outcome zusaetzlich Pflicht. |
+| `defer-with-watch` | Nur historisches Outcome; fuer `NFM-OBS-2026-09-03` und spaetere aktive Abschlusslaeufe blockiert. |
 | `allow-runtime-dependency-exception` | Runtime-Dependency bleibt Ausnahme mit Owner-Signoff und Exit-Plan. |
 | `reject-for-now` | Keine Adoption; Begruendung und erneutes Review optional. |
+| `resolved` | ausschliesslich Parent-Outcome fuer zusammengesetzte Eintraege; jedes Member ist einzeln adoptiert, gewrappt oder abgelehnt |
 
 ## Blocking-Regeln
 
@@ -117,6 +119,9 @@ Das Gate blockiert eine Adoption, wenn:
 - `allow-runtime-dependency-exception` ohne Exit-Plan verwendet wird
 - Fallback oder Degradation unklar bleibt
 - Contract-, Runtime-, Test- oder Docs-Parity fuer produktive Adoption fehlt
+- eine der drei Ziel-Engines fehlt oder einen Infrastrukturfehler als Browser-Residual ausweist
+- ein Member verbleibt in einem nichtterminalen Status
+- ein abgelehntes Member wird produktiv als Default genutzt
 
 ## RMT-Grenze
 
@@ -149,7 +154,7 @@ Jede Primitive-Adoption muss explizit sagen, ob sie diese Sinks beruehrt:
 | Bestehender Contract | Gate-Beziehung |
 |----------------------|----------------|
 | `xtend.native-first.mission-source-of-truth.v1` | liefert Mission, Outcomes und Dependency-Default |
-| `xtend.native-first.browser-primitive-radar.v1` | liefert Radar-Kategorie, Review-Kadenz und `primitiveRadarRef` |
+| `xtend.native-first.browser-primitive-radar.v2` | liefert Parent-/Member-Entscheidungen, Review-Kadenz und `primitiveRadarRef` |
 | `xtend.component.contract.v2` | fuehrt Component-Surface, RMT Metadata, A11y, Performance und Tests |
 | `xtend.fabric.fiber.v1` | fuehrt Fiber-/Lane-Grenzen fuer Scheduler-nahe Arbeit |
 | `xtend.fabric.rmt-lane-mapping.v1` | verbindet Component-/Runtime-Arbeit mit RMT Schedules |
@@ -176,7 +181,7 @@ Der urspruengliche Dokumentations- und Contract-Gate aus `NFM-WP-03` ist nun als
 node scripts/run_xtend_tests.js primitive-adoption-gate --json
 ```
 
-Das Gate prueft Primitive-ADR-Pflichtfelder, erlaubte Outcomes, Radar-Refs, Evidence-Bloecke, Fallback, Security, RMT-Kernel-Neutralitaet, Runtime-Dependencies und blockierende `insufficient-evidence`-Engine-Artefakte. Seine Negativtests belegen, dass fehlende Felder, ungueltige Outcomes, unbekannte Radar-IDs, unvollstaendige Evidence, Runtime-Dependencies und Adoption ohne ausreichende Engine-Evidence abgewiesen werden.
+Das Gate prueft exakt 24 September-ADRs, atomare Members, terminale Outcomes, den Drei-Engine-Hypervisor-Vertrag, Native-/Fallback-Evidence, negative Produktnutzung abgelehnter Members, RMT-Kernel-Neutralitaet, Runtime-Dependencies und oeffentliche Exports. Negativtests blockieren fehlende Engines, unterschiedliche Harness-SHAs, unbekannte Radar-IDs, fehlende Fallbacks und nichtterminale Members.
 
 ## Handoff
 

@@ -51,7 +51,7 @@ const RMT_VNEXT_RELEASE_GATES = Object.freeze([
 const RMT_VNEXT_OPTIONAL_RELEASE_GATES = Object.freeze([
   'npm run test:rmt-vnext-source-to-sea',
   'npm run test:rmt-vnext-source-to-sea:evidence',
-  'npm run test:rmt-vnext-source-to-sea:chromedriver',
+  'npm run test:rmt-vnext-source-to-sea:chromium',
   'npm run test:rmt-vnext-source-to-sea:firefox',
   'npm run test:rmt-vnext-source-to-sea:validate-artifact'
 ]);

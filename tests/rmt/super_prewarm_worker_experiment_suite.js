@@ -1,7 +1,7 @@
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
-const { spawn } = require('child_process');
+const { normalizeEngine, runFixture } = require('../../tools/browser-hypervisor');
 const {
   SERVER_CONTRACT,
   listenXtendDevServer
@@ -65,140 +65,26 @@ function requestText(url) {
   });
 }
 
-function requestJson(options, payload) {
-  return new Promise((resolve, reject) => {
-    const body = payload ? JSON.stringify(payload) : '';
-    const request = http.request({
-      ...options,
-      headers: {
-        'content-type': 'application/json',
-        'content-length': Buffer.byteLength(body),
-        ...(options.headers || {})
-      }
-    }, (response) => {
-      let data = '';
-      response.setEncoding('utf8');
-      response.on('data', (chunk) => {
-        data += chunk;
-      });
-      response.on('end', () => {
-        try {
-          resolve({
-            statusCode: response.statusCode,
-            body: data ? JSON.parse(data) : null
-          });
-        } catch (error) {
-          reject(error);
-        }
-      });
-    });
-    request.on('error', reject);
-    if (body) request.write(body);
-    request.end();
-  });
-}
-
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function findSafariDriver() {
-  const candidates = [
-    '/System/Cryptexes/App/usr/bin/safaridriver',
-    '/usr/bin/safaridriver'
-  ];
-  return candidates.find((candidate) => {
-    try {
-      fs.accessSync(candidate);
-      return true;
-    } catch (_error) {
-      return false;
-    }
-  }) || null;
-}
-
-async function waitForWebDriver(port, timeoutMs = 5000) {
-  const started = Date.now();
-  while (Date.now() - started < timeoutMs) {
-    try {
-      const response = await requestJson({
-        hostname: '127.0.0.1',
-        port,
-        path: '/status',
-        method: 'GET'
-      });
-      if (response.statusCode >= 200 && response.statusCode < 500) return true;
-    } catch (_error) {
-      await wait(150);
-    }
-  }
-  return false;
-}
-
-async function runSafariBrowserEvidence(rootDir) {
-  const driverPath = findSafariDriver();
-  if (!driverPath) throw new Error('safaridriver was not found');
-
-  const driverPort = 57932;
-  const driver = spawn(driverPath, ['-p', String(driverPort)], {
-    stdio: ['ignore', 'pipe', 'pipe']
-  });
-  let sessionId = null;
+async function runHypervisorBrowserEvidence(rootDir, engine, options = {}) {
   let server = null;
-
   try {
-    const ready = await waitForWebDriver(driverPort);
-    if (!ready) throw new Error('safaridriver did not become ready');
     server = await listenXtendDevServer({ rootDir, defaultPath: FIXTURE_PATH, port: 0 });
-    const session = await requestJson({
-      hostname: '127.0.0.1',
-      port: driverPort,
-      path: '/session',
-      method: 'POST'
-    }, {
-      capabilities: {
-        alwaysMatch: { browserName: 'safari' }
-      }
+    const execution = await runFixture({
+      rootDir,
+      engine,
+      fixturePath: FIXTURE_PATH,
+      resultKey: '__xtendSuperPrewarmWorkerExperimentResult',
+      url: `${server.origin}/${FIXTURE_PATH}`,
+      webDriverUrl: options.webDriverUrl || process.env.XTEND_BROWSER_HYPERVISOR_URL,
+      driverPath: options.driverPath || process.env.XTEND_BROWSER_HYPERVISOR_DRIVER_PATH,
+      timeoutMs: options.timeoutMs || 10000,
+      accept: (result) => result && result.status === 'passed'
     });
-    sessionId = session.body && session.body.value && session.body.value.sessionId;
-    if (!sessionId) throw new Error('safaridriver did not create a session');
-    await requestJson({
-      hostname: '127.0.0.1',
-      port: driverPort,
-      path: `/session/${sessionId}/url`,
-      method: 'POST'
-    }, {
-      url: `${server.origin}/${FIXTURE_PATH}`
-    });
-    const started = Date.now();
-    while (Date.now() - started < 7000) {
-      const response = await requestJson({
-        hostname: '127.0.0.1',
-        port: driverPort,
-        path: `/session/${sessionId}/execute/sync`,
-        method: 'POST'
-      }, {
-        script: 'return window.__xtendSuperPrewarmWorkerExperimentResult || null;',
-        args: []
-      });
-      const value = response.body && response.body.value;
-      if (value && value.status && value.status !== 'pending') return value;
-      await wait(100);
-    }
-    throw new Error('Super Prewarm browser fixture did not complete');
+    return execution.result;
   } finally {
-    if (sessionId) {
-      await requestJson({
-        hostname: '127.0.0.1',
-        port: driverPort,
-        path: `/session/${sessionId}`,
-        method: 'DELETE'
-      }).catch(() => {});
-    }
     if (server && server.server) {
       await new Promise((resolve) => server.server.close(resolve));
     }
-    driver.kill();
   }
 }
 
@@ -515,18 +401,17 @@ async function runSuperPrewarmWorkerExperimentSuite(options = {}) {
 
   await assertLocalServerFixture(context, rootDir);
 
-  const browserDriver = options.browserDriver || process.env.XTEND_SUPER_PREWARM_BROWSER_DRIVER || '';
-  if (browserDriver === 'safari') {
+  const browserDriver = options.engine || options.browserDriver || process.env.XTEND_SUPER_PREWARM_BROWSER_ENGINE || process.env.XTEND_SUPER_PREWARM_BROWSER_DRIVER || '';
+  if (browserDriver) {
+    const engine = normalizeEngine(browserDriver);
     try {
-      const browserReport = await runSafariBrowserEvidence(rootDir);
-      context.assert(browserReport && browserReport.schema === SUPER_PREWARM_WORKER_EXPERIMENT_SCHEMA, 'Super Prewarm fixture returns browser evidence schema in Safari');
-      context.assert(browserReport && browserReport.ok === true, 'Super Prewarm fixture browser evidence passes in Safari');
+      const browserReport = await runHypervisorBrowserEvidence(rootDir, engine, options);
+      context.assert(browserReport && browserReport.schema === SUPER_PREWARM_WORKER_EXPERIMENT_SCHEMA, `Super Prewarm fixture returns browser evidence schema through ${engine}`);
+      context.assert(browserReport && browserReport.ok === true, `Super Prewarm fixture browser evidence passes through ${engine}`);
       context.assert(browserReport && browserReport.runModes && browserReport.runModes.includes('superPrewarmWorker'), 'Super Prewarm fixture browser evidence covers superPrewarmWorker mode');
     } catch (error) {
-      context.fail(`Super Prewarm Safari browser evidence failed: ${error.message}`);
+      context.fail(`Super Prewarm ${engine} Hypervisor evidence failed: ${error.message}`);
     }
-  } else if (browserDriver) {
-    context.fail(`Unsupported Super Prewarm browser driver: ${browserDriver}`);
   } else {
     context.pass('Super Prewarm browser evidence fixture is available without making external browser automation mandatory');
   }

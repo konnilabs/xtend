@@ -1,0 +1,28 @@
+{
+  "findings": [
+    {"id":"nfm-bpr-001-terminal-review","primitive":"Structured DOM APIs","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-002-terminal-review","primitive":"Custom Elements and Shadow DOM","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-003-terminal-review","primitive":"Form-associated Custom Elements","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-004-terminal-review","primitive":"Constraint Validation and FormData","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-005-terminal-review","primitive":"Inert and focus isolation","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-006-terminal-review","primitive":"Native Dialog","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-007-terminal-review","primitive":"Popover API","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-008-terminal-review","primitive":"CSS Anchor Positioning","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-009-terminal-review","primitive":"CSS Container Queries","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-010-terminal-review","primitive":"Web Animations API","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-011-terminal-review","primitive":"View Transitions","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-012-terminal-review","primitive":"Scheduling primitives","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-013-terminal-review","primitive":"Observer APIs","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-014-terminal-review","primitive":"Performance APIs","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-015-terminal-review","primitive":"Navigation primitives","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-016-terminal-review","primitive":"Trusted DOM browser primitives","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-017-terminal-review","primitive":"Storage primitives","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-018-terminal-review","primitive":"Media primitives","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-019-terminal-review","primitive":"Network primitives","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-020-terminal-review","primitive":"Accessibility CSS primitives","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-021-terminal-review","primitive":"Scoped Custom Element Registries","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-022-terminal-review","primitive":"JSPI","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-023-terminal-review","primitive":"Declarative Shadow DOM slot assignment","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"},
+    {"id":"nfm-bpr-024-terminal-review","primitive":"Explicit Resource Management","firstSeen":"2026-09-03","lastUpdated":"2026-09-03","sourceUrl":"https://developer.mozilla.org/en-US/docs/Web/API"}
+  ]
+}

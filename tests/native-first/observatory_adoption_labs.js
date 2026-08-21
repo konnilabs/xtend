@@ -21,9 +21,10 @@ function selectOverlayStrategy(options = {}) {
   if (kind === 'dialog') {
     return {
       ...base,
-      strategy: capabilities.dialog ? 'native-dialog-lab' : base.fallback,
-      browserOwns: capabilities.dialog ? ['top-layer', 'escape'] : [],
-      xtendOwns: ['surface-record', 'public-events', 'focus-return', 'scroll-lock-policy']
+      strategy: base.fallback,
+      browserOwns: [],
+      xtendOwns: ['modality', 'focus-trap', 'inert', 'escape', 'surface-record', 'public-events', 'focus-return', 'scroll-lock-policy'],
+      rejectedCandidateAvailable: capabilities.dialog === true
     };
   }
 
@@ -36,14 +37,13 @@ function selectOverlayStrategy(options = {}) {
     };
   }
 
-  const nativePopover = capabilities.popover === true;
-  const nativeAnchor = capabilities.anchorPositioning === true;
   return {
     ...base,
-    strategy: nativePopover ? 'native-non-modal-popover-lab' : base.fallback,
-    positioning: nativeAnchor ? 'css-anchor-lab' : 'owned-js-measurement',
-    browserOwns: nativePopover ? ['top-layer', 'light-dismiss', 'escape'] : [],
-    xtendOwns: ['surface-record', 'public-events', 'focus-return']
+    strategy: base.fallback,
+    positioning: 'owned-js-measurement',
+    browserOwns: [],
+    xtendOwns: ['light-dismiss', 'escape', 'surface-record', 'public-events', 'focus-return'],
+    rejectedCandidateAvailable: capabilities.popover === true || capabilities.anchorPositioning === true
   };
 }
 
@@ -52,9 +52,6 @@ function createYieldContinuation(environment = {}) {
   const requestIdle = environment.requestIdleCallback;
   const timer = environment.setTimeout || setTimeout;
 
-  if (schedulerTarget && typeof schedulerTarget.yield === 'function') {
-    return { strategy: 'scheduler.yield', yieldContinuation: () => schedulerTarget.yield() };
-  }
   if (typeof requestIdle === 'function') {
     return {
       strategy: 'requestIdleCallback',
@@ -63,7 +60,8 @@ function createYieldContinuation(environment = {}) {
   }
   return {
     strategy: 'timer',
-    yieldContinuation: () => new Promise((resolve) => timer(resolve, 0))
+    yieldContinuation: () => new Promise((resolve) => timer(resolve, 0)),
+    rejectedSchedulerYieldAvailable: Boolean(schedulerTarget && typeof schedulerTarget.yield === 'function')
   };
 }
 
@@ -158,16 +156,16 @@ function runScopedRegistryModel() {
 }
 
 function selectNavigationHost(options = {}) {
-  const nativeEnabled = options.optIn === true && options.navigationApi === true;
   return {
     schema: LAB_SCHEMA,
-    strategy: nativeEnabled ? 'navigation-api-host-adapter-lab' : 'history-hash-owned',
+    strategy: 'history-hash-owned',
     fallbackOwner: 'history-hash-owned',
     mapsToExistingEvents: ['xrouter-before-navigate', 'xrouter-after-navigate'],
     ownsFocus: 'x-router',
     ownsAnnouncement: 'x-router',
     ownsScrollRestoration: 'x-router',
-    changesPublicContract: false
+    changesPublicContract: false,
+    rejectedNavigationCandidateAvailable: options.navigationApi === true
   };
 }
 

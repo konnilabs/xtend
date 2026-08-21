@@ -73,16 +73,18 @@ function countMatches(value, pattern) {
 }
 
 function extractInitialPrehydration(html) {
-  const match = String(html || '').match(/window\.xtendDocsSsrPrehydration = (.*?);\n\s*window\.xtendDocsPagesMeta/su);
+  const match = String(html || '').match(/<script\b(?=[^>]*\bid="xtend-docs-boot")[^>]*>([\s\S]*?)<\/script>/su);
   if (!match) return { json: '', payload: null };
+  const descriptor = JSON.parse(match[1]);
+  const payload = descriptor && descriptor.document && descriptor.document.ssrPrehydration || null;
   return {
-    json: match[1],
-    payload: JSON.parse(match[1])
+    json: payload ? JSON.stringify(payload) : '',
+    payload
   };
 }
 
 function extractSsrBody(html) {
-  const match = String(html || '').match(/<body[^>]*>\s*([\s\S]*?)<script\b(?=[^>]*\bsrc="\/docs\/utils\/pageloader\.js(?:\?[^" ]*)?")[^>]*>/su);
+  const match = String(html || '').match(/<body[^>]*>\s*([\s\S]*?)<script\b(?=[^>]*\bsrc="\/docs\/utils\/(?:pageloader\.js|page\/index\.mjs)(?:\?[^" ]*)?")[^>]*>/su);
   return match ? match[1] : '';
 }
 

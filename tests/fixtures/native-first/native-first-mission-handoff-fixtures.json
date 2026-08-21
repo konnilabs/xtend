@@ -14,15 +14,15 @@
       "sourceWorkpackages": ["NFM-WP-01", "NFM-WP-02", "NFM-WP-03", "NFM-WP-18", "NFM-WP-19"],
       "sourceContracts": [
         "xtend.native-first.mission-source-of-truth.v1",
-        "xtend.native-first.browser-primitive-radar.v1",
-        "xtend.native-first.primitive-adoption-gate.v1",
+        "xtend.native-first.browser-primitive-radar.v2",
+        "xtend.native-first.primitive-adoption-gate.v2",
         "xtend.native-first.rmt-renderer-dom-descriptor-proofs.v1",
         "xtend.native-first.performance-complexity-bundle-budget-gates.v1"
       ],
       "status": "accepted",
       "releaseDecision": "accepted",
       "nextEpicBoundary": "native-primitive-radar-cadence",
-      "residuals": ["browser-lab-cadence"],
+      "residuals": [],
       "requiredGates": ["contract-registry", "contract-runtime-parity", "rmt-renderer-dom-descriptor-proofs", "native-first-budget-gates", "references"],
       "evidenceArtifacts": [
         "development/XTend-Native-First-Mission-Source-of-Truth-Contract.md",
@@ -31,7 +31,7 @@
         "development/XTend-Native-First-RMT-Renderer-DOM-Descriptor-Proofs-Matrix.md"
       ],
       "owner": "browser-primitive-owner",
-      "nextHandoff": ["native-primitive-review-cadence"]
+      "nextHandoff": ["native-primitive-hygiene-review-2026-12-03"]
     },
     {
       "handoffId": "NFM-HO-02",

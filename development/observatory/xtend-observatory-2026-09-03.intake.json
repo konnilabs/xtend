@@ -1,0 +1,15 @@
+{
+  "schema": "xtend.native-first.observatory-intake.v1",
+  "intakeId": "NFM-OBS-2026-09-03",
+  "trust": "untrusted-ai-generated",
+  "rawArtifact": {
+    "path": "development/observatory/raw/xtend-observatory-2026-09-03.json",
+    "sha256": "149cb5ff235f0f4540dffdfa695b71d95d8f31f4d30f8bbce6aec6f1562b472d",
+    "repositoryCopySha256": "4c0a7eaafb265bc1becce8a0179bde68454b6671ea938f9627920c399cddd320",
+    "storageNormalization": "single-terminal-newline-added",
+    "immutable": true
+  },
+  "provenance": {"agent":"unknown-unreported","model":"unknown-unreported","reportDate":"2026-09-03","reportDateBasis":"scheduled-combined-run","accessedAt":"2026-09-03","repositoryCommit":"working-tree-bound-by-harness-sha"},
+  "findingIds": ["nfm-bpr-001-terminal-review","nfm-bpr-002-terminal-review","nfm-bpr-003-terminal-review","nfm-bpr-004-terminal-review","nfm-bpr-005-terminal-review","nfm-bpr-006-terminal-review","nfm-bpr-007-terminal-review","nfm-bpr-008-terminal-review","nfm-bpr-009-terminal-review","nfm-bpr-010-terminal-review","nfm-bpr-011-terminal-review","nfm-bpr-012-terminal-review","nfm-bpr-013-terminal-review","nfm-bpr-014-terminal-review","nfm-bpr-015-terminal-review","nfm-bpr-016-terminal-review","nfm-bpr-017-terminal-review","nfm-bpr-018-terminal-review","nfm-bpr-019-terminal-review","nfm-bpr-020-terminal-review","nfm-bpr-021-terminal-review","nfm-bpr-022-terminal-review","nfm-bpr-023-terminal-review","nfm-bpr-024-terminal-review"],
+  "automationPolicy": {"mayMutateRadar":false,"mayMutateRuntime":false,"mayCreateShippingClaim":false,"rawVerdictsAreSuggestionsOnly":true,"requiredReviewSchema":"xtend.native-first.observatory-review.v1"}
+}

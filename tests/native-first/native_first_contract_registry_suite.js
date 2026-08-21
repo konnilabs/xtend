@@ -92,11 +92,11 @@ const REQUIRED_NATIVE_CONTRACTS = Object.freeze([
     phase: 'Phase 0'
   },
   {
-    contractId: 'xtend.native-first.browser-primitive-radar.v1',
+    contractId: 'xtend.native-first.browser-primitive-radar.v2',
     workpackage: 'NFM-WP-02',
     status: 'accepted',
     owner: 'browser-primitive-owner',
-    reportSchema: 'xtend.native-first.browser-primitive-radar-report.v1',
+    reportSchema: 'xtend.native-first.browser-primitive-radar-report.v2',
     localGate: 'browser-primitive-radar',
     docsPath: 'development/XTend-Native-First-Browser-Primitive-Radar-Contract.md',
     sourceOfTruth: 'browser-primitive-radar',
@@ -105,11 +105,11 @@ const REQUIRED_NATIVE_CONTRACTS = Object.freeze([
     phase: 'Phase 1'
   },
   {
-    contractId: 'xtend.native-first.primitive-adoption-gate.v1',
+    contractId: 'xtend.native-first.primitive-adoption-gate.v2',
     workpackage: 'NFM-WP-03',
     status: 'accepted',
     owner: 'architecture-governance-owner',
-    reportSchema: 'xtend.native-first.primitive-adoption-gate-report.v1',
+    reportSchema: 'xtend.native-first.primitive-adoption-gate-report.v2',
     localGate: 'primitive-adoption-gate',
     docsPath: 'development/XTend-Native-Primitive-Adoption-Gate-Contract.md',
     sourceOfTruth: 'primitive-adoption-gate',
@@ -119,10 +119,10 @@ const REQUIRED_NATIVE_CONTRACTS = Object.freeze([
   },
   {
     contractId: 'xtend.native-first.observatory-intake.v1',
-    workpackage: 'OBS-2026-08-17',
+    workpackage: 'OBS-2026-09-03',
     status: 'accepted-internal-intake',
     owner: 'architecture-governance-owner',
-    reportSchema: 'xtend.native-first.browser-primitive-radar-report.v1',
+    reportSchema: 'xtend.native-first.browser-primitive-radar-report.v2',
     localGate: 'browser-primitive-radar',
     docsPath: 'development/XTend-Native-First-Feature-Adoption-Observatory-Contract.md',
     sourceOfTruth: 'feature-adoption-observatory',

@@ -134,6 +134,10 @@ const {
   runBrowserSmokeSuite
 } = require('../tests/browser/browser_smoke_suite');
 const {
+  printBrowserHypervisorReport,
+  runBrowserHypervisorSuite
+} = require('../tests/browser/browser_hypervisor_suite');
+const {
   printLandingPageReport,
   runLandingPageSuite
 } = require('../tests/browser/landing_page_suite');
@@ -3691,6 +3695,16 @@ const suites = [
     }
   },
   {
+    id: 'browser-hypervisor',
+    label: 'XTend Browser Hypervisor',
+    description: 'Validates the platform-neutral W3C WebDriver adapters, evidence contract and three-engine merge gate.',
+    run: () => {
+      const result = runBrowserHypervisorSuite({ rootDir });
+      printBrowserHypervisorReport(result);
+      return toRunnerResult('browser-hypervisor', 'XTend Browser Hypervisor', result);
+    }
+  },
+  {
     id: 'browser-primitive-radar',
     label: 'Browser Primitive Radar and Observatory Intake',
     description: 'Validates untrusted Observatory intake, reviewed claims, sources, repo symbols and radar IDs.',
@@ -4663,7 +4677,7 @@ const suites = [
   {
     id: 'browser',
     label: 'Browser smoke harness',
-    description: 'Validates Custom Element and core-flow browser smoke fixtures and optionally runs Safari WebDriver.',
+    description: 'Validates Custom Element and core-flow browser smoke fixtures and optionally executes any configured Hypervisor engine.',
     run: async () => {
       const result = await runBrowserSmokeSuite({ rootDir });
       printBrowserSmokeReport(result);

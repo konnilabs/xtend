@@ -158,7 +158,10 @@ async function runEpic13TrustedDomBoundarySuite(options = {}) {
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const policySource = readText('security/trusted-dom-policy.js', rootDir);
-  const pageLoader = readText('docs/utils/pageloader.js', rootDir);
+  const pageLoader = [
+    readText('docs/utils/pageloader.js', rootDir),
+    readText('docs/utils/page/route-controller.mjs', rootDir)
+  ].join('\n');
   const indexPhp = readText('docs/index.php', rootDir);
   const rmtDocument = readJson('docs/xtendrmt-parsedown-docs.rmt', rootDir);
   const fixture = readText(TRUSTED_DOM_BOUNDARY_FIXTURE, rootDir);

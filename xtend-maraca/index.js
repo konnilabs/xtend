@@ -2264,6 +2264,7 @@ function collectSurfaces(coreDocument) {
       eventRefs: Array.isArray(surface.eventRefs) ? surface.eventRefs : [],
       bounds: surface.bounds || null,
       portal: surface.portal && (surface.portal.target || surface.portal.ref) || surface.portal || null,
+      repeat: Boolean(surface.repeat),
       key: surface.key || null
     });
   });
@@ -2283,6 +2284,9 @@ function collectSurfaces(coreDocument) {
       eventRefs: Array.isArray(surface.events) ? surface.events : existing.eventRefs || [],
       bounds: surface.bounds || existing.bounds || null,
       portal: surface.portal || existing.portal || null,
+      repeat: Object.prototype.hasOwnProperty.call(surface, 'repeat')
+        ? surface.repeat === true
+        : existing.repeat === true,
       key: surface.key || existing.key || null,
       resources: Array.isArray(surface.resources) ? surface.resources : []
     });
@@ -4964,6 +4968,8 @@ function createBundleSource(plan, providerCssText = null) {
     kind: surface.kind,
     component: surface.component,
     source: surface.source,
+    repeat: surface.repeat === true,
+    key: surface.key || null,
     bounds: surface.bounds,
     portal: surface.portal,
     resources: surface.resources || [],

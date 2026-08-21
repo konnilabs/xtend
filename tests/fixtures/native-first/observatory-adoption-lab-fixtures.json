@@ -1,11 +1,11 @@
 {
   "schema": "xtend.native-first.observatory-browser-evidence.v1",
-  "capturedAt": "2026-08-17",
-  "evidenceMode": "chromium-lab-captured-firefox-webkit-pending",
+  "capturedAt": "2026-09-03",
+  "evidenceMode": "browser-hypervisor-terminal-native-or-fallback-matrix",
   "engines": [
     { "engine": "Chromium", "version": "151.0.7922.108", "status": "lab-evidence", "artifact": "tests/fixtures/native-first/observatory-browser-evidence-chromium-151.json" },
-    { "engine": "Firefox", "version": null, "status": "insufficient-evidence", "artifact": null },
-    { "engine": "WebKit", "version": null, "status": "insufficient-evidence", "artifact": null }
+    { "engine": "Firefox", "version": "provider-reported-at-run", "status": "unsupported-with-valid-fallback", "artifact": "tests/fixtures/native-first/observatory-browser-evidence-2026-09-03.json" },
+    { "engine": "WebKit", "version": "provider-reported-at-run", "status": "unsupported-with-valid-fallback", "artifact": "tests/fixtures/native-first/observatory-browser-evidence-2026-09-03.json" }
   ],
   "wave1": {
     "overlayAnchor": {
@@ -38,9 +38,9 @@
       "docsPilotAllowed": false
     }
   },
-  "watchpoints": {
-    "accessibility": "published-wpt-automation-required",
-    "jspi": "safari-27-stable-and-concrete-async-import-use-case-required",
-    "shadowrootslotassignment": "xtend-dsd-contract-or-second-engine-required"
+  "terminalDecisions": {
+    "accessibility": "accepted-existing",
+    "jspi": "reject-for-now",
+    "shadowrootslotassignment": "reject-for-now"
   }
 }

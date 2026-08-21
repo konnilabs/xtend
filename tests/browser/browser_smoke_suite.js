@@ -1,5 +1,5 @@
 const http = require('http');
-const { spawn } = require('child_process');
+const { normalizeEngine, runFixture } = require('../../tools/browser-hypervisor');
 const {
   SERVER_CONTRACT,
   listenXtendDevServer
@@ -138,47 +138,6 @@ const CORE_FLOW_MANIFEST_CONTRACT = {
   'x-player': '/components/xplayer.js'
 };
 
-function requestJson(options, payload) {
-  return new Promise((resolve, reject) => {
-    const body = payload ? JSON.stringify(payload) : '';
-    const request = http.request({
-      ...options,
-      headers: {
-        'content-type': 'application/json',
-        'content-length': Buffer.byteLength(body),
-        ...(options.headers || {})
-      }
-    }, (response) => {
-      let data = '';
-      response.setEncoding('utf8');
-      response.on('data', (chunk) => {
-        data += chunk;
-      });
-      response.on('end', () => {
-        let parsed = null;
-        if (data) {
-          try {
-            parsed = JSON.parse(data);
-          } catch (error) {
-            reject(error);
-            return;
-          }
-        }
-        resolve({
-          statusCode: response.statusCode,
-          body: parsed
-        });
-      });
-    });
-
-    request.on('error', reject);
-    if (body) {
-      request.write(body);
-    }
-    request.end();
-  });
-}
-
 function requestText(url) {
   const target = new URL(url);
   const origin = `${target.protocol}//${target.host}`;
@@ -211,140 +170,12 @@ function requestText(url) {
   });
 }
 
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function createStaticServer(rootDir, defaultFixturePath = CUSTOM_ELEMENT_FIXTURE_PATH) {
   return listenXtendDevServer({
     rootDir,
     defaultPath: defaultFixturePath,
     port: 0
   });
-}
-
-function findSafariDriver() {
-  const candidates = [
-    '/System/Cryptexes/App/usr/bin/safaridriver',
-    '/usr/bin/safaridriver'
-  ];
-
-  return candidates.find((candidate) => {
-    try {
-      require('fs').accessSync(candidate);
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }) || null;
-}
-
-async function waitForWebDriver(port, timeoutMs = 5000) {
-  const started = Date.now();
-  while (Date.now() - started < timeoutMs) {
-    try {
-      const response = await requestJson({
-        hostname: '127.0.0.1',
-        port,
-        path: '/status',
-        method: 'GET'
-      });
-      if (response.statusCode >= 200 && response.statusCode < 500) {
-        return true;
-      }
-    } catch (_) {
-      await wait(150);
-    }
-  }
-  return false;
-}
-
-async function runSafariWebDriverSmoke(rootDir, fixture) {
-  const driverPath = findSafariDriver();
-  if (!driverPath) {
-    throw new Error('safaridriver was not found');
-  }
-
-  const driverPort = 57931;
-  const driver = spawn(driverPath, ['-p', String(driverPort)], {
-    stdio: ['ignore', 'pipe', 'pipe']
-  });
-
-  let sessionId = null;
-  let staticServer = null;
-
-  try {
-    const ready = await waitForWebDriver(driverPort);
-    if (!ready) {
-      throw new Error('safaridriver did not become ready');
-    }
-
-    staticServer = await createStaticServer(rootDir, fixture.path);
-
-    const session = await requestJson({
-      hostname: '127.0.0.1',
-      port: driverPort,
-      path: '/session',
-      method: 'POST'
-    }, {
-      capabilities: {
-        alwaysMatch: {
-          browserName: 'safari'
-        }
-      }
-    });
-
-    const sessionValue = session.body && session.body.value;
-    sessionId = sessionValue && sessionValue.sessionId;
-    if (!sessionId) {
-      throw new Error('safaridriver did not create a session');
-    }
-
-    await requestJson({
-      hostname: '127.0.0.1',
-      port: driverPort,
-      path: `/session/${sessionId}/url`,
-      method: 'POST'
-    }, {
-      url: `${staticServer.origin}/${fixture.path}`
-    });
-
-    const started = Date.now();
-    while (Date.now() - started < 5000) {
-      const response = await requestJson({
-        hostname: '127.0.0.1',
-        port: driverPort,
-        path: `/session/${sessionId}/execute/sync`,
-        method: 'POST'
-      }, {
-        script: `return window[${JSON.stringify(fixture.resultKey)}] || null;`,
-        args: []
-      });
-
-      const value = response.body && response.body.value;
-      if (value && value.status && value.status !== 'pending') {
-        return value;
-      }
-      await wait(100);
-    }
-
-    throw new Error('browser smoke fixture did not complete');
-  } finally {
-    if (sessionId) {
-      await requestJson({
-        hostname: '127.0.0.1',
-        port: driverPort,
-        path: `/session/${sessionId}`,
-        method: 'DELETE'
-      }).catch(() => {});
-    }
-
-    if (staticServer) {
-      await new Promise((resolve) => staticServer.server.close(resolve));
-    }
-
-    driver.kill();
-  }
 }
 
 function assertCustomElementFixtureContract(context, rootDir) {
@@ -865,7 +696,10 @@ function assertEpic11ThemeMatrixFixtureContract(context, rootDir) {
 
 function assertEpic13TrustedDomBoundaryFixtureContract(context, rootDir) {
   const fixture = readText(EPIC13_TRUSTED_DOM_BOUNDARY_FIXTURE_PATH, rootDir);
-  const pageLoader = readText('docs/utils/pageloader.js', rootDir);
+  const pageLoader = [
+    readText('docs/utils/pageloader.js', rootDir),
+    readText('docs/utils/page/route-controller.mjs', rootDir)
+  ].join('\n');
   const policySource = readText('security/trusted-dom-policy.js', rootDir);
 
   context.assert(fixture.includes('xtend.epic13.trusted-dom-boundary-browser-smoke.v1'), 'Epic 13 Trusted DOM fixture exposes stable browser contract');
@@ -1018,20 +852,35 @@ async function runBrowserSmokeSuite(options = {}) {
   assertRmtBestcaseFlagshipFixtureContract(context, rootDir);
   await assertLocalDevServerContract(context, rootDir);
 
-  const driver = options.driver || process.env.XTEND_BROWSER_SMOKE_DRIVER || '';
-  if (driver === 'safari') {
-    for (const fixture of BROWSER_FIXTURES) {
-      try {
-        const result = await runSafariWebDriverSmoke(rootDir, fixture);
-        context.assert(result.status === 'passed', `${fixture.label} passed in Safari WebDriver${result.errors && result.errors.length ? ` (${result.errors.join(', ')})` : ''}`);
-      } catch (error) {
-        context.fail(`${fixture.label} failed in Safari WebDriver: ${error.message}`);
+  const configuredEngine = options.engine || options.driver || process.env.XTEND_BROWSER_SMOKE_ENGINE || process.env.XTEND_BROWSER_SMOKE_DRIVER || '';
+  if (configuredEngine) {
+    const engine = normalizeEngine(configuredEngine);
+    let handle = null;
+    try {
+      handle = await createStaticServer(rootDir, CUSTOM_ELEMENT_FIXTURE_PATH);
+      for (const fixture of BROWSER_FIXTURES) {
+        try {
+          const execution = await runFixture({
+            rootDir,
+            engine,
+            fixturePath: fixture.path,
+            resultKey: fixture.resultKey,
+            url: `${handle.origin}/${fixture.path}`,
+            webDriverUrl: options.webDriverUrl || process.env.XTEND_BROWSER_HYPERVISOR_URL,
+            driverPath: options.driverPath || process.env.XTEND_BROWSER_HYPERVISOR_DRIVER_PATH,
+            timeoutMs: options.timeoutMs
+          });
+          const result = execution.result;
+          context.assert(result.status === 'passed', `${fixture.label} passed through the ${engine} Hypervisor adapter${result.errors && result.errors.length ? ` (${result.errors.join(', ')})` : ''}`);
+        } catch (error) {
+          context.fail(`${fixture.label} failed through the ${engine} Hypervisor adapter: ${error.message}`);
+        }
       }
+    } finally {
+      if (handle && handle.server) await new Promise((resolve) => handle.server.close(resolve));
     }
-  } else if (driver) {
-    context.fail(`Unsupported browser smoke driver: ${driver}`);
   } else {
-    context.pass('Default browser fixture-contract smokes completed without external browser automation');
+    context.pass('Default browser fixture-contract smokes completed; external execution is delegated to the shared Hypervisor');
   }
 
   return context.result();

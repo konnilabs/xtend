@@ -8,7 +8,7 @@ const { readJson, readText, resolveRepoPath, resolveRootDir } = require('../util
 
 const SUITE_ID = 'browser-primitive-radar';
 const SUITE_LABEL = 'Browser Primitive Radar and Observatory Intake';
-const REPORT_SCHEMA = 'xtend.native-first.browser-primitive-radar-report.v1';
+const REPORT_SCHEMA = 'xtend.native-first.browser-primitive-radar-report.v2';
 const INTAKE_SCHEMA = 'xtend.native-first.observatory-intake.v1';
 const REVIEW_SCHEMA = 'xtend.native-first.observatory-review.v1';
 const RUN_INDEX_SCHEMA = 'xtend.native-first.observatory-run-index.v1';
@@ -270,6 +270,8 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
   const radarContract = readText('development/XTend-Native-First-Browser-Primitive-Radar-Contract.md', rootDir);
   const observatoryContract = readText('development/XTend-Native-First-Feature-Adoption-Observatory-Contract.md', rootDir);
   const packageManifest = readJson('package.json', rootDir);
+  const radarMatrix = readJson('tests/fixtures/native-first/browser-primitive-radar-v2.json', rootDir);
+  const decisionSet = readJson('development/observatory/observatory-adoption-decisions-2026-09-03.json', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const current = runs.find((run) => run.intake.intakeId === runIndex.currentRun);
   const base = { rootDir, runIndex, runs, radar, packageManifest };
@@ -277,14 +279,23 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
   errors.forEach((error) => context.fail(error));
   if (errors.length === 0) context.pass('All immutable Observatory runs and reviews satisfy the gate');
 
-  context.assert(runIndex.runs.length === 2 && runs.reduce((sum, run) => sum + run.raw.findings.length, 0) === 21, 'Run index preserves two runs and all 21 finding occurrences');
-  context.assert(current && current.raw.findings.length === 12 && current.review.records.length === 12, 'Current weekly run has twelve complete review records');
-  context.assert(current && current.review.records.filter((record) => record.previousReviewRef).length === 9, 'Nine carry-over findings reference the previous review');
-  context.assert(current && current.review.records.filter((record) => record.rawDelta && record.rawDelta.changedFields.join('|') === 'category').length === 8, 'Eight carry-over findings declare category-only deltas');
-  ['NFM-BPR-006', 'NFM-BPR-007', 'NFM-BPR-008', 'NFM-BPR-011', 'NFM-BPR-012', 'NFM-BPR-015', 'NFM-BPR-019', 'NFM-BPR-021', 'NFM-BPR-022', 'NFM-BPR-023', 'NFM-BPR-024'].forEach((radarId) => {
+  const expectedRadarIds = Array.from({ length: 24 }, (_, index) => `NFM-BPR-${String(index + 1).padStart(3, '0')}`);
+  const terminalOutcomes = new Set(['adopt-native', 'wrap-as-xtend-primitive', 'reject-for-now']);
+  context.assert(runIndex.runs.length === 3 && runs.reduce((sum, run) => sum + run.raw.findings.length, 0) === 45, 'Run index preserves three immutable runs and all 45 finding occurrences');
+  context.assert(current && current.intake.intakeId === 'NFM-OBS-2026-09-03' && current.raw.findings.length === 24 && current.review.records.length === 24, 'September run has one complete review record per Radar parent');
+  context.assert(current && current.review.records.every((record) => record.terminalOutcome), 'Every September finding has a terminal outcome');
+  context.assert(radarMatrix.schema === 'xtend.native-first.browser-primitive-radar.v2' && radarMatrix.entries.length === 24, 'Radar v2 declares exactly 24 parent entries');
+  context.assert(radarMatrix.entries.map((entry) => entry.id).join('|') === expectedRadarIds.join('|'), 'Radar v2 preserves the stable ordered parent IDs');
+  context.assert(radarMatrix.entries.every((entry) => radarMatrix.terminalStates.includes(entry.status) && entry.members.length > 0 && entry.members.every((member) => terminalOutcomes.has(member.outcome))), 'Every parent and member is terminal');
+  context.assert(radarMatrix.entries.every((entry) => entry.followUp === 'none' && (entry.status !== 'closed' || entry.nextReview === 'none')), 'Closed entries have no follow-up or next review');
+  context.assert(radarMatrix.entries.filter((entry) => entry.status !== 'closed').every((entry) => entry.nextReview === '2026-12-03'), 'Accepted and mixed entries use the December hygiene review');
+  context.assert(decisionSet.decisions.length === 24 && new Set(decisionSet.decisions.map((entry) => entry.radarRef)).size === 24, 'Exactly one September decision exists per Radar parent');
+  expectedRadarIds.forEach((radarId, index) => {
     context.assertIncludes(radar, `\`${radarId}\``, `Radar contains ${radarId}`);
+    const adr = resolveRepoPath(`development/observatory/adrs/ADR-NFM-BPR-${String(index + 1).padStart(3, '0')}-2026-09-03.md`, rootDir);
+    context.assert(fs.existsSync(adr), `September ADR exists for ${radarId}`);
   });
-  context.assertIncludes(radarContract, '| `lifecycle` |', 'Radar contract includes lifecycle category');
+  context.assertIncludes(radarContract, 'xtend.native-first.browser-primitive-radar.v2', 'Radar contract declares v2');
   context.assertIncludes(observatoryContract, 'standards-evidence-is-not-engine-shipping-evidence', 'Contract separates standards and engine evidence');
   context.assertIncludes(runner, "id: 'browser-primitive-radar'", 'Runner registers the browser primitive radar gate');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:browser-primitive-radar'] === 'node scripts/run_xtend_tests.js browser-primitive-radar', 'Package exposes browser primitive radar gate');
@@ -332,7 +343,13 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
       currentReviews: current.review.records.length,
       findingOccurrences: runs.reduce((sum, run) => sum + run.raw.findings.length, 0),
       currentSha256: current.intake.rawArtifact.sha256,
-      newRadarEntries: ['NFM-BPR-024'],
+      resolved: 24,
+      watch: 0,
+      deferred: 0,
+      insufficientEvidence: 0,
+      unownedResiduals: 0,
+      failures: 0,
+      warnings: 0,
       untrustedInputCannotAdopt: true
     }
   });

@@ -193,12 +193,13 @@
     return toArray(input).map((surface) => {
       const source = objectRecord(surface);
       const hasSource = Boolean(source.source || source.from || source.records);
+      const hasExplicitRepeat = Object.prototype.hasOwnProperty.call(source, 'repeat');
       return {
         ...source,
         id: clampString(source.id),
         kind: clampString(source.kind || source.type, 'surface'),
         source: clampString(source.source || source.from, ''),
-        repeat: source.repeat === true || hasSource,
+        repeat: hasExplicitRepeat ? source.repeat === true : hasSource,
         key: source.key || source.keyPath || '$record.id',
         owner: source.owner || source.ownerId || '',
         component: clampString(source.component || source.tag, ''),
@@ -671,10 +672,18 @@
 
     function requireSurfaceControllerResult(result, operation, subjectId) {
       if (!result || result.ok !== false) return result;
+      const failedResult = toArray(result.results).find((entry) => entry && entry.ok === false) || null;
+      const failureCode = result.code || failedResult && failedResult.code || 'rmt.surface.mvc.controller-refused';
       const diagnostic = publish(
-        result.code || 'rmt.surface.mvc.controller-refused',
+        failureCode,
         `Surface controller refused ${operation} before resource or DOM projection.`,
-        { operation, subjectId: subjectId || null, methodName: result.methodName || null },
+        {
+          operation,
+          subjectId: subjectId || null,
+          methodName: result.methodName || null,
+          controllerOperation: result.operation || null,
+          failedResult: failedResult ? cloneValue(failedResult, {}) : null
+        },
         'error'
       );
       const error = new Error(diagnostic.message);
@@ -760,9 +769,21 @@
       if (Array.isArray(input)) return input;
       const sourceId = surface.source;
       const source = objectRecord(input);
-      if (sourceId && Array.isArray(source[sourceId])) return source[sourceId];
-      if (source.records && Array.isArray(source.records[sourceId])) return source.records[sourceId];
-      if (source.data && Array.isArray(source.data[sourceId])) return source.data[sourceId];
+      if (sourceId && Object.prototype.hasOwnProperty.call(source, sourceId)) {
+        const value = source[sourceId];
+        if (Array.isArray(value)) return value;
+        if (value && typeof value === 'object') return [value];
+      }
+      if (source.records && Object.prototype.hasOwnProperty.call(source.records, sourceId)) {
+        const value = source.records[sourceId];
+        if (Array.isArray(value)) return value;
+        if (value && typeof value === 'object') return [value];
+      }
+      if (source.data && Object.prototype.hasOwnProperty.call(source.data, sourceId)) {
+        const value = source.data[sourceId];
+        if (Array.isArray(value)) return value;
+        if (value && typeof value === 'object') return [value];
+      }
       if (Array.isArray(surface.records)) return surface.records;
       return surface.repeat ? [] : [null];
     }

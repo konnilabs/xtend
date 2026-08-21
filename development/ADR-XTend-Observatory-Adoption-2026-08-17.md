@@ -1,6 +1,7 @@
 # ADR: XTend Observatory Adoption Review vom 17. August 2026
 
-- Status: `accepted-with-residuals`
+- Status: `superseded`
+- Superseded by: `ADR-NFM-BPR-001-2026-09-03` bis `ADR-NFM-BPR-024-2026-09-03`
 - ADR Contract: `xtend.native-first.primitive-adoption-adr.v1`
 - Decision Set: `xtend.native-first.observatory-adoption-decisions.v1`
 - Machine-readable Evidence: `development/observatory/observatory-adoption-decisions.json`

@@ -30,7 +30,7 @@
           scopedRegistry: typeof CustomElementRegistry === 'function'
         },
         registry: { attempted: false, isolated: false },
-        hydration: { units: 0, slices: 0, yieldCount: 0, maxSliceMs: 0, strategy: 'timer' },
+        hydration: { units: 0, slices: 0, yieldCount: 0, maxSliceMs: 0, p95InputDelayMs: 0, strategy: 'timer', schedulerYieldRejected: true },
         boundaries: { modalPopoverMigration: false, publicEventsChanged: false, surfaceRecordsChanged: false }
       };
 
@@ -58,6 +58,7 @@
 
       const hydration = document.querySelector('#hydration');
       let next = 0;
+      const inputDelays = [];
       while (next < 500) {
         const started = performance.now();
         let sliceUnits = 0;
@@ -71,18 +72,22 @@
         report.hydration.slices += 1;
         report.hydration.maxSliceMs = Math.max(report.hydration.maxSliceMs, performance.now() - started);
         if (next < 500) {
-          if (report.capabilities.schedulerYield) {
-            report.hydration.strategy = 'scheduler.yield';
-            report.hydration.yieldCount += 1;
-            await globalThis.scheduler.yield();
+          report.hydration.yieldCount += 1;
+          const queuedAt = performance.now();
+          if (typeof requestIdleCallback === 'function') {
+            report.hydration.strategy = 'requestIdleCallback';
+            await new Promise((resolve) => requestIdleCallback(resolve, { timeout: 32 }));
           } else {
-            report.hydration.yieldCount += 1;
             await new Promise((resolve) => setTimeout(resolve, 0));
           }
+          inputDelays.push(performance.now() - queuedAt);
         }
       }
       report.hydration.units = next;
       report.hydration.orderPreserved = [...hydration.children].every((node, index) => node.dataset.hydrationOrder === String(index));
+      report.hydration.p95InputDelayMs = inputDelays.sort((left, right) => left - right)[Math.max(0, Math.ceil(inputDelays.length * .95) - 1)] || 0;
+      report.status = report.hydration.units === 500 && report.hydration.orderPreserved ? 'passed' : 'failed';
+      window.__xtendObservatoryAdoptionLabResult = report;
       document.querySelector('#report').textContent = JSON.stringify(report, null, 2);
       document.documentElement.dataset.observatoryLab = 'complete';
     })();

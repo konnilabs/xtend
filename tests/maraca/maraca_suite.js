@@ -56,6 +56,10 @@ const {
 const {
   listenXtendDevServer
 } = require('../../scripts/serve_xtend_dev');
+const {
+  detectAvailableEngine,
+  runFixture
+} = require('../../tools/browser-hypervisor');
 const MARACA_MODULE_PATH = 'xtend-maraca/index.js';
 const MARACA_RUNTIME_PATH = 'xtend-maraca/runtime.js';
 const MARACA_PACKAGE_PATH = 'xtend-maraca/package.json';
@@ -77,9 +81,7 @@ const MARACA_KERNEL_CONTROLLER_ASSET = 'runtime/xtendrmt-kernel-orchestration-co
 const MARACA_KERNEL_INTEGRITY_OUT_DIR = '.xtend-build/maraca/kernel-integrity';
 const MARACA_VALIDATION_OUT_DIR = '.xtend-build/maraca/validation';
 const MARACA_TRANSITIONS_OUT_DIR = '.xtend-build/maraca/transitions';
-const MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS = 90;
-const MARACA_KERNEL_INTEGRITY_BROWSER_KILL_AFTER_SECONDS = 10;
-const MARACA_KERNEL_INTEGRITY_BROWSER_VIRTUAL_TIME_BUDGET_MS = 30000;
+const MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_MS = 90000;
 const maracaEsmModuleCache = new Map();
 const MARACA_SUITES = [
   'maraca-plan',
@@ -1988,37 +1990,6 @@ function printMaracaKernelOrchestrationReport(result) {
   });
 }
 
-function findChromiumExecutable() {
-  const candidates = [
-    process.env.XTEND_CHROMIUM,
-    process.env.CHROME_BIN,
-    '/usr/bin/chromium-browser',
-    '/usr/bin/chromium',
-    '/usr/bin/google-chrome',
-    'chromium-browser',
-    'chromium',
-    'google-chrome'
-  ].filter(Boolean);
-  return candidates.find((candidate) => {
-    const resolvedCandidate = (() => {
-      if (path.isAbsolute(candidate) || candidate.includes('/')) return candidate;
-      const which = spawnSync('which', [candidate], { encoding: 'utf8', timeout: 2000 });
-      return which.status === 0 ? String(which.stdout || '').trim().split(/\r?\n/u)[0] || candidate : candidate;
-    })();
-    if (process.env.XTEND_ALLOW_SNAP_CHROMIUM !== '1') {
-      try {
-        const source = fs.existsSync(resolvedCandidate) ? fs.readFileSync(resolvedCandidate, 'utf8') : '';
-        if (resolvedCandidate.startsWith('/snap/')) return false;
-        if (source.includes('/snap/bin/chromium')) return false;
-        if (fs.realpathSync(resolvedCandidate).includes('/snap/')) return false;
-      } catch (_) {}
-    }
-    const probe = spawnSync(candidate, ['--version'], { encoding: 'utf8', timeout: 5000 });
-    if (/snap-confine|cap_dac_override/u.test(`${probe.stderr || ''}${probe.error && probe.error.message || ''}`)) return false;
-    return probe.status === 0;
-  }) || null;
-}
-
 function isKernelIntegrityBrowserSmokeRequired() {
   return process.env.XTEND_MARACA_KERNEL_INTEGRITY_BROWSER_REQUIRED === '1';
 }
@@ -2029,15 +2000,6 @@ function markKernelIntegrityBrowserSmokeUnavailable(context, message) {
     return;
   }
   context.skip(`${message}; set XTEND_MARACA_KERNEL_INTEGRITY_BROWSER_REQUIRED=1 to make it blocking`);
-}
-
-function htmlDecode(value) {
-  return String(value || '')
-    .replace(/&quot;/gu, '"')
-    .replace(/&#39;/gu, "'")
-    .replace(/&lt;/gu, '<')
-    .replace(/&gt;/gu, '>')
-    .replace(/&amp;/gu, '&');
 }
 
 function writeKernelIntegritySmokeFixture(rootDir) {
@@ -2297,8 +2259,8 @@ function writeKernelIntegritySmokeFixture(rootDir) {
         lightboxCycle: surface('demo.kernel.lightbox').hasAttribute('hidden') && !surface('demo.kernel.lightbox').hasAttribute('open'),
         fullscreenEvent: fullscreenEvents.length > 0,
         kernelScheduled: kernelSnapshot.enabled === true && kernelSnapshot.scheduledEndpoints.length > 0,
-        kernelFibers: kernelSnapshot.fibers.some((entry) => entry.kind === 'action') && kernelSnapshot.fibers.some((entry) => entry.kind === 'hydration'),
-        commandEventFiber: kernelSnapshot.fibers.some((entry) => entry.kind === 'event' && String(entry.fiber || '').includes('/orchestration/event')),
+        kernelFibers: kernelSnapshot.fibers.some((entry) => entry.kind === 'action') && kernelSnapshot.fibers.some((entry) => entry.kind === 'state-change'),
+        commandEventFiber: kernelSnapshot.fibers.some((entry) => String(entry.fiber || '').includes('/event/')),
         commandActionFiber: kernelSnapshot.fibers.some((entry) => entry.kind === 'action' && String(entry.fiber || '').includes('/action/demo.kernel.play')),
         managedControllerCommitted: orchestrationSnapshot.stateCommitCount >= 5 && orchestrationSnapshot.commitCount >= orchestrationSnapshot.stateCommitCount,
         modelReaderContract: window.__XTendMaracaOrchestration.model.schema === 'xtend.rmt.model-reader.v1',
@@ -2314,21 +2276,24 @@ function writeKernelIntegritySmokeFixture(rootDir) {
           && !('scheduleWork' in window.__XTendMaracaKernel)
           && !('hydrateAll' in window.__XTendMaracaHydration)
           && !('publish' in window.__XTendMaracaTelemetry),
-        hydrationRecords: hydrationSnapshot.records.some((entry) => entry.component === 'x-player') && hydrationSnapshot.records.some((entry) => entry.component === 'x-lightbox')
+        hydrationRecords: Array.isArray(hydrationSnapshot.history)
+          && hydrationSnapshot.history.some((entry) => Array.isArray(entry.tags) && entry.tags.includes('x-player'))
+          && hydrationSnapshot.history.some((entry) => Array.isArray(entry.tags) && entry.tags.includes('x-lightbox'))
       };
       const firstKernelHandle = window.__XTendMaracaKernel;
       const firstOrchestrationHandle = window.__XTendMaracaOrchestration;
-      const firstDispose = boot.dispose('kernel-integrity-lifecycle');
-      const secondDispose = boot.dispose('kernel-integrity-lifecycle-repeat');
+      const firstDispose = maraca.disposeXtendMaraca('kernel-integrity-lifecycle');
+      const secondDispose = maraca.disposeXtendMaraca('kernel-integrity-lifecycle-repeat');
       checks.lifecycleDisposed = firstDispose.kernel === true
         && firstDispose.orchestration === true
-        && firstKernelHandle.status === 'disposed'
-        && firstOrchestrationHandle.snapshot().phase === 'disposed';
+        && firstKernelHandle.snapshot().status === 'disposed'
+        && firstOrchestrationHandle.snapshot().status === 'not_booted';
       checks.lifecycleDebugHandlesCleared = window.__XTendMaracaKernel === null
         && window.__XTendMaracaOrchestration === null
         && window.__XTendMaracaHydration === null
         && window.__XTendMaracaTelemetry === null;
-      checks.lifecycleDoubleDispose = Object.values(secondDispose).every((value) => value === false);
+      checks.lifecycleDoubleDispose = ['orchestration', 'resume', 'hydration', 'kernel', 'appServices', 'renderer', 'host']
+        .every((key) => secondDispose[key] === false);
       const reboot = await maraca.bootXtendMaraca(bootOptions);
       const rebootAction = await window.__XTendMaracaOrchestration.dispatchCommand('demo.kernel.dismiss', {}, {
         eventId: 'integrity:reboot',
@@ -2336,12 +2301,20 @@ function writeKernelIntegritySmokeFixture(rootDir) {
       });
       checks.lifecycleReboot = reboot.ok === true
         && window.__XTendMaracaKernel !== firstKernelHandle
-        && window.__XTendMaracaOrchestration !== firstOrchestrationHandle
+        && window.__XTendMaracaOrchestration
+        && window.__XTendMaracaOrchestration.snapshot().phase === 'ready'
         && rebootAction && rebootAction.status === 'success';
       write({
         ok: Object.values(checks).every(Boolean),
         schema: 'xtend.maraca.kernel-integrity.browser-smoke.v1',
         checks,
+        debug: {
+          firstDispose,
+          secondDispose,
+          reboot: reboot && { ok: reboot.ok, status: reboot.status },
+          rebootAction: rebootAction && { schema: rebootAction.schema, status: rebootAction.status },
+          kernelFibers: (kernelSnapshot.fibers || []).map((entry) => ({ kind: entry.kind, fiber: entry.fiber }))
+        },
         playCalls,
         fullscreenEvents,
         kernel: kernelSnapshot,
@@ -2352,6 +2325,8 @@ function writeKernelIntegritySmokeFixture(rootDir) {
       write({
         ok: false,
         schema: 'xtend.maraca.kernel-integrity.browser-smoke.v1',
+        code: error && error.code || null,
+        diagnostic: error && error.diagnostic || null,
         error: error && error.stack ? error.stack : String(error)
       });
     }
@@ -2363,9 +2338,11 @@ function writeKernelIntegritySmokeFixture(rootDir) {
 }
 
 async function runKernelIntegrityBrowserSmoke(context, rootDir) {
-  const chromium = findChromiumExecutable();
-  if (!chromium) {
-    markKernelIntegrityBrowserSmokeUnavailable(context, 'kernel integrity browser smoke skipped because Chromium is not available');
+  const engine = detectAvailableEngine({
+    engine: process.env.XTEND_BROWSER_HYPERVISOR_ENGINE || 'chromium'
+  });
+  if (!engine) {
+    markKernelIntegrityBrowserSmokeUnavailable(context, 'kernel integrity browser smoke skipped because no Hypervisor provider is available');
     return null;
   }
   const fixturePath = writeKernelIntegritySmokeFixture(rootDir);
@@ -2378,43 +2355,24 @@ async function runKernelIntegrityBrowserSmoke(context, rootDir) {
       port: 0
     });
     const targetUrl = `${serverHandle.origin}/${relativeFixturePath}`;
-    const browser = spawnSync('timeout', [
-      `--kill-after=${MARACA_KERNEL_INTEGRITY_BROWSER_KILL_AFTER_SECONDS}s`,
-      `${MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS}s`,
-      chromium,
-      '--headless=new',
-      '--no-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-      '--autoplay-policy=no-user-gesture-required',
-      '--run-all-compositor-stages-before-draw',
-      `--virtual-time-budget=${MARACA_KERNEL_INTEGRITY_BROWSER_VIRTUAL_TIME_BUDGET_MS}`,
-      '--dump-dom',
-      targetUrl
-    ], {
-      encoding: 'utf8',
-      maxBuffer: 16 * 1024 * 1024
+    const resultKey = '__xtendMaracaKernelIntegrityResult';
+    const browser = await runFixture({
+      rootDir,
+      engine,
+      fixturePath,
+      url: targetUrl,
+      resultKey,
+      timeoutMs: MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_MS,
+      scripts: [{
+        script: `(() => { const key = ${JSON.stringify(resultKey)}; Object.defineProperty(window, key, { configurable: true, get() { const text = document.getElementById('result')?.textContent || ''; try { const payload = JSON.parse(text); if (payload.status === 'pending' || typeof payload.ok !== 'boolean') return { status: 'pending' }; return { status: payload.ok ? 'passed' : 'failed', payload }; } catch (_) { return { status: 'pending' }; } } }); })();`
+      }]
     });
-    if (browser.error) {
-      const reason = browser.error.message || String(browser.error);
-      context.fail(`kernel integrity Chromium smoke ${reason}`);
-      return null;
-    }
-    if (browser.status === 124 || browser.status === 137) {
-      markKernelIntegrityBrowserSmokeUnavailable(context, `kernel integrity Chromium smoke timed out after ${MARACA_KERNEL_INTEGRITY_BROWSER_TIMEOUT_SECONDS}s`);
-      return null;
-    }
-    if (browser.status !== 0) {
-      context.fail(`kernel integrity Chromium smoke exited ${browser.status}: ${(browser.stderr || '').trim()}`);
-      return null;
-    }
-    const match = /<pre id="result"[^>]*>([\s\S]*?)<\/pre>/u.exec(browser.stdout || '');
-    if (!match) {
+    const payload = browser.result && browser.result.payload;
+    if (!payload) {
       context.fail('kernel integrity browser smoke did not expose a result payload');
       return null;
     }
-    const payload = JSON.parse(htmlDecode(match[1]));
-    context.assert(payload.ok === true, `kernel integrity browser smoke passes${payload.ok ? '' : ` (${payload.error || JSON.stringify(payload.checks || {})})`}`);
+    context.assert(payload.ok === true, `kernel integrity browser smoke passes${payload.ok ? '' : ` (${payload.code ? `${payload.code}: ` : ''}${payload.diagnostic ? `${JSON.stringify(payload.diagnostic)} ` : ''}${payload.error || JSON.stringify({ checks: payload.checks || {}, debug: payload.debug || {} })})`}`);
     if (payload.checks) {
       Object.entries(payload.checks).forEach(([key, value]) => {
         context.assert(value === true, `kernel integrity browser check ${key} passes`);
@@ -2568,6 +2526,11 @@ async function runMaracaValidationSuite(options = {}) {
     && !planRuntimeSource.includes('runtimes.validationViewProjector.project(')
     && !planRuntimeSource.includes('runtimes.validation.apply(validationStage.evaluation'),
   'canonical plan runtime prepares validation once and folds it into the atomic Model and DOM commit path');
+  context.assert(planRuntimeSource.includes('if (modelOperations.length > 0')
+    && planRuntimeSource.includes('const prospectiveSnapshot = {')
+    && planRuntimeSource.includes('evaluateCommandValidation(commandId, metadata, prospectiveSnapshot)')
+    && planRuntimeSource.includes('states: asRecord(modelSnapshot).states'),
+  'canonical plan runtime refreshes validation against the prospective Model state before committing the View projection');
   const browserHostAdapterSource = readText('xtend-maraca/browser-host-adapter.mjs', rootDir);
   context.assert(compositionRuntimeSource.includes('host.installPublicFacades({') && browserHostAdapterSource.includes('windowTarget.__XTendMaracaValidation = freeze(clone(values.validation))'), 'composition delegates immutable validation snapshot publication to the host adapter');
   context.assert(compositionRuntimeSource.includes('validationPlan: config.validation'), 'safe facade exposes the immutable validation plan');

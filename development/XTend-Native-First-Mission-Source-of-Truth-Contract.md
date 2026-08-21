@@ -12,8 +12,8 @@
 - Boundary: `contracts-are-auditable-product-surface`
 - Zielzustand: `native-first-mission-baseline-accepted`
 - Folgepakete: `NFM-WP-02`, `NFM-WP-03`, `NFM-WP-04`, `NFM-WP-05`, `NFM-WP-06`, `NFM-WP-07`, `NFM-WP-08`, `NFM-WP-09`, `NFM-WP-10`, `NFM-WP-11`, `NFM-WP-12`, `NFM-WP-13`, `NFM-WP-14`, `NFM-WP-15`, `NFM-WP-16`, `NFM-WP-17`, `NFM-WP-18`, `NFM-WP-19`, `NFM-WP-20`, `NFM-WP-21`, `NFM-WP-22`
-- Browser Primitive Radar: `xtend.native-first.browser-primitive-radar.v1`
-- Adoption Gate: `xtend.native-first.primitive-adoption-gate.v1`
+- Browser Primitive Radar: `xtend.native-first.browser-primitive-radar.v2`
+- Adoption Gate: `xtend.native-first.primitive-adoption-gate.v2`
 - Dependency Diet Policy: `xtend.native-first.dependency-diet-policy.v1`
 - Vendor Replacement Contract: `xtend.native-first.vendor-legacy-replacement.v1`
 - UI Primitive Capability Contract: `xtend.native-first.ui-primitive-capability.v1`
@@ -101,7 +101,7 @@ Jede Primitive-, Dependency-, Component-, Contract- oder RMT-Erweiterung wird ge
 | `wrap-as-xtend-primitive` | Native Primitive ist wertvoll, braucht aber XTend-Grenzen. | owned Primitive mit Contract, Fallback und Gate |
 | `build-owned-primitive` | Es gibt kein passendes natives Primitive. | XTend-eigene Komponente oder Runtime-Faehigkeit |
 | `keep-existing-owned-path` | Bestehende XTend-Loesung ist besser als Umstieg. | bestehender Pfad bleibt, Review-Datum setzen |
-| `defer-with-watch` | Primitive ist relevant, aber noch nicht produktreif. | Primitive Radar und erneutes Review |
+| `defer-with-watch` | historisches Outcome; in aktiven September-Abschlusslaeufen blockiert | neue Observatory-Findings muessen terminal entschieden werden |
 | `allow-runtime-dependency-exception` | Runtime-Dependency ist begruendet unvermeidbar. | Owner-Signoff, Exit-Plan, Audit Evidence |
 | `reject-for-now` | Risiko, Kosten oder Kopplung ueberwiegen. | kein Produktpfad, Begruendung dokumentieren |
 

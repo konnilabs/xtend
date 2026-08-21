@@ -104,7 +104,7 @@ function runNativeFirstOverlayFocusSuite(options = {}) {
     'NFM-OF-10'
   ], 'Matrix primitive groups');
   assertIncludesAll(context, matrix, ['NFM-CAP-06', 'NFM-CAP-07', 'NFM-CAP-18'], 'Matrix capability handoff');
-  assertIncludesAll(context, matrix, ['defer-with-watch', 'wrap-as-xtend-primitive', 'hardened-owned'], 'Matrix decision statuses');
+  assertIncludesAll(context, matrix, ['reject-for-now', 'wrap-as-xtend-primitive', 'hardened-owned-terminal'], 'Matrix decision statuses');
 
   context.assertIncludes(workpackage, 'Status: `completed`', 'Workpackage is completed');
   context.assertIncludes(workpackage, CONTRACT_SCHEMA, 'Workpackage declares contract schema');
@@ -115,7 +115,7 @@ function runNativeFirstOverlayFocusSuite(options = {}) {
   context.assertIncludes(roadmap, 'development/XTend-Native-First-Overlay-Focus-Hardening-Contract.md', 'Roadmap references WP-07 contract');
   context.assertIncludes(roadmap, LOCAL_GATE, 'Roadmap target gates include WP-07 gate');
   context.assertIncludes(mission, 'Overlay Focus Hardening Contract: `xtend.native-first.overlay-focus-hardening.v1`', 'Mission references WP-07 contract');
-  context.assertIncludes(capabilityMatrix, '`NFM-CAP-06` | Overlay, Dialog, Popover, Drawer und Focus | `owned-native-backed` | `ready-with-radar-watch`', 'Capability matrix upgrades NFM-CAP-06');
+  context.assertIncludes(capabilityMatrix, '`NFM-CAP-06` | Overlay, Dialog, Popover, Drawer und Focus | `owned-native-backed` | `ready-with-terminal-radar-decision`', 'Capability matrix records terminal NFM-CAP-06 decisions');
   context.assertIncludes(capabilityMatrix, 'owned Overlay-/Focus-Pfad ist durch `NFM-WP-07` gehaertet', 'Capability matrix records WP-07 handoff');
   assertIncludesAll(context, radar, REQUIRED_RADAR_REFS, 'Radar includes WP-07 refs');
   context.assertIncludes(adoptionGate, '`NFM-WP-07`', 'Adoption gate hands off to WP-07');

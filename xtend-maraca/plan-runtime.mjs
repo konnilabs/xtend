@@ -909,6 +909,22 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       workingStates[reducer.state] = clone(next, next);
     });
 
+    if (modelOperations.length > 0
+      && validationStage && validationStage.split === true && validationStage.evaluation) {
+      const gateReport = validationStage.report;
+      const prospectiveSnapshot = {
+        ...clone(previousSnapshot, {}),
+        states: clone(workingStates, {})
+      };
+      const refreshedValidationStage = evaluateCommandValidation(commandId, metadata, prospectiveSnapshot);
+      if (refreshedValidationStage && refreshedValidationStage.evaluation) {
+        validationStage = {
+          ...refreshedValidationStage,
+          report: gateReport
+        };
+      }
+    }
+
     let validationOperationCount = 0;
     if (validationStage && validationStage.evaluation) {
       if (validationStage.split === true) {
@@ -1092,7 +1108,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     };
   }
 
-  function evaluateCommandValidation(commandId, metadata) {
+  function evaluateCommandValidation(commandId, metadata, suppliedModelSnapshot = null) {
     if (!runtimes.validationEvaluator && !runtimes.validation) return null;
     const validationMetadata = {
       ...metadata,
@@ -1107,12 +1123,15 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         ...gates.map((gate) => gate.group),
         ...asArray(validationPlan.statePatches).map((patch) => patch && patch.group)
       ].filter(Boolean))];
-      const modelSnapshot = runtimes.state.modelReader && typeof runtimes.state.modelReader.snapshot === 'function'
-        ? runtimes.state.modelReader.snapshot()
-        : runtimes.state.snapshot();
+      const modelSnapshot = suppliedModelSnapshot || (
+        runtimes.state.modelReader && typeof runtimes.state.modelReader.snapshot === 'function'
+          ? runtimes.state.modelReader.snapshot()
+          : runtimes.state.snapshot()
+      );
       const evaluation = runtimes.validationEvaluator.evaluate(immutableClone({
         ...validationMetadata,
-        snapshot: modelSnapshot
+        snapshot: modelSnapshot,
+        states: asRecord(modelSnapshot).states
       }, {}), groupIds.length ? groupIds : null);
       const projectionMetadata = {
         operation: 'maraca.validation.view-projection.prepare',
@@ -2245,6 +2264,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         diagnosticsHub: options.diagnosticsHub,
         diagnosticChannel: options.diagnosticChannel,
         surfaceController,
+        managerId: surfaceController && surfaceController.managerId
+          || options.surfaceControllerId
+          || 'xtend.maraca.surface-controller',
         strict
       }) : null;
       const injectedPresentationEffectPort = options.presentationEffectPort || options.presentationAdapter || null;

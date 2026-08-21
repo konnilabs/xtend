@@ -76,8 +76,8 @@ const REQUIRED_HANDOFFS = Object.freeze([
     nextEpicBoundary: 'native-primitive-radar-cadence',
     sourceWorkpackages: ['NFM-WP-01', 'NFM-WP-02', 'NFM-WP-03', 'NFM-WP-18', 'NFM-WP-19'],
     requiredGates: ['contract-registry', 'contract-runtime-parity', 'rmt-renderer-dom-descriptor-proofs', 'native-first-budget-gates', 'references'],
-    residuals: ['browser-lab-cadence'],
-    nextHandoff: ['native-primitive-review-cadence']
+    residuals: [],
+    nextHandoff: ['native-primitive-hygiene-review-2026-12-03']
   },
   {
     handoffId: 'NFM-HO-02',

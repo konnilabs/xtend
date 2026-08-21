@@ -43,35 +43,9 @@ function parseArgs(argv) {
       }
     } else if (arg === '--require-browser') {
       options.requireBrowserExecution = true;
-    } else if (arg === '--chromedriver') {
+    } else if (arg === '--engine' && next) {
       options.requireBrowserExecution = true;
-      options.browserDriver = 'chromedriver';
-    } else if (arg === '--firefox' || arg === '--geckodriver') {
-      options.requireBrowserExecution = true;
-      options.browserDriver = 'firefox';
-    } else if (arg === '--driver' && next) {
-      options.browserDriver = next;
-      index += 1;
-    } else if (arg === '--chromedriver-path' && next) {
-      options.chromeDriverPath = next;
-      index += 1;
-    } else if (arg === '--geckodriver-path' && next) {
-      options.geckoDriverPath = next;
-      index += 1;
-    } else if (arg === '--firefox-binary' && next) {
-      options.browserBinary = next;
-      index += 1;
-    } else if (arg === '--edgedriver-path' && next) {
-      options.edgeDriverPath = next;
-      index += 1;
-    } else if (arg === '--webdriver-url' && next) {
-      options.webDriverUrl = next;
-      index += 1;
-    } else if (arg === '--webdriver-port' && next) {
-      options.webDriverPort = Number(next);
-      index += 1;
-    } else if (arg === '--browser-name' && next) {
-      options.browserName = next;
+      options.engine = next;
       index += 1;
     } else if (arg === '--timeout-ms' && next) {
       options.timeoutMs = Number(next);
@@ -90,7 +64,7 @@ function writeFatalEvidenceReport(error, options, rootDir) {
     rootDir
   );
   const reason = error && error.message ? error.message : String(error);
-  const driver = options.browserDriver || process.env.RMT_VNEXT_SOURCE_TO_SEA_BROWSER_DRIVER || null;
+  const driver = options.engine || process.env.XTEND_BROWSER_HYPERVISOR_ENGINE || null;
   const checks = [
     createCheck('source-to-sea capture reached fatal error fallback', true, outputPath),
     createCheck('source-to-sea evidence capture completed', false, reason)
@@ -159,7 +133,7 @@ async function main() {
   if (options.validateArtifact) {
     const validation = validateRmtVNextSourceToSeaCiArtifactFile(
       options.validateArtifactPath || options.outputPath,
-      { rootDir, expectedBrowserDriver: options.browserDriver }
+      { rootDir, expectedBrowserDriver: options.engine }
     );
     const failedChecks = (validation.checks || [])
       .filter((check) => !check.ok)
@@ -185,14 +159,7 @@ async function main() {
     rootDir,
     outputPath: options.outputPath,
     requireBrowserExecution: options.requireBrowserExecution,
-    browserDriver: options.browserDriver,
-    chromeDriverPath: options.chromeDriverPath,
-    geckoDriverPath: options.geckoDriverPath,
-    edgeDriverPath: options.edgeDriverPath,
-    browserBinary: options.browserBinary,
-    webDriverUrl: options.webDriverUrl,
-    webDriverPort: options.webDriverPort,
-    browserName: options.browserName,
+    engine: options.engine,
     timeoutMs: options.timeoutMs
   });
 

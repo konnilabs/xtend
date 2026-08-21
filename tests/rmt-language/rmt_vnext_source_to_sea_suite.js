@@ -24,8 +24,6 @@ const {
   RMT_VNEXT_SOURCE_TO_SEA_BROWSER_FIXTURE_PATH,
   RMT_VNEXT_SOURCE_TO_SEA_CI_ARTIFACT_SCHEMA,
   RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_DRIVER,
-  RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_NAME,
-  RMT_VNEXT_SOURCE_TO_SEA_CI_WEBDRIVER_PORT,
   RMT_VNEXT_SOURCE_TO_SEA_CLEANUP_DIAGNOSTIC_CODES,
   RMT_VNEXT_SOURCE_TO_SEA_BROWSER_RESULT_VALIDATION_SCHEMA,
   RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_SCHEMA,
@@ -100,7 +98,8 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   } catch (_) {}
   const fatalReplay = spawnSync(process.execPath, [
     resolveRepoPath(SOURCE_TO_SEA_EVIDENCE_SCRIPT_PATH, rootDir),
-    '--chromedriver',
+    '--engine',
+    'chromium',
     '--simulate-fatal-before-report',
     '--output',
     fatalReplayPath
@@ -138,20 +137,15 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   const browserExecution = await runRmtVNextSourceToSeaBrowserExecution(evidence, {
     rootDir,
     browserFixturePath: RMT_VNEXT_SOURCE_TO_SEA_BROWSER_FIXTURE_PATH,
-    browserDriver: options.browserDriver,
+    engine: options.engine || options.browserDriver,
     requireBrowserExecution: options.requireBrowserExecution,
-    webDriverUrl: options.webDriverUrl,
-    browserName: options.browserName,
     timeoutMs: options.timeoutMs
   });
-  const missingChromeDriverExecution = await runRmtVNextSourceToSeaBrowserExecution(evidence, {
+  const unsupportedEngineExecution = await runRmtVNextSourceToSeaBrowserExecution(evidence, {
     rootDir,
     browserFixturePath: RMT_VNEXT_SOURCE_TO_SEA_BROWSER_FIXTURE_PATH,
-    browserDriver: RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_DRIVER,
+    engine: 'unsupported-engine',
     requireBrowserExecution: true,
-    chromeDriverPath: '/xtend/missing/chromedriver',
-    chromeDriverPathOnly: true,
-    browserName: RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_NAME,
     timeoutMs: 10
   });
   const evidenceReport = await createRmtVNextSourceToSeaEvidenceReport({
@@ -267,9 +261,9 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   context.assert(browserExecution.schema === RMT_VNEXT_BROWSER_EXECUTION_EVIDENCE_SCHEMA, 'browser execution evidence declares schema');
   context.assert(browserExecution.ok === true, `browser execution evidence is gate-compatible${browserExecution.ok ? '' : ` (${browserExecution.reason || browserExecution.checks.filter((check) => !check.ok).map((check) => check.name).join(', ')})`}`);
   context.assert(browserExecution.resultKey === RMT_VNEXT_SOURCE_TO_SEA_RESULT_KEY, 'browser execution targets the source-to-sea result key');
-  context.assert(missingChromeDriverExecution.schema === RMT_VNEXT_BROWSER_EXECUTION_EVIDENCE_SCHEMA, 'chromedriver execution path declares browser execution schema');
-  context.assert(missingChromeDriverExecution.driver === RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_DRIVER, 'chromedriver execution path records CI driver');
-  context.assert(missingChromeDriverExecution.required === true && missingChromeDriverExecution.status === 'failed', 'chromedriver execution path fails closed when required driver is missing');
+  context.assert(unsupportedEngineExecution.schema === RMT_VNEXT_BROWSER_EXECUTION_EVIDENCE_SCHEMA, 'unsupported engine path declares browser execution schema');
+  context.assert(unsupportedEngineExecution.driver === 'unsupported-engine', 'unsupported engine path records the requested provider');
+  context.assert(unsupportedEngineExecution.required === true && unsupportedEngineExecution.status === 'failed', 'unsupported engine path fails closed');
   context.assert(evidenceReport.schema === RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_SCHEMA, 'source-to-sea evidence report declares artifact schema');
   context.assert(evidenceReport.ok === true, `source-to-sea evidence report passes${evidenceReport.ok ? '' : ` (${evidenceReport.checks.filter((check) => !check.ok).map((check) => check.name).join(', ')})`}`);
   context.assert(evidenceReport.artifact.path === RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_PATH, 'source-to-sea evidence report uses stable artifact path');
@@ -578,23 +572,22 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   context.assert(runner.includes("id: 'rmt-vnext-source-to-sea'"), 'test runner exposes PRIM-06 source-to-sea suite');
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:evidence'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js', 'package exposes source-to-sea evidence artifact script');
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:browser-required'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --require-browser', 'package exposes source-to-sea browser-required evidence script');
-  context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:chromedriver'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --chromedriver', 'package exposes source-to-sea chromedriver evidence script');
-  context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:firefox'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --firefox', 'package exposes source-to-sea Firefox evidence script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:chromium'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --engine chromium', 'package exposes source-to-sea Chromium Hypervisor script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:firefox'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --engine firefox', 'package exposes source-to-sea Firefox Hypervisor script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:webkit'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --engine webkit', 'package exposes source-to-sea WebKit Hypervisor script');
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:validate-artifact'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --validate-artifact', 'package exposes source-to-sea CI artifact replay script');
-  context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:validate-artifact:firefox'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --validate-artifact --driver firefox', 'package exposes source-to-sea Firefox artifact replay script');
+  context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:validate-artifact:firefox'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --validate-artifact --engine firefox', 'package exposes source-to-sea Firefox artifact replay script');
   context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaCiBrowserDriver === RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_DRIVER, 'package metadata records source-to-sea CI browser driver');
-  context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaCiBrowserName === RMT_VNEXT_SOURCE_TO_SEA_CI_BROWSER_NAME, 'package metadata records source-to-sea CI browser name');
-  context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaCiWebDriverPort === RMT_VNEXT_SOURCE_TO_SEA_CI_WEBDRIVER_PORT, 'package metadata records source-to-sea CI WebDriver port');
   context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaCiMode === 'workflow_dispatch_optional', 'package metadata marks source-to-sea CI evidence optional');
   context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaCiWorkflowDispatchInput === 'run_source_to_sea', 'package metadata records source-to-sea workflow dispatch input');
   context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaRequiredInDefaultCi === false, 'package metadata excludes source-to-sea from default CI');
   context.assert(!packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.suites.includes('rmt-vnext-source-to-sea'), 'package metadata excludes source-to-sea from primitive default suites');
   context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.optionalSuites.includes('rmt-vnext-source-to-sea'), 'package metadata keeps source-to-sea as optional primitive suite');
-  context.assert(Array.isArray(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaLocalBrowserDrivers) && packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaLocalBrowserDrivers.includes('firefox'), 'package metadata records local Firefox browser driver');
-  context.assert(Array.isArray(RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS) && RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS.includes('firefox') && RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS.includes('webdriver'), 'source-to-sea module exposes broader browser driver support');
+  context.assert(Array.isArray(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaHypervisorEngines) && packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaHypervisorEngines.includes('firefox') && packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.sourceToSeaHypervisorEngines.includes('webkit'), 'package metadata records platform-neutral Hypervisor engines');
+  context.assert(Array.isArray(RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS) && RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS.includes('firefox') && RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS.includes('webkit'), 'source-to-sea module exposes engine-neutral adapter support');
   context.assert(workflow.includes('run_source_to_sea:'), 'CI workflow exposes optional source-to-sea dispatch input');
   context.assert(workflow.includes("github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true"), 'CI workflow gates source-to-sea execution behind manual dispatch input');
-  context.assert(workflow.includes('npm run test:rmt-vnext-source-to-sea:chromedriver'), 'CI workflow exposes optional source-to-sea chromedriver execution');
+  context.assert(workflow.includes('npm run test:rmt-vnext-source-to-sea:chromium'), 'CI workflow exposes optional source-to-sea Hypervisor execution');
   context.assert(workflow.includes('- name: Capture RMT vNext source-to-sea browser evidence'), 'CI workflow keeps optional source-to-sea capture step');
   context.assert(workflow.includes('xtend-rmt-vnext-source-to-sea-capture.exitcode'), 'CI workflow records source-to-sea capture exit status');
   context.assert(workflow.includes('rm -f .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json'), 'CI workflow removes stale source-to-sea artifacts before capture');
@@ -602,13 +595,12 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   context.assert(workflow.includes('[ "$capture_status" != "0" ]'), 'CI workflow rewrites failed fallback source-to-sea artifact when capture fails');
   context.assert(workflow.includes('Ensure RMT vNext source-to-sea evidence artifact'), 'CI workflow creates a failed fallback source-to-sea artifact when capture exits early');
   context.assert(workflow.includes('Validate RMT vNext source-to-sea evidence'), 'CI workflow validates source-to-sea evidence after upload');
-  context.assert(workflow.includes('RMT_VNEXT_SOURCE_TO_SEA_BROWSER_NAME: chrome'), 'CI workflow pins source-to-sea browser name');
-  context.assert(workflow.includes('RMT_VNEXT_SOURCE_TO_SEA_WEBDRIVER_PORT: "9515"'), 'CI workflow pins source-to-sea WebDriver port');
+  context.assert(workflow.includes('XTEND_BROWSER_HYPERVISOR_ENGINE: chromium'), 'CI workflow selects only the source-to-sea Hypervisor engine');
   context.assert(workflow.includes(RMT_VNEXT_SOURCE_TO_SEA_EVIDENCE_REPORT_PATH), 'CI workflow uploads source-to-sea evidence artifact');
-  context.assert(sourceToSeaModule.includes('/shutdown'), 'source-to-sea chromedriver cleanup uses WebDriver shutdown endpoint');
-  context.assert(sourceToSeaModule.includes('webdriver-shutdown'), 'source-to-sea chromedriver cleanup records shutdown method');
-  context.assert(sourceToSeaModule.includes('geckodriver'), 'source-to-sea module supports Firefox geckodriver execution');
-  context.assert(sourceToSeaModule.includes('moz:firefoxOptions'), 'source-to-sea module declares Firefox WebDriver capabilities');
+  context.assert(sourceToSeaModule.includes("require('../browser-hypervisor')"), 'source-to-sea execution delegates browser lifecycle to the shared Hypervisor');
+  context.assert(sourceToSeaModule.includes('runFixture({'), 'source-to-sea execution uses the shared fixture contract');
+  context.assert(!sourceToSeaModule.includes('DriverPath') && !sourceToSeaModule.includes('WebDriverPort') && !sourceToSeaModule.includes('BrowserName'), 'source-to-sea consumer owns no driver, executable, port or browser-name special case');
+  context.assert(sourceToSeaModule.includes('normalizeEngine'), 'source-to-sea supports engine-neutral adapter selection');
 
   const sourceToSeaDoc = readDocs(SOURCE_TO_SEA_DOC_PATHS, rootDir);
   const backlog = sourceToSeaDoc;

@@ -371,9 +371,18 @@ class ChromiumPage {
       const request = params.request || {};
       if (!String(request.url || '').includes('/api/xtend/services/')) return;
       const pathname = new URL(request.url).pathname;
+      let envelope = null;
+      try { envelope = JSON.parse(String(request.postData || '')); } catch (_) {}
+      const input = envelope && envelope.input;
+      const text = input && input.text;
       this.serviceRequests.push(Object.freeze({
         serviceId: decodeURIComponent(pathname.slice(pathname.lastIndexOf('/') + 1)),
-        method: String(request.method || '')
+        method: String(request.method || ''),
+        envelopeSchema: envelope && typeof envelope.schema === 'string' ? envelope.schema : null,
+        kind: envelope && typeof envelope.kind === 'string' ? envelope.kind : null,
+        inputType: input === null ? 'null' : Array.isArray(input) ? 'array' : typeof input,
+        textType: typeof text,
+        textLength: typeof text === 'string' ? text.length : null
       }));
     }, this.sessionId));
     this.removeNetworkListeners.push(this.connection.on('Network.responseReceived', (params) => {
@@ -1225,6 +1234,18 @@ test('Maraca App Services Test Bench strict catfood evidence', { timeout: TEST_T
     assert.equal(policyMismatchEvidence.restored, true, 'generated browser policy must remain immutable');
     assert.equal(page.serviceRequests.length, serviceRequestCountBeforeMismatch, 'policy encapsulation probe must not reach HTTP transport');
 
+    async function waitForEditorDraft(expectedText, label) {
+      await page.waitForFunction((expected) => {
+        const orchestration = globalThis.__XTendMaracaOrchestration;
+        const model = orchestration && orchestration.model;
+        const state = model && typeof model.getState === 'function'
+          ? model.getState('maraca.testbench.editor')
+          : null;
+        const element = document.getElementById('testbench-textarea');
+        return Boolean(state && state.value === expected && element && element.value === expected);
+      }, [expectedText], label, 20_000);
+    }
+
     stage = 'shift-enter';
     const firstLine = `catfood-${runToken}-first`;
     const secondLine = 'second-line';
@@ -1237,12 +1258,14 @@ test('Maraca App Services Test Bench strict catfood evidence', { timeout: TEST_T
       control.setSelectionRange(control.value.length, control.value.length);
       return true;
     }, [firstLine]);
+    await waitForEditorDraft(firstLine, 'RMT first-line draft commit');
     const submitCountBeforeShift = await page.evaluateFunction(() => globalThis[Symbol.for('xtend.catfood.textarea-probe')].counts.submit);
     await page.dispatchEnter(true);
     await page.waitForFunction((prefix) => document.getElementById('testbench-textarea').value === `${prefix}\n`, [firstLine], 'Shift+Enter newline');
     await page.send('Input.insertText', { text: secondLine });
     const multilineText = `${firstLine}\n${secondLine}`;
     await page.waitForFunction((expected) => document.getElementById('testbench-textarea').value === expected, [multilineText], 'multiline input completion');
+    await waitForEditorDraft(multilineText, 'RMT multiline draft commit');
     const shiftEvidence = await page.evaluateFunction((before) => {
       const probe = globalThis[Symbol.for('xtend.catfood.textarea-probe')];
       const element = document.getElementById('testbench-textarea');
@@ -1277,10 +1300,34 @@ test('Maraca App Services Test Bench strict catfood evidence', { timeout: TEST_T
         };
       });
       await page.dispatchEnter(false);
-      await waitUntil(async () => {
+      try {
+        await waitUntil(async () => {
+          await page.flushNetworkCapture();
+          return page.serviceResponses.filter((entry) => entry.serviceId === SAVE_SERVICE_ID && entry.ok).length > responseCount;
+        }, `UI AppService save ${ordinal}`, { timeoutMs: 20_000, intervalMs: 50 });
+      } catch (error) {
         await page.flushNetworkCapture();
-        return page.serviceResponses.filter((entry) => entry.serviceId === SAVE_SERVICE_ID && entry.ok).length > responseCount;
-      }, `UI AppService save ${ordinal}`, { timeoutMs: 20_000, intervalMs: 50 });
+        const probe = await page.evaluateFunction(() => {
+          const telemetry = globalThis[Symbol.for('xtend.catfood.textarea-probe')];
+          const element = document.getElementById('testbench-textarea');
+          const control = element && element.shadowRoot && element.shadowRoot.querySelector('textarea');
+          return {
+            submitCount: telemetry && telemetry.counts ? telemetry.counts.submit : null,
+            submitCommandCount: telemetry && Array.isArray(telemetry.commands)
+              ? telemetry.commands.filter((entry) => entry.sourceEvent === 'textarea-submit').length
+              : null,
+            hasValue: Boolean(element && element.value),
+            controlFocused: Boolean(control && control === document.activeElement),
+            shadowControlFocused: Boolean(element && element.shadowRoot && element.shadowRoot.activeElement === control),
+            historyCount: document.querySelectorAll('[data-entry-id]').length
+          };
+        });
+        const saveRequests = page.serviceRequests.filter((entry) => entry.serviceId === SAVE_SERVICE_ID);
+        const saveResponses = page.serviceResponses.filter((entry) => entry.serviceId === SAVE_SERVICE_ID);
+        const requestSummary = saveRequests.map((entry) => `${entry.envelopeSchema || 'no-schema'}:${entry.kind || 'no-kind'}:${entry.inputType}:${entry.textType}:${entry.textLength}`).join(',');
+        const responseSummary = saveResponses.map((entry) => `${entry.status}:${entry.ok ? 'ok' : entry.errorCode || 'failed'}`).join(',');
+        throw new Error(`${error.message} Diagnostics: requests=${requestSummary || 'none'}; responses=${responseSummary || 'none'}; captureFailures=${page.networkCaptureFailures}; submitCount=${probe.submitCount}; submitCommands=${probe.submitCommandCount}; hasValue=${probe.hasValue}; focused=${probe.controlFocused || probe.shadowControlFocused}; historyCount=${probe.historyCount}.`);
+      }
       await page.waitForFunction((expected) => {
         const element = document.getElementById('testbench-textarea');
         const first = document.querySelector('[data-entry-id] .xtm-plain-text');
@@ -1319,6 +1366,7 @@ test('Maraca App Services Test Bench strict catfood evidence', { timeout: TEST_T
         control.setSelectionRange(control.value.length, control.value.length);
         return true;
       }, [text]);
+      await waitForEditorDraft(text, `RMT draft commit ${index + 1}`);
       await submitCurrentTextarea(text, index + 1);
     }
     await page.flushNetworkCapture();
