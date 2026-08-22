@@ -3,7 +3,7 @@
 Scope:
 
 - manifest and loader contracts
-- `xstate`, `xtheme`, API, router and overlay contracts
+- `state`, `xtheme`, API, router and overlay contracts
 - static syntax checks for core modules
 - Node-based regression checks that do not require a browser
 

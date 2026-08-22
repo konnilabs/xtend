@@ -175,7 +175,7 @@ function createSurfaceManagerNativeRmtSurfacesPlan(options = {}) {
       componentBinding: 'surfaces[*].component',
       managerBinding: 'surfaces[*].manager',
       scheduleBinding: 'surfaces[*].schedule',
-      statePolicy: 'digital-twin-ssot-xstate',
+      statePolicy: 'digital-twin-ssot-classic-state',
       qualityRegressionBase: 'WP-SM-07'
     },
     adapterContract: {

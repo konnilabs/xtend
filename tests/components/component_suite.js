@@ -117,8 +117,8 @@ const {
   runXRmtLifecycleDemoBuildComponentSuite
 } = require('./x-rmt-lifecycle-demo-build.component_suite');
 const {
-  runXStateComponentSuite
-} = require('./xstate.component_suite');
+  runXTendStateComponentSuite
+} = require('./xtend-state.component_suite');
 const {
   runXtendI18nComponentSuite
 } = require('./xtend-i18n.component_suite');
@@ -177,7 +177,7 @@ const componentSuites = [
   runXCodeComponentSuite,
   runXMasonryComponentSuite,
   runXRmtLifecycleDemoBuildComponentSuite,
-  runXStateComponentSuite,
+  runXTendStateComponentSuite,
   runXtendI18nComponentSuite,
   runXUtilsComponentSuite,
   runXKeymapComponentSuite,

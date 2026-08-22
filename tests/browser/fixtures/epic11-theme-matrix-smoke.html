@@ -5,7 +5,7 @@
     <title>XTend Epic 11 Component Shell Theme Matrix Smoke</title>
     <meta
       name="xtend-preload"
-      content="xstate,x-theme,x-router,x-link,x-tabs,x-input,x-select,x-checkbox,x-toggle,x-form,x-alert,x-toast,x-status,x-progress,x-modal,x-drawer,x-section,x-cards,x-code,x-player"
+      content="xtend-state,x-theme,x-router,x-link,x-tabs,x-input,x-select,x-checkbox,x-toggle,x-form,x-alert,x-toast,x-status,x-progress,x-modal,x-drawer,x-section,x-cards,x-code,x-player"
     >
     <style>
       :root {
@@ -231,7 +231,7 @@
           ]);
           await waitFor(() => document.body.style.visibility !== 'hidden' || getComputedStyle(document.body).visibility !== 'hidden');
 
-          recordCheck('theme matrix fixture hydrated local loader', Boolean(window.XTend && window.xstate));
+          recordCheck('theme matrix fixture hydrated local loader', Boolean(window.XTend && window.XTend.state));
 
           const themeApi = window.XTend && window.XTend.theme;
           if (themeApi && typeof themeApi.setTheme === 'function') {

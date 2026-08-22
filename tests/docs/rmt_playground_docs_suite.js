@@ -123,7 +123,7 @@ function runRmtPlaygroundDocsSuite(options = {}) {
   [
     '/components/xsurfacemanager-controller.js',
     '/xtendrmt/rmt-app-runtime.js',
-    '/xtendrmt/rmt-xstate-host-adapter.js',
+    '/xtendrmt/rmt-state-host-adapter.js',
     '/xtendrmt/rmt-presentation-effect-adapter.js'
   ].forEach((modulePath) => {
     context.assert(pageLoader.includes(`'${modulePath}'`), `Playground Maraca module whitelist includes ${modulePath}`);

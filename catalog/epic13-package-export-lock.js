@@ -48,6 +48,7 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './loader',
   './legacy-loader',
   './api',
+  './classic-state',
   './style.css',
   './manifest',
   './components/manifest.json',
@@ -183,7 +184,7 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './rmt/safe-preview',
   './rmt/component-capability-registry',
   './rmt/state-selector-runtime',
-  './rmt/xstate-host-adapter',
+  './rmt/state-host-adapter',
   './rmt/state-binding-view-projector',
   './rmt/action-effect-runtime',
   './rmt/event-routing-runtime',
@@ -298,7 +299,7 @@ const SURFACE_GROUPS = Object.freeze([
   },
   {
     id: 'xtendrmt',
-    requiredExports: ['./rmt', './rmt/browser', './rmt/browser-scheduler', './rmt/dom-descriptor-renderer', './rmt/safe-preview', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/xstate-host-adapter', './rmt/state-binding-view-projector', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/maraca-view-projection-adapter', './rmt/presentation-effect-adapter', './rmt/form-validation-runtime', './rmt/animation-engine-runtime', './rmt/surface-transition-runtime', './rmt/surface-resource-graph-runtime', './rmt/kernel-orchestration-controller', './rmt/native-shell-runtime', './rmt/node-ssr-adapter', './rmt/resume-runtime'],
+    requiredExports: ['./rmt', './rmt/browser', './rmt/browser-scheduler', './rmt/dom-descriptor-renderer', './rmt/safe-preview', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/state-host-adapter', './rmt/state-binding-view-projector', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/maraca-view-projection-adapter', './rmt/presentation-effect-adapter', './rmt/form-validation-runtime', './rmt/animation-engine-runtime', './rmt/surface-transition-runtime', './rmt/surface-resource-graph-runtime', './rmt/kernel-orchestration-controller', './rmt/native-shell-runtime', './rmt/node-ssr-adapter', './rmt/resume-runtime'],
     requiredPackRoots: ['xtendrmt']
   },
   {

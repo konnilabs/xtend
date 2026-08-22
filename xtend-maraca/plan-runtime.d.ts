@@ -1,8 +1,8 @@
 import type {
   RmtStateProjectionPort,
   RmtStateProjectionPortFactory,
-  RmtXStateHostTarget
-} from '../xtendrmt/rmt-xstate-host-adapter.js';
+  RmtStateHostTarget
+} from '../xtendrmt/rmt-state-host-adapter.js';
 import type { RmtDomDescriptorRenderer } from '../xtendrmt/rmt-dom-descriptor-renderer.js';
 import type { RmtKernelOrchestrationController } from '../xtendrmt/rmt-kernel-orchestration-controller.js';
 import type {
@@ -266,8 +266,8 @@ export interface MaracaPlanRuntimeOptions {
   xUtils?: unknown;
   stateProjectionPort?: RmtStateProjectionPort;
   createStateProjectionPort?: RmtStateProjectionPortFactory;
-  /** Host target passed to the injected XState projection adapter. */
-  xstate?: RmtXStateHostTarget;
+  /** Host target passed to the injected State Projection adapter. */
+  stateProjectionTarget?: RmtStateHostTarget;
   transitionStatePort?: {
     readonly schema?: string;
     apply?(projection: Readonly<Record<string, unknown>>): unknown;

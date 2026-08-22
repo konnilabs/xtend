@@ -177,7 +177,7 @@ function runXtendLoaderSkeletonProfilesSuite(options = {}) {
   );
   const generatedRouter = generatedRouterRecord ? readText(generatedRouterRecord.path, rootDir) : '';
   context.assert(loader.includes("SKELETON_PROFILE_CONTRACT = 'xtend.loader.skeleton-profile.v1'"), 'loader declares skeleton profile schema');
-  context.assert(loader.includes("BOOTSTRAP_MODULE_KEYS = ['xstate', 'xtend-i18n', 'x-utils']"), 'loader classifies x-utils as a non-element bootstrap module');
+  context.assert(loader.includes("BOOTSTRAP_MODULE_KEYS = ['xtend-state', 'xtend-i18n', 'x-utils']"), 'loader classifies State, i18n and x-utils as non-element bootstrap modules');
   context.assert(/name="xtend-preload"\s+content="[^"]*\bx-utils\b/u.test(docsHost), 'Docs preload the lifecycle utility before page modules bind listeners');
   context.assert(pageLoader.includes('await requireDocsLifecycleBinding();'), 'Page loader waits for the loader-owned XUtils lifecycle boundary before registration');
   context.assert(loader.includes('registerSkeletonProfile') && loader.includes('getSkeletonProfile') && loader.includes('listSkeletonProfiles'), 'loader exposes profile registry');

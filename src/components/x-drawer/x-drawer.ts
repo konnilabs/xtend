@@ -1,4 +1,4 @@
-import { xstate } from '../../../components/xstate.js';
+import { xtendState } from '../../../components/xtend-state.js';
 
 export type XDrawerEventName = 'drawer-opened' | 'drawer-closed' | 'drawer-route-selected';
 export type XDrawerPlacement = 'left' | 'right' | 'bottom';
@@ -39,7 +39,7 @@ export class XDrawer extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.id) this.id = `xdrawer-${Math.random().toString(36).slice(2, 10)}`;
-    xstate.set(`xdrawer-open-${this.id}`, this.open);
+    xtendState.set(`xdrawer-open-${this.id}`, this.open);
   }
 
   get open(): boolean {

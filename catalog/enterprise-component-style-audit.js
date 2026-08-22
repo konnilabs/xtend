@@ -125,10 +125,10 @@ function resolveTagForFile(relativePath, pathTagMap) {
   const normalized = normalizePath(relativePath);
   if (pathTagMap.has(normalized)) return pathTagMap.get(normalized);
   const basename = path.basename(normalized, path.extname(normalized));
-  if (basename.startsWith('x') && basename !== 'xstate') {
+  if (basename.startsWith('x') && basename !== 'xtend-state') {
     return `x-${basename.slice(1).replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}`;
   }
-  if (basename === 'xstate') return 'xstate';
+  if (basename === 'xtend-state') return 'xtend-state';
   return null;
 }
 

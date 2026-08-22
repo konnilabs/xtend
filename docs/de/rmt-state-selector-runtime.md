@@ -15,7 +15,7 @@ Die State Selector Runtime hält kanonischen RMT State und abgeleitete View-Mode
 
 ```txt
 runtime contract: xtend.epic18.rmt-state-selector-runtime.v2
-xstateBridge: injected-host-adapter
+stateProjectionPort: injected-host-adapter
 preservePatchPlan: selection updates keep the existing DOM patch plan
 next workpackage: WP-E18-08
 ```

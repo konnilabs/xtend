@@ -13,16 +13,19 @@
   },
   "docs": {
     "schema": "xtend.mcp.docs-resource.v1",
-    "count": 342,
+    "count": 344,
     "counts": {
-      "de": 171,
-      "en": 171
+      "de": 172,
+      "en": 172
     },
     "menuEntries": 171,
-    "menuSha256": "90b6c3ce7f3851fc2f2effb13753eee25651b191ba8cc644bc732a565a1b16f0",
+    "menuSha256": "5f91fb30cdab82dcc962fcc0eb293df51e14b78ddbb180323cc7507cc4c92b7d",
     "artifact": "docs.jsonl",
-    "artifactSha256": "fbae3f325ea7843262d5bf28c56513fce3275c19971d11800ff395d3a012aca9",
-    "missingMenuDocs": []
+    "artifactSha256": "22ccd62d4d601e1c1dd6552faed460d492ffafdff0d69f2b6e41bcac7807e80b",
+    "missingMenuDocs": [
+      "docs/de/migration-0.7-state.md",
+      "docs/en/migration-0.7-state.md"
+    ]
   },
   "rmtKit": {
     "version": "0.1.0",

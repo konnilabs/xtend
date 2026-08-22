@@ -17,7 +17,7 @@
       "surfaceRecord": "xtend.surface.record.v1",
       "surfaceController": "xtend.surface.controller.v2",
       "surfaceSnapshot": "xtend.surface.snapshot.v1",
-      "kernelBoundary": "RMT owns surface intent, component refs, routes, schedules and metadata only. XTend surface execution, xstate access, Fabric execution and DOM materialization stay in host adapters."
+      "kernelBoundary": "RMT owns surface intent, component refs, routes, schedules and metadata only. XTend surface execution, state access, Fabric execution and DOM materialization stay in host adapters."
     },
     "sourceSyntax": "rmt-vnext",
     "authoringSource": "tests/fixtures/rmt-surface-native-domain.rmt"

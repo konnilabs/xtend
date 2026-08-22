@@ -345,7 +345,6 @@
     const managerId = clampString(options.managerId, 'xtend.surface.manager');
     const stateKey = clampString(options.stateKey, STATE_KEYS.registry);
     const stateProjection = options.stateProjection || null;
-    const legacyStateProjectionRequested = Object.prototype.hasOwnProperty.call(options, 'xstate');
     const fabric = options.fabric || null;
     const nowProvider = options.clock && typeof options.clock.now === 'function'
       ? () => options.clock.now()
@@ -1080,15 +1079,6 @@
     diagnostic('xtend.surface.controller.created', null, 'create', 'info', 'Surface controller created.', {
       stateKey
     });
-    if (legacyStateProjectionRequested && !stateProjection) {
-      diagnostic(
-        'xtend.surface.state-projection.batch-required',
-        null,
-        'state-projection',
-        'warning',
-        'Legacy xstate projection is disabled; inject the batch-only stateProjection port.'
-      );
-    }
     mirror();
 
     return {

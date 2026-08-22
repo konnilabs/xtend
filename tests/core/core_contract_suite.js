@@ -34,7 +34,7 @@ function runCoreContractSuite(options = {}) {
   const manifest = readJson('components/manifest.json', rootDir);
   const menu = readJson('docs/menu.json', rootDir);
 
-  ['xstate', 'x-theme', 'x-router', 'x-link', 'x-dialog', 'x-modal', 'x-alert', 'x-toast'].forEach((key) => {
+  ['xtend-state', 'x-theme', 'x-router', 'x-link', 'x-dialog', 'x-modal', 'x-alert', 'x-toast'].forEach((key) => {
     assert(typeof manifest[key] === 'string' && manifest[key].length > 0, `Manifest-Eintrag vorhanden: ${key}`);
   });
   Object.entries(manifest).forEach(([key, value]) => {
@@ -47,10 +47,10 @@ function runCoreContractSuite(options = {}) {
   assert(menuSlugs.has('api'), 'Docs-Menue enthaelt die API-Referenz');
 
   assertFileIncludes('api.js', 'ensureComplianceAPI()', 'API initialisiert den Compliance-Contract');
-  assertFileIncludes('api.js', "import { xstate } from './components/xstate.js';", 'API importiert xstate lokal');
+  assertFileIncludes('api.js', "import { xtendState } from './components/xtend-state.js';", 'API importiert state lokal');
   assert(!readText('api.js', rootDir).includes('https://cdn.ccs-networks.de/xtend'), 'API enthaelt keinen XTend-CDN-Fallback');
   assertFileIncludes('api.js', 'namespace.compliance = {', 'XTend Namespace stellt Compliance-API bereit');
-  assertFileIncludes('api.js', 'xtend.compliance.checklist', 'Compliance-Checklist wird in xstate gespiegelt');
+  assertFileIncludes('api.js', 'xtend.compliance.checklist', 'Compliance-Checklist wird in state gespiegelt');
 
   assertFileIncludes('components/xtheme.js', 'getDesignTokens(themeName = this.currentTheme)', 'Theme-API bietet Design-Token-Zugriff');
   assertFileIncludes('components/xtheme.js', '--xtend-color-primary', 'Theme-Core definiert zentrale XTend-Design-Tokens');
@@ -69,7 +69,7 @@ function runCoreContractSuite(options = {}) {
   assertFileIncludes('components/xalert.js', 'xtend.component.x-alert.', 'XAlert spiegelt seinen Zustand in den kanonischen State');
   assertFileIncludes('components/xalert.js', 'alert-dismissed', 'XAlert emittiert alert-dismissed');
 
-  assertFileIncludes('components/xrouter.js', 'router-navigate', 'XRouter verarbeitet xstate-basierte Navigation');
+  assertFileIncludes('components/xrouter.js', 'router-navigate', 'XRouter verarbeitet state-basierte Navigation');
   assertFileIncludes('components/xrouter.d.ts', 'RenderRouteResult', 'XRouter TypeScript-Definitionen sind vorhanden');
 
   assertFileIncludes('docs/de/api.md', 'window.XTend', 'Deutsche API-Doku beschreibt den XTend Host-Namespace');

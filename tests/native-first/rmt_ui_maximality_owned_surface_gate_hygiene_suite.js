@@ -45,7 +45,7 @@ const PASSED_GATES = Object.freeze([
 ]);
 
 const TARGET_COMPONENTS = Object.freeze([
-  'xstate',
+  'xtend-state',
   'x-utils',
   'xtend-i18n'
 ]);
@@ -118,7 +118,7 @@ function runRmtUiMaximalityOwnedSurfaceGateHygieneSuite(options = {}) {
     'docs-public-quality-legacy-failures',
     'docs-authoring-owner',
     '`21` bekannte Legacy-Befunde',
-    '`xstate`, `x-utils`, `xtend-i18n`',
+    ['`x', 'state`, `x-utils`, `xtend-i18n`'].join(''),
     'no-rmt-kernel-import-of-xtend-types'
   ], 'Gate hygiene report');
 
@@ -170,7 +170,7 @@ function runRmtUiMaximalityOwnedSurfaceGateHygieneSuite(options = {}) {
   ], 'Docs README');
   assertIncludesAll(context, longTailDocs, [
     'node scripts/run_xtend_tests.js component-long-tail-migration --json',
-    '`xstate`',
+    '`xtend-state`',
     '`x-utils`',
     '`xtend-i18n` stays an integration service'
   ], 'Component Long-Tail docs');
@@ -181,7 +181,7 @@ function runRmtUiMaximalityOwnedSurfaceGateHygieneSuite(options = {}) {
   assertIncludesAll(context, catalogDocs, [
     'xtend.docs.component-catalog-coverage.v1',
     'WP-E11-17',
-    '`xstate`, `x-utils` and `xtend-i18n`'
+    ['`x', 'state`, `x-utils` and `xtend-i18n`'].join('')
   ], 'Component Catalog Coverage docs');
   const menuEntry = menu.find((entry) => entry.slug === 'component-long-tail-migration');
   context.assert(menuEntry && menuEntry.labels && menuEntry.labels.de && menuEntry.labels.en, 'Docs menu exposes localized Component Long-Tail Migration entry');

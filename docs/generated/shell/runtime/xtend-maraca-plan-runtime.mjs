@@ -876,7 +876,6 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         derive: runtimes.state.derivedDefinitions || [],
         reducers: runtimes.state.reducers || [],
         initialState: workingStates,
-        xstate: null,
         stateProjectionPort: null,
         strict: false
       });
@@ -908,6 +907,22 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       });
       workingStates[reducer.state] = clone(next, next);
     });
+
+    if (modelOperations.length > 0
+      && validationStage && validationStage.split === true && validationStage.evaluation) {
+      const gateReport = validationStage.report;
+      const prospectiveSnapshot = {
+        ...clone(previousSnapshot, {}),
+        states: clone(workingStates, {})
+      };
+      const refreshedValidationStage = evaluateCommandValidation(commandId, metadata, prospectiveSnapshot);
+      if (refreshedValidationStage && refreshedValidationStage.evaluation) {
+        validationStage = {
+          ...refreshedValidationStage,
+          report: gateReport
+        };
+      }
+    }
 
     let validationOperationCount = 0;
     if (validationStage && validationStage.evaluation) {
@@ -1092,7 +1107,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     };
   }
 
-  function evaluateCommandValidation(commandId, metadata) {
+  function evaluateCommandValidation(commandId, metadata, suppliedModelSnapshot = null) {
     if (!runtimes.validationEvaluator && !runtimes.validation) return null;
     const validationMetadata = {
       ...metadata,
@@ -1107,12 +1122,15 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         ...gates.map((gate) => gate.group),
         ...asArray(validationPlan.statePatches).map((patch) => patch && patch.group)
       ].filter(Boolean))];
-      const modelSnapshot = runtimes.state.modelReader && typeof runtimes.state.modelReader.snapshot === 'function'
-        ? runtimes.state.modelReader.snapshot()
-        : runtimes.state.snapshot();
+      const modelSnapshot = suppliedModelSnapshot || (
+        runtimes.state.modelReader && typeof runtimes.state.modelReader.snapshot === 'function'
+          ? runtimes.state.modelReader.snapshot()
+          : runtimes.state.snapshot()
+      );
       const evaluation = runtimes.validationEvaluator.evaluate(immutableClone({
         ...validationMetadata,
-        snapshot: modelSnapshot
+        snapshot: modelSnapshot,
+        states: asRecord(modelSnapshot).states
       }, {}), groupIds.length ? groupIds : null);
       const projectionMetadata = {
         operation: 'maraca.validation.view-projection.prepare',
@@ -1986,10 +2004,10 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       const rendererFactory = runtimeFactory(api.renderer, 'createRmtDomDescriptorRenderer');
       const stateFactory = runtimeFactory(api.state, 'createRmtStateSelectorRuntime');
       const stateProjectionFactory = options.createStateProjectionPort
-        || runtimeFactory(api.stateProjection, 'createRmtXStateHostAdapter');
-      if (strict && options.xstate && typeof options.xstate.batchUpdate !== 'function') {
-        const error = new Error('Strict Maraca requires XState batchUpdate() for atomic Model projection.');
-        error.code = 'rmt.state.xstate-batch-required';
+        || runtimeFactory(api.stateProjection, 'createRmtStateHostAdapter');
+      if (strict && options.stateProjectionTarget && typeof options.stateProjectionTarget.batchUpdate !== 'function') {
+        const error = new Error('Strict Maraca requires batchUpdate() for atomic Model projection.');
+        error.code = 'rmt.state.projection-batch-required';
         throw error;
       }
       if (strict && options.surfaceStateProjection) {
@@ -2044,7 +2062,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         strict,
         stateProjectionPort: options.stateProjectionPort || null,
         createStateProjectionPort: stateProjectionFactory,
-        stateProjectionTarget: options.xstate || null
+        stateProjectionTarget: options.stateProjectionTarget || null
       });
       if (strict && (
         !state
@@ -2245,6 +2263,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         diagnosticsHub: options.diagnosticsHub,
         diagnosticChannel: options.diagnosticChannel,
         surfaceController,
+        managerId: surfaceController && surfaceController.managerId
+          || options.surfaceControllerId
+          || 'xtend.maraca.surface-controller',
         strict
       }) : null;
       const injectedPresentationEffectPort = options.presentationEffectPort || options.presentationAdapter || null;

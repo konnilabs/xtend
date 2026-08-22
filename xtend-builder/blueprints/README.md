@@ -47,10 +47,10 @@ node scripts/run_xtend_tests.js builder-typescript-blueprint --json
 |--------|---------------|
 | `display` | Registrierung, Manifest, Attribute, Slots, sichtbarer DOM-Vertrag, Hydration-Basis |
 | `interactive` | Display-Basis, Events, Tastatur, Fokus, Labels, Rehydration ohne doppelte Listener |
-| `stateful` | kanonische `xstate` Keys, externe State-Aenderung, Cleanup, SSOT-Grenze |
+| `stateful` | kanonische `xtendState` Keys, externe State-Aenderung, Cleanup, SSOT-Grenze |
 | `feedback` | Live-Region, Dismissal, Event-Contract, Timer-Cleanup, Reduced Motion |
 | `overlay` | Open-State, Fokusziel, Escape, Fokus-Rueckgabe, `aria-modal` |
-| `routing` | Navigation, Params/Query, `xstate` Bridge, Route-Events, lokaler Link-Contract |
+| `routing` | Navigation, Params/Query, State-Projektion, Route-Events, lokaler Link-Contract |
 | `theme` | Theme-State, CSS Custom Properties, Theme-Event, Legacy-Fassade |
 | `form` | Value, Validation, Labels, Fehlermeldung, Submit-/Change-Events |
 | `media` | Ladezustand, Controls, Tastatur, Fallbacks, Reduced Motion |

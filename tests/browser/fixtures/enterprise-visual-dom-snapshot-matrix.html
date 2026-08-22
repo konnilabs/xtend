@@ -13,7 +13,7 @@
     <title>XTend Enterprise Visual DOM Snapshot Matrix</title>
     <meta
       name="xtend-preload"
-      content="xstate,x-header,x-menu,x-tabs,x-router,x-link,x-input,x-status,x-progress,x-code"
+      content="xtend-state,x-header,x-menu,x-tabs,x-router,x-link,x-input,x-status,x-progress,x-code"
     >
     <style>
       :root {
@@ -148,13 +148,13 @@
     </style>
     <script>
       window.__xtendComponentState = {};
-      window.xstate = {
+      window.XTend.state = {
         get(key) { return window.__xtendComponentState[key]; },
         set(key, value) { window.__xtendComponentState[key] = value; },
         subscribe() { return function unsubscribe() {}; }
       };
     </script>
-    <script type="module" src="/components/xstate.js"></script>
+    <script type="module" src="/components/xtend-state.js"></script>
     <script type="module" src="/components/xheader.js"></script>
     <script type="module" src="/components/xmenu.js"></script>
     <script type="module" src="/components/xtabs.js"></script>

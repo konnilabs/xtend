@@ -60,7 +60,7 @@ function createRootLifecycleAttachment(input, featureWiring, refs) {
     rootRef: `${refs.domain}.root.<id>`,
     componentRef: refs.componentRef,
     templateRef: refs.templateRef,
-    statePolicy: 'digital-twin-ssot-xstate',
+    statePolicy: 'digital-twin-ssot-classic-state',
     stateKeys: {
       lifecycle: `${statePrefix}lifecycle`,
       hydration: `${statePrefix}hydration`,
@@ -135,7 +135,7 @@ function createRootLifecycleAttachment(input, featureWiring, refs) {
     boundaries: {
       schedulerOwns: ['schedule-selection', 'lane', 'priority', 'budget', 'coalescing'],
       hostAdapterOwns: ['root-resolution', 'custom-element-lifecycle', 'template-materialization', 'state-bridge', 'cleanup', 'diagnostics'],
-      forbidden: ['direct-xstate-mutation-by-kernel', 'custom-element-callbacks-in-kernel', 'async-state-workarounds']
+      forbidden: ['direct-classic-state-mutation-by-kernel', 'custom-element-callbacks-in-kernel', 'async-state-workarounds']
     },
     kernelBoundary: 'RMT scheduler may plan root phases through endpoint hints; XTend Host Adapter owns lifecycle execution.'
   };
@@ -171,15 +171,15 @@ function createHostCapabilitiesAttachment(input, featureWiring, refs) {
         kernelVisible: false
       },
       stateBridge: {
-        id: 'xtend.state-bridge.xstate',
-        source: 'xstate',
-        read: 'xstate.get(key)',
-        write: 'xstate.set(key, value)',
-        subscribe: 'xstate.subscribe(fn, keyFilter?)',
+        id: 'xtend.state-projection.classic',
+        source: 'xtend-state',
+        read: 'xtendState.get(key)',
+        write: 'xtendState.set(key, value)',
+        subscribe: 'xtendState.subscribe(fn, keyFilter?)',
         canonicalPrefix: statePrefix,
         stateKeys: featureWiring.state.keys.slice(),
         localUiPolicy: featureWiring.state.localUiPolicy,
-        forbidden: ['direct-xstate-mutation-by-kernel', 'xstate.on', 'xstate.off'],
+        forbidden: ['direct-classic-state-mutation-by-kernel', 'xtendState.on', 'xtendState.off'],
         kernelVisible: false
       },
       hydration: {
@@ -246,8 +246,8 @@ function createHostCapabilitiesAttachment(input, featureWiring, refs) {
     },
     boundaries: {
       kernelSees: ['adapterId', 'contractVersion', 'requiredCapabilities', 'optionalCapabilities', 'capabilityRefs'],
-      hostAdapterOwns: ['manifest-lookup', 'custom-element-registration', 'xstate-read-write-subscribe', 'theme-api', 'xtend-api', 'hydration', 'router-adapter', 'diagnostics'],
-      forbidden: ['kernel-imports-api-js', 'kernel-imports-xstate', 'kernel-imports-xrouter', 'kernel-calls-window-XTend', 'capability-as-second-ssot']
+      hostAdapterOwns: ['manifest-lookup', 'custom-element-registration', 'classic-state-read-write-subscribe', 'theme-api', 'xtend-api', 'hydration', 'router-adapter', 'diagnostics'],
+      forbidden: ['kernel-imports-api-js', 'kernel-imports-classic-state', 'kernel-imports-xrouter', 'kernel-calls-window-XTend', 'capability-as-second-ssot']
     },
     kernelBoundary: 'RMT kernel negotiates capability data only; XTend Host Adapter executes manifest, state, theme, API, hydration, router and diagnostics work.'
   };
@@ -358,7 +358,7 @@ function createRmtAttachment(plan, featureWiring) {
     routerAdapter: 'xtend.xrouter',
     templateAdapter: 'xtend.template',
     contractVersion: RMT_COMPONENT_CONTRACT_VERSION,
-    kernelBoundary: 'RMT kernel must not import XTend component types, XTend manifest records, xstate keys or XRouter classes directly.',
+    kernelBoundary: 'RMT kernel must not import XTend component types, XTend manifest records, XTend State keys or XRouter classes directly.',
     componentDefinition: {
       idPattern: componentRef,
       kind: 'custom_element',
@@ -443,7 +443,7 @@ function createRmtAttachment(plan, featureWiring) {
       apiNamespaces: featureWiring.api.namespaces.slice()
     },
     boundaries: {
-      kernelForbidden: ['xtend-tags', 'xtend-manifest-shape', 'xstate-keys', 'xrouter-classes'],
+      kernelForbidden: ['xtend-tags', 'xtend-manifest-shape', 'classic-state-keys', 'xrouter-classes'],
       dslRecordOwns: ['id', 'kind', 'adapter', 'tag', 'props', 'attributes', 'slots', 'events', 'hydration', 'schedule', 'diagnostics', 'templateRef', 'componentRef', 'rootRef', 'lifecyclePhase'],
       hostAdapterOwns: ['manifest-lookup', 'custom-element-definition-check', 'mount', 'hydrate', 'template-materialization', 'slot-projection', 'event-command-binding', 'event-bridge', 'state-bridge', 'theme-api', 'api-facade', 'root-lifecycle-execution', 'capability-negotiation', 'cleanup', 'diagnostics']
     }

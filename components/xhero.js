@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 import './xicon.js';
 
 // <x-hero>
@@ -113,7 +113,7 @@ class XHero extends HTMLElement {
     if (!this.id) this.id = `xhero-${Math.random().toString(36).slice(2, 10)}`;
 
     // Set initial state
-    xstate.set(`xhero-state-${this.id}`, {
+    xtendState.set(`xhero-state-${this.id}`, {
       background: this.getAttribute("background"),
       backgroundLight: this.getAttribute("background-light"),
       backgroundDark: this.getAttribute("background-dark"),
@@ -132,7 +132,7 @@ class XHero extends HTMLElement {
     });
 
     // Subscribe to state changes, for example external control
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xhero-state-${this.id}` && typeof value === "object") {
         if (value.background !== undefined) this.setAttribute("background", value.background);
         if (value.backgroundLight !== undefined) this.setAttribute("background-light", value.backgroundLight);
@@ -183,7 +183,7 @@ class XHero extends HTMLElement {
       this.render();
       // Update state
       if (this.id) {
-        xstate.set(`xhero-state-${this.id}`, {
+        xtendState.set(`xhero-state-${this.id}`, {
           background: this.getAttribute("background"),
           backgroundLight: this.getAttribute("background-light"),
           backgroundDark: this.getAttribute("background-dark"),

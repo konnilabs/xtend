@@ -11,7 +11,6 @@
     const STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_DIAGNOSTIC_CODES = Object.freeze([
         'rmt.bridge.state.mirrored',
         'rmt.bridge.state.unavailable',
-        'rmt.bridge.state-projection.legacy-alias',
         'rmt.bridge.scheduler.endpoint.scheduled',
         'rmt.bridge.scheduler.endpoint.queued',
         'rmt.bridge.diagnostics.emitted',
@@ -238,7 +237,6 @@
         const scheduledEndpoints = [];
         const telemetrySnapshots = [];
         const backpressureSignals = [];
-        let legacyStateProjectionDiagnostic = null;
         const maxTelemetryRecords = Number.isFinite(Number(deps.maxTelemetryRecords)) && Number(deps.maxTelemetryRecords) > 0
             ? Math.max(Math.floor(Number(deps.maxTelemetryRecords)), 8)
             : 80;
@@ -255,30 +253,9 @@
         }
 
         function getStateProjectionPort() {
-            if (deps.stateProjectionPort !== undefined && deps.stateProjectionPort !== null) {
-                return typeof deps.stateProjectionPort.batchUpdate === 'function'
-                    ? deps.stateProjectionPort
-                    : null;
-            }
-
-            // 0.6 compatibility only: xstate is accepted as an alias for the typed
-            // output port when it already implements the atomic batch contract.
-            // It is never read back and per-key writers are never adapted.
-            const legacyPort = deps.xstate || null;
-            if (!legacyPort || typeof legacyPort.batchUpdate !== 'function') return null;
-            if (!legacyStateProjectionDiagnostic) {
-                legacyStateProjectionDiagnostic = createStateSchedulerDiagnosticsBridgeDiagnostic(
-                    'rmt.bridge.state-projection.legacy-alias',
-                    'The xstate option is a deprecated alias; inject stateProjectionPort instead.',
-                    'createStateBridge',
-                    'state',
-                    { adapterId, replacement: 'stateProjectionPort' },
-                    'info'
-                );
-                diagnostics.push(legacyStateProjectionDiagnostic);
-                publishBridgeDiagnostic(legacyStateProjectionDiagnostic);
-            }
-            return legacyPort;
+            return deps.stateProjectionPort && typeof deps.stateProjectionPort.batchUpdate === 'function'
+                ? deps.stateProjectionPort
+                : null;
         }
 
         function writeState(key, value, options = {}) {
@@ -455,7 +432,7 @@
                 externalState: hasExternalState
             }, options);
             const operationDiagnostics = hasExternalState
-                ? (legacyStateProjectionDiagnostic ? [legacyStateProjectionDiagnostic] : [])
+                ? []
                 : [createStateSchedulerDiagnosticsBridgeDiagnostic(
                     'rmt.bridge.state.unavailable',
                     'RMT bridge created an in-memory state bridge because no batch-capable State Projection Port was provided.',
@@ -474,7 +451,6 @@
                 diagnostics: operationDiagnostics,
                 metadata: {
                     externalState: hasExternalState,
-                    legacyStateProjectionAlias: Boolean(legacyStateProjectionDiagnostic),
                     schema: STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA
                 }
             });

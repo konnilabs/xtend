@@ -1,8 +1,8 @@
 {
   "name": "@ccslabs/xtend-compiler",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "private": false,
-  "description": "XTendRMT compiler, parser, linter and language tooling for 0.6.1 orchestration, XSurface Shard and XScaler flows.",
+  "description": "XTendRMT compiler, parser, linter and language tooling for 0.7.0 orchestration, XSurface Shard and XScaler flows.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -97,8 +97,8 @@
     "node": ">=24"
   },
   "peerDependencies": {
-    "@ccslabs/xtend-maraca": "0.6.1",
-    "@ccslabs/xtend-rmt": "0.6.1"
+    "@ccslabs/xtend-maraca": "0.7.0",
+    "@ccslabs/xtend-rmt": "0.7.0"
   },
   "peerDependenciesMeta": {
     "@ccslabs/xtend-maraca": {

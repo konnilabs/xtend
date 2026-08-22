@@ -25,7 +25,7 @@ export type XtendEventSource =
   | 'x-icon'
   | 'x-spinner'
   | 'x-menu'
-  | 'xstate'
+  | 'xtend-state'
   | 'x-summary'
   | 'x-player'
   | 'x-section'

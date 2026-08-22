@@ -163,7 +163,7 @@ function createSurfaceControllerPlan(options = {}) {
       boundary: 'component-owned-controller',
       runtimeArtifact: 'controller-only-no-custom-element',
       rmtInputModel: 'metadata.surface-records-from-WP-SM-01',
-      statePolicy: 'digital-twin-ssot-with-xstate-mirror',
+      statePolicy: 'digital-twin-ssot-with-classic-state-mirror',
       fabricPolicy: 'emit-diagnostics-consume-fabric-do-not-replace-fabric',
       persistencePolicy: 'layout-state-only-no-content-payload',
       loaderPolicy: 'deferred-to-WP-SM-03-custom-element-runtime'
@@ -213,7 +213,7 @@ function validateSurfaceControllerPlan(plan = createSurfaceControllerPlan()) {
   if (!plan || plan.status !== SURFACE_CONTROLLER_STATUS) errors.push(`status must be ${SURFACE_CONTROLLER_STATUS}`);
   if (!plan || plan.targetReadiness !== SURFACE_CONTROLLER_TARGET) errors.push(`targetReadiness must be ${SURFACE_CONTROLLER_TARGET}`);
   if (!includesAll(plan && plan.requiredMethods, REQUIRED_METHODS)) errors.push('required methods missing');
-  if (!includesAll(plan && plan.stateKeys, REQUIRED_STATE_KEYS)) errors.push('required xstate mirror keys missing');
+  if (!includesAll(plan && plan.stateKeys, REQUIRED_STATE_KEYS)) errors.push('required xtend-state mirror keys missing');
   if (!includesAll(plan && plan.surfaceTypes, REQUIRED_SURFACE_TYPES)) errors.push('required surface types missing');
   if (!includesAll(plan && plan.diagnosticCodes, REQUIRED_DIAGNOSTIC_CODES)) errors.push('required diagnostics missing');
   if (!includesAll(plan && plan.lanes, REQUIRED_LANES)) errors.push('required lanes missing');

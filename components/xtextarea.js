@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 import { createXtendRmtCommandDetail } from './rmt-command.js';
 
 const XTEXTAREA_LANGUAGE_ALIASES = Object.freeze({
@@ -202,7 +202,7 @@ class XTextarea extends HTMLElement {
       lane: 'user-blocking',
       hydrationPolicy: 'visible',
       criticalMeasurements: ['mount', 'hydrate', 'event'],
-      cleanup: ['xstate-subscription', 'input-listeners']
+      cleanup: ['xtend-state-subscription', 'input-listeners']
     };
   }
 
@@ -710,8 +710,8 @@ class XTextarea extends HTMLElement {
     this._control.addEventListener('invalid', this._onInvalid);
     this._control.addEventListener('keydown', this._onKeydown);
     this._control.addEventListener('scroll', this._onScroll, { passive: true });
-    xstate.set(`xtextarea-value-${this.id}`, this.value);
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    xtendState.set(`xtextarea-value-${this.id}`, this.value);
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xtextarea-value-${this.id}` && typeof value === 'string' && value !== this.value) {
         this.value = value;
       }
@@ -818,7 +818,7 @@ class XTextarea extends HTMLElement {
       composed: true,
       cancelable: true
     }));
-    xstate.set(`xtextarea-value-${this.id}`, this.value);
+    xtendState.set(`xtextarea-value-${this.id}`, this.value);
   }
 
   _onInvalid() {

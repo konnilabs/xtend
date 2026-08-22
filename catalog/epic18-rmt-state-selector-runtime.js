@@ -10,7 +10,7 @@ const RMT_STATE_SELECTOR_RUNTIME_SCHEMA = 'xtend.epic18.rmt-state-selector-runti
 const RMT_STATE_SELECTOR_RUNTIME_REPORT_SCHEMA = 'xtend.epic18.rmt-state-selector-runtime-report.v1';
 const RMT_STATE_SELECTOR_RUNTIME_FIXTURE_SCHEMA = 'xtend.epic18.rmt-state-selector-runtime-fixture.v1';
 const RMT_STATE_SELECTOR_RUNTIME_WORKPACKAGE = 'WP-E18-07';
-const RMT_STATE_SELECTOR_RUNTIME_STATUS = 'accepted-typed-state-selector-xstate-bridge';
+const RMT_STATE_SELECTOR_RUNTIME_STATUS = 'accepted-typed-state-selector-state-projection';
 const RMT_STATE_SELECTOR_RUNTIME_TARGET = 'typed-state-selector-runtime-ready';
 const RMT_STATE_SELECTOR_RUNTIME_MODULE = 'catalog/epic18-rmt-state-selector-runtime.js';
 const RMT_STATE_SELECTOR_RUNTIME_RUNTIME = 'xtendrmt/rmt-state-selector-runtime.js';
@@ -18,7 +18,7 @@ const RMT_STATE_SELECTOR_RUNTIME_TYPES = 'xtendrmt/rmt-state-selector-runtime.d.
 const RMT_STATE_SELECTOR_RUNTIME_SUITE = 'tests/rmt/rmt_state_selector_runtime_suite.js';
 const RMT_STATE_SELECTOR_RUNTIME_FIXTURE = 'tests/fixtures/rmt-state-selector-runtime.rmt';
 const RMT_STATE_SELECTOR_RUNTIME_DOCS = 'docs/rmt-state-selector-runtime.md';
-const RMT_STATE_SELECTOR_RUNTIME_WORKPACKAGE_DOC = 'development/WP-E18-07-Typed-State-Selectors-und-XState-Bridge-fuer-Apps-bauen.md';
+const RMT_STATE_SELECTOR_RUNTIME_WORKPACKAGE_DOC = 'docs/en/migration-0.7-state.md';
 const RMT_STATE_SELECTOR_RUNTIME_BACKLOG = 'development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md';
 const RMT_STATE_SELECTOR_RUNTIME_EPIC = 'development/docs-evidence/root/epic18-media-manager-vendor-upstream.md';
 const RMT_STATE_SELECTOR_RUNTIME_LOCAL_GATE = 'node scripts/run_xtend_tests.js rmt-state-selector-runtime --json';
@@ -32,7 +32,7 @@ const REQUIRED_STATE_CAPABILITIES = Object.freeze([
   'selector-evaluation',
   'derived-values',
   'reducer-command-dispatch',
-  'xstate-bridge',
+  'state-projection',
   'render-context-model',
   'preserve-patch-planning',
   'attribute-sync-bindings',
@@ -50,7 +50,7 @@ const REQUIRED_STATE_TYPES = Object.freeze([
 
 const REQUIRED_BOUNDARIES = Object.freeze([
   'no-rmt-kernel-import-of-xtend-types',
-  'xstate-is-injected-host-adapter',
+  'state-projection-is-injected-host-adapter',
   'component-native-primitives-remain-generic',
   'selection-updates-preserve-dom',
   'filter-updates-may-request-structural-rerender',
@@ -103,8 +103,8 @@ function createRmtStateSelectorRuntimePlan(options = {}) {
       typedStateDefinitions: true,
       reducerCommandsRequired: true,
       selectorsFeedRenderContext: true,
-      xstateImportedByRuntime: false,
-      xstateInjectedAsHostAdapter: true,
+      stateRuntimeImportedByRuntime: false,
+      stateProjectionInjectedAsHostAdapter: true,
       selectionUpdatesPreserveDom: true,
       filterUpdatesMayRerenderStructure: true,
       productStateTaxonomyAllowed: false
@@ -145,8 +145,8 @@ function validateRmtStateSelectorRuntimePlan(plan = createRmtStateSelectorRuntim
   if (model.typedStateDefinitions !== true) errors.push('typed state definitions must be enabled');
   if (model.reducerCommandsRequired !== true) errors.push('reducer commands must be required');
   if (model.selectorsFeedRenderContext !== true) errors.push('selectors must feed render context');
-  if (model.xstateImportedByRuntime !== false) errors.push('xstate must not be imported by runtime');
-  if (model.xstateInjectedAsHostAdapter !== true) errors.push('xstate must be injected as host adapter');
+  if (model.stateRuntimeImportedByRuntime !== false) errors.push('xtend-state must not be imported by runtime');
+  if (model.stateProjectionInjectedAsHostAdapter !== true) errors.push('xtend-state must be injected as host adapter');
   if (model.selectionUpdatesPreserveDom !== true) errors.push('selection updates must preserve DOM');
   if (model.filterUpdatesMayRerenderStructure !== true) errors.push('filter updates may request structural rerender');
   if (model.productStateTaxonomyAllowed !== false) errors.push('product state taxonomy must stay disallowed');
@@ -177,7 +177,7 @@ function createRmtStateSelectorRuntimeReport(options = {}) {
     stateCapabilityCount: plan.stateCapabilities.length,
     stateTypeCount: plan.stateTypes.length,
     boundaryCount: plan.boundaries.length,
-    xstateImportedByRuntime: plan.model.xstateImportedByRuntime,
+    stateRuntimeImportedByRuntime: plan.model.stateRuntimeImportedByRuntime,
     selectionUpdatesPreserveDom: plan.model.selectionUpdatesPreserveDom,
     nextWorkpackage: plan.nextWorkpackage,
     nextDecision: plan.nextDecision,

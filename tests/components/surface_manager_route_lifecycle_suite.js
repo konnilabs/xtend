@@ -116,7 +116,7 @@ function runSurfaceManagerRouteLifecycleSuite(options = {}) {
     'routechange',
     'xrouter-after-navigate',
     "stateKey: 'xtend.router.current'",
-    'xstate.set',
+    'xtendState.set',
     'xtend.router.current'
   ], 'XRouter route-state source');
 

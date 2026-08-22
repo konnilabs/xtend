@@ -39,7 +39,7 @@ const fabric = window.XTendFabric && typeof window.XTendFabric.createXtendFabric
       idPrefix: 'xtend.docs',
       window,
       performance,
-      xstate: window.xstate,
+      stateRuntime: window.XTend && window.XTend.state,
       api: window.XTend
     })
   : null;

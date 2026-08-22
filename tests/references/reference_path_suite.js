@@ -1068,7 +1068,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'createTelemetrySnapshot', message: 'exposes telemetry snapshot factory' },
       { pattern: 'publishTelemetrySnapshot', message: 'exposes telemetry snapshot publisher' },
       { pattern: 'createBackpressureSignal', message: 'exposes backpressure signal factory' },
-      { pattern: 'connectXState', message: 'exposes xstate runtime diagnostics bridge connector' },
+      { pattern: 'connectState', message: 'exposes xstate runtime diagnostics bridge connector' },
       { pattern: 'connectApi', message: 'exposes API runtime diagnostics bridge connector' },
       { pattern: 'createRmtDiagnosticsHub', message: 'exposes RMT diagnostics hub factory' },
       { pattern: 'wrapEventHandler', message: 'exposes event handler wrapper' },
@@ -1083,7 +1083,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'xtend.fabric.component.hydrate.failed', message: 'emits stable component hydration failure code' },
       { pattern: 'xtend.fabric.route.render.failed', message: 'emits stable route render failure code' },
       { pattern: 'xtend.fabric.reporter.failed', message: 'emits stable reporter failure code' },
-      { pattern: 'xtend.fabric.xstate.connected', message: 'emits stable xstate bridge diagnostic code' },
+      { pattern: 'xtend.fabric.xtendState.connected', message: 'emits stable xstate bridge diagnostic code' },
       { pattern: 'xtend.fabric.api.connected', message: 'emits stable API bridge diagnostic code' },
       { pattern: 'xtend.fabric.rmt.connected', message: 'emits stable RMT bridge diagnostic code' },
       { pattern: 'xtend.fabric.telemetry.snapshot', message: 'emits stable telemetry snapshot diagnostic code' },
@@ -1310,10 +1310,10 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'xtend.fabric.runtime-diagnostics-bridge.v1', message: 'declares runtime diagnostics bridge contract' },
       { pattern: 'Status: Accepted', message: 'accepts runtime diagnostics bridge decision' },
       { pattern: 'createRuntimeDiagnosticsBridge', message: 'documents runtime diagnostics bridge factory' },
-      { pattern: 'connectXState', message: 'documents xstate bridge connector' },
+      { pattern: 'connectState', message: 'documents xstate bridge connector' },
       { pattern: 'connectApi', message: 'documents API bridge connector' },
       { pattern: 'createRmtDiagnosticsHub', message: 'documents RMT diagnostics hub factory' },
-      { pattern: 'xtend.fabric.xstate.connected', message: 'documents xstate connected diagnostic' },
+      { pattern: 'xtend.fabric.xtendState.connected', message: 'documents xstate connected diagnostic' },
       { pattern: 'xtend.fabric.api.connected', message: 'documents API connected diagnostic' },
       { pattern: 'xtend.rmt.bridge.adapter.result.degraded', message: 'documents normalized RMT diagnostic code' },
       { pattern: 'RMT Kernel wird nicht importiert', message: 'keeps RMT kernel boundary visible' },
@@ -1341,7 +1341,7 @@ const EPIC_CLOSURE_REFERENCE_CONTRACTS = [
       { pattern: 'XTend-Fabric xstate API and RMT diagnostics bridge', message: 'declares runtime bridge suite label' },
       { pattern: 'xtend.fabric.runtime-diagnostics-bridge.v1', message: 'tests runtime bridge contract' },
       { pattern: 'createRuntimeDiagnosticsBridge', message: 'tests runtime bridge factory' },
-      { pattern: 'connectXState', message: 'tests xstate connector' },
+      { pattern: 'connectState', message: 'tests xstate connector' },
       { pattern: 'connectApi', message: 'tests API connector' },
       { pattern: 'createRmtDiagnosticsHub', message: 'tests RMT diagnostics hub' },
       { pattern: 'xtend.fabric.bridge.ready', message: 'tests xstate ready mirror' },
@@ -2664,7 +2664,7 @@ const EPIC_03_SCAFFOLD_REFERENCE_CONTRACTS = [
     contracts: [
       { pattern: 'Status: `completed`', message: 'marks WP-E03-07 as completed' },
       { pattern: 'xtend.scaffold.feature-wiring.v1', message: 'documents feature wiring schema' },
-      { pattern: 'xstate.subscribe(fn, keyFilter?)', message: 'documents canonical subscription path' },
+      { pattern: 'xtendState.subscribe(fn, keyFilter?)', message: 'documents canonical subscription path' },
       { pattern: 'derived-render-cache-only', message: 'documents local UI policy' },
       { pattern: '`WP-E03-08` kann', message: 'hands off to WP-E03-08' }
     ]
@@ -3058,7 +3058,7 @@ const EPIC_04_RMT_TEMPLATE_REFERENCE_CONTRACTS = [
       { pattern: '`diagnostics`', message: 'documents diagnostics capability' },
       { pattern: 'Capability Negotiation', message: 'documents capability negotiation' },
       { pattern: 'Parallelbetrieb', message: 'documents multi-framework parallel operation' },
-      { pattern: 'Der RMT Kernel darf `xstate.set` nicht direkt aufrufen', message: 'keeps xstate writes out of the kernel' },
+      { pattern: 'Der RMT Kernel darf `xtendState.set` nicht direkt aufrufen', message: 'keeps xstate writes out of the kernel' },
       { pattern: '`WP-E04-07` kann', message: 'hands off to WP-E04-07' }
     ]
   },
@@ -4483,7 +4483,7 @@ function assertDocsMenuReferences(context, rootDir) {
     'xtendrmt-parsedown-scheduling',
     'components-xrouter',
     'components-xlink',
-    'components-xstate',
+    'components-xtend-state',
     'components-xtheme',
     'components-xselect',
     'components-xcheckbox',
@@ -5306,12 +5306,12 @@ function assertScaffoldConfigReference(context, rootDir) {
   context.assert(featureWiring.schema === 'xtend.scaffold.feature-wiring.v1', 'Scaffold config declares feature wiring schema');
   context.assert(featureWiring.module === 'xtend-builder/wiring/features.js', 'Scaffold config links feature wiring module');
   context.assert(featureWiring.statePrefixPattern === 'xtend.component.<tag>.<id>.', 'Scaffold config declares canonical component state prefix pattern');
-  context.assert(featureWiring.stateApi === 'xstate.subscribe(fn, keyFilter?)', 'Scaffold config declares canonical xstate subscription API');
-  context.assert(featureWiring.writeApi === 'xstate.set(key, value)', 'Scaffold config declares canonical xstate write API');
+  context.assert(featureWiring.stateApi === 'xtendState.subscribe(fn, keyFilter?)', 'Scaffold config declares canonical xstate subscription API');
+  context.assert(featureWiring.writeApi === 'xtendState.set(key, value)', 'Scaffold config declares canonical xstate write API');
   context.assert(featureWiring.namespaceRoot === 'window.XTend', 'Scaffold config declares XTend API namespace root');
   context.assert(featureWiring.localUiPolicy === 'derived-render-cache-only', 'Scaffold config declares derived local UI policy');
-  context.assert(featureForbiddenState.includes('xstate.on'), 'Scaffold config forbids xstate.on in generated patterns');
-  context.assert(featureForbiddenState.includes('xstate.off'), 'Scaffold config forbids xstate.off in generated patterns');
+  context.assert(featureForbiddenState.includes('xtendState.on'), 'Scaffold config forbids xtendState.on in generated patterns');
+  context.assert(featureForbiddenState.includes('xtendState.off'), 'Scaffold config forbids xtendState.off in generated patterns');
   context.assert(featureForbiddenGlobals.includes('window.show*'), 'Scaffold config forbids new global helper patterns');
   context.assert(featureWiring.profileDriven === true, 'Scaffold config keeps feature wiring profile-driven');
   context.assert(inScope.includes('component-blueprints'), 'Scaffold config scopes component blueprints in');
@@ -6310,7 +6310,7 @@ function assertScaffoldGeneratorReference(context, rootDir) {
     extensions.hostCapabilities
       && extensions.hostCapabilities.capabilities
       && extensions.hostCapabilities.capabilities.stateBridge
-      && extensions.hostCapabilities.capabilities.stateBridge.subscribe === 'xstate.subscribe(fn, keyFilter?)',
+      && extensions.hostCapabilities.capabilities.stateBridge.subscribe === 'xtendState.subscribe(fn, keyFilter?)',
     'Component extension contract exposes xstate host capability'
   );
   context.assert(
@@ -6415,12 +6415,12 @@ function assertScaffoldGeneratorReference(context, rootDir) {
     'Component files generator creates profile event name'
   );
   context.assert(
-    files.wiring && files.wiring.features && files.wiring.features.state.subscribe === 'xstate.subscribe(fn, keyFilter?)',
+    files.wiring && files.wiring.features && files.wiring.features.state.subscribe === 'xtendState.subscribe(fn, keyFilter?)',
     'Component files generator prefers canonical xstate subscription API'
   );
   context.assert(
-    files.wiring && files.wiring.features && files.wiring.features.state.forbidden.includes('xstate.on'),
-    'Component files generator marks xstate.on as forbidden'
+    files.wiring && files.wiring.features && files.wiring.features.state.forbidden.includes('xtendState.on'),
+    'Component files generator marks xtendState.on as forbidden'
   );
   context.assert(
     files.wiring && files.wiring.features && files.wiring.features.api.forbiddenGlobals.includes('window.showXExample'),
@@ -6459,7 +6459,7 @@ function assertScaffoldGeneratorReference(context, rootDir) {
   context.assert(sourceFile && sourceFile.content.includes('xtend.scaffold.component-extension-points.v1'), 'Component files generator renders extension schema in source');
   context.assert(sourceFile && sourceFile.content.includes('xtend.component.x-example.<id>.'), 'Component files generator renders canonical state prefix metadata');
   context.assert(sourceFile && sourceFile.content.includes('example-changed'), 'Component files generator renders profile event metadata');
-  context.assert(sourceFile && !sourceFile.content.includes('xstate.on(') && !sourceFile.content.includes('xstate.off('), 'Component files generator avoids legacy xstate listener calls');
+  context.assert(sourceFile && !sourceFile.content.includes('xtendState.on(') && !sourceFile.content.includes('xtendState.off('), 'Component files generator avoids legacy xstate listener calls');
   context.assert(sourceFile && !sourceFile.content.includes('window.show'), 'Component files generator avoids unnamespaced global helpers in source');
   try {
     new Function(sourceFile.content);
@@ -6644,7 +6644,7 @@ function assertScaffoldGeneratorReference(context, rootDir) {
   context.assert(typesFile && !typesFile.content.includes("from '") && !typesFile.content.includes('from "'), 'Component files generator renders types without runtime imports');
   const docsFile = files.files.find((file) => file.id === 'docs');
   context.assert(docsFile && docsFile.content.includes('API- und Feature-Wiring'), 'Component files generator renders feature wiring docs');
-  context.assert(docsFile && docsFile.content.includes('xstate.subscribe(fn, keyFilter?)'), 'Component files generator renders canonical xstate subscription docs');
+  context.assert(docsFile && docsFile.content.includes('xtendState.subscribe(fn, keyFilter?)'), 'Component files generator renders canonical xstate subscription docs');
   context.assert(docsFile && docsFile.content.includes('Typisierung und RMT-Anschluss'), 'Component files generator renders typing and RMT attachment docs');
   context.assert(docsFile && docsFile.content.includes('A11y-Profil'), 'Component files generator renders A11y profile docs');
   context.assert(docsFile && docsFile.content.includes('xtend.a11y.profile.v1'), 'Component files generator renders A11y profile schema docs');
@@ -9432,7 +9432,7 @@ function assertReleasePreparationReference(context, rootDir) {
     'rmt-playground-security'
   ];
 
-  context.assert(packageManifest.version === '0.6.1', 'Root package version is prepared for 0.6.1');
+  context.assert(packageManifest.version === '0.7.0', 'Root package version is prepared for 0.7.0');
   docsGates.forEach((gate) => {
     context.assert(Array.isArray(xtend.releaseGates) && xtend.releaseGates.includes(gate), `Release gates include ${gate}`);
     context.assert(xtend.releaseChecklist && Array.isArray(xtend.releaseChecklist.candidateGates) && xtend.releaseChecklist.candidateGates.includes(gate), `Release checklist includes ${gate}`);

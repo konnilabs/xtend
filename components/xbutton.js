@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 import { createXtendButtonPayloadBase, createXtendRmtCommandDetail } from './rmt-command.js';
 import './xicon.js';
 
@@ -118,7 +118,7 @@ class XButton extends HTMLElement {
         focusVisibleRequired: true,
         disabledBusyGuards: true
       },
-      cleanup: ['button-event-listeners', 'xstate-state'],
+      cleanup: ['button-event-listeners', 'xtend-state-state'],
       rmt: {
         scheduleRefs: ['component.visible.hydrate', 'ui.user-blocking.interaction', 'diagnostics.snapshot'],
         kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
@@ -568,7 +568,7 @@ class XButton extends HTMLElement {
 
   _syncState(reason = 'update') {
     if (!this.id) return;
-    xstate.set(`xbutton-state-${this.id}`, {
+    xtendState.set(`xbutton-state-${this.id}`, {
       ...this._createStateDetail(),
       reason,
       performanceProfile: XButton.xtendScaffoldPerformanceProfile,

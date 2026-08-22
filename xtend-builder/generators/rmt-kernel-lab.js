@@ -490,7 +490,7 @@ function detectObservedCapabilities(source) {
   if (listenerTargets.some((target) => !/(?:signal|Signal)$/u.test(target))) observed.add('event.listen');
   if (matches(/\.dispatchEvent\s*\(/u)) observed.add('event.dispatch');
   if (matches(/\.(?:getState|getSelectorValues|getDerivedValues|select)\s*\(|\b(?:model|modelReader|state|stateReader|stateRuntime)[A-Za-z0-9_$]*\??\.snapshot\s*\(/u)) observed.add('state.read');
-  if (matches(/\.(?:setState|patchState|batchUpdate)\s*\(|\bxstate\??\.[A-Za-z0-9_$]*set\s*\(/u)) observed.add('state.write');
+  if (matches(/\.(?:setState|patchState|batchUpdate)\s*\(|\b(?:xtendState|stateRuntime)\??\.[A-Za-z0-9_$]*set\s*\(/u)) observed.add('state.write');
   if (matches(/\bDate\.now\s*\(|\bnew\s+Date\s*\(\s*\)|\bperformance\.now\s*\(/u)) observed.add('host.clock');
   if (matches(/(?:^|[^\w$.])(?:requestAnimationFrame|cancelAnimationFrame|queueMicrotask|setTimeout|clearTimeout|setInterval|clearInterval)\s*\(/u)) observed.add('host.scheduler');
   if (matches(/\bnew\s+(?:[A-Za-z_$][A-Za-z0-9_$]*\.)?AbortController\s*\(/u)) observed.add('host.abort');

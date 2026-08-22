@@ -68,7 +68,11 @@ async function exerciseControllerReregisterPreserve(context, rootDir) {
   const controller = createSurfaceController({
     managerId: 'epic18.manager',
     stateKey: 'xtend.epic18.surface.registry',
-    xstate: state,
+    stateProjection: {
+      apply(updates) {
+        state.batchUpdate(updates);
+      }
+    },
     now: () => '2026-05-19T00:00:00.000Z',
     baseZIndex: 200
   });

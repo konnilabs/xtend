@@ -258,19 +258,18 @@ const publicTypeContracts = [
     elementMap: true
   },
   {
-    tag: 'xstate',
-    path: 'components/xstate.d.ts',
-    typeNames: ['XStateApi', 'XStateBoundaryContract', 'XStateRmtStateAdapter', 'XStateDiagnosticsSnapshot', 'XStateLifecycleEventDetail', 'XStatePublicEventContract'],
-    events: ['xstate:lifecycle'],
-    methods: ['snapshot(): XStateSnapshot', 'snapshotDiagnostics(): XStateDiagnosticsSnapshot', 'createRmtStateAdapter(options?'],
-    windowApi: ['xstate: XStateApi']
+    tag: 'xtend-state',
+    path: 'components/xtend-state.d.ts',
+    typeNames: ['XTendStateRuntime', 'XTendStateBoundaryContract', 'XTendStateRmtStateAdapter', 'XTendStateDiagnosticsSnapshot', 'XTendStateLifecycleEventDetail', 'XTendStatePublicEventContract'],
+    events: ['xtend-state:lifecycle'],
+    methods: ['snapshot(): XTendStateSnapshot', 'snapshotDiagnostics(): XTendStateDiagnosticsSnapshot', 'createRmtStateAdapter(options?']
   },
   {
     tag: 'xtend-i18n',
     path: 'components/xtend-i18n.d.ts',
-    typeNames: ['XtendI18nApi', 'XtendI18nLabelBundle', 'XtendI18nComponentLabelContract', 'XtendI18nXStateAdapterContract', 'XtendI18nRouterAdapterContract', 'XtendI18nPublicEventContract'],
+    typeNames: ['XtendI18nApi', 'XtendI18nLabelBundle', 'XtendI18nComponentLabelContract', 'XtendI18nStateAdapterContract', 'XtendI18nRouterAdapterContract', 'XtendI18nPublicEventContract'],
     events: ['xtend-i18n-locale-changed', 'xtend-i18n-labels-loaded', 'xtend-i18n-error'],
-    methods: ['configure(options?', 'registerLabels(locale:', 'loadLocale(locale:', 'setLocale(locale:', 'connectXState(xstate?', 'connectRouter(router?', 'snapshot(): XtendI18nSnapshot', 'snapshotDiagnostics(): XtendI18nDiagnosticsSnapshot'],
+    methods: ['configure(options?', 'registerLabels(locale:', 'loadLocale(locale:', 'setLocale(locale:', 'connectState(stateRuntime?', 'connectRouter(router?', 'snapshot(): XtendI18nSnapshot', 'snapshotDiagnostics(): XtendI18nDiagnosticsSnapshot'],
     windowApi: ['xtendI18n: XtendI18nApi']
   },
   {

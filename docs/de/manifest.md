@@ -4,7 +4,7 @@ Das Komponentenmanifest beschreibt, welche XTend Module ein Host laden darf.
 
 ## Worum es geht
 
-Das Komponentenmanifest ist eine statische Zuordnung von Custom-Element-Namen zu lokalen ES-Modulen. Der Loader akzeptiert nur gültige Custom-Element-Tags und `.js`- oder `.mjs`-Ziele; reservierte Bootstrap-Module wie `xstate` bleiben ausdrücklich benannt.
+Das Komponentenmanifest ist eine statische Zuordnung von Custom-Element-Namen zu lokalen ES-Modulen. Der Loader akzeptiert nur gültige Custom-Element-Tags und `.js`- oder `.mjs`-Ziele; reservierte Bootstrap-Module wie `xtend-state` bleiben ausdrücklich benannt.
 
 ## Öffentliche Bausteine
 

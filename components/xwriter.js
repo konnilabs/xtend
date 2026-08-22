@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 class XWriter extends HTMLElement {
   static get observedAttributes() {
@@ -65,7 +65,7 @@ class XWriter extends HTMLElement {
       lane: 'idle',
       hydrationPolicy: 'idle',
       criticalMeasurements: ['mount', 'hydrate', 'event'],
-      cleanup: ['autosave-timer', 'xstate-subscription', 'theme-observer']
+      cleanup: ['autosave-timer', 'xtend-state-subscription', 'theme-observer']
     };
   }
 
@@ -118,9 +118,9 @@ class XWriter extends HTMLElement {
     this.enableExportButtons();
 
     // Example: save editor content in the global state
-    xstate.set('xwriter-content', this.getHTML());
+    xtendState.set('xwriter-content', this.getHTML());
     // Optional: react to global changes
-    this._unsubscribeState = xstate.subscribe((key, value, all) => {
+    this._unsubscribeState = xtendState.subscribe((key, value, all) => {
       if (key === 'xwriter-content' && value !== this.getHTML()) {
         this.shadowRoot.querySelector('.editor').innerHTML = value || '';
       }
@@ -454,7 +454,7 @@ class XWriter extends HTMLElement {
     const markdown = this.getMarkdown();
     const plain = this.getText();
     // Update editor content in global state
-    xstate.set('xwriter-content', html);
+    xtendState.set('xwriter-content', html);
     this._emitWriterEvent('writer:change', { html, markdown, plain });
   }
 

@@ -40,7 +40,7 @@
 
     XUtils.setAria(button, { label: 'Utility probe action', busy: 'false' });
     const localImport = XUtils.assertLocalImport('/components/xbutton.js');
-    const externalImport = XUtils.assertLocalImport('https://example.invalid/xtend/components/xstate.js');
+    const externalImport = XUtils.assertLocalImport('https://example.invalid/xtend/components/xtend-state.js');
     const snapshot = XUtils.snapshotUtilityContract();
     const card = XUtils.XTemplate.card({
       title: 'Utility Contract',

@@ -159,15 +159,6 @@
       return safeDiagnostic;
     }
 
-    if (options.xstate) {
-      publishDiagnostic(createDiagnostic(
-        'xtend.rmt.mvc.transition-xstate-ignored',
-        'warning',
-        'Direct XState projection is disabled; inject transitionStatePort instead.',
-        { adapter: 'surface-transition-runtime' }
-      ));
-    }
-
     function sharedRenderer(target = null) {
       if (domRenderer && typeof domRenderer.commit === 'function') return domRenderer;
       if (!sharedRendererMissingReported) {

@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 class XDrawer extends HTMLElement {
   static get observedAttributes() {
@@ -420,9 +420,9 @@ class XDrawer extends HTMLElement {
     this.shadowRoot.addEventListener('keydown', this._onShadowKeyDown);
     document.addEventListener('route-changed', this._onRouteChanged);
     document.addEventListener('xrouter-after-navigate', this._onRouteChanged);
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xdrawer-open-${this.id}` && typeof value === 'boolean') {
-        value ? this.openDrawer({ source: 'xstate' }) : this.closeDrawer({ source: 'xstate' });
+        value ? this.openDrawer({ source: 'xtend-state' }) : this.closeDrawer({ source: 'xtend-state' });
       }
     }, `xdrawer-open-${this.id}`);
     this.hasAttribute('open') ? this.openDrawer({ source: 'attribute', silent: true }) : this.closeDrawer({ source: 'initial', silent: true });
@@ -505,7 +505,7 @@ class XDrawer extends HTMLElement {
     this.toggleAttribute('open', isOpen);
     this._synchronizingAttribute = false;
     this._syncA11y();
-    xstate.set(`xdrawer-open-${this.id}`, isOpen);
+    xtendState.set(`xdrawer-open-${this.id}`, isOpen);
     if (!silent) {
       this.dispatchEvent(new CustomEvent(isOpen ? 'drawer-opened' : 'drawer-closed', {
         detail: { id: this.id, open: isOpen, source, placement: this.getAttribute('placement') || 'right', modal: this.modal },

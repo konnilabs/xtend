@@ -160,7 +160,7 @@
     const stateStore = new Map();
     const generations = new Map();
 
-    window.xstate = {
+    window.XTend.state = {
       get(key) {
         return stateStore.get(key);
       },
@@ -308,7 +308,7 @@
         return { committed: false, superseded: true };
       }
       surface.innerHTML = response.chunk.markup.html;
-      window.xstate.set(`super-prewarm:${key}`, {
+      window.XTend.state.set(`super-prewarm:${key}`, {
         generation,
         committedBy: 'main-thread',
         workerOwnedState: false
@@ -404,7 +404,7 @@
               staleCommitted = staleCommitted || olderCommit.committed || !currentCommit.committed;
             }
             const elapsed = performance.now() - start;
-            window.xstate.set(`super-prewarm:scenario:${scenario}`, { mode, cachePass });
+            window.XTend.state.set(`super-prewarm:scenario:${scenario}`, { mode, cachePass });
             runs.push({
               schema: 'xtend.maraca.super-prewarm-worker-run.v1',
               id: `${mode}:${cachePass}:${scenario}`,
@@ -420,8 +420,8 @@
                 offlineEligible: true
               },
               state: {
-                stateSnapshotHash: String(JSON.stringify(window.xstate.snapshot()).length),
-                xstateBridgeMode: 'fixture-main-thread-mirror',
+                stateSnapshotHash: String(JSON.stringify(window.XTend.state.snapshot()).length),
+                stateProjectionMode: 'fixture-main-thread-mirror',
                 stateOwnership: 'main-thread'
               },
               ssr: {
@@ -476,7 +476,7 @@
         pwaAttachment: {
           engineImplemented: false,
           manifestEngineScope: 'attachment-point-only',
-          hooks: ['cache-management', 'xstate-state-management', 'ssr-metadata', 'prewarm-warm-reentry-policy']
+          hooks: ['cache-management', 'state-management', 'ssr-metadata', 'prewarm-warm-reentry-policy']
         },
         boundaries: {
           workerDomMutation: false,

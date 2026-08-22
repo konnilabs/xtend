@@ -1,16 +1,16 @@
 // Selbst-ausfuehrende asynchrone Funktion statt direktem Import
 (async function() {
-  let xstate;
+  let xtendState;
 
-  if (window.xstate) {
-    xstate = window.xstate;
+  if (window.XTend?.state) {
+    xtendState = window.XTend?.state;
   } else {
     try {
-      const module = await import('./xstate.js');
-      xstate = module.xstate;
+      const module = await import('./xtend-state.js');
+      xtendState = module.xtendState;
     } catch (e) {
-      console.error('Fehler beim Laden von xstate in xalert.js:', e);
-      xstate = {
+      console.error('Fehler beim Laden von xtendState in xalert.js:', e);
+      xtendState = {
         get: () => null,
         set: () => {},
         subscribe: () => () => {}
@@ -27,7 +27,7 @@
 
   function setAlertState(id, state) {
     if (!id) return;
-    getAlertStateKeys(id).forEach((key) => xstate.set(key, state));
+    getAlertStateKeys(id).forEach((key) => xtendState.set(key, state));
   }
 
   class XAlert extends HTMLElement {

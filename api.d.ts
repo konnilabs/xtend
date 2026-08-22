@@ -1,3 +1,5 @@
+import type { XTendStateRuntime } from './components/xtend-state';
+
 export type XTendFeedbackType = 'info' | 'success' | 'warning' | 'error';
 export type XTendManifest = Record<string, string>;
 export type XTendThemeTokenMap = Record<string, string>;
@@ -136,6 +138,7 @@ export interface XTendUiState {
 }
 
 export interface XTendNamespace {
+  state?: XTendStateRuntime;
   compliance?: XTendComplianceApi;
   theme?: XTendThemeApi;
   themeRuntime?: unknown;

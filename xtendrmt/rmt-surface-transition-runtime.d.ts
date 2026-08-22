@@ -75,8 +75,6 @@ export interface RmtSurfaceTransitionRuntimeOptions {
     publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown;
   };
   diagnosticChannel?: string;
-  /** @deprecated Direct XState projection is ignored. Inject transitionStatePort. */
-  xstate?: unknown;
   transitionStatePort?: {
     apply?(projection: RmtSurfaceTransitionStateProjection): unknown;
     publish?(projection: RmtSurfaceTransitionStateProjection): unknown;

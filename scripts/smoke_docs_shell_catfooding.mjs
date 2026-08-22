@@ -627,7 +627,7 @@ async function readSnapshot(baseUrl, sessionId) {
       layoutShiftGeometry: Array.isArray(layoutShiftProbe?.geometry) ? layoutShiftProbe.geometry : [],
       bootSkeleton: layoutShiftProbe?.bootSkeleton || null,
       prerenderedRoute: layoutShiftProbe?.prerenderedRoute || null,
-      routeAdoption: layoutShiftProbe?.routeAdoption || (window.xstate && typeof window.xstate.get === 'function' ? window.xstate.get('xtend.router.routeAdoption') : null),
+      routeAdoption: layoutShiftProbe?.routeAdoption || (window.XTend?.state && typeof window.XTend?.state.get === 'function' ? window.XTend?.state.get('xtend.router.routeAdoption') : null),
       initialPagePayloadRequests: resourceEntries.filter((entry) => {
         if (entry.name.includes('xtend-docs-page=')) return true;
         if (entry.initiatorType !== 'fetch') return false;
@@ -1911,7 +1911,7 @@ async function runSsrCodeEnhancementRegression(baseUrl, driverUrl) {
       });
       const hydration = window.xtendDocsLastCodeHydration || null;
       const inputProbe = window.__xtendDocsSsrCodeEnhancementInputProbe || null;
-      const routeAdoption = window.xstate?.get?.('xtend.router.routeAdoption') || null;
+      const routeAdoption = window.XTend?.state?.get?.('xtend.router.routeAdoption') || null;
       const resumeStatus = document.getElementById('xtend-docs-rmt-root')?.getAttribute('data-rmt-resume-status') || '';
       const initialRouteReplay = window.xtendDocsInitialRouteReplay || null;
       const pagePayloadRequests = performance.getEntriesByType('resource')
@@ -2078,7 +2078,7 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
       };
       collectSkeletons(document);
       const hidden = state.skeletonEvents.find((entry) => entry.type === 'xrouter-skeleton-hidden');
-      const routeAdoption = window.__xtendDocsLayoutShiftProbe?.routeAdoption || window.xstate?.get?.('xtend.router.routeAdoption') || null;
+      const routeAdoption = window.__xtendDocsLayoutShiftProbe?.routeAdoption || window.XTend?.state?.get?.('xtend.router.routeAdoption') || null;
       if (!hidden && routeAdoption?.adopted !== true) return null;
       const menuSnapshots = Array.from(document.querySelectorAll('x-menu'))
         .map((menu) => typeof menu.snapshotPerformance === 'function' ? menu.snapshotPerformance() : null)
@@ -2096,7 +2096,7 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
         }).length,
         menuCount: menuSnapshots.length,
         menuSnapshots,
-        stateWrites: window.xstate?.snapshotDiagnostics?.().operationCounts?.set || 0,
+        stateWrites: window.XTend?.state?.snapshotDiagnostics?.().operationCounts?.set || 0,
         layoutShift: Number(window.__xtendDocsLayoutShiftProbe?.maxSessionValue || 0),
         layoutShiftTotal: Number(window.__xtendDocsLayoutShiftProbe?.totalValue || 0),
         layoutShiftEntries: Array.isArray(window.__xtendDocsLayoutShiftProbe?.entries)
@@ -2653,7 +2653,7 @@ try {
       { id: 'de-a11y-current-page-desktop', locale: 'de', slug: 'a11y-keyboard-smokes', width: 1440, height: 900, settleMs: 700, inspectNavigation: true },
       { id: 'de-xtoast-demo-desktop', locale: 'de', slug: 'components-xtoast', width: 1440, height: 900, settleMs: 700, inspectToastDemo: { triggerText: 'Toast anzeigen' } },
       { id: 'de-xdialog-demo-desktop', locale: 'de', slug: 'components-xdialog', width: 1440, height: 900, settleMs: 700, inspectOverlayDemo: { tag: 'x-dialog', action: 'open-dialog', targetId: 'docs-demo-dialog', triggerText: 'Dialog testen', description: 'Dialog-Surface für bestätigende UI-Flows.', chromeSurfaceSelector: '.xdialog', chromeTitleSelector: '.xdialog-title', chromeCloseSelector: '.xdialog-close' } },
-      { id: 'de-xmodal-demo-desktop', locale: 'de', slug: 'components-xmodal', width: 1440, height: 900, settleMs: 700, inspectOverlayDemo: { tag: 'x-modal', action: 'open-modal', targetId: 'docs-demo-modal', triggerText: 'Modal testen', description: 'Modales Overlay mit Focus Trap, Escape und xstate-Sync.', chromeSurfaceSelector: '.x-modal', chromeTitleSelector: '.x-modal-title', chromeCloseSelector: '.x-modal-close' } },
+      { id: 'de-xmodal-demo-desktop', locale: 'de', slug: 'components-xmodal', width: 1440, height: 900, settleMs: 700, inspectOverlayDemo: { tag: 'x-modal', action: 'open-modal', targetId: 'docs-demo-modal', triggerText: 'Modal testen', description: 'Modales Overlay mit Focus Trap, Escape und XTend-State-Sync.', chromeSurfaceSelector: '.x-modal', chromeTitleSelector: '.x-modal-title', chromeCloseSelector: '.x-modal-close' } },
       { id: 'de-xdrawer-demo-desktop', locale: 'de', slug: 'components-xdrawer', width: 1440, height: 900, settleMs: 700, inspectActivatableDemo: { tag: 'x-drawer', targetId: 'docs-demo-drawer', triggerSelector: 'x-button[slot="trigger"]', triggerText: 'Drawer oeffnen', activation: 'click' } },
       { id: 'de-xpopover-demo-desktop', locale: 'de', slug: 'components-xpopover', width: 1440, height: 900, settleMs: 700, inspectActivatableDemo: { tag: 'x-popover', targetId: 'docs-demo-popover', triggerSelector: 'x-button[slot="trigger"]', triggerText: 'Popover', activation: 'click' } },
       { id: 'de-xtooltip-demo-desktop', locale: 'de', slug: 'components-xtooltip', width: 1440, height: 900, settleMs: 700, inspectActivatableDemo: { tag: 'x-tooltip', targetId: 'docs-demo-tooltip', triggerSelector: 'x-button[slot="trigger"]', triggerText: 'Tooltip testen', activation: 'click' } },

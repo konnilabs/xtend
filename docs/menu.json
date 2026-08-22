@@ -5280,32 +5280,36 @@
     }
   },
   {
-    "slug": "components-xstate",
-    "id": "docs.components.xstate",
-    "label": "xstate",
+    "slug": "components-xtend-state",
+    "id": "docs.components.xtend.state",
+    "label": "XTend State",
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
     "rank": 69.58,
     "labels": {
-      "de": "xstate",
-      "en": "xstate"
+      "de": "XTend State",
+      "en": "XTend State"
     },
     "contentType": "component",
     "trunk": "components",
     "section": "runtime-utilities",
     "keywords": {
       "de": [
-        "xstate",
+        "XTend State",
         "components",
+        "xtend",
+        "state",
         "component",
         "runtime-utilities",
         "Web Component",
         "Custom Element"
       ],
       "en": [
-        "xstate",
+        "XTend State",
         "components",
+        "xtend",
+        "state",
         "component",
         "runtime-utilities",
         "Web Component",

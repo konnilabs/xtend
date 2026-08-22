@@ -1,5 +1,5 @@
 {
-  "xstate": "/components/xstate.js",
+  "xtend-state": "/components/xtend-state.js",
   "x-theme": "/components/xtheme.js",
   "x-router": "/components/xrouter.js",
   "x-link": "/components/xlink.js",

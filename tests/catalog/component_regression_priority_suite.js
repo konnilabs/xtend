@@ -57,7 +57,7 @@ function runComponentRegressionPrioritySuite(options = {}) {
   const xIcon = findEntry(plan, 'x-icon');
   const xMenu = findEntry(plan, 'x-menu');
   const xWriter = findEntry(plan, 'x-writer');
-  const xState = findEntry(plan, 'xstate');
+  const xState = findEntry(plan, 'xtend-state');
   const xUtils = findEntry(plan, 'x-utils');
   const xtendI18n = findEntry(plan, 'xtend-i18n');
   const expectedManifestCount = Object.keys(manifest).length;
@@ -133,11 +133,11 @@ function runComponentRegressionPrioritySuite(options = {}) {
   context.assert(xMenu && xMenu.browserSmokes.includes('keyboard-activation'), 'x-menu keeps interactive keyboard smoke');
   context.assert(xWriter && !xWriter.remediation.includes('a11y-profile-remediation'), 'x-writer A11y remediation is closed by WP-E11-08');
   context.assert(xWriter && xWriter.tier === 'p0-browser-critical', 'x-writer remains P0 because it is form/stateful');
-  context.assert(xState && xState.catalogStatus === 'contract-gated', 'xstate remains contract-gated as a boundary probe with bilingual docs coverage');
-  context.assert(xState && xState.remediation.includes('a11y-profile-remediation'), 'xstate keeps A11y remediation visible after WP-E12-08');
-  context.assert(xState && xState.remediation.includes('performance-profile-authoring'), 'xstate keeps performance authoring visible after WP-E12-08');
-  context.assert(xState && !xState.remediation.includes('public-types-long-tail'), 'xstate public types are closed after WP-E12-08');
-  context.assert(xState && !xState.remediation.includes('long-tail-component-suite-and-fixture'), 'xstate suite and fixture are closed after WP-E12-08');
+  context.assert(xState && xState.catalogStatus === 'contract-gated', 'state remains contract-gated as a boundary probe with bilingual docs coverage');
+  context.assert(xState && xState.remediation.includes('a11y-profile-remediation'), 'state keeps A11y remediation visible after WP-E12-08');
+  context.assert(xState && xState.remediation.includes('performance-profile-authoring'), 'state keeps performance authoring visible after WP-E12-08');
+  context.assert(xState && !xState.remediation.includes('public-types-long-tail'), 'state public types are closed after WP-E12-08');
+  context.assert(xState && !xState.remediation.includes('long-tail-component-suite-and-fixture'), 'state suite and fixture are closed after WP-E12-08');
   context.assert(xUtils && xUtils.tier === 'p1-visual-performance', 'x-utils is promoted by typed bilingual docs coverage while keeping utility remediation visible');
   context.assert(xUtils && xUtils.browserSmokes.includes('utility-integration-probe'), 'x-utils plans utility integration probe');
   context.assert(xUtils && xUtils.remediation.includes('non-custom-element-integration-probe'), 'x-utils records non-custom-element probe need');

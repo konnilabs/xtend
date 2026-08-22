@@ -31,7 +31,7 @@ const RMT_RUNTIME_PACKAGE_EXPORTS = Object.freeze([
   './rmt/safe-preview',
   './rmt/component-capability-registry',
   './rmt/state-selector-runtime',
-  './rmt/xstate-host-adapter',
+  './rmt/state-host-adapter',
   './rmt/state-binding-view-projector',
   './rmt/action-effect-runtime',
   './rmt/event-routing-runtime',
@@ -141,7 +141,7 @@ const RMT_REPRESENTATIVE_DECLARATION_TOKENS = Object.freeze({
   'tools/rmt-language/kernel-policy-parity.d.ts': ['RmtKernelPolicyParityController', 'RmtKernelPolicyParityReport', 'createKernelPolicyParityController'],
   'tools/rmt-language/kernel-security-regression.d.ts': ['RmtKernelSecurityRegressionReport', 'RmtKernelSecurityRegressionFixtureSet', 'createKernelSecurityRegressionFixtures'],
   'xtendrmt/rmt-component-capability-registry.d.ts': ['RmtComponentCapabilityRegistry', 'RmtComponentCapability', 'createRmtComponentCapabilityRegistry'],
-  'xtendrmt/rmt-xstate-host-adapter.d.ts': ['RmtStateProjectionPort', 'RmtXStateHostAdapter', 'createRmtXStateHostAdapter'],
+  'xtendrmt/rmt-state-host-adapter.d.ts': ['RmtStateProjectionPort', 'RmtStateHostAdapter', 'createRmtStateHostAdapter'],
   'xtendrmt/rmt-action-effect-runtime.d.ts': ['RmtActionEffectRuntime', 'RmtActionHostPort', 'createRmtActionEffectRuntime'],
   'xtendrmt/rmt-kernel-orchestration-controller.d.ts': ['RmtKernelOrchestrationController', 'RmtKernelOrchestrationControllerOptions', 'RmtKernelOrchestrationHostPort', 'createRmtKernelOrchestrationController'],
   'xtendrmt/rmt-form-validation-runtime.d.ts': ['RmtFormValidationRuntime', 'RmtFormValidationRuntimeOptions', 'createRmtFormValidationRuntime'],
@@ -214,7 +214,7 @@ function resolveDeclarationForExport(exportKey) {
   if (exportKey === './rmt/safe-preview') return './xtendrmt/rmt-safe-preview.d.ts';
   if (exportKey === './rmt/component-capability-registry') return './xtendrmt/rmt-component-capability-registry.d.ts';
   if (exportKey === './rmt/state-selector-runtime') return './xtendrmt/rmt-state-selector-runtime.d.ts';
-  if (exportKey === './rmt/xstate-host-adapter') return './xtendrmt/rmt-xstate-host-adapter.d.ts';
+  if (exportKey === './rmt/state-host-adapter') return './xtendrmt/rmt-state-host-adapter.d.ts';
   if (exportKey === './rmt/state-binding-view-projector') return './xtendrmt/rmt-state-binding-view-projector.d.ts';
   if (exportKey === './rmt/action-effect-runtime') return './xtendrmt/rmt-action-effect-runtime.d.ts';
   if (exportKey === './rmt/event-routing-runtime') return './xtendrmt/rmt-event-routing-runtime.d.ts';
@@ -246,7 +246,7 @@ function resolveSourceForExport(exportKey) {
   if (exportKey === './rmt/safe-preview') return './xtendrmt/rmt-safe-preview.js';
   if (exportKey === './rmt/component-capability-registry') return './xtendrmt/rmt-component-capability-registry.js';
   if (exportKey === './rmt/state-selector-runtime') return './xtendrmt/rmt-state-selector-runtime.compat.js';
-  if (exportKey === './rmt/xstate-host-adapter') return './xtendrmt/rmt-xstate-host-adapter.js';
+  if (exportKey === './rmt/state-host-adapter') return './xtendrmt/rmt-state-host-adapter.js';
   if (exportKey === './rmt/state-binding-view-projector') return './xtendrmt/rmt-state-binding-view-projector.js';
   if (exportKey === './rmt/action-effect-runtime') return './xtendrmt/rmt-action-effect-runtime.js';
   if (exportKey === './rmt/event-routing-runtime') return './xtendrmt/rmt-event-routing-runtime.js';
@@ -276,7 +276,7 @@ const RMT_DECLARATION_FILES = Object.freeze([
   'xtendrmt/rmt-safe-preview.d.ts',
   'xtendrmt/rmt-component-capability-registry.d.ts',
   'xtendrmt/rmt-state-selector-runtime.d.ts',
-  'xtendrmt/rmt-xstate-host-adapter.d.ts',
+  'xtendrmt/rmt-state-host-adapter.d.ts',
   'xtendrmt/rmt-state-binding-view-projector.d.ts',
   'xtendrmt/rmt-action-effect-runtime.d.ts',
   'xtendrmt/rmt-event-routing-runtime.d.ts',

@@ -1,5 +1,5 @@
-// Public 0.6 composition facade. The canonical Model source intentionally has
-// no View dependency; only this compatibility boundary composes the deprecated
+// Public composition facade. The canonical Model source intentionally has
+// no View dependency; only this boundary composes the deprecated
 // State Binding aliases with the State Binding View Projector.
 import stateRuntimeApi, {
   RMT_STATE_SELECTOR_DIAGNOSTIC_SCHEMA,
@@ -7,8 +7,8 @@ import stateRuntimeApi, {
   createRmtStateSelectorRuntime as createRmtStateSelectorModel
 } from './rmt-state-selector-runtime.js';
 import {
-  createRmtXStateHostAdapter
-} from './rmt-xstate-host-adapter.js';
+  createRmtStateHostAdapter
+} from './rmt-state-host-adapter.js';
 import {
   createRmtStateBindingViewProjector
 } from './rmt-state-binding-view-projector.js';
@@ -16,32 +16,13 @@ import {
 const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_platform.state_binding_view';
 const legacyBindingRuntimes = new WeakSet();
 
-export function createRmtXStateBridge(options = {}) {
-  return createRmtXStateHostAdapter({
-    ...options,
-    target: options.target || options.xstate || null
-  });
-}
-
 export function createRmtStateSelectorRuntime(options = {}) {
-  const stateProjectionTarget = Object.prototype.hasOwnProperty.call(options, 'stateProjectionTarget')
-    ? options.stateProjectionTarget
-    : options.xstate;
   const createStateProjectionPort = typeof options.createStateProjectionPort === 'function'
     ? options.createStateProjectionPort
-    : createRmtXStateBridge;
-  const runtime = createRmtStateSelectorModel({
+    : createRmtStateHostAdapter;
+  return createRmtStateSelectorModel({
     ...options,
-    stateProjectionTarget,
-    createStateProjectionPort,
-    adoptStateProjection: options.adoptStateProjection === true || options.adoptXState === true
-  });
-  return Object.freeze({
-    ...runtime,
-    connectXState(target) {
-      return createRmtXStateBridge({ target });
-    },
-    xstateBridge: runtime.stateProjectionPort
+    createStateProjectionPort
   });
 }
 
@@ -182,8 +163,7 @@ const compatibilityApi = Object.freeze({
   ...stateRuntimeApi,
   applyRmtStateBindings,
   createRmtStateBindingAdapter,
-  createRmtStateSelectorRuntime,
-  createRmtXStateBridge
+  createRmtStateSelectorRuntime
 });
 
 if (typeof globalThis !== 'undefined') {

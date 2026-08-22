@@ -128,7 +128,7 @@ function runLayoutDisplayMediaComponentSuite(tag, options = {}) {
   context.assert(source.includes('forced-colors'), `${tag} is forced-colors safe`);
   context.assert(fixture.includes(`<${tag}`), `${tag} fixture contains the component tag`);
   context.assert(fixture.includes(`/components/${config.fileName}`), `${tag} fixture loads repo-local component`);
-  context.assert(fixture.includes('window.xstate'), `${tag} fixture stubs xstate`);
+  context.assert(fixture.includes('window.XTend.state'), `${tag} fixture stubs state`);
   config.attributes.forEach((attribute) => context.assert(fixture.includes(attribute), `${tag} fixture covers ${attribute}`));
   context.assert(docs.includes(`# ${tag}`), `${tag} documentation is present`);
   context.assert(docs.includes('xtend-loader.js'), `${tag} docs describe loader integration`);

@@ -1,5 +1,5 @@
 import type { XtendCustomEventMap, XtendPublicEventContract } from './xtend-public-types';
-import type { XStateApi } from './xstate';
+import type { XTendStateRuntime } from './xtend-state';
 import type { XRouterElement } from './xrouter';
 
 export type XtendI18nLocale = string;
@@ -105,7 +105,7 @@ export interface XtendI18nDiagnosticsSnapshot {
   schema: 'xtend.i18n.diagnostics.v1';
   source: 'xtend-i18n';
   boundary: XtendI18nBoundaryContract;
-  xstate: XtendI18nXStateAdapterContract;
+  state: XtendI18nStateAdapterContract;
   router: XtendI18nRouterAdapterContract;
   operationCounts: Record<string, number>;
   diagnostics: XtendI18nDiagnosticDetail[];
@@ -139,16 +139,16 @@ export interface XtendI18nConfigureOptions {
   apply?: boolean;
 }
 
-export interface XtendI18nXStateAdapterContract {
-  schema: 'xtend.i18n.xstate-adapter.v1';
+export interface XtendI18nStateAdapterContract {
+  schema: 'xtend.i18n.state-adapter.v1';
   eventType: 'LOCALE_CHANGED';
   requestKey: 'xtend.i18n.locale.request' | string;
   canonicalKeys: string[];
   kernelBoundary: 'no-rmt-kernel-import-of-xtend-types';
 }
 
-export interface XtendI18nXStateConnection {
-  schema: 'xtend.i18n.xstate-adapter.v1';
+export interface XtendI18nStateConnection {
+  schema: 'xtend.i18n.state-adapter.v1';
   stateKeys: XtendI18nStateKeys;
   locale: XtendI18nLocale;
   dispose(): void;
@@ -190,7 +190,7 @@ export type XtendI18nPublicEventContract = XtendPublicEventContract<XtendI18nLoc
 
 export interface XtendI18nApi {
   xtendI18nBoundaryContract: XtendI18nBoundaryContract;
-  xtendXStateAdapterContract: XtendI18nXStateAdapterContract;
+  stateAdapterContract: XtendI18nStateAdapterContract;
   xtendRouterAdapterContract: XtendI18nRouterAdapterContract;
   xtendComponentLabelContracts: Map<string, XtendI18nComponentLabelContract>;
   configure(options?: XtendI18nConfigureOptions): XtendI18nSnapshot;
@@ -201,7 +201,7 @@ export interface XtendI18nApi {
   getLabelRecord(key: string, fallback?: string): XtendI18nLabelRecord;
   applyLabels(root?: Document | ShadowRoot | Element): XtendI18nLocaleEventDetail;
   bindComponent(element: Element, contract?: XtendI18nComponentLabelContract): XtendI18nComponentLabelContract | null;
-  connectXState(xstate?: XStateApi, options?: { stateKeys?: Partial<XtendI18nStateKeys> }): XtendI18nXStateConnection;
+  connectState(stateRuntime?: XTendStateRuntime, options?: { stateKeys?: Partial<XtendI18nStateKeys> }): XtendI18nStateConnection;
   connectRouter(router?: XRouterElement | Element | null, options?: XtendI18nRouterOptions): XtendI18nRouterConnection;
   snapshot(): XtendI18nSnapshot;
   snapshotDiagnostics(): XtendI18nDiagnosticsSnapshot;
@@ -215,7 +215,7 @@ export declare const XTEND_I18N_LABEL_RECORD_SCHEMA: 'xtend.i18n.label-record.v1
 export declare const XTEND_I18N_LABELS_SCHEMA: 'xtend.i18n.labels.v1';
 export declare const XTEND_I18N_ROUTER_ADAPTER_SCHEMA: 'xtend.i18n.xrouter-adapter.v1';
 export declare const XTEND_I18N_SNAPSHOT_SCHEMA: 'xtend.i18n.snapshot.v1';
-export declare const XTEND_I18N_XSTATE_ADAPTER_SCHEMA: 'xtend.i18n.xstate-adapter.v1';
+export declare const XTEND_I18N_STATE_ADAPTER_SCHEMA: 'xtend.i18n.state-adapter.v1';
 export declare const xtendI18n: XtendI18nApi;
 
 declare global {

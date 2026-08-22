@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>XTend State boundary fixture</title>
+</head>
+<body>
+  <main id="xtend-state-boundary-fixture" data-boundary="adapter-probe"></main>
+
+  <script type="module">
+    import { xtendState } from '/components/xtend-state.js';
+
+    window.__xtendComponentResult = [];
+    window.__xtendStateLifecycle = [];
+
+    const record = (name, passed, detail = {}) => {
+      window.__xtendComponentResult.push({ name, passed: Boolean(passed), detail });
+    };
+
+    window.addEventListener('xtend-state:lifecycle', (event) => {
+      window.__xtendStateLifecycle.push(event.detail);
+    });
+
+    const unsubscribeLifecycle = xtendState.subscribeLifecycle(() => {});
+    xtendState.clear();
+
+    const observed = [];
+    const unsubscribe = xtendState.subscribe((key, value, allData) => {
+      observed.push({ key, value, allData });
+    }, ['rmt.bridge.ready', 'rmt.scheduler.lastEndpoint']);
+
+    xtendState.set('rmt.bridge.ready', true);
+    xtendState.set('rmt.scheduler.lastEndpoint', { id: 'docs.header.search', lane: 'user-blocking' });
+    xtendState.setPath('rmt.component.docs-content.lastResult', { ok: true, operation: 'hydrateComponent' });
+    xtendState.batchUpdate({
+      'rmt.adapter.lastResult': { ok: true },
+      'rmt.diagnostics.last': { source: 'fixture' }
+    });
+
+    const adapter = xtendState.createRmtStateAdapter({ schedulerId: 'fixture-scheduler' });
+    adapter.set('rmt.route.docs.lastResult', { ok: true, operation: 'navigate' });
+
+    record('singleton identity', window.XTend.state === xtendState);
+    record('boundary contract exposed', xtendState.xtendStateBoundaryContract.schema === 'xtend.state.boundary-probe.v1');
+    record('rmt adapter exposed', adapter.schema === 'xtend.rmt.state-scheduler-compatibility.v2');
+    record('lifecycle events captured', window.__xtendStateLifecycle.some((event) => event.type === 'rmt-state-adapter:create'));
+    record('filtered observer received scheduler key', observed.some((entry) => entry.key === 'rmt.scheduler.lastEndpoint'));
+
+    unsubscribe();
+    unsubscribeLifecycle();
+    document.body.dataset.xtendStateBoundaryReady = 'true';
+  </script>
+</body>
+</html>

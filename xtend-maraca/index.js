@@ -153,7 +153,7 @@ const TRANSITION_RUNTIME_MODULES = Object.freeze([
   'xtendrmt/rmt-animation-engine-runtime.js',
   'xtendrmt/rmt-surface-transition-runtime.js',
   'components/xutils.js',
-  'components/xstate.js'
+  'components/xtend-state.js'
 ]);
 const KERNEL_RUNTIME_MODULES = Object.freeze([
   'xtendrmt/rmt-kernel-orchestration-controller.js',
@@ -174,7 +174,7 @@ const ORCHESTRATION_RUNTIME_MODULES = Object.freeze([
   'components/xsurfacemanager-controller.js',
   'xtendrmt/rmt-resume-runtime.js',
   'xtendrmt/rmt-state-binding-view-projector.js',
-  'xtendrmt/rmt-xstate-host-adapter.js',
+  'xtendrmt/rmt-state-host-adapter.js',
   'xtendrmt/rmt-state-selector-runtime.js',
   'xtendrmt/rmt-action-effect-runtime.js',
   'xtendrmt/rmt-event-routing-runtime.js',
@@ -199,7 +199,7 @@ const XTEND_VENDOR_STACK_MODULES = Object.freeze([
   'xtendrmt/rmt-maraca-view-projection-adapter.js',
   'xtendrmt/rmt-presentation-effect-adapter.js',
   'xtendrmt/rmt-state-binding-view-projector.js',
-  'xtendrmt/rmt-xstate-host-adapter.js',
+  'xtendrmt/rmt-state-host-adapter.js',
   'xtendrmt/rmt-state-selector-runtime.js',
   'xtendrmt/rmt-surface-resource-graph-runtime.js',
   'xtendrmt/rmt-component-capability-registry.js',
@@ -1097,11 +1097,11 @@ function createMaracaUiCoprocessorPlan(compileResult, kernelPlan, hydrationPlan,
       serviceWorkerControlled: options.serviceWorkerControlled === true,
       offlineEligible: pwaPlan && pwaPlan.offlineEligible === true || options.offlineEligible === true,
       cacheVersion: pwaPlan && pwaPlan.cacheVersion || '',
-      hooks: ['cache-management', 'xstate-state-management', 'ssr-metadata', 'prewarm-warm-reentry-policy']
+      hooks: ['cache-management', 'state-management', 'ssr-metadata', 'prewarm-warm-reentry-policy']
     },
     state: {
       stateSnapshotHash: options.stateSnapshotHash || '',
-      xstateBridgeMode: options.xstateBridgeMode || 'main-thread-snapshot',
+      stateProjectionMode: options.stateProjectionMode || 'main-thread-snapshot',
       stateOwnership: 'main-thread'
     },
     ssr: {
@@ -2602,7 +2602,7 @@ function buildRuntimeModuleList(coreDocument) {
   if (hasActions || hasEvents) modules.add('xtendrmt/rmt-app-runtime.js');
   if (hasSelectors) {
     modules.add('xtendrmt/rmt-state-binding-view-projector.js');
-    modules.add('xtendrmt/rmt-xstate-host-adapter.js');
+    modules.add('xtendrmt/rmt-state-host-adapter.js');
     modules.add('xtendrmt/rmt-state-selector-runtime.js');
   }
   if (hasSurfaces || coreDocument && coreDocument.appPlatform) modules.add('xtendrmt/rmt-surface-resource-graph-runtime.js');
@@ -3942,7 +3942,7 @@ function createMaracaTransitionPlan(compileResult, orchestrationPlan, kernelPlan
       transitionCount: transitions.length,
       effectCounts: artifact.effectCounts || {},
       durationRange: artifact.durationRange || { min: 0, max: 0 },
-      xstateModule: 'components/xstate.js',
+      stateRuntimeModule: 'components/xtend-state.js',
       xutilsModule: 'components/xutils.js',
       scheduledEndpointCount: scheduledOperations.size,
       fallbackCount: 0,

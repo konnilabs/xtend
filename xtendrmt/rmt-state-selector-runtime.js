@@ -149,7 +149,7 @@
       schema: clampString(state && state.schema, ''),
       initial: cloneValue(state && Object.prototype.hasOwnProperty.call(state, 'initial') ? state.initial : null, null),
       preserve: clampString(state && state.preserve, ''),
-      xstateKey: clampString(state && state.xstateKey, state && state.id)
+      projectionKey: clampString(state && state.projectionKey, state && state.id)
     })).filter((state) => state.id);
   }
 
@@ -220,7 +220,7 @@
     if (!port) return null;
     if (typeof port.batchUpdate !== 'function') {
       throw createPortError(
-        strict ? 'rmt.state.xstate-batch-required' : 'rmt.state.projection-port-invalid',
+        strict ? 'rmt.state.projection-batch-required' : 'rmt.state.projection-port-invalid',
         strict
           ? 'Strict RMT Model projection requires batchUpdate().'
           : 'RMT Model stateProjectionPort requires batchUpdate().'
@@ -621,7 +621,7 @@
       if (definition && definition.id) assertSafePathSegments(definition.id);
     });
     stateDefinitions.forEach((definition) => {
-      if (definition && definition.xstateKey) assertSafePathSegments(definition.xstateKey);
+      if (definition && definition.projectionKey) assertSafePathSegments(definition.projectionKey);
     });
     reducers.forEach((definition) => {
       if (definition && definition.state) assertSafePathSegments(definition.state);
@@ -631,37 +631,13 @@
     let transactionContext = null;
     let runtimeApi = null;
 
-    const adoptStateProjection = options.adoptStateProjection === true;
-    if (adoptStateProjection) {
-      if (strict) {
-        const error = new Error('Strict RMT Model boot does not adopt state from XState; pass verified initialState instead.');
-        error.code = 'rmt.state.xstate-adoption-forbidden';
-        throw error;
-      }
-      if (!stateProjectionPort || typeof stateProjectionPort.get !== 'function') {
-        throw createPortError(
-          'rmt.state.projection-read-port-required',
-          'State projection adoption requires an injected port with get().'
-        );
-      }
-      diagnosticsRecorder.publish(createDiagnostic(
-        'rmt.state.xstate-adoption.legacy',
-        'XState boot adoption is a compatibility path; provide verified initialState so RMT remains authoritative.',
-        {},
-        'warning'
-      ));
-    }
     stateDefinitions.forEach((state) => {
-      const configuredValue = cloneValue(
+      const initialValue = cloneValue(
         (options.initialState && Object.prototype.hasOwnProperty.call(options.initialState, state.id))
           ? options.initialState[state.id]
           : state.initial,
         null
       );
-      const externalValue = adoptStateProjection ? stateProjectionPort.get(state.xstateKey, undefined) : undefined;
-      const initialValue = adoptStateProjection && typeof externalValue !== 'undefined'
-        ? cloneValue(externalValue, externalValue)
-        : configuredValue;
       if (!validateTypedValue(state, initialValue)) {
         diagnosticsRecorder.publish(createDiagnostic('rmt.state.type.invalid', `State ${state.id} passt nicht zum Typ ${state.type}.`, { state: state.id, type: state.type }));
       }
@@ -702,7 +678,7 @@
     function createStateProjection(currentSnapshot) {
       const projection = Object.create(null);
       stateDefinitions.forEach((definition) => {
-        projection[definition.xstateKey] = currentSnapshot.states[definition.id];
+        projection[definition.projectionKey] = currentSnapshot.states[definition.id];
       });
       Object.assign(projection, currentSnapshot.selectors, currentSnapshot.derived);
       return projection;

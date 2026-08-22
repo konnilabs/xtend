@@ -13,7 +13,7 @@ export const xTogglePerformanceProfile = {
     keyboardAction: 8,
     stateSync: 6
   },
-  cleanup: ['toggle-event-listeners', 'xstate-subscription'],
+  cleanup: ['toggle-event-listeners', 'xtendState-subscription'],
   rmt: {
     scheduleRefs: ['component.visible.mount', 'component.idle.hydrate', 'ui.user-blocking.input', 'diagnostics.snapshot'],
     kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'

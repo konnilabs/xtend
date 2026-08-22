@@ -368,7 +368,7 @@ function renderHostHtml(context) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="xtend-preload" content="xstate,x-theme,${context.paths.tag}">
+  <meta name="xtend-preload" content="xtend-state,x-theme,${context.paths.tag}">
   <title>XTend RMT App Build</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -405,7 +405,7 @@ function renderBrowserSmokeHtml(context) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="xtend-preload" content="xstate,x-theme,${context.paths.tag}">
+  <meta name="xtend-preload" content="xtend-state,x-theme,${context.paths.tag}">
   <title>XTend RMT App Build Smoke</title>
 </head>
 <body>

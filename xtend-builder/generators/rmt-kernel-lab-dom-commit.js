@@ -437,8 +437,8 @@ function rmtFormatDomBridgeTemplate() {
                 dispatchCommand(payload.commandName, payload, event);
             } else if (typeof onEvent === 'function') {
                 onEvent(payload, event);
-            } else if (deps.xstate && typeof deps.xstate.set === 'function' && config.stateKey) {
-                deps.xstate.set(config.stateKey, payload);
+            } else if (deps.stateRuntime && typeof deps.stateRuntime.set === 'function' && config.stateKey) {
+                deps.stateRuntime.set(config.stateKey, payload);
             }
         } catch (error) {
             eventStatus = 'failed';

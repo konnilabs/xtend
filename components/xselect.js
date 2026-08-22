@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 class XSelect extends HTMLElement {
   static formAssociated = true;
@@ -80,7 +80,7 @@ class XSelect extends HTMLElement {
       lane: 'user-blocking',
       hydrationPolicy: 'visible',
       criticalMeasurements: ['mount', 'hydrate', 'event'],
-      cleanup: ['option-mutation-observer', 'xstate-subscription']
+      cleanup: ['option-mutation-observer', 'xtend-state-subscription']
     };
   }
 
@@ -329,8 +329,8 @@ class XSelect extends HTMLElement {
     this._control.addEventListener('invalid', this._onInvalid);
     this._observer = new MutationObserver(() => this._syncOptions());
     this._observer.observe(this, { childList: true, subtree: true, attributes: true });
-    xstate.set(`xselect-value-${this.id}`, this.value);
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    xtendState.set(`xselect-value-${this.id}`, this.value);
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xselect-value-${this.id}` && typeof value === 'string' && value !== this.value) {
         this.value = value;
       }
@@ -412,7 +412,7 @@ class XSelect extends HTMLElement {
       bubbles: true,
       composed: true
     }));
-    xstate.set(`xselect-value-${this.id}`, this.value);
+    xtendState.set(`xselect-value-${this.id}`, this.value);
   }
 
   _onInvalid() {

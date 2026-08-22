@@ -131,7 +131,7 @@ function runSurfaceManagerRuntimeReleaseHandoffSuite(options = {}) {
   context.assert(plan.runtimeBoundary.surfaceControllerSingleRegistry === true, 'SurfaceController remains the single registry');
   context.assert(plan.runtimeBoundary.replacesFabric === false, 'SurfaceManager does not replace Fabric');
   context.assert(plan.runtimeBoundary.replacesRmtKernel === false, 'SurfaceManager does not replace RMT kernel');
-  context.assert(plan.runtimeBoundary.replacesXState === false, 'SurfaceManager does not replace xstate');
+  context.assert(plan.runtimeBoundary.replacesState === false, 'SurfaceManager does not replace state');
   context.assert(plan.runtimeBoundary.remoteRuntimeExecutionInKernel === false, 'Remote runtime execution stays outside the RMT kernel');
   context.assert(plan.runtimeBoundary.createsSecondRegistry === false, 'Runtime handoff creates no second registry');
 

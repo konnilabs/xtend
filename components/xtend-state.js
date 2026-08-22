@@ -4,12 +4,15 @@
  * Komponenten können auf State-Änderungen reagieren und Werte zentral speichern.
  */
 
-const XSTATE_BOUNDARY_SCHEMA = 'xtend.state.boundary-probe.v1';
-const XSTATE_SNAPSHOT_SCHEMA = 'xtend.state.snapshot.v1';
-const XSTATE_LIFECYCLE_EVENT_SCHEMA = 'xtend.state.lifecycle-event.v1';
-const XSTATE_DIAGNOSTICS_SCHEMA = 'xtend.fabric.state-diagnostics.v1';
-const XSTATE_RMT_COMPATIBILITY_SCHEMA = 'xtend.rmt.state-scheduler-compatibility.v2';
-const XSTATE_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
+const XTEND_STATE_BOUNDARY_SCHEMA = 'xtend.state.boundary-probe.v1';
+const XTEND_STATE_SNAPSHOT_SCHEMA = 'xtend.state.snapshot.v1';
+const XTEND_STATE_LIFECYCLE_EVENT_SCHEMA = 'xtend.state.lifecycle-event.v1';
+const XTEND_STATE_DIAGNOSTICS_SCHEMA = 'xtend.fabric.state-diagnostics.v1';
+const XTEND_STATE_RMT_COMPATIBILITY_SCHEMA = 'xtend.rmt.state-scheduler-compatibility.v2';
+const XTEND_STATE_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
+const XTEND_STATE_STORAGE_KEY = 'xtend-state-data';
+// Kept only for the one-time 0.7 persisted-data migration.
+const LEGACY_STATE_STORAGE_KEY = 'xstate-data';
 
 function cloneData(data) {
   return { ...data };
@@ -24,21 +27,25 @@ function normalizeFilter(filter) {
   return filter || null;
 }
 
-// xstate Objekt definieren
-const xstateObj = {
+function isStateRecord(value) {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+// Shared Classic state runtime used by manifest-backed XTend components.
+const xtendState = {
   xtendStateBoundaryContract: Object.freeze({
-    schema: XSTATE_BOUNDARY_SCHEMA,
-    moduleRef: 'xstate',
-    componentRef: 'xstate',
+    schema: XTEND_STATE_BOUNDARY_SCHEMA,
+    moduleRef: 'xtend-state',
+    componentRef: 'xtend-state',
     boundaryKind: 'adapter-boundary-probe',
     customElement: false,
     profiles: ['stateful', 'infrastructure'],
     publicSurface: ['get', 'set', 'remove', 'clear', 'subscribe', 'on', 'off', 'snapshot', 'snapshotDiagnostics', 'createRmtStateAdapter'],
-    kernelBoundary: XSTATE_KERNEL_BOUNDARY
+    kernelBoundary: XTEND_STATE_KERNEL_BOUNDARY
   }),
   xtendRmtMetadata: Object.freeze({
-    schema: XSTATE_RMT_COMPATIBILITY_SCHEMA,
-    moduleRef: 'xstate',
+    schema: XTEND_STATE_RMT_COMPATIBILITY_SCHEMA,
+    moduleRef: 'xtend-state',
     adapterRole: 'optional-host-state-bridge',
     schedulerCompatibility: ['state-read', 'state-write', 'diagnostics-mirror', 'route-result-mirror', 'component-result-mirror'],
     canonicalKeys: [
@@ -49,11 +56,11 @@ const xstateObj = {
       'rmt.route.<id>.lastResult',
       'rmt.component.<id>.lastResult'
     ],
-    kernelBoundary: XSTATE_KERNEL_BOUNDARY
+    kernelBoundary: XTEND_STATE_KERNEL_BOUNDARY
   }),
   xtendComponentLifecycleTelemetry: Object.freeze({
     schema: 'xtend.component.lifecycle-telemetry.v1',
-    componentRef: 'xstate',
+    componentRef: 'xtend-state',
     boundaryKind: 'state-infrastructure',
     lane: 'diagnostics',
     events: [
@@ -65,7 +72,7 @@ const xstateObj = {
       'state:unsubscribe',
       'rmt-state-adapter:create'
     ],
-    dispatchEvent: 'xstate:lifecycle'
+    dispatchEvent: 'xtend-state:lifecycle'
   }),
   _data: {},
   _listeners: [],
@@ -92,8 +99,8 @@ const xstateObj = {
 
   _recordLifecycle(type, detail = {}) {
     const event = {
-      schema: XSTATE_LIFECYCLE_EVENT_SCHEMA,
-      source: 'xstate',
+      schema: XTEND_STATE_LIFECYCLE_EVENT_SCHEMA,
+      source: 'xtend-state',
       type,
       detail,
       listenerCount: this._listeners.length,
@@ -111,13 +118,13 @@ const xstateObj = {
         listener(event, this.snapshotDiagnostics());
       } catch (error) {
         if (this._debug) {
-          console.error('[XState] Lifecycle listener failed:', error);
+          console.error('[XTendState] Lifecycle listener failed:', error);
         }
       }
     });
 
     if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function' && typeof CustomEvent !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('xstate:lifecycle', { detail: event }));
+      window.dispatchEvent(new CustomEvent('xtend-state:lifecycle', { detail: event }));
     }
 
     return event;
@@ -139,7 +146,7 @@ const xstateObj = {
    */
   set(key, value) {
     if (this._debug) {
-      console.log(`[XState] Setting ${key}:`, value);
+      console.log(`[XTendState] Setting ${key}:`, value);
     }
     this._incrementOperation('set');
     this._data[key] = value;
@@ -235,7 +242,7 @@ const xstateObj = {
    */
   remove(key) {
     if (this._debug) {
-      console.log(`[XState] Removing ${key}`);
+      console.log(`[XTendState] Removing ${key}`);
     }
     this._incrementOperation('remove');
     delete this._data[key];
@@ -250,7 +257,7 @@ const xstateObj = {
    */
   clear() {
     if (this._debug) {
-      console.log(`[XState] Clearing all state`);
+      console.log(`[XTendState] Clearing all state`);
     }
     this._incrementOperation('clear');
     this._data = {};
@@ -280,7 +287,7 @@ const xstateObj = {
    */
   setPath(path, value) {
     if (this._debug) {
-      console.log(`[XState] Setting path ${path}:`, value);
+      console.log(`[XTendState] Setting path ${path}:`, value);
     }
     this._incrementOperation('setPath');
     
@@ -310,7 +317,7 @@ const xstateObj = {
    */
   batchUpdate(updates) {
     if (this._debug) {
-      console.log(`[XState] Batch update:`, updates);
+      console.log(`[XTendState] Batch update:`, updates);
     }
     this._incrementOperation('batchUpdate');
     
@@ -331,9 +338,9 @@ const xstateObj = {
   /**
    * Speichert den aktuellen State im Browser-Storage.
    * @param {string} [storageType='local'] - 'local' oder 'session'
-   * @param {string} [key='xstate-data'] - Schlüssel für Storage
+   * @param {string} [key='xtend-state-data'] - Schlüssel für Storage
    */
-  saveToStorage(storageType = 'local', key = 'xstate-data') {
+  saveToStorage(storageType = 'local', key = XTEND_STATE_STORAGE_KEY) {
     const storage = storageType === 'session' ? sessionStorage : localStorage;
     try {
       storage.setItem(key, JSON.stringify(this._data));
@@ -343,25 +350,41 @@ const xstateObj = {
         key
       });
       if (this._debug) {
-        console.log(`[XState] Saved state to ${storageType}Storage`);
+        console.log(`[XTendState] Saved state to ${storageType}Storage`);
       }
     } catch (e) {
-      console.error(`[XState] Failed to save state to ${storageType}Storage:`, e);
+      console.error(`[XTendState] Failed to save state to ${storageType}Storage:`, e);
     }
   },
 
   /**
    * Lädt den State aus dem Browser-Storage.
    * @param {string} [storageType='local'] - 'local' oder 'session'
-   * @param {string} [key='xstate-data'] - Schlüssel für Storage
+   * @param {string} [key='xtend-state-data'] - Schlüssel für Storage
    * @returns {boolean} - True wenn erfolgreich geladen
    */
-  loadFromStorage(storageType = 'local', key = 'xstate-data') {
+  loadFromStorage(storageType = 'local', key = XTEND_STATE_STORAGE_KEY) {
     const storage = storageType === 'session' ? sessionStorage : localStorage;
     try {
-      const data = storage.getItem(key);
+      let sourceKey = key;
+      let data = storage.getItem(sourceKey);
+      if (!data && key === XTEND_STATE_STORAGE_KEY) {
+        const legacyData = storage.getItem(LEGACY_STATE_STORAGE_KEY);
+        if (legacyData) {
+          sourceKey = LEGACY_STATE_STORAGE_KEY;
+          data = legacyData;
+        }
+      }
       if (data) {
-        this._data = JSON.parse(data);
+        const parsed = JSON.parse(data);
+        if (!isStateRecord(parsed)) {
+          throw new TypeError('XTend State storage payload must be an object record.');
+        }
+        if (sourceKey === LEGACY_STATE_STORAGE_KEY) {
+          storage.setItem(XTEND_STATE_STORAGE_KEY, JSON.stringify(parsed));
+          storage.removeItem(LEGACY_STATE_STORAGE_KEY);
+        }
+        this._data = parsed;
         this._incrementOperation('storageLoad');
         this._notifyListeners('storage-loaded', null);
         this._recordLifecycle('state:storage-load', {
@@ -369,12 +392,12 @@ const xstateObj = {
           key
         });
         if (this._debug) {
-          console.log(`[XState] Loaded state from ${storageType}Storage`);
+          console.log(`[XTendState] Loaded state from ${storageType}Storage`);
         }
         return true;
       }
     } catch (e) {
-      console.error(`[XState] Failed to load state from ${storageType}Storage:`, e);
+      console.error(`[XTendState] Failed to load state from ${storageType}Storage:`, e);
     }
     return false;
   },
@@ -385,7 +408,7 @@ const xstateObj = {
    */
   enableDebug(enabled = true) {
     this._debug = enabled;
-    console.log(`[XState] Debug mode ${enabled ? 'enabled' : 'disabled'}`);
+    console.log(`[XTendState] Debug mode ${enabled ? 'enabled' : 'disabled'}`);
   },
 
   /**
@@ -411,8 +434,8 @@ const xstateObj = {
    */
   snapshot() {
     return {
-      schema: XSTATE_SNAPSHOT_SCHEMA,
-      source: 'xstate',
+      schema: XTEND_STATE_SNAPSHOT_SCHEMA,
+      source: 'xtend-state',
       keys: Object.keys(this._data),
       data: cloneData(this._data),
       listenerCount: this._listeners.length,
@@ -428,8 +451,8 @@ const xstateObj = {
    */
   snapshotDiagnostics() {
     return {
-      schema: XSTATE_DIAGNOSTICS_SCHEMA,
-      source: 'xstate',
+      schema: XTEND_STATE_DIAGNOSTICS_SCHEMA,
+      source: 'xtend-state',
       boundary: this.xtendStateBoundaryContract,
       rmt: this.xtendRmtMetadata,
       operationCounts: { ...this._operationCounts },
@@ -453,10 +476,10 @@ const xstateObj = {
       schedulerId: options.schedulerId || 'rmt.state.scheduler'
     });
     return {
-      schema: XSTATE_RMT_COMPATIBILITY_SCHEMA,
-      source: 'xstate',
+      schema: XTEND_STATE_RMT_COMPATIBILITY_SCHEMA,
+      source: 'xtend-state',
       schedulerId: options.schedulerId || 'rmt.state.scheduler',
-      kernelBoundary: XSTATE_KERNEL_BOUNDARY,
+      kernelBoundary: XTEND_STATE_KERNEL_BOUNDARY,
       get: this.get.bind(this),
       set: this.set.bind(this),
       batchUpdate: this.batchUpdate.bind(this),
@@ -471,24 +494,26 @@ const xstateObj = {
 
 // Export as a module for import syntax
 export {
-  XSTATE_BOUNDARY_SCHEMA,
-  XSTATE_DIAGNOSTICS_SCHEMA,
-  XSTATE_LIFECYCLE_EVENT_SCHEMA,
-  XSTATE_RMT_COMPATIBILITY_SCHEMA,
-  XSTATE_SNAPSHOT_SCHEMA
+  XTEND_STATE_BOUNDARY_SCHEMA,
+  XTEND_STATE_DIAGNOSTICS_SCHEMA,
+  XTEND_STATE_LIFECYCLE_EVENT_SCHEMA,
+  XTEND_STATE_RMT_COMPATIBILITY_SCHEMA,
+  XTEND_STATE_SNAPSHOT_SCHEMA,
+  XTEND_STATE_STORAGE_KEY
 };
-export const xstate = xstateObj;
+export { xtendState };
 
-// Define as a global variable for non-module scripts
+// Classic browser namespace. The package root intentionally does not load this module.
 if (typeof window !== 'undefined') {
-  window.xstate = xstateObj;
+  window.XTend = window.XTend || {};
+  window.XTend.state = xtendState;
 }
 
 // UMD-style export for CommonJS/AMD
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { xstate: xstateObj };
+  module.exports = { xtendState };
 }
 
 // Example usage:
-// 1. Als ES Modul: import { xstate } from './xstate.js';
-// 2. As a script tag: <script src="xstate.js"></script>, then window.xstate
+// 1. Als ES Modul: import { xtendState } from './xtend-state.js';
+// 2. As a script tag: <script src="xtend-state.js"></script>, then window.XTend.state

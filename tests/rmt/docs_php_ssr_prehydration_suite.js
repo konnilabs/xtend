@@ -234,7 +234,7 @@ function buildRawHtmlSeoMatrix(rootDir) {
         slug: 'components-xtend-i18n',
         relativePath: 'components/xtend-i18n.md',
         requiresInternalLink: true,
-        expectedLocalizedTargets: ['components', 'public-component-types', 'components-xstate', 'components-xrouter']
+        expectedLocalizedTargets: ['components', 'public-component-types', 'components-xtend-state', 'components-xrouter']
       },
       {
         id: 'largest',
@@ -328,7 +328,7 @@ function runDocsSanitizerProbe(rootDir, input) {
 
 function runDocsMarkdownLinkProbe(rootDir) {
   const input = [
-    '<a href="./xstate.md?view=api#events">sibling</a>',
+    '<a href="./xtendState.md?view=api#events">sibling</a>',
     '<a href="../components.md#overview">parent</a>',
     '<a href="./missing.md">missing</a>',
     '<a href="../../escape.md">escape</a>',
@@ -337,7 +337,7 @@ function runDocsMarkdownLinkProbe(rootDir) {
   ].join('');
   const encodedInput = Buffer.from(input, 'utf8').toString('base64');
   const fileToSlug = {
-    'components/xstate.md': 'components-xstate',
+    'components/xtend-state.md': 'components-xtend-state',
     'components.md': 'components'
   };
   const code = [
@@ -641,7 +641,7 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
 
   context.assert(markdownLinkProbe.status === 0 && markdownLinkProbe.payload && typeof markdownLinkProbe.payload.html === 'string', 'Server Markdown link resolver probe completes');
   const normalizedMarkdownLinks = markdownLinkProbe.payload && markdownLinkProbe.payload.html || '';
-  context.assert(/<a\b(?=[^>]*\bis-x-link(?:="true")?)(?=[^>]*\bhref="\/docs\/en\/components-xstate\?view=api#events")[^>]*>sibling<\/a>/iu.test(normalizedMarkdownLinks), 'Server Markdown link resolver preserves query and fragment on a progressive sibling anchor');
+  context.assert(/<a\b(?=[^>]*\bis-x-link(?:="true")?)(?=[^>]*\bhref="\/docs\/en\/components-xtend-state\?view=api#events")[^>]*>sibling<\/a>/iu.test(normalizedMarkdownLinks), 'Server Markdown link resolver preserves query and fragment on a progressive sibling anchor');
   context.assert(/<a\b(?=[^>]*\bis-x-link(?:="true")?)(?=[^>]*\bhref="\/docs\/en\/components\/#overview")[^>]*>parent<\/a>/iu.test(normalizedMarkdownLinks), 'Server Markdown link resolver resolves a progressive parent-directory anchor');
   [
     '<a href="./missing.md">missing</a>',

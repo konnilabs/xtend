@@ -178,7 +178,7 @@ If a product needs a reusable visual pattern that the registry lacks, first comp
 | Tailwind CSS | exact reviewed baseline `4.3.2` |
 | XTend Material | `@xtend-material/core` `0.1.x` |
 | Maraca adapter | `@xtend-material/maraca-tailwind` `0.1.x` |
-| XTend / Maraca peers | `^0.6.1` |
+| XTend / Maraca peers | `^0.7.0` |
 | Browser Tailwind runtime | not supported |
 | Tailwind Preflight | disabled |
 | Native CSS provider exit | supported |

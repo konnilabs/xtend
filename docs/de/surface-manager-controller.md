@@ -4,7 +4,7 @@ Der Controller ist das hostneutrale Zustandsmodell hinter `x-surface-manager`. S
 
 ## Record-Modell
 
-Jede Surface besitzt einen stabilen Record mit ID, Typ, Status, Bounds, Capabilities, Lifecycle und optionalem Persistence-Metadatum. Der Controller verwaltet eine Registry und genau eine aktive Surface. Er veröffentlicht `xtend.surface.snapshot` Records und spiegelt Zustand nur dann nach `xstate`, wenn der Host einen Adapter bereitstellt.
+Jede Surface besitzt einen stabilen Record mit ID, Typ, Status, Bounds, Capabilities, Lifecycle und optionalem Persistence-Metadatum. Der Controller verwaltet eine Registry und genau eine aktive Surface. Er veröffentlicht `xtend.surface.snapshot` Records und projiziert Zustand nur dann an ein `stateProjectionPort`, wenn der Host einen Adapter bereitstellt.
 
 Fenster, Side Panels, Modals, Dialoge, Drawer, Popovers, Regionen und weitere Typen erhalten unterschiedliche Default-Capabilities. Ein Tooltip darf beispielsweise nicht implizit maximiert werden. Zusätzliche Capabilities werden explizit registriert; deaktivierte Capabilities bleiben blockiert.
 

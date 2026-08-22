@@ -109,7 +109,7 @@ function createRun(mode, cachePass, scenario, metrics) {
         mode,
         cachePass
       },
-      xstateBridgeMode: 'fixture-main-thread-mirror',
+      stateProjectionMode: 'fixture-main-thread-mirror',
       stateOwnership: 'main-thread'
     },
     ssr: {
@@ -343,7 +343,7 @@ async function runSuperPrewarmWorkerExperimentSuite(options = {}) {
   context.assert(report.cacheCoverageComplete === true, 'Super Prewarm report includes cold and warm cache passes');
   context.assert(report.pwaAttachment.engineImplemented === false, 'Super Prewarm report keeps PWA Manifest Engine out of v1 scope');
   context.assert(report.pwaAttachment.hooks.includes('cache-management'), 'Super Prewarm report reserves cache-management hook');
-  context.assert(report.pwaAttachment.hooks.includes('xstate-state-management'), 'Super Prewarm report reserves XState hook');
+  context.assert(report.pwaAttachment.hooks.includes('state-management'), 'Super Prewarm report reserves XTend State hook');
   context.assert(report.pwaAttachment.hooks.includes('ssr-metadata'), 'Super Prewarm report reserves SSR metadata hook');
   context.assert(report.pwaAttachment.hooks.includes('prewarm-warm-reentry-policy'), 'Super Prewarm report reserves prewarm/warm-reentry hook');
   context.assert(report.runs.every((run) => run.ssr.ssrRoundtripCount === 0), 'Super Prewarm evidence records no SSR roundtrip');

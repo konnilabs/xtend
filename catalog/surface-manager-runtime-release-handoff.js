@@ -140,7 +140,7 @@ function createSurfaceManagerRuntimeReleaseHandoffPlan(options = {}) {
       surfaceManagerSupportsXtendUi: true,
       replacesFabric: false,
       replacesRmtKernel: false,
-      replacesXState: false,
+      replacesStateRuntime: false,
       docsAppMonkeypatch: false,
       remoteRuntimeExecutionInKernel: false,
       createsSecondRegistry: false,
@@ -178,7 +178,7 @@ function validateSurfaceManagerRuntimeReleaseHandoffPlan(plan = createSurfaceMan
   if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.surfaceControllerSingleRegistry !== true) errors.push('SurfaceController must remain the single registry');
   if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.replacesFabric !== false) errors.push('SurfaceManager must not replace Fabric');
   if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.replacesRmtKernel !== false) errors.push('SurfaceManager must not replace RMT kernel');
-  if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.replacesXState !== false) errors.push('SurfaceManager must not replace xstate');
+  if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.replacesStateRuntime !== false) errors.push('SurfaceManager must not replace xtend-state');
   if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.createsSecondRegistry !== false) errors.push('runtime handoff must not create a second registry');
   if (!plan || !plan.runtimeBoundary || plan.runtimeBoundary.rmtKernelImportsXtendTypes !== false) errors.push('RMT kernel boundary must stay clean');
   if (!plan || plan.kernelBoundary !== KERNEL_BOUNDARY) errors.push(`kernelBoundary must be ${KERNEL_BOUNDARY}`);

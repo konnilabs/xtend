@@ -47,7 +47,7 @@ const {
 let stateRuntimeModulePromise = null;
 let rendererModulePromise = null;
 let stateBindingProjectorModulePromise = null;
-let xstateHostAdapterModulePromise = null;
+let stateHostAdapterModulePromise = null;
 
 function loadStateRuntimeModule(rootDir) {
   if (!stateRuntimeModulePromise) {
@@ -70,11 +70,11 @@ function loadStateBindingProjectorModule(rootDir) {
   return stateBindingProjectorModulePromise;
 }
 
-function loadXStateHostAdapterModule(rootDir) {
-  if (!xstateHostAdapterModulePromise) {
-    xstateHostAdapterModulePromise = import(`file://${resolveRepoPath('xtendrmt/rmt-xstate-host-adapter.js', rootDir)}`);
+function loadStateHostAdapterModule(rootDir) {
+  if (!stateHostAdapterModulePromise) {
+    stateHostAdapterModulePromise = import(`file://${resolveRepoPath('xtendrmt/rmt-state-host-adapter.js', rootDir)}`);
   }
-  return xstateHostAdapterModulePromise;
+  return stateHostAdapterModulePromise;
 }
 
 function assertFileExists(context, relativePath, rootDir, message) {
@@ -206,7 +206,7 @@ function textContent(root) {
   return (root.childNodes || []).map(textContent).join('');
 }
 
-function createFakeXState() {
+function createFakeStateHost() {
   const store = {};
   const writes = [];
   const batchUpdates = [];
@@ -277,22 +277,22 @@ function assertFixtureGraph(context, fixture) {
   context.assert(!/innerHTML|outerHTML|insertAdjacentHTML|document\.write/u.test(fixtureText), 'state selector fixture contains no manual HTML sinks');
 }
 
-function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModule, stateBindingProjectorModule, xstateHostAdapterModule) {
-  const xstate = createFakeXState();
+function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModule, stateBindingProjectorModule, stateHostAdapterModule) {
+  const stateHost = createFakeStateHost();
   const runtime = stateRuntimeModule.createRmtStateSelectorRuntime({
     states: fixture.state,
     selectors: fixture.selectors,
     derive: fixture.derive,
     reducers: fixture.reducers,
-    xstate
+    stateProjectionTarget: stateHost
   });
   context.assert(runtime.schema === RMT_STATE_SELECTOR_RUNTIME_SCHEMA, 'state selector runtime exposes schema');
   context.assert(runtime.select('selector.filtered-items').length === 3, 'selector returns initial collection');
   context.assert(runtime.select('selector.has-items') === true, 'selector computes has-items');
   context.assert(runtime.getDerivedValues()['derive.detail-label'] === 'Alpha', 'derived detail label resolves selected item');
-  context.assert(xstate.store['state.items'].length === 3, 'xstate bridge mirrors initial state');
-  context.assert(xstate.store['selector.selected-item'].id === 'alpha', 'xstate bridge mirrors selector values');
-  context.assert(xstate.batchUpdates.length === 1 && xstate.writes.length === 0, 'xstate bridge initializes through one atomic batch');
+  context.assert(stateHost.store['state.items'].length === 3, 'state projection mirrors initial state');
+  context.assert(stateHost.store['selector.selected-item'].id === 'alpha', 'state projection mirrors selector values');
+  context.assert(stateHost.batchUpdates.length === 1 && stateHost.writes.length === 0, 'state projection initializes through one atomic batch');
 
   const documentTarget = createFakeDocument();
   const componentRegistry = {
@@ -345,7 +345,7 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
   const collectionBefore = alpha.parentNode;
   const events = [];
   const unsubscribe = runtime.subscribe((event) => events.push(event));
-  const selectionBatchCount = xstate.batchUpdates.length;
+  const selectionBatchCount = stateHost.batchUpdates.length;
   const selectionEvent = runtime.dispatch('command.select-item', {
     id: 'beta',
     ids: ['beta']
@@ -355,11 +355,11 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
   context.assert(selectionEvent.patchPlan.preserveDom === true, 'selection reducer preserves DOM');
   context.assert(selectionEvent.patchPlan.changedStates.includes('state.selection'), 'selection reducer reports changed state');
   context.assert(events.length === 1 && events[0].patchPlan.preserveDom === true, 'runtime subscription receives preserve patch plan');
-  context.assert(xstate.batchUpdates.length === selectionBatchCount + 1, 'single reducer publishes one final xstate batch');
+  context.assert(stateHost.batchUpdates.length === selectionBatchCount + 1, 'single reducer publishes one final stateHost batch');
   context.assert(runtime.select('selector.active-id') === 'beta', 'selector active id follows reducer');
   context.assert(runtime.getDerivedValues()['derive.detail-label'] === 'Beta', 'derived label follows reducer');
-  context.assert(xstate.store['state.selection'].activeId === 'beta', 'xstate bridge mirrors reducer state');
-  context.assert(xstate.store['selector.selected-item'].id === 'beta', 'xstate bridge mirrors updated selected item');
+  context.assert(stateHost.store['state.selection'].activeId === 'beta', 'stateHost bridge mirrors reducer state');
+  context.assert(stateHost.store['selector.selected-item'].id === 'beta', 'stateHost bridge mirrors updated selected item');
   const updateBinding = bindingProjector.project(root, fixture.bindings, runtime.model.snapshot());
   context.assert(updateBinding.operationCount >= 6, 'state bindings update row attributes and classes');
   context.assert(root.querySelector('[data-rmt-key="alpha"]') === alphaBefore, 'selection update preserves alpha DOM node');
@@ -474,9 +474,9 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
 
   const transactionEvents = [];
   const unsubscribeTransaction = runtime.subscribe((event) => transactionEvents.push(event));
-  const transactionXStateEvents = [];
-  const unsubscribeTransactionXState = xstate.subscribe((key, value) => transactionXStateEvents.push({ key, value }));
-  const transactionBatchCount = xstate.batchUpdates.length;
+  const transactionHostEvents = [];
+  const unsubscribeTransactionHost = stateHost.subscribe((key, value) => transactionHostEvents.push({ key, value }));
+  const transactionBatchCount = stateHost.batchUpdates.length;
   let nestedTransactionResult = null;
   const transactionResult = runtime.transaction((transactionRuntime) => {
     const firstMutation = transactionRuntime.dispatch('command.select-item', {
@@ -490,21 +490,21 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
     }, { phase: 'nested' });
     context.assert(transactionEvents.length === 0, 'state transaction delays subscriber notification until the outer commit');
     context.assert(
-      xstate.batchUpdates.length === transactionBatchCount
-        && xstate.store['state.selection'].activeId === 'beta'
-        && xstate.store['state.filters'].query === 'ga',
-      'state transaction exposes no intermediate state through xstate'
+      stateHost.batchUpdates.length === transactionBatchCount
+        && stateHost.store['state.selection'].activeId === 'beta'
+        && stateHost.store['state.filters'].query === 'ga',
+      'state transaction exposes no intermediate state through stateHost'
     );
     context.assert(firstMutation.pending === true && nestedTransactionResult.pending === true, 'state transaction exposes pending mutation handles while nested');
   }, { actionId: 'action.batch-state' });
   unsubscribeTransaction();
-  unsubscribeTransactionXState();
+  unsubscribeTransactionHost();
   context.assert(transactionEvents.length === 1, 'nested state transaction emits one subscriber event');
   context.assert(
-    xstate.batchUpdates.length === transactionBatchCount + 1
-      && transactionXStateEvents.length === 1
-      && transactionXStateEvents[0].key === 'batch-update',
-    'nested state transaction mirrors one final xstate batch and one host notification'
+    stateHost.batchUpdates.length === transactionBatchCount + 1
+      && transactionHostEvents.length === 1
+      && transactionHostEvents[0].key === 'batch-update',
+    'nested state transaction mirrors one final stateHost batch and one host notification'
   );
   context.assert(transactionResult.pending === false && nestedTransactionResult.pending === false, 'state transaction finalizes outer and nested handles together');
   context.assert(transactionResult.patchPlan === nestedTransactionResult.patchPlan, 'nested state transaction shares one common patch plan');
@@ -536,7 +536,7 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
 
   const modelReaderEvents = [];
   const unsubscribeModelReader = modelReader.subscribe((event) => modelReaderEvents.push(event));
-  const modelCommandBatchCount = xstate.batchUpdates.length;
+  const modelCommandBatchCount = stateHost.batchUpdates.length;
   const modelCommandResult = runtime.modelCommandPort.apply([
     {
       operation: 'dispatch',
@@ -551,7 +551,7 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
   ], { actionId: 'action.model-command-port' });
   unsubscribeModelReader();
   context.assert(modelReaderEvents.length === 1 && Object.isFrozen(modelReaderEvents[0]), 'model reader observes one immutable final command event');
-  context.assert(xstate.batchUpdates.length === modelCommandBatchCount + 1, 'model command port mirrors one xstate batch for all operations');
+  context.assert(stateHost.batchUpdates.length === modelCommandBatchCount + 1, 'model command port mirrors one stateHost batch for all operations');
   context.assert(
     modelCommandResult.metadata.port === 'model-command'
       && modelCommandResult.metadata.operationCount === 2
@@ -560,7 +560,7 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
   );
 
   const beforeRejectedCommand = modelReader.snapshot();
-  const rejectedCommandBatchCount = xstate.batchUpdates.length;
+  const rejectedCommandBatchCount = stateHost.batchUpdates.length;
   let rejectedCommand = false;
   try {
     runtime.modelCommandPort.apply([
@@ -581,14 +581,14 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
   context.assert(
     rejectedCommand
       && JSON.stringify(modelReader.snapshot()) === JSON.stringify(beforeRejectedCommand)
-      && xstate.batchUpdates.length === rejectedCommandBatchCount,
+      && stateHost.batchUpdates.length === rejectedCommandBatchCount,
     'model command port validates every request before its first mutation'
   );
 
   const beforeRollback = modelReader.snapshot();
   const rollbackEvents = [];
   const unsubscribeRollback = modelReader.subscribe((event) => rollbackEvents.push(event));
-  const rollbackBatchCount = xstate.batchUpdates.length;
+  const rollbackBatchCount = stateHost.batchUpdates.length;
   let transactionRolledBack = false;
   try {
     runtime.transaction((transactionRuntime) => {
@@ -603,12 +603,12 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
     transactionRolledBack
       && JSON.stringify(modelReader.snapshot()) === JSON.stringify(beforeRollback)
       && rollbackEvents.length === 0
-      && xstate.batchUpdates.length === rollbackBatchCount,
-    'failed state transaction rolls back without subscriber or xstate publication'
+      && stateHost.batchUpdates.length === rollbackBatchCount,
+    'failed state transaction rolls back without subscriber or stateHost publication'
   );
 
   const beforeNestedRollback = modelReader.snapshot();
-  const nestedRollbackBatchCount = xstate.batchUpdates.length;
+  const nestedRollbackBatchCount = stateHost.batchUpdates.length;
   let nestedFailureClosed = false;
   try {
     runtime.transaction((transactionRuntime) => {
@@ -627,62 +627,56 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
   context.assert(
     nestedFailureClosed
       && JSON.stringify(modelReader.snapshot()) === JSON.stringify(beforeNestedRollback)
-      && xstate.batchUpdates.length === nestedRollbackBatchCount,
+      && stateHost.batchUpdates.length === nestedRollbackBatchCount,
     'caught nested transaction failures still abort the complete outer transaction'
   );
 
-  const customKeyXState = createFakeXState();
+  const customKeyHost = createFakeStateHost();
   stateRuntimeModule.createRmtStateSelectorRuntime({
     states: [{
       id: 'state.internal-name',
-      xstateKey: 'host.projected-name',
+      projectionKey: 'host.projected-name',
       type: 'string',
       initial: 'projected'
     }],
-    xstate: customKeyXState
+    stateProjectionTarget: customKeyHost
   });
   context.assert(
-    customKeyXState.batchUpdates.length === 1
-      && customKeyXState.store['host.projected-name'] === 'projected'
-      && !Object.prototype.hasOwnProperty.call(customKeyXState.store, 'state.internal-name'),
-    'atomic xstate projection preserves declared host keys'
+    customKeyHost.batchUpdates.length === 1
+      && customKeyHost.store['host.projected-name'] === 'projected'
+      && !Object.prototype.hasOwnProperty.call(customKeyHost.store, 'state.internal-name'),
+    'atomic state projection preserves declared host keys'
   );
-  const emptyXState = createFakeXState();
-  const emptyRuntime = stateRuntimeModule.createRmtStateSelectorRuntime({ xstate: emptyXState });
+  const emptyHost = createFakeStateHost();
+  const emptyRuntime = stateRuntimeModule.createRmtStateSelectorRuntime({ stateProjectionTarget: emptyHost });
   emptyRuntime.transaction(() => undefined, { actionId: 'action.empty-commit' });
-  context.assert(emptyXState.batchUpdates.length === 2, 'even an empty completed transaction emits exactly one xstate batch boundary');
-  const legacyWrites = [];
-  const legacyBridge = stateRuntimeModule.createRmtXStateBridge({
-    xstate: {
-      set(key, value) { legacyWrites.push({ key, value }); }
-    }
+  context.assert(emptyHost.batchUpdates.length === 2, 'even an empty completed transaction emits exactly one state projection batch boundary');
+
+  const removedOptionName = ['x', 'state'].join('');
+  const ignoredAliasTarget = createFakeStateHost();
+  const ignoredAliasRuntime = stateRuntimeModule.createRmtStateSelectorRuntime({
+    states: [{ id: 'state.alias-ignored', type: 'boolean', initial: true }],
+    [removedOptionName]: ignoredAliasTarget
   });
-  legacyBridge.mirrorSnapshot({ states: { one: 1 }, selectors: { two: 2 }, derived: { three: 3 } });
-  context.assert(legacyWrites.length === 3, 'xstate bridge retains per-key compatibility for legacy hosts without batchUpdate');
-  let strictLegacyBridgeError = null;
-  try {
-    stateRuntimeModule.createRmtXStateBridge({
-      strictMaraca: true,
-      xstate: { set() {} }
-    });
-  } catch (error) {
-    strictLegacyBridgeError = error;
-  }
-  context.assert(strictLegacyBridgeError && strictLegacyBridgeError.code === 'rmt.state.xstate-batch-required', 'strict Maraca refuses per-key XState projection before Model boot');
-  const directHost = createFakeXState();
-  const directAdapter = xstateHostAdapterModule.createRmtXStateHostAdapter({
+  context.assert(
+    ignoredAliasTarget.batchUpdates.length === 0
+      && ignoredAliasRuntime.getState('state.alias-ignored') === true,
+    'removed state option has no adapter effect'
+  );
+  const directHost = createFakeStateHost();
+  const directAdapter = stateHostAdapterModule.createRmtStateHostAdapter({
     target: directHost,
     strictMaraca: true
   });
   directAdapter.batchUpdate({ 'host.direct': 7 }, { actionId: 'adapter-direct' });
   context.assert(
-    directAdapter.adapterSchema === 'xtend.rmt.xstate-host-adapter.v1'
+    directAdapter.adapterSchema === 'xtend.rmt.state-host-adapter.v1'
       && directAdapter.portSchema === 'xtend.rmt.state-projection-port.v1'
       && directHost.store['host.direct'] === 7,
-    'XState host adapter exposes the typed projection port and performs atomic host batches'
+    'State host adapter exposes the typed projection port and performs atomic host batches'
   );
-  const injectedHost = createFakeXState();
-  const injectedPort = xstateHostAdapterModule.createRmtXStateHostAdapter({ target: injectedHost, strictMaraca: true });
+  const injectedHost = createFakeStateHost();
+  const injectedPort = stateHostAdapterModule.createRmtStateHostAdapter({ target: injectedHost, strictMaraca: true });
   const portInjectedRuntime = stateRuntimeModule.createRmtStateSelectorRuntime({
     states: [{ id: 'state.port-injected', type: 'number', initial: 3 }],
     stateProjectionPort: injectedPort,
@@ -691,7 +685,7 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
   context.assert(
     portInjectedRuntime.stateProjectionPort === injectedPort
       && injectedHost.store['state.port-injected'] === 3,
-    'Model accepts the XState adapter only through the typed stateProjectionPort'
+    'Model accepts the state host adapter only through the typed stateProjectionPort'
   );
   let strictConnectionError = null;
   try {
@@ -700,21 +694,21 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
     strictConnectionError = error;
   }
   context.assert(
-    strictConnectionError && strictConnectionError.code === 'rmt.state.xstate-batch-required',
+    strictConnectionError && strictConnectionError.code === 'rmt.state.projection-batch-required',
     'connections created after strict Model boot inherit the atomic batchUpdate requirement'
   );
-  const projectionOnlyXState = createFakeXState();
-  projectionOnlyXState.store['host.authority'] = false;
+  const projectionOnlyHost = createFakeStateHost();
+  projectionOnlyHost.store['host.authority'] = false;
   const authoritativeRuntime = stateRuntimeModule.createRmtStateSelectorRuntime({
-    states: [{ id: 'state.authority', xstateKey: 'host.authority', type: 'boolean', initial: false }],
+    states: [{ id: 'state.authority', projectionKey: 'host.authority', type: 'boolean', initial: false }],
     initialState: { 'state.authority': true },
-    xstate: projectionOnlyXState,
+    stateProjectionTarget: projectionOnlyHost,
     strictMaraca: true
   });
   context.assert(
     authoritativeRuntime.getState('state.authority') === true
-      && projectionOnlyXState.store['host.authority'] === true,
-    'verified RMT initialState is authoritative and overwrites stale XState projection during boot'
+      && projectionOnlyHost.store['host.authority'] === true,
+    'verified RMT initialState is authoritative and overwrites a stale projection during boot'
   );
   const safeCountRuntime = stateRuntimeModule.createRmtStateSelectorRuntime({
     states: [{
@@ -812,14 +806,14 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
   const packageManifest = readJson('package.json', rootDir);
   const runtimeSource = readText(RMT_STATE_SELECTOR_RUNTIME_RUNTIME, rootDir);
   const compatibilitySource = readText('xtendrmt/rmt-state-selector-runtime.compat.js', rootDir);
-  const xstateHostAdapterSource = readText('xtendrmt/rmt-xstate-host-adapter.js', rootDir);
+  const stateHostAdapterSource = readText('xtendrmt/rmt-state-host-adapter.js', rootDir);
   const typeSource = readText(RMT_STATE_SELECTOR_RUNTIME_TYPES, rootDir);
-  const xstateHostAdapterTypes = readText('xtendrmt/rmt-xstate-host-adapter.d.ts', rootDir);
+  const stateHostAdapterTypes = readText('xtendrmt/rmt-state-host-adapter.d.ts', rootDir);
   const stateBindingProjectorSource = readText('xtendrmt/rmt-state-binding-view-projector.js', rootDir);
   const stateBindingProjectorTypes = readText('xtendrmt/rmt-state-binding-view-projector.d.ts', rootDir);
   const domRendererSource = readText('xtendrmt/rmt-dom-descriptor-renderer.js', rootDir);
   const stateBindingProjectorModule = await loadStateBindingProjectorModule(rootDir);
-  const xstateHostAdapterModule = await loadXStateHostAdapterModule(rootDir);
+  const stateHostAdapterModule = await loadStateHostAdapterModule(rootDir);
   const stateRuntimeModule = await loadStateRuntimeModule(rootDir);
   const rendererModule = await loadRendererModule(rootDir);
   const moduleSyntax = syntaxCheckFile(RMT_STATE_SELECTOR_RUNTIME_MODULE, { rootDir, extension: '.js' });
@@ -827,7 +821,7 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
   const runtimeSyntax = syntaxCheckFile(RMT_STATE_SELECTOR_RUNTIME_RUNTIME, { rootDir, extension: '.js' });
   const compatibilitySyntax = syntaxCheckFile('xtendrmt/rmt-state-selector-runtime.compat.js', { rootDir, extension: '.js' });
   const stateBindingProjectorSyntax = syntaxCheckFile('xtendrmt/rmt-state-binding-view-projector.js', { rootDir, extension: '.js' });
-  const xstateHostAdapterSyntax = syntaxCheckFile('xtendrmt/rmt-xstate-host-adapter.js', { rootDir, extension: '.js' });
+  const stateHostAdapterSyntax = syntaxCheckFile('xtendrmt/rmt-state-host-adapter.js', { rootDir, extension: '.js' });
 
   REQUIRED_ARTIFACTS.forEach((filePath) => {
     assertFileExists(context, filePath, rootDir, `${filePath} exists as WP-E18-07 artifact`);
@@ -841,9 +835,9 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
   context.assert(runtimeSyntax.ok, `State selector runtime syntax passes${runtimeSyntax.ok ? '' : ` (${runtimeSyntax.message})`}`);
   context.assert(compatibilitySyntax.ok, `State selector compatibility facade syntax passes${compatibilitySyntax.ok ? '' : ` (${compatibilitySyntax.message})`}`);
   context.assert(stateBindingProjectorSyntax.ok, `State binding View projector syntax passes${stateBindingProjectorSyntax.ok ? '' : ` (${stateBindingProjectorSyntax.message})`}`);
-  context.assert(xstateHostAdapterSyntax.ok, `XState host adapter syntax passes${xstateHostAdapterSyntax.ok ? '' : ` (${xstateHostAdapterSyntax.message})`}`);
-  assertFileExists(context, 'xtendrmt/rmt-xstate-host-adapter.js', rootDir, 'XState host adapter runtime exists');
-  assertFileExists(context, 'xtendrmt/rmt-xstate-host-adapter.d.ts', rootDir, 'XState host adapter types exist');
+  context.assert(stateHostAdapterSyntax.ok, `State host adapter syntax passes${stateHostAdapterSyntax.ok ? '' : ` (${stateHostAdapterSyntax.message})`}`);
+  assertFileExists(context, 'xtendrmt/rmt-state-host-adapter.js', rootDir, 'State host adapter runtime exists');
+  assertFileExists(context, 'xtendrmt/rmt-state-host-adapter.d.ts', rootDir, 'State host adapter types exist');
   context.assert(plan.schema === RMT_STATE_SELECTOR_RUNTIME_SCHEMA, 'State selector runtime schema is stable');
   context.assert(plan.reportSchema === RMT_STATE_SELECTOR_RUNTIME_REPORT_SCHEMA, 'State selector runtime report schema is stable');
   context.assert(plan.fixtureSchema === RMT_STATE_SELECTOR_RUNTIME_FIXTURE_SCHEMA, 'State selector runtime fixture schema is stable');
@@ -855,7 +849,7 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
   context.assert(plan.packageScript === RMT_STATE_SELECTOR_RUNTIME_PACKAGE_SCRIPT, 'State selector runtime package script is stable');
   context.assert(validation.ok === true, 'State selector runtime plan validates');
   context.assert(report.ok === true, 'State selector runtime report validates');
-  context.assert(report.xstateImportedByRuntime === false, 'State selector runtime reports no xstate import');
+  context.assert(report.stateRuntimeImportedByRuntime === false, 'State selector runtime reports no Classic runtime import');
   context.assert(report.selectionUpdatesPreserveDom === true, 'State selector runtime reports selection DOM preserve');
   assertIncludesAll(context, plan.stateCapabilities, REQUIRED_STATE_CAPABILITIES, 'required state capabilities');
   assertIncludesAll(context, plan.stateTypes, REQUIRED_STATE_TYPES, 'required state types');
@@ -866,11 +860,11 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
   context.assert(fixture.manifest.metadata.contractVersion === RMT_STATE_SELECTOR_RUNTIME_SCHEMA, 'State selector fixture declares contract');
   context.assert(fixture.manifest.metadata.componentPrimitiveContract === RMT_COMPONENT_TEMPLATE_PRIMITIVES_SCHEMA, 'State selector fixture declares component primitive contract');
   context.assert(fixture.manifest.metadata.workpackage === RMT_STATE_SELECTOR_RUNTIME_WORKPACKAGE, 'State selector fixture is owned by WP-E18-07');
-  context.assert(fixture.manifest.metadata.xstateBridgeMode === 'injected-host-adapter', 'State selector fixture keeps xstate injected');
+  context.assert(fixture.manifest.metadata.stateProjectionMode === 'injected-host-adapter', 'State selector fixture keeps state projection injected');
   context.assert(fixture.acceptance.selectionUpdatesPreserveDom === true, 'State selector acceptance preserves DOM for selection');
   context.assert(fixture.acceptance.filterUpdatesMayRerenderStructure === true, 'State selector acceptance allows structural filter rerender');
   assertFixtureGraph(context, fixture);
-  runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModule, stateBindingProjectorModule, xstateHostAdapterModule);
+  runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModule, stateBindingProjectorModule, stateHostAdapterModule);
 
   assertTextIncludesAll(context, runtimeSource, [
     'createRmtStateSelectorRuntime',
@@ -883,27 +877,27 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
     'batchUpdate',
     'preserveDom'
   ], 'State selector runtime source');
-  context.assert(!/createRmtXStateBridge|options\.xstate|\.(?:setState|getState)\s*\(/u.test(runtimeSource), 'Model source contains no direct XState bridge or host read/write implementation');
-  context.assert(!/from\s+['"]xstate['"]|require\(['"]xstate['"]\)/u.test(runtimeSource), 'State selector runtime does not import xstate');
+  const removedBridgeSymbol = ['createRmt', 'X', 'StateBridge'].join('');
+  context.assert(!runtimeSource.includes(removedBridgeSymbol) && !/\.(?:setState|getState)\s*\(/u.test(runtimeSource), 'Model source contains no removed bridge or host read/write implementation');
+  context.assert(!/components\/xtend-state|classic-state/u.test(runtimeSource), 'State selector runtime does not import the Classic runtime');
   context.assert(!/components\/|xtend-loader|api\.js/u.test(runtimeSource), 'State selector runtime avoids XTend UI imports');
   context.assert(!/querySelector|domRenderer\.commit\s*\(/u.test(runtimeSource), 'Model runtime contains no State Binding DOM projection');
   context.assert(!/StateBindingViewProjector|applyRmtStateBindings|createRmtStateBindingAdapter/u.test(runtimeSource), 'Model runtime contains no View or compatibility composition dependency');
   assertTextIncludesAll(context, compatibilitySource, [
-    'createRmtXStateHostAdapter',
-    'createRmtXStateBridge',
+    'createRmtStateHostAdapter',
     'createRmtStateBindingViewProjector',
     'applyRmtStateBindings',
     'createRmtStateBindingAdapter',
     'rmt.state-binding.legacy-adapter'
   ], 'State selector compatibility facade');
-  assertTextIncludesAll(context, xstateHostAdapterSource, [
+  assertTextIncludesAll(context, stateHostAdapterSource, [
     'RMT_STATE_PROJECTION_PORT_SCHEMA',
-    'createRmtXStateHostAdapter',
-    'createRmtXStateBridge',
+    'createRmtStateHostAdapter',
     'batchUpdate',
     'setState',
     'getState'
-  ], 'XState output/host adapter source');
+  ], 'State output/host adapter source');
+  context.assert(!stateHostAdapterSource.includes(removedBridgeSymbol), 'State host adapter exports no removed bridge alias');
   assertTextIncludesAll(context, stateBindingProjectorSource, [
     'createRmtStateBindingViewProjector',
     'domRenderer',
@@ -912,7 +906,7 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
     'attribute-sync'
   ], 'State binding View projector source');
   context.assert(stateBindingProjectorSource.includes('renderer.commit({'), 'State binding View projector delegates writes to the shared DOM renderer');
-  context.assert(!/\.(?:setState|patchState|dispatch)\s*\(|xstate/iu.test(stateBindingProjectorSource), 'State binding View projector cannot mutate Model or XState');
+  context.assert(!/\.(?:setState|patchState|dispatch)\s*\(|stateHost/iu.test(stateBindingProjectorSource), 'State binding View projector cannot mutate Model or state hosts');
   context.assert(!/element\.(?:setAttribute|removeAttribute)\s*\(|element\[[^\]]+\]\s*=/u.test(stateBindingProjectorSource), 'State binding View projector contains no direct DOM writer fallback');
   assertTextIncludesAll(context, domRendererSource, [
     '$selector.',
@@ -923,20 +917,19 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
     'RmtStateSelectorRuntime',
     'RmtStateDefinition',
     'RmtSelectorDefinition',
-    'RmtXStateBridge',
     'RmtStateChangeEvent',
     'RmtModelReader',
     'RmtModelCommandPort',
     'RmtModelOperation',
     'createRmtStateSelectorRuntime'
   ], 'State selector runtime types');
-  assertTextIncludesAll(context, xstateHostAdapterTypes, [
+  assertTextIncludesAll(context, stateHostAdapterTypes, [
     'RmtStateProjectionPort',
     'RmtStateProjectionPortFactory',
-    'RmtXStateHostAdapter',
-    'createRmtXStateHostAdapter',
-    'createRmtXStateBridge'
-  ], 'XState output/host adapter types');
+    'RmtStateHostAdapter',
+    'createRmtStateHostAdapter'
+  ], 'State output/host adapter types');
+  context.assert(!stateHostAdapterTypes.includes(removedBridgeSymbol), 'State host adapter types expose no removed bridge alias');
   assertTextIncludesAll(context, stateBindingProjectorTypes, [
     'RmtStateBindingModelSnapshot',
     'RmtStateBindingViewProjector',
@@ -945,17 +938,16 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
   assertTextIncludesAll(context, docs, [
     '# RMT State Selector Runtime',
     RMT_STATE_SELECTOR_RUNTIME_SCHEMA,
-    'xstateBridge',
+    'stateProjectionPort',
     'preservePatchPlan',
     NEXT_WORKPACKAGE
   ], 'State selector runtime docs');
   assertTextIncludesAll(context, workpackageDoc, [
-    RMT_STATE_SELECTOR_RUNTIME_WORKPACKAGE,
-    RMT_STATE_SELECTOR_RUNTIME_SCHEMA,
-    RMT_STATE_SELECTOR_RUNTIME_LOCAL_GATE,
-    'Status: `completed`',
-    NEXT_WORKPACKAGE
-  ], 'WP-E18-07 workpackage doc');
+    '# Migrating state APIs to XTend 0.7',
+    '@ccslabs/xtend/classic-state',
+    '@ccslabs/xtend/rmt/state-host-adapter',
+    'stateProjectionPort'
+  ], '0.7 state migration doc');
   context.assert(backlog.includes('| `WP-E18-07` | P0 | completed'), 'Backlog marks WP-E18-07 completed');
   context.assert(
     backlog.includes('| `WP-E18-08` | P1 | ready') || backlog.includes('| `WP-E18-08` | P1 | completed'),
@@ -967,7 +959,9 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
   context.assert(runner.includes("id: 'rmt-state-selector-runtime'"), 'Runner registers state selector runtime suite');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:rmt-state-selector-runtime'] === 'node scripts/run_xtend_tests.js rmt-state-selector-runtime', 'Package exposes state selector runtime script');
   context.assert(packageManifest.exports && packageManifest.exports['./rmt/state-selector-runtime'], 'Package exports state selector runtime');
-  context.assert(packageManifest.exports && packageManifest.exports['./rmt/xstate-host-adapter'], 'Package exports XState host adapter');
+  context.assert(packageManifest.exports && packageManifest.exports['./rmt/state-host-adapter'], 'Package exports the State host adapter');
+  const removedSubpath = ['./rmt/', 'x', 'state-host-adapter'].join('');
+  context.assert(!packageManifest.exports[removedSubpath], 'Package omits the removed State host adapter subpath');
   context.assert(packageManifest.exports && packageManifest.exports['./rmt/state-binding-view-projector'], 'Package exports state binding View projector');
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtStateSelectorRuntime;
   context.assert(metadata && metadata.schema === RMT_STATE_SELECTOR_RUNTIME_SCHEMA, 'Package metadata exposes state selector runtime schema');

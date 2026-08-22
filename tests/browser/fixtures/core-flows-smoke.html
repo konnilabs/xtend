@@ -122,7 +122,7 @@
       await waitFor(() => (
         getComputedStyle(document.body).visibility === 'visible' &&
         getComputedStyle(document.body).opacity !== '0' &&
-        window.xstate &&
+        window.XTend.state &&
         window.XTend &&
         window.XTend.compliance &&
         window.XToast &&
@@ -136,46 +136,46 @@
 
       recordCheck('loader kept body visible by default', getComputedStyle(document.body).visibility === 'visible' && getComputedStyle(document.body).opacity !== '0');
       recordCheck('api compliance ready', typeof window.XTend.compliance.getCoreContracts === 'function');
-      recordCheck('api ui state initialized', Boolean(window.xstate.get('ui')));
+      recordCheck('api ui state initialized', Boolean(window.XTend.state.get('ui')));
       recordCheck('router custom element defined', Boolean(customElements.get('x-router')));
       recordCheck('link custom element defined', Boolean(customElements.get('x-link')));
 
-      window.xstate.set('router-navigate', '/detail?source=fixture');
+      window.XTend.state.set('router-navigate', '/detail?source=fixture');
       await waitFor(() => {
-        const current = window.xstate.get('router-current');
+        const current = window.XTend.state.get('router-current');
         return current && current.component === 'xtend-smoke-detail' && current.query && current.query.source === 'fixture';
       }, 4000);
 
       const renderedRoute = router.shadowRoot.querySelector('xtend-smoke-detail');
       recordCheck('router rendered detail route', renderedRoute instanceof HTMLElement);
-      recordCheck('router state synchronized', window.xstate.get('xtend.router.lastRendered').component === 'xtend-smoke-detail');
+      recordCheck('router state synchronized', window.XTend.state.get('xtend.router.lastRendered').component === 'xtend-smoke-detail');
 
       window.XTheme.setTheme('dark');
       await waitFor(() => document.documentElement.getAttribute('data-theme') === 'dark', 3000);
       recordCheck('theme changed document attribute', document.documentElement.getAttribute('data-theme') === 'dark');
-      recordCheck('theme state synchronized', window.xstate.get('xtend.theme.current') === 'dark');
+      recordCheck('theme state synchronized', window.XTend.state.get('xtend.theme.current') === 'dark');
 
       const toast = window.XToast.show('Core smoke toast', 'success', 0);
       await waitFor(() => toast.shadowRoot && toast.shadowRoot.querySelector('.toast.success'), 3000);
       recordCheck('toast api rendered visible component', toast.shadowRoot.querySelector('.toast.success') instanceof HTMLElement);
-      recordCheck('toast state registered', window.xstate.get('ui').toasts.some((entry) => entry.id === toast.id));
+      recordCheck('toast state registered', window.XTend.state.get('ui').toasts.some((entry) => entry.id === toast.id));
 
       const alert = window.XAlert.show('Core smoke alert', 'info', { closable: true, ariaLabel: 'Core smoke alert' });
       await waitFor(() => alert.shadowRoot && alert.shadowRoot.querySelector('.alert'), 3000);
       recordCheck('alert api rendered visible component', alert.shadowRoot.querySelector('.alert') instanceof HTMLElement);
-      recordCheck('alert state synchronized', window.xstate.get(`xtend.component.x-alert.${alert.id}`).open === true);
+      recordCheck('alert state synchronized', window.XTend.state.get(`xtend.component.x-alert.${alert.id}`).open === true);
 
       const dialogId = window.XDialog.show({ title: 'Core smoke dialog', content: 'Dialog body', overlay: true });
       const dialog = document.getElementById(dialogId);
       await waitFor(() => dialog && dialog.shadowRoot && dialog.shadowRoot.querySelector('.xdialog'), 3000);
       recordCheck('dialog api rendered visible component', dialog.shadowRoot.querySelector('.xdialog') instanceof HTMLElement);
-      recordCheck('dialog open state synchronized', window.xstate.get(`xtend.component.x-dialog.${dialogId}.open`) === true);
+      recordCheck('dialog open state synchronized', window.XTend.state.get(`xtend.component.x-dialog.${dialogId}.open`) === true);
 
       const modalId = window.XModal.show({ title: 'Core smoke modal', content: 'Modal body', overlay: true });
       const modal = document.getElementById(modalId);
       await waitFor(() => modal && modal.shadowRoot && modal.shadowRoot.querySelector('.x-modal'), 3000);
       recordCheck('modal api rendered visible component', modal.shadowRoot.querySelector('.x-modal') instanceof HTMLElement);
-      recordCheck('modal open state synchronized', window.xstate.get(`xtend.component.x-modal.${modalId}.open`) === true);
+      recordCheck('modal open state synchronized', window.XTend.state.get(`xtend.component.x-modal.${modalId}.open`) === true);
 
       complete(window.__xtendCoreSmokeResult.errors.length === 0 ? 'passed' : 'failed');
     }

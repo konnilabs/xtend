@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 // <x-summary>
 class XSummary extends HTMLElement {
@@ -187,10 +187,10 @@ class XSummary extends HTMLElement {
     if (!this.id) this.id = `xsummary-${Math.random().toString(36).slice(2, 10)}`;
     this._stateKey = `xsummary-open-${this.id}`;
     this._applyOpenState(this.hasAttribute("open"), { syncState: false });
-    this._setXStateOpen(this._isOpen());
+    this._setStateOpen(this._isOpen());
 
     // Subscribe to state changes, for example open or close from outside
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === this._stateKey && typeof value === "boolean") {
         if (value === this._isOpen()) return;
         this._applyOpenState(value, { syncState: false });
@@ -233,10 +233,10 @@ class XSummary extends HTMLElement {
     return Boolean(this._details && this._details.open);
   }
 
-  _setXStateOpen(isOpen) {
+  _setStateOpen(isOpen) {
     if (!this._stateKey) return;
-    if (typeof xstate.get === "function" && xstate.get(this._stateKey) === isOpen) return;
-    xstate.set(this._stateKey, Boolean(isOpen));
+    if (typeof xtendState.get === "function" && xtendState.get(this._stateKey) === isOpen) return;
+    xtendState.set(this._stateKey, Boolean(isOpen));
   }
 
   _applyOpenState(isOpen, options = {}) {
@@ -253,7 +253,7 @@ class XSummary extends HTMLElement {
       }
     }
     if (options.syncState !== false) {
-      this._setXStateOpen(nextOpen);
+      this._setStateOpen(nextOpen);
     }
   }
 

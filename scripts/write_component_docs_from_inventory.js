@@ -88,13 +88,13 @@ function renderChildren(entry) {
 }
 
 function basicExample(entry) {
-  if (!entry.customElement && entry.tag === 'xstate') {
+  if (!entry.customElement && entry.tag === 'xtend-state') {
     return `<script type="module" src="/xtend-loader.js" data-manifest="/components/manifest.json"></script>
 <script type="module">
-  import { xstate } from '/components/xstate.js';
+  import { xtendState } from '/components/xtend-state.js';
 
-  xstate.set('demo.ready', true);
-  console.log(xstate.snapshot());
+  xtendState.set('demo.ready', true);
+  console.log(xtendState.snapshot());
 </script>`;
   }
   if (!entry.customElement && entry.tag === 'x-utils') {
@@ -114,15 +114,15 @@ function basicExample(entry) {
 function integrationExample(entry) {
   const eventName = entry.events[0] || '';
   const method = entry.methods.map(methodName).find((name) => name && name !== 'constructor') || '';
-  if (!entry.customElement && entry.tag === 'xstate') {
-    return `import { xstate } from '/components/xstate.js';
+  if (!entry.customElement && entry.tag === 'xtend-state') {
+    return `import { xtendState } from '/components/xtend-state.js';
 
-const unsubscribe = xstate.subscribeLifecycle((event) => {
-  console.log('xstate lifecycle', event.detail);
+const unsubscribe = xtendState.subscribeLifecycle((event) => {
+  console.log('xtend-state lifecycle', event.detail);
 });
 
-const adapter = xstate.createRmtStateAdapter({ namespace: 'docs.demo' });
-adapter.set('component', 'xstate');
+const adapter = xtendState.createRmtStateAdapter({ namespace: 'docs.demo' });
+adapter.set('component', 'xtend-state');
 unsubscribe();`;
   }
   if (!entry.customElement && entry.tag === 'x-utils') {
@@ -187,7 +187,7 @@ function publicEventsLine(entry, locale) {
 
 function specialNotes(entry, locale) {
   const notes = [];
-  if (['xstate', 'x-utils', 'x-theme'].includes(entry.tag)) {
+  if (['xtend-state', 'x-utils', 'x-theme'].includes(entry.tag)) {
     notes.push(locale === 'de'
       ? 'RMT Hosts nutzen diese Seite als Integrationshinweis für die serviceartige Laufzeitgrenze.'
       : 'RMT Hosts use this page as the integration reference for the service-style runtime boundary.');

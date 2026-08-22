@@ -7,7 +7,7 @@
 - Gate: `node scripts/run_xtend_tests.js type-exports --json`
 - Package Script: `npm run test:type-exports`
 - Report Artifact: `.xtend-test-results/xtend-type-exports-report.json`
-- Export Fingerprint: `08378b3ac143eb377cb442eaa05aa5118cfd105b3f4e94fee58a920008f4a551`
+- Export Fingerprint: `1e90fe65c2d9284e8ba4e345b711dc79cabdef6dad6288669c3185b592a15c62`
 - Boundary: `types-only-no-runtime-imports`
 - Boundary: `no-rmt-kernel-import-of-xtend-types`
 - Boundary: `declarations-follow-js-runtime-surface`

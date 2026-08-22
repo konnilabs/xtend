@@ -220,14 +220,14 @@
   },
   "entry": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/xtend.maraca.mjs",
   "entryRelative": "docs/generated/shell/xtend.maraca.mjs",
-  "entryBytes": 558181,
-  "bytes": 943665,
+  "entryBytes": 557737,
+  "bytes": 945105,
   "bundleFiles": [
     {
       "type": "chunk",
       "fileName": "xtend.maraca.mjs",
       "path": "docs/generated/shell/xtend.maraca.mjs",
-      "bytes": 558181,
+      "bytes": 557737,
       "isEntry": true,
       "isDynamicEntry": false,
       "imports": [
@@ -235,28 +235,28 @@
         "./runtime/xtend-maraca-browser-composition-runtime.mjs"
       ],
       "dynamicImports": [
-        "chunks/x-footer-Clivp2-s.mjs",
-        "chunks/x-header-CvMi2P3Z.mjs",
-        "chunks/x-hero-BGhTnwr_.mjs",
-        "chunks/x-router-CnvvVLzP.mjs",
-        "chunks/x-section-CujW4WBS.mjs",
-        "chunks/x-status-BB8O2AVV.mjs",
-        "chunks/x-theme-CkQ9-vbQ.mjs"
+        "chunks/x-footer-C9fHGuaa.mjs",
+        "chunks/x-header-DwtfkTg2.mjs",
+        "chunks/x-hero-CKlbx-Wh.mjs",
+        "chunks/x-router-BB2FC054.mjs",
+        "chunks/x-section-ByKJQYde.mjs",
+        "chunks/x-status-ChsjjCLX.mjs",
+        "chunks/x-theme-CYxP2tAz.mjs"
       ],
       "modules": [
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-xstate-host-adapter.js",
-          "renderedLength": 5974,
-          "appService": false
-        },
-        {
           "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-surface-resource-graph-runtime.js",
-          "renderedLength": 74430,
+          "renderedLength": 75369,
           "appService": false
         },
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-state-selector-runtime.js",
-          "renderedLength": 48197,
+          "renderedLength": 47076,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-state-host-adapter.js",
+          "renderedLength": 5637,
           "appService": false
         },
         {
@@ -326,72 +326,72 @@
         },
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/components/xsurfacemanager-controller.js",
-          "renderedLength": 44972,
+          "renderedLength": 44567,
           "appService": false
         },
         {
           "id": "\u0000xtend-maraca-entry",
-          "renderedLength": 441284,
+          "renderedLength": 441536,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 558181
+      "frameworkBytes": 557737
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-footer-Clivp2-s.mjs",
-      "path": "docs/generated/shell/chunks/x-footer-Clivp2-s.mjs",
-      "bytes": 16958,
+      "fileName": "chunks/x-footer-C9fHGuaa.mjs",
+      "path": "docs/generated/shell/chunks/x-footer-C9fHGuaa.mjs",
+      "bytes": 17454,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [],
       "dynamicImports": [],
       "modules": [
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/xstate.js",
-          "renderedLength": 14343,
+          "id": "/home/konni/Downloads/xtend-main/xtend/components/xtend-state.js",
+          "renderedLength": 15558,
           "appService": false
         },
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/components/xfooter.js",
-          "renderedLength": 12268,
+          "renderedLength": 12280,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 16958
+      "frameworkBytes": 17454
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-header-CvMi2P3Z.mjs",
-      "path": "docs/generated/shell/chunks/x-header-CvMi2P3Z.mjs",
-      "bytes": 51543,
+      "fileName": "chunks/x-header-DwtfkTg2.mjs",
+      "path": "docs/generated/shell/chunks/x-header-DwtfkTg2.mjs",
+      "bytes": 51516,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-footer-Clivp2-s.mjs"
+        "chunks/x-footer-C9fHGuaa.mjs"
       ],
       "dynamicImports": [],
       "modules": [
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/components/xheader.js",
-          "renderedLength": 66221,
+          "renderedLength": 66234,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 51543
+      "frameworkBytes": 51516
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-hero-BGhTnwr_.mjs",
-      "path": "docs/generated/shell/chunks/x-hero-BGhTnwr_.mjs",
-      "bytes": 37485,
+      "fileName": "chunks/x-hero-CKlbx-Wh.mjs",
+      "path": "docs/generated/shell/chunks/x-hero-CKlbx-Wh.mjs",
+      "bytes": 37490,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-footer-Clivp2-s.mjs"
+        "chunks/x-footer-C9fHGuaa.mjs"
       ],
       "dynamicImports": [],
       "modules": [
@@ -407,54 +407,54 @@
         },
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/components/xicon.js",
-          "renderedLength": 21014,
+          "renderedLength": 21027,
           "appService": false
         },
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/components/xhero.js",
-          "renderedLength": 20127,
+          "renderedLength": 20139,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 37485
+      "frameworkBytes": 37490
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-router-CnvvVLzP.mjs",
-      "path": "docs/generated/shell/chunks/x-router-CnvvVLzP.mjs",
-      "bytes": 58083,
+      "fileName": "chunks/x-router-BB2FC054.mjs",
+      "path": "docs/generated/shell/chunks/x-router-BB2FC054.mjs",
+      "bytes": 58510,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-footer-Clivp2-s.mjs"
+        "chunks/x-footer-C9fHGuaa.mjs"
       ],
       "dynamicImports": [],
       "modules": [
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/components/xrouter.js",
-          "renderedLength": 104881,
+          "renderedLength": 105841,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 58083
+      "frameworkBytes": 58510
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-section-CujW4WBS.mjs",
-      "path": "docs/generated/shell/chunks/x-section-CujW4WBS.mjs",
+      "fileName": "chunks/x-section-ByKJQYde.mjs",
+      "path": "docs/generated/shell/chunks/x-section-ByKJQYde.mjs",
       "bytes": 7956,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-footer-Clivp2-s.mjs"
+        "chunks/x-footer-C9fHGuaa.mjs"
       ],
       "dynamicImports": [],
       "modules": [
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/components/xsection.js",
-          "renderedLength": 9455,
+          "renderedLength": 9467,
           "appService": false
         }
       ],
@@ -463,14 +463,14 @@
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-status-BB8O2AVV.mjs",
-      "path": "docs/generated/shell/chunks/x-status-BB8O2AVV.mjs",
-      "bytes": 10861,
+      "fileName": "chunks/x-status-ChsjjCLX.mjs",
+      "path": "docs/generated/shell/chunks/x-status-ChsjjCLX.mjs",
+      "bytes": 10866,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-footer-Clivp2-s.mjs",
-        "chunks/x-hero-BGhTnwr_.mjs"
+        "chunks/x-footer-C9fHGuaa.mjs",
+        "chunks/x-hero-CKlbx-Wh.mjs"
       ],
       "dynamicImports": [],
       "modules": [
@@ -481,59 +481,59 @@
         },
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/components/xstatus.js",
-          "renderedLength": 12207,
+          "renderedLength": 12220,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 10861
+      "frameworkBytes": 10866
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-theme-CkQ9-vbQ.mjs",
-      "path": "docs/generated/shell/chunks/x-theme-CkQ9-vbQ.mjs",
-      "bytes": 33953,
+      "fileName": "chunks/x-theme-CYxP2tAz.mjs",
+      "path": "docs/generated/shell/chunks/x-theme-CYxP2tAz.mjs",
+      "bytes": 33978,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [],
       "dynamicImports": [
-        "chunks/x-footer-Clivp2-s.mjs"
+        "chunks/x-footer-C9fHGuaa.mjs"
       ],
       "modules": [
         {
           "id": "/home/konni/Downloads/xtend-main/xtend/components/xtheme.js",
-          "renderedLength": 52495,
+          "renderedLength": 52620,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 33953
+      "frameworkBytes": 33978
     },
     {
       "type": "asset",
       "fileName": "runtime/xtend-maraca-plan-runtime.mjs",
       "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-      "bytes": 116051,
+      "bytes": 116961,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 116051
+      "frameworkBytes": 116961
     },
     {
       "type": "asset",
       "fileName": "runtime/xtend-maraca-browser-composition-runtime.mjs",
       "path": "docs/generated/shell/runtime/xtend-maraca-browser-composition-runtime.mjs",
-      "bytes": 31020,
+      "bytes": 31063,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 31020
+      "frameworkBytes": 31063
     },
     {
       "type": "asset",
@@ -1042,7 +1042,7 @@
             "components/xsurfacemanager-controller.js",
             "xtendrmt/rmt-resume-runtime.js",
             "xtendrmt/rmt-state-binding-view-projector.js",
-            "xtendrmt/rmt-xstate-host-adapter.js",
+            "xtendrmt/rmt-state-host-adapter.js",
             "xtendrmt/rmt-state-selector-runtime.js",
             "xtendrmt/rmt-action-effect-runtime.js",
             "xtendrmt/rmt-event-routing-runtime.js",
@@ -1259,7 +1259,7 @@
             "cacheVersion": "xtend-maraca-pwa-e2da56197cb9",
             "hooks": [
               "cache-management",
-              "xstate-state-management",
+              "state-management",
               "ssr-metadata",
               "prewarm-warm-reentry-policy"
             ]
@@ -1347,8 +1347,8 @@
       "status": "within_budget",
       "mode": "strict",
       "profile": "max",
-      "baselineBytes": 1124001,
-      "bundleBytes": 943665,
+      "baselineBytes": 1124319,
+      "bundleBytes": 945105,
       "runtimeExpectedStatus": "report-only"
     },
     "releaseConstraint": {
@@ -1371,7 +1371,7 @@
       "bundle": {
         "fileCount": 12,
         "entry": "xtend.maraca.mjs",
-        "bytes": 943665
+        "bytes": 945105
       },
       "runtimeFeatureStatus": [
         {
@@ -1644,7 +1644,7 @@
             "components/xsurfacemanager-controller.js",
             "xtendrmt/rmt-resume-runtime.js",
             "xtendrmt/rmt-state-binding-view-projector.js",
-            "xtendrmt/rmt-xstate-host-adapter.js",
+            "xtendrmt/rmt-state-host-adapter.js",
             "xtendrmt/rmt-state-selector-runtime.js",
             "xtendrmt/rmt-action-effect-runtime.js",
             "xtendrmt/rmt-event-routing-runtime.js",
@@ -1861,7 +1861,7 @@
             "cacheVersion": "xtend-maraca-pwa-e2da56197cb9",
             "hooks": [
               "cache-management",
-              "xstate-state-management",
+              "state-management",
               "ssr-metadata",
               "prewarm-warm-reentry-policy"
             ]
@@ -1949,8 +1949,8 @@
       "status": "within_budget",
       "mode": "strict",
       "profile": "max",
-      "baselineBytes": 1124001,
-      "bundleBytes": 943665,
+      "baselineBytes": 1124319,
+      "bundleBytes": 945105,
       "runtimeExpectedStatus": "report-only"
     },
     "releaseConstraint": {
@@ -1973,7 +1973,7 @@
       "bundle": {
         "fileCount": 12,
         "entry": "xtend.maraca.mjs",
-        "bytes": 943665
+        "bytes": 945105
       },
       "runtimeFeatureStatus": [
         {
@@ -2227,7 +2227,7 @@
     "templateCount": 1,
     "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
     "artifactBundleFingerprint": "fnv1a:76525cea",
-    "bundleFingerprint": "sha256:7b21228a26bd1d788e81f3b766f68be98e08a1ccb90ffb8cfc1520a08213e583",
+    "bundleFingerprint": "sha256:8b653ad840f03f69f8ec0f16695e772898883012eba5fffb7119da5f8bfc861f",
     "runtimeProfileHints": [
       "browser",
       "detached_dom",
@@ -2418,7 +2418,7 @@
         "template:xtend.docs.php_ssr_shell"
       ],
       "bundleFileCount": 12,
-      "bundleFingerprint": "sha256:7b21228a26bd1d788e81f3b766f68be98e08a1ccb90ffb8cfc1520a08213e583"
+      "bundleFingerprint": "sha256:8b653ad840f03f69f8ec0f16695e772898883012eba5fffb7119da5f8bfc861f"
     },
     "diagnostics": []
   },
@@ -3512,7 +3512,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "report-only",
-      "bundleFingerprint": "sha256:7b21228a26bd1d788e81f3b766f68be98e08a1ccb90ffb8cfc1520a08213e583"
+      "bundleFingerprint": "sha256:8b653ad840f03f69f8ec0f16695e772898883012eba5fffb7119da5f8bfc861f"
     },
     "diagnostics": [
       {
@@ -3532,7 +3532,7 @@
         ]
       }
     ],
-    "bundleFingerprint": "sha256:7b21228a26bd1d788e81f3b766f68be98e08a1ccb90ffb8cfc1520a08213e583"
+    "bundleFingerprint": "sha256:8b653ad840f03f69f8ec0f16695e772898883012eba5fffb7119da5f8bfc861f"
   },
   "panicRecovery": {
     "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
@@ -3634,9 +3634,9 @@
     "xtendrmt/rmt-resume-runtime.js",
     "xtendrmt/rmt-runtime.esm.js",
     "xtendrmt/rmt-state-binding-view-projector.js",
+    "xtendrmt/rmt-state-host-adapter.js",
     "xtendrmt/rmt-state-selector-runtime.js",
-    "xtendrmt/rmt-surface-resource-graph-runtime.js",
-    "xtendrmt/rmt-xstate-host-adapter.js"
+    "xtendrmt/rmt-surface-resource-graph-runtime.js"
   ],
   "stackModules": [
     {
@@ -3676,16 +3676,16 @@
       "source": "xtendrmt/rmt-state-binding-view-projector.js"
     },
     {
+      "id": "xtendrmt/rmt-state-host-adapter.js",
+      "source": "xtendrmt/rmt-state-host-adapter.js"
+    },
+    {
       "id": "xtendrmt/rmt-state-selector-runtime.js",
       "source": "xtendrmt/rmt-state-selector-runtime.js"
     },
     {
       "id": "xtendrmt/rmt-surface-resource-graph-runtime.js",
       "source": "xtendrmt/rmt-surface-resource-graph-runtime.js"
-    },
-    {
-      "id": "xtendrmt/rmt-xstate-host-adapter.js",
-      "source": "xtendrmt/rmt-xstate-host-adapter.js"
     }
   ],
   "orchestration": {
@@ -3701,7 +3701,7 @@
       "components/xsurfacemanager-controller.js",
       "xtendrmt/rmt-resume-runtime.js",
       "xtendrmt/rmt-state-binding-view-projector.js",
-      "xtendrmt/rmt-xstate-host-adapter.js",
+      "xtendrmt/rmt-state-host-adapter.js",
       "xtendrmt/rmt-state-selector-runtime.js",
       "xtendrmt/rmt-action-effect-runtime.js",
       "xtendrmt/rmt-event-routing-runtime.js",
@@ -4439,7 +4439,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "report-only",
-      "bundleFingerprint": "sha256:7b21228a26bd1d788e81f3b766f68be98e08a1ccb90ffb8cfc1520a08213e583"
+      "bundleFingerprint": "sha256:8b653ad840f03f69f8ec0f16695e772898883012eba5fffb7119da5f8bfc861f"
     },
     "summary": {
       "schema": null,
@@ -4807,14 +4807,14 @@
       "cacheVersion": "xtend-maraca-pwa-e2da56197cb9",
       "hooks": [
         "cache-management",
-        "xstate-state-management",
+        "state-management",
         "ssr-metadata",
         "prewarm-warm-reentry-policy"
       ]
     },
     "state": {
       "stateSnapshotHash": "",
-      "xstateBridgeMode": "main-thread-snapshot",
+      "stateProjectionMode": "main-thread-snapshot",
       "stateOwnership": "main-thread"
     },
     "ssr": {
@@ -5369,7 +5369,7 @@
       "xtendrmt/rmt-animation-engine-runtime.js",
       "xtendrmt/rmt-surface-transition-runtime.js",
       "components/xutils.js",
-      "components/xstate.js"
+      "components/xtend-state.js"
     ],
     "summary": {
       "schema": null,
@@ -5516,15 +5516,7 @@
     "warnings": [
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-xstate-host-adapter.js (165:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
-      },
-      {
-        "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-maraca-view-projection-adapter.js (242:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
-      },
-      {
-        "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-state-binding-view-projector.js (579:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-state-host-adapter.js (159:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -5532,11 +5524,15 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-state-selector-runtime.js (1116:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-state-binding-view-projector.js (579:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-action-effect-runtime.js (813:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-maraca-view-projection-adapter.js (242:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-state-selector-runtime.js (1092:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -5544,7 +5540,11 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-surface-resource-graph-runtime.js (1693:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-surface-resource-graph-runtime.js (1714:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-action-effect-runtime.js (813:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -5565,17 +5565,17 @@
     "mode": "strict",
     "baseline": {
       "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
-      "loaderBytes": 69993,
-      "selectedComponentBytes": 277989,
-      "stackModuleBytes": 574838,
-      "contractPayloadBytes": 201181,
-      "bytes": 1124001
+      "loaderBytes": 70038,
+      "selectedComponentBytes": 279195,
+      "stackModuleBytes": 573906,
+      "contractPayloadBytes": 201180,
+      "bytes": 1124319
     },
-    "baselineBytes": 1124001,
-    "bundleBytes": 943665,
+    "baselineBytes": 1124319,
+    "bundleBytes": 945105,
     "framework": {
-      "bytes": 943665,
-      "baselineBytes": 1124001,
+      "bytes": 945105,
+      "baselineBytes": 1124319,
       "withinBudget": true
     },
     "appServices": {
@@ -5603,11 +5603,11 @@
         }
       ]
     },
-    "ratio": 0.8395588616024363,
+    "ratio": 0.8406021778516596,
     "budgets": {
       "modernEsmEntryMustBeSmallerThanBaseline": true,
       "enforcement": "strict",
-      "frameworkBytes": 1124001,
+      "frameworkBytes": 1124319,
       "clientAppServiceBytes": null,
       "serverAppServiceBytes": null
     }

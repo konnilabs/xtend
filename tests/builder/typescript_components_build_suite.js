@@ -71,7 +71,7 @@ function runTypeScriptComponentsBuildSuite(options = {}) {
 
   const runtime = readText('components/xtoggle.js', rootDir);
   const types = readText('components/xtoggle.d.ts', rootDir);
-  context.assert(runtime.includes("from './xstate.js'"), 'Generated runtime import is finalized to local xstate');
+  context.assert(runtime.includes("from './xtend-state.js'"), 'Generated runtime import is finalized to local XTend State');
   context.assert(runtime.includes("customElements.define('x-toggle'"), 'Generated runtime defines x-toggle');
   context.assert(types.includes("'x-toggle': XToggleElement"), 'Generated declaration augments HTMLElementTagNameMap');
   context.assert(types.includes('XToggleEventMap'), 'Generated declaration exposes event map');

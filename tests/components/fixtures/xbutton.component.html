@@ -18,7 +18,7 @@
     window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
     window.__xtendButtonInteractions = [];
     window.__xtendButtonMeasurements = [];
-    window.xstate = {
+    window.XTend.state = {
       get(key) { return window.__xtendComponentState[key]; },
       set(key, value) { window.__xtendComponentState[key] = value; },
       subscribe() { return function unsubscribe() {}; }
@@ -48,7 +48,7 @@
       composed: true
     }));
 
-    const state = window.xstate.get('xbutton-state-component-button');
+    const state = window.XTend.state.get('xbutton-state-component-button');
     const snapshot = button.snapshotPerformance();
     const interactionBudget = button.getInteractionBudget();
 

@@ -307,7 +307,7 @@
                         'browser-runtime-hardening-surfaces'
                     ],
                     buildPolicy: 'Upstream RMT source remains the source-of-truth; xtendrmt/ artifacts are synchronized regression references in this repository. RKSH-WP-10 keeps the Trust/Panic/Recovery hardening layer in schema, manifest, types and runtime artifacts.',
-                    kernelBoundary: 'Artifact parity checks drift only and must not introduce XTend, XRouter, xstate or DOM runtime imports into the RMT kernel.',
+                    kernelBoundary: 'Artifact parity checks drift only and must not introduce XTend, XRouter, XTend State or DOM runtime imports into the RMT kernel.',
                     kernelHardeningSourceOfTruth: 'development/WP-RKSH-10-Buildprozess-und-Artefakt-Paritaet-fuer-neue-Layer-absichern.md',
                     kernelHardeningContracts: [
                         'xtend.rmt.kernel-artifact-parity.v1',

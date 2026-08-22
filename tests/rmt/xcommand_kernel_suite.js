@@ -17,12 +17,12 @@ function validateRuntime(context, rootDir) {
   context.assert(xcommand.XKEYMAP_SURFACE_CONTRACT === XKEYMAP_CONTRACT, 'XCommand module declares XKeymap surface contract');
   context.assert(xcommand.RMT_XCOMMAND_SCHEMA === RMT_XCOMMAND_SCHEMA, 'XCommand module declares RMT schema');
 
-  const xstateWrites = [];
+  const stateWrites = [];
   const fabricRecords = [];
   const invoked = [];
   const kernel = xcommand.createXCommandKernel({
     chordTimeoutMs: 100,
-    xstate: { get: () => undefined, set: (key, value) => xstateWrites.push({ key, value }) },
+    stateRuntime: { get: () => undefined, set: (key, value) => stateWrites.push({ key, value }) },
     fabric: { schedule: (record) => fabricRecords.push(record) },
     actionExecutor: (record) => invoked.push(record.id)
   });
@@ -34,7 +34,7 @@ function validateRuntime(context, rootDir) {
   context.assert(direct.status === 'invoked' && direct.commandId === 'global.save', 'single shortcut invokes registered command');
   context.assert(invoked.includes('global.save'), 'action executor sees invoked shortcut');
   context.assert(fabricRecords.some((record) => record.kind === 'xcommand.dispatch' && record.commandId === 'global.save'), 'Fabric receives dispatch schedule record');
-  context.assert(xstateWrites.some((write) => write.key === 'xtend.xcommand.last'), 'XState receives last command write');
+  context.assert(stateWrites.some((write) => write.key === 'xtend.xcommand.last'), 'XTend State receives last command write');
 
   const pending = kernel.dispatch({ token: 'g', scope: 'app-shell', timestamp: 20 });
   context.assert(pending.status === 'pending-chord', 'first key of chord produces pending-chord');
@@ -44,7 +44,7 @@ function validateRuntime(context, rootDir) {
   kernel.dispatch({ token: 'g', scope: 'app-shell', timestamp: 50 });
   const timeoutResult = kernel.dispatch({ token: 'x', scope: 'app-shell', timestamp: 250 });
   context.assert(timeoutResult.status === 'ignored', 'expired chord resets before next stroke');
-  context.assert(xstateWrites.some((write) => write.key === 'xtend.xcommand.chord.timeout'), 'XState receives chord timeout write');
+  context.assert(stateWrites.some((write) => write.key === 'xtend.xcommand.chord.timeout'), 'XTend State receives chord timeout write');
 
   const keymap = kernel.getKeymap('app-shell');
   context.assert(keymap.some((entry) => entry.id === 'navigation.go-to-file' && entry.group === 'navigation'), 'Keymap exposes scoped chord entry');

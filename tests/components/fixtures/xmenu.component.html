@@ -52,7 +52,7 @@
     window.__xtendMenuInteractions = [];
     window.__xtendMenuNavigation = [];
     window.__xtendMenuMeasurements = [];
-    window.xstate = {
+    window.XTend.state = {
       get(key) { return window.__xtendComponentState[key]; },
       set(key, value) { window.__xtendComponentState[key] = value; },
       subscribe() { return function unsubscribe() {}; }
@@ -81,15 +81,15 @@
     const secondaryMenu = document.getElementById('secondary-menu');
     const secondaryItems = Array.from(secondaryMenu.querySelectorAll('a, button, x-link, [role="menuitem"]'));
 
-    const stateWritesBeforeIsolationCheck = window.xstate.snapshotDiagnostics().operationCounts.set;
-    window.xstate.set('xmenu-active', {
+    const stateWritesBeforeIsolationCheck = window.XTend.state.snapshotDiagnostics().operationCounts.set;
+    window.XTend.state.set('xmenu-active', {
       schema: 'xtend.component.x-menu.state.v1',
       id: 'component-menu',
       index: 1,
       activeIndex: 1,
       focus: false
     });
-    const stateWritesAfterIsolationCheck = window.xstate.snapshotDiagnostics().operationCounts.set;
+    const stateWritesAfterIsolationCheck = window.XTend.state.snapshotDiagnostics().operationCounts.set;
     const secondaryActiveIndex = secondaryItems.findIndex((item) => item.getAttribute('aria-current') === 'page');
     const secondaryFocusIndex = secondaryItems.findIndex((item) => item.tabIndex === 0);
 
@@ -102,7 +102,7 @@
     items[1].click();
     items[2].click();
 
-    const state = window.xstate.get('xmenu-state-component-menu');
+    const state = window.XTend.state.get('xmenu-state-component-menu');
     const snapshot = menu.snapshotPerformance();
     const interactionBudget = menu.getInteractionBudget();
 

@@ -1,4 +1,4 @@
-import { xstate } from '../../../components/xstate.js';
+import { xtendState } from '../../../components/xtend-state.js';
 
 export type XCheckboxEventName = 'checkbox-changed' | 'checkbox-invalid';
 
@@ -50,7 +50,7 @@ export class XCheckbox extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.id) this.id = `xcheckbox-${Math.random().toString(36).slice(2, 10)}`;
-    xstate.set(`xcheckbox-checked-${this.id}`, this.checked);
+    xtendState.set(`xcheckbox-checked-${this.id}`, this.checked);
   }
 
   get checked(): boolean {

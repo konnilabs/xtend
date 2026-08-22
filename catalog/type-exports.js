@@ -29,8 +29,8 @@ const TYPE_EXPORTS_RELEASE_STATUS = 'accepted-productive-type-exports-release-ga
 const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready';
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
-const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 182;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = '08378b3ac143eb377cb442eaa05aa5118cfd105b3f4e94fee58a920008f4a551';
+const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 183;
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = '1e90fe65c2d9284e8ba4e345b711dc79cabdef6dad6288669c3185b592a15c62';
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',
@@ -105,7 +105,7 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'core-api',
     priority: 'P0',
     workpackage: 'WP-TypeExports-03',
-    exports: ['./api'],
+    exports: ['./api', './classic-state'],
     strategy: 'window-xtend-api-declaration'
   },
   {
@@ -155,7 +155,7 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'rmt-runtime',
     priority: 'P1',
     workpackage: 'WP-TypeExports-04',
-    exports: ['./rmt', './rmt/browser', './rmt/browser-scheduler', './rmt/dom-descriptor-renderer', './rmt/safe-preview', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/xstate-host-adapter', './rmt/state-binding-view-projector', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/maraca-view-projection-adapter', './rmt/presentation-effect-adapter', './rmt/form-validation-runtime', './rmt/animation-engine-runtime', './rmt/surface-transition-runtime', './rmt/surface-resource-graph-runtime', './rmt/kernel-orchestration-controller', './rmt/native-shell-runtime', './rmt/node-ssr-adapter', './rmt/resume-runtime'],
+    exports: ['./rmt', './rmt/browser', './rmt/browser-scheduler', './rmt/dom-descriptor-renderer', './rmt/safe-preview', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/state-host-adapter', './rmt/state-binding-view-projector', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/maraca-view-projection-adapter', './rmt/presentation-effect-adapter', './rmt/form-validation-runtime', './rmt/animation-engine-runtime', './rmt/surface-transition-runtime', './rmt/surface-resource-graph-runtime', './rmt/kernel-orchestration-controller', './rmt/native-shell-runtime', './rmt/node-ssr-adapter', './rmt/resume-runtime'],
     strategy: 'runtime-types-condition-to-rmt-core'
   },
   {

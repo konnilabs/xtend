@@ -17,7 +17,7 @@ const FEATURE_PROFILE_RULES = {
     stateKeys: ['value', 'ready'],
     events: ['changed'],
     apiNamespaces: [],
-    reviewChecks: ['canonical-xstate-key', 'xstate.subscribe', 'ssot-boundary']
+    reviewChecks: ['canonical-state-key', 'xtendState.subscribe', 'ssot-boundary']
   },
   feedback: {
     stateKeys: ['visible', 'dismissed'],
@@ -35,7 +35,7 @@ const FEATURE_PROFILE_RULES = {
     stateKeys: ['xtend.router.lastNavigated', 'xtend.router.current', 'xtend.router.lastRendered'],
     events: ['route-changed'],
     apiNamespaces: ['window.XTend.router'],
-    reviewChecks: ['router-navigate', 'xstate-bridge', 'route-events']
+    reviewChecks: ['router-navigate', 'state-projection', 'route-events']
   },
   theme: {
     stateKeys: ['xtend.theme.current', 'xtend.theme.available'],
@@ -111,13 +111,13 @@ function createFeatureWiring(input = {}) {
     },
     state: {
       enabled: stateRequested,
-      source: 'xstate',
+      source: 'xtend-state',
       prefix: statePrefix,
       keys: stateKeys,
-      read: 'xstate.get(key)',
-      write: 'xstate.set(key, value)',
-      subscribe: 'xstate.subscribe(fn, keyFilter?)',
-      forbidden: ['xstate.on', 'xstate.off'],
+      read: 'xtendState.get(key)',
+      write: 'xtendState.set(key, value)',
+      subscribe: 'xtendState.subscribe(fn, keyFilter?)',
+      forbidden: ['xtendState.on', 'xtendState.off'],
       localUiPolicy: 'derived-render-cache-only'
     },
     events: {
@@ -150,7 +150,7 @@ function createFeatureWiring(input = {}) {
     })),
     reviewRules: [
       'Generated state patterns must use canonical xtend.* keys.',
-      'Stateful patterns must use xstate.subscribe(fn, keyFilter?) and must not call xstate.on/off directly.',
+      'Stateful patterns must use xtendState.subscribe(fn, keyFilter?) and must not call xtendState.on/off directly.',
       'Generated UI fields may only be derived render caches, never a second source of truth.',
       'Generated API hints must prefer window.XTend.* and must not create new unnamespaced window.show* helpers.',
       'Feature wiring remains profile-driven and optional until productive generator writes are introduced.'

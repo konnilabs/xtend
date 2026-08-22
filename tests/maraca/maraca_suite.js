@@ -1429,7 +1429,7 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(plan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-state-selector-runtime.js'), 'strict plan includes orchestration runtime modules in bundle graph');
   context.assert(plan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-state-binding-view-projector.js'), 'strict plan includes the State Binding View projector in the composition graph');
   context.assert(plan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-maraca-view-projection-adapter.js'), 'strict plan includes the Maraca View projection adapter in the composition graph');
-  context.assert(plan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-xstate-host-adapter.js'), 'strict plan includes the XState output adapter in the composition graph');
+  context.assert(plan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-state-host-adapter.js'), 'strict plan includes the XTend State output adapter in the composition graph');
   context.assert(plan.stackModules.some((entry) => entry.source === 'components/xsurfacemanager-controller.js'), 'strict plan includes the Surface Controller composition port');
   context.assert(plan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-presentation-effect-adapter.js'), 'strict plan includes the presentation adapter in the composition graph');
   context.assert(incompleteStrictPlan.ok === false, 'strict orchestration blocks incomplete graph');
@@ -1452,7 +1452,7 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(entrySource.includes('XTendMaracaKernelRuntimeModule'), 'bundle imports the RMT kernel runtime module');
   context.assert(entrySource.includes(MARACA_KERNEL_CONTROLLER_ASSET), 'bundle imports reusable kernel orchestration controller asset');
   context.assert(entrySource.includes('XTendRmtStateSelectorRuntime'), 'bundle wires state runtime');
-  context.assert(entrySource.includes('XTendRmtXStateHostAdapter'), 'bundle wires the typed XState host adapter');
+  context.assert(entrySource.includes('XTendRmtStateHostAdapter'), 'bundle wires the typed XTend State host adapter');
   context.assert(entrySource.includes('XTendRmtActionEffectRuntime'), 'bundle wires action runtime');
   context.assert(entrySource.includes('MARACA_RUNTIME_MODULE_APIS')
     && entrySource.includes('"xtendrmt/rmt-app-runtime.js"')
@@ -1490,9 +1490,9 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(planRuntimeSource.includes("'operation:xtend.maraca/orchestration/event'"), 'canonical Plan Runtime schedules app commands on the orchestration event lane');
   context.assert(planRuntimeSource.includes('dispatchStreamPatch(patchInput, metadata = {})'), 'canonical Plan Runtime exposes stream patches only through its application-controller facade');
   context.assert(planRuntimeSource.includes('createStateProjectionPort: stateProjectionFactory')
-    && planRuntimeSource.includes('stateProjectionTarget: options.xstate || null')
-    && planRuntimeSource.includes("error.code = 'rmt.state.xstate-batch-required'"),
-  'canonical Plan Runtime injects XState only through the typed state projection factory and target');
+    && planRuntimeSource.includes('stateProjectionTarget: options.stateProjectionTarget || null')
+    && planRuntimeSource.includes("error.code = 'rmt.state.projection-batch-required'"),
+  'canonical Plan Runtime injects XTend State only through the typed state projection factory and target');
   context.assert(!planRuntimeSource.includes('getRuntimeAdapters()')
     && !planRuntimeSource.includes('get rawActionRuntime()')
     && !planRuntimeSource.includes('get renderer()')
@@ -1522,7 +1522,7 @@ async function runMaracaOrchestrationSuite(options = {}) {
     /\.ownerDocument\b/u,
     /\bCustomEvent\b/u,
     /\.dispatchEvent\s*\(/u,
-    /\bxstate\.(?:set|setState)\s*\(/u
+    /\bstate\.(?:set|setState)\s*\(/u
   ];
   context.assert(forbiddenControllerDomPrimitives.every((pattern) => !pattern.test(planRuntimeSource)),
     'canonical Plan Runtime reaches browser and DOM capabilities only through injected View ports');
@@ -2811,11 +2811,11 @@ async function runMaracaTransitionSuite(options = {}) {
   context.assert(strictPlan.runtimeModules.includes('xtendrmt/rmt-animation-engine-runtime.js'), 'strict transition plan requires animation engine runtime module');
   context.assert(strictPlan.runtimeModules.includes('xtendrmt/rmt-surface-transition-runtime.js'), 'strict transition plan requires surface transition runtime module');
   context.assert(strictPlan.runtimeModules.includes('components/xutils.js'), 'strict transition plan requires x-utils effect policy module');
-  context.assert(strictPlan.runtimeModules.includes('components/xstate.js'), 'strict transition plan requires xstate mirror module');
+  context.assert(strictPlan.runtimeModules.includes('components/xtend-state.js'), 'strict transition plan requires state mirror module');
   context.assert(strictPlan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-animation-engine-runtime.js'), 'strict transition plan includes animation engine runtime in the bundle graph');
   context.assert(strictPlan.stackModules.some((entry) => entry.source === 'xtendrmt/rmt-surface-transition-runtime.js'), 'strict transition plan includes transition runtime in the bundle graph');
   context.assert(strictPlan.stackModules.some((entry) => entry.source === 'components/xutils.js'), 'strict transition plan includes x-utils in the bundle graph');
-  context.assert(strictPlan.stackModules.some((entry) => entry.source === 'components/xstate.js'), 'strict transition plan includes xstate in the bundle graph');
+  context.assert(strictPlan.stackModules.some((entry) => entry.source === 'components/xtend-state.js'), 'strict transition plan includes state in the bundle graph');
   context.assert(strictPlan.kernel && strictPlan.kernel.artifact.scheduler.fibers.some((fiber) => fiber.kind === 'surface-transition'), 'strict transition plan has kernel surface-transition fibers');
   context.assert(transitionsOffPlan.ok === true && transitionsOffPlan.transitions.enabled === false, 'transitions off keeps legacy attribute-sync behavior available');
   context.assert(strictWithoutArtifact.ok === false, 'strict transitions block when no transition plan exists');

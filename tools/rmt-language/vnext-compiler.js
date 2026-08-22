@@ -3876,7 +3876,7 @@ function createHostContracts() {
       'component.reportValidity',
       'surfaceTransition.run',
       'animationEngine.run',
-      'xstate.write',
+      'state.write',
       'uiEffects.resolve',
       'telemetry.publish',
       'diagnostics.redact'

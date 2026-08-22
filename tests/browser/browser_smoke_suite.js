@@ -115,7 +115,7 @@ const BROWSER_FIXTURES = [
   }
 ];
 const CORE_FLOW_MANIFEST_CONTRACT = {
-  xstate: '/components/xstate.js',
+  'xtend-state': '/components/xtend-state.js',
   'x-theme': '/components/xtheme.js',
   'x-router': '/components/xrouter.js',
   'x-link': '/components/xlink.js',
@@ -187,10 +187,10 @@ function assertCustomElementFixtureContract(context, rootDir) {
   context.assert(fixture.includes('customElements.whenDefined'), 'Browser fixture waits for Custom Element registration');
   context.assert(fixture.includes("recordCheck('shadow root rendered'"), 'Browser fixture verifies shadow DOM rendering');
   context.assert(fixture.includes("recordCheck('body visible'"), 'Browser fixture verifies visible UI activation');
-  context.assert(fixture.includes("recordCheck('state synchronized'"), 'Browser fixture verifies xstate synchronization');
+  context.assert(fixture.includes("recordCheck('state synchronized'"), 'Browser fixture verifies state synchronization');
   context.assert(componentSource.includes("customElements.define('x-alert'"), 'x-alert source registers the Custom Element');
   context.assert(componentSource.includes("attachShadow({ mode: 'open' })"), 'x-alert source creates open shadow DOM');
-  context.assert(componentSource.includes('xtend.component.x-alert.'), 'x-alert source uses the canonical xstate key');
+  context.assert(componentSource.includes('xtend.component.x-alert.'), 'x-alert source uses the canonical state key');
   context.assert(componentSource.includes('alert-dismissed'), 'x-alert source exposes its dismissal event contract');
 }
 
@@ -267,7 +267,7 @@ function assertCoreFlowFixtureContract(context, rootDir) {
   context.assert(!loaderSource.includes('await waitForWindowLoad()'), 'XTend loader no longer waits for full window load before shell hydration');
   context.assert(loaderSource.includes('data-manifest'), 'XTend loader supports data-manifest overrides');
   context.assert(loaderSource.includes('data-module-cache-bust'), 'XTend loader supports module cache busting for live deployments');
-  context.assert(loaderSource.includes("tag === 'xstate'"), 'XTend loader avoids cache-busting xstate to prevent duplicate state module instances');
+  context.assert(loaderSource.includes("tag === 'xtend-state'"), 'XTend loader avoids cache-busting Classic State to prevent duplicate module instances');
   context.assert(loaderSource.includes('window.XTendLoader'), 'XTend loader exposes the canonical browser loader namespace');
   context.assert(loaderSource.includes('ensureComponent'), 'XTend loader exposes dynamic component loading for routed subtrees');
   context.assert(loaderSource.includes('hydrateTree'), 'XTend loader exposes dynamic subtree hydration for SPA route content');
@@ -287,7 +287,7 @@ function assertCoreFlowFixtureContract(context, rootDir) {
   context.assert(apiSource.includes('setupXDialogAPI(manifest)'), 'API initializes the dialog runtime');
   context.assert(apiSource.includes('setupXModalAPI(manifest)'), 'API initializes the modal runtime');
   context.assert(apiSource.includes('setupXThemeAPI(manifest)'), 'API initializes the theme runtime');
-  context.assert(routerSource.includes('router-navigate'), 'Router supports xstate-driven navigation');
+  context.assert(routerSource.includes('router-navigate'), 'Router supports state-driven navigation');
   context.assert(routerSource.includes('router-rendered'), 'Router exposes rendered route state');
   context.assert(themeSource.includes("document.dispatchEvent(new CustomEvent('theme-changed'"), 'Theme runtime emits theme-changed');
   context.assert(dialogSource.includes('xtend.component.x-dialog.'), 'Dialog runtime syncs canonical open state');

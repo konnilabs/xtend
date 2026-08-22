@@ -64,7 +64,7 @@ const DOCS_RMT_PLAYGROUND_RENDERER_MODULE = '/xtendrmt/rmt-dom-descriptor-render
 const DOCS_RMT_PLAYGROUND_MARACA_SCHEMA = 'xtend.docs.rmt-playground.maraca-preview.v1';
 const DOCS_RMT_PLAYGROUND_MARACA_MODE = 'maraca-preview';
 const DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES = Object.freeze([
-  '/components/xstate.js',
+  '/components/xtend-state.js',
   '/components/xsurfacemanager-controller.js',
   '/components/xutils.js',
   '/xtendrmt/rmt-runtime.esm.js',
@@ -72,7 +72,7 @@ const DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES = Object.freeze([
   '/xtendrmt/rmt-kernel-orchestration-controller.js',
   '/xtendrmt/rmt-state-binding-view-projector.js',
   '/xtendrmt/rmt-state-selector-runtime.js',
-  '/xtendrmt/rmt-xstate-host-adapter.js',
+  '/xtendrmt/rmt-state-host-adapter.js',
   '/xtendrmt/rmt-action-effect-runtime.js',
   '/xtendrmt/rmt-event-routing-runtime.js',
   '/xtendrmt/rmt-form-validation-runtime.js',
@@ -1397,11 +1397,12 @@ function detectBrowserDocsLocale() {
 }
 
 function writeDocsLocaleState(values = {}) {
-  if (!window.xstate || typeof window.xstate.set !== 'function') return;
+  const stateRuntime = window.XTend && window.XTend.state;
+  if (!stateRuntime || typeof stateRuntime.set !== 'function') return;
   const keys = getDocsI18nConfig().stateKeys;
   Object.entries(values).forEach(([name, value]) => {
     const stateKey = keys[name];
-    if (stateKey) window.xstate.set(stateKey, value);
+    if (stateKey) stateRuntime.set(stateKey, value);
   });
 }
 
@@ -1597,7 +1598,7 @@ function publishDocsLocale(locale, source = 'default') {
       error: null
     });
   }
-  if (changed || source === 'user' || source === 'browser' || source === 'default' || source === 'xstate') {
+  if (changed || source === 'user' || source === 'browser' || source === 'default' || source === 'state') {
     window.dispatchEvent(new CustomEvent('xtend-docs-locale-changed', {
       detail: {
         schema: DOCS_I18N_SCHEMA,
@@ -1913,7 +1914,7 @@ function createDocsComponentDemos() {
     },
     actions: ['toast']
   });
-  add('components-xmodal', 'x-modal', 'x-modal', 'Modales Overlay mit Focus Trap, Escape und xstate-Sync.', '<div class="docs-demo-actions"><x-button data-demo-action="open-modal" variant="primary">Modal testen</x-button></div><x-modal id="docs-demo-modal" title="Release Check" content="XTend Modal läuft in der Docs Shell." overlay></x-modal>', {
+  add('components-xmodal', 'x-modal', 'x-modal', 'Modales Overlay mit Focus Trap, Escape und XTend-State-Sync.', '<div class="docs-demo-actions"><x-button data-demo-action="open-modal" variant="primary">Modal testen</x-button></div><x-modal id="docs-demo-modal" title="Release Check" content="XTend Modal läuft in der Docs Shell." overlay></x-modal>', {
     attributes: { id: 'docs-demo-modal', title: 'Release Check', content: 'XTend Modal läuft in der Docs Shell.', overlay: true },
     descriptor: {
       type: 'fragment',
@@ -3515,11 +3516,12 @@ function ensureDocsLanguageSelectBinding() {
       slug: parsed.slug || getCurrentDocsSlug()
     });
   });
-  if (window.xstate && typeof window.xstate.subscribe === 'function') {
+  const stateRuntime = window.XTend && window.XTend.state;
+  if (stateRuntime && typeof stateRuntime.subscribe === 'function') {
     const config = getDocsI18nConfig();
-    window.xstate.subscribe((key, value) => {
+    stateRuntime.subscribe((key, value) => {
       if (key === config.stateKeys.locale && value && normalizeDocsLocale(value) !== getCurrentDocsLocale()) {
-        navigateDocsLocale(value, 'xstate');
+        navigateDocsLocale(value, 'state');
       }
     }, config.stateKeys.locale);
   }
@@ -4702,7 +4704,7 @@ async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = g
         await Promise.all((moduleUrls || []).map((url) => import(String(url))));
         return Object.freeze({
           state: window.XTendRmtStateSelectorRuntime,
-          stateProjection: window.XTendRmtXStateHostAdapter,
+          stateProjection: window.XTendRmtStateHostAdapter,
           stateBindings: window.XTendRmtStateBindingViewProjector,
           action: window.XTendRmtActionEffectRuntime,
           app: window.XTendRmtAppRuntime,
@@ -4730,7 +4732,7 @@ async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = g
     documentTarget: document,
     windowTarget: window,
     xUtils: window.XUtils,
-    xstate: window.xstate
+    stateProjectionTarget: window.XTend && window.XTend.state
   });
   await runtime.boot();
   window.xtendDocsRmtPlaygroundLastMaraca = runtime.snapshot();

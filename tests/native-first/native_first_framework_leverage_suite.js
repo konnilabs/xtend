@@ -218,8 +218,8 @@ function runNativeFirstFrameworkLeverageSuite(options = {}) {
 
   const stateMetadata = packageManifest.xtend.rmtStateSelectorRuntime;
   const eventMetadata = packageManifest.xtend.rmtEventRoutingRuntime;
-  context.assert(stateMetadata.xstateImportedByRuntime === false, 'State selector runtime does not import xstate');
-  context.assert(stateMetadata.xstateBridgeMode === 'injected-host-adapter', 'State selector runtime uses injected host adapter');
+  context.assert(stateMetadata.stateRuntimeImportedByRuntime === false, 'State selector runtime does not import state');
+  context.assert(stateMetadata.stateProjectionMode === 'injected-host-adapter', 'State selector runtime uses injected host adapter');
   context.assert(eventMetadata.productEventFrameworkAllowed === false, 'Event routing rejects product event framework');
   context.assert(eventMetadata.closestDelegationRequired === false, 'Event routing does not require closest delegation');
 
@@ -228,7 +228,7 @@ function runNativeFirstFrameworkLeverageSuite(options = {}) {
   const fabricLaneMapping = readText('fabric/rmt-lane-mapping.js', rootDir);
   const shellAuthoring = readText('development/XTend-RMT-Shell-Authoring-fuer-Component-UX.md', rootDir);
   const componentNetwork = readText('development/XTend-Component-Network-Compatibility-Contract.md', rootDir);
-  context.assert(!stateRuntime.includes("from '../components/xstate'") && !stateRuntime.includes("require('../components/xstate") && !stateRuntime.includes('components/xstate'), 'State selector runtime has no xstate import');
+  context.assert(!stateRuntime.includes("from '../components/state'") && !stateRuntime.includes("require('../components/state") && !stateRuntime.includes('components/state'), 'State selector runtime has no state import');
   context.assertIncludes(eventRuntime, 'xtend.epic18.rmt-event-routing-runtime.v2', 'Event runtime declares stable schema');
   context.assert(!eventRuntime.includes('mitt') && !eventRuntime.includes('EventEmitter'), 'Event runtime avoids external event bus primitives');
   context.assertIncludes(fabricLaneMapping, 'xtend.fabric.rmt-lane-mapping.v1', 'Fabric lane mapping declares contract');
@@ -246,7 +246,7 @@ function runNativeFirstFrameworkLeverageSuite(options = {}) {
   context.assert(metadata && metadata.noRuntimeDependency === true, 'Package metadata keeps no runtime dependency boundary');
   context.assert(metadata && metadata.noExternalUiFrameworkRuntime === true, 'Package metadata rejects external UI framework runtime');
   context.assert(metadata && metadata.noImplicitGlobalEventBus === true, 'Package metadata rejects implicit global event bus');
-  context.assert(metadata && metadata.xstateBridgeMode === 'injected-host-adapter', 'Package metadata records xstate injected bridge mode');
+  context.assert(metadata && metadata.stateProjectionMode === 'injected-host-adapter', 'Package metadata records state injected bridge mode');
   context.assert(metadata && metadata.rmtKernelBoundary === KERNEL_BOUNDARY, 'Package metadata preserves RMT kernel boundary');
 
   return context.result({

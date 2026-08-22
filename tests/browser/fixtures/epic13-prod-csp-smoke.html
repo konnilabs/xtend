@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'nonce-xtend-e13-prod-csp-smoke'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'">
-  <meta name="xtend-preload" content="xstate,x-theme,x-router,x-link,x-alert,x-toast">
+  <meta name="xtend-preload" content="xtend-state,x-theme,x-router,x-link,x-alert,x-toast">
   <title>XTend Epic 13 PROD CSP Smoke</title>
 </head>
 <body data-xtend-fixture="epic13-prod-csp-smoke">
@@ -114,14 +114,14 @@
         await window.__XTendLoaderBootPromise;
       }
 
-      await waitFor(() => window.XTendLoader && window.XTend && window.xstate && customElements.get('x-router'), 6000);
+      await waitFor(() => window.XTendLoader && window.XTend && window.XTend.state && customElements.get('x-router'), 6000);
       recordCheck('loader boot promise resolved under csp', Boolean(window.XTendLoader && window.XTend));
       recordCheck('manifest policy kept loader local', loader.dataset.manifest === '/tests/browser/fixtures/components/manifest.json');
-      recordCheck('xstate available once under csp', Boolean(window.xstate && typeof window.xstate.get === 'function'));
+      recordCheck('state available once under csp', Boolean(window.XTend.state && typeof window.XTend.state.get === 'function'));
 
-      window.xstate.set('router-navigate', '/detail');
+      window.XTend.state.set('router-navigate', '/detail');
       await waitFor(() => {
-        const current = window.xstate.get('router-current');
+        const current = window.XTend.state.get('router-current');
         return current && current.component === 'xtend-prod-csp-detail';
       }, 4000);
       recordCheck('router route rendered under csp', Boolean(document.querySelector('#prod-csp-router').shadowRoot.querySelector('xtend-prod-csp-detail')));

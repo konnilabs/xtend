@@ -299,13 +299,13 @@ function assertTelemetryBridgeEndToEnd(context, rootDir) {
   const canonicalModules = createCanonicalStateTelemetryModules(context, rootDir);
   if (!canonicalModules) return;
 
-  const xstateValues = {};
+  const stateValues = {};
   const schedulerPressureSamples = [];
   const scheduledEndpoints = [];
   const bridge = canonicalModules.createRmtStateSchedulerDiagnosticsBridge({
     stateProjectionPort: {
       batchUpdate(updates) {
-        Object.assign(xstateValues, updates);
+        Object.assign(stateValues, updates);
       },
       get() {
         throw new Error('State Projection Ports are output-only and must never be read as model authority.');
@@ -391,8 +391,8 @@ function assertTelemetryBridgeEndToEnd(context, rootDir) {
   )), 'Telemetry E2E RMT bridge lists scheduler-coupled backpressure');
   context.assert(schedulerPressureSamples.some((sample) => sample.source === 'rmt.bridge.fabric-backpressure' && sample.lane === 'idle_maintenance'), 'Telemetry E2E scheduler receives Fabric pressure sample');
   context.assert(scheduledEndpoints.some((entry) => entry.endpointName === 'xtendrmt.diagnostics.snapshot'), 'Telemetry E2E diagnostics endpoint is scheduled');
-  context.assert(xstateValues['rmt.telemetry.lastSnapshot'] && xstateValues['rmt.telemetry.lastSnapshot'].id === 'telemetry.e2e.snapshot', 'Telemetry E2E xstate mirror exposes last snapshot');
-  context.assert(xstateValues['rmt.backpressure.lastYieldHint'] && xstateValues['rmt.backpressure.lastYieldHint'].schedulerPressureLevel === 'constrained', 'Telemetry E2E xstate mirror exposes scheduler yield hint');
+  context.assert(stateValues['rmt.telemetry.lastSnapshot'] && stateValues['rmt.telemetry.lastSnapshot'].id === 'telemetry.e2e.snapshot', 'Telemetry E2E state mirror exposes last snapshot');
+  context.assert(stateValues['rmt.backpressure.lastYieldHint'] && stateValues['rmt.backpressure.lastYieldHint'].schedulerPressureLevel === 'constrained', 'Telemetry E2E state mirror exposes scheduler yield hint');
   const debugSnapshot = bridge.getTelemetryDebugSnapshot();
   context.assert(debugSnapshot.schema === 'xtend.rmt.telemetry-debug-snapshot.v1', 'Telemetry E2E dev API exposes debug snapshot schema');
   context.assert(debugSnapshot.telemetrySnapshotCount === 1 && debugSnapshot.backpressureSignalCount >= 1, 'Telemetry E2E dev API exposes usable record counts');

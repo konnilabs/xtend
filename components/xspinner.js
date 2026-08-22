@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 // <x-spinner>
 class XSpinner extends HTMLElement {
@@ -78,7 +78,7 @@ class XSpinner extends HTMLElement {
       lane: "feedback",
       hydrationPolicy: "visible",
       criticalMeasurements: ["mount", "hydrate", "event"],
-      cleanup: ["xstate-subscription", "overlay-parent"]
+      cleanup: ["xtend-state-subscription", "overlay-parent"]
     };
   }
 
@@ -260,11 +260,11 @@ class XSpinner extends HTMLElement {
 
   connectedCallback() {
     if (!this.id) this.id = `xspinner-${Math.random().toString(36).slice(2, 10)}`;
-    xstate.set(`xspinner-paused-${this.id}`, this.hasAttribute("paused"));
+    xtendState.set(`xspinner-paused-${this.id}`, this.hasAttribute("paused"));
     this._renderSpinner();
     this._emitSpinnerEvent("spinner-started");
     // Subscribe to state changes
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xspinner-paused-${this.id}` && typeof value === "boolean") {
         const paused = this.hasAttribute("paused");
         if (value === paused) return;
@@ -298,7 +298,7 @@ class XSpinner extends HTMLElement {
     if (name === "paused") {
       this._spinner.style.animationPlayState = newValue !== null ? "paused" : "running";
       if (this.id) {
-        xstate.set(`xspinner-paused-${this.id}`, newValue !== null);
+        xtendState.set(`xspinner-paused-${this.id}`, newValue !== null);
       }
       this._emitSpinnerEvent(newValue !== null ? "paused" : "resumed");
     }

@@ -10,7 +10,7 @@ const {
 const LANDING_PAGE_PATH = 'index.html';
 const LANDING_STYLE_PATH = 'landing.css';
 const LANDING_BROWSER_SMOKE_PATH = 'scripts/smoke_landing_page.mjs';
-const PRELOADED_TAGS = ['xstate', 'x-theme', 'x-icon', 'x-header', 'x-hero', 'x-type'];
+const PRELOADED_TAGS = ['xtend-state', 'x-theme', 'x-icon', 'x-header', 'x-hero', 'x-type'];
 const LAZY_TAGS = ['x-section', 'x-cards', 'x-code', 'x-footer'];
 
 function readText(rootDir, relativePath) {
@@ -103,7 +103,7 @@ function runLandingPageSuite(options = {}) {
   context.assert(browserSmoke.includes('classicBrandVisible') && browserSmoke.includes('classicGuideLinked'), 'Browser smoke validates visible Classic branding and canonical guide navigation');
   context.assert(apiSource.includes('customElements.whenDefined(tag)') && apiSource.includes('await waitForRuntimeReady(tag)'), 'Browser API waits for asynchronous Custom Element registration before validating runtime readiness');
   context.assert(!browserSmoke.includes('knownLoaderDiagnostics') && browserSmoke.includes('severeLogs.length === 0'), 'Browser smoke rejects every severe loader or asset diagnostic');
-  context.assert(browserSmoke.includes("['xstate', 'x-theme', 'x-icon', 'x-header', 'x-hero', 'x-type']") && browserSmoke.includes("['x-section', 'x-cards', 'x-code', 'x-footer']"), 'Browser smoke covers the complete preload and lazy component boundaries');
+  context.assert(browserSmoke.includes("['xtend-state', 'x-theme', 'x-icon', 'x-header', 'x-hero', 'x-type']") && browserSmoke.includes("['x-section', 'x-cards', 'x-code', 'x-footer']"), 'Browser smoke covers the complete preload and lazy component boundaries');
   context.assert(packageManifest.scripts['test:landing-page'] === 'node scripts/run_xtend_tests.js landing-page', 'Package exposes the isolated landing-page gate');
   context.assert(packageManifest.scripts['test:landing-page:browser'] === 'node scripts/smoke_landing_page.mjs', 'Package exposes the real landing browser smoke');
   context.assert(packageManifest.scripts['test:pr'].includes('landing-page') && packageManifest.scripts['test:pr:report'].includes('landing-page'), 'PR aggregates include the landing-page gate');

@@ -9,7 +9,7 @@ const artifacts = [
     source: '.xtend-build/components-ts/x-toggle/x-toggle.js',
     target: 'components/xtoggle.js',
     transform(content) {
-      return content.replace("from '../../../components/xstate.js'", "from './xstate.js'");
+      return content.replace("from '../../../components/xtend-state.js'", "from './xtend-state.js'");
     }
   },
   {
@@ -17,7 +17,7 @@ const artifacts = [
     target: 'components/xtoggle.d.ts',
     transform(content) {
       return content
-        .replace("from '../../../components/xstate.js'", "from './xstate.js'")
+        .replace("from '../../../components/xtend-state.js'", "from './xtend-state.js'")
         .replace("from '../../../components/xtend-public-types'", "from './xtend-public-types'");
     }
   },

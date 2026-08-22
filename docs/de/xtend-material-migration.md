@@ -51,7 +51,7 @@ Ordne einen Selektor nicht allein aufgrund eines ähnlichen Screenshots zu. Lies
 Installiere exakt kompatible Paketlinien. Committe den Lockfile in derselben Änderung.
 
 ```bash
-npm install @xtend-material/core@0.1 @xtend-material/maraca-tailwind@0.1 @ccslabs/xtend-maraca@^0.6.1
+npm install @xtend-material/core@0.1 @xtend-material/maraca-tailwind@0.1 @ccslabs/xtend-maraca@^0.7.0
 ```
 
 Tailwind ist bereits eine Paketabhängigkeit von Design Kit und Adapter. Ergänze weder Browser-Script noch CDN-Stylesheet, `npx`-Buildschritt oder eine zweite Tailwind-Konfiguration.

@@ -47,7 +47,7 @@ export type XTendStateDefinition<
   schema?: string;
   initial?: TState[TKey];
   preserve?: string;
-  xstateKey?: string;
+  projectionKey?: string;
 } : never;
 
 export type XTendStoreOptions<TState extends object = Record<string, unknown>> =

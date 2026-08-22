@@ -12,10 +12,10 @@
   const NAVIGATION_COMPONENTS = new Set(['x-router', 'x-link', 'x-menu', 'x-drawer']);
   const OVERLAY_SURFACE_COMPONENTS = new Set(['x-dialog', 'x-keymap', 'x-lightbox', 'x-modal', 'x-popover', 'x-side-panel', 'x-surface-manager', 'x-surface-window', 'x-toast', 'x-tooltip']);
   const MEDIA_FEEDBACK_LAYOUT_COMPONENTS = new Set(['x-alert', 'x-button', 'x-cards', 'x-code', 'x-icon', 'x-masonry', 'x-player', 'x-progress', 'x-spinner', 'x-status', 'x-summary', 'x-type', 'x-writer']);
-  const THEME_LAYOUT_COMPONENTS = new Set(['x-footer', 'x-header', 'x-hero', 'x-section', 'x-tabs', 'x-theme', 'xstate']);
+  const THEME_LAYOUT_COMPONENTS = new Set(['x-footer', 'x-header', 'x-hero', 'x-section', 'x-tabs', 'x-theme', 'xtend-state']);
   const NON_VISUAL_COMPONENTS = new Set(['x-utils']);
   const DEMO_COMPONENTS = new Set(['x-rmt-lifecycle-demo-build']);
-  const INFRASTRUCTURE_COMPONENTS = new Set(['x-theme', 'xstate', 'xtend-i18n']);
+  const INFRASTRUCTURE_COMPONENTS = new Set(['x-theme', 'xtend-state', 'xtend-i18n']);
   const BROWSER_SMOKE_FAMILIES = Object.freeze(['form', 'navigation', 'overlay-surface', 'media-feedback-layout', 'theme-layout']);
 
   function clampString(value, fallback = '') {

@@ -144,7 +144,7 @@ function runEpic12Rc0GateMatrixSuite(options = {}) {
   context.assert(matrix.knownResidualPolicy.maxWarningCount === 2, 'Known residual policy allows at most two warnings');
   context.assert(matrix.knownResidualPolicy.failCountAllowed === 0, 'Known residual policy allows no failures');
   context.assert(matrix.knownResidualPolicy.blockers.length === 0, 'Known residual policy has no blockers');
-  context.assert(matrix.knownResidualPolicy.acceptedResiduals.some((entry) => entry.scope === 'xstate'), 'Known residual policy covers xstate');
+  context.assert(matrix.knownResidualPolicy.acceptedResiduals.some((entry) => entry.scope === 'xtend-state'), 'Known residual policy covers XTend State');
   context.assert(matrix.knownResidualPolicy.acceptedResiduals.some((entry) => entry.scope === 'x-utils'), 'Known residual policy covers x-utils');
   context.assert(matrix.knownResidualPolicy.acceptedResiduals.some((entry) => entry.measurement === 'xtend.component.hydrate'), 'Known residual policy covers hydration warning');
   context.assert(matrix.knownResidualPolicy.ownerAcceptanceRequired === true, 'Known residual policy requires owner acceptance');

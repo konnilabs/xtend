@@ -118,7 +118,7 @@ function runEpic12DocsAdoptionSuite(options = {}) {
     'npm run test:release:full:report',
     'npm run pack:dry-run'
   ], 'Required gates');
-  assertIncludesAll(context, guide.knownResiduals, ['xstate', 'x-utils', 'xtend.component.hydrate'], 'Known residuals');
+  assertIncludesAll(context, guide.knownResiduals, ['xtend-state', 'x-utils', 'xtend.component.hydrate'], 'Known residuals');
   context.assert(guide.handoff.includes('WP-E12-16'), 'Docs adoption hands off to WP-E12-16');
 
   context.assert(packageManifest.private === false, 'Package is public-ready for docs adoption');

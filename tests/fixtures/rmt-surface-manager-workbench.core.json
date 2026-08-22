@@ -17,7 +17,7 @@
       "reservedSurfaceAdapter": "xtend.surface",
       "futureSurfaceDomain": "surfaces",
       "fabricApi": "@xtend-fabric",
-      "kernelBoundary": "RMT owns surface intent, component refs, schedules, templates and metadata only. XTend component execution, manifest lookup, xstate access, Fabric execution and DOM materialization stay in host adapters."
+      "kernelBoundary": "RMT owns surface intent, component refs, schedules, templates and metadata only. XTend component execution, manifest lookup, state access, Fabric execution and DOM materialization stay in host adapters."
     },
     "sourceSyntax": "rmt-vnext",
     "authoringSource": "tests/fixtures/rmt-surface-manager-workbench.rmt"

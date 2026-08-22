@@ -1,6 +1,6 @@
 {
   "name": "@ccslabs/xtend",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "packageManager": "npm@11.17.0",
   "devEngines": {
     "runtime": {
@@ -196,6 +196,11 @@
       "types": "./api.d.ts",
       "browser": "./api.js",
       "default": "./api.js"
+    },
+    "./classic-state": {
+      "types": "./components/xtend-state.d.ts",
+      "browser": "./components/xtend-state.js",
+      "default": "./components/xtend-state.js"
     },
     "./style.css": "./xtend.css",
     "./manifest": "./components/manifest.json",
@@ -730,9 +735,9 @@
       "types": "./xtendrmt/rmt-state-selector-runtime.d.ts",
       "default": "./xtendrmt/rmt-state-selector-runtime.compat.js"
     },
-    "./rmt/xstate-host-adapter": {
-      "types": "./xtendrmt/rmt-xstate-host-adapter.d.ts",
-      "default": "./xtendrmt/rmt-xstate-host-adapter.js"
+    "./rmt/state-host-adapter": {
+      "types": "./xtendrmt/rmt-state-host-adapter.d.ts",
+      "default": "./xtendrmt/rmt-state-host-adapter.js"
     },
     "./rmt/state-binding-view-projector": {
       "types": "./xtendrmt/rmt-state-binding-view-projector.d.ts",
@@ -1542,15 +1547,15 @@
       "reportSchema": "xtend.epic18.rmt-state-selector-runtime-report.v1",
       "fixtureSchema": "xtend.epic18.rmt-state-selector-runtime-fixture.v1",
       "workpackage": "WP-E18-07",
-      "status": "accepted-typed-state-selector-xstate-bridge",
+      "status": "accepted-typed-state-selector-state-projection",
       "runtime": "xtendrmt/rmt-state-selector-runtime.js",
       "types": "xtendrmt/rmt-state-selector-runtime.d.ts",
       "fixture": "tests/fixtures/rmt-state-selector-runtime.rmt",
       "docs": "docs/rmt-state-selector-runtime.md",
       "localGate": "node scripts/run_xtend_tests.js rmt-state-selector-runtime --json",
       "packageScript": "npm run test:rmt-state-selector-runtime",
-      "xstateImportedByRuntime": false,
-      "xstateBridgeMode": "injected-host-adapter",
+      "stateRuntimeImportedByRuntime": false,
+      "stateProjectionMode": "injected-host-adapter",
       "selectionUpdatesPreserveDom": true,
       "nextWorkpackage": "WP-E18-08",
       "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
@@ -5826,8 +5831,8 @@
       "noRuntimeDependency": true,
       "noExternalUiFrameworkRuntime": true,
       "noImplicitGlobalEventBus": true,
-      "xstateBridgeMode": "injected-host-adapter",
-      "xstateImportedByRmtRuntime": false,
+      "stateProjectionMode": "injected-host-adapter",
+      "stateRuntimeImportedByRmtRuntime": false,
       "schedulerLanesAreContractRecords": true,
       "rmtKernelBoundary": "no-rmt-kernel-import-of-xtend-types"
     },
@@ -13293,7 +13298,7 @@
         "xtend.surface.snapshot"
       ],
       "runtimeModel": "controller-only-no-custom-element",
-      "statePolicy": "digital-twin-ssot-with-xstate-mirror",
+      "statePolicy": "digital-twin-ssot-with-classic-state-mirror",
       "fabricPolicy": "emit-diagnostics-consume-fabric-do-not-replace-fabric",
       "persistencePolicy": "layout-state-only-no-content-payload",
       "customElementsImplemented": false,
@@ -14381,7 +14386,7 @@
       "surfaceControllerSingleRegistry": true,
       "replacesFabric": false,
       "replacesRmtKernel": false,
-      "replacesXState": false,
+      "replacesStateRuntime": false,
       "docsAppMonkeypatch": false,
       "remoteRuntimeExecutionInKernel": false,
       "externalNetworkAllowedInLocalGate": false,
@@ -15171,7 +15176,7 @@
       ],
       "packageDryRun": "npm run pack:dry-run",
       "knownResiduals": [
-        "xstate",
+        "xtend-state",
         "x-utils",
         "xtend.component.hydrate"
       ],
@@ -15227,7 +15232,7 @@
         "npm sbom --sbom-format=cyclonedx --json"
       ],
       "knownResiduals": [
-        "xstate",
+        "xtend-state",
         "x-utils",
         "xtend.component.hydrate"
       ],
@@ -15291,7 +15296,7 @@
         "npm sbom --sbom-format=cyclonedx --json"
       ],
       "knownResiduals": [
-        "xstate",
+        "xtend-state",
         "x-utils",
         "xtend.component.hydrate"
       ],
@@ -15445,7 +15450,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 182,
+      "expectedExportCount": 183,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15470,8 +15475,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 182,
-      "lockedExportFingerprint": "08378b3ac143eb377cb442eaa05aa5118cfd105b3f4e94fee58a920008f4a551",
+      "expectedExportCount": 183,
+      "lockedExportFingerprint": "1e90fe65c2d9284e8ba4e345b711dc79cabdef6dad6288669c3185b592a15c62",
       "p0Exports": [
         ".",
         "./loader",
@@ -16053,7 +16058,7 @@
       "localGate": "node scripts/run_xtend_tests.js epic13-known-residual-triage --json",
       "packageScript": "npm run test:epic13-known-residual-triage",
       "closedResiduals": [
-        "xstate",
+        "xtend-state",
         "x-utils"
       ],
       "watchpoints": [
@@ -16215,7 +16220,7 @@
       "sourceRegressionPriority": "xtend.catalog.component-regression-priority-plan.v1",
       "sourceAuthoringDocs": "xtend.epic11.component-ux-authoring-docs.v1",
       "targetComponents": [
-        "xstate",
+        "xtend-state",
         "x-utils",
         "xtend-i18n"
       ],
@@ -16284,7 +16289,7 @@
         "npm test"
       ],
       "acceptedResiduals": [
-        "xstate",
+        "xtend-state",
         "x-utils",
         "xtend-i18n"
       ],
@@ -17630,6 +17635,7 @@
     "test": "node scripts/run_xtend_tests.js",
     "test:core": "node scripts/run_xtend_tests.js core",
     "test:architecture": "node scripts/run_xtend_tests.js architecture",
+    "test:state-branding": "node scripts/verify_state_branding.js",
     "test:xtend-material-architecture": "node scripts/run_xtend_tests.js xtend-material-architecture",
     "test:maraca-css-provider": "node scripts/run_xtend_tests.js maraca-css-provider",
     "test:maraca-tailwind-css-provider": "node scripts/run_xtend_tests.js maraca-tailwind-css-provider",

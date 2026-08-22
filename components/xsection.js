@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 // <x-section>
 class XSection extends HTMLElement {
@@ -187,7 +187,7 @@ class XSection extends HTMLElement {
     if (!this.id) this.id = `xsection-${Math.random().toString(36).slice(2, 10)}`;
 
     // Set initial state
-    xstate.set(`xsection-state-${this.id}`, {
+    xtendState.set(`xsection-state-${this.id}`, {
       padding: this.getAttribute("padding"),
       background: this.getAttribute("background"),
       bordered: this.hasAttribute("bordered"),
@@ -196,7 +196,7 @@ class XSection extends HTMLElement {
     });
 
     // Subscribe to state changes, for example external control
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xsection-state-${this.id}` && typeof value === "object") {
         if (value.padding !== undefined) this.setAttribute("padding", value.padding);
         if (value.background !== undefined) this.setAttribute("background", value.background);
@@ -244,7 +244,7 @@ class XSection extends HTMLElement {
 
     // Update state
     if (this.id) {
-      xstate.set(`xsection-state-${this.id}`, {
+      xtendState.set(`xsection-state-${this.id}`, {
         padding: this.getAttribute("padding"),
         background: this.getAttribute("background"),
         bordered: this.hasAttribute("bordered"),

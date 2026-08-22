@@ -59,7 +59,7 @@ Seit `WP-E03-07` enthaelt die Ausgabe ausserdem:
 - profilbasierte State-Keys unter `xtend.component.<tag>.<id>.`
 - Custom-Event-Namen nach `<domain>-<action>`
 - XTend-API-Hinweise unter `window.XTend.*`
-- Review-Regeln gegen `xstate.on/off`, lokale UI-Wahrheiten und neue `window.show*` Helper
+- Review-Regeln gegen `xtendState.on/off`, lokale UI-Wahrheiten und neue `window.show*` Helper
 
 Seit `WP-E03-09` enthaelt die Ausgabe ausserdem:
 

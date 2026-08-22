@@ -18,7 +18,7 @@ const priorityComponentConfigs = {
       { pattern: 'normalizeRmtRouteRecord', message: 'x-router normalizes RMT route records' },
       { pattern: 'createRouteElementFromRecord', message: 'x-router creates route elements from RMT records' },
       { pattern: 'registerRoutes(routes = [], options = {})', message: 'x-router exposes registerRoutes API' },
-      { pattern: 'router-navigate', message: 'x-router consumes xstate navigation signal' },
+      { pattern: 'router-navigate', message: 'x-router consumes state navigation signal' },
       { pattern: 'router-navigated', message: 'x-router publishes navigated state' },
       { pattern: 'route-changed', message: 'x-router emits route-changed' },
       { pattern: 'routechange', message: 'x-router keeps legacy routechange event' },
@@ -45,11 +45,11 @@ const priorityComponentConfigs = {
       { pattern: 'mode="hash"', message: 'x-router fixture covers hash mode' },
       { pattern: 'path="/"', message: 'x-router fixture declares a route' },
       { pattern: 'data-rmt-schedule="demo.route"', message: 'x-router fixture covers RMT schedule metadata' },
-      { pattern: 'window.xstate', message: 'x-router fixture stubs xstate locally' },
+      { pattern: 'window.XTend.state', message: 'x-router fixture stubs state locally' },
       { pattern: '__xtendComponentResult', message: 'x-router fixture exposes a component result object' }
     ],
     docContracts: [
-      { pattern: 'router-navigate', message: 'x-router docs describe xstate navigation' },
+      { pattern: 'router-navigate', message: 'x-router docs describe state navigation' },
       { pattern: '`route-changed`', message: 'x-router docs describe route-changed event' },
       { pattern: 'registerRoutes(routes, options)', message: 'x-router docs describe route registration API' },
       { pattern: 'Document Title Rewrite', message: 'x-router docs describe document title rewriting' },
@@ -110,7 +110,7 @@ const priorityComponentConfigs = {
     sourceContracts: [
       { pattern: 'static formAssociated = true', message: 'x-input is form-associated' },
       { pattern: 'attachInternals', message: 'x-input uses ElementInternals where available' },
-      { pattern: 'xinput-value-', message: 'x-input syncs xstate value key' },
+      { pattern: 'xinput-value-', message: 'x-input syncs state value key' },
       { pattern: 'input-changed', message: 'x-input emits input-changed' },
       { pattern: 'validation-failed', message: 'x-input emits validation-failed' },
       { pattern: 'role="alert"', message: 'x-input exposes validation alert role' },
@@ -128,7 +128,7 @@ const priorityComponentConfigs = {
       { pattern: 'required', message: 'x-input fixture covers required attribute' },
       { pattern: 'slot="label"', message: 'x-input fixture covers label slot' },
       { pattern: 'slot="error"', message: 'x-input fixture covers error slot' },
-      { pattern: 'window.xstate', message: 'x-input fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-input fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`input-changed`', message: 'x-input docs describe input-changed event' },
@@ -156,7 +156,7 @@ const priorityComponentConfigs = {
       { pattern: 'xtendScaffoldA11yProfile', message: 'x-select exposes A11y profile' },
       { pattern: 'xtendScaffoldPerformanceProfile', message: 'x-select exposes Performance profile' },
       { pattern: 'no-rmt-kernel-import-of-xtend-types', message: 'x-select keeps RMT kernel boundary visible' },
-      { pattern: 'xselect-value-', message: 'x-select syncs xstate value key' },
+      { pattern: 'xselect-value-', message: 'x-select syncs state value key' },
       { pattern: 'select-changed', message: 'x-select emits select-changed' },
       { pattern: 'select-invalid', message: 'x-select emits select-invalid' },
       { pattern: 'role="combobox"', message: 'x-select exposes combobox role' },
@@ -173,7 +173,7 @@ const priorityComponentConfigs = {
       { pattern: 'slot="label"', message: 'x-select fixture covers label slot' },
       { pattern: 'slot="hint"', message: 'x-select fixture covers hint slot' },
       { pattern: 'slot="error"', message: 'x-select fixture covers error slot' },
-      { pattern: 'window.xstate', message: 'x-select fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-select fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`select-changed`', message: 'x-select docs describe select-changed event' },
@@ -202,7 +202,7 @@ const priorityComponentConfigs = {
       { pattern: 'xtendScaffoldA11yProfile', message: 'x-checkbox exposes A11y profile' },
       { pattern: 'xtendScaffoldPerformanceProfile', message: 'x-checkbox exposes Performance profile' },
       { pattern: 'no-rmt-kernel-import-of-xtend-types', message: 'x-checkbox keeps RMT kernel boundary visible' },
-      { pattern: 'xcheckbox-checked-', message: 'x-checkbox syncs xstate checked key' },
+      { pattern: 'xcheckbox-checked-', message: 'x-checkbox syncs state checked key' },
       { pattern: 'checkbox-changed', message: 'x-checkbox emits checkbox-changed' },
       { pattern: 'checkbox-invalid', message: 'x-checkbox emits checkbox-invalid' },
       { pattern: 'aria-checked', message: 'x-checkbox mirrors checked state to ARIA' },
@@ -217,7 +217,7 @@ const priorityComponentConfigs = {
       { pattern: 'slot="label"', message: 'x-checkbox fixture covers label slot' },
       { pattern: 'slot="hint"', message: 'x-checkbox fixture covers hint slot' },
       { pattern: 'slot="error"', message: 'x-checkbox fixture covers error slot' },
-      { pattern: 'window.xstate', message: 'x-checkbox fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-checkbox fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`checkbox-changed`', message: 'x-checkbox docs describe checkbox-changed event' },
@@ -247,7 +247,7 @@ const priorityComponentConfigs = {
       { pattern: 'xtendScaffoldPerformanceProfile', message: 'x-toggle exposes Performance profile' },
       { pattern: 'xtendFormControlUxProfile', message: 'x-toggle exposes Form Control UX profile' },
       { pattern: 'no-rmt-kernel-import-of-xtend-types', message: 'x-toggle keeps RMT kernel boundary visible' },
-      { pattern: 'xtoggle-checked-', message: 'x-toggle syncs xstate checked key' },
+      { pattern: 'xtoggle-checked-', message: 'x-toggle syncs state checked key' },
       { pattern: 'toggle-changed', message: 'x-toggle emits toggle-changed' },
       { pattern: 'toggle-invalid', message: 'x-toggle emits toggle-invalid' },
       { pattern: 'role="switch"', message: 'x-toggle uses switch semantics' },
@@ -271,7 +271,7 @@ const priorityComponentConfigs = {
       { pattern: 'slot="off-label"', message: 'x-toggle fixture covers visible off label slot' },
       { pattern: 'slot="on-label">I</span>', message: 'x-toggle fixture uses compact I checked symbol' },
       { pattern: 'slot="off-label">O</span>', message: 'x-toggle fixture uses compact O unchecked symbol' },
-      { pattern: 'window.xstate', message: 'x-toggle fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-toggle fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`toggle-changed`', message: 'x-toggle docs describe toggle-changed event' },
@@ -304,8 +304,8 @@ const priorityComponentConfigs = {
       { pattern: 'xtendScaffoldA11yProfile', message: 'x-radio exposes A11y profile' },
       { pattern: 'xtendScaffoldPerformanceProfile', message: 'x-radio exposes Performance profile' },
       { pattern: 'no-rmt-kernel-import-of-xtend-types', message: 'x-radio keeps RMT kernel boundary visible' },
-      { pattern: 'xradio-checked-', message: 'x-radio syncs xstate checked key' },
-      { pattern: 'xradio-value-', message: 'x-radio syncs xstate group value key' },
+      { pattern: 'xradio-checked-', message: 'x-radio syncs state checked key' },
+      { pattern: 'xradio-value-', message: 'x-radio syncs state group value key' },
       { pattern: 'radio-changed', message: 'x-radio emits radio-changed' },
       { pattern: 'radio-invalid', message: 'x-radio emits radio-invalid' },
       { pattern: 'role="radio"', message: 'x-radio exposes radio role' },
@@ -321,7 +321,7 @@ const priorityComponentConfigs = {
       { pattern: 'required', message: 'x-radio fixture covers required attribute' },
       { pattern: 'slot="label"', message: 'x-radio fixture covers label slot' },
       { pattern: 'slot="error"', message: 'x-radio fixture covers error slot' },
-      { pattern: 'window.xstate', message: 'x-radio fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-radio fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`radio-changed`', message: 'x-radio docs describe radio-changed event' },
@@ -351,7 +351,7 @@ const priorityComponentConfigs = {
       { pattern: 'xtendScaffoldA11yProfile', message: 'x-textarea exposes A11y profile' },
       { pattern: 'xtendScaffoldPerformanceProfile', message: 'x-textarea exposes Performance profile' },
       { pattern: 'no-rmt-kernel-import-of-xtend-types', message: 'x-textarea keeps RMT kernel boundary visible' },
-      { pattern: 'xtextarea-value-', message: 'x-textarea syncs xstate value key' },
+      { pattern: 'xtextarea-value-', message: 'x-textarea syncs state value key' },
       { pattern: 'textarea-changed', message: 'x-textarea emits textarea-changed' },
       { pattern: 'textarea-invalid', message: 'x-textarea emits textarea-invalid' },
       { pattern: 'textarea-submit', message: 'x-textarea emits textarea-submit' },
@@ -373,7 +373,7 @@ const priorityComponentConfigs = {
       { pattern: 'slot="label"', message: 'x-textarea fixture covers label slot' },
       { pattern: 'slot="hint"', message: 'x-textarea fixture covers hint slot' },
       { pattern: 'slot="error"', message: 'x-textarea fixture covers error slot' },
-      { pattern: 'window.xstate', message: 'x-textarea fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-textarea fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`textarea-changed`', message: 'x-textarea docs describe textarea-changed event' },
@@ -402,7 +402,7 @@ const priorityComponentConfigs = {
       { pattern: 'xtendScaffoldA11yProfile', message: 'x-status exposes A11y profile' },
       { pattern: 'xtendScaffoldPerformanceProfile', message: 'x-status exposes Performance profile' },
       { pattern: 'no-rmt-kernel-import-of-xtend-types', message: 'x-status keeps RMT kernel boundary visible' },
-      { pattern: 'xstatus-state-', message: 'x-status syncs xstate state key' },
+      { pattern: 'xstatus-state-', message: 'x-status syncs state state key' },
       { pattern: 'status-changed', message: 'x-status emits status-changed' },
       { pattern: 'status-dismissed', message: 'x-status emits status-dismissed' },
       { pattern: 'role="status"', message: 'x-status exposes status role' },
@@ -420,7 +420,7 @@ const priorityComponentConfigs = {
       { pattern: 'dismissible', message: 'x-status fixture covers dismissible state' },
       { pattern: 'busy', message: 'x-status fixture covers busy state' },
       { pattern: 'slot="label"', message: 'x-status fixture covers label slot' },
-      { pattern: 'window.xstate', message: 'x-status fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-status fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`status-changed`', message: 'x-status docs describe status-changed event' },
@@ -448,7 +448,7 @@ const priorityComponentConfigs = {
       { pattern: 'xtendScaffoldA11yProfile', message: 'x-progress exposes A11y profile' },
       { pattern: 'xtendScaffoldPerformanceProfile', message: 'x-progress exposes Performance profile' },
       { pattern: 'no-rmt-kernel-import-of-xtend-types', message: 'x-progress keeps RMT kernel boundary visible' },
-      { pattern: 'xprogress-value-', message: 'x-progress syncs xstate value key' },
+      { pattern: 'xprogress-value-', message: 'x-progress syncs state value key' },
       { pattern: 'progress-changed', message: 'x-progress emits progress-changed' },
       { pattern: 'progress-complete', message: 'x-progress emits progress-complete' },
       { pattern: 'role="progressbar"', message: 'x-progress exposes progressbar role' },
@@ -464,7 +464,7 @@ const priorityComponentConfigs = {
       { pattern: 'status="Hydrating route"', message: 'x-progress fixture covers status attribute' },
       { pattern: 'busy', message: 'x-progress fixture covers busy state' },
       { pattern: 'slot="label"', message: 'x-progress fixture covers label slot' },
-      { pattern: 'window.xstate', message: 'x-progress fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-progress fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`progress-changed`', message: 'x-progress docs describe progress-changed event' },
@@ -492,7 +492,7 @@ const priorityComponentConfigs = {
       { pattern: 'xtendScaffoldA11yProfile', message: 'x-tooltip exposes A11y profile' },
       { pattern: 'xtendScaffoldPerformanceProfile', message: 'x-tooltip exposes Performance profile' },
       { pattern: 'no-rmt-kernel-import-of-xtend-types', message: 'x-tooltip keeps RMT kernel boundary visible' },
-      { pattern: 'xtooltip-open-', message: 'x-tooltip syncs xstate open key' },
+      { pattern: 'xtooltip-open-', message: 'x-tooltip syncs state open key' },
       { pattern: 'tooltip-opened', message: 'x-tooltip emits tooltip-opened' },
       { pattern: 'tooltip-closed', message: 'x-tooltip emits tooltip-closed' },
       { pattern: 'role="tooltip"', message: 'x-tooltip exposes tooltip role' },
@@ -509,7 +509,7 @@ const priorityComponentConfigs = {
       { pattern: 'placement="top"', message: 'x-tooltip fixture covers placement attribute' },
       { pattern: 'delay="20"', message: 'x-tooltip fixture covers delay attribute' },
       { pattern: 'label="Tooltip help"', message: 'x-tooltip fixture covers label attribute' },
-      { pattern: 'window.xstate', message: 'x-tooltip fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-tooltip fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`tooltip-opened`', message: 'x-tooltip docs describe tooltip-opened event' },
@@ -537,7 +537,7 @@ const priorityComponentConfigs = {
       { pattern: 'xtendScaffoldA11yProfile', message: 'x-popover exposes A11y profile' },
       { pattern: 'xtendScaffoldPerformanceProfile', message: 'x-popover exposes Performance profile' },
       { pattern: 'no-rmt-kernel-import-of-xtend-types', message: 'x-popover keeps RMT kernel boundary visible' },
-      { pattern: 'xpopover-open-', message: 'x-popover syncs xstate open key' },
+      { pattern: 'xpopover-open-', message: 'x-popover syncs state open key' },
       { pattern: 'popover-opened', message: 'x-popover emits popover-opened' },
       { pattern: 'popover-closed', message: 'x-popover emits popover-closed' },
       { pattern: 'role="dialog"', message: 'x-popover exposes dialog role' },
@@ -554,7 +554,7 @@ const priorityComponentConfigs = {
       { pattern: 'label="Filter options"', message: 'x-popover fixture covers label attribute' },
       { pattern: 'slot="trigger"', message: 'x-popover fixture covers trigger slot' },
       { pattern: 'slot="actions"', message: 'x-popover fixture covers actions slot' },
-      { pattern: 'window.xstate', message: 'x-popover fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-popover fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`popover-opened`', message: 'x-popover docs describe popover-opened event' },
@@ -582,7 +582,7 @@ const priorityComponentConfigs = {
       { pattern: 'xtendScaffoldA11yProfile', message: 'x-drawer exposes A11y profile' },
       { pattern: 'xtendScaffoldPerformanceProfile', message: 'x-drawer exposes Performance profile' },
       { pattern: 'no-rmt-kernel-import-of-xtend-types', message: 'x-drawer keeps RMT kernel boundary visible' },
-      { pattern: 'xdrawer-open-', message: 'x-drawer syncs xstate open key' },
+      { pattern: 'xdrawer-open-', message: 'x-drawer syncs state open key' },
       { pattern: 'drawer-opened', message: 'x-drawer emits drawer-opened' },
       { pattern: 'drawer-closed', message: 'x-drawer emits drawer-closed' },
       { pattern: 'drawer-route-selected', message: 'x-drawer emits route selection event' },
@@ -612,7 +612,7 @@ const priorityComponentConfigs = {
       { pattern: 'slot="trigger"', message: 'x-drawer fixture covers trigger slot' },
       { pattern: 'slot="header"', message: 'x-drawer fixture covers header slot' },
       { pattern: 'slot="footer"', message: 'x-drawer fixture covers footer slot' },
-      { pattern: 'window.xstate', message: 'x-drawer fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-drawer fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`drawer-opened`', message: 'x-drawer docs describe drawer-opened event' },
@@ -639,7 +639,7 @@ const priorityComponentConfigs = {
     docPath: 'docs/components/xform.md',
     profiles: ['form', 'stateful'],
     sourceContracts: [
-      { pattern: 'xform-data-', message: 'x-form syncs xstate form data' },
+      { pattern: 'xform-data-', message: 'x-form syncs state form data' },
       { pattern: 'getFormData()', message: 'x-form exposes getFormData API' },
       { pattern: 'x-input, x-slider, x-calendar', message: 'x-form discovers supported child controls' },
       { pattern: 'x-select, x-checkbox, x-toggle, x-radio, x-textarea', message: 'x-form discovers WP-E10 form controls including x-toggle' },
@@ -664,7 +664,7 @@ const priorityComponentConfigs = {
       { pattern: '<x-radio', message: 'x-form fixture covers x-radio child' },
       { pattern: '<x-calendar', message: 'x-form fixture covers x-calendar child' },
       { pattern: 'type="submit"', message: 'x-form fixture covers submit control' },
-      { pattern: 'window.xstate', message: 'x-form fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-form fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`submit`', message: 'x-form docs describe submit event' },
@@ -698,7 +698,7 @@ const priorityComponentConfigs = {
       { pattern: 'keyboardAction: 16', message: 'x-tabs budgets keyboard work' },
       { pattern: 'snapshotPerformance()', message: 'x-tabs exposes performance snapshot API' },
       { pattern: 'customElements.define("x-tab"', message: 'x-tabs ships x-tab child component' },
-      { pattern: 'xtabs-selected', message: 'x-tabs syncs selected index to xstate' },
+      { pattern: 'xtabs-selected', message: 'x-tabs syncs selected index to state' },
       { pattern: 'tab-selected', message: 'x-tabs emits tab-selected' },
       { pattern: 'bubbles: true', message: 'x-tabs tab-selected bubbles for host/RMT listeners' },
       { pattern: 'composed: true', message: 'x-tabs tab-selected crosses Shadow DOM boundaries' },
@@ -726,7 +726,7 @@ const priorityComponentConfigs = {
       { pattern: 'data-rmt-schedule="ui.user-blocking.tabs"', message: 'x-tabs fixture covers RMT tab schedule metadata' },
       { pattern: 'data-xtend-lane="user-blocking"', message: 'x-tabs fixture covers Fabric lane metadata' },
       { pattern: '<x-tab name="Overview"', message: 'x-tabs fixture covers named child tabs' },
-      { pattern: 'window.xstate', message: 'x-tabs fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-tabs fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`selected`', message: 'x-tabs docs describe selected attribute' },
@@ -774,7 +774,7 @@ const priorityComponentConfigs = {
       { pattern: 'overlay', message: 'x-dialog fixture covers overlay attribute' },
       { pattern: 'title="Component dialog"', message: 'x-dialog fixture covers title attribute' },
       { pattern: 'width="420px"', message: 'x-dialog fixture covers width attribute' },
-      { pattern: 'window.xstate', message: 'x-dialog fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-dialog fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`dialog-opened`', message: 'x-dialog docs describe dialog-opened' },
@@ -794,7 +794,7 @@ const priorityComponentConfigs = {
     profiles: ['overlay', 'media'],
     observedAttributes: ['src', 'open', 'alt'],
     sourceContracts: [
-      { pattern: 'xlightbox-open-', message: 'x-lightbox syncs xstate open key' },
+      { pattern: 'xlightbox-open-', message: 'x-lightbox syncs state open key' },
       { pattern: 'lightbox-opened', message: 'x-lightbox emits lightbox-opened' },
       { pattern: 'lightbox-closed', message: 'x-lightbox emits lightbox-closed' },
       { pattern: 'role="dialog"', message: 'x-lightbox exposes dialog role' },
@@ -816,7 +816,7 @@ const priorityComponentConfigs = {
       { pattern: 'src="/tests/components/fixtures/demo-image.svg"', message: 'x-lightbox fixture covers src attribute' },
       { pattern: 'slot="trigger"', message: 'x-lightbox fixture covers trigger slot' },
       { pattern: 'data-xlightbox', message: 'x-lightbox fixture covers data-xlightbox enhancement' },
-      { pattern: 'window.xstate', message: 'x-lightbox fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-lightbox fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`src`', message: 'x-lightbox docs describe src attribute' },
@@ -839,7 +839,7 @@ const priorityComponentConfigs = {
     profiles: ['form', 'interactive'],
     sourceContracts: [
       { pattern: 'static formAssociated = true', message: 'x-calendar is form-associated' },
-      { pattern: 'xcalendar-state-', message: 'x-calendar syncs xstate calendar state' },
+      { pattern: 'xcalendar-state-', message: 'x-calendar syncs state calendar state' },
       { pattern: 'date-select', message: 'x-calendar emits date-select' },
       { pattern: 'role="grid"', message: 'x-calendar exposes grid role' },
       { pattern: 'role", "gridcell"', message: 'x-calendar exposes day gridcell role' },
@@ -850,7 +850,7 @@ const priorityComponentConfigs = {
     fixtureContracts: [
       { pattern: 'id="component-calendar"', message: 'x-calendar fixture uses a stable id' },
       { pattern: 'data-contract-date="2026-05-06"', message: 'x-calendar fixture covers deterministic contract date' },
-      { pattern: 'window.xstate', message: 'x-calendar fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-calendar fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`date-select`', message: 'x-calendar docs describe date-select event' },
@@ -870,7 +870,7 @@ const priorityComponentConfigs = {
     profiles: ['form', 'stateful'],
     observedAttributes: ['storage-key'],
     sourceContracts: [
-      { pattern: 'xwriter-content', message: 'x-writer syncs editor content to xstate' },
+      { pattern: 'xwriter-content', message: 'x-writer syncs editor content to state' },
       { pattern: 'writer:change', message: 'x-writer emits writer:change' },
       { pattern: 'writer:save', message: 'x-writer emits writer:save' },
       { pattern: 'writer:error', message: 'x-writer emits writer:error' },
@@ -886,7 +886,7 @@ const priorityComponentConfigs = {
       { pattern: 'storage-key="component-writer-content"', message: 'x-writer fixture covers storage-key attribute' },
       { pattern: 'api="local"', message: 'x-writer fixture covers local API mode' },
       { pattern: 'autosave="60000"', message: 'x-writer fixture covers autosave attribute' },
-      { pattern: 'window.xstate', message: 'x-writer fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-writer fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`storage-key`', message: 'x-writer docs describe storage-key attribute' },
@@ -930,7 +930,7 @@ const priorityComponentConfigs = {
       { pattern: 'size="large"', message: 'x-button fixture covers size attribute' },
       { pattern: 'loading', message: 'x-button fixture covers loading attribute' },
       { pattern: 'aria-label="Save settings"', message: 'x-button fixture covers aria-label' },
-      { pattern: 'window.xstate', message: 'x-button fixture stubs xstate locally' },
+      { pattern: 'window.XTend.state', message: 'x-button fixture stubs state locally' },
       { pattern: 'button-interaction', message: 'x-button fixture observes interaction telemetry' },
       { pattern: 'snapshotPerformance()', message: 'x-button fixture validates performance snapshot' },
       { pattern: '__xtendComponentResult', message: 'x-button fixture exposes a component result object' }
@@ -979,7 +979,7 @@ const priorityComponentConfigs = {
       { pattern: 'pack="lucide"', message: 'x-icon fixture covers local Lucide adapter' },
       { pattern: 'label="Search"', message: 'x-icon fixture covers accessible label' },
       { pattern: 'stroke-width="2.25"', message: 'x-icon fixture covers stroke-width attribute' },
-      { pattern: 'window.xstate', message: 'x-icon fixture stubs xstate locally' },
+      { pattern: 'window.XTend.state', message: 'x-icon fixture stubs state locally' },
       { pattern: 'window.XTend.icons.register', message: 'x-icon fixture registers a custom pack' },
       { pattern: 'icon-ready', message: 'x-icon fixture observes icon-ready' },
       { pattern: '__xtendComponentResult', message: 'x-icon fixture exposes a component result object' }
@@ -1024,7 +1024,7 @@ const priorityComponentConfigs = {
       { pattern: 'paused', message: 'x-spinner fixture covers paused attribute' },
       { pattern: 'aria-label="Loading dashboard"', message: 'x-spinner fixture covers aria-label' },
       { pattern: 'aria-valuetext="Loading 50 percent"', message: 'x-spinner fixture covers aria-valuetext' },
-      { pattern: 'window.xstate', message: 'x-spinner fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-spinner fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`spinner-started`', message: 'x-spinner docs describe spinner-started' },
@@ -1050,7 +1050,7 @@ const priorityComponentConfigs = {
       { pattern: 'no-rmt-kernel-import-of-xtend-types', message: 'x-menu keeps RMT kernel boundary visible' },
       { pattern: 'role="menubar"', message: 'x-menu exposes menubar role' },
       { pattern: 'setAttribute("role", "menuitem")', message: 'x-menu exposes menuitem role' },
-      { pattern: 'xmenu-active', message: 'x-menu syncs active item to xstate' },
+      { pattern: 'xmenu-active', message: 'x-menu syncs active item to state' },
       { pattern: '_stateTargetsThisMenu', message: 'x-menu scopes shared active state by menu id' },
       { pattern: '_resolveFocusIndex', message: 'x-menu separates roving focus from current-page state' },
       { pattern: 'menu-item-clicked', message: 'x-menu emits menu-item-clicked' },
@@ -1076,7 +1076,7 @@ const priorityComponentConfigs = {
       { pattern: 'data-rmt-schedule="ui.user-blocking.navigation"', message: 'x-menu fixture covers RMT navigation schedule metadata' },
       { pattern: 'data-xtend-lane="user-blocking"', message: 'x-menu fixture covers Fabric lane metadata' },
       { pattern: 'role="menuitem"', message: 'x-menu fixture covers explicit menuitem' },
-      { pattern: 'window.xstate', message: 'x-menu fixture stubs xstate locally' },
+      { pattern: 'window.XTend.state', message: 'x-menu fixture stubs state locally' },
       { pattern: 'menu-performance-measured', message: 'x-menu fixture observes performance telemetry' },
       { pattern: 'parallel menu does not synthesize current page', message: 'x-menu fixture does not mark a focus fallback as the current page' },
       { pattern: 'parallel menu retains roving focus', message: 'x-menu fixture keeps one focusable item without a current page' },
@@ -1112,9 +1112,9 @@ const priorityComponentConfigs = {
       { pattern: 'e.key === "Enter" || e.key === " "', message: 'x-summary supports keyboard toggle' },
       { pattern: '_applyOpenState', message: 'x-summary centralizes open-state synchronization' },
       { pattern: '_syncingAttribute', message: 'x-summary guards attribute reflection against recursive updates' },
-      { pattern: 'value === this._isOpen()', message: 'x-summary ignores xstate updates that already match the DOM state' },
-      { pattern: 'xstate.get(this._stateKey) === isOpen', message: 'x-summary avoids publishing unchanged xstate values' },
-      { pattern: '}, this._stateKey)', message: 'x-summary subscribes only to its own xstate key' },
+      { pattern: 'value === this._isOpen()', message: 'x-summary ignores state updates that already match the DOM state' },
+      { pattern: 'xtendState.get(this._stateKey) === isOpen', message: 'x-summary avoids publishing unchanged state values' },
+      { pattern: '}, this._stateKey)', message: 'x-summary subscribes only to its own state key' },
       { pattern: 'open()', message: 'x-summary exposes open API' },
       { pattern: 'close()', message: 'x-summary exposes close API' },
       { pattern: 'toggle()', message: 'x-summary exposes toggle API' }
@@ -1124,13 +1124,13 @@ const priorityComponentConfigs = {
       { pattern: 'type="info"', message: 'x-summary fixture covers type attribute' },
       { pattern: 'open', message: 'x-summary fixture covers open attribute' },
       { pattern: 'slot="title"', message: 'x-summary fixture covers title slot' },
-      { pattern: 'window.xstate', message: 'x-summary fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-summary fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`open`', message: 'x-summary docs describe open attribute' },
       { pattern: '`close`', message: 'x-summary docs describe close event' },
       { pattern: 'xsummary-open-<id>', message: 'x-summary docs describe state key' },
-      { pattern: 'reentrant-sicher', message: 'x-summary docs describe loop-safe xstate synchronization' },
+      { pattern: 'reentrant-sicher', message: 'x-summary docs describe loop-safe state synchronization' },
       { pattern: 'native expanded-state contract', message: 'x-summary docs describe native expanded-state ownership' }
     ]
   },
@@ -1163,7 +1163,7 @@ const priorityComponentConfigs = {
       { pattern: 'poster="/tests/components/fixtures/demo-poster.svg"', message: 'x-player fixture covers poster attribute' },
       { pattern: 'title="Component player"', message: 'x-player fixture covers title attribute' },
       { pattern: 'media-chooser', message: 'x-player fixture covers media chooser attribute' },
-      { pattern: 'window.xstate', message: 'x-player fixture stubs xstate locally' }
+      { pattern: 'window.XTend.state', message: 'x-player fixture stubs state locally' }
     ],
     docContracts: [
       { pattern: '`xplayer-play`', message: 'x-player docs describe play event' },

@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 class XCheckbox extends HTMLElement {
   static formAssociated = true;
@@ -76,7 +76,7 @@ class XCheckbox extends HTMLElement {
       lane: 'user-blocking',
       hydrationPolicy: 'visible',
       criticalMeasurements: ['mount', 'event'],
-      cleanup: ['xstate-subscription']
+      cleanup: ['xtend-state-subscription']
     };
   }
 
@@ -287,8 +287,8 @@ class XCheckbox extends HTMLElement {
     this._syncFormValue();
     this._control.addEventListener('change', this._onChange);
     this._control.addEventListener('invalid', this._onInvalid);
-    xstate.set(`xcheckbox-checked-${this.id}`, this.checked);
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    xtendState.set(`xcheckbox-checked-${this.id}`, this.checked);
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xcheckbox-checked-${this.id}` && typeof value === 'boolean' && value !== this.checked) {
         this.checked = value;
       }
@@ -357,7 +357,7 @@ class XCheckbox extends HTMLElement {
       bubbles: true,
       composed: true
     }));
-    xstate.set(`xcheckbox-checked-${this.id}`, this.checked);
+    xtendState.set(`xcheckbox-checked-${this.id}`, this.checked);
   }
 
   _onInvalid() {

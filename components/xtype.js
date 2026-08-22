@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 // <x-type>
 class XType extends HTMLElement {
@@ -98,10 +98,10 @@ class XType extends HTMLElement {
     if (this._blinking) this.shadowRoot.appendChild(this._cursorSpan);
 
     // State initialisieren
-    xstate.set('xtype-current', this._texts[this._index] || '');
+    xtendState.set('xtype-current', this._texts[this._index] || '');
 
     // React to state changes, optionally pause or resume from outside
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === 'xtype-pause' && value === true) this.pause();
       if (key === 'xtype-pause' && value === false) this.resume();
       if (key === 'xtype-set-index' && typeof value === 'number') {
@@ -183,7 +183,7 @@ class XType extends HTMLElement {
 
     while ((this._loop || this._index < this._texts.length) && !this._paused) {
       const text = this._texts[this._index % this._texts.length];
-      xstate.set('xtype-current', text); // Save current text in state
+      xtendState.set('xtype-current', text); // Save current text in state
       this.dispatchEvent(new CustomEvent("typing-started", { detail: { text } }));
       await this._type(text);
       this.dispatchEvent(new CustomEvent("typing-completed", { detail: { text } }));
@@ -220,12 +220,12 @@ class XType extends HTMLElement {
 
   pause() {
     this._paused = true;
-    xstate.set('xtype-paused', true);
+    xtendState.set('xtype-paused', true);
   }
 
   resume() {
     this._paused = false;
-    xstate.set('xtype-paused', false);
+    xtendState.set('xtype-paused', false);
     this._start();
   }
 

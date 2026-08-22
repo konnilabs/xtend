@@ -26,7 +26,7 @@ Both paths use the same public Web Component contracts. Choose Classic for direc
 Preload only the components required in the first viewport. The loader discovers deeper manifest-backed elements and loads them as they approach the viewport.
 
 ```html
-<meta name="xtend-preload" content="xstate,x-theme,x-header,x-hero">
+<meta name="xtend-preload" content="xtend-state,x-theme,x-header,x-hero">
 <script type="module"
   src="/xtend-loader.js"
   data-manifest="/components/manifest.json"></script>

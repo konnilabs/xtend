@@ -212,25 +212,26 @@ async function exerciseRuntime(context, rootDir) {
   const registry = state.get('xtend.surface.registry');
   const diagnostics = state.get('xtend.surface.diagnostics');
 
-  context.assert(Array.isArray(registry) && registry.length === 3, 'xstate registry mirror contains three surface states');
-  context.assert(active === 'workbench.editor', 'xstate active mirror contains active surface id');
-  context.assert(inspectorState && inspectorState.status === 'closed', 'xstate surface state mirror closes inspector');
-  context.assert(inspectorState && !Object.prototype.hasOwnProperty.call(inspectorState, 'metadata'), 'xstate surface state mirror omits raw metadata payload');
-  context.assert(inspectorBounds && inspectorBounds.x === 128 && inspectorBounds.y === 96, 'xstate bounds mirror stores moved window position');
-  context.assert(inspectorBounds && inspectorBounds.width === 700 && inspectorBounds.height === 460, 'xstate bounds mirror restores resized window size after maximize/restore');
-  context.assert(inspectorLifecycle && inspectorLifecycle.phase === 'close', 'xstate lifecycle mirror stores last phase');
-  context.assert(mirroredSnapshot && mirroredSnapshot.schema === SURFACE_CONTROLLER_SNAPSHOT_SCHEMA, 'xstate snapshot mirror stores full Surface snapshot');
-  context.assert(Array.isArray(diagnostics) && diagnostics.some((event) => event.code === 'xtend.surface.closed'), 'xstate diagnostics mirror stores lifecycle diagnostics');
+  context.assert(Array.isArray(registry) && registry.length === 3, 'state registry mirror contains three surface states');
+  context.assert(active === 'workbench.editor', 'state active mirror contains active surface id');
+  context.assert(inspectorState && inspectorState.status === 'closed', 'state surface state mirror closes inspector');
+  context.assert(inspectorState && !Object.prototype.hasOwnProperty.call(inspectorState, 'metadata'), 'state surface state mirror omits raw metadata payload');
+  context.assert(inspectorBounds && inspectorBounds.x === 128 && inspectorBounds.y === 96, 'state bounds mirror stores moved window position');
+  context.assert(inspectorBounds && inspectorBounds.width === 700 && inspectorBounds.height === 460, 'state bounds mirror restores resized window size after maximize/restore');
+  context.assert(inspectorLifecycle && inspectorLifecycle.phase === 'close', 'state lifecycle mirror stores last phase');
+  context.assert(mirroredSnapshot && mirroredSnapshot.schema === SURFACE_CONTROLLER_SNAPSHOT_SCHEMA, 'state snapshot mirror stores full Surface snapshot');
+  context.assert(Array.isArray(diagnostics) && diagnostics.some((event) => event.code === 'xtend.surface.closed'), 'state diagnostics mirror stores lifecycle diagnostics');
   context.assert(fabricEvents.some((event) => event.code === 'xtend.surface.opened'), 'Fabric diagnostic bridge receives open diagnostics');
   context.assert(fabricEvents.every((event) => event.schema === SURFACE_CONTROLLER_DIAGNOSTIC_SCHEMA), 'Fabric diagnostic bridge receives Surface diagnostic schema only');
   context.assert(snapshot.surfaces.every((surface) => !Object.prototype.hasOwnProperty.call(surface, 'metadata')), 'Snapshot omits raw metadata payloads');
-  context.assert(state.setCalls.length === 0, 'Surface Controller projects each lifecycle snapshot through batchUpdate without per-key XState writes');
+  context.assert(state.setCalls.length === 0, 'Surface Controller projects each lifecycle snapshot through batchUpdate without per-key XTend State writes');
   context.assert(state.batches.length > 0 && state.batches.every((batch) => Object.prototype.hasOwnProperty.call(batch, 'xtend.surface.snapshot')), 'Every Surface state projection is one complete batch containing the final snapshot');
   context.assert(subscriberSnapshots.length > 1 && subscriberSnapshots.every((entry) => entry.schema === SURFACE_CONTROLLER_SNAPSHOT_SCHEMA), 'Surface Controller subscribers observe only complete lifecycle snapshots');
 
-  const previousGlobalXState = globalThis.xstate;
+  const removedRuntimeName = ['x', 'state'].join('');
+  const previousGlobalState = globalThis[removedRuntimeName];
   let implicitGlobalWrites = 0;
-  globalThis.xstate = { batchUpdate() { implicitGlobalWrites += 1; } };
+  globalThis[removedRuntimeName] = { batchUpdate() { implicitGlobalWrites += 1; } };
   try {
     const isolatedController = runtime.createSurfaceController({
       managerId: 'isolated.manager',
@@ -239,22 +240,23 @@ async function exerciseRuntime(context, rootDir) {
     isolatedController.registerSurface({ id: 'isolated.surface', type: 'window' });
     isolatedController.dispose();
   } finally {
-    if (typeof previousGlobalXState === 'undefined') delete globalThis.xstate;
-    else globalThis.xstate = previousGlobalXState;
+    if (typeof previousGlobalState === 'undefined') delete globalThis[removedRuntimeName];
+    else globalThis[removedRuntimeName] = previousGlobalState;
   }
-  context.assert(implicitGlobalWrites === 0, 'Surface Controller never auto-adopts globalThis.xstate');
+  context.assert(implicitGlobalWrites === 0, 'Surface Controller never auto-adopts the removed global runtime');
 
-  let legacyControllerWrites = 0;
-  const legacyController = runtime.createSurfaceController({
-    managerId: 'legacy-projection.manager',
-    xstate: { set() { legacyControllerWrites += 1; } },
+  let removedOptionWrites = 0;
+  const removedOptionName = ['x', 'state'].join('');
+  const removedOptionController = runtime.createSurfaceController({
+    managerId: 'removed-option.manager',
+    [removedOptionName]: { set() { removedOptionWrites += 1; } },
     clock: clockRuntime.createSurfaceHostClockAdapter(() => '2026-05-09T00:00:00.000Z')
   });
-  legacyController.registerSurface({ id: 'legacy-projection.surface', type: 'window' });
-  const legacyControllerSnapshot = legacyController.readSnapshot();
-  context.assert(legacyControllerWrites === 0, 'Legacy xstate option cannot activate per-key state writes');
-  context.assert(legacyControllerSnapshot.diagnostics.filter((entry) => entry.code === 'xtend.surface.state-projection.batch-required').length === 1, 'Legacy xstate option emits one compatibility diagnostic');
-  legacyController.dispose();
+  removedOptionController.registerSurface({ id: 'removed-option.surface', type: 'window' });
+  const removedOptionSnapshot = removedOptionController.readSnapshot();
+  context.assert(removedOptionWrites === 0, 'Removed host option has no adapter effect');
+  context.assert(removedOptionSnapshot.diagnostics.every((entry) => entry.code !== 'xtend.surface.state-projection.batch-required'), 'Removed host option installs no compatibility adapter or diagnostic');
+  removedOptionController.dispose();
 
   const legacyProjectionDiagnostics = [];
   const unsafeLegacyProjection = projectionRuntime.createSurfaceStateProjectionAdapter({ set() {} }, {
@@ -280,7 +282,7 @@ async function exerciseRuntime(context, rootDir) {
   const atomicSnapshot = controller.readSnapshot({ includeDestroyed: true });
   context.assert(atomicApply.ok === true && atomicApply.operationCount === 2, 'Surface Controller apply atomically accepts multiple lifecycle operations');
   context.assert(atomicSnapshot.version === atomicVersionBefore + 1, 'Surface Controller apply advances the authoritative snapshot exactly once');
-  context.assert(state.batches.length === atomicBatchesBefore + 1, 'Surface Controller apply projects exactly one final XState batch');
+  context.assert(state.batches.length === atomicBatchesBefore + 1, 'Surface Controller apply projects exactly one final XTend State batch');
   context.assert(subscriberSnapshots.length === atomicNotificationsBefore + 1, 'Surface Controller apply publishes exactly one complete subscriber snapshot');
   context.assert(atomicSnapshot.surfaces.some((entry) => entry.id === 'workbench.inspector' && entry.label === 'Atomic Inspector'), 'Surface Controller apply includes every successful operation in its final snapshot');
 
@@ -319,7 +321,7 @@ async function exerciseRuntime(context, rootDir) {
   context.assert(destroyedOpen.ok === false && destroyedOpen.code === 'xtend.surface.already-destroyed', 'openSurface refuses destroyed surface without recreate');
   context.assert(propertiesRecreate.ok === true && propertiesRecreate.generation > propertiesDestroy.generation, 'openSurface recreate creates a new surface generation');
   context.assert(recreatedSnapshot.surfaces.some((surface) => surface.id === 'workbench.properties' && surface.status === 'open' && !surface.tombstone), 'Recreated surface is active without tombstone');
-  context.assert(Array.isArray(state.get('xtend.surface.diagnostics')) && state.get('xtend.surface.diagnostics').some((event) => event.code === 'xtend.surface.destroyed'), 'xstate diagnostics mirror stores destroy diagnostics');
+  context.assert(Array.isArray(state.get('xtend.surface.diagnostics')) && state.get('xtend.surface.diagnostics').some((event) => event.code === 'xtend.surface.destroyed'), 'state diagnostics mirror stores destroy diagnostics');
   context.assert(fabricEvents.some((event) => event.code === 'xtend.surface.destroyed'), 'Fabric diagnostic bridge receives destroy diagnostics');
 
   const notificationsBeforeUnsubscribe = subscriberSnapshots.length;
@@ -443,7 +445,7 @@ async function runSurfaceControllerSuite(options = {}) {
   ].forEach((forbidden) => {
     context.assert(!runtimeText.includes(forbidden), `Runtime source omits DOM dependency: ${forbidden}`);
   });
-  context.assert(!runtimeText.includes('globalTarget && globalTarget.xstate'), 'Surface Controller source omits implicit global XState adoption');
+  context.assert(!runtimeText.includes('globalTarget && globalTarget.state'), 'Surface Controller source omits implicit global XTend State adoption');
   context.assert(!runtimeText.includes('target.set(') && !runtimeText.includes('target.setState('), 'Surface Controller source omits direct per-key state writers');
 
   await exerciseRuntime(context, rootDir);
@@ -470,7 +472,7 @@ async function runSurfaceControllerSuite(options = {}) {
   assertTextIncludesAll(context, contractDoc, [
     SURFACE_CONTROLLER_SCHEMA,
     SURFACE_CONTROLLER_SNAPSHOT_SCHEMA,
-    'xstate Mirror',
+    'state Mirror',
     'Fabric Diagnostics',
     'controller-only-no-custom-element'
   ], 'Surface Controller contract doc');

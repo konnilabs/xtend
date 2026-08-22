@@ -43,7 +43,7 @@
   <script>
     window.__xtendComponentState = {};
     window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
-    window.xstate = {
+    window.XTend.state = {
       get(key) { return window.__xtendComponentState[key]; },
       set(key, value) { window.__xtendComponentState[key] = value; },
       subscribe() { return function unsubscribe() {}; }

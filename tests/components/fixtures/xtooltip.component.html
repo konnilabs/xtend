@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>x-tooltip component fixture</title>
-    <script type="module" src="/components/xstate.js"></script>
+    <script type="module" src="/components/xtend-state.js"></script>
     <script type="module" src="/components/xtooltip.js"></script>
   </head>
   <body>
@@ -17,7 +17,7 @@
       Explains the scheduled action.
     </x-tooltip>
     <script>
-      window.xstate = window.xstate || {
+      window.XTend.state = window.XTend.state || {
         get: () => null,
         set: () => {},
         subscribe: () => () => {}

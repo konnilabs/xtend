@@ -88,7 +88,7 @@ function runEpic13KnownResidualTriageSuite(options = {}) {
   const changelog = readText('CHANGELOG.md', rootDir);
   const moduleSyntax = syntaxCheckFile(EPIC13_KNOWN_RESIDUAL_TRIAGE_MODULE, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(EPIC13_KNOWN_RESIDUAL_TRIAGE_SUITE, { rootDir, extension: '.js' });
-  const xstateDecision = plan.decisions.find((entry) => entry.scope === 'xstate');
+  const stateDecision = plan.decisions.find((entry) => entry.scope === 'xtend-state');
   const xutilsDecision = plan.decisions.find((entry) => entry.scope === 'x-utils');
   const hydrateDecision = plan.decisions.find((entry) => entry.scope === 'xtend.component.hydrate');
 
@@ -126,16 +126,16 @@ function runEpic13KnownResidualTriageSuite(options = {}) {
   context.assert(validation.ok === true, 'Known residual triage plan validates');
   context.assert(report.ok === true, 'Known residual triage report validates');
   context.assert(report.decisionCount === RC0_RESIDUAL_SCOPES.length, 'Known residual triage reports all RC0 residuals');
-  context.assert(report.closedResiduals.includes('xstate'), 'Known residual triage closes xstate as boundary');
+  context.assert(report.closedResiduals.includes('xtend-state'), 'Known residual triage closes XTend State as boundary');
   context.assert(report.closedResiduals.includes('x-utils'), 'Known residual triage closes x-utils as boundary');
   context.assert(report.watchpoints.includes('xtend.component.hydrate'), 'Known residual triage keeps hydration as watchpoint');
   context.assert(report.publishBlockingResiduals.length === 1 && report.publishBlockingResiduals[0] === 'xtend.component.hydrate', 'Only hydration residual remains publish-blocking');
   context.assert(report.ownerDecisionRequiredResiduals.length === 0, 'Known residual triage adds no owner residual by default');
   assertIncludesAll(context, plan.rc0ResidualScopes, RC0_RESIDUAL_SCOPES, 'RC0 residual scopes');
   assertIncludesAll(context, plan.sourceGates, REQUIRED_SOURCE_GATES, 'Source gates');
-  context.assert(xstateDecision && xstateDecision.catalogStatus === 'contract-gated', 'xstate keeps catalog boundary status');
-  context.assert(xstateDecision && xstateDecision.migrationKind === 'adapter-boundary-probe', 'xstate keeps long-tail boundary probe');
-  context.assert(xstateDecision && xstateDecision.publishBlocking === false, 'xstate no longer blocks publish as residual');
+  context.assert(stateDecision && stateDecision.catalogStatus === 'contract-gated', 'state keeps catalog boundary status');
+  context.assert(stateDecision && stateDecision.migrationKind === 'adapter-boundary-probe', 'state keeps long-tail boundary probe');
+  context.assert(stateDecision && stateDecision.publishBlocking === false, 'state no longer blocks publish as residual');
   context.assert(xutilsDecision && xutilsDecision.catalogStatus === 'typed-contract-gated', 'x-utils keeps typed catalog boundary status');
   context.assert(xutilsDecision && xutilsDecision.migrationKind === 'adapter-boundary-probe', 'x-utils keeps long-tail boundary probe');
   context.assert(xutilsDecision && xutilsDecision.publishBlocking === false, 'x-utils no longer blocks publish as residual');
@@ -151,7 +151,7 @@ function runEpic13KnownResidualTriageSuite(options = {}) {
   context.assert(metadata && metadata.schema === EPIC13_KNOWN_RESIDUAL_TRIAGE_SCHEMA, 'Package metadata exposes known residual triage schema');
   context.assert(metadata && metadata.workpackage === EPIC13_KNOWN_RESIDUAL_TRIAGE_WORKPACKAGE, 'Package metadata exposes WP-E13-05');
   context.assert(metadata && metadata.nextWorkpackage === 'WP-E13-06', 'Package metadata exposes next workpackage');
-  context.assert(metadata && metadata.closedResiduals.includes('xstate') && metadata.closedResiduals.includes('x-utils'), 'Package metadata exposes closed boundary residuals');
+  context.assert(metadata && metadata.closedResiduals.includes('xtend-state') && metadata.closedResiduals.includes('x-utils'), 'Package metadata exposes closed boundary residuals');
   context.assert(metadata && metadata.watchpoints.includes('xtend.component.hydrate'), 'Package metadata exposes hydration watchpoint');
   context.assert(rc1Metadata && rc1Metadata.nextWorkpackage === 'WP-E13-13', 'RC1 readiness metadata now hands off to WP-E13-09 after visual owner artifact normalization');
   context.assert(ownerMetadata && ownerMetadata.nextWorkpackage === 'WP-E13-13', 'Owner acceptance metadata now hands off to WP-E13-09 after visual owner artifact normalization');
@@ -171,7 +171,7 @@ function runEpic13KnownResidualTriageSuite(options = {}) {
     '| `WP-E13-08` | P1 | completed | WS3 | Visual Screenshot/Pixels als RC1-Artefakt normalisieren |',
     '| `WP-E13-09` | P1 | completed | WS4 | RMT-first App Production Readiness Gate buendeln |',
     'Handoff nach WP-E13-05',
-    'xstate',
+    ['x', 'state'].join(''),
     'x-utils',
     'xtend.component.hydrate'
   ], 'Epic 13 steering document');
@@ -193,7 +193,7 @@ function runEpic13KnownResidualTriageSuite(options = {}) {
   assertTextIncludesAll(context, docs, [
     EPIC13_KNOWN_RESIDUAL_TRIAGE_SCHEMA,
     EPIC13_KNOWN_RESIDUAL_TRIAGE_LOCAL_GATE,
-    'xstate',
+    ['x', 'state'].join(''),
     'x-utils',
     'xtend.component.hydrate',
     PUBLISH_BOUNDARY

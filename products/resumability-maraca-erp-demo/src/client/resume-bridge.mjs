@@ -6,7 +6,7 @@ import {
   readXTensionBootConfig,
   normalizeXTensionBootConfig
 } from './xtension-host.mjs';
-import { xstate } from '/components/xstate.js';
+import { xtendState as stateRuntime } from '/components/xtend-state.js';
 import { createRmtEventRoutingRuntime } from '/xtendrmt/rmt-event-routing-runtime.js';
 
 const payloadElement = document.getElementById('xtend-erp-resume-payload') || document.querySelector('[data-rmt-ssr-resume]');
@@ -60,7 +60,7 @@ window.__XTendResumeDemo = {
   commandQueue: intentQueue,
   appRuntimeCommandLog: [],
   shellCommandDiagnostics: [],
-  xstate
+  stateRuntime
 };
 
 function decodeBase64Url(value) {
@@ -93,7 +93,7 @@ window.__XTendMaracaAutoBootOptions = () => ({
   root: document.getElementById('xtend-maraca-root'),
   initialState: payload && payload.snapshot && payload.snapshot.rmtState || {},
   appState: payload && payload.snapshot && payload.snapshot.appState || {},
-  xstate,
+  stateRuntime,
   lazyStrategy: 'viewport',
   verifyResumeEnvelope,
   resumeAdopters: createXTensionResumeAdopters(payload),
@@ -433,17 +433,17 @@ function applyXtensionControlDialogDom(dialog) {
   if (!dialog.open) host.hidden = true;
 }
 
-function getXStateTargets() {
+function getStateTargets() {
   const targets = [];
-  if (xstate && typeof xstate.set === 'function') targets.push(xstate);
-  if (window.xstate && typeof window.xstate.set === 'function' && window.xstate !== xstate) {
-    targets.push(window.xstate);
+  if (stateRuntime && typeof stateRuntime.set === 'function') targets.push(stateRuntime);
+  if (window.XTend?.state && typeof window.XTend?.state.set === 'function' && window.XTend?.state !== stateRuntime) {
+    targets.push(window.XTend?.state);
   }
   return targets;
 }
 
-function readXState(key) {
-  const targets = getXStateTargets();
+function readState(key) {
+  const targets = getStateTargets();
   for (const target of targets) {
     if (typeof target.get !== 'function') continue;
     const value = target.get(key);
@@ -452,7 +452,7 @@ function readXState(key) {
   return undefined;
 }
 
-function writeXState(target, updates) {
+function writeState(target, updates) {
   if (!target || typeof target.set !== 'function') return;
   if (typeof target.batchUpdate === 'function') target.batchUpdate(updates);
   else Object.entries(updates).forEach(([key, value]) => target.set(key, value));
@@ -543,7 +543,7 @@ function withXtensionControlDialog(snapshot, patch) {
   };
 }
 
-function mirrorSnapshotToXState(snapshot, reason = 'snapshot') {
+function mirrorSnapshotToState(snapshot, reason = 'snapshot') {
   if (!snapshot) return;
   const menuBar = getMenuBar(snapshot);
   const menuState = createMenuRmtState(menuBar);
@@ -576,9 +576,9 @@ function mirrorSnapshotToXState(snapshot, reason = 'snapshot') {
       generatedAt: snapshot.generatedAt,
       activeProcessId: snapshot.activeProcessId
     },
-    'erp.shell.xstate.lastReason': reason
+    'erp.shell.state.lastReason': reason
   };
-  getXStateTargets().forEach((target) => writeXState(target, updates));
+  getStateTargets().forEach((target) => writeState(target, updates));
   applySurfaceInfoDialogDom(surfaceInfoDialog);
   applyXtensionControlDialogDom(xtensionControlDialog);
 }
@@ -680,8 +680,8 @@ function updateSmokeMarker() {
   const nativeSurfaceCount = currentSnapshot.loadLab && currentSnapshot.loadLab.throughput
     ? currentSnapshot.loadLab.throughput.nativeSurfaces
     : 0;
-  const surfaceInfoState = readXState('erp.shell.surfaceInfoDialog') || createSurfaceInfoRmtState(getSurfaceInfoDialog(currentSnapshot));
-  const xtensionControlState = readXState('erp.shell.xtensionControlDialog') || createXtensionControlRmtState(getXtensionControlDialog(currentSnapshot));
+  const surfaceInfoState = readState('erp.shell.surfaceInfoDialog') || createSurfaceInfoRmtState(getSurfaceInfoDialog(currentSnapshot));
+  const xtensionControlState = readState('erp.shell.xtensionControlDialog') || createXtensionControlRmtState(getXtensionControlDialog(currentSnapshot));
   const bootConfig = normalizeXTensionBootConfig(readXTensionBootConfig());
   marker.dataset.kernelEnabled = String(Boolean(window.__XTendMaracaResult && window.__XTendMaracaResult.kernel && window.__XTendMaracaResult.kernel.enabled));
   marker.dataset.telemetryReady = String(Boolean(window.__XTendMaracaTelemetry && typeof window.__XTendMaracaTelemetry.snapshot === 'function'));
@@ -749,8 +749,8 @@ function updateSmokeMarker() {
   marker.dataset.commandRuntimeAttached = String(Boolean(shellCommandAttachReport && shellCommandAttachReport.attachedCount >= 4));
   marker.dataset.appRuntimeCommands = String(listAppRuntimeCommands().length);
   marker.dataset.appRuntimeLast = window.__XTendResumeDemo.lastAppRuntimeCommand && window.__XTendResumeDemo.lastAppRuntimeCommand.command || '';
-  const menuState = readXState('erp.shell.menuBar');
-  marker.dataset.menuXstate = String(Boolean(menuState && menuState.id === 'erp-menu-bar-state'));
+  const menuState = readState('erp.shell.menuBar');
+  marker.dataset.menuState = String(Boolean(menuState && menuState.id === 'erp-menu-bar-state'));
   marker.dataset.menuOpen = menuState && menuState.openMenuId || '';
   marker.dataset.menuSelected = menuState && menuState.selectedCommandId || '';
   marker.dataset.surfaceInfoLoaded = String(Boolean(window.__XTendResumeDemo.surfaceInfoDialogLoaded || surfaceInfoState.loaded));
@@ -768,7 +768,7 @@ function markSurfaceInfoState(patch, reason) {
   if (!current) return null;
   const next = withSurfaceInfoDialog(current, patch);
   window.__XTendResumeDemo.lastSnapshot = next;
-  mirrorSnapshotToXState(next, reason);
+  mirrorSnapshotToState(next, reason);
   updateSmokeMarker();
   return next;
 }
@@ -778,7 +778,7 @@ function markXtensionControlState(patch, reason) {
   if (!current) return null;
   const next = withXtensionControlDialog(current, patch);
   window.__XTendResumeDemo.lastSnapshot = next;
-  mirrorSnapshotToXState(next, reason);
+  mirrorSnapshotToState(next, reason);
   updateSmokeMarker();
   return next;
 }
@@ -823,7 +823,7 @@ async function openSurfaceInfoFromApp(source = 'manual', metadata = {}) {
   }
   const module = await surfaceInfoDialogModulePromise;
   const telemetry = await module.openSurfaceInfoDialog({
-    xstate,
+    stateRuntime,
     metrics: resumeMetrics,
     reason: source,
     metadata,
@@ -912,7 +912,7 @@ async function openXtensionControlFromApp(source = 'manual', metadata = {}) {
   }
   const module = await xtensionControlDialogModulePromise;
   const config = await module.openXTensionControlDialog({
-    xstate,
+    stateRuntime,
     metrics: resumeMetrics,
     reason: source,
     metadata,
@@ -975,11 +975,11 @@ async function openXtensionControlFromApp(source = 'manual', metadata = {}) {
   return config;
 }
 
-function createXCommandXStateBridge() {
+function createXCommandStateBridge() {
   return {
-    get: readXState,
+    get: readState,
     set(key, value) {
-      getXStateTargets().forEach((target) => writeXState(target, { [key]: value }));
+      getStateTargets().forEach((target) => writeState(target, { [key]: value }));
     }
   };
 }
@@ -988,11 +988,11 @@ async function ensureXCommandKernel() {
   if (!xcommandKernelPromise) {
     xcommandKernelPromise = import('/xcommand/xcommand.js').then(() => {
       const kernel = window.XCommand.createXCommandKernel({
-        xstate: createXCommandXStateBridge(),
+        stateRuntime: createXCommandStateBridge(),
         fabric: {
           schedule(record) {
             window.__XTendResumeDemo.lastXCommandFabricRecord = record;
-            getXStateTargets().forEach((target) => writeXState(target, {
+            getStateTargets().forEach((target) => writeState(target, {
               'erp.shell.xcommand.lastFabricRecord': clone(record)
             }));
           }
@@ -1152,9 +1152,9 @@ async function handleIntent(intent, metadata = {}) {
     window.__XTendResumeDemo.lastSnapshot = next;
     window.__XTendResumeDemo.lastIntent = intent;
     applyMenuDom(next.menuBar);
-    mirrorSnapshotToXState(next, 'toggle-menu');
+    mirrorSnapshotToState(next, 'toggle-menu');
     setText('#erp-kernel-status-line', nextOpenMenuId && group
-      ? `Kernel: Menü ${group.label} in XState gespiegelt`
+      ? `Kernel: Menü ${group.label} in State gespiegelt`
       : 'Kernel: Menüband geschlossen');
     updateSmokeMarker();
     return next;
@@ -1175,7 +1175,7 @@ async function handleIntent(intent, metadata = {}) {
     window.__XTendResumeDemo.lastSnapshot = next;
     window.__XTendResumeDemo.lastIntent = intent;
     applyMenuDom(next.menuBar);
-    mirrorSnapshotToXState(next, 'select-menu-command');
+    mirrorSnapshotToState(next, 'select-menu-command');
     setText('#erp-kernel-status-line', `Kernel: Menübefehl ${found.command.label} übernommen`);
     updateSmokeMarker();
     if (found.command.id === 'help.rmtSurfaceInfo') {
@@ -1208,7 +1208,7 @@ async function handleIntent(intent, metadata = {}) {
     };
     window.__XTendResumeDemo.lastSnapshot = next;
     window.__XTendResumeDemo.lastIntent = intent;
-    mirrorSnapshotToXState(next, 'select-process');
+    mirrorSnapshotToState(next, 'select-process');
     await updateXTensions(next, {
       only: ['vue-process-sidebar'],
       reason: 'select-process',
@@ -1233,7 +1233,7 @@ async function handleIntent(intent, metadata = {}) {
     };
     window.__XTendResumeDemo.lastSnapshot = next;
     window.__XTendResumeDemo.lastIntent = intent;
-    mirrorSnapshotToXState(next, 'select-ledger-item');
+    mirrorSnapshotToState(next, 'select-ledger-item');
     await updateXTensions(next, {
       only: ['react-ledger-panel'],
       reason: 'select-ledger-item',
@@ -1258,7 +1258,7 @@ async function handleIntent(intent, metadata = {}) {
     };
     window.__XTendResumeDemo.lastSnapshot = next;
     window.__XTendResumeDemo.lastIntent = intent;
-    mirrorSnapshotToXState(next, 'inspect-sla-cell');
+    mirrorSnapshotToState(next, 'inspect-sla-cell');
     await updateXTensions(next, {
       only: ['react-sla-matrix'],
       reason: 'inspect-sla-cell',
@@ -1283,7 +1283,7 @@ async function handleIntent(intent, metadata = {}) {
     };
     window.__XTendResumeDemo.lastSnapshot = next;
     window.__XTendResumeDemo.lastIntent = intent;
-    mirrorSnapshotToXState(next, 'inspect-exception');
+    mirrorSnapshotToState(next, 'inspect-exception');
     await updateXTensions(next, {
       only: ['vue-exception-queue'],
       reason: 'inspect-exception',
@@ -1308,7 +1308,7 @@ async function handleIntent(intent, metadata = {}) {
     };
     window.__XTendResumeDemo.lastSnapshot = next;
     window.__XTendResumeDemo.lastIntent = intent;
-    mirrorSnapshotToXState(next, 'inspect-openui5-order');
+    mirrorSnapshotToState(next, 'inspect-openui5-order');
     await updateXTensions(next, {
       only: ['openui5-procurement-worklist'],
       reason: 'inspect-openui5-order',
@@ -1333,7 +1333,7 @@ async function handleIntent(intent, metadata = {}) {
     };
     window.__XTendResumeDemo.lastSnapshot = next;
     window.__XTendResumeDemo.lastIntent = intent;
-    mirrorSnapshotToXState(next, 'inspect-angular-risk');
+    mirrorSnapshotToState(next, 'inspect-angular-risk');
     await updateXTensions(next, {
       only: ['angular-risk-workbench'],
       reason: 'inspect-angular-risk',
@@ -1350,7 +1350,7 @@ async function handleIntent(intent, metadata = {}) {
     window.__XTendResumeDemo.lastSnapshot = next;
     window.__XTendResumeDemo.lastIntent = intent;
     updateShell(next);
-    mirrorSnapshotToXState(next, 'reseed');
+    mirrorSnapshotToState(next, 'reseed');
     await updateXTensions(next, {
       reason: 'reseed',
       intent
@@ -1514,7 +1514,7 @@ async function closeOpenMenu(reason) {
   });
   window.__XTendResumeDemo.lastSnapshot = next;
   applyMenuDom(next.menuBar);
-  mirrorSnapshotToXState(next, reason === 'escape' ? 'close-menu-escape' : 'close-menu-outside');
+  mirrorSnapshotToState(next, reason === 'escape' ? 'close-menu-escape' : 'close-menu-outside');
   updateSmokeMarker();
   return next;
 }
@@ -1528,7 +1528,7 @@ async function handleMaracaBoot(event) {
   window.__XTendResumeDemo.maracaBoot = event && event.detail || window.__XTendMaracaResult || null;
   setText('#erp-kernel-status-line', 'Kernel: Maraca-Orchestrierung aktiv');
   if (window.__XTendResumeDemo.lastSnapshot) {
-    mirrorSnapshotToXState(window.__XTendResumeDemo.lastSnapshot, 'maraca-boot');
+    mirrorSnapshotToState(window.__XTendResumeDemo.lastSnapshot, 'maraca-boot');
   }
   if (payload) {
     const maracaResult = event && event.detail || window.__XTendMaracaResult || {};
@@ -1576,6 +1576,6 @@ document.addEventListener('DOMContentLoaded', () => {
 attachShellCommandRuntime();
 
 if (window.__XTendResumeDemo.lastSnapshot) {
-  mirrorSnapshotToXState(window.__XTendResumeDemo.lastSnapshot, 'server-resume');
+  mirrorSnapshotToState(window.__XTendResumeDemo.lastSnapshot, 'server-resume');
   applyMenuDom(window.__XTendResumeDemo.lastSnapshot.menuBar);
 }

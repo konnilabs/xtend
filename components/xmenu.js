@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 import { createXtendRmtCommandDetail } from './rmt-command.js';
 
 const X_MENU_PERFORMANCE_PROFILE_SCHEMA = 'xtend.performance.component-profile.v1';
@@ -137,7 +137,7 @@ class XMenu extends HTMLElement {
         xLinkCompatible: true,
         xRouterCompatible: true
       },
-      cleanup: ['slotchange-listener', 'item-listeners', 'xstate-subscription', 'route-listeners'],
+      cleanup: ['slotchange-listener', 'item-listeners', 'xtend-state-subscription', 'route-listeners'],
       rmt: {
         scheduleRefs: ['component.visible.hydrate', 'ui.user-blocking.navigation', 'route.transition.navigate', 'diagnostics.snapshot'],
         kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
@@ -580,15 +580,15 @@ class XMenu extends HTMLElement {
   }
 
   _subscribeState() {
-    if (this._unsubscribeState || typeof xstate.subscribe !== 'function') return;
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    if (this._unsubscribeState || typeof xtendState.subscribe !== 'function') return;
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (this._synchronizingState) return;
       if (key === 'xmenu-active' && value && typeof value.index === 'number' && this._stateTargetsThisMenu(value)) {
-        this._setActiveItem(value.index, 'xstate', { focus: Boolean(value.focus) });
+        this._setActiveItem(value.index, 'xtend-state', { focus: Boolean(value.focus) });
       }
       if (key === 'router-current' || key === 'xtend.router.current' || key === 'router-navigated') {
         const path = typeof value === 'string' ? value : value && value.path;
-        this._syncActiveRoute(path, 'xstate-route', { focus: false });
+        this._syncActiveRoute(path, 'xtend-state-route', { focus: false });
       }
     }, ['xmenu-active', 'router-current', 'xtend.router.current', 'router-navigated']);
   }
@@ -785,8 +785,8 @@ class XMenu extends HTMLElement {
     this._performanceCounters.stateSyncs += 1;
     this._synchronizingState = true;
     try {
-      xstate.set('xmenu-active', state);
-      xstate.set(`xmenu-state-${this.id}`, state);
+      xtendState.set('xmenu-active', state);
+      xtendState.set(`xmenu-state-${this.id}`, state);
     } finally {
       this._synchronizingState = false;
     }
@@ -810,8 +810,8 @@ class XMenu extends HTMLElement {
     ));
     if (explicitIndex >= 0) return explicitIndex;
 
-    const scopedState = this.id ? xstate.get(`xmenu-state-${this.id}`) : null;
-    const globalState = xstate.get('xmenu-active');
+    const scopedState = this.id ? xtendState.get(`xmenu-state-${this.id}`) : null;
+    const globalState = xtendState.get('xmenu-active');
     const state = scopedState || (this._stateTargetsThisMenu(globalState) ? globalState : null);
     if (state && typeof state.index === 'number' && state.index >= 0 && state.index < items.length && !this._isItemDisabled(items[state.index])) {
       return state.index;
@@ -823,8 +823,8 @@ class XMenu extends HTMLElement {
   }
 
   _resolveFocusIndex(items = this._items, activeIndex = this._resolveActiveIndex(items)) {
-    const scopedState = this.id ? xstate.get(`xmenu-state-${this.id}`) : null;
-    const globalState = xstate.get('xmenu-active');
+    const scopedState = this.id ? xtendState.get(`xmenu-state-${this.id}`) : null;
+    const globalState = xtendState.get('xmenu-active');
     const state = scopedState || (this._stateTargetsThisMenu(globalState) ? globalState : null);
     if (state && typeof state.focusIndex === 'number' && state.focusIndex >= 0 && state.focusIndex < items.length && !this._isItemDisabled(items[state.focusIndex])) {
       return state.focusIndex;
@@ -881,8 +881,8 @@ class XMenu extends HTMLElement {
       composed: true
     }));
 
-    if (typeof xstate.set === 'function') {
-      xstate.set('router-navigate', path);
+    if (typeof xtendState.set === 'function') {
+      xtendState.set('router-navigate', path);
     }
     document.body.dispatchEvent(new CustomEvent('x-navigate', {
       detail,

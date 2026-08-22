@@ -34,7 +34,7 @@ const DEFAULT_PWA_CONTEXT = Object.freeze({
 
 const DEFAULT_STATE_CONTEXT = Object.freeze({
   stateSnapshotHash: '',
-  xstateBridgeMode: 'fixture-main-thread-mirror',
+  stateProjectionMode: 'fixture-main-thread-mirror',
   stateOwnership: 'main-thread'
 });
 
@@ -129,7 +129,7 @@ function normalizeStateContext(context = {}) {
   const snapshot = source.snapshot && typeof source.snapshot === 'object' ? source.snapshot : {};
   return {
     stateSnapshotHash: normalizeString(source.stateSnapshotHash, hashValue(snapshot)),
-    xstateBridgeMode: normalizeString(source.xstateBridgeMode, DEFAULT_STATE_CONTEXT.xstateBridgeMode),
+    stateProjectionMode: normalizeString(source.stateProjectionMode, DEFAULT_STATE_CONTEXT.stateProjectionMode),
     stateOwnership: normalizeString(source.stateOwnership, DEFAULT_STATE_CONTEXT.stateOwnership)
   };
 }
@@ -376,7 +376,7 @@ function createSuperPrewarmWorkerExperimentReport(input = {}, options = {}) {
     pwaAttachment: {
       engineImplemented: false,
       manifestEngineScope: 'attachment-point-only',
-      hooks: ['cache-management', 'xstate-state-management', 'ssr-metadata', 'prewarm-warm-reentry-policy']
+      hooks: ['cache-management', 'state-management', 'ssr-metadata', 'prewarm-warm-reentry-policy']
     },
     boundaries: {
       workerDomMutation: false,

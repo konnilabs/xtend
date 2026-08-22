@@ -20,11 +20,11 @@ function deepFreeze(value) {
 
 const RUNTIME_MODULE_API_BINDINGS = Object.freeze({
   XUtils: Object.freeze(['components/xutils.js', 'XUtils']),
-  xstate: Object.freeze(['components/xstate.js', 'xstate']),
+  xtendState: Object.freeze(['components/xtend-state.js', 'xtendState']),
   XTendSurfaceController: Object.freeze(['components/xsurfacemanager-controller.js', 'XTendSurfaceController']),
   XTendRmtResumeRuntime: Object.freeze(['xtendrmt/rmt-resume-runtime.js', 'XTendRmtResumeRuntime']),
   XTendRmtStateBindingViewProjector: Object.freeze(['xtendrmt/rmt-state-binding-view-projector.js', 'XTendRmtStateBindingViewProjector']),
-  XTendRmtXStateHostAdapter: Object.freeze(['xtendrmt/rmt-xstate-host-adapter.js', 'XTendRmtXStateHostAdapter']),
+  XTendRmtStateHostAdapter: Object.freeze(['xtendrmt/rmt-state-host-adapter.js', 'XTendRmtStateHostAdapter']),
   XTendRmtStateSelectorRuntime: Object.freeze(['xtendrmt/rmt-state-selector-runtime.js', 'XTendRmtStateSelectorRuntime']),
   XTendRmtActionEffectRuntime: Object.freeze(['xtendrmt/rmt-action-effect-runtime.js', 'XTendRmtActionEffectRuntime']),
   XTendRmtEventRoutingRuntime: Object.freeze(['xtendrmt/rmt-event-routing-runtime.js', 'XTendRmtEventRoutingRuntime']),
@@ -210,7 +210,7 @@ function createRuntimeConfiguration(config, options, host, handles) {
     documentTarget: handles.documentTarget,
     windowTarget: handles.windowTarget,
     xUtils: options.xUtils || host.runtimeApi('XUtils'),
-    xstate: options.xstate || host.runtimeApi('xstate'),
+    stateProjectionTarget: options.stateProjectionTarget || host.runtimeApi('xtendState'),
     fabric: options.fabric || null,
     hostServices: options.hostServices || {},
     hostServiceRegistry: options.hostServiceRegistry || null,
@@ -242,7 +242,7 @@ function createRuntimeConfiguration(config, options, host, handles) {
       async load() {
         return {
           state: host.runtimeApi('XTendRmtStateSelectorRuntime'),
-          stateProjection: host.runtimeApi('XTendRmtXStateHostAdapter'),
+          stateProjection: host.runtimeApi('XTendRmtStateHostAdapter'),
           stateBindings: host.runtimeApi('XTendRmtStateBindingViewProjector'),
           action: host.runtimeApi('XTendRmtActionEffectRuntime'),
           app: host.runtimeApi('XTendRmtAppRuntime'),

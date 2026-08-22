@@ -36,7 +36,7 @@ const COMPONENT_GATES = [
     fixtureContracts: [
       { pattern: '<x-alert', message: 'fixture contains x-alert markup' },
       { pattern: 'aria-label="Component alert"', message: 'fixture exercises aria-label' },
-      { pattern: 'window.xstate', message: 'fixture provides local xstate stub' },
+      { pattern: 'window.XTend.state', message: 'fixture provides local state stub' },
       { pattern: '__xtendComponentResult', message: 'fixture exposes hydration result object' }
     ]
   },
@@ -86,7 +86,7 @@ const COMPONENT_GATES = [
       { pattern: 'disconnectedCallback()', message: 'cleans up on detach' },
       { pattern: 'document.removeEventListener', message: 'removes global key listener' },
       { pattern: 'this.shadowRoot.removeEventListener', message: 'removes shadow key listener' },
-      { pattern: 'this._unsubscribeState()', message: 'removes xstate subscription' },
+      { pattern: 'this._unsubscribeState()', message: 'removes state subscription' },
       { pattern: '_syncOpenAttribute', message: 'keeps DOM attribute and state aligned' },
       { pattern: "slot.addEventListener('slotchange'", message: 'updates fallback content after slot hydration' },
       { pattern: 'xtend.component.x-modal.', message: 'syncs canonical component state' }
@@ -96,7 +96,7 @@ const COMPONENT_GATES = [
       { pattern: 'open', message: 'fixture starts in visible hydrated state' },
       { pattern: 'overlay', message: 'fixture exercises overlay mode' },
       { pattern: 'slot="actions"', message: 'fixture exercises action slot hydration' },
-      { pattern: 'window.xstate', message: 'fixture provides local xstate stub' },
+      { pattern: 'window.XTend.state', message: 'fixture provides local state stub' },
       { pattern: '__xtendComponentResult', message: 'fixture exposes hydration result object' }
     ]
   },
@@ -122,7 +122,7 @@ const COMPONENT_GATES = [
       { pattern: 'disconnectedCallback()', message: 'cleans up on detach' },
       { pattern: 'document.removeEventListener', message: 'removes global key listener' },
       { pattern: 'this.shadowRoot.removeEventListener', message: 'removes shadow key listener' },
-      { pattern: 'this._unsubscribeState()', message: 'removes xstate subscription' },
+      { pattern: 'this._unsubscribeState()', message: 'removes state subscription' },
       { pattern: '_syncOpenAttribute', message: 'keeps DOM attribute and state aligned' },
       { pattern: "slot.addEventListener('slotchange'", message: 'updates fallback content after slot hydration' },
       { pattern: 'xtend.component.x-dialog.', message: 'syncs canonical component state' }

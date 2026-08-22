@@ -475,7 +475,7 @@ try {
     assert(browser.stdout.includes('data-xtension-boot-disabled="0"'), 'Browser smoke did not observe the default disabled XTension boot policy.');
     assert(browser.stdout.includes('data-native-surface-count="13"'), 'Browser smoke did not observe native load-lab surfaces.');
     assert(browser.stdout.includes('data-fallback-degraded="false"'), 'Browser smoke observed a degraded XTension fallback.');
-    assert(browser.stdout.includes('data-menu-xstate="true"'), 'Browser smoke did not observe the menu state in XState.');
+    assert(browser.stdout.includes('data-menu-state="true"'), 'Browser smoke did not observe the menu state in XTend State.');
     assert(browser.stdout.includes('data-command-runtime-attached="true"'), 'Browser smoke did not observe the RMT command routing runtime.');
     assert(browser.stdout.includes('data-menu-selected="system.resume"'), 'Browser smoke did not observe the initial selected menu command.');
     assert(browser.stdout.includes('data-surface-info-loaded="false"'), 'Browser smoke observed the lazy Surface Info dialog before it was opened.');

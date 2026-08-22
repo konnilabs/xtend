@@ -1,6 +1,6 @@
 const toastState = {
   set: (key, value) => {
-    const stateApi = globalThis.xstate;
+    const stateApi = globalThis.XTend?.state;
     if (stateApi && typeof stateApi.set === 'function') {
       stateApi.set(key, value);
     }

@@ -10,7 +10,7 @@ Die öffentlichen XTend APIs für Loader, Komponenten und Host-Integration.
 
 - `api.js` enthält die Runtime und schreibt in `window.XTend`.
 - `api.d.ts` typisiert Theme, Toast, Alert, Dialog und Modal.
-- `components/xstate.js` hält den gemeinsamen UI-Zustand.
+- `components/xtend-state.js` hält den gemeinsamen Classic-UI-Zustand.
 
 ## Empfohlener Ablauf
 

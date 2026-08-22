@@ -2616,7 +2616,7 @@ const suites = [
   {
     id: 'xcommand-kernel',
     label: 'XCommand Kernel and XKeymap Gate',
-    description: 'Runs XCommand runtime, RMT xcommand parsing, XState/Fabric bridge and XKeymap surface gates.',
+    description: 'Runs XCommand runtime, RMT xcommand parsing, XTend State/Fabric bridge and XKeymap surface gates.',
     run: () => {
       const result = runXCommandKernelSuite({ rootDir });
       printXCommandKernelReport(result);
@@ -3286,7 +3286,7 @@ const suites = [
   {
     id: 'maraca-transitions',
     label: 'XTend Maraca Surface Transitions',
-    description: 'Runs the compiler-driven surface transitions, x-utils policy and xstate mirror gate.',
+    description: 'Runs the compiler-driven surface transitions, x-utils policy and state projection gate.',
     run: async () => {
       const result = await runMaracaTransitionSuite({ rootDir });
       printMaracaTransitionReport(result);
@@ -4066,12 +4066,12 @@ const suites = [
   },
   {
     id: 'fabric-runtime-bridge',
-    label: 'XTend-Fabric xstate API and RMT diagnostics bridge',
-    description: 'Runs xstate, XTend API and XTendRMT diagnostics bridge gates.',
+    label: 'XTend-Fabric state API and RMT diagnostics bridge',
+    description: 'Runs XTend State, XTend API and XTendRMT diagnostics bridge gates.',
     run: () => {
       const result = runFabricRuntimeDiagnosticsBridgeSuite({ rootDir });
       printFabricRuntimeDiagnosticsBridgeReport(result);
-      return toRunnerResult('fabric-runtime-bridge', 'XTend-Fabric xstate API and RMT diagnostics bridge', result);
+      return toRunnerResult('fabric-runtime-bridge', 'XTend-Fabric state API and RMT diagnostics bridge', result);
     }
   },
   {
@@ -4277,7 +4277,7 @@ const suites = [
   {
     id: 'rmt-state-selector-runtime',
     label: 'Epic 18 RMT typed state selector runtime',
-    description: 'Runs the WP-E18-07 typed state, selector, reducer and xstate bridge gates.',
+    description: 'Runs the WP-E18-07 typed state, selector, reducer and host projection gates.',
     run: async () => {
       const result = await runRmtStateSelectorRuntimeSuite({ rootDir });
       printRmtStateSelectorRuntimeReport(result);
@@ -4377,7 +4377,7 @@ const suites = [
   {
     id: 'surface-controller',
     label: 'Surface Controller and state snapshot contract',
-    description: 'Runs the WP-SM-02 Surface Controller runtime, xstate mirror and diagnostics gates.',
+    description: 'Runs the WP-SM-02 Surface Controller runtime, state projection and diagnostics gates.',
     run: async () => {
       const result = await runSurfaceControllerSuite({ rootDir });
       printSurfaceControllerReport(result);

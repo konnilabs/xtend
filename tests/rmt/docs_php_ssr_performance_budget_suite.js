@@ -161,7 +161,7 @@ function runDocsPhpSsrPerformanceBudgetSuite(options = {}) {
   context.assert(!xlinkSource.includes("window.addEventListener('hashchange', this._updateActive)"), 'x-link no longer installs hashchange per instance');
   context.assert(!xlinkSource.includes("document.body.addEventListener('x-navigate', this._onNavigationChange)"), 'x-link no longer installs body navigation listeners per instance');
   context.assert(xlinkSource.includes('previousActive === active'), 'x-link skips unchanged active-state syncs');
-  context.assert(xlinkSource.includes('active || previousActive !== undefined'), 'x-link avoids initial inactive xstate writes');
+  context.assert(xlinkSource.includes('active || previousActive !== undefined'), 'x-link avoids initial inactive state writes');
 
   context.assert(packageManifest.scripts['test:docs-php-ssr-performance-budget'] === 'node scripts/run_xtend_tests.js docs-php-ssr-performance-budget', 'package exposes docs PHP SSR performance budget script');
   context.assert(runner.includes("id: 'docs-php-ssr-performance-budget'"), 'test runner registers docs PHP SSR performance budget suite');

@@ -102,7 +102,7 @@ function createEpic12DocsAdoptionGuide(options = {}) {
       'npm sbom --sbom-format=cyclonedx --json'
     ],
     knownResiduals: [
-      'xstate',
+      'xtend-state',
       'x-utils',
       'xtend.component.hydrate'
     ],

@@ -903,9 +903,9 @@ async function runLayoutSmoke() {
       window.addEventListener('error', onError);
       try {
         const key = 'xspinner-paused-' + spinner.id;
-        window.xstate.set(key, false);
+        window.XTend.state.set(key, false);
         await new Promise((resolve) => requestAnimationFrame(resolve));
-        window.xstate.set(key, true);
+        window.XTend.state.set(key, true);
         await new Promise((resolve) => requestAnimationFrame(resolve));
         spinner.removeAttribute('paused');
         await new Promise((resolve) => requestAnimationFrame(resolve));

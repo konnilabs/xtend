@@ -1,4 +1,4 @@
-// XTendRMT 0.6.1 type definitions
+// XTendRMT 0.7.0 type definitions
 export {
     RMT_RESUME_RUNTIME_SCHEMA,
     RMT_RESUME_ENVELOPE_SCHEMA,
@@ -1061,8 +1061,6 @@ export interface RmtStateTelemetryProjectionPort {
 export interface RmtStateSchedulerDiagnosticsBridgeOptions extends Record<string, unknown> {
     adapterId?: string;
     stateProjectionPort?: RmtStateTelemetryProjectionPort | null;
-    /** @deprecated 0.6 compatibility alias. Use stateProjectionPort; per-key XState writers are not supported. */
-    xstate?: RmtStateTelemetryProjectionPort | null;
     diagnosticsHub?: unknown;
     scheduler?: unknown;
     performanceRuntime?: unknown;

@@ -36,7 +36,7 @@ const EPIC13_KNOWN_RESIDUAL_TRIAGE_PACKAGE_SCRIPT = 'npm run test:epic13-known-r
 const PUBLISH_BOUNDARY = 'private-until-release-owner-acceptance';
 
 const RC0_RESIDUAL_SCOPES = Object.freeze([
-  'xstate',
+  'xtend-state',
   'x-utils',
   'xtend.component.hydrate'
 ]);
@@ -69,21 +69,21 @@ const REQUIRED_DOCS = Object.freeze([
 
 const RESIDUAL_DECISION_MATRIX = Object.freeze([
   {
-    id: 'xstate-runtime-boundary',
-    scope: 'xstate',
+    id: 'xtend-state-runtime-boundary',
+    scope: 'xtend-state',
     rc0Status: 'contract-gated',
     rc1Decision: 'closed-as-runtime-boundary',
     rc1Status: 'accepted-runtime-boundary',
     ownerDecisionRequired: false,
     publishBlocking: false,
     targetWorkpackage: null,
-    reason: 'xstate is a non-visual state adapter boundary with explicit lifecycle, RMT adapter and diagnostics probes.',
+    reason: 'xtend-state is a non-visual state adapter boundary with explicit lifecycle, RMT adapter and diagnostics probes.',
     evidence: [
-      'components/xstate.js',
-      'components/xstate.d.ts',
-      'tests/components/xstate.component_suite.js',
-      'tests/components/fixtures/xstate.component.html',
-      'docs/components/xstate.md',
+      'components/stateRuntime.js',
+      'components/stateRuntime.d.ts',
+      'tests/components/stateRuntime.component_suite.js',
+      'tests/components/fixtures/stateRuntime.component.html',
+      'docs/components/stateRuntime.md',
       'catalog/component-long-tail-migration.js'
     ]
   },
@@ -239,7 +239,7 @@ function validateEpic13KnownResidualTriagePlan(plan = createEpic13KnownResidualT
   const errors = [];
   const decisions = plan && Array.isArray(plan.decisions) ? plan.decisions : [];
   const scopes = decisions.map((decision) => decision.scope);
-  const xstate = decisions.find((decision) => decision.scope === 'xstate');
+  const stateRuntime = decisions.find((decision) => decision.scope === 'xtend-state');
   const xutils = decisions.find((decision) => decision.scope === 'x-utils');
   const hydrate = decisions.find((decision) => decision.scope === 'xtend.component.hydrate');
 
@@ -259,11 +259,11 @@ function validateEpic13KnownResidualTriagePlan(plan = createEpic13KnownResidualT
     if (decision.schema !== EPIC13_KNOWN_RESIDUAL_DECISION_SCHEMA) errors.push(`${decision.scope || '<unknown>'}: decision schema must match`);
     if (!Array.isArray(decision.evidence) || decision.evidence.length === 0) errors.push(`${decision.scope}: evidence must be explicit`);
   });
-  if (!xstate || xstate.rc1Decision !== 'closed-as-runtime-boundary' || xstate.publishBlocking !== false || xstate.ownerDecisionRequired !== false) {
-    errors.push('xstate must close as runtime boundary without owner residual');
+  if (!stateRuntime || stateRuntime.rc1Decision !== 'closed-as-runtime-boundary' || stateRuntime.publishBlocking !== false || stateRuntime.ownerDecisionRequired !== false) {
+    errors.push('xtend-state must close as runtime boundary without owner residual');
   }
-  if (!xstate || xstate.catalogStatus !== 'contract-gated' || xstate.migrationKind !== 'adapter-boundary-probe') {
-    errors.push('xstate must remain traceable to catalog and long-tail boundary probe');
+  if (!stateRuntime || stateRuntime.catalogStatus !== 'contract-gated' || stateRuntime.migrationKind !== 'adapter-boundary-probe') {
+    errors.push('xtend-state must remain traceable to catalog and long-tail boundary probe');
   }
   if (!xutils || xutils.rc1Decision !== 'closed-as-utility-boundary' || xutils.publishBlocking !== false || xutils.ownerDecisionRequired !== false) {
     errors.push('x-utils must close as utility boundary without owner residual');

@@ -33,7 +33,7 @@ const COMPONENT_LONG_TAIL_MIGRATION_WP_PATH = 'development/WP-E11-17-Legacy-Long
 const COMPONENT_LONG_TAIL_MIGRATION_DOC_PATH = 'docs/en/component-long-tail-migration.md';
 const COMPONENT_LONG_TAIL_MIGRATION_MODULE_PATH = 'catalog/component-long-tail-migration.js';
 const COMPONENT_LONG_TAIL_MIGRATION_SUITE_PATH = 'tests/catalog/component_long_tail_migration_suite.js';
-const EXPECTED_TAGS = Object.freeze(['xstate', 'x-utils', 'xtend-i18n']);
+const EXPECTED_TAGS = Object.freeze(['xtend-state', 'x-utils', 'xtend-i18n']);
 
 function assertFileExists(context, relativePath, rootDir, message) {
   context.assert(fs.existsSync(resolveRepoPath(relativePath, rootDir)), message);
@@ -121,12 +121,12 @@ function runComponentLongTailMigrationSuite(options = {}) {
   context.assert(plan.summary.customElementCount === 0, 'Summary counts no visual custom elements after WP-E12-09');
   context.assert(plan.summary.boundaryProbeCount === 3, 'Summary counts three adapter or helper boundary probes after WP-E12-09');
   context.assert(plan.summary.missingByDimension.performance.length === 3, 'Performance gap remains visible for remaining long-tail entries');
-  context.assert(plan.summary.missingByDimension.a11y.includes('xstate'), 'A11y gap includes xstate');
+  context.assert(plan.summary.missingByDimension.a11y.includes('xtend-state'), 'A11y gap includes XTend State');
   context.assert(!plan.summary.missingByDimension.a11y.includes('x-theme'), 'A11y gap no longer includes x-theme after WP-E12-04');
   context.assert(!plan.summary.missingByDimension.componentSuite, 'Component suite gap is closed after WP-E12-09');
   context.assert(!plan.summary.missingByDimension.fixture, 'Fixture gap is closed after WP-E12-09');
   context.assert(!plan.summary.missingByDimension.types, 'Type gap is closed after WP-E12-09');
-  assertEntry(context, plan, 'xstate', {
+  assertEntry(context, plan, 'xtend-state', {
     wave: 'wave-3-infrastructure-and-utility-probes',
     migrationKind: 'adapter-boundary-probe',
     targetMaturity: 'ux-baseline-probe',

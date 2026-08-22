@@ -15,7 +15,7 @@
   </main>
 
   <script type="module">
-    import { xstate } from '/components/xstate.js';
+    import { xtendState } from '/components/xtend-state.js';
     import { xtendI18n } from '/components/xtend-i18n.js';
     import '/components/xbutton.js';
     import '/components/xrouter.js';
@@ -62,7 +62,7 @@
       }
     });
 
-    const adapter = xtendI18n.connectXState(xstate);
+    const adapter = xtendI18n.connectState(xtendState);
     const router = document.getElementById('i18n-router');
     const routerAdapter = xtendI18n.connectRouter(router, {
       urlMode: 'both',
@@ -79,22 +79,22 @@
     const buttonFallback = document.getElementById('i18n-button').shadowRoot.querySelector('.fallback-label').textContent;
     record('lazy locale loaded', xtendI18n.snapshot().loadedLocales.includes('de'));
     record('LOCALE_CHANGED event emitted', localeEvents.some((event) => event.type === 'LOCALE_CHANGED' && event.locale === 'de'));
-    record('xstate locale mirrored', xstate.get('xtend.i18n.locale') === 'de');
-    record('xstate event mirrored', xstate.get('xtend.i18n.event').type === 'LOCALE_CHANGED');
+    record('state locale mirrored', xtendState.get('xtend.i18n.locale') === 'de');
+    record('state event mirrored', xtendState.get('xtend.i18n.event').type === 'LOCALE_CHANGED');
     record('component fallback refreshed', buttonFallback === 'Klicken');
     record('data binding refreshed', document.getElementById('data-bound-label').textContent === 'Hallo');
     record('query locale route written', window.location.hash.includes('lang=de'));
 
-    xstate.set('xtend.i18n.locale.request', 'en');
+    xtendState.set('xtend.i18n.locale.request', 'en');
     await new Promise((resolve) => setTimeout(resolve, 20));
-    record('xstate request changes locale', xtendI18n.getLocale() === 'en');
+    record('state request changes locale', xtendI18n.getLocale() === 'en');
 
     router.navigate('/de/fixture');
     await new Promise((resolve) => setTimeout(resolve, 40));
     record('prefix locale route read', xtendI18n.getLocale() === 'de');
-    record('prefix locale route matched unprefixed route', xstate.get('xtend.router.current').component === 'demo-i18n-page');
+    record('prefix locale route matched unprefixed route', xtendState.get('xtend.router.current').component === 'demo-i18n-page');
     record('router adapter connected', routerAdapter.connected === true);
-    record('xstate adapter connected', adapter.schema === 'xtend.i18n.xstate-adapter.v1');
+    record('state adapter connected', adapter.schema === 'xtend.i18n.state-adapter.v1');
 
     document.body.dataset.xtendI18nBoundaryReady = 'true';
   </script>

@@ -16,7 +16,7 @@ export interface SuperPrewarmWorkerPwaContext {
 
 export interface SuperPrewarmWorkerStateContext {
   stateSnapshotHash: string;
-  xstateBridgeMode: string;
+  stateProjectionMode: string;
   stateOwnership: 'main-thread' | string;
 }
 

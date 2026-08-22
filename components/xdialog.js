@@ -1,16 +1,16 @@
 // Selbst-ausfuehrende asynchrone Funktion statt direktem Import
 (async function() {
-  let xstate;
+  let xtendState;
 
-  if (window.xstate) {
-    xstate = window.xstate;
+  if (window.XTend?.state) {
+    xtendState = window.XTend?.state;
   } else {
     try {
-      const module = await import('./xstate.js');
-      xstate = module.xstate;
+      const module = await import('./xtend-state.js');
+      xtendState = module.xtendState;
     } catch (e) {
-      console.error('Fehler beim Laden von xstate in xdialog.js:', e);
-      xstate = {
+      console.error('Fehler beim Laden von xtendState in xdialog.js:', e);
+      xtendState = {
         get: () => null,
         set: () => {},
         subscribe: () => () => {}
@@ -30,17 +30,17 @@
 
   function setDialogOpenState(id, isOpen) {
     if (!id) return;
-    getDialogOpenKeys(id).forEach((key) => xstate.set(key, isOpen));
+    getDialogOpenKeys(id).forEach((key) => xtendState.set(key, isOpen));
   }
 
   function getDialogEntry(id) {
-    const uiState = xstate.get('ui');
+    const uiState = xtendState.get('ui');
     if (!uiState || !Array.isArray(uiState.dialogs)) return null;
     return uiState.dialogs.find((dialog) => dialog.id === id) || null;
   }
 
   function updateDialogEntry(id, updater) {
-    const uiState = xstate.get('ui');
+    const uiState = xtendState.get('ui');
     if (!uiState || !Array.isArray(uiState.dialogs)) return;
 
     const dialogs = [...uiState.dialogs];
@@ -54,12 +54,12 @@
       dialogs[index] = nextEntry;
     }
 
-    xstate.set('ui', { ...uiState, dialogs });
+    xtendState.set('ui', { ...uiState, dialogs });
   }
 
   function readDialogOpenState(id, fallbackOpen) {
     const explicitValues = getDialogOpenKeys(id)
-      .map((key) => xstate.get(key))
+      .map((key) => xtendState.get(key))
       .filter((value) => typeof value === 'boolean');
 
     if (explicitValues.some((value) => value === true)) return true;
@@ -283,8 +283,8 @@
       document.addEventListener('keydown', this._onDocumentKeyDown);
       this.shadowRoot.addEventListener('keydown', this._onShadowKeyDown);
 
-      if (typeof xstate.subscribe === 'function') {
-        this._unsubscribeState = xstate.subscribe((key) => {
+      if (typeof xtendState.subscribe === 'function') {
+        this._unsubscribeState = xtendState.subscribe((key) => {
           if (
             key === null ||
             key === 'ui' ||

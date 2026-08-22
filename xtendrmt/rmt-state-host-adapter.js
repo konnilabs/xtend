@@ -1,5 +1,5 @@
-(function attachRmtXStateHostAdapter(globalTarget) {
-  const RMT_XSTATE_HOST_ADAPTER_SCHEMA = 'xtend.rmt.xstate-host-adapter.v1';
+(function attachRmtStateHostAdapter(globalTarget) {
+  const RMT_STATE_HOST_ADAPTER_SCHEMA = 'xtend.rmt.state-host-adapter.v1';
   const RMT_STATE_PROJECTION_PORT_SCHEMA = 'xtend.rmt.state-projection-port.v1';
   const RMT_STATE_SELECTOR_RUNTIME_SCHEMA = 'xtend.epic18.rmt-state-selector-runtime.v2';
 
@@ -23,13 +23,13 @@
   }
 
   function createBatchRequiredError() {
-    const error = new Error('Strict RMT Model projection requires XState batchUpdate().');
-    error.code = 'rmt.state.xstate-batch-required';
+    const error = new Error('Strict RMT Model projection requires batchUpdate().');
+    error.code = 'rmt.state.projection-batch-required';
     return error;
   }
 
-  function createRmtXStateHostAdapter(options = {}) {
-    const target = options.target || options.xstate || null;
+  function createRmtStateHostAdapter(options = {}) {
+    const target = options.target || null;
     const strict = options.strict === true || options.strictMaraca === true;
     const writes = [];
     const reads = [];
@@ -125,9 +125,8 @@
     }
 
     return Object.freeze({
-      // Kept stable for the public 0.6 RmtXStateBridge compatibility shape.
       schema: RMT_STATE_SELECTOR_RUNTIME_SCHEMA,
-      adapterSchema: RMT_XSTATE_HOST_ADAPTER_SCHEMA,
+      adapterSchema: RMT_STATE_HOST_ADAPTER_SCHEMA,
       portSchema: RMT_STATE_PROJECTION_PORT_SCHEMA,
       external: !!target,
       strict,
@@ -145,30 +144,24 @@
     });
   }
 
-  function createRmtXStateBridge(options = {}) {
-    return createRmtXStateHostAdapter(options);
-  }
-
   const api = {
     RMT_STATE_PROJECTION_PORT_SCHEMA,
-    RMT_XSTATE_HOST_ADAPTER_SCHEMA,
-    createRmtXStateBridge,
-    createRmtXStateHostAdapter
+    RMT_STATE_HOST_ADAPTER_SCHEMA,
+    createRmtStateHostAdapter
   };
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;
   }
   if (globalTarget) {
-    globalTarget.XTendRmtXStateHostAdapter = api;
+    globalTarget.XTendRmtStateHostAdapter = api;
   }
 })(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));
 
-const __XTEND_RMT_XSTATE_HOST_ADAPTER_API__ = globalThis.XTendRmtXStateHostAdapter;
+const __XTEND_RMT_STATE_HOST_ADAPTER_API__ = globalThis.XTendRmtStateHostAdapter;
 
-export const RMT_STATE_PROJECTION_PORT_SCHEMA = __XTEND_RMT_XSTATE_HOST_ADAPTER_API__.RMT_STATE_PROJECTION_PORT_SCHEMA;
-export const RMT_XSTATE_HOST_ADAPTER_SCHEMA = __XTEND_RMT_XSTATE_HOST_ADAPTER_API__.RMT_XSTATE_HOST_ADAPTER_SCHEMA;
-export const createRmtXStateBridge = __XTEND_RMT_XSTATE_HOST_ADAPTER_API__.createRmtXStateBridge;
-export const createRmtXStateHostAdapter = __XTEND_RMT_XSTATE_HOST_ADAPTER_API__.createRmtXStateHostAdapter;
+export const RMT_STATE_PROJECTION_PORT_SCHEMA = __XTEND_RMT_STATE_HOST_ADAPTER_API__.RMT_STATE_PROJECTION_PORT_SCHEMA;
+export const RMT_STATE_HOST_ADAPTER_SCHEMA = __XTEND_RMT_STATE_HOST_ADAPTER_API__.RMT_STATE_HOST_ADAPTER_SCHEMA;
+export const createRmtStateHostAdapter = __XTEND_RMT_STATE_HOST_ADAPTER_API__.createRmtStateHostAdapter;
 
-export default __XTEND_RMT_XSTATE_HOST_ADAPTER_API__;
+export default __XTEND_RMT_STATE_HOST_ADAPTER_API__;

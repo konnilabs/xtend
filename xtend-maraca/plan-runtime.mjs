@@ -876,7 +876,6 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         derive: runtimes.state.derivedDefinitions || [],
         reducers: runtimes.state.reducers || [],
         initialState: workingStates,
-        xstate: null,
         stateProjectionPort: null,
         strict: false
       });
@@ -2005,10 +2004,10 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       const rendererFactory = runtimeFactory(api.renderer, 'createRmtDomDescriptorRenderer');
       const stateFactory = runtimeFactory(api.state, 'createRmtStateSelectorRuntime');
       const stateProjectionFactory = options.createStateProjectionPort
-        || runtimeFactory(api.stateProjection, 'createRmtXStateHostAdapter');
-      if (strict && options.xstate && typeof options.xstate.batchUpdate !== 'function') {
-        const error = new Error('Strict Maraca requires XState batchUpdate() for atomic Model projection.');
-        error.code = 'rmt.state.xstate-batch-required';
+        || runtimeFactory(api.stateProjection, 'createRmtStateHostAdapter');
+      if (strict && options.stateProjectionTarget && typeof options.stateProjectionTarget.batchUpdate !== 'function') {
+        const error = new Error('Strict Maraca requires batchUpdate() for atomic Model projection.');
+        error.code = 'rmt.state.projection-batch-required';
         throw error;
       }
       if (strict && options.surfaceStateProjection) {
@@ -2063,7 +2062,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         strict,
         stateProjectionPort: options.stateProjectionPort || null,
         createStateProjectionPort: stateProjectionFactory,
-        stateProjectionTarget: options.xstate || null
+        stateProjectionTarget: options.stateProjectionTarget || null
       });
       if (strict && (
         !state

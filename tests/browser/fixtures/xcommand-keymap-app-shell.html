@@ -200,7 +200,7 @@
       const keymap = document.getElementById('keymap');
       const kernel = window.XCommand.createXCommandKernel({
         chordTimeoutMs: 900,
-        xstate: {
+        stateRuntime: {
           get(key) {
             return key === 'xtend.xcommand.scope' ? 'app-shell' : undefined;
           },

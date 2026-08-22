@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 class XMasonry extends HTMLElement {
   static get observedAttributes() {
@@ -233,12 +233,12 @@ class XMasonry extends HTMLElement {
     this._enableDragAndDrop();
     this._observeThemeChange();
 
-    xstate.set(`xmasonry-state-${this.id}`, {
+    xtendState.set(`xmasonry-state-${this.id}`, {
       order: this._getCurrentOrder(),
       collapsed: this._getCollapsedState()
     });
 
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xmasonry-state-${this.id}` && typeof value === "object") {
         if (Array.isArray(value.order)) {
           this._applyOrderFromState(value.order);
@@ -308,7 +308,7 @@ class XMasonry extends HTMLElement {
         wrapper.classList.toggle("collapsed");
         this._setToggleIcon(toggle, wrapper.classList.contains("collapsed"));
         this._saveState();
-        xstate.set(`xmasonry-state-${this.id}`, {
+        xtendState.set(`xmasonry-state-${this.id}`, {
           order: this._getCurrentOrder(),
           collapsed: this._getCollapsedState()
         });
@@ -352,7 +352,7 @@ class XMasonry extends HTMLElement {
     if (!this._shouldSavePositions()) return;
     const order = Array.from(this._container.querySelectorAll(".item")).map(item => item.dataset.key);
     localStorage.setItem("xmasonry-order", JSON.stringify(order));
-    xstate.set(`xmasonry-state-${this.id}`, {
+    xtendState.set(`xmasonry-state-${this.id}`, {
       order,
       collapsed: this._getCollapsedState()
     });
@@ -402,7 +402,7 @@ class XMasonry extends HTMLElement {
       collapsed: item.classList.contains("collapsed"),
     }));
     localStorage.setItem("masonry-state", JSON.stringify(state));
-    xstate.set(`xmasonry-state-${this.id}`, {
+    xtendState.set(`xmasonry-state-${this.id}`, {
       order: this._getCurrentOrder(),
       collapsed: this._getCollapsedState()
     });
@@ -515,7 +515,7 @@ class XMasonry extends HTMLElement {
           dropTarget = null;
         }
         dragSource = null;
-        xstate.set(`xmasonry-state-${this.id}`, {
+        xtendState.set(`xmasonry-state-${this.id}`, {
           order: this._getCurrentOrder(),
           collapsed: this._getCollapsedState()
         });
@@ -553,7 +553,7 @@ class XMasonry extends HTMLElement {
         if (dragClone) dragClone.remove();
         dragClone = null;
         dragSource = null;
-        xstate.set(`xmasonry-state-${this.id}`, {
+        xtendState.set(`xmasonry-state-${this.id}`, {
           order: this._getCurrentOrder(),
           collapsed: this._getCollapsedState()
         });
@@ -631,7 +631,7 @@ class XMasonry extends HTMLElement {
         items.forEach(it => it.querySelector('.drop-overlay').classList.remove('active'));
         dragSource = null;
         dropTarget = null;
-        xstate.set(`xmasonry-state-${this.id}`, {
+        xtendState.set(`xmasonry-state-${this.id}`, {
           order: this._getCurrentOrder(),
           collapsed: this._getCollapsedState()
         });

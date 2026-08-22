@@ -145,7 +145,7 @@
                   "hydration": "xtend.component.x-rmt-lifecycle-demo-build.<id>.hydration",
                   "diagnostics": "xtend.component.x-rmt-lifecycle-demo-build.<id>.diagnostics"
             },
-            "statePolicy": "digital-twin-ssot-xstate",
+            "statePolicy": "digital-twin-ssot-classic-state",
             "sequence": [
                   "constructor",
                   "connectedCallback",
@@ -275,7 +275,7 @@
                   }
             ],
             "visibleActivation": "afterHydrate-afterRender-route-visible-render",
-            "statePolicy": "digital-twin-ssot-xstate",
+            "statePolicy": "digital-twin-ssot-classic-state",
             "diagnosticsRef": "xtend.component.x-rmt-lifecycle-demo-build.<id>.diagnostics",
             "boundaries": {
                   "schedulerOwns": [
@@ -294,7 +294,7 @@
                         "diagnostics"
                   ],
                   "forbidden": [
-                        "direct-xstate-mutation-by-kernel",
+                        "direct-classic-state-mutation-by-kernel",
                         "custom-element-callbacks-in-kernel",
                         "async-state-workarounds"
                   ]
@@ -350,11 +350,11 @@
                         "kernelVisible": false
                   },
                   "stateBridge": {
-                        "id": "xtend.state-bridge.xstate",
-                        "source": "xstate",
-                        "read": "xstate.get(key)",
-                        "write": "xstate.set(key, value)",
-                        "subscribe": "xstate.subscribe(fn, keyFilter?)",
+                        "id": "xtend.state-projection.classic",
+                        "source": "xtend-state",
+                        "read": "xtend-state.get(key)",
+                        "write": "xtend-state.set(key, value)",
+                        "subscribe": "xtend-state.subscribe(fn, keyFilter?)",
                         "canonicalPrefix": "xtend.component.x-rmt-lifecycle-demo-build.<id>.",
                         "stateKeys": [
                               "xtend.component.x-rmt-lifecycle-demo-build.<id>.ready",
@@ -362,9 +362,9 @@
                         ],
                         "localUiPolicy": "derived-render-cache-only",
                         "forbidden": [
-                              "direct-xstate-mutation-by-kernel",
-                              "xstate.on",
-                              "xstate.off"
+                              "direct-classic-state-mutation-by-kernel",
+                              "xtend-state.on",
+                              "xtend-state.off"
                         ],
                         "kernelVisible": false
                   },
@@ -485,7 +485,7 @@
                   "hostAdapterOwns": [
                         "manifest-lookup",
                         "custom-element-registration",
-                        "xstate-read-write-subscribe",
+                        "classic-state-read-write-subscribe",
                         "theme-api",
                         "xtend-api",
                         "hydration",
@@ -494,7 +494,7 @@
                   ],
                   "forbidden": [
                         "kernel-imports-api-js",
-                        "kernel-imports-xstate",
+                        "kernel-imports-classic-state",
                         "kernel-imports-xrouter",
                         "kernel-calls-window-XTend",
                         "capability-as-second-ssot"
@@ -588,7 +588,7 @@
                   "schedule",
                   "metadata"
             ],
-            "kernelBoundary": "RMT kernel must not import XTend component types, XTend manifest records, xstate keys or XRouter classes directly.",
+            "kernelBoundary": "RMT kernel must not import XTend component types, XTend manifest records, Classic state keys or XRouter classes directly.",
             "bridgeEpic": "development/EPIC-05-XTendRMT-Bridge-und-Natives-Routing.md"
       },
       "integration": {

@@ -177,14 +177,13 @@
       ]
     },
     {
-      "id": "rmt-xstate-host-adapter-source",
-      "sourcePath": "xtendrmt/rmt-xstate-host-adapter.js",
+      "id": "rmt-state-host-adapter-source",
+      "sourcePath": "xtendrmt/rmt-state-host-adapter.js",
       "sourceMode": "canonical",
       "mvcRole": "adapter",
       "adapterDirection": "output",
       "provides": [
-        "createRmtXStateHostAdapter",
-        "createRmtXStateBridge"
+        "createRmtStateHostAdapter"
       ],
       "consumes": [],
       "dependsOn": [],
@@ -244,7 +243,7 @@
       "consumes": [],
       "dependsOn": [
         "rmt-state-selector-runtime-source",
-        "rmt-xstate-host-adapter-source",
+        "rmt-state-host-adapter-source",
         "rmt-state-binding-view-projector-source"
       ],
       "ports": [
@@ -261,7 +260,7 @@
         "kind": "0.6-compatibility-composer",
         "since": "0.6.0",
         "removeBy": "0.7.0",
-        "reason": "The public 0.6 facade composes Model, XState output adapter and deprecated State Binding aliases without moving their implementations into the Model.",
+        "reason": "The public facade composes the Model, State Projection adapter and deprecated State Binding aliases without moving their implementations into the Model.",
         "allowedCapabilities": [
           "state.read",
           "global.read",

@@ -1,4 +1,4 @@
-import { xstate } from '../../../components/xstate.js';
+import { xtendState } from '../../../components/xtend-state.js';
 
 export type XProgressEventName = 'progress-changed' | 'progress-complete';
 
@@ -41,7 +41,7 @@ export class XProgress extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.id) this.id = `xprogress-${Math.random().toString(36).slice(2, 10)}`;
-    xstate.set(`xprogress-value-${this.id}`, this.value);
+    xtendState.set(`xprogress-value-${this.id}`, this.value);
   }
 
   get value(): number {

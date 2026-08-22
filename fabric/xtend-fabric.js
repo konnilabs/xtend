@@ -2211,7 +2211,7 @@
       }
       try {
         return target.recordTelemetrySnapshot(snapshot, {
-          xstate: options.xstate,
+          stateProjectionPort: options.stateProjectionPort,
           diagnosticsHub: options.diagnosticsHub,
           scheduler: options.scheduler,
           schedule: options.schedule,
@@ -2959,7 +2959,11 @@
       }
 
       function getStateTarget(stateTarget) {
-        return stateTarget || options.xstate || (config.window && config.window.xstate) || (globalTarget && globalTarget.xstate) || null;
+        return stateTarget
+          || options.stateRuntime
+          || (config.window && config.window.XTend && config.window.XTend.state)
+          || (globalTarget && globalTarget.XTend && globalTarget.XTend.state)
+          || null;
       }
 
       function mirrorDiagnosticToState(diagnostic, stateTarget = null, mirrorOptions = {}) {
@@ -2975,12 +2979,12 @@
         return wroteLast || wroteSnapshot;
       }
 
-      function connectXState(stateTarget = null, connectionOptions = {}) {
+      function connectState(stateTarget = null, connectionOptions = {}) {
         const target = getStateTarget(stateTarget);
         const connection = {
           schema: CONTRACTS.runtimeDiagnosticsBridge,
-          kind: 'xstate',
-          targetRef: connectionOptions.targetRef || 'xstate',
+          kind: 'xtend-state',
+          targetRef: connectionOptions.targetRef || 'xtend-state',
           disposed: false,
           dispose() {
             connection.disposed = true;
@@ -2997,8 +3001,8 @@
         if (!target) {
           emitDiagnostic({
             level: 'warn',
-            code: 'xtend.fabric.xstate.unavailable',
-            message: 'XTend-Fabric runtime diagnostics bridge could not find an xstate target.',
+            code: 'xtend.fabric.state.unavailable',
+            message: 'XTend-Fabric runtime diagnostics bridge could not find an XTend state target.',
             source: 'fabric',
             phase: 'state',
             metadata: {
@@ -3010,9 +3014,9 @@
         }
 
         connection.unregisterReporter = registerReporter(createReporterAdapter({
-          id: connectionOptions.reporterId || `${bridgeId}.xstate-reporter`,
-          kind: 'xstate',
-          delivery: 'xstate',
+          id: connectionOptions.reporterId || `${bridgeId}.state-reporter`,
+          kind: 'xtend-state',
+          delivery: 'xtend-state',
           external: false,
           minimumLevel: connectionOptions.minimumLevel || 'debug',
           capabilities: ['diagnostics', 'stateMirror'],
@@ -3033,9 +3037,9 @@
             if (connection.disposed || disposed || !key || isIgnoredStateKey(key)) return;
             emitDiagnostic({
               level: connectionOptions.level || 'debug',
-              code: 'xtend.fabric.xstate.changed',
-              message: `XTend xstate changed "${key}".`,
-              source: 'xstate',
+              code: 'xtend.fabric.state.changed',
+              message: `XTend state changed "${key}".`,
+              source: 'xtend-state',
               phase: 'state',
               correlationId: connectionOptions.correlationId,
               metadata: {
@@ -3050,8 +3054,8 @@
 
         emitDiagnostic({
           level: 'info',
-          code: 'xtend.fabric.xstate.connected',
-          message: 'XTend-Fabric runtime diagnostics bridge connected xstate.',
+          code: 'xtend.fabric.state.connected',
+          message: 'XTend-Fabric runtime diagnostics bridge connected XTend state.',
           source: 'fabric',
           phase: 'state',
           correlationId: connectionOptions.correlationId,
@@ -3176,8 +3180,8 @@
 
       function connectAll(connectionOptions = {}) {
         const activeConnections = [];
-        if (connectionOptions.xstate !== false) {
-          activeConnections.push(connectXState(connectionOptions.xstate || options.xstate, connectionOptions.xstateOptions || {}));
+        if (connectionOptions.stateRuntime !== false) {
+          activeConnections.push(connectState(connectionOptions.stateRuntime || options.stateRuntime, connectionOptions.stateOptions || {}));
         }
         if (connectionOptions.api !== false) {
           activeConnections.push(connectApi(connectionOptions.api || options.api, connectionOptions.apiOptions || {}));
@@ -3192,7 +3196,7 @@
         schema: CONTRACTS.runtimeDiagnosticsBridge,
         id: bridgeId,
         statePrefix,
-        connectXState,
+        connectState,
         connectApi,
         connectRmtDiagnostics: connectRmtDiagnosticsBridge,
         createRmtDiagnosticsHub,

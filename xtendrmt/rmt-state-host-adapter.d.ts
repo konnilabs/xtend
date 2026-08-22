@@ -1,4 +1,4 @@
-export const RMT_XSTATE_HOST_ADAPTER_SCHEMA: 'xtend.rmt.xstate-host-adapter.v1';
+export const RMT_STATE_HOST_ADAPTER_SCHEMA: 'xtend.rmt.state-host-adapter.v1';
 export const RMT_STATE_PROJECTION_PORT_SCHEMA: 'xtend.rmt.state-projection-port.v1';
 
 export interface RmtStateProjectionWrite {
@@ -18,13 +18,9 @@ export interface RmtStateProjectionPort {
   readonly portSchema: typeof RMT_STATE_PROJECTION_PORT_SCHEMA;
   readonly external: boolean;
   batchUpdate(updates: Record<string, unknown>, metadata?: Record<string, unknown>): boolean;
-  get<T = unknown>(key: string, fallbackValue?: T): T;
-  subscribe(listener: (event: unknown) => void): () => void;
-  listWrites(): RmtStateProjectionWrite[];
-  listReads(): RmtStateProjectionRead[];
 }
 
-export interface RmtXStateHostTarget {
+export interface RmtStateHostTarget {
   batchUpdate?(updates: Record<string, unknown>): unknown;
   set?(key: string, value: unknown): unknown;
   setState?(key: string, value: unknown): unknown;
@@ -33,19 +29,21 @@ export interface RmtXStateHostTarget {
   subscribe?(listener: (event: unknown) => void): (() => void) | { unsubscribe(): void };
 }
 
-export interface RmtXStateHostAdapterOptions {
-  target?: RmtXStateHostTarget | null;
-  /** @deprecated Use target. */
-  xstate?: RmtXStateHostTarget | null;
+export interface RmtStateHostAdapterOptions {
+  target?: RmtStateHostTarget | null;
   strict?: boolean;
   strictMaraca?: boolean;
 }
 
-export interface RmtXStateHostAdapter extends RmtStateProjectionPort {
+export interface RmtStateHostAdapter extends RmtStateProjectionPort {
   readonly schema: 'xtend.epic18.rmt-state-selector-runtime.v2';
-  readonly adapterSchema: typeof RMT_XSTATE_HOST_ADAPTER_SCHEMA;
+  readonly adapterSchema: typeof RMT_STATE_HOST_ADAPTER_SCHEMA;
   readonly strict: boolean;
   set(key: string, value: unknown, metadata?: Record<string, unknown>): boolean;
+  get<T = unknown>(key: string, fallbackValue?: T): T;
+  subscribe(listener: (event: unknown) => void): () => void;
+  listWrites(): RmtStateProjectionWrite[];
+  listReads(): RmtStateProjectionRead[];
   mirrorSnapshot(
     snapshot: {
       states?: Record<string, unknown>;
@@ -56,22 +54,16 @@ export interface RmtXStateHostAdapter extends RmtStateProjectionPort {
   ): boolean;
 }
 
-/** @deprecated 0.6 compatibility name. Use RmtXStateHostAdapter. */
-export type RmtXStateBridge = RmtXStateHostAdapter;
-
 export type RmtStateProjectionPortFactory = (
-  options?: RmtXStateHostAdapterOptions
+  options?: RmtStateHostAdapterOptions
 ) => RmtStateProjectionPort;
 
-export function createRmtXStateHostAdapter(options?: RmtXStateHostAdapterOptions): RmtXStateHostAdapter;
-/** @deprecated 0.6 compatibility factory. Use createRmtXStateHostAdapter. */
-export function createRmtXStateBridge(options?: RmtXStateHostAdapterOptions): RmtXStateBridge;
+export function createRmtStateHostAdapter(options?: RmtStateHostAdapterOptions): RmtStateHostAdapter;
 
 declare const api: {
   RMT_STATE_PROJECTION_PORT_SCHEMA: typeof RMT_STATE_PROJECTION_PORT_SCHEMA;
-  RMT_XSTATE_HOST_ADAPTER_SCHEMA: typeof RMT_XSTATE_HOST_ADAPTER_SCHEMA;
-  createRmtXStateBridge: typeof createRmtXStateBridge;
-  createRmtXStateHostAdapter: typeof createRmtXStateHostAdapter;
+  RMT_STATE_HOST_ADAPTER_SCHEMA: typeof RMT_STATE_HOST_ADAPTER_SCHEMA;
+  createRmtStateHostAdapter: typeof createRmtStateHostAdapter;
 };
 
 export default api;

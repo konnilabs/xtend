@@ -7,6 +7,9 @@ const {
   readText,
   resolveRootDir
 } = require('../utils/files');
+const {
+  verifyStateBranding
+} = require('../../scripts/verify_state_branding');
 
 const DOCUMENTATION_GATES = [
   {
@@ -69,16 +72,16 @@ const RUNTIME_COMPLIANCE_GATES = [
       { pattern: 'State ist die einzige Wahrheitsquelle fuer UI-Status im Core.', message: 'publishes SSOT review criterion' },
       { pattern: 'Legacy-Vertraege bleiben nur als dokumentierte Kompatibilitaets-Fassade bestehen.', message: 'publishes legacy-facade criterion' },
       { pattern: 'XTEND_CORE_CONTRACTS', message: 'exposes core contract metadata' },
-      { pattern: "xstate.set('xtend.compliance.version'", message: 'mirrors compliance version into xstate' },
-      { pattern: "xstate.set('xtend.compliance.checklist'", message: 'mirrors compliance checklist into xstate' },
-      { pattern: "xstate.set('xtend.compliance.contracts'", message: 'mirrors compliance contracts into xstate' },
+      { pattern: "xtendState.set('xtend.compliance.version'", message: 'mirrors compliance version into state' },
+      { pattern: "xtendState.set('xtend.compliance.checklist'", message: 'mirrors compliance checklist into state' },
+      { pattern: "xtendState.set('xtend.compliance.contracts'", message: 'mirrors compliance contracts into state' },
       { pattern: "overlays: ['xtend.component.x-dialog.<id>.open', 'xtend.component.x-modal.<id>.open']", message: 'declares canonical overlay state keys' },
       { pattern: "theme: ['theme', 'themes', 'xtend.theme.current', 'xtend.theme.available']", message: 'declares legacy and canonical theme keys together' }
     ]
   },
   {
-    label: 'xstate runtime',
-    path: 'components/xstate.js',
+    label: 'state runtime',
+    path: 'components/xtend-state.js',
     contracts: [
       { pattern: 'subscribe(fn, keyFilter)', message: 'documents subscribe as canonical state listener contract' },
       { pattern: 'return () => {', message: 'returns an unsubscribe function' },
@@ -101,7 +104,7 @@ const STATE_KEY_GATES = [
       { pattern: 'xdialog-open-', message: 'keeps documented legacy xdialog-open facade' },
       { pattern: 'this._open = state.open', message: 'keeps local open cache derived from resolved state' },
       { pattern: '_syncOpenAttribute(this._open)', message: 'syncs DOM open attribute from resolved state' },
-      { pattern: 'setDialogOpenState(this.id, false)', message: 'writes close interactions back to xstate' }
+      { pattern: 'setDialogOpenState(this.id, false)', message: 'writes close interactions back to state' }
     ],
     docsContracts: [
       { pattern: 'xtend.component.x-dialog.<id>.open', message: 'documents canonical dialog key' },
@@ -123,7 +126,7 @@ const STATE_KEY_GATES = [
       { pattern: 'modal-open-', message: 'keeps documented legacy modal-open facade' },
       { pattern: 'this._open = state.open', message: 'keeps local open cache derived from resolved state' },
       { pattern: '_syncOpenAttribute(this._open)', message: 'syncs DOM open attribute from resolved state' },
-      { pattern: 'setModalOpenState(this.id, false)', message: 'writes close interactions back to xstate' }
+      { pattern: 'setModalOpenState(this.id, false)', message: 'writes close interactions back to state' }
     ],
     docsContracts: [
       { pattern: 'xtend.component.x-modal.<id>.open', message: 'documents canonical modal key' },
@@ -141,7 +144,7 @@ const STATE_KEY_GATES = [
     sourceContracts: [
       { pattern: 'xtend.component.x-alert.', message: 'uses canonical alert state key' },
       { pattern: 'xalert-state-', message: 'keeps documented legacy alert facade' },
-      { pattern: 'setAlertState(this.id, {', message: 'writes alert state back to xstate' }
+      { pattern: 'setAlertState(this.id, {', message: 'writes alert state back to state' }
     ],
     docsContracts: [
       { pattern: 'xtend.component.x-alert.<id>', message: 'documents canonical alert key' },
@@ -157,10 +160,10 @@ const STATE_KEY_GATES = [
     docsPath: 'docs/components/xtheme.md',
     migrationPath: 'docs/core-migration-guide.md',
     sourceContracts: [
-      { pattern: "xstate.set('theme', this.currentTheme)", message: 'keeps legacy theme key in sync' },
-      { pattern: "xstate.set('xtend.theme.current', this.currentTheme)", message: 'writes canonical current theme key' },
-      { pattern: "xstate.set('themes', availableThemes)", message: 'keeps legacy theme list in sync' },
-      { pattern: "xstate.set('xtend.theme.available', availableThemes)", message: 'writes canonical theme list key' }
+      { pattern: "xtendState.set('theme', this.currentTheme)", message: 'keeps legacy theme key in sync' },
+      { pattern: "xtendState.set('xtend.theme.current', this.currentTheme)", message: 'writes canonical current theme key' },
+      { pattern: "xtendState.set('themes', availableThemes)", message: 'keeps legacy theme list in sync' },
+      { pattern: "xtendState.set('xtend.theme.available', availableThemes)", message: 'writes canonical theme list key' }
     ],
     docsContracts: [
       { pattern: 'window.XTend.theme', message: 'documents namespaced theme API' },
@@ -177,13 +180,13 @@ const STATE_KEY_GATES = [
     docsPath: 'docs/components/xrouter.md',
     migrationPath: 'docs/core-migration-guide.md',
     sourceContracts: [
-      { pattern: "xstate.set('router-navigated', normalizedPath)", message: 'keeps legacy navigated path key in sync' },
-      { pattern: "xstate.set('xtend.router.lastNavigated', normalizedPath)", message: 'writes canonical navigated path key' },
-      { pattern: "xstate.set('router-current', enrichedDetail)", message: 'keeps legacy current route key in sync' },
-      { pattern: "xstate.set('xtend.router.current', enrichedDetail)", message: 'writes canonical current route key' },
-      { pattern: "xstate.set('router-rendered', enrichedDetail)", message: 'keeps legacy rendered route key in sync' },
-      { pattern: "xstate.set('xtend.router.lastRendered', enrichedDetail)", message: 'writes canonical rendered route key' },
-      { pattern: 'xstate.subscribe((key, value)', message: 'uses canonical xstate subscribe bridge' }
+      { pattern: "xtendState.set('router-navigated', normalizedPath)", message: 'keeps legacy navigated path key in sync' },
+      { pattern: "xtendState.set('xtend.router.lastNavigated', normalizedPath)", message: 'writes canonical navigated path key' },
+      { pattern: "xtendState.set('router-current', enrichedDetail)", message: 'keeps legacy current route key in sync' },
+      { pattern: "xtendState.set('xtend.router.current', enrichedDetail)", message: 'writes canonical current route key' },
+      { pattern: "xtendState.set('router-rendered', enrichedDetail)", message: 'keeps legacy rendered route key in sync' },
+      { pattern: "xtendState.set('xtend.router.lastRendered', enrichedDetail)", message: 'writes canonical rendered route key' },
+      { pattern: 'xtendState.subscribe((key, value)', message: 'uses canonical state subscribe bridge' }
     ],
     docsContracts: [
       { pattern: 'router-navigate', message: 'documents navigation input key' },
@@ -222,7 +225,7 @@ const COMPONENT_GLOBAL_HELPER_TARGETS = [
 ];
 
 const FORBIDDEN_PRIORITY_PATTERNS = [
-  { pattern: /\bxstate\.(?:on|off)\s*\(/, message: 'does not call legacy xstate.on/off in prioritized runtime code' },
+  { pattern: /\bstate\.(?:on|off)\s*\(/, message: 'does not call legacy xtendState.on/off in prioritized runtime code' },
   { pattern: /TODO|FIXME|HACK/, message: 'contains no unresolved TODO/FIXME/HACK markers in prioritized runtime code' }
 ];
 
@@ -319,11 +322,14 @@ function runArchitectureGateSuite(options = {}) {
   assertRuntimeComplianceGates(context, rootDir);
   assertStateKeyGates(context, rootDir);
   assertAntiPatternGates(context, rootDir);
+  const stateBranding = verifyStateBranding({ rootDir });
+  context.assert(stateBranding.ok, `XTend State branding gate has no active removed-name violations${stateBranding.ok ? '' : ` (${stateBranding.violations.join(', ')})`}`);
 
   return context.result({
     documentationGates: DOCUMENTATION_GATES.map((gate) => gate.path),
     stateKeyGates: STATE_KEY_GATES.map((gate) => gate.label),
-    prioritizedCoreFiles: PRIORITIZED_CORE_FILES
+    prioritizedCoreFiles: PRIORITIZED_CORE_FILES,
+    stateBranding
   });
 }
 

@@ -288,7 +288,7 @@ function createEpic11EnterpriseUxHandoffPlan(options = {}) {
     kpiSummary: summarizeKpis(kpis),
     knownRisks: [
       'x-tabs P0 performance-profile residual is closed by WP-E12-02; browser UX coverage is closed by WP-E12-03',
-      'x-theme runtime residual is closed by WP-E12-05; xstate and x-utils keep explicit boundary-probe follow-ups',
+      'x-theme runtime residual is closed by WP-E12-05; xtend-state and x-utils keep explicit boundary-probe follow-ups',
       'x-button interaction residual is closed by WP-E12-06; x-menu routing interaction residual is closed by WP-E12-07',
       'component-shell-theme-matrix is deterministic contract coverage, not screenshot diff automation',
       'publish remains blocked until release-owner acceptance'

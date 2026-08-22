@@ -49,7 +49,7 @@ const xmodalConfig = {
     { pattern: 'content="Component modal content"', message: 'x-modal fixture covers content attribute' },
     { pattern: 'actions=', message: 'x-modal fixture covers actions attribute' },
     { pattern: 'slot="actions"', message: 'x-modal fixture covers actions slot' },
-    { pattern: 'window.xstate', message: 'x-modal fixture stubs xstate locally' },
+    { pattern: 'window.XTend.state', message: 'x-modal fixture stubs state locally' },
     { pattern: '__xtendComponentResult', message: 'x-modal fixture exposes a component result object' }
   ],
   docContracts: [

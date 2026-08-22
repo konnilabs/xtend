@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 import './xsurfacemanager-controller.js';
 import {
   OVERLAY_LIFECYCLE_EVENTS,
@@ -1073,8 +1073,8 @@ class XSurfaceManager extends HTMLElement {
     const restoreResult = this.restorePersistedSnapshot({ source: 'connected' });
     this._snapshotPersistenceSuspended = false;
     let snapshot = this._applySnapshot();
-    if (this._routeAware() && typeof xstate.get === 'function') {
-      const routeState = xstate.get('xtend.router.current') || xstate.get('router-current');
+    if (this._routeAware() && typeof xtendState.get === 'function') {
+      const routeState = xtendState.get('xtend.router.current') || xtendState.get('router-current');
       if (routeState) {
         const routeResult = this.applyRouteLifecycle(routeState, { source: 'connected', force: true });
         if (routeResult && routeResult.snapshot) snapshot = routeResult.snapshot;
@@ -1582,7 +1582,7 @@ class XSurfaceManager extends HTMLElement {
     this._controller = api.createSurfaceController({
       managerId: this._managerId(),
       stateKey: this._stateKey(),
-      xstate,
+      xtendState,
       fabric: fabricBridge()
     });
     return this._controller;
@@ -2613,8 +2613,8 @@ class XSurfaceManager extends HTMLElement {
     };
     if (decision.surfaceId) this._surfaceRemotePolicyStates.set(decision.surfaceId, result);
     this._lastSurfaceRemotePolicyReport = result;
-    if (typeof xstate.set === 'function') {
-      xstate.set('xtend.surface.remotePolicy', this.snapshotRemoteSurfacePolicy());
+    if (typeof xtendState.set === 'function') {
+      xtendState.set('xtend.surface.remotePolicy', this.snapshotRemoteSurfacePolicy());
     }
     this._dispatchSurfaceRemotePolicyEvent(eventType, result);
     return result;
@@ -3155,8 +3155,8 @@ class XSurfaceManager extends HTMLElement {
     this._lastSurfaceLayoutReport = result;
     report.surfaces.forEach((entry) => this._surfaceLayoutStates.set(entry.surfaceId, entry));
     this._applySurfaceLayoutDom(result);
-    if (typeof xstate.set === 'function') {
-      xstate.set('xtend.surface.layoutEngine', this.snapshotSurfaceLayout());
+    if (typeof xtendState.set === 'function') {
+      xtendState.set('xtend.surface.layoutEngine', this.snapshotSurfaceLayout());
     }
     return result;
   }
@@ -3359,8 +3359,8 @@ class XSurfaceManager extends HTMLElement {
       diagnostics: model.diagnostics,
       snapshot
     };
-    if (typeof xstate.set === 'function') {
-      xstate.set('xtend.surface.stackPolicy', this.snapshotStackPolicy());
+    if (typeof xtendState.set === 'function') {
+      xtendState.set('xtend.surface.stackPolicy', this.snapshotStackPolicy());
     }
     if (options.dispatch !== false) {
       this._dispatchSurfaceStackPolicyEvent('surface-stack-policy-applied', report);
@@ -3619,8 +3619,8 @@ class XSurfaceManager extends HTMLElement {
       actions,
       snapshot
     };
-    if (typeof xstate.set === 'function') {
-      xstate.set('xtend.surface.routeLifecycle', this.snapshotRouteLifecycle());
+    if (typeof xtendState.set === 'function') {
+      xtendState.set('xtend.surface.routeLifecycle', this.snapshotRouteLifecycle());
     }
     this._dispatchSurfaceRouteLifecycleEvent('surface-route-lifecycle-applied', result);
     return result;

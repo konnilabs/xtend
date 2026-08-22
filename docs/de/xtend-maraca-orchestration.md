@@ -54,7 +54,7 @@ Der Compiler erzeugt daraus Action Gates, Scheduler-Ziele, Patch-Pläne und Sour
 
 ## Runtime Graph
 
-Der generierte Bootstrap ist nur Composition Root: Er friert Plan und Konfiguration ein, erzeugt genau eine Instanz von `createMaracaPlanRuntime()` und injiziert die typisierten Model-, View-, Event-, Surface-, Scheduler- und Host-Ports. `xtend-maraca/plan-runtime.mjs` ist der einzige Application Controller. RMT State ist die Model-Autorität; der Surface Controller ist die Lifecycle-Autorität. XState, DOM, Resource Graph und Browser-Globals sind ausschließlich Projektionen oder sichere Read Models.
+Der generierte Bootstrap ist nur Composition Root: Er friert Plan und Konfiguration ein, erzeugt genau eine Instanz von `createMaracaPlanRuntime()` und injiziert die typisierten Model-, View-, Event-, Surface-, Scheduler- und Host-Ports. `xtend-maraca/plan-runtime.mjs` ist der einzige Application Controller. RMT State ist die Model-Autorität; der Surface Controller ist die Lifecycle-Autorität. Classic State, DOM, Resource Graph und Browser-Globals sind ausschließlich Projektionen oder sichere Read Models.
 
 Ein Command wird einmal ausgewertet, in genau einer Model-Transaktion angewandt und danach in genau einen Descriptor-/Struktur-Commit projiziert. Anschließend reconciliiert der Event Router die vom Renderer validierten Binding Records; Hydration und Post-Commit-Effects laufen jeweils einmal. State-Subscriber beobachten nur abgeschlossene Transaktionen und starten keine DOM-Arbeit.
 

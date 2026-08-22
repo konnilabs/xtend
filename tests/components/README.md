@@ -38,7 +38,7 @@ Required dimensions:
 - attributes and properties
 - slots and rendered DOM contract
 - documented Custom Events
-- canonical `xstate` synchronization where applicable
+- canonical `state` synchronization where applicable
 - accessibility minimum checks
 - hydration and rehydration behavior
 

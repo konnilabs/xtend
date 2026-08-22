@@ -148,7 +148,7 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
   context.assert(manifest['x-surface-window'] === './xsurfacewindow.js', 'Manifest loads x-surface-window locally');
 
   assertTextIncludesAll(context, managerRuntime, [
-    "import { xstate } from './xstate.js';",
+    "import { xtendState } from './xtend-state.js';",
     "import './xsurfacemanager-controller.js';",
     "customElements.define('x-surface-manager'",
     'attachShadow({ mode: \'open\' })',

@@ -48,7 +48,7 @@ function run{{className}}ComponentSuite(options = {}) {
   context.assert(source.includes('{{performancePolicySchema}}'), '{{tag}} exposes stable Performance policy schema');
   context.assert(source.includes("aria-label") || source.includes('aria-label'), '{{tag}} supports accessible name attribute');
   context.assert(source.includes('role="${role}"') || source.includes('role='), '{{tag}} renders explicit role semantics');
-  context.assert(!source.includes('xstate.on(') && !source.includes('xstate.off('), '{{tag}} avoids legacy xstate listener facades');
+  context.assert(!source.includes('xtendState.on(') && !source.includes('xtendState.off('), '{{tag}} avoids legacy state listener facades');
   context.assert(!source.includes('window.show'), '{{tag}} avoids unnamespaced global helper APIs');
   context.assert(source.includes('<slot'), '{{tag}} renders default slot content');
   context.assert(fixture.includes('<{{tag}}'), '{{tag}} fixture contains component markup');

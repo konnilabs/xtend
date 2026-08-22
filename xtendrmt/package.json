@@ -1,8 +1,8 @@
 {
   "name": "@ccslabs/xtend-rmt",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "private": false,
-  "description": "XTendRMT scheduler runtime and browser bridge for 0.6.1 orchestration with XSurface Shard surface flows.",
+  "description": "XTendRMT scheduler runtime and browser bridge for 0.7.0 orchestration with XSurface Shard surface flows.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -37,8 +37,8 @@
     "rmt-state-selector-runtime.d.ts",
     "rmt-state-selector-runtime.js",
     "rmt-state-selector-runtime.compat.js",
-    "rmt-xstate-host-adapter.d.ts",
-    "rmt-xstate-host-adapter.js",
+    "rmt-state-host-adapter.d.ts",
+    "rmt-state-host-adapter.js",
     "rmt-state-binding-view-projector.d.ts",
     "rmt-state-binding-view-projector.js",
     "rmt-action-effect-runtime.d.ts",
@@ -128,9 +128,9 @@
       "types": "./rmt-state-selector-runtime.d.ts",
       "default": "./rmt-state-selector-runtime.compat.js"
     },
-    "./xstate-host-adapter": {
-      "types": "./rmt-xstate-host-adapter.d.ts",
-      "default": "./rmt-xstate-host-adapter.js"
+    "./state-host-adapter": {
+      "types": "./rmt-state-host-adapter.d.ts",
+      "default": "./rmt-state-host-adapter.js"
     },
     "./state-binding-view-projector": {
       "types": "./rmt-state-binding-view-projector.d.ts",

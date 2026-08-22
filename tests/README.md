@@ -435,7 +435,7 @@ node scripts/run_xtend_tests.js epic13-known-residual-triage --json
 npm run test:epic13-known-residual-triage
 ```
 
-`WP-E13-05` closes `xstate` and `x-utils` as RC1 Boundary Contracts and hands `xtend.component.hydrate` to `WP-E13-06`.
+`WP-E13-05` closes `state` and `x-utils` as RC1 Boundary Contracts and hands `xtend.component.hydrate` to `WP-E13-06`.
 
 Run the Epic 13 Hydration Performance Closure gate:
 

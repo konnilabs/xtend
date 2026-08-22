@@ -229,7 +229,7 @@ async function runEpic13ProdBrowserCspSmokeSuite(options = {}) {
   context.assertIncludes(fixture, "recordCheck('router route rendered under csp'", 'PROD CSP fixture checks router hydration');
   context.assert(!fixture.includes('https://cdn.ccs-networks.de/xtend'), 'PROD CSP fixture has no XTend CDN dependency');
   context.assert(!fixture.includes('type="importmap"'), 'PROD CSP fixture has no importmap');
-  context.assert(fixtureManifest.xstate === '/components/xstate.js', 'PROD CSP fixture manifest resolves xstate locally');
+  context.assert(fixtureManifest['xtend-state'] === '/components/xtend-state.js', 'PROD CSP fixture manifest resolves xtend-state locally');
   context.assert(fixtureManifest['x-router'] === '/components/xrouter.js', 'PROD CSP fixture manifest resolves x-router locally');
   context.assertIncludes(serverSource, 'PROD_LIKE_CSP_POLICY', 'Local dev server exposes PROD-like CSP policy');
   context.assertIncludes(sharedServerSource, 'content-security-policy', 'Packaged local dev server can emit CSP header');

@@ -24,7 +24,7 @@ const RMT_COMPONENT_TEMPLATE_PRIMITIVES_EPIC = 'development/docs-evidence/root/e
 const RMT_COMPONENT_TEMPLATE_PRIMITIVES_LOCAL_GATE = 'node scripts/run_xtend_tests.js rmt-component-template-primitives --json';
 const RMT_COMPONENT_TEMPLATE_PRIMITIVES_PACKAGE_SCRIPT = 'npm run test:rmt-component-template-primitives';
 const NEXT_WORKPACKAGE = 'WP-E18-07';
-const NEXT_DECISION = 'typed-state-selectors-xstate-bridge';
+const NEXT_DECISION = 'typed-state-selectors-state-projection';
 
 const REQUIRED_TEMPLATE_PRIMITIVES = Object.freeze([
   'component',

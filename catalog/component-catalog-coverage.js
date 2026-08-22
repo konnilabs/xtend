@@ -16,7 +16,7 @@ const COVERAGE_DIMENSIONS = Object.freeze([
 ]);
 
 const EXPECTED_PROFILES_BY_TAG = Object.freeze({
-  'xstate': ['stateful', 'infrastructure'],
+  'xtend-state': ['stateful', 'infrastructure'],
   'x-theme': ['theme', 'stateful'],
   'x-button': ['interactive'],
   'x-icon': ['display', 'iconography'],
