@@ -1052,6 +1052,75 @@ function runCommitCoreAssertions(context, rendererModule) {
     'native property setter errors stop the commit without falling back to attribute semantics'
   );
 
+  const activeDraftTarget = documentTarget.createElement('x-textarea');
+  let activeDraftValue = '';
+  let activeDraftSelection = 0;
+  Object.defineProperty(activeDraftTarget, 'value', {
+    configurable: true,
+    get() {
+      return activeDraftValue;
+    },
+    set(value) {
+      activeDraftValue = String(value == null ? '' : value);
+      activeDraftSelection = activeDraftValue.length;
+    }
+  });
+  Object.defineProperty(activeDraftTarget, 'selectionStart', {
+    configurable: true,
+    get() {
+      return activeDraftSelection;
+    },
+    set(value) {
+      activeDraftSelection = Number(value);
+    }
+  });
+  const setActiveDraftAttribute = activeDraftTarget.setAttribute.bind(activeDraftTarget);
+  activeDraftTarget.setAttribute = (name, value) => {
+    setActiveDraftAttribute(name, value);
+    if (String(name).toLowerCase() === 'value') activeDraftTarget.value = value;
+  };
+  renderer.commit({
+    operation: 'merge-element',
+    target: activeDraftTarget,
+    descriptor: {
+      type: 'element',
+      tag: 'x-textarea',
+      attributes: { value: 't' }
+    }
+  });
+  activeDraftTarget.value = 'this is a test';
+  activeDraftTarget.selectionStart = 7;
+  documentTarget.activeElement = activeDraftTarget;
+  renderer.commit({
+    operation: 'reconcile-element',
+    target: activeDraftTarget,
+    descriptor: {
+      type: 'element',
+      tag: 'x-textarea',
+      attributes: { value: 'th', 'aria-invalid': 'false' }
+    },
+    context: { preserveActiveInputDraft: true }
+  });
+  context.assert(activeDraftTarget.value === 'this is a test'
+    && activeDraftTarget.selectionStart === 7
+    && activeDraftTarget.getAttribute('value') === 't'
+    && activeDraftTarget.getAttribute('aria-invalid') === 'false',
+  'input-originated reconcile preserves the focused live value and caret while applying non-value state');
+  documentTarget.activeElement = null;
+  renderer.commit({
+    operation: 'reconcile-element',
+    target: activeDraftTarget,
+    descriptor: {
+      type: 'element',
+      tag: 'x-textarea',
+      attributes: { value: 'server reset', 'aria-invalid': 'false' }
+    },
+    context: { preserveActiveInputDraft: false }
+  });
+  context.assert(activeDraftTarget.value === 'server reset'
+    && activeDraftTarget.getAttribute('value') === 'server reset',
+  'non-input reconcile still applies intentional external value changes');
+
   ['innerHTML', 'outerHTML', 'insertAdjacentHTML', 'srcdoc', '__proto__', 'prototype', 'constructor'].forEach((propertyName) => {
     let dangerousPropertyBlocked = false;
     try {

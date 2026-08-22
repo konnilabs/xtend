@@ -975,7 +975,11 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   const eventReconcileCalls = [];
   const domCommitEvents = [];
   const runtimeSubscriptionSnapshots = [];
-  const visibilityState = { contact: { hidden: false }, issue: { hidden: true } };
+  const visibilityState = {
+    contact: { hidden: false },
+    issue: { hidden: true },
+    contactField: { value: 'ready' }
+  };
   const visibilityListeners = new Set();
   let stateTransactionCount = 0;
   let surfaceQueryCount = 0;
@@ -983,6 +987,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   let eventDisposeCount = 0;
   let hydrationCount = 0;
   let validationEvaluateCount = 0;
+  const validationEvaluateCalls = [];
   let validationApplyCount = 0;
   const surfaceMaterializeInputs = [];
   const visibilityRoot = {
@@ -1067,8 +1072,9 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
       }
     }) },
     validation: { createRmtFormValidationRuntime: () => ({
-      evaluate() {
+      evaluate(metadata, groupIds) {
         validationEvaluateCount += 1;
+        validationEvaluateCalls.push({ metadata: { ...metadata }, groupIds: [...groupIds] });
         return { schema: 'xtend.rmt.form-validation-evaluation.v1', valid: true, results: [] };
       },
       apply() {
@@ -1213,7 +1219,14 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
       { reducer: 'show-issue', action: 'wizard.next', surface: 'wizard.issue', strategy: 'surface-transition' },
       { reducer: 'update-issue', action: 'wizard.type', surface: 'wizard.issue', strategy: 'attribute-sync' }
     ], validation: [{ id: 'validation:next', targetState: 'next', strategy: 'attribute-sync' }] }
-  } }, transitions: { enabled: true, artifact: {} }, validation: { enabled: true, artifact: { actionGates: [], statePatches: [] } } };
+  } }, transitions: { enabled: true, artifact: {} }, validation: { enabled: true, artifact: {
+    groups: [
+      { id: 'wizard.contact.validation', includes: [], fields: [{ state: 'contactField', surface: 'wizard.contact' }] },
+      { id: 'wizard.issue.validation', includes: [], fields: [{ state: 'issue', surface: 'wizard.issue' }] }
+    ],
+    actionGates: [{ id: 'wizard-contact-gate', action: 'wizard.next', group: 'wizard.contact.validation' }],
+    statePatches: [{ id: 'wizard-issue-patch', group: 'wizard.issue.validation', targetState: 'next', path: 'disabled' }]
+  } } };
   const visibilityRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
     plan: visibilityPlan,
     root: visibilityRoot,
@@ -1244,7 +1257,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     && transitionCalls.length === 2,
   'plan runtime routes each enter and exit visibility phase once with explicit Model-derived previous and next visibility');
   const issueHost = visibilityRoot.children.find((element) => element === hiddenNode);
-  await visibilityRuntime.dispatchCommand('wizard.type', { value: 'a' });
+  await visibilityRuntime.dispatchCommand('wizard.type', { value: 'a' }, { eventName: 'textarea-changed' });
   context.assert(visibilityState.issue.value === 'a' && visibilityRoot.children.includes(issueHost)
     && issueHost.focusPreserved === true && patchCalls.some((entry) => entry.element === issueHost && entry.surface === 'wizard.issue')
     && patchCalls.some((entry) => entry.element === nextNode && entry.surface === 'wizard.next'), 'plan runtime reconciles input and validation descriptors without replacing the focused surface host');
@@ -1260,11 +1273,19 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   'plan runtime batches every command into one state commit while renderCount remains full-render only');
   context.assert(validationEvaluateCount === 2 && validationApplyCount === 0,
     'plan runtime evaluates validation once and projects it into the shared DOM commit without invoking standalone validation.apply()');
+  context.assert(validationEvaluateCalls[0].groupIds.join(',') === 'wizard.contact.validation'
+    && validationEvaluateCalls[0].metadata.reveal === true
+    && validationEvaluateCalls[0].metadata.report === true
+    && validationEvaluateCalls[1].groupIds.join(',') === 'wizard.issue.validation'
+    && validationEvaluateCalls[1].metadata.reveal === false
+    && validationEvaluateCalls[1].metadata.report === false,
+  'plan runtime reveals only the active Action gate and evaluates field-input changes passively');
   context.assert(domCommitEvents.length === 3 && eventReconcileCalls.length === 3 && hydrationCount === 3,
     'plan runtime emits and post-processes exactly one DOM commit for boot and each command');
   context.assert(visibilityRendererRequests.length === 3
     && visibilityRendererRequests[0].operation === 'replace-children'
-    && visibilityRendererRequests.slice(1).every((request) => request.operation === 'reconcile-children'),
+    && visibilityRendererRequests.slice(1).every((request) => request.operation === 'reconcile-children')
+    && visibilityRendererRequests[2].context.preserveActiveInputDraft === true,
   'boot and two commands invoke the shared renderer exactly once each');
   context.assert(runtimeSubscriptionSnapshots.length > 0
     && runtimeSubscriptionSnapshots.every((runtimeSnapshot) => Object.isFrozen(runtimeSnapshot)),
@@ -1659,7 +1680,14 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     validation: {
       enabled: true,
       artifact: {
-        actionGates: [{ id: 'blocked-gate', action: 'blocked-save', group: 'blocked.group' }],
+        groups: [
+          { id: 'save.group', includes: [], fields: [{ state: 'first' }, { state: 'second' }] },
+          { id: 'blocked.group', includes: [], fields: [{ state: 'blocked.target' }] }
+        ],
+        actionGates: [
+          { id: 'save-gate', action: 'save', group: 'save.group' },
+          { id: 'blocked-gate', action: 'blocked-save', group: 'blocked.group' }
+        ],
         statePatches: []
       }
     }
@@ -1995,14 +2023,14 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     && afterStreamSnapshot.stateCommitCount === beforeStreamSnapshot.stateCommitCount + 1
     && afterStreamSnapshot.commitCount === beforeStreamSnapshot.commitCount + 1
     && afterStreamSnapshot.renderCount === beforeStreamSnapshot.renderCount
-    && gateEvaluateCount === beforeStreamValidationCount + 2
+    && gateEvaluateCount === beforeStreamValidationCount + 1
     && streamRendererRequests.length === 1
     && streamRendererRequests[0].operation === 'reconcile-children'
     && managedStreamPlanCount === 1
     && managedStreamCommitCount === 1
     && legacyAppStateMutationCount === 0
     && scheduledKinds.join(',') === 'state-change',
-  'managed stream patches use one Model transaction, prospective validation refresh and targeted DOM commit without mutating a parallel appState');
+  'managed stream patches use one passive prospective validation pass, one Model transaction, and one targeted DOM commit without mutating a parallel appState');
   transactionRuntime.dispose();
   transactionRuntime.dispose();
   context.assert(externalKernelDisposeCount === 0

@@ -69,6 +69,8 @@ export interface RmtDomDescriptorRenderOptions {
   trustedDomRenderer?: (descriptor: unknown, context: unknown) => Node | Node[];
   /** @deprecated Use trustedDomRenderer. Removed in 1.0. */
   trustedDom?: (descriptor: unknown, context: unknown) => Node | Node[];
+  /** Preserve the focused control's live value during an input-originated async reconcile. */
+  preserveActiveInputDraft?: boolean;
   metadata?: unknown;
 }
 

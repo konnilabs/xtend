@@ -2517,7 +2517,9 @@ async function runMaracaValidationSuite(options = {}) {
     && entrySource.includes('createRmtFormValidationViewProjector'),
   'bundle creates separate validation evaluator and View projector ports');
   context.assert(entrySource.includes('globalTarget.XTendRmtFormValidationRuntime = api'), 'bundle materializes form validation runtime global API');
-  context.assert(planRuntimeSource.includes('evaluateCommandValidation(commandId, metadata)')
+  context.assert(planRuntimeSource.includes('evaluateCommandValidation(commandId, metadata, null, { preflight: true })')
+    && planRuntimeSource.includes('function validationSelection(commandId, changedStates = [], options = {})')
+    && planRuntimeSource.includes('const revealedValidationFields = new Set()')
     && planRuntimeSource.includes('modelCommandPort.apply(modelOperations')
     && !/runtimes\.state\.(?:setState|patchState|dispatch|transaction)\s*\(/u.test(planRuntimeSource)
     && planRuntimeSource.includes('runtimes.validationViewProjector.prepare(evaluation')
@@ -2528,7 +2530,9 @@ async function runMaracaValidationSuite(options = {}) {
   'canonical plan runtime prepares validation once and folds it into the atomic Model and DOM commit path');
   context.assert(planRuntimeSource.includes('if (modelOperations.length > 0')
     && planRuntimeSource.includes('const prospectiveSnapshot = {')
-    && planRuntimeSource.includes('evaluateCommandValidation(commandId, metadata, prospectiveSnapshot)')
+    && planRuntimeSource.includes('prospectiveSnapshot,')
+    && planRuntimeSource.includes('const changedValidationStates = modelOperations')
+    && planRuntimeSource.includes('changedStates: changedValidationStates')
     && planRuntimeSource.includes('states: asRecord(modelSnapshot).states'),
   'canonical plan runtime refreshes validation against the prospective Model state before committing the View projection');
   const browserHostAdapterSource = readText('xtend-maraca/browser-host-adapter.mjs', rootDir);
@@ -2559,6 +2563,85 @@ async function runMaracaValidationSuite(options = {}) {
     'Validation compatibility composer performs no concrete Model, DOM or event work'
   );
   const validationModule = await import(`${pathToFileURL(runtimePath).href}?suite=maraca-validation-ports`);
+  const multiStepValidationPlan = {
+    groups: [
+      {
+        id: 'customer.contact',
+        includes: [],
+        fields: [{
+          state: 'customer.email',
+          surface: 'customer.email.surface',
+          rules: [{ kind: 'required' }, { kind: 'email' }],
+          message: 'Enter a valid email address.'
+        }]
+      },
+      {
+        id: 'customer.issue',
+        includes: [],
+        fields: [{
+          state: 'customer.issue.details',
+          surface: 'customer.issue.surface',
+          rules: [{ kind: 'required' }],
+          message: 'Describe the issue.'
+        }]
+      },
+      {
+        id: 'customer.submit-ready',
+        includes: ['customer.contact', 'customer.issue'],
+        fields: []
+      }
+    ],
+    actionGates: [
+      { id: 'contact-gate', action: 'customer.next-contact', group: 'customer.contact' },
+      { id: 'issue-gate', action: 'customer.next-issue', group: 'customer.issue' },
+      { id: 'submit-gate', action: 'customer.submit', group: 'customer.submit-ready' }
+    ],
+    statePatches: [
+      { id: 'contact-patch', group: 'customer.contact', targetState: 'customer.next-contact', path: 'disabled' },
+      { id: 'issue-patch', group: 'customer.issue', targetState: 'customer.next-issue', path: 'disabled' },
+      { id: 'submit-patch', group: 'customer.submit-ready', targetState: 'customer.submit', path: 'disabled' }
+    ]
+  };
+  const multiStepEvaluator = validationModule.createRmtFormValidationEvaluator({
+    validationPlan: multiStepValidationPlan
+  });
+  const multiStepStates = {
+    'customer.email': { value: 'a', field: 'email' },
+    'customer.issue.details': { value: '', field: 'details' },
+    'customer.next-contact': { disabled: false },
+    'customer.next-issue': { disabled: false },
+    'customer.submit': { disabled: false }
+  };
+  const contactGate = multiStepEvaluator.evaluateAction('customer.next-contact', {
+    states: multiStepStates,
+    report: true,
+    reveal: true
+  });
+  context.assert(contactGate.valid === false
+    && contactGate.evaluation.results.length === 1
+    && contactGate.evaluation.results[0].group === 'customer.contact'
+    && contactGate.evaluation.viewProjection.every((projection) => projection.group === 'customer.contact')
+    && contactGate.evaluation.modelOperations.every((operation) => operation.state === 'customer.next-contact'),
+  'a multi-step Action gate evaluates and projects only its declared validation group');
+  const passiveEvaluation = multiStepEvaluator.evaluate({
+    states: multiStepStates,
+    report: false,
+    reveal: false
+  }, ['customer.contact', 'customer.submit-ready']);
+  context.assert(passiveEvaluation.valid === false
+    && passiveEvaluation.viewProjection.every((projection) => projection.revealed === false),
+  'passive field-state evaluation updates validity without revealing current or future-step errors');
+  const reactiveEvaluation = multiStepEvaluator.evaluate({
+    states: multiStepStates,
+    revealedFields: ['customer.email'],
+    report: false,
+    reveal: false
+  }, ['customer.contact', 'customer.submit-ready']);
+  const reactiveContactProjection = reactiveEvaluation.viewProjection.find((projection) => projection.target.state === 'customer.email');
+  const reactiveIssueProjection = reactiveEvaluation.viewProjection.find((projection) => projection.target.state === 'customer.issue.details');
+  context.assert(reactiveContactProjection && reactiveContactProjection.revealed === true
+    && reactiveIssueProjection && reactiveIssueProjection.revealed === false,
+  'passive re-evaluation keeps attempted fields reactive without revealing untouched fields in the next step');
   const values = {
     'demo.validation.name': { value: '', field: 'name' },
     'demo.validation.email': { value: '', field: 'email' },

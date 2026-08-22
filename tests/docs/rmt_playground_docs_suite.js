@@ -131,6 +131,10 @@ function runRmtPlaygroundDocsSuite(options = {}) {
   context.assert(pageLoader.includes('DOCS_RMT_PLAYGROUND_PRESETS') && pageLoader.includes('customer-service-kernel'), 'Playground exposes Maraca-oriented presets');
   context.assert(pageLoader.includes('createDocsRmtPlaygroundDescriptorPreviewFrame'), 'Playground client renders structured descriptor previews');
   context.assert(pageLoader.includes('bootDocsRmtPlaygroundMaracaPreview') && pageLoader.includes('window.xtendDocsRmtPlaygroundLastMaraca'), 'Playground boots Maraca preview telemetry for browser tests');
+  context.assert(pageLoader.includes('DOCS_RMT_PLAYGROUND_RUNTIME_API_BINDINGS') && pageLoader.includes('createDocsRmtPlaygroundRuntimeApis(loadedModules)'), 'Playground resolves runtime ports from imported ESM module APIs');
+  context.assert(pageLoader.includes('moduleApi: await import(String(url))') && pageLoader.includes('if (moduleApi.default) return moduleApi.default'), 'Playground retains imported module namespaces and supports default runtime API exports');
+  context.assert(pageLoader.includes('return window.XTendLoader.hydrateTree(root, {'), 'Playground awaits component hydration before booting the Maraca runtime');
+  context.assert(pageLoader.includes('createDocsRmtPlaygroundXUtilsAdapter') && pageLoader.includes('xUtils.runUiTransition({ ...input, body: false })'), 'Playground opts into scoped RMT motion without enabling effects on the Docs shell');
   context.assert(pageLoader.includes('data-maraca-phase') && pageLoader.includes("phase: 'runtime'") && pageLoader.includes('maracaRunning'), 'Playground distinguishes planned Maraca build status from booted runtime status');
   context.assert(pageLoader.includes('docs-rmt-playground-preview-app') && pageLoader.includes('__xtendRmtPreviewBounds'), 'Playground preview renders compiled surfaces in an app-like bounded root');
   context.assert(pageLoader.includes('DOCS_RMT_PLAYGROUND_HYDRATION_TAGS') && pageLoader.includes("'x-progress'"), 'Playground hydrates public XTend component previews');
@@ -169,6 +173,7 @@ function runRmtPlaygroundDocsSuite(options = {}) {
   context.assert(pageLoader.includes('xtend-rmt-playground=preset'), 'Playground client can load whitelisted server-side presets');
   context.assert(indexPhp.includes('docsRmtPlaygroundHandleCompile'), 'Docs host exposes the playground compile handler');
   context.assert(indexPhp.includes('docsRmtPlaygroundCompileMaracaPreview'), 'Docs host exposes the Maraca preview compile path');
+  context.assert(indexPhp.includes("String(xtendDocsBootConfiguration.basePath || '')") && !indexPhp.includes('descriptor.configuration.basePath'), 'Docs boot resolves its base path from the declared boot configuration');
   context.assert(indexPhp.includes('docsRmtPlaygroundHandleDiagnostics') && indexPhp.includes("'language-diagnostics' : 'compile'"), 'Docs host exposes LSP diagnostics through the official tooling bridge');
   context.assert(indexPhp.includes('tools/tooling-bridge-cli.js'), 'Docs host uses the official compiler tooling bridge');
   context.assert(indexPhp.includes("'operation' => 'maraca-plan'"), 'Docs host uses the tooling bridge for Maraca preview plans');

@@ -941,8 +941,31 @@
         applyStyleObject(element, value, descriptor, context);
         return;
       }
+      if (shouldPreserveActiveInputDraft(element, name, context)) return;
       setAttributeSafe(element, name, value, descriptor, context);
     });
+  }
+
+  function isActiveEditingElement(element, context) {
+    if (!element) return false;
+    const documentTarget = context && context.documentTarget;
+    const activeElement = documentTarget && documentTarget.activeElement;
+    if (activeElement === element) return true;
+    if (element.shadowRoot && element.shadowRoot.activeElement) return true;
+    if (activeElement && typeof element.contains === 'function' && element.contains(activeElement)) return true;
+    if (typeof element.matches === 'function') {
+      try {
+        if (element.matches(':focus-within')) return true;
+      } catch (_) {}
+    }
+    return false;
+  }
+
+  function shouldPreserveActiveInputDraft(element, propertyName, context) {
+    if (!context || context.preserveActiveInputDraft !== true) return false;
+    if (String(propertyName || '').toLowerCase() !== 'value') return false;
+    if (!('value' in element)) return false;
+    return isActiveEditingElement(element, context);
   }
 
   function applyProperties(element, properties, descriptor, context) {
@@ -953,6 +976,7 @@
       if (URL_PROPERTY_NAMES.has(normalizedName.toLowerCase()) && !isSafeUrl(resolvedValue)) {
         throw createRendererError('rmt.dom.property.url-unsafe', `Unsichere URL fuer Property ${normalizedName}`, descriptor, context);
       }
+      if (shouldPreserveActiveInputDraft(element, normalizedName, context)) return;
       if (context.rendererState) {
         let baselines = context.rendererState.propertyBaselines.get(element);
         if (!baselines) {
@@ -3092,6 +3116,7 @@
       publishDiagnostic: diagnosticsRecorder.publish,
       source: options.source || {},
       metadata: options.metadata || null,
+      preserveActiveInputDraft: options.preserveActiveInputDraft === true,
       rendererState,
       commitTracker: options.commitTracker || null,
       reconcileMode: Boolean(options.reconcileMode),

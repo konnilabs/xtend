@@ -350,10 +350,7 @@ export function createRmtFormValidationEvaluator(options = {}) {
         evaluation: evaluate(request, [])
       });
     }
-    const groups = Array.from(new Set([
-      ...gates.map((gate) => gate.group),
-      ...validationPlan.statePatches.map((patch) => patch.group)
-    ]));
+    const groups = Array.from(new Set(gates.map((gate) => gate.group)));
     const evaluation = evaluate(request, groups);
     const byGroup = collectResults(evaluation.results);
     const results = gates.map((gate) => byGroup.get(gate.group)).filter(Boolean);

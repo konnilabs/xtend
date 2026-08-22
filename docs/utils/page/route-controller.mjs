@@ -83,6 +83,24 @@ const DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES = Object.freeze([
   '/xtendrmt/rmt-presentation-effect-adapter.js',
   '/xtendrmt/rmt-dom-descriptor-renderer.js'
 ]);
+const DOCS_RMT_PLAYGROUND_RUNTIME_API_BINDINGS = Object.freeze({
+  state: Object.freeze(['/xtendrmt/rmt-state-selector-runtime.js', 'XTendRmtStateSelectorRuntime', 'XTendRmtStateSelectorRuntime']),
+  stateProjection: Object.freeze(['/xtendrmt/rmt-state-host-adapter.js', 'XTendRmtStateHostAdapter', 'XTendRmtStateHostAdapter']),
+  stateBindings: Object.freeze(['/xtendrmt/rmt-state-binding-view-projector.js', 'XTendRmtStateBindingViewProjector', 'XTendRmtStateBindingViewProjector']),
+  action: Object.freeze(['/xtendrmt/rmt-action-effect-runtime.js', 'XTendRmtActionEffectRuntime', 'XTendRmtActionEffectRuntime']),
+  app: Object.freeze(['/xtendrmt/rmt-app-runtime.js', 'XTendRmtAppRuntime', 'XTendRmtAppRuntime']),
+  events: Object.freeze(['/xtendrmt/rmt-event-routing-runtime.js', 'XTendRmtEventRoutingRuntime', 'XTendRmtEventRoutingRuntime']),
+  animation: Object.freeze(['/xtendrmt/rmt-animation-engine-runtime.js', 'XTendRmtAnimationEngineRuntime', 'XTendRmtAnimationEngineRuntime']),
+  validation: Object.freeze(['/xtendrmt/rmt-form-validation-runtime.js', 'XTendRmtFormValidationRuntime', 'XTendRmtFormValidationRuntime']),
+  transitions: Object.freeze(['/xtendrmt/rmt-surface-transition-runtime.js', 'XTendRmtSurfaceTransitionRuntime', 'XTendRmtSurfaceTransitionRuntime']),
+  surfaces: Object.freeze(['/xtendrmt/rmt-surface-resource-graph-runtime.js', 'XTendRmtSurfaceResourceGraphRuntime', 'XTendRmtSurfaceResourceGraphRuntime']),
+  surfaceController: Object.freeze(['/components/xsurfacemanager-controller.js', 'XTendSurfaceController', 'XTendSurfaceController']),
+  viewProjection: Object.freeze(['/xtendrmt/rmt-maraca-view-projection-adapter.js', 'XTendRmtMaracaViewProjectionAdapter', 'XTendRmtMaracaViewProjectionAdapter']),
+  presentation: Object.freeze(['/xtendrmt/rmt-presentation-effect-adapter.js', 'XTendRmtPresentationEffectAdapter', 'XTendRmtPresentationEffectAdapter']),
+  renderer: Object.freeze(['/xtendrmt/rmt-dom-descriptor-renderer.js', 'XTendRmtDomDescriptorRenderer', 'XTendRmtDomDescriptorRenderer']),
+  kernel: Object.freeze(['/xtendrmt/rmt-kernel-orchestration-controller.js', 'XTendRmtKernelOrchestrationController', 'XTendRmtKernelOrchestrationController']),
+  kernelRuntime: Object.freeze(['/xtendrmt/rmt-runtime.esm.js', 'XTendRmtProduct', 'XTendRmtProduct'])
+});
 const DOCS_RMT_PLAYGROUND_HYDRATION_TAGS = Object.freeze([
   'x-alert',
   'x-button',
@@ -4677,6 +4695,45 @@ function renderDocsRmtPlaygroundMaracaToolbar(maraca = {}, copy = getDocsRmtPlay
   return toolbar;
 }
 
+function selectDocsRmtPlaygroundRuntimeModuleApi(moduleApi, exportName, fallback = null) {
+  if (moduleApi && (typeof moduleApi === 'object' || typeof moduleApi === 'function')) {
+    if (moduleApi[exportName]) return moduleApi[exportName];
+    if (moduleApi.default) return moduleApi.default;
+    if (Object.keys(moduleApi).length) return moduleApi;
+  }
+  return fallback || null;
+}
+
+function createDocsRmtPlaygroundRuntimeApis(loadedModules = []) {
+  const modulesByPath = new Map();
+  loadedModules.forEach((entry) => {
+    try {
+      modulesByPath.set(new URL(entry.url, window.location.href).pathname, entry.moduleApi);
+    } catch (_) {}
+  });
+  const runtimeApis = {};
+  Object.entries(DOCS_RMT_PLAYGROUND_RUNTIME_API_BINDINGS).forEach(([port, [modulePath, exportName, globalName]]) => {
+    const fallback = port === 'kernelRuntime'
+      ? window.AppModules || window[globalName] || null
+      : window[globalName] || null;
+    runtimeApis[port] = selectDocsRmtPlaygroundRuntimeModuleApi(
+      modulesByPath.get(modulePath),
+      exportName,
+      fallback
+    );
+  });
+  return Object.freeze(runtimeApis);
+}
+
+function createDocsRmtPlaygroundXUtilsAdapter(xUtils = window.XUtils) {
+  if (!xUtils || typeof xUtils.runUiTransition !== 'function') return xUtils || null;
+  return Object.freeze({
+    runUiTransition(input = {}) {
+      return xUtils.runUiTransition({ ...input, body: false });
+    }
+  });
+}
+
 async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = getDocsRmtPlaygroundCopy()) {
   if (!target || payload?.ok !== true || payload?.maraca?.ok !== true || !payload.maraca.plan) return null;
   const maraca = payload.maraca;
@@ -4701,25 +4758,11 @@ async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = g
     moduleLoaderPort: Object.freeze({
       schema: 'xtend.docs.rmt-playground.module-loader-port.v1',
       async load(_plan, moduleUrls) {
-        await Promise.all((moduleUrls || []).map((url) => import(String(url))));
-        return Object.freeze({
-          state: window.XTendRmtStateSelectorRuntime,
-          stateProjection: window.XTendRmtStateHostAdapter,
-          stateBindings: window.XTendRmtStateBindingViewProjector,
-          action: window.XTendRmtActionEffectRuntime,
-          app: window.XTendRmtAppRuntime,
-          events: window.XTendRmtEventRoutingRuntime,
-          animation: window.XTendRmtAnimationEngineRuntime,
-          validation: window.XTendRmtFormValidationRuntime,
-          transitions: window.XTendRmtSurfaceTransitionRuntime,
-          surfaces: window.XTendRmtSurfaceResourceGraphRuntime,
-          surfaceController: window.XTendSurfaceController,
-          viewProjection: window.XTendRmtMaracaViewProjectionAdapter,
-          presentation: window.XTendRmtPresentationEffectAdapter,
-          renderer: window.XTendRmtDomDescriptorRenderer,
-          kernel: window.XTendRmtKernelOrchestrationController,
-          kernelRuntime: window.AppModules || window.XTendRmtProduct || null
-        });
+        const loadedModules = await Promise.all((moduleUrls || []).map(async (url) => Object.freeze({
+          url: String(url),
+          moduleApi: await import(String(url))
+        })));
+        return createDocsRmtPlaygroundRuntimeApis(loadedModules);
       }
     }),
     componentRegistry: {
@@ -4731,7 +4774,7 @@ async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = g
     }),
     documentTarget: document,
     windowTarget: window,
-    xUtils: window.XUtils,
+    xUtils: createDocsRmtPlaygroundXUtilsAdapter(),
     stateProjectionTarget: window.XTend && window.XTend.state
   });
   await runtime.boot();
@@ -5155,12 +5198,12 @@ function hydrateDocsRmtPlaygroundElements(root, extraTags = []) {
         : []
     )
   ]));
-  window.XTendLoader.hydrateTree(root, {
+  return window.XTendLoader.hydrateTree(root, {
     tags,
     source: 'docs.rmt-playground',
     reason: 'rmt-playground-route-render',
     schedule: 'docs.rmt-playground.hydrate'
-  }).catch(() => {});
+  }).catch(() => false);
 }
 
 async function prepareDocsRmtPlaygroundLayoutElements() {

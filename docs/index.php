@@ -4826,7 +4826,7 @@ header('Vary: Accept');
       const config = xtendDocsBootConfiguration.i18n;
       const available = config.available || ['de'];
       const fallback = config.fallbackLocale || 'de';
-      const basePath = String(descriptor.configuration.basePath || '').replace(/\/+$/, '');
+      const basePath = String(xtendDocsBootConfiguration.basePath || '').replace(/\/+$/, '');
       const normalizeLocale = (value) => {
         const raw = String(value || '').toLowerCase();
         if (available.includes(raw)) return raw;
