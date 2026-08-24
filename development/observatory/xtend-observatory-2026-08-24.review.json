@@ -1,0 +1,797 @@
+{
+  "schema": "xtend.native-first.observatory-review.v1",
+  "reviewId": "NFM-OBS-REVIEW-2026-08-25",
+  "intakeRef": "NFM-OBS-2026-08-24",
+  "reviewedAt": "2026-08-25",
+  "reviewer": "XTend Architecture Governance",
+  "records": [
+    {
+      "findingId": "js-self-profiling-markers-chrome-153",
+      "outcome": "investigation-only",
+      "facts": [
+        "Chrome 153 lists JavaScript Self-Profiling Markers as a new origin trial rather than stable browser shipping.",
+        "The marker proposal adds an optional sample category for script, gc, style, layout, paint or other browser work.",
+        "Marker access is restricted to cross-origin-isolated contexts, and the base profiler checks the js-profiling-mode or js-profiling Document Policy.",
+        "XTend already records stream-pressure samples and exposes performance telemetry snapshots, but it has no JavaScript Self-Profiling or marker ingestion path."
+      ],
+      "xtendHypotheses": [
+        "A future opt-in test-only adapter could correlate aggregated marker categories with existing Fabric lane and backpressure telemetry without exposing trace format or sampling data as a stable runtime contract."
+      ],
+      "sources": [
+        {
+          "id": "chrome-153-beta",
+          "url": "https://developer.chrome.com/blog/chrome-153-beta",
+          "kind": "origin-trial"
+        },
+        {
+          "id": "wicg-self-profiling-markers",
+          "url": "https://github.com/WICG/js-self-profiling/blob/main/markers.md",
+          "kind": "standards-spec"
+        },
+        {
+          "id": "wicg-self-profiling-spec",
+          "url": "https://github.com/WICG/js-self-profiling/blob/main/index.html",
+          "kind": "standards-spec"
+        }
+      ],
+      "browserEvidence": [
+        {
+          "engine": "Chromium",
+          "version": "153",
+          "status": "origin-trial",
+          "sourceRef": "chrome-153-beta"
+        },
+        {
+          "engine": "Firefox",
+          "version": null,
+          "status": "insufficient-evidence",
+          "sourceRef": null
+        },
+        {
+          "engine": "WebKit",
+          "version": null,
+          "status": "insufficient-evidence",
+          "sourceRef": null
+        }
+      ],
+      "standardsEvidence": [
+        {
+          "standard": "WICG JavaScript Self-Profiling Markers",
+          "version": "draft",
+          "status": "proposal",
+          "sourceRef": "wicg-self-profiling-markers"
+        }
+      ],
+      "repoSymbols": [
+        {
+          "path": "xtendrmt/rmt-app-runtime.js",
+          "symbol": "function reportStreamPressureSample"
+        },
+        {
+          "path": "xtendrmt/rmt-app-runtime.js",
+          "symbol": "function getPerformanceTelemetrySnapshot"
+        },
+        {
+          "path": "xtendrmt/rmt-app-runtime.d.ts",
+          "symbol": "RmtAppRuntimePerformanceTelemetrySnapshot"
+        },
+        {
+          "path": "xtendrmt/rmt-app-runtime.d.ts",
+          "symbol": "RmtAppPerformanceSamplePort"
+        }
+      ],
+      "radarRefs": [],
+      "owner": "Performance/Diagnostics Owner",
+      "nextReview": "stable-shipping-and-second-target-engine-or-origin-trial-results"
+    },
+    {
+      "findingId": "fetch-request-streaming-webkit-tp250",
+      "outcome": "corrected-candidate",
+      "facts": [
+        "Safari Technology Preview 250 added initial fetch() upload support for ReadableStream bodies and the required Request duplex option.",
+        "Chromium has shipped request streaming since 105 with duplex: half plus redirect, CORS and HTTP/2-or-newer restrictions.",
+        "Firefox request streaming remains an in-development engine issue rather than a shipping feature.",
+        "XTend Maraca currently sends buffered JSON request envelopes and only streams NDJSON responses."
+      ],
+      "xtendHypotheses": [
+        "A request-side streaming contract may later extend the host-injected Maraca HTTP transport, but the current Search Worker is not the relevant network boundary."
+      ],
+      "sources": [
+        {
+          "id": "webkit-tp250",
+          "url": "https://webkit.org/blog/18191/release-notes-for-safari-technology-preview-250/",
+          "kind": "technology-preview"
+        },
+        {
+          "id": "chrome-fetch-request-streaming",
+          "url": "https://developer.chrome.com/docs/capabilities/web-apis/fetch-streaming-requests",
+          "kind": "engine-docs"
+        },
+        {
+          "id": "firefox-streaming-upload",
+          "url": "https://bugzilla.mozilla.org/show_bug.cgi?id=1594633",
+          "kind": "engine-issue"
+        }
+      ],
+      "browserEvidence": [
+        {
+          "engine": "Chromium",
+          "version": "105",
+          "status": "shipping",
+          "sourceRef": "chrome-fetch-request-streaming"
+        },
+        {
+          "engine": "WebKit",
+          "version": "Safari Technology Preview 250",
+          "status": "technology-preview",
+          "sourceRef": "webkit-tp250"
+        },
+        {
+          "engine": "Firefox",
+          "version": null,
+          "status": "in-development",
+          "sourceRef": "firefox-streaming-upload"
+        }
+      ],
+      "repoSymbols": [
+        {
+          "path": "xtend-maraca/app-services.js",
+          "symbol": "function createHttpAppServiceTransport"
+        },
+        {
+          "path": "xtendrmt/rmt-action-effect-runtime.js",
+          "symbol": "async function runDataSource"
+        }
+      ],
+      "radarRefs": [
+        "NFM-BPR-019"
+      ],
+      "owner": "Resource/Effects Owner",
+      "nextReview": "streaming-input-contract-or-second-stable-engine",
+      "previousReviewRef": "NFM-OBS-REVIEW-2026-08-17-R2",
+      "rawDelta": {
+        "previousIntakeRef": "NFM-OBS-2026-08-17",
+        "changedFields": [],
+        "classificationOnly": true
+      }
+    },
+    {
+      "findingId": "explicit-resource-management-webkit-tp250",
+      "outcome": "new-radar-candidate",
+      "facts": [
+        "Explicit Resource Management reached TC39 Stage 4 and is expected in ECMAScript 2027.",
+        "Chromium ships the feature since 134, Firefox since 141, and Safari Technology Preview 250 provides preview support.",
+        "The report claim that Firefox does not regularly ship the feature is false.",
+        "XTend already owns explicit idempotent scheduler and surface-resource disposal lifecycles."
+      ],
+      "xtendHypotheses": [
+        "A lab-only adapter can compare native lexical disposal with existing XTend cleanup invariants without changing public runtime contracts."
+      ],
+      "sources": [
+        {
+          "id": "webkit-tp250",
+          "url": "https://webkit.org/blog/18191/release-notes-for-safari-technology-preview-250/",
+          "kind": "technology-preview"
+        },
+        {
+          "id": "v8-explicit-resource-management",
+          "url": "https://v8.dev/features/explicit-resource-management",
+          "kind": "engine-docs"
+        },
+        {
+          "id": "firefox-141",
+          "url": "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/141",
+          "kind": "engine-release"
+        },
+        {
+          "id": "tc39-finished-proposals",
+          "url": "https://github.com/tc39/proposals/blob/main/finished-proposals.md",
+          "kind": "standards-spec"
+        }
+      ],
+      "browserEvidence": [
+        {
+          "engine": "Chromium",
+          "version": "134",
+          "status": "shipping",
+          "sourceRef": "v8-explicit-resource-management"
+        },
+        {
+          "engine": "Firefox",
+          "version": "141",
+          "status": "shipping",
+          "sourceRef": "firefox-141"
+        },
+        {
+          "engine": "WebKit",
+          "version": "Safari Technology Preview 250",
+          "status": "technology-preview",
+          "sourceRef": "webkit-tp250"
+        }
+      ],
+      "standardsEvidence": [
+        {
+          "standard": "ECMAScript",
+          "version": "2027 candidate",
+          "status": "stage-4",
+          "sourceRef": "tc39-finished-proposals"
+        }
+      ],
+      "repoSymbols": [
+        {
+          "path": "xtendrmt/rmt-browser-scheduler.js",
+          "symbol": "function dispose()"
+        },
+        {
+          "path": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "symbol": "function dispose()"
+        }
+      ],
+      "radarRefs": [
+        "NFM-BPR-024"
+      ],
+      "owner": "Runtime Lifecycle Owner",
+      "nextReview": "safari-stable-and-target-matrix-parse-safe",
+      "previousReviewRef": "NFM-OBS-REVIEW-2026-08-17-R2",
+      "rawDelta": {
+        "previousIntakeRef": "NFM-OBS-2026-08-17",
+        "changedFields": [],
+        "classificationOnly": true
+      }
+    },
+    {
+      "findingId": "aria-in-html-recommendation-2026",
+      "outcome": "investigation-only",
+      "facts": [
+        "W3C published ARIA in HTML as a Recommendation on 11 August 2026.",
+        "The Recommendation defines author-conformance rules and is not per-engine browser shipping evidence.",
+        "XTend has native-first runtime accessibility and hydration gates but no version-pinned ARIA-in-HTML rule matrix."
+      ],
+      "xtendHypotheses": [
+        "A curated test-only conformance matrix can verify XTend SSR, pre-hydration and post-hydration markup without claiming complete AOM or assistive-technology interoperability."
+      ],
+      "sources": [
+        {
+          "id": "w3c-aria-in-html-2026",
+          "url": "https://www.w3.org/TR/2026/REC-html-aria-20260811/",
+          "kind": "standards-recommendation"
+        }
+      ],
+      "browserEvidence": [
+        {
+          "engine": "multi-engine",
+          "version": null,
+          "status": "insufficient-evidence",
+          "sourceRef": null
+        }
+      ],
+      "standardsEvidence": [
+        {
+          "standard": "ARIA in HTML",
+          "version": "2026-08-11",
+          "status": "recommendation",
+          "sourceRef": "w3c-aria-in-html-2026"
+        }
+      ],
+      "repoSymbols": [
+        {
+          "path": "a11y/runtime-a11y-contract.js",
+          "symbol": "function validateRuntimeA11yContract"
+        },
+        {
+          "path": "tests/components/accessibility_hydration_suite.js",
+          "symbol": "runAccessibilityHydrationSuite"
+        }
+      ],
+      "radarRefs": [],
+      "owner": "A11y Test Infrastructure Owner",
+      "nextReview": "recommendation-update-or-aom-evidence",
+      "previousReviewRef": "NFM-OBS-REVIEW-2026-08-17-R2",
+      "rawDelta": {
+        "previousIntakeRef": "NFM-OBS-2026-08-17",
+        "changedFields": [],
+        "classificationOnly": true
+      }
+    },
+    {
+      "findingId": "scoped-custom-element-registries",
+      "outcome": "corroborates-existing",
+      "facts": [
+        "Scoped Custom Element Registries are a real Interop 2026 focus.",
+        "Chromium ships the feature and Firefox exposes experimental support behind a preference.",
+        "XTend components predominantly self-register in the global customElements registry."
+      ],
+      "xtendHypotheses": [
+        "Registry injection in the RMT component adapter and Surface hosts may enable isolated tag namespaces.",
+        "Constructor exports and side-effect-free registration are prerequisites for broad scope support."
+      ],
+      "sources": [
+        {
+          "id": "chrome-scoped-registries",
+          "url": "https://developer.chrome.com/blog/scoped-registries",
+          "kind": "engine-docs"
+        },
+        {
+          "id": "firefox-experimental-features",
+          "url": "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Experimental_features",
+          "kind": "engine-docs"
+        }
+      ],
+      "browserEvidence": [
+        {
+          "engine": "Chromium",
+          "version": "146",
+          "status": "shipping",
+          "sourceRef": "chrome-scoped-registries"
+        },
+        {
+          "engine": "Firefox",
+          "version": "experimental",
+          "status": "behind-flag",
+          "sourceRef": "firefox-experimental-features"
+        },
+        {
+          "engine": "WebKit",
+          "version": "26",
+          "status": "insufficient-evidence",
+          "sourceRef": null
+        }
+      ],
+      "repoSymbols": [
+        {
+          "path": "xtendrmt/kernel/modules/rmt-xtend-component-adapter.js",
+          "symbol": "options.customElements"
+        },
+        {
+          "path": "components/xsurfacewindow.js",
+          "symbol": "customElements.define"
+        }
+      ],
+      "radarRefs": [
+        "NFM-BPR-021"
+      ],
+      "owner": "Component/Surface Owner",
+      "nextReview": "2026-09-03",
+      "previousReviewRef": "NFM-OBS-REVIEW-2026-08-17-R2",
+      "rawDelta": {
+        "previousIntakeRef": "NFM-OBS-2026-08-17",
+        "changedFields": [],
+        "classificationOnly": true
+      }
+    },
+    {
+      "findingId": "scheduler-yield",
+      "outcome": "corroborates-existing",
+      "facts": [
+        "scheduler.yield() provides prioritized continuations and is available in Chromium and Firefox 142.",
+        "The current XTend browser scheduler uses requestIdleCallback and timer fallbacks."
+      ],
+      "xtendHypotheses": [
+        "An internal yieldContinuation capability may improve segmented hydration without changing RMT lane ownership."
+      ],
+      "sources": [
+        {
+          "id": "chrome-scheduler-yield",
+          "url": "https://developer.chrome.com/blog/use-scheduler-yield",
+          "kind": "engine-docs"
+        },
+        {
+          "id": "firefox-142",
+          "url": "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/142",
+          "kind": "engine-release"
+        }
+      ],
+      "browserEvidence": [
+        {
+          "engine": "Chromium",
+          "version": "129",
+          "status": "shipping",
+          "sourceRef": "chrome-scheduler-yield"
+        },
+        {
+          "engine": "Firefox",
+          "version": "142",
+          "status": "shipping",
+          "sourceRef": "firefox-142"
+        },
+        {
+          "engine": "WebKit",
+          "version": null,
+          "status": "insufficient-evidence",
+          "sourceRef": null
+        }
+      ],
+      "repoSymbols": [
+        {
+          "path": "xtendrmt/rmt-browser-scheduler.js",
+          "symbol": "requestIdleCallback"
+        }
+      ],
+      "radarRefs": [
+        "NFM-BPR-012"
+      ],
+      "owner": "Scheduler Owner",
+      "nextReview": "2026-09-03",
+      "previousReviewRef": "NFM-OBS-REVIEW-2026-08-17-R2",
+      "rawDelta": {
+        "previousIntakeRef": "NFM-OBS-2026-08-17",
+        "changedFields": [],
+        "classificationOnly": true
+      }
+    },
+    {
+      "findingId": "navigation-api",
+      "outcome": "corrected-candidate",
+      "facts": [
+        "Navigation API is an Interop 2025 carry-over in Interop 2026, not a first-time 2026 focus.",
+        "The API reached Baseline Newly Available in 2026.",
+        "x-router owns navigation cancellation, focus, announcements and scroll restoration."
+      ],
+      "xtendHypotheses": [
+        "A capability-gated host adapter may map native navigate events onto existing x-router lifecycle contracts."
+      ],
+      "sources": [
+        {
+          "id": "mozilla-interop-2026",
+          "url": "https://hacks.mozilla.org/2026/02/launching-interop-2026/",
+          "kind": "standards-program"
+        },
+        {
+          "id": "mdn-navigation-api",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Navigation_API",
+          "kind": "compat-docs"
+        }
+      ],
+      "browserEvidence": [
+        {
+          "engine": "multi-engine",
+          "version": "Baseline 2026",
+          "status": "baseline",
+          "sourceRef": "mdn-navigation-api"
+        }
+      ],
+      "repoSymbols": [
+        {
+          "path": "components/xrouter.js",
+          "symbol": "xrouter-before-navigate"
+        }
+      ],
+      "radarRefs": [
+        "NFM-BPR-015"
+      ],
+      "owner": "Router Owner",
+      "nextReview": "2026-11-17",
+      "previousReviewRef": "NFM-OBS-REVIEW-2026-08-17-R2",
+      "rawDelta": {
+        "previousIntakeRef": "NFM-OBS-2026-08-17",
+        "changedFields": [],
+        "classificationOnly": true
+      }
+    },
+    {
+      "findingId": "dialogs-popovers",
+      "outcome": "corrected-candidate",
+      "facts": [
+        "Interop 2026 targets dialog closedby, :open and popover=hint details rather than the already broadly available base APIs.",
+        "Native popovers are non-modal and cannot replace the modal x-popover contract without behavioral loss."
+      ],
+      "xtendHypotheses": [
+        "Non-modal x-popover and x-tooltip can be evaluated separately from x-dialog and modal overlay ownership."
+      ],
+      "sources": [
+        {
+          "id": "interop-2026",
+          "url": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+          "kind": "standards-program"
+        },
+        {
+          "id": "mdn-popover-api",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Popover_API",
+          "kind": "compat-docs"
+        }
+      ],
+      "browserEvidence": [
+        {
+          "engine": "multi-engine",
+          "version": null,
+          "status": "insufficient-evidence",
+          "sourceRef": "mdn-popover-api"
+        }
+      ],
+      "repoSymbols": [
+        {
+          "path": "components/xpopover.js",
+          "symbol": "class XPopover"
+        },
+        {
+          "path": "components/xdialog.js",
+          "symbol": "class XDialog"
+        },
+        {
+          "path": "components/xtooltip.js",
+          "symbol": "getBoundingClientRect"
+        }
+      ],
+      "radarRefs": [
+        "NFM-BPR-006",
+        "NFM-BPR-007",
+        "NFM-BPR-008"
+      ],
+      "owner": "Overlay/A11y Owner",
+      "nextReview": "2026-09-03",
+      "previousReviewRef": "NFM-OBS-REVIEW-2026-08-17-R2",
+      "rawDelta": {
+        "previousIntakeRef": "NFM-OBS-2026-08-17",
+        "changedFields": [],
+        "classificationOnly": true
+      }
+    },
+    {
+      "findingId": "a11y-testing-interop",
+      "outcome": "investigation-only",
+      "facts": [
+        "Cross-engine Accessibility Testing is an Interop investigation and not a production browser primitive.",
+        "The current a11y-hydration suite does not provide complete cross-engine accessibility-tree evidence."
+      ],
+      "xtendHypotheses": [
+        "Published WPT automation could later be mapped to XTend name, role, state, focus and hydration fixtures."
+      ],
+      "sources": [
+        {
+          "id": "interop-2026",
+          "url": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+          "kind": "standards-program"
+        }
+      ],
+      "browserEvidence": [
+        {
+          "engine": "multi-engine",
+          "version": null,
+          "status": "investigation",
+          "sourceRef": "interop-2026"
+        }
+      ],
+      "repoSymbols": [
+        {
+          "path": "tests/components/accessibility_hydration_suite.js",
+          "symbol": "runAccessibilityHydrationSuite"
+        }
+      ],
+      "radarRefs": [],
+      "owner": "A11y Test Infrastructure Owner",
+      "nextReview": "wpt-accessibility-automation-published",
+      "previousReviewRef": "NFM-OBS-REVIEW-2026-08-17-R2",
+      "rawDelta": {
+        "previousIntakeRef": "NFM-OBS-2026-08-17",
+        "changedFields": [],
+        "classificationOnly": true
+      }
+    },
+    {
+      "findingId": "jspi-wasm",
+      "outcome": "corroborates-existing",
+      "facts": [
+        "WebAssembly JSPI is standardized and ships in Chromium 137 and Firefox 139 while Safari 27 remains beta evidence.",
+        "XTend has Wasm-serving and ONNX Wasm configuration but no proven suspendable Promise-import requirement."
+      ],
+      "xtendHypotheses": [
+        "JSPI becomes actionable only for a concrete Wasm module with asynchronous JavaScript imports."
+      ],
+      "sources": [
+        {
+          "id": "v8-jspi",
+          "url": "https://v8.dev/blog/jspi",
+          "kind": "engine-docs"
+        },
+        {
+          "id": "firefox-139",
+          "url": "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/139",
+          "kind": "engine-release"
+        },
+        {
+          "id": "safari-27-beta",
+          "url": "https://webkit.org/blog/17967/news-from-wwdc26-webkit-in-safari-27-beta/",
+          "kind": "engine-release"
+        }
+      ],
+      "browserEvidence": [
+        {
+          "engine": "Chromium",
+          "version": "137",
+          "status": "shipping",
+          "sourceRef": "v8-jspi"
+        },
+        {
+          "engine": "Firefox",
+          "version": "139",
+          "status": "shipping",
+          "sourceRef": "firefox-139"
+        },
+        {
+          "engine": "WebKit",
+          "version": "27 beta",
+          "status": "beta",
+          "sourceRef": "safari-27-beta"
+        }
+      ],
+      "repoSymbols": [
+        {
+          "path": "products/xtend-llm/src/llm/transformers-worker.mjs",
+          "symbol": "env.backends.onnx.wasm"
+        },
+        {
+          "path": "tools/xtensions/security-integrity-gate.js",
+          "symbol": "wasmUnsafeEvalRequiresDeclaration"
+        }
+      ],
+      "radarRefs": [
+        "NFM-BPR-022"
+      ],
+      "owner": "Runtime/Tooling/Security Owner",
+      "nextReview": "safari-27-stable-and-concrete-async-import-use-case",
+      "previousReviewRef": "NFM-OBS-REVIEW-2026-08-17-R2",
+      "rawDelta": {
+        "previousIntakeRef": "NFM-OBS-2026-08-17",
+        "changedFields": [],
+        "classificationOnly": true
+      }
+    },
+    {
+      "findingId": "declarative-shadow-slot-assignment",
+      "outcome": "corroborates-existing",
+      "facts": [
+        "Chrome 151 added shadowrootslotassignment for declarative shadow roots.",
+        "Current XTend SSR and hydration paths do not emit Declarative Shadow Roots."
+      ],
+      "xtendHypotheses": [
+        "The attribute may matter after XTend accepts a Declarative Shadow DOM SSR contract or another target engine ships it."
+      ],
+      "sources": [
+        {
+          "id": "chrome-151",
+          "url": "https://developer.chrome.com/release-notes/151",
+          "kind": "engine-release"
+        }
+      ],
+      "browserEvidence": [
+        {
+          "engine": "Chromium",
+          "version": "151",
+          "status": "shipping",
+          "sourceRef": "chrome-151"
+        },
+        {
+          "engine": "Firefox",
+          "version": null,
+          "status": "insufficient-evidence",
+          "sourceRef": null
+        },
+        {
+          "engine": "WebKit",
+          "version": null,
+          "status": "insufficient-evidence",
+          "sourceRef": null
+        }
+      ],
+      "repoSymbols": [
+        {
+          "path": "components/xradio.js",
+          "symbol": "attachShadow"
+        }
+      ],
+      "radarRefs": [
+        "NFM-BPR-023"
+      ],
+      "owner": "SSR/Hydration Owner",
+      "nextReview": "declarative-shadow-dom-contract-or-second-engine",
+      "previousReviewRef": "NFM-OBS-REVIEW-2026-08-17-R2",
+      "rawDelta": {
+        "previousIntakeRef": "NFM-OBS-2026-08-17",
+        "changedFields": [],
+        "classificationOnly": true
+      }
+    },
+    {
+      "findingId": "cross-document-view-transitions",
+      "outcome": "corrected-candidate",
+      "facts": [
+        "Cross-document View Transitions ship in Safari and Chromium with graceful fallback.",
+        "The current Docs application adopts SSR into an x-router SPA shell rather than navigating as an MPA."
+      ],
+      "xtendHypotheses": [
+        "A same-origin two-document fixture can test the primitive without changing Docs ownership."
+      ],
+      "sources": [
+        {
+          "id": "webkit-cross-document-vt",
+          "url": "https://webkit.org/blog/16967/two-lines-of-cross-document-view-transitions-code-you-can-use-on-every-website-today/",
+          "kind": "engine-docs"
+        }
+      ],
+      "browserEvidence": [
+        {
+          "engine": "WebKit",
+          "version": "Safari 18.2",
+          "status": "shipping",
+          "sourceRef": "webkit-cross-document-vt"
+        },
+        {
+          "engine": "Chromium",
+          "version": "126",
+          "status": "insufficient-evidence",
+          "sourceRef": null
+        },
+        {
+          "engine": "Firefox",
+          "version": null,
+          "status": "insufficient-evidence",
+          "sourceRef": null
+        }
+      ],
+      "repoSymbols": [
+        {
+          "path": "components/xrouter.js",
+          "symbol": "navigationMode: 'hash-or-history'"
+        }
+      ],
+      "radarRefs": [
+        "NFM-BPR-011"
+      ],
+      "owner": "Docs/Router Owner",
+      "nextReview": "docs-mpa-navigation-path",
+      "previousReviewRef": "NFM-OBS-REVIEW-2026-08-17-R2",
+      "rawDelta": {
+        "previousIntakeRef": "NFM-OBS-2026-08-17",
+        "changedFields": [],
+        "classificationOnly": true
+      }
+    },
+    {
+      "findingId": "css-anchor-positioning",
+      "outcome": "corrected-candidate",
+      "facts": [
+        "Core CSS Anchor Positioning is Baseline 2026 rather than only an Interop carry-over.",
+        "x-tooltip currently performs manual rectangle measurement for positioning."
+      ],
+      "xtendHypotheses": [
+        "A CSS anchor path may remove scroll and resize measurement work while preserving the existing JavaScript fallback."
+      ],
+      "sources": [
+        {
+          "id": "mdn-anchor-positioning",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/anchor",
+          "kind": "compat-docs"
+        }
+      ],
+      "browserEvidence": [
+        {
+          "engine": "multi-engine",
+          "version": "Baseline 2026",
+          "status": "baseline",
+          "sourceRef": "mdn-anchor-positioning"
+        }
+      ],
+      "repoSymbols": [
+        {
+          "path": "components/xtooltip.js",
+          "symbol": "getBoundingClientRect"
+        },
+        {
+          "path": "components/xpopover.js",
+          "symbol": "class XPopover"
+        }
+      ],
+      "radarRefs": [
+        "NFM-BPR-008"
+      ],
+      "owner": "Layout/Overlay Owner",
+      "nextReview": "2026-09-03",
+      "previousReviewRef": "NFM-OBS-REVIEW-2026-08-17-R2",
+      "rawDelta": {
+        "previousIntakeRef": "NFM-OBS-2026-08-17",
+        "changedFields": [],
+        "classificationOnly": true
+      }
+    }
+  ]
+}

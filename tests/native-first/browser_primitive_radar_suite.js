@@ -19,6 +19,7 @@ const ALLOWED_SOURCE_KINDS = new Set([
   'engine-docs',
   'engine-issue',
   'engine-release',
+  'origin-trial',
   'standards-program',
   'standards-recommendation',
   'standards-spec',
@@ -35,6 +36,7 @@ const ALLOWED_EVIDENCE_STATUSES = new Set([
   'in-development',
   'insufficient-evidence',
   'investigation',
+  'origin-trial',
   'shipping',
   'technology-preview'
 ]);
@@ -141,6 +143,9 @@ function validateObservatoryDocuments(options) {
       }
       if (['beta', 'technology-preview'].includes(evidence.status) && (!source || !PREVIEW_SOURCE_KINDS.has(source.kind))) {
         errors.push(`review ${label} has an unsupported engine preview claim`);
+      }
+      if (evidence.status === 'origin-trial' && (!source || source.kind !== 'origin-trial')) {
+        errors.push(`review ${label} has an unsupported origin trial claim`);
       }
       if (evidence.status === 'in-development' && (!source || !DEVELOPMENT_SOURCE_KINDS.has(source.kind))) {
         errors.push(`review ${label} has an unsupported engine development claim`);
@@ -274,6 +279,7 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
   const decisionSet = readJson('development/observatory/observatory-adoption-decisions-2026-09-03.json', rootDir);
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const current = runs.find((run) => run.intake.intakeId === runIndex.currentRun);
+  const august24 = runs.find((run) => run.intake.intakeId === 'NFM-OBS-2026-08-24');
   const base = { rootDir, runIndex, runs, radar, packageManifest };
   const errors = validateRunIndexDocuments(base);
   errors.forEach((error) => context.fail(error));
@@ -281,7 +287,12 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
 
   const expectedRadarIds = Array.from({ length: 24 }, (_, index) => `NFM-BPR-${String(index + 1).padStart(3, '0')}`);
   const terminalOutcomes = new Set(['adopt-native', 'wrap-as-xtend-primitive', 'reject-for-now']);
-  context.assert(runIndex.runs.length === 3 && runs.reduce((sum, run) => sum + run.raw.findings.length, 0) === 45, 'Run index preserves three immutable runs and all 45 finding occurrences');
+  context.assert(runIndex.runs.length === 4 && runs.reduce((sum, run) => sum + run.raw.findings.length, 0) === 58, 'Run index preserves four immutable runs and all 58 finding occurrences');
+  context.assert(august24 && august24.raw.findings.length === 13 && august24.review.records.length === 13, 'August 24 backfill has one complete review record per finding');
+  context.assert(august24 && august24.intake.rawArtifact.sha256 === '32d7987304fc6d624f209903b93808d048e279a28faf5f947a4f1bb6d3020847' && august24.intake.rawArtifact.repositoryCopySha256 === '90fd74f01cf5099b68ec33e32decf048de0c6399170db67e16142150c5b68962', 'August 24 intake preserves source and repository-copy hashes');
+  const selfProfilingReview = august24 && august24.review.records.find((record) => record.findingId === 'js-self-profiling-markers-chrome-153');
+  context.assert(selfProfilingReview && selfProfilingReview.outcome === 'investigation-only' && selfProfilingReview.radarRefs.length === 0 && selfProfilingReview.browserEvidence.some((evidence) => evidence.engine === 'Chromium' && evidence.status === 'origin-trial'), 'Self-Profiling Markers remain an origin-trial investigation without a Radar mutation');
+  context.assert(august24 && august24.review.records.slice(1).every((record) => record.previousReviewRef === 'NFM-OBS-REVIEW-2026-08-17-R2' && record.rawDelta.previousIntakeRef === 'NFM-OBS-2026-08-17' && record.rawDelta.changedFields.length === 0), 'August 24 carry-overs bind the previous review and declare empty deltas');
   context.assert(current && current.intake.intakeId === 'NFM-OBS-2026-09-03' && current.raw.findings.length === 24 && current.review.records.length === 24, 'September run has one complete review record per Radar parent');
   context.assert(current && current.review.records.every((record) => record.terminalOutcome), 'Every September finding has a terminal outcome');
   context.assert(radarMatrix.schema === 'xtend.native-first.browser-primitive-radar.v2' && radarMatrix.entries.length === 24, 'Radar v2 declares exactly 24 parent entries');
@@ -317,6 +328,26 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
   assertRejected(context, 'technology preview used as stable shipping', (candidate) => {
     const record = candidate.runs[1].review.records.find((entry) => entry.findingId === 'explicit-resource-management-webkit-tp250');
     record.browserEvidence[2].status = 'shipping';
+  }, base);
+  assertRejected(context, 'origin trial used as stable shipping', (candidate) => {
+    const run = candidate.runs.find((entry) => entry.intake.intakeId === 'NFM-OBS-2026-08-24');
+    run.review.records[0].browserEvidence[0].status = 'shipping';
+  }, base);
+  assertRejected(context, 'origin trial with generic source kind', (candidate) => {
+    const run = candidate.runs.find((entry) => entry.intake.intakeId === 'NFM-OBS-2026-08-24');
+    run.review.records[0].sources.find((source) => source.id === 'chrome-153-beta').kind = 'engine-release';
+  }, base);
+  assertRejected(context, 'missing August 24 review record', (candidate) => {
+    const run = candidate.runs.find((entry) => entry.intake.intakeId === 'NFM-OBS-2026-08-24');
+    run.review.records.pop();
+  }, base);
+  assertRejected(context, 'incorrect August 24 source digest', (candidate) => {
+    const run = candidate.runs.find((entry) => entry.intake.intakeId === 'NFM-OBS-2026-08-24');
+    run.intake.rawArtifact.sha256 = '0'.repeat(64);
+  }, base);
+  assertRejected(context, 'investigation with a Radar mutation', (candidate) => {
+    const run = candidate.runs.find((entry) => entry.intake.intakeId === 'NFM-OBS-2026-08-24');
+    run.review.records[0].radarRefs = ['NFM-BPR-014'];
   }, base);
   assertRejected(context, 'insecure source URL', (candidate) => {
     candidate.runs[1].review.records[0].sources[0].url = 'http://webkit.org/unsafe';

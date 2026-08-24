@@ -13,6 +13,7 @@
 - Boundary: `ai-output-is-untrusted-intake`
 - Boundary: `interop-participation-is-not-shipping-evidence`
 - Boundary: `standards-evidence-is-not-engine-shipping-evidence`
+- Boundary: `origin-trial-is-not-shipping-evidence`
 - Boundary: `no-automatic-radar-or-runtime-mutation`
 
 ## Zweck
@@ -49,7 +50,7 @@ Erlaubte Review-Outcomes sind `corroborates-existing`, `corrected-candidate`, `n
 
 Erlaubte URLs verwenden ausschliesslich HTTPS. Credentials, Localhost, IP-Literale, Fragmente mit Zugangsdaten und nicht freigegebene Hosts werden abgewiesen. Die Allowlist umfasst die reviewten Engine-, Standard- und Issue-Quellen auf `github.com`, `developer.chrome.com`, `developer.mozilla.org`, `hacks.mozilla.org`, `v8.dev`, `webkit.org`, `bugzilla.mozilla.org`, `tc39.es` und `www.w3.org`.
 
-Ein Interop- oder Standardsprogramm darf koordinierte Browserarbeit belegen, aber kein Shipping. `shipping` und `behind-flag` brauchen eine engine-nahe Primaerquelle der Typen `engine-release` oder `engine-docs`; eine Technology-Preview-Release wird als eigene Source-Klasse `technology-preview` erfasst und darf niemals Stable Shipping belegen. Kompatibilitaetsdokumentation darf einen expliziten Baseline-Claim belegen. Der September-Abschluss verlangt Chromium, Firefox und WebKit/Safari. Ein fehlender Driver, Timeout oder nicht aufraeumbare Session ist ein zu behebender Hypervisor-Fehler; `unsupported-with-valid-fallback` ist nur bei gruenem XTend-Produktfallback terminal verwertbar.
+Ein Interop- oder Standardsprogramm darf koordinierte Browserarbeit belegen, aber kein Shipping. `shipping` und `behind-flag` brauchen eine engine-nahe Primaerquelle der Typen `engine-release` oder `engine-docs`; eine Technology-Preview-Release wird als eigene Source-Klasse `technology-preview`, ein zeitlich und origin-gebundener Versuch als `origin-trial` erfasst. Beide duerfen niemals Stable Shipping belegen. `origin-trial` ist zugleich ein eigener Browser-Evidence-Status und muss von einer Source derselben Klasse getragen werden. Kompatibilitaetsdokumentation darf einen expliziten Baseline-Claim belegen. Der September-Abschluss verlangt Chromium, Firefox und WebKit/Safari. Ein fehlender Driver, Timeout oder nicht aufraeumbare Session ist ein zu behebender Hypervisor-Fehler; `unsupported-with-valid-fallback` ist nur bei gruenem XTend-Produktfallback terminal verwertbar.
 
 ## Lab-Grenzen
 
@@ -65,7 +66,7 @@ node scripts/run_xtend_tests.js observatory-adoption-labs --json
 node scripts/run_xtend_tests.js aria-in-html-conformance --json
 ```
 
-`browser-hypervisor` prueft Adapter, lokale und entfernte Endpunkte, Capabilities, Actions, Screenshots, Timeouts, Cleanup und Evidence-Merge. `browser-primitive-radar` prueft drei Intakes, SHA, Review-Vollstaendigkeit, 24 stabile Parent-IDs und genau eine September-ADR pro Parent. `primitive-adoption-gate` prueft alle Members, Fallbacks, negative Produktnutzung, Security, RMT-Neutralitaet und fehlende Runtime-Abhaengigkeiten.
+`browser-hypervisor` prueft Adapter, lokale und entfernte Endpunkte, Capabilities, Actions, Screenshots, Timeouts, Cleanup und Evidence-Merge. `browser-primitive-radar` prueft vier Intakes, SHA, Review-Vollstaendigkeit, 24 stabile Parent-IDs und genau eine September-ADR pro Parent. `primitive-adoption-gate` prueft alle Members, Fallbacks, negative Produktnutzung, Security, RMT-Neutralitaet und fehlende Runtime-Abhaengigkeiten.
 
 ## Produktisierungsgrenze
 
