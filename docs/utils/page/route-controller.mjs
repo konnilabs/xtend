@@ -6182,6 +6182,10 @@ export class XtendDocPage extends HTMLElement {
     const rmtMeta = getDocsPageMeta(slug, locale) || {};
     const hadShell = Boolean(this.__xtendDocsShell);
     const shell = this.ensureRouteShell(slug, rmtMeta);
+    // XRouter reuses this page host while resumable route fragments replace its
+    // shell asynchronously. Do not expose the previous route's demo during that
+    // transition, and do not schedule work against the shell that may be replaced.
+    if (hadShell && shell.demoSlot) renderDocsComponentDemo(shell.demoSlot, '');
     this.transitionRoutePhase('rendered');
     applyRmtPageMetadata(shell.section, shell.mdContent, shell.richSlot, shell.diagnosticsSlot, rmtMeta, shell.sidebar, shell.relatedSlot, shell.demoSlot);
     wireDownloadButton(shell.download, slug);
@@ -6504,6 +6508,19 @@ export class XtendDocPage extends HTMLElement {
             }), { isActive: () => this.isActiveRouteToken(token) });
           this.scheduleRouteWork(playgroundDisposer);
         }
+        if (DOCS_COMPONENT_DEMOS[slug] && shell.demoSlot) {
+          const demoDisposer = scheduleDocsVisibleOrIntentIsland(shell.demoSlot, () => {
+            if (!this.isActiveRouteToken(token)) return null;
+            measuredLane('idle', demoSchedule, 'component-demo.render', () => renderDocsComponentDemo(shell.demoSlot, slug));
+            hydrateDocsCodeBlocks(shell.demoSlot, {
+              slug,
+              reason: 'component-demo-visible-or-intent',
+              schedule: demoSchedule
+            }).catch(() => {});
+            return null;
+          }, { isActive: () => this.isActiveRouteToken(token) });
+          this.scheduleRouteWork(demoDisposer);
+        }
         finishTransition();
       }).catch((error) => {
         if (!this.isActiveRouteToken(token)) return;
@@ -6541,20 +6558,6 @@ export class XtendDocPage extends HTMLElement {
     } else {
       const afterPaintDisposer = scheduleDocsAfterPaint(completeParsedownCommit);
       this.scheduleRouteWork(afterPaintDisposer);
-    }
-
-    if (DOCS_COMPONENT_DEMOS[slug] && shell.demoSlot) {
-      const demoDisposer = scheduleDocsVisibleOrIntentIsland(shell.demoSlot, () => {
-        if (!this.isActiveRouteToken(token)) return null;
-        measuredLane('idle', demoSchedule, 'component-demo.render', () => renderDocsComponentDemo(shell.demoSlot, slug));
-        hydrateDocsCodeBlocks(shell.demoSlot, {
-          slug,
-          reason: 'component-demo-visible-or-intent',
-          schedule: demoSchedule
-        }).catch(() => {});
-        return null;
-      }, { isActive: () => this.isActiveRouteToken(token) });
-      this.scheduleRouteWork(demoDisposer);
     }
 
     return true;

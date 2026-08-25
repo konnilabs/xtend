@@ -322,6 +322,14 @@ function runDocsShellCatfoodingSuite(options = {}) {
   context.assert(dialogSource.includes('grid-template-areas:') && dialogSource.includes('"title close"') && dialogSource.includes('grid-area: close;') && dialogSource.includes('position: static;'), 'x-dialog uses a stable grid chrome row for title and close control');
   context.assert(modalSource.includes('grid-template-areas:') && modalSource.includes('"title close"') && modalSource.includes('grid-area: close;') && modalSource.includes('position: static;'), 'x-modal uses the same stable grid chrome row for title and close control');
   context.assert(pageLoader.includes('async function hydrateDocsComponentPreview') && pageLoader.includes("source: 'docs.component-demo'") && pageLoader.includes("'xtend-docs-component-demo-hydrated'"), 'Component demo islands hydrate their rendered XTend dependency tree through the public loader contract');
+  const routeFragmentCommitIndex = pageLoader.indexOf('Object.assign(shell, adoptedNextShell)');
+  const routedDemoScheduleIndex = pageLoader.indexOf("measuredLane('idle', demoSchedule, 'component-demo.render'", routeFragmentCommitIndex);
+  context.assert(
+    pageLoader.includes("if (hadShell && shell.demoSlot) renderDocsComponentDemo(shell.demoSlot, '')")
+      && routeFragmentCommitIndex >= 0
+      && routedDemoScheduleIndex > routeFragmentCommitIndex,
+    'Route navigation clears a reused component demo and schedules the replacement only after resumable shell commit'
+  );
   context.assert(pageLoader.includes('Dialog-Surface für bestätigende UI-Flows.') && pageLoader.includes('XTend Modal läuft in der Docs Shell.') && !pageLoader.includes('Dialog-Surface fuer bestaetigende UI-Flows.') && !pageLoader.includes('XTend Modal laeuft in der Docs Shell.'), 'Dialog and modal demo copy preserves localized German umlauts');
   const localizedPayloadBlock = pageLoader.slice(pageLoader.indexOf('function loadDocsParsedownContent'), pageLoader.indexOf('function prefetchDocsLocalePage'));
   context.assert(!localizedPayloadBlock.includes('window.xtendDocsPages'), 'localized payload loading never reads the language-neutral legacy page cache');
