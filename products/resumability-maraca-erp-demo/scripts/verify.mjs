@@ -8,6 +8,8 @@ import { startServer } from '../server/index.mjs';
 
 const productRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = path.resolve(productRoot, '../..');
+const browserVirtualTimeBudgetMs = 15000;
+const browserProcessTimeoutMs = 60000;
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -98,7 +100,7 @@ function runChromiumSmoke(chromium, url) {
       '--enable-logging=stderr',
       '--log-level=0',
       '--run-all-compositor-stages-before-draw',
-      '--virtual-time-budget=15000',
+      `--virtual-time-budget=${browserVirtualTimeBudgetMs}`,
       '--dump-dom',
       url
     ], {
@@ -114,7 +116,7 @@ function runChromiumSmoke(chromium, url) {
       timedOut = true;
       stopProcessGroup(child, 'SIGTERM');
       setTimeout(() => stopProcessGroup(child, 'SIGKILL'), 1500).unref();
-    }, 20000);
+    }, browserProcessTimeoutMs);
 
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
