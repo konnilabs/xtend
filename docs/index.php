@@ -921,8 +921,15 @@ function docsNormalizeServerMarkdownLinks($html, $sourceRel, $fileToSlug, $local
         $path = $parts[0] ?? '';
         $suffix = $parts[1] ?? '';
         $normalized = docsResolveServerMarkdownLinkPath($path, $sourceRel);
-        if (!is_string($normalized) || !isset($fileToSlug[$normalized])) return $matches[0];
-        $slug = (string) $fileToSlug[$normalized];
+        if (!is_string($normalized)) return $matches[0];
+        $lookupPath = $normalized;
+        if (!isset($fileToSlug[$lookupPath])) {
+            $legacyAlias = preg_replace('/([a-z0-9])([A-Z])/u', '$1-$2', $lookupPath);
+            $legacyAlias = is_string($legacyAlias) ? strtolower($legacyAlias) : '';
+            if ($legacyAlias === '' || !isset($fileToSlug[$legacyAlias])) return $matches[0];
+            $lookupPath = $legacyAlias;
+        }
+        $slug = (string) $fileToSlug[$lookupPath];
         if ($slug === '') return $matches[0];
         $target = docsBuildHistoryRoutePath($slug, $locale, $docsBasePath) . $suffix;
         $attributes = trim((string) $matches[1] . ' ' . (string) $matches[4]);

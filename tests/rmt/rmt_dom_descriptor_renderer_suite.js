@@ -1090,7 +1090,7 @@ function runCommitCoreAssertions(context, rendererModule) {
   });
   activeDraftTarget.value = 'this is a test';
   activeDraftTarget.selectionStart = 7;
-  documentTarget.activeElement = activeDraftTarget;
+  documentTarget.activeElement = null;
   renderer.commit({
     operation: 'reconcile-element',
     target: activeDraftTarget,
@@ -1105,7 +1105,22 @@ function runCommitCoreAssertions(context, rendererModule) {
     && activeDraftTarget.selectionStart === 7
     && activeDraftTarget.getAttribute('value') === 't'
     && activeDraftTarget.getAttribute('aria-invalid') === 'false',
-  'input-originated reconcile preserves the focused live value and caret while applying non-value state');
+  'input-originated reconcile preserves the live value and caret across a transient focus gap while applying non-value state');
+  renderer.commit({
+    operation: 'reconcile-element',
+    target: activeDraftTarget,
+    descriptor: {
+      type: 'element',
+      tag: 'x-textarea',
+      attributes: { 'aria-invalid': 'true' }
+    },
+    context: { metadata: { preserveActiveInputDraft: true } }
+  });
+  context.assert(activeDraftTarget.value === 'this is a test'
+    && activeDraftTarget.selectionStart === 7
+    && activeDraftTarget.getAttribute('value') === 't'
+    && activeDraftTarget.getAttribute('aria-invalid') === 'true',
+  'input-originated reconcile does not clear a temporarily omitted owned value field');
   documentTarget.activeElement = null;
   renderer.commit({
     operation: 'reconcile-element',

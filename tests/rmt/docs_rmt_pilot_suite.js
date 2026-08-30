@@ -25,7 +25,7 @@ const SHELL_TEMPLATE_ID = 'docs.app.shell';
 const SEARCH_TEMPLATE_ID = 'docs.header.search';
 
 function createRmtFormatFromBundle(context, rootDir) {
-  const artifactPath = 'xtendrmt/rmt-core.esm.js';
+  const artifactPath = 'xtendrmt/rmt-runtime.browser.js';
   const source = readText(artifactPath, rootDir);
   const cjsCompatibleSource = source
     .replace(/^\s*import\s+[\s\S]*?\s+from\s+['"][^'"]+['"];\s*$/gmu, '')
@@ -79,8 +79,8 @@ function createRmtFormatFromBundle(context, rootDir) {
     return null;
   }
 
-  const factory = sandbox.AppModules && sandbox.AppModules.createRmtFormat;
-  if (!context.assert(typeof factory === 'function', 'RMT core bundle exposes createRmtFormat for Docs RMT pilot')) {
+  const factory = sandbox.XTendRMT && sandbox.XTendRMT.createRmtFormat;
+  if (!context.assert(typeof factory === 'function', 'RMT public browser bundle exposes createRmtFormat for Docs RMT pilot')) {
     return null;
   }
 

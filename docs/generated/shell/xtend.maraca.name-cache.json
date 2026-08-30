@@ -207,7 +207,23 @@
       "$readDataset": "es",
       "$resolvePayload": "ss",
       "$createXtendRmtCommandDetail": "ns",
-      "$XStatus": "as"
+      "$XStatus": "as",
+      "$__XTEND_SURFACE_CONTROLLER_API__": "er",
+      "$CONTRACTS": "tr",
+      "$DEFAULT_BOUNDS": "rr",
+      "$DEFAULT_CAPABILITIES": "or",
+      "$DIAGNOSTIC_CODES": "nr",
+      "$STATE_KEYS": "sr",
+      "$SURFACE_CONTROLLER_SCHEMA": "ar",
+      "$SURFACE_DIAGNOSTIC_SCHEMA": "ir",
+      "$SURFACE_OPERATION_RESULT_SCHEMA": "cr",
+      "$SURFACE_APPLY_RESULT_SCHEMA": "dr",
+      "$SURFACE_RECORD_SCHEMA": "lr",
+      "$SURFACE_SNAPSHOT_SCHEMA": "ur",
+      "$SURFACE_TYPES": "pr",
+      "$createSurfaceController": "mr",
+      "$normalizeSurfaceBounds": "hr",
+      "$normalizeSurfaceRecord": "fr"
     }
   },
   "props": {

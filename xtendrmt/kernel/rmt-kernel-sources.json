@@ -5,6 +5,28 @@
     "strict": true,
     "migration": "staged-source-promotion"
   },
+  "microkernel": {
+    "sourcePath": "xtendrmt/rmt-kernel-scheduler.js",
+    "typesPath": "xtendrmt/rmt-kernel-scheduler.d.ts",
+    "export": "./kernel-scheduler",
+    "rawBudgetBytes": 163840,
+    "gzipBudgetBytes": 32768,
+    "requiredRuntimePorts": [
+      "clock",
+      "microtask",
+      "timer",
+      "abort"
+    ],
+    "runtimePortProviders": {
+      "clock": "RmtSchedulerHostPort.now",
+      "microtask": "RmtSchedulerHostPort.queueMicrotask",
+      "timer": "RmtSchedulerHostPort.setTimeout/clearTimeout",
+      "abort": "RmtSchedulerHostPort.createAbortController",
+      "animation-frame": "RmtSchedulerHostPort.requestAnimationFrame",
+      "idle-callback": "RmtSchedulerHostPort.requestIdleCallback",
+      "native-task": "RmtSchedulerHostPort.postTask"
+    }
+  },
   "capabilities": [
     "dom.read",
     "dom.write",
@@ -155,20 +177,8 @@
       ],
       "capabilities": [
         "state.read",
-        "state.write",
-        "global.read",
-        "global.write"
+        "state.write"
       ],
-      "compatibility": {
-        "kind": "0.6-global-mirror",
-        "since": "0.6.0",
-        "removeBy": "0.7.0",
-        "reason": "The standalone 0.6 Model source retains its global script mirror while state projection is injected through a typed output port.",
-        "allowedCapabilities": [
-          "global.read",
-          "global.write"
-        ]
-      },
       "ownershipDomains": [
         "model.application-state"
       ],
@@ -231,50 +241,6 @@
       ]
     },
     {
-      "id": "rmt-state-selector-runtime-compat-source",
-      "sourcePath": "xtendrmt/rmt-state-selector-runtime.compat.js",
-      "sourceMode": "canonical",
-      "mvcRole": "composition",
-      "adapterDirection": null,
-      "provides": [
-        "applyRmtStateBindings",
-        "createRmtStateBindingAdapter"
-      ],
-      "consumes": [],
-      "dependsOn": [
-        "rmt-state-selector-runtime-source",
-        "rmt-state-host-adapter-source",
-        "rmt-state-binding-view-projector-source"
-      ],
-      "ports": [
-        "RmtModelReader",
-        "RmtStateProjectionPort",
-        "RmtDomCommitPort"
-      ],
-      "capabilities": [
-        "state.read",
-        "global.read",
-        "global.write"
-      ],
-      "compatibility": {
-        "kind": "0.6-compatibility-composer",
-        "since": "0.6.0",
-        "removeBy": "0.7.0",
-        "reason": "The public facade composes the Model, State Projection adapter and deprecated State Binding aliases without moving their implementations into the Model.",
-        "allowedCapabilities": [
-          "state.read",
-          "global.read",
-          "global.write"
-        ]
-      },
-      "ownershipDomains": [
-        "compatibility.composition.state-binding"
-      ],
-      "targets": [
-        "standalone"
-      ]
-    },
-    {
       "id": "rmt-action-effect-runtime-source",
       "sourcePath": "xtendrmt/rmt-action-effect-runtime.js",
       "sourceMode": "canonical",
@@ -290,24 +256,8 @@
         "RmtActionHostPort"
       ],
       "capabilities": [
-        "state.read",
-        "state.write"
+        "state.read"
       ],
-      "compatibility": {
-        "kind": "0.6-controller-state-writer",
-        "since": "0.6.0",
-        "removeBy": "0.7.0",
-        "reason": "The public 0.6 low-level Action Effect factory retains its direct state bridge while managed Maraca uses the Model Command port.",
-        "allowedCapabilities": [
-          "state.write"
-        ]
-      },
-      "compatibilityShell": {
-        "kind": "0.6-global-mirror",
-        "since": "0.6.0",
-        "removeBy": "0.7.0",
-        "reason": "The standalone 0.6 Action Effect entry mirrors only its immutable public factory API onto the legacy browser global."
-      },
       "ownershipDomains": [
         "controller.actions"
       ],
@@ -332,19 +282,8 @@
       "capabilities": [
         "dom.read",
         "event.listen",
-        "host.clock",
-        "global.read",
-        "global.write"
+        "host.clock"
       ],
-      "compatibility": {
-        "kind": "0.6-global-mirror",
-        "since": "0.6.0",
-        "removeBy": "0.7.0",
-        "reason": "The standalone 0.6 Event Router retains its browser-script factory mirror while managed commands flow only through the injected Command Bus port.",
-        "allowedCapabilities": [
-          "global.write"
-        ]
-      },
       "ownershipDomains": [
         "input.application-events"
       ],
@@ -428,37 +367,6 @@
       ],
       "ownershipDomains": [
         "controller.app-services"
-      ],
-      "targets": [
-        "standalone"
-      ]
-    },
-    {
-      "id": "rmt-app-runtime-compat-source",
-      "sourcePath": "xtendrmt/rmt-app-runtime.compat.js",
-      "sourceMode": "canonical",
-      "mvcRole": "composition",
-      "adapterDirection": null,
-      "provides": [
-        "rmtAppRuntimeCompatibilityApi"
-      ],
-      "consumes": [
-        "createRmtAppRuntime",
-        "createRmtAppPresentationViewPort",
-        "createRmtAppHostAdapter"
-      ],
-      "dependsOn": [
-        "rmt-app-runtime-source",
-        "rmt-app-view-projector-source",
-        "rmt-app-host-adapter-source"
-      ],
-      "ports": [
-        "RmtAppPresentationViewPort",
-        "RmtAppHostPort"
-      ],
-      "capabilities": [],
-      "ownershipDomains": [
-        "composition.app-presentation"
       ],
       "targets": [
         "standalone"
@@ -563,22 +471,9 @@
         "RmtValidationProjectionPort",
         "RmtDomCommitPort"
       ],
-      "capabilities": [
-        "global.read",
-        "global.write"
-      ],
-      "compatibility": {
-        "kind": "0.6-compatibility-composer",
-        "since": "0.6.0",
-        "removeBy": "0.7.0",
-        "reason": "The physically split validation ports retain the 0.6 global factory mirror through a delegating compatibility composer.",
-        "allowedCapabilities": [
-          "global.read",
-          "global.write"
-        ]
-      },
+      "capabilities": [],
       "ownershipDomains": [
-        "compatibility.composition.form-validation"
+        "composition.form-validation"
       ],
       "targets": [
         "standalone"
@@ -695,12 +590,6 @@
       "capabilities": [
         "state.read"
       ],
-      "compatibilityShell": {
-        "kind": "0.6-global-mirror",
-        "since": "0.6.0",
-        "removeBy": "0.7.0",
-        "reason": "The standalone 0.6 Kernel Orchestration entry mirrors only its immutable public factory API onto the legacy browser global."
-      },
       "ownershipDomains": [
         "controller.kernel-orchestration"
       ],
@@ -723,20 +612,8 @@
       ],
       "capabilities": [
         "state.read",
-        "state.write",
-        "global.read",
-        "global.write"
+        "state.write"
       ],
-      "compatibility": {
-        "kind": "0.6-global-mirror",
-        "since": "0.6.0",
-        "removeBy": "0.7.0",
-        "reason": "The standalone 0.6 registry retains its AppModules mirror while its model snapshots remain the only mutable authority.",
-        "allowedCapabilities": [
-          "global.read",
-          "global.write"
-        ]
-      },
       "ownershipDomains": [
         "model.kernel-features"
       ],
@@ -951,22 +828,9 @@
         "RmtResumeStatePort",
         "RmtCommandDispatchPort"
       ],
-      "capabilities": [
-        "global.read",
-        "global.write"
-      ],
-      "compatibility": {
-        "kind": "0.6-compatibility-composer",
-        "since": "0.6.0",
-        "removeBy": "0.7.0",
-        "reason": "The physically split resume ports retain the 0.6 global factory mirror through a delegating compatibility composer.",
-        "allowedCapabilities": [
-          "global.read",
-          "global.write"
-        ]
-      },
+      "capabilities": [],
       "ownershipDomains": [
-        "compatibility.composition.resume"
+        "composition.resume"
       ],
       "targets": [
         "standalone"
@@ -1049,12 +913,6 @@
         "RmtSurfaceClockPort"
       ],
       "capabilities": [],
-      "compatibilityShell": {
-        "kind": "0.6-global-mirror",
-        "since": "0.6.0",
-        "removeBy": "0.7.0",
-        "reason": "The standalone 0.6 Surface Controller entry mirrors only its immutable public factory API onto the legacy browser global."
-      },
       "ownershipDomains": [
         "controller.surface-lifecycle"
       ],
@@ -1125,7 +983,6 @@
         "createRmtDiagnostics",
         "createRmtEngineController",
         "createRmtEngineHostAdapter",
-        "createRmtQueue",
         "createRmtReactivity"
       ],
       "dependsOn": [
@@ -1133,7 +990,6 @@
         "rmt-diagnostics",
         "rmt-engine-controller",
         "rmt-engine-host-adapter",
-        "rmt-priority-queue",
         "rmt-reactivity"
       ],
       "ports": [
@@ -1141,7 +997,7 @@
         "createRmtDiagnosticsPort",
         "RmtEngineControllerPort",
         "RmtEngineHostPort",
-        "createRmtQueuePort",
+        "RmtKernelSchedulerPort",
         "createRmtReactivityPort"
       ],
       "capabilities": [],
@@ -1201,36 +1057,12 @@
         "RmtEngineHostPort",
         "RmtCommandBusPort",
         "RmtDiagnosticsPort",
-        "RmtPriorityQueuePort",
+        "RmtKernelSchedulerPort",
         "RmtReactivityPort"
       ],
       "capabilities": [],
       "ownershipDomains": [
         "controller.engine-runtime"
-      ],
-      "targets": [
-        "core-esm",
-        "runtime-esm",
-        "browser"
-      ]
-    },
-    {
-      "id": "rmt-priority-queue",
-      "sourcePath": "xtendrmt/kernel/modules/rmt-priority-queue.js",
-      "sourceMode": "canonical",
-      "mvcRole": "shared",
-      "adapterDirection": null,
-      "provides": [
-        "createRmtQueue"
-      ],
-      "consumes": [],
-      "dependsOn": [],
-      "ports": [],
-      "capabilities": [
-        "host.clock"
-      ],
-      "ownershipDomains": [
-        "shared.priority-queue"
       ],
       "targets": [
         "core-esm",
@@ -1644,18 +1476,8 @@
         "RmtTemplateSourcePort"
       ],
       "capabilities": [
-        "network",
-        "global.write"
+        "network"
       ],
-      "compatibility": {
-        "kind": "0.6-global-mirror",
-        "since": "0.6.0",
-        "removeBy": "0.7.0",
-        "reason": "The generated 0.6 browser bundle registers the canonical Template Loader factory in the temporary module compatibility mirror.",
-        "allowedCapabilities": [
-          "global.write"
-        ]
-      },
       "ownershipDomains": [
         "input.template-loader"
       ],
@@ -2132,7 +1954,6 @@
         "createRmtDiagnosticsHub",
         "createRmtReactivity",
         "createRmtCommandBus",
-        "createRmtQueue",
         "createRmtFormat",
         "createRmtTemplateRegistry",
         "createRmtTemplateLoader",
@@ -2154,7 +1975,6 @@
         "rmt-diagnostics-hub",
         "rmt-reactivity",
         "rmt-command-bus",
-        "rmt-priority-queue",
         "rmt-format-model",
         "rmt-template-registry",
         "rmt-template-loader",
@@ -2411,7 +2231,6 @@
       "rmt-engine",
       "rmt-engine-host-adapter",
       "rmt-engine-controller",
-      "rmt-priority-queue",
       "rmt-diagnostics-hub",
       "rmt-command-bus",
       "rmt-reactivity",

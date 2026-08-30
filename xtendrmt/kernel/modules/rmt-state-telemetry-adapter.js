@@ -223,10 +223,6 @@
     function resolveBridgeSchedulerTarget(deps = {}, options = {}) {
         return options.scheduler
             || deps.scheduler
-            || options.performanceRuntime
-            || deps.performanceRuntime
-            || options.rmt
-            || deps.rmt
             || null;
     }
 
@@ -480,18 +476,8 @@
                 });
                 status = 'scheduled';
                 diagnosticCode = 'rmt.bridge.scheduler.endpoint.scheduled';
-            } else if (typeof deps.scheduleEndpoint === 'function') {
-                targetResult = deps.scheduleEndpoint(schedule.endpointName, schedule.scope, callback, {
-                    ...options,
-                    schedule,
-                    source: STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA
-                });
-                status = 'scheduled';
-                diagnosticCode = 'rmt.bridge.scheduler.endpoint.scheduled';
-            } else if (options.runInline === true && typeof callback === 'function') {
-                targetResult = callback(jobContext);
-                status = 'scheduled';
-                diagnosticCode = 'rmt.bridge.scheduler.endpoint.scheduled';
+            } else {
+                throw new TypeError('RMT State/Telemetry Bridge requires one kernel scheduler authority.');
             }
             const endpointRecord = Object.freeze({
                 status,
@@ -519,7 +505,7 @@
                 status === 'scheduled' ? 'info' : 'warn'
             );
             diagnostics.push(diagnostic);
-            return createStateSchedulerDiagnosticsBridgeResult({
+            const bridgeResult = createStateSchedulerDiagnosticsBridgeResult({
                 ok: true,
                 status: status === 'scheduled' ? 'ok' : 'degraded',
                 adapterId,
@@ -538,6 +524,9 @@
                     scheduled: status === 'scheduled'
                 }
             });
+            return targetResult && targetResult.schema === 'xtend.rmt.kernel-job.v1'
+                ? targetResult
+                : bridgeResult;
         }
 
         function recordAdapterResult(result = {}, options = {}) {

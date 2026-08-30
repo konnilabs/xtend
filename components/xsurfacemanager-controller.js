@@ -1,16 +1,4 @@
-/* xtend-kernel-mvc:compatibility-shell-start */
-(function attachXtendSurfaceController(globalTarget, factory) {
-  const api = factory(globalTarget);
-
-  if (typeof module === 'object' && module.exports) {
-    module.exports = api;
-  }
-
-  if (globalTarget && typeof globalTarget === 'object') {
-    globalTarget.XTendSurfaceController = Object.freeze({ ...api });
-  }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function createXtendSurfaceControllerModule() {
-/* xtend-kernel-mvc:compatibility-shell-end */
+function createXtendSurfaceControllerModule() {
   const SURFACE_CONTROLLER_SCHEMA = 'xtend.surface.controller.v2';
   const SURFACE_RECORD_SCHEMA = 'xtend.surface.record.v1';
   const SURFACE_SNAPSHOT_SCHEMA = 'xtend.surface.snapshot.v1';
@@ -1125,4 +1113,26 @@
     normalizeSurfaceBounds,
     normalizeSurfaceRecord
   };
-});
+}
+
+const __XTEND_SURFACE_CONTROLLER_API__ = Object.freeze(createXtendSurfaceControllerModule());
+
+export const {
+  CONTRACTS,
+  DEFAULT_BOUNDS,
+  DEFAULT_CAPABILITIES,
+  DIAGNOSTIC_CODES,
+  STATE_KEYS,
+  SURFACE_CONTROLLER_SCHEMA,
+  SURFACE_DIAGNOSTIC_SCHEMA,
+  SURFACE_OPERATION_RESULT_SCHEMA,
+  SURFACE_APPLY_RESULT_SCHEMA,
+  SURFACE_RECORD_SCHEMA,
+  SURFACE_SNAPSHOT_SCHEMA,
+  SURFACE_TYPES,
+  createSurfaceController,
+  normalizeSurfaceBounds,
+  normalizeSurfaceRecord
+} = __XTEND_SURFACE_CONTROLLER_API__;
+
+export default __XTEND_SURFACE_CONTROLLER_API__;

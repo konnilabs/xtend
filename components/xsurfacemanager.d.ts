@@ -417,6 +417,7 @@ export interface XSurfaceManagerElement extends HTMLElement {
   destroySurface(id: string, options?: Record<string, unknown>): XtendSurfaceOperationResult;
   registerSurfacePrewarmHandle(surfaceId: string, handle: unknown, options?: Record<string, unknown>): Record<string, unknown>;
   registerSurfaceChunkHandle(surfaceId: string, handle: unknown, options?: Record<string, unknown>): Record<string, unknown>;
+  applyWarmReentryBackpressure(input?: string | { level?: string; pressureLevel?: string }): Record<string, unknown>;
   focusSurface(id: string): XtendSurfaceOperationResult;
   updateSurface(id: string, patch?: Record<string, unknown>): XtendSurfaceOperationResult;
   moveSurface(id: string, bounds: Record<string, unknown>): XtendSurfaceOperationResult;

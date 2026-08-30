@@ -1,4 +1,6 @@
-// XTendRMT 0.7.0 type definitions
+// XTendRMT 0.8.0 type definitions
+import type { RmtJobContext, RmtJobHandle, RmtKernelScheduler } from './rmt-kernel-scheduler.js';
+
 export {
     RMT_RESUME_RUNTIME_SCHEMA,
     RMT_RESUME_ENVELOPE_SCHEMA,
@@ -38,7 +40,7 @@ export interface RmtRuntimeContract {
     commandTransport: boolean;
     diagnostics: boolean;
     reactivity: boolean;
-    priorityQueue: boolean;
+    kernelScheduler: boolean;
     runtimeProfiles: boolean;
     performanceRuntime: boolean;
     performanceBudgeting: boolean;
@@ -1565,13 +1567,13 @@ export interface RmtRootHandle {
 }
 
 export interface RmtInstance {
-    afterPaint(scope: string, callback: () => void, options?: Record<string, unknown>): unknown;
+    afterPaint<T = unknown>(scope: string, callback: (context: RmtJobContext) => T | PromiseLike<T>, options?: Record<string, unknown>): RmtJobHandle<T>;
     attachResource(rootId: string, resourceId: string, resourceValue: unknown, options?: Record<string, unknown>): unknown;
     abortScope(scope: string, reason?: string): number;
     cancel(scope: string, reason?: string): number;
     cancelRoot(rootId: string): number;
     cancelScope(scope: string, reason?: string): number;
-    deferred(scope: string, callback: () => void, options?: Record<string, unknown>): unknown;
+    deferred<T = unknown>(scope: string, callback: (context: RmtJobContext) => T | PromiseLike<T>, options?: Record<string, unknown>): RmtJobHandle<T>;
     describeGlobalListener(config?: Record<string, unknown>): number;
     dispatchCommand(command: string | RmtCommandEnvelope, options?: Record<string, unknown>): Promise<unknown>;
     disposeResource(rootId: string, resourceId: string, reason?: string): boolean;
@@ -1580,8 +1582,8 @@ export interface RmtInstance {
     getCommandBus(): unknown;
     getDiagnosticsHub(): unknown;
     getHostAdapter(): RmtHostAdapter;
-    getPriorityQueueStats(): unknown;
     getReactivity(): unknown;
+    getScheduler(): RmtKernelScheduler;
     getSchedulerDiagnostics(): unknown;
     getSchedulerPressureLevel(): string;
     getRootElement(rootId: string): RmtMountElement | null;
@@ -1608,7 +1610,7 @@ export interface RmtInstance {
     registerBindings(bindingGroups?: Array<Record<string, unknown>> | Record<string, unknown>): unknown;
     removeGlobalListener(listenerRef: unknown): boolean;
     replaceResource(rootId: string, resourceId: string, resourceValue: unknown, options?: Record<string, unknown>): unknown;
-    schedule(scope: string, callback: () => void, options?: Record<string, unknown>): unknown;
+    schedule<T = unknown>(scope: string, callback: (context: RmtJobContext) => T | PromiseLike<T>, options?: Record<string, unknown>): RmtJobHandle<T>;
 }
 
 export interface RmtCoreCapabilities {
@@ -1618,7 +1620,7 @@ export interface RmtCoreCapabilities {
     diagnosticsHub: boolean;
     reactivity: boolean;
     commandBus: boolean;
-    priorityQueue: boolean;
+    kernelScheduler: boolean;
     mountRoot: boolean;
     registerBindings: boolean;
     listRoots: boolean;
@@ -1632,8 +1634,8 @@ export interface RmtCore {
     diagnostics: unknown;
     diagnosticsHub: unknown;
     hostAdapter: RmtHostAdapter;
-    priorityQueue: unknown;
     reactivity: unknown;
+    scheduler: RmtKernelScheduler;
     rmt: RmtInstance;
     getCapabilities(): RmtCoreCapabilities;
     getManifest(): RmtProductManifest;
@@ -1641,8 +1643,8 @@ export interface RmtCore {
     getDiagnostics(): unknown;
     getDiagnosticsHub(): unknown;
     getHostAdapter(): RmtHostAdapter;
-    getPriorityQueue(): unknown;
     getReactivity(): unknown;
+    getScheduler(): RmtKernelScheduler;
     getRmt(): RmtInstance;
 }
 
@@ -4131,7 +4133,8 @@ export interface RmtCoreOptions extends Record<string, unknown> {
     diagnostics?: unknown;
     reactivity?: unknown;
     commandBus?: unknown;
-    priorityQueue?: unknown;
+    scheduler?: RmtKernelScheduler;
+    kernelScheduler?: RmtKernelScheduler;
     compatibilityAdapters?: unknown[];
     compatibilityAdapter?: unknown;
     rmt?: RmtInstance;

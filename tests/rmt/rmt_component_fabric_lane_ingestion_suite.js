@@ -47,6 +47,8 @@ function createRuntimeModules(context, rootDir, artifactPath) {
     context.fail(`${artifactPath} evaluates for Component Fabric/Lane ingestion (${error.message})`);
     return null;
   }
+  if (artifactPath.endsWith('.esm.js')) vm.runInNewContext('globalThis.AppModules = AppModules;', sandbox);
+  else sandbox.AppModules = sandbox.XTendRMT || sandbox['xtend.rmt'] || null;
   if (!context.assert(sandbox.AppModules && typeof sandbox.AppModules.createRmtXtendComponentAdapter === 'function', `${artifactPath} exposes createRmtXtendComponentAdapter`)) {
     return null;
   }

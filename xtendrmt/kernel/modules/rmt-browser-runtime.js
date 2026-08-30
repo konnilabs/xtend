@@ -49,6 +49,18 @@
         });
     }
 
+    function normalizeSchedulerLane(value, fallbackValue = 'visible') {
+        const lane = clampString(value, fallbackValue);
+        const legacy = {
+            critical_input: 'user-blocking',
+            visible_commit: 'visible',
+            hydration_followup: 'visible',
+            background_prepare: 'background',
+            idle_maintenance: 'idle'
+        };
+        return legacy[lane] || lane;
+    }
+
     function mergeRequestDefaults(requestInput = {}, runtimeDefaults = {}) {
         const request = isObjectLike(requestInput) ? { ...requestInput } : {};
         const defaults = isObjectLike(runtimeDefaults) ? runtimeDefaults : {};
@@ -320,6 +332,13 @@
                 documentTarget,
                 hostAdapter
             });
+        const kernelScheduler = deps.scheduler
+            || deps.kernelScheduler
+            || (rmtCore && typeof rmtCore.getScheduler === 'function' ? rmtCore.getScheduler() : null)
+            || (rmtCore && rmtCore.scheduler) || null;
+        if (!kernelScheduler || typeof kernelScheduler.schedule !== 'function') {
+            throw new Error('RMT BrowserRuntime benoetigt den injizierten Kernel-Scheduler.');
+        }
         const publicApi = deps.publicApi
             || (typeof createRmtPublicApiFactory === 'function'
                 ? createRmtPublicApiFactory({
@@ -669,6 +688,7 @@
             getRmt: () => (typeof publicApi.getRmt === 'function' ? publicApi.getRmt() : rmtCore.rmt),
             getRuntimeRenderer: () => (typeof templateApi.getRuntimeRenderer === 'function' ? templateApi.getRuntimeRenderer() : null),
             getPerformanceRuntime: () => performanceRuntime,
+            getScheduler: () => kernelScheduler,
             getPrewarmWorkerRuntime: () => prewarmWorkerRuntime,
             getPrewarmWorkerTopology: getPrewarmWorkerTopologySnapshot,
             getUiCoprocessorSnapshot,
@@ -969,11 +989,21 @@
                     ? performanceRuntime.runEndpoint(endpointName, callback, options)
                     : callback(null)
             ),
-            scheduleEndpoint: (endpointName, scope, callback, options = {}) => (
-                performanceRuntime && typeof performanceRuntime.scheduleEndpoint === 'function'
-                    ? performanceRuntime.scheduleEndpoint(endpointName, scope, callback, options)
-                    : callback({ token: 0, scope: String(scope || 'default').trim() || 'default', endpointPlan: null })
-            ),
+            scheduleEndpoint: (endpointName, scope, callback, options = {}) => kernelScheduler.schedule({
+                endpointName,
+                scope: String(scope || 'default').trim() || 'default',
+                rootId: options.rootId,
+                lane: normalizeSchedulerLane(options.lane, 'visible'),
+                priority: options.priority,
+                deadlineMs: options.deadlineMs,
+                timeoutMs: options.timeoutMs,
+                delayMs: options.delayMs,
+                budgetClass: options.budgetClass,
+                maxChunkMs: options.maxChunkMs,
+                coalesceKey: options.coalesceKey,
+                strategy: options.strategy,
+                metadata: options.metadata
+            }, callback),
             unmount: (islandRef, options = {}) => {
                 const shouldTerminatePrewarmWorker = options && (options.hard === true || options.appUnmount === true || options.disposeRoot === true);
                 try {

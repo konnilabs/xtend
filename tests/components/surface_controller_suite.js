@@ -400,7 +400,7 @@ async function runSurfaceControllerSuite(options = {}) {
     'createSurfaceController',
     'normalizeSurfaceRecord',
     'normalizeSurfaceBounds',
-    'XTendSurfaceController',
+    '__XTEND_SURFACE_CONTROLLER_API__',
     'xtend.surface.registry',
     'xtend.surface.snapshot',
     'xtend.surface.diagnostics',

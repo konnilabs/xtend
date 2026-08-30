@@ -34,9 +34,11 @@ const TEXT_EXTENSIONS = Object.freeze(new Set([
 const ALLOWED_FILES = Object.freeze(new Set([
   'CHANGELOG.md',
   'docs/de/changelog.md',
-  'docs/de/migration-0.7-state.md',
+  'docs/de/components/xtend-state.md',
+  'docs/de/migration-0-7-state.md',
   'docs/en/changelog.md',
-  'docs/en/migration-0.7-state.md',
+  'docs/en/components/xtend-state.md',
+  'docs/en/migration-0-7-state.md',
   'tests/components/xtend-state.component_suite.js'
 ]));
 const EXCLUDED_PREFIXES = Object.freeze([
@@ -96,6 +98,21 @@ function stripAllowedStorageMigration(content) {
   return String(content).split(storageKey).join('');
 }
 
+function stripAllowedDocsSearchMigration(content) {
+  try {
+    const document = JSON.parse(content);
+    const allowedSlugs = new Set(['components-xtend-state', 'migration-0-7-state']);
+    return JSON.stringify({
+      ...document,
+      entries: Array.isArray(document.entries)
+        ? document.entries.filter((entry) => !allowedSlugs.has(entry && entry.slug))
+        : document.entries
+    });
+  } catch (_) {
+    return content;
+  }
+}
+
 function lineAt(content, index) {
   return content.slice(0, index).split(/\r?\n/u).length;
 }
@@ -109,9 +126,12 @@ function verifyStateBranding(options = {}) {
   files.sort().forEach((relativePath) => {
     if (relativePath === 'components/xtend-state.js') return;
     const content = fs.readFileSync(path.join(rootDir, relativePath), 'utf8');
-    const scannedContent = relativePath.startsWith('docs/generated/')
-      ? stripAllowedStorageMigration(content)
+    const generatedContent = relativePath.startsWith('docs/generated/search/')
+      ? stripAllowedDocsSearchMigration(content)
       : content;
+    const scannedContent = relativePath.startsWith('docs/generated/')
+      ? stripAllowedStorageMigration(generatedContent)
+      : generatedContent;
     const index = findRemovedBrand(scannedContent);
     if (index >= 0) violations.push(`${relativePath}:${lineAt(content, index)}`);
   });

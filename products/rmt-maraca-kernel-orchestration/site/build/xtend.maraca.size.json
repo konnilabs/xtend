@@ -6,18 +6,24 @@
   "mode": "strict",
   "baseline": {
     "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
-    "loaderBytes": 69993,
-    "selectedComponentBytes": 113066,
-    "stackModuleBytes": 2210990,
-    "contractPayloadBytes": 613342,
-    "bytes": 3007391
+    "loaderBytes": 70038,
+    "selectedComponentBytes": 113192,
+    "stackModuleBytes": 2131365,
+    "contractPayloadBytes": 613341,
+    "bytes": 2927936
   },
-  "baselineBytes": 3007391,
-  "bundleBytes": 2880834,
+  "baselineBytes": 2927936,
+  "bundleBytes": 2834244,
   "framework": {
-    "bytes": 2880834,
-    "baselineBytes": 3007391,
+    "bytes": 2808016,
+    "baselineBytes": 2927936,
     "withinBudget": true
+  },
+  "microkernel": {
+    "bytes": 26228,
+    "accounting": "kernel-lab-separate-budget",
+    "rawBudgetBytes": 163840,
+    "gzipBudgetBytes": 32768
   },
   "appServices": {
     "clientBytes": 0,
@@ -44,11 +50,11 @@
       }
     ]
   },
-  "ratio": 0.9579180093310115,
+  "ratio": 0.9590428206081008,
   "budgets": {
     "modernEsmEntryMustBeSmallerThanBaseline": true,
     "enforcement": "strict",
-    "frameworkBytes": 3007391,
+    "frameworkBytes": 2927936,
     "clientAppServiceBytes": null,
     "serverAppServiceBytes": null
   }

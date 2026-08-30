@@ -34,6 +34,7 @@
     routeFiberInstrumentation: 'xtend.fabric.route-fiber-instrumentation.v1',
     runtimeDiagnosticsBridge: 'xtend.fabric.runtime-diagnostics-bridge.v1',
     telemetrySnapshot: 'xtend.fabric.telemetry-snapshot.v1',
+    kernelSchedulerEvent: 'xtend.fabric.kernel-scheduler-event.v1',
     kernelPanicRecovery: 'xtend.fabric.kernel-panic-recovery.v1',
     prewarmWorkerTopology: 'xtend.rmt.prewarm-worker-topology.v1',
     backpressureSignal: 'xtend.fabric.backpressure-signal.v1',
@@ -1333,6 +1334,7 @@
     const fibers = [];
     const componentTelemetry = [];
     const kernelPanicRecoveryRecords = [];
+    const kernelSchedulerEvents = [];
     const reporters = [createNoopReporter()];
     let telemetrySnapshotCounter = 0;
 
@@ -1636,6 +1638,54 @@
       fibers.push(fiber);
       trimStore(fibers);
       return record;
+    }
+
+    function recordKernelSchedulerEvent(eventInput = {}, defaultsInput = {}) {
+      const input = asObject(eventInput);
+      const defaults = asObject(defaultsInput);
+      const event = Object.freeze({
+        schema: CONTRACTS.kernelSchedulerEvent,
+        sequence: Number(input.sequence) || kernelSchedulerEvents.length + 1,
+        jobId: clampString(input.jobId, ''),
+        phase: clampString(input.phase, 'unknown'),
+        status: clampString(input.status, 'unknown'),
+        endpointName: clampString(input.endpointName, ''),
+        scope: clampString(input.scope, ''),
+        rootId: clampString(input.rootId, ''),
+        lane: inferLane('rmt.scheduler', input.lane || 'diagnostics'),
+        priority: Number(input.priority) || 0,
+        reason: clampString(input.reason, ''),
+        createdAt: Number(input.createdAt) || 0,
+        startedAt: Number(input.startedAt) || 0,
+        finishedAt: Number(input.finishedAt) || 0,
+        yieldCount: Number(input.yieldCount) || 0,
+        source: clampString(defaults.source, 'rmt-kernel-scheduler'),
+        metadata: redactValue(input.metadata || {})
+      });
+      kernelSchedulerEvents.push(event);
+      trimStore(kernelSchedulerEvents);
+      const failed = event.status === 'failed' || event.status === 'aborted' || event.status === 'panic_blocked';
+      const fiber = normalizeFiber({
+        id: event.jobId || undefined,
+        kind: 'rmt.scheduler',
+        operation: event.endpointName || 'rmt.scheduler.work',
+        lane: event.lane,
+        phase: event.phase,
+        status: failed ? 'failed' : (event.status === 'completed' ? 'completed' : 'running'),
+        source: event.source,
+        scope: event.scope,
+        scheduleRef: event.endpointName,
+        metadata: {
+          schedulerEvent: event
+        }
+      }, {
+        idPrefix: config.idPrefix,
+        source: 'rmt-kernel-scheduler',
+        lane: event.lane
+      }, config.clock);
+      fibers.push(fiber);
+      trimStore(fibers);
+      return event;
     }
 
     function numericDuration(value) {
@@ -3235,6 +3285,7 @@
       createBackpressureSignal,
       recordComponentTelemetry,
       recordKernelPanicRecovery,
+      recordKernelSchedulerEvent,
       normalizeKernelPanicRecoveryRecord,
       summarizeKernelPanicRecovery,
       summarizeStreamPressure,
@@ -3261,6 +3312,9 @@
       getKernelPanicRecoveryRecords() {
         return kernelPanicRecoveryRecords.slice();
       },
+      getKernelSchedulerEvents() {
+        return kernelSchedulerEvents.slice();
+      },
       getPanicRecoverySnapshot() {
         return summarizeKernelPanicRecovery(kernelPanicRecoveryRecords);
       },
@@ -3279,12 +3333,16 @@
       clearKernelPanicRecoveryRecords() {
         kernelPanicRecoveryRecords.splice(0, kernelPanicRecoveryRecords.length);
       },
+      clearKernelSchedulerEvents() {
+        kernelSchedulerEvents.splice(0, kernelSchedulerEvents.length);
+      },
       dispose() {
         reporters.splice(1).forEach((reporter) => reporter.dispose());
         diagnostics.splice(0, diagnostics.length);
         fibers.splice(0, fibers.length);
         componentTelemetry.splice(0, componentTelemetry.length);
         kernelPanicRecoveryRecords.splice(0, kernelPanicRecoveryRecords.length);
+        kernelSchedulerEvents.splice(0, kernelSchedulerEvents.length);
       }
     };
 

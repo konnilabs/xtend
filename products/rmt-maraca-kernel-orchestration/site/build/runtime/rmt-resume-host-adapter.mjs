@@ -14,7 +14,7 @@ function bytesToBase64Url(bytes, encode) {
 }
 
 export function createRmtResumeHostAdapter(options = {}) {
-  const host = options.globalTarget || (typeof globalThis !== 'undefined' ? globalThis : null);
+  const host = options.hostTarget || options.globalTarget || (typeof globalThis !== 'undefined' ? globalThis : null);
   const documentTarget = options.document || host && host.document || null;
   const now = typeof options.now === 'function' ? options.now : (() => Date.now());
 

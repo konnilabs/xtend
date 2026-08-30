@@ -350,7 +350,8 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
     dataSources: fixture.dataSources,
     effects: fixture.effects,
     resources: fixture.resources,
-    stateRuntime,
+    stateRuntime: stateRuntime.modelReader,
+    modelCommandPort: stateRuntime.modelCommandPort,
     feedbackAdapter: {
       publish(payload) {
         feedback.push(payload);

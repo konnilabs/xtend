@@ -2,6 +2,13 @@ const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v2';
 const DOM_COMMIT_SCHEMA = 'xtend.rmt.dom-commit-result.v1';
 const DOM_COMMIT_EVENT = 'xtend-maraca:dom-commit';
 const SYSTEM_REFRESH_COMMAND = 'xtend.system.refresh';
+const LIVE_FORM_DRAFT_EVENTS = new Set([
+  'input',
+  'input-changed',
+  'textarea-changed',
+  'writer:change',
+  'writer-change'
+]);
 
 function clone(value, fallback = null) {
   if (value == null || typeof value !== 'object') return value == null ? fallback : value;
@@ -22,6 +29,14 @@ function immutableClone(value, fallback = null) {
 
 function asRecord(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+function preservesActiveInputDraft(metadata = {}) {
+  const record = asRecord(metadata);
+  const commandEnvelope = asRecord(record.commandEnvelope);
+  const source = asRecord(commandEnvelope.source);
+  const eventName = String(record.eventName || source.event || '').trim().toLowerCase();
+  return LIVE_FORM_DRAFT_EVENTS.has(eventName);
 }
 
 function asArray(value) {
@@ -167,6 +182,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const disposers = new Set();
   const capturedDisposableObjects = new WeakSet();
   const projectedSurfaceVisibility = new Map();
+  const revealedValidationFields = new Set();
   let generation = 0;
   let phase = 'created';
   let modules = null;
@@ -350,19 +366,43 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     return Object.freeze({ ...asRecord(modules) });
   }
 
-  function createMicrotaskKernel() {
+  function createSchedulerKernel() {
+    const scheduler = options.kernelScheduler
+      || (options.scheduler && options.scheduler.kernelScheduler)
+      || options.scheduler;
+    if (!scheduler || typeof scheduler.schedule !== 'function') {
+      const error = new Error('Maraca requires an injected kernel scheduler authority.');
+      error.code = 'xtend.maraca.mvc.kernel-scheduler-port-missing';
+      throw error;
+    }
     recordDiagnostic(
-      'maraca.plan-runtime.scheduler-fallback',
+      'maraca.plan-runtime.scheduler-delegation',
       'info',
-      'No kernel scheduler is available; the plan runtime uses one microtask queue.',
+      'Maraca delegates work to the injected kernel scheduler authority.',
       {},
       true
     );
-    ownsKernel = true;
+    ownsKernel = false;
     return Object.freeze({
-      schema: 'xtend.maraca.plan-runtime.inline-kernel.v1',
-      scheduleWork(_lane, work) { return Promise.resolve().then(work); },
-      snapshot() { return { schema: this.schema, status: 'ready', fallback: 'microtask' }; },
+      schema: 'xtend.maraca.plan-runtime.scheduler-kernel.v1',
+      scheduler,
+      scheduleWork(kind, work, metadata = {}) {
+        const lane = metadata.lane
+          || (kind === 'command' || kind === 'state-change' ? 'user-blocking' : kind === 'render' || kind === 'hydrate' ? 'visible' : 'background');
+        return scheduler.schedule({
+          scope: metadata.scope || 'xtend.maraca.plan-runtime',
+          endpointName: metadata.endpointName || `xtend.maraca.${String(kind || 'work')}`,
+          lane,
+          priority: metadata.priority,
+          deadlineMs: metadata.deadlineMs,
+          timeoutMs: metadata.timeoutMs,
+          budgetClass: metadata.budgetClass,
+          coalesceKey: metadata.coalesceKey,
+          rootId: metadata.rootId,
+          metadata: { operation: metadata.operation || '', action: metadata.action || '' }
+        }, work);
+      },
+      snapshot() { return { schema: this.schema, status: 'ready', schedulerSchema: scheduler.schema }; },
       dispose() {}
     });
   }
@@ -394,6 +434,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         artifact: kernelPlan.artifact,
         strict,
         scheduler: options.scheduler,
+        kernelScheduler: options.kernelScheduler
+          || (options.scheduler && options.scheduler.kernelScheduler)
+          || undefined,
         hostScheduler: options.hostScheduler,
         schedulerTarget: options.schedulerTarget,
         hostAdapter: options.kernelHostAdapter || options.hostAdapter,
@@ -401,13 +444,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         documentTarget: viewDocumentTarget()
       });
       if (controller && typeof controller.boot === 'function') controller.boot();
-      if (controller
-        && controller.schema === 'xtend.rmt.kernel-orchestration-controller.v1'
-        && !controller.schedulerBridge
-        && controller.status !== 'booted') {
+      if (controller && (
+        typeof controller.scheduleWork !== 'function'
+        || (controller.schema === 'xtend.rmt.kernel-orchestration-controller.v2' && controller.status !== 'booted')
+      )) {
         if (typeof controller.dispose === 'function') controller.dispose();
         if (requiresKernelScheduler) return failMissingKernel();
-        return createMicrotaskKernel();
+        return createSchedulerKernel();
       }
       if (requiresKernelScheduler && (!controller || typeof controller.scheduleWork !== 'function')) {
         if (controller && typeof controller.dispose === 'function') controller.dispose();
@@ -416,7 +459,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       return controller;
     }
     if (requiresKernelScheduler) return failMissingKernel();
-    return createMicrotaskKernel();
+    return createSchedulerKernel();
   }
 
   function componentTags(surfaceIds = null) {
@@ -579,6 +622,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       components: componentTags().map((tag) => ({ id: tag, tag })),
       componentRegistry: options.componentRegistry,
       trustedDomRenderer,
+      preserveActiveInputDraft: preservesActiveInputDraft(metadata),
       metadata: clone(metadata, {})
     };
     if (stateSnapshot) {
@@ -908,18 +952,36 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       workingStates[reducer.state] = clone(next, next);
     });
 
+    const changedValidationStates = modelOperations
+      .map((operation) => operation && operation.state)
+      .filter(Boolean);
+    const gatedValidationStates = validationStage && validationStage.intent === 'gate'
+      ? validationGroupStateIds(validationStage.groupIds)
+      : new Set();
+    const shouldRefreshValidation = !validationStage
+      || validationStage.intent === 'passive'
+      || changedValidationStates.some((stateId) => gatedValidationStates.has(String(stateId)));
     if (modelOperations.length > 0
-      && validationStage && validationStage.split === true && validationStage.evaluation) {
-      const gateReport = validationStage.report;
+      && shouldRefreshValidation
+      && (runtimes.validationEvaluator || runtimes.validation)) {
+      const gateReport = validationStage && validationStage.report;
       const prospectiveSnapshot = {
         ...clone(previousSnapshot, {}),
         states: clone(workingStates, {})
       };
-      const refreshedValidationStage = evaluateCommandValidation(commandId, metadata, prospectiveSnapshot);
+      const refreshedValidationStage = evaluateCommandValidation(
+        commandId,
+        metadata,
+        prospectiveSnapshot,
+        {
+          changedStates: changedValidationStates,
+          passive: validationStage && validationStage.intent === 'passive'
+        }
+      );
       if (refreshedValidationStage && refreshedValidationStage.evaluation) {
         validationStage = {
           ...refreshedValidationStage,
-          report: gateReport
+          report: gateReport || refreshedValidationStage.report
         };
       }
     }
@@ -986,6 +1048,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     });
     visit(validationStage && validationStage.evaluation && validationStage.evaluation.results);
     return fields;
+  }
+
+  function rememberRevealedValidationFields(validationStage) {
+    if (!validationStage || validationStage.intent !== 'gate') return;
+    validationFieldResults(validationStage).forEach((field) => {
+      if (field && field.revealed && field.field) revealedValidationFields.add(String(field.field));
+    });
   }
 
   function validationFieldSurface(field) {
@@ -1107,21 +1176,75 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     };
   }
 
-  function evaluateCommandValidation(commandId, metadata, suppliedModelSnapshot = null) {
+  function validationSelection(commandId, changedStates = [], options = {}) {
+    const validationPlan = asRecord(asRecord(plan.validation).artifact);
+    const gates = asArray(validationPlan.actionGates)
+      .filter((gate) => gate && gate.action === commandId && gate.group);
+    if (gates.length && options.passive !== true) {
+      return {
+        intent: 'gate',
+        gates,
+        groupIds: [...new Set(gates.map((gate) => gate.group))]
+      };
+    }
+    if (options.preflight === true) return { intent: 'passive', gates: [], groupIds: [] };
+
+    const affectedStates = new Set(asArray(changedStates).map(String).filter(Boolean));
+    const groups = asArray(validationPlan.groups).filter((group) => group && group.id);
+    const selected = new Set();
+    groups.forEach((group) => {
+      if (asArray(group.fields).some((field) => field && affectedStates.has(String(field.state || '')))) {
+        selected.add(group.id);
+      }
+    });
+    let expanded = true;
+    while (expanded) {
+      expanded = false;
+      groups.forEach((group) => {
+        if (selected.has(group.id)) return;
+        if (asArray(group.includes).some((groupId) => selected.has(groupId))) {
+          selected.add(group.id);
+          expanded = true;
+        }
+      });
+    }
+    return { intent: 'passive', gates: [], groupIds: [...selected] };
+  }
+
+  function validationGroupStateIds(groupIds) {
+    const groups = asArray(asRecord(asRecord(plan.validation).artifact).groups);
+    const groupById = new Map(groups.filter((group) => group && group.id).map((group) => [group.id, group]));
+    const states = new Set();
+    const visited = new Set();
+    const visit = (groupId) => {
+      if (!groupId || visited.has(groupId)) return;
+      visited.add(groupId);
+      const group = groupById.get(groupId);
+      if (!group) return;
+      asArray(group.fields).forEach((field) => {
+        if (field && field.state) states.add(String(field.state));
+      });
+      asArray(group.includes).forEach(visit);
+    };
+    asArray(groupIds).forEach(visit);
+    return states;
+  }
+
+  function evaluateCommandValidation(commandId, metadata = {}, suppliedModelSnapshot = null, options = {}) {
     if (!runtimes.validationEvaluator && !runtimes.validation) return null;
+    const selection = validationSelection(commandId, options.changedStates, options);
+    if (!selection.groupIds.length && !selection.gates.length) return null;
+    const gateIntent = selection.intent === 'gate';
+    const reveal = gateIntent && metadata.reveal !== false;
+    const report = reveal && metadata.report !== false;
     const validationMetadata = {
       ...metadata,
       action: commandId,
-      report: true,
-      reveal: true
+      report,
+      reveal,
+      revealedFields: [...revealedValidationFields]
     };
     if (runtimes.validationEvaluator && typeof runtimes.validationEvaluator.evaluate === 'function') {
-      const validationPlan = asRecord(asRecord(plan.validation).artifact);
-      const gates = asArray(validationPlan.actionGates).filter((gate) => gate && gate.action === commandId);
-      const groupIds = [...new Set([
-        ...gates.map((gate) => gate.group),
-        ...asArray(validationPlan.statePatches).map((patch) => patch && patch.group)
-      ].filter(Boolean))];
       const modelSnapshot = suppliedModelSnapshot || (
         runtimes.state.modelReader && typeof runtimes.state.modelReader.snapshot === 'function'
           ? runtimes.state.modelReader.snapshot()
@@ -1131,7 +1254,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         ...validationMetadata,
         snapshot: modelSnapshot,
         states: asRecord(modelSnapshot).states
-      }, {}), groupIds.length ? groupIds : null);
+      }, {}), selection.groupIds);
       const projectionMetadata = {
         operation: 'maraca.validation.view-projection.prepare',
         action: commandId,
@@ -1148,11 +1271,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
             metadata: projectionMetadata
           }, {});
       const resultsByGroup = collectValidationResults(evaluation && evaluation.results);
-      const gateResults = gates.map((gate) => resultsByGroup.get(gate.group)).filter(Boolean);
+      const gateResults = selection.gates.map((gate) => resultsByGroup.get(gate.group)).filter(Boolean);
       const valid = gateResults.every((result) => result.valid !== false);
-      return {
+      const validationStage = {
         modern: true,
         split: true,
+        intent: selection.intent,
+        groupIds: selection.groupIds,
         evaluation,
         application: null,
         projection: null,
@@ -1162,26 +1287,33 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           schema: 'xtend.rmt.form-validation-action-gate.v1',
           action: commandId,
           valid,
-          gated: gates.length > 0,
-          gateCount: gates.length,
+          gated: selection.gates.length > 0,
+          gateCount: selection.gates.length,
           results: gateResults
         }
       };
+      rememberRevealedValidationFields(validationStage);
+      return validationStage;
     }
     if (typeof runtimes.validation.evaluate === 'function') {
-      const validationPlan = asRecord(asRecord(plan.validation).artifact);
-      const gates = asArray(validationPlan.actionGates).filter((gate) => gate && gate.action === commandId);
-      const groupIds = [...new Set([
-        ...gates.map((gate) => gate.group),
-        ...asArray(validationPlan.statePatches).map((patch) => patch && patch.group)
-      ].filter(Boolean))];
-      const evaluation = runtimes.validation.evaluate(validationMetadata, groupIds.length ? groupIds : null);
+      const modelSnapshot = suppliedModelSnapshot || (
+        runtimes.state.modelReader && typeof runtimes.state.modelReader.snapshot === 'function'
+          ? runtimes.state.modelReader.snapshot()
+          : runtimes.state.snapshot()
+      );
+      const evaluation = runtimes.validation.evaluate({
+        ...validationMetadata,
+        snapshot: modelSnapshot,
+        states: asRecord(modelSnapshot).states
+      }, selection.groupIds);
       const resultsByGroup = collectValidationResults(evaluation && evaluation.results);
-      const gateResults = gates.map((gate) => resultsByGroup.get(gate.group)).filter(Boolean);
+      const gateResults = selection.gates.map((gate) => resultsByGroup.get(gate.group)).filter(Boolean);
       const valid = gateResults.every((result) => result.valid !== false);
-      return {
+      const validationStage = {
         modern: true,
         split: false,
+        intent: selection.intent,
+        groupIds: selection.groupIds,
         evaluation,
         application: null,
         metadata: validationMetadata,
@@ -1189,16 +1321,20 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           schema: 'xtend.rmt.form-validation-action-gate.v1',
           action: commandId,
           valid,
-          gated: gates.length > 0,
-          gateCount: gates.length,
+          gated: selection.gates.length > 0,
+          gateCount: selection.gates.length,
           results: gateResults
         }
       };
+      rememberRevealedValidationFields(validationStage);
+      return validationStage;
     }
-    if (typeof runtimes.validation.validateAction === 'function') {
+    if (selection.intent === 'gate' && typeof runtimes.validation.validateAction === 'function') {
       return {
         modern: false,
         split: false,
+        intent: selection.intent,
+        groupIds: selection.groupIds,
         evaluation: null,
         application: null,
         metadata: validationMetadata,
@@ -1318,7 +1454,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
 
   async function scheduleWork(kind, work, metadata = {}) {
     if (!runtimes || !runtimes.kernel || typeof runtimes.kernel.scheduleWork !== 'function') {
-      return Promise.resolve().then(work);
+      const error = new Error('Maraca cannot schedule work without the kernel scheduler authority.');
+      error.code = 'xtend.maraca.mvc.kernel-scheduler-port-missing';
+      throw error;
     }
     return new Promise((resolve, reject) => {
       let settled = false;
@@ -1348,8 +1486,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       pendingScheduledWork.add(cancel);
       try {
         const scheduled = runtimes.kernel.scheduleWork(kind, scheduledWork, {
-          ...metadata,
-          runInline: false
+          ...metadata
         });
         if (scheduled && typeof scheduled.then === 'function') scheduled.catch(fail);
       } catch (error) {
@@ -1374,7 +1511,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     let validation = null;
     let validationStage = null;
     try {
-      validationStage = evaluateCommandValidation(commandId, metadata);
+      validationStage = evaluateCommandValidation(commandId, metadata, null, { preflight: true });
       validation = validationStage && validationStage.report;
       blocked = validation && validation.valid === false;
       if (blocked) {
@@ -1637,10 +1774,6 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       let transaction;
       let validationStage;
       try {
-        validationStage = evaluateCommandValidation('xtend.stream.patch', {
-          ...streamMetadata,
-          reveal: false
-        });
         transaction = transactionState(
           [],
           'xtend.stream.patch',
@@ -1648,9 +1781,11 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           { modelOperations: asArray(planResult.modelOperations) },
           {
             ...streamMetadata,
-            transactionOperation: 'maraca.stream-patch.transaction'
+            transactionOperation: 'maraca.stream-patch.transaction',
+            reveal: false,
+            report: false
           },
-          validationStage
+          null
         );
       } finally {
         if (activeStateBuffer === stateBuffer) activeStateBuffer = null;
@@ -2671,6 +2806,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       try { viewProjectionPort.dispose(); } catch (_) {}
     }
     projectedSurfaceVisibility.clear();
+    revealedValidationFields.clear();
     ownsSurfaceController = false;
     ownsPresentationEffectPort = false;
     ownsViewProjectionPort = false;

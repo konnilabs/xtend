@@ -105,6 +105,9 @@
         let syncedTemplateCount = 0;
         let lastHealthAt = 0;
         let lastError = null;
+        let paused = false;
+        let pauseReason = '';
+        let invalidationCount = 0;
         const latestUiComputeGenerationByKey = new Map();
         const taskResolvers = new Map();
 
@@ -219,6 +222,11 @@
         }
 
         function postWorkerMessage(action, payload = {}, transferables = []) {
+            if (paused) {
+                const error = new Error(`RmtPrewarmWorker ist pausiert: ${pauseReason || 'backpressure'}.`);
+                error.code = 'xtend.rmt.prewarm_worker.paused';
+                return Promise.reject(error);
+            }
             const currentWorker = getWorker();
             const id = ++taskCounter;
             submittedJobs += 1;
@@ -414,6 +422,22 @@
             return result;
         }
 
+        function pauseForBackpressure(reason = 'critical_backpressure') {
+            paused = true;
+            pauseReason = normalizeTextValue(reason, 'critical_backpressure');
+            invalidationCount += latestUiComputeGenerationByKey.size;
+            latestUiComputeGenerationByKey.clear();
+            terminateWorker(pauseReason);
+            return true;
+        }
+
+        function resume(reason = 'pressure_recovered') {
+            paused = false;
+            pauseReason = normalizeTextValue(reason, 'pressure_recovered');
+            lastError = null;
+            return true;
+        }
+
         function getTopologySnapshot() {
             const missingApis = getMissingApis();
             const health = missingApis.length > 0
@@ -435,6 +459,9 @@
                 missingApis,
                 lastHealthAt,
                 lastError: cloneSerializable(lastError, null),
+                paused,
+                pauseReason,
+                invalidationCount,
                 responsibilities: [
                     'template_prerender_compute',
                     'chunk_serialization',
@@ -483,6 +510,8 @@
             getTopologySnapshot,
             getWorker,
             healthCheck,
+            pauseForBackpressure,
+            resume,
             syncTemplates,
             terminateWorker
         });

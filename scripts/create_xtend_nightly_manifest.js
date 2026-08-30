@@ -9,6 +9,7 @@ const RESULT_DIR = path.join(ROOT_DIR, '.xtend-test-results');
 const OUTPUT_PATH = path.join(RESULT_DIR, 'xtend-nightly-build-manifest.json');
 
 const COMMANDS = [
+  'npm run ci:dependency-locks:check',
   'npm run native-first:evidence:prepare',
   'npm run test:release:full:report',
   'npm run test:xtend-mcp:report',

@@ -6,6 +6,7 @@ const LIVE_FORM_DRAFT_EVENTS = new Set([
   'input',
   'input-changed',
   'textarea-changed',
+  'textarea-invalid',
   'writer:change',
   'writer-change'
 ]);
@@ -366,19 +367,43 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     return Object.freeze({ ...asRecord(modules) });
   }
 
-  function createMicrotaskKernel() {
+  function createSchedulerKernel() {
+    const scheduler = options.kernelScheduler
+      || (options.scheduler && options.scheduler.kernelScheduler)
+      || options.scheduler;
+    if (!scheduler || typeof scheduler.schedule !== 'function') {
+      const error = new Error('Maraca requires an injected kernel scheduler authority.');
+      error.code = 'xtend.maraca.mvc.kernel-scheduler-port-missing';
+      throw error;
+    }
     recordDiagnostic(
-      'maraca.plan-runtime.scheduler-fallback',
+      'maraca.plan-runtime.scheduler-delegation',
       'info',
-      'No kernel scheduler is available; the plan runtime uses one microtask queue.',
+      'Maraca delegates work to the injected kernel scheduler authority.',
       {},
       true
     );
-    ownsKernel = true;
+    ownsKernel = false;
     return Object.freeze({
-      schema: 'xtend.maraca.plan-runtime.inline-kernel.v1',
-      scheduleWork(_lane, work) { return Promise.resolve().then(work); },
-      snapshot() { return { schema: this.schema, status: 'ready', fallback: 'microtask' }; },
+      schema: 'xtend.maraca.plan-runtime.scheduler-kernel.v1',
+      scheduler,
+      scheduleWork(kind, work, metadata = {}) {
+        const lane = metadata.lane
+          || (kind === 'command' || kind === 'state-change' ? 'user-blocking' : kind === 'render' || kind === 'hydrate' ? 'visible' : 'background');
+        return scheduler.schedule({
+          scope: metadata.scope || 'xtend.maraca.plan-runtime',
+          endpointName: metadata.endpointName || `xtend.maraca.${String(kind || 'work')}`,
+          lane,
+          priority: metadata.priority,
+          deadlineMs: metadata.deadlineMs,
+          timeoutMs: metadata.timeoutMs,
+          budgetClass: metadata.budgetClass,
+          coalesceKey: metadata.coalesceKey,
+          rootId: metadata.rootId,
+          metadata: { operation: metadata.operation || '', action: metadata.action || '' }
+        }, work);
+      },
+      snapshot() { return { schema: this.schema, status: 'ready', schedulerSchema: scheduler.schema }; },
       dispose() {}
     });
   }
@@ -410,6 +435,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         artifact: kernelPlan.artifact,
         strict,
         scheduler: options.scheduler,
+        kernelScheduler: options.kernelScheduler
+          || (options.scheduler && options.scheduler.kernelScheduler)
+          || undefined,
         hostScheduler: options.hostScheduler,
         schedulerTarget: options.schedulerTarget,
         hostAdapter: options.kernelHostAdapter || options.hostAdapter,
@@ -417,13 +445,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         documentTarget: viewDocumentTarget()
       });
       if (controller && typeof controller.boot === 'function') controller.boot();
-      if (controller
-        && controller.schema === 'xtend.rmt.kernel-orchestration-controller.v1'
-        && !controller.schedulerBridge
-        && controller.status !== 'booted') {
+      if (controller && (
+        typeof controller.scheduleWork !== 'function'
+        || (controller.schema === 'xtend.rmt.kernel-orchestration-controller.v2' && controller.status !== 'booted')
+      )) {
         if (typeof controller.dispose === 'function') controller.dispose();
         if (requiresKernelScheduler) return failMissingKernel();
-        return createMicrotaskKernel();
+        return createSchedulerKernel();
       }
       if (requiresKernelScheduler && (!controller || typeof controller.scheduleWork !== 'function')) {
         if (controller && typeof controller.dispose === 'function') controller.dispose();
@@ -432,7 +460,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       return controller;
     }
     if (requiresKernelScheduler) return failMissingKernel();
-    return createMicrotaskKernel();
+    return createSchedulerKernel();
   }
 
   function componentTags(surfaceIds = null) {
@@ -591,12 +619,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
 
   function createRenderContext(metadata = {}, stateSnapshot = null) {
     const trustedDomRenderer = options.trustedDomRenderer || options.trustedDom;
+    const preserveActiveInputDraft = preservesActiveInputDraft(metadata);
     const extra = {
       components: componentTags().map((tag) => ({ id: tag, tag })),
       componentRegistry: options.componentRegistry,
       trustedDomRenderer,
-      preserveActiveInputDraft: preservesActiveInputDraft(metadata),
-      metadata: clone(metadata, {})
+      preserveActiveInputDraft,
+      metadata: { ...clone(metadata, {}), preserveActiveInputDraft }
     };
     if (stateSnapshot) {
       return {
@@ -1073,8 +1102,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       if (!value || typeof value !== 'object') return value;
       const next = { ...value };
       const matches = projections.filter((projection) => descriptorMatchesValidationTarget(value, projection));
-      if (matches.length) {
-        const invalidFields = matches.filter((projection) => projection.revealed !== false && projection.invalid === true);
+      const revealedMatches = matches.filter((projection) => projection.revealed !== false);
+      if (revealedMatches.length) {
+        const invalidFields = revealedMatches.filter((projection) => projection.invalid === true);
         const message = invalidFields.find((projection) => projection.message);
         next.attributes = {
           ...asRecord(value.attributes),
@@ -1427,7 +1457,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
 
   async function scheduleWork(kind, work, metadata = {}) {
     if (!runtimes || !runtimes.kernel || typeof runtimes.kernel.scheduleWork !== 'function') {
-      return Promise.resolve().then(work);
+      const error = new Error('Maraca cannot schedule work without the kernel scheduler authority.');
+      error.code = 'xtend.maraca.mvc.kernel-scheduler-port-missing';
+      throw error;
     }
     return new Promise((resolve, reject) => {
       let settled = false;
@@ -1457,8 +1489,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       pendingScheduledWork.add(cancel);
       try {
         const scheduled = runtimes.kernel.scheduleWork(kind, scheduledWork, {
-          ...metadata,
-          runInline: false
+          ...metadata
         });
         if (scheduled && typeof scheduled.then === 'function') scheduled.catch(fail);
       } catch (error) {

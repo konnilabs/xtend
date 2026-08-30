@@ -33,4 +33,6 @@ Pinne eine getestete Package-Version und importiere nur dokumentierte Exports. P
 
 Prüfe vor der Übergabe des Piloten seine veröffentlichten Einstiegspunkte mit dem [Package Export Lock](./package-export-lock.md) und erfasse den Paketnachweis mit `npm run pack:dry-run:report`.
 
+Netzwerkabhängige Audit- und SBOM-Nachweise folgen dem Contract `xtend.epic13.conditional-network-evidence.v1`. Der lokale Standard `network-restricted-local-default` erzeugt eine nachvollziehbare Deferral, ohne Daten zu senden; Ausführung und Release-Freigabe sind unter [Conditional Network Evidence](./conditional-network-evidence.md) beschrieben.
+
 Bewahre einen funktionierenden Fallback mindestens so lange auf, bis die neue Surface ihre Fehler- und Recovery-Pfade im Produkt gezeigt hat. Ein erfolgreicher Happy Path allein ist kein belastbarer Adoption-Nachweis.

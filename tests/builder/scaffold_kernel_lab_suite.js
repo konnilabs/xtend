@@ -23,6 +23,8 @@ const {
   KERNEL_ANALYSIS_TARGETS,
   KERNEL_BUILD_TARGETS,
   KERNEL_SOURCE_INPUTS,
+  MICROKERNEL_PATH,
+  MICROKERNEL_TYPES_PATH,
   MODULE_MANIFEST_PATH,
   SOURCE_MANIFEST_PATH,
   RMT_KERNEL_LAB_ANALYSIS_SCHEMA,
@@ -33,6 +35,7 @@ const {
   analyzeKernelMvcArchitecture,
   cleanRmtKernelArtifactContent,
   createKernelOptimizationReport,
+  createMicrokernelReport,
   createRmtKernelLabAnalysis,
   createRmtKernelLabBuild,
   findDeprecatedKernelBranding
@@ -506,6 +509,7 @@ function runScaffoldKernelLabSuite(options = {}) {
   const compatibleMvc = analyzeKernelMvcArchitecture({
     rootDir,
     manifest: compatibleMvcManifest,
+    version: '0.6.9',
     sources: {
       'fixtures/shared.js': 'export const SharedPort = {};',
       'fixtures/model.js': 'export const ModelPort = { getState() {}, setState() {} };',
@@ -514,7 +518,20 @@ function runScaffoldKernelLabSuite(options = {}) {
       'fixtures/controller-global-shell.js': '/* xtend-kernel-mvc:compatibility-shell-start */\nglobalThis.ControllerFactory = createControllerGlobalShell;\n/* xtend-kernel-mvc:compatibility-shell-end */\nexport function createControllerGlobalShell(port) { return () => port.read(); }'
     }
   });
-  context.assert(compatibleMvc.ok && compatibleMvc.compatibilityComposerCount === 1 && compatibleMvc.globalMirrorCompatibilityCount === 2, 'KernelLab permits only explicit, release-bounded 0.6 compatibility facades and isolated global shells');
+  context.assert(compatibleMvc.ok && compatibleMvc.compatibilityComposerCount === 1 && compatibleMvc.globalMirrorCompatibilityCount === 2, 'KernelLab permits non-expired, explicitly bounded compatibility facades and isolated global shells');
+  const expiredCompatibleMvc = analyzeKernelMvcArchitecture({
+    rootDir,
+    manifest: compatibleMvcManifest,
+    version: '0.7.0',
+    sources: {
+      'fixtures/shared.js': 'export const SharedPort = {};',
+      'fixtures/model.js': 'export const ModelPort = { getState() {}, setState() {} };',
+      'fixtures/global-model-mirror.js': 'export function createGlobalModelMirror() { globalThis.AppModules = {}; return globalThis.AppModules; }',
+      'fixtures/legacy-composer.js': 'export function createLegacyComposer(model) { globalThis.AppModules = {}; return () => model.getState(); }',
+      'fixtures/controller-global-shell.js': '/* xtend-kernel-mvc:compatibility-shell-start */\nglobalThis.ControllerFactory = createControllerGlobalShell;\n/* xtend-kernel-mvc:compatibility-shell-end */\nexport function createControllerGlobalShell(port) { return () => port.read(); }'
+    }
+  });
+  context.assert(!expiredCompatibleMvc.ok && expiredCompatibleMvc.violations.some((entry) => entry.code === 'xtend.rmt.kernel_mvc.compatibility_expired'), 'KernelLab blocks compatibility records once currentVersion reaches removeBy');
 
   const unsafeCompatibilityManifest = JSON.parse(JSON.stringify(compatibleMvcManifest));
   const unsafeComposer = unsafeCompatibilityManifest.modules.find((entry) => entry.id === 'legacy-compatibility-composer');
@@ -737,12 +754,16 @@ function runScaffoldKernelLabSuite(options = {}) {
         capability.startsWith('host.') || capability.startsWith('global.')
       )), `${entry && entry.id || 'controller'} reaches Clock, Scheduler, Abort and Globals only through typed ports`);
   });
-  [actionController, orchestrationController, surfaceController].forEach((entry) => {
-    context.assert(entry
-      && Array.isArray(entry.observedCompatibilityCapabilities)
-      && entry.observedCompatibilityCapabilities.every((capability) => ['global.read', 'global.write'].includes(capability)),
-    `${entry && entry.id || 'controller'} isolates its 0.6 global mirror in a bounded compatibility shell`);
-  });
+  context.assert(analysis.architectureReport.compatibilityComposerCount === 0, 'KernelLab has no expired 0.6 compatibility composers');
+  context.assert(analysis.architectureReport.globalMirrorCompatibilityCount === 0, 'KernelLab has no global factory-mirror compatibility exceptions');
+  context.assert(analysis.architectureReport.entries.every((entry) => !entry.compatibility && !entry.compatibilityShell), 'KernelLab source topology contains no removeBy 0.7 compatibility records');
+  context.assert(!sourceManifest.modules.some((entry) => entry.id === 'rmt-priority-queue'), 'KernelLab topology contains no legacy kernel queue module');
+  const engineControllerSource = readText('xtendrmt/kernel/modules/rmt-engine-controller.js', rootDir);
+  context.assert(
+    engineControllerSource.includes('schedulerAuthority.schedule(')
+      && !/\b(?:createRmtQueue|priorityQueue|scheduledJobs|runScheduledJob)\b/u.test(engineControllerSource),
+    'Engine Controller delegates every job to the injected microkernel without a shadow queue'
+  );
   context.assert(analysis.moduleManifest.sourceOfTruth === SOURCE_MANIFEST_PATH, 'KernelLab source manifest is the architecture source of truth');
   if (!analysis.architectureReport.ok) {
     const mixedRoleIds = new Set(analysis.architectureReport.violations
@@ -793,6 +814,7 @@ function runScaffoldKernelLabSuite(options = {}) {
   context.assert(analysis.optimizationReport.redundantFallbacks.length === 0, 'KernelLab analysis sees no remaining duplicate factory fallbacks');
   context.assert(analysis.optimizationReport.redundantFactoryResolution.length === 0, 'KernelLab analysis sees no remaining duplicate resolveFactory chains');
   context.assert(analysis.optimizationReport.duplicateFunctionBodies.length > 0, 'KernelLab analysis reports duplicate helper bodies for follow-up optimization');
+  context.assert(analysis.optimizationReport.ok === true && analysis.optimizationReport.summary.estimatedDuplicateFunctionBytes <= 12000, 'KernelLab enforces the 12 KiB full-bundle duplicate budget');
   context.assert(!analysis.optimizationReport.duplicateFunctionBodies.some((group) => (
     group.entries.some((entry) => entry.functionName === 'redactRuntimePanicMetadata')
   )), 'KernelLab confirms the Trusted DOM panic helper has one canonical View owner');
@@ -801,6 +823,36 @@ function runScaffoldKernelLabSuite(options = {}) {
   )), 'KernelLab optimization report keeps comparison-only reactivity attribution visible');
   context.assert(analysis.artifacts.filter((artifact) => artifact.kind !== 'module-manifest').every((artifact) => artifact.dashboardSymbols.length === 0), 'KernelLab analysis sees clean standard artifacts');
   context.assert(analysis.artifacts.every((artifact) => artifact.deprecatedBrandingCount === 0), 'KernelLab analysis sees deprecated-branding-free artifacts');
+  context.assert(analysis.microkernelReport && analysis.microkernelReport.ok, 'KernelLab validates the separate microkernel target');
+  context.assert(analysis.microkernelReport.rawBytes <= 160 * 1024 && analysis.microkernelReport.gzipBytes <= 32 * 1024, 'KernelLab enforces microkernel raw and gzip budgets');
+  context.assert(analysis.microkernelReport.compositionEdges.length === 0 && analysis.microkernelReport.runtimePortEdges.length >= 4, 'KernelLab separates composition edges from injected runtime-port edges');
+  context.assert(analysis.microkernelReport.forbiddenImports.length === 0 && analysis.microkernelReport.duplicateFunctionBodies.length === 0, 'Microkernel contains no service imports or duplicated function bodies');
+
+  const microkernelBuild = createRmtKernelLabBuild({ rootDir, profile: 'microkernel' });
+  context.assert(microkernelBuild.ok && microkernelBuild.status === 'current', 'KernelLab microkernel build target verifies the standalone scheduler artifact');
+  context.assert(microkernelBuild.outputs.some((entry) => entry.path === MICROKERNEL_PATH) && microkernelBuild.outputs.some((entry) => entry.path === MICROKERNEL_TYPES_PATH), 'Microkernel build target covers runtime and TypeScript artifacts');
+
+  const missingPortManifest = JSON.parse(JSON.stringify(sourceManifest));
+  delete missingPortManifest.microkernel.runtimePortProviders.clock;
+  const missingPortReport = createMicrokernelReport(rootDir, { manifest: missingPortManifest });
+  context.assert(!missingPortReport.ok && missingPortReport.violations.some((entry) => entry.code === 'xtend.rmt.kernel_lab.runtime_port_provider_missing'), 'KernelLab blocks a missing required runtime-port provider');
+  const forbiddenImportReport = createMicrokernelReport(rootDir, {
+    manifest: sourceManifest,
+    sources: { [MICROKERNEL_PATH]: "import './rmt-runtime.esm.js';\nexport function createRmtKernelScheduler() {}\n" }
+  });
+  context.assert(!forbiddenImportReport.ok && forbiddenImportReport.violations.some((entry) => entry.code === 'xtend.rmt.kernel_lab.microkernel_service_import'), 'KernelLab blocks service imports in the microkernel');
+
+  const expiredManifest = JSON.parse(JSON.stringify(sourceManifest));
+  const expiredEntry = expiredManifest.modules.find((entry) => entry.id === 'rmt-browser-scheduler');
+  expiredEntry.compatibility = {
+    kind: '0.6-global-mirror',
+    since: '0.6.0',
+    removeBy: '0.7.0',
+    reason: 'Synthetic expired compatibility record for the KernelLab negative gate.',
+    allowedCapabilities: ['global.read', 'global.write']
+  };
+  const expiredReport = analyzeKernelMvcArchitecture({ rootDir, manifest: expiredManifest, version: '0.8.0' });
+  context.assert(!expiredReport.ok && expiredReport.violations.some((entry) => entry.code === 'xtend.rmt.kernel_mvc.compatibility_expired'), 'KernelLab turns currentVersion >= removeBy into a release error');
 
   const dryRun = createRmtKernelLabBuild({ rootDir, profile: 'clean' });
   context.assert(dryRun.ok, 'KernelLab clean build dry-run succeeds');
@@ -945,7 +997,7 @@ function runScaffoldKernelLabSuite(options = {}) {
   productManifestSandbox.globalThis = productManifestSandbox;
   if (topologyMatch && publicApiModuleSource) {
     vm.runInNewContext(
-      `const __XTENDRMT_GLOBAL__ = globalThis;\n${topologyMatch[0]}\n${publicApiModuleSource}`,
+      `const __XTENDRMT_GLOBAL__ = globalThis;\nconst __XTENDRMT_SHARED__ = { clampString(value, fallback = '') { return String(value || '').trim() || fallback; }, cloneSerializable(value, fallback = null) { try { return JSON.parse(JSON.stringify(value)); } catch (_) { return fallback; } }, resolveFactory(modules, name, explicit) { return typeof explicit === 'function' ? explicit : modules[name] || null; }, isElementLike(value) { return !!value && typeof value.addEventListener === 'function'; }, normalizeTemplateReference(value) { return typeof value === 'string' ? value : ''; } };\n${topologyMatch[0]}\n${publicApiModuleSource}`,
       productManifestSandbox,
       { filename: 'kernel-lab-product-manifest-probe.js' }
     );

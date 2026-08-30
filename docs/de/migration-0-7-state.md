@@ -45,4 +45,4 @@ Die Classic-Semantik für dynamische Keys, initiale Subscription-Callbacks, Filt
 | `connectXState()` | `connectStateProjection()` |
 | Option `xstate` | `stateProjectionTarget` oder `stateProjectionPort` |
 
-Alte RMT-Optionen werden ignoriert und adaptieren kein Ziel mehr. Projektionen sind ausschließlich Ausgaben; RMT übernimmt sie nie als Model-Initialzustand.
+Alte RMT-Optionen werden ignoriert und adaptieren kein Ziel mehr. Projektionen sind ausschließlich Ausgaben; RMT übernimmt sie nie als Model-Initialzustand. Weitere Beispiele stehen in der [XTend-State-Referenz](./components/xtend-state.md).

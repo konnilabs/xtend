@@ -24,9 +24,9 @@ function sha256(value) {
 test('deterministic bundle covers every canonical bilingual Markdown source byte-for-byte', () => {
   const bundle = loadXtendKnowledgeBundle({ noCache: true });
   const menu = JSON.parse(fs.readFileSync(path.join(repoRoot, 'docs', 'menu.json'), 'utf8'));
-  assert.equal(bundle.manifest.docs.count, 342);
-  assert.deepEqual(bundle.manifest.docs.counts, { de: 171, en: 171 });
-  assert.equal(bundle.docs.length, 342);
+  assert.equal(bundle.manifest.docs.count, 346);
+  assert.deepEqual(bundle.manifest.docs.counts, { de: 173, en: 173 });
+  assert.equal(bundle.docs.length, 346);
   assert.equal(bundle.manifest.docs.menuEntries, menu.length);
   assert.deepEqual(bundle.manifest.docs.missingMenuDocs, []);
 
@@ -46,7 +46,7 @@ test('deterministic bundle covers every canonical bilingual Markdown source byte
 
 test('docs catalogs are stable, cursor-addressable, and converge without duplicates', () => {
   const first = getXtendDocsCatalog('de');
-  assert.equal(first.count, 171);
+  assert.equal(first.count, 173);
   assert.equal(first.pageCount, 50);
   assert.equal(first.nextCursor, '50');
   assert.equal(first.nextUri, 'xtend://docs/catalog/de?cursor=50');
@@ -66,7 +66,7 @@ test('docs catalogs are stable, cursor-addressable, and converge without duplica
     });
     cursor = page.nextCursor || '';
   } while (cursor);
-  assert.equal(seen.size, 171);
+  assert.equal(seen.size, 173);
 });
 
 test('search and formatted contexts retain URI, locale, document type, path, and SHA-256 provenance', async () => {
@@ -94,4 +94,3 @@ test('search and formatted contexts retain URI, locale, document type, path, and
   assert.match(rmt.promptContext, /Resource: xtend:\/\/rmt\/kit\//u);
   assert.match(rmt.promptContext, /sha256:[a-f0-9]{64}/u);
 });
-

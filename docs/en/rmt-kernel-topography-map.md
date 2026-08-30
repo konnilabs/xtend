@@ -1,6 +1,6 @@
 # RMT Kernel Topography Map
 
-Updated: 2026-08-02
+Updated: 2026-08-30
 
 This map describes the canonical RMT kernel sources used by the XTend stack. `xtendrmt/rmt-runtime.esm.js`, `xtendrmt/rmt-core.esm.js`, and `xtendrmt/rmt-runtime.browser.js` are generated delivery artifacts, not build inputs. The source of truth is `xtendrmt/kernel/rmt-kernel-sources.json` together with the independent sources under `xtendrmt/` and `xtendrmt/kernel/modules/`.
 
@@ -22,8 +22,8 @@ Module count, order, targets, exports, and hashes are derived from the source ma
 
 | Bundle module | Primary factory | Function surface |
 | --- | --- | --- |
-| `rmt-engine.js`, `rmt-engine-controller.js`, `rmt-engine-host-adapter.js` | `createRmtEngine` | Thin composition root, command/scheduler controller, and separate host adapter for timing and events |
-| `rmt-priority-queue.js` | `createRmtQueue` | Prioritized runtime work |
+| `rmt-kernel-scheduler.js` (separate `./kernel-scheduler` artifact) | `createRmtKernelScheduler` | Host-neutral queue, job lifecycle, yielding, cancellation, diagnostics and scheduler host port |
+| `rmt-engine.js`, `rmt-engine-controller.js`, `rmt-engine-host-adapter.js` | `createRmtEngine` | Root, resource, command and binding services that delegate UI work to the injected microkernel scheduler |
 | `rmt-diagnostics-hub.js` | `createRmtDiagnosticsHub` | Diagnostics publication, subscription and bounded event flow |
 | `rmt-command-bus.js` | `createRmtCommandBus` | Command dispatch |
 | `rmt-reactivity.js` | `createRmtReactivity` | State and resource reactivity |
@@ -66,27 +66,27 @@ Module count, order, targets, exports, and hashes are derived from the source ma
 | `createRmtRuntime`, `createRmtCore` | Active in Maraca, kernel orchestration and compatibility tests |
 | `createRmtFormat` and split native adapters | Heavily used by parsing, surface, component, and lifecycle suites; Model, Controller, and output adapters are physically separate |
 | `createRmtStateSchedulerDiagnosticsBridge` | Active in Maraca, Fabric diagnostics, telemetry and backpressure tests |
-| `createRmtPerformanceRuntime` | Present in Maraca and kernel orchestration; advanced reports are still underused |
-| `createRmtTemplateExecutionPath` | Used in kernel security tests, not yet broad production evidence |
-| `createRmtKernelPolicyParity` | Used in focused gates, not yet as an end-to-end release constraint |
-| `createRmtProductSurface` | Exported and documented, while Maraca still boots several factories directly |
-| `createRmtTemplateArtifacts` | Exported, typed and production-ready, but not yet used as the Maraca artifact pipeline |
-| Worker/server prerender runtimes | Exported and typed, not yet active in product flows |
-| `createRmtPrewarmWorkerRuntime` | Browser runtime can compose it, but XTend does not yet use it as a Warm Reentry path |
-| `createRmtDetachedRuntime` | Exported, but not yet the standard runtime for deterministic gates |
-| `createRmtDomCompat` | Exported as its own View adapter; Surface lifecycle belongs to the Surface Controller and DOM ownership to the descriptor renderer |
+| `createRmtPerformanceRuntime` | Active in Maraca, kernel orchestration, Fabric backpressure and the retained-warm-reuse release baseline |
+| `createRmtTemplateExecutionPath` | Active in security gates; redacted panic/recovery lifecycle is projected into Fabric diagnostics |
+| `createRmtKernelPolicyParity` | Active in strict Maraca and release parity gates |
+| `createRmtProductSurface` | Optional service facade; direct microkernel composition remains the default and ESM imports have no boot side effect |
+| `createRmtTemplateArtifacts` | Exported, typed and represented in Maraca build/report evidence |
+| Worker/server prerender runtimes | Exported, typed and capability-gated optional services |
+| `createRmtPrewarmWorkerRuntime` | Explicit opt-in, disabled by default, paused and invalidated under critical backpressure |
+| `createRmtDetachedRuntime` | Used by deterministic lifecycle, telemetry and resource-release gates |
+| `createRmtDomCompat` | Active as its own View adapter; Surface lifecycle belongs to the Surface Controller and DOM ownership to the descriptor renderer |
 
-## Underused Potential
+## Adoption Closure
 
 | Potential | Kernel capability | Recommended hardening |
 | --- | --- | --- |
-| Product-surface bootstrap | `createRmtProductSurface()` inventories runtime, core, performance, template and transport factories | Boot Maraca and the kernel orchestrator through Product Surface optionally, then expose entry points in bundle reports |
+| Product-surface bootstrap | `createRmtProductSurface()` inventories runtime, core, performance, template and transport factories | Completed as an explicit opt-in service; direct Microkernel composition is the default |
 | Source-to-Sea template artifacts | `createRmtTemplateArtifacts()` creates fingerprints and runtime profile hints | Add `templateArtifacts` to Maraca reports and connect fingerprints to surface/resource evidence |
-| Warm Reentry | Prewarm worker, worker topology and performance backpressure profiles | Introduce route and surface reentry as an opt-in prewarm path |
+| Warm Reentry | Prewarm worker, worker topology and performance backpressure profiles | Completed with a 32-entry/two-generation LRU, critical-pressure invalidation and a Chromium p95 release gate |
 | Detached runtime testing | `createRmtDetachedRuntime()` provides browser-runtime semantics without live DOM | Make lifecycle, telemetry and resource-release gates more deterministic |
 | DOM compatibility | `createRmtDomCompat()` knows ownership modes and island mount/unmount | Validate Surface Manager destroy semantics against shared DOM contracts |
 | Performance evidence | CI summaries, baselines, trendlines and file artifacts | Enrich Maraca production reports with budget, baseline and backpressure evidence |
-| Panic and recovery | Execution path and runtime renderer expose trust verdicts, panic events and recovery outcomes | Surface security and recovery records in Fabric telemetry and Maraca lifecycle reports |
+| Panic and recovery | Execution path and runtime renderer expose trust verdicts, panic events and recovery outcomes | Completed with redacted diagnostics-lane projection; sensitive payloads stay in the kernel |
 
 ## Layer Map
 
@@ -100,6 +100,6 @@ Module count, order, targets, exports, and hashes are derived from the source ma
 | SSR/worker/prewarm | Worker/server transport adapters, prerender runtimes, prewarm worker runtime | Moves expensive template work out of visible lanes |
 | App Runtime | `createRmtAppRuntime()`, command, stream and reducer APIs | Connects host services and app actions to Fabric and kernel diagnostics |
 
-## Next Step
+## Release Reference
 
-The [RMT Kernel Feature Adoption Evaluation](./rmt-kernel-feature-adoption-evaluation.md) evaluates the underused modules one by one and names concrete hooks in Maraca, Fabric, App Runtime, Surface Manager and tests.
+The [RMT Kernel Feature Adoption Evaluation](./rmt-kernel-feature-adoption-evaluation.md) records the closed tracks. Breaking changes are documented in the [0.8 migration guide](./rmt-kernel-0-8-migration.md).

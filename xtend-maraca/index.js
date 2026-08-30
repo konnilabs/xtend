@@ -166,6 +166,7 @@ const KERNEL_POLICY_PARITY_REPORT_SCHEMA = 'xtend.rmt.kernel-policy-parity-repor
 const KERNEL_POLICY_PARITY_DRIFT_SCHEMA = 'xtend.rmt.kernel-policy-parity-drift.v1';
 const KERNEL_RUNTIME_BUNDLE_FILE = 'runtime/xtendrmt-runtime.esm.mjs';
 const KERNEL_CONTROLLER_BUNDLE_FILE = 'runtime/xtendrmt-kernel-orchestration-controller.mjs';
+const KERNEL_SCHEDULER_BUNDLE_FILE = 'runtime/rmt-kernel-scheduler.mjs';
 const KERNEL_RESUME_RUNTIME_BUNDLE_FILE = 'runtime/rmt-resume-runtime.mjs';
 const PLAN_RUNTIME_BUNDLE_FILE = 'runtime/xtend-maraca-plan-runtime.mjs';
 const BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE = 'runtime/xtend-maraca-browser-composition-runtime.mjs';
@@ -459,7 +460,7 @@ function loadRmtPerformanceRuntimeFactory(rootDir) {
       filename: `${artifact.sourceManifestPath || 'xtendrmt/kernel/rmt-kernel-sources.json'}#rmt-runtime.browser.js`,
       timeout: 1000
     });
-    const factory = sandbox.AppModules && sandbox.AppModules.createRmtPerformanceRuntime || null;
+    const factory = sandbox.XTendRMT && sandbox.XTendRMT.createRmtPerformanceRuntime || null;
     if (typeof factory !== 'function') {
       const error = new Error('Canonical XTendRMT browser runtime does not provide createRmtPerformanceRuntime.');
       error.code = 'xtend.maraca.performance_runtime_factory_missing';
@@ -480,7 +481,11 @@ function getRmtPerformanceRuntimeFactoryError(rootDir) {
 function loadUmdEsmHybridModule(modulePath, globalName) {
   const source = fs.readFileSync(modulePath, 'utf8');
   const exportBridgeStart = source.indexOf('\nconst __XTEND_RMT_KERNEL_FEATURE_ADOPTION_REGISTRY_API__ = globalThis.');
-  const executableSource = exportBridgeStart >= 0 ? source.slice(0, exportBridgeStart) : source;
+  const esmExportStart = source.indexOf('\nexport const ');
+  let executableSource = exportBridgeStart >= 0 ? source.slice(0, exportBridgeStart) : source;
+  if (exportBridgeStart < 0 && esmExportStart >= 0 && source.includes('__XTEND_RMT_KERNEL_FEATURE_ADOPTION_REGISTRY_API__')) {
+    executableSource = `${source.slice(0, esmExportStart)}\nmodule.exports = __XTEND_RMT_KERNEL_FEATURE_ADOPTION_REGISTRY_API__;\n`;
+  }
   const sandbox = {
     console,
     module: { exports: {} }
@@ -5210,9 +5215,10 @@ function createBundleSource(plan, providerCssText = null) {
   header.unshift(`import { createMaracaPlanRuntime } from "./${PLAN_RUNTIME_BUNDLE_FILE}";`);
   if (plan.kernel && plan.kernel.enabled) {
     header.unshift(`import * as XTendMaracaKernelRuntimeModule from "./${KERNEL_RUNTIME_BUNDLE_FILE}";`);
-    header.unshift(`import "./${KERNEL_CONTROLLER_BUNDLE_FILE}";`);
+    header.unshift(`import * as XTendMaracaKernelControllerModule from "./${KERNEL_CONTROLLER_BUNDLE_FILE}";`);
   } else {
     header.push('const XTendMaracaKernelRuntimeModule = null;');
+    header.push('const XTendMaracaKernelControllerModule = null;');
   }
   header.push(`const MARACA_RUNTIME_MODULE_APIS = Object.freeze({${runtimeModuleApiEntries
     .map((entry) => `\n  ${JSON.stringify(entry.id)}: ${entry.importName}`)
@@ -5289,6 +5295,7 @@ const maracaComposition = createMaracaBrowserCompositionRoot(MARACA_BOOT_CONFIGU
   runtimeModuleApis: MARACA_RUNTIME_MODULE_APIS,
   componentImporters: MARACA_IMPORTERS,
   kernelRuntimeModule: XTendMaracaKernelRuntimeModule,
+  kernelControllerModule: XTendMaracaKernelControllerModule,
   appServiceDefinition: XTendMaracaAppServiceDefinition,
   createAppServiceRegistry,
   createHttpAppServiceTransport,
@@ -5796,20 +5803,20 @@ function copyKernelResumeRuntimeAssets(plan) {
   });
 }
 
-function copyKernelControllerRuntimeAsset(plan) {
-  if (!plan || !plan.kernel || !plan.kernel.enabled) return null;
+function copyKernelControllerRuntimeAssets(plan) {
+  if (!plan || !plan.kernel || !plan.kernel.enabled) return [];
   const packageRoot = path.dirname(path.dirname(__filename));
   const candidates = [
     path.resolve(plan.rootDir || packageRoot, 'xtendrmt/rmt-kernel-orchestration-controller.js'),
     path.resolve(packageRoot, 'xtendrmt/rmt-kernel-orchestration-controller.js')
   ];
   const sourcePath = candidates.find((candidate) => fs.existsSync(candidate));
-  if (!sourcePath) return null;
+  if (!sourcePath) return [];
   const targetPath = path.join(plan.outputDir, KERNEL_CONTROLLER_BUNDLE_FILE);
   fs.mkdirSync(path.dirname(targetPath), { recursive: true });
   removeLegacyGeneratedEsmAsset(targetPath);
-  fs.copyFileSync(sourcePath, targetPath);
-  return {
+  fs.writeFileSync(targetPath, rewriteRelativeEsmImportsToMjs(fs.readFileSync(sourcePath, 'utf8')));
+  const controllerAsset = {
     type: 'asset',
     fileName: KERNEL_CONTROLLER_BUNDLE_FILE,
     path: targetPath,
@@ -5819,6 +5826,21 @@ function copyKernelControllerRuntimeAsset(plan) {
     imports: [],
     dynamicImports: []
   };
+  const schedulerSourcePath = path.resolve(path.dirname(sourcePath), 'rmt-kernel-scheduler.js');
+  if (!fs.existsSync(schedulerSourcePath)) return [controllerAsset];
+  const schedulerTargetPath = path.join(plan.outputDir, KERNEL_SCHEDULER_BUNDLE_FILE);
+  removeLegacyGeneratedEsmAsset(schedulerTargetPath);
+  fs.writeFileSync(schedulerTargetPath, rewriteRelativeEsmImportsToMjs(fs.readFileSync(schedulerSourcePath, 'utf8')));
+  return [controllerAsset, {
+    type: 'asset',
+    fileName: KERNEL_SCHEDULER_BUNDLE_FILE,
+    path: schedulerTargetPath,
+    bytes: fs.statSync(schedulerTargetPath).size,
+    isEntry: false,
+    isDynamicEntry: false,
+    imports: [],
+    dynamicImports: []
+  }];
 }
 
 function sourceFingerprintForPlan(plan, repoRoot) {
@@ -6888,7 +6910,12 @@ function createMaracaSizeBudgetReport(input) {
   const bundleFiles = Array.isArray(input.bundleFiles) ? input.bundleFiles : [];
   const bundleBytes = Number(input.entryBytes || 0);
   const clientAppServiceBytes = bundleFiles.reduce((sum, file) => sum + Number(file && file.appServiceBytes || 0), 0);
-  const frameworkBundleBytes = Math.max(0, bundleBytes - clientAppServiceBytes);
+  const microkernelBundleBytes = bundleFiles.reduce((sum, file) => (
+    file && /(?:^|\/)rmt-kernel-scheduler\.mjs$/u.test(String(file.fileName || ''))
+      ? sum + Number(file.bytes || 0)
+      : sum
+  ), 0);
+  const frameworkBundleBytes = Math.max(0, bundleBytes - clientAppServiceBytes - microkernelBundleBytes);
   const serverEntryPath = plan.services && plan.services.outputs && plan.services.outputs.serverEntry || null;
   let serverAppServiceBytes = 0;
   try {
@@ -6939,6 +6966,12 @@ function createMaracaSizeBudgetReport(input) {
       bytes: frameworkBundleBytes,
       baselineBytes,
       withinBudget: frameworkWithinBudget
+    },
+    microkernel: {
+      bytes: microkernelBundleBytes,
+      accounting: 'kernel-lab-separate-budget',
+      rawBudgetBytes: 160 * 1024,
+      gzipBudgetBytes: 32 * 1024
     },
     appServices: {
       clientBytes: clientAppServiceBytes,
@@ -7075,7 +7108,7 @@ function buildMaracaBundle(input = {}, options = {}) {
   const browserRuntimeAssets = copyMaracaBrowserRuntimeAssets(plan);
   const kernelRuntimeAsset = copyKernelRuntimeAsset(plan);
   const kernelResumeRuntimeAssets = copyKernelResumeRuntimeAssets(plan);
-  const kernelControllerRuntimeAsset = copyKernelControllerRuntimeAsset(plan);
+  const kernelControllerRuntimeAssets = copyKernelControllerRuntimeAssets(plan);
   const entryPath = plan.outputs.entry;
   const rawSource = createBundleSource(plan, cssResult.cssText);
   const source = plan.profile === 'debug' ? rawSource : minifyLocalEsModule(rawSource);
@@ -7107,7 +7140,7 @@ function buildMaracaBundle(input = {}, options = {}) {
   bundleFiles = bundleFiles
     .concat(planRuntimeAsset ? [planRuntimeAsset] : [])
     .concat(browserRuntimeAssets)
-    .concat(kernelControllerRuntimeAsset ? [kernelControllerRuntimeAsset] : [])
+    .concat(kernelControllerRuntimeAssets)
     .concat(kernelRuntimeAsset ? [kernelRuntimeAsset] : [])
     .concat(kernelResumeRuntimeAssets);
   bundleFiles.push(writeMaracaHtmlHost(plan));
@@ -7182,7 +7215,7 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   const browserRuntimeAssets = copyMaracaBrowserRuntimeAssets(plan);
   const kernelRuntimeAsset = copyKernelRuntimeAsset(plan);
   const kernelResumeRuntimeAssets = copyKernelResumeRuntimeAssets(plan);
-  const kernelControllerRuntimeAsset = copyKernelControllerRuntimeAsset(plan);
+  const kernelControllerRuntimeAssets = copyKernelControllerRuntimeAssets(plan);
   const rawSource = createBundleSource(plan, cssResult.cssText);
   let rollupResult;
 
@@ -7224,8 +7257,8 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
     };
     rollupResult.files.push(cssFile);
   }
-  if (kernelControllerRuntimeAsset) {
-    rollupResult.files.push(kernelControllerRuntimeAsset);
+  if (kernelControllerRuntimeAssets.length > 0) {
+    rollupResult.files.push(...kernelControllerRuntimeAssets);
   }
   if (kernelRuntimeAsset) {
     rollupResult.files.push(kernelRuntimeAsset);

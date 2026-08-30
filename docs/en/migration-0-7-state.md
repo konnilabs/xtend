@@ -15,7 +15,7 @@ XTend 0.7 removes every runtime compatibility alias for the former Classic name.
 | default storage key `xstate-data` | `xtend-state-data` |
 | no package subpath | `@ccslabs/xtend/classic-state` |
 
-There is no compatibility export, global, event or manifest alias. The storage value is the only runtime data that is migrated automatically.
+There is no compatibility export, global, event, or manifest alias. The storage value is the only runtime data that is migrated automatically.
 
 ## Modern ESM state
 
@@ -33,7 +33,7 @@ import { createStore, type XTendStore, type XTendStoreOptions } from '@ccslabs/x
 import { xtendState } from '@ccslabs/xtend/classic-state';
 ```
 
-Classic behavior for dynamic keys, immediate subscription callbacks, filters, batching, paths, persistence, lifecycle and diagnostics remains intact.
+Classic behavior for dynamic keys, immediate subscription callbacks, filters, batching, paths, persistence, lifecycle, and diagnostics remains intact.
 
 ## RMT mappings
 
@@ -47,4 +47,4 @@ Classic behavior for dynamic keys, immediate subscription callbacks, filters, ba
 | `connectXState()` | `connectStateProjection()` |
 | option `xstate` | `stateProjectionTarget` or `stateProjectionPort` |
 
-Old RMT options are ignored and no longer adapt a target. State projections are output-only; RMT never adopts them as Model initial state.
+Old RMT options are ignored and no longer adapt a target. State projections are output-only; RMT never adopts them as Model initial state. See the [XTend State reference](./components/xtend-state.md) for current usage examples.

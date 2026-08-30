@@ -1,9 +1,12 @@
 import {
   createRmtAppRuntime,
   createRmtSearchRuntime
-} from '../../xtendrmt/rmt-app-runtime.compat.js';
+} from '../../xtendrmt/rmt-app-runtime.js';
+import { createRmtAppHostAdapter } from '../../xtendrmt/rmt-app-host-adapter.js';
+import { createRmtAppPresentationViewPort } from '../../xtendrmt/rmt-app-view-projector.js';
 import { createRmtDomDescriptorRenderer } from '../../xtendrmt/rmt-dom-descriptor-renderer.js';
 import { createRmtBrowserScheduler } from '../../xtendrmt/rmt-browser-scheduler.js';
+import { docsKernelScheduler } from './docs-kernel-scheduler.mjs';
 import '../../components/xutils.js';
 import { getDocsAppServices, immutable, TOAST_COMMAND } from './docs-app-services.mjs';
 
@@ -31,7 +34,19 @@ const SEARCH_WEIGHTS = Object.freeze({
 });
 const disposers = [];
 const renderer = createRmtDomDescriptorRenderer({ documentTarget: document });
-const browserScheduler = createRmtBrowserScheduler({ windowTarget: window });
+const browserScheduler = createRmtBrowserScheduler({ windowTarget: window, scheduler: docsKernelScheduler });
+const appHostPort = createRmtAppHostAdapter({
+  windowTarget: window,
+  schedule(task, metadata = {}) {
+    return browserScheduler.scheduleEndpoint(
+      metadata.endpointName || 'docs.app-runtime.host-task',
+      metadata.scope || 'docs.app-runtime',
+      task,
+      metadata
+    );
+  }
+});
+const appPresentationViewPort = createRmtAppPresentationViewPort();
 const XUtils = window.XUtils;
 const bootStartedAt = performance.now();
 const fabric = window.XTendFabric && typeof window.XTendFabric.createXtendFabric === 'function'
@@ -288,6 +303,7 @@ async function resolveSearchResource(resourceId) {
 }
 
 const searchRuntime = createRmtSearchRuntime({
+  hostPort: appHostPort,
   windowTarget: window,
   searchSources: ['de', 'en'].map((activeLocale) => ({
     id: `${SEARCH_SOURCE_PREFIX}${activeLocale}`,
@@ -303,6 +319,8 @@ const searchRuntime = createRmtSearchRuntime({
 });
 
 const appRuntime = createRmtAppRuntime({
+  hostPort: appHostPort,
+  presentationViewPort: appPresentationViewPort,
   initialState: {
     shell: { status: 'hydrating', locale: locale(), slug: currentSlug() },
     search: { query: '', status: 'idle', resultCount: 0 }

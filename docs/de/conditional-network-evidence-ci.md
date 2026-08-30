@@ -12,6 +12,8 @@ Für neue Module wie `xtend-i18n` oder `xtend-maraca` ist diese Trennung wichtig
 
 Der Workflow setzt einen expliziten Schalter, bevor Audit- und SBOM-Kommandos laufen. Dadurch ist der Unterschied zwischen lokaler Deferral und CI-Ausführung sichtbar. Die Reports landen unter `.xtend-test-results`, damit sie zusammen mit den übrigen Release-Artefakten hochgeladen werden können.
 
+Dieser Nachweis schließt `DPF-WP-03` ab und übergibt die unveränderlichen Artefakte an `DPF-WP-04`, wo die visuelle Pixel-Evidence gespeichert und mit dem Release-Kandidaten verbunden wird.
+
 ```txt
 schema: xtend.epic13.conditional-network-evidence-ci.v1
 local gate: node scripts/run_xtend_tests.js epic13-conditional-network-evidence-ci --json

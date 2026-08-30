@@ -47,9 +47,9 @@
     "prepack": "node scripts/build-knowledge.mjs --check --quiet"
   },
   "dependencies": {
-    "@ccslabs/xtend-compiler": "0.6.1",
-    "@ccslabs/xtend-maraca": "0.6.1",
-    "@ccslabs/xtend-rmt": "0.6.1",
+    "@ccslabs/xtend-compiler": "0.8.0",
+    "@ccslabs/xtend-maraca": "0.8.0",
+    "@ccslabs/xtend-rmt": "0.8.0",
     "@modelcontextprotocol/client": "2.0.0",
     "@modelcontextprotocol/node": "2.0.0",
     "@modelcontextprotocol/server": "2.0.0",

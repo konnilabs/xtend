@@ -1,6 +1,6 @@
 # RMT Kernel Topography Map
 
-Stand: 2026-08-02
+Stand: 2026-08-30
 
 Diese Karte beschreibt die kanonischen RMT-Kernelquellen im XTend-Stack. `xtendrmt/rmt-runtime.esm.js`, `xtendrmt/rmt-core.esm.js` und `xtendrmt/rmt-runtime.browser.js` sind erzeugte Auslieferungsartefakte, keine Build-Eingaben. Source of Truth ist `xtendrmt/kernel/rmt-kernel-sources.json` mit den eigenständigen Quellen unter `xtendrmt/` und `xtendrmt/kernel/modules/`.
 
@@ -22,8 +22,8 @@ Modulzahl, Reihenfolge, Targets, Exports und Hashes werden aus dem Source-Manife
 
 | Bundle-Modul | Primäre Factory | Funktionsfläche |
 | --- | --- | --- |
-| `rmt-engine.js`, `rmt-engine-controller.js`, `rmt-engine-host-adapter.js` | `createRmtEngine` | Dünn gehaltener Composition Root, Command-/Scheduler-Controller und separater Host-Adapter für Timing und Events |
-| `rmt-priority-queue.js` | `createRmtQueue` | Priorisierte Runtime-Arbeit |
+| `rmt-kernel-scheduler.js` (separates `./kernel-scheduler`-Artefakt) | `createRmtKernelScheduler` | Hostneutrale Queue, Job-Lifecycle, Yield, Cancellation, Diagnostics und Scheduler-Host-Port |
+| `rmt-engine.js`, `rmt-engine-controller.js`, `rmt-engine-host-adapter.js` | `createRmtEngine` | Root-, Ressourcen-, Command- und Binding-Services, die UI-Arbeit an den injizierten Microkernel-Scheduler delegieren |
 | `rmt-diagnostics-hub.js` | `createRmtDiagnosticsHub` | Diagnostics-Publikation, Subscription und begrenzte Event-Flüsse |
 | `rmt-command-bus.js` | `createRmtCommandBus` | Command Dispatch |
 | `rmt-reactivity.js` | `createRmtReactivity` | State- und Resource-Reaktivität |
@@ -66,27 +66,27 @@ Modulzahl, Reihenfolge, Targets, Exports und Hashes werden aus dem Source-Manife
 | `createRmtRuntime`, `createRmtCore` | Aktiv in Maraca, Kernel-Orchestration und Kompatibilitätstests |
 | `createRmtFormat` und getrennte native Adapter | Stark genutzt in Parsing-, Surface-, Component- und Lifecycle-Suites; Model, Controller und Output-Adapter sind physisch getrennt |
 | `createRmtStateSchedulerDiagnosticsBridge` | Aktiv in Maraca, Fabric Diagnostics, Telemetry und Backpressure-Tests |
-| `createRmtPerformanceRuntime` | Vorhanden in Maraca und Kernel-Orchestration; Advanced Reports sind noch zu wenig genutzt |
-| `createRmtTemplateExecutionPath` | In Kernel-Security-Tests genutzt, noch nicht als breite Produktions-Evidence |
-| `createRmtKernelPolicyParity` | In dedizierten Gates genutzt, noch nicht als durchgängige Release-Prüfung |
-| `createRmtProductSurface` | Exportiert und dokumentiert, Maraca bootet aber noch mehrere Factories direkt |
-| `createRmtTemplateArtifacts` | Exportiert, typisiert und produktfähig, aber noch nicht als Maraca-Artefaktpipeline genutzt |
-| Worker-/Server-Prerender-Runtimes | Exportiert und typisiert, in Produktflüssen noch nicht aktiv |
-| `createRmtPrewarmWorkerRuntime` | Browser Runtime kann sie komponieren, XTend nutzt sie noch nicht als Warm-Reentry-Pfad |
-| `createRmtDetachedRuntime` | Exportiert, aber noch nicht als Standard für deterministische Runtime-Gates eingesetzt |
-| `createRmtDomCompat` | Als eigener View-Adapter exportiert; Surface-Lifecycle bleibt beim Surface Controller und DOM-Ownership beim Descriptor Renderer |
+| `createRmtPerformanceRuntime` | Aktiv in Maraca, Kernel-Orchestration, Fabric-Backpressure und der Retained-Warm-Reuse-Release-Baseline |
+| `createRmtTemplateExecutionPath` | Aktiv in Security-Gates; redigierte Panic-/Recovery-Lifecycles werden in Fabric Diagnostics projiziert |
+| `createRmtKernelPolicyParity` | Aktiv in Strict-Maraca- und Release-Parity-Gates |
+| `createRmtProductSurface` | Expliziter Opt-in-Service; direkte Microkernel-Composition bleibt Default und ESM-Importe haben keinen Boot-Side-Effect |
+| `createRmtTemplateArtifacts` | Exportiert, typisiert und in Maraca Build-/Report-Evidence abgebildet |
+| Worker-/Server-Prerender-Runtimes | Exportiert, typisiert und capability-gated optionale Services |
+| `createRmtPrewarmWorkerRuntime` | Explizites Opt-in, standardmaessig deaktiviert, bei kritischer Backpressure pausiert und invalidiert |
+| `createRmtDetachedRuntime` | In deterministischen Lifecycle-, Telemetry- und Resource-Release-Gates aktiv |
+| `createRmtDomCompat` | Als eigener View-Adapter aktiv; Surface-Lifecycle bleibt beim Surface Controller und DOM-Ownership beim Descriptor Renderer |
 
-## Untergenutzte Potenziale
+## Abschluss der Adoption
 
 | Potenzial | Kernel-Fähigkeit | Empfohlene Härtung |
 | --- | --- | --- |
-| Product-Surface-Bootstrap | `createRmtProductSurface()` inventarisiert Runtime-, Core-, Performance-, Template- und Transport-Factories | Maraca und Kernel-Orchestrator optional über Product Surface booten und Entry Points im Bundle Report ausweisen |
+| Product-Surface-Bootstrap | `createRmtProductSurface()` inventarisiert Runtime-, Core-, Performance-, Template- und Transport-Factories | Als expliziter Opt-in-Service abgeschlossen; direkte Microkernel-Composition ist Default |
 | Source-to-Sea Template Artifacts | `createRmtTemplateArtifacts()` erzeugt Fingerprints und Runtime Profile Hints | Maraca Reports um `templateArtifacts` erweitern und Fingerprints mit Surface-/Resource-Evidence verbinden |
-| Warm Reentry | Prewarm Worker, Worker Topology und Performance Backpressure Profile | Route- und Surface-Reentry als opt-in Prewarm-Pfad einführen |
+| Warm Reentry | Prewarm Worker, Worker Topology und Performance Backpressure Profile | Mit 32-Eintraegen/zwei Generationen, Critical-Pressure-Invalidierung und Chromium-p95-Release-Gate abgeschlossen |
 | Detached Runtime Testing | `createRmtDetachedRuntime()` stellt Browser-Runtime-Semantik ohne Live-DOM bereit | Lifecycle-, Telemetry- und Resource-Release-Gates deterministischer machen |
 | DOM Compatibility | `createRmtDomCompat()` kennt Ownership Modes und Island Mount/Unmount | Surface Manager Destroy-Semantik gegen gemeinsame DOM-Contracts prüfen |
 | Performance Evidence | CI Summary, Baselines, Trendlines und File Artifacts | Maraca PROD Reports mit Budget-, Baseline- und Backpressure-Evidence anreichern |
-| Panic und Recovery | Execution Path und Runtime Renderer liefern Trust Verdicts, Panic Events und Recovery Outcomes | Fabric Telemetry und Maraca Lifecycle Reports mit Security-/Recovery-Daten erweitern |
+| Panic und Recovery | Execution Path und Runtime Renderer liefern Trust Verdicts, Panic Events und Recovery Outcomes | Mit redigierter Diagnostics-Lane-Projektion abgeschlossen; sensitive Payloads verbleiben im Kernel |
 
 ## Layer Map
 
@@ -100,6 +100,6 @@ Modulzahl, Reihenfolge, Targets, Exports und Hashes werden aus dem Source-Manife
 | SSR/Worker/Prewarm | Worker-/Server-Transport-Adapter, Prerender-Runtimes, Prewarm Worker Runtime | Teure Template-Arbeit aus sichtbaren Lanes herauslösen |
 | App Runtime | `createRmtAppRuntime()`, Command-, Stream- und Reducer-APIs | Host Services und App-Aktionen mit Fabric- und Kernel-Diagnostics verbinden |
 
-## Nächster Schritt
+## Release-Referenz
 
-Die [RMT Kernel Feature Adoption Evaluation](./rmt-kernel-feature-adoption-evaluation.md) bewertet die untergenutzten Module einzeln und benennt konkrete Einhängepunkte in Maraca, Fabric, App Runtime, Surface Manager und Tests.
+Die [RMT Kernel Feature Adoption Evaluation](./rmt-kernel-feature-adoption-evaluation.md) dokumentiert die abgeschlossenen Tracks. Breaking Changes stehen im [0.8-Migrationsleitfaden](./rmt-kernel-0-8-migration.md).

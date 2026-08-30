@@ -3,6 +3,7 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
 const {
   generateEntrypoint
 } = require('../../scripts/generate_xtendrmt_esm_entrypoints');
@@ -26,9 +27,15 @@ const RMT_KERNEL_SOURCE_MANIFEST_SCHEMA = 'xtend.rmt.kernel-sources.v2';
 const RMT_KERNEL_MVC_REPORT_SCHEMA = 'xtend.rmt.kernel-mvc-report.v1';
 const RMT_KERNEL_OPTIMIZATION_REPORT_SCHEMA = 'xtend.rmt.kernel-lab.optimization-report.v1';
 const RMT_KERNEL_SOURCE_ARTIFACT_SCHEMA = 'xtend.rmt.kernel-source-artifact.v1';
+const RMT_KERNEL_MICROKERNEL_REPORT_SCHEMA = 'xtend.rmt.kernel-lab.microkernel-report.v1';
 const DEFAULT_PROFILE = 'clean';
 const MODULE_MANIFEST_PATH = 'xtendrmt/rmt-kernel-module-manifest.json';
 const SOURCE_MANIFEST_PATH = 'xtendrmt/kernel/rmt-kernel-sources.json';
+const MICROKERNEL_PATH = 'xtendrmt/rmt-kernel-scheduler.js';
+const MICROKERNEL_TYPES_PATH = 'xtendrmt/rmt-kernel-scheduler.d.ts';
+const MICROKERNEL_RAW_BUDGET_BYTES = 160 * 1024;
+const MICROKERNEL_GZIP_BUDGET_BYTES = 32 * 1024;
+const FULL_KERNEL_DUPLICATE_BUDGET_BYTES = 12000;
 const DEFAULT_KERNEL_VERSION = '0.0.0';
 const KERNEL_LAB_BUILD_COMMAND_BASE = 'xtend kernel-lab build --profile clean';
 const DEPRECATED_BRAND_PARTS = Object.freeze(['Render', 'Man']);
@@ -62,6 +69,8 @@ function createKernelSourceInputCatalog() {
     }));
   };
   add(SOURCE_MANIFEST_PATH, 'source-manifest', 'rmt-kernel-source-manifest');
+  add(MICROKERNEL_PATH, 'microkernel-source', 'rmt-kernel-scheduler');
+  add(MICROKERNEL_TYPES_PATH, 'microkernel-types', 'rmt-kernel-scheduler-types');
   (manifest.modules || [])
     .filter((entry) => entry && entry.sourceMode === 'canonical')
     .forEach((entry) => add(
@@ -80,6 +89,8 @@ const KERNEL_SOURCE_INPUTS = createKernelSourceInputCatalog();
 
 const KERNEL_BUILD_TARGETS = Object.freeze([
   ...KERNEL_ANALYSIS_TARGETS,
+  { id: 'rmt-kernel-scheduler', path: MICROKERNEL_PATH, kind: 'microkernel' },
+  { id: 'rmt-kernel-scheduler-types', path: MICROKERNEL_TYPES_PATH, kind: 'microkernel-types' },
   { id: 'rmt-kernel-module-manifest', path: MODULE_MANIFEST_PATH, kind: 'module-manifest' }
 ]);
 
@@ -704,6 +715,9 @@ function createMvcViolation(code, message, details = {}) {
 function analyzeKernelMvcArchitecture(options = {}) {
   const rootDir = resolveRootDir(options.rootDir);
   const manifest = readKernelSourceManifest(rootDir, options.manifest);
+  const currentVersion = normalizeKernelVersion(options.version)
+    || normalizeKernelVersion(manifest.currentVersion)
+    || resolveKernelVersion(rootDir).version;
   const entries = normalizeKernelSourceEntries(manifest);
   const entryById = new Map();
   const sourceOwnerByPath = new Map();
@@ -797,6 +811,10 @@ function analyzeKernelMvcArchitecture(options = {}) {
           violations.push(createMvcViolation('xtend.rmt.kernel_mvc.compatibility_capability_invalid', `Controller state-writer compatibility on ${entry.id} can only allow state.write.`, { moduleId: entry.id, capability }));
         }
       });
+      const compatibilityComparison = compareKernelVersions(currentVersion, compatibility.removeBy);
+      if (compatibilityComparison !== null && compatibilityComparison >= 0) {
+        violations.push(createMvcViolation('xtend.rmt.kernel_mvc.compatibility_expired', `Kernel compatibility exception on ${entry.id} expired at ${compatibility.removeBy}; current version is ${currentVersion}.`, { moduleId: entry.id, currentVersion, removeBy: compatibility.removeBy }));
+      }
     }
     if (entry.compatibilityShell) {
       const shell = entry.compatibilityShell;
@@ -806,6 +824,10 @@ function analyzeKernelMvcArchitecture(options = {}) {
         || typeof shell.reason !== 'string'
         || shell.reason.trim().length < 20) {
         violations.push(createMvcViolation('xtend.rmt.kernel_mvc.compatibility_shell_invalid', `Kernel module ${entry.id} has an invalid or unbounded MVC compatibility shell.`, { moduleId: entry.id, mvcRole: entry.mvcRole, compatibilityShell: shell }));
+      }
+      const shellComparison = compareKernelVersions(currentVersion, shell.removeBy);
+      if (shellComparison !== null && shellComparison >= 0) {
+        violations.push(createMvcViolation('xtend.rmt.kernel_mvc.compatibility_expired', `Kernel compatibility shell on ${entry.id} expired at ${shell.removeBy}; current version is ${currentVersion}.`, { moduleId: entry.id, currentVersion, removeBy: shell.removeBy }));
       }
     }
     entry.capabilities.forEach((capability) => {
@@ -859,6 +881,7 @@ function analyzeKernelMvcArchitecture(options = {}) {
   if (packageSource !== null) {
     const packageManifest = parseJsonSource(packageSource, 'xtendrmt/package.json');
     const canonicalPaths = new Set(entries.filter((entry) => entry.sourceMode === 'canonical').map((entry) => entry.sourcePath));
+    if (manifest.microkernel && manifest.microkernel.sourcePath) canonicalPaths.add(manifest.microkernel.sourcePath);
     const publicSources = Array.from(new Set(Object.values(packageManifest.exports || {})
       .map((value) => typeof value === 'string' ? value : value && value.default)
       .filter((value) => typeof value === 'string' && value.endsWith('.js'))
@@ -976,6 +999,7 @@ function analyzeKernelMvcArchitecture(options = {}) {
     pattern: 'mvc',
     strict: manifest.architecture && manifest.architecture.strict === true,
     sourceManifestPath: SOURCE_MANIFEST_PATH,
+    currentVersion,
     moduleCount: entries.length,
     canonicalModuleCount: entries.filter((entry) => entry.sourceMode === 'canonical').length,
     legacyBundleModuleCount: entries.filter((entry) => entry.sourceMode === 'legacy-bundle').length,
@@ -1267,10 +1291,14 @@ function createKernelOptimizationReport(rootDir, contentsByPath = {}) {
   const duplicateFunctionBodies = canonicalDuplicateTarget
     ? findDuplicateFunctionBodies(readTargetSource(canonicalDuplicateTarget), canonicalDuplicateTarget.path)
     : [];
+  const estimatedDuplicateFunctionBytes = duplicateFunctionBodies.reduce((total, group) => total + group.estimatedRepeatedBytes, 0);
 
   return {
     schema: RMT_KERNEL_OPTIMIZATION_REPORT_SCHEMA,
     profile: DEFAULT_PROFILE,
+    ok: estimatedDuplicateFunctionBytes <= FULL_KERNEL_DUPLICATE_BUDGET_BYTES,
+    status: estimatedDuplicateFunctionBytes <= FULL_KERNEL_DUPLICATE_BUDGET_BYTES ? 'within-budget' : 'over-budget',
+    duplicateFunctionBudgetBytes: FULL_KERNEL_DUPLICATE_BUDGET_BYTES,
     redundantFallbacks,
     redundantFactoryResolution,
     duplicateFunctionBodies,
@@ -1280,8 +1308,109 @@ function createKernelOptimizationReport(rootDir, contentsByPath = {}) {
       redundantFactoryResolutionCount: redundantFactoryResolution.length,
       duplicateFunctionBodyGroupCount: duplicateFunctionBodies.length,
       factoryAttributionWarningCount: factoryAttributionWarnings.length,
-      estimatedDuplicateFunctionBytes: duplicateFunctionBodies.reduce((total, group) => total + group.estimatedRepeatedBytes, 0)
+      estimatedDuplicateFunctionBytes
     }
+  };
+}
+
+function findStandaloneDuplicateFunctionBodies(source) {
+  const groups = new Map();
+  const input = String(source || '');
+  const regex = /\bfunction\s+([A-Za-z0-9_$]+)\s*\([^)]*\)\s*\{/gu;
+  let match = regex.exec(input);
+  while (match) {
+    const openIndex = input.indexOf('{', match.index);
+    const endIndex = findFunctionEnd(input, openIndex);
+    if (endIndex >= 0) {
+      const functionSource = input.slice(match.index, endIndex);
+      if (byteCount(functionSource) >= 32) {
+        const hash = sha256(normalizeFunctionBodyForHash(functionSource));
+        if (!groups.has(hash)) groups.set(hash, []);
+        groups.get(hash).push({ functionName: match[1], byteCount: byteCount(functionSource), line: lineNumberAt(input, match.index) });
+      }
+      regex.lastIndex = match.index + 1;
+    }
+    match = regex.exec(input);
+  }
+  return Array.from(groups.entries())
+    .filter(([, entries]) => entries.length > 1)
+    .map(([hash, entries]) => ({
+      hash,
+      count: entries.length,
+      byteCount: entries[0].byteCount,
+      estimatedRepeatedBytes: entries[0].byteCount * (entries.length - 1),
+      entries
+    }));
+}
+
+function createMicrokernelReport(rootDir, options = {}) {
+  const manifest = options.manifest || readKernelSourceManifest(rootDir);
+  const policy = manifest.microkernel && typeof manifest.microkernel === 'object' ? manifest.microkernel : {};
+  const sourcePath = policy.sourcePath || MICROKERNEL_PATH;
+  const typesPath = policy.typesPath || MICROKERNEL_TYPES_PATH;
+  const source = Object.prototype.hasOwnProperty.call(options.sources || {}, sourcePath)
+    ? options.sources[sourcePath]
+    : maybeReadText(rootDir, sourcePath);
+  const types = Object.prototype.hasOwnProperty.call(options.sources || {}, typesPath)
+    ? options.sources[typesPath]
+    : maybeReadText(rootDir, typesPath);
+  const rawBytes = byteCount(source || '');
+  const gzipBytes = source === null ? 0 : zlib.gzipSync(Buffer.from(source, 'utf8'), { level: 9 }).byteLength;
+  const rawBudgetBytes = Number.isFinite(policy.rawBudgetBytes) ? policy.rawBudgetBytes : MICROKERNEL_RAW_BUDGET_BYTES;
+  const gzipBudgetBytes = Number.isFinite(policy.gzipBudgetBytes) ? policy.gzipBudgetBytes : MICROKERNEL_GZIP_BUDGET_BYTES;
+  const requiredRuntimePorts = Array.isArray(policy.requiredRuntimePorts) ? policy.requiredRuntimePorts : [];
+  const runtimePortProviders = policy.runtimePortProviders && typeof policy.runtimePortProviders === 'object'
+    ? policy.runtimePortProviders
+    : {};
+  const missingRuntimePortProviders = requiredRuntimePorts.filter((port) => !runtimePortProviders[port]);
+  const imports = source === null ? [] : Array.from(source.matchAll(/\b(?:import|export)\s+(?:[^'";]*?\s+from\s+)?['"]([^'"]+)['"]/gu)).map((match) => match[1]);
+  const forbiddenImports = imports.filter((specifier) => /(?:runtime|core|product|surface|prewarm|template|renderer|dom)/iu.test(specifier));
+  const compositionEdges = imports.map((specifier) => ({ from: sourcePath, to: specifier, kind: 'composition' }));
+  const runtimePortEdges = Object.entries(runtimePortProviders).map(([port, provider]) => ({
+    from: sourcePath,
+    port,
+    provider: String(provider),
+    kind: 'injected-runtime-port'
+  }));
+  const code = source === null ? '' : stripCommentsAndStrings(source);
+  const forbiddenServiceReferences = [
+    ['dom', /\b(?:document|HTMLElement|customElements|ShadowRoot)\b|\.innerHTML\b/u],
+    ['template', /\b(?:createRmtTemplate|RmtTemplateRegistry|templateRuntime)\b/u],
+    ['product-surface', /\b(?:createRmtProductSurface|installRmtProductSurface|ProductSurface)\b/u],
+    ['prewarm', /\b(?:createRmtPrewarm|PrewarmWorker|retainedWarm)\b/u]
+  ].filter(([, pattern]) => pattern.test(code)).map(([service]) => service);
+  const duplicateFunctionBodies = source === null ? [] : findStandaloneDuplicateFunctionBodies(source);
+  const schedulerCycles = imports.filter((specifier) => {
+    const resolved = path.posix.normalize(path.posix.join(path.posix.dirname(sourcePath), specifier));
+    return resolved === sourcePath || /kernel-scheduler/iu.test(specifier);
+  });
+  const violations = [];
+  if (source === null) violations.push(createMvcViolation('xtend.rmt.kernel_lab.microkernel_source_missing', `Microkernel source is missing: ${sourcePath}.`, { sourcePath }));
+  if (types === null) violations.push(createMvcViolation('xtend.rmt.kernel_lab.microkernel_types_missing', `Microkernel types are missing: ${typesPath}.`, { typesPath }));
+  if (rawBytes > rawBudgetBytes) violations.push(createMvcViolation('xtend.rmt.kernel_lab.microkernel_raw_budget', `Microkernel raw size ${rawBytes} exceeds ${rawBudgetBytes} bytes.`, { rawBytes, rawBudgetBytes }));
+  if (gzipBytes > gzipBudgetBytes) violations.push(createMvcViolation('xtend.rmt.kernel_lab.microkernel_gzip_budget', `Microkernel gzip size ${gzipBytes} exceeds ${gzipBudgetBytes} bytes.`, { gzipBytes, gzipBudgetBytes }));
+  forbiddenImports.forEach((specifier) => violations.push(createMvcViolation('xtend.rmt.kernel_lab.microkernel_service_import', `Microkernel imports forbidden service dependency ${specifier}.`, { specifier, sourcePath })));
+  forbiddenServiceReferences.forEach((service) => violations.push(createMvcViolation('xtend.rmt.kernel_lab.microkernel_service_reference', `Microkernel contains forbidden ${service} service code.`, { service, sourcePath })));
+  missingRuntimePortProviders.forEach((port) => violations.push(createMvcViolation('xtend.rmt.kernel_lab.runtime_port_provider_missing', `Microkernel runtime port ${port} has no declared provider.`, { port, sourcePath })));
+  schedulerCycles.forEach((specifier) => violations.push(createMvcViolation('xtend.rmt.kernel_lab.scheduler_cycle', `Microkernel scheduler dependency cycle detected through ${specifier}.`, { specifier, sourcePath })));
+  duplicateFunctionBodies.forEach((group) => violations.push(createMvcViolation('xtend.rmt.kernel_lab.microkernel_duplicate_function', 'Microkernel contains a duplicated function body.', { hash: group.hash, entries: group.entries })));
+  return {
+    schema: RMT_KERNEL_MICROKERNEL_REPORT_SCHEMA,
+    ok: violations.length === 0,
+    status: violations.length === 0 ? 'conformant' : 'blocked',
+    sourcePath,
+    typesPath,
+    rawBytes,
+    gzipBytes,
+    budgets: { rawBytes: rawBudgetBytes, gzipBytes: gzipBudgetBytes },
+    compositionEdges,
+    runtimePortEdges,
+    missingRuntimePortProviders,
+    forbiddenImports,
+    forbiddenServiceReferences,
+    schedulerCycles,
+    duplicateFunctionBodies,
+    violations
   };
 }
 
@@ -1394,6 +1523,23 @@ function normalizeKernelVersion(value) {
 
 function isValidKernelVersion(value) {
   return /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/u.test(String(value || '').trim());
+}
+
+function compareKernelVersions(left, right) {
+  if (!isValidKernelVersion(left) || !isValidKernelVersion(right)) return null;
+  const parse = (value) => {
+    const [core, prerelease = ''] = String(value).split('+')[0].split('-');
+    return { core: core.split('.').map(Number), prerelease };
+  };
+  const a = parse(left);
+  const b = parse(right);
+  for (let index = 0; index < 3; index += 1) {
+    if (a.core[index] !== b.core[index]) return a.core[index] < b.core[index] ? -1 : 1;
+  }
+  if (a.prerelease === b.prerelease) return 0;
+  if (!a.prerelease) return 1;
+  if (!b.prerelease) return -1;
+  return a.prerelease.localeCompare(b.prerelease, 'en', { numeric: true });
 }
 
 function extractKernelVersionFromManifestSource(source) {
@@ -1889,9 +2035,21 @@ function createRmtKernelLabAnalysis(input = {}) {
     mvcReport
   });
   const optimizationReport = moduleManifest.optimizationReport;
+  const microkernelReport = createMicrokernelReport(rootDir);
   const artifacts = KERNEL_ANALYSIS_TARGETS.map((target) => analyzeArtifact(rootDir, target));
   const diagnostics = versionInfo.diagnostics.slice();
   mvcReport.violations.forEach((violation) => diagnostics.push(violation));
+  microkernelReport.violations.forEach((violation) => diagnostics.push(violation));
+  if (!optimizationReport.ok) {
+    diagnostics.push(createMvcViolation(
+      'xtend.rmt.kernel_lab.full_bundle_duplicate_budget',
+      `Full kernel duplicate estimate ${optimizationReport.summary.estimatedDuplicateFunctionBytes} exceeds ${optimizationReport.duplicateFunctionBudgetBytes} bytes.`,
+      {
+        estimatedDuplicateFunctionBytes: optimizationReport.summary.estimatedDuplicateFunctionBytes,
+        duplicateFunctionBudgetBytes: optimizationReport.duplicateFunctionBudgetBytes
+      }
+    ));
+  }
 
   if (!moduleManifest.moduleCountMatchesHistory) {
     diagnostics.push({
@@ -1953,6 +2111,7 @@ function createRmtKernelLabAnalysis(input = {}) {
     moduleCountReconciliation: moduleManifest.moduleCountReconciliation,
     dashboardCleanupPolicy: moduleManifest.dashboardCleanup,
     optimizationReport,
+    microkernelReport,
     architectureReport: mvcReport,
     domSourceReport: createDomSourceReport(domSources),
     artifacts: publicArtifacts,
@@ -1965,6 +2124,30 @@ function materializeKernelTemplate(source, version, buildTarget) {
   return String(source || '')
     .replace(/\{\{KERNEL_VERSION\}\}/gu, normalizeKernelVersion(version) || DEFAULT_KERNEL_VERSION)
     .replace(/\{\{KERNEL_BUILD_TARGET\}\}/gu, buildTarget);
+}
+
+function deduplicateKernelModuleHelpers(source) {
+  return String(source || '')
+    .replace(
+      /    function cloneSerializable\(value, fallbackValue = null\) \{\n        if \(value === undefined\) return fallbackValue;\n        try \{\n            return JSON\.parse\(JSON\.stringify\(value\)\);\n        \} catch \(_error\) \{\n            return fallbackValue;\n        \}\n    \}\n/gu,
+      '    const cloneSerializable = __XTENDRMT_SHARED__.cloneSerializable;\n'
+    )
+    .replace(
+      /    function clampString\(value, fallbackValue = ''\) \{\n        const safeValue = String\(value \|\| ''\)\.trim\(\);\n        return safeValue \|\| fallbackValue;\n    \}\n/gu,
+      '    const clampString = __XTENDRMT_SHARED__.clampString;\n'
+    )
+    .replace(
+      /    function resolveFactory\(factoryName, explicitFactory\) \{\n        if \(typeof explicitFactory === 'function'\) return explicitFactory;\n        return typeof appModules\[factoryName\] === 'function'\n            \? appModules\[factoryName\]\n            : null;\n    \}\n/gu,
+      '    const resolveFactory = (factoryName, explicitFactory) => __XTENDRMT_SHARED__.resolveFactory(appModules, factoryName, explicitFactory);\n'
+    )
+    .replace(
+      /    function isElementLike\(value\) \{\n        return !!value\n            && typeof value === 'object'\n            && typeof value\.addEventListener === 'function'\n            && typeof value\.removeEventListener === 'function';\n    \}\n/gu,
+      '    const isElementLike = __XTENDRMT_SHARED__.isElementLike;\n'
+    )
+    .replace(
+      /    function normalizeTemplateReference\(templateRef\) \{\n        if \(typeof templateRef === 'string'\) return clampString\(templateRef, ''\);\n        const template = toPlainObject\(templateRef\);\n        const namespace = clampString\(template\.namespace, ''\);\n        const id = clampString\(template\.id \|\| template\.ref \|\| template\.template, ''\);\n        if \(!id\) return '';\n        if \(id\.includes\(':'\) \|\| !namespace\) return id;\n        return namespace \+ ':' \+ id;\n    \}\n/gu,
+      '    const normalizeTemplateReference = __XTENDRMT_SHARED__.normalizeTemplateReference;\n'
+    );
 }
 
 function assembleCanonicalKernelJs(rootDir, target, version, sourceManifest, domSources) {
@@ -1991,11 +2174,11 @@ function assembleCanonicalKernelJs(rootDir, target, version, sourceManifest, dom
       error.code = 'xtend.rmt.kernel_lab.bundle_module_source_missing';
       throw error;
     }
-    const moduleSource = materializeKernelTemplate(
+    const moduleSource = deduplicateKernelModuleHelpers(materializeKernelTemplate(
       readText(rootDir, entry.sourcePath),
       version,
       buildTarget
-    ).trim();
+    )).trim();
     if (!moduleSource.startsWith('/* modules/') || !moduleSource.includes('(function register')) {
       const error = new Error(`Canonical kernel module ${moduleId} is not an assemblable module source.`);
       error.code = 'xtend.rmt.kernel_lab.bundle_module_invalid';
@@ -2263,7 +2446,7 @@ function createRmtKernelLabBuild(input = {}) {
   const check = toBoolean(input.check);
   const mode = write ? 'write' : check ? 'check' : 'plan';
 
-  if (profile !== DEFAULT_PROFILE) {
+  if (![DEFAULT_PROFILE, 'microkernel'].includes(profile)) {
     return {
       schema: RMT_KERNEL_LAB_BUILD_SCHEMA,
       ok: false,
@@ -2272,7 +2455,7 @@ function createRmtKernelLabBuild(input = {}) {
       diagnostics: [{
         severity: 'error',
         code: 'xtend.rmt.kernel_lab.unsupported_profile',
-        message: `KernelLab profile "${profile}" is not supported. Use "clean".`
+        message: `KernelLab profile "${profile}" is not supported. Use "clean" or "microkernel".`
       }],
       outputs: []
     };
@@ -2290,6 +2473,36 @@ function createRmtKernelLabBuild(input = {}) {
       versionSource: versionInfo.source,
       diagnostics: versionInfo.diagnostics,
       outputs: []
+    };
+  }
+
+  if (profile === 'microkernel') {
+    const microkernelReport = createMicrokernelReport(rootDir);
+    const outputs = [
+      { id: 'rmt-kernel-scheduler', path: microkernelReport.sourcePath, kind: 'microkernel' },
+      { id: 'rmt-kernel-scheduler-types', path: microkernelReport.typesPath, kind: 'microkernel-types' }
+    ].map((output) => ({
+      ...output,
+      action: 'verify',
+      changed: false,
+      byteCountBefore: byteCount(maybeReadText(rootDir, output.path) || ''),
+      byteCountAfter: byteCount(maybeReadText(rootDir, output.path) || ''),
+      sha256Before: maybeReadText(rootDir, output.path) === null ? null : sha256(maybeReadText(rootDir, output.path)),
+      sha256After: maybeReadText(rootDir, output.path) === null ? null : sha256(maybeReadText(rootDir, output.path))
+    }));
+    return {
+      schema: RMT_KERNEL_LAB_BUILD_SCHEMA,
+      ok: microkernelReport.ok,
+      status: microkernelReport.ok ? 'current' : 'blocked',
+      profile,
+      mode,
+      kernelVersion: versionInfo.version,
+      versionSource: versionInfo.source,
+      changedCount: 0,
+      outputCount: outputs.length,
+      outputs,
+      microkernelReport,
+      diagnostics: versionInfo.diagnostics.concat(microkernelReport.violations)
     };
   }
 
@@ -2330,9 +2543,21 @@ function createRmtKernelLabBuild(input = {}) {
   }
   const outputs = desired.outputs.map((output) => summarizeOutput(output, mode));
   const validationDiagnostics = validateCleanOutputs(outputs, desired.outputs);
+  const microkernelReport = createMicrokernelReport(rootDir);
   const changedCount = outputs.filter((output) => output.changed).length;
   const diagnostics = versionInfo.diagnostics.slice();
   desired.moduleManifest.architectureViolations.forEach((violation) => diagnostics.push(violation));
+  microkernelReport.violations.forEach((violation) => diagnostics.push(violation));
+  if (!desired.moduleManifest.optimizationReport.ok) {
+    diagnostics.push(createMvcViolation(
+      'xtend.rmt.kernel_lab.full_bundle_duplicate_budget',
+      `Full kernel duplicate estimate ${desired.moduleManifest.optimizationReport.summary.estimatedDuplicateFunctionBytes} exceeds ${desired.moduleManifest.optimizationReport.duplicateFunctionBudgetBytes} bytes.`,
+      {
+        estimatedDuplicateFunctionBytes: desired.moduleManifest.optimizationReport.summary.estimatedDuplicateFunctionBytes,
+        duplicateFunctionBudgetBytes: desired.moduleManifest.optimizationReport.duplicateFunctionBudgetBytes
+      }
+    ));
+  }
 
   if (!desired.moduleManifest.moduleCountMatchesHistory) {
     diagnostics.push({
@@ -2395,6 +2620,7 @@ function createRmtKernelLabBuild(input = {}) {
       violations: desired.moduleManifest.architectureViolations
     },
     optimizationReport: desired.moduleManifest.optimizationReport,
+    microkernelReport,
     diagnostics
   };
 }
@@ -2422,6 +2648,8 @@ module.exports = {
   KERNEL_SOURCE_INPUTS,
   MODULE_MANIFEST_PATH,
   SOURCE_MANIFEST_PATH,
+  MICROKERNEL_PATH,
+  MICROKERNEL_TYPES_PATH,
   DOM_COMMIT_RESULT_SCHEMA,
   DOM_RENDERER_FACTORY,
   DOM_RENDERER_MODULE_PATH,
@@ -2432,11 +2660,13 @@ module.exports = {
   RMT_KERNEL_SOURCE_MANIFEST_SCHEMA,
   RMT_KERNEL_SOURCE_ARTIFACT_SCHEMA,
   RMT_KERNEL_MVC_REPORT_SCHEMA,
+  RMT_KERNEL_MICROKERNEL_REPORT_SCHEMA,
   RMT_KERNEL_OPTIMIZATION_REPORT_SCHEMA,
   cleanRmtKernelArtifactContent,
   analyzeKernelMvcArchitecture,
   createKernelModuleManifest,
   createKernelOptimizationReport,
+  createMicrokernelReport,
   createRmtKernelLabAnalysis,
   createRmtKernelLabBuild,
   createRmtKernelLabReport,

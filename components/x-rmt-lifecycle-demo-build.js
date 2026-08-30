@@ -352,9 +352,9 @@
                   "stateBridge": {
                         "id": "xtend.state-projection.classic",
                         "source": "xtend-state",
-                        "read": "xtend-state.get(key)",
-                        "write": "xtend-state.set(key, value)",
-                        "subscribe": "xtend-state.subscribe(fn, keyFilter?)",
+                        "read": "xtendState.get(key)",
+                        "write": "xtendState.set(key, value)",
+                        "subscribe": "xtendState.subscribe(fn, keyFilter?)",
                         "canonicalPrefix": "xtend.component.x-rmt-lifecycle-demo-build.<id>.",
                         "stateKeys": [
                               "xtend.component.x-rmt-lifecycle-demo-build.<id>.ready",
@@ -363,8 +363,8 @@
                         "localUiPolicy": "derived-render-cache-only",
                         "forbidden": [
                               "direct-classic-state-mutation-by-kernel",
-                              "xtend-state.on",
-                              "xtend-state.off"
+                              "xtendState.on",
+                              "xtendState.off"
                         ],
                         "kernelVisible": false
                   },
@@ -588,7 +588,7 @@
                   "schedule",
                   "metadata"
             ],
-            "kernelBoundary": "RMT kernel must not import XTend component types, XTend manifest records, Classic state keys or XRouter classes directly.",
+            "kernelBoundary": "RMT kernel must not import XTend component types, XTend manifest records, XTend State keys or XRouter classes directly.",
             "bridgeEpic": "development/EPIC-05-XTendRMT-Bridge-und-Natives-Routing.md"
       },
       "integration": {

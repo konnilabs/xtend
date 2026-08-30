@@ -232,7 +232,9 @@ function createRmtAppModulesFromArtifact(context, rootDir, artifactPath) {
     return null;
   }
 
-  if (!context.assert(sandbox.AppModules && typeof sandbox.AppModules === 'object', `${artifactPath} exposes AppModules`)) {
+  if (artifactPath.endsWith('.esm.js')) vm.runInNewContext('globalThis.AppModules = AppModules;', sandbox);
+  else sandbox.AppModules = sandbox.XTendRMT || sandbox['xtend.rmt'] || null;
+  if (!context.assert(sandbox.AppModules && typeof sandbox.AppModules === 'object', `${artifactPath} exposes private/public factory probe`)) {
     return null;
   }
   return {

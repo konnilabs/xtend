@@ -139,6 +139,13 @@ function runSurfaceManagerLazyHydrationSuite(options = {}) {
     'hydrateSurfaceContent(surfaceRef, options = {})',
     'registerSurfacePrewarmHandle',
     'registerSurfaceChunkHandle',
+    'SURFACE_RETAINED_CHUNK_LIMIT = 32',
+    'SURFACE_RETAINED_GENERATION_LIMIT = 2',
+    '_enforceSurfaceChunkRetention',
+    'scope_generation_evicted',
+    'global_lru_evicted',
+    'applyWarmReentryBackpressure',
+    'critical_backpressure',
     '_invalidateSurfaceWarmReentry',
     'xtend.surface.warm-reentry-invalidation.v1',
     '_showSurfaceSkeleton',
@@ -168,6 +175,7 @@ function runSurfaceManagerLazyHydrationSuite(options = {}) {
     'hydrateSurfaceContent',
     'registerSurfacePrewarmHandle',
     'registerSurfaceChunkHandle',
+    'applyWarmReentryBackpressure',
     'surface-content-hydrated'
   ], 'x-surface-manager lazy hydration public types');
 

@@ -149,7 +149,7 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
 
   assertTextIncludesAll(context, managerRuntime, [
     "import { xtendState } from './xtend-state.js';",
-    "import './xsurfacemanager-controller.js';",
+    "import surfaceControllerModule from './xsurfacemanager-controller.js';",
     "customElements.define('x-surface-manager'",
     'attachShadow({ mode: \'open\' })',
     'xtend.surface.manager.v1',

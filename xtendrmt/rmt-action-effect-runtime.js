@@ -1,6 +1,4 @@
-/* xtend-kernel-mvc:compatibility-shell-start */
-(function attachRmtActionEffectRuntime(globalTarget) {
-/* xtend-kernel-mvc:compatibility-shell-end */
+function createRmtActionEffectRuntimeModule() {
   const RMT_ACTION_EFFECT_RUNTIME_SCHEMA = 'xtend.epic18.rmt-action-effect-runtime.v1';
   const RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-action-effect-diagnostic.v1';
   const RMT_COMPONENT_COMMAND_SCHEMA = 'xtend.rmt.component-command.v1';
@@ -386,37 +384,46 @@
     });
   }
 
-  function writeState(stateRuntime, stateId, value, metadata = {}) {
-    if (!stateRuntime || !stateId) return null;
-    if (typeof stateRuntime.setState === 'function') return stateRuntime.setState(stateId, value, metadata);
-    return null;
+  function submitModelOperation(modelCommandPort, operation, metadata = {}) {
+    if (!modelCommandPort || !operation) return null;
+    if (typeof modelCommandPort.execute === 'function') return modelCommandPort.execute(operation, metadata);
+    if (typeof modelCommandPort.apply === 'function') return modelCommandPort.apply(operation, metadata);
+    if (typeof modelCommandPort.dispatch === 'function') {
+      if (operation.operation === 'dispatch') return modelCommandPort.dispatch(operation.command, operation.payload, metadata);
+      return modelCommandPort.dispatch('rmt.model.operation', operation, metadata);
+    }
+    throw new TypeError('RMT Action Effect requires a Model Command port with execute(), apply() or dispatch().');
   }
 
-  function patchState(stateRuntime, stateId, patch, metadata = {}) {
-    if (!stateRuntime || !stateId) return null;
-    if (typeof stateRuntime.patchState === 'function') return stateRuntime.patchState(stateId, patch, metadata);
-    return null;
+  function writeState(modelCommandPort, stateId, value, metadata = {}) {
+    if (!stateId) return null;
+    return submitModelOperation(modelCommandPort, { operation: 'set', state: stateId, value }, metadata);
   }
 
-  function dispatchReducer(stateRuntime, reducer, payload, metadata = {}) {
-    if (!stateRuntime || !reducer) return null;
-    if (typeof reducer === 'string' && typeof stateRuntime.dispatch === 'function') {
-      return stateRuntime.dispatch(reducer, payload, metadata);
+  function patchState(modelCommandPort, stateId, patch, metadata = {}) {
+    if (!stateId) return null;
+    return submitModelOperation(modelCommandPort, { operation: 'patch', state: stateId, patch }, metadata);
+  }
+
+  function dispatchReducer(modelCommandPort, reducer, payload, metadata = {}) {
+    if (!modelCommandPort || !reducer) return null;
+    if (typeof reducer === 'string') {
+      return submitModelOperation(modelCommandPort, { operation: 'dispatch', command: reducer, payload }, metadata);
     }
     const record = objectRecord(reducer);
     const command = clampString(record.command || record.id, '');
-    if (command && typeof stateRuntime.dispatch === 'function') {
-      return stateRuntime.dispatch(command, payload, metadata);
+    if (command) {
+      return submitModelOperation(modelCommandPort, { operation: 'dispatch', command, payload }, metadata);
     }
     if (record.state && Object.prototype.hasOwnProperty.call(record, 'set')) {
-      return writeState(stateRuntime, record.state, resolveValue(record.set, { payload, result: payload, stateRuntime }), metadata);
+      return writeState(modelCommandPort, record.state, resolveValue(record.set, { payload, result: payload, stateRuntime: null }), metadata);
     }
     if (record.state && record.patch) {
       const patch = {};
       Object.entries(objectRecord(record.patch)).forEach(([key, value]) => {
-        patch[key] = resolveValue(value, { payload, result: payload, stateRuntime });
+        patch[key] = resolveValue(value, { payload, result: payload, stateRuntime: null });
       });
-      return patchState(stateRuntime, record.state, patch, metadata);
+      return patchState(modelCommandPort, record.state, patch, metadata);
     }
     return null;
   }
@@ -453,6 +460,7 @@
     const dataSourceIndex = new Map(dataSources.map((source) => [source.id, source]));
     const effectIndex = new Map(effects.map((effect) => [effect.id, effect]));
     const stateRuntime = options.stateRuntime || null;
+    const modelCommandPort = options.modelCommandPort || options.commandPort || null;
     const resourceManager = options.resourceManager || createRmtResourceManager(options);
     const feedbackAdapter = options.feedbackAdapter || null;
     const navigationAdapter = options.navigationAdapter || null;
@@ -462,7 +470,7 @@
     const hostServiceRegistry = options.hostServiceRegistry || null;
     const hostPort = normalizeActionHostPort(options);
     const deferCustomEffects = options.deferCustomEffects === true;
-    const planningOnly = options.planningOnly === true || options.managedController === true;
+    const planningOnly = options.planningOnly === true || options.managedController === true || !modelCommandPort;
     const actionStatus = {};
     const actionHistory = [];
     const activeRuns = new Map();
@@ -602,8 +610,8 @@
       activeRuns.set(runId, token);
       actionStatus[action.id] = 'loading';
       if (!planningOnly) {
-        patchState(stateRuntime, action.statusState, { status: 'loading', action: action.id }, { operation: 'action.loading', action: action.id });
-        if (action.loadingState) writeState(stateRuntime, action.loadingState, true, { operation: 'action.loading', action: action.id });
+        patchState(modelCommandPort, action.statusState, { status: 'loading', action: action.id }, { operation: 'action.loading', action: action.id });
+        if (action.loadingState) writeState(modelCommandPort, action.loadingState, true, { operation: 'action.loading', action: action.id });
       }
       diagnosticsRecorder.publish(createDiagnostic('rmt.action.loading', `RMT Action ${action.id} laeuft.`, { action: action.id }, 'info'));
       try {
@@ -623,9 +631,9 @@
         if (action.loadingState) modelOperations.push({ operation: 'set', state: action.loadingState, value: false });
         if (action.statusState) modelOperations.push({ operation: 'patch', state: action.statusState, patch: { status: 'success', action: action.id } });
         if (!planningOnly) {
-          if (action.resultState) writeState(stateRuntime, action.resultState, data, { operation: 'action.success', action: action.id });
-          if (action.loadingState) writeState(stateRuntime, action.loadingState, false, { operation: 'action.success', action: action.id });
-          patchState(stateRuntime, action.statusState, { status: 'success', action: action.id }, { operation: 'action.success', action: action.id });
+          if (action.resultState) writeState(modelCommandPort, action.resultState, data, { operation: 'action.success', action: action.id });
+          if (action.loadingState) writeState(modelCommandPort, action.loadingState, false, { operation: 'action.success', action: action.id });
+          patchState(modelCommandPort, action.statusState, { status: 'success', action: action.id }, { operation: 'action.success', action: action.id });
         }
         const effectResults = [];
         const reducerResults = [];
@@ -637,7 +645,7 @@
               reducerResults.push(operation);
             }
           } else {
-            reducerResults.push(dispatchReducer(stateRuntime, reducer, data, {
+            reducerResults.push(dispatchReducer(modelCommandPort, reducer, data, {
               operation: 'action.reducer',
               action: action.id,
               commandEnvelope: metadata.commandEnvelope || null,
@@ -686,8 +694,8 @@
         if (action.loadingState) modelOperations.push({ operation: 'set', state: action.loadingState, value: false });
         if (action.statusState) modelOperations.push({ operation: 'patch', state: action.statusState, patch: { status: 'error', action: action.id, error: normalizeError(error) } });
         if (!planningOnly) {
-          if (action.loadingState) writeState(stateRuntime, action.loadingState, false, { operation: 'action.error', action: action.id });
-          patchState(stateRuntime, action.statusState, { status: 'error', action: action.id, error: normalizeError(error) }, { operation: 'action.error', action: action.id });
+          if (action.loadingState) writeState(modelCommandPort, action.loadingState, false, { operation: 'action.error', action: action.id });
+          patchState(modelCommandPort, action.statusState, { status: 'error', action: action.id, error: normalizeError(error) }, { operation: 'action.error', action: action.id });
         }
         actionStatus[action.id] = 'error';
         diagnosticsRecorder.publish(createDiagnostic('rmt.action.error', `RMT Action ${action.id} ist fehlgeschlagen.`, { action: action.id, error: normalizeError(error) }, 'error'));
@@ -716,8 +724,8 @@
       if (action.loadingState) modelOperations.push({ operation: 'set', state: action.loadingState, value: false });
       if (action.statusState) modelOperations.push({ operation: 'patch', state: action.statusState, patch: { status: 'cancelled', action: action.id } });
       if (!planningOnly) {
-        if (action.loadingState) writeState(stateRuntime, action.loadingState, false, { operation: 'action.cancelled', action: action.id });
-        patchState(stateRuntime, action.statusState, { status: 'cancelled', action: action.id }, { operation: 'action.cancelled', action: action.id });
+        if (action.loadingState) writeState(modelCommandPort, action.loadingState, false, { operation: 'action.cancelled', action: action.id });
+        patchState(modelCommandPort, action.statusState, { status: 'cancelled', action: action.id }, { operation: 'action.cancelled', action: action.id });
       }
       resourceManager.releaseOwner(ownerId);
       diagnosticsRecorder.publish(createDiagnostic('rmt.action.cancelled', `RMT Action ${action.id} wurde abgebrochen.`, { action: action.id }, 'warning'));
@@ -803,16 +811,10 @@
     createRmtResourceManager
   };
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = api;
-  }
-/* xtend-kernel-mvc:compatibility-shell-start */
-  if (globalTarget) {
-    globalTarget.XTendRmtActionEffectRuntime = api;
-  }
-})(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));
+  return Object.freeze(api);
+}
 
-const __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__ = globalThis.XTendRmtActionEffectRuntime;
+const __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__ = createRmtActionEffectRuntimeModule();
 
 export const RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA;
 export const RMT_ACTION_EFFECT_RUNTIME_SCHEMA = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_ACTION_EFFECT_RUNTIME_SCHEMA;
@@ -821,4 +823,3 @@ export const createRmtActionEffectRuntime = __XTEND_RMT_ACTION_EFFECT_RUNTIME_AP
 export const createRmtResourceManager = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.createRmtResourceManager;
 
 export default __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__;
-/* xtend-kernel-mvc:compatibility-shell-end */

@@ -2,6 +2,17 @@
 
 Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend ist fuer RC1-Publish-Prep auf `private: false` geoeffnet; der eigentliche Publish-Befehl bleibt ein separater manueller Owner-Schritt.
 
+## 0.8.0 - 2026-08-30
+
+- Breaking: `@ccslabs/xtend/rmt/kernel-scheduler` und `@ccslabs/xtend-rmt/kernel-scheduler` liefern den hostneutralen Microkernel mit einem thenable `RmtJobHandle`; `await handle` ergibt direkt das Arbeitsergebnis.
+- Der Kernel ist die einzige Scheduler-Autoritaet. Fabric uebergibt Work-Intents und Backpressure, besitzt aber keine eigene Queue; Registry, Maraca, Core, Browser Runtime und State-/Telemetry-Bridge verwenden dieselbe injizierte Scheduler-Instanz.
+- Die kanonischen Lanes sind `user-blocking`, `visible`, `transition`, `idle`, `background` und `diagnostics`. Alte Kernel-Lanes werden nur noch vom Browser-Migrationsadapter normalisiert.
+- `inline` und `runInline` umgehen die Queue nicht mehr. Strict Mode lehnt sie ab, der nicht-strikte Modus plant sie mit Migrationsdiagnose regulaer ein.
+- Product Surface ist ein expliziter Opt-in-Service. ESM-Importe booten keine Runtime und schreiben kein globales `AppModules`-Mirror.
+- Die 0.7-Kompatibilitaetsschichten und abgelaufenen `removeBy: 0.7.0`-Ausnahmen wurden entfernt. Prewarm bleibt standardmaessig aus; Retained Chunks sind auf 32 Eintraege und zwei Generationen pro Scope begrenzt.
+- KernelLab prueft das eigenstaendige Microkernel-Artefakt, Runtime-Port-Provider, Service-Importverbote, Zyklen, Duplikate, Bundle-Budgets und abgelaufene Compatibility-Eintraege.
+- Migration: `docs/de/rmt-kernel-0.8-migration.md` und `docs/en/rmt-kernel-0.8-migration.md`. Es erfolgt kein automatischer Publish.
+
 ## 0.6.1 - 2026-08-10
 
 - Der moderne Maraca-Pfad nutzt einen atomaren RMT-Model-Command-Port und veröffentlicht pro Kommando nur abgeschlossene Model-, Selector- und Derived-Snapshots.

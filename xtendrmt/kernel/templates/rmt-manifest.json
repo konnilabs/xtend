@@ -9,7 +9,7 @@
     "commandTransport": true,
     "diagnostics": true,
     "reactivity": true,
-    "priorityQueue": true,
+    "kernelScheduler": true,
     "runtimeProfiles": true,
     "performanceRuntime": true,
     "performanceBudgeting": true,
@@ -322,7 +322,6 @@
         "autoInstallGlobal": true,
         "sourceModules": [
           "modules/rmt-engine.js",
-          "modules/rmt-priority-queue.js",
           "modules/rmt-diagnostics-hub.js",
           "modules/rmt-command-bus.js",
           "modules/rmt-reactivity.js",
@@ -359,7 +358,6 @@
         "autoInstallGlobal": false,
         "sourceModules": [
           "modules/rmt-engine.js",
-          "modules/rmt-priority-queue.js",
           "modules/rmt-diagnostics-hub.js",
           "modules/rmt-command-bus.js",
           "modules/rmt-reactivity.js",
@@ -432,7 +430,6 @@
         "autoInstallGlobal": false,
         "sourceModules": [
           "modules/rmt-engine.js",
-          "modules/rmt-priority-queue.js",
           "modules/rmt-diagnostics-hub.js",
           "modules/rmt-command-bus.js",
           "modules/rmt-reactivity.js",

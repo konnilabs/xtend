@@ -78,6 +78,7 @@ const MARACA_ORCHESTRATION_OUT_DIR = '.xtend-build/maraca/orchestration';
 const MARACA_KERNEL_ORCHESTRATION_OUT_DIR = '.xtend-build/maraca/kernel-orchestration';
 const MARACA_KERNEL_RUNTIME_ASSET = 'runtime/xtendrmt-runtime.esm.mjs';
 const MARACA_KERNEL_CONTROLLER_ASSET = 'runtime/xtendrmt-kernel-orchestration-controller.mjs';
+const MARACA_KERNEL_SCHEDULER_ASSET = 'runtime/rmt-kernel-scheduler.mjs';
 const MARACA_KERNEL_INTEGRITY_OUT_DIR = '.xtend-build/maraca/kernel-integrity';
 const MARACA_VALIDATION_OUT_DIR = '.xtend-build/maraca/validation';
 const MARACA_TRANSITIONS_OUT_DIR = '.xtend-build/maraca/transitions';
@@ -1451,9 +1452,9 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(entrySource.includes('MARACA_WARM_REENTRY'), 'bundle embeds Warm Reentry report');
   context.assert(entrySource.includes('XTendMaracaKernelRuntimeModule'), 'bundle imports the RMT kernel runtime module');
   context.assert(entrySource.includes(MARACA_KERNEL_CONTROLLER_ASSET), 'bundle imports reusable kernel orchestration controller asset');
-  context.assert(entrySource.includes('XTendRmtStateSelectorRuntime'), 'bundle wires state runtime');
+  context.assert(entrySource.includes('xtendrmt/rmt-state-selector-runtime.js'), 'bundle wires state runtime through the explicit runtime-module map');
   context.assert(entrySource.includes('XTendRmtStateHostAdapter'), 'bundle wires the typed XTend State host adapter');
-  context.assert(entrySource.includes('XTendRmtActionEffectRuntime'), 'bundle wires action runtime');
+  context.assert(entrySource.includes('xtendrmt/rmt-action-effect-runtime.js'), 'bundle wires action runtime through the explicit runtime-module map');
   context.assert(entrySource.includes('MARACA_RUNTIME_MODULE_APIS')
     && entrySource.includes('"xtendrmt/rmt-app-runtime.js"')
     && entrySource.includes('runtimeModuleApis: MARACA_RUNTIME_MODULE_APIS'),
@@ -1461,7 +1462,7 @@ async function runMaracaOrchestrationSuite(options = {}) {
   context.assert(!entrySource.includes('globalThis.XTendRmtAppRuntime')
     && !entrySource.includes('globalTarget.XTendRmtAppRuntime ='),
   'bundle consumes the App Runtime module namespace without reintroducing a global mirror');
-  context.assert(entrySource.includes('XTendRmtEventRoutingRuntime'), 'bundle wires event runtime');
+  context.assert(entrySource.includes('xtendrmt/rmt-event-routing-runtime.js'), 'bundle wires event runtime through the explicit runtime-module map');
   context.assert(entrySource.includes('XTendRmtSurfaceResourceGraphRuntime'), 'bundle wires surface runtime');
   context.assert(entrySource.includes('components/xsurfacemanager-controller.js'), 'bundle imports the Surface Controller lifecycle runtime');
   context.assert(entrySource.includes('XTendRmtPresentationEffectAdapter'), 'bundle wires the canonical PresentationEffectPort adapter');
@@ -1714,6 +1715,7 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
   const reportPath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/xtend.maraca.report.json`, rootDir);
   const kernelRuntimePath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/${MARACA_KERNEL_RUNTIME_ASSET}`, rootDir);
   const kernelControllerPath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/${MARACA_KERNEL_CONTROLLER_ASSET}`, rootDir);
+  const kernelSchedulerPath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/${MARACA_KERNEL_SCHEDULER_ASSET}`, rootDir);
   const legacyKernelRuntimePath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/runtime/xtendrmt-runtime.esm.js`, rootDir);
   const legacyKernelControllerPath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/runtime/xtendrmt-kernel-orchestration-controller.js`, rootDir);
   const legacyResumeRuntimePath = resolveRepoPath(`${MARACA_KERNEL_ORCHESTRATION_OUT_DIR}/runtime/rmt-resume-runtime.js`, rootDir);
@@ -1817,8 +1819,10 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
   );
   context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === MARACA_KERNEL_RUNTIME_ASSET), 'kernel runtime is packaged as an explicit ESM runtime asset');
   context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === MARACA_KERNEL_CONTROLLER_ASSET), 'kernel orchestration controller is packaged as an explicit ESM runtime asset');
+  context.assert(report && report.bundleFiles && report.bundleFiles.some((file) => file.fileName === MARACA_KERNEL_SCHEDULER_ASSET), 'kernel scheduler is packaged as an explicit ESM microkernel asset');
   context.assert(fs.existsSync(kernelRuntimePath), 'kernel runtime asset exists in the build package');
   context.assert(fs.existsSync(kernelControllerPath), 'kernel orchestration controller asset exists in the build package');
+  context.assert(fs.existsSync(kernelSchedulerPath), 'kernel scheduler microkernel asset exists in the build package');
   context.assert(!fs.existsSync(legacyKernelRuntimePath), 'kernel packaging removes the obsolete typeless .js runtime asset');
   context.assert(!fs.existsSync(legacyKernelControllerPath), 'kernel packaging removes the obsolete typeless .js controller asset');
   context.assert(!fs.existsSync(legacyResumeRuntimePath), 'kernel packaging removes the obsolete typeless .js resume runtime asset');
@@ -1834,6 +1838,7 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
   context.assert(kernelRuntimeImportProbe.status === 0, `Node imports the packaged kernel runtime and controller${kernelRuntimeImportProbe.status === 0 ? '' : ` (${String(kernelRuntimeImportProbe.stderr || kernelRuntimeImportProbe.error || '').trim()})`}`);
   context.assert(!String(kernelRuntimeImportProbe.stderr || '').includes('MODULE_TYPELESS_PACKAGE_JSON'), 'packaged kernel runtime and controller declare ESM through their .mjs asset names');
   const kernelRuntimeModule = await import(`${pathToFileURL(kernelRuntimePath).href}?suite=maraca-kernel-orchestration`);
+  const kernelSchedulerModule = await import(`${pathToFileURL(kernelSchedulerPath).href}?suite=maraca-kernel-orchestration`);
   const browserlessKernelWindowTarget = Object.freeze({});
   const browserlessMissingApis = ['Blob', 'Worker', 'URL.createObjectURL'];
   const kernelHostAdapter = {
@@ -1857,24 +1862,28 @@ async function runMaracaKernelOrchestrationSuite(options = {}) {
     createAbortController: () => null,
     createCustomEvent: (name, init = {}) => ({ type: name, detail: init.detail || null })
   };
-  const kernelCore = kernelRuntimeModule.createRmtCore({ hostAdapter: kernelHostAdapter, documentTarget: null, windowTarget: browserlessKernelWindowTarget });
-  const kernelPerformance = kernelRuntimeModule.createRmtPerformanceRuntime({ hostAdapter: kernelHostAdapter, documentTarget: null, windowTarget: browserlessKernelWindowTarget });
+  const sharedKernelScheduler = kernelSchedulerModule.createRmtKernelScheduler({ hostPort: kernelHostAdapter });
+  const kernelCore = kernelRuntimeModule.createRmtCore({ hostAdapter: kernelHostAdapter, scheduler: sharedKernelScheduler, documentTarget: null, windowTarget: browserlessKernelWindowTarget });
+  const kernelPerformance = kernelRuntimeModule.createRmtPerformanceRuntime({ hostAdapter: kernelHostAdapter, scheduler: sharedKernelScheduler, documentTarget: null, windowTarget: browserlessKernelWindowTarget });
   const schedulerBridge = kernelRuntimeModule.createRmtStateSchedulerDiagnosticsBridge({
-    performanceRuntime: kernelPerformance,
+    scheduler: sharedKernelScheduler,
     schedules: strictPlan.kernel.artifact.scheduler.schedules
   });
   const scheduleSmoke = schedulerBridge.scheduleEndpoint(
     strictPlan.kernel.artifact.scheduler.schedules[0].endpointName,
     strictPlan.kernel.artifact.scheduler.schedules[0].scope,
     () => ({ ok: true, status: 'node-smoke' }),
-    { schedule: strictPlan.kernel.artifact.scheduler.schedules[0], runInline: true }
+    { schedule: strictPlan.kernel.artifact.scheduler.schedules[0] }
   );
   context.assert(kernelCore && typeof kernelCore.getCapabilities === 'function', 'packaged kernel runtime creates an RMT core instance in the node smoke');
   context.assert(kernelPerformance && typeof kernelPerformance.scheduleEndpoint === 'function', 'packaged kernel runtime creates a performance scheduler in the node smoke');
-  context.assert(scheduleSmoke && scheduleSmoke.status === 'ok', 'packaged kernel scheduler bridge executes a scheduled endpoint in the node smoke');
+  context.assert(scheduleSmoke && scheduleSmoke.schema === 'xtend.rmt.kernel-job.v1', 'packaged kernel scheduler bridge returns a kernel JobHandle in the node smoke');
+  context.assert(await scheduleSmoke && scheduleSmoke.status === 'completed', 'packaged kernel scheduler bridge executes a scheduled endpoint in the node smoke');
+  context.assert(kernelCore.scheduler === sharedKernelScheduler, 'packaged kernel core uses the injected scheduler identity');
   context.assert(schedulerBridge.listScheduledEndpoints().length >= 1, 'packaged kernel scheduler bridge records scheduled endpoints in the node smoke');
   const prewarmRuntimeSmoke = kernelRuntimeModule.createRmtRuntime({
     hostAdapter: kernelHostAdapter,
+    scheduler: sharedKernelScheduler,
     documentTarget: null,
     windowTarget: browserlessKernelWindowTarget,
     enablePrewarmWorker: true
@@ -2512,11 +2521,13 @@ async function runMaracaValidationSuite(options = {}) {
   context.assert(report && report.validation && report.validation.summary.actionGateCount === 1, 'bundle report summarizes validation action gates');
   context.assert(report && report.validation && report.validation.diagnostics.every((diagnostic) => diagnostic.severity !== 'error'), 'bundle report validation diagnostics are non-blocking');
   context.assert(entrySource.includes('MARACA_VALIDATION'), 'bundle embeds validation plan');
-  context.assert(entrySource.includes('XTendRmtFormValidationRuntime'), 'bundle wires form validation runtime');
+  context.assert(entrySource.includes('xtendrmt/rmt-form-validation-runtime.js'), 'bundle wires form validation runtime through the explicit runtime-module map');
   context.assert(entrySource.includes('createRmtFormValidationEvaluator')
     && entrySource.includes('createRmtFormValidationViewProjector'),
   'bundle creates separate validation evaluator and View projector ports');
-  context.assert(entrySource.includes('globalTarget.XTendRmtFormValidationRuntime = api'), 'bundle materializes form validation runtime global API');
+  context.assert(compositionRuntimeSource.includes("XTendRmtFormValidationRuntime: Object.freeze(['xtendrmt/rmt-form-validation-runtime.js', 'XTendRmtFormValidationRuntime'])")
+    && !entrySource.includes('globalTarget.XTendRmtFormValidationRuntime = api'),
+  'bundle injects form validation without materializing a global runtime mirror');
   context.assert(planRuntimeSource.includes('evaluateCommandValidation(commandId, metadata, null, { preflight: true })')
     && planRuntimeSource.includes('function validationSelection(commandId, changedStates = [], options = {})')
     && planRuntimeSource.includes('const revealedValidationFields = new Set()')
@@ -2524,10 +2535,14 @@ async function runMaracaValidationSuite(options = {}) {
     && !/runtimes\.state\.(?:setState|patchState|dispatch|transaction)\s*\(/u.test(planRuntimeSource)
     && planRuntimeSource.includes('runtimes.validationViewProjector.prepare(evaluation')
     && planRuntimeSource.includes('runtimes.validationViewProjector.finalize(')
+    && planRuntimeSource.includes('const revealedMatches = matches.filter((projection) => projection.revealed !== false)')
+    && planRuntimeSource.includes('if (revealedMatches.length)')
+    && planRuntimeSource.includes("'textarea-invalid'")
+    && planRuntimeSource.includes('metadata: { ...clone(metadata, {}), preserveActiveInputDraft }')
     && planRuntimeSource.includes("operation: 'reconcile-children'")
     && !planRuntimeSource.includes('runtimes.validationViewProjector.project(')
     && !planRuntimeSource.includes('runtimes.validation.apply(validationStage.evaluation'),
-  'canonical plan runtime prepares validation once and folds it into the atomic Model and DOM commit path');
+  'canonical plan runtime prepares validation once, preserves unrevealed Model-owned state and folds revealed evidence into the atomic Model and DOM commit path');
   context.assert(planRuntimeSource.includes('if (modelOperations.length > 0')
     && planRuntimeSource.includes('const prospectiveSnapshot = {')
     && planRuntimeSource.includes('prospectiveSnapshot,')

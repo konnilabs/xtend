@@ -7258,6 +7258,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(nightlyWorkflow, 'Docs Shell catfooding gate failed', 'Nightly workflow fails on missing Docs Shell catfooding evidence');
   context.assertIncludes(nightlyWorkflow, 'Docs framework ownership gate failed', 'Nightly workflow fails on missing Docs framework ownership evidence');
   context.assertIncludes(nightlyWorkflow, 'if [ "${{ steps.docs_stub_inventory.outcome }}" != "success" ]; then echo "docs stub inventory gate failed"; failed=1; fi', 'Nightly workflow treats the required docs stub inventory as a blocking gate');
+  context.assertIncludes(nightlyManifestScript, "'npm run ci:dependency-locks:check'", 'Nightly manifest tracks the pre-install dependency lock guard');
   context.assertIncludes(nightlyManifestScript, "'npm run native-first:evidence:prepare'", 'Nightly manifest tracks Native-First evidence preparation');
   context.assertIncludes(nightlyManifestScript, "'npm run test:xtend-mcp:report'", 'Nightly manifest tracks the MCP gate command');
   context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-mcp-gate-report.json'", 'Nightly manifest requires MCP gate evidence');
@@ -7378,6 +7379,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(nightlyBuild.nodeVersion === '24.18.0', 'Package metadata exposes the primary nightly Node version');
   context.assert(Array.isArray(nightlyBuild.nodeVersions) && nightlyBuild.nodeVersions.join(',') === '24.18.0,26.5.0', 'Package metadata exposes both required nightly Node versions');
   context.assert(Array.isArray(nightlyBuild.commandSet) && JSON.stringify(nightlyBuild.commandSet) === JSON.stringify(nightlyWorkflowCommandSet), 'Package metadata lists nightly commands in exact workflow order');
+  context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet[0] === 'npm run ci:dependency-locks:check', 'Package metadata starts the nightly command set with the dependency lock guard');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run native-first:evidence:prepare'), 'Package metadata includes Native-First evidence preparation in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:xtend-mcp:report'), 'Package metadata includes the MCP report gate in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:rmt-demos:report'), 'Package metadata includes the RMT demo structure command in nightly build');
@@ -9432,7 +9434,7 @@ function assertReleasePreparationReference(context, rootDir) {
     'rmt-playground-security'
   ];
 
-  context.assert(packageManifest.version === '0.7.0', 'Root package version is prepared for 0.7.0');
+  context.assert(packageManifest.version === '0.8.0', 'Root package version is prepared for 0.8.0');
   docsGates.forEach((gate) => {
     context.assert(Array.isArray(xtend.releaseGates) && xtend.releaseGates.includes(gate), `Release gates include ${gate}`);
     context.assert(xtend.releaseChecklist && Array.isArray(xtend.releaseChecklist.candidateGates) && xtend.releaseChecklist.candidateGates.includes(gate), `Release checklist includes ${gate}`);

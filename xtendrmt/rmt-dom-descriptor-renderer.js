@@ -962,10 +962,13 @@
   }
 
   function shouldPreserveActiveInputDraft(element, propertyName, context) {
-    if (!context || context.preserveActiveInputDraft !== true) return false;
+    if (!context || (
+      context.preserveActiveInputDraft !== true
+      && (!context.metadata || context.metadata.preserveActiveInputDraft !== true)
+    )) return false;
     if (String(propertyName || '').toLowerCase() !== 'value') return false;
     if (!('value' in element)) return false;
-    return isActiveEditingElement(element, context);
+    return true;
   }
 
   function applyProperties(element, properties, descriptor, context) {
@@ -2804,6 +2807,7 @@
     previous.attributes.forEach((name) => {
       const domain = ownedAttributeDomain(name);
       if (next.attributes.has(name) || !domainAllowed(context, domain)) return;
+      if (shouldPreserveActiveInputDraft(element, name, context)) return;
       if (domain === 'class' || domain === 'part' || domain === 'styleTokens') {
         if (attributeValue(element, name) !== null && typeof element.removeAttribute === 'function') {
           element.removeAttribute(name);
@@ -2818,6 +2822,7 @@
     });
     previous.properties.forEach((name) => {
       if (next.properties.has(name) || !domainAllowed(context, 'properties')) return;
+      if (shouldPreserveActiveInputDraft(element, name, context)) return;
       const baselines = rendererState.propertyBaselines.get(element);
       const baseline = baselines && baselines.has(name)
         ? baselines.get(name)

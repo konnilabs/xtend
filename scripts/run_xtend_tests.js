@@ -494,6 +494,10 @@ const {
   runRmtVNextSchedulerSuite
 } = require('../tests/rmt-language/rmt_vnext_scheduler_suite');
 const {
+  printRmtKernelSchedulerReport,
+  runRmtKernelSchedulerSuite
+} = require('../tests/rmt-language/rmt_kernel_scheduler_suite');
+const {
   printRmtVNextSurfaceRegistryReport,
   runRmtVNextSurfaceRegistrySuite
 } = require('../tests/rmt-language/rmt_vnext_surface_registry_suite');
@@ -769,6 +773,9 @@ const {
   printScaffoldKernelLabReport,
   runScaffoldKernelLabSuite
 } = require('../tests/builder/scaffold_kernel_lab_suite');
+const {
+  runXtendRmtArtifactParity
+} = require('./verify_xtendrmt_artifact_parity');
 const {
   printEpic10P0ComponentWaveReport,
   runEpic10P0ComponentWaveSuite
@@ -1236,6 +1243,10 @@ const {
   runPerformanceRegressionSuite
 } = require('../tests/performance/performance_regression_suite');
 const {
+  printRmtRetainedWarmReusePerformanceReport,
+  runRmtRetainedWarmReusePerformanceSuite
+} = require('../tests/performance/rmt_retained_warm_reuse_performance_suite');
+const {
   printHydrationPolicyReport,
   runHydrationPolicySuite
 } = require('../tests/performance/hydration_policy_suite');
@@ -1650,6 +1661,23 @@ const suites = [
       const result = runScaffoldKernelLabSuite({ rootDir });
       printScaffoldKernelLabReport(result);
       return toRunnerResult('scaffold-kernel-lab', 'XTend Scaffold RMT KernelLab', result);
+    }
+  },
+  {
+    id: 'rmt-artifact-parity',
+    label: 'XTendRMT Artifact Parity',
+    description: 'Verifies generated kernel artifacts, private factory registration and package parity.',
+    run: () => {
+      const report = runXtendRmtArtifactParity();
+      const result = {
+        ok: report.ok,
+        passes: report.checks.filter((entry) => entry.status === 'passed'),
+        failures: report.checks.filter((entry) => entry.status === 'failed').map((entry) => entry.message),
+        skips: [],
+        warnings: [],
+        report
+      };
+      return toRunnerResult('rmt-artifact-parity', 'XTendRMT Artifact Parity', result);
     }
   },
   {
@@ -2401,6 +2429,16 @@ const suites = [
       const result = runRmtVNextSchedulerSuite({ rootDir });
       printRmtVNextSchedulerReport(result);
       return toRunnerResult('rmt-vnext-scheduler', 'Epic 15 RMT vNext Scheduler Policy Contract', result);
+    }
+  },
+  {
+    id: 'rmt-kernel-scheduler',
+    label: 'RMT Kernel 0.8 Microkernel Scheduler',
+    description: 'Runs canonical lane, JobHandle, async settlement, yield, cancellation, coalescing and microkernel budget gates.',
+    run: async () => {
+      const result = await runRmtKernelSchedulerSuite({ rootDir });
+      printRmtKernelSchedulerReport(result);
+      return toRunnerResult('rmt-kernel-scheduler', 'RMT Kernel 0.8 Microkernel Scheduler', result);
     }
   },
   {
@@ -4122,6 +4160,16 @@ const suites = [
       const result = await runPerformanceRegressionSuite({ rootDir });
       printPerformanceRegressionReport(result);
       return toRunnerResult('performance-regression', 'XTend Performance regression gates', result);
+    }
+  },
+  {
+    id: 'rmt-retained-warm-reuse-performance',
+    label: 'RMT 0.8 retained warm reuse browser performance',
+    description: 'Validates five warmups, 30 measurements, p95 budgets and the five-percent Chromium baseline guard.',
+    run: () => {
+      const result = runRmtRetainedWarmReusePerformanceSuite({ rootDir });
+      printRmtRetainedWarmReusePerformanceReport(result);
+      return toRunnerResult('rmt-retained-warm-reuse-performance', 'RMT 0.8 retained warm reuse browser performance', result);
     }
   },
   {

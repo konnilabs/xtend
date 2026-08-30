@@ -54,7 +54,7 @@
         { "engine": "WebKit", "version": null, "status": "insufficient-evidence", "sourceRef": null }
       ],
       "repoSymbols": [
-        { "path": "xtendrmt/rmt-browser-scheduler.js", "symbol": "requestIdleCallback" }
+        { "path": "xtendrmt/rmt-kernel-scheduler.js", "symbol": "requestIdleCallback" }
       ],
       "radarRefs": ["NFM-BPR-012"],
       "owner": "Scheduler Owner",

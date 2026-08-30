@@ -135,7 +135,7 @@
       "repoSymbols": [
         {
           "path": "xtendrmt/rmt-browser-scheduler.js",
-          "symbol": "function dispose()"
+          "symbol": "function dispose("
         },
         {
           "path": "xtendrmt/rmt-surface-resource-graph-runtime.js",
@@ -308,7 +308,7 @@
       ],
       "repoSymbols": [
         {
-          "path": "xtendrmt/rmt-browser-scheduler.js",
+          "path": "xtendrmt/rmt-kernel-scheduler.js",
           "symbol": "requestIdleCallback"
         }
       ],

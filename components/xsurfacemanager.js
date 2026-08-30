@@ -1,5 +1,5 @@
 import { xtendState } from './xtend-state.js';
-import './xsurfacemanager-controller.js';
+import surfaceControllerModule from './xsurfacemanager-controller.js';
 import {
   OVERLAY_LIFECYCLE_EVENTS,
   SURFACE_OVERLAY_SELECTOR,
@@ -19,6 +19,8 @@ const SURFACE_LOADING_POLICY_SCHEMA = 'xtend.surface.loading-policy.v1';
 const SURFACE_LOADING_REPORT_SCHEMA = 'xtend.surface.loading-report.v1';
 const SURFACE_LOADING_DIAGNOSTIC_SCHEMA = 'xtend.surface.loading-diagnostic.v1';
 const SURFACE_LOADING_POLICIES = Object.freeze(['eager', 'visible', 'open', 'idle', 'route', 'warm', 'prewarm']);
+const SURFACE_RETAINED_CHUNK_LIMIT = 32;
+const SURFACE_RETAINED_GENERATION_LIMIT = 2;
 const SURFACE_ROUTE_LIFECYCLE_SCHEMA = 'xtend.surface.route-lifecycle.v1';
 const SURFACE_ROUTE_LIFECYCLE_REPORT_SCHEMA = 'xtend.surface.route-lifecycle-report.v1';
 const SURFACE_ROUTE_LIFECYCLE_DIAGNOSTIC_SCHEMA = 'xtend.surface.route-lifecycle-diagnostic.v1';
@@ -71,7 +73,7 @@ const SURFACE_PERSISTENCE_MEMORY = globalThis.__XTendSurfaceManagerPersistenceMe
 globalThis.__XTendSurfaceManagerPersistenceMemory = SURFACE_PERSISTENCE_MEMORY;
 
 function surfaceControllerApi() {
-  return globalThis.XTendSurfaceController || null;
+  return surfaceControllerModule;
 }
 
 function fabricBridge() {
@@ -765,6 +767,7 @@ class XSurfaceManager extends HTMLElement {
     this._surfaceIdleHandles = new Map();
     this._surfacePrewarmHandles = new Map();
     this._surfaceChunkHandles = new Map();
+    this._warmReentrySequence = 0;
     this._surfaceRouteLifecycleStates = new Map();
     this._currentSurfaceRoute = null;
     this._lastSurfaceRouteSignalKey = '';
@@ -1921,11 +1924,84 @@ class XSurfaceManager extends HTMLElement {
       kind,
       handle,
       source: options.source || 'x-surface-manager',
-      registeredAt: Date.now()
+      scope: String(options.scope || options.rootId || id).trim() || id,
+      generation: String(options.generation || options.hydrationGeneration || 'default').trim() || 'default',
+      registeredAt: Date.now(),
+      lastAccessedAt: ++this._warmReentrySequence
     };
     handles.push(entry);
     map.set(id, handles);
-    return { ok: true, surfaceId: id, kind, registered: true, handleCount: handles.length };
+    const retention = kind === 'chunk' ? this._enforceSurfaceChunkRetention() : { evictedCount: 0 };
+    return { ok: true, surfaceId: id, kind, registered: true, handleCount: (map.get(id) || []).length, retention };
+  }
+
+  _evictSurfaceChunkEntry(surfaceId, entry, reason) {
+    const entries = this._surfaceChunkHandles.get(surfaceId) || [];
+    const nextEntries = entries.filter((candidate) => candidate !== entry);
+    if (nextEntries.length) this._surfaceChunkHandles.set(surfaceId, nextEntries);
+    else this._surfaceChunkHandles.delete(surfaceId);
+    this._invalidateSurfaceHandleSet(surfaceId, [entry], 'chunk', reason);
+    return 1;
+  }
+
+  _enforceSurfaceChunkRetention() {
+    let evictedCount = 0;
+    const allEntries = () => Array.from(this._surfaceChunkHandles.entries())
+      .flatMap(([surfaceId, entries]) => entries.map((entry) => ({ surfaceId, entry })));
+    const byScope = new Map();
+    allEntries().forEach((record) => {
+      const scope = record.entry.scope || record.surfaceId;
+      const generation = record.entry.generation || 'default';
+      if (!byScope.has(scope)) byScope.set(scope, new Map());
+      const generations = byScope.get(scope);
+      if (!generations.has(generation)) generations.set(generation, []);
+      generations.get(generation).push(record);
+    });
+    byScope.forEach((generations) => {
+      const ordered = Array.from(generations.entries()).sort((left, right) => {
+        const leftAt = Math.max(...left[1].map((record) => record.entry.lastAccessedAt || 0));
+        const rightAt = Math.max(...right[1].map((record) => record.entry.lastAccessedAt || 0));
+        return rightAt - leftAt;
+      });
+      ordered.slice(SURFACE_RETAINED_GENERATION_LIMIT).forEach(([, records]) => {
+        records.forEach(({ surfaceId, entry }) => {
+          evictedCount += this._evictSurfaceChunkEntry(surfaceId, entry, 'scope_generation_evicted');
+        });
+      });
+    });
+    const retained = allEntries().sort((left, right) => (
+      (left.entry.lastAccessedAt || left.entry.registeredAt || 0)
+      - (right.entry.lastAccessedAt || right.entry.registeredAt || 0)
+    ));
+    retained.slice(0, Math.max(retained.length - SURFACE_RETAINED_CHUNK_LIMIT, 0)).forEach(({ surfaceId, entry }) => {
+      evictedCount += this._evictSurfaceChunkEntry(surfaceId, entry, 'global_lru_evicted');
+    });
+    return {
+      schema: 'xtend.surface.retained-chunk-lru.v1',
+      maxEntries: SURFACE_RETAINED_CHUNK_LIMIT,
+      maxGenerationsPerScope: SURFACE_RETAINED_GENERATION_LIMIT,
+      retainedCount: allEntries().length,
+      evictedCount
+    };
+  }
+
+  applyWarmReentryBackpressure(input = {}) {
+    const level = String(input.level || input.pressureLevel || input || '').trim().toLowerCase();
+    if (level !== 'critical') {
+      return { schema: 'xtend.surface.warm-reentry-backpressure.v1', level, paused: false, invalidatedCount: 0 };
+    }
+    let invalidatedCount = 0;
+    this._surfaceIdleHandles.forEach((handle) => clearSurfaceIdle(handle));
+    this._surfaceIdleHandles.clear();
+    this._surfacePrewarmHandles.forEach((entries, surfaceId) => {
+      invalidatedCount += this._invalidateSurfaceHandleSet(surfaceId, entries, 'prewarm', 'critical_backpressure').invalidated;
+    });
+    this._surfaceChunkHandles.forEach((entries, surfaceId) => {
+      invalidatedCount += this._invalidateSurfaceHandleSet(surfaceId, entries, 'chunk', 'critical_backpressure').invalidated;
+    });
+    this._surfacePrewarmHandles.clear();
+    this._surfaceChunkHandles.clear();
+    return { schema: 'xtend.surface.warm-reentry-backpressure.v1', level, paused: true, invalidatedCount };
   }
 
   registerSurfacePrewarmHandle(surfaceId, handle, options = {}) {

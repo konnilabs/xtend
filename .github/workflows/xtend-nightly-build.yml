@@ -68,6 +68,11 @@ jobs:
           node --version
           npm --version
 
+      - name: Validate CI dependency lock alignment
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run ci:dependency-locks:check
+
       - name: Install workspace dependencies
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -503,6 +508,11 @@ jobs:
         run: |
           node --version
           npm --version
+
+      - name: Validate CI dependency lock alignment
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run ci:dependency-locks:check
 
       - name: Install workspace links for npm SBOM
         env:

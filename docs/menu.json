@@ -1825,6 +1825,78 @@
     }
   },
   {
+    "slug": "migration-0-7-state",
+    "id": "docs.migration.0.7.state",
+    "label": "XTend State 0.7 Migration",
+    "group": "rmt",
+    "parent": "xtendrmt-overview",
+    "tier": "deep-dive",
+    "rank": 89,
+    "labels": {
+      "de": "XTend State 0.7 Migration",
+      "en": "XTend State 0.7 Migration"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-authoring",
+    "keywords": {
+      "de": [
+        "XTend State 0.7 Migration",
+        "migration",
+        "state",
+        "tutorial",
+        "build",
+        "rmt-authoring",
+        "RMT"
+      ],
+      "en": [
+        "XTend State 0.7 Migration",
+        "migration",
+        "state",
+        "tutorial",
+        "build",
+        "rmt-authoring",
+        "RMT"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-kernel-0-8-migration",
+    "id": "docs.rmt.kernel.0.8.migration",
+    "label": "RMT Kernel 0.8 Migration",
+    "group": "rmt",
+    "parent": "rmt-kernel-runtime",
+    "tier": "deep-dive",
+    "rank": 90,
+    "labels": {
+      "de": "RMT Kernel 0.8 Migration",
+      "en": "RMT Kernel 0.8 Migration"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-authoring",
+    "keywords": {
+      "de": [
+        "RMT Kernel 0.8 Migration",
+        "rmt",
+        "kernel",
+        "migration",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ],
+      "en": [
+        "RMT Kernel 0.8 Migration",
+        "rmt",
+        "kernel",
+        "migration",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ]
+    }
+  },
+  {
     "slug": "rmt-node-ssr-adapter",
     "id": "docs.rmt.node.ssr.adapter",
     "label": "RMT Node SSR Adapter",

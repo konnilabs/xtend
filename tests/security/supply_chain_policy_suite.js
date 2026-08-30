@@ -22,6 +22,10 @@ const {
   REPORT_SCHEMA,
   runSupplyChainVerification
 } = require('../../scripts/verify_supply_chain_policy');
+const {
+  REPORT_SCHEMA: CI_DEPENDENCY_LOCK_REPORT_SCHEMA,
+  verifyCiDependencyLocks
+} = require('../../scripts/verify_ci_dependency_locks');
 
 function runSupplyChainPolicySuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir);
@@ -30,12 +34,15 @@ function runSupplyChainPolicySuite(options = {}) {
     label: 'XTend Supply-Chain policy gates'
   });
   const packageManifest = readJson('package.json', rootDir);
+  const packageLock = readJson('package-lock.json', rootDir);
   const policySource = readText('security/supply-chain-gate-policy.js', rootDir);
   const verifySource = readText('scripts/verify_supply_chain_policy.js', rootDir);
   const versionSyncSource = readText('scripts/sync_xtend_package_versions.js', rootDir);
+  const dependencyLockSource = readText('scripts/verify_ci_dependency_locks.js', rootDir);
   const plan = createSupplyChainGatePlan();
   const classification = classifyPackageSupplyChain(packageManifest, []);
   const report = runSupplyChainVerification({ rootDir });
+  const dependencyLockReport = verifyCiDependencyLocks({ rootDir });
 
   context.assertIncludes(policySource, 'xtend.security.supply-chain-gate-plan.v1', 'Policy module declares supply-chain gate plan contract');
   context.assertIncludes(policySource, 'xtend.security.dependency-audit-gate.v1', 'Policy module declares dependency audit gate contract');
@@ -45,6 +52,10 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assertIncludes(policySource, 'npm sbom --sbom-format=cyclonedx --json', 'Policy plans npm SBOM CI gate');
   context.assertIncludes(verifySource, REPORT_SCHEMA, 'Verify script declares supply-chain report schema');
   context.assertIncludes(versionSyncSource, 'xtend.release.package-version-sync-report.v1', 'Version sync helper declares stable report schema');
+  context.assertIncludes(versionSyncSource, 'syncWorkspaceDependencyVersions', 'Version sync helper covers internal dependencies of every root workspace');
+  context.assertIncludes(dependencyLockSource, 'peerDependenciesMeta', 'CI dependency lock verifier compares linked package peer metadata');
+  context.assertIncludes(dependencyLockSource, 'products/xtend-llm', 'CI dependency lock verifier covers xtend-llm');
+  context.assertIncludes(dependencyLockSource, 'products/resumability-maraca-erp-demo', 'CI dependency lock verifier covers the resumability ERP demo');
   context.assert(SUPPLY_CHAIN_GATE_PLAN_CONTRACT === 'xtend.security.supply-chain-gate-plan.v1', 'Exports supply-chain plan contract');
   context.assert(DEPENDENCY_AUDIT_GATE_CONTRACT === 'xtend.security.dependency-audit-gate.v1', 'Exports dependency audit contract');
   context.assert(LICENSE_POLICY_CONTRACT === 'xtend.security.license-policy.v1', 'Exports license policy contract');
@@ -83,6 +94,18 @@ function runSupplyChainPolicySuite(options = {}) {
     context.assert(manifest.license === 'Apache-2.0', `${entry.name} scoped manifest uses Apache-2.0`);
     context.assert(manifest.publishConfig && manifest.publishConfig.access === 'public', `${entry.name} scoped manifest publishes publicly`);
   });
+  const internalReleaseNames = new Set(SCOPED_RELEASE_PACKAGES.map((entry) => entry.name));
+  packageManifest.workspaces.forEach((workspacePath) => {
+    const manifest = readJson(`${workspacePath}/package.json`, rootDir);
+    const lockRecord = packageLock.packages[workspacePath];
+    ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies'].forEach((section) => {
+      Object.entries(manifest[section] || {}).forEach(([name, version]) => {
+        if (!internalReleaseNames.has(name)) return;
+        context.assert(version === packageManifest.version, `${workspacePath} ${section} keeps ${name} on the root release version`);
+        context.assert(lockRecord && lockRecord[section] && lockRecord[section][name] === packageManifest.version, `Lockfile keeps ${workspacePath} ${name} on the root release version`);
+      });
+    });
+  });
   context.assert(packageManifest.license === 'Apache-2.0', 'Package license is Apache-2.0');
   context.assert(packageManifest.publishConfig && packageManifest.publishConfig.provenance === true, 'Package prepares npm provenance');
   const supplyChainPolicyExport = packageManifest.exports['./security/supply-chain-gate-policy'];
@@ -90,6 +113,7 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(packageManifest.scripts['test:supply-chain'] === 'node scripts/run_xtend_tests.js supply-chain', 'Package exposes supply-chain suite script');
   context.assert(packageManifest.scripts['supply-chain:verify'] === 'node scripts/verify_supply_chain_policy.js', 'Package exposes offline supply-chain verify script');
   context.assert(packageManifest.scripts['release:sync-versions'] === 'node scripts/sync_xtend_package_versions.js', 'Package exposes release version sync script');
+  context.assert(packageManifest.scripts['ci:dependency-locks:check'] === 'node scripts/verify_ci_dependency_locks.js', 'Package exposes the install-free CI dependency lock check');
   context.assert(packageManifest.xtend.releaseGates.includes('npm run test:supply-chain'), 'Release gates include supply-chain gate');
   context.assert(classification.ok === true, 'Current dependency inventory passes offline classification');
   context.assert(classification.dependencyCount === 3, 'Current package has three external build-tool dependencies');
@@ -101,10 +125,15 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(report.schema === REPORT_SCHEMA, 'Verify script returns supply-chain report schema');
   context.assert(report.ok === true, 'Verify script passes for current package');
   context.assert(report.checks.length >= 10, 'Verify script performs multiple supply-chain checks');
+  context.assert(dependencyLockReport.schema === CI_DEPENDENCY_LOCK_REPORT_SCHEMA, 'CI dependency lock verifier returns its stable report schema');
+  context.assert(dependencyLockReport.ok === true, 'CI dependency locks align with all local file dependencies');
+  context.assert(dependencyLockReport.products.length === 2, 'CI dependency lock verifier covers both standalone product installs');
+  context.assert(dependencyLockReport.products.reduce((sum, product) => sum + product.fileDependencies, 0) === 9, 'CI dependency lock verifier checks all nine local package references');
 
   return context.result({
     plan,
-    report
+    report,
+    dependencyLockReport
   });
 }
 

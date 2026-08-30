@@ -71,6 +71,11 @@ jobs:
           node --version
           npm --version
 
+      - name: Validate CI dependency lock alignment
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run ci:dependency-locks:check
+
       - name: Install workspace dependencies
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -284,6 +289,11 @@ jobs:
           node --version
           npm --version
 
+      - name: Validate CI dependency lock alignment
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run ci:dependency-locks:check
+
       - name: Install workspace dependencies
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -495,6 +505,11 @@ jobs:
         run: |
           node --version
           npm --version
+
+      - name: Validate CI dependency lock alignment
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run ci:dependency-locks:check
 
       - name: Install workspace dependencies
         env:
@@ -709,6 +724,11 @@ jobs:
           node --version
           npm --version
 
+      - name: Validate CI dependency lock alignment
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run ci:dependency-locks:check
+
       - name: Install workspace links for npm SBOM
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -808,6 +828,11 @@ jobs:
       - name: Enable Node warning and deprecation policy
         run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
 
+      - name: Validate CI dependency lock alignment
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run ci:dependency-locks:check
+
       - name: Install root native-toolchain dependencies without lifecycle scripts
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -860,6 +885,11 @@ jobs:
 
       - name: Enable Node warning and deprecation policy
         run: node scripts/enable_node_warning_policy.js --lane node-24-lts
+
+      - name: Validate CI dependency lock alignment
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run ci:dependency-locks:check
 
       - name: Install workspace dependencies
         env:
@@ -933,6 +963,11 @@ jobs:
         run: |
           node --version
           npm --version
+
+      - name: Validate CI dependency lock alignment
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run ci:dependency-locks:check
 
       - name: Install workspace links for release evidence
         env:

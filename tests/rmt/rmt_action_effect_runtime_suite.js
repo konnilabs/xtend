@@ -158,7 +158,8 @@ async function runRuntimeAssertions(context, fixture, stateRuntimeModule, action
     dataSources: fixture.dataSources,
     effects: fixture.effects,
     resources: fixture.resources,
-    stateRuntime,
+    stateRuntime: stateRuntime.modelReader,
+    modelCommandPort: stateRuntime.modelCommandPort,
     hostPort: {
       schema: 'xtend.rmt.action-host-port.test.v1',
       createAbortController() {
@@ -381,6 +382,7 @@ async function runComponentCommandAssertions(context, actionRuntimeModule) {
   const invocations = [];
   const runtime = actionRuntimeModule.createRmtActionEffectRuntime({
     actions: [{ id: 'demo.capture', effects: ['effect:demo.capture/0'] }],
+    modelCommandPort: { apply() { return null; } },
     effects: [{
       id: 'effect:demo.capture/0',
       kind: 'snapshot',
@@ -425,6 +427,7 @@ async function runComponentCommandAssertions(context, actionRuntimeModule) {
 
   const invalidRuntime = actionRuntimeModule.createRmtActionEffectRuntime({
     actions: [{ id: 'demo.invalid', effects: ['effect:demo.invalid/0'] }],
+    modelCommandPort: { apply() { return null; } },
     effects: [{
       id: 'effect:demo.invalid/0',
       kind: 'arbitrary',

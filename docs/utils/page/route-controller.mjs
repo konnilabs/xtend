@@ -13,16 +13,18 @@ const [
   { createRmtDomDescriptorRenderer },
   { createMaracaPlanRuntime },
   { createRmtBrowserScheduler },
-  { createRmtMaracaViewProjectionAdapter }
+  { createRmtMaracaViewProjectionAdapter },
+  { docsKernelScheduler }
 ] = await Promise.all([
   import(docsVersionedModuleUrl('/xtendrmt/rmt-dom-descriptor-renderer.js')),
   import(docsVersionedModuleUrl('/xtend-maraca/plan-runtime.mjs')),
   import(docsVersionedModuleUrl('/xtendrmt/rmt-browser-scheduler.js')),
-  import(docsVersionedModuleUrl('/xtendrmt/rmt-maraca-view-projection-adapter.js'))
+  import(docsVersionedModuleUrl('/xtendrmt/rmt-maraca-view-projection-adapter.js')),
+  import(docsVersionedModuleUrl('/docs/utils/docs-kernel-scheduler.mjs'))
 ]);
 
 const DOCS_RMT_RENDER_SCHEMA = 'xtend.docs.parsedown-rmt-render.v1';
-const docsBrowserScheduler = createRmtBrowserScheduler({ windowTarget: window });
+const docsBrowserScheduler = createRmtBrowserScheduler({ windowTarget: window, scheduler: docsKernelScheduler });
 const docsProductDisposers = new Set();
 
 async function requireDocsLifecycleBinding() {
@@ -4747,6 +4749,7 @@ async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = g
   if (previous && typeof previous.dispose === 'function') previous.dispose();
   const runtime = createMaracaPlanRuntime({
     plan: maraca.plan,
+    scheduler: docsKernelScheduler,
     root: appRoot,
     viewProjectionPort: createRmtMaracaViewProjectionAdapter({
       root: appRoot,

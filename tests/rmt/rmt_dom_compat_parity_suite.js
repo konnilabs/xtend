@@ -20,6 +20,7 @@ const {
 const DOM_COMPAT_PARITY_SCHEMA = 'xtend.rmt.dom-compat-parity.v1';
 const DOM_COMPAT_PARITY_REPORT_SCHEMA = 'xtend.rmt.dom-compat-parity-report.v1';
 const RMT_CORE_RUNTIME = 'xtendrmt/rmt-core.esm.js';
+const RMT_KERNEL_SCHEDULER_RUNTIME = 'xtendrmt/rmt-kernel-scheduler.js';
 const RMT_RUNTIME_ESM = 'xtendrmt/rmt-runtime.esm.js';
 const RMT_RUNTIME_BROWSER = 'xtendrmt/rmt-runtime.browser.js';
 const RMT_CORE_TYPES = 'xtendrmt/rmt-core.d.ts';
@@ -151,6 +152,7 @@ function assertOwnershipModeParity(context, runtimeScenarios, snapshot) {
 
 async function runDomCompatParityScenario(rootDir) {
   const rmtKernel = await importEsm(rootDir, RMT_CORE_RUNTIME);
+  const schedulerModule = await importEsm(rootDir, RMT_KERNEL_SCHEDULER_RUNTIME);
   const surfaceControllerModule = await loadSurfaceControllerModule(rootDir);
   const dom = createDetachedDocumentHarness();
   const domCompat = rmtKernel.createRmtDomCompat({
@@ -158,7 +160,9 @@ async function runDomCompatParityScenario(rootDir) {
     document: dom.documentTarget,
     allowDetachedElements: true
   });
+  const kernelScheduler = schedulerModule.createRmtKernelScheduler();
   const runtime = rmtKernel.createRmtDetachedRuntime({
+    kernelScheduler,
     windowTarget: dom.windowTarget,
     document: dom.documentTarget
   });
@@ -210,6 +214,7 @@ async function runDomCompatParityScenario(rootDir) {
     removeElement: true
   }, { mapping, managerElement: manager });
   const snapshot = controller.snapshot({ includeDestroyed: true });
+  kernelScheduler.dispose('dom-compat-parity-complete');
 
   return {
     schema: DOM_COMPAT_PARITY_SCHEMA,
@@ -249,6 +254,7 @@ async function runRmtDomCompatParitySuite(options = {}) {
 
   [
     RMT_CORE_RUNTIME,
+    RMT_KERNEL_SCHEDULER_RUNTIME,
     RMT_RUNTIME_ESM,
     RMT_RUNTIME_BROWSER,
     RMT_CORE_TYPES,

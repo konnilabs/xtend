@@ -45,8 +45,6 @@ const compatibilityMirror = {
   createRmtProductSurface: typeof globalThis.AppModules?.createRmtProductSurface
 };
 
-globalThis.AppModules.getRmtApiVersion = () => 'xtend.rmt.test.global-mutation';
-
 process.stdout.write(JSON.stringify({
   scenario,
   coreExports: exportNames(core),
@@ -54,8 +52,7 @@ process.stdout.write(JSON.stringify({
   beforeMutation,
   afterMutation: {
     coreVersion: core.getRmtApiVersion(),
-    runtimeVersion: runtime.getRmtApiVersion(),
-    compatibilityMirrorVersion: globalThis.AppModules.getRmtApiVersion()
+    runtimeVersion: runtime.getRmtApiVersion()
   },
   compatibilityMirror
 }));
@@ -77,6 +74,7 @@ function runScenario(scenario) {
     0,
     `XTendRMT ESM ${scenario} subprocess failed:\n${result.stderr || result.stdout}`
   );
+  assert.ok(result.stdout, `XTendRMT ESM ${scenario} subprocess produced no report: ${result.stderr || result.error || result.signal || 'unknown child-process failure'}`);
   return JSON.parse(result.stdout);
 }
 
@@ -107,16 +105,11 @@ reports.forEach((report) => {
   assert.deepEqual(
     report.compatibilityMirror,
     {
-      exists: true,
-      getRmtApiVersion: 'function',
-      createRmtProductSurface: 'function'
+      exists: false,
+      getRmtApiVersion: 'undefined',
+      createRmtProductSurface: 'undefined'
     },
-    `${report.scenario}: the 0.6/0.7 AppModules compatibility mirror remains populated`
-  );
-  assert.equal(
-    report.afterMutation.compatibilityMirrorVersion,
-    'xtend.rmt.test.global-mutation',
-    `${report.scenario}: the compatibility mirror remains independently writable`
+    `${report.scenario}: ESM evaluation does not create the removed AppModules compatibility mirror`
   );
 });
 

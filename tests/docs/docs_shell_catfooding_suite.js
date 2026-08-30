@@ -33,7 +33,12 @@ function readJson(relativePath, rootDir) {
 }
 
 function loadAppRuntime(rootDir) {
-  if (!appRuntimePromise) appRuntimePromise = import(`file://${resolveRepoPath('xtendrmt/rmt-app-runtime.compat.js', rootDir)}`);
+  if (!appRuntimePromise) {
+    appRuntimePromise = Promise.all([
+      import(`file://${resolveRepoPath('xtendrmt/rmt-app-runtime.js', rootDir)}`),
+      import(`file://${resolveRepoPath('xtendrmt/rmt-app-host-adapter.js', rootDir)}`)
+    ]).then(([runtime, host]) => Object.freeze({ ...runtime, ...host }));
+  }
   return appRuntimePromise;
 }
 
@@ -147,11 +152,12 @@ async function runRmtPrewarmWorkerSearchSuite(options = {}) {
     terminate() {}
   }
   class FakeBlob {}
-  const worker = runtime.createRmtSearchPrewarmWorker({
+  const hostPort = runtime.createRmtAppHostAdapter({
     Worker: FakeWorker,
     Blob: FakeBlob,
     URL: { createObjectURL: () => 'blob:search-worker', revokeObjectURL() {} }
   });
+  const worker = runtime.createRmtSearchPrewarmWorker({ hostPort });
   await worker.dispatchSearchEnvelope({ generation: '1', entries: [], query: 'test', options: {} });
   context.assert(messages.length === 1 && messages[0].action === 'search_index', 'dispatch uses allowlisted worker task');
   const snapshot = worker.snapshot();
@@ -247,7 +253,7 @@ function runDocsShellCatfoodingSuite(options = {}) {
   const performanceBaseline = readJson('tests/docs/fixtures/docs-shell-catfooding-performance-baseline.json', rootDir);
   const trunkSections = new Set(navigation.trunks.flatMap((trunk) => trunk.sections.map((section) => `${trunk.id}:${section.id}`)));
   context.assert(navigation.schema === 'xtend.docs.navigation.v1' && navigation.trunks.length === 6, 'navigation contract exposes six task trunks');
-  context.assert(menu.length === 171, 'menu keeps 171 canonical bilingual articles');
+  context.assert(menu.length === 173, 'menu keeps 173 canonical bilingual articles');
   context.assert(menu.every((entry) => entry.trunk && entry.section && trunkSections.has(`${entry.trunk}:${entry.section}`)), 'every article has exactly one valid primary trunk and section');
   context.assert(menu.every((entry) => entry.keywords && entry.keywords.de.length && entry.keywords.en.length), 'every article exposes DE and EN keywords');
   context.assert(performanceBaseline.schema === 'xtend.docs.shell-performance-baseline.v1' && performanceBaseline.regressionLimit === 0.05, 'browser baseline locks the five-percent FCP and transfer regression limit');
@@ -260,8 +266,8 @@ function runDocsShellCatfoodingSuite(options = {}) {
     const fulltextText = readText(fulltextPath, rootDir);
     const compact = JSON.parse(compactText);
     const fulltext = JSON.parse(fulltextText);
-    context.assert(compact.schema === 'xtend.docs.search-index.v1' && compact.entryCount === 171, `${locale} compact index has contract and full inventory`);
-    context.assert(fulltext.schema === 'xtend.docs.search-fulltext-index.v1' && fulltext.entryCount === 171, `${locale} fulltext index has contract and full inventory`);
+    context.assert(compact.schema === 'xtend.docs.search-index.v1' && compact.entryCount === 173, `${locale} compact index has contract and full inventory`);
+    context.assert(fulltext.schema === 'xtend.docs.search-fulltext-index.v1' && fulltext.entryCount === 173, `${locale} fulltext index has contract and full inventory`);
     context.assert(zlib.gzipSync(compactText, { level: 9 }).length <= 25 * 1024, `${locale} compact index stays within 25 KiB gzip`);
     context.assert(zlib.gzipSync(fulltextText, { level: 9 }).length <= 150 * 1024, `${locale} fulltext index stays within 150 KiB gzip`);
   });

@@ -1,4 +1,4 @@
-(function attachRmtStateSelectorRuntime(globalTarget) {
+function createRmtStateSelectorRuntimeModule() {
   const RMT_STATE_SELECTOR_RUNTIME_SCHEMA = 'xtend.epic18.rmt-state-selector-runtime.v2';
   const RMT_STATE_SELECTOR_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-state-selector-diagnostic.v1';
   const RMT_MODEL_READER_SCHEMA = 'xtend.rmt.model-reader.v1';
@@ -1083,15 +1083,10 @@
     planRmtStatePatch
   };
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = api;
-  }
-  if (globalTarget) {
-    globalTarget.XTendRmtStateSelectorRuntime = api;
-  }
-})(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));
+  return Object.freeze(api);
+}
 
-const __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__ = globalThis.XTendRmtStateSelectorRuntime;
+const __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__ = createRmtStateSelectorRuntimeModule();
 
 export const RMT_MODEL_COMMAND_PORT_SCHEMA = __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__.RMT_MODEL_COMMAND_PORT_SCHEMA;
 export const RMT_MODEL_READER_SCHEMA = __XTEND_RMT_STATE_SELECTOR_RUNTIME_API__.RMT_MODEL_READER_SCHEMA;

@@ -435,7 +435,8 @@ function createRuntimeHarness(fixture, runtimeModules) {
     dataSources: fixture.dataSources,
     effects: fixture.effects,
     resources: fixture.resources,
-    stateRuntime,
+    stateRuntime: stateRuntime.modelReader,
+    modelCommandPort: stateRuntime.modelCommandPort,
     resourceManager,
     feedbackAdapter: {
       publish(entry) {

@@ -140,6 +140,8 @@ npm run pack:dry-run
 
 Release metadata and gates are anchored in `package.json#xtend`. GitHub Releases can publish `@ccslabs/xtend` to npm with provenance after release evidence, package dry runs, conditional-network evidence, and the Native-First/RMT-Owned aggregate pass.
 
+The offline-safe network-evidence contracts are exposed as `xtend.epic13ConditionalNetworkEvidence` (`xtend.epic13.conditional-network-evidence.v1`) and `xtend.epic13ConditionalNetworkEvidenceCi` (`xtend.epic13.conditional-network-evidence-ci.v1`). Validate their local structure with `npm run test:epic13-conditional-network-evidence-ci`; actual Audit/SBOM capture remains an explicit CI or release-owner action.
+
 ### License
 
 XTend is licensed under the Apache License 2.0. See [LICENSE](./LICENSE).

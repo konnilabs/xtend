@@ -1059,18 +1059,49 @@ test('Maraca App Services Test Bench strict catfood evidence', { timeout: TEST_T
     assert.equal(methodEvidence.reportInvalidDelta, 1, 'reportValidity must emit exactly one textarea-invalid event');
     assert.equal(methodEvidence.validateInvalidDelta, 1);
 
-    await page.waitForFunction(() => {
-      const textarea = document.getElementById('testbench-textarea');
-      const feedback = document.getElementById('testbench-feedback');
-      const message = feedback && feedback.getAttribute('message') || '';
-      return Boolean(textarea && textarea.hasAttribute('invalid')
-        && feedback
-        && feedback.getAttribute('tone') === 'danger'
-        && feedback.getAttribute('type') === 'danger'
-        && feedback.getAttribute('state') === 'danger'
-        && message.trim().length > 0
-        && feedback.textContent.includes(message));
-    }, [], 'RMT textarea-invalid feedback materialization');
+    try {
+      await page.waitForFunction(() => {
+        const textarea = document.getElementById('testbench-textarea');
+        const feedback = document.getElementById('testbench-feedback');
+        const message = feedback && feedback.getAttribute('message') || '';
+        return Boolean(textarea && textarea.hasAttribute('invalid')
+          && feedback
+          && feedback.getAttribute('tone') === 'danger'
+          && feedback.getAttribute('type') === 'danger'
+          && feedback.getAttribute('state') === 'danger'
+          && message.trim().length > 0
+          && feedback.textContent.includes(message));
+      }, [], 'RMT textarea-invalid feedback materialization');
+    } catch (error) {
+      const diagnostic = await page.evaluateFunction(() => {
+        const textarea = document.getElementById('testbench-textarea');
+        const feedback = document.getElementById('testbench-feedback');
+        const runtime = globalThis.XTendMaraca;
+        const snapshot = runtime && typeof runtime.snapshot === 'function' ? runtime.snapshot() : null;
+        const runtimeState = snapshot && snapshot.state || null;
+        const orchestration = snapshot && snapshot.orchestration || null;
+        return {
+          textareaInvalid: Boolean(textarea && textarea.hasAttribute('invalid')),
+          textareaAriaInvalid: textarea && textarea.shadowRoot?.querySelector('textarea')?.getAttribute('aria-invalid'),
+          feedbackTone: feedback && feedback.getAttribute('tone'),
+          feedbackMessagePresent: Boolean(feedback && (feedback.getAttribute('message') || '').trim()),
+          eventCounts: globalThis[Symbol.for('xtend.catfood.textarea-probe')]?.counts || null,
+          kernel: runtime && runtime.kernel || null,
+          runtime: snapshot ? {
+            phase: snapshot.phase,
+            commitCount: snapshot.commitCount,
+            stateCommitCount: snapshot.stateCommitCount,
+            lastCommit: snapshot.lastCommit,
+            editorState: runtimeState?.states?.['maraca.testbench.editor'] || null,
+            editorSelector: runtimeState?.selectors?.['maraca.testbench.editor'] || null,
+            schedulerFibers: orchestration?.fibers?.slice(-8) || [],
+            diagnostics: snapshot.diagnostics || []
+          } : null
+        };
+      });
+      error.message = `${error.message} Redacted runtime diagnostic: ${JSON.stringify(diagnostic)}`;
+      throw error;
+    }
     const invalidFeedbackEvidence = await page.evaluateFunction(() => {
       const textarea = document.getElementById('testbench-textarea');
       const feedback = document.getElementById('testbench-feedback');
@@ -1235,15 +1266,50 @@ test('Maraca App Services Test Bench strict catfood evidence', { timeout: TEST_T
     assert.equal(page.serviceRequests.length, serviceRequestCountBeforeMismatch, 'policy encapsulation probe must not reach HTTP transport');
 
     async function waitForEditorDraft(expectedText, label) {
-      await page.waitForFunction((expected) => {
-        const orchestration = globalThis.__XTendMaracaOrchestration;
-        const model = orchestration && orchestration.model;
-        const state = model && typeof model.getState === 'function'
-          ? model.getState('maraca.testbench.editor')
-          : null;
-        const element = document.getElementById('testbench-textarea');
-        return Boolean(state && state.value === expected && element && element.value === expected);
-      }, [expectedText], label, 20_000);
+      try {
+        await page.waitForFunction((expected) => {
+          const orchestration = globalThis.__XTendMaracaOrchestration;
+          const model = orchestration && orchestration.model;
+          const state = model && typeof model.getState === 'function'
+            ? model.getState('maraca.testbench.editor')
+            : null;
+          const element = document.getElementById('testbench-textarea');
+          return Boolean(state && state.value === expected && element && element.value === expected);
+        }, [expectedText], label, 20_000);
+      } catch (error) {
+        const diagnostic = await page.evaluateFunction((expected) => {
+          const orchestration = globalThis.__XTendMaracaOrchestration;
+          const model = orchestration && orchestration.model;
+          const runtime = globalThis.XTendMaraca;
+          const snapshot = runtime && typeof runtime.snapshot === 'function' ? runtime.snapshot() : null;
+          const element = document.getElementById('testbench-textarea');
+          const modelValue = model && typeof model.getState === 'function'
+            ? model.getState('maraca.testbench.editor')?.value
+            : null;
+          const elementValue = element?.value ?? null;
+          const renderModelValue = snapshot?.state?.model?.['maraca.testbench.editor']?.value ?? null;
+          return {
+            modelMatches: modelValue === expected,
+            elementMatches: elementValue === expected,
+            renderModelMatches: renderModelValue === expected,
+            modelValueLength: typeof modelValue === 'string' ? modelValue.length : null,
+            elementValueLength: typeof elementValue === 'string' ? elementValue.length : null,
+            elementConnected: element?.isConnected === true,
+            elementFocused: document.activeElement === element,
+            shadowControlFocused: element?.shadowRoot?.activeElement === element?.shadowRoot?.querySelector('textarea'),
+            eventCounts: globalThis[Symbol.for('xtend.catfood.textarea-probe')]?.counts || null,
+            phase: snapshot?.phase || null,
+            lastEvent: snapshot?.lastEvent || null,
+            lastCommit: snapshot?.lastCommit || null,
+            diagnostics: snapshot?.diagnostics || []
+          };
+        }, [expectedText]);
+        await page.flushNetworkCapture();
+        diagnostic.saveRequestCount = page.serviceRequests.filter((entry) => entry.serviceId === SAVE_SERVICE_ID).length;
+        diagnostic.saveResponseCount = page.serviceResponses.filter((entry) => entry.serviceId === SAVE_SERVICE_ID && entry.ok).length;
+        error.message = `${error.message} Redacted draft diagnostic: ${JSON.stringify(diagnostic)}`;
+        throw error;
+      }
     }
 
     stage = 'shift-enter';

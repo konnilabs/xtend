@@ -78,7 +78,7 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
   const implementationPlan = readText('development/XTend-Docs-Quality-Implementierungsplan.md', rootDir);
   const menuEntry = menu.find((entry) => entry.slug === ARTICLE_SLUG);
 
-  context.assert(menu.length === 171, 'Docs menu exposes exactly 171 canonical slugs');
+  context.assert(menu.length === 173, 'Docs menu exposes exactly 173 canonical slugs');
   context.assert(Boolean(menuEntry), 'Docs menu exposes the RMT AnimationEngine article');
   context.assert(menuEntry && menuEntry.id === 'docs.rmt.animation.engine', 'AnimationEngine menu id is stable');
   context.assert(menuEntry && menuEntry.group === 'rmt' && menuEntry.parent === 'rmt-vnext-authoring', 'AnimationEngine is nested below RMT Authoring');
@@ -87,7 +87,7 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
 
   for (const locale of ['de', 'en']) {
     const localeFiles = walkMarkdown(path.join(rootDir, 'docs', locale));
-    context.assert(localeFiles.length === 171, `${locale} contains exactly 171 public Markdown articles`);
+    context.assert(localeFiles.length === 173, `${locale} contains exactly 173 public Markdown articles`);
   }
 
   const articleBlocks = [];

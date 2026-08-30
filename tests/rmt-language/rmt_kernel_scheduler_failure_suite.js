@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { pathToFileURL } = require('url');
 const {
   createSuiteContext,
   printSuiteReport
@@ -196,7 +197,9 @@ function createRmtAppModulesFromArtifact(context, rootDir, artifactPath) {
     return null;
   }
 
-  if (!context.assert(sandbox.AppModules && typeof sandbox.AppModules === 'object', `${artifactPath} exposes AppModules`)) {
+  if (artifactPath.endsWith('.esm.js')) vm.runInNewContext('globalThis.AppModules = AppModules;', sandbox);
+  else sandbox.AppModules = sandbox.XTendRMT || sandbox['xtend.rmt'] || null;
+  if (!context.assert(sandbox.AppModules && typeof sandbox.AppModules === 'object', `${artifactPath} exposes private/public factory probe`)) {
     return null;
   }
   return sandbox.AppModules;
@@ -277,57 +280,35 @@ function runStandaloneSchedulerFailureAssertions(context) {
   context.assert(serializeKernelSchedulerFailureContract(contract) === serializeKernelSchedulerFailureContract(createKernelSchedulerFailureContract()), 'scheduler failure contract serialization is stable');
 }
 
-async function runArtifactProbe(context, rootDir, artifactPath) {
+async function runArtifactProbe(context, rootDir, artifactPath, createRmtKernelScheduler) {
   const AppModules = createRmtAppModulesFromArtifact(context, rootDir, artifactPath);
   if (!AppModules) return;
 
-  const callbackPanicProbe = createPanicMonitorProbe();
-  const callbackDiagnosticsHub = AppModules.createRmtDiagnosticsHub({
-    panicMonitor: callbackPanicProbe
-  });
+  const callbackScheduler = createRmtKernelScheduler();
   const callbackEngine = AppModules.createRmtEngine({
     hostAdapter: createImmediateHost(),
-    diagnosticsHub: callbackDiagnosticsHub,
-    panicMonitor: callbackPanicProbe,
-    schedulerCallbackFailureSeverity: 'critical'
+    scheduler: callbackScheduler
   });
 
-  let callbackThrew = false;
-  try {
-    callbackEngine.schedule('scope-callback-failure', () => {
-      const error = new Error('scheduler callback failed');
-      error.severity = 'critical';
-      error.trustRelevant = true;
-      throw error;
-    }, {
-      preferIdle: false,
-      lane: 'critical_input',
-      failureSeverity: 'critical',
-      trustRelevant: true
-    });
-  } catch (_error) {
-    callbackThrew = true;
-  }
+  const failedHandle = callbackEngine.schedule('scope-callback-failure', () => {
+    throw new Error('scheduler callback failed');
+  }, {
+    lane: 'critical_input'
+  });
+  let callbackRejected = false;
+  await failedHandle.catch(() => {
+    callbackRejected = true;
+  });
   const callbackStats = callbackEngine.getSchedulerStats();
-  context.assert(callbackThrew === true, `${artifactPath} rethrows callback failure for legacy callers`);
+  context.assert(callbackRejected === true, `${artifactPath} exposes callback failure through JobHandle.result`);
+  context.assert(failedHandle.status === 'failed', `${artifactPath} callback failure reaches failed state`);
   context.assert(callbackStats.executed === 0, `${artifactPath} callback failure is not counted as executed`);
   context.assert(callbackStats.failed === 1, `${artifactPath} callback failure increments failed metric`);
-  context.assert(callbackStats.byReason.callback_error === 1, `${artifactPath} callback failure records reason`);
-  context.assert(callbackStats.failures[0] && callbackStats.failures[0].schema === RMT_KERNEL_SCHEDULER_FAILURE_RECORD_SCHEMA, `${artifactPath} callback failure exposes failure record`);
-  context.assert(callbackStats.failures[0] && callbackStats.failures[0].status === 'failed', `${artifactPath} callback failure record status is failed`);
-  context.assert(callbackPanicProbe.signals.some((signal) => signal.trigger === 'scheduler-failure'), `${artifactPath} callback failure records panic signal`);
-  context.assert(callbackDiagnosticsHub.getChannelSnapshot(RMT_KERNEL_SCHEDULER_FAILURE_DIAGNOSTIC_CHANNEL).payload.status === 'failed', `${artifactPath} publishes scheduler failure diagnostic`);
-  context.assert(callbackDiagnosticsHub.getChannelSnapshot(RMT_KERNEL_SCHEDULER_ESCALATION_DIAGNOSTIC_CHANNEL).payload.source === 'scheduler', `${artifactPath} publishes scheduler escalation diagnostic`);
 
-  const recoveryPanicProbe = createPanicMonitorProbe();
-  const recoveryDiagnosticsHub = AppModules.createRmtDiagnosticsHub({
-    panicMonitor: recoveryPanicProbe
-  });
-  const deferredHost = createDeferredHost();
+  const recoveryScheduler = createRmtKernelScheduler();
   const recoveryEngine = AppModules.createRmtEngine({
-    hostAdapter: deferredHost,
-    diagnosticsHub: recoveryDiagnosticsHub,
-    panicMonitor: recoveryPanicProbe
+    hostAdapter: createDeferredHost(),
+    scheduler: recoveryScheduler
   });
 
   let abortedRan = false;
@@ -341,51 +322,46 @@ async function runArtifactProbe(context, rootDir, artifactPath) {
   const afterAbortStats = recoveryEngine.getSchedulerStats();
   context.assert(abortedCount === 1, `${artifactPath} abortScope aborts one pending scheduler job`);
   context.assert(abortedRan === false, `${artifactPath} aborted scheduler job does not run`);
-  context.assert(abortedHandle.getStatus() === 'aborted', `${artifactPath} aborted handle exposes aborted status`);
-  context.assert(afterAbortStats.aborted === 1, `${artifactPath} aborted metric is separated`);
-  context.assert(afterAbortStats.byReason.recovery_aborted === 1, `${artifactPath} aborted reason is tracked`);
+  context.assert(abortedHandle.status === 'cancelled', `${artifactPath} queued scope abort exposes deterministic cancelled status`);
+  context.assert(afterAbortStats.cancelled === 1, `${artifactPath} queued cancellation metric is separated`);
 
   let recoveredRuns = 0;
-  recoveryEngine.schedule('scope-abort', () => {
+  const recoveredHandle = recoveryEngine.schedule('scope-abort', () => {
     recoveredRuns += 1;
+    return 'recovered';
   }, {
-    preferIdle: false,
     lane: 'critical_input'
   });
-  context.assert(deferredHost.flushOne() === true, `${artifactPath} recovery reschedule can be flushed`);
+  context.assert(await recoveredHandle === 'recovered', `${artifactPath} recovery reschedule is awaitable`);
   const afterRecoveryStats = recoveryEngine.getSchedulerStats();
   context.assert(recoveredRuns === 1, `${artifactPath} recovery reschedule executes on fresh token`);
   context.assert(afterRecoveryStats.executed === 1, `${artifactPath} recovery reschedule increments executed metric`);
 
-  const panicHandle = recoveryEngine.schedule('scope-panic', () => {}, {
-    preferIdle: false,
-    lane: 'critical_input'
+  const panicScheduler = createRmtKernelScheduler({
+    isPanicBlocked: () => true
   });
-  const panicBlockedCount = recoveryEngine.panicBlockScope('scope-panic', 'panic_blocked');
-  const afterPanicStats = recoveryEngine.getSchedulerStats();
-  context.assert(panicBlockedCount === 1, `${artifactPath} panicBlockScope blocks one pending job`);
-  context.assert(panicHandle.getStatus() === 'panic_blocked', `${artifactPath} panic-blocked handle exposes panic_blocked status`);
-  context.assert(afterPanicStats.panicBlocked === 1, `${artifactPath} panicBlocked metric is separated`);
-  context.assert(recoveryPanicProbe.signals.some((signal) => signal.trigger === 'scheduler-failure'), `${artifactPath} panic-blocked job records scheduler panic signal`);
+  const panicEngine = AppModules.createRmtEngine({
+    hostAdapter: createImmediateHost(),
+    scheduler: panicScheduler
+  });
+  const panicHandle = panicEngine.schedule('scope-panic', () => 'blocked', { lane: 'critical_input' });
+  await panicHandle.catch(() => undefined);
+  context.assert(panicHandle.status === 'panic_blocked', `${artifactPath} panic monitor blocks work before execution`);
+  context.assert(panicEngine.getSchedulerStats().panicBlocked === 1, `${artifactPath} panicBlocked metric is separated`);
 
   recoveryEngine.reportPerformanceSample({
-    source: 'wp07-test',
-    sampleType: 'long-task',
-    durationMs: 120,
-    waitMs: 90,
-    longTask: true
+    pressureLevel: 'critical'
   });
   context.assert(recoveryEngine.getSchedulerPressureLevel() === 'critical', `${artifactPath} critical performance sample raises scheduler pressure`);
-  context.assert(recoveryPanicProbe.signals.some((signal) => signal.trigger === 'scheduler-backpressure'), `${artifactPath} critical scheduler backpressure records panic signal`);
-  context.assert(recoveryDiagnosticsHub.getChannelSnapshot(RMT_KERNEL_SCHEDULER_FAILURE_DIAGNOSTIC_CHANNEL).payload.eventType === 'scheduler-backpressure-critical', `${artifactPath} critical backpressure publishes scheduler failure diagnostic`);
-
   const diagnostics = recoveryEngine.getSchedulerDiagnostics();
-  context.assert(diagnostics.lanes && diagnostics.lanes.critical_input && diagnostics.lanes.critical_input.aborted >= 1, `${artifactPath} diagnostics lane stats include aborted jobs`);
-  context.assert(diagnostics.lanes && diagnostics.lanes.critical_input && diagnostics.lanes.critical_input.panicBlocked >= 1, `${artifactPath} diagnostics lane stats include panic-blocked jobs`);
+  context.assert(diagnostics.schema === 'xtend.rmt.kernel-scheduler.v1', `${artifactPath} diagnostics originate from the microkernel`);
+  context.assert(recoveryEngine.getScheduler() === recoveryScheduler, `${artifactPath} engine exposes the injected scheduler identity`);
 }
 
 async function runRmtKernelSchedulerFailureSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
+  const schedulerModuleUrl = `${pathToFileURL(resolveRepoPath('xtendrmt/rmt-kernel-scheduler.js', rootDir)).href}?scheduler-failure-suite=${Date.now()}`;
+  const { createRmtKernelScheduler } = await import(schedulerModuleUrl);
   const context = createSuiteContext({
     id: 'rmt-kernel-scheduler-failure',
     label: 'RKSH-WP-07 Scheduler Failure Semantics'
@@ -438,15 +414,15 @@ async function runRmtKernelSchedulerFailureSuite(options = {}) {
     const syntax = syntaxCheckFile(artifactPath, { rootDir, extension: artifactPath.endsWith('.browser.js') ? '.js' : '.mjs' });
     context.assert(syntax.ok, `${artifactPath} syntax passes${syntax.ok ? '' : ` (${syntax.message})`}`);
     assertTextIncludesAll(context, artifactSource, [
-      RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
-      RMT_KERNEL_SCHEDULER_FAILURE_RECORD_SCHEMA,
-      'callback_error',
+      'RMT Engine 0.8 benoetigt genau eine injizierte Kernel-Scheduler-Instanz.',
+      'getScheduler: () => schedulerAuthority',
+      'schedulerAuthority.schedule',
       'panic_blocked',
       'abortScope',
-      'panicBlockScope',
-      'scheduler-backpressure'
+      'panicBlockScope'
     ], `${artifactPath} scheduler failure integration`);
-    await runArtifactProbe(context, rootDir, artifactPath);
+    context.assert(!artifactSource.includes('createRmtQueue'), `${artifactPath} contains no legacy queue factory`);
+    await runArtifactProbe(context, rootDir, artifactPath, createRmtKernelScheduler);
   }
 
   assertTextIncludesAll(context, declaration, [

@@ -37,6 +37,9 @@ jobs:
       - name: Pin npm
         run: npm install --global npm@11.17.0 --no-audit --fund=false
 
+      - name: Validate CI dependency lock alignment
+        run: npm run ci:dependency-locks:check
+
       - name: Install repository dependencies
         run: npm ci --ignore-scripts --no-audit --fund=false
 

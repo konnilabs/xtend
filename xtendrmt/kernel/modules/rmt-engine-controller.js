@@ -1,19 +1,6 @@
 /* modules/rmt-engine-controller.js */
 (function registerRmtEngineControllerModule(global) {
     const appModules = global.AppModules || (global.AppModules = {});
-    const RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA = 'xtend.rmt.kernel-scheduler-failure.v1';
-    const RMT_KERNEL_SCHEDULER_FAILURE_POLICY_SCHEMA = 'xtend.rmt.kernel-scheduler-failure-policy.v1';
-    const RMT_KERNEL_SCHEDULER_FAILURE_RECORD_SCHEMA = 'xtend.rmt.kernel-scheduler-failure-record.v1';
-    const RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE = 'RKSH-WP-07';
-    const RMT_KERNEL_SCHEDULER_FAILURE_DIAGNOSTIC_CHANNEL = 'rmt.kernel.scheduler_failure';
-    const RMT_KERNEL_ESCALATION_SCHEMA_FOR_SCHEDULER = 'xtend.rmt.kernel-escalation.v1';
-    const RMT_KERNEL_ESCALATION_ENVELOPE_SCHEMA_FOR_SCHEDULER = 'xtend.rmt.kernel-escalation-envelope.v1';
-    const RMT_RUNTIME_ESCALATION_DIAGNOSTIC_CHANNEL_FOR_SCHEDULER = 'rmt.kernel.escalation';
-    const RMT_KERNEL_PANIC_MONITOR_SCHEMA_FOR_SCHEDULER = 'xtend.rmt.kernel-panic-monitor.v1';
-    const RMT_KERNEL_PANIC_STATE_SCHEMA_FOR_SCHEDULER = 'xtend.rmt.kernel-panic-state.v1';
-    const RMT_KERNEL_SCHEDULER_FAILURE_STATUSES = Object.freeze(['failed', 'aborted', 'panic_blocked']);
-    const RMT_KERNEL_SCHEDULER_FAILURE_SEVERITIES = Object.freeze(['info', 'warning', 'error', 'critical', 'fatal']);
-
     appModules.createRmtEngineController = function createRmtEngineController(deps = {}) {
         const compatibilityAdapters = normalizeCompatibilityAdapters(
             deps.compatibilityAdapters
@@ -28,43 +15,18 @@
         const schedulerNow = typeof hostAdapter.now === 'function'
             ? hostAdapter.now
             : (() => 0);
-        const schedulerDiagnostics = normalizeSchedulerDiagnostics(
-            deps.schedulerDiagnostics
-            || deps.rmtDiagnostics
-            || deps.renderDiagnostics
-            || deps.diagnostics
-            || null,
-            { now: schedulerNow }
-        );
-        const priorityQueue = normalizePriorityQueue(
-            deps.priorityQueue
-            || deps.schedulerQueue
-            || deps.renderPriorityQueue
-            || null,
-            { now: schedulerNow }
-        );
+        const schedulerAuthority = deps.scheduler && typeof deps.scheduler.schedule === 'function'
+            ? deps.scheduler
+            : (deps.kernelScheduler && typeof deps.kernelScheduler.schedule === 'function' ? deps.kernelScheduler : null);
+        if (!schedulerAuthority) {
+            throw new Error('RMT Engine 0.8 benoetigt genau eine injizierte Kernel-Scheduler-Instanz.');
+        }
         const diagnosticsHub = normalizeDiagnosticsHub(
             deps.diagnosticsHub
             || deps.rmtDiagnosticsHub
             || deps.schedulerDiagnosticsHub
             || null
         );
-        const schedulerPanicMonitor = deps.panicMonitor && typeof deps.panicMonitor.recordSignal === 'function'
-            ? deps.panicMonitor
-            : (deps.kernelPanicMonitor && typeof deps.kernelPanicMonitor.recordSignal === 'function' ? deps.kernelPanicMonitor : null);
-        const schedulerFailurePolicy = {
-            callbackFailureSeverity: normalizeSchedulerFailureSeverity(deps.schedulerCallbackFailureSeverity || deps.schedulerFailureSeverity, 'critical'),
-            abortSeverity: normalizeSchedulerFailureSeverity(deps.schedulerAbortSeverity, 'error'),
-            panicBlockedSeverity: normalizeSchedulerFailureSeverity(deps.schedulerPanicBlockedSeverity, 'critical'),
-            backpressureSeverity: normalizeSchedulerFailureSeverity(deps.schedulerBackpressureSeverity, 'critical'),
-            panicSeverityThreshold: normalizeSchedulerFailureSeverity(deps.schedulerPanicSeverityThreshold, 'critical'),
-            diagnosticsChannel: String(deps.schedulerFailureDiagnosticsChannel || RMT_KERNEL_SCHEDULER_FAILURE_DIAGNOSTIC_CHANNEL).trim() || RMT_KERNEL_SCHEDULER_FAILURE_DIAGNOSTIC_CHANNEL,
-            escalationDiagnosticsChannel: String(deps.schedulerEscalationDiagnosticsChannel || RMT_RUNTIME_ESCALATION_DIAGNOSTIC_CHANNEL_FOR_SCHEDULER).trim() || RMT_RUNTIME_ESCALATION_DIAGNOSTIC_CHANNEL_FOR_SCHEDULER,
-            callbackFailureActivatesPanic: deps.schedulerCallbackFailureActivatesPanic === false ? false : true,
-            backpressureActivatesPanic: deps.schedulerBackpressureActivatesPanic === false ? false : true,
-            trustRelevantActivatesPanic: deps.schedulerTrustRelevantActivatesPanic === false ? false : true,
-            redactsPayload: deps.schedulerFailureRedactsPayload === false ? false : true
-        };
         const reactivity = normalizeReactivity(
             deps.reactivity
             || deps.rmtReactivity
@@ -80,159 +42,17 @@
         const scopeTokens = new Map();
         const rootRegistry = new Map();
         const globalListenerRegistry = new Map();
-        const scheduledJobs = new Map();
-        const scheduledJobsByScope = new Map();
-        const scheduledJobsByRoot = new Map();
-        let queuePumpHandle = null;
-        let queuePumpHandleKind = '';
-        let queuePumpReason = '';
-        let dispatchPendingJob = null;
-        let activeRunningJob = null;
-        let lastSchedulerBackpressurePanicKey = '';
-        let queueDispatchLocked = false;
+        const authorityJobs = new Map();
+        const authorityJobsByScope = new Map();
+        const authorityJobsByRoot = new Map();
         let delegatedHandlerOrder = 0;
         let delegatedHandlerIdCounter = 0;
         let globalListenerIdCounter = 0;
-        let scheduledJobIdCounter = 0;
-        const schedulerTelemetry = {
-            scheduled: 0,
-            executed: 0,
-            failed: 0,
-            aborted: 0,
-            panicBlocked: 0,
-            cancelled: 0,
-            staleScope: 0,
-            staleRoot: 0,
-            pending: 0,
-            pressureLevel: typeof schedulerDiagnostics.getPressureLevel === 'function'
-                ? schedulerDiagnostics.getPressureLevel()
-                : 'normal',
-            totalWaitMs: 0,
-            totalRunMs: 0,
-            maxWaitMs: 0,
-            maxRunMs: 0,
-            byReason: Object.create(null),
-            failures: [],
-            byLane: Object.create(null),
-            pendingByLane: Object.create(null),
-            pendingByStrategy: Object.create(null),
-            history: []
-        };
-        const SCHEDULER_HISTORY_LIMIT = 160;
-        const SCHEDULER_FAILURE_HISTORY_LIMIT = 80;
-        const SCHEDULER_DIAGNOSTICS_CHANNEL = 'rmt.scheduler.snapshot';
 
         function normalizeCompatibilityAdapters(rawAdapters) {
             if (!rawAdapters) return [];
             const adapters = Array.isArray(rawAdapters) ? rawAdapters : [rawAdapters];
             return adapters.filter((adapter) => !!adapter && typeof adapter === 'object');
-        }
-
-        function normalizeSchedulerDiagnostics(diagnostics, defaults = {}) {
-            const normalizedDiagnostics = diagnostics && typeof diagnostics === 'object'
-                ? diagnostics
-                : {};
-            const fallbackNow = typeof defaults.now === 'function' ? defaults.now : schedulerNow;
-
-            function buildFallbackSnapshot() {
-                return {
-                    pressureLevel: 'normal',
-                    queue: {
-                        pending: 0,
-                        byLane: {},
-                        byStrategy: {},
-                        oldestWaitMs: 0,
-                        congestionScore: 0,
-                        updatedAt: fallbackNow(),
-                        reason: 'fallback'
-                    },
-                    performance: {
-                        sampleCount: 0,
-                        avgDurationMs: 0,
-                        avgWaitMs: 0,
-                        maxDurationMs: 0,
-                        maxWaitMs: 0,
-                        longTaskCount: 0,
-                        longTaskRatio: 0,
-                        droppedFrameCount: 0,
-                        lastSampleAt: 0
-                    },
-                    lanes: {},
-                    recentEvents: [],
-                    transitions: []
-                };
-            }
-
-            function normalizeRequestedKind(rawKind) {
-                return String(rawKind || '').trim() === 'after_paint'
-                    ? 'after_paint'
-                    : 'deferred';
-            }
-
-            function normalizeLane(lane, fallbackLane = 'visible_commit') {
-                if (typeof normalizedDiagnostics.normalizeLane === 'function') {
-                    return normalizedDiagnostics.normalizeLane(lane, fallbackLane);
-                }
-                const safeLane = String(lane || '').trim();
-                switch (safeLane) {
-                case 'critical_input':
-                case 'visible_commit':
-                case 'hydration_followup':
-                case 'background_prepare':
-                case 'idle_maintenance':
-                    return safeLane;
-                default:
-                    return fallbackLane;
-                }
-            }
-
-            function resolveFallbackPolicy(request = {}) {
-                const requestedKind = normalizeRequestedKind(request.requestedKind || request.kind);
-                const fallbackLane = requestedKind === 'after_paint'
-                    ? 'visible_commit'
-                    : 'background_prepare';
-                const lane = normalizeLane(request.lane, fallbackLane);
-                return {
-                    requestedKind,
-                    lane,
-                    executionStrategy: requestedKind === 'after_paint'
-                        ? 'after_paint'
-                        : (request.preferIdle === false ? 'timeout' : 'idle'),
-                    delayMs: Number.isFinite(request.delay) && request.delay >= 0 ? request.delay : 0,
-                    timeoutMs: Number.isFinite(request.timeout) && request.timeout >= 0 ? request.timeout : 220,
-                    preferIdle: request.preferIdle !== false && requestedKind !== 'after_paint',
-                    priority: Number.isFinite(request.priority) ? request.priority : 100,
-                    budgetClass: String(request.budgetClass || '').trim()
-                        || (requestedKind === 'after_paint' ? 'visible_commit' : 'background_prepare'),
-                    coalesceKey: String(request.coalesceKey || '').trim() || '',
-                    deadlineMs: Number.isFinite(request.deadlineMs) && request.deadlineMs >= 0 ? request.deadlineMs : 0,
-                    pressureLevel: typeof normalizedDiagnostics.getPressureLevel === 'function'
-                        ? String(normalizedDiagnostics.getPressureLevel() || 'normal').trim() || 'normal'
-                        : 'normal'
-                };
-            }
-
-            return {
-                normalizeLane,
-                reportPerformanceSample: typeof normalizedDiagnostics.reportPerformanceSample === 'function'
-                    ? normalizedDiagnostics.reportPerformanceSample.bind(normalizedDiagnostics)
-                    : (() => buildFallbackSnapshot()),
-                updateQueueSnapshot: typeof normalizedDiagnostics.updateQueueSnapshot === 'function'
-                    ? normalizedDiagnostics.updateQueueSnapshot.bind(normalizedDiagnostics)
-                    : (() => buildFallbackSnapshot()),
-                noteJobLifecycle: typeof normalizedDiagnostics.noteJobLifecycle === 'function'
-                    ? normalizedDiagnostics.noteJobLifecycle.bind(normalizedDiagnostics)
-                    : (() => null),
-                resolveSchedulingPolicy: typeof normalizedDiagnostics.resolveSchedulingPolicy === 'function'
-                    ? normalizedDiagnostics.resolveSchedulingPolicy.bind(normalizedDiagnostics)
-                    : resolveFallbackPolicy,
-                getPressureLevel: typeof normalizedDiagnostics.getPressureLevel === 'function'
-                    ? normalizedDiagnostics.getPressureLevel.bind(normalizedDiagnostics)
-                    : (() => 'normal'),
-                getSnapshot: typeof normalizedDiagnostics.getSnapshot === 'function'
-                    ? normalizedDiagnostics.getSnapshot.bind(normalizedDiagnostics)
-                    : buildFallbackSnapshot
-            };
         }
 
         function normalizeDiagnosticsHub(hub) {
@@ -378,71 +198,6 @@
             };
         }
 
-        function normalizePriorityQueue(queue, defaults = {}) {
-            const fallbackNow = typeof defaults.now === 'function' ? defaults.now : schedulerNow;
-            const normalizedQueue = queue && typeof queue === 'object'
-                ? queue
-                : null;
-
-            function buildFallbackQueueStats() {
-                return {
-                    pending: 0,
-                    totalEnqueued: 0,
-                    totalDequeued: 0,
-                    totalRemoved: 0,
-                    totalCoalesced: 0,
-                    lastDispatchedRootKey: '',
-                    roots: {},
-                    pendingJobs: []
-                };
-            }
-
-            if (!normalizedQueue) {
-                return {
-                    dequeueNext: () => ({ job: null, delayMs: 0, reason: 'queue_unavailable' }),
-                    enqueue: () => ({ accepted: true, reason: 'queue_passthrough', replacedJobs: [] }),
-                    getStats: buildFallbackQueueStats,
-                    hasPending: () => false,
-                    listPending: () => [],
-                    noteJobCompleted: () => null,
-                    noteJobStarted: () => null,
-                    remove: () => null,
-                    size: () => 0
-                };
-            }
-
-            return {
-                dequeueNext: typeof normalizedQueue.dequeueNext === 'function'
-                    ? normalizedQueue.dequeueNext.bind(normalizedQueue)
-                    : (() => ({ job: null, delayMs: 0, reason: 'queue_missing_dequeue' })),
-                enqueue: typeof normalizedQueue.enqueue === 'function'
-                    ? normalizedQueue.enqueue.bind(normalizedQueue)
-                    : (() => ({ accepted: true, reason: 'queue_missing_enqueue', replacedJobs: [] })),
-                getStats: typeof normalizedQueue.getStats === 'function'
-                    ? normalizedQueue.getStats.bind(normalizedQueue)
-                    : buildFallbackQueueStats,
-                hasPending: typeof normalizedQueue.hasPending === 'function'
-                    ? normalizedQueue.hasPending.bind(normalizedQueue)
-                    : (() => false),
-                listPending: typeof normalizedQueue.listPending === 'function'
-                    ? normalizedQueue.listPending.bind(normalizedQueue)
-                    : (() => []),
-                noteJobCompleted: typeof normalizedQueue.noteJobCompleted === 'function'
-                    ? normalizedQueue.noteJobCompleted.bind(normalizedQueue)
-                    : (() => null),
-                noteJobStarted: typeof normalizedQueue.noteJobStarted === 'function'
-                    ? normalizedQueue.noteJobStarted.bind(normalizedQueue)
-                    : (() => null),
-                remove: typeof normalizedQueue.remove === 'function'
-                    ? normalizedQueue.remove.bind(normalizedQueue)
-                    : (() => null),
-                size: typeof normalizedQueue.size === 'function'
-                    ? normalizedQueue.size.bind(normalizedQueue)
-                    : (() => 0),
-                now: fallbackNow
-            };
-        }
-
         function resolveCompatibilityHook(hookName, args = [], fallbackValue = undefined) {
             for (let index = 0; index < compatibilityAdapters.length; index += 1) {
                 const adapter = compatibilityAdapters[index];
@@ -530,1012 +285,110 @@
 
         function ensureIndexSet(indexMap, key) {
             const safeKey = String(key || '').trim();
-            if (!safeKey) return null;
-            if (!indexMap.has(safeKey)) {
-                indexMap.set(safeKey, new Set());
-            }
+            if (!indexMap.has(safeKey)) indexMap.set(safeKey, new Set());
             return indexMap.get(safeKey);
         }
 
         function removeIndexedJob(indexMap, key, jobId) {
             const safeKey = String(key || '').trim();
-            if (!safeKey || !indexMap.has(safeKey)) return;
             const bucket = indexMap.get(safeKey);
+            if (!bucket) return;
             bucket.delete(jobId);
             if (bucket.size === 0) indexMap.delete(safeKey);
         }
 
-        function cancelAnimationFrameSafe(handle) {
-            if (handle === null || typeof handle === 'undefined') return;
-            hostAdapter.cancelAnimationFrame(handle);
-        }
-
-        function cancelIdleCallbackSafe(handle) {
-            if (handle === null || typeof handle === 'undefined') return;
-            hostAdapter.cancelIdleCallback(handle);
-        }
-
         function normalizeScheduledKind(rawKind) {
-            return String(rawKind || '').trim() === 'after_paint'
-                ? 'after_paint'
-                : 'deferred';
+            return String(rawKind || '').trim() === 'after_paint' ? 'after_paint' : 'deferred';
         }
 
-        function normalizeExecutionStrategy(strategy, fallbackStrategy = 'timeout') {
-            const safeStrategy = String(strategy || '').trim();
-            switch (safeStrategy) {
-            case 'after_paint':
-            case 'idle':
-            case 'timeout':
-                return safeStrategy;
-            default:
-                return fallbackStrategy;
-            }
-        }
-
-        function normalizeScheduledLane(lane, fallbackLane = 'visible_commit') {
-            return schedulerDiagnostics.normalizeLane(lane, fallbackLane);
-        }
-
-        function normalizeSchedulerFailureSeverity(value, fallback = 'error') {
-            const normalized = String(value || '').trim().toLowerCase();
-            return RMT_KERNEL_SCHEDULER_FAILURE_SEVERITIES.includes(normalized) ? normalized : fallback;
-        }
-
-        function schedulerFailureSeverityRank(severity) {
-            const index = RMT_KERNEL_SCHEDULER_FAILURE_SEVERITIES.indexOf(normalizeSchedulerFailureSeverity(severity, 'info'));
-            return index === -1 ? 0 : index;
-        }
-
-        function isSchedulerFailureSeverityAtLeast(severity, threshold) {
-            return schedulerFailureSeverityRank(severity) >= schedulerFailureSeverityRank(threshold);
-        }
-
-        function serializeSchedulerFailureError(error) {
-            if (!error) return null;
-            if (error instanceof Error) {
-                return {
-                    name: String(error.name || 'Error'),
-                    message: String(error.message || 'scheduler callback failed'),
-                    stack: String(error.stack || '')
-                };
-            }
-            if (typeof error === 'object') {
-                return {
-                    name: String(error.name || 'Error'),
-                    message: String(error.message || error.error || 'scheduler callback failed'),
-                    stack: String(error.stack || '')
-                };
-            }
-            return {
-                name: 'Error',
-                message: String(error || 'scheduler callback failed'),
-                stack: ''
+        function indexAuthorityHandle(handle, scope, rootId) {
+            const entry = { handle, scope, rootId };
+            authorityJobs.set(handle.id, entry);
+            ensureIndexSet(authorityJobsByScope, scope).add(handle.id);
+            if (rootId) ensureIndexSet(authorityJobsByRoot, rootId).add(handle.id);
+            const removeEntry = () => {
+                authorityJobs.delete(handle.id);
+                removeIndexedJob(authorityJobsByScope, scope, handle.id);
+                if (rootId) removeIndexedJob(authorityJobsByRoot, rootId, handle.id);
             };
-        }
-
-        function cloneSchedulerFailureValue(value, fallback = null) {
-            if (value === undefined) return fallback;
-            try {
-                return JSON.parse(JSON.stringify(value));
-            } catch (_error) {
-                return fallback;
-            }
-        }
-
-        function redactSchedulerFailureValue(value, key = '') {
-            if (value === null || value === undefined) return value;
-            if (Array.isArray(value)) return value.map((entry) => redactSchedulerFailureValue(entry, key));
-            if (typeof value === 'object') {
-                return Object.keys(value).reduce((result, entryKey) => {
-                    result[entryKey] = redactSchedulerFailureValue(value[entryKey], entryKey);
-                    return result;
-                }, {});
-            }
-            if (typeof value !== 'string') return value;
-            const normalizedKey = String(key || '').toLowerCase();
-            const sensitiveKey = /(payload|value|html|markup|raw|sample|source|script|token|secret|password)/u.test(normalizedKey);
-            const unsafeSample = /<\s*script\b|javascript:|vbscript:|srcdoc|onerror\s*=|onclick\s*=/iu.test(value);
-            if (sensitiveKey || unsafeSample) {
-                return {
-                    redacted: true,
-                    length: value.length
-                };
-            }
-            return value.length > 256 ? value.slice(0, 253) + '...' : value;
-        }
-
-        function normalizeScheduledFinalStatus(status, reason = '') {
-            const safeStatus = String(status || '').trim();
-            if (RMT_KERNEL_SCHEDULER_FAILURE_STATUSES.includes(safeStatus)) return safeStatus;
-            const safeReason = String(reason || '').trim().toLowerCase();
-            if (safeReason === 'panic_blocked' || safeReason.indexOf('panic_blocked') !== -1) return 'panic_blocked';
-            if (safeReason.indexOf('recovery') !== -1 || safeReason.indexOf('abort') !== -1) return 'aborted';
-            return safeStatus || 'cancelled';
-        }
-
-        function isSchedulerFailureStatus(status) {
-            return RMT_KERNEL_SCHEDULER_FAILURE_STATUSES.includes(String(status || '').trim());
-        }
-
-        function createSchedulerFailureRecord(job, status, reason = '', options = {}) {
-            const safeStatus = normalizeScheduledFinalStatus(status, reason);
-            const severity = normalizeSchedulerFailureSeverity(
-                options.severity
-                || (job.meta && job.meta.failureSeverity)
-                || (safeStatus === 'panic_blocked' ? schedulerFailurePolicy.panicBlockedSeverity : (safeStatus === 'aborted' ? schedulerFailurePolicy.abortSeverity : schedulerFailurePolicy.callbackFailureSeverity)),
-                safeStatus === 'aborted' ? 'error' : 'critical'
-            );
-            const trustRelevant = options.trustRelevant === true || !!(job.meta && job.meta.trustRelevant === true);
-            const panicRelevant = options.panicRelevant === true
-                || !!(job.meta && (job.meta.panicRelevant === true || job.meta.panicCritical === true))
-                || (safeStatus === 'failed' && schedulerFailurePolicy.callbackFailureActivatesPanic !== false)
-                || safeStatus === 'panic_blocked'
-                || (trustRelevant && schedulerFailurePolicy.trustRelevantActivatesPanic !== false)
-                || isSchedulerFailureSeverityAtLeast(severity, schedulerFailurePolicy.panicSeverityThreshold);
-            const completedAt = Number.isFinite(job.finishedAt) ? job.finishedAt : schedulerNow();
-            return {
-                schema: RMT_KERNEL_SCHEDULER_FAILURE_RECORD_SCHEMA,
-                schedulerFailureSchema: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
-                policySchema: RMT_KERNEL_SCHEDULER_FAILURE_POLICY_SCHEMA,
-                panicMonitorSchema: RMT_KERNEL_PANIC_MONITOR_SCHEMA_FOR_SCHEDULER,
-                panicStateSchema: RMT_KERNEL_PANIC_STATE_SCHEMA_FOR_SCHEDULER,
-                workpackage: RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE,
-                recordId: RMT_KERNEL_SCHEDULER_FAILURE_RECORD_SCHEMA + ':' + job.id + ':' + completedAt,
-                jobId: job.id,
-                status: safeStatus,
-                reason: String(reason || safeStatus || 'unknown').trim() || 'unknown',
-                severity,
-                panicRelevant,
-                trustRelevant,
-                trigger: 'scheduler-failure',
-                scope: job.scope,
-                rootId: job.rootId,
-                rootVersion: job.rootVersion,
-                lane: job.meta && job.meta.lane ? job.meta.lane : '',
-                strategy: job.meta && job.meta.executionStrategy ? job.meta.executionStrategy : '',
-                waitMs: Math.max(Number(job.waitMs) || 0, 0),
-                runMs: Math.max(Number(job.runDurationMs) || 0, 0),
-                scheduledAt: job.scheduledAt,
-                startedAt: job.startedAt,
-                finishedAt: completedAt,
-                diagnosticCode: String(options.diagnosticCode || (job.meta && job.meta.diagnosticCode) || 'rmt.kernel.scheduler.failure').trim() || 'rmt.kernel.scheduler.failure',
-                reasonCode: String(options.reasonCode || (job.meta && job.meta.reasonCode) || 'xtend.rmt.kernel-scheduler-failure.job_failed').trim() || 'xtend.rmt.kernel-scheduler-failure.job_failed',
-                error: serializeSchedulerFailureError(options.error || job.error),
-                metadata: schedulerFailurePolicy.redactsPayload === false
-                    ? cloneSchedulerFailureValue(options.metadata || {}, {})
-                    : redactSchedulerFailureValue(cloneSchedulerFailureValue(options.metadata || {}, {}))
-            };
-        }
-
-        function publishSchedulerFailureRecord(record) {
-            schedulerTelemetry.failures.push(record);
-            if (schedulerTelemetry.failures.length > SCHEDULER_FAILURE_HISTORY_LIMIT) {
-                schedulerTelemetry.failures.splice(0, schedulerTelemetry.failures.length - SCHEDULER_FAILURE_HISTORY_LIMIT);
-            }
-            try {
-                diagnosticsHub.publish(schedulerFailurePolicy.diagnosticsChannel, record, {
-                    source: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
-                    workpackage: RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE,
-                    status: record.status,
-                    severity: record.severity,
-                    panicRelevant: record.panicRelevant,
-                    jobId: record.jobId,
-                    scope: record.scope
-                });
-            } catch (_error) {}
-            try {
-                diagnosticsHub.publish(schedulerFailurePolicy.escalationDiagnosticsChannel, {
-                    schema: RMT_KERNEL_ESCALATION_ENVELOPE_SCHEMA_FOR_SCHEDULER,
-                    escalationSchema: RMT_KERNEL_ESCALATION_SCHEMA_FOR_SCHEDULER,
-                    source: 'scheduler',
-                    eventType: 'scheduler-job-failure',
-                    severity: record.severity,
-                    panicRelevant: record.panicRelevant,
-                    trustRelevant: record.trustRelevant,
-                    trigger: 'scheduler-failure',
-                    scope: 'scheduler-job',
-                    sourceRef: 'scheduler-job:' + record.jobId,
-                    correlationId: record.recordId,
-                    rootId: record.rootId,
-                    responseStatus: record.status,
-                    reasonCode: record.reasonCode,
-                    diagnosticCode: record.diagnosticCode,
-                    error: record.error,
-                    workpackage: RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE,
-                    metadata: {
-                        schedulerFailureSchema: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
-                        recordId: record.recordId,
-                        lane: record.lane,
-                        strategy: record.strategy
-                    }
-                }, {
-                    source: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
-                    workpackage: RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE,
-                    severity: record.severity,
-                    panicRelevant: record.panicRelevant
-                });
-            } catch (_error) {}
-            if (schedulerPanicMonitor && record.panicRelevant === true) {
-                try {
-                    record.panicState = schedulerPanicMonitor.recordSignal({
-                        trigger: 'scheduler-failure',
-                        severity: record.severity,
-                        critical: true,
-                        scope: 'scheduler-job',
-                        sourceRef: 'scheduler-job:' + record.jobId,
-                        reasonCode: record.reasonCode,
-                        diagnosticCode: record.diagnosticCode,
-                        correlationId: record.recordId,
-                        affectedJobs: [String(record.jobId)],
-                        metadata: {
-                            schedulerFailureSchema: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
-                            status: record.status,
-                            reason: record.reason,
-                            lane: record.lane,
-                            strategy: record.strategy,
-                            rootId: record.rootId
-                        }
-                    });
-                } catch (_error) {
-                    record.panicState = null;
-                }
-            } else {
-                record.panicState = null;
-            }
-            return record;
-        }
-
-        function recordSchedulerBackpressurePanic(diagnosticsSnapshot, reason = 'scheduler_backpressure', queueSnapshot = null, previousPressureLevel = '') {
-            if (!schedulerPanicMonitor || schedulerFailurePolicy.backpressureActivatesPanic === false) return null;
-            const pressureLevel = String(
-                (diagnosticsSnapshot && diagnosticsSnapshot.pressureLevel)
-                || schedulerTelemetry.pressureLevel
-                || ''
-            ).trim();
-            if (pressureLevel !== 'critical') return null;
-            const queue = queueSnapshot || (diagnosticsSnapshot && diagnosticsSnapshot.queue) || {};
-            const safeReason = String(reason || 'scheduler_backpressure').trim() || 'scheduler_backpressure';
-            const signalKey = [
-                pressureLevel,
-                safeReason,
-                Number(queue.pending) || 0,
-                Number(queue.oldestWaitMs) || 0,
-                Number(queue.congestionScore) || 0
-            ].join(':');
-            if (previousPressureLevel === 'critical' && signalKey === lastSchedulerBackpressurePanicKey) return null;
-            lastSchedulerBackpressurePanicKey = signalKey;
-            const diagnosticRecord = {
-                schema: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
-                policySchema: RMT_KERNEL_SCHEDULER_FAILURE_POLICY_SCHEMA,
-                panicMonitorSchema: RMT_KERNEL_PANIC_MONITOR_SCHEMA_FOR_SCHEDULER,
-                panicStateSchema: RMT_KERNEL_PANIC_STATE_SCHEMA_FOR_SCHEDULER,
-                workpackage: RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE,
-                eventType: 'scheduler-backpressure-critical',
-                status: 'panic_blocked',
-                severity: schedulerFailurePolicy.backpressureSeverity,
-                panicRelevant: true,
-                trustRelevant: true,
-                trigger: 'scheduler-backpressure',
-                scope: 'scheduler-backpressure',
-                reason: safeReason,
-                reasonCode: 'xtend.rmt.kernel-scheduler-failure.backpressure_critical',
-                diagnosticCode: 'rmt.kernel.scheduler.backpressure_critical',
-                pressureLevel,
-                pending: Number(queue.pending) || 0,
-                oldestWaitMs: Number(queue.oldestWaitMs) || 0,
-                congestionScore: Number(queue.congestionScore) || 0,
-                recordedAt: schedulerNow()
-            };
-            try {
-                diagnosticRecord.panicState = schedulerPanicMonitor.recordSignal({
-                    trigger: 'scheduler-backpressure',
-                    severity: diagnosticRecord.severity,
-                    critical: true,
-                    scope: 'scheduler-backpressure',
-                    sourceRef: 'scheduler-pressure:critical',
-                    reasonCode: diagnosticRecord.reasonCode,
-                    diagnosticCode: diagnosticRecord.diagnosticCode,
-                    correlationId: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA + ':backpressure:' + diagnosticRecord.recordedAt,
-                    metadata: {
-                        schedulerFailureSchema: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
-                        pressureLevel,
-                        pending: diagnosticRecord.pending,
-                        oldestWaitMs: diagnosticRecord.oldestWaitMs,
-                        congestionScore: diagnosticRecord.congestionScore,
-                        reason: safeReason
-                    }
-                });
-            } catch (_error) {
-                diagnosticRecord.panicState = null;
-            }
-            try {
-                diagnosticsHub.publish(schedulerFailurePolicy.diagnosticsChannel, diagnosticRecord, {
-                    source: RMT_KERNEL_SCHEDULER_FAILURE_SCHEMA,
-                    workpackage: RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE,
-                    severity: diagnosticRecord.severity,
-                    panicRelevant: true,
-                    status: 'panic_blocked',
-                    pressureLevel
-                });
-            } catch (_error) {}
-            return diagnosticRecord;
-        }
-
-        function ensureSchedulerLaneTelemetry(lane) {
-            const safeLane = normalizeScheduledLane(lane, 'visible_commit');
-            if (!schedulerTelemetry.byLane[safeLane]) {
-                schedulerTelemetry.byLane[safeLane] = {
-                    scheduled: 0,
-                    executed: 0,
-                    failed: 0,
-                    aborted: 0,
-                    panicBlocked: 0,
-                    cancelled: 0,
-                    staleScope: 0,
-                    staleRoot: 0,
-                    pending: 0,
-                    totalWaitMs: 0,
-                    totalRunMs: 0,
-                    maxWaitMs: 0,
-                    maxRunMs: 0
-                };
-            }
-            return schedulerTelemetry.byLane[safeLane];
-        }
-
-        function cloneSchedulerLaneTelemetry() {
-            const result = {};
-            Object.keys(schedulerTelemetry.byLane).forEach((lane) => {
-                const stats = schedulerTelemetry.byLane[lane];
-                result[lane] = {
-                    scheduled: stats.scheduled,
-                    executed: stats.executed,
-                    failed: stats.failed,
-                    aborted: stats.aborted,
-                    panicBlocked: stats.panicBlocked,
-                    cancelled: stats.cancelled,
-                    staleScope: stats.staleScope,
-                    staleRoot: stats.staleRoot,
-                    pending: stats.pending,
-                    totalWaitMs: stats.totalWaitMs,
-                    totalRunMs: stats.totalRunMs,
-                    maxWaitMs: stats.maxWaitMs,
-                    maxRunMs: stats.maxRunMs
-                };
-            });
-            return result;
-        }
-
-        function buildSchedulerQueueSnapshot() {
-            const byLane = Object.create(null);
-            const byStrategy = Object.create(null);
-            const currentNow = schedulerNow();
-            let oldestWaitMs = 0;
-            let pendingCount = 0;
-
-            scheduledJobs.forEach((job) => {
-                if (!job || job.running === true) return;
-                const lane = normalizeScheduledLane(
-                    job.meta && job.meta.lane,
-                    job.kind === 'after_paint' ? 'visible_commit' : 'background_prepare'
-                );
-                const strategy = normalizeExecutionStrategy(
-                    job.meta && job.meta.executionStrategy,
-                    job.kind === 'after_paint' ? 'after_paint' : 'timeout'
-                );
-                pendingCount += 1;
-                byLane[lane] = (byLane[lane] || 0) + 1;
-                byStrategy[strategy] = (byStrategy[strategy] || 0) + 1;
-                const waitMs = Math.max(currentNow - (job.scheduledAt || currentNow), 0);
-                if (waitMs > oldestWaitMs) oldestWaitMs = waitMs;
-            });
-
-            return {
-                pending: pendingCount,
-                byLane,
-                byStrategy,
-                oldestWaitMs,
-                congestionScore: pendingCount * 12 + Math.min(oldestWaitMs, 240)
-            };
-        }
-
-        function syncSchedulerDiagnostics(reason = 'scheduler_state_changed') {
-            const snapshot = buildSchedulerQueueSnapshot();
-            const previousPressureLevel = schedulerTelemetry.pressureLevel;
-            schedulerTelemetry.pending = snapshot.pending;
-            schedulerTelemetry.pendingByLane = { ...snapshot.byLane };
-            schedulerTelemetry.pendingByStrategy = { ...snapshot.byStrategy };
-            Object.keys(schedulerTelemetry.byLane).forEach((lane) => {
-                schedulerTelemetry.byLane[lane].pending = snapshot.byLane[lane] || 0;
-            });
-            const diagnosticsSnapshot = schedulerDiagnostics.updateQueueSnapshot({
-                reason,
-                pending: snapshot.pending,
-                byLane: snapshot.byLane,
-                byStrategy: snapshot.byStrategy,
-                oldestWaitMs: snapshot.oldestWaitMs,
-                congestionScore: snapshot.congestionScore
-            });
-            if (diagnosticsSnapshot && diagnosticsSnapshot.pressureLevel) {
-                schedulerTelemetry.pressureLevel = diagnosticsSnapshot.pressureLevel;
-            } else if (typeof schedulerDiagnostics.getPressureLevel === 'function') {
-                schedulerTelemetry.pressureLevel = schedulerDiagnostics.getPressureLevel();
-            }
-            recordSchedulerBackpressurePanic(diagnosticsSnapshot, reason, snapshot, previousPressureLevel);
-            publishSchedulerSnapshot(reason);
-            return snapshot;
-        }
-
-        function publishSchedulerSnapshot(reason = 'scheduler_state_changed') {
-            return diagnosticsHub.publish(SCHEDULER_DIAGNOSTICS_CHANNEL, {
-                reason: String(reason || 'scheduler_state_changed').trim() || 'scheduler_state_changed',
-                recordedAt: schedulerNow(),
-                hostKind: hostAdapter.hostKind || 'generic',
-                stats: getSchedulerStats(),
-                pendingJobs: listScheduledJobs()
-            }, {
-                source: 'rmt',
-                category: 'scheduler_snapshot'
-            });
-        }
-
-        function clearQueuePumpHandle() {
-            if (!queuePumpHandleKind || !hasScheduledHandle(queuePumpHandle)) {
-                queuePumpHandle = null;
-                queuePumpHandleKind = '';
-                queuePumpReason = '';
-                return false;
-            }
-            if (queuePumpHandleKind === 'timeout') {
-                hostAdapter.clearTimeout(queuePumpHandle);
-            } else if (queuePumpHandleKind === 'raf') {
-                cancelAnimationFrameSafe(queuePumpHandle);
-            } else if (queuePumpHandleKind === 'idle') {
-                cancelIdleCallbackSafe(queuePumpHandle);
-            }
-            queuePumpHandle = null;
-            queuePumpHandleKind = '';
-            queuePumpReason = '';
-            return true;
-        }
-
-        function scheduleQueuePumpTimeout(delayMs, reason = 'queue_recheck') {
-            clearQueuePumpHandle();
-            queuePumpReason = String(reason || 'queue_recheck').trim() || 'queue_recheck';
-            queuePumpHandleKind = 'timeout';
-            queuePumpHandle = hostAdapter.scheduleTimeout(() => {
-                queuePumpHandle = null;
-                queuePumpHandleKind = '';
-                queuePumpReason = '';
-                pumpPriorityQueue(queuePumpReason || reason);
-            }, Math.max(Number(delayMs) || 0, 0));
-        }
-
-        function queueEnqueueJob(job, options = {}) {
-            if (!job || job.finished) return false;
-            const enqueueResult = priorityQueue.enqueue(job, {
-                diagnostics: schedulerDiagnostics.getSnapshot(),
-                pressureLevel: schedulerTelemetry.pressureLevel,
-                now: schedulerNow(),
-                requeue: options.requeue === true
-            });
-            const replacedJobs = Array.isArray(enqueueResult.replacedJobs)
-                ? enqueueResult.replacedJobs
-                : [];
-
-            replacedJobs.forEach((replacedJob) => {
-                if (!replacedJob || replacedJob.id === job.id) return;
-                if (dispatchPendingJob && dispatchPendingJob.id === replacedJob.id) {
-                    dispatchPendingJob = null;
-                }
-                cancelScheduledJob(replacedJob, 'coalesced_replaced');
-            });
-
-            if (enqueueResult.accepted === false) {
-                finalizeScheduledJob(job, 'cancelled', enqueueResult.reason || 'coalesced_superseded');
-                return false;
-            }
-
-            if (options.suppressPump !== true) {
-                pumpPriorityQueue(options.reason || 'queue_enqueued');
-            }
-            return true;
-        }
-
-        function requeueDispatchPendingJob(reason = 'dispatch_requeued') {
-            if (!dispatchPendingJob || dispatchPendingJob.finished || dispatchPendingJob.running) return false;
-            const pendingJob = dispatchPendingJob;
-            dispatchPendingJob = null;
-            clearScheduledJobHandles(pendingJob);
-            pendingJob.status = 'scheduled';
-            return queueEnqueueJob(pendingJob, {
-                requeue: true,
-                suppressPump: true,
-                reason
-            });
-        }
-
-        function scheduleSelectedJob(job) {
-            if (!job || job.finished) return false;
-            dispatchPendingJob = job;
-            job.status = 'dispatch_pending';
-            clearQueuePumpHandle();
-            executeScheduledPlan(job, job.callback, {
-                executionStrategy: job.meta && job.meta.executionStrategy ? job.meta.executionStrategy : 'timeout',
-                delayMs: 0,
-                timeoutMs: job.meta && Number.isFinite(job.meta.timeout) ? job.meta.timeout : 220
-            });
-            return true;
-        }
-
-        function pumpPriorityQueue(reason = 'queue_changed') {
-            if (queueDispatchLocked) return false;
-            if (activeRunningJob && !activeRunningJob.finished) return false;
-
-            queueDispatchLocked = true;
-            try {
-                if (dispatchPendingJob && !dispatchPendingJob.finished && !dispatchPendingJob.running) {
-                    requeueDispatchPendingJob('queue_preempted');
-                }
-                clearQueuePumpHandle();
-
-                const selection = priorityQueue.dequeueNext({
-                    diagnostics: schedulerDiagnostics.getSnapshot(),
-                    pressureLevel: schedulerTelemetry.pressureLevel,
-                    now: schedulerNow()
-                });
-
-                if (!selection || !selection.job) {
-                    if (selection && Number.isFinite(selection.delayMs) && selection.delayMs > 0) {
-                        scheduleQueuePumpTimeout(selection.delayMs, selection.reason || reason);
-                    }
-                    return false;
-                }
-
-                if (selection.pressureLevel) {
-                    schedulerTelemetry.pressureLevel = selection.pressureLevel;
-                }
-                if (Number.isFinite(selection.effectivePriority) && selection.job.meta) {
-                    selection.job.meta.effectivePriority = selection.effectivePriority;
-                }
-
-                return scheduleSelectedJob(selection.job);
-            } finally {
-                queueDispatchLocked = false;
-            }
-        }
-
-        function pushSchedulerHistory(entry) {
-            schedulerTelemetry.history.push(entry);
-            if (schedulerTelemetry.history.length > SCHEDULER_HISTORY_LIMIT) {
-                schedulerTelemetry.history.splice(0, schedulerTelemetry.history.length - SCHEDULER_HISTORY_LIMIT);
-            }
-        }
-
-        function recordSchedulerOutcome(job, status, reason = '') {
-            if (status === 'executed') schedulerTelemetry.executed += 1;
-            else if (status === 'failed') schedulerTelemetry.failed += 1;
-            else if (status === 'aborted') schedulerTelemetry.aborted += 1;
-            else if (status === 'panic_blocked') schedulerTelemetry.panicBlocked += 1;
-            else if (status === 'cancelled') schedulerTelemetry.cancelled += 1;
-            else if (status === 'stale_scope') schedulerTelemetry.staleScope += 1;
-            else if (status === 'stale_root') schedulerTelemetry.staleRoot += 1;
-
-            const safeReason = String(reason || status || 'unknown').trim() || 'unknown';
-            const laneStats = ensureSchedulerLaneTelemetry(job.meta && job.meta.lane);
-            const waitMs = Math.max(Number(job.waitMs) || 0, 0);
-            const runMs = Math.max(Number(job.runDurationMs) || 0, 0);
-
-            if (status === 'executed') laneStats.executed += 1;
-            else if (status === 'failed') laneStats.failed += 1;
-            else if (status === 'aborted') laneStats.aborted += 1;
-            else if (status === 'panic_blocked') laneStats.panicBlocked += 1;
-            else if (status === 'cancelled') laneStats.cancelled += 1;
-            else if (status === 'stale_scope') laneStats.staleScope += 1;
-            else if (status === 'stale_root') laneStats.staleRoot += 1;
-
-            laneStats.totalWaitMs += waitMs;
-            laneStats.totalRunMs += runMs;
-            laneStats.maxWaitMs = Math.max(laneStats.maxWaitMs, waitMs);
-            laneStats.maxRunMs = Math.max(laneStats.maxRunMs, runMs);
-
-            schedulerTelemetry.totalWaitMs += waitMs;
-            schedulerTelemetry.totalRunMs += runMs;
-            schedulerTelemetry.maxWaitMs = Math.max(schedulerTelemetry.maxWaitMs, waitMs);
-            schedulerTelemetry.maxRunMs = Math.max(schedulerTelemetry.maxRunMs, runMs);
-            schedulerTelemetry.byReason[safeReason] = (schedulerTelemetry.byReason[safeReason] || 0) + 1;
-            schedulerDiagnostics.noteJobLifecycle({
-                phase: status,
-                kind: job.kind,
-                lane: job.meta && job.meta.lane,
-                strategy: job.meta && job.meta.executionStrategy,
-                rootId: job.rootId,
-                scope: job.scope,
-                waitMs,
-                runMs,
-                reason: safeReason
-            });
-            pushSchedulerHistory({
-                id: job.id,
-                kind: job.kind,
-                scope: job.scope,
-                rootId: job.rootId,
-                rootVersion: job.rootVersion,
-                lane: job.meta && job.meta.lane ? job.meta.lane : '',
-                strategy: job.meta && job.meta.executionStrategy ? job.meta.executionStrategy : '',
-                status,
-                reason: safeReason,
-                scheduledAt: job.scheduledAt,
-                finishedAt: job.finishedAt,
-                pressureLevel: job.meta && job.meta.pressureLevel ? job.meta.pressureLevel : schedulerTelemetry.pressureLevel,
-                waitMs,
-                runMs,
-                durationMs: Math.max((job.finishedAt || schedulerNow()) - (job.scheduledAt || schedulerNow()), 0)
-            });
-        }
-
-        function indexScheduledJob(job) {
-            scheduledJobs.set(job.id, job);
-            ensureIndexSet(scheduledJobsByScope, job.scope).add(job.id);
-            if (job.rootId) {
-                ensureIndexSet(scheduledJobsByRoot, job.rootId).add(job.id);
-            }
-            schedulerTelemetry.scheduled += 1;
-            ensureSchedulerLaneTelemetry(job.meta && job.meta.lane).scheduled += 1;
-            schedulerDiagnostics.noteJobLifecycle({
-                phase: 'scheduled',
-                kind: job.kind,
-                lane: job.meta && job.meta.lane,
-                strategy: job.meta && job.meta.executionStrategy,
-                rootId: job.rootId,
-                scope: job.scope,
-                reason: job.meta && job.meta.coalesceKey ? `coalesce:${job.meta.coalesceKey}` : ''
-            });
-            syncSchedulerDiagnostics('job_scheduled');
-            return job;
-        }
-
-        function unindexScheduledJob(job) {
-            if (!job) return;
-            if (dispatchPendingJob && dispatchPendingJob.id === job.id) {
-                dispatchPendingJob = null;
-            }
-            if (activeRunningJob && activeRunningJob.id === job.id) {
-                activeRunningJob = null;
-            }
-            priorityQueue.remove(job.id);
-            scheduledJobs.delete(job.id);
-            removeIndexedJob(scheduledJobsByScope, job.scope, job.id);
-            if (job.rootId) {
-                removeIndexedJob(scheduledJobsByRoot, job.rootId, job.id);
-            }
-            syncSchedulerDiagnostics('job_finished');
-        }
-
-        function createScheduledJob(kind, scope, token, options = {}, rootSnapshot = null, plan = {}) {
-            const safeScope = String(scope || 'default');
-            const safeRootId = normalizeRootId(options.rootId || (rootSnapshot ? rootSnapshot.id : '')) || null;
-            const requestedKind = normalizeScheduledKind(kind);
-            const laneFallback = requestedKind === 'after_paint'
-                ? 'visible_commit'
-                : 'background_prepare';
-            const executionStrategy = normalizeExecutionStrategy(
-                plan.executionStrategy,
-                requestedKind === 'after_paint'
-                    ? 'after_paint'
-                    : (options.preferIdle !== false ? 'idle' : 'timeout')
-            );
-            const delayMs = Number.isFinite(plan.delayMs)
-                ? Math.max(plan.delayMs, 0)
-                : (Number.isFinite(options.delay) ? Math.max(options.delay, 0) : 0);
-            const timeoutMs = Number.isFinite(plan.timeoutMs)
-                ? Math.max(plan.timeoutMs, 0)
-                : (Number.isFinite(options.timeout) ? Math.max(options.timeout, 0) : 220);
-            const lane = normalizeScheduledLane(plan.lane || options.lane, laneFallback);
-            return indexScheduledJob({
-                id: ++scheduledJobIdCounter,
-                kind: requestedKind,
-                scope: safeScope,
-                token,
-                rootId: safeRootId,
-                rootVersion: rootSnapshot ? rootSnapshot.version : null,
-                rootSnapshot: rootSnapshot || null,
-                status: 'scheduled',
-                scheduledAt: schedulerNow(),
-                startedAt: 0,
-                finishedAt: 0,
-                waitMs: 0,
-                runDurationMs: 0,
-                callback: null,
-                finished: false,
-                running: false,
-                handles: {
-                    timeouts: new Set(),
-                    rafs: new Set(),
-                    idles: new Set()
-                },
-                meta: {
-                    delay: delayMs,
-                    timeout: timeoutMs,
-                    preferIdle: executionStrategy === 'idle',
-                    lane,
-                    priority: Number.isFinite(plan.priority)
-                        ? plan.priority
-                        : (Number.isFinite(options.priority) ? options.priority : 100),
-                    budgetClass: String(plan.budgetClass || options.budgetClass || '').trim()
-                        || (requestedKind === 'after_paint' ? 'visible_commit' : 'background_prepare'),
-                    coalesceKey: String(plan.coalesceKey || options.coalesceKey || '').trim() || '',
-                    deadlineMs: Number.isFinite(plan.deadlineMs)
-                        ? Math.max(plan.deadlineMs, 0)
-                        : (Number.isFinite(options.deadlineMs) ? Math.max(options.deadlineMs, 0) : 0),
-                    executionStrategy,
-                    pressureLevel: String(plan.pressureLevel || schedulerTelemetry.pressureLevel || 'normal').trim() || 'normal',
-                    failureSeverity: normalizeSchedulerFailureSeverity(plan.failureSeverity || options.failureSeverity, ''),
-                    panicRelevant: plan.panicRelevant === true || options.panicRelevant === true,
-                    panicCritical: plan.panicCritical === true || options.panicCritical === true,
-                    trustRelevant: plan.trustRelevant === true || options.trustRelevant === true,
-                    reasonCode: String(plan.reasonCode || options.reasonCode || '').trim(),
-                    diagnosticCode: String(plan.diagnosticCode || options.diagnosticCode || '').trim()
-                }
-            });
-        }
-
-        function hasScheduledHandle(handle) {
-            return handle !== null && typeof handle !== 'undefined';
-        }
-
-        function addScheduledHandle(job, kind, handle) {
-            if (!job || !hasScheduledHandle(handle) || !job.handles[kind]) return handle;
-            job.handles[kind].add(handle);
+            handle.result.then(removeEntry, removeEntry);
             return handle;
         }
 
-        function removeScheduledHandle(job, kind, handle) {
-            if (!job || !job.handles[kind]) return;
-            job.handles[kind].delete(handle);
-        }
-
-        function clearScheduledJobHandles(job) {
-            if (!job || !job.handles) return;
-            job.handles.timeouts.forEach((handle) => {
-                hostAdapter.clearTimeout(handle);
+        function cancelIndexedAuthorityJobs(indexMap, key, reason) {
+            const bucket = indexMap.get(String(key || '').trim());
+            if (!bucket) return 0;
+            let count = 0;
+            Array.from(bucket).forEach((jobId) => {
+                const entry = authorityJobs.get(jobId);
+                if (entry && entry.handle.cancel(reason)) count += 1;
             });
-            job.handles.rafs.forEach((handle) => {
-                cancelAnimationFrameSafe(handle);
-            });
-            job.handles.idles.forEach((handle) => {
-                cancelIdleCallbackSafe(handle);
-            });
-            job.handles.timeouts.clear();
-            job.handles.rafs.clear();
-            job.handles.idles.clear();
-        }
-
-        function finalizeScheduledJob(job, status, reason = '', options = {}) {
-            if (!job || job.finished) return false;
-            const finalStatus = normalizeScheduledFinalStatus(status, reason);
-            job.finished = true;
-            job.running = false;
-            job.status = finalStatus;
-            job.finishedAt = schedulerNow();
-            if (options && options.error) {
-                job.error = options.error;
-            }
-            if (!job.waitMs && job.startedAt) {
-                job.waitMs = Math.max(job.startedAt - job.scheduledAt, 0);
-            }
-            if (job.startedAt && !job.runDurationMs) {
-                job.runDurationMs = Math.max(job.finishedAt - job.startedAt, 0);
-            }
-            clearScheduledJobHandles(job);
-            unindexScheduledJob(job);
-            priorityQueue.noteJobCompleted(job, { now: schedulerNow() });
-            if (isSchedulerFailureStatus(finalStatus)) {
-                job.failureRecord = publishSchedulerFailureRecord(createSchedulerFailureRecord(job, finalStatus, reason, options));
-            }
-            recordSchedulerOutcome(job, finalStatus, reason);
-            if (!activeRunningJob && !dispatchPendingJob) {
-                pumpPriorityQueue('finalized:' + (reason || finalStatus));
-            }
-            return true;
-        }
-
-        function cancelScheduledJob(job, reason = 'manual_cancel') {
-            if (!job || job.finished || job.running) return false;
-            return finalizeScheduledJob(job, normalizeScheduledFinalStatus('cancelled', reason), reason);
+            return count;
         }
 
         function cancelScheduledJobsByScope(scope, reason = 'scope_cancelled') {
-            const safeScope = String(scope || 'default');
-            const bucket = scheduledJobsByScope.get(safeScope);
-            if (!bucket || bucket.size === 0) return 0;
-            let cancelledCount = 0;
-            Array.from(bucket).forEach((jobId) => {
-                const job = scheduledJobs.get(jobId);
-                if (cancelScheduledJob(job, reason)) cancelledCount += 1;
-            });
-            return cancelledCount;
-        }
-
-        function finalizeScheduledJobsByScope(scope, status, reason = 'scope_finalized') {
-            const safeScope = String(scope || 'default');
-            const bucket = scheduledJobsByScope.get(safeScope);
-            if (!bucket || bucket.size === 0) return 0;
-            let finalizedCount = 0;
-            Array.from(bucket).forEach((jobId) => {
-                const job = scheduledJobs.get(jobId);
-                if (job && !job.finished && !job.running && finalizeScheduledJob(job, status, reason)) finalizedCount += 1;
-            });
-            return finalizedCount;
+            return cancelIndexedAuthorityJobs(authorityJobsByScope, String(scope || 'default'), reason);
         }
 
         function abortScheduledJobsByScope(scope, reason = 'scheduler_aborted') {
-            return finalizeScheduledJobsByScope(scope, 'aborted', reason);
+            return cancelIndexedAuthorityJobs(authorityJobsByScope, String(scope || 'default'), reason);
         }
 
         function panicBlockScheduledJobsByScope(scope, reason = 'panic_blocked') {
-            return finalizeScheduledJobsByScope(scope, 'panic_blocked', reason);
+            return cancelIndexedAuthorityJobs(authorityJobsByScope, String(scope || 'default'), reason);
         }
 
         function cancelScheduledJobsByRoot(rootId, reason = 'root_cancelled') {
             const safeRootId = normalizeRootId(rootId);
-            if (!safeRootId) return 0;
-            const bucket = scheduledJobsByRoot.get(safeRootId);
-            if (!bucket || bucket.size === 0) return 0;
-            let cancelledCount = 0;
-            Array.from(bucket).forEach((jobId) => {
-                const job = scheduledJobs.get(jobId);
-                if (cancelScheduledJob(job, reason)) cancelledCount += 1;
-            });
-            return cancelledCount;
-        }
-
-        function scheduleTimeoutHandle(job, callback, delay) {
-            let handle = null;
-            handle = hostAdapter.scheduleTimeout(() => {
-                removeScheduledHandle(job, 'timeouts', handle);
-                if (!job || job.finished) return;
-                callback();
-            }, Math.max(Number(delay) || 0, 0));
-            addScheduledHandle(job, 'timeouts', handle);
-            return handle;
-        }
-
-        function scheduleRafHandle(job, callback) {
-            let handle = null;
-            handle = hostAdapter.scheduleAnimationFrame(() => {
-                removeScheduledHandle(job, 'rafs', handle);
-                if (!job || job.finished) return;
-                callback();
-            });
-            addScheduledHandle(job, 'rafs', handle);
-            return handle;
-        }
-
-        function scheduleIdleHandle(job, callback, timeout) {
-            let handle = null;
-            handle = hostAdapter.scheduleIdleCallback(() => {
-                removeScheduledHandle(job, 'idles', handle);
-                if (!job || job.finished) return;
-                callback();
-            }, { timeout: timeout || 220 });
-            addScheduledHandle(job, 'idles', handle);
-            return handle;
-        }
-
-        function runScheduledJob(job, callback) {
-            if (!job || job.finished) return;
-            if (!isScopeTokenCurrent(job.scope, job.token)) {
-                finalizeScheduledJob(job, 'stale_scope', 'scope_token_mismatch');
-                return;
-            }
-            if (job.rootId) {
-                if (!job.rootSnapshot || !isRootSnapshotCurrent(job.rootSnapshot)) {
-                    finalizeScheduledJob(job, 'stale_root', 'root_version_mismatch');
-                    return;
-                }
-            }
-
-            job.running = true;
-            if (dispatchPendingJob && dispatchPendingJob.id === job.id) {
-                dispatchPendingJob = null;
-            }
-            activeRunningJob = job;
-            job.startedAt = schedulerNow();
-            job.waitMs = Math.max(job.startedAt - (job.scheduledAt || job.startedAt), 0);
-            priorityQueue.noteJobStarted(job, { now: job.startedAt });
-            schedulerDiagnostics.noteJobLifecycle({
-                phase: 'started',
-                kind: job.kind,
-                lane: job.meta && job.meta.lane,
-                strategy: job.meta && job.meta.executionStrategy,
-                rootId: job.rootId,
-                scope: job.scope,
-                waitMs: job.waitMs
-            });
-            try {
-                const runStartedAt = schedulerNow();
-                callback({
-                    token: job.token,
-                    scope: job.scope,
-                    rootId: job.rootId,
-                    rootVersion: job.rootVersion
-                });
-                job.runDurationMs = Math.max(schedulerNow() - runStartedAt, 0);
-            } catch (error) {
-                job.runDurationMs = Math.max(schedulerNow() - (job.startedAt || schedulerNow()), 0);
-                finalizeScheduledJob(job, 'failed', 'callback_error', {
-                    error,
-                    severity: error && error.severity || schedulerFailurePolicy.callbackFailureSeverity,
-                    panicRelevant: error && error.panicRelevant === true || schedulerFailurePolicy.callbackFailureActivatesPanic !== false,
-                    trustRelevant: error && error.trustRelevant === true || job.meta && job.meta.trustRelevant === true,
-                    reasonCode: error && error.reasonCode || job.meta && job.meta.reasonCode || 'xtend.rmt.kernel-scheduler-failure.callback_error',
-                    diagnosticCode: error && error.diagnosticCode || job.meta && job.meta.diagnosticCode || 'rmt.kernel.scheduler.callback_error'
-                });
-                throw error;
-            }
-            finalizeScheduledJob(job, 'executed', 'callback_completed');
-        }
-
-        function createScheduledJobHandle(job) {
-            return {
-                cancel: (reason = 'manual_cancel') => cancelScheduledJob(job, reason),
-                getId: () => job.id,
-                getLane: () => job.meta && job.meta.lane,
-                getPriority: () => (job.meta && Number.isFinite(job.meta.priority) ? job.meta.priority : 0),
-                getRootId: () => job.rootId,
-                getScope: () => job.scope,
-                getStrategy: () => job.meta && job.meta.executionStrategy,
-                getStatus: () => job.status,
-                isPending: () => !job.finished,
-                token: job.token
-            };
+            return safeRootId ? cancelIndexedAuthorityJobs(authorityJobsByRoot, safeRootId, reason) : 0;
         }
 
         function getSchedulerStats() {
-            const completedCount = schedulerTelemetry.executed + schedulerTelemetry.failed + schedulerTelemetry.aborted + schedulerTelemetry.panicBlocked + schedulerTelemetry.cancelled + schedulerTelemetry.staleScope + schedulerTelemetry.staleRoot;
+            const snapshot = schedulerAuthority.snapshot();
             return {
-                scheduled: schedulerTelemetry.scheduled,
-                executed: schedulerTelemetry.executed,
-                failed: schedulerTelemetry.failed,
-                aborted: schedulerTelemetry.aborted,
-                panicBlocked: schedulerTelemetry.panicBlocked,
-                cancelled: schedulerTelemetry.cancelled,
-                staleScope: schedulerTelemetry.staleScope,
-                staleRoot: schedulerTelemetry.staleRoot,
-                pending: schedulerTelemetry.pending,
-                pressureLevel: schedulerTelemetry.pressureLevel,
-                averageWaitMs: completedCount > 0 ? schedulerTelemetry.totalWaitMs / completedCount : 0,
-                averageRunMs: completedCount > 0 ? schedulerTelemetry.totalRunMs / completedCount : 0,
-                maxWaitMs: schedulerTelemetry.maxWaitMs,
-                maxRunMs: schedulerTelemetry.maxRunMs,
-                byReason: { ...schedulerTelemetry.byReason },
-                byLane: cloneSchedulerLaneTelemetry(),
-                pendingByLane: { ...schedulerTelemetry.pendingByLane },
-                pendingByStrategy: { ...schedulerTelemetry.pendingByStrategy },
-                priorityQueue: priorityQueue.getStats(),
-                diagnostics: schedulerDiagnostics.getSnapshot(),
-                failures: schedulerTelemetry.failures.map((entry) => cloneSchedulerFailureValue(entry, {})),
-                history: schedulerTelemetry.history.slice()
+                scheduled: snapshot.telemetry.scheduled,
+                executed: snapshot.telemetry.completed,
+                failed: snapshot.telemetry.failed,
+                aborted: snapshot.telemetry.aborted,
+                panicBlocked: snapshot.telemetry.panicBlocked,
+                cancelled: snapshot.telemetry.cancelled,
+                staleScope: 0,
+                staleRoot: 0,
+                pending: snapshot.pendingJobIds.length + (snapshot.activeJobId ? 1 : 0),
+                pressureLevel: snapshot.pressureLevel,
+                averageWaitMs: 0,
+                averageRunMs: 0,
+                maxWaitMs: 0,
+                maxRunMs: 0,
+                byReason: {},
+                byLane: {},
+                pendingByLane: {},
+                pendingByStrategy: {},
+                scheduler: snapshot,
+                diagnostics: snapshot,
+                failures: [],
+                history: []
             };
         }
 
         function listScheduledJobs() {
-            return Array.from(scheduledJobs.values()).map((job) => ({
-                id: job.id,
-                kind: job.kind,
-                lane: job.meta && job.meta.lane ? job.meta.lane : '',
-                strategy: job.meta && job.meta.executionStrategy ? job.meta.executionStrategy : '',
-                effectivePriority: job.meta && Number.isFinite(job.meta.effectivePriority) ? job.meta.effectivePriority : 0,
-                priority: job.meta && Number.isFinite(job.meta.priority) ? job.meta.priority : 0,
-                scope: job.scope,
-                rootId: job.rootId,
-                rootVersion: job.rootVersion,
-                status: job.status,
-                scheduledAt: job.scheduledAt,
-                pending: !job.finished
-            }));
+            return Array.from(authorityJobs.values()).map((entry) => {
+                const snapshot = entry.handle.snapshot();
+                return {
+                    id: snapshot.id,
+                    kind: snapshot.request.strategy,
+                    lane: snapshot.request.lane,
+                    strategy: snapshot.request.strategy,
+                    effectivePriority: snapshot.request.priority,
+                    priority: snapshot.request.priority,
+                    scope: snapshot.request.scope,
+                    rootId: snapshot.request.rootId,
+                    rootVersion: 0,
+                    status: snapshot.status,
+                    scheduledAt: snapshot.createdAt,
+                    pending: !['completed', 'failed', 'cancelled', 'aborted', 'panic_blocked'].includes(snapshot.status)
+                };
+            });
         }
 
         function createAbortController() {
@@ -1905,7 +758,7 @@
                     deferred,
                     panicBlockScope,
                     getDiagnostics: getSchedulerDiagnostics,
-                    getPressureLevel: () => schedulerTelemetry.pressureLevel,
+                    getPressureLevel: () => schedulerAuthority.snapshot().pressureLevel,
                     getPriorityQueueStats,
                     reportPerformanceSample,
                     schedule
@@ -2406,103 +1259,70 @@
                 namespace: rootState.namespace || '',
                 version: rootState.version,
                 elementId: rootState.element && rootState.element.id ? rootState.element.id : '',
-                scheduledJobCount: scheduledJobsByRoot.has(rootState.id) ? scheduledJobsByRoot.get(rootState.id).size : 0,
+                scheduledJobCount: authorityJobsByRoot.has(rootState.id) ? authorityJobsByRoot.get(rootState.id).size : 0,
                 resourceCount: rootState.resources ? rootState.resources.size : 0
             }));
         }
 
-        function resolveSchedulingPlan(requestedKind, options = {}, rootSnapshot = null) {
-            const safeKind = normalizeScheduledKind(requestedKind);
-            const fallbackLane = safeKind === 'after_paint'
-                ? 'visible_commit'
-                : 'background_prepare';
-            const resolvedPlan = schedulerDiagnostics.resolveSchedulingPolicy({
-                requestedKind: safeKind,
-                kind: safeKind,
-                lane: options.lane,
-                rootId: options.rootId || (rootSnapshot ? rootSnapshot.id : ''),
-                rootVersion: rootSnapshot ? rootSnapshot.version : 0,
-                isVisible: options.isVisible,
-                userBlocking: options.userBlocking === true,
-                delay: options.delay,
-                timeout: options.timeout,
-                preferIdle: options.preferIdle,
-                priority: options.priority,
-                budgetClass: options.budgetClass,
-                coalesceKey: options.coalesceKey,
-                deadlineMs: options.deadlineMs
-            });
+        function normalizeSchedulerLane(rawLane, requestedKind) {
+            const lane = String(rawLane || '').trim();
+            if (lane === 'critical_input') return 'user-blocking';
+            if (lane === 'visible_commit' || lane === 'hydration_followup') return 'visible';
+            if (lane === 'background_prepare') return 'background';
+            if (lane === 'idle_maintenance') return 'idle';
+            if (['user-blocking', 'visible', 'transition', 'idle', 'background', 'diagnostics'].includes(lane)) return lane;
+            return requestedKind === 'after_paint' ? 'visible' : 'background';
+        }
 
+        function resolveSchedulingPlan(requestedKind, options = {}) {
+            const safeKind = normalizeScheduledKind(requestedKind);
+            const legacyLane = String(options.lane || '').trim();
             return {
                 requestedKind: safeKind,
-                lane: normalizeScheduledLane(resolvedPlan.lane || options.lane, fallbackLane),
-                executionStrategy: normalizeExecutionStrategy(
-                    resolvedPlan.executionStrategy,
-                    safeKind === 'after_paint'
-                        ? 'after_paint'
-                        : (options.preferIdle !== false ? 'idle' : 'timeout')
-                ),
-                delayMs: Number.isFinite(resolvedPlan.delayMs)
-                    ? Math.max(resolvedPlan.delayMs, 0)
+                lane: normalizeSchedulerLane(legacyLane, safeKind),
+                legacyLane,
+                executionStrategy: safeKind === 'after_paint'
+                    ? 'after_paint'
+                    : (options.preferIdle === true ? 'idle' : 'microtask'),
+                delayMs: Number.isFinite(options.delayMs)
+                    ? Math.max(options.delayMs, 0)
                     : (Number.isFinite(options.delay) ? Math.max(options.delay, 0) : 0),
-                timeoutMs: Number.isFinite(resolvedPlan.timeoutMs)
-                    ? Math.max(resolvedPlan.timeoutMs, 0)
-                    : (Number.isFinite(options.timeout) ? Math.max(options.timeout, 0) : 220),
-                priority: Number.isFinite(resolvedPlan.priority)
-                    ? resolvedPlan.priority
-                    : (Number.isFinite(options.priority) ? options.priority : 100),
-                budgetClass: String(resolvedPlan.budgetClass || options.budgetClass || '').trim()
-                    || (safeKind === 'after_paint' ? 'visible_commit' : 'background_prepare'),
-                coalesceKey: String(resolvedPlan.coalesceKey || options.coalesceKey || '').trim() || '',
-                deadlineMs: Number.isFinite(resolvedPlan.deadlineMs)
-                    ? Math.max(resolvedPlan.deadlineMs, 0)
-                    : (Number.isFinite(options.deadlineMs) ? Math.max(options.deadlineMs, 0) : 0),
-                pressureLevel: String(resolvedPlan.pressureLevel || schedulerTelemetry.pressureLevel || 'normal').trim() || 'normal'
+                timeoutMs: Number.isFinite(options.timeoutMs)
+                    ? Math.max(options.timeoutMs, 0)
+                    : (Number.isFinite(options.timeout) ? Math.max(options.timeout, 0) : 0),
+                priority: Number.isFinite(options.priority) ? options.priority : 50,
+                budgetClass: String(options.budgetClass || '').trim() || normalizeSchedulerLane(legacyLane, safeKind),
+                coalesceKey: String(options.coalesceKey || '').trim(),
+                deadlineMs: Number.isFinite(options.deadlineMs) ? Math.max(options.deadlineMs, 0) : 0
             };
         }
 
-        function executeScheduledPlan(job, callback, plan) {
-            const run = () => runScheduledJob(job, callback);
-            if (plan.executionStrategy === 'after_paint') {
-                const scheduleRaf = () => {
-                    scheduleRafHandle(job, () => {
-                        scheduleRafHandle(job, () => {
-                            run();
-                        });
-                    });
-                };
-                if (plan.delayMs > 0) {
-                    scheduleTimeoutHandle(job, scheduleRaf, plan.delayMs);
-                } else {
-                    scheduleRaf();
-                }
-                return;
-            }
-
-            if (plan.executionStrategy === 'idle') {
-                if (plan.delayMs > 0) {
-                    scheduleTimeoutHandle(job, () => {
-                        scheduleIdleHandle(job, run, plan.timeoutMs || 220);
-                    }, plan.delayMs);
-                    return;
-                }
-                scheduleIdleHandle(job, run, plan.timeoutMs || 220);
-                return;
-            }
-
-            scheduleTimeoutHandle(job, run, plan.delayMs || 0);
-        }
-
         function schedule(scope, callback, options = {}) {
-            return withScopedExecution(scope, (token, safeScope) => {
-                const rootSnapshot = options.rootId ? getRootSnapshot(options.rootId) : null;
-                const requestedKind = normalizeScheduledKind(options.kind || options.requestedKind || 'deferred');
-                const plan = resolveSchedulingPlan(requestedKind, options, rootSnapshot);
-                const job = createScheduledJob(requestedKind, safeScope, token, options, rootSnapshot, plan);
-                job.callback = callback;
-                queueEnqueueJob(job, { reason: 'job_scheduled' });
-                return createScheduledJobHandle(job);
-            });
+            const requestedKind = normalizeScheduledKind(options.kind || options.requestedKind || 'deferred');
+            const plan = resolveSchedulingPlan(requestedKind, options);
+            const legacyLane = plan.legacyLane;
+            const lane = plan.lane;
+            const safeScope = String(scope || 'default');
+            const rootId = String(options.rootId || '').trim();
+            const handle = schedulerAuthority.schedule({
+                endpointName: String(options.endpointName || requestedKind || 'rmt.engine.work'),
+                scope: safeScope,
+                rootId,
+                lane,
+                priority: plan.priority,
+                deadlineMs: plan.deadlineMs,
+                timeoutMs: Number.isFinite(options.timeoutMs) ? Math.max(options.timeoutMs, 0) : 0,
+                delayMs: plan.delayMs,
+                budgetClass: plan.budgetClass,
+                coalesceKey: plan.coalesceKey,
+                strategy: plan.executionStrategy,
+                metadata: {
+                    ...(options.metadata && typeof options.metadata === 'object' ? options.metadata : {}),
+                    requestedKind,
+                    legacyLane: legacyLane || null
+                }
+            }, callback);
+            return indexAuthorityHandle(handle, safeScope, rootId);
         }
 
         function afterPaint(scope, callback, options = {}) {
@@ -2520,24 +1340,15 @@
         }
 
         function reportPerformanceSample(sample = {}) {
-            const previousPressureLevel = schedulerTelemetry.pressureLevel;
-            const diagnosticsSnapshot = schedulerDiagnostics.reportPerformanceSample(sample);
-            if (diagnosticsSnapshot && diagnosticsSnapshot.pressureLevel) {
-                schedulerTelemetry.pressureLevel = diagnosticsSnapshot.pressureLevel;
-            } else if (typeof schedulerDiagnostics.getPressureLevel === 'function') {
-                schedulerTelemetry.pressureLevel = schedulerDiagnostics.getPressureLevel();
-            }
-            recordSchedulerBackpressurePanic(diagnosticsSnapshot, 'performance_sample', null, previousPressureLevel);
-            publishSchedulerSnapshot('performance_sample');
-            return diagnosticsSnapshot;
+            const pressureLevel = sample && (sample.pressureLevel || sample.level)
+                ? (sample.pressureLevel || sample.level)
+                : schedulerAuthority.snapshot().pressureLevel;
+            schedulerAuthority.updatePressure(pressureLevel);
+            return schedulerAuthority.snapshot();
         }
 
         function getSchedulerDiagnostics() {
-            return schedulerDiagnostics.getSnapshot();
-        }
-
-        function getPriorityQueueStats() {
-            return priorityQueue.getStats();
+            return schedulerAuthority.snapshot();
         }
 
         function dispatchCommand(command, options = {}) {
@@ -2608,10 +1419,10 @@
             getCommandBus: () => commandBus,
             getDiagnosticsHub: () => diagnosticsHub,
             getHostAdapter: () => hostAdapter,
-            getPriorityQueueStats,
+            getScheduler: () => schedulerAuthority,
             getReactivity: () => reactivity,
             getSchedulerDiagnostics,
-            getSchedulerPressureLevel: () => schedulerTelemetry.pressureLevel,
+            getSchedulerPressureLevel: () => schedulerAuthority.snapshot().pressureLevel,
             getRootHandle,
             getRootElement,
             getRootState,
@@ -2638,7 +1449,6 @@
             schedule
         };
         applyCompatibilityExtensions(rmtApi);
-        publishSchedulerSnapshot('initialized');
 
         return rmtApi;
     };

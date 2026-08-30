@@ -13,19 +13,16 @@
   },
   "docs": {
     "schema": "xtend.mcp.docs-resource.v1",
-    "count": 344,
+    "count": 346,
     "counts": {
-      "de": 172,
-      "en": 172
+      "de": 173,
+      "en": 173
     },
-    "menuEntries": 171,
-    "menuSha256": "5f91fb30cdab82dcc962fcc0eb293df51e14b78ddbb180323cc7507cc4c92b7d",
+    "menuEntries": 173,
+    "menuSha256": "df382267492162ebd10e5d55e56c9903228fa94ff45e1d5f0b03dfbf8347fbff",
     "artifact": "docs.jsonl",
-    "artifactSha256": "22ccd62d4d601e1c1dd6552faed460d492ffafdff0d69f2b6e41bcac7807e80b",
-    "missingMenuDocs": [
-      "docs/de/migration-0.7-state.md",
-      "docs/en/migration-0.7-state.md"
-    ]
+    "artifactSha256": "c9b8560d28a0c93389573d9c5d867f9be0dabeb3d699180d528e0ab118dabc0c",
+    "missingMenuDocs": []
   },
   "rmtKit": {
     "version": "0.1.0",
@@ -45,7 +42,7 @@
         "bytes": 1187
       },
       "rmt-ai-kit.manifest.json": {
-        "sha256": "02933ccf7bdfa9606d41a2cf39c8e1fb707b4a161f50935db52110aba2bdbeef",
+        "sha256": "8d8510749e56ff0311c43ac71de55eb83ef9092c3b8348920c6609283c13eadd",
         "bytes": 7890
       },
       "rmt-ai-kit.prompts.md": {

@@ -1,6 +1,9 @@
 import { createRmtBrowserScheduler } from './xtendrmt/rmt-browser-scheduler.js';
+import { createRmtKernelScheduler, RMT_KERNEL_SCHEDULER_SCHEMA } from './xtendrmt/rmt-kernel-scheduler.js';
 import { createRmtDomDescriptorRenderer } from './xtendrmt/rmt-dom-descriptor-renderer.js';
-import { createRmtAppRuntime } from './xtendrmt/rmt-app-runtime.compat.js';
+import { createRmtAppRuntime } from './xtendrmt/rmt-app-runtime.js';
+import { createRmtAppHostAdapter } from './xtendrmt/rmt-app-host-adapter.js';
+import { createRmtAppPresentationViewPort } from './xtendrmt/rmt-app-view-projector.js';
 import { createRmtStateSelectorRuntime } from './xtendrmt/rmt-state-selector-runtime.js';
 import { createRmtActionEffectRuntime } from './xtendrmt/rmt-action-effect-runtime.js';
 import { createRmtEventRoutingRuntime } from './xtendrmt/rmt-event-routing-runtime.js';
@@ -8,9 +11,6 @@ import { createRmtAnimationEngineRuntime } from './xtendrmt/rmt-animation-engine
 import { createRmtFormValidationRuntime } from './xtendrmt/rmt-form-validation-runtime.js';
 import { createRmtSurfaceTransitionRuntime } from './xtendrmt/rmt-surface-transition-runtime.js';
 import { createRmtSurfaceResourceGraphRuntime } from './xtendrmt/rmt-surface-resource-graph-runtime.js';
-
-const legacyGlobals = ['XTendRmtDomDescriptorRenderer', 'XTendRmtAppRuntime', 'XTendRmtStateSelectorRuntime', 'XTendRmtActionEffectRuntime', 'XTendRmtEventRoutingRuntime', 'XTendRmtAnimationEngineRuntime', 'XTendRmtFormValidationRuntime', 'XTendRmtSurfaceTransitionRuntime', 'XTendRmtSurfaceResourceGraphRuntime'];
-legacyGlobals.forEach((name) => { try { delete globalThis[name]; } catch (_) {} });
 
 export { createRmtBrowserScheduler, createRmtDomDescriptorRenderer, createRmtAppRuntime, createRmtStateSelectorRuntime, createRmtActionEffectRuntime, createRmtEventRoutingRuntime, createRmtAnimationEngineRuntime, createRmtFormValidationRuntime, createRmtSurfaceTransitionRuntime, createRmtSurfaceResourceGraphRuntime };
 
@@ -30,8 +30,8 @@ export function createXTendKernelArtifact(options = {}) {
   if (!options.replaceDefaults && [...customSchedules, ...customFibers].some((item) => reservedIds.has(item?.id))) {
     throw new Error('Reserved XTend lifecycle fibers may only be replaced with replaceDefaults: true.');
   }
-  const schedules = DEFAULT_OPERATIONS.map(([id, endpointName]) => ({ id: `xtend.registry.${id}`, endpointName, scope: 'xtend.registry', lane: id === 'after-paint' ? 'after_paint' : 'visible' }));
-  const fibers = DEFAULT_OPERATIONS.map(([id, endpointName]) => ({ id: `xtend.registry.${id}`, op: id, kind: id, operation: `operation:xtend.registry/${id}`, endpointName, lane: id === 'after-paint' ? 'after_paint' : 'visible' }));
+  const schedules = DEFAULT_OPERATIONS.map(([id, endpointName]) => ({ id: `xtend.registry.${id}`, endpointName, scope: 'xtend.registry', lane: 'visible' }));
+  const fibers = DEFAULT_OPERATIONS.map(([id, endpointName]) => ({ id: `xtend.registry.${id}`, op: id, kind: id, operation: `operation:xtend.registry/${id}`, endpointName, lane: 'visible' }));
   const mergeById = (defaults, additions) => {
     const map = new Map(defaults.map((item) => [item.id, item]));
     additions.forEach((item) => { if (item?.id) map.set(item.id, { ...map.get(item.id), ...item }); });
@@ -53,6 +53,7 @@ export function createXTendKernelArtifact(options = {}) {
 function createXTendRegistryContext(initialOptions = {}) {
 let configuration = { ...initialOptions };
 let schedulerInstance = null;
+let kernelSchedulerInstance = null;
 let rendererInstance = null;
 let loaderPromise = null;
 let kernelHost = null;
@@ -106,8 +107,21 @@ function getPublicHost() {
   return publicHost;
 }
 
+function getKernelScheduler() {
+  if (kernelSchedulerInstance) return kernelSchedulerInstance;
+  const supplied = configuration.kernelScheduler
+    || configuration.scheduler?.kernelScheduler
+    || (configuration.scheduler?.schema === RMT_KERNEL_SCHEDULER_SCHEMA ? configuration.scheduler : null);
+  kernelSchedulerInstance = supplied || createRmtKernelScheduler({ globalTarget: schedulerHost() });
+  return kernelSchedulerInstance;
+}
+
 function getScheduler() {
-  if (!schedulerInstance) schedulerInstance = configuration.scheduler || createRmtBrowserScheduler({ windowTarget: schedulerHost() });
+  if (!schedulerInstance) {
+    schedulerInstance = configuration.scheduler && configuration.scheduler.schema !== RMT_KERNEL_SCHEDULER_SCHEMA
+      ? configuration.scheduler
+      : createRmtBrowserScheduler({ windowTarget: schedulerHost(), scheduler: getKernelScheduler() });
+  }
   return schedulerInstance;
 }
 
@@ -124,13 +138,13 @@ function getRenderer() {
 }
 
 function configureXTend(options = {}) {
-  if (lifecycle !== 'idle' || schedulerInstance || rendererInstance) throw new Error('XTend is already initialized. Call disposeXTend() before configuring it again.');
+  if (lifecycle !== 'idle' || schedulerInstance || kernelSchedulerInstance || rendererInstance) throw new Error('XTend is already initialized. Call disposeXTend() before configuring it again.');
   configuration = { ...options };
   return getXTendConfiguration();
 }
 
 function getXTendConfiguration() {
-  return Object.freeze({ ...configuration, orchestration: mode(), windowTarget: configuration.windowTarget || null, documentTarget: configuration.documentTarget || null, scheduler: configuration.scheduler || null, renderer: configuration.renderer || null, fabric: configuration.fabric ?? null });
+  return Object.freeze({ ...configuration, orchestration: mode(), windowTarget: configuration.windowTarget || null, documentTarget: configuration.documentTarget || null, scheduler: configuration.scheduler || null, kernelScheduler: configuration.kernelScheduler || configuration.scheduler?.kernelScheduler || null, renderer: configuration.renderer || null, fabric: configuration.fabric ?? null });
 }
 
 async function instantiateFabric(options) {
@@ -166,14 +180,17 @@ async function readyXTend(options = {}) {
       ]);
       fabricResult = await instantiateFabric(configuration);
       const artifact = createXTendKernelArtifact(configuration);
-      const productSurface = kernelApi.createRmtProductSurface?.({});
+      const kernelBootMode = configuration.kernelBootMode === 'productSurface' ? 'productSurface' : 'direct';
+      const productSurface = kernelBootMode === 'productSurface'
+        ? (configuration.productSurface || kernelApi.createRmtProductSurface?.(configuration.productSurfaceOptions || {}))
+        : null;
       controller = controllerApi.createRmtKernelOrchestrationController({
         kernelApi, artifact, productSurface, fabric: fabricResult.fabric,
-        scheduler: getScheduler(), strict: configuration.strict !== false,
+        scheduler: getKernelScheduler(), kernelScheduler: getKernelScheduler(), browserScheduler: getScheduler(), strict: configuration.strict !== false,
         windowTarget: configuration.windowTarget, documentTarget: configuration.documentTarget,
         runtimeKind: typeof document === 'undefined' ? 'server' : 'browser',
-        kernelBootMode: 'productSurface',
-        plan: { enabled: true, strict: configuration.strict !== false, mode: 'registry', status: 'ready', bootMode: 'productSurface', summary: { source: 'xtend-registry' } }
+        kernelBootMode,
+        plan: { enabled: true, strict: configuration.strict !== false, mode: 'registry', status: 'ready', bootMode: kernelBootMode, summary: { source: 'xtend-registry' } }
       });
       controller.boot();
       if (controller.status !== 'booted') throw new Error(`RMT orchestration controller finished with status ${controller.status}.`);
@@ -231,18 +248,21 @@ function afterPaint(callback) {
   return kernelHost.controller.scheduleEndpoint('xtend.registry.after-paint', 'xtend.registry', callback, { kind: 'after_paint' });
 }
 
-function inline(kind, callback) {
-  if (mode() === 'lightweight') return callback();
+function scheduleUiWork(kind, callback) {
+  const lane = ['state', 'command', 'dispose'].includes(kind) ? 'user-blocking' : 'visible';
+  if (mode() === 'lightweight') {
+    return getScheduler().scheduleEndpoint(`xtend.registry.${kind}`, 'xtend.registry', callback, { lane, kind });
+  }
   assertReady(`${kind}()`);
-  return kernelHost.controller.scheduleWork(kind, callback, { inline: true, runInline: true });
+  return kernelHost.controller.scheduleWork(kind, callback, { lane });
 }
 
-function render(root, descriptor, options = {}) { return inline('render', () => getRenderer().render(root, descriptor, options)); }
-function renderNode(descriptor, options = {}) { return inline('render', () => getRenderer().renderNode(descriptor, options)); }
-function renderKeyed(root, descriptors, options = {}) { return inline('render-keyed', () => getRenderer().renderKeyed(root, descriptors, options)); }
-function patchElement(element, descriptor, options = {}) { return inline('patch-element', () => getRenderer().patchElement(element, descriptor, options)); }
+function render(root, descriptor, options = {}) { return scheduleUiWork('render', () => getRenderer().render(root, descriptor, options)); }
+function renderNode(descriptor, options = {}) { return scheduleUiWork('render', () => getRenderer().renderNode(descriptor, options)); }
+function renderKeyed(root, descriptors, options = {}) { return scheduleUiWork('render-keyed', () => getRenderer().renderKeyed(root, descriptors, options)); }
+function patchElement(element, descriptor, options = {}) { return scheduleUiWork('patch-element', () => getRenderer().patchElement(element, descriptor, options)); }
 function commit(request) {
-  return inline('dom-commit', () => {
+  return scheduleUiWork('dom-commit', () => {
     const renderer = getRenderer();
     if (typeof renderer.commit !== 'function') throw errorWithCode('XTEND_DOM_COMMIT_UNSUPPORTED', 'The configured renderer does not implement commit(request).');
     return renderer.commit(request);
@@ -251,16 +271,39 @@ function commit(request) {
 
 function createBound(factory, options, kind) {
   if (mode() !== 'lightweight') assertReady(`${kind}()`);
-  const instance = factory(mode() === 'kernel' ? { ...options, fabric: options?.fabric || kernelHost.fabric, kernelController: kernelHost.controller, rmtCore: options?.rmtCore || kernelHost.core } : options);
+  const instance = factory(mode() === 'kernel' ? {
+    ...options,
+    fabric: options?.fabric || kernelHost.fabric,
+    kernelController: kernelHost.controller,
+    rmtCore: options?.rmtCore || kernelHost.core,
+    scheduler: options?.scheduler || getKernelScheduler(),
+    kernelScheduler: options?.kernelScheduler || getKernelScheduler(),
+    performanceRuntime: options?.performanceRuntime || kernelHost.performance
+  } : options);
   return track(instance);
 }
 
 function createApp(options = {}) {
-  const runtime = createBound(createRmtAppRuntime, options, 'createApp');
+  const hostPort = options.hostPort || createRmtAppHostAdapter({
+    windowTarget: schedulerHost(),
+    schedule(task, metadata = {}) {
+      return getScheduler().scheduleEndpoint(
+        metadata.endpointName || 'xtend.registry.app-host-task',
+        metadata.scope || 'xtend.registry.app',
+        task,
+        metadata
+      );
+    }
+  });
+  const runtime = createBound(createRmtAppRuntime, {
+    ...options,
+    hostPort,
+    presentationViewPort: options.presentationViewPort || createRmtAppPresentationViewPort()
+  }, 'createApp');
   if (mode() === 'lightweight') return runtime;
   const facade = { ...runtime };
-  if (typeof runtime.setState === 'function') facade.setState = (...args) => kernelHost.controller.scheduleWork('state', () => runtime.setState(...args), { inline: true, runInline: true, operation: 'operation:xtend.registry/state/app' });
-  if (typeof runtime.command === 'function') facade.command = (...args) => kernelHost.controller.scheduleWork('command', () => runtime.command(...args), { inline: true, runInline: true, operation: 'operation:xtend.registry/command' });
+  if (typeof runtime.setState === 'function') facade.setState = (...args) => kernelHost.controller.scheduleWork('state', () => runtime.setState(...args), { lane: 'user-blocking', operation: 'operation:xtend.registry/state/app' });
+  if (typeof runtime.command === 'function') facade.command = (...args) => kernelHost.controller.scheduleWork('command', () => runtime.command(...args), { lane: 'user-blocking', operation: 'operation:xtend.registry/command' });
   return Object.freeze(facade);
 }
 function createStore(options = {}) {
@@ -270,8 +313,7 @@ function createStore(options = {}) {
   ['setState', 'patchState', 'dispatch'].forEach((method) => {
     if (typeof runtime[method] !== 'function') return;
     facade[method] = (...args) => kernelHost.controller.scheduleWork('state', () => runtime[method](...args), {
-      inline: true,
-      runInline: true,
+      lane: 'user-blocking',
       operation: `operation:xtend.registry/state/${method}`,
       correlationId: args.at(-1)?.correlationId
     });
@@ -324,7 +366,7 @@ async function getClassicLoader() {
 async function loaderWork(kind, callback) {
   if (mode() === 'lightweight') return callback();
   assertReady(`${kind}()`);
-  return kernelHost.controller.scheduleWork(kind, callback, { inline: true, runInline: true });
+  return kernelHost.controller.scheduleWork(kind, callback, { lane: kind === 'hydrate' ? 'visible' : 'background' });
 }
 async function loadComponent(tag, options = {}) { return loaderWork('component-load', async () => (await getClassicLoader()).ensureComponent(tag, options)); }
 async function hydrate(root = typeof document !== 'undefined' ? document : undefined, options = {}) { return loaderWork('hydrate', async () => (await getClassicLoader()).hydrateTree(root, options)); }
@@ -350,8 +392,8 @@ function disposeXTend() {
   owned.length = 0;
   try { kernelHost?.controller?.dispose?.(); } catch (_) {}
   if (kernelHost?._ownsFabric) { try { kernelHost.fabric?.dispose?.(); } catch (_) {} }
-  new Set([schedulerInstance, rendererInstance]).forEach((instance) => { try { instance?.dispose?.(); } catch (_) {} });
-  schedulerInstance = null; rendererInstance = null; loaderPromise = null; kernelHost = null; publicHost = null; bootPromise = null; bootError = null;
+  new Set([schedulerInstance, kernelSchedulerInstance, rendererInstance]).forEach((instance) => { try { instance?.dispose?.(); } catch (_) {} });
+  schedulerInstance = null; kernelSchedulerInstance = null; rendererInstance = null; loaderPromise = null; kernelHost = null; publicHost = null; bootPromise = null; bootError = null;
   configuration = Object.create(null); lifecycle = 'idle';
 }
 

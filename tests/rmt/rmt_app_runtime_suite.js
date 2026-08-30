@@ -20,9 +20,9 @@ const {
 } = require('../../xtend-builder/templates/registry');
 
 const RMT_APP_RUNTIME_MODULE = 'xtendrmt/rmt-app-runtime.js';
-const RMT_APP_RUNTIME_COMPAT_MODULE = 'xtendrmt/rmt-app-runtime.compat.js';
 const RMT_APP_RUNTIME_TYPES = 'xtendrmt/rmt-app-runtime.d.ts';
-const RMT_APP_RUNTIME_COMPAT_TYPES = 'xtendrmt/rmt-app-runtime.compat.d.ts';
+const REMOVED_RMT_APP_RUNTIME_COMPAT_MODULE = 'xtendrmt/rmt-app-runtime.compat.js';
+const REMOVED_RMT_APP_RUNTIME_COMPAT_TYPES = 'xtendrmt/rmt-app-runtime.compat.d.ts';
 const RMT_APP_VIEW_PROJECTOR_MODULE = 'xtendrmt/rmt-app-view-projector.js';
 const RMT_APP_VIEW_PROJECTOR_TYPES = 'xtendrmt/rmt-app-view-projector.d.ts';
 const RMT_APP_HOST_ADAPTER_MODULE = 'xtendrmt/rmt-app-host-adapter.js';
@@ -44,7 +44,7 @@ let kernelControllerModulePromise = null;
 let componentCommandHelperPromise = null;
 
 function loadAppRuntimeModule(rootDir) {
-  if (!appRuntimeModulePromise) appRuntimeModulePromise = import(`file://${resolveRepoPath(RMT_APP_RUNTIME_COMPAT_MODULE, rootDir)}`);
+  if (!appRuntimeModulePromise) appRuntimeModulePromise = import(`file://${resolveRepoPath(RMT_APP_RUNTIME_MODULE, rootDir)}`);
   return appRuntimeModulePromise;
 }
 
@@ -241,6 +241,7 @@ function createFakeKernelApi() {
 async function runSourceToSeaAssertions(context, rootDir) {
   const [
     appRuntimeModule,
+    appViewProjectorModule,
     stateRuntimeModule,
     actionRuntimeModule,
     eventRuntimeModule,
@@ -250,6 +251,7 @@ async function runSourceToSeaAssertions(context, rootDir) {
     componentCommandHelper
   ] = await Promise.all([
     loadAppRuntimeModule(rootDir),
+    import(`file://${resolveRepoPath(RMT_APP_VIEW_PROJECTOR_MODULE, rootDir)}`),
     loadStateRuntimeModule(rootDir),
     loadActionRuntimeModule(rootDir),
     loadEventRuntimeModule(rootDir),
@@ -258,6 +260,7 @@ async function runSourceToSeaAssertions(context, rootDir) {
     loadKernelControllerModule(rootDir),
     loadComponentCommandHelper(rootDir)
   ]);
+  const presentationViewPort = appViewProjectorModule.createRmtAppPresentationViewPort();
 
   const hostPortCalls = [];
   const deterministicHostPort = Object.freeze({
@@ -441,7 +444,8 @@ async function runSourceToSeaAssertions(context, rootDir) {
     dataSources: [
       { id: 'datasource.generate', kind: 'host-service', adapter: 'llm.generate' }
     ],
-    stateRuntime,
+    stateRuntime: stateRuntime.modelReader,
+    modelCommandPort: stateRuntime.modelCommandPort,
     hostServiceRegistry: hostServices
   });
   const appRuntime = appRuntimeModule.createRmtAppRuntime({
@@ -823,7 +827,7 @@ async function runSourceToSeaAssertions(context, rootDir) {
     schema: RMT_VIEW_TEMPLATE_SCHEMA,
     type: 'rich-text',
     segments: shellState.segments
-  });
+  }, {}, { presentationViewPort });
   context.assert(viewTemplate.schema === RMT_VIEW_TEMPLATE_SCHEMA && viewTemplate.children.length === 3, 'view template API lowers rich text segments to descriptors');
   const presentationModel = appRuntimeModule.createRmtAppPresentationModel({
     schema: RMT_VIEW_TEMPLATE_SCHEMA,
@@ -867,7 +871,7 @@ async function runSourceToSeaAssertions(context, rootDir) {
     toggleCommand: 'xtend.llm.toggleToolMenu',
     selectCommand: 'xtend.llm.selectTool',
     selectPayloadField: 'toolName'
-  });
+  }, {}, { presentationViewPort });
   const choiceRoot = createFakeElement('div');
   renderer.render(choiceRoot, choiceMenuTemplate, {
     model: {
@@ -944,9 +948,9 @@ async function runRmtAppRuntimeSuite(options = {}) {
     label: 'RMT full app runtime'
   });
   assertFileExists(context, RMT_APP_RUNTIME_MODULE, rootDir, 'app runtime module exists');
-  assertFileExists(context, RMT_APP_RUNTIME_COMPAT_MODULE, rootDir, 'app runtime 0.6 compatibility composition exists');
   assertFileExists(context, RMT_APP_RUNTIME_TYPES, rootDir, 'app runtime type declarations exist');
-  assertFileExists(context, RMT_APP_RUNTIME_COMPAT_TYPES, rootDir, 'app runtime compatibility type declarations exist');
+  context.assert(!fs.existsSync(resolveRepoPath(REMOVED_RMT_APP_RUNTIME_COMPAT_MODULE, rootDir)), 'app runtime 0.6 compatibility composition is removed');
+  context.assert(!fs.existsSync(resolveRepoPath(REMOVED_RMT_APP_RUNTIME_COMPAT_TYPES, rootDir)), 'app runtime 0.6 compatibility declarations are removed');
   assertFileExists(context, RMT_APP_VIEW_PROJECTOR_MODULE, rootDir, 'app presentation View Projector exists');
   assertFileExists(context, RMT_APP_VIEW_PROJECTOR_TYPES, rootDir, 'app presentation View Port types exist');
   assertFileExists(context, RMT_APP_HOST_ADAPTER_MODULE, rootDir, 'app Host Adapter exists');
@@ -954,13 +958,11 @@ async function runRmtAppRuntimeSuite(options = {}) {
   assertFileExists(context, RMT_APP_RUNTIME_FIXTURE, rootDir, 'app runtime source-to-sea fixture exists');
   assertFileExists(context, COMPONENT_COMMAND_HELPER, rootDir, 'shared component command helper exists');
   const moduleSyntax = syntaxCheckFile(RMT_APP_RUNTIME_MODULE, { rootDir, extension: '.js' });
-  const compatSyntax = syntaxCheckFile(RMT_APP_RUNTIME_COMPAT_MODULE, { rootDir, extension: '.js' });
   const viewProjectorSyntax = syntaxCheckFile(RMT_APP_VIEW_PROJECTOR_MODULE, { rootDir, extension: '.js' });
   const hostAdapterSyntax = syntaxCheckFile(RMT_APP_HOST_ADAPTER_MODULE, { rootDir, extension: '.js' });
   const helperSyntax = syntaxCheckFile(COMPONENT_COMMAND_HELPER, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile('tests/rmt/rmt_app_runtime_suite.js', { rootDir, extension: '.js' });
   context.assert(moduleSyntax.ok, `app runtime module syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
-  context.assert(compatSyntax.ok, `app runtime compatibility composition syntax passes${compatSyntax.ok ? '' : ` (${compatSyntax.message})`}`);
   context.assert(viewProjectorSyntax.ok, `app presentation View Projector syntax passes${viewProjectorSyntax.ok ? '' : ` (${viewProjectorSyntax.message})`}`);
   context.assert(hostAdapterSyntax.ok, `app Host Adapter syntax passes${hostAdapterSyntax.ok ? '' : ` (${hostAdapterSyntax.message})`}`);
   context.assert(helperSyntax.ok, `component command helper syntax passes${helperSyntax.ok ? '' : ` (${helperSyntax.message})`}`);
@@ -969,7 +971,6 @@ async function runRmtAppRuntimeSuite(options = {}) {
   const viewProjectorText = readText(RMT_APP_VIEW_PROJECTOR_MODULE, rootDir);
   const hostAdapterText = readText(RMT_APP_HOST_ADAPTER_MODULE, rootDir);
   const typeText = readText(RMT_APP_RUNTIME_TYPES, rootDir);
-  const compatTypeText = readText(RMT_APP_RUNTIME_COMPAT_TYPES, rootDir);
   context.assert(moduleText.includes(RMT_APP_RUNTIME_SCHEMA), 'app runtime declares public runtime schema');
   context.assert(moduleText.includes(RMT_COMMAND_SCHEMA), 'app runtime declares public command schema');
   context.assert(moduleText.includes(RMT_STREAM_PATCH_SCHEMA), 'app runtime declares public stream patch schema');
@@ -982,8 +983,7 @@ async function runRmtAppRuntimeSuite(options = {}) {
   context.assert(
     typeText.includes('interface RmtAppPresentationViewPort')
       && typeText.includes('presentationViewPort?: RmtAppPresentationViewPort')
-      && typeText.includes('createPresentationModel(')
-      && compatTypeText.includes('createRmtAppPresentationViewPort'),
+      && typeText.includes('createPresentationModel('),
     'App Runtime types expose the abstract Presentation Model and typed View Port without leaking a raw adapter handle'
   );
   context.assert(

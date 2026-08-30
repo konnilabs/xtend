@@ -98,6 +98,18 @@ function runGeneratedCliBuild(appRoot, rootDir) {
     });
     child.once('close', (status) => {
       clearTimeout(timer);
+      if (status !== 0 && stderr === '') {
+        const reportPath = path.join(appRoot, 'dist/xtend.maraca.report.json');
+        if (fs.existsSync(reportPath)) {
+          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+          stderr = JSON.stringify({
+            status: report.status,
+            diagnostics: report.diagnostics || [],
+            productionClosure: report.productionClosure || null,
+            sizeBudget: report.sizeBudget || null
+          });
+        }
+      }
       resolve({ status, stdout, stderr });
     });
   });
@@ -355,7 +367,12 @@ async function runMaracaAppServicesBuildSuite(options = {}) {
     assert.equal(result.sizeBudgetReport.appServices.clientBudgetBytes, 5_000_000);
     assert.equal(result.sizeBudgetReport.appServices.serverBudgetBytes, 500_000);
     assert.equal(result.sizeBudgetReport.appServices.withinBudget, true);
-    assert.equal(result.sizeBudgetReport.framework.bytes + result.sizeBudgetReport.appServices.clientBytes, result.sizeBudgetReport.bundleBytes);
+    assert.equal(
+      result.sizeBudgetReport.framework.bytes
+        + result.sizeBudgetReport.microkernel.bytes
+        + result.sizeBudgetReport.appServices.clientBytes,
+      result.sizeBudgetReport.bundleBytes
+    );
     assert.equal(result.bundleReport.services.integrity.manifestFingerprint, manifest.fingerprint);
     assert.match(result.bundleReport.services.integrity.serviceGraphFingerprint, /^[a-f0-9]{64}$/u);
     assert.equal(result.bundleReport.services.integrity.artifactCount, result.bundleReport.services.artifacts.length);
@@ -375,7 +392,13 @@ async function runMaracaAppServicesBuildSuite(options = {}) {
     if (generatedCliBuild.status === 0 && !generatedCliBuild.stdout && !generatedCliBuild.stderr) {
       context.skip('generated CLI subprocess evidence skipped because nested process execution is sandboxed');
     } else {
-      assert.equal(generatedCliBuild.status, 0, generatedCliBuild.error && generatedCliBuild.error.message || generatedCliBuild.stderr);
+      assert.equal(
+        generatedCliBuild.status,
+        0,
+        generatedCliBuild.error && generatedCliBuild.error.message
+          || generatedCliBuild.stderr
+          || JSON.stringify(generatedCliBuild)
+      );
       assert.match(generatedCliBuild.stdout, /XTend Maraca Build: built/u, JSON.stringify(generatedCliBuild));
       context.pass('the generated project builds all configured targets through its standard Maraca CLI command');
     }

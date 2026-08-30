@@ -1,0 +1,22 @@
+{
+  "schema": "xtend.rmt.retained-warm-reuse-baseline.v1",
+  "budgetId": "retained_warm_reuse",
+  "recordedAt": "2026-08-30",
+  "engine": "Chromium",
+  "claimBoundary": "local-browser-lab-release-budget",
+  "warmupCount": 5,
+  "measurementCount": 30,
+  "budgets": {
+    "durationMs": 12,
+    "waitMs": 24,
+    "totalMs": 28,
+    "longTaskMs": 24
+  },
+  "p95": {
+    "durationMs": 2,
+    "waitMs": 20,
+    "totalMs": 22,
+    "longTaskMs": 2
+  },
+  "maxRegressionPercent": 5
+}

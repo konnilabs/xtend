@@ -1,6 +1,6 @@
 # BACKLOG: RMT Kernel Feature Adoption
 
-- Status: `proposed`
+- Status: `completed`
 - Datum: 2026-06-19
 - Source Doc: `docs/de/rmt-kernel-feature-adoption-evaluation.md`
 - Topography Doc: `docs/de/rmt-kernel-topography-map.md`
@@ -624,13 +624,15 @@ node scripts/run_xtend_tests.js maraca-bundle-report rmt-stack-docs epic14-rmt-t
 5. RKFA-08 und RKFA-09 erst nach stabiler Prewarm-/Hydration-Policy produktisieren.
 6. RKFA-10 bis RKFA-13 als Release-Härtung und PROD-Bundle-Closure abschließen.
 
-## Offene Architekturentscheidungen
+## Architekturentscheidungen fuer 0.8 (geschlossen)
 
-- Soll Product Surface mittelfristig der Default-Bootpfad werden oder nur eine Report-/Evidence-Fassade bleiben?
-- Soll `enablePrewarmWorker` initial `false`, `auto-if-supported` oder produktabhängig gesetzt werden?
-- Wo liegt die Retention-Grenze für Prewarm-Chunks bei vielen Surface-Generationen?
-- Welche Performance Baseline ist für `retained_warm_reuse` verbindlich genug, um Release-Gates zu steuern?
-- Sollen Panic/Recovery Records immer an Fabric gehen oder nur bei Strict/Diagnostics Mode?
+- Product Surface bleibt ein explizit aktivierter Service; der direkte Microkernel-Boot ist Default.
+- `enablePrewarmWorker` bleibt standardmaessig `false` und wird nur durch explizite Produktkonfiguration aktiviert.
+- Retained Chunks verwenden ein globales LRU mit maximal 32 Eintraegen und maximal zwei Generationen je Scope; aeltere Scope-Generationen werden zuerst verdraengt.
+- `retained_warm_reuse` ist mit Duration `12 ms`, Wait `24 ms`, Total `28 ms` und Long Task `24 ms` release-verbindlich. Das Browser-Lab nutzt fuenf Warmups, 30 Messungen, p95 und maximal fuenf Prozent Regression gegen die eingecheckte Baseline.
+- Panic-/Recovery-Records werden immer redigiert an Fabric gespiegelt und dort der `diagnostics`-Lane zugeordnet; Payloads und Trust-Details verbleiben im Kernel.
+
+Die alleinige Kernel-Scheduler-Autoritaet und der Microkernel-Cutover sind in `development/ADR-RMT-KERNEL-008-Single-Scheduler-Microkernel.md` entschieden.
 
 ## Referenz-Gates Gesamtpaket
 

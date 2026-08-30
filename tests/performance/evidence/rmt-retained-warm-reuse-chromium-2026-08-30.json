@@ -1,0 +1,26 @@
+{
+  "schema": "xtend.rmt.retained-warm-reuse-browser-lab.v1",
+  "budgetId": "retained_warm_reuse",
+  "recordedAt": "2026-08-30",
+  "engine": "Chromium",
+  "engineVersion": "151.0.7922.108",
+  "harness": "tests/browser/fixtures/rmt-retained-warm-reuse-performance.html",
+  "harnessSha256": "29f12822487909c68412fb173f0dbf2da474baf712ba4d90e8058abfc3b92cfe",
+  "warmupCount": 5,
+  "measurementCount": 30,
+  "budgets": {
+    "durationMs": 12,
+    "waitMs": 24,
+    "totalMs": 28,
+    "longTaskMs": 24
+  },
+  "p95": {
+    "durationMs": 0,
+    "waitMs": 4.1,
+    "totalMs": 4.1,
+    "longTaskMs": 0
+  },
+  "retainedCount": 32,
+  "withinBudget": true,
+  "claimBoundary": "local-chromium-release-gate"
+}

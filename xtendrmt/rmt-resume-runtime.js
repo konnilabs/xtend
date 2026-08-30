@@ -26,7 +26,7 @@ export function createRmtResumeRuntime(options = {}) {
   const capturePort = options.capturePort || createRmtResumeCaptureAdapter(options);
   const hostPort = options.hostPort || createRmtResumeHostAdapter({
     ...options,
-    globalTarget
+    hostTarget: options.hostTarget || options.windowTarget || null
   });
   const commandPort = options.commandPort || createRmtResumeCommandAdapter(options);
   return createRmtResumeCommandController({
@@ -62,8 +62,4 @@ const api = Object.freeze({
   resumeResponse,
   resumeTemplate
 });
-const globalTarget = typeof globalThis !== 'undefined' ? globalThis : null;
-
-if (globalTarget) globalTarget.XTendRmtResumeRuntime = api;
-
 export default api;

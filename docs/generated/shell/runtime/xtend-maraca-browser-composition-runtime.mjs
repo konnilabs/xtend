@@ -54,6 +54,9 @@ function createInjectedRuntimeApis(dependencies) {
     const api = selectRuntimeModuleApi(moduleApis[moduleId], exportName);
     if (api) resolved[runtimeName] = api;
   });
+  if (dependencies.kernelControllerModule) {
+    resolved.XTendRmtKernelOrchestrationController = dependencies.kernelControllerModule;
+  }
   return Object.freeze({ ...resolved, ...(dependencies.runtimeApis || {}) });
 }
 

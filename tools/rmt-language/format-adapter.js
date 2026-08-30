@@ -92,8 +92,11 @@ function loadRmtCoreFormatFactory(options = {}) {
   vm.runInNewContext(stripEsmExports(source), sandbox, {
     filename: RMT_CORE_ARTIFACT_PATH
   });
+  vm.runInNewContext('globalThis.__XTendRmtFormatFactory = AppModules.createRmtFormat;', sandbox, {
+    filename: `${RMT_CORE_ARTIFACT_PATH}#format-factory-probe`
+  });
 
-  const factory = sandbox.AppModules && sandbox.AppModules.createRmtFormat;
+  const factory = sandbox.__XTendRmtFormatFactory;
 
   if (typeof factory !== 'function') {
     throw new Error('XTendRMT core artifact exposes no createRmtFormat factory.');

@@ -104,8 +104,14 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   context.assert(allowed.descriptor.tag === 'x-button' && !Object.prototype.hasOwnProperty.call(allowed.descriptor.attributes, 'onclick'), 'safe preview strips event attributes without emitting HTML strings');
 
   const maracaRuntimeApi = await import(`file://${resolveRepoPath('xtend-maraca/plan-runtime.mjs', rootDir)}`);
+  const kernelSchedulerApi = await import(`file://${resolveRepoPath('xtendrmt/rmt-kernel-scheduler.js', rootDir)}`);
   const presentationEffectApi = await import(`file://${resolveRepoPath('xtendrmt/rmt-presentation-effect-adapter.js', rootDir)}`);
   const viewProjectionApi = await import(`file://${resolveRepoPath('xtendrmt/rmt-maraca-view-projection-adapter.js', rootDir)}`);
+  const testKernelScheduler = kernelSchedulerApi.createRmtKernelScheduler();
+  const createMaracaPlanRuntime = (runtimeOptions = {}) => maracaRuntimeApi.createMaracaPlanRuntime({
+    scheduler: Object.prototype.hasOwnProperty.call(runtimeOptions, 'scheduler') ? runtimeOptions.scheduler : testKernelScheduler,
+    ...runtimeOptions
+  });
   const fakeKernelRuntime = { schema: 'test-kernel-runtime' };
   let ownedKernelBootCount = 0;
   let ownedKernelApiCount = 0;
@@ -218,7 +224,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   let capturedInitialState = null;
   let capturedBootDescriptor = null;
   let normalizedPlanWasFrozen = false;
-  const immutableConfigurationRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const immutableConfigurationRuntime = createMaracaPlanRuntime({
     plan: mutablePlan,
     initialState: mutableInitialState,
     root: immutableConfigurationRoot,
@@ -264,13 +270,13 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   const rootA = createRoot();
   const rootB = createRoot();
   const plan = { orchestration: { artifact: { state: {}, render: { root: { type: 'fragment', children: [] } } } } };
-  const runtimeA = maracaRuntimeApi.createMaracaPlanRuntime({
+  const runtimeA = createMaracaPlanRuntime({
     plan,
     root: rootA,
     viewProjectionPort: createViewProjectionPort(rootA),
     loadModules: async () => fakeModules
   });
-  const runtimeB = maracaRuntimeApi.createMaracaPlanRuntime({
+  const runtimeB = createMaracaPlanRuntime({
     plan,
     root: rootB,
     viewProjectionPort: createViewProjectionPort(rootB),
@@ -299,7 +305,8 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   'compatibility plan runtime diagnoses a missing renderer dispose and clears only its owned root');
   runtimeB.dispose();
   let unavailableKernelDisposeCount = 0;
-  const schedulerFallbackRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const schedulerFallbackRuntime = createMaracaPlanRuntime({
+    scheduler: null,
     plan,
     root: createRoot(),
     loadModules: async () => ({
@@ -320,23 +327,26 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
       }
     })
   });
-  await schedulerFallbackRuntime.boot();
-  const schedulerFallbackSnapshot = schedulerFallbackRuntime.snapshot();
+  let missingSchedulerError = null;
+  try {
+    await schedulerFallbackRuntime.boot();
+  } catch (error) {
+    missingSchedulerError = error;
+  }
   context.assert(
-    schedulerFallbackSnapshot.kernel
-      && schedulerFallbackSnapshot.kernel.fallback === 'microtask'
-      && schedulerFallbackSnapshot.diagnostics.some((entry) => entry.code === 'maraca.plan-runtime.scheduler-fallback')
+    missingSchedulerError
+      && missingSchedulerError.code === 'xtend.maraca.mvc.kernel-scheduler-port-missing'
       && unavailableKernelDisposeCount === 1,
-    'preview disposes an unavailable canonical kernel and reports its single microtask scheduler fallback'
+    'preview disposes an unavailable canonical kernel and rejects a missing scheduler authority without an inline fallback'
   );
   schedulerFallbackRuntime.dispose();
-  const aliasRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const aliasRuntime = createMaracaPlanRuntime({
     plan,
     root: createRoot(),
     trustedDom: { render() {} },
     loadModules: async () => fakeModules
   });
-  const canonicalRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const canonicalRuntime = createMaracaPlanRuntime({
     plan,
     root: createRoot(),
     trustedDomRenderer: { render() {} },
@@ -351,7 +361,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   aliasRuntime.dispose();
   canonicalRuntime.dispose();
   const missingStrictViewRoot = createRoot();
-  const missingStrictViewRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const missingStrictViewRuntime = createMaracaPlanRuntime({
     plan: {
       orchestration: {
         strict: true,
@@ -369,7 +379,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   'strict Maraca fails closed before Model or DOM boot when the View Projection Port is not injected');
   missingStrictViewRuntime.dispose();
   const strictRendererRoot = createRoot();
-  const strictRendererContractRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const strictRendererContractRuntime = createMaracaPlanRuntime({
     plan: {
       orchestration: {
         strict: true,
@@ -393,7 +403,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   'strict plan runtime rejects renderers without the complete commit and dispose lifecycle contract');
 
   const strictLegacyValidationRoot = createRoot();
-  const strictLegacyValidationRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const strictLegacyValidationRuntime = createMaracaPlanRuntime({
     plan: {
       orchestration: {
         strict: true,
@@ -447,7 +457,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   const strictPresentationPort = { invoke() { return undefined; } };
   const strictPortFailure = async (artifactPatch, modulePatch = {}, planPatch = {}, optionPatch = {}) => {
     const strictPortRoot = createRoot();
-    const runtime = maracaRuntimeApi.createMaracaPlanRuntime({
+    const runtime = createMaracaPlanRuntime({
       plan: {
         orchestration: {
           strict: true,
@@ -576,7 +586,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
       this.children = nodes;
     }
   };
-  const disposeFailureRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const disposeFailureRuntime = createMaracaPlanRuntime({
     plan,
     root: fallbackRoot,
     domRenderer: createDisposeFailureRenderer(() => {
@@ -610,7 +620,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
       this.children = nodes;
     }
   };
-  const retainedRootRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const retainedRootRuntime = createMaracaPlanRuntime({
     plan,
     root: retainedRoot,
     clearOwnedDom: false,
@@ -639,7 +649,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
       throw new Error('root clear failed');
     }
   };
-  const rootClearFailureRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const rootClearFailureRuntime = createMaracaPlanRuntime({
     plan,
     root: throwingRoot,
     domRenderer: createDisposeFailureRenderer(() => {
@@ -782,7 +792,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     },
     patchPlan: { reducers: [] }
   } } };
-  const effectRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const effectRuntime = createMaracaPlanRuntime({
     plan: effectPlan,
     root: effectRoot,
     domRenderer: effectRenderer,
@@ -907,7 +917,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   'Presentation component-command hooks receive immutable metadata instead of raw DOM or registry handles');
   componentCommandPort.dispose();
 
-  const strictPresentationRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const strictPresentationRuntime = createMaracaPlanRuntime({
     plan: {
       ...effectPlan,
       orchestration: { ...effectPlan.orchestration, mode: 'strict', strict: true }
@@ -1227,7 +1237,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     actionGates: [{ id: 'wizard-contact-gate', action: 'wizard.next', group: 'wizard.contact.validation' }],
     statePatches: [{ id: 'wizard-issue-patch', group: 'wizard.issue.validation', targetState: 'next', path: 'disabled' }]
   } } };
-  const visibilityRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const visibilityRuntime = createMaracaPlanRuntime({
     plan: visibilityPlan,
     root: visibilityRoot,
     loadModules: async () => visibilityModules,
@@ -1330,7 +1340,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   let bootRaceRendererCommitCount = 0;
   const bootRaceCommands = [];
   const bootRaceStreamPatches = [];
-  const bootRaceRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const bootRaceRuntime = createMaracaPlanRuntime({
     plan: {
       orchestration: {
         artifact: {
@@ -1508,7 +1518,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   let signalDisposedBootModules;
   const disposedBootModulesGate = new Promise((resolve) => { releaseDisposedBootModules = resolve; });
   const disposedBootModulesStarted = new Promise((resolve) => { signalDisposedBootModules = resolve; });
-  const disposedBootRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const disposedBootRuntime = createMaracaPlanRuntime({
     plan: {
       orchestration: {
         artifact: {
@@ -1692,7 +1702,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
       }
     }
   };
-  const transactionRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const transactionRuntime = createMaracaPlanRuntime({
     plan: transactionPlan,
     root: transactionRoot,
     domRenderer: transactionRenderer,
@@ -2040,7 +2050,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   'double dispose releases owned resources once while preserving the caller-owned kernel');
 
   const strictRoot = createRoot();
-  const strictRuntime = maracaRuntimeApi.createMaracaPlanRuntime({
+  const strictRuntime = createMaracaPlanRuntime({
     plan: { orchestration: { mode: 'strict', artifact: { state: {}, render: { root: { type: 'fragment', children: [] } } } } },
     root: strictRoot,
     viewProjectionPort: createViewProjectionPort(strictRoot),
@@ -2055,6 +2065,7 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
   const bridgeResponse = await toolingBridge.executeToolingBridgeOperation({ operation: 'safe-preview', requestId: 'ownership-contract', payload: { coreDocument: {}, project: { descriptor: { tag: 'div', children: ['Safe'] } } } }, { rootDir });
   context.assert(bridgeResponse.schema === 'xtend.compiler.tooling-bridge-response.v1' && bridgeResponse.operation === 'safe-preview' && bridgeResponse.result.descriptor.tag === 'div', 'tooling bridge returns a versioned safe-preview envelope');
 
+  testKernelScheduler.dispose('docs_framework_ownership_complete');
   return context.result({ scannedFiles: productFiles.length, ruleCount: RULES.length });
 }
 
