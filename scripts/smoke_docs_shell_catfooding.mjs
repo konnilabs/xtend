@@ -2118,6 +2118,76 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
   }
 }
 
+async function runComponentDemoSpaNavigationRegression(baseUrl, driverUrl) {
+  const scenario = { id: 'de-xtoggle-demo-spa-navigation', locale: 'de', width: 1440, height: 900 };
+  const sessionId = await createSession(driverUrl, scenario);
+  try {
+    await request(driverUrl, `/session/${sessionId}/url`, 'POST', {
+      url: `${baseUrl}/docs/de/readme`
+    });
+    const initial = await waitUntil(async () => {
+      const snapshot = await readSnapshot(driverUrl, sessionId);
+      return snapshot.docsPageReady && snapshot.resumeActivation === 'resumed' ? snapshot : null;
+    }, `${scenario.id}: resumable Docs shell did not become ready`);
+
+    await navigateTrunk(driverUrl, sessionId, 'components');
+    await navigateArticle(driverUrl, sessionId, 'components-xtoggle');
+    let latestRoutedDemo = null;
+    let routedDemo = null;
+    try {
+      routedDemo = await waitUntil(async () => {
+        latestRoutedDemo = await execute(driverUrl, sessionId, `${deepQuerySource}
+      const page = deepQuery('xtend-doc-page');
+      const slot = deepQuery('[data-demo-component="x-toggle"]');
+      const candidateSlot = deepQuery('#docs-component-demo');
+      const preview = slot && slot.querySelector('[data-demo-preview]');
+      const toggle = preview && preview.querySelector('x-toggle');
+      const content = deepQuery('#md-content');
+      const slotRect = slot && slot.getBoundingClientRect();
+      const toggleRect = toggle && toggle.getBoundingClientRect();
+      const slotStyle = slot && getComputedStyle(slot);
+      return {
+        schema: 'xtend.docs.component-demo-spa-navigation.v1',
+        path: location.pathname,
+        navigationEntryCount: performance.getEntriesByType('navigation').length,
+        pageState: page && page.getAttribute('data-docs-route-state'),
+        contentIslandState: content && content.getAttribute('data-rmt-island-state'),
+        candidateSlotHidden: candidateSlot ? candidateSlot.hidden : null,
+        demoComponent: slot && slot.getAttribute('data-demo-component'),
+        islandState: preview && preview.getAttribute('data-rmt-island-state'),
+        islandError: preview && preview.getAttribute('data-rmt-island-error'),
+        slotVisible: Boolean(slotRect && slotRect.width > 0 && slotRect.height > 0 && slotStyle.display !== 'none' && slotStyle.visibility !== 'hidden'),
+        loaderReady: Boolean(window.XTendLoader && typeof window.XTendLoader.hydrateTree === 'function'),
+        toggleDefined: Boolean(customElements.get('x-toggle')),
+        toggleVisible: Boolean(toggleRect && toggleRect.width > 0 && toggleRect.height > 0)
+      };
+      `);
+        return latestRoutedDemo
+          && latestRoutedDemo.demoComponent === 'x-toggle'
+          && latestRoutedDemo.islandState === 'ready'
+          && latestRoutedDemo.slotVisible
+          && latestRoutedDemo.toggleDefined
+          && latestRoutedDemo.toggleVisible
+          ? latestRoutedDemo
+          : null;
+      }, `${scenario.id}: routed x-toggle demo did not hydrate`);
+    } catch (error) {
+      throw new Error(`${error.message}; latest=${JSON.stringify(latestRoutedDemo)}`);
+    }
+
+    assert(routedDemo.path.endsWith('/docs/de/components-xtoggle'), `${scenario.id}: SPA navigation committed the wrong route (${JSON.stringify(routedDemo)}).`);
+    assert(routedDemo.navigationEntryCount === 1 && routedDemo.demoComponent === 'x-toggle', `${scenario.id}: demo route caused a document reload or committed the wrong component (${JSON.stringify(routedDemo)}).`);
+    assert(routedDemo.islandState === 'ready' && routedDemo.slotVisible && routedDemo.toggleDefined && routedDemo.toggleVisible, `${scenario.id}: routed x-toggle demo is not usable (${JSON.stringify(routedDemo)}).`);
+    const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
+    const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
+    assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
+    await writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({ scenario, initial, routedDemo, logs }, null, 2)}\n`);
+    return routedDemo;
+  } finally {
+    await request(driverUrl, `/session/${sessionId}`, 'DELETE').catch(() => {});
+  }
+}
+
 async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
   const sessionId = await createSession(driverUrl, scenario);
   try {
@@ -2645,6 +2715,9 @@ try {
         await runSsrProofFallbackRegression(baseUrl, driverUrl, proofCase);
       }
       await runMaracaRouteRegression(baseUrl, driverUrl);
+    }
+    if (!requestedScenario || requestedScenario === 'de-xtoggle-demo-spa-navigation') {
+      await runComponentDemoSpaNavigationRegression(baseUrl, driverUrl);
     }
     const directRouteScenarios = [
       { id: 'de-animation-engine-desktop', locale: 'de', slug: 'rmt-animation-engine', width: 1440, height: 900, settleMs: 1200 },

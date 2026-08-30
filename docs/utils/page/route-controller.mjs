@@ -1743,12 +1743,32 @@ function runDocsMeasuredLane(detail, callback) {
   return result;
 }
 
+function createDocsScheduleDisposer(handle, reason) {
+  if (!handle || typeof handle.cancel !== 'function') return () => false;
+  let active = true;
+  Promise.resolve(handle.result).then(
+    () => { active = false; },
+    () => { active = false; }
+  );
+  return () => {
+    if (!active) return false;
+    active = false;
+    return handle.cancel(reason);
+  };
+}
+
 function scheduleDocsAfterPaint(callback) {
-  return docsBrowserScheduler.afterPaint(callback);
+  return createDocsScheduleDisposer(
+    docsBrowserScheduler.afterPaint(callback),
+    'docs-route-after-paint-disposed'
+  );
 }
 
 function scheduleDocsIdle(callback, timeout = DOCS_ROUTE_IDLE_TIMEOUT_MS) {
-  return docsBrowserScheduler.scheduleEndpoint('docs.route.idle', window.location.pathname, callback, { kind: 'idle', timeout });
+  return createDocsScheduleDisposer(
+    docsBrowserScheduler.scheduleEndpoint('docs.route.idle', window.location.pathname, callback, { kind: 'idle', timeout }),
+    'docs-route-idle-disposed'
+  );
 }
 
 function getXtendSkeletonLoader() {
@@ -4183,7 +4203,10 @@ function scheduleDocsVisibleOrIntentIsland(root, activate, options = {}) {
   const queueVisible = () => {
     if (disposed || activated || idleDisposer) return;
     root.setAttribute('data-rmt-island-state', 'visible-idle-pending');
-    idleDisposer = scheduleDocsIdle(() => run('visible-idle'));
+    idleDisposer = scheduleDocsIdle(() => {
+      idleDisposer = null;
+      run('visible-idle');
+    });
   };
   listeners.push(bindDocsLifecycle(root, 'pointerdown', () => run('user-intent'), { capture: true, passive: true }));
   listeners.push(bindDocsLifecycle(root, 'focusin', () => run('user-intent'), { capture: true }));
@@ -5837,7 +5860,10 @@ function scheduleDocsAnimationEngineDemoHydration(options = {}) {
   const queueIdleHydration = () => {
     if (disposed || loadPromise || idleDisposer) return;
     root.setAttribute('data-rmt-hydration-state', 'queued');
-    idleDisposer = scheduleDocsIdle(() => hydrate('visible-idle'));
+    idleDisposer = scheduleDocsIdle(() => {
+      idleDisposer = null;
+      hydrate('visible-idle');
+    });
   };
   const requestImmediateHydration = () => hydrate('user-intent');
   const disposePointerHydration = bindDocsLifecycle(root, 'pointerdown', requestImmediateHydration, { once: true });
@@ -6512,7 +6538,11 @@ export class XtendDocPage extends HTMLElement {
           this.scheduleRouteWork(playgroundDisposer);
         }
         if (DOCS_COMPONENT_DEMOS[slug] && shell.demoSlot) {
-          const demoDisposer = scheduleDocsVisibleOrIntentIsland(shell.demoSlot, () => {
+          // The demo slot stays hidden until its island renders. Observing that
+          // slot would deadlock CSR routes: a hidden node cannot become visible
+          // or receive user intent. The committed article is the route-visible
+          // owner, matching the initial Resume-adoption path above.
+          const demoDisposer = scheduleDocsVisibleOrIntentIsland(shell.mdContent, () => {
             if (!this.isActiveRouteToken(token)) return null;
             measuredLane('idle', demoSchedule, 'component-demo.render', () => renderDocsComponentDemo(shell.demoSlot, slug));
             hydrateDocsCodeBlocks(shell.demoSlot, {

@@ -328,13 +328,32 @@ function runDocsShellCatfoodingSuite(options = {}) {
   context.assert(dialogSource.includes('grid-template-areas:') && dialogSource.includes('"title close"') && dialogSource.includes('grid-area: close;') && dialogSource.includes('position: static;'), 'x-dialog uses a stable grid chrome row for title and close control');
   context.assert(modalSource.includes('grid-template-areas:') && modalSource.includes('"title close"') && modalSource.includes('grid-area: close;') && modalSource.includes('position: static;'), 'x-modal uses the same stable grid chrome row for title and close control');
   context.assert(pageLoader.includes('async function hydrateDocsComponentPreview') && pageLoader.includes("source: 'docs.component-demo'") && pageLoader.includes("'xtend-docs-component-demo-hydrated'"), 'Component demo islands hydrate their rendered XTend dependency tree through the public loader contract');
+  context.assert(
+    pageLoader.includes('function createDocsScheduleDisposer(handle, reason)')
+      && pageLoader.includes("handle.cancel(reason)")
+      && pageLoader.includes("idleDisposer = null;\n      run('visible-idle');"),
+    'Route-scoped idle islands adapt kernel scheduler handles to cancellation disposers before activation'
+  );
   const routeFragmentCommitIndex = pageLoader.indexOf('Object.assign(shell, adoptedNextShell)');
   const routedDemoScheduleIndex = pageLoader.indexOf("measuredLane('idle', demoSchedule, 'component-demo.render'", routeFragmentCommitIndex);
+  const routedDemoVisibilityOwnerIndex = pageLoader.lastIndexOf(
+    'scheduleDocsVisibleOrIntentIsland(shell.mdContent',
+    routedDemoScheduleIndex
+  );
   context.assert(
     pageLoader.includes("if (hadShell && shell.demoSlot) renderDocsComponentDemo(shell.demoSlot, '')")
       && routeFragmentCommitIndex >= 0
+      && routedDemoVisibilityOwnerIndex > routeFragmentCommitIndex
+      && routedDemoVisibilityOwnerIndex < routedDemoScheduleIndex
       && routedDemoScheduleIndex > routeFragmentCommitIndex,
-    'Route navigation clears a reused component demo and schedules the replacement only after resumable shell commit'
+    'Route navigation clears a reused component demo and schedules its hidden slot from the visible article owner after resumable shell commit'
+  );
+  context.assert(
+    browserSmoke.includes('de-xtoggle-demo-spa-navigation')
+      && browserSmoke.includes("schema: 'xtend.docs.component-demo-spa-navigation.v1'")
+      && browserSmoke.includes("routedDemo.navigationEntryCount === 1")
+      && browserSmoke.includes("routedDemo.islandState === 'ready'"),
+    'ChromeDriver shell smoke covers x-toggle demo hydration after client-side SPA navigation'
   );
   context.assert(pageLoader.includes('Dialog-Surface für bestätigende UI-Flows.') && pageLoader.includes('XTend Modal läuft in der Docs Shell.') && !pageLoader.includes('Dialog-Surface fuer bestaetigende UI-Flows.') && !pageLoader.includes('XTend Modal laeuft in der Docs Shell.'), 'Dialog and modal demo copy preserves localized German umlauts');
   const localizedPayloadBlock = pageLoader.slice(pageLoader.indexOf('function loadDocsParsedownContent'), pageLoader.indexOf('function prefetchDocsLocalePage'));
