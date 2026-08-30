@@ -21,6 +21,15 @@ function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
 }
 
+test('hash-checked generated knowledge stays LF-normalized on every Git checkout', () => {
+  const attributes = fs.readFileSync(path.join(repoRoot, '.gitattributes'), 'utf8');
+  assert.match(
+    attributes,
+    /^products\/xtend-mcp\/generated\/\*\*\s+text\s+eol=lf$/mu,
+    'generated MCP knowledge requires a repository-level LF checkout policy'
+  );
+});
+
 test('deterministic bundle covers every canonical bilingual Markdown source byte-for-byte', () => {
   const bundle = loadXtendKnowledgeBundle({ noCache: true });
   const menu = JSON.parse(fs.readFileSync(path.join(repoRoot, 'docs', 'menu.json'), 'utf8'));

@@ -41,6 +41,17 @@ function runProductCatfood(productRoot) {
   });
 }
 
+function productFailureTail(productRun) {
+  const output = (productRun.stderr.trim() || productRun.stdout.trim())
+    .replace(/\u001b\[[0-9;]*m/gu, '')
+    .split(/\r?\n/u)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .slice(-12)
+    .join(' | ');
+  return output ? output.slice(-1600) : 'process exited without diagnostic output';
+}
+
 async function runErpResumabilityCatfoodingSuite(options = {}) {
   const rootDir = options.rootDir || path.resolve(__dirname, '..', '..');
   const productRoot = path.resolve(rootDir, PRODUCT_PATH);
@@ -134,7 +145,7 @@ async function runErpResumabilityCatfoodingSuite(options = {}) {
   context.assert(resumeModulePaths.every((modulePath) => fs.existsSync(path.resolve(rootDir, modulePath.slice(1)))), 'Resume runtime and all five split Resume module sources exist');
   context.assert(resumeModulePaths.every((modulePath) => serverSource.includes(`'${modulePath}'`)), 'ERP server allowlists the Resume runtime and all five split Resume modules');
   context.assert(resumeModulePaths.every((modulePath) => verificationSource.includes(`'${modulePath}'`)), 'ERP verification probes the Resume runtime and all five split Resume module routes');
-  context.assert(productRun.status === 0 && productRun.stdout.includes('"status": "checked"') && productRun.stdout.includes('Local resumability Maraca ERP demo verification passed.'), `build, tune check and browser hypervisor pass${productRun.status === 0 ? '' : `: ${productRun.stderr.slice(-1000)}`}`);
+  context.assert(productRun.status === 0 && productRun.stdout.includes('"status": "checked"') && productRun.stdout.includes('Local resumability Maraca ERP demo verification passed.'), `build, tune check and browser hypervisor pass${productRun.status === 0 ? '' : `: ${productFailureTail(productRun)}`}`);
   const metadata = rootManifest.xtend && rootManifest.xtend.erpResumabilityCatfooding;
   context.assert(metadata && metadata.schema === REPORT_SCHEMA && metadata.product === PRODUCT_PATH && metadata.localGate === LOCAL_GATE, 'root product catalog exposes the ERP catfood gate and report');
   context.assert(report.ok, 'central ERP resumability catfood report is green');
