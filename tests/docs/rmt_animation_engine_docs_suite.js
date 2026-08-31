@@ -143,7 +143,13 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
   context.assert(pageLoader.includes("controls.setAttribute('data-slot-layout', 'fixed-responsive-grid')"), 'AnimationEngine skeleton declares its fixed responsive slot layout');
   context.assert(pageLoader.includes("['effect', 'duration', 'easing', 'motion']") && pageLoader.includes("createSlot('status', status)"), 'AnimationEngine skeleton reserves all six named control slots');
   context.assert(pageLoader.includes('--docs-animation-field-slot-size: 4.55rem') && pageLoader.includes('--docs-animation-status-slot-size: 5.5rem'), 'AnimationEngine skeleton reserves fixed field and status rows before hydration');
-  context.assert(pageLoader.includes('IntersectionObserver') && pageLoader.includes("scheduleDocsIdle(() => hydrate('visible-idle'))"), 'AnimationEngine hydration combines visibility and idle scheduling');
+  context.assert(
+    pageLoader.includes('IntersectionObserver')
+      && pageLoader.includes('const queueIdleHydration = () =>')
+      && pageLoader.includes('idleDisposer = scheduleDocsIdle(() => {')
+      && pageLoader.includes("hydrate('visible-idle')"),
+    'AnimationEngine hydration combines visibility and idle scheduling'
+  );
   context.assert(pageLoader.indexOf("window.dispatchEvent(new CustomEvent('xtend-docs-content-ready'") < pageLoader.indexOf('scheduleDocsAnimationEngineDemoHydration({'), 'Demo hydration is scheduled only after content-ready dispatch');
   context.assert(pageLoader.includes('requestImmediateHydration') && pageLoader.includes("hydrate('user-intent')"), 'Focus and pointer intent can advance lazy hydration');
   context.assert(pageLoader.includes('controller.dispose()') && pageLoader.includes('reconcileDocsAnimationEngineDemoSlot'), 'Route lifecycle disposes the demo controller');
