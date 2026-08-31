@@ -178,7 +178,7 @@ Wenn ein Produkt ein wiederverwendbares visuelles Muster benötigt, das der Regi
 | Tailwind CSS | exakt geprüfte Baseline `4.3.2` |
 | XTend Material | `@xtend-material/core` `0.1.x` |
 | Maraca Adapter | `@xtend-material/maraca-tailwind` `0.1.x` |
-| XTend-/Maraca-Peers | `^0.7.0` |
+| XTend-/Maraca-Peers | `^0.8.0` |
 | Tailwind-Browser-Runtime | nicht unterstützt |
 | Tailwind Preflight | deaktiviert |
 | Rückweg zum nativen CSS Provider | unterstützt |

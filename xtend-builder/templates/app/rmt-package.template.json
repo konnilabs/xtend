@@ -14,11 +14,11 @@
     "test:catfood": "npm run build && node --test"
   },
   "dependencies": {
-    "@ccslabs/xtend": "^0.6.1",
-    "@ccslabs/xtend-maraca": "^0.6.1"
+    "@ccslabs/xtend": "^0.8.0",
+    "@ccslabs/xtend-maraca": "^0.8.0"
   },
   "devDependencies": {
-    "@ccslabs/xtend-cli": "^0.6.1",
+    "@ccslabs/xtend-cli": "^0.8.0",
     {{nodeTypesDependencyLine}}"typescript": "^5.9.3"
   },
   "engines": {
