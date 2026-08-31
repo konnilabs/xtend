@@ -134,7 +134,7 @@ Maraca compiles the RMT source, discovers the required XTend modules, and emits 
 ```bash
 xt kernel-lab analyze --json
 xt kernel-lab build --profile clean --check --json
-xt kernel-lab build --profile clean --version 0.6.1 --write --json
+xt kernel-lab build --profile clean --version 0.8.0 --write --json
 ```
 
 The `xt rmt kernel-lab ...` alias runs the same path. KernelLab validates the canonical MVC source manifest first and then synchronizes seven outputs together—Core ESM, Runtime ESM, Browser Runtime, types, schema, product manifest, and kernel module manifest. Existing bundles are outputs, never assembler inputs; module order and counts come from `bundle.moduleOrder`.
@@ -384,7 +384,7 @@ Maraca kompiliert die RMT-Quelle, ermittelt benötigte XTend-Module und erzeugt 
 ```bash
 xt kernel-lab analyze --json
 xt kernel-lab build --profile clean --check --json
-xt kernel-lab build --profile clean --version 0.6.1 --write --json
+xt kernel-lab build --profile clean --version 0.8.0 --write --json
 ```
 
 Der Alias `xt rmt kernel-lab ...` führt denselben Pfad aus. KernelLab arbeitet als Hybrid-Assembler: Es ergänzt den gebündelten Kernel um den kanonischen DOM-Descriptor-Renderer als 26. Modul und synchronisiert gemeinsam sieben Outputs – Core-ESM, Runtime-ESM, Browser-Runtime, Typen, Schema, Produktmanifest und Kernel-Modulmanifest.

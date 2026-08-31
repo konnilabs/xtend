@@ -35,7 +35,7 @@ const DESIGN_PRINCIPLES = Object.freeze([
 ]);
 
 const COMPATIBILITY = Object.freeze({
-  xtend: '^0.6.1',
+  xtend: '^0.8.0',
   tailwindcss: '4.3.2',
   maracaCssProvider: 'xtend.maraca.css-provider.v1',
   tokenBridge: 'xtend.material.tailwind-token-bridge.v1',

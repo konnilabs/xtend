@@ -152,7 +152,7 @@ Der Contract bleibt `dry-run-extension-contract` und implementiert keine Templat
 ```bash
 node xtend-builder/scaffold.js kernel-lab analyze --json
 node xtend-builder/scaffold.js kernel-lab build --profile clean --check --json
-node xtend-builder/scaffold.js rmt kernel-lab build --profile clean --version 0.6.1 --write --json
+node xtend-builder/scaffold.js rmt kernel-lab build --profile clean --version 0.8.0 --write --json
 ```
 
 `analyze` validiert Rollen, Adapterrichtungen, Ports, Capabilities, Abhaengigkeiten, Provider und Ownership-Domaenen. Model-zu-View-Kanten, konkrete View-Zugriffe aus Controllern, DOM oder Host-Zugriffe in Models, Zyklen, doppelte Provider und konkurrierende Owner blockieren den Build. Die Anzahl und Reihenfolge der ausgelieferten Module werden aus `bundle.moduleOrder` abgeleitet und nicht separat gepflegt.
