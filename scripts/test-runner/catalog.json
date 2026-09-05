@@ -7164,6 +7164,109 @@
         "browser"
       ],
       "timeoutMs": 300000
+    },
+    {
+      "id": "ssr-pages",
+      "label": "Shared page contracts and Node host",
+      "description": "Shared page contracts and Node host",
+      "defaultIncluded": true,
+      "handler": "ssr-pages",
+      "implementations": [
+        {
+          "path": "tests/ssr-pages/ssr_pages_suite.js",
+          "function": "runSsrPagesSuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository"
+      ],
+      "timeoutMs": 300000
+    },
+    {
+      "id": "ssr-pages-php",
+      "label": "Portable Node/PHP render parity",
+      "description": "Portable Node/PHP render parity",
+      "defaultIncluded": false,
+      "handler": "ssr-pages-php",
+      "implementations": [
+        {
+          "path": "tests/ssr-pages/ssr_pages_suite.js",
+          "function": "runPhpPageParitySuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository"
+      ],
+      "timeoutMs": 300000
+    },
+    {
+      "id": "ssr-pages-browser",
+      "label": "Node page browser lifecycle",
+      "description": "Node page browser lifecycle",
+      "defaultIncluded": true,
+      "handler": "ssr-pages-browser",
+      "implementations": [
+        {
+          "path": "tests/ssr-pages/node_browser_suite.js",
+          "function": "runNodePageBrowserSuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository",
+        "browser"
+      ],
+      "timeoutMs": 300000
+    },
+    {
+      "id": "ssr-pages-laravel",
+      "label": "Isolated Laravel package integration",
+      "description": "Isolated Laravel package integration",
+      "defaultIncluded": false,
+      "handler": "ssr-pages-laravel",
+      "implementations": [
+        {
+          "path": "tests/ssr-pages/laravel_integration_suite.js",
+          "function": "runLaravelIntegrationSuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository",
+        "browser"
+      ],
+      "timeoutMs": 300000
+    },
+    {
+      "id": "ssr-pages-laravel-browser",
+      "label": "Laravel page browser lifecycle",
+      "description": "Laravel page browser lifecycle",
+      "defaultIncluded": false,
+      "handler": "ssr-pages-laravel-browser",
+      "implementations": [
+        {
+          "path": "tests/ssr-pages/laravel_browser_suite.js",
+          "function": "runLaravelPageBrowserSuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository",
+        "browser"
+      ],
+      "timeoutMs": 300000
     }
   ],
   "profiles": {
@@ -9167,7 +9270,9 @@
         "rmt-vnext-imports",
         "test-runner",
         "browser-hypervisor",
-        "project-index"
+        "project-index",
+        "ssr-pages",
+        "ssr-pages-browser"
       ],
       "reports": [
         ".xtend-test-results/xtend-pr-gate-report.json"
@@ -9334,7 +9439,9 @@
         "rmt-vnext-imports",
         "test-runner",
         "browser-hypervisor",
-        "project-index"
+        "project-index",
+        "ssr-pages",
+        "ssr-pages-browser"
       ],
       "reports": [
         ".xtend-test-results/xtend-release-gate-report.json"
@@ -9507,7 +9614,9 @@
         "rmt-language-server",
         "rmt-vnext-imports",
         "test-runner",
-        "browser-hypervisor"
+        "browser-hypervisor",
+        "ssr-pages",
+        "ssr-pages-browser"
       ],
       "reports": [
         ".xtend-test-results/xtend-release-report.json"
@@ -10098,6 +10207,62 @@
       "suites": [],
       "reports": [],
       "advisory": []
+    },
+    "ssr-pages": {
+      "suites": [
+        "ssr-pages"
+      ],
+      "reports": []
+    },
+    "ssr-pages-browser": {
+      "suites": [
+        "ssr-pages-browser"
+      ],
+      "reports": []
+    },
+    "ssr-pages-laravel": {
+      "suites": [
+        "ssr-pages-laravel"
+      ],
+      "reports": []
+    },
+    "ssr-pages-laravel-browser": {
+      "suites": [
+        "ssr-pages-laravel-browser"
+      ],
+      "reports": []
+    },
+    "ssr-pages:node": {
+      "suites": [
+        "ssr-pages",
+        "ssr-pages-browser"
+      ],
+      "reports": [],
+      "requireNoSkips": true
+    },
+    "ssr-pages:laravel": {
+      "suites": [
+        "ssr-pages-php",
+        "ssr-pages-laravel"
+      ],
+      "reports": [],
+      "requireNoSkips": true
+    },
+    "ssr-pages:laravel-browser": {
+      "includes": [
+        "ssr-pages:laravel"
+      ],
+      "suites": [
+        "ssr-pages-laravel-browser"
+      ],
+      "reports": [],
+      "requireNoSkips": true
+    },
+    "ssr-pages-php": {
+      "suites": [
+        "ssr-pages-php"
+      ],
+      "reports": []
     }
   },
   "scripts": {
@@ -12000,6 +12165,31 @@
     },
     "test:project-index": {
       "profile": "project-index",
+      "report": null,
+      "flags": []
+    },
+    "test:ssr-pages": {
+      "profile": "ssr-pages",
+      "report": null,
+      "flags": []
+    },
+    "test:ssr-pages-browser": {
+      "profile": "ssr-pages-browser",
+      "report": null,
+      "flags": []
+    },
+    "test:ssr-pages-laravel": {
+      "profile": "ssr-pages-laravel",
+      "report": null,
+      "flags": []
+    },
+    "test:ssr-pages-laravel-browser": {
+      "profile": "ssr-pages-laravel-browser",
+      "report": null,
+      "flags": []
+    },
+    "test:ssr-pages-php": {
+      "profile": "ssr-pages-php",
       "report": null,
       "flags": []
     }

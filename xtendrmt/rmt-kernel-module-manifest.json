@@ -7,7 +7,7 @@
   "sourceManifest": {
     "path": "xtendrmt/kernel/rmt-kernel-sources.json",
     "schema": "xtend.rmt.kernel-sources.v2",
-    "sha256": "9140664048f991a515cf5d366e98e7b1070f4f18aa397c4a472be7817693ff59"
+    "sha256": "360410935079ff5fb9909f89e834299cf43133c7aa57103fa7e19d38a404ff4a"
   },
   "architecture": {
     "pattern": "mvc",
@@ -19,9 +19,9 @@
     "compatibilityComposerCount": 0,
     "globalMirrorCompatibilityCount": 0
   },
-  "sourceModuleCount": 76,
+  "sourceModuleCount": 78,
   "bundledModuleCount": 40,
-  "standaloneModuleCount": 34,
+  "standaloneModuleCount": 36,
   "legacyBundleModuleCount": 0,
   "canonicalSources": [
     "xtendrmt/kernel/rmt-kernel-sources.json",
@@ -103,6 +103,8 @@
     "xtend-maraca/plan-runtime.mjs",
     "xtend-maraca/browser-host-adapter.mjs",
     "xtend-maraca/browser-composition-runtime.mjs",
+    "xtendrmt/rmt-ssr-stream-host.js",
+    "xtendrmt/rmt-portable-render.js",
     "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
     "xtendrmt/kernel/templates/rmt-esm-preamble.js",
     "xtendrmt/kernel/templates/rmt-esm-suffix.js",
@@ -4124,7 +4126,7 @@
       "id": "rmt-node-ssr-adapter-source",
       "sourcePath": "xtendrmt/rmt-node-ssr-adapter.js",
       "sourceMode": "canonical",
-      "sourceSha256": "e6f8a6fa72c9d4e37197c351f8bef9e4dc4b741bc77c6cc27319429b4d1f5a8e",
+      "sourceSha256": "cdde39e17cb4c7a29a77f3f38c0e4a011382fd1b9cab16b2ecfc43ea1644de49",
       "mvcRole": "adapter",
       "adapterDirection": "output",
       "provides": [
@@ -4132,20 +4134,24 @@
       ],
       "consumes": [
         "createRmtComponentCapabilityRegistry",
-        "createRmtDomDescriptorRenderer"
+        "createRmtDomDescriptorRenderer",
+        "createRmtSsrStreamHost"
       ],
       "dependsOn": [
         "rmt-component-capability-registry-source",
-        "rmt-dom-descriptor-renderer"
+        "rmt-dom-descriptor-renderer",
+        "rmt-ssr-stream-host"
       ],
       "observedDependencies": [
         "rmt-component-capability-registry-source",
-        "rmt-dom-descriptor-renderer"
+        "rmt-dom-descriptor-renderer",
+        "rmt-ssr-stream-host"
       ],
       "ports": [
         "RmtSsrPort",
         "RmtComponentCapabilityPort",
-        "RmtDomCommitPort"
+        "RmtDomCommitPort",
+        "RmtSsrStreamHostPort"
       ],
       "declaredCapabilities": [
         "dom.read",
@@ -6019,6 +6025,78 @@
       ],
       "targets": [
         "maraca"
+      ]
+    },
+    {
+      "id": "rmt-ssr-stream-host",
+      "sourcePath": "xtendrmt/rmt-ssr-stream-host.js",
+      "sourceMode": "canonical",
+      "sourceSha256": "d2fadb9ea55eaa0ed8b1a6c21732f431fbae440398e6994b41313cb794753f8f",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createRmtSsrStreamHost"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "observedDependencies": [],
+      "ports": [
+        "RmtSsrStreamHostPort"
+      ],
+      "declaredCapabilities": [
+        "host.abort",
+        "host.clock",
+        "host.scheduler"
+      ],
+      "observedCapabilities": [
+        "host.abort",
+        "host.clock",
+        "host.scheduler"
+      ],
+      "compatibility": null,
+      "ownershipDomains": [
+        "host.ssr-stream-lifecycle"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-portable-render",
+      "sourcePath": "xtendrmt/rmt-portable-render.js",
+      "sourceMode": "canonical",
+      "sourceSha256": "89a5ae7e5ad0fb497e357835fc2ee3e0b517b9fb01b214d1c2ac381876e09b66",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createPortableRenderArtifact",
+        "projectPortableRender",
+        "validatePortableDescriptor"
+      ],
+      "consumes": [
+        "createRmtStateSelectorRuntime",
+        "createRmtDomDescriptorRenderer"
+      ],
+      "dependsOn": [
+        "rmt-state-selector-runtime-source",
+        "rmt-dom-descriptor-renderer"
+      ],
+      "observedDependencies": [
+        "rmt-dom-descriptor-renderer",
+        "rmt-state-selector-runtime-source"
+      ],
+      "ports": [
+        "RmtStateProjectionPort",
+        "RmtDomCommitPort"
+      ],
+      "declaredCapabilities": [],
+      "observedCapabilities": [],
+      "compatibility": null,
+      "ownershipDomains": [
+        "output.portable-render"
+      ],
+      "targets": [
+        "standalone"
       ]
     }
   ],

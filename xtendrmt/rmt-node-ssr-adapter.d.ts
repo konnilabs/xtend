@@ -280,7 +280,12 @@ export interface RmtNodeSsrOptions {
   cspDirectives?: Record<string, string | string[]>;
   headers?: Record<string, string>;
   status?: number;
+  nativeForms?: boolean;
   signal?: AbortSignal;
+  streamTimeoutMs?: number;
+  cleanupTimeoutMs?: number;
+  onError?(error: unknown): void;
+  onCleanupError?(error: unknown): void;
   xscalerPreflight?: Record<string, unknown>;
   xscalerPreflights?: Array<Record<string, unknown>>;
   publishDiagnostic?: (diagnostic: RmtNodeSsrDiagnostic) => void;

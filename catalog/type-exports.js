@@ -29,8 +29,8 @@ const TYPE_EXPORTS_RELEASE_STATUS = 'accepted-productive-type-exports-release-ga
 const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready';
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
-const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 184;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = '6f4c0cc63efd09295618c7b04b35605688849e906dad3b188a16a615cf7776ac';
+const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 192;
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = '156e1207482024cb78ee9a76ae20293f2e19ae52aba42e33e3689498c8940501';
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',
@@ -150,6 +150,20 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     workpackage: TYPE_EXPORTS_WORKPACKAGE,
     exports: ASSET_EXPORTS.slice(),
     strategy: 'types-not-required-for-non-js-assets'
+  },
+  {
+    id: 'ssr-pages',
+    priority: 'P1',
+    workpackage: 'WP-SSR-Node-Laravel',
+    exports: ['./rmt/portable-render', './rmt/page-contract', './rmt/node-page-host', './rmt/page-client', './rmt/page-form'],
+    strategy: 'shared-page-contract-and-independent-host-declarations'
+  },
+  {
+    id: 'project-index',
+    priority: 'P1',
+    workpackage: 'WP-Project-Index',
+    exports: ['./project-index', './project-index/cli'],
+    strategy: 'project-index-public-api-and-cli-declarations'
   },
   {
     id: 'rmt-runtime',

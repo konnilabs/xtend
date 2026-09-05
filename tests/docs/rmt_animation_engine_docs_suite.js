@@ -1,4 +1,5 @@
 'use strict';
+const { EXPECTED_CANONICAL_SLUG_COUNT } = require('../../scripts/verify_docs_public_quality');
 
 const fs = require('fs');
 const path = require('path');
@@ -78,7 +79,7 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
   const implementationPlan = readText('development/XTend-Docs-Quality-Implementierungsplan.md', rootDir);
   const menuEntry = menu.find((entry) => entry.slug === ARTICLE_SLUG);
 
-  context.assert(menu.length === 173, 'Docs menu exposes exactly 173 canonical slugs');
+  context.assert(menu.length === EXPECTED_CANONICAL_SLUG_COUNT, 'Docs menu exposes the canonical slug count');
   context.assert(Boolean(menuEntry), 'Docs menu exposes the RMT AnimationEngine article');
   context.assert(menuEntry && menuEntry.id === 'docs.rmt.animation.engine', 'AnimationEngine menu id is stable');
   context.assert(menuEntry && menuEntry.group === 'rmt' && menuEntry.parent === 'rmt-vnext-authoring', 'AnimationEngine is nested below RMT Authoring');
@@ -87,7 +88,7 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
 
   for (const locale of ['de', 'en']) {
     const localeFiles = walkMarkdown(path.join(rootDir, 'docs', locale));
-    context.assert(localeFiles.length === 173, `${locale} contains exactly 173 public Markdown articles`);
+    context.assert(localeFiles.length === EXPECTED_CANONICAL_SLUG_COUNT, `${locale} contains the canonical public Markdown article count`);
   }
 
   const articleBlocks = [];

@@ -901,6 +901,11 @@ class XRouter extends HTMLElement {
   }
 
   _navigateTo(path, state = undefined) {
+    if (this.pageClient) {
+      if (!this._emitBeforeNavigate(path, state)) return;
+      this.pageClient.visit(path).catch(error => this.dispatchEvent(new CustomEvent('navigation-error', { detail: { error } })));
+      return;
+    }
     const normalizedPath = path.startsWith('/') ? path : '/' + path;
     const currentPath = this._getCurrentPath();
 
@@ -943,6 +948,7 @@ class XRouter extends HTMLElement {
   }
 
   _handleLinkClick(e) {
+    if (this.pageClient) return; // The page client owns link and history handling.
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
       return;
     }
@@ -2110,6 +2116,7 @@ class XRouter extends HTMLElement {
   }
 
   async _handleNavigation(options = {}) {
+    if (this.pageClient) return; // Preserve SSR content on initial load and popstate.
     const navigationGeneration = ++this._navigationGeneration;
     const raw = this._getCurrentPath();
     const { path, query, queryObj } = this._parsePathAndQuery(raw);

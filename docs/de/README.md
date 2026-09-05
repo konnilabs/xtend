@@ -17,6 +17,7 @@ Willkommen im XTend Developer Center. Diese Dokumentation erklärt XTend für En
 | Verwaltete Workspaces bauen | [SurfaceManager Authoring Guide](./surface-manager-authoring-guide.md), [SurfaceManager Controller](./surface-manager-controller.md), [SurfaceManager Runtime](./surface-manager-runtime.md), [SurfaceManager Migration Guide](./surface-manager-migration-guide.md) |
 | Design Tokens prüfen | [Design Tokens](./design-tokens.md) |
 | SSR anbinden | [RMT Node SSR Adapter](./rmt-node-ssr-adapter.md), [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md) |
+| Seiten, Formulare und Navigation mit SSR | [Gemeinsame Seitenlaufzeit für Node und Laravel](./ssr-pages.md) |
 | Editor, Linting und VS Code | [RMT Linter](./rmt-linter.md), [RMT Language Server](./rmt-language-server.md), [RMT App Platform Tooling](./rmt-app-platform-tooling.md), [RMT Tooling Release Gates](./rmt-tooling-release-gates.md) |
 | XTend-Apps instrumentieren und im Browser untersuchen | [XTend DEV API](./xtend-dev-api.md), [XTend Dev Surface](./xtend-dev-surface.md) |
 | Release Surface prüfen | [Package Export Lock](./package-export-lock.md), [Type Exports](./type-exports.md), [XTend Loader Types](./xtend-loader-types.md), [XTend API Types](./xtend-api-types.md), [XTend Policy Types](./xtend-policy-types.md), [XTend Builder Types](./xtend-builder-types.md), [XTend Catalog Types](./xtend-catalog-types.md), [XTend Vendor Types](./xtend-vendor-types.md) |

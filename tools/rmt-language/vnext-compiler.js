@@ -2105,7 +2105,7 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
   const attributes = {
     'data-maraca-surface': literal(surface.id),
     'data-rmt-surface': literal(surface.id),
-    'data-rmt-primitive-id': surface.id,
+    'data-rmt-primitive-id': literal(surface.id),
     'data-rmt-component': literal(component),
     'data-maraca-kind': literal(surface.kind || 'surface'),
     id: surface.source ? `$model.${surface.source}.id` : undefined,

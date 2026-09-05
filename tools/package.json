@@ -95,6 +95,10 @@
     "./project-index/cli": {
       "types": "./project-index/cli.d.ts",
       "default": "./project-index/cli.js"
+    },
+    "./rmt-language/page-build": {
+      "types": "./rmt-language/page-build.d.ts",
+      "default": "./rmt-language/page-build.js"
     }
   },
   "publishConfig": {

@@ -107,6 +107,7 @@ Attributes:
 
 Events:
 - `xrouter-before-navigate`
+- `navigation-error`: Failure from an attached page client, with `detail.error`.
 - `route-changed`
 - `routechange`
 - `xrouter-after-navigate`

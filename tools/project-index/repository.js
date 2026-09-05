@@ -138,6 +138,30 @@ function linkRepository(index, analyses, edge, fileId) {
       }
       if (manifest.sourceManifest?.path) edge(file.id, fileId(path.join(rootDir, manifest.sourceManifest.path)), 'generated-from', provenance('artifact-manifest', file.path));
     }
+    for (const file of files.filter(file => /\.json$/.test(file.path))) {
+      let configuration; try { configuration = JSON.parse(file.text); } catch { continue; }
+      if (!/(?:^|\/)xtend\.pages\.json$/.test(file.path) && configuration.schema !== 'xtend.page-build.v1') continue;
+      const project = packages.find(pkg => file.projectId === `project:${pathToFileURL(pkg.directory).href}`)?.directory || rootDir;
+      const target = configuration.target || 'both';
+      const output = path.resolve(project, configuration.output || (configuration.host === 'laravel' ? 'bootstrap/xtend/pages.json' : '.xtend-build/pages.json'));
+      for (const [name, page] of [...Object.entries(configuration.pages || {}), ...Object.entries(configuration.layouts || {}).map(([name, layout]) => [`layout:${name}`, layout])]) {
+        if (typeof page.source !== 'string') { index.coverage.push({path:file.path,provider:'page-manifest',code:'invalid-page-source',detail:name}); continue; }
+        const source = path.resolve(project, page.source);
+        if (!inside(project, source) || !inside(project, output)) { index.coverage.push({path:file.path,provider:'page-manifest',code:'page-boundary-violation',detail:name}); continue; }
+        const fields = {specifier:name,mode:target,role:configuration.host || 'host-independent'};
+        edge(file.id, fileId(source), 'file-input', provenance('page-manifest', file.path), fields);
+        edge(fileId(output), fileId(source), 'generated-from', provenance('page-manifest', file.path), fields);
+        edge(fileId(output), file.id, 'generated-from', provenance('page-manifest', file.path), fields);
+        if (!fileAt(source)) index.coverage.push({path:file.path,provider:'page-manifest',code:'page-source-unavailable',detail:page.source});
+      }
+      if (configuration.vite) {
+        const vite = path.resolve(project, configuration.vite.manifest || 'public/build/manifest.json');
+        if (inside(project, vite)) {
+          edge(file.id, fileId(vite), 'file-input', provenance('page-manifest', file.path), {role:'vite-assets'});
+          edge(fileId(output), fileId(vite), 'generated-from', provenance('page-manifest', file.path), {role:'vite-assets'});
+        }
+      }
+    }
     index.coverage.push({ path: '.', provider: 'repository', code: 'static-analysis-boundary', detail: 'Computed runtime access, unrecognized generators and JS/TS symbol references are not fully captured. This report never selects or skips gates.' });
   }
 }

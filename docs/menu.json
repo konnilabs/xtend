@@ -2089,6 +2089,42 @@
     }
   },
   {
+    "slug": "ssr-pages",
+    "id": "docs.ssr.pages",
+    "label": "Node and Laravel Pages",
+    "group": "rmt",
+    "parent": "xtendrmt-runtime-bridge",
+    "tier": "basic",
+    "rank": 87,
+    "labels": {
+      "de": "Seitenlaufzeit für Node und Laravel",
+      "en": "Page runtime for Node and Laravel"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "Seitenlaufzeit für Node und Laravel",
+        "ssr",
+        "pages",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ],
+      "en": [
+        "Page runtime for Node and Laravel",
+        "ssr",
+        "pages",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ]
+    }
+  },
+  {
     "slug": "xscaler-protocol",
     "id": "docs.xscaler.protocol",
     "label": "XScaler Protocol",

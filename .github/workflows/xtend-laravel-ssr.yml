@@ -1,0 +1,81 @@
+name: XTend Laravel SSR
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '35 3 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: xtend-laravel-ssr-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  laravel:
+    name: Laravel ${{ matrix.laravel }} / PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {laravel: '12', php: '8.2', profile: 'ssr-pages:laravel'}
+          - {laravel: '12', php: '8.3', profile: 'ssr-pages:laravel-browser', fpm: true}
+          - {laravel: '12', php: '8.4', profile: 'ssr-pages:laravel'}
+          - {laravel: '12', php: '8.5', profile: 'ssr-pages:laravel'}
+          - {laravel: '13', php: '8.3', profile: 'ssr-pages:laravel-browser'}
+          - {laravel: '13', php: '8.4', profile: 'ssr-pages:laravel'}
+          - {laravel: '13', php: '8.5', profile: 'ssr-pages:laravel'}
+    env:
+      XTEND_LARAVEL_FIXTURE: ${{ runner.temp }}/xtend-laravel-fixture
+      COMPOSER_CACHE_DIR: ${{ runner.temp }}/xtend-composer-cache
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite
+          coverage: none
+          tools: composer:2.10.3
+      - name: Restore Composer downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.COMPOSER_CACHE_DIR }}
+          key: xtend-composer-${{ runner.os }}-${{ runner.arch }}-${{ matrix.php }}-${{ hashFiles('tests/fixtures/ssr-pages/**/composer.lock') }}
+      - name: Provide PHP-FPM for the proxy acceptance
+        if: matrix.fpm
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y php8.3-fpm
+      - name: Pack and isolate the PHP runtime
+        run: node tests/ssr-pages/prepare_laravel_fixture.js "$XTEND_LARAVEL_FIXTURE" "${{ matrix.laravel }}"
+      - name: Install locked Laravel dependencies
+        working-directory: ${{ env.XTEND_LARAVEL_FIXTURE }}
+        run: composer install --no-interaction --no-progress --prefer-dist --no-scripts
+      - name: Verify actual PHP platform requirements
+        working-directory: ${{ env.XTEND_LARAVEL_FIXTURE }}
+        run: composer check-platform-reqs
+      - name: Run the canonical Laravel profile
+        env:
+          XTEND_PHP_FPM_BINARY: ${{ matrix.fpm && '/usr/sbin/php-fpm8.3' || '' }}
+        run: node scripts/run_xtend_tests.js --profile "${{ matrix.profile }}" --report .xtend-test-results/laravel-ssr.json
+      - name: Upload results and diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: xtend-laravel-${{ matrix.laravel }}-php-${{ matrix.php }}
+          path: |
+            .xtend-test-results/laravel-ssr.json
+            .xtend-test-results/xtend-test-execution.json
+            .xtend-test-results/test-runner/
+            ${{ env.XTEND_LARAVEL_FIXTURE }}/storage/logs/
+          if-no-files-found: warn

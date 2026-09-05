@@ -15,12 +15,27 @@ function provenance() {
   const commit = git(['rev-parse', 'HEAD']).toString().trim();
   const untracked = git(['ls-files', '--others', '--exclude-standard', '-z']).toString().split('\0').filter(Boolean).sort();
   const sourceFingerprint = hash(Buffer.concat([git(['diff', 'HEAD', '--binary']), Buffer.from(untracked.map(file => `${file}\0${hash(fs.readFileSync(path.join(rootDir, file)))}`).join('\n'))]));
+  let laravel;
+  if (process.env.XTEND_LARAVEL_FIXTURE) {
+    const fixture = path.resolve(process.env.XTEND_LARAVEL_FIXTURE);
+    const installed = JSON.parse(fs.readFileSync(path.join(fixture, 'vendor/composer/installed.json')));
+    const runtime = path.join(fixture, 'vendor/ccslabs/xtend-laravel/runtime');
+    const manifest = JSON.parse(fs.readFileSync(path.join(runtime, 'sources.json')));
+    laravel = {
+      php: execFileSync(process.env.XTEND_PHP_BINARY || 'php', ['-r', 'echo PHP_VERSION . "|" . PHP_OS_FAMILY . "|" . PHP_INT_SIZE;'], {encoding:'utf8',timeout:10000}),
+      fpm: process.env.XTEND_PHP_FPM_BINARY ? execFileSync(process.env.XTEND_PHP_FPM_BINARY, ['-v'], {encoding:'utf8',timeout:10000}).trim() : null,
+      framework: installed.packages.find(record => record.name === 'laravel/framework')?.version,
+      lockFingerprint: hash(fs.readFileSync(path.join(fixture, 'composer.lock'))),
+      packageFingerprint: hash(JSON.stringify(Object.keys(manifest.files).sort().map(file => [file,hash(fs.readFileSync(path.join(runtime,file)))])))
+    };
+  }
   return {
     commit, sourceFingerprint, catalogFingerprint: fingerprint(),
     run: process.env.GITHUB_RUN_ID ? `${process.env.GITHUB_RUN_ID}:${process.env.GITHUB_RUN_ATTEMPT || '1'}` : process.env.XTEND_TEST_RUN_ID || `local:${randomUUID()}`,
     runtime: {
       node: process.version, platform: process.platform, arch: process.arch, nodeOptions: process.env.NODE_OPTIONS || '',
       runnerImage: `${process.env.ImageOS || ''}:${process.env.ImageVersion || ''}`,
+      ...(laravel ? {laravel} : {}),
       environmentFingerprint: hash(JSON.stringify(Object.keys(process.env).filter(key=>key.startsWith('XTEND_') && key !== 'XTEND_TEST_RUN_ID').sort().map(key=>[key,process.env[key]])))
     }
   };

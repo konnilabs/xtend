@@ -8,7 +8,7 @@ const posix = value => String(value).replace(/\\/g, '/');
 const compare = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 const fingerprint = value => createHash('sha256').update(value).digest('hex');
 const inside = (root, file) => { const p = path.relative(root, file); return !p || (!p.startsWith('../') && p !== '..' && !path.isAbsolute(p)); };
-const EXCLUDED = new Set(['.git', 'node_modules', 'dist', 'build', 'generated', '.xtend-build', '.xtend-test-results', '.project-index-cache', 'coverage', '.next']);
+const EXCLUDED = new Set(['.git', 'node_modules', 'vendor', 'dist', 'build', 'generated', '.xtend-build', '.xtend-test-results', '.project-index-cache', 'coverage', '.next']);
 function excluded(file) {
   return posix(file).split('/').some(part => EXCLUDED.has(part))
     || /(?:^|\/)knowledge\//.test(file) || /(?:-build|\.min)\.(?:js|mjs|json|d\.ts)$/.test(file);
@@ -32,7 +32,7 @@ function discoverFiles(rootDir, options = {}) {
       for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
         const absolute = path.join(directory, entry.name);
         const relative = posix(path.relative(root, absolute));
-        if (entry.name === '.git' || entry.name === 'node_modules') continue;
+        if (entry.name === '.git' || entry.name === 'node_modules' || entry.name === 'vendor') continue;
         if (options.inventory !== true && excluded(relative)) continue;
         if (entry.isDirectory()) visit(absolute);
         else if (entry.isFile()) files.push(relative);
@@ -46,6 +46,7 @@ function discoverFiles(rootDir, options = {}) {
     visit(root);
   }
   return [...new Set(files.map(posix))].filter(file => {
+    if (posix(file).split('/').includes('vendor')) return false;
     if (options.inventory !== true && excluded(file)) return false;
     try { return inside(fs.realpathSync(root), fs.realpathSync(path.join(root, file))); } catch { return options.inventory === true; }
   }).sort(compare);

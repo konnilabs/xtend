@@ -141,6 +141,7 @@ function buildHelpText() {
     'Usage:',
     '  xt --help',
     '  xt index build|symbols|references|impact --root <project> --json',
+    '  xt pages build --root <project> --target node|php|both --json',
     '  xt create app --runtime maraca --design-kit none --out rmt-app --write --json',
     '  xt create app --runtime maraca --design-kit material --out material-app --write --json',
     '  xt serve --root dist --port 4173',
@@ -927,6 +928,11 @@ async function runCliAsync(args = process.argv.slice(2), io = {}) {
   const stderr = io.stderr || process.stderr;
   const options = parseArgs(args);
   const command = normalizeCommand(options.command || (options.help ? 'help' : 'help'));
+
+  if (command === 'pages') {
+    const { runPageBuildCli } = requireLocalOrScoped(__filename, '../../tools/rmt-language/page-build', '@ccslabs/xtend-compiler/rmt-language/page-build');
+    return runPageBuildCli([...options.rest, ...(options.help ? ['--help'] : []), ...(options.json ? ['--json'] : [])], { stdout, stderr });
+  }
 
   if (command === 'serve') {
     if (options.help) {
