@@ -66,7 +66,7 @@ node scripts/run_xtend_tests.js observatory-adoption-labs --json
 node scripts/run_xtend_tests.js aria-in-html-conformance --json
 ```
 
-`browser-hypervisor` prueft Adapter, lokale und entfernte Endpunkte, Capabilities, Actions, Screenshots, Timeouts, Cleanup und Evidence-Merge. `browser-primitive-radar` prueft vier Intakes, SHA, Review-Vollstaendigkeit, 24 stabile Parent-IDs und genau eine September-ADR pro Parent. `primitive-adoption-gate` prueft alle Members, Fallbacks, negative Produktnutzung, Security, RMT-Neutralitaet und fehlende Runtime-Abhaengigkeiten.
+`browser-hypervisor` prueft Adapter, lokale und entfernte Endpunkte, Capabilities, Actions, Screenshots, Timeouts, Cleanup und Evidence-Merge. `browser-primitive-radar` prueft fuenf Intakes, SHA, Review-Vollstaendigkeit, 24 stabile Parent-IDs und genau eine September-ADR pro Parent. `primitive-adoption-gate` prueft alle Members, Fallbacks, negative Produktnutzung, Security, RMT-Neutralitaet und fehlende Runtime-Abhaengigkeiten.
 
 ## Produktisierungsgrenze
 

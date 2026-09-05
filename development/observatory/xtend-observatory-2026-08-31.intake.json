@@ -1,0 +1,45 @@
+{
+  "schema": "xtend.native-first.observatory-intake.v1",
+  "intakeId": "NFM-OBS-2026-08-31",
+  "trust": "untrusted-ai-generated",
+  "rawArtifact": {
+    "path": "development/observatory/raw/xtend-observatory-2026-08-31.json",
+    "sha256": "f1e32e9b6802d362db4a63cf475263a9905a7036b43e2f9c88746949dc346f80",
+    "repositoryCopySha256": "f1e32e9b6802d362db4a63cf475263a9905a7036b43e2f9c88746949dc346f80",
+    "storageNormalization": "none",
+    "immutable": true
+  },
+  "provenance": {
+    "agent": "unknown-unreported",
+    "model": "unknown-unreported",
+    "reportDate": "2026-08-31",
+    "reportDateBasis": "filename",
+    "accessedAt": "2026-09-01",
+    "repositoryCommit": "8261b14743c42c9642ec01e70acb46335c23e1d1"
+  },
+  "findingIds": [
+    "fetch-request-streaming-webkit-tp250",
+    "navigation-api-precommit",
+    "cross-root-aria-reference-target",
+    "connection-allowlists",
+    "js-self-profiling-markers-chrome-153",
+    "explicit-resource-management-webkit-tp250",
+    "aria-in-html-recommendation-2026",
+    "scoped-custom-element-registries",
+    "scheduler-yield",
+    "navigation-api",
+    "dialogs-popovers",
+    "a11y-testing-interop",
+    "jspi-wasm",
+    "declarative-shadow-slot-assignment",
+    "cross-document-view-transitions",
+    "css-anchor-positioning"
+  ],
+  "automationPolicy": {
+    "mayMutateRadar": false,
+    "mayMutateRuntime": false,
+    "mayCreateShippingClaim": false,
+    "rawVerdictsAreSuggestionsOnly": true,
+    "requiredReviewSchema": "xtend.native-first.observatory-review.v1"
+  }
+}

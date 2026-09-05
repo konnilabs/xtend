@@ -280,6 +280,7 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
   const runner = readText('scripts/run_xtend_tests.js', rootDir);
   const current = runs.find((run) => run.intake.intakeId === runIndex.currentRun);
   const august24 = runs.find((run) => run.intake.intakeId === 'NFM-OBS-2026-08-24');
+  const august31 = runs.find((run) => run.intake.intakeId === 'NFM-OBS-2026-08-31');
   const base = { rootDir, runIndex, runs, radar, packageManifest };
   const errors = validateRunIndexDocuments(base);
   errors.forEach((error) => context.fail(error));
@@ -287,12 +288,21 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
 
   const expectedRadarIds = Array.from({ length: 24 }, (_, index) => `NFM-BPR-${String(index + 1).padStart(3, '0')}`);
   const terminalOutcomes = new Set(['adopt-native', 'wrap-as-xtend-primitive', 'reject-for-now']);
-  context.assert(runIndex.runs.length === 4 && runs.reduce((sum, run) => sum + run.raw.findings.length, 0) === 58, 'Run index preserves four immutable runs and all 58 finding occurrences');
+  context.assert(runIndex.runs.length === 5 && runs.reduce((sum, run) => sum + run.raw.findings.length, 0) === 74, 'Run index preserves five immutable runs and all 74 finding occurrences');
   context.assert(august24 && august24.raw.findings.length === 13 && august24.review.records.length === 13, 'August 24 backfill has one complete review record per finding');
   context.assert(august24 && august24.intake.rawArtifact.sha256 === '32d7987304fc6d624f209903b93808d048e279a28faf5f947a4f1bb6d3020847' && august24.intake.rawArtifact.repositoryCopySha256 === '90fd74f01cf5099b68ec33e32decf048de0c6399170db67e16142150c5b68962', 'August 24 intake preserves source and repository-copy hashes');
   const selfProfilingReview = august24 && august24.review.records.find((record) => record.findingId === 'js-self-profiling-markers-chrome-153');
   context.assert(selfProfilingReview && selfProfilingReview.outcome === 'investigation-only' && selfProfilingReview.radarRefs.length === 0 && selfProfilingReview.browserEvidence.some((evidence) => evidence.engine === 'Chromium' && evidence.status === 'origin-trial'), 'Self-Profiling Markers remain an origin-trial investigation without a Radar mutation');
   context.assert(august24 && august24.review.records.slice(1).every((record) => record.previousReviewRef === 'NFM-OBS-REVIEW-2026-08-17-R2' && record.rawDelta.previousIntakeRef === 'NFM-OBS-2026-08-17' && record.rawDelta.changedFields.length === 0), 'August 24 carry-overs bind the previous review and declare empty deltas');
+  context.assert(august31 && august31.raw.findings.length === 16 && august31.review.records.length === 16, 'August 31 intake has one complete review record per finding');
+  context.assert(august31 && august31.intake.rawArtifact.sha256 === 'f1e32e9b6802d362db4a63cf475263a9905a7036b43e2f9c88746949dc346f80' && august31.intake.rawArtifact.repositoryCopySha256 === 'f1e32e9b6802d362db4a63cf475263a9905a7036b43e2f9c88746949dc346f80', 'August 31 intake preserves the exact source bytes');
+  const august31NewFindings = new Set(['navigation-api-precommit', 'cross-root-aria-reference-target', 'connection-allowlists']);
+  context.assert(august31 && august31.review.records.filter((record) => august31NewFindings.has(record.findingId)).length === 3, 'August 31 review classifies all three new finding IDs');
+  const august31FetchReview = august31 && august31.review.records.find((record) => record.findingId === 'fetch-request-streaming-webkit-tp250');
+  context.assert(august31FetchReview && august31FetchReview.browserEvidence.some((evidence) => evidence.engine === 'WebKit' && evidence.status === 'technology-preview') && august31FetchReview.rawDelta.changedFields.includes('browserSupport') && august31FetchReview.rawDelta.classificationOnly !== true, 'Fetch upload backpressure remains preview evidence with a substantive declared delta');
+  const august31NavigationReview = august31 && august31.review.records.find((record) => record.findingId === 'navigation-api-precommit');
+  context.assert(august31NavigationReview && august31NavigationReview.outcome === 'corrected-candidate' && august31NavigationReview.radarRefs.includes('NFM-BPR-015') && august31NavigationReview.browserEvidence.some((evidence) => evidence.engine === 'WebKit' && evidence.status === 'technology-preview'), 'Navigation precommit evidence stays mapped to the rejected Navigation API member without an adoption mutation');
+  context.assert(august31 && august31.review.records.filter((record) => ['cross-root-aria-reference-target', 'connection-allowlists'].includes(record.findingId)).every((record) => record.outcome === 'investigation-only' && record.radarRefs.length === 0), 'Single-engine August 31 findings remain investigations without Radar mutation');
   context.assert(current && current.intake.intakeId === 'NFM-OBS-2026-09-03' && current.raw.findings.length === 24 && current.review.records.length === 24, 'September run has one complete review record per Radar parent');
   context.assert(current && current.review.records.every((record) => record.terminalOutcome), 'Every September finding has a terminal outcome');
   context.assert(radarMatrix.schema === 'xtend.native-first.browser-primitive-radar.v2' && radarMatrix.entries.length === 24, 'Radar v2 declares exactly 24 parent entries');

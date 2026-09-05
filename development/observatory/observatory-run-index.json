@@ -30,6 +30,15 @@
       "status": "historical-reviewed"
     },
     {
+      "intakeId": "NFM-OBS-2026-08-31",
+      "reportDate": "2026-08-31",
+      "raw": "development/observatory/raw/xtend-observatory-2026-08-31.json",
+      "intake": "development/observatory/xtend-observatory-2026-08-31.intake.json",
+      "review": "development/observatory/xtend-observatory-2026-08-31.review.json",
+      "reviewId": "NFM-OBS-REVIEW-2026-09-01",
+      "status": "historical-reviewed"
+    },
+    {
       "intakeId": "NFM-OBS-2026-09-03",
       "reportDate": "2026-09-03",
       "raw": "development/observatory/raw/xtend-observatory-2026-09-03.json",
