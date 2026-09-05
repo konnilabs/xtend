@@ -79,8 +79,8 @@ Laufzeiten 2/1/1 für Erstaufruf/Partial/Deferred. Diese Werte beschreiben die l
 
 Der Implementierungsstand liegt in [PR #67](https://github.com/konnilabs/xtend/pull/67).
 Die [Laravel-Matrix](https://github.com/konnilabs/xtend/actions/runs/33999475224)
-ist auf Commit `fde5b05` vollständig erfolgreich: Laravel 12/PHP 8.2. 8.3. 8.4. 8.5
-und Laravel 13/PHP 8.3. 8.4. 8.5. Browserabnahmen laufen für beide Hauptversionen;
+ist auf Commit `fde5b05` vollständig erfolgreich: Laravel 12/PHP 8.2, 8.3, 8.4, 8.5
+und Laravel 13/PHP 8.3, 8.4, 8.5. Browserabnahmen laufen für beide Hauptversionen;
 Laravel 12/PHP 8.3 verwendet dabei einen eigenen FPM-Pool hinter FastCGI.
 
 Die vorhandene Node-/OS-Matrix und ihre vom Hauptlauf projizierten RMT-Checks
