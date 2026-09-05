@@ -59,7 +59,9 @@ function runXtendLlmAppServicesCatfoodSuite(options = {}) {
   context.assert(defaultWorkflow.includes(REPORT_PATH) && nightlyWorkflow.includes(REPORT_PATH), 'default and nightly workflows retain the product-owned CI catfood artifact');
   context.assert(
     defaultWorkflow.includes('npm ci --prefix products/xtend-llm --ignore-scripts')
-      && nightlyWorkflow.includes('npm ci --prefix products/xtend-llm --ignore-scripts'),
+      && nightlyWorkflow.includes('nightly.js phase install_2')
+      && require('../../scripts/test-runner/catalog').catalog.ci['ci-nightly'].phases.install_2.commands.some(command =>
+        command.command === 'npm' && command.args.join(' ').startsWith('ci --prefix products/xtend-llm --ignore-scripts')),
     'default and nightly workflows install product dependencies without embedded-runtime install scripts'
   );
   context.assert(!/electron/iu.test(defaultWorkflow) && !/electron/iu.test(nightlyWorkflow), 'blocking GitHub workflows contain no Electron execution or evidence dependency');

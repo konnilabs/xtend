@@ -109,7 +109,8 @@ function validateNightly(options = {}) {
     return record;
   });
   return { schema: 'xtend.ci.nightly-acceptance.v1', generatedAt: new Date().toISOString(),
-    ok: errors.length === 0, complete: Boolean(session) && artifacts.every(a=>a.exists),
+    ok: errors.length === 0, complete: Boolean(session) && executionReport?.complete === true
+      && Object.keys(definition.phases).every(id => Boolean(session.phases?.[id]?.completedAt)) && artifacts.every(a=>a.exists),
     identity: identity || null, executionId: executionReport?.executionId || null, errors, artifacts, outputs };
 }
 

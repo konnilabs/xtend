@@ -43,7 +43,7 @@ function runAriaInHtmlConformanceSuite(options = {}) {
   const hydrationSuite = readText('tests/components/accessibility_hydration_suite.js', rootDir);
   const defaultWorkflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
   const nightlyWorkflow = readText('.github/workflows/xtend-nightly-build.yml', rootDir);
-  const nightlyManifestScript = readText('scripts/create_xtend_nightly_manifest.js', rootDir);
+  const nightlyManifest = require('../../scripts/create_xtend_nightly_manifest');
   const observatoryReview = readJson('development/observatory/xtend-observatory-2026-08-17.review.json', rootDir);
   const validation = validateConformanceMatrix(matrix);
 
@@ -103,7 +103,7 @@ function runAriaInHtmlConformanceSuite(options = {}) {
   context.assert(require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:feature-adoption-observatory"), 'Default CI executes the Observatory aggregate containing ARIA in HTML');
   context.assertIncludes(nightlyWorkflow, 'id: feature_adoption_observatory', 'Nightly CI executes the Observatory aggregate as a named required gate');
   context.assertIncludes(nightlyWorkflow, 'steps.feature_adoption_observatory.outcome', 'Nightly CI fails closed when the Observatory aggregate fails');
-  context.assertIncludes(nightlyManifestScript, "'npm run test:feature-adoption-observatory'", 'Nightly manifest records the Observatory aggregate in its command provenance');
+  context.assert(nightlyManifest.COMMANDS.includes('npm run test:feature-adoption-observatory'), 'Nightly manifest records the Observatory aggregate in its command provenance');
   context.assert(runner.hasSuite("aria-in-html-conformance"), 'Runner registers the ARIA in HTML suite');
   context.assert(!Object.keys(packageManifest.exports || {}).some((key) => key.includes('aria-in-html-conformance')), 'ARIA in HTML test implementation is not a public package export');
 

@@ -39,7 +39,7 @@ async function runNightlyRunnerChecks({ check, temp, identity, rootDir }) {
     const contract={artifacts:[artifact],phases:{
       first:{commands:[command(['-e','console.error("controlled failure");process.exit(4)'])],timeoutMs:10000},
       blocked:{commands:[command(['-e','throw Error("must not execute")'])],dependsOn:['first'],timeoutMs:10000},
-      timeout:{commands:[command(['-e','setInterval(()=>{},1000)'])],timeoutMs:150},
+      timeout:{commands:[command(['-e',`const fs=require('fs'); const child=require('child_process').spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});fs.writeFileSync('owned-child.pid',String(child.pid));process.on('SIGTERM',()=>{});setInterval(()=>{},1000);`])],timeoutMs:500},
       last:{commands:[{...command(['-e','console.log(JSON.stringify({schema:"fixture",ok:true}))']),output:artifact.path}],timeoutMs:10000}
     }};
     const previousRun = process.env.XTEND_TEST_RUN_ID;
@@ -49,6 +49,11 @@ async function runNightlyRunnerChecks({ check, temp, identity, rootDir }) {
     assert.equal((await run('first')).status,'failed');
     const blocked=await run('blocked');assert.equal(blocked.commands.length,0);assert.match(blocked.errors[0],/prerequisite/);
     const timed=await run('timeout');assert.equal(timed.commands[0].abortCause,'timeout');assert(timed.durationMs<5000);
+    const ownedPid=Number(fs.readFileSync(path.join(fixture,'owned-child.pid'),'utf8'));
+    await new Promise(resolve=>setTimeout(resolve,100));
+    let alive=false;
+    try { process.kill(ownedPid,0);alive=process.platform!=='linux'||!/\) Z /.test(fs.readFileSync(`/proc/${ownedPid}/stat`,'utf8')); } catch(error) {if(!['ESRCH','ENOENT'].includes(error.code))throw error;}
+    assert(!alive,'owned descendants must terminate when the parent ignores SIGTERM');
     const last=await run('last');assert.equal(last.status,'passed');assert(last.artifacts[0].valid);
     await assert.rejects(run('last'),/already attempted/);
     await assert.rejects(runPhase('first',{rootDir:fixture,contract,provenance:{...identity,commit:'foreign'}}),/changed/);

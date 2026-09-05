@@ -5,7 +5,7 @@ const os = require('node:os');
 const path = require('node:path');
 const http = require('node:http');
 const { spawnSync } = require('node:child_process');
-const { detectAvailableEngine, runFixture } = require('../../tools/browser-hypervisor');
+const { detectAvailableEngine, runFixture, findExecutable, providerOptions } = require('../../tools/browser-hypervisor');
 
 function commandProbe(command, args) {
   const result = spawnSync(command, args, { encoding: 'utf8', timeout: 10000, maxBuffer: 1024 * 1024 });
@@ -26,7 +26,10 @@ async function browserProbe() {
     const evidence = await runFixture({ rootDir: directory, fixturePath: fixture, engine,
       url: `http://127.0.0.1:${server.address().port}/${fixture}`, resultKey: '__xtendNightlyCapabilities',
       timeoutMs: 20000, accept: result => result?.ok === true });
-    return { engine, driver: evidence.driver, endpoint: 'loopback', result: evidence.result };
+    const provider = providerOptions({});
+    return { engine, driver: evidence.driver, driverVersion: evidence.driverVersion, browserVersion: evidence.browserVersion,
+      driverPath: provider.webDriverUrl ? null : findExecutable(evidence.driver, provider.driverPath, { explicitOnly: Boolean(provider.driverPath) }),
+      endpoint: provider.webDriverUrl ? 'external-driver' : 'local-driver', fixtureTransport: 'loopback', result: evidence.result };
   } finally {
     server.closeAllConnections();
     if (server.listening) await new Promise(resolve => server.close(resolve));
