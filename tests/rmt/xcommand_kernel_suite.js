@@ -139,14 +139,14 @@ function validateSurfaceAndDocs(context, rootDir) {
   context.assert(component.includes('--xkeymap-key-bg') && component.includes('role="dialog"'), 'x-keymap component provides theme hook and dialog role');
   const manifest = readJson('components/manifest.json', rootDir);
   context.assert(manifest['x-keymap'] === './xkeymap.js', 'component manifest exposes x-keymap');
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   context.assert(packageManifest.exports['./xcommand'].default === './xcommand/xcommand.js', 'package exports xcommand runtime');
   context.assert(packageManifest.exports['./xcommand'].types === './xcommand/xcommand.d.ts', 'package exports xcommand types');
   context.assert(packageManifest.exports['./components/xkeymap.js'] === './components/xkeymap.js', 'package exports x-keymap component');
   context.assert(packageManifest.scripts['test:xcommand-kernel'] === 'node scripts/run_xtend_tests.js xcommand-kernel', 'package exposes xcommand gate');
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  context.assert(runner.includes("require('../tests/rmt/xcommand_kernel_suite')"), 'runner imports xcommand suite');
-  context.assert(runner.includes("id: 'xcommand-kernel'"), 'runner registers xcommand gate');
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  context.assert(runner.hasImplementation({ path: "tests/rmt/xcommand_kernel_suite.js" }), 'runner imports xcommand suite');
+  context.assert(runner.hasSuite("xcommand-kernel"), 'runner registers xcommand gate');
   const plan = readText('development/XTend-XCommand-XKeymap-Plan.md', rootDir);
   context.assert(plan.includes('Status: `implemented`'), 'development plan is marked implemented');
 }

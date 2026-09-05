@@ -460,19 +460,19 @@ async function runMaracaAppServicesCrossRuntimeParitySuite(options = {}) {
   const matrix = createFixtureMatrix();
   const manifest = createManifest();
 
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const defaultWorkflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
   const nightlyWorkflow = readText('.github/workflows/xtend-nightly-build.yml', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.maracaAppServices;
   const gateMatrix = packageManifest.xtend && packageManifest.xtend.ciGateMatrix;
-  context.assert(runner.includes("id: 'maraca-app-services-cross-runtime'"), 'central runner registers the cross-runtime suite');
+  context.assert(runner.hasSuite("maraca-app-services-cross-runtime"), 'central runner registers the cross-runtime suite');
   context.assert(packageManifest.scripts['test:maraca-app-services-cross-runtime'] === 'node scripts/run_xtend_tests.js maraca-app-services-cross-runtime', 'root package exposes the focused cross-runtime script');
   context.assert(packageManifest.scripts['test:maraca-app-services'].includes('maraca-app-services-cross-runtime'), 'AppServices aggregate includes cross-runtime parity');
   context.assert(packageManifest.scripts['test:pr'].includes('maraca-app-services-cross-runtime') && packageManifest.scripts['test:release:full'].includes('maraca-app-services-cross-runtime'), 'PR and release scripts execute cross-runtime parity');
   context.assert(gateMatrix.prFastGate.suites.includes('maraca-app-services-cross-runtime') && gateMatrix.fullReleaseGate.suites.includes('maraca-app-services-cross-runtime'), 'CI matrices require cross-runtime parity');
   context.assert(metadata && metadata.crossRuntimeSuiteId === 'maraca-app-services-cross-runtime' && metadata.workpackages.includes('XMS-06'), 'AppServices metadata owns XMS-06 cross-runtime parity');
-  context.assert(defaultWorkflow.includes('npm run test:maraca-app-services-cross-runtime:report') && nightlyWorkflow.includes('npm run test:maraca-app-services-cross-runtime:report'), 'default and nightly workflows emit the dedicated parity report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:maraca-app-services-cross-runtime:report") && require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:maraca-app-services-cross-runtime:report"), 'default and nightly workflows emit the dedicated parity report');
 
   context.assert(fs.existsSync(adapterPath), 'uses the packaged RmtPhpAppServiceAdapter implementation');
   context.assert(fs.existsSync(fixturePath), 'uses the existing PHP AppService callable fixture');

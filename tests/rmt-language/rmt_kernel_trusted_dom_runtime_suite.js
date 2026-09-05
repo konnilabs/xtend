@@ -388,9 +388,9 @@ function runRmtKernelTrustedDomRuntimeSuite(options = {}) {
     id: 'rmt-kernel-trusted-dom-runtime',
     label: 'RKSH-WP-02 Runtime Trust-Sink Adapter'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtKernelTrustedDomRuntime;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const declarations = readText('xtendrmt/rmt-core.d.ts', rootDir);
   const backlog = readText(RMT_KERNEL_SECURITY_BACKLOG, rootDir);
   const contract = readText(RMT_KERNEL_TRUSTED_DOM_RUNTIME_CONTRACT, rootDir);
@@ -444,8 +444,8 @@ function runRmtKernelTrustedDomRuntimeSuite(options = {}) {
   context.assert(metadata && metadata.workpackage === RMT_KERNEL_TRUSTED_DOM_RUNTIME_WORKPACKAGE, 'package metadata points to RKSH-WP-02');
   context.assert(metadata && metadata.localGate === RMT_KERNEL_TRUSTED_DOM_RUNTIME_LOCAL_GATE, 'package metadata exposes trusted DOM runtime local gate');
   context.assert(metadata && metadata.packageScript === RMT_KERNEL_TRUSTED_DOM_RUNTIME_PACKAGE_SCRIPT, 'package metadata exposes trusted DOM runtime package script');
-  context.assertIncludes(runner, "id: 'rmt-kernel-trusted-dom-runtime'", 'runner registers trusted DOM runtime suite');
-  context.assertIncludes(runner, 'runRmtKernelTrustedDomRuntimeSuite', 'runner imports trusted DOM runtime suite');
+  context.assert(runner.hasSuite("rmt-kernel-trusted-dom-runtime"), 'runner registers trusted DOM runtime suite');
+  context.assert(runner.hasImplementation({ function: "runRmtKernelTrustedDomRuntimeSuite" }), 'runner imports trusted DOM runtime suite');
 
   assertTextIncludesAll(context, contract, [
     RMT_KERNEL_TRUSTED_DOM_RUNTIME_SCHEMA,

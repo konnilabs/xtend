@@ -210,10 +210,10 @@ function runRmtSurfaceManagerAuthoringSuite(options = {}) {
   const validation = validateSurfaceManagerRmtAuthoringPlan(plan);
   const report = createSurfaceManagerRmtAuthoringReport({ rootDir, plan });
   const fixture = readJson(SURFACE_MANAGER_RMT_AUTHORING_FIXTURE, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerRmtAuthoring;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const planningDoc = readText(SURFACE_MANAGER_RMT_AUTHORING_PLAN, rootDir);
   const contractDoc = readText(SURFACE_MANAGER_RMT_AUTHORING_CONTRACT, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_RMT_AUTHORING_WORKPACKAGE_DOC, rootDir);
@@ -340,7 +340,7 @@ function runRmtSurfaceManagerAuthoringSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'surfaceManagerRmtAuthoring', 'Scaffold config exposes SurfaceManager authoring');
   context.assertIncludes(scaffoldConfig, SURFACE_MANAGER_RMT_AUTHORING_SCHEMA, 'Scaffold config declares SurfaceManager authoring schema');
   context.assertIncludes(scaffoldConfig, SURFACE_MANAGER_RMT_AUTHORING_LOCAL_GATE, 'Scaffold config references SurfaceManager local gate');
-  context.assertIncludes(runner, "id: 'rmt-surface-authoring'", 'Runner registers SurfaceManager authoring suite');
+  context.assert(runner.hasSuite("rmt-surface-authoring"), 'Runner registers SurfaceManager authoring suite');
 
   assertTextIncludesAll(context, planningDoc, [
     SURFACE_MANAGER_RMT_AUTHORING_WORKPACKAGE,

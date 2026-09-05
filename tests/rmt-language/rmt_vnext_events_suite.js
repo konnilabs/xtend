@@ -249,9 +249,9 @@ function runRmtVNextEventsSuite(options = {}) {
     id: 'rmt-vnext-events',
     label: 'Epic 15 RMT vNext Event, Action and Data Source Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextEvents;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
   const eventContract = readText(EVENT_CONTRACT_PATH, rootDir);
   const moduleSyntax = syntaxCheckFile(RMT_VNEXT_EVENT_ACTION_MODULE_PATH, { rootDir, extension: '.js' });
@@ -280,7 +280,7 @@ function runRmtVNextEventsSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_EVENT_ACTION_PACKAGE_SCRIPT, 'package metadata declares event/action package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-events'] === 'string' ? packageManifest.exports['./rmt-language/vnext-events'] : packageManifest.exports['./rmt-language/vnext-events'] && packageManifest.exports['./rmt-language/vnext-events'].default) === './tools/rmt-language/vnext-events.js', 'package exports vNext event/action contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-events'] === 'node scripts/run_xtend_tests.js rmt-vnext-events', 'package exposes vNext event/action script');
-  context.assert(runner.includes("id: 'rmt-vnext-events'"), 'test runner exposes rmt-vnext-events suite');
+  context.assert(runner.hasSuite("rmt-vnext-events"), 'test runner exposes rmt-vnext-events suite');
   context.assert(epic.includes('| `WP-E15-12` | P1 | completed | WS3 |'), 'Epic marks WP-E15-12 completed');
   context.assert(epic.includes('| `WP-E15-13` | P1 | completed | WS4 |'), 'Epic records WP-E15-13 security handoff after event/action contract');
   context.assert(eventContract.includes('schema: "xtend.rmt.vnext-event-action-contract.v1"'), 'Event/action contract document declares schema');

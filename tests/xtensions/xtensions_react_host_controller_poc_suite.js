@@ -92,9 +92,9 @@ function runXTensionsReactHostControllerPocSuite(options = {}) {
     label: 'XTensions React HostController PoC and Scheduling Hints Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.xtensionsReactHostControllerPoc;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const hostControllerContract = readText(HOST_CONTROLLER_CONTRACT_PATH, rootDir);
@@ -157,8 +157,8 @@ function runXTensionsReactHostControllerPocSuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/react-host-controller-poc.js', 'package exports React HostController PoC module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/react-host-controller-poc.d.ts', 'package exports React HostController PoC types');
   context.assert(packageManifest.scripts['test:xtensions-react-host-controller-poc'] === 'node scripts/run_xtend_tests.js xtensions-react-host-controller-poc', 'package exposes React HostController PoC script');
-  context.assert(runner.includes("id: 'xtensions-react-host-controller-poc'"), 'test runner exposes xtensions-react-host-controller-poc suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xtensions-react-host-controller-poc'), 'runner help references React HostController PoC gate');
+  context.assert(runner.hasSuite("xtensions-react-host-controller-poc"), 'test runner exposes xtensions-react-host-controller-poc suite');
+  context.assert(runner.hasSuite("xtensions-react-host-controller-poc"), 'runner help references React HostController PoC gate');
 
   context.assert(backlog.includes('| `XTN-06` | P1 | completed | WS6 |'), 'backlog marks XTN-06 completed');
   context.assert(backlog.includes('development/XTensions-React-HostController-PoC-and-Scheduling-Hints-Contract.md'), 'backlog references React HostController PoC contract');

@@ -210,7 +210,7 @@ function assertPathExists(context, rootDir, relativePath, label) {
 }
 
 function assertRunnerGate(context, runner, gate) {
-  context.assertIncludes(runner, `id: '${gate}'`, `Runner registers ${gate}`);
+  context.assert(runner.hasSuite(gate), `Runner registers ${gate}`);
 }
 
 function countBy(items, field) {
@@ -244,8 +244,8 @@ function runNativeFirstMigrationDeprecationSuite(options = {}) {
   const docsReadmeDe = readText('docs/de/README.md', rootDir);
   const docsReadmeEn = readText('docs/en/README.md', rootDir);
   const menu = readJson('docs/menu.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstMigrationDeprecation;
   const registryMetadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRegistry;
@@ -427,8 +427,8 @@ function runNativeFirstMigrationDeprecationSuite(options = {}) {
   ], 'Registry contract WP-21 extension');
 
   context.assert(packageScripts['test:native-first-migration-deprecation'] === 'node scripts/run_xtend_tests.js native-first-migration-deprecation', 'Package exposes WP-21 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_migration_deprecation_suite')", 'Runner imports WP-21 suite');
-  context.assertIncludes(runner, "id: 'native-first-migration-deprecation'", 'Runner registers WP-21 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_migration_deprecation_suite.js" }), 'Runner imports WP-21 suite');
+  context.assert(runner.hasSuite("native-first-migration-deprecation"), 'Runner registers WP-21 suite');
   REQUIRED_SOURCE_GATES.forEach((gate) => assertRunnerGate(context, runner, gate));
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-21 contract schema');

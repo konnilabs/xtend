@@ -23,6 +23,7 @@
   },
   "files": [
     "README.md",
+    "project-index",
     "rmt-language",
     "rmt-linter",
     "rmt-language-server",
@@ -86,7 +87,15 @@
       "types": "./rmt-language-server/protocol.d.ts",
       "default": "./rmt-language-server/protocol.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./project-index": {
+      "types": "./project-index/index.d.ts",
+      "default": "./project-index/index.js"
+    },
+    "./project-index/cli": {
+      "types": "./project-index/cli.d.ts",
+      "default": "./project-index/cli.js"
+    }
   },
   "publishConfig": {
     "access": "public",

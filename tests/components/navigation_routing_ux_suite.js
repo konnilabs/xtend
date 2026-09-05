@@ -111,9 +111,9 @@ function runNavigationRoutingUxSuite(options = {}) {
     tests: { assertions: [] }
   });
   const fixture = readJson(NAVIGATION_ROUTING_UX_FIXTURE, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const contractDoc = readText(NAVIGATION_ROUTING_UX_CONTRACT_DOC, rootDir);
   const workpackage = readText('development/WP-E11-10-Navigation-und-Routing-UX-Reife-umsetzen.md', rootDir);
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
@@ -224,7 +224,7 @@ function runNavigationRoutingUxSuite(options = {}) {
   context.assert(metadata.kernelBoundary === KERNEL_BOUNDARY, 'Package metadata preserves RMT kernel boundary');
   context.assertIncludes(scaffoldConfig, 'navigationRoutingUxMaturity', 'Scaffold config exposes Navigation Routing UX section');
   context.assertIncludes(scaffoldConfig, NAVIGATION_ROUTING_UX_SCHEMA, 'Scaffold config declares Navigation Routing UX schema');
-  context.assertIncludes(runner, "id: 'navigation-routing-ux'", 'Runner exposes Navigation Routing UX suite');
+  context.assert(runner.hasSuite("navigation-routing-ux"), 'Runner exposes Navigation Routing UX suite');
   context.assertIncludes(contractDoc, NAVIGATION_ROUTING_UX_SCHEMA, 'Contract document declares Navigation Routing UX schema');
   context.assertIncludes(contractDoc, '`xtendNavigationRoutingUxProfile`', 'Contract document describes runtime profile');
   context.assertIncludes(workpackage, 'xtend.epic11.wp10.navigation-routing-ux.v1', 'WP-E11-10 document declares schema');

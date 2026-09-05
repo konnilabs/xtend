@@ -97,9 +97,9 @@ function runXTensionsVueHostControllerPocSuite(options = {}) {
     label: 'XTensions Vue HostController PoC and Explicit Update Adapter Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.xtensionsVueHostControllerPoc;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const hostControllerContract = readText(HOST_CONTROLLER_CONTRACT_PATH, rootDir);
@@ -159,8 +159,8 @@ function runXTensionsVueHostControllerPocSuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/vue-host-controller-poc.js', 'package exports Vue HostController PoC module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/vue-host-controller-poc.d.ts', 'package exports Vue HostController PoC types');
   context.assert(packageManifest.scripts['test:xtensions-vue-host-controller-poc'] === 'node scripts/run_xtend_tests.js xtensions-vue-host-controller-poc', 'package exposes Vue HostController PoC script');
-  context.assert(runner.includes("id: 'xtensions-vue-host-controller-poc'"), 'test runner exposes xtensions-vue-host-controller-poc suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xtensions-vue-host-controller-poc'), 'runner help references Vue HostController PoC gate');
+  context.assert(runner.hasSuite("xtensions-vue-host-controller-poc"), 'test runner exposes xtensions-vue-host-controller-poc suite');
+  context.assert(runner.hasSuite("xtensions-vue-host-controller-poc"), 'runner help references Vue HostController PoC gate');
 
   context.assert(backlog.includes('| `XTN-07` | P1/P2 | completed | WS6 |'), 'backlog marks XTN-07 completed');
   context.assert(backlog.includes('development/XTensions-Vue-HostController-PoC-and-Explicit-Update-Adapter-Contract.md'), 'backlog references Vue HostController PoC contract');

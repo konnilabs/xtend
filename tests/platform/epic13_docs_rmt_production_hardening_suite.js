@@ -73,13 +73,13 @@ function runEpic13DocsRmtProductionHardeningSuite(options = {}) {
   const plan = createEpic13DocsRmtProductionHardeningPlan({ rootDir });
   const validation = validateEpic13DocsRmtProductionHardeningPlan(plan);
   const report = createEpic13DocsRmtProductionHardeningReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic13DocsRmtProductionHardening;
   const releaseOwnerMetadata = packageManifest.xtend && packageManifest.xtend.epic13ReleaseOwnerAcceptance;
   const rmtReadinessMetadata = packageManifest.xtend && packageManifest.xtend.epic13RmtProductionReadiness;
   const rc1Metadata = packageManifest.xtend && packageManifest.xtend.epic13Rc1Readiness;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const rmtDocument = readJson(DOCS_RMT_DOCUMENT, rootDir);
   const indexPhp = readText(DOCS_RMT_HOST, rootDir);
   const pageLoader = readText(DOCS_RMT_PAGE_LOADER, rootDir);
@@ -239,7 +239,7 @@ function runEpic13DocsRmtProductionHardeningSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, EPIC13_DOCS_RMT_PRODUCTION_HARDENING_SCHEMA, 'Scaffold config declares Docs RMT hardening schema');
   context.assertIncludes(scaffoldConfig, EPIC13_DOCS_RMT_PRODUCTION_HARDENING_LOCAL_GATE, 'Scaffold config references Docs RMT hardening gate');
   context.assertIncludes(scaffoldConfig, `nextWorkpackage: "${NEXT_WORKPACKAGE}"`, 'Scaffold config advances Epic 13 handoff to WP-E13-11');
-  context.assertIncludes(runner, "id: 'epic13-docs-rmt-production-hardening'", 'Runner registers Docs RMT hardening suite');
+  context.assert(runner.hasSuite("epic13-docs-rmt-production-hardening"), 'Runner registers Docs RMT hardening suite');
 
   assertTextIncludesAll(context, steering, [
     EPIC13_DOCS_RMT_PRODUCTION_HARDENING_SCHEMA,

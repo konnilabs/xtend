@@ -362,10 +362,10 @@ async function runRmtKernelPolicyParitySuite(options = {}) {
     id: 'rmt-kernel-policy-parity',
     label: 'RKSH-WP-08 Compile-Time Runtime Policy Parity'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtKernelPolicyParity;
   const packageExport = getPackageExport(packageManifest, './rmt-language/kernel-policy-parity');
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const catalog = readText('catalog/type-exports-rmt.js', rootDir);
   const backlog = readText(RMT_KERNEL_SECURITY_BACKLOG, rootDir);
   const contract = readText(RMT_KERNEL_POLICY_PARITY_CONTRACT_PATH, rootDir);
@@ -399,8 +399,8 @@ async function runRmtKernelPolicyParitySuite(options = {}) {
   context.assert(metadata && metadata.workpackage === RMT_KERNEL_POLICY_PARITY_WORKPACKAGE, 'package metadata points to RKSH-WP-08');
   context.assert(metadata && metadata.localGate === RMT_KERNEL_POLICY_PARITY_LOCAL_GATE, 'package metadata exposes policy parity local gate');
   context.assert(metadata && metadata.packageScript === RMT_KERNEL_POLICY_PARITY_PACKAGE_SCRIPT, 'package metadata exposes policy parity package script');
-  context.assertIncludes(runner, "id: 'rmt-kernel-policy-parity'", 'runner registers policy parity suite');
-  context.assertIncludes(runner, 'runRmtKernelPolicyParitySuite', 'runner imports policy parity suite');
+  context.assert(runner.hasSuite("rmt-kernel-policy-parity"), 'runner registers policy parity suite');
+  context.assert(runner.hasImplementation({ function: "runRmtKernelPolicyParitySuite" }), 'runner imports policy parity suite');
   context.assertIncludes(catalog, './rmt-language/kernel-policy-parity', 'type export catalog includes policy parity export');
 
   runStandalonePolicyParityAssertions(context);

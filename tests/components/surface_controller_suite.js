@@ -344,10 +344,10 @@ async function runSurfaceControllerSuite(options = {}) {
   const runtimeText = readText(SURFACE_CONTROLLER_RUNTIME, rootDir);
   const typesText = readText(SURFACE_CONTROLLER_TYPES, rootDir);
   const sourceTexts = SOURCE_ARTIFACTS.map((filePath) => readText(filePath, rootDir)).join('\n');
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerController;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const referenceRegistry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
@@ -460,8 +460,8 @@ async function runSurfaceControllerSuite(options = {}) {
   context.assert(metadata && metadata.kernelBoundary === KERNEL_BOUNDARY, 'Package metadata exposes kernel boundary');
   context.assertIncludes(scaffoldConfig, 'surfaceManagerController', 'Scaffold config exposes surfaceManagerController');
   context.assertIncludes(scaffoldConfig, SURFACE_CONTROLLER_RUNTIME, 'Scaffold config references Surface Controller runtime');
-  context.assertIncludes(runner, "require('../tests/components/surface_controller_suite')", 'Runner imports Surface Controller suite');
-  context.assertIncludes(runner, "id: 'surface-controller'", 'Runner registers surface-controller suite');
+  context.assert(runner.hasImplementation({ path: "tests/components/surface_controller_suite.js" }), 'Runner imports Surface Controller suite');
+  context.assert(runner.hasSuite("surface-controller"), 'Runner registers surface-controller suite');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-controller'] === 'node scripts/run_xtend_tests.js surface-controller', 'Package script test:surface-controller exists');
   context.assertIncludes(docsReadme, 'SurfaceManager Controller', 'Docs README links SurfaceManager Controller');
   context.assertIncludes(docsMenu, 'surface-manager-controller', 'Docs menu contains SurfaceManager Controller page');

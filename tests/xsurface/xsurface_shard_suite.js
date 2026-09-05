@@ -252,11 +252,11 @@ function validateServerLifecycleAndFragments(context, rootDir) {
 }
 
 function validateDocsMetadataAndRegistration(context, rootDir) {
-  const rootPackage = readJson('package.json', rootDir);
+  const rootPackage = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const shardPackage = readJson(XSURFACE_SHARD_PACKAGE_JSON, rootDir);
   const readme = readText(XSURFACE_SHARD_README, rootDir);
   const types = readText(XSURFACE_SHARD_TYPES, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const exportLock = readText('catalog/epic13-package-export-lock.js', rootDir);
   const metadata = rootPackage.xtend && rootPackage.xtend.xsurfaceShard;
 
@@ -295,9 +295,9 @@ function validateDocsMetadataAndRegistration(context, rootDir) {
   context.assert(types.includes('export { XSCALER_ATC_HANDOFF_SCHEMA } from "@ccslabs/xtend/xscaler"'), 'Types re-export the public XScaler ATC handoff schema constant');
   context.assert(types.includes('atc: XSurfaceShardAtcHandoff;'), 'Shard handoffs use the shared XScaler-derived ATC type');
   context.assert(!types.includes('export declare const XSCALER_ATC_HANDOFF_SCHEMA = "xtend.xscaler.atc-handoff.v1"'), 'Types do not duplicate the XScaler ATC handoff schema literal');
-  context.assert(runner.includes("require('../tests/xsurface/xsurface_shard_suite')"), 'Runner imports XSurface Shard suite');
-  context.assert(runner.includes("id: 'xsurface-shard'"), 'Runner registers xsurface-shard gate');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xsurface-shard'), 'Runner help references xsurface-shard gate');
+  context.assert(runner.hasImplementation({ path: "tests/xsurface/xsurface_shard_suite.js" }), 'Runner imports XSurface Shard suite');
+  context.assert(runner.hasSuite("xsurface-shard"), 'Runner registers xsurface-shard gate');
+  context.assert(runner.hasSuite("xsurface-shard"), 'Runner help references xsurface-shard gate');
   context.assert(exportLock.includes("'./xsurface-shard'"), 'Package export lock expects xsurface-shard root export');
   context.assert(exportLock.includes("'xsurface-shard'"), 'Package export lock expects xsurface-shard package root');
 }

@@ -450,7 +450,7 @@ async function runRmtDetachedRuntimeHarnessSuite(options = {}) {
   const coreTypes = readText(RMT_CORE_TYPES, rootDir);
   const surfaceControllerSource = readText(SURFACE_CONTROLLER_RUNTIME, rootDir);
   const surfaceGraphSource = readText(SURFACE_GRAPH_RUNTIME, rootDir);
-  const runnerSource = readText('scripts/run_xtend_tests.js', rootDir);
+  const runnerSource = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   [
     RMT_CORE_RUNTIME,
@@ -474,7 +474,7 @@ async function runRmtDetachedRuntimeHarnessSuite(options = {}) {
   context.assertIncludes(surfaceGraphSource, "callSurfaceManager('destroySurface'", 'Surface Resource Graph calls real destroySurface when available');
   context.assertIncludes(surfaceGraphSource, 'releaseOwner', 'Surface Resource Graph releases resource owners');
   context.assertIncludes(surfaceGraphSource, 'detachOwner', 'Surface Resource Graph detaches event owners');
-  context.assertIncludes(runnerSource, "id: 'rmt-detached-runtime-harness'", 'Test runner exposes detached runtime harness suite');
+  context.assert(runnerSource.hasSuite("rmt-detached-runtime-harness"), 'Test runner exposes detached runtime harness suite');
 
   const harness = await createRmtDetachedRuntimeGateHarness({ rootDir });
   const result = await harness.runLifecycleScenario();

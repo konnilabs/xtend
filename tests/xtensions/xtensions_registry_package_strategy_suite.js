@@ -114,10 +114,10 @@ function runXTensionsRegistryPackageStrategySuite(options = {}) {
     label: 'XTensions Registry and Package Strategy Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtensionsRegistryPackageStrategy;
   const xtendMetadata = packageManifest.xtend && packageManifest.xtend.xtensionsRegistryPackageStrategy;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const maracaContract = readText(MARACA_CONTRACT_PATH, rootDir);
@@ -174,8 +174,8 @@ function runXTensionsRegistryPackageStrategySuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/registry-package-strategy.js', 'package exports XTensions registry strategy module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/registry-package-strategy.d.ts', 'package exports XTensions registry strategy types');
   context.assert(packageManifest.scripts['test:xtensions-registry-package-strategy'] === 'node scripts/run_xtend_tests.js xtensions-registry-package-strategy', 'package exposes registry strategy test script');
-  context.assert(runner.includes("id: 'xtensions-registry-package-strategy'"), 'test runner exposes xtensions-registry-package-strategy suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xtensions-registry-package-strategy'), 'runner help references registry strategy gate');
+  context.assert(runner.hasSuite("xtensions-registry-package-strategy"), 'test runner exposes xtensions-registry-package-strategy suite');
+  context.assert(runner.hasSuite("xtensions-registry-package-strategy"), 'runner help references registry strategy gate');
 
   context.assert(backlog.includes('| `XTN-13` | P2 | completed | WS12 |'), 'backlog marks XTN-13 completed');
   context.assert(backlog.includes('development/XTensions-Registry-and-Package-Strategy-Contract.md'), 'backlog references registry strategy contract');

@@ -26,10 +26,11 @@ concurrency:
 jobs:
   nightly-build:
     name: Nightly build artifact bundle (Node ${{ matrix.node_version }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
-      NPM_CONFIG_CACHE: .xtend-test-results/npm-cache
+      NPM_CONFIG_CACHE: ${{ runner.temp }}/xtend-npm-cache
+      XTEND_NPM_CACHE: ${{ runner.temp }}/xtend-npm-cache
     strategy:
       fail-fast: false
       matrix:
@@ -48,12 +49,17 @@ jobs:
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            products/xtend-llm/package-lock.json
           node-version: ${{ matrix.node_version }}
           package-manager-cache: false
 
       - name: Pin npm 11.17.0
         working-directory: ${{ runner.temp }}
         run: npm install --global npm@11.17.0 --no-audit --fund=false
+        timeout-minutes: 3
 
       - name: Capture and validate Node runtime evidence
         run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
@@ -68,240 +74,297 @@ jobs:
           node --version
           npm --version
 
-      - name: Validate CI dependency lock alignment
+      - name: Initialize bounded Nightly execution
+        id: nightly_begin
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run ci:dependency-locks:check
+        run: node scripts/test-runner/nightly.js begin
+
+      - name: Validate CI dependency lock alignment
+        id: lock_guard
+        continue-on-error: true
+        if: ${{ !cancelled() && steps.nightly_begin.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/test-runner/nightly.js phase lock_guard
 
       - name: Install workspace dependencies
+        id: install_1
+        continue-on-error: true
+        if: ${{ !cancelled() && steps.nightly_begin.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm ci --ignore-scripts --no-audit --fund=false
+        run: node scripts/test-runner/nightly.js phase install_1
 
       - name: Install XTend LLM CI catfood dependencies
+        id: install_2
+        continue-on-error: true
+        if: ${{ !cancelled() && steps.nightly_begin.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
+        run: node scripts/test-runner/nightly.js phase install_2
 
-      - name: Prepare nightly result directories
+      - name: Probe required runner capabilities
+        id: capabilities
+        continue-on-error: true
+        if: ${{ !cancelled() && steps.nightly_begin.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: mkdir -p .xtend-test-results/nightly
+        run: node scripts/test-runner/nightly.js phase capabilities
 
       - name: Prepare Native-First release evidence artifacts
         id: native_first_evidence_prepare
         continue-on-error: true
+        if: ${{ !cancelled() && steps.nightly_begin.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run native-first:evidence:prepare
+        run: node scripts/test-runner/nightly.js phase native_first_evidence_prepare
 
       - name: Run XTend full release gate report
         id: full_release
         continue-on-error: true
+        if: ${{ !cancelled() && steps.nightly_begin.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:release:full:report
+        run: node scripts/test-runner/nightly.js phase full_release
 
       - name: Run XTend MCP contract, security, parity, and evidence gates
         id: xtend_mcp
         continue-on-error: true
+        if: ${{ !cancelled() && steps.nightly_begin.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:xtend-mcp:report
+        run: node scripts/test-runner/nightly.js phase xtend_mcp
+
+      - name: Validate root package dry run
+        id: pack_root
+        continue-on-error: true
+        if: ${{ !cancelled() && steps.nightly_begin.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/test-runner/nightly.js phase pack_root
+
+      - name: Validate workspace package dry runs
+        id: pack_workspaces
+        continue-on-error: true
+        if: ${{ !cancelled() && steps.nightly_begin.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/test-runner/nightly.js phase pack_workspaces
+
+      - name: Create XTend nightly manifest
+        id: nightly_finalize
+        continue-on-error: true
+        if: always()
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run nightly:manifest
 
       - name: Run Feature Adoption Observatory gates
         id: feature_adoption_observatory
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:feature-adoption-observatory
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.feature_adoption_observatory }}" = "success"
 
       - name: Run RMT Reference docs report
         id: rmt_reference_docs
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:rmt-reference-docs:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.rmt_reference_docs }}" = "success"
 
       - name: Run XTendRMT demo structure report
         id: rmt_demos
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:rmt-demos:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.rmt_demos }}" = "success"
 
       - name: Run RKFA production closure report
         id: rkfa_production_closure
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:rkfa-production-closure:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.rkfa_production_closure }}" = "success"
 
       - name: Run docs stub inventory report
         id: docs_stub_inventory
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:docs-stub-inventory:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.docs_stub_inventory }}" = "success"
 
       - name: Run RMT vNext primitive gate report
         id: rmt_primitives
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:rmt-vnext-primitives:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.rmt_vnext_primitives }}" = "success"
 
       - name: Run Native-First and RMT Owned release report
         id: native_first_rmt_owned
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:native-first-rmt-owned-release:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.native_first_rmt_owned_release }}" = "success"
 
       - name: Capture release report evidence
         id: release_report
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run release:report
-
-      - name: Validate root package dry run
-        id: pack_root
-        continue-on-error: true
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run pack:dry-run
-
-      - name: Validate workspace package dry runs
-        id: pack_workspaces
-        continue-on-error: true
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: |
-          npm pack --workspace xtendrmt --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtendrmt.json
-          npm pack --workspace fabric --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-fabric.json
-          npm pack --workspace tools --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-tools.json
-          npm pack --workspace xtend-builder --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtend-builder.json
-          npm pack --workspace xtend-maraca --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtend-maraca.json
-          npm pack --workspace @ccslabs/xtend-mcp --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtend-mcp.json
-          npm pack --workspace xsurface-shard --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.release }}" = "success"
 
       - name: Run XTend Maraca gate report
         id: maraca
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:maraca:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.maraca }}" = "success"
 
       - name: Run Maraca AppServices Node/PHP parity report
         id: maraca_app_services_cross_runtime
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:maraca-app-services-cross-runtime:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.maraca_app_services_cross_runtime }}" = "success"
 
       - name: Run XTend LLM AppServices catfood report
         id: xtend_llm_app_services_catfood
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:xtend-llm-app-services-catfood:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.xtend_llm_app_services_catfood }}" = "success"
 
       - name: Run Maraca App Services Test Bench catfood report
         id: maraca_app_services_test_bench
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:maraca-app-services-test-bench:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.maraca_app_services_test_bench }}" = "success"
 
       - name: Run XTensions framework adapter report
         id: xtensions_framework_adapters
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:xtensions-framework-adapters:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.xtensions_framework_adapters }}" = "success"
 
       - name: Run XTend Dev Surface report
         id: xtend_dev_surface
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:xtend-dev-surface:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.xtend_dev_surface }}" = "success"
 
       - name: Run public docs quality report
         id: docs_quality
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:docs-quality:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.docs_quality }}" = "success"
 
       - name: Run Docs Shell catfooding report
         id: docs_shell_catfooding
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:docs-shell-catfooding:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.docs_shell_catfooding }}" = "success"
 
       - name: Run Docs framework ownership report
         id: docs_framework_ownership
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:docs-framework-ownership:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.docs_framework_ownership }}" = "success"
 
       - name: Run XSurface shard gate report
         id: xsurface_shard
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:xsurface-shard:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.xsurface_shard }}" = "success"
 
       - name: Run XScaler protocol gate report
         id: xscaler_protocol
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:xscaler-protocol:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.xscaler_protocol }}" = "success"
 
       - name: Run XScaler public API gate report
         id: xscaler_public_api
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:xscaler-public-api:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.xscaler_public_api }}" = "success"
 
       - name: Run XScaler JS/PHP preflight parity report
         id: xscaler_php_preflight_parity
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:xscaler-php-preflight-parity:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.xscaler_php_preflight_parity }}" = "success"
 
       - name: Run RMT Node/PHP XScaler SSR hydration parity report
         id: rmt_xscaler_ssr_hydration_parity
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:rmt-xscaler-ssr-hydration-parity:report
+        if: always()
+        run: test "${{ steps.nightly_finalize.outputs.rmt_xscaler_ssr_hydration_parity }}" = "success"
 
       - name: Run XScaler source-to-sea gate report
         id: xscaler_source_to_sea
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run test:xscaler-source-to-sea:report
-
-      - name: Create XTend nightly manifest
         if: always()
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm run nightly:manifest
+        run: test "${{ steps.nightly_finalize.outputs.xscaler_source_to_sea }}" = "success"
+
+      - name: Upload Nightly phase and worker diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: xtend-nightly-diagnostics-${{ matrix.artifact_suffix }}
+          include-hidden-files: true
+          path: |
+            .xtend-test-results/nightly/
+            .xtend-test-results/test-runner/
+            .xtend-test-results/xtend-test-execution.json
+            .xtend-test-results/runtime/
+            ${{ runner.temp }}/xtend-npm-cache/_logs/
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Upload XTend nightly artifact bundle
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: xtend-nightly-build-${{ matrix.artifact_suffix }}
+          include-hidden-files: true
           path: |
             .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
             .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
@@ -345,6 +408,11 @@ jobs:
             .xtend-build/maraca/source-to-sea/xtend.maraca.report.json
             .xtend-build/maraca/source-to-sea/xtend.maraca.size.json
             .xtend-test-results/xtend-nightly-build-manifest.json
+            .xtend-test-results/xtend-test-execution.json
+            .xtend-test-results/nightly/session.json
+            .xtend-test-results/nightly/acceptance.json
+            .xtend-test-results/nightly/dependency-locks.json
+            .xtend-test-results/nightly/capabilities.json
           if-no-files-found: error
           retention-days: 14
 
@@ -354,6 +422,12 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: |
           failed=0
+          if [ "${{ steps.nightly_begin.outcome }}" != "success" ]; then echo "nightly_begin failed"; failed=1; fi
+          if [ "${{ steps.lock_guard.outcome }}" != "success" ]; then echo "lock_guard failed"; failed=1; fi
+          if [ "${{ steps.install_1.outcome }}" != "success" ]; then echo "install_1 failed"; failed=1; fi
+          if [ "${{ steps.install_2.outcome }}" != "success" ]; then echo "install_2 failed"; failed=1; fi
+          if [ "${{ steps.capabilities.outcome }}" != "success" ]; then echo "capabilities failed"; failed=1; fi
+          if [ "${{ steps.nightly_finalize.outcome }}" != "success" ]; then echo "nightly_finalize failed"; failed=1; fi
           if [ "${{ steps.native_first_evidence_prepare.outcome }}" != "success" ]; then echo "Native-First evidence preparation failed"; failed=1; fi
           if [ "${{ steps.full_release.outcome }}" != "success" ]; then echo "full release gate failed"; failed=1; fi
           if [ "${{ steps.xtend_mcp.outcome }}" != "success" ]; then echo "XTend MCP gate failed"; failed=1; fi
@@ -387,8 +461,11 @@ jobs:
   optional-source-to-sea:
     name: Optional Source-to-Sea browser evidence (Node ${{ matrix.node_version }})
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
+    env:
+      NPM_CONFIG_CACHE: ${{ runner.temp }}/xtend-npm-cache
+      XTEND_NPM_CACHE: ${{ runner.temp }}/xtend-npm-cache
     strategy:
       fail-fast: false
       matrix:
@@ -407,12 +484,16 @@ jobs:
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
           node-version: ${{ matrix.node_version }}
           package-manager-cache: false
 
       - name: Pin npm 11.17.0
         working-directory: ${{ runner.temp }}
         run: npm install --global npm@11.17.0 --no-audit --fund=false
+        timeout-minutes: 3
 
       - name: Capture and validate Node runtime evidence
         run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
@@ -428,14 +509,16 @@ jobs:
           npm --version
 
       - name: Capture RMT vNext source-to-sea browser evidence
+        timeout-minutes: 8
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           XTEND_BROWSER_HYPERVISOR_ENGINE: chromium
         run: |
           mkdir -p .xtend-test-results
           set +e
-          npm run test:rmt-vnext-source-to-sea:chromium
+          npm run test:rmt-vnext-source-to-sea:chromium > .xtend-test-results/nightly-source-to-sea.log 2>&1
           status=$?
+          cat .xtend-test-results/nightly-source-to-sea.log
           printf "%s\n" "$status" > .xtend-test-results/xtend-rmt-vnext-source-to-sea-capture.exitcode
           exit "$status"
       - name: Ensure RMT vNext source-to-sea evidence artifact
@@ -453,11 +536,14 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: xtend-nightly-source-to-sea-evidence-${{ matrix.artifact_suffix }}
+          include-hidden-files: true
           path: |
             .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
             .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
             .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json
             .xtend-test-results/xtend-rmt-vnext-source-to-sea-capture.exitcode
+            .xtend-test-results/nightly-source-to-sea.log
+            ${{ runner.temp }}/xtend-npm-cache/_logs/
           if-no-files-found: error
           retention-days: 14
 
@@ -469,8 +555,11 @@ jobs:
   optional-conditional-network:
     name: Optional conditional network evidence (Node ${{ matrix.node_version }})
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_conditional_network == true }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
+    env:
+      NPM_CONFIG_CACHE: ${{ runner.temp }}/xtend-npm-cache
+      XTEND_NPM_CACHE: ${{ runner.temp }}/xtend-npm-cache
     strategy:
       fail-fast: false
       matrix:
@@ -489,12 +578,16 @@ jobs:
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
           node-version: ${{ matrix.node_version }}
           package-manager-cache: false
 
       - name: Pin npm 11.17.0
         working-directory: ${{ runner.temp }}
         run: npm install --global npm@11.17.0 --no-audit --fund=false
+        timeout-minutes: 3
 
       - name: Capture and validate Node runtime evidence
         run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
@@ -517,24 +610,29 @@ jobs:
       - name: Install workspace links for npm SBOM
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        id: install_1
         run: npm ci --ignore-scripts --no-audit --fund=false
+        timeout-minutes: 5
 
       - name: Capture conditional network evidence
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           XTEND_CONDITIONAL_NETWORK_EXECUTE: "1"
         run: npm run conditional-network:evidence
+        timeout-minutes: 8
 
       - name: Upload conditional network evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: xtend-nightly-conditional-network-evidence-${{ matrix.artifact_suffix }}
+          include-hidden-files: true
           path: |
             .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
             .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
             .xtend-test-results/xtend-npm-audit-report.json
             .xtend-test-results/xtend-npm-sbom.json
             .xtend-test-results/xtend-conditional-network-evidence-report.json
+            ${{ runner.temp }}/xtend-npm-cache/_logs/
           if-no-files-found: warn
           retention-days: 14

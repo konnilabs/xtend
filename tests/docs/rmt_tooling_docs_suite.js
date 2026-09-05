@@ -142,9 +142,9 @@ function runMenuChecks(context, rootDir) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtToolingDocs;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
   const workpackage = readText(RMT_TOOLING_DOCS_WP_PATH, rootDir);
@@ -161,8 +161,8 @@ function runMetadataChecks(context, rootDir) {
   context.assert(Array.isArray(metadata && metadata.commands) && metadata.commands.includes('xt rmt lint <target> --agent'), 'package metadata includes agent CLI command');
   context.assert(Array.isArray(metadata && metadata.handoff) && metadata.handoff.includes(RMT_TOOLING_DOCS_NEXT_WORKPACKAGE), 'package metadata hands off to WP-E14-15');
   context.assert(packageManifest.scripts['test:rmt-tooling-docs'] === 'node scripts/run_xtend_tests.js rmt-tooling-docs', 'package exposes rmt-tooling-docs script');
-  context.assert(runner.includes("id: 'rmt-tooling-docs'"), 'test runner exposes rmt-tooling-docs suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-tooling-docs'), 'test runner help references rmt-tooling-docs');
+  context.assert(runner.hasSuite("rmt-tooling-docs"), 'test runner exposes rmt-tooling-docs suite');
+  context.assert(runner.hasSuite("rmt-tooling-docs"), 'test runner help references rmt-tooling-docs');
   context.assert(epic.includes('| `WP-E14-14` | P2 | completed | WS9 |'), 'Epic marks WP-E14-14 completed');
   context.assert(epic.includes('| `WP-E14-15` | P2 | completed | WS10 |'), 'Epic records WP-E14-15 completion after docs handoff');
   context.assert(architecture.includes('Implementierungsstand nach `WP-E14-14`'), 'Architecture documents WP-E14-14 status');

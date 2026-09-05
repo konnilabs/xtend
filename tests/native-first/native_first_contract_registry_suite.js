@@ -423,8 +423,8 @@ function runNativeFirstContractRegistrySuite(options = {}) {
   const adoptionGate = readText('development/XTend-Native-Primitive-Adoption-Gate-Contract.md', rootDir);
   const marketContract = readText('development/XTend-Native-First-Market-Pattern-Parity-Contract.md', rootDir);
   const marketWorkpackage = readText('development/NFM-WP-10-Market-Pattern-Parity-Matrix-ohne-Framework-Abhaengigkeit-erstellen.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRegistry;
 
@@ -505,8 +505,8 @@ function runNativeFirstContractRegistrySuite(options = {}) {
   context.assertIncludes(marketWorkpackage, '`NFM-WP-11` hat Pattern-IDs und Claim-Status in Contract Registry/Discoverability aufgenommen', 'Market workpackage records WP-11 completion');
 
   context.assert(packageScripts['test:contract-registry'] === 'node scripts/run_xtend_tests.js contract-registry', 'Package exposes contract registry test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_contract_registry_suite')", 'Runner imports contract registry suite');
-  context.assertIncludes(runner, "id: 'contract-registry'", 'Runner registers contract registry suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_contract_registry_suite.js" }), 'Runner imports contract registry suite');
+  context.assert(runner.hasSuite("contract-registry"), 'Runner registers contract registry suite');
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-11 contract schema');
   context.assert(metadata && metadata.entrySchema === ENTRY_SCHEMA, 'Package metadata exposes WP-11 entry schema');

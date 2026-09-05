@@ -315,9 +315,9 @@ function runLanguageServerRegressionChecks(context, rootDir) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtLanguageRegression;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
   const workpackage = readText(RMT_LANGUAGE_REGRESSION_WP_PATH, rootDir);
@@ -330,7 +330,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-language-regression --json', 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_LANGUAGE_REGRESSION_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert(packageManifest.scripts['test:rmt-language-regression'] === 'node scripts/run_xtend_tests.js rmt-language-regression', 'package exposes rmt-language-regression script');
-  context.assert(runner.includes("id: 'rmt-language-regression'"), 'test runner exposes rmt-language-regression suite');
+  context.assert(runner.hasSuite("rmt-language-regression"), 'test runner exposes rmt-language-regression suite');
   context.assert(epic.includes('| `WP-E14-13` | P2 | completed | WS8 |'), 'Epic marks WP-E14-13 completed');
   context.assert(epic.includes('WP-E14-14` ist `ready`'), 'Epic hands off WP-E14-14 as ready');
   context.assert(architecture.includes('Implementierungsstand nach `WP-E14-13`'), 'Architecture documents regression matrix status');

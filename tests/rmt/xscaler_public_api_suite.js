@@ -128,8 +128,8 @@ function validatePublicFiles(context, rootDir) {
 }
 
 function validateCentralIntegration(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const workflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
   const nightlyWorkflow = readText('.github/workflows/xtend-nightly-build.yml', rootDir);
   const exportLock = readText('catalog/epic13-package-export-lock.js', rootDir);
@@ -154,7 +154,7 @@ function validateCentralIntegration(context, rootDir) {
   context.assert(packageManifest.scripts['test:rmt-xscaler-ssr-hydration-parity'] === 'node scripts/run_xtend_tests.js rmt-xscaler-ssr-hydration-parity', 'root package exposes the Node/PHP XScaler SSR hydration parity script');
 
   XSCALER_GATE_IDS.forEach((id) => {
-    context.assert(runner.includes(`id: '${id}'`), `runner registers ${id}`);
+    context.assert(runner.hasSuite(id), `runner registers ${id}`);
     context.assert(packageManifest.scripts['test:pr'].includes(id) && packageManifest.scripts['test:release:full'].includes(id), `PR and release scripts include ${id}`);
     context.assert(gateMatrix.prFastGate.suites.includes(id) && gateMatrix.fullReleaseGate.suites.includes(id), `CI gate matrix includes ${id}`);
   });
@@ -162,8 +162,8 @@ function validateCentralIntegration(context, rootDir) {
     context.assert(packageManifest.xtend.releaseGates.includes(script), `release gates include ${script}`);
     context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(script), `release checklist includes ${script}`);
   });
-  context.assert(workflow.includes('npm run test:xscaler-public-api:report') && workflow.includes('npm run test:xscaler-php-preflight-parity:report') && workflow.includes('npm run test:rmt-xscaler-ssr-hydration-parity:report'), 'default CI workflow emits all XScaler closure reports');
-  context.assert(nightlyWorkflow.includes('npm run test:xscaler-public-api:report') && nightlyWorkflow.includes('npm run test:xscaler-php-preflight-parity:report') && nightlyWorkflow.includes('npm run test:rmt-xscaler-ssr-hydration-parity:report'), 'nightly workflow emits all XScaler closure reports');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "test:xscaler-public-api:report") && require("../utils/test-catalog").workflowHasScript(workflow, "test:xscaler-php-preflight-parity:report") && require("../utils/test-catalog").workflowHasScript(workflow, "test:rmt-xscaler-ssr-hydration-parity:report"), 'default CI workflow emits all XScaler closure reports');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:xscaler-public-api:report") && require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:xscaler-php-preflight-parity:report") && require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:rmt-xscaler-ssr-hydration-parity:report"), 'nightly workflow emits all XScaler closure reports');
   context.assert(exportLock.includes("'./xscaler/app-service-transport'") && exportLock.includes("'xscaler'"), 'package export lock owns the XScaler subpaths and pack root');
   ['XMS-09/XMS-10', 'xscaler-public-api', 'xscaler-php-preflight-parity', 'rmt-xscaler-ssr-hydration-parity', 'xscaler/schemas/*'].forEach((anchor) => {
     context.assert(closurePlan.includes(anchor), `XScaler closure plan documents ${anchor}`);

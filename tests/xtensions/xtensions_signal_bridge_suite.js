@@ -95,9 +95,9 @@ function runXTensionsSignalBridgeSuite(options = {}) {
     label: 'XTensions Signal Bridge and Event Governance Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.xtensionsSignalBridge;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const hostControllerContract = readText(HOST_CONTROLLER_CONTRACT_PATH, rootDir);
@@ -143,8 +143,8 @@ function runXTensionsSignalBridgeSuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/signal-bridge-contract.js', 'package exports Signal Bridge contract module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/signal-bridge-contract.d.ts', 'package exports Signal Bridge contract types');
   context.assert(packageManifest.scripts['test:xtensions-signal-bridge'] === 'node scripts/run_xtend_tests.js xtensions-signal-bridge', 'package exposes Signal Bridge test script');
-  context.assert(runner.includes("id: 'xtensions-signal-bridge'"), 'test runner exposes xtensions-signal-bridge suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xtensions-signal-bridge'), 'runner help references Signal Bridge gate');
+  context.assert(runner.hasSuite("xtensions-signal-bridge"), 'test runner exposes xtensions-signal-bridge suite');
+  context.assert(runner.hasSuite("xtensions-signal-bridge"), 'runner help references Signal Bridge gate');
 
   context.assert(backlog.includes('| `XTN-02` | P0 | completed | WS2 |'), 'backlog marks XTN-02 completed');
   context.assert(backlog.includes('development/XTensions-Signal-Bridge-and-Event-Governance-Contract.md'), 'backlog references Signal Bridge contract');

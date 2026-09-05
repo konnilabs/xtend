@@ -55,12 +55,12 @@ function runVisualSnapshotsSuite(options = {}) {
   const baseline = readJson(VISUAL_SNAPSHOTS_BASELINE_PATH, rootDir);
   const report = createVisualSnapshotsRun({ rootDir, baseline });
   const validation = validateVisualSnapshotsRun(report);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.visualSnapshots;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const fixture = readText(VISUAL_SNAPSHOTS_FIXTURE_PATH, rootDir);
   const runner = readText(VISUAL_SNAPSHOTS_RUNNER_PATH, rootDir);
-  const runnerIndex = readText('scripts/run_xtend_tests.js', rootDir);
+  const runnerIndex = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText('development/BACKLOG-EPIC-12-XTend-Long-Tail-Runtime-Hardening-und-Release-Candidate-Stabilisierung.md', rootDir);
   const rcModel = readText('development/XTend-Epic12-RC-Hardening-Modell.md', rootDir);
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
@@ -150,7 +150,7 @@ function runVisualSnapshotsSuite(options = {}) {
   context.assertIncludes(runner, VISUAL_SNAPSHOTS_FIXTURE_SCHEMA, 'Visual Snapshots runner declares fixture schema');
   context.assertIncludes(runner, VISUAL_SNAPSHOTS_BASELINE_SCHEMA, 'Visual Snapshots runner declares baseline schema');
   context.assertIncludes(runner, 'optional-local-pixel-diff', 'Visual Snapshots runner exposes optional pixel diff mode');
-  context.assertIncludes(runnerIndex, "id: 'visual-snapshots'", 'XTend runner registers Visual Snapshots suite');
+  context.assert(runnerIndex.hasSuite("visual-snapshots"), 'XTend runner registers Visual Snapshots suite');
   context.assert(packageManifest.scripts['test:visual-snapshots'] === 'node scripts/run_xtend_tests.js visual-snapshots', 'Package exposes Visual Snapshots test script');
   context.assert(metadata && metadata.schema === VISUAL_SNAPSHOTS_SCHEMA, 'Package metadata exposes Visual Snapshots runner schema');
   context.assert(metadata && metadata.fixtureSchema === VISUAL_SNAPSHOTS_FIXTURE_SCHEMA, 'Package metadata exposes Visual Snapshots fixture schema');

@@ -71,9 +71,9 @@ function runSurfaceManagerPersistenceSuite(options = {}) {
   const docs = readText(SURFACE_MANAGER_PERSISTENCE_DOCS, rootDir);
   const backlog = readText(SURFACE_MANAGER_PERSISTENCE_BACKLOG, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_PERSISTENCE_WORKPACKAGE_DOC, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerPersistence;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   REQUIRED_ARTIFACTS.forEach((filePath) => {
     assertFileExists(context, filePath, rootDir, `${filePath} exists as surface persistence artifact`);
@@ -174,8 +174,8 @@ function runSurfaceManagerPersistenceSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === SURFACE_MANAGER_PERSISTENCE_PACKAGE_SCRIPT, 'Package metadata exposes surface persistence package script');
   context.assert(metadata && metadata.createsSecondRegistry === false, 'Package metadata keeps no-second-registry boundary');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-persistence'] === 'node scripts/run_xtend_tests.js surface-persistence', 'Package script test:surface-persistence exists');
-  context.assertIncludes(runner, "require('../tests/components/surface_manager_persistence_suite')", 'Runner imports surface persistence suite');
-  context.assertIncludes(runner, "id: 'surface-persistence'", 'Runner registers surface persistence suite');
+  context.assert(runner.hasImplementation({ path: "tests/components/surface_manager_persistence_suite.js" }), 'Runner imports surface persistence suite');
+  context.assert(runner.hasSuite("surface-persistence"), 'Runner registers surface persistence suite');
 
   assertTextIncludesAll(context, backlog, [
     '`WP-SM-12` | P0 | completed',

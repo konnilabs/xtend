@@ -387,7 +387,7 @@ async function runSurfaceAndShellAssertions(context, actionRuntimeModule, render
 }
 
 function runGateAndContractAssertions(context, rootDir, toolingModule) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const xtendrmtPackage = readJson('xtendrmt/package.json', rootDir);
   const xplayerSource = readText('components/xplayer.js', rootDir);
   const xplayerTypes = readText('components/xplayer.d.ts', rootDir);

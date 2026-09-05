@@ -69,14 +69,14 @@ function runTypeExportsVendorSuite(options = {}) {
     id: 'type-exports-vendor',
     label: 'TypeExports Vendor and Utility Facade Gate'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const typeExportsPlan = createTypeExportsPlan({ rootDir, packageManifest });
   const plan = createTypeExportsVendorPlan({ rootDir, packageManifest, typeExportsPlan });
   const validation = validateTypeExportsVendorPlan(plan);
   const report = createTypeExportsVendorReport({ plan });
   const metadata = packageManifest.xtend && packageManifest.xtend.typeExportsVendor;
   const typeExportsMetadata = packageManifest.xtend && packageManifest.xtend.typeExports;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const docsReadme = readText('docs/en/README.md', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const backlog = readText(TYPE_EXPORTS_VENDOR_BACKLOG, rootDir);
@@ -166,8 +166,8 @@ function runTypeExportsVendorSuite(options = {}) {
   context.assert(typeExportsMetadata && typeExportsMetadata.completedWorkpackages.includes(TYPE_EXPORTS_VENDOR_WORKPACKAGE), 'TypeExports metadata records WP-TypeExports-08 completion');
   context.assert(typeExportsMetadata && typeExportsMetadata.completedWorkpackages.includes('WP-TypeExports-09'), 'TypeExports metadata records WP-TypeExports-09 completion');
   context.assert(typeExportsMetadata && Array.isArray(typeExportsMetadata.nextWorkpackages) && typeExportsMetadata.nextWorkpackages.length === 0, 'TypeExports metadata has no remaining TypeExports workpackages');
-  context.assertIncludes(runner, "id: 'type-exports-vendor'", 'Runner registers Vendor TypeExports suite');
-  context.assertIncludes(runner, 'runTypeExportsVendorSuite', 'Runner imports Vendor TypeExports suite');
+  context.assert(runner.hasSuite("type-exports-vendor"), 'Runner registers Vendor TypeExports suite');
+  context.assert(runner.hasImplementation({ function: "runTypeExportsVendorSuite" }), 'Runner imports Vendor TypeExports suite');
   context.assertIncludes(docsReadme, './xtend-vendor-types.md', 'Docs README links Vendor Type docs');
   context.assertIncludes(testsReadme, TYPE_EXPORTS_VENDOR_LOCAL_GATE, 'Tests README documents Vendor TypeExports gate');
 

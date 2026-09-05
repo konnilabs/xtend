@@ -56,8 +56,8 @@ function runXThemeTokenAliasLayerSuite(options = {}) {
     id: 'xtheme-token-alias-layer',
     label: 'ECH-WP-03 XTheme Token Alias Layer'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const doc = readText(XTHEME_TOKEN_ALIAS_LAYER_DOC_PATH, rootDir);
   const fixture = readText(XTHEME_TOKEN_ALIAS_LAYER_FIXTURE_PATH, rootDir);
@@ -223,8 +223,8 @@ function runXThemeTokenAliasLayerSuite(options = {}) {
   context.assertIncludes(backlog, XTHEME_TOKEN_ALIAS_LAYER_DOC_PATH, 'Backlog links Alias mapping doc');
   context.assertIncludes(backlog, XTHEME_TOKEN_ALIAS_LAYER_FIXTURE_PATH, 'Backlog links Alias fixture');
   context.assertIncludes(backlog, XTHEME_TOKEN_ALIAS_LAYER_LOCAL_GATE, 'Backlog exposes Alias local gate');
-  context.assertIncludes(runner, "id: 'xtheme-token-alias-layer'", 'Runner exposes XTheme Token Alias suite');
-  context.assertIncludes(runner, 'runXThemeTokenAliasLayerSuite', 'Runner imports XTheme Token Alias suite');
+  context.assert(runner.hasSuite("xtheme-token-alias-layer"), 'Runner exposes XTheme Token Alias suite');
+  context.assert(runner.hasImplementation({ function: "runXThemeTokenAliasLayerSuite" }), 'Runner imports XTheme Token Alias suite');
   context.assert(packageManifest.scripts['test:xtheme-token-alias-layer'] === 'node scripts/run_xtend_tests.js xtheme-token-alias-layer', 'Package exposes XTheme Token Alias script');
   context.assert(packageManifest.exports['./design-tokens/xtheme-token-alias-layer'].default === './design-tokens/xtheme-token-alias-layer.js', 'Package exports XTheme Token Alias module');
 

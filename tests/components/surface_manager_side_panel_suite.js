@@ -79,10 +79,10 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
   const validation = validateSurfaceManagerSidePanelPlan(plan);
   const report = createSurfaceManagerSidePanelReport({ rootDir, plan });
   const manifest = readJson('components/manifest.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerSidePanelRuntime;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const managerRuntime = readText('components/xsurfacemanager.js', rootDir);
   const panelRuntime = readText('components/xsidepanel.js', rootDir);
   const panelTypes = readText('components/xsidepanel.d.ts', rootDir);
@@ -295,8 +295,8 @@ function runSurfaceManagerSidePanelSuite(options = {}) {
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-side-panel'] === 'node scripts/run_xtend_tests.js surface-side-panel', 'Package script test:surface-side-panel exists');
   context.assertIncludes(scaffoldConfig, 'surfaceManagerSidePanelRuntime', 'Scaffold config exposes surfaceManagerSidePanelRuntime');
   context.assertIncludes(scaffoldConfig, 'components/xsidepanel.js', 'Scaffold config references x-side-panel runtime');
-  context.assertIncludes(runner, "require('../tests/components/surface_manager_side_panel_suite')", 'Runner imports SurfaceManager side-panel suite');
-  context.assertIncludes(runner, "id: 'surface-side-panel'", 'Runner registers surface-side-panel suite');
+  context.assert(runner.hasImplementation({ path: "tests/components/surface_manager_side_panel_suite.js" }), 'Runner imports SurfaceManager side-panel suite');
+  context.assert(runner.hasSuite("surface-side-panel"), 'Runner registers surface-side-panel suite');
   context.assertIncludes(docsMenu, 'surface-manager-side-panel-runtime', 'Docs menu contains SurfaceManager side-panel page');
   context.assertIncludes(referenceRegistry, 'WP-SM-04', 'Reference registry contains WP-SM-04');
   context.assertIncludes(referenceRegistry, 'components/xsidepanel.js', 'Reference registry contains x-side-panel runtime');

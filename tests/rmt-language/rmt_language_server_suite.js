@@ -115,7 +115,7 @@ function runInitializeAndDocumentSyncChecks(context, rootDir) {
   const fixture = createFixture(rootDir);
   const server = createRmtLanguageServer({ rootDir });
   const initialize = sendRequest(server, 1, 'initialize', {
-    rootPath: rootDir
+    rootUri: pathToFileURL(rootDir).href
   });
   const openNotifications = sendNotification(server, 'textDocument/didOpen', {
     textDocument: {
@@ -128,6 +128,7 @@ function runInitializeAndDocumentSyncChecks(context, rootDir) {
   const diagnostics = openNotifications[0];
 
   context.assert(server.schema === RMT_LANGUAGE_SERVER_SCHEMA, 'Language Server instance exposes schema');
+  context.assert(server.rootDir === rootDir, 'Workspace file URIs round-trip to native paths, including Windows drive roots');
   context.assert(initialize.result.serverInfo.name === SERVER_NAME, 'Initialize response exposes serverInfo');
   context.assert(initialize.result.capabilities.textDocumentSync.openClose === true, 'Initialize enables open/close sync');
   context.assert(initialize.result.capabilities.textDocumentSync.change === 1, 'Initialize uses full document sync');
@@ -332,9 +333,9 @@ function runStdioTransportHardeningChecks(context, rootDir) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtLanguageServer;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
 
@@ -352,7 +353,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert((typeof packageManifest.exports['./rmt-language-server'] === 'string' ? packageManifest.exports['./rmt-language-server'] : packageManifest.exports['./rmt-language-server'] && packageManifest.exports['./rmt-language-server'].default) === './tools/rmt-language-server/server.js', 'package exports RMT Language Server');
   context.assert((typeof packageManifest.exports['./rmt-language-server/protocol'] === 'string' ? packageManifest.exports['./rmt-language-server/protocol'] : packageManifest.exports['./rmt-language-server/protocol'] && packageManifest.exports['./rmt-language-server/protocol'].default) === './tools/rmt-language-server/protocol.js', 'package exports RMT Language Server protocol');
   context.assert(packageManifest.scripts['test:rmt-language-server'] === 'node scripts/run_xtend_tests.js rmt-language-server', 'package exposes rmt-language-server script');
-  context.assert(runner.includes("id: 'rmt-language-server'"), 'test runner exposes rmt-language-server suite');
+  context.assert(runner.hasSuite("rmt-language-server"), 'test runner exposes rmt-language-server suite');
   context.assert(epic.includes('| `WP-E14-09` | P1 | completed | WS5 |'), 'Epic marks WP-E14-09 completed');
   context.assert(epic.includes('WP-E14-10` ist `ready`'), 'Epic hands off WP-E14-10 as ready');
   context.assert(architecture.includes('Implementierungsstand nach `WP-E14-09`'), 'Architecture documents RMT Language Server status');

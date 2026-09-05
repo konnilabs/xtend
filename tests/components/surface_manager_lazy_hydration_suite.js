@@ -72,9 +72,9 @@ function runSurfaceManagerLazyHydrationSuite(options = {}) {
   const docs = readText(SURFACE_MANAGER_LAZY_LOADING_DOCS, rootDir);
   const backlog = readText(SURFACE_MANAGER_LAZY_LOADING_BACKLOG, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_LAZY_LOADING_WORKPACKAGE_DOC, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerLazyLoading;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const rmtCore = readText('xtendrmt/rmt-core.esm.js', rootDir);
   const rmtRuntime = readText('xtendrmt/rmt-runtime.esm.js', rootDir);
   const rmtBrowser = readText('xtendrmt/rmt-runtime.browser.js', rootDir);
@@ -220,8 +220,8 @@ function runSurfaceManagerLazyHydrationSuite(options = {}) {
   context.assert(metadata && metadata.docsAppMonkeypatch === false, 'Package metadata keeps docs app monkeypatch false');
   context.assert(metadata && metadata.createsSecondRegistry === false, 'Package metadata keeps no-second-registry boundary');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-lazy-hydration'] === 'node scripts/run_xtend_tests.js surface-lazy-hydration', 'Package script test:surface-lazy-hydration exists');
-  context.assertIncludes(runner, "require('../tests/components/surface_manager_lazy_hydration_suite')", 'Runner imports surface lazy hydration suite');
-  context.assertIncludes(runner, "id: 'surface-lazy-hydration'", 'Runner registers surface lazy hydration suite');
+  context.assert(runner.hasImplementation({ path: "tests/components/surface_manager_lazy_hydration_suite.js" }), 'Runner imports surface lazy hydration suite');
+  context.assert(runner.hasSuite("surface-lazy-hydration"), 'Runner registers surface lazy hydration suite');
 
   assertTextIncludesAll(context, backlog, [
     '`WP-SM-13` | P0 | completed',

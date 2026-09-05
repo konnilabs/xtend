@@ -60,13 +60,13 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
     id: 'rmt-node-ssr-adapter',
     label: 'RMT Node SSR Adapter'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const xtendrmtManifest = readJson('xtendrmt/package.json', rootDir);
   const manifest = readJson('components/manifest.json', rootDir);
   const sourceTexts = createSourceTexts(manifest, rootDir);
   const adapterSource = readText(RMT_NODE_SSR_ADAPTER_PATH, rootDir);
   const adapterTypes = readText(RMT_NODE_SSR_ADAPTER_TYPES, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const syntax = syntaxCheckFile(RMT_NODE_SSR_ADAPTER_PATH, { rootDir, extension: '.js' });
   const adapterApi = await import(`file://${resolveRepoPath(RMT_NODE_SSR_ADAPTER_PATH, rootDir)}`);
 
@@ -270,7 +270,7 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives'].includes('rmt-node-ssr-adapter'), 'primitive aggregate includes Node SSR adapter suite');
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives:report'].includes('rmt-node-ssr-adapter'), 'primitive report includes Node SSR adapter suite');
   context.assert((packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.suites || []).includes('rmt-node-ssr-adapter'), 'CI primitive gate includes Node SSR adapter suite');
-  context.assert(runner.includes("id: 'rmt-node-ssr-adapter'"), 'test runner registers Node SSR adapter suite');
+  context.assert(runner.hasSuite("rmt-node-ssr-adapter"), 'test runner registers Node SSR adapter suite');
   context.assert(packageManifest.xtend.rmtNodeSsrAdapter.schema === RMT_NODE_SSR_ADAPTER_SCHEMA, 'package metadata records Node SSR adapter schema');
   context.assert(packageManifest.xtend.rmtNodeSsrAdapter.localGate === RMT_NODE_SSR_LOCAL_GATE, 'package metadata records Node SSR adapter local gate');
   context.assert(packageManifest.xtend.rmtNodeSsrAdapter.packageScript === RMT_NODE_SSR_PACKAGE_SCRIPT, 'package metadata records Node SSR adapter package script');

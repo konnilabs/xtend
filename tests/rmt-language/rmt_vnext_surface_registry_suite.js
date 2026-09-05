@@ -76,9 +76,9 @@ function runRmtVNextSurfaceRegistrySuite(options = {}) {
     id: 'rmt-vnext-surfaces',
     label: 'Epic 15 RMT vNext Surface Registry Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextSurfaces;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
   const surfaceContract = readText(SURFACE_CONTRACT_PATH, rootDir);
   const surfaceSyntax = syntaxCheckFile(RMT_VNEXT_SURFACE_MODULE_PATH, { rootDir, extension: '.js' });
@@ -102,7 +102,7 @@ function runRmtVNextSurfaceRegistrySuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_SURFACE_PACKAGE_SCRIPT, 'package metadata declares surface package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-surfaces'] === 'string' ? packageManifest.exports['./rmt-language/vnext-surfaces'] : packageManifest.exports['./rmt-language/vnext-surfaces'] && packageManifest.exports['./rmt-language/vnext-surfaces'].default) === './tools/rmt-language/vnext-surfaces.js', 'package exports vNext surfaces contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-surfaces'] === 'node scripts/run_xtend_tests.js rmt-vnext-surfaces', 'package exposes vNext surfaces script');
-  context.assert(runner.includes("id: 'rmt-vnext-surfaces'"), 'test runner exposes rmt-vnext-surfaces suite');
+  context.assert(runner.hasSuite("rmt-vnext-surfaces"), 'test runner exposes rmt-vnext-surfaces suite');
   context.assert(epic.includes('| `WP-E15-08` | P1 | completed | WS2 |'), 'Epic marks WP-E15-08 completed');
   context.assert(
     epic.includes('| `WP-E15-09` | P1 | completed | WS3 |'),

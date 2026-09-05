@@ -14,6 +14,7 @@ const LOCKED_MANIFEST_SECTIONS = [
   'peerDependencies',
   'peerDependenciesMeta'
 ];
+const DEPENDENCY_SECTIONS = ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies'];
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -59,6 +60,9 @@ function verifyProductLock(rootDir, productPath) {
   const manifest = readJson(manifestPath);
   const lock = readJson(lockPath);
   const rootRecord = lock.packages && lock.packages[''];
+  for (const section of DEPENDENCY_SECTIONS) {
+    if (!valuesMatch(rootRecord && rootRecord[section], manifest[section])) errors.push(`${productPath}: root lock ${section} differs from package.json`);
+  }
   const fileDependencies = Object.entries(manifest.dependencies || {})
     .filter(([, specifier]) => typeof specifier === 'string' && specifier.startsWith('file:'));
 
@@ -101,10 +105,50 @@ function verifyProductLock(rootDir, productPath) {
   };
 }
 
+function verifyWorkspaceLock(rootDir) {
+  const errors = [];
+  const result = { productPath: '.', fileDependencies: 0, errors };
+  if (!fs.existsSync(path.join(rootDir, 'package.json')) || !fs.existsSync(path.join(rootDir, 'package-lock.json'))) {
+    errors.push('Root package.json and package-lock.json are required');
+    return result;
+  }
+  const manifest = readJson(path.join(rootDir, 'package.json'));
+  const lock = readJson(path.join(rootDir, 'package-lock.json'));
+  const packages = lock.packages || {};
+  const workspaces = Array.isArray(manifest.workspaces) ? manifest.workspaces : manifest.workspaces?.packages || [];
+  if (JSON.stringify(packages['']?.workspaces) !== JSON.stringify(manifest.workspaces)) errors.push('Root lock workspace declarations differ from package.json');
+  const internal = new Map();
+  for (const directory of workspaces) {
+    if (/[?*{}]/u.test(directory)) { errors.push(`Unsupported workspace pattern in lock guard: ${directory}`); continue; }
+    const file = path.resolve(rootDir, directory, 'package.json');
+    if (!file.startsWith(`${path.resolve(rootDir)}${path.sep}`) || !fs.existsSync(file)) { errors.push(`Missing workspace manifest: ${directory}`); continue; }
+    const pkg = readJson(file);
+    if (internal.has(pkg.name)) errors.push(`Duplicate workspace package: ${pkg.name}`);
+    internal.set(pkg.name, directory);
+    const link = packages[`node_modules/${pkg.name}`];
+    if (!link?.link || path.resolve(rootDir, link.resolved || '') !== path.dirname(file)) errors.push(`Workspace ${pkg.name} must resolve to local ${directory}, not the registry`);
+  }
+  for (const directory of ['', ...internal.values()]) {
+    const pkg = directory ? readJson(path.join(rootDir, directory, 'package.json')) : manifest;
+    const record = packages[directory];
+    if (!record || record.version !== pkg.version) errors.push(`Lock version differs for ${directory || 'root'}`);
+    for (const section of DEPENDENCY_SECTIONS) if (!valuesMatch(record?.[section], pkg[section])) errors.push(`Lock ${section} differs for ${directory || 'root'}`);
+  }
+  // Nested copies can silently fetch internal peers from npm even when the top-level link is correct.
+  for (const [key, record] of Object.entries(packages)) {
+    for (const [name, directory] of internal) {
+      if (!key.endsWith(`node_modules/${name}`)) continue;
+      if (!record.link || path.resolve(rootDir, record.resolved || '') !== path.resolve(rootDir, directory)) errors.push(`Registry or foreign resolution of internal workspace ${name}: ${key}`);
+    }
+  }
+  result.fileDependencies = internal.size;
+  return result;
+}
+
 function verifyCiDependencyLocks(options = {}) {
   const rootDir = options.rootDir || path.resolve(__dirname, '..');
   const productPaths = options.productPaths || PRODUCT_LOCK_PATHS;
-  const products = productPaths.map((productPath) => verifyProductLock(rootDir, productPath));
+  const products = [verifyWorkspaceLock(rootDir), ...productPaths.map((productPath) => verifyProductLock(rootDir, productPath))];
   const errors = products.flatMap((product) => product.errors);
   return {
     schema: REPORT_SCHEMA,

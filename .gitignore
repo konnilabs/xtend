@@ -54,3 +54,5 @@ products/resumability-maraca-erp-demo/.cache/
 products/resumability-maraca-erp-demo/.visual-*.png
 products/resumability-maraca-erp-demo/**/.DS_Store
 .DS_Store
+
+.project-index-cache/

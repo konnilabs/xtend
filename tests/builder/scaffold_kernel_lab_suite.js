@@ -117,8 +117,8 @@ function runScaffoldKernelLabSuite(options = {}) {
   const cliSource = readText('xtend-builder/lib/cli.js', rootDir);
   const readme = readText('xtend-builder/README.md', rootDir);
   const generatorsReadme = readText('xtend-builder/generators/README.md', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   context.assert(generatorSource.includes(RMT_KERNEL_LAB_ANALYSIS_SCHEMA), 'KernelLab generator exposes analysis schema');
   context.assert(generatorSource.includes(RMT_KERNEL_LAB_BUILD_SCHEMA), 'KernelLab generator exposes build schema');
@@ -209,7 +209,7 @@ function runScaffoldKernelLabSuite(options = {}) {
   context.assert(readme.includes('kernel-lab analyze --json'), 'Scaffold README documents kernel-lab analyze');
   context.assert(generatorsReadme.includes('rmt-kernel-lab'), 'Generator README documents rmt-kernel-lab');
   context.assert(packageManifest.scripts['test:scaffold-kernel-lab'] === 'node scripts/run_xtend_tests.js scaffold-kernel-lab', 'Package exposes scaffold KernelLab test script');
-  context.assert(runner.includes("id: 'scaffold-kernel-lab'"), 'XTend test runner registers scaffold-kernel-lab gate');
+  context.assert(runner.hasSuite("scaffold-kernel-lab"), 'XTend test runner registers scaffold-kernel-lab gate');
 
   const validMvcManifest = {
     schema: RMT_KERNEL_SOURCE_MANIFEST_SCHEMA,

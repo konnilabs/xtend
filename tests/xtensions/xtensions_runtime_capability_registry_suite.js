@@ -100,9 +100,9 @@ function runXTensionsRuntimeCapabilityRegistrySuite(options = {}) {
     label: 'XTensions Runtime Capability Registry and Loading Policy Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.xtensionsRuntimeCapabilityRegistry;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const hostControllerContract = readText(HOST_CONTROLLER_CONTRACT_PATH, rootDir);
@@ -154,8 +154,8 @@ function runXTensionsRuntimeCapabilityRegistrySuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/runtime-capability-registry.js', 'package exports runtime capability registry module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/runtime-capability-registry.d.ts', 'package exports runtime capability registry types');
   context.assert(packageManifest.scripts['test:xtensions-runtime-capability-registry'] === 'node scripts/run_xtend_tests.js xtensions-runtime-capability-registry', 'package exposes runtime capability registry script');
-  context.assert(runner.includes("id: 'xtensions-runtime-capability-registry'"), 'test runner exposes xtensions-runtime-capability-registry suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xtensions-runtime-capability-registry'), 'runner help references runtime capability registry gate');
+  context.assert(runner.hasSuite("xtensions-runtime-capability-registry"), 'test runner exposes xtensions-runtime-capability-registry suite');
+  context.assert(runner.hasSuite("xtensions-runtime-capability-registry"), 'runner help references runtime capability registry gate');
 
   context.assert(backlog.includes('| `XTN-05` | P1 | completed | WS5 |'), 'backlog marks XTN-05 completed');
   context.assert(backlog.includes('development/XTensions-Runtime-Capability-Registry-and-Loading-Policy-Contract.md'), 'backlog references runtime capability registry contract');

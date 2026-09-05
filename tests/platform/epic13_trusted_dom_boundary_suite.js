@@ -149,14 +149,14 @@ async function runEpic13TrustedDomBoundarySuite(options = {}) {
   const plan = createEpic13TrustedDomBoundaryPlan({ rootDir });
   const validation = validateEpic13TrustedDomBoundaryPlan(plan);
   const report = createEpic13TrustedDomBoundaryReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic13TrustedDomBoundary;
   const rc1Metadata = packageManifest.xtend && packageManifest.xtend.epic13Rc1Readiness;
   const ownerMetadata = packageManifest.xtend && packageManifest.xtend.epic13ReleaseOwnerAcceptance;
   const docsRmtMetadata = packageManifest.xtend && packageManifest.xtend.epic13DocsRmtProductionHardening;
   const packageLockMetadata = packageManifest.xtend && packageManifest.xtend.epic13PackageExportLock;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const policySource = readText('security/trusted-dom-policy.js', rootDir);
   const pageLoader = [
     readText('docs/utils/pageloader.js', rootDir),
@@ -328,7 +328,7 @@ async function runEpic13TrustedDomBoundarySuite(options = {}) {
   context.assertIncludes(scaffoldConfig, EPIC13_TRUSTED_DOM_BOUNDARY_SCHEMA, 'Scaffold config declares Trusted DOM boundary schema');
   context.assertIncludes(scaffoldConfig, `expectedExportCount: ${packageLockMetadata.expectedExportCount}`, 'Scaffold config updates package export count');
   context.assertIncludes(scaffoldConfig, `nextWorkpackage: "${NEXT_WORKPACKAGE}"`, 'Scaffold config advances Epic 13 handoff to WP-E13-13');
-  context.assertIncludes(runner, "id: 'epic13-trusted-dom-boundary'", 'Runner registers Trusted DOM boundary suite');
+  context.assert(runner.hasSuite("epic13-trusted-dom-boundary"), 'Runner registers Trusted DOM boundary suite');
 
   assertTextIncludesAll(context, steering, [
     EPIC13_TRUSTED_DOM_BOUNDARY_SCHEMA,

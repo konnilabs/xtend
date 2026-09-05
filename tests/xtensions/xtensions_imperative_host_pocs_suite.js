@@ -131,9 +131,9 @@ function runXTensionsImperativeHostPocsSuite(options = {}) {
     label: 'XTensions Chart.js and Leaflet Imperative Host PoCs Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.xtensionsImperativeHostPocs;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const hostControllerContract = readText(HOST_CONTROLLER_CONTRACT_PATH, rootDir);
@@ -228,8 +228,8 @@ function runXTensionsImperativeHostPocsSuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/imperative-host-pocs.js', 'package exports imperative host PoCs module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/imperative-host-pocs.d.ts', 'package exports imperative host PoCs types');
   context.assert(packageManifest.scripts['test:xtensions-imperative-host-pocs'] === 'node scripts/run_xtend_tests.js xtensions-imperative-host-pocs', 'package exposes imperative host PoCs script');
-  context.assert(runner.includes("id: 'xtensions-imperative-host-pocs'"), 'test runner exposes xtensions-imperative-host-pocs suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xtensions-imperative-host-pocs'), 'runner help references imperative host PoCs gate');
+  context.assert(runner.hasSuite("xtensions-imperative-host-pocs"), 'test runner exposes xtensions-imperative-host-pocs suite');
+  context.assert(runner.hasSuite("xtensions-imperative-host-pocs"), 'runner help references imperative host PoCs gate');
 
   context.assert(backlog.includes('| `XTN-08` | P1/P2 | completed | WS7 |'), 'backlog marks XTN-08 completed');
   context.assert(backlog.includes('development/XTensions-Chart-Leaflet-Imperative-Host-PoCs-Contract.md'), 'backlog references Chart/Leaflet imperative host PoCs contract');

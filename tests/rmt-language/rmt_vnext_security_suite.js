@@ -133,9 +133,9 @@ function runRmtVNextSecuritySuite(options = {}) {
     id: 'rmt-vnext-security',
     label: 'Epic 15 RMT vNext Security Policy Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextSecurity;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
   const securityContract = readText(SECURITY_CONTRACT_PATH, rootDir);
   const moduleSyntax = syntaxCheckFile(RMT_VNEXT_SECURITY_MODULE_PATH, { rootDir, extension: '.js' });
@@ -163,7 +163,7 @@ function runRmtVNextSecuritySuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_SECURITY_PACKAGE_SCRIPT, 'package metadata declares security package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-security'] === 'string' ? packageManifest.exports['./rmt-language/vnext-security'] : packageManifest.exports['./rmt-language/vnext-security'] && packageManifest.exports['./rmt-language/vnext-security'].default) === './tools/rmt-language/vnext-security.js', 'package exports vNext security contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-security'] === 'node scripts/run_xtend_tests.js rmt-vnext-security', 'package exposes vNext security script');
-  context.assert(runner.includes("id: 'rmt-vnext-security'"), 'test runner exposes rmt-vnext-security suite');
+  context.assert(runner.hasSuite("rmt-vnext-security"), 'test runner exposes rmt-vnext-security suite');
   context.assert(epic.includes('| `WP-E15-13` | P1 | completed | WS4 |'), 'Epic marks WP-E15-13 completed');
   context.assert(epic.includes('| `WP-E15-14` | P1 | completed | WS4 |'), 'Epic keeps WP-E15-14 completed after security contract');
   context.assert(securityContract.includes('schema: "xtend.rmt.vnext-security-policy-contract.v1"'), 'Security contract document declares schema');

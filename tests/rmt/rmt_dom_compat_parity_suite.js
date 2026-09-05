@@ -250,7 +250,7 @@ async function runRmtDomCompatParitySuite(options = {}) {
   const managerSource = readText(SURFACE_MANAGER_RUNTIME, rootDir);
   const sourceController = readText(SURFACE_CONTROLLER_SOURCE, rootDir);
   const sourceRecord = readText(SURFACE_RECORD_SOURCE, rootDir);
-  const runnerSource = readText('scripts/run_xtend_tests.js', rootDir);
+  const runnerSource = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   [
     RMT_CORE_RUNTIME,
@@ -295,7 +295,7 @@ async function runRmtDomCompatParitySuite(options = {}) {
   context.assertIncludes(sourceRecord, 'ownershipMode: string | null;', 'Surface record source exposes ownershipMode');
   context.assertIncludes(managerSource, "options.removeElement === true", 'SurfaceManager destroy keeps explicit removeElement contract');
   context.assertIncludes(managerSource, "data-rmt-materialized-surface') === 'true'", 'SurfaceManager destroy removes materialized owned surfaces');
-  context.assertIncludes(runnerSource, "id: 'rmt-dom-compat-parity'", 'Test runner exposes DomCompat parity suite');
+  context.assert(runnerSource.hasSuite("rmt-dom-compat-parity"), 'Test runner exposes DomCompat parity suite');
 
   const scenario = await runDomCompatParityScenario(rootDir);
   context.assert(scenario.schema === DOM_COMPAT_PARITY_SCHEMA, 'DomCompat parity scenario exposes stable schema');

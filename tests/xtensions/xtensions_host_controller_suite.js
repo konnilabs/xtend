@@ -66,9 +66,9 @@ function runXTensionsHostControllerSuite(options = {}) {
     label: 'XTensions HostController Lifecycle Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.xtensionsHostController;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const hostControllerContract = readText(HOST_CONTROLLER_CONTRACT_PATH, rootDir);
@@ -107,7 +107,7 @@ function runXTensionsHostControllerSuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/host-controller-contract.js', 'package exports HostController contract module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/host-controller-contract.d.ts', 'package exports HostController contract types');
   context.assert(packageManifest.scripts['test:xtensions-host-controller'] === 'node scripts/run_xtend_tests.js xtensions-host-controller', 'package exposes HostController test script');
-  context.assert(runner.includes("id: 'xtensions-host-controller'"), 'test runner exposes xtensions-host-controller suite');
+  context.assert(runner.hasSuite("xtensions-host-controller"), 'test runner exposes xtensions-host-controller suite');
 
   context.assert(backlog.includes('| `XTN-01` | P0 | completed | WS1 |'), 'backlog marks XTN-01 completed');
   context.assert(backlog.includes('development/XTensions-HostController-Lifecycle-Contract.md'), 'backlog references HostController contract');

@@ -215,9 +215,9 @@ function runSyntaxNoopChecks(context) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtAgentRepairReport;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
   const contract = readText(AGENT_CONTRACT_PATH, rootDir);
@@ -232,7 +232,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.cliCommand === 'xt rmt lint <target> --agent', 'package metadata declares CLI agent command');
   context.assert((typeof packageManifest.exports['./rmt-linter/reporter'] === 'string' ? packageManifest.exports['./rmt-linter/reporter'] : packageManifest.exports['./rmt-linter/reporter'] && packageManifest.exports['./rmt-linter/reporter'].default) === './tools/rmt-linter/reporter.js', 'package exports RMT Agent reporter');
   context.assert(packageManifest.scripts['test:rmt-agent-report'] === 'node scripts/run_xtend_tests.js rmt-agent-report', 'package exposes rmt-agent-report script');
-  context.assert(runner.includes("id: 'rmt-agent-report'"), 'test runner exposes rmt-agent-report suite');
+  context.assert(runner.hasSuite("rmt-agent-report"), 'test runner exposes rmt-agent-report suite');
   context.assert(epic.includes('| `WP-E14-11` | P1 | completed | WS6 |'), 'Epic marks WP-E14-11 completed');
   context.assert(epic.includes('WP-E14-12` ist `ready`'), 'Epic hands off WP-E14-12 as ready');
   context.assert(architecture.includes('Implementierungsstand nach `WP-E14-11`'), 'Architecture documents Agent Repair report status');

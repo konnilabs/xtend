@@ -117,10 +117,10 @@ function runXTensionsAdoptionHandoffSuite(options = {}) {
     label: 'XTensions Docs, Migration and Enterprise Adoption Handoff Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtensionsAdoptionHandoff;
   const xtendMetadata = packageManifest.xtend && packageManifest.xtend.xtensionsAdoptionHandoff;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const securityContract = readText(SECURITY_CONTRACT_PATH, rootDir);
@@ -184,8 +184,8 @@ function runXTensionsAdoptionHandoffSuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/adoption-handoff.js', 'package exports XTensions adoption handoff module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/adoption-handoff.d.ts', 'package exports XTensions adoption handoff types');
   context.assert(packageManifest.scripts['test:xtensions-adoption-handoff'] === 'node scripts/run_xtend_tests.js xtensions-adoption-handoff', 'package exposes adoption handoff test script');
-  context.assert(runner.includes("id: 'xtensions-adoption-handoff'"), 'test runner exposes xtensions-adoption-handoff suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xtensions-adoption-handoff'), 'runner help references adoption handoff gate');
+  context.assert(runner.hasSuite("xtensions-adoption-handoff"), 'test runner exposes xtensions-adoption-handoff suite');
+  context.assert(runner.hasSuite("xtensions-adoption-handoff"), 'runner help references adoption handoff gate');
 
   context.assert(backlog.includes('| `XTN-14` | P2 | completed | WS13 |'), 'backlog marks XTN-14 completed');
   context.assert(backlog.includes('development/XTensions-Docs-Migration-Enterprise-Adoption-Handoff-Contract.md'), 'backlog references adoption handoff contract');

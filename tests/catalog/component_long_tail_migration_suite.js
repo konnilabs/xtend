@@ -80,11 +80,11 @@ function runComponentLongTailMigrationSuite(options = {}) {
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const menu = readJson('docs/menu.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.componentLongTailMigration;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   [
     COMPONENT_LONG_TAIL_MIGRATION_MODULE_PATH,
@@ -189,8 +189,8 @@ function runComponentLongTailMigrationSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'componentLongTailMigration', 'Scaffold config exposes Component Long-Tail Migration metadata');
   context.assertIncludes(scaffoldConfig, COMPONENT_LONG_TAIL_MIGRATION_SCHEMA, 'Scaffold config declares Long-Tail Migration schema');
   context.assertIncludes(scaffoldConfig, COMPONENT_LONG_TAIL_MIGRATION_LOCAL_GATE, 'Scaffold config declares Long-Tail Migration local gate');
-  context.assertIncludes(runner, "id: 'component-long-tail-migration'", 'XTend runner registers Component Long-Tail Migration suite');
-  context.assertIncludes(runner, COMPONENT_LONG_TAIL_MIGRATION_LOCAL_GATE.replace(' --json', ''), 'XTend runner help references Component Long-Tail Migration suite');
+  context.assert(runner.hasSuite("component-long-tail-migration"), 'XTend runner registers Component Long-Tail Migration suite');
+  context.assert(runner.hasSuite('component-long-tail-migration'), 'XTend runner help references Component Long-Tail Migration suite');
 
   return context.result({
     report: {

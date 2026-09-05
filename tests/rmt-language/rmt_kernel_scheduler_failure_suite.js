@@ -366,10 +366,10 @@ async function runRmtKernelSchedulerFailureSuite(options = {}) {
     id: 'rmt-kernel-scheduler-failure',
     label: 'RKSH-WP-07 Scheduler Failure Semantics'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtKernelSchedulerFailure;
   const packageExport = getPackageExport(packageManifest, './rmt-language/kernel-scheduler-failure');
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const catalog = readText('catalog/type-exports-rmt.js', rootDir);
   const backlog = readText(RMT_KERNEL_SECURITY_BACKLOG, rootDir);
   const contract = readText(RMT_KERNEL_SCHEDULER_FAILURE_CONTRACT_PATH, rootDir);
@@ -403,8 +403,8 @@ async function runRmtKernelSchedulerFailureSuite(options = {}) {
   context.assert(metadata && metadata.workpackage === RMT_KERNEL_SCHEDULER_FAILURE_WORKPACKAGE, 'package metadata points to RKSH-WP-07');
   context.assert(metadata && metadata.localGate === RMT_KERNEL_SCHEDULER_FAILURE_LOCAL_GATE, 'package metadata exposes scheduler failure local gate');
   context.assert(metadata && metadata.packageScript === RMT_KERNEL_SCHEDULER_FAILURE_PACKAGE_SCRIPT, 'package metadata exposes scheduler failure package script');
-  context.assertIncludes(runner, "id: 'rmt-kernel-scheduler-failure'", 'runner registers scheduler failure suite');
-  context.assertIncludes(runner, 'runRmtKernelSchedulerFailureSuite', 'runner imports scheduler failure suite');
+  context.assert(runner.hasSuite("rmt-kernel-scheduler-failure"), 'runner registers scheduler failure suite');
+  context.assert(runner.hasImplementation({ function: "runRmtKernelSchedulerFailureSuite" }), 'runner imports scheduler failure suite');
   context.assertIncludes(catalog, './rmt-language/kernel-scheduler-failure', 'type export catalog includes scheduler failure export');
 
   runStandaloneSchedulerFailureAssertions(context);

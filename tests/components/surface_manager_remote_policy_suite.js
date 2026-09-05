@@ -195,9 +195,9 @@ function runSurfaceManagerRemotePolicySuite(options = {}) {
   const docs = readText(SURFACE_MANAGER_REMOTE_POLICY_DOCS, rootDir);
   const backlog = readText(SURFACE_MANAGER_REMOTE_POLICY_BACKLOG, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_REMOTE_POLICY_WORKPACKAGE_DOC, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerRemotePolicy;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   REQUIRED_ARTIFACTS.forEach((filePath) => {
     assertFileExists(context, filePath, rootDir, `${filePath} exists as remote policy artifact`);
@@ -368,8 +368,8 @@ function runSurfaceManagerRemotePolicySuite(options = {}) {
   context.assert(metadata && metadata.rmtKernelRemoteExecution === false, 'Package metadata keeps remote runtime execution false');
   context.assert(metadata && metadata.createsSecondRegistry === false, 'Package metadata keeps no-second-registry boundary');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-remote-policy'] === 'node scripts/run_xtend_tests.js surface-remote-policy', 'Package script test:surface-remote-policy exists');
-  context.assertIncludes(runner, "require('../tests/components/surface_manager_remote_policy_suite')", 'Runner imports remote policy suite');
-  context.assertIncludes(runner, "id: 'surface-remote-policy'", 'Runner registers remote policy suite');
+  context.assert(runner.hasImplementation({ path: "tests/components/surface_manager_remote_policy_suite.js" }), 'Runner imports remote policy suite');
+  context.assert(runner.hasSuite("surface-remote-policy"), 'Runner registers remote policy suite');
 
   assertTextIncludesAll(context, backlog, [
     '`WP-SM-17` | P1 | completed',

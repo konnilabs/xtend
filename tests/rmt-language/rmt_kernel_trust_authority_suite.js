@@ -71,10 +71,10 @@ function runRmtKernelTrustAuthoritySuite(options = {}) {
     id: 'rmt-kernel-trust-authority',
     label: 'RKSH-WP-01 Kernel Trust Authority Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtKernelTrustAuthority;
   const packageExport = getPackageExport(packageManifest, './rmt-language/kernel-trust-authority');
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const baselineContract = readText(BASELINE_CONTRACT_PATH, rootDir);
   const trustAuthorityContract = readText(RMT_KERNEL_TRUST_AUTHORITY_CONTRACT_PATH, rootDir);
@@ -109,8 +109,8 @@ function runRmtKernelTrustAuthoritySuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_KERNEL_TRUST_AUTHORITY_SUITE_PATH, 'package metadata points to trust authority suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-kernel-trust-authority --json', 'package metadata exposes local gate');
   context.assert(metadata && metadata.packageScript === RMT_KERNEL_TRUST_AUTHORITY_PACKAGE_SCRIPT, 'package metadata exposes package script');
-  context.assertIncludes(runner, "id: 'rmt-kernel-trust-authority'", 'runner registers kernel trust authority suite');
-  context.assertIncludes(runner, 'runRmtKernelTrustAuthoritySuite', 'runner imports kernel trust authority suite');
+  context.assert(runner.hasSuite("rmt-kernel-trust-authority"), 'runner registers kernel trust authority suite');
+  context.assert(runner.hasImplementation({ function: "runRmtKernelTrustAuthoritySuite" }), 'runner imports kernel trust authority suite');
 
   assertIncludesAll(context, KERNEL_TRUST_VERDICTS, ['trusted', 'sanitized', 'blocked', 'panic'], 'trust verdicts');
   assertIncludesAll(context, KERNEL_TRUST_SCOPES, ['binding', 'slot', 'template', 'surface', 'remote-surface', 'scheduler-job', 'kernel'], 'trust scopes');

@@ -273,9 +273,9 @@ function runRmtLinterRulesSuite(options = {}) {
     id: 'rmt-linter-rules',
     label: 'Epic 14 RMT Linter Rule Engine'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtLinterRules;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
   const moduleSyntax = syntaxCheckFile(RMT_LINTER_DIAGNOSTICS_MODULE_PATH, { rootDir, extension: '.js' });
@@ -303,7 +303,7 @@ function runRmtLinterRulesSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_LINTER_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert((typeof packageManifest.exports['./rmt-language/diagnostics'] === 'string' ? packageManifest.exports['./rmt-language/diagnostics'] : packageManifest.exports['./rmt-language/diagnostics'] && packageManifest.exports['./rmt-language/diagnostics'].default) === './tools/rmt-language/diagnostics.js', 'package exports RMT Linter diagnostics');
   context.assert(packageManifest.scripts['test:rmt-linter-rules'] === 'node scripts/run_xtend_tests.js rmt-linter-rules', 'package exposes rmt-linter-rules script');
-  context.assert(runner.includes("id: 'rmt-linter-rules'"), 'test runner exposes rmt-linter-rules suite');
+  context.assert(runner.hasSuite("rmt-linter-rules"), 'test runner exposes rmt-linter-rules suite');
   context.assert(epic.includes('| `WP-E14-05` | P0 | completed | WS2 |'), 'Epic marks WP-E14-05 completed');
   context.assert(epic.includes('WP-E14-06` ist `ready`'), 'Epic hands off WP-E14-06 as ready');
   context.assert(architecture.includes('Implementierungsstand nach `WP-E14-05`'), 'Architecture documents linter rule engine status');

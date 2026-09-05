@@ -140,6 +140,7 @@ function buildHelpText() {
     '',
     'Usage:',
     '  xt --help',
+    '  xt index build|symbols|references|impact --root <project> --json',
     '  xt create app --runtime maraca --design-kit none --out rmt-app --write --json',
     '  xt create app --runtime maraca --design-kit material --out material-app --write --json',
     '  xt serve --root dist --port 4173',
@@ -360,6 +361,11 @@ function runCli(args = process.argv.slice(2), io = {}) {
   const stderr = io.stderr || process.stderr;
   const options = parseArgs(args);
   const command = normalizeCommand(options.command || (options.help ? 'help' : 'help'));
+
+  if (command === 'index') {
+    const { runProjectIndexCli } = requireLocalOrScoped(__filename, '../../tools/project-index/cli', '@ccslabs/xtend-compiler/project-index/cli');
+    return runProjectIndexCli(options.rest.concat(options.json ? ['--json'] : [], options.help ? ['--help'] : []), { stdout, stderr });
+  }
 
   if (command === 'help' || (options.help && command !== 'create' && command !== 'serve' && command !== 'rmt' && command !== 'maraca')) {
     writeLine(stdout, buildHelpText());

@@ -241,9 +241,9 @@ function runSurfaceManagerMaterializationSuite(options = {}) {
   const fixture = readJson(SURFACE_MANAGER_MATERIALIZATION_FIXTURE, rootDir);
   const coreTypes = readText('xtendrmt/rmt-core.d.ts', rootDir);
   const coreRuntime = readText('xtendrmt/rmt-core.esm.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerMaterialization;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(SURFACE_MANAGER_MATERIALIZATION_BACKLOG, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_MATERIALIZATION_WORKPACKAGE_DOC, rootDir);
 
@@ -458,8 +458,8 @@ function runSurfaceManagerMaterializationSuite(options = {}) {
   context.assert(metadata && metadata.localGate === SURFACE_MANAGER_MATERIALIZATION_LOCAL_GATE, 'Package metadata exposes surface materialization gate');
   context.assert(metadata && metadata.packageScript === SURFACE_MANAGER_MATERIALIZATION_PACKAGE_SCRIPT, 'Package metadata exposes surface materialization package script');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-native-materialization'] === 'node scripts/run_xtend_tests.js surface-native-materialization', 'Package script test:surface-native-materialization exists');
-  context.assertIncludes(runner, "require('../tests/rmt/surface_manager_materialization_suite')", 'Runner imports surface materialization suite');
-  context.assertIncludes(runner, "id: 'surface-native-materialization'", 'Runner registers surface materialization suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/surface_manager_materialization_suite.js" }), 'Runner imports surface materialization suite');
+  context.assert(runner.hasSuite("surface-native-materialization"), 'Runner registers surface materialization suite');
   assertTextIncludesAll(context, backlog, [
     '`WP-SM-11` | P0 | completed',
     'Native `surfaces[*]` in XTend-UI-Komponenten materialisieren',

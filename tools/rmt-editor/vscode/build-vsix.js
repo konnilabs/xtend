@@ -31,7 +31,8 @@ const DIRECTORIES_TO_STAGE = [
 
 const REPO_DIRECTORIES_TO_STAGE = [
   'tools/rmt-language-server',
-  'tools/rmt-language'
+  'tools/rmt-language',
+  'tools/project-index'
 ];
 
 const MCP_LOCAL_PACKAGES = new Map([
@@ -238,6 +239,8 @@ function stageExtension() {
   FILES_TO_STAGE.forEach(copyFile);
   DIRECTORIES_TO_STAGE.forEach(copyDir);
   REPO_DIRECTORIES_TO_STAGE.forEach(copyRepoDir);
+  // The RMT format adapter loads its canonical core artifact relative to tools/.
+  copyPublishedPackage(path.join(REPO_ROOT, 'xtendrmt'), path.join(EXTENSION_STAGE_DIR, 'xtendrmt'));
   const mcpPackage = stageMcpPackage();
 
   const pkg = readPackage();

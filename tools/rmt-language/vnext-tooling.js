@@ -769,6 +769,8 @@ function analyzeRmtVNextToolingSource(input = {}, options = {}) {
   const diagnostics = toArray(compileResult.diagnostics).map((diagnostic) => normalizeDiagnostic(diagnostic, sourceModel));
   const status = compileResult.ok ? 'indexed' : 'source_unavailable';
   const indexes = coreDocument ? buildVNextIndexes(coreDocument) : buildVNextIndexes({});
+  require('./navigation-facts').attachVNextPositions(indexes,
+    compileResult.parserResult && compileResult.parserResult.ast, sourceMap);
 
   return {
     schema: RMT_VNEXT_TOOLING_SCHEMA,

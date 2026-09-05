@@ -42,8 +42,8 @@ function runEnterpriseNavigationRoutingStateHardeningSuite(options = {}) {
     id: 'enterprise-navigation-routing-state-hardening',
     label: 'ECH-WP-09 Enterprise Navigation Routing State Hardening'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const moduleSource = readText(NAVIGATION_STATE_HARDENING_MODULE_PATH, rootDir);
   const suiteSource = readText(NAVIGATION_STATE_HARDENING_SUITE_PATH, rootDir);
@@ -115,8 +115,8 @@ function runEnterpriseNavigationRoutingStateHardeningSuite(options = {}) {
   context.assertIncludes(suiteSource, 'ENTERPRISE_NAVIGATION_ROUTING_STATE_HARDENING_REPORT_SCHEMA', 'Navigation state hardening suite declares report schema');
   context.assertIncludes(backlog, '| `ECH-WP-09` | P1 | completed |', 'Backlog marks ECH-WP-09 completed');
   context.assertIncludes(backlog, ENTERPRISE_NAVIGATION_ROUTING_STATE_HARDENING_LOCAL_GATE, 'Backlog exposes Navigation state hardening local gate');
-  context.assertIncludes(runner, "id: 'enterprise-navigation-routing-state-hardening'", 'Runner exposes Navigation state hardening suite');
-  context.assertIncludes(runner, 'runEnterpriseNavigationRoutingStateHardeningSuite', 'Runner imports Navigation state hardening suite');
+  context.assert(runner.hasSuite("enterprise-navigation-routing-state-hardening"), 'Runner exposes Navigation state hardening suite');
+  context.assert(runner.hasImplementation({ function: "runEnterpriseNavigationRoutingStateHardeningSuite" }), 'Runner imports Navigation state hardening suite');
   context.assert(packageManifest.scripts['test:enterprise-navigation-routing-state-hardening'] === 'node scripts/run_xtend_tests.js enterprise-navigation-routing-state-hardening', 'Package exposes Navigation state hardening script');
 
   return context.result({

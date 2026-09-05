@@ -325,10 +325,10 @@ async function runRmtPhpSsrAdapterSuite(options = {}) {
     id: 'rmt-php-ssr-adapter',
     label: 'RMT PHP/Laravel SSR Adapter'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const manifest = readJson('components/manifest.json', rootDir);
   const adapterSource = readText(RMT_PHP_SSR_ADAPTER_PATH, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const syntax = syntaxCheckPhp(RMT_PHP_SSR_ADAPTER_PATH, rootDir);
   const source = readText('tests/rmt-language/fixtures/vnext-source-to-sea.rmt', rootDir);
   const sourceCompileResult = compileRmtVNextSource(source, {
@@ -480,7 +480,7 @@ async function runRmtPhpSsrAdapterSuite(options = {}) {
   context.assert(parseJsonl(fixture.streamedResponse.content)[0].type === 'start', 'Laravel streamed helper emits JSONL content');
 
   context.assert(packageManifest.scripts['test:rmt-php-ssr-adapter'] === 'node scripts/run_xtend_tests.js rmt-php-ssr-adapter', 'package exposes PHP SSR adapter test script');
-  context.assert(runner.includes("id: 'rmt-php-ssr-adapter'"), 'test runner registers PHP SSR adapter suite');
+  context.assert(runner.hasSuite("rmt-php-ssr-adapter"), 'test runner registers PHP SSR adapter suite');
   context.assert(packageManifest.xtend.rmtPhpSsrAdapter.schema === RMT_PHP_SSR_ADAPTER_SCHEMA, 'package metadata records PHP SSR adapter schema');
   context.assert(packageManifest.xtend.rmtPhpSsrAdapter.renderResultSchema === RMT_PHP_SSR_RENDER_RESULT_SCHEMA, 'package metadata records shared render result schema');
   context.assert(packageManifest.xtend.rmtPhpSsrAdapter.jsonlFrameSchema === RMT_PHP_SSR_JSONL_FRAME_SCHEMA, 'package metadata records shared JSONL frame schema');

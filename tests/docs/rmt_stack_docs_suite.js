@@ -53,9 +53,9 @@ function runRmtStackDocsSuite(options = {}) {
     id: 'rmt-stack-docs',
     label: 'RMT Stack Layer Docs'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const menu = readJson('docs/menu.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const runtimeSource = readText('xtendrmt/rmt-runtime.esm.js', rootDir);
   const fabricSource = readText('fabric/xtend-fabric.js', rootDir);
   const laneMappingSource = readText('fabric/rmt-lane-mapping.js', rootDir);
@@ -158,7 +158,7 @@ function runRmtStackDocsSuite(options = {}) {
   context.assert(packageManifest.exports && packageManifest.exports['./components/*'], 'package exposes component wildcard imports');
   context.assert(packageManifest.scripts['test:rmt-stack-docs'] === 'node scripts/run_xtend_tests.js rmt-stack-docs', 'package exposes rmt-stack-docs script');
   context.assert(packageManifest.xtend && packageManifest.xtend.rmtStackDocs && packageManifest.xtend.rmtStackDocs.schema === RMT_STACK_DOCS_SCHEMA, 'package metadata records RMT stack docs schema');
-  context.assert(runner.includes("id: 'rmt-stack-docs'"), 'test runner exposes rmt-stack-docs suite');
+  context.assert(runner.hasSuite("rmt-stack-docs"), 'test runner exposes rmt-stack-docs suite');
 
   return context.result({
     report: {

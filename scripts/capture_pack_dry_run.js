@@ -36,6 +36,7 @@ const result = spawnSync('npm', ['pack', '--dry-run', '--json'], {
   cwd: rootDir,
   encoding: 'utf8',
   maxBuffer: 16 * 1024 * 1024,
+  timeout: 120000,
   env: {
     ...process.env,
     npm_config_cache: cacheDir,
@@ -91,3 +92,4 @@ process.stdout.write(`${JSON.stringify({
   packageExportLockReportArtifact: plan.packageExportLockReportArtifact,
   nextWorkpackage: report.nextWorkpackage
 }, null, 2)}\n`);
+if (report.ok !== true) process.exitCode = 1;

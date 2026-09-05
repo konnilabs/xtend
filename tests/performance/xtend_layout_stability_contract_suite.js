@@ -29,7 +29,7 @@ function runXtendLayoutStabilityContractSuite(options = {}) {
     label: 'XTend Layout Stability Contract'
   });
   const packageManifest = JSON.parse(readText('package.json', rootDir));
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const xtendCss = readText('xtend.css', rootDir);
   const loaderSource = readText('xtend-loader.js', rootDir);
 
@@ -76,7 +76,7 @@ function runXtendLayoutStabilityContractSuite(options = {}) {
   context.assert(packageManifest.scripts['test:xtend-layout-stability-contract'] === 'node scripts/run_xtend_tests.js xtend-layout-stability-contract', 'package exposes layout stability contract script');
   context.assert(packageManifest.xtend.layoutStabilityContract.schema === XTEND_LAYOUT_STABILITY_SCHEMA, 'package metadata records layout stability schema');
   context.assert(packageManifest.xtend.layoutStabilityContract.localGate === XTEND_LAYOUT_STABILITY_LOCAL_GATE, 'package metadata records layout stability local gate');
-  context.assert(runner.includes("id: 'xtend-layout-stability-contract'"), 'test runner registers layout stability contract suite');
+  context.assert(runner.hasSuite("xtend-layout-stability-contract"), 'test runner registers layout stability contract suite');
 
   return context.result({
     schema: 'xtend.layout-stability-contract-report.v1',

@@ -77,8 +77,8 @@ function createClock() {
 
 function loadCommon(rootDir) {
   return {
-    packageManifest: readJson('package.json', rootDir),
-    runner: readText('scripts/run_xtend_tests.js', rootDir),
+    packageManifest: require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir)),
+    runner: require('../utils/test-catalog').readRunnerCatalog(rootDir),
     backlog: readText(BACKLOG_PATH, rootDir),
     contractDoc: readText(XTENSIONS_VANILLA_ADAPTER_CONTRACT_PATH, rootDir),
     fixture: readJson(XTENSIONS_VANILLA_ADAPTER_FIXTURE_PATH, rootDir),
@@ -124,9 +124,9 @@ function assertPackageWiring(context, common) {
   context.assert(packageManifest.scripts['test:xtensions-vanilla-host-controller'] === 'node scripts/run_xtend_tests.js xtensions-vanilla-host-controller', 'package exposes vanilla host test script');
   context.assert(packageManifest.scripts['test:xtensions-dom-boundary'] === 'node scripts/run_xtend_tests.js xtensions-dom-boundary', 'package exposes DOM boundary test script');
   context.assert(packageManifest.scripts['test:xtensions-legacy-sandbox-adapter'] === 'node scripts/run_xtend_tests.js xtensions-legacy-sandbox-adapter', 'package exposes legacy sandbox test script');
-  context.assert(common.runner.includes("id: 'xtensions-vanilla-host-controller'"), 'runner exposes vanilla host controller suite');
-  context.assert(common.runner.includes("id: 'xtensions-dom-boundary'"), 'runner exposes DOM boundary suite');
-  context.assert(common.runner.includes("id: 'xtensions-legacy-sandbox-adapter'"), 'runner exposes legacy sandbox suite');
+  context.assert(common.runner.hasSuite('xtensions-vanilla-host-controller'), 'runner exposes vanilla host controller suite');
+  context.assert(common.runner.hasSuite('xtensions-dom-boundary'), 'runner exposes DOM boundary suite');
+  context.assert(common.runner.hasSuite('xtensions-legacy-sandbox-adapter'), 'runner exposes legacy sandbox suite');
   context.assert(common.backlog.includes('| `XTN-15` | P2 | completed | WS14 |'), 'backlog marks XTN-15 completed');
   context.assert(common.backlog.includes('development/XTensions-Vanilla-Host-Adapter-und-Legacy-Sandbox-Contract.md'), 'backlog references vanilla contract');
   context.assert(common.contractDoc.includes('Contract: `xtend.xtensions.vanilla-adapter.v1`'), 'contract document declares vanilla schema');

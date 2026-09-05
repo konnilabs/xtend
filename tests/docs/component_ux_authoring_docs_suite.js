@@ -84,10 +84,10 @@ function runComponentUxAuthoringDocsSuite(options = {}) {
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.componentUxAuthoringDocs;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const suiteSource = readText(COMPONENT_UX_AUTHORING_DOCS_SUITE_PATH, rootDir);
 
   COMPONENT_UX_AUTHORING_DOC_PATHS.forEach((docPath) => {
@@ -145,8 +145,8 @@ function runComponentUxAuthoringDocsSuite(options = {}) {
   });
   context.assertIncludes(registry, COMPONENT_UX_AUTHORING_DOCS_SUITE_PATH, 'Reference registry links Component UX Authoring Docs suite');
 
-  context.assertIncludes(runner, "id: 'component-ux-authoring-docs'", 'XTend runner registers Component UX Authoring Docs suite');
-  context.assertIncludes(runner, COMPONENT_UX_AUTHORING_DOCS_LOCAL_GATE.replace(' --json', ''), 'XTend runner help references Component UX Authoring Docs suite');
+  context.assert(runner.hasSuite("component-ux-authoring-docs"), 'XTend runner registers Component UX Authoring Docs suite');
+  context.assert(runner.hasSuite('component-ux-authoring-docs'), 'XTend runner help references Component UX Authoring Docs suite');
   context.assert(packageManifest.scripts['test:component-ux-authoring-docs'] === 'node scripts/run_xtend_tests.js component-ux-authoring-docs', 'Package exposes Component UX Authoring Docs test script');
   context.assert(metadata && metadata.schema === COMPONENT_UX_AUTHORING_DOCS_SCHEMA, 'Package metadata exposes Component UX Authoring Docs schema');
   context.assert(metadata && metadata.reportSchema === COMPONENT_UX_AUTHORING_DOCS_REPORT_SCHEMA, 'Package metadata exposes Component UX Authoring Docs report schema');

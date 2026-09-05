@@ -62,8 +62,8 @@ function createClock() {
 
 function loadCommon(rootDir) {
   return {
-    packageManifest: readJson('package.json', rootDir),
-    runner: readText('scripts/run_xtend_tests.js', rootDir),
+    packageManifest: require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir)),
+    runner: require('../utils/test-catalog').readRunnerCatalog(rootDir),
     backlog: readText(BACKLOG_PATH, rootDir),
     contractDoc: readText(XTENSIONS_ANGULAR_ADAPTER_CONTRACT_PATH, rootDir),
     fixture: readJson(XTENSIONS_ANGULAR_ADAPTER_FIXTURE_PATH, rootDir),
@@ -106,8 +106,8 @@ function assertPackageWiring(context, common) {
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/angular-host-adapter.d.ts', 'package exports Angular host adapter types');
   context.assert(packageManifest.scripts['test:xtensions-angular-host-controller'] === 'node scripts/run_xtend_tests.js xtensions-angular-host-controller', 'package exposes Angular host test script');
   context.assert(packageManifest.scripts['test:xtensions-angular-zone-boundary'] === 'node scripts/run_xtend_tests.js xtensions-angular-zone-boundary', 'package exposes Angular zone boundary test script');
-  context.assert(common.runner.includes("id: 'xtensions-angular-host-controller'"), 'runner exposes Angular host controller suite');
-  context.assert(common.runner.includes("id: 'xtensions-angular-zone-boundary'"), 'runner exposes Angular zone boundary suite');
+  context.assert(common.runner.hasSuite('xtensions-angular-host-controller'), 'runner exposes Angular host controller suite');
+  context.assert(common.runner.hasSuite('xtensions-angular-zone-boundary'), 'runner exposes Angular zone boundary suite');
   context.assert(common.backlog.includes('| `XTN-17` | P2 | completed | WS14 |'), 'backlog marks XTN-17 completed');
   context.assert(common.contractDoc.includes('Contract: `xtend.xtensions.angular-adapter.v1`'), 'contract document declares Angular schema');
   context.assert(common.contractDoc.includes('AOT'), 'contract document names AOT boundary');

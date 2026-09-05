@@ -62,14 +62,14 @@ function runEpic13KnownResidualTriageSuite(options = {}) {
   const plan = createEpic13KnownResidualTriagePlan({ rootDir });
   const validation = validateEpic13KnownResidualTriagePlan(plan);
   const report = createEpic13KnownResidualTriageReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic13KnownResidualTriage;
   const rc1Metadata = packageManifest.xtend && packageManifest.xtend.epic13Rc1Readiness;
   const ownerMetadata = packageManifest.xtend && packageManifest.xtend.epic13ReleaseOwnerAcceptance;
   const networkMetadata = packageManifest.xtend && packageManifest.xtend.epic13ConditionalNetworkEvidence;
   const packageLockMetadata = packageManifest.xtend && packageManifest.xtend.epic13PackageExportLock;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const steering = readText(EPIC13_KNOWN_RESIDUAL_TRIAGE_STEERING, rootDir);
   const contractDoc = readText(EPIC13_KNOWN_RESIDUAL_TRIAGE_CONTRACT, rootDir);
   const workpackage = readText(EPIC13_KNOWN_RESIDUAL_TRIAGE_WORKPACKAGE_DOC, rootDir);
@@ -161,7 +161,7 @@ function runEpic13KnownResidualTriageSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, EPIC13_KNOWN_RESIDUAL_TRIAGE_SCHEMA, 'Scaffold config declares known residual triage schema');
   context.assertIncludes(scaffoldConfig, EPIC13_KNOWN_RESIDUAL_TRIAGE_LOCAL_GATE, 'Scaffold config references known residual triage gate');
   context.assertIncludes(scaffoldConfig, 'nextWorkpackage: "WP-E13-06"', 'Scaffold config advances Epic 13 handoff to WP-E13-06');
-  context.assertIncludes(runner, "id: 'epic13-known-residual-triage'", 'Runner registers known residual triage suite');
+  context.assert(runner.hasSuite("epic13-known-residual-triage"), 'Runner registers known residual triage suite');
 
   assertTextIncludesAll(context, steering, [
     EPIC13_KNOWN_RESIDUAL_TRIAGE_SCHEMA,

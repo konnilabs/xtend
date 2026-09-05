@@ -690,8 +690,8 @@ function runRendererChecks(context, fixture, runtimeModules) {
 }
 
 function runPackagingAndDocsChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
-  const runnerText = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runnerText = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const docsMenuText = readText('docs/menu.json', rootDir);
   const docsText = readText(RMT_APP_PLATFORM_FIXTURE_DOCS, rootDir);
   const wpText = readText(RMT_APP_PLATFORM_FIXTURE_WORKPACKAGE_DOC, rootDir);
@@ -705,8 +705,8 @@ function runPackagingAndDocsChecks(context, rootDir) {
   context.assert(packageMetadata && packageMetadata.nextWorkpackage === NEXT_WORKPACKAGE, 'Package metadata exposes WP13 handoff');
   assertIncludesAll(context, packageMetadata.domainVariants, REQUIRED_DOMAIN_VARIANTS, 'Package metadata domain variants');
   assertIncludesAll(context, packageMetadata.dataSourceKinds, REQUIRED_DATASOURCE_KINDS, 'Package metadata datasource kinds');
-  context.assert(runnerText.includes('runRmtAppPlatformFixtureSuite'), 'Runner imports WP12 suite');
-  context.assert(runnerText.includes("id: 'rmt-app-platform-fixture'"), 'Runner registers WP12 suite id');
+  context.assert(runnerText.hasImplementation({ function: "runRmtAppPlatformFixtureSuite" }), 'Runner imports WP12 suite');
+  context.assert(runnerText.hasSuite("rmt-app-platform-fixture"), 'Runner registers WP12 suite id');
   context.assert(docsMenuText.includes('"slug": "rmt-app-platform-fixture"'), 'Docs menu includes WP12 page');
   assertTextIncludesAll(context, docsText, [
     '# RMT App Platform Fixture',

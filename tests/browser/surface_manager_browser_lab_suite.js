@@ -82,8 +82,8 @@ function runSurfaceManagerBrowserLabSuite(options = {}) {
   const backlog = readText(SURFACE_MANAGER_BROWSER_LAB_BACKLOG, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_BROWSER_LAB_WORKPACKAGE_DOC, rootDir);
   const browserSuite = readText('tests/browser/browser_smoke_suite.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerBrowserLab;
 
   REQUIRED_ARTIFACTS.forEach((filePath) => {
@@ -255,8 +255,8 @@ function runSurfaceManagerBrowserLabSuite(options = {}) {
   context.assert(metadata && metadata.unstyledContentPopInRegressionFails === true, 'Package metadata marks pop-in regressions as failing');
   context.assert(metadata && metadata.createsSecondRegistry === false, 'Package metadata keeps no-second-registry boundary');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-browser-lab'] === 'node scripts/run_xtend_tests.js surface-browser-lab', 'Package script test:surface-browser-lab exists');
-  context.assertIncludes(runner, "require('../tests/browser/surface_manager_browser_lab_suite')", 'Runner imports Browser Lab suite');
-  context.assertIncludes(runner, "id: 'surface-browser-lab'", 'Runner registers Browser Lab suite');
+  context.assert(runner.hasImplementation({ path: "tests/browser/surface_manager_browser_lab_suite.js" }), 'Runner imports Browser Lab suite');
+  context.assert(runner.hasSuite("surface-browser-lab"), 'Runner registers Browser Lab suite');
   assertTextIncludesAll(context, browserSuite, [
     'SURFACE_MANAGER_BROWSER_LAB_FIXTURE_PATH',
     'SurfaceManager Browser Lab fixture',

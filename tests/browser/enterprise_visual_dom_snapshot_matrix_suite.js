@@ -68,8 +68,8 @@ function runEnterpriseVisualDomSnapshotMatrixSuite(options = {}) {
     id: 'enterprise-visual-dom-snapshot-matrix',
     label: 'ECH-WP-10 Enterprise Visual DOM Snapshot Matrix'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const moduleSource = readText(VISUAL_DOM_MATRIX_MODULE_PATH, rootDir);
   const suiteSource = readText(VISUAL_DOM_MATRIX_SUITE_PATH, rootDir);
@@ -178,8 +178,8 @@ function runEnterpriseVisualDomSnapshotMatrixSuite(options = {}) {
   context.assertIncludes(suiteSource, 'ENTERPRISE_VISUAL_DOM_SNAPSHOT_MATRIX_REPORT_SCHEMA', 'Visual DOM matrix suite declares report schema');
   context.assertIncludes(backlog, '| `ECH-WP-10` | P1 | completed |', 'Backlog marks ECH-WP-10 completed');
   context.assertIncludes(backlog, ENTERPRISE_VISUAL_DOM_SNAPSHOT_MATRIX_LOCAL_GATE, 'Backlog exposes Visual DOM matrix local gate');
-  context.assertIncludes(runner, "id: 'enterprise-visual-dom-snapshot-matrix'", 'Runner exposes Visual DOM matrix suite');
-  context.assertIncludes(runner, 'runEnterpriseVisualDomSnapshotMatrixSuite', 'Runner imports Visual DOM matrix suite');
+  context.assert(runner.hasSuite("enterprise-visual-dom-snapshot-matrix"), 'Runner exposes Visual DOM matrix suite');
+  context.assert(runner.hasImplementation({ function: "runEnterpriseVisualDomSnapshotMatrixSuite" }), 'Runner imports Visual DOM matrix suite');
   context.assert(packageManifest.scripts['test:enterprise-visual-dom-snapshot-matrix'] === 'node scripts/run_xtend_tests.js enterprise-visual-dom-snapshot-matrix', 'Package exposes Visual DOM matrix script');
 
   return context.result({

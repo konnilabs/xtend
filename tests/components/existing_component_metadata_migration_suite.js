@@ -48,7 +48,7 @@ function runExistingComponentMetadataMigrationSuite(options = {}) {
   const plan = createExistingComponentMetadataPlan();
   const validation = validateExistingComponentMetadataPlan(plan);
   const gate = createExistingComponentMetadataGate({ plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.existingComponentMetadataMigration;
   const epic = readText('development/EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
@@ -60,7 +60,7 @@ function runExistingComponentMetadataMigrationSuite(options = {}) {
   const docsMenu = readText('docs/menu.json', rootDir);
   const platformDocs = readText('development/docs-evidence/root/component-platform.md', rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const rmtReadme = readText('tests/rmt/README.md', rootDir);
 
   assertFileExists(context, EXISTING_COMPONENT_METADATA_MODULE, rootDir, 'Existing component metadata module exists');
@@ -156,7 +156,7 @@ function runExistingComponentMetadataMigrationSuite(options = {}) {
   context.assertIncludes(registry, EXISTING_COMPONENT_METADATA_SUITE, 'Reference registry links Existing Component Metadata suite');
   context.assertIncludes(registry, DOCS_PATH, 'Reference registry links Existing Component Metadata docs');
   context.assertIncludes(scaffoldConfig, 'existingComponentMetadataMigration', 'Scaffold config exposes Existing Component Metadata migration');
-  context.assertIncludes(runner, "id: 'existing-component-metadata'", 'Runner registers Existing Component Metadata suite');
+  context.assert(runner.hasSuite("existing-component-metadata"), 'Runner registers Existing Component Metadata suite');
   context.assertIncludes(rmtReadme, EXISTING_COMPONENT_METADATA_SCHEMA, 'RMT test README documents Existing Component Metadata gate');
   context.assert((packageManifest.exports['./catalog/epic10-existing-component-metadata'] === './catalog/epic10-existing-component-metadata.js' || (packageManifest.exports['./catalog/epic10-existing-component-metadata'] && packageManifest.exports['./catalog/epic10-existing-component-metadata'].default === './catalog/epic10-existing-component-metadata.js')), 'Package exports Existing Component Metadata module');
   context.assert(packageManifest.scripts['test:existing-component-metadata'] === 'node scripts/run_xtend_tests.js existing-component-metadata', 'Package exposes Existing Component Metadata test script');

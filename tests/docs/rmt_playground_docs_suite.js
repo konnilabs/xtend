@@ -53,9 +53,9 @@ function runRmtPlaygroundDocsSuite(options = {}) {
     id: 'rmt-playground-docs',
     label: 'Learn RMT Playground Docs'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const menu = readJson('docs/menu.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const pageLoader = [
     readText('docs/utils/pageloader.js', rootDir),
     readText('docs/utils/page/route-controller.mjs', rootDir)
@@ -180,7 +180,7 @@ function runRmtPlaygroundDocsSuite(options = {}) {
   context.assert(indexPhp.includes('docsRmtPlaygroundProjectSafePreview') && indexPhp.includes("'renderMode' => 'dom_descriptor'"), 'Docs host returns officially projected DOM descriptor preview data');
   context.assert(packageManifest.scripts['test:rmt-playground-docs'] === 'node scripts/run_xtend_tests.js rmt-playground-docs', 'package exposes rmt-playground-docs script');
   context.assert(packageManifest.xtend && packageManifest.xtend.rmtPlaygroundDocs && packageManifest.xtend.rmtPlaygroundDocs.schema === RMT_PLAYGROUND_DOCS_SCHEMA, 'package metadata records RMT playground docs schema');
-  context.assert(runner.includes("id: 'rmt-playground-docs'"), 'test runner exposes rmt-playground-docs suite');
+  context.assert(runner.hasSuite("rmt-playground-docs"), 'test runner exposes rmt-playground-docs suite');
 
   return context.result({
     report: {

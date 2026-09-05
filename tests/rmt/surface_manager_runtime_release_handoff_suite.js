@@ -79,9 +79,9 @@ function runSurfaceManagerRuntimeReleaseHandoffSuite(options = {}) {
   const plan = createSurfaceManagerRuntimeReleaseHandoffPlan({ rootDir });
   const validation = validateSurfaceManagerRuntimeReleaseHandoffPlan(plan);
   const report = createSurfaceManagerRuntimeReleaseHandoffReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerRuntimeReleaseHandoff;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_BACKLOG, rootDir);
   const contractDoc = readText(SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_CONTRACT, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_WORKPACKAGE_DOC, rootDir);
@@ -153,8 +153,8 @@ function runSurfaceManagerRuntimeReleaseHandoffSuite(options = {}) {
   assertIncludesAll(context, metadata && metadata.releaseGates, RELEASE_GATES, 'Package metadata release gates');
   assertIncludesAll(context, metadata && metadata.openScopes, OPEN_SCOPES, 'Package metadata open scopes');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-runtime-release-handoff'] === 'node scripts/run_xtend_tests.js surface-runtime-release-handoff', 'Package script test:surface-runtime-release-handoff exists');
-  context.assertIncludes(runner, "require('../tests/rmt/surface_manager_runtime_release_handoff_suite')", 'Runner imports runtime release handoff suite');
-  context.assertIncludes(runner, "id: 'surface-runtime-release-handoff'", 'Runner registers runtime release handoff suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/surface_manager_runtime_release_handoff_suite.js" }), 'Runner imports runtime release handoff suite');
+  context.assert(runner.hasSuite("surface-runtime-release-handoff"), 'Runner registers runtime release handoff suite');
 
   assertTextIncludesAll(context, contractDoc, [
     SURFACE_MANAGER_RUNTIME_RELEASE_HANDOFF_SCHEMA,

@@ -284,9 +284,9 @@ function runRmtKernelBindingSecuritySuite(options = {}) {
     id: 'rmt-kernel-binding-security',
     label: 'RKSH-WP-03 Attribute, URL and Property Policies'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtKernelBindingSecurity;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(RMT_KERNEL_SECURITY_BACKLOG, rootDir);
   const contract = readText(RMT_KERNEL_BINDING_SECURITY_CONTRACT, rootDir);
   const workpackage = readText(RMT_KERNEL_BINDING_SECURITY_WP, rootDir);
@@ -332,8 +332,8 @@ function runRmtKernelBindingSecuritySuite(options = {}) {
   context.assert(metadata && metadata.workpackage === RMT_KERNEL_BINDING_SECURITY_WORKPACKAGE, 'package metadata points to RKSH-WP-03');
   context.assert(metadata && metadata.localGate === RMT_KERNEL_BINDING_SECURITY_LOCAL_GATE, 'package metadata exposes binding security local gate');
   context.assert(metadata && metadata.packageScript === RMT_KERNEL_BINDING_SECURITY_PACKAGE_SCRIPT, 'package metadata exposes binding security package script');
-  context.assertIncludes(runner, "id: 'rmt-kernel-binding-security'", 'runner registers binding security suite');
-  context.assertIncludes(runner, 'runRmtKernelBindingSecuritySuite', 'runner imports binding security suite');
+  context.assert(runner.hasSuite("rmt-kernel-binding-security"), 'runner registers binding security suite');
+  context.assert(runner.hasImplementation({ function: "runRmtKernelBindingSecuritySuite" }), 'runner imports binding security suite');
 
   assertTextIncludesAll(context, contract, [
     RMT_KERNEL_BINDING_SECURITY_SCHEMA,

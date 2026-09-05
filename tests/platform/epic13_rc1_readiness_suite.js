@@ -63,10 +63,10 @@ function runEpic13Rc1ReadinessSuite(options = {}) {
   const model = createEpic13Rc1ReadinessModel({ rootDir });
   const validation = validateEpic13Rc1ReadinessModel(model);
   const report = createEpic13Rc1ReadinessReport({ rootDir, model });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic13Rc1Readiness;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const steering = readText(EPIC13_RC1_READINESS_STEERING, rootDir);
   const contract = readText(EPIC13_RC1_READINESS_CONTRACT, rootDir);
   const workpackage = readText(EPIC13_RC1_READINESS_WORKPACKAGE_DOC, rootDir);
@@ -161,7 +161,7 @@ function runEpic13Rc1ReadinessSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'epic13Rc1Readiness', 'Scaffold config exposes Epic 13 RC1 readiness metadata');
   context.assertIncludes(scaffoldConfig, EPIC13_RC1_READINESS_SCHEMA, 'Scaffold config declares RC1 readiness schema');
   context.assertIncludes(scaffoldConfig, EPIC13_RC1_READINESS_LOCAL_GATE, 'Scaffold config references RC1 readiness local gate');
-  context.assertIncludes(runner, "id: 'epic13-rc1-readiness'", 'Runner registers Epic 13 RC1 readiness suite');
+  context.assert(runner.hasSuite("epic13-rc1-readiness"), 'Runner registers Epic 13 RC1 readiness suite');
 
   assertTextIncludesAll(context, steering, [
     EPIC13_RC1_READINESS_SCHEMA,

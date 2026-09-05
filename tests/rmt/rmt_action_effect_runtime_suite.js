@@ -495,8 +495,8 @@ async function runRmtActionEffectRuntimeSuite(options = {}) {
   const workpackageDoc = readText(RMT_ACTION_EFFECT_RUNTIME_WORKPACKAGE_DOC, rootDir);
   const backlog = readText('development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md', rootDir);
   const epic = readText('development/docs-evidence/root/epic18-media-manager-vendor-upstream.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const xtendrmtPackage = readJson('xtendrmt/package.json', rootDir);
   const runtimeSource = readText(RMT_ACTION_EFFECT_RUNTIME_RUNTIME, rootDir);
   const typeSource = readText(RMT_ACTION_EFFECT_RUNTIME_TYPES, rootDir);
@@ -595,8 +595,8 @@ async function runRmtActionEffectRuntimeSuite(options = {}) {
   );
   context.assert(epic.includes('| `WP-E18-08` | P1 | completed'), 'Epic marks WP-E18-08 completed');
   context.assert(epic.includes('rmt-action-effect-runtime'), 'Epic gate chain includes action effect runtime gate');
-  context.assert(runner.includes("require('../tests/rmt/rmt_action_effect_runtime_suite')"), 'Runner imports action effect runtime suite');
-  context.assert(runner.includes("id: 'rmt-action-effect-runtime'"), 'Runner registers action effect runtime suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/rmt_action_effect_runtime_suite.js" }), 'Runner imports action effect runtime suite');
+  context.assert(runner.hasSuite("rmt-action-effect-runtime"), 'Runner registers action effect runtime suite');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:rmt-action-effect-runtime'] === 'node scripts/run_xtend_tests.js rmt-action-effect-runtime', 'Package exposes action effect runtime script');
   context.assert(packageManifest.exports && packageManifest.exports['./rmt/action-effect-runtime'], 'Package exports action effect runtime');
   context.assert(xtendrmtPackage.exports && xtendrmtPackage.exports['./action-effect-runtime'], 'XTendRMT package exports action effect runtime');

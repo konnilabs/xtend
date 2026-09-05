@@ -62,7 +62,7 @@ function runTypeExportsPolicySuite(options = {}) {
     id: 'type-exports-policy',
     label: 'TypeExports Policy Declaration Gate'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const typeExportsPlan = createTypeExportsPlan({ rootDir, packageManifest });
   const plan = createTypeExportsPolicyPlan({ rootDir, packageManifest, typeExportsPlan });
   const validation = validateTypeExportsPolicyPlan(plan);
@@ -70,7 +70,7 @@ function runTypeExportsPolicySuite(options = {}) {
   const metadata = packageManifest.xtend && packageManifest.xtend.typeExportsPolicy;
   const typeExportsMetadata = packageManifest.xtend && packageManifest.xtend.typeExports;
   const sharedDeclarationSource = readText(POLICY_SHARED_DECLARATION_FILE, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const docsReadme = readText('docs/en/README.md', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const backlog = readText(TYPE_EXPORTS_POLICY_BACKLOG, rootDir);
@@ -153,8 +153,8 @@ function runTypeExportsPolicySuite(options = {}) {
   context.assert(typeExportsMetadata && typeExportsMetadata.completedWorkpackages.includes(TYPE_EXPORTS_POLICY_WORKPACKAGE), 'TypeExports metadata records WP-TypeExports-05 completion');
   context.assert(typeExportsMetadata && typeExportsMetadata.completedWorkpackages.includes('WP-TypeExports-09'), 'TypeExports metadata records WP-TypeExports-09 completion');
   context.assert(typeExportsMetadata && Array.isArray(typeExportsMetadata.nextWorkpackages) && typeExportsMetadata.nextWorkpackages.length === 0, 'TypeExports metadata has no remaining TypeExports workpackages');
-  context.assertIncludes(runner, "id: 'type-exports-policy'", 'Runner registers Policy TypeExports suite');
-  context.assertIncludes(runner, 'runTypeExportsPolicySuite', 'Runner imports Policy TypeExports suite');
+  context.assert(runner.hasSuite("type-exports-policy"), 'Runner registers Policy TypeExports suite');
+  context.assert(runner.hasImplementation({ function: "runTypeExportsPolicySuite" }), 'Runner imports Policy TypeExports suite');
   context.assertIncludes(docsReadme, './xtend-policy-types.md', 'Docs README links Policy Type docs');
   context.assertIncludes(testsReadme, TYPE_EXPORTS_POLICY_LOCAL_GATE, 'Tests README documents Policy TypeExports gate');
 

@@ -67,7 +67,7 @@ function runEpic13VisualOwnerArtifactSuite(options = {}) {
   const validation = validateEpic13VisualOwnerArtifactPlan(plan);
   const report = createEpic13VisualOwnerArtifactReport({ rootDir, plan });
   const manifest = readJson(VISUAL_OWNER_ARTIFACT_MANIFEST, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic13VisualOwnerArtifact;
   const rc1Metadata = packageManifest.xtend && packageManifest.xtend.epic13Rc1Readiness;
   const ownerMetadata = packageManifest.xtend && packageManifest.xtend.epic13ReleaseOwnerAcceptance;
@@ -76,7 +76,7 @@ function runEpic13VisualOwnerArtifactSuite(options = {}) {
   const hydrationMetadata = packageManifest.xtend && packageManifest.xtend.epic13HydrationPerformanceClosure;
   const prodCspMetadata = packageManifest.xtend && packageManifest.xtend.epic13ProdBrowserCspSmoke;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const steering = readText(EPIC13_VISUAL_OWNER_ARTIFACT_STEERING, rootDir);
   const contractDoc = readText(EPIC13_VISUAL_OWNER_ARTIFACT_CONTRACT, rootDir);
   const workpackage = readText(EPIC13_VISUAL_OWNER_ARTIFACT_WORKPACKAGE_DOC, rootDir);
@@ -200,7 +200,7 @@ function runEpic13VisualOwnerArtifactSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, EPIC13_VISUAL_OWNER_ARTIFACT_SCHEMA, 'Scaffold config declares visual owner artifact schema');
   context.assertIncludes(scaffoldConfig, EPIC13_VISUAL_OWNER_ARTIFACT_LOCAL_GATE, 'Scaffold config references visual owner artifact local gate');
   context.assertIncludes(scaffoldConfig, 'expectedExportCount: 182', 'Scaffold config mirrors the current package export count');
-  context.assertIncludes(runner, "id: 'epic13-visual-owner-artifact'", 'Runner registers visual owner artifact suite');
+  context.assert(runner.hasSuite("epic13-visual-owner-artifact"), 'Runner registers visual owner artifact suite');
 
   assertTextIncludesAll(context, steering, [
     EPIC13_VISUAL_OWNER_ARTIFACT_SCHEMA,

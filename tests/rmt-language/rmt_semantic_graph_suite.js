@@ -353,7 +353,7 @@ function runRmtSemanticGraphSuite(options = {}) {
   });
   const packageManifest = JSON.parse(readText('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtSemanticGraph;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
   const moduleSyntax = syntaxCheckFile(RMT_SEMANTIC_GRAPH_MODULE_PATH, { rootDir, extension: '.js' });
@@ -375,7 +375,7 @@ function runRmtSemanticGraphSuite(options = {}) {
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-semantic-graph --json', 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_SEMANTIC_GRAPH_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert((typeof packageManifest.exports['./rmt-language/semantic-graph'] === 'string' ? packageManifest.exports['./rmt-language/semantic-graph'] : packageManifest.exports['./rmt-language/semantic-graph'] && packageManifest.exports['./rmt-language/semantic-graph'].default) === './tools/rmt-language/semantic-graph.js', 'package exports RMT Semantic Graph');
-  context.assert(runner.includes("id: 'rmt-semantic-graph'"), 'test runner exposes rmt-semantic-graph suite');
+  context.assert(runner.hasSuite("rmt-semantic-graph"), 'test runner exposes rmt-semantic-graph suite');
   context.assert(epic.includes('| `WP-E14-04` | P0 | completed | WS2 |'), 'Epic marks WP-E14-04 completed');
   context.assert(epic.includes('WP-E14-05` ist `ready`'), 'Epic hands off WP-E14-05 as ready');
   context.assert(architecture.includes('references.bySourcePointer'), 'Architecture keeps references.bySourcePointer duty visible');

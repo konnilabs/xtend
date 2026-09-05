@@ -141,8 +141,8 @@ function runRmtOwnedDataDisplayPrimitivesSuite(options = {}) {
   const rmtFixture = readJson(RMT_FIXTURE_PATH, rootDir);
   const rmtFixtureSource = readText(RMT_FIXTURE_PATH, rootDir);
   const componentManifest = readJson('components/manifest.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtOwnedDataDisplayPrimitives;
   const suiteSyntax = syntaxCheckFile(SUITE_PATH, { rootDir, extension: '.js' });
 
@@ -312,8 +312,8 @@ function runRmtOwnedDataDisplayPrimitivesSuite(options = {}) {
   ], 'Backlog WP-RMO-03 status');
 
   context.assert(packageManifest.scripts['test:rmt-owned-data-display-primitives'] === 'node scripts/run_xtend_tests.js rmt-owned-data-display-primitives', 'Package exposes WP-RMO-03 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/rmt_owned_data_display_primitives_suite')", 'Runner imports WP-RMO-03 suite');
-  context.assertIncludes(runner, "id: 'rmt-owned-data-display-primitives'", 'Runner registers WP-RMO-03 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/rmt_owned_data_display_primitives_suite.js" }), 'Runner imports WP-RMO-03 suite');
+  context.assert(runner.hasSuite("rmt-owned-data-display-primitives"), 'Runner registers WP-RMO-03 suite');
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes contract schema');
   context.assert(metadata && metadata.matrixSchema === MATRIX_SCHEMA, 'Package metadata exposes matrix schema');

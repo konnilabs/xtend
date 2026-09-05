@@ -216,9 +216,9 @@ function openVNextInServer(rootDir, relativePath = VALID_VNEXT_FIXTURE) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextTooling;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
   const contract = readText(TOOLING_CONTRACT_PATH, rootDir);
   const workpackage = readText(WP_E15_15_PATH, rootDir);
@@ -233,7 +233,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_TOOLING_PACKAGE_SCRIPT, 'package metadata declares vNext tooling package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-tooling'] === 'string' ? packageManifest.exports['./rmt-language/vnext-tooling'] : packageManifest.exports['./rmt-language/vnext-tooling'] && packageManifest.exports['./rmt-language/vnext-tooling'].default) === './tools/rmt-language/vnext-tooling.js', 'package exports vNext tooling adapter');
   context.assert(packageManifest.scripts['test:rmt-vnext-tooling'] === 'node scripts/run_xtend_tests.js rmt-vnext-tooling', 'package exposes vNext tooling script');
-  context.assert(runner.includes("id: 'rmt-vnext-tooling'"), 'test runner exposes rmt-vnext-tooling suite');
+  context.assert(runner.hasSuite("rmt-vnext-tooling"), 'test runner exposes rmt-vnext-tooling suite');
   context.assert(epic.includes('| `WP-E15-15` | P1 | completed | WS5 |'), 'Epic marks WP-E15-15 completed');
   context.assert(epic.includes('| `WP-E15-16` | P2 | completed | WS5 |'), 'Epic keeps WP-E15-16 completed after tooling');
   context.assert(contract.includes('schema: "xtend.rmt.vnext-tooling-adapter.v1"'), 'Tooling contract document declares schema');

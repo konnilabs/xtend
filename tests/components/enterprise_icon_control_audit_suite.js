@@ -42,8 +42,8 @@ function runEnterpriseIconControlAuditSuite(options = {}) {
     id: 'enterprise-icon-control-audit',
     label: 'ECH-WP-04 Enterprise Icon Control Audit'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const moduleSource = readText(ICON_AUDIT_MODULE_PATH, rootDir);
   const suiteSource = readText(ICON_AUDIT_SUITE_PATH, rootDir);
@@ -183,8 +183,8 @@ function runEnterpriseIconControlAuditSuite(options = {}) {
   context.assertIncludes(suiteSource, 'ENTERPRISE_ICON_CONTROL_AUDIT_REPORT_SCHEMA', 'Icon Control audit suite declares report schema');
   context.assertIncludes(backlog, '| `ECH-WP-04` | P0 | completed |', 'Backlog marks ECH-WP-04 completed');
   context.assertIncludes(backlog, ENTERPRISE_ICON_CONTROL_AUDIT_LOCAL_GATE, 'Backlog exposes Icon Control local gate');
-  context.assertIncludes(runner, "id: 'enterprise-icon-control-audit'", 'Runner exposes Icon Control audit suite');
-  context.assertIncludes(runner, 'runEnterpriseIconControlAuditSuite', 'Runner imports Icon Control audit suite');
+  context.assert(runner.hasSuite("enterprise-icon-control-audit"), 'Runner exposes Icon Control audit suite');
+  context.assert(runner.hasImplementation({ function: "runEnterpriseIconControlAuditSuite" }), 'Runner imports Icon Control audit suite');
   context.assert(packageManifest.scripts['test:enterprise-icon-control-audit'] === 'node scripts/run_xtend_tests.js enterprise-icon-control-audit', 'Package exposes Icon Control audit script');
 
   return context.result({

@@ -44,9 +44,9 @@ function runComponentNetworkContractSuite(options = {}) {
     id: 'component-network-contract',
     label: 'XTend Component Network Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const contractDoc = readText('development/XTend-Component-Network-Compatibility-Contract.md', rootDir);
@@ -166,7 +166,7 @@ function runComponentNetworkContractSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'componentNetworkContract', 'Scaffold config exposes Component Network Contract section');
   context.assertIncludes(scaffoldConfig, COMPONENT_NETWORK_CONTRACT_SCHEMA, 'Scaffold config declares Component Network schema');
   context.assertIncludes(scaffoldConfig, 'component-network-contract', 'Scaffold config references Component Network gate');
-  context.assertIncludes(runner, "id: 'component-network-contract'", 'Runner exposes Component Network suite');
+  context.assert(runner.hasSuite("component-network-contract"), 'Runner exposes Component Network suite');
   context.assertIncludes(contractDoc, COMPONENT_NETWORK_CONTRACT_SCHEMA, 'Contract document declares Component Network schema');
   context.assertIncludes(contractDoc, 'XtendComponentNetworkContract', 'Contract document defines the TypeScript interface name');
   context.assertIncludes(contractDoc, RMT_NETWORK_AUTHORING_SCHEMA, 'Contract document declares RMT Network Authoring handoff');

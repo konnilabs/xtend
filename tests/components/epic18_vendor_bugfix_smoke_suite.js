@@ -180,7 +180,7 @@ async function runEpic18VendorBugfixSmokeSuite(options = {}) {
   const sidePanelSource = readText('components/xsidepanel.js', rootDir);
   const controllerSource = readText('components/xsurfacemanager-controller.js', rootDir);
   const browserSuite = readText('tests/browser/browser_smoke_suite.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const fixture = readText(EPIC18_VENDOR_BUGFIX_FIXTURE, rootDir);
 
   [
@@ -277,8 +277,8 @@ async function runEpic18VendorBugfixSmokeSuite(options = {}) {
   context.assert(!fixture.includes('https://cdn.ccs-networks.de'), 'Epic 18 browser fixture has no XTend CDN dependency');
   context.assertIncludes(browserSuite, 'EPIC18_VENDOR_BUGFIX_FIXTURE_PATH', 'Browser harness knows Epic 18 fixture path');
   context.assertIncludes(browserSuite, 'assertEpic18VendorBugfixFixtureContract(context, rootDir)', 'Browser harness validates Epic 18 fixture contract');
-  context.assertIncludes(runner, "require('../tests/components/epic18_vendor_bugfix_smoke_suite')", 'Runner imports Epic 18 vendor bugfix smoke suite');
-  context.assertIncludes(runner, "id: 'epic18-vendor-bugfix-smokes'", 'Runner registers Epic 18 vendor bugfix smoke suite');
+  context.assert(runner.hasImplementation({ path: "tests/components/epic18_vendor_bugfix_smoke_suite.js" }), 'Runner imports Epic 18 vendor bugfix smoke suite');
+  context.assert(runner.hasSuite("epic18-vendor-bugfix-smokes"), 'Runner registers Epic 18 vendor bugfix smoke suite');
 
   return context.result({
     schema: EPIC18_VENDOR_BUGFIX_SCHEMA,

@@ -61,12 +61,12 @@ function runEpic12Rc0HandoffSuite(options = {}) {
   const plan = createEpic12Rc0HandoffPlan({ rootDir });
   const validation = validateEpic12Rc0HandoffPlan(plan);
   const report = createEpic12Rc0HandoffReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const manifest = readJson('components/manifest.json', rootDir);
   const expectedManifestCount = Object.keys(manifest).length;
   const metadata = packageManifest.xtend && packageManifest.xtend.epic12Rc0Handoff;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText('development/BACKLOG-EPIC-12-XTend-Long-Tail-Runtime-Hardening-und-Release-Candidate-Stabilisierung.md', rootDir);
   const rcModel = readText('development/XTend-Epic12-RC-Hardening-Modell.md', rootDir);
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
@@ -158,7 +158,7 @@ function runEpic12Rc0HandoffSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'epic12Rc0Handoff', 'Scaffold config exposes Epic 12 RC0 Handoff metadata');
   context.assertIncludes(scaffoldConfig, EPIC12_RC0_HANDOFF_SCHEMA, 'Scaffold config declares RC0 Handoff schema');
   context.assertIncludes(scaffoldConfig, EPIC12_RC0_HANDOFF_LOCAL_GATE, 'Scaffold config references RC0 Handoff local gate');
-  context.assertIncludes(runner, "id: 'epic12-rc0-handoff'", 'Runner registers Epic 12 RC0 Handoff suite');
+  context.assert(runner.hasSuite("epic12-rc0-handoff"), 'Runner registers Epic 12 RC0 Handoff suite');
 
   assertTextIncludesAll(context, contract, [
     EPIC12_RC0_HANDOFF_SCHEMA,

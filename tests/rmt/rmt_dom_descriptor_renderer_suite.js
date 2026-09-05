@@ -2010,8 +2010,8 @@ async function runRmtDomDescriptorRendererSuite(options = {}) {
   const workpackageDoc = readText(RMT_DOM_DESCRIPTOR_RENDERER_WORKPACKAGE_DOC, rootDir);
   const backlog = readText('development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md', rootDir);
   const epic = readText('development/docs-evidence/root/epic18-media-manager-vendor-upstream.md', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const runtimeSource = readText(RMT_DOM_DESCRIPTOR_RENDERER_RUNTIME, rootDir);
   const typeSource = readText(RMT_DOM_DESCRIPTOR_RENDERER_TYPES, rootDir);
   const rendererModule = await loadRendererModule(rootDir);
@@ -2113,8 +2113,8 @@ async function runRmtDomDescriptorRendererSuite(options = {}) {
   );
   context.assert(epic.includes('| `WP-E18-05` | P0 | completed'), 'Epic marks WP-E18-05 completed');
   context.assert(epic.includes('rmt-dom-descriptor-renderer'), 'Epic gate chain includes DOM Descriptor renderer gate');
-  context.assert(runner.includes("require('../tests/rmt/rmt_dom_descriptor_renderer_suite')"), 'Runner imports DOM Descriptor renderer suite');
-  context.assert(runner.includes("id: 'rmt-dom-descriptor-renderer'"), 'Runner registers DOM Descriptor renderer suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/rmt_dom_descriptor_renderer_suite.js" }), 'Runner imports DOM Descriptor renderer suite');
+  context.assert(runner.hasSuite("rmt-dom-descriptor-renderer"), 'Runner registers DOM Descriptor renderer suite');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:rmt-dom-descriptor-renderer'] === 'node scripts/run_xtend_tests.js rmt-dom-descriptor-renderer', 'Package exposes DOM Descriptor renderer script');
   context.assert(packageManifest.exports && packageManifest.exports['./rmt/dom-descriptor-renderer'], 'Package exports DOM Descriptor renderer');
   const packageMetadata = packageManifest.xtend && packageManifest.xtend.rmtDomDescriptorRenderer;

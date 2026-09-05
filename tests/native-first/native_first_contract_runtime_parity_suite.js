@@ -344,10 +344,10 @@ function assertPathExists(context, rootDir, relativePath, label) {
 
 function assertRunnerGate(context, runner, gate) {
   if (gate === 'supply-chain') {
-    context.assertIncludes(runner, "id: 'supply-chain'", 'Runner registers supply-chain source gate');
+    context.assert(runner.hasSuite("supply-chain"), 'Runner registers supply-chain source gate');
     return;
   }
-  context.assertIncludes(runner, `id: '${gate}'`, `Runner registers ${gate}`);
+  context.assert(runner.hasSuite(gate), `Runner registers ${gate}`);
 }
 
 function runNativeFirstContractRuntimeParitySuite(options = {}) {
@@ -364,8 +364,8 @@ function runNativeFirstContractRuntimeParitySuite(options = {}) {
   const registryContract = readText('development/XTend-Native-First-Contract-Registry-Contract.md', rootDir);
   const roadmap = readText('development/ROADMAP-XTend-Native-First-Framework-Mission.md', rootDir);
   const mission = readText('development/XTend-Native-First-Mission-Source-of-Truth-Contract.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRuntimeParity;
   const registryMetadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRegistry;
@@ -451,8 +451,8 @@ function runNativeFirstContractRuntimeParitySuite(options = {}) {
   );
 
   context.assert(packageScripts['test:contract-runtime-parity'] === 'node scripts/run_xtend_tests.js contract-runtime-parity', 'Package exposes contract runtime parity test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_contract_runtime_parity_suite')", 'Runner imports contract runtime parity suite');
-  context.assertIncludes(runner, "id: 'contract-runtime-parity'", 'Runner registers contract runtime parity suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_contract_runtime_parity_suite.js" }), 'Runner imports contract runtime parity suite');
+  context.assert(runner.hasSuite("contract-runtime-parity"), 'Runner registers contract runtime parity suite');
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-12 contract schema');
   context.assert(metadata && metadata.matrixSchema === MATRIX_SCHEMA, 'Package metadata exposes WP-12 matrix schema');

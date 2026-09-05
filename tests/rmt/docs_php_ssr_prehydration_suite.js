@@ -381,8 +381,8 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
     id: 'docs-php-ssr-prehydration',
     label: 'Docs-App PHP SSR Prehydration'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const indexPhp = readText('docs/index.php', rootDir);
   const pageLoader = readText('docs/utils/page/route-controller.mjs', rootDir);
   const routerSource = readText('components/xrouter.js', rootDir);
@@ -709,7 +709,7 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   context.assert(indexPhp.includes('xtend.docs.document_ssr_emergency_document') && indexPhp.includes('xtend.docs.document_ssr_adapter_fallback_hydrate'), 'Document preparation and adapter failures retain an emergency complete SSR document');
 
   context.assert(packageManifest.scripts['test:docs-php-ssr-prehydration'] === 'node scripts/run_xtend_tests.js docs-php-ssr-prehydration', 'package exposes docs PHP SSR prehydration script');
-  context.assert(runner.includes("id: 'docs-php-ssr-prehydration'"), 'test runner registers docs PHP SSR prehydration suite');
+  context.assert(runner.hasSuite("docs-php-ssr-prehydration"), 'test runner registers docs PHP SSR prehydration suite');
   context.assert(packageManifest.xtend.docsPhpSsrPrehydration.schema === DOCS_PHP_SSR_SCHEMA, 'package metadata records docs SSR schema');
   context.assert(packageManifest.xtend.docsPhpSsrPrehydration.reportSchema === DOCS_PHP_SSR_REPORT_SCHEMA, 'package metadata records docs SSR report schema');
   context.assert(packageManifest.xtend.docsPhpSsrPrehydration.legacyReportSchema === DOCS_PHP_SSR_LEGACY_REPORT_SCHEMA, 'package metadata retains the V1 docs SSR report reader');

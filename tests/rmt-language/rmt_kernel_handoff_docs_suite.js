@@ -70,9 +70,9 @@ function runRmtKernelHandoffDocsSuite(options = {}) {
   const syntax = syntaxCheckFile(RMT_KERNEL_HANDOFF_DOCS_SUITE, { rootDir });
   context.assert(syntax.ok, `${RMT_KERNEL_HANDOFF_DOCS_SUITE} syntax passes${syntax.ok ? '' : ` (${syntax.message})`}`);
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtKernelHandoffDocs;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readJson('docs/menu.json', rootDir);
   const testsReadme = readText('tests/rmt/README.md', rootDir);

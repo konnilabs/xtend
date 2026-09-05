@@ -24,7 +24,8 @@ function execute(id, label, args) {
   const result = spawnSync(process.execPath, args, {
     cwd: repoRoot,
     env: process.env,
-    stdio: 'inherit'
+    stdio: 'inherit',
+    timeout: 180000
   });
   const ok = !result.error && result.status === 0;
   return {

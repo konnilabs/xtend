@@ -31,7 +31,7 @@ function runComponentRegressionPrioritySuite(options = {}) {
     id: 'regression-priority',
     label: 'XTend visual and browser regression priority plan'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const manifest = readJson('components/manifest.json', rootDir);
   const moduleSource = readText('catalog/component-regression-priority.js', rootDir);
   const roadmap = readText('development/ROADMAP-XTend-Enterprise-Reife.md', rootDir);

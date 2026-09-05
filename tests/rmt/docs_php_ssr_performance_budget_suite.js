@@ -94,8 +94,8 @@ function runDocsPhpSsrPerformanceBudgetSuite(options = {}) {
     id: 'docs-php-ssr-performance-budget',
     label: 'Docs-App PHP SSR Performance Budget'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const indexPhp = readText('docs/index.php', rootDir);
   const xlinkSource = readText('components/xlink.js', rootDir);
   const result = runDocsIndex(rootDir, {});
@@ -164,7 +164,7 @@ function runDocsPhpSsrPerformanceBudgetSuite(options = {}) {
   context.assert(xlinkSource.includes('active || previousActive !== undefined'), 'x-link avoids initial inactive state writes');
 
   context.assert(packageManifest.scripts['test:docs-php-ssr-performance-budget'] === 'node scripts/run_xtend_tests.js docs-php-ssr-performance-budget', 'package exposes docs PHP SSR performance budget script');
-  context.assert(runner.includes("id: 'docs-php-ssr-performance-budget'"), 'test runner registers docs PHP SSR performance budget suite');
+  context.assert(runner.hasSuite("docs-php-ssr-performance-budget"), 'test runner registers docs PHP SSR performance budget suite');
   context.assert(packageManifest.xtend.docsPhpSsrPerformanceBudget.schema === DOCS_PHP_SSR_PERFORMANCE_SCHEMA, 'package metadata records docs SSR performance budget schema');
   context.assert(packageManifest.xtend.docsPhpSsrPerformanceBudget.legacySchema === DOCS_PHP_SSR_PERFORMANCE_LEGACY_SCHEMA, 'package metadata retains the V1 performance budget reader');
   context.assert(packageManifest.xtend.docsPhpSsrPerformanceBudget.reportSchema === DOCS_PHP_SSR_PERFORMANCE_REPORT_SCHEMA, 'package metadata records docs SSR performance report schema');

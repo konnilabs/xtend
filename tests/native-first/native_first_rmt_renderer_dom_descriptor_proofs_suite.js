@@ -235,7 +235,7 @@ function assertPathExists(context, rootDir, relativePath, label) {
 }
 
 function assertRunnerGate(context, runner, gate) {
-  context.assertIncludes(runner, `id: '${gate}'`, `Runner registers ${gate}`);
+  context.assert(runner.hasSuite(gate), `Runner registers ${gate}`);
 }
 
 function countBy(items, field) {
@@ -274,8 +274,8 @@ function runNativeFirstRmtRendererDomDescriptorProofSuite(options = {}) {
   const rendererCatalog = readText('catalog/epic18-rmt-dom-descriptor-renderer.js', rootDir);
   const trustedDomPolicy = readText('development/XTend-Trusted-DOM-und-Sanitizing-Policy.md', rootDir);
   const trustedDomProof = readText('docs/de/trusted-dom-boundary-browser-proof.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstRmtRendererDomDescriptorProofs;
   const registryMetadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRegistry;
@@ -494,8 +494,8 @@ function runNativeFirstRmtRendererDomDescriptorProofSuite(options = {}) {
   ], 'Registry contract WP-18 extension');
 
   context.assert(packageScripts['test:rmt-renderer-dom-descriptor-proofs'] === 'node scripts/run_xtend_tests.js rmt-renderer-dom-descriptor-proofs', 'Package exposes WP-18 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_rmt_renderer_dom_descriptor_proofs_suite')", 'Runner imports WP-18 suite');
-  context.assertIncludes(runner, "id: 'rmt-renderer-dom-descriptor-proofs'", 'Runner registers WP-18 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_rmt_renderer_dom_descriptor_proofs_suite.js" }), 'Runner imports WP-18 suite');
+  context.assert(runner.hasSuite("rmt-renderer-dom-descriptor-proofs"), 'Runner registers WP-18 suite');
   REQUIRED_SOURCE_GATES.forEach((gate) => assertRunnerGate(context, runner, gate));
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-18 contract schema');

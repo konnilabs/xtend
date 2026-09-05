@@ -28,14 +28,19 @@ function readJson(rootDir, relativePath) {
   return JSON.parse(read(rootDir, relativePath));
 }
 
+let commandLogSequence = 0;
 function run(executable, args, options = {}) {
-  return spawnSync(executable, args, {
+  const result = spawnSync(executable, args, {
     cwd: options.cwd,
     env: { ...process.env, ...(options.env || {}) },
     encoding: 'utf8',
     maxBuffer: 32 * 1024 * 1024,
     timeout: options.timeout || 240000
   });
+  const logDir = path.resolve(__dirname, '../../.xtend-test-results/nightly/product-commands');
+  fs.mkdirSync(logDir, { recursive: true });
+  fs.writeFileSync(path.join(logDir, `maraca-test-bench-${++commandLogSequence}.log`), `${executable} ${args.join(' ')}\n${result.stdout || ''}\n${result.stderr || ''}`);
+  return result;
 }
 
 function majorNodeVersion() {
@@ -242,14 +247,14 @@ async function runMaracaAppServicesTestBenchSuite(options = {}) {
   context.assert(productPackage.scripts && productPackage.scripts.start === 'npm run build && node server/index.mjs' && productPackage.scripts.serve === 'npm start' && productPackage.scripts['test:catfood'] === 'npm run build && node --test', 'managed start, serve and portable catfood scripts build before using only the generated Node host/test harness');
   context.assert(productPackage.engines && productPackage.engines.node === '>=24', 'product declares the supported Node floor required by node:sqlite');
 
-  const rootPackage = readJson(rootDir, 'package.json');
-  const runner = read(rootDir, 'scripts/run_xtend_tests.js');
+  const rootPackage = require('../utils/test-catalog').resolveManifestProfiles(readJson(rootDir, 'package.json'));
+  const runner = require('../utils/test-catalog').readRunnerCatalog(rootDir);
   const defaultWorkflow = read(rootDir, '.github/workflows/xtend-default-gates.yml');
   const nightlyWorkflow = read(rootDir, '.github/workflows/xtend-nightly-build.yml');
-  context.assert(runner.includes("id: 'maraca-app-services-test-bench'"), 'central test runner registers the product gate');
+  context.assert(runner.hasSuite('maraca-app-services-test-bench'), 'central test runner registers the product gate');
   context.assert(rootPackage.scripts['test:maraca-app-services-test-bench:report'], 'root package exposes the product evidence report command');
   context.assert(!rootPackage.scripts['test:pr'].includes('maraca-app-services-test-bench') && !rootPackage.scripts['test:release:full'].includes('maraca-app-services-test-bench'), 'product E2E remains outside PR and release gates');
-  context.assert(!defaultWorkflow.includes('test:maraca-app-services-test-bench') && nightlyWorkflow.includes('test:maraca-app-services-test-bench:report'), 'product E2E is wired only into Nightly CI');
+  context.assert(!require('../utils/test-catalog').workflowHasScript(defaultWorkflow, 'test:maraca-app-services-test-bench:report') && require('../utils/test-catalog').workflowHasScript(nightlyWorkflow, 'test:maraca-app-services-test-bench:report'), 'product E2E is wired only into Nightly CI');
 
   let evidence = null;
   if (majorNodeVersion() < 24) {

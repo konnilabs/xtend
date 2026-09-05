@@ -65,13 +65,13 @@ function runEpic18RmtAppPlatformReleaseHandoffSuite(options = {}) {
   const plan = createEpic18RmtAppPlatformReleaseHandoffPlan({ rootDir });
   const validation = validateEpic18RmtAppPlatformReleaseHandoffPlan(plan);
   const report = createEpic18RmtAppPlatformReleaseHandoffReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageMetadata = packageManifest.xtend && packageManifest.xtend.epic18RmtAppPlatformReleaseHandoff;
   const ciGateMatrix = packageManifest.xtend && packageManifest.xtend.ciGateMatrix;
   const prFastGate = ciGateMatrix && ciGateMatrix.prFastGate || {};
   const fullReleaseGate = ciGateMatrix && ciGateMatrix.fullReleaseGate || {};
   const releaseGates = packageManifest.xtend && packageManifest.xtend.releaseGates || [];
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const workflow = readText(GITHUB_ACTIONS.workflow, rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
   const docsReadme = readText('docs/en/README.md', rootDir);
@@ -172,8 +172,8 @@ function runEpic18RmtAppPlatformReleaseHandoffSuite(options = {}) {
     './epic18-vendor-bugfixes.md'
   ], 'Docs README');
 
-  context.assertIncludes(runner, "require('../tests/platform/epic18_rmt_app_platform_release_handoff_suite')", 'Runner imports Epic 18 handoff suite');
-  context.assertIncludes(runner, "id: 'epic18-rmt-app-platform'", 'Runner registers Epic 18 handoff suite');
+  context.assert(runner.hasImplementation({ path: "tests/platform/epic18_rmt_app_platform_release_handoff_suite.js" }), 'Runner imports Epic 18 handoff suite');
+  context.assert(runner.hasSuite("epic18-rmt-app-platform"), 'Runner registers Epic 18 handoff suite');
   context.assert(packageManifest.scripts['test:epic18-rmt-app-platform'] === 'node scripts/run_xtend_tests.js epic18-rmt-app-platform', 'Package exposes Epic 18 handoff script');
   context.assert(packageMetadata && packageMetadata.schema === EPIC18_RMT_APP_PLATFORM_RELEASE_HANDOFF_SCHEMA, 'Package metadata exposes Epic 18 schema');
   context.assert(packageMetadata && packageMetadata.status === EPIC18_RMT_APP_PLATFORM_RELEASE_HANDOFF_STATUS, 'Package metadata exposes accepted Epic 18 status');

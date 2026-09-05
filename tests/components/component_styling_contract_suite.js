@@ -33,9 +33,9 @@ function runComponentStylingContractSuite(options = {}) {
     id: 'component-styling-contract',
     label: 'XTend Component Styling Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const contractDoc = readText('development/XTend-Component-Styling-Token-und-Part-Contract.md', rootDir);
@@ -114,7 +114,7 @@ function runComponentStylingContractSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'componentStylingContract', 'Scaffold config exposes Component Styling Contract section');
   context.assertIncludes(scaffoldConfig, COMPONENT_STYLING_CONTRACT_SCHEMA, 'Scaffold config declares Component Styling schema');
   context.assertIncludes(scaffoldConfig, 'component-styling-contract', 'Scaffold config references Component Styling gate');
-  context.assertIncludes(runner, "id: 'component-styling-contract'", 'Runner exposes Component Styling Contract suite');
+  context.assert(runner.hasSuite("component-styling-contract"), 'Runner exposes Component Styling Contract suite');
   context.assertIncludes(contractDoc, COMPONENT_STYLING_CONTRACT_SCHEMA, 'Contract document declares Component Styling schema');
   context.assertIncludes(contractDoc, 'XtendComponentStylingContract', 'Contract document defines the TypeScript interface name');
   context.assertIncludes(contractDoc, RMT_STYLE_AUTHORING_SCHEMA, 'Contract document declares RMT Style Authoring handoff');

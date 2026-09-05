@@ -63,7 +63,7 @@ function runTypeExportsLoaderSuite(options = {}) {
     id: 'type-exports-loader',
     label: 'TypeExports Loader Declaration Gate'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const loaderSource = readText('xtend-loader.js', rootDir);
   const loaderDeclarationSource = readText('xtend-loader.d.ts', rootDir);
   const legacyDeclarationSource = readText('xtend-dev.d.ts', rootDir);
@@ -80,7 +80,7 @@ function runTypeExportsLoaderSuite(options = {}) {
   const report = createTypeExportsLoaderReport({ plan });
   const metadata = packageManifest.xtend && packageManifest.xtend.typeExportsLoader;
   const typeExportsMetadata = packageManifest.xtend && packageManifest.xtend.typeExports;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const docsReadme = readText('docs/en/README.md', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const backlog = readText(TYPE_EXPORTS_LOADER_BACKLOG, rootDir);
@@ -181,8 +181,8 @@ function runTypeExportsLoaderSuite(options = {}) {
   context.assert(metadata && metadata.xtendCssDependency === false, 'Package metadata keeps xtend.css out of type dependency');
   context.assert(metadata && metadata.nextWorkpackage === 'WP-TypeExports-03', 'Package metadata hands off to WP-TypeExports-03');
   context.assert(typeExportsMetadata && typeExportsMetadata.completedWorkpackages.includes(TYPE_EXPORTS_LOADER_WORKPACKAGE), 'TypeExports metadata records WP-TypeExports-02 completion');
-  context.assertIncludes(runner, "id: 'type-exports-loader'", 'Runner registers Loader TypeExports suite');
-  context.assertIncludes(runner, 'runTypeExportsLoaderSuite', 'Runner imports Loader TypeExports suite');
+  context.assert(runner.hasSuite("type-exports-loader"), 'Runner registers Loader TypeExports suite');
+  context.assert(runner.hasImplementation({ function: "runTypeExportsLoaderSuite" }), 'Runner imports Loader TypeExports suite');
   context.assertIncludes(docsReadme, './xtend-loader-types.md', 'Docs README links Loader Type docs');
   context.assertIncludes(testsReadme, TYPE_EXPORTS_LOADER_LOCAL_GATE, 'Tests README documents Loader TypeExports gate');
 

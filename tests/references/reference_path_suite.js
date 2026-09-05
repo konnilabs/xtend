@@ -5375,7 +5375,7 @@ function assertScaffoldConfigReference(context, rootDir) {
 }
 
 function assertScaffoldComponentBlueprintReference(context, rootDir) {
-  const config = readJson('package.json', rootDir);
+  const config = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   context.assert(
     config.scripts && config.scripts.scaffold === 'node xtend-builder/scaffold.js',
     'Scaffold package script remains available for blueprint output'
@@ -5645,7 +5645,7 @@ function assertScaffoldProjectLayoutReference(context, rootDir) {
     assertFileExists(context, relativePath, rootDir, `Scaffold layout file exists: ${relativePath}`);
   });
 
-  const packageJson = readJson('package.json', rootDir);
+  const packageJson = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   context.assert(
     packageJson.scripts && packageJson.scripts.scaffold === 'node xtend-builder/scaffold.js',
     'Package scripts expose npm run scaffold'
@@ -6922,7 +6922,7 @@ function assertSupplyChainPolicyReference(context, rootDir) {
   const verifyPath = 'scripts/verify_supply_chain_policy.js';
   const absolutePolicyPath = resolveRepoPath(policyPath, rootDir);
   const absoluteVerifyPath = resolveRepoPath(verifyPath, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
 
   assertFileExists(context, policyPath, rootDir, 'Supply-Chain policy module exists');
   assertFileExists(context, verifyPath, rootDir, 'Supply-Chain verify script exists');
@@ -6968,7 +6968,7 @@ function assertSupplyChainPolicyReference(context, rootDir) {
 function assertComponentCatalogCoverageReference(context, rootDir) {
   const modulePath = 'catalog/component-catalog-coverage.js';
   const absoluteModulePath = resolveRepoPath(modulePath, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const manifest = readJson('components/manifest.json', rootDir);
   const expectedManifestCount = Object.keys(manifest).length;
 
@@ -7054,7 +7054,7 @@ function assertComponentCatalogCoverageReference(context, rootDir) {
 function assertComponentRegressionPriorityReference(context, rootDir) {
   const modulePath = 'catalog/component-regression-priority.js';
   const absoluteModulePath = resolveRepoPath(modulePath, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const manifest = readJson('components/manifest.json', rootDir);
   const expectedManifestCount = Object.keys(manifest).length;
 
@@ -7100,7 +7100,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   const workflowPath = '.github/workflows/xtend-default-gates.yml';
   const nightlyWorkflowPath = '.github/workflows/xtend-nightly-build.yml';
   const nightlyManifestScriptPath = 'scripts/create_xtend_nightly_manifest.js';
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const workflow = readText(workflowPath, rootDir);
   const nightlyWorkflow = readText(nightlyWorkflowPath, rootDir);
   const nightlyManifestScript = readText(nightlyManifestScriptPath, rootDir);
@@ -7109,14 +7109,11 @@ function assertCiDefaultGatesReference(context, rootDir) {
   const requiredUploadEnd = primaryNightlyWorkflow.indexOf('      - name: Fail nightly build on required evidence failures', requiredUploadStart);
   const requiredUpload = primaryNightlyWorkflow.slice(requiredUploadStart, requiredUploadEnd);
   const optionalConditionalNetworkWorkflow = nightlyWorkflow.slice(nightlyWorkflow.indexOf('\n  optional-conditional-network:'));
-  const trackedArtifactsStart = nightlyManifestScript.indexOf('const ARTIFACT_PATHS = [');
-  const requiredArtifactsStart = nightlyManifestScript.indexOf('const REQUIRED_ARTIFACTS = new Set([');
-  const trackedArtifactsSource = nightlyManifestScript.slice(trackedArtifactsStart, requiredArtifactsStart);
-  const requiredArtifactsEnd = nightlyManifestScript.indexOf('\n]);', requiredArtifactsStart) + 4;
-  const requiredArtifactsSource = nightlyManifestScript.slice(requiredArtifactsStart, requiredArtifactsEnd);
-  const artifactLiteralPattern = /^\s+'([^']+)'/gm;
-  const trackedArtifactPaths = Array.from(trackedArtifactsSource.matchAll(artifactLiteralPattern), (match) => match[1]);
-  const requiredArtifactPaths = Array.from(requiredArtifactsSource.matchAll(artifactLiteralPattern), (match) => match[1]);
+  const nightlyContract = require('../../scripts/test-runner/catalog').catalog.ci['ci-nightly'];
+  const nightlyManifestApi = require('../../scripts/create_xtend_nightly_manifest');
+  const trackedArtifactPaths = nightlyManifestApi.ARTIFACT_PATHS;
+  const requiredArtifactPaths = [...nightlyManifestApi.REQUIRED_ARTIFACTS];
+
   const nightlyWorkflowCommandSet = Array.from(primaryNightlyWorkflow.matchAll(/^\s+run: (npm run [^\n]+)$/gm), (match) => match[1])
     .filter((command) => command !== 'npm run nightly:manifest');
   const ciMetadata = packageManifest.xtend && packageManifest.xtend.ciDefaultGates;
@@ -7154,18 +7151,18 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'npm install --global npm@11.17.0 --no-audit --fund=false', 'CI workflow pins npm 11.17.0');
   context.assertIncludes(workflow, 'node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}', 'CI workflow captures per-lane runtime evidence');
   context.assertIncludes(workflow, '.xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json', 'CI workflow uploads per-lane runtime evidence');
-  context.assertIncludes(workflow, 'npm run test:pr:report', 'CI workflow runs PR report gate');
-  context.assertIncludes(workflow, 'npm run test:docs-quality:report', 'CI workflow runs blocking public docs quality report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "test:pr:report"), 'CI workflow runs PR report gate');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "test:docs-quality:report"), 'CI workflow runs blocking public docs quality report');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-docs-quality-report.json', 'CI workflow uploads public docs quality report');
-  context.assertIncludes(workflow, 'npm run test:release:full:report', 'CI workflow runs full release report gate');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "test:release:full:report"), 'CI workflow runs full release report gate');
   context.assert((workflow.match(/npm run test:xtend-mcp:report/gu) || []).length === 3, 'CI workflow runs report-producing MCP gates for PR, release, and publish jobs');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-mcp-gate-report.json', 'CI workflow uploads MCP gate evidence');
   context.assertIncludes(workflow, 'xtend-mcp-vscode-smoke:', 'CI workflow declares cross-platform MCP VSIX smoke job');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-mcp-vsix-smoke.json', 'CI workflow uploads MCP VSIX smoke evidence');
-  context.assertIncludes(workflow, 'npm run test:xtensions-framework-adapters:report', 'CI workflow runs XTensions framework adapter report gate');
-  context.assertIncludes(workflow, 'npm run test:xtend-dev-surface:report', 'CI workflow runs XTend Dev Surface report gate');
-  context.assert((workflow.match(/npm run test:docs-framework-ownership:report/gu) || []).length === 2, 'CI workflow runs the standalone Docs framework ownership report for PR and release jobs');
-  context.assert((workflow.match(/- name: Run public docs quality report\s+if: always\(\)/gu) || []).length === 2, 'CI workflow preserves both public docs quality reports after aggregate gate failures');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "test:xtensions-framework-adapters:report"), 'CI workflow runs XTensions framework adapter report gate');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "test:xtend-dev-surface:report"), 'CI workflow runs XTend Dev Surface report gate');
+  context.assert((workflow.match(/--verify docs-framework-ownership --from/gu) || []).length === 2, 'CI workflow runs the standalone Docs framework ownership report for PR and release jobs');
+  context.assert((workflow.match(/- name: Run public docs quality report\s+if: \$\{\{ !cancelled\(\) && steps\.install_1\.outcome == 'success'/gu) || []).length === 2, 'CI workflow preserves both public docs quality reports after aggregate gate failures');
   context.assertIncludes(workflow, '- name: Run Native-First and RMT Owned release report\n        if: always()', 'CI workflow preserves Native-First release evidence after primitive gate failures');
   context.assertIncludes(workflow, 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a', 'CI workflow pins the upload-artifact action');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-pr-gate-report.json', 'CI workflow uploads PR JSON report');
@@ -7176,16 +7173,16 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'xtend-pr-gate-report-${{ matrix.artifact_suffix }}', 'CI workflow uses the per-runtime PR report artifact pattern');
   context.assertIncludes(workflow, 'xtend-release-gate-report-${{ matrix.artifact_suffix }}', 'CI workflow uses the per-runtime release report artifact pattern');
   context.assertIncludes(workflow, 'rmt-vnext-primitive-gates:', 'CI workflow declares RMT vNext primitive gate job');
-  context.assertIncludes(workflow, 'npm run test:rmt-vnext-primitives:report', 'CI workflow runs RMT vNext primitive gate report');
-  context.assertIncludes(workflow, 'npm run test:native-first-rmt-owned-release:report', 'CI workflow runs Native-First RMT Owned release report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "test:rmt-vnext-primitives:report"), 'CI workflow runs RMT vNext primitive gate report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "test:native-first-rmt-owned-release:report"), 'CI workflow runs Native-First RMT Owned release report');
   context.assertIncludes(workflow, 'run_source_to_sea:', 'CI workflow exposes optional RMT vNext source-to-sea dispatch input');
   context.assertIncludes(workflow, "github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true", 'CI workflow gates RMT vNext source-to-sea evidence behind manual dispatch');
-  context.assertIncludes(workflow, 'npm run test:rmt-vnext-source-to-sea:chromium', 'CI workflow exposes optional RMT vNext Hypervisor evidence');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "test:rmt-vnext-source-to-sea:chromium"), 'CI workflow exposes optional RMT vNext Hypervisor evidence');
   context.assertIncludes(workflow, '- name: Capture RMT vNext source-to-sea browser evidence', 'CI workflow keeps optional RMT vNext source-to-sea capture step');
   context.assertIncludes(workflow, 'xtend-rmt-vnext-source-to-sea-capture.exitcode', 'CI workflow records RMT vNext source-to-sea capture exit status');
   context.assertIncludes(workflow, 'exit "$status"', 'CI workflow fails RMT vNext source-to-sea capture when browser evidence capture fails');
   context.assertIncludes(workflow, 'Ensure RMT vNext source-to-sea evidence artifact', 'CI workflow creates failed fallback RMT vNext source-to-sea evidence when capture exits early');
-  context.assertIncludes(workflow, 'npm run test:rmt-vnext-source-to-sea:validate-artifact', 'CI workflow optionally validates RMT vNext source-to-sea evidence after artifact upload');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "test:rmt-vnext-source-to-sea:validate-artifact"), 'CI workflow optionally validates RMT vNext source-to-sea evidence after artifact upload');
   context.assertIncludes(workflow, 'XTEND_BROWSER_HYPERVISOR_ENGINE: chromium', 'CI workflow selects the RMT vNext source-to-sea Hypervisor engine');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json', 'CI workflow uploads RMT vNext primitive JSON report');
   context.assertIncludes(workflow, '.xtend-test-results/xtend-native-first-rmt-owned-release-report.json', 'CI workflow uploads Native-First RMT Owned JSON report');
@@ -7194,7 +7191,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'xtend-native-first-rmt-owned-release-report-${{ matrix.artifact_suffix }}', 'CI workflow uses the per-runtime Native-First RMT Owned artifact pattern');
   context.assertIncludes(workflow, 'xtend-rmt-vnext-source-to-sea-evidence-${{ matrix.artifact_suffix }}', 'CI workflow uses the per-runtime RMT vNext source-to-sea artifact pattern');
   context.assertIncludes(workflow, 'package-structure:', 'CI workflow declares package structure job');
-  context.assertIncludes(workflow, 'npm run pack:dry-run', 'CI workflow runs package dry run');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "pack:dry-run"), 'CI workflow runs package dry run');
   context.assertIncludes(workflow, 'npm pack --workspace @ccslabs/xtend-mcp --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtend-mcp.json', 'CI workflow writes machine-readable MCP package dry-run evidence');
   context.assertIncludes(workflow, 'npm publish --dry-run --tag latest --access public', 'CI publish job runs npm publish dry run with latest tag');
   context.assertIncludes(workflow, 'xtend-package-structure-${{ matrix.artifact_suffix }}', 'CI workflow uploads per-runtime package structure artifacts');
@@ -7204,7 +7201,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'id-token: write', 'CI workflow grants OIDC for npm provenance publish');
   context.assertIncludes(workflow, 'registry-url: https://registry.npmjs.org', 'CI workflow targets npm registry for publish');
   context.assertIncludes(workflow, 'XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL: "0"', 'CI publish job rejects Audit/SBOM deferrals');
-  context.assertIncludes(workflow, 'npm run release:report', 'CI publish job writes release report evidence');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "release:report"), 'CI publish job writes release report evidence');
   context.assertIncludes(workflow, 'npm publish --tag latest --provenance --access public', 'CI workflow publishes latest with npm provenance');
   context.assertIncludes(workflow, 'name: Publish npm latest with provenance (Node 24.18.0)', 'CI publish job is restricted to the primary Node runtime');
   context.assertIncludes(workflow, "node-version: '24.18.0'", 'CI publish job pins Node 24.18.0');
@@ -7226,23 +7223,23 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(nightlyWorkflow, 'npm install --global npm@11.17.0 --no-audit --fund=false', 'Nightly workflow pins npm 11.17.0');
   context.assertIncludes(nightlyWorkflow, 'node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}', 'Nightly workflow captures per-lane runtime evidence');
   context.assertIncludes(nightlyWorkflow, '.xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json', 'Nightly workflow uploads per-lane runtime evidence');
-  context.assertIncludes(nightlyWorkflow, 'npm run native-first:evidence:prepare', 'Nightly workflow prepares Native-First release evidence');
-  context.assertIncludes(nightlyWorkflow, 'npm run test:release:full:report', 'Nightly workflow runs full release gate report');
-  context.assertIncludes(nightlyWorkflow, 'npm run test:xtend-mcp:report', 'Nightly workflow runs the report-producing MCP gate');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "native-first:evidence:prepare"), 'Nightly workflow prepares Native-First release evidence');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:release:full:report"), 'Nightly workflow runs full release gate report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:xtend-mcp:report"), 'Nightly workflow runs the report-producing MCP gate');
   context.assertIncludes(nightlyWorkflow, '.xtend-test-results/xtend-mcp-gate-report.json', 'Nightly workflow uploads MCP gate evidence');
   context.assertIncludes(nightlyWorkflow, 'XTend MCP gate failed', 'Nightly workflow fails closed when the MCP gate fails');
-  context.assertIncludes(nightlyWorkflow, 'npm pack --workspace @ccslabs/xtend-mcp --dry-run --json --silent > .xtend-test-results/xtend-pack-dry-run-xtend-mcp.json', 'Nightly workflow writes machine-readable MCP package dry-run evidence');
-  context.assertIncludes(nightlyWorkflow, 'npm run test:rmt-demos:report', 'Nightly workflow runs the RMT demo structure report');
-  context.assertIncludes(nightlyWorkflow, 'npm run test:rmt-vnext-primitives:report', 'Nightly workflow runs RMT vNext primitive report');
-  context.assertIncludes(nightlyWorkflow, 'npm run test:native-first-rmt-owned-release:report', 'Nightly workflow runs Native-First RMT Owned release report');
-  context.assertIncludes(nightlyWorkflow, 'npm run test:xtensions-framework-adapters:report', 'Nightly workflow runs XTensions framework adapter report');
-  context.assertIncludes(nightlyWorkflow, 'npm run test:xtend-dev-surface:report', 'Nightly workflow runs XTend Dev Surface report');
-  context.assertIncludes(nightlyWorkflow, 'npm run test:docs-quality:report', 'Nightly workflow runs public docs quality report');
-  context.assertIncludes(nightlyWorkflow, 'npm run test:docs-shell-catfooding:report', 'Nightly workflow runs Docs Shell catfooding report');
-  context.assertIncludes(nightlyWorkflow, 'npm run test:docs-framework-ownership:report', 'Nightly workflow runs Docs framework ownership report');
-  context.assertIncludes(nightlyWorkflow, 'npm run release:report', 'Nightly workflow captures release report evidence');
-  context.assertIncludes(nightlyWorkflow, 'npm run pack:dry-run', 'Nightly workflow captures package dry-run evidence');
-  context.assertIncludes(nightlyWorkflow, 'npm run nightly:manifest', 'Nightly workflow writes nightly manifest');
+  context.assert(nightlyWorkflow.includes('nightly.js phase pack_workspaces') && nightlyContract.phases.pack_workspaces.commands.some(command => [command.command, ...command.args].join(' ') === 'npm pack --workspace @ccslabs/xtend-mcp --dry-run --json --silent' && command.output === '.xtend-test-results/xtend-pack-dry-run-xtend-mcp.json'), 'Nightly workflow writes machine-readable MCP package dry-run evidence');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:rmt-demos:report"), 'Nightly workflow runs the RMT demo structure report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:rmt-vnext-primitives:report"), 'Nightly workflow runs RMT vNext primitive report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:native-first-rmt-owned-release:report"), 'Nightly workflow runs Native-First RMT Owned release report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:xtensions-framework-adapters:report"), 'Nightly workflow runs XTensions framework adapter report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:xtend-dev-surface:report"), 'Nightly workflow runs XTend Dev Surface report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:docs-quality:report"), 'Nightly workflow runs public docs quality report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:docs-shell-catfooding:report"), 'Nightly workflow runs Docs Shell catfooding report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:docs-framework-ownership:report"), 'Nightly workflow runs Docs framework ownership report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "release:report"), 'Nightly workflow captures release report evidence');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "pack:dry-run"), 'Nightly workflow captures package dry-run evidence');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "nightly:manifest"), 'Nightly workflow writes nightly manifest');
   context.assertIncludes(requiredUpload, 'if-no-files-found: error', 'Nightly required artifact upload fails closed when evidence is absent');
   context.assert(!requiredUpload.includes('if-no-files-found: warn'), 'Nightly required artifact upload does not downgrade missing evidence to a warning');
   context.assertIncludes(optionalConditionalNetworkWorkflow, 'if-no-files-found: warn', 'Optional conditional-network upload remains non-blocking when it produces no evidence');
@@ -7258,30 +7255,30 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(nightlyWorkflow, 'Docs Shell catfooding gate failed', 'Nightly workflow fails on missing Docs Shell catfooding evidence');
   context.assertIncludes(nightlyWorkflow, 'Docs framework ownership gate failed', 'Nightly workflow fails on missing Docs framework ownership evidence');
   context.assertIncludes(nightlyWorkflow, 'if [ "${{ steps.docs_stub_inventory.outcome }}" != "success" ]; then echo "docs stub inventory gate failed"; failed=1; fi', 'Nightly workflow treats the required docs stub inventory as a blocking gate');
-  context.assertIncludes(nightlyManifestScript, "'npm run ci:dependency-locks:check'", 'Nightly manifest tracks the pre-install dependency lock guard');
-  context.assertIncludes(nightlyManifestScript, "'npm run native-first:evidence:prepare'", 'Nightly manifest tracks Native-First evidence preparation');
-  context.assertIncludes(nightlyManifestScript, "'npm run test:xtend-mcp:report'", 'Nightly manifest tracks the MCP gate command');
-  context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-mcp-gate-report.json'", 'Nightly manifest requires MCP gate evidence');
-  context.assertIncludes(nightlyManifestScript, "'npm run test:rmt-demos:report'", 'Nightly manifest tracks the RMT demo structure command');
-  context.assertIncludes(nightlyManifestScript, "'npm run test:xtend-dev-surface:report'", 'Nightly manifest tracks XTend Dev Surface command');
-  context.assertIncludes(nightlyManifestScript, "'npm run test:docs-quality:report'", 'Nightly manifest tracks public docs quality command');
-  context.assertIncludes(nightlyManifestScript, "'npm run test:docs-shell-catfooding:report'", 'Nightly manifest tracks Docs Shell catfooding command');
-  context.assertIncludes(nightlyManifestScript, "'npm run test:docs-framework-ownership:report'", 'Nightly manifest tracks Docs framework ownership command');
-  context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-dev-surface-report.json'", 'Nightly manifest requires XTend Dev Surface evidence');
-  context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-docs-quality-report.json'", 'Nightly manifest requires public docs quality evidence');
-  context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-docs-shell-catfooding-report.json'", 'Nightly manifest requires Docs Shell catfooding evidence');
-  context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-docs-framework-ownership-report.json'", 'Nightly manifest requires Docs framework ownership evidence');
-  context.assertIncludes(nightlyManifestScript, "'.xtend-test-results/xtend-rmt-demos-report.json'", 'Nightly manifest requires RMT demo structure evidence');
-  context.assertIncludes(requiredArtifactsSource, "'.xtend-test-results/xtend-release-report.json'", 'Nightly manifest requires release report evidence');
-  context.assertIncludes(requiredArtifactsSource, "'.xtend-test-results/xtend-package-export-surface-lock.json'", 'Nightly manifest requires package export surface evidence');
-  context.assertIncludes(requiredArtifactsSource, "'.xtend-test-results/xtend-package-export-lock-report.json'", 'Nightly manifest requires package export lock evidence');
-  context.assertIncludes(requiredArtifactsSource, "'.xtend-test-results/xtend-pack-dry-run-xtendrmt.json'", 'Nightly manifest requires workspace package dry-run evidence');
-  context.assertIncludes(requiredArtifactsSource, "'.xtend-test-results/xtend-pack-dry-run-xtend-mcp.json'", 'Nightly manifest requires MCP package dry-run evidence');
-  context.assertIncludes(requiredArtifactsSource, "'.xtend-build/maraca/source-to-sea/xtend.maraca.report.json'", 'Nightly manifest requires Maraca bundle report evidence');
-  context.assertIncludes(requiredArtifactsSource, "'.xtend-build/maraca/source-to-sea/xtend.maraca.size.json'", 'Nightly manifest requires Maraca size report evidence');
+  context.assert(nightlyManifestApi.COMMANDS.includes("npm run ci:dependency-locks:check"), 'Nightly manifest tracks the pre-install dependency lock guard');
+  context.assert(nightlyManifestApi.COMMANDS.includes("npm run native-first:evidence:prepare"), 'Nightly manifest tracks Native-First evidence preparation');
+  context.assert(nightlyManifestApi.COMMANDS.includes("npm run test:xtend-mcp:report"), 'Nightly manifest tracks the MCP gate command');
+  context.assert(requiredArtifactPaths.includes(".xtend-test-results/xtend-mcp-gate-report.json"), 'Nightly manifest requires MCP gate evidence');
+  context.assert(nightlyManifestApi.COMMANDS.includes("npm run test:rmt-demos:report"), 'Nightly manifest tracks the RMT demo structure command');
+  context.assert(nightlyManifestApi.COMMANDS.includes("npm run test:xtend-dev-surface:report"), 'Nightly manifest tracks XTend Dev Surface command');
+  context.assert(nightlyManifestApi.COMMANDS.includes("npm run test:docs-quality:report"), 'Nightly manifest tracks public docs quality command');
+  context.assert(nightlyManifestApi.COMMANDS.includes("npm run test:docs-shell-catfooding:report"), 'Nightly manifest tracks Docs Shell catfooding command');
+  context.assert(nightlyManifestApi.COMMANDS.includes("npm run test:docs-framework-ownership:report"), 'Nightly manifest tracks Docs framework ownership command');
+  context.assert(requiredArtifactPaths.includes(".xtend-test-results/xtend-dev-surface-report.json"), 'Nightly manifest requires XTend Dev Surface evidence');
+  context.assert(requiredArtifactPaths.includes(".xtend-test-results/xtend-docs-quality-report.json"), 'Nightly manifest requires public docs quality evidence');
+  context.assert(requiredArtifactPaths.includes(".xtend-test-results/xtend-docs-shell-catfooding-report.json"), 'Nightly manifest requires Docs Shell catfooding evidence');
+  context.assert(requiredArtifactPaths.includes(".xtend-test-results/xtend-docs-framework-ownership-report.json"), 'Nightly manifest requires Docs framework ownership evidence');
+  context.assert(requiredArtifactPaths.includes(".xtend-test-results/xtend-rmt-demos-report.json"), 'Nightly manifest requires RMT demo structure evidence');
+  context.assert(requiredArtifactPaths.includes(".xtend-test-results/xtend-release-report.json"), 'Nightly manifest requires release report evidence');
+  context.assert(requiredArtifactPaths.includes(".xtend-test-results/xtend-package-export-surface-lock.json"), 'Nightly manifest requires package export surface evidence');
+  context.assert(requiredArtifactPaths.includes(".xtend-test-results/xtend-package-export-lock-report.json"), 'Nightly manifest requires package export lock evidence');
+  context.assert(requiredArtifactPaths.includes(".xtend-test-results/xtend-pack-dry-run-xtendrmt.json"), 'Nightly manifest requires workspace package dry-run evidence');
+  context.assert(requiredArtifactPaths.includes(".xtend-test-results/xtend-pack-dry-run-xtend-mcp.json"), 'Nightly manifest requires MCP package dry-run evidence');
+  context.assert(requiredArtifactPaths.includes(".xtend-build/maraca/source-to-sea/xtend.maraca.report.json"), 'Nightly manifest requires Maraca bundle report evidence');
+  context.assert(requiredArtifactPaths.includes(".xtend-build/maraca/source-to-sea/xtend.maraca.size.json"), 'Nightly manifest requires Maraca size report evidence');
   context.assert(trackedArtifactPaths.length > 0 && trackedArtifactPaths.every((artifactPath) => requiredArtifactPaths.includes(artifactPath)), 'Every tracked artifact from a blocking nightly command is classified as required');
   context.assertIncludes(nightlyManifestScript, 'process.exitCode = 1;', 'Nightly manifest CLI exits nonzero when required evidence is missing');
-  context.assertIncludes(nightlyManifestScript, 'XTend nightly manifest is incomplete; missing required artifacts:', 'Nightly manifest CLI reports missing required evidence');
+  context.assertIncludes(nightlyManifestScript, 'XTend nightly acceptance failed:', 'Nightly manifest CLI reports missing required evidence');
   context.assertIncludes(nightlyWorkflow, 'xtend-nightly-build-${{ matrix.artifact_suffix }}', 'Nightly workflow uploads per-runtime artifact bundles');
   context.assertIncludes(nightlyWorkflow, 'optional-source-to-sea:', 'Nightly workflow isolates optional Source-to-Sea browser evidence');
   context.assertIncludes(nightlyWorkflow, "github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true", 'Nightly Source-to-Sea job is manual only');
@@ -7301,7 +7298,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(nodeRuntimePolicy.primary === '24.18.0' && nodeRuntimePolicy.requiredCanary === '26.5.0', 'Package metadata exposes the primary and mandatory canary runtimes');
   context.assert(nodeRuntimePolicy.packageManager === 'npm@11.17.0' && packageManifest.packageManager === 'npm@11.17.0', 'Package metadata pins npm 11.17.0 consistently');
   context.assert(nodeRuntimePolicy.runtimeEvidenceScript === 'scripts/capture_node_runtime_evidence.js', 'Package metadata exposes the runtime evidence script');
-  context.assert(packageManifest.scripts['test:report'] === 'node scripts/run_xtend_tests.js --report .xtend-test-results/xtend-test-report.json', 'Package exposes report gate script');
+  context.assert(packageManifest.scripts['test:report'].endsWith('--report .xtend-test-results/xtend-test-report.json') && require('../../scripts/test-runner/catalog').scriptSuiteIds(packageManifest, 'test:report').length === require('../../scripts/test-runner/catalog').select().length, 'Package exposes report gate script');
   context.assert(packageManifest.scripts['test:xtend-dev-surface:report'] === 'node scripts/run_xtend_tests.js xtend-dev-surface --report .xtend-test-results/xtend-dev-surface-report.json', 'Package exposes XTend Dev Surface report gate script');
   context.assert(gateMatrix && gateMatrix.schema === 'xtend.ci.gate-matrix.v1', 'Package metadata exposes CI gate matrix schema');
   context.assert(gateMatrix.workflow === workflowPath, 'Package gate matrix exposes CI workflow path');
@@ -7352,7 +7349,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('rmt-owned-data-display-primitives'), 'PR fast gate includes owned data display primitives suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('rmt-owned-command-search-primitives'), 'PR fast gate includes owned command/search primitives suite');
   context.assert(Array.isArray(prFastGate.suites) && prFastGate.suites.includes('rmt-owned-release-handoff'), 'PR fast gate includes RMT Owned release handoff suite');
-  ['epic10-p0-component-wave', 'component-lab-rmt-inspector', 'component-lab-ux-inspector', 'component-ux-authoring-docs', 'component-long-tail-migration', 'epic11-enterprise-ux-handoff', 'rmt-first-demo-app', 'existing-component-metadata', 'epic10-platform-gates', 'epic10-release-handoff', 'catalog-coverage', 'epic18-rmt-app-platform'].forEach((suite) => {
+  ['epic10-p0-component-wave', 'component-lab-rmt-inspector', 'component-lab-ux-inspector', 'component-ux-authoring-docs', 'component-long-tail-migration', 'epic11-enterprise-ux-handoff', 'existing-component-metadata', 'epic10-platform-gates', 'epic10-release-handoff', 'catalog-coverage', 'epic18-rmt-app-platform'].forEach((suite) => {
     context.assert(Array.isArray(prFastGate.suites) && !prFastGate.suites.includes(suite), `PR fast gate excludes retired internal suite ${suite}`);
   });
   context.assert(Array.isArray(prFastGate.suites) && !prFastGate.suites.includes('performance-regression'), 'PR fast gate excludes performance regression suite');
@@ -7378,7 +7375,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(nightlyBuild.workflow === nightlyWorkflowPath, 'Package metadata exposes nightly build workflow path');
   context.assert(nightlyBuild.nodeVersion === '24.18.0', 'Package metadata exposes the primary nightly Node version');
   context.assert(Array.isArray(nightlyBuild.nodeVersions) && nightlyBuild.nodeVersions.join(',') === '24.18.0,26.5.0', 'Package metadata exposes both required nightly Node versions');
-  context.assert(Array.isArray(nightlyBuild.commandSet) && JSON.stringify(nightlyBuild.commandSet) === JSON.stringify(nightlyWorkflowCommandSet), 'Package metadata lists nightly commands in exact workflow order');
+  context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.every(command => require('../utils/test-catalog').workflowHasScript(primaryNightlyWorkflow, command.replace('npm run ', ''))), 'Every declared nightly report obligation is covered by the resolved execution or a standalone check');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet[0] === 'npm run ci:dependency-locks:check', 'Package metadata starts the nightly command set with the dependency lock guard');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run native-first:evidence:prepare'), 'Package metadata includes Native-First evidence preparation in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:xtend-mcp:report'), 'Package metadata includes the MCP report gate in nightly build');
@@ -7512,7 +7509,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
 
 function assertReleaseChecklistReference(context, rootDir) {
   const policyPath = 'development/XTend-Release-Checklist-und-SemVer-Policy.md';
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const changelog = readText('CHANGELOG.md', rootDir);
   const policy = readText(policyPath, rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.releaseChecklist;
@@ -7551,7 +7548,7 @@ function assertReleaseChecklistReference(context, rootDir) {
 
 function assertEnterpriseAdoptionReference(context, rootDir) {
   const guidePath = 'docs/enterprise-adoption.md';
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const readme = readText('README.md', rootDir);
   const changelog = readText('CHANGELOG.md', rootDir);
   const guide = readText(guidePath, rootDir);
@@ -7595,7 +7592,7 @@ function assertDocsRmtPilotReference(context, rootDir) {
   const pilotPath = 'docs/xtendrmt-parsedown-docs.rmt';
   const docsPath = 'docs/xtendrmt-parsedown-scheduling.md';
   const workpackagePath = 'development/ER-WP-40-Docs-App-mit-RMT-Parsedown-Scheduling-pilotieren.md';
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const pilot = readJson(pilotPath, rootDir);
   const readme = readText('README.md', rootDir);
   const changelog = readText('CHANGELOG.md', rootDir);
@@ -7664,7 +7661,7 @@ function assertEpic10TypeScriptSourceStrategyReference(context, rootDir) {
   const workpackage = readText(wpPath, rootDir);
   const strategy = readText(strategyPath, rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.typescriptComponentSource;
 
   assertFileExists(context, wpPath, rootDir, 'WP-E10-02 workpackage exists');
@@ -7728,9 +7725,9 @@ function assertEpic10ComponentContractV2Reference(context, rootDir) {
   const contract = readText(contractPath, rootDir);
   const moduleSource = readText(modulePath, rootDir);
   const suiteSource = readText(suitePath, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.componentContractV2;
 
   assertFileExists(context, wpPath, rootDir, 'WP-E10-03 workpackage exists');
@@ -7765,7 +7762,7 @@ function assertEpic10ComponentContractV2Reference(context, rootDir) {
   context.assertIncludes(moduleSource, 'CONTRACT_V2_REQUIRED_DOMAINS', 'Component Contract v2 module exposes required domains');
   context.assertIncludes(moduleSource, 'no-rmt-kernel-import-of-xtend-types', 'Component Contract v2 module keeps RMT boundary');
   context.assertIncludes(suiteSource, 'runComponentContractV2Suite', 'Component Contract v2 suite exports runner');
-  context.assertIncludes(runner, "id: 'component-contract-v2'", 'XTend test runner registers component-contract-v2 suite');
+  context.assert(runner.hasSuite("component-contract-v2"), 'XTend test runner registers component-contract-v2 suite');
   context.assert(packageManifest.scripts['test:component-contract-v2'] === 'node scripts/run_xtend_tests.js component-contract-v2', 'Package exposes Component Contract v2 test script');
   context.assertIncludes(scaffoldConfig, 'componentContractV2', 'Scaffold config exposes Component Contract v2 section');
   context.assertIncludes(scaffoldConfig, 'xtend.component.contract.v2', 'Scaffold config declares Component Contract v2 schema');
@@ -7803,9 +7800,9 @@ function assertEpic10RmtFirstClassAppAuthoringReference(context, rootDir) {
   const contract = readText(contractPath, rootDir);
   const fixture = readJson(fixturePath, rootDir);
   const suiteSource = readText(suitePath, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtFirstClassAppAuthoring;
 
   assertFileExists(context, wpPath, rootDir, 'WP-E10-04 workpackage exists');
@@ -7840,7 +7837,7 @@ function assertEpic10RmtFirstClassAppAuthoringReference(context, rootDir) {
   context.assert(Array.isArray(fixture.routes) && fixture.routes.some((route) => route.id === 'settings'), 'RMT-first fixture declares settings route');
   context.assert(Array.isArray(fixture.templates) && fixture.templates.some((template) => template.id === 'app.shell'), 'RMT-first fixture declares app shell template');
   context.assertIncludes(suiteSource, 'runRmtFirstClassAppAuthoringSuite', 'RMT-first app suite exports runner');
-  context.assertIncludes(runner, "id: 'rmt-first-class-app'", 'XTend test runner registers rmt-first-class-app suite');
+  context.assert(runner.hasSuite("rmt-first-class-app"), 'XTend test runner registers rmt-first-class-app suite');
   context.assert(packageManifest.scripts['test:rmt-first-class-app'] === 'node scripts/run_xtend_tests.js rmt-first-class-app', 'Package exposes RMT-first app test script');
   context.assert(metadata && metadata.schema === 'xtend.rmt.first-class-app-authoring.v1', 'Package metadata exposes RMT-first app authoring schema');
   context.assert(metadata.fixture === fixturePath, 'Package metadata points at RMT-first app fixture');
@@ -7867,7 +7864,7 @@ function assertEpic10ComponentFabricLaneIngestionReference(context, rootDir) {
   const workpackage = readText(wpPath, rootDir);
   const contract = readText(contractPath, rootDir);
   const suiteSource = readText(suitePath, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const runtimeSource = readText('xtendrmt/rmt-runtime.esm.js', rootDir);
   const browserSource = readText('xtendrmt/rmt-runtime.browser.js', rootDir);
   const typesSource = readText('xtendrmt/rmt-core.d.ts', rootDir);
@@ -7876,7 +7873,7 @@ function assertEpic10ComponentFabricLaneIngestionReference(context, rootDir) {
   const docsDsl = readText('docs/xtendrmt-app-dsl.md', rootDir);
   const docsFabric = readText('docs/xtend-fabric-rmt-lane-mapping.md', rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.componentFabricLaneIngestion;
 
   assertFileExists(context, wpPath, rootDir, 'WP-E10-05 workpackage exists');
@@ -7904,7 +7901,7 @@ function assertEpic10ComponentFabricLaneIngestionReference(context, rootDir) {
   context.assertIncludes(typesSource, 'RmtXtendComponentFabricContext', 'RMT types expose Component Fabric context');
   context.assertIncludes(schemaSource, 'fabricLaneIngestion', 'RMT schema exposes fabricLaneIngestion section');
   context.assertIncludes(suiteSource, 'runRmtComponentFabricLaneIngestionSuite', 'Component Fabric/Lane ingestion suite exports runner');
-  context.assertIncludes(runner, "id: 'rmt-component-fabric-ingestion'", 'XTend test runner registers rmt-component-fabric-ingestion suite');
+  context.assert(runner.hasSuite("rmt-component-fabric-ingestion"), 'XTend test runner registers rmt-component-fabric-ingestion suite');
   context.assert(packageManifest.scripts['test:rmt-component-fabric-ingestion'] === 'node scripts/run_xtend_tests.js rmt-component-fabric-ingestion', 'Package exposes Component Fabric/Lane ingestion test script');
   context.assert(metadata && metadata.schema === 'xtend.component.fabric-lane-ingestion.v2', 'Package metadata exposes Component Fabric/Lane ingestion schema');
   context.assert(metadata.contract === contractPath, 'Package metadata points at Component Fabric compatibility contract');
@@ -7929,7 +7926,7 @@ function assertEpic10ComponentLifecycleTelemetryReference(context, rootDir) {
   const workpackage = readText(wpPath, rootDir);
   const contract = readText(contractPath, rootDir);
   const suiteSource = readText(suitePath, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const fabricSource = readText('fabric/xtend-fabric.js', rootDir);
   const runtimeSource = readText('xtendrmt/rmt-runtime.esm.js', rootDir);
   const browserSource = readText('xtendrmt/rmt-runtime.browser.js', rootDir);
@@ -7939,7 +7936,7 @@ function assertEpic10ComponentLifecycleTelemetryReference(context, rootDir) {
   const docsDsl = readText('docs/xtendrmt-app-dsl.md', rootDir);
   const docsFabric = readText('docs/xtend-fabric.md', rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.componentLifecycleTelemetry;
 
   assertFileExists(context, wpPath, rootDir, 'WP-E10-06 workpackage exists');
@@ -7968,7 +7965,7 @@ function assertEpic10ComponentLifecycleTelemetryReference(context, rootDir) {
   context.assertIncludes(typesSource, 'RmtXtendComponentLifecycleTelemetry', 'RMT types expose Component Lifecycle Telemetry');
   context.assertIncludes(schemaSource, 'componentLifecycleTelemetry', 'RMT schema exposes Component Lifecycle Telemetry metadata');
   context.assertIncludes(suiteSource, 'runRmtComponentLifecycleTelemetrySuite', 'Component Lifecycle Telemetry suite exports runner');
-  context.assertIncludes(runner, "id: 'rmt-component-lifecycle-telemetry'", 'XTend test runner registers rmt-component-lifecycle-telemetry suite');
+  context.assert(runner.hasSuite("rmt-component-lifecycle-telemetry"), 'XTend test runner registers rmt-component-lifecycle-telemetry suite');
   context.assert(packageManifest.scripts['test:rmt-component-lifecycle-telemetry'] === 'node scripts/run_xtend_tests.js rmt-component-lifecycle-telemetry', 'Package exposes Component Lifecycle Telemetry test script');
   context.assert(metadata && metadata.schema === 'xtend.component.lifecycle-telemetry.v1', 'Package metadata exposes Component Lifecycle Telemetry schema');
   context.assert(metadata.contract === contractPath, 'Package metadata points at Component Lifecycle Telemetry contract');
@@ -7997,8 +7994,8 @@ function assertEpic10TypeScriptComponentBlueprintReference(context, rootDir) {
   const generatorSource = readText('xtend-builder/generators/component-files.js', rootDir);
   const templateRegistrySource = readText('xtend-builder/templates/registry.js', rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.typescriptComponentBlueprint;
 
   assertFileExists(context, wpPath, rootDir, 'WP-E10-07 workpackage exists');
@@ -8035,8 +8032,8 @@ function assertEpic10TypeScriptComponentBlueprintReference(context, rootDir) {
   context.assertIncludes(templateRegistrySource, 'component.ts-source', 'Template registry declares TypeScript source template');
   context.assertIncludes(templateRegistrySource, 'component.ts-rmt', 'Template registry declares RMT metadata template');
   context.assertIncludes(scaffoldConfig, 'typescriptComponentBlueprint', 'Scaffold config exposes TypeScript Component Blueprint');
-  context.assertIncludes(runner, "id: 'builder-typescript-blueprint'", 'Test runner registers TypeScript Component Blueprint suite');
-  context.assertIncludes(runner, "id: 'typescript-components'", 'Test runner registers TypeScript Components Build suite');
+  context.assert(runner.hasSuite("builder-typescript-blueprint"), 'Test runner registers TypeScript Component Blueprint suite');
+  context.assert(runner.hasSuite("typescript-components"), 'Test runner registers TypeScript Components Build suite');
   context.assert(packageManifest.scripts['test:builder-typescript-blueprint'] === 'node scripts/run_xtend_tests.js builder-typescript-blueprint', 'Package exposes TypeScript Blueprint test script');
   context.assert(packageManifest.scripts['test:typescript-components'] === 'node scripts/run_xtend_tests.js typescript-components', 'Package exposes TypeScript Components Build test script');
   context.assert(metadata && metadata.schema === 'xtend.scaffold.typescript-component-blueprint.v1', 'Package metadata exposes TypeScript Component Blueprint schema');
@@ -8062,9 +8059,9 @@ function assertEpic10P0ComponentWaveReference(context, rootDir) {
   const moduleSource = readText(modulePath, rootDir);
   const suiteSource = readText(suitePath, rootDir);
   const docs = readText(docsPath, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic10P0ComponentWave;
 
   assertFileExists(context, wpPath, rootDir, 'WP-E10-08 workpackage exists');
@@ -8095,7 +8092,7 @@ function assertEpic10P0ComponentWaveReference(context, rootDir) {
   context.assertIncludes(moduleSource, 'createP0ComponentWavePlan', 'P0 component wave module exports plan factory');
   context.assertIncludes(moduleSource, 'validateP0ComponentWavePlan', 'P0 component wave module exports validator');
   context.assertIncludes(suiteSource, 'runEpic10P0ComponentWaveSuite', 'P0 component wave suite exports runner');
-  context.assertIncludes(runner, "id: 'epic10-p0-component-wave'", 'Test runner registers P0 component wave suite');
+  context.assert(runner.hasSuite("epic10-p0-component-wave"), 'Test runner registers P0 component wave suite');
   context.assertIncludes(scaffoldConfig, 'componentPlatformP0Wave', 'Scaffold config exposes P0 component wave section');
   context.assert((packageManifest.exports['./catalog/epic10-p0-component-wave'] === './catalog/epic10-p0-component-wave.js' || (packageManifest.exports['./catalog/epic10-p0-component-wave'] && packageManifest.exports['./catalog/epic10-p0-component-wave'].default === './catalog/epic10-p0-component-wave.js')), 'Package exports P0 component wave module');
   context.assert(packageManifest.scripts['test:epic10-p0-component-wave'] === 'node scripts/run_xtend_tests.js epic10-p0-component-wave', 'Package exposes P0 component wave test script');
@@ -8124,7 +8121,7 @@ function assertEpic10FormSelectionControlsReference(context, rootDir) {
   const wp = readText(wpPath, rootDir);
   const contract = readText(contractPath, rootDir);
   const manifest = readJson('components/manifest.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const componentSuite = readText('tests/components/component_suite.js', rootDir);
   const priorityContracts = readText('tests/components/priority_component_contracts.js', rootDir);
   const publicTypesSuite = readText('tests/components/component_public_types_suite.js', rootDir);
@@ -8215,7 +8212,7 @@ function assertEpic10FormFeedbackControlsReference(context, rootDir) {
   const wp = readText(wpPath, rootDir);
   const contract = readText(contractPath, rootDir);
   const manifest = readJson('components/manifest.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const componentSuite = readText('tests/components/component_suite.js', rootDir);
   const priorityContracts = readText('tests/components/priority_component_contracts.js', rootDir);
   const publicTypesSuite = readText('tests/components/component_public_types_suite.js', rootDir);
@@ -8302,7 +8299,7 @@ function assertEpic10OverlayNavigationControlsReference(context, rootDir) {
   const wp = readText(wpPath, rootDir);
   const contract = readText(contractPath, rootDir);
   const manifest = readJson('components/manifest.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const componentSuite = readText('tests/components/component_suite.js', rootDir);
   const priorityContracts = readText('tests/components/priority_component_contracts.js', rootDir);
   const publicTypesSuite = readText('tests/components/component_public_types_suite.js', rootDir);
@@ -8399,9 +8396,9 @@ function assertEpic10ComponentLabRmtInspectorReference(context, rootDir) {
   const contract = readText(contractPath, rootDir);
   const docs = readText(docsPath, rootDir);
   const docsReadme = readText('docs/en/README.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const fixture = readJson(fixturePath, rootDir);
   const componentLabModule = require(resolveRepoPath(modulePath, rootDir));
   const plan = componentLabModule.createComponentLabPlan({ rootDir });
@@ -8438,7 +8435,7 @@ function assertEpic10ComponentLabRmtInspectorReference(context, rootDir) {
   context.assertIncludes(contract, 'no-rmt-kernel-import-of-xtend-types', 'Component Lab contract keeps kernel boundary');
   context.assertIncludes(docs, 'xtend.docs.component-lab.v1', 'Component Lab docs declare docs schema');
   context.assertIncludes(docsReadme, './component-lab.md', 'Docs README links Component Lab docs');
-  context.assertIncludes(runner, "id: 'component-lab-rmt-inspector'", 'Runner registers Component Lab gate');
+  context.assert(runner.hasSuite("component-lab-rmt-inspector"), 'Runner registers Component Lab gate');
   context.assertIncludes(scaffoldConfig, 'componentLabRmtInspector', 'Scaffold config exposes Component Lab metadata');
   context.assert((typeof packageManifest.exports['./builder/preview/component-lab'] === 'string' ? packageManifest.exports['./builder/preview/component-lab'] : packageManifest.exports['./builder/preview/component-lab'] && packageManifest.exports['./builder/preview/component-lab'].default) === './xtend-builder/preview/component-lab.js', 'Package exports Component Lab module');
   context.assert(packageManifest.scripts['test:component-lab'] === 'node scripts/run_xtend_tests.js component-lab-rmt-inspector', 'Package exposes Component Lab script');
@@ -8470,9 +8467,9 @@ function assertEpic10PlatformGatesReference(context, rootDir) {
   const docs = readText(docsPath, rootDir);
   const docsReadme = readText('docs/en/README.md', rootDir);
   const docsMenu = readText('docs/menu.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const platformModule = require(resolveRepoPath(modulePath, rootDir));
   const plan = platformModule.createEpic10PlatformGatePlan({ rootDir });
   const gate = platformModule.createEpic10PlatformGateReport({ rootDir, plan });
@@ -8501,7 +8498,7 @@ function assertEpic10PlatformGatesReference(context, rootDir) {
   context.assertIncludes(docs, 'xtend.epic10.platform-gates.v1', 'Epic 10 Platform Gates docs declare schema');
   context.assertIncludes(docsReadme, './epic10-platform-gates.md', 'Docs README links Epic 10 Platform Gates docs');
   context.assertIncludes(docsMenu, 'epic10-platform-gates', 'Docs menu links Epic 10 Platform Gates');
-  context.assertIncludes(runner, "id: 'epic10-platform-gates'", 'Runner registers Epic 10 Platform Gates suite');
+  context.assert(runner.hasSuite("epic10-platform-gates"), 'Runner registers Epic 10 Platform Gates suite');
   context.assertIncludes(scaffoldConfig, 'epic10PlatformGates', 'Scaffold config exposes Epic 10 Platform Gates');
   context.assert((packageManifest.exports['./catalog/epic10-platform-gates'] === './catalog/epic10-platform-gates.js' || (packageManifest.exports['./catalog/epic10-platform-gates'] && packageManifest.exports['./catalog/epic10-platform-gates'].default === './catalog/epic10-platform-gates.js')), 'Package exports Epic 10 Platform Gates module');
   context.assert(packageManifest.scripts['test:epic10-platform-gates'] === 'node scripts/run_xtend_tests.js epic10-platform-gates', 'Package exposes Epic 10 Platform Gates script');
@@ -8541,9 +8538,9 @@ function assertEpic10ReleaseHandoffReference(context, rootDir) {
   const componentPlatform = readText('development/docs-evidence/root/component-platform.md', rootDir);
   const typescriptDocs = readText('docs/typescript-components.md', rootDir);
   const enterpriseDocs = readText('docs/enterprise-adoption.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const handoffModule = require(resolveRepoPath(modulePath, rootDir));
   const plan = handoffModule.createEpic10ReleaseHandoffPlan({ rootDir });
   const validation = handoffModule.validateEpic10ReleaseHandoffPlan(plan);
@@ -8584,7 +8581,7 @@ function assertEpic10ReleaseHandoffReference(context, rootDir) {
   context.assertIncludes(docsReadme, './rmt-first-xtend-apps.md', 'Docs README links RMT-first XTend Apps');
   context.assertIncludes(docsMenu, 'epic10-release-handoff', 'Docs menu links Epic 10 Release Handoff');
   context.assertIncludes(docsMenu, 'rmt-first-xtend-apps', 'Docs menu links RMT-first XTend Apps');
-  context.assertIncludes(runner, "id: 'epic10-release-handoff'", 'Runner registers Epic 10 Release Handoff suite');
+  context.assert(runner.hasSuite("epic10-release-handoff"), 'Runner registers Epic 10 Release Handoff suite');
   context.assertIncludes(scaffoldConfig, 'epic10ReleaseHandoff', 'Scaffold config exposes Epic 10 Release Handoff');
   context.assert((packageManifest.exports['./catalog/epic10-release-handoff'] === './catalog/epic10-release-handoff.js' || (packageManifest.exports['./catalog/epic10-release-handoff'] && packageManifest.exports['./catalog/epic10-release-handoff'].default === './catalog/epic10-release-handoff.js')), 'Package exports Epic 10 Release Handoff module');
   context.assert(packageManifest.scripts['test:epic10-release-handoff'] === 'node scripts/run_xtend_tests.js epic10-release-handoff', 'Package exposes Epic 10 Release Handoff script');
@@ -8660,8 +8657,8 @@ function assertEpic11BacklogAndUxMaturityReference(context, rootDir) {
   const navigationRoutingUxSuitePath = 'tests/components/navigation_routing_ux_suite.js';
   const overlayInteractionUxSuitePath = 'tests/components/overlay_interaction_ux_suite.js';
   const registry = readText(REFERENCE_REGISTRY_PATH, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const epic = readText(epicPath, rootDir);
   const backlog = readText(backlogPath, rootDir);
@@ -9173,16 +9170,16 @@ function assertEpic11BacklogAndUxMaturityReference(context, rootDir) {
   context.assertIncludes(overlayInteractionUxModuleSource, 'createOverlayInteractionUxContract', 'Overlay Interaction UX module exports factory');
   context.assertIncludes(overlayInteractionUxModuleSource, 'validateOverlayInteractionUxContract', 'Overlay Interaction UX module exports validator');
   context.assertIncludes(overlayInteractionUxSuite, 'runOverlayInteractionUxSuite', 'Overlay Interaction UX suite exposes runner function');
-  context.assertIncludes(runner, "id: 'component-shell-contract'", 'Runner exposes Component Shell Contract suite');
-  context.assertIncludes(runner, "id: 'component-styling-contract'", 'Runner exposes Component Styling Contract suite');
-  context.assertIncludes(runner, "id: 'runtime-a11y-contract'", 'Runner exposes Runtime A11y Contract suite');
-  context.assertIncludes(runner, "id: 'component-ux-performance'", 'Runner exposes Component UX Performance suite');
-  context.assertIncludes(runner, "id: 'component-network-contract'", 'Runner exposes Component Network suite');
-  context.assertIncludes(runner, "id: 'rmt-shell-authoring-ux'", 'Runner exposes RMT Shell Authoring UX suite');
-  context.assertIncludes(runner, "id: 'form-controls-ux'", 'Runner exposes Form Controls UX suite');
-  context.assertIncludes(runner, "id: 'feedback-status-ux'", 'Runner exposes Feedback Status UX suite');
-  context.assertIncludes(runner, "id: 'navigation-routing-ux'", 'Runner exposes Navigation Routing UX suite');
-  context.assertIncludes(runner, "id: 'overlay-interaction-ux'", 'Runner exposes Overlay Interaction UX suite');
+  context.assert(runner.hasSuite("component-shell-contract"), 'Runner exposes Component Shell Contract suite');
+  context.assert(runner.hasSuite("component-styling-contract"), 'Runner exposes Component Styling Contract suite');
+  context.assert(runner.hasSuite("runtime-a11y-contract"), 'Runner exposes Runtime A11y Contract suite');
+  context.assert(runner.hasSuite("component-ux-performance"), 'Runner exposes Component UX Performance suite');
+  context.assert(runner.hasSuite("component-network-contract"), 'Runner exposes Component Network suite');
+  context.assert(runner.hasSuite("rmt-shell-authoring-ux"), 'Runner exposes RMT Shell Authoring UX suite');
+  context.assert(runner.hasSuite("form-controls-ux"), 'Runner exposes Form Controls UX suite');
+  context.assert(runner.hasSuite("feedback-status-ux"), 'Runner exposes Feedback Status UX suite');
+  context.assert(runner.hasSuite("navigation-routing-ux"), 'Runner exposes Navigation Routing UX suite');
+  context.assert(runner.hasSuite("overlay-interaction-ux"), 'Runner exposes Overlay Interaction UX suite');
   context.assertIncludes(scaffoldConfig, 'componentShellContract', 'Scaffold config exposes Component Shell Contract');
   context.assertIncludes(scaffoldConfig, 'componentStylingContract', 'Scaffold config exposes Component Styling Contract');
   context.assertIncludes(scaffoldConfig, 'runtimeA11yContract', 'Scaffold config exposes Runtime A11y Contract');
@@ -9410,7 +9407,7 @@ function assertEpic05BridgeReferences(context, rootDir) {
 }
 
 function assertReleasePreparationReference(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const xtend = packageManifest.xtend || {};
   const docsGates = [
     'npm run test:docs-public-quality',

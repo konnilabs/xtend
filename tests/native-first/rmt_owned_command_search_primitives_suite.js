@@ -163,8 +163,8 @@ function runRmtOwnedCommandSearchPrimitivesSuite(options = {}) {
   const fixtures = readJson(FIXTURE_PATH, rootDir);
   const rmtFixture = readJson(RMT_FIXTURE_PATH, rootDir);
   const componentManifest = readJson('components/manifest.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtOwnedCommandSearchPrimitives;
   const suiteSyntax = syntaxCheckFile(SUITE_PATH, { rootDir, extension: '.js' });
 
@@ -362,8 +362,8 @@ function runRmtOwnedCommandSearchPrimitivesSuite(options = {}) {
   ], 'Backlog WP-RMO-04 status');
 
   context.assert(packageManifest.scripts['test:rmt-owned-command-search-primitives'] === 'node scripts/run_xtend_tests.js rmt-owned-command-search-primitives', 'Package exposes WP-RMO-04 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/rmt_owned_command_search_primitives_suite')", 'Runner imports WP-RMO-04 suite');
-  context.assertIncludes(runner, "id: 'rmt-owned-command-search-primitives'", 'Runner registers WP-RMO-04 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/rmt_owned_command_search_primitives_suite.js" }), 'Runner imports WP-RMO-04 suite');
+  context.assert(runner.hasSuite("rmt-owned-command-search-primitives"), 'Runner registers WP-RMO-04 suite');
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes contract schema');
   context.assert(metadata && metadata.matrixSchema === MATRIX_SCHEMA, 'Package metadata exposes matrix schema');

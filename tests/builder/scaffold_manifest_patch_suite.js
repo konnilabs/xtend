@@ -81,8 +81,8 @@ function runScaffoldManifestPatchSuite(options = {}) {
   const componentFilesSource = readText('xtend-builder/generators/component-files.js', rootDir);
   const epic = readText('development/EPIC-17-XTend-Scaffold-Produktive-Builds-und-Dateischreibpfade.md', rootDir);
   const workpackage = readText('development/WP-E17-03-Manifest-Registry-und-Build-Report-Patcher.md', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   context.assert(manifestPatcherSource.includes(SCAFFOLD_PATCHERS_SCHEMA), 'Manifest patcher exposes patcher umbrella schema');
   context.assert(manifestPatcherSource.includes(SCAFFOLD_MANIFEST_PATCHER_SCHEMA), 'Manifest patcher exposes manifest patch schema');
@@ -93,7 +93,7 @@ function runScaffoldManifestPatchSuite(options = {}) {
   context.assert(epic.includes('WP-E17-03'), 'Epic 17 tracks WP-E17-03');
   context.assert(workpackage.includes(SCAFFOLD_MANIFEST_PATCHER_SCHEMA), 'WP-E17-03 document declares manifest patch contract');
   context.assert(packageManifest.scripts['test:scaffold-manifest-patch'] === 'node scripts/run_xtend_tests.js scaffold-manifest-patch', 'Package exposes scaffold manifest patch script');
-  context.assert(runner.includes("id: 'scaffold-manifest-patch'"), 'XTend test runner registers scaffold-manifest-patch gate');
+  context.assert(runner.hasSuite("scaffold-manifest-patch"), 'XTend test runner registers scaffold-manifest-patch gate');
 
   writeTempJson(patchRoot, 'components/manifest.json', {
     'x-alpha': './xalpha.js',

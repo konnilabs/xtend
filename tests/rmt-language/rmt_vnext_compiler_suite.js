@@ -91,9 +91,9 @@ function runRmtVNextCompilerSuite(options = {}) {
     id: 'rmt-vnext-compiler',
     label: 'Epic 15 RMT vNext Compiler to Core'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextCompiler;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
   const coreContract = readText(CORE_CONTRACT_PATH, rootDir);
   const compilerSyntax = syntaxCheckFile(RMT_VNEXT_COMPILER_MODULE_PATH, { rootDir, extension: '.js' });
@@ -127,7 +127,7 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_COMPILER_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-compiler'] === 'string' ? packageManifest.exports['./rmt-language/vnext-compiler'] : packageManifest.exports['./rmt-language/vnext-compiler'] && packageManifest.exports['./rmt-language/vnext-compiler'].default) === './tools/rmt-language/vnext-compiler.js', 'package exports vNext compiler');
   context.assert(packageManifest.scripts['test:rmt-vnext-compiler'] === 'node scripts/run_xtend_tests.js rmt-vnext-compiler', 'package exposes vNext compiler script');
-  context.assert(runner.includes("id: 'rmt-vnext-compiler'"), 'test runner exposes rmt-vnext-compiler suite');
+  context.assert(runner.hasSuite("rmt-vnext-compiler"), 'test runner exposes rmt-vnext-compiler suite');
   context.assert(epic.includes('| `WP-E15-05` | P0 | completed | WS1 |'), 'Epic marks WP-E15-05 completed');
   context.assert(
     epic.includes('WP-E15-06` ist `completed`') || epic.includes('| `WP-E15-06` | P1 | completed | WS2 |'),

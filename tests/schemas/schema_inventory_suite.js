@@ -1908,7 +1908,7 @@ function runSchemaInventorySuite(options = {}) {
     'invalid alias or replacement graph'
   );
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   assertNoIssues(
     context,
     validateNativeFirstSubset(inventoryIds, packageManifest),

@@ -30,9 +30,9 @@ function runComponentShellContractSuite(options = {}) {
     id: 'component-shell-contract',
     label: 'XTend Component Shell Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const contractDoc = readText('development/XTend-Component-Shell-Contract.md', rootDir);
@@ -119,7 +119,7 @@ function runComponentShellContractSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'componentShellContract', 'Scaffold config exposes Component Shell Contract section');
   context.assertIncludes(scaffoldConfig, 'xtend.component.shell.v1', 'Scaffold config declares Component Shell schema');
   context.assertIncludes(scaffoldConfig, 'component-shell-contract', 'Scaffold config references Component Shell gate');
-  context.assertIncludes(runner, "id: 'component-shell-contract'", 'Runner exposes Component Shell Contract suite');
+  context.assert(runner.hasSuite("component-shell-contract"), 'Runner exposes Component Shell Contract suite');
   context.assertIncludes(contractDoc, COMPONENT_SHELL_CONTRACT_SCHEMA, 'Contract document declares Component Shell schema');
   context.assertIncludes(contractDoc, 'XtendComponentShellContract', 'Contract document defines the TypeScript interface name');
   context.assertIncludes(contractDoc, RMT_SHELL_AUTHORING_SCHEMA, 'Contract document declares RMT Shell Authoring handoff');

@@ -850,8 +850,8 @@ async function assertCompanion(context, rootDir) {
 }
 
 function assertPackageAndRunner(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.devSurface;
   context.assert(packageManifest.scripts['test:xtend-dev-surface'] === 'node scripts/run_xtend_tests.js xtend-dev-surface', 'package exposes Dev Surface test script');
   context.assert(packageManifest.scripts['test:xtend-dev-surface:report'] === 'node scripts/run_xtend_tests.js xtend-dev-surface --report .xtend-test-results/xtend-dev-surface-report.json', 'package exposes Dev Surface report script');
@@ -905,7 +905,7 @@ function assertPackageAndRunner(context, rootDir) {
   context.assert(metadata && metadata.reportScript === 'npm run test:xtend-dev-surface:report', 'package metadata declares report script');
   context.assert(metadata && metadata.reportPath === '.xtend-test-results/xtend-dev-surface-report.json', 'package metadata declares report path');
   context.assert(metadata && metadata.ciArtifactName === 'xtend-dev-surface-report-{artifactSuffix}', 'package metadata declares the per-runtime CI artifact pattern');
-  context.assert(runner.includes("id: 'xtend-dev-surface'"), 'runner exposes xtend-dev-surface suite');
+  context.assert(runner.hasSuite("xtend-dev-surface"), 'runner exposes xtend-dev-surface suite');
 }
 
 function assertDocs(context, rootDir) {

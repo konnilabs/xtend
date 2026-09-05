@@ -43,8 +43,8 @@ function runDocsPhpSsrClsBudgetSuite(options = {}) {
     id: 'docs-php-ssr-cls-budget',
     label: 'Docs-App PHP SSR CLS Budget'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const indexPhp = readText('docs/index.php', rootDir);
   const shellDescriptor = readText('docs/utils/page/shell-descriptor.mjs', rootDir);
   const result = runDocsIndex(rootDir, {});
@@ -88,7 +88,7 @@ function runDocsPhpSsrClsBudgetSuite(options = {}) {
   context.assert(packageManifest.xtend.docsPhpSsrClsBudget.reportSchema === DOCS_PHP_SSR_CLS_REPORT_SCHEMA, 'package metadata records docs CLS report schema');
   context.assert(packageManifest.xtend.docsPhpSsrClsBudget.legacyReportSchema === DOCS_PHP_SSR_CLS_LEGACY_REPORT_SCHEMA, 'package metadata retains the V1 CLS report reader');
   context.assert(packageManifest.xtend.docsPhpSsrClsBudget.localGate === DOCS_PHP_SSR_CLS_LOCAL_GATE, 'package metadata records docs CLS budget local gate');
-  context.assert(runner.includes("id: 'docs-php-ssr-cls-budget'"), 'test runner registers docs PHP SSR CLS budget suite');
+  context.assert(runner.hasSuite("docs-php-ssr-cls-budget"), 'test runner registers docs PHP SSR CLS budget suite');
 
   return context.result({
     schema: DOCS_PHP_SSR_CLS_REPORT_SCHEMA,

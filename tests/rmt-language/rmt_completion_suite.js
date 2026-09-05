@@ -234,9 +234,9 @@ function runRmtCompletionSuite(options = {}) {
     id: 'rmt-completions',
     label: 'Epic 14 RMT Completion Provider'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtCompletions;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
   const moduleSyntax = syntaxCheckFile(RMT_COMPLETION_MODULE_PATH, { rootDir, extension: '.js' });
@@ -257,7 +257,7 @@ function runRmtCompletionSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_COMPLETION_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert((typeof packageManifest.exports['./rmt-language/completions'] === 'string' ? packageManifest.exports['./rmt-language/completions'] : packageManifest.exports['./rmt-language/completions'] && packageManifest.exports['./rmt-language/completions'].default) === './tools/rmt-language/completions.js', 'package exports RMT Completion provider');
   context.assert(packageManifest.scripts['test:rmt-completions'] === 'node scripts/run_xtend_tests.js rmt-completions', 'package exposes rmt-completions script');
-  context.assert(runner.includes("id: 'rmt-completions'"), 'test runner exposes rmt-completions suite');
+  context.assert(runner.hasSuite("rmt-completions"), 'test runner exposes rmt-completions suite');
   context.assert(epic.includes('| `WP-E14-07` | P1 | completed | WS4 |'), 'Epic marks WP-E14-07 completed');
   context.assert(epic.includes('WP-E14-08` ist `ready`'), 'Epic hands off WP-E14-08 as ready');
   context.assert(architecture.includes('Implementierungsstand nach `WP-E14-07`'), 'Architecture documents RMT Completion provider status');

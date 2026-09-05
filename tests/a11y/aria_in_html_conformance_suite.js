@@ -38,8 +38,8 @@ function runAriaInHtmlConformanceSuite(options = {}) {
   });
   const matrix = readJson(MATRIX_PATH, rootDir);
   const contract = readText(CONTRACT_PATH, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const hydrationSuite = readText('tests/components/accessibility_hydration_suite.js', rootDir);
   const defaultWorkflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
   const nightlyWorkflow = readText('.github/workflows/xtend-nightly-build.yml', rootDir);
@@ -100,11 +100,11 @@ function runAriaInHtmlConformanceSuite(options = {}) {
   context.assert(packageManifest.scripts['test:feature-adoption-observatory'].includes('aria-in-html-conformance'), 'Observatory command includes the ARIA in HTML gate');
   context.assert(packageManifest.scripts['test:pr'].includes('a11y-hydration') && packageManifest.scripts['test:release:full'].includes('a11y-hydration'), 'PR and release commands retain the aggregate A11y gate');
   context.assertIncludes(hydrationSuite, 'runAriaInHtmlConformanceSuite({ rootDir })', 'Aggregate A11y gate executes ARIA in HTML conformance in PR and release chains');
-  context.assertIncludes(defaultWorkflow, 'npm run test:feature-adoption-observatory', 'Default CI executes the Observatory aggregate containing ARIA in HTML');
+  context.assert(require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:feature-adoption-observatory"), 'Default CI executes the Observatory aggregate containing ARIA in HTML');
   context.assertIncludes(nightlyWorkflow, 'id: feature_adoption_observatory', 'Nightly CI executes the Observatory aggregate as a named required gate');
   context.assertIncludes(nightlyWorkflow, 'steps.feature_adoption_observatory.outcome', 'Nightly CI fails closed when the Observatory aggregate fails');
   context.assertIncludes(nightlyManifestScript, "'npm run test:feature-adoption-observatory'", 'Nightly manifest records the Observatory aggregate in its command provenance');
-  context.assertIncludes(runner, "id: 'aria-in-html-conformance'", 'Runner registers the ARIA in HTML suite');
+  context.assert(runner.hasSuite("aria-in-html-conformance"), 'Runner registers the ARIA in HTML suite');
   context.assert(!Object.keys(packageManifest.exports || {}).some((key) => key.includes('aria-in-html-conformance')), 'ARIA in HTML test implementation is not a public package export');
 
   return context.result({

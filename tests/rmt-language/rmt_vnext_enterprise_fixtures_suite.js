@@ -63,9 +63,9 @@ function createAdapter(rootDir) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextEnterpriseFixtures;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_16_PATH, rootDir);
   const contract = readText(RMT_VNEXT_ENTERPRISE_FIXTURE_CONTRACT_PATH, rootDir);
   const workpackage = readText(RMT_VNEXT_ENTERPRISE_FIXTURE_WP_PATH, rootDir);
@@ -95,8 +95,8 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && ENTERPRISE_BROWSER_CHECKS.every((check) => metadata.browserChecks.includes(check)), 'package metadata lists enterprise browser checks');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-enterprise-fixtures'] === 'string' ? packageManifest.exports['./rmt-language/vnext-enterprise-fixtures'] : packageManifest.exports['./rmt-language/vnext-enterprise-fixtures'] && packageManifest.exports['./rmt-language/vnext-enterprise-fixtures'].default) === './tools/rmt-language/vnext-enterprise-fixtures.js', 'package exports vNext enterprise fixtures adapter');
   context.assert(packageManifest.scripts['test:rmt-vnext-enterprise-fixtures'] === 'node scripts/run_xtend_tests.js rmt-vnext-enterprise-fixtures', 'package exposes vNext enterprise fixtures script');
-  context.assert(runner.includes("id: 'rmt-vnext-enterprise-fixtures'"), 'test runner exposes rmt-vnext-enterprise-fixtures suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-enterprise-fixtures'), 'runner help references enterprise fixture gate');
+  context.assert(runner.hasSuite("rmt-vnext-enterprise-fixtures"), 'test runner exposes rmt-vnext-enterprise-fixtures suite');
+  context.assert(runner.hasSuite("rmt-vnext-enterprise-fixtures"), 'runner help references enterprise fixture gate');
   context.assert(epic.includes('- Status: `completed / Epic 16 Enterprise MFE Release Handoff accepted`'), 'Epic marks WP-E16-12 accepted');
   context.assert(epic.includes('| `WP-E16-11` | P2 | completed | WS5 |'), 'Epic marks WP-E16-11 completed');
   context.assert(epic.includes('| `WP-E16-12` | P2 | completed | WS5 |'), 'Epic marks WP-E16-12 completed');

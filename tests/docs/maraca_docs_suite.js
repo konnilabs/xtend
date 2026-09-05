@@ -159,9 +159,9 @@ function runMenuChecks(context, rootDir) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.maracaDocs;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const suiteSource = readText(MARACA_DOCS_SUITE_PATH, rootDir);
 
   context.assert(metadata && metadata.schema === MARACA_DOCS_SCHEMA, 'package metadata declares Maraca docs schema');
@@ -172,8 +172,8 @@ function runMetadataChecks(context, rootDir) {
   context.assert(Array.isArray(metadata && metadata.docs) && DEEP_DIVE_PATHS.every((docPath) => metadata.docs.includes(docPath)), 'package metadata lists orchestration docs');
   context.assert(Array.isArray(metadata && metadata.features) && metadata.features.includes('validation') && metadata.features.includes('transitions'), 'package metadata lists Maraca orchestration features');
   context.assert(packageManifest.scripts['test:maraca-docs'] === 'node scripts/run_xtend_tests.js maraca-docs', 'package exposes maraca-docs script');
-  context.assert(runner.includes("id: 'maraca-docs'"), 'test runner exposes maraca-docs suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js maraca-docs'), 'test runner help references maraca-docs');
+  context.assert(runner.hasSuite("maraca-docs"), 'test runner exposes maraca-docs suite');
+  context.assert(runner.hasSuite("maraca-docs"), 'test runner help references maraca-docs');
   context.assert(suiteSource.includes(MARACA_DOCS_REPORT_SCHEMA), 'Maraca docs suite source declares report schema');
 }
 

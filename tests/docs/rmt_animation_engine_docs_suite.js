@@ -65,7 +65,7 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
     label: 'RMT AnimationEngine Docs and Live Demo'
   });
   const menu = readJson('docs/menu.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const artifact = readJson(OUTPUT_PATH, rootDir);
   const source = readText(SOURCE_PATH, rootDir);
   const pageLoader = readText('docs/utils/page/route-controller.mjs', rootDir);
@@ -73,7 +73,7 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
   const xUtilsSource = readText('components/xutils.js', rootDir);
   const builderSource = readText('scripts/build_docs_animation_engine_demo.js', rootDir);
   const browserSmoke = readText('scripts/smoke_docs_animation_engine_demo.mjs', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const indexPhp = readText('docs/index.php', rootDir);
   const implementationPlan = readText('development/XTend-Docs-Quality-Implementierungsplan.md', rootDir);
   const menuEntry = menu.find((entry) => entry.slug === ARTICLE_SLUG);
@@ -190,7 +190,7 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
   context.assert(packageManifest.scripts['check:docs-animation-engine-demo'] === 'node scripts/build_docs_animation_engine_demo.js --check', 'Package exposes the deterministic demo check');
   context.assert(packageManifest.scripts['test:rmt-animation-engine-docs'] === 'node scripts/run_xtend_tests.js rmt-animation-engine-docs', 'Package exposes the focused docs suite');
   context.assert(packageManifest.scripts['test:rmt-animation-engine-docs:browser'] === 'node scripts/smoke_docs_animation_engine_demo.mjs', 'Package exposes the optional Chromium smoke');
-  context.assert(runner.includes("id: 'rmt-animation-engine-docs'"), 'Test runner registers the AnimationEngine docs suite');
+  context.assert(runner.hasSuite("rmt-animation-engine-docs"), 'Test runner registers the AnimationEngine docs suite');
   context.assert(syntaxCheckFile('docs/utils/pageloader.js', { rootDir, extension: '.js' }).ok, 'Docs page loader passes syntax check');
   context.assert(syntaxCheckFile('docs/utils/animation-engine-demo.mjs', { rootDir, extension: '.mjs' }).ok, 'AnimationEngine demo module passes syntax check');
   context.assert(syntaxCheckFile('scripts/build_docs_animation_engine_demo.js', { rootDir, extension: '.js' }).ok, 'AnimationEngine artifact builder passes syntax check');

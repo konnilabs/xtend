@@ -63,10 +63,10 @@ function runEpic12Rc0GateMatrixSuite(options = {}) {
   const matrix = createEpic12Rc0GateMatrix();
   const validation = validateEpic12Rc0GateMatrix(matrix);
   const report = createEpic12Rc0GateMatrixReport({ matrix });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rc0GateMatrix;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const contract = readText(RC0_GATE_MATRIX_CONTRACT, rootDir);
   const workpackage = readText(RC0_GATE_MATRIX_WORKPACKAGE_DOC, rootDir);
   const docs = readText(RC0_GATE_MATRIX_DOCS, rootDir);
@@ -169,7 +169,7 @@ function runEpic12Rc0GateMatrixSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'rc0GateMatrix', 'Scaffold config exposes RC0 Gate Matrix');
   context.assertIncludes(scaffoldConfig, RC0_GATE_MATRIX_SCHEMA, 'Scaffold config declares RC0 Gate Matrix schema');
   context.assertIncludes(scaffoldConfig, RC0_GATE_MATRIX_LOCAL_GATE, 'Scaffold config references RC0 local gate');
-  context.assertIncludes(runner, "id: 'rc0-gate-matrix'", 'Runner registers RC0 Gate Matrix suite');
+  context.assert(runner.hasSuite("rc0-gate-matrix"), 'Runner registers RC0 Gate Matrix suite');
 
   assertTextIncludesAll(context, contract, [
     RC0_GATE_MATRIX_SCHEMA,

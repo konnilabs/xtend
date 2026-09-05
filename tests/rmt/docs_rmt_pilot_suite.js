@@ -125,7 +125,7 @@ function runDocsRmtPilotSuite(options = {}) {
   const xtendCss = readText('xtend.css', rootDir);
   const parsedownAdapter = readText('docs/utils/parsedown.php', rootDir);
   const parsedownDocs = readText('docs/en/xtendrmt-parsedown-scheduling.md', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.docsRmtPilot;
 
   context.assert(source.includes('template docs.xtend.parsedownPilot'), 'Docs RMT pilot source uses vNext template authoring');

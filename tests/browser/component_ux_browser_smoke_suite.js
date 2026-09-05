@@ -66,7 +66,7 @@ function runComponentUxBrowserSmokeSuite(options = {}) {
   const gate = createComponentUxBrowserSmokeGate({ rootDir, plan });
   const fixture = readText(COMPONENT_UX_BROWSER_SMOKE_FIXTURE_PATH, rootDir);
   const manifest = readJson('tests/browser/fixtures/components/manifest.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.componentUxBrowserSmokes;
   const browserSuite = readText('tests/browser/browser_smoke_suite.js', rootDir);
   const browserReadme = readText('tests/browser/README.md', rootDir);
@@ -76,7 +76,7 @@ function runComponentUxBrowserSmokeSuite(options = {}) {
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const doc = readText(COMPONENT_UX_BROWSER_SMOKE_DOC_PATH, rootDir);
   const workpackage = readText(COMPONENT_UX_BROWSER_SMOKE_WP_PATH, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const planSyntax = syntaxCheckFile('tests/browser/component-ux-browser-smoke-plan.js', { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(COMPONENT_UX_BROWSER_SMOKE_SUITE_PATH, { rootDir, extension: '.js' });
@@ -176,7 +176,7 @@ function runComponentUxBrowserSmokeSuite(options = {}) {
   context.assertIncludes(registry, COMPONENT_UX_BROWSER_SMOKE_DOC_PATH, 'Reference registry links Browser UX smoke contract');
   context.assertIncludes(registry, COMPONENT_UX_BROWSER_SMOKE_FIXTURE_PATH, 'Reference registry links Browser UX smoke fixture');
   context.assertIncludes(registry, COMPONENT_UX_BROWSER_SMOKE_SUITE_PATH, 'Reference registry links Browser UX smoke suite');
-  context.assertIncludes(runner, "id: 'component-ux-browser-smokes'", 'XTend runner registers Browser UX smoke suite');
+  context.assert(runner.hasSuite("component-ux-browser-smokes"), 'XTend runner registers Browser UX smoke suite');
   context.assert(packageManifest.scripts['test:component-ux-browser-smokes'] === 'node scripts/run_xtend_tests.js component-ux-browser-smokes', 'Package exposes Browser UX smoke test script');
   context.assert(metadata && metadata.schema === COMPONENT_UX_BROWSER_SMOKE_SCHEMA, 'Package metadata exposes Browser UX smoke schema');
   context.assert(metadata && metadata.reportSchema === COMPONENT_UX_BROWSER_SMOKE_REPORT_SCHEMA, 'Package metadata exposes Browser UX smoke report schema');

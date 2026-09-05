@@ -55,8 +55,8 @@ function runRmtBestcaseFlagshipSuite(options = {}) {
     id: 'rmt-bestcase-flagship',
     label: 'XTendRMT Bestcase Flagship Demo'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const source = readText(BESTCASE_SOURCE, rootDir);
   const core = readJson(BESTCASE_CORE, rootDir);
   const demo = readBestcaseVNextDemo(rootDir).projection;
@@ -151,7 +151,7 @@ function runRmtBestcaseFlagshipSuite(options = {}) {
   context.assert(packageManifest.scripts && packageManifest.scripts['test:rmt-bestcase-flagship'] === 'node scripts/run_xtend_tests.js rmt-bestcase-flagship', 'package exposes Bestcase flagship test script');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:rmt-vnext-primitives'].includes('rmt-bestcase-flagship'), 'RMT vNext primitives aggregate includes Bestcase flagship suite');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:rmt-vnext-primitives:report'].includes('rmt-bestcase-flagship'), 'RMT vNext primitives report aggregate includes Bestcase flagship suite');
-  context.assert(runner.includes("id: 'rmt-bestcase-flagship'"), 'test runner exposes rmt-bestcase-flagship suite');
+  context.assert(runner.hasSuite("rmt-bestcase-flagship"), 'test runner exposes rmt-bestcase-flagship suite');
 
   return context.result();
 }

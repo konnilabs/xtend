@@ -2368,8 +2368,8 @@ function assertRmtArtifactParityGate(context, rootDir) {
 
 function assertRunnerAndWorkflow(context, modules, rootDir) {
   const config = modules.config;
-  const packageJson = readJson('package.json', rootDir);
-  const runnerSource = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageJson = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runnerSource = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const workflow = modules.workflow.createDeveloperWorkflow({
     tag: 'x-example',
     profile: 'routing',
@@ -2390,9 +2390,9 @@ function assertRunnerAndWorkflow(context, modules, rootDir) {
     Array.isArray(config.testObligation.requiredSuites) && config.testObligation.requiredSuites.includes('rmt-compatibility'),
     'Scaffold config marks rmt-compatibility as required suite'
   );
-  context.assert(runnerSource.includes("id: 'rmt-compatibility'"), 'Local test runner registers rmt-compatibility suite');
+  context.assert(runnerSource.hasSuite("rmt-compatibility"), 'Local test runner registers rmt-compatibility suite');
   context.assert(
-    runnerSource.includes('native-domain') && runnerSource.includes('browser-near runtime'),
+    runnerSource.describes("native-domain") && runnerSource.describes("browser-near runtime"),
     'Local test runner describes RMT native-domain and browser-near runtime gates'
   );
   context.assert(packageJson.scripts && packageJson.scripts['test:rmt-compatibility'] === 'node scripts/run_xtend_tests.js rmt-compatibility', 'Package scripts expose test:rmt-compatibility');

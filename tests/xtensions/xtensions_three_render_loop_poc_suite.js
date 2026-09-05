@@ -114,9 +114,9 @@ function runXTensionsThreeRenderLoopPocSuite(options = {}) {
     label: 'XTensions Three.js Fiber Render Loop PoC Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.xtensionsThreeRenderLoopPoc;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const hostControllerContract = readText(HOST_CONTROLLER_CONTRACT_PATH, rootDir);
@@ -181,8 +181,8 @@ function runXTensionsThreeRenderLoopPocSuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/three-render-loop-poc.js', 'package exports Three render loop PoC module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/three-render-loop-poc.d.ts', 'package exports Three render loop PoC types');
   context.assert(packageManifest.scripts['test:xtensions-three-render-loop-poc'] === 'node scripts/run_xtend_tests.js xtensions-three-render-loop-poc', 'package exposes Three render loop PoC script');
-  context.assert(runner.includes("id: 'xtensions-three-render-loop-poc'"), 'test runner exposes xtensions-three-render-loop-poc suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xtensions-three-render-loop-poc'), 'runner help references Three render loop PoC gate');
+  context.assert(runner.hasSuite("xtensions-three-render-loop-poc"), 'test runner exposes xtensions-three-render-loop-poc suite');
+  context.assert(runner.hasSuite("xtensions-three-render-loop-poc"), 'runner help references Three render loop PoC gate');
 
   context.assert(backlog.includes('| `XTN-09` | P1 | completed | WS8 |'), 'backlog marks XTN-09 completed');
   context.assert(backlog.includes('development/XTensions-Three-Fiber-Render-Loop-PoC-Contract.md'), 'backlog references Three render loop PoC contract');

@@ -473,9 +473,9 @@ function runVsCodeBridgeChecks(context, rootDir) {
 }
 
 function runDocumentationAndMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtEditorPackaging;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
   const docs = readText(RMT_EDITOR_DOC_PATH, rootDir);
@@ -504,7 +504,7 @@ function runDocumentationAndMetadataChecks(context, rootDir) {
   context.assert((typeof packageManifest.exports['./rmt-editor/vscode'] === 'string' ? packageManifest.exports['./rmt-editor/vscode'] : packageManifest.exports['./rmt-editor/vscode'] && packageManifest.exports['./rmt-editor/vscode'].default) === './tools/rmt-editor/vscode/extension.js', 'package exports VS Code bridge stub');
   context.assert(packageManifest.scripts['test:rmt-editor-packaging'] === 'node scripts/run_xtend_tests.js rmt-editor-packaging', 'package exposes rmt-editor-packaging script');
   context.assert(packageManifest.scripts['build:rmt-editor:vscode'] === 'node tools/rmt-editor/vscode/build-vsix.js --out xtend-rmt-language-0.1.0-rc.1.vsix', 'package exposes local VS Code VSIX build script');
-  context.assert(runner.includes("id: 'rmt-editor-packaging'"), 'test runner exposes rmt-editor-packaging suite');
+  context.assert(runner.hasSuite("rmt-editor-packaging"), 'test runner exposes rmt-editor-packaging suite');
   context.assert(epic.includes('| `WP-E14-12` | P2 | completed | WS7 |'), 'Epic marks WP-E14-12 completed');
   context.assert(epic.includes('WP-E14-13` ist `ready`'), 'Epic hands off WP-E14-13 as ready');
   context.assert(architecture.includes('Implementierungsstand nach `WP-E14-12`'), 'Architecture documents editor packaging status');

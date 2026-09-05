@@ -79,9 +79,9 @@ function runRmtShellAuthoringComponentUxSuite(options = {}) {
     label: 'XTend RMT Shell Authoring for Component UX'
   });
   const fixture = readJson(RMT_SHELL_AUTHORING_FIXTURE, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const contractDoc = readText('development/XTend-RMT-Shell-Authoring-fuer-Component-UX.md', rootDir);
@@ -211,7 +211,7 @@ function runRmtShellAuthoringComponentUxSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'rmtShellAuthoringComponentUx', 'Scaffold config exposes RMT Shell Authoring section');
   context.assertIncludes(scaffoldConfig, RMT_SHELL_AUTHORING_SCHEMA, 'Scaffold config declares RMT Shell Authoring schema');
   context.assertIncludes(scaffoldConfig, 'rmt-shell-authoring-ux', 'Scaffold config references RMT Shell Authoring gate');
-  context.assertIncludes(runner, "id: 'rmt-shell-authoring-ux'", 'Runner exposes RMT Shell Authoring suite');
+  context.assert(runner.hasSuite("rmt-shell-authoring-ux"), 'Runner exposes RMT Shell Authoring suite');
   context.assertIncludes(contractDoc, RMT_SHELL_AUTHORING_SCHEMA, 'Contract document declares RMT Shell Authoring schema');
   context.assertIncludes(contractDoc, 'XtendRmtShellAuthoringContract', 'Contract document defines the TypeScript interface name');
   context.assertIncludes(contractDoc, KERNEL_BOUNDARY, 'Contract document keeps RMT kernel boundary visible');

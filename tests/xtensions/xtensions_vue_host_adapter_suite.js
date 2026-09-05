@@ -62,8 +62,8 @@ function createClock() {
 
 function loadCommon(rootDir) {
   return {
-    packageManifest: readJson('package.json', rootDir),
-    runner: readText('scripts/run_xtend_tests.js', rootDir),
+    packageManifest: require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir)),
+    runner: require('../utils/test-catalog').readRunnerCatalog(rootDir),
     contractDoc: readText(XTENSIONS_VUE_ADAPTER_CONTRACT_PATH, rootDir),
     fixture: readJson(XTENSIONS_VUE_ADAPTER_FIXTURE_PATH, rootDir),
     blockedRuntimeFixture: readJson(VUE_BLOCKED_RUNTIME_FIXTURE_PATH, rootDir),
@@ -112,7 +112,7 @@ function assertPackageWiring(context, common) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/vue-host-adapter.js', 'package exports Vue host adapter module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/vue-host-adapter.d.ts', 'package exports Vue host adapter types');
   context.assert(packageManifest.scripts['test:xtensions-vue-host-adapter'] === 'node scripts/run_xtend_tests.js xtensions-vue-host-adapter', 'package exposes Vue host adapter test script');
-  context.assert(common.runner.includes("id: 'xtensions-vue-host-adapter'"), 'runner exposes Vue host adapter suite');
+  context.assert(common.runner.hasSuite('xtensions-vue-host-adapter'), 'runner exposes Vue host adapter suite');
   context.assert(common.contractDoc.includes('Contract: `xtend.xtensions.vue-adapter.v1`'), 'contract document declares Vue adapter schema');
   context.assert(common.contractDoc.includes('globalProperties.$patch'), 'contract document names Vue explicit update boundary');
 }

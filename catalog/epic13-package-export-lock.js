@@ -44,6 +44,8 @@ const EXPECTED_SCOPED_PACKAGES = Object.freeze([
 
 const EXPECTED_EXPORT_KEYS = Object.freeze([
   '.',
+  './project-index',
+  './project-index/cli',
   './registry',
   './loader',
   './legacy-loader',

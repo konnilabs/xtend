@@ -85,7 +85,7 @@ function runEpic13PackageExportLockSuite(options = {}) {
     id: 'epic13-package-export-lock',
     label: 'Epic 13 Package Export Lock'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const plan = createEpic13PackageExportLockPlan({ rootDir, packageManifest });
   const validation = validateEpic13PackageExportLockPlan(plan);
   const report = createEpic13PackageExportLockReport({ rootDir, plan });
@@ -102,7 +102,7 @@ function runEpic13PackageExportLockSuite(options = {}) {
   const networkMetadata = packageManifest.xtend && packageManifest.xtend.epic13ConditionalNetworkEvidence;
   const rc1Metadata = packageManifest.xtend && packageManifest.xtend.epic13Rc1Readiness;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const steering = readText(EPIC13_PACKAGE_EXPORT_LOCK_STEERING, rootDir);
   const contractDoc = readText(EPIC13_PACKAGE_EXPORT_LOCK_CONTRACT, rootDir);
   const workpackage = readText(EPIC13_PACKAGE_EXPORT_LOCK_WORKPACKAGE_DOC, rootDir);
@@ -212,7 +212,7 @@ function runEpic13PackageExportLockSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, EPIC13_PACKAGE_EXPORT_LOCK_SCHEMA, 'Scaffold config declares package export lock schema');
   context.assertIncludes(scaffoldConfig, EPIC13_PACKAGE_EXPORT_LOCK_LOCAL_GATE, 'Scaffold config references package export lock gate');
   context.assertIncludes(scaffoldConfig, 'nextWorkpackage: "WP-E13-13"', 'Scaffold config advances Epic 13 handoff');
-  context.assertIncludes(runner, "id: 'epic13-package-export-lock'", 'Runner registers package export lock suite');
+  context.assert(runner.hasSuite("epic13-package-export-lock"), 'Runner registers package export lock suite');
 
   assertTextIncludesAll(context, steering, [
     EPIC13_PACKAGE_EXPORT_LOCK_SCHEMA,

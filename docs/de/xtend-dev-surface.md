@@ -189,3 +189,53 @@ Kann sich `Gates` nicht verbinden, prüfe Companion-Prozess, Port und Token. Ein
 - [XTend Fabric Runtime](./xtend-fabric-runtime.md)
 - [RMT Kernel Runtime](./rmt-kernel-runtime.md)
 - [Supply Chain Checks](./supply-chain-gates.md)
+
+## PR-Gates und gemeinsame Testausführung
+
+Der statisch lesbare Katalog `scripts/test-runner/catalog.json` registriert Suites, Implementierungen, Argumente, Aliasse, Profile und Berichtspfade. `scripts/run_xtend_tests.js` bleibt der kompatible Einstieg. Einzelne npm-Skripte behalten ihre Namen. `test:pr` und `test:pr:report` wählen dieselben Suites aus; dasselbe gilt für die vollständigen Release-Einstiege.
+
+```sh
+npm run test:pr
+node scripts/run_xtend_tests.js --profile ci-pr --plan --json
+node scripts/run_xtend_tests.js project-index rmt-language-server --json
+node scripts/run_xtend_tests.js --profile ci-release --jobs 2
+node scripts/run_xtend_tests.js --verify ci-rmt --from .xtend-test-results/xtend-test-execution.json
+```
+
+Hilfe, Liste und Planung laden keine Testmodule und kein TypeScript. Explizite IDs werden in ihrer ursprünglichen Reihenfolge dedupliziert. Unbekannte IDs, leere Reportpfade und Kombinationen von `all` mit weiteren IDs sind Fehler. Ein Profil kann nicht mit einer expliziten Auswahl kombiniert werden.
+
+### Profile und Berichtspflichten
+
+Die Profile `ci-pr` und `ci-release` vereinigen die bisherigen Hauptprüfungen mit den RMT-/Native-First-Prüfungen. Die Hauptjobs führen diese Vereinigung einmal pro Node-Version aus. Der bestehende Check `rmt-vnext-primitive-gates` lädt das Artefakt desselben Workflow-Laufs und prüft seine Pflichtteilmenge. Die Node-/OS-Matrizen und Checknamen bleiben erhalten. `ci-nightly` und `ci-publish` verwenden dieselbe Logik; vor einer Veröffentlichung entsteht eine eigene frische Ausführung.
+
+Fachberichte und Alias-IDs bleiben als Projektionen verfügbar. Docs-Stub-Inventar ist in PR-/Release-CI advisory und in Nightly blocking. Die umfangreichen Sprach-, Browser-, Paket- und Vertragsprüfungen bleiben verpflichtend. Zusätzlich sind Projektindex, LSP, Importresolver und Runner-Verträge in den Hauptprofilen enthalten. Der separate Editorjob startet Legacy- und vNext-Analyse sowie Navigation aus einem frisch entpackten VSIX außerhalb des Checkouts.
+
+Der Ausführungsplan nennt auch die separaten CI-Prüfungen. Es gibt keine automatische Auswahl anhand geänderter Dateien und keinen Cache erfolgreicher Tests. npm-Download-Caches sind an Lockfiles und Plattform gebunden. Fehlgeschlagene Installationen verhindern nachfolgende Testkaskaden; Statusauswertung und Diagnose-Uploads bleiben aktiv.
+
+### Ausführung und Fehler
+
+Standard ist ein wiederverwendbarer Worker. `--jobs` erlaubt höchstens zwei Worker. Exklusive Repository- und Browserressourcen sowie unbekannte Ressourcen verhindern gleichzeitige Ausführung. Die vorhandenen Suite-Einträge sind konservativ gesperrt; Parallelität setzt eine geprüfte Ressourcendeklaration voraus.
+
+Jede Suite hat standardmäßig fünf Minuten Zeit, danach erhält die Prozessbereinigung höchstens fünf Sekunden. Kürzere fachliche Deadlines bleiben bestehen. Fehler, Exceptions, Prozessabbrüche, fehlende Ergebnisse und widersprüchliche Erfolgsangaben führen zu fehlgeschlagenen Ergebnissen. Unabhängige Suites laufen weiter. WebDriver-Aufrufe teilen sich eine Fixture-Deadline; Cleanup hat ein eigenes begrenztes Budget. Ursprüngliche Fehler und zusätzliche Cleanup-Fehler bleiben gemeinsam sichtbar. Lokale Driver verwenden freie Ports; externe Endpunkte werden nicht beendet.
+
+### Ergebnisse und Wiederverwendung
+
+Für lokale Projektionen müssen Ausführung und Prüfung denselben ausdrücklich gesetzten `XTEND_TEST_RUN_ID` verwenden. Ohne diese Angabe erhält jeder lokale Aufruf eine neue Laufidentität. In GitHub Actions werden Workflow-Lauf und Versuch automatisch gebunden.
+
+`xtend.test.report.v1` bleibt unverändert. Fachberichte behalten bei fehlgeschlagenen Suites den Status `failed`; Advisory-Regeln beeinflussen ausschließlich die Profilentscheidung und den Prozess-Exitstatus. Der zusätzliche Bericht `xtend.test.execution-report.v1` enthält Laufidentität, Commit, Runtime, Quellen- und Katalogfingerprints, erwartete IDs, Einzelzeiten, Speicherwerte, Logpfade, Wiederverwendung und Abbruchursachen. Teilberichte werden nach jeder Suite atomar geschrieben. Standardpfad ist `.xtend-test-results/xtend-test-execution.json`; `--execution` legt einen anderen Pfad fest. Worker-Ausgaben stehen unter `.xtend-test-results/test-runner/<executionId>/`; `--json` hält stdout für JSON frei.
+
+Eine Übernahme verlangt passende Herkunft und vollständige Ergebnisse. Fehlende, fremde, abgebrochene oder unvollständige Artefakte können keinen Check erfüllen. Deduplizierung gilt nur innerhalb derselben Ausführung mit gleicher Implementierung, gleichen Argumenten, Eingaben und Runtime. Beispielsweise projizieren `maraca-bundle` und `maraca-bundle-report` dieselbe Ausführung. Unterschiedliche SurfaceManager-Domänen bleiben getrennt. Die zwölf Tuning-Kandidaten und ihre unabhängige Reproduzierbarkeitsprüfung bleiben erhalten.
+
+Der Projektindex liest den Katalog, ohne Suite-Module auszuführen. Die bestehenden Paketmetadaten bleiben kompatible Projektionen; der Runner-Vertragstest prüft ihre Übereinstimmung mit den aufgelösten Profilen. Neue Reportverträge werden gezielt im Schema-Inventar kuratiert. Nach Dokumentationsänderungen regeneriert `npm run build:xtend-mcp-knowledge` die Wissensartefakte; der unveränderte Driftcheck bleibt erforderlich.
+
+Lokale Ergebnisse und tatsächlich ausgeführte GitHub-Actions-Matrizen sind getrennte Abnahmen. Ein lokaler Lauf ersetzt weder die zweite Node-Version noch Windows, macOS oder die separaten CI-Jobs.
+
+### Nightly-Abnahme und Runner-Fähigkeiten
+
+Der Nightly verwendet `ubuntu-24.04` mit den bestehenden Node-24-/Node-26-Lanes. Vor den Tests prüft er Workspace- und Produkt-Lockfiles sowie Node-Unterprozesse, SQLite, PHP und eine echte Chromium-WebDriver-Sitzung über Loopback. Fehlende Fähigkeiten und übersprungene Pflichtprüfungen schlagen fehl. Die ERP-Installation entfällt, weil dieses Profil ihre Abhängigkeiten nicht verwendet.
+
+Die Phasen, Voraussetzungen, Zeitbudgets und Artefaktpflichten stehen im gemeinsamen Katalog. `node scripts/test-runner/nightly.js begin` eröffnet einen Lauf; `node scripts/test-runner/nightly.js phase <id>` führt die gewünschte Phase aus. Die Installationen und Einzelphasen sind begrenzt; für die Phasen zusammen stehen 32 Minuten innerhalb des unveränderten 40-Minuten-Jobs zur Verfügung. Abhängige Phasen starten nach einem Fehler nicht; unabhängige Prüfungen und Diagnose-Uploads bleiben erhalten. `npm run nightly:manifest` wertet sämtliche Ergebnisse einmal aus. Die benannten Fachprüfungen übernehmen diese Auswertung ohne zusätzliche Testausführung.
+
+`xtend.ci.nightly-build-manifest.v1` behält seine Struktur. Sein `ok` setzt erfolgreiche Phasen, vollständige Pflicht-Suites ohne Skips und gültige Artefakte voraus. Der separate Nachweis `xtend.ci.nightly-acceptance.v1` bindet Ergebnisse an Lauf, Commit, Runtime, Quellen- und Katalogfingerprint. Die Sitzung `xtend.ci.nightly-session.v1` enthält Phasenprotokolle und Artefakthashes; `xtend.ci.runner-capabilities.v1` dokumentiert die tatsächlich geprüften Fähigkeiten. Alle drei liegen unter `.xtend-test-results/nightly/`. Ein fehlender, veralteter oder nachträglich veränderter Bericht schlägt fehl, selbst wenn sein Dateiname vorhanden ist.
+
+Das zusätzliche Diagnoseartefakt enthält Phasen-, Worker-, Runtime- und npm-Logs. npm-Downloads verwenden einen absoluten Cachepfad im temporären Runner-Verzeichnis. Die beiden optionalen Browser-/Netzwerkzweige bleiben ausdrücklich aktivierbar und erhalten eigene Zeitlimits. Ein manueller Abnahmelauf muss beide Optionen aktivieren, um auch diese Zweige zu prüfen.

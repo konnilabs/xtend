@@ -155,8 +155,8 @@ function runNativeFirstMarketPatternParitySuite(options = {}) {
   const formNavigationMatrix = readText('development/XTend-Native-First-Form-Navigation-Media-Hardening-Matrix.md', rootDir);
   const radar = readText('development/XTend-Native-First-Browser-Primitive-Radar.md', rootDir);
   const adoptionGate = readText('development/XTend-Native-Primitive-Adoption-Gate-Contract.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const componentManifest = readJson('components/manifest.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstMarketPatternParity;
   const packageScripts = packageManifest.scripts || {};
@@ -233,8 +233,8 @@ function runNativeFirstMarketPatternParitySuite(options = {}) {
   });
 
   context.assert(packageScripts['test:native-first-market-pattern-parity'] === 'node scripts/run_xtend_tests.js native-first-market-pattern-parity', 'Package exposes native-first market pattern parity test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_market_pattern_parity_suite')", 'Runner imports native-first market pattern parity suite');
-  context.assertIncludes(runner, "id: 'native-first-market-pattern-parity'", 'Runner registers native-first market pattern parity suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_market_pattern_parity_suite.js" }), 'Runner imports native-first market pattern parity suite');
+  context.assert(runner.hasSuite("native-first-market-pattern-parity"), 'Runner registers native-first market pattern parity suite');
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-10 contract schema');
   context.assert(metadata && metadata.matrixSchema === MATRIX_SCHEMA, 'Package metadata exposes WP-10 matrix schema');

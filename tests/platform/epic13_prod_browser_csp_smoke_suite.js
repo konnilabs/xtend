@@ -140,7 +140,7 @@ async function runEpic13ProdBrowserCspSmokeSuite(options = {}) {
   const plan = createEpic13ProdBrowserCspSmokePlan({ rootDir });
   const validation = validateEpic13ProdBrowserCspSmokePlan(plan);
   const report = createEpic13ProdBrowserCspSmokeReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic13ProdBrowserCspSmoke;
   const rc1Metadata = packageManifest.xtend && packageManifest.xtend.epic13Rc1Readiness;
   const ownerMetadata = packageManifest.xtend && packageManifest.xtend.epic13ReleaseOwnerAcceptance;
@@ -148,7 +148,7 @@ async function runEpic13ProdBrowserCspSmokeSuite(options = {}) {
   const packageLockMetadata = packageManifest.xtend && packageManifest.xtend.epic13PackageExportLock;
   const hydrationMetadata = packageManifest.xtend && packageManifest.xtend.epic13HydrationPerformanceClosure;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const serverSource = readText('scripts/serve_xtend_dev.js', rootDir);
   const sharedServerSource = readText('xtend-builder/lib/dev-server.js', rootDir);
   const fixture = readText(PROD_CSP_FIXTURE, rootDir);
@@ -261,7 +261,7 @@ async function runEpic13ProdBrowserCspSmokeSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, EPIC13_PROD_BROWSER_CSP_SMOKE_SCHEMA, 'Scaffold config declares PROD Browser CSP schema');
   context.assertIncludes(scaffoldConfig, PROD_CSP_FIXTURE, 'Scaffold config references PROD CSP fixture');
   context.assertIncludes(scaffoldConfig, 'nextWorkpackage: "WP-E13-13"', 'Scaffold config advances Epic 13 handoff to WP-E13-09');
-  context.assertIncludes(runner, "id: 'epic13-prod-browser-csp-smoke'", 'Runner registers PROD Browser CSP suite');
+  context.assert(runner.hasSuite("epic13-prod-browser-csp-smoke"), 'Runner registers PROD Browser CSP suite');
 
   assertTextIncludesAll(context, steering, [
     EPIC13_PROD_BROWSER_CSP_SMOKE_SCHEMA,

@@ -421,6 +421,7 @@ class VNextParser {
     this.skipSeparators();
 
     while (!this.isAtEnd()) {
+      const startIndex = this.index;
       if (this.matches('import')) {
         body.push(this.parseImportDeclaration());
       } else if (this.matches('template')) {
@@ -438,6 +439,9 @@ class VNextParser {
         this.reportUnexpectedTopLevel();
       }
       this.skipSeparators();
+      // Recovery leaves closing braces for block callers. At document level a
+      // stray brace has no owner and must be consumed to guarantee progress.
+      if (this.index === startIndex) this.consume();
     }
 
     const documentNode = {
@@ -482,6 +486,7 @@ class VNextParser {
 
     return this.createNode('RmtImportDeclaration', start, end, {
       path: importPath,
+      pathRange: createRange(this.sourceModel, pathToken.startOffset, pathToken.endOffset),
       mode: importPath && importPath.includes('*') ? 'static_glob' : 'static_file'
     });
   }
@@ -2610,11 +2615,13 @@ class VNextParser {
     this.skipSeparators();
 
     while (!this.isAtEnd() && !this.matches('}')) {
+      const startIndex = this.index;
       const item = parseItem();
       if (item) {
         items.push(item);
       }
       this.skipSeparators();
+      if (this.index === startIndex) this.consume();
     }
 
     const end = this.expectValue('}', 'Expected closing brace.') || this.previous();

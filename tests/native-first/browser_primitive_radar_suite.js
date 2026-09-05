@@ -274,10 +274,10 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
   const radar = readText('development/XTend-Native-First-Browser-Primitive-Radar.md', rootDir);
   const radarContract = readText('development/XTend-Native-First-Browser-Primitive-Radar-Contract.md', rootDir);
   const observatoryContract = readText('development/XTend-Native-First-Feature-Adoption-Observatory-Contract.md', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const radarMatrix = readJson('tests/fixtures/native-first/browser-primitive-radar-v2.json', rootDir);
   const decisionSet = readJson('development/observatory/observatory-adoption-decisions-2026-09-03.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const current = runs.find((run) => run.intake.intakeId === runIndex.currentRun);
   const august24 = runs.find((run) => run.intake.intakeId === 'NFM-OBS-2026-08-24');
   const august31 = runs.find((run) => run.intake.intakeId === 'NFM-OBS-2026-08-31');
@@ -318,7 +318,7 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
   });
   context.assertIncludes(radarContract, 'xtend.native-first.browser-primitive-radar.v2', 'Radar contract declares v2');
   context.assertIncludes(observatoryContract, 'standards-evidence-is-not-engine-shipping-evidence', 'Contract separates standards and engine evidence');
-  context.assertIncludes(runner, "id: 'browser-primitive-radar'", 'Runner registers the browser primitive radar gate');
+  context.assert(runner.hasSuite("browser-primitive-radar"), 'Runner registers the browser primitive radar gate');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:browser-primitive-radar'] === 'node scripts/run_xtend_tests.js browser-primitive-radar', 'Package exposes browser primitive radar gate');
 
   assertRejected(context, 'stale current pointer', (candidate) => { candidate.runIndex.currentRun = 'NFM-OBS-2026-08-09'; }, base);

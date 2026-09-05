@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
+const net = require('net');
 const path = require('path');
 const { spawn } = require('child_process');
 const { pathToFileURL } = require('url');
@@ -95,6 +96,13 @@ function requestJson(endpoint, method, pathname, payload) {
   const body = payload === undefined ? '' : JSON.stringify(payload);
   const transport = endpoint.protocol === 'https:' ? https : http;
   return new Promise((resolve, reject) => {
+    const remaining = (endpoint.deadline || Date.now() + 10000) - Date.now();
+    if (remaining <= 0) { reject(new Error(`WebDriver deadline exceeded for ${method} ${pathname}.`)); return; }
+    if (endpoint.assertOwner) {
+      try { endpoint.assertOwner(); } catch (error) { reject(error); return; }
+    }
+    let timer;
+    const fail = error => { clearTimeout(timer); reject(error); };
     const request = transport.request({
       hostname: endpoint.hostname,
       port: endpoint.port,
@@ -104,8 +112,11 @@ function requestJson(endpoint, method, pathname, payload) {
     }, (response) => {
       let text = '';
       response.setEncoding('utf8');
+      response.on('error', fail);
+      response.on('aborted', () => fail(new Error(`WebDriver response aborted for ${method} ${pathname}.`)));
       response.on('data', (chunk) => { text += chunk; });
       response.on('end', () => {
+        clearTimeout(timer);
         let parsed = null;
         try {
           parsed = text ? JSON.parse(text) : null;
@@ -113,14 +124,20 @@ function requestJson(endpoint, method, pathname, payload) {
           reject(new Error(`WebDriver returned invalid JSON for ${method} ${pathname}: ${error.message}`));
           return;
         }
-        if (response.statusCode < 200 || response.statusCode >= 500) {
+        if (response.statusCode < 200 || response.statusCode >= 300) {
           reject(new Error(`WebDriver ${method} ${pathname} failed with ${response.statusCode}: ${text.slice(-500)}`));
           return;
         }
+        if (!parsed || typeof parsed !== 'object' || parsed.value?.error || (parsed.status !== undefined && parsed.status !== 0)) {
+          reject(new Error(`WebDriver protocol error for ${method} ${pathname}: ${text.slice(-500)}`));
+          return;
+        }
+        try { endpoint.assertOwner?.(); } catch (error) { reject(error); return; }
         resolve({ statusCode: response.statusCode, body: parsed });
       });
     });
-    request.on('error', reject);
+    timer = setTimeout(() => request.destroy(new Error(`WebDriver deadline exceeded for ${method} ${pathname}.`)), remaining);
+    request.on('error', fail);
     if (body) request.write(body);
     request.end();
   });
@@ -137,10 +154,22 @@ async function waitForEndpoint(endpoint, timeoutMs) {
       await requestJson(endpoint, 'GET', '/status');
       return true;
     } catch (_) {
+      endpoint.assertOwner?.();
       await wait(100);
     }
   }
   return false;
+}
+
+async function availablePort(requestedPort = 0) {
+  const server = net.createServer();
+  return new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(requestedPort, '127.0.0.1', () => {
+      const port = server.address().port;
+      server.close(error => error ? reject(error) : resolve(port));
+    });
+  });
 }
 
 function createCapabilities(options = {}) {
@@ -248,7 +277,7 @@ async function executeScript(endpoint, sessionId, script, args = []) {
 async function performActions(endpoint, sessionId, actions) {
   if (!Array.isArray(actions) || actions.length === 0) return;
   await requestJson(endpoint, 'POST', `/session/${sessionId}/actions`, { actions });
-  await requestJson(endpoint, 'DELETE', `/session/${sessionId}/actions`).catch(() => {});
+  await requestJson(endpoint, 'DELETE', `/session/${sessionId}/actions`);
 }
 
 async function waitForResult(endpoint, sessionId, resultKey, timeoutMs) {
@@ -268,22 +297,28 @@ async function runFixture(options = {}) {
   const driver = options.driver || defaultDriverForEngine(engine);
   const provider = providerOptions(options);
   const timeoutMs = Number(options.timeoutMs || (engine === 'firefox' ? 20000 : 10000));
+  const deadline = Date.now() + timeoutMs;
   let child = null;
   let endpointUrl = provider.webDriverUrl;
   if (!endpointUrl) {
     const executable = findExecutable(driver, provider.driverPath, { explicitOnly: Boolean(provider.driverPath) });
     if (!executable) throw new Error(`${driver} was not found; configure driverPath or webDriverUrl.`);
-    const port = Number(provider.port || defaultPort(driver));
+    const port = await availablePort(provider.port);
     child = spawn(executable, driverArguments(driver, port), { stdio: 'ignore' });
-    child.once('error', () => {});
+    child.once('error', error => { child.startError = error; });
     endpointUrl = `http://127.0.0.1:${port}`;
   }
   const endpoint = parseEndpoint(endpointUrl);
+  endpoint.deadline = deadline;
+  if (child) endpoint.assertOwner = () => {
+    if (child.startError || child.exitCode !== null || child.signalCode !== null) throw new Error(`Owned WebDriver process stopped: ${child.startError?.message || child.exitCode || child.signalCode}`);
+  };
   let sessionId = null;
   let cleanup = { ok: true, method: 'none' };
+  let primaryError = null;
   try {
     if (!await waitForEndpoint(endpoint, timeoutMs)) throw new Error(`WebDriver endpoint did not become ready at ${endpointUrl}.`);
-    const statusResponse = await requestJson(endpoint, 'GET', '/status').catch(() => ({ body: null }));
+    const statusResponse = await requestJson(endpoint, 'GET', '/status');
     const response = await requestJson(endpoint, 'POST', '/session', createCapabilities({ ...options, ...provider, engine }));
     const identity = sessionIdentity(response.body && response.body.value, engine);
     sessionId = identity.sessionId;
@@ -322,10 +357,19 @@ async function runFixture(options = {}) {
       screenshot,
       ...identity
     };
+  } catch (error) {
+    primaryError = error;
+    throw error;
   } finally {
-    if (sessionId) await requestJson(endpoint, 'DELETE', `/session/${sessionId}`).catch(() => {});
-    cleanup = await stopDriver(child);
-    if (!cleanup.ok) throw new Error(cleanup.reason);
+    const cleanupErrors = [];
+    const cleanupDeadline = Date.now() + Number(options.cleanupTimeoutMs || 5000);
+    if (sessionId) {
+      try { await requestJson({ ...endpoint, deadline: cleanupDeadline }, 'DELETE', `/session/${sessionId}`); }
+      catch (error) { cleanupErrors.push(error); }
+    }
+    cleanup = await stopDriver(child, Math.max(1, cleanupDeadline - Date.now() - 1000));
+    if (!cleanup.ok) cleanupErrors.push(new Error(cleanup.reason));
+    if (cleanupErrors.length) throw new AggregateError([...(primaryError ? [primaryError] : []), ...cleanupErrors], [primaryError?.message, ...cleanupErrors.map(error => error.message)].filter(Boolean).join('; '));
   }
 }
 
@@ -401,6 +445,8 @@ module.exports = {
   mergeEvidence,
   normalizeEngine,
   parseEndpoint,
+  requestJson,
+  availablePort,
   performActions,
   providerOptions,
   runFixture,

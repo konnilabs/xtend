@@ -59,8 +59,8 @@ function createClock() {
 
 function loadCommon(rootDir) {
   return {
-    packageManifest: readJson('package.json', rootDir),
-    runner: readText('scripts/run_xtend_tests.js', rootDir),
+    packageManifest: require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir)),
+    runner: require('../utils/test-catalog').readRunnerCatalog(rootDir),
     contractDoc: readText(XTENSIONS_REACT_ADAPTER_CONTRACT_PATH, rootDir),
     fixture: readJson(XTENSIONS_REACT_ADAPTER_FIXTURE_PATH, rootDir),
     blockedRuntimeFixture: readJson(REACT_BLOCKED_RUNTIME_FIXTURE_PATH, rootDir),
@@ -109,7 +109,7 @@ function assertPackageWiring(context, common) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/react-host-adapter.js', 'package exports React host adapter module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/react-host-adapter.d.ts', 'package exports React host adapter types');
   context.assert(packageManifest.scripts['test:xtensions-react-host-adapter'] === 'node scripts/run_xtend_tests.js xtensions-react-host-adapter', 'package exposes React host adapter test script');
-  context.assert(common.runner.includes("id: 'xtensions-react-host-adapter'"), 'runner exposes React host adapter suite');
+  context.assert(common.runner.hasSuite('xtensions-react-host-adapter'), 'runner exposes React host adapter suite');
   context.assert(common.contractDoc.includes('Contract: `xtend.xtensions.react-adapter.v1`'), 'contract document declares React adapter schema');
   context.assert(common.contractDoc.includes('startTransition'), 'contract document names React scheduling boundary');
 }

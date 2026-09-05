@@ -122,8 +122,8 @@ function runNativeFirstFormNavigationMediaSuite(options = {}) {
   const capabilityMatrix = readText('development/XTend-Native-First-UI-Primitive-Capability-Matrix.md', rootDir);
   const radar = readText('development/XTend-Native-First-Browser-Primitive-Radar.md', rootDir);
   const adoptionGate = readText('development/XTend-Native-Primitive-Adoption-Gate-Contract.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const componentManifest = readJson('components/manifest.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstFormNavigationMediaHardening;
   const formMetadata = packageManifest.xtend && packageManifest.xtend.formControlsUxMaturity;
@@ -195,8 +195,8 @@ function runNativeFirstFormNavigationMediaSuite(options = {}) {
 
   const packageScripts = packageManifest.scripts || {};
   context.assert(packageScripts['test:native-first-form-navigation-media'] === 'node scripts/run_xtend_tests.js native-first-form-navigation-media', 'Package exposes native-first form navigation media test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_form_navigation_media_suite')", 'Runner imports native-first form navigation media suite');
-  context.assertIncludes(runner, "id: 'native-first-form-navigation-media'", 'Runner registers native-first form navigation media suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_form_navigation_media_suite.js" }), 'Runner imports native-first form navigation media suite');
+  context.assert(runner.hasSuite("native-first-form-navigation-media"), 'Runner registers native-first form navigation media suite');
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-08 contract schema');
   context.assert(metadata && metadata.matrix === 'development/XTend-Native-First-Form-Navigation-Media-Hardening-Matrix.md', 'Package metadata exposes WP-08 matrix');

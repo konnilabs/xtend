@@ -68,8 +68,8 @@ function runScaffoldComponentWriteSuite(options = {}) {
   const cliSource = readText('xtend-builder/lib/cli.js', rootDir);
   const epic = readText('development/EPIC-17-XTend-Scaffold-Produktive-Builds-und-Dateischreibpfade.md', rootDir);
   const workpackage = readText('development/WP-E17-02-Ownership-Konfliktmodell-und-component-files-write.md', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   context.assert(writerSource.includes(SCAFFOLD_GENERATED_OWNERSHIP_SCHEMA), 'Writer exposes generated ownership schema');
   context.assert(writerSource.includes('owned-file-drift'), 'Writer diagnoses generated file drift');
@@ -83,7 +83,7 @@ function runScaffoldComponentWriteSuite(options = {}) {
   context.assert(epic.includes('WP-E17-02'), 'Epic 17 tracks WP-E17-02');
   context.assert(workpackage.includes(SCAFFOLD_GENERATED_OWNERSHIP_SCHEMA), 'WP-E17-02 document declares ownership contract');
   context.assert(packageManifest.scripts['test:scaffold-component-write'] === 'node scripts/run_xtend_tests.js scaffold-component-write', 'Package exposes scaffold component write script');
-  context.assert(runner.includes("id: 'scaffold-component-write'"), 'XTend test runner registers scaffold-component-write gate');
+  context.assert(runner.hasSuite("scaffold-component-write"), 'XTend test runner registers scaffold-component-write gate');
 
   const firstWrite = createComponentFiles({
     tag: 'x-owned-demo',

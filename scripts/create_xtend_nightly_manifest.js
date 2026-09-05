@@ -8,134 +8,20 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const RESULT_DIR = path.join(ROOT_DIR, '.xtend-test-results');
 const OUTPUT_PATH = path.join(RESULT_DIR, 'xtend-nightly-build-manifest.json');
 
-const COMMANDS = [
-  'npm run ci:dependency-locks:check',
-  'npm run native-first:evidence:prepare',
-  'npm run test:release:full:report',
-  'npm run test:xtend-mcp:report',
-  'npm run test:feature-adoption-observatory',
-  'npm run test:rmt-reference-docs:report',
-  'npm run test:rmt-demos:report',
-  'npm run test:rkfa-production-closure:report',
-  'npm run test:docs-stub-inventory:report',
-  'npm run test:rmt-vnext-primitives:report',
-  'npm run test:native-first-rmt-owned-release:report',
-  'npm run release:report',
-  'npm run pack:dry-run',
-  'npm pack --workspace xtendrmt --dry-run --json --silent',
-  'npm pack --workspace fabric --dry-run --json --silent',
-  'npm pack --workspace tools --dry-run --json --silent',
-  'npm pack --workspace xtend-builder --dry-run --json --silent',
-  'npm pack --workspace xtend-maraca --dry-run --json --silent',
-  'npm pack --workspace @ccslabs/xtend-mcp --dry-run --json --silent',
-  'npm pack --workspace xsurface-shard --dry-run --json --silent',
-  'npm run test:maraca:report',
-  'npm run test:maraca-app-services-cross-runtime:report',
-  'npm run test:xtend-llm-app-services-catfood:report',
-  'npm run test:maraca-app-services-test-bench:report',
-  'npm run test:xtensions-framework-adapters:report',
-  'npm run test:xtend-dev-surface:report',
-  'npm run test:docs-quality:report',
-  'npm run test:docs-shell-catfooding:report',
-  'npm run test:docs-framework-ownership:report',
-  'npm run test:xsurface-shard:report',
-  'npm run test:xscaler-protocol:report',
-  'npm run test:xscaler-public-api:report',
-  'npm run test:xscaler-php-preflight-parity:report',
-  'npm run test:rmt-xscaler-ssr-hydration-parity:report',
-  'npm run test:xscaler-source-to-sea:report'
-];
-
-const ARTIFACT_PATHS = [
-  '.xtend-test-results/xtend-release-gate-report.json',
-  '.xtend-test-results/xtend-mcp-gate-report.json',
-  '.xtend-test-results/xtend-rmt-reference-docs-report.json',
-  '.xtend-test-results/xtend-rmt-demos-report.json',
-  '.xtend-test-results/xtend-rkfa-production-closure-report.json',
-  '.xtend-test-results/xtend-docs-stub-inventory-report.json',
-  '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json',
-  '.xtend-test-results/xtend-native-first-rmt-owned-release-report.json',
-  '.xtend-test-results/xtend-release-report.json',
-  '.xtend-test-results/xtend-pack-dry-run.json',
-  '.xtend-test-results/xtend-package-export-surface-lock.json',
-  '.xtend-test-results/xtend-package-export-lock-report.json',
-  '.xtend-test-results/xtend-pack-dry-run-xtendrmt.json',
-  '.xtend-test-results/xtend-pack-dry-run-fabric.json',
-  '.xtend-test-results/xtend-pack-dry-run-tools.json',
-  '.xtend-test-results/xtend-pack-dry-run-xtend-builder.json',
-  '.xtend-test-results/xtend-pack-dry-run-xtend-maraca.json',
-  '.xtend-test-results/xtend-pack-dry-run-xtend-mcp.json',
-  '.xtend-test-results/xtend-pack-dry-run-xsurface-shard.json',
-  '.xtend-test-results/xtend-maraca-gate-report.json',
-  '.xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json',
-  '.xtend-test-results/xtend-llm-app-services-catfood-report.json',
-  'products/xtend-llm/.xtend-llm-results/app-services-catfood.json',
-  '.xtend-test-results/xtend-maraca-app-services-test-bench-report.json',
-  'products/maraca-app-services-test-bench/.xtend-test-results/maraca-app-services-test-bench-evidence.json',
-  'products/maraca-app-services-test-bench/.xtend-test-results/maraca-app-services-test-bench.png',
-  '.xtend-test-results/xtend-xtensions-framework-adapters-report.json',
-  '.xtend-test-results/xtend-dev-surface-report.json',
-  '.xtend-test-results/xtend-docs-quality-report.json',
-  '.xtend-test-results/xtend-docs-shell-catfooding-report.json',
-  '.xtend-test-results/xtend-docs-framework-ownership-report.json',
-  '.xtend-test-results/xtend-xsurface-shard-report.json',
-  '.xtend-test-results/xtend-xscaler-protocol-report.json',
-  '.xtend-test-results/xtend-xscaler-public-api-report.json',
-  '.xtend-test-results/xtend-xscaler-php-preflight-parity-report.json',
-  '.xtend-test-results/xtend-rmt-xscaler-ssr-hydration-parity-report.json',
-  '.xtend-test-results/xtend-xscaler-source-to-sea-report.json',
-  '.xtend-build/maraca/source-to-sea/xtend.maraca.report.json',
-  '.xtend-build/maraca/source-to-sea/xtend.maraca.size.json'
-];
-
-const REQUIRED_ARTIFACTS = new Set([
-  '.xtend-test-results/xtend-release-gate-report.json',
-  '.xtend-test-results/xtend-mcp-gate-report.json',
-  '.xtend-test-results/xtend-rmt-reference-docs-report.json',
-  '.xtend-test-results/xtend-rmt-demos-report.json',
-  '.xtend-test-results/xtend-rkfa-production-closure-report.json',
-  '.xtend-test-results/xtend-docs-stub-inventory-report.json',
-  '.xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json',
-  '.xtend-test-results/xtend-native-first-rmt-owned-release-report.json',
-  '.xtend-test-results/xtend-release-report.json',
-  '.xtend-test-results/xtend-pack-dry-run.json',
-  '.xtend-test-results/xtend-package-export-surface-lock.json',
-  '.xtend-test-results/xtend-package-export-lock-report.json',
-  '.xtend-test-results/xtend-pack-dry-run-xtendrmt.json',
-  '.xtend-test-results/xtend-pack-dry-run-fabric.json',
-  '.xtend-test-results/xtend-pack-dry-run-tools.json',
-  '.xtend-test-results/xtend-pack-dry-run-xtend-builder.json',
-  '.xtend-test-results/xtend-pack-dry-run-xtend-maraca.json',
-  '.xtend-test-results/xtend-pack-dry-run-xtend-mcp.json',
-  '.xtend-test-results/xtend-pack-dry-run-xsurface-shard.json',
-  '.xtend-test-results/xtend-maraca-gate-report.json',
-  '.xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json',
-  '.xtend-test-results/xtend-llm-app-services-catfood-report.json',
-  'products/xtend-llm/.xtend-llm-results/app-services-catfood.json',
-  '.xtend-test-results/xtend-maraca-app-services-test-bench-report.json',
-  'products/maraca-app-services-test-bench/.xtend-test-results/maraca-app-services-test-bench-evidence.json',
-  'products/maraca-app-services-test-bench/.xtend-test-results/maraca-app-services-test-bench.png',
-  '.xtend-test-results/xtend-xtensions-framework-adapters-report.json',
-  '.xtend-test-results/xtend-dev-surface-report.json',
-  '.xtend-test-results/xtend-docs-quality-report.json',
-  '.xtend-test-results/xtend-docs-shell-catfooding-report.json',
-  '.xtend-test-results/xtend-docs-framework-ownership-report.json',
-  '.xtend-test-results/xtend-xsurface-shard-report.json',
-  '.xtend-test-results/xtend-xscaler-protocol-report.json',
-  '.xtend-test-results/xtend-xscaler-public-api-report.json',
-  '.xtend-test-results/xtend-xscaler-php-preflight-parity-report.json',
-  '.xtend-test-results/xtend-rmt-xscaler-ssr-hydration-parity-report.json',
-  '.xtend-test-results/xtend-xscaler-source-to-sea-report.json',
-  '.xtend-build/maraca/source-to-sea/xtend.maraca.report.json',
-  '.xtend-build/maraca/source-to-sea/xtend.maraca.size.json'
-]);
+const { catalog } = require('./test-runner/catalog');
+const { validateNightly, ACCEPTANCE_PATH, SESSION_PATH } = require('./test-runner/nightly-evidence');
+const { currentIdentity } = require('./test-runner/nightly');
+const { writeJsonReport } = require('../tests/utils/reporting');
+const COMMANDS = catalog.ci['ci-nightly'].manifestCommands;
+const ARTIFACT_PATHS = catalog.ci['ci-nightly'].artifacts.map(artifact => artifact.path);
+const REQUIRED_ARTIFACTS = new Set(ARTIFACT_PATHS);
 
 function readPackageManifest() {
   return JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package.json'), 'utf8'));
 }
 
 function commandVersion(command) {
-  const result = spawnSync(command, ['--version'], { encoding: 'utf8' });
+  const result = spawnSync(command, ['--version'], { encoding: 'utf8', timeout: 10000 });
   return result.status === 0 ? result.stdout.trim() : null;
 }
 
@@ -156,13 +42,10 @@ function artifactStatus(relativePath) {
   };
 }
 
-function createManifest() {
+function createManifest(options = {}) {
   const packageManifest = readPackageManifest();
   const artifacts = ARTIFACT_PATHS.map(artifactStatus);
-  const byPath = new Map(artifacts.map((artifact) => [artifact.path, artifact]));
-  const requiredArtifactsPresent = Array.from(REQUIRED_ARTIFACTS).every((artifactPath) => {
-    return Boolean(byPath.get(artifactPath) && byPath.get(artifactPath).exists);
-  });
+  const acceptance = options.acceptance || validateNightly();
 
   return {
     schema: 'xtend.ci.nightly-build-manifest.v1',
@@ -191,21 +74,30 @@ function createManifest() {
     },
     artifacts,
     requiredArtifacts: Array.from(REQUIRED_ARTIFACTS),
-    ok: requiredArtifactsPresent
+    ok: acceptance.ok
   };
 }
 
 function main() {
-  const manifest = createManifest();
-  fs.mkdirSync(RESULT_DIR, { recursive: true });
-  fs.writeFileSync(OUTPUT_PATH, `${JSON.stringify(manifest, null, 2)}\n`);
+  let session;
+  try { session = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, SESSION_PATH), 'utf8')); } catch {}
+  const acceptance = validateNightly({ provenance: currentIdentity(session) });
+  writeJsonReport(acceptance, ACCEPTANCE_PATH, ROOT_DIR);
+  const manifest = createManifest({ acceptance });
+  writeJsonReport(manifest, OUTPUT_PATH, ROOT_DIR);
+  if (process.env.GITHUB_OUTPUT) {
+    const outputs = Object.entries(acceptance.outputs).map(([key,value]) => `${key.replace(/[^a-zA-Z0-9_]/g, '_')}=${value}`);
+    outputs.push(`accepted=${acceptance.ok ? 'success' : 'failure'}`);
+    fs.appendFileSync(process.env.GITHUB_OUTPUT, `${outputs.join('\n')}\n`);
+  }
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    const phases = Object.entries(session?.phases || {}).map(([id,phase]) => `| ${id} | ${phase.status} | ${Math.round((phase.durationMs || 0) / 1000)} s |`);
+    const failures = acceptance.errors.map(error => `- ${error.replace(/\n/g, ' ')}`);
+    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Nightly acceptance: ${acceptance.ok ? 'passed' : 'failed'}\n\n| Phase | Result | Duration |\n| --- | --- | --- |\n${phases.join('\n')}\n\n${failures.join('\n')}\n\nFull command output, npm logs, suite logs and artifact fingerprints are in the nightly diagnostics artifact.\n`);
+  }
   console.log(`XTend nightly manifest written: ${path.relative(ROOT_DIR, OUTPUT_PATH)}`);
   if (!manifest.ok) {
-    const missingRequiredArtifacts = manifest.requiredArtifacts.filter((artifactPath) => {
-      const artifact = manifest.artifacts.find((entry) => entry.path === artifactPath);
-      return !artifact || !artifact.exists;
-    });
-    console.error(`XTend nightly manifest is incomplete; missing required artifacts: ${missingRequiredArtifacts.join(', ')}`);
+    console.error(`XTend nightly acceptance failed:\n${acceptance.errors.map(error => `- ${error}`).join('\n')}`);
     process.exitCode = 1;
   }
   return manifest;
@@ -216,6 +108,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  COMMANDS, ARTIFACT_PATHS, REQUIRED_ARTIFACTS,
   createManifest,
   main
 };

@@ -35,8 +35,8 @@ function runObservatoryAdoptionLabsSuite(options = {}) {
   const ermBrowserEvidence = readJson('tests/fixtures/native-first/observatory-erm-browser-evidence-chromium-151.json', rootDir);
   const terminalEvidence = readJson('tests/fixtures/native-first/observatory-browser-evidence-2026-09-03.json', rootDir);
   const labReport = readText('development/XTend-Observatory-Prototype-Lab-Report-2026-08-17.md', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   const nonModal = selectOverlayStrategy({ kind: 'popover', modal: false, capabilities: { popover: true, anchorPositioning: true } });
   const modal = selectOverlayStrategy({ kind: 'popover', modal: true, capabilities: { popover: true, anchorPositioning: true } });
@@ -138,7 +138,7 @@ function runObservatoryAdoptionLabsSuite(options = {}) {
   ['components/xtooltip.js', 'components/xpopover.js', 'components/xdialog.js', 'components/xsurfacewindow.js', 'options.customElements', 'JSPI', 'shadowrootslotassignment'].forEach((token) => {
     context.assertIncludes(labReport, token, `Lab report documents ${token}`);
   });
-  context.assertIncludes(runner, "id: 'observatory-adoption-labs'", 'Runner registers Observatory adoption labs');
+  context.assert(runner.hasSuite("observatory-adoption-labs"), 'Runner registers Observatory adoption labs');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:observatory-adoption-labs'] === 'node scripts/run_xtend_tests.js observatory-adoption-labs', 'Package exposes Observatory adoption lab gate');
 
   return context.result({

@@ -33,7 +33,7 @@ function runSupplyChainPolicySuite(options = {}) {
     id: 'supply-chain',
     label: 'XTend Supply-Chain policy gates'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageLock = readJson('package-lock.json', rootDir);
   const policySource = readText('security/supply-chain-gate-policy.js', rootDir);
   const verifySource = readText('scripts/verify_supply_chain_policy.js', rootDir);
@@ -127,8 +127,8 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(report.checks.length >= 10, 'Verify script performs multiple supply-chain checks');
   context.assert(dependencyLockReport.schema === CI_DEPENDENCY_LOCK_REPORT_SCHEMA, 'CI dependency lock verifier returns its stable report schema');
   context.assert(dependencyLockReport.ok === true, 'CI dependency locks align with all local file dependencies');
-  context.assert(dependencyLockReport.products.length === 2, 'CI dependency lock verifier covers both standalone product installs');
-  context.assert(dependencyLockReport.products.reduce((sum, product) => sum + product.fileDependencies, 0) === 9, 'CI dependency lock verifier checks all nine local package references');
+  context.assert(dependencyLockReport.products.length === 3 && dependencyLockReport.products[0].productPath === '.', 'CI dependency lock verifier covers the workspace and both standalone product installs');
+  context.assert(dependencyLockReport.products.reduce((sum, product) => sum + product.fileDependencies, 0) === 18, 'CI dependency lock verifier checks nine workspace links and nine product references');
 
   return context.result({
     plan,

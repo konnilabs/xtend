@@ -195,7 +195,7 @@ function runMotionContrastSuite(options = {}) {
   context.assert(typesFile.content.includes('MotionContrastPolicy'), 'Generated types include Motion/Contrast policy type');
   context.assert(manifestPlan.motionContrastPolicy.schema === MOTION_CONTRAST_POLICY_SCHEMA, 'Generated manifest plan exposes motionContrastPolicy contract');
 
-  const packageJson = readJson('package.json', rootDir);
+  const packageJson = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const motionContrastExport = packageJson.exports['./a11y/motion-contrast-policy'];
   context.assert((typeof motionContrastExport === 'string' ? motionContrastExport : motionContrastExport.default) === './a11y/motion-contrast-policy.js', 'Package exports Motion/Contrast policy module');
   context.assert(packageJson.scripts['test:motion-contrast'] === 'node scripts/run_xtend_tests.js motion-contrast', 'Package exposes Motion/Contrast suite script');

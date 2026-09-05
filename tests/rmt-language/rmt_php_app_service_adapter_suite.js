@@ -326,9 +326,9 @@ function runRmtPhpAppServiceAdapterSuite(options = {}) {
     id: 'rmt-php-app-service-adapter',
     label: 'RMT PHP AppService Adapter'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const workspaceManifest = readJson('xtendrmt/package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const adapterSource = readText(RMT_PHP_APP_SERVICE_ADAPTER_PATH, rootDir);
   const manifest = createManifest();
   const invalidIdBase = {
@@ -359,8 +359,8 @@ function runRmtPhpAppServiceAdapterSuite(options = {}) {
 
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtPhpAppServiceAdapter;
   context.assert(packageManifest.scripts['test:rmt-php-app-service-adapter'] === 'node scripts/run_xtend_tests.js rmt-php-app-service-adapter', 'root package exposes PHP AppService adapter test script');
-  context.assert(runner.includes("id: 'rmt-php-app-service-adapter'"), 'test runner registers PHP AppService adapter suite');
-  context.assert(!runner.match(/id: 'rmt-php-app-service-adapter'[\s\S]{0,320}defaultIncluded: false/u), 'PHP AppService adapter is included in the default runner gate');
+  context.assert(runner.hasSuite("rmt-php-app-service-adapter"), 'test runner registers PHP AppService adapter suite');
+  context.assert(require('../../scripts/test-runner/catalog').select().some(suite => suite.id === 'rmt-php-app-service-adapter'), 'PHP AppService adapter is included in the default runner gate');
   context.assert(metadata && metadata.schema === RMT_PHP_APP_SERVICE_ADAPTER_SCHEMA, 'root metadata records PHP AppService adapter schema');
   context.assert(metadata && metadata.manifestSchema === MARACA_APP_SERVICE_MANIFEST_SCHEMA, 'root metadata records shared service manifest schema');
   context.assert(metadata && metadata.requestSchema === MARACA_APP_SERVICE_REQUEST_SCHEMA && metadata.responseSchema === MARACA_APP_SERVICE_RESPONSE_SCHEMA, 'root metadata records shared invoke wire schemas');

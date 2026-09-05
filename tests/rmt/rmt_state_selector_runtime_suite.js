@@ -802,8 +802,8 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
   const workpackageDoc = readText(RMT_STATE_SELECTOR_RUNTIME_WORKPACKAGE_DOC, rootDir);
   const backlog = readText('development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md', rootDir);
   const epic = readText('development/docs-evidence/root/epic18-media-manager-vendor-upstream.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const runtimeSource = readText(RMT_STATE_SELECTOR_RUNTIME_RUNTIME, rootDir);
   const compatibilitySource = readText('xtendrmt/rmt-state-selector-runtime.compat.js', rootDir);
   const stateHostAdapterSource = readText('xtendrmt/rmt-state-host-adapter.js', rootDir);
@@ -955,8 +955,8 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
   );
   context.assert(epic.includes('| `WP-E18-07` | P0 | completed'), 'Epic marks WP-E18-07 completed');
   context.assert(epic.includes('rmt-state-selector-runtime'), 'Epic gate chain includes state selector runtime gate');
-  context.assert(runner.includes("require('../tests/rmt/rmt_state_selector_runtime_suite')"), 'Runner imports state selector runtime suite');
-  context.assert(runner.includes("id: 'rmt-state-selector-runtime'"), 'Runner registers state selector runtime suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/rmt_state_selector_runtime_suite.js" }), 'Runner imports state selector runtime suite');
+  context.assert(runner.hasSuite("rmt-state-selector-runtime"), 'Runner registers state selector runtime suite');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:rmt-state-selector-runtime'] === 'node scripts/run_xtend_tests.js rmt-state-selector-runtime', 'Package exposes state selector runtime script');
   context.assert(packageManifest.exports && packageManifest.exports['./rmt/state-selector-runtime'], 'Package exports state selector runtime');
   context.assert(packageManifest.exports && packageManifest.exports['./rmt/state-host-adapter'], 'Package exports the State host adapter');

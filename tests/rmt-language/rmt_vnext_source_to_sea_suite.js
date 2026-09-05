@@ -124,7 +124,7 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   const cleanupKindInvalidSource = readText(SOURCE_TO_SEA_CLEANUP_KIND_INVALID_FIXTURE_PATH, rootDir);
   const browserFixture = readText(RMT_VNEXT_SOURCE_TO_SEA_BROWSER_FIXTURE_PATH, rootDir);
   const crossRouteInvalidBrowserFixture = readText(SOURCE_TO_SEA_CROSS_ROUTE_INVALID_BROWSER_FIXTURE_PATH, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const workflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
   const packageManifest = JSON.parse(readText('package.json', rootDir));
   const evidence = createRmtVNextSourceToSeaEvidence({
@@ -569,7 +569,7 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   }
   context.assert(evidence.correlation.map((entry) => entry.layer).join('>') === 'source>compiler>kernel>fabric>ui>browser', 'correlation spans source to browser');
   context.assert(evidence.fabric.bridge.correlation.map((entry) => entry.layer).join('>') === 'source>kernel.schedule>kernel.fiber>fabric.mapping>fabric.fiber>host.adapter>component.fibers>route.fibers>fabric.telemetry>browser', 'fabric bridge correlation spans source to host adapter, route/component fibers and Fabric telemetry');
-  context.assert(runner.includes("id: 'rmt-vnext-source-to-sea'"), 'test runner exposes PRIM-06 source-to-sea suite');
+  context.assert(runner.hasSuite("rmt-vnext-source-to-sea"), 'test runner exposes PRIM-06 source-to-sea suite');
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:evidence'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js', 'package exposes source-to-sea evidence artifact script');
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:browser-required'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --require-browser', 'package exposes source-to-sea browser-required evidence script');
   context.assert(packageManifest.scripts['test:rmt-vnext-source-to-sea:chromium'] === 'node scripts/capture_rmt_vnext_source_to_sea_evidence.js --engine chromium', 'package exposes source-to-sea Chromium Hypervisor script');
@@ -587,7 +587,7 @@ async function runRmtVNextSourceToSeaSuite(options = {}) {
   context.assert(Array.isArray(RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS) && RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS.includes('firefox') && RMT_VNEXT_SOURCE_TO_SEA_SUPPORTED_BROWSER_DRIVERS.includes('webkit'), 'source-to-sea module exposes engine-neutral adapter support');
   context.assert(workflow.includes('run_source_to_sea:'), 'CI workflow exposes optional source-to-sea dispatch input');
   context.assert(workflow.includes("github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true"), 'CI workflow gates source-to-sea execution behind manual dispatch input');
-  context.assert(workflow.includes('npm run test:rmt-vnext-source-to-sea:chromium'), 'CI workflow exposes optional source-to-sea Hypervisor execution');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "test:rmt-vnext-source-to-sea:chromium"), 'CI workflow exposes optional source-to-sea Hypervisor execution');
   context.assert(workflow.includes('- name: Capture RMT vNext source-to-sea browser evidence'), 'CI workflow keeps optional source-to-sea capture step');
   context.assert(workflow.includes('xtend-rmt-vnext-source-to-sea-capture.exitcode'), 'CI workflow records source-to-sea capture exit status');
   context.assert(workflow.includes('rm -f .xtend-test-results/xtend-rmt-vnext-source-to-sea-evidence.json'), 'CI workflow removes stale source-to-sea artifacts before capture');

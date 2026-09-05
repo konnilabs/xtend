@@ -104,7 +104,7 @@ function runPlanChecks(context, plan, report) {
 }
 
 function runPackageChecks(context, rootDir, plan) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic14LspHandoff;
 
   context.assert((packageManifest.exports['./catalog/epic14-lsp-handoff'] === './catalog/epic14-lsp-handoff.js' || (packageManifest.exports['./catalog/epic14-lsp-handoff'] && packageManifest.exports['./catalog/epic14-lsp-handoff'].default === './catalog/epic14-lsp-handoff.js')), 'Package exports Epic 14 LSP handoff module');
@@ -136,7 +136,7 @@ function reportPlanned(plan) {
 }
 
 function runDocumentationChecks(context, rootDir) {
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffold = readText(SCAFFOLD_CONFIG_PATH, rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
@@ -145,8 +145,8 @@ function runDocumentationChecks(context, rootDir) {
   const workpackage = readText(EPIC14_LSP_HANDOFF_WORKPACKAGE_DOC, rootDir);
   const languageServerDocs = readText(EPIC14_LSP_HANDOFF_DOCS, rootDir);
 
-  context.assertIncludes(runner, "id: 'epic14-lsp-handoff'", 'Runner registers Epic 14 LSP handoff suite');
-  context.assertIncludes(runner, 'node scripts/run_xtend_tests.js epic14-lsp-handoff', 'Runner help references Epic 14 LSP handoff suite');
+  context.assert(runner.hasSuite("epic14-lsp-handoff"), 'Runner registers Epic 14 LSP handoff suite');
+  context.assert(runner.hasSuite("epic14-lsp-handoff"), 'Runner help references Epic 14 LSP handoff suite');
   context.assertIncludes(scaffold, 'epic14LspHandoff', 'Scaffold config exposes Epic 14 LSP handoff metadata');
   context.assertIncludes(scaffold, EPIC14_LSP_HANDOFF_SCHEMA, 'Scaffold config declares LSP handoff schema');
   context.assertIncludes(epic, '- Status: Completed', 'Epic 14 is completed');

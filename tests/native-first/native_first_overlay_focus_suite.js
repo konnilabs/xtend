@@ -76,8 +76,8 @@ function runNativeFirstOverlayFocusSuite(options = {}) {
   const capabilityMatrix = readText('development/XTend-Native-First-UI-Primitive-Capability-Matrix.md', rootDir);
   const radar = readText('development/XTend-Native-First-Browser-Primitive-Radar.md', rootDir);
   const adoptionGate = readText('development/XTend-Native-Primitive-Adoption-Gate-Contract.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const componentManifest = readJson('components/manifest.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstOverlayFocusHardening;
 
@@ -160,8 +160,8 @@ function runNativeFirstOverlayFocusSuite(options = {}) {
 
   const packageScripts = packageManifest.scripts || {};
   context.assert(packageScripts['test:native-first-overlay-focus'] === 'node scripts/run_xtend_tests.js native-first-overlay-focus', 'Package exposes native-first overlay focus test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_overlay_focus_suite')", 'Runner imports native-first overlay focus suite');
-  context.assertIncludes(runner, "id: 'native-first-overlay-focus'", 'Runner registers native-first overlay focus suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_overlay_focus_suite.js" }), 'Runner imports native-first overlay focus suite');
+  context.assert(runner.hasSuite("native-first-overlay-focus"), 'Runner registers native-first overlay focus suite');
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-07 contract schema');
   context.assert(metadata && metadata.matrix === 'development/XTend-Native-First-Overlay-Focus-Hardening-Matrix.md', 'Package metadata exposes WP-07 matrix');

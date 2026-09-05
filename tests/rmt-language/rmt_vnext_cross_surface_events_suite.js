@@ -119,9 +119,9 @@ function runRmtVNextCrossSurfaceEventsSuite(options = {}) {
     id: 'rmt-vnext-cross-surface-events',
     label: 'Epic 16 RMT vNext Cross Surface Event Protocol'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextCrossSurfaceEvents;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_16_PATH, rootDir);
   const contract = readText(RMT_VNEXT_CROSS_SURFACE_EVENT_CONTRACT_PATH, rootDir);
   const workpackage = readText(RMT_VNEXT_CROSS_SURFACE_EVENT_WP_PATH, rootDir);
@@ -152,8 +152,8 @@ function runRmtVNextCrossSurfaceEventsSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_CROSS_SURFACE_EVENT_PACKAGE_SCRIPT, 'package metadata declares cross surface event package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-cross-surface-events'] === 'string' ? packageManifest.exports['./rmt-language/vnext-cross-surface-events'] : packageManifest.exports['./rmt-language/vnext-cross-surface-events'] && packageManifest.exports['./rmt-language/vnext-cross-surface-events'].default) === './tools/rmt-language/vnext-cross-surface-events.js', 'package exports vNext cross surface events contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-cross-surface-events'] === 'node scripts/run_xtend_tests.js rmt-vnext-cross-surface-events', 'package exposes vNext cross surface events script');
-  context.assert(runner.includes("id: 'rmt-vnext-cross-surface-events'"), 'test runner exposes rmt-vnext-cross-surface-events suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-cross-surface-events'), 'runner help references cross surface events gate');
+  context.assert(runner.hasSuite("rmt-vnext-cross-surface-events"), 'test runner exposes rmt-vnext-cross-surface-events suite');
+  context.assert(runner.hasSuite("rmt-vnext-cross-surface-events"), 'runner help references cross surface events gate');
   context.assert(epic.includes('- Status: `completed / Epic 16 Enterprise MFE Release Handoff accepted`'), 'Epic records current E16 accepted status');
   context.assert(epic.includes('| `WP-E16-06` | P1 | completed | WS3 |'), 'Epic marks WP-E16-06 completed');
   context.assert(epic.includes('| `WP-E16-07` | P1 | completed | WS3 |'), 'Epic marks WP-E16-07 completed');

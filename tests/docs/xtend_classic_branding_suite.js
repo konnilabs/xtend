@@ -43,7 +43,7 @@ function runXtendClassicBrandingSuite(options = {}) {
     id: 'xtend-classic-branding',
     label: 'XTend Classic product branding'
   });
-  const packageManifest = JSON.parse(readText(rootDir, 'package.json'));
+  const packageManifest = require('../utils/test-catalog').resolveManifestProfiles(JSON.parse(readText(rootDir, 'package.json')));
   const menu = JSON.parse(readText(rootDir, 'docs/menu.json'));
   const classicMenu = menu.find((entry) => entry.slug === 'xtend-classic');
   const englishGuide = readText(rootDir, GUIDE_PATHS[0]);

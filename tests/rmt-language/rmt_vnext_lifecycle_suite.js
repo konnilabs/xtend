@@ -78,9 +78,9 @@ function runRmtVNextLifecycleSuite(options = {}) {
     id: 'rmt-vnext-lifecycle',
     label: 'Epic 15 RMT vNext Lifecycle Operation Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextLifecycle;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
   const lifecycleContract = readText(LIFECYCLE_CONTRACT_PATH, rootDir);
   const lifecycleSyntax = syntaxCheckFile(RMT_VNEXT_LIFECYCLE_MODULE_PATH, { rootDir, extension: '.js' });
@@ -104,7 +104,7 @@ function runRmtVNextLifecycleSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_LIFECYCLE_PACKAGE_SCRIPT, 'package metadata declares lifecycle package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-lifecycle'] === 'string' ? packageManifest.exports['./rmt-language/vnext-lifecycle'] : packageManifest.exports['./rmt-language/vnext-lifecycle'] && packageManifest.exports['./rmt-language/vnext-lifecycle'].default) === './tools/rmt-language/vnext-lifecycle.js', 'package exports vNext lifecycle contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-lifecycle'] === 'node scripts/run_xtend_tests.js rmt-vnext-lifecycle', 'package exposes vNext lifecycle script');
-  context.assert(runner.includes("id: 'rmt-vnext-lifecycle'"), 'test runner exposes rmt-vnext-lifecycle suite');
+  context.assert(runner.hasSuite("rmt-vnext-lifecycle"), 'test runner exposes rmt-vnext-lifecycle suite');
   context.assert(epic.includes('| `WP-E15-06` | P1 | completed | WS2 |'), 'Epic marks WP-E15-06 completed');
   context.assert(epic.includes('| `WP-E15-10` | P1 | completed | WS3 |'), 'Epic records WP-E15-10 after lifecycle handoff');
   context.assert(lifecycleContract.includes('schema: "xtend.rmt.vnext-lifecycle.v1"'), 'Lifecycle contract document declares schema');

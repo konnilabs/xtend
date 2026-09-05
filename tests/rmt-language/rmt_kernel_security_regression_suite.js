@@ -587,9 +587,9 @@ function runRmtKernelSecurityRegressionSuite(options = {}) {
     id: 'rmt-kernel-security-regression',
     label: 'RKSH-WP-09 Kernel Security Regression'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtKernelSecurityRegression;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const declarations = readText(DECLARATION_PATH, rootDir);
   const catalog = readText(TYPE_EXPORTS_RMT_CATALOG, rootDir);
   const backlog = readText(RMT_KERNEL_SECURITY_BACKLOG, rootDir);
@@ -687,8 +687,8 @@ function runRmtKernelSecurityRegressionSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_KERNEL_SECURITY_REGRESSION_PACKAGE_SCRIPT, 'package metadata exposes package script');
   context.assert(metadata && metadata.diagnosticsChannel === RMT_KERNEL_SECURITY_REGRESSION_DIAGNOSTIC_CHANNEL, 'package metadata exposes diagnostics channel');
   context.assert(metadata && Array.isArray(metadata.artifacts) && metadata.artifacts.includes(RMT_KERNEL_SECURITY_REGRESSION_BROWSER_SMOKE_PATH), 'package metadata includes browser smoke artifact');
-  context.assertIncludes(runner, "id: 'rmt-kernel-security-regression'", 'runner registers security regression suite');
-  context.assertIncludes(runner, 'runRmtKernelSecurityRegressionSuite', 'runner imports security regression suite');
+  context.assert(runner.hasSuite("rmt-kernel-security-regression"), 'runner registers security regression suite');
+  context.assert(runner.hasImplementation({ function: "runRmtKernelSecurityRegressionSuite" }), 'runner imports security regression suite');
 
   assertTextIncludesAll(context, browserSmoke, [
     RMT_KERNEL_SECURITY_REGRESSION_BROWSER_SMOKE_SCHEMA,

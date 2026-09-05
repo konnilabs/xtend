@@ -18,7 +18,7 @@ const {
   validateEvidence
 } = require('../../tools/browser-hypervisor');
 
-function runBrowserHypervisorSuite(options = {}) {
+async function runBrowserHypervisorSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({ id: 'browser-hypervisor', label: 'XTend Browser Hypervisor' });
   const hypervisorSource = readText('tools/browser-hypervisor/index.js', rootDir);
@@ -58,7 +58,7 @@ function runBrowserHypervisorSuite(options = {}) {
   context.assert(mergeEvidence(stale, { runId: 'NFM-OBS-2026-09-03' }).status === 'failed', 'Matrix rejects mismatched harness hashes');
   context.assert(validateEvidence({ ...items[0], status: 'residual' }).includes('evidence status is not terminal'), 'Hypervisor rejects infrastructure residual as evidence');
   context.assert(path.basename(require.resolve('../../tools/browser-hypervisor')) === 'index.js', 'Consumers resolve one shared Hypervisor module');
-  ['/session/${sessionId}/actions', '/session/${sessionId}/screenshot', '/session/${sessionId}/window/rect', 'Browser fixture did not publish', 'stopDriver(child)'].forEach((token) => {
+  ['/session/${sessionId}/actions', '/session/${sessionId}/screenshot', '/session/${sessionId}/window/rect', 'Browser fixture did not publish', 'stopDriver(child,'].forEach((token) => {
     context.assertIncludes(hypervisorSource, token, `Hypervisor owns ${token}`);
   });
   [
@@ -89,6 +89,7 @@ function runBrowserHypervisorSuite(options = {}) {
     context.assert(!rmtCaptureSource.includes(token), `RMT capture wrapper has no consumer-owned ${token} browser path`);
   });
 
+  await require('./browser_hypervisor_transport_checks').runTransportChecks(context);
   return context.result({ report: {
     schema: BROWSER_HYPERVISOR_MATRIX_SCHEMA,
     status: 'passed',

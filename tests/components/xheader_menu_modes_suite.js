@@ -81,7 +81,7 @@ function runXHeaderMenuModesSuite(options = {}) {
   const docs = readText('docs/components/xheader.md', rootDir);
   const fixture = readText('tests/components/fixtures/xheader.component.html', rootDir);
   const browserFixture = readText('tests/browser/fixtures/xheader-menu-modes-smoke.html', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const packageJson = readText('package.json', rootDir);
   const backlog = readText('development/XTend-Enterprise-Component-Flexibilitaets-und-Theme-Hardening-Backlog.md', rootDir);
   const syntax = syntaxCheckFile('components/xheader.js', { rootDir, extension: '.js' });
@@ -135,7 +135,7 @@ function runXHeaderMenuModesSuite(options = {}) {
   context.assert(browserFixture.includes('snapshot()'), 'x-header browser fixture checks snapshots');
   assertIncludesAll(context, browserFixture, ['title-attribute-fallback', 'title-slot-override', 'attributeFallbackPlainText', 'slotAuthoritative'], 'x-header browser fixture covers safe attribute fallback and slot precedence');
 
-  context.assert(runner.includes('xheader-menu-modes'), 'Runner exposes xheader-menu-modes suite');
+  context.assert(runner.hasSuite("xheader-menu-modes"), 'Runner exposes xheader-menu-modes suite');
   context.assert(packageJson.includes('"test:xheader-menu-modes"'), 'package.json exposes xheader-menu-modes script');
   context.assert(backlog.includes('| `ECH-WP-05` | P0 | completed |'), 'Backlog marks ECH-WP-05 completed');
 

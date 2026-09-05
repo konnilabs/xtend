@@ -42,8 +42,8 @@ function runEnterpriseLayoutDisplayMediaTokenizationSuite(options = {}) {
     id: 'enterprise-layout-display-media-tokenization',
     label: 'ECH-WP-07 Enterprise Layout Display/Media Tokenization'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const moduleSource = readText(LAYOUT_TOKENIZATION_MODULE_PATH, rootDir);
   const suiteSource = readText(LAYOUT_TOKENIZATION_SUITE_PATH, rootDir);
@@ -110,8 +110,8 @@ function runEnterpriseLayoutDisplayMediaTokenizationSuite(options = {}) {
   context.assertIncludes(suiteSource, 'ENTERPRISE_LAYOUT_DISPLAY_MEDIA_TOKENIZATION_REPORT_SCHEMA', 'Layout tokenization suite declares report schema');
   context.assertIncludes(backlog, '| `ECH-WP-07` | P1 | completed |', 'Backlog marks ECH-WP-07 completed');
   context.assertIncludes(backlog, ENTERPRISE_LAYOUT_DISPLAY_MEDIA_TOKENIZATION_LOCAL_GATE, 'Backlog exposes Layout tokenization local gate');
-  context.assertIncludes(runner, "id: 'enterprise-layout-display-media-tokenization'", 'Runner exposes Layout tokenization suite');
-  context.assertIncludes(runner, 'runEnterpriseLayoutDisplayMediaTokenizationSuite', 'Runner imports Layout tokenization suite');
+  context.assert(runner.hasSuite("enterprise-layout-display-media-tokenization"), 'Runner exposes Layout tokenization suite');
+  context.assert(runner.hasImplementation({ function: "runEnterpriseLayoutDisplayMediaTokenizationSuite" }), 'Runner imports Layout tokenization suite');
   context.assert(packageManifest.scripts['test:enterprise-layout-display-media-tokenization'] === 'node scripts/run_xtend_tests.js enterprise-layout-display-media-tokenization', 'Package exposes Layout tokenization script');
 
   return context.result({

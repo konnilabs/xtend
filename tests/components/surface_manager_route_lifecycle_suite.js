@@ -70,9 +70,9 @@ function runSurfaceManagerRouteLifecycleSuite(options = {}) {
   const docs = readText(SURFACE_MANAGER_ROUTE_LIFECYCLE_DOCS, rootDir);
   const backlog = readText(SURFACE_MANAGER_ROUTE_LIFECYCLE_BACKLOG, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_ROUTE_LIFECYCLE_WORKPACKAGE_DOC, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerRouteLifecycle;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const rmtCore = readText('xtendrmt/rmt-core.esm.js', rootDir);
   const rmtRuntime = readText('xtendrmt/rmt-runtime.esm.js', rootDir);
   const rmtBrowser = readText('xtendrmt/rmt-runtime.browser.js', rootDir);
@@ -201,8 +201,8 @@ function runSurfaceManagerRouteLifecycleSuite(options = {}) {
   context.assert(metadata && metadata.surfaceManagerOwnsSurfaceLifecycle === true, 'Package metadata keeps SurfaceManager as lifecycle owner');
   context.assert(metadata && metadata.createsSecondRegistry === false, 'Package metadata keeps no-second-registry boundary');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-route-lifecycle'] === 'node scripts/run_xtend_tests.js surface-route-lifecycle', 'Package script test:surface-route-lifecycle exists');
-  context.assertIncludes(runner, "require('../tests/components/surface_manager_route_lifecycle_suite')", 'Runner imports surface route lifecycle suite');
-  context.assertIncludes(runner, "id: 'surface-route-lifecycle'", 'Runner registers surface route lifecycle suite');
+  context.assert(runner.hasImplementation({ path: "tests/components/surface_manager_route_lifecycle_suite.js" }), 'Runner imports surface route lifecycle suite');
+  context.assert(runner.hasSuite("surface-route-lifecycle"), 'Runner registers surface route lifecycle suite');
 
   assertTextIncludesAll(context, backlog, [
     '`WP-SM-14` | P1 | completed',

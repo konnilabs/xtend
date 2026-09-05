@@ -151,9 +151,9 @@ function runFormControlsUxSuite(options = {}) {
     tests: { assertions: [] }
   });
   const fixture = readJson(FORM_CONTROLS_UX_FIXTURE, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const contractDoc = readText(FORM_CONTROLS_UX_CONTRACT_DOC, rootDir);
   const workpackage = readText('development/WP-E11-08-Form-Controls-UX-Reife-umsetzen.md', rootDir);
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
@@ -242,7 +242,7 @@ function runFormControlsUxSuite(options = {}) {
   context.assert(metadata.kernelBoundary === KERNEL_BOUNDARY, 'Package metadata preserves RMT kernel boundary');
   context.assertIncludes(scaffoldConfig, 'formControlsUxMaturity', 'Scaffold config exposes Form Controls UX section');
   context.assertIncludes(scaffoldConfig, FORM_CONTROLS_UX_SCHEMA, 'Scaffold config declares Form Controls UX schema');
-  context.assertIncludes(runner, "id: 'form-controls-ux'", 'Runner exposes Form Controls UX suite');
+  context.assert(runner.hasSuite("form-controls-ux"), 'Runner exposes Form Controls UX suite');
   context.assertIncludes(contractDoc, FORM_CONTROLS_UX_SCHEMA, 'Contract document declares Form Controls UX schema');
   context.assertIncludes(contractDoc, '`xtendFormControlUxProfile`', 'Contract document describes runtime profile');
   context.assertIncludes(workpackage, 'xtend.epic11.wp08.form-controls-ux.v1', 'WP-E11-08 document declares schema');

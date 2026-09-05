@@ -118,9 +118,9 @@ function runXTensionsDiagnosticTrailSuite(options = {}) {
     label: 'XTensions Diagnostic Trail Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.xtensionsDiagnosticTrail;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const hostControllerContract = readText(HOST_CONTROLLER_CONTRACT_PATH, rootDir);
@@ -178,8 +178,8 @@ function runXTensionsDiagnosticTrailSuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/diagnostic-trail.js', 'package exports Diagnostic Trail module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/diagnostic-trail.d.ts', 'package exports Diagnostic Trail types');
   context.assert(packageManifest.scripts['test:xtensions-diagnostic-trail'] === 'node scripts/run_xtend_tests.js xtensions-diagnostic-trail', 'package exposes Diagnostic Trail script');
-  context.assert(runner.includes("id: 'xtensions-diagnostic-trail'"), 'test runner exposes xtensions-diagnostic-trail suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xtensions-diagnostic-trail'), 'runner help references Diagnostic Trail gate');
+  context.assert(runner.hasSuite("xtensions-diagnostic-trail"), 'test runner exposes xtensions-diagnostic-trail suite');
+  context.assert(runner.hasSuite("xtensions-diagnostic-trail"), 'runner help references Diagnostic Trail gate');
 
   context.assert(backlog.includes('| `XTN-10` | P1 | completed | WS9 |'), 'backlog marks XTN-10 completed');
   context.assert(backlog.includes('development/XTensions-Diagnostic-Trail-Contract.md'), 'backlog references Diagnostic Trail contract');

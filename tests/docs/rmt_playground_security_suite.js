@@ -111,8 +111,8 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
     id: 'rmt-playground-security',
     label: 'RMT Playground Security'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const indexPhp = readText('docs/index.php', rootDir);
   const pageLoader = readText('docs/utils/page/route-controller.mjs', rootDir);
   const lspBridge = readText('scripts/rmt_playground_lsp_bridge.js', rootDir);
@@ -257,7 +257,7 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
 
   context.assert(packageManifest.scripts['test:rmt-playground-security'] === 'node scripts/run_xtend_tests.js rmt-playground-security', 'package exposes rmt-playground-security script');
   context.assert(packageManifest.xtend && packageManifest.xtend.rmtPlaygroundSecurity && packageManifest.xtend.rmtPlaygroundSecurity.schema === RMT_PLAYGROUND_SECURITY_SCHEMA, 'package metadata records RMT playground security schema');
-  context.assert(runner.includes("id: 'rmt-playground-security'"), 'test runner exposes rmt-playground-security suite');
+  context.assert(runner.hasSuite("rmt-playground-security"), 'test runner exposes rmt-playground-security suite');
 
   return context.result({
     report: {

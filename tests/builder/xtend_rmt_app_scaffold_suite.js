@@ -18,7 +18,7 @@ function runXtendRmtAppScaffoldSuite() {
   });
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-rmt-app-scaffold-'));
   try {
-    const rootManifest = require('../../package.json');
+    const rootManifest = require('../utils/test-catalog').resolveManifestProfiles(require('../../package.json'));
     const gateMatrix = rootManifest.xtend && rootManifest.xtend.ciGateMatrix;
     assert.match(rootManifest.scripts['test:maraca-app-services'], /xtend-rmt-app-scaffold.*xtend-material-scaffold/u);
     assert.equal(gateMatrix.prFastGate.suites.includes('xtend-rmt-app-scaffold') && gateMatrix.prFastGate.suites.includes('xtend-material-scaffold'), true);

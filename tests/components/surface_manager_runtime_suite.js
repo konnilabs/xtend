@@ -77,10 +77,10 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
   const validation = validateSurfaceManagerWindowRuntimePlan(plan);
   const report = createSurfaceManagerWindowRuntimeReport({ rootDir, plan });
   const manifest = readJson('components/manifest.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerWindowRuntime;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const managerRuntime = readText('components/xsurfacemanager.js', rootDir);
   const windowRuntime = readText('components/xsurfacewindow.js', rootDir);
   const managerTypes = readText('components/xsurfacemanager.d.ts', rootDir);
@@ -306,8 +306,8 @@ function runSurfaceManagerRuntimeSuite(options = {}) {
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-manager'] === 'node scripts/run_xtend_tests.js surface-manager', 'Package script test:surface-manager exists');
   context.assertIncludes(scaffoldConfig, 'surfaceManagerWindowRuntime', 'Scaffold config exposes surfaceManagerWindowRuntime');
   context.assertIncludes(scaffoldConfig, 'components/xsurfacemanager.js', 'Scaffold config references x-surface-manager runtime');
-  context.assertIncludes(runner, "require('../tests/components/surface_manager_runtime_suite')", 'Runner imports SurfaceManager runtime suite');
-  context.assertIncludes(runner, "id: 'surface-manager'", 'Runner registers surface-manager suite');
+  context.assert(runner.hasImplementation({ path: "tests/components/surface_manager_runtime_suite.js" }), 'Runner imports SurfaceManager runtime suite');
+  context.assert(runner.hasSuite("surface-manager"), 'Runner registers surface-manager suite');
   context.assertIncludes(docsReadme, '[SurfaceManager Runtime](./surface-manager-runtime.md)', 'Docs README links the SurfaceManager runtime learning path');
   context.assertIncludes(docsMenu, 'surface-manager-window-runtime', 'Docs menu contains SurfaceManager runtime page');
   context.assertIncludes(referenceRegistry, 'WP-SM-03', 'Reference registry contains WP-SM-03');

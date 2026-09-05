@@ -698,8 +698,8 @@ async function runRmtSurfaceResourceGraphRuntimeSuite(options = {}) {
   const workpackageDoc = readText(RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_WORKPACKAGE_DOC, rootDir);
   const backlog = readText('development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md', rootDir);
   const epic = readText('development/docs-evidence/root/epic18-media-manager-vendor-upstream.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const xtendrmtPackage = readJson('xtendrmt/package.json', rootDir);
   const runtimeSource = readText(RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_RUNTIME, rootDir);
   const typeSource = readText(RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_TYPES, rootDir);
@@ -808,8 +808,8 @@ async function runRmtSurfaceResourceGraphRuntimeSuite(options = {}) {
   context.assert(backlog.includes('| `WP-E18-13` | P2 | completed'), 'Backlog marks WP-E18-13 completed after release handoff gate');
   context.assert(epic.includes('| `WP-E18-10` | P1 | completed'), 'Epic marks WP-E18-10 completed');
   context.assert(epic.includes('rmt-surface-resource-graph-runtime'), 'Epic gate chain includes surface graph runtime gate');
-  context.assert(runner.includes("require('../tests/rmt/rmt_surface_resource_graph_runtime_suite')"), 'Runner imports surface graph runtime suite');
-  context.assert(runner.includes("id: 'rmt-surface-resource-graph-runtime'"), 'Runner registers surface graph runtime suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/rmt_surface_resource_graph_runtime_suite.js" }), 'Runner imports surface graph runtime suite');
+  context.assert(runner.hasSuite("rmt-surface-resource-graph-runtime"), 'Runner registers surface graph runtime suite');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:rmt-surface-resource-graph-runtime'] === 'node scripts/run_xtend_tests.js rmt-surface-resource-graph-runtime', 'Package exposes surface graph runtime script');
   context.assert(packageManifest.exports && packageManifest.exports['./rmt/surface-resource-graph-runtime'], 'Package exports surface graph runtime');
   context.assert(xtendrmtPackage.exports && xtendrmtPackage.exports['./surface-resource-graph-runtime'], 'XTendRMT package exports surface graph runtime');

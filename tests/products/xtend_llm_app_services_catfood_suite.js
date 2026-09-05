@@ -44,14 +44,14 @@ function runXtendLlmAppServicesCatfoodSuite(options = {}) {
     'local Electron catfood remains available only through an explicit product command'
   );
 
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const defaultWorkflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
   const nightlyWorkflow = readText('.github/workflows/xtend-nightly-build.yml', rootDir);
   const smokeRunner = readText(`${PRODUCT_ROOT}/scripts/run-layout-smoke.mjs`, rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.maracaAppServices;
   const gateMatrix = packageManifest.xtend && packageManifest.xtend.ciGateMatrix;
-  context.assert(runner.includes("id: 'xtend-llm-app-services-catfood'"), 'central runner registers XTend LLM product catfood');
+  context.assert(runner.hasSuite("xtend-llm-app-services-catfood"), 'central runner registers XTend LLM product catfood');
   context.assert(packageManifest.scripts['test:maraca-app-services'].includes('xtend-llm-app-services-catfood'), 'AppServices aggregate includes XTend LLM product catfood');
   context.assert(packageManifest.scripts['test:pr'].includes('xtend-llm-app-services-catfood') && packageManifest.scripts['test:release:full'].includes('xtend-llm-app-services-catfood'), 'PR and release scripts execute product catfood');
   context.assert(gateMatrix.prFastGate.suites.includes('xtend-llm-app-services-catfood') && gateMatrix.fullReleaseGate.suites.includes('xtend-llm-app-services-catfood'), 'CI matrices require product catfood');

@@ -158,7 +158,7 @@ function assertPathExists(context, rootDir, relativePath, label) {
 }
 
 function assertRunnerGate(context, runner, gate) {
-  context.assertIncludes(runner, `id: '${gate}'`, `Runner registers ${gate}`);
+  context.assert(runner.hasSuite(gate), `Runner registers ${gate}`);
 }
 
 function countBy(items, field) {
@@ -188,8 +188,8 @@ function runNativeFirstMissionHandoffSuite(options = {}) {
   const budgetContract = readText('development/XTend-Native-First-Performance-Complexity-Bundle-Budget-Gates-Contract.md', rootDir);
   const docsContract = readText('development/XTend-Native-First-Docs-Authoring-Guides-Contract.md', rootDir);
   const migrationContract = readText('development/XTend-Native-First-Migration-Deprecation-Plan-Contract.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstMissionHandoff;
   const registryMetadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRegistry;
@@ -351,8 +351,8 @@ function runNativeFirstMissionHandoffSuite(options = {}) {
   assertIncludesAll(context, migrationContract, ['NFM-WP-22', 'no-silent-deprecation'], 'Migration contract feeds handoff');
 
   context.assert(packageScripts['test:native-first-mission-handoff'] === 'node scripts/run_xtend_tests.js native-first-mission-handoff', 'Package exposes WP-22 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_mission_handoff_suite')", 'Runner imports WP-22 suite');
-  context.assertIncludes(runner, "id: 'native-first-mission-handoff'", 'Runner registers WP-22 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_mission_handoff_suite.js" }), 'Runner imports WP-22 suite');
+  context.assert(runner.hasSuite("native-first-mission-handoff"), 'Runner registers WP-22 suite');
   REQUIRED_SOURCE_GATES.forEach((gate) => assertRunnerGate(context, runner, gate));
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-22 contract schema');

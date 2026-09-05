@@ -982,7 +982,7 @@ function createVNextPrimitiveEntry(domain, node, index, extra = {}) {
     pointer: node.astPointer || null,
     idPointer: node.astPointer || null,
     range: node.range || null,
-    idRange: node.range || null,
+    idRange: node.nameNode && node.nameNode.range || node.range || null,
     kind: extra.kind || getPrimitiveAttributeValue(node, 'kind'),
     owner: extra.owner || getPrimitiveAttributeValue(node, 'owner'),
     portal: extra.portal || getPrimitiveAttributeValue(node, 'portal'),
@@ -1691,9 +1691,9 @@ function buildRmtVNextPrimitiveSemanticGraph(input = {}, options = {}) {
     diagnostics: Array.isArray(parserResult.diagnostics) ? parserResult.diagnostics.slice() : []
   };
 
-  if (parserResult.ok && parserResult.ast) {
+  if (parserResult.ast && (parserResult.ok || options.includePartialDeclarations === true)) {
     collectVNextPrimitiveDeclarations(graphState, parserResult.ast);
-    collectVNextPrimitiveReferences(graphState, parserResult.ast);
+    if (parserResult.ok) collectVNextPrimitiveReferences(graphState, parserResult.ast);
   }
 
   function getDomainIndex(domain) {

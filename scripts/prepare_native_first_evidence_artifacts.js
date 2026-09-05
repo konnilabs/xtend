@@ -26,6 +26,7 @@ function runNodeScript(scriptPath, label) {
     cwd: rootDir,
     encoding: 'utf8',
     maxBuffer: 32 * 1024 * 1024,
+    timeout: 240000,
     env: {
       ...process.env,
       npm_config_cache: cacheDir,

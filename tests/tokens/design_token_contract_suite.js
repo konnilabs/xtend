@@ -70,7 +70,7 @@ function runDesignTokenContractSuite(options = {}) {
   const contract = createXtendDesignTokenContract();
   const validation = validateXtendDesignTokenContract(contract);
   const tokenSet = tokenNames();
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.designTokens;
   const exampleTheme = readJson(XTEND_DESIGN_TOKEN_EXAMPLE_THEME_PATH, rootDir);
   const moduleSource = readText(XTEND_DESIGN_TOKEN_MODULE_PATH, rootDir);
@@ -81,7 +81,7 @@ function runDesignTokenContractSuite(options = {}) {
   const visualFixture = readText('tests/browser/fixtures/visual-snapshots-fixture.html', rootDir);
   const visualRunner = readText('tests/browser/visual-snapshots-runner.js', rootDir);
   const visualBaseline = readText('tests/browser/visual-baselines/visual-snapshots.dom-baseline.json', rootDir);
-  const runnerIndex = readText('scripts/run_xtend_tests.js', rootDir);
+  const runnerIndex = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const contractDoc = readText(XTEND_DESIGN_TOKEN_CONTRACT_PATH, rootDir);
   const docs = readText(XTEND_DESIGN_TOKEN_DOC_PATH, rootDir);
@@ -169,7 +169,7 @@ function runDesignTokenContractSuite(options = {}) {
 
   context.assertIncludes(moduleSource, XTEND_DESIGN_TOKEN_SCHEMA, 'Design Token module declares schema');
   context.assertIncludes(suiteSource, 'XTEND_DESIGN_TOKEN_SCHEMA', 'Design Token suite asserts schema');
-  context.assertIncludes(runnerIndex, "id: 'design-tokens'", 'XTend runner registers Design Token suite');
+  context.assert(runnerIndex.hasSuite("design-tokens"), 'XTend runner registers Design Token suite');
   context.assert(packageManifest.scripts['test:design-tokens'] === 'node scripts/run_xtend_tests.js design-tokens', 'Package exposes Design Token test script');
   context.assert((packageManifest.exports['./design-tokens'] === './design-tokens/xtend-design-tokens.js' || (packageManifest.exports['./design-tokens'] && packageManifest.exports['./design-tokens'].default === './design-tokens/xtend-design-tokens.js')), 'Package exports Design Token contract module');
   context.assert(metadata && metadata.schema === XTEND_DESIGN_TOKEN_SCHEMA, 'Package metadata exposes Design Token schema');

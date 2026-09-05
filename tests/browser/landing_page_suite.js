@@ -40,7 +40,7 @@ function runLandingPageSuite(options = {}) {
   const apiSource = readText(rootDir, 'api.js');
   const loaderSource = readText(rootDir, 'xtend-loader.js');
   const classicDevApiSource = readText(rootDir, 'xtend-classic-dev-api.js');
-  const packageManifest = JSON.parse(readText(rootDir, 'package.json'));
+  const packageManifest = require('../utils/test-catalog').resolveManifestProfiles(JSON.parse(readText(rootDir, 'package.json')));
   const preloadTags = extractPreloadTags(html);
 
   context.assert(/^<!DOCTYPE html>/u.test(html), 'Landing page remains an authored HTML document');

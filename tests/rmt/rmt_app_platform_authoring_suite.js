@@ -208,8 +208,8 @@ function runRmtAppPlatformAuthoringSuite(options = {}) {
   const workpackageDoc = readText(RMT_APP_PLATFORM_AUTHORING_WORKPACKAGE_DOC, rootDir);
   const backlog = readText('development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md', rootDir);
   const epic = readText('development/docs-evidence/root/epic18-media-manager-vendor-upstream.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const moduleSyntax = syntaxCheckFile(RMT_APP_PLATFORM_AUTHORING_MODULE, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(RMT_APP_PLATFORM_AUTHORING_SUITE, { rootDir, extension: '.js' });
 
@@ -300,8 +300,8 @@ function runRmtAppPlatformAuthoringSuite(options = {}) {
   );
   context.assert(epic.includes('| `WP-E18-04` | P0 | completed'), 'Epic marks WP-E18-04 completed');
   context.assert(epic.includes('rmt-app-platform-authoring'), 'Epic gate chain includes App Platform authoring gate');
-  context.assert(runner.includes("require('../tests/rmt/rmt_app_platform_authoring_suite')"), 'Runner imports App Platform authoring suite');
-  context.assert(runner.includes("id: 'rmt-app-platform-authoring'"), 'Runner registers App Platform authoring suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/rmt_app_platform_authoring_suite.js" }), 'Runner imports App Platform authoring suite');
+  context.assert(runner.hasSuite("rmt-app-platform-authoring"), 'Runner registers App Platform authoring suite');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:rmt-app-platform-authoring'] === 'node scripts/run_xtend_tests.js rmt-app-platform-authoring', 'Package exposes App Platform authoring script');
 
   return context.result({

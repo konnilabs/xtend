@@ -59,10 +59,10 @@ function runEpic12DocsAdoptionSuite(options = {}) {
   const guide = createEpic12DocsAdoptionGuide();
   const validation = validateEpic12DocsAdoptionGuide(guide);
   const report = createEpic12DocsAdoptionReport({ guide });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageMetadata = packageManifest.xtend && packageManifest.xtend.epic12DocsAdoption;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const contract = readText(EPIC12_DOCS_ADOPTION_CONTRACT, rootDir);
   const docs = readText(EPIC12_DOCS_ADOPTION_DOCS, rootDir);
   const workpackage = readText(EPIC12_DOCS_ADOPTION_WORKPACKAGE_DOC, rootDir);
@@ -136,7 +136,7 @@ function runEpic12DocsAdoptionSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'epic12DocsAdoption', 'Scaffold config exposes Epic 12 docs adoption metadata');
   context.assertIncludes(scaffoldConfig, EPIC12_DOCS_ADOPTION_SCHEMA, 'Scaffold config declares docs adoption schema');
   context.assertIncludes(scaffoldConfig, EPIC12_DOCS_ADOPTION_LOCAL_GATE, 'Scaffold config references docs adoption local gate');
-  context.assertIncludes(runner, "id: 'epic12-docs-adoption'", 'Runner registers Epic 12 docs adoption suite');
+  context.assert(runner.hasSuite("epic12-docs-adoption"), 'Runner registers Epic 12 docs adoption suite');
 
   assertTextIncludesAll(context, contract, [
     EPIC12_DOCS_ADOPTION_SCHEMA,

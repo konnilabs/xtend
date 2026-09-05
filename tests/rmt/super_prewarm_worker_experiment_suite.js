@@ -270,7 +270,7 @@ async function runSuperPrewarmWorkerExperimentSuite(options = {}) {
   const fixture = readText(FIXTURE_PATH, rootDir);
   const manifest = readText(FIXTURE_MANIFEST_PATH, rootDir);
   const serviceWorker = readText(FIXTURE_SERVICE_WORKER_PATH, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const packageManifest = readText('package.json', rootDir);
   const moduleSyntax = syntaxCheckFile(MODULE_PATH, { rootDir, extension: '.js' });
   const serviceWorkerSyntax = syntaxCheckFile(FIXTURE_SERVICE_WORKER_PATH, { rootDir, extension: '.js' });
@@ -395,7 +395,7 @@ async function runSuperPrewarmWorkerExperimentSuite(options = {}) {
   context.assert(fixture.includes('workerStateOwnership: false'), 'Super Prewarm fixture keeps worker state ownership disabled');
   context.assert(manifest.includes('"display": "standalone"'), 'Super Prewarm manifest declares standalone PWA display');
   context.assert(serviceWorker.includes('fixture-cache-stub') === false && serviceWorker.includes('caches.open'), 'Super Prewarm service worker provides static cache stub');
-  context.assert(runner.includes("id: 'super-prewarm-worker-experiment'"), 'Runner registers Super Prewarm experiment suite');
+  context.assert(runner.hasSuite("super-prewarm-worker-experiment"), 'Runner registers Super Prewarm experiment suite');
   context.assert(packageManifest.includes('"test:super-prewarm-worker-experiment"'), 'Package exposes Super Prewarm experiment script');
   context.assert(packageManifest.includes('"./rmt-language/super-prewarm-worker-experiment"'), 'Package exports Super Prewarm experiment contract');
 

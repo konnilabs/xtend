@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
+import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
@@ -20,6 +22,29 @@ const repoRoot = path.resolve(packageRoot, '..', '..');
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
 }
+
+test('unchanged knowledge drift check rejects a stale generated artifact', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-knowledge-drift-'));
+  try {
+    const script = path.join(root, 'products/xtend-mcp/scripts/build-knowledge.mjs');
+    fs.mkdirSync(path.dirname(script), { recursive: true });
+    fs.copyFileSync(path.join(packageRoot, 'scripts/build-knowledge.mjs'), script);
+    for (const locale of ['de', 'en']) {
+      fs.mkdirSync(path.join(root, 'docs', locale), { recursive: true });
+      fs.writeFileSync(path.join(root, 'docs', locale, 'fixture.md'), '# Fixture\nCanonical knowledge.\n');
+    }
+    fs.writeFileSync(path.join(root, 'docs/menu.json'), JSON.stringify([{ slug: 'fixture' }]));
+    const kit = 'tools/rmt-language/generated/rmt-ai-developer-kit';
+    fs.cpSync(path.join(repoRoot, kit), path.join(root, kit), { recursive: true });
+    const run = args => spawnSync(process.execPath, [script, ...args, '--quiet'], { cwd: root, encoding: 'utf8', timeout: 30000 });
+    assert.equal(run([]).status, 0);
+    assert.equal(run(['--check']).status, 0);
+    fs.appendFileSync(path.join(root, 'products/xtend-mcp/generated/docs.jsonl'), '\n');
+    const stale = run(['--check']);
+    assert.notEqual(stale.status, 0);
+    assert.match(stale.stderr, /Generated knowledge artifact drifted: docs.jsonl/);
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+});
 
 test('hash-checked generated knowledge stays LF-normalized on every Git checkout', () => {
   const attributes = fs.readFileSync(path.join(repoRoot, '.gitattributes'), 'utf8');

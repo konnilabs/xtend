@@ -152,8 +152,8 @@ function runNativeFirstFrameworkLeverageSuite(options = {}) {
   const capabilityMatrix = readText('development/XTend-Native-First-UI-Primitive-Capability-Matrix.md', rootDir);
   const radar = readText('development/XTend-Native-First-Browser-Primitive-Radar.md', rootDir);
   const adoptionGate = readText('development/XTend-Native-Primitive-Adoption-Gate-Contract.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstFrameworkLeverageLayer;
   const packageScripts = packageManifest.scripts || {};
   const exportsMap = packageManifest.exports || {};
@@ -200,8 +200,8 @@ function runNativeFirstFrameworkLeverageSuite(options = {}) {
   context.assertIncludes(adoptionGate, '`NFM-WP-09`', 'Adoption gate hands off to WP-09');
 
   context.assert(packageScripts['test:native-first-framework-leverage'] === 'node scripts/run_xtend_tests.js native-first-framework-leverage', 'Package exposes native-first framework leverage test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_framework_leverage_suite')", 'Runner imports native-first framework leverage suite');
-  context.assertIncludes(runner, "id: 'native-first-framework-leverage'", 'Runner registers native-first framework leverage suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_framework_leverage_suite.js" }), 'Runner imports native-first framework leverage suite');
+  context.assert(runner.hasSuite("native-first-framework-leverage"), 'Runner registers native-first framework leverage suite');
 
   REQUIRED_METADATA.forEach((entry) => {
     const item = packageManifest.xtend && packageManifest.xtend[entry.key];

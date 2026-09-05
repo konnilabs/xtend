@@ -220,7 +220,7 @@ function assertPathExists(context, rootDir, relativePath, label) {
 }
 
 function assertRunnerGate(context, runner, gate) {
-  context.assertIncludes(runner, `id: '${gate}'`, `Runner registers ${gate}`);
+  context.assert(runner.hasSuite(gate), `Runner registers ${gate}`);
 }
 
 function countBy(items, field) {
@@ -249,8 +249,8 @@ function runNativeFirstDocsAuthoringSuite(options = {}) {
   const docsReadmeDe = readText('docs/de/README.md', rootDir);
   const docsReadmeEn = readText('docs/en/README.md', rootDir);
   const menu = readJson('docs/menu.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstDocsAuthoring;
   const registryMetadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRegistry;
@@ -384,8 +384,8 @@ function runNativeFirstDocsAuthoringSuite(options = {}) {
   ], 'Registry contract WP-20 extension');
 
   context.assert(packageScripts['test:native-first-docs-authoring'] === 'node scripts/run_xtend_tests.js native-first-docs-authoring', 'Package exposes WP-20 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_docs_authoring_suite')", 'Runner imports WP-20 suite');
-  context.assertIncludes(runner, "id: 'native-first-docs-authoring'", 'Runner registers WP-20 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_docs_authoring_suite.js" }), 'Runner imports WP-20 suite');
+  context.assert(runner.hasSuite("native-first-docs-authoring"), 'Runner registers WP-20 suite');
   REQUIRED_SOURCE_GATES.forEach((gate) => assertRunnerGate(context, runner, gate));
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-20 schema');

@@ -191,7 +191,7 @@ function runScreenreaderSignalSuite(options = {}) {
   context.assert(typesFile.content.includes('ScreenreaderSignalContract'), 'Generated types include Screenreader signal contract type');
   context.assert(manifestPlan.screenreaderSignals.schema === SCREENREADER_SIGNALS_SCHEMA, 'Generated manifest plan exposes screenreaderSignals contract');
 
-  const packageJson = readJson('package.json', rootDir);
+  const packageJson = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const screenreaderSignalsExport = packageJson.exports['./a11y/screenreader-signals'];
   context.assert((typeof screenreaderSignalsExport === 'string' ? screenreaderSignalsExport : screenreaderSignalsExport.default) === './a11y/screenreader-signals.js', 'Package exports Screenreader signal contract module');
   context.assert(packageJson.scripts['test:screenreader-signals'] === 'node scripts/run_xtend_tests.js screenreader-signals', 'Package exposes Screenreader signal suite script');

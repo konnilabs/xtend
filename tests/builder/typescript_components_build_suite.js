@@ -29,10 +29,10 @@ function runTypeScriptComponentsBuildSuite(options = {}) {
     label: 'XTend TypeScript Components Build'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const tsconfig = readJson('tsconfig.components.json', rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const source = readText('src/components/x-toggle/x-toggle.ts', rootDir);
   const finalizerSyntax = syntaxCheckFile('scripts/finalize_component_build.js', { rootDir, extension: '.js' });
 
@@ -53,7 +53,7 @@ function runTypeScriptComponentsBuildSuite(options = {}) {
   context.assert(packageManifest.xtend && packageManifest.xtend.typescriptComponentsBuild && packageManifest.xtend.typescriptComponentsBuild.schema === TYPESCRIPT_COMPONENTS_SCHEMA, 'Package metadata exposes TypeScript components build schema');
   context.assert(scaffoldConfig.includes('productiveCompilerIntroduced: true'), 'Scaffold config marks component compiler productive');
   context.assert(scaffoldConfig.includes('tsconfig.components.json'), 'Scaffold config points at component tsconfig');
-  context.assert(runner.includes("id: 'typescript-components'"), 'Runner exposes TypeScript Components Build suite');
+  context.assert(runner.hasSuite("typescript-components"), 'Runner exposes TypeScript Components Build suite');
   context.assert(packageManifest.scripts['test:pr:report'].includes('builder-typescript-blueprint typescript-components component-ux-browser-smokes'), 'PR report gate runs TypeScript components before browser smokes');
   context.assert(packageManifest.scripts['test:release:full:report'].includes('builder-typescript-blueprint typescript-components component-ux-browser-smokes'), 'Release report gate runs TypeScript components before browser smokes');
 

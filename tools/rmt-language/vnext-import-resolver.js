@@ -428,7 +428,7 @@ function compileModule(filePath, context) {
     return createReadFailedModule(filePath, context, error);
   }
 
-  const compileResult = compileRmtVNextSource({
+  const compileResult = context.compileSource({
     text,
     filePath
   }, {
@@ -446,6 +446,20 @@ function compileModule(filePath, context) {
     coreDocument: compileResult.coreDocument,
     diagnostics: compileResult.diagnostics || []
   };
+  moduleRecord.diagnostics = moduleRecord.diagnostics.slice();
+
+  if (context.allowIncompleteImports && !moduleRecord.coreDocument) {
+    const imports = [];
+    function collect(node) {
+      if (!node) return;
+      if (node.type === 'RmtImportDeclaration' && node.path) imports.push({
+        id: `import:${imports.length}`, path: node.path, mode: node.mode
+      });
+      (node.body || []).forEach(collect);
+    }
+    collect(compileResult.parserResult && compileResult.parserResult.ast);
+    moduleRecord.navigationImports = imports;
+  }
 
   if (!compileResult.ok) {
     moduleRecord.diagnostics.push(createImportDiagnostic(
@@ -488,7 +502,13 @@ function createModuleGraph(input = {}, options = {}) {
     fileExists: options.fileExists || defaultFileExists,
     directoryExists: options.directoryExists || defaultDirectoryExists,
     readText: options.readText || defaultReadText,
-    listFiles: options.listFiles || defaultListFiles,
+    compileSource: options.compileSource || compileRmtVNextSource,
+    allowIncompleteImports: options.allowIncompleteImports === true,
+    listFiles: options.listFiles || ((directory, listOptions = {}) => uniqueList([
+      ...defaultListFiles(directory, listOptions),
+      ...(options.additionalFiles || []).filter((file) => isInsideRoot(file, directory)
+        && (listOptions.recursive || path.dirname(file) === directory))
+    ])),
     realPathInsideAnyRoot: options.realPathInsideAnyRoot || ((filePath) => realPathInsideAnyRoot(filePath, context)),
     modulesByPath: new Map(),
     modules: [],
@@ -509,14 +529,14 @@ function createModuleGraph(input = {}, options = {}) {
     context.modules.push(moduleRecord);
     context.loadOrder.push(moduleRecord.id);
 
-    if (!moduleRecord.coreDocument) {
+    if (!moduleRecord.coreDocument && !moduleRecord.navigationImports) {
       context.diagnostics.push(...moduleRecord.diagnostics);
       context.mergeOrder.push(moduleRecord.id);
       return moduleRecord;
     }
 
     const nextStack = stack.concat([normalizedPath]);
-    const importRecords = Array.isArray(moduleRecord.coreDocument.imports) ? moduleRecord.coreDocument.imports : [];
+    const importRecords = moduleRecord.navigationImports || (Array.isArray(moduleRecord.coreDocument.imports) ? moduleRecord.coreDocument.imports : []);
     moduleRecord.importCount = importRecords.length;
 
     importRecords.forEach((importRecord) => {

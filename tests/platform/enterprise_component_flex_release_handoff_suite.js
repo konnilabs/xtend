@@ -67,8 +67,8 @@ function runEnterpriseComponentFlexReleaseHandoffSuite(options = {}) {
     id: 'enterprise-component-flex-release-handoff',
     label: 'ECH-WP-12 Enterprise Component Flex Release Handoff'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const docsReadme = readText(DOCS_README, rootDir);
   const docsMenu = readJson(DOCS_MENU, rootDir);
@@ -228,8 +228,8 @@ function runEnterpriseComponentFlexReleaseHandoffSuite(options = {}) {
   context.assertIncludes(backlog, ENTERPRISE_COMPONENT_FLEX_RELEASE_HANDOFF_DOC, 'Backlog links release handoff doc');
   context.assertIncludes(backlog, ENTERPRISE_COMPONENT_FLEX_RELEASE_HANDOFF_LOCAL_GATE, 'Backlog exposes release handoff local gate');
   context.assertIncludes(backlog, PROPOSED_VERSION, 'Backlog records proposed version');
-  context.assertIncludes(runner, "id: 'enterprise-component-flex-release-handoff'", 'Runner exposes release handoff suite');
-  context.assertIncludes(runner, 'runEnterpriseComponentFlexReleaseHandoffSuite', 'Runner imports release handoff suite');
+  context.assert(runner.hasSuite("enterprise-component-flex-release-handoff"), 'Runner exposes release handoff suite');
+  context.assert(runner.hasImplementation({ function: "runEnterpriseComponentFlexReleaseHandoffSuite" }), 'Runner imports release handoff suite');
   context.assert(packageManifest.scripts['test:enterprise-component-flex-release-handoff'] === 'node scripts/run_xtend_tests.js enterprise-component-flex-release-handoff', 'Package exposes release handoff script');
 
   return context.result({

@@ -958,8 +958,8 @@ async function runRmtEventRoutingRuntimeSuite(options = {}) {
   const workpackageDoc = readText(RMT_EVENT_ROUTING_RUNTIME_WORKPACKAGE_DOC, rootDir);
   const backlog = readText('development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md', rootDir);
   const epic = readText('development/docs-evidence/root/epic18-media-manager-vendor-upstream.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const xtendrmtPackage = readJson('xtendrmt/package.json', rootDir);
   const runtimeSource = readText(RMT_EVENT_ROUTING_RUNTIME_RUNTIME, rootDir);
   const templateInteractionSource = readText('xtendrmt/kernel/modules/rmt-template-interaction-adapter.js', rootDir);
@@ -1083,8 +1083,8 @@ async function runRmtEventRoutingRuntimeSuite(options = {}) {
   context.assert(backlog.includes('| `WP-E18-10` | P1 | completed'), 'Backlog marks WP-E18-10 completed after surface graph handoff');
   context.assert(epic.includes('| `WP-E18-09` | P1 | completed'), 'Epic marks WP-E18-09 completed');
   context.assert(epic.includes('rmt-event-routing-runtime'), 'Epic gate chain includes event routing runtime gate');
-  context.assert(runner.includes("require('../tests/rmt/rmt_event_routing_runtime_suite')"), 'Runner imports event routing runtime suite');
-  context.assert(runner.includes("id: 'rmt-event-routing-runtime'"), 'Runner registers event routing runtime suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/rmt_event_routing_runtime_suite.js" }), 'Runner imports event routing runtime suite');
+  context.assert(runner.hasSuite("rmt-event-routing-runtime"), 'Runner registers event routing runtime suite');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:rmt-event-routing-runtime'] === 'node scripts/run_xtend_tests.js rmt-event-routing-runtime', 'Package exposes event routing runtime script');
   context.assert(packageManifest.exports && packageManifest.exports['./rmt/event-routing-runtime'], 'Package exports event routing runtime');
   context.assert(xtendrmtPackage.exports && xtendrmtPackage.exports['./event-routing-runtime'], 'XTendRMT package exports event routing runtime');

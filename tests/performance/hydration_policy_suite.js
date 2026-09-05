@@ -62,7 +62,7 @@ async function runHydrationPolicySuite(options = {}) {
   const developerDocsEn = readText('docs/en/hydration-policies.md', rootDir);
   const docsMenu = readJson('docs/menu.json', rootDir);
   const runtimeSchema = readJson('xtendrmt/rmt.schema.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const policySyntax = syntaxCheckFile('fabric/hydration-policy.js', { rootDir, extension: '.js' });
   const mappingSyntax = syntaxCheckFile('fabric/rmt-lane-mapping.js', { rootDir, extension: '.js' });
 

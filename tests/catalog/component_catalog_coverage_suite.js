@@ -32,7 +32,7 @@ function runComponentCatalogCoverageSuite(options = {}) {
     id: 'catalog-coverage',
     label: 'XTend Component Catalog Coverage Matrix'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const manifest = readJson('components/manifest.json', rootDir);
   const moduleSource = readText('catalog/component-catalog-coverage.js', rootDir);
   const roadmap = readText('development/ROADMAP-XTend-Enterprise-Reife.md', rootDir);

@@ -134,13 +134,10 @@ function stableStringify(value) {
   return JSON.stringify(stableValue(value), null, 2) + '\n';
 }
 
+const { discoverFiles, packageExportMappings } = require('../tools/project-index/sources');
+
 function trackedFiles(rootDir) {
-  const output = execFileSync('git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard'], {
-    cwd: rootDir,
-    encoding: 'buffer',
-    maxBuffer: 64 * 1024 * 1024
-  });
-  return output.toString('utf8').split('\0').filter(Boolean).map(toPosixPath).sort(compareStrings);
+  return discoverFiles(rootDir, { inventory: true });
 }
 
 function isGeneratedPath(relativePath) {
@@ -1018,34 +1015,6 @@ function selectCanonicalDefinition(record) {
   };
 }
 
-function packageExportMappings(rootDir, files) {
-  const mappings = [];
-  files.filter((file) => file.path === 'package.json' || file.path.endsWith('/package.json')).forEach((file) => {
-    let manifest;
-    try {
-      manifest = JSON.parse(file.text);
-    } catch (error) {
-      return;
-    }
-    if (!manifest || typeof manifest.name !== 'string' || !manifest.exports) return;
-    const directory = path.posix.dirname(file.path) === '.' ? '' : path.posix.dirname(file.path);
-    function collectTargets(value, targets) {
-      if (typeof value === 'string') targets.push(value);
-      else if (value && typeof value === 'object') Object.values(value).forEach((entry) => collectTargets(entry, targets));
-    }
-    Object.entries(manifest.exports).forEach(([exportKey, exportValue]) => {
-      const targets = [];
-      collectTargets(exportValue, targets);
-      targets.forEach((target) => {
-        const cleanTarget = target.replace(/^\.\//u, '');
-        const relativeTarget = toPosixPath(directory ? directory + '/' + cleanTarget : cleanTarget);
-        const moduleName = exportKey === '.' ? manifest.name : manifest.name + '/' + exportKey.replace(/^\.\//u, '');
-        mappings.push({ target: relativeTarget, module: moduleName });
-      });
-    });
-  });
-  return mappings;
-}
 
 function exportedModulesForPath(relativePath, mappings) {
   const result = [];
