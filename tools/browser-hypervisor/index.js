@@ -202,10 +202,10 @@ function createCapabilities(options = {}) {
   return { capabilities: { alwaysMatch } };
 }
 
-function driverArguments(driver, port) {
+function driverArguments(driver, port, diagnostics = false) {
   if (driver === 'safaridriver') return ['-p', String(port)];
   if (driver === 'geckodriver') return ['--port', String(port)];
-  return [`--port=${port}`];
+  return [`--port=${port}`, ...(diagnostics && ['chromedriver', 'msedgedriver'].includes(driver) ? ['--verbose'] : [])];
 }
 
 function defaultPort(driver) {
@@ -299,12 +299,19 @@ async function runFixture(options = {}) {
   const timeoutMs = Number(options.timeoutMs || (engine === 'firefox' ? 20000 : 10000));
   const deadline = Date.now() + timeoutMs;
   let child = null;
+  // Keep diagnostics bounded even when a driver repeatedly logs a startup error.
+  let driverOutput = Buffer.alloc(0);
+  const captureDriverOutput = chunk => {
+    driverOutput = Buffer.concat([driverOutput, chunk]).subarray(-32768);
+  };
   let endpointUrl = provider.webDriverUrl;
   if (!endpointUrl) {
     const executable = findExecutable(driver, provider.driverPath, { explicitOnly: Boolean(provider.driverPath) });
     if (!executable) throw new Error(`${driver} was not found; configure driverPath or webDriverUrl.`);
     const port = await availablePort(provider.port);
-    child = spawn(executable, driverArguments(driver, port), { stdio: 'ignore' });
+    child = spawn(executable, driverArguments(driver, port, Boolean(options.driverLogPath)), { stdio: ['ignore', 'pipe', 'pipe'] });
+    child.stdout.on('data', captureDriverOutput);
+    child.stderr.on('data', captureDriverOutput);
     child.once('error', error => { child.startError = error; });
     endpointUrl = `http://127.0.0.1:${port}`;
   }
@@ -369,6 +376,13 @@ async function runFixture(options = {}) {
     }
     cleanup = await stopDriver(child, Math.max(1, cleanupDeadline - Date.now() - 1000));
     if (!cleanup.ok) cleanupErrors.push(new Error(cleanup.reason));
+    if (child && options.driverLogPath) {
+      try {
+        fs.mkdirSync(path.dirname(options.driverLogPath), { recursive: true });
+        fs.writeFileSync(options.driverLogPath, driverOutput);
+      } catch (error) { cleanupErrors.push(new Error(`WebDriver diagnostic log failed: ${error.message}`)); }
+    }
+    if (primaryError && driverOutput.length) primaryError.message += `\nWebDriver output (tail):\n${driverOutput.subarray(-4096).toString('utf8')}`;
     if (cleanupErrors.length) throw new AggregateError([...(primaryError ? [primaryError] : []), ...cleanupErrors], [primaryError?.message, ...cleanupErrors.map(error => error.message)].filter(Boolean).join('; '));
   }
 }

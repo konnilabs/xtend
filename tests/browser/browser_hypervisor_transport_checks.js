@@ -1,6 +1,9 @@
 'use strict';
 const assert = require('node:assert/strict');
 const http = require('node:http');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const { requestJson, parseEndpoint, runFixture, availablePort } = require('../../tools/browser-hypervisor');
 async function runTransportChecks(context) {
   let handler;
@@ -25,6 +28,16 @@ async function runTransportChecks(context) {
     await check('Occupied local ports are rejected before spawning a driver',async()=>{
       await assert.rejects(availablePort(server.address().port),{code:'EADDRINUSE'});
       assert((await availablePort())>0);
+    });
+    await check('Failed local driver startup retains its bounded diagnostic output',async()=>{
+      const directory=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-driver-diagnostics-'));
+      const driverLogPath=path.join(directory,'driver.log');
+      try {
+        // Node rejects WebDriver CLI flags, providing a real, controlled child-process failure.
+        await assert.rejects(runFixture({engine:'chromium',driverPath:process.execPath,driverLogPath,resultKey:'test',timeoutMs:2000}),error=>/Owned WebDriver process stopped/.test(error.message)&&/WebDriver output/.test(error.message));
+        const log=fs.readFileSync(driverLogPath,'utf8');
+        assert.match(log,/--port/);assert(Buffer.byteLength(log)<=32768);
+      } finally {fs.rmSync(directory,{recursive:true,force:true});}
     });
     await check('Primary and cleanup failures survive together; external endpoints remain alive',async()=>{
       handler=(req,res)=>{

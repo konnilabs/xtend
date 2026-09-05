@@ -25,6 +25,7 @@ async function browserProbe() {
     await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
     const evidence = await runFixture({ rootDir: directory, fixturePath: fixture, engine,
       url: `http://127.0.0.1:${server.address().port}/${fixture}`, resultKey: '__xtendNightlyCapabilities',
+      driverLogPath: path.resolve('.xtend-test-results/nightly/logs/capability-browser-driver.log'),
       timeoutMs: 20000, accept: result => result?.ok === true });
     const provider = providerOptions({});
     return { engine, driver: evidence.driver, driverVersion: evidence.driverVersion, browserVersion: evidence.browserVersion,
