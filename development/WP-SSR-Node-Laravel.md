@@ -13,12 +13,12 @@ nach dem Build. Der frühere Laravel-zentrierte Ansatz ist damit ersetzt.
 | SSR-02 | Compilerprojektion, deklarierte Eingänge, PHP-Fähigkeitsdiagnosen, JSON-Wertunterscheidung | Dynamische Node/PHP-Fixtures, bestehende Compiler-/Komponententests |
 | SSR-03 | Seitenvertrag, Redirects, Kontextbindung, konkurrierende Navigation | Gemeinsamer Browserablauf auf Node und Laravel 12/13 lokal |
 | NODE-01 | Importierbarer Host, AppService-Einbindung, Provider, Stream-Download, Paketexport | npm-Paket und strikter NodeNext-Verbraucher außerhalb des Checkouts ohne PHP; Backpressure, Disconnect und verzögerter Kontext-Cleanup lokal geprüft |
-| LAR-01 | Composer-Paket, ServiceProvider, Web-Lifecycle, Blade, Artisan, Fingerprints | Isolierte Laravel-12/13-Installationen unter PHP 8.3; vollständige CI-Matrix offen |
+| LAR-01 | Composer-Paket, ServiceProvider, Web-Lifecycle, Blade, Artisan, Fingerprints | Isolierte Installationen; alle sieben Laravel-/PHP-Kombinationen auf GitHub erfolgreich |
 | SSR-04 | Formularzustand, Error Bags, Multipart, Fortschritt, Abbruch, Bindung | Upload-/Validierungs-Browserabläufe und konkurrierende Antworten lokal |
 | SSR-05 | Persistente Layouts, History, Head, Build-/Runtime-Abgleich, Verschlüsselung | ECDSA-Resume mit DOM-Erhalt, Signaturfehler-Fallback, Deploymentwechsel und Kontextinvalidierung lokal geprüft |
 | SSR-06 | Partial/Deferred/Lazy/Merge/Once, Prefetch, Polling, Sichtbarkeit, Pagination | Selektive Provider, begrenzte Warteschlange, Schlüsselzusammenführung, beide Laravel-Paginatortypen sowie Polling/Sichtbarkeit lokal geprüft |
 | SSR-07 | Node-Validierungsprovider, Precognition, Optimismus, Instant Visits, View Transitions | Livevalidierung auf beiden Hosts, ältere fehlgeschlagene Mutationen, Instant Visits und optionale View Transitions lokal geprüft |
-| SSR-08 | CLI-Build, Typen, Routenexporte, Projektindex, DE/EN-Anleitung, CI-Definition | Typ-/Exportprüfungen, Projektindex und Compiler lokal geprüft; abschließende vollständige Profile und tatsächliche CI-Abnahme ausstehend |
+| SSR-08 | CLI-Build, Typen, Routenexporte, Projektindex, DE/EN-Anleitung, CI-Definition | Typen, Exports, Projektindex, Compiler und vollständiges PR-Profil lokal geprüft; CI-Nachweise siehe unten |
 
 ## Kanonische Orte
 
@@ -42,7 +42,7 @@ Synchron blockierende PHP-Provider benötigen Infrastruktur-Timeouts. Node-Abbru
 
 Die neuen Schemas erhalten gezielte Inventarentscheidungen; bestehende Baselines und
 verpflichtende Gates werden nicht pauschal angepasst. Das Projekt ist erst abgeschlossen,
-wenn die offenen Nachweise einschließlich tatsächlicher CI-Ergebnisse vorliegen.
+wenn beide Hosts und die bestehenden Matrizen ihre tatsächlichen CI-Nachweise liefern.
 
 ## Ressourcen und Prüfverteilung
 
@@ -73,6 +73,20 @@ und Node-/OS-Matrizen bleiben erhalten.
 
 Die Listenmessung ergab lokal Median/P95 von 1,98/3,19 ms für Node und
 1,27/1,29 ms für PHP, jeweils 6.703 Byte HTML. Provideraufrufe waren in beiden
-Laufzeiten 2/1/1 für Erstaufruf/Partial/Deferred. Das Browserbundle lag vor der
-Hostport-Anpassung bei 130.142 Byte minifiziert bzw. 41.090 Byte gzip. Diese Werte
-beschreiben die lokale Umgebung; tatsächliche CI-Nachweise sind separat erforderlich.
+Laufzeiten 2/1/1 für Erstaufruf/Partial/Deferred. Diese Werte beschreiben die lokale Umgebung; tatsächliche CI-Nachweise sind separat erforderlich.
+
+## GitHub-Nachweise
+
+Der Implementierungsstand liegt in [PR #67](https://github.com/konnilabs/xtend/pull/67).
+Die [Laravel-Matrix](https://github.com/konnilabs/xtend/actions/runs/33999475224)
+ist auf Commit `fde5b05` vollständig erfolgreich: Laravel 12/PHP 8.2. 8.3. 8.4. 8.5
+und Laravel 13/PHP 8.3. 8.4. 8.5. Browserabnahmen laufen für beide Hauptversionen;
+Laravel 12/PHP 8.3 verwendet dabei einen eigenen FPM-Pool hinter FastCGI.
+
+Die vorhandene Node-/OS-Matrix und ihre vom Hauptlauf projizierten RMT-Checks
+werden auf jedem finalen PR-Commit erneut ausgeführt. Maßgeblich ist der aktuelle
+Checkstatus in PR #67; ältere oder lokale Ergebnisse ersetzen diese Abnahme nicht.
+Es erfolgte keine Paketveröffentlichung.
+
+Die abschließende Browserbundle-Messung nach Anbindung des Hostports ergibt
+130.108 Byte minifiziert und 41.081 Byte gzip.
