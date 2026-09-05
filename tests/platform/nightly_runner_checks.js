@@ -33,6 +33,22 @@ async function runNightlyRunnerChecks({ check, temp, identity, rootDir }) {
     const negative=await probeCapabilities({commandProbe:command=>{if(command==='php')throw Error('PHP unavailable');return 'available';},browserProbe:()=>{throw Error('Browser unavailable');}});
     assert(!negative.ok);assert.equal(negative.checks.filter(c=>!c.ok).length,2);
   });
+  await check('CI cache setup needs no npm invocation before the required package manager is installed', () => {
+    const {configureNpmCache}=require('../../scripts/configure_npm_cache');
+    const commandFile=path.join(fixture,'github-env');
+    const directory=configureNpmCache({RUNNER_TEMP:fixture,GITHUB_ENV:commandFile});
+    assert.equal(fs.readFileSync(commandFile,'utf8'),`NPM_CONFIG_CACHE=${directory}\nXTEND_NPM_CACHE=${directory}\n`);
+    assert(fs.statSync(directory).isDirectory());
+    assert.throws(()=>configureNpmCache({}),/required/);
+    for(const name of ['xtend-default-gates.yml','xtend-nightly-build.yml','xtend-browser-hypervisor-matrix.yml']){
+      const source=fs.readFileSync(path.join(rootDir,'.github/workflows',name),'utf8');
+      assert(!/^\s+cache: npm\s*$/m.test(source),'setup-node must not query npm before its version is pinned');
+      const setups=(source.match(/uses: actions\/setup-node@/g)||[]).length;
+      assert.equal((source.match(/run: node scripts\/configure_npm_cache.js/g)||[]).length,setups);
+      assert.equal((source.match(/uses: actions\/cache@[a-f0-9]{40}/g)||[]).length,setups);
+      assert(!/^\s+NPM_CONFIG_CACHE: \.xtend/m.test(source),'cache paths must remain absolute across working directories');
+    }
+  });
   await check('Failed prerequisites block dependent commands; independent phases and partial receipts survive a timeout', async () => {
     const artifact={path:'phase.json',kind:'outcome',producer:'last'};
     const command=args=>({command:'node',args});

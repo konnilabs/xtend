@@ -28,13 +28,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '24.18.0'
           package-manager-cache: false
-          cache: npm
-          cache-dependency-path: package-lock.json
 
       - name: Pin npm
         run: npm install --global npm@11.17.0 --no-audit --fund=false
@@ -79,13 +86,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '24.18.0'
           package-manager-cache: false
-          cache: npm
-          cache-dependency-path: package-lock.json
 
       - name: Download engine evidence
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8

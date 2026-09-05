@@ -48,14 +48,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            products/xtend-llm/package-lock.json
-            products/resumability-maraca-erp-demo/package-lock.json
           node-version: ${{ matrix.node_version }}
           package-manager-cache: false
 
@@ -294,14 +298,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            products/xtend-llm/package-lock.json
-            products/resumability-maraca-erp-demo/package-lock.json
           node-version: ${{ matrix.node_version }}
           package-manager-cache: false
 
@@ -541,14 +549,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            products/xtend-llm/package-lock.json
-            products/resumability-maraca-erp-demo/package-lock.json
           node-version: ${{ matrix.node_version }}
           package-manager-cache: false
 
@@ -660,8 +672,6 @@ jobs:
     name: Package structure dry runs (Node ${{ matrix.node_version }})
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      NPM_CONFIG_CACHE: .xtend-test-results/npm-cache
     strategy:
       fail-fast: false
       matrix:
@@ -677,14 +687,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            products/xtend-llm/package-lock.json
-            products/resumability-maraca-erp-demo/package-lock.json
           node-version: ${{ matrix.node_version }}
           package-manager-cache: false
 
@@ -764,14 +778,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            products/xtend-llm/package-lock.json
-            products/resumability-maraca-erp-demo/package-lock.json
           node-version: ${{ matrix.node_version }}
           package-manager-cache: false
 
@@ -877,14 +895,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            products/xtend-llm/package-lock.json
-            products/resumability-maraca-erp-demo/package-lock.json
           node-version: ${{ matrix.node_version }}
           architecture: ${{ matrix.expected_arch }}
           package-manager-cache: false
@@ -946,14 +968,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+
       - name: Setup Node.js 24.18.0
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            products/xtend-llm/package-lock.json
-            products/resumability-maraca-erp-demo/package-lock.json
           node-version: '24.18.0'
           package-manager-cache: false
 
@@ -1024,14 +1050,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+
       - name: Setup Node.js 24.18.0 for npm
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            products/xtend-llm/package-lock.json
-            products/resumability-maraca-erp-demo/package-lock.json
           node-version: '24.18.0'
           package-manager-cache: false
           registry-url: https://registry.npmjs.org
