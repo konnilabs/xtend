@@ -92,6 +92,16 @@ async function runNightlyRunnerChecks({ check, temp, identity, rootDir }) {
     assert(!workflow.includes('install_erp'));assert(!workflow.includes('--verify '));
     assert.equal((workflow.match(/nightly.js phase full_release/g)||[]).length,1);
     assert(workflow.includes('runs-on: ubuntu-24.04'));
+    const jobs=workflow.slice(workflow.indexOf('\njobs:\n')).split(/\n  [\w-]+:\n/).slice(1);
+    assert.equal(jobs.length,3);
+    for(const job of jobs){
+      const setup=job.indexOf('uses: actions/setup-node@');
+      const configure=job.indexOf('name: Configure npm download cache');
+      assert(configure>=0 && configure<setup,'npm cache must be configured before setup-node queries it');
+      const header=job.slice(0,job.indexOf('\n    steps:'));
+      const jobEnv=header.match(/^    env:\n(?:      .*\n)*/m)?.[0] || '';
+      assert(!jobEnv.includes('${{ runner.'),'runner context is unavailable in job-level env');
+    }
     assert(workflow.includes('nightly_finalize.outputs.accepted') || workflow.includes('steps.nightly_finalize.outcome'));
   });
 }
