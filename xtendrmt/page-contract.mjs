@@ -1,3 +1,5 @@
+import {decodePageWire} from './page-wire.mjs';
+export {PAGE_WIRE_SCHEMA, encodePageWire, decodePageWire} from './page-wire.mjs';
 export const PAGE_RESPONSE_SCHEMA = 'xtend.page-response.v1';
 export const PAGE_MANIFEST_SCHEMA = 'xtend.page-manifest.v1';
 export function pagePagination({next = null, previous = null, props}) {
@@ -8,11 +10,23 @@ export function pagePagination({next = null, previous = null, props}) {
 export function mergePageHead(layout = [], page = []) {
   const records = new Map();
   for (const record of [...layout, ...page]) {
-    const key = record.tag === 'title' ? 'title' : record.tag === 'meta' ? `meta:${record.attributes?.name || record.attributes?.property || record.attributes?.charset || ''}` : '';
+    const key = headRecordKey(record);
     if (!key || key === 'meta:') throw pageError('page.invalid_head', 'Head entries require a title or an identified meta tag.');
     records.set(key, record);
   }
   return [...records.values()];
+}
+export function headRecordKey(record) {
+  if (record?.tag === 'title') return 'title';
+  if (record?.tag === 'meta') {
+    if (Object.keys(record.attributes || {}).some(key => !['name','property','content','charset'].includes(key))) throw pageError('page.invalid_head','Unsafe meta attribute.');
+    return `meta:${record.attributes?.name || record.attributes?.property || record.attributes?.charset || ''}`;
+  }
+  if (record?.tag === 'link' && record.attributes?.rel === 'canonical' && typeof record.attributes.href === 'string' && /^https?:\/\//iu.test(record.attributes.href) && Object.keys(record.attributes).every(key => ['rel','href'].includes(key))) return 'link:canonical';
+  if (record?.tag === 'json-ld' && typeof record.key === 'string' && record.key && record.data && typeof record.data === 'object') {
+    assertKey(record.key); safePageJson(record.data); return `json-ld:${record.key}`;
+  }
+  throw pageError('page.invalid_head','Unsupported page head record.');
 }
 export function composePageDescriptor(layout, page) {
   if (!layout) return page;
@@ -114,6 +128,7 @@ export function safePageJson(value) {
   }).replace(/[<>&\u2028\u2029]/gu, character => `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`);
 }
 export function validatePageResponse(page) {
+  page = decodePageWire(page);
   if (page?.schema !== PAGE_RESPONSE_SCHEMA || typeof page.version !== 'string' || !page.version || typeof page.contextKey !== 'string' || !page.contextKey || !['page', 'redirect', 'reload'].includes(page.kind)) throw pageError('page.invalid_response', 'Invalid XTend page response.');
   if (page.kind === 'page' && (typeof page.page !== 'string' || typeof page.url !== 'string' || !page.props || typeof page.props !== 'object' || Array.isArray(page.props))) throw pageError('page.invalid_response', 'Invalid page data.');
   if (page.kind !== 'page' && (typeof page.location !== 'string' || !page.location)) throw pageError('page.invalid_response','A redirect requires a destination.');

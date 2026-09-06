@@ -1,3 +1,4 @@
+import { componentStyleNonce } from './style-nonce.js';
 import { xtendState } from './xtend-state.js';
 import { createXtendButtonPayloadBase, createXtendRmtCommandDetail } from './rmt-command.js';
 import './xicon.js';
@@ -163,7 +164,7 @@ class XButton extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
     shadow.innerHTML = `
-      <style>
+      <style${componentStyleNonce(this.ownerDocument)}>
         :host {
           display: inline-block;
           --xtend-button-surface: var(--xtend-surface-control, var(--xtend-surface-panel, var(--xtend-surface-muted, ButtonFace)));

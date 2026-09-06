@@ -1,0 +1,68 @@
+:host {
+  display: block;
+  container: demopay / inline-size;
+  color: #1c2248;
+  font: 14px/1.5 system-ui, sans-serif;
+  --section-padding: 0;
+  --section-gap: 0;
+}
+*, *::before, *::after { box-sizing: border-box; }
+.pay-hidden { display: none !important; }
+.demopay {
+  padding: 20px;
+  background: linear-gradient(135deg, #f0edff, #fff);
+  border: 1px solid #e4def8;
+  border-radius: 16px;
+}
+.demopay::part(container) { display: block; }
+.demopay::part(header), .demopay::part(aside), .demopay::part(footer) { display: none; }
+.pay-layout { display: grid; gap: 20px; }
+.pay-intro-panel, .pay-flow-panel { min-width: 0; }
+.pay-brand { margin: 0 0 16px; font-size: 18px; font-weight: 800; color: #5843bd; }
+h1 { margin: 0 0 12px; font-size: 26px; line-height: 1.15; }
+h2 { margin: 0 0 6px; font-size: 16px; line-height: 1.35; }
+p { margin: 0; }
+.pay-intro { color: #635b7d; }
+.pay-section { border-top: 1px solid #d8d2f0; padding: 10px 0; }
+.pay-section:first-child { border-top: 0; padding-top: 0; }
+[data-payment-section="summary"] p { font-size: 24px; font-weight: 750; }
+fieldset { border: 0; padding: 0; }
+select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #aaa0d1;
+  border-radius: 9px;
+  background: white;
+  color: inherit;
+  font: inherit;
+  margin: 8px 0 0;
+}
+.pay-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+button {
+  min-height: 44px;
+  border: 1px solid #aaa0d1;
+  border-radius: 9px;
+  padding: 10px 16px;
+  cursor: pointer;
+  background: #fff;
+  color: #312655;
+  font: inherit;
+}
+#provider-confirm { background: #5843bd; color: white; border-color: #5843bd; font-weight: 700; }
+:is(button, select):focus-visible { outline: 3px solid #b58a00; outline-offset: 3px; }
+@container demopay (min-width: 42rem) {
+  .pay-layout { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 28px; }
+  .pay-intro-panel { padding: 12px 0; }
+  .pay-flow-panel { border-left: 1px solid #d8d2f0; padding-left: 28px; }
+  h1 { font-size: 30px; }
+}
+@container demopay (max-width: 24rem) {
+  .demopay { padding: 16px; }
+  h1 { font-size: 22px; }
+  .pay-actions button { flex: 1 1 auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

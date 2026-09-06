@@ -127,6 +127,7 @@ function createAppServicesPort(config, dependencies, options, publish) {
         baseUrl: options.appServiceBaseUrl || options.serviceBaseUrl || '',
         pathPrefix: options.appServicePath || servicePlan.transport && servicePlan.transport.basePath || '/api/xtend/services',
         credentials: options.appServiceCredentials || 'same-origin',
+        fetch: options.appServiceFetch,
         headers: options.appServiceHeaders || options.serviceHeaders || {}
       })
     : null;
@@ -355,7 +356,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
       attempt.appServices = createAppServicesPort(config, dependencies, options, host.publish);
       attempt.renderer = host.createRenderer(options);
       host.attachCss(attempt.root);
-      const serverPrerenderShell = host.adoptServerShell(attempt.root, attempt.renderer);
+      const serverPrerenderShell = host.adoptServerShell(attempt.root, attempt.renderer, options.ssrResponse);
       const payload = serverPrerenderShell.payload;
       const envelope = payload && (payload.resume || payload.response && payload.response.resume || payload) || null;
       const resumeRequested = serverPrerenderShell.active && serverPrerenderShell.executionMode === 'server_prerender_resume';
@@ -416,7 +417,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
       }
       let resumeResult = null;
       if (resumeRequested && attempt.resume && typeof attempt.resume.resumeResponse === 'function') {
-        resumeResult = await attempt.resume.resumeResponse(payload.response || payload, {}, { root: attempt.root, preflight: resumePreflight, intentQueue: options.intentQueue || [] });
+        resumeResult = await attempt.resume.resumeResponse(payload.response || payload, {}, { root: attempt.root, preflight: resumePreflight, intentQueue: typeof options.intentQueue === 'function' ? options.intentQueue() : options.intentQueue || [] });
         assertActiveBoot(attempt);
         host.commitRootMetadata(attempt.root, attempt.renderer, { 'data-rmt-resume-status': resumeResult.status }, 'maraca.boot.resume-status');
         host.publish('xtend-maraca:resume', resumeResult);

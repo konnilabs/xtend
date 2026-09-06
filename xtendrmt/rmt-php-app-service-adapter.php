@@ -60,6 +60,38 @@ if (!class_exists('RmtPhpAppServiceAdapter', false)) {
             $this->registry = $this->validateRegistry($registry);
         }
 
+        private function applyInputPolicy(array $service, mixed $input, array &$context): mixed
+        {
+            $policy = $service['inputPolicy'] ?? null;
+            if ($policy === null) {
+                foreach ($service['actions'] ?? [] as $action) foreach ($action['inputs'] ?? [] as $field) if (!empty($field['inputPolicy'])) throw new RmtPhpAppServiceException('Missing aggregate input policy.', 'xtend.maraca.app-service.input_policy_mismatch', true);
+                return $input;
+            }
+            $fields = $policy['fields'] ?? [];
+            $names = array_column($fields, 'name');
+            if (($policy['schema'] ?? '') !== 'xtend.maraca.app-service-input-policy.v1' || !$fields || !empty($policy['conflicts']) || count(array_unique($names)) !== count($fields)) throw new RmtPhpAppServiceException('Invalid input policy.', 'xtend.maraca.app-service.input_policy_mismatch', true);
+            $source=is_array($input)?$input:[];$output=$source;
+            $ok=is_array($input)&&(!array_is_list($input)||$input===[]);$verdicts=[];
+            foreach($fields as $field){
+                $name=(string)($field['name']??'');$boundary=(string)($field['boundary']??'');$sanitize=(string)($field['sanitize']??'');$diagnostics=[];$changed=false;
+                if(!$name||$boundary!=='xtend.security.sanitizing-boundary.v1'||$sanitize!=='text'||($field['type']??'')!=='string')$diagnostics[]='xtend.maraca.app-service.input_policy_mismatch';
+                elseif(!array_key_exists($name,$source))$diagnostics[]='xtend.maraca.app-service.input_policy_field_missing';
+                elseif(!is_string($source[$name]))$diagnostics[]='xtend.security.text_sanitizer.type_refused';
+                else{
+                    $value=str_replace(["\r\n","\r"],"\n",$source[$name]);
+                    if(!preg_match('//u',$value)||preg_match('/[\x{0000}-\x{0008}\x{000B}\x{000C}\x{000E}-\x{001F}\x{007F}-\x{009F}]/u',$value))$diagnostics[]='xtend.security.text_sanitizer.control_character_refused';
+                    if(!$diagnostics){$output[$name]=$value;$changed=$value!==$source[$name];}
+                }
+                $fieldOk=!$diagnostics;$ok=$ok&&$fieldOk;
+                $verdicts[]=['name'=>$name,'ok'=>$fieldOk,'changed'=>$changed,'boundary'=>$boundary,'sanitize'=>$sanitize,'sanitizerSchema'=>'xtend.security.trusted-text-sanitizer.v1','diagnostics'=>$diagnostics];
+            }
+            $verdict=['schema'=>'xtend.maraca.app-service-input-verdict.v1','ok'=>$ok,'sanitized'=>$ok,'serviceId'=>$service['id'],'phase'=>'server','boundary'=>'xtend.security.sanitizing-boundary.v1','fields'=>$verdicts];
+            $context['inputPolicyVerdict']=$verdict;
+            if(isset($this->options['onInputPolicyVerdict']))try{($this->options['onInputPolicyVerdict'])($verdict);}catch(Throwable){}
+            if(!$ok)throw new RmtPhpAppServiceException('App service input was blocked by its TrustBoundary.','xtend.maraca.app-service.input_policy_blocked',true,['verdict'=>$verdict]);
+            return $output;
+        }
+
         public function getManifest(): array
         {
             return $this->manifest;
@@ -102,6 +134,7 @@ if (!class_exists('RmtPhpAppServiceAdapter', false)) {
             );
 
             try {
+                $input = $this->applyInputPolicy($service, $input, $handlerContext);
                 return call_user_func($this->registry[$service['id']]['handler'], $input, $handlerContext);
             } catch (Throwable $error) {
                 $this->reportError($error, $handlerContext);
@@ -271,6 +304,7 @@ if (!class_exists('RmtPhpAppServiceAdapter', false)) {
                     return;
                 }
 
+                $input = $this->applyInputPolicy($service, $input, $handlerContext);
                 $iterable = call_user_func($this->registry[$serviceId]['handler'], $input, $handlerContext);
                 if (is_array($iterable) && (isset($iterable['type']) || isset($iterable['kind']))) {
                     $iterable = [$iterable];
@@ -824,7 +858,7 @@ if (!class_exists('RmtPhpAppServiceAdapter', false)) {
                 return [
                     'code' => $error->serviceCode,
                     'message' => $error->expose ? $error->getMessage() : 'App service request failed.',
-                ];
+                ] + ($error->expose && $error->serviceCode==='xtend.maraca.app-service.validation' && isset($error->details['errors']) ? ['details'=>array_intersect_key($error->details,array_flip(['errorBag','errors']))] : []);
             }
             if (is_array($error)) {
                 $candidate = trim((string) ($error['code'] ?? ''));
@@ -942,6 +976,9 @@ if (!class_exists('RmtPhpAppServiceAdapter', false)) {
         private function statusForErrorCode(string $code): int
         {
             if ($code === 'xtend.maraca.app-service.unknown') return 404;
+            if ($code === 'xtend.maraca.app-service.validation' || $code === 'xtend.maraca.app-service.input_policy_blocked') return 422;
+            if ($code === 'xtend.maraca.app-service.conflict') return 409;
+            if ($code === 'xtend.maraca.app-service.forbidden') return 403;
             if ($code === 'xtend.maraca.app-service.mode_mismatch'
                 || $code === 'xtend.maraca.app-service.target_mismatch') return 400;
             if ($code === 'xtend.maraca.app-service.payload_too_large') return 413;

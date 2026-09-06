@@ -174,4 +174,28 @@ Run `node tests/ssr-pages/measure_resources.js .xtend-test-results/ssr-pages-res
 
 The Node test path requires no PHP. The additional `ssr-pages-php` suite checks shared render parity once per PHP/Laravel environment. Assign `router.pageClient = client` before attaching an existing `x-router`, and call `client.start()`; the page runtime then owns links and history.
 
-Optional transitions use a host callback: `createPageClient({ initialPage, transition: async update => { if (document.startViewTransition) await document.startViewTransition(update).updateCallbackDone; else await update(); } })`. A visit opts in with `{ transition: true }`. Without a host callback, or with reduced motion, the page uses its regular update.
+`createPageClient({ initialPage, viewTransitions: true })` enables page animations through the existing RMT AnimationEngine and XUtils. `data-xtend-page-transition` marks the animated content inside the page root, keeping a persistent shell still. `startMaracaPageApplication()` forwards the same option. Background reloads do not animate; unavailable animation support, missing XUtils and reduced motion use the regular update. Navigation does not wait for animation; a new visit or disposal stops active effects. Visits can opt out with `{ transition: false }`. A custom `transition: async update => { /* … */ await update(); }` host callback remains available and takes precedence; `{ transition: true }` activates it.
+
+Links and native GET forms accept `data-xtend-preserve-scroll="true"`, `data-xtend-preserve-state="true"` and `data-xtend-transition="none"` (`"false"` is also accepted). Submit buttons can override the form settings. Product variants can therefore update the URL, data and metadata while retaining scroll position and remembered state. These attributes apply to internal navigation; the original links and forms remain usable without JavaScript.
+
+## Maraca pages and XTend.store
+
+`createMaracaPageClient()` from `@ccslabs/xtend/maraca/page-client` connects the page client to a Maraca bundle. Each page or layout manifest may declare `maraca: { entry: "/build/maraca/xtend.maraca.mjs" }`. The bundle and portable projection use the same compiler facts; `createRmtCompilationSession()` shares analysis within a build. Configuration and referenced assets contribute to the build version.
+
+The page runtime owns URL, history and transport; Maraca owns UI state and DOM commits. Each root has one controller, and unchanged shells survive navigation. Superseded activations are discarded and navigation releases remote surfaces. The generated entry uses `startMaracaPageApplication()` from `@ccslabs/xtend/maraca/page-bootstrap`: capture is installed before loading the composition, P-256 signatures use the public build key, and rejected integrity checks use the existing single hydration fallback.
+
+The shared head contract also accepts canonical links (`tag: "link"`, `rel: "canonical"`, HTTP(S) URL) and identified JSON-LD records (`tag: "json-ld"`, `key`, `data`). Node, PHP and browser consumers deduplicate by identity. Script content is serialized safely; event attributes and executable canonical URLs are rejected.
+
+[XTend.store](../../products/xtend-shop/README.en.md) demonstrates this integration with Laravel, a guest cart and a separate PHP DemoPay provider. The Node SSR adapter and `createNodePageHost()` remain independent integration APIs. The store is an additional reference application.
+
+Maraca pages also route native GET search and filter forms through page navigation. The base page API enables this with `forms: true`; `navigationAction` can close declared RMT surfaces before a visit. POST forms retain their host or RMT contract.
+
+## Compact transport and conditional views
+
+Node hosts can opt into `compactResponses: true`; Laravel uses `compact_responses => true`. HTML bootstrap data then uses `xtend.page-wire.v1`: a response-local table stores identical JSON objects and arrays once. Each child reference is an index into that table. `encodePageWire()` and `decodePageWire()` are exported from the page contract module. The existing page response and signed resume envelopes are reconstructed before validation and signature verification; their contracts do not change. References never cross requests or sessions. The decoder rejects unsafe keys, cyclic/foreign references, excessive depth, node counts and logical expansion.
+
+The page client negotiates this transport with `X-XTend-Page-Wire: 1`. Older JSON consumers continue to receive ordinary page responses. For negotiated visits with a portable artifact, hosts send page inputs and the render artifact without generating another SSR envelope. Initial document requests still render complete HTML and signed resume data. This option requires a compatible bootstrap; custom Laravel root views should serialize `$pageData` (falling back to `$page` for older integrations).
+
+Use portable `conditional` descriptors to materialize only the current view. The DOM renderer accepts both `conditional` and its existing `when` spelling; compiler-resolved portals may target a conditional branch. State can remain in the RMT model while controls are absent. An unchanged branch reconciles its existing nodes. This reduces DOM and page data, but does not automatically split a shared Maraca bundle into separately downloaded code chunks.
+
+Laravel's optional `style_nonce => true` adds the document nonce to `style-src` and removes its `unsafe-inline` source. The store also sets `style-src-attr 'none'`. Trusted XTend component style templates obtain the bootstrap nonce; arbitrary HTML is never automatically authorized. Custom components must supply equivalent trusted style handling or external stylesheets before enabling this policy. Browser tests exercise both blocked style injections and the complete payment flow.

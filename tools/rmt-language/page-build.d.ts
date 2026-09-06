@@ -1,6 +1,6 @@
 import type { PageManifest } from '@ccslabs/xtend-rmt/page-contract';
 import type { JsonValue } from '@ccslabs/xtend-rmt/portable-render';
-export interface PageBuildDefinition { source: string; inputs?: string[]; defaults?: Record<string,JsonValue>; layout?: string; head?: NonNullable<PageManifest['pages'][string]['head']> }
+export interface PageBuildDefinition { source: string; maraca?:{entry:string}; inputs?: string[]; defaults?: Record<string,JsonValue>; layout?: string; head?: NonNullable<PageManifest['pages'][string]['head']> }
 export interface PageBuildConfiguration {
   schema?: 'xtend.page-build.v1';
   assetRoot?: string; target?: 'node' | 'php' | 'both'; host?: 'laravel'; output?: string;
@@ -11,6 +11,7 @@ export interface PageBuildConfiguration {
 }
 export interface PageBuildOptions {
   root: string;
+  compileSource?:import('./compilation-session').RmtCompilationSession['compileSource'];
   config?: string;
   target?: 'node' | 'php' | 'both';
   host?: 'laravel';

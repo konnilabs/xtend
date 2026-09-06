@@ -155,6 +155,7 @@ export interface MaracaBuildInput {
 
 export interface MaracaRunOptions {
   rootDir?: string;
+  compileSource?:import('@ccslabs/xtend/rmt-language/compilation-session').RmtCompilationSession['compileSource'];
 }
 
 export interface MaracaDiagnostic {

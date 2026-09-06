@@ -5,6 +5,7 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  workflow_call:
   schedule:
     - cron: '35 3 * * *'
 
@@ -19,7 +20,7 @@ jobs:
   laravel:
     name: Laravel ${{ matrix.laravel }} / PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
@@ -37,10 +38,14 @@ jobs:
         run: |
           printf 'XTEND_LARAVEL_FIXTURE=%s/xtend-laravel-fixture\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
           printf 'COMPOSER_CACHE_DIR=%s/xtend-composer-cache\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          printf 'npm_config_cache=%s/xtend-store-npm-cache\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '24.18.0'
           package-manager-cache: false
+      - name: Pin the repository npm runtime
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
       - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: ${{ matrix.php }}
@@ -51,7 +56,12 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.COMPOSER_CACHE_DIR }}
-          key: xtend-composer-${{ runner.os }}-${{ runner.arch }}-${{ matrix.php }}-${{ hashFiles('tests/fixtures/ssr-pages/**/composer.lock') }}
+          key: xtend-composer-${{ runner.os }}-${{ runner.arch }}-${{ matrix.php }}-${{ hashFiles('tests/fixtures/ssr-pages/**/composer.lock', 'products/xtend-shop/**/composer.lock') }}
+      - name: Restore locked shop build downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-store-npm-cache
+          key: xtend-store-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('products/xtend-shop/package-lock.json') }}
       - name: Provide PHP-FPM for the proxy acceptance
         if: matrix.fpm
         run: |
@@ -68,15 +78,35 @@ jobs:
       - name: Run the canonical Laravel profile
         env:
           XTEND_PHP_FPM_BINARY: ${{ matrix.fpm && '/usr/sbin/php-fpm8.3' || '' }}
-        run: node scripts/run_xtend_tests.js --profile "${{ matrix.profile }}" --report .xtend-test-results/laravel-ssr.json
+        run: node scripts/run_xtend_tests.js --profile "${{ matrix.profile }}" --report .xtend-test-results/laravel-ssr.json --execution .xtend-test-results/laravel-execution.json --json
+      - name: Prepare the isolated XTend.store packages
+        run: node products/xtend-shop/scripts/prepare-fixture.cjs "$RUNNER_TEMP/xtend-store" "${{ matrix.laravel }}" "$GITHUB_WORKSPACE"
+      - name: Install locked shop and provider dependencies
+        working-directory: ${{ runner.temp }}/xtend-store
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          composer install --no-interaction --no-progress --prefer-dist --no-scripts
+          composer check-platform-reqs
+          composer install --working-dir=payment-provider --no-interaction --no-progress --prefer-dist --no-scripts
+          composer check-platform-reqs --working-dir=payment-provider
+          php scripts/setup.php
+      - name: Run the canonical XTend.store profile
+        env:
+          XTEND_SHOP_FIXTURE: ${{ runner.temp }}/xtend-store
+          XTEND_SHOP_FPM_BINARY: ${{ matrix.fpm && '/usr/sbin/php-fpm8.3' || '' }}
+        run: node scripts/run_xtend_tests.js --profile "${{ matrix.profile == 'ssr-pages:laravel-browser' && 'xtend-shop' || 'xtend-shop-php' }}" --report .xtend-test-results/xtend-store-gate.json --execution .xtend-test-results/xtend-store-execution.json --json
       - name: Upload results and diagnostics
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: xtend-laravel-${{ matrix.laravel }}-php-${{ matrix.php }}
+          include-hidden-files: true
           path: |
             .xtend-test-results/laravel-ssr.json
-            .xtend-test-results/xtend-test-execution.json
+            .xtend-test-results/laravel-execution.json
             .xtend-test-results/test-runner/
+            .xtend-test-results/xtend-store*.json
+            .xtend-test-results/xtend-store/
             ${{ env.XTEND_LARAVEL_FIXTURE }}/storage/logs/
+            ${{ runner.temp }}/xtend-store/storage/logs/
           if-no-files-found: warn

@@ -3,7 +3,31 @@
   "description": "Laravel host integration for XTend RMT PHP SSR",
   "type": "library",
   "license": "Apache-2.0",
-  "require": {"php": "^8.2", "illuminate/support": "^12.0 || ^13.0", "illuminate/http": "^12.0 || ^13.0", "illuminate/contracts": "^12.0 || ^13.0", "illuminate/view": "^12.0 || ^13.0"},
-  "autoload": {"psr-4": {"Ccslabs\\XTend\\": "src/"}, "files": ["runtime/rmt-portable-render.php", "runtime/rmt-php-ssr-adapter.php", "runtime/rmt-php-app-service-adapter.php", "runtime/rmt-page-data.php"]},
-  "extra": {"laravel": {"providers": ["Ccslabs\\XTend\\XTendServiceProvider"]}}
+  "require": {
+    "php": "^8.2",
+    "illuminate/support": "^12.0 || ^13.0",
+    "illuminate/http": "^12.0 || ^13.0",
+    "illuminate/contracts": "^12.0 || ^13.0",
+    "illuminate/view": "^12.0 || ^13.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Ccslabs\\XTend\\": "src/"
+    },
+    "files": [
+      "runtime/rmt-portable-render.php",
+      "runtime/rmt-php-ssr-adapter.php",
+      "runtime/rmt-php-app-service-adapter.php",
+      "runtime/rmt-page-data.php",
+      "runtime/xscaler-preflight.php",
+      "runtime/xscaler-php-fragment-adapter.php"
+    ]
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Ccslabs\\XTend\\XTendServiceProvider"
+      ]
+    }
+  }
 }

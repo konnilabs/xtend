@@ -89,6 +89,7 @@
     "rmt-portable-render.js",
     "rmt-portable-render.d.ts",
     "page-contract.mjs",
+    "page-wire.mjs",
     "page-contract.d.ts",
     "node-page-host.mjs",
     "node-page-host.d.ts",
@@ -99,7 +100,8 @@
     "rmt-php-ssr-adapter.php",
     "rmt-portable-render.php",
     "rmt-page-data.php",
-    "rmt-ssr-stream-host.js"
+    "rmt-ssr-stream-host.js",
+    "rmt-resume-capture-adapter.d.ts"
   ],
   "exports": {
     ".": {
@@ -241,7 +243,12 @@
       "types": "./page-form.d.ts",
       "default": "./page-form.mjs"
     },
-    "./php-ssr-adapter.php": "./rmt-php-ssr-adapter.php"
+    "./php-ssr-adapter.php": "./rmt-php-ssr-adapter.php",
+    "./resume-capture-adapter": {
+      "types": "./rmt-resume-capture-adapter.d.ts",
+      "import": "./rmt-resume-capture-adapter.js",
+      "default": "./rmt-resume-capture-adapter.js"
+    }
   },
   "publishConfig": {
     "access": "public",

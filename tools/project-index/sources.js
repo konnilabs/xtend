@@ -8,7 +8,7 @@ const posix = value => String(value).replace(/\\/g, '/');
 const compare = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 const fingerprint = value => createHash('sha256').update(value).digest('hex');
 const inside = (root, file) => { const p = path.relative(root, file); return !p || (!p.startsWith('../') && p !== '..' && !path.isAbsolute(p)); };
-const EXCLUDED = new Set(['.git', 'node_modules', 'vendor', 'dist', 'build', 'generated', '.xtend-build', '.xtend-test-results', '.project-index-cache', 'coverage', '.next']);
+const EXCLUDED = new Set(['.git', 'node_modules', 'vendor', '.packages', 'dist', 'build', 'generated', '.xtend-build', '.xtend-test-results', '.project-index-cache', 'coverage', '.next']);
 function excluded(file) {
   return posix(file).split('/').some(part => EXCLUDED.has(part))
     || /(?:^|\/)knowledge\//.test(file) || /(?:-build|\.min)\.(?:js|mjs|json|d\.ts)$/.test(file);

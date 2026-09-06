@@ -1,3 +1,4 @@
+import { componentStyleNonce } from './style-nonce.js';
 import { xtendState } from './xtend-state.js';
 
 class XSelect extends HTMLElement {
@@ -160,7 +161,7 @@ class XSelect extends HTMLElement {
     this._observer = null;
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
-      <style>
+      <style${componentStyleNonce(this.ownerDocument)}>
         :host {
           display: block;
           box-sizing: border-box;

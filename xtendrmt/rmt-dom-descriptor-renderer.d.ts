@@ -292,6 +292,7 @@ export interface RmtDomDescriptorRenderer {
   renderKeyed(root: Element, descriptors: unknown[], options?: RmtDomDescriptorRenderOptions): Node[];
   /** @deprecated Use commit({ operation: 'merge-element', ... }). Removed in 1.0. */
   patchElement(element: Element, descriptor: unknown, options?: RmtDomDescriptorRenderOptions): Element;
+  resolveClasses(value: unknown, options?: RmtDomDescriptorRenderOptions & { item?: unknown }): string[];
   resolveValue(value: unknown, options?: RmtDomDescriptorRenderOptions & { item?: unknown }): unknown;
   createNoManualHtmlGate(options?: unknown): RmtNoManualHtmlGate;
   isUrlAllowed(value: unknown): boolean;

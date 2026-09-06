@@ -221,6 +221,23 @@ function runProjectIndexSuite(options = {}) {
       const errors = ts.getPreEmitDiagnostics(program);
       assert.equal(errors.length, 0, errors.map(error => ts.flattenDiagnosticMessageText(error.messageText, '\n')).join('\n'));
     });
+    check('Page and Maraca manifests connect source, services and generated artifacts without loading bundles', () => {
+      write('store/package.json', JSON.stringify({name:'fixture-store',private:true}));
+      write('store/src/app.rmt', source('store'));
+      write('store/src/services.ts', 'export const service = 1;');
+      write('store/server/services.php', '<?php return [];');
+      write('store/maraca.config.json', JSON.stringify({schema:'xtend.maraca.build-config.v1',options:{source:'src/app.rmt',out:'public/build/maraca',services:{clientEntry:'src/services.ts',phpEntry:'server/services.php'}}}));
+      write('store/xtend.pages.json', JSON.stringify({schema:'xtend.page-build.v1',host:'laravel',target:'php',pages:{Store:{source:'src/app.rmt',maraca:{entry:'/build/maraca/xtend.maraca.mjs'}}}}));
+      const repository = createProjectIndex({rootDir:path.join(root,'store'),profile:'repository',git:false});
+      try {
+        const edges = repository.snapshot().relationships;
+        const linked = (from,to) => edges.some(edge=>edge.kind==='generated-from'&&edge.from.endsWith(from)&&edge.to.endsWith(to));
+        assert(linked('/bootstrap/xtend/pages.json','/public/build/maraca/xtend.maraca.mjs'));
+        for (const input of ['/src/app.rmt','/src/services.ts','/server/services.php']) assert(linked('/public/build/maraca/xtend.maraca.mjs',input));
+        const impact = computeImpact({headSnapshot:repository.snapshot(),changedPaths:['src/services.ts']});
+        assert(impact.files.some(file=>file.workspacePath==='maraca.config.json')); // Generated outputs remain explicit relationship targets even while absent.
+      } finally { repository.dispose(); }
+    });
     check('CLI requires root, emits JSON and invalidates opt-in caches', () => {
       let output = '', error = ''; const io = { stdout: { write: text => { output += text; } }, stderr: { write: text => { error += text; } } };
       assert.equal(runProjectIndexCli(['build'], io), 1); assert(error.includes('--root'));

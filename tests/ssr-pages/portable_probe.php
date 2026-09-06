@@ -6,7 +6,13 @@ require $argv[1] . '/xtendrmt/rmt-page-data.php';
 $json = stream_get_contents(STDIN);
 $input = RmtPortableRender::decodeJson($json);
 if (isset($input['props'])) $input['props'] = (array)json_decode($json,false,512,JSON_THROW_ON_ERROR)->props;
-if (($input['operation'] ?? '') === 'providers') {
+if (($input['operation'] ?? '') === 'wire') {
+    $page = (array)json_decode($json, false, 512, JSON_THROW_ON_ERROR)->page;
+    echo json_encode(\Ccslabs\XTend\Data\PageWire::encode($page), JSON_THROW_ON_ERROR);
+} elseif (($input['operation'] ?? '') === 'head') {
+    try { $head = \Ccslabs\XTend\Data\PageView::head($input['layout'] ?? [], $input['head']); echo json_encode(['ok'=>true,'head'=>$head,'html'=>\Ccslabs\XTend\Data\PageView::renderHead($head, 'nonce')],JSON_THROW_ON_ERROR); }
+    catch (\Throwable) { echo '{"ok":false}'; }
+} elseif (($input['operation'] ?? '') === 'providers') {
     $calls = []; $values = [];
     foreach ($input['records'] as $key => $record) {
         $resolve = function() use (&$calls, $key, $record) { $calls[] = $key; return $record['value']; };

@@ -116,6 +116,8 @@ RMT Hosts sollten die Komponente als Custom-Element-Grenze behandeln: Attribute 
 
 Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezieltes Skinning freigegebener Controls gedacht, während CSS Custom Properties breitere Anpassungen an Farbe, Abstand, Radius und Bewegung abdecken. Accessibility-Hooks wie Labels, Live-Regionen und Fokusverhalten sollten beim Komponieren erhalten bleiben.
 
+Die Tab-Reihenfolge umfasst Controls in zugewiesenen Slots und offenen Shadow Roots. Versteckte, inaktive und deaktivierte Controls werden ausgelassen; Tab und Shift-Tab bleiben innerhalb der geöffneten modalen Oberfläche.
+
 ## Fehlerbehebung
 
 - Wenn `x-dialog` nicht upgradet, prüfe, ob `xtend-loader.js` geladen wurde und `components/manifest.json` `x-dialog` enthält.

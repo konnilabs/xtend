@@ -79,6 +79,8 @@ export interface RmtFormValidationModelReader {
 }
 
 export interface RmtFormValidationEvaluationRequest {
+  /** Host validation messages, scoped to the selected action's declared fields. */
+  serverErrors?: Record<string, string | string[]>;
   model?: Record<string, unknown>;
   states?: Record<string, unknown>;
   snapshot?: { states?: Record<string, unknown>; [key: string]: unknown };

@@ -1,0 +1,3515 @@
+// XTend.store: all UI descriptors, actions and validation are compiler-owned.
+template xtend.store {
+  state shop.shell type object preserve {
+    initial {
+      id "store-shell"
+      viewTemplate {
+        class "xtm-app-shell store-shell"
+        children [
+          {
+            type "element"
+            tag "a"
+            text "Zum Inhalt"
+            attributes {
+              href "/#store-main"
+            }
+            class "skip-link"
+          }
+          {
+            type "element"
+            tag "div"
+            attributes {
+              id "header-slot"
+            }
+          }
+          {
+            type "element"
+            tag "nav"
+            attributes {
+              "aria-label" "Produktkategorien"
+            }
+            children [
+              {
+                type "element"
+                tag "a"
+                text "Alle Entdeckungen"
+                attributes {
+                  href "/suche"
+                }
+              }
+              {
+                type "element"
+                tag "a"
+                text "Technik"
+                attributes {
+                  href "/kategorie/technik"
+                }
+              }
+              {
+                type "element"
+                tag "a"
+                text "Arbeitsplatz"
+                attributes {
+                  href "/kategorie/arbeitsplatz"
+                }
+              }
+              {
+                type "element"
+                tag "a"
+                text "Wohnen"
+                attributes {
+                  href "/kategorie/wohnen"
+                }
+              }
+            ]
+            class "category-nav"
+          }
+          {
+            type "element"
+            tag "div"
+            attributes {
+              id "main-slot"
+            }
+          }
+          {
+            type "element"
+            tag "div"
+            attributes {
+              id "cart-feedback-slot"
+            }
+          }
+          {
+            type "element"
+            tag "div"
+            attributes {
+              id "feedback-slot"
+            }
+          }
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "checkout" } then {
+            type "element"
+            tag "div"
+            attributes {
+              id "payment-slot"
+            }
+          } }
+          {
+            type "element"
+            tag "div"
+            attributes {
+              id "miniCart-slot"
+            }
+          }
+          { type "conditional" test { op "if" test { op "equals" left "$model.shop.data.view" right "home" } then true else { op "equals" left "$model.shop.data.view" right "results" } } then {
+            type "element"
+            tag "div"
+            attributes {
+              id "filterDrawer-slot"
+            }
+          } }
+          {
+            type "element"
+            tag "footer"
+            children [
+              {
+                type "element"
+                tag "strong"
+                text "XTend.store"
+              }
+              {
+                type "element"
+                tag "p"
+                text "Gute Dinge. Gute Technologie."
+              }
+              {
+                type "element"
+                tag "p"
+                text "Ein fiktiver Shop. Ein echter Test für PHP-SSR, Maraca und Resumability."
+              }
+              {
+                type "element"
+                tag "a"
+                text "Zurück nach oben"
+                attributes {
+                  href "#store-header"
+                }
+              }
+            ]
+            class "store-footer"
+          }
+        ]
+      }
+    }
+  }
+  state shop.header type object preserve {
+    initial {
+      id "store-header"
+      title ""
+      viewTemplate {
+        class "xtm-top-app-bar store-header"
+        children [
+          {
+            type "element"
+            tag "a"
+            text "XTend.store"
+            attributes {
+              href "/"
+              slot "title"
+            }
+            class "store-wordmark"
+          }
+          {
+            type "element"
+            tag "form"
+            attributes {
+              slot "search"
+              action "/suche"
+              method "get"
+              role "search"
+            }
+            children [
+              {
+                type "element"
+                tag "label"
+                text "Wonach suchst du?"
+                attributes {
+                  for "store-search"
+                }
+                class "sr-only"
+              }
+              {
+                type "element"
+                tag "input"
+                attributes {
+                  name "q"
+                  value { op "path" path "$model.shop.data.catalog.filters.q" fallback "" }
+                  type "search"
+                  id "store-search"
+                  placeholder "Finde dein nächstes Lieblingsstück"
+                }
+              }
+              {
+                type "element"
+                tag "button"
+                text "Suchen"
+                attributes {
+                  type "submit"
+                }
+                class "search-button"
+              }
+            ]
+            class "store-search"
+          }
+          {
+            type "element"
+            tag "div"
+            attributes {
+              slot "actions"
+            }
+            children [
+              {
+                type "element"
+                tag "span"
+                text "Lieferung nach Deutschland"
+                class "store-delivery"
+              }
+              {
+                type "element"
+                tag "a"
+                attributes {
+                  href "/warenkorb"
+                  class "cart-link"
+                }
+                children [
+                  {
+                    type "element"
+                    tag "span"
+                    text "Warenkorb"
+                  }
+                  {
+                    type "element"
+                    tag "span"
+                    text "$model.shop.data.cart.count"
+                    attributes {
+                      id "cart-count"
+                      "aria-live" "polite"
+                    }
+                    class "cart-badge"
+                  }
+                ]
+              }
+              {
+                type "element"
+                tag "button"
+                text "Kurz ansehen"
+                attributes {
+                  type "button"
+                  id "open-mini-cart"
+                  "aria-controls" "mini-cart"
+                  "aria-label" "Warenkorb-Vorschau öffnen"
+                }
+                class "store-enhanced mini-cart-trigger"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+  state shop.main type object preserve {
+    initial {
+      id "store-main"
+      viewTemplate {
+        class "store-main"
+        attributes { data-xtend-page-transition "true" }
+        children [
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "home" } then {
+            type "element"
+            tag "section"
+            children [
+              {
+                type "element"
+                tag "div"
+                children [
+                  {
+                    type "element"
+                    tag "p"
+                    text "WENIGER SUCHEN. MEHR FINDEN."
+                    class "eyebrow"
+                  }
+                  {
+                    type "element"
+                    tag "h1"
+                    text "Gute Dinge.\nGuter Alltag."
+                  }
+                  {
+                    type "element"
+                    tag "p"
+                    text "Kleine Upgrades, große Freude. Entdecke unsere Lieblingsstücke für dein Zuhause und alles dazwischen."
+                  }
+                  {
+                    type "element"
+                    tag "a"
+                    text "Jetzt Lieblingsstücke entdecken"
+                    attributes {
+                      href "/suche"
+                    }
+                    class "xtm-primary-action"
+                  }
+                  {
+                    type "element"
+                    tag "p"
+                    text "36 Dinge, die den Unterschied machen. Alle fiktiv. Alle zum Ausprobieren."
+                    class "hero-note"
+                  }
+                ]
+              }
+              {
+                type "element"
+                tag "div"
+                children [
+                  {
+                    type "element"
+                    tag "img"
+                    attributes {
+                      src "/images/tec-01-1.svg"
+                      alt "NOVA Studio Kopfhörer in Salbei"
+                      width 360
+                      height 320
+                      loading "lazy"
+                    }
+                    class "hero-product"
+                  }
+                  {
+                    type "element"
+                    tag "span"
+                    text "NOVA Studio"
+                    class "hero-product-label"
+                  }
+                  {
+                    type "element"
+                    tag "span"
+                    text "Für deine beste Playlist."
+                    class "hero-product-caption"
+                  }
+                ]
+                class "hero-art"
+              }
+            ]
+            class [ "store-hero" ]
+          } }
+          { type "conditional" test {
+                    op "if"
+                    test { op "equals" left "$model.shop.data.view" right "home" }
+                    then true
+                    else { op "equals" left "$model.shop.data.view" right "results" }
+                  } then {
+            type "element"
+            tag "section"
+            children [
+              {
+                type "element"
+                tag "div"
+                children [
+                  {
+                    type "element"
+                    tag "p"
+                    text "KURATIERT FÜR DEINEN ALLTAG"
+                    class "eyebrow"
+                  }
+                  {
+                    type "element"
+                    tag "h2"
+                    text "$model.shop.data.catalog.title"
+                  }
+                  {
+                    type "element"
+                    tag "span"
+                    text {
+                      op "concat"
+                      values [
+                        "$model.shop.data.catalog.total"
+                        " Entdeckungen"
+                      ]
+                    }
+                    class "xtm-muted"
+                  }
+                ]
+                class "section-heading"
+              }
+              {
+                type "element"
+                tag "button"
+                text "Filter & Sortierung"
+                attributes {
+                  id "open-filters"
+                  type "button"
+                  "aria-controls" "filter-drawer"
+                }
+                class "store-enhanced mobile-filter-trigger"
+              }
+              {
+                type "element"
+                tag "div"
+                children [
+                  {
+                    type "element"
+                    tag "aside"
+                    children [
+                      {
+                        type "element"
+                        tag "details"
+                        attributes {
+                          open true
+                        }
+                        children [
+                          {
+                            type "element"
+                            tag "summary"
+                            text "Filter & Sortierung"
+                          }
+                          {
+                            type "element"
+                            tag "form"
+                            attributes {
+                              action "/suche"
+                              method "get"
+                            }
+                            children [
+                              {
+                                type "element"
+                                tag "input"
+                                attributes {
+                                  name "q"
+                                  value "$model.shop.data.catalog.filters.q"
+                                  type "hidden"
+                                }
+                              }
+                              {
+                                type "element"
+                                tag "h2"
+                                text "Deine Auswahl"
+                              }
+                              {
+                                type "element"
+                                tag "label"
+                                text "Kategorie"
+                                attributes {
+                                  for "filter-category"
+                                }
+                              }
+                              {
+                                type "element"
+                                tag "select"
+                                attributes {
+                                  name "category"
+                                  id "filter-category"
+                                }
+                                children [
+                                  {
+                                    type "element"
+                                    tag "option"
+                                    text "Alle Kategorien"
+                                    attributes {
+                                      value ""
+                                      selected {
+                                        op "equals"
+                                        left "$model.shop.data.catalog.filters.category"
+                                        right {
+                                          op "literal"
+                                          value ""
+                                        }
+                                      }
+                                    }
+                                  }
+                                  {
+                                    type "element"
+                                    tag "option"
+                                    text "Technik"
+                                    attributes {
+                                      value "technik"
+                                      selected {
+                                        op "equals"
+                                        left "$model.shop.data.catalog.filters.category"
+                                        right {
+                                          op "literal"
+                                          value "technik"
+                                        }
+                                      }
+                                    }
+                                  }
+                                  {
+                                    type "element"
+                                    tag "option"
+                                    text "Arbeitsplatz"
+                                    attributes {
+                                      value "arbeitsplatz"
+                                      selected {
+                                        op "equals"
+                                        left "$model.shop.data.catalog.filters.category"
+                                        right {
+                                          op "literal"
+                                          value "arbeitsplatz"
+                                        }
+                                      }
+                                    }
+                                  }
+                                  {
+                                    type "element"
+                                    tag "option"
+                                    text "Wohnen"
+                                    attributes {
+                                      value "wohnen"
+                                      selected {
+                                        op "equals"
+                                        left "$model.shop.data.catalog.filters.category"
+                                        right {
+                                          op "literal"
+                                          value "wohnen"
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                              {
+                                type "element"
+                                tag "label"
+                                text "Preis ab (€)"
+                                attributes {
+                                  for "filter-min"
+                                }
+                              }
+                              {
+                                type "element"
+                                tag "input"
+                                attributes {
+                                  name "min"
+                                  value "$model.shop.data.catalog.filters.min"
+                                  type "number"
+                                  id "filter-min"
+                                  min 0
+                                  max 5000
+                                }
+                              }
+                              {
+                                type "element"
+                                tag "label"
+                                text "Preis bis (€)"
+                                attributes {
+                                  for "filter-max"
+                                }
+                              }
+                              {
+                                type "element"
+                                tag "input"
+                                attributes {
+                                  name "max"
+                                  value "$model.shop.data.catalog.filters.max"
+                                  type "number"
+                                  id "filter-max"
+                                  min 0
+                                  max 5000
+                                }
+                              }
+                              {
+                                type "element"
+                                tag "label"
+                                children [
+                                  {
+                                    type "element"
+                                    tag "input"
+                                    attributes {
+                                      name "available"
+                                      value "1"
+                                      type "checkbox"
+                                      checked {
+                                        op "equals"
+                                        left "$model.shop.data.catalog.filters.available"
+                                        right {
+                                          op "literal"
+                                          value "1"
+                                        }
+                                      }
+                                    }
+                                  }
+                                  {
+                                    type "element"
+                                    tag "span"
+                                    text "Nur verfügbare Artikel"
+                                  }
+                                ]
+                                class "check-label"
+                              }
+                              {
+                                type "element"
+                                tag "label"
+                                text "Sortieren"
+                                attributes {
+                                  for "filter-sort"
+                                }
+                              }
+                              {
+                                type "element"
+                                tag "select"
+                                attributes {
+                                  id "filter-sort"
+                                  name "sort"
+                                }
+                                children [
+                                  {
+                                    type "element"
+                                    tag "option"
+                                    text "Unsere Empfehlungen"
+                                    attributes {
+                                      value "popular"
+                                      selected {
+                                        op "equals"
+                                        left "$model.shop.data.catalog.filters.sort"
+                                        right {
+                                          op "literal"
+                                          value "popular"
+                                        }
+                                      }
+                                    }
+                                  }
+                                  {
+                                    type "element"
+                                    tag "option"
+                                    text "Preis aufsteigend"
+                                    attributes {
+                                      value "price-asc"
+                                      selected {
+                                        op "equals"
+                                        left "$model.shop.data.catalog.filters.sort"
+                                        right {
+                                          op "literal"
+                                          value "price-asc"
+                                        }
+                                      }
+                                    }
+                                  }
+                                  {
+                                    type "element"
+                                    tag "option"
+                                    text "Preis absteigend"
+                                    attributes {
+                                      value "price-desc"
+                                      selected {
+                                        op "equals"
+                                        left "$model.shop.data.catalog.filters.sort"
+                                        right {
+                                          op "literal"
+                                          value "price-desc"
+                                        }
+                                      }
+                                    }
+                                  }
+                                  {
+                                    type "element"
+                                    tag "option"
+                                    text "Name A–Z"
+                                    attributes {
+                                      value "name"
+                                      selected {
+                                        op "equals"
+                                        left "$model.shop.data.catalog.filters.sort"
+                                        right {
+                                          op "literal"
+                                          value "name"
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                              {
+                                type "element"
+                                tag "button"
+                                text "Auswahl anzeigen"
+                                attributes {
+                                  type "submit"
+                                }
+                                class "xtm-primary-action"
+                              }
+                              {
+                                type "element"
+                                tag "a"
+                                text "Filter zurücksetzen"
+                                attributes {
+                                  href "/suche"
+                                }
+                              }
+                            ]
+                            class "filter-form xtm-surface"
+                          }
+                        ]
+                      }
+                    ]
+                    class "filter-column"
+                  }
+                  {
+                    type "element"
+                    tag "div"
+                    children [
+                      {
+                        type "element"
+                        tag "div"
+                        children [
+                          {
+                            type "repeat"
+                            source "$model.shop.data.catalog.products"
+                            key "id"
+                            template {
+                              type "element"
+                              tag "article"
+                              children [
+                                {
+                                  type "element"
+                                  tag "a"
+                                  text ""
+                                  attributes {
+                                    href "$item.url"
+                                  }
+                                }
+                                {
+                                  type "element"
+                                  tag "a"
+                                  attributes {
+                                    href "$item.url"
+                                    "aria-label" "$item.name"
+                                  }
+                                  children [
+                                    {
+                                      type "element"
+                                      tag "img"
+                                      attributes {
+                                        src "$item.image"
+                                        alt "$item.name"
+                                        width 360
+                                        height 320
+                                        loading "lazy"
+                                      }
+                                    }
+                                  ]
+                                  class "store-card-image"
+                                }
+                                {
+                                  type "element"
+                                  tag "div"
+                                  children [
+                                    {
+                                      type "element"
+                                      tag "span"
+                                      text "$item.badge"
+                                      class "store-badge"
+                                    }
+                                    {
+                                      type "element"
+                                      tag "a"
+                                      text "$item.name"
+                                      attributes {
+                                        href "$item.url"
+                                      }
+                                      class "store-card-name"
+                                    }
+                                    {
+                                      type "element"
+                                      tag "p"
+                                      children [
+                                        {
+                                          type "element"
+                                          tag "span"
+                                          text "★★★★★"
+                                          attributes {
+                                            "aria-hidden" true
+                                          }
+                                          class "stars"
+                                        }
+                                        {
+                                          type "element"
+                                          tag "span"
+                                          text "$item.rating"
+                                        }
+                                        {
+                                          type "element"
+                                          tag "span"
+                                          text {
+                                            op "concat"
+                                            values [
+                                              " ("
+                                              "$item.reviews"
+                                              ")"
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                      class "store-rating"
+                                    }
+                                    {
+                                      type "element"
+                                      tag "strong"
+                                      text "$item.priceText"
+                                      class "store-price"
+                                    }
+                                    {
+                                      type "element"
+                                      tag "p"
+                                      text "$item.stockText"
+                                      class "store-stock"
+                                    }
+                                  ]
+                                  class "store-card-body"
+                                }
+                              ]
+                              class "xtm-card store-card"
+                            }
+                          }
+                        ]
+                        class "product-grid"
+                      }
+                      {
+                        type "element"
+                        tag "div"
+                        children [
+                          {
+                            type "element"
+                            tag "h3"
+                            text "Noch kein Treffer dabei."
+                          }
+                          {
+                            type "element"
+                            tag "p"
+                            text "Probiere einen anderen Suchbegriff oder ändere deine Filter."
+                          }
+                          {
+                            type "element"
+                            tag "a"
+                            text "Alle Produkte ansehen"
+                            attributes {
+                              href "/suche"
+                            }
+                          }
+                        ]
+                        class [
+                          "empty-state"
+                          {
+                            "store-hidden" {
+                              op "not"
+                              value "$model.shop.data.catalog.empty"
+                            }
+                          }
+                        ]
+                      }
+                      {
+                        type "element"
+                        tag "nav"
+                        attributes {
+                          "aria-label" "Ergebnisseiten"
+                        }
+                        children [
+                          {
+                            type "repeat"
+                            source "$model.shop.data.catalog.pagination"
+                            key "id"
+                            template {
+                              type "element"
+                              tag "a"
+                              text "$item.label"
+                              attributes {
+                                href "$item.url"
+                                "aria-current" {
+                                  op "if"
+                                  test "$item.current"
+                                  then "page"
+                                  else false
+                                }
+                              }
+                            }
+                          }
+                        ]
+                        class "pagination"
+                      }
+                    ]
+                  }
+                ]
+                class "catalog-layout"
+              }
+            ]
+            class [ "store-catalog" ]
+          } }
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "detail" } then {
+            type "element"
+            tag "section"
+            children [
+              {
+                type "element"
+                tag "nav"
+                attributes {
+                  "aria-label" "Brotkrümelnavigation"
+                }
+                children [
+                  {
+                    type "element"
+                    tag "a"
+                    text "Startseite"
+                    attributes {
+                      href "/"
+                    }
+                  }
+                  {
+                    type "element"
+                    tag "span"
+                    text " / "
+                  }
+                  {
+                    type "element"
+                    tag "a"
+                    text "Kollektion"
+                    attributes {
+                      href "/suche"
+                    }
+                  }
+                  {
+                    type "element"
+                    tag "span"
+                    text " / "
+                  }
+                  {
+                    type "element"
+                    tag "span"
+                    text "$model.shop.data.product.name"
+                  }
+                ]
+                class "breadcrumbs"
+              }
+              {
+                type "element"
+                tag "div"
+                children [
+                  {
+                    type "element"
+                    tag "div"
+                    children [
+                      {
+                        type "element"
+                        tag "img"
+                        attributes {
+                          src "$model.shop.data.product.image"
+                          alt "$model.shop.data.product.name"
+                          width 360
+                          height 320
+                          loading "lazy"
+                        }
+                        class "detail-image"
+                      }
+                      {
+                        type "element"
+                        tag "div"
+                        children [
+                          {
+                            type "repeat"
+                            source "$model.shop.data.product.variants"
+                            key "sku"
+                            template {
+                              type "element"
+                              tag "a"
+                              attributes {
+                                href "$item.url"
+                                "data-xtend-preserve-scroll" "true"
+                                "data-xtend-preserve-state" "true"
+                                "data-xtend-transition" "none"
+                                "aria-current" "$item.selected"
+                                "aria-label" "$item.label"
+                              }
+                              children [
+                                {
+                                  type "element"
+                                  tag "img"
+                                  attributes {
+                                    src "$item.image"
+                                    alt "$item.label"
+                                    width 360
+                                    height 320
+                                    loading "lazy"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                        class "gallery-thumbnails"
+                      }
+                    ]
+                  }
+                  {
+                    type "element"
+                    tag "div"
+                    children [
+                      {
+                        type "element"
+                        tag "p"
+                        text "AUS DER XTEND.STORE KOLLEKTION"
+                        class "eyebrow"
+                      }
+                      {
+                        type "element"
+                        tag "h1"
+                        text "$model.shop.data.product.name"
+                      }
+                      {
+                        type "element"
+                        tag "p"
+                        children [
+                          {
+                            type "element"
+                            tag "span"
+                            text "★★★★★"
+                            attributes {
+                              "aria-hidden" true
+                            }
+                            class "stars"
+                          }
+                          {
+                            type "element"
+                            tag "span"
+                            text "$model.shop.data.product.rating"
+                          }
+                          {
+                            type "element"
+                            tag "span"
+                            text " · Demo-Bewertungen"
+                          }
+                        ]
+                        class "store-rating"
+                      }
+                      {
+                        type "element"
+                        tag "p"
+                        text "$model.shop.data.product.description"
+                      }
+                      {
+                        type "element"
+                        tag "strong"
+                        text "$model.shop.data.product.priceText"
+                        class "store-price"
+                      }
+                      {
+                        type "element"
+                        tag "p"
+                        text "Inkl. Demo-MwSt. · keine echte Zahlung"
+                        class "xtm-muted"
+                      }
+                      {
+                        type "element"
+                        tag "p"
+                        text "Deine Farbe"
+                        class "field-label"
+                      }
+                      {
+                        type "element"
+                        tag "div"
+                        children [
+                          {
+                            type "repeat"
+                            source "$model.shop.data.product.variants"
+                            key "sku"
+                            template {
+                              type "element"
+                              tag "a"
+                              text "$item.label"
+                              attributes {
+                                href "$item.url"
+                                "data-xtend-preserve-scroll" "true"
+                                "data-xtend-preserve-state" "true"
+                                "data-xtend-transition" "none"
+                                "aria-current" {
+                                  op "if"
+                                  test "$item.selected"
+                                  then "true"
+                                  else false
+                                }
+                              }
+                              class "variant-chip"
+                            }
+                          }
+                        ]
+                        class "variants"
+                      }
+                      {
+                        type "element"
+                        tag "ul"
+                        children [
+                          {
+                            type "repeat"
+                            source "$model.shop.data.product.features"
+                            key "$item"
+                            template {
+                              type "element"
+                              tag "li"
+                              text "$item"
+                            }
+                          }
+                        ]
+                      }
+                      {
+                        type "element"
+                        tag "p"
+                        text "$model.shop.data.product.stockText"
+                        class "store-stock"
+                      }
+                      {
+                        type "element"
+                        tag "form"
+                        attributes {
+                          method "post"
+                          action "/cart/add"
+                          id "product-cart-form"
+                        }
+                        children [
+                          {
+                            type "element"
+                            tag "input"
+                            attributes {
+                              name "_token"
+                              value "$model.shop.data.csrf"
+                              type "hidden"
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "input"
+                            attributes {
+                              name "sku"
+                              value "$model.shop.data.product.sku"
+                              type "hidden"
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "input"
+                            attributes {
+                              name "version"
+                              value "$model.shop.data.cart.version"
+                              type "hidden"
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "label"
+                            text "Menge"
+                            attributes {
+                              for "quantity"
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "div"
+                            attributes {
+                              id "quantity-slot"
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "div"
+                            attributes {
+                              id "add-slot"
+                            }
+                          }
+                        ]
+                        class "purchase-panel"
+                      }
+                    ]
+                  }
+                ]
+                class "product-detail"
+              }
+            ]
+            class [ "detail-page" ]
+          } }
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "cart" } then {
+            type "element"
+            tag "section"
+            children [
+              {
+                type "element"
+                tag "h1"
+                text "Dein Warenkorb"
+              }
+              {
+                type "element"
+                tag "div"
+                children [
+                  {
+                    type "element"
+                    tag "h2"
+                    text "Hier ist noch Platz für gute Dinge."
+                  }
+                  {
+                    type "element"
+                    tag "p"
+                    text "Entdecke unsere Kollektionen und finde dein erstes Lieblingsstück."
+                  }
+                  {
+                    type "element"
+                    tag "a"
+                    text "Zum Sortiment"
+                    attributes {
+                      href "/suche"
+                    }
+                    class "xtm-primary-action"
+                  }
+                ]
+                class [
+                  "empty-state"
+                  {
+                    "store-hidden" {
+                      op "not"
+                      value "$model.shop.data.cart.empty"
+                    }
+                  }
+                ]
+              }
+              {
+                type "element"
+                tag "div"
+                children [
+                  {
+                    type "element"
+                    tag "div"
+                    children [
+                      {
+                        type "repeat"
+                        source "$model.shop.data.cart.lines"
+                        key "sku"
+                        template {
+                          type "element"
+                          tag "article"
+                          children [
+                            {
+                              type "element"
+                              tag "a"
+                              attributes {
+                                href "$item.url"
+                              }
+                              children [
+                                {
+                                  type "element"
+                                  tag "img"
+                                  attributes {
+                                    src "$item.image"
+                                    alt "$item.name"
+                                    width 360
+                                    height 320
+                                    loading "lazy"
+                                  }
+                                }
+                              ]
+                            }
+                            {
+                              type "element"
+                              tag "div"
+                              children [
+                                {
+                                  type "element"
+                                  tag "a"
+                                  text "$item.name"
+                                  attributes {
+                                    href "$item.url"
+                                  }
+                                  class "store-card-name"
+                                }
+                                {
+                                  type "element"
+                                  tag "p"
+                                  text "$item.label"
+                                  class "xtm-muted"
+                                }
+                                {
+                                  type "element"
+                                  tag "strong"
+                                  text "$item.priceText"
+                                  class "store-price"
+                                }
+                                {
+                                  type "element"
+                                  tag "form"
+                                  attributes {
+                                    method "post"
+                                    action "/cart/set"
+                                    class "cart-line-form"
+                                  }
+                                  children [
+                                    {
+                                      type "element"
+                                      tag "input"
+                                      attributes {
+                                        name "_token"
+                                        value "$model.shop.data.csrf"
+                                        type "hidden"
+                                      }
+                                    }
+                                    {
+                                      type "element"
+                                      tag "input"
+                                      attributes {
+                                        name "sku"
+                                        value "$item.sku"
+                                        type "hidden"
+                                      }
+                                    }
+                                    {
+                                      type "element"
+                                      tag "input"
+                                      attributes {
+                                        name "version"
+                                        value "$model.shop.data.cart.version"
+                                        type "hidden"
+                                      }
+                                    }
+                                    {
+                                      type "element"
+                                      tag "label"
+                                      children [
+                                        {
+                                          type "text"
+                                          text "Menge"
+                                        }
+                                        {
+                                          type "element"
+                                          tag "input"
+                                          attributes {
+                                            name "quantity"
+                                            value "$item.quantity"
+                                            type "number"
+                                            min 0
+                                            max 20
+                                            "aria-label" "Menge ändern"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    {
+                                      type "element"
+                                      tag "button"
+                                      text "Aktualisieren"
+                                      attributes {
+                                        type "submit"
+                                      }
+                                    }
+                                    {
+                                      type "element"
+                                      tag "button"
+                                      text "Entfernen"
+                                      attributes {
+                                        type "submit"
+                                        name "remove"
+                                        value "1"
+                                        formaction "/cart/set"
+                                        "data-sku" "$item.sku"
+                                        "data-version" "$model.shop.data.cart.version"
+                                        "data-quantity" "0"
+                                        class "remove-line"
+                                      }
+                                    }
+                                  ]
+                                }
+                                {
+                                  type "element"
+                                  tag "p"
+                                  text "Nicht mehr in dieser Menge verfügbar"
+                                  class [
+                                    "error-message"
+                                    {
+                                      "store-hidden" "$item.available"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                            {
+                              type "element"
+                              tag "strong"
+                              text "$item.totalText"
+                              class "store-price"
+                            }
+                          ]
+                          class "cart-line xtm-card"
+                        }
+                      }
+                      {
+                        type "element"
+                        tag "form"
+                        attributes {
+                          method "post"
+                          action "/cart/clear"
+                          id "cart-clear-form"
+                        }
+                        children [
+                          {
+                            type "element"
+                            tag "input"
+                            attributes {
+                              name "_token"
+                              value "$model.shop.data.csrf"
+                              type "hidden"
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "input"
+                            attributes {
+                              name "version"
+                              value "$model.shop.data.cart.version"
+                              type "hidden"
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "button"
+                            text "Warenkorb leeren"
+                            attributes {
+                              type "submit"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                  {
+                    type "element"
+                    tag "aside"
+                    children [
+                      {
+                        type "element"
+                        tag "h2"
+                        text "Deine Zusammenfassung"
+                      }
+                      {
+                        type "element"
+                        tag "dl"
+                        children [
+                          {
+                            type "element"
+                            tag "dt"
+                            text "Artikel"
+                          }
+                          {
+                            type "element"
+                            tag "dd"
+                            text "$model.shop.data.cart.subtotalText"
+                          }
+                          {
+                            type "element"
+                            tag "dt"
+                            text "Versand"
+                          }
+                          {
+                            type "element"
+                            tag "dd"
+                            text "$model.shop.data.cart.shippingText"
+                          }
+                          {
+                            type "element"
+                            tag "dt"
+                            text "Gesamt"
+                            class "summary-total"
+                          }
+                          {
+                            type "element"
+                            tag "dd"
+                            text "$model.shop.data.cart.totalText"
+                            class "summary-total"
+                          }
+                        ]
+                      }
+                      {
+                        type "element"
+                        tag "p"
+                        text "Standardversand 4,90 € · ab 50 € kostenlos. Express 9,90 €."
+                        class "xtm-muted"
+                      }
+                      {
+                        type "element"
+                        tag "a"
+                        text "Weiter zur Kasse"
+                        attributes {
+                          href "/checkout"
+                        }
+                        class "xtm-primary-action"
+                      }
+                      {
+                        type "element"
+                        tag "p"
+                        text "Alles bleibt eine Demo. Versprochen."
+                        class "xtm-muted"
+                      }
+                    ]
+                    class "cart-summary xtm-surface"
+                  }
+                ]
+                class [
+                  "cart-layout"
+                  {
+                    "store-hidden" "$model.shop.data.cart.empty"
+                  }
+                ]
+              }
+            ]
+            class []
+          } }
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "checkout" } then {
+            type "element"
+            tag "section"
+            children [
+              {
+                type "element"
+                tag "p"
+                text "NUR NOCH EIN PAAR SCHRITTE"
+                class "eyebrow"
+              }
+              {
+                type "element"
+                tag "h1"
+                text "Dein neuer Alltag wartet."
+              }
+              {
+                type "element"
+                tag "ol"
+                children [
+                  {
+                    type "element"
+                    tag "li"
+                    text "1 · Kontakt & Adresse"
+                  }
+                  {
+                    type "element"
+                    tag "li"
+                    text "2 · Versand"
+                  }
+                  {
+                    type "element"
+                    tag "li"
+                    text "3 · Demo-Bezahlung"
+                  }
+                ]
+                class "checkout-steps"
+              }
+              {
+                type "element"
+                tag "p"
+                text "Der interaktive Checkout benötigt JavaScript. Es werden keine echten Zahlungen ausgeführt."
+                class "demo-notice"
+              }
+              {
+                type "element"
+                tag "div"
+                children [
+                  {
+                    type "element"
+                    tag "form"
+                    attributes {
+                      id "checkout-form"
+                      method "post"
+                      action "/checkout"
+                      novalidate true
+                    }
+                    children [
+                      {
+                        type "element"
+                        tag "input"
+                        attributes {
+                          name "country"
+                          value "DE"
+                          type "hidden"
+                        }
+                      }
+                      { type "conditional" test {
+                                op "equals"
+                                left "$model.shop.checkout.stage"
+                                right {
+                                  op "literal"
+                                  value "contact"
+                                }
+                              } then {
+                        type "element"
+                        tag "section"
+                        children [
+                          { type "element" tag "input" attributes { type "hidden" name "shipping" value "$model.shop.shipping.value" } }
+
+                          {
+                            type "element"
+                            tag "h2"
+                            text "Wohin dürfen die guten Dinge reisen?"
+                          }
+                          {
+                            type "element"
+                            tag "p"
+                            text "Verwende für diesen Demo-Shop eine fiktive Adresse in Deutschland."
+                          }
+                          {
+                            type "element"
+                            tag "div"
+                            children [
+                              {
+                                type "element"
+                                tag "label"
+                                text "Vollständiger Name"
+                                attributes {
+                                  for "checkout-name"
+                                }
+                              }
+                              {
+                                type "element"
+                                tag "div"
+                                attributes {
+                                  id "name-slot"
+                                }
+                              }
+                            ]
+                            class "form-field"
+                          }
+                          {
+                            type "element"
+                            tag "div"
+                            children [
+                              {
+                                type "element"
+                                tag "label"
+                                text "E-Mail-Adresse"
+                                attributes {
+                                  for "checkout-email"
+                                }
+                              }
+                              {
+                                type "element"
+                                tag "div"
+                                attributes {
+                                  id "email-slot"
+                                }
+                              }
+                            ]
+                            class "form-field"
+                          }
+                          {
+                            type "element"
+                            tag "div"
+                            children [
+                              {
+                                type "element"
+                                tag "label"
+                                text "Straße und Hausnummer"
+                                attributes {
+                                  for "checkout-street"
+                                }
+                              }
+                              {
+                                type "element"
+                                tag "div"
+                                attributes {
+                                  id "street-slot"
+                                }
+                              }
+                            ]
+                            class "form-field"
+                          }
+                          {
+                            type "element"
+                            tag "div"
+                            children [
+                              {
+                                type "element"
+                                tag "label"
+                                text "Postleitzahl"
+                                attributes {
+                                  for "checkout-postal"
+                                }
+                              }
+                              {
+                                type "element"
+                                tag "div"
+                                attributes {
+                                  id "postal-slot"
+                                }
+                              }
+                            ]
+                            class "form-field"
+                          }
+                          {
+                            type "element"
+                            tag "div"
+                            children [
+                              {
+                                type "element"
+                                tag "label"
+                                text "Ort"
+                                attributes {
+                                  for "checkout-city"
+                                }
+                              }
+                              {
+                                type "element"
+                                tag "div"
+                                attributes {
+                                  id "city-slot"
+                                }
+                              }
+                            ]
+                            class "form-field"
+                          }
+                          {
+                            type "element"
+                            tag "div"
+                            attributes {
+                              id "contact-next-slot"
+                            }
+                          }
+                        ]
+                        class [ "checkout-stage" ]
+                      } }
+                      { type "conditional" test {
+                                op "equals"
+                                left "$model.shop.checkout.stage"
+                                right {
+                                  op "literal"
+                                  value "shipping"
+                                }
+                              } then {
+                        type "element"
+                        tag "section"
+                        children [
+                          { type "element" tag "input" attributes { type "hidden" name "name" value "$model.shop.name.value" } }
+                          { type "element" tag "input" attributes { type "hidden" name "email" value "$model.shop.email.value" } }
+                          { type "element" tag "input" attributes { type "hidden" name "street" value "$model.shop.street.value" } }
+                          { type "element" tag "input" attributes { type "hidden" name "postal" value "$model.shop.postal.value" } }
+                          { type "element" tag "input" attributes { type "hidden" name "city" value "$model.shop.city.value" } }
+
+                          {
+                            type "element"
+                            tag "h2"
+                            text "Wie schnell soll es gehen?"
+                          }
+                          {
+                            type "element"
+                            tag "label"
+                            text "Deine Versandart"
+                            attributes {
+                              for "checkout-shipping"
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "div"
+                            attributes {
+                              id "shipping-slot"
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "p"
+                            text "$model.shop.shippingHint.text"
+                          }
+                          {
+                            type "element"
+                            tag "div"
+                            attributes {
+                              id "shipping-next-slot"
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "button"
+                            text "Zurück zur Adresse"
+                            attributes {
+                              type "button"
+                              id "back-contact"
+                            }
+                          }
+                        ]
+                        class [ "checkout-stage" ]
+                      } }
+                      { type "conditional" test {
+                                op "equals"
+                                left "$model.shop.checkout.stage"
+                                right {
+                                  op "literal"
+                                  value "review"
+                                }
+                              } then {
+                        type "element"
+                        tag "section"
+                        children [
+                          {
+                            type "element"
+                            tag "h2"
+                            text "Alles bereit für deine Demo-Bestellung"
+                          }
+                          {
+                            type "element"
+                            tag "p"
+                            text {
+                              op "concat"
+                              values [
+                                "$model.shop.name.value"
+                                " · "
+                                "$model.shop.street.value"
+                                " · "
+                                "$model.shop.postal.value"
+                                " "
+                                "$model.shop.city.value"
+                              ]
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "p"
+                            text "$model.shop.email.value"
+                          }
+                          {
+                            type "element"
+                            tag "strong"
+                            text "$model.shop.data.cart.totalText"
+                            class "store-price"
+                          }
+                          {
+                            type "element"
+                            tag "label"
+                            text "Demo-Szenario"
+                            attributes {
+                              for "payment-scenario"
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "div"
+                            attributes {
+                              id "scenario-slot"
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "p"
+                            text "XTend DemoPay öffnet sich in einer eigenen, schrittweise geladenen Zahlungsoberfläche. Keine Bank- oder Kartendaten notwendig."
+                          }
+                          {
+                            type "element"
+                            tag "div"
+                            attributes {
+                              id "pay-slot"
+                            }
+                          }
+                          {
+                            type "element"
+                            tag "button"
+                            text "Versand ändern"
+                            attributes {
+                              type "button"
+                              id "back-shipping"
+                            }
+                          }
+                        ]
+                        class [ "checkout-stage" ]
+                      } }
+                    ]
+                    class "xtm-form-flow checkout-form"
+                  }
+                  {
+                    type "element"
+                    tag "aside"
+                    children [
+                      {
+                        type "element"
+                        tag "h2"
+                        text "In deiner Bestellung"
+                      }
+                      {
+                        type "repeat"
+                        source "$model.shop.data.cart.lines"
+                        key "sku"
+                        template {
+                          type "element"
+                          tag "p"
+                          children [
+                            {
+                              type "element"
+                              tag "span"
+                              text "$item.name"
+                            }
+                            {
+                              type "element"
+                              tag "strong"
+                              text "$item.totalText"
+                            }
+                          ]
+                        }
+                      }
+                      {
+                        type "element"
+                        tag "hr"
+                      }
+                      {
+                        type "element"
+                        tag "strong"
+                        text "$model.shop.data.cart.totalText"
+                        class "store-price"
+                      }
+                    ]
+                    class "cart-summary xtm-surface"
+                  }
+                ]
+                class "cart-layout"
+              }
+            ]
+            class [ "checkout-page" ]
+          } }
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "order" } then {
+            type "element"
+            tag "section"
+            children [
+              {
+                type "element"
+                tag "span"
+                text "✓"
+                attributes {
+                  "aria-hidden" true
+                }
+                class "order-check"
+              }
+              {
+                type "element"
+                tag "p"
+                text "DEMO-BESTELLUNG ERFOLGREICH"
+                class "eyebrow"
+              }
+              {
+                type "element"
+                tag "h1"
+                text "Das hat sich gut angefühlt."
+              }
+              {
+                type "element"
+                tag "p"
+                text "Deine Demo-Bestellung ist gespeichert. Es wird nichts versendet und nichts abgebucht."
+              }
+              {
+                type "element"
+                tag "strong"
+                text "$model.shop.data.order.id"
+                attributes {
+                  id "order-number"
+                }
+              }
+              {
+                type "element"
+                tag "p"
+                text "$model.shop.data.order.totalText"
+              }
+              {
+                type "element"
+                tag "div"
+                children [
+                  {
+                    type "repeat"
+                    source "$model.shop.data.order.lines"
+                    key "id"
+                    template {
+                      type "element"
+                      tag "p"
+                      children [
+                        {
+                          type "element"
+                          tag "span"
+                          text "$item.name"
+                        }
+                        {
+                          type "element"
+                          tag "span"
+                          text "$item.totalText"
+                        }
+                      ]
+                    }
+                  }
+                ]
+                class "order-lines"
+              }
+              {
+                type "element"
+                tag "a"
+                text "Weiter stöbern"
+                attributes {
+                  href "/"
+                }
+                class "xtm-primary-action"
+              }
+            ]
+            class [ "order-confirmation" ]
+          } }
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "detail" } then {
+            type "element"
+            tag "section"
+            children [
+              {
+                type "element"
+                tag "div"
+                children [
+                  {
+                    type "element"
+                    tag "p"
+                    text "AUCH SCHÖN"
+                    class "eyebrow"
+                  }
+                  {
+                    type "element"
+                    tag "h2"
+                    text "Passt gut zu deinem Alltag"
+                  }
+                ]
+                class "section-heading"
+              }
+              {
+                type "element"
+                tag "div"
+                children [
+                  {
+                    type "repeat"
+                    source "$model.shop.recommendations.items"
+                    key "id"
+                    template {
+                      type "element"
+                      tag "article"
+                      children [
+                        {
+                          type "element"
+                          tag "a"
+                          text ""
+                          attributes {
+                            href "$item.url"
+                          }
+                        }
+                        {
+                          type "element"
+                          tag "a"
+                          attributes {
+                            href "$item.url"
+                            "aria-label" "$item.name"
+                          }
+                          children [
+                            {
+                              type "element"
+                              tag "img"
+                              attributes {
+                                src "$item.image"
+                                alt "$item.name"
+                                width 360
+                                height 320
+                                loading "lazy"
+                              }
+                            }
+                          ]
+                          class "store-card-image"
+                        }
+                        {
+                          type "element"
+                          tag "div"
+                          children [
+                            {
+                              type "element"
+                              tag "span"
+                              text "$item.badge"
+                              class "store-badge"
+                            }
+                            {
+                              type "element"
+                              tag "a"
+                              text "$item.name"
+                              attributes {
+                                href "$item.url"
+                              }
+                              class "store-card-name"
+                            }
+                            {
+                              type "element"
+                              tag "p"
+                              children [
+                                {
+                                  type "element"
+                                  tag "span"
+                                  text "★★★★★"
+                                  attributes {
+                                    "aria-hidden" true
+                                  }
+                                  class "stars"
+                                }
+                                {
+                                  type "element"
+                                  tag "span"
+                                  text "$item.rating"
+                                }
+                                {
+                                  type "element"
+                                  tag "span"
+                                  text {
+                                    op "concat"
+                                    values [
+                                      " ("
+                                      "$item.reviews"
+                                      ")"
+                                    ]
+                                  }
+                                }
+                              ]
+                              class "store-rating"
+                            }
+                            {
+                              type "element"
+                              tag "strong"
+                              text "$item.priceText"
+                              class "store-price"
+                            }
+                            {
+                              type "element"
+                              tag "p"
+                              text "$item.stockText"
+                              class "store-stock"
+                            }
+                          ]
+                          class "store-card-body"
+                        }
+                      ]
+                      class "xtm-card store-card"
+                    }
+                  }
+                ]
+                class "recommendation-grid"
+              }
+            ]
+            class "recommendations"
+          } }
+        ]
+      }
+    }
+  }
+  state shop.data type object preserve {
+    initial {
+      id "store"
+      view "home"
+      catalog {
+        products [
+
+        ]
+        filters {
+
+        }
+        pagination [
+
+        ]
+        empty true
+        title ""
+      }
+      product {
+        id ""
+        name ""
+        variants [
+
+        ]
+        features [
+
+        ]
+      }
+      cart {
+        count 0
+        version 0
+        lines [
+
+        ]
+        empty true
+      }
+      csrf ""
+    }
+  }
+  state shop.checkout type object preserve {
+    initial {
+      stage "contact"
+    }
+  }
+  state shop.actionStatus type object preserve {
+    initial {
+      status "idle"
+      error {
+        message ""
+      }
+    }
+  }
+  state shop.paymentAttempt type object preserve {
+    initial {
+      id ""
+      capability ""
+    }
+  }
+  state shop.paymentResult type object preserve {
+    initial {
+      id ""
+      url ""
+    }
+  }
+  state shop.recommendations type object preserve {
+    initial {
+      items [
+
+      ]
+    }
+  }
+  state shop.quantity type object preserve {
+    initial {
+      id "quantity"
+      value "1"
+      field "quantity"
+      label "Menge"
+      inputType "number"
+      viewTemplate {
+        progressive true
+        attributes {
+          min 1
+          max 20
+        }
+      }
+    }
+  }
+  state shop.name type object preserve {
+    initial {
+      id "checkout-name"
+      field "name"
+      label "Vollständiger Name"
+      value ""
+      required true
+      inputType "text"
+      viewTemplate {
+        progressive true
+        attributes {
+          autocomplete "name"
+        }
+      }
+    }
+  }
+  state shop.email type object preserve {
+    initial {
+      id "checkout-email"
+      field "email"
+      label "E-Mail-Adresse"
+      value ""
+      required true
+      inputType "email"
+      viewTemplate {
+        progressive true
+        attributes {
+          autocomplete "email"
+        }
+      }
+    }
+  }
+  state shop.street type object preserve {
+    initial {
+      id "checkout-street"
+      field "street"
+      label "Straße und Hausnummer"
+      value ""
+      required true
+      inputType "text"
+      viewTemplate {
+        progressive true
+        attributes {
+          autocomplete "street-address"
+        }
+      }
+    }
+  }
+  state shop.postal type object preserve {
+    initial {
+      id "checkout-postal"
+      field "postal"
+      label "Postleitzahl"
+      value ""
+      required true
+      inputType "text"
+      viewTemplate {
+        progressive true
+        attributes {
+          autocomplete "postal-code"
+        }
+      }
+    }
+  }
+  state shop.city type object preserve {
+    initial {
+      id "checkout-city"
+      field "city"
+      label "Ort"
+      value ""
+      required true
+      inputType "text"
+      viewTemplate {
+        progressive true
+        attributes {
+          autocomplete "address-level2"
+        }
+      }
+    }
+  }
+  state shop.shippingHint type object preserve {
+    initial {
+      text "Standard: 2–3 Werktage. Alle Angaben sind fiktiv."
+    }
+  }
+  state shop.save type object preserve {
+    initial {
+      id "checkout-command"
+      disabled false
+    }
+  }
+  state shop.shipping type object preserve {
+    initial {
+      id "checkout-shipping"
+      field "shipping"
+      label "Versandart"
+      value "standard"
+      viewTemplate {
+        progressive true
+        children [
+          {
+            type "element"
+            tag "option"
+            text "Standard · 4,90 € / ab 50 € kostenlos"
+            attributes {
+              value "standard"
+            }
+          }
+          {
+            type "element"
+            tag "option"
+            text "Express · 9,90 €"
+            attributes {
+              value "express"
+            }
+          }
+        ]
+      }
+    }
+  }
+  state shop.scenario type object preserve {
+    initial {
+      id "payment-scenario"
+      field "scenario"
+      label "Demo-Szenario"
+      value "success"
+      viewTemplate {
+        progressive true
+        children [
+          {
+            type "element"
+            tag "option"
+            text "Erfolgreiche Zahlung"
+            attributes {
+              value "success"
+            }
+          }
+          {
+            type "element"
+            tag "option"
+            text "Zahlung abgelehnt"
+            attributes {
+              value "declined"
+            }
+          }
+          {
+            type "element"
+            tag "option"
+            text "Zeitüberschreitung"
+            attributes {
+              value "timeout"
+            }
+          }
+        ]
+      }
+    }
+  }
+  state shop.add type object preserve {
+    initial {
+      id "add-cart"
+      text "In den Warenkorb"
+      viewTemplate {
+        progressive true
+        class "xtm-primary-action"
+        attributes {
+          type "submit"
+          disabled {
+            op "not"
+            value "$model.shop.data.product.available"
+          }
+        }
+      }
+    }
+  }
+  state shop.nextContact type object preserve {
+    initial {
+      id "next-contact"
+      text "Weiter zum Versand"
+      viewTemplate {
+        progressive true
+        class "xtm-primary-action"
+        attributes {
+          type "button"
+          "data-next" "shipping"
+        }
+      }
+    }
+  }
+  state shop.nextShipping type object preserve {
+    initial {
+      id "next-shipping"
+      text "Bestellung prüfen"
+      viewTemplate {
+        progressive true
+        class "xtm-primary-action"
+        attributes {
+          type "button"
+          "data-next" "review"
+        }
+      }
+    }
+  }
+  state shop.pay type object preserve {
+    initial {
+      id "pay"
+      text "Mit XTend DemoPay bezahlen"
+      viewTemplate {
+        progressive true
+        class "xtm-primary-action"
+        attributes {
+          type "button"
+          "data-version" "$model.shop.data.cart.version"
+          "data-scenario" "$model.shop.scenario.value"
+        }
+      }
+    }
+  }
+  state shop.cartFeedback type object preserve {
+    initial {
+      id "cart-feedback"
+      hidden true
+      message ""
+      viewTemplate {
+        class [
+          "cart-feedback"
+          { "store-hidden" { op "equals" left "$model.shop.actionStatus.status" right "error" } }
+        ]
+        children [
+          { type "element" tag "div" class "cart-feedback-content" children [
+          { type "element" tag "span" text "✓" attributes { "aria-hidden" "true" } class "cart-feedback-icon" }
+          { type "element" tag "p" text "$model.shop.cartFeedback.message" attributes { role "status" "aria-live" "polite" "aria-atomic" "true" } }
+          { type "element" tag "a" text "Zum Warenkorb" attributes { href "/warenkorb" } }
+          { type "element" tag "button" text "×" attributes { id "dismiss-cart-feedback" type "button" "aria-label" "Warenkorbhinweis schließen" } }
+          ] }
+        ]
+      }
+    }
+  }
+  state shop.feedback type object preserve {
+    initial {
+      id "store-feedback"
+      text ""
+      viewTemplate {
+        attributes {
+          role "alert"
+          type "error"
+          message "$model.shop.actionStatus.error.message"
+        }
+        text "$model.shop.actionStatus.error.message"
+        class [
+          "store-feedback"
+          {
+            "store-hidden" {
+              op "not"
+              value {
+                op "equals"
+                left "$model.shop.actionStatus.status"
+                right {
+                  op "literal"
+                  value "error"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+  state shop.paymentDialog type object preserve {
+    initial {
+      id "payment-dialog"
+      title "XTend DemoPay"
+      open false
+      viewTemplate {
+        children [
+          {
+            type "element"
+            tag "p"
+            text "Die sichere Demo-Zahlung wird vorbereitet."
+          }
+          {
+            type "element"
+            tag "div"
+            attributes {
+              id "payment-content-slot"
+            }
+          }
+        ]
+        attributes {
+          "data-attempt" "$model.shop.paymentAttempt.id"
+        }
+      }
+    }
+  }
+  state shop.payment type object preserve {
+    initial {
+      id "payment-content"
+      viewTemplate {
+        children [
+          {
+            type "element"
+            tag "div"
+            attributes {
+              id "remote-payment-slot"
+            }
+          }
+        ]
+      }
+    }
+  }
+  state shop.miniCart type object preserve {
+    initial {
+      id "mini-cart"
+      open false
+      label "Dein Warenkorb"
+      placement "right"
+      modal true
+      viewTemplate {
+        class "store-enhanced"
+        children [
+          {
+            type "element"
+            tag "p"
+            text "Deine Auswahl wird dauerhaft in deiner Gastsession gespeichert."
+          }
+          {
+            type "repeat"
+            source "$model.shop.data.cart.lines"
+            key "sku"
+            template {
+              type "element"
+              tag "article"
+              children [
+                {
+                  type "element"
+                  tag "a"
+                  text "$item.name"
+                  attributes {
+                    href "$item.url"
+                  }
+                }
+                {
+                  type "element"
+                  tag "span"
+                  text "$item.label"
+                }
+                {
+                  type "element"
+                  tag "strong"
+                  text "$item.totalText"
+                  class "store-price"
+                }
+                {
+                  type "element"
+                  tag "form"
+                  attributes {
+                    method "post"
+                    action "/cart/set"
+                    class "cart-line-form"
+                  }
+                  children [
+                    {
+                      type "element"
+                      tag "input"
+                      attributes {
+                        name "_token"
+                        value "$model.shop.data.csrf"
+                        type "hidden"
+                      }
+                    }
+                    {
+                      type "element"
+                      tag "input"
+                      attributes {
+                        name "sku"
+                        value "$item.sku"
+                        type "hidden"
+                      }
+                    }
+                    {
+                      type "element"
+                      tag "input"
+                      attributes {
+                        name "version"
+                        value "$model.shop.data.cart.version"
+                        type "hidden"
+                      }
+                    }
+                    {
+                      type "element"
+                      tag "label"
+                      children [
+                        {
+                          type "text"
+                          text "Menge"
+                        }
+                        {
+                          type "element"
+                          tag "input"
+                          attributes {
+                            name "quantity"
+                            value "$item.quantity"
+                            type "number"
+                            min 0
+                            max 20
+                            "aria-label" "Menge ändern"
+                          }
+                        }
+                      ]
+                    }
+                    {
+                      type "element"
+                      tag "button"
+                      text "Aktualisieren"
+                      attributes {
+                        type "submit"
+                      }
+                    }
+                    {
+                      type "element"
+                      tag "button"
+                      text "Entfernen"
+                      attributes {
+                        type "submit"
+                        name "remove"
+                        value "1"
+                        "data-sku" "$item.sku"
+                        "data-version" "$model.shop.data.cart.version"
+                        "data-quantity" "0"
+                        class "remove-line"
+                      }
+                    }
+                  ]
+                }
+              ]
+              class "mini-cart-line"
+            }
+          }
+          {
+            type "element"
+            tag "p"
+            text "Dein Warenkorb ist noch leer."
+            class [
+              {
+                "store-hidden" {
+                  op "not"
+                  value "$model.shop.data.cart.empty"
+                }
+              }
+            ]
+          }
+          {
+            type "element"
+            tag "strong"
+            text "$model.shop.data.cart.totalText"
+            class "store-price"
+          }
+          {
+            type "element"
+            tag "a"
+            text "Zum Warenkorb"
+            attributes {
+              href "/warenkorb"
+            }
+            class "xtm-primary-action"
+          }
+        ]
+      }
+    }
+  }
+  state shop.filterDrawer type object preserve {
+    initial {
+      id "filter-drawer"
+      open false
+      label "Filter & Sortierung"
+      placement "left"
+      modal true
+      viewTemplate {
+        class "store-enhanced"
+        children [
+          {
+            type "element"
+            tag "form"
+            attributes {
+              action "/suche"
+              method "get"
+            }
+            children [
+              {
+                type "element"
+                tag "input"
+                attributes {
+                  name "q"
+                  value "$model.shop.data.catalog.filters.q"
+                  type "hidden"
+                }
+              }
+              {
+                type "element"
+                tag "h2"
+                text "Deine Auswahl"
+              }
+              {
+                type "element"
+                tag "label"
+                text "Kategorie"
+                attributes {
+                  for "mobile-filter-category"
+                }
+              }
+              {
+                type "element"
+                tag "select"
+                attributes {
+                  name "category"
+                  id "mobile-filter-category"
+                }
+                children [
+                  {
+                    type "element"
+                    tag "option"
+                    text "Alle Kategorien"
+                    attributes {
+                      value ""
+                      selected {
+                        op "equals"
+                        left "$model.shop.data.catalog.filters.category"
+                        right {
+                          op "literal"
+                          value ""
+                        }
+                      }
+                    }
+                  }
+                  {
+                    type "element"
+                    tag "option"
+                    text "Technik"
+                    attributes {
+                      value "technik"
+                      selected {
+                        op "equals"
+                        left "$model.shop.data.catalog.filters.category"
+                        right {
+                          op "literal"
+                          value "technik"
+                        }
+                      }
+                    }
+                  }
+                  {
+                    type "element"
+                    tag "option"
+                    text "Arbeitsplatz"
+                    attributes {
+                      value "arbeitsplatz"
+                      selected {
+                        op "equals"
+                        left "$model.shop.data.catalog.filters.category"
+                        right {
+                          op "literal"
+                          value "arbeitsplatz"
+                        }
+                      }
+                    }
+                  }
+                  {
+                    type "element"
+                    tag "option"
+                    text "Wohnen"
+                    attributes {
+                      value "wohnen"
+                      selected {
+                        op "equals"
+                        left "$model.shop.data.catalog.filters.category"
+                        right {
+                          op "literal"
+                          value "wohnen"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+              {
+                type "element"
+                tag "label"
+                text "Preis ab (€)"
+                attributes {
+                  for "mobile-filter-min"
+                }
+              }
+              {
+                type "element"
+                tag "input"
+                attributes {
+                  name "min"
+                  value "$model.shop.data.catalog.filters.min"
+                  type "number"
+                  id "mobile-filter-min"
+                  min 0
+                  max 5000
+                }
+              }
+              {
+                type "element"
+                tag "label"
+                text "Preis bis (€)"
+                attributes {
+                  for "mobile-filter-max"
+                }
+              }
+              {
+                type "element"
+                tag "input"
+                attributes {
+                  name "max"
+                  value "$model.shop.data.catalog.filters.max"
+                  type "number"
+                  id "mobile-filter-max"
+                  min 0
+                  max 5000
+                }
+              }
+              {
+                type "element"
+                tag "label"
+                children [
+                  {
+                    type "element"
+                    tag "input"
+                    attributes {
+                      name "available"
+                      value "1"
+                      type "checkbox"
+                      checked {
+                        op "equals"
+                        left "$model.shop.data.catalog.filters.available"
+                        right {
+                          op "literal"
+                          value "1"
+                        }
+                      }
+                    }
+                  }
+                  {
+                    type "element"
+                    tag "span"
+                    text "Nur verfügbare Artikel"
+                  }
+                ]
+                class "check-label"
+              }
+              {
+                type "element"
+                tag "label"
+                text "Sortieren"
+                attributes {
+                  for "mobile-filter-sort"
+                }
+              }
+              {
+                type "element"
+                tag "select"
+                attributes {
+                  id "mobile-filter-sort"
+                  name "sort"
+                }
+                children [
+                  {
+                    type "element"
+                    tag "option"
+                    text "Unsere Empfehlungen"
+                    attributes {
+                      value "popular"
+                      selected {
+                        op "equals"
+                        left "$model.shop.data.catalog.filters.sort"
+                        right {
+                          op "literal"
+                          value "popular"
+                        }
+                      }
+                    }
+                  }
+                  {
+                    type "element"
+                    tag "option"
+                    text "Preis aufsteigend"
+                    attributes {
+                      value "price-asc"
+                      selected {
+                        op "equals"
+                        left "$model.shop.data.catalog.filters.sort"
+                        right {
+                          op "literal"
+                          value "price-asc"
+                        }
+                      }
+                    }
+                  }
+                  {
+                    type "element"
+                    tag "option"
+                    text "Preis absteigend"
+                    attributes {
+                      value "price-desc"
+                      selected {
+                        op "equals"
+                        left "$model.shop.data.catalog.filters.sort"
+                        right {
+                          op "literal"
+                          value "price-desc"
+                        }
+                      }
+                    }
+                  }
+                  {
+                    type "element"
+                    tag "option"
+                    text "Name A–Z"
+                    attributes {
+                      value "name"
+                      selected {
+                        op "equals"
+                        left "$model.shop.data.catalog.filters.sort"
+                        right {
+                          op "literal"
+                          value "name"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+              {
+                type "element"
+                tag "button"
+                text "Auswahl anzeigen"
+                attributes {
+                  type "submit"
+                }
+                class "xtm-primary-action"
+              }
+              {
+                type "element"
+                tag "a"
+                text "Filter zurücksetzen"
+                attributes {
+                  href "/suche"
+                }
+              }
+            ]
+            class "filter-form xtm-surface"
+          }
+        ]
+      }
+    }
+  }
+  selector shop.shell from state shop.shell { output StoreView }
+  selector shop.header from state shop.header { output StoreView }
+  selector shop.main from state shop.main { output StoreView }
+  selector shop.data from state shop.data { output StoreView }
+  selector shop.checkout from state shop.checkout { output StoreView }
+  selector shop.actionStatus from state shop.actionStatus { output StoreView }
+  selector shop.paymentAttempt from state shop.paymentAttempt { output StoreView }
+  selector shop.paymentResult from state shop.paymentResult { output StoreView }
+  selector shop.recommendations from state shop.recommendations { output StoreView }
+  selector shop.quantity from state shop.quantity { output StoreView }
+  selector shop.name from state shop.name { output StoreView }
+  selector shop.email from state shop.email { output StoreView }
+  selector shop.street from state shop.street { output StoreView }
+  selector shop.postal from state shop.postal { output StoreView }
+  selector shop.city from state shop.city { output StoreView }
+  selector shop.shippingHint from state shop.shippingHint { output StoreView }
+  selector shop.save from state shop.save { output StoreView }
+  selector shop.shipping from state shop.shipping { output StoreView }
+  selector shop.scenario from state shop.scenario { output StoreView }
+  selector shop.add from state shop.add { output StoreView }
+  selector shop.nextContact from state shop.nextContact { output StoreView }
+  selector shop.nextShipping from state shop.nextShipping { output StoreView }
+  selector shop.pay from state shop.pay { output StoreView }
+  selector shop.cartFeedback from state shop.cartFeedback { output StoreView }
+  selector shop.feedback from state shop.feedback { output StoreView }
+  selector shop.paymentDialog from state shop.paymentDialog { output StoreView }
+  selector shop.payment from state shop.payment { output StoreView }
+  selector shop.miniCart from state shop.miniCart { output StoreView }
+  selector shop.filterDrawer from state shop.filterDrawer { output StoreView }
+  datasource shop.add from host shop.cart.add {
+    mode invoke
+    contract "xtend.store.add.v1"
+  }
+  datasource shop.set from host shop.cart.set {
+    mode invoke
+    contract "xtend.store.set.v1"
+  }
+  datasource shop.clear from host shop.cart.clear {
+    mode invoke
+    contract "xtend.store.clear.v1"
+  }
+  datasource shop.save from host shop.checkout.save {
+    mode invoke
+    contract "xtend.store.save.v1"
+  }
+  datasource shop.attempt from host shop.payment.attempt {
+    mode invoke
+    contract "xtend.store.attempt.v1"
+  }
+  datasource shop.complete from host shop.payment.complete {
+    mode invoke
+    contract "xtend.store.complete.v1"
+  }
+  datasource shop.cancel from host shop.payment.cancel {
+    mode invoke
+    contract "xtend.store.cancel.v1"
+  }
+  datasource shop.shippingPreview from host shop.ui.shipping { mode invoke
+    contract "xtend.store.shipping-preview.v1" }
+  action shop.updateQuantity {
+    input value string
+    reduce state.shop.quantity.value = input.value
+  }
+  action shop.updateName {
+    input value string
+    reduce state.shop.name.value = input.value
+  }
+  action shop.updateEmail {
+    input value string
+    reduce state.shop.email.value = input.value
+  }
+  action shop.updateStreet {
+    input value string
+    reduce state.shop.street.value = input.value
+  }
+  action shop.updatePostal {
+    input value string
+    reduce state.shop.postal.value = input.value
+  }
+  action shop.updateCity {
+    input value string
+    reduce state.shop.city.value = input.value
+  }
+  action shop.updateShipping {
+    input value string
+    effect fetch datasource shop.shippingPreview
+    reduce state.shop.shippingHint.text = result.text
+    reduce state.shop.shipping.value = input.value
+  }
+  action shop.updateScenario {
+    input value string
+    reduce state.shop.scenario.value = input.value
+  }
+  action shop.add {
+    status state.shop.actionStatus
+    input version string
+    input sku string
+    input quantity string
+    effect fetch datasource shop.add
+    reduce state.shop.data.cart = result
+    reduce state.shop.cartFeedback.message = "Zum Warenkorb hinzugefügt."
+    reduce state.shop.cartFeedback.hidden = false
+  }
+  action shop.set {
+    status state.shop.actionStatus
+    input version string
+    input sku string
+    input quantity string
+    effect fetch datasource shop.set
+    reduce state.shop.data.cart = result
+    reduce state.shop.cartFeedback.message = "Warenkorb aktualisiert."
+    reduce state.shop.cartFeedback.hidden = false
+  }
+  action shop.clear {
+    status state.shop.actionStatus
+    input version string
+    effect fetch datasource shop.clear
+    reduce state.shop.data.cart = result
+    reduce state.shop.cartFeedback.message = "Warenkorb geleert."
+    reduce state.shop.cartFeedback.hidden = false
+  }
+  validation shop.contact {
+    mode blocking
+    target action shop.save
+    field shop.name required minLength 2 message "Bitte gib einen Namen an."
+    field shop.email required email message "Bitte gib eine gültige E-Mail-Adresse an."
+    field shop.street required minLength 3 message "Bitte gib Straße und Hausnummer an."
+    field shop.postal required minLength 5 maxLength 5 message "Die Postleitzahl muss fünf Ziffern enthalten."
+    field shop.city required minLength 2 message "Bitte gib einen Ort an."
+  }
+  action shop.save {
+    status state.shop.actionStatus
+    input name string {
+      trust boundary "xtend.security.sanitizing-boundary.v1"
+      sanitize text
+    }
+    input email string {
+      trust boundary "xtend.security.sanitizing-boundary.v1"
+      sanitize text
+    }
+    input street string {
+      trust boundary "xtend.security.sanitizing-boundary.v1"
+      sanitize text
+    }
+    input postal string {
+      trust boundary "xtend.security.sanitizing-boundary.v1"
+      sanitize text
+    }
+    input city string {
+      trust boundary "xtend.security.sanitizing-boundary.v1"
+      sanitize text
+    }
+    input country string {
+      trust boundary "xtend.security.sanitizing-boundary.v1"
+      sanitize text
+    }
+    input shipping string {
+      trust boundary "xtend.security.sanitizing-boundary.v1"
+      sanitize text
+    }
+    input next string {
+      trust boundary "xtend.security.sanitizing-boundary.v1"
+      sanitize text
+    }
+    effect fetch datasource shop.save
+    reduce state.shop.checkout.stage = result.stage
+    reduce state.shop.data.cart = result.cart
+  }
+  action shop.navigate {
+    input url string
+    reduce state.shop.miniCart.open = false
+    reduce state.shop.filterDrawer.open = false
+    reduce state.shop.cartFeedback.hidden = true
+  }
+  action shop.dismissCartFeedback {
+    input source string
+    reduce state.shop.cartFeedback.hidden = true
+  }
+  action shop.openminiCart {
+    input source string
+    reduce state.shop.miniCart.open = true
+  }
+  action shop.closeminiCart {
+    input source string
+    reduce state.shop.miniCart.open = false
+  }
+  action shop.openfilterDrawer {
+    input source string
+    reduce state.shop.filterDrawer.open = true
+  }
+  action shop.closefilterDrawer {
+    input source string
+    reduce state.shop.filterDrawer.open = false
+  }
+  action shop.backContact {
+    input label string
+    reduce state.shop.checkout.stage = "contact"
+  }
+  action shop.backShipping {
+    input label string
+    reduce state.shop.checkout.stage = "shipping"
+  }
+  action shop.attempt {
+    status state.shop.actionStatus
+    input version string
+    input scenario string
+    effect fetch datasource shop.attempt
+    reduce state.shop.paymentAttempt = result
+    reduce state.shop.paymentDialog.open = true
+  }
+  action shop.complete {
+    status state.shop.actionStatus
+    input proof string
+    effect fetch datasource shop.complete
+    reduce state.shop.paymentResult = result
+    reduce state.shop.paymentDialog.open = false
+  }
+  action shop.cancel {
+    input id string
+    effect fetch datasource shop.cancel
+  }
+  action shop.closePayment {
+    input id string
+    reduce state.shop.paymentDialog.open = false
+  }
+  action shop.paymentFailed {
+    input message string
+    reduce state.shop.actionStatus.error.message = input.message
+    reduce state.shop.actionStatus.status = "error"
+    reduce state.shop.paymentDialog.open = false
+  }
+  portal shop.root root "#xtend-page" layer surface
+  portal shop.header root "#header-slot" layer surface
+  portal shop.main root "#main-slot" layer surface
+  portal shop.quantity root "#quantity-slot" layer surface
+  portal shop.add root "#add-slot" layer surface
+  portal shop.nextContact root "#contact-next-slot" layer surface
+  portal shop.nextShipping root "#shipping-next-slot" layer surface
+  portal shop.pay root "#pay-slot" layer surface
+  portal shop.cartFeedback root "#cart-feedback-slot" layer surface
+  portal shop.feedback root "#feedback-slot" layer surface
+  portal shop.paymentDialog root "#payment-slot" layer surface
+  portal shop.payment root "#payment-content-slot" layer surface
+  portal shop.scenario root "#scenario-slot" layer surface
+  portal shop.miniCart root "#miniCart-slot" layer surface
+  portal shop.filterDrawer root "#filterDrawer-slot" layer surface
+  portal shop.name root "#name-slot" layer surface
+  portal shop.email root "#email-slot" layer surface
+  portal shop.street root "#street-slot" layer surface
+  portal shop.postal root "#postal-slot" layer surface
+  portal shop.city root "#city-slot" layer surface
+  portal shop.shipping root "#shipping-slot" layer surface
+  transition shop.addFeedback {
+    trigger action shop.add
+    from surfaces [shop.cartFeedback]
+    to surfaces [shop.cartFeedback]
+    effect pop
+    durationMs 140
+    reducedMotion none
+    lane transition
+  }
+  transition shop.setFeedback {
+    trigger action shop.set
+    from surfaces [shop.cartFeedback]
+    to surfaces [shop.cartFeedback]
+    effect pop
+    durationMs 140
+    reducedMotion none
+    lane transition
+  }
+  transition shop.clearFeedback {
+    trigger action shop.clear
+    from surfaces [shop.cartFeedback]
+    to surfaces [shop.cartFeedback]
+    effect pop
+    durationMs 140
+    reducedMotion none
+    lane transition
+  }
+  transition shop.toShipping {
+    trigger action shop.save
+    from surfaces [shop.main]
+    to surfaces [shop.main]
+    effect fade
+    durationMs 120
+    reducedMotion none
+    lane transition
+  }
+  surface shop.shell kind content component x-section {
+    source selector shop.shell
+    key shell.id
+    portal shop.root
+    lane visible weight 90 { hydrate store-shell from selector shop.shell }
+  }
+  surface shop.header kind content component x-header {
+    source selector shop.header
+    key header.id
+    portal shop.header
+    lane visible weight 90 { hydrate store-header from selector shop.header }
+    on click "#open-mini-cart" -> action shop.openminiCart {
+      preventDefault true
+      payload source from target.id
+    }
+  }
+  surface shop.main kind content component x-section {
+    source selector shop.main
+    key main.id
+    portal shop.main
+    lane visible weight 90 { hydrate store-main from selector shop.main }
+    on click "#open-filters" -> action shop.openfilterDrawer {
+      preventDefault true
+      payload source from target.id
+    }
+    on submit "#product-cart-form" -> action shop.add {
+      preventDefault true
+      payload sku from target.elements.sku.value
+      payload quantity from target.elements.quantity.value
+      payload version from target.elements.version.value
+    }
+    on submit "#store-main .cart-line-form" -> action shop.set {
+      preventDefault true
+      payload sku from target.elements.sku.value
+      payload quantity from target.elements.quantity.value
+      payload version from target.elements.version.value
+    }
+    on click "#store-main .remove-line" -> action shop.set {
+      preventDefault true
+      payload sku from target.dataset.sku
+      payload quantity from target.dataset.quantity
+      payload version from target.dataset.version
+    }
+    on submit "#cart-clear-form" -> action shop.clear {
+      preventDefault true
+      payload version from target.elements.version.value
+    }
+    on click "#back-contact" -> action shop.backContact {
+      preventDefault true
+      payload label from target.textContent
+    }
+    on click "#back-shipping" -> action shop.backShipping {
+      preventDefault true
+      payload label from target.textContent
+    }
+  }
+  surface shop.cartFeedback kind content component x-section {
+    source selector shop.cartFeedback
+    key cartFeedback.id
+    portal shop.cartFeedback
+    lane visible weight 90 { hydrate store-cartFeedback from selector shop.cartFeedback }
+    on click "#dismiss-cart-feedback" -> action shop.dismissCartFeedback {
+      preventDefault true
+      payload source from target.id
+    }
+  }
+  surface shop.feedback kind content component x-status {
+    source selector shop.feedback
+    key feedback.id
+    portal shop.feedback
+    lane visible weight 90 { hydrate store-feedback from selector shop.feedback }
+  }
+  surface shop.paymentDialog kind content component x-dialog {
+    source selector shop.paymentDialog
+    key paymentDialog.id
+    portal shop.paymentDialog
+    lane visible weight 90 { hydrate store-paymentDialog from selector shop.paymentDialog }
+    on dialog-closed "#payment-dialog" -> action shop.closePayment {
+      preventDefault true
+      payload id from target.dataset.attempt
+    }
+  }
+  surface shop.payment kind content component x-section {
+    source selector shop.payment
+    key payment.id
+    portal shop.payment
+    lane visible weight 90 { hydrate store-payment from selector shop.payment }
+  }
+  surface shop.miniCart kind content component x-drawer {
+    source selector shop.miniCart
+    key miniCart.id
+    portal shop.miniCart
+    lane visible weight 90 { hydrate store-miniCart from selector shop.miniCart }
+    on drawer-closed "#mini-cart" -> action shop.closeminiCart {
+      preventDefault true
+      payload source from target.id
+    }
+    on submit "#mini-cart .cart-line-form" -> action shop.set {
+      preventDefault true
+      payload sku from target.elements.sku.value
+      payload quantity from target.elements.quantity.value
+      payload version from target.elements.version.value
+    }
+    on click "#mini-cart .remove-line" -> action shop.set {
+      preventDefault true
+      payload sku from target.dataset.sku
+      payload quantity from target.dataset.quantity
+      payload version from target.dataset.version
+    }
+  }
+  surface shop.filterDrawer kind content component x-drawer {
+    source selector shop.filterDrawer
+    key filterDrawer.id
+    portal shop.filterDrawer
+    lane visible weight 90 { hydrate store-filterDrawer from selector shop.filterDrawer }
+    on drawer-closed "#filter-drawer" -> action shop.closefilterDrawer {
+      preventDefault true
+      payload source from target.id
+    }
+  }
+  surface shop.quantity kind field component x-input {
+    source selector shop.quantity
+    key quantity.id
+    portal shop.quantity
+    lane visible weight 90 { hydrate store-quantity from selector shop.quantity }
+    on input "#quantity" -> action shop.updateQuantity {
+      preventDefault false
+      payload value from target.value
+    }
+  }
+  surface shop.name kind field component x-input {
+    source selector shop.name
+    key name.id
+    portal shop.name
+    lane visible weight 90 { hydrate store-name from selector shop.name }
+    on input "#checkout-name" -> action shop.updateName {
+      preventDefault false
+      payload value from target.value
+    }
+  }
+  surface shop.email kind field component x-input {
+    source selector shop.email
+    key email.id
+    portal shop.email
+    lane visible weight 90 { hydrate store-email from selector shop.email }
+    on input "#checkout-email" -> action shop.updateEmail {
+      preventDefault false
+      payload value from target.value
+    }
+  }
+  surface shop.street kind field component x-input {
+    source selector shop.street
+    key street.id
+    portal shop.street
+    lane visible weight 90 { hydrate store-street from selector shop.street }
+    on input "#checkout-street" -> action shop.updateStreet {
+      preventDefault false
+      payload value from target.value
+    }
+  }
+  surface shop.postal kind field component x-input {
+    source selector shop.postal
+    key postal.id
+    portal shop.postal
+    lane visible weight 90 { hydrate store-postal from selector shop.postal }
+    on input "#checkout-postal" -> action shop.updatePostal {
+      preventDefault false
+      payload value from target.value
+    }
+  }
+  surface shop.city kind field component x-input {
+    source selector shop.city
+    key city.id
+    portal shop.city
+    lane visible weight 90 { hydrate store-city from selector shop.city }
+    on input "#checkout-city" -> action shop.updateCity {
+      preventDefault false
+      payload value from target.value
+    }
+  }
+  surface shop.shipping kind field component x-select {
+    source selector shop.shipping
+    key shipping.id
+    portal shop.shipping
+    lane visible weight 90 { hydrate store-shipping from selector shop.shipping }
+    on change "#checkout-shipping" -> action shop.updateShipping {
+      preventDefault false
+      payload value from target.value
+    }
+  }
+  surface shop.scenario kind field component x-select {
+    source selector shop.scenario
+    key scenario.id
+    portal shop.scenario
+    lane visible weight 90 { hydrate store-scenario from selector shop.scenario }
+    on change "#payment-scenario" -> action shop.updateScenario {
+      preventDefault false
+      payload value from target.value
+    }
+  }
+  surface shop.add kind action component x-button {
+    source selector shop.add
+    key add.id
+    portal shop.add
+    lane visible weight 90 { hydrate store-add from selector shop.add }
+  }
+  surface shop.nextContact kind action component x-button {
+    source selector shop.nextContact
+    key nextContact.id
+    portal shop.nextContact
+    lane visible weight 90 { hydrate store-nextContact from selector shop.nextContact }
+    on click "#next-contact" -> action shop.save {
+      preventDefault true
+      payload name from target.form.elements.name.value
+      payload email from target.form.elements.email.value
+      payload street from target.form.elements.street.value
+      payload postal from target.form.elements.postal.value
+      payload city from target.form.elements.city.value
+      payload country from target.form.elements.country.value
+      payload shipping from target.form.elements.shipping.value
+      payload next from target.dataset.next
+    }
+  }
+  surface shop.nextShipping kind action component x-button {
+    source selector shop.nextShipping
+    key nextShipping.id
+    portal shop.nextShipping
+    lane visible weight 90 { hydrate store-nextShipping from selector shop.nextShipping }
+    on click "#next-shipping" -> action shop.save {
+      preventDefault true
+      payload name from target.form.elements.name.value
+      payload email from target.form.elements.email.value
+      payload street from target.form.elements.street.value
+      payload postal from target.form.elements.postal.value
+      payload city from target.form.elements.city.value
+      payload country from target.form.elements.country.value
+      payload shipping from target.form.elements.shipping.value
+      payload next from target.dataset.next
+    }
+  }
+  surface shop.pay kind action component x-button {
+    source selector shop.pay
+    key pay.id
+    portal shop.pay
+    lane visible weight 90 { hydrate store-pay from selector shop.pay }
+    on click "#pay" -> action shop.attempt {
+      preventDefault true
+      payload version from target.dataset.version
+      payload scenario from target.form.elements.scenario.value
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import { componentStyleNonce } from './style-nonce.js';
 import { xtendState } from './xtend-state.js';
 
 const XHEADER_MENU_MODES = Object.freeze(['drawer', 'side-panel', 'popover', 'fullscreen', 'inline-main']);
@@ -339,7 +340,7 @@ class XHeader extends HTMLElement {
     const menuInert = menuOpen ? "" : " inert";
     const menuHidden = menuOpen ? "false" : "true";
     this.shadowRoot.innerHTML = `
-      <style>
+      <style${componentStyleNonce(this.ownerDocument)}>
         :host {
           --xtend-header-surface: var(--xtend-layout-surface, var(--xtend-signature-surface-panel, var(--xtend-surface, var(--section-bg, #ffffff))));
           --xtend-header-text: var(--xtend-layout-text, var(--xtend-signature-ink, var(--xtend-text, var(--text-color, #1f2937))));

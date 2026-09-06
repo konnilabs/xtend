@@ -1,4 +1,6 @@
+import { componentStyleNonce } from './style-nonce.js';
 import { xtendState } from './xtend-state.js';
+import { trapOverlayFocus } from './overlay-focus.js';
 
 class XDrawer extends HTMLElement {
   static get observedAttributes() {
@@ -199,7 +201,7 @@ class XDrawer extends HTMLElement {
     this._onRouteChanged = this._handleRouteChanged.bind(this);
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
-      <style>
+      <style${componentStyleNonce(this.ownerDocument)}>
         :host {
           --xtend-overlay-surface: var(--xtend-surface, var(--section-bg, #ffffff));
           --xtend-overlay-text: var(--xtend-text, var(--text-color, #111827));
@@ -622,18 +624,7 @@ class XDrawer extends HTMLElement {
 
   _handleFocusTrap(event) {
     if (!this._open || !this.modal || event.key !== 'Tab') return;
-    const focusable = this.shadowRoot.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-    if (!focusable.length) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    const activeElement = this.shadowRoot.activeElement || document.activeElement;
-    if (event.shiftKey && activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
+    trapOverlayFocus(event, this._drawer);
   }
 
   _handleRouteChanged(event) {

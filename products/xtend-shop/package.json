@@ -1,0 +1,28 @@
+{
+  "name": "@xtend-products/store",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.cjs",
+    "setup": "php scripts/setup.php",
+    "serve": "php artisan serve --host=127.0.0.1 --port=8180",
+    "test": "node scripts/test.cjs",
+    "prepare:framework": "node scripts/prepare-packages.cjs",
+    "serve:provider": "php -S 127.0.0.1:8181 -t payment-provider/public payment-provider/public/index.php",
+    "test:contracts": "node scripts/test.cjs contracts",
+    "test:php": "node scripts/test.cjs php",
+    "test:browser": "node scripts/test.cjs browser",
+    "reset:demo": "php artisan shop:reset --force"
+  },
+  "devDependencies": {
+    "@ccslabs/xtend": "file:.packages/ccslabs-xtend-0.8.0.tgz",
+    "@rollup/plugin-commonjs": "^28.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@types/node": "24.13.3",
+    "@xtend-material/core": "file:.packages/xtend-material-core-0.1.0.tgz",
+    "esbuild": "^0.25.0",
+    "rollup": "^4.0.0",
+    "terser": "^5.51.2",
+    "typescript": "^5.9.3"
+  }
+}

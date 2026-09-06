@@ -56,3 +56,15 @@ products/resumability-maraca-erp-demo/**/.DS_Store
 .DS_Store
 
 .project-index-cache/
+
+!products/xtend-shop/
+!products/xtend-shop/**
+products/xtend-shop/**/vendor/
+products/xtend-shop/**/node_modules/
+products/xtend-shop/**/.env
+products/xtend-shop/**/.packages/
+products/xtend-shop/**/public/build/
+products/xtend-shop/**/bootstrap/cache/*
+products/xtend-shop/**/bootstrap/xtend/
+products/xtend-shop/**/storage/
+products/xtend-shop/**/*.sqlite*

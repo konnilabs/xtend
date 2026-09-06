@@ -1029,6 +1029,10 @@ jobs:
             .xtend-test-results/xtend-rmt-editor-vsix-smoke.json
           if-no-files-found: error
 
+  laravel-release-gates:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true
+    uses: ./.github/workflows/xtend-laravel-ssr.yml
+
   npm-publish-latest:
     name: Publish npm latest with provenance (Node 24.18.0)
     if: github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true
@@ -1039,6 +1043,7 @@ jobs:
       - conditional-network-evidence
       - node-native-toolchain-smoke
       - xtend-mcp-vscode-smoke
+      - laravel-release-gates
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:

@@ -1,3 +1,4 @@
+import { componentStyleNonce } from './style-nonce.js';
 import { xtendState } from './xtend-state.js';
 import { createXtendRmtCommandDetail } from './rmt-command.js';
 
@@ -167,7 +168,7 @@ class XInput extends HTMLElement {
     this.attachShadow({ mode: "open" });
 
     this.shadowRoot.innerHTML = `
-      <style>
+      <style${componentStyleNonce(this.ownerDocument)}>
         :host {
           display: block;
           box-sizing: border-box;

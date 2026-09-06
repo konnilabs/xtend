@@ -2207,14 +2207,14 @@ function loadVNextCompiler(rootDir) {
   return require('@ccslabs/xtend-compiler/rmt-language/vnext-compiler');
 }
 
-function compileSource(options) {
+function compileSource(options, compile = null) {
   const sourceText = typeof options.sourceText === 'string'
     ? options.sourceText
     : fs.readFileSync(options.sourcePath, 'utf8');
   const compiler = loadVNextCompiler(options.rootDir);
   return {
     sourceText,
-    compileResult: compiler.compileRmtVNextSource({
+    compileResult: (compile || compiler.compileRmtVNextSource)({
       text: sourceText,
       filePath: options.sourcePath
     })
@@ -4450,7 +4450,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
     };
   }
 
-  const { sourceText, compileResult } = compileSource(normalized);
+  const { sourceText, compileResult } = compileSource(normalized, options.compileSource);
   if (!compileResult.ok || !compileResult.coreDocument) {
     const compilerDiagnostics = Array.isArray(compileResult.diagnostics) ? compileResult.diagnostics : [];
     const templateArtifacts = createMaracaTemplateArtifactsReport({
@@ -5290,7 +5290,7 @@ const MARACA_BOOT_CONFIGURATION = freezeMaracaSnapshot({
     : { mode: "external", href: MARACA_CSS_HREF }
 });
 
-const maracaComposition = createMaracaBrowserCompositionRoot(MARACA_BOOT_CONFIGURATION, {
+function createXtendMaraca(overrides = {}) { return createMaracaBrowserCompositionRoot(MARACA_BOOT_CONFIGURATION, {
   createPlanRuntime: createMaracaPlanRuntime,
   runtimeModuleApis: MARACA_RUNTIME_MODULE_APIS,
   componentImporters: MARACA_IMPORTERS,
@@ -5301,8 +5301,10 @@ const maracaComposition = createMaracaBrowserCompositionRoot(MARACA_BOOT_CONFIGU
   createHttpAppServiceTransport,
   platformTarget: typeof globalThis !== "undefined" ? globalThis : undefined,
   windowTarget: typeof window !== "undefined" ? window : undefined,
-  documentTarget: typeof document !== "undefined" ? document : undefined
-});
+  documentTarget: typeof document !== "undefined" ? document : undefined,
+  ...overrides
+}); }
+const maracaComposition = createXtendMaraca();
 
 const XTendMaraca = maracaComposition.facade;
 const ensureMaracaComponent = (tag) => XTendMaraca.ensureComponent(tag);
@@ -5311,7 +5313,7 @@ const disposeXtendMaraca = (reason) => XTendMaraca.dispose(reason);
 const invokeMaracaComponentCommand = (root, commandRecord) => maracaComposition.invokeComponentCommand(root, commandRecord);
 
 function shouldAutoBootXtendMaraca() {
-  return window.__XTendMaracaDisableAutoBoot !== true && window.XTendMaracaAutoBoot !== false;
+  return !document.getElementById("xtend-page-data") && window.__XTendMaracaDisableAutoBoot !== true && window.XTendMaracaAutoBoot !== false;
 }
 
 function resolveAutoBootOptions() {
@@ -5338,7 +5340,7 @@ function scheduleXtendMaracaAutoBoot() {
   else boot();
 }
 
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && !document.getElementById("xtend-page-data")) {
   window.XTendMaraca = XTendMaraca;
   window.addEventListener("pagehide", () => disposeXtendMaraca("XTend Maraca page hidden."), { once: true });
   scheduleXtendMaracaAutoBoot();
@@ -5349,7 +5351,7 @@ export {
   MARACA_WARM_REENTRY, MARACA_UI_COPROCESSOR, MARACA_WEB_APP_MANIFEST, MARACA_PWA, MARACA_VALIDATION,
   MARACA_TRANSITIONS, MARACA_APP_SERVICES, MARACA_TEMPLATE_ARTIFACTS, MARACA_PUBLIC_NAMES, MARACA_STACK_MODULES,
   MARACA_COMPONENT_COMMAND_SCHEMA, MARACA_COMPONENT_COMMAND_RESULT_SCHEMA, invokeMaracaComponentCommand,
-  ensureMaracaComponent, bootXtendMaraca, disposeXtendMaraca
+  ensureMaracaComponent, bootXtendMaraca, disposeXtendMaraca, createXtendMaraca
 };
 export default XTendMaraca;
 `;
@@ -7240,6 +7242,12 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   }
 
   if (!rollupResult.ok) {
+    if (plan.services && plan.services.enabled) {
+      const missing = ['rollup', 'terser'].filter(name => !rollupResult[name] || !rollupResult[name].available);
+      return {schema: MARACA_BUNDLE_REPORT_SCHEMA, ok: false, status: 'toolchain_unavailable',
+        plan: {...plan, diagnostics: plan.diagnostics.concat({code:'xtend.maraca.toolchain_missing',severity:'error',message:`Maraca AppServices require locally installed build tools: ${missing.join(', ')}.`})},
+        bundleReport:null,sizeBudgetReport:null};
+    }
     return buildMaracaBundle(input, options);
   }
 

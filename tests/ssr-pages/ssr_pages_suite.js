@@ -21,11 +21,25 @@ async function runSsrPagesSuite(options = {}) {
   const check = (name, action) => options.phpParityOnly ? undefined : runCheck(name, action);
   const checkPhp = (name, action) => options.phpParityOnly ? runCheck(name, action) : undefined;
   const php = input => JSON.parse(execFileSync(process.env.XTEND_PHP_BINARY || 'php', [path.join(__dirname, 'portable_probe.php'), rootDir], { input: JSON.stringify(input), encoding: 'utf8', timeout: 10000 }));
+  await require('./page_wire_checks').pageWireChecks({check,checkPhp,load,php});
   const artifact = portable.createPortableRenderArtifact({ descriptor: { type: 'element', tag: 'section', children: [
     { type: 'element', tag: 'h1', children: [{ type: 'text', text: '$model.title' }] },
     { type: 'conditional', test: '$model.visible', then: { type: 'text', text: 'Shown' }, else: { type: 'text', text: 'Hidden' } },
     { type: 'repeat', source: { op: 'filter', value: '$model.orders', where: [{ path: 'active', op: 'equals', value: true }] }, key: 'id', template: { type: 'element', tag: 'p', attributes: { 'data-id': '$item.id' }, children: [{ type: 'text', text: '$item.name' }] } }
   ] } }, { inputs: ['title', 'visible', 'orders'], defaults: { title: 'Default', visible: false, orders: [] } });
+  await checkPhp('canonical and JSON-LD head records share safe PHP/Node validation and deduplication', async () => {
+    const {mergePageHead} = await load('page-contract.mjs');
+    const layout = [{tag:'link',attributes:{rel:'canonical',href:'https://example.test/old'}},{tag:'json-ld',key:'product',data:{name:'Old'}}];
+    const head = [{tag:'link',attributes:{rel:'canonical',href:'https://example.test/new?a=1&b=2'}},{tag:'json-ld',key:'product',data:{name:'</script><img onerror=alert(1)>',price:0}}];
+    const result = php({operation:'head',layout,head});
+    assert.equal(result.ok,true); assert.deepEqual(result.head,mergePageHead(layout,head));
+    assert.equal((result.html.match(/application\/ld\+json/g)||[]).length,1);
+    assert(!result.html.includes('<img')); assert(!result.html.includes('/old'));
+    assert.deepEqual(JSON.parse(result.html.match(/<script[^>]*>([\s\S]*?)<\/script>/)[1]),head[1].data);
+    for (const unsafe of [{tag:'link',attributes:{rel:'canonical',href:'javascript:alert(1)'}},{tag:'meta',attributes:{name:'x',onload:'alert(1)'}},{tag:'json-ld',key:'__proto__',data:{}}]) {
+      assert.throws(()=>mergePageHead([],[unsafe])); assert.equal(php({operation:'head',head:[unsafe]}).ok,false);
+    }
+  });
   await checkPhp('portable PHP and Node render the same changing controller data', async () => {
     for (const title of ['Controller <value>', '', false, 0, null, 'Grüße 🌍']) {
       const props = { title, visible: true, orders: [{ id: 1, name: 'First', active: true }, { id: 2, name: 'Hidden', active: false }] };
@@ -125,13 +139,14 @@ async function runSsrPagesSuite(options = {}) {
   await check('Node pages serve initial HTML, selective JSON, redirects and host-isolated contexts', async () => {
     const host = createNodePageHost({ manifest: { schema:'xtend.page-manifest.v1', version:'v1', pages:{ Index:{artifact} } },
       createContext: req => ({contextKey: req.headers['x-user'] || 'guest'}),
-      resolvePage: ctx => ctx.request.url === '/redirect' ? {redirect:'/'} : { page:'Index', props:{ title:'Server title', visible:true, orders:[] } }
+      resolvePage: ctx => ctx.request.url === '/redirect' ? {redirect:'/'} : { page:'Index', props:{ title:'Server title', visible:true, orders:[] }, head:[{tag:'link',attributes:{rel:'canonical',href:'https://example.test/product'}},{tag:'json-ld',key:'product',data:{name:'</script><img onerror=alert(1)>'}}] }
     });
     const server = createServer((req,res) => { host.handle(req,res).then(handled => { if (!handled) {res.statusCode=404;res.end();} }); });
     server.listen(0,'127.0.0.1'); await once(server,'listening');
     try {
       const url = `http://127.0.0.1:${server.address().port}`;
       let response = await fetch(url); assert.equal(response.status,200); const html = await response.text(); assert.match(html,/Server title/); assert.match(html,/xtend-page-data/);
+      assert(html.includes('rel="canonical"')); assert(!html.includes('<img onerror=')); assert.deepEqual(JSON.parse(html.match(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/)[1]),{name:'</script><img onerror=alert(1)>'});
       response = await fetch(url,{headers:{'X-XTend-Page':'1','X-XTend-Only':'["title"]','X-User':'alice'}}); let body = await response.json(); assert.equal(body.contextKey,'alice'); assert.equal(body.partial,true); assert.deepEqual(body.props,{title:'Server title'});
       response = await fetch(url,{headers:{'X-XTend-Page':'1','X-User':'bob'}}); body=await response.json(); assert.equal(body.contextKey,'bob');
       response = await fetch(url+'/redirect',{headers:{'X-XTend-Page':'1'}}); assert.equal(response.status,409); assert.equal((await response.json()).kind,'redirect');
@@ -139,6 +154,7 @@ async function runSsrPagesSuite(options = {}) {
     } finally { host.dispose(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
   });
   const page = (name, extra = {}) => ({schema:'xtend.page-response.v1',kind:'page',version:'1',contextKey:'alice',page:name,url:`/${name}`,props:{},head:[],errors:{},flash:{},shared:{},deferred:{},once:{},merge:{},partial:false,layout:null,...extra});
+  await require('./navigation_checks').navigationChecks({check, createPageClient, page});
   await check('a late navigation cannot replace a newer page', async () => {
     let release;
     const client = createPageClient({initialPage:page('start'), fetch: async url => { if (url.endsWith('/slow')) await new Promise(resolve => { release=resolve; }); return Response.json(page(url.endsWith('/slow')?'slow':'fast')); }});

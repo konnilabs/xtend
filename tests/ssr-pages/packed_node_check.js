@@ -29,15 +29,15 @@ import {spawnSync} from 'node:child_process';
 import {createNodePageHost} from '@ccslabs/xtend-rmt/node-page-host';
 import {createRmtNodeSsrAdapter} from '@ccslabs/xtend-rmt/node-ssr-adapter';
 import {createPortableRenderArtifact} from '@ccslabs/xtend-rmt/portable-render';
-import {Prop} from '@ccslabs/xtend-rmt/page-contract';
+import {Prop,decodePageWire} from '@ccslabs/xtend-rmt/page-contract';
 import {createPageClient} from '@ccslabs/xtend-rmt/page-client';
 import {createPageForm} from '@ccslabs/xtend-rmt/page-form';
 assert(spawnSync('php',['--version']).error, 'No PHP executable is available to this application');
 assert.equal(typeof createRmtNodeSsrAdapter,'function');assert.equal(typeof createPageClient,'function');assert.equal(typeof createPageForm,'function');
 const artifact=createPortableRenderArtifact({descriptor:{type:'text',text:'$model.title'}},{inputs:['title']});
-const host=createNodePageHost({manifest:{schema:'xtend.page-manifest.v1',version:'pack',pages:{Home:{artifact}}},createContext:()=>({contextKey:'public'}),resolvePage:()=>({page:'Home',props:{title:Prop.once(async()=> 'Independent Node SSR')}})});
+const host=createNodePageHost({compactResponses:true,manifest:{schema:'xtend.page-manifest.v1',version:'pack',pages:{Home:{artifact}}},createContext:()=>({contextKey:'public'}),resolvePage:()=>({page:'Home',props:{title:Prop.once(async()=> 'Independent Node SSR')}})});
 const server=createServer((req,res)=>host.handle(req,res));server.listen(0,'127.0.0.1');await once(server,'listening');
-try{const response=await fetch('http://127.0.0.1:'+server.address().port);assert.equal(response.status,200);assert.match(await response.text(),/Independent Node SSR/);}finally{host.dispose();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
+try{const response=await fetch('http://127.0.0.1:'+server.address().port);assert.equal(response.status,200);assert.match(await response.text(),/Independent Node SSR/);const navigation=await fetch('http://127.0.0.1:'+server.address().port,{headers:{'X-XTend-Page':'1','X-XTend-Page-Wire':'1'}});const wire=await navigation.json();assert.equal(wire.schema,'xtend.page-wire.v1');const page=decodePageWire(wire);assert.equal(page.props.title,'Independent Node SSR');assert.equal(page.ssr,undefined);assert.match(navigation.headers.get('vary'),/X-XTend-Page-Wire/);const legacy=await fetch('http://127.0.0.1:'+server.address().port,{headers:{'X-XTend-Page':'1'}});const ordinary=await legacy.json();assert.equal(ordinary.schema,'xtend.page-response.v1');assert(ordinary.ssr?.chunk,'Legacy JSON clients keep their SSR envelope');}finally{host.dispose();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
 `);
     execFileSync(process.execPath,['verify.mjs'],{cwd:output,encoding:'utf8',timeout:15000,env:{...process.env,PATH:path.dirname(process.execPath),NODE_PATH:''}});
     fs.copyFileSync(path.join(rootDir,'tests/ssr-pages/type_consumer.mts'),path.join(output,'consumer.mts'));

@@ -1,5 +1,6 @@
 // Selbst-ausfuehrende asynchrone Funktion statt direktem Import
 (async function() {
+  const { componentStyleNonce } = await import('./style-nonce.js');
   let xtendState;
 
   if (window.XTend?.state) {
@@ -19,6 +20,7 @@
   }
 
   const { createXtendRmtCommandDetail } = await import('./rmt-command.js');
+  const { trapOverlayFocus } = await import('./overlay-focus.js');
 
   function getDialogOpenKeys(id) {
     return [
@@ -459,7 +461,7 @@
 
     _render(state) {
       this.shadowRoot.innerHTML = `
-        <style>
+        <style${componentStyleNonce(this.ownerDocument)}>
           :host {
             --xtend-overlay-backdrop: var(--xtend-overlay-bg, rgba(30, 34, 44, 0.55));
             --xtend-overlay-surface: var(--xtend-surface, var(--xtend-overlay-backdrop));
@@ -771,24 +773,7 @@
 
     _handleFocusTrap(event) {
       if (!this._open || event.key !== 'Tab') return;
-
-      const focusable = this.shadowRoot.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-
-      if (!focusable.length) return;
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const activeElement = this.shadowRoot.activeElement || document.activeElement;
-
-      if (event.shiftKey && activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
+      trapOverlayFocus(event, this.shadowRoot.querySelector('.xdialog'));
     }
   }
 
