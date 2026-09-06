@@ -1,3 +1,4 @@
+import { componentStyleNonce } from './style-nonce.js';
 import { xtendState } from './xtend-state.js';
 import { createXtendRmtCommandDetail } from './rmt-command.js';
 import './xicon.js';
@@ -160,7 +161,7 @@ class XStatus extends HTMLElement {
     this._syncingFromState = false;
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
-      <style>
+      <style${componentStyleNonce(this.ownerDocument)}>
         :host {
           display: block;
           color: var(--text-color, #111827);

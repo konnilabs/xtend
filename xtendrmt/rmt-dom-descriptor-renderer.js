@@ -396,7 +396,7 @@
       }
       return domains;
     }
-    if (type === 'when') {
+    if (type === 'when' || type === 'conditional') {
       return descriptorDomains(
         evaluateCondition(descriptor, context) ? descriptor.then : descriptor.else || descriptor.fallback,
         context,
@@ -442,6 +442,7 @@
       type === 'fragment'
       || type === 'repeat'
       || type === 'when'
+      || type === 'conditional'
       || descriptor.children
       || descriptor.nodes
     ) domains.add('structure');
@@ -1978,7 +1979,7 @@
       validateDescriptor(descriptor.children || descriptor.nodes || [], context, depth + 1);
       return;
     }
-    if (nodeType === 'when') {
+    if (nodeType === 'when' || nodeType === 'conditional') {
       validateDescriptor(evaluateCondition(descriptor, context) ? descriptor.then : descriptor.else || descriptor.fallback, context, depth + 1);
       return;
     }
@@ -2523,6 +2524,7 @@
         return renderTemplate(descriptor.template || descriptor.id, context, context.item);
       case 'slot':
         return renderSlot(descriptor.slot || descriptor.id, context, context.item);
+      case 'conditional':
       case 'when':
         return evaluateCondition(descriptor, context)
           ? renderNode(descriptor.then, context)
@@ -2981,7 +2983,7 @@
         entries.push(...expandChildEntries(descriptor.children || descriptor.nodes, { ...context, item }, item));
         return;
       }
-      if (nodeType === 'when') {
+      if (nodeType === 'when' || nodeType === 'conditional') {
         entries.push(...expandChildEntries(
           evaluateCondition(descriptor, { ...context, item }) ? descriptor.then : descriptor.else || descriptor.fallback,
           { ...context, item },

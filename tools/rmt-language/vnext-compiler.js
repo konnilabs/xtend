@@ -2401,7 +2401,8 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
     attributes,
     parts: ['surface', surface.kind || 'surface'],
     styleTokens: {
-      surface: literal(surface.id),
+      // Surface identity already lives in data-rmt-surface. The public
+      // --xtend-surface token is a theme color, never an orchestration ID.
       portal: literal(surface.portal || 'portal.app')
     },
     bindings: toArray(surface.events),
@@ -3688,6 +3689,9 @@ function collectStaticDescriptorIdOwners(descriptor, surfaceId, owners, pointer 
   toArray(descriptor.children).forEach((child, index) => {
     collectStaticDescriptorIdOwners(child, surfaceId, owners, `${pointer}/children/${index}`);
   });
+  if (descriptor.type === 'conditional') for (const branch of ['then', 'else', 'fallback']) {
+    collectStaticDescriptorIdOwners(descriptor[branch], surfaceId, owners, `${pointer}/${branch}`);
+  }
 }
 
 function appendAtStaticDescriptorId(descriptor, targetId, nestedDescriptors) {
@@ -3708,8 +3712,14 @@ function appendAtStaticDescriptorId(descriptor, targetId, nestedDescriptors) {
     count += result.count;
     return result.descriptor;
   });
+  const branches = {};
+  if (descriptor.type === 'conditional') for (const branch of ['then', 'else', 'fallback']) if (descriptor[branch]) {
+    const result = appendAtStaticDescriptorId(descriptor[branch], targetId, nestedDescriptors);
+    count += result.count;
+    branches[branch] = result.descriptor;
+  }
   return {
-    descriptor: children.length > 0 ? { ...descriptor, children } : descriptor,
+    descriptor: { ...descriptor, ...(children.length > 0 ? {children} : {}), ...branches },
     count
   };
 }

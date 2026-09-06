@@ -21,6 +21,11 @@ final class Catalog {
         return array_replace($p,$v,['id'=>$p['id'],'variants'=>$variants,'url'=>'/produkt/'.$p['slug'],'priceText'=>self::money($v['price']),
             'available'=>$v['stock']>0,'stockText'=>$v['stock']>0 ? 'Auf Lager · in 2–3 Werktagen bei dir' : 'Zurzeit nicht lieferbar']);
     }
+    /** Cards expose the same selected-SKU fields as a detail page, without
+     * retransmitting all variants, descriptions and feature lists per card. */
+    private function summary(array $product): array {
+        return array_intersect_key($product,array_flip(['id','name','sku','category','image','price','priceText','rating','reviews','badge','available','stockText','url']));
+    }
     public function search(array $input): array {
         $q=mb_substr(trim((string)($input['q']??'')),0,100);$category=(string)($input['category']??'');$sort=(string)($input['sort']??'popular');
         $min=max(0,(int)($input['min']??0));$max=min(5000,max($min,(int)($input['max']??5000)));$available=($input['available']??'')==='1';
@@ -31,6 +36,6 @@ final class Catalog {
         $count=count($products);$pages=max(1,(int)ceil($count/12));$page=min($pages,max(1,(int)($input['page']??1)));
         $filters=compact('q','category','sort','min','max');$filters['available']=$available?'1':'';
         $links=[];for($i=1;$i<=$pages;$i++)$links[]=['id'=>(string)$i,'label'=>(string)$i,'current'=>$page===$i,'url'=>'/suche?'.http_build_query($filters+['page'=>$i])];
-        return ['products'=>array_slice($products,($page-1)*12,12),'total'=>$count,'page'=>$page,'filters'=>$filters,'pagination'=>$links,'empty'=>$count===0,'title'=>$q!==''?'Ergebnisse für „'.$q.'“':(['technik'=>'Technik','arbeitsplatz'=>'Arbeitsplatz','wohnen'=>'Wohnen'][$category]??'Entdecke deinen Alltag neu')];
+        return ['products'=>array_map([$this,'summary'],array_slice($products,($page-1)*12,12)),'total'=>$count,'page'=>$page,'filters'=>$filters,'pagination'=>$links,'empty'=>$count===0,'title'=>$q!==''?'Ergebnisse für „'.$q.'“':(['technik'=>'Technik','arbeitsplatz'=>'Arbeitsplatz','wohnen'=>'Wohnen'][$category]??'Entdecke deinen Alltag neu')];
     }
 }

@@ -111,7 +111,7 @@ async function buildPages(options) {
   }
   const runtimeDirectory = path.dirname(runtime);
   const runtimeFingerprints = {node:{},php:{}};
-  for (const file of ['rmt-portable-render.js','rmt-state-selector-runtime.js','rmt-dom-descriptor-renderer.js','rmt-node-ssr-adapter.js','rmt-ssr-stream-host.js','node-page-host.mjs','page-contract.mjs','page-client.mjs','page-form.mjs']) runtimeFingerprints.node[file] = hash(fs.readFileSync(path.join(runtimeDirectory,file)));
+  for (const file of ['rmt-portable-render.js','rmt-state-selector-runtime.js','rmt-dom-descriptor-renderer.js','rmt-node-ssr-adapter.js','rmt-ssr-stream-host.js','node-page-host.mjs','page-contract.mjs','page-wire.mjs','page-client.mjs','page-form.mjs']) runtimeFingerprints.node[file] = hash(fs.readFileSync(path.join(runtimeDirectory,file)));
   for (const file of ['rmt-portable-render.php','rmt-php-ssr-adapter.php','rmt-page-data.php']) runtimeFingerprints.php[file] = hash(fs.readFileSync(path.join(runtimeDirectory,file)));
   if (host === 'laravel') {
     runtimeFingerprints.php['rmt-php-app-service-adapter.php'] = hash(fs.readFileSync(path.join(runtimeDirectory,'rmt-php-app-service-adapter.php')));

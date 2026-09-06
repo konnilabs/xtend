@@ -31,6 +31,8 @@ export function createPageClient(options) {
   const historyKey = `xtend.history.key:${options.applicationKey || 'default'}`;
   let page = validatePageResponse(options.initialPage), generation = 0, disposed = false, active = null, remembered = {}, revision = 0;
   let commits = Promise.resolve();
+  let viewTransition = null;
+  const skipTransition = () => { viewTransition?.skipTransition(); viewTransition = null; };
   const reloads = new Map();
   const listeners = new Set(), controllers = new Set(), cache = new Map(), once = new Map(), resources = new Set(), layoutResources = new Set();
   const rememberOnce = current => {
@@ -52,7 +54,7 @@ export function createPageClient(options) {
     for (const record of mergePageHead([], records || [])) {
       if (record.tag === 'title') { doc.title = record.text || ''; continue; }
       const node = doc.createElement(record.tag === 'json-ld' ? 'script' : record.tag); node.setAttribute('data-xtend-page-head', '');
-      if (record.tag === 'json-ld') { node.type = 'application/ld+json'; node.textContent = safePageJson(record.data); }
+      if (record.tag === 'json-ld') { node.type = 'application/ld+json'; node.nonce = doc.getElementById('xtend-page-data')?.nonce || ''; node.textContent = safePageJson(record.data); }
       else for (const [key, value] of Object.entries(record.attributes || {})) node.setAttribute(key, String(value));
       doc.head.appendChild(node);
     }
@@ -96,8 +98,29 @@ export function createPageClient(options) {
     next = { ...next, props: { ...retained, ...next.props } };
     if (next.partial && (next.page !== previous.page || next.url !== previous.url)) throw pageError('page.partial_target', 'Partial data belongs to a different page.');
     if (next.partial) next = { ...previous, ...next, props: mergePageProps(previous.props, next.props, next.merge), renderArtifact: next.renderArtifact || previous.renderArtifact, ssr: next.ssr || previous.ssr };
-    const apply = async () => { await render(next, previous, () => !disposed && expected === generation); if (disposed || expected !== generation) return; page = next; revision++; if (previous.page !== next.page || previous.url !== next.url || previous.contextKey !== next.contextKey || previous.version !== next.version) release(); if (previous.layout !== next.layout || previous.contextKey !== next.contextKey || previous.version !== next.version) release(layoutResources); };
-    if (settings.transition && options.transition && !win?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) await options.transition(apply);
+    const apply = async () => {
+      if (disposed || expected !== generation) return;
+      await render(next, previous, () => !disposed && expected === generation);
+      if (disposed || expected !== generation) return;
+      page = next; revision++;
+      if (previous.page !== next.page || previous.url !== next.url || previous.contextKey !== next.contextKey || previous.version !== next.version) release();
+      if (previous.layout !== next.layout || previous.contextKey !== next.contextKey || previous.version !== next.version) release(layoutResources);
+      // Position the destination before the browser takes its new-page snapshot.
+      settings.afterRender?.();
+    };
+    if (settings.transition && !win?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
+      if (options.transition) await options.transition(apply);
+      else if (options.viewTransitions && doc?.startViewTransition) {
+        skipTransition();
+        const transition = viewTransition = doc.startViewTransition(apply);
+        // Skipped snapshots still execute the update callback. Only callback
+        // failures reject the commit; animation failures are cosmetic.
+        transition.ready.catch(() => {});
+        const finished = () => { if (viewTransition === transition) viewTransition = null; };
+        transition.finished.then(finished, finished);
+        await transition.updateCallbackDone;
+      } else await apply();
+    }
     else await apply();
     if (disposed || expected !== generation) return null;
     rememberOnce(delivered);
@@ -133,7 +156,7 @@ export function createPageClient(options) {
     const controller = new AbortController(); controllers.add(controller);
     const abort = () => controller.abort(settings.signal.reason);
     if (settings.signal?.aborted) abort(); else settings.signal?.addEventListener('abort', abort, { once: true });
-    const headers = { Accept: 'text/html', 'X-XTend-Page': '1', 'X-XTend-Version': page.version, 'X-XTend-Context':page.contextKey, ...(options.headers?.() || {}), ...(settings.headers || {}) };
+    const headers = { Accept: 'text/html', 'X-XTend-Page': '1', 'X-XTend-Page-Wire':'1', 'X-XTend-Version': page.version, 'X-XTend-Context':page.contextKey, ...(options.headers?.() || {}), ...(settings.headers || {}) };
     for (const [key, header] of [['only', 'Only'], ['deferred', 'Deferred']]) if (settings[key]) headers[`X-XTend-${header}`] = JSON.stringify(settings[key]);
     const rememberedOnce = [...once].filter(([, record]) => record.expiry > Date.now()).map(([key]) => key);
     if (rememberedOnce.length) headers['X-XTend-Once'] = JSON.stringify(rememberedOnce);
@@ -169,6 +192,7 @@ export function createPageClient(options) {
   async function visit(url, settings = {}) {
     const target = absolute(url);
     if (target.origin !== origin) { win?.location.assign(target.href); return null; }
+    skipTransition();
     active?.abort(); const controller = active = new AbortController(); const current = ++generation;
     emit('pending', {url:target.href});
     const saved = page;
@@ -194,15 +218,17 @@ export function createPageClient(options) {
       if (next.kind === 'download') { await download(next); return null; }
       if (next.kind === 'redirect') return visit(next.location, { replace: true });
       if (next.kind === 'reload') { const target = absolute(next.location); emit('version', { next }); if (options.onVersionMismatch) await options.onVersionMismatch(next); else win?.location.assign(target.href); return null; }
-      if (!await commit(next, { ...settings, generation: current })) return null;
+      if (!await commit(next, { ...settings, transition: settings.transition ?? options.viewTransitions, generation: current, afterRender: () => {
+        if (!settings.preserveScroll && win) {
+          const hash = absolute(page.url).hash;
+          const anchor = hash && doc.getElementById(decodeURIComponent(hash.slice(1)));
+          if (anchor) anchor.scrollIntoView(); else win.scrollTo(0, 0);
+          root?.focus?.({ preventScroll: true });
+        }
+      } })) return null;
       if (!settings.preserveState) remembered = {};
       if (!settings.fromHistory) await saveHistory(settings.replace, page.url);
-      if (!settings.preserveScroll && win) {
-        const hash = absolute(page.url).hash;
-        const anchor = hash && doc.getElementById(decodeURIComponent(hash.slice(1)));
-        if (anchor) anchor.scrollIntoView(); else win.scrollTo(0, 0);
-        root?.focus?.({ preventScroll: true });
-      }
+      if (disposed || current !== generation) return null;
       for (const group of Object.keys(page.deferred || {})) reload({ deferred: [group] }).catch(error => emit('data-error', { group, error }));
       return page;
     } catch (error) { if (current === generation) { if (settings.instant) await render(saved, page); emit('error', { error }); } if (error.name !== 'AbortError' && !controller.signal.aborted) throw error; return null; }
@@ -239,6 +265,12 @@ export function createPageClient(options) {
     emit('restore');
   };
   const popstate = event => { restoreHistory(event).catch(error => emit('error', { error })); };
+  const navigationOptions = element => Object.fromEntries([
+    ['preserveScroll', 'data-xtend-preserve-scroll'],
+    ['preserveState', 'data-xtend-preserve-state'],
+    ['transition', 'data-xtend-transition']
+  ].filter(([, attribute]) => element.hasAttribute(attribute))
+    .map(([key, attribute]) => [key, element.getAttribute(attribute) !== 'false' && (key !== 'transition' || element.getAttribute(attribute) !== 'none')]));
   const click = event => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const link = event.target.closest?.('a[href]');
@@ -246,7 +278,7 @@ export function createPageClient(options) {
     const target = new URL(link.href, origin);
     if (target.origin !== origin || !['http:', 'https:'].includes(target.protocol)) return;
     if (target.pathname === win.location.pathname && target.search === win.location.search && target.hash) return;
-    event.preventDefault(); visit(target.href).catch(() => {});
+    event.preventDefault(); visit(target.href, navigationOptions(link)).catch(() => {});
   };
   const submit = event => {
     const form = event.target, button = event.submitter;
@@ -259,7 +291,7 @@ export function createPageClient(options) {
     const entries = [...new win.FormData(form, button || undefined)];
     if (entries.some(([,value])=>typeof value !== 'string')) return;
     target.search = new URLSearchParams(entries).toString();
-    event.preventDefault(); visit(target.href).catch(() => {});
+    event.preventDefault(); visit(target.href, {...navigationOptions(form), ...(button ? navigationOptions(button) : {})}).catch(() => {});
   };
   win?.addEventListener('popstate', popstate);
   if (options.links !== false) doc?.addEventListener('click', click);
@@ -290,7 +322,7 @@ export function createPageClient(options) {
       } else await render(page, page);
       await saveHistory(true); await Promise.all(Object.keys(page.deferred || {}).map(group => reload({deferred:[group]}).catch(error => emit('data-error', {group,error})))); return page;
     },
-    dispose() { disposed = true; generation++; active?.abort(); for (const controller of controllers) controller.abort(); release(); release(layoutResources); listeners.clear(); cache.clear(); win?.removeEventListener('popstate', popstate); doc?.removeEventListener('click', click); doc?.removeEventListener('submit', submit); if (options.router?.pageClient === api) options.router.pageClient = null; }
+    dispose() { disposed = true; generation++; skipTransition(); active?.abort(); for (const controller of controllers) controller.abort(); release(); release(layoutResources); listeners.clear(); cache.clear(); win?.removeEventListener('popstate', popstate); doc?.removeEventListener('click', click); doc?.removeEventListener('submit', submit); if (options.router?.pageClient === api) options.router.pageClient = null; }
   };
   if (options.router) options.router.pageClient = api;
   return api;

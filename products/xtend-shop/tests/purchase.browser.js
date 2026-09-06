@@ -15,14 +15,14 @@ window.addEventListener('xtend-maraca:remote-frame',event=>frames.push({...event
  assert(root.getAttribute('data-rmt-resume-status')==='resumed','Cryptographically verified resume without fallback');
  const resumeMs=performance.now()-started;
  document.getElementById('store-search').value='Kopfhörer';document.querySelector('form[role=search]').requestSubmit();
- await wait(()=>client.page.props['shop.data'].catalog.filters.q==='Kopfhörer'&&client.page.props['shop.data'].view==='results','Native GET search navigation');
+ await wait(()=>client.page.props['shop.data'].catalog?.filters.q==='Kopfhörer'&&client.page.props['shop.data'].view==='results','Native GET search navigation');
  assert(document.getElementById('store-header')===header,'Native search keeps the resumed shell');
  await client.visit('/suche?q=Kopfhörer&category=technik&available=1&sort=price-asc');
  assert(client.page.props['shop.data'].catalog.products.length===1,'Search, category and availability filters');
  if(innerWidth<680){
   document.getElementById('open-filters').click();await wait(()=>document.getElementById('filter-drawer').open,'Mobile filter drawer');
   const filters=document.querySelector('#filter-drawer form');filters.querySelector('[name=sort]').value='price-desc';filters.requestSubmit();
-  await wait(()=>client.page.props['shop.data'].catalog.filters.sort==='price-desc'&&state()['shop.filterDrawer'].open===false,'Mobile filter navigation');
+  await wait(()=>client.page.props['shop.data'].catalog?.filters.sort==='price-desc'&&state()['shop.filterDrawer'].open===false,'Mobile filter navigation');
   assert(document.getElementById('store-header')===header,'Mobile filters preserve the shell and release the drawer');
  }
  await client.visit('/produkt/nova-studio-kopfhoerer?sku=TEC-01-2');
@@ -54,9 +54,9 @@ window.addEventListener('xtend-maraca:remote-frame',event=>frames.push({...event
  await wait(()=>state()['shop.actionStatus'].status==='error'&&postal.getAttribute('aria-invalid')==='true','Laravel postal validation');
  assert(state()['shop.checkout'].stage==='contact'&&document.activeElement===postal,'Laravel validation returns to the matching RMT field without advancing');
  postal.value='10115';postal.dispatchEvent(new Event('input',{bubbles:true}));
- await new Promise(resolve=>setTimeout(resolve,250));document.getElementById('next-contact').click();await wait(()=>state()['shop.checkout'].stage==='shipping','Contact validation');
- document.getElementById('next-shipping').click();await wait(()=>state()['shop.checkout'].stage==='review','Shipping step');
- assert(document.getElementById('checkout-name').value==='Mara Muster','Input controls retain values');
+ await new Promise(resolve=>setTimeout(resolve,250));document.getElementById('next-contact').click();await wait(()=>state()['shop.checkout'].stage==='shipping'&&document.getElementById('next-shipping')?.getClientRects().length,'Contact validation');
+ document.getElementById('next-shipping').click();await wait(()=>state()['shop.checkout'].stage==='review'&&document.getElementById('payment-scenario')?.getClientRects().length,'Shipping step');
+ assert(!document.getElementById('checkout-name')&&state()['shop.name'].value==='Mara Muster','Inactive input controls are released while their values remain in the kernel');
  assert(!JSON.stringify(history.state).includes('mara@example.test')&&!location.href.includes('Demostra'), 'Private checkout data stays out of history and URLs');
  const selector=document.getElementById('payment-scenario');selector.value=paymentScenario;selector.dispatchEvent(new Event('change',{bubbles:true}));
  await wait(()=>state()['shop.scenario'].value===(paymentScenario),'Scenario selection');await wait(()=>document.getElementById('pay').dataset.scenario===(paymentScenario)&&document.getElementById('pay').getClientRects().length>0,'Visible payment action with current scenario');document.getElementById('pay').focus();assert(document.activeElement===document.getElementById('pay'),'The visible payment trigger receives keyboard focus');document.getElementById('pay').click();
@@ -87,6 +87,7 @@ window.addEventListener('xtend-maraca:remote-frame',event=>frames.push({...event
  if(scenario==='cancel')shadow.querySelector('#provider-cancel').click();
  else if(scenario!=='timeout'){await new Promise(resolve=>setTimeout(resolve,200));shadow.querySelector('#provider-confirm').click();}
  if(scenario==='success'){
+  assert(!(window.__STORE_CSP__||[]).length,'Shop and streamed provider styles comply with the document CSP');
   await wait(()=>location.pathname.startsWith('/bestellung/'),'Order completion');
   assert(window.__STORE_DUPLICATE__?.ok,'Concurrent duplicate completion requests return the same order');
   const response=await fetch(location.href);assert(response.ok&&(await response.text()).includes('XT-'),'Confirmation survives a full server reload');

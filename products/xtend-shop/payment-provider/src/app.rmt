@@ -7,106 +7,128 @@ template xtend.demopay {
         children [
           {
             type "element"
-            tag "p"
-            text "XTend DemoPay"
-            attributes {
-              class "pay-brand"
-            }
-          }
-          {
-            type "element"
-            tag "h1"
-            text "Ein guter Kauf beginnt mit einem guten Gefühl."
-          }
-          {
-            type "element"
-            tag "p"
-            text "Sicher ausprobieren. Ohne echtes Geld."
-            attributes {
-              class "pay-intro"
-            }
-          }
-          {
-            type "repeat"
-            source "$model.provider.ui.sections"
-            key "id"
-            template {
-              type "element"
-              tag "section"
-              attributes {
-                class "pay-section"
-                "data-payment-section" "$item.id"
-              }
-              children [
-                {
-                  type "element"
-                  tag "h2"
-                  text "$item.title"
-                }
-                {
-                  type "element"
-                  tag "p"
-                  text "$item.text"
-                }
-              ]
-            }
-          }
-          {
-            type "element"
             tag "div"
-            attributes {
-              id "method-slot"
-            }
+            class "pay-layout"
             children [
               {
                 type "element"
-                tag "label"
-                text "Deine Demo-Zahlungsmethode"
-                attributes {
-                  for "provider-method"
-                }
-              }
-            ]
-            class [
-              {
-                "pay-hidden" {
-                  op "not"
-                  value "$model.provider.ui.methodReady"
-                }
-              }
-            ]
-          }
-          {
-            type "element"
-            tag "div"
-            children [
-              {
-                type "element"
-                tag "button"
-                text "Demo-Zahlung bestätigen"
-                attributes {
-                  type "button"
-                  id "provider-confirm"
-                  "data-capability" "$model.provider.input.capability"
-                  "data-method" "$model.provider.method.value"
-                }
+                tag "div"
+                class "pay-intro-panel"
+                children [
+                  {
+                    type "element"
+                    tag "p"
+                    text "XTend DemoPay"
+                    attributes {
+                      class "pay-brand"
+                    }
+                  }
+                  {
+                    type "element"
+                    tag "h1"
+                    text "Ein guter Kauf beginnt mit einem guten Gefühl."
+                  }
+                  {
+                    type "element"
+                    tag "p"
+                    text "Sicher ausprobieren. Ohne echtes Geld."
+                    attributes {
+                      class "pay-intro"
+                    }
+                  }
+                ]
               }
               {
                 type "element"
-                tag "button"
-                text "Abbrechen"
-                attributes {
-                  type "button"
-                  id "provider-cancel"
-                }
-              }
-            ]
-            class [
-              {
-                "pay-hidden" {
-                  op "not"
-                  value "$model.provider.ui.confirmReady"
-                }
+                tag "div"
+                class "pay-flow-panel"
+                children [
+                  {
+                    type "repeat"
+                    source "$model.provider.ui.sections"
+                    key "id"
+                    template {
+                      type "element"
+                      tag "section"
+                      attributes {
+                        class "pay-section"
+                        "data-payment-section" "$item.id"
+                      }
+                      children [
+                        {
+                          type "element"
+                          tag "h2"
+                          text "$item.title"
+                        }
+                        {
+                          type "element"
+                          tag "p"
+                          text "$item.text"
+                        }
+                      ]
+                    }
+                  }
+                  {
+                    type "element"
+                    tag "div"
+                    attributes {
+                      id "method-slot"
+                    }
+                    children [
+                      {
+                        type "element"
+                        tag "label"
+                        text "Deine Demo-Zahlungsmethode"
+                        attributes {
+                          for "provider-method"
+                        }
+                      }
+                    ]
+                    class [
+                      {
+                        "pay-hidden" {
+                          op "not"
+                          value "$model.provider.ui.methodReady"
+                        }
+                      }
+                    ]
+                  }
+                  {
+                    type "element"
+                    tag "div"
+                    children [
+                      {
+                        type "element"
+                        tag "button"
+                        text "Demo-Zahlung bestätigen"
+                        attributes {
+                          type "button"
+                          id "provider-confirm"
+                          "data-capability" "$model.provider.input.capability"
+                          "data-method" "$model.provider.method.value"
+                        }
+                      }
+                      {
+                        type "element"
+                        tag "button"
+                        text "Abbrechen"
+                        attributes {
+                          type "button"
+                          id "provider-cancel"
+                        }
+                      }
+                    ]
+                    class [
+                      "pay-actions"
+                      {
+                        "pay-hidden" {
+                          op "not"
+                          value "$model.provider.ui.confirmReady"
+                        }
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           }

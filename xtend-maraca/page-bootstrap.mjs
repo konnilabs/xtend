@@ -1,8 +1,9 @@
+import {decodePageWire} from '@ccslabs/xtend/rmt/page-contract';
 import {createRmtResumeCaptureAdapter} from '@ccslabs/xtend/rmt/resume-capture-adapter';
 
 /** Generated entries supply build-pinned keys and compiler event records. */
 export async function startMaracaPageApplication(configuration) {
-  const initialPage = JSON.parse(document.getElementById('xtend-page-data').textContent);
+  const initialPage = decodePageWire(JSON.parse(document.getElementById('xtend-page-data').textContent));
   const root = document.getElementById('xtend-page');
   const capture = createRmtResumeCaptureAdapter({generation:initialPage.ssr?.resume?.generation, now:()=>performance.now()});
   const installed = capture.install(root, (configuration.events || []).map(event=>({...event,selector:event.target})), {
@@ -31,7 +32,7 @@ export async function startMaracaPageApplication(configuration) {
       return {verified:await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},key,raw,new TextEncoder().encode(canonical))};
     } catch { return false; }
   };
-  client = createMaracaPageClient({initialPage,root,resume:{verify},applicationKey:configuration.applicationKey,
+  client = createMaracaPageClient({initialPage,root,resume:{verify},applicationKey:configuration.applicationKey,viewTransitions:configuration.viewTransitions,
     intentQueue:()=>{installed.dispose();return capture.listIntents();}, maraca:configuration.maraca,remoteSurfaces:configuration.remoteSurfaces,navigationAction:configuration.navigationAction});
   client.subscribe(event=>window.dispatchEvent(new CustomEvent('xtend-page:event',{detail:event})));
     await client.start();

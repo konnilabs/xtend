@@ -1,3 +1,4 @@
+import { componentStyleNonce } from './style-nonce.js';
 import { xtendState } from './xtend-state.js';
 
 // <x-section>
@@ -87,7 +88,7 @@ class XSection extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
     this.shadowRoot.innerHTML = `
-      <style>
+      <style${componentStyleNonce(this.ownerDocument)}>
         :host {
           display: block;
           padding: var(--section-padding, var(--xtend-layout-spacing, 2em));

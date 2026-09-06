@@ -21,6 +21,7 @@ async function runSsrPagesSuite(options = {}) {
   const check = (name, action) => options.phpParityOnly ? undefined : runCheck(name, action);
   const checkPhp = (name, action) => options.phpParityOnly ? runCheck(name, action) : undefined;
   const php = input => JSON.parse(execFileSync(process.env.XTEND_PHP_BINARY || 'php', [path.join(__dirname, 'portable_probe.php'), rootDir], { input: JSON.stringify(input), encoding: 'utf8', timeout: 10000 }));
+  await require('./page_wire_checks').pageWireChecks({check,checkPhp,load,php});
   const artifact = portable.createPortableRenderArtifact({ descriptor: { type: 'element', tag: 'section', children: [
     { type: 'element', tag: 'h1', children: [{ type: 'text', text: '$model.title' }] },
     { type: 'conditional', test: '$model.visible', then: { type: 'text', text: 'Shown' }, else: { type: 'text', text: 'Hidden' } },
@@ -153,6 +154,7 @@ async function runSsrPagesSuite(options = {}) {
     } finally { host.dispose(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
   });
   const page = (name, extra = {}) => ({schema:'xtend.page-response.v1',kind:'page',version:'1',contextKey:'alice',page:name,url:`/${name}`,props:{},head:[],errors:{},flash:{},shared:{},deferred:{},once:{},merge:{},partial:false,layout:null,...extra});
+  await require('./navigation_checks').navigationChecks({check, createPageClient, page});
   await check('a late navigation cannot replace a newer page', async () => {
     let release;
     const client = createPageClient({initialPage:page('start'), fetch: async url => { if (url.endsWith('/slow')) await new Promise(resolve => { release=resolve; }); return Response.json(page(url.endsWith('/slow')?'slow':'fast')); }});

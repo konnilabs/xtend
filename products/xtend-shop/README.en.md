@@ -61,6 +61,12 @@ Browser tests use temporary databases and copied deployments without npm depende
 
 ## Deployment and source ownership
 
+`shop.data.view` identifies the active page. RMT `conditional` branches render only that view and the current checkout step; the shell persists. Catalog data is sent only on home/results pages, checkout fields only during checkout. `Catalog::summary()` produces compact cards; `Catalog::product()` supplies descriptions and variants for the detail view. Both use the same selected-variant fields: `id` identifies a product, `sku` a variant, and `price` is in cents. Checkout drafts remain in the server session and the required RMT form state.
+
+The store enables the shared [compact page transport](../../docs/en/ssr-pages.md#compact-transport-and-conditional-views). Repeated object trees use a response-local reference table; signature verification receives the unchanged reconstructed envelope. Pagination, search and filtering use the same fetch client and history when JavaScript is available, and retain native links/forms otherwise. Inactive controls mount on demand; the shared Maraca code still ships as one bundle.
+
+Styles use `style-src 'self'` with a document nonce and `style-src-attr 'none'`. Trusted component templates obtain their nonce from the bootstrap. Browser acceptance tests cover blocked style tags/attributes and authorized component styles throughout streamed payment.
+
 RMT/TypeScript/CSS sources live in `src`; Laravel domain services in `app`; native and AppService routes share those services. Catalog seed data and original SVG artwork are local. `payment-provider` has independent Composer dependencies, configuration and a Maraca bundle.
 
 Builds produce Maraca bundles before PHP page artifacts and reuse compiler results. Fingerprints bind sources, assets and runtimes. PHP deployment includes built `public/build` and `bootstrap/xtend` artifacts, Composer dependencies, application files and private runtime configuration. It excludes Node and `node_modules`. Requests never invoke a compiler. FPM/proxy streaming must forward partial responses without buffering; the provider sends `X-Accel-Buffering: no`.

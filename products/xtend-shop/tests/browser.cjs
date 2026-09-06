@@ -45,7 +45,7 @@ async function runBrowser(options={}){
   const deadline=Date.now()+10000;
   for(const url of [shopOrigin,providerOrigin+'/health']){let ready=false;while(Date.now()<deadline&&!ready){try{ready=(await fetch(url,{signal:AbortSignal.timeout(1500)})).ok;}catch{}if(!ready)await pause(50);}if(!ready)throw new Error('Isolated PHP host did not become ready.');}
   const driverOptions={engine:'chromium',...options.browser};
-  async function fixture(name,configuration){const before=providerExecutions();const result=await runFixture({...driverOptions,url:shopOrigin+'/produkt/nova-studio-kopfhoerer?sku=TEC-01-2',timeoutMs:90000,resultKey:'__STORE_TEST__',width:1440,height:1100,...configuration,screenshotPath:path.join(reportDirectory,name+'.png')});const calls=Object.fromEntries(Object.entries(providerExecutions()).map(([key,value])=>[key,value-(before[key]||0)]));scenarios.push({name,...result.result,providerExecutions:calls,screenshot:name+'.png',browser:result.browser});if(!result.result.ok)throw new Error(result.result.failure||'Browser scenario failed.');return result;}
+  async function fixture(name,configuration){const before=providerExecutions();const result=await runFixture({...driverOptions,url:shopOrigin+'/produkt/nova-studio-kopfhoerer?sku=TEC-01-2',timeoutMs:90000,resultKey:'__STORE_TEST__',width:1440,height:1100,...configuration,preloadScript:`window.__STORE_CSP__=[];window.addEventListener('securitypolicyviolation',event=>window.__STORE_CSP__.push(event.effectiveDirective));`+(configuration.preloadScript||''),screenshotPath:path.join(reportDirectory,name+'.png')});const calls=Object.fromEntries(Object.entries(providerExecutions()).map(([key,value])=>[key,value-(before[key]||0)]));scenarios.push({name,...result.result,providerExecutions:calls,screenshot:name+'.png',browser:result.browser});if(!result.result.ok)throw new Error(result.result.failure||'Browser scenario failed.');return result;}
   await check('PHP SSR emits indexable content and no provider request',async()=>{await pause(50);const before=provider.requestCount;const started=performance.now();const response=await fetch(shopOrigin+'/produkt/nova-studio-kopfhoerer');const html=await response.text();const responseMs=performance.now()-started;if(response.status!==200||!html.includes('NOVA Studio Kopfhörer')||!html.includes('application/ld+json')||!html.includes('rel="canonical"'))throw new Error('SSR metadata or product content absent.');if(!html.includes('data-rmt-resume-root="true"'))throw new Error('Signed resume root absent.');const missing=await fetch(shopOrigin+'/produkt/does-not-exist');if(missing.status!==404)throw new Error('Invalid product did not return 404.');await pause(50);if(provider.requestCount!==before)throw new Error('SSR unexpectedly contacted DemoPay.');scenarios.push({name:'ssr',ok:true,responseBytes:Buffer.byteLength(html),responseMs,providerRequests:provider.requestCount-before,runtime:process.env.XTEND_SHOP_FPM_BINARY?'php-fpm-proxy':'php'});});
   await check('missing page artifacts, mismatched runtimes and missing packaged dependencies fail closed',async()=>{
    const manifestFile=path.join(deployment,'bootstrap/xtend/pages.json');const original=fs.readFileSync(manifestFile);
@@ -80,6 +80,19 @@ async function runBrowser(options={}){
    preloadScript:`const original=SubtleCrypto.prototype.importKey;SubtleCrypto.prototype.importKey=function(format,key,...rest){if(format==='jwk'&&key?.crv==='P-256')return Promise.reject(new Error('Deliberately rejected test key'));return original.call(this,format,key,...rest);};`,
    scripts:[{waitFor:"window.XTendPage",script:`const status=document.getElementById('xtend-page').dataset.rmtResumeStatus;const ok=status==='fallback_hydrated';window.__STORE_TEST__={ok,status:ok?'passed':'failed',resumeStatus:status,failure:ok?null:'Missing explicit hydration fallback'};`}]
   }));
+  await check('compact payload, lazy views, fetch pagination and strict styles',()=>fixture('payload-csp',{url:shopOrigin+'/',preloadScript:fs.readFileSync(path.join(__dirname,'payload.preload.js'),'utf8'),scripts:[{script:fs.readFileSync(path.join(__dirname,'payload.browser.js'),'utf8')}]}));
+  const navigationSource=fs.readFileSync(path.join(__dirname,'navigation.browser.js'),'utf8');
+  for(const [name,width,reduced] of [['desktop',1366,false],['mobile',390,false],['reduced-motion',1366,true]]) {
+   const capabilities=reduced ? {'goog:chromeOptions':{args:['--headless=new','--disable-gpu','--no-sandbox','--hide-scrollbars','--force-prefers-reduced-motion=reduce']}} : undefined;
+   await check(`navigation and cart feedback: ${name}`,()=>fixture('navigation-'+name,{width,height:844,capabilities,scripts:[{script:navigationSource,args:[{reduced}]}]}));
+  }
+  const drawerSource=fs.readFileSync(path.join(__dirname,'drawer.browser.js'),'utf8');
+  for(const [name,width,id,trigger,populated] of [
+   ['cart-empty',1440,'mini-cart','open-mini-cart',false],
+   ['cart-populated',1440,'mini-cart','open-mini-cart',true],
+   ['cart-mobile',390,'mini-cart','open-mini-cart',true],
+   ['filters-mobile',390,'filter-drawer','open-filters',false]
+  ])await check(`readable drawer: ${name}`,()=>fixture('drawer-'+name,{...(id==='filter-drawer'?{url:shopOrigin+'/'}:{}),width,height:844,scripts:[{script:drawerSource,args:[{id,trigger,populated}]}]}));
   const source=fs.readFileSync(path.join(__dirname,'purchase.browser.js'),'utf8');
   for(const scenario of (options.scenarios||['success','declined','cancel','timeout','integrity','foreign-patch','interrupted','navigation','preview']))await check(`guest checkout: ${scenario}`,async()=>{
    const adapter=path.join(deployment,'payment-provider/public/build/adapter.mjs'),original=fs.readFileSync(adapter);
@@ -97,7 +110,7 @@ async function runBrowser(options={}){
    const token=initial.match(/<meta name="csrf-token" content="([^"]+)"/)?.[1];if(!token)throw new Error('Missing native CSRF token.');
    const added=await request('/cart/add',{method:'POST',body:new URLSearchParams({_token:token,sku:'WOH-01-2',quantity:'1',version:'0'})});if(added.status!==302)throw new Error('Persistence setup failed.');
    await stopHost(shop);shop=await startHost();await pause(300);
-   const html=await(await request('/warenkorb')).text();const page=JSON.parse(html.match(/<script[^>]*id="xtend-page-data"[^>]*>([\s\S]*?)<\/script>/)?.[1]||'null');
+   const html=await(await request('/warenkorb')).text();const {decodePageWire}=await import('@ccslabs/xtend/rmt/page-contract');const page=decodePageWire(JSON.parse(html.match(/<script[^>]*id="xtend-page-data"[^>]*>([\s\S]*?)<\/script>/)?.[1]||'null'));
    if(page?.props?.['shop.data']?.cart?.count!==1)throw new Error('The guest cart did not survive a host restart.');
   });
  }catch(error){failures.push({name:'fixture',message:error.message});}

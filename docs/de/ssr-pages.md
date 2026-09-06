@@ -187,7 +187,9 @@ Ressourcenmessung: `node tests/ssr-pages/measure_resources.js .xtend-test-result
 
 Der Node-Testpfad benötigt kein PHP. Die zusätzliche Suite `ssr-pages-php` prüft die gemeinsame Renderparität einmal pro PHP-/Laravel-Umgebung. Einen vorhandenen `x-router` vor dem Einfügen mit `router.pageClient = client` verbinden und `client.start()` ausführen; danach verwaltet die Seitenlaufzeit Links und History.
 
-Optionale Übergänge verwenden eine Hostfunktion: `createPageClient({ initialPage, transition: async update => { if (document.startViewTransition) await document.startViewTransition(update).updateCallbackDone; else await update(); } })`. Ein Besuch aktiviert sie mit `{ transition: true }`. Ohne Hostfunktion und bei reduzierter Bewegung wird die Seite regulär aktualisiert.
+`createPageClient({ initialPage, viewTransitions: true })` aktiviert Browser-View-Transitions für Seitenbesuche. `startMaracaPageApplication()` reicht dieselbe Option weiter. Hintergrundabfragen animieren nicht; fehlende Browserunterstützung und reduzierte Bewegung verwenden die reguläre Aktualisierung. Ein Besuch kann mit `{ transition: false }` aussteigen. Eine eigene `transition: async update => { /* … */ await update(); }`-Hostfunktion bleibt verfügbar und hat Vorrang; sie wird mit `{ transition: true }` aktiviert.
+
+Links und native GET-Formulare können `data-xtend-preserve-scroll="true"`, `data-xtend-preserve-state="true"` und `data-xtend-transition="none"` (`"false"` wird ebenfalls akzeptiert) deklarieren. Submit-Buttons können die Formularwerte überschreiben. Damit aktualisieren etwa Produktvarianten weiterhin URL, Daten und Metadaten, während Scrollposition und gespeicherter Zustand erhalten bleiben. Die Attribute gelten für interne Navigation; ohne JavaScript bleiben die ursprünglichen Links und Formulare nutzbar.
 
 ## Maraca-Seiten und XTend.store
 
@@ -200,3 +202,13 @@ Der gemeinsame Head-Vertrag unterstützt zusätzlich Canonical-Links (`tag: "lin
 [XTend.store](../../products/xtend-shop/README.md) zeigt diese Integration mit Laravel, Gastwarenkorb und einem separaten PHP-DemoPay-Provider. Der Node-SSR-Adapter und `createNodePageHost()` bleiben eigenständige Zugänge. Der Shop ist eine zusätzliche Referenzanwendung.
 
 Maraca-Seiten übernehmen auch native GET-Such- und Filterformulare in die Seitennavigation. Die Basisseiten-API schaltet dies mit `forms: true` ein; `navigationAction` kann vor einem Besuch deklarierte RMT-Surfaces schließen. POST-Formulare behalten ihren Host- beziehungsweise RMT-Vertrag.
+
+## Kompakter Transport und bedingte Ansichten
+
+Node-Hosts aktivieren `compactResponses: true`, Laravel verwendet `compact_responses => true`. Die HTML-Bootstrapdaten nutzen dann `xtend.page-wire.v1`: Eine antwortbezogene Tabelle speichert identische JSON-Objekte und Arrays einmalig. Referenzen in Kindwerten zeigen auf einen Tabellenindex. `encodePageWire()` und `decodePageWire()` sind über das Page-Contract-Modul verfügbar. Vor Validierung und Signaturprüfung werden die bestehenden Seiten- und Resume-Envelopes rekonstruiert; deren Verträge bleiben erhalten. Referenzen gelten ausschließlich innerhalb einer Antwort. Der Decoder begrenzt Tiefe, Knotenzahl und logische Expansion und weist unsichere Schlüssel sowie zyklische oder ungültige Referenzen zurück.
+
+Der Seitenclient handelt das Format mit `X-XTend-Page-Wire: 1` aus. Ältere JSON-Verbraucher erhalten weiterhin normale Seitenantworten. Bei ausgehandelten Folgebesuchen mit portablem Artefakt senden die Hosts Eingabedaten und Renderartefakt ohne einen weiteren SSR-Envelope zu erzeugen. HTML-Erstaufrufe enthalten weiterhin vollständiges SSR und signierte Resume-Daten. Die Option benötigt einen kompatiblen Bootstrap; eigene Laravel-Root-Views serialisieren dafür `$pageData` (mit `$page` als Rückfall für ältere Integrationen).
+
+Portable `conditional`-Deskriptoren materialisieren nur die aktuelle Ansicht. Der DOM-Renderer versteht sowohl `conditional` als auch seine bisherige Schreibweise `when`; vom Compiler aufgelöste Portale können eine bedingte Verzweigung adressieren. Zustand bleibt im RMT-Modell erhalten, während Controls nicht im DOM stehen. Eine unveränderte Verzweigung aktualisiert ihre bestehenden Knoten. Dies reduziert DOM und Seitendaten, teilt ein gemeinsames Maraca-Bundle aber nicht automatisch in getrennt geladene Codepakete auf.
+
+Laravels optionale Einstellung `style_nonce => true` ergänzt den Dokument-Nonce in `style-src` und entfernt dort `unsafe-inline`. Der Shop setzt zusätzlich `style-src-attr 'none'`. Vertrauenswürdige XTend-Komponentenstyles übernehmen den Bootstrap-Nonce; beliebiges HTML wird nicht automatisch freigegeben. Eigene Komponenten benötigen vor Aktivierung der Richtlinie entsprechende feste Stylevorlagen oder externe Stylesheets. Browsertests prüfen blockierte Style-Injektionen und den vollständigen Zahlungsablauf.

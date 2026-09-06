@@ -52,8 +52,9 @@ final class PageManager {
         $page['head'] = PageView::head($layout['head'] ?? [], $page['head']);
         $page['maraca'] = $definition['maraca'] ?? null;
         $page['layoutArtifact'] = $layout['artifact'] ?? null;
+        $compact = ($this->config['compact_responses'] ?? false) && (!$this->request->header('X-XTend-Page') || $this->request->header('X-XTend-Page-Wire') === '1');
         $html = ''; $headers = [];
-        if (!$partial) {
+        if (!$partial && !($compact && $this->request->header('X-XTend-Page'))) {
             $projected = \RmtPortableRender::project($definition['artifact'], array_replace($shared, (array)$data['props']));
             if ($layout) {
                 $layoutProjection = \RmtPortableRender::project($layout['artifact'], array_replace($shared, (array)$data['props']));
@@ -68,14 +69,23 @@ final class PageManager {
             if (!$result['ok']) throw new \RuntimeException('XTend SSR rendering failed.');
             $html = $result['html']; $page['ssr'] = $result['response']; $headers = $result['headers'];
         }
-        $headers['Cache-Control'] = 'private, no-store'; $headers['Vary'] = 'X-XTend-Page, X-XTend-Version, X-XTend-Only, X-XTend-Deferred, X-XTend-Once';
-        if ($this->request->header('X-XTend-Page')) return response()->json($page, $options['status'] ?? 200, $headers);
+        $headers['Cache-Control'] = 'private, no-store'; $headers['Vary'] = 'X-XTend-Page, X-XTend-Page-Wire, X-XTend-Version, X-XTend-Only, X-XTend-Deferred, X-XTend-Once';
+        if ($this->request->header('X-XTend-Page')) return response()->json($compact ? \Ccslabs\XTend\Data\PageWire::encode($page) : $page, $options['status'] ?? 200, $headers);
         $nonce = bin2hex(random_bytes(18));
         foreach (array_merge($manifest['assets']['css'] ?? [], isset($manifest['assets']['entry']) ? [$manifest['assets']['entry']] : []) as $asset) {
             if (!is_string($asset) || !preg_match('#^/(?!/)#', $asset)) throw new \RuntimeException('Page assets must use same-origin absolute paths.');
         }
         $policy = $headers['Content-Security-Policy'] ?? "default-src 'self'";
         $headers['Content-Security-Policy'] = str_contains($policy, 'script-src ') ? preg_replace('/script-src([^;]*)/', "script-src$1 'nonce-$nonce'", $policy) : "$policy; script-src 'self' 'nonce-$nonce'";
-        return response()->view($this->config['root_view'], ['page' => $page, 'html' => $html, 'assets' => $manifest['assets'] ?? [], 'nonce' => $nonce], $options['status'] ?? 200, $headers);
+        if ($this->config['style_nonce'] ?? false) {
+            $policy = $headers['Content-Security-Policy'];
+            $headers['Content-Security-Policy'] = preg_match('/(?:^|;\s*)style-src\s/', $policy)
+                ? preg_replace_callback('/(^|;\s*)style-src\s+([^;]*)/', function($match) use ($nonce) {
+                    $sources = array_filter(preg_split('/\s+/', trim($match[2])), fn($source) => !in_array($source, ["'unsafe-inline'", "'none'"], true));
+                    return $match[1].'style-src '.implode(' ', $sources)." 'nonce-$nonce'";
+                }, $policy)
+                : "$policy; style-src 'self' 'nonce-$nonce'";
+        }
+        return response()->view($this->config['root_view'], ['page' => $page, 'pageData' => $compact ? \Ccslabs\XTend\Data\PageWire::encode($page) : $page, 'html' => $html, 'assets' => $manifest['assets'] ?? [], 'nonce' => $nonce], $options['status'] ?? 200, $headers);
     }
 }

@@ -2,7 +2,7 @@ import { randomBytes, createHash } from 'node:crypto';
 import {readFileSync} from 'node:fs';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { PAGE_MANIFEST_SCHEMA, PAGE_RESPONSE_SCHEMA, parsePageSelection, resolvePageProps, safePageJson, pageError, mergePageHead, composePageDescriptor, assertKey } from './page-contract.mjs';
+import { PAGE_MANIFEST_SCHEMA, PAGE_RESPONSE_SCHEMA, parsePageSelection, resolvePageProps, safePageJson, pageError, mergePageHead, composePageDescriptor, assertKey, encodePageWire } from './page-contract.mjs';
 import { createRmtNodeSsrAdapter } from './rmt-node-ssr-adapter.js';
 import { projectPortableRender } from './rmt-portable-render.js';
 const escape = value => String(value ?? '').replace(/[&<>"']/gu, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
@@ -15,7 +15,7 @@ export function createNodePageRouteManifest(routes) {
   }
   return {schema:'xtend.page-routes.v1',host:'node',routes:records};
 }
-export function renderPageDocument(page, html, assets = {}, nonce = '') {
+export function renderPageDocument(page, html, assets = {}, nonce = '', options = {}) {
   const head = mergePageHead([], page.head || []).map(tag => {
     if (tag.tag === 'title') return `<title>${escape(tag.text)}</title>`;
     if (tag.tag === 'link') return `<link data-xtend-page-head rel="canonical" href="${escape(tag.attributes.href)}">`;
@@ -27,7 +27,7 @@ export function renderPageDocument(page, html, assets = {}, nonce = '') {
     }).join(' ')}>`;
   }).join('');
   const assetUrl = value => { if (!/^\/(?!\/)/u.test(value)) throw pageError('page.invalid_asset', 'Page assets must use same-origin absolute paths.'); return escape(value); };
-  return `<!doctype html><html><head><meta charset="utf-8">${head}${(assets.css || []).map(url => `<link rel="stylesheet" href="${assetUrl(url)}">`).join('')}</head><body><main id="${page.ssr?.resume ? 'xtend-page-container' : 'xtend-page'}" tabindex="-1">${html}</main><script type="application/json" id="xtend-page-data" nonce="${escape(nonce)}">${safePageJson(page)}</script>${assets.entry ? `<script type="module" src="${assetUrl(assets.entry)}" nonce="${escape(nonce)}"></script>` : ''}</body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8">${head}${(assets.css || []).map(url => `<link rel="stylesheet" href="${assetUrl(url)}">`).join('')}</head><body><main id="${page.ssr?.resume ? 'xtend-page-container' : 'xtend-page'}" tabindex="-1">${html}</main><script type="application/json" id="xtend-page-data" nonce="${escape(nonce)}">${safePageJson(options.compact ? encodePageWire(page) : page)}</script>${assets.entry ? `<script type="module" src="${assetUrl(assets.entry)}" nonce="${escape(nonce)}"></script>` : ''}</body></html>`;
 }
 export function createNodePageHost(options) {
   const { manifest } = options;
@@ -81,7 +81,7 @@ export function createNodePageHost(options) {
     page.head = mergePageHead(layout?.head, page.head);
     page.layoutArtifact = layout?.artifact || null;
     let html = '', result;
-    if (!partial) {
+    if (!partial && !(options.compactResponses && request.headers['x-xtend-page-wire'] === '1' && request.headers['x-xtend-page'] && definition.artifact)) {
       const input = definition.artifact ? projectPortableRender(definition.artifact, {...shared,...data.props}) : { ...(definition.input || {}), model: data.props };
       if (layout) {
         const projection=projectPortableRender(layout.artifact, {...shared,...data.props});
@@ -123,19 +123,19 @@ export function createNodePageHost(options) {
       if (!result) return false;
       response.statusCode = result.status;
       for (const [name, value] of Object.entries(result.headers || {})) response.setHeader(name, value);
-      response.setHeader('Cache-Control', 'private, no-store'); response.setHeader('Vary', 'X-XTend-Page, X-XTend-Version, X-XTend-Only, X-XTend-Deferred, X-XTend-Once');
+      response.setHeader('Cache-Control', 'private, no-store'); response.setHeader('Vary', 'X-XTend-Page, X-XTend-Page-Wire, X-XTend-Version, X-XTend-Only, X-XTend-Deferred, X-XTend-Once');
       if (result.validation) { response.setHeader('Content-Type','application/json'); response.end(result.status===204 ? undefined : safePageJson(result.validation)); return true; }
       if (request.method === 'HEAD') { result.download?.destroy?.(); response.end(); return true; }
       if (result.download) { await pipeline(result.download instanceof Readable ? result.download : Readable.fromWeb(result.download), response, { signal: controller.signal }); return true; }
       if (request.headers['x-xtend-page']) {
-        response.setHeader('Content-Type', 'application/json; charset=utf-8'); response.end(safePageJson(result.page));
+        response.setHeader('Content-Type', 'application/json; charset=utf-8'); response.end(safePageJson(options.compactResponses && request.headers['x-xtend-page-wire'] === '1' ? encodePageWire(result.page) : result.page));
       } else if (result.page.kind !== 'page') response.end();
       else {
         const nonce = randomBytes(18).toString('base64');
         // Preserve the renderer policy, adding only the nonce needed by our bootstrap.
         const policy = String(response.getHeader('Content-Security-Policy') || "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'");
         response.setHeader('Content-Security-Policy', /script-src\s/u.test(policy) ? policy.replace(/script-src([^;]*)/u, (_, values) => `script-src${values} 'nonce-${nonce}'`) : `${policy}; script-src 'self' 'nonce-${nonce}'`);
-        response.setHeader('Content-Type', 'text/html; charset=utf-8'); response.end(renderPageDocument(result.page, result.html, manifest.assets, nonce));
+        response.setHeader('Content-Type', 'text/html; charset=utf-8'); response.end(renderPageDocument(result.page, result.html, manifest.assets, nonce, {compact:options.compactResponses}));
       }
       return true;
     } catch (error) {

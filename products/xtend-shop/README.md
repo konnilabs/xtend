@@ -76,6 +76,12 @@ Produktberichte verwenden `xtend.store.report.v1` unter `storage/reports`; der F
 
 ## Aufbau und Betrieb
 
+`shop.data.view` benennt die aktive Seite. RMT-`conditional`-Verzweigungen rendern nur diese Seite beziehungsweise den aktuellen Checkoutschritt; die Shell bleibt erhalten. Katalogdaten werden nur für Startseite und Suchergebnisse geliefert, Checkoutfelder nur im Checkout. `Catalog::summary()` liefert kompakte Karten, `Catalog::product()` die Detailprojektion mit Beschreibung und Varianten. Beide verwenden dieselben Felder für die ausgewählte Variante: `id` identifiziert das Produkt, `sku` die Variante; `price` enthält Cent. Der Checkoutentwurf bleibt serverseitig in der Session und im benötigten RMT-Formularzustand.
+
+Der Shop aktiviert den gemeinsamen [kompakten Seitentransport](../../docs/de/ssr-pages.md#kompakter-transport-und-bedingte-ansichten). Identische Objektbäume im Resume-/Seitenmodell werden innerhalb der Antwort über eine Referenztabelle übertragen. Die Signaturprüfung sieht den unveränderten rekonstruierten Envelope. Pagination, Suche und Filter verwenden bei aktivem JavaScript denselben Fetch-Seitenclient einschließlich History; ohne JavaScript bleiben die Links und GET-Formulare nutzbar. Inaktive Controls werden bei Bedarf aufgebaut; das gemeinsame Maraca-Bundle wird weiterhin als ein Bundle geladen.
+
+Styles nutzen `style-src 'self'` mit Dokument-Nonce und `style-src-attr 'none'`. Komponentenstyles erhalten ihren Nonce ausschließlich aus dem vertrauenswürdigen Bootstrap. Der Browsertest prüft unerlaubte Style-Tags und Style-Attribute sowie zulässige Komponentenstyles im gestreamten Paymentablauf.
+
 - `src/app.rmt`, `src/services.ts`, `src/app.css`: XTM-Shell, native Controls, RMT-Validierung und Maraca-Registry.
 - `app/`, `routes/`, `config/shop.php`: gemeinsame Laravel-Domänendienste für native Formulare und AppServices.
 - `database/catalog.json`, `public/images/`: lokale fiktive Produktdaten und eigene SVG-Illustrationen.

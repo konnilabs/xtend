@@ -1,3 +1,5 @@
+import {decodePageWire} from './page-wire.mjs';
+export {PAGE_WIRE_SCHEMA, encodePageWire, decodePageWire} from './page-wire.mjs';
 export const PAGE_RESPONSE_SCHEMA = 'xtend.page-response.v1';
 export const PAGE_MANIFEST_SCHEMA = 'xtend.page-manifest.v1';
 export function pagePagination({next = null, previous = null, props}) {
@@ -126,6 +128,7 @@ export function safePageJson(value) {
   }).replace(/[<>&\u2028\u2029]/gu, character => `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`);
 }
 export function validatePageResponse(page) {
+  page = decodePageWire(page);
   if (page?.schema !== PAGE_RESPONSE_SCHEMA || typeof page.version !== 'string' || !page.version || typeof page.contextKey !== 'string' || !page.contextKey || !['page', 'redirect', 'reload'].includes(page.kind)) throw pageError('page.invalid_response', 'Invalid XTend page response.');
   if (page.kind === 'page' && (typeof page.page !== 'string' || typeof page.url !== 'string' || !page.props || typeof page.props !== 'object' || Array.isArray(page.props))) throw pageError('page.invalid_response', 'Invalid page data.');
   if (page.kind !== 'page' && (typeof page.location !== 'string' || !page.location)) throw pageError('page.invalid_response','A redirect requires a destination.');

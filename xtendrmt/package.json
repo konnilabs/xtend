@@ -89,6 +89,7 @@
     "rmt-portable-render.js",
     "rmt-portable-render.d.ts",
     "page-contract.mjs",
+    "page-wire.mjs",
     "page-contract.d.ts",
     "node-page-host.mjs",
     "node-page-host.d.ts",

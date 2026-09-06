@@ -32,3 +32,10 @@ export function mergePageHead(layout?: HeadRecord[], page?: HeadRecord[]): HeadR
 export function composePageDescriptor(layout: PortableDescriptor | null, page: PortableDescriptor): PortableDescriptor;
 
 export function pagePagination(input: {next?: string | null; previous?: string | null; props: string[]}): {next: string | null; previous: string | null; props:string[]};
+
+export const PAGE_WIRE_SCHEMA: 'xtend.page-wire.v1';
+export interface PageWireReference { r: number }
+export type PageWireValue = string | number | boolean | null | PageWireReference;
+export interface PageWire { schema: typeof PAGE_WIRE_SCHEMA; root: PageWireReference; nodes: Array<PageWireValue[] | Record<string, PageWireValue>> }
+export function encodePageWire(page: PageResult): PageWire;
+export function decodePageWire(page: PageWire | PageResult): PageResult;

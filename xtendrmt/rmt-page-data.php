@@ -2,6 +2,35 @@
 declare(strict_types=1);
 namespace Ccslabs\XTend\Data;
 
+final class PageWire {
+    public const SCHEMA = 'xtend.page-wire.v1';
+    public static function encode(array $page): array {
+        // Normalize PHP's associative arrays and empty objects exactly as JSON
+        // would expose them. Objects in the table always remain literal objects;
+        // only their child values can be response-local references.
+        $source = json_decode(json_encode($page, JSON_THROW_ON_ERROR), false, 512, JSON_THROW_ON_ERROR);
+        $nodes = []; $interned = [];
+        $visit = function($value, int $depth = 0) use (&$visit, &$nodes, &$interned) {
+            if ($depth > 128) throw new \InvalidArgumentException('Page reference table exceeds its depth limit.');
+            if (!is_object($value) && !is_array($value)) return $value;
+            $node = is_array($value) ? [] : new \stdClass();
+            foreach ($value as $key => $child) {
+                if ((string)$key !== '') Prop::assertKey((string)$key);
+                $encoded = $visit($child, $depth + 1);
+                if (is_array($node)) $node[] = $encoded; else $node->$key = $encoded;
+            }
+            $signature = json_encode($node, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            if (!isset($interned[$signature])) {
+                if (count($nodes) >= 32768) throw new \InvalidArgumentException('Page reference table exceeds its node limit.');
+                $interned[$signature] = count($nodes); $nodes[] = $node;
+            }
+            return ['r'=>$interned[$signature]];
+        };
+        $root = $visit($source);
+        return ['schema'=>self::SCHEMA, 'root'=>$root, 'nodes'=>$nodes];
+    }
+}
+
 final class PageView {
     public static function head(array $layout, array $page): array {
         $records = [];

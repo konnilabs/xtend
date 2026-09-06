@@ -1,5 +1,6 @@
 // Selbst-ausfuehrende asynchrone Funktion statt direktem Import
 (async function() {
+  const { componentStyleNonce } = await import('./style-nonce.js');
   let xtendState;
 
   if (window.XTend?.state) {
@@ -460,7 +461,7 @@
 
     _render(state) {
       this.shadowRoot.innerHTML = `
-        <style>
+        <style${componentStyleNonce(this.ownerDocument)}>
           :host {
             --xtend-overlay-backdrop: var(--xtend-overlay-bg, rgba(30, 34, 44, 0.55));
             --xtend-overlay-surface: var(--xtend-surface, var(--xtend-overlay-backdrop));

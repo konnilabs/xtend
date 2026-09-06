@@ -75,16 +75,23 @@ template xtend.store {
             type "element"
             tag "div"
             attributes {
-              id "feedback-slot"
+              id "cart-feedback-slot"
             }
           }
           {
             type "element"
             tag "div"
             attributes {
-              id "payment-slot"
+              id "feedback-slot"
             }
           }
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "checkout" } then {
+            type "element"
+            tag "div"
+            attributes {
+              id "payment-slot"
+            }
+          } }
           {
             type "element"
             tag "div"
@@ -92,13 +99,13 @@ template xtend.store {
               id "miniCart-slot"
             }
           }
-          {
+          { type "conditional" test { op "if" test { op "equals" left "$model.shop.data.view" right "home" } then true else { op "equals" left "$model.shop.data.view" right "results" } } then {
             type "element"
             tag "div"
             attributes {
               id "filterDrawer-slot"
             }
-          }
+          } }
           {
             type "element"
             tag "footer"
@@ -174,7 +181,7 @@ template xtend.store {
                 tag "input"
                 attributes {
                   name "q"
-                  value "$model.shop.data.catalog.filters.q"
+                  value { op "path" path "$model.shop.data.catalog.filters.q" fallback "" }
                   type "search"
                   id "store-search"
                   placeholder "Finde dein nächstes Lieblingsstück"
@@ -254,7 +261,7 @@ template xtend.store {
       viewTemplate {
         class "store-main"
         children [
-          {
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "home" } then {
             type "element"
             tag "section"
             children [
@@ -327,17 +334,14 @@ template xtend.store {
                 class "hero-art"
               }
             ]
-            class [
-              "store-hero"
-              {
-                "store-hidden" {
-                  op "not"
-                  value "$model.shop.data.home"
-                }
-              }
-            ]
-          }
-          {
+            class [ "store-hero" ]
+          } }
+          { type "conditional" test {
+                    op "if"
+                    test { op "equals" left "$model.shop.data.view" right "home" }
+                    then true
+                    else { op "equals" left "$model.shop.data.view" right "results" }
+                  } then {
             type "element"
             tag "section"
             children [
@@ -870,22 +874,9 @@ template xtend.store {
                 class "catalog-layout"
               }
             ]
-            class [
-              "store-catalog"
-              {
-                "store-hidden" {
-                  op "not"
-                  value {
-                    op "if"
-                    test "$model.shop.data.home"
-                    then true
-                    else "$model.shop.data.results"
-                  }
-                }
-              }
-            ]
-          }
-          {
+            class [ "store-catalog" ]
+          } }
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "detail" } then {
             type "element"
             tag "section"
             children [
@@ -963,6 +954,10 @@ template xtend.store {
                               tag "a"
                               attributes {
                                 href "$item.url"
+                                "data-xtend-preserve-scroll" "true"
+                                "data-xtend-preserve-state" "true"
+                                "data-xtend-transition" "none"
+                                "aria-current" "$item.selected"
                                 "aria-label" "$item.label"
                               }
                               children [
@@ -1063,6 +1058,9 @@ template xtend.store {
                               text "$item.label"
                               attributes {
                                 href "$item.url"
+                                "data-xtend-preserve-scroll" "true"
+                                "data-xtend-preserve-state" "true"
+                                "data-xtend-transition" "none"
                                 "aria-current" {
                                   op "if"
                                   test "$item.selected"
@@ -1165,17 +1163,9 @@ template xtend.store {
                 class "product-detail"
               }
             ]
-            class [
-              "detail-page"
-              {
-                "store-hidden" {
-                  op "not"
-                  value "$model.shop.data.detail"
-                }
-              }
-            ]
-          }
-          {
+            class [ "detail-page" ]
+          } }
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "cart" } then {
             type "element"
             tag "section"
             children [
@@ -1318,8 +1308,11 @@ template xtend.store {
                                     {
                                       type "element"
                                       tag "label"
-                                      text "Menge"
                                       children [
+                                        {
+                                          type "text"
+                                          text "Menge"
+                                        }
                                         {
                                           type "element"
                                           tag "input"
@@ -1348,8 +1341,8 @@ template xtend.store {
                                       text "Entfernen"
                                       attributes {
                                         type "submit"
-                                        name "quantity"
-                                        value "0"
+                                        name "remove"
+                                        value "1"
                                         formaction "/cart/set"
                                         "data-sku" "$item.sku"
                                         "data-version" "$model.shop.data.cart.version"
@@ -1501,16 +1494,9 @@ template xtend.store {
                 ]
               }
             ]
-            class [
-              {
-                "store-hidden" {
-                  op "not"
-                  value "$model.shop.data.cartPage"
-                }
-              }
-            ]
-          }
-          {
+            class []
+          } }
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "checkout" } then {
             type "element"
             tag "section"
             children [
@@ -1576,10 +1562,19 @@ template xtend.store {
                           type "hidden"
                         }
                       }
-                      {
+                      { type "conditional" test {
+                                op "equals"
+                                left "$model.shop.checkout.stage"
+                                right {
+                                  op "literal"
+                                  value "contact"
+                                }
+                              } then {
                         type "element"
                         tag "section"
                         children [
+                          { type "element" tag "input" attributes { type "hidden" name "shipping" value "$model.shop.shipping.value" } }
+
                           {
                             type "element"
                             tag "h2"
@@ -1708,27 +1703,25 @@ template xtend.store {
                             }
                           }
                         ]
-                        class [
-                          "checkout-stage"
-                          {
-                            "store-hidden" {
-                              op "not"
-                              value {
+                        class [ "checkout-stage" ]
+                      } }
+                      { type "conditional" test {
                                 op "equals"
                                 left "$model.shop.checkout.stage"
                                 right {
                                   op "literal"
-                                  value "contact"
+                                  value "shipping"
                                 }
-                              }
-                            }
-                          }
-                        ]
-                      }
-                      {
+                              } then {
                         type "element"
                         tag "section"
                         children [
+                          { type "element" tag "input" attributes { type "hidden" name "name" value "$model.shop.name.value" } }
+                          { type "element" tag "input" attributes { type "hidden" name "email" value "$model.shop.email.value" } }
+                          { type "element" tag "input" attributes { type "hidden" name "street" value "$model.shop.street.value" } }
+                          { type "element" tag "input" attributes { type "hidden" name "postal" value "$model.shop.postal.value" } }
+                          { type "element" tag "input" attributes { type "hidden" name "city" value "$model.shop.city.value" } }
+
                           {
                             type "element"
                             tag "h2"
@@ -1771,24 +1764,16 @@ template xtend.store {
                             }
                           }
                         ]
-                        class [
-                          "checkout-stage"
-                          {
-                            "store-hidden" {
-                              op "not"
-                              value {
+                        class [ "checkout-stage" ]
+                      } }
+                      { type "conditional" test {
                                 op "equals"
                                 left "$model.shop.checkout.stage"
                                 right {
                                   op "literal"
-                                  value "shipping"
+                                  value "review"
                                 }
-                              }
-                            }
-                          }
-                        ]
-                      }
-                      {
+                              } then {
                         type "element"
                         tag "section"
                         children [
@@ -1861,23 +1846,8 @@ template xtend.store {
                             }
                           }
                         ]
-                        class [
-                          "checkout-stage"
-                          {
-                            "store-hidden" {
-                              op "not"
-                              value {
-                                op "equals"
-                                left "$model.shop.checkout.stage"
-                                right {
-                                  op "literal"
-                                  value "review"
-                                }
-                              }
-                            }
-                          }
-                        ]
-                      }
+                        class [ "checkout-stage" ]
+                      } }
                     ]
                     class "xtm-form-flow checkout-form"
                   }
@@ -1928,17 +1898,9 @@ template xtend.store {
                 class "cart-layout"
               }
             ]
-            class [
-              "checkout-page"
-              {
-                "store-hidden" {
-                  op "not"
-                  value "$model.shop.data.checkout"
-                }
-              }
-            ]
-          }
-          {
+            class [ "checkout-page" ]
+          } }
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "order" } then {
             type "element"
             tag "section"
             children [
@@ -2018,17 +1980,9 @@ template xtend.store {
                 class "xtm-primary-action"
               }
             ]
-            class [
-              "order-confirmation"
-              {
-                "store-hidden" {
-                  op "not"
-                  value "$model.shop.data.confirmation"
-                }
-              }
-            ]
-          }
-          {
+            class [ "order-confirmation" ]
+          } }
+          { type "conditional" test { op "equals" left "$model.shop.data.view" right "detail" } then {
             type "element"
             tag "section"
             children [
@@ -2168,7 +2122,7 @@ template xtend.store {
               }
             ]
             class "recommendations"
-          }
+          } }
         ]
       }
     }
@@ -2176,12 +2130,7 @@ template xtend.store {
   state shop.data type object preserve {
     initial {
       id "store"
-      home true
-      results false
-      detail false
-      cartPage false
-      checkout false
-      confirmation false
+      view "home"
       catalog {
         products [
 
@@ -2481,6 +2430,27 @@ template xtend.store {
       }
     }
   }
+  state shop.cartFeedback type object preserve {
+    initial {
+      id "cart-feedback"
+      hidden true
+      message ""
+      viewTemplate {
+        class [
+          "cart-feedback"
+          { "store-hidden" { op "equals" left "$model.shop.actionStatus.status" right "error" } }
+        ]
+        children [
+          { type "element" tag "div" class "cart-feedback-content" children [
+          { type "element" tag "span" text "✓" attributes { "aria-hidden" "true" } class "cart-feedback-icon" }
+          { type "element" tag "p" text "$model.shop.cartFeedback.message" attributes { role "status" "aria-live" "polite" "aria-atomic" "true" } }
+          { type "element" tag "a" text "Zum Warenkorb" attributes { href "/warenkorb" } }
+          { type "element" tag "button" text "×" attributes { id "dismiss-cart-feedback" type "button" "aria-label" "Warenkorbhinweis schließen" } }
+          ] }
+        ]
+      }
+    }
+  }
   state shop.feedback type object preserve {
     initial {
       id "store-feedback"
@@ -2634,8 +2604,11 @@ template xtend.store {
                     {
                       type "element"
                       tag "label"
-                      text "Menge"
                       children [
+                        {
+                          type "text"
+                          text "Menge"
+                        }
                         {
                           type "element"
                           tag "input"
@@ -2664,8 +2637,8 @@ template xtend.store {
                       text "Entfernen"
                       attributes {
                         type "submit"
-                        name "quantity"
-                        value "0"
+                        name "remove"
+                        value "1"
                         "data-sku" "$item.sku"
                         "data-version" "$model.shop.data.cart.version"
                         "data-quantity" "0"
@@ -3022,6 +2995,7 @@ template xtend.store {
   selector shop.nextContact from state shop.nextContact { output StoreView }
   selector shop.nextShipping from state shop.nextShipping { output StoreView }
   selector shop.pay from state shop.pay { output StoreView }
+  selector shop.cartFeedback from state shop.cartFeedback { output StoreView }
   selector shop.feedback from state shop.feedback { output StoreView }
   selector shop.paymentDialog from state shop.paymentDialog { output StoreView }
   selector shop.payment from state shop.payment { output StoreView }
@@ -3098,6 +3072,8 @@ template xtend.store {
     input quantity string
     effect fetch datasource shop.add
     reduce state.shop.data.cart = result
+    reduce state.shop.cartFeedback.message = "Zum Warenkorb hinzugefügt."
+    reduce state.shop.cartFeedback.hidden = false
   }
   action shop.set {
     status state.shop.actionStatus
@@ -3106,12 +3082,16 @@ template xtend.store {
     input quantity string
     effect fetch datasource shop.set
     reduce state.shop.data.cart = result
+    reduce state.shop.cartFeedback.message = "Warenkorb aktualisiert."
+    reduce state.shop.cartFeedback.hidden = false
   }
   action shop.clear {
     status state.shop.actionStatus
     input version string
     effect fetch datasource shop.clear
     reduce state.shop.data.cart = result
+    reduce state.shop.cartFeedback.message = "Warenkorb geleert."
+    reduce state.shop.cartFeedback.hidden = false
   }
   validation shop.contact {
     mode blocking
@@ -3164,6 +3144,11 @@ template xtend.store {
     input url string
     reduce state.shop.miniCart.open = false
     reduce state.shop.filterDrawer.open = false
+    reduce state.shop.cartFeedback.hidden = true
+  }
+  action shop.dismissCartFeedback {
+    input source string
+    reduce state.shop.cartFeedback.hidden = true
   }
   action shop.openminiCart {
     input source string
@@ -3226,6 +3211,7 @@ template xtend.store {
   portal shop.nextContact root "#contact-next-slot" layer surface
   portal shop.nextShipping root "#shipping-next-slot" layer surface
   portal shop.pay root "#pay-slot" layer surface
+  portal shop.cartFeedback root "#cart-feedback-slot" layer surface
   portal shop.feedback root "#feedback-slot" layer surface
   portal shop.paymentDialog root "#payment-slot" layer surface
   portal shop.payment root "#payment-content-slot" layer surface
@@ -3238,6 +3224,33 @@ template xtend.store {
   portal shop.postal root "#postal-slot" layer surface
   portal shop.city root "#city-slot" layer surface
   portal shop.shipping root "#shipping-slot" layer surface
+  transition shop.addFeedback {
+    trigger action shop.add
+    from surfaces [shop.cartFeedback]
+    to surfaces [shop.cartFeedback]
+    effect pop
+    durationMs 140
+    reducedMotion none
+    lane transition
+  }
+  transition shop.setFeedback {
+    trigger action shop.set
+    from surfaces [shop.cartFeedback]
+    to surfaces [shop.cartFeedback]
+    effect pop
+    durationMs 140
+    reducedMotion none
+    lane transition
+  }
+  transition shop.clearFeedback {
+    trigger action shop.clear
+    from surfaces [shop.cartFeedback]
+    to surfaces [shop.cartFeedback]
+    effect pop
+    durationMs 140
+    reducedMotion none
+    lane transition
+  }
   transition shop.toShipping {
     trigger action shop.save
     from surfaces [shop.main]
@@ -3278,13 +3291,13 @@ template xtend.store {
       payload quantity from target.elements.quantity.value
       payload version from target.elements.version.value
     }
-    on submit ".cart-line-form" -> action shop.set {
+    on submit "#store-main .cart-line-form" -> action shop.set {
       preventDefault true
       payload sku from target.elements.sku.value
       payload quantity from target.elements.quantity.value
       payload version from target.elements.version.value
     }
-    on click ".remove-line" -> action shop.set {
+    on click "#store-main .remove-line" -> action shop.set {
       preventDefault true
       payload sku from target.dataset.sku
       payload quantity from target.dataset.quantity
@@ -3301,6 +3314,16 @@ template xtend.store {
     on click "#back-shipping" -> action shop.backShipping {
       preventDefault true
       payload label from target.textContent
+    }
+  }
+  surface shop.cartFeedback kind content component x-section {
+    source selector shop.cartFeedback
+    key cartFeedback.id
+    portal shop.cartFeedback
+    lane visible weight 90 { hydrate store-cartFeedback from selector shop.cartFeedback }
+    on click "#dismiss-cart-feedback" -> action shop.dismissCartFeedback {
+      preventDefault true
+      payload source from target.id
     }
   }
   surface shop.feedback kind content component x-status {
@@ -3334,13 +3357,13 @@ template xtend.store {
       preventDefault true
       payload source from target.id
     }
-    on submit ".cart-line-form" -> action shop.set {
+    on submit "#mini-cart .cart-line-form" -> action shop.set {
       preventDefault true
       payload sku from target.elements.sku.value
       payload quantity from target.elements.quantity.value
       payload version from target.elements.version.value
     }
-    on click ".remove-line" -> action shop.set {
+    on click "#mini-cart .remove-line" -> action shop.set {
       preventDefault true
       payload sku from target.dataset.sku
       payload quantity from target.dataset.quantity

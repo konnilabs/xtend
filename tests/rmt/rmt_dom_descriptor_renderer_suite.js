@@ -617,6 +617,14 @@ function runCommitCoreAssertions(context, rendererModule) {
     diagnosticsHub
   });
   const refs = new Map();
+  const conditionalRoot = documentTarget.createElement('section');
+  const conditional = {type:'conditional',test:'$model.visible',then:{type:'element',tag:'button',key:'active',text:'$model.label',events:{click:'active'}},else:{type:'element',tag:'p',key:'inactive',text:'Hidden'}};
+  const commitConditional = (visible,label) => renderer.commit({operation:'reconcile-children',target:conditionalRoot,descriptors:[conditional],context:{model:{visible,label}}});
+  const firstConditional = commitConditional(true,'First').nodes[0];
+  const secondConditional = commitConditional(true,'Second').nodes[0];
+  context.assert(firstConditional === secondConditional && textContent(secondConditional) === 'Second', 'Portable conditional updates retain the active DOM node');
+  commitConditional(false,'Ignored');
+  context.assert(conditionalRoot.childNodes.length === 1 && conditionalRoot.childNodes[0].tagName === 'P' && !firstConditional._listeners.has('click'), 'Conditional branch changes release removed controls and bindings');
   const dispatched = [];
   const renderContext = {
     refs,
