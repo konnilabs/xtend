@@ -912,6 +912,30 @@
     "./project-index/cli": {
       "types": "./tools/project-index/cli.d.ts",
       "default": "./tools/project-index/cli.js"
+    },
+    "./rmt/portable-render": {
+      "types": "./xtendrmt/rmt-portable-render.d.ts",
+      "default": "./xtendrmt/rmt-portable-render.js"
+    },
+    "./rmt/page-contract": {
+      "types": "./xtendrmt/page-contract.d.ts",
+      "default": "./xtendrmt/page-contract.mjs"
+    },
+    "./rmt/node-page-host": {
+      "types": "./xtendrmt/node-page-host.d.ts",
+      "default": "./xtendrmt/node-page-host.mjs"
+    },
+    "./rmt/page-client": {
+      "types": "./xtendrmt/page-client.d.ts",
+      "default": "./xtendrmt/page-client.mjs"
+    },
+    "./rmt/page-form": {
+      "types": "./xtendrmt/page-form.d.ts",
+      "default": "./xtendrmt/page-form.mjs"
+    },
+    "./rmt-language/page-build": {
+      "types": "./tools/rmt-language/page-build.d.ts",
+      "default": "./tools/rmt-language/page-build.js"
     }
   },
   "publishConfig": {
@@ -1409,7 +1433,7 @@
       "localGate": "node scripts/run_xtend_tests.js rmt-php-ssr-adapter --json",
       "packageScript": "npm run test:rmt-php-ssr-adapter",
       "phpEngine": ">=8.1",
-      "laravelComposerPackageIncluded": false,
+      "laravelComposerPackageIncluded": true,
       "docsAppIntegrationStatus": "active-docs-php-ssr-prehydration",
       "wireCompatibleWith": "xtend.rmt.node-ssr-adapter.v1",
       "jsonlStreaming": true,
@@ -1430,7 +1454,7 @@
       "localGate": "node scripts/run_xtend_tests.js rmt-php-app-service-adapter --json",
       "packageScript": "npm run test:rmt-php-app-service-adapter",
       "phpEngine": ">=8.1",
-      "laravelComposerPackageIncluded": false,
+      "laravelComposerPackageIncluded": true,
       "httpServerIncluded": false,
       "routingIncluded": false,
       "authenticationIncluded": false,
@@ -12248,7 +12272,9 @@
           "rmt-vnext-imports",
           "test-runner",
           "browser-hypervisor",
-          "project-index"
+          "project-index",
+          "ssr-pages",
+          "ssr-pages-browser"
         ]
       },
       "fullReleaseGate": {
@@ -12433,7 +12459,9 @@
           "rmt-vnext-imports",
           "test-runner",
           "browser-hypervisor",
-          "project-index"
+          "project-index",
+          "ssr-pages",
+          "ssr-pages-browser"
         ],
         "optionalSuites": [
           "rmt-vnext-source-to-sea"
@@ -15519,7 +15547,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 186,
+      "expectedExportCount": 192,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15544,8 +15572,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 186,
-      "lockedExportFingerprint": "6f4c0cc63efd09295618c7b04b35605688849e906dad3b188a16a615cf7776ac",
+      "expectedExportCount": 192,
+      "lockedExportFingerprint": "156e1207482024cb78ee9a76ae20293f2e19ae52aba42e33e3689498c8940501",
       "p0Exports": [
         ".",
         "./loader",
@@ -18137,7 +18165,12 @@
     "test:ci-pr": "node scripts/run_xtend_tests.js --profile ci-pr",
     "test:ci-release": "node scripts/run_xtend_tests.js --profile ci-release",
     "test:ci-nightly": "node scripts/run_xtend_tests.js --profile ci-nightly",
-    "test:ci-publish": "node scripts/run_xtend_tests.js --profile ci-publish"
+    "test:ci-publish": "node scripts/run_xtend_tests.js --profile ci-publish",
+    "test:ssr-pages": "node scripts/run_xtend_tests.js --profile ssr-pages",
+    "test:ssr-pages-browser": "node scripts/run_xtend_tests.js --profile ssr-pages-browser",
+    "test:ssr-pages-laravel": "node scripts/run_xtend_tests.js --profile ssr-pages-laravel",
+    "test:ssr-pages-laravel-browser": "node scripts/run_xtend_tests.js --profile ssr-pages-laravel-browser",
+    "test:ssr-pages-php": "node scripts/run_xtend_tests.js --profile ssr-pages-php"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",

@@ -107,6 +107,7 @@ Attribute:
 
 Events:
 - `xrouter-before-navigate`
+- `navigation-error`: Fehler aus einem angebundenen Seitenclient, mit `detail.error`.
 - `route-changed`
 - `routechange`
 - `xrouter-after-navigate`

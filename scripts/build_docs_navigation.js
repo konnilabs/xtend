@@ -1,4 +1,5 @@
 'use strict';
+const { EXPECTED_CANONICAL_SLUG_COUNT } = require('./verify_docs_public_quality');
 
 const fs = require('fs');
 const path = require('path');
@@ -206,7 +207,7 @@ function buildMenu() {
       }
     };
   });
-  if (result.length !== 173) throw new Error(`Expected 173 canonical docs entries, received ${result.length}.`);
+  if (result.length !== EXPECTED_CANONICAL_SLUG_COUNT) throw new Error(`Expected ${EXPECTED_CANONICAL_SLUG_COUNT} canonical docs entries, received ${result.length}.`);
   return result;
 }
 

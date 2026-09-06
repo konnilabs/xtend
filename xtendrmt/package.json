@@ -85,7 +85,21 @@
     "rmt-php-app-service-adapter.php",
     "rmt.schema.json",
     "rmt-manifest.json",
-    "package.json"
+    "package.json",
+    "rmt-portable-render.js",
+    "rmt-portable-render.d.ts",
+    "page-contract.mjs",
+    "page-contract.d.ts",
+    "node-page-host.mjs",
+    "node-page-host.d.ts",
+    "page-client.mjs",
+    "page-client.d.ts",
+    "page-form.mjs",
+    "page-form.d.ts",
+    "rmt-php-ssr-adapter.php",
+    "rmt-portable-render.php",
+    "rmt-page-data.php",
+    "rmt-ssr-stream-host.js"
   ],
   "exports": {
     ".": {
@@ -206,7 +220,28 @@
     "./php-app-service-adapter.php": "./rmt-php-app-service-adapter.php",
     "./schema": "./rmt.schema.json",
     "./manifest": "./rmt-manifest.json",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./portable-render": {
+      "types": "./rmt-portable-render.d.ts",
+      "default": "./rmt-portable-render.js"
+    },
+    "./page-contract": {
+      "types": "./page-contract.d.ts",
+      "default": "./page-contract.mjs"
+    },
+    "./node-page-host": {
+      "types": "./node-page-host.d.ts",
+      "default": "./node-page-host.mjs"
+    },
+    "./page-client": {
+      "types": "./page-client.d.ts",
+      "default": "./page-client.mjs"
+    },
+    "./page-form": {
+      "types": "./page-form.d.ts",
+      "default": "./page-form.mjs"
+    },
+    "./php-ssr-adapter.php": "./rmt-php-ssr-adapter.php"
   },
   "publishConfig": {
     "access": "public",

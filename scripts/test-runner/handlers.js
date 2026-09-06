@@ -357,6 +357,11 @@ module.exports = {
       load("../tests/rmt-language/rmt_node_ssr_adapter_suite")["printRmtNodeSsrAdapterReport"](result);
       return toRunnerResult('rmt-node-ssr-adapter', 'RMT Node SSR Adapter', result);
     },
+"ssr-pages-php": async () => toRunnerResult('ssr-pages-php', 'Portable Node/PHP render parity', await load('../tests/ssr-pages/ssr_pages_suite').runPhpPageParitySuite({ rootDir })),
+"ssr-pages": async () => toRunnerResult('ssr-pages', 'Shared page contracts and Node host', await load('../tests/ssr-pages/ssr_pages_suite').runSsrPagesSuite({ rootDir })),
+"ssr-pages-browser": async () => toRunnerResult('ssr-pages-browser', 'Node page browser lifecycle', await load('../tests/ssr-pages/node_browser_suite').runNodePageBrowserSuite({ rootDir })),
+"ssr-pages-laravel": () => toRunnerResult('ssr-pages-laravel', 'Isolated Laravel package integration', load('../tests/ssr-pages/laravel_integration_suite').runLaravelIntegrationSuite({ rootDir })),
+"ssr-pages-laravel-browser": async () => toRunnerResult('ssr-pages-laravel-browser', 'Laravel page browser lifecycle', await load('../tests/ssr-pages/laravel_browser_suite').runLaravelPageBrowserSuite({ rootDir })),
 "rmt-resume-runtime": async () => {
       const result = await load("../tests/rmt-language/rmt_resume_runtime_suite")["runRmtResumeRuntimeSuite"]({ rootDir });
       load("../tests/rmt-language/rmt_resume_runtime_suite")["printRmtResumeRuntimeReport"](result);

@@ -13,15 +13,15 @@
   },
   "docs": {
     "schema": "xtend.mcp.docs-resource.v1",
-    "count": 346,
+    "count": 348,
     "counts": {
-      "de": 173,
-      "en": 173
+      "de": 174,
+      "en": 174
     },
-    "menuEntries": 173,
-    "menuSha256": "df382267492162ebd10e5d55e56c9903228fa94ff45e1d5f0b03dfbf8347fbff",
+    "menuEntries": 174,
+    "menuSha256": "b9c37389e924d258c6b5934bb4d9ef84cfc81322ab46d7f7a2d117795b78fa12",
     "artifact": "docs.jsonl",
-    "artifactSha256": "0a3ff32eb5acedef3467040b799b12052c366b8e281b1df96e1b5c3d24943475",
+    "artifactSha256": "7a5fa93f1680ec45af1da2e411b44a9287c7a63e8437f677e461f7ab60235896",
     "missingMenuDocs": []
   },
   "rmtKit": {

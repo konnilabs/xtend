@@ -487,7 +487,7 @@ async function runRmtPhpSsrAdapterSuite(options = {}) {
   context.assert(packageManifest.xtend.rmtPhpSsrAdapter.localGate === RMT_PHP_SSR_LOCAL_GATE, 'package metadata records PHP SSR adapter local gate');
   context.assert(packageManifest.xtend.rmtPhpSsrAdapter.packageScript === RMT_PHP_SSR_PACKAGE_SCRIPT, 'package metadata records PHP SSR adapter package script');
   context.assert(packageManifest.xtend.rmtPhpSsrAdapter.docsAppIntegrationStatus === 'active-docs-php-ssr-prehydration', 'package metadata marks docs app integration active after adapter gates');
-  context.assert(packageManifest.xtend.rmtPhpSsrAdapter.laravelComposerPackageIncluded === false, 'package metadata records no Composer package in this slice');
+  context.assert(packageManifest.xtend.rmtPhpSsrAdapter.laravelComposerPackageIncluded === true && fs.existsSync(path.join(rootDir, 'laravel/composer.json')), 'package metadata records the separately installable Laravel Composer host');
 
   ['docs/rmt-php-ssr-adapter.md', 'docs/de/rmt-php-ssr-adapter.md', 'docs/en/rmt-php-ssr-adapter.md'].forEach((docPath) => {
     assertFileExists(context, docPath, rootDir, `${docPath} exists`);

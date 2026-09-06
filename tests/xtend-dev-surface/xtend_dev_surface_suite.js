@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const {EXPECTED_CANONICAL_SLUG_COUNT} = require('../../scripts/verify_docs_public_quality');
 const {
   createSuiteContext,
   printSuiteReport
@@ -946,7 +947,7 @@ function assertDocs(context, rootDir) {
   const menuEntry = docsMenu.find((entry) => entry.slug === 'xtend-dev-surface');
   const devApiMenuEntry = docsMenu.find((entry) => entry.slug === 'xtend-dev-api');
   context.assert(menuEntry && menuEntry.group === 'quality' && menuEntry.contentType === 'tutorial', 'docs menu exposes Dev Surface as a quality tutorial');
-  context.assert(docsMenu.length === 173, 'docs menu exposes 173 canonical articles after DEV API registration');
+  context.assert(docsMenu.length === EXPECTED_CANONICAL_SLUG_COUNT, 'docs menu exposes the canonical article count after DEV API registration');
   context.assert(devApiMenuEntry && devApiMenuEntry.id === 'docs.xtend.dev.api' && devApiMenuEntry.group === 'quality', 'docs menu exposes the canonical XTend DEV API entry');
   context.assert(devApiMenuEntry && devApiMenuEntry.parent === 'xtend-dev-surface' && devApiMenuEntry.trunk === 'operate' && devApiMenuEntry.section === 'devtools', 'DEV API reference is nested in Operate Dev Tools');
   context.assert(devApiMenuEntry && devApiMenuEntry.contentType === 'reference' && devApiMenuEntry.tier === 'basic' && devApiMenuEntry.rank === 93 && devApiMenuEntry.icon === 'braces', 'DEV API menu metadata declares the planned reference profile');

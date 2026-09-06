@@ -369,7 +369,7 @@ function runRmtPhpAppServiceAdapterSuite(options = {}) {
   context.assert(metadata && metadata.runtime === RMT_PHP_APP_SERVICE_ADAPTER_PATH, 'root metadata points to packaged PHP runtime');
   context.assert(metadata && metadata.localGate === RMT_PHP_APP_SERVICE_LOCAL_GATE && metadata.packageScript === RMT_PHP_APP_SERVICE_PACKAGE_SCRIPT, 'root metadata records local and npm gates');
   context.assert(metadata && metadata.typescriptExecution === false && metadata.httpServerIncluded === false, 'root metadata keeps TypeScript execution and server ownership outside PHP adapter');
-  context.assert(metadata && metadata.laravelComposerPackageIncluded === false, 'root metadata records that Composer packaging remains outside this MVP slice');
+  context.assert(metadata && metadata.laravelComposerPackageIncluded === true, 'root metadata records the PHP runtime in the separately installable Composer package');
 
   context.assert(Array.isArray(packageManifest.files) && packageManifest.files.includes('xtendrmt'), 'root tarball includes the XTendRMT package boundary');
   context.assert(Array.isArray(workspaceManifest.files) && workspaceManifest.files.includes('rmt-php-app-service-adapter.php'), 'XTendRMT workspace tarball includes PHP AppService adapter');

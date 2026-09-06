@@ -428,6 +428,11 @@ class XForm extends HTMLElement {
         return;
       }
 
+      if (el.files && typeof el.files.length === "number") {
+        data[name] = el.multiple ? Array.from(el.files) : el.files[0] || null;
+        return;
+      }
+
       data[name] = el.value;
     });
     return data;

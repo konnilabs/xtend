@@ -656,16 +656,19 @@
       ],
       "consumes": [
         "createRmtComponentCapabilityRegistry",
-        "createRmtDomDescriptorRenderer"
+        "createRmtDomDescriptorRenderer",
+        "createRmtSsrStreamHost"
       ],
       "dependsOn": [
         "rmt-component-capability-registry-source",
-        "rmt-dom-descriptor-renderer"
+        "rmt-dom-descriptor-renderer",
+        "rmt-ssr-stream-host"
       ],
       "ports": [
         "RmtSsrPort",
         "RmtComponentCapabilityPort",
-        "RmtDomCommitPort"
+        "RmtDomCommitPort",
+        "RmtSsrStreamHostPort"
       ],
       "capabilities": [
         "dom.read",
@@ -2223,6 +2226,63 @@
       ],
       "targets": [
         "maraca"
+      ]
+    },
+    {
+      "id": "rmt-ssr-stream-host",
+      "sourcePath": "xtendrmt/rmt-ssr-stream-host.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createRmtSsrStreamHost"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtSsrStreamHostPort"
+      ],
+      "capabilities": [
+        "host.abort",
+        "host.clock",
+        "host.scheduler"
+      ],
+      "ownershipDomains": [
+        "host.ssr-stream-lifecycle"
+      ],
+      "targets": [
+        "standalone"
+      ]
+    },
+    {
+      "id": "rmt-portable-render",
+      "sourcePath": "xtendrmt/rmt-portable-render.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createPortableRenderArtifact",
+        "projectPortableRender",
+        "validatePortableDescriptor"
+      ],
+      "consumes": [
+        "createRmtStateSelectorRuntime",
+        "createRmtDomDescriptorRenderer"
+      ],
+      "dependsOn": [
+        "rmt-state-selector-runtime-source",
+        "rmt-dom-descriptor-renderer"
+      ],
+      "ports": [
+        "RmtStateProjectionPort",
+        "RmtDomCommitPort"
+      ],
+      "capabilities": [],
+      "ownershipDomains": [
+        "output.portable-render"
+      ],
+      "targets": [
+        "standalone"
       ]
     }
   ],

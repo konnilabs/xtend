@@ -3,7 +3,7 @@ import type { XtendCustomEventMap, XtendNavigationRoutingUxProfile, XtendPublicE
 export type XRouterNavigationPolicy = 'progressive' | 'spa' | 'document';
 export type XRouterAttributeName = 'mode' | 'routesrc' | 'reuse-component' | 'adopt-prerendered-route' | 'navigation-policy' | 'skeleton' | 'skeleton-profile' | 'skeleton-lines' | 'skeleton-min-height' | 'title-template' | 'document-title-template' | 'title-prefix' | 'title-suffix' | 'default-title';
 export type XRouteAttributeName = 'path' | 'component' | 'import' | 'title' | 'document-title' | 'title-template' | 'meta-description' | 'meta-keywords' | 'skeleton' | 'skeleton-profile' | 'skeleton-lines' | 'skeleton-min-height' | 'hydrate-schedule';
-export type XRouterEventName = 'xrouter-before-navigate' | 'route-changed' | 'routechange' | 'xrouter-after-navigate' | 'route-announced' | 'xrouter-routes-registered' | 'xrouter-route-reused' | 'xrouter-route-adopted' | 'xrouter-skeleton-shown' | 'xrouter-skeleton-hidden' | 'xrouter-route-hydrated' | 'xrouter-scroll-boundary-normalized' | 'xrouter-navigation-overlays-closed' | 'xrouter-title-updated';
+export type XRouterEventName = 'xrouter-before-navigate' | 'route-changed' | 'routechange' | 'xrouter-after-navigate' | 'route-announced' | 'xrouter-routes-registered' | 'xrouter-route-reused' | 'xrouter-route-adopted' | 'xrouter-skeleton-shown' | 'xrouter-skeleton-hidden' | 'xrouter-route-hydrated' | 'xrouter-scroll-boundary-normalized' | 'xrouter-navigation-overlays-closed' | 'xrouter-title-updated' | 'navigation-error';
 export type XRouterNavigationRoutingUxProfile = XtendNavigationRoutingUxProfile<'x-router'>;
 
 export interface RouteConfig {
@@ -245,7 +245,10 @@ export interface RenderRouteResult {
   };
 }
 
+export interface XRouterNavigationErrorDetail { error: unknown }
+
 export interface XRouterEventDetailMap {
+  'navigation-error': XRouterNavigationErrorDetail;
   'xrouter-before-navigate': XRouterBeforeNavigateDetail;
   'route-changed': XRouterRouteChangeDetail;
   routechange: XRouterRouteChangeDetail;
@@ -263,7 +266,7 @@ export interface XRouterEventDetailMap {
 }
 
 export type XRouterEventMap = XtendCustomEventMap<XRouterEventDetailMap>;
-export type XRouterPublicEventContract = XtendPublicEventContract<XRouterEventName, XRouterRouteChangeDetail | XRouterBeforeNavigateDetail | XRouterRouteAnnouncedDetail | XRouterRoutesRegisteredDetail | XRouterRouteReusedDetail | XRouterRouteAdoptedDetail | XRouterSkeletonDetail | XRouterRouteHydratedDetail | XRouterScrollBoundaryDetail | XRouterNavigationOverlaysClosedDetail | XRouterDocumentMetaDetail>;
+export type XRouterPublicEventContract = XtendPublicEventContract<XRouterEventName, XRouterRouteChangeDetail | XRouterBeforeNavigateDetail | XRouterRouteAnnouncedDetail | XRouterRoutesRegisteredDetail | XRouterRouteReusedDetail | XRouterRouteAdoptedDetail | XRouterSkeletonDetail | XRouterRouteHydratedDetail | XRouterScrollBoundaryDetail | XRouterNavigationOverlaysClosedDetail | XRouterDocumentMetaDetail | XRouterNavigationErrorDetail>;
 
 export interface XRouteElement extends HTMLElement {
   readonly path: string;
@@ -279,6 +282,8 @@ export interface XRouteElement extends HTMLElement {
 }
 
 export interface XRouterElement extends HTMLElement {
+  /** Connect before attachment; the started page client owns links and history. */
+  pageClient?: { visit(url: string): Promise<unknown> } | null;
   registerRoutes(routes?: XRouterRmtRouteRecord[] | { routes: XRouterRmtRouteRecord[] }, options?: { replace?: boolean; adapterId?: string; source?: string; render?: boolean }): XRouterRoutesRegisteredDetail;
   navigate(to: string | { path?: string; routeId?: string; state?: unknown }, options?: Record<string, unknown>): boolean;
   canNavigate(href: string, context?: XRouterNavigationContext): XRouterNavigationCapability;
