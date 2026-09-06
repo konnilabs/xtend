@@ -601,7 +601,7 @@ const priorityComponentConfigs = {
       { pattern: '_releaseDrawerFocus', message: 'x-drawer releases focus before hiding the drawer surface' },
       { pattern: 'setAttribute(\'inert\'', message: 'x-drawer marks closed surfaces inert' },
       { pattern: "event.key === 'Escape'", message: 'x-drawer supports Escape close' },
-      { pattern: 'focusable', message: 'x-drawer implements focus trap candidates' }
+      { pattern: 'trapOverlayFocus(event, this._drawer)', message: 'x-drawer delegates its panel focus boundary to the composed DOM helper' }
     ],
     fixtureContracts: [
       { pattern: 'id="component-drawer"', message: 'x-drawer fixture uses a stable id' },
@@ -766,7 +766,7 @@ const priorityComponentConfigs = {
       { pattern: 'aria-modal="true"', message: 'x-dialog marks modal semantics' },
       { pattern: 'aria-labelledby', message: 'x-dialog labels the dialog' },
       { pattern: 'event.key === \'Escape\'', message: 'x-dialog supports Escape close' },
-      { pattern: 'focusable', message: 'x-dialog implements focus trap candidates' }
+      { pattern: "trapOverlayFocus(event, this.shadowRoot.querySelector('.xdialog'))", message: 'x-dialog delegates its panel focus boundary to the composed DOM helper' }
     ],
     fixtureContracts: [
       { pattern: 'id="component-dialog"', message: 'x-dialog fixture uses a stable id' },

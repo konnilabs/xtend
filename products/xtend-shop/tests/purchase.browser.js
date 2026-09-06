@@ -5,6 +5,7 @@ const checks=[],frames=[],remote=[],started=performance.now();
 const diagnostics=[];
 window.addEventListener('xtend-maraca:remote-diagnostic',event=>diagnostics.push(event.detail));
 const assert=(condition,message)=>{if(!condition)throw new Error(message);checks.push(message);};
+const tab=(element,shiftKey=false)=>{const event=new KeyboardEvent('keydown',{key:'Tab',shiftKey,bubbles:true,composed:true,cancelable:true});element.dispatchEvent(event);return event.defaultPrevented;};
 const wait=async(predicate,label,timeout=15000)=>{const deadline=Date.now()+timeout;while(!predicate()){if(Date.now()>=deadline)throw new Error(label+' timed out');await new Promise(resolve=>setTimeout(resolve,50));}};
 window.addEventListener('xtend-maraca:remote-surface',event=>remote.push({status:event.detail.status,code:event.detail.code,atc:event.detail.atc?.handoffSignal}));
 window.addEventListener('xtend-maraca:remote-frame',event=>frames.push({...event.detail,sections:document.querySelector('#remote-payment-slot')?.shadowRoot?.querySelectorAll('[data-payment-section]').length}));
@@ -36,6 +37,8 @@ window.addEventListener('xtend-maraca:remote-frame',event=>frames.push({...event
  await wait(()=>state()['shop.miniCart'].open===true&&document.getElementById('mini-cart').open===true,'Mini cart opening');
  await wait(()=>document.activeElement===document.getElementById('mini-cart'),'Mini cart focus');
  assert(document.querySelector('#mini-cart .mini-cart-line'),'Persistent mini cart receives current cart data');
+ const miniClose=document.getElementById('mini-cart').shadowRoot.querySelector('.close');miniClose.focus();
+ assert(!tab(miniClose),'Drawer Tab navigation reaches the slotted cart controls');
  document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await wait(()=>state()['shop.miniCart'].open===false,'Mini cart close event');
  assert(document.activeElement===miniTrigger,'Drawer Escape restores keyboard focus');
 
@@ -56,7 +59,7 @@ window.addEventListener('xtend-maraca:remote-frame',event=>frames.push({...event
  assert(document.getElementById('checkout-name').value==='Mara Muster','Input controls retain values');
  assert(!JSON.stringify(history.state).includes('mara@example.test')&&!location.href.includes('Demostra'), 'Private checkout data stays out of history and URLs');
  const selector=document.getElementById('payment-scenario');selector.value=paymentScenario;selector.dispatchEvent(new Event('change',{bubbles:true}));
- await wait(()=>state()['shop.scenario'].value===(paymentScenario),'Scenario selection');await wait(()=>document.getElementById('pay').dataset.scenario===(paymentScenario),'Cross-surface render update');document.getElementById('pay').click();
+ await wait(()=>state()['shop.scenario'].value===(paymentScenario),'Scenario selection');await wait(()=>document.getElementById('pay').dataset.scenario===(paymentScenario)&&document.getElementById('pay').getClientRects().length>0,'Visible payment action with current scenario');document.getElementById('pay').focus();assert(document.activeElement===document.getElementById('pay'),'The visible payment trigger receives keyboard focus');document.getElementById('pay').click();
  if(['integrity','foreign-patch','interrupted'].includes(scenario)){
   await wait(()=>remote.some(event=>event.status==='failed'),'Rejected remote operation cleanup');
   assert(location.pathname==='/checkout'&&state()['shop.data'].cart.count===1,'Rejected remote input cannot create an order or mutate the cart');
@@ -67,6 +70,10 @@ window.addEventListener('xtend-maraca:remote-frame',event=>frames.push({...event
  await wait(()=>{const button=document.querySelector('#remote-payment-slot')?.shadowRoot?.querySelector('#provider-confirm');return button&&button.getClientRects().length>0;},'Visible streamed confirmation controls');
  const shadow=document.querySelector('#remote-payment-slot').shadowRoot;
  assert(frames.length===3&&frames[0].sections===1,'Streamed controls become usable only after their section arrives');
+ const dialog=document.getElementById('payment-dialog'),close=dialog.shadowRoot.querySelector('.xdialog-close');
+ close.focus();assert(!tab(close),'Tab can leave the dialog close button for the streamed controls');
+ const last=shadow.querySelector('#provider-cancel');last.focus();assert(tab(last)&&dialog.shadowRoot.activeElement===close,'Tab wraps from the streamed surface into its owning dialog');
+ assert(tab(close,true)&&shadow.activeElement===last,'Shift-Tab enters the last streamed control');
  const claimed=JSON.parse(atob(state()['shop.paymentAttempt'].capability.split('.')[0].replace(/-/g,'+').replace(/_/g,'/')));assert(claimed.scenario===(paymentScenario),'Payment attempt binds the selected scenario');
  if(scenario==='preview'){
   assert(shadow.querySelectorAll('[data-payment-section]').length===3,'Complete provider surface is visible before authorization');
@@ -90,6 +97,11 @@ window.addEventListener('xtend-maraca:remote-frame',event=>frames.push({...event
   await wait(()=>state()['shop.paymentDialog'].open===false,'Failed or cancelled payment cleanup',scenario==='timeout'?35000:15000);
   assert(location.pathname==='/checkout'&&state()['shop.data'].cart.count===1,'Failed payment cannot create an order or clear the cart');
   assert(document.querySelector('#remote-payment-slot')?.shadowRoot?.childElementCount===0,'Remote root releases its resources');
+  if(scenario==='cancel'){
+   await wait(()=>!dialog.hasAttribute('open'),'Payment dialog closes its rendered surface');
+   await wait(()=>document.activeElement===document.getElementById('pay'),'Payment trigger focus (active '+document.activeElement?.id+', prior '+dialog._lastFocusedElement?.id+')');
+   assert(true,'Payment cancellation restores focus to its trigger');
+  }
  }
  assert(document.documentElement.scrollWidth<=window.innerWidth+1,'Viewport has no horizontal overflow');
  window.__STORE_TEST__={status:'passed',ok:true,scenario,checks,frames,remote,resumeMs};

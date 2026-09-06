@@ -19,6 +19,7 @@
   }
 
   const { createXtendRmtCommandDetail } = await import('./rmt-command.js');
+  const { trapOverlayFocus } = await import('./overlay-focus.js');
 
   function getDialogOpenKeys(id) {
     return [
@@ -771,24 +772,7 @@
 
     _handleFocusTrap(event) {
       if (!this._open || event.key !== 'Tab') return;
-
-      const focusable = this.shadowRoot.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-
-      if (!focusable.length) return;
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const activeElement = this.shadowRoot.activeElement || document.activeElement;
-
-      if (event.shiftKey && activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
+      trapOverlayFocus(event, this.shadowRoot.querySelector('.xdialog'));
     }
   }
 
