@@ -10,7 +10,14 @@ async function runBrowser(options={}){
  const temporary=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-store-browser-')),deployment=path.join(temporary,'shop');
  const checks=[],failures=[],scenarios=[],processes=[],proxies=[];let logs='';const assets=[],hostMeasurements=[];
  const reportDirectory=options.reportDirectory||path.join(product,'storage/reports/browser');fs.mkdirSync(reportDirectory,{recursive:true});
- const php=process.env.XTEND_PHP_BINARY||'php';
+ // Resolve the command before restricting the production host PATH. Preserve
+ // explicitly configured wrappers, including their extension configuration.
+ const phpCommand=process.env.XTEND_PHP_BINARY||'php';
+ const phpCandidates=path.isAbsolute(phpCommand)||/[\\/]/u.test(phpCommand)
+  ? [path.resolve(phpCommand)]
+  : (process.env.PATH||'').split(path.delimiter).flatMap(directory=>[path.join(directory,phpCommand),...(process.platform==='win32'?[path.join(directory,phpCommand+'.exe')]:[])]);
+ const php=phpCandidates.find(file=>{try{fs.accessSync(file,fs.constants.X_OK);return fs.statSync(file).isFile();}catch{return false;}});
+ if(!php)throw new Error('The configured PHP interpreter is unavailable.');
  const shopPort=await availablePort(),providerPort=await availablePort();const shopOrigin=`http://127.0.0.1:${shopPort}`,providerOrigin=`http://127.0.0.1:${providerPort}`;
  const env={...process.env,APP_URL:shopOrigin,DEMOPAY_ORIGIN:providerOrigin,PROVIDER_ORIGIN:providerOrigin,SHOP_ORIGIN:shopOrigin,APP_ENV:'production',APP_DEBUG:'false',XTEND_STORE_PROVIDER_METRICS_FILE:path.join(deployment,'storage/provider-metrics.log'),XTEND_STORE_REQUEST_METRICS_FILE:path.join(deployment,'storage/request-metrics.jsonl')};
  const providerExecutions=()=>{const result={};if(fs.existsSync(env.XTEND_STORE_PROVIDER_METRICS_FILE))for(const line of fs.readFileSync(env.XTEND_STORE_PROVIDER_METRICS_FILE,'utf8').trim().split('\n'))if(line)result[line]=(result[line]||0)+1;return result;};

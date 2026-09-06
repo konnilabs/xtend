@@ -78,7 +78,7 @@ jobs:
       - name: Run the canonical Laravel profile
         env:
           XTEND_PHP_FPM_BINARY: ${{ matrix.fpm && '/usr/sbin/php-fpm8.3' || '' }}
-        run: node scripts/run_xtend_tests.js --profile "${{ matrix.profile }}" --report .xtend-test-results/laravel-ssr.json --execution .xtend-test-results/laravel-execution.json
+        run: node scripts/run_xtend_tests.js --profile "${{ matrix.profile }}" --report .xtend-test-results/laravel-ssr.json --execution .xtend-test-results/laravel-execution.json --json
       - name: Prepare the isolated XTend.store packages
         run: node products/xtend-shop/scripts/prepare-fixture.cjs "$RUNNER_TEMP/xtend-store" "${{ matrix.laravel }}" "$GITHUB_WORKSPACE"
       - name: Install locked shop and provider dependencies
@@ -94,12 +94,13 @@ jobs:
         env:
           XTEND_SHOP_FIXTURE: ${{ runner.temp }}/xtend-store
           XTEND_SHOP_FPM_BINARY: ${{ matrix.fpm && '/usr/sbin/php-fpm8.3' || '' }}
-        run: node scripts/run_xtend_tests.js --profile "${{ matrix.profile == 'ssr-pages:laravel-browser' && 'xtend-shop' || 'xtend-shop-php' }}" --report .xtend-test-results/xtend-store-gate.json --execution .xtend-test-results/xtend-store-execution.json
+        run: node scripts/run_xtend_tests.js --profile "${{ matrix.profile == 'ssr-pages:laravel-browser' && 'xtend-shop' || 'xtend-shop-php' }}" --report .xtend-test-results/xtend-store-gate.json --execution .xtend-test-results/xtend-store-execution.json --json
       - name: Upload results and diagnostics
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: xtend-laravel-${{ matrix.laravel }}-php-${{ matrix.php }}
+          include-hidden-files: true
           path: |
             .xtend-test-results/laravel-ssr.json
             .xtend-test-results/laravel-execution.json

@@ -9,7 +9,13 @@ async function runContracts({php=false}={}){
  const {createPortableRenderArtifact,projectPortableRender}=await import('@ccslabs/xtend/rmt/portable-render');
  const {canonicalizeRmtResumePayload,unsignedEnvelope}=await import(require('node:url').pathToFileURL(path.join(path.dirname(require.resolve('@ccslabs/xtend/package.json')),'xtendrmt/rmt-resume-protocol.js')));
  if(!php){
-  await check('public page, remote surface and capture types compile in the installed package',()=>{const ts=require('typescript');const program=ts.createProgram([path.join(__dirname,'types.ts')],{noEmit:true,strict:true,target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext,moduleResolution:ts.ModuleResolutionKind.Bundler});const errors=ts.getPreEmitDiagnostics(program);assert.equal(errors.length,0,errors.map(error=>ts.flattenDiagnosticMessageText(error.messageText,'\n')).join('\n'));});
+  await check('public page, remote surface and capture types compile in the installed package',()=>{
+   const ts=require('typescript');
+   const options={noEmit:true,strict:true,types:['node'],target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext,moduleResolution:ts.ModuleResolutionKind.Bundler};
+   const host=ts.createCompilerHost(options);host.getCurrentDirectory=()=>root;
+   const program=ts.createProgram([path.join(__dirname,'types.ts')],options,host);
+   const errors=ts.getPreEmitDiagnostics(program);assert.equal(errors.length,0,errors.map(error=>ts.flattenDiagnosticMessageText(error.messageText,'\n')).join('\n'));
+  });
   await check('superseded Maraca boot releases its controller and cannot overwrite a newer page',async()=>{
    const {createMaracaPageClient}=await import('@ccslabs/xtend/maraca/page-client');
    const {PAGE_RESPONSE_SCHEMA}=await import('@ccslabs/xtend/rmt/page-contract');

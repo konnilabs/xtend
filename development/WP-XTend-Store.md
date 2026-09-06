@@ -28,7 +28,7 @@ Verbindliche Prüffälle liegen in `products/xtend-shop/tests`:
 - Gastisolation, veraltete Revisionen mit anschließender Synchronisierung, wiederholter und paralleler Bestellabschluss, Bestandsrollback und Zugriffsschutz der Bestellbestätigung.
 - Fehlende Seitenartefakte, unpassende Runtime-Fingerprints, fehlende Composer-Laufzeitdateien und Warenkorberhalt über einen echten Hostneustart.
 
-Der vollständige PR-Plan umfasst 161 Suite-IDs. Gefundene Abweichungen werden in ihren Quellen behoben: tatsächliche Regenerierung der Kernel- und AI-Kit-Artefakte, Ausschluss erzeugter Shop-Bundles/Installationsverzeichnisse aus der Branding-Quellprüfung und kompatible Syntax im bestehenden Docs-Compilerpfad. Weitere 28 betroffene Node-/PHP-/Maraca-/Resume-/XScaler-/Komponenten-/Paket-Suites bestehen bereits. Das kanonische Shop-Profil mit drei getrennten Suites besteht vollständig, einschließlich der zusätzlichen Provider-Ansicht. Die endgültigen PR- und GitHub-Berichte bleiben die maßgeblichen Ausführungsnachweise.
+Der vollständige lokale PR-Plan besteht mit 161 Suite-IDs, ohne übersprungene Prüfungen, in rund 315 Sekunden. Gefundene Abweichungen wurden an der Quelle behoben: tatsächliche Regenerierung der Kernel- und AI-Kit-Artefakte, Ausschluss erzeugter Shop-Bundles/Installationsverzeichnisse aus der Branding-Quellprüfung und kompatible Syntax im bestehenden Docs-Compilerpfad. Weitere 28 betroffene Node-/PHP-/Maraca-/Resume-/XScaler-/Komponenten-/Paket-Suites bestehen ebenfalls. Das kanonische Shop-Profil mit drei getrennten Suites besteht vollständig, einschließlich der zusätzlichen Provider-Ansicht. Externe Typentests verwenden ausdrücklich die Shop-Abhängigkeiten; PHP wird vor Einschränkung des Testhost-Suchpfads aufgelöst. Der Paketaufbau wurde zusätzlich mit leerem npm-Download-Cache geprüft.
 
 ## Messungen und Berichte
 
@@ -44,6 +44,6 @@ Elf produktspezifische Service-/Berichtskennungen wurden gezielt beschrieben. Ne
 
 Die Laravel-Workflow-Matrix behält sieben Kombinationen: Laravel 12 mit PHP 8.2/8.3/8.4/8.5 und Laravel 13 mit PHP 8.3/8.4/8.5. Der vollständige Browserablauf läuft einmal je Laravel-Hauptversion; PHP-Suites werden nicht über die Node-Matrix vervielfacht. PR, Nightly und die frische Abnahme vor einer Veröffentlichung verwenden denselben Katalog. Eine Veröffentlichung hängt zusätzlich von der Laravel-/Shop-Matrix ab.
 
-**GitHub-Abnahme:** bis zum Vorliegen tatsächlich abgeschlossener Workflow-Runs offen. Lokale Linux-/PHP-8.3-Läufe ersetzen weder die übrigen PHP-Versionen noch Node-/OS-Matrizen. Dieser Arbeitsstrang wird erst nach diesen Nachweisen als vollständig abgenommen behandelt.
+**GitHub-Nachweise:** [PR #68 und seine Checks](https://github.com/konnilabs/xtend/pull/68/checks) verbinden den Test-Branch mit den Workflows „XTend Laravel SSR“ und „XTend CI Gates“. Die Laravel-Artefakte enthalten getrennte Ausführungsberichte für den vorhandenen Adapter und den Shop, einschließlich der Browserbilder. Maßgeblich sind abgeschlossene erfolgreiche Läufe des zu prüfenden Stands. Lokale Linux-/PHP-8.3-Läufe ersetzen weder die übrigen PHP-Versionen noch Node-/OS-Matrizen.
 
 Anleitungen: [Deutsch](../products/xtend-shop/README.md), [English](../products/xtend-shop/README.en.md), [gemeinsame Seitenlaufzeit](../docs/de/ssr-pages.md).
