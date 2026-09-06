@@ -1,14 +1,4 @@
 @import '@xtend-material/core/styles.css';
-/* Only the changing page participates; the persistent shell stays still. */
-:root { view-transition-name: none; }
-#store-main { view-transition-name: store-page; }
-::view-transition-old(store-page) { animation: store-page-out 110ms ease-out both; }
-::view-transition-new(store-page) { animation: store-page-in 180ms ease-out both; }
-@keyframes store-page-out { to { opacity: 0; } }
-@keyframes store-page-in { from { opacity: 0; transform: translateY(8px); } }
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(store-page), ::view-transition-new(store-page) { animation: none; }
-}
 .cart-feedback {
   position: fixed;
   z-index: 2001;

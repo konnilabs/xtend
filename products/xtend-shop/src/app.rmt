@@ -260,6 +260,7 @@ template xtend.store {
       id "store-main"
       viewTemplate {
         class "store-main"
+        attributes { data-xtend-page-transition "true" }
         children [
           { type "conditional" test { op "equals" left "$model.shop.data.view" right "home" } then {
             type "element"

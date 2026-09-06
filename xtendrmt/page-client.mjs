@@ -1,6 +1,7 @@
 import { validatePageResponse, mergePageProps, safePageJson, pageError, composePageDescriptor, assertKey, mergePageHead } from './page-contract.mjs';
 import { createRmtDomDescriptorRenderer } from './rmt-dom-descriptor-renderer.js';
 import { projectPortableRender } from './rmt-portable-render.js';
+import { createRmtAnimationEngineRuntime } from './rmt-animation-engine-runtime.js';
 const clone = value => JSON.parse(JSON.stringify(value));
 const secret = /password|token|secret|authorization|csrf/iu;
 export function safeRemember(value) {
@@ -31,8 +32,8 @@ export function createPageClient(options) {
   const historyKey = `xtend.history.key:${options.applicationKey || 'default'}`;
   let page = validatePageResponse(options.initialPage), generation = 0, disposed = false, active = null, remembered = {}, revision = 0;
   let commits = Promise.resolve();
-  let viewTransition = null;
-  const skipTransition = () => { viewTransition?.skipTransition(); viewTransition = null; };
+  let pageAnimation = null;
+  const skipTransition = () => { pageAnimation?.dispose(); pageAnimation = null; };
   const reloads = new Map();
   const listeners = new Set(), controllers = new Set(), cache = new Map(), once = new Map(), resources = new Set(), layoutResources = new Set();
   const rememberOnce = current => {
@@ -105,21 +106,28 @@ export function createPageClient(options) {
       page = next; revision++;
       if (previous.page !== next.page || previous.url !== next.url || previous.contextKey !== next.contextKey || previous.version !== next.version) release();
       if (previous.layout !== next.layout || previous.contextKey !== next.contextKey || previous.version !== next.version) release(layoutResources);
-      // Position the destination before the browser takes its new-page snapshot.
+      // Position the destination before its entry animation starts.
       settings.afterRender?.();
     };
     if (settings.transition && !win?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
       if (options.transition) await options.transition(apply);
-      else if (options.viewTransitions && doc?.startViewTransition) {
-        skipTransition();
-        const transition = viewTransition = doc.startViewTransition(apply);
-        // Skipped snapshots still execute the update callback. Only callback
-        // failures reject the commit; animation failures are cosmetic.
-        transition.ready.catch(() => {});
-        const finished = () => { if (viewTransition === transition) viewTransition = null; };
-        transition.finished.then(finished, finished);
-        await transition.updateCallbackDone;
-      } else await apply();
+      else {
+        await apply();
+        const target = root?.querySelector('[data-xtend-page-transition]') || root;
+        const xUtils = win?.XUtils || globalThis.XUtils;
+        if (options.viewTransitions && !disposed && expected === generation && target?.animate && xUtils?.runUiTransition) {
+          skipTransition();
+          const animation = pageAnimation = createRmtAnimationEngineRuntime({domRenderer: renderer, windowTarget: win, xUtils});
+          // The owned AnimationEngine decorates a committed page. Animation
+          // failure or interruption must never delay navigation or replay a commit.
+          animation.runTransition({target, phase: 'enter', transition: {
+            id: 'page-enter', effect: 'fade', durationMs: 180, easing: 'ease-out', reducedMotion: 'instant'
+          }}).catch(() => {}).finally(() => {
+            animation.dispose();
+            if (pageAnimation === animation) pageAnimation = null;
+          });
+        }
+      }
     }
     else await apply();
     if (disposed || expected !== generation) return null;

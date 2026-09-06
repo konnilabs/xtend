@@ -12,25 +12,32 @@ async function navigationChecks({check, createPageClient, page}) {
       document: {head: {querySelectorAll: () => []}, querySelectorAll: () => [], getElementById: () => null,
         addEventListener(name, handler) {handlers[name] = handler;}, removeEventListener() {}}
     };
-    if (!unsupported) win.document.startViewTransition = update => {
-      let run;
-      const pending = new Promise((resolve, reject) => {run = () => Promise.resolve().then(update).then(() => {snapshots.push(win.scrollY); resolve();}, reject);});
-      const transition = {run, skipped: false, updateCallbackDone: pending,
-        ready: skipped ? Promise.reject(new Error('Snapshot skipped')) : pending,
-        finished: pending, skipTransition() {this.skipped = true; this.run();}};
-      transitions.push(transition);
-      if (!delayed) run();
+    const target = {localName: 'main', style: {}, hasAttribute: () => false, getAnimations: () => transitions,
+      querySelector: () => null, focus() {}};
+    if (!unsupported) target.animate = () => {
+      let finish;
+      const finished = new Promise(resolve => {finish = resolve;});
+      const transition = {finished, run: finish, cancelled: false, cancel() {this.cancelled = true; finish();}};
+      transitions.push(transition); snapshots.push(win.scrollY);
+      if (!delayed) finish();
       return transition;
     };
+    win.XUtils = {async runUiTransition({target}) {
+      const animation = target.animate();
+      await animation.finished;
+      if (skipped) throw new Error('Animation unavailable');
+      return {status: 'complete'};
+    }};
+    win.document.getElementById = id => id === 'xtend-page' ? target : null;
     return {win, handlers, transitions, snapshots};
   }
   const setup = (configuration, overrides = {}) => {
     const state = browser(configuration), rendered = [];
-    const client = createPageClient({initialPage: page('start'), viewTransitions: true, window: state.win, renderer: {},
+    const client = createPageClient({initialPage: page('start'), viewTransitions: true, window: state.win, renderer: {commit() {}},
       render: async next => {rendered.push(next.page);}, fetch: async url => Response.json(page(new URL(url).pathname.slice(1))), ...overrides});
     return {...state, client, rendered};
   };
-  await check('navigation transitions capture destination scroll and skip reloads, opt-outs and reduced motion', async () => {
+  await check('owned navigation animations start at destination scroll and skip reloads, opt-outs and reduced motion', async () => {
     for (const configuration of [{}, {reduced: true}, {unsupported: true}, {skipped: true}]) {
       const {client, win, transitions, snapshots} = setup(configuration);
       try {
@@ -62,16 +69,31 @@ async function navigationChecks({check, createPageClient, page}) {
       assert.equal(win.scrollY, 240); assert.equal(client.remember('quantity'), 3); assert.equal(transitions.length, 0);
     } finally {client.dispose();}
   });
-  await check('superseded and disposed transition callbacks cannot render an obsolete page', async () => {
+  await check('new visits and disposal cancel pending animations without delaying page commits', async () => {
     for (const dispose of [false, true]) {
       const {client, transitions, rendered} = setup({delayed: true});
-      const slow = client.visit('/slow');
-      for (let n = 0; n < 100 && !transitions.length; n++) await tick();
+      await client.visit('/slow');
       assert.equal(transitions.length, 1);
+      assert.equal(client.page.page, 'slow');
       if (dispose) client.dispose();
       else await client.visit('/fast', {transition: false});
-      await slow;
-      assert.equal(transitions[0].skipped, true);
+      assert.equal(transitions[0].cancelled, true);
+      assert.deepEqual(rendered, dispose ? ['slow'] : ['slow', 'fast']);
+      assert.equal(client.page.page, dispose ? 'slow' : 'fast');
+      client.dispose();
+    }
+  });
+  await check('superseded and disposed custom transition callbacks cannot render an obsolete page', async () => {
+    for (const dispose of [false, true]) {
+      let release, entered;
+      const started = new Promise(resolve => {entered = resolve;});
+      const pending = new Promise(resolve => {release = resolve;});
+      const {client, rendered} = setup({}, {transition: async update => {entered(); await pending; await update();}});
+      const slow = client.visit('/slow');
+      await started;
+      const fast = dispose ? (client.dispose(), null) : client.visit('/fast', {transition: false});
+      release();
+      await Promise.all([slow, fast]);
       assert.deepEqual(rendered, dispose ? [] : ['fast']);
       assert.equal(client.page.page, dispose ? 'start' : 'fast');
       client.dispose();

@@ -6,20 +6,18 @@ void (async () => {
     while (!condition()) {if (Date.now() > deadline) throw new Error(message); await pause(20);}
   };
   const assert = (condition, message) => {if (!condition) throw new Error(message);};
-  const originalTransition = document.startViewTransition?.bind(document);
   const originalAnimate = Element.prototype.animate;
   const originalFetch = window.fetch;
   let transitions = 0, noticeAnimations = 0, rejected = false;
   const finished = [];
-  if (originalTransition) document.startViewTransition = update => {
-    transitions++;
-    const result = originalTransition(update);
-    finished.push(result.finished.catch(() => {}));
-    return result;
-  };
   Element.prototype.animate = function (...args) {
     if (this.id === 'cart-feedback') noticeAnimations++;
-    return originalAnimate.apply(this, args);
+    const result = originalAnimate.apply(this, args);
+    if (this.id === 'store-main') {
+      transitions++;
+      finished.push(result.finished.catch(() => {}));
+    }
+    return result;
   };
   window.fetch = function (...args) {
     if (rejected && String(args[0]).includes('/shop.cart.add')) return Promise.resolve(new Response('{}', {status: 500, headers: {'Content-Type': 'application/json'}}));
@@ -83,7 +81,7 @@ void (async () => {
     assert(getComputedStyle(notice).display === 'none', 'Failed add left a visible success message.');
     await client.visit('/warenkorb'); await Promise.all(finished);
     assert(scrollY === 0, 'A normal page visit did not move to the page start.');
-    assert(options.reduced || !originalTransition ? transitions === 0 : transitions > 0, 'Page transition did not respect motion preferences.');
+    assert(options.reduced ? transitions === 0 : transitions > 0, 'Page transition did not respect motion preferences.');
     assert(document.getElementById('store-main') === main && document.getElementById('store-header') === header && document.getElementById('xtend-page') === root, 'Navigation replaced persistent DOM roots.');
     document.querySelector('#store-main .remove-line').click();
     await wait(() => model()['shop.data'].cart.count === 0 && !notice.hidden, 'Persisted removal did not produce feedback.');
@@ -100,7 +98,6 @@ void (async () => {
   } catch (error) {
     window.__STORE_TEST__ = {ok: false, status: 'failed', failure: error.message, transitions, noticeAnimations};
   } finally {
-    if (originalTransition) document.startViewTransition = originalTransition;
     Element.prototype.animate = originalAnimate;
     window.fetch = originalFetch;
   }
