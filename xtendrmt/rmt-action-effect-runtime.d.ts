@@ -89,7 +89,7 @@ export interface RmtActionResult {
   runId: string;
   status: 'success' | 'error' | 'cancelled';
   data?: unknown;
-  error?: { name: string; message: string };
+  error?: { name: string; message: string; code?: string; details?: {errors:Record<string,string[]>;errorBag:string} };
   payload?: unknown;
   metadata?: Record<string, unknown>;
   effects?: unknown[];

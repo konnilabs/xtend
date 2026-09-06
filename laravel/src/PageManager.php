@@ -50,12 +50,18 @@ final class PageManager {
         $layout = $page['layout'] ? ($manifest['layouts'][$page['layout']] ?? null) : null;
         if ($page['layout'] && !$layout) throw new \RuntimeException('The declared layout is absent from the page manifest.');
         $page['head'] = PageView::head($layout['head'] ?? [], $page['head']);
+        $page['maraca'] = $definition['maraca'] ?? null;
         $page['layoutArtifact'] = $layout['artifact'] ?? null;
         $html = ''; $headers = [];
         if (!$partial) {
-            $projected = \RmtPortableRender::project($definition['artifact'], (array)$data['props']);
-            if ($layout) $projected['descriptor'] = PageView::compose(\RmtPortableRender::project($layout['artifact'], array_replace($shared, (array)$data['props']))['descriptor'], $projected['descriptor']);
+            $projected = \RmtPortableRender::project($definition['artifact'], array_replace($shared, (array)$data['props']));
+            if ($layout) {
+                $layoutProjection = \RmtPortableRender::project($layout['artifact'], array_replace($shared, (array)$data['props']));
+                $projected['descriptor'] = PageView::compose($layoutProjection['descriptor'], $projected['descriptor']);
+                $projected['model'] = array_replace_recursive($layoutProjection['model'], $projected['model']);
+            }
             $renderOptions = array_replace(['model' => $projected['model'], 'rootId' => 'xtend-page', 'nativeForms' => true], $options['renderOptions'] ?? []);
+            $renderOptions['resume'] = array_replace(['state'=>$projected['model']], $renderOptions['resume'] ?? []);
             if (($renderOptions['executionMode'] ?? $this->config['ssr']['executionMode'] ?? '') === 'server_prerender_resume') $projected['descriptor'] = ['type'=>'element','tag'=>'section','attributes'=>['id'=>'xtend-page'],'children'=>[$projected['descriptor']]];
             $adapter = \createRmtPhpSsrAdapter($this->config['ssr'] ?? []);
             $result = $adapter->render(['descriptor' => $projected['descriptor']], $renderOptions);

@@ -12220,6 +12220,9 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
               return resolveValue(value, context, options.item);
             });
           },
+          resolveClasses(value, options = {}) {
+            return [...new Set(normalizeClassTokens(value, { ...defaultContextOptions, ...options }, options.item))];
+          },
           createNoManualHtmlGate,
           isUrlAllowed(value) {
             return isSafeUrl(value);

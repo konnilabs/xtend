@@ -233,8 +233,18 @@ final class RmtPortableRender
         $result = $input;
         if (array_key_exists('text', $input)) { $value = self::value($input['text'], $model, $item); $result['text'] = is_array($value) || is_object($value) ? '' : self::text($value); }
         foreach (['attributes', 'attrs', 'properties', 'props'] as $field) if (isset($input[$field])) foreach ($input[$field] as $key => $value) { $resolved = self::value($value, $model, $item); if ($resolved === self::missing()) unset($result[$field][$key]); else $result[$field][$key] = $resolved; }
+        if (!empty($input['key'])) $result['attributes']['data-rmt-key'] = self::value($input['key'], $model, $item);
+        $classes = array_unique(self::classes([$input['class'] ?? null, $input['className'] ?? null, $input['classes'] ?? null], $model, $item));
+        if ($classes) $result['attributes']['class'] = implode(' ', $classes);
+        unset($result['class'], $result['className'], $result['classes']);
         foreach (['children', 'nodes'] as $field) if (isset($input[$field])) $result[$field] = array_map(fn($v) => self::node($v, $model, $item), $input[$field]);
         foreach ($input['slots'] ?? [] as $key => $value) $result['slots'][$key] = is_array($value) && array_is_list($value) ? array_map(fn($child)=>self::node($child,$model,$item),$value) : self::node($value, $model, $item);
         return $result;
+    }
+    private static function classes(mixed $value, array $model, mixed $item): array {
+        if (is_string($value)) return preg_split('/\s+/u', self::text(self::value($value, $model, $item)), -1, PREG_SPLIT_NO_EMPTY);
+        if (!is_array($value)) return [];
+        if (array_is_list($value)) return array_merge([], ...array_map(fn($entry)=>self::classes($entry,$model,$item), $value));
+        return array_keys(array_filter($value, fn($enabled)=>self::truth(self::value($enabled,$model,$item))));
     }
 }

@@ -1,0 +1,234 @@
+template xtend.demopay {
+  state provider.shell type object preserve {
+    initial {
+      id "provider-shell"
+      viewTemplate {
+        class "demopay"
+        children [
+          {
+            type "element"
+            tag "p"
+            text "XTend DemoPay"
+            attributes {
+              class "pay-brand"
+            }
+          }
+          {
+            type "element"
+            tag "h1"
+            text "Ein guter Kauf beginnt mit einem guten Gefühl."
+          }
+          {
+            type "element"
+            tag "p"
+            text "Sicher ausprobieren. Ohne echtes Geld."
+            attributes {
+              class "pay-intro"
+            }
+          }
+          {
+            type "repeat"
+            source "$model.provider.ui.sections"
+            key "id"
+            template {
+              type "element"
+              tag "section"
+              attributes {
+                class "pay-section"
+                "data-payment-section" "$item.id"
+              }
+              children [
+                {
+                  type "element"
+                  tag "h2"
+                  text "$item.title"
+                }
+                {
+                  type "element"
+                  tag "p"
+                  text "$item.text"
+                }
+              ]
+            }
+          }
+          {
+            type "element"
+            tag "div"
+            attributes {
+              id "method-slot"
+            }
+            children [
+              {
+                type "element"
+                tag "label"
+                text "Deine Demo-Zahlungsmethode"
+                attributes {
+                  for "provider-method"
+                }
+              }
+            ]
+            class [
+              {
+                "pay-hidden" {
+                  op "not"
+                  value "$model.provider.ui.methodReady"
+                }
+              }
+            ]
+          }
+          {
+            type "element"
+            tag "div"
+            children [
+              {
+                type "element"
+                tag "button"
+                text "Demo-Zahlung bestätigen"
+                attributes {
+                  type "button"
+                  id "provider-confirm"
+                  "data-capability" "$model.provider.input.capability"
+                  "data-method" "$model.provider.method.value"
+                }
+              }
+              {
+                type "element"
+                tag "button"
+                text "Abbrechen"
+                attributes {
+                  type "button"
+                  id "provider-cancel"
+                }
+              }
+            ]
+            class [
+              {
+                "pay-hidden" {
+                  op "not"
+                  value "$model.provider.ui.confirmReady"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+  state provider.ui type object preserve {
+    initial {
+      sections [
+
+      ]
+      methodReady false
+      confirmReady false
+    }
+  }
+  state provider.input type object preserve {
+    initial {
+      id ""
+      capability ""
+      expires 0
+    }
+  }
+  state provider.method type object preserve {
+    initial {
+      id "provider-method"
+      field "method"
+      label "Demo-Zahlungsmethode"
+      value "wallet"
+      viewTemplate {
+        progressive true
+        children [
+          {
+            type "element"
+            tag "option"
+            text "Demo Wallet"
+            attributes {
+              value "wallet"
+            }
+          }
+          {
+            type "element"
+            tag "option"
+            text "Demo Card"
+            attributes {
+              value "card"
+            }
+          }
+        ]
+      }
+    }
+  }
+  state provider.result type object preserve {
+    initial {
+      proof ""
+    }
+  }
+  state provider.cancelled type object preserve {
+    initial {
+      value false
+    }
+  }
+  state provider.confirm type object preserve {
+    initial {
+      disabled false
+    }
+  }
+  state provider.status type object preserve {
+    initial {
+      status "idle"
+      error {
+        message ""
+      }
+    }
+  }
+  selector provider.shell from state provider.shell { output ProviderView }
+  selector provider.method from state provider.method { output ProviderMethod }
+  portal provider.method root "#method-slot" layer surface
+  surface provider.method kind field component x-select {
+    source selector provider.method
+    key method.id
+    portal provider.method
+    lane visible weight 90 { hydrate provider-method from selector provider.method }
+    on change "#provider-method" -> action provider.choose { preventDefault false
+      payload method from target.value }
+  }
+  datasource provider.confirm from host demopay.authorize { mode invoke
+    contract "xtend.store.payment-authorization.v1" }
+  datasource provider.fragments from host demopay.fragments { mode stream
+    contract "xtend.store.payment-fragments.v1" }
+  action provider.choose {
+    input method string
+    reduce state.provider.method.value = input.method
+  }
+  validation provider.methodChoice {
+    mode blocking
+    target action provider.confirm
+    field provider.method required message "Wähle eine Demo-Zahlungsmethode."
+  }
+  action provider.confirm {
+    status state.provider.status
+    input capability string
+    input method string
+    effect fetch datasource provider.confirm
+    reduce state.provider.result = result
+  }
+  action provider.cancel {
+    input reason string
+    reduce state.provider.cancelled.value = true
+  }
+  portal provider.root root "#demopay-root" layer surface
+  surface provider.shell kind content component x-section {
+    source selector provider.shell
+    key shell.id
+    portal provider.root
+    lane visible weight 90 { hydrate provider-shell from selector provider.shell }
+    on click "#provider-confirm" -> action provider.confirm { preventDefault true
+      payload capability from target.dataset.capability
+      payload method from target.dataset.method }
+    on click "#provider-cancel" -> action provider.cancel {
+      preventDefault true
+      payload reason from target.textContent
+    }
+  }
+}

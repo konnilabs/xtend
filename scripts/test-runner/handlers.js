@@ -60,6 +60,10 @@ function printDocsStubInventoryGateReport(result) {
 }
 
 module.exports = {
+"xtend-shop-contracts": async () => toRunnerResult("xtend-shop-contracts", "XTend.store contracts", await load("../tests/products/xtend_shop_suite").runXtendShopSuite({ rootDir, group: "contracts" })),
+"xtend-shop-php": async () => toRunnerResult("xtend-shop-php", "XTend.store php", await load("../tests/products/xtend_shop_suite").runXtendShopSuite({ rootDir, group: "php" })),
+"xtend-shop-browser": async () => toRunnerResult("xtend-shop-browser", "XTend.store browser", await load("../tests/products/xtend_shop_suite").runXtendShopSuite({ rootDir, group: "browser" })),
+
 "project-index": () => {
       const result = load("../tests/rmt-language/project_index_suite")["runProjectIndexSuite"]({ rootDir });
       load("../tests/rmt-language/project_index_suite")["printProjectIndexReport"](result);

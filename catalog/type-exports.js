@@ -29,8 +29,8 @@ const TYPE_EXPORTS_RELEASE_STATUS = 'accepted-productive-type-exports-release-ga
 const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready';
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
-const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 192;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = '156e1207482024cb78ee9a76ae20293f2e19ae52aba42e33e3689498c8940501';
+const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 197;
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = '89bc38ee2dbf81df12f2c2b7ffd9d1729408fdd29818db896022b68c288873f8';
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',
@@ -127,7 +127,7 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'maraca',
     priority: 'P1',
     workpackage: 'WP-Maraca-01',
-    exports: ['./maraca', './maraca/runtime', './maraca/plan-runtime', './maraca/browser-composition-runtime', './maraca/css-provider', './maraca/app-services', './maraca/server-services', './maraca/node-app-service-host', './maraca/node-app-host', './maraca/service-build-provider'],
+    exports: ['./maraca', './maraca/runtime', './maraca/page-client', './maraca/page-bootstrap', './maraca/remote-surface', './maraca/plan-runtime', './maraca/browser-composition-runtime', './maraca/css-provider', './maraca/app-services', './maraca/server-services', './maraca/node-app-service-host', './maraca/node-app-host', './maraca/service-build-provider'],
     strategy: 'maraca-package-declaration-pack'
   },
   {
@@ -169,7 +169,7 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'rmt-runtime',
     priority: 'P1',
     workpackage: 'WP-TypeExports-04',
-    exports: ['./rmt', './rmt/browser', './rmt/browser-scheduler', './rmt/kernel-scheduler', './rmt/dom-descriptor-renderer', './rmt/safe-preview', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/state-host-adapter', './rmt/state-binding-view-projector', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/maraca-view-projection-adapter', './rmt/presentation-effect-adapter', './rmt/form-validation-runtime', './rmt/animation-engine-runtime', './rmt/surface-transition-runtime', './rmt/surface-resource-graph-runtime', './rmt/kernel-orchestration-controller', './rmt/native-shell-runtime', './rmt/node-ssr-adapter', './rmt/resume-runtime'],
+    exports: ['./rmt', './rmt/browser', './rmt/browser-scheduler', './rmt/kernel-scheduler', './rmt/dom-descriptor-renderer', './rmt/safe-preview', './rmt/component-capability-registry', './rmt/state-selector-runtime', './rmt/state-host-adapter', './rmt/state-binding-view-projector', './rmt/action-effect-runtime', './rmt/event-routing-runtime', './rmt/maraca-view-projection-adapter', './rmt/presentation-effect-adapter', './rmt/form-validation-runtime', './rmt/animation-engine-runtime', './rmt/surface-transition-runtime', './rmt/surface-resource-graph-runtime', './rmt/kernel-orchestration-controller', './rmt/native-shell-runtime', './rmt/node-ssr-adapter', './rmt/resume-runtime', './rmt/resume-capture-adapter'],
     strategy: 'runtime-types-condition-to-rmt-core'
   },
   {

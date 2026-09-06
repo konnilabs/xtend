@@ -1788,7 +1788,8 @@ function createEventBindingRecords(appPlatform) {
 
   return toArray(appPlatform && appPlatform.events).map((event) => {
     const surface = surfaceByEvent.get(event.id) || null;
-    const shouldDelegateCommand = event.event === 'xtend-command' && (event.target || event.selector);
+    const selector = event.target || event.selector || '';
+    const shouldDelegateCommand = selector && (event.event === 'xtend-command' || selector.startsWith('.') && ['click','input','change','submit'].includes(event.event));
     return {
       id: event.id,
       kind: 'dom',
@@ -2409,7 +2410,24 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
   if (children.length === 0 && surface.source && hasStateField('text')) {
     descriptor.text = bindStateField('text');
   }
-  return applyViewTemplateToDescriptor(descriptor, initialState.viewTemplate || initialState.view || initialState.template);
+  const viewTemplate = initialState.viewTemplate || initialState.view || initialState.template;
+  const projected = applyViewTemplateToDescriptor(descriptor, viewTemplate);
+  // Opt-in native controls share the exact compiler descriptor in SSR and the
+  // browser. Component identity and public validity APIs remain discoverable.
+  if (viewTemplate && viewTemplate.progressive === true) {
+    const capability = require('./progressive-controls.json')[component];
+    const native = capability && capability.tag;
+    if (!native) throw new Error(`Component ${component} has no progressive control projection.`);
+    projected.type = 'element'; projected.tag = native;
+    projected.attributes['data-xtend-component'] = literal(component);
+    if (hasStateField('field')) projected.attributes.name = bindStateField('field');
+    if (hasStateField('label')) projected.attributes['aria-label'] = bindStateField('label');
+    if (capability.type) projected.attributes.type = literal(capability.type);
+    if (capability.value === 'checked' && hasStateField('checked')) projected.attributes.checked = bindStateField('checked');
+    if (native === 'textarea' && hasStateField('value')) { projected.text = bindStateField('value'); delete projected.children; }
+    if (native === 'input') { delete projected.children; delete projected.text; }
+  }
+  return projected;
 }
 
 function createCssPlan(appPlatform) {
@@ -3560,6 +3578,28 @@ function createRuntimeGraph(core, appPlatform, eventBindings, resources, validat
 }
 
 function createPatchPlan(appPlatform, reducers, renderDescriptors, validationPlan = null, transitionPlan = null) {
+  // A surface can read another state's fields in its render template. Those reads
+  // must invalidate the consumer as well as the surface declaring the state.
+  const sourceIds = [...toArray(appPlatform.state), ...toArray(appPlatform.selectors), ...toArray(appPlatform.derived)]
+    .map(entry => entry.id).filter(Boolean).sort((a, b) => b.length - a.length || a.localeCompare(b));
+  function descriptorSources(descriptor) {
+    const sources = new Set();
+    const add = path => {
+      const normalized = String(path).replace(/^\$(?:model|state|selector)\./u, '').replace(/^model\./u, '');
+      const id = sourceIds.find(id => normalized === id || normalized.startsWith(id + '.'));
+      if (id) sources.add(id);
+    };
+    const visit = value => {
+      if (typeof value === 'string' && /^\$(?:model|state|selector)\./u.test(value)) add(value);
+      else if (value && typeof value === 'object') {
+        if (['literal', 'const', 'static'].includes(value.op)) return;
+        if (value.op === 'path' && typeof value.path === 'string') add(value.path);
+        Object.values(value).forEach(visit);
+      }
+    };
+    visit(descriptor);
+    return [...sources].sort();
+  }
   const surfaceBySource = new Map(toArray(appPlatform && appPlatform.surfaces).map((surface) => [surface.source, surface]));
   const descriptorBySurface = new Map(toArray(renderDescriptors).map((descriptor) => [descriptor.surface, descriptor]));
   const transitionsByAction = new Map();
@@ -3573,6 +3613,7 @@ function createPatchPlan(appPlatform, reducers, renderDescriptors, validationPla
     schema: 'xtend.rmt.app-patch-plan.v1',
     defaultStrategy: 'attribute-sync',
     strategies: ['attribute-sync', 'property-sync', 'slot-patch', 'css-token-sync', 'surface-transition', 'structured-rerender'],
+    bindings: toArray(renderDescriptors).map(descriptor => ({surface:descriptor.surface, sources:descriptorSources(descriptor)})),
     reducers: reducers.map((reducer) => {
       const surface = surfaceBySource.get(reducer.state) || null;
       const descriptor = surface ? descriptorBySurface.get(surface.id) : null;
@@ -4022,6 +4063,9 @@ function createRmtAppOrchestrationArtifacts(core) {
     return fetchEffect && fetchEffect.source && (fetchEffect.source.target || String(fetchEffect.source.ref || '').replace(/^dataSource:/u, '')) || '';
   };
   const initialStates = new Map(toArray(appPlatform.state).map((state) => [state.id, state.initial || {}]));
+  for (const selector of toArray(appPlatform.selectors)) {
+    if (!initialStates.has(selector.id) && initialStates.has(selector.from) && toArray(selector.clauses).every(clause => clause.kind === 'output')) initialStates.set(selector.id, initialStates.get(selector.from));
+  }
   const renderDescriptors = toArray(appPlatform.surfaces).map((surface) => createRenderDescriptor(surface, eventBindings, initialStates));
   const renderComposition = createRenderRoot(appPlatform, renderDescriptors);
   const hydration = createHydrationPlan(core, appPlatform);
@@ -4048,7 +4092,7 @@ function createRmtAppOrchestrationArtifacts(core) {
       actions: toArray(appPlatform.actions).map((action) => ({
         id: action.id,
         inputs: action.inputs,
-        statusState: action.status && action.status.path || '',
+        statusState: String(action.status && action.status.path || '').replace(/^state\./u, ''),
         datasource: dataSourceForAction(action),
         reducers: action.reducers,
         emits: action.emits,

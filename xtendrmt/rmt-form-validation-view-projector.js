@@ -150,17 +150,25 @@ export function createRmtFormValidationViewProjector(options = {}) {
       : prepare(planOrEvaluation, metadata);
     const reported = [];
     const missing = [];
+    let firstInvalid = null;
     toArray(prepared.projections).forEach((projection) => {
-      if (!projection.invalid || !projection.report) return;
       const element = findTarget(projection.target);
+      if (element && typeof element.setCustomValidity === 'function' && element.hasAttribute?.('data-xtend-component')) {
+        element.setCustomValidity(projection.invalid && projection.revealed ? projection.message : '');
+      }
+      if (!projection.invalid || !projection.report) return;
       if (!element) {
         missing.push(cloneValue(projection.target, {}));
         return;
       }
-      if (typeof element.reportValidity === 'function') element.reportValidity();
-      else if (typeof element.checkValidity === 'function') element.checkValidity();
+      if (!firstInvalid) firstInvalid = element;
+      if (element === firstInvalid || !element.hasAttribute?.('data-xtend-component')) {
+        if (typeof element.reportValidity === 'function') element.reportValidity();
+        else if (typeof element.checkValidity === 'function') element.checkValidity();
+      }
       reported.push(cloneValue(projection.target, {}));
     });
+    if (firstInvalid && typeof firstInvalid.focus === 'function') firstInvalid.focus();
     return deepFreeze({
       schema: 'xtend.rmt.form-validation-view-finalize-report.v1',
       valid: prepared.valid !== false,

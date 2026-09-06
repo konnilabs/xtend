@@ -813,18 +813,49 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
 
         private function canonicalizeResumeValue($value)
         {
-            if (!is_array($value)) return $value;
-            if ($this->isList($value)) {
+            $object = is_object($value);
+            if (!$object && !is_array($value)) return $value;
+            if (!$object && $this->isList($value)) {
                 return array_map(fn ($entry) => $this->canonicalizeResumeValue($entry), $value);
             }
-            ksort($value, SORT_STRING);
+            $value = (array) $value;
+            // JavaScript sorts property names by UTF-16 code units, including
+            // properties of decoded JSON objects and empty object records.
+            uksort($value, static fn ($left, $right) => strcmp(
+                iconv('UTF-8', 'UTF-16BE', (string) $left),
+                iconv('UTF-8', 'UTF-16BE', (string) $right)
+            ));
             foreach ($value as $key => $entry) $value[$key] = $this->canonicalizeResumeValue($entry);
-            return $value;
+            return (object) $value;
         }
 
         private function canonicalResumeJson(array $value): string
         {
-            return (string) json_encode($this->canonicalizeResumeValue($value), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $encode = function($entry) use (&$encode):string {
+                if(is_array($entry))return '['.implode(',',array_map($encode,$entry)).']';
+                if(is_object($entry)){
+                    $fields=[];foreach((array)$entry as $key=>$child)$fields[]=$encode((string)$key).':'.$encode($child);
+                    return '{'.implode(',',$fields).'}';
+                }
+                if(is_int($entry)||is_float($entry)){
+                    $number=(float)$entry;
+                    if(!is_finite($number))return 'null';
+                    if($number==0)return '0';
+                    $precision=ini_get('serialize_precision');ini_set('serialize_precision','-1');
+                    try{$text=json_encode($number,JSON_THROW_ON_ERROR);}finally{ini_set('serialize_precision',$precision);}
+                    if(preg_match('/^(-?)([0-9]+)(?:\.([0-9]+))?e([+-]?[0-9]+)$/i',$text,$parts)){
+                        $sign=$parts[1];$digits=rtrim($parts[2].($parts[3]??''),'0');$exponent=(int)$parts[4];
+                        if($exponent>=-6&&$exponent<21){
+                            $point=$exponent+strlen($parts[2]);
+                            return $sign.($point<=0?'0.'.str_repeat('0',-$point).$digits:($point>=strlen($digits)?$digits.str_repeat('0',$point-strlen($digits)):substr($digits,0,$point).'.'.substr($digits,$point)));
+                        }
+                        return $sign.$digits[0].(strlen($digits)>1?'.'.substr($digits,1):'').'e'.($exponent>=0?'+':'').$exponent;
+                    }
+                    return $text;
+                }
+                return json_encode($entry,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_LINE_TERMINATORS|JSON_THROW_ON_ERROR);
+            };
+            return $encode($this->canonicalizeResumeValue($value));
         }
 
         private function sha256Base64Url(string $value): string

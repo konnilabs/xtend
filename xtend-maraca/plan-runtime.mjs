@@ -175,6 +175,14 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       surfaceIdsBySource.set(candidate, ids);
     });
   });
+  asArray(asRecord(artifact.patchPlan).bindings).forEach(binding => {
+    if (!surfaceById.has(binding.surface)) return;
+    asArray(binding.sources).forEach(source => sourceCandidates(source).forEach(candidate => {
+      const ids = surfaceIdsBySource.get(candidate) || [];
+      if (!ids.includes(binding.surface)) ids.push(binding.surface);
+      surfaceIdsBySource.set(candidate, ids);
+    }));
+  });
 
   const diagnostics = [];
   const diagnosticCodes = new Set();
@@ -1247,6 +1255,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       reveal,
       revealedFields: [...revealedValidationFields]
     };
+    if (options.serverErrors) validationMetadata.serverErrors = options.serverErrors;
     if (runtimes.validationEvaluator && typeof runtimes.validationEvaluator.evaluate === 'function') {
       const modelSnapshot = suppliedModelSnapshot || (
         runtimes.state.modelReader && typeof runtimes.state.modelReader.snapshot === 'function'
@@ -1544,6 +1553,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       }
       if (phase === 'disposed' || generation !== commandGeneration) throw runtimeDisposedError();
       const resultRecord = asRecord(result);
+      if (resultRecord.status === 'error' && resultRecord.error?.code === 'xtend.maraca.app-service.validation' && resultRecord.error.details?.errors) {
+        validationStage = evaluateCommandValidation(commandId, metadata, null, {serverErrors:resultRecord.error.details.errors});
+      }
       const actionSucceeded = !blocked
         && (!hasOwn(resultRecord, 'status') || resultRecord.status === 'success');
       const successfulReducers = actionSucceeded ? reducers : [];

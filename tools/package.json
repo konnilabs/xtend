@@ -99,6 +99,10 @@
     "./rmt-language/page-build": {
       "types": "./rmt-language/page-build.d.ts",
       "default": "./rmt-language/page-build.js"
+    },
+    "./rmt-language/compilation-session": {
+      "types": "./rmt-language/compilation-session.d.ts",
+      "default": "./rmt-language/compilation-session.js"
     }
   },
   "publishConfig": {

@@ -7267,6 +7267,67 @@
         "browser"
       ],
       "timeoutMs": 300000
+    },
+    {
+      "id": "xtend-shop-contracts",
+      "label": "XTend.store compiler and browser contracts",
+      "description": "XTend.store compiler and browser contracts",
+      "defaultIncluded": false,
+      "handler": "xtend-shop-contracts",
+      "implementations": [
+        {
+          "path": "tests/products/xtend_shop_suite.js",
+          "function": "runXtendShopSuite",
+          "arguments": [
+            "{ rootDir, group: \"contracts\" }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository"
+      ],
+      "timeoutMs": 300000
+    },
+    {
+      "id": "xtend-shop-php",
+      "label": "XTend.store PHP parity and domain",
+      "description": "XTend.store PHP parity and domain",
+      "defaultIncluded": false,
+      "handler": "xtend-shop-php",
+      "implementations": [
+        {
+          "path": "tests/products/xtend_shop_suite.js",
+          "function": "runXtendShopSuite",
+          "arguments": [
+            "{ rootDir, group: \"php\" }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository"
+      ],
+      "timeoutMs": 300000
+    },
+    {
+      "id": "xtend-shop-browser",
+      "label": "XTend.store isolated guest checkout",
+      "description": "XTend.store isolated guest checkout",
+      "defaultIncluded": false,
+      "handler": "xtend-shop-browser",
+      "implementations": [
+        {
+          "path": "tests/products/xtend_shop_suite.js",
+          "function": "runXtendShopSuite",
+          "arguments": [
+            "{ rootDir, group: \"browser\" }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository",
+        "browser"
+      ],
+      "timeoutMs": 300000
     }
   ],
   "profiles": {
@@ -10263,6 +10324,39 @@
         "ssr-pages-php"
       ],
       "reports": []
+    },
+    "xtend-shop-contracts": {
+      "suites": [
+        "xtend-shop-contracts"
+      ],
+      "reports": [],
+      "requireNoSkips": true
+    },
+    "xtend-shop-php": {
+      "suites": [
+        "xtend-shop-php"
+      ],
+      "reports": [],
+      "requireNoSkips": true
+    },
+    "xtend-shop-browser": {
+      "suites": [
+        "xtend-shop-browser"
+      ],
+      "reports": [],
+      "requireNoSkips": true
+    },
+    "xtend-shop": {
+      "includes": [
+        "xtend-shop-contracts",
+        "xtend-shop-php",
+        "xtend-shop-browser"
+      ],
+      "suites": [],
+      "reports": [
+        ".xtend-test-results/xtend-shop.json"
+      ],
+      "requireNoSkips": true
     }
   },
   "scripts": {
@@ -12191,6 +12285,46 @@
     "test:ssr-pages-php": {
       "profile": "ssr-pages-php",
       "report": null,
+      "flags": []
+    },
+    "test:xtend-shop-contracts": {
+      "profile": "xtend-shop-contracts",
+      "report": null,
+      "flags": []
+    },
+    "test:xtend-shop-contracts:report": {
+      "profile": "xtend-shop-contracts",
+      "report": ".xtend-test-results/xtend-shop-contracts.json",
+      "flags": []
+    },
+    "test:xtend-shop-php": {
+      "profile": "xtend-shop-php",
+      "report": null,
+      "flags": []
+    },
+    "test:xtend-shop-php:report": {
+      "profile": "xtend-shop-php",
+      "report": ".xtend-test-results/xtend-shop-php.json",
+      "flags": []
+    },
+    "test:xtend-shop-browser": {
+      "profile": "xtend-shop-browser",
+      "report": null,
+      "flags": []
+    },
+    "test:xtend-shop-browser:report": {
+      "profile": "xtend-shop-browser",
+      "report": ".xtend-test-results/xtend-shop-browser.json",
+      "flags": []
+    },
+    "test:xtend-shop": {
+      "profile": "xtend-shop",
+      "report": null,
+      "flags": []
+    },
+    "test:xtend-shop:report": {
+      "profile": "xtend-shop",
+      "report": ".xtend-test-results/xtend-shop.json",
       "flags": []
     }
   },

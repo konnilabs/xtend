@@ -68,7 +68,19 @@
       "types": "./service-build-provider.d.ts",
       "default": "./service-build-provider.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./page-client": {
+      "types": "./page-client.d.ts",
+      "default": "./page-client.mjs"
+    },
+    "./page-bootstrap": {
+      "types": "./page-bootstrap.d.ts",
+      "default": "./page-bootstrap.mjs"
+    },
+    "./remote-surface": {
+      "types": "./remote-surface.d.ts",
+      "import": "./remote-surface.mjs"
+    }
   },
   "files": [
     "index.js",
@@ -100,7 +112,13 @@
     "service-build-provider.js",
     "service-build-provider.d.ts",
     "README.md",
-    "package.json"
+    "package.json",
+    "page-client.mjs",
+    "page-client.d.ts",
+    "page-bootstrap.mjs",
+    "page-bootstrap.d.ts",
+    "remote-surface.mjs",
+    "remote-surface.d.ts"
   ],
   "engines": {
     "node": ">=24"

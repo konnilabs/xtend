@@ -214,6 +214,9 @@ export function createRmtFormValidationEvaluator(options = {}) {
     const stateValue = objectRecord(readState(field.state, request));
     const value = Object.prototype.hasOwnProperty.call(stateValue, 'value') ? stateValue.value : readPath(stateValue, 'value');
     const failedRules = field.rules.filter((rule) => !validateRule(value, rule)).map((rule) => rule.kind);
+    const serverMessages = objectRecord(request.serverErrors)[stateValue.field];
+    const serverMessage = Array.isArray(serverMessages) ? serverMessages.find(value => typeof value === 'string') : typeof serverMessages === 'string' ? serverMessages : '';
+    if (serverMessage) failedRules.push('server');
     const revealedFields = new Set(toArray(request.revealedFields).map(String));
     const revealed = request.report === true || request.reveal === true || revealedFields.has(field.state);
     return {
@@ -227,7 +230,7 @@ export function createRmtFormValidationEvaluator(options = {}) {
       valid: failedRules.length === 0,
       revealed,
       failedRules,
-      message: failedRules.length === 0 ? '' : field.message
+      message: failedRules.length === 0 ? '' : serverMessage || field.message
     };
   }
 

@@ -7,10 +7,26 @@ final class PageView {
         $records = [];
         foreach (array_merge($layout, $page) as $record) {
             $key = ($record['tag'] ?? '') === 'title' ? 'title' : (($record['tag'] ?? '') === 'meta' ? 'meta:' . ($record['attributes']['name'] ?? $record['attributes']['property'] ?? $record['attributes']['charset'] ?? '') : '');
+            if (($record['tag'] ?? '') === 'meta' && array_diff(array_keys($record['attributes'] ?? []), ['name','property','content','charset'])) throw new \InvalidArgumentException('Unsafe meta attributes.');
+            if (($record['tag'] ?? '') === 'link' && ($record['attributes']['rel'] ?? '') === 'canonical' && preg_match('#^https?://#i', $record['attributes']['href'] ?? '') && !array_diff(array_keys($record['attributes']), ['rel','href'])) $key = 'link:canonical';
+            if (($record['tag'] ?? '') === 'json-ld' && is_string($record['key'] ?? null) && $record['key'] !== '' && (is_array($record['data'] ?? null) || is_object($record['data'] ?? null))) { Prop::assertKey($record['key']); json_encode($record['data'], JSON_THROW_ON_ERROR); $key = 'json-ld:' . $record['key']; }
             if ($key === '' || $key === 'meta:') throw new \InvalidArgumentException('Invalid page head record.');
             $records[$key] = $record;
         }
         return array_values($records);
+    }
+    public static function renderHead(array $head, string $nonce = ''): string {
+        $escape = fn($value) => htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $html = '';
+        foreach (self::head([], $head) as $record) {
+            $tag = $record['tag'];
+            if ($tag === 'title') { $html .= '<title>'.$escape($record['text'] ?? '').'</title>'; continue; }
+            if ($tag === 'json-ld') { $html .= '<script data-xtend-page-head type="application/ld+json" nonce="'.$escape($nonce).'">'.json_encode($record['data'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR).'</script>'; continue; }
+            $html .= '<'.$tag.' data-xtend-page-head';
+            foreach ($record['attributes'] ?? [] as $key => $value) $html .= ' '.$key.'="'.$escape($value).'"';
+            $html .= '>';
+        }
+        return $html;
     }
     public static function compose(?array $layout, array $page): array {
         if (!$layout) return $page;

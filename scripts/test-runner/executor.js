@@ -29,6 +29,23 @@ function provenance() {
       packageFingerprint: hash(JSON.stringify(Object.keys(manifest.files).sort().map(file => [file,hash(fs.readFileSync(path.join(runtime,file)))])))
     };
   }
+  let shop;
+  if (process.env.XTEND_SHOP_FIXTURE) {
+    const fixture = path.resolve(process.env.XTEND_SHOP_FIXTURE);
+    shop = {
+      php: execFileSync(process.env.XTEND_PHP_BINARY || 'php', ['-r','echo PHP_VERSION . "|" . PHP_OS_FAMILY . "|" . PHP_INT_SIZE;'], {encoding:'utf8',timeout:10000}),
+      fpm: process.env.XTEND_SHOP_FPM_BINARY ? execFileSync(process.env.XTEND_SHOP_FPM_BINARY, ['-v'], {encoding:'utf8',timeout:10000}).trim() : null,
+      hosts: ['', 'payment-provider'].map(host => {
+        const directory = path.join(fixture, host), runtime = path.join(directory, 'vendor/ccslabs/xtend-laravel/runtime');
+        const installed = JSON.parse(fs.readFileSync(path.join(directory, 'vendor/composer/installed.json')));
+        const manifest = JSON.parse(fs.readFileSync(path.join(runtime, 'sources.json')));
+        return {host:host || 'shop', dependencies:installed.packages.map(record=>[record.name,record.version]).sort(),
+          lockFingerprint:hash(fs.readFileSync(path.join(directory, 'composer.lock'))),
+          packageFingerprint:hash(JSON.stringify(Object.keys(manifest.files).sort().map(file=>[file,hash(fs.readFileSync(path.join(runtime,file)))])))};
+      }),
+      buildLockFingerprint:hash(fs.readFileSync(path.join(fixture,'package-lock.json')))
+    };
+  }
   return {
     commit, sourceFingerprint, catalogFingerprint: fingerprint(),
     run: process.env.GITHUB_RUN_ID ? `${process.env.GITHUB_RUN_ID}:${process.env.GITHUB_RUN_ATTEMPT || '1'}` : process.env.XTEND_TEST_RUN_ID || `local:${randomUUID()}`,
@@ -36,6 +53,7 @@ function provenance() {
       node: process.version, platform: process.platform, arch: process.arch, nodeOptions: process.env.NODE_OPTIONS || '',
       runnerImage: `${process.env.ImageOS || ''}:${process.env.ImageVersion || ''}`,
       ...(laravel ? {laravel} : {}),
+      ...(shop ? {shop} : {}),
       environmentFingerprint: hash(JSON.stringify(Object.keys(process.env).filter(key=>key.startsWith('XTEND_') && key !== 'XTEND_TEST_RUN_ID').sort().map(key=>[key,process.env[key]])))
     }
   };

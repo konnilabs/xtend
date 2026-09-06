@@ -80,7 +80,8 @@
     "xtend-maraca",
     "xsurface-shard",
     "xscaler",
-    "xcommand"
+    "xcommand",
+    "scripts/generate_xtendrmt_esm_entrypoints.js"
   ],
   "sideEffects": [
     "*.css",
@@ -936,6 +937,26 @@
     "./rmt-language/page-build": {
       "types": "./tools/rmt-language/page-build.d.ts",
       "default": "./tools/rmt-language/page-build.js"
+    },
+    "./maraca/page-client": {
+      "types": "./xtend-maraca/page-client.d.ts",
+      "default": "./xtend-maraca/page-client.mjs"
+    },
+    "./maraca/page-bootstrap": {
+      "types": "./xtend-maraca/page-bootstrap.d.ts",
+      "default": "./xtend-maraca/page-bootstrap.mjs"
+    },
+    "./rmt/resume-capture-adapter": {
+      "types": "./xtendrmt/rmt-resume-capture-adapter.d.ts",
+      "default": "./xtendrmt/rmt-resume-capture-adapter.js"
+    },
+    "./maraca/remote-surface": {
+      "types": "./xtend-maraca/remote-surface.d.ts",
+      "import": "./xtend-maraca/remote-surface.mjs"
+    },
+    "./rmt-language/compilation-session": {
+      "types": "./tools/rmt-language/compilation-session.d.ts",
+      "default": "./tools/rmt-language/compilation-session.js"
     }
   },
   "publishConfig": {
@@ -15572,8 +15593,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 192,
-      "lockedExportFingerprint": "156e1207482024cb78ee9a76ae20293f2e19ae52aba42e33e3689498c8940501",
+      "expectedExportCount": 197,
+      "lockedExportFingerprint": "89bc38ee2dbf81df12f2c2b7ffd9d1729408fdd29818db896022b68c288873f8",
       "p0Exports": [
         ".",
         "./loader",
@@ -15720,7 +15741,12 @@
         "./catalog/surface-manager-window-runtime.d.ts",
         "./catalog/surface-manager-workbench-fixture.d.ts",
         "./components/prism.d.ts",
-        "./components/turndown.d.ts"
+        "./components/turndown.d.ts",
+        "./xtend-maraca/page-client.d.ts",
+        "./xtend-maraca/page-bootstrap.d.ts",
+        "./xtend-maraca/remote-surface.d.ts",
+        "./xtendrmt/rmt-resume-capture-adapter.d.ts",
+        "./tools/rmt-language/compilation-session.d.ts"
       ],
       "boundaries": [
         "types-only-no-runtime-imports",
@@ -18170,7 +18196,15 @@
     "test:ssr-pages-browser": "node scripts/run_xtend_tests.js --profile ssr-pages-browser",
     "test:ssr-pages-laravel": "node scripts/run_xtend_tests.js --profile ssr-pages-laravel",
     "test:ssr-pages-laravel-browser": "node scripts/run_xtend_tests.js --profile ssr-pages-laravel-browser",
-    "test:ssr-pages-php": "node scripts/run_xtend_tests.js --profile ssr-pages-php"
+    "test:ssr-pages-php": "node scripts/run_xtend_tests.js --profile ssr-pages-php",
+    "test:xtend-shop-contracts": "node scripts/run_xtend_tests.js --profile xtend-shop-contracts",
+    "test:xtend-shop-contracts:report": "node scripts/run_xtend_tests.js --profile xtend-shop-contracts --report .xtend-test-results/xtend-shop-contracts.json",
+    "test:xtend-shop-php": "node scripts/run_xtend_tests.js --profile xtend-shop-php",
+    "test:xtend-shop-php:report": "node scripts/run_xtend_tests.js --profile xtend-shop-php --report .xtend-test-results/xtend-shop-php.json",
+    "test:xtend-shop-browser": "node scripts/run_xtend_tests.js --profile xtend-shop-browser",
+    "test:xtend-shop-browser:report": "node scripts/run_xtend_tests.js --profile xtend-shop-browser --report .xtend-test-results/xtend-shop-browser.json",
+    "test:xtend-shop": "node scripts/run_xtend_tests.js --profile xtend-shop",
+    "test:xtend-shop:report": "node scripts/run_xtend_tests.js --profile xtend-shop --report .xtend-test-results/xtend-shop.json"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",

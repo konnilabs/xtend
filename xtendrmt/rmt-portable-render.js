@@ -96,6 +96,10 @@ export function projectPortableRender(artifact, props = {}) {
     const result = { ...input };
     if (own(input, 'text')) { const value = resolve(input.text, item); result.text = { op: 'literal', value: value == null || typeof value === 'object' ? '' : String(value) }; }
     for (const field of ['attributes', 'attrs', 'properties', 'props']) if (input[field]) result[field] = Object.fromEntries(Object.entries(input[field]).map(([key, value]) => [key, { op: 'literal', value: resolve(value, item) }]));
+    if (input.key) result.attributes = {...result.attributes, 'data-rmt-key': {op:'literal', value:resolve(input.key, item)}};
+    const classes = renderer.resolveClasses([input.class, input.className, input.classes], {model,item});
+    if (classes.length) result.attributes = {...result.attributes, class:{op:'literal', value:classes.join(' ')}};
+    delete result.class; delete result.className; delete result.classes;
     for (const field of ['children', 'nodes']) if (input[field]) result[field] = (Array.isArray(input[field]) ? input[field] : [input[field]]).map(child => node(child, item));
     if (input.slots) result.slots = Object.fromEntries(Object.entries(input.slots).map(([key, value]) => [key, Array.isArray(value) ? value.map(child=>node(child,item)) : node(value, item)]));
     return result;

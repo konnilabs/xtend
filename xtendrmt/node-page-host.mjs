@@ -16,8 +16,10 @@ export function createNodePageRouteManifest(routes) {
   return {schema:'xtend.page-routes.v1',host:'node',routes:records};
 }
 export function renderPageDocument(page, html, assets = {}, nonce = '') {
-  const head = (page.head || []).map(tag => {
+  const head = mergePageHead([], page.head || []).map(tag => {
     if (tag.tag === 'title') return `<title>${escape(tag.text)}</title>`;
+    if (tag.tag === 'link') return `<link data-xtend-page-head rel="canonical" href="${escape(tag.attributes.href)}">`;
+    if (tag.tag === 'json-ld') return `<script data-xtend-page-head type="application/ld+json" nonce="${escape(nonce)}">${safePageJson(tag.data)}</script>`;
     if (tag.tag !== 'meta') throw pageError('page.invalid_head', 'Only title and meta head records are supported.');
     return `<meta data-xtend-page-head ${Object.entries(tag.attributes || {}).map(([key, value]) => {
       if (!['name', 'property', 'content', 'charset', 'http-equiv'].includes(key) || key === 'http-equiv') throw pageError('page.invalid_head', 'Unsafe head attribute.');
@@ -72,6 +74,7 @@ export function createNodePageHost(options) {
     const data = await resolvePageProps(resolved.props, context, selection);
     const partial = Boolean(selection.only || selection.deferred);
     const page = { ...base, ...data, kind: 'page', page: resolved.page, url: resolved.url || request.url, layout: resolved.layout ?? definition.layout ?? null, head: resolved.head || definition.head || [], shared, flash: selection.prefetch ? {} : resolved.flash || {}, errors: resolved.errors || {}, partial, pagination: resolved.pagination || null, renderArtifact: definition.artifact || null };
+    page.maraca = definition.maraca || null;
     const layout = page.layout && manifest.layouts?.[page.layout];
     if (context.csrfToken) page.csrfToken = context.csrfToken;
     if (page.layout && !layout) throw pageError('page.layout_missing', 'The declared layout is absent from the page manifest.');
@@ -79,10 +82,14 @@ export function createNodePageHost(options) {
     page.layoutArtifact = layout?.artifact || null;
     let html = '', result;
     if (!partial) {
-      const input = definition.artifact ? projectPortableRender(definition.artifact, data.props) : { ...(definition.input || {}), model: data.props };
-      if (layout) input.descriptor = composePageDescriptor(projectPortableRender(layout.artifact, {...shared,...data.props}).descriptor, input.descriptor);
+      const input = definition.artifact ? projectPortableRender(definition.artifact, {...shared,...data.props}) : { ...(definition.input || {}), model: data.props };
+      if (layout) {
+        const projection=projectPortableRender(layout.artifact, {...shared,...data.props});
+        input.descriptor = composePageDescriptor(projection.descriptor, input.descriptor);
+        input.model={...projection.model,...input.model};
+      }
       if ((resolved.renderOptions?.executionMode || options.ssr?.executionMode) === 'server_prerender_resume' && input.descriptor) input.descriptor = {type:'element',tag:'section',attributes:{id:'xtend-page'},children:[input.descriptor]};
-      result = await adapter.render(input.descriptor ? { descriptor: input.descriptor } : input, { model: input.model, rootId: 'xtend-page', nativeForms: true, signal, ...(resolved.renderOptions || {}) });
+      result = await adapter.render(input.descriptor ? { descriptor: input.descriptor } : input, { model: input.model, rootId: 'xtend-page', nativeForms: true, signal, ...(resolved.renderOptions || {}), resume:{state:input.model || {}, ...(resolved.renderOptions?.resume || {})} });
       if (!result.ok) throw pageError('page.render_failed', 'Page rendering failed.');
       html = result.html; page.ssr = result.response;
     }

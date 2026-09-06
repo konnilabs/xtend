@@ -188,3 +188,15 @@ Ressourcenmessung: `node tests/ssr-pages/measure_resources.js .xtend-test-result
 Der Node-Testpfad benötigt kein PHP. Die zusätzliche Suite `ssr-pages-php` prüft die gemeinsame Renderparität einmal pro PHP-/Laravel-Umgebung. Einen vorhandenen `x-router` vor dem Einfügen mit `router.pageClient = client` verbinden und `client.start()` ausführen; danach verwaltet die Seitenlaufzeit Links und History.
 
 Optionale Übergänge verwenden eine Hostfunktion: `createPageClient({ initialPage, transition: async update => { if (document.startViewTransition) await document.startViewTransition(update).updateCallbackDone; else await update(); } })`. Ein Besuch aktiviert sie mit `{ transition: true }`. Ohne Hostfunktion und bei reduzierter Bewegung wird die Seite regulär aktualisiert.
+
+## Maraca-Seiten und XTend.store
+
+`createMaracaPageClient()` aus `@ccslabs/xtend/maraca/page-client` verbindet den Seitenclient mit einem Maraca-Bundle. Das Seitenmanifest kann pro Seite oder Layout `maraca: { entry: "/build/maraca/xtend.maraca.mjs" }` angeben. Das Bundle und die portable Projektion verwenden denselben Compilerstand; `createRmtCompilationSession()` hält die Analyse innerhalb eines Builds gemeinsam vor. Die Konfiguration und alle referenzierten Assets fließen in die Buildversion ein.
+
+Die Seitenlaufzeit verwaltet URL, History und Transport, Maraca den UI-Zustand und DOM-Commits. Ein Root hat einen Controller. Unveränderte Shells bleiben bei Navigation erhalten. Abgelöste Aktivierungen werden verworfen und Remote-Surfaces bei Navigation freigegeben. Der generierte Einstieg verwendet `startMaracaPageApplication()` aus `@ccslabs/xtend/maraca/page-bootstrap`: Er installiert Capture vor dem Laden der Komposition, prüft P-256-Signaturen mit dem öffentlichen Buildschlüssel und nutzt bei fehlgeschlagener Integritätsprüfung den vorhandenen einmaligen Hydration-Fallback.
+
+Der gemeinsame Head-Vertrag unterstützt zusätzlich Canonical-Links (`tag: "link"`, `rel: "canonical"`, HTTP(S)-URL) und benannte JSON-LD-Datensätze (`tag: "json-ld"`, `key`, `data`). Node, PHP und Browser deduplizieren nach Identität. JSON wird sicher in Script-Tags serialisiert; Eventattribute und ausführbare Canonical-URLs werden abgelehnt.
+
+[XTend.store](../../products/xtend-shop/README.md) zeigt diese Integration mit Laravel, Gastwarenkorb und einem separaten PHP-DemoPay-Provider. Der Node-SSR-Adapter und `createNodePageHost()` bleiben eigenständige Zugänge. Der Shop ist eine zusätzliche Referenzanwendung.
+
+Maraca-Seiten übernehmen auch native GET-Such- und Filterformulare in die Seitennavigation. Die Basisseiten-API schaltet dies mit `forms: true` ein; `navigationAction` kann vor einem Besuch deklarierte RMT-Surfaces schließen. POST-Formulare behalten ihren Host- beziehungsweise RMT-Vertrag.

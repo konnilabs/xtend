@@ -18,7 +18,9 @@ function buildLaravelPackage(options = {}) {
   // The Composer autoload declaration is the canonical runtime dependency list.
   for (const entry of composer.autoload.files) {
     const name = path.basename(entry);
-    const contents = fs.readFileSync(path.join(root, 'xtendrmt', name));
+    const candidates = ['xtendrmt', 'xscaler'].map(directory => path.join(root, directory, name)).filter(file => fs.existsSync(file));
+    if (candidates.length !== 1) throw new Error(`PHP runtime source must be unambiguous: ${name}`);
+    const contents = fs.readFileSync(candidates[0]);
     fs.writeFileSync(path.join(runtime, name), contents);
     files[name] = createHash('sha256').update(contents).digest('hex');
   }

@@ -23,7 +23,7 @@ async function buildPages(options) {
     const fingerprint = hash(input.text);
     const previous = compiled.get(input.filePath);
     if (previous?.fingerprint === fingerprint) return previous.result;
-    const result = compileRmtVNextSource(input, settings);
+    const result = (options.compileSource || compileRmtVNextSource)(input, settings);
     compiled.set(input.filePath, { fingerprint, result });
     sourceFiles.set(path.relative(root, input.filePath).replace(/\\/gu, '/'), fingerprint);
     return result;
@@ -36,7 +36,7 @@ async function buildPages(options) {
     const result = compiled.get(source)?.result;
     if (!result?.ok) throw new Error(`Page ${name} did not compile.`);
     const artifact = createPortableRenderArtifact(result, { target: target === 'node' ? 'node' : 'php', inputs: definition.inputs, defaults: definition.defaults, sourceRef: path.relative(root, source).replace(/\\/gu, '/') });
-    return { artifact, source: artifact.sourceRef, layout: definition.layout || null, head: definition.head || [] };
+    return { artifact, source: artifact.sourceRef, layout: definition.layout || null, head: definition.head || [], ...(definition.maraca ? {maraca: definition.maraca} : {}) };
   }
   for (const name of Object.keys(configuration.layouts || {}).sort()) {
     const definition = configuration.layouts[name];
@@ -62,6 +62,27 @@ async function buildPages(options) {
   const output = path.resolve(root, options.output || configuration.output || (host === 'laravel' ? 'bootstrap/xtend/pages.json' : '.xtend-build/pages.json'));
   if (!inside(root, output)) throw new Error('Page build output is outside the project root.');
   const assets = {...(configuration.assets || {})}, assetFingerprints = {}, viteAssets = new Set();
+  const assetDirectory=path.resolve(root,configuration.assetRoot || 'public');
+  const assetRoot=fs.existsSync(assetDirectory)?fs.realpathSync(assetDirectory):assetDirectory;
+  for(const definition of [...Object.values(pages),...Object.values(layouts)]) if(definition.maraca){
+    const entry=definition.maraca.entry;
+    if(typeof entry!=='string'||!/^\/(?!\/)/u.test(entry)||entry.includes('?')||entry.includes('#'))throw new Error('Maraca page entries require same-origin asset paths.');
+    const entryFile=fs.realpathSync(path.resolve(assetRoot,entry.slice(1)));
+    if(!inside(assetRoot,entryFile))throw new Error('Maraca page entry crosses the asset root.');
+    const directory=path.dirname(entryFile),files={};
+    function collect(directory){
+      for(const child of fs.readdirSync(directory,{withFileTypes:true}).sort((a,b)=>a.name.localeCompare(b.name))){
+        const file=path.join(directory,child.name),real=fs.realpathSync(file);
+        if(!inside(assetRoot,real))throw new Error('Maraca artifact crosses the asset root.');
+        if(child.isDirectory())collect(file);
+        else if(/\.(?:m?js|css)$/u.test(child.name)||child.name==='xtend.maraca.services.json'){
+          const url='/'+path.relative(assetRoot,file).replace(/\\/gu,'/');files[url]=hash(fs.readFileSync(file));viteAssets.add(url);
+        }
+      }
+    }
+    collect(directory);
+    definition.maraca={...definition.maraca,files,integrity:'sha256-'+createHash('sha256').update(fs.readFileSync(entryFile)).digest('base64'),sourceFingerprint:sourceFiles.get(definition.source)};
+  }
   if (configuration.vite) {
     const vitePath = fs.realpathSync(path.resolve(root, configuration.vite.manifest || 'public/build/manifest.json'));
     if (!inside(root, vitePath)) throw new Error('Vite manifest is outside the project root.');
@@ -92,6 +113,15 @@ async function buildPages(options) {
   const runtimeFingerprints = {node:{},php:{}};
   for (const file of ['rmt-portable-render.js','rmt-state-selector-runtime.js','rmt-dom-descriptor-renderer.js','rmt-node-ssr-adapter.js','rmt-ssr-stream-host.js','node-page-host.mjs','page-contract.mjs','page-client.mjs','page-form.mjs']) runtimeFingerprints.node[file] = hash(fs.readFileSync(path.join(runtimeDirectory,file)));
   for (const file of ['rmt-portable-render.php','rmt-php-ssr-adapter.php','rmt-page-data.php']) runtimeFingerprints.php[file] = hash(fs.readFileSync(path.join(runtimeDirectory,file)));
+  if (host === 'laravel') {
+    runtimeFingerprints.php['rmt-php-app-service-adapter.php'] = hash(fs.readFileSync(path.join(runtimeDirectory,'rmt-php-app-service-adapter.php')));
+    for (const file of (Object.values(pages).some(page=>page.maraca) ? ['xscaler-preflight.php','xscaler-php-fragment-adapter.php'] : [])) {
+      const bundled = path.join(runtimeDirectory,'../xscaler',file);
+      const source = fs.existsSync(bundled) ? bundled : path.join(root,'vendor/ccslabs/xtend-laravel/runtime',file);
+      if (!fs.existsSync(source)) throw new Error('Maraca page builds require the packaged XScaler PHP runtime: ' + file);
+      runtimeFingerprints.php[file] = hash(fs.readFileSync(source));
+    }
+  }
   const base = { schema: 'xtend.page-manifest.v1', assets, assetFingerprints, runtimeFingerprints, configurationFingerprint:hash(fs.readFileSync(configPath)), pages, layouts, sources: Object.fromEntries([...sourceFiles].sort(([a],[b]) => a.localeCompare(b))), target };
   const manifest = { ...base, version: hash(JSON.stringify(base)) };
   let existingParent = path.dirname(output);

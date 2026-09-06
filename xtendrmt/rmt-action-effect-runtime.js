@@ -333,6 +333,15 @@ function createRmtActionEffectRuntimeModule() {
     };
     const code = clampString(error && error.code);
     if (code) normalized.code = code;
+    if (code === 'xtend.maraca.app-service.validation' && error.details && error.details.errors) {
+      const errors = {};
+      Object.entries(error.details.errors).forEach(([field, messages]) => {
+        if (field.split('.').some(part => ['__proto__', 'prototype', 'constructor'].includes(part))) return;
+        const values = Array.isArray(messages) ? messages : [messages];
+        if (values.every(value => typeof value === 'string')) errors[field] = values.slice(0, 10);
+      });
+      normalized.details = { errors, errorBag: clampString(error.details.errorBag, 'default') };
+    }
     return normalized;
   }
 

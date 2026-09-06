@@ -175,3 +175,15 @@ Run `node tests/ssr-pages/measure_resources.js .xtend-test-results/ssr-pages-res
 The Node test path requires no PHP. The additional `ssr-pages-php` suite checks shared render parity once per PHP/Laravel environment. Assign `router.pageClient = client` before attaching an existing `x-router`, and call `client.start()`; the page runtime then owns links and history.
 
 Optional transitions use a host callback: `createPageClient({ initialPage, transition: async update => { if (document.startViewTransition) await document.startViewTransition(update).updateCallbackDone; else await update(); } })`. A visit opts in with `{ transition: true }`. Without a host callback, or with reduced motion, the page uses its regular update.
+
+## Maraca pages and XTend.store
+
+`createMaracaPageClient()` from `@ccslabs/xtend/maraca/page-client` connects the page client to a Maraca bundle. Each page or layout manifest may declare `maraca: { entry: "/build/maraca/xtend.maraca.mjs" }`. The bundle and portable projection use the same compiler facts; `createRmtCompilationSession()` shares analysis within a build. Configuration and referenced assets contribute to the build version.
+
+The page runtime owns URL, history and transport; Maraca owns UI state and DOM commits. Each root has one controller, and unchanged shells survive navigation. Superseded activations are discarded and navigation releases remote surfaces. The generated entry uses `startMaracaPageApplication()` from `@ccslabs/xtend/maraca/page-bootstrap`: capture is installed before loading the composition, P-256 signatures use the public build key, and rejected integrity checks use the existing single hydration fallback.
+
+The shared head contract also accepts canonical links (`tag: "link"`, `rel: "canonical"`, HTTP(S) URL) and identified JSON-LD records (`tag: "json-ld"`, `key`, `data`). Node, PHP and browser consumers deduplicate by identity. Script content is serialized safely; event attributes and executable canonical URLs are rejected.
+
+[XTend.store](../../products/xtend-shop/README.en.md) demonstrates this integration with Laravel, a guest cart and a separate PHP DemoPay provider. The Node SSR adapter and `createNodePageHost()` remain independent integration APIs. The store is an additional reference application.
+
+Maraca pages also route native GET search and filter forms through page navigation. The base page API enables this with `forms: true`; `navigationAction` can close declared RMT surfaces before a visit. POST forms retain their host or RMT contract.

@@ -1,4 +1,4 @@
-import { validatePageResponse, mergePageProps, safePageJson, pageError, composePageDescriptor, assertKey } from './page-contract.mjs';
+import { validatePageResponse, mergePageProps, safePageJson, pageError, composePageDescriptor, assertKey, mergePageHead } from './page-contract.mjs';
 import { createRmtDomDescriptorRenderer } from './rmt-dom-descriptor-renderer.js';
 import { projectPortableRender } from './rmt-portable-render.js';
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -49,17 +49,17 @@ export function createPageClient(options) {
   function head(records) {
     if (!doc) return;
     doc.head.querySelectorAll('[data-xtend-page-head]').forEach(node => node.remove());
-    for (const record of records || []) {
+    for (const record of mergePageHead([], records || [])) {
       if (record.tag === 'title') { doc.title = record.text || ''; continue; }
-      if (record.tag !== 'meta') continue;
-      const node = doc.createElement('meta'); node.setAttribute('data-xtend-page-head', '');
-      for (const [key, value] of Object.entries(record.attributes || {})) if (['name', 'property', 'content', 'charset'].includes(key)) node.setAttribute(key, String(value));
+      const node = doc.createElement(record.tag === 'json-ld' ? 'script' : record.tag); node.setAttribute('data-xtend-page-head', '');
+      if (record.tag === 'json-ld') { node.type = 'application/ld+json'; node.textContent = safePageJson(record.data); }
+      else for (const [key, value] of Object.entries(record.attributes || {})) node.setAttribute(key, String(value));
       doc.head.appendChild(node);
     }
   }
-  async function render(next, previous) {
+  async function render(next, previous, isCurrent = () => !disposed) {
     const sameContext = previous?.contextKey === next.contextKey && previous?.version === next.version;
-    if (options.render) await options.render(next, { previous, preserveLayout: sameContext && previous?.layout === next.layout });
+    if (options.render) await options.render(next, { previous, preserveLayout: sameContext && previous?.layout === next.layout, isCurrent });
     else if (renderer && root) {
       const projected = next.renderArtifact ? projectPortableRender(next.renderArtifact, next.props) : { descriptor: next.ssr?.chunk?.markup?.descriptor, model: next.props };
       const outlet = sameContext && previous?.layout && previous.layout === next.layout && root.querySelector('[data-xtend-page-slot]');
@@ -69,7 +69,7 @@ export function createPageClient(options) {
         else renderer.commit({operation:'replace-children',target:root,descriptor,context:{model:projected.model}});
       }
     }
-    head(next.head);
+    if (isCurrent()) head(next.head);
   }
   function commit(next, settings = {}) {
     const expected = settings.generation ?? generation;
@@ -96,7 +96,7 @@ export function createPageClient(options) {
     next = { ...next, props: { ...retained, ...next.props } };
     if (next.partial && (next.page !== previous.page || next.url !== previous.url)) throw pageError('page.partial_target', 'Partial data belongs to a different page.');
     if (next.partial) next = { ...previous, ...next, props: mergePageProps(previous.props, next.props, next.merge), renderArtifact: next.renderArtifact || previous.renderArtifact, ssr: next.ssr || previous.ssr };
-    const apply = async () => { await render(next, previous); if (disposed || expected !== generation) return; page = next; revision++; if (previous.page !== next.page || previous.url !== next.url || previous.contextKey !== next.contextKey || previous.version !== next.version) release(); if (previous.layout !== next.layout || previous.contextKey !== next.contextKey || previous.version !== next.version) release(layoutResources); };
+    const apply = async () => { await render(next, previous, () => !disposed && expected === generation); if (disposed || expected !== generation) return; page = next; revision++; if (previous.page !== next.page || previous.url !== next.url || previous.contextKey !== next.contextKey || previous.version !== next.version) release(); if (previous.layout !== next.layout || previous.contextKey !== next.contextKey || previous.version !== next.version) release(layoutResources); };
     if (settings.transition && options.transition && !win?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) await options.transition(apply);
     else await apply();
     if (disposed || expected !== generation) return null;
@@ -170,6 +170,7 @@ export function createPageClient(options) {
     const target = absolute(url);
     if (target.origin !== origin) { win?.location.assign(target.href); return null; }
     active?.abort(); const controller = active = new AbortController(); const current = ++generation;
+    emit('pending', {url:target.href});
     const saved = page;
     if (!settings.fromHistory) await saveHistory(true);
     if (settings.instant && options.pages?.[settings.instant]) {
@@ -178,7 +179,6 @@ export function createPageClient(options) {
       });
       commits = staged; await staged;
       if (disposed || current !== generation) return null;
-      emit('pending');
     }
     try {
       const key = `${scope()}:${target.href}`, cached = cache.get(key);
@@ -248,8 +248,22 @@ export function createPageClient(options) {
     if (target.pathname === win.location.pathname && target.search === win.location.search && target.hash) return;
     event.preventDefault(); visit(target.href).catch(() => {});
   };
+  const submit = event => {
+    const form = event.target, button = event.submitter;
+    if (event.defaultPrevented || form?.tagName !== 'FORM' || form.hasAttribute('data-xtend-native')) return;
+    const method = button?.getAttribute('formmethod') || form.getAttribute('method') || 'get';
+    const browsingTarget = button?.getAttribute('formtarget') || form.target;
+    if (method.toLowerCase() !== 'get' || browsingTarget && browsingTarget !== '_self') return;
+    const target = new URL(button?.getAttribute('formaction') || form.action, origin);
+    if (target.origin !== origin || !['http:', 'https:'].includes(target.protocol)) return;
+    const entries = [...new win.FormData(form, button || undefined)];
+    if (entries.some(([,value])=>typeof value !== 'string')) return;
+    target.search = new URLSearchParams(entries).toString();
+    event.preventDefault(); visit(target.href).catch(() => {});
+  };
   win?.addEventListener('popstate', popstate);
   if (options.links !== false) doc?.addEventListener('click', click);
+  if (options.forms === true) doc?.addEventListener('submit', submit);
   const api = {
     get page() { return page; }, visit, reload, request, commit, prefetch, invalidate, download,
     subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); },
@@ -265,7 +279,10 @@ export function createPageClient(options) {
     async loadMore(direction = 'next') { const url = page.pagination?.[direction]; if (!url) return null; const current = generation; const next = await request(url, { only: page.pagination.props }); if (current !== generation) return null; if (next.kind !== 'page' || next.page !== page.page || next.contextKey !== page.contextKey || next.version !== page.version) return visit(url); const result = await commit({...page, ...next, partial:false, props:mergePageProps(page.props, next.props, next.merge), renderArtifact:next.renderArtifact || page.renderArtifact, ssr:next.ssr || page.ssr}, {generation:current}); if (result) await saveHistory(true, result.url); return result; },
     async optimistic(update, mutation) { const before = page, applied = { ...page, props: update(clone(page.props)) }; if (!await commit(applied)) return null; const token = revision; try { const result = await mutation(); if (result?.schema && revision === token) await commit(result); return result; } catch (error) { if (revision === token) await commit(before); throw error; } },
     async start() {
-      if (page.ssr?.executionMode === 'server_prerender_resume') {
+      if (options.activateInitial) {
+        const result = await options.activateInitial(page);
+        head(page.head); if (result?.resume) emit('resume', {result: result.resume});
+      } else if (page.ssr?.executionMode === 'server_prerender_resume') {
         const {resumeResponse} = await import('./rmt-resume-runtime.js');
         const result = await resumeResponse(page.ssr, {}, {...options.resume,root,windowTarget:win,hydrateResponse:async()=>{await render(page,page);return {ok:true};}});
         if (!result.ok) throw pageError('page.resume_rejected','The initial page could neither resume nor hydrate.');
@@ -273,7 +290,7 @@ export function createPageClient(options) {
       } else await render(page, page);
       await saveHistory(true); await Promise.all(Object.keys(page.deferred || {}).map(group => reload({deferred:[group]}).catch(error => emit('data-error', {group,error})))); return page;
     },
-    dispose() { disposed = true; generation++; active?.abort(); for (const controller of controllers) controller.abort(); release(); release(layoutResources); listeners.clear(); cache.clear(); win?.removeEventListener('popstate', popstate); doc?.removeEventListener('click', click); if (options.router?.pageClient === api) options.router.pageClient = null; }
+    dispose() { disposed = true; generation++; active?.abort(); for (const controller of controllers) controller.abort(); release(); release(layoutResources); listeners.clear(); cache.clear(); win?.removeEventListener('popstate', popstate); doc?.removeEventListener('click', click); doc?.removeEventListener('submit', submit); if (options.router?.pageClient === api) options.router.pageClient = null; }
   };
   if (options.router) options.router.pageClient = api;
   return api;

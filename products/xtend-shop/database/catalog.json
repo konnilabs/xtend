@@ -1,0 +1,1118 @@
+[
+  {
+    "id": "tec-01",
+    "slug": "nova-studio-kopfhoerer",
+    "name": "NOVA Studio Kopfhörer",
+    "category": "technik",
+    "description": "NOVA Studio Kopfhörer: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Technik-Kollektion.",
+    "rating": "4,2",
+    "reviews": 43,
+    "badge": "Liebling der Woche",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "TEC-01-1",
+        "label": "Salbei",
+        "price": 8900,
+        "stock": 4,
+        "image": "/images/tec-01-1.svg"
+      },
+      {
+        "sku": "TEC-01-2",
+        "label": "Graphit",
+        "price": 9100,
+        "stock": 7,
+        "image": "/images/tec-01-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "tec-02",
+    "slug": "pico-mini-lautsprecher",
+    "name": "PICO Mini Lautsprecher",
+    "category": "technik",
+    "description": "PICO Mini Lautsprecher: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Technik-Kollektion.",
+    "rating": "4,3",
+    "reviews": 72,
+    "badge": "Neu entdeckt",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "TEC-02-1",
+        "label": "Salbei",
+        "price": 3900,
+        "stock": 11,
+        "image": "/images/tec-02-1.svg"
+      },
+      {
+        "sku": "TEC-02-2",
+        "label": "Graphit",
+        "price": 4100,
+        "stock": 14,
+        "image": "/images/tec-02-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "tec-03",
+    "slug": "luma-leselicht",
+    "name": "LUMA Leselicht",
+    "category": "technik",
+    "description": "LUMA Leselicht: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Technik-Kollektion.",
+    "rating": "4,4",
+    "reviews": 101,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "TEC-03-1",
+        "label": "Salbei",
+        "price": 2490,
+        "stock": 18,
+        "image": "/images/tec-03-1.svg"
+      },
+      {
+        "sku": "TEC-03-2",
+        "label": "Graphit",
+        "price": 2690,
+        "stock": 21,
+        "image": "/images/tec-03-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "tec-04",
+    "slug": "orbit-schnellladegeraet",
+    "name": "ORBIT Schnellladegerät",
+    "category": "technik",
+    "description": "ORBIT Schnellladegerät: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Technik-Kollektion.",
+    "rating": "4,5",
+    "reviews": 130,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "TEC-04-1",
+        "label": "Salbei",
+        "price": 2990,
+        "stock": 25,
+        "image": "/images/tec-04-1.svg"
+      },
+      {
+        "sku": "TEC-04-2",
+        "label": "Graphit",
+        "price": 3190,
+        "stock": 28,
+        "image": "/images/tec-04-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "tec-05",
+    "slug": "frame-digitaler-bilderrahmen",
+    "name": "FRAME Digitaler Bilderrahmen",
+    "category": "technik",
+    "description": "FRAME Digitaler Bilderrahmen: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Technik-Kollektion.",
+    "rating": "4,6",
+    "reviews": 159,
+    "badge": "Liebling der Woche",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "TEC-05-1",
+        "label": "Salbei",
+        "price": 12900,
+        "stock": 32,
+        "image": "/images/tec-05-1.svg"
+      },
+      {
+        "sku": "TEC-05-2",
+        "label": "Graphit",
+        "price": 13100,
+        "stock": 35,
+        "image": "/images/tec-05-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "tec-06",
+    "slug": "pulse-fitnessuhr",
+    "name": "PULSE Fitnessuhr",
+    "category": "technik",
+    "description": "PULSE Fitnessuhr: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Technik-Kollektion.",
+    "rating": "4,7",
+    "reviews": 188,
+    "badge": "Neu entdeckt",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "TEC-06-1",
+        "label": "Salbei",
+        "price": 7900,
+        "stock": 4,
+        "image": "/images/tec-06-1.svg"
+      },
+      {
+        "sku": "TEC-06-2",
+        "label": "Graphit",
+        "price": 8100,
+        "stock": 7,
+        "image": "/images/tec-06-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "tec-07",
+    "slug": "link-usb-c-hub",
+    "name": "LINK USB-C Hub",
+    "category": "technik",
+    "description": "LINK USB-C Hub: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Technik-Kollektion.",
+    "rating": "4,8",
+    "reviews": 217,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "TEC-07-1",
+        "label": "Salbei",
+        "price": 4490,
+        "stock": 11,
+        "image": "/images/tec-07-1.svg"
+      },
+      {
+        "sku": "TEC-07-2",
+        "label": "Graphit",
+        "price": 4690,
+        "stock": 14,
+        "image": "/images/tec-07-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "tec-08",
+    "slug": "echo-tischradio",
+    "name": "ECHO Tischradio",
+    "category": "technik",
+    "description": "ECHO Tischradio: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Technik-Kollektion.",
+    "rating": "4,9",
+    "reviews": 246,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "TEC-08-1",
+        "label": "Salbei",
+        "price": 6900,
+        "stock": 18,
+        "image": "/images/tec-08-1.svg"
+      },
+      {
+        "sku": "TEC-08-2",
+        "label": "Graphit",
+        "price": 7100,
+        "stock": 21,
+        "image": "/images/tec-08-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "tec-09",
+    "slug": "focus-webkamera",
+    "name": "FOCUS Webkamera",
+    "category": "technik",
+    "description": "FOCUS Webkamera: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Technik-Kollektion.",
+    "rating": "4,2",
+    "reviews": 275,
+    "badge": "Liebling der Woche",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "TEC-09-1",
+        "label": "Salbei",
+        "price": 5990,
+        "stock": 25,
+        "image": "/images/tec-09-1.svg"
+      },
+      {
+        "sku": "TEC-09-2",
+        "label": "Graphit",
+        "price": 6190,
+        "stock": 28,
+        "image": "/images/tec-09-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "tec-10",
+    "slug": "tap-kabellose-maus",
+    "name": "TAP Kabellose Maus",
+    "category": "technik",
+    "description": "TAP Kabellose Maus: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Technik-Kollektion.",
+    "rating": "4,3",
+    "reviews": 304,
+    "badge": "Neu entdeckt",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "TEC-10-1",
+        "label": "Salbei",
+        "price": 2490,
+        "stock": 32,
+        "image": "/images/tec-10-1.svg"
+      },
+      {
+        "sku": "TEC-10-2",
+        "label": "Graphit",
+        "price": 2690,
+        "stock": 35,
+        "image": "/images/tec-10-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "tec-11",
+    "slug": "pocket-powerbank",
+    "name": "POCKET Powerbank",
+    "category": "technik",
+    "description": "POCKET Powerbank: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Technik-Kollektion.",
+    "rating": "4,4",
+    "reviews": 333,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "TEC-11-1",
+        "label": "Salbei",
+        "price": 3490,
+        "stock": 0,
+        "image": "/images/tec-11-1.svg"
+      },
+      {
+        "sku": "TEC-11-2",
+        "label": "Graphit",
+        "price": 3690,
+        "stock": 7,
+        "image": "/images/tec-11-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "tec-12",
+    "slug": "wave-ohrhoerer",
+    "name": "WAVE Ohrhörer",
+    "category": "technik",
+    "description": "WAVE Ohrhörer: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Technik-Kollektion.",
+    "rating": "4,5",
+    "reviews": 362,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "TEC-12-1",
+        "label": "Salbei",
+        "price": 5490,
+        "stock": 11,
+        "image": "/images/tec-12-1.svg"
+      },
+      {
+        "sku": "TEC-12-2",
+        "label": "Graphit",
+        "price": 5690,
+        "stock": 14,
+        "image": "/images/tec-12-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "arb-01",
+    "slug": "form-schreibtischleuchte",
+    "name": "FORM Schreibtischleuchte",
+    "category": "arbeitsplatz",
+    "description": "FORM Schreibtischleuchte: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Arbeitsplatz-Kollektion.",
+    "rating": "4,2",
+    "reviews": 43,
+    "badge": "Liebling der Woche",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "ARB-01-1",
+        "label": "Salbei",
+        "price": 4900,
+        "stock": 4,
+        "image": "/images/arb-01-1.svg"
+      },
+      {
+        "sku": "ARB-01-2",
+        "label": "Graphit",
+        "price": 5100,
+        "stock": 7,
+        "image": "/images/arb-01-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "arb-02",
+    "slug": "type-mechanische-tastatur",
+    "name": "TYPE Mechanische Tastatur",
+    "category": "arbeitsplatz",
+    "description": "TYPE Mechanische Tastatur: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Arbeitsplatz-Kollektion.",
+    "rating": "4,3",
+    "reviews": 72,
+    "badge": "Neu entdeckt",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "ARB-02-1",
+        "label": "Salbei",
+        "price": 9900,
+        "stock": 11,
+        "image": "/images/arb-02-1.svg"
+      },
+      {
+        "sku": "ARB-02-2",
+        "label": "Graphit",
+        "price": 10100,
+        "stock": 14,
+        "image": "/images/arb-02-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "arb-03",
+    "slug": "rise-laptopstaender",
+    "name": "RISE Laptopständer",
+    "category": "arbeitsplatz",
+    "description": "RISE Laptopständer: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Arbeitsplatz-Kollektion.",
+    "rating": "4,4",
+    "reviews": 101,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "ARB-03-1",
+        "label": "Salbei",
+        "price": 3990,
+        "stock": 18,
+        "image": "/images/arb-03-1.svg"
+      },
+      {
+        "sku": "ARB-03-2",
+        "label": "Graphit",
+        "price": 4190,
+        "stock": 21,
+        "image": "/images/arb-03-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "arb-04",
+    "slug": "flow-buerostuhl",
+    "name": "FLOW Bürostuhl",
+    "category": "arbeitsplatz",
+    "description": "FLOW Bürostuhl: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Arbeitsplatz-Kollektion.",
+    "rating": "4,5",
+    "reviews": 130,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "ARB-04-1",
+        "label": "Salbei",
+        "price": 18900,
+        "stock": 25,
+        "image": "/images/arb-04-1.svg"
+      },
+      {
+        "sku": "ARB-04-2",
+        "label": "Graphit",
+        "price": 19100,
+        "stock": 28,
+        "image": "/images/arb-04-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "arb-05",
+    "slug": "grid-schreibtischmatte",
+    "name": "GRID Schreibtischmatte",
+    "category": "arbeitsplatz",
+    "description": "GRID Schreibtischmatte: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Arbeitsplatz-Kollektion.",
+    "rating": "4,6",
+    "reviews": 159,
+    "badge": "Liebling der Woche",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "ARB-05-1",
+        "label": "Salbei",
+        "price": 1990,
+        "stock": 32,
+        "image": "/images/arb-05-1.svg"
+      },
+      {
+        "sku": "ARB-05-2",
+        "label": "Graphit",
+        "price": 2190,
+        "stock": 35,
+        "image": "/images/arb-05-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "arb-06",
+    "slug": "stack-schreibtisch-organizer",
+    "name": "STACK Schreibtisch-Organizer",
+    "category": "arbeitsplatz",
+    "description": "STACK Schreibtisch-Organizer: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Arbeitsplatz-Kollektion.",
+    "rating": "4,7",
+    "reviews": 188,
+    "badge": "Neu entdeckt",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "ARB-06-1",
+        "label": "Salbei",
+        "price": 2490,
+        "stock": 4,
+        "image": "/images/arb-06-1.svg"
+      },
+      {
+        "sku": "ARB-06-2",
+        "label": "Graphit",
+        "price": 2690,
+        "stock": 7,
+        "image": "/images/arb-06-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "arb-07",
+    "slug": "clear-notizbuch-set",
+    "name": "CLEAR Notizbuch-Set",
+    "category": "arbeitsplatz",
+    "description": "CLEAR Notizbuch-Set: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Arbeitsplatz-Kollektion.",
+    "rating": "4,8",
+    "reviews": 217,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "ARB-07-1",
+        "label": "Salbei",
+        "price": 1490,
+        "stock": 11,
+        "image": "/images/arb-07-1.svg"
+      },
+      {
+        "sku": "ARB-07-2",
+        "label": "Graphit",
+        "price": 1690,
+        "stock": 14,
+        "image": "/images/arb-07-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "arb-08",
+    "slug": "arc-monitorstaender",
+    "name": "ARC Monitorständer",
+    "category": "arbeitsplatz",
+    "description": "ARC Monitorständer: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Arbeitsplatz-Kollektion.",
+    "rating": "4,9",
+    "reviews": 246,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "ARB-08-1",
+        "label": "Salbei",
+        "price": 4490,
+        "stock": 18,
+        "image": "/images/arb-08-1.svg"
+      },
+      {
+        "sku": "ARB-08-2",
+        "label": "Graphit",
+        "price": 4690,
+        "stock": 21,
+        "image": "/images/arb-08-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "arb-09",
+    "slug": "sip-thermobecher",
+    "name": "SIP Thermobecher",
+    "category": "arbeitsplatz",
+    "description": "SIP Thermobecher: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Arbeitsplatz-Kollektion.",
+    "rating": "4,2",
+    "reviews": 275,
+    "badge": "Liebling der Woche",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "ARB-09-1",
+        "label": "Salbei",
+        "price": 2290,
+        "stock": 25,
+        "image": "/images/arb-09-1.svg"
+      },
+      {
+        "sku": "ARB-09-2",
+        "label": "Graphit",
+        "price": 2490,
+        "stock": 28,
+        "image": "/images/arb-09-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "arb-10",
+    "slug": "calm-akustikpanel",
+    "name": "CALM Akustikpanel",
+    "category": "arbeitsplatz",
+    "description": "CALM Akustikpanel: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Arbeitsplatz-Kollektion.",
+    "rating": "4,3",
+    "reviews": 304,
+    "badge": "Neu entdeckt",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "ARB-10-1",
+        "label": "Salbei",
+        "price": 5990,
+        "stock": 32,
+        "image": "/images/arb-10-1.svg"
+      },
+      {
+        "sku": "ARB-10-2",
+        "label": "Graphit",
+        "price": 6190,
+        "stock": 35,
+        "image": "/images/arb-10-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "arb-11",
+    "slug": "line-schreibtisch",
+    "name": "LINE Schreibtisch",
+    "category": "arbeitsplatz",
+    "description": "LINE Schreibtisch: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Arbeitsplatz-Kollektion.",
+    "rating": "4,4",
+    "reviews": 333,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "ARB-11-1",
+        "label": "Salbei",
+        "price": 22900,
+        "stock": 0,
+        "image": "/images/arb-11-1.svg"
+      },
+      {
+        "sku": "ARB-11-2",
+        "label": "Graphit",
+        "price": 23100,
+        "stock": 7,
+        "image": "/images/arb-11-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "arb-12",
+    "slug": "move-fußstuetze",
+    "name": "MOVE Fußstütze",
+    "category": "arbeitsplatz",
+    "description": "MOVE Fußstütze: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Arbeitsplatz-Kollektion.",
+    "rating": "4,5",
+    "reviews": 362,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "ARB-12-1",
+        "label": "Salbei",
+        "price": 3490,
+        "stock": 11,
+        "image": "/images/arb-12-1.svg"
+      },
+      {
+        "sku": "ARB-12-2",
+        "label": "Graphit",
+        "price": 3690,
+        "stock": 14,
+        "image": "/images/arb-12-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "woh-01",
+    "slug": "soft-wohndecke",
+    "name": "SOFT Wohndecke",
+    "category": "wohnen",
+    "description": "SOFT Wohndecke: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Wohnen-Kollektion.",
+    "rating": "4,2",
+    "reviews": 43,
+    "badge": "Liebling der Woche",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "WOH-01-1",
+        "label": "Salbei",
+        "price": 3990,
+        "stock": 4,
+        "image": "/images/woh-01-1.svg"
+      },
+      {
+        "sku": "WOH-01-2",
+        "label": "Graphit",
+        "price": 4190,
+        "stock": 7,
+        "image": "/images/woh-01-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "woh-02",
+    "slug": "glow-tischleuchte",
+    "name": "GLOW Tischleuchte",
+    "category": "wohnen",
+    "description": "GLOW Tischleuchte: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Wohnen-Kollektion.",
+    "rating": "4,3",
+    "reviews": 72,
+    "badge": "Neu entdeckt",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "WOH-02-1",
+        "label": "Salbei",
+        "price": 5900,
+        "stock": 11,
+        "image": "/images/woh-02-1.svg"
+      },
+      {
+        "sku": "WOH-02-2",
+        "label": "Graphit",
+        "price": 6100,
+        "stock": 14,
+        "image": "/images/woh-02-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "woh-03",
+    "slug": "nest-kissen-set",
+    "name": "NEST Kissen-Set",
+    "category": "wohnen",
+    "description": "NEST Kissen-Set: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Wohnen-Kollektion.",
+    "rating": "4,4",
+    "reviews": 101,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "WOH-03-1",
+        "label": "Salbei",
+        "price": 2990,
+        "stock": 18,
+        "image": "/images/woh-03-1.svg"
+      },
+      {
+        "sku": "WOH-03-2",
+        "label": "Graphit",
+        "price": 3190,
+        "stock": 21,
+        "image": "/images/woh-03-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "woh-04",
+    "slug": "terra-keramikvase",
+    "name": "TERRA Keramikvase",
+    "category": "wohnen",
+    "description": "TERRA Keramikvase: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Wohnen-Kollektion.",
+    "rating": "4,5",
+    "reviews": 130,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "WOH-04-1",
+        "label": "Salbei",
+        "price": 2490,
+        "stock": 25,
+        "image": "/images/woh-04-1.svg"
+      },
+      {
+        "sku": "WOH-04-2",
+        "label": "Graphit",
+        "price": 2690,
+        "stock": 28,
+        "image": "/images/woh-04-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "woh-05",
+    "slug": "brew-kaffeebereiter",
+    "name": "BREW Kaffeebereiter",
+    "category": "wohnen",
+    "description": "BREW Kaffeebereiter: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Wohnen-Kollektion.",
+    "rating": "4,6",
+    "reviews": 159,
+    "badge": "Liebling der Woche",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "WOH-05-1",
+        "label": "Salbei",
+        "price": 3490,
+        "stock": 32,
+        "image": "/images/woh-05-1.svg"
+      },
+      {
+        "sku": "WOH-05-2",
+        "label": "Graphit",
+        "price": 3690,
+        "stock": 35,
+        "image": "/images/woh-05-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "woh-06",
+    "slug": "leaf-pflanzentopf",
+    "name": "LEAF Pflanzentopf",
+    "category": "wohnen",
+    "description": "LEAF Pflanzentopf: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Wohnen-Kollektion.",
+    "rating": "4,7",
+    "reviews": 188,
+    "badge": "Neu entdeckt",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "WOH-06-1",
+        "label": "Salbei",
+        "price": 1990,
+        "stock": 4,
+        "image": "/images/woh-06-1.svg"
+      },
+      {
+        "sku": "WOH-06-2",
+        "label": "Graphit",
+        "price": 2190,
+        "stock": 7,
+        "image": "/images/woh-06-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "woh-07",
+    "slug": "round-beistelltisch",
+    "name": "ROUND Beistelltisch",
+    "category": "wohnen",
+    "description": "ROUND Beistelltisch: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Wohnen-Kollektion.",
+    "rating": "4,8",
+    "reviews": 217,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "WOH-07-1",
+        "label": "Salbei",
+        "price": 6900,
+        "stock": 11,
+        "image": "/images/woh-07-1.svg"
+      },
+      {
+        "sku": "WOH-07-2",
+        "label": "Graphit",
+        "price": 7100,
+        "stock": 14,
+        "image": "/images/woh-07-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "woh-08",
+    "slug": "pure-handtuch-set",
+    "name": "PURE Handtuch-Set",
+    "category": "wohnen",
+    "description": "PURE Handtuch-Set: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Wohnen-Kollektion.",
+    "rating": "4,9",
+    "reviews": 246,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "WOH-08-1",
+        "label": "Salbei",
+        "price": 3290,
+        "stock": 18,
+        "image": "/images/woh-08-1.svg"
+      },
+      {
+        "sku": "WOH-08-2",
+        "label": "Graphit",
+        "price": 3490,
+        "stock": 21,
+        "image": "/images/woh-08-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "woh-09",
+    "slug": "dawn-wanduhr",
+    "name": "DAWN Wanduhr",
+    "category": "wohnen",
+    "description": "DAWN Wanduhr: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Wohnen-Kollektion.",
+    "rating": "4,2",
+    "reviews": 275,
+    "badge": "Liebling der Woche",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "WOH-09-1",
+        "label": "Salbei",
+        "price": 2790,
+        "stock": 25,
+        "image": "/images/woh-09-1.svg"
+      },
+      {
+        "sku": "WOH-09-2",
+        "label": "Graphit",
+        "price": 2990,
+        "stock": 28,
+        "image": "/images/woh-09-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "woh-10",
+    "slug": "shelf-wandregal",
+    "name": "SHELF Wandregal",
+    "category": "wohnen",
+    "description": "SHELF Wandregal: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Wohnen-Kollektion.",
+    "rating": "4,3",
+    "reviews": 304,
+    "badge": "Neu entdeckt",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "WOH-10-1",
+        "label": "Salbei",
+        "price": 4490,
+        "stock": 32,
+        "image": "/images/woh-10-1.svg"
+      },
+      {
+        "sku": "WOH-10-2",
+        "label": "Graphit",
+        "price": 4690,
+        "stock": 35,
+        "image": "/images/woh-10-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "woh-11",
+    "slug": "mist-duftdiffusor",
+    "name": "MIST Duftdiffusor",
+    "category": "wohnen",
+    "description": "MIST Duftdiffusor: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Wohnen-Kollektion.",
+    "rating": "4,4",
+    "reviews": 333,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "WOH-11-1",
+        "label": "Salbei",
+        "price": 2990,
+        "stock": 0,
+        "image": "/images/woh-11-1.svg"
+      },
+      {
+        "sku": "WOH-11-2",
+        "label": "Graphit",
+        "price": 3190,
+        "stock": 7,
+        "image": "/images/woh-11-2.svg"
+      }
+    ]
+  },
+  {
+    "id": "woh-12",
+    "slug": "dine-geschirr-set",
+    "name": "DINE Geschirr-Set",
+    "category": "wohnen",
+    "description": "DINE Geschirr-Set: durchdachte Details, zeitloses Design und ein bisschen mehr Freude im Alltag. Ein fiktives Produkt aus unserer Wohnen-Kollektion.",
+    "rating": "4,5",
+    "reviews": 362,
+    "badge": "",
+    "features": [
+      "Sorgfältig gestaltete Materialien",
+      "Zwei Farben für deinen Stil",
+      "30 Tage Demo-Rückgaberecht"
+    ],
+    "variants": [
+      {
+        "sku": "WOH-12-1",
+        "label": "Salbei",
+        "price": 7990,
+        "stock": 11,
+        "image": "/images/woh-12-1.svg"
+      },
+      {
+        "sku": "WOH-12-2",
+        "label": "Graphit",
+        "price": 8190,
+        "stock": 14,
+        "image": "/images/woh-12-2.svg"
+      }
+    ]
+  }
+]

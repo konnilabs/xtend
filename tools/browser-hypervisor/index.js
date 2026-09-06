@@ -337,8 +337,20 @@ async function runFixture(options = {}) {
       });
     }
     const fixtureUrl = options.url || pathToFileURL(path.resolve(options.rootDir || process.cwd(), options.fixturePath)).href;
+    if (options.preloadScript) {
+      if (engine !== 'chromium') throw new Error('Document preload scripts currently require Chromium.');
+      await requestJson(endpoint, 'POST', `/session/${sessionId}/goog/cdp/execute`, {
+        cmd: 'Page.addScriptToEvaluateOnNewDocument', params: {source: options.preloadScript}
+      });
+    }
     await requestJson(endpoint, 'POST', `/session/${sessionId}/url`, { url: fixtureUrl });
     for (const step of Array.isArray(options.scripts) ? options.scripts : []) {
+      if (typeof step.waitFor === 'string') {
+        while (!await executeScript(endpoint, sessionId, `return Boolean(${step.waitFor});`)) {
+          if (Date.now() >= deadline) throw new Error('Browser step condition exceeded the fixture deadline.');
+          await wait(50);
+        }
+      }
       await executeScript(endpoint, sessionId, step.script, step.args || []);
     }
     await performActions(endpoint, sessionId, options.actions);

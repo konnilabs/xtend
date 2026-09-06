@@ -8,11 +8,23 @@ export function pagePagination({next = null, previous = null, props}) {
 export function mergePageHead(layout = [], page = []) {
   const records = new Map();
   for (const record of [...layout, ...page]) {
-    const key = record.tag === 'title' ? 'title' : record.tag === 'meta' ? `meta:${record.attributes?.name || record.attributes?.property || record.attributes?.charset || ''}` : '';
+    const key = headRecordKey(record);
     if (!key || key === 'meta:') throw pageError('page.invalid_head', 'Head entries require a title or an identified meta tag.');
     records.set(key, record);
   }
   return [...records.values()];
+}
+export function headRecordKey(record) {
+  if (record?.tag === 'title') return 'title';
+  if (record?.tag === 'meta') {
+    if (Object.keys(record.attributes || {}).some(key => !['name','property','content','charset'].includes(key))) throw pageError('page.invalid_head','Unsafe meta attribute.');
+    return `meta:${record.attributes?.name || record.attributes?.property || record.attributes?.charset || ''}`;
+  }
+  if (record?.tag === 'link' && record.attributes?.rel === 'canonical' && typeof record.attributes.href === 'string' && /^https?:\/\//iu.test(record.attributes.href) && Object.keys(record.attributes).every(key => ['rel','href'].includes(key))) return 'link:canonical';
+  if (record?.tag === 'json-ld' && typeof record.key === 'string' && record.key && record.data && typeof record.data === 'object') {
+    assertKey(record.key); safePageJson(record.data); return `json-ld:${record.key}`;
+  }
+  throw pageError('page.invalid_head','Unsupported page head record.');
 }
 export function composePageDescriptor(layout, page) {
   if (!layout) return page;

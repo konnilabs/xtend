@@ -140,6 +140,19 @@ function linkRepository(index, analyses, edge, fileId) {
     }
     for (const file of files.filter(file => /\.json$/.test(file.path))) {
       let configuration; try { configuration = JSON.parse(file.text); } catch { continue; }
+      if (configuration.schema === 'xtend.maraca.build-config.v1') {
+        const project = path.dirname(path.resolve(rootDir, file.path));
+        const options = configuration.options || {};
+        const output = path.resolve(project, options.out || 'dist/maraca', 'xtend.maraca.mjs');
+        for (const [role, input] of Object.entries({source:options.source, 'browser-service':options.services?.clientEntry, 'php-service':options.services?.phpEntry})) {
+          if (typeof input !== 'string') continue;
+          const source = path.resolve(project, input);
+          if (!inside(project, source) || !inside(project, output)) { index.coverage.push({path:file.path,provider:'maraca-manifest',code:'maraca-boundary-violation',detail:role}); continue; }
+          edge(file.id, fileId(source), 'file-input', provenance('maraca-manifest', file.path), {role});
+          edge(fileId(output), fileId(source), 'generated-from', provenance('maraca-manifest', file.path), {role});
+        }
+        if (inside(project, output)) edge(fileId(output), file.id, 'generated-from', provenance('maraca-manifest', file.path));
+      }
       if (!/(?:^|\/)xtend\.pages\.json$/.test(file.path) && configuration.schema !== 'xtend.page-build.v1') continue;
       const project = packages.find(pkg => file.projectId === `project:${pathToFileURL(pkg.directory).href}`)?.directory || rootDir;
       const target = configuration.target || 'both';
@@ -152,6 +165,14 @@ function linkRepository(index, analyses, edge, fileId) {
         edge(file.id, fileId(source), 'file-input', provenance('page-manifest', file.path), fields);
         edge(fileId(output), fileId(source), 'generated-from', provenance('page-manifest', file.path), fields);
         edge(fileId(output), file.id, 'generated-from', provenance('page-manifest', file.path), fields);
+        if (typeof page.maraca?.entry === 'string') {
+          // Same-origin public URL paths map to the host's public asset directory.
+          const entry = page.maraca.entry;
+          if (entry.startsWith('/') && !entry.startsWith('//') && !entry.includes('?') && !entry.includes('#')) {
+            const artifact = path.resolve(project, 'public', '.' + entry);
+            if (inside(path.join(project, 'public'), artifact)) edge(fileId(output), fileId(artifact), 'generated-from', provenance('page-manifest', file.path), {...fields,role:'maraca-orchestration'});
+          } else index.coverage.push({path:file.path,provider:'page-manifest',code:'maraca-entry-unmapped',detail:entry});
+        }
         if (!fileAt(source)) index.coverage.push({path:file.path,provider:'page-manifest',code:'page-source-unavailable',detail:page.source});
       }
       if (configuration.vite) {

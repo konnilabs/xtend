@@ -65,6 +65,10 @@ function isExcluded(relativePath) {
   if (ALLOWED_FILES.has(relativePath)) return true;
   if (EXCLUDED_PREFIXES.some((prefix) => relativePath.startsWith(prefix))) return true;
   return relativePath.includes('/site/build/')
+    || relativePath.includes('/public/build/')
+    || relativePath.includes('/vendor/')
+    || relativePath.includes('/.packages/')
+    || relativePath.includes('/storage/')
     || relativePath.includes('/dist/')
     || relativePath.includes('/node_modules/')
     || relativePath.includes('/.xtend-test-results/');
