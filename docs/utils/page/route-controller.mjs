@@ -14,13 +14,15 @@ const [
   { createMaracaPlanRuntime },
   { createRmtBrowserScheduler },
   { createRmtMaracaViewProjectionAdapter },
-  { docsKernelScheduler }
+  { docsKernelScheduler },
+  { createPlaygroundRequestCoordinator }
 ] = await Promise.all([
   import(docsVersionedModuleUrl('/xtendrmt/rmt-dom-descriptor-renderer.js')),
   import(docsVersionedModuleUrl('/xtend-maraca/plan-runtime.mjs')),
   import(docsVersionedModuleUrl('/xtendrmt/rmt-browser-scheduler.js')),
   import(docsVersionedModuleUrl('/xtendrmt/rmt-maraca-view-projection-adapter.js')),
-  import(docsVersionedModuleUrl('/docs/utils/docs-kernel-scheduler.mjs'))
+  import(docsVersionedModuleUrl('/docs/utils/docs-kernel-scheduler.mjs')),
+  import(docsVersionedModuleUrl('/docs/utils/page/playground-requests.mjs'))
 ]);
 
 const DOCS_RMT_RENDER_SCHEMA = 'xtend.docs.parsedown-rmt-render.v1';
@@ -4759,7 +4761,7 @@ function createDocsRmtPlaygroundXUtilsAdapter(xUtils = window.XUtils) {
   });
 }
 
-async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = getDocsRmtPlaygroundCopy()) {
+async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = getDocsRmtPlaygroundCopy(), isCurrent = () => true) {
   if (!target || payload?.ok !== true || payload?.maraca?.ok !== true || !payload.maraca.plan) return null;
   const maraca = payload.maraca;
   const appRoot = createDocsRmtPlaygroundElement('div', {
@@ -4768,6 +4770,9 @@ async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = g
     'data-maraca-root': ''
   });
   target.replaceChildren(renderDocsRmtPlaygroundMaracaToolbar(maraca, copy), appRoot);
+  const pendingRuntime = target.__xtendDocsMaracaBootRuntime;
+  if (pendingRuntime && typeof pendingRuntime.dispose === 'function') pendingRuntime.dispose();
+  target.__xtendDocsMaracaBootRuntime = null;
   const previous = target.__xtendDocsMaracaPlanRuntime;
   if (previous && typeof previous.dispose === 'function') previous.dispose();
   const runtime = createMaracaPlanRuntime({
@@ -4803,7 +4808,10 @@ async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = g
     xUtils: createDocsRmtPlaygroundXUtilsAdapter(),
     stateProjectionTarget: window.XTend && window.XTend.state
   });
-  await runtime.boot();
+  target.__xtendDocsMaracaBootRuntime = runtime;
+  try { await runtime.boot(); } catch (error) { runtime.dispose(); throw error; }
+  finally { if (target.__xtendDocsMaracaBootRuntime === runtime) target.__xtendDocsMaracaBootRuntime = null; }
+  if (!isCurrent()) { runtime.dispose(); return null; }
   window.xtendDocsRmtPlaygroundLastMaraca = runtime.snapshot();
   target.__xtendDocsMaracaPlanRuntime = runtime;
   const playgroundRoot = target.closest('[data-rmt-playground-root]');
@@ -4816,19 +4824,33 @@ async function bootDocsRmtPlaygroundMaracaPreview(target, payload = {}, copy = g
 
 function renderDocsRmtPlaygroundPreview(target, payload = {}, copy = getDocsRmtPlaygroundCopy()) {
   if (!target) return;
+  const playgroundRoot = target.closest('[data-rmt-playground-root]');
+  const generation = playgroundRoot?.__xtendDocsRmtPlaygroundGeneration || 0;
+  const previewGeneration = Number(target.__xtendDocsPreviewGeneration || 0) + 1;
+  target.__xtendDocsPreviewGeneration = previewGeneration;
+  const isCurrent = () => !playgroundRoot?.__xtendDocsDisposed
+    && (playgroundRoot?.__xtendDocsRmtPlaygroundGeneration || 0) === generation
+    && target.__xtendDocsPreviewGeneration === previewGeneration;
+  const pendingRuntime = target.__xtendDocsMaracaBootRuntime;
+  if (pendingRuntime && typeof pendingRuntime.dispose === 'function') pendingRuntime.dispose();
+  target.__xtendDocsMaracaBootRuntime = null;
+  const previous = target.__xtendDocsMaracaPlanRuntime;
+  if (previous && typeof previous.dispose === 'function') previous.dispose();
+  target.__xtendDocsMaracaPlanRuntime = null;
   if (!payload || payload.ok !== true) {
     target.replaceChildren(createDocsRmtPlaygroundElement('p', {}, copy.blocked));
     return;
   }
   if (payload.maraca && payload.maraca.ok === true && payload.maraca.plan) {
     target.replaceChildren(createDocsRmtPlaygroundElement('p', {}, copy.maracaLoading));
-    bootDocsRmtPlaygroundMaracaPreview(target, payload, copy)
+    bootDocsRmtPlaygroundMaracaPreview(target, payload, copy, isCurrent)
       .then((runtime) => {
         if (runtime && typeof runtime.snapshot === 'function') {
           window.xtendDocsRmtPlaygroundLastMaraca = runtime.snapshot();
         }
       })
       .catch((error) => {
+        if (!isCurrent()) return;
         target.replaceChildren(
           renderDocsRmtPlaygroundMaracaToolbar(payload.maraca, copy),
           createDocsRmtPlaygroundElement('p', {}, error && error.message ? error.message : copy.maracaBlocked)
@@ -5049,12 +5071,13 @@ function resetDocsRmtPlaygroundLayout(root) {
   }
 }
 
-async function runDocsRmtPlaygroundLanguageDiagnostics(root, locale = getCurrentDocsLocale()) {
+async function runDocsRmtPlaygroundLanguageDiagnostics(root, locale = getCurrentDocsLocale(), request = {}) {
   if (!root) return null;
   const copy = getDocsRmtPlaygroundCopy(locale);
   const editor = root.querySelector('[data-rmt-playground-editor]');
   const diagnostics = root.querySelector('[data-rmt-playground-diagnostics]');
-  const source = getDocsRmtPlaygroundEditorValue(editor);
+  if (request.isCurrent && !request.isCurrent()) return null;
+  const source = request.source ?? getDocsRmtPlaygroundEditorValue(editor);
   const requestId = (Number(root.__xtendDocsRmtPlaygroundDiagnosticsRequestId || 0) + 1);
   root.__xtendDocsRmtPlaygroundDiagnosticsRequestId = requestId;
 
@@ -5087,6 +5110,7 @@ async function runDocsRmtPlaygroundLanguageDiagnostics(root, locale = getCurrent
   }
 
   const response = await fetch(getDocsRmtPlaygroundDiagnosticsEndpoint(), {
+    signal: request.signal,
     method: 'POST',
     cache: 'no-store',
     headers: {
@@ -5100,7 +5124,7 @@ async function runDocsRmtPlaygroundLanguageDiagnostics(root, locale = getCurrent
     })
   });
   const payload = await response.json();
-  if (root.__xtendDocsRmtPlaygroundDiagnosticsRequestId !== requestId) return payload;
+  if ((request.isCurrent && !request.isCurrent()) || root.__xtendDocsRmtPlaygroundDiagnosticsRequestId !== requestId || getDocsRmtPlaygroundEditorValue(editor) !== source) return payload;
   const items = Array.isArray(payload && payload.diagnostics) ? payload.diagnostics : [];
   updateDocsRmtPlaygroundDiagnostics(root, items, copy);
   if (diagnostics) {
@@ -5119,12 +5143,13 @@ async function runDocsRmtPlaygroundLanguageDiagnostics(root, locale = getCurrent
   return payload;
 }
 
-async function compileDocsRmtPlayground(root, locale = getCurrentDocsLocale()) {
+async function compileDocsRmtPlayground(root, locale = getCurrentDocsLocale(), request = {}) {
   if (!root) return null;
   const copy = getDocsRmtPlaygroundCopy(locale);
   const editor = root.querySelector('[data-rmt-playground-editor]');
   const status = root.querySelector('[data-rmt-playground-status]');
-  const source = getDocsRmtPlaygroundEditorValue(editor);
+  if (request.isCurrent && !request.isCurrent()) return null;
+  const source = request.source ?? getDocsRmtPlaygroundEditorValue(editor);
   const sourceHash = hashDocsRmtPlaygroundSource(source);
   const requestId = (Number(root.__xtendDocsRmtPlaygroundCompileRequestId || 0) + 1);
   root.__xtendDocsRmtPlaygroundCompileRequestId = requestId;
@@ -5151,6 +5176,7 @@ async function compileDocsRmtPlayground(root, locale = getCurrentDocsLocale()) {
 
   setDocsRmtPlaygroundStatus(status, copy.compiling, 'loading');
   const response = await fetch(getDocsRmtPlaygroundEndpoint(), {
+    signal: request.signal,
     method: 'POST',
     cache: 'no-store',
     headers: {
@@ -5176,7 +5202,7 @@ async function compileDocsRmtPlayground(root, locale = getCurrentDocsLocale()) {
   });
   const payload = await response.json();
   const currentSourceHash = hashDocsRmtPlaygroundSource(getDocsRmtPlaygroundEditorValue(editor));
-  if (root.__xtendDocsRmtPlaygroundCompileRequestId !== requestId || currentSourceHash !== sourceHash) {
+  if ((request.isCurrent && !request.isCurrent()) || root.__xtendDocsRmtPlaygroundCompileRequestId !== requestId || currentSourceHash !== sourceHash) {
     return {
       schema: DOCS_RMT_PLAYGROUND_SCHEMA,
       ok: false,
@@ -5264,10 +5290,11 @@ function getDocsRmtPlaygroundPresetLabel(id, locale = getCurrentDocsLocale()) {
   return copy[id] || id;
 }
 
-async function loadDocsRmtPlaygroundPreset(id) {
+async function loadDocsRmtPlaygroundPreset(id, signal) {
   const preset = DOCS_RMT_PLAYGROUND_PRESETS.find((entry) => entry.id === id) || DOCS_RMT_PLAYGROUND_PRESETS[0];
   if (preset.source) return preset;
   const response = await fetch(getDocsRmtPlaygroundPresetEndpoint(preset.endpoint || preset.id), {
+    signal,
     method: 'GET',
     cache: 'no-store',
     headers: {
@@ -5477,52 +5504,50 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
   root.appendChild(manager);
   container.replaceChildren(root);
 
-  let compileDisposer = null;
-  let diagnosticsDisposer = null;
   const lifecycleDisposers = [];
-  const cancelScheduledWork = () => {
-    if (compileDisposer) compileDisposer();
-    if (diagnosticsDisposer) diagnosticsDisposer();
-    compileDisposer = null;
-    diagnosticsDisposer = null;
+  let presetGeneration = 0;
+  let presetController = null;
+  let selectedPreset = null;
+  const requests = createPlaygroundRequestCoordinator({
+    scheduler: docsBrowserScheduler,
+    route: window.location.pathname,
+    getSource: () => getDocsRmtPlaygroundEditorValue(editor),
+    compileDelay: DOCS_RMT_PLAYGROUND_DEBOUNCE_MS,
+    diagnosticsDelay: DOCS_RMT_PLAYGROUND_DIAGNOSTIC_DEBOUNCE_MS,
+    onInvalidate() {
+      root.__xtendDocsRmtPlaygroundGeneration = Number(root.__xtendDocsRmtPlaygroundGeneration || 0) + 1;
+    },
+    execute: (kind, request) => kind === 'compile'
+      ? compileDocsRmtPlayground(root, locale, request)
+      : runDocsRmtPlaygroundLanguageDiagnostics(root, locale, request),
+    onError(kind, error) {
+      const diagnostics = [{ severity: 'error', code: kind === 'compile' ? 'docs.rmt.playground.client_error' : 'docs.rmt.playground.lsp_client_error', message: error?.message || copy.failed }];
+      if (kind === 'diagnostics') updateDocsRmtPlaygroundDiagnostics(root, diagnostics, copy);
+      else {
+        updateDocsRmtPlaygroundFromPayload(root, { schema: DOCS_RMT_PLAYGROUND_SCHEMA, ok: false, status: 'client_error', diagnostics }, copy);
+        setDocsRmtPlaygroundStatus(status, copy.failed, 'error');
+      }
+    }
+  });
+  const cancelPresetSelection = () => {
+    presetGeneration++;
+    selectedPreset = null;
+    if (presetController) presetController.abort();
+    presetController = null;
   };
-  const scheduleDiagnostics = () => {
-    if (diagnosticsDisposer) diagnosticsDisposer();
-    diagnosticsDisposer = createDocsScheduleDisposer(docsBrowserScheduler.scheduleEndpoint('docs.playground.diagnostics', window.location.pathname, () => {
-      diagnosticsDisposer = null;
-      runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch((error) => {
-        updateDocsRmtPlaygroundDiagnostics(root, [{
-          severity: 'error',
-          code: 'docs.rmt.playground.lsp_client_error',
-          source: 'xtend-rmt-language-server',
-          message: error && error.message ? error.message : copy.failed
-        }], copy);
-      });
-    }, { kind: 'delay', delayMs: DOCS_RMT_PLAYGROUND_DIAGNOSTIC_DEBOUNCE_MS }), 'docs-playground-diagnostics-cancelled');
-  };
+  const cancelScheduledWork = () => requests.invalidate();
+  const scheduleDiagnostics = () => requests.schedule('diagnostics');
   const scheduleCompile = () => {
     setDocsRmtPlaygroundOutputPending(root, getDocsRmtPlaygroundEditorValue(editor), copy);
     setDocsRmtPlaygroundStatus(status, copy.compiling, 'loading');
-    if (compileDisposer) compileDisposer();
-    compileDisposer = createDocsScheduleDisposer(docsBrowserScheduler.scheduleEndpoint('docs.playground.compile', window.location.pathname, () => {
-      compileDisposer = null;
-      compileDocsRmtPlayground(root, locale).catch((error) => {
-        const payload = {
-          schema: DOCS_RMT_PLAYGROUND_SCHEMA,
-          ok: false,
-          status: 'client_error',
-          diagnostics: [{
-            severity: 'error',
-            code: 'docs.rmt.playground.client_error',
-            message: error && error.message ? error.message : copy.failed
-          }]
-        };
-        updateDocsRmtPlaygroundFromPayload(root, payload, copy);
-        setDocsRmtPlaygroundStatus(status, copy.failed, 'error');
-      });
-    }, { kind: 'delay', delayMs: DOCS_RMT_PLAYGROUND_DEBOUNCE_MS }), 'docs-playground-compile-cancelled');
+    requests.schedule('compile');
+  };
+  const runLatest = () => {
+    requests.schedule('compile', true);
+    requests.schedule('diagnostics', true);
   };
   lifecycleDisposers.push(bindDocsLifecycle(editor, 'textarea-changed', (event) => {
+    cancelPresetSelection();
     if (event && event.detail && typeof event.detail.value === 'string') {
       setDocsRmtPlaygroundEditorValue(editor, event.detail.value);
     }
@@ -5534,6 +5559,7 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
     const control = path.find((node) => node && node.localName === 'textarea') || getDocsRmtPlaygroundNativeTextarea(editor);
     if (control && editor.shadowRoot && editor.shadowRoot.contains(control)) return;
+    cancelPresetSelection();
     if (control && typeof control.value === 'string') {
       setDocsRmtPlaygroundEditorValue(editor, control.value);
     }
@@ -5542,26 +5568,32 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     scheduleCompile();
   }));
   lifecycleDisposers.push(bindDocsLifecycle(runButton, 'click', () => {
+    cancelPresetSelection();
     cancelScheduledWork();
     setDocsRmtPlaygroundOutputPending(root, getDocsRmtPlaygroundEditorValue(editor), copy);
-    runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch(() => {});
-    compileDocsRmtPlayground(root, locale).catch(() => setDocsRmtPlaygroundStatus(status, copy.failed, 'error'));
+    runLatest();
   }));
   const applyPresetSelection = (presetId) => {
+    const selection = presetId || presetSelect.value;
+    if (selectedPreset === selection) return;
+    selectedPreset = selection;
+    const generation = ++presetGeneration;
+    if (presetController) presetController.abort();
+    presetController = new AbortController();
     cancelScheduledWork();
     setDocsRmtPlaygroundStatus(status, copy.compiling, 'loading');
-    loadDocsRmtPlaygroundPreset(presetId || presetSelect.value)
+    loadDocsRmtPlaygroundPreset(selection, presetController.signal)
       .then((preset) => {
+        if (generation !== presetGeneration || root.__xtendDocsDisposed) return;
         if (preset && preset.id) presetSelect.value = preset.id;
         setDocsRmtPlaygroundEditorValue(editor, preset.source || DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE);
         dispatchDocsRmtPlaygroundSourceChanged(root, getDocsRmtPlaygroundEditorValue(editor), `preset:${preset.id}`);
         setDocsRmtPlaygroundOutputPending(root, getDocsRmtPlaygroundEditorValue(editor), copy);
-        return Promise.all([
-          runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch(() => null),
-          compileDocsRmtPlayground(root, locale)
-        ]);
+        runLatest();
       })
       .catch((error) => {
+        if (generation !== presetGeneration || root.__xtendDocsDisposed || error?.name === 'AbortError') return;
+        selectedPreset = null;
         const payload = {
           schema: DOCS_RMT_PLAYGROUND_SCHEMA,
           ok: false,
@@ -5586,7 +5618,13 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
     resetDocsRmtPlaygroundLayout(root);
   }));
   root.__xtendDocsDispose = () => {
-    cancelScheduledWork();
+    root.__xtendDocsDisposed = true;
+    presetGeneration++;
+    if (presetController) presetController.abort();
+    requests.dispose();
+    const preview = root.querySelector('[data-rmt-playground-preview]');
+    const pendingRuntime = preview?.__xtendDocsMaracaBootRuntime;
+    if (pendingRuntime && typeof pendingRuntime.dispose === 'function') pendingRuntime.dispose();
     lifecycleDisposers.splice(0).forEach((dispose) => dispose());
     const runtime = root.__xtendDocsMaracaPlanRuntime;
     if (runtime && typeof runtime.dispose === 'function') runtime.dispose();
@@ -5594,8 +5632,7 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
   hydrateDocsRmtPlaygroundElements(root);
   resetDocsRmtPlaygroundLayout(root);
   scheduleDocsAfterPaint(() => resetDocsRmtPlaygroundLayout(root));
-  runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch(() => {});
-  compileDocsRmtPlayground(root, locale).catch(() => setDocsRmtPlaygroundStatus(status, copy.failed, 'error'));
+  runLatest();
   return root;
 }
 

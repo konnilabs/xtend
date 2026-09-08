@@ -7,7 +7,7 @@ const path = require('path');
 
 const TOOLING_BRIDGE_SCHEMA = 'xtend.compiler.tooling-bridge.v1';
 const TOOLING_BRIDGE_RESPONSE_SCHEMA = 'xtend.compiler.tooling-bridge-response.v1';
-const OPERATIONS = new Set(['compile', 'language-diagnostics', 'maraca-plan', 'safe-preview']);
+const OPERATIONS = new Set(['compile', 'language-diagnostics', 'maraca-plan', 'safe-preview', 'jit-compile']);
 
 function normalizeDiagnostics(value) {
   return (Array.isArray(value) ? value : []).map((entry) => ({
@@ -49,7 +49,9 @@ async function executeToolingBridgeOperation(envelope = {}, options = {}) {
   const payload = envelope.payload && typeof envelope.payload === 'object' ? envelope.payload : {};
   const rootDir = path.resolve(options.rootDir || process.cwd());
   let result;
-  if (operation === 'compile') {
+  if (operation === 'jit-compile') {
+    result = await executeJitCompile(payload, rootDir);
+  } else if (operation === 'compile') {
     const filePath = payload.filePath || 'inline.rmt';
     result = compileRmtVNextSource({ text: String(payload.source || ''), filePath }, { ...(payload.options || {}), filePath });
   } else if (operation === 'language-diagnostics') {
@@ -82,6 +84,46 @@ async function executeToolingBridgeOperation(envelope = {}, options = {}) {
     diagnostics,
     result
   };
+}
+
+async function executeJitCompile(payload, rootDir) {
+  const { createRmtCompilationSession } = require('./rmt-language/compilation-session');
+  const session = createRmtCompilationSession({ root: rootDir, applyDefaultDocumentId: false, readonlyResults: true });
+  const started = process.hrtime.bigint();
+  const elapsed = () => Number(process.hrtime.bigint() - started) / 1e6;
+  const timings = {};
+  let kernel = null;
+  try {
+    const filePath = payload.filePath || 'inline.rmt';
+    const source = String(payload.source || '');
+    const compiled = session.compileSource({ text: source, filePath }, { ...(payload.options || {}), filePath });
+    timings.compileMs = elapsed();
+    const compile = { ok: compiled.ok, status: compiled.status, diagnostics: compiled.diagnostics || compiled.compilerDiagnostics || [], coreDocument: compiled.coreDocument || null, coreJson: compiled.coreJson || null };
+    const result = { ok: compile.ok, status: compile.status, diagnostics: compile.diagnostics, compile, safePreview: null, maraca: null };
+    const stage = async (callback) => {
+      try { return await callback(); }
+      catch (error) { return { ok: false, status: 'bridge-error', diagnostics: [{ code: error.code || 'xtend.compiler.tooling_bridge.failed', severity: 'error', message: scrubBridgeValue(error.message, rootDir) }], result: null }; }
+    };
+    if (compile.ok && payload.safePreview !== false) {
+      const before = elapsed();
+      result.safePreview = await stage(() => executeToolingBridgeOperation({ operation: 'safe-preview', payload: { ...(payload.safePreview || {}), coreDocument: compile.coreDocument } }, { rootDir }));
+      timings.safePreviewMs = elapsed() - before;
+    }
+    if (compile.ok && payload.maraca) {
+      const before = elapsed();
+      result.maraca = await stage(async () => {
+        kernel = await require('./rmt-jit-kernel-cache').prepareRmtJitKernelCache({ rootDir });
+        const plan = loadMaraca().createMaracaBuildPlan({ sourceText: source, virtualSourcePath: filePath, ...payload.maraca }, { rootDir, compileSource: session.compileSource, kernelSourceArtifacts: kernel, inspectToolchain: false });
+        const clean = scrubBridgeValue(plan, rootDir);
+        return { ok: clean.ok !== false, status: clean.status, diagnostics: normalizeDiagnostics(clean.diagnostics), result: clean };
+      });
+      timings.maracaMs = elapsed() - before;
+    }
+    // Opt-in counters and timings never contain user source or source paths.
+    if (payload.metrics === true) result.metrics = { ...session.snapshot(), ...timings, totalMs: elapsed(), nodeProcesses: 1, architectureChecks: kernel ? kernel.architectureChecks : 0, cacheStatus: kernel ? kernel.cacheStatus : 'unused' };
+    if (kernel && kernel.diagnostics.length) result.cacheDiagnostics = kernel.diagnostics;
+    return result;
+  } finally { session.dispose(); }
 }
 
 module.exports = { TOOLING_BRIDGE_SCHEMA, TOOLING_BRIDGE_RESPONSE_SCHEMA, OPERATIONS, normalizeDiagnostics, executeToolingBridgeOperation };

@@ -1,0 +1,42 @@
+{
+  "vnext-valid-minimal.rmt": {
+    "compile": "e28c07bc7fe21788bf6d36cf26c5024377a2b3a3f7fac9d7bcf43eb085827aca",
+    "safePreview": "df543ee1c46c5e25641aef45185049bc4799bb5672ce790f92ba73b078f9ac3c",
+    "maraca": "5318dbaa8f6fd01054600400739300f42de1e4cdcea9ccb749f0ea681aa73e3d"
+  },
+  "kernel-orchestration-app.rmt": {
+    "compile": "ebbc499d314d56cb2a7932f7ba0827f6344cec02feb76b9d3c2c175ed01348fa",
+    "safePreview": "75d31bdc76aa2dd3d767cbd5b2cfc7b5b081b4a7b81b6716c6043367f7ac7e08",
+    "maraca": "ce7e5d7edca106a37edbea1de96ff6fd314cc874fe9b1efb259501e1d0daa9db"
+  },
+  "maraca-orchestration-app.rmt": {
+    "compile": "df2e42b64763c985855e748ba7f2d063ce936c8be0ac0859b8bef5e72bb74cbd",
+    "safePreview": "925abe85d818479cf3fd2f2e0fc50e4529f7139c7650e9decbcbadca00bf284e",
+    "maraca": "eef05a79d9bb3fa369f987f03b41091b19d0d745cb44fce96729c1d60ea4e22e"
+  },
+  "maraca-validation-app.rmt": {
+    "compile": "cbd01d404a72d0716578ee73c28a5f40f48a6c1e566471cbb1a6f936e85075ee",
+    "safePreview": "19d2fe798bff6749127e236a09958014276c2b965d4141791d7d550534399b1b",
+    "maraca": "0abd3f00b55eafb1f577daf58e8baf5c9ef8958be6b0d375c51cbd7c166059c0"
+  },
+  "maraca-transitions-app.rmt": {
+    "compile": "1ded611588be5945db356f1abb5d5de000f288d7ed00922163c8d51972227fbd",
+    "safePreview": "045c749d37332fdb9139e1f0519d69a8d57b52148e98eda4bd64305518e6f6de",
+    "maraca": "0b0f07d567191fa69f0d4478173badad1e62d14abb46983d5fec5da8b5702144"
+  },
+  "incomplete": {
+    "compile": "d0836907bb0835c3abb1db3c9749d4c40c2addc78089061af37946af35f61d05",
+    "safePreview": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+    "maraca": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+  },
+  "import": {
+    "compile": "78d4a9af33d0dc80df74a339610f5d95067ff4f1ccf7628b0c30496ae2371932",
+    "safePreview": "df543ee1c46c5e25641aef45185049bc4799bb5672ce790f92ba73b078f9ac3c",
+    "maraca": "d6468b66faec3397ef97f1a9cc7c9debc51ea27c0a522accc8224c5cdbacd1e5"
+  },
+  "near-limit": {
+    "compile": "e28c07bc7fe21788bf6d36cf26c5024377a2b3a3f7fac9d7bcf43eb085827aca",
+    "safePreview": "df543ee1c46c5e25641aef45185049bc4799bb5672ce790f92ba73b078f9ac3c",
+    "maraca": "1295f0ea866fc80ab73e4a2a3f7fd406643e5f00f561cb8bc8d44297ac588b5b"
+  }
+}

@@ -1,0 +1,322 @@
+[
+  {
+    "fixture": "minimal",
+    "mode": "legacy",
+    "trial": 0,
+    "ms": 1620.488,
+    "nodeProcesses": 3,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "legacy",
+    "trial": 1,
+    "ms": 1579.122,
+    "nodeProcesses": 3,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "legacy",
+    "trial": 2,
+    "ms": 1648.944,
+    "nodeProcesses": 3,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "legacy",
+    "trial": 3,
+    "ms": 1678.242,
+    "nodeProcesses": 3,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "legacy",
+    "trial": 4,
+    "ms": 1603.848,
+    "nodeProcesses": 3,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "legacy",
+    "trial": 5,
+    "ms": 1730.404,
+    "nodeProcesses": 3,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "legacy",
+    "trial": 6,
+    "ms": 1716.38,
+    "nodeProcesses": 3,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "legacy",
+    "trial": 7,
+    "ms": 1762.712,
+    "nodeProcesses": 3,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "legacy",
+    "trial": 8,
+    "ms": 1648.656,
+    "nodeProcesses": 3,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "legacy",
+    "trial": 9,
+    "ms": 1628.205,
+    "nodeProcesses": 3,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "hydrangea",
+    "trial": 0,
+    "ms": 804.472,
+    "nodeProcesses": 1,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "hydrangea",
+    "trial": 1,
+    "ms": 894.914,
+    "nodeProcesses": 1,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "hydrangea",
+    "trial": 2,
+    "ms": 841.482,
+    "nodeProcesses": 1,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "hydrangea",
+    "trial": 3,
+    "ms": 841.603,
+    "nodeProcesses": 1,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "hydrangea",
+    "trial": 4,
+    "ms": 832.7,
+    "nodeProcesses": 1,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "hydrangea",
+    "trial": 5,
+    "ms": 799.361,
+    "nodeProcesses": 1,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "hydrangea",
+    "trial": 6,
+    "ms": 803.088,
+    "nodeProcesses": 1,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "hydrangea",
+    "trial": 7,
+    "ms": 848.963,
+    "nodeProcesses": 1,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "hydrangea",
+    "trial": 8,
+    "ms": 792.308,
+    "nodeProcesses": 1,
+    "bytes": 78549
+  },
+  {
+    "fixture": "minimal",
+    "mode": "hydrangea",
+    "trial": 9,
+    "ms": 820.317,
+    "nodeProcesses": 1,
+    "bytes": 78549
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "legacy",
+    "trial": 0,
+    "ms": 1920.452,
+    "nodeProcesses": 3,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "legacy",
+    "trial": 1,
+    "ms": 1899.204,
+    "nodeProcesses": 3,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "legacy",
+    "trial": 2,
+    "ms": 1873.463,
+    "nodeProcesses": 3,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "legacy",
+    "trial": 3,
+    "ms": 1832.446,
+    "nodeProcesses": 3,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "legacy",
+    "trial": 4,
+    "ms": 1837.98,
+    "nodeProcesses": 3,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "legacy",
+    "trial": 5,
+    "ms": 1848.637,
+    "nodeProcesses": 3,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "legacy",
+    "trial": 6,
+    "ms": 1895.578,
+    "nodeProcesses": 3,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "legacy",
+    "trial": 7,
+    "ms": 1890.289,
+    "nodeProcesses": 3,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "legacy",
+    "trial": 8,
+    "ms": 1927.034,
+    "nodeProcesses": 3,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "legacy",
+    "trial": 9,
+    "ms": 1912.439,
+    "nodeProcesses": 3,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "hydrangea",
+    "trial": 0,
+    "ms": 890.719,
+    "nodeProcesses": 1,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "hydrangea",
+    "trial": 1,
+    "ms": 907.291,
+    "nodeProcesses": 1,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "hydrangea",
+    "trial": 2,
+    "ms": 906.428,
+    "nodeProcesses": 1,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "hydrangea",
+    "trial": 3,
+    "ms": 901.087,
+    "nodeProcesses": 1,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "hydrangea",
+    "trial": 4,
+    "ms": 898.649,
+    "nodeProcesses": 1,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "hydrangea",
+    "trial": 5,
+    "ms": 901.486,
+    "nodeProcesses": 1,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "hydrangea",
+    "trial": 6,
+    "ms": 948.972,
+    "nodeProcesses": 1,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "hydrangea",
+    "trial": 7,
+    "ms": 901.908,
+    "nodeProcesses": 1,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "hydrangea",
+    "trial": 8,
+    "ms": 909.992,
+    "nodeProcesses": 1,
+    "bytes": 1002097
+  },
+  {
+    "fixture": "customer-service",
+    "mode": "hydrangea",
+    "trial": 9,
+    "ms": 902.821,
+    "nodeProcesses": 1,
+    "bytes": 1002097
+  }
+]

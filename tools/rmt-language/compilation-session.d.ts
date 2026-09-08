@@ -3,4 +3,4 @@ export interface RmtCompilationSession {
   snapshot():{compilations:number;hits:number;documents:number};
   dispose():void;
 }
-export function createRmtCompilationSession(options?:{root?:string}):RmtCompilationSession;
+export function createRmtCompilationSession(options?:{root?:string;applyDefaultDocumentId?:boolean;readonlyResults?:boolean}):RmtCompilationSession;

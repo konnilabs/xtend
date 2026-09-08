@@ -1,0 +1,482 @@
+[
+  {
+    "fixture": "minimal",
+    "trial": 0,
+    "ms": 157.36,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 1,
+    "ms": 160.159,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 2,
+    "ms": 184.623,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 3,
+    "ms": 167.378,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 4,
+    "ms": 170.977,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 5,
+    "ms": 162.551,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 6,
+    "ms": 164.324,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 7,
+    "ms": 160.801,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 8,
+    "ms": 157.62,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 9,
+    "ms": 156.844,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 10,
+    "ms": 157.365,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 11,
+    "ms": 149.241,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 12,
+    "ms": 153.875,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 13,
+    "ms": 159.525,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 14,
+    "ms": 166.335,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 15,
+    "ms": 153.673,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 16,
+    "ms": 156.861,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 17,
+    "ms": 160.867,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 18,
+    "ms": 158.324,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 19,
+    "ms": 156.862,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 20,
+    "ms": 156.881,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 21,
+    "ms": 155.178,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 22,
+    "ms": 151.324,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 23,
+    "ms": 152.447,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 24,
+    "ms": 157.692,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 25,
+    "ms": 152.571,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 26,
+    "ms": 152.902,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 27,
+    "ms": 157.205,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 28,
+    "ms": 158.81,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "minimal",
+    "trial": 29,
+    "ms": 166.941,
+    "bytes": 78549,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 0,
+    "ms": 290.229,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 1,
+    "ms": 300.216,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 2,
+    "ms": 297.778,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 3,
+    "ms": 286.816,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 4,
+    "ms": 290.79,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 5,
+    "ms": 304.98,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 6,
+    "ms": 281.97,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 7,
+    "ms": 276.495,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 8,
+    "ms": 282.22,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 9,
+    "ms": 296.892,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 10,
+    "ms": 299.816,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 11,
+    "ms": 311.795,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 12,
+    "ms": 294.278,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 13,
+    "ms": 285.714,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 14,
+    "ms": 281.353,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 15,
+    "ms": 281.633,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 16,
+    "ms": 301.382,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 17,
+    "ms": 315.402,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 18,
+    "ms": 291.258,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 19,
+    "ms": 269.015,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 20,
+    "ms": 277.514,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 21,
+    "ms": 303.732,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 22,
+    "ms": 298.064,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 23,
+    "ms": 287.209,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 24,
+    "ms": 285.778,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 25,
+    "ms": 287.995,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 26,
+    "ms": 291.985,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 27,
+    "ms": 279.79,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 28,
+    "ms": 276.506,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 29,
+    "ms": 285.053,
+    "bytes": 1002097,
+    "ok": true,
+    "maracaOk": true
+  }
+]

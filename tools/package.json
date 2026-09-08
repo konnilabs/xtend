@@ -19,7 +19,8 @@
   "main": "./rmt-language/vnext-compiler.js",
   "types": "./rmt-language/vnext-compiler.d.ts",
   "bin": {
-    "xtend-rmt-lint": "./rmt-linter/cli.js"
+    "xtend-rmt-lint": "./rmt-linter/cli.js",
+    "xtend-rmt-jit-cache": "./rmt-jit-cache-cli.js"
   },
   "files": [
     "README.md",
@@ -27,6 +28,9 @@
     "rmt-language",
     "rmt-linter",
     "rmt-language-server",
+    "rmt-jit-kernel-cache.js",
+    "rmt-jit-kernel-cache.d.ts",
+    "rmt-jit-cache-cli.js",
     "tooling-bridge.js",
     "tooling-bridge.d.ts",
     "tooling-bridge-cli.js",
@@ -41,6 +45,10 @@
     "./rmt-language/vnext-compiler": {
       "types": "./rmt-language/vnext-compiler.d.ts",
       "default": "./rmt-language/vnext-compiler.js"
+    },
+    "./jit-kernel-cache": {
+      "types": "./rmt-jit-kernel-cache.d.ts",
+      "default": "./rmt-jit-kernel-cache.js"
     },
     "./tooling-bridge": {
       "types": "./tooling-bridge.d.ts",

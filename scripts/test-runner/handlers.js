@@ -416,6 +416,11 @@ module.exports = {
       load("../tests/docs/rmt_stack_docs_suite")["printRmtStackDocsReport"](result);
       return toRunnerResult('rmt-stack-docs', 'RMT Stack Layer Docs', result);
     },
+"rmt-jit-hydrangea": () => {
+      const result = load("../tests/rmt-language/rmt_hydrangea_suite")["runRmtHydrangeaSuite"]({ rootDir });
+      load("../tests/rmt-language/rmt_hydrangea_suite")["printRmtHydrangeaReport"](result);
+      return toRunnerResult('rmt-jit-hydrangea', 'RMT JIT Hydrangea', result);
+    },
 "rmt-playground-docs": () => {
       const result = load("../tests/docs/rmt_playground_docs_suite")["runRmtPlaygroundDocsSuite"]({ rootDir });
       load("../tests/docs/rmt_playground_docs_suite")["printRmtPlaygroundDocsReport"](result);

@@ -2150,7 +2150,8 @@ function deduplicateKernelModuleHelpers(source) {
     );
 }
 
-function assembleCanonicalKernelJs(rootDir, target, version, sourceManifest, domSources) {
+function assembleCanonicalKernelJs(rootDir, target, version, sourceManifest, domSources, sources = null) {
+  const readSource = (file) => sources ? sources[file] : readText(rootDir, file);
   const bundle = sourceManifest && sourceManifest.bundle;
   if (!bundle || !Array.isArray(bundle.moduleOrder)) {
     const error = new Error('Kernel source manifest requires bundle.moduleOrder and canonical shell templates.');
@@ -2161,8 +2162,8 @@ function assembleCanonicalKernelJs(rootDir, target, version, sourceManifest, dom
   const preamblePath = browser ? bundle.browserPreamble : bundle.esmPreamble;
   const suffixPath = browser ? bundle.browserSuffix : bundle.esmSuffix;
   const buildTarget = target.path.split('/').pop().replace(/\.js$/u, '');
-  const preamble = materializeKernelTemplate(readText(rootDir, preamblePath), version, buildTarget);
-  const suffix = materializeKernelTemplate(readText(rootDir, suffixPath), version, buildTarget);
+  const preamble = materializeKernelTemplate(readSource(preamblePath), version, buildTarget);
+  const suffix = materializeKernelTemplate(readSource(suffixPath), version, buildTarget);
   const entryById = new Map(normalizeKernelSourceEntries(sourceManifest).map((entry) => [entry.id, entry]));
   const moduleSources = bundle.moduleOrder.map((moduleId) => {
     if (moduleId === 'rmt-dom-descriptor-renderer') {
@@ -2175,7 +2176,7 @@ function assembleCanonicalKernelJs(rootDir, target, version, sourceManifest, dom
       throw error;
     }
     const moduleSource = deduplicateKernelModuleHelpers(materializeKernelTemplate(
-      readText(rootDir, entry.sourcePath),
+      readSource(entry.sourcePath),
       version,
       buildTarget
     )).trim();
@@ -2265,7 +2266,7 @@ function createDesiredCleanOutputs(rootDir, options = {}) {
  * as Maraca can therefore package a Kernel runtime even when all generated RMT
  * products are absent or corrupt.
  */
-function createRmtKernelSourceArtifact(input = {}) {
+function assembleRmtKernelSourceArtifact(input = {}, snapshot = null, shared = null) {
   const rootDir = resolveRootDir(input.rootDir);
   const artifactPath = String(input.artifactPath || input.path || '').trim();
   const target = KERNEL_ANALYSIS_TARGETS.find((entry) => entry.path === artifactPath);
@@ -2284,7 +2285,7 @@ function createRmtKernelSourceArtifact(input = {}) {
     };
   }
 
-  const versionInfo = resolveKernelSourceVersion(rootDir, input.version);
+  const versionInfo = snapshot ? snapshot.versionInfo : resolveKernelSourceVersion(rootDir, input.version);
   if (!versionInfo.ok) {
     return {
       schema: RMT_KERNEL_SOURCE_ARTIFACT_SCHEMA,
@@ -2300,8 +2301,8 @@ function createRmtKernelSourceArtifact(input = {}) {
   }
 
   try {
-    const sourceManifest = readKernelSourceManifest(rootDir);
-    const mvcReport = analyzeKernelMvcArchitecture({ rootDir, manifest: sourceManifest });
+    const sourceManifest = snapshot ? snapshot.manifest : readKernelSourceManifest(rootDir);
+    const mvcReport = shared ? shared.mvcReport : analyzeKernelMvcArchitecture({ rootDir, manifest: sourceManifest });
     if (mvcReport.legacyBundleModuleCount > 0 || !mvcReport.ok) {
       return {
         schema: RMT_KERNEL_SOURCE_ARTIFACT_SCHEMA,
@@ -2318,11 +2319,11 @@ function createRmtKernelSourceArtifact(input = {}) {
       };
     }
 
-    const domSources = readKernelDomSources(rootDir);
+    const domSources = shared ? shared.domSources : readKernelDomSources(rootDir);
     const templatePath = canonicalTemplatePathForTarget(sourceManifest, target);
     const source = target.kind === 'esm' || target.kind === 'browser'
-      ? assembleCanonicalKernelJs(rootDir, target, versionInfo.version, sourceManifest, domSources)
-      : materializeKernelTemplate(readText(rootDir, templatePath), versionInfo.version, target.id);
+      ? assembleCanonicalKernelJs(rootDir, target, versionInfo.version, sourceManifest, domSources, snapshot && snapshot.sources)
+      : materializeKernelTemplate(snapshot ? snapshot.sources[templatePath] : readText(rootDir, templatePath), versionInfo.version, target.id);
     const cleaned = cleanRmtKernelArtifactContent(source, target.path, {
       version: versionInfo.version,
       sourceManifest
@@ -2372,6 +2373,47 @@ function createRmtKernelSourceArtifact(input = {}) {
       }]
     };
   }
+}
+
+/** Capture canonical bytes before validation so both products describe one source state. */
+function createRmtKernelSourceSnapshot(input = {}) {
+  const rootDir = resolveRootDir(input.rootDir);
+  const manifestText = readText(rootDir, SOURCE_MANIFEST_PATH);
+  const manifest = JSON.parse(manifestText);
+  const paths = new Set([SOURCE_MANIFEST_PATH, 'xtendrmt/package.json', DOM_RENDERER_SOURCE_PATH, DOM_RENDERER_TYPES_PATH]);
+  normalizeKernelSourceEntries(manifest).forEach((entry) => { if (entry.sourcePath) paths.add(entry.sourcePath); });
+  Object.values(manifest.bundle || {}).forEach((value) => { if (typeof value === 'string') paths.add(value); });
+  const sources = Object.create(null);
+  paths.forEach((file) => {
+    sources[file] = file === SOURCE_MANIFEST_PATH ? manifestText : maybeReadText(rootDir, file);
+    if (sources[file] === null) {
+      const error = new Error(`KernelLab canonical source is missing: ${file}`);
+      error.code = 'xtend.rmt.kernel_lab.source_missing';
+      throw error;
+    }
+  });
+  return { rootDir, manifest, sources, architectureVersion: normalizeKernelVersion(manifest.currentVersion) || resolveKernelVersion(rootDir).version, versionInfo: resolveKernelSourceVersion(rootDir, input.version) };
+}
+
+function createRmtKernelSourceArtifacts(input = {}) {
+  const snapshot = input.snapshot || createRmtKernelSourceSnapshot(input);
+  const mvcReport = analyzeKernelMvcArchitecture({ rootDir: snapshot.rootDir, manifest: snapshot.manifest, sources: snapshot.sources, version: snapshot.architectureVersion });
+  const shared = { mvcReport, domSources: {
+    rendererSource: snapshot.sources[DOM_RENDERER_SOURCE_PATH],
+    rendererTypesSource: snapshot.sources[DOM_RENDERER_TYPES_PATH]
+  } };
+  if (shared.domSources.rendererSource === null || shared.domSources.rendererTypesSource === null) {
+    throw new Error('KernelLab DOM commit sources are missing.');
+  }
+  const artifacts = {};
+  (input.artifactPaths || ['xtendrmt/rmt-manifest.json', 'xtendrmt/rmt-runtime.browser.js']).forEach((artifactPath) => {
+    artifacts[artifactPath] = assembleRmtKernelSourceArtifact({ ...input, rootDir: snapshot.rootDir, artifactPath }, snapshot, shared);
+  });
+  return { ok: Object.values(artifacts).every((artifact) => artifact.ok), artifacts, architectureChecks: 1 };
+}
+
+function createRmtKernelSourceArtifact(input = {}) {
+  return assembleRmtKernelSourceArtifact(input);
 }
 
 function summarizeOutput(output, mode) {
@@ -2671,5 +2713,7 @@ module.exports = {
   createRmtKernelLabBuild,
   createRmtKernelLabReport,
   createRmtKernelSourceArtifact,
+  createRmtKernelSourceArtifacts,
+  createRmtKernelSourceSnapshot,
   findDeprecatedKernelBranding
 };

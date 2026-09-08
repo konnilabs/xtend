@@ -669,7 +669,7 @@ function buildFinalManifest(demands, inspections, normalized) {
 
 function createMaracaServiceBuildPlan(input = {}, options = {}) {
   const normalized = normalizeServiceBuildOptions(input.services, { rootDir: input.rootDir || options.rootDir });
-  const toolchain = loadTypeScript(normalized.rootDir);
+  const toolchain = normalized.enabled || options.inspectToolchain !== false ? loadTypeScript(normalized.rootDir) : null;
   if (!normalized.enabled) {
     return {
       schema: MARACA_SERVICE_BUILD_PLAN_SCHEMA,

@@ -339,6 +339,9 @@ let rmtKernelFeatureAdoptionRegistryModuleError = null;
 let rmtKernelPolicyParityModule = null;
 let rmtKernelPolicyParityModuleError = null;
 const rmtManifestCache = new Map();
+const jitManifestCache = new WeakMap();
+const jitFactoryCache = new WeakMap();
+const jitFactoryErrors = new WeakMap();
 const rmtPerformanceRuntimeFactories = new Map();
 const rmtPerformanceRuntimeFactoryErrors = new Map();
 const rmtKernelLabAssemblerCache = new Map();
@@ -402,7 +405,7 @@ function loadRmtKernelLabAssembler(rootDir) {
   return assembler;
 }
 
-function assembleRmtSourceArtifact(rootDir, artifactPath) {
+function assembleRmtSourceArtifact(rootDir, artifactPath, kernelSourceArtifacts) {
   const sourceRoot = resolveRmtKernelSourceRoot(rootDir);
   const assembler = loadRmtKernelLabAssembler(sourceRoot);
   if (!assembler) {
@@ -410,7 +413,7 @@ function assembleRmtSourceArtifact(rootDir, artifactPath) {
     error.code = 'xtend.maraca.kernel_source_assembler_unavailable';
     throw error;
   }
-  const result = assembler.createRmtKernelSourceArtifact({
+  const result = kernelSourceArtifacts ? kernelSourceArtifacts.artifacts[artifactPath] : assembler.createRmtKernelSourceArtifact({
     rootDir: sourceRoot,
     artifactPath
   });
@@ -426,25 +429,30 @@ function assembleRmtSourceArtifact(rootDir, artifactPath) {
   return result;
 }
 
-function loadRmtManifest(rootDir) {
+function loadRmtManifest(rootDir, kernelSourceArtifacts) {
+  const cache = kernelSourceArtifacts ? jitManifestCache : rmtManifestCache;
   const sourceRoot = resolveRmtKernelSourceRoot(rootDir);
-  if (rmtManifestCache.has(sourceRoot)) return rmtManifestCache.get(sourceRoot);
+  const key = kernelSourceArtifacts || sourceRoot;
+  if (cache.has(key)) return cache.get(key);
   try {
-    const artifact = assembleRmtSourceArtifact(sourceRoot, 'xtendrmt/rmt-manifest.json');
+    const artifact = assembleRmtSourceArtifact(sourceRoot, 'xtendrmt/rmt-manifest.json', kernelSourceArtifacts);
     const manifest = JSON.parse(artifact.content);
-    rmtManifestCache.set(sourceRoot, manifest);
+    cache.set(key, manifest);
     return manifest;
   } catch (_) {
     return null;
   }
 }
 
-function loadRmtPerformanceRuntimeFactory(rootDir) {
+function loadRmtPerformanceRuntimeFactory(rootDir, kernelSourceArtifacts) {
+  const cache = kernelSourceArtifacts ? jitFactoryCache : rmtPerformanceRuntimeFactories;
+  const errors = kernelSourceArtifacts ? jitFactoryErrors : rmtPerformanceRuntimeFactoryErrors;
   const sourceRoot = resolveRmtKernelSourceRoot(rootDir);
-  if (rmtPerformanceRuntimeFactories.has(sourceRoot)) return rmtPerformanceRuntimeFactories.get(sourceRoot);
-  if (rmtPerformanceRuntimeFactoryErrors.has(sourceRoot)) return null;
+  const key = kernelSourceArtifacts || sourceRoot;
+  if (cache.has(key)) return cache.get(key);
+  if (errors.has(key)) return null;
   try {
-    const artifact = assembleRmtSourceArtifact(sourceRoot, 'xtendrmt/rmt-runtime.browser.js');
+    const artifact = assembleRmtSourceArtifact(sourceRoot, 'xtendrmt/rmt-runtime.browser.js', kernelSourceArtifacts);
     const sandbox = {
       console,
       setTimeout,
@@ -466,16 +474,16 @@ function loadRmtPerformanceRuntimeFactory(rootDir) {
       error.code = 'xtend.maraca.performance_runtime_factory_missing';
       throw error;
     }
-    rmtPerformanceRuntimeFactories.set(sourceRoot, factory);
+    cache.set(key, factory);
     return factory;
   } catch (error) {
-    rmtPerformanceRuntimeFactoryErrors.set(sourceRoot, error);
+    errors.set(key, error);
     return null;
   }
 }
 
-function getRmtPerformanceRuntimeFactoryError(rootDir) {
-  return rmtPerformanceRuntimeFactoryErrors.get(resolveRmtKernelSourceRoot(rootDir)) || null;
+function getRmtPerformanceRuntimeFactoryError(rootDir, kernelSourceArtifacts) {
+  return (kernelSourceArtifacts ? jitFactoryErrors.get(kernelSourceArtifacts) : rmtPerformanceRuntimeFactoryErrors.get(resolveRmtKernelSourceRoot(rootDir))) || null;
 }
 
 function loadUmdEsmHybridModule(modulePath, globalName) {
@@ -604,7 +612,7 @@ function createMaracaKernelFeatureAdoptionReport(options = {}) {
       : enabled
   };
   const registry = registryModule.createRmtKernelFeatureAdoptionRegistry({
-    manifest: options.manifest || loadRmtManifest(rootDir),
+    manifest: options.manifest || loadRmtManifest(rootDir, options.kernelSourceArtifacts),
     kernelApi: options.kernelApi || null,
     runtimeModules: options.runtimeModules || [],
     planFeatureAdoption: options.planFeatureAdoption || null,
@@ -622,7 +630,7 @@ function createFallbackOptionalCompat() {
 function createMaracaKernelProductSurfaceReport(options = {}) {
   const bootMode = VALID_KERNEL_BOOT_MODES.has(options.bootMode) ? options.bootMode : 'direct';
   const diagnostics = [];
-  const manifest = options.manifest || loadRmtManifest(options.rootDir);
+  const manifest = options.manifest || loadRmtManifest(options.rootDir, options.kernelSourceArtifacts);
   const productSurface = options.productSurface || null;
   let entryPoints = [];
   let optionalCompat = createFallbackOptionalCompat();
@@ -1440,7 +1448,7 @@ function createMaracaTemplateArtifactBundle(documentArtifacts, options = {}) {
 }
 
 function createMaracaTemplateArtifactsReport(input = {}) {
-  const manifest = input.manifest || loadRmtManifest(input.rootDir);
+  const manifest = input.manifest || loadRmtManifest(input.rootDir, input.kernelSourceArtifacts);
   const factories = manifest && manifest.entryPoints && manifest.entryPoints.appModulesFactories || {};
   const diagnostics = [];
   const runtimeProfileHints = DEFAULT_TEMPLATE_RUNTIME_PROFILE_HINTS.slice();
@@ -1636,10 +1644,10 @@ function summarizePerformanceFileArtifact(fileArtifact) {
 function createMaracaPerformanceReport(input = {}) {
   const diagnostics = [];
   const rootDir = input.rootDir || process.cwd();
-  const manifest = input.manifest || loadRmtManifest(rootDir);
+  const manifest = input.manifest || loadRmtManifest(rootDir, input.kernelSourceArtifacts);
   const factories = manifest && manifest.entryPoints && manifest.entryPoints.appModulesFactories || {};
-  const factory = loadRmtPerformanceRuntimeFactory(rootDir);
-  const factoryError = getRmtPerformanceRuntimeFactoryError(rootDir);
+  const factory = loadRmtPerformanceRuntimeFactory(rootDir, input.kernelSourceArtifacts);
+  const factoryError = getRmtPerformanceRuntimeFactoryError(rootDir, input.kernelSourceArtifacts);
   const supported = typeof factory === 'function';
   const documentId = input.coreDocument && input.coreDocument.manifest && input.coreDocument.manifest.documentId
     ? String(input.coreDocument.manifest.documentId)
@@ -2989,6 +2997,7 @@ function createBaseKernelPlan(mode, status, message, options = {}) {
   }] : [];
   const productSurface = createMaracaKernelProductSurfaceReport({
     rootDir: options.rootDir,
+    kernelSourceArtifacts: options.kernelSourceArtifacts,
     bootMode: options.kernelBootMode
   });
   const prewarmWorker = createMaracaPrewarmWorkerRuntimeReport({
@@ -2997,6 +3006,7 @@ function createBaseKernelPlan(mode, status, message, options = {}) {
   }, options);
   const featureAdoption = createMaracaKernelFeatureAdoptionReport({
     rootDir: options.rootDir,
+    kernelSourceArtifacts: options.kernelSourceArtifacts,
     enabled: false,
     runtimeModules: KERNEL_RUNTIME_MODULES.slice(),
     activeCapabilities: {
@@ -3354,6 +3364,7 @@ function createMaracaKernelPlan(compileResult, orchestrationPlan, options) {
   const hasErrors = diagnostics.some((diagnostic) => diagnostic.severity === 'error');
   const productSurface = createMaracaKernelProductSurfaceReport({
     rootDir: options.rootDir,
+    kernelSourceArtifacts: options.kernelSourceArtifacts,
     bootMode: options.kernelBootMode
   });
   const prewarmWorker = createMaracaPrewarmWorkerRuntimeReport({
@@ -3380,6 +3391,7 @@ function createMaracaKernelPlan(compileResult, orchestrationPlan, options) {
   const hasKernelErrors = diagnostics.some((diagnostic) => diagnostic.severity === 'error');
   const featureAdoption = createMaracaKernelFeatureAdoptionReport({
     rootDir: options.rootDir,
+    kernelSourceArtifacts: options.kernelSourceArtifacts,
     enabled: !hasKernelErrors,
     runtimeModules: KERNEL_RUNTIME_MODULES.slice(),
     activeCapabilities: {
@@ -4372,6 +4384,7 @@ function enrichTailwindCssBuildPlan(cssBuild, normalized, sourceText, descriptor
 
 function createMaracaBuildPlan(input = {}, options = {}) {
   const normalized = normalizeOptions(input, options);
+  if (options.kernelSourceArtifacts) normalized.kernelSourceArtifacts = options.kernelSourceArtifacts;
   const diagnostics = normalized.buildConfigDiagnostics.slice();
   const initialCssBuild = createMaracaCssBuildPlan(normalized, normalized.sourceText);
   diagnostics.push(...initialCssBuild.diagnostics);
@@ -4422,7 +4435,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
         severity: 'error',
         message: `RMT source not found: ${normalized.sourcePath}`
       }),
-      toolchain: getMaracaToolchainAvailability(normalized.rootDir),
+      toolchain: options.inspectToolchain === false ? null : getMaracaToolchainAvailability(normalized.rootDir),
       components: { requiredTags: [], selected: [], unknown: [] },
       surfaces: [],
       events: [],
@@ -4503,7 +4516,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
         severity: 'error',
         message: 'RMT vNext compiler did not produce a Core document.'
       }, compilerDiagnostics),
-      toolchain: getMaracaToolchainAvailability(normalized.rootDir),
+      toolchain: options.inspectToolchain === false ? null : getMaracaToolchainAvailability(normalized.rootDir),
       components: { requiredTags: [], selected: [], unknown: [] },
       surfaces: [],
       events: [],
@@ -4595,7 +4608,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
     demands: compileResult.appServiceDemands || null,
     rootDir: normalized.rootDir,
     outputDir: normalized.outputDir
-  });
+  }, { inspectToolchain: options.inspectToolchain });
   diagnostics.push(...orchestration.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...kernel.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
   diagnostics.push(...hydration.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
@@ -4639,7 +4652,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
     enableUiCoprocessor: normalized.enableUiCoprocessor,
     outputDir: normalized.outputDir,
     diagnostics,
-    toolchain: getMaracaToolchainAvailability(normalized.rootDir),
+    toolchain: options.inspectToolchain === false ? null : getMaracaToolchainAvailability(normalized.rootDir),
     loader: {
       mode: 'inline-registry',
       usesExternalManifest: false,

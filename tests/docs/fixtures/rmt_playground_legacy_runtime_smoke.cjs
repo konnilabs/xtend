@@ -44,6 +44,12 @@ async function main() {
   assert.strictEqual(preview.ok, true);
   assert.strictEqual(preview.result.descriptor.children.length, 15);
 
+  const jit = await request('jit-compile', { maraca: { profile: 'debug', orchestration: 'auto', kernel: 'auto' }, metrics: true });
+  assert.strictEqual(jit.ok, true);
+  assert.strictEqual(jit.result.maraca.ok, true);
+  assert.strictEqual(jit.result.compile.coreDocument.surfaces.length, 15);
+  assert.strictEqual(jit.result.metrics.nodeProcesses, 1);
+
   // Check the actual transitive CommonJS dependencies, including lazy imports,
   // so modern CI also catches syntax the older Docs Node cannot parse.
   // Escaped question marks in regular expressions are not operators.
@@ -54,7 +60,7 @@ async function main() {
   assert.strictEqual(incompatible.length, 0, 'Docs bridge dependency uses unsupported syntax: '
     + incompatible.map(file => path.relative(rootDir, file)).join(', '));
   process.stdout.write(JSON.stringify({ nodeVersion: process.version, dependencyCount: dependencies.length,
-    operations: ['compile', 'language-diagnostics', 'maraca-plan', 'safe-preview'] }) + '\n');
+    operations: ['compile', 'language-diagnostics', 'maraca-plan', 'safe-preview', 'jit-compile'] }) + '\n');
 }
 
 main().catch(error => { console.error(error); process.exitCode = 1; });

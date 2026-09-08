@@ -154,6 +154,10 @@ export interface MaracaBuildInput {
 }
 
 export interface MaracaRunOptions {
+  /** Skip bundler discovery for callers that consume only a plan. Defaults to true. */
+  inspectToolchain?: boolean;
+  /** Validated static artifacts from prepareRmtJitKernelCache; scoped to this synchronous plan. */
+  kernelSourceArtifacts?: { key: string; artifacts: Record<string, { ok: boolean; content: string; [key: string]: unknown }> };
   rootDir?: string;
   compileSource?:import('@ccslabs/xtend/rmt-language/compilation-session').RmtCompilationSession['compileSource'];
 }

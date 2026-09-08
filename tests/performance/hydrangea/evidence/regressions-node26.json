@@ -1,0 +1,52 @@
+{
+  "status": "passed",
+  "suiteCount": 3,
+  "passedCount": 3,
+  "failedCount": 0,
+  "suites": [
+    {
+      "id": "rmt-jit-hydrangea",
+      "label": "RMT JIT Hydrangea",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 5,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": []
+    },
+    {
+      "id": "rmt-vnext-compiler",
+      "label": "Epic 15 RMT vNext Compiler to Core",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 308,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": []
+    },
+    {
+      "id": "rmt-playground-security",
+      "label": "RMT Playground Security",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 70,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": [],
+      "report": {
+        "schema": "xtend.docs.rmt-playground-security-report.v1",
+        "endpoint": "docs/index.php?xtend-rmt-playground=compile",
+        "sourceLimitBytes": 65536
+      }
+    }
+  ]
+}

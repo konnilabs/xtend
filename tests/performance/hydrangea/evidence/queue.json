@@ -1,0 +1,30 @@
+[
+  {
+    "operation": "compile",
+    "sentMs": 1.1,
+    "responseMs": 1710.7,
+    "finishedMs": 1711.9,
+    "ok": true
+  },
+  {
+    "operation": "diagnostics",
+    "sentMs": 160.4,
+    "responseMs": 1614.1,
+    "finishedMs": 1774.5,
+    "ok": true
+  },
+  {
+    "operation": "compile",
+    "sentMs": 300.1,
+    "responseMs": 3085.7,
+    "finishedMs": 3385.9,
+    "ok": true
+  },
+  {
+    "operation": "compile",
+    "sentMs": 650.2,
+    "responseMs": 4354.6,
+    "finishedMs": 5004.8,
+    "ok": true
+  }
+]

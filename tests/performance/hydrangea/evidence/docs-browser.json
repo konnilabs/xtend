@@ -1,0 +1,69 @@
+{
+  "schema": "xtend.browser-hypervisor.v1",
+  "engine": "chromium",
+  "driver": "chromedriver",
+  "browserName": "chrome",
+  "browserVersion": "153.0.8010.36",
+  "result": {
+    "boots": [
+      4279.699999999255,
+      6328.900000002235,
+      7843.699999999255
+    ],
+    "errors": [],
+    "maxActive": 1,
+    "requestCount": 7,
+    "requests": [
+      {
+        "bytes": 475,
+        "finished": 3149,
+        "kind": "compile",
+        "sourceHash": "901ad640",
+        "started": 2301.300000000745
+      },
+      {
+        "bytes": 475,
+        "finished": 3247.300000000745,
+        "kind": "diagnostics",
+        "sourceHash": null,
+        "started": 3155.300000000745
+      },
+      {
+        "bytes": 503,
+        "finished": 5076,
+        "kind": "diagnostics",
+        "sourceHash": null,
+        "started": 4994.5
+      },
+      {
+        "bytes": 503,
+        "finished": 5313.400000002235,
+        "kind": "compile",
+        "sourceHash": "314dc2d8",
+        "started": 5132.60000000149
+      },
+      {
+        "bytes": 20146,
+        "finished": 6701.699999999255,
+        "kind": "compile",
+        "sourceHash": "3481e1ca",
+        "started": 6418.800000000745
+      },
+      {
+        "bytes": 20146,
+        "finished": 6866.10000000149,
+        "kind": "diagnostics",
+        "sourceHash": null,
+        "started": 6721.800000000745
+      },
+      {
+        "bytes": 20146,
+        "finished": 7890.800000000745,
+        "kind": "compile",
+        "sourceHash": "3481e1ca",
+        "started": 7864.199999999255
+      }
+    ],
+    "status": "passed"
+  }
+}

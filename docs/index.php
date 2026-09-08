@@ -1854,33 +1854,37 @@ function docsCreateRmtMaracaPreviewBridge($bridgePath, $repoRoot, $nodeBinary = 
                 ], $featureOptions)
             ]
         ], ['nodeBinary' => $nodeBinary, 'timeoutSeconds' => $context['timeoutSeconds'] ?? 3]);
-        $plan = isset($response['result']) && is_array($response['result']) ? $response['result'] : null;
-        $orchestrationSummary = is_array($plan['orchestration']['summary'] ?? null) ? $plan['orchestration']['summary'] : [];
-        $validationSummary = is_array($plan['validation']['summary'] ?? null) ? $plan['validation']['summary'] : [];
-        $transitionSummary = is_array($plan['transitions']['summary'] ?? null) ? $plan['transitions']['summary'] : [];
-        $features = [];
-        foreach (['orchestration', 'kernel', 'hydration', 'validation', 'transitions'] as $key) {
-            $entry = is_array($plan[$key] ?? null) ? $plan[$key] : [];
-            $features[$key] = ['enabled' => ($entry['enabled'] ?? false) === true, 'mode' => $entry['mode'] ?? ($featureOptions[$key] ?? 'auto'), 'status' => $entry['status'] ?? 'unknown', 'supported' => ($entry['supported'] ?? false) === true, 'summary' => $entry['summary'] ?? new stdClass()];
-        }
-        return [
-            'schema' => 'xtend.docs.rmt-playground.maraca-preview.v1',
-            'bridgeSchema' => $response['bridgeSchema'] ?? 'xtend.compiler.tooling-bridge.v1',
-            'ok' => is_array($plan) && ($plan['ok'] ?? false) === true,
-            'status' => $plan['status'] ?? ($response['status'] ?? 'bridge-error'),
-            'diagnostics' => $response['diagnostics'] ?? ($plan['diagnostics'] ?? []),
-            'summary' => [
-                'surfaceCount' => (int) ($orchestrationSummary['surfaceCount'] ?? count($plan['surfaces'] ?? [])),
-                'actionCount' => (int) ($orchestrationSummary['actionCount'] ?? 0),
-                'eventCount' => (int) ($orchestrationSummary['eventCount'] ?? count($plan['events'] ?? [])),
-                'validationGroupCount' => (int) ($validationSummary['groupCount'] ?? 0),
-                'transitionCount' => (int) ($transitionSummary['transitionCount'] ?? 0)
-            ],
-            'features' => $features,
-            'runtimeModules' => $plan['runtimeModules'] ?? [],
-            'plan' => $plan
-        ];
+        return docsRmtPlaygroundMaracaFromBridge($response, $featureOptions);
     };
+}
+
+function docsRmtPlaygroundMaracaFromBridge($response, $featureOptions = []) {
+    $plan = isset($response['result']) && is_array($response['result']) ? $response['result'] : null;
+    $orchestrationSummary = is_array($plan['orchestration']['summary'] ?? null) ? $plan['orchestration']['summary'] : [];
+    $validationSummary = is_array($plan['validation']['summary'] ?? null) ? $plan['validation']['summary'] : [];
+    $transitionSummary = is_array($plan['transitions']['summary'] ?? null) ? $plan['transitions']['summary'] : [];
+    $features = [];
+    foreach (['orchestration', 'kernel', 'hydration', 'validation', 'transitions'] as $key) {
+        $entry = is_array($plan[$key] ?? null) ? $plan[$key] : [];
+        $features[$key] = ['enabled' => ($entry['enabled'] ?? false) === true, 'mode' => $entry['mode'] ?? ($featureOptions[$key] ?? 'auto'), 'status' => $entry['status'] ?? 'unknown', 'supported' => ($entry['supported'] ?? false) === true, 'summary' => $entry['summary'] ?? new stdClass()];
+    }
+    return [
+        'schema' => 'xtend.docs.rmt-playground.maraca-preview.v1',
+        'bridgeSchema' => $response['bridgeSchema'] ?? 'xtend.compiler.tooling-bridge.v1',
+        'ok' => is_array($plan) && ($plan['ok'] ?? false) === true,
+        'status' => $plan['status'] ?? ($response['status'] ?? 'bridge-error'),
+        'diagnostics' => $response['diagnostics'] ?? ($plan['diagnostics'] ?? []),
+        'summary' => [
+            'surfaceCount' => (int) ($orchestrationSummary['surfaceCount'] ?? count($plan['surfaces'] ?? [])),
+            'actionCount' => (int) ($orchestrationSummary['actionCount'] ?? 0),
+            'eventCount' => (int) ($orchestrationSummary['eventCount'] ?? count($plan['events'] ?? [])),
+            'validationGroupCount' => (int) ($validationSummary['groupCount'] ?? 0),
+            'transitionCount' => (int) ($transitionSummary['transitionCount'] ?? 0)
+        ],
+        'features' => $features,
+        'runtimeModules' => $plan['runtimeModules'] ?? [],
+        'plan' => $plan
+    ];
 }
 
 function docsCreateRmtLspBridge($bridgePath, $repoRoot, $nodeBinary = 'node') {
@@ -2471,19 +2475,50 @@ function docsRmtPlaygroundHandleCompile($repoRoot, $bridgePath, $maracaBridgePat
         docsRmtPlaygroundJson($response, 200);
     }
     $slot = docsRmtPlaygroundAcquireConcurrencySlot('compile', $schema);
-    $compiler = docsCreateRmtCompilerBridge($bridgePath, $repoRoot);
-    $compiled = $compiler($source, [
-        'filePath' => 'docs/rmt-playground-source.rmt',
-        'options' => [
-            'documentId' => 'docs.rmt.playground',
-            'source' => 'docs-rmt-playground'
-        ],
-        'timeoutSeconds' => 3
-    ]);
+    $jit = null;
+    if (getenv('XTEND_RMT_JIT_MODE') === 'hydrangea') {
+        $jitResponse = xtendToolingBridgeRequest((string) $bridgePath, (string) $repoRoot, [
+            'schema' => 'xtend.compiler.tooling-bridge.v1',
+            'requestId' => uniqid('docs-jit-', true),
+            'operation' => 'jit-compile',
+            'payload' => [
+                'source' => $source,
+                'filePath' => 'docs/rmt-playground-source.rmt',
+                'options' => ['documentId' => 'docs.rmt.playground', 'source' => 'docs-rmt-playground'],
+                'safePreview' => [
+                    'options' => [
+                        'componentRegistry' => docsLoadComponentManifest($repoRoot),
+                        'limits' => ['maxDepth' => 32, 'maxNodes' => 1000, 'maxTextBytes' => 65536, 'maxAttributes' => 32]
+                    ],
+                    'project' => ['baseUrl' => 'https://xtend.invalid/']
+                ],
+                'maraca' => $maracaOptions !== null && $maracaBridgePath ? array_replace([
+                    'profile' => 'debug', 'lazy' => 'component', 'css' => 'external', 'stack' => 'runtime', 'components' => 'document'
+                ], $maracaOptions) : false
+            ]
+        ], ['timeoutSeconds' => 3, 'concurrencyLimit' => 2, 'outputLimit' => 16777216]);
+        $jit = is_array($jitResponse['result'] ?? null) ? $jitResponse['result'] : [];
+        foreach ($jit['cacheDiagnostics'] ?? [] as $cacheDiagnostic) {
+            error_log('Hydrangea: ' . (string) ($cacheDiagnostic['code'] ?? 'cache_unavailable'));
+        }
+        $compiled = $jit['compile'] ?? $jitResponse;
+        $compiled['diagnostics'] = $jitResponse['diagnostics'] ?? ($compiled['diagnostics'] ?? []);
+    } else {
+        $compiler = docsCreateRmtCompilerBridge($bridgePath, $repoRoot);
+        $compiled = $compiler($source, [
+            'filePath' => 'docs/rmt-playground-source.rmt',
+            'options' => [
+                'documentId' => 'docs.rmt.playground',
+                'source' => 'docs-rmt-playground'
+            ],
+            'timeoutSeconds' => 3
+        ]);
+    }
     $diagnostics = docsRmtPlaygroundNormalizeDiagnostics($compiled['diagnostics'] ?? $compiled['compilerDiagnostics'] ?? []);
     $ok = isset($compiled['ok']) ? (bool) $compiled['ok'] : false;
     $coreDocument = $ok && is_array($compiled['coreDocument'] ?? null) ? $compiled['coreDocument'] : null;
-    $safePreview = $coreDocument ? docsRmtPlaygroundProjectSafePreview($repoRoot, $bridgePath, $coreDocument) : null;
+    $safePreview = $jit !== null ? ($jit['safePreview']['result'] ?? null)
+        : ($coreDocument ? docsRmtPlaygroundProjectSafePreview($repoRoot, $bridgePath, $coreDocument) : null);
     $response = [
         'schema' => $schema,
         'ok' => $ok,
@@ -2494,7 +2529,9 @@ function docsRmtPlaygroundHandleCompile($repoRoot, $bridgePath, $maracaBridgePat
     ];
     if ($maracaOptions !== null) {
         $response['maraca'] = ($ok && $maracaBridgePath)
-            ? docsRmtPlaygroundCompileMaracaPreview($repoRoot, $maracaBridgePath, $source, $maracaOptions)
+            ? ($jit !== null
+                ? docsRmtPlaygroundMaracaFromBridge($jit['maraca'] ?? [], $maracaOptions)
+                : docsRmtPlaygroundCompileMaracaPreview($repoRoot, $maracaBridgePath, $source, $maracaOptions))
             : docsRmtPlaygroundMaracaPreviewUnavailable('compile_failed', $diagnostics);
     }
     docsRmtPlaygroundJson($response, 200);

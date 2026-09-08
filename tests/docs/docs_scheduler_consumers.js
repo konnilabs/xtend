@@ -89,20 +89,19 @@ async function runDocsSchedulerConsumerChecks(rootDir, context) {
 
     const playgroundBrowser = createRmtBrowserScheduler({ scheduler: kernel });
     const calls = [];
-    const start = routes.indexOf('  let compileDisposer = null;');
-    const end = routes.indexOf("  lifecycleDisposers.push(bindDocsLifecycle(editor, 'textarea-changed'", start);
-    assert(start >= 0 && end > start, 'Missing Playground scheduling callbacks');
-    const playground = vm.runInNewContext([
-      declaration(routes, 'createDocsScheduleDisposer'), routes.slice(start, end),
-      '({ scheduleDiagnostics, scheduleCompile, cancelScheduledWork })'
-    ].join('\n'), {
-      docsBrowserScheduler: playgroundBrowser, window: { location: { pathname: '/docs/de/learn-rmt-playground' } },
-      root: {}, editor: {}, status: {}, copy: {}, locale: 'de',
-      DOCS_RMT_PLAYGROUND_DIAGNOSTIC_DEBOUNCE_MS: 100, DOCS_RMT_PLAYGROUND_DEBOUNCE_MS: 200,
-      setDocsRmtPlaygroundOutputPending() {}, getDocsRmtPlaygroundEditorValue: () => '', setDocsRmtPlaygroundStatus() {},
-      runDocsRmtPlaygroundLanguageDiagnostics: async () => { calls.push('diagnostics'); },
-      compileDocsRmtPlayground: async () => { calls.push('compile'); }
+    const { createPlaygroundRequestCoordinator } = await import(pathToFileURL(path.join(rootDir, 'docs/utils/page/playground-requests.mjs')).href);
+    const coordinator = createPlaygroundRequestCoordinator({
+      scheduler: playgroundBrowser, route: '/docs/de/learn-rmt-playground', getSource: () => '',
+      compileDelay: 200, diagnosticsDelay: 100,
+      execute: async (kind) => { calls.push(kind); },
+      onError: (kind, error) => { throw error; }
     });
+    const playground = {
+      scheduleDiagnostics: () => coordinator.schedule('diagnostics'),
+      scheduleCompile: () => coordinator.schedule('compile'),
+      cancelScheduledWork: () => coordinator.cancelPending()
+    };
+    cleanup.push(() => coordinator.dispose());
     for (let input = 0; input < 3; input += 1) {
       playground.scheduleDiagnostics();
       playground.scheduleCompile();

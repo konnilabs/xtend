@@ -666,8 +666,8 @@ function runMaracaPlanSuite(options = {}) {
   context.assert(syntaxCheckFile(MARACA_MODULE_PATH, { rootDir, extension: '.js' }).ok, 'Maraca module syntax passes');
   context.assert(syntaxCheckFile(MARACA_RUNTIME_PATH, { rootDir, extension: '.js' }).ok, 'Maraca runtime helper syntax passes');
   context.assert(
-    maracaGeneratorSource.includes("assembleRmtSourceArtifact(sourceRoot, 'xtendrmt/rmt-manifest.json')")
-      && maracaGeneratorSource.includes("assembleRmtSourceArtifact(sourceRoot, 'xtendrmt/rmt-runtime.browser.js')")
+    maracaGeneratorSource.includes("assembleRmtSourceArtifact(sourceRoot, 'xtendrmt/rmt-manifest.json', kernelSourceArtifacts)")
+      && maracaGeneratorSource.includes("assembleRmtSourceArtifact(sourceRoot, 'xtendrmt/rmt-runtime.browser.js', kernelSourceArtifacts)")
       && maracaGeneratorSource.includes("assembleRmtSourceArtifact(plan.rootDir, 'xtendrmt/rmt-runtime.esm.js')"),
     'Maraca resolves manifest, performance runtime and bundled Kernel runtime through the KernelLab source assembler'
   );

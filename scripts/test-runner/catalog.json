@@ -2,6 +2,26 @@
   "version": 1,
   "suites": [
     {
+      "id": "rmt-jit-hydrangea",
+      "label": "RMT JIT Hydrangea",
+      "description": "Compiler parity, static cache invalidation, request lifecycle and PHP process limits.",
+      "defaultIncluded": true,
+      "handler": "rmt-jit-hydrangea",
+      "implementations": [
+        {
+          "path": "tests/rmt-language/rmt_hydrangea_suite.js",
+          "function": "runRmtHydrangeaSuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository"
+      ],
+      "timeoutMs": 300000
+    },
+    {
       "id": "project-index",
       "label": "Shared project index",
       "description": "RMT navigation, document versions, module and suite relationships, impact and incremental reuse.",
@@ -9242,6 +9262,7 @@
         "maraca-tune",
         "rmt-reference-docs",
         "rmt-playground-security",
+        "rmt-jit-hydrangea",
         "rmt-node-ssr-adapter",
         "rmt-php-ssr-adapter",
         "rmt-php-app-service-adapter",
@@ -9410,6 +9431,7 @@
         "maraca-tune",
         "rmt-reference-docs",
         "rmt-playground-security",
+        "rmt-jit-hydrangea",
         "rmt-node-ssr-adapter",
         "rmt-php-ssr-adapter",
         "rmt-php-app-service-adapter",
@@ -9585,6 +9607,7 @@
         "maraca-tune",
         "rmt-reference-docs",
         "rmt-playground-security",
+        "rmt-jit-hydrangea",
         "rmt-node-ssr-adapter",
         "rmt-php-ssr-adapter",
         "rmt-php-app-service-adapter",
