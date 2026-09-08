@@ -132,16 +132,7 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   const lspBridgeSyntax = syntaxCheckFile('scripts/rmt_playground_lsp_bridge.js', { rootDir, extension: '.js' });
   const maracaBridgeSyntax = syntaxCheckFile('scripts/rmt_playground_maraca_preview_bridge.js', { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile('tests/docs/rmt_playground_security_suite.js', { rootDir, extension: '.js' });
-  const legacyNodeMaracaSmoke = spawnSync(process.execPath, ['-e', [
-    'String.prototype.replaceAll = undefined;',
-    "const fs = require('fs');",
-    "const bridge = require('./tools/tooling-bridge');",
-    "const source = fs.readFileSync('products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt', 'utf8');",
-    "bridge.executeToolingBridgeOperation({ operation: 'maraca-plan', requestId: 'legacy-node-smoke', payload: { source, filePath: 'docs/rmt-playground-source.rmt', options: { profile: 'debug', lazy: 'component', css: 'external', stack: 'runtime', components: 'document', orchestration: 'auto', kernel: 'auto', hydration: 'auto', validation: 'auto', transitions: 'auto' } } }, { rootDir: process.cwd() }).then((result) => {",
-    "  const surfaceCount = result && result.result && result.result.orchestration && result.result.orchestration.summary && result.result.orchestration.summary.surfaceCount;",
-    "  if (!result || result.ok !== true || surfaceCount !== 15 || !result.result.kernel || result.result.kernel.enabled !== true) process.exitCode = 1;",
-    "}).catch(() => { process.exitCode = 1; });"
-  ].join('\n')], {
+  const legacyNodeBridgeSmoke = spawnSync(process.execPath, ['tests/docs/fixtures/rmt_playground_legacy_runtime_smoke.cjs'], {
     cwd: rootDir,
     encoding: 'utf8',
     timeout: 10000
@@ -152,7 +143,7 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
   context.assert(lspBridgeSyntax.ok, `RMT playground LSP bridge syntax passes${lspBridgeSyntax.ok ? '' : ` (${lspBridgeSyntax.message})`}`);
   context.assert(maracaBridgeSyntax.ok, `RMT playground Maraca preview bridge syntax passes${maracaBridgeSyntax.ok ? '' : ` (${maracaBridgeSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `RMT playground security suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
-  context.assert(legacyNodeMaracaSmoke.status === 0, `Maraca plan bridge runs without String.prototype.replaceAll on the supported server runtime${legacyNodeMaracaSmoke.status === 0 ? '' : ` (${legacyNodeMaracaSmoke.stderr || 'bridge smoke failed'})`}`);
+  context.assert(legacyNodeBridgeSmoke.status === 0, `All playground bridge operations and transitive dependencies remain compatible with the Docs server runtime${legacyNodeBridgeSmoke.status === 0 ? '' : ` (${legacyNodeBridgeSmoke.stderr || 'bridge smoke failed'})`}`);
   context.assert(indexPhp.includes('REQUEST_METHOD') && indexPhp.includes('POST'), 'Compile endpoint enforces POST');
   context.assert(indexPhp.includes('CONTENT_LENGTH'), 'Compile endpoint checks request body size');
   context.assert(indexPhp.includes('64 * 1024'), 'Compile endpoint limits source size to 64 KB');

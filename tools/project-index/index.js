@@ -20,7 +20,8 @@ const at = (range, position) => range && position &&
 
 class ProjectIndex {
   constructor(options = {}) {
-    if (!options.rootDir && !options.workspaceRoots?.length) throw new TypeError('An explicit rootDir or workspaceRoots is required');
+    // The Docs PHP bridge also loads this module on its older Node runtime.
+    if (!options.rootDir && !(options.workspaceRoots && options.workspaceRoots.length)) throw new TypeError('An explicit rootDir or workspaceRoots is required');
     this.options = { profile: 'rmt', ...options };
     if (!['rmt', 'repository'].includes(this.options.profile)) throw new TypeError('Unknown project-index profile');
     this.roots = [...new Set((options.workspaceRoots || [options.rootDir]).map(fileFor))].sort(compare);
@@ -46,7 +47,8 @@ class ProjectIndex {
       for (const relative of files.filter(file => /(?:^|\/)(?:package|tsconfig[^/]*)\.json$/.test(file))) {
         const file = path.join(root, relative);
         try {
-          const text = this.overlays.get(uriFor(file))?.text ?? fs.readFileSync(file, 'utf8');
+          const overlay = this.overlays.get(uriFor(file));
+          const text = overlay && overlay.text != null ? overlay.text : fs.readFileSync(file, 'utf8');
           config.push([uriFor(file), fingerprint(text)]);
           if (path.basename(file) === 'package.json') {
             const manifest = JSON.parse(text);
@@ -92,13 +94,13 @@ class ProjectIndex {
     // Explicitly opened standalone documents get an isolated project identity;
     // they do not widen workspace discovery or the RMT import boundary.
     const root = workspace || this.roots[0] || fileFor(this.options.rootDir || path.dirname(file));
-    const uri = input.uri && virtualUri(input.uri) ? input.uri : uriFor(file), text = String(input.text ?? '');
+    const uri = input.uri && virtualUri(input.uri) ? input.uri : uriFor(file), text = String(input.text != null ? input.text : '');
     const owner = (this.packages || []).filter(pkg => inside(pkg.directory, file)).sort((a, b) => b.directory.length - a.directory.length)[0];
-    const projectRoot = owner?.directory || (workspace ? root : path.dirname(file));
+    const projectRoot = owner && owner.directory || (workspace ? root : path.dirname(file));
     const document = { id: `file:${uri}`, uri, filePath: file, rootDir: root, projectId: `project:${uriFor(projectRoot)}`,
       relativePath: posix(path.relative(projectRoot, file)), workspacePath: posix(path.relative(root, file)),
       language: /\.(?:rmt|rmt\.json|core\.json|rmt\.ya?ml)$/.test(file) || input.languageId === 'rmt' ? 'rmt' : /\.[cm]?[jt]sx?$/.test(file) ? 'module' : 'data',
-      fingerprint: fingerprint(text), version: input.version ?? null, origin: input.origin || 'buffer', status: 'unanalysed', text };
+      fingerprint: fingerprint(text), version: input.version != null ? input.version : null, origin: input.origin || 'buffer', status: 'unanalysed', text };
     const previous = this.documents.get(uri);
     if (previous && previous.fingerprint === document.fingerprint && previous.language === document.language) {
       document.status = previous.status;
@@ -113,7 +115,8 @@ class ProjectIndex {
     this.assertActive();
     const uri = documentUri(input.uri || input.filePath);
     const previous = this.overlays.get(uri);
-    const version = input.version ?? (previous?.version ?? -1) + 1;
+    const previousVersion = previous && previous.version != null ? previous.version : -1;
+    const version = input.version != null ? input.version : previousVersion + 1;
     if (previous && version <= previous.version) return false;
     const overlay = { ...input, uri, version, origin: 'buffer' };
     if (!this.storeDocument(overlay)) return false;
@@ -151,7 +154,7 @@ class ProjectIndex {
     else if (document.language === 'module' && this.ts) { value = require('./modules').analyzeModule(this.ts, document.filePath, document.text, document.rootDir); this.stats.moduleAnalyses++; }
     document.status = value ? (document.language === 'rmt' ? value.graph.ok ? 'complete' : 'incomplete' : value.gaps.length ? 'incomplete' : 'complete') : document.language === 'data' ? 'recorded' : 'incomplete';
     if (document.language === 'module' && value) document.moduleExports = value.exports;
-    document.analysisProvider = document.language === 'rmt' ? value?.languageMode === 'vnext' ? 'rmt-vnext-compiler' : 'rmt-semantic-graph' : document.language === 'module' ? this.ts ? 'typescript' : 'unavailable' : 'source-inventory';
+    document.analysisProvider = document.language === 'rmt' ? value && value.languageMode === 'vnext' ? 'rmt-vnext-compiler' : 'rmt-semantic-graph' : document.language === 'module' ? this.ts ? 'typescript' : 'unavailable' : 'source-inventory';
     this.stats.analyses++;
     this.analyses.set(uri, { fingerprint: document.fingerprint, language: document.language, value, status: document.status, provider: document.analysisProvider });
     return value;
@@ -169,7 +172,7 @@ class ProjectIndex {
     for (const document of this.documents.values()) {
       const analysis = this.getAnalysis(document.uri);
       analyses.set(document.uri, analysis);
-      if (document.language !== 'rmt' || !analysis?.imports.length) continue;
+      if (document.language !== 'rmt' || !analysis || !analysis.imports.length) continue;
       if (virtualUri(document.uri)) {
         this.coverage.push({ documentId: document.id, path: document.workspacePath, provider: 'rmt-vnext-import-resolver', code: 'virtual-document-import-base', detail: 'Save the document to establish a filesystem import base.' });
         continue;
@@ -178,9 +181,15 @@ class ProjectIndex {
       const roots = (this.options.importRoots || [path.dirname(document.filePath)]).map(root => path.resolve(document.rootDir, root));
       const graph = createModuleGraph({ entryFile: document.filePath }, { rootDir: document.rootDir, roots,
         allowIncompleteImports: true,
-        readText: file => this.documents.get(uriFor(file))?.text ?? fs.readFileSync(file, 'utf8'),
+        readText: file => {
+          const document = this.documents.get(uriFor(file));
+          return document && document.text != null ? document.text : fs.readFileSync(file, 'utf8');
+        },
         fileExists: file => this.documents.has(uriFor(file)) || fs.existsSync(file),
-        compileSource: input => this.getAnalysis(input.filePath)?.graph.compileResult || require('../rmt-language/vnext-compiler').compileRmtVNextSource(input),
+        compileSource: input => {
+          const analysis = this.getAnalysis(input.filePath);
+          return analysis && analysis.graph.compileResult || require('../rmt-language/vnext-compiler').compileRmtVNextSource(input);
+        },
         additionalFiles: [...this.overlays.keys()].map(fileFor),
         realPathInsideAnyRoot: file => { let real; try { real = fs.realpathSync(file); } catch { if (this.overlays.has(uriFor(file))) real = file; }
           return real ? { realPath: real, inside: roots.some(root => { try { return inside(fs.realpathSync(root), real); } catch { return inside(root, real); } }) } : null; }
@@ -190,7 +199,7 @@ class ProjectIndex {
         const importer = modules.get(item.importer);
         if (!importer || importer.filePath !== posix(document.filePath)) continue;
         const imported = analysis.imports.find(record => record.path === item.importPath);
-        for (const target of item.resolvedPaths) edge(document.id, fileId(target), 'rmt-import', { provider: 'rmt-vnext-import-resolver', evidence: 'declared', path: document.workspacePath }, { source: location(document.uri, imported?.range), specifier: item.importPath });
+        for (const target of item.resolvedPaths) edge(document.id, fileId(target), 'rmt-import', { provider: 'rmt-vnext-import-resolver', evidence: 'declared', path: document.workspacePath }, { source: location(document.uri, imported ? imported.range : undefined), specifier: item.importPath });
       }
       for (const diagnostic of graph.diagnostics) if (String(diagnostic.code).startsWith('rmt.vnext.import.')) this.coverage.push({ documentId: document.id, path: document.workspacePath, provider: 'rmt-vnext-import-resolver', code: diagnostic.code, detail: diagnostic.message });
     }
@@ -199,12 +208,12 @@ class ProjectIndex {
       if (document.language !== 'rmt' || !analysis) continue;
       const ids = new Map();
       for (const entry of analysis.entries) {
-        const declared = entry.node?.name || entry.id;
+        const declared = entry.node && entry.node.name || entry.id;
         const base = `symbol:${JSON.stringify([document.projectId, document.relativePath, entry.domain, entry.declaredScope, declared])}`;
         const count = (ids.get(base) || 0) + 1; ids.set(base, count);
         const symbol = { id: count === 1 ? base : `${base}#duplicate:${count}`, documentId: document.id, projectId: document.projectId,
           name: entry.name, domain: entry.domain, scope: entry.declaredScope, declaredIdentity: declared, aliases: entry.aliases,
-          pointer: entry.pointer, astPointer: entry.node?.astPointer || null,
+          pointer: entry.pointer, astPointer: entry.node && entry.node.astPointer || null,
           definition: location(document.uri, entry.range), nameLocation: location(document.uri, entry.idRange),
           provenance: { provider: analysis.languageMode === 'legacy' ? 'rmt-semantic-graph' : 'rmt-compiler-and-primitive-graph', evidence: 'semantic', path: document.workspacePath } };
         this.symbolRecords.push(symbol);
@@ -243,14 +252,14 @@ class ProjectIndex {
       packages: (this.packages || []).map(({ manifest, text, ...pkg }) => pkg).sort((a, b) => compare(a.id, b.id)), contracts: sortRecords(this.contracts), suites: sortRecords(this.suites), coverage: this.coverage }));
   }
   searchSymbols(query = '', options = {}) {
-    this.ensureLinked(); return this.symbolRecords.filter(symbol => (!query || symbol.name.toLowerCase().includes(query.toLowerCase())) && (!options.projectId || symbol.projectId === options.projectId) && (!options.uri || symbol.definition.uri === options.uri)).slice(0, options.limit ?? Infinity);
+    this.ensureLinked(); return this.symbolRecords.filter(symbol => (!query || symbol.name.toLowerCase().includes(query.toLowerCase())) && (!options.projectId || symbol.projectId === options.projectId) && (!options.uri || symbol.definition.uri === options.uri)).slice(0, options.limit != null ? options.limit : Infinity);
   }
   definitions(query = {}) {
     this.ensureLinked();
     if (query.symbolId) return this.symbolRecords.filter(symbol => symbol.id === query.symbolId).map(symbol => symbol.nameLocation);
     const references = this.referenceRecords.filter(ref => ref.source.uri === query.uri && (query.pointer ? ref.pointer === query.pointer : at(ref.source.range, query.position)));
     if (references.length) return references.filter(ref => ref.status === 'resolved').flatMap(ref => this.definitions({ symbolId: ref.targetId }));
-    const imports = this.relationships.filter(rel => rel.kind === 'rmt-import' && rel.source?.uri === query.uri && at(rel.source.range, query.position));
+    const imports = this.relationships.filter(rel => rel.kind === 'rmt-import' && rel.source && rel.source.uri === query.uri && at(rel.source.range, query.position));
     if (imports.length) return imports.map(rel => ({ uri: rel.to.slice(5), range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } } }));
     return this.symbolRecords.filter(symbol => symbol.definition.uri === query.uri && (query.pointer ? [symbol.pointer, symbol.astPointer].includes(query.pointer) : at(symbol.nameLocation.range, query.position))).map(symbol => symbol.nameLocation);
   }

@@ -58,7 +58,7 @@ const fabric = window.XTendFabric && typeof window.XTendFabric.createXtendFabric
       api: window.XTend
     })
   : null;
-let searchScheduleDisposer = null;
+let searchScheduleHandle = null;
 let currentQuery = '';
 let renderedSearchSignature = '';
 let pendingSearchActivationSource = '';
@@ -480,9 +480,9 @@ async function runSearch(queryValue) {
 
 function scheduleSearch(query) {
   currentQuery = String(query || '').trim();
-  if (searchScheduleDisposer) searchScheduleDisposer();
-  searchScheduleDisposer = browserScheduler.scheduleEndpoint('docs.search.query', window.location.pathname, () => {
-    searchScheduleDisposer = null;
+  if (searchScheduleHandle) searchScheduleHandle.cancel('docs-search-superseded');
+  searchScheduleHandle = browserScheduler.scheduleEndpoint('docs.search.query', window.location.pathname, () => {
+    searchScheduleHandle = null;
     runSearch(query);
   }, { kind: 'delay', delayMs: 80 });
 }
@@ -705,7 +705,7 @@ function schedulePrismHighlight(root = document) {
     if (window.XTendRmtPrism && typeof window.XTendRmtPrism.register === 'function') window.XTendRmtPrism.register(window.Prism);
     if (typeof window.Prism.highlightAllUnder === 'function') window.Prism.highlightAllUnder(root);
   };
-  disposers.push(browserScheduler.scheduleEndpoint('docs.syntax.highlight', currentSlug(), run, { kind: 'idle', timeout: 700 }));
+  browserScheduler.scheduleEndpoint('docs.syntax.highlight', currentSlug(), run, { kind: 'idle', timeout: 700 });
 }
 
 function bindShellEvents() {
@@ -725,7 +725,7 @@ function bindShellEvents() {
   disposers.push(XUtils.on(window, 'xtend-docs-content-ready', (event) => {
     const detail = event.detail || {};
     schedulePrismHighlight(detail.root || document);
-    disposers.push(browserScheduler.afterPaint(checkViewportOverflow));
+    browserScheduler.afterPaint(checkViewportOverflow);
     ensureRouterRoutes();
     appRuntime.command('docs.content.ready', detail, {
       lane: 'visible', sourceId: 'docs.page', event: 'xtend-docs-content-ready'
@@ -754,7 +754,7 @@ function bindShellEvents() {
     currentQuery = '';
     hideSearchResults();
   }));
-  disposers.push(XUtils.on(window, 'resize', () => disposers.push(browserScheduler.afterPaint(checkViewportOverflow)), { passive: true }));
+  disposers.push(XUtils.on(window, 'resize', () => browserScheduler.afterPaint(checkViewportOverflow), { passive: true }));
   disposers.push(XUtils.on(window, 'pagehide', dispose));
 }
 
@@ -765,12 +765,12 @@ function scheduleRouteRegistration() {
     disposers.push(XUtils.on(nav, 'focusin', ensureRouterRoutes));
   }
   const run = () => ensureRouterRoutes();
-  disposers.push(browserScheduler.scheduleEndpoint('docs.routes.register', 'docs.shell', run, { kind: 'idle', timeout: 1200 }));
+  browserScheduler.scheduleEndpoint('docs.routes.register', 'docs.shell', run, { kind: 'idle', timeout: 1200 });
 }
 
 function scheduleCompactIndex() {
   const run = () => searchRuntime.query(`${SEARCH_SOURCE_PREFIX}${locale()}`, '', { minQueryLength: 2 }).catch(() => {});
-  disposers.push(browserScheduler.scheduleEndpoint('docs.search.prewarm', 'docs.shell', run, { kind: 'idle', timeout: 1600 }));
+  browserScheduler.scheduleEndpoint('docs.search.prewarm', 'docs.shell', run, { kind: 'idle', timeout: 1600 });
 }
 
 async function recommendRelated(input = {}) {
@@ -827,7 +827,8 @@ async function recommendRelated(input = {}) {
 }
 
 function dispose() {
-  if (searchScheduleDisposer) searchScheduleDisposer();
+  if (searchScheduleHandle) searchScheduleHandle.cancel('docs-shell-disposed');
+  searchScheduleHandle = null;
   searchRuntime.dispose();
   disposers.splice(0).forEach((disposer) => {
     try { disposer(); } catch (_) {}
@@ -844,7 +845,7 @@ bindShellEvents();
 scheduleRouteRegistration();
 scheduleCompactIndex();
 schedulePrismHighlight(document);
-disposers.push(browserScheduler.afterPaint(checkViewportOverflow));
+browserScheduler.afterPaint(checkViewportOverflow);
 
 const hydrationMs = performance.now() - bootStartedAt;
 window.xtendDocsDevApi && window.xtendDocsDevApi.update({

@@ -3959,10 +3959,10 @@ function scheduleDocsSsrCodeEnhancement(root, metadata = {}) {
   };
   const scheduleIdleEnhancement = () => {
     if (disposed || enhanced || idleDisposer || !componentReady || !isActive()) return;
-    idleDisposer = docsBrowserScheduler.scheduleEndpoint(endpointName, window.location.pathname, () => {
-      cancelIdleEnhancement();
+    idleDisposer = createDocsScheduleDisposer(docsBrowserScheduler.scheduleEndpoint(endpointName, window.location.pathname, () => {
+      idleDisposer = null;
       enhance('idle');
-    }, { kind: 'idle', timeout: deadlineMs });
+    }, { kind: 'idle', timeout: deadlineMs }), 'docs-code-enhancement-disposed');
   };
   const prepare = (async () => {
     // Resume adoption intentionally precedes the general component loader.  Wait
@@ -5488,7 +5488,7 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
   };
   const scheduleDiagnostics = () => {
     if (diagnosticsDisposer) diagnosticsDisposer();
-    diagnosticsDisposer = docsBrowserScheduler.scheduleEndpoint('docs.playground.diagnostics', window.location.pathname, () => {
+    diagnosticsDisposer = createDocsScheduleDisposer(docsBrowserScheduler.scheduleEndpoint('docs.playground.diagnostics', window.location.pathname, () => {
       diagnosticsDisposer = null;
       runDocsRmtPlaygroundLanguageDiagnostics(root, locale).catch((error) => {
         updateDocsRmtPlaygroundDiagnostics(root, [{
@@ -5498,13 +5498,13 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
           message: error && error.message ? error.message : copy.failed
         }], copy);
       });
-    }, { kind: 'delay', delayMs: DOCS_RMT_PLAYGROUND_DIAGNOSTIC_DEBOUNCE_MS });
+    }, { kind: 'delay', delayMs: DOCS_RMT_PLAYGROUND_DIAGNOSTIC_DEBOUNCE_MS }), 'docs-playground-diagnostics-cancelled');
   };
   const scheduleCompile = () => {
     setDocsRmtPlaygroundOutputPending(root, getDocsRmtPlaygroundEditorValue(editor), copy);
     setDocsRmtPlaygroundStatus(status, copy.compiling, 'loading');
     if (compileDisposer) compileDisposer();
-    compileDisposer = docsBrowserScheduler.scheduleEndpoint('docs.playground.compile', window.location.pathname, () => {
+    compileDisposer = createDocsScheduleDisposer(docsBrowserScheduler.scheduleEndpoint('docs.playground.compile', window.location.pathname, () => {
       compileDisposer = null;
       compileDocsRmtPlayground(root, locale).catch((error) => {
         const payload = {
@@ -5520,7 +5520,7 @@ function renderDocsRmtPlayground(container, locale = getCurrentDocsLocale(), rel
         updateDocsRmtPlaygroundFromPayload(root, payload, copy);
         setDocsRmtPlaygroundStatus(status, copy.failed, 'error');
       });
-    }, { kind: 'delay', delayMs: DOCS_RMT_PLAYGROUND_DEBOUNCE_MS });
+    }, { kind: 'delay', delayMs: DOCS_RMT_PLAYGROUND_DEBOUNCE_MS }), 'docs-playground-compile-cancelled');
   };
   lifecycleDisposers.push(bindDocsLifecycle(editor, 'textarea-changed', (event) => {
     if (event && event.detail && typeof event.detail.value === 'string') {

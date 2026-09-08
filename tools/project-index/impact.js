@@ -12,7 +12,7 @@ function computeImpact({ baseSnapshot, headSnapshot, changedPaths }) {
     for (const [name, map] of [['documents', documents], ['packages', packages], ['contracts', contracts], ['suites', suites]]) for (const record of snapshot[name] || []) map.set(record.id, record);
     for (const relationship of snapshot.relationships || []) {
       const previous = edges.get(relationship.id);
-      edges.set(relationship.id, { ...relationship, snapshots: [...(previous?.snapshots || []), snapshotIndex === snapshots.length - 1 ? 'head' : 'base'] });
+      edges.set(relationship.id, { ...relationship, snapshots: [...(previous && previous.snapshots || []), snapshotIndex === snapshots.length - 1 ? 'head' : 'base'] });
     }
   }
   const reverse = new Map();

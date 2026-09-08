@@ -21,8 +21,8 @@ function astNodes(ast) {
 
 function preciseRange(sourceModel, range, name, nodes = []) {
   if (!range || !name) return range;
-  const start = range.startOffset ?? sourceModel.offsetAt(range.start);
-  const end = range.endOffset ?? sourceModel.offsetAt(range.end);
+  const start = range.startOffset != null ? range.startOffset : sourceModel.offsetAt(range.start);
+  const end = range.endOffset != null ? range.endOffset : sourceModel.offsetAt(range.end);
   const matches = nodes.map(entry => entry.node || entry).filter(node => node.range &&
     node.range.startOffset >= start && node.range.endOffset <= end &&
     (node.value === name || node.name === name) && node.type === 'RmtIdentifier');

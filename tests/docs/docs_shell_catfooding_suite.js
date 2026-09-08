@@ -129,6 +129,7 @@ async function runRmtSearchRuntimeSuite(options = {}) {
   searchRuntime.dispose();
   cachedRuntime.dispose();
   supersessionRuntime.dispose();
+  await require('./docs_scheduler_consumers').runDocsSchedulerConsumerChecks(rootDir, context);
   return context.result({ schema: runtime.RMT_SEARCH_RUNTIME_SCHEMA });
 }
 
