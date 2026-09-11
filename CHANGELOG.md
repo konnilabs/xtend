@@ -2,6 +2,10 @@
 
 Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend ist fuer RC1-Publish-Prep auf `private: false` geoeffnet; der eigentliche Publish-Befehl bleibt ein separater manueller Owner-Schritt.
 
+## Unreleased
+
+- RMT: Delegierte UI-Ereignisse und Commands werfen beim Aufbau ihres Handler-Kontexts keinen `ReferenceError` mehr. `ctx.scheduler.getPriorityQueueStats()` liest den aktuellen Snapshot der injizierten Kernel-Scheduler-Instanz; ein Regressionstest deckt die Modulquelle sowie Core-, ESM- und Browser-Artefakte ab.
+
 ## 0.8.0 - 2026-08-30
 
 - Breaking: `@ccslabs/xtend/rmt/kernel-scheduler` und `@ccslabs/xtend-rmt/kernel-scheduler` liefern den hostneutralen Microkernel mit einem thenable `RmtJobHandle`; `await handle` ergibt direkt das Arbeitsergebnis.

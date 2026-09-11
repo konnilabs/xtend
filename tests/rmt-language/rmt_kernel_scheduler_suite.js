@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const vm = require('vm');
 const { pathToFileURL } = require('url');
 const { createSuiteContext, printSuiteReport } = require('../utils/assertions');
 
@@ -80,11 +81,86 @@ async function importBrowserScheduler(rootDir) {
   return import(`${pathToFileURL(modulePath).href}?test=${Date.now()}`);
 }
 
+async function checkDelegatedSchedulerContext(context, rootDir, schedulerApi) {
+  const modulePath = 'xtendrmt/kernel/modules/rmt-engine-controller.js';
+  const moduleScope = { __XTENDRMT_GLOBAL__: { AppModules: {} } };
+  vm.runInNewContext(fs.readFileSync(path.join(rootDir, modulePath), 'utf8'), moduleScope, { filename: modulePath });
+  const factories = [[modulePath, moduleScope.__XTENDRMT_GLOBAL__.AppModules.createRmtEngineController]];
+  for (const artifact of ['xtendrmt/rmt-core.esm.js', 'xtendrmt/rmt-runtime.esm.js']) {
+    const runtime = await import(pathToFileURL(path.join(rootDir, artifact)).href);
+    factories.push([artifact, (deps) => runtime.createRmtCore(deps).rmt]);
+  }
+  const browserPath = 'xtendrmt/rmt-runtime.browser.js';
+  const browserScope = {};
+  vm.runInNewContext(fs.readFileSync(path.join(rootDir, browserPath), 'utf8'), browserScope, { filename: browserPath });
+  factories.push([browserPath, (deps) => browserScope.XTendRMT.createRmtCore(deps).rmt]);
+
+  for (const [label, createEngine] of factories) {
+    const host = createDeterministicHost();
+    const scheduler = schedulerApi.createRmtKernelScheduler({ hostPort: host, preferPostTask: false });
+    const listeners = new Map();
+    const button = { nodeType: 1, dataset: { action: 'open' }, closest: () => button };
+    const root = { nodeType: 1, contains: (element) => element === button };
+    const commands = [];
+    const engine = createEngine({
+      scheduler,
+      hostAdapter: {
+        now: host.now,
+        createAbortController: host.createAbortController,
+        listen(_target, type, listener) {
+          listeners.set(type, listener);
+          return () => listeners.delete(type);
+        }
+      },
+      commandBus: {
+        dispatch(envelope, options) {
+          commands.push({ envelope, options });
+          return Promise.resolve({ status: 'succeeded' });
+        }
+      }
+    });
+    const mounted = engine.mountRoot('delegation-test', root);
+    let handlerContext;
+    let firstSnapshot;
+    mounted.on('click', {
+      selector: '[data-rmt-action]',
+      handler(ctx) {
+        handlerContext = ctx;
+        firstSnapshot = ctx.scheduler.getPriorityQueueStats();
+      }
+    });
+    mounted.on('keydown', { selector: '[data-rmt-action]', commandName: 'app.open' });
+    const queued = scheduler.schedule({ id: 'delegation-pending', lane: 'visible' }, () => 'done');
+    const event = { type: 'click', target: button };
+    let eventError = null;
+    try {
+      listeners.get('click')(event);
+      listeners.get('keydown')({ type: 'keydown', target: button });
+    } catch (error) {
+      eventError = error;
+    }
+    context.assert(!eventError, `${label}: delegated events do not throw${eventError ? ` (${eventError.message})` : ''}`);
+    if (!eventError) {
+      context.assert(handlerContext.event === event && handlerContext.matchedElement === button && handlerContext.rootId === 'delegation-test', `${label}: matching click reaches the handler with its root context`);
+      context.assert(JSON.stringify(firstSnapshot) === JSON.stringify(scheduler.snapshot()) && firstSnapshot.pendingJobIds.includes(queued.id), `${label}: delegated queue statistics come from the injected authority`);
+      await host.flushMicrotasks();
+      await queued;
+      const nextSnapshot = handlerContext.scheduler.getPriorityQueueStats();
+      context.assert(nextSnapshot.telemetry.completed === 1 && firstSnapshot.telemetry.completed === 0 && nextSnapshot.pendingJobIds.length === 0, `${label}: delegated statistics reflect later scheduler changes`);
+      context.assert(commands.length === 1 && commands[0].envelope.commandName === 'app.open' && commands[0].options.runtimeContext.rmt === engine, `${label}: delegated command dispatch receives the engine context`);
+      context.assert(commands[0]?.options.runtimeContext.scheduler.getPriorityQueueStats().telemetry.completed === 1, `${label}: command handlers share the live scheduler statistics`);
+    }
+    mounted.dispose();
+    scheduler.dispose();
+  }
+}
+
 async function runRmtKernelSchedulerSuite(options = {}) {
   const rootDir = options.rootDir || path.resolve(__dirname, '..', '..');
   const context = createSuiteContext('RMT Kernel 0.8 Microkernel Scheduler');
   const api = await importScheduler(rootDir);
   const browserApi = await importBrowserScheduler(rootDir);
+  await checkDelegatedSchedulerContext(context, rootDir, api);
   const sourcePath = path.join(rootDir, 'xtendrmt/rmt-kernel-scheduler.js');
   const source = fs.readFileSync(sourcePath, 'utf8');
   const gzipBytes = require('zlib').gzipSync(source, { level: 9 }).length;

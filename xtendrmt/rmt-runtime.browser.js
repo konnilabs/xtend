@@ -960,7 +960,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
                     panicBlockScope,
                     getDiagnostics: getSchedulerDiagnostics,
                     getPressureLevel: () => schedulerAuthority.snapshot().pressureLevel,
-                    getPriorityQueueStats,
+                    getPriorityQueueStats: () => schedulerAuthority.snapshot(),
                     reportPerformanceSample,
                     schedule
                 },

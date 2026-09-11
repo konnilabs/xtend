@@ -759,7 +759,7 @@
                     panicBlockScope,
                     getDiagnostics: getSchedulerDiagnostics,
                     getPressureLevel: () => schedulerAuthority.snapshot().pressureLevel,
-                    getPriorityQueueStats,
+                    getPriorityQueueStats: () => schedulerAuthority.snapshot(),
                     reportPerformanceSample,
                     schedule
                 },
