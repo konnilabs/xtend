@@ -2,6 +2,10 @@
 
 Willkommen im XTend Developer Center. Diese Dokumentation erklärt XTend für Entwickler, die Web Components, RMT App Shells, lokale Module und SSR in eigenen Produkten einsetzen möchten.
 
+## Aktueller Stand: 0.8.0
+
+Der [0.8.0-Changelog](./changelog.md) bündelt Migrationen und neue Funktionen: eine gemeinsame Scheduler-Autorität, [Maraca FastPass und Abort Boundaries](./maraca-fastpass-abort-boundary.md), bedarfsgesteuerte Diagnosen, [Hydrangea JIT](./rmt-jit-hydrangea.md) und die [Seitenlaufzeit für Node und Laravel](./ssr-pages.md). Die Paketvoraussetzung ist Node >=24.
+
 ## Lernpfade
 
 | Ziel | Start |
@@ -32,7 +36,7 @@ previous release bridge path: ./release-verification.md
 
 ## Produktmodell
 
-XTend UI liefert die sichtbaren Web Components. XTendRMT beschreibt App Shells, State, Actions, Events, Resources, Surfaces, Hydration, Validation und Surface Transitions. Fabric koordiniert Runtime-Arbeit; der RMT Kernel ergänzt Scheduler-Lanes, Fibers und Telemetrie. Die [ESM-Registry](./esm-registry.md) stellt komfortable JavaScript-Aliase am Paket-Root für Browser-, Bundler- und SSR-Apps bereit. [XTend Classic](./xtend-classic.md) liefert direkt gepflegtes HTML und JavaScript über ein lokales Runtime-Manifest und `xtend-loader.js` aus. Maraca baut aus `.rmt`-Quellen loaderlose, kernel-orchestrierte ESM Apps mit Bundle-Report, Browser Bridges, mobilem Web App Manifest, optionalem PWA Service Worker und strikt prüfbaren Contracts. Alle Pfade teilen dieselben öffentlichen Runtime-Verträge.
+XTend UI liefert die sichtbaren Web Components. XTendRMT beschreibt App Shells, State, Actions, Events, Resources, Surfaces, Hydration, Validation und Surface Transitions. Der RMT-Microkernel ist die gemeinsame Scheduler-Autorität. Fabric liefert Lane-Zuordnung, Work-Intents, Backpressure und Telemetrie ohne eigene Ausführungsqueue. Die [ESM-Registry](./esm-registry.md) stellt komfortable JavaScript-Aliase am Paket-Root für Browser-, Bundler- und SSR-Apps bereit. [XTend Classic](./xtend-classic.md) liefert direkt gepflegtes HTML und JavaScript über ein lokales Runtime-Manifest und `xtend-loader.js` aus. Maraca baut aus `.rmt`-Quellen loaderlose, kernel-orchestrierte ESM Apps mit Bundle-Report, Browser Bridges, mobilem Web App Manifest, optionalem PWA Service Worker und strikt prüfbaren Contracts. Alle Pfade teilen dieselben öffentlichen Runtime-Verträge.
 
 ## Delivery-Pfad wählen
 

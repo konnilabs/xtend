@@ -26,3 +26,7 @@ Behebe zuerst den frühesten fehlgeschlagenen Fokusübergang. Ein Maus-Klick bew
 
 - [Performance](./performance.md)
 - [Hydration Policies](./hydration-policies.md)
+
+## Overlay-Fokus unter Last
+
+Die Fokusfalle berücksichtigt auch geslottete und eingebundene Remote-Controls. Prüfe vorwärts und rückwärts durch die tatsächlichen Controls, Escape im obersten Modal und Fokuswiederherstellung nach Close. Wiederhole den Ablauf während wartender Hydration und schneller Surface-Wechsel. Explizites FastPass-Focus und Close dürfen nicht hinter fachlichen Commands warten; veraltete Antworten dürfen Fokus oder Modalität anschließend nicht zurücksetzen. Siehe [FastPass](./maraca-fastpass-abort-boundary.md).

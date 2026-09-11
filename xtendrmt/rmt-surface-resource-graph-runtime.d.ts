@@ -1,3 +1,4 @@
+import type { RmtPresentationBoundaryPort } from './rmt-core';
 export const RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-surface-resource-graph-diagnostic.v1';
 export const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA: 'xtend.epic18.rmt-surface-resource-graph-runtime.v2';
 
@@ -182,6 +183,7 @@ export interface RmtSurfaceManagerLike {
 }
 
 export interface RmtSurfaceResourceGraphRuntimeOptions {
+  getSurfaceBoundary?(id: string): RmtPresentationBoundaryPort;
   surfaces?: RmtSurfaceDefinition[];
   surfaceTemplates?: RmtSurfaceDefinition[];
   surfaceDefinitions?: RmtSurfaceDefinition[];
@@ -227,7 +229,7 @@ export interface RmtSurfaceResourceGraphRuntime {
     created: string[];
     reused: string[];
   };
-  openSurface(surfaceRef: string, options?: Record<string, unknown>): Promise<RmtSurfaceInstance>;
+  openSurface(surfaceRef: string, options?: Record<string, unknown>): Promise<RmtSurfaceInstance | { ok: false; status: 'superseded'; surfaceId: string }>;
   closeSurface(surfaceRef: string, metadata?: Record<string, unknown>): RmtSurfaceInstance;
   destroySurface(surfaceRef: string, metadata?: Record<string, unknown>): RmtSurfaceInstance;
   minimizeSurface(surfaceRef: string, metadata?: Record<string, unknown>): RmtSurfaceInstance;

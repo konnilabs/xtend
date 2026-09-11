@@ -4173,7 +4173,8 @@ const DOC_REFERENCE_CONTRACTS = [
       { pattern: './rmt-language-server.md', message: 'links RMT language server docs' },
       { pattern: 'XTend UI liefert die sichtbaren Web Components', message: 'describes XTend UI layer' },
       { pattern: 'XTendRMT beschreibt App Shells', message: 'describes XTendRMT layer' },
-      { pattern: 'Fabric koordiniert Runtime-Arbeit', message: 'describes Fabric layer' },
+      { pattern: 'Fabric liefert Lane-Zuordnung, Work-Intents, Backpressure und Telemetrie', message: 'describes Fabric work intents' },
+      { pattern: 'ohne eigene Ausführungsqueue', message: 'preserves one scheduler authority' },
       { pattern: 'xtend.rmt.tooling-docs.v1', message: 'documents RMT tooling docs schema' }
     ]
   },
@@ -4189,7 +4190,8 @@ const DOC_REFERENCE_CONTRACTS = [
       { pattern: './rmt-language-server.md', message: 'links RMT language server docs' },
       { pattern: 'XTend UI provides the visible Web Components', message: 'describes XTend UI layer' },
       { pattern: 'XTendRMT describes app shells', message: 'describes XTendRMT layer' },
-      { pattern: 'Fabric coordinates runtime work', message: 'describes Fabric layer' },
+      { pattern: 'Fabric contributes work intents, fibers, backpressure and telemetry', message: 'describes Fabric work intents' },
+      { pattern: 'without a second queue', message: 'preserves one scheduler authority' },
       { pattern: 'xtend.rmt.tooling-docs.v1', message: 'documents RMT tooling docs schema' }
     ]
   },

@@ -595,6 +595,9 @@
         }
 
         async function requestUiCompute(envelope = {}, options = {}) {
+            if (options.abortBoundary && !options.abortBoundary.isCurrent(options.presentationToken || options.abortBoundary.capture())) {
+                return { ok: false, status: 'superseded', superseded: true };
+            }
             if (!uiCoprocessor.enabled) {
                 return {
                     ok: false,

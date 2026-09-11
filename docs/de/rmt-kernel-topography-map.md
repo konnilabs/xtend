@@ -96,7 +96,7 @@ Modulzahl, Reihenfolge, Targets, Exports und Hashes werden aus dem Source-Manife
 | Kernel Runtime | `createRmtCore()`, `createRmtRuntime()`, `createRmtPerformanceRuntime()` | Hostneutrale Scheduling-, Lifecycle-, Diagnostics- und Performance-Semantik |
 | Fabric | `createRmtStateSchedulerDiagnosticsBridge()`, Performance Samples | Kompatible Lane-, Fiber- und Backpressure-Telemetry |
 | UI/Surface Layer | `createRmtSurfaceAdapter()`, `createRmtDomCompat()` | Contract-driven Open/Close/Destroy/Focus und Ownership Modes |
-| Maraca | `createRmtProductSurface()`, Template Artifact APIs, Performance APIs | Produktweiter Bootstrap mit Bundle Evidence und Entry-Point-Prüfung |
+| Maraca | `createMaracaPlanRuntime()`, injizierter Scheduler, Template- und Performance-APIs | Composition Root mit Bundle Evidence; Product Surface nur als expliziter Opt-in-Service |
 | SSR/Worker/Prewarm | Worker-/Server-Transport-Adapter, Prerender-Runtimes, Prewarm Worker Runtime | Teure Template-Arbeit aus sichtbaren Lanes herauslösen |
 | App Runtime | `createRmtAppRuntime()`, Command-, Stream- und Reducer-APIs | Host Services und App-Aktionen mit Fabric- und Kernel-Diagnostics verbinden |
 

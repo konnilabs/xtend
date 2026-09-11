@@ -18,7 +18,8 @@ const DOCUMENTATION_GATES = [
     contracts: [
       { pattern: 'XTend UI liefert die sichtbaren Web Components', message: 'documents the XTend UI layer' },
       { pattern: 'XTendRMT beschreibt App Shells', message: 'documents the XTendRMT layer' },
-      { pattern: 'Fabric koordiniert Runtime-Arbeit', message: 'documents the Fabric layer' },
+      { pattern: 'Fabric liefert Lane-Zuordnung, Work-Intents, Backpressure und Telemetrie', message: 'documents the Fabric layer' },
+      { pattern: 'RMT-Microkernel ist die gemeinsame Scheduler-Autorität', message: 'documents the shared scheduler authority' },
       { pattern: 'XTend Classic', message: 'documents the supported manifest-based Classic delivery path' }
     ]
   },

@@ -96,7 +96,7 @@ Module count, order, targets, exports, and hashes are derived from the source ma
 | Kernel runtime | `createRmtCore()`, `createRmtRuntime()`, `createRmtPerformanceRuntime()` | Host-neutral scheduling, lifecycle, diagnostics and performance semantics |
 | Fabric | `createRmtStateSchedulerDiagnosticsBridge()`, performance samples | Compatible lane, fiber and backpressure telemetry |
 | UI/surface layer | `createRmtSurfaceAdapter()`, `createRmtDomCompat()` | Contract-driven open/close/destroy/focus and ownership modes |
-| Maraca | `createRmtProductSurface()`, template artifact APIs, performance APIs | Product-wide bootstrap with bundle evidence and entry-point checks |
+| Maraca | `createMaracaPlanRuntime()`, injected scheduler, template and performance APIs | Composition root with bundle evidence; Product Surface only as an explicit opt-in service |
 | SSR/worker/prewarm | Worker/server transport adapters, prerender runtimes, prewarm worker runtime | Moves expensive template work out of visible lanes |
 | App Runtime | `createRmtAppRuntime()`, command, stream and reducer APIs | Connects host services and app actions to Fabric and kernel diagnostics |
 

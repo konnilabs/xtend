@@ -78,7 +78,7 @@ export interface RmtSchedulerHostPort {
   cancelAnimationFrame?(handle: unknown): void;
   requestIdleCallback?(callback: (deadline: IdleDeadline) => void, options?: { timeout?: number }): unknown;
   cancelIdleCallback?(handle: unknown): void;
-  postTask?(callback: () => void, options?: { priority?: string }): Promise<unknown> | unknown;
+  postTask?(callback: () => void, options?: { priority?: string; signal?: AbortSignal }): Promise<unknown> | unknown;
   createAbortController?(): AbortController | null;
 }
 

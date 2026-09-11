@@ -71,3 +71,20 @@ When the pack dry run fails, inspect `files`, exports and generated artifacts in
 - [Conditional Network Evidence](./conditional-network-evidence.md)
 - [Supply Chain Checks](./supply-chain-gates.md)
 - [Changelog](./changelog.md)
+
+## Bilingual documentation for 0.8.0
+
+Verify DE and EN together: new APIs, defaults, migration steps and executable examples must agree. The [release overview](./changelog.md) links scheduler/FastPass, Abort Boundaries, diagnostic demand, Hydrangea, the page runtime and Page Wire. Hydrangea remains opt-in; local measurements do not establish universal production latency.
+
+After article or menu changes, regenerate navigation, search indexes and MCP knowledge:
+
+```bash
+node scripts/build_docs_navigation.js --write
+node scripts/build_docs_search_indexes.js --write
+node products/xtend-mcp/scripts/build-knowledge.mjs
+node scripts/run_xtend_tests.js docs-public-quality docs-content-depth docs-quality-gates maraca-docs rmt-reference-docs rmt-tooling-docs rmt-playground-docs --json
+```
+
+After language-catalog changes, also generate the RMT AI Developer Kit with `xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json` before building MCP knowledge. After framework-runtime changes, rebuild the Docs shell with `xt maraca tune docs/xtendrmt-docs-document-v2.rmt --config docs/maraca.config.json --out docs/generated/shell --write --json`. Then use the corresponding `--check` paths.
+
+In the browser, verify new articles in both languages, search, locale switching and narrow views. Docs acceptance supplements the full release, type, schema, artifact and package checks; it replaces neither the CI matrix nor the separate publishing step.

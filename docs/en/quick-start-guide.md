@@ -69,3 +69,14 @@ or the [RMT PHP/Laravel SSR Adapter](./rmt-php-ssr-adapter.md).
 - [XTend Maraca](./xtend-maraca.md)
 - [Maraca Orchestration](./xtend-maraca-orchestration.md)
 - [Enterprise Adoption](./enterprise-adoption.md)
+
+## 0.8.0: local Maraca app and page hosts
+
+Packages require Node >=24. In a framework checkout, the native example runs through a local HTTP server without SSR or resumability:
+
+```sh
+node xtend-builder/bin/xt maraca build demos/xtendrmt/maraca-fastpass/app.rmt --out .xtend-build/maraca/fastpass --orchestration strict --kernel strict --hydration auto --css external
+node xtend-builder/bin/xt serve --root .xtend-build/maraca/fastpass
+```
+
+[FastPass](./maraca-fastpass-abort-boundary.md) prioritizes shell actions. For server-rendered pages, forms and persistent layouts, use the [Node/Laravel page runtime](./ssr-pages.md). When upgrading, read the [0.8 migration](./rmt-kernel-0-8-migration.md) and rebuild existing bundles.

@@ -1,4 +1,4 @@
-export {};
+import { getDocsAppServices } from '../docs-app-services.mjs';
 
 // The route host and its scoped styles must exist before the RMT shell adopts the
 // server-rendered document.  This module deliberately starts in parallel with the
@@ -1621,17 +1621,13 @@ function publishDocsLocale(locale, source = 'default') {
     });
   }
   if (changed || source === 'user' || source === 'browser' || source === 'default' || source === 'state') {
-    window.dispatchEvent(new CustomEvent('xtend-docs-locale-changed', {
-      detail: {
-        schema: DOCS_I18N_SCHEMA,
-        locale: normalized,
-        previousLocale: previous || null,
-        changed,
-        source,
-        available: config.available.slice(),
-        fallbackLocale: config.fallbackLocale
-      }
-    }));
+    // Publish through the shared service before observers rebuild navigation
+    // or query an index. Browser globals above are compatibility projections.
+    getDocsAppServices(document, window).locale.publish(normalized, source, {
+      changed,
+      available: config.available.slice(),
+      fallbackLocale: config.fallbackLocale
+    });
   }
   return normalized;
 }

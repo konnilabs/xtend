@@ -124,3 +124,11 @@ Lifecycle- und Stream-Statements außerhalb von Lane oder Slot erzeugen Kontextd
 ## Weiterführend
 
 Der RMT-Referenzindex verbindet Surfaces und Lanes mit Scheduling- und Lifecycle-Syntax. [Verwandter Artikel](./rmt-reference.md)
+
+## Präsentationsepochen in 0.8.0
+
+Die öffentlichen Lanes sind `user-blocking`, `visible`, `transition`, `idle`, `background` und `diagnostics`. Host-Warten auf Paint, Idle oder `postTask` blockiert die gemeinsame Scheduler-Auswahl nicht. Die Lifecycle-Autorität bleibt der Surface Controller.
+
+Verwaltete Surfaces besitzen eine Abort Boundary. Erfolgreiches Close, Hide, Minimize/Collapse, Route-Verlassen, Zielersetzung oder Dispose invalidiert zugehörige Präsentationstokens; Eltern schließen ihre Kinder ein. Wiederöffnen und Wiederanlegen erzeugen eine neue Epoche. Fehlgeschlagene atomare Lifecycle-Operationen verändern die Boundary nicht.
+
+Das schützt Worker-Antworten, Hydration und bereits geplante Commits bis zur letzten Prüfung vor DOM- oder Chart-Änderungen. Gemeinsames Prewarming darf gültige Daten behalten; fachliche Services werden nur durch ihren Besitzer abgebrochen. [FastPass und Abort Boundary](./maraca-fastpass-abort-boundary.md) beschreibt die programmatische Integration.

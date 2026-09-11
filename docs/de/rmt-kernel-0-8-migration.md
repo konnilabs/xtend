@@ -50,3 +50,15 @@ node scripts/run_xtend_tests.js scaffold-kernel-lab rmt-kernel-scheduler rmt-vne
 ```
 
 Anschließend folgen `schema-inventory`, `contract-registry`, `contract-runtime-parity` und der Pack-Dry-Run. Publish bleibt ein separater manueller Owner-Schritt. Die neue Scheduler-Autorität und die Service-Grenzen sind außerdem in der [Feature-Adoption-Evaluation](./rmt-kernel-feature-adoption-evaluation.md) dokumentiert.
+
+## Shell-Reaktion und Diagnosen
+
+Paint-, Idle- und `postTask`-Wartephasen halten keinen aktiven Scheduler-Job fest. Bereits bereite Arbeit durchläuft dieselbe Prioritätsauswahl. `postTask`-Hosts müssen das optionale `AbortSignal` weiterreichen. `ctx.scheduler.getPriorityQueueStats()` in delegierten Events und Commands liest den aktuellen Snapshot des injizierten Schedulers.
+
+Für Lifecycle-Beobachtung verwende `runtime.subscribeEvents(listener)` statt eines Vollsnapshot-Abonnements. `subscribe(listener)` bleibt kompatibel; es aktiviert bewusst die vollständige Aufbereitung. `snapshot()` und die redigierten DEV-Einzelabrufe bleiben aktuell, auch nach später Verbindung. Panic-/Recovery-Aufzeichnung wird nicht abgeschaltet.
+
+FastPass ist mit `execution fastpass` oder `fastPassActions` explizit. `dispatchFastPass()` liefert einen abbrechbaren `RmtJobHandle`; `dispatchCommand()` behält seinen Promise-Vertrag. Verwaltete Surface-Arbeit erhält automatisch Präsentationsepochen. Übernimm ihre Tokens auch in eigene Worker-, Hydration- und Chart-Adapter; ein `superseded`-Ergebnis darf keinen synchronen Rendering-Fallback auslösen.
+
+Die erweiterten Verträge heißen `xtend.maraca.plan-runtime.v3` und `xtend.rmt.presentation-effect-adapter.v2`. Verbraucher mit expliziter Schema-Prüfung müssen diese IDs akzeptieren. Das additive FastPass-Authoring steht in `xtend-maraca/fastpass.schema.json`; das RMT-v2-Dokumentschema bleibt unverändert. Baue ausgelieferte Bundles und ihre Typen aus denselben 0.8.0-Quellen neu.
+
+[FastPass und Abort Boundary](./maraca-fastpass-abort-boundary.md) dokumentiert die API und die Grenzen zwischen Präsentation und fachlicher Arbeit. Ergänze die obigen Prüfungen um `maraca-responsiveness`, `maraca-orchestration`, `rmt-vnext-surfaces` und `xtend-dev-surface`.

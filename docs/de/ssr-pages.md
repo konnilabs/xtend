@@ -212,3 +212,9 @@ Der Seitenclient handelt das Format mit `X-XTend-Page-Wire: 1` aus. Ältere JSON
 Portable `conditional`-Deskriptoren materialisieren nur die aktuelle Ansicht. Der DOM-Renderer versteht sowohl `conditional` als auch seine bisherige Schreibweise `when`; vom Compiler aufgelöste Portale können eine bedingte Verzweigung adressieren. Zustand bleibt im RMT-Modell erhalten, während Controls nicht im DOM stehen. Eine unveränderte Verzweigung aktualisiert ihre bestehenden Knoten. Dies reduziert DOM und Seitendaten, teilt ein gemeinsames Maraca-Bundle aber nicht automatisch in getrennt geladene Codepakete auf.
 
 Laravels optionale Einstellung `style_nonce => true` ergänzt den Dokument-Nonce in `style-src` und entfernt dort `unsafe-inline`. Der Shop setzt zusätzlich `style-src-attr 'none'`. Vertrauenswürdige XTend-Komponentenstyles übernehmen den Bootstrap-Nonce; beliebiges HTML wird nicht automatisch freigegeben. Eigene Komponenten benötigen vor Aktivierung der Richtlinie entsprechende feste Stylevorlagen oder externe Stylesheets. Browsertests prüfen blockierte Style-Injektionen und den vollständigen Zahlungsablauf.
+
+## Page-Lifecycle und Surface-Lifecycle
+
+Ein Seitenwechsel beendet page-eigene Requests; layout-eigene Ressourcen dürfen entsprechend ihrem Besitzer weiterleben. Innerhalb einer Maraca-Seite schützt zusätzlich die automatische [Abort Boundary](./maraca-fastpass-abort-boundary.md) jede verwaltete Surface vor verspäteten Worker-, Hydration- und DOM-Commits. Ein schneller Close oder Fokus benötigt weder ein neues Seitenartefakt noch das Ende fachlicher Services.
+
+Präsentationsepochen ersetzen keine Datenversion oder fachliche Service-Cancellation. Gemeinsames Prewarming darf gültige Daten behalten. Eigene Integrationen prüfen den Surface-Token nach asynchronen Antworten und unmittelbar vor sichtbaren Commits. Die reine clientseitige Maraca-Ausführung verwendet dieselben Guards auch ohne SSR.

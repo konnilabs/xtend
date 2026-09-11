@@ -31,11 +31,11 @@ export function createLocaleService(descriptor, environment = window) {
     const short = raw.slice(0, 2);
     return config.available.includes(short) ? short : config.fallbackLocale;
   }
-  function publish(locale, source = 'route') {
+  function publish(locale, source = 'route', detail = {}) {
     const previousLocale = current;
     current = normalize(locale);
     environment.dispatchEvent(new CustomEvent('xtend-docs-locale-changed', { detail: immutable({
-      schema: config.schema, locale: current, previousLocale, source
+      ...clone(detail), schema: config.schema, locale: current, previousLocale, source
     }) }));
     return current;
   }

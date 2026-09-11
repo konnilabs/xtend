@@ -9,6 +9,7 @@ export type RmtResourceKind = 'object-url' | 'stream' | 'observer' | 'timer' | '
 
 export interface RmtActionDefinition {
   id: string;
+  execution?: 'fastpass';
   datasource?: string;
   dataSource?: string;
   resultState?: string;

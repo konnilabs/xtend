@@ -9,7 +9,7 @@ Die State Selector Runtime hält kanonischen RMT State und abgeleitete View-Mode
 ## Öffentliche Bausteine
 
 - `xtendrmt/rmt-state-selector-runtime.js` implementiert State, Selector und Reducer ohne DOM-Fähigkeit.
-- `xtendrmt/rmt-state-binding-view-projector.js` projiziert eingefrorene Model-Snapshots über den gemeinsamen DOM-Renderer; die bisherigen Binding-Helfer bleiben in 0.6 als Kompatibilitätsdelegaten erhalten.
+- `xtendrmt/rmt-state-binding-view-projector.js` projiziert eingefrorene Model-Snapshots über den gemeinsamen DOM-Renderer; die bisherigen Binding-Helfer bleiben als Kompatibilitätsdelegaten erhalten.
 - `xtendrmt/rmt-state-selector-runtime.d.ts` beschreibt die öffentliche Runtime-Oberfläche.
 - `tests/fixtures/rmt-state-selector-runtime.rmt` deckt Compile- und Host-Integration ab.
 

@@ -2159,6 +2159,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  createFakeDocument,
   printRmtDomDescriptorRendererReport,
   runRmtDomDescriptorRendererSuite
 };

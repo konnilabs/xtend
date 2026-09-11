@@ -19,7 +19,7 @@ Diagnostics.
 
 Die Kompatibilitätsmethoden bleiben synchron. `render()`, `renderNode()` und
 `renderKeyed()` delegieren auf die entsprechenden Commit-Operationen.
-`patchElement()` bleibt während der Migration in 0.6/0.7 eine Merge-Operation
+`patchElement()` bleibt in 0.8.0 eine diagnostizierte Merge-Operation
 und emittiert einmal pro Renderer `rmt.dom.patch-element.legacy-merge`. Neuer
 Framework-Code soll `commit()` direkt verwenden.
 

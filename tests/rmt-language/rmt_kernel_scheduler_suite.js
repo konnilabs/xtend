@@ -173,6 +173,88 @@ async function runRmtKernelSchedulerSuite(options = {}) {
     context.assert(!source.includes(forbidden), `microkernel excludes ${forbidden}`);
   });
 
+  // Host barriers release the authority; delivered callbacks still obey cancellation.
+  for (const strategy of ['after_paint', 'idle', 'postTask']) {
+    const host = createDeterministicHost();
+    const callbacks = [];
+    const cancelled = [];
+    const register = (callback, options) => {
+      const entry = { callback, options };
+      callbacks.push(entry);
+      return entry;
+    };
+    host.requestAnimationFrame = register;
+    host.cancelAnimationFrame = (entry) => cancelled.push(entry);
+    host.requestIdleCallback = register;
+    host.cancelIdleCallback = (entry) => cancelled.push(entry);
+    if (strategy === 'postTask') host.postTask = (callback, options) => { register(callback, options); return Promise.resolve(); };
+    const scheduler = api.createRmtKernelScheduler({ hostPort: host });
+    const seen = [];
+    const request = { lane: 'background', strategy: strategy === 'postTask' ? 'microtask' : strategy };
+    const slow = scheduler.schedule(request, () => seen.push('background'));
+    await host.flushMicrotasks();
+    context.assert(scheduler.snapshot().activeJobId == null && seen.length === 0, `${strategy}: host waiting does not own activeJob`);
+    const input = scheduler.schedule({ lane: 'user-blocking' }, () => seen.push('input'));
+    await host.flushMicrotasks();
+    if (strategy === 'postTask') {
+      context.assert(callbacks[1].options.priority === 'user-blocking' && callbacks[0].options.priority === 'background', 'postTask preserves native priorities');
+      callbacks.pop().callback();
+      await host.flushMicrotasks();
+    }
+    context.assert(input.status === 'completed' && seen.join() === 'input', `${strategy}: input runs while background callback is held`);
+    callbacks.shift().callback();
+    if (strategy === 'after_paint') callbacks.shift().callback();
+    await host.flushMicrotasks();
+    context.assert(slow.status === 'completed' && seen.join() === 'input,background' && callbacks.length === 0, `${strategy}: ready job runs once without registering the same barrier again`);
+
+    const stale = scheduler.schedule(request, () => seen.push('stale'));
+    await host.flushMicrotasks();
+    const delivered = callbacks.shift();
+    stale.cancel('closed');
+    delivered.callback();
+    await host.flushMicrotasks();
+    context.assert(!seen.includes('stale') && callbacks.length === 0, `${strategy}: late callback cannot restart cancelled work`);
+    context.assert(strategy === 'postTask' ? delivered.options.signal.aborted : cancelled.includes(delivered), `${strategy}: cancellation removes the host handle or aborts its signal`);
+
+    const timed = scheduler.schedule({ ...request, timeoutMs: 1 }, () => seen.push('timeout'));
+    await host.flushMicrotasks();
+    const expired = callbacks.shift();
+    await host.advance(2);
+    expired.callback();
+    await host.flushMicrotasks();
+    context.assert(!seen.includes('timeout') && ['cancelled', 'aborted'].includes(timed.status), `${strategy}: timeout closes host-waiting work`);
+
+    let starts = 0;
+    let resumes = 0;
+    const yielding = scheduler.schedule(request, async (ctx) => { starts++; await ctx.yield(); resumes++; });
+    await host.flushMicrotasks();
+    for (let i = 0; i < 6 && callbacks.length; i++) {
+      callbacks.shift().callback();
+      await host.flushMicrotasks();
+    }
+    await host.flushMicrotasks();
+    context.assert(starts === 1 && resumes === 1 && yielding.status === 'completed', `${strategy}: yielded callback resumes exactly once`);
+    const disposed = scheduler.schedule(request, () => seen.push('disposed'));
+    await host.flushMicrotasks();
+    const afterDispose = callbacks.shift();
+    scheduler.dispose();
+    afterDispose.callback();
+    await host.flushMicrotasks();
+    context.assert(disposed.status === 'cancelled' && !seen.includes('disposed') && callbacks.length === 0, `${strategy}: dispose guards already delivered callbacks`);
+  }
+  for (const mode of ['paint-throw', 'idle-throw', 'postTask-throw', 'postTask-reject']) {
+    const host = createDeterministicHost();
+    const fail = () => { throw new Error(mode); };
+    if (mode.startsWith('paint')) host.requestAnimationFrame = fail;
+    else if (mode.startsWith('idle')) host.requestIdleCallback = fail;
+    else host.postTask = mode.endsWith('reject') ? () => Promise.reject(new Error(mode)) : fail;
+    const scheduler = api.createRmtKernelScheduler({ hostPort: host });
+    const job = scheduler.schedule({ strategy: mode.startsWith('paint') ? 'after_paint' : mode.startsWith('idle') ? 'idle' : 'microtask' }, () => true);
+    await host.flushMicrotasks();
+    context.assert(job.status === 'failed', `${mode}: host failure settles the job`);
+    scheduler.dispose();
+  }
+
   const orderingHost = createDeterministicHost();
   const orderingScheduler = api.createRmtKernelScheduler({ hostPort: orderingHost, preferPostTask: false });
   const order = [];

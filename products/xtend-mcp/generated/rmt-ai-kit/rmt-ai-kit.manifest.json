@@ -47,9 +47,9 @@
     "guardrails": 243
   },
   "recordCounts": {
-    "reference": 31,
+    "reference": 32,
     "recipes": 6,
-    "sources": 32
+    "sources": 36
   },
   "artifacts": {
     "rmt-ai-kit.compact.md": {
@@ -57,8 +57,8 @@
       "tokenEstimate": 790
     },
     "rmt-ai-kit.reference.jsonl": {
-      "sha256": "d757d52a1b2148ae28c4cc450b46bffb5e3835e233a55b734a0341e5f9dd6c73",
-      "lineCount": 31
+      "sha256": "b985591d5be261a0363dbfd9dc089b1af028501d5abbea1f19014147b8d4dd99",
+      "lineCount": 32
     },
     "rmt-ai-kit.recipes.jsonl": {
       "sha256": "40def8ea5032e8f975266e928e471f54c9eb7dbb2d7e3ea3d84462540d49c583",
@@ -101,8 +101,8 @@
     },
     {
       "path": "docs/de/learn-rmt-playground.md",
-      "sha256": "b368313f44de82e2e19c281e19afc75dc124a6f6d6980313bef59bbc9b4bed6e",
-      "bytes": 2969
+      "sha256": "0557cd9a417e783f8e1cf94aa8a64104af7aaf4950f350cf1a1a09c43516961e",
+      "bytes": 3882
     },
     {
       "path": "docs/de/learn-rmt-scheduling-lanes.md",
@@ -135,14 +135,19 @@
       "bytes": 1819
     },
     {
+      "path": "docs/de/maraca-fastpass-abort-boundary.md",
+      "sha256": "31c229ec777031aaca9a60636bf1433969f8dfa5c4429bf3c50c81830c2432ae",
+      "bytes": 7594
+    },
+    {
       "path": "docs/de/rmt-app-platform-tooling.md",
-      "sha256": "31188a9c83c3811f42ba88f73db7bea8f1fbdd25880f8980241e78845d7413fa",
-      "bytes": 2074
+      "sha256": "8698fff97901e16876ca3b5073addca3bb3d2ec5f860db7eef7c8c5df3827117",
+      "bytes": 2699
     },
     {
       "path": "docs/de/rmt-reference-actions-events.md",
-      "sha256": "8c55591791645b0edc3af70393b8f54c60eeab7ffc4c4c91394e5b3bd56cbf28",
-      "bytes": 7120
+      "sha256": "628d7b11c6b9d97dead857c38ae836a3cacb8164a4072e72d4d6b37497509fc4",
+      "bytes": 8721
     },
     {
       "path": "docs/de/rmt-reference-conditions-expressions.md",
@@ -181,8 +186,8 @@
     },
     {
       "path": "docs/de/rmt-reference-surfaces-lanes-lifecycle.md",
-      "sha256": "6d840ffdc38c8ed9b760722f987fecb48797010a010070bbe0bfdcaa1b8d041f",
-      "bytes": 8266
+      "sha256": "8c3ea2d88561fe2746614080d22cb7606a5569f2ab3a9428ebade83f4894521a",
+      "bytes": 9278
     },
     {
       "path": "docs/de/rmt-reference-validation-transitions.md",
@@ -201,13 +206,18 @@
     },
     {
       "path": "docs/de/xtend-maraca-orchestration.md",
-      "sha256": "b16b0b267679256c0e620a30d5c9c26cfe4df1eeb3fea3f67328467ec469081e",
-      "bytes": 9174
+      "sha256": "bdfa216e33a2835407e5df17f42ec9c08da28c5acf77c22c7df112561d7519ad",
+      "bytes": 10501
     },
     {
       "path": "docs/de/xtendrmt-app-dsl.md",
       "sha256": "d50a2aab0a182cafddcd5293b121a78b8b014c31a6dcf5dbbdf73b1454305f41",
       "bytes": 1021
+    },
+    {
+      "path": "docs/en/maraca-fastpass-abort-boundary.md",
+      "sha256": "ecb9b5a6e59ca3d53b3118227d923499849d7241d13b63b79928b45214f00a69",
+      "bytes": 6207
     },
     {
       "path": "tools/rmt-language/diagnostics.d.ts",
@@ -230,9 +240,19 @@
       "bytes": 1123
     },
     {
+      "path": "xtend-maraca/fastpass-contract.js",
+      "sha256": "09cc73ea9e180f7449304bcfb6d099e1d63800cc5ed922f85153d7dda69f2dcc",
+      "bytes": 2674
+    },
+    {
+      "path": "xtend-maraca/fastpass.schema.json",
+      "sha256": "69c49eda370805216edfd5acaf795b4c2c7f39300c3429b551e458f3ebd91946",
+      "bytes": 2395
+    },
+    {
       "path": "xtend-maraca/index.d.ts",
-      "sha256": "6c60842eaa3311e41d4f60a3e081e826dda3762512c055edf7b7ef4c08a7440b",
-      "bytes": 39236
+      "sha256": "b6122d9450bb3327245617740a222a8fded2d61b5ead159a5951d3c74bba7987",
+      "bytes": 39582
     }
   ],
   "rootDir": ""

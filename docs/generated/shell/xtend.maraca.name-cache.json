@@ -223,7 +223,11 @@
       "$SURFACE_TYPES": "pr",
       "$createSurfaceController": "mr",
       "$normalizeSurfaceBounds": "hr",
-      "$normalizeSurfaceRecord": "fr"
+      "$normalizeSurfaceRecord": "fr",
+      "$MARACA_BOOT_CONFIGURATION": "yr",
+      "$createXtendMaraca": "br",
+      "$componentStyleNonce": "Fn",
+      "$xheader": "Hn"
     }
   },
   "props": {

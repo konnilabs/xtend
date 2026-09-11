@@ -26,3 +26,7 @@ Fix the earliest failed focus transition first. A mouse click does not prove key
 
 - [Performance](./performance.md)
 - [Hydration Policies](./hydration-policies.md)
+
+## Overlay focus under load
+
+The focus trap includes slotted and embedded remote controls. Check forward and backward traversal through actual controls, Escape in the top modal and focus restoration after close. Repeat while hydration is waiting and surfaces switch quickly. Explicit FastPass focus and close must not wait behind business commands; stale responses must not subsequently reset focus or modality. See [FastPass](./maraca-fastpass-abort-boundary.md).

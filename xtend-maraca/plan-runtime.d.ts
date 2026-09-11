@@ -1,3 +1,7 @@
+import type { RmtJobHandle } from '../xtendrmt/rmt-kernel-scheduler.js';
+import type { MaracaAbortBoundary, MaracaPresentationToken } from './abort-boundary';
+export { createMaracaAbortBoundary } from './abort-boundary';
+export type { MaracaAbortBoundary, MaracaPresentationToken, MaracaSuperseded } from './abort-boundary';
 import type {
   RmtStateProjectionPort,
   RmtStateProjectionPortFactory,
@@ -11,7 +15,7 @@ import type {
 } from '../components/xsurfacemanager-controller.js';
 
 export interface MaracaPlanRuntimeSnapshot {
-  readonly schema: 'xtend.maraca.plan-runtime.v2';
+  readonly schema: 'xtend.maraca.plan-runtime.v3';
   readonly phase: 'created' | 'booting' | 'ready' | 'failed' | 'disposed';
   readonly generation: number;
   readonly renderCount: number;
@@ -87,6 +91,7 @@ export interface MaracaStreamPatchResult extends Readonly<Record<string, unknown
 }
 
 export interface MaracaPresentationEffectPort {
+  setSurfaceHidden?(surfaceId: string, hidden: boolean): unknown;
   readonly schema?: string;
   invoke(
     effect: Readonly<Record<string, unknown>>,
@@ -185,8 +190,29 @@ export interface MaracaLegacyActionRuntime {
   runAction(action: string, payload?: unknown, metadata?: Record<string, unknown>): Promise<MaracaCommandResult>;
 }
 
+export type MaracaFastPassEffect =
+  | { kind: 'navigation'; path: string | { kind: 'reference'; path: string }; scope?: string }
+  | { kind: 'focus' | 'close'; target: string; scope?: string };
+export interface MaracaFastPassAction {
+  id: string;
+  execution?: 'fastpass';
+  scope?: string;
+  effects: readonly MaracaFastPassEffect[];
+}
+export interface MaracaFastPassOptions {
+  signal?: AbortSignal;
+  maxChunkMs?: number;
+  timeoutMs?: number;
+}
+export interface MaracaFastPassResult {
+  readonly status: 'success' | 'superseded';
+  readonly execution?: 'fastpass';
+  readonly action?: string;
+  readonly intents?: readonly { readonly kind: 'navigation' | 'focus' | 'close'; readonly value: string; readonly scope: string }[];
+}
+
 export interface MaracaPlanRuntime {
-  readonly schema: 'xtend.maraca.plan-runtime.v2';
+  readonly schema: 'xtend.maraca.plan-runtime.v3';
   readonly model: RmtModelReader;
   /** @deprecated Use model. Removed in 0.7. */
   readonly stateRuntime: RmtModelReader;
@@ -194,6 +220,8 @@ export interface MaracaPlanRuntime {
   readonly actionRuntime: MaracaLegacyActionRuntime;
   boot(): Promise<MaracaPlanRuntimeSnapshot>;
   dispatchCommand(command: string | MaracaCommand, payload?: unknown, metadata?: Record<string, unknown>): Promise<MaracaCommandResult>;
+  dispatchFastPass(actionId: string, payload?: unknown, options?: MaracaFastPassOptions): RmtJobHandle<MaracaFastPassResult>;
+  getSurfaceBoundary(id?: string): MaracaAbortBoundary;
   dispatchStreamPatch(patch: MaracaStreamPatch, metadata?: Readonly<Record<string, unknown>>): Promise<MaracaStreamPatchResult>;
   /** @deprecated Use controller commands. Removed in 0.7. */
   render(metadata?: Record<string, unknown>): Promise<MaracaPlanRuntimeCommitSnapshot>;
@@ -201,18 +229,34 @@ export interface MaracaPlanRuntime {
   refresh(metadata?: Record<string, unknown>): Promise<MaracaPlanRuntimeCommitSnapshot>;
   snapshot(): MaracaPlanRuntimeSnapshot;
   subscribe(listener: (snapshot: MaracaPlanRuntimeSnapshot) => void): () => void;
+  subscribeEvents(listener: (event: Readonly<Record<string, unknown>>) => void): () => void;
   dispose(): boolean;
 }
 
 export type XTendMaracaRuntime = MaracaPlanRuntime;
 
+export interface MaracaHydrationScope {
+  readonly id: string;
+  readonly boundary: MaracaAbortBoundary;
+  readonly token: MaracaPresentationToken;
+  readonly signal: AbortSignal;
+  isCurrent(): boolean;
+}
+export interface MaracaHydrationContext extends Record<string, unknown> {
+  signal?: AbortSignal;
+  surfaces?: readonly MaracaHydrationScope[];
+  isCurrent?(): boolean;
+  getSurfaceBoundary?(id?: string): MaracaAbortBoundary;
+}
+
 export interface MaracaPlanRuntimeOptions {
   plan: Record<string, unknown>;
+  fastPassActions?: readonly MaracaFastPassAction[];
   root: ParentNode & { replaceChildren(...nodes: Node[]): void };
   componentRegistry?: {
     ensureTags?(tags: string[]): Promise<unknown>;
     ensure?(tag: string): Promise<unknown>;
-    hydrate?(root: ParentNode, tags: string[], metadata?: Record<string, unknown>): Promise<unknown>;
+    hydrate?(root: ParentNode, tags: string[], metadata?: MaracaHydrationContext): Promise<unknown>;
   };
   fabric?: Readonly<Record<string, unknown>>;
   domRenderer?: RmtDomDescriptorRenderer;
@@ -297,7 +341,7 @@ export interface MaracaPlanRuntimeOptions {
   moduleUrls?: string[];
 }
 
-export declare const PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v2';
+export declare const PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v3';
 export declare function createMaracaPlanRuntime(options: MaracaPlanRuntimeOptions): MaracaPlanRuntime;
 export declare function bootMaracaPlan(options: MaracaPlanRuntimeOptions): Promise<MaracaPlanRuntime>;
 

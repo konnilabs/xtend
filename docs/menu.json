@@ -2718,6 +2718,42 @@
     }
   },
   {
+    "slug": "rmt-jit-hydrangea",
+    "id": "docs.rmt.jit.hydrangea",
+    "label": "RMT JIT Compiler Hydrangea",
+    "labels": {
+      "de": "RMT JIT Compiler Hydrangea",
+      "en": "RMT JIT Compiler Hydrangea"
+    },
+    "group": "rmt",
+    "parent": "rmt-app-platform-tooling",
+    "tier": "advanced",
+    "rank": 75,
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT JIT Compiler Hydrangea",
+        "rmt",
+        "jit",
+        "hydrangea",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT JIT Compiler Hydrangea",
+        "rmt",
+        "jit",
+        "hydrangea",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
+    }
+  },
+  {
     "slug": "rmt-app-platform-fixture",
     "id": "docs.rmt.app.platform.fixture",
     "label": "RMT App Platform Fixture",
@@ -2968,6 +3004,42 @@
         "xtend",
         "maraca",
         "orchestration",
+        "concept",
+        "build"
+      ]
+    }
+  },
+  {
+    "slug": "maraca-fastpass-abort-boundary",
+    "id": "docs.maraca.fastpass.abort.boundary",
+    "label": "Maraca FastPass and Abort Boundaries",
+    "labels": {
+      "de": "Maraca FastPass und Abort Boundaries",
+      "en": "Maraca FastPass and Abort Boundaries"
+    },
+    "group": "maraca",
+    "parent": "xtend-maraca-orchestration",
+    "tier": "advanced",
+    "rank": 75,
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "maraca",
+    "keywords": {
+      "de": [
+        "Maraca FastPass und Abort Boundaries",
+        "maraca",
+        "fastpass",
+        "abort",
+        "boundary",
+        "concept",
+        "build"
+      ],
+      "en": [
+        "Maraca FastPass and Abort Boundaries",
+        "maraca",
+        "fastpass",
+        "abort",
+        "boundary",
         "concept",
         "build"
       ]

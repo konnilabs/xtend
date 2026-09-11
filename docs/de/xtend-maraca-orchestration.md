@@ -1,5 +1,6 @@
 # XTend Maraca Orchestrierung
 
+[FastPass, bedarfsgesteuerte Diagnosen und Abort Boundaries (0.8.0)](./maraca-fastpass-abort-boundary.md)
 Dieser Deep-Dive beschreibt loaderlose Maraca App Bundles, die aus einer RMT Quelle nicht nur Komponenten auswählen, sondern eine lauffähige, kernel-orchestrierte Anwendung materialisieren. Die RMT Datei bleibt die Source of Truth für State, Actions, Events, Resources, Surfaces, Hydration, Validation, wiederverwendbare Animationen und Surface Transitions.
 
 ## Build-Modi
@@ -56,7 +57,7 @@ Der Compiler erzeugt daraus Action Gates, Scheduler-Ziele, Patch-Pläne und Sour
 
 Der generierte Bootstrap ist nur Composition Root: Er friert Plan und Konfiguration ein, erzeugt genau eine Instanz von `createMaracaPlanRuntime()` und injiziert die typisierten Model-, View-, Event-, Surface-, Scheduler- und Host-Ports. `xtend-maraca/plan-runtime.mjs` ist der einzige Application Controller. RMT State ist die Model-Autorität; der Surface Controller ist die Lifecycle-Autorität. Classic State, DOM, Resource Graph und Browser-Globals sind ausschließlich Projektionen oder sichere Read Models.
 
-Ein Command wird einmal ausgewertet, in genau einer Model-Transaktion angewandt und danach in genau einen Descriptor-/Struktur-Commit projiziert. Anschließend reconciliiert der Event Router die vom Renderer validierten Binding Records; Hydration und Post-Commit-Effects laufen jeweils einmal. State-Subscriber beobachten nur abgeschlossene Transaktionen und starten keine DOM-Arbeit.
+Fachliche Commands bleiben in ihrer Promise-Kette geordnet und wenden ihre Änderungen in einer Model-Transaktion an. Die anschließende Präsentation darf nur mit einem aktuellen Shell-/Surface-Token committen; nach einem Wechsel wird veraltete Präsentationsarbeit verworfen, während der fachliche Model-Commit gültig bleibt. Der Event Router reconciliiert die validierten Binding Records eines gültigen Renderer-Commits. State-Subscriber beobachten abgeschlossene Transaktionen und starten keine DOM-Arbeit. Explizite FastPass-Actions nutzen denselben Scheduler auf `user-blocking`, umgehen die fachliche Command-Kette und eröffnen keine Model-Transaktion.
 
 Normale App-DOM-Schreibvorgänge laufen ausschließlich über `createRmtDomDescriptorRenderer().commit()`. Der Renderer installiert keine Application-Listener; nur der Event Router besitzt diese Listener. Es gibt keine normalen `innerHTML`-, `outerHTML`-, `insertAdjacentHTML`- oder `document.write`-Sinks und keinen Zugriff auf private ShadowRoot-Interna. Components werden nur über öffentliche Attribute, Properties, Events, Slots, CSS Parts und Design Tokens verbunden.
 
@@ -73,17 +74,20 @@ Maraca trifft nicht die statische Annahme-/Ablehnungsentscheidung, besitzt keine
 Im Browser steht dieselbe sichere Runtime-Fassade bereit, die der Bootstrap intern verwendet:
 
 ```js
-const runtime = window.XTendMaraca.orchestration;
+const runtime = window.XTendMaraca;
 runtime.snapshot();
 runtime.model.getState("product.service.form");
-runtime.subscribe((snapshot) => console.debug(snapshot));
+const unsubscribe = runtime.subscribeEvents((event) => console.debug(event.type));
 await runtime.dispatchCommand({ command: "product.service.nextContact", payload: {} });
 
 window.XTendMaraca.kernel.snapshot();
 window.XTendMaraca.hydration.snapshot();
+window.XTendMaraca.validation;
+window.XTendMaraca.transitions;
+unsubscribe();
 ```
 
-`stateRuntime` und `actionRuntime` bleiben in 0.6 diagnostizierte Kompatibilitätsaliase; mutable Raw-Adapter sind nicht Teil der Fassade. Die wichtigsten Custom Events sind `xtend-maraca:orchestration-boot`, `xtend-maraca:kernel-boot`, `xtend-maraca:kernel-schedule`, `xtend-maraca:state-change`, `xtend-maraca:dom-commit`, `xtend-maraca:validation-boot`, `xtend-maraca:validation-change`, `xtend-maraca:validation-blocked`, `xtend-rmt:animation-start`, `xtend-rmt:animation-phase`, `xtend-rmt:animation-interrupt`, `xtend-rmt:animation-complete`, `xtend-maraca:surface-transition-start`, `xtend-maraca:surface-transition-complete`, `xtend-maraca:surface-transition-cancel` und `xtend-maraca:surface-transition-error`.
+`stateRuntime` und `actionRuntime` bleiben in 0.8.0 diagnostizierte Kompatibilitätsaliase; mutable Raw-Adapter sind nicht Teil der Fassade. Die wichtigsten Custom Events sind `xtend-maraca:orchestration-boot`, `xtend-maraca:kernel-boot`, `xtend-maraca:kernel-schedule`, `xtend-maraca:state-change`, `xtend-maraca:dom-commit`, `xtend-maraca:validation-boot`, `xtend-maraca:validation-change`, `xtend-maraca:validation-blocked`, `xtend-rmt:animation-start`, `xtend-rmt:animation-phase`, `xtend-rmt:animation-interrupt`, `xtend-rmt:animation-complete`, `xtend-maraca:surface-transition-start`, `xtend-maraca:surface-transition-complete`, `xtend-maraca:surface-transition-cancel` und `xtend-maraca:surface-transition-error`.
 
 ## Effects und Motion Policy
 
@@ -101,3 +105,9 @@ node scripts/run_xtend_tests.js maraca-orchestration maraca-kernel-orchestration
 ```
 
 Nutze diese Seite zusammen mit [XTend Maraca](./xtend-maraca.md), [RMT Authoring Guide](./rmt-vnext-authoring.md) und [RMT Language Server](./rmt-language-server.md).
+
+## Diagnosebedarf und Präsentationsarbeit
+
+`subscribeEvents()` liefert unveränderliche Lifecycle-Ereignisse direkt. `subscribe()` bleibt ein Vollsnapshot-Abonnement; `snapshot()` liefert synchron den aktuellen vollständigen Stand. Ohne Vollsnapshot-Abonnenten werden keine automatischen Vollsnapshots erzeugt. Die Existenz der DEV API allein aktiviert diesen Aufwand nicht. `window.XTendMaraca.orchestration` bleibt ein Alias derselben Browser-Fassade.
+
+Verwaltete Surfaces erhalten automatisch eine Abort Boundary. Adapter für Worker, Hydration und Charts müssen ihren Token nach asynchronen Antworten und unmittelbar vor dem Commit prüfen. Fachliche Imports behalten ihren eigenen Besitzer. Die vollständigen Verträge, Programmierbeispiele und Grenzen stehen unter [Maraca FastPass und Abort Boundary](./maraca-fastpass-abort-boundary.md).

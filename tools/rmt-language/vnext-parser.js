@@ -695,12 +695,13 @@ class VNextParser {
     const body = this.parseBlock(() => {
       if (this.matches('input')) return this.parseActionInputClause();
       if (this.matches('status')) return this.parseKeywordPathClause('status', 'RmtActionStatusClause');
+      if (this.matches('execution')) return this.parseKeywordPathClause('execution', 'RmtActionExecutionClause');
       if (this.matches('effect')) return this.parseActionEffectStatement();
       if (this.matches('reduce')) return this.parseReduceStatement();
       if (this.matches('recipe')) return this.parseReducerRecipeStatement();
       if (this.matches('emit')) return this.parseEmitStatement();
       if (this.matches('on')) return this.parseActionResultHandler();
-      this.addDiagnostic(this.current(), 'Action blocks may contain input, status, effect, reduce, recipe, emit and result handlers only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.addDiagnostic(this.current(), 'Action blocks may contain input, execution, status, effect, reduce, recipe, emit and result handlers only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
       this.skipStatementOrBlock();
       return null;
     });
@@ -1548,7 +1549,9 @@ class VNextParser {
     const start = this.expectValue('effect', 'Expected effect statement.');
     const effectKind = this.current().type === 'identifier' ? this.consume() : null;
     let source = null;
-    if (this.matches('datasource') || this.matches('resource') || this.matches('selector')) {
+    let path = null;
+    if (effectKind && effectKind.value === 'navigation') path = this.parsePrimitiveValue();
+    if (this.matches('datasource') || this.matches('resource') || this.matches('selector') || this.matches('surface')) {
       const sourceKind = this.consume();
       const sourceRef = this.parseQualifiedIdentifierAllowReserved('Expected effect source reference.');
       source = {
@@ -1582,6 +1585,7 @@ class VNextParser {
       effectKind: effectKind && effectKind.value,
       effectKindNode,
       source,
+      ...(path ? { path } : {}),
       componentCommand
     });
   }

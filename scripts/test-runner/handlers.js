@@ -631,6 +631,10 @@ module.exports = {
       load("../tests/rmt-language/rmt_vnext_scheduler_suite")["printRmtVNextSchedulerReport"](result);
       return toRunnerResult('rmt-vnext-scheduler', 'Epic 15 RMT vNext Scheduler Policy Contract', result);
     },
+"maraca-responsiveness": async () => {
+      const result = await load("../tests/maraca/maraca_responsiveness_suite").runMaracaResponsivenessSuite({ rootDir });
+      return toRunnerResult('maraca-responsiveness', 'Maraca responsiveness', result);
+    },
 "rmt-kernel-scheduler": async () => {
       const result = await load("../tests/rmt-language/rmt_kernel_scheduler_suite")["runRmtKernelSchedulerSuite"]({ rootDir });
       load("../tests/rmt-language/rmt_kernel_scheduler_suite")["printRmtKernelSchedulerReport"](result);

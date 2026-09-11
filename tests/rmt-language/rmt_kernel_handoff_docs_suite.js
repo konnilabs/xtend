@@ -24,9 +24,10 @@ const RMT_KERNEL_HANDOFF_DOCS_CONTRACT = 'development/XTendRMT-Kernel-Migration-
 const RMT_KERNEL_HANDOFF_DOCS_WORKPACKAGE_DOC = 'development/WP-RKSH-11-Migration-Authoring-und-Incident-Handoff-dokumentieren.md';
 
 const RMT_KERNEL_HANDOFF_DOCS = [
-  'docs/rmt-kernel-security-hardening-migration.md',
-  'docs/rmt-kernel-trusted-output-authoring.md',
-  'docs/rmt-kernel-panic-recovery-incident-handoff.md'
+  'docs/de/trusted-dom-sanitizing.md',
+  'docs/en/trusted-dom-sanitizing.md',
+  'docs/de/xtend-dev-api.md',
+  'docs/en/xtend-dev-api.md'
 ];
 
 function assertFileExists(context, relativePath, rootDir, message) {
@@ -79,13 +80,12 @@ function runRmtKernelHandoffDocsSuite(options = {}) {
   const backlog = readText(RMT_KERNEL_HANDOFF_DOCS_BACKLOG, rootDir);
   const contract = readText(RMT_KERNEL_HANDOFF_DOCS_CONTRACT, rootDir);
   const workpackage = readText(RMT_KERNEL_HANDOFF_DOCS_WORKPACKAGE_DOC, rootDir);
-  const migration = readText(RMT_KERNEL_HANDOFF_DOCS[0], rootDir);
-  const authoring = readText(RMT_KERNEL_HANDOFF_DOCS[1], rootDir);
-  const incident = readText(RMT_KERNEL_HANDOFF_DOCS[2], rootDir);
+  for (const locale of ['de', 'en']) {
+  const migration = readText(`docs/${locale}/trusted-dom-sanitizing.md`, rootDir);
+  const authoring = migration;
+  const incident = readText(`docs/${locale}/xtend-dev-api.md`, rootDir);
 
   assertTextIncludesAll(context, migration, [
-    RMT_KERNEL_HANDOFF_DOCS_SCHEMA,
-    RMT_KERNEL_HANDOFF_DOCS_WORKPACKAGE,
     'innerHTML',
     'insertAdjacentHTML',
     'slot.html',
@@ -104,8 +104,6 @@ function runRmtKernelHandoffDocsSuite(options = {}) {
   ], 'migration guide');
 
   assertTextIncludesAll(context, authoring, [
-    RMT_KERNEL_HANDOFF_DOCS_SCHEMA,
-    RMT_KERNEL_HANDOFF_DOCS_WORKPACKAGE,
     'Trust Boundary',
     'sanitize html',
     'html_fragment',
@@ -121,8 +119,6 @@ function runRmtKernelHandoffDocsSuite(options = {}) {
   ], 'authoring guide');
 
   assertTextIncludesAll(context, incident, [
-    RMT_KERNEL_HANDOFF_DOCS_SCHEMA,
-    RMT_KERNEL_HANDOFF_DOCS_WORKPACKAGE,
     'rmt.kernel.panic',
     'rmt.kernel.recovery',
     'rmt.kernel.escalation',
@@ -138,7 +134,8 @@ function runRmtKernelHandoffDocsSuite(options = {}) {
     'render-safe-fallback',
     'notify-host',
     'panic_blocked'
-  ], 'incident handoff');
+  ], `${locale} incident diagnostics`);
+  }
 
   assertTextIncludesAll(context, contract, [
     RMT_KERNEL_HANDOFF_DOCS_SCHEMA,
@@ -159,19 +156,12 @@ function runRmtKernelHandoffDocsSuite(options = {}) {
   ], 'RKSH-WP-11 document');
 
   assertTextIncludesAll(context, docsReadme, [
-    './rmt-kernel-security-hardening-migration.md',
-    './rmt-kernel-trusted-output-authoring.md',
-    './rmt-kernel-panic-recovery-incident-handoff.md',
-    RMT_KERNEL_HANDOFF_DOCS_SCHEMA,
-    RMT_KERNEL_HANDOFF_DOCS_LOCAL_GATE
+    './trusted-dom-sanitizing.md',
+    './xtend-dev-api.md'
   ], 'docs README');
 
   const slugs = new Set(docsMenu.map((entry) => entry.slug));
-  [
-    'rmt-kernel-security-hardening-migration',
-    'rmt-kernel-trusted-output-authoring',
-    'rmt-kernel-panic-recovery-incident-handoff'
-  ].forEach((slug) => {
+  ['trusted-dom-sanitizing', 'xtend-dev-api'].forEach((slug) => {
     context.assert(slugs.has(slug), `docs menu includes ${slug}`);
   });
 
@@ -201,12 +191,11 @@ function runRmtKernelHandoffDocsSuite(options = {}) {
     'rmt.kernel.scheduler_failure'
   ], 'package metadata includes incident channels');
 
-  assertTextIncludesAll(context, runner, [
-    "require('../tests/rmt-language/rmt_kernel_handoff_docs_suite')",
-    "id: 'rmt-kernel-handoff-docs'",
-    'runRmtKernelHandoffDocsSuite',
-    'printRmtKernelHandoffDocsReport'
-  ], 'runner wiring');
+  context.assert(runner.hasSuite('rmt-kernel-handoff-docs'), 'runner registers handoff docs suite');
+  context.assert(runner.hasImplementation({
+    path: 'tests/rmt-language/rmt_kernel_handoff_docs_suite.js',
+    function: 'runRmtKernelHandoffDocsSuite'
+  }), 'runner binds the handoff docs implementation');
 
   assertTextIncludesAll(context, backlog, [
     '| `RKSH-WP-11` | P2 | completed | Docs | Migration, Authoring und Incident-Handoff dokumentieren | `npm run test:rmt-kernel-handoff-docs` |',

@@ -271,6 +271,11 @@ function runDocsShellCatfoodingSuite(options = {}) {
     context.assert(compact.schema === 'xtend.docs.search-index.v1' && compact.entryCount === EXPECTED_CANONICAL_SLUG_COUNT, `${locale} compact index has contract and full inventory`);
     context.assert(fulltext.schema === 'xtend.docs.search-fulltext-index.v1' && fulltext.entryCount === EXPECTED_CANONICAL_SLUG_COUNT, `${locale} fulltext index has contract and full inventory`);
     context.assert(zlib.gzipSync(compactText, { level: 9 }).length <= 25 * 1024, `${locale} compact index stays within 25 KiB gzip`);
+    for (const [query, slug] of [['FastPass', 'maraca-fastpass-abort-boundary'], ['Hydrangea', 'rmt-jit-hydrangea']]) {
+      const article = compact.entries.find(entry => entry.slug === slug);
+      context.assert(Boolean(article) && JSON.stringify(article).includes(query), `${locale} compact index discovers ${query}`);
+      context.assert(fulltext.entries.some(entry => entry.slug === slug && entry.body), `${locale} full-text index retains ${query} content`);
+    }
     context.assert(zlib.gzipSync(fulltextText, { level: 9 }).length <= 150 * 1024, `${locale} fulltext index stays within 150 KiB gzip`);
   });
 

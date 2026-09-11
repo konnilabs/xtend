@@ -3431,9 +3431,10 @@
       "contract": "development/XTendRMT-Kernel-Migration-Authoring-Incident-Handoff-Contract.md",
       "workpackageDocument": "development/WP-RKSH-11-Migration-Authoring-und-Incident-Handoff-dokumentieren.md",
       "docs": [
-        "docs/rmt-kernel-security-hardening-migration.md",
-        "docs/rmt-kernel-trusted-output-authoring.md",
-        "docs/rmt-kernel-panic-recovery-incident-handoff.md"
+        "docs/de/trusted-dom-sanitizing.md",
+        "docs/en/trusted-dom-sanitizing.md",
+        "docs/de/xtend-dev-api.md",
+        "docs/en/xtend-dev-api.md"
       ],
       "suite": "tests/rmt-language/rmt_kernel_handoff_docs_suite.js",
       "localGate": "node scripts/run_xtend_tests.js rmt-kernel-handoff-docs --json",

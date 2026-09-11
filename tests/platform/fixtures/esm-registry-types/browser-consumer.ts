@@ -14,6 +14,7 @@ import { xtendState, type XTendStateRuntime } from '@ccslabs/xtend/classic-state
 import { xtendState as rootStateRuntime } from '@ccslabs/xtend';
 import {
   createMaracaPlanRuntime,
+  createMaracaAbortBoundary,
   type MaracaPlanRuntimeOptions,
   type MaracaPlanRuntimeSnapshot
 } from '@ccslabs/xtend/maraca/plan-runtime';
@@ -157,3 +158,16 @@ store.setState('count', 'one');
 // @ts-expect-error element descriptors require a tag
 const invalidDescriptor: XTendDescriptor = { type: 'element', children: [] };
 void invalidDescriptor;
+
+const boundary = createMaracaAbortBoundary({ id: 'typed-island' });
+const presentationToken = boundary.capture();
+boundary.commit(() => document.createElement('div'), presentationToken);
+maracaRuntime.getSurfaceBoundary('typed-island').invalidate('close');
+maracaRuntime.subscribeEvents(event => { void event.type; });
+const shellJob = maracaRuntime.dispatchFastPass('shell.close', {}, { signal: boundary.signal });
+shellJob.cancel('superseded');
+// @ts-expect-error FastPass cannot declare services.
+const invalidFastPass: import('@ccslabs/xtend/maraca/plan-runtime').MaracaFastPassAction = { id: 'bad', effects: [{ kind: 'service', target: 'save' }] };
+void invalidFastPass;
+const uiComputeOptions: import('@ccslabs/xtend/rmt').RmtUiComputeOptions = { abortBoundary: boundary, presentationToken };
+void uiComputeOptions;

@@ -100,6 +100,8 @@ export interface RmtSurfaceTransitionStateProjection {
 }
 
 export interface RmtSurfaceTransitionPatchInput {
+  signal?: AbortSignal;
+  isCurrent?(): boolean;
   surface?: string;
   surfaceId?: string;
   element?: Element | null;
@@ -120,6 +122,7 @@ export interface RmtSurfaceTransitionRuntime {
     diagnostic: unknown;
   }>;
   applyVisibilityPatch(input: RmtSurfaceTransitionPatchInput): Promise<unknown> | unknown;
+  cancelSurface(surfaceId: string, reason?: string): boolean;
   findTransition(metadata?: Record<string, unknown>): RmtSurfaceTransitionRecord | null;
   listActiveTransitions(): unknown[];
   listDiagnostics(): unknown[];

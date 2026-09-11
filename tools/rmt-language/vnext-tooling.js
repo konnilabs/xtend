@@ -97,6 +97,10 @@ const VNEXT_PRIMITIVE_SELECTOR_CLAUSES = Object.freeze([
 ]);
 
 const VNEXT_PRIMITIVE_ACTION_CLAUSES = Object.freeze([
+  ['execution fastpass', 'Shell-Aktion auf user-blocking ohne Model-Transaktion; nur Navigation, Fokus und Close.'],
+  ['effect navigation', 'FastPass-Navigation zu einem literalen Pfad oder deklarierten Input.'],
+  ['effect close surface', 'FastPass-Close einer benannten Surface.'],
+  ['effect focus surface', 'FastPass-Fokus auf eine benannte Surface.'],
   ['input', 'Typisierten Action-Input deklarieren.'],
   ['status', 'Status-State fuer Loading, Success und Error binden.'],
   ['reduce', 'State-Reducer deklarieren.'],

@@ -60,7 +60,8 @@ function parseArticle(markdown, fallbackTitle) {
   return {
     title: stripMarkdown(titleMatch ? titleMatch[1] : fallbackTitle),
     headings,
-    summary: (paragraphs[0] || '').slice(0, 280)
+    // Keep the eager summary small; headings and the lazy full-text index retain discovery.
+    summary: (paragraphs[0] || '').slice(0, 220)
   };
 }
 

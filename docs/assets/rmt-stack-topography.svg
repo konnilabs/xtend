@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1120" height="640" viewBox="0 0 1120 640" role="img" aria-labelledby="title desc">
   <title id="title">RMT stack topography</title>
-  <desc id="desc">A layered view from RMT source and compiler through the RMT kernel, Fabric, host adapters and UI frameworks.</desc>
+  <desc id="desc">RMT source and compiler feed runtime services. One microkernel scheduler owns execution. Fabric supplies work intents and telemetry; host adapters connect UI frameworks.</desc>
   <defs>
     <linearGradient id="kernel" x1="0" x2="1" y1="0" y2="1">
       <stop offset="0" stop-color="#164e63"/>
@@ -46,20 +46,20 @@
   <path class="line" d="M270 84 H320"/>
 
   <rect class="card" x="80" y="168" width="960" height="98" rx="20" fill="url(#kernel)"/>
-  <text class="label" x="116" y="210">RMT Kernel</text>
-  <text class="copy" x="116" y="237">State, selectors, actions, events, resources, surfaces, scheduler and diagnostics.</text>
+  <text class="label" x="116" y="210">RMT Kernel / Runtime</text>
+  <text class="copy" x="116" y="237">Runtime services compose state and surfaces; the microkernel owns one shared scheduler.</text>
 
   <rect class="card" x="80" y="310" width="960" height="98" rx="20" fill="url(#fabric)"/>
   <text class="label" x="116" y="352">XTend Fabric</text>
-  <text class="copy" x="116" y="379">Lanes, fibers, hydration policies, backpressure, telemetry and completion signals.</text>
+  <text class="copy" x="116" y="379">Work intents, lane mapping, fibers, hydration policy and telemetry; no second queue.</text>
 
   <rect class="card" x="80" y="452" width="960" height="98" rx="20" fill="url(#ui)"/>
   <text class="label" x="116" y="494">UI and host layer</text>
   <text class="copy" x="116" y="521">XTend UI Web Components, SurfaceManager, DOM descriptors, React, Vue and VanillaJS adapters.</text>
 
   <path class="line" d="M437 116 V154"/>
-  <path class="line" d="M560 266 V296"/>
+  <path class="line" d="M560 308 V274"/>
   <path class="line" d="M560 408 V438"/>
   <path class="softLine" d="M1040 501 C1085 501 1085 215 1040 215"/>
-  <text class="muted" x="844" y="599">Host adapters keep framework details outside the kernel.</text>
+  <text class="muted" x="1040" y="599" text-anchor="end">Host adapters keep framework details outside the kernel.</text>
 </svg>

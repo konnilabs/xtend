@@ -1,4 +1,4 @@
-export const RMT_PRESENTATION_EFFECT_ADAPTER_SCHEMA: 'xtend.rmt.presentation-effect-adapter.v1';
+export const RMT_PRESENTATION_EFFECT_ADAPTER_SCHEMA: 'xtend.rmt.presentation-effect-adapter.v2';
 export const RMT_PRESENTATION_EFFECT_DIAGNOSTIC_SCHEMA: 'xtend.rmt.presentation-effect-diagnostic.v1';
 
 export interface RmtPresentationEffect {
@@ -19,6 +19,7 @@ export interface RmtPresentationEffectContext extends Readonly<Record<string, un
 
 export interface PresentationEffectPort {
   readonly schema?: string;
+  setSurfaceHidden?(surfaceId: string, hidden: boolean): unknown;
   invoke(effect: RmtPresentationEffect, context?: RmtPresentationEffectContext): unknown | Promise<unknown>;
   snapshot?(): Readonly<Record<string, unknown>>;
   listDiagnostics?(): ReadonlyArray<Readonly<Record<string, unknown>>>;
@@ -67,6 +68,7 @@ export interface RmtPresentationEffectAdapterOptions {
 }
 
 export interface RmtPresentationEffectAdapter extends PresentationEffectPort {
+  setSurfaceHidden(surfaceId: string, hidden: boolean): unknown;
   readonly schema: typeof RMT_PRESENTATION_EFFECT_ADAPTER_SCHEMA;
   snapshot(): Readonly<{
     schema: typeof RMT_PRESENTATION_EFFECT_ADAPTER_SCHEMA;

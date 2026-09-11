@@ -2,6 +2,10 @@
 
 Welcome to the XTend Developer Center. These docs explain XTend for developers who want to use Web Components, RMT app shells, local modules and SSR in their own products.
 
+## Current version: 0.8.0
+
+The [0.8.0 changelog](./changelog.md) brings together migrations and new features: one shared scheduler authority, [Maraca FastPass and Abort Boundaries](./maraca-fastpass-abort-boundary.md), demand-driven diagnostics, [Hydrangea JIT](./rmt-jit-hydrangea.md) and the [Node and Laravel page runtime](./ssr-pages.md). Packages require Node >=24.
+
 ## Learning paths
 
 | Goal | Start |
@@ -32,7 +36,7 @@ previous release bridge path: ./release-verification.md
 
 ## Product model
 
-XTend UI provides the visible Web Components. XTendRMT describes app shells, state, actions, events, resources, surfaces, hydration, validation and surface transitions. Fabric coordinates runtime work; the RMT kernel adds scheduler lanes, fibers and telemetry. The [ESM Registry](./esm-registry.md) exposes convenient JavaScript aliases from the package root for browser, bundler and SSR apps. [XTend Classic](./xtend-classic.md) delivers directly authored HTML and JavaScript through a local runtime manifest and `xtend-loader.js`. Maraca builds loaderless, kernel-orchestrated ESM apps from `.rmt` sources with bundle reports, browser bridges, mobile Web App Manifest output, optional PWA Service Worker scaffolding and strict contract gates. All paths share the same public runtime contracts.
+XTend UI provides the visible Web Components. XTendRMT describes app shells, state, actions, events, resources, surfaces, hydration, validation and surface transitions. The RMT microkernel owns the shared scheduler queue; Fabric contributes work intents, fibers, backpressure and telemetry without a second queue. The [ESM Registry](./esm-registry.md) exposes convenient JavaScript aliases from the package root for browser, bundler and SSR apps. [XTend Classic](./xtend-classic.md) delivers directly authored HTML and JavaScript through a local runtime manifest and `xtend-loader.js`. Maraca builds loaderless, kernel-orchestrated ESM apps from `.rmt` sources with bundle reports, browser bridges, mobile Web App Manifest output, optional PWA Service Worker scaffolding and strict contract gates. All paths share the same public runtime contracts.
 
 ## Choose A Delivery Path
 

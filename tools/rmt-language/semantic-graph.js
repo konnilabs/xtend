@@ -1199,6 +1199,7 @@ function actionHasReducerTarget(action) {
 }
 
 function actionNeedsReducerTarget(action) {
+  if (toArray(action && action.body).some(entry => entry.type === 'RmtActionExecutionClause' && entry.path === 'fastpass')) return false;
   return toArray(action && action.body).some((entry) => entry && [
     'RmtActionInputClause',
     'RmtActionStatusClause',

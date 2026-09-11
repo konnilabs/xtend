@@ -5669,7 +5669,7 @@ function copyPlanRuntimeAsset(plan) {
     bytes: fs.statSync(targetPath).size,
     isEntry: false,
     isDynamicEntry: false,
-    imports: [],
+    imports: ['runtime/abort-boundary.mjs', 'runtime/fastpass-contract.js', 'runtime/fastpass.mjs'],
     dynamicImports: []
   };
 }
@@ -5678,6 +5678,10 @@ function copyMaracaBrowserRuntimeAssets(plan) {
   if (!plan) return [];
   const packageRoot = path.dirname(path.dirname(__filename));
   return [
+    ...['abort-boundary.mjs', 'fastpass-contract.js', 'fastpass.mjs', 'fastpass.schema.json'].map(name => ({
+      sourceCandidates: [path.resolve(plan.rootDir || packageRoot, 'xtend-maraca', name), path.resolve(__dirname, name)],
+      fileName: 'runtime/' + name
+    })),
     {
       sourceCandidates: [
         path.resolve(plan.rootDir || packageRoot, 'xtend-maraca/browser-composition-runtime.mjs'),

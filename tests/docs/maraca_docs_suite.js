@@ -34,6 +34,8 @@ const DOC_PATHS = Object.freeze([
   'docs/en/learn-rmt-syntax-basics.md',
   'docs/de/learn-rmt-next-steps.md',
   'docs/en/learn-rmt-next-steps.md',
+  'docs/de/maraca-fastpass-abort-boundary.md',
+  'docs/en/maraca-fastpass-abort-boundary.md',
   'docs/menu.json'
 ]);
 const DEEP_DIVE_PATHS = Object.freeze([
@@ -113,6 +115,27 @@ function runDocContentChecks(context, rootDir) {
     'maraca-web-app-manifest',
     'maraca-pwa-service-worker'
   ], 'Maraca entry docs');
+  for (const locale of ['de', 'en']) {
+    const guide = readText(`docs/${locale}/maraca-fastpass-abort-boundary.md`, rootDir);
+    assertIncludesAll(context, guide, [
+      'subscribeEvents(', 'runtime.subscribe(', 'runtime.snapshot()',
+      'execution fastpass', 'effect close surface', 'effect focus surface',
+      'dispatchFastPass(', 'fastPassActions', 'user-blocking',
+      'capture()', 'isCurrent(token)', 'invalidate(reason)', 'dispose()',
+      'scheduleCommit(', 'superseded', 'metadata.surfaces',
+      'xtend.maraca.plan-runtime.v3', 'xtend.rmt.presentation-effect-adapter.v2'
+    ], `${locale} responsiveness guide`);
+    const reference = readText(`docs/${locale}/rmt-reference-actions-events.md`, rootDir);
+    const example = [...reference.matchAll(/```rmt\n([\s\S]*?)```/g)]
+      .map(match => match[1]).find(source => source.includes('template reference.fastpass'));
+    context.assert(Boolean(example), `${locale} reference includes a complete native FastPass example`);
+    if (example) {
+      const compiled = require('../../tools/rmt-language/vnext-compiler').compileRmtVNextSource({
+        text: example, filePath: `docs/${locale}/rmt-reference-actions-events.md`
+      });
+      context.assert(compiled.ok, `${locale} FastPass documentation example compiles: ${JSON.stringify(compiled.diagnostics)}`);
+    }
+  }
   assertIncludesAll(context, deepDive, REQUIRED_DEEP_DIVE_TOKENS, 'Maraca orchestration deep dive');
   assertIncludesAll(context, deReadme.concat('\n', enReadme), [
     './xtend-maraca.md',

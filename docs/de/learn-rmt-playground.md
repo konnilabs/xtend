@@ -50,3 +50,9 @@ Nutze den Playground für schnelle Syntax- und Modelltests, aber verlasse dich f
 ## Nächster Schritt
 
 Schließe den Lernpfad mit [Nächste Schritte](./learn-rmt-next-steps.md) ab.
+
+## Aktueller Quellstand und Compiler-Backend
+
+Der Playground hält höchstens einen Compile-/Diagnose-Request gleichzeitig aktiv und merkt sich je Operation nur den neuesten wartenden Stand. Automatisches Kompilieren wartet 300 ms, Diagnose 160 ms; Run führt den neuesten Stand ohne weitere Debounce aus. Veraltete Antworten, Preset-Ladevorgänge und Preview-Boots dürfen keinen neueren Stand überschreiben. Beim Verlassen werden Fetch, Scheduler und Preview-Runtime freigegeben. Eine neue Vorschau bootet weiterhin vollständig; es gibt keinen Live-DOM-Patch.
+
+Das Backend ist standardmäßig `legacy`. Hosts können [Hydrangea JIT](./rmt-jit-hydrangea.md) explizit aktivieren, um Compile, Safe Preview und Maraca-Vorbereitung in einem Node-Prozess zu bündeln und verifizierte Framework-Artefakte wiederzuverwenden. Request-Koordination und Generationsschutz gelten unabhängig von diesem Backend-Schalter.

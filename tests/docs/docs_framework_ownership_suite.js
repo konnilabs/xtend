@@ -96,6 +96,24 @@ async function runDocsFrameworkOwnershipSuite(options = {}) {
     context.assert(scanOwnershipSource(fixture, `negative/${rule.id}`).some((entry) => entry.rule === rule.id), `negative fixture detects ${rule.id}`);
   }
 
+  const { createLocaleService } = await import(`file://${resolveRepoPath('docs/utils/docs-app-services.mjs', rootDir)}`);
+  const localeEvents = [];
+  let localeService;
+  localeService = createLocaleService({
+    document: { locale: 'de' },
+    configuration: { i18n: { schema: 'xtend.docs.i18n.v1', available: ['de', 'en'], defaultLocale: 'de', fallbackLocale: 'de' } }
+  }, { dispatchEvent(event) { localeEvents.push({ event, observedLocale: localeService.current() }); } });
+  const localeDetail = { changed: true, available: ['de', 'en'] };
+  localeService.publish('en', 'user', localeDetail);
+  localeDetail.available.push('invalid');
+  context.assert(localeEvents.length === 1 && localeEvents[0].observedLocale === 'en', 'locale observers see the shared selection before handling its single event');
+  context.assert(localeEvents[0].event.detail.previousLocale === 'de'
+    && localeEvents[0].event.detail.source === 'user'
+    && localeEvents[0].event.detail.available.length === 2
+    && Object.isFrozen(localeEvents[0].event.detail.available), 'locale change retains detached immutable transition metadata');
+  context.assert(pageLoader.includes('getDocsAppServices(document, window).locale.publish(normalized, source, {')
+    && !pageLoader.includes("new CustomEvent('xtend-docs-locale-changed'"), 'route changes publish through the same locale service used by search and navigation');
+
   const safePreview = await import(`file://${resolveRepoPath('xtendrmt/rmt-safe-preview.js', rootDir)}`);
   const projector = safePreview.createRmtSafePreviewProjector({ componentRegistry: ['x-button'] });
   const projected = projector.project({}, { descriptor: { tag: 'script', attributes: { onclick: 'alert(1)' }, children: [] } });

@@ -314,6 +314,11 @@ function createRmtKernelSchedulerModule(globalTarget = typeof globalThis !== 'un
       removePending(job);
       if (activeJob === job) activeJob = null;
       clearTimer(job);
+      const hostWait = job.hostWait;
+      job.hostWait = null;
+      if (hostWait && hostWait.cancel) {
+        try { hostWait.cancel(); } catch (_) { /* Logical cancellation still wins. */ }
+      }
       job.status = status;
       job.reason = text(reason, status);
       job.finishedAt = now();
@@ -453,37 +458,55 @@ function createRmtKernelSchedulerModule(globalTarget = typeof globalThis !== 'un
     }
 
     function dispatchJob(job) {
+      if (job.hostReady) {
+        job.hostReady = false;
+        runJob(job);
+        return;
+      }
       const strategy = job.request.strategy;
-      if (strategy === 'after_paint' && host.requestAnimationFrame) {
-        activeJob = job;
-        host.requestAnimationFrame(() => host.requestAnimationFrame(() => {
-          if (activeJob === job) activeJob = null;
-          runJob(job);
-        }));
+      const paint = strategy === 'after_paint' && host.requestAnimationFrame;
+      const idle = strategy === 'idle' && host.requestIdleCallback;
+      const posted = !paint && !idle && host.postTask && options.preferPostTask !== false;
+      if (!paint && !idle && !posted) {
+        runJob(job);
         return;
       }
-      if (strategy === 'idle' && host.requestIdleCallback) {
-        activeJob = job;
-        host.requestIdleCallback(() => {
-          if (activeJob === job) activeJob = null;
-          runJob(job);
-        }, { timeout: job.request.deadlineMs || 1000 });
-        return;
-      }
-      if (host.postTask && options.preferPostTask !== false) {
-        const priority = job.request.lane === 'user-blocking'
-          ? 'user-blocking'
-          : (['background', 'idle', 'diagnostics'].includes(job.request.lane) ? 'background' : 'user-visible');
-        activeJob = job;
-        Promise.resolve(host.postTask(() => {
-          if (activeJob === job) activeJob = null;
-          runJob(job);
-        }, { priority })).catch((error) => {
-          if (!FINAL_STATUSES.has(job.status)) settle(job, 'failed', 'host_dispatch_failed', undefined, error);
-        });
-        return;
-      }
-      runJob(job);
+      // Host barriers are waiting, not executing. Rejoin the authority when ready.
+      const wait = { cancel: null };
+      job.hostWait = wait;
+      if (!job.yieldResolve) job.status = 'waiting';
+      const current = () => !disposed && job.hostWait === wait && !FINAL_STATUSES.has(job.status);
+      const ready = () => {
+        if (!current()) return;
+        job.hostWait = null;
+        job.hostReady = true;
+        job.status = job.yieldResolve ? 'yielded' : 'queued';
+        if (!pending.includes(job)) pending.push(job);
+        queuePump();
+      };
+      const failed = (error) => {
+        if (current()) settle(job, 'failed', 'host_dispatch_failed', undefined, error);
+      };
+      try {
+        if (paint) {
+          let handle;
+          wait.cancel = () => { if (host.cancelAnimationFrame) host.cancelAnimationFrame(handle); };
+          handle = host.requestAnimationFrame(() => {
+            if (!current()) return;
+            try { handle = host.requestAnimationFrame(ready); } catch (error) { failed(error); }
+          });
+        } else if (idle) {
+          const handle = host.requestIdleCallback(ready, { timeout: job.request.deadlineMs || 1000 });
+          wait.cancel = () => { if (host.cancelIdleCallback) host.cancelIdleCallback(handle); };
+        } else {
+          const priority = job.request.lane === 'user-blocking' ? 'user-blocking'
+            : (['background', 'idle', 'diagnostics'].includes(job.request.lane) ? 'background' : 'user-visible');
+          Promise.resolve(host.postTask(ready, {
+            priority, ...(job.abortController ? { signal: job.abortController.signal } : {})
+          })).catch(failed);
+        }
+      } catch (error) { failed(error); }
+      queuePump();
     }
 
     function selectNext() {

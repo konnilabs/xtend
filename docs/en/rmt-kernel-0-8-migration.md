@@ -50,3 +50,15 @@ node scripts/run_xtend_tests.js scaffold-kernel-lab rmt-kernel-scheduler rmt-vne
 ```
 
 Then run `schema-inventory`, `contract-registry`, `contract-runtime-parity`, and the package dry run. Publishing remains a separate manual owner action. The [feature-adoption evaluation](./rmt-kernel-feature-adoption-evaluation.md) records the scheduler authority and optional-service decisions.
+
+## Shell response and diagnostics
+
+Paint, idle and `postTask` waits do not hold an active scheduler job. Ready work passes through the same priority selection. `postTask` hosts must forward the optional `AbortSignal`. `ctx.scheduler.getPriorityQueueStats()` in delegated events and commands reads the current injected scheduler snapshot.
+
+For lifecycle observation use `runtime.subscribeEvents(listener)` instead of a full-snapshot subscription. `subscribe(listener)` remains compatible and deliberately enables full snapshot preparation. `snapshot()` and redacted DEV reads remain current, including after late attachment. Panic and recovery recording is not disabled.
+
+FastPass is explicit through `execution fastpass` or `fastPassActions`. `dispatchFastPass()` returns a cancellable `RmtJobHandle`; `dispatchCommand()` retains its Promise contract. Managed surface work automatically receives presentation epochs. Carry their tokens into custom worker, hydration and chart adapters; a `superseded` result must not trigger synchronous rendering fallback.
+
+The extended contracts are `xtend.maraca.plan-runtime.v3` and `xtend.rmt.presentation-effect-adapter.v2`. Consumers that check schema IDs explicitly must accept these IDs. Additive FastPass authoring is defined in `xtend-maraca/fastpass.schema.json`; the RMT v2 document schema is unchanged. Rebuild deployed bundles and types from the same 0.8.0 sources.
+
+[FastPass and Abort Boundary](./maraca-fastpass-abort-boundary.md) documents the API and the distinction between presentation and business work. Supplement the checks above with `maraca-responsiveness`, `maraca-orchestration`, `rmt-vnext-surfaces` and `xtend-dev-surface`.

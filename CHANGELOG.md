@@ -4,6 +4,20 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 
 ## Unreleased
 
+- Docs Shell: Sprachwechsel aktualisieren den gemeinsamen Locale-Service vor Suche und Navigation. Der gemeinsame FastPass-Validator verwendet Syntax, die auch der ältere Docs-Bridge-Host parsen kann.
+
+- Docs: Die [deutsche](./docs/de/changelog.md) und [englische](./docs/en/changelog.md) 0.8.0-Übersicht dokumentieren auch die seit dem Kernel-Stand vom 30. August ergänzten Funktionen; Navigation, Suche und MCP-Wissen werden daraus generiert.
+- Hydrangea JIT: opt-in `jit-compile` bündelt Compile, Safe Preview und optionale Maraca-Vorbereitung in einem Node-Prozess. Der private Cache hält verifizierte Framework-Artefakte; `legacy` bleibt der Standard. Der Playground koordiniert aktuelle Requests und verwirft veraltete Antworten unabhängig vom Backend.
+- Seitenlaufzeit: unabhängige Node- und Laravel-Hosts, gemeinsame Page-Contracts, kompakter `xtend.page-wire.v1`-Transport und aktive bedingte Ansichten; XTend.store demonstriert resumable Maraca-Seiten mit Laravel und separatem DemoPay-Provider.
+- Overlay-Fokusfallen berücksichtigen geslottete und Remote-Controls. Tooling-/Nightly-Verifikation verwendet den gemeinsamen Katalog mit expliziter Capability- und Artefakt-Evidence.
+
+- RMT Scheduler: Paint-, Idle- und postTask-Wartephasen geben die Scheduler-Autorität frei; Cancellation, Host-Fehler und kooperative Fortsetzungen bleiben geschützt.
+- Maraca: Vollsnapshots entstehen automatisch nur bei Vollsnapshot-Abonnements. `subscribeEvents()` ergänzt schlanke Lifecycle-Signale; DEV-Einzelabrufe bleiben aktuell.
+- Maraca FastPass: `execution fastpass`, `fastPassActions` und `dispatchFastPass()` priorisieren validierte Navigation-, Fokus- und Close-Intents über dieselbe `user-blocking`-Lane, mit Schutz vor verspäteten Präsentations-Commits.
+- Abort Boundary: Verwaltete Surface-Epochen, Worker-Abbruchsignale und Commit-Guards verhindern veraltete Hydration und Ressourceninitialisierung. Externe Renderer erhalten denselben Vertrag über `createMaracaAbortBoundary()`.
+
+- Release-Verträge: Plan-Runtime v3, Presentation-Adapter v2 und ein separates FastPass-Schema; bestehende Methoden bleiben verfügbar. Die Typvorlage enthält keine selbstreferenzierenden Alias-Duplikate mehr.
+
 - RMT: Delegierte UI-Ereignisse und Commands werfen beim Aufbau ihres Handler-Kontexts keinen `ReferenceError` mehr. `ctx.scheduler.getPriorityQueueStats()` liest den aktuellen Snapshot der injizierten Kernel-Scheduler-Instanz; ein Regressionstest deckt die Modulquelle sowie Core-, ESM- und Browser-Artefakte ab.
 
 ## 0.8.0 - 2026-08-30
@@ -15,7 +29,7 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 - Product Surface ist ein expliziter Opt-in-Service. ESM-Importe booten keine Runtime und schreiben kein globales `AppModules`-Mirror.
 - Die 0.7-Kompatibilitaetsschichten und abgelaufenen `removeBy: 0.7.0`-Ausnahmen wurden entfernt. Prewarm bleibt standardmaessig aus; Retained Chunks sind auf 32 Eintraege und zwei Generationen pro Scope begrenzt.
 - KernelLab prueft das eigenstaendige Microkernel-Artefakt, Runtime-Port-Provider, Service-Importverbote, Zyklen, Duplikate, Bundle-Budgets und abgelaufene Compatibility-Eintraege.
-- Migration: `docs/de/rmt-kernel-0.8-migration.md` und `docs/en/rmt-kernel-0.8-migration.md`. Es erfolgt kein automatischer Publish.
+- Migration: `docs/de/rmt-kernel-0-8-migration.md` und `docs/en/rmt-kernel-0-8-migration.md`. Es erfolgt kein automatischer Publish.
 
 ## 0.6.1 - 2026-08-10
 

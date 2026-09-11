@@ -66,7 +66,7 @@ export function freezeMaracaConfiguration(value) {
 
 function disabledRuntime(plan) {
   const snapshot = () => deepFreeze({
-    schema: 'xtend.maraca.plan-runtime.v2',
+    schema: 'xtend.maraca.plan-runtime.v3',
     phase: 'created',
     enabled: false,
     mode: plan && plan.mode || 'disabled',
@@ -74,7 +74,7 @@ function disabledRuntime(plan) {
     diagnostics: clone(plan && plan.diagnostics || [])
   });
   return deepFreeze({
-    schema: 'xtend.maraca.plan-runtime.v2', model: null,
+    schema: 'xtend.maraca.plan-runtime.v3', model: null,
     boot: async () => snapshot(),
     dispatchCommand: async () => { throw new Error('Maraca orchestration is disabled.'); },
     dispatchStreamPatch: async () => { throw new Error('Maraca orchestration is disabled.'); },
@@ -203,6 +203,7 @@ function createRuntimeConfiguration(config, options, host, handles) {
     },
     root,
     initialState: options.initialState || config.state || {},
+    fastPassActions: options.fastPassActions || [],
     domRenderer: handles.renderer,
     kernelController: handles.kernel,
     kernelRuntime: options.kernelRuntime || null,
@@ -227,8 +228,8 @@ function createRuntimeConfiguration(config, options, host, handles) {
     surfaceControllerId: options.surfaceControllerId,
     surfaceStateProjection: options.surfaceStateProjection || null,
     feedbackAdapter: options.feedbackAdapter || null,
-    navigationAdapter: options.navigationAdapter || null,
-    focusAdapter: options.focusAdapter || null,
+    navigationAdapter: options.navigationAdapter || { navigate(path) { handles.windowTarget.location.assign(path); } },
+    focusAdapter: options.focusAdapter || { focus(id) { return host.focusSurface(root, id, handles.renderer); } },
     effectAdapter: options.effectAdapter || null,
     presentationEffectPort: options.presentationEffectPort || null,
     viewProjectionPort,
@@ -277,6 +278,18 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
   let generation = 0;
   let runtime = null;
   let runtimeUnsubscribe = null;
+  const facadeSubscriptions = new Set();
+  function attachSubscription(entry, target) {
+    entry.unsubscribe?.();
+    entry.unsubscribe = target && typeof target[entry.method] === 'function' ? target[entry.method](entry.listener) : null;
+  }
+  function observe(method, listener) {
+    if (typeof listener !== 'function') return () => {};
+    const entry = { method, listener, unsubscribe: null };
+    facadeSubscriptions.add(entry);
+    attachSubscription(entry, runtime || bootAttempt && bootAttempt.runtime);
+    return () => { entry.unsubscribe?.(); facadeSubscriptions.delete(entry); };
+  }
   let root = null;
   let renderer = null;
   let kernel = null;
@@ -331,16 +344,15 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
 
   function snapshot() {
     if (runtime && typeof runtime.snapshot === 'function') return deepFreeze(clone(runtime.snapshot()));
-    return deepFreeze({ schema: 'xtend.maraca.plan-runtime.v2', phase: 'created', enabled: false, status: 'not_booted', diagnostics: [] });
+    return deepFreeze({ schema: 'xtend.maraca.plan-runtime.v3', phase: 'created', enabled: false, status: 'not_booted', diagnostics: [] });
   }
 
   function subscribe(listener) {
-    if (!runtime || typeof runtime.subscribe !== 'function') return () => {};
-    return runtime.subscribe((value) => listener(deepFreeze(clone(value))));
+    return observe('subscribe', listener);
   }
 
   function publishRuntimeEvent(value) {
-    const event = value && value.lastEvent;
+    const event = value && (value.lastEvent || value);
     if (!event || !event.type) return;
     if (event.type === 'state') host.publish('xtend-maraca:state-change', { schema: 'xtend.maraca.state-change.v1', event: event.event || null, action: event.action || '' });
     else if (event.type === 'surface') host.publish('xtend-maraca:surface-change', { schema: 'xtend.maraca.surface-change.v1', report: event.report || null, metadata: event.metadata || {} });
@@ -406,7 +418,8 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
           platformTarget,
           dependencies
         }));
-        attempt.runtimeUnsubscribe = attempt.runtime.subscribe(publishRuntimeEvent);
+        facadeSubscriptions.forEach(entry => attachSubscription(entry, attempt.runtime));
+        attempt.runtimeUnsubscribe = (attempt.runtime.subscribeEvents || attempt.runtime.subscribe).call(attempt.runtime, publishRuntimeEvent);
         await attempt.runtime.boot();
         assertActiveBoot(attempt);
         host.publish('xtend-maraca:orchestration-boot', { schema: 'xtend.maraca.orchestration-boot.v1', mode: config.orchestration.mode, summary: config.orchestration.summary || {} });
@@ -428,7 +441,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
       attempt.telemetry = host.createTelemetryPort({ kernel: attempt.kernel, runtime: attempt.runtime, hydration: attempt.hydration });
       const runtimeSnapshot = attempt.runtime && typeof attempt.runtime.snapshot === 'function'
         ? deepFreeze(clone(attempt.runtime.snapshot()))
-        : deepFreeze({ schema: 'xtend.maraca.plan-runtime.v2', phase: 'created', enabled: false, status: 'not_booted', diagnostics: [] });
+        : deepFreeze({ schema: 'xtend.maraca.plan-runtime.v3', phase: 'created', enabled: false, status: 'not_booted', diagnostics: [] });
       const result = deepFreeze({
         ...runtimeSnapshot,
         ok: true,
@@ -588,9 +601,20 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
     ensureComponent: host.ensureComponent,
     boot,
     dispatchCommand,
+    dispatchFastPass(actionId, payload, options) {
+      if (!runtime) throw new Error('Maraca orchestration is not booted.');
+      return runtime.dispatchFastPass(actionId, payload, options);
+    },
+    getSurfaceBoundary(id) {
+      if (!runtime) throw new Error('Maraca orchestration is not booted.');
+      return runtime.getSurfaceBoundary(id);
+    },
     dispatchStreamPatch,
     snapshot,
     subscribe,
+    subscribeEvents(listener) {
+      return observe('subscribeEvents', listener);
+    },
     get model() { return runtime && runtime.model || null; },
     dispose
   };

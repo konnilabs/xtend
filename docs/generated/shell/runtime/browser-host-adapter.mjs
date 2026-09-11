@@ -59,7 +59,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
   }
 
   function installPublicFacades(values = {}) {
-    if (!windowTarget) return false;
+    if (!windowTarget || dependencies.publishGlobalFacades === false) return false;
     windowTarget.__XTendMaracaResult = freeze(clone(values.result));
     windowTarget.__XTendMaracaOrchestration = values.orchestrationFacade || null;
     windowTarget.__XTendMaracaKernel = readOnlySnapshotHandle(values.kernel, 'xtend.maraca.kernel-snapshot-facade.v1');
@@ -75,7 +75,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
   }
 
   function clearPublicFacades() {
-    if (!windowTarget) return false;
+    if (!windowTarget || dependencies.publishGlobalFacades === false) return false;
     [
       '__XTendMaracaResult', '__XTendMaracaOrchestration', '__XTendMaracaKernel', '__XTendMaracaHydration',
       '__XTendMaracaResume', '__XTendMaracaValidation', '__XTendMaracaAnimationEngine', '__XTendMaracaTransitions',
@@ -85,6 +85,10 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
   }
 
   async function ensureComponent(tag) {
+    // Independently built compositions share the browser's element registry.
+    // Reuse an already registered XTend control rather than evaluating its
+    // side-effectful registration module for every remote surface.
+    if (windowTarget.customElements?.get(tag)) return tag;
     const load = importers[tag];
     if (typeof load !== 'function') throw new Error(`XTend Maraca has no component registry entry for ${tag}.`);
     await load();
@@ -170,18 +174,18 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
     catch (error) { return { schema: 'xtend.maraca.server-prerender-shell.v1', ok: false, status: 'parse_failed', message: error.message }; }
   }
 
-  function adoptServerShell(root, renderer) {
+  function adoptServerShell(root, renderer, suppliedPayload) {
     if (!root || typeof root.querySelector !== 'function') return freeze({ schema: 'xtend.maraca.server-prerender-shell.v1', active: false, status: 'absent' });
     const shell = root.getAttribute && root.getAttribute('data-rmt-resume-root') === 'true'
       ? root
       : root.querySelector('[data-rmt-resume-root="true"], [data-maraca-ssr-shell]');
-    const payload = readResumePayload();
+    const payload = suppliedPayload === undefined ? readResumePayload() : suppliedPayload;
     if (!shell) return freeze({ schema: 'xtend.maraca.server-prerender-shell.v1', active: false, status: payload ? 'payload_only' : 'absent', payload });
     const envelope = payload && (payload.resume || payload.response && payload.response.resume || payload.schema === 'xtend.rmt.ssr-resume-envelope.v1' && payload) || null;
     const executionMode = envelope && envelope.executionMode || payload && payload.executionMode || 'server_prerender_hydrate';
     commitRootMetadata(root, renderer, { 'data-rmt-ssr-preserved': 'true', 'data-rmt-hydration-mode': executionMode }, 'maraca.boot.ssr-adoption');
     return freeze({
-      schema: 'xtend.maraca.server-prerender-shell.v1', active: true, status: 'preserved', transport: 'node-ssr', executionMode,
+      schema: 'xtend.maraca.server-prerender-shell.v1', active: true, status: 'preserved', transport: payload?.telemetryHints?.transport || payload?.response?.telemetryHints?.transport || 'node-ssr', executionMode,
       resumeEnvelopeSchema: envelope && envelope.schema || null,
       resumeRootId: shell.getAttribute && shell.getAttribute('id') || null,
       surfaceCount: typeof shell.querySelectorAll === 'function' ? shell.querySelectorAll('[data-rmt-ssr-surface]').length : 0,
@@ -194,6 +198,17 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
     if (matches(root)) return root;
     if (!root || typeof root.querySelectorAll !== 'function') return null;
     return Array.from(root.querySelectorAll('[data-maraca-surface]')).find(matches) || null;
+  }
+
+  function focusSurface(root, surfaceId, renderer) {
+    const element = resolveSurface(root, surfaceId);
+    if (!element || typeof element.focus !== 'function') throw new Error(`Cannot focus surface ${surfaceId}.`);
+    element.focus();
+    // Named regions and custom-element hosts may need programmatic focusability.
+    if (documentTarget.activeElement !== element && !element.contains?.(documentTarget.activeElement)) {
+      if (!element.hasAttribute('tabindex')) commitRootMetadata(element, renderer, { tabindex: '-1' }, 'maraca.shell.focus');
+      element.focus();
+    }
   }
 
   async function invokeComponentCommand(root, record) {
@@ -221,6 +236,8 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
     let observer = null;
     const history = [];
     async function hydrate(rootTarget, tags, metadata = {}) {
+      const current = () => (!metadata.signal || !metadata.signal.aborted) && (typeof metadata.isCurrent !== 'function' || metadata.isCurrent());
+      if (!current()) return freeze({ ok: false, status: 'superseded' });
       const unique = Array.from(new Set((tags || []).filter(Boolean)));
       history.push(freeze({ tags: unique.slice(), metadata: clone(metadata), status: 'pending' }));
       publish('xtend-maraca:hydration-start', { schema: 'xtend.maraca.hydration-history-entry.v1', tags: unique, metadata });
@@ -231,15 +248,20 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
           ? Array.from(rootTarget.querySelectorAll('[data-rmt-component], [data-maraca-surface]')) : [];
         observer = new windowTarget.IntersectionObserver((records) => records.forEach((entry) => {
           if (!entry.isIntersecting && entry.intersectionRatio <= 0) return;
+          if (!current()) { observer && observer.unobserve(entry.target); return; }
+          const id = entry.target.getAttribute('data-maraca-surface');
+          const scope = (metadata.surfaces || []).find(scope => scope.id === id);
+          if (scope && !scope.isCurrent()) { observer && observer.unobserve(entry.target); return; }
           observer.unobserve(entry.target);
           const tag = entry.target.getAttribute('data-rmt-component') || entry.target.localName;
-          ensureComponent(tag).then(() => publish('xtend-maraca:component-load', { tag, strategy: 'viewport' }), (error) => publish('xtend-maraca:component-error', diagnostic('xtend.maraca.component_load_error', error)));
+          ensureComponent(tag).then(() => { if (current() && (!scope || scope.isCurrent())) publish('xtend-maraca:component-load', { tag, strategy: 'viewport' }); }, (error) => publish('xtend-maraca:component-error', diagnostic('xtend.maraca.component_load_error', error)));
         }), { root: options.viewportRoot || null, rootMargin: options.rootMargin || '160px', threshold: options.threshold || 0 });
         elements.forEach((element) => observer.observe(element));
         handles.add({ dispose() { observer && observer.disconnect(); observer = null; } });
         return freeze({ strategy: 'viewport', observedCount: elements.length });
       }
       const result = supplied && typeof supplied.ensureTags === 'function' ? await supplied.ensureTags(unique) : await ensureComponents(unique);
+      if (!current()) return freeze({ ok: false, status: 'superseded' });
       history[history.length - 1] = freeze({ tags: unique.slice(), metadata: clone(metadata), status: 'hydrated' });
       publish('xtend-maraca:hydration-complete', { schema: 'xtend.maraca.hydration-history-entry.v1', tags: unique, metadata });
       return result;
@@ -361,7 +383,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
     schema: 'xtend.maraca.browser-host-adapter.v2', config, publish, runtimeApi, readModelSnapshot, snapshotHandle: readOnlySnapshotHandle, installPublicFacades, clearPublicFacades,
     attachCss, resolveRoot, elementById, createRenderer,
     commitRootMetadata, renderCompatibility, readResumePayload, adoptServerShell, ensureComponent, ensureComponents,
-    invokeComponentCommand, createHydrationPort, createKernelController, registerTemplateArtifacts, registerPwa, createTelemetryPort,
+    invokeComponentCommand, focusSurface, createHydrationPort, createKernelController, registerTemplateArtifacts, registerPwa, createTelemetryPort,
     registerHandle(handle) { if (handle) handles.add(handle); return handle; }, dispose
   });
 }

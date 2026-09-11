@@ -446,6 +446,9 @@
     }
 
     async function runVisibilityPatch(input = {}) {
+      const current = () => !disposed && (!input.signal || !input.signal.aborted) && (typeof input.isCurrent !== 'function' || input.isCurrent());
+      const superseded = () => ({ schema: RMT_SURFACE_TRANSITION_RUNTIME_SCHEMA, status: 'superseded', surface: input.surface || input.surfaceId });
+      if (!current()) return superseded();
       const surfaceId = clampString(input.surface || input.surfaceId);
       const element = resolveElement(surfaceId, input.element || null);
       const transition = input.transition || findTransition(transitionPlan, {
@@ -527,6 +530,7 @@
         writeHidden(element, true);
         knownVisibility.set(surfaceId, true);
         const waitResult = transition.effect === 'crossfade' ? { status: 'ready' } : await waitForExitPhase(transition);
+        if (!current()) { if (active.get(surfaceId) === activeRecord) active.delete(surfaceId); completeExitGate(superseded()); return superseded(); }
         if (waitResult && waitResult.status === 'timeout' && options.strict) {
           if (activeRecord.cancelled || active.get(surfaceId) !== activeRecord) {
             active.delete(surfaceId);
@@ -567,6 +571,7 @@
 
       try {
         const effectResult = await runEffect(element, transition, phase, input.metadata || {});
+        if (!current()) { if (active.get(surfaceId) === activeRecord) active.delete(surfaceId); completeExitGate(superseded()); return superseded(); }
         if (activeRecord.cancelled || active.get(surfaceId) !== activeRecord) {
           if (active.get(surfaceId) === activeRecord) resetStyles(element);
           completeExitGate({
@@ -601,6 +606,7 @@
         dispatchEvent(result.status === 'fallback' ? 'xtend-maraca:surface-transition-fallback' : 'xtend-maraca:surface-transition-complete', result);
         return result;
       } catch (error) {
+        if (!current()) { if (active.get(surfaceId) === activeRecord) active.delete(surfaceId); completeExitGate(superseded()); return superseded(); }
         active.delete(surfaceId);
         resetStyles(element);
         writeHidden(element, nextHidden);
@@ -636,7 +642,14 @@
         action: input.action,
         surface: input.surface || input.surfaceId
       });
-      const work = () => runVisibilityPatch({ ...input, transition });
+      const work = () => {
+        if (input.signal && input.signal.aborted) return Promise.resolve({ status: 'superseded', surface: input.surface || input.surfaceId });
+        const cancel = () => cancelSurface(input.surface || input.surfaceId, 'presentation-superseded');
+        if (input.signal) input.signal.addEventListener('abort', cancel, { once: true });
+        return runVisibilityPatch({ ...input, transition }).finally(() => {
+          if (input.signal) input.signal.removeEventListener('abort', cancel);
+        });
+      };
       if (transition && kernelController && kernelController.enabled && typeof kernelController.scheduleWork === 'function') {
         return kernelController.scheduleWork('surface-transition', work, {
           operation: transition.operation,
@@ -647,6 +660,16 @@
         });
       }
       return work();
+    }
+
+    function cancelSurface(surfaceId, reason = 'superseded') {
+      const record = active.get(String(surfaceId));
+      if (!record) return false;
+      record.cancelled = true;
+      active.delete(String(surfaceId));
+      resetStyles(record.element);
+      if (record.completeExitGate) record.completeExitGate({ status: 'superseded', reason });
+      return true;
     }
 
     function listActiveTransitions() {
@@ -733,6 +756,7 @@
       transitionPlan,
       adoptVisibility,
       applyVisibilityPatch,
+      cancelSurface,
       findTransition: (metadata = {}) => findTransition(transitionPlan, metadata),
       listActiveTransitions,
       listDiagnostics,

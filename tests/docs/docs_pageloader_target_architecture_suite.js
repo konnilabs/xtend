@@ -7,7 +7,8 @@ const {
   resolveRootDir
 } = require('../utils/files');
 
-const PAGE_LOADER = 'docs/utils/pageloader.js';
+const PAGE_LOADER = 'docs/utils/page/route-controller.mjs';
+const LEGACY_PAGE_LOADER = 'docs/utils/pageloader.js';
 const CENTRAL_RENDERER = 'xtendrmt/rmt-dom-descriptor-renderer.js';
 const BROWSER_SMOKE = 'scripts/smoke_docs_shell_catfooding.mjs';
 
@@ -42,6 +43,9 @@ function runDocsPageLoaderTargetArchitectureSuite(options = {}) {
     label: 'Docs PageLoader target architecture'
   });
   const pageLoader = readText(PAGE_LOADER, rootDir);
+  const compatibilityEntry = readText(LEGACY_PAGE_LOADER, rootDir);
+  context.assert(compatibilityEntry.includes("export * from './page/index.mjs'")
+    && !inspectPageLoaderSource(compatibilityEntry).length, 'legacy PageLoader only delegates to the current page entry');
   const renderer = readText(CENTRAL_RENDERER, rootDir);
   const browserSmoke = readText(BROWSER_SMOKE, rootDir);
   const indexPhp = readText('docs/index.php', rootDir);

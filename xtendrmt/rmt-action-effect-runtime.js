@@ -664,6 +664,7 @@ function createRmtActionEffectRuntimeModule() {
         }
         for (const effectId of action.effects) {
           effectResults.push(await runEffect(effectId, {
+            isPresentationCurrent: metadata.isPresentationCurrent,
             action,
             payload,
             result: data,

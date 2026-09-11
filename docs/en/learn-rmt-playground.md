@@ -50,3 +50,9 @@ Use the playground for quick syntax and model tests, but rely on Maraca for prod
 ## Next Step
 
 Finish the guided path with [Next Steps](./learn-rmt-next-steps.md).
+
+## Current source and compiler backend
+
+The Playground keeps at most one compile/diagnostics request active and retains only the latest pending source per operation. Automatic compile waits 300 ms and diagnostics 160 ms; Run flushes the latest source without further debounce. Stale responses, preset loads and preview boots cannot replace newer state. Leaving releases fetch, scheduler and preview-runtime resources. A new preview still performs a full boot; there is no live DOM patch.
+
+The default backend is `legacy`. Hosts may explicitly enable [Hydrangea JIT](./rmt-jit-hydrangea.md) to combine compile, safe preview and Maraca preparation in one Node process and reuse verified framework artifacts. Request coordination and generation guards apply independently of that backend switch.

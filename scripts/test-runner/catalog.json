@@ -7348,6 +7348,26 @@
         "browser"
       ],
       "timeoutMs": 300000
+    },
+    {
+      "id": "maraca-responsiveness",
+      "label": "Maraca responsiveness",
+      "description": "Scheduler host barriers, demand-driven diagnostics, FastPass and presentation abort boundaries.",
+      "defaultIncluded": true,
+      "handler": "maraca-responsiveness",
+      "implementations": [
+        {
+          "path": "tests/maraca/maraca_responsiveness_suite.js",
+          "function": "runMaracaResponsivenessSuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository"
+      ],
+      "timeoutMs": 300000
     }
   ],
   "profiles": {

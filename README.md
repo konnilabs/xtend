@@ -45,12 +45,14 @@ import { readyXTend, schedule, render, createApp, createStore } from '@ccslabs/x
 await readyXTend();
 const app = createApp();
 const store = createStore();
-const cancel = schedule(() => render(document.querySelector('#app'), {
+const job = schedule(() => render(document.querySelector('#app'), {
   type: 'element',
   tag: 'p',
   children: [{ type: 'text', text: 'Hello XTend' }]
 }));
 ```
+
+`schedule()` returns a thenable `RmtJobHandle`: use `await job` for its result and `job.cancel()` for cancellation.
 
 Node and SSR can import the same names without browser globals. Configure a DOM implementation before rendering; DOM-neutral factories work without it.
 
@@ -88,6 +90,8 @@ The loader reads `components/manifest.json`, loads requested custom elements, an
 | Dynamic catalogs and progressive enhancement | Optimized app graphs, SSR/hydration, PWA, and production reports |
 
 ### XTendRMT and Maraca
+
+[XTend 0.8.0 release overview](./docs/en/changelog.md): shared kernel scheduling, Maraca FastPass, presentation Abort Boundaries and demand-driven diagnostics; opt-in Hydrangea JIT and independent Node/Laravel page hosts with Page Wire.
 
 XTendRMT keeps state, selectors, actions, events, resources, surfaces, and scheduling in `.rmt` source. Host adapters connect compiled records to XTend UI, XRouter, Fabric, browser APIs, and server rendering. Maraca turns that source into loaderless modern ESM application bundles and emits reviewable production evidence.
 
@@ -195,7 +199,7 @@ import { readyXTend, schedule, render, createApp, createStore } from '@ccslabs/x
 await readyXTend();
 const app = createApp();
 const store = createStore();
-const cancel = schedule(() => render(document.querySelector('#app'), {
+const job = schedule(() => render(document.querySelector('#app'), {
   type: 'element',
   tag: 'p',
   children: [{ type: 'text', text: 'Hello XTend' }]
@@ -244,6 +248,8 @@ Der Loader liest `components/manifest.json`, lädt angeforderte Custom Elements 
 | Dynamische Kataloge und Progressive Enhancement | Optimierte App-Graphen, SSR/Hydration, PWA und Produktionsreports |
 
 ### XTendRMT und Maraca
+
+[XTend 0.8.0 im Überblick](./docs/de/changelog.md): gemeinsamer Kernel-Scheduler, Maraca FastPass, Präsentations-Abort-Boundaries und bedarfsgesteuerte Diagnosen; opt-in Hydrangea JIT und unabhängige Node-/Laravel-Seitenhosts mit Page Wire.
 
 XTendRMT hält State, Selektoren, Actions, Events, Ressourcen, Surfaces und Scheduling in einer `.rmt`-Quelle. Host-Adapter verbinden kompilierte Records mit XTend UI, XRouter, Fabric, Browser-APIs und Server-Rendering. Maraca erzeugt daraus loaderlose Modern-ESM-App-Bundles und prüfbare Produktionsnachweise.
 

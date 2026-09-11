@@ -1,5 +1,5 @@
 (function attachRmtPresentationEffectAdapter(globalTarget) {
-  const RMT_PRESENTATION_EFFECT_ADAPTER_SCHEMA = 'xtend.rmt.presentation-effect-adapter.v1';
+  const RMT_PRESENTATION_EFFECT_ADAPTER_SCHEMA = 'xtend.rmt.presentation-effect-adapter.v2';
   const RMT_PRESENTATION_EFFECT_DIAGNOSTIC_SCHEMA = 'xtend.rmt.presentation-effect-diagnostic.v1';
 
   function objectRecord(value) {
@@ -290,9 +290,10 @@
       return result;
     }
 
-    async function materializeSurface(surfaceId, initialSurface = null) {
+    async function materializeSurface(surfaceId, initialSurface = null, onMaterialized = null) {
       if (!surfaceId) return { materialized: false, reason: 'missing-surface' };
       const lifecycleResult = lifecycleMaterialize(surfaceId);
+      if (lifecycleResult && onMaterialized) onMaterialized();
       const surface = initialSurface || resolveSurface(surfaceId);
       const manager = nearestSurfaceManager(surface);
       if (!manager) {
@@ -331,6 +332,7 @@
       else if (typeof manager.openSurface === 'function') manager.openSurface(surfaceId, payload);
       else if (typeof manager.focusSurface === 'function') manager.focusSurface(surfaceId);
       else return { materialized: false, reason: 'unsupported-surface-manager', surfaceId };
+      if (onMaterialized) onMaterialized();
       await waitForPresentationTurn();
       const after = surfaceRecord(manager, surfaceId);
       return {
@@ -363,21 +365,34 @@
         : null;
     }
 
+    function capturePresentationScope(context, id) {
+      const boundary = typeof context.getSurfaceBoundary === 'function' && context.getSurfaceBoundary(id);
+      const token = boundary && boundary.capture();
+      return () => !boundary || (!boundary.disposed && boundary.capture().owner === token.owner && boundary.capture().epoch === token.epoch);
+    }
+
     async function runRemotePlay(effect, effectContext) {
       const { sourceId, detail } = effectState(effect, effectContext, 'player');
+      let scopeCurrent = capturePresentationScope(effectContext, detail.surfaceId || sourceId);
+      const current = () => !disposed && scopeCurrent() && (!effectContext.signal || !effectContext.signal.aborted) && (typeof effectContext.isCurrent !== 'function' || effectContext.isCurrent());
+      if (!current()) return { status: 'superseded' };
       if (!detail || detail.hidden === true || detail.open === false || !detail.src) return null;
       assertAllowedUrl(detail.src, 'remote-play');
       if (detail.poster) assertAllowedUrl(detail.poster, 'remote-play-poster');
       await ensureComponent('x-player');
+      if (!current()) return { status: 'superseded' };
       await Promise.resolve();
+      if (!current()) return { status: 'superseded' };
       const surfaceId = detail.surfaceId || sourceId;
       let surface = resolveSurface(surfaceId);
-      const materialization = await materializeSurface(surfaceId, surface);
+      const materialization = await materializeSurface(surfaceId, surface, () => { scopeCurrent = capturePresentationScope(effectContext, surfaceId); });
+      if (!current()) return { status: 'superseded' };
       if (!surface && typeof options.refreshSurfaceIndex === 'function') {
         options.refreshSurfaceIndex();
         surface = resolveSurface(surfaceId);
       }
       await waitForPresentationTurn();
+      if (!current()) return { status: 'superseded' };
       const player = surface && surface.localName === 'x-player'
         ? surface
         : surface && typeof surface.querySelector === 'function' && surface.querySelector('x-player');
@@ -429,12 +444,18 @@
 
     async function runLightbox(effect, effectContext) {
       const { sourceId, detail } = effectState(effect, effectContext, 'lightbox');
+      let scopeCurrent = capturePresentationScope(effectContext, detail.surfaceId || sourceId);
+      const current = () => !disposed && scopeCurrent() && (!effectContext.signal || !effectContext.signal.aborted) && (typeof effectContext.isCurrent !== 'function' || effectContext.isCurrent());
+      if (!current()) return { status: 'superseded' };
       const surfaceId = detail.surfaceId || sourceId;
       if (!surfaceId) return null;
       await ensureComponent('x-lightbox');
+      if (!current()) return { status: 'superseded' };
       await Promise.resolve();
+      if (!current()) return { status: 'superseded' };
       let surface = resolveSurface(surfaceId);
-      const materialization = await materializeSurface(surfaceId, surface);
+      const materialization = await materializeSurface(surfaceId, surface, () => { scopeCurrent = capturePresentationScope(effectContext, surfaceId); });
+      if (!current()) return { status: 'superseded' };
       if (!surface && typeof options.refreshSurfaceIndex === 'function') {
         options.refreshSurfaceIndex();
         surface = resolveSurface(surfaceId);
@@ -446,6 +467,7 @@
       const shouldOpen = Boolean(detail.hidden !== true && detail.open !== false && detail.src);
       if (!shouldOpen) {
         await closeLightboxOverlays(surfaceId);
+        if (!current()) return { status: 'superseded' };
         if (typeof lightbox.close === 'function') {
           lightbox.close({ source: 'presentation-effect', immediate: true, silent: true });
         } else {
@@ -454,6 +476,7 @@
             surface: surfaceId
           });
           await applyVisibility(lightbox, true, surfaceId);
+          if (!current()) return { status: 'superseded' };
         }
         return { schema: 'xtend.maraca.lightbox-effect.v1', open: false, surfaceId, materialization };
       }
@@ -470,6 +493,7 @@
           surface: surfaceId
         });
         await applyVisibility(lightbox, false, surfaceId);
+        if (!current()) return { status: 'superseded' };
       }
       return {
         schema: 'xtend.maraca.lightbox-effect.v1',
@@ -491,7 +515,10 @@
     async function invoke(effectInput, effectContext = {}) {
       assertActive('invoke effects');
       const effect = objectRecord(effectInput);
+      const current = () => !disposed && (!effectContext.signal || !effectContext.signal.aborted) && (typeof effectContext.isCurrent !== 'function' || effectContext.isCurrent());
+      if (!current()) return { status: 'superseded' };
       const customResult = await invokeCustom(effect, effectContext);
+      if (!current()) return { status: 'superseded' };
       if (typeof customResult !== 'undefined') return customResult;
       if (effect.componentCommand && typeof componentCommandPort === 'function') {
         return componentCommandPort(effect.componentCommand, immutableClone({
@@ -531,9 +558,28 @@
       return true;
     }
 
+    function setSurfaceHidden(surfaceId, hidden) {
+      if (disposed) return { status: 'superseded' };
+      const element = resolveSurface(surfaceId);
+      if (!element) return { status: 'unmounted' };
+      if (!domRenderer || typeof domRenderer.commit !== 'function') throw new Error('Surface presentation requires the shared DOM renderer.');
+      if (hidden && typeof element.close === 'function') {
+        const result = element.close({ source: 'maraca.fastpass' });
+        if (result && typeof result.catch === 'function') result.catch(error => diagnostic('rmt.presentation.close-error', 'error', String(error.message || error), { surfaceId }));
+      }
+      return domRenderer.commit({
+        operation: 'merge-element', target: element,
+        descriptor: { type: 'element', tag: clampString(element.localName || element.tagName, 'div').toLowerCase(),
+          attributes: { ...(hidden ? { open: null } : {}), hidden: hidden ? '' : null, 'aria-hidden': hidden ? 'true' : null, style: { display: hidden ? 'none' : '' } } },
+        ownership: { owner: 'presentation-runtime', domains: { visibility: 'presentation-runtime', attributes: 'presentation-runtime', styleTokens: 'presentation-runtime' } },
+        context: { metadata: { operation: 'maraca.fastpass.visibility', surface: surfaceId } }
+      });
+    }
+
     return Object.freeze({
       schema: RMT_PRESENTATION_EFFECT_ADAPTER_SCHEMA,
       invoke,
+      setSurfaceHidden,
       snapshot,
       listDiagnostics: () => diagnostics.slice(),
       dispose

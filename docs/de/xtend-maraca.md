@@ -183,3 +183,9 @@ npm run pack:dry-run
 ```
 
 Für angrenzende Themen lies weiter bei [RMT App Platform Tooling](./rmt-app-platform-tooling.md), [XTend Classic](./xtend-classic.md) und [RMT-first XTend Apps](./rmt-first-xtend-apps.md).
+
+## Clientseitige Shells in 0.8.0
+
+Maraca kann vollständig clientseitig über einen HTTP-Server rendern; SSR und Resumability sind optionale Integrationen. Dringende Navigation, Close und Fokus lassen sich mit [FastPass](./maraca-fastpass-abort-boundary.md) deklarieren. Dieselbe Seite erläutert automatische Präsentationsepochen und die schlanke Lifecycle-Beobachtung über `subscribeEvents()`.
+
+Für servergestützte Anwendungen bietet die [Seitenlaufzeit](./ssr-pages.md) unabhängige Node- und Laravel-Hosts, Page Wire und die Referenzanwendung XTend.store. [Hydrangea JIT](./rmt-jit-hydrangea.md) optimiert optional den Tooling-Pfad des Playgrounds; es ist keine Voraussetzung für ausgelieferte Maraca-Bundles.

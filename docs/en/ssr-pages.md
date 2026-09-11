@@ -199,3 +199,9 @@ The page client negotiates this transport with `X-XTend-Page-Wire: 1`. Older JSO
 Use portable `conditional` descriptors to materialize only the current view. The DOM renderer accepts both `conditional` and its existing `when` spelling; compiler-resolved portals may target a conditional branch. State can remain in the RMT model while controls are absent. An unchanged branch reconciles its existing nodes. This reduces DOM and page data, but does not automatically split a shared Maraca bundle into separately downloaded code chunks.
 
 Laravel's optional `style_nonce => true` adds the document nonce to `style-src` and removes its `unsafe-inline` source. The store also sets `style-src-attr 'none'`. Trusted XTend component style templates obtain the bootstrap nonce; arbitrary HTML is never automatically authorized. Custom components must supply equivalent trusted style handling or external stylesheets before enabling this policy. Browser tests exercise both blocked style injections and the complete payment flow.
+
+## Page lifecycle and surface lifecycle
+
+A page visit ends page-owned requests; layout-owned resources may remain alive according to their owner. Inside a Maraca page, the automatic [Abort Boundary](./maraca-fastpass-abort-boundary.md) additionally protects every managed surface from late worker, hydration and DOM commits. Fast close or focus requires neither a new page artifact nor completion of business services.
+
+Presentation epochs do not replace data versions or business-service cancellation. Shared prewarming may retain valid data. Custom integrations check the surface token after asynchronous responses and immediately before visible commits. Client-only Maraca uses the same guards without SSR.

@@ -13,24 +13,24 @@
   },
   "docs": {
     "schema": "xtend.mcp.docs-resource.v1",
-    "count": 348,
+    "count": 352,
     "counts": {
-      "de": 174,
-      "en": 174
+      "de": 176,
+      "en": 176
     },
-    "menuEntries": 174,
-    "menuSha256": "b9c37389e924d258c6b5934bb4d9ef84cfc81322ab46d7f7a2d117795b78fa12",
+    "menuEntries": 176,
+    "menuSha256": "bb7b26c64de9fd7b6f169fd1d6c1ef9dbbc0110a8ace1b192a3d5e0adbfd87b5",
     "artifact": "docs.jsonl",
-    "artifactSha256": "55beabc5a8c6a8e4b525ae842f156d5f2b6c6d330af4844cbd802e3bcf955981",
+    "artifactSha256": "51ca16d54c5dd9686a5811b56d4359c24a8b30e596072172529ba699ca6d545c",
     "missingMenuDocs": []
   },
   "rmtKit": {
     "version": "0.1.0",
     "kitSchema": "xtend.rmt.ai-developer-kit.v1",
     "recordCounts": {
-      "reference": 31,
+      "reference": 32,
       "recipes": 6,
-      "sources": 32
+      "sources": 36
     },
     "artifacts": {
       "rmt-ai-kit.compact.md": {
@@ -42,8 +42,8 @@
         "bytes": 1187
       },
       "rmt-ai-kit.manifest.json": {
-        "sha256": "0ee3c81f75e3956267e521bea46b34af335e9e37ca39132e6e154f1b696855b0",
-        "bytes": 7890
+        "sha256": "6b3b473bbdee0dce081c43f4ff86238b8049ac9c5b23e6194517f4494644b289",
+        "bytes": 8579
       },
       "rmt-ai-kit.prompts.md": {
         "sha256": "14f60458d667022de268c6129fd9fde2bd9f22c488ef754644d7828fbf7d7c9c",
@@ -54,8 +54,8 @@
         "bytes": 4393
       },
       "rmt-ai-kit.reference.jsonl": {
-        "sha256": "d757d52a1b2148ae28c4cc450b46bffb5e3835e233a55b734a0341e5f9dd6c73",
-        "bytes": 18783
+        "sha256": "b985591d5be261a0363dbfd9dc089b1af028501d5abbea1f19014147b8d4dd99",
+        "bytes": 19805
       }
     }
   }

@@ -1,3 +1,4 @@
+const { validateFastPassAction } = require('../../xtend-maraca/fastpass-contract.js');
 const crypto = require('crypto');
 const {
   RMT_FILE_FALLBACK_CODE,
@@ -778,6 +779,7 @@ function createAppPlatformRecords(core) {
       })),
     actions: core.actions.map((record) => ({
       id: record.name,
+      ...(record.execution ? { execution: record.execution } : {}),
       inputs: record.inputs,
       status: record.status,
       reducers: record.reducers,
@@ -4101,6 +4103,7 @@ function createRmtAppOrchestrationArtifacts(core) {
     actions: {
       actions: toArray(appPlatform.actions).map((action) => ({
         id: action.id,
+        ...(action.execution ? { execution: action.execution } : {}),
         inputs: action.inputs,
         statusState: String(action.status && action.status.path || '').replace(/^state\./u, ''),
         datasource: dataSourceForAction(action),
@@ -4112,6 +4115,7 @@ function createRmtAppOrchestrationArtifacts(core) {
       effects: toArray(core.effects).map((effect) => ({
         id: effect.id,
         kind: effect.kind || 'side-effect',
+        ...(effect.path != null ? { path: effect.path } : {}),
         action: effect.action || null,
         source: effect.source || null,
         target: effect.target || null,
@@ -4496,7 +4500,10 @@ class VNextCompiler {
     if (templateContext) record.scope = this.primitiveScope(templateContext);
 
     toArray(node.body).forEach((child, index) => {
-      if (child.type === 'RmtActionStatusClause') {
+      if (child.type === 'RmtActionExecutionClause') {
+        if (record.execution || child.path !== 'fastpass') this.addDiagnostic(createCompilerDiagnostic('rmt.fastpass.execution-invalid', 'An action may declare execution fastpass exactly once.', child, 'error'));
+        record.execution = child.path;
+      } else if (child.type === 'RmtActionStatusClause') {
         record.status = {
           path: child.path || null
         };
@@ -4534,6 +4541,10 @@ class VNextCompiler {
       }
     });
 
+    if (record.execution === 'fastpass') {
+      const errors = validateFastPassAction({ ...record, effects: effectRefs.map(id => this.core.effects.find(effect => effect.id === id)) });
+      errors.forEach(message => this.addDiagnostic(createCompilerDiagnostic('rmt.fastpass.invalid-action', message, node, 'error')));
+    }
     return addRecord(this.core, 'actions', record, node, 'RmtActionDeclaration');
   }
 
@@ -4683,6 +4694,8 @@ class VNextCompiler {
       action: actionRecord.name,
       actionRef: actionRecord.id,
       source,
+      ...(node.path ? { path: node.path.kind === 'path' ? { kind: 'reference', path: node.path.value } : primitiveValueToCore(node.path) } : {}),
+      ...(source && source.kind === 'surface' && ['close', 'focus'].includes(node.effectKind) ? { target: source.target } : {}),
       ...(node.componentCommand ? {
         componentCommand: {
           schema: RMT_COMPONENT_COMMAND_SCHEMA,
@@ -4838,6 +4851,14 @@ class VNextCompiler {
       const command = String(node.effectKind || node.kind || '').trim();
       const sourceKind = node.source && node.source.kind || '';
       const targetId = node.source && node.source.value || '';
+      const action = this.core.actions.find(action => action.name === effect.action);
+      if (action && action.execution === 'fastpass' && ['focus', 'close'].includes(command) && sourceKind === 'surface') {
+        const surface = this.core.surfaces.find(surface => surface.name === targetId || surface.id === targetId);
+        if (!surface) this.addDiagnostic(createCompilerDiagnostic('rmt.fastpass.surface-unknown', `Unknown FastPass surface ${targetId}.`, node, 'error'));
+        else effect.target = surface.name;
+        delete effect.componentCommand;
+        return;
+      }
       const commandIsAllowed = RMT_DECLARATIVE_COMPONENT_COMMANDS.has(command);
       const matchingSurfaces = sourceKind === 'selector' && targetId
         ? this.core.surfaces.filter((surface) => surface && (surface.name === targetId || surface.id === targetId))

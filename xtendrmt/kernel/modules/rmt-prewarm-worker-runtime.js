@@ -221,7 +221,8 @@
             return worker;
         }
 
-        function postWorkerMessage(action, payload = {}, transferables = []) {
+        function postWorkerMessage(action, payload = {}, transferables = [], signal = null) {
+            if (signal && signal.aborted) return Promise.resolve({ ok: false, status: 'superseded', superseded: true });
             if (paused) {
                 const error = new Error(`RmtPrewarmWorker ist pausiert: ${pauseReason || 'backpressure'}.`);
                 error.code = 'xtend.rmt.prewarm_worker.paused';
@@ -236,10 +237,16 @@
                 ...payload
             });
             return new Promise((resolve, reject) => {
+                const cleanup = () => {
+                    taskResolvers.delete(id);
+                    if (signal) signal.removeEventListener('abort', abort);
+                };
+                const abort = () => { cleanup(); resolve({ ok: false, status: 'superseded', superseded: true }); };
                 taskResolvers.set(id, {
-                    resolve,
-                    reject
+                    resolve(value) { cleanup(); resolve(value); },
+                    reject(error) { cleanup(); reject(error); }
                 });
+                if (signal) signal.addEventListener('abort', abort, { once: true });
                 queueDepthMax = Math.max(queueDepthMax, taskResolvers.size);
                 try {
                     currentWorker.postMessage({
@@ -248,7 +255,7 @@
                         ...payload
                     }, Array.isArray(transferables) ? transferables : []);
                 } catch (error) {
-                    taskResolvers.delete(id);
+                    cleanup();
                     lastError = serializeError(error);
                     reject(error);
                 }
@@ -391,6 +398,15 @@
         }
 
         async function dispatchUiComputeEnvelope(envelope, options = {}) {
+            const boundary = options.abortBoundary;
+            if (boundary && typeof boundary.run === 'function') {
+                return boundary.run(({ signal }) => dispatchUiComputeWork(envelope, { ...options, signal }), options.presentationToken || boundary.capture());
+            }
+            return dispatchUiComputeWork(envelope, options);
+        }
+
+        async function dispatchUiComputeWork(envelope, options = {}) {
+            if (options.signal && options.signal.aborted) return { ok: false, status: 'superseded', superseded: true };
             const requestInfo = normalizeUiComputeEnvelope(envelope, options);
             if (requestInfo.hydrationKey && requestInfo.generation) {
                 latestUiComputeGenerationByKey.set(requestInfo.hydrationKey, requestInfo.generation);
@@ -400,12 +416,13 @@
             });
             const result = await postWorkerMessage('ui_compute', {
                 envelope: requestInfo.envelope
-            });
+            }, [], options.signal);
             lastHealthAt = now();
             const latestGeneration = requestInfo.hydrationKey
                 ? latestUiComputeGenerationByKey.get(requestInfo.hydrationKey)
                 : requestInfo.generation;
             const superseded = Boolean(
+                (options.signal && options.signal.aborted) || (result && result.status === 'superseded') ||
                 requestInfo.hydrationKey
                 && requestInfo.generation
                 && latestGeneration
