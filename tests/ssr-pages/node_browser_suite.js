@@ -27,7 +27,7 @@ async function runNodePageBrowserSuite(options={}) {
     if(url.pathname==='/resume')return {page:'Login',props:{title:'Resume'},renderOptions:{executionMode:'server_prerender_resume',resume:{sign:canonical=>({algorithm:'ECDSA-P256-SHA256',keyId:'browser-fixture',signature:sign('sha256',Buffer.from(canonical),{key:privateKey,dsaEncoding:'ieee-p1363'}).toString('base64url')})}}};
     if(url.pathname==='/orders/export' && user!=='guest')return {download:require('node:stream').Readable.from(['order,name\n1,Active order']),headers:{'Content-Type':'text/csv','Content-Disposition':'attachment; filename="orders.csv"'}};
     if(request.method==='POST') {
-      const data=await readBody(request);
+      const data=await readBody(request); console.log('POST BODY',url.pathname,JSON.stringify(data),data.attachment?.name);
       if(url.pathname==='/login'){user='alice';return {redirect:'/orders'};}
       if(url.pathname==='/logout'){user='guest';return {redirect:'/login'};}
       if(String(data.name||'').length<3)return {page:'Detail',props:{title:'Detail',name:data.name},errors:{edit:{name:['Name is too short.']}}};
@@ -46,6 +46,7 @@ async function runNodePageBrowserSuite(options={}) {
       else if(['/runtime/xrouter.js','/runtime/xtend-state.js'].includes(name))file=path.join(rootDir,'components',path.basename(name));
       else if(/^\/runtime\/[a-z0-9-]+\.(?:m?js)$/u.test(name))file=path.join(rootDir,'xtendrmt',name.slice('/runtime/'.length));
       if(file){res.setHeader('Content-Type','text/javascript');res.end(fs.readFileSync(file));return;}
+      console.log('REQUEST',req.method,req.url,'flash',JSON.stringify(flash));
       if(!await host.handle(req,res)){res.statusCode=404;res.end();}
     }catch(error){res.statusCode=500;res.end(error.message);}
   });

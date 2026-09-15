@@ -1,0 +1,17 @@
+name: Release browser regression probe
+on:
+  push:
+    branches: [codex/fix-release-page-upload-20260915]
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - run: node tests/ssr-pages/node_browser_suite.js
