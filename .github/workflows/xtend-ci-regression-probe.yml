@@ -1,0 +1,40 @@
+name: XTend CI regression probe
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    if: github.head_ref == 'codex/fix-laravel-ci-20260915'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - name: Pin npm
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - name: Compare checkout and installed source identity
+        run: |
+          git status --short --untracked-files=all
+          npm ci --ignore-scripts --no-audit --fund=false
+          git status --short --untracked-files=all
+          git diff --stat
+          git ls-files --others --exclude-standard
+      - name: Inspect incomplete source diagnostics
+        run: |
+          node <<'NODE'
+          const {executeToolingBridgeOperation: execute}=require('./tools/tooling-bridge');
+          (async()=>{
+            const result=await execute({operation:'compile',payload:{source:'template broken {',filePath:'docs/rmt-playground-source.rmt',options:{documentId:'docs.rmt.playground',source:'docs-rmt-playground'}}},{rootDir:process.cwd()});
+            console.log(JSON.stringify(result,null,2));
+          })().catch(error=>{console.error(error);process.exitCode=1;});
+          NODE
+      - name: Run focused regression suites
+        run: node scripts/run_xtend_tests.js rmt-jit-hydrangea maraca-size-budget maraca-app-services-build test-runner --json

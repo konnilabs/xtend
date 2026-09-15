@@ -19,7 +19,7 @@ async function build() {
   const providerOrigin=buildConfiguration.providerOrigin;
   const providerConfig=JSON.parse(fs.readFileSync(path.join(provider,'maraca.config.json'))).options;
   const payment=await buildMaracaBundleAsync(providerConfig,{rootDir:provider,compileSource:compilation.compileSource});
-  if(!payment.ok)throw Object.assign(new Error('DemoPay Maraca build failed.'),{details:payment.plan?.diagnostics || payment});
+  if(!payment.ok)throw Object.assign(new Error('DemoPay Maraca build failed.'),{details:{status:payment.status,diagnostics:payment.plan?.diagnostics,sizeBudget:payment.sizeBudgetReport,productionClosure:payment.bundleReport?.productionClosure}});
   const css=fs.readFileSync(path.join(provider,'src/app.css'),'utf8');
   const adapterConfiguration={origin:providerOrigin,rootId:'demopay-root',inputState:'provider.input',streamState:'provider.ui',streamService:'demopay.fragments',resultState:'provider.result',cancelState:'provider.cancelled.value',errorState:'provider.status',css};
   await esbuild.build({stdin:{contents:`import {createXtendMaraca} from './public/build/maraca/xtend.maraca.mjs';import {createMaracaRemoteSurfaceAdapter,registerXScalerRemoteAdapter} from '@ccslabs/xtend/maraca/remote-surface';registerXScalerRemoteAdapter({surfaceId:'remoteSurface:demopay.payment',adapter:createMaracaRemoteSurfaceAdapter({...${JSON.stringify(adapterConfiguration)},createComposition:()=>createXtendMaraca({publishGlobalFacades:false})})});`,resolveDir:provider,sourcefile:'generated-provider-entry.mjs'},bundle:true,format:'esm',platform:'browser',target:'es2022',outfile:path.join(provider,'public/build/adapter.mjs')});
@@ -28,7 +28,7 @@ async function build() {
   fs.writeFileSync(path.join(provider,'public/build/surface-plan.json'),JSON.stringify(plan,null,2)+'\n');
   const config=JSON.parse(fs.readFileSync(path.join(root,'maraca.config.json'))).options;
   const result=await buildMaracaBundleAsync(config,{rootDir:root,compileSource:compilation.compileSource});
-  if(!result.ok) throw Object.assign(new Error('Maraca build failed.'),{details:result.plan?.diagnostics || result});
+  if(!result.ok) throw Object.assign(new Error('Maraca build failed.'),{details:{status:result.status,diagnostics:result.plan?.diagnostics,sizeBudget:result.sizeBudgetReport,productionClosure:result.bundleReport?.productionClosure}});
   const publicKey=buildConfiguration.publicKey;
   const events=result.plan.orchestration?.artifact?.events || [];
   const remoteSurfaces=[{plan,adapterUrl:providerOrigin+'/build/adapter.mjs',slot:'#remote-payment-slot',serviceId:'demopay.payment',requestState:'shop.paymentAttempt',openState:'shop.paymentDialog.open',completeAction:'shop.complete',closeAction:'shop.closePayment',cancelAction:'shop.cancel',errorAction:'shop.paymentFailed',failureMessage:'Die Demo-Zahlung konnte nicht abgeschlossen werden. Bitte versuche es erneut.',resultUrl:'shop.paymentResult.url',allowInsecureLoopback:providerOrigin.startsWith('http://')}];
