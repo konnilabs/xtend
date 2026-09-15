@@ -1,0 +1,26 @@
+name: XTend network fix verification
+on:
+  push:
+    branches:
+      - codex/verify-xtend-network-20260915
+permissions:
+  contents: read
+jobs:
+  network:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - run: npm ci --ignore-scripts --no-audit --fund=false
+      - run: npm run conditional-network:evidence
+        env:
+          XTEND_CONDITIONAL_NETWORK_EXECUTE: "1"
+      - name: Report audit and network status
+        if: always()
+        run: |
+          node -e "for (const f of ['.xtend-test-results/xtend-npm-audit-report.json','.xtend-test-results/xtend-conditional-network-evidence-report.json']) {const d=require('./'+f); console.log(f,JSON.stringify(d.metadata||d,null,2));}"
