@@ -1,17 +1,258 @@
-name: Release browser regression probe
+name: Full release fix verification
 on:
   push:
     branches: [codex/fix-release-page-upload-20260915]
 permissions:
   contents: read
 jobs:
-  browser:
+  full-release-gates:
+    name: Full release gates (Node ${{ matrix.node_version }})
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - node_version: '24.18.0'
+            runtime_lane: node-24-lts
+            artifact_suffix: node-24-18-0
+          - node_version: '26.5.0'
+            runtime_lane: node-26-current
+            artifact_suffix: node-26-5-0
+
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          node-version: '24.18.0'
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+
+      - name: Setup Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node_version }}
           package-manager-cache: false
-      - run: node tests/ssr-pages/node_browser_suite.js
+
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
+
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
+
+      - name: Print runtime versions
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: |
+          node --version
+          npm --version
+
+      - name: Validate CI dependency lock alignment
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run ci:dependency-locks:check
+
+      - name: Install workspace dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        id: install_1
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
+      - name: Install XTend LLM CI catfood dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        id: install_2
+        run: npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
+
+      - name: Install ERP resumability catfood dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        id: install_3
+        run: npm ci --prefix products/resumability-maraca-erp-demo --ignore-scripts --no-audit --fund=false
+
+      - name: Prepare Native-First release evidence artifacts
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        run: npm run native-first:evidence:prepare
+
+      - name: Run XTend full release gate report
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        continue-on-error: true
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        run: npm run test:ci-release
+
+      - name: Run XTend MCP contract, security, parity, and evidence gates
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run test:xtend-mcp:report
+
+      - name: Run Feature Adoption Observatory gates
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        run: node scripts/run_xtend_tests.js --verify feature-adoption-observatory --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run XTensions framework adapter report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify xtensions-framework-adapters --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run XTend Dev Surface report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify xtend-dev-surface --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run public docs quality report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify docs-quality --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run Docs Shell catfooding report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify docs-shell-catfooding --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run Docs framework ownership report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify docs-framework-ownership --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run RMT Reference docs report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify rmt-reference-docs --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run XTendRMT demo structure report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify rmt-demos --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run Maraca AppServices Node/PHP parity report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify maraca-app-services-cross-runtime --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run XTend LLM AppServices catfood report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify xtend-llm-app-services-catfood --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run ERP resumability catfood report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify erp-resumability-catfood --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run XScaler protocol gate report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify xscaler-protocol --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run XScaler public API gate report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify xscaler-public-api --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run XScaler JS/PHP preflight parity report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify xscaler-php-preflight-parity --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run RMT Node/PHP XScaler SSR hydration parity report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify rmt-xscaler-ssr-hydration-parity --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run XScaler source-to-sea gate report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify xscaler-source-to-sea --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run RKFA production closure report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify rkfa-production-closure --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Run docs stub inventory report
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        continue-on-error: true
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --verify docs-stub-inventory --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Upload XTend full JSON report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: xtend-release-gate-report-${{ matrix.artifact_suffix }}
+          path: |
+            .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
+            .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
+            .xtend-test-results/xtend-release-gate-report.json
+            .xtend-test-results/xtend-mcp-gate-report.json
+            .xtend-test-results/xtend-schema-inventory-report.json
+            .xtend-test-results/xtend-xtensions-framework-adapters-report.json
+            .xtend-test-results/xtend-dev-surface-report.json
+            .xtend-test-results/xtend-docs-quality-report.json
+            .xtend-test-results/xtend-docs-shell-catfooding-report.json
+            .xtend-test-results/xtend-docs-framework-ownership-report.json
+            .xtend-test-results/xtend-rmt-reference-docs-report.json
+            .xtend-test-results/xtend-rmt-demos-report.json
+            .xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json
+            .xtend-test-results/xtend-llm-app-services-catfood-report.json
+            products/xtend-llm/.xtend-llm-results/app-services-catfood.json
+            .xtend-test-results/erp-resumability-catfood-report.json
+            .xtend-test-results/xtend-xscaler-protocol-report.json
+            .xtend-test-results/xtend-xscaler-public-api-report.json
+            .xtend-test-results/xtend-xscaler-php-preflight-parity-report.json
+            .xtend-test-results/xtend-rmt-xscaler-ssr-hydration-parity-report.json
+            .xtend-test-results/xtend-xscaler-source-to-sea-report.json
+            .xtend-test-results/xtend-rkfa-production-closure-report.json
+            .xtend-test-results/xtend-docs-stub-inventory-report.json
+          if-no-files-found: warn
+
+      - name: Verify required owner profile
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        if: always()
+        run: node scripts/run_xtend_tests.js --verify ci-release-main --from .xtend-test-results/xtend-test-execution.json
+
+      - name: Upload shared XTend execution and worker logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtend-shared-execution-${{ matrix.runtime_lane }}
+          if-no-files-found: error
+          path: |
+            .xtend-test-results/xtend-test-execution.json
+            .xtend-test-results/test-runner/**/*.log
+
+
