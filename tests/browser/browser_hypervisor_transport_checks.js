@@ -20,6 +20,18 @@ async function runTransportChecks(context) {
       handler=(req,res)=>{res.writeHead(200);res.write('{');res.destroy();};
       await assert.rejects(requestJson({...parseEndpoint(url),deadline:Date.now()+1000},'GET','/status'));
     });
+    await check('Script result errors remain fixture data while protocol failures still reject', async () => {
+      const result = {status:'failed',ok:false,checks:['navigation passed'],error:'multipart upload failed'};
+      for (const command of ['sync','async']) {
+        const endpoint = `/session/fixture/execute/${command}`;
+        handler=(req,res)=>res.end(JSON.stringify({value:result}));
+        assert.deepEqual((await requestJson(parseEndpoint(url),'POST',endpoint,{script:'return result',args:[]})).body.value,result);
+        handler=(req,res)=>{res.writeHead(500);res.end(JSON.stringify({value:{error:'javascript error',message:'Script threw'}}));};
+        await assert.rejects(requestJson(parseEndpoint(url),'POST',endpoint,{}),/failed with 500/);
+        handler=(req,res)=>res.end(JSON.stringify({status:17,value:{error:'javascript error'}}));
+        await assert.rejects(requestJson(parseEndpoint(url),'POST',endpoint,{}),/protocol error/);
+      }
+    });
     await check('Hanging response is bounded by the absolute fixture deadline',async()=>{
       handler=()=>{};const started=Date.now();
       await assert.rejects(requestJson({...parseEndpoint(url),deadline:started+80},'GET','/status'),/deadline/);

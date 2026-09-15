@@ -63,7 +63,7 @@ try {
   assert(document.activeElement?.name === 'name', 'server validation focuses the invalid native control');
   form.set('name','Updated order'); form.set('attachment',new File(['upload contents'],'receipt.txt',{type:'text/plain'}));
   await form.submit('/orders/1');
-  assert(form.state.success && client.page.flash.success === 'Saved receipt.txt', 'multipart upload follows host redirect and flash lifecycle');
+  assert(form.state.success && client.page.flash.success === 'Saved receipt.txt', 'multipart upload follows host redirect and flash lifecycle: '+JSON.stringify({success:form.state.success,errors:form.state.errors,flash:client.page.flash,url:client.page.url}));
   assert(form.state.progress?.percentage === 100, 'multipart transport reports upload progress');
   client.remember('edit',{name:'Safe',password:'secret',token:'secret',attachment:new File(['x'],'x')});
   assert(!JSON.stringify(client.remember('edit')).includes('secret'), 'history excludes passwords, tokens and files');
