@@ -61,6 +61,19 @@ async function runTestRunnerSuite({ rootDir } = {}) {
       assert.deepEqual(select({ suiteIds: ['core','core'] }).map(s=>s.id), ['core']);
       assert.notEqual(canonicalSuite('surface-manager-browser').id, canonicalSuite('surface-manager-a11y').id);
     });
+    await check('Workspace CLI executable modes survive npm installation without source drift', () => {
+      const manifest = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json')));
+      for (const directory of ['', ...manifest.workspaces]) {
+        const pkg = directory ? JSON.parse(fs.readFileSync(path.join(rootDir, directory, 'package.json'))) : manifest;
+        const bins = typeof pkg.bin === 'string' ? [pkg.bin] : Object.values(pkg.bin || {});
+        for (const bin of bins) {
+          const file = path.posix.join(directory, bin);
+          const tracked = spawnSync('git', ['ls-files', '--stage', '--', file], { cwd: rootDir, encoding: 'utf8' });
+          assert.equal(tracked.status, 0, tracked.stderr);
+          assert.match(tracked.stdout, /^100755 /, file + ': npm bin must be committed executable');
+        }
+      }
+    });
     await check('Invalid selection fails before loading tests', () => {
       for (const args of [['--report='],['--report'],['--jobs','3'],['--jobs','1.5'],['--from','file']]) assert.throws(()=>parseArgs(args));
       for (const suiteIds of [['all','typo'],['core','typo']]) assert.throws(()=>select({suiteIds}));

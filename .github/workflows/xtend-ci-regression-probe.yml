@@ -36,5 +36,8 @@ jobs:
             console.log(JSON.stringify(result,null,2));
           })().catch(error=>{console.error(error);process.exitCode=1;});
           NODE
+      - name: Inspect npm audit findings
+        continue-on-error: true
+        run: npm audit --audit-level=moderate --json
       - name: Run focused regression suites
         run: node scripts/run_xtend_tests.js rmt-jit-hydrangea maraca-size-budget maraca-app-services-build test-runner --json
