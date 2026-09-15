@@ -128,7 +128,9 @@ function requestJson(endpoint, method, pathname, payload) {
           reject(new Error(`WebDriver ${method} ${pathname} failed with ${response.statusCode}: ${text.slice(-500)}`));
           return;
         }
-        if (!parsed || typeof parsed !== 'object' || parsed.value?.error || (parsed.status !== undefined && parsed.status !== 0)) {
+        // Script results are arbitrary application data and may contain an error field.
+        const scriptResult = method === 'POST' && /\/execute\/(?:sync|async)$/u.test(pathname);
+        if (!parsed || typeof parsed !== 'object' || (!scriptResult && parsed.value?.error) || (parsed.status !== undefined && parsed.status !== 0)) {
           reject(new Error(`WebDriver protocol error for ${method} ${pathname}: ${text.slice(-500)}`));
           return;
         }

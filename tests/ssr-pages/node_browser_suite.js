@@ -46,11 +46,24 @@ async function runNodePageBrowserSuite(options={}) {
       else if(['/runtime/xrouter.js','/runtime/xtend-state.js'].includes(name))file=path.join(rootDir,'components',path.basename(name));
       else if(/^\/runtime\/[a-z0-9-]+\.(?:m?js)$/u.test(name))file=path.join(rootDir,'xtendrmt',name.slice('/runtime/'.length));
       if(file){res.setHeader('Content-Type','text/javascript');res.end(fs.readFileSync(file));return;}
+      // Browser asset requests must never enter a controller that consumes flash.
+      if(!['/login','/logout','/orders','/orders/1','/orders/export','/resume'].includes(name)){res.statusCode=404;res.end();return;}
       if(!await host.handle(req,res)){res.statusCode=404;res.end();}
     }catch(error){res.statusCode=500;res.end(error.message);}
   });
   server.listen(0,'127.0.0.1');await once(server,'listening');
   try {
+    const origin = `http://127.0.0.1:${server.address().port}`;
+    const headers = {'X-XTend-Page':'1'};
+    await fetch(origin+'/login',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({name:'Alice'})});
+    const upload = new FormData();upload.set('name','Updated order');upload.set('attachment',new File(['upload contents'],'receipt.txt',{type:'text/plain'}));
+    await fetch(origin+'/orders/1',{method:'POST',headers,body:upload});
+    // Force unrelated browser asset requests into the upload/redirect gap.
+    const assets = await Promise.all(['/favicon.ico','/components/xrouter-docs-shell.css','/missing'].map(url=>fetch(origin+url)));
+    const destination = await (await fetch(origin+'/orders/1',{headers})).json();
+    context.assert(destination.flash.success === 'Saved receipt.txt','unmatched asset requests cannot consume upload redirect flash');
+    context.assert(assets.every(response=>response.status===404),'unmatched fixture routes return 404 instead of rendering a page');
+    user='guest';flash=null;orders[0].name='Active order';
     const result=await runFixture({engine:'chromium',url:`http://127.0.0.1:${server.address().port}/login`,resultKey:'__XTEND_PAGE_BROWSER__',timeoutMs:60000,...options.browser});
     for(const check of result.result.checks || [])context.pass(check);
     if(!result.result.ok)context.fail(result.result.error || 'Missing browser success');
