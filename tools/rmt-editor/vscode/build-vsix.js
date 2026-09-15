@@ -241,6 +241,10 @@ function stageExtension() {
   REPO_DIRECTORIES_TO_STAGE.forEach(copyRepoDir);
   // The RMT format adapter loads its canonical core artifact relative to tools/.
   copyPublishedPackage(path.join(REPO_ROOT, 'xtendrmt'), path.join(EXTENSION_STAGE_DIR, 'xtendrmt'));
+  // The staged compiler resolves the shared FastPass validator beside tools/.
+  const fastPassTarget = path.join(EXTENSION_STAGE_DIR, 'xtend-maraca', 'fastpass-contract.js');
+  ensureDir(path.dirname(fastPassTarget));
+  fs.copyFileSync(path.join(REPO_ROOT, 'xtend-maraca', 'fastpass-contract.js'), fastPassTarget);
   const mcpPackage = stageMcpPackage();
 
   const pkg = readPackage();

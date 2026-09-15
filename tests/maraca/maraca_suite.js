@@ -3880,8 +3880,14 @@ async function runMaracaSizeBudgetSuite(options = {}) {
   context.assert(sizeReport && sizeReport.schema === MARACA_SIZE_BUDGET_REPORT_SCHEMA, 'size report uses Maraca size-budget schema');
   context.assert(sizeReport && sizeReport.ok === true, 'production bundle is smaller than the legacy loader baseline');
   context.assert(sizeReport && sizeReport.bundleBytes > 0, 'size report records bundle bytes');
-  context.assert(sizeReport && sizeReport.baselineBytes > sizeReport.bundleBytes, 'size report baseline exceeds bundle bytes');
+  context.assert(sizeReport && sizeReport.baselineBytes > sizeReport.framework.bytes, 'size report baseline exceeds framework bytes');
   context.assert(sizeReport && sizeReport.baseline.loaderBytes > 0, 'size report includes legacy loader baseline bytes');
+  const runtimeName = 'runtime/xtend-maraca-plan-runtime.mjs';
+  const productionRuntime = result.bundleReport.bundleFiles.find(file => file.fileName === runtimeName);
+  const debugRuntime = debugBundleFiles.find(file => file.fileName === runtimeName);
+  const runtimeSourceBytes = fs.statSync(path.join(rootDir, 'xtend-maraca/plan-runtime.mjs')).size;
+  context.assert(productionRuntime && productionRuntime.bytes < runtimeSourceBytes, 'production minifies copied plan runtime without increasing the budget');
+  context.assert(debugRuntime && debugRuntime.bytes === runtimeSourceBytes, 'debug retains the original plan runtime');
   context.assert(debugResult.ok === true, 'debug external-CSS build passes');
   context.assert(fs.existsSync(debugCssPath), 'external CSS build writes CSS asset');
   context.assert(debugResult.sizeBudgetReport && debugResult.sizeBudgetReport.status === 'debug_not_enforced', 'debug build records a non-enforced size budget');

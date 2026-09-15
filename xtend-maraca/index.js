@@ -5674,6 +5674,26 @@ function copyPlanRuntimeAsset(plan) {
   };
 }
 
+async function minifyCopiedMaracaRuntimeAssets(plan, files) {
+  if (plan.profile === 'debug') return;
+  const terser = requireOptional('terser', plan.rootDir);
+  if (!terser.available) return;
+  for (const file of files.filter(Boolean)) {
+    if (!/\.(?:mjs|js)$/u.test(file.fileName)) continue;
+    const result = await terser.module.minify(fs.readFileSync(file.path, 'utf8'), {
+      module: file.fileName.endsWith('.mjs'),
+      compress: false,
+      mangle: false,
+      format: { comments: /@license|@preserve|^!/ }
+    });
+    if (!result || typeof result.code !== 'string') {
+      throw new Error(`Terser did not return code for ${file.fileName}`);
+    }
+    fs.writeFileSync(file.path, result.code + '\n');
+    file.bytes = fs.statSync(file.path).size;
+  }
+}
+
 function copyMaracaBrowserRuntimeAssets(plan) {
   if (!plan) return [];
   const packageRoot = path.dirname(path.dirname(__filename));
@@ -7240,6 +7260,8 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
 
   try {
     rollupResult = await createRollupBundleFiles(plan, rawSource);
+    // Copied ESM assets are outside Rollup's chunk minification pass.
+    await minifyCopiedMaracaRuntimeAssets(plan, [planRuntimeAsset, ...browserRuntimeAssets]);
   } catch (error) {
     return {
       schema: MARACA_BUNDLE_REPORT_SCHEMA,

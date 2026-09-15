@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const { createHash } = require('crypto');
+const { pathToFileURL } = require('url');
 const { executeToolingBridgeOperation: execute } = require('../../../tools/tooling-bridge');
 const rootDir = path.resolve(__dirname, '../../..');
 const filePath = 'docs/rmt-playground-source.rmt';
@@ -12,7 +13,20 @@ const safePreview = { options: { componentRegistry: JSON.parse(fs.readFileSync(p
 const fixturePaths = ['tests/rmt-language/fixtures/vnext-valid-minimal.rmt', 'products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt', 'tests/rmt-language/fixtures/maraca-orchestration-app.rmt', 'tests/rmt-language/fixtures/maraca-validation-app.rmt', 'tests/rmt-language/fixtures/maraca-transitions-app.rmt'];
 const fixtures = fixturePaths.map(file => ({ name: path.basename(file), source: fs.readFileSync(path.join(rootDir, file), 'utf8') }));
 fixtures.push({ name: 'incomplete', source: 'template broken {' }, { name: 'import', source: 'import "./missing.rmt";\n' + fixtures[0].source }, { name: 'near-limit', source: fixtures[0].source + '\n//' + 'x'.repeat(65000 - Buffer.byteLength(fixtures[0].source)) });
-function digest(value) { return createHash('sha256').update(JSON.stringify(value)).digest('hex'); }
+function digest(value) {
+  // Source locations are part of the contract; the checkout directory is not.
+  const uriRoot = pathToFileURL(rootDir + path.sep).href;
+  const json = JSON.stringify(value, (key, entry) => {
+    if (key === 'file' && typeof entry === 'string' && entry.startsWith(rootDir + path.sep)) {
+      return path.relative(rootDir, entry).split(path.sep).join('/');
+    }
+    if (key === 'uri' && typeof entry === 'string' && entry.startsWith(uriRoot)) {
+      return 'rmt:///' + entry.slice(uriRoot.length);
+    }
+    return entry;
+  });
+  return createHash('sha256').update(json).digest('hex');
+}
 function compact(result) { return { ok: result.ok, status: result.status, diagnostics: result.diagnostics || result.compilerDiagnostics || [], coreDocument: result.coreDocument || null, coreJson: result.coreJson || null }; }
 async function legacy(source) {
   const compile = await execute({ operation: 'compile', payload: { source, filePath, options } }, { rootDir });
