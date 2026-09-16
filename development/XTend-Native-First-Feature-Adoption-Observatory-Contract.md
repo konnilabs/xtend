@@ -30,7 +30,9 @@ Raw-Felder wie `verdict`, `maturity`, `impact`, `prototype` und `browserSupport`
 
 `xtend.native-first.observatory-run-index.v1` fuehrt alle unveraenderlichen Wochenlaeufe in aufsteigender Reihenfolge. `currentRun` muss auf den neuesten Report zeigen; die kompatiblen Package-Aliase `intake` und `review` muessen denselben Run referenzieren. Historische Runs, Reviews, Labs und ADRs bleiben adressierbar und werden nicht vom aktuellen Lauf ueberschrieben.
 
-Wiederholte Finding-IDs erhalten im neuen Review `previousReviewRef` und `rawDelta`. Das Gate berechnet den Top-Level-Diff selbst und lehnt verschwiegene oder erfundene Aenderungen ab. Ein als `classificationOnly` markierter Carry-over darf ausschliesslich das untrusted Raw-Feld `category` aendern und niemals Radar-Kategorie, Status oder Adoption ausloesen.
+Wiederholte Finding-IDs erhalten im neuen Review `previousReviewRef` und `rawDelta`, gebunden an den letzten frueheren Run, der dieselbe Finding-ID enthaelt. Ein dazwischenliegender Abschlussreport mit anderen IDs unterbricht diese Kette nicht. Das Gate berechnet den Top-Level-Diff selbst und lehnt verschwiegene oder erfundene Aenderungen ab. Ein als `classificationOnly` markierter Carry-over darf ausschliesslich das untrusted Raw-Feld `category` aendern und niemals Radar-Kategorie, Status oder Adoption ausloesen.
+
+Der wiederkehrende API-Abruf und die PR-Uebergabe sind in `development/observatory/README.md` beschrieben. Automatische Reviews sind als Vorschlaege gekennzeichnet; die menschliche Freigabe erfolgt im Pull Request. Ein Intake-Outcome autorisiert keine Produktadoption und ersetzt keine bestehende ADR.
 
 ## Review Ledger
 
@@ -66,7 +68,7 @@ node scripts/run_xtend_tests.js observatory-adoption-labs --json
 node scripts/run_xtend_tests.js aria-in-html-conformance --json
 ```
 
-`browser-hypervisor` prueft Adapter, lokale und entfernte Endpunkte, Capabilities, Actions, Screenshots, Timeouts, Cleanup und Evidence-Merge. `browser-primitive-radar` prueft fuenf Intakes, SHA, Review-Vollstaendigkeit, 24 stabile Parent-IDs und genau eine September-ADR pro Parent. `primitive-adoption-gate` prueft alle Members, Fallbacks, negative Produktnutzung, Security, RMT-Neutralitaet und fehlende Runtime-Abhaengigkeiten.
+`browser-hypervisor` prueft Adapter, lokale und entfernte Endpunkte, Capabilities, Actions, Screenshots, Timeouts, Cleanup und Evidence-Merge. `browser-primitive-radar` prueft alle registrierten Intakes, SHA und Review-Vollstaendigkeit. Die fuenf historischen Runs mit 74 Finding-Vorkommen, 24 stabile Parent-IDs und genau eine September-ADR pro Parent bleiben als Baseline erhalten; weitere Wochenlaeufe sind zulaessig. `primitive-adoption-gate` prueft alle Members, Fallbacks, negative Produktnutzung, Security, RMT-Neutralitaet und fehlende Runtime-Abhaengigkeiten.
 
 ## Produktisierungsgrenze
 

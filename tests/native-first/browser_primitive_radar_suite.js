@@ -89,7 +89,8 @@ function validateObservatoryDocuments(options) {
     intake,
     review,
     radar,
-    previousRun = null
+    previousRun = null,
+    previousRuns = previousRun ? [previousRun] : []
   } = options;
   const errors = [];
   if (!intake || intake.schema !== INTAKE_SCHEMA) errors.push('invalid intake schema');
@@ -99,11 +100,12 @@ function validateObservatoryDocuments(options) {
   const records = review && Array.isArray(review.records) ? review.records : [];
   const findingIds = findings.map((finding) => finding.id);
   const recordIds = records.map((record) => record.findingId);
-  const previousFindings = new Map(
-    previousRun && previousRun.raw && Array.isArray(previousRun.raw.findings)
-      ? previousRun.raw.findings.map((finding) => [finding.id, finding])
-      : []
-  );
+  const previousFindings = new Map();
+  previousRuns.forEach((run) => {
+    (run.raw && Array.isArray(run.raw.findings) ? run.raw.findings : []).forEach((finding) => {
+      previousFindings.set(finding.id, { finding, run });
+    });
+  });
   if (findings.length === 0) errors.push('raw intake has no findings');
   if (new Set(findingIds).size !== findingIds.length) errors.push('raw finding IDs must be unique');
   if (new Set(recordIds).size !== recordIds.length) errors.push('review finding IDs must be unique');
@@ -174,8 +176,9 @@ function validateObservatoryDocuments(options) {
     });
     if (!record.owner || !record.nextReview) errors.push(`review ${label} requires owner and next review`);
 
-    const previousFinding = previousFindings.get(record.findingId);
-    if (previousFinding) {
+    const previous = previousFindings.get(record.findingId);
+    if (previous) {
+      const { finding: previousFinding, run: previousRun } = previous;
       const finding = findings.find((candidate) => candidate.id === record.findingId);
       const expectedDelta = topLevelDiffKeys(previousFinding, finding);
       const declaredDelta = record.rawDelta && Array.isArray(record.rawDelta.changedFields)
@@ -247,13 +250,16 @@ function validateRunIndexDocuments(options) {
     if (!documents.intake.automationPolicy || documents.intake.automationPolicy.mayMutateRadar !== false || documents.intake.automationPolicy.mayMutateRuntime !== false) {
       errors.push(`run ${descriptor.intakeId} must block raw automation mutations`);
     }
-    const previousDescriptor = descriptors
+    const previousRuns = descriptors
       .filter((candidate) => candidate.reportDate < descriptor.reportDate)
       .sort((left, right) => left.reportDate.localeCompare(right.reportDate))
-      .at(-1);
-    const previousRun = previousDescriptor ? documentsById.get(previousDescriptor.intakeId) : null;
-    validateObservatoryDocuments({ rootDir, raw: documents.raw, intake: documents.intake, review: documents.review, radar, previousRun })
+      .map((candidate) => documentsById.get(candidate.intakeId))
+      .filter(Boolean);
+    validateObservatoryDocuments({ rootDir, raw: documents.raw, intake: documents.intake, review: documents.review, radar, previousRuns })
       .forEach((error) => errors.push(`${descriptor.intakeId}: ${error}`));
+    if (descriptor.reportDate > '2026-09-03' && documents.review.records.some((record) => !['adopt-native', 'wrap-as-xtend-primitive', 'reject-for-now'].includes(record.terminalOutcome))) {
+      errors.push(`run ${descriptor.intakeId} requires a terminal disposition for every finding`);
+    }
     if (index > 0 && descriptors[index - 1].reportDate >= descriptor.reportDate) errors.push('runs must be ordered by report date');
   });
   return errors;
@@ -279,6 +285,7 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
   const decisionSet = readJson('development/observatory/observatory-adoption-decisions-2026-09-03.json', rootDir);
   const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const current = runs.find((run) => run.intake.intakeId === runIndex.currentRun);
+  const september = runs.find((run) => run.intake.intakeId === 'NFM-OBS-2026-09-03');
   const august24 = runs.find((run) => run.intake.intakeId === 'NFM-OBS-2026-08-24');
   const august31 = runs.find((run) => run.intake.intakeId === 'NFM-OBS-2026-08-31');
   const base = { rootDir, runIndex, runs, radar, packageManifest };
@@ -288,7 +295,9 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
 
   const expectedRadarIds = Array.from({ length: 24 }, (_, index) => `NFM-BPR-${String(index + 1).padStart(3, '0')}`);
   const terminalOutcomes = new Set(['adopt-native', 'wrap-as-xtend-primitive', 'reject-for-now']);
-  context.assert(runIndex.runs.length === 5 && runs.reduce((sum, run) => sum + run.raw.findings.length, 0) === 74, 'Run index preserves five immutable runs and all 74 finding occurrences');
+  const historicalIds = ['NFM-OBS-2026-08-09', 'NFM-OBS-2026-08-17', 'NFM-OBS-2026-08-24', 'NFM-OBS-2026-08-31', 'NFM-OBS-2026-09-03'];
+  const historicalRuns = runs.filter((run) => historicalIds.includes(run.intake.intakeId));
+  context.assert(historicalRuns.length === 5 && historicalRuns.reduce((sum, run) => sum + run.raw.findings.length, 0) === 74, 'Run index preserves five historical immutable runs and all 74 finding occurrences while accepting later runs');
   context.assert(august24 && august24.raw.findings.length === 13 && august24.review.records.length === 13, 'August 24 backfill has one complete review record per finding');
   context.assert(august24 && august24.intake.rawArtifact.sha256 === '32d7987304fc6d624f209903b93808d048e279a28faf5f947a4f1bb6d3020847' && august24.intake.rawArtifact.repositoryCopySha256 === '90fd74f01cf5099b68ec33e32decf048de0c6399170db67e16142150c5b68962', 'August 24 intake preserves source and repository-copy hashes');
   const selfProfilingReview = august24 && august24.review.records.find((record) => record.findingId === 'js-self-profiling-markers-chrome-153');
@@ -303,8 +312,8 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
   const august31NavigationReview = august31 && august31.review.records.find((record) => record.findingId === 'navigation-api-precommit');
   context.assert(august31NavigationReview && august31NavigationReview.outcome === 'corrected-candidate' && august31NavigationReview.radarRefs.includes('NFM-BPR-015') && august31NavigationReview.browserEvidence.some((evidence) => evidence.engine === 'WebKit' && evidence.status === 'technology-preview'), 'Navigation precommit evidence stays mapped to the rejected Navigation API member without an adoption mutation');
   context.assert(august31 && august31.review.records.filter((record) => ['cross-root-aria-reference-target', 'connection-allowlists'].includes(record.findingId)).every((record) => record.outcome === 'investigation-only' && record.radarRefs.length === 0), 'Single-engine August 31 findings remain investigations without Radar mutation');
-  context.assert(current && current.intake.intakeId === 'NFM-OBS-2026-09-03' && current.raw.findings.length === 24 && current.review.records.length === 24, 'September run has one complete review record per Radar parent');
-  context.assert(current && current.review.records.every((record) => record.terminalOutcome), 'Every September finding has a terminal outcome');
+  context.assert(september && september.raw.findings.length === 24 && september.review.records.length === 24, 'September baseline has one complete review record per Radar parent');
+  context.assert(september && september.review.records.every((record) => record.terminalOutcome), 'Every September baseline finding has a terminal outcome');
   context.assert(radarMatrix.schema === 'xtend.native-first.browser-primitive-radar.v2' && radarMatrix.entries.length === 24, 'Radar v2 declares exactly 24 parent entries');
   context.assert(radarMatrix.entries.map((entry) => entry.id).join('|') === expectedRadarIds.join('|'), 'Radar v2 preserves the stable ordered parent IDs');
   context.assert(radarMatrix.entries.every((entry) => radarMatrix.terminalStates.includes(entry.status) && entry.members.length > 0 && entry.members.every((member) => terminalOutcomes.has(member.outcome))), 'Every parent and member is terminal');
@@ -371,6 +380,42 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
   assertRejected(context, 'non-existent XTend symbol', (candidate) => {
     candidate.runs[1].review.records[0].repoSymbols[0].symbol = 'ImaginaryStreamingTransport';
   }, base);
+
+  // A weekly snapshot may repeat a finding absent from the intervening terminal review.
+  const latestRepeatedRun = runs.find((run) => run.intake.provenance.reportDate > '2026-09-03' && run.review.records.some((record) => record.previousReviewRef));
+  if (latestRepeatedRun) {
+    assertRejected(context, 'carry-over reference skipping the last occurrence', (candidate) => {
+      const run = candidate.runs.find((entry) => entry.intake.intakeId === latestRepeatedRun.intake.intakeId);
+      run.review.records.find((record) => record.previousReviewRef).previousReviewRef = 'NFM-OBS-REVIEW-2026-09-03';
+    }, base);
+    assertRejected(context, 'weekly finding without a terminal disposition', (candidate) => {
+      const run = candidate.runs.find((entry) => entry.intake.intakeId === latestRepeatedRun.intake.intakeId);
+      delete run.review.records[0].terminalOutcome;
+    }, base);
+  }
+
+  const next = clone(base);
+  const nextRun = clone(current);
+  const nextDate = new Date(`${current.intake.provenance.reportDate}T00:00:00Z`);
+  nextDate.setUTCDate(nextDate.getUTCDate() + 7);
+  const date = nextDate.toISOString().slice(0, 10);
+  nextRun.intake.intakeId = `NFM-OBS-${date}`;
+  nextRun.intake.provenance.reportDate = date;
+  nextRun.intake.rawArtifact.path = `development/observatory/raw/xtend-observatory-${date}.json`;
+  nextRun.review.reviewId = `NFM-OBS-REVIEW-${date}`;
+  nextRun.review.intakeRef = nextRun.intake.intakeId;
+  nextRun.review.reviewedAt = date;
+  nextRun.review.records.forEach((record) => {
+    record.previousReviewRef = current.review.reviewId;
+    record.rawDelta = { previousIntakeRef: current.intake.intakeId, changedFields: [], classificationOnly: false };
+    record.terminalOutcome = 'reject-for-now';
+  });
+  nextRun.descriptor = { ...current.descriptor, intakeId: nextRun.intake.intakeId, reportDate: date, raw: nextRun.intake.rawArtifact.path, intake: `development/observatory/xtend-observatory-${date}.intake.json`, review: `development/observatory/xtend-observatory-${date}.review.json`, reviewId: nextRun.review.reviewId };
+  next.runs.push(nextRun);
+  next.runIndex.runs.push(nextRun.descriptor);
+  next.runIndex.currentRun = nextRun.intake.intakeId;
+  Object.assign(next.packageManifest.xtend.nativeFirstFeatureAdoptionObservatory, { currentRun: nextRun.intake.intakeId, intake: nextRun.descriptor.intake, review: nextRun.descriptor.review });
+  context.assert(validateRunIndexDocuments(next).length === 0, 'A subsequent weekly run is accepted without changing the September adoption baseline');
 
   return context.result({
     report: {
