@@ -1,6 +1,6 @@
 {
   "schema": "xtend.native-first.observatory-run-index.v1",
-  "currentRun": "NFM-OBS-2026-09-03",
+  "currentRun": "NFM-OBS-2026-09-14",
   "runs": [
     {
       "intakeId": "NFM-OBS-2026-08-09",
@@ -45,6 +45,15 @@
       "intake": "development/observatory/xtend-observatory-2026-09-03.intake.json",
       "review": "development/observatory/xtend-observatory-2026-09-03.review.json",
       "reviewId": "NFM-OBS-REVIEW-2026-09-03",
+      "status": "current-reviewed-terminal"
+    },
+    {
+      "intakeId": "NFM-OBS-2026-09-14",
+      "reportDate": "2026-09-14",
+      "raw": "development/observatory/raw/xtend-observatory-2026-09-14.json",
+      "intake": "development/observatory/xtend-observatory-2026-09-14.intake.json",
+      "review": "development/observatory/xtend-observatory-2026-09-14.review.json",
+      "reviewId": "NFM-OBS-REVIEW-2026-09-14",
       "status": "current-reviewed-terminal"
     }
   ]
