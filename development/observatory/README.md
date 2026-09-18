@@ -57,9 +57,15 @@ not at a guessed second clock time.
    manufacture human sign-off, cross-engine evidence or a new Radar entry.
 7. Append the run index and update only the package's current-run/intake/review
    aliases. Preserve historical raw files, reviews, ADRs and the September
-   product-adoption baseline. Validate using the existing profile:
+   product-adoption baseline. Refresh the scan-derived schema inventory after
+   adding intake/review files, preserving curated decisions and released
+   fingerprints (do not use `--accept-baseline`). Review the inventory diff;
+   a released contract change requires a separate versioning decision.
+   The Observatory profile includes the schema inventory gate so missing
+   usage paths or observed shapes fail before the PR is opened:
 
    ```bash
+   node scripts/scan_schema_inventory.js --write --check
    node scripts/run_xtend_tests.js --profile feature-adoption-observatory
    git diff --check
    ```
