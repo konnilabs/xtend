@@ -8761,7 +8761,8 @@
         "browser-primitive-radar",
         "primitive-adoption-gate",
         "observatory-adoption-labs",
-        "aria-in-html-conformance"
+        "aria-in-html-conformance",
+        "schema-inventory"
       ],
       "reports": []
     },

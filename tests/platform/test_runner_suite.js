@@ -61,6 +61,12 @@ async function runTestRunnerSuite({ rootDir } = {}) {
       assert.deepEqual(select({ suiteIds: ['core','core'] }).map(s=>s.id), ['core']);
       assert.notEqual(canonicalSuite('surface-manager-browser').id, canonicalSuite('surface-manager-a11y').id);
     });
+    await check('Observatory intake validation includes schema inventory coverage', () => {
+      const manifest = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json')));
+      const selected = scriptSuiteIds(manifest, 'test:feature-adoption-observatory');
+      assert.equal(selected.filter(id => id === 'schema-inventory').length, 1,
+        'New intake/review files must pass the schema inventory gate before their PR is accepted');
+    });
     await check('Workspace CLI executable modes survive npm installation without source drift', () => {
       const manifest = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json')));
       for (const directory of ['', ...manifest.workspaces]) {
