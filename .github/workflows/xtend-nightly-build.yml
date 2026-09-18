@@ -1,6 +1,8 @@
 name: XTend Nightly Build
 
 on:
+  push:
+    branches: [codex/nightly-131-verification]
   schedule:
     - cron: '47 2 * * *'
   workflow_dispatch:
