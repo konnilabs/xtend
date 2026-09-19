@@ -22,6 +22,7 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 
 ## 0.8.0 - 2026-08-30
 
+- Release-Konsistenz: XTM-Peer-Vertrag und XTensions-Kompatibilitätsdefault folgen der 0.8.0-Release-Linie. Ein unreferenziertes 0.7.0-Kernel-Artefakt der Docs-Shell wird nicht mehr mit ausgeliefert; eigenständig versionierte XTM-, MCP- und Editor-Pakete behalten ihre Versionslinien.
 - Breaking: `@ccslabs/xtend/rmt/kernel-scheduler` und `@ccslabs/xtend-rmt/kernel-scheduler` liefern den hostneutralen Microkernel mit einem thenable `RmtJobHandle`; `await handle` ergibt direkt das Arbeitsergebnis.
 - Der Kernel ist die einzige Scheduler-Autoritaet. Fabric uebergibt Work-Intents und Backpressure, besitzt aber keine eigene Queue; Registry, Maraca, Core, Browser Runtime und State-/Telemetry-Bridge verwenden dieselbe injizierte Scheduler-Instanz.
 - Die kanonischen Lanes sind `user-blocking`, `visible`, `transition`, `idle`, `background` und `diagnostics`. Alte Kernel-Lanes werden nur noch vom Browser-Migrationsadapter normalisiert.

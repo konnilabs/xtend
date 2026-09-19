@@ -225,6 +225,9 @@ function runXTensionsRegistryPackageStrategySuite(options = {}) {
   const compatibility = normalizeCompatibilityMatrix(fixture.entries[0].compatibility);
   context.assert(compatibility.schema === XTENSIONS_REGISTRY_COMPATIBILITY_MATRIX_SCHEMA, 'compatibility matrix normalizes with schema');
   context.assert(compatibility.status === 'supported', 'compatibility matrix keeps supported status');
+  context.assert(normalizeCompatibilityMatrix().xtendVersionRange === `^${packageManifest.version}`, 'implicit compatibility targets the current XTend release line');
+  context.assert(compatibility.xtendVersionRange === fixture.entries[0].compatibility.xtendVersionRange, 'explicit historical compatibility ranges remain unchanged');
+  context.assert(normalizeCompatibilityMatrix({ xtend: '^0.5.0' }).xtendVersionRange === '^0.5.0', 'legacy xtend range alias remains explicit');
   const deprecation = normalizeDeprecationPolicy(fixture.entries[1].deprecation);
   context.assert(deprecation.schema === XTENSIONS_REGISTRY_DEPRECATION_POLICY_SCHEMA, 'deprecation policy normalizes with schema');
   context.assert(deprecation.status === 'deprecated' && Boolean(deprecation.replacement), 'deprecated entry includes replacement');
