@@ -1035,7 +1035,18 @@ jobs:
 
   npm-publish-latest:
     name: Publish npm latest with provenance (Node 24.18.0)
-    if: github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true
+    # pr-fast-gates is a deliberately skipped ancestor on manual release runs.
+    # Override implicit success(), but require every direct release gate to pass.
+    if: >-
+      ${{ !cancelled() &&
+          github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true &&
+          needs['full-release-gates'].result == 'success' &&
+          needs['rmt-vnext-primitive-gates'].result == 'success' &&
+          needs['package-structure'].result == 'success' &&
+          needs['conditional-network-evidence'].result == 'success' &&
+          needs['node-native-toolchain-smoke'].result == 'success' &&
+          needs['xtend-mcp-vscode-smoke'].result == 'success' &&
+          needs['laravel-release-gates'].result == 'success' }}
     needs:
       - full-release-gates
       - rmt-vnext-primitive-gates

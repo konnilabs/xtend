@@ -7198,6 +7198,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'npm publish --dry-run --tag latest --access public', 'CI publish job runs npm publish dry run with latest tag');
   context.assertIncludes(workflow, 'xtend-package-structure-${{ matrix.artifact_suffix }}', 'CI workflow uploads per-runtime package structure artifacts');
   context.assertIncludes(workflow, 'npm-publish-latest:', 'CI workflow declares manual npm publish job');
+  require('../utils/npm-publish-condition').assertNpmPublishCondition(context, workflow);
   context.assertIncludes(workflow, "github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true", 'CI publish job requires explicit manual dispatch approval');
   context.assertIncludes(workflow, 'publish_to_npm:', 'CI workflow requires explicit publish dispatch input');
   context.assertIncludes(workflow, 'id-token: write', 'CI workflow grants OIDC for npm provenance publish');
