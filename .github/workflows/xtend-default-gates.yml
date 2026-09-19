@@ -1139,7 +1139,6 @@ jobs:
       - name: Final npm publish dry run
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm publish --dry-run --workspace @ccslabs/xtend-rmt --tag latest --access public
           npm publish --dry-run --workspace @ccslabs/xtend-compiler --tag latest --access public
@@ -1147,26 +1146,24 @@ jobs:
           npm publish --dry-run --workspace @ccslabs/xtend-mcp --tag latest --access public
           npm publish --dry-run --tag latest --access public
 
+      # Trusted Publishing uses this job's OIDC identity for each package; no npm token.
       - name: Publish XTend MCP runtime dependency train
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm publish --workspace @ccslabs/xtend-rmt --tag latest --provenance --access public
-          npm publish --workspace @ccslabs/xtend-compiler --tag latest --provenance --access public
-          npm publish --workspace @ccslabs/xtend-maraca --tag latest --provenance --access public
+          npm publish --access public --provenance --workspace @ccslabs/xtend-rmt --tag latest
+          npm publish --access public --provenance --workspace @ccslabs/xtend-compiler --tag latest
+          npm publish --access public --provenance --workspace @ccslabs/xtend-maraca --tag latest
 
       - name: Publish root package to npm latest
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --tag latest --provenance --access public
+        run: npm publish --access public --provenance --tag latest
 
       - name: Publish XTend MCP 0.1 to npm latest
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --workspace @ccslabs/xtend-mcp --tag latest --provenance --access public
+        run: npm publish --access public --provenance --workspace @ccslabs/xtend-mcp --tag latest
 
       - name: Upload npm publish evidence
         if: always()
