@@ -7205,7 +7205,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assertIncludes(workflow, 'registry-url: https://registry.npmjs.org', 'CI workflow targets npm registry for publish');
   context.assertIncludes(workflow, 'XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL: "0"', 'CI publish job rejects Audit/SBOM deferrals');
   context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "release:report"), 'CI publish job writes release report evidence');
-  context.assertIncludes(workflow, 'npm publish --tag latest --provenance --access public', 'CI workflow publishes latest with npm provenance');
+  require('../utils/npm-publish-command').assertNpmPublishCommand(context, workflow);
   context.assertIncludes(workflow, 'name: Publish npm latest with provenance (Node 24.18.0)', 'CI publish job is restricted to the primary Node runtime');
   context.assertIncludes(workflow, "node-version: '24.18.0'", 'CI publish job pins Node 24.18.0');
   context.assertIncludes(workflow, 'node scripts/capture_node_runtime_evidence.js --lane node-24-publish', 'CI publish job captures dedicated Node 24 runtime evidence');
