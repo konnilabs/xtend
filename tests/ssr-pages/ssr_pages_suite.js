@@ -14,7 +14,7 @@ async function runSsrPagesSuite(options = {}) {
   const portable = await load('rmt-portable-render.js');
   const { createRmtNodeSsrAdapter } = await load('rmt-node-ssr-adapter.js');
   const { Prop, resolvePageProps, mergePageProps, safePageJson } = await load('page-contract.mjs');
-  const { createNodePageHost } = await load('node-page-host.mjs');
+  const { createNodePageHost, renderPageDocument } = await load('node-page-host.mjs');
   const { createPageClient } = await load('page-client.mjs');
   const { createPageForm } = await load('page-form.mjs');
   const runCheck = async (name, action) => { try { await action(); context.pass(name); } catch (error) { context.fail(`${name}: ${error.stack || error}`); } };
@@ -22,6 +22,53 @@ async function runSsrPagesSuite(options = {}) {
   const checkPhp = (name, action) => options.phpParityOnly ? runCheck(name, action) : undefined;
   const php = input => JSON.parse(execFileSync(process.env.XTEND_PHP_BINARY || 'php', [path.join(__dirname, 'portable_probe.php'), rootDir], { input: JSON.stringify(input), encoding: 'utf8', timeout: 10000 }));
   await require('./page_wire_checks').pageWireChecks({check,checkPhp,load,php});
+  await check('portable Node projection preserves native attribute literals before SSR', async () => {
+    const artifact=portable.createPortableRenderArtifact({descriptor:{type:'element',tag:'input',attributes:{type:'search',name:'query',value:'$model.search.query'}}},{inputs:['search','query']});
+    const projected=portable.projectPortableRender(artifact,{search:{query:'GNU/Linux',secret:'never-in-attributes'},query:{secret:true}});
+    const result=await createRmtNodeSsrAdapter().render({descriptor:projected.descriptor},{model:projected.model});
+    assert.equal(result.ok,true);
+    assert.match(result.html,/type="search"/);assert.match(result.html,/name="query"/);assert.match(result.html,/value="GNU\/Linux"/);
+    assert(!result.html.includes('never-in-attributes'));
+  });
+  await checkPhp('native attribute literals never alias model roots in portable Node/PHP projection', async () => {
+    const artifact=portable.createPortableRenderArtifact({descriptor:{type:'element',tag:'input',attributes:{type:'search',name:'query',value:'$model.search.query'}}},{inputs:['search','query']});
+    const props={search:{query:'GNU/Linux',secret:'never-in-attributes'},query:{secret:true}};
+    const projected=portable.projectPortableRender(artifact,props);
+    const node=await createRmtNodeSsrAdapter().render({descriptor:projected.descriptor},{model:projected.model});
+    assert.equal(node.html,php({artifact,props}).result.html);
+    assert.match(node.html,/type="search"/);assert.match(node.html,/name="query"/);assert.match(node.html,/value="GNU\/Linux"/);
+    assert(!node.html.includes('never-in-attributes'));
+  });
+  await checkPhp('portable PHP rejects structured native attributes without exposing model payloads', () => {
+    const artifact=portable.createPortableRenderArtifact({descriptor:{type:'element',tag:'input',attributes:{type:{op:'literal',value:{privateState:'not-in-html'}}}}});
+    const result=php({artifact,props:{}}).result;
+    assert.equal(result.ok,false);
+    assert(result.diagnostics.some(item=>item.code==='rmt.php_ssr.attribute_value_invalid'));
+    assert(!result.html.includes('not-in-html'));
+  });
+  await check('portable resume documents omit duplicate HTML without changing signed state or descriptor recovery', async () => {
+    const { decodePageWire } = await load('page-wire.mjs');
+    const { canonicalizeRmtResumePayload } = await load('rmt-node-ssr-adapter.js');
+    const descriptor = {type:'element',tag:'div',children:[{type:'text',text:'Recovered page'}]};
+    const result = await createRmtNodeSsrAdapter().render({descriptor}, {executionMode:'server_prerender_resume',resume:{state:{draft:'preserved'},sign:()=>({keyId:'fixture',signature:'fixture'})}});
+    const page = {schema:'xtend.page-response.v1',renderArtifact:portable.createPortableRenderArtifact({descriptor}),ssr:result.response,head:[]};
+    const signed = canonicalizeRmtResumePayload(page.ssr.resume);
+    for (const compact of [false,true]) {
+      const document = renderPageDocument(page,result.html,{},'',{compact});
+      const wire = decodePageWire(JSON.parse(document.match(/id="xtend-page-data"[^>]*>([\s\S]*?)<\/script>/)[1]));
+      assert.equal(wire.ssr.chunk.markup.html,undefined);
+      assert.equal(wire.ssr.chunks[0].markup.html,undefined);
+      assert.deepEqual(wire.ssr.chunk.markup.descriptor,page.ssr.chunk.markup.descriptor);
+      assert.equal(canonicalizeRmtResumePayload(wire.ssr.resume),signed);
+      assert.deepEqual(wire.ssr.resume.snapshot.state,{draft:'preserved'});
+      assert(document.includes(result.html));
+      assert(createRmtNodeSsrAdapter().renderDescriptorToHtml(wire.ssr.chunk.markup.descriptor).html.includes('Recovered page'));
+    }
+    assert.equal(page.ssr.chunk.markup.html,result.html,'transport projection cannot mutate the general prerender response');
+    const generic = {...page,renderArtifact:null};
+    const htmlOnly = renderPageDocument(generic,result.html);
+    assert.equal(JSON.parse(htmlOnly.match(/id="xtend-page-data"[^>]*>([\s\S]*?)<\/script>/)[1]).ssr.chunk.markup.html,result.html);
+  });
   const artifact = portable.createPortableRenderArtifact({ descriptor: { type: 'element', tag: 'section', children: [
     { type: 'element', tag: 'h1', children: [{ type: 'text', text: '$model.title' }] },
     { type: 'conditional', test: '$model.visible', then: { type: 'text', text: 'Shown' }, else: { type: 'text', text: 'Hidden' } },

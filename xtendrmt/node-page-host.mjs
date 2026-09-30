@@ -16,6 +16,16 @@ export function createNodePageRouteManifest(routes) {
   return {schema:'xtend.page-routes.v1',host:'node',routes:records};
 }
 export function renderPageDocument(page, html, assets = {}, nonce = '', options = {}) {
+  // Portable pages already carry a descriptor fallback. The document delivers
+  // the markup once; neither adoption nor descriptor recovery needs an HTML copy.
+  // Generic adapter responses and HTML-only consumers keep their full chunks.
+  let payload = page;
+  if (page.ssr?.resume && page.ssr.executionMode === 'server_prerender_resume' && page.renderArtifact?.schema === 'xtend.rmt.portable-render.v1' && page.ssr.chunk?.markup?.descriptor) {
+    const project = chunk => chunk?.template?.mode === 'dom_descriptor' && chunk.markup?.descriptor
+      ? {...chunk, markup:{descriptor:chunk.markup.descriptor}}
+      : chunk;
+    payload = {...page, ssr:{...page.ssr, chunk:project(page.ssr.chunk), chunks:(page.ssr.chunks || []).map(project)}};
+  }
   const head = mergePageHead([], page.head || []).map(tag => {
     if (tag.tag === 'title') return `<title>${escape(tag.text)}</title>`;
     if (tag.tag === 'link') return `<link data-xtend-page-head rel="canonical" href="${escape(tag.attributes.href)}">`;
@@ -27,7 +37,7 @@ export function renderPageDocument(page, html, assets = {}, nonce = '', options 
     }).join(' ')}>`;
   }).join('');
   const assetUrl = value => { if (!/^\/(?!\/)/u.test(value)) throw pageError('page.invalid_asset', 'Page assets must use same-origin absolute paths.'); return escape(value); };
-  return `<!doctype html><html><head><meta charset="utf-8">${head}${(assets.css || []).map(url => `<link rel="stylesheet" href="${assetUrl(url)}">`).join('')}</head><body><main id="${page.ssr?.resume ? 'xtend-page-container' : 'xtend-page'}" tabindex="-1">${html}</main><script type="application/json" id="xtend-page-data" nonce="${escape(nonce)}">${safePageJson(options.compact ? encodePageWire(page) : page)}</script>${assets.entry ? `<script type="module" src="${assetUrl(assets.entry)}" nonce="${escape(nonce)}"></script>` : ''}</body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8">${head}${(assets.css || []).map(url => `<link rel="stylesheet" href="${assetUrl(url)}">`).join('')}</head><body><main id="${page.ssr?.resume ? 'xtend-page-container' : 'xtend-page'}" tabindex="-1">${html}</main><script type="application/json" id="xtend-page-data" nonce="${escape(nonce)}">${safePageJson(options.compact ? encodePageWire(payload) : payload)}</script>${assets.entry ? `<script type="module" src="${assetUrl(assets.entry)}" nonce="${escape(nonce)}"></script>` : ''}</body></html>`;
 }
 export function createNodePageHost(options) {
   const { manifest } = options;

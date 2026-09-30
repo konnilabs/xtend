@@ -1197,6 +1197,10 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 return '';
             }
             if ($value === null || $value === false) return '';
+            if (!str_starts_with($name, 'data-') && (!is_scalar($value) || is_float($value) && !is_finite($value))) {
+                $diagnostics[] = $this->diagnostic('rmt.php_ssr.attribute_value_invalid', 'Attribute requires a scalar value.', 'error', ['attribute' => $name]);
+                return '';
+            }
             if (isset($this->urlAttributes[$name]) && !$this->isSafeUrl((string) $value)) {
                 $diagnostics[] = $this->diagnostic('rmt.php_ssr.url_blocked', 'Blocked unsafe URL in "' . $name . '".', 'error', ['attribute' => $name]);
                 return '';

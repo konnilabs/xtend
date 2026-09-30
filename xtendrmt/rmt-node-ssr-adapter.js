@@ -635,7 +635,9 @@ function createValueResolver() {
       createDocumentFragment: () => ({ nodeType: 11, childNodes: [] })
     }
   });
-  return (value, context = {}) => renderer.resolveValue(value, context);
+  const resolve = (value, context = {}) => renderer.resolveValue(value, context);
+  resolve.attribute = (value, context = {}) => renderer.resolveAttributeValue(value, context);
+  return resolve;
 }
 
 function hasTrustBoundary(record, options = {}) {
@@ -692,9 +694,13 @@ function serializeAttribute(name, value, diagnostics, context) {
     return '';
   }
   const resolvedValue = context && typeof context.resolveValue === 'function'
-    ? context.resolveValue(value, context)
+    ? context.resolveValue.attribute(value, context)
     : value;
   if (resolvedValue == null || resolvedValue === false) return '';
+  if (!attrName.startsWith('data-') && (!['string', 'number', 'boolean'].includes(typeof resolvedValue) || typeof resolvedValue === 'number' && !Number.isFinite(resolvedValue))) {
+    diagnostics.publish('rmt.node_ssr.attribute_value_invalid', `Attribute "${attrName}" requires a scalar value.`, 'error', { tag: context && context.tag, attribute: attrName });
+    return '';
+  }
   if (URL_ATTRIBUTES.has(attrName) && !isSafeUrl(resolvedValue)) {
     diagnostics.publish('rmt.node_ssr.url_blocked', `Blocked unsafe URL in "${attrName}".`, 'error', { ...context, attribute: attrName });
     return '';
@@ -803,6 +809,10 @@ function resolveComponentDescriptor(descriptor, registry, diagnostics, context) 
 function serializeElementLike(descriptor, context) {
   const tag = descriptor.tag === 'form' && context.options.nativeForms === true ? 'form' : normalizeTagName(descriptor.tag || descriptor.element || 'div', context.diagnostics, context);
   const attributes = mergeAttributes(descriptor.attributes, descriptor.attrs);
+  if (context.coverage) {
+    context.coverage.descriptorElementNodes++;
+    if (attributes['data-rmt-resume-id']) context.coverage.resumeMarkedNodes++;
+  }
   const children = asArray(descriptor.children || descriptor.nodes || descriptor.childNodes);
   if (!children.length && Object.prototype.hasOwnProperty.call(descriptor, 'text')) children.push({ type: 'text', text: descriptor.text });
   const open = `<${tag}${serializeAttributes(attributes, context.diagnostics, { ...context, tag })}>`;
@@ -814,6 +824,10 @@ function serializeComponent(descriptor, context) {
   const registryResult = resolveComponentDescriptor(descriptor, context.componentRegistry, context.diagnostics, context);
   const componentDescriptor = registryResult.descriptor;
   const capability = registryResult.capability || componentDescriptor.capability || null;
+  if (context.coverage) {
+    context.coverage.componentNodes++;
+    if (!capability) context.coverage.missingCapabilityNodes++;
+  }
   const tag = normalizeTagName(componentDescriptor.tag || descriptor.tag || descriptor.componentTag || descriptor.host || descriptor.component || descriptor.ref || 'div', context.diagnostics, context);
   const partList = [
     ...asArray(componentDescriptor.parts),
@@ -841,6 +855,10 @@ function serializeComponent(descriptor, context) {
     eventAttributes
   );
   if (partList.length) attributes.part = [...new Set(partList.map((entry) => stableString(entry, '').trim()).filter(Boolean))].join(' ');
+  if (context.coverage) {
+    context.coverage.descriptorElementNodes++;
+    if (attributes['data-rmt-resume-id']) context.coverage.resumeMarkedNodes++;
+  }
   const slotChildren = Object.entries(objectRecord(componentDescriptor.slots || descriptor.slots))
     .flatMap(([slotName, slotValue]) => asArray(slotValue).map((entry) => descriptorWithSlot(entry, slotName)));
   const children = [
@@ -858,6 +876,7 @@ function serializeDescriptor(descriptorInput, context) {
   if (type === 'empty') return '';
   if (type === 'text') return escapeHtml(context.resolveValue(descriptor.text, context));
   if (type === 'html' || type === 'trusted_html' || descriptor.html != null) {
+    if (context.coverage) context.coverage.rawHtmlFragments++;
     return sanitizeHtmlFragment(context.resolveValue(descriptor.html || descriptor.content || '', context), context.diagnostics, { ...context, descriptor }, context.options);
   }
   if (type === 'component') return serializeComponent(descriptor, context);
@@ -1274,11 +1293,13 @@ export function createRmtNodeSsrAdapter(options = {}) {
       ? decorateResumeDescriptor(normalized.descriptor, rootId, generation)
       : normalized.descriptor;
     const componentCapabilities = new Map();
+    const coverage = {schema:'xtend.rmt.ssr-coverage.v1',descriptorElementNodes:0,resumeMarkedNodes:0,componentNodes:0,missingCapabilityNodes:0,rawHtmlFragments:0};
     const html = serializeDescriptor(renderDescriptor, {
       options: mergedOptions,
       diagnostics,
       componentRegistry: mergedOptions.componentRegistry || componentRegistry,
       componentCapabilities,
+      coverage,
       model: mergedOptions.model || {},
       selectorValues: mergedOptions.selectorValues || {},
       source: { inputKind: normalized.kind, sourceRef: normalized.sourceRef },
@@ -1298,6 +1319,9 @@ export function createRmtNodeSsrAdapter(options = {}) {
       cspPolicy,
       xscaler
     };
+    // Marker coverage is not proof of a successful client resume. Opaque HTML
+    // nodes and actual browser fallback counts are intentionally not inferred.
+    hydration.coverage = {...coverage, resumeMarkerCoverage:coverage.descriptorElementNodes ? coverage.resumeMarkedNodes / coverage.descriptorElementNodes : null};
     const renderState = {
       requestId,
       rootId,

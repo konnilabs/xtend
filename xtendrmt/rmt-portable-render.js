@@ -95,7 +95,7 @@ export function projectPortableRender(artifact, props = {}) {
     }
     const result = { ...input };
     if (own(input, 'text')) { const value = resolve(input.text, item); result.text = { op: 'literal', value: value == null || typeof value === 'object' ? '' : String(value) }; }
-    for (const field of ['attributes', 'attrs', 'properties', 'props']) if (input[field]) result[field] = Object.fromEntries(Object.entries(input[field]).map(([key, value]) => [key, { op: 'literal', value: resolve(value, item) }]));
+    for (const field of ['attributes', 'attrs', 'properties', 'props']) if (input[field]) result[field] = Object.fromEntries(Object.entries(input[field]).map(([key, value]) => [key, { op: 'literal', value: field === 'attributes' || field === 'attrs' ? renderer.resolveAttributeValue(value, {model,item}) : resolve(value, item) }]));
     if (input.key) result.attributes = {...result.attributes, 'data-rmt-key': {op:'literal', value:resolve(input.key, item)}};
     const classes = renderer.resolveClasses([input.class, input.className, input.classes], {model,item});
     if (classes.length) result.attributes = {...result.attributes, class:{op:'literal', value:classes.join(' ')}};

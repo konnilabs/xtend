@@ -294,6 +294,8 @@ export interface RmtDomDescriptorRenderer {
   patchElement(element: Element, descriptor: unknown, options?: RmtDomDescriptorRenderOptions): Element;
   resolveClasses(value: unknown, options?: RmtDomDescriptorRenderOptions & { item?: unknown }): string[];
   resolveValue(value: unknown, options?: RmtDomDescriptorRenderOptions & { item?: unknown }): unknown;
+  /** Strings are literal unless they use explicit binding/interpolation syntax. */
+  resolveAttributeValue(value: unknown, options?: RmtDomDescriptorRenderOptions & { item?: unknown }): unknown;
   createNoManualHtmlGate(options?: unknown): RmtNoManualHtmlGate;
   isUrlAllowed(value: unknown): boolean;
   listDiagnostics(): RmtDomDescriptorDiagnostic[];
