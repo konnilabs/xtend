@@ -205,3 +205,13 @@ Laravel's optional `style_nonce => true` adds the document nonce to `style-src` 
 A page visit ends page-owned requests; layout-owned resources may remain alive according to their owner. Inside a Maraca page, the automatic [Abort Boundary](./maraca-fastpass-abort-boundary.md) additionally protects every managed surface from late worker, hydration and DOM commits. Fast close or focus requires neither a new page artifact nor completion of business services.
 
 Presentation epochs do not replace data versions or business-service cancellation. Shared prewarming may retain valid data. Custom integrations check the surface token after asynchronous responses and immediately before visible commits. Client-only Maraca uses the same guards without SSR.
+### Initial resume payload
+
+Initial portable Node documents in `server_prerender_resume` send rendered HTML
+once in the DOM. Their inline page wire retains the descriptor fallback and
+signed resume state but omits duplicate `markup.html`/`textContent` from
+descriptor chunks. The general SSR response, HTML-only pages, hydration mode
+and subsequent page API responses keep their existing contracts. Integrity
+data and canonical signed state are unchanged. A rejected signature can still
+recover through the portable artifact/descriptor. State is not generically
+pruned: reducers, event bindings and recovery may consume it.

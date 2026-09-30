@@ -757,7 +757,8 @@
       throw createRendererError('rmt.dom.attribute.unsafe', `Unsicheres Attribut ${normalizedName}`, descriptor, context);
     }
     if (!domainAllowed(context, attributeDomain(normalizedName))) return;
-    const resolvedValue = resolveValue(value, context, context.item);
+    const resolvedValue = resolveAttributeValue(value, context, context.item);
+    validateAtomicAttribute(normalizedName, resolvedValue, descriptor, context);
     if (URL_ATTRIBUTE_NAMES.has(normalizedName.toLowerCase()) && !isSafeUrl(resolvedValue)) {
       throw createRendererError('rmt.dom.attribute.url-unsafe', `Unsichere URL fuer Attribut ${normalizedName}`, descriptor, context);
     }
@@ -1548,6 +1549,20 @@
     return typeof resolved === 'undefined' ? value : resolved;
   }
 
+  // Attribute strings are literals. Bindings must be explicit ($model/$item,
+  // interpolation, or an expression record), never a coinciding model key.
+  function resolveAttributeValue(value, context, item) {
+    if (typeof value === 'string' && !value.startsWith('$') && !value.includes('${')) return value;
+    return resolveValue(value, context, item);
+  }
+
+  function validateAtomicAttribute(name, value, descriptor, context) {
+    if (value == null || name.startsWith('data-')) return;
+    if (!['string', 'number', 'boolean'].includes(typeof value) || typeof value === 'number' && !Number.isFinite(value)) {
+      throw createRendererError('rmt.dom.attribute.value-invalid', `Attribute ${name} requires a scalar value.`, descriptor, context);
+    }
+  }
+
   function resolveComponent(descriptor, context) {
     const componentId = descriptor.component || descriptor.ref || descriptor.id || '';
     const component = componentId && context.components ? context.components.get(componentId) : null;
@@ -1843,7 +1858,8 @@
       if (!isSafeAttributeName(normalizedName)) {
         throw createRendererError('rmt.dom.attribute.unsafe', `Unsicheres Attribut ${normalizedName}`, descriptor, context);
       }
-      const resolvedValue = resolveValue(value, context, context.item);
+      const resolvedValue = resolveAttributeValue(value, context, context.item);
+      validateAtomicAttribute(normalizedName, resolvedValue, descriptor, context);
       if (URL_ATTRIBUTE_NAMES.has(normalizedName.toLowerCase()) && !isSafeUrl(resolvedValue)) {
         throw createRendererError('rmt.dom.attribute.url-unsafe', `Unsichere URL fuer Attribut ${normalizedName}`, descriptor, context);
       }
@@ -3562,6 +3578,14 @@
             ...options
           }, diagnosticsRecorder, rendererState);
           return resolveValue(value, context, options.item);
+        });
+      },
+      resolveAttributeValue(value, options = {}) {
+        return runWithDiagnostics(() => {
+          const context = createRenderContext(documentTarget, {
+            ...defaultContextOptions, ...options
+          }, diagnosticsRecorder, rendererState);
+          return resolveAttributeValue(value, context, options.item);
         });
       },
       resolveClasses(value, options = {}) {

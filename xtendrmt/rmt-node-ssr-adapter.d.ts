@@ -105,6 +105,16 @@ export interface RmtNodeSsrComponentCapabilityHint {
 }
 
 export interface RmtNodeSsrHydrationPayload {
+  coverage?: {
+    schema: 'xtend.rmt.ssr-coverage.v1';
+    descriptorElementNodes: number;
+    resumeMarkedNodes: number;
+    componentNodes: number;
+    missingCapabilityNodes: number;
+    rawHtmlFragments: number;
+    /** Descriptor marker coverage, not a count of successful client resumes. */
+    resumeMarkerCoverage: number | null;
+  };
   schema: typeof RMT_NODE_SSR_HYDRATION_SCHEMA;
   requestId: string;
   executionMode: RmtNodeSsrExecutionMode;

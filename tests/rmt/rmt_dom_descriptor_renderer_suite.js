@@ -394,6 +394,17 @@ function runRendererBehaviorAssertions(context, fixture, rendererModule) {
   }
   context.assert(blockedScript, 'renderer rejects executable script descriptors before DOM insertion');
 
+  const literalInput = harness.renderer.renderNode({
+    type: 'element', tag: 'input', attributes: { type: 'search', name: 'query', value: '$model.search.query' }
+  }, { ...harness.renderOptions, model: { search: { query: 'GNU/Linux' }, query: { privateState: true } } });
+  context.assert(literalInput.getAttribute('type') === 'search' && literalInput.getAttribute('name') === 'query', 'attribute literals remain literal when model roots collide');
+  context.assert(literalInput.getAttribute('value') === 'GNU/Linux', 'explicit attribute model bindings still resolve');
+  let invalidAtomic = false;
+  try {
+    harness.renderer.renderNode({ type: 'element', tag: 'input', attributes: { type: { op: 'literal', value: { privateState: true } } } }, harness.renderOptions);
+  } catch (error) { invalidAtomic = error.code === 'rmt.dom.attribute.value-invalid'; }
+  context.assert(invalidAtomic, 'DOM preflight rejects structured native attributes before insertion');
+
   const sidePanel = harness.renderer.renderNode({
     type: 'element',
     tag: 'x-side-panel',

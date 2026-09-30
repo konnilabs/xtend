@@ -232,7 +232,11 @@ final class RmtPortableRender
         }
         $result = $input;
         if (array_key_exists('text', $input)) { $value = self::value($input['text'], $model, $item); $result['text'] = is_array($value) || is_object($value) ? '' : self::text($value); }
-        foreach (['attributes', 'attrs', 'properties', 'props'] as $field) if (isset($input[$field])) foreach ($input[$field] as $key => $value) { $resolved = self::value($value, $model, $item); if ($resolved === self::missing()) unset($result[$field][$key]); else $result[$field][$key] = $resolved; }
+        foreach (['attributes', 'attrs', 'properties', 'props'] as $field) if (isset($input[$field])) foreach ($input[$field] as $key => $value) {
+            $literalAttribute = in_array($field, ['attributes', 'attrs'], true) && is_string($value) && !str_starts_with($value, '$') && !str_contains($value, '${');
+            $resolved = $literalAttribute ? $value : self::value($value, $model, $item);
+            if ($resolved === self::missing()) unset($result[$field][$key]); else $result[$field][$key] = $resolved;
+        }
         if (!empty($input['key'])) $result['attributes']['data-rmt-key'] = self::value($input['key'], $model, $item);
         $classes = array_unique(self::classes([$input['class'] ?? null, $input['className'] ?? null, $input['classes'] ?? null], $model, $item));
         if ($classes) $result['attributes']['class'] = implode(' ', $classes);

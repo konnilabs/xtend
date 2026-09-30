@@ -91,6 +91,20 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
   context.assert(adapterTypes.includes('RmtResumeEnvelope'), 'declarations expose the resume envelope');
 
   const adapter = adapterApi.createRmtNodeSsrAdapter({ manifest, sourceTexts });
+  const atomic = adapter.renderDescriptorToHtml({ type: 'element', tag: 'input', attributes: {
+    type: 'search', name: 'query', role: 'search', value: '$model.search.query',
+    title: '${model.search.query}', placeholder: { op: 'literal', value: 'search' }
+  } }, { model: { search: { query: 'GNU/Linux', privateState: 'never-in-attributes' }, query: { privateState: true } } });
+  context.assert(atomic.html.includes('type="search"') && atomic.html.includes('name="query"') && atomic.html.includes('role="search"'), 'native attribute literals cannot alias model state');
+  context.assert(atomic.html.includes('value="GNU/Linux"') && atomic.html.includes('title="GNU/Linux"'), 'explicit attribute bindings and interpolation remain supported');
+  context.assert(!atomic.html.includes('never-in-attributes'), 'atomic attributes never serialize unrelated model payloads');
+  for (const value of [{ op: 'literal', value: { secret: 'blocked' } }, '$model.search', { op: 'literal', value: ['search'] }]) {
+    const invalid = adapter.renderDescriptorToHtml({ type: 'element', tag: 'input', attributes: { type: value } }, { model: { search: { secret: 'blocked' } } });
+    context.assert(!invalid.html.includes('type=') && !invalid.html.includes('blocked'), 'structured native attribute values are omitted');
+    context.assert(invalid.diagnostics.some(d => d.code === 'rmt.node_ssr.attribute_value_invalid'), 'structured native attribute values produce a stable diagnostic');
+  }
+  const coreComponents = await adapter.render({ descriptor: { type: 'fragment', children: Object.keys(manifest).filter(tag => tag.startsWith('x-')).map(tag => ({ type: 'component', tag })) } });
+  context.assert(!coreComponents.diagnostics.some(d => d.code === 'rmt.node_ssr.component_capability_missing'), 'all manifest core components have SSR capability coverage, including x-section');
   const descriptorRender = await adapter.render({
     descriptor: {
       type: 'component',
@@ -161,6 +175,8 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
     }
   });
   context.assert(resumeRender.ok === true, 'signed server prerender resume succeeds');
+  context.assert(resumeRender.hydration.coverage.descriptorElementNodes === 1 && resumeRender.hydration.coverage.resumeMarkedNodes === 1 && resumeRender.hydration.coverage.resumeMarkerCoverage === 1, 'resume coverage counts rendered descriptor elements and adoption markers');
+  context.assert(coreComponents.hydration.coverage.componentNodes === Object.keys(manifest).filter(tag => tag.startsWith('x-')).length && coreComponents.hydration.coverage.missingCapabilityNodes === 0, 'coverage reports complete configured component registry');
   context.assert(resumeRender.resume && resumeRender.resume.schema === RMT_SSR_RESUME_ENVELOPE_SCHEMA, 'resume render emits the public resume envelope');
   context.assert(resumeRender.response.executionMode === 'server_prerender_resume', 'resume response keeps the requested execution mode');
   context.assert(resumeRender.html.includes('data-rmt-resume-root="true"'), 'resume HTML exposes a stable root adoption marker');

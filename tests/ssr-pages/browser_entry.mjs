@@ -16,6 +16,7 @@ const client = createPageClient({initialPage,window,encryptHistory:true,resume:{
 window.pageClient = client;
 try {
   if(initialPage.ssr?.executionMode==='server_prerender_resume') {
+    assert(!('html' in initialPage.ssr.chunk.markup),'portable resume wire has no duplicate HTML');
     const root=document.getElementById('xtend-page'),heading=root.querySelector('h1');let resumed;
     client.subscribe(event=>{if(event.type==='resume')resumed=event.result;});
     await client.start();
@@ -23,7 +24,8 @@ try {
     assert(document.getElementById('xtend-page')===root && root.querySelector('h1')===heading,'resume preserves the server DOM and page root');
     const tampered=structuredClone(initialPage);tampered.ssr.resume.integrity.signature='AAAA';let fallback;
     const rejected=createPageClient({initialPage:tampered,window,resume:{verify},links:false});rejected.subscribe(event=>{if(event.type==='resume')fallback=event.result;});
-    await rejected.start();assert(fallback?.status==='fallback_hydrated' && !fallback.verified,'tampered page signature falls back through hydration');rejected.dispose();
+    await rejected.start();assert(fallback?.status==='fallback_hydrated' && !fallback.verified,'tampered page signature falls back through hydration');
+    assert(document.querySelector('h1')?.textContent==='Resume','descriptor recovery renders the page without a wire HTML copy');rejected.dispose();
   } else {
   assert(document.querySelector('h1')?.textContent === 'Login', 'initial HTML is rendered before client startup');
   await client.start();
