@@ -177,6 +177,15 @@ function runXTensionsVueHostAdapterSuite(options = {}) {
   const missingBoundary = normalizeVueRuntimeBoundary(common.missingRuntimeFixture.runtimeBoundary);
   context.assert(missingBoundary.ok === false, 'Vue runtime boundary blocks missing provider module');
   context.assert(missingBoundary.diagnostics.some((diagnostic) => diagnostic.code === VUE_ADAPTER_HOST_RUNTIME_MISSING_CODE), 'missing Vue runtime diagnostic is emitted');
+  const remoteProviderBoundary = normalizeVueRuntimeBoundary({
+    ...fixture.runtimeBoundary,
+    runtimeProvider: {
+      ...fixture.runtimeBoundary.runtimeProvider,
+      modules: ['https://attacker.example/vue.mjs']
+    }
+  });
+  context.assert(remoteProviderBoundary.ok === false, 'Vue runtime boundary blocks remote provider modules');
+  context.assert(remoteProviderBoundary.diagnostics.some((diagnostic) => diagnostic.metadata.unsafeRuntimeModules.length === 1), 'Vue runtime diagnostic records unsafe provider modules');
 
   const badPayload = inspectVuePayloadBoundary(common.badPayloadFixture.payload);
   context.assert(badPayload.ok === false, 'Vue payload boundary blocks proxy/store/global patch leakage');
@@ -187,6 +196,11 @@ function runXTensionsVueHostAdapterSuite(options = {}) {
   const securityReport = evaluateXTensionSecurity(fixture.manifest, { artifactText: 'export const XTENSION_CONTRACT = {}; export function createVueProcessSidebar() {}' });
   context.assert(securityReport.status === 'ready', 'Vue host-provided manifest passes security gate when artifact is externalized');
   context.assert(securityReport.artifactRuntime.runtimeBundled === false, 'Vue externalized artifact has no runtime signatures');
+  const remoteProviderManifest = JSON.parse(JSON.stringify(fixture.manifest));
+  remoteProviderManifest.runtimeProvider.modules = ['https://attacker.example/vue.mjs'];
+  const remoteProviderSecurityReport = evaluateXTensionSecurity(remoteProviderManifest, { artifactText: 'export const XTENSION_CONTRACT = {}; export function createVueProcessSidebar() {}' });
+  context.assert(remoteProviderSecurityReport.remoteCapable === true, 'Vue manifest with remote provider modules is remote-capable');
+  context.assert(remoteProviderSecurityReport.status === 'blocked', 'Vue manifest with remote provider modules is blocked by security gate');
 
   const driftReport = evaluateXTensionSecurity(fixture.manifest, { artifactText: common.blockedRuntimeFixture.artifactText });
   context.assert(driftReport.status === 'blocked', 'Vue manifest/bundle drift is blocked');

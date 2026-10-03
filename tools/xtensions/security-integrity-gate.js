@@ -349,8 +349,15 @@ function isRemoteSource(value) {
   const normalized = normalizeString(value).toLowerCase();
   return normalized.startsWith('http://')
     || normalized.startsWith('https://')
+    || normalized.startsWith('//')
     || normalized === 'http:'
     || normalized === 'https:';
+}
+
+function collectRuntimeProviderModules(source = {}) {
+  const provider = source.runtimeProvider || source.provider;
+  if (!provider || typeof provider !== 'object') return [];
+  return toArray(provider.modules).map(normalizeString).filter(Boolean);
 }
 
 function isCdnSource(value) {
@@ -449,10 +456,12 @@ function hasRemoteCspSource(csp) {
 function isRemoteCapable(source, csp, dependencies) {
   const entry = normalizeEntry(source.entry);
   const security = source.security && typeof source.security === 'object' ? source.security : {};
+  const runtimeProviderModules = collectRuntimeProviderModules(source);
   return isRemoteSource(entry.module)
     || security.remoteCapable === true
     || source.remote === true
     || dependencies.some((dependency) => dependency.classification === 'remote')
+    || runtimeProviderModules.some(isRemoteSource)
     || hasRemoteCspSource(csp);
 }
 
