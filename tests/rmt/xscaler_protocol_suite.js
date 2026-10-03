@@ -166,6 +166,8 @@ function validateContractModule(context, rootDir) {
     hostCapabilities: { allowedOrigins: ['https://cdn.xtend.example'] }
   });
   context.assert(accepted.accepted === true && accepted.ok === true, 'Evaluator accepts valid XScaler preflight facts');
+  assertEvaluatorBlocks(context, XSCALER_ORIGIN_BLOCKED_CODE, () => {}, { hostCapabilities: {} });
+  assertEvaluatorBlocks(context, XSCALER_ORIGIN_BLOCKED_CODE, () => {}, { hostCapabilities: { allowedOrigins: [] } });
   assertEvaluatorBlocks(context, XSCALER_ORIGIN_BLOCKED_CODE, () => {}, { hostCapabilities: { allowedOrigins: ['https://blocked.example'] } });
   assertEvaluatorBlocks(context, XSCALER_INTEGRITY_MISSING_CODE, (plan) => { plan.integrity.digest = ''; });
   assertEvaluatorBlocks(context, XSCALER_SSR_NETWORK_DENIED_CODE, (plan) => { plan.ssr.networkDuringRender = true; });
