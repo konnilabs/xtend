@@ -218,7 +218,10 @@ function collectRemoteSurfaces(input = {}) {
 
 function addIndexEntry(index, key, value) {
   const normalized = normalizeString(key, null);
-  if (normalized) index.set(normalized, value);
+  if (!normalized) return;
+  const entries = index.get(normalized) || [];
+  entries.push(value);
+  index.set(normalized, entries);
 }
 
 function createReportIndex(entries) {
@@ -233,11 +236,53 @@ function createReportIndex(entries) {
   return index;
 }
 
-function findReportEntry(index, surface) {
-  return index.get(surface.enterpriseSurfaceId) ||
-    index.get(surface.surfaceId) ||
-    index.get(surface.name) ||
-    null;
+function jsonFingerprint(value) {
+  return JSON.stringify(stableSort(value == null ? null : value));
+}
+
+function valuesMatch(a, b) {
+  return normalizeString(a, null) === normalizeString(b, null);
+}
+
+function integrityMatches(a, b) {
+  if (a == null && b == null) return true;
+  if (!isPlainObject(a) || !isPlainObject(b)) return false;
+  return valuesMatch(a.algorithm, b.algorithm) && valuesMatch(a.digest, b.digest);
+}
+
+function capabilitiesMatch(report, surface) {
+  const reported = normalizeCapabilities(report.surfaceCapabilities || report.capabilities);
+  if (reported.length === 0) return false;
+  return jsonFingerprint(reported) === jsonFingerprint(surface.capabilities);
+}
+
+function reportMatchesSurface(entry, surface) {
+  if (!isPlainObject(entry)) return false;
+  const entryRemote = isPlainObject(entry.remote) ? entry.remote : {};
+  const surfaceRemote = isPlainObject(surface.remote) ? surface.remote : {};
+  return valuesMatch(entry.enterpriseSurfaceId, surface.enterpriseSurfaceId) &&
+    valuesMatch(entry.surfaceId, surface.surfaceId) &&
+    valuesMatch(entry.name, surface.name) &&
+    valuesMatch(entryRemote.manifestId, surface.manifestId || surfaceRemote.manifestId) &&
+    valuesMatch(entryRemote.remoteId || entryRemote.id, surfaceRemote.remoteId || surfaceRemote.id) &&
+    valuesMatch(entryRemote.origin, surfaceRemote.origin) &&
+    valuesMatch(entryRemote.trustBoundary, surfaceRemote.trustBoundary) &&
+    integrityMatches(entryRemote.integrity, surfaceRemote.integrity) &&
+    ownerId(entry.owner) === ownerId(surface.owner) &&
+    capabilitiesMatch(entry, surface);
+}
+
+function getIndexEntries(index, key) {
+  return index.get(normalizeString(key, null)) || [];
+}
+
+function findReportEntry(index, surface, options = {}) {
+  const candidates = []
+    .concat(getIndexEntries(index, surface.enterpriseSurfaceId))
+    .concat(getIndexEntries(index, surface.surfaceId))
+    .concat(getIndexEntries(index, surface.name));
+  if (!options.requireSurfaceBinding) return candidates[0] || null;
+  return candidates.find(entry => reportMatchesSurface(entry, surface)) || null;
 }
 
 function createShardId(owner, target) {
@@ -251,7 +296,7 @@ function createPlanId(input, surfaces) {
 function createSurfaceDecision(surface, reports) {
   const diagnostics = surface.diagnostics.slice();
   const sourceError = firstErrorDiagnostic(surface.diagnostics);
-  const security = findReportEntry(reports.security, surface);
+  const security = findReportEntry(reports.security, surface, { requireSurfaceBinding: true });
   const degradation = findReportEntry(reports.degradation, surface);
   const securityError = security && (security.status === 'blocked' || firstErrorDiagnostic(security.diagnostics));
   const degradationError = degradation && (degradation.state === 'blocked' || degradation.status === 'blocked' || firstErrorDiagnostic(degradation.diagnostics));
@@ -263,6 +308,15 @@ function createSurfaceDecision(surface, reports) {
     null,
     null
   );
+
+  if (!security) {
+    diagnostics.push(createDiagnostic(
+      XSURFACE_SHARD_SECURITY_BLOCKED_CODE,
+      `Remote surface ${surface.name} has no matching remote security posture.`,
+      'error'
+    ));
+    return { decision: 'refused', reason: 'security-posture-missing', fallback, diagnostics, security, degradation, degradationState };
+  }
 
   if (sourceError || surface.status === 'blocked') {
     diagnostics.push(createDiagnostic(

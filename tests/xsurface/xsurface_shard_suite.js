@@ -205,6 +205,59 @@ function validateRefusalAndDegradation(context, rootDir) {
   context.assert(diagnosticCodes(missingFallbackSurface).includes(XSURFACE_SHARD_FALLBACK_MISSING_CODE), 'Missing fallback emits stable diagnostic code');
 }
 
+
+function validateSecurityPostureBinding(context, rootDir) {
+  const input = createShardInput(rootDir);
+  const validSurface = cloneJson(input.enterpriseRegistry.surfaces[0]);
+  const missingSecurityPlan = createXSurfaceShardPlan({
+    remoteSurface: {
+      ...validSurface,
+      surfaceId: 'remoteSurface:evil.cart',
+      enterpriseSurfaceId: 'enterpriseSurface:remote:evil.cart',
+      name: 'evil.cart',
+      owner: { kind: 'team', id: 'unknown-attacker', known: false },
+      remote: {
+        enabled: true,
+        manifestId: 'remoteManifest:evil.cart',
+        remoteId: 'evil-rmt',
+        origin: 'https://evil.example',
+        trustBoundary: 'xtend.security.remote-surface.v1',
+        integrity: { algorithm: 'sha256', digest: 'sha256-EVIL' }
+      },
+      capabilities: ['surface.mount', 'kernel.exec'],
+      fallback: { kind: 'surface', ref: 'evil.fallback' }
+    }
+  });
+  const missingSecuritySurface = missingSecurityPlan.surfaces[0];
+
+  context.assert(missingSecurityPlan.status === 'refused' && missingSecurityPlan.ok === false, 'Surface without security posture is refused');
+  context.assert(missingSecuritySurface.decision === 'refused' && missingSecuritySurface.securityStatus === null, 'Missing posture cannot produce ready security status');
+  context.assert(diagnosticCodes(missingSecuritySurface).includes(XSURFACE_SHARD_SECURITY_BLOCKED_CODE), 'Missing posture emits security diagnostic');
+
+  const spoofedSurface = {
+    ...validSurface,
+    remote: {
+      ...validSurface.remote,
+      remoteId: 'evil-rmt',
+      origin: 'https://evil.example'
+    },
+    owner: { kind: 'team', id: 'unknown-attacker', known: false },
+    capabilities: validSurface.capabilities.concat('kernel.exec')
+  };
+  const spoofedPlan = createXSurfaceShardPlan({
+    remoteSurface: spoofedSurface,
+    enterpriseRegistry: input.enterpriseRegistry,
+    degradationReport: input.degradationReport,
+    remoteSecurityReport: input.remoteSecurityReport
+  });
+  const spoofedPlanSurface = spoofedPlan.surfaces.find((surface) => surface.surfaceId === validSurface.surfaceId);
+
+  context.assert(spoofedPlan.surfaceCount === 1, 'Duplicate remote surface ids are still deduplicated');
+  context.assert(spoofedPlan.status === 'refused' && spoofedPlan.ok === false, 'Spoofed surface cannot inherit a stale ready posture');
+  context.assert(spoofedPlanSurface.decision === 'refused' && spoofedPlanSurface.securityStatus === null, 'Bound posture facts must match the planned surface');
+  context.assert(diagnosticCodes(spoofedPlanSurface).includes(XSURFACE_SHARD_SECURITY_BLOCKED_CODE), 'Stale posture emits security diagnostic');
+}
+
 function validateServerLifecycleAndFragments(context, rootDir) {
   const input = createShardInput(rootDir);
   const server = createXSurfaceShardServer({ input });
@@ -295,6 +348,7 @@ function runXSurfaceShardSuite(options = {}) {
   validateRuntimeApi(context, rootDir);
   validateReadyPlan(context, rootDir);
   validateRefusalAndDegradation(context, rootDir);
+  validateSecurityPostureBinding(context, rootDir);
   validateServerLifecycleAndFragments(context, rootDir);
   validateDocsMetadataAndRegistration(context, rootDir);
 
