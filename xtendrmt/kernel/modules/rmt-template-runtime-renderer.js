@@ -1921,9 +1921,6 @@
                 const nestedElement = rootElement.querySelector(safeTarget);
                 if (nestedElement) return nestedElement;
             }
-            if (documentTarget && typeof documentTarget.querySelector === 'function') {
-                return documentTarget.querySelector(safeTarget) || null;
-            }
             return null;
         }
 
@@ -1941,9 +1938,6 @@
             if (typeof rootElement.querySelector === 'function') {
                 const nestedElement = rootElement.querySelector(safeTarget);
                 if (nestedElement) return nestedElement;
-            }
-            if (documentTarget && typeof documentTarget.querySelector === 'function') {
-                return documentTarget.querySelector(safeTarget) || null;
             }
             return null;
         }
