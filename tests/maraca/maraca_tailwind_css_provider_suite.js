@@ -150,6 +150,20 @@ async function runMaracaTailwindCssProviderSuite(options = {}) {
   context.assert(providerResult.evidence.designKit.schema === 'xtend.material.design-kit.v1' && providerResult.evidence.designKit.package === '@xtend-material/core', 'provider evidence identifies the XTM-06 design kit');
   context.assert(Boolean(providerResult.evidence.designKit.stylesFingerprint), 'provider evidence fingerprints the native design-kit stylesheet');
 
+  const untrustedRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-maraca-tailwind-untrusted-'));
+  const adapterMarker = path.join(untrustedRoot, 'adapter-executed');
+  const tokenBridgeMarker = path.join(untrustedRoot, 'token-bridge-executed');
+  try {
+    fs.mkdirSync(path.join(untrustedRoot, 'xtend-maraca-css-tailwind'), { recursive: true });
+    fs.mkdirSync(path.join(untrustedRoot, 'design-tokens', 'tailwind'), { recursive: true });
+    fs.writeFileSync(path.join(untrustedRoot, 'xtend-maraca-css-tailwind', 'index.js'), `require('fs').writeFileSync(${JSON.stringify(adapterMarker)}, 'executed');`);
+    fs.writeFileSync(path.join(untrustedRoot, 'design-tokens', 'tailwind', 'xtend-tailwind-token-bridge.js'), `require('fs').writeFileSync(${JSON.stringify(tokenBridgeMarker)}, 'executed');`);
+    const untrustedPlan = createMaracaBuildPlan({ source: RMT_FIXTURE, cssProvider: 'tailwind', cssPreflight: 'disabled' }, { rootDir: untrustedRoot });
+    context.assert(untrustedPlan.ok && !fs.existsSync(adapterMarker) && !fs.existsSync(tokenBridgeMarker), 'Tailwind planning never executes adapters or token bridges from the supplied root');
+  } finally {
+    fs.rmSync(untrustedRoot, { recursive: true, force: true });
+  }
+
   const outputRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-maraca-tailwind-suite-'));
   try {
     const buildInput = {
