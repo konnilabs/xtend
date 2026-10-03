@@ -61,6 +61,15 @@ function parityCases() {
       }
     },
     {
+      id: 'origin-blocked-without-allowlist',
+      expectedCode: XSCALER_ORIGIN_BLOCKED_CODE,
+      input: {
+        request: baseRequest(),
+        remoteSurfacePlan: basePlan(),
+        hostCapabilities: {}
+      }
+    },
+    {
       id: 'origin-blocked',
       expectedCode: XSCALER_ORIGIN_BLOCKED_CODE,
       input: {

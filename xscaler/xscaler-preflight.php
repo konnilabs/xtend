@@ -332,7 +332,7 @@ function xscalerHostAllowsOrigin(array $hostCapabilities, string $origin): bool
         $normalized = xscalerString($entry);
         if ($normalized !== '') $allowed[] = $normalized;
     }
-    return $allowed === [] || in_array($origin, $allowed, true);
+    return in_array($origin, $allowed, true);
 }
 
 function xscalerReportHasBlockingDiagnostic(mixed $report): bool
