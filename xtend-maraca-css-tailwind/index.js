@@ -21,14 +21,10 @@ const {
 
 function loadTokenBridge(rootDir, suppliedBridge) {
   if (suppliedBridge && suppliedBridge.cssText) return suppliedBridge;
-  const localModule = path.resolve(rootDir, 'design-tokens', 'tailwind', 'xtend-tailwind-token-bridge.js');
   const workspaceModule = path.resolve(__dirname, '..', 'design-tokens', 'tailwind', 'xtend-tailwind-token-bridge.js');
   let bridgeApi;
   let bridge;
-  if (fs.existsSync(localModule)) {
-    bridgeApi = require(localModule);
-    bridge = bridgeApi.createXtendTailwindTokenBridge({ baseDir: rootDir });
-  } else if (fs.existsSync(workspaceModule)) {
+  if (fs.existsSync(workspaceModule)) {
     bridgeApi = require(workspaceModule);
     bridge = bridgeApi.createXtendTailwindTokenBridge({ baseDir: path.resolve(__dirname, '..') });
   } else {

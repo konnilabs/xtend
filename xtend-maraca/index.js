@@ -4201,11 +4201,8 @@ function resolveCssProvider(normalized) {
   let resolvedProvider = requestedProvider;
   let implementation = normalized.cssProviderImplementation;
   if (requestedProvider === 'tailwind' && !implementation) {
-    const localAdapterPath = path.join(normalized.rootDir, 'xtend-maraca-css-tailwind');
     try {
-      const adapter = fs.existsSync(path.join(localAdapterPath, 'index.js'))
-        ? require(localAdapterPath)
-        : require('@xtend-material/maraca-tailwind');
+      const adapter = require('@xtend-material/maraca-tailwind');
       implementation = adapter.createTailwindCssProvider({ rootDir: normalized.rootDir });
     } catch (error) {
       diagnostics.push({
@@ -4320,10 +4317,7 @@ function createMaracaCssBuildPlan(normalized, sourceText = null) {
 function enrichTailwindCssBuildPlan(cssBuild, normalized, sourceText, descriptors) {
   if (!cssBuild || cssBuild.resolvedProvider !== 'tailwind') return cssBuild;
   try {
-    const localAdapterPath = path.join(normalized.rootDir, 'xtend-maraca-css-tailwind');
-    const inventoryApi = fs.existsSync(path.join(localAdapterPath, 'source-inventory.js'))
-      ? require(path.join(localAdapterPath, 'source-inventory.js'))
-      : require('@xtend-material/maraca-tailwind/source-inventory');
+    const inventoryApi = require('@xtend-material/maraca-tailwind/source-inventory');
     const sourceDiagnostics = [];
     if (normalized.cssPreflight !== 'disabled') sourceDiagnostics.push({
       code: CSS_PROVIDER_SOURCE_BLOCKED_CODE,
