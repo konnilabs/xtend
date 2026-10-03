@@ -1,5 +1,6 @@
 (function attachRmtDomDescriptorRenderer(globalTarget) {
-  const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
+  const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
+  const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
   const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';
   const RMT_DOM_COMMIT_RESULT_SCHEMA = 'xtend.rmt.dom-commit-result.v1';
   const RMT_DOM_APPLICATION_BINDING_SCHEMA = 'xtend.rmt.dom-application-binding.v1';
@@ -1552,6 +1553,14 @@
   // Attribute strings are literals. Bindings must be explicit ($model/$item,
   // interpolation, or an expression record), never a coinciding model key.
   function resolveAttributeValue(value, context, item) {
+    if (context.rendererSchema === RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA) {
+      const resolved = resolveValue(value, context, item);
+      if (typeof value === 'string' && !value.startsWith('$') && !value.includes('${') && resolved !== value) {
+        context.publishDiagnostic?.(createDiagnostic('rmt.dom.attribute.implicit-binding-deprecated',
+          `Implicit attribute binding ${value} is deprecated; use $model.${value}.`, {}, context, 'info'));
+      }
+      return resolved;
+    }
     if (typeof value === 'string' && !value.startsWith('$') && !value.includes('${')) return value;
     return resolveValue(value, context, item);
   }
@@ -3105,6 +3114,9 @@
   }
 
   function createRenderContext(documentTarget, options = {}, diagnosticsRecorder, rendererState = null) {
+    if (options.rendererSchema && ![RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA, RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA].includes(options.rendererSchema)) {
+      throw new Error(`Unsupported renderer contract: ${options.rendererSchema}`);
+    }
     let trustedDomRenderer = options.trustedDomRenderer;
     if (!trustedDomRenderer && typeof options.trustedDom === 'function') {
       trustedDomRenderer = options.trustedDom;
@@ -3121,6 +3133,7 @@
     }
     return {
       documentTarget,
+      rendererSchema: options.rendererSchema || RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA,
       model: options.model || {},
       selectorValues: options.selectorValues || {},
       components: options.components instanceof Map ? options.components : createMap(options.components),
@@ -3181,10 +3194,15 @@
   }
 
   function createRmtDomDescriptorRenderer(deps = {}) {
+    const rendererSchema = deps.rendererSchema || RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA;
+    if (![RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA, RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA].includes(rendererSchema)) {
+      throw new Error(`Unsupported renderer contract: ${rendererSchema}`);
+    }
     const documentTarget = resolveDocumentTarget(deps);
     const diagnosticsRecorder = createDiagnosticsRecorder(deps);
     const defaultContextOptions = {
       ...objectRecord(deps.renderOptions),
+      rendererSchema,
       componentRegistry: deps.componentRegistry || deps.registry || (deps.renderOptions && (deps.renderOptions.componentRegistry || deps.renderOptions.registry)),
       registry: deps.registry || (deps.renderOptions && deps.renderOptions.registry),
       trustedDomRenderer: deps.trustedDomRenderer || (deps.renderOptions && deps.renderOptions.trustedDomRenderer),
@@ -3429,7 +3447,7 @@
             setAttributeSafe(
               request.target,
               'data-rmt-renderer-schema',
-              RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA,
+              context.rendererSchema,
               markerDescriptor,
               context
             );
@@ -3504,7 +3522,7 @@
     }
 
     const renderer = {
-      schema: RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA,
+      schema: rendererSchema,
       trustedDomBoundary: TRUSTED_DOM_BOUNDARY,
       commit,
       dispose,
@@ -3606,6 +3624,7 @@
   const api = {
     RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA,
     RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA,
+    RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA,
     RMT_DOM_COMMIT_RESULT_SCHEMA,
     RMT_DOM_APPLICATION_BINDING_SCHEMA,
     RMT_DOM_BINDING_SCOPE_SCHEMA,
@@ -3626,6 +3645,7 @@ const __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__ = globalThis.XTendRmtDomDescript
 
 export const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA;
 export const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA;
+export const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA;
 export const RMT_DOM_COMMIT_RESULT_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_COMMIT_RESULT_SCHEMA;
 export const RMT_DOM_APPLICATION_BINDING_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_APPLICATION_BINDING_SCHEMA;
 export const RMT_DOM_BINDING_SCOPE_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_BINDING_SCOPE_SCHEMA;

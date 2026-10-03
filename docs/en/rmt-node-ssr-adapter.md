@@ -76,10 +76,10 @@ Component SSR capabilities require the registry supplied through `manifest`
 and `sourceTexts` (or a registry). Component metadata existing in a package does
 not automatically register it in a host. This includes `x-section`.
 
-`result.hydration.coverage` reports `xtend.rmt.ssr-coverage.v1`: descriptor
+`getRmtSsrCoverage(result)` reports `xtend.rmt.ssr-coverage.v1`: descriptor
 element nodes, resume-marked nodes, component nodes, missing-capability nodes,
 and raw HTML fragments. `resumeMarkerCoverage` is resume-marked nodes divided by
 descriptor element nodes, or null when there are none. It measures emitted
 adoption markers, **not successful browser resumes or fallback frequency**.
 Raw HTML fragments are reported separately because their inner nodes are not
-descriptor-enumerated. Combine this output with browser resume diagnostics.
+descriptor-enumerated. The record lives in `result.fabricTelemetryHints.coverage`; hydration v1 stays unchanged. Combine this output with browser resume diagnostics.

@@ -2,6 +2,10 @@
 
 This page describes the 0.8.0 codebase and its migrations. A package version alone does not establish publication; manifests, exports and build artifacts identify the delivered revision.
 
+## XTend 0.9.0 – renderer and resume contracts
+
+Literal attributes, explicit legacy compatibility, independent SSR coverage, and a common initial resume envelope for Node/Laravel. Legacy contracts remain supported through at least 0.9/0.10, with removal no earlier than 1.0. Kernel and MCP artifacts are regenerated; the blocking Nightly matrix includes Laravel 12/13. [Migration](./ssr-pages.md).
+
 ## Changes in 0.8.0
 
 | Area | Behavior and entry point |

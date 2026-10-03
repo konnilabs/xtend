@@ -8,7 +8,7 @@ async function createBrowserManifest() {
   const title = element('h1',{},[text('$model.title')]);
   const layout = element('section',{id:'persistent-layout'},[element('input',{id:'layout-input'}),{...element('div'),pageOutlet:true}]);
   return {
-    schema:'xtend.page-manifest.v1',version:'browser-v1',assets:{entry:'/browser_entry.mjs'},
+    schema:'xtend.page-manifest.v2',initialResumeSchema:'xtend.page-initial-resume.v1',version:'browser-v1',assets:{entry:'/browser_entry.mjs'},
     layouts:{Application:{artifact:artifact(layout),head:[{tag:'meta',attributes:{name:'description',content:'Application'}}]}},
     pages:{
       Login:{artifact:artifact(element('section',{},[title]))},

@@ -1,7 +1,10 @@
 import {decodePageWire} from './page-wire.mjs';
-export {PAGE_WIRE_SCHEMA, encodePageWire, decodePageWire} from './page-wire.mjs';
-export const PAGE_RESPONSE_SCHEMA = 'xtend.page-response.v1';
-export const PAGE_MANIFEST_SCHEMA = 'xtend.page-manifest.v1';
+export {PAGE_WIRE_SCHEMA, PAGE_WIRE_LEGACY_SCHEMA, encodePageWire, decodePageWire} from './page-wire.mjs';
+export {PAGE_INITIAL_RESUME_SCHEMA, encodePageInitialResume, decodePageInitialDocument} from './page-initial.mjs';
+export const PAGE_RESPONSE_SCHEMA = 'xtend.page-response.v2';
+export const PAGE_RESPONSE_LEGACY_SCHEMA = 'xtend.page-response.v1';
+export const PAGE_MANIFEST_SCHEMA = 'xtend.page-manifest.v2';
+export const PAGE_MANIFEST_LEGACY_SCHEMA = 'xtend.page-manifest.v1';
 export function pagePagination({next = null, previous = null, props}) {
   if (!Array.isArray(props) || !props.length) throw pageError('page.pagination_props','Pagination requires prop names.');
   if ([next,previous].some(url=>url!==null && typeof url!=='string')) throw pageError('page.pagination_url','Invalid pagination URL.');
@@ -129,7 +132,9 @@ export function safePageJson(value) {
 }
 export function validatePageResponse(page) {
   page = decodePageWire(page);
-  if (page?.schema !== PAGE_RESPONSE_SCHEMA || typeof page.version !== 'string' || !page.version || typeof page.contextKey !== 'string' || !page.contextKey || !['page', 'redirect', 'reload'].includes(page.kind)) throw pageError('page.invalid_response', 'Invalid XTend page response.');
+  if (![PAGE_RESPONSE_SCHEMA, PAGE_RESPONSE_LEGACY_SCHEMA].includes(page?.schema) || typeof page.version !== 'string' || !page.version || typeof page.contextKey !== 'string' || !page.contextKey || !['page', 'redirect', 'reload'].includes(page.kind)) throw pageError('page.invalid_response', 'Invalid XTend page response.');
+  if (page.schema === PAGE_RESPONSE_LEGACY_SCHEMA && [page.renderArtifact, page.layoutArtifact].some(artifact => artifact && artifact.schema !== 'xtend.rmt.portable-render.v1')) throw pageError('page.invalid_response', 'Legacy page responses require legacy portable artifacts.');
+  if ([page.renderArtifact, page.layoutArtifact].some(artifact => artifact && (!['xtend.rmt.portable-render.v1','xtend.rmt.portable-render.v2'].includes(artifact.schema) || artifact.schema === 'xtend.rmt.portable-render.v2' && artifact.rendererSchema !== 'xtend.epic18.rmt-dom-descriptor-renderer.v2'))) throw pageError('page.invalid_response', 'Unsupported portable renderer contract.');
   if (page.kind === 'page' && (typeof page.page !== 'string' || typeof page.url !== 'string' || !page.props || typeof page.props !== 'object' || Array.isArray(page.props))) throw pageError('page.invalid_response', 'Invalid page data.');
   if (page.kind !== 'page' && (typeof page.location !== 'string' || !page.location)) throw pageError('page.invalid_response','A redirect requires a destination.');
   return page;

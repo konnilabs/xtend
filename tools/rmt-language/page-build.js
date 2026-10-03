@@ -111,7 +111,7 @@ async function buildPages(options) {
   }
   const runtimeDirectory = path.dirname(runtime);
   const runtimeFingerprints = {node:{},php:{}};
-  for (const file of ['rmt-portable-render.js','rmt-state-selector-runtime.js','rmt-dom-descriptor-renderer.js','rmt-node-ssr-adapter.js','rmt-ssr-stream-host.js','node-page-host.mjs','page-contract.mjs','page-wire.mjs','page-client.mjs','page-form.mjs']) runtimeFingerprints.node[file] = hash(fs.readFileSync(path.join(runtimeDirectory,file)));
+  for (const file of ['rmt-portable-render.js','rmt-state-selector-runtime.js','rmt-dom-descriptor-renderer.js','rmt-node-ssr-adapter.js','rmt-ssr-stream-host.js','node-page-host.mjs','page-contract.mjs','page-wire.mjs','page-initial.mjs','page-client.mjs','page-form.mjs']) runtimeFingerprints.node[file] = hash(fs.readFileSync(path.join(runtimeDirectory,file)));
   for (const file of ['rmt-portable-render.php','rmt-php-ssr-adapter.php','rmt-page-data.php']) runtimeFingerprints.php[file] = hash(fs.readFileSync(path.join(runtimeDirectory,file)));
   if (host === 'laravel') {
     runtimeFingerprints.php['rmt-php-app-service-adapter.php'] = hash(fs.readFileSync(path.join(runtimeDirectory,'rmt-php-app-service-adapter.php')));
@@ -122,7 +122,7 @@ async function buildPages(options) {
       runtimeFingerprints.php[file] = hash(fs.readFileSync(source));
     }
   }
-  const base = { schema: 'xtend.page-manifest.v1', assets, assetFingerprints, runtimeFingerprints, configurationFingerprint:hash(fs.readFileSync(configPath)), pages, layouts, sources: Object.fromEntries([...sourceFiles].sort(([a],[b]) => a.localeCompare(b))), target };
+  const base = { schema: 'xtend.page-manifest.v2', initialResumeSchema: 'xtend.page-initial-resume.v1', assets, assetFingerprints, runtimeFingerprints, configurationFingerprint:hash(fs.readFileSync(configPath)), pages, layouts, sources: Object.fromEntries([...sourceFiles].sort(([a],[b]) => a.localeCompare(b))), target };
   const manifest = { ...base, version: hash(JSON.stringify(base)) };
   let existingParent = path.dirname(output);
   while (!fs.existsSync(existingParent)) existingParent = path.dirname(existingParent);

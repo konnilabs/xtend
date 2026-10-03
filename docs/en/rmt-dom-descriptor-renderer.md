@@ -2,7 +2,7 @@
 
 The RMT DOM Descriptor Renderer turns structured RMT records into browser nodes without treating application data as HTML. Use it when an RMT template, component binding or surface must materialize owned DOM while keeping the trust boundary inspectable.
 
-The runtime contract is `xtend.epic18.rmt-dom-descriptor-renderer.v1`. Its implementation and declarations live in `xtendrmt/rmt-dom-descriptor-renderer.js` and `xtendrmt/rmt-dom-descriptor-renderer.d.ts`; the package subpath is `@ccslabs/xtend/rmt/dom-descriptor-renderer`.
+The runtime contract is `xtend.epic18.rmt-dom-descriptor-renderer.v2`. Its implementation and declarations live in `xtendrmt/rmt-dom-descriptor-renderer.js` and `xtendrmt/rmt-dom-descriptor-renderer.d.ts`; the package subpath is `@ccslabs/xtend/rmt/dom-descriptor-renderer`.
 
 ## Mental model
 

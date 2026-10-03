@@ -11,7 +11,7 @@ class HandleXTendRequests {
         $response = $next($request);
         if ($request->header('X-XTend-Prefetch') === '1' && $request->hasSession()) $request->session()->reflash();
         if ($request->header('X-XTend-Page') && $response->isRedirection()) {
-            return response()->json(['schema' => 'xtend.page-response.v1', 'kind' => 'redirect', 'location' => $response->headers->get('Location'), 'version' => $manager->manifest()['version'], 'contextKey' => $manager->contextKey()], 409, ['Cache-Control' => 'private, no-store']);
+            return response()->json(['schema' => $manager->manifest()['schema'] === 'xtend.page-manifest.v1' ? 'xtend.page-response.v1' : 'xtend.page-response.v2', 'kind' => 'redirect', 'location' => $response->headers->get('Location'), 'version' => $manager->manifest()['version'], 'contextKey' => $manager->contextKey()], 409, ['Cache-Control' => 'private, no-store']);
         }
         return $response;
     }

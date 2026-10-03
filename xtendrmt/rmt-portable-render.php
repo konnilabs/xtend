@@ -4,7 +4,8 @@ declare(strict_types=1);
 /** Executes compiler descriptor data. It never parses RMT or executes application code. */
 final class RmtPortableRender
 {
-    public const SCHEMA = 'xtend.rmt.portable-render.v1';
+    public const SCHEMA = 'xtend.rmt.portable-render.v2';
+    public const LEGACY_SCHEMA = 'xtend.rmt.portable-render.v1';
     /** Keep JSON objects distinct from lists inside literals and state defaults. */
     public static function decodeJson(string $json): array {
         $convert = function($value) use (&$convert) {
@@ -199,26 +200,28 @@ final class RmtPortableRender
         return $model;
     }
     public static function project(array $artifact, array $props): array {
-        if (($artifact['schema'] ?? '') !== self::SCHEMA || !in_array('php', $artifact['targets'] ?? [], true)) throw new InvalidArgumentException('Unsupported PHP render artifact.');
+        if (!in_array($artifact['schema'] ?? '', [self::SCHEMA, self::LEGACY_SCHEMA], true) || !in_array('php', $artifact['targets'] ?? [], true)) throw new InvalidArgumentException('Unsupported PHP render artifact.');
+        $explicit = $artifact['schema'] === self::SCHEMA;
+        if ($explicit && ($artifact['rendererSchema'] ?? '') !== 'xtend.epic18.rmt-dom-descriptor-renderer.v2') throw new InvalidArgumentException('Unsupported PHP renderer contract.');
         $model = (array)($artifact['defaults'] ?? []);
         foreach ($artifact['inputs'] as $name) if (array_key_exists($name, $props)) $model[$name] = $props[$name];
         if (isset($artifact['state'])) $model = self::projectState($model, $artifact['state']);
-        return ['descriptor' => self::node($artifact['descriptor'], $model), 'model' => $model];
+        return ['descriptor' => self::node($artifact['descriptor'], $model, null, $explicit), 'model' => $model];
     }
-    private static function node($input, array $model, $item = null): array {
+    private static function node($input, array $model, $item = null, bool $explicit = true): array {
         if ($input === null) return ['type' => 'empty'];
         if (!is_array($input)) return ['type' => 'text', 'text' => self::text($input)];
-        if (array_is_list($input)) return ['type' => 'fragment', 'children' => array_map(fn($v) => self::node($v, $model, $item), $input)];
+        if (array_is_list($input)) return ['type' => 'fragment', 'children' => array_map(fn($v) => self::node($v, $model, $item, $explicit), $input)];
         $type = $input['type'] ?? $input['kind'] ?? '';
         if ($type === 'conditional') {
             $key = $input['test'] ?? $input['when'] ?? null; $value = self::value($key, $model, $item);
             $pass = !(is_string($key) && str_starts_with($key, '$') && $key === $value) && self::truth($value);
-            return self::node($pass ? ($input['then'] ?? null) : ($input['else'] ?? $input['fallback'] ?? null), $model, $item);
+            return self::node($pass ? ($input['then'] ?? null) : ($input['else'] ?? $input['fallback'] ?? null), $model, $item, $explicit);
         }
         if ($type === 'repeat') {
             $source = self::value($input['source'], $model, $item); $children = []; $keys = [];
             foreach (is_array($source) ? $source : [] as $index => $entry) {
-                $child = self::node($input['template'] ?? $input['node'] ?? $input['children'] ?? ['type' => 'text', 'text' => '$item'], $model, $entry);
+                $child = self::node($input['template'] ?? $input['node'] ?? $input['children'] ?? ['type' => 'text', 'text' => '$item'], $model, $entry, $explicit);
                 if (isset($input['key'])) {
                     $expression = $input['key'];
                     $key = self::value(str_starts_with($expression, '$') ? $expression : '$item.' . preg_replace('/^item\./', '', $expression), $model, $entry);
@@ -233,7 +236,7 @@ final class RmtPortableRender
         $result = $input;
         if (array_key_exists('text', $input)) { $value = self::value($input['text'], $model, $item); $result['text'] = is_array($value) || is_object($value) ? '' : self::text($value); }
         foreach (['attributes', 'attrs', 'properties', 'props'] as $field) if (isset($input[$field])) foreach ($input[$field] as $key => $value) {
-            $literalAttribute = in_array($field, ['attributes', 'attrs'], true) && is_string($value) && !str_starts_with($value, '$') && !str_contains($value, '${');
+            $literalAttribute = $explicit && in_array($field, ['attributes', 'attrs'], true) && is_string($value) && !str_starts_with($value, '$') && !str_contains($value, '${');
             $resolved = $literalAttribute ? $value : self::value($value, $model, $item);
             if ($resolved === self::missing()) unset($result[$field][$key]); else $result[$field][$key] = $resolved;
         }
@@ -241,8 +244,8 @@ final class RmtPortableRender
         $classes = array_unique(self::classes([$input['class'] ?? null, $input['className'] ?? null, $input['classes'] ?? null], $model, $item));
         if ($classes) $result['attributes']['class'] = implode(' ', $classes);
         unset($result['class'], $result['className'], $result['classes']);
-        foreach (['children', 'nodes'] as $field) if (isset($input[$field])) $result[$field] = array_map(fn($v) => self::node($v, $model, $item), $input[$field]);
-        foreach ($input['slots'] ?? [] as $key => $value) $result['slots'][$key] = is_array($value) && array_is_list($value) ? array_map(fn($child)=>self::node($child,$model,$item),$value) : self::node($value, $model, $item);
+        foreach (['children', 'nodes'] as $field) if (isset($input[$field])) $result[$field] = array_map(fn($v) => self::node($v, $model, $item, $explicit), $input[$field]);
+        foreach ($input['slots'] ?? [] as $key => $value) $result['slots'][$key] = is_array($value) && array_is_list($value) ? array_map(fn($child)=>self::node($child,$model,$item,$explicit),$value) : self::node($value, $model, $item, $explicit);
         return $result;
     }
     private static function classes(mixed $value, array $model, mixed $item): array {

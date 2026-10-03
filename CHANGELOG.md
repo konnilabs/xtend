@@ -4,6 +4,13 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 
 ## Unreleased
 
+## 0.9.0 - 2026-10-03
+
+- Renderer v2 behandelt Attributstrings literal; portable v1 und alte Seitenverträge bleiben mindestens in 0.9/0.10 unterstützt. Entfernung frühestens mit 1.0 nach Migration.
+- SSR-Coverage liegt als eigener Vertrag in Telemetry; initiale Node-/Laravel-Resume-Dokumente verwenden einen eigenen Descriptor-Transport bei unveränderten Signaturen und vollständigen Page-API-Antworten.
+- Kernel-/MCP-Artefakte, Schema-Inventar und Release-Versionen sind abgestimmt. Atomare MCP-Reparaturen erhalten Dateimodi auch bei restriktiver umask.
+- Nightly umfasst verpflichtende Legacy-/Canonical-, PHP-/Laravel-12/13-, Resume-/Browser- und XTensions-Host-Prüfungen.
+
 - Docs Shell: Sprachwechsel aktualisieren den gemeinsamen Locale-Service vor Suche und Navigation. Der gemeinsame FastPass-Validator verwendet Syntax, die auch der ältere Docs-Bridge-Host parsen kann.
 
 - Docs: Die [deutsche](./docs/de/changelog.md) und [englische](./docs/en/changelog.md) 0.8.0-Übersicht dokumentieren auch die seit dem Kernel-Stand vom 30. August ergänzten Funktionen; Navigation, Suche und MCP-Wissen werden daraus generiert.

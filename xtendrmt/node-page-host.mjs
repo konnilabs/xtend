@@ -2,7 +2,7 @@ import { randomBytes, createHash } from 'node:crypto';
 import {readFileSync} from 'node:fs';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { PAGE_MANIFEST_SCHEMA, PAGE_RESPONSE_SCHEMA, parsePageSelection, resolvePageProps, safePageJson, pageError, mergePageHead, composePageDescriptor, assertKey, encodePageWire } from './page-contract.mjs';
+import { PAGE_MANIFEST_SCHEMA, PAGE_MANIFEST_LEGACY_SCHEMA, PAGE_RESPONSE_SCHEMA, PAGE_RESPONSE_LEGACY_SCHEMA, PAGE_INITIAL_RESUME_SCHEMA, encodePageInitialResume, parsePageSelection, resolvePageProps, safePageJson, pageError, mergePageHead, composePageDescriptor, assertKey, encodePageWire } from './page-contract.mjs';
 import { createRmtNodeSsrAdapter } from './rmt-node-ssr-adapter.js';
 import { projectPortableRender } from './rmt-portable-render.js';
 const escape = value => String(value ?? '').replace(/[&<>"']/gu, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
@@ -19,13 +19,9 @@ export function renderPageDocument(page, html, assets = {}, nonce = '', options 
   // Portable pages already carry a descriptor fallback. The document delivers
   // the markup once; neither adoption nor descriptor recovery needs an HTML copy.
   // Generic adapter responses and HTML-only consumers keep their full chunks.
-  let payload = page;
-  if (page.ssr?.resume && page.ssr.executionMode === 'server_prerender_resume' && page.renderArtifact?.schema === 'xtend.rmt.portable-render.v1' && page.ssr.chunk?.markup?.descriptor) {
-    const project = chunk => chunk?.template?.mode === 'dom_descriptor' && chunk.markup?.descriptor
-      ? {...chunk, markup:{descriptor:chunk.markup.descriptor}}
-      : chunk;
-    payload = {...page, ssr:{...page.ssr, chunk:project(page.ssr.chunk), chunks:(page.ssr.chunks || []).map(project)}};
-  }
+  const initialResume = options.initialResumeSchema === PAGE_INITIAL_RESUME_SCHEMA && page.ssr?.resume
+    && page.schema === PAGE_RESPONSE_SCHEMA && page.ssr.executionMode === 'server_prerender_resume' && page.renderArtifact?.schema === 'xtend.rmt.portable-render.v2' && page.ssr.chunk?.markup?.descriptor;
+  const payload = initialResume ? encodePageInitialResume(page) : options.compact ? encodePageWire(page) : page;
   const head = mergePageHead([], page.head || []).map(tag => {
     if (tag.tag === 'title') return `<title>${escape(tag.text)}</title>`;
     if (tag.tag === 'link') return `<link data-xtend-page-head rel="canonical" href="${escape(tag.attributes.href)}">`;
@@ -37,11 +33,14 @@ export function renderPageDocument(page, html, assets = {}, nonce = '', options 
     }).join(' ')}>`;
   }).join('');
   const assetUrl = value => { if (!/^\/(?!\/)/u.test(value)) throw pageError('page.invalid_asset', 'Page assets must use same-origin absolute paths.'); return escape(value); };
-  return `<!doctype html><html><head><meta charset="utf-8">${head}${(assets.css || []).map(url => `<link rel="stylesheet" href="${assetUrl(url)}">`).join('')}</head><body><main id="${page.ssr?.resume ? 'xtend-page-container' : 'xtend-page'}" tabindex="-1">${html}</main><script type="application/json" id="xtend-page-data" nonce="${escape(nonce)}">${safePageJson(options.compact ? encodePageWire(payload) : payload)}</script>${assets.entry ? `<script type="module" src="${assetUrl(assets.entry)}" nonce="${escape(nonce)}"></script>` : ''}</body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8">${head}${(assets.css || []).map(url => `<link rel="stylesheet" href="${assetUrl(url)}">`).join('')}</head><body><main id="${page.ssr?.resume ? 'xtend-page-container' : 'xtend-page'}" tabindex="-1">${html}</main><script type="application/json" id="xtend-page-data" nonce="${escape(nonce)}">${safePageJson(payload)}</script>${assets.entry ? `<script type="module" src="${assetUrl(assets.entry)}" nonce="${escape(nonce)}"></script>` : ''}</body></html>`;
 }
 export function createNodePageHost(options) {
   const { manifest } = options;
-  if (manifest?.schema !== PAGE_MANIFEST_SCHEMA || typeof manifest.version !== 'string') throw pageError('page.manifest_invalid', 'A versioned page manifest is required.');
+  if (![PAGE_MANIFEST_SCHEMA, PAGE_MANIFEST_LEGACY_SCHEMA].includes(manifest?.schema) || typeof manifest.version !== 'string') throw pageError('page.manifest_invalid', 'A versioned page manifest is required.');
+  if (manifest.initialResumeSchema && (manifest.schema !== PAGE_MANIFEST_SCHEMA || manifest.initialResumeSchema !== PAGE_INITIAL_RESUME_SCHEMA)) throw pageError('page.manifest_invalid', 'Unsupported initial resume contract.');
+  const responseSchema = manifest.schema === PAGE_MANIFEST_LEGACY_SCHEMA ? PAGE_RESPONSE_LEGACY_SCHEMA : PAGE_RESPONSE_SCHEMA;
+  if (manifest.schema === PAGE_MANIFEST_LEGACY_SCHEMA && [...Object.values(manifest.pages || {}), ...Object.values(manifest.layouts || {})].some(entry => entry.artifact && entry.artifact.schema !== 'xtend.rmt.portable-render.v1')) throw pageError('page.manifest_invalid', 'Legacy manifests require legacy portable artifacts.');
   for (const [file, expected] of Object.entries(manifest.runtimeFingerprints?.node || {})) {
     if (!/^[a-z0-9-]+\.m?js$/u.test(file) || createHash('sha256').update(readFileSync(new URL(file,import.meta.url))).digest('hex') !== expected) throw pageError('page.runtime_mismatch','Page build and Node runtime are incompatible. Rebuild the pages with the deployed package.');
   }
@@ -68,7 +67,7 @@ export function createNodePageHost(options) {
     if (!resolved) return null;
     const contextKey = context.contextKey;
     if (typeof contextKey !== 'string' || !contextKey) throw pageError('page.context_missing', 'The host must supply an opaque contextKey for the current user/tenant.');
-    const base = { schema: PAGE_RESPONSE_SCHEMA, version: manifest.version, contextKey };
+    const base = { schema: responseSchema, version: manifest.version, contextKey };
     if (resolved.redirect) {
       const target = new URL(resolved.redirect, context.origin || 'http://localhost');
       if (!['http:', 'https:'].includes(target.protocol)) throw pageError('page.redirect_invalid', 'Unsupported redirect protocol.');
@@ -99,7 +98,7 @@ export function createNodePageHost(options) {
         input.model={...projection.model,...input.model};
       }
       if ((resolved.renderOptions?.executionMode || options.ssr?.executionMode) === 'server_prerender_resume' && input.descriptor) input.descriptor = {type:'element',tag:'section',attributes:{id:'xtend-page'},children:[input.descriptor]};
-      result = await adapter.render(input.descriptor ? { descriptor: input.descriptor } : input, { model: input.model, rootId: 'xtend-page', nativeForms: true, signal, ...(resolved.renderOptions || {}), resume:{state:input.model || {}, ...(resolved.renderOptions?.resume || {})} });
+      result = await adapter.render(input.descriptor ? { descriptor: input.descriptor } : input, { model: input.model, rootId: 'xtend-page', nativeForms: true, signal, ...(!definition.artifact && manifest.schema === PAGE_MANIFEST_LEGACY_SCHEMA ? {rendererSchema:'xtend.epic18.rmt-dom-descriptor-renderer.v1'} : {}), ...(resolved.renderOptions || {}), resume:{state:input.model || {}, ...(resolved.renderOptions?.resume || {})} });
       if (!result.ok) throw pageError('page.render_failed', 'Page rendering failed.');
       html = result.html; page.ssr = result.response;
     }
@@ -145,7 +144,7 @@ export function createNodePageHost(options) {
         // Preserve the renderer policy, adding only the nonce needed by our bootstrap.
         const policy = String(response.getHeader('Content-Security-Policy') || "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'");
         response.setHeader('Content-Security-Policy', /script-src\s/u.test(policy) ? policy.replace(/script-src([^;]*)/u, (_, values) => `script-src${values} 'nonce-${nonce}'`) : `${policy}; script-src 'self' 'nonce-${nonce}'`);
-        response.setHeader('Content-Type', 'text/html; charset=utf-8'); response.end(renderPageDocument(result.page, result.html, manifest.assets, nonce, {compact:options.compactResponses}));
+        response.setHeader('Content-Type', 'text/html; charset=utf-8'); response.end(renderPageDocument(result.page, result.html, manifest.assets, nonce, {compact:options.compactResponses,initialResumeSchema:manifest.initialResumeSchema}));
       }
       return true;
     } catch (error) {

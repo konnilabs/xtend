@@ -101,7 +101,6 @@ function diagnosticCodes(record) {
 function dependencySectionCount(packageManifest) {
   return [
     'dependencies',
-    'devDependencies',
     'peerDependencies',
     'optionalDependencies'
   ].reduce((count, section) => count + Object.keys(packageManifest[section] || {}).length, 0);
@@ -192,7 +191,8 @@ function runXTensionsRegistryPackageStrategySuite(options = {}) {
   context.assert(fixture.expectedRegistryId === 'xtensions.project-local.registry', 'fixture names expected registry id');
   context.assert(fixture.expectedStatus === 'ready', 'fixture names expected ready status');
   context.assert(fixture.expectedBlockedStatus === 'blocked', 'fixture names expected blocked status');
-  context.assert(dependencySectionCount(packageManifest) === 0, 'root package keeps dependency sections empty');
+  context.assert(dependencySectionCount(packageManifest) === 0, 'root package keeps production dependency sections empty');
+  context.assert(Object.keys(packageManifest.devDependencies || {}).every(name => ['@types/node', 'typescript', 'vite'].includes(name)), 'root development dependencies contain only the existing type-check and build tools');
 
   const dependencyBoundary = assertRegistryPackageStrategyDependencyBoundary({
     packageManifest,

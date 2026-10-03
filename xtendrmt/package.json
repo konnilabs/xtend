@@ -1,8 +1,8 @@
 {
   "name": "@ccslabs/xtend-rmt",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": false,
-  "description": "XTendRMT scheduler runtime and browser bridge for 0.8.0 orchestration with XSurface Shard surface flows.",
+  "description": "XTendRMT scheduler runtime and browser bridge for 0.9.0 orchestration with XSurface Shard surface flows.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -90,6 +90,7 @@
     "rmt-portable-render.d.ts",
     "page-contract.mjs",
     "page-wire.mjs",
+    "page-initial.mjs",
     "page-contract.d.ts",
     "node-page-host.mjs",
     "node-page-host.d.ts",
@@ -101,7 +102,8 @@
     "rmt-portable-render.php",
     "rmt-page-data.php",
     "rmt-ssr-stream-host.js",
-    "rmt-resume-capture-adapter.d.ts"
+    "rmt-resume-capture-adapter.d.ts",
+    "contracts"
   ],
   "exports": {
     ".": {
@@ -248,7 +250,8 @@
       "types": "./rmt-resume-capture-adapter.d.ts",
       "import": "./rmt-resume-capture-adapter.js",
       "default": "./rmt-resume-capture-adapter.js"
-    }
+    },
+    "./contracts/*": "./contracts/*"
   },
   "publishConfig": {
     "access": "public",

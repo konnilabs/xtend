@@ -63,6 +63,14 @@ jobs:
         run: npm install --global npm@11.17.0 --no-audit --fund=false
         timeout-minutes: 3
 
+      - name: Setup PHP for the required Laravel 12/13 matrix
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite
+          coverage: none
+          tools: composer:2.10.3
+
       - name: Capture and validate Node runtime evidence
         run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
 
@@ -98,7 +106,7 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/test-runner/nightly.js phase install_1
 
-      - name: Install XTend LLM CI catfood dependencies
+      - name: Install product CI catfood dependencies
         id: install_2
         continue-on-error: true
         if: ${{ !cancelled() && steps.nightly_begin.outcome == 'success' }}
@@ -121,6 +129,15 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/test-runner/nightly.js phase native_first_evidence_prepare
+
+      - name: Prepare locked Laravel 12/13 package fixtures
+        id: laravel_fixture_prepare
+        continue-on-error: true
+        if: ${{ !cancelled() && steps.nightly_begin.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          COMPOSER_CACHE_DIR: ${{ runner.temp }}/xtend-composer-cache
+        run: node scripts/test-runner/nightly.js phase laravel_fixture_prepare
 
       - name: Run XTend full release gate report
         id: full_release

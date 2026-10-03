@@ -3,7 +3,7 @@
 - Status: `completed`
 - Prioritaet: `P0`
 - Workstream: `WS2`
-- Contract: `xtend.epic18.rmt-dom-descriptor-renderer.v1`
+- Contract: `xtend.epic18.rmt-dom-descriptor-renderer.v2`
 - Fixture: `xtend.epic18.rmt-dom-descriptor-renderer-fixture.v1`
 - Diagnostic Schema: `xtend.epic18.rmt-dom-renderer-diagnostic.v2`
 - Local Gate: `node scripts/run_xtend_tests.js rmt-dom-descriptor-renderer --json`

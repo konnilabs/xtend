@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "xtend.rmt.ssr-coverage.v1",
+  "title": "xtend.rmt.ssr-coverage.v1",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "enum": [
+        "xtend.rmt.ssr-coverage.v1"
+      ]
+    },
+    "descriptorElementNodes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "resumeMarkedNodes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "componentNodes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "missingCapabilityNodes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rawHtmlFragments": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "resumeMarkerCoverage": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "required": [
+    "schema",
+    "descriptorElementNodes",
+    "resumeMarkedNodes",
+    "componentNodes",
+    "missingCapabilityNodes",
+    "rawHtmlFragments",
+    "resumeMarkerCoverage"
+  ],
+  "additionalProperties": false,
+  "description": "Counts emitted descriptor nodes and markers, not successful browser resumes. Raw HTML inner nodes are excluded. Ratio is null for zero descriptor nodes; otherwise marked/descriptor. Relational invariants are checked by getRmtSsrCoverage."
+}

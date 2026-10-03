@@ -73,10 +73,12 @@ Der SSR-Host muss Component-Capabilities über `manifest` und `sourceTexts`
 (oder eine Registry) registrieren. Vorhandene Paketmetadaten allein reichen
 nicht; das gilt auch für `x-section`.
 
-`result.hydration.coverage` liefert `xtend.rmt.ssr-coverage.v1` mit
+`getRmtSsrCoverage(result)` liefert `xtend.rmt.ssr-coverage.v1` mit
 Descriptor-Elementen, Resume-Markierungen, Component-Nodes, fehlenden
 Capabilities und Raw-HTML-Fragmenten. `resumeMarkerCoverage` zählt Markierungen
 geteilt durch Descriptor-Elemente, ohne Elemente null. Diese Kennzahl misst
 **keine erfolgreichen Browser-Resumes oder Fallback-Häufigkeit**. Innere Nodes
 von Raw-HTML-Fragmenten werden nicht gezählt. Browser-Diagnosen ergänzen die
 serverseitige Kennzahl.
+
+Der Datensatz liegt in `result.fabricTelemetryHints.coverage`; Hydration v1 bleibt unverändert. Der Zugriff ist über `getRmtSsrCoverage(result)` typisiert und validiert.

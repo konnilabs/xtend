@@ -3,8 +3,10 @@ declare(strict_types=1);
 namespace Ccslabs\XTend\Data;
 
 final class PageWire {
-    public const SCHEMA = 'xtend.page-wire.v1';
+    public const SCHEMA = 'xtend.page-wire.v2';
+    public const LEGACY_SCHEMA = 'xtend.page-wire.v1';
     public static function encode(array $page): array {
+        if (!in_array($page['schema'] ?? '', ['xtend.page-response.v1', 'xtend.page-response.v2'], true)) throw new \InvalidArgumentException('Unsupported page wire input.');
         // Normalize PHP's associative arrays and empty objects exactly as JSON
         // would expose them. Objects in the table always remain literal objects;
         // only their child values can be response-local references.
@@ -27,7 +29,31 @@ final class PageWire {
             return ['r'=>$interned[$signature]];
         };
         $root = $visit($source);
-        return ['schema'=>self::SCHEMA, 'root'=>$root, 'nodes'=>$nodes];
+        return ['schema'=>($page['schema'] ?? '') === 'xtend.page-response.v1' ? self::LEGACY_SCHEMA : self::SCHEMA, 'root'=>$root, 'nodes'=>$nodes];
+    }
+}
+
+final class PageInitialResume {
+    public const SCHEMA = 'xtend.page-initial-resume.v1';
+    public static function encode(array $page): array {
+        $ssr = (array)($page['ssr'] ?? []);
+        $resume = (array)($ssr['resume'] ?? []);
+        $artifact = (array)($page['renderArtifact'] ?? []);
+        if (($page['schema'] ?? '') !== 'xtend.page-response.v2' || ($page['kind'] ?? '') !== 'page' || empty($ssr['resume']) || ($ssr['executionMode'] ?? '') !== 'server_prerender_resume'
+            || ($resume['schema'] ?? '') !== 'xtend.rmt.ssr-resume-envelope.v1' || ($resume['version'] ?? null) !== 1
+            || empty($ssr['chunks']) || ($artifact['schema'] ?? '') !== 'xtend.rmt.portable-render.v2'
+            || ($artifact['rendererSchema'] ?? '') !== 'xtend.epic18.rmt-dom-descriptor-renderer.v2') throw new \InvalidArgumentException('Invalid initial resume page.');
+        $project = static function(array|object $input): array {
+            $chunk = (array)$input; $template = (array)($chunk['template'] ?? []); $markup = (array)($chunk['markup'] ?? []);
+            if (($template['mode'] ?? '') !== 'dom_descriptor' || empty($markup['descriptor'])) throw new \InvalidArgumentException('Initial resume requires descriptor recovery.');
+            $chunk['markup'] = ['descriptor'=>$markup['descriptor']];
+            unset($chunk['kind'], $chunk['version']);
+            return $chunk;
+        };
+        $ssr['chunk'] = $project($ssr['chunk']);
+        $ssr['chunks'] = array_map($project, $ssr['chunks']);
+        unset($page['ssr'], $ssr['kind'], $ssr['version']);
+        return ['schema'=>self::SCHEMA, 'page'=>$page, 'ssr'=>$ssr];
     }
 }
 

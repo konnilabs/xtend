@@ -2,7 +2,7 @@
   "name": "ccslabs/xtend-laravel-integration-fixture",
   "private": true,
   "require": {
-    "ccslabs/xtend-laravel": "0.8.0"
+    "ccslabs/xtend-laravel": "0.9.0"
   },
   "require-dev": {
     "orchestra/testbench": "^10.0"

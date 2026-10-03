@@ -6,7 +6,10 @@ require $argv[1] . '/xtendrmt/rmt-page-data.php';
 $json = stream_get_contents(STDIN);
 $input = RmtPortableRender::decodeJson($json);
 if (isset($input['props'])) $input['props'] = (array)json_decode($json,false,512,JSON_THROW_ON_ERROR)->props;
-if (($input['operation'] ?? '') === 'wire') {
+if (($input['operation'] ?? '') === 'initial') {
+    $page = (array)json_decode($json, false, 512, JSON_THROW_ON_ERROR)->page;
+    echo json_encode(\Ccslabs\XTend\Data\PageInitialResume::encode($page), JSON_THROW_ON_ERROR);
+} elseif (($input['operation'] ?? '') === 'wire') {
     $page = (array)json_decode($json, false, 512, JSON_THROW_ON_ERROR)->page;
     echo json_encode(\Ccslabs\XTend\Data\PageWire::encode($page), JSON_THROW_ON_ERROR);
 } elseif (($input['operation'] ?? '') === 'head') {

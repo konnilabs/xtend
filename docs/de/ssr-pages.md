@@ -29,13 +29,13 @@ Eine `xtend.pages.json` beschreibt die Zuordnung:
 }
 ```
 
-Der Build erzeugt `xtend.page-manifest.v1` und TypeScript-Seiten-/Layoutzuordnungen.
+Der Build erzeugt `xtend.page-manifest.v2` und TypeScript-Seiten-/Layoutzuordnungen.
 Standardziel ist `.xtend-build/pages.json`, bei Laravel `bootstrap/xtend/pages.json`.
 Controllerdaten ersetzen deklarierte Eingänge; fehlende Eingänge behalten ihre Defaults.
 Der Projektindex verbindet Konfiguration, Seitennamen, RMT-Quelle, Renderziel und Artefakt.
 Composer-`vendor`-Verzeichnisse werden nicht als Projektquellen erfasst.
 
-Die portable Projektion heißt `xtend.rmt.portable-render.v1`. Sie verwendet bestehende
+Die portable Projektion heißt `xtend.rmt.portable-render.v2`. Sie verwendet bestehende
 Compilerdeskriptoren, keinen PHP-RMT-Parser. Textknoten bilden Strings, Zahlen und Boolesche
 Werte ab; `null`, fehlende Werte und strukturierte Werte ergeben dort leeren Text.
 Für strukturierte Daten stehen Bindungen, Attribute, Listen und ausdrückliche Formatierung bereit.
@@ -218,3 +218,44 @@ Laravels optionale Einstellung `style_nonce => true` ergänzt den Dokument-Nonce
 Ein Seitenwechsel beendet page-eigene Requests; layout-eigene Ressourcen dürfen entsprechend ihrem Besitzer weiterleben. Innerhalb einer Maraca-Seite schützt zusätzlich die automatische [Abort Boundary](./maraca-fastpass-abort-boundary.md) jede verwaltete Surface vor verspäteten Worker-, Hydration- und DOM-Commits. Ein schneller Close oder Fokus benötigt weder ein neues Seitenartefakt noch das Ende fachlicher Services.
 
 Präsentationsepochen ersetzen keine Datenversion oder fachliche Service-Cancellation. Gemeinsames Prewarming darf gültige Daten behalten. Eigene Integrationen prüfen den Surface-Token nach asynchronen Antworten und unmittelbar vor sichtbaren Commits. Die reine clientseitige Maraca-Ausführung verwendet dieselben Guards auch ohne SSR.
+
+
+## Migration auf XTend 0.9
+
+Seiten und Browser-Assets gemeinsam neu bauen. Neue Builds schreiben
+page-manifest v2, portable-render v2 mit Renderer v2 und page-response v2.
+Kompakte Page-API-Antworten verwenden den verlustlosen page-wire v2; v1 bleibt
+mit response v1 verbunden. Der initiale Resume-Envelope
+`xtend.page-initial-resume.v1` wird mit `decodePageInitialDocument` gelesen,
+getrennt vom Page-Wire-Codec. Seine SSR-/Chunk-Daten tragen keine allgemeinen
+Response-Tags `kind`/`version` und enthalten nur `markup.descriptor`.
+Vollständige API-Antworten behalten HTML und Textinhalt.
+
+Attributstrings wie `type: "search"` bleiben literal, auch bei gleichnamigen
+Modellwerten. Implizite Bindungen von `"search.query"` auf
+`"$model.search.query"` oder Expression-Records umstellen und neu bauen.
+Bestehende portable v1-Artefakte behalten ihre skalare implizite Bindungsabsicht.
+Direkte Renderer-Integrationen wählen während der Migration ausdrücklich
+`rendererSchema: "xtend.epic18.rmt-dom-descriptor-renderer.v1"` und erhalten
+informative Migrationsdiagnosen. Strukturierte native/ARIA-Attribute werden in
+beiden Pfaden abgewiesen; Komponenten-Properties und strukturierte `data-*`
+bleiben verfügbar.
+
+SSR-Coverage über `getRmtSsrCoverage(result)` aus dem Node-SSR-Adapter lesen.
+Der Datensatz liegt eigenständig in `fabricTelemetryHints.coverage`; Hydration
+v1 bleibt unverändert. Nutzer der noch unveröffentlichten Ergänzung
+`hydration.coverage` müssen diesen Zugriff migrieren. Coverage zählt ausgegebene
+Markierungen; tatsächlichen Browser-Resume und Recovery gesondert prüfen.
+
+Für einen schrittweisen Rollout das v1-Manifest mit passenden alten Clients
+behalten. Neue Clients lesen alte vollständige Dokumente, v1-Wire-Antworten und
+den neuen Envelope. V1-Manifeste lehnen v2-Artefakte ab; Schema-IDs niemals von
+Hand umetikettieren. V2-Manifeste können bestehende v1-Artefakte verwenden und
+behalten dafür den vollständigen initialen Transport. Unbekannte Verträge werden
+vor initialen DOM-/State-Änderungen abgewiesen.
+
+Legacy-Verträge bleiben mindestens in 0.9 und 0.10 unterstützt. Entfernung erst
+mit 1.0 oder später nach dokumentierter Migration. Ausgelieferte JSON-Schemas
+liegen unter `@ccslabs/xtend-rmt/contracts/*.json`. Die
+[Architekturentscheidung](../../development/ADR-XTend-0.9-Renderer-SSR-Resume.md)
+hält Vertragsgraph und Release-Gates fest.

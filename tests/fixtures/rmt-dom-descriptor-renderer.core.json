@@ -4,7 +4,7 @@
   "manifest": {
     "id": "epic18.dom-descriptor-renderer.fixture",
     "metadata": {
-      "contractVersion": "xtend.epic18.rmt-dom-descriptor-renderer.v1",
+      "contractVersion": "xtend.epic18.rmt-dom-descriptor-renderer.v2",
       "authoringContract": "xtend.epic18.rmt-app-platform-authoring.v1",
       "workpackage": "WP-E18-05",
       "renderMode": "dom_descriptor",

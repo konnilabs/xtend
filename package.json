@@ -1,6 +1,6 @@
 {
   "name": "@ccslabs/xtend",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "packageManager": "npm@11.17.0",
   "devEngines": {
     "runtime": {
@@ -1566,7 +1566,7 @@
       "reservedBlockToken": "--xtend-layout-reserved-block-size"
     },
     "rmtDomDescriptorRenderer": {
-      "schema": "xtend.epic18.rmt-dom-descriptor-renderer.v1",
+      "schema": "xtend.epic18.rmt-dom-descriptor-renderer.v2",
       "reportSchema": "xtend.epic18.rmt-dom-descriptor-renderer-report.v1",
       "fixtureSchema": "xtend.epic18.rmt-dom-descriptor-renderer-fixture.v1",
       "diagnosticSchema": "xtend.epic18.rmt-dom-renderer-diagnostic.v2",

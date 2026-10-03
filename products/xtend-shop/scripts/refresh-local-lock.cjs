@@ -5,7 +5,11 @@ const {execFileSync}=require('node:child_process');
 function refreshLocalLock(root=path.resolve(__dirname,'..')) {
   const filename=path.join(root,'package-lock.json'),before=JSON.parse(fs.readFileSync(filename));
   const local=new Set(['node_modules/@ccslabs/xtend','node_modules/@xtend-material/core']);
-  execFileSync(process.platform==='win32'?'npm.cmd':'npm',['install','--package-lock-only','--ignore-scripts','--no-audit','--no-fund','--offline','./.packages/ccslabs-xtend-0.8.0.tgz','./.packages/xtend-material-core-0.1.0.tgz'],{cwd:root,stdio:'pipe',timeout:120000,maxBuffer:4*1024*1024});
+  const manifest=JSON.parse(fs.readFileSync(path.join(root,'package.json')));
+  const dependencies={...manifest.devDependencies,...manifest.dependencies};
+  const archives=[...local].map(key=>dependencies[key.replace(/^node_modules\//u,'')]);
+  if(archives.some(value=>typeof value!=='string'||!/^file:\.packages\/[a-z0-9.-]+\.tgz$/u.test(value)))throw new Error('Local package archives must be declared explicitly.');
+  execFileSync(process.platform==='win32'?'npm.cmd':'npm',['install','--package-lock-only','--ignore-scripts','--no-audit','--no-fund','--offline',...archives.map(value=>'./'+value.slice(5))],{cwd:root,stdio:'pipe',timeout:120000,maxBuffer:4*1024*1024});
   const after=JSON.parse(fs.readFileSync(filename));
   for(const key of new Set([...Object.keys(before.packages),...Object.keys(after.packages)])) {
     if(key===''||local.has(key))continue;

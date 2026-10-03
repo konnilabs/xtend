@@ -28,13 +28,13 @@ Declare sources in `xtend.pages.json`:
 }
 ```
 
-The build produces `xtend.page-manifest.v1` and TypeScript page/layout mappings.
+The build produces `xtend.page-manifest.v2` and TypeScript page/layout mappings.
 The default output is `.xtend-build/pages.json`, or `bootstrap/xtend/pages.json` for
 Laravel. Host props replace declared inputs; omitted inputs retain defaults. The project
 index links configuration, page names, RMT sources, render targets and artifacts.
 Composer `vendor` directories are excluded from project sources.
 
-The portable projection is `xtend.rmt.portable-render.v1`. It executes compiler
+The portable projection is `xtend.rmt.portable-render.v2`. It executes compiler
 descriptors without a PHP RMT parser. Text nodes render strings, numbers and booleans;
 null, missing and structured values produce empty text. Bindings, attributes, lists and
 explicit formatting handle structured data. PHP decoding preserves JSON objects and lists.
@@ -207,11 +207,48 @@ A page visit ends page-owned requests; layout-owned resources may remain alive a
 Presentation epochs do not replace data versions or business-service cancellation. Shared prewarming may retain valid data. Custom integrations check the surface token after asynchronous responses and immediately before visible commits. Client-only Maraca uses the same guards without SSR.
 ### Initial resume payload
 
-Initial portable Node documents in `server_prerender_resume` send rendered HTML
-once in the DOM. Their inline page wire retains the descriptor fallback and
+Initial portable Node and Laravel documents built with `initialResumeSchema: "xtend.page-initial-resume.v1"` in `server_prerender_resume` send rendered HTML
+once in the DOM. Their separate initial envelope retains the descriptor fallback and
 signed resume state but omits duplicate `markup.html`/`textContent` from
 descriptor chunks. The general SSR response, HTML-only pages, hydration mode
 and subsequent page API responses keep their existing contracts. Integrity
 data and canonical signed state are unchanged. A rejected signature can still
 recover through the portable artifact/descriptor. State is not generically
 pruned: reducers, event bindings and recovery may consume it.
+
+
+## Migration to XTend 0.9
+
+Rebuild pages and browser assets together. New builds write page-manifest v2,
+portable-render v2 (with renderer v2), and page-response v2. Compact Page API
+responses use the lossless page-wire v2; v1 remains paired with response v1.
+The initial resume envelope has its own reader, `decodePageInitialDocument`, and
+never passes through the Page Wire codec. Its SSR/chunk records omit general
+response `kind`/`version` and carry only `markup.descriptor`; full API responses
+still include HTML and text content.
+
+Attribute strings such as `type: "search"` stay literal even when the model has a
+`search` property. Migrate implicit bindings from `"search.query"` to
+`"$model.search.query"` (or an expression record), then rebuild. Existing portable
+v1 artifacts keep scalar implicit binding behavior. Direct renderer integrations
+select `rendererSchema: "xtend.epic18.rmt-dom-descriptor-renderer.v1"` explicitly
+while migrating and receive an informational deprecation diagnostic. Structured
+native/ARIA attributes are rejected in both paths; component properties and
+structured `data-*` attributes remain available.
+
+Read SSR coverage with `getRmtSsrCoverage(result)` from the Node SSR adapter.
+The record is stored in `fabricTelemetryHints.coverage`, independently of
+hydration v1. Code using the unreleased `hydration.coverage` addition must migrate.
+Coverage measures emitted markers; verify actual browser resume/recovery separately.
+
+Keep the existing v1 manifest and matching old client for a staged rollout.
+New clients read old full documents, v1 wire responses and the new envelope.
+A v1 manifest rejects v2 artifacts; never change an artifact's ID by hand.
+V2 manifests may use existing v1 artifacts, retaining their full initial document
+transport. Unknown contracts fail before initial DOM/state changes.
+
+Legacy contracts remain supported for at least 0.9 and 0.10; removal is allowed
+only in 1.0 or later after a documented migration. Packaged JSON Schemas live at
+`@ccslabs/xtend-rmt/contracts/*.json`. The
+[architecture decision](../../development/ADR-XTend-0.9-Renderer-SSR-Resume.md)
+records the complete contract graph and release gates.
