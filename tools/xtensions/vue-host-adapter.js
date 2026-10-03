@@ -137,6 +137,13 @@ function normalizeDependency(dependency = {}) {
   };
 }
 
+function isLocalRuntimeProviderModule(modulePath) {
+  const normalized = normalizeString(modulePath);
+  if (!normalized || normalized.startsWith('//')) return false;
+  if (/^[a-z][a-z0-9+.-]*:/iu.test(normalized)) return false;
+  return normalized.startsWith('/') || normalized.startsWith('./') || normalized.startsWith('../');
+}
+
 function normalizeRuntimeProvider(provider = {}) {
   const source = provider && typeof provider === 'object' ? provider : {};
   return {
@@ -169,13 +176,15 @@ function normalizeVueRuntimeBoundary(input = {}) {
     }
   });
 
-  if (runtimeProvider.mode !== 'host-provided-local' || runtimeProvider.modules.length < 1 || runtimeProvider.remoteAllowed || runtimeProvider.bundledInXtension) {
+  const unsafeRuntimeModules = runtimeProvider.modules.filter((modulePath) => !isLocalRuntimeProviderModule(modulePath));
+
+  if (runtimeProvider.mode !== 'host-provided-local' || runtimeProvider.modules.length < 1 || runtimeProvider.remoteAllowed || runtimeProvider.bundledInXtension || unsafeRuntimeModules.length > 0) {
     diagnostics.push(createVueAdapterDiagnostic(
       { id: source.xtensionId || source.id || 'xtension.vue.adapter' },
       VUE_ADAPTER_HOST_RUNTIME_MISSING_CODE,
       'Vue adapter requires a local host-provided Vue runtime provider module.',
       'error',
-      { field: 'runtimeProvider', runtimeProvider }
+      { field: 'runtimeProvider', runtimeProvider, unsafeRuntimeModules }
     ));
   }
 

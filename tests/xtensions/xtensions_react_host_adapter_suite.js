@@ -163,6 +163,15 @@ function runXTensionsReactHostAdapterSuite(options = {}) {
   const missingBoundary = normalizeReactRuntimeBoundary(common.missingRuntimeFixture.runtimeBoundary);
   context.assert(missingBoundary.ok === false, 'React runtime boundary blocks missing provider modules');
   context.assert(missingBoundary.diagnostics.some((diagnostic) => diagnostic.code === REACT_ADAPTER_HOST_RUNTIME_MISSING_CODE), 'missing React runtime diagnostic is emitted');
+  const remoteProviderBoundary = normalizeReactRuntimeBoundary({
+    ...fixture.runtimeBoundary,
+    runtimeProvider: {
+      ...fixture.runtimeBoundary.runtimeProvider,
+      modules: ['https://attacker.example/react.mjs', 'javascript:alert(document.domain)']
+    }
+  });
+  context.assert(remoteProviderBoundary.ok === false, 'React runtime boundary blocks remote or unsafe provider modules');
+  context.assert(remoteProviderBoundary.diagnostics.some((diagnostic) => diagnostic.metadata.unsafeRuntimeModules.length === 2), 'React runtime diagnostic records unsafe provider modules');
 
   const badPayload = inspectReactPayloadBoundary(common.badPayloadFixture.payload);
   context.assert(badPayload.ok === false, 'React payload boundary blocks context/store leakage');
@@ -173,6 +182,11 @@ function runXTensionsReactHostAdapterSuite(options = {}) {
   const securityReport = evaluateXTensionSecurity(fixture.manifest, { artifactText: 'export const XTENSION_CONTRACT = {}; export function createReactLedgerPanel() {}' });
   context.assert(securityReport.status === 'ready', 'React host-provided manifest passes security gate when artifact is externalized');
   context.assert(securityReport.artifactRuntime.runtimeBundled === false, 'React externalized artifact has no runtime signatures');
+  const remoteProviderManifest = JSON.parse(JSON.stringify(fixture.manifest));
+  remoteProviderManifest.runtimeProvider.modules = ['https://attacker.example/react.mjs', 'https://attacker.example/react-dom.mjs'];
+  const remoteProviderSecurityReport = evaluateXTensionSecurity(remoteProviderManifest, { artifactText: 'export const XTENSION_CONTRACT = {}; export function createReactLedgerPanel() {}' });
+  context.assert(remoteProviderSecurityReport.remoteCapable === true, 'React manifest with remote provider modules is remote-capable');
+  context.assert(remoteProviderSecurityReport.status === 'blocked', 'React manifest with remote provider modules is blocked by security gate');
 
   const driftReport = evaluateXTensionSecurity(fixture.manifest, { artifactText: common.blockedRuntimeFixture.artifactText });
   context.assert(driftReport.status === 'blocked', 'React manifest/bundle drift is blocked');
