@@ -36,6 +36,24 @@ async function runMaracaResponsivenessSuite({ rootDir = path.resolve(__dirname, 
     const compiled = compileRmtVNextSource(`action bad { execution fastpass; effect navigation "/next"; ${body} }`);
     context.assert(!compiled.ok, `compiler rejects business work: ${body}`);
   }
+  const unsafeNavigation = [
+    'javascript:globalThis.__fastPassPwned=1', 'JaVaScRiPt:alert(1)',
+    ' javascript:alert(1)', '\tjavascript:alert(1)', 'java\nscript:alert(1)',
+    'data:text/html,<script>alert(1)</script>', 'vbscript:msgbox(1)',
+    'blob:https://example.com/id', 'mailto:attacker@example.com',
+    'https://example.com/next', 'http://example.com/next', '//example.com/next',
+    '/\\example.com/next', '\\example.com/next',
+    'javascript%3Aalert(1)', '%6aavascript:alert(1)', '%2f%2fexample.com/next',
+    '/%5cexample.com/next', '%09javascript:alert(1)', '/bad%zz'
+  ];
+  for (const value of unsafeNavigation) {
+    const compiled = compileRmtVNextSource(`action bad { execution fastpass; effect navigation ${JSON.stringify(value)}; }`);
+    context.assert(!compiled.ok, `compiler rejects unsafe navigation literal ${JSON.stringify(value)}`);
+    let rejected = false;
+    try { createMaracaPlanRuntime({ plan: {}, fastPassActions: [{ id: 'bad', effects: [{ kind: 'navigation', path: value }] }] }); }
+    catch (error) { rejected = error.code === 'xtend.maraca.fastpass.invalid-action'; }
+    context.assert(rejected, `programmatic action rejects unsafe literal ${JSON.stringify(value)}`);
+  }
   const host = createDeterministicHost();
   const scheduler = schedulerApi.createRmtKernelScheduler({ hostPort: host, preferPostTask: false });
   const parent = createMaracaAbortBoundary({ id: 'parent' });
@@ -77,12 +95,13 @@ async function runMaracaResponsivenessSuite({ rootDir = path.resolve(__dirname, 
   let held = deferred();
   let hostStarted = 0, snapshots = 0, hydrationWork = null, hydrationContext = null;
   const navigation = [], focuses = [], modelCommits = [];
+  const compiledNavigation = compileRmtVNextSource('action compiledNavigate { execution fastpass; input path string; effect navigation input.path; }').orchestrationArtifacts.actions;
   const artifact = {
     state: { states: [{ id: 'count', type: 'number', initial: 0 }], reducers: [
       { id: 'slow-count', action: 'slow', state: 'count', value: 1 },
       { id: 'next-count', action: 'next', state: 'count', value: 2 }
     ] },
-    actions: { actions: [{ id: 'slow', datasource: 'held', effects: ['old-navigation'] }, { id: 'next' }], dataSources: [{ id: 'held', kind: 'host' }], effects: [{ id: 'old-navigation', kind: 'navigation', path: '/stale' }] },
+    actions: { actions: [...compiledNavigation.actions, { id: 'slow', datasource: 'held', effects: ['old-navigation'] }, { id: 'next' }], dataSources: [{ id: 'held', kind: 'host' }], effects: [...compiledNavigation.effects, { id: 'old-navigation', kind: 'navigation', path: '/stale' }] },
     surfaces: [{ id: 'panel', kind: 'region', component: 'div', initialState: 'open', source: 'count', repeat: false }],
     render: { root: { type: 'element', tag: 'div', surface: 'panel', attributes: { 'data-maraca-surface': 'panel' }, children: ['Panel'] } },
     patchPlan: { reducers: [{ action: 'next', surface: 'panel' }, { action: 'slow', surface: 'panel' }] }
@@ -101,6 +120,29 @@ async function runMaracaResponsivenessSuite({ rootDir = path.resolve(__dirname, 
     ]
   });
   await runtime.boot();
+  for (const value of unsafeNavigation) {
+    let rejected = false;
+    try { runtime.dispatchFastPass('navigate', { path: value }); }
+    catch (error) { rejected = error.code === 'xtend.maraca.fastpass.unsafe-navigation'; }
+    context.assert(rejected && navigation.length === 0, `dynamic target blocked before custom adapter ${JSON.stringify(value)}`);
+    rejected = false;
+    try { await runtime.dispatchCommand('compiledNavigate', { path: value }); }
+    catch (error) { rejected = error.code === 'xtend.maraca.fastpass.unsafe-navigation'; }
+    context.assert(rejected && navigation.length === 0, `compiler-authored dynamic target blocked through dispatchCommand ${JSON.stringify(value)}`);
+  }
+  const capturedPayload = { path: '/captured' };
+  const capturedNavigation = runtime.dispatchFastPass('navigate', capturedPayload);
+  capturedPayload.path = 'javascript:alert(1)';
+  let rejectedReplacement = false;
+  try { runtime.dispatchFastPass('navigate', capturedPayload); }
+  catch (error) { rejectedReplacement = error.code === 'xtend.maraca.fastpass.unsafe-navigation'; }
+  await capturedNavigation.result;
+  context.assert(rejectedReplacement && navigation.join() === '/captured', 'unsafe replacement neither changes the captured target nor cancels valid pending navigation');
+  for (const value of ['#reports', '/next', './next', '../next', 'reports', '?q=javascript:alert(1)', '/search?q=hello%20world', '/caf%C3%A9']) {
+    await runtime.dispatchCommand('compiledNavigate', { path: value });
+    context.assert(navigation.at(-1) === value, `safe local navigation is preserved ${JSON.stringify(value)}`);
+  }
+  navigation.length = 0;
   snapshots = 0;
   const events = [];
   const unsubscribeEvents = runtime.subscribeEvents(event => { events.push(event); });

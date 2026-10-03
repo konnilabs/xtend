@@ -1,6 +1,6 @@
 import './fastpass-contract.js';
-const { validateFastPassAction } = globalThis.XTendMaracaFastPassContract;
-export { validateFastPassAction };
+const { validateFastPassAction, assertSafeFastPassNavigation } = globalThis.XTendMaracaFastPassContract;
+export { validateFastPassAction, assertSafeFastPassNavigation };
 
 export function createMaracaFastPass({ actions, scheduler, applyIntent, diagnostic = () => {}, rootId = 'maraca' }) {
   const registry = new Map();
@@ -27,6 +27,7 @@ export function createMaracaFastPass({ actions, scheduler, applyIntent, diagnost
       let value = effect.kind === 'navigation' ? effect.path : effect.target || effect.componentCommand?.target?.id || effect.source?.target;
       if (value && typeof value === 'object') value = String(value.path || value.value || '').replace(/^input\./, '').split('.').reduce((entry, key) => entry?.[key], payload);
       if (typeof value !== 'string' || !value.trim()) throw new TypeError('FastPass shell targets must be nonempty strings.');
+      if (effect.kind === 'navigation') assertSafeFastPassNavigation(value);
       return Object.freeze({ kind: effect.kind, value, scope: String(effect.scope || action.scope || rootId) });
     });
     const keys = intents.map((intent) => `${intent.kind}:${intent.kind === 'close' ? intent.value : intent.scope}`);
