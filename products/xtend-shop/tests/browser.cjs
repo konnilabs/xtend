@@ -110,7 +110,7 @@ async function runBrowser(options={}){
    const token=initial.match(/<meta name="csrf-token" content="([^"]+)"/)?.[1];if(!token)throw new Error('Missing native CSRF token.');
    const added=await request('/cart/add',{method:'POST',body:new URLSearchParams({_token:token,sku:'WOH-01-2',quantity:'1',version:'0'})});if(added.status!==302)throw new Error('Persistence setup failed.');
    await stopHost(shop);shop=await startHost();await pause(300);
-   const html=await(await request('/warenkorb')).text();const {decodePageWire}=await import('@ccslabs/xtend/rmt/page-contract');const page=decodePageWire(JSON.parse(html.match(/<script[^>]*id="xtend-page-data"[^>]*>([\s\S]*?)<\/script>/)?.[1]||'null'));
+   const html=await(await request('/warenkorb')).text();const {decodePageInitialDocument}=await import('@ccslabs/xtend/rmt/page-contract');const page=decodePageInitialDocument(JSON.parse(html.match(/<script[^>]*id="xtend-page-data"[^>]*>([\s\S]*?)<\/script>/)?.[1]||'null'));
    if(page?.props?.['shop.data']?.cart?.count!==1)throw new Error('The guest cart did not survive a host restart.');
   });
  }catch(error){failures.push({name:'fixture',message:error.message});}

@@ -404,7 +404,7 @@ function runNativeFirstRmtRendererDomDescriptorProofSuite(options = {}) {
   ], 'WP-16 action/resource inputs');
 
   assertIncludesAll(context, rendererDocs, [
-    'xtend.epic18.rmt-dom-descriptor-renderer.v1',
+    'xtend.epic18.rmt-dom-descriptor-renderer.v2',
     'createElement',
     'createTextNode',
     'createDocumentFragment',
