@@ -92,12 +92,14 @@ function stopProcessGroup(child, signal) {
 }
 
 function runChromiumSmoke(chromium, url) {
-  if (process.env.XTEND_BROWSER_HYPERVISOR_DRIVER_PATH || process.env.XTEND_BROWSER_HYPERVISOR_URL) {
-    const { runFixture } = createRequire(import.meta.url)('../../../tools/browser-hypervisor');
+  const { runFixture, findExecutable } = createRequire(import.meta.url)('../../../tools/browser-hypervisor');
+  const driverPath = process.env.XTEND_BROWSER_HYPERVISOR_DRIVER_PATH || findExecutable('chromedriver');
+  if (driverPath || process.env.XTEND_BROWSER_HYPERVISOR_URL) {
+    const browserBinary = path.isAbsolute(chromium) ? chromium : findExecutable(chromium);
     return runFixture({
-      engine: 'chromium', browserBinary: chromium, url,
+      engine: 'chromium', driverPath, browserBinary, url,
       timeoutMs: browserProcessTimeoutMs, resultKey: '__XTEND_ERP_DOM__',
-      capabilities: { 'goog:chromeOptions': { binary: chromium, args: ['--headless=new', '--no-sandbox', '--disable-dev-shm-usage', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } },
+      capabilities: { 'goog:chromeOptions': { binary: browserBinary, args: ['--headless=new', '--no-sandbox', '--disable-dev-shm-usage', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } },
       scripts: [{
         waitFor: "document.getElementById('erp-demo-smoke-result')?.dataset.xtensionMounted === '8'",
         script: "window.__XTEND_ERP_DOM__ = {status: 'passed', html: document.documentElement.outerHTML};"
