@@ -3,6 +3,7 @@ import { xstate } from './xstate.js';
 const XROUTER_IMPORT_POLICY_CONTRACT = 'xtend.security.xrouter-import-policy.v1';
 const XROUTER_ALLOWED_IMPORT_PROTOCOLS = ['http:', 'https:', 'file:'];
 const XROUTER_REFUSED_IMPORT_PROTOCOLS = ['javascript:', 'data:', 'vbscript:', 'blob:'];
+const XROUTER_SAFE_DOCUMENT_PROTOCOLS = ['http:', 'https:', 'file:', 'mailto:', 'tel:'];
 const XROUTER_ALLOWED_MODULE_EXTENSIONS = ['.js', '.mjs'];
 const XROUTER_LOCAL_IMPORT_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '::1'];
 
@@ -44,6 +45,12 @@ function safeXRouterUrl(value, baseUrl) {
   } catch (_) {
     return null;
   }
+}
+
+function isSafeXRouterDocumentNavigation(value) {
+  const baseUrl = typeof document !== 'undefined' ? document.baseURI : undefined;
+  const targetUrl = safeXRouterUrl(value, baseUrl);
+  return Boolean(targetUrl && XROUTER_SAFE_DOCUMENT_PROTOCOLS.includes(targetUrl.protocol));
 }
 
 function isAllowedXRouterLocalUrl(targetUrl, currentUrl) {
@@ -963,6 +970,10 @@ class XRouter extends HTMLElement {
 
     const href = linkCandidate.getAttribute('href');
     if (!href) return;
+    if (!isSafeXRouterDocumentNavigation(href)) {
+      e.preventDefault();
+      return;
+    }
 
     const capability = this.canNavigate(href, {
       source: 'native-x-link',

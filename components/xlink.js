@@ -1,3 +1,14 @@
+const XLINK_SAFE_DOCUMENT_PROTOCOLS = ['http:', 'https:', 'file:', 'mailto:', 'tel:'];
+
+function isSafeXLinkDocumentNavigation(href) {
+  try {
+    const url = new URL(String(href), document.baseURI);
+    return XLINK_SAFE_DOCUMENT_PROTOCOLS.includes(url.protocol);
+  } catch (_) {
+    return false;
+  }
+}
+
 class XLink extends HTMLElement {
   static get observedAttributes() {
     return ['href', 'disabled', 'navigation', 'target', 'rel', 'download'];
@@ -433,7 +444,7 @@ class XLink extends HTMLElement {
       this._anchor.removeAttribute('aria-disabled');
       this._anchor.setAttribute('tabindex', '0');
     }
-    if (typeof href === 'string') {
+    if (typeof href === 'string' && isSafeXLinkDocumentNavigation(href)) {
       this._anchor.setAttribute('href', href);
     } else {
       this._anchor.removeAttribute('href');
@@ -601,6 +612,10 @@ class XLink extends HTMLElement {
     }
     const href = this.getAttribute('href');
     if (!href) return;
+    if (!isSafeXLinkDocumentNavigation(href)) {
+      event.preventDefault();
+      return;
+    }
     if (this._isExternal(href)) {
       this._syncExternalAttributes();
       return; // Default behavior for external links
