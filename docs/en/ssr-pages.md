@@ -227,14 +227,25 @@ never passes through the Page Wire codec. Its SSR/chunk records omit general
 response `kind`/`version` and carry only `markup.descriptor`; full API responses
 still include HTML and text content.
 
-Attribute strings such as `type: "search"` stay literal even when the model has a
-`search` property. Migrate implicit bindings from `"search.query"` to
-`"$model.search.query"` (or an expression record), then rebuild. Existing portable
-v1 artifacts keep scalar implicit binding behavior. Direct renderer integrations
+<a id="attribute-bindings"></a>
+
+In renderer v2, strings in `attributes`/`attrs` are literals: `type: "search"`
+stays unchanged even when the model has a `search` key. This applies to the DOM
+renderer, Node SSR, and portable Node/PHP projections using the v2 contract.
+Migrate implicit bindings such as `value: "search.query"` to
+`value: "$model.search.query"`, then rebuild. Other explicit forms are
+`$item.path`, `${model.path}`, and expression records; the general value/property
+resolver is unchanged.
+Existing portable v1 artifacts keep scalar implicit binding behavior. Direct renderer integrations
 select `rendererSchema: "xtend.epic18.rmt-dom-descriptor-renderer.v1"` explicitly
 while migrating and receive an informational deprecation diagnostic. Structured
 native/ARIA attributes are rejected in both paths; component properties and
 structured `data-*` attributes remain available.
+
+Existing executable examples and regression tests:
+[Node SSR attribute literals, bindings, and interpolation](https://github.com/konnilabs/xtend/blob/main/tests/rmt-language/rmt_node_ssr_adapter_suite.js),
+[portable Node/PHP projection](https://github.com/konnilabs/xtend/blob/main/tests/ssr-pages/ssr_pages_suite.js), and
+[v1/v2 compatibility including shipped DOM renderers](https://github.com/konnilabs/xtend/blob/main/tests/ssr-pages/contract_evolution_checks.js).
 
 Read SSR coverage with `getRmtSsrCoverage(result)` from the Node SSR adapter.
 The record is stored in `fabricTelemetryHints.coverage`, independently of

@@ -4,7 +4,7 @@ This page describes the 0.8.0 codebase and its migrations. A package version alo
 
 ## XTend 0.9.0 – renderer and resume contracts
 
-Literal attributes, explicit legacy compatibility, independent SSR coverage, and a common initial resume envelope for Node/Laravel. Legacy contracts remain supported through at least 0.9/0.10, with removal no earlier than 1.0. Kernel and MCP artifacts are regenerated; the blocking Nightly matrix includes Laravel 12/13. [Migration](./ssr-pages.md).
+Renderer v2 treats strings in `attributes`/`attrs` as literals, even when model keys share their names; existing implicit attribute bindings must become explicit. Independent SSR coverage and a common initial resume envelope for Node/Laravel. Legacy contracts remain supported through at least 0.9/0.10, with removal no earlier than 1.0. Kernel and MCP artifacts are regenerated; the blocking Nightly matrix includes Laravel 12/13. [Binding migration and regression tests](./ssr-pages.md#attribute-bindings).
 
 ## Changes in 0.8.0
 

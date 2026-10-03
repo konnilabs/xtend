@@ -231,15 +231,26 @@ getrennt vom Page-Wire-Codec. Seine SSR-/Chunk-Daten tragen keine allgemeinen
 Response-Tags `kind`/`version` und enthalten nur `markup.descriptor`.
 Vollständige API-Antworten behalten HTML und Textinhalt.
 
-Attributstrings wie `type: "search"` bleiben literal, auch bei gleichnamigen
-Modellwerten. Implizite Bindungen von `"search.query"` auf
-`"$model.search.query"` oder Expression-Records umstellen und neu bauen.
+<a id="attribute-bindings"></a>
+
+Im Renderer v2 sind Strings in `attributes`/`attrs` Literale: `type: "search"`
+bleibt auch bei einem Modellschlüssel `search` unverändert. Dies gilt für den
+DOM-Renderer, Node SSR und portable Node/PHP-Projektionen mit v2-Vertrag.
+Implizite Bindungen wie `value: "search.query"` auf `value: "$model.search.query"`
+umstellen und neu bauen. Weitere explizite Formen sind `$item.path`,
+`${model.path}` und Expression-Records; der allgemeine Value-/Property-Resolver
+bleibt unverändert.
 Bestehende portable v1-Artefakte behalten ihre skalare implizite Bindungsabsicht.
 Direkte Renderer-Integrationen wählen während der Migration ausdrücklich
 `rendererSchema: "xtend.epic18.rmt-dom-descriptor-renderer.v1"` und erhalten
 informative Migrationsdiagnosen. Strukturierte native/ARIA-Attribute werden in
 beiden Pfaden abgewiesen; Komponenten-Properties und strukturierte `data-*`
 bleiben verfügbar.
+
+Vorhandene ausführbare Beispiele und Regressionstests:
+[Node-SSR-Attributliterale, Bindings und Interpolation](https://github.com/konnilabs/xtend/blob/main/tests/rmt-language/rmt_node_ssr_adapter_suite.js),
+[portable Node/PHP-Projektion](https://github.com/konnilabs/xtend/blob/main/tests/ssr-pages/ssr_pages_suite.js) und
+[v1/v2-Kompatibilität einschließlich ausgelieferter DOM-Renderer](https://github.com/konnilabs/xtend/blob/main/tests/ssr-pages/contract_evolution_checks.js).
 
 SSR-Coverage über `getRmtSsrCoverage(result)` aus dem Node-SSR-Adapter lesen.
 Der Datensatz liegt eigenständig in `fabricTelemetryHints.coverage`; Hydration
