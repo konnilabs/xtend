@@ -93,9 +93,9 @@ function runRmtVNextParserSuite(options = {}) {
     id: 'rmt-vnext-parser',
     label: 'Epic 15 RMT vNext Lexer and Parser MVP'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextParser;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
   const grammarContract = readText(GRAMMAR_CONTRACT_PATH, rootDir);
   const coreContract = readText(CORE_CONTRACT_PATH, rootDir);
@@ -120,7 +120,7 @@ function runRmtVNextParserSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_PARSER_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-parser'] === 'string' ? packageManifest.exports['./rmt-language/vnext-parser'] : packageManifest.exports['./rmt-language/vnext-parser'] && packageManifest.exports['./rmt-language/vnext-parser'].default) === './tools/rmt-language/vnext-parser.js', 'package exports vNext parser');
   context.assert(packageManifest.scripts['test:rmt-vnext-parser'] === 'node scripts/run_xtend_tests.js rmt-vnext-parser', 'package exposes vNext parser script');
-  context.assert(runner.includes("id: 'rmt-vnext-parser'"), 'test runner exposes rmt-vnext-parser suite');
+  context.assert(runner.hasSuite("rmt-vnext-parser"), 'test runner exposes rmt-vnext-parser suite');
   context.assert(epic.includes('| `WP-E15-04` | P0 | completed | WS1 |'), 'Epic marks WP-E15-04 completed');
   context.assert(epic.includes('WP-E15-05` ist `ready`'), 'Epic hands off WP-E15-05 as ready');
   context.assert(grammarContract.includes('Contract: `xtend.rmt.vnext.grammar.v1`'), 'Grammar contract remains visible');

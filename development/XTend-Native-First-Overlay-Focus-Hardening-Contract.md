@@ -9,8 +9,8 @@
 - Report Contract: `xtend.native-first.overlay-focus-hardening-report.v1`
 - Mission Contract: `xtend.native-first.mission-source-of-truth.v1`
 - Capability Contract: `xtend.native-first.ui-primitive-capability.v1`
-- Adoption Gate: `xtend.native-first.primitive-adoption-gate.v1`
-- Browser Primitive Radar: `xtend.native-first.browser-primitive-radar.v1`
+- Adoption Gate: `xtend.native-first.primitive-adoption-gate.v2`
+- Browser Primitive Radar: `xtend.native-first.browser-primitive-radar.v2`
 - Component Contract: `xtend.component.contract.v2`
 - Overlay UX Contract: `xtend.component.overlay-interaction-ux.v1`
 - Surface Stack Policy Contract: `xtend.surface.stack-policy.v1`
@@ -30,8 +30,8 @@ WP-07 fuehrt keine neue externe UI-Framework-Abhaengigkeit ein. Browser-native P
 
 | Bereich | Owned XTend-Pfad | Native-First-Entscheidung |
 |---------|------------------|---------------------------|
-| Modal und Dialog | `x-modal`, `x-dialog`, `x-surface-manager`, Overlay Bridge | owned baseline bleibt fuehrend; `HTMLDialogElement` bleibt Radar-Watch |
-| Popover und Tooltip | `x-popover`, `x-tooltip`, Overlay UX profile | owned baseline bleibt fuehrend; Popover API bleibt Radar-Watch |
+| Modal und Dialog | `x-modal`, `x-dialog`, `x-surface-manager`, Overlay Bridge | owned baseline bleibt fuehrend; `HTMLDialogElement` ist terminal abgelehnt |
+| Popover und Tooltip | `x-popover`, `x-tooltip`, Overlay UX profile | owned baseline bleibt fuehrend; Popover API ist terminal abgelehnt |
 | Drawer und Side Panel | `x-drawer`, `x-side-panel`, Surface Manager stack | owned baseline ist Surface-/Workspace-Pfad |
 | Lightbox und Media Overlay | `x-lightbox`, Overlay Bridge | owned media overlay bleibt Stack-kompatibel |
 | Surface Portal | `x-surface-portal`, `x-surface-window`, `x-surface-region` | owned portal/surface path, keine zweite Registry |
@@ -44,9 +44,9 @@ WP-07 fuehrt keine neue externe UI-Framework-Abhaengigkeit ein. Browser-native P
 | Radar Ref | Primitive | Entscheidung fuer WP-07 | Produktfolge |
 |-----------|-----------|-------------------------|--------------|
 | `NFM-BPR-005` | `inert` und browsernahe Focus-Isolation | `wrap-as-xtend-primitive` | `x-surface-manager` besitzt Focus-/Inert-Stack-Policy; lokale Fallbacks bleiben erlaubt |
-| `NFM-BPR-006` | `HTMLDialogElement` | `defer-with-watch` | `x-dialog` und `x-modal` bleiben owned; produktive native Dialog-Adoption braucht Browser-Lab ADR |
-| `NFM-BPR-007` | Popover API | `defer-with-watch` | `x-popover` und `x-tooltip` bleiben owned; native Popover-Adoption braucht A11y-/Positioning-Evidence |
-| `NFM-BPR-008` | CSS Anchor Positioning | `defer-with-watch` | Positioning bleibt im owned Overlay-Pfad; Anchor Adoption braucht Layout-/Fallback-Evidence |
+| `NFM-BPR-006` | `HTMLDialogElement` | `reject-for-now` | `closed`; `x-dialog` und `x-modal` bleiben owned; `followUp: none` |
+| `NFM-BPR-007` | Popover API | `reject-for-now` | `closed`; `x-popover` und `x-tooltip` bleiben owned; `followUp: none` |
+| `NFM-BPR-008` | CSS Anchor Positioning | `reject-for-now` | `closed`; Positioning bleibt im owned Overlay-Pfad; `followUp: none` |
 | `NFM-BPR-013` | Resize/Mutation/Intersection Observer | `wrap-as-xtend-primitive` | Diagnostics und surface measurements bleiben ueber XTend Gates kontrolliert |
 | `NFM-BPR-020` | `focus-visible`, forced-colors, reduced-motion CSS | `adopt-native` | Component CSS darf diese Primitives nutzen; A11y Gates bleiben Pflicht |
 
@@ -86,4 +86,3 @@ WP-07 fuehrt keine neue externe UI-Framework-Abhaengigkeit ein. Browser-native P
 | RMT-Kernel bleibt host-neutral | erfuellt |
 | Keine Runtime-Dependency wird eingefuehrt | erfuellt |
 | Lokales WP-07-Gate ist definiert | erfuellt |
-

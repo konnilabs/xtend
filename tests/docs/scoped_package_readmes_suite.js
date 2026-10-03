@@ -16,6 +16,7 @@ const PACKAGE_ANCHORS = {
   '@ccslabs/xtend-fabric': ['createXtendFabric', 'createFabricRmtLaneMapping', 'createHydrationPolicyController'],
   '@ccslabs/xtend-cli': ['component-files', 'rmt-app-platform', 'maraca build'],
   '@ccslabs/xtend-compiler': ['compileRmtVNextSource', 'parseRmtVNextSource', 'xtend-rmt-lint'],
+  '@ccslabs/xtend-mcp': ['xtend_knowledge_search', 'xtend_rmt_diagnostics', 'xtend_rmt_apply_safe_repairs'],
   '@ccslabs/xtend-maraca': ['createMaracaBuildPlan', 'buildMaracaBundleAsync', 'tuneMaracaBuild'],
   '@xtend-material/core': ['createXtendMaterialDesignKit', 'createMaterialRecipeRegistry', 'createMaterialMaracaPreset'],
   '@xtend-material/maraca-tailwind': ['createTailwindCssProvider', 'createTailwindToolchainApi', 'createRmtCssSourceInventory'],
@@ -163,7 +164,7 @@ function runScopedPackageReadmesSuite(options = {}) {
   const rootPackage = readJson('package.json', rootDir);
   const packages = Array.isArray(rootPackage.scopedPackages) ? rootPackage.scopedPackages : [];
 
-  context.assert(packages.length === 9, 'Canonical scoped package inventory contains nine public packages');
+  context.assert(packages.length === 10, 'Canonical scoped package inventory contains ten public packages');
 
   packages.forEach((entry) => {
     const packagePath = entry.path === '.' ? 'package.json' : `${entry.path}/package.json`;

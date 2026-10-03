@@ -227,7 +227,7 @@ function assertPathExists(context, rootDir, relativePath, label) {
 }
 
 function assertRunnerGate(context, runner, gate) {
-  context.assertIncludes(runner, `id: '${gate}'`, `Runner registers ${gate}`);
+  context.assert(runner.hasSuite(gate), `Runner registers ${gate}`);
 }
 
 function countBy(items, field) {
@@ -262,8 +262,8 @@ function runNativeFirstBudgetGateSuite(options = {}) {
   const mission = readText('development/XTend-Native-First-Mission-Source-of-Truth-Contract.md', rootDir);
   const registry = readText('development/XTend-Native-First-Contract-Registry.md', rootDir);
   const registryContract = readText('development/XTend-Native-First-Contract-Registry-Contract.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstBudgetGates;
   const registryMetadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRegistry;
@@ -417,8 +417,8 @@ function runNativeFirstBudgetGateSuite(options = {}) {
   ], 'Registry contract WP-19 extension');
 
   context.assert(packageScripts['test:native-first-budget-gates'] === 'node scripts/run_xtend_tests.js native-first-budget-gates', 'Package exposes WP-19 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_budget_gate_suite')", 'Runner imports WP-19 suite');
-  context.assertIncludes(runner, "id: 'native-first-budget-gates'", 'Runner registers WP-19 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_budget_gate_suite.js" }), 'Runner imports WP-19 suite');
+  context.assert(runner.hasSuite("native-first-budget-gates"), 'Runner registers WP-19 suite');
   REQUIRED_SOURCE_GATES.forEach((gate) => assertRunnerGate(context, runner, gate));
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-19 contract schema');

@@ -217,7 +217,7 @@ function validateCiContracts(context, rootDir) {
     context.assert(defaultWorkflow.includes(`runner: ${runner}`), `Native smoke matrix includes ${runner}`);
   });
   context.assert(defaultWorkflow.includes('expected_arch: arm64'), 'macOS native smoke is explicitly arm64');
-  context.assert(defaultWorkflow.includes('npm run test:node-native-toolchain'), 'Native smoke executes the TypeScript/Rollup/Terser/Vite/native toolchain probe');
+  context.assert(require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:node-native-toolchain"), 'Native smoke executes the TypeScript/Rollup/Terser/Vite/native toolchain probe');
   context.assert(
     !/electron/iu.test(defaultWorkflow) && !/electron/iu.test(nightlyWorkflow),
     'Blocking default and nightly GitHub workflows never install, launch or require Electron'

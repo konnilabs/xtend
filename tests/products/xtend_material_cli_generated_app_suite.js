@@ -2,12 +2,11 @@
 
 const crypto = require('crypto');
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
 const { performance } = require('perf_hooks');
-const WebSocket = require('ws');
 const { createSuiteContext, printSuiteReport } = require('../utils/assertions');
+const { detectAvailableEngine, runFixture } = require('../../tools/browser-hypervisor');
 
 const REPORT_SCHEMA = 'xtend.material.cli-generated-app-report.v1';
 const REPORT_PATH = '.xtend-test-results/xtend-material-cli-generated-app-report.json';
@@ -177,97 +176,76 @@ function reproducible(left, right) {
   return JSON.stringify(normalize(left)) === JSON.stringify(normalize(right));
 }
 
-function findChromium() {
-  return ['/usr/bin/chromium-browser', '/usr/bin/chromium', '/snap/bin/chromium'].find((entry) => fs.existsSync(entry)) || null;
+async function captureGeneratedDocument(options) {
+  const resultKey = `__xtendMaterialGenerated${options.id.replace(/[^a-z0-9]/giu, '')}`;
+  const execution = await runFixture({
+    rootDir: options.rootDir,
+    engine: options.engine,
+    fixturePath: options.fixturePath,
+    url: options.url,
+    resultKey,
+    width: options.width,
+    height: options.height,
+    screenshotPath: options.screenshotPath,
+    timeoutMs: 30000,
+    scripts: [{ script: `(() => { const key = ${JSON.stringify(resultKey)}; const poll = () => { if (document.documentElement.dataset.maracaRuntimeReady === 'true') window[key] = { status: 'passed', html: document.documentElement.outerHTML }; else { window[key] = { status: 'pending' }; setTimeout(poll, 25); } }; poll(); })();` }],
+    accept: (result) => result && result.status === 'passed' && typeof result.html === 'string'
+  });
+  return execution.result;
 }
 
-async function interactiveBrowserEvidence(executable, url) {
-  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'xtm14-chromium-'));
-  const child = spawn(executable, ['--headless=new', '--no-sandbox', '--disable-gpu', '--remote-debugging-port=0', `--user-data-dir=${userDataDir}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
-  let stderr = '';
-  let socket = null;
+async function interactiveBrowserEvidence(engine, rootDir, fixturePath, url) {
+  const resultKey = '__xtendMaterialGeneratedInteraction';
   try {
-    const endpoint = await new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error('Chromium DevTools endpoint timeout')), 10000);
-      child.stderr.on('data', (chunk) => {
-        stderr += chunk;
-        const match = /DevTools listening on (ws:\/\/[^\s]+)/u.exec(stderr);
-        if (match) { clearTimeout(timer); resolve(match[1]); }
-      });
-      child.once('error', (error) => { clearTimeout(timer); reject(error); });
-    });
-    socket = new WebSocket(endpoint);
-    await new Promise((resolve, reject) => { socket.once('open', resolve); socket.once('error', reject); });
-    let sequence = 0;
-    const pending = new Map();
-    const consoleErrors = [];
-    const requestFailures = [];
-    const responseFailures = [];
-    socket.on('message', (raw) => {
-      const message = JSON.parse(String(raw));
-      if (message.id && pending.has(message.id)) {
-        const entry = pending.get(message.id); pending.delete(message.id);
-        if (message.error) entry.reject(new Error(message.error.message)); else entry.resolve(message.result || {});
-      }
-      if (message.method === 'Runtime.exceptionThrown') consoleErrors.push(message.params && message.params.exceptionDetails || {});
-      if (message.method === 'Log.entryAdded' && message.params && message.params.entry && message.params.entry.level === 'error') consoleErrors.push(message.params.entry);
-      if (message.method === 'Network.loadingFailed') requestFailures.push(message.params || {});
-      if (message.method === 'Network.responseReceived' && message.params && message.params.response && message.params.response.status >= 400) responseFailures.push({ url: message.params.response.url, status: message.params.response.status });
-    });
-    const send = (method, params = {}, sessionId = undefined) => new Promise((resolve, reject) => {
-      const id = ++sequence;
-      pending.set(id, { resolve, reject });
-      socket.send(JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) }));
-    });
-    const target = await send('Target.createTarget', { url: 'about:blank' });
-    const attached = await send('Target.attachToTarget', { targetId: target.targetId, flatten: true });
-    const sessionId = attached.sessionId;
-    await send('Runtime.enable', {}, sessionId);
-    await send('Log.enable', {}, sessionId);
-    await send('Network.enable', {}, sessionId);
-    await send('Page.enable', {}, sessionId);
-    await send('Page.navigate', { url }, sessionId);
-    await new Promise((resolve) => setTimeout(resolve, 4500));
-    const evaluated = await send('Runtime.evaluate', {
-      awaitPromise: true,
-      returnByValue: true,
-      expression: `(async () => {
+    const execution = await runFixture({
+      rootDir,
+      engine,
+      fixturePath,
+      url,
+      resultKey,
+      width: 800,
+      height: 700,
+      timeoutMs: 30000,
+      scripts: [{ script: `window[${JSON.stringify(resultKey)}] = { status: 'pending' }; (async () => {
         const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-        const input = document.getElementById('material-name-field');
-        const review = document.getElementById('material-review');
-        const dialog = document.getElementById('material-confirmation');
-        const disabledBefore = review ? review.hasAttribute('disabled') : null;
+        const deadline = performance.now() + 12000;
+        while (document.documentElement.dataset.maracaRuntimeReady !== 'true' && performance.now() < deadline) await pause(25);
+        const currentInput = () => document.getElementById('material-name-field');
+        const currentReview = () => document.getElementById('material-review');
+        const currentDialog = () => document.getElementById('material-confirmation');
+        const input = currentInput();
+        const disabledBefore = currentReview() ? currentReview().hasAttribute('disabled') : null;
         if (input) input.dispatchEvent(new CustomEvent('input-changed', { bubbles: true, composed: true, detail: { value: 'Ada Lovelace' } }));
-        await pause(150);
+        const validationDeadline = performance.now() + 5000;
+        while (currentReview() && currentReview().hasAttribute('disabled') && performance.now() < validationDeadline) await pause(25);
+        const review = currentReview();
         const disabledAfter = review ? review.hasAttribute('disabled') : null;
         if (review) { review.focus(); review.click(); }
-        await pause(300);
+        const dialogDeadline = performance.now() + 5000;
+        while (currentDialog() && !currentDialog().hasAttribute('open') && currentDialog().open !== true && performance.now() < dialogDeadline) await pause(25);
+        const dialog = currentDialog();
         const dialogOpen = Boolean(dialog && (dialog.hasAttribute('open') || dialog.open === true));
         const active = document.activeElement;
-        return {
+        window[${JSON.stringify(resultKey)}] = { status: 'passed', value: {
           runtimeReady: document.documentElement.dataset.maracaRuntimeReady,
           route: document.documentElement.dataset.xtmRoute,
           disabledBefore, disabledAfter, dialogOpen,
           focusOwner: active && (active.id || active.tagName),
           feedback: document.getElementById('material-check-result')?.textContent || '',
           devApiSerializable: ['getPerformanceSnapshot','getFabricTelemetrySnapshot','getKernelSnapshot','getHydrationSnapshot'].every((method) => { try { return Boolean(JSON.stringify(globalThis.__XTEND_DEV_API__[method]())); } catch (_) { return false; } })
-        };
-      })()`
-    }, sessionId);
-    const value = evaluated.result && evaluated.result.value || {};
-    return { ok: value.runtimeReady === 'true' && value.disabledBefore === true && value.disabledAfter === false && value.dialogOpen === true && value.devApiSerializable === true && consoleErrors.length === 0 && requestFailures.length === 0 && responseFailures.length === 0, value, consoleErrors, requestFailures, responseFailures };
+        } }; })().catch((error) => { window[${JSON.stringify(resultKey)}] = { status: 'failed', error: String(error && error.stack || error) }; });` }],
+      accept: (result) => result && result.status === 'passed'
+    });
+    const value = execution.result.value || {};
+    return { ok: value.runtimeReady === 'true' && value.disabledBefore === true && value.disabledAfter === false && value.dialogOpen === true && value.devApiSerializable === true, value };
   } catch (error) {
-    return { ok: false, value: null, consoleErrors: [{ message: error.message }], requestFailures: [], responseFailures: [] };
-  } finally {
-    if (socket && socket.readyState === WebSocket.OPEN) socket.close();
-    child.kill('SIGTERM');
-    fs.rmSync(userDataDir, { recursive: true, force: true });
+    return { ok: false, value: null, error: error.message };
   }
 }
 
 async function browserEvidence(rootDir, appRelative, evidenceRoot, cliPath, invocations) {
-  const executable = findChromium();
-  if (!executable) return { ok: false, cells: [], failures: ['Chromium unavailable'] };
+  const engine = detectAvailableEngine({ engine: process.env.XTEND_BROWSER_HYPERVISOR_ENGINE || 'chromium' });
+  if (!engine) return { ok: false, cells: [], failures: ['Browser Hypervisor provider unavailable'] };
   const handle = await startPublicServe(cliPath, path.join(rootDir, appRelative), evidenceRoot, invocations);
   const cells = [];
   const failures = [];
@@ -279,20 +257,14 @@ async function browserEvidence(rootDir, appRelative, evidenceRoot, cliPath, invo
     ]) {
       const screenshot = path.join(evidenceRoot, `${viewport.id}.png`);
       const url = `${handle.origin}/?theme=${viewport.theme}#/${viewport.route}`;
-      const run = await runProcess(executable, [
-        '--headless=new', '--no-sandbox', '--disable-gpu', '--hide-scrollbars',
-        '--run-all-compositor-stages-before-draw', '--virtual-time-budget=6000',
-        `--window-size=${viewport.width},${viewport.height}`, `--screenshot=${screenshot}`,
-        '--dump-dom', url
-      ], { cwd: rootDir, timeoutMs: 30000 });
-      const dom = run.stdout;
+      const run = await captureGeneratedDocument({ id: viewport.id, rootDir, engine, fixturePath: `${appRelative}/site/index.html`, url, width: viewport.width, height: viewport.height, screenshotPath: screenshot });
+      const dom = run.html;
       const surfaceCount = (dom.match(/data-maraca-surface=/gu) || []).length;
       const expectedSurfaceCountMatch = dom.match(/data-xtm-expected-surface-count="(\d+)"/u);
       const expectedSurfaceCount = expectedSurfaceCountMatch ? Number(expectedSurfaceCountMatch[1]) : 0;
       const assetUrls = Array.from(dom.matchAll(/(?:src|href)="([^"]+)"/gu)).map((match) => match[1]);
       const remoteAssets = assetUrls.filter((value) => /^(?:https?:)?\/\//u.test(value) && !value.startsWith(handle.origin));
-      const ready = run.exitCode === 0
-        && /data-maraca-runtime-ready="true"/u.test(dom)
+      const ready = /data-maraca-runtime-ready="true"/u.test(dom)
         && /data-xtend-dev-api-ready="true"/u.test(dom)
         && /data-xtend-dev-api-serializable="true"/u.test(dom)
         && /data-xtm-surface-graph-ready="true"/u.test(dom)
@@ -310,17 +282,17 @@ async function browserEvidence(rootDir, appRelative, evidenceRoot, cliPath, invo
         && remoteAssets.length === 0
         && fs.existsSync(screenshot)
         && fs.statSync(screenshot).size > 0;
-      const cell = { viewport, exitCode: run.exitCode, ready, surfaceCount, expectedSurfaceCount, remoteAssets, screenshot: path.relative(rootDir, screenshot), screenshotBytes: fs.existsSync(screenshot) ? fs.statSync(screenshot).size : 0 };
+      const cell = { viewport, engine, ready, surfaceCount, expectedSurfaceCount, remoteAssets, screenshot: path.relative(rootDir, screenshot), screenshotBytes: fs.existsSync(screenshot) ? fs.statSync(screenshot).size : 0 };
       cells.push(cell);
       if (!ready) failures.push(`${viewport.id}: runtime=${/data-maraca-runtime-ready="true"/u.test(dom)}, surfaces=${surfaceCount}, remote=${remoteAssets.length}`);
     }
-    const interaction = await interactiveBrowserEvidence(executable, `${handle.origin}/?theme=light#/dashboard`);
+    const interaction = await interactiveBrowserEvidence(engine, rootDir, `${appRelative}/site/index.html`, `${handle.origin}/?theme=light#/dashboard`);
     if (!interaction.ok) failures.push(`interaction: ${JSON.stringify(interaction)}`);
     cells.push({ viewport: { id: 'interaction', width: 800, height: 700 }, ready: interaction.ok, interaction });
   } finally {
     await handle.close();
   }
-  return { ok: failures.length === 0 && cells.length === 4, browser: 'chromium', cells, failures, tailwindRuntimeBytes: 0 };
+  return { ok: failures.length === 0 && cells.length === 4, browser: engine, cells, failures, tailwindRuntimeBytes: 0 };
 }
 
 async function runXtendMaterialCliGeneratedAppSuite(options = {}) {

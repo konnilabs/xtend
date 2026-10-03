@@ -309,7 +309,7 @@ template erp.demo.shell {
     input menuId string
     reduce state.erp.shell.menuBar.openMenuId = input.menuId
     reduce state.erp.shell.menuBar.lastCommand = "Menü geöffnet"
-    reduce state.erp.shell.status.text = "Menüband über XState aktualisiert"
+    reduce state.erp.shell.status.text = "Menüband über State aktualisiert"
     emit erp.shell.menuToggled with menuId input.menuId
   }
 

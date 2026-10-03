@@ -24,7 +24,7 @@ function validManifest(overrides = {}) {
 async function runXTensionsResumeAdapterSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({ id: 'xtensions-resume-adapter', label: 'XTensions Resume Adapter Contract' });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const manifest = normalizeXTensionResumeManifest(validManifest());
   context.assert(manifest.ok === true && manifest.schema === XTENSIONS_RESUME_MANIFEST_SCHEMA, 'complete resume manifest normalizes');
   context.assert(normalizeXTensionResumeManifest(validManifest({ serverEntry: '' })).ok === false, 'resume manifest rejects missing server entry');

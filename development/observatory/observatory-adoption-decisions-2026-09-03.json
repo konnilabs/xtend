@@ -1,0 +1,51 @@
+{
+  "schema": "xtend.native-first.observatory-adoption-decisions.v2",
+  "runId": "NFM-OBS-2026-09-03",
+  "reviewRef": "NFM-OBS-REVIEW-2026-09-03",
+  "reviewDate": "2026-09-03",
+  "radarRef": "tests/fixtures/native-first/browser-primitive-radar-v2.json",
+  "decisionCount": 24,
+  "supersedes": [
+    "ADR-NFM-OBS-OVERLAY-ANCHOR-2026-08-17",
+    "ADR-NFM-OBS-SCHEDULER-YIELD-2026-08-17",
+    "ADR-NFM-OBS-SCOPED-REGISTRIES-2026-08-17",
+    "ADR-NFM-OBS-NAVIGATION-API-2026-08-17",
+    "ADR-NFM-OBS-CROSS-DOCUMENT-VT-2026-08-17",
+    "ADR-NFM-OBS-EXPLICIT-RESOURCE-MANAGEMENT-2026-08-17"
+  ],
+  "decisions": [
+    {"decisionId":"ADR-NFM-BPR-001-2026-09-03","radarRef":"NFM-BPR-001","status":"accepted","decisionOutcome":"adopt-native","members":[{"id":"structured-dom","outcome":"adopt-native"}]},
+    {"decisionId":"ADR-NFM-BPR-002-2026-09-03","radarRef":"NFM-BPR-002","status":"accepted","decisionOutcome":"wrap-as-xtend-primitive","members":[{"id":"custom-elements","outcome":"wrap-as-xtend-primitive"},{"id":"shadow-dom","outcome":"wrap-as-xtend-primitive"}]},
+    {"decisionId":"ADR-NFM-BPR-003-2026-09-03","radarRef":"NFM-BPR-003","status":"accepted","decisionOutcome":"wrap-as-xtend-primitive","members":[{"id":"element-internals","outcome":"wrap-as-xtend-primitive"},{"id":"form-associated-elements","outcome":"wrap-as-xtend-primitive"}]},
+    {"decisionId":"ADR-NFM-BPR-004-2026-09-03","radarRef":"NFM-BPR-004","status":"accepted","decisionOutcome":"wrap-as-xtend-primitive","members":[{"id":"constraint-validation","outcome":"wrap-as-xtend-primitive"},{"id":"form-data","outcome":"wrap-as-xtend-primitive"}]},
+    {"decisionId":"ADR-NFM-BPR-005-2026-09-03","radarRef":"NFM-BPR-005","status":"accepted","decisionOutcome":"wrap-as-xtend-primitive","members":[{"id":"inert","outcome":"wrap-as-xtend-primitive"},{"id":"focus-isolation","outcome":"wrap-as-xtend-primitive"}]},
+    {"decisionId":"ADR-NFM-BPR-006-2026-09-03","radarRef":"NFM-BPR-006","status":"rejected","decisionOutcome":"reject-for-now","members":[{"id":"html-dialog","outcome":"reject-for-now"},{"id":"dialog-closedby","outcome":"reject-for-now"},{"id":"dialog-open-pseudo","outcome":"reject-for-now"}]},
+    {"decisionId":"ADR-NFM-BPR-007-2026-09-03","radarRef":"NFM-BPR-007","status":"rejected","decisionOutcome":"reject-for-now","members":[{"id":"popover-api","outcome":"reject-for-now"},{"id":"popover-hint","outcome":"reject-for-now"}]},
+    {"decisionId":"ADR-NFM-BPR-008-2026-09-03","radarRef":"NFM-BPR-008","status":"rejected","decisionOutcome":"reject-for-now","members":[{"id":"css-anchor-positioning","outcome":"reject-for-now"}]},
+    {"decisionId":"ADR-NFM-BPR-009-2026-09-03","radarRef":"NFM-BPR-009","status":"accepted","decisionOutcome":"adopt-native","members":[{"id":"container-queries","outcome":"adopt-native"}]},
+    {"decisionId":"ADR-NFM-BPR-010-2026-09-03","radarRef":"NFM-BPR-010","status":"accepted","decisionOutcome":"wrap-as-xtend-primitive","members":[{"id":"web-animations","outcome":"wrap-as-xtend-primitive"}]},
+    {"decisionId":"ADR-NFM-BPR-011-2026-09-03","radarRef":"NFM-BPR-011","status":"rejected","decisionOutcome":"reject-for-now","members":[{"id":"same-document-view-transitions","outcome":"reject-for-now"},{"id":"cross-document-view-transitions","outcome":"reject-for-now"}]},
+    {"decisionId":"ADR-NFM-BPR-012-2026-09-03","radarRef":"NFM-BPR-012","status":"accepted","decisionOutcome":"resolved","members":[{"id":"request-animation-frame","outcome":"wrap-as-xtend-primitive"},{"id":"request-idle-callback","outcome":"wrap-as-xtend-primitive"},{"id":"queue-microtask","outcome":"wrap-as-xtend-primitive"},{"id":"scheduler-yield","outcome":"reject-for-now"}]},
+    {"decisionId":"ADR-NFM-BPR-013-2026-09-03","radarRef":"NFM-BPR-013","status":"accepted","decisionOutcome":"wrap-as-xtend-primitive","members":[{"id":"intersection-observer","outcome":"wrap-as-xtend-primitive"},{"id":"resize-observer","outcome":"wrap-as-xtend-primitive"},{"id":"mutation-observer","outcome":"wrap-as-xtend-primitive"}]},
+    {"decisionId":"ADR-NFM-BPR-014-2026-09-03","radarRef":"NFM-BPR-014","status":"accepted","decisionOutcome":"wrap-as-xtend-primitive","members":[{"id":"performance-api","outcome":"wrap-as-xtend-primitive"},{"id":"user-timing","outcome":"wrap-as-xtend-primitive"}]},
+    {"decisionId":"ADR-NFM-BPR-015-2026-09-03","radarRef":"NFM-BPR-015","status":"accepted","decisionOutcome":"resolved","members":[{"id":"history-api","outcome":"wrap-as-xtend-primitive"},{"id":"url-pattern","outcome":"reject-for-now"},{"id":"navigation-api","outcome":"reject-for-now"}]},
+    {"decisionId":"ADR-NFM-BPR-016-2026-09-03","radarRef":"NFM-BPR-016","status":"rejected","decisionOutcome":"reject-for-now","members":[{"id":"trusted-types-adoption","outcome":"reject-for-now"},{"id":"sanitizer-api","outcome":"reject-for-now"}]},
+    {"decisionId":"ADR-NFM-BPR-017-2026-09-03","radarRef":"NFM-BPR-017","status":"accepted","decisionOutcome":"resolved","members":[{"id":"cache-api","outcome":"wrap-as-xtend-primitive"},{"id":"indexeddb","outcome":"reject-for-now"},{"id":"storage-buckets","outcome":"reject-for-now"}]},
+    {"decisionId":"ADR-NFM-BPR-018-2026-09-03","radarRef":"NFM-BPR-018","status":"accepted","decisionOutcome":"resolved","members":[{"id":"picture-in-picture","outcome":"wrap-as-xtend-primitive"},{"id":"media-session","outcome":"reject-for-now"}]},
+    {"decisionId":"ADR-NFM-BPR-019-2026-09-03","radarRef":"NFM-BPR-019","status":"accepted","decisionOutcome":"resolved","members":[{"id":"abort-signal","outcome":"wrap-as-xtend-primitive"},{"id":"fetch-response-streaming","outcome":"wrap-as-xtend-primitive"},{"id":"fetch-request-streaming","outcome":"reject-for-now"},{"id":"broadcast-channel","outcome":"reject-for-now"}]},
+    {"decisionId":"ADR-NFM-BPR-020-2026-09-03","radarRef":"NFM-BPR-020","status":"accepted","decisionOutcome":"adopt-native","members":[{"id":"forced-colors","outcome":"adopt-native"},{"id":"prefers-reduced-motion","outcome":"adopt-native"},{"id":"focus-visible","outcome":"adopt-native"}]},
+    {"decisionId":"ADR-NFM-BPR-021-2026-09-03","radarRef":"NFM-BPR-021","status":"rejected","decisionOutcome":"reject-for-now","members":[{"id":"scoped-custom-element-registries","outcome":"reject-for-now"}]},
+    {"decisionId":"ADR-NFM-BPR-022-2026-09-03","radarRef":"NFM-BPR-022","status":"rejected","decisionOutcome":"reject-for-now","members":[{"id":"jspi","outcome":"reject-for-now"}]},
+    {"decisionId":"ADR-NFM-BPR-023-2026-09-03","radarRef":"NFM-BPR-023","status":"rejected","decisionOutcome":"reject-for-now","members":[{"id":"declarative-shadow-dom-slot-assignment","outcome":"reject-for-now"}]},
+    {"decisionId":"ADR-NFM-BPR-024-2026-09-03","radarRef":"NFM-BPR-024","status":"rejected","decisionOutcome":"reject-for-now","members":[{"id":"explicit-resource-management","outcome":"reject-for-now"}]}
+  ],
+  "evidence": {
+    "browserMatrix": "tests/fixtures/native-first/observatory-browser-evidence-2026-09-03.json",
+    "productRegressionSuites": ["form-controls-ux", "overlay-interaction-ux", "navigation-routing-ux", "layout-display-media-ux", "fabric-lane-mapping", "native-first-budget-gates", "epic13-trusted-dom-boundary", "supply-chain", "references"],
+    "fallbackPolicy": "native-or-owned-fallback-in-every-target-engine",
+    "negativeUsagePolicy": "rejected-members-have-no-default-product-path"
+  },
+  "runtimeDependencies": [],
+  "publicExportsAdded": false,
+  "rmtBoundary": "rmt-kernel-remains-host-neutral"
+}

@@ -124,3 +124,11 @@ Lifecycle and stream statements outside lanes or slots produce context diagnosti
 ## Related reading
 
 The RMT reference index connects surfaces and lanes with scheduling and lifecycle syntax. [Related article](./rmt-reference.md)
+
+## Presentation epochs in 0.8.0
+
+The public lanes are `user-blocking`, `visible`, `transition`, `idle`, `background` and `diagnostics`. Host waits for paint, idle or `postTask` do not block shared scheduler selection. The Surface Controller remains the lifecycle authority.
+
+Managed surfaces own an Abort Boundary. Successful close, hide, minimize/collapse, route departure, target replacement or dispose invalidates associated presentation tokens; parents include their children. Reopening and recreating start a new epoch. Failed atomic lifecycle operations leave the boundary unchanged.
+
+This protects worker responses, hydration and queued commits through the final check before DOM or chart changes. Shared prewarming may retain valid data; business services are cancelled only by their owner. See [FastPass and Abort Boundary](./maraca-fastpass-abort-boundary.md) for programmatic integration.

@@ -100,16 +100,14 @@ export function createRmtFormValidationRuntime(options = {}) {
   }
 
   const evaluator = createRmtFormValidationEvaluator({ validationPlan, modelReader });
-  const compatibilityWindowTarget = Object.prototype.hasOwnProperty.call(options, 'windowTarget')
-    ? options.windowTarget
-    : globalTarget;
+  const hostTarget = options.hostTarget || options.windowTarget || null;
   const viewProjector = createRmtFormValidationViewProjector({
     root: options.root || null,
     domRenderer: options.domRenderer || options.renderer || null,
     strict: options.strict === true || options.strictMaraca === true,
     resolveTarget: options.resolveTarget,
-    windowTarget: compatibilityWindowTarget,
-    globalTarget,
+    windowTarget: hostTarget,
+    hostTarget,
     documentTarget: options.documentTarget,
     diagnosticsHub: options.diagnosticsHub,
     diagnosticChannel: options.diagnosticChannel,
@@ -321,12 +319,4 @@ const api = Object.freeze({
   createRmtFormValidationViewProjector,
   createRmtFormValidationRuntime
 });
-const globalTarget = typeof globalThis !== 'undefined'
-  ? globalThis
-  : (typeof window !== 'undefined' ? window : null);
-
-if (globalTarget) {
-  globalTarget.XTendRmtFormValidationRuntime = api;
-}
-
 export default api;

@@ -76,9 +76,9 @@ function assertIncludesAll(context, actual, expected, message) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextRemoteCompatibility;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_16_PATH, rootDir);
   const contract = readText(RMT_VNEXT_REMOTE_COMPATIBILITY_CONTRACT_PATH, rootDir);
   const workpackage = readText(RMT_VNEXT_REMOTE_COMPATIBILITY_WP_PATH, rootDir);
@@ -101,8 +101,8 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && REMOTE_COMPATIBLE_WARNINGS.every((code) => metadata.compatibleWarnings.includes(code)), 'package metadata documents compatible warning codes');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-remote-compatibility'] === 'string' ? packageManifest.exports['./rmt-language/vnext-remote-compatibility'] : packageManifest.exports['./rmt-language/vnext-remote-compatibility'] && packageManifest.exports['./rmt-language/vnext-remote-compatibility'].default) === './tools/rmt-language/vnext-remote-compatibility.js', 'package exports vNext remote compatibility adapter');
   context.assert(packageManifest.scripts['test:rmt-vnext-remote-compatibility'] === 'node scripts/run_xtend_tests.js rmt-vnext-remote-compatibility', 'package exposes vNext remote compatibility script');
-  context.assert(runner.includes("id: 'rmt-vnext-remote-compatibility'"), 'test runner exposes rmt-vnext-remote-compatibility suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-remote-compatibility'), 'runner help references remote compatibility gate');
+  context.assert(runner.hasSuite("rmt-vnext-remote-compatibility"), 'test runner exposes rmt-vnext-remote-compatibility suite');
+  context.assert(runner.hasSuite("rmt-vnext-remote-compatibility"), 'runner help references remote compatibility gate');
   context.assert(epic.includes('- Status: `completed / Epic 16 Enterprise MFE Release Handoff accepted`'), 'Epic records current E16 accepted status');
   context.assert(epic.includes('| `WP-E16-10` | P2 | completed | WS5 |'), 'Epic marks WP-E16-10 completed');
   context.assert(epic.includes('| `WP-E16-11` | P2 | completed | WS5 |'), 'Epic marks WP-E16-11 completed');

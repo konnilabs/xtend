@@ -1,4 +1,5 @@
-import { xstate } from './xstate.js';
+import { componentStyleNonce } from './style-nonce.js';
+import { xtendState } from './xtend-state.js';
 import { createXTendCoreIconPack, XTEND_CORE_ICON_PACK } from './icon-packs/core.js';
 import { createXTendLucideIconPack, XTEND_LUCIDE_ICON_PACK } from './icon-packs/lucide.js';
 
@@ -462,7 +463,7 @@ class XIcon extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this._lastReadyKey = '';
     this.shadowRoot.innerHTML = `
-      <style>
+      <style${componentStyleNonce(this.ownerDocument)}>
         :host {
           --xtend-icon-size: 1em;
           --xtend-icon-color: currentColor;
@@ -598,11 +599,11 @@ class XIcon extends HTMLElement {
   syncState(snapshot) {
     const stateKey = `xicon-state-${this.id || snapshot.name || 'anonymous'}`;
     try {
-      xstate.set(stateKey, snapshot);
+      xtendState.set(stateKey, snapshot);
     } catch (error) {
-      // xstate is optional for host-neutral RMT rendering.
+      // xtendState is optional for host-neutral RMT rendering.
     }
-    this.setAttribute('data-xstate-key', stateKey);
+    this.setAttribute('data-xtend-state-key', stateKey);
   }
 
   emitReady(snapshot, resolved) {

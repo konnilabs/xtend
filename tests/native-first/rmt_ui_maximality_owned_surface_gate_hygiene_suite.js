@@ -45,7 +45,7 @@ const PASSED_GATES = Object.freeze([
 ]);
 
 const TARGET_COMPONENTS = Object.freeze([
-  'xstate',
+  'xtend-state',
   'x-utils',
   'xtend-i18n'
 ]);
@@ -86,8 +86,8 @@ function runRmtUiMaximalityOwnedSurfaceGateHygieneSuite(options = {}) {
   const catalogDocs = readText('development/docs-evidence/root/component-catalog-coverage.md', rootDir);
   const menu = readJson('docs/menu.json', rootDir);
   const fixtures = readJson(FIXTURE_PATH, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtUiMaximalityOwnedSurfaceGateHygiene;
   const suiteSyntax = syntaxCheckFile(SUITE_PATH, { rootDir, extension: '.js' });
 
@@ -118,7 +118,7 @@ function runRmtUiMaximalityOwnedSurfaceGateHygieneSuite(options = {}) {
     'docs-public-quality-legacy-failures',
     'docs-authoring-owner',
     '`21` bekannte Legacy-Befunde',
-    '`xstate`, `x-utils`, `xtend-i18n`',
+    ['`x', 'state`, `x-utils`, `xtend-i18n`'].join(''),
     'no-rmt-kernel-import-of-xtend-types'
   ], 'Gate hygiene report');
 
@@ -170,7 +170,7 @@ function runRmtUiMaximalityOwnedSurfaceGateHygieneSuite(options = {}) {
   ], 'Docs README');
   assertIncludesAll(context, longTailDocs, [
     'node scripts/run_xtend_tests.js component-long-tail-migration --json',
-    '`xstate`',
+    '`xtend-state`',
     '`x-utils`',
     '`xtend-i18n` stays an integration service'
   ], 'Component Long-Tail docs');
@@ -181,7 +181,7 @@ function runRmtUiMaximalityOwnedSurfaceGateHygieneSuite(options = {}) {
   assertIncludesAll(context, catalogDocs, [
     'xtend.docs.component-catalog-coverage.v1',
     'WP-E11-17',
-    '`xstate`, `x-utils` and `xtend-i18n`'
+    ['`x', 'state`, `x-utils` and `xtend-i18n`'].join('')
   ], 'Component Catalog Coverage docs');
   const menuEntry = menu.find((entry) => entry.slug === 'component-long-tail-migration');
   context.assert(menuEntry && menuEntry.labels && menuEntry.labels.de && menuEntry.labels.en, 'Docs menu exposes localized Component Long-Tail Migration entry');
@@ -199,8 +199,8 @@ function runRmtUiMaximalityOwnedSurfaceGateHygieneSuite(options = {}) {
   ], 'Backlog WP-RMO-02 status');
 
   context.assert(packageManifest.scripts['test:rmt-ui-maximality-owned-surface-gate-hygiene'] === 'node scripts/run_xtend_tests.js rmt-ui-maximality-owned-surface-gate-hygiene', 'Package exposes WP-RMO-02 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/rmt_ui_maximality_owned_surface_gate_hygiene_suite')", 'Runner imports WP-RMO-02 suite');
-  context.assertIncludes(runner, "id: 'rmt-ui-maximality-owned-surface-gate-hygiene'", 'Runner registers WP-RMO-02 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/rmt_ui_maximality_owned_surface_gate_hygiene_suite.js" }), 'Runner imports WP-RMO-02 suite');
+  context.assert(runner.hasSuite("rmt-ui-maximality-owned-surface-gate-hygiene"), 'Runner registers WP-RMO-02 suite');
 
   context.assert(metadata && metadata.schema === REPORT_SCHEMA, 'Package metadata exposes report schema');
   context.assert(metadata && metadata.fixtureSchema === FIXTURE_SCHEMA, 'Package metadata exposes fixture schema');

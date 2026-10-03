@@ -1,0 +1,50 @@
+[
+  {
+    "name": "minimal",
+    "trial": 0,
+    "loadMs": 27.857709999999997,
+    "compileMs": 5.481046999999997,
+    "serializeMs": 0.13140199999999425,
+    "bytes": 31340
+  },
+  {
+    "name": "minimal",
+    "trial": 1,
+    "loadMs": 27.857709999999997,
+    "compileMs": 0.5089660000000009,
+    "serializeMs": 0.15212199999999854,
+    "bytes": 31340
+  },
+  {
+    "name": "minimal",
+    "trial": 2,
+    "loadMs": 27.857709999999997,
+    "compileMs": 0.43525499999999795,
+    "serializeMs": 0.1461919999999992,
+    "bytes": 31340
+  },
+  {
+    "name": "customer-service",
+    "trial": 0,
+    "loadMs": 27.857709999999997,
+    "compileMs": 43.718782999999995,
+    "serializeMs": 31.633004999999997,
+    "bytes": 6299340
+  },
+  {
+    "name": "customer-service",
+    "trial": 1,
+    "loadMs": 27.857709999999997,
+    "compileMs": 14.340405000000004,
+    "serializeMs": 31.991410000000002,
+    "bytes": 6299340
+  },
+  {
+    "name": "customer-service",
+    "trial": 2,
+    "loadMs": 27.857709999999997,
+    "compileMs": 11.382238999999998,
+    "serializeMs": 36.670806999999996,
+    "bytes": 6299340
+  }
+]

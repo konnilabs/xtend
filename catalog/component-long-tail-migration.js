@@ -25,7 +25,7 @@ const WAVE_DEFINITIONS = Object.freeze({
   'wave-3-infrastructure-and-utility-probes': {
     label: 'Infrastructure and utility boundary probes',
     goal: 'Non-visual helper surfaces get suites, types and adapter-boundary probes instead of forced visual shells.',
-    components: ['xstate', 'x-utils', 'xtend-i18n']
+    components: ['xtend-state', 'x-utils', 'xtend-i18n']
   }
 });
 

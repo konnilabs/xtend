@@ -57,14 +57,14 @@ function runBuilderTypeScriptBlueprintSuite(options = {}) {
     id: 'builder-typescript-blueprint',
     label: 'XTend Builder TypeScript Component Blueprint'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const scaffoldConfigSource = readText('xtend-builder/scaffold.config.js', rootDir);
   const epic = readText('development/EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
   const referenceRegistry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const contractDoc = readText('development/XTend-TypeScript-Component-Blueprint.md', rootDir);
   const workpackage = readText('development/WP-E10-07-xtend-builder-TypeScript-Blueprint-vorbereiten.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.typescriptComponentBlueprint;
   const blueprint = getComponentBlueprintContract();
   const templateRegistry = getTemplateRegistry();
@@ -170,7 +170,7 @@ function runBuilderTypeScriptBlueprintSuite(options = {}) {
   context.assert(Array.isArray(metadata.templateArtifacts) && metadata.templateArtifacts.includes('component.ts-source'), 'Package metadata exposes TS source template artifact');
   context.assert(metadata.kernelBoundary === 'no-rmt-kernel-import-of-xtend-types', 'Package metadata keeps RMT kernel boundary');
   context.assert(packageManifest.scripts['test:builder-typescript-blueprint'] === 'node scripts/run_xtend_tests.js builder-typescript-blueprint', 'Package exposes TypeScript Blueprint test script');
-  context.assertIncludes(runner, "id: 'builder-typescript-blueprint'", 'XTend runner registers TypeScript Blueprint suite');
+  context.assert(runner.hasSuite("builder-typescript-blueprint"), 'XTend runner registers TypeScript Blueprint suite');
 
   return context.result({
     schema: TYPESCRIPT_COMPONENT_BLUEPRINT_SCHEMA,

@@ -107,7 +107,7 @@ function createKpiDecisions(sources) {
       target: 'visible-long-tail-components-closed-boundaries-accepted',
       status: 'accepted-residual',
       evidence: ['WP-E12-02', 'WP-E12-03', 'WP-E12-04', 'WP-E12-05', 'WP-E12-06', 'WP-E12-07', 'WP-E12-08', 'WP-E12-09'],
-      residuals: ['xstate', 'x-utils']
+      residuals: ['xtend-state', 'x-utils']
     },
     {
       id: 'catalog-contract-coverage',

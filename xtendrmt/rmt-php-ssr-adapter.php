@@ -223,7 +223,31 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
 
         public function streamJsonl($input, array $options = []): Generator
         {
-            $renderResult = $this->render($input, array_replace($options, ['streamMode' => true]));
+            $sequence = 0; $requestId = $this->safeIdentifier($options['requestId'] ?? 'rmt-php-stream'); $count = 0;
+            $merged = array_replace($this->options, $options);
+            $deadline = microtime(true) + (($merged['streamTimeoutMs'] ?? 30000) / 1000);
+            try {
+                foreach ($this->streamFrames($input, $options) as $line) {
+                    if (microtime(true) > $deadline || (isset($merged['shouldAbort']) && ($merged['shouldAbort'])())) throw new RuntimeException('SSR stream aborted.');
+                    $record = json_decode($line, true, 512, JSON_THROW_ON_ERROR);
+                    $requestId = $record['requestId']; $sequence = $record['sequence'] + 1;
+                    if ($record['type'] === 'diagnostic') $count += count($record['diagnostics']);
+                    yield $line;
+                }
+            } catch (Throwable $error) {
+                $diagnostics = [$this->diagnostic('rmt.php_ssr.stream_failed', 'The SSR stream did not complete.', 'error')];
+                try { if (isset($merged['onError'])) ($merged['onError'])($error); }
+                catch (Throwable) { $diagnostics[] = $this->diagnostic('rmt.php_ssr.error_handler_failed', 'The host error handler failed.', 'error'); }
+                if (!$sequence) yield $this->jsonlFrame($sequence, $requestId, 'start');
+                yield $this->jsonlFrame($sequence, $requestId, 'error', ['diagnostics' => $diagnostics, 'payload' => ['status' => 'blocked']]);
+                yield $this->jsonlFrame($sequence, $requestId, 'complete', ['payload' => ['ok' => false, 'status' => 'blocked', 'diagnostics' => $count + count($diagnostics)]]);
+            }
+        }
+
+        private function streamFrames($input, array $options): Generator
+        {
+            $renderResult = $this->isRenderResult($input) ? $input : $this->render($input, array_replace($options, ['streamMode' => true]));
+            $streamDiagnostics = $renderResult['diagnostics'];
             $sequence = 0;
             yield $this->jsonlFrame($sequence, $renderResult['requestId'], 'start', [
                 'payload' => [
@@ -266,7 +290,15 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 $record = $operation['dataSource'] ?? null;
                 if (!$record) continue;
                 $diagnostics = [];
-                $payload = $this->normalizeStreamPayload($this->resolveDataSource($record, $operation, $options, $diagnostics));
+                try {
+                    $payload = $this->normalizeStreamPayload($this->resolveDataSource($record, $operation, $options, $diagnostics));
+                } catch (Throwable $error) {
+                    $diagnostics[] = $this->diagnostic('rmt.php_ssr.datasource_failed', 'The host data source failed.', 'error', ['operationId' => $operation['operationId'] ?? $operation['id'] ?? null]);
+                    $handler = $options['onError'] ?? $this->options['onError'] ?? null;
+                    if (is_callable($handler)) $handler($error);
+                    $payload = [];
+                }
+                $streamDiagnostics = array_merge($streamDiagnostics, $diagnostics);
                 foreach ($diagnostics as $diagnostic) {
                     yield $this->jsonlFrame($sequence, $renderResult['requestId'], 'diagnostic', [
                         'operationId' => $operation['operationId'] ?? $operation['id'] ?? null,
@@ -296,6 +328,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                         ],
                         'operationId' => $operation['operationId'] ?? null,
                     ], array_replace($this->options, $options), $htmlDiagnostics);
+                    $streamDiagnostics = array_merge($streamDiagnostics, $htmlDiagnostics);
                     foreach ($htmlDiagnostics as $diagnostic) {
                         yield $this->jsonlFrame($sequence, $renderResult['requestId'], 'diagnostic', [
                             'operationId' => $operation['operationId'] ?? $operation['id'] ?? null,
@@ -328,9 +361,9 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             ]);
             yield $this->jsonlFrame($sequence, $renderResult['requestId'], 'complete', [
                 'payload' => [
-                    'ok' => $renderResult['ok'],
-                    'status' => $renderResult['status'],
-                    'diagnostics' => count($renderResult['diagnostics']),
+                    'ok' => $renderResult['ok'] && !array_filter($streamDiagnostics, fn ($d) => in_array($d['severity'] ?? '', ['error', 'fatal'], true)),
+                    'status' => array_filter($streamDiagnostics, fn ($d) => in_array($d['severity'] ?? '', ['error', 'fatal'], true)) ? 'blocked' : $renderResult['status'],
+                    'diagnostics' => count($streamDiagnostics),
                 ],
             ]);
         }
@@ -338,19 +371,21 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
         public function toLaravelResponse($input, array $options = [])
         {
             $result = $this->isRenderResult($input) ? $input : $this->render($input, $options);
+            $status = $options['status'] ?? ($result['ok'] ? 200 : 500);
+            if (!$result['ok'] && $status < 400) $status = 500;
             $cspPolicy = is_array($result['cspPolicy'] ?? null) ? $result['cspPolicy'] : $this->createSsrCspPolicy($options);
             $headers = $this->createSecurityHeaders($cspPolicy, array_replace([
                 'Content-Type' => 'text/html; charset=UTF-8',
                 'X-XTend-RMT-SSR-Adapter' => RMT_PHP_SSR_ADAPTER_SCHEMA,
             ], is_array($result['headers'] ?? null) ? $result['headers'] : [], $options['headers'] ?? []));
             if (class_exists('\\Illuminate\\Http\\Response')) {
-                return new \Illuminate\Http\Response($result['html'], $options['status'] ?? 200, $headers);
+                return new \Illuminate\Http\Response($result['html'], $status, $headers);
             }
             if (class_exists('\\Symfony\\Component\\HttpFoundation\\Response')) {
-                return new \Symfony\Component\HttpFoundation\Response($result['html'], $options['status'] ?? 200, $headers);
+                return new \Symfony\Component\HttpFoundation\Response($result['html'], $status, $headers);
             }
             return [
-                'status' => $options['status'] ?? 200,
+                'status' => $status,
                 'headers' => $headers,
                 'body' => $result['html'],
             ];
@@ -358,21 +393,30 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
 
         public function toLaravelStreamedResponse($input, array $options = [])
         {
-            $cspPolicy = $this->createSsrCspPolicy($options);
+            $input = $this->isRenderResult($input) ? $input : $this->render($input, $options);
+            $status = $options['status'] ?? ($input['ok'] ? 200 : 500);
+            if (!$input['ok'] && $status < 400) $status = 500;
+            $cspPolicy = $input['cspPolicy'] ?? $this->createSsrCspPolicy($options);
             $headers = $this->createSecurityHeaders($cspPolicy, array_replace([
                 'Content-Type' => 'application/x-ndjson; charset=UTF-8',
                 'X-XTend-RMT-SSR-Adapter' => RMT_PHP_SSR_ADAPTER_SCHEMA,
             ], $options['headers'] ?? []));
             $streamFactory = function () use ($input, $options): void {
                 foreach ($this->streamJsonl($input, $options) as $line) {
+                    if (connection_aborted()) break;
                     echo $line;
+                    // CLI callers own their capture buffers; only an HTTP SAPI flushes frames.
+                    if (PHP_SAPI !== 'cli') {
+                        if (ob_get_level() > 0) ob_flush();
+                        flush();
+                    }
                 }
             };
             if (class_exists('\\Symfony\\Component\\HttpFoundation\\StreamedResponse')) {
-                return new \Symfony\Component\HttpFoundation\StreamedResponse($streamFactory, $options['status'] ?? 200, $headers);
+                return new \Symfony\Component\HttpFoundation\StreamedResponse($streamFactory, $status, $headers);
             }
             return [
-                'status' => $options['status'] ?? 200,
+                'status' => $status,
                 'headers' => $headers,
                 'stream' => $this->streamJsonl($input, $options),
             ];
@@ -571,6 +615,7 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
             foreach ($this->asArray($descriptor['children'] ?? ($descriptor['nodes'] ?? [])) as $child) {
                 $children[] = $child;
             }
+            if (!$children && array_key_exists('text', $descriptor)) $children[] = ['type' => 'text', 'text' => $descriptor['text']];
             $renderTag = $normalizedTag;
             if ($normalizedTag === 'x-link' && !empty($context['options']['progressiveLinks'])) {
                 $renderTag = 'a';
@@ -590,11 +635,12 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
 
         private function serializeElement(array $descriptor, array $context, array &$diagnostics): string
         {
-            $tag = $this->normalizeTag((string) ($descriptor['tag'] ?? ($descriptor['element'] ?? 'div')), $diagnostics);
+            $tag = ($descriptor['tag'] ?? null) === 'form' && ($context['options']['nativeForms'] ?? false) === true
+                ? 'form' : $this->normalizeTag((string) ($descriptor['tag'] ?? ($descriptor['element'] ?? 'div')), $diagnostics);
             $attributes = $this->mergeAttributes($descriptor['attributes'] ?? [], $descriptor['attrs'] ?? []);
             $open = '<' . $tag . $this->serializeAttributes($attributes, $diagnostics) . '>';
             if (isset($this->voidTags[$tag])) return $open;
-            $html = '';
+            $html = !($descriptor['children'] ?? $descriptor['nodes'] ?? []) && array_key_exists('text', $descriptor) ? $this->escapeHtml((string)$descriptor['text']) : '';
             foreach ($this->asArray($descriptor['children'] ?? ($descriptor['nodes'] ?? [])) as $child) {
                 $html .= $this->serializeDescriptor($child, $context, $diagnostics);
             }
@@ -767,18 +813,49 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
 
         private function canonicalizeResumeValue($value)
         {
-            if (!is_array($value)) return $value;
-            if ($this->isList($value)) {
+            $object = is_object($value);
+            if (!$object && !is_array($value)) return $value;
+            if (!$object && $this->isList($value)) {
                 return array_map(fn ($entry) => $this->canonicalizeResumeValue($entry), $value);
             }
-            ksort($value, SORT_STRING);
+            $value = (array) $value;
+            // JavaScript sorts property names by UTF-16 code units, including
+            // properties of decoded JSON objects and empty object records.
+            uksort($value, static fn ($left, $right) => strcmp(
+                iconv('UTF-8', 'UTF-16BE', (string) $left),
+                iconv('UTF-8', 'UTF-16BE', (string) $right)
+            ));
             foreach ($value as $key => $entry) $value[$key] = $this->canonicalizeResumeValue($entry);
-            return $value;
+            return (object) $value;
         }
 
         private function canonicalResumeJson(array $value): string
         {
-            return (string) json_encode($this->canonicalizeResumeValue($value), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $encode = function($entry) use (&$encode):string {
+                if(is_array($entry))return '['.implode(',',array_map($encode,$entry)).']';
+                if(is_object($entry)){
+                    $fields=[];foreach((array)$entry as $key=>$child)$fields[]=$encode((string)$key).':'.$encode($child);
+                    return '{'.implode(',',$fields).'}';
+                }
+                if(is_int($entry)||is_float($entry)){
+                    $number=(float)$entry;
+                    if(!is_finite($number))return 'null';
+                    if($number==0)return '0';
+                    $precision=ini_get('serialize_precision');ini_set('serialize_precision','-1');
+                    try{$text=json_encode($number,JSON_THROW_ON_ERROR);}finally{ini_set('serialize_precision',$precision);}
+                    if(preg_match('/^(-?)([0-9]+)(?:\.([0-9]+))?e([+-]?[0-9]+)$/i',$text,$parts)){
+                        $sign=$parts[1];$digits=rtrim($parts[2].($parts[3]??''),'0');$exponent=(int)$parts[4];
+                        if($exponent>=-6&&$exponent<21){
+                            $point=$exponent+strlen($parts[2]);
+                            return $sign.($point<=0?'0.'.str_repeat('0',-$point).$digits:($point>=strlen($digits)?$digits.str_repeat('0',$point-strlen($digits)):substr($digits,0,$point).'.'.substr($digits,$point)));
+                        }
+                        return $sign.$digits[0].(strlen($digits)>1?'.'.substr($digits,1):'').'e'.($exponent>=0?'+':'').$exponent;
+                    }
+                    return $text;
+                }
+                return json_encode($entry,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_LINE_TERMINATORS|JSON_THROW_ON_ERROR);
+            };
+            return $encode($this->canonicalizeResumeValue($value));
         }
 
         private function sha256Base64Url(string $value): string
@@ -1120,6 +1197,10 @@ if (!class_exists('RmtPhpSsrAdapter', false)) {
                 return '';
             }
             if ($value === null || $value === false) return '';
+            if (!str_starts_with($name, 'data-') && (!is_scalar($value) || is_float($value) && !is_finite($value))) {
+                $diagnostics[] = $this->diagnostic('rmt.php_ssr.attribute_value_invalid', 'Attribute requires a scalar value.', 'error', ['attribute' => $name]);
+                return '';
+            }
             if (isset($this->urlAttributes[$name]) && !$this->isSafeUrl((string) $value)) {
                 $diagnostics[] = $this->diagnostic('rmt.php_ssr.url_blocked', 'Blocked unsafe URL in "' . $name . '".', 'error', ['attribute' => $name]);
                 return '';

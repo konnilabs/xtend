@@ -1,4 +1,5 @@
 'use strict';
+const { EXPECTED_CANONICAL_SLUG_COUNT } = require('../../scripts/verify_docs_public_quality');
 
 const fs = require('fs');
 const os = require('os');
@@ -33,7 +34,12 @@ function readJson(relativePath, rootDir) {
 }
 
 function loadAppRuntime(rootDir) {
-  if (!appRuntimePromise) appRuntimePromise = import(`file://${resolveRepoPath('xtendrmt/rmt-app-runtime.compat.js', rootDir)}`);
+  if (!appRuntimePromise) {
+    appRuntimePromise = Promise.all([
+      import(`file://${resolveRepoPath('xtendrmt/rmt-app-runtime.js', rootDir)}`),
+      import(`file://${resolveRepoPath('xtendrmt/rmt-app-host-adapter.js', rootDir)}`)
+    ]).then(([runtime, host]) => Object.freeze({ ...runtime, ...host }));
+  }
   return appRuntimePromise;
 }
 
@@ -123,6 +129,7 @@ async function runRmtSearchRuntimeSuite(options = {}) {
   searchRuntime.dispose();
   cachedRuntime.dispose();
   supersessionRuntime.dispose();
+  await require('./docs_scheduler_consumers').runDocsSchedulerConsumerChecks(rootDir, context);
   return context.result({ schema: runtime.RMT_SEARCH_RUNTIME_SCHEMA });
 }
 
@@ -147,11 +154,12 @@ async function runRmtPrewarmWorkerSearchSuite(options = {}) {
     terminate() {}
   }
   class FakeBlob {}
-  const worker = runtime.createRmtSearchPrewarmWorker({
+  const hostPort = runtime.createRmtAppHostAdapter({
     Worker: FakeWorker,
     Blob: FakeBlob,
     URL: { createObjectURL: () => 'blob:search-worker', revokeObjectURL() {} }
   });
+  const worker = runtime.createRmtSearchPrewarmWorker({ hostPort });
   await worker.dispatchSearchEnvelope({ generation: '1', entries: [], query: 'test', options: {} });
   context.assert(messages.length === 1 && messages[0].action === 'search_index', 'dispatch uses allowlisted worker task');
   const snapshot = worker.snapshot();
@@ -168,7 +176,7 @@ function runXtendLoaderSkeletonProfilesSuite(options = {}) {
   const types = readText('xtend-loader.d.ts', rootDir);
   const router = readText('components/xrouter.js', rootDir);
   const docsRuntime = readText('docs/utils/docs-shell-runtime.mjs', rootDir);
-  const pageLoader = readText('docs/utils/pageloader.js', rootDir);
+  const pageLoader = readText('docs/utils/page/route-controller.mjs', rootDir);
   const docsHost = readText('docs/index.php', rootDir);
   const docsBundleReport = readJson('docs/generated/shell/xtend.maraca.report.json', rootDir);
   const generatedRouterRecord = (docsBundleReport.bundleFiles || []).find((entry) =>
@@ -177,7 +185,7 @@ function runXtendLoaderSkeletonProfilesSuite(options = {}) {
   );
   const generatedRouter = generatedRouterRecord ? readText(generatedRouterRecord.path, rootDir) : '';
   context.assert(loader.includes("SKELETON_PROFILE_CONTRACT = 'xtend.loader.skeleton-profile.v1'"), 'loader declares skeleton profile schema');
-  context.assert(loader.includes("BOOTSTRAP_MODULE_KEYS = ['xstate', 'xtend-i18n', 'x-utils']"), 'loader classifies x-utils as a non-element bootstrap module');
+  context.assert(loader.includes("BOOTSTRAP_MODULE_KEYS = ['xtend-state', 'xtend-i18n', 'x-utils']"), 'loader classifies State, i18n and x-utils as non-element bootstrap modules');
   context.assert(/name="xtend-preload"\s+content="[^"]*\bx-utils\b/u.test(docsHost), 'Docs preload the lifecycle utility before page modules bind listeners');
   context.assert(pageLoader.includes('await requireDocsLifecycleBinding();'), 'Page loader waits for the loader-owned XUtils lifecycle boundary before registration');
   context.assert(loader.includes('registerSkeletonProfile') && loader.includes('getSkeletonProfile') && loader.includes('listSkeletonProfiles'), 'loader exposes profile registry');
@@ -247,7 +255,7 @@ function runDocsShellCatfoodingSuite(options = {}) {
   const performanceBaseline = readJson('tests/docs/fixtures/docs-shell-catfooding-performance-baseline.json', rootDir);
   const trunkSections = new Set(navigation.trunks.flatMap((trunk) => trunk.sections.map((section) => `${trunk.id}:${section.id}`)));
   context.assert(navigation.schema === 'xtend.docs.navigation.v1' && navigation.trunks.length === 6, 'navigation contract exposes six task trunks');
-  context.assert(menu.length === 170, 'menu keeps 170 canonical bilingual articles');
+  context.assert(menu.length === EXPECTED_CANONICAL_SLUG_COUNT, 'menu keeps the canonical bilingual article count');
   context.assert(menu.every((entry) => entry.trunk && entry.section && trunkSections.has(`${entry.trunk}:${entry.section}`)), 'every article has exactly one valid primary trunk and section');
   context.assert(menu.every((entry) => entry.keywords && entry.keywords.de.length && entry.keywords.en.length), 'every article exposes DE and EN keywords');
   context.assert(performanceBaseline.schema === 'xtend.docs.shell-performance-baseline.v1' && performanceBaseline.regressionLimit === 0.05, 'browser baseline locks the five-percent FCP and transfer regression limit');
@@ -260,9 +268,14 @@ function runDocsShellCatfoodingSuite(options = {}) {
     const fulltextText = readText(fulltextPath, rootDir);
     const compact = JSON.parse(compactText);
     const fulltext = JSON.parse(fulltextText);
-    context.assert(compact.schema === 'xtend.docs.search-index.v1' && compact.entryCount === 170, `${locale} compact index has contract and full inventory`);
-    context.assert(fulltext.schema === 'xtend.docs.search-fulltext-index.v1' && fulltext.entryCount === 170, `${locale} fulltext index has contract and full inventory`);
+    context.assert(compact.schema === 'xtend.docs.search-index.v1' && compact.entryCount === EXPECTED_CANONICAL_SLUG_COUNT, `${locale} compact index has contract and full inventory`);
+    context.assert(fulltext.schema === 'xtend.docs.search-fulltext-index.v1' && fulltext.entryCount === EXPECTED_CANONICAL_SLUG_COUNT, `${locale} fulltext index has contract and full inventory`);
     context.assert(zlib.gzipSync(compactText, { level: 9 }).length <= 25 * 1024, `${locale} compact index stays within 25 KiB gzip`);
+    for (const [query, slug] of [['FastPass', 'maraca-fastpass-abort-boundary'], ['Hydrangea', 'rmt-jit-hydrangea']]) {
+      const article = compact.entries.find(entry => entry.slug === slug);
+      context.assert(Boolean(article) && JSON.stringify(article).includes(query), `${locale} compact index discovers ${query}`);
+      context.assert(fulltext.entries.some(entry => entry.slug === slug && entry.body), `${locale} full-text index retains ${query} content`);
+    }
     context.assert(zlib.gzipSync(fulltextText, { level: 9 }).length <= 150 * 1024, `${locale} fulltext index stays within 150 KiB gzip`);
   });
 
@@ -273,9 +286,15 @@ function runDocsShellCatfoodingSuite(options = {}) {
   context.assert(searchSources.every((entry) => entry.debounceMs === 80 && entry.resultLimit === 8 && entry.fallbackThreshold === 0.6), 'AOT search policy locks debounce, limit and fallback');
 
   const shellRuntime = readText('docs/utils/docs-shell-runtime.mjs', rootDir);
-  const pageLoader = readText('docs/utils/pageloader.js', rootDir);
+  const pageLoader = readText('docs/utils/page/route-controller.mjs', rootDir);
   const indexPhp = readText('docs/index.php', rootDir);
+  const docsHtaccess = readText('docs/.htaccess', rootDir);
+  const docsDevRouter = readText('docs/dev-router.php', rootDir);
+  const germanComponentsIndex = readText('docs/de/components/index.php', rootDir);
+  const englishComponentsIndex = readText('docs/en/components/index.php', rootDir);
   const routerSource = readText('components/xrouter.js', rootDir);
+  const dialogSource = readText('components/xdialog.js', rootDir);
+  const modalSource = readText('components/xmodal.js', rootDir);
   const workflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
   const nightlyWorkflow = readText('.github/workflows/xtend-nightly-build.yml', rootDir);
   const browserSmoke = readText('scripts/smoke_docs_shell_catfooding.mjs', rootDir);
@@ -284,11 +303,17 @@ function runDocsShellCatfoodingSuite(options = {}) {
   context.assert(forbiddenShellPatterns.every((pattern) => !pattern.test(shellRuntime)), 'AppRuntime shell contains no free listeners, DOM builders, HTML sinks, eval or remote code');
   context.assert(!pageLoader.includes('createFallbackSearchShell') && !pageLoader.includes('wireSearchForm') && !pageLoader.includes('renderMenu()'), 'page host no longer owns legacy search or navigation runtimes');
   context.assert(indexPhp.includes('/docs/utils/dev-api.js') && indexPhp.includes('/docs/utils/docs-shell-runtime.mjs'), 'SSR host installs DEV API and AppRuntime shell');
+  context.assert(indexPhp.includes("$normalizedSlug === 'components' ? $path . '/' : $path") && shellRuntime.includes("normalizedSlug === 'components' ? '/' : ''") && pageLoader.includes("normalizedSlug === 'components' ? '/' : ''"), 'PHP and browser route builders agree on the canonical trailing-slash components article');
+  context.assert(docsHtaccess.includes('RewriteRule ^(de|en)/components$ $1/components/ [R=308,END,NE]') && docsHtaccess.includes('RewriteRule ^(de|en)/components/$ index.php [END,QSA]'), 'Apache resolves the physical components directory collision before its real-directory bypass');
+  context.assert(docsDevRouter.includes("preg_match('#^/docs/(de|en)/components$#") && docsDevRouter.includes("'/components/', true, 308"), 'Local PHP routing mirrors the canonical components redirect');
+  context.assert([germanComponentsIndex, englishComponentsIndex].every((source) => source.includes("$_SERVER['SCRIPT_NAME'] = '/docs/index.php'") && source.includes("require $_SERVER['SCRIPT_FILENAME']")), 'Localized components directories delegate their Plesk index request to the canonical PHP SSR host');
   context.assert(indexPhp.includes('/docs/utils/docs-shell-runtime.mjs?v=<?= $xtendAssetVersionAttr ?>'), 'SSR host cache-busts the Docs shell runtime with the shared asset version');
   context.assert(indexPhp.includes("'data-docs-home-logo' => true") && indexPhp.includes("docsBuildHistoryRoutePath('readme', $pageLocale"), 'SSR header logo uses x-link with a localized Docs home route');
   context.assert(indexPhp.includes('minmax(18.75rem, 1fr) minmax(20rem, 48rem) minmax(15rem, 1fr) 44px') && indexPhp.includes('max-width: 48rem;'), 'Docs header reserves a wide centered desktop search track');
   context.assert(indexPhp.includes('.docs-search-popover::part(trigger)') && indexPhp.includes('.docs-search-popover::part(root)'), 'Docs search expands the visible popover trigger and results panel with the centered track');
   context.assert(indexPhp.includes('--docs-navigation-item-surface:') && indexPhp.includes('.docs-menu-shell x-link[role="menuitem"]'), 'Docs task navigation scopes neutral menuitem surfaces instead of inheriting the global button palette');
+  context.assert(!indexPhp.includes('docsMenuIconForSlug') && !indexPhp.includes('docs-menu-link-icon') && !shellRuntime.includes('function iconFor(entry)') && !shellRuntime.includes("component('x-icon', {\n      class: 'docs-menu-link-icon'"), 'SSR and AppRuntime main navigation render a uniform label-only article list');
+  context.assert(indexPhp.includes('grid-template-columns: minmax(0, 1fr);'), 'Label-only navigation links retain a full-width single-column layout');
   context.assert(indexPhp.includes('$sectionSplitIndex = (int) ceil(count($sectionNodes) / 2);') && indexPhp.includes("'class' => 'docs-active-trunk-column'") && shellRuntime.includes('const splitIndex = Math.ceil(sections.length / 2);') && shellRuntime.includes("class: 'docs-active-trunk-column'"), 'SSR and AppRuntime partition navigation sections into the same deterministic order-preserving columns');
   context.assert(indexPhp.includes('.docs-active-trunk-column {') && indexPhp.includes('align-content: start;'), 'Docs navigation columns own independent vertical flow without runtime positioning');
   context.assert(indexPhp.includes('--xtend-link-current-indicator: transparent;') && indexPhp.includes('--link-active-decoration: none;') && indexPhp.includes('box-shadow: none;'), 'Docs task navigation keeps the active rail outside the x-link label');
@@ -298,8 +323,46 @@ function runDocsShellCatfoodingSuite(options = {}) {
   context.assert(shellRuntime.includes('window.XTendFabric.createXtendFabric') && shellRuntime.includes('fabric.createTelemetrySnapshot({'), 'AppRuntime shell owns Fabric and telemetry directly');
   context.assert(shellRuntime.includes("XUtils.on(window, 'xtend-api-ready'") && shellRuntime.includes("XUtils.on(document, 'theme-api-ready'"), 'Theme controls defer through XTend readiness events instead of boot-time polling');
   context.assert(shellRuntime.includes('router.registerRoutes(records, {') && shellRuntime.includes("render: false"), 'AppRuntime registers the full route table after SSR without forcing a second render');
+  context.assert(shellRuntime.includes("'data-docs-navigation-activation', 'adopted'") && shellRuntime.includes('syncNavigationState(root, entries, activeEntry, activeTrunk, activeSection)'), 'AppRuntime adopts the complete SSR navigation instead of replaying its initial render');
+  context.assert(shellRuntime.includes("return element('a', {") && shellRuntime.includes("'is-x-link': 'true'") && shellRuntime.includes("'data-xtend-component': 'x-link'"), 'AppRuntime navigation keeps progressive native anchors when a trunk must be rendered');
+  context.assert(indexPhp.includes('x-link,x-input,x-form,x-header,x-hero,x-router,x-footer'), 'Docs preload keeps the router and XLink enhancement available while the resumed document is adopted');
+  context.assert(routerSource.includes("node.tagName === 'A'") && routerSource.includes("node.hasAttribute('is-x-link')"), 'XRouter progressively enhances resumed native XLink anchors in content and related links');
   context.assert(shellRuntime.includes("XUtils.on(window, 'xtend-docs-locale-transition'") && pageLoader.includes('shellRuntime.prepareLocaleRoutes(normalized)'), 'locale intent registers target routes before x-router navigation');
   context.assert(pageLoader.includes('function getExactLocalizedDocsMap') && pageLoader.includes("getExactLocalizedDocsMap('xtendDocsLocalizedPages', normalizedLocale)"), 'lazy article cache never treats an unloaded locale as a fallback-locale cache hit');
+  context.assert(pageLoader.includes('descriptor: options.descriptor ||') && pageLoader.includes("'data-demo-action': 'open-modal'") && pageLoader.includes("'data-demo-action': 'open-dialog'"), 'Dialog and modal RMT demo descriptors materialize their x-button triggers with the overlay targets');
+  context.assert(pageLoader.includes("'data-demo-action': 'toast', variant: 'primary'") && pageLoader.includes("children: ['Toast anzeigen']"), 'Toast demo descriptor materializes an x-button instead of an inline x-toast in the sidebar');
+  context.assert(pageLoader.includes("attributes: { id: 'docs-demo-tooltip', placement: 'top', label: 'Tooltip' }") && pageLoader.includes("'data-demo-action': 'toggle-tooltip'") && pageLoader.includes("actions: ['toggle-tooltip']"), 'Tooltip demo descriptor materializes an actionable x-button through the supported trigger slot');
+  context.assert(dialogSource.includes('grid-template-areas:') && dialogSource.includes('"title close"') && dialogSource.includes('grid-area: close;') && dialogSource.includes('position: static;'), 'x-dialog uses a stable grid chrome row for title and close control');
+  context.assert(modalSource.includes('grid-template-areas:') && modalSource.includes('"title close"') && modalSource.includes('grid-area: close;') && modalSource.includes('position: static;'), 'x-modal uses the same stable grid chrome row for title and close control');
+  context.assert(pageLoader.includes('async function hydrateDocsComponentPreview') && pageLoader.includes("source: 'docs.component-demo'") && pageLoader.includes("'xtend-docs-component-demo-hydrated'"), 'Component demo islands hydrate their rendered XTend dependency tree through the public loader contract');
+  context.assert(
+    pageLoader.includes('function createDocsScheduleDisposer(handle, reason)')
+      && pageLoader.includes("handle.cancel(reason)")
+      && pageLoader.includes("idleDisposer = null;\n      run('visible-idle');"),
+    'Route-scoped idle islands adapt kernel scheduler handles to cancellation disposers before activation'
+  );
+  const routeFragmentCommitIndex = pageLoader.indexOf('Object.assign(shell, adoptedNextShell)');
+  const routedDemoScheduleIndex = pageLoader.indexOf("measuredLane('idle', demoSchedule, 'component-demo.render'", routeFragmentCommitIndex);
+  const routedDemoVisibilityOwnerIndex = pageLoader.lastIndexOf(
+    'scheduleDocsVisibleOrIntentIsland(shell.mdContent',
+    routedDemoScheduleIndex
+  );
+  context.assert(
+    pageLoader.includes("if (hadShell && shell.demoSlot) renderDocsComponentDemo(shell.demoSlot, '')")
+      && routeFragmentCommitIndex >= 0
+      && routedDemoVisibilityOwnerIndex > routeFragmentCommitIndex
+      && routedDemoVisibilityOwnerIndex < routedDemoScheduleIndex
+      && routedDemoScheduleIndex > routeFragmentCommitIndex,
+    'Route navigation clears a reused component demo and schedules its hidden slot from the visible article owner after resumable shell commit'
+  );
+  context.assert(
+    browserSmoke.includes('de-xtoggle-demo-spa-navigation')
+      && browserSmoke.includes("schema: 'xtend.docs.component-demo-spa-navigation.v1'")
+      && browserSmoke.includes("routedDemo.navigationEntryCount === 1")
+      && browserSmoke.includes("routedDemo.islandState === 'ready'"),
+    'ChromeDriver shell smoke covers x-toggle demo hydration after client-side SPA navigation'
+  );
+  context.assert(pageLoader.includes('Dialog-Surface für bestätigende UI-Flows.') && pageLoader.includes('XTend Modal läuft in der Docs Shell.') && !pageLoader.includes('Dialog-Surface fuer bestaetigende UI-Flows.') && !pageLoader.includes('XTend Modal laeuft in der Docs Shell.'), 'Dialog and modal demo copy preserves localized German umlauts');
   const localizedPayloadBlock = pageLoader.slice(pageLoader.indexOf('function loadDocsParsedownContent'), pageLoader.indexOf('function prefetchDocsLocalePage'));
   context.assert(!localizedPayloadBlock.includes('window.xtendDocsPages'), 'localized payload loading never reads the language-neutral legacy page cache');
   context.assert(routerSource.includes('const documentTitle = explicitDocumentTitle || templatedTitle'), 'x-router preserves explicit document titles instead of applying a second template suffix');
@@ -312,15 +375,22 @@ function runDocsShellCatfoodingSuite(options = {}) {
   context.assert(fs.existsSync(resolveRepoPath('scripts/smoke_docs_shell_catfooding.mjs', rootDir)), 'ChromeDriver shell smoke exists');
   context.assert(browserSmoke.includes("process.argv.includes('--capture-baseline')"), 'ChromeDriver shell smoke can reproduce the pre-refactor performance baseline');
   context.assert(browserSmoke.includes('visibleBeforeDefinition') && browserSmoke.includes('hiddenAfterDefinition'), 'ChromeDriver shell smoke verifies the server skeleton across the XRouter definition boundary');
+  context.assert(!indexPhp.includes("'inert' => ''") && browserSmoke.includes('progressiveWhileAdoptionPending'), 'SSR content stays selectable and natively interactive while XRouter verifies its adoption proof');
   context.assert(browserSmoke.includes('navigateHomeViaLogo') && browserSmoke.includes('exerciseSkeletonHardening') && browserSmoke.includes('skeletonHardening.retainedOverlayHidden') && browserSmoke.includes('skeletonHardening.heightDelta <= 0.5') && browserSmoke.includes('switchDocsLocale') && browserSmoke.includes('searchGeometry.centerDelta'), 'ChromeDriver shell smoke covers logo navigation, locale title ownership, centered search geometry and layout-stable skeleton recovery');
   context.assert(browserSmoke.includes('search.presentation.textContrast >= 4.5') && browserSmoke.includes('fallbackSearch.presentation.maxLongTaskMs <= 120'), 'ChromeDriver shell smoke enforces search contrast and compact/fulltext main-thread budgets');
   context.assert(shellRuntime.includes('function activateHighlightedSearchResult(results)') && shellRuntime.includes("XUtils.on(results, 'menu-item-clicked'") && shellRuntime.includes("event.key === 'Enter'") && !shellRuntime.includes("components/xcommand"), 'Docs search activates highlighted results through the resident AppRuntime/menu route path without loading XCommand separately');
   context.assert(browserSmoke.includes('activateHighlightedSearchResult') && browserSmoke.includes("entry?.command?.command === 'docs.route.navigate'") && browserSmoke.includes("enterNavigation.inputSource === 'keyboard'") && browserSmoke.includes('enterNavigation.selectedActive && hasNoInternalLinkIndicator(enterNavigation)'), 'ChromeDriver shell smoke verifies keyboard Enter telemetry and a single indicator on the active native search result');
   context.assert(browserSmoke.includes('exerciseNavigationSurface') && browserSmoke.includes('navigationAppearances.every((entry) => entry && entry.contrast >= 4.5)') && browserSmoke.includes('inactiveUsesPrimarySurface'), 'ChromeDriver shell smoke enforces navigation contrast, active-state distinction and primary-surface isolation');
+  context.assert(browserSmoke.includes('navigationIconCount === 0') && browserSmoke.includes("querySelectorAll('[data-docs-menu-link] x-icon')"), 'ChromeDriver shell smoke rejects article icons after SSR adoption and AppRuntime navigation');
+  context.assert(browserSmoke.includes('runHydrateFallbackNavigationRegression') && browserSmoke.includes("XTEND_DOCS_RESUME_PRIVATE_KEY_FILE: ''") && browserSmoke.includes("initial.activation === 'adopted'") && browserSmoke.includes('routed.activation === \'rendered\''), 'ChromeDriver shell smoke covers missing-key hydration with adopted and routed progressive navigation');
   context.assert(browserSmoke.includes("entry.internalBoxShadow === 'none'") && browserSmoke.includes("entry.internalTextDecoration === 'none'"), 'ChromeDriver shell smoke rejects duplicate active indicators inside navigation labels');
   context.assert(browserSmoke.includes('runMaracaRouteRegression') && browserSmoke.includes('result.maxLongTaskMs <= 1000') && browserSmoke.includes('activeSkeletonCount === 0'), 'ChromeDriver shell smoke blocks Maraca menu feedback stalls and stale skeleton layers');
   context.assert(browserSmoke.includes('runInitialRouteLayoutStability') && browserSmoke.includes("slug: 'rmt-animation-engine'") && browserSmoke.includes("slug: 'native-first-authoring-guide'") && browserSmoke.includes("slug: 'xtend-dev-surface'") && browserSmoke.includes("slug: 'xtend-dev-api'") && browserSmoke.includes("slug: 'hydration-policies'"), 'ChromeDriver shell smoke measures representative direct-entry routes including the DEV API and hydration references');
   context.assert(browserSmoke.includes("slug: 'learn-rmt-playground'") && browserSmoke.includes('inspectPlaygroundSkeleton') && browserSmoke.includes('playgroundSkeletonCount === 0'), 'ChromeDriver shell smoke rejects route skeleton artifacts inside the RMT Playground workspace');
+  context.assert(browserSmoke.includes("id: 'de-xdialog-demo-desktop'") && browserSmoke.includes("id: 'de-xmodal-demo-desktop'") && browserSmoke.includes('inspectOverlayDemo') && browserSmoke.includes("target.snapshot().open"), 'ChromeDriver shell smoke verifies localized overlay demo triggers, hydration and opening behavior');
+  context.assert(browserSmoke.includes("id: 'de-xtoast-demo-desktop'") && browserSmoke.includes('inspectToastDemo') && browserSmoke.includes("containerParent === 'body'") && browserSmoke.includes("surface === 'toast-stack'"), 'ChromeDriver shell smoke verifies toast activation into the document-level toast stack');
+  context.assert(["de-xdrawer-demo-desktop", "de-xpopover-demo-desktop", "de-xtooltip-demo-desktop", "de-xlightbox-demo-desktop"].every((id) => browserSmoke.includes(`id: '${id}'`)) && browserSmoke.includes('inspectActivatableDemo'), 'ChromeDriver shell smoke exercises every externally activatable sidebar demo through x-button');
+  context.assert(browserSmoke.includes("chrome.display === 'grid'") && browserSmoke.includes("chrome.gridTemplateAreas.includes('title close')") && browserSmoke.includes('chrome.titleCloseTopDelta <= 2'), 'ChromeDriver shell smoke verifies aligned dialog and modal grid chrome');
   context.assert(browserSmoke.includes('finalSnapshot.layoutShift <= 0.01') && browserSmoke.includes('result.layoutShift <= 0.01'), 'ChromeDriver shell smoke enforces measured CLS across initial, interaction and Maraca regression paths');
   context.assert(browserSmoke.includes('regionGeometry.heroMainGap >= minimumRegionGap') && browserSmoke.includes('regionGeometry.articleSidebarTopDelta <= 1'), 'ChromeDriver shell smoke enforces visible region spacing and desktop column alignment');
   context.assert(browserSmoke.includes('relatedLayout.rowGap >= 7.9') && browserSmoke.includes('relatedLayout.minAdjacentGap >= 7.9') && browserSmoke.includes('relatedLayout?.headingVisible'), 'ChromeDriver shell smoke enforces Read Further heading visibility and button spacing');
@@ -329,7 +399,7 @@ function runDocsShellCatfoodingSuite(options = {}) {
   context.assert(browserSmoke.includes('assertSingleCurrentArticle') && browserSmoke.includes('expected exactly one current article link') && browserSmoke.includes('current page is not uniquely marked inside its expanded section') && browserSmoke.includes("slug: 'a11y-keyboard-smokes'") && browserSmoke.includes('inspectNavigation: true'), 'ChromeDriver shell smoke enforces one route-matching current article inside its expanded section');
   context.assert(browserSmoke.includes('navigation sections do not flow independently within two stable columns') && browserSmoke.includes('maxInternalColumnGap <= 9') && browserSmoke.includes('navigationSurface.columnsStacked') && browserSmoke.includes('sectionOrderPreserved'), 'ChromeDriver shell smoke verifies independent desktop columns, stable mobile stacking and preserved section order');
   context.assert(browserSmoke.includes('titleAriaHidden === null') && browserSmoke.includes("titlePosition === 'absolute'"), 'ChromeDriver shell smoke keeps collapsed brand text accessible and visually hidden');
-  context.assert(workflow.includes('npm run test:docs-shell-catfooding:report') && workflow.includes('xtend-docs-shell-catfooding-report.json'), 'default CI runs and uploads the Catfooding report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(workflow, "test:docs-shell-catfooding:report") && workflow.includes('xtend-docs-shell-catfooding-report.json'), 'default CI runs and uploads the Catfooding report');
   context.assert(nightlyWorkflow.includes('id: docs_shell_catfooding') && nightlyWorkflow.includes('Docs Shell catfooding gate failed'), 'nightly CI treats Catfooding evidence as required');
   context.assert(packageManifest.xtend.docsPhpSsrPerformanceBudget.htmlBudgetBytes === 256 * 1024, 'package metadata locks the compact 256 KiB SSR HTML budget');
   return context.result({ articleCount: menu.length, trunkCount: navigation.trunks.length });

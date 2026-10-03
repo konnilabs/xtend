@@ -166,6 +166,8 @@ function validateContractModule(context, rootDir) {
     hostCapabilities: { allowedOrigins: ['https://cdn.xtend.example'] }
   });
   context.assert(accepted.accepted === true && accepted.ok === true, 'Evaluator accepts valid XScaler preflight facts');
+  assertEvaluatorBlocks(context, XSCALER_ORIGIN_BLOCKED_CODE, () => {}, { hostCapabilities: {} });
+  assertEvaluatorBlocks(context, XSCALER_ORIGIN_BLOCKED_CODE, () => {}, { hostCapabilities: { allowedOrigins: [] } });
   assertEvaluatorBlocks(context, XSCALER_ORIGIN_BLOCKED_CODE, () => {}, { hostCapabilities: { allowedOrigins: ['https://blocked.example'] } });
   assertEvaluatorBlocks(context, XSCALER_INTEGRITY_MISSING_CODE, (plan) => { plan.integrity.digest = ''; });
   assertEvaluatorBlocks(context, XSCALER_SSR_NETWORK_DENIED_CODE, (plan) => { plan.ssr.networkDuringRender = true; });
@@ -234,34 +236,34 @@ function validateDocs(context, rootDir) {
 }
 
 function validateRegistration(context, rootDir) {
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const pkg = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const pkg = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const defaultWorkflow = readText(DEFAULT_WORKFLOW, rootDir);
   const nightlyWorkflow = readText(NIGHTLY_WORKFLOW, rootDir);
-  const nightlyManifestScript = readText('scripts/create_xtend_nightly_manifest.js', rootDir);
+  const nightlyManifest = require('../../scripts/create_xtend_nightly_manifest');
   const nightlyCommandSet = (((pkg.xtend || {}).ciGateMatrix || {}).nightlyBuild || {}).commandSet || [];
-  context.assert(runner.includes("require('../tests/rmt/xscaler_protocol_suite')"), 'runner imports XScaler suite');
-  context.assert(runner.includes("require('../tests/rmt/xscaler_source_to_sea_suite')"), 'runner imports XScaler source-to-sea suite');
-  context.assert(runner.includes("id: 'xscaler-protocol'"), 'runner registers xscaler-protocol gate');
-  context.assert(runner.includes("id: 'xscaler-source-to-sea'"), 'runner registers xscaler-source-to-sea gate');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/xscaler_protocol_suite.js" }), 'runner imports XScaler suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/xscaler_source_to_sea_suite.js" }), 'runner imports XScaler source-to-sea suite');
+  context.assert(runner.hasSuite("xscaler-protocol"), 'runner registers xscaler-protocol gate');
+  context.assert(runner.hasSuite("xscaler-source-to-sea"), 'runner registers xscaler-source-to-sea gate');
   context.assert(pkg.scripts['test:xscaler-protocol'] === 'node scripts/run_xtend_tests.js xscaler-protocol', 'package exposes XScaler script');
   context.assert(pkg.scripts['test:xscaler-source-to-sea'] === 'node scripts/run_xtend_tests.js xscaler-source-to-sea', 'package exposes XScaler source-to-sea script');
   context.assert((pkg.xtend.releaseGates || []).includes('npm run test:xscaler-protocol'), 'release gates include XScaler protocol');
   context.assert((pkg.xtend.releaseGates || []).includes('npm run test:xscaler-source-to-sea'), 'release gates include XScaler source-to-sea');
-  context.assert(defaultWorkflow.includes('npm run test:xscaler-protocol'), 'default workflow validates XScaler protocol');
-  context.assert(defaultWorkflow.includes('npm run test:xscaler-source-to-sea:report'), 'default workflow validates XScaler source-to-sea');
+  context.assert(require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:xscaler-protocol"), 'default workflow validates XScaler protocol');
+  context.assert(require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:xscaler-source-to-sea:report"), 'default workflow validates XScaler source-to-sea');
   context.assert(defaultWorkflow.includes('.xtend-test-results/xtend-xscaler-protocol-report.json'), 'default workflow uploads XScaler protocol report');
   context.assert(defaultWorkflow.includes('.xtend-test-results/xtend-xscaler-source-to-sea-report.json'), 'default workflow uploads XScaler source-to-sea report');
-  context.assert(nightlyWorkflow.includes('npm run test:xscaler-protocol:report'), 'nightly workflow validates XScaler protocol');
-  context.assert(nightlyWorkflow.includes('npm run test:xscaler-source-to-sea:report'), 'nightly workflow validates XScaler source-to-sea');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:xscaler-protocol:report"), 'nightly workflow validates XScaler protocol');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:xscaler-source-to-sea:report"), 'nightly workflow validates XScaler source-to-sea');
   context.assert(nightlyWorkflow.includes('.xtend-test-results/xtend-xscaler-protocol-report.json'), 'nightly workflow uploads XScaler protocol report');
   context.assert(nightlyWorkflow.includes('.xtend-test-results/xtend-xscaler-source-to-sea-report.json'), 'nightly workflow uploads XScaler source-to-sea report');
   context.assert(nightlyCommandSet.includes('npm run test:xscaler-protocol:report'), 'nightly metadata tracks XScaler protocol report command');
   context.assert(nightlyCommandSet.includes('npm run test:xscaler-source-to-sea:report'), 'nightly metadata tracks XScaler source-to-sea report command');
-  context.assert(nightlyManifestScript.includes('npm run test:xscaler-protocol:report'), 'nightly manifest tracks XScaler protocol command');
-  context.assert(nightlyManifestScript.includes('npm run test:xscaler-source-to-sea:report'), 'nightly manifest tracks XScaler source-to-sea command');
-  context.assert(nightlyManifestScript.includes('.xtend-test-results/xtend-xscaler-protocol-report.json'), 'nightly manifest tracks XScaler protocol artifact');
-  context.assert(nightlyManifestScript.includes('.xtend-test-results/xtend-xscaler-source-to-sea-report.json'), 'nightly manifest tracks XScaler source-to-sea artifact');
+  context.assert(nightlyManifest.COMMANDS.includes('npm run test:xscaler-protocol:report'), 'nightly manifest tracks XScaler protocol command');
+  context.assert(nightlyManifest.COMMANDS.includes('npm run test:xscaler-source-to-sea:report'), 'nightly manifest tracks XScaler source-to-sea command');
+  context.assert(nightlyManifest.ARTIFACT_PATHS.includes('.xtend-test-results/xtend-xscaler-protocol-report.json'), 'nightly manifest tracks XScaler protocol artifact');
+  context.assert(nightlyManifest.ARTIFACT_PATHS.includes('.xtend-test-results/xtend-xscaler-source-to-sea-report.json'), 'nightly manifest tracks XScaler source-to-sea artifact');
   ['test:pr', 'test:pr:report', 'test:release:full', 'test:release:full:report'].forEach((scriptName) => {
     context.assert(pkg.scripts[scriptName].includes('xscaler-protocol'), `${scriptName} includes xscaler-protocol`);
     context.assert(pkg.scripts[scriptName].includes('xscaler-source-to-sea'), `${scriptName} includes xscaler-source-to-sea`);

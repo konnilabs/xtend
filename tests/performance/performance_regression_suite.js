@@ -177,9 +177,9 @@ async function runPerformanceRegressionSuite(options = {}) {
     label: 'XTend Performance regression gates'
   });
   const baseline = readJson(baselinePath, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const suiteSource = readText('tests/performance/performance_regression_suite.js', rootDir);
-  const runnerSource = readText('scripts/run_xtend_tests.js', rootDir);
+  const runnerSource = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const roadmap = readText('development/ROADMAP-XTend-Enterprise-Reife.md', rootDir);
   const performanceDocs = readText('development/docs-evidence/root/performance-regression.md', rootDir);
   const regressionPlan = readText('development/XTend-Performance-Regression-Gate.md', rootDir);
@@ -191,7 +191,7 @@ async function runPerformanceRegressionSuite(options = {}) {
   context.assertIncludes(suiteSource, PERFORMANCE_REGRESSION_REPORT_SCHEMA, 'Suite declares Performance regression report schema');
   context.assertIncludes(suiteSource, 'createTelemetrySnapshot', 'Suite builds on Fabric telemetry snapshots');
   context.assertIncludes(suiteSource, 'classifyRegressionStatus', 'Suite owns deterministic budget classification');
-  context.assertIncludes(runnerSource, 'performance-regression', 'Runner exposes performance-regression suite id');
+  context.assert(runnerSource.hasSuite("performance-regression"), 'Runner exposes performance-regression suite id');
   context.assertIncludes(regressionPlan, PERFORMANCE_REGRESSION_GATE_CONTRACT, 'Regression plan declares gate contract');
   context.assertIncludes(performanceDocs, PERFORMANCE_REGRESSION_REPORT_SCHEMA, 'Docs declare JSON report schema');
   context.assert(baseline.schema === PERFORMANCE_REGRESSION_BASELINE_CONTRACT, 'Baseline declares performance regression baseline contract');

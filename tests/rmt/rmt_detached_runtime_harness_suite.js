@@ -20,6 +20,7 @@ const DETACHED_RUNTIME_TELEMETRY_SCHEMA = 'xtend.rmt.detached-runtime-telemetry.
 const BROWSER_SMOKE_COMPAT_SCHEMA = 'xtend.rmt.browser-smoke-compatible-result.v1';
 
 const RMT_CORE_RUNTIME = 'xtendrmt/rmt-core.esm.js';
+const RMT_KERNEL_SCHEDULER_RUNTIME = 'xtendrmt/rmt-kernel-scheduler.js';
 const RMT_CORE_TYPES = 'xtendrmt/rmt-core.d.ts';
 const SURFACE_CONTROLLER_RUNTIME = 'components/xsurfacemanager-controller.js';
 const SURFACE_GRAPH_RUNTIME = 'xtendrmt/rmt-surface-resource-graph-runtime.js';
@@ -196,6 +197,7 @@ async function loadSurfaceControllerModule(rootDir) {
 async function createRmtDetachedRuntimeGateHarness(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const rmtKernel = await importEsm(rootDir, RMT_CORE_RUNTIME);
+  const schedulerModule = await importEsm(rootDir, RMT_KERNEL_SCHEDULER_RUNTIME);
   const surfaceGraphModule = await importEsm(rootDir, SURFACE_GRAPH_RUNTIME);
   const actionModule = await importEsm(rootDir, ACTION_EFFECT_RUNTIME);
   const surfaceControllerModule = await loadSurfaceControllerModule(rootDir);
@@ -222,7 +224,9 @@ async function createRmtDetachedRuntimeGateHarness(options = {}) {
     return entry;
   }
 
+  const kernelScheduler = schedulerModule.createRmtKernelScheduler();
   const detachedRuntime = rmtKernel.createRmtDetachedRuntime({
+    kernelScheduler,
     windowTarget: dom.windowTarget,
     documentTarget: dom.documentTarget,
     collectBrowserSignals: false,
@@ -423,6 +427,7 @@ async function createRmtDetachedRuntimeGateHarness(options = {}) {
   return {
     schema: DETACHED_RUNTIME_HARNESS_SCHEMA,
     rootDir,
+    kernelScheduler,
     detachedRuntime,
     documentTarget: dom.documentTarget,
     surfaceController,
@@ -445,10 +450,11 @@ async function runRmtDetachedRuntimeHarnessSuite(options = {}) {
   const coreTypes = readText(RMT_CORE_TYPES, rootDir);
   const surfaceControllerSource = readText(SURFACE_CONTROLLER_RUNTIME, rootDir);
   const surfaceGraphSource = readText(SURFACE_GRAPH_RUNTIME, rootDir);
-  const runnerSource = readText('scripts/run_xtend_tests.js', rootDir);
+  const runnerSource = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   [
     RMT_CORE_RUNTIME,
+    RMT_KERNEL_SCHEDULER_RUNTIME,
     RMT_CORE_TYPES,
     SURFACE_CONTROLLER_RUNTIME,
     SURFACE_GRAPH_RUNTIME,
@@ -468,7 +474,7 @@ async function runRmtDetachedRuntimeHarnessSuite(options = {}) {
   context.assertIncludes(surfaceGraphSource, "callSurfaceManager('destroySurface'", 'Surface Resource Graph calls real destroySurface when available');
   context.assertIncludes(surfaceGraphSource, 'releaseOwner', 'Surface Resource Graph releases resource owners');
   context.assertIncludes(surfaceGraphSource, 'detachOwner', 'Surface Resource Graph detaches event owners');
-  context.assertIncludes(runnerSource, "id: 'rmt-detached-runtime-harness'", 'Test runner exposes detached runtime harness suite');
+  context.assert(runnerSource.hasSuite("rmt-detached-runtime-harness"), 'Test runner exposes detached runtime harness suite');
 
   const harness = await createRmtDetachedRuntimeGateHarness({ rootDir });
   const result = await harness.runLifecycleScenario();
@@ -499,6 +505,8 @@ async function runRmtDetachedRuntimeHarnessSuite(options = {}) {
   context.assert(result.browserSmokeCompatible.schema === BROWSER_SMOKE_COMPAT_SCHEMA, 'Harness emits browser-smoke-compatible result schema');
   context.assert(result.browserSmokeCompatible.status === 'passed', 'Browser-smoke-compatible result passes');
   context.assert(Array.isArray(result.browserSmokeCompatible.checks) && result.browserSmokeCompatible.checks.length === result.telemetry.recordCount, 'Browser-smoke-compatible result mirrors telemetry records as checks');
+
+  harness.kernelScheduler.dispose('detached-runtime-harness-complete');
 
   return context.result({
     report: {

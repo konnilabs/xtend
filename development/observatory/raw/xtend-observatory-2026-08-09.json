@@ -1,0 +1,297 @@
+{
+  "findings": [
+    {
+      "id": "scoped-custom-element-registries",
+      "primitive": "Scoped Custom Element Registries",
+      "title": "Lokale Registries werden zum Interop-Ziel",
+      "category": "components",
+      "maturity": "INTEROP 2026",
+      "verdict": "prototype_now",
+      "impactScore": 5,
+      "summary": "Browserhersteller arbeiten 2026 gemeinsam an interoperablen, bereichsgebundenen Custom-Element-Registries.",
+      "impact": "Surfaces und XTensions könnten identische Tag-Namen ohne globale Registry-Kollisionen kapseln. Das passt direkt zur Host-Adapter-Grenze und zu Remote Surface Shards.",
+      "risk": "Noch kein Ersatz für die bestehende globale Registry. Aktivierung muss strikt capability-basiert bleiben.",
+      "prototype": "Eine isolierte XSurface mit eigener Registry materialisieren und Lifecycle, Upgrade-Reihenfolge sowie SSR-Hydration gegen die globale Fallback-Registry messen.",
+      "browserSupport": {
+        "Chromium": "Interop-Arbeit 2026",
+        "Firefox": "Interop-Arbeit 2026",
+        "Safari": "Interop-Arbeit 2026"
+      },
+      "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+      "sourceLabel": "Web Platform Tests · Interop 2026",
+      "firstSeen": "2026-02-12",
+      "lastUpdated": "2026-08-09",
+      "events": [
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "INTEROP 2026",
+          "verdict": "prototype_now",
+          "note": "Als offizieller Interop-Fokus aufgenommen.",
+          "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md"
+        }
+      ]
+    },
+    {
+      "id": "scheduler-yield",
+      "primitive": "scheduler.yield()",
+      "title": "Priorisierte Fortsetzungen für Fabric-Arbeit",
+      "category": "runtime",
+      "maturity": "LIMITED SHIPPING",
+      "verdict": "prototype_now",
+      "impactScore": 5,
+      "summary": "scheduler.yield() zerlegt Long Tasks und setzt die Fortsetzung höher priorisiert wieder an als gewöhnliche Queue-Arbeit.",
+      "impact": "Fabric könnte sichtbare Hydration und Chunk-Arbeit kooperativ unterbrechen, ohne Fortsetzungen hinter neu eingereihter Arbeit verhungern zu lassen. Das ist besonders für INP und Backpressure relevant.",
+      "risk": "Prioritätsvererbung ist nicht sinnvoll polyfillbar. Der bestehende Scheduler bleibt für nicht unterstützte Browser maßgeblich.",
+      "prototype": "Eine Maraca-Hydration mit 500 Komponenten in 4-ms-Scheiben vergleichen: scheduler.yield(), postTask-Fallback und bestehender Lane-Scheduler.",
+      "browserSupport": {
+        "Chromium": "129+",
+        "Firefox": "142+",
+        "Safari": "nicht verfügbar"
+      },
+      "sourceUrl": "https://developer.chrome.com/blog/use-scheduler-yield",
+      "sourceLabel": "Chrome for Developers",
+      "firstSeen": "2025-03-06",
+      "lastUpdated": "2026-08-09",
+      "events": [
+        {
+          "happenedAt": "2025-03-06",
+          "maturity": "SHIPPING / FEATURE DETECT",
+          "verdict": "watch",
+          "note": "Produktionsmuster und Fallback-Strategie dokumentiert.",
+          "sourceUrl": "https://developer.chrome.com/blog/use-scheduler-yield"
+        },
+        {
+          "happenedAt": "2026-08-09",
+          "maturity": "LIMITED SHIPPING",
+          "verdict": "prototype_now",
+          "note": "Firefox-Unterstützung macht einen Multi-Engine-Prototyp sinnvoll.",
+          "sourceUrl": "https://developer.chrome.com/blog/use-scheduler-yield"
+        }
+      ]
+    },
+    {
+      "id": "navigation-api",
+      "primitive": "Navigation API",
+      "title": "Browsernavigation als Router-Unterbau",
+      "category": "routing",
+      "maturity": "INTEROP 2026",
+      "verdict": "watch",
+      "impactScore": 5,
+      "summary": "Die Navigation API ist 2026 erstmals ein koordinierter Interop-Fokus und adressiert History- und Navigations-Lebenszyklen direkt.",
+      "impact": "Langfristig könnte der XRouter weniger History-Patching benötigen und Navigation, Abort sowie Transitionen an einer nativen Grenze koordinieren.",
+      "risk": "Interop-Fokus ist noch kein universelles Produktionssignal. Eine voreilige Kopplung würde den Router auf eine bewegliche Semantik festlegen.",
+      "prototype": "Nur im Capability-Lab: navigate-Events in RMT-Routen übersetzen und Abbruch, Back/Forward sowie scroll restoration gegen XRouter-Verhalten protokollieren.",
+      "browserSupport": {
+        "Chromium": "implementiert",
+        "Firefox": "Interop-Arbeit 2026",
+        "Safari": "Interop-Arbeit 2026"
+      },
+      "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+      "sourceLabel": "Web Platform Tests · Interop 2026",
+      "firstSeen": "2026-02-12",
+      "lastUpdated": "2026-08-09",
+      "events": [
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "INTEROP 2026",
+          "verdict": "watch",
+          "note": "In das koordinierte Browserprogramm aufgenommen.",
+          "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md"
+        }
+      ]
+    },
+    {
+      "id": "dialogs-popovers",
+      "primitive": "Dialog + Popover",
+      "title": "Interop-Schub für native Overlay-Komponenten",
+      "category": "components",
+      "maturity": "BROADLY SHIPPING",
+      "verdict": "prototype_now",
+      "impactScore": 4,
+      "summary": "Dialogs und Popovers sind 2026 ein Interop-Fokus; im Zentrum stehen verlässliche, engineübergreifende Verhaltensdetails.",
+      "impact": "XDialog, XMenu, Tooltips und Inspector-Flächen können Fokus, Top Layer und Escape-Verhalten stärker an native Primitive delegieren.",
+      "risk": "Bestehende Focus-Traps und Portals dürfen nicht parallel gegen den nativen Top Layer arbeiten.",
+      "prototype": "XDialog und XMenu hinter einer gemeinsamen Overlay-Capability auf native Popover-/Dialog-Pfade umstellen und die A11y-Hydrationstests dagegen laufen lassen.",
+      "browserSupport": {
+        "Chromium": "breit verfügbar",
+        "Firefox": "breit verfügbar",
+        "Safari": "breit verfügbar"
+      },
+      "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+      "sourceLabel": "Web Platform Tests · Interop 2026",
+      "firstSeen": "2026-02-12",
+      "lastUpdated": "2026-08-09",
+      "events": [
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "BROADLY SHIPPING",
+          "verdict": "prototype_now",
+          "note": "Verhaltenslücken werden im Interop-Programm getestet.",
+          "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md"
+        }
+      ]
+    },
+    {
+      "id": "a11y-testing-interop",
+      "primitive": "Cross-engine Accessibility Testing",
+      "title": "A11y-Testinfrastruktur wird Interop-Untersuchung",
+      "category": "accessibility",
+      "maturity": "INVESTIGATION",
+      "verdict": "watch",
+      "impactScore": 4,
+      "summary": "Interop 2026 untersucht engineübergreifende Accessibility-Tests statt nur einzelne UI-APIs zu vereinheitlichen.",
+      "impact": "XTends a11y-hydration-Suite könnte künftig reproduzierbarer prüfen, ob progressive Aktivierung Name, Rolle, Zustand und Fokus stabil hält.",
+      "risk": "Eine Investigation erzeugt zunächst Testgrundlagen, noch keine neue Produktions-API.",
+      "prototype": "Bestehende A11y-Hydration-Fälle auf relevante WPT-Strukturen abbilden und Lücken dokumentieren; noch keine Runtime-Änderung.",
+      "browserSupport": {
+        "Chromium": "Test-Investigation",
+        "Firefox": "Test-Investigation",
+        "Safari": "Test-Investigation"
+      },
+      "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+      "sourceLabel": "Web Platform Tests · Interop 2026",
+      "firstSeen": "2026-02-12",
+      "lastUpdated": "2026-08-09",
+      "events": [
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "INVESTIGATION",
+          "verdict": "watch",
+          "note": "Accessibility Testing als Untersuchung aufgenommen.",
+          "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md"
+        }
+      ]
+    },
+    {
+      "id": "jspi-wasm",
+      "primitive": "JSPI for WebAssembly",
+      "title": "Asynchrone Wasm-Grenze wird Interop-Fokus",
+      "category": "infrastructure",
+      "maturity": "INTEROP 2026",
+      "verdict": "watch",
+      "impactScore": 3,
+      "summary": "JavaScript Promise Integration für WebAssembly ist Teil des Interop-2026-Programms.",
+      "impact": "Künftige Wasm-XTensions könnten asynchrone Host-Aufrufe natürlicher abbilden, ohne ihren Ausführungszustand vollständig manuell zu zerlegen.",
+      "risk": "Für den heutigen DOM-/Custom-Element-Kern entsteht kein unmittelbarer Gewinn. Relevant wird es erst mit konkreten Wasm-Compute-Surfaces.",
+      "prototype": "Nur beobachten; bei einer realen Wasm-XTension einen isolierten Async-Hostcall-Benchmark als Capability-Test ergänzen.",
+      "browserSupport": {
+        "Chromium": "Interop-Arbeit 2026",
+        "Firefox": "Interop-Arbeit 2026",
+        "Safari": "Interop-Arbeit 2026"
+      },
+      "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+      "sourceLabel": "Web Platform Tests · Interop 2026",
+      "firstSeen": "2026-02-12",
+      "lastUpdated": "2026-08-09",
+      "events": [
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "INTEROP 2026",
+          "verdict": "watch",
+          "note": "Als browserübergreifender Fokus aufgenommen.",
+          "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md"
+        }
+      ]
+    },
+    {
+      "id": "declarative-shadow-slot-assignment",
+      "primitive": "Declarative Shadow DOM Slot Assignment",
+      "title": "Manuelle Slot-Zuordnung erreicht deklaratives Markup",
+      "category": "hydration",
+      "maturity": "CHROMIUM 151",
+      "verdict": "watch",
+      "impactScore": 4,
+      "summary": "Chrome 151 führt shadowrootslotassignment für deklarative Shadow Roots ein und bringt bisher imperative Slot-Konfiguration ins Server-Markup.",
+      "impact": "RMT-Artefakte könnten die Slot-Strategie einer Surface bereits im SSR-Output festlegen. Der Host-Adapter müsste beim Aktivieren weniger Shadow-Root-Konfiguration nachtragen.",
+      "risk": "Derzeit ist das ein Chromium-Signal, kein interoperables Primitive. Die Runtime darf daraus noch keine allgemeine Hydration-Annahme ableiten.",
+      "prototype": "Im Hydration-Lab denselben Custom-Element-Baum einmal mit deklarativem manual slot assignment und einmal über attachShadow konfigurieren; Parse-, Upgrade- und Reorder-Verhalten messen.",
+      "browserSupport": {
+        "Chromium": "151+",
+        "Firefox": "kein breites Signal",
+        "Safari": "kein breites Signal"
+      },
+      "sourceUrl": "https://developer.chrome.com/release-notes/151",
+      "sourceLabel": "Chrome 151 Release Notes",
+      "firstSeen": "2026-07-28",
+      "lastUpdated": "2026-07-28",
+      "events": [
+        {
+          "happenedAt": "2026-07-28",
+          "maturity": "CHROMIUM 151",
+          "verdict": "watch",
+          "note": "Deklarative Konfiguration für manual slot assignment ausgeliefert.",
+          "sourceUrl": "https://developer.chrome.com/release-notes/151"
+        }
+      ]
+    },
+    {
+      "id": "cross-document-view-transitions",
+      "primitive": "Cross-document View Transitions",
+      "title": "Native Übergänge für SSR- und MPA-Navigation",
+      "category": "routing",
+      "maturity": "SHIPPING + INTEROP",
+      "verdict": "prototype_now",
+      "impactScore": 4,
+      "summary": "Dokumentübergreifende View Transitions sind in Safari und Chromium verfügbar und Teil von Interop 2026.",
+      "impact": "Die XTend-Dokumentation kann klassische Servernavigation beibehalten und trotzdem visuelle Kontinuität liefern. XRouter muss dafür nicht die gesamte App-Shell besitzen.",
+      "risk": "Transition-Namen, BFCache und konkurrierende clientseitige Surface-Übergänge brauchen klare Ownership-Regeln.",
+      "prototype": "Eine Parsedown-Route als echte MPA-Navigation ausführen und nur Hauptinhalt, Breadcrumb und aktive Rail-Marke über View-Transition-Namen verbinden.",
+      "browserSupport": {
+        "Chromium": "126+",
+        "Firefox": "Interop-Fokus 2026",
+        "Safari": "18.2+"
+      },
+      "sourceUrl": "https://webkit.org/blog/16967/two-lines-of-cross-document-view-transitions-code-you-can-use-on-every-website-today/",
+      "sourceLabel": "WebKit Blog",
+      "firstSeen": "2024-12-09",
+      "lastUpdated": "2026-02-12",
+      "events": [
+        {
+          "happenedAt": "2024-12-09",
+          "maturity": "SHIPPING",
+          "verdict": "watch",
+          "note": "Safari 18.2 liefert dokumentübergreifende Übergänge aus.",
+          "sourceUrl": "https://webkit.org/blog/16301/webkit-features-in-safari-18-2/"
+        },
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "SHIPPING + INTEROP",
+          "verdict": "prototype_now",
+          "note": "Cross-document-Variante wird Interop-2026-Fokus.",
+          "sourceUrl": "https://webkit.org/blog/17818/announcing-interop-2026/"
+        }
+      ]
+    },
+    {
+      "id": "css-anchor-positioning",
+      "primitive": "CSS Anchor Positioning",
+      "title": "Layout-Primitive für Menüs und Tooltips konvergiert",
+      "category": "components",
+      "maturity": "INTEROP CARRY-OVER",
+      "verdict": "prototype_now",
+      "impactScore": 3,
+      "summary": "Anchor Positioning bleibt 2026 Interop-Fokus und nähert sich verlässlichem Einsatz über Engines hinweg.",
+      "impact": "Positionierungslogik für XMenu, XTooltip und kontextuelle Inspector-UI kann aus JavaScript in CSS wandern und Resize-/Scroll-Arbeit reduzieren.",
+      "risk": "Fallbacks bleiben nötig; komplexe Collision-Strategien sind noch nicht überall identisch.",
+      "prototype": "Eine tooltipartige XTend-Komponente mit CSS-Ankerpfad plus bestehendem JS-Fallback bauen und Layout-/Resize-Kosten vergleichen.",
+      "browserSupport": {
+        "Chromium": "shipping",
+        "Firefox": "Interop-Arbeit 2026",
+        "Safari": "Interop-Arbeit 2026"
+      },
+      "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+      "sourceLabel": "Web Platform Tests · Interop 2026",
+      "firstSeen": "2025-02-13",
+      "lastUpdated": "2026-02-12",
+      "events": [
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "INTEROP CARRY-OVER",
+          "verdict": "prototype_now",
+          "note": "Als Carry-over für 2026 bestätigt.",
+          "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md"
+        }
+      ]
+    }
+  ]
+}

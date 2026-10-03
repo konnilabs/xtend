@@ -1,0 +1,50 @@
+[
+  {
+    "fixture": "minimal",
+    "trial": 0,
+    "ms": 163.71,
+    "bytes": 4355,
+    "ok": true,
+    "hasMaraca": false
+  },
+  {
+    "fixture": "minimal",
+    "trial": 1,
+    "ms": 145.7,
+    "bytes": 4355,
+    "ok": true,
+    "hasMaraca": false
+  },
+  {
+    "fixture": "minimal",
+    "trial": 2,
+    "ms": 133.51,
+    "bytes": 4355,
+    "ok": true,
+    "hasMaraca": false
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 0,
+    "ms": 333.22,
+    "bytes": 291650,
+    "ok": true,
+    "hasMaraca": false
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 1,
+    "ms": 311.55,
+    "bytes": 291650,
+    "ok": true,
+    "hasMaraca": false
+  },
+  {
+    "fixture": "customer-service",
+    "trial": 2,
+    "ms": 325.89,
+    "bytes": 291650,
+    "ok": true,
+    "hasMaraca": false
+  }
+]

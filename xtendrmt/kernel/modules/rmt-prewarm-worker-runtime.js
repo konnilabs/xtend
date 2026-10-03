@@ -105,6 +105,9 @@
         let syncedTemplateCount = 0;
         let lastHealthAt = 0;
         let lastError = null;
+        let paused = false;
+        let pauseReason = '';
+        let invalidationCount = 0;
         const latestUiComputeGenerationByKey = new Map();
         const taskResolvers = new Map();
 
@@ -218,7 +221,13 @@
             return worker;
         }
 
-        function postWorkerMessage(action, payload = {}, transferables = []) {
+        function postWorkerMessage(action, payload = {}, transferables = [], signal = null) {
+            if (signal && signal.aborted) return Promise.resolve({ ok: false, status: 'superseded', superseded: true });
+            if (paused) {
+                const error = new Error(`RmtPrewarmWorker ist pausiert: ${pauseReason || 'backpressure'}.`);
+                error.code = 'xtend.rmt.prewarm_worker.paused';
+                return Promise.reject(error);
+            }
             const currentWorker = getWorker();
             const id = ++taskCounter;
             submittedJobs += 1;
@@ -228,10 +237,16 @@
                 ...payload
             });
             return new Promise((resolve, reject) => {
+                const cleanup = () => {
+                    taskResolvers.delete(id);
+                    if (signal) signal.removeEventListener('abort', abort);
+                };
+                const abort = () => { cleanup(); resolve({ ok: false, status: 'superseded', superseded: true }); };
                 taskResolvers.set(id, {
-                    resolve,
-                    reject
+                    resolve(value) { cleanup(); resolve(value); },
+                    reject(error) { cleanup(); reject(error); }
                 });
+                if (signal) signal.addEventListener('abort', abort, { once: true });
                 queueDepthMax = Math.max(queueDepthMax, taskResolvers.size);
                 try {
                     currentWorker.postMessage({
@@ -240,7 +255,7 @@
                         ...payload
                     }, Array.isArray(transferables) ? transferables : []);
                 } catch (error) {
-                    taskResolvers.delete(id);
+                    cleanup();
                     lastError = serializeError(error);
                     reject(error);
                 }
@@ -383,6 +398,15 @@
         }
 
         async function dispatchUiComputeEnvelope(envelope, options = {}) {
+            const boundary = options.abortBoundary;
+            if (boundary && typeof boundary.run === 'function') {
+                return boundary.run(({ signal }) => dispatchUiComputeWork(envelope, { ...options, signal }), options.presentationToken || boundary.capture());
+            }
+            return dispatchUiComputeWork(envelope, options);
+        }
+
+        async function dispatchUiComputeWork(envelope, options = {}) {
+            if (options.signal && options.signal.aborted) return { ok: false, status: 'superseded', superseded: true };
             const requestInfo = normalizeUiComputeEnvelope(envelope, options);
             if (requestInfo.hydrationKey && requestInfo.generation) {
                 latestUiComputeGenerationByKey.set(requestInfo.hydrationKey, requestInfo.generation);
@@ -392,12 +416,13 @@
             });
             const result = await postWorkerMessage('ui_compute', {
                 envelope: requestInfo.envelope
-            });
+            }, [], options.signal);
             lastHealthAt = now();
             const latestGeneration = requestInfo.hydrationKey
                 ? latestUiComputeGenerationByKey.get(requestInfo.hydrationKey)
                 : requestInfo.generation;
             const superseded = Boolean(
+                (options.signal && options.signal.aborted) || (result && result.status === 'superseded') ||
                 requestInfo.hydrationKey
                 && requestInfo.generation
                 && latestGeneration
@@ -412,6 +437,22 @@
             const result = await postWorkerMessage('health');
             lastHealthAt = now();
             return result;
+        }
+
+        function pauseForBackpressure(reason = 'critical_backpressure') {
+            paused = true;
+            pauseReason = normalizeTextValue(reason, 'critical_backpressure');
+            invalidationCount += latestUiComputeGenerationByKey.size;
+            latestUiComputeGenerationByKey.clear();
+            terminateWorker(pauseReason);
+            return true;
+        }
+
+        function resume(reason = 'pressure_recovered') {
+            paused = false;
+            pauseReason = normalizeTextValue(reason, 'pressure_recovered');
+            lastError = null;
+            return true;
         }
 
         function getTopologySnapshot() {
@@ -435,6 +476,9 @@
                 missingApis,
                 lastHealthAt,
                 lastError: cloneSerializable(lastError, null),
+                paused,
+                pauseReason,
+                invalidationCount,
                 responsibilities: [
                     'template_prerender_compute',
                     'chunk_serialization',
@@ -483,6 +527,8 @@
             getTopologySnapshot,
             getWorker,
             healthCheck,
+            pauseForBackpressure,
+            resume,
             syncTemplates,
             terminateWorker
         });

@@ -1,0 +1,44 @@
+{
+  "schema": "xtend.native-first.observatory-browser-lab-report.v1",
+  "engine": "Chromium",
+  "version": "151.0.7922.108",
+  "capturedAt": "2026-08-17T17:17:41+02:00",
+  "executionMode": "local-headless-single-engine",
+  "harness": "tests/browser/fixtures/observatory-adoption-lab.html",
+  "harnessSha256": "9a5f7132051b02e9af8c4790dd95dc620a8f54a2a55222289ed29cef17195ec4",
+  "completed": true,
+  "capabilities": {
+    "dialog": true,
+    "popover": true,
+    "anchorPositioning": true,
+    "schedulerYield": true,
+    "scopedRegistry": true
+  },
+  "registry": {
+    "attempted": true,
+    "isolated": true,
+    "constructors": ["ScopeA", "ScopeB"]
+  },
+  "hydration": {
+    "units": 500,
+    "slices": 10,
+    "yieldCount": 9,
+    "maxSliceMs": 0.3000000002793968,
+    "strategy": "scheduler.yield",
+    "orderPreserved": true
+  },
+  "boundaries": {
+    "modalPopoverMigration": false,
+    "publicEventsChanged": false,
+    "surfaceRecordsChanged": false
+  },
+  "acceptance": {
+    "sliceBudgetMs": 4,
+    "longTaskLimitMs": 50,
+    "sliceBudgetMet": true,
+    "noHydrationLongTaskOver50Ms": true,
+    "orderPreserved": true
+  },
+  "claimBoundary": "single-local-lab-not-shipping-support",
+  "missingEvidence": ["Firefox", "WebKit", "keyboard-and-accessibility-tree", "p95-input-delay", "throughput-comparison"]
+}

@@ -1,42 +1,27 @@
 #!/usr/bin/env node
 
 const path = require('path');
-const {
-  buildSemanticGraph
-} = require('../rmt-language/semantic-graph');
+const { fileURLToPath } = require('url');
+const { createProjectIndex } = require('../project-index');
 const {
   createRmtSourceModel
 } = require('../rmt-language/source-model');
 const {
-  lintRmtSource
-} = require('../rmt-language/diagnostics');
-const {
   getRmtCompletions
 } = require('../rmt-language/completions');
-const {
-  getRmtDefinition
-} = require('../rmt-language/definitions');
 const {
   getRmtHover
 } = require('../rmt-language/hover');
 const {
-  getRmtDocumentSymbols
-} = require('../rmt-language/symbols');
-const {
   getRmtCodeActions
 } = require('../rmt-language/code-actions');
 const {
-  analyzeRmtVNextToolingSource,
   createRmtVNextPrimitiveCommandHandoff,
   findRmtVNextPointerAtPosition,
   getRmtVNextToolingCodeActions,
   getRmtVNextToolingCompletions,
-  getRmtVNextToolingDefinition,
-  getRmtVNextToolingDocumentSymbols,
   getRmtVNextToolingHover,
-  RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND,
-  isLikelyRmtVNextSource,
-  lintRmtVNextToolingSource
+  RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND
 } = require('../rmt-language/vnext-tooling');
 const {
   createJsonRpcError,
@@ -47,9 +32,7 @@ const {
   toLspCompletionItem,
   toLspCodeAction,
   toLspDiagnostic,
-  toLspDocumentSymbol,
-  toLspHover,
-  toLspLocation
+  toLspHover
 } = require('./protocol');
 
 const RMT_LANGUAGE_SERVER_SCHEMA = 'xtend.rmt.language-server.v1';
@@ -137,7 +120,7 @@ function uriToFilePath(uri) {
   }
 
   try {
-    return decodeURIComponent(new URL(uri).pathname);
+    return fileURLToPath(uri);
   } catch (error) {
     return null;
   }
@@ -172,6 +155,9 @@ function createCapabilities() {
     hoverProvider: true,
     documentSymbolProvider: true,
     definitionProvider: true,
+    referencesProvider: true,
+    workspaceSymbolProvider: true,
+    workspace: { workspaceFolders: { supported: true, changeNotifications: true } },
     codeActionProvider: {
       codeActionKinds: ['quickfix', 'source.fixAll', 'source.fixAll.rmt.vnext.primitives']
     },
@@ -187,8 +173,8 @@ class RmtLanguageServer {
     this.reportSchema = RMT_LANGUAGE_SERVER_REPORT_SCHEMA;
     this.workpackage = RMT_LANGUAGE_SERVER_WORKPACKAGE;
     this.rootDir = options.rootDir || process.cwd();
-    this.documents = new Map();
-    this.analysisCache = new Map();
+    this.projectIndex = createProjectIndex({ rootDir: this.rootDir, workspaceRoots: options.workspaceRoots, profile: 'rmt' });
+    this.documents = this.projectIndex.overlays;
     this.protocolBuffer = Buffer.alloc(0);
     this.shutdownRequested = false;
     this.exitRequested = false;
@@ -200,6 +186,11 @@ class RmtLanguageServer {
     } else if (params.rootPath) {
       this.rootDir = path.resolve(params.rootPath);
     }
+
+    const roots = toArray(params.workspaceFolders).map(folder => uriToFilePath(folder.uri)).filter(Boolean);
+    this.projectIndex.dispose();
+    this.projectIndex = createProjectIndex({ rootDir: this.rootDir, workspaceRoots: params.workspaceFolders ? roots : undefined, profile: 'rmt' });
+    this.documents = this.projectIndex.overlays;
 
     return {
       capabilities: createCapabilities(),
@@ -225,14 +216,14 @@ class RmtLanguageServer {
       return [];
     }
 
-    this.documents.set(uri, {
+    const accepted = this.projectIndex.updateDocument({
       uri,
       filePath: uriToFilePath(uri),
       languageId: textDocument.languageId || 'rmt',
       version: Number.isInteger(textDocument.version) ? textDocument.version : 0,
       text: String(textDocument.text || '')
     });
-    this.analysisCache.delete(uri);
+    if (!accepted) return [];
 
     return [this.createDiagnosticsNotification(uri)];
   }
@@ -245,6 +236,7 @@ class RmtLanguageServer {
       return [];
     }
 
+    if (Number.isInteger(params.textDocument.version) && params.textDocument.version <= document.version) return [];
     let text = document.text;
     toArray(params.contentChanges).forEach((change) => {
       text = applyTextChange({
@@ -253,12 +245,12 @@ class RmtLanguageServer {
       }, change);
     });
 
-    this.documents.set(uri, {
+    this.projectIndex.updateDocument({
       ...document,
       version: Number.isInteger(params.textDocument.version) ? params.textDocument.version : document.version + 1,
       text
     });
-    this.analysisCache.delete(uri);
+
 
     return [this.createDiagnosticsNotification(uri)];
   }
@@ -270,8 +262,7 @@ class RmtLanguageServer {
       return [];
     }
 
-    this.documents.delete(uri);
-    this.analysisCache.delete(uri);
+    this.projectIndex.closeDocument(uri);
 
     return [createJsonRpcNotification('textDocument/publishDiagnostics', {
       uri,
@@ -284,44 +275,7 @@ class RmtLanguageServer {
   }
 
   analyzeDocument(uri) {
-    if (this.analysisCache.has(uri)) {
-      return this.analysisCache.get(uri);
-    }
-
-    const document = this.getDocument(uri);
-
-    if (!document) {
-      return null;
-    }
-
-    const input = createDocumentInput(document);
-    const vnext = isLikelyRmtVNextSource(input);
-    const graph = vnext
-      ? analyzeRmtVNextToolingSource(input, {
-        rootDir: this.rootDir
-      })
-      : buildSemanticGraph(input, {
-        rootDir: this.rootDir
-      });
-    const linterReport = vnext
-      ? lintRmtVNextToolingSource(input, {
-        rootDir: this.rootDir,
-        analysis: graph
-      })
-      : lintRmtSource(input, {
-        rootDir: this.rootDir,
-        graph
-      });
-    const analysis = {
-      document,
-      input,
-      graph,
-      linterReport,
-      languageMode: vnext ? 'vnext' : 'legacy'
-    };
-
-    this.analysisCache.set(uri, analysis);
-    return analysis;
+    return this.projectIndex.getAnalysis(uri);
   }
 
   createDiagnosticsNotification(uri) {
@@ -446,49 +400,53 @@ class RmtLanguageServer {
 
   documentSymbols(params = {}) {
     const uri = normalizeString(params.textDocument && params.textDocument.uri);
-    const analysis = this.analyzeDocument(uri);
-
-    if (!analysis) {
-      return [];
+    const groups = new Map();
+    for (const symbol of this.projectIndex.searchSymbols('', { uri })) {
+      if (!groups.has(symbol.domain)) groups.set(symbol.domain, []);
+      groups.get(symbol.domain).push({ name: symbol.name, kind: 13,
+        range: symbol.definition.range, selectionRange: symbol.nameLocation.range });
     }
-
-    const report = analysis.languageMode === 'vnext'
-      ? getRmtVNextToolingDocumentSymbols(analysis.input, {
-        rootDir: this.rootDir,
-        analysis: analysis.graph
-      })
-      : getRmtDocumentSymbols(analysis.input, {
-        rootDir: this.rootDir,
-        graph: analysis.graph
-      });
-
-    return toArray(report.symbols).map(toLspDocumentSymbol);
+    return [...groups].map(([name, children]) => ({ name, kind: 3,
+      range: { start: children.reduce((p, item) => item.range.start.line < p.line ? item.range.start : p, children[0].range.start),
+        end: children.reduce((p, item) => item.range.end.line > p.line ? item.range.end : p, children[0].range.end) },
+      selectionRange: children[0].selectionRange, children }));
   }
 
   definition(params = {}) {
-    const uri = normalizeString(params.textDocument && params.textDocument.uri);
-    const analysis = this.analyzeDocument(uri);
+    const locations = this.projectIndex.definitions({ uri: params.textDocument && params.textDocument.uri,
+      position: params.position, pointer: params.xtend && params.xtend.pointer });
+    return locations.length === 1 ? locations[0] : locations.length ? locations : null;
+  }
 
-    if (!analysis) {
-      return null;
+  references(params = {}) {
+    return this.projectIndex.references({ uri: params.textDocument && params.textDocument.uri,
+      position: params.position, includeDeclaration: params.context && params.context.includeDeclaration });
+  }
+
+  workspaceSymbols(params = {}) {
+    return this.projectIndex.searchSymbols(params.query || '').map(symbol => ({ name: symbol.name,
+      kind: 13, location: symbol.nameLocation, containerName: `${symbol.projectId} / ${symbol.scope.join(' / ')}` }));
+  }
+
+  watchedFiles(params = {}) {
+    for (const change of params.changes || []) {
+      if (change.type === 3 && !this.documents.has(change.uri)) this.projectIndex.removeDocument(change.uri);
+      else this.projectIndex.refreshDocument(change.uri);
     }
+    // Discovery also refreshes package/config boundaries and imported globs.
+    this.projectIndex.build();
+    return [];
+  }
 
-    const pointer = params.xtend && params.xtend.pointer
-      ? params.xtend.pointer
-      : this.getPointerAtPosition(uri, params.position || {});
-    const report = analysis.languageMode === 'vnext'
-      ? getRmtVNextToolingDefinition(analysis.input, {
-        rootDir: this.rootDir,
-        analysis: analysis.graph,
-        pointer
-      })
-      : getRmtDefinition(analysis.input, {
-        rootDir: this.rootDir,
-        graph: analysis.graph,
-        pointer
-      });
-
-    return toLspLocation(uri, report.target);
+  workspaceFolders(params = {}) {
+    const removed = new Set((params.event && params.event.removed || []).map(folder => uriToFilePath(folder.uri)));
+    const roots = this.projectIndex.roots.filter(root => !removed.has(root)).concat((params.event && params.event.added || []).map(folder => uriToFilePath(folder.uri)).filter(Boolean));
+    const overlays = [...this.documents.values()];
+    this.projectIndex.dispose();
+    this.projectIndex = createProjectIndex({ rootDir: this.rootDir, workspaceRoots: roots, profile: 'rmt' });
+    this.documents = this.projectIndex.overlays;
+    overlays.forEach(document => this.projectIndex.updateDocument(document));
+    return [];
   }
 
   codeAction(params = {}) {
@@ -553,6 +511,10 @@ class RmtLanguageServer {
           return createJsonRpcResponse(message.id, this.hover(message.params || {}));
         case 'textDocument/documentSymbol':
           return createJsonRpcResponse(message.id, this.documentSymbols(message.params || {}));
+        case 'workspace/symbol':
+          return createJsonRpcResponse(message.id, this.workspaceSymbols(message.params || {}));
+        case 'textDocument/references':
+          return createJsonRpcResponse(message.id, this.references(message.params || {}));
         case 'textDocument/definition':
           return createJsonRpcResponse(message.id, this.definition(message.params || {}));
         case 'textDocument/codeAction':
@@ -578,6 +540,10 @@ class RmtLanguageServer {
         return this.openDocument(message.params || {});
       case 'textDocument/didChange':
         return this.changeDocument(message.params || {});
+      case 'workspace/didChangeWatchedFiles':
+        return this.watchedFiles(message.params || {});
+      case 'workspace/didChangeWorkspaceFolders':
+        return this.workspaceFolders(message.params || {});
       case 'textDocument/didClose':
         return this.closeDocument(message.params || {});
       default:

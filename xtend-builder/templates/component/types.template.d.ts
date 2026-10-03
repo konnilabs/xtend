@@ -306,7 +306,7 @@ export interface {{className}}RmtRootAttachment {
     lane: string;
     preferIdle: boolean;
   }>;
-  statePolicy?: 'digital-twin-ssot-xstate';
+  statePolicy?: 'digital-twin-ssot-classic-state';
   kernelBoundary?: string;
 }
 
@@ -328,9 +328,9 @@ export interface {{className}}RmtHostCapabilities {
     localImportOnly: true;
   };
   stateBridge?: {
-    source: 'xstate';
+    source: 'xtend-state';
     subscribe: '{{typeRmtHostStateBridge}}';
-    forbidden: Array<'direct-xstate-mutation-by-kernel' | 'xstate.on' | 'xstate.off'>;
+    forbidden: Array<'direct-classic-state-mutation-by-kernel' | 'xtendState.on' | 'xtendState.off'>;
   };
   hydration?: {
     mode: 'custom-element';

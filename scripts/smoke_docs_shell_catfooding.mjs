@@ -192,6 +192,7 @@ const layoutShiftProbeSource = `
       },
       prerenderedRoute: {
         foundBeforeDefinition: false,
+        progressiveWhileAdoptionPending: false,
         sameNodeAfterDefinition: false,
         adopted: false
       },
@@ -220,6 +221,9 @@ const layoutShiftProbeSource = `
       if (!candidate) return;
       if (!state.prerenderedRouteNode) state.prerenderedRouteNode = candidate;
       if (!customElements.get('x-router')) state.prerenderedRoute.foundBeforeDefinition = true;
+      if (candidate.hasAttribute('data-xrouter-adoption-pending') && !candidate.hasAttribute('inert')) {
+        state.prerenderedRoute.progressiveWhileAdoptionPending = true;
+      }
       const root = candidate.getRootNode();
       state.prerenderedRoute.sameNodeAfterDefinition = Boolean(root && root.host && root.host.localName === 'x-router');
       state.prerenderedRoute.adopted = candidate.getAttribute('data-xrouter-route-adopted') === 'true';
@@ -595,6 +599,7 @@ async function readSnapshot(baseUrl, sessionId) {
       activeTrunkContent: document.querySelector('[data-docs-active-trunk-content]')?.getAttribute('data-docs-active-trunk-content') || '',
       summaryIndicators,
       articleNavigation,
+      navigationIconCount: document.querySelectorAll('[data-docs-menu-shell] [data-docs-menu-link] x-icon').length,
       trunkCount: document.querySelectorAll('[data-docs-trunk-link]').length,
       canonicalEntryCount: Array.isArray(window.xtendMenuConfig) ? window.xtendMenuConfig.length : 0,
       skeletonProfiles: window.XTendSkeletonLoader && typeof window.XTendSkeletonLoader.listProfiles === 'function'
@@ -622,7 +627,7 @@ async function readSnapshot(baseUrl, sessionId) {
       layoutShiftGeometry: Array.isArray(layoutShiftProbe?.geometry) ? layoutShiftProbe.geometry : [],
       bootSkeleton: layoutShiftProbe?.bootSkeleton || null,
       prerenderedRoute: layoutShiftProbe?.prerenderedRoute || null,
-      routeAdoption: layoutShiftProbe?.routeAdoption || (window.xstate && typeof window.xstate.get === 'function' ? window.xstate.get('xtend.router.routeAdoption') : null),
+      routeAdoption: layoutShiftProbe?.routeAdoption || (window.XTend?.state && typeof window.XTend?.state.get === 'function' ? window.XTend?.state.get('xtend.router.routeAdoption') : null),
       initialPagePayloadRequests: resourceEntries.filter((entry) => {
         if (entry.name.includes('xtend-docs-page=')) return true;
         if (entry.initiatorType !== 'fetch') return false;
@@ -909,6 +914,7 @@ async function exerciseNavigationSurface(baseUrl, sessionId, scenarioId) {
       menuMode: drawer.getAttribute('data-menu-mode'),
       trunkCount: nav.querySelectorAll('[data-docs-trunk-link]').length,
       currentPageCount: markedPages.length,
+      navigationIconCount: nav.querySelectorAll('[data-docs-menu-link] x-icon').length,
       currentPageSection: activePageSection?.getAttribute('data-docs-menu-section') || '',
       currentPageSectionOpen: Boolean(activePageSection?.shadowRoot?.querySelector('details')?.open),
       columnGeometry,
@@ -936,6 +942,105 @@ async function exerciseNavigationSurface(baseUrl, sessionId, scenarioId) {
     return true;
   `);
   return result;
+}
+
+async function runHydrateFallbackNavigationRegression(baseUrl, driverUrl) {
+  const scenario = { id: 'de-hydrate-fallback-navigation', locale: 'de', width: 1440, height: 900 };
+  const sessionId = await createSession(driverUrl, scenario);
+  try {
+    await request(driverUrl, `/session/${sessionId}/url`, 'POST', { url: `${baseUrl}/docs/de/readme` });
+    await waitUntil(async () => execute(driverUrl, sessionId, `
+      const header = document.querySelector('x-header');
+      const trigger = header?.shadowRoot?.querySelector('.burger-menu');
+      const drawer = header?.shadowRoot?.querySelector('#drawer-menu');
+      if (!header || !trigger || !drawer) return null;
+      if (!header.hasAttribute('menu-open')) trigger.click();
+      return header.hasAttribute('menu-open') && drawer.getAttribute('aria-hidden') === 'false';
+    `), 'Hydrate fallback navigation drawer did not open');
+    const initial = await waitUntil(async () => execute(driverUrl, sessionId, `
+      const root = document.querySelector('[data-docs-active-trunk-content]');
+      const shell = document.querySelector('[data-docs-menu-shell]');
+      if (!root || !shell || !window.xtendDocsShellRuntime || !customElements.get('x-summary') || !customElements.get('x-menu')) return null;
+      const links = Array.from(root.querySelectorAll('[data-docs-menu-link]'));
+      const openLinks = links.filter((link) => link.closest('x-summary')?.shadowRoot?.querySelector('details')?.open);
+      const visibleOpenLinks = openLinks.filter((link) => {
+        const rect = link.getBoundingClientRect();
+        const style = getComputedStyle(link);
+        return style.visibility === 'visible' && style.display !== 'none' && rect.width > 0 && rect.height > 0;
+      });
+      if (!links.length || !openLinks.length || visibleOpenLinks.length !== openLinks.length) return null;
+      return {
+        executionMode: document.documentElement.getAttribute('data-xtend-docs-rmt-activation'),
+        activation: root.getAttribute('data-docs-navigation-activation'),
+        activeTrunk: shell.getAttribute('data-docs-active-trunk'),
+        linkCount: links.length,
+        nativeLinkCount: links.filter((link) => link.localName === 'a' && link.hasAttribute('is-x-link')).length,
+        customLinkCount: links.filter((link) => link.localName === 'x-link').length,
+        iconCount: root.querySelectorAll('[data-docs-menu-link] x-icon').length,
+        openLinkCount: openLinks.length,
+        visibleOpenLinkCount: visibleOpenLinks.length
+      };
+    `), 'Hydrate fallback did not expose the adopted SSR navigation');
+    assert(initial.executionMode === 'hydrate' && initial.activation === 'adopted', `Hydrate fallback did not adopt the SSR navigation (${JSON.stringify(initial)}).`);
+    assert(initial.linkCount === initial.nativeLinkCount && initial.customLinkCount === 0, `Hydrate fallback replaced progressive anchors with custom hosts (${JSON.stringify(initial)}).`);
+    assert(initial.iconCount === 0, `Hydrate fallback retained inconsistent article icons in the SSR navigation (${JSON.stringify(initial)}).`);
+    assert(initial.openLinkCount > 0 && initial.visibleOpenLinkCount === initial.openLinkCount, `Hydrate fallback hid links inside the active navigation section (${JSON.stringify(initial)}).`);
+
+    const clicked = await execute(driverUrl, sessionId, `
+      const link = document.querySelector('[data-docs-trunk-link="operate"]');
+      if (!link) return false;
+      link.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+      link.click();
+      return true;
+    `);
+    assert(clicked, 'Hydrate fallback operation trunk link is missing.');
+    await waitUntil(async () => execute(driverUrl, sessionId, `
+      const root = document.querySelector('[data-docs-active-trunk-content="operate"]');
+      if (!root || !location.pathname.startsWith('/docs/de/')) return null;
+      const header = document.querySelector('x-header');
+      const trigger = header?.shadowRoot?.querySelector('.burger-menu');
+      const drawer = header?.shadowRoot?.querySelector('#drawer-menu');
+      if (!header || !trigger || !drawer) return null;
+      if (!header.hasAttribute('menu-open')) trigger.click();
+      return header.hasAttribute('menu-open') && drawer.getAttribute('aria-hidden') === 'false';
+    `), 'Hydrate fallback routed navigation drawer did not reopen');
+    const routed = await waitUntil(async () => execute(driverUrl, sessionId, `
+      const root = document.querySelector('[data-docs-active-trunk-content="operate"]');
+      if (!root || !location.pathname.startsWith('/docs/de/')) return null;
+      const links = Array.from(root.querySelectorAll('[data-docs-menu-link]'));
+      const openLinks = links.filter((link) => link.closest('x-summary')?.shadowRoot?.querySelector('details')?.open);
+      const visibleOpenLinks = openLinks.filter((link) => {
+        const rect = link.getBoundingClientRect();
+        const style = getComputedStyle(link);
+        return style.visibility === 'visible' && style.display !== 'none' && rect.width > 0 && rect.height > 0;
+      });
+      if (!links.length || !openLinks.length || visibleOpenLinks.length !== openLinks.length) return null;
+      return {
+        path: location.pathname,
+        activation: root.getAttribute('data-docs-navigation-activation'),
+        linkCount: links.length,
+        nativeLinkCount: links.filter((link) => link.localName === 'a' && link.hasAttribute('is-x-link')).length,
+        customLinkCount: links.filter((link) => link.localName === 'x-link').length,
+        iconCount: root.querySelectorAll('[data-docs-menu-link] x-icon').length,
+        openLinkCount: openLinks.length,
+        visibleOpenLinkCount: visibleOpenLinks.length
+      };
+    `), 'Hydrate fallback did not materialize the routed navigation trunk');
+    assert(routed.activation === 'rendered' && routed.linkCount === routed.nativeLinkCount && routed.customLinkCount === 0, `Hydrate fallback routed navigation is not progressive (${JSON.stringify(routed)}).`);
+    assert(routed.iconCount === 0, `Hydrate fallback materialized inconsistent article icons after navigation (${JSON.stringify(routed)}).`);
+    assert(routed.openLinkCount > 0 && routed.visibleOpenLinkCount === routed.openLinkCount, `Hydrate fallback hid links after trunk navigation (${JSON.stringify(routed)}).`);
+
+    const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
+    const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
+    assert(severe.length === 0, `Hydrate fallback emitted severe console errors: ${JSON.stringify(severe)}`);
+    const screenshot = await request(driverUrl, `/session/${sessionId}/screenshot`);
+    await Promise.all([
+      writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({ scenario, initial, routed, logs }, null, 2)}\n`),
+      writeFile(path.join(evidenceDir, `${scenario.id}.png`), Buffer.from(String(screenshot || ''), 'base64'))
+    ]);
+  } finally {
+    await request(driverUrl, `/session/${sessionId}`, 'DELETE').catch(() => {});
+  }
 }
 
 async function navigateTrunk(baseUrl, sessionId, trunk) {
@@ -1806,7 +1911,7 @@ async function runSsrCodeEnhancementRegression(baseUrl, driverUrl) {
       });
       const hydration = window.xtendDocsLastCodeHydration || null;
       const inputProbe = window.__xtendDocsSsrCodeEnhancementInputProbe || null;
-      const routeAdoption = window.xstate?.get?.('xtend.router.routeAdoption') || null;
+      const routeAdoption = window.XTend?.state?.get?.('xtend.router.routeAdoption') || null;
       const resumeStatus = document.getElementById('xtend-docs-rmt-root')?.getAttribute('data-rmt-resume-status') || '';
       const initialRouteReplay = window.xtendDocsInitialRouteReplay || null;
       const pagePayloadRequests = performance.getEntriesByType('resource')
@@ -1973,7 +2078,7 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
       };
       collectSkeletons(document);
       const hidden = state.skeletonEvents.find((entry) => entry.type === 'xrouter-skeleton-hidden');
-      const routeAdoption = window.__xtendDocsLayoutShiftProbe?.routeAdoption || window.xstate?.get?.('xtend.router.routeAdoption') || null;
+      const routeAdoption = window.__xtendDocsLayoutShiftProbe?.routeAdoption || window.XTend?.state?.get?.('xtend.router.routeAdoption') || null;
       if (!hidden && routeAdoption?.adopted !== true) return null;
       const menuSnapshots = Array.from(document.querySelectorAll('x-menu'))
         .map((menu) => typeof menu.snapshotPerformance === 'function' ? menu.snapshotPerformance() : null)
@@ -1991,7 +2096,7 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
         }).length,
         menuCount: menuSnapshots.length,
         menuSnapshots,
-        stateWrites: window.xstate?.snapshotDiagnostics?.().operationCounts?.set || 0,
+        stateWrites: window.XTend?.state?.snapshotDiagnostics?.().operationCounts?.set || 0,
         layoutShift: Number(window.__xtendDocsLayoutShiftProbe?.maxSessionValue || 0),
         layoutShiftTotal: Number(window.__xtendDocsLayoutShiftProbe?.totalValue || 0),
         layoutShiftEntries: Array.isArray(window.__xtendDocsLayoutShiftProbe?.entries)
@@ -2008,6 +2113,76 @@ async function runMaracaRouteRegression(baseUrl, driverUrl) {
     assert(severe.length === 0, `Maraca regression route emitted severe console errors: ${JSON.stringify(severe)}`);
     await writeFile(path.join(evidenceDir, 'de-maraca-regression.json'), `${JSON.stringify({ scenario, result, logs }, null, 2)}\n`);
     return result;
+  } finally {
+    await request(driverUrl, `/session/${sessionId}`, 'DELETE').catch(() => {});
+  }
+}
+
+async function runComponentDemoSpaNavigationRegression(baseUrl, driverUrl) {
+  const scenario = { id: 'de-xtoggle-demo-spa-navigation', locale: 'de', width: 1440, height: 900 };
+  const sessionId = await createSession(driverUrl, scenario);
+  try {
+    await request(driverUrl, `/session/${sessionId}/url`, 'POST', {
+      url: `${baseUrl}/docs/de/readme`
+    });
+    const initial = await waitUntil(async () => {
+      const snapshot = await readSnapshot(driverUrl, sessionId);
+      return snapshot.docsPageReady && snapshot.resumeActivation === 'resumed' ? snapshot : null;
+    }, `${scenario.id}: resumable Docs shell did not become ready`);
+
+    await navigateTrunk(driverUrl, sessionId, 'components');
+    await navigateArticle(driverUrl, sessionId, 'components-xtoggle');
+    let latestRoutedDemo = null;
+    let routedDemo = null;
+    try {
+      routedDemo = await waitUntil(async () => {
+        latestRoutedDemo = await execute(driverUrl, sessionId, `${deepQuerySource}
+      const page = deepQuery('xtend-doc-page');
+      const slot = deepQuery('[data-demo-component="x-toggle"]');
+      const candidateSlot = deepQuery('#docs-component-demo');
+      const preview = slot && slot.querySelector('[data-demo-preview]');
+      const toggle = preview && preview.querySelector('x-toggle');
+      const content = deepQuery('#md-content');
+      const slotRect = slot && slot.getBoundingClientRect();
+      const toggleRect = toggle && toggle.getBoundingClientRect();
+      const slotStyle = slot && getComputedStyle(slot);
+      return {
+        schema: 'xtend.docs.component-demo-spa-navigation.v1',
+        path: location.pathname,
+        navigationEntryCount: performance.getEntriesByType('navigation').length,
+        pageState: page && page.getAttribute('data-docs-route-state'),
+        contentIslandState: content && content.getAttribute('data-rmt-island-state'),
+        candidateSlotHidden: candidateSlot ? candidateSlot.hidden : null,
+        demoComponent: slot && slot.getAttribute('data-demo-component'),
+        islandState: preview && preview.getAttribute('data-rmt-island-state'),
+        islandError: preview && preview.getAttribute('data-rmt-island-error'),
+        slotVisible: Boolean(slotRect && slotRect.width > 0 && slotRect.height > 0 && slotStyle.display !== 'none' && slotStyle.visibility !== 'hidden'),
+        loaderReady: Boolean(window.XTendLoader && typeof window.XTendLoader.hydrateTree === 'function'),
+        toggleDefined: Boolean(customElements.get('x-toggle')),
+        toggleVisible: Boolean(toggleRect && toggleRect.width > 0 && toggleRect.height > 0)
+      };
+      `);
+        return latestRoutedDemo
+          && latestRoutedDemo.demoComponent === 'x-toggle'
+          && latestRoutedDemo.islandState === 'ready'
+          && latestRoutedDemo.slotVisible
+          && latestRoutedDemo.toggleDefined
+          && latestRoutedDemo.toggleVisible
+          ? latestRoutedDemo
+          : null;
+      }, `${scenario.id}: routed x-toggle demo did not hydrate`);
+    } catch (error) {
+      throw new Error(`${error.message}; latest=${JSON.stringify(latestRoutedDemo)}`);
+    }
+
+    assert(routedDemo.path.endsWith('/docs/de/components-xtoggle'), `${scenario.id}: SPA navigation committed the wrong route (${JSON.stringify(routedDemo)}).`);
+    assert(routedDemo.navigationEntryCount === 1 && routedDemo.demoComponent === 'x-toggle', `${scenario.id}: demo route caused a document reload or committed the wrong component (${JSON.stringify(routedDemo)}).`);
+    assert(routedDemo.islandState === 'ready' && routedDemo.slotVisible && routedDemo.toggleDefined && routedDemo.toggleVisible, `${scenario.id}: routed x-toggle demo is not usable (${JSON.stringify(routedDemo)}).`);
+    const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
+    const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
+    assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
+    await writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify({ scenario, initial, routedDemo, logs }, null, 2)}\n`);
+    return routedDemo;
   } finally {
     await request(driverUrl, `/session/${sessionId}`, 'DELETE').catch(() => {});
   }
@@ -2036,6 +2211,69 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
         `),
         `${scenario.id}: visible RMT Playground island did not activate`
       );
+    }
+    const overlayDemo = scenario.inspectOverlayDemo
+      ? await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+        const slot = deepQuery('[data-demo-component="${scenario.inspectOverlayDemo.tag}"]');
+        const preview = slot && slot.querySelector('[data-demo-preview]');
+        const trigger = preview && preview.querySelector('[data-demo-action="${scenario.inspectOverlayDemo.action}"]');
+        const target = deepQuery('#${scenario.inspectOverlayDemo.targetId}');
+        if (!slot || !preview || !trigger || !target || preview.getAttribute('data-rmt-island-state') !== 'ready') return null;
+        const triggerRect = trigger.getBoundingClientRect();
+        const triggerStyle = getComputedStyle(trigger);
+        return {
+          description: (slot.querySelector('[data-demo-description]')?.textContent || '').trim(),
+          islandState: preview.getAttribute('data-rmt-island-state'),
+          triggerText: (trigger.textContent || '').trim(),
+          triggerDefined: Boolean(customElements.get('x-button')),
+          targetDefined: Boolean(customElements.get('${scenario.inspectOverlayDemo.tag}')),
+          triggerVisible: triggerRect.width > 0 && triggerRect.height > 0 && triggerStyle.display !== 'none' && triggerStyle.visibility !== 'hidden'
+        };
+      `), `${scenario.id}: overlay demo trigger and target did not hydrate`)
+      : null;
+    const toastDemo = scenario.inspectToastDemo
+      ? await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+        const slot = deepQuery('[data-demo-component="x-toast"]');
+        const preview = slot && slot.querySelector('[data-demo-preview]');
+        const trigger = preview && preview.querySelector('[data-demo-action="toast"]');
+        if (!slot || !preview || !trigger || preview.getAttribute('data-rmt-island-state') !== 'ready') return null;
+        const triggerRect = trigger.getBoundingClientRect();
+        const triggerStyle = getComputedStyle(trigger);
+        return {
+          triggerText: (trigger.textContent || '').trim(),
+          triggerDefined: Boolean(customElements.get('x-button')),
+          triggerVisible: triggerRect.width > 0 && triggerRect.height > 0 && triggerStyle.display !== 'none' && triggerStyle.visibility !== 'hidden',
+          inlineToastCount: preview.querySelectorAll('x-toast').length
+        };
+      `), `${scenario.id}: toast demo trigger did not hydrate`)
+      : null;
+    const activatableDemo = scenario.inspectActivatableDemo
+      ? await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+        const slot = deepQuery('[data-demo-component="${scenario.inspectActivatableDemo.tag}"]');
+        const preview = slot && slot.querySelector('[data-demo-preview]');
+        const trigger = preview && preview.querySelector('${scenario.inspectActivatableDemo.triggerSelector}');
+        const target = deepQuery('#${scenario.inspectActivatableDemo.targetId}');
+        if (!slot || !preview || !trigger || !target || preview.getAttribute('data-rmt-island-state') !== 'ready') return null;
+        const triggerRect = trigger.getBoundingClientRect();
+        const triggerStyle = getComputedStyle(trigger);
+        return {
+          triggerText: (trigger.textContent || '').trim(),
+          triggerDefined: Boolean(customElements.get('x-button')),
+          targetDefined: Boolean(customElements.get('${scenario.inspectActivatableDemo.tag}')),
+          triggerVisible: triggerRect.width > 0 && triggerRect.height > 0 && triggerStyle.display !== 'none' && triggerStyle.visibility !== 'hidden'
+        };
+      `), `${scenario.id}: activatable demo trigger and target did not hydrate`)
+      : null;
+    if (overlayDemo) {
+      assert(overlayDemo.description === scenario.inspectOverlayDemo.description, `${scenario.id}: localized demo copy regressed (${JSON.stringify(overlayDemo)}).`);
+      assert(overlayDemo.triggerText === scenario.inspectOverlayDemo.triggerText && overlayDemo.triggerDefined && overlayDemo.targetDefined && overlayDemo.triggerVisible, `${scenario.id}: overlay demo trigger is not usable (${JSON.stringify(overlayDemo)}).`);
+    }
+    if (toastDemo) {
+      assert(toastDemo.triggerText === scenario.inspectToastDemo.triggerText && toastDemo.triggerDefined && toastDemo.triggerVisible, `${scenario.id}: toast demo trigger is not usable (${JSON.stringify(toastDemo)}).`);
+      assert(toastDemo.inlineToastCount === 0, `${scenario.id}: toast demo materialized ${toastDemo.inlineToastCount} inline toast elements in the sidebar.`);
+    }
+    if (activatableDemo) {
+      assert(activatableDemo.triggerText === scenario.inspectActivatableDemo.triggerText && activatableDemo.triggerDefined && activatableDemo.targetDefined && activatableDemo.triggerVisible, `${scenario.id}: activatable demo does not expose a usable x-button (${JSON.stringify(activatableDemo)}).`);
     }
     await delay(scenario.settleMs || 600);
     const snapshot = await readSnapshot(driverUrl, sessionId);
@@ -2079,6 +2317,96 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
       .sort((left, right) => right.value - left.value)
       .slice(0, 8);
     assert(snapshot.layoutShift <= 0.01, `${scenario.id}: CLS ${snapshot.layoutShift} exceeds 0.01 (${JSON.stringify(largestShifts)}).`);
+    assert(snapshot.navigationIconCount === 0, `${scenario.id}: main navigation retained ${snapshot.navigationIconCount} inconsistent article icons.`);
+    if (overlayDemo) {
+      await execute(driverUrl, sessionId, `${deepQuerySource}
+        const trigger = deepQuery('[data-demo-action="${scenario.inspectOverlayDemo.action}"]');
+        const control = trigger && trigger.shadowRoot && trigger.shadowRoot.querySelector('button');
+        if (!control) throw new Error('Hydrated x-button control unavailable.');
+        control.click();
+        return true;
+      `);
+      await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+        const target = deepQuery('#${scenario.inspectOverlayDemo.targetId}');
+        return Boolean(target && typeof target.snapshot === 'function' && target.snapshot().open);
+      `), `${scenario.id}: hydrated trigger did not open its overlay target`);
+      if (scenario.inspectOverlayDemo.chromeSurfaceSelector) {
+        const chrome = await execute(driverUrl, sessionId, `${deepQuerySource}
+          const target = deepQuery('#${scenario.inspectOverlayDemo.targetId}');
+          const surface = target && target.shadowRoot && target.shadowRoot.querySelector('${scenario.inspectOverlayDemo.chromeSurfaceSelector}');
+          const title = target && target.shadowRoot && target.shadowRoot.querySelector('${scenario.inspectOverlayDemo.chromeTitleSelector}');
+          const close = target && target.shadowRoot && target.shadowRoot.querySelector('${scenario.inspectOverlayDemo.chromeCloseSelector}');
+          if (!surface || !title || !close) return null;
+          const surfaceStyle = getComputedStyle(surface);
+          const closeStyle = getComputedStyle(close);
+          const titleRect = title.getBoundingClientRect();
+          const closeRect = close.getBoundingClientRect();
+          return {
+            display: surfaceStyle.display,
+            gridTemplateAreas: surfaceStyle.gridTemplateAreas,
+            closePosition: closeStyle.position,
+            titleCloseTopDelta: Math.abs(titleRect.top - closeRect.top)
+          };
+        `);
+        assert(chrome && chrome.display === 'grid' && chrome.gridTemplateAreas.includes('title close') && chrome.closePosition === 'static' && chrome.titleCloseTopDelta <= 2, `${scenario.id}: overlay chrome is not aligned in a stable grid header (${JSON.stringify(chrome)}).`);
+      }
+      await execute(driverUrl, sessionId, `${deepQuerySource}
+        const target = deepQuery('#${scenario.inspectOverlayDemo.targetId}');
+        if (target && typeof target.close === 'function') target.close({ source: 'browser-smoke' });
+        return true;
+      `);
+    }
+    if (toastDemo) {
+      await execute(driverUrl, sessionId, `${deepQuerySource}
+        const trigger = deepQuery('[data-demo-action="toast"]');
+        const control = trigger && trigger.shadowRoot && trigger.shadowRoot.querySelector('button');
+        if (!control) throw new Error('Hydrated toast x-button control unavailable.');
+        control.click();
+        return true;
+      `);
+      const toastSurface = await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+        const container = document.getElementById('xtoast-container');
+        const toast = container && container.querySelector('x-toast');
+        const preview = deepQuery('[data-demo-component="x-toast"] [data-demo-preview]');
+        if (!container || !toast) return null;
+        return {
+          containerParent: container.parentElement && container.parentElement.localName,
+          surface: container.getAttribute('data-xtend-surface'),
+          position: getComputedStyle(container).position,
+          message: (toast.textContent || '').trim(),
+          inlineToastCount: preview ? preview.querySelectorAll('x-toast').length : -1
+        };
+      `), `${scenario.id}: x-button did not materialize the toast stack`);
+      assert(toastSurface.containerParent === 'body' && toastSurface.surface === 'toast-stack' && toastSurface.position === 'fixed' && toastSurface.inlineToastCount === 0 && toastSurface.message === 'XTend Demo Toast', `${scenario.id}: toast materialized outside the document toast stack (${JSON.stringify(toastSurface)}).`);
+      await execute(driverUrl, sessionId, `
+        const toast = document.querySelector('#xtoast-container x-toast');
+        if (toast && typeof toast.dismiss === 'function') toast.dismiss('browser-smoke');
+        return true;
+      `);
+    }
+    if (activatableDemo) {
+      await execute(driverUrl, sessionId, `${deepQuerySource}
+        const target = deepQuery('#${scenario.inspectActivatableDemo.targetId}');
+        const preview = deepQuery('[data-demo-component="${scenario.inspectActivatableDemo.tag}"] [data-demo-preview]');
+        const trigger = preview && preview.querySelector('${scenario.inspectActivatableDemo.triggerSelector}');
+        const control = trigger && trigger.shadowRoot && trigger.shadowRoot.querySelector('button');
+        if (!target || !control) throw new Error('Hydrated activatable x-button control unavailable.');
+        ${scenario.inspectActivatableDemo.activation === 'focus' ? 'control.focus();' : 'control.click();'}
+        return true;
+      `);
+      await waitUntil(async () => execute(driverUrl, sessionId, `${deepQuerySource}
+        const target = deepQuery('#${scenario.inspectActivatableDemo.targetId}');
+        return Boolean(target && typeof target.snapshot === 'function' && target.snapshot().open);
+      `), `${scenario.id}: x-button did not activate its demo target`);
+      await execute(driverUrl, sessionId, `${deepQuerySource}
+        const target = deepQuery('#${scenario.inspectActivatableDemo.targetId}');
+        if (!target) return false;
+        if (typeof target.closeDrawer === 'function') target.closeDrawer({ source: 'browser-smoke' });
+        else if (typeof target.close === 'function') target.close({ source: 'browser-smoke' });
+        else if (typeof target.hide === 'function') target.hide({ source: 'browser-smoke', immediate: true });
+        return true;
+      `);
+    }
     if (scenario.expectedBrandPresentation) {
       assert(snapshot.headerBrand && snapshot.headerBrand.presentation === scenario.expectedBrandPresentation, `${scenario.id}: unexpected header brand presentation (${JSON.stringify(snapshot.headerBrand)}).`);
       if (scenario.expectedBrandPresentation === 'logo-only') {
@@ -2112,7 +2440,7 @@ async function runInitialRouteLayoutStability(baseUrl, driverUrl, scenario) {
     const logs = await request(driverUrl, `/session/${sessionId}/log`, 'POST', { type: 'browser' }).catch(() => []);
     const severe = (Array.isArray(logs) ? logs : []).filter((entry) => String(entry.level || '').toUpperCase() === 'SEVERE');
     assert(severe.length === 0, `${scenario.id}: severe console errors: ${JSON.stringify(severe)}`);
-    const evidence = { scenario, snapshot, visibleSkeletonCount, visibleSkeletonDetails, playgroundSkeletonCount, playgroundLoadingSnapshot, navigationSurface, logs };
+    const evidence = { scenario, snapshot, visibleSkeletonCount, visibleSkeletonDetails, playgroundSkeletonCount, playgroundLoadingSnapshot, overlayDemo, navigationSurface, logs };
     const screenshot = await request(driverUrl, `/session/${sessionId}/screenshot`);
     await Promise.all([
       writeFile(path.join(evidenceDir, `${scenario.id}.json`), `${JSON.stringify(evidence, null, 2)}\n`),
@@ -2166,12 +2494,13 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     assert(initial.hydrationSnapshot.status === 'ready', `${scenario.id}: hydration snapshot is not ready.`);
     assert(initial.kernelSnapshot.state === 'none', `${scenario.id}: unexpected kernel panic state ${JSON.stringify(initial.kernelSnapshot)}.`);
     assert(initial.trunkCount === 6 && initial.canonicalEntryCount >= 166, `${scenario.id}: navigation inventory is incomplete (${JSON.stringify({ trunkCount: initial.trunkCount, canonicalEntryCount: initial.canonicalEntryCount })}).`);
+    assert(initial.navigationIconCount === 0, `${scenario.id}: SSR navigation retained ${initial.navigationIconCount} inconsistent article icons.`);
     assert(initial.activeTrunk === 'start' && initial.activeTrunkContent === 'start', `${scenario.id}: start trunk is not active.`);
     assertSingleCurrentArticle(initial, scenario.id);
     assert(initial.skeletonProfiles.includes('docs-article') && initial.skeletonProfiles.includes('docs-navigation') && initial.skeletonProfiles.includes('docs-search'), `${scenario.id}: docs skeleton profiles are missing.`);
     if (initial.prehydrationSchema === 'xtend.docs.php-ssr-prehydration.v2') {
       assert(initial.bootSkeleton?.found && !initial.bootSkeleton.visibleBeforeDefinition && initial.bootSkeleton.hiddenAfterDefinition, `${scenario.id}: document SSR boot skeleton was visible (${JSON.stringify(initial.bootSkeleton)}).`);
-      assert(initial.prerenderedRoute?.foundBeforeDefinition && initial.prerenderedRoute.sameNodeAfterDefinition && initial.prerenderedRoute.adopted, `${scenario.id}: prerendered route node identity was not preserved (${JSON.stringify({ prerenderedRoute: initial.prerenderedRoute, routeAdoption: initial.routeAdoption, requests: initial.initialPagePayloadRequests })}).`);
+      assert(initial.prerenderedRoute?.foundBeforeDefinition && initial.prerenderedRoute.progressiveWhileAdoptionPending && initial.prerenderedRoute.sameNodeAfterDefinition && initial.prerenderedRoute.adopted, `${scenario.id}: prerendered route lost progressive interaction or its node identity was not preserved (${JSON.stringify({ prerenderedRoute: initial.prerenderedRoute, routeAdoption: initial.routeAdoption, requests: initial.initialPagePayloadRequests })}).`);
       assert(initial.routeAdoption?.adopted === true && initial.initialPagePayloadRequests.length === 0, `${scenario.id}: document SSR adoption fell back to an initial page fetch (${JSON.stringify({ adoption: initial.routeAdoption, requests: initial.initialPagePayloadRequests })}).`);
     } else {
       assert(initial.bootSkeleton?.found && initial.bootSkeleton.visibleBeforeDefinition && initial.bootSkeleton.hiddenAfterDefinition, `${scenario.id}: server boot skeleton did not bridge the XRouter definition boundary (${JSON.stringify(initial.bootSkeleton)}).`);
@@ -2216,6 +2545,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
     const navigationSurface = await exerciseNavigationSurface(driverUrl, sessionId, scenario.id);
     const navigationAppearances = [navigationSurface.activeTrunk, navigationSurface.inactiveTrunk, navigationSurface.activePage, navigationSurface.inactivePage];
     assert(navigationSurface.trunkCount === 6 && navigationAppearances.every((entry) => entry && entry.contrast >= 4.5), `${scenario.id}: task navigation contrast is insufficient (${JSON.stringify(navigationSurface)}).`);
+    assert(navigationSurface.navigationIconCount === 0, `${scenario.id}: AppRuntime navigation materialized ${navigationSurface.navigationIconCount} inconsistent article icons.`);
     assert(navigationSurface.horizontalOverflow <= 1 && !navigationSurface.inactiveUsesPrimarySurface, `${scenario.id}: task navigation overflows or inherited the global primary menuitem surface (${JSON.stringify(navigationSurface)}).`);
     assert(navigationSurface.activeTrunk.background !== navigationSurface.inactiveTrunk.background && navigationSurface.activePage.background !== navigationSurface.inactivePage.background, `${scenario.id}: active navigation states are not visually distinguishable (${JSON.stringify(navigationSurface)}).`);
     assert(navigationSurface.currentPageCount === 1 && navigationSurface.currentPageSection && navigationSurface.currentPageSectionOpen, `${scenario.id}: current page is not uniquely marked inside its expanded section (${JSON.stringify(navigationSurface)}).`);
@@ -2281,6 +2611,7 @@ async function runScenario(baseUrl, driverUrl, scenario, performanceBaseline) {
 
     const finalSnapshot = await readSnapshot(driverUrl, sessionId);
     assertSingleCurrentArticle(finalSnapshot, `${scenario.id}: final`);
+    assert(finalSnapshot.navigationIconCount === 0, `${scenario.id}: navigation icons returned after route and locale transitions.`);
     assert(finalSnapshot.layoutShift <= 0.01, `${scenario.id}: cumulative interaction CLS ${finalSnapshot.layoutShift} exceeds 0.01.`);
     assert(finalSnapshot.theme === scenario.theme, `${scenario.id}: theme state changed during navigation.`);
     assert(finalSnapshot.documentTitle === expectedHomeTitle && finalSnapshot.routeId !== 'docs.notFound', `${scenario.id}: locale round-trip left a stale document title.`);
@@ -2307,6 +2638,7 @@ if (!php || !chromeDriver) {
 
 await mkdir(evidenceDir, { recursive: true });
 const port = await freePort();
+const hydrateFallbackPort = await freePort();
 const driverPort = await freePort();
 let generatedResumeKeyPath = null;
 let resumeKeyPath = process.env.XTEND_DOCS_RESUME_PRIVATE_KEY_FILE || '';
@@ -2328,20 +2660,37 @@ const server = spawn(php, ['-S', `127.0.0.1:${port}`, '-t', rootDir, 'docs/dev-r
   },
   stdio: ['ignore', 'pipe', 'pipe']
 });
+const hydrateFallbackServer = spawn(php, ['-S', `127.0.0.1:${hydrateFallbackPort}`, '-t', rootDir, 'docs/dev-router.php'], {
+  cwd: rootDir,
+  env: {
+    ...process.env,
+    XTEND_DOCS_DOCUMENT_SSR: process.env.XTEND_DOCS_DOCUMENT_SSR || 'v2',
+    XTEND_DOCS_SSR_MODE: 'resume',
+    XTEND_DOCS_RESUME_PRIVATE_KEY_FILE: '',
+    XTEND_DOCS_RESUME_KEY_ID: process.env.XTEND_DOCS_RESUME_KEY_ID || 'docs-smoke-p256',
+    XTEND_DOCS_PUBLIC_ORIGIN: `http://127.0.0.1:${hydrateFallbackPort}`
+  },
+  stdio: ['ignore', 'pipe', 'pipe']
+});
 const driver = spawn(chromeDriver, [`--port=${driverPort}`], {
   cwd: rootDir,
   stdio: ['ignore', 'pipe', 'pipe']
 });
 server.stdout.resume();
 server.stderr.resume();
+hydrateFallbackServer.stdout.resume();
+hydrateFallbackServer.stderr.resume();
 driver.stdout.resume();
 driver.stderr.resume();
 
 try {
   const baseUrl = `http://127.0.0.1:${port}`;
+  const hydrateFallbackBaseUrl = `http://127.0.0.1:${hydrateFallbackPort}`;
   const driverUrl = `http://127.0.0.1:${driverPort}`;
   await waitForServer(`${baseUrl}/docs/de/readme`, server);
+  await waitForServer(`${hydrateFallbackBaseUrl}/docs/de/readme`, hydrateFallbackServer);
   await waitForDriver(driverUrl, driver);
+  if (!captureBaseline && !requestedScenario) await runHydrateFallbackNavigationRegression(hydrateFallbackBaseUrl, driverUrl);
   const scenarios = [
     { id: 'de-desktop', locale: 'de', theme: 'light', width: 1440, height: 900 },
     { id: 'en-mobile', locale: 'en', theme: 'dark', width: 390, height: 844 }
@@ -2367,11 +2716,21 @@ try {
       }
       await runMaracaRouteRegression(baseUrl, driverUrl);
     }
+    if (!requestedScenario || requestedScenario === 'de-xtoggle-demo-spa-navigation') {
+      await runComponentDemoSpaNavigationRegression(baseUrl, driverUrl);
+    }
     const directRouteScenarios = [
       { id: 'de-animation-engine-desktop', locale: 'de', slug: 'rmt-animation-engine', width: 1440, height: 900, settleMs: 1200 },
       { id: 'de-rmt-playground-desktop', locale: 'de', slug: 'learn-rmt-playground', width: 1440, height: 900, settleMs: 1200, expectedArticleTitle: 'RMT Playground', inspectPlaygroundSkeleton: true, ownsRouteWorkspace: true },
       { id: 'de-authoring-desktop', locale: 'de', slug: 'native-first-authoring-guide', width: 1440, height: 900, settleMs: 700 },
       { id: 'de-a11y-current-page-desktop', locale: 'de', slug: 'a11y-keyboard-smokes', width: 1440, height: 900, settleMs: 700, inspectNavigation: true },
+      { id: 'de-xtoast-demo-desktop', locale: 'de', slug: 'components-xtoast', width: 1440, height: 900, settleMs: 700, inspectToastDemo: { triggerText: 'Toast anzeigen' } },
+      { id: 'de-xdialog-demo-desktop', locale: 'de', slug: 'components-xdialog', width: 1440, height: 900, settleMs: 700, inspectOverlayDemo: { tag: 'x-dialog', action: 'open-dialog', targetId: 'docs-demo-dialog', triggerText: 'Dialog testen', description: 'Dialog-Surface für bestätigende UI-Flows.', chromeSurfaceSelector: '.xdialog', chromeTitleSelector: '.xdialog-title', chromeCloseSelector: '.xdialog-close' } },
+      { id: 'de-xmodal-demo-desktop', locale: 'de', slug: 'components-xmodal', width: 1440, height: 900, settleMs: 700, inspectOverlayDemo: { tag: 'x-modal', action: 'open-modal', targetId: 'docs-demo-modal', triggerText: 'Modal testen', description: 'Modales Overlay mit Focus Trap, Escape und XTend-State-Sync.', chromeSurfaceSelector: '.x-modal', chromeTitleSelector: '.x-modal-title', chromeCloseSelector: '.x-modal-close' } },
+      { id: 'de-xdrawer-demo-desktop', locale: 'de', slug: 'components-xdrawer', width: 1440, height: 900, settleMs: 700, inspectActivatableDemo: { tag: 'x-drawer', targetId: 'docs-demo-drawer', triggerSelector: 'x-button[slot="trigger"]', triggerText: 'Drawer oeffnen', activation: 'click' } },
+      { id: 'de-xpopover-demo-desktop', locale: 'de', slug: 'components-xpopover', width: 1440, height: 900, settleMs: 700, inspectActivatableDemo: { tag: 'x-popover', targetId: 'docs-demo-popover', triggerSelector: 'x-button[slot="trigger"]', triggerText: 'Popover', activation: 'click' } },
+      { id: 'de-xtooltip-demo-desktop', locale: 'de', slug: 'components-xtooltip', width: 1440, height: 900, settleMs: 700, inspectActivatableDemo: { tag: 'x-tooltip', targetId: 'docs-demo-tooltip', triggerSelector: 'x-button[slot="trigger"]', triggerText: 'Tooltip testen', activation: 'click' } },
+      { id: 'de-xlightbox-demo-desktop', locale: 'de', slug: 'components-xlightbox', width: 1440, height: 900, settleMs: 700, inspectActivatableDemo: { tag: 'x-lightbox', targetId: 'docs-demo-lightbox', triggerSelector: 'x-button[slot="trigger"]', triggerText: 'Logo ansehen', activation: 'click' } },
       { id: 'en-dev-surface-mobile', locale: 'en', slug: 'xtend-dev-surface', width: 390, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only' },
       { id: 'de-dev-api-desktop', locale: 'de', slug: 'xtend-dev-api', width: 1440, height: 900, settleMs: 700, inspectNavigation: true, expectedArticleTitle: 'XTend DEV API', expectedSection: 'devtools' },
       { id: 'en-dev-api-mobile', locale: 'en', slug: 'xtend-dev-api', width: 390, height: 844, settleMs: 700, expectedBrandPresentation: 'logo-only', expectedArticleTitle: 'XTend DEV API' },
@@ -2389,6 +2748,7 @@ try {
   }
 } finally {
   stopProcess(server);
+  stopProcess(hydrateFallbackServer);
   await fetch(`http://127.0.0.1:${driverPort}/shutdown`).catch(() => {});
   stopProcess(driver);
   if (generatedResumeKeyPath) await unlink(generatedResumeKeyPath).catch(() => {});

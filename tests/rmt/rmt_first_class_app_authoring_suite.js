@@ -117,7 +117,7 @@ function runRmtFirstClassAppAuthoringSuite(options = {}) {
   const fixture = readJson(FIXTURE_PATH, rootDir);
   const contract = readText(CONTRACT_PATH, rootDir);
   const workpackage = readText(WORKPACKAGE_PATH, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtFirstClassAppAuthoring;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
 

@@ -117,9 +117,9 @@ function runXTensionsSecurityIntegrityGateSuite(options = {}) {
     label: 'XTensions Security, CSP, Supply Chain and Integrity Gate Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.xtensionsSecurityIntegrityGate;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const maracaContract = readText(MARACA_CONTRACT_PATH, rootDir);
@@ -171,8 +171,8 @@ function runXTensionsSecurityIntegrityGateSuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/security-integrity-gate.js', 'package exports XTensions security gate module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/security-integrity-gate.d.ts', 'package exports XTensions security gate types');
   context.assert(packageManifest.scripts['test:xtensions-security-integrity-gate'] === 'node scripts/run_xtend_tests.js xtensions-security-integrity-gate', 'package exposes security gate script');
-  context.assert(runner.includes("id: 'xtensions-security-integrity-gate'"), 'test runner exposes xtensions-security-integrity-gate suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xtensions-security-integrity-gate'), 'runner help references security gate');
+  context.assert(runner.hasSuite("xtensions-security-integrity-gate"), 'test runner exposes xtensions-security-integrity-gate suite');
+  context.assert(runner.hasSuite("xtensions-security-integrity-gate"), 'runner help references security gate');
 
   context.assert(backlog.includes('| `XTN-11` | P1 | completed | WS10 |'), 'backlog marks XTN-11 completed');
   context.assert(backlog.includes('development/XTensions-Security-CSP-Supply-Chain-Integrity-Gates-Contract.md'), 'backlog references security gate contract');

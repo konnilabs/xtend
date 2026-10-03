@@ -192,7 +192,7 @@ function assertPathExists(context, rootDir, relativePath, label) {
 }
 
 function assertRunnerGate(context, runner, gate) {
-  context.assertIncludes(runner, `id: '${gate}'`, `Runner registers ${gate}`);
+  context.assert(runner.hasSuite(gate), `Runner registers ${gate}`);
 }
 
 function countBy(items, field) {
@@ -216,8 +216,8 @@ function runRmtUiMaximalityOwnedSurfaceBaselineSuite(options = {}) {
   const backlog = readText(BACKLOG_PATH, rootDir);
   const missionHandoff = readText('development/XTend-Native-First-Mission-Handoff-Contract.md', rootDir);
   const fixtures = readJson(FIXTURE_PATH, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtUiMaximalityOwnedSurfaceBaseline;
 
@@ -364,8 +364,8 @@ function runRmtUiMaximalityOwnedSurfaceBaselineSuite(options = {}) {
   ], 'Mission handoff references backlog boundary');
 
   context.assert(packageScripts['test:rmt-ui-maximality-owned-surface-baseline'] === 'node scripts/run_xtend_tests.js rmt-ui-maximality-owned-surface-baseline', 'Package exposes WP-RMO-01 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/rmt_ui_maximality_owned_surface_baseline_suite')", 'Runner imports WP-RMO-01 suite');
-  context.assertIncludes(runner, "id: 'rmt-ui-maximality-owned-surface-baseline'", 'Runner registers WP-RMO-01 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/rmt_ui_maximality_owned_surface_baseline_suite.js" }), 'Runner imports WP-RMO-01 suite');
+  context.assert(runner.hasSuite("rmt-ui-maximality-owned-surface-baseline"), 'Runner registers WP-RMO-01 suite');
   REQUIRED_SOURCE_GATES.forEach((gate) => assertRunnerGate(context, runner, gate));
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes contract schema');

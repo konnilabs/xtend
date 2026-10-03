@@ -32,7 +32,7 @@
         "targetPath": "components/x-rmt-lifecycle-demo-build.js",
         "templateId": "component.source",
         "templatePath": "xtend-builder/templates/component/source.template.js",
-        "sha256": "b25f23e82366d51116a3be98cfdab290e66aee1f48fb82ea80e532007b6fae7a"
+        "sha256": "f1dcf376b2c6a7b12e21326f53a185a6760e19c3e3998f514a10cb37316ffaba"
       },
       {
         "id": "docs",
@@ -40,7 +40,7 @@
         "targetPath": "docs/components/rmt-lifecycle-demo-build.md",
         "templateId": "component.docs",
         "templatePath": "xtend-builder/templates/component/docs.template.md",
-        "sha256": "18b1eaa89f738cda9d6d0079c640ed0649294e2b920a0cd0d385470da09ddb2f"
+        "sha256": "3a6dc3e300439ab0ac59ba5cef7f484928ea42134f19637b67e71bb524db26cc"
       },
       {
         "id": "tests",
@@ -48,7 +48,7 @@
         "targetPath": "tests/components/x-rmt-lifecycle-demo-build.component_suite.js",
         "templateId": "component.tests",
         "templatePath": "xtend-builder/templates/component/component-suite.template.js",
-        "sha256": "bd0c4e3c6ff50cffeda93f6fcf422f5069e51186ab19b7fd69b4c6d8a0bf05ca"
+        "sha256": "5a8241af7c9c3a5411cd322922a87004072959daeee48e9fa381632539302042"
       },
       {
         "id": "fixtures",
@@ -64,7 +64,7 @@
         "targetPath": "components/x-rmt-lifecycle-demo-build.d.ts",
         "templateId": "component.types",
         "templatePath": "xtend-builder/templates/component/types.template.d.ts",
-        "sha256": "ffdbe83ff592ae47960e44c550dda3222e840824c8e509293c0fdbc5eccafb00"
+        "sha256": "f71bd6a46577a5790e33d085336e2cb2f58b75267a09f5c570457000d24f1765"
       },
       {
         "id": "manifest",
@@ -72,7 +72,7 @@
         "targetPath": "components/manifest.json",
         "templateId": "component.manifest-plan",
         "templatePath": "xtend-builder/templates/component/manifest-plan.template.json",
-        "sha256": "28c90d0ff90fbe31d118f6c9706b5a93b4bd197427296f75169d0f551526e9eb"
+        "sha256": "9aebcbbb86c15501d7ba5ca3dd78f49fa6cf9f7a040eef506a05ff816d2ad6d7"
       },
       {
         "id": "demo",
@@ -80,7 +80,7 @@
         "targetPath": "docs/previews/rmt-lifecycle-demo-build.preview.md",
         "templateId": "component.demo-plan",
         "templatePath": "xtend-builder/templates/component/demo-plan.template.md",
-        "sha256": "18de06138e282ae6a517e1041b6ec2017f1f0d0e6fa5c799b6a60a8846572a83"
+        "sha256": "dda3bce9237eb0695ae809d81f82a1f4c70fe6d334f057732fe1a5764f7b69f9"
       },
       {
         "id": "ts-source",

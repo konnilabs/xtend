@@ -1,4 +1,4 @@
-import { xstate as defaultXState } from './xstate.js';
+import { xtendState as defaultStateRuntime } from './xtend-state.js';
 
 const XTEND_I18N_BOUNDARY_SCHEMA = 'xtend.i18n.boundary-probe.v1';
 const XTEND_I18N_LABELS_SCHEMA = 'xtend.i18n.labels.v1';
@@ -8,7 +8,7 @@ const XTEND_I18N_DIAGNOSTICS_SCHEMA = 'xtend.i18n.diagnostics.v1';
 const XTEND_I18N_EVENT_SCHEMA = 'xtend.i18n.locale-event.v1';
 const XTEND_I18N_COMPONENT_LABEL_CONTRACT_SCHEMA = 'xtend.i18n.component-label-contract.v1';
 const XTEND_I18N_ROUTER_ADAPTER_SCHEMA = 'xtend.i18n.xrouter-adapter.v1';
-const XTEND_I18N_XSTATE_ADAPTER_SCHEMA = 'xtend.i18n.xstate-adapter.v1';
+const XTEND_I18N_STATE_ADAPTER_SCHEMA = 'xtend.i18n.state-adapter.v1';
 const XTEND_I18N_KERNEL_BOUNDARY = 'no-rmt-kernel-import-of-xtend-types';
 const XTEND_I18N_MANAGED_ATTR = 'data-xtend-i18n-managed';
 
@@ -160,8 +160,8 @@ const state = {
   loadedLocales: new Set(),
   loadingLocales: new Map(),
   bindings: new WeakMap(),
-  xstate: null,
-  xstateUnsubscribe: null,
+  stateRuntime: null,
+  stateUnsubscribe: null,
   stateKeys: { ...DEFAULT_STATE_KEYS },
   routerConnections: new Set(),
   customElementsPatched: false,
@@ -174,7 +174,7 @@ const state = {
     setLocale: 0,
     applyLabels: 0,
     bindComponent: 0,
-    connectXState: 0,
+    connectState: 0,
     connectRouter: 0,
     localeEvents: 0,
     errors: 0
@@ -245,7 +245,7 @@ function makeLabelApi() {
 }
 
 function publishState(values = {}) {
-  const api = state.xstate;
+  const api = state.stateRuntime;
   if (!api || typeof api.set !== 'function') return;
   Object.entries(values).forEach(([name, value]) => {
     const key = state.stateKeys[name];
@@ -691,13 +691,13 @@ function configure(options = {}) {
   return snapshot();
 }
 
-function connectXState(xstateApi = defaultXState, options = {}) {
-  increment('connectXState');
-  if (state.xstateUnsubscribe) {
-    state.xstateUnsubscribe();
-    state.xstateUnsubscribe = null;
+function connectState(stateRuntime = defaultStateRuntime, options = {}) {
+  increment('connectState');
+  if (state.stateUnsubscribe) {
+    state.stateUnsubscribe();
+    state.stateUnsubscribe = null;
   }
-  state.xstate = xstateApi || null;
+  state.stateRuntime = stateRuntime || null;
   if (options.stateKeys) {
     state.stateKeys = {
       ...state.stateKeys,
@@ -713,23 +713,23 @@ function connectXState(xstateApi = defaultXState, options = {}) {
     fallback: state.fallbackLocale,
     error: null
   });
-  if (state.xstate && typeof state.xstate.subscribe === 'function') {
-    state.xstateUnsubscribe = state.xstate.subscribe((key, value) => {
+  if (state.stateRuntime && typeof state.stateRuntime.subscribe === 'function') {
+    state.stateUnsubscribe = state.stateRuntime.subscribe((key, value) => {
       if (key !== state.stateKeys.request) return;
       const requestedLocale = typeof value === 'string' ? value : (value && (value.locale || value.targetLocale));
       if (requestedLocale && normalizeLocale(requestedLocale, state.fallbackLocale) !== state.locale) {
-        setLocale(requestedLocale, { source: 'xstate' }).catch(() => {});
+        setLocale(requestedLocale, { source: 'xtend-state' }).catch(() => {});
       }
     }, state.stateKeys.request);
   }
   return {
-    schema: XTEND_I18N_XSTATE_ADAPTER_SCHEMA,
+    schema: XTEND_I18N_STATE_ADAPTER_SCHEMA,
     stateKeys: { ...state.stateKeys },
     locale: state.locale,
     dispose() {
-      if (state.xstateUnsubscribe) state.xstateUnsubscribe();
-      state.xstateUnsubscribe = null;
-      state.xstate = null;
+      if (state.stateUnsubscribe) state.stateUnsubscribe();
+      state.stateUnsubscribe = null;
+      state.stateRuntime = null;
     }
   };
 }
@@ -834,8 +834,8 @@ function enrichRouteDetail(detail, locale) {
     locale,
     source: 'xtend-i18n'
   };
-  if (state.xstate && typeof state.xstate.set === 'function' && detail.stateKey) {
-    state.xstate.set(detail.stateKey, { ...detail });
+  if (state.stateRuntime && typeof state.stateRuntime.set === 'function' && detail.stateKey) {
+    state.stateRuntime.set(detail.stateKey, { ...detail });
   }
   return detail;
 }
@@ -938,7 +938,7 @@ function snapshotDiagnostics() {
     schema: XTEND_I18N_DIAGNOSTICS_SCHEMA,
     source: 'xtend-i18n',
     boundary: xtendI18n.xtendI18nBoundaryContract,
-    xstate: xtendI18n.xtendXStateAdapterContract,
+    state: xtendI18n.stateAdapterContract,
     router: xtendI18n.xtendRouterAdapterContract,
     operationCounts: { ...state.operationCounts },
     diagnostics: state.diagnostics.slice(-10),
@@ -967,15 +967,15 @@ const xtendI18n = {
       'getLabelRecord',
       'applyLabels',
       'bindComponent',
-      'connectXState',
+      'connectState',
       'connectRouter',
       'snapshot',
       'snapshotDiagnostics'
     ],
     kernelBoundary: XTEND_I18N_KERNEL_BOUNDARY
   }),
-  xtendXStateAdapterContract: Object.freeze({
-    schema: XTEND_I18N_XSTATE_ADAPTER_SCHEMA,
+  stateAdapterContract: Object.freeze({
+    schema: XTEND_I18N_STATE_ADAPTER_SCHEMA,
     eventType: 'LOCALE_CHANGED',
     requestKey: DEFAULT_STATE_KEYS.request,
     canonicalKeys: Object.values(DEFAULT_STATE_KEYS),
@@ -998,14 +998,14 @@ const xtendI18n = {
   getLabelRecord,
   applyLabels,
   bindComponent,
-  connectXState,
+  connectState,
   connectRouter,
   snapshot,
   snapshotDiagnostics
 };
 
 patchCustomElementsDefine();
-connectXState(defaultXState);
+connectState(defaultStateRuntime);
 
 if (typeof window !== 'undefined') {
   window.xtendI18n = xtendI18n;
@@ -1024,6 +1024,6 @@ export {
   XTEND_I18N_LABELS_SCHEMA,
   XTEND_I18N_ROUTER_ADAPTER_SCHEMA,
   XTEND_I18N_SNAPSHOT_SCHEMA,
-  XTEND_I18N_XSTATE_ADAPTER_SCHEMA,
+  XTEND_I18N_STATE_ADAPTER_SCHEMA,
   xtendI18n
 };

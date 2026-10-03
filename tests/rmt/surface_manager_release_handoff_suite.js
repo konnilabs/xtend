@@ -181,10 +181,10 @@ function runSurfaceManagerReleaseHandoffSuite(options = {}) {
   const report = createSurfaceManagerReleaseHandoffReport({ rootDir, plan });
   const fixture = readJson(SURFACE_MANAGER_COMPONENT_LAB_FIXTURE, rootDir);
   const fixtureText = readText(SURFACE_MANAGER_COMPONENT_LAB_FIXTURE, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerReleaseHandoff;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const planningDoc = readText(SURFACE_MANAGER_RELEASE_HANDOFF_PLAN, rootDir);
   const contractDoc = readText(SURFACE_MANAGER_RELEASE_HANDOFF_CONTRACT, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_RELEASE_HANDOFF_WORKPACKAGE_DOC, rootDir);
@@ -285,8 +285,8 @@ function runSurfaceManagerReleaseHandoffSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, SURFACE_MANAGER_RELEASE_HANDOFF_SCHEMA, 'Scaffold config references Surface release handoff schema');
   context.assertIncludes(scaffoldConfig, SURFACE_MANAGER_COMPONENT_LAB_FIXTURE, 'Scaffold config references Surface Component Lab fixture');
   context.assertIncludes(scaffoldConfig, SURFACE_MANAGER_RELEASE_HANDOFF_LOCAL_GATE, 'Scaffold config references Surface release gate');
-  context.assertIncludes(runner, "require('../tests/rmt/surface_manager_release_handoff_suite')", 'Runner imports Surface release handoff suite');
-  context.assertIncludes(runner, "id: 'surface-release-handoff'", 'Runner registers Surface release handoff suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/surface_manager_release_handoff_suite.js" }), 'Runner imports Surface release handoff suite');
+  context.assert(runner.hasSuite("surface-release-handoff"), 'Runner registers Surface release handoff suite');
 
   assertTextIncludesAll(context, contractDoc, [
     SURFACE_MANAGER_RELEASE_HANDOFF_SCHEMA,

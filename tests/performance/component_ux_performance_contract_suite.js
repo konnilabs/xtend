@@ -41,9 +41,9 @@ function runComponentUxPerformanceContractSuite(options = {}) {
     id: 'component-ux-performance',
     label: 'XTend Component UX Performance Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const contractDoc = readText('development/XTend-Component-UX-Performance-Profile.md', rootDir);
@@ -159,7 +159,7 @@ function runComponentUxPerformanceContractSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'componentUxPerformanceContract', 'Scaffold config exposes Component UX Performance Contract section');
   context.assertIncludes(scaffoldConfig, COMPONENT_UX_PERFORMANCE_CONTRACT_SCHEMA, 'Scaffold config declares Component UX Performance schema');
   context.assertIncludes(scaffoldConfig, 'component-ux-performance', 'Scaffold config references Component UX Performance gate');
-  context.assertIncludes(runner, "id: 'component-ux-performance'", 'Runner exposes Component UX Performance suite');
+  context.assert(runner.hasSuite("component-ux-performance"), 'Runner exposes Component UX Performance suite');
   context.assertIncludes(contractDoc, COMPONENT_UX_PERFORMANCE_CONTRACT_SCHEMA, 'Contract document declares Component UX Performance schema');
   context.assertIncludes(contractDoc, 'XtendComponentUxPerformanceContract', 'Contract document defines the TypeScript interface name');
   context.assertIncludes(contractDoc, RMT_PERFORMANCE_AUTHORING_SCHEMA, 'Contract document declares RMT Performance Authoring handoff');

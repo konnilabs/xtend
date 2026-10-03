@@ -36,9 +36,9 @@ function runRuntimeA11yContractSuite(options = {}) {
     id: 'runtime-a11y-contract',
     label: 'XTend Runtime A11y UX Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const contractDoc = readText('development/XTend-Runtime-A11y-UX-Contract.md', rootDir);
@@ -129,7 +129,7 @@ function runRuntimeA11yContractSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'runtimeA11yContract', 'Scaffold config exposes Runtime A11y Contract section');
   context.assertIncludes(scaffoldConfig, RUNTIME_A11Y_CONTRACT_SCHEMA, 'Scaffold config declares Runtime A11y schema');
   context.assertIncludes(scaffoldConfig, 'runtime-a11y-contract', 'Scaffold config references Runtime A11y gate');
-  context.assertIncludes(runner, "id: 'runtime-a11y-contract'", 'Runner exposes Runtime A11y Contract suite');
+  context.assert(runner.hasSuite("runtime-a11y-contract"), 'Runner exposes Runtime A11y Contract suite');
   context.assertIncludes(contractDoc, RUNTIME_A11Y_CONTRACT_SCHEMA, 'Contract document declares Runtime A11y schema');
   context.assertIncludes(contractDoc, 'XtendRuntimeA11yContract', 'Contract document defines the TypeScript interface name');
   context.assertIncludes(contractDoc, RMT_A11Y_AUTHORING_SCHEMA, 'Contract document declares RMT A11y Authoring handoff');

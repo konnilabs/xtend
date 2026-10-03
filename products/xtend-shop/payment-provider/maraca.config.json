@@ -1,0 +1,31 @@
+{
+  "schema": "xtend.maraca.build-config.v1",
+  "options": {
+    "source": "src/app.rmt",
+    "out": "public/build/maraca",
+    "profile": "production",
+    "lazy": "component",
+    "orchestration": "strict",
+    "kernel": "strict",
+    "kernelBootMode": "direct",
+    "hydration": "strict",
+    "validation": "strict",
+    "transitions": "off",
+    "componentMode": "document",
+    "stackMode": "plan",
+    "css": "external",
+    "services": {
+      "clientEntry": "src/services.ts",
+      "phpEntry": "server/services.php",
+      "targets": [
+        "browser",
+        "php"
+      ],
+      "strict": true,
+      "transport": {
+        "kind": "http-ndjson",
+        "basePath": "/api/xtend/services"
+      }
+    }
+  }
+}

@@ -163,7 +163,7 @@ const PROFILE_CHECKS = [
   },
   {
     profile: 'stateful',
-    requiredChecks: ['canonical-xstate-key', 'external-state-change', 'cleanup', 'ssot-boundary'],
+    requiredChecks: ['canonical-state-key', 'external-state-change', 'cleanup', 'ssot-boundary'],
     a11y: PROFILE_A11Y_RULES.stateful,
     performance: PROFILE_PERFORMANCE_RULES.stateful
   },
@@ -181,7 +181,7 @@ const PROFILE_CHECKS = [
   },
   {
     profile: 'routing',
-    requiredChecks: ['navigation', 'params-query', 'xstate-bridge', 'route-events', 'local-link-contract'],
+    requiredChecks: ['navigation', 'params-query', 'state-projection', 'route-events', 'local-link-contract'],
     a11y: PROFILE_A11Y_RULES.routing,
     performance: PROFILE_PERFORMANCE_RULES.routing
   },

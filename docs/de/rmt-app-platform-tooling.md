@@ -44,3 +44,9 @@ Lokale Gates für Änderungen an dieser Schicht:
 node scripts/run_xtend_tests.js rmt-completions rmt-navigation rmt-vnext-tooling rmt-editor-packaging --json
 node scripts/run_xtend_tests.js maraca-docs rmt-tooling-docs rmt-reference-docs --json
 ```
+
+## Neu für 0.8.0
+
+Editor und Referenzkatalog kennen `execution fastpass`, `effect navigation`, `effect close surface` und `effect focus surface`. Compiler und Runtime validieren denselben eingeschränkten Shell-Vertrag; siehe [Actions und Events](./rmt-reference-actions-events.md).
+
+[Hydrangea JIT](./rmt-jit-hydrangea.md) ergänzt die opt-in Operation `jit-compile` der Tooling Bridge. Sie bündelt Compile, Safe Preview und optionale Maraca-Vorbereitung, ohne Core-Schema oder Compiler-Regeln zu ändern. Der Framework-Artefaktcache bleibt getrennt von Nutzerquellen; der bestehende Backend-Pfad ist weiterhin Standard.

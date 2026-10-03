@@ -8,7 +8,7 @@ The RMT stack topography explains how RMT source, compiler, kernel, Fabric and U
 
 RMT source describes app structure, state, selectors, actions, events, resources, surfaces and scheduling intent. The compiler turns that description into stable core records.
 
-The RMT kernel processes those records in a host-neutral way. It schedules work, manages runtime state, triggers actions, publishes diagnostics and stays independent from DOM, CSS and frameworks.
+The RMT runtime processes those records through host-neutral state, action and surface services. The RMT kernel contains the shared microkernel scheduler for queues, prioritization, host waits and cooperative cancellation. It stays independent from DOM, CSS and business models.
 
 XTend Fabric translates scheduling intent into lanes, hydration decisions, telemetry and backpressure signals. Host adapters connect those signals to browser, server, worker or app shell environments.
 
@@ -16,7 +16,7 @@ XTend UI, React, Vue or VanillaJS render at the edge of the system. They receive
 
 ## Integration Models
 
-In an XTend-only model, RMT describes the app shell, Fabric coordinates the work and XTend UI renders the visible Web Components.
+In an XTend-only model, RMT describes the app shell. Maraca composes its services with one shared scheduler instance; Fabric supplies work intents and telemetry without a second queue. XTend UI renders the visible Web Components.
 
 In an MFE model, an XTend shell can provide surfaces for other teams. Those surfaces can use XTend UI, React, Vue or VanillaJS as long as they are connected through clear DOM and adapter boundaries.
 
@@ -32,3 +32,5 @@ In a scheduler model, the RMT kernel runs as an orchestration layer beside exist
 ## Concrete runtime boundaries
 
 `tools/rmt-language/vnext-parser.js` reads source, `tools/rmt-language/vnext-compiler.js` emits core records, and `xtendrmt/rmt-app-runtime.js` passes them to explicit host adapters. These entry points locate failures: syntax belongs to the parser, reference resolution to the compiler, and missing browser services to an adapter.
+
+[Maraca FastPass and Abort Boundary](./maraca-fastpass-abort-boundary.md) adds explicit shell priority and presentation epochs on this architecture. The [migration guide](./rmt-kernel-0-8-migration.md) lists changed 0.8.0 contracts.

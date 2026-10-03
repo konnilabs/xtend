@@ -31,7 +31,7 @@ Der Gate prueft:
 - `xtend.fabric.lifecycle-error-boundary.v1`
 - `createComponentLifecycleBoundary`, Lifecycle-Phasen, Event-Handler-Wrapping und die defekte Fixture `tests/fabric/fixtures/broken-lifecycle.component.js`
 - `createReporterAdapter`, `createConsoleReporter`, `createTestReporter`, Reporter-Severity-Filter und opt-in Enterprise-Reporter-Vorbereitung
-- `createRuntimeDiagnosticsBridge`, `connectXState`, `connectApi`, `createRmtDiagnosticsHub`, `xtend.fabric.bridge.ready`, `xtend.fabric.diagnostics.last` und `xtend.fabric.diagnostics.snapshot`
+- `createRuntimeDiagnosticsBridge`, `connectState`, `connectApi`, `createRmtDiagnosticsHub`, `xtend.fabric.bridge.ready`, `xtend.fabric.diagnostics.last` und `xtend.fabric.diagnostics.snapshot`
 - `createComponentFiberInstrumentation`, `component.visible.mount`, `component.idle.hydrate`, Dauer-/Ergebnis-/Lane-/Diagnostics-Felder und redigierte Fiber-Metadata
 - `createRouteFiberInstrumentation`, `ui.user-blocking.input`, `route.transition.render`, `route.visible.render`, `xtendrmt.route.render`, XRouter-Boundaries und redigierte Route-Fiber-Metadata
 - `createTelemetrySnapshot`, `createBackpressureSignal`, `publishTelemetrySnapshot`, `xtend.fabric.telemetry-snapshot.v1`, `xtend.fabric.backpressure-signal.v1`, Performance-Runtime-Anschluss und Reporter Export

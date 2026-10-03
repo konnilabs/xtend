@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 import './xicon.js';
 
 class XPopover extends HTMLElement {
@@ -332,9 +332,9 @@ class XPopover extends HTMLElement {
     document.addEventListener('click', this._onDocumentClick);
     document.addEventListener('keydown', this._onDocumentKeyDown);
     this.shadowRoot.addEventListener('keydown', this._onShadowKeyDown);
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xpopover-open-${this.id}` && typeof value === 'boolean') {
-        value ? this.show({ source: 'xstate' }) : this.hide({ source: 'xstate' });
+        value ? this.show({ source: 'xtend-state' }) : this.hide({ source: 'xtend-state' });
       }
     }, `xpopover-open-${this.id}`);
     this.hasAttribute('open') ? this.show({ source: 'attribute', silent: true }) : this.hide({ source: 'initial', silent: true });
@@ -413,7 +413,7 @@ class XPopover extends HTMLElement {
     this.toggleAttribute('open', isOpen);
     this._synchronizingAttribute = false;
     this._syncA11y();
-    xstate.set(`xpopover-open-${this.id}`, isOpen);
+    xtendState.set(`xpopover-open-${this.id}`, isOpen);
     if (!silent) {
       this.dispatchEvent(new CustomEvent(isOpen ? 'popover-opened' : 'popover-closed', {
         detail: { id: this.id, open: isOpen, source, placement: this.getAttribute('placement') || 'bottom', modal: this.modal },

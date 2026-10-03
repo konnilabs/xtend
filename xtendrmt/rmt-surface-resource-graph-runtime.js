@@ -193,12 +193,13 @@
     return toArray(input).map((surface) => {
       const source = objectRecord(surface);
       const hasSource = Boolean(source.source || source.from || source.records);
+      const hasExplicitRepeat = Object.prototype.hasOwnProperty.call(source, 'repeat');
       return {
         ...source,
         id: clampString(source.id),
         kind: clampString(source.kind || source.type, 'surface'),
         source: clampString(source.source || source.from, ''),
-        repeat: source.repeat === true || hasSource,
+        repeat: hasExplicitRepeat ? source.repeat === true : hasSource,
         key: source.key || source.keyPath || '$record.id',
         owner: source.owner || source.ownerId || '',
         component: clampString(source.component || source.tag, ''),
@@ -251,6 +252,8 @@
     const surfaceIndex = new Map(surfaces.map((surface) => [surface.id, surface]));
     const overlayIndex = new Map(overlays.map((overlay) => [overlay.id, overlay]));
     const instances = new Map();
+    const presentationResourceOwners = new Map();
+    let presentationLease = 0;
     const overlayStack = [];
     const resourceManager = options.resourceManager || null;
     const eventRuntime = options.eventRuntime || null;
@@ -671,10 +674,18 @@
 
     function requireSurfaceControllerResult(result, operation, subjectId) {
       if (!result || result.ok !== false) return result;
+      const failedResult = toArray(result.results).find((entry) => entry && entry.ok === false) || null;
+      const failureCode = result.code || failedResult && failedResult.code || 'rmt.surface.mvc.controller-refused';
       const diagnostic = publish(
-        result.code || 'rmt.surface.mvc.controller-refused',
+        failureCode,
         `Surface controller refused ${operation} before resource or DOM projection.`,
-        { operation, subjectId: subjectId || null, methodName: result.methodName || null },
+        {
+          operation,
+          subjectId: subjectId || null,
+          methodName: result.methodName || null,
+          controllerOperation: result.operation || null,
+          failedResult: failedResult ? cloneValue(failedResult, {}) : null
+        },
         'error'
       );
       const error = new Error(diagnostic.message);
@@ -760,9 +771,21 @@
       if (Array.isArray(input)) return input;
       const sourceId = surface.source;
       const source = objectRecord(input);
-      if (sourceId && Array.isArray(source[sourceId])) return source[sourceId];
-      if (source.records && Array.isArray(source.records[sourceId])) return source.records[sourceId];
-      if (source.data && Array.isArray(source.data[sourceId])) return source.data[sourceId];
+      if (sourceId && Object.prototype.hasOwnProperty.call(source, sourceId)) {
+        const value = source[sourceId];
+        if (Array.isArray(value)) return value;
+        if (value && typeof value === 'object') return [value];
+      }
+      if (source.records && Object.prototype.hasOwnProperty.call(source.records, sourceId)) {
+        const value = source.records[sourceId];
+        if (Array.isArray(value)) return value;
+        if (value && typeof value === 'object') return [value];
+      }
+      if (source.data && Object.prototype.hasOwnProperty.call(source.data, sourceId)) {
+        const value = source.data[sourceId];
+        if (Array.isArray(value)) return value;
+        if (value && typeof value === 'object') return [value];
+      }
       if (Array.isArray(surface.records)) return surface.records;
       return surface.repeat ? [] : [null];
     }
@@ -843,17 +866,36 @@
         }, 'warning');
         return [];
       }
-      const records = await resourceManager.acquireMany(instance.resources, instance.owner, {
-        surface: cloneValue(instance, instance),
-        ...objectRecord(context)
-      });
-      if (disposed || disposing) {
-        if (resourceManager && typeof resourceManager.releaseOwner === 'function') {
-          resourceManager.releaseOwner(instance.owner);
-        }
-        return [];
+      // A late acquisition must never release a newer lifetime's owner.
+      const scoped = typeof options.getSurfaceBoundary === 'function';
+      const owner = scoped ? `${instance.owner}:presentation:${++presentationLease}` : instance.owner;
+      if (scoped) {
+        if (!presentationResourceOwners.has(instance.id)) presentationResourceOwners.set(instance.id, new Set());
+        presentationResourceOwners.get(instance.id).add(owner);
       }
+      const release = () => {
+        if (typeof resourceManager.releaseOwner === 'function') resourceManager.releaseOwner(owner);
+        const owners = presentationResourceOwners.get(instance.id);
+        if (owners) { owners.delete(owner); if (!owners.size) presentationResourceOwners.delete(instance.id); }
+      };
+      const signal = scoped && context.signal;
+      const onAbort = () => { try { release(); } catch (_) {} };
+      if (signal) signal.addEventListener('abort', onAbort, { once: true });
+      let records;
+      try {
+        records = await resourceManager.acquireMany(instance.resources, owner, {
+          surface: cloneValue(instance, instance),
+          ...objectRecord(context)
+        });
+        if (disposed || disposing || (typeof context.isCurrent === 'function' && !context.isCurrent())) {
+          release();
+          return [];
+        }
+      } catch (error) { release(); throw error; }
+      finally { if (signal) signal.removeEventListener('abort', onAbort); }
       instance.resourcesAcquired = true;
+      const live = instances.get(instance.id);
+      if (live) live.resourcesAcquired = true;
       publish('rmt.surface.resources.acquired', `RMT Surface ${instance.id} hat Ressourcen uebernommen.`, {
         instanceId: instance.id,
         owner: instance.owner,
@@ -863,10 +905,12 @@
     }
 
     function releaseResources(instance, reason = 'release') {
-      if (!instance || !instance.resourcesAcquired) return null;
+      if (!instance || (!instance.resourcesAcquired && !presentationResourceOwners.has(instance.id))) return null;
       let report = null;
       if (resourceManager && typeof resourceManager.releaseOwner === 'function') {
-        report = resourceManager.releaseOwner(instance.owner);
+        const owners = presentationResourceOwners.get(instance.id);
+        for (const owner of owners || [instance.owner]) report = resourceManager.releaseOwner(owner);
+        presentationResourceOwners.delete(instance.id);
       }
       instance.resourcesAcquired = false;
       publish('rmt.surface.resources.released', `RMT Surface ${instance.id} hat Ressourcen freigegeben.`, {
@@ -958,9 +1002,16 @@
       const openResult = proxySurfaceManager('open', instance, openOptions);
       requireSurfaceControllerResult(openResult, 'open', instance.id);
       syncLifecycleProjection(instance, openResult && openResult.snapshot, { state: 'open' });
+      const boundary = typeof options.getSurfaceBoundary === 'function' ? options.getSurfaceBoundary(instance.id) : null;
+      const token = boundary && boundary.capture();
+      const current = () => !boundary || boundary.isCurrent(token);
       try {
-        await acquireResources(instance, openOptions);
+        const acquire = () => acquireResources(instance, { ...openOptions, isCurrent: current, signal: boundary && boundary.signal });
+        if (boundary) await boundary.run(acquire, token);
+        else await acquire();
+        if (!current()) return { ok: false, status: 'superseded', surfaceId: instance.id };
       } catch (error) {
+        if (!current()) return { ok: false, status: 'superseded', surfaceId: instance.id };
         instance.metadata = {
           ...objectRecord(instance.metadata),
           projection: { status: 'failed', retryable: true, phase: 'resource-acquire', error: error && error.message || String(error) }
@@ -1582,7 +1633,7 @@
           }
         });
         instances.forEach((instance) => {
-          if (instance.resourcesAcquired) {
+          if (instance.resourcesAcquired || presentationResourceOwners.has(instance.id)) {
             const releaseReport = disposeAttempt(
               'rmt.surface.dispose.resource_failed',
               'A surface resource handle failed during Surface Resource Graph disposal.',

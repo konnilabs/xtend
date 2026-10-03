@@ -246,16 +246,17 @@ function evaluateAppModules(checks, relativePath, source) {
 
   try {
     vm.runInNewContext(stripEsmExports(source), sandbox, { filename: relativePath });
-    const appModules = sandbox.AppModules;
+    vm.runInNewContext('globalThis.__artifactFactories = AppModules;', sandbox);
+    const appModules = sandbox.__artifactFactories;
     addCheck(
       checks,
-      `appModules:${relativePath}`,
+      `private-factories:${relativePath}`,
       Boolean(appModules && typeof appModules.createRmtProductManifest === 'function'),
-      `${relativePath} exposes AppModules and createRmtProductManifest`
+      `${relativePath} retains createRmtProductManifest in its private factory scope`
     );
     return appModules || null;
   } catch (error) {
-    addCheck(checks, `appModules:${relativePath}`, false, `${relativePath} exposes AppModules and createRmtProductManifest`, {
+    addCheck(checks, `private-factories:${relativePath}`, false, `${relativePath} retains createRmtProductManifest in its private factory scope`, {
       error: error.message
     });
     return null;

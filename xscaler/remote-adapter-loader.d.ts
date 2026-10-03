@@ -119,6 +119,8 @@ export interface XScalerExternalAdapterLoader {
 }
 
 export interface XScalerRemoteAdapterLoaderOptions {
+  /** Explicit local development opt-in. Only localhost and literal loopback addresses; HTTPS remains the default. */
+  allowInsecureLoopback?: boolean;
   preflight?(input: XScalerPreflightEvaluationInput & { signal: AbortSignal }): XScalerPreflightResponse | Promise<XScalerPreflightResponse>;
   hostCapabilities?: XScalerHostCapabilities;
   loadExternalAdapter?: XScalerExternalAdapterLoader;

@@ -87,8 +87,8 @@ async function ensureNativeComponents() {
   return nativeComponentsPromise;
 }
 
-function setXStateValue(xstate, key, value) {
-  if (xstate && typeof xstate.set === 'function') xstate.set(key, value);
+function setStateValue(stateRuntime, key, value) {
+  if (stateRuntime && typeof stateRuntime.set === 'function') stateRuntime.set(key, value);
 }
 
 function dispatchRmtCommand(target, command, label, extra = {}) {
@@ -263,9 +263,9 @@ function ensureDialog(options = {}) {
       reason: 'xtension-control-dialog'
     });
     window.__XTendResumeDemo.xtensionControlLastApply = result;
-    setXStateValue(options.xstate, 'erp.shell.xtensionControlDialog.configStatus', 'applied');
-    setXStateValue(options.xstate, 'erp.shell.xtensionControlDialog.enabledCount', config.enabledCount);
-    setXStateValue(options.xstate, 'erp.shell.xtensionControlDialog.disabledCount', config.disabledCount);
+    setStateValue(options.stateRuntime, 'erp.shell.xtensionControlDialog.configStatus', 'applied');
+    setStateValue(options.stateRuntime, 'erp.shell.xtensionControlDialog.enabledCount', config.enabledCount);
+    setStateValue(options.stateRuntime, 'erp.shell.xtensionControlDialog.disabledCount', config.disabledCount);
     dialog.__xtendDraft = cloneConfig(config);
     syncSelectValues(dialog, dialog.__xtendDraft);
     renderSummary(dialog, dialog.__xtendDraft);
@@ -288,9 +288,9 @@ function ensureDialog(options = {}) {
     host.hidden = true;
     host.dataset.lazyState = 'loaded-closed';
     window.__XTendResumeDemo.xtensionControlDialogOpen = false;
-    setXStateValue(options.xstate, 'erp.shell.xtensionControlDialog.open', false);
-    setXStateValue(options.xstate, 'erp.shell.xtensionControlDialog.hidden', true);
-    setXStateValue(options.xstate, 'erp.shell.xtensionControlDialog.configStatus', 'closed');
+    setStateValue(options.stateRuntime, 'erp.shell.xtensionControlDialog.open', false);
+    setStateValue(options.stateRuntime, 'erp.shell.xtensionControlDialog.hidden', true);
+    setStateValue(options.stateRuntime, 'erp.shell.xtensionControlDialog.configStatus', 'closed');
     if (typeof options.onClose === 'function') {
       options.onClose(event && event.detail && event.detail.source || 'dialog-closed');
     }
@@ -324,12 +324,12 @@ export async function openXTensionControlDialog(options = {}) {
   window.__XTendResumeDemo.xtensionControlDialogLoaded = true;
   window.__XTendResumeDemo.xtensionControlDialogOpen = true;
   window.__XTendResumeDemo.xtensionBootConfig = config;
-  setXStateValue(options.xstate, 'erp.shell.xtensionControlDialog.open', true);
-  setXStateValue(options.xstate, 'erp.shell.xtensionControlDialog.loaded', true);
-  setXStateValue(options.xstate, 'erp.shell.xtensionControlDialog.hidden', false);
-  setXStateValue(options.xstate, 'erp.shell.xtensionControlDialog.configStatus', 'editing');
-  setXStateValue(options.xstate, 'erp.shell.xtensionControlDialog.enabledCount', config.enabledCount);
-  setXStateValue(options.xstate, 'erp.shell.xtensionControlDialog.disabledCount', config.disabledCount);
+  setStateValue(options.stateRuntime, 'erp.shell.xtensionControlDialog.open', true);
+  setStateValue(options.stateRuntime, 'erp.shell.xtensionControlDialog.loaded', true);
+  setStateValue(options.stateRuntime, 'erp.shell.xtensionControlDialog.hidden', false);
+  setStateValue(options.stateRuntime, 'erp.shell.xtensionControlDialog.configStatus', 'editing');
+  setStateValue(options.stateRuntime, 'erp.shell.xtensionControlDialog.enabledCount', config.enabledCount);
+  setStateValue(options.stateRuntime, 'erp.shell.xtensionControlDialog.disabledCount', config.disabledCount);
 
   if (typeof dialog.open === 'function') dialog.open();
   else dialog.setAttribute('open', '');

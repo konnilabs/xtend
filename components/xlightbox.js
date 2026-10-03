@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 class XLightbox extends HTMLElement {
   static get observedAttributes() {
@@ -267,13 +267,13 @@ class XLightbox extends HTMLElement {
     this._syncA11y();
     document.addEventListener('keydown', this._onDocumentKeyDown);
 
-    if (typeof xstate.subscribe === 'function') {
-      this._unsubscribeState = xstate.subscribe((key, value) => {
+    if (typeof xtendState.subscribe === 'function') {
+      this._unsubscribeState = xtendState.subscribe((key, value) => {
         if (key !== `xlightbox-open-${this.id}`) return;
         if (value && typeof value === 'object' && value.open && value.src) {
-          this.open(value.src, { source: 'xstate' });
+          this.open(value.src, { source: 'xtend-state' });
         } else if (value === false) {
-          this.close({ source: 'xstate', immediate: true });
+          this.close({ source: 'xtend-state', immediate: true });
         }
       }, `xlightbox-open-${this.id}`);
     }
@@ -345,7 +345,7 @@ class XLightbox extends HTMLElement {
       }));
     }
 
-    if (options.source !== 'xstate') {
+    if (options.source !== 'xtend-state') {
       this._publishState(true);
     }
 
@@ -394,7 +394,7 @@ class XLightbox extends HTMLElement {
     this._syncA11y();
     this._img.removeAttribute('src');
 
-    if (source !== 'xstate') {
+    if (source !== 'xtend-state') {
       this._publishState(false);
     }
 
@@ -487,8 +487,8 @@ class XLightbox extends HTMLElement {
   }
 
   _publishState(isOpen) {
-    if (!this.id || typeof xstate.set !== 'function') return;
-    xstate.set(`xlightbox-open-${this.id}`, isOpen ? { open: true, src: this._src } : false);
+    if (!this.id || typeof xtendState.set !== 'function') return;
+    xtendState.set(`xlightbox-open-${this.id}`, isOpen ? { open: true, src: this._src } : false);
   }
 
   _ensureDocumentPortal() {

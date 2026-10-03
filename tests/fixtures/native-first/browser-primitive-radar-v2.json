@@ -1,0 +1,108 @@
+{
+  "schema": "xtend.native-first.browser-primitive-radar.v2",
+  "entrySchema": "xtend.native-first.browser-primitive-radar-entry.v2",
+  "runId": "NFM-OBS-2026-09-03",
+  "reviewedAt": "2026-09-03",
+  "nextHygieneReview": "2026-12-03",
+  "parentCount": 24,
+  "terminalStates": ["accepted-existing", "resolved", "closed"],
+  "forbiddenActiveStates": ["watch", "defer-with-watch", "needs-browser-lab", "insufficient-evidence"],
+  "entries": [
+    {
+      "id": "NFM-BPR-001", "primitive": "Structured DOM APIs", "category": "dom", "status": "accepted-existing", "decisionOutcome": "adopt-native", "evidenceStatus": "accepted-evidence", "owner": "RMT/Runtime Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-001-2026-09-03",
+      "members": [{"id": "structured-dom", "name": "DocumentFragment, replaceChildren and template content", "outcome": "adopt-native", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "security", "product-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-002", "primitive": "Custom Elements and Shadow DOM", "category": "component", "status": "accepted-existing", "decisionOutcome": "wrap-as-xtend-primitive", "evidenceStatus": "accepted-evidence", "owner": "Component Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-002-2026-09-03",
+      "members": [{"id": "custom-elements", "name": "Custom Elements", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "a11y", "product-regression"]}, {"id": "shadow-dom", "name": "Shadow DOM", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "a11y", "product-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-003", "primitive": "Form-associated Custom Elements", "category": "form", "status": "accepted-existing", "decisionOutcome": "wrap-as-xtend-primitive", "evidenceStatus": "accepted-evidence", "owner": "Forms Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-003-2026-09-03",
+      "members": [{"id": "element-internals", "name": "ElementInternals", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "a11y", "product-regression"]}, {"id": "form-associated-elements", "name": "Form association", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "a11y", "product-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-004", "primitive": "Constraint Validation and FormData", "category": "form", "status": "accepted-existing", "decisionOutcome": "wrap-as-xtend-primitive", "evidenceStatus": "accepted-evidence", "owner": "Forms Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-004-2026-09-03",
+      "members": [{"id": "constraint-validation", "name": "Constraint Validation", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "a11y", "product-regression"]}, {"id": "form-data", "name": "FormData", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "security", "product-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-005", "primitive": "Inert and focus isolation", "category": "accessibility", "status": "accepted-existing", "decisionOutcome": "wrap-as-xtend-primitive", "evidenceStatus": "accepted-evidence", "owner": "Overlay/A11y Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-005-2026-09-03",
+      "members": [{"id": "inert", "name": "inert", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "a11y", "product-regression"]}, {"id": "focus-isolation", "name": "Browser-near focus isolation", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "a11y", "product-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-006", "primitive": "Native Dialog", "category": "component", "status": "closed", "decisionOutcome": "reject-for-now", "evidenceStatus": "rejection-evidence", "owner": "Overlay Owner", "nextReview": "none", "followUp": "none", "adr": "ADR-NFM-BPR-006-2026-09-03",
+      "members": [{"id": "html-dialog", "name": "HTMLDialogElement", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}, {"id": "dialog-closedby", "name": "closedby", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}, {"id": "dialog-open-pseudo", "name": ":open", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-007", "primitive": "Popover API", "category": "component", "status": "closed", "decisionOutcome": "reject-for-now", "evidenceStatus": "rejection-evidence", "owner": "Overlay Owner", "nextReview": "none", "followUp": "none", "adr": "ADR-NFM-BPR-007-2026-09-03",
+      "members": [{"id": "popover-api", "name": "Popover API", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}, {"id": "popover-hint", "name": "popover hint", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-008", "primitive": "CSS Anchor Positioning", "category": "layout", "status": "closed", "decisionOutcome": "reject-for-now", "evidenceStatus": "rejection-evidence", "owner": "Layout/Overlay Owner", "nextReview": "none", "followUp": "none", "adr": "ADR-NFM-BPR-008-2026-09-03",
+      "members": [{"id": "css-anchor-positioning", "name": "CSS Anchor Positioning", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-009", "primitive": "CSS Container Queries", "category": "layout", "status": "accepted-existing", "decisionOutcome": "adopt-native", "evidenceStatus": "accepted-evidence", "owner": "Component Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-009-2026-09-03",
+      "members": [{"id": "container-queries", "name": "CSS Container Queries", "outcome": "adopt-native", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "product-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-010", "primitive": "Web Animations API", "category": "animation", "status": "accepted-existing", "decisionOutcome": "wrap-as-xtend-primitive", "evidenceStatus": "accepted-evidence", "owner": "Motion Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-010-2026-09-03",
+      "members": [{"id": "web-animations", "name": "Web Animations API", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "a11y", "product-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-011", "primitive": "View Transitions", "category": "animation", "status": "closed", "decisionOutcome": "reject-for-now", "evidenceStatus": "rejection-evidence", "owner": "Surface Owner", "nextReview": "none", "followUp": "none", "adr": "ADR-NFM-BPR-011-2026-09-03",
+      "members": [{"id": "same-document-view-transitions", "name": "Same-document View Transitions", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}, {"id": "cross-document-view-transitions", "name": "Cross-document View Transitions", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-012", "primitive": "Scheduling primitives", "category": "scheduling", "status": "resolved", "decisionOutcome": "resolved", "evidenceStatus": "accepted-evidence", "owner": "Scheduler Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-012-2026-09-03",
+      "members": [{"id": "request-animation-frame", "name": "requestAnimationFrame", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "product-regression"]}, {"id": "request-idle-callback", "name": "requestIdleCallback", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "product-regression"]}, {"id": "queue-microtask", "name": "queueMicrotask", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "product-regression"]}, {"id": "scheduler-yield", "name": "scheduler.yield", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-013", "primitive": "Observer APIs", "category": "observability", "status": "accepted-existing", "decisionOutcome": "wrap-as-xtend-primitive", "evidenceStatus": "accepted-evidence", "owner": "Runtime Diagnostics Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-013-2026-09-03",
+      "members": [{"id": "intersection-observer", "name": "IntersectionObserver", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "product-regression"]}, {"id": "resize-observer", "name": "ResizeObserver", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "product-regression"]}, {"id": "mutation-observer", "name": "MutationObserver", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "product-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-014", "primitive": "Performance APIs", "category": "observability", "status": "accepted-existing", "decisionOutcome": "wrap-as-xtend-primitive", "evidenceStatus": "accepted-evidence", "owner": "Performance Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-014-2026-09-03",
+      "members": [{"id": "performance-api", "name": "Performance API", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "product-regression"]}, {"id": "user-timing", "name": "User Timing", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "product-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-015", "primitive": "Navigation primitives", "category": "navigation", "status": "resolved", "decisionOutcome": "resolved", "evidenceStatus": "accepted-evidence", "owner": "Router Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-015-2026-09-03",
+      "members": [{"id": "history-api", "name": "History API", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "a11y", "product-regression"]}, {"id": "url-pattern", "name": "URLPattern", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}, {"id": "navigation-api", "name": "Navigation API", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-016", "primitive": "Browser-native trusted DOM primitives", "category": "security", "status": "closed", "decisionOutcome": "reject-for-now", "evidenceStatus": "rejection-evidence", "owner": "Security Owner", "nextReview": "none", "followUp": "none", "adr": "ADR-NFM-BPR-016-2026-09-03",
+      "members": [{"id": "trusted-types-adoption", "name": "Browser-native Trusted Types adoption", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression", "security"]}, {"id": "sanitizer-api", "name": "Sanitizer API", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression", "security"]}]
+    },
+    {
+      "id": "NFM-BPR-017", "primitive": "Storage primitives", "category": "storage", "status": "resolved", "decisionOutcome": "resolved", "evidenceStatus": "accepted-evidence", "owner": "Resource Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-017-2026-09-03",
+      "members": [{"id": "cache-api", "name": "Cache API", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "security", "product-regression"]}, {"id": "indexeddb", "name": "IndexedDB", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}, {"id": "storage-buckets", "name": "Storage Buckets", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-018", "primitive": "Media primitives", "category": "media", "status": "resolved", "decisionOutcome": "resolved", "evidenceStatus": "accepted-evidence", "owner": "Media Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-018-2026-09-03",
+      "members": [{"id": "picture-in-picture", "name": "Picture-in-Picture", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "a11y", "product-regression"]}, {"id": "media-session", "name": "Media Session", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-019", "primitive": "Network primitives", "category": "network", "status": "resolved", "decisionOutcome": "resolved", "evidenceStatus": "accepted-evidence", "owner": "Resource/Effects Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-019-2026-09-03",
+      "members": [{"id": "abort-signal", "name": "AbortSignal", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "security", "product-regression"]}, {"id": "fetch-response-streaming", "name": "Fetch response streaming", "outcome": "wrap-as-xtend-primitive", "checks": ["capability-present", "capability-absent-fallback", "lifecycle-cleanup", "security", "product-regression"]}, {"id": "fetch-request-streaming", "name": "Fetch request streaming", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression", "security"]}, {"id": "broadcast-channel", "name": "BroadcastChannel", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression", "security"]}]
+    },
+    {
+      "id": "NFM-BPR-020", "primitive": "Accessibility CSS primitives", "category": "accessibility", "status": "accepted-existing", "decisionOutcome": "adopt-native", "evidenceStatus": "accepted-evidence", "owner": "A11y Owner", "nextReview": "2026-12-03", "followUp": "none", "adr": "ADR-NFM-BPR-020-2026-09-03",
+      "members": [{"id": "forced-colors", "name": "forced-colors", "outcome": "adopt-native", "checks": ["capability-present", "capability-absent-fallback", "a11y", "product-regression"]}, {"id": "prefers-reduced-motion", "name": "prefers-reduced-motion", "outcome": "adopt-native", "checks": ["capability-present", "capability-absent-fallback", "a11y", "product-regression"]}, {"id": "focus-visible", "name": "focus-visible", "outcome": "adopt-native", "checks": ["capability-present", "capability-absent-fallback", "a11y", "product-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-021", "primitive": "Scoped Custom Element Registries", "category": "component", "status": "closed", "decisionOutcome": "reject-for-now", "evidenceStatus": "rejection-evidence", "owner": "Component/Surface Owner", "nextReview": "none", "followUp": "none", "adr": "ADR-NFM-BPR-021-2026-09-03",
+      "members": [{"id": "scoped-custom-element-registries", "name": "Scoped Custom Element Registries", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-022", "primitive": "JavaScript Promise Integration for WebAssembly", "category": "compute", "status": "closed", "decisionOutcome": "reject-for-now", "evidenceStatus": "rejection-evidence", "owner": "Runtime/Tooling/Security Owner", "nextReview": "none", "followUp": "none", "adr": "ADR-NFM-BPR-022-2026-09-03",
+      "members": [{"id": "jspi", "name": "JSPI", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression", "security"]}]
+    },
+    {
+      "id": "NFM-BPR-023", "primitive": "Declarative Shadow DOM slot assignment", "category": "component", "status": "closed", "decisionOutcome": "reject-for-now", "evidenceStatus": "rejection-evidence", "owner": "SSR/Hydration Owner", "nextReview": "none", "followUp": "none", "adr": "ADR-NFM-BPR-023-2026-09-03",
+      "members": [{"id": "declarative-shadow-dom-slot-assignment", "name": "shadowrootslotassignment", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}]
+    },
+    {
+      "id": "NFM-BPR-024", "primitive": "Explicit Resource Management", "category": "lifecycle", "status": "closed", "decisionOutcome": "reject-for-now", "evidenceStatus": "rejection-evidence", "owner": "Runtime Lifecycle Owner", "nextReview": "none", "followUp": "none", "adr": "ADR-NFM-BPR-024-2026-09-03",
+      "members": [{"id": "explicit-resource-management", "name": "using, DisposableStack and Symbol.dispose", "outcome": "reject-for-now", "checks": ["negative-product-usage", "owned-path-regression"]}]
+    }
+  ]
+}

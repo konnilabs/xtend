@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 class XFooter extends HTMLElement {
   constructor() {
@@ -100,14 +100,14 @@ class XFooter extends HTMLElement {
     if (!this.id) this.id = `xfooter-${Math.random().toString(36).slice(2, 10)}`;
 
     // Set initial state
-    xstate.set(`xfooter-state-${this.id}`, {
+    xtendState.set(`xfooter-state-${this.id}`, {
       src: this.getAttribute("src"),
       logoSize: this.getAttribute("logo-size"),
       sticky: this.hasAttribute("sticky")
     });
 
     // Subscribe to state changes, for example external src, logoSize, or sticky updates
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xfooter-state-${this.id}` && typeof value === "object") {
         if (typeof value.src === "string" && value.src !== this.getAttribute("src")) {
           this.setAttribute("src", value.src);
@@ -145,7 +145,7 @@ class XFooter extends HTMLElement {
       }
       // Update state
       if (this.id) {
-        xstate.set(`xfooter-state-${this.id}`, {
+        xtendState.set(`xfooter-state-${this.id}`, {
           src: this.getAttribute("src"),
           logoSize: this.getAttribute("logo-size"),
           sticky: this.hasAttribute("sticky")

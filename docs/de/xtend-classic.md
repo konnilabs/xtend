@@ -26,7 +26,7 @@ Beide Pfade verwenden dieselben öffentlichen Web-Component-Verträge. Wähle Cl
 Lade nur die Komponenten des ersten Viewports vor. Der Loader entdeckt tiefer liegende manifestbasierte Elemente und lädt sie, sobald sie sich dem Viewport nähern.
 
 ```html
-<meta name="xtend-preload" content="xstate,x-theme,x-header,x-hero">
+<meta name="xtend-preload" content="xtend-state,x-theme,x-header,x-hero">
 <script type="module"
   src="/xtend-loader.js"
   data-manifest="/components/manifest.json"></script>

@@ -6,8 +6,10 @@ const TARGETS = Object.freeze([
   'xtendrmt/rmt-runtime.esm.js'
 ]);
 
-const LIVE_GLOBAL_INITIALIZER = '__XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_GLOBAL__.AppModules || {};';
-const LIVE_GLOBAL_EXPORT = 'const AppModules = __XTENDRMT_GLOBAL__.AppModules;';
+const PRIVATE_INITIALIZER = [
+  '/* Private build scope: ESM evaluation never reads or mutates host globals. */',
+  'const __XTENDRMT_GLOBAL__ = { AppModules: Object.create(null) };'
+].join('\n');
 const LOCAL_INITIALIZER = [
   '/* module-local factory registry; AppModules remains the writable compatibility mirror */',
   'const __XTENDRMT_COMPAT_APP_MODULES__ = (',
@@ -22,6 +24,7 @@ const LOCAL_EXPORT = [
   'Object.assign(__XTENDRMT_COMPAT_APP_MODULES__, AppModules);',
   '__XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_COMPAT_APP_MODULES__;'
 ].join('\n');
+const PRIVATE_EXPORT = 'const AppModules = Object.freeze({ ...__XTENDRMT_GLOBAL__.AppModules });';
 
 function replaceExactlyOnce(source, current, replacement, target) {
   const first = source.indexOf(current);
@@ -34,20 +37,16 @@ function replaceExactlyOnce(source, current, replacement, target) {
 
 function generateEntrypoint(source, target) {
   const text = String(source || '');
+  if (text.includes(PRIVATE_INITIALIZER) && text.includes(PRIVATE_EXPORT)) return text;
   const hasLocalInitializer = text.includes(LOCAL_INITIALIZER);
   const hasLocalExport = text.includes(LOCAL_EXPORT);
   if (hasLocalInitializer || hasLocalExport) {
     if (!hasLocalInitializer || !hasLocalExport) {
       throw new Error(`${target}: partial module-local ESM wrapper generation detected`);
     }
-    return text;
+    return text.replace(LOCAL_INITIALIZER, PRIVATE_INITIALIZER).replace(LOCAL_EXPORT, PRIVATE_EXPORT);
   }
-  return replaceExactlyOnce(
-    replaceExactlyOnce(text, LIVE_GLOBAL_INITIALIZER, LOCAL_INITIALIZER, target),
-    LIVE_GLOBAL_EXPORT,
-    LOCAL_EXPORT,
-    target
-  );
+  throw new Error(`${target}: missing the private ESM factory scope`);
 }
 
 function generateXtendRmtEsmEntrypoints(options = {}) {

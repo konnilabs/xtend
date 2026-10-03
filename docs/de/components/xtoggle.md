@@ -120,7 +120,7 @@ Bei `prefers-reduced-motion: reduce` darf der Zustand nicht allein durch eine Th
 - Performance-Profil: `xtend.performance.component-profile.v1`
 - Schedules: `component.visible.mount`, `component.idle.hydrate`, `ui.user-blocking.input`, `a11y.announce`, `diagnostics.snapshot`
 
-Die Komponente veröffentlicht `xtoggle-checked-<id>` und `xtoggle-state-<id>` in `xstate`. In einer RMT Surface werden `toggle-changed` und `toggle-invalid` als DOM-Events an deklarative Commands gebunden. Weder die Komponente noch ein Wrapper sollte dazu den RMT Kernel importieren.
+Die Komponente veröffentlicht `xtoggle-checked-<id>` und `xtoggle-state-<id>` in XTend Classic State. In einer RMT Surface werden `toggle-changed` und `toggle-invalid` als DOM-Events an deklarative Commands gebunden. Weder die Komponente noch ein Wrapper sollte dazu den RMT Kernel importieren.
 
 ## Fehlerbehebung
 

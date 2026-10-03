@@ -76,7 +76,11 @@ export function createRmtResumeCaptureAdapter(options = {}) {
           const matched = selector && target && typeof target.closest === 'function'
             ? target.closest(selector)
             : target;
-          if (!matched) continue;
+          if (!matched || matched !== root && typeof root.contains === 'function' && !root.contains(matched)) continue;
+          if (captureOptions.intercept === true) {
+            if (record.governance?.preventDefault || record.preventDefault) event.preventDefault();
+            event.stopImmediatePropagation();
+          }
           const payload = typeof captureOptions.mapPayload === 'function'
             ? captureOptions.mapPayload(record, event, matched)
             : {
@@ -94,7 +98,7 @@ export function createRmtResumeCaptureAdapter(options = {}) {
           break;
         }
       };
-      root.addEventListener(eventType, listener, { capture: true, passive: eventType !== 'submit' });
+      root.addEventListener(eventType, listener, { capture: true, passive: captureOptions.intercept !== true && eventType !== 'submit' });
       listeners.push([eventType, listener]);
     });
     let disposed = false;

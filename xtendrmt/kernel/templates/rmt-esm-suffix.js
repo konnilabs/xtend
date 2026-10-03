@@ -1,7 +1,5 @@
 
-const AppModules = Object.freeze({ ...__XTENDRMT_MODULE_APP_MODULES__ });
-Object.assign(__XTENDRMT_COMPAT_APP_MODULES__, AppModules);
-__XTENDRMT_GLOBAL__.AppModules = __XTENDRMT_COMPAT_APP_MODULES__;
+const AppModules = Object.freeze({ ...__XTENDRMT_GLOBAL__.AppModules });
 const getRmtApiVersion = (...args) => AppModules.getRmtApiVersion(...args);
 const createRmtProductManifest = (...args) => AppModules.createRmtProductManifest(...args);
 const createRmtCore = (...args) => AppModules.createRmtCore(...args);
@@ -39,7 +37,14 @@ const createRmtServerPrerenderRuntime = (...args) => AppModules.createRmtServerP
 const version = typeof AppModules.getRmtApiVersion === 'function'
     ? AppModules.getRmtApiVersion()
     : "{{KERNEL_VERSION}}";
-const XtendRmtProduct = createRmtProductSurface();
+const XtendRmtProduct = Object.freeze({
+    version,
+    getRmtApiVersion,
+    createRmtCore,
+    createRmtRuntime,
+    createRmtPerformanceRuntime,
+    createRmtProductSurface
+});
 
 export { version, getRmtApiVersion, createRmtProductManifest, createRmtCore, createRmtDomCompat, createRmtDomDescriptorRenderer, createRmtPublicApi, createRmtTemplateApi, createRmtFormat, createRmtTemplateRegistry, createRmtTemplateLoader, createRmtTemplateCompiler, createRmtTemplateArtifacts, createRmtTemplateRuntimeRenderer, createRmtTemplateExecutionPath, createRmtTemplateWorkerAdapter, createRmtTemplateServerAdapter, createRmtXRouterAdapter, createRmtXtendComponentAdapter, createRmtSurfaceAdapter, createRmtStateSchedulerDiagnosticsBridge, createRmtPrewarmWorkerSourceBuilder, createRmtPrewarmWorkerRuntime, createRmtPerformanceRuntime, createRmtRuntime, createRmtDetachedRuntime, createRmtWorkerRuntime, createRmtServerRuntime, createRmtProductSurface, installRmtProductSurface, createRmtKernelPolicyParity, createRmtBrowserHostAdapter, createRmtBrowserRuntime, createRmtWorkerPrerenderRuntime, createRmtServerPrerenderRuntime, createRmtResumeRuntime, resumeResponse, resumeTemplate };
 export default XtendRmtProduct;

@@ -1,7 +1,7 @@
 {
   "schema": "xtend.maraca.build-config.v1",
   "source": "src/rmt/erp-shell.rmt",
-  "sourceFingerprint": "ca289e74adad68e7fd16873e947e9a33d42d6238a33c3acc08ab286ac0e84e1f",
+  "sourceFingerprint": "fc0075257303ce8e471fe7033d78f48044a5dd1457ef22928632bb0ed1da27bf",
   "serviceGraphFingerprint": null,
   "output": "dist/maraca",
   "selected": {
@@ -64,6 +64,6 @@
     "terser": "5.48.0",
     "mode": "rollup-terser"
   },
-  "candidateMatrixFingerprint": "29dc4d42f62ea5a5ce5ad3b50a6c3a37d20244e74af0a3d2a5e93be3115ab7b4",
-  "configFingerprint": "370725cd5b9f89729a3932cbb5629f83711b1810b5916d0d1e920ae97bb9ee83"
+  "candidateMatrixFingerprint": "8663e2015333c742573d286d810d8f1c8dac3403a7c644974691c525081ba551",
+  "configFingerprint": "444341184932803496df39f2088d8b99821b454a0abc1dd5332f103c99c0373e"
 }

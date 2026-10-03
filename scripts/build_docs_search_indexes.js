@@ -1,4 +1,5 @@
 'use strict';
+const { EXPECTED_CANONICAL_SLUG_COUNT } = require('./verify_docs_public_quality');
 
 const crypto = require('crypto');
 const fs = require('fs');
@@ -59,7 +60,8 @@ function parseArticle(markdown, fallbackTitle) {
   return {
     title: stripMarkdown(titleMatch ? titleMatch[1] : fallbackTitle),
     headings,
-    summary: (paragraphs[0] || '').slice(0, 280)
+    // Keep the eager summary small; headings and the lazy full-text index retain discovery.
+    summary: (paragraphs[0] || '').slice(0, 220)
   };
 }
 
@@ -190,7 +192,7 @@ function artifactRecord(locale, kind, value, budget) {
 function main() {
   const write = process.argv.includes('--write');
   const menu = readJson(path.join(DOCS_DIR, 'menu.json'));
-  if (menu.length !== 170) throw new Error(`Expected 170 docs entries, received ${menu.length}.`);
+  if (menu.length !== EXPECTED_CANONICAL_SLUG_COUNT) throw new Error(`Expected ${EXPECTED_CANONICAL_SLUG_COUNT} docs entries, received ${menu.length}.`);
   const artifacts = [];
   LOCALES.forEach((locale) => {
     const indexes = buildLocale(locale, menu);

@@ -165,6 +165,7 @@ node scripts/run_xtend_tests.js supply-chain --json
 | `NFM-WP-20` ist als Native-First Docs Authoring Guides Contract inventarisierbar | erfuellt |
 | `NFM-WP-21` ist als Native-First Migration Deprecation Plan Contract inventarisierbar | erfuellt |
 | `NFM-WP-22` ist als Native-First Mission Handoff Contract inventarisierbar | erfuellt |
+| Das kontinuierliche Feature Adoption Observatory ist als untrusted Intake Contract inventarisierbar | erfuellt |
 | Component, RMT, Kernel, Security, Supply Chain und Release Evidence sind angebunden | erfuellt |
 | Drift-Klassen fuer fehlende und veraltete Referenzen sind definiert | erfuellt |
 | Registry bleibt Index und keine Runtime-Manager-Flaeche | erfuellt |

@@ -6,10 +6,15 @@ import {
   readyXTend,
   render,
   schedule,
-  type XTendDescriptor
+  type XTendDescriptor,
+  type XTendStore
 } from '@ccslabs/xtend';
+import { xtendState, type XTendStateRuntime } from '@ccslabs/xtend/classic-state';
+// @ts-expect-error Classic state is intentionally absent from the side-effect-free root.
+import { xtendState as rootStateRuntime } from '@ccslabs/xtend';
 import {
   createMaracaPlanRuntime,
+  createMaracaAbortBoundary,
   type MaracaPlanRuntimeOptions,
   type MaracaPlanRuntimeSnapshot
 } from '@ccslabs/xtend/maraca/plan-runtime';
@@ -22,8 +27,12 @@ import {
 } from '@ccslabs/xtend/rmt/form-validation-runtime';
 import { createRmtResumeRuntime } from '@ccslabs/xtend/rmt/resume-runtime';
 import { createRmtStateBindingViewProjector } from '@ccslabs/xtend/rmt/state-binding-view-projector';
-import { createRmtStateSelectorRuntime, createRmtXStateBridge } from '@ccslabs/xtend/rmt/state-selector-runtime';
-import { createRmtXStateHostAdapter } from '@ccslabs/xtend/rmt/xstate-host-adapter';
+import { createRmtStateSelectorRuntime } from '@ccslabs/xtend/rmt/state-selector-runtime';
+import { createRmtStateHostAdapter } from '@ccslabs/xtend/rmt/state-host-adapter';
+
+void rootStateRuntime;
+const classicRuntime: XTendStateRuntime = xtendState;
+classicRuntime.set('fixture.ready', true);
 
 await readyXTend();
 const host = getXTendHost();
@@ -40,7 +49,7 @@ maracaBrowserComposition.facade.snapshot();
 maracaBrowserComposition.facade.orchestration.snapshot();
 const maracaViewProjectionPort = createRmtMaracaViewProjectionAdapter({ root: maracaRoot, documentTarget: document, windowTarget: window });
 const stateBindingProjector = createRmtStateBindingViewProjector({ strict: false, documentTarget: document });
-const stateProjectionPort = createRmtXStateHostAdapter({
+const stateProjectionPort = createRmtStateHostAdapter({
   target: {
     batchUpdate(updates) { void updates; }
   },
@@ -50,11 +59,10 @@ stateProjectionPort.batchUpdate({ 'demo.count': 1 });
 const projectedModel = createRmtStateSelectorRuntime({
   states: [{ id: 'demo.count', type: 'number', initial: 0 }],
   stateProjectionPort,
-  createStateProjectionPort: createRmtXStateHostAdapter,
+  createStateProjectionPort: createRmtStateHostAdapter,
   strictMaraca: true
 });
 projectedModel.stateProjectionPort?.batchUpdate({ 'demo.count': 2 });
-createRmtXStateBridge({ target: { batchUpdate(updates) { void updates; } }, strictMaraca: true });
 stateBindingProjector.project(maracaRoot, [], { states: {}, selectors: {}, derived: {} });
 const presentationEffectPort = createRmtPresentationEffectAdapter({ root: maracaRoot, strict: false });
 presentationEffectPort.snapshot();
@@ -80,7 +88,7 @@ const maracaOptions: MaracaPlanRuntimeOptions = {
   plan: {},
   root: maracaRoot,
   viewProjectionPort: maracaViewProjectionPort,
-  xstate: { batchUpdate(updates) { void updates; } },
+  stateProjectionTarget: { batchUpdate(updates) { void updates; } },
   targetResolver(binding, rootTarget) {
     void binding;
     return rootTarget;
@@ -128,6 +136,9 @@ interface State {
   profile: { name: string };
 }
 
+// @ts-expect-error XTendStore is a type, not a constructible runtime export.
+new XTendStore<State>();
+
 const app = createApp<State>({ initialState: { count: 0, profile: { name: 'Ada' } } });
 const store = createStore<State>({
   states: [
@@ -147,3 +158,16 @@ store.setState('count', 'one');
 // @ts-expect-error element descriptors require a tag
 const invalidDescriptor: XTendDescriptor = { type: 'element', children: [] };
 void invalidDescriptor;
+
+const boundary = createMaracaAbortBoundary({ id: 'typed-island' });
+const presentationToken = boundary.capture();
+boundary.commit(() => document.createElement('div'), presentationToken);
+maracaRuntime.getSurfaceBoundary('typed-island').invalidate('close');
+maracaRuntime.subscribeEvents(event => { void event.type; });
+const shellJob = maracaRuntime.dispatchFastPass('shell.close', {}, { signal: boundary.signal });
+shellJob.cancel('superseded');
+// @ts-expect-error FastPass cannot declare services.
+const invalidFastPass: import('@ccslabs/xtend/maraca/plan-runtime').MaracaFastPassAction = { id: 'bad', effects: [{ kind: 'service', target: 'save' }] };
+void invalidFastPass;
+const uiComputeOptions: import('@ccslabs/xtend/rmt').RmtUiComputeOptions = { abortBoundary: boundary, presentationToken };
+void uiComputeOptions;

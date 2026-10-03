@@ -54,6 +54,15 @@ xt rmt ai-kit export --profile compact --format md --json
 
 The Language Server remains the source of truth for diagnostics, completion, hover, symbols, definitions, navigation, and code actions. App Platform tooling adds source analysis, diagnostics, source maps, scaffold plans, and a no-manual-HTML gate. The AI Developer Kit exports bounded Markdown, JSON, and JSONL artifacts for agent ingest.
 
+### Shared project index
+
+`@ccslabs/xtend-compiler/project-index` exports `createProjectIndex` and
+`computeImpact` with concrete types. The lightweight RMT profile supports
+workspace symbols, definitions, references and import navigation. The repository
+profile additionally reads module, package, contract and suite relationships.
+See the [language server guide](../docs/en/rmt-language-server.md) for API,
+CLI, buffer lifecycle and report-only impact examples.
+
 ### Tooling bridge
 
 `@ccslabs/xtend-compiler/tooling-bridge` provides versioned JSON envelopes for `compile`, `language-diagnostics`, `maraca-plan`, and `safe-preview`. PHP hosts use the packaged `tooling-bridge-client.php`, which owns timeout, process termination, concurrency and output limits.
@@ -185,3 +194,13 @@ npm run test:scoped-package-readmes
 Lizenziert unter der Apache License 2.0. Siehe [LICENSE](../LICENSE).
 
 [Nach oben](#xtend-compiler-and-language-tooling) · [English](#english)
+
+### Gemeinsamer Projektindex
+
+`@ccslabs/xtend-compiler/project-index` stellt `createProjectIndex` und
+`computeImpact` mit konkreten Typen bereit. Das RMT-Profil versorgt Navigation
+und Workspace-Suche; das Repository-Profil ergänzt Modul-, Paket-, Vertrags- und
+Suite-Beziehungen. API, CLI, Bufferverwaltung und Auswirkungsberichte erläutert
+die [Language-Server-Anleitung](../docs/de/rmt-language-server.md).
+
+The shared suite catalog also powers CI execution and the repository suite graph. See [PR gates](../docs/en/xtend-dev-surface.md#pr-gates-and-shared-test-execution) / [PR-Gates](../docs/de/xtend-dev-surface.md#pr-gates-und-gemeinsame-testausführung) for profile selection, same-run evidence and report projections.

@@ -4,7 +4,7 @@ xtend-i18n ist eine öffentliche XTend Infrastrukturreferenz für Drittanbieter,
 
 ## Was es löst
 
-xtend-i18n bündelt die Label-Schicht rund um XTend Komponenten. Das Modul hält Locale-Zustand, Lazy Loading von Bundles, DOM-Label-Refresh und Komponenten-Label-Contracts an einer lokalen Stelle. Es ist absichtlich nicht-visuell: Es ruft kein `customElements.define` auf, rendert kein Widget und wird vom XTend Loader als Bootstrap-Infrastruktur nach `xstate` und vor der normalen Komponenten-Erkennung geladen.
+xtend-i18n bündelt die Label-Schicht rund um XTend Komponenten. Das Modul hält Locale-Zustand, Lazy Loading von Bundles, DOM-Label-Refresh und Komponenten-Label-Contracts an einer lokalen Stelle. Es ist absichtlich nicht-visuell: Es ruft kein `customElements.define` auf, rendert kein Widget und wird vom XTend Loader als Bootstrap-Infrastruktur nach `xtend-state` und vor der normalen Komponenten-Erkennung geladen.
 
 Nutze diese Seite, wenn deine Host-Shell eine stabile Grundlage für Button-Defaults, ARIA Labels, Loading-Texte, Empty States, Route Announcements und ähnliche UI-Labels braucht. Die Laufzeit füllt Defaults und deklarierte `i18n-key` Ziele, während explizite Host-Labels, Slot-Text und gesetzte ARIA-Attribute maßgeblich bleiben.
 
@@ -12,7 +12,7 @@ Nutze diese Seite, wenn deine Host-Shell eine stabile Grundlage für Button-Defa
 
 Setze `xtend-i18n` ein, wenn die Anwendung Sprachwechsel, routenbewusste Locale-URLs oder Komponentenlabels braucht, die nach einem Locale-Wechsel aktualisiert werden. Das passt gut zu Produktshells, Dokumentationsseiten, Micro Frontends und RMT Surfaces, in denen der Host eine batteries-included Label Registry möchte, aber die eigentlichen Label-Dateien selbst liefert.
 
-Drittanbieter müssen nur ESM Label-Bundles bereitstellen und die verfügbaren Locales konfigurieren. Die Laufzeit kann sich an XState anbinden, um kanonischen Locale-Zustand zu publizieren, und an XRouter, um `/de/path`, `/en/path` und `?lang=de` URL-Formen zu unterstützen.
+Drittanbieter müssen nur ESM Label-Bundles bereitstellen und die verfügbaren Locales konfigurieren. Die Laufzeit kann sich an XTend Classic State anbinden, um kanonischen Locale-Zustand zu publizieren, und an XRouter, um `/de/path`, `/en/path` und `?lang=de` URL-Formen zu unterstützen.
 
 ## Nicht einsetzen, wenn
 
@@ -22,7 +22,7 @@ Nutze es außerdem nicht, um vom Autor gesetzte Labels zu überschreiben. Kompon
 
 ## Laden und registrieren
 
-Der XTend Loader wird einmal pro Seite geladen. Er lädt `xstate`, danach `xtend-i18n` und anschließend die visuellen Komponenten.
+Der XTend Loader wird einmal pro Seite geladen. Er lädt `xtend-state`, danach `xtend-i18n` und anschließend die visuellen Komponenten.
 
 ```html
 <script type="module" src="/xtend-loader.js" data-manifest="/components/manifest.json"></script>
@@ -56,13 +56,13 @@ export default {
 };
 ```
 
-Binde die Laufzeit nach der Konfiguration an XState und XRouter an. Locale Requests können über `xtend.i18n.locale.request` geschrieben werden, erfolgreiche Wechsel publizieren `LOCALE_CHANGED` nach `xtend.i18n.event`.
+Binde die Laufzeit nach der Konfiguration an XTend Classic State und XRouter an. Locale Requests können über `xtend.i18n.locale.request` geschrieben werden, erfolgreiche Wechsel publizieren `LOCALE_CHANGED` nach `xtend.i18n.event`.
 
 ```js
-import { xstate } from '/components/xstate.js';
+import { xtendState } from '/components/xtend-state.js';
 import { xtendI18n } from '/components/xtend-i18n.js';
 
-xtendI18n.connectXState(xstate);
+xtendI18n.connectState(xtendState);
 xtendI18n.connectRouter(document.querySelector('x-router'), {
   urlMode: 'both',
   queryParam: 'lang',
@@ -83,7 +83,7 @@ Methoden:
 - `getLabelRecord(key, fallback?)`
 - `applyLabels(root?)`
 - `bindComponent(element, contract?)`
-- `connectXState(xstate, options?)`
+- `connectState(stateRuntime, options?)`
 - `connectRouter(router, options?)`
 - `snapshot()`
 - `snapshotDiagnostics()`
@@ -98,7 +98,7 @@ Events:
 
 ## Integrationshinweise
 
-- Der XState-Adapter nutzt unter anderem `xtend.i18n.locale`, `xtend.i18n.locale.request`, `xtend.i18n.target`, `xtend.i18n.status`, `xtend.i18n.busy`, `xtend.i18n.available`, `xtend.i18n.fallback`, `xtend.i18n.event` und `xtend.i18n.error`.
+- Der State-Adapter nutzt unter anderem `xtend.i18n.locale`, `xtend.i18n.locale.request`, `xtend.i18n.target`, `xtend.i18n.status`, `xtend.i18n.busy`, `xtend.i18n.available`, `xtend.i18n.fallback`, `xtend.i18n.event` und `xtend.i18n.error`.
 - Erfolgreiche Sprachwechsel publizieren ein `LOCALE_CHANGED` Event und dispatchen `xtend-i18n-locale-changed`.
 - Die XRouter-Integration unterstützt Prefix-Routen wie `/de/readme` und Query-Routen wie `/readme?lang=de`.
 - Bestehende Komponenten-Labels sind optional. Explizite Host-Labels, Slot-Text und gesetzte ARIA-Attribute gewinnen gegen i18n-Defaults.
@@ -110,7 +110,7 @@ Komponentenbindung kann automatisch über `applyLabels(root)` oder gezielt über
 ## Fehlerbehebung
 
 - Wenn Labels nicht wechseln, prüfe, ob die Locale in `available` steht und ob der passende Bundle Loader registriert ist.
-- Wenn XState kein `LOCALE_CHANGED` Event zeigt, rufe `connectXState(xstate)` vor `setLocale()` auf und prüfe `xtend.i18n.error`.
+- Wenn XTend Classic State kein `LOCALE_CHANGED` Event zeigt, rufe `connectState(xtendState)` vor `setLocale()` auf und prüfe `xtend.i18n.error`.
 - Wenn die URL zwischen Prefix und Query springt, setze `writeStrategy` explizit und kontrolliere, ob die aktuelle Route bereits Prefix oder `lang` Query enthält.
 - Wenn ein gesetztes Label nicht ersetzt wird, ist das meist beabsichtigt. Entferne das explizite Attribut oder den Slot-Text, wenn i18n das Label verwalten soll.
 
@@ -118,5 +118,5 @@ Komponentenbindung kann automatisch über `applyLabels(root)` oder gezielt über
 
 - [Komponentenentwicklung](../components.md)
 - [Public Component Types](../public-component-types.md)
-- [xstate](./xstate.md)
+- [XTend State](./xtend-state.md)
 - [x-router](./xrouter.md)

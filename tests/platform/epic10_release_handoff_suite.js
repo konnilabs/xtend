@@ -54,7 +54,7 @@ function runEpic10ReleaseHandoffSuite(options = {}) {
   const plan = createEpic10ReleaseHandoffPlan({ rootDir });
   const validation = validateEpic10ReleaseHandoffPlan(plan);
   const report = createEpic10ReleaseHandoffReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic10ReleaseHandoff;
   const epic = readText('development/EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
@@ -68,7 +68,7 @@ function runEpic10ReleaseHandoffSuite(options = {}) {
   const enterpriseDocs = readText('docs/enterprise-adoption.md', rootDir);
   const contract = readText(EPIC10_RELEASE_HANDOFF_CONTRACT, rootDir);
   const workpackage = readText(EPIC10_RELEASE_HANDOFF_WORKPACKAGE_DOC, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const moduleSyntax = syntaxCheckFile(EPIC10_RELEASE_HANDOFF_MODULE, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(EPIC10_RELEASE_HANDOFF_SUITE, { rootDir, extension: '.js' });
@@ -137,7 +137,7 @@ function runEpic10ReleaseHandoffSuite(options = {}) {
   context.assertIncludes(registry, EPIC10_RELEASE_HANDOFF_SUITE, 'Reference registry links Release Handoff suite');
   context.assertIncludes(registry, EPIC10_RELEASE_HANDOFF_DOCS, 'Reference registry links Release Handoff docs');
   context.assertIncludes(registry, RMT_FIRST_XTEND_APPS_DOCS, 'Reference registry links RMT-first XTend Apps docs');
-  context.assertIncludes(runner, "id: 'epic10-release-handoff'", 'Runner registers Epic 10 Release Handoff suite');
+  context.assert(runner.hasSuite("epic10-release-handoff"), 'Runner registers Epic 10 Release Handoff suite');
   context.assertIncludes(scaffoldConfig, 'epic10ReleaseHandoff', 'Scaffold config exposes Epic 10 Release Handoff');
   context.assert((packageManifest.exports['./catalog/epic10-release-handoff'] === './catalog/epic10-release-handoff.js' || (packageManifest.exports['./catalog/epic10-release-handoff'] && packageManifest.exports['./catalog/epic10-release-handoff'].default === './catalog/epic10-release-handoff.js')), 'Package exports Epic 10 Release Handoff module');
   context.assert(packageManifest.scripts['test:epic10-release-handoff'] === 'node scripts/run_xtend_tests.js epic10-release-handoff', 'Package exposes Epic 10 Release Handoff script');

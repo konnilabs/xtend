@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 import { createXtendRmtCommandDetail } from './rmt-command.js';
 
 // <x-tab> – Without Shadow DOM
@@ -115,7 +115,7 @@ class XTabs extends HTMLElement {
         "xtend.event.handler",
         "xtend.route.render"
       ],
-      cleanup: ["xstate-subscription", "mutation-observer", "keyboard-listener"],
+      cleanup: ["xtend-state-subscription", "mutation-observer", "keyboard-listener"],
       rmt: {
         scheduleRefs: ["component.visible.hydrate", "ui.user-blocking.tabs", "route.transition.tab"],
         kernelBoundary: "no-rmt-kernel-import-of-xtend-types"
@@ -428,10 +428,10 @@ class XTabs extends HTMLElement {
     }
 
     // State initialisieren
-    xstate.set('xtabs-selected', this._selected);
+    xtendState.set('xtabs-selected', this._selected);
 
     // Subscribe to state changes, for example external tab changes
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === 'xtabs-selected' && typeof value === 'number' && value !== this._selected) {
         this.selectTab(value);
       }
@@ -499,7 +499,7 @@ class XTabs extends HTMLElement {
       this._selected = parseInt(newValue);
       if (this._canUpdateSelection()) {
         this._updateSelection();
-        xstate.set('xtabs-selected', this._selected); // Update state
+        xtendState.set('xtabs-selected', this._selected); // Update state
       }
     } else if (name === "text-color" && newValue !== oldValue) {
       this._applyTextColor();
@@ -623,7 +623,7 @@ class XTabs extends HTMLElement {
       composed: true,
       cancelable: true
     }));
-    xstate.set('xtabs-selected', i); // Update state
+    xtendState.set('xtabs-selected', i); // Update state
     this._recordPerformanceSnapshot("tab-switch", start, "tabSwitch");
   }
 

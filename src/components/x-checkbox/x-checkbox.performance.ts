@@ -5,7 +5,7 @@ export const xCheckboxPerformanceProfile = {
   lane: 'user-blocking',
   hydrationPolicy: 'visible',
   criticalMeasurements: ['mount', 'event'],
-  cleanup: ['xstate-subscription']
+  cleanup: ['xtendState-subscription']
 } as const;
 
 export type XCheckboxPerformanceProfile = typeof xCheckboxPerformanceProfile;

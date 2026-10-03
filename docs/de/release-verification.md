@@ -71,3 +71,20 @@ Scheitert der Pack-Dry-Run, prüfe zuerst `files`, Exports und generierte Artefa
 - [Conditional Network Evidence](./conditional-network-evidence.md)
 - [Supply Chain Checks](./supply-chain-gates.md)
 - [Changelog](./changelog.md)
+
+## Zweisprachige Dokumentation für 0.8.0
+
+Prüfe DE und EN gemeinsam: neue APIs, Defaults, Migrationsschritte und ausführbare Beispiele müssen übereinstimmen. Die [Release-Übersicht](./changelog.md) verknüpft Scheduler/FastPass, Abort Boundaries, Diagnosebedarf, Hydrangea, Seitenlaufzeit und Page Wire. Hydrangea bleibt opt-in; lokale Messungen belegen keine pauschale Produktionslatenz.
+
+Generiere nach Änderungen an Artikeln und Menü die Navigation, Suchindizes und MCP-Wissensbasis neu:
+
+```bash
+node scripts/build_docs_navigation.js --write
+node scripts/build_docs_search_indexes.js --write
+node products/xtend-mcp/scripts/build-knowledge.mjs
+node scripts/run_xtend_tests.js docs-public-quality docs-content-depth docs-quality-gates maraca-docs rmt-reference-docs rmt-tooling-docs rmt-playground-docs --json
+```
+
+Bei geänderten Sprachkatalogen erzeuge zusätzlich das RMT AI Developer Kit über `xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json`, bevor die MCP-Wissensbasis gebaut wird. Bei geänderten Framework-Runtimes wird die Docs-Shell mit `xt maraca tune docs/xtendrmt-docs-document-v2.rmt --config docs/maraca.config.json --out docs/generated/shell --write --json` neu gebaut. Verwende anschließend die jeweiligen `--check`-Pfade.
+
+Prüfe im Browser neue Artikel in beiden Sprachen, Suche, Locale-Wechsel und schmale Ansichten. Diese Docs-Abnahme ergänzt die vollständigen Release-, Typ-, Schema-, Artefakt- und Paketprüfungen; sie ersetzt weder die CI-Matrix noch den separaten Veröffentlichungsschritt.

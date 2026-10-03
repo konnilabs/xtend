@@ -100,9 +100,9 @@ function runRmtVNextEnterpriseRegistrySuite(options = {}) {
     id: 'rmt-vnext-enterprise-registry',
     label: 'Epic 16 RMT vNext Enterprise Surface Registry Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextEnterpriseRegistry;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_16_PATH, rootDir);
   const contract = readText(RMT_VNEXT_ENTERPRISE_REGISTRY_CONTRACT_PATH, rootDir);
   const workpackage = readText(RMT_VNEXT_ENTERPRISE_REGISTRY_WP_PATH, rootDir);
@@ -132,8 +132,8 @@ function runRmtVNextEnterpriseRegistrySuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_ENTERPRISE_REGISTRY_PACKAGE_SCRIPT, 'package metadata declares enterprise registry package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-enterprise-registry'] === 'string' ? packageManifest.exports['./rmt-language/vnext-enterprise-registry'] : packageManifest.exports['./rmt-language/vnext-enterprise-registry'] && packageManifest.exports['./rmt-language/vnext-enterprise-registry'].default) === './tools/rmt-language/vnext-enterprise-registry.js', 'package exports vNext enterprise registry contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-enterprise-registry'] === 'node scripts/run_xtend_tests.js rmt-vnext-enterprise-registry', 'package exposes vNext enterprise registry script');
-  context.assert(runner.includes("id: 'rmt-vnext-enterprise-registry'"), 'test runner exposes rmt-vnext-enterprise-registry suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-enterprise-registry'), 'runner help references enterprise registry gate');
+  context.assert(runner.hasSuite("rmt-vnext-enterprise-registry"), 'test runner exposes rmt-vnext-enterprise-registry suite');
+  context.assert(runner.hasSuite("rmt-vnext-enterprise-registry"), 'runner help references enterprise registry gate');
   context.assert(epic.includes('- Status: `completed / Epic 16 Enterprise MFE Release Handoff accepted`'), 'Epic records current E16 accepted status');
   context.assert(epic.includes('| `WP-E16-03` | P0 | completed | WS1 |'), 'Epic marks WP-E16-03 completed');
   context.assert(epic.includes('| `WP-E16-04` | P1 | completed | WS2 |'), 'Epic records WP-E16-04 handoff');

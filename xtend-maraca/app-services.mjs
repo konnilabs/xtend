@@ -1068,7 +1068,8 @@ function createHttpAppServiceTransport(options = {}) {
         const error = objectRecord(payload && payload.error);
         throw createTransportError(error.message || `App service endpoint failed with status ${response.status}.`, {
           code: error.code || 'xtend.maraca.app-service.remote_error',
-          details: { status: response.status, serviceId: wireRequest.serviceId }
+          details: { status: response.status, serviceId: wireRequest.serviceId,
+            ...(error.code === 'xtend.maraca.app-service.validation' && error.details?.errors ? {errors:error.details.errors,errorBag:error.details.errorBag || 'default'} : {}) }
         });
       }
       if (payload && payload.schema === MARACA_APP_SERVICE_RESPONSE_SCHEMA) return payload.value;

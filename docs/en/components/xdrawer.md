@@ -121,6 +121,8 @@ RMT Hosts should treat the component as a Custom Element boundary: pass attribut
 
 Theming should flow through XTend design tokens first. CSS parts are intended for targeted skinning of exposed controls, while CSS custom properties are better for broader color, spacing, radius and motion changes. Accessibility hooks such as labels, live regions and focus handling should be preserved when composing the component.
 
+Tab navigation includes controls in assigned slots and open shadow roots. Hidden, inert and disabled controls are excluded; Tab and Shift-Tab stay within the open modal surface.
+
 ## Troubleshooting
 
 - If `x-drawer` stays unupgraded, confirm that `xtend-loader.js` loaded and that `components/manifest.json` contains `x-drawer`.

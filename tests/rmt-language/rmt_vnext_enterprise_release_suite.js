@@ -104,7 +104,7 @@ function runPlanChecks(context, rootDir) {
 }
 
 function runPackageChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextEnterpriseReleaseHandoff;
 
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-enterprise-release'] === 'string' ? packageManifest.exports['./rmt-language/vnext-enterprise-release'] : packageManifest.exports['./rmt-language/vnext-enterprise-release'] && packageManifest.exports['./rmt-language/vnext-enterprise-release'].default) === './tools/rmt-language/vnext-enterprise-release.js', 'package exports vNext enterprise release adapter');
@@ -173,7 +173,7 @@ function runDocumentationChecks(context, rootDir) {
   const workpackage = readText(RMT_VNEXT_ENTERPRISE_RELEASE_WORKPACKAGE_PATH, rootDir);
   const registry = readText(REFERENCE_REGISTRY_PATH, rootDir);
   const epic = readText(EPIC_16_PATH, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   [
     'rmt-vnext-remote-surfaces',
@@ -237,8 +237,8 @@ function runDocumentationChecks(context, rootDir) {
     RMT_VNEXT_ENTERPRISE_FIXTURE_DEMO_PATH,
     RMT_VNEXT_ENTERPRISE_FIXTURE_CORE_PATH
   ], 'Reference registry');
-  context.assertIncludes(runner, "id: 'rmt-vnext-enterprise-release'", 'Runner registers vNext enterprise release suite');
-  context.assertIncludes(runner, 'node scripts/run_xtend_tests.js rmt-vnext-enterprise-release', 'Runner help references vNext enterprise release suite');
+  context.assert(runner.hasSuite("rmt-vnext-enterprise-release"), 'Runner registers vNext enterprise release suite');
+  context.assert(runner.hasSuite("rmt-vnext-enterprise-release"), 'Runner help references vNext enterprise release suite');
   context.assertIncludes(epic, '- Status: `completed / Epic 16 Enterprise MFE Release Handoff accepted`', 'Epic 16 marks completion');
   context.assertIncludes(epic, '| `WP-E16-12` | P2 | completed | WS5 |', 'Epic marks WP-E16-12 completed');
   context.assertIncludes(epic, 'Epic 16 ist abgeschlossen', 'Epic documents closure');

@@ -93,7 +93,7 @@
         "state.define",
         "selector.evaluate",
         "derive.evaluate",
-        "xstate.bridge"
+        "xtendState.bridge"
       ]
     },
     {

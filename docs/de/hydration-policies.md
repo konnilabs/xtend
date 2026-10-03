@@ -259,3 +259,9 @@ Der Maraca-Snapshot zeigt Plan-Records und Hydration-History. Der DEV-API-Snapsh
 - [XScaler-Protokoll](./xscaler-protocol.md)
 - [XTend DEV API](./xtend-dev-api.md)
 - [XTend Dev Surface](./xtend-dev-surface.md)
+
+## Abbruchgrenze für insulare Hydration
+
+Ab 0.8.0 trägt verwaltete Maraca-Hydration die Präsentationsepoche ihrer Surface. `metadata.surfaces` liefert je Insel `id`, `boundary`, `token`, `signal` und `isCurrent()`, ergänzt um den Root-Guard. Eigene Hydratoren übernehmen diese Guards über jeden asynchronen Schritt und prüfen erneut unmittelbar vor DOM-Aufbau oder Ressourceninitialisierung. Ein veraltetes Ergebnis endet als `superseded` und startet keinen synchronen Fallback.
+
+Eine gültige Worker-Vorbereitung darf weiterhin einen gemeinsam genutzten Cache füllen. Die aktive Boundary ist dagegen Voraussetzung für sichtbare Commits und Chart-Instanzen. Das verlangt weder SSR noch Resumability und gilt auch bei rein clientseitigem Rendern. Fachliche Imports behalten ihren eigenen Abbruchvertrag. Beispiele: [Maraca FastPass und Abort Boundary](./maraca-fastpass-abort-boundary.md).

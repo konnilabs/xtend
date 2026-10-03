@@ -3,29 +3,29 @@
   "files": {
     "components/manifest.json": {
       "schema": "xtend.scaffold.generated-ownership.v1",
-      "owner": "rmt-build:rmt-lifecycle-demo",
+      "owner": "rmt-build:source",
       "generator": "rmt-build",
       "kind": "manifest-json",
       "path": "components/manifest.json",
-      "sha256": "576f3c56bc6d857ca3a684b449bcdc7cada864a91b546305649f2beef5908db2",
-      "bytes": 1320,
+      "sha256": "fd012b48ea22ad2261aa61cf5d16ebd06e41b5a1be972538b68aadeff22c6a51",
+      "bytes": 1515,
       "templateId": "component.manifest-patcher",
       "templatePath": "xtend-builder/writing/manifest-patcher.js",
       "sourceSha256": "51634160c83bb31face6a36a180abda72e9d8c5aba73dba48dc349f154359fde",
-      "buildSha256": "9598fb596447313427cc3f0a377307f2bff8be6e20ad90beda8675937594169c"
+      "buildSha256": "4cde92c55e1a58a28d26035fef7de47fb0c17a0b3c221ac7a805df43b785161e"
     },
     "components/x-rmt-lifecycle-demo-build.js": {
       "schema": "xtend.scaffold.generated-ownership.v1",
-      "owner": "rmt-build:rmt-lifecycle-demo",
+      "owner": "rmt-build:source",
       "generator": "rmt-build",
       "kind": "xtend-custom-element",
       "path": "components/x-rmt-lifecycle-demo-build.js",
-      "sha256": "6bd3099a15a5b03ebc66b1f7ab848a25ff93d931ff1e3437cafa9a4249561078",
-      "bytes": 48774,
+      "sha256": "f1dcf376b2c6a7b12e21326f53a185a6760e19c3e3998f514a10cb37316ffaba",
+      "bytes": 48874,
       "templateId": null,
       "templatePath": null,
       "sourceSha256": null,
-      "buildSha256": "21d81e8dc4acf49bffbea7e99da76e53034ae7a52bb8c621855ec528bfc34001"
+      "buildSha256": "411605b70a25aa8d9cc4ed51f8b80f4ddba2d6ee4d6ff3e4d44b609ad5dbba55"
     },
     "components/x-rmt-lifecycle-demo.js": {
       "schema": "xtend.scaffold.generated-ownership.v1",
@@ -72,12 +72,12 @@
       "generator": "rmt-build",
       "kind": "scaffold-rmt-app-build-report",
       "path": "demos/xtendrmt/examples/lifecycle/generated/build-report.json",
-      "sha256": "98520a26e34288ea0e2c86f950e582b4ded9b440c24706e3654bcfcecbce1e5d",
+      "sha256": "818e6a2997bf7922e0f745059c66c486740c3aaf29a8e9a83960f77810fb2305",
       "bytes": 8293,
       "templateId": null,
       "templatePath": null,
       "sourceSha256": null,
-      "buildSha256": "81840747abb35922c8286d980c59d29a2c08f9c1bf29b366d919f255dcbe98e8"
+      "buildSha256": "05631ddd9361fc30b7cacc65971717b1ceffa50828ae9eccac73da503b8dfbe6"
     },
     "demos/xtendrmt/examples/lifecycle/generated/core.json": {
       "schema": "xtend.scaffold.generated-ownership.v1",

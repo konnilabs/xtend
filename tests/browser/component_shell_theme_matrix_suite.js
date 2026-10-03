@@ -78,7 +78,7 @@ function runComponentShellThemeMatrixSuite(options = {}) {
   const gate = createComponentShellThemeMatrixGate({ rootDir, plan });
   const fixture = readText(COMPONENT_SHELL_THEME_MATRIX_FIXTURE_PATH, rootDir);
   const manifest = readJson('tests/browser/fixtures/components/manifest.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.componentShellThemeMatrix;
   const browserSuite = readText('tests/browser/browser_smoke_suite.js', rootDir);
   const browserReadme = readText('tests/browser/README.md', rootDir);
@@ -88,7 +88,7 @@ function runComponentShellThemeMatrixSuite(options = {}) {
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const doc = readText(COMPONENT_SHELL_THEME_MATRIX_DOC_PATH, rootDir);
   const workpackage = readText(COMPONENT_SHELL_THEME_MATRIX_WP_PATH, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const uxSmokePlan = readText('tests/browser/component-ux-browser-smoke-plan.js', rootDir);
   const regressionPriority = readText('catalog/component-regression-priority.js', rootDir);
@@ -224,7 +224,7 @@ function runComponentShellThemeMatrixSuite(options = {}) {
   context.assertIncludes(registry, COMPONENT_SHELL_THEME_MATRIX_DOC_PATH, 'Reference registry links Theme Matrix contract');
   context.assertIncludes(registry, COMPONENT_SHELL_THEME_MATRIX_FIXTURE_PATH, 'Reference registry links Theme Matrix fixture');
   context.assertIncludes(registry, COMPONENT_SHELL_THEME_MATRIX_SUITE_PATH, 'Reference registry links Theme Matrix suite');
-  context.assertIncludes(runner, "id: 'component-shell-theme-matrix'", 'XTend runner registers Theme Matrix suite');
+  context.assert(runner.hasSuite("component-shell-theme-matrix"), 'XTend runner registers Theme Matrix suite');
   context.assert(packageManifest.scripts['test:component-shell-theme-matrix'] === 'node scripts/run_xtend_tests.js component-shell-theme-matrix', 'Package exposes Theme Matrix test script');
   context.assert(metadata && metadata.schema === COMPONENT_SHELL_THEME_MATRIX_SCHEMA, 'Package metadata exposes Theme Matrix schema');
   context.assert(metadata && metadata.reportSchema === COMPONENT_SHELL_THEME_MATRIX_REPORT_SCHEMA, 'Package metadata exposes Theme Matrix report schema');

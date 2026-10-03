@@ -1,7 +1,19 @@
-const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v2';
+import { createMaracaAbortBoundary } from './abort-boundary.mjs';
+import { createMaracaFastPass } from './fastpass.mjs';
+export { createMaracaAbortBoundary } from './abort-boundary.mjs';
+
+const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v3';
 const DOM_COMMIT_SCHEMA = 'xtend.rmt.dom-commit-result.v1';
 const DOM_COMMIT_EVENT = 'xtend-maraca:dom-commit';
 const SYSTEM_REFRESH_COMMAND = 'xtend.system.refresh';
+const LIVE_FORM_DRAFT_EVENTS = new Set([
+  'input',
+  'input-changed',
+  'textarea-changed',
+  'textarea-invalid',
+  'writer:change',
+  'writer-change'
+]);
 
 function clone(value, fallback = null) {
   if (value == null || typeof value !== 'object') return value == null ? fallback : value;
@@ -22,6 +34,14 @@ function immutableClone(value, fallback = null) {
 
 function asRecord(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+function preservesActiveInputDraft(metadata = {}) {
+  const record = asRecord(metadata);
+  const commandEnvelope = asRecord(record.commandEnvelope);
+  const source = asRecord(commandEnvelope.source);
+  const eventName = String(record.eventName || source.event || '').trim().toLowerCase();
+  return LIVE_FORM_DRAFT_EVENTS.has(eventName);
 }
 
 function asArray(value) {
@@ -159,14 +179,26 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       surfaceIdsBySource.set(candidate, ids);
     });
   });
+  asArray(asRecord(artifact.patchPlan).bindings).forEach(binding => {
+    if (!surfaceById.has(binding.surface)) return;
+    asArray(binding.sources).forEach(source => sourceCandidates(source).forEach(candidate => {
+      const ids = surfaceIdsBySource.get(candidate) || [];
+      if (!ids.includes(binding.surface)) ids.push(binding.surface);
+      surfaceIdsBySource.set(candidate, ids);
+    }));
+  });
 
   const diagnostics = [];
   const diagnosticCodes = new Set();
   const subscriptions = new Set();
+  const eventSubscriptions = new Set();
+  const publications = [];
+  let publishing = false;
   const modelSubscriptions = new Set();
   const disposers = new Set();
   const capturedDisposableObjects = new WeakSet();
   const projectedSurfaceVisibility = new Map();
+  const revealedValidationFields = new Set();
   let generation = 0;
   let phase = 'created';
   let modules = null;
@@ -188,6 +220,116 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   let ownsViewProjectionPort = false;
   let viewProjectionPort = options.viewProjectionPort || options.viewAdapter || null;
   let commandQueue = Promise.resolve();
+  const presentationParents = new Map();
+  const indexPresentationParents = (value, parent = null) => {
+    if (!value || typeof value !== 'object') return;
+    if (Array.isArray(value)) { value.forEach(child => indexPresentationParents(child, parent)); return; }
+    const id = value.surface && String(value.surface);
+    if (id && parent && id !== parent) presentationParents.set(id, parent);
+    Object.values(value).forEach(child => indexPresentationParents(child, id || parent));
+  };
+  indexPresentationParents(asRecord(artifact.render).root);
+  const presentationBoundary = createMaracaAbortBoundary({ id: 'maraca.root' });
+  const surfaceBoundaries = new Map();
+  const commandPresentationVersions = new WeakMap();
+  const surfaceLifetimes = new Map();
+  const surfaceTargets = new Map();
+  const shellClosedSurfaces = new Set();
+  let shellEpoch = 0;
+  const creatingBoundaries = new Set();
+  function getSurfaceBoundary(id) {
+    if (id == null || id === '') return presentationBoundary;
+    id = String(id);
+    if (!surfaceBoundaries.has(id)) {
+      if (creatingBoundaries.has(id)) throw new Error(`Cyclic Surface presentation parent: ${id}`);
+      creatingBoundaries.add(id);
+      try {
+      const surface = surfaceById.get(id);
+      const parentId = surface && (surface.parentId || surface.parent) || presentationParents.get(id);
+      surfaceBoundaries.set(id, createMaracaAbortBoundary({ id, parent: parentId && parentId !== id ? getSurfaceBoundary(parentId) : presentationBoundary }));
+      const boundary = surfaceBoundaries.get(id);
+      commandPresentationVersions.set(boundary, 0);
+      boundary.onInvalidate(reason => {
+        // A command may open its own previously hidden target during hydration.
+        // Exit/replacement still fences every older command, even after reopening.
+        if (!['surface-opened', 'model-shown'].includes(reason)) commandPresentationVersions.set(boundary, commandPresentationVersions.get(boundary) + 1);
+      });
+      } finally { creatingBoundaries.delete(id); }
+    }
+    return surfaceBoundaries.get(id);
+  }
+  function syncSurfaceBoundaries(snapshot) {
+    const records = asArray(snapshot && snapshot.surfaces);
+    const ordered = [], visited = new Set(), visiting = new Set();
+    const index = new Map(records.map(record => [String(record.id), record]));
+    const visit = record => {
+      const id = String(record.id);
+      if (visited.has(id)) return;
+      if (visiting.has(id)) throw new Error(`Cyclic Surface presentation parent: ${id}`);
+      visiting.add(id);
+      const definition = surfaceById.get(id);
+      const parent = definition && (definition.parentId || definition.parent) || presentationParents.get(id);
+      if (index.has(parent)) visit(index.get(parent));
+      visiting.delete(id); visited.add(id); ordered.push(record);
+    };
+    records.forEach(visit);
+    for (const record of ordered) {
+      const id = String(record.id);
+      const previous = surfaceLifetimes.get(id);
+      const visible = record.status === 'open' && !record.minimized && !record.collapsed;
+      let boundary = getSurfaceBoundary(id);
+      if (boundary.disposed && record.status !== 'destroyed') {
+        surfaceBoundaries.delete(id); boundary = getSurfaceBoundary(id);
+      }
+      if (previous && previous.generation !== record.generation) boundary.invalidate('surface-recreated');
+      if (record.status === 'destroyed' || record.status === 'destroying') boundary.dispose();
+      else boundary.setActive(visible, visible ? 'surface-opened' : 'surface-left');
+      if (visible && previous && !previous.visible) shellClosedSurfaces.delete(id);
+      surfaceLifetimes.set(id, { generation: record.generation, visible });
+    }
+  }
+  const effectDefinitions = new Map(asArray(asRecord(artifact.actions).effects).map(effect => [effect.id, effect]));
+  asArray(options.fastPassActions).forEach(action => {
+    if (action && declaredActions.some(declared => declared.id === action.id)) throw new TypeError(`FastPass cannot replace a declared action: ${action.id}`);
+  });
+  const fastPass = createMaracaFastPass({
+    actions: [
+      ...declaredActions.filter(action => action.execution === 'fastpass').map(action => ({
+        ...action, effects: asArray(action.effects).map(effect => typeof effect === 'string' ? effectDefinitions.get(effect) : effect)
+      })),
+      ...immutableClone(asArray(options.fastPassActions), [])
+    ],
+    scheduler: () => runtimes && runtimes.kernel && runtimes.kernel.scheduler || options.kernelScheduler || options.scheduler?.kernelScheduler || options.scheduler,
+    diagnostic: recordDiagnostic,
+    applyIntent(intent, context) {
+      if (intent.kind === 'close') {
+        const controller = runtimes && runtimes.surfaceController;
+        if (!controller || typeof controller.apply !== 'function') throw new Error('FastPass close requires the Surface Controller port.');
+        const presentation = runtimes.presentationEffectPort;
+        if (!presentation || typeof presentation.setSurfaceHidden !== 'function') throw new Error('FastPass close requires the Surface presentation port.');
+        const report = controller.apply([{ operation: 'close', id: intent.value, reason: 'fastpass' }]);
+        if (!report.ok) throw Object.assign(new Error(`FastPass could not close surface ${intent.value}.`), { code: 'xtend.maraca.fastpass.close-rejected', report });
+        shellClosedSurfaces.add(intent.value);
+        if (runtimes.transitions && typeof runtimes.transitions.cancelSurface === 'function') runtimes.transitions.cancelSurface(intent.value, 'fastpass-close');
+        getSurfaceBoundary(intent.value).setActive(false, 'fastpass-close');
+        presentation.setSurfaceHidden(intent.value, true);
+      } else {
+        const port = intent.kind === 'navigation' ? options.navigationAdapter : options.focusAdapter;
+        const method = intent.kind === 'navigation' ? 'navigate' : 'focus';
+        if (!port || typeof port[method] !== 'function') throw new Error(`FastPass requires the ${method} port.`);
+        // A port acknowledges the immediate intent; its async content work is observed separately.
+        const result = port[method](intent.value, context);
+        if (result && typeof result.then === 'function') result.catch(error => recordDiagnostic('xtend.maraca.fastpass.port-error', 'error', String(error.message || error), { action: context.action }));
+        if (intent.kind === 'navigation') presentationBoundary.invalidate('route-left');
+      }
+      shellEpoch += 1;
+      publish('fastpass', { action: context.action, intent });
+    }
+  });
+  function dispatchFastPass(actionId, payload = {}, options = {}) {
+    if (phase !== 'ready') throw new Error('Maraca plan runtime is not booted.');
+    return fastPass.dispatch(actionId, payload, options);
+  }
   const pendingScheduledWork = new Set();
   let resolveDisposed;
   const disposedSignal = new Promise((resolve) => { resolveDisposed = resolve; });
@@ -221,14 +363,39 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           strict
         })
       : descriptorForOwners(descriptor, reservedOwners);
-    return projected == null ? { type: 'fragment', children: [] } : projected;
+    const retainShellVisibility = value => {
+      if (Array.isArray(value)) return value.map(retainShellVisibility);
+      if (!value || typeof value !== 'object') return value;
+      const next = Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, retainShellVisibility(entry)]));
+      if (value.surface && shellClosedSurfaces.has(String(value.surface))) {
+        next.attributes = { ...asRecord(next.attributes), hidden: '', 'aria-hidden': 'true' };
+        if (next.bindings) { next.bindings = { ...next.bindings }; delete next.bindings.hidden; }
+      }
+      return next;
+    };
+    return projected == null ? { type: 'fragment', children: [] } : shellClosedSurfaces.size ? retainShellVisibility(projected) : projected;
   }
 
   function publish(type, detail = {}) {
-    const event = Object.freeze({ schema: PLAN_RUNTIME_SCHEMA, type, generation, ...clone(detail, {}) });
+    const event = immutableClone({ schema: PLAN_RUNTIME_SCHEMA, type, generation, ...detail }, {});
     lastPublishedEvent = event;
-    const runtimeSnapshot = snapshot();
-    subscriptions.forEach((listener) => { try { listener(runtimeSnapshot); } catch (_) {} });
+    if (!subscriptions.size && !eventSubscriptions.size) return event;
+    const fullListeners = [...subscriptions];
+    // Capture before listeners can publish again; nested publications are delivered in order.
+    publications.push({ event, fullListeners, eventListeners: [...eventSubscriptions], runtimeSnapshot: fullListeners.length ? snapshot() : null });
+    if (publishing) return event;
+    publishing = true;
+    try {
+      while (publications.length) {
+        const next = publications.shift();
+        next.eventListeners.forEach(listener => {
+          if (eventSubscriptions.has(listener)) { try { listener(next.event); } catch (_) {} }
+        });
+        next.fullListeners.forEach(listener => {
+          if (subscriptions.has(listener)) { try { listener(next.runtimeSnapshot); } catch (_) {} }
+        });
+      }
+    } finally { publishing = false; }
     return event;
   }
 
@@ -350,19 +517,43 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     return Object.freeze({ ...asRecord(modules) });
   }
 
-  function createMicrotaskKernel() {
+  function createSchedulerKernel() {
+    const scheduler = options.kernelScheduler
+      || (options.scheduler && options.scheduler.kernelScheduler)
+      || options.scheduler;
+    if (!scheduler || typeof scheduler.schedule !== 'function') {
+      const error = new Error('Maraca requires an injected kernel scheduler authority.');
+      error.code = 'xtend.maraca.mvc.kernel-scheduler-port-missing';
+      throw error;
+    }
     recordDiagnostic(
-      'maraca.plan-runtime.scheduler-fallback',
+      'maraca.plan-runtime.scheduler-delegation',
       'info',
-      'No kernel scheduler is available; the plan runtime uses one microtask queue.',
+      'Maraca delegates work to the injected kernel scheduler authority.',
       {},
       true
     );
-    ownsKernel = true;
+    ownsKernel = false;
     return Object.freeze({
-      schema: 'xtend.maraca.plan-runtime.inline-kernel.v1',
-      scheduleWork(_lane, work) { return Promise.resolve().then(work); },
-      snapshot() { return { schema: this.schema, status: 'ready', fallback: 'microtask' }; },
+      schema: 'xtend.maraca.plan-runtime.scheduler-kernel.v1',
+      scheduler,
+      scheduleWork(kind, work, metadata = {}) {
+        const lane = metadata.lane
+          || (kind === 'command' || kind === 'state-change' ? 'user-blocking' : kind === 'render' || kind === 'hydrate' ? 'visible' : 'background');
+        return scheduler.schedule({
+          scope: metadata.scope || 'xtend.maraca.plan-runtime',
+          endpointName: metadata.endpointName || `xtend.maraca.${String(kind || 'work')}`,
+          lane,
+          priority: metadata.priority,
+          deadlineMs: metadata.deadlineMs,
+          timeoutMs: metadata.timeoutMs,
+          budgetClass: metadata.budgetClass,
+          coalesceKey: metadata.coalesceKey,
+          rootId: metadata.rootId,
+          metadata: { operation: metadata.operation || '', action: metadata.action || '' }
+        }, work);
+      },
+      snapshot() { return { schema: this.schema, status: 'ready', schedulerSchema: scheduler.schema }; },
       dispose() {}
     });
   }
@@ -394,6 +585,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         artifact: kernelPlan.artifact,
         strict,
         scheduler: options.scheduler,
+        kernelScheduler: options.kernelScheduler
+          || (options.scheduler && options.scheduler.kernelScheduler)
+          || undefined,
         hostScheduler: options.hostScheduler,
         schedulerTarget: options.schedulerTarget,
         hostAdapter: options.kernelHostAdapter || options.hostAdapter,
@@ -401,13 +595,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         documentTarget: viewDocumentTarget()
       });
       if (controller && typeof controller.boot === 'function') controller.boot();
-      if (controller
-        && controller.schema === 'xtend.rmt.kernel-orchestration-controller.v1'
-        && !controller.schedulerBridge
-        && controller.status !== 'booted') {
+      if (controller && (
+        typeof controller.scheduleWork !== 'function'
+        || (controller.schema === 'xtend.rmt.kernel-orchestration-controller.v2' && controller.status !== 'booted')
+      )) {
         if (typeof controller.dispose === 'function') controller.dispose();
         if (requiresKernelScheduler) return failMissingKernel();
-        return createMicrotaskKernel();
+        return createSchedulerKernel();
       }
       if (requiresKernelScheduler && (!controller || typeof controller.scheduleWork !== 'function')) {
         if (controller && typeof controller.dispose === 'function') controller.dispose();
@@ -416,7 +610,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       return controller;
     }
     if (requiresKernelScheduler) return failMissingKernel();
-    return createMicrotaskKernel();
+    return createSchedulerKernel();
   }
 
   function componentTags(surfaceIds = null) {
@@ -445,9 +639,15 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   }
 
   function reindexSurfaces() {
-    return viewProjectionPort && typeof viewProjectionPort.reindexSurfaces === 'function'
-      ? viewProjectionPort.reindexSurfaces()
-      : null;
+    const result = viewProjectionPort && typeof viewProjectionPort.reindexSurfaces === 'function'
+      ? viewProjectionPort.reindexSurfaces() : null;
+    surfaces.forEach(surface => {
+      const id = String(surface.id || '');
+      const target = surfaceElement(id);
+      if (surfaceTargets.has(id) && surfaceTargets.get(id) !== target) getSurfaceBoundary(id).invalidate('target-replaced');
+      surfaceTargets.set(id, target);
+    });
+    return result;
   }
 
   function surfaceElement(surfaceId) {
@@ -472,9 +672,19 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     addRecords(snapshot.states, ['state.']);
     addRecords(snapshot.derived, ['derive.', 'derived.']);
     addRecords(snapshot.selectors, ['selector.']);
+    for (const id of shellClosedSurfaces) {
+      const surface = surfaceById.get(id);
+      for (const key of sourceCandidates(surface && surface.source)) {
+        if (records[key] && typeof records[key] === 'object') records[key] = { ...records[key], hidden: true, open: false };
+      }
+    }
     const report = surfaceGraph.materialize(records, {
       operation: metadata.operation || 'maraca.surface.materialize',
       correlationId: metadata.correlationId || ''
+    });
+    surfaces.forEach(surface => {
+      const hidden = surfaceHidden(snapshot, surface);
+      if (hidden !== null) getSurfaceBoundary(surface.id).setActive(!hidden && !shellClosedSurfaces.has(String(surface.id)), hidden ? 'model-hidden' : 'model-shown');
     });
     publish('surface', { report, metadata });
     return report;
@@ -512,9 +722,20 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   }
 
   async function applyProjectedVisibility(input) {
-    const result = await runtimes.transitions.applyVisibilityPatch(input);
-    projectedSurfaceVisibility.set(String(input.surface || ''), input.nextHidden === true);
-    return result;
+    const id = String(input.surface || '');
+    const boundary = getSurfaceBoundary(id);
+    boundary.setActive(input.nextHidden !== true, input.nextHidden ? 'surface-hidden' : 'surface-shown');
+    const epoch = boundary.capture().epoch;
+    const rootToken = presentationBoundary.capture();
+    const current = () => !boundary.disposed && boundary.capture().epoch === epoch && presentationBoundary.isCurrent(rootToken);
+    const lifetime = createMaracaAbortBoundary({ id: `${id}:transition`, parent: presentationBoundary });
+    const detach = boundary.onInvalidate(reason => lifetime.invalidate(reason));
+    try {
+      const result = await lifetime.run(({ signal }) => runtimes.transitions.applyVisibilityPatch({ ...input, isCurrent: current, signal }));
+      if (!current()) return { ok: false, status: 'superseded' };
+      projectedSurfaceVisibility.set(id, input.nextHidden === true);
+      return result;
+    } finally { detach(); lifetime.dispose(); }
   }
 
   async function runTransitionSurfaces(transition, surfaceIds, nextHidden, previousSnapshot, nextSnapshot, metadata) {
@@ -557,7 +778,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       const record = surfaceRecord(stateSnapshot, surface);
       if (!element || !hasOwn(record, 'hidden')) return null;
       const surfaceId = String(surface.id || '');
-      const nextHidden = record.hidden === true;
+      const nextHidden = shellClosedSurfaces.has(surfaceId) || record.hidden === true;
       const modelPreviousHidden = previousSnapshot ? surfaceHidden(previousSnapshot, surface) : null;
       const previousHidden = modelPreviousHidden === null
         ? (projectedSurfaceVisibility.has(surfaceId) ? projectedSurfaceVisibility.get(surfaceId) : false)
@@ -575,11 +796,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
 
   function createRenderContext(metadata = {}, stateSnapshot = null) {
     const trustedDomRenderer = options.trustedDomRenderer || options.trustedDom;
+    const preserveActiveInputDraft = preservesActiveInputDraft(metadata);
     const extra = {
       components: componentTags().map((tag) => ({ id: tag, tag })),
       componentRegistry: options.componentRegistry,
       trustedDomRenderer,
-      metadata: clone(metadata, {})
+      preserveActiveInputDraft,
+      metadata: { ...clone(metadata, {}), preserveActiveInputDraft }
     };
     if (stateSnapshot) {
       return {
@@ -729,9 +952,40 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   async function hydrate(surfaceIds = null, metadata = {}) {
     const registry = options.componentRegistry;
     if (!registry || typeof registry.hydrate !== 'function') return null;
-    const result = await registry.hydrate(root, componentTags(surfaceIds), metadata);
-    captureDisposer(result);
-    return result;
+    const token = presentationBoundary.capture();
+    const ids = surfaceIds instanceof Set ? [...surfaceIds] : surfaces.map(surface => String(surface.id));
+    const scopes = Object.freeze(ids.map(id => {
+      const boundary = getSurfaceBoundary(id);
+      const token = boundary.capture();
+      return Object.freeze({ id, boundary, token, signal: boundary.signal, isCurrent: () => boundary.isCurrent(token) });
+    }).filter(scope => scope.isCurrent()));
+    if (ids.length && !scopes.length) {
+      // Loading component definitions is shared prewarming, not a surface commit.
+      if (typeof registry.ensureTags === 'function') await registry.ensureTags(componentTags(surfaceIds));
+      return Object.freeze({ ok: false, status: 'superseded' });
+    }
+    const hydrationBoundary = createMaracaAbortBoundary({ id: 'maraca.hydration', parent: presentationBoundary });
+    const detach = scopes.map(scope => scope.boundary.onInvalidate(() => {
+      if (!scopes.some(entry => entry.isCurrent())) hydrationBoundary.invalidate('hydration-superseded');
+    }));
+    try { return await hydrationBoundary.run(async () => {
+      const isCurrent = () => presentationBoundary.isCurrent(token) && (!scopes.length || scopes.some(scope => scope.isCurrent()));
+      const value = await registry.hydrate(root, componentTags(surfaceIds), {
+        ...metadata, signal: scopes.length === 1 ? scopes[0].signal : presentationBoundary.signal, isCurrent, surfaces: scopes,
+        getSurfaceBoundary
+      });
+      if (!isCurrent() || (scopes.length && !scopes.some(scope => scope.isCurrent()))) {
+        if (typeof value === 'function') value();
+        else if (value && typeof value.dispose === 'function') value.dispose();
+        return { ok: false, status: 'superseded' };
+      }
+      captureDisposer(value);
+      return value;
+    });
+    } finally {
+      detach.forEach(unsubscribe => unsubscribe());
+      hydrationBoundary.dispose();
+    }
   }
 
   async function runDeferredPlanEffects(actionResult, context = {}) {
@@ -741,9 +995,10 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     const deferred = effects.filter((entry) => entry && entry.value && entry.value.deferred === true);
     const results = [];
     for (const entry of deferred) {
+      if (typeof context.isCurrent === 'function' && !context.isCurrent()) break;
       const effect = immutableClone(entry.value.effect || { id: entry.id, kind: entry.kind }, {});
       const declaredContext = asRecord(entry.value.context);
-      const effectContext = immutableClone({
+      const serializedEffectContext = immutableClone({
         schema: 'xtend.maraca.presentation-effect-context.v1',
         action: context.action || '',
         payload: context.payload || declaredContext.payload || {},
@@ -774,6 +1029,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         results.push({ id: entry.id, kind: entry.kind, result: undefined });
         continue;
       }
+      const effectContext = { ...serializedEffectContext, isCurrent: context.isCurrent, signal: context.signal, getSurfaceBoundary };
       const result = await presentationEffectPort.invoke(effect, effectContext);
       const completedEntries = [
         entry,
@@ -876,7 +1132,6 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         derive: runtimes.state.derivedDefinitions || [],
         reducers: runtimes.state.reducers || [],
         initialState: workingStates,
-        xstate: null,
         stateProjectionPort: null,
         strict: false
       });
@@ -908,6 +1163,40 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       });
       workingStates[reducer.state] = clone(next, next);
     });
+
+    const changedValidationStates = modelOperations
+      .map((operation) => operation && operation.state)
+      .filter(Boolean);
+    const gatedValidationStates = validationStage && validationStage.intent === 'gate'
+      ? validationGroupStateIds(validationStage.groupIds)
+      : new Set();
+    const shouldRefreshValidation = !validationStage
+      || validationStage.intent === 'passive'
+      || changedValidationStates.some((stateId) => gatedValidationStates.has(String(stateId)));
+    if (modelOperations.length > 0
+      && shouldRefreshValidation
+      && (runtimes.validationEvaluator || runtimes.validation)) {
+      const gateReport = validationStage && validationStage.report;
+      const prospectiveSnapshot = {
+        ...clone(previousSnapshot, {}),
+        states: clone(workingStates, {})
+      };
+      const refreshedValidationStage = evaluateCommandValidation(
+        commandId,
+        metadata,
+        prospectiveSnapshot,
+        {
+          changedStates: changedValidationStates,
+          passive: validationStage && validationStage.intent === 'passive'
+        }
+      );
+      if (refreshedValidationStage && refreshedValidationStage.evaluation) {
+        validationStage = {
+          ...refreshedValidationStage,
+          report: gateReport || refreshedValidationStage.report
+        };
+      }
+    }
 
     let validationOperationCount = 0;
     if (validationStage && validationStage.evaluation) {
@@ -973,6 +1262,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     return fields;
   }
 
+  function rememberRevealedValidationFields(validationStage) {
+    if (!validationStage || validationStage.intent !== 'gate') return;
+    validationFieldResults(validationStage).forEach((field) => {
+      if (field && field.revealed && field.field) revealedValidationFields.add(String(field.field));
+    });
+  }
+
   function validationFieldSurface(field) {
     return field && (field.surface || asRecord(field.target).surface) || '';
   }
@@ -1016,8 +1312,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       if (!value || typeof value !== 'object') return value;
       const next = { ...value };
       const matches = projections.filter((projection) => descriptorMatchesValidationTarget(value, projection));
-      if (matches.length) {
-        const invalidFields = matches.filter((projection) => projection.revealed !== false && projection.invalid === true);
+      const revealedMatches = matches.filter((projection) => projection.revealed !== false);
+      if (revealedMatches.length) {
+        const invalidFields = revealedMatches.filter((projection) => projection.invalid === true);
         const message = invalidFields.find((projection) => projection.message);
         next.attributes = {
           ...asRecord(value.attributes),
@@ -1092,28 +1389,86 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     };
   }
 
-  function evaluateCommandValidation(commandId, metadata) {
+  function validationSelection(commandId, changedStates = [], options = {}) {
+    const validationPlan = asRecord(asRecord(plan.validation).artifact);
+    const gates = asArray(validationPlan.actionGates)
+      .filter((gate) => gate && gate.action === commandId && gate.group);
+    if (gates.length && options.passive !== true) {
+      return {
+        intent: 'gate',
+        gates,
+        groupIds: [...new Set(gates.map((gate) => gate.group))]
+      };
+    }
+    if (options.preflight === true) return { intent: 'passive', gates: [], groupIds: [] };
+
+    const affectedStates = new Set(asArray(changedStates).map(String).filter(Boolean));
+    const groups = asArray(validationPlan.groups).filter((group) => group && group.id);
+    const selected = new Set();
+    groups.forEach((group) => {
+      if (asArray(group.fields).some((field) => field && affectedStates.has(String(field.state || '')))) {
+        selected.add(group.id);
+      }
+    });
+    let expanded = true;
+    while (expanded) {
+      expanded = false;
+      groups.forEach((group) => {
+        if (selected.has(group.id)) return;
+        if (asArray(group.includes).some((groupId) => selected.has(groupId))) {
+          selected.add(group.id);
+          expanded = true;
+        }
+      });
+    }
+    return { intent: 'passive', gates: [], groupIds: [...selected] };
+  }
+
+  function validationGroupStateIds(groupIds) {
+    const groups = asArray(asRecord(asRecord(plan.validation).artifact).groups);
+    const groupById = new Map(groups.filter((group) => group && group.id).map((group) => [group.id, group]));
+    const states = new Set();
+    const visited = new Set();
+    const visit = (groupId) => {
+      if (!groupId || visited.has(groupId)) return;
+      visited.add(groupId);
+      const group = groupById.get(groupId);
+      if (!group) return;
+      asArray(group.fields).forEach((field) => {
+        if (field && field.state) states.add(String(field.state));
+      });
+      asArray(group.includes).forEach(visit);
+    };
+    asArray(groupIds).forEach(visit);
+    return states;
+  }
+
+  function evaluateCommandValidation(commandId, metadata = {}, suppliedModelSnapshot = null, options = {}) {
     if (!runtimes.validationEvaluator && !runtimes.validation) return null;
+    const selection = validationSelection(commandId, options.changedStates, options);
+    if (!selection.groupIds.length && !selection.gates.length) return null;
+    const gateIntent = selection.intent === 'gate';
+    const reveal = gateIntent && metadata.reveal !== false;
+    const report = reveal && metadata.report !== false;
     const validationMetadata = {
       ...metadata,
       action: commandId,
-      report: true,
-      reveal: true
+      report,
+      reveal,
+      revealedFields: [...revealedValidationFields]
     };
+    if (options.serverErrors) validationMetadata.serverErrors = options.serverErrors;
     if (runtimes.validationEvaluator && typeof runtimes.validationEvaluator.evaluate === 'function') {
-      const validationPlan = asRecord(asRecord(plan.validation).artifact);
-      const gates = asArray(validationPlan.actionGates).filter((gate) => gate && gate.action === commandId);
-      const groupIds = [...new Set([
-        ...gates.map((gate) => gate.group),
-        ...asArray(validationPlan.statePatches).map((patch) => patch && patch.group)
-      ].filter(Boolean))];
-      const modelSnapshot = runtimes.state.modelReader && typeof runtimes.state.modelReader.snapshot === 'function'
-        ? runtimes.state.modelReader.snapshot()
-        : runtimes.state.snapshot();
+      const modelSnapshot = suppliedModelSnapshot || (
+        runtimes.state.modelReader && typeof runtimes.state.modelReader.snapshot === 'function'
+          ? runtimes.state.modelReader.snapshot()
+          : runtimes.state.snapshot()
+      );
       const evaluation = runtimes.validationEvaluator.evaluate(immutableClone({
         ...validationMetadata,
-        snapshot: modelSnapshot
-      }, {}), groupIds.length ? groupIds : null);
+        snapshot: modelSnapshot,
+        states: asRecord(modelSnapshot).states
+      }, {}), selection.groupIds);
       const projectionMetadata = {
         operation: 'maraca.validation.view-projection.prepare',
         action: commandId,
@@ -1130,11 +1485,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
             metadata: projectionMetadata
           }, {});
       const resultsByGroup = collectValidationResults(evaluation && evaluation.results);
-      const gateResults = gates.map((gate) => resultsByGroup.get(gate.group)).filter(Boolean);
+      const gateResults = selection.gates.map((gate) => resultsByGroup.get(gate.group)).filter(Boolean);
       const valid = gateResults.every((result) => result.valid !== false);
-      return {
+      const validationStage = {
         modern: true,
         split: true,
+        intent: selection.intent,
+        groupIds: selection.groupIds,
         evaluation,
         application: null,
         projection: null,
@@ -1144,26 +1501,33 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           schema: 'xtend.rmt.form-validation-action-gate.v1',
           action: commandId,
           valid,
-          gated: gates.length > 0,
-          gateCount: gates.length,
+          gated: selection.gates.length > 0,
+          gateCount: selection.gates.length,
           results: gateResults
         }
       };
+      rememberRevealedValidationFields(validationStage);
+      return validationStage;
     }
     if (typeof runtimes.validation.evaluate === 'function') {
-      const validationPlan = asRecord(asRecord(plan.validation).artifact);
-      const gates = asArray(validationPlan.actionGates).filter((gate) => gate && gate.action === commandId);
-      const groupIds = [...new Set([
-        ...gates.map((gate) => gate.group),
-        ...asArray(validationPlan.statePatches).map((patch) => patch && patch.group)
-      ].filter(Boolean))];
-      const evaluation = runtimes.validation.evaluate(validationMetadata, groupIds.length ? groupIds : null);
+      const modelSnapshot = suppliedModelSnapshot || (
+        runtimes.state.modelReader && typeof runtimes.state.modelReader.snapshot === 'function'
+          ? runtimes.state.modelReader.snapshot()
+          : runtimes.state.snapshot()
+      );
+      const evaluation = runtimes.validation.evaluate({
+        ...validationMetadata,
+        snapshot: modelSnapshot,
+        states: asRecord(modelSnapshot).states
+      }, selection.groupIds);
       const resultsByGroup = collectValidationResults(evaluation && evaluation.results);
-      const gateResults = gates.map((gate) => resultsByGroup.get(gate.group)).filter(Boolean);
+      const gateResults = selection.gates.map((gate) => resultsByGroup.get(gate.group)).filter(Boolean);
       const valid = gateResults.every((result) => result.valid !== false);
-      return {
+      const validationStage = {
         modern: true,
         split: false,
+        intent: selection.intent,
+        groupIds: selection.groupIds,
         evaluation,
         application: null,
         metadata: validationMetadata,
@@ -1171,16 +1535,20 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           schema: 'xtend.rmt.form-validation-action-gate.v1',
           action: commandId,
           valid,
-          gated: gates.length > 0,
-          gateCount: gates.length,
+          gated: selection.gates.length > 0,
+          gateCount: selection.gates.length,
           results: gateResults
         }
       };
+      rememberRevealedValidationFields(validationStage);
+      return validationStage;
     }
-    if (typeof runtimes.validation.validateAction === 'function') {
+    if (selection.intent === 'gate' && typeof runtimes.validation.validateAction === 'function') {
       return {
         modern: false,
         split: false,
+        intent: selection.intent,
+        groupIds: selection.groupIds,
         evaluation: null,
         application: null,
         metadata: validationMetadata,
@@ -1236,6 +1604,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   function stateDomCommit(commandId, reducers, transaction, metadata) {
     const validationStage = transaction.validationStage;
     const surfaceIds = affectedSurfaceIds(commandId, reducers, transaction.patchPlan, validationStage);
+    surfaceIds.forEach(id => getSurfaceBoundary(id).invalidate('presentation-data-changed'));
     if (!runtimes.renderer || typeof runtimes.renderer.commit !== 'function') {
       return {
         report: fullRender(
@@ -1300,7 +1669,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
 
   async function scheduleWork(kind, work, metadata = {}) {
     if (!runtimes || !runtimes.kernel || typeof runtimes.kernel.scheduleWork !== 'function') {
-      return Promise.resolve().then(work);
+      const error = new Error('Maraca cannot schedule work without the kernel scheduler authority.');
+      error.code = 'xtend.maraca.mvc.kernel-scheduler-port-missing';
+      throw error;
     }
     return new Promise((resolve, reject) => {
       let settled = false;
@@ -1330,8 +1701,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       pendingScheduledWork.add(cancel);
       try {
         const scheduled = runtimes.kernel.scheduleWork(kind, scheduledWork, {
-          ...metadata,
-          runInline: false
+          ...metadata
         });
         if (scheduled && typeof scheduled.then === 'function') scheduled.catch(fail);
       } catch (error) {
@@ -1346,9 +1716,17 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     return error;
   }
 
-  async function prepareCommand(commandId, payload, metadata, commandGeneration) {
+  function captureCommandPresentationGuard() {
+    const entries = [...surfaceBoundaries.values()].filter(boundary => !boundary.disposed).map(boundary => [boundary, commandPresentationVersions.get(boundary)]);
+    return () => entries.every(([boundary, version]) => !boundary.disposed && commandPresentationVersions.get(boundary) === version);
+  }
+
+  async function prepareCommand(commandId, payload, metadata, commandGeneration, commandShellEpoch) {
     const reducers = asArray(asRecord(artifact.state).reducers)
       .filter((entry) => entry && entry.action === commandId && entry.state);
+    let presentationGuard = captureCommandPresentationGuard();
+    let presentationValid = true;
+    const currentPresentation = () => presentationValid && shellEpoch === commandShellEpoch && presentationGuard();
     const stateBuffer = { events: [] };
     activeStateBuffer = stateBuffer;
     let result;
@@ -1356,7 +1734,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     let validation = null;
     let validationStage = null;
     try {
-      validationStage = evaluateCommandValidation(commandId, metadata);
+      validationStage = evaluateCommandValidation(commandId, metadata, null, { preflight: true });
       validation = validationStage && validationStage.report;
       blocked = validation && validation.valid === false;
       if (blocked) {
@@ -1379,13 +1757,16 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           throw error;
         }
         result = runtimes.action && typeof runtimes.action.runAction === 'function'
-          ? await runtimes.action.runAction(commandId, clone(payload, {}), metadata)
+          ? await runtimes.action.runAction(commandId, clone(payload, {}), { ...metadata, isPresentationCurrent: () => phase !== 'disposed' && currentPresentation() })
           : await Promise.resolve(hostServices.dispatchCommand
               ? hostServices.dispatchCommand(commandId, payload, metadata)
               : { status: 'success', data: payload });
       }
       if (phase === 'disposed' || generation !== commandGeneration) throw runtimeDisposedError();
       const resultRecord = asRecord(result);
+      if (resultRecord.status === 'error' && resultRecord.error?.code === 'xtend.maraca.app-service.validation' && resultRecord.error.details?.errors) {
+        validationStage = evaluateCommandValidation(commandId, metadata, null, {serverErrors:resultRecord.error.details.errors});
+      }
       const actionSucceeded = !blocked
         && (!hasOwn(resultRecord, 'status') || resultRecord.status === 'success');
       const successfulReducers = actionSucceeded ? reducers : [];
@@ -1403,8 +1784,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         ? runtimes.transitions.findTransition({ action: commandId })
         : null;
       const transitionMetadata = { ...metadata, action: commandId };
-      if (transition) {
-        await runTransitionSurfaces(
+      presentationValid = currentPresentation();
+      if (transition && presentationValid) {
+        const transitioning = runTransitionSurfaces(
           transition,
           transition.from || [],
           true,
@@ -1412,9 +1794,14 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           transaction.next,
           transitionMetadata
         );
+        presentationGuard = captureCommandPresentationGuard();
+        const results = await transitioning;
+        if (results.some(result => result && result.status === 'superseded')) presentationValid = false;
       }
       return {
+        presentationGuard: currentPresentation,
         commandId,
+        commandShellEpoch,
         payload: clone(payload, {}),
         reducers: successfulReducers,
         result,
@@ -1434,75 +1821,85 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
 
   async function commitCommand(prepared, metadata, commandGeneration) {
     if (phase === 'disposed' || generation !== commandGeneration) throw runtimeDisposedError();
-    materializeSurfaces(prepared.transaction.next, {
-      operation: 'maraca.command.surface-materialize',
-      action: prepared.commandId,
-      correlationId: metadata.correlationId || ''
-    });
-    const committed = stateDomCommit(prepared.commandId, prepared.reducers, prepared.transaction, metadata);
-    const transitionSurfaceIds = new Set(prepared.transition
-      ? [...asArray(prepared.transition.from), ...asArray(prepared.transition.to)].map(String)
-      : []);
-    const visibilitySurfaceIds = new Set(
-      [...committed.surfaceIds].filter((surfaceId) => !transitionSurfaceIds.has(String(surfaceId)))
-    );
-    await syncOwnedVisibility(prepared.transaction.next, visibilitySurfaceIds, {
-      operation: 'maraca.command.visibility',
-      action: prepared.commandId,
-      correlationId: metadata.correlationId || ''
-    }, prepared.transaction.previous);
-    recordDomCommit(committed.report, {
-      stateCommit: true,
-      action: prepared.commandId,
-      status: prepared.result && prepared.result.status || (prepared.blocked ? 'blocked' : 'success')
-    });
-    finalizeValidationProjection(prepared.validationStage, {
-      operation: 'maraca.validation.view-projection.finalize',
-      action: prepared.commandId,
-      correlationId: metadata.correlationId || ''
-    });
-    reconcileEvents(committed.report);
-    if (prepared.transition) {
-      await runTransitionSurfaces(
-        prepared.transition,
-        prepared.transition.to || [],
-        false,
-        prepared.transaction.previous,
-        prepared.transaction.next,
-        prepared.transitionMetadata
-      );
-    }
-    await hydrate(committed.surfaceIds, {
-      operation: 'maraca.command.post-commit',
-      action: prepared.commandId,
-      correlationId: metadata.correlationId || ''
-    });
-    if (prepared.actionSucceeded) {
-      const postCommitContext = {
-        schema: 'xtend.maraca.post-commit-context.v1',
+    let presentationGuard = prepared.presentationGuard;
+    const currentPresentation = () => phase !== 'disposed' && generation === commandGeneration && shellEpoch === prepared.commandShellEpoch && presentationGuard();
+    if (currentPresentation()) {
+      materializeSurfaces(prepared.transaction.next, {
+        operation: 'maraca.command.surface-materialize',
         action: prepared.commandId,
-        payload: clone(prepared.payload, {}),
-        metadata: clone(metadata, {}),
-        commitResult: safeCommitSummary(committed.report),
-        modelSnapshot: runtimes.state && runtimes.state.modelReader
-          ? runtimes.state.modelReader.snapshot()
-          : runtimes.state && typeof runtimes.state.snapshot === 'function'
-            ? runtimes.state.snapshot()
-            : null,
-        surfaceSnapshot: runtimes.surfaceController && typeof runtimes.surfaceController.readSnapshot === 'function'
-          ? runtimes.surfaceController.readSnapshot()
-          : runtimes.surfaceGraph && typeof runtimes.surfaceGraph.getSnapshot === 'function'
-            ? runtimes.surfaceGraph.getSnapshot()
-            : null
-      };
-      const defaultEffects = await runDeferredPlanEffects(prepared.result, postCommitContext);
-      if (typeof options.postCommitEffects === 'function') {
-        await options.postCommitEffects(immutableClone(prepared.result, {}), immutableClone({
-          ...postCommitContext,
-          defaultEffects
-        }, {}));
+        correlationId: metadata.correlationId || ''
+      });
+      const committed = stateDomCommit(prepared.commandId, prepared.reducers, prepared.transaction, metadata);
+      const transitionSurfaceIds = new Set(prepared.transition
+        ? [...asArray(prepared.transition.from), ...asArray(prepared.transition.to)].map(String)
+        : []);
+      const visibilitySurfaceIds = new Set(
+        [...committed.surfaceIds].filter((surfaceId) => !transitionSurfaceIds.has(String(surfaceId)))
+      );
+      const syncingVisibility = syncOwnedVisibility(prepared.transaction.next, visibilitySurfaceIds, {
+        operation: 'maraca.command.visibility',
+        action: prepared.commandId,
+        correlationId: metadata.correlationId || ''
+      }, prepared.transaction.previous);
+      presentationGuard = captureCommandPresentationGuard();
+      await syncingVisibility;
+      recordDomCommit(committed.report, {
+        stateCommit: true,
+        action: prepared.commandId,
+        status: prepared.result && prepared.result.status || (prepared.blocked ? 'blocked' : 'success')
+      });
+      if (currentPresentation()) finalizeValidationProjection(prepared.validationStage, {
+        operation: 'maraca.validation.view-projection.finalize',
+        action: prepared.commandId,
+        correlationId: metadata.correlationId || ''
+      });
+      reconcileEvents(committed.report);
+      if (prepared.transition && currentPresentation()) {
+        const transitioning = runTransitionSurfaces(
+          prepared.transition,
+          prepared.transition.to || [],
+          false,
+          prepared.transaction.previous,
+          prepared.transaction.next,
+          prepared.transitionMetadata
+        );
+        presentationGuard = captureCommandPresentationGuard();
+        await transitioning;
       }
-    }
+      if (currentPresentation()) await hydrate(committed.surfaceIds, {
+        operation: 'maraca.command.post-commit',
+        action: prepared.commandId,
+        correlationId: metadata.correlationId || ''
+      });
+      if (prepared.actionSucceeded && currentPresentation()) {
+        const postCommitContext = {
+          schema: 'xtend.maraca.post-commit-context.v1',
+          isCurrent: currentPresentation,
+          signal: presentationBoundary.signal,
+          action: prepared.commandId,
+          payload: clone(prepared.payload, {}),
+          metadata: clone(metadata, {}),
+          commitResult: safeCommitSummary(committed.report),
+          modelSnapshot: runtimes.state && runtimes.state.modelReader
+            ? runtimes.state.modelReader.snapshot()
+            : runtimes.state && typeof runtimes.state.snapshot === 'function'
+              ? runtimes.state.snapshot()
+              : null,
+          surfaceSnapshot: runtimes.surfaceController && typeof runtimes.surfaceController.readSnapshot === 'function'
+            ? runtimes.surfaceController.readSnapshot()
+            : runtimes.surfaceGraph && typeof runtimes.surfaceGraph.getSnapshot === 'function'
+              ? runtimes.surfaceGraph.getSnapshot()
+              : null
+        };
+        const defaultEffects = await runDeferredPlanEffects(prepared.result, postCommitContext);
+        if (currentPresentation() && typeof options.postCommitEffects === 'function') {
+          await options.postCommitEffects(immutableClone(prepared.result, {}), Object.freeze({
+            ...immutableClone({ ...postCommitContext, defaultEffects }, {}),
+            isCurrent: currentPresentation, signal: postCommitContext.signal, getSurfaceBoundary
+          }));
+        }
+      }
+    } else publish('presentation-superseded', { action: prepared.commandId });
     const stateEvent = prepared.transaction.event || {
       schema: 'xtend.epic18.rmt-state-change.v1',
       previous: prepared.transaction.previous,
@@ -1523,7 +1920,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     return immutableClone(prepared.result, null);
   }
 
-  async function dispatchCommandNow(command, payload = {}, metadata = {}) {
+  async function dispatchCommandNow(command, payload = {}, metadata = {}, commandShellEpoch = shellEpoch) {
     if (phase !== 'ready') throw new Error('Maraca plan runtime is not booted.');
     const commandRecord = typeof command === 'string' ? null : asRecord(command);
     const commandId = typeof command === 'string'
@@ -1543,6 +1940,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       ...commandMetadata
     };
     if (commandId === SYSTEM_REFRESH_COMMAND) {
+      if (commandShellEpoch !== shellEpoch) return { status: 'superseded' };
       const commit = await renderView({
         ...actionMetadata,
         operation: commandMetadata.operation || 'maraca.system.refresh',
@@ -1557,7 +1955,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     }
     const prepared = await scheduleWork(
       'action',
-      () => prepareCommand(commandId, commandPayload, actionMetadata, commandGeneration),
+      () => prepareCommand(commandId, commandPayload, actionMetadata, commandGeneration, commandShellEpoch),
       actionMetadata
     );
     return scheduleWork(
@@ -1572,16 +1970,23 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   }
 
   function dispatchCommand(command, payload = {}, metadata = {}) {
+    const id = typeof command === 'string' ? command : command && (command.command || command.id || command.action);
+    if (fastPass.has(id)) {
+      const run = () => dispatchFastPass(id, typeof command === 'object' && hasOwn(command, 'payload') ? command.payload : payload, metadata).result;
+      try { return phase === 'booting' && bootPromise ? bootPromise.then(run) : run(); }
+      catch (error) { return Promise.reject(error); }
+    }
+    const commandShellEpoch = shellEpoch;
     const queued = commandQueue.then(async () => {
       if (phase === 'booting' && bootPromise) await bootPromise;
       if (phase === 'disposed') throw runtimeDisposedError();
-      return dispatchCommandNow(command, payload, metadata);
+      return dispatchCommandNow(command, payload, metadata, commandShellEpoch);
     });
     commandQueue = queued.then(() => undefined, () => undefined);
     return queued;
   }
 
-  async function dispatchStreamPatchNow(patchInput, metadata = {}) {
+  async function dispatchStreamPatchNow(patchInput, metadata = {}, streamShellEpoch = shellEpoch) {
     if (phase !== 'ready') throw new Error('Maraca plan runtime is not booted.');
     if (!runtimes.app
       || typeof runtimes.app.planStreamPatch !== 'function'
@@ -1612,6 +2017,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       return immutableClone(rejected, null);
     }
     const streamGeneration = generation;
+    const currentPresentation = () => phase !== 'disposed' && generation === streamGeneration && shellEpoch === streamShellEpoch;
     const result = await scheduleWork('state-change', async () => {
       if (phase === 'disposed' || generation !== streamGeneration) throw runtimeDisposedError();
       const stateBuffer = { events: [] };
@@ -1619,10 +2025,6 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       let transaction;
       let validationStage;
       try {
-        validationStage = evaluateCommandValidation('xtend.stream.patch', {
-          ...streamMetadata,
-          reveal: false
-        });
         transaction = transactionState(
           [],
           'xtend.stream.patch',
@@ -1630,39 +2032,44 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           { modelOperations: asArray(planResult.modelOperations) },
           {
             ...streamMetadata,
-            transactionOperation: 'maraca.stream-patch.transaction'
+            transactionOperation: 'maraca.stream-patch.transaction',
+            reveal: false,
+            report: false
           },
-          validationStage
+          null
         );
       } finally {
         if (activeStateBuffer === stateBuffer) activeStateBuffer = null;
       }
-      materializeSurfaces(transaction.next, {
-        ...streamMetadata,
-        operation: 'maraca.stream-patch.surface-materialize'
-      });
-      const committed = stateDomCommit('xtend.stream.patch', [], transaction, {
-        ...streamMetadata,
-        operation: 'maraca.stream-patch'
-      });
-      await syncOwnedVisibility(transaction.next, committed.surfaceIds, {
-        ...streamMetadata,
-        operation: 'maraca.stream-patch.visibility'
-      }, transaction.previous);
-      recordDomCommit(committed.report, {
-        ...streamMetadata,
-        stateCommit: true,
-        operation: 'maraca.stream-patch',
-        status: 'applied'
-      });
+      let committed = { report: null, surfaceIds: new Set() };
+      if (currentPresentation()) {
+        materializeSurfaces(transaction.next, {
+          ...streamMetadata,
+          operation: 'maraca.stream-patch.surface-materialize'
+        });
+        committed = stateDomCommit('xtend.stream.patch', [], transaction, {
+          ...streamMetadata,
+          operation: 'maraca.stream-patch'
+        });
+        await syncOwnedVisibility(transaction.next, committed.surfaceIds, {
+          ...streamMetadata,
+          operation: 'maraca.stream-patch.visibility'
+        }, transaction.previous);
+        recordDomCommit(committed.report, {
+          ...streamMetadata,
+          stateCommit: true,
+          operation: 'maraca.stream-patch',
+          status: 'applied'
+        });
+      }
       const applied = runtimes.app.commitStreamPatchPlan(planResult, streamMetadata);
-      finalizeValidationProjection(transaction.validationStage, {
+      if (currentPresentation()) finalizeValidationProjection(transaction.validationStage, {
         ...streamMetadata,
         operation: 'maraca.stream-patch.validation-view-projection.finalize',
         action: 'xtend.stream.patch'
       });
-      reconcileEvents(committed.report);
-      await hydrate(committed.surfaceIds, {
+      if (currentPresentation()) reconcileEvents(committed.report);
+      if (currentPresentation()) await hydrate(committed.surfaceIds, {
         ...streamMetadata,
         operation: 'maraca.stream-patch.post-commit'
       });
@@ -1694,17 +2101,18 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       await dispatchCommandNow(effect.command, asRecord(effect.payload), {
         ...asRecord(effect.metadata),
         parentOperation: 'maraca.stream-patch'
-      });
+      }, streamShellEpoch);
     }
     publish('stream-patch', { result, metadata: streamMetadata });
     return immutableClone(result, null);
   }
 
   function dispatchStreamPatch(patchInput, metadata = {}) {
+    const streamShellEpoch = shellEpoch;
     const queued = commandQueue.then(async () => {
       if (phase === 'booting' && bootPromise) await bootPromise;
       if (phase === 'disposed') throw runtimeDisposedError();
-      return dispatchStreamPatchNow(patchInput, metadata);
+      return dispatchStreamPatchNow(patchInput, metadata, streamShellEpoch);
     });
     commandQueue = queued.then(() => undefined, () => undefined);
     return queued;
@@ -1986,10 +2394,10 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       const rendererFactory = runtimeFactory(api.renderer, 'createRmtDomDescriptorRenderer');
       const stateFactory = runtimeFactory(api.state, 'createRmtStateSelectorRuntime');
       const stateProjectionFactory = options.createStateProjectionPort
-        || runtimeFactory(api.stateProjection, 'createRmtXStateHostAdapter');
-      if (strict && options.xstate && typeof options.xstate.batchUpdate !== 'function') {
-        const error = new Error('Strict Maraca requires XState batchUpdate() for atomic Model projection.');
-        error.code = 'rmt.state.xstate-batch-required';
+        || runtimeFactory(api.stateProjection, 'createRmtStateHostAdapter');
+      if (strict && options.stateProjectionTarget && typeof options.stateProjectionTarget.batchUpdate !== 'function') {
+        const error = new Error('Strict Maraca requires batchUpdate() for atomic Model projection.');
+        error.code = 'rmt.state.projection-batch-required';
         throw error;
       }
       if (strict && options.surfaceStateProjection) {
@@ -2044,7 +2452,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         strict,
         stateProjectionPort: options.stateProjectionPort || null,
         createStateProjectionPort: stateProjectionFactory,
-        stateProjectionTarget: options.xstate || null
+        stateProjectionTarget: options.stateProjectionTarget || null
       });
       if (strict && (
         !state
@@ -2098,8 +2506,14 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         hostServiceRegistry,
         dataSourceAdapters,
         feedbackAdapter: options.feedbackAdapter,
-        navigationAdapter: options.navigationAdapter,
-        focusAdapter: options.focusAdapter,
+        navigationAdapter: { navigate(value, context) {
+          if (!context.isPresentationCurrent || context.isPresentationCurrent()) return options.navigationAdapter?.navigate(value, context);
+          return { status: 'superseded' };
+        } },
+        focusAdapter: { focus(value, context) {
+          if (!context.isPresentationCurrent || context.isPresentationCurrent()) return options.focusAdapter?.focus(value, context);
+          return { status: 'superseded' };
+        } },
         componentCommandAdapter: options.componentCommandAdapter,
         effectAdapter: options.effectAdapter,
         deferCustomEffects: true,
@@ -2235,7 +2649,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         throw error;
       }
       const surfaceGraph = surfaceFactory ? surfaceFactory({
-        surfaces,
+        surfaces: surfaces.map(surface => ({ ...surface, initialState: surface.initialState || (surfaceHidden(state.snapshot(), surface) === true ? 'closed' : 'open') })),
+        getSurfaceBoundary,
         portals: asArray(artifact.portals).length ? artifact.portals : asArray(plan.portals),
         overlays: asArray(artifact.overlays).length ? artifact.overlays : asArray(plan.overlays),
         resourceManager: resourceManager || action && action.resourceManager || null,
@@ -2245,6 +2660,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         diagnosticsHub: options.diagnosticsHub,
         diagnosticChannel: options.diagnosticChannel,
         surfaceController,
+        managerId: surfaceController && surfaceController.managerId
+          || options.surfaceControllerId
+          || 'xtend.maraca.surface-controller',
         strict
       }) : null;
       const injectedPresentationEffectPort = options.presentationEffectPort || options.presentationAdapter || null;
@@ -2428,7 +2846,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       }
       if (surfaceController && typeof surfaceController.subscribe === 'function') {
         const unsubscribe = surfaceController.subscribe((surfaceSnapshot) => {
-          publish('surface-controller', { snapshot: immutableClone(surfaceSnapshot, {}) });
+          syncSurfaceBoundaries(surfaceSnapshot);
+          publish('surface-controller', { snapshot: surfaceSnapshot });
         });
         if (typeof unsubscribe === 'function') disposers.add(unsubscribe);
       }
@@ -2650,6 +3069,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       try { viewProjectionPort.dispose(); } catch (_) {}
     }
     projectedSurfaceVisibility.clear();
+    revealedValidationFields.clear();
     ownsSurfaceController = false;
     ownsPresentationEffectPort = false;
     ownsViewProjectionPort = false;
@@ -2659,12 +3079,20 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     if (phase === 'disposed') return false;
     phase = 'disposed';
     generation += 1;
+    presentationBoundary.dispose();
+    fastPass.dispose();
+    surfaceBoundaries.clear();
+    surfaceTargets.clear();
+    surfaceLifetimes.clear();
+    shellClosedSurfaces.clear();
     if (resolveDisposed) {
       resolveDisposed(runtimeDisposedError());
       resolveDisposed = null;
     }
     teardownAdapters(options.clearOwnedDom !== false);
     subscriptions.clear();
+    eventSubscriptions.clear();
+    publications.length = 0;
     modelSubscriptions.clear();
     return true;
   }
@@ -2673,6 +3101,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     schema: PLAN_RUNTIME_SCHEMA,
     boot,
     dispatchCommand,
+    dispatchFastPass,
+    getSurfaceBoundary,
     dispatchStreamPatch,
     render,
     refresh,
@@ -2687,8 +3117,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       recordLegacyAdapter('actionRuntime');
       return legacyActionRuntime;
     },
+    subscribeEvents(listener) {
+      if (phase === 'disposed' || typeof listener !== 'function') return () => {};
+      eventSubscriptions.add(listener);
+      return () => { eventSubscriptions.delete(listener); };
+    },
     subscribe(listener) {
-      if (typeof listener !== 'function') return () => {};
+      if (phase === 'disposed' || typeof listener !== 'function') return () => {};
       subscriptions.add(listener);
       return () => { subscriptions.delete(listener); };
     }

@@ -72,9 +72,9 @@ function runSurfaceManagerLayoutEnginesSuite(options = {}) {
   const docs = readText(SURFACE_MANAGER_LAYOUT_ENGINE_DOCS, rootDir);
   const backlog = readText(SURFACE_MANAGER_LAYOUT_ENGINE_BACKLOG, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_LAYOUT_ENGINE_WORKPACKAGE_DOC, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerLayoutEngines;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   REQUIRED_ARTIFACTS.forEach((filePath) => {
     assertFileExists(context, filePath, rootDir, `${filePath} exists as surface layout engine artifact`);
@@ -213,8 +213,8 @@ function runSurfaceManagerLayoutEnginesSuite(options = {}) {
   context.assert(metadata && metadata.documentFlowCommitsBounds === false, 'Package metadata marks document-flow as non-committing');
   context.assert(metadata && metadata.createsSecondRegistry === false, 'Package metadata keeps no-second-registry boundary');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-layout-engines'] === 'node scripts/run_xtend_tests.js surface-layout-engines', 'Package script test:surface-layout-engines exists');
-  context.assertIncludes(runner, "require('../tests/components/surface_manager_layout_engines_suite')", 'Runner imports surface layout engines suite');
-  context.assertIncludes(runner, "id: 'surface-layout-engines'", 'Runner registers surface layout engines suite');
+  context.assert(runner.hasImplementation({ path: "tests/components/surface_manager_layout_engines_suite.js" }), 'Runner imports surface layout engines suite');
+  context.assert(runner.hasSuite("surface-layout-engines"), 'Runner registers surface layout engines suite');
 
   assertTextIncludesAll(context, backlog, [
     '`WP-SM-16` | P1 | completed',

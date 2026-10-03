@@ -90,7 +90,7 @@ function runPlanChecks(context, rootDir) {
 }
 
 function runPackageChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextReleaseHandoff;
 
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-release'] === 'string' ? packageManifest.exports['./rmt-language/vnext-release'] : packageManifest.exports['./rmt-language/vnext-release'] && packageManifest.exports['./rmt-language/vnext-release'].default) === './tools/rmt-language/vnext-release.js', 'package exports vNext release handoff adapter');
@@ -158,7 +158,7 @@ function runDocumentationChecks(context, rootDir) {
   const workpackage = readText(RMT_VNEXT_RELEASE_WORKPACKAGE_PATH, rootDir);
   const registry = readText(REFERENCE_REGISTRY_PATH, rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   ['rmt-vnext-authoring', 'rmt-vnext-migration-notes', 'rmt-vnext-release-handoff'].forEach((slug) => {
     context.assert(docsMenu.some((entry) => entry.slug === slug), `docs menu includes ${slug}`);
@@ -212,8 +212,8 @@ function runDocumentationChecks(context, rootDir) {
     RMT_VNEXT_REFERENCE_DEMO_PATH,
     RMT_VNEXT_REFERENCE_CORE_PATH
   ], 'Reference registry');
-  context.assertIncludes(runner, "id: 'rmt-vnext-release'", 'Runner registers vNext release suite');
-  context.assertIncludes(runner, 'node scripts/run_xtend_tests.js rmt-vnext-release', 'Runner help references vNext release suite');
+  context.assert(runner.hasSuite("rmt-vnext-release"), 'Runner registers vNext release suite');
+  context.assert(runner.hasSuite("rmt-vnext-release"), 'Runner help references vNext release suite');
   context.assertIncludes(epic, '- Status: `completed / vNext Release Handoff accepted`', 'Epic 15 marks completion');
   context.assertIncludes(epic, '| `WP-E15-18` | P2 | completed | WS6 |', 'Epic marks WP-E15-18 completed');
   context.assertIncludes(epic, 'Epic 15 ist abgeschlossen', 'Epic documents closure');

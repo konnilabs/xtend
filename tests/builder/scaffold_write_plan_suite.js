@@ -76,7 +76,7 @@ function runScaffoldWritePlanSuite(options = {}) {
   const readme = readText('xtend-builder/README.md', rootDir);
   const epic = readText('development/EPIC-17-XTend-Scaffold-Produktive-Builds-und-Dateischreibpfade.md', rootDir);
   const workpackage = readText('development/WP-E17-01-WritePlan-und-zentraler-Scaffold-Writer.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   context.assert(writerSource.includes(SCAFFOLD_WRITE_PLAN_SCHEMA), 'Writer exposes WritePlan schema');
   context.assert(writerSource.includes(SCAFFOLD_WRITE_REPORT_SCHEMA), 'Writer exposes write report schema');
@@ -87,7 +87,7 @@ function runScaffoldWritePlanSuite(options = {}) {
   context.assert(readme.includes('xtend-builder/writing/'), 'Scaffold README documents writing module');
   context.assert(epic.includes('WP-E17-01'), 'Epic 17 tracks WP-E17-01');
   context.assert(workpackage.includes(SCAFFOLD_WRITE_PLAN_SCHEMA), 'WP-E17-01 document declares WritePlan contract');
-  context.assert(runner.includes("id: 'scaffold-write-plan'"), 'XTend test runner registers scaffold-write-plan gate');
+  context.assert(runner.hasSuite("scaffold-write-plan"), 'XTend test runner registers scaffold-write-plan gate');
 
   const plan = createWritePlan(entries, {
     rootDir: tempDir,

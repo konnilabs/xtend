@@ -1,17 +1,7 @@
-/* xtend-kernel-mvc:compatibility-shell-start */
-(function attachRmtKernelOrchestrationController(globalTarget, factory) {
-  const api = factory(globalTarget || {});
+import { createRmtKernelScheduler as createDefaultRmtKernelScheduler } from './rmt-kernel-scheduler.js';
 
-  if (typeof module === 'object' && module.exports) {
-    module.exports = api;
-  }
-
-  if (globalTarget && typeof globalTarget === 'object') {
-    globalTarget.XTendRmtKernelOrchestrationController = Object.freeze(api);
-  }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function createKernelOrchestrationControllerModule() {
-/* xtend-kernel-mvc:compatibility-shell-end */
-  const RMT_KERNEL_ORCHESTRATION_CONTROLLER_SCHEMA = 'xtend.rmt.kernel-orchestration-controller.v1';
+function createKernelOrchestrationControllerModule() {
+  const RMT_KERNEL_ORCHESTRATION_CONTROLLER_SCHEMA = 'xtend.rmt.kernel-orchestration-controller.v2';
   const RMT_KERNEL_ORCHESTRATION_DIAGNOSTIC_SCHEMA = 'xtend.rmt.kernel-orchestration-diagnostic.v1';
 
   function toArray(value) {
@@ -80,10 +70,9 @@
     const artifact = options.artifact || null;
     const plan = options.plan || {};
     const strict = options.strict === true || plan.strict === true;
-    const scheduler = artifact && artifact.scheduler || options.scheduler || null;
-    const hostScheduler = options.schedulerTarget || options.hostScheduler || (artifact && artifact.scheduler ? options.scheduler : null);
-    const schedules = toArray(scheduler && scheduler.schedules);
-    const fibers = toArray(scheduler && scheduler.fibers);
+    const schedulerPlan = artifact && artifact.scheduler || null;
+    const schedules = toArray(schedulerPlan && schedulerPlan.schedules);
+    const fibers = toArray(schedulerPlan && schedulerPlan.fibers);
     const scheduleByEndpoint = new Map(schedules.map((schedule) => [schedule.endpointName, schedule]));
     const diagnostics = toArray(options.diagnostics || plan.diagnostics).map(sanitizeDiagnostic);
     // Browser event publication belongs to the injected host/event port. The
@@ -104,6 +93,28 @@
           if (Number.isFinite(value)) return new Date(value).toISOString();
           return '1970-01-01T00:00:00.000Z';
         });
+    const injectedScheduler = options.kernelScheduler
+      || (options.scheduler && options.scheduler.kernelScheduler)
+      || (options.scheduler && typeof options.scheduler.schedule === 'function' ? options.scheduler : null);
+    const schedulerFactory = typeof options.schedulerFactory === 'function'
+      ? options.schedulerFactory
+      : createDefaultRmtKernelScheduler;
+    const ownsKernelScheduler = !injectedScheduler;
+    const kernelScheduler = injectedScheduler || schedulerFactory({
+      hostPort: options.schedulerHostPort,
+      panicMonitor: options.panicMonitor || options.kernelPanicMonitor,
+      strict,
+      observer: {
+        onJobEvent(event) {
+          const fabric = options.fabric || options.fabricRuntime || null;
+          if (fabric && typeof fabric.recordKernelSchedulerEvent === 'function') {
+            fabric.recordKernelSchedulerEvent(event, {
+              source: RMT_KERNEL_ORCHESTRATION_CONTROLLER_SCHEMA
+            });
+          }
+        }
+      }
+    });
     let runtime = null;
     let core = null;
     let performanceRuntime = null;
@@ -118,6 +129,10 @@
     const appRuntimeYieldActions = [];
     const appRuntimeSchedulerSamples = [];
     let fallbackCount = 0;
+
+    if (!kernelScheduler || typeof kernelScheduler.schedule !== 'function') {
+      throw new TypeError('RMT Kernel Orchestration requires one kernel scheduler authority.');
+    }
 
     function publishDiagnostic(diagnostic) {
       const safeDiagnostic = sanitizeDiagnostic(diagnostic);
@@ -551,6 +566,24 @@
         correlationId: normalized.correlationId
       };
       let schedulerResult = null;
+      if (kernelScheduler && typeof kernelScheduler.updatePressure === 'function') {
+        const schedulerPressure = {
+          none: 'normal',
+          low: 'normal',
+          medium: 'elevated',
+          high: 'constrained',
+          critical: 'critical'
+        }[normalized.pressureLevel] || 'normal';
+        kernelScheduler.updatePressure(schedulerPressure);
+      }
+      const prewarmWorker = runtime && typeof runtime.getPrewarmWorkerRuntime === 'function'
+        ? runtime.getPrewarmWorkerRuntime()
+        : null;
+      if (normalized.pressureLevel === 'critical' && prewarmWorker && typeof prewarmWorker.pauseForBackpressure === 'function') {
+        prewarmWorker.pauseForBackpressure('critical_backpressure');
+      } else if ((normalized.pressureLevel === 'none' || normalized.pressureLevel === 'low') && prewarmWorker && typeof prewarmWorker.resume === 'function') {
+        prewarmWorker.resume('pressure_recovered');
+      }
       if (performanceRuntime && typeof performanceRuntime.reportPerformanceSample === 'function') {
         try {
           schedulerResult = performanceRuntime.reportPerformanceSample(performanceSample);
@@ -635,7 +668,7 @@
       const diagnostic = createDiagnostic(
         'xtend.rmt.kernel_orchestration.fallback',
         strict ? 'error' : 'warning',
-        `Kernel orchestration work "${kind}" could not be scheduled and used fallback execution.`,
+        `Kernel orchestration work "${kind}" has no declared fiber and requires a synthetic work intent.`,
         {
           kind,
           fiber: fiber && fiber.id || null,
@@ -652,101 +685,136 @@
       return diagnostic;
     }
 
-    function scheduleWork(kind, callback, metadata = {}) {
-      if (typeof callback !== 'function') return undefined;
-      const fiber = resolveFiber(kind, metadata);
-      if (!schedulerBridge || !fiber || !fiber.endpointName) {
-        recordFallback(kind, fiber, metadata);
-        fiberHistory.push({
-          fiber: fiber && fiber.id || null,
-          kind,
-          endpointName: fiber && fiber.endpointName || null,
-          status: 'fallback'
-        });
-        return callback({
-          schema: 'xtend.rmt.kernel-orchestration-work.v1',
-          scheduled: false,
-          kind,
-          metadata: cloneSafe(metadata, {})
-        });
+    function canonicalSchedulerLane(value, kind = '') {
+      const lane = clampString(value, 'visible');
+      if (lane === 'user-blocking' || lane === 'visible' || lane === 'transition' || lane === 'idle' || lane === 'background' || lane === 'diagnostics') return lane;
+      if (lane === 'after_paint') return 'visible';
+      if (kind === 'dispose' || kind === 'destroy' || kind === 'command' || kind === 'state') return 'user-blocking';
+      return 'visible';
+    }
+
+    function assertNoInlineBypass(kind, metadata) {
+      if (metadata.inline !== true && metadata.runInline !== true) return;
+      const diagnostic = publishDiagnostic(createDiagnostic(
+        'xtend.rmt.kernel_orchestration.inline_removed',
+        strict ? 'error' : 'warning',
+        `Kernel orchestration work "${kind}" requested removed inline scheduling and will use the kernel queue.`,
+        { kind, inline: metadata.inline === true, runInline: metadata.runInline === true }
+      ));
+      if (strict) {
+        const error = new Error(diagnostic.message);
+        error.code = diagnostic.code;
+        error.diagnostic = diagnostic;
+        throw error;
       }
-      const schedule = scheduleByEndpoint.get(fiber.endpointName) || {
-        id: fiber.endpointName,
-        endpointName: fiber.endpointName,
-        scope: fiber.operation || 'rmt.orchestration',
-        lane: fiber.lane || 'visible'
-      };
-      if (metadata.inline === true) {
-        const historyEntry = {
-          fiber: fiber.id,
-          kind,
-          endpointName: schedule.endpointName,
-          status: 'inline',
-          correlationId: metadata.correlationId || null
-        };
-        fiberHistory.push(historyEntry);
-        dispatchEvent('xtend-maraca:kernel-fiber', {
-          schema: 'xtend.maraca.kernel-fiber.v1',
-          ...historyEntry
-        });
-        return callback({
-          schema: 'xtend.rmt.kernel-orchestration-work.v1',
-          scheduled: true,
-          inline: true,
-          kind,
-          fiber,
-          schedule,
-          metadata: cloneSafe(metadata, {})
-        });
-      }
-      dispatchEvent('xtend-maraca:kernel-schedule', {
-        schema: 'xtend.maraca.kernel-schedule.v1',
-        endpointName: schedule.endpointName,
-        scope: schedule.scope,
-        fiber: fiber.id,
-        kind,
-        correlationId: metadata.correlationId || null
-      });
-      const result = schedulerBridge.scheduleEndpoint(schedule.endpointName, schedule.scope || 'rmt.orchestration', (jobContext) => callback({
-        schema: 'xtend.rmt.kernel-orchestration-work.v1',
+    }
+
+    function trackScheduledHandle(handle, entry) {
+      fiberHistory.push(entry);
+      handle.result.then(
+        () => {
+          entry.status = handle.status;
+          entry.reason = handle.reason;
+          bridgePanicRecoveryRecordsToFabric();
+        },
+        () => {
+          entry.status = handle.status;
+          entry.reason = handle.reason;
+          bridgePanicRecoveryRecordsToFabric();
+        }
+      );
+      return handle;
+    }
+
+    function runFabricFiber(fiber, schedule, kind, jobContext, callback, metadata) {
+      const fabric = options.fabric || options.fabricRuntime || null;
+      const workContext = {
+        schema: 'xtend.rmt.kernel-orchestration-work.v2',
         scheduled: true,
         kind,
         fiber,
         schedule,
         jobContext,
         metadata: cloneSafe(metadata, {})
-      }), {
-        schedule,
-        runInline: metadata.runInline === false ? false : true,
+      };
+      if (!fabric || typeof fabric.runFiber !== 'function') return callback(workContext);
+      return fabric.runFiber({
+        ...cloneSafe(fiber, {}),
+        id: fiber.id || `rmt.orchestration.${kind}`,
+        kind: fiber.kind || kind,
+        operation: fiber.operation || `operation:rmt.orchestration/${kind}`,
+        lane: schedule.lane,
+        scheduleRef: schedule.id,
+        endpointName: schedule.endpointName,
+        correlationId: metadata.correlationId || null,
+        metadata: { ...cloneSafe(fiber.metadata, {}), schedulerJobId: jobContext.jobId }
+      }, () => callback(workContext));
+    }
+
+    function scheduleWork(kind, callback, metadata = {}) {
+      if (typeof callback !== 'function') return undefined;
+      assertNoInlineBypass(kind, metadata);
+      const resolvedFiber = resolveFiber(kind, metadata);
+      if (!resolvedFiber) recordFallback(kind, null, metadata);
+      const fiber = resolvedFiber || {
+        id: `rmt.orchestration.${kind}`,
+        kind,
+        op: kind,
+        operation: metadata.operation || `operation:rmt.orchestration/${kind}`,
+        endpointName: metadata.endpointName || `rmt.orchestration.${kind}`,
+        lane: metadata.lane || 'visible'
+      };
+      const schedule = scheduleByEndpoint.get(fiber.endpointName) || {
+        id: fiber.endpointName,
+        endpointName: fiber.endpointName,
+        scope: fiber.operation || 'rmt.orchestration',
+        lane: fiber.lane || 'visible'
+      };
+      dispatchEvent('xtend-maraca:kernel-schedule', {
+        schema: 'xtend.maraca.kernel-schedule.v2',
+        endpointName: schedule.endpointName,
+        scope: schedule.scope,
+        fiber: fiber.id,
+        kind,
+        correlationId: metadata.correlationId || null
+      });
+      const handle = kernelScheduler.schedule({
+        endpointName: schedule.endpointName,
+        scope: schedule.scope || 'rmt.orchestration',
+        rootId: metadata.rootId,
+        lane: canonicalSchedulerLane(metadata.lane || schedule.lane || fiber.lane, kind),
+        priority: metadata.priority != null ? metadata.priority : schedule.priority,
+        deadlineMs: metadata.deadlineMs != null ? metadata.deadlineMs : schedule.deadlineMs,
+        timeoutMs: metadata.timeoutMs,
+        delayMs: metadata.delayMs,
+        budgetClass: metadata.budgetClass || schedule.budgetClass,
+        maxChunkMs: metadata.maxChunkMs,
+        coalesceKey: metadata.coalesceKey || schedule.coalesceKey,
+        strategy: metadata.strategy || (kind === 'after-paint' || fiber.lane === 'after_paint' ? 'after_paint' : 'microtask'),
         metadata: {
           ...metadata,
           kind,
           fiberId: fiber.id
         }
-      });
+      }, (jobContext) => runFabricFiber(fiber, schedule, kind, jobContext, callback, metadata));
       const historyEntry = {
         fiber: fiber.id,
         kind,
         endpointName: schedule.endpointName,
-        status: result && result.status || 'unknown',
+        schedulerJobId: handle.id,
+        status: handle.status,
         correlationId: metadata.correlationId || null
       };
-      fiberHistory.push(historyEntry);
       dispatchEvent('xtend-maraca:kernel-fiber', {
-        schema: 'xtend.maraca.kernel-fiber.v1',
+        schema: 'xtend.maraca.kernel-fiber.v2',
         ...historyEntry
       });
-      return result && result.handle && Object.prototype.hasOwnProperty.call(result.handle, 'targetResult')
-        ? result.handle.targetResult
-        : result;
+      return trackScheduledHandle(handle, historyEntry);
     }
 
     function scheduleEndpoint(endpointName, scope, callback, metadata = {}) {
       if (typeof callback !== 'function') throw new TypeError('scheduleEndpoint() requires a callback.');
-      if (!schedulerBridge) {
-        recordFallback('endpoint', null, { endpointName, scope, ...metadata });
-        return callback({ scheduled: false, endpointName, scope });
-      }
+      assertNoInlineBypass('endpoint', metadata);
       const schedule = scheduleByEndpoint.get(endpointName) || {
         id: endpointName,
         endpointName,
@@ -754,21 +822,30 @@
         lane: metadata.lane || 'visible',
         timeout: metadata.timeout
       };
-      const result = schedulerBridge.scheduleEndpoint(endpointName, scope || schedule.scope, callback, {
-        ...metadata,
-        schedule,
+      const handle = kernelScheduler.schedule({
+        endpointName,
+        scope: scope || schedule.scope,
+        rootId: metadata.rootId,
+        lane: canonicalSchedulerLane(metadata.lane || schedule.lane, metadata.kind || 'endpoint'),
+        priority: metadata.priority != null ? metadata.priority : schedule.priority,
+        deadlineMs: metadata.deadlineMs != null ? metadata.deadlineMs : (schedule.deadlineMs || metadata.timeout),
+        timeoutMs: metadata.timeoutMs,
+        delayMs: metadata.delayMs,
+        budgetClass: metadata.budgetClass || schedule.budgetClass,
+        maxChunkMs: metadata.maxChunkMs,
+        coalesceKey: metadata.coalesceKey || schedule.coalesceKey,
+        strategy: metadata.strategy || (metadata.kind === 'after_paint' ? 'after_paint' : 'microtask'),
         metadata: { ...metadata, endpointName, scope: scope || schedule.scope }
-      });
-      fiberHistory.push({
+      }, callback);
+      const historyEntry = {
         fiber: metadata.fiberId || null,
         kind: metadata.kind || 'endpoint',
         endpointName,
-        status: result && result.status || 'scheduled',
+        schedulerJobId: handle.id,
+        status: handle.status,
         correlationId: metadata.correlationId || null
-      });
-      return result && result.handle && Object.prototype.hasOwnProperty.call(result.handle, 'targetResult')
-        ? result.handle.targetResult
-        : result;
+      };
+      return trackScheduledHandle(handle, historyEntry);
     }
 
     let disposed = false;
@@ -778,6 +855,9 @@
       [runtime, schedulerBridge, performanceRuntime].forEach((instance) => {
         if (instance && typeof instance.dispose === 'function') instance.dispose();
       });
+      if (ownsKernelScheduler && kernelScheduler && typeof kernelScheduler.dispose === 'function') {
+        kernelScheduler.dispose('orchestration_controller_disposed');
+      }
       runtime = null;
       core = null;
       schedulerBridge = null;
@@ -794,7 +874,6 @@
           endpointName: schedule.endpointName
         }), {
           schedule,
-          runInline: true,
           metadata: {
             operation: 'kernel.activate',
             schedule: schedule.id
@@ -831,14 +910,14 @@
           schedulerBridge = kernelApi.createRmtStateSchedulerDiagnosticsBridge({
             performanceRuntime,
             schedules,
-            scheduler: hostScheduler
+            scheduler: kernelScheduler
           });
           core = productSurface.createCore({
             windowTarget: options.windowTarget,
             documentTarget: options.documentTarget,
             hostAdapter,
             kernelRecords: artifact.records,
-            scheduler: hostScheduler
+            scheduler: kernelScheduler
           });
           runtime = productSurface.createRuntime({
             windowTarget: options.windowTarget,
@@ -848,7 +927,7 @@
             rmtCore: core,
             performanceRuntime,
             kernelRecords: artifact.records,
-            scheduler: hostScheduler,
+            scheduler: kernelScheduler,
             enablePrewarmWorker: isPrewarmWorkerEnabled(),
             enableUiCoprocessor: isUiCoprocessorEnabled(),
             uiCoprocessor: normalizeUiCoprocessorPlan(),
@@ -866,14 +945,14 @@
           schedulerBridge = kernelApi.createRmtStateSchedulerDiagnosticsBridge({
             performanceRuntime,
             schedules,
-            scheduler: hostScheduler
+            scheduler: kernelScheduler
           });
           core = typeof kernelApi.createRmtCore === 'function' ? kernelApi.createRmtCore({
             windowTarget: options.windowTarget,
             documentTarget: options.documentTarget,
             hostAdapter,
             kernelRecords: artifact.records,
-            scheduler: hostScheduler
+            scheduler: kernelScheduler
           }) : null;
           runtime = typeof kernelApi.createRmtRuntime === 'function' ? kernelApi.createRmtRuntime({
             windowTarget: options.windowTarget,
@@ -883,7 +962,7 @@
             rmtCore: core,
             performanceRuntime,
             kernelRecords: artifact.records,
-            scheduler: hostScheduler,
+            scheduler: kernelScheduler,
             enablePrewarmWorker: isPrewarmWorkerEnabled(),
             enableUiCoprocessor: isUiCoprocessorEnabled(),
             uiCoprocessor: normalizeUiCoprocessorPlan(),
@@ -893,6 +972,7 @@
         }
         activateSchedules();
         runtimeStatus = 'booted';
+        bridgePanicRecoveryRecordsToFabric();
         dispatchEvent('xtend-maraca:kernel-boot', {
           schema: 'xtend.maraca.kernel-boot.v1',
           mode: plan.mode,
@@ -926,6 +1006,7 @@
         appRuntimeBackpressure: createAppRuntimeBackpressureSnapshot(),
         prewarmWorker: createPrewarmWorkerSnapshot(),
         panicRecovery: createPanicRecoverySnapshot(),
+        scheduler: kernelScheduler.snapshot(),
         scheduledEndpoints: listScheduledEndpoints(),
         fibers: fiberHistory.slice(),
         fallbackCount,
@@ -952,6 +1033,9 @@
       get schedulerBridge() {
         return schedulerBridge;
       },
+      get scheduler() {
+        return kernelScheduler;
+      },
       get hostAdapter() {
         return hostAdapter;
       },
@@ -975,14 +1059,12 @@
     RMT_KERNEL_ORCHESTRATION_DIAGNOSTIC_SCHEMA,
     createRmtKernelOrchestrationController
   });
-});
+}
 
-/* xtend-kernel-mvc:compatibility-shell-start */
-const __XTEND_RMT_KERNEL_ORCHESTRATION_CONTROLLER_API__ = globalThis.XTendRmtKernelOrchestrationController;
+const __XTEND_RMT_KERNEL_ORCHESTRATION_CONTROLLER_API__ = createKernelOrchestrationControllerModule();
 
 export const RMT_KERNEL_ORCHESTRATION_CONTROLLER_SCHEMA = __XTEND_RMT_KERNEL_ORCHESTRATION_CONTROLLER_API__.RMT_KERNEL_ORCHESTRATION_CONTROLLER_SCHEMA;
 export const RMT_KERNEL_ORCHESTRATION_DIAGNOSTIC_SCHEMA = __XTEND_RMT_KERNEL_ORCHESTRATION_CONTROLLER_API__.RMT_KERNEL_ORCHESTRATION_DIAGNOSTIC_SCHEMA;
 export const createRmtKernelOrchestrationController = __XTEND_RMT_KERNEL_ORCHESTRATION_CONTROLLER_API__.createRmtKernelOrchestrationController;
 
 export default __XTEND_RMT_KERNEL_ORCHESTRATION_CONTROLLER_API__;
-/* xtend-kernel-mvc:compatibility-shell-end */

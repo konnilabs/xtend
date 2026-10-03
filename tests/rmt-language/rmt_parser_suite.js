@@ -99,7 +99,7 @@ function runRmtParserSuite(options = {}) {
   });
   const packageManifest = readJson('package.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtParserFormatAdapter;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
   const parserSyntax = syntaxCheckFile(RMT_PARSER_MODULE_PATH, { rootDir, extension: '.js' });
@@ -127,7 +127,7 @@ function runRmtParserSuite(options = {}) {
   context.assert((typeof packageManifest.exports['./rmt-language/source-model'] === 'string' ? packageManifest.exports['./rmt-language/source-model'] : packageManifest.exports['./rmt-language/source-model'] && packageManifest.exports['./rmt-language/source-model'].default) === './tools/rmt-language/source-model.js', 'package exports RMT Source Model');
   context.assert((typeof packageManifest.exports['./rmt-language/parser'] === 'string' ? packageManifest.exports['./rmt-language/parser'] : packageManifest.exports['./rmt-language/parser'] && packageManifest.exports['./rmt-language/parser'].default) === './tools/rmt-language/parser.js', 'package exports RMT Parser');
   context.assert((typeof packageManifest.exports['./rmt-language/format-adapter'] === 'string' ? packageManifest.exports['./rmt-language/format-adapter'] : packageManifest.exports['./rmt-language/format-adapter'] && packageManifest.exports['./rmt-language/format-adapter'].default) === './tools/rmt-language/format-adapter.js', 'package exports RMT Format Adapter');
-  context.assert(runner.includes("id: 'rmt-parser'"), 'test runner exposes rmt-parser suite');
+  context.assert(runner.hasSuite("rmt-parser"), 'test runner exposes rmt-parser suite');
   context.assert(epic.includes('| `WP-E14-03` | P0 | completed | WS1 |'), 'Epic marks WP-E14-03 completed');
   context.assert(epic.includes('WP-E14-04` ist `ready`'), 'Epic hands off WP-E14-04 as ready');
   context.assert(architecture.includes('Parser- und Format-Adapter'), 'Architecture keeps parser and format adapter layer visible');

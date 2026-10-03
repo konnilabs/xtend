@@ -71,14 +71,14 @@ function runEpic13HydrationPerformanceClosureSuite(options = {}) {
   const plan = createEpic13HydrationPerformanceClosurePlan({ rootDir });
   const validation = validateEpic13HydrationPerformanceClosurePlan(plan);
   const report = createEpic13HydrationPerformanceClosureReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic13HydrationPerformanceClosure;
   const rc1Metadata = packageManifest.xtend && packageManifest.xtend.epic13Rc1Readiness;
   const ownerMetadata = packageManifest.xtend && packageManifest.xtend.epic13ReleaseOwnerAcceptance;
   const networkMetadata = packageManifest.xtend && packageManifest.xtend.epic13ConditionalNetworkEvidence;
   const packageLockMetadata = packageManifest.xtend && packageManifest.xtend.epic13PackageExportLock;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const steering = readText(EPIC13_HYDRATION_PERFORMANCE_CLOSURE_STEERING, rootDir);
   const contractDoc = readText(EPIC13_HYDRATION_PERFORMANCE_CLOSURE_CONTRACT, rootDir);
   const workpackage = readText(EPIC13_HYDRATION_PERFORMANCE_CLOSURE_WORKPACKAGE_DOC, rootDir);
@@ -173,7 +173,7 @@ function runEpic13HydrationPerformanceClosureSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, EPIC13_HYDRATION_PERFORMANCE_CLOSURE_SCHEMA, 'Scaffold config declares hydration closure schema');
   context.assertIncludes(scaffoldConfig, EPIC13_HYDRATION_PERFORMANCE_CLOSURE_LOCAL_GATE, 'Scaffold config references hydration closure gate');
   context.assertIncludes(scaffoldConfig, 'nextWorkpackage: "WP-E13-13"', 'Scaffold config advances Epic 13 handoff to WP-E13-09');
-  context.assertIncludes(runner, "id: 'epic13-hydration-performance-closure'", 'Runner registers hydration closure suite');
+  context.assert(runner.hasSuite("epic13-hydration-performance-closure"), 'Runner registers hydration closure suite');
 
   assertTextIncludesAll(context, steering, [
     EPIC13_HYDRATION_PERFORMANCE_CLOSURE_SCHEMA,

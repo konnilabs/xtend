@@ -12,6 +12,12 @@ DirectoryIndex index.php
   RewriteCond %{REQUEST_METHOD} ^TRACE$ [NC]
   RewriteRule ^ - [F,END]
 
+  # The canonical `components` article shares its name with the localized
+  # Markdown source directory. Resolve that collision before the generic
+  # real-directory bypass so Apache never exposes a directory index response.
+  RewriteRule ^(de|en)/components$ $1/components/ [R=308,END,NE]
+  RewriteRule ^(de|en)/components/$ index.php [END,QSA]
+
   # Serve real files and directories directly.
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d

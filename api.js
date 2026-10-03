@@ -1,4 +1,4 @@
-import { xstate } from './components/xstate.js';
+import { xtendState } from './components/xtend-state.js';
 
 const DEFAULT_UI_STATE = Object.freeze({
   toasts: [],
@@ -11,14 +11,14 @@ const componentLoaders = new Map();
 const XTEND_COMPLIANCE_VERSION = '2026-03-24';
 const XTEND_CORE_REVIEW_CHECKLIST = Object.freeze([
   'State ist die einzige Wahrheitsquelle fuer UI-Status im Core.',
-  'UI-Aktionen schreiben deterministisch in xstate zurueck.',
+  'UI-Aktionen schreiben deterministisch in xtendState zurueck.',
   'Legacy-Vertraege bleiben nur als dokumentierte Kompatibilitaets-Fassade bestehen.',
   'Accessibility-Pflichten wie Rollen, Labels, Fokus und Tastatursteuerung sind implementiert.',
   'Animationen respektieren prefers-reduced-motion.',
   'Neue Core-Aenderungen werden gegen Manifest-, Loader- und API-Contracts verifiziert.'
 ]);
 const XTEND_CORE_CONTRACTS = Object.freeze({
-  bootstrap: ['xstate', 'x-theme', 'api.js'],
+  bootstrap: ['xtend-state', 'x-theme', 'api.js'],
   overlays: ['xtend.component.x-dialog.<id>.open', 'xtend.component.x-modal.<id>.open'],
   feedback: ['toast-shown', 'toast-dismissed', 'alert-shown', 'alert-dismissed'],
   routing: ['router-navigate', 'router-current', 'router-rendered'],
@@ -56,9 +56,9 @@ function ensureComplianceAPI() {
     }
   };
 
-  xstate.set('xtend.compliance.version', XTEND_COMPLIANCE_VERSION);
-  xstate.set('xtend.compliance.checklist', [...XTEND_CORE_REVIEW_CHECKLIST]);
-  xstate.set('xtend.compliance.contracts', cloneCoreContracts());
+  xtendState.set('xtend.compliance.version', XTEND_COMPLIANCE_VERSION);
+  xtendState.set('xtend.compliance.checklist', [...XTEND_CORE_REVIEW_CHECKLIST]);
+  xtendState.set('xtend.compliance.contracts', cloneCoreContracts());
 
   return namespace.compliance;
 }
@@ -88,7 +88,7 @@ function normalizeUIState(candidate) {
 }
 
 function ensureUIState() {
-  const current = xstate.get('ui');
+  const current = xtendState.get('ui');
   const normalized = normalizeUIState(current);
 
   if (current !== normalized) {
@@ -98,7 +98,7 @@ function ensureUIState() {
       Object.keys(DEFAULT_UI_STATE).some((key) => !Array.isArray(current[key]));
 
     if (needsSync) {
-      xstate.set('ui', normalized);
+      xtendState.set('ui', normalized);
     }
   }
 
@@ -117,15 +117,15 @@ function updateUIState(updater) {
 
   const nextState = updater(draft) || draft;
   const normalized = normalizeUIState(nextState);
-  xstate.set('ui', normalized);
+  xtendState.set('ui', normalized);
   return normalized;
 }
 
 function syncThemeState(themeName, availableThemes) {
-  xstate.set('theme', themeName);
-  xstate.set('xtend.theme.current', themeName);
-  xstate.set('themes', availableThemes);
-  xstate.set('xtend.theme.available', availableThemes);
+  xtendState.set('theme', themeName);
+  xtendState.set('xtend.theme.current', themeName);
+  xtendState.set('themes', availableThemes);
+  xtendState.set('xtend.theme.available', availableThemes);
 }
 
 function getOpenStateKeys(type, id) {
@@ -151,7 +151,7 @@ function getOpenStateKeys(type, id) {
 
 function setComponentOpenState(type, id, isOpen) {
   for (const key of getOpenStateKeys(type, id)) {
-    xstate.set(key, isOpen);
+    xtendState.set(key, isOpen);
   }
 }
 
@@ -160,8 +160,8 @@ function isRuntimeReady(tag) {
     return !!(window.XTend && window.XTend.theme);
   }
 
-  if (tag === 'xstate') {
-    return !!window.xstate;
+  if (tag === 'xtend-state') {
+    return !!(window.XTend && window.XTend.state);
   }
 
   return !!customElements.get(tag);
@@ -238,8 +238,8 @@ export async function initXTendAPI(manifest) {
   ensureUIState();
 
   // Initialize theme state unless xtheme.js already did it
-  const currentTheme = xstate.get('theme') || xstate.get('xtend.theme.current');
-  const availableThemes = xstate.get('themes') || xstate.get('xtend.theme.available');
+  const currentTheme = xtendState.get('theme') || xtendState.get('xtend.theme.current');
+  const availableThemes = xtendState.get('themes') || xtendState.get('xtend.theme.available');
 
   if (!currentTheme) {
     syncThemeState('light', Array.isArray(availableThemes) && availableThemes.length ? availableThemes : ['light', 'dark']);
@@ -333,10 +333,10 @@ async function setupXThemeAPI(manifest) {
     // Minimale Fallback-Implementierung
     const fallbackThemeApi = {
       getCurrentTheme() {
-        return xstate.get('theme') || 'light';
+        return xtendState.get('theme') || 'light';
       },
       getAvailableThemes() {
-        return xstate.get('themes') || ['light', 'dark'];
+        return xtendState.get('themes') || ['light', 'dark'];
       },
       setTheme(themeName) {
         if (!themeName) return false;
@@ -409,7 +409,7 @@ async function setupXThemeAPI(manifest) {
   
   const baseTheme = window.XTend.theme;
 
-  // Integration mit XState und Bereitstellen einer erweiterten API
+  // Integration mit XTendState und Bereitstellen einer erweiterten API
   const themeApi = {
     // Basic theme functions (proxy to XTend.theme)
     getCurrentTheme() {
@@ -420,7 +420,7 @@ async function setupXThemeAPI(manifest) {
     },
     setTheme(themeName) {
       const result = baseTheme.setTheme(themeName);
-      // XState is already updated in the XTend.theme implementation
+      // XTendState is already updated in the XTend.theme implementation
       return result;
     },
     set(name, value) {
@@ -448,15 +448,15 @@ async function setupXThemeAPI(manifest) {
         const result = await baseTheme.loadExternalTheme(themeName, cssUrl);
         
         // Extend state with theme information
-        const themeState = xstate.get('theme-registry') || {};
+        const themeState = xtendState.get('theme-registry') || {};
         themeState[themeName] = {
           name: themeName,
           cssUrl: cssUrl,
           type: 'external',
           loadedAt: new Date().toISOString()
         };
-        xstate.set('theme-registry', themeState);
-        xstate.set('xtend.theme.registry', themeState);
+        xtendState.set('theme-registry', themeState);
+        xtendState.set('xtend.theme.registry', themeState);
         
         // Dedicated event for theme registry changes
         document.dispatchEvent(new CustomEvent('theme-registry-changed', {
@@ -480,15 +480,15 @@ async function setupXThemeAPI(manifest) {
       
       if (result) {
         // Extend state with theme information
-        const themeState = xstate.get('theme-registry') || {};
+        const themeState = xtendState.get('theme-registry') || {};
         themeState[name] = {
           name: name,
           ...properties,
           type: 'registered',
           registeredAt: new Date().toISOString()
         };
-        xstate.set('theme-registry', themeState);
-        xstate.set('xtend.theme.registry', themeState);
+        xtendState.set('theme-registry', themeState);
+        xtendState.set('xtend.theme.registry', themeState);
         
         // Dedicated event for theme registry changes
         document.dispatchEvent(new CustomEvent('theme-registry-changed', {
@@ -513,11 +513,11 @@ async function setupXThemeAPI(manifest) {
       }
       
       // Update state
-      const themeState = xstate.get('theme-registry') || {};
+      const themeState = xtendState.get('theme-registry') || {};
       if (themeState[themeName]) {
         delete themeState[themeName];
-        xstate.set('theme-registry', themeState);
-        xstate.set('xtend.theme.registry', themeState);
+        xtendState.set('theme-registry', themeState);
+        xtendState.set('xtend.theme.registry', themeState);
         
         // Dedicated event for theme registry changes
         document.dispatchEvent(new CustomEvent('theme-registry-changed', {
@@ -536,13 +536,13 @@ async function setupXThemeAPI(manifest) {
     
     // Get theme metadata
     getThemeInfo(themeName) {
-      const themeState = xstate.get('theme-registry') || {};
+      const themeState = xtendState.get('theme-registry') || {};
       return themeState[themeName] || null;
     },
     
     // Get all registered themes with metadata
     getAllThemeInfo() {
-      return xstate.get('theme-registry') || {};
+      return xtendState.get('theme-registry') || {};
     },
     
     // Check whether a theme is available
@@ -589,10 +589,10 @@ async function setupXThemeAPI(manifest) {
     }
   };
 
-  if (!xstate.get('theme-registry') && typeof baseTheme.getThemeRegistry === 'function') {
+  if (!xtendState.get('theme-registry') && typeof baseTheme.getThemeRegistry === 'function') {
     const themeRegistry = baseTheme.getThemeRegistry();
-    xstate.set('theme-registry', themeRegistry);
-    xstate.set('xtend.theme.registry', themeRegistry);
+    xtendState.set('theme-registry', themeRegistry);
+    xtendState.set('xtend.theme.registry', themeRegistry);
   }
 
   window.XTheme = themeApi;

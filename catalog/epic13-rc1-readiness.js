@@ -212,7 +212,7 @@ const GATE_GAPS = Object.freeze([
   {
     id: 'known-residuals',
     title: 'RC0-Residuals sind fuer RC1 triagiert',
-    reason: 'xstate und x-utils sind Boundary-Contracts; Hydration wurde in WP-E13-06 owner-frei geschlossen',
+    reason: 'xtend-state und x-utils sind Boundary-Contracts; Hydration wurde in WP-E13-06 owner-frei geschlossen',
     targetWorkpackages: ['WP-E13-05', 'WP-E13-06']
   },
   {

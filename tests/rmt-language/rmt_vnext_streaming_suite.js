@@ -184,9 +184,9 @@ function runRmtVNextStreamingSuite(options = {}) {
     id: 'rmt-vnext-streaming',
     label: 'Epic 15 RMT vNext Streaming and Incremental Rendering Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextStreaming;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
   const streamingContractDoc = readText(STREAMING_CONTRACT_PATH, rootDir);
   const moduleSyntax = syntaxCheckFile(RMT_VNEXT_STREAMING_MODULE_PATH, { rootDir, extension: '.js' });
@@ -211,7 +211,7 @@ function runRmtVNextStreamingSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_STREAMING_PACKAGE_SCRIPT, 'package metadata declares streaming package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-streaming'] === 'string' ? packageManifest.exports['./rmt-language/vnext-streaming'] : packageManifest.exports['./rmt-language/vnext-streaming'] && packageManifest.exports['./rmt-language/vnext-streaming'].default) === './tools/rmt-language/vnext-streaming.js', 'package exports vNext streaming contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-streaming'] === 'node scripts/run_xtend_tests.js rmt-vnext-streaming', 'package exposes vNext streaming script');
-  context.assert(runner.includes("id: 'rmt-vnext-streaming'"), 'test runner exposes rmt-vnext-streaming suite');
+  context.assert(runner.hasSuite("rmt-vnext-streaming"), 'test runner exposes rmt-vnext-streaming suite');
   context.assert(epic.includes('| `WP-E15-14` | P1 | completed | WS4 |'), 'Epic marks WP-E15-14 completed');
   context.assert(epic.includes('| `WP-E15-15` | P1 | completed | WS5 |'), 'Epic keeps WP-E15-15 completed after streaming contract');
   context.assert(streamingContractDoc.includes('schema: "xtend.rmt.vnext-streaming-contract.v1"'), 'Streaming contract document declares schema');

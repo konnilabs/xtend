@@ -74,13 +74,13 @@ function runComponentLabRmtInspectorSuite(options = {}) {
   const validation = validateComponentLabPlan(plan);
   const gate = createComponentLabGate({ rootDir, plan });
   const fixture = readJson(COMPONENT_LAB_FIXTURE_PATH, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const epic = readText('development/EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const componentPlatformDocs = readText('development/docs-evidence/root/component-platform.md', rootDir);
   const docsReadme = readText('docs/en/README.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const doc = readText(COMPONENT_LAB_DOC_PATH, rootDir);
   const workpackage = readText(COMPONENT_LAB_WP_PATH, rootDir);
   const previewReadme = readText('xtend-builder/preview/README.md', rootDir);
@@ -179,7 +179,7 @@ function runComponentLabRmtInspectorSuite(options = {}) {
   context.assertIncludes(registry, COMPONENT_LAB_DOC_PATH, 'Reference registry links Component Lab contract');
   context.assertIncludes(registry, COMPONENT_LAB_FIXTURE_PATH, 'Reference registry links Component Lab fixture');
   context.assertIncludes(registry, COMPONENT_LAB_SUITE_PATH, 'Reference registry links Component Lab suite');
-  context.assertIncludes(runner, "id: 'component-lab-rmt-inspector'", 'XTend runner registers Component Lab suite');
+  context.assert(runner.hasSuite("component-lab-rmt-inspector"), 'XTend runner registers Component Lab suite');
   context.assert((typeof packageManifest.exports['./builder/preview/component-lab'] === 'string' ? packageManifest.exports['./builder/preview/component-lab'] : packageManifest.exports['./builder/preview/component-lab'] && packageManifest.exports['./builder/preview/component-lab'].default) === './xtend-builder/preview/component-lab.js', 'Package exports Component Lab module');
   context.assert(packageManifest.scripts['test:component-lab'] === 'node scripts/run_xtend_tests.js component-lab-rmt-inspector', 'Package exposes Component Lab test script');
   context.assert(metadata && metadata.schema === COMPONENT_LAB_SCHEMA, 'Package metadata exposes Component Lab schema');

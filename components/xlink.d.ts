@@ -39,7 +39,6 @@ export interface XLinkSnapshot {
   source: 'x-link';
   stateKey: string;
   href: string;
-  navigation: XLinkNavigation;
   active: boolean;
   external: boolean;
   scheduleRef: 'diagnostics.snapshot';

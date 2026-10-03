@@ -1,4 +1,5 @@
-import { xstate } from './xstate.js';
+import { componentStyleNonce } from './style-nonce.js';
+import { xtendState } from './xtend-state.js';
 
 // <x-form>
 class XForm extends HTMLElement {
@@ -75,7 +76,7 @@ class XForm extends HTMLElement {
       lane: "user-blocking",
       hydrationPolicy: "visible",
       criticalMeasurements: ["mount", "event", "validation"],
-      cleanup: ["mutation-observer", "xstate-subscription", "field-listeners"]
+      cleanup: ["mutation-observer", "xtend-state-subscription", "field-listeners"]
     };
   }
 
@@ -153,7 +154,7 @@ class XForm extends HTMLElement {
     this.attachShadow({ mode: "open" });
 
     this.shadowRoot.innerHTML = `
-      <style>
+      <style${componentStyleNonce(this.ownerDocument)}>
         :host {
           display: block;
           box-sizing: border-box;
@@ -303,10 +304,10 @@ class XForm extends HTMLElement {
     if (!this.id) this.id = `xform-${Math.random().toString(36).slice(2, 10)}`;
 
     // Set initial state
-    xstate.set(`xform-data-${this.id}`, this.getFormData());
+    xtendState.set(`xform-data-${this.id}`, this.getFormData());
 
     // Subscribe to state changes, for example external form data updates
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xform-data-${this.id}` && typeof value === "object" && value !== null) {
         // Set field values when they differ
         this._elements.forEach(el => {
@@ -350,7 +351,7 @@ class XForm extends HTMLElement {
       el.__xformBoundTo = this.id;
       this._fieldEvents.forEach(eventName => {
         el.addEventListener(eventName, () => {
-          xstate.set(`xform-data-${this.id}`, this.getFormData());
+          xtendState.set(`xform-data-${this.id}`, this.getFormData());
         });
       });
     });
@@ -380,7 +381,7 @@ class XForm extends HTMLElement {
         composed: true
       }));
       // Update state
-      xstate.set(`xform-data-${this.id}`, this.getFormData());
+      xtendState.set(`xform-data-${this.id}`, this.getFormData());
     } else {
       this.setAttribute("invalid", "");
       if (this._statusRegion) this._statusRegion.textContent = "";
@@ -407,7 +408,7 @@ class XForm extends HTMLElement {
     if (this._errorRegion) this._errorRegion.textContent = "";
 
     // Update state after reset
-    xstate.set(`xform-data-${this.id}`, this.getFormData());
+    xtendState.set(`xform-data-${this.id}`, this.getFormData());
   }
 
   getFormData() {
@@ -425,6 +426,11 @@ class XForm extends HTMLElement {
 
       if (el.tagName === "X-RADIO") {
         if (el.checked) data[name] = el.value;
+        return;
+      }
+
+      if (el.files && typeof el.files.length === "number") {
+        data[name] = el.multiple ? Array.from(el.files) : el.files[0] || null;
         return;
       }
 

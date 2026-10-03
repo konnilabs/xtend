@@ -12,6 +12,8 @@ Für `xtend-i18n` ist das besonders hilfreich, weil das Modul nicht als Custom E
 
 Die folgenden Tokens bleiben im Dokument, damit die CI-Suite die Verbindung zwischen Release-Report, Netzwerk-Evidenz und Pack Dry Run findet.
 
+Der normalisierte Pack-Nachweis ist die Eingabe für `DPF-WP-03`, das die Conditional-Network-Evidence im CI-Kontext erfasst.
+
 ```txt
 schema: xtend.epic13.release-report-pack-dry-run-evidence.v1
 network ci schema: xtend.epic13.conditional-network-evidence-ci.v1

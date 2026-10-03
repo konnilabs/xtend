@@ -57,8 +57,8 @@ function runEnterpriseThirdPartyAuthoringGuideSuite(options = {}) {
     id: 'enterprise-third-party-authoring-guide',
     label: 'ECH-WP-11 Enterprise Third-Party Authoring Guide'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const docsReadme = readText(DOCS_README, rootDir);
   const docsMenu = readJson(DOCS_MENU, rootDir);
@@ -166,8 +166,8 @@ function runEnterpriseThirdPartyAuthoringGuideSuite(options = {}) {
   context.assertIncludes(backlog, '| `ECH-WP-11` | P2 | completed |', 'Backlog marks ECH-WP-11 completed');
   context.assertIncludes(backlog, ENTERPRISE_THIRD_PARTY_AUTHORING_GUIDE_DOC, 'Backlog links third-party guide doc');
   context.assertIncludes(backlog, ENTERPRISE_THIRD_PARTY_AUTHORING_GUIDE_LOCAL_GATE, 'Backlog exposes third-party authoring local gate');
-  context.assertIncludes(runner, "id: 'enterprise-third-party-authoring-guide'", 'Runner exposes third-party authoring guide suite');
-  context.assertIncludes(runner, 'runEnterpriseThirdPartyAuthoringGuideSuite', 'Runner imports third-party authoring guide suite');
+  context.assert(runner.hasSuite("enterprise-third-party-authoring-guide"), 'Runner exposes third-party authoring guide suite');
+  context.assert(runner.hasImplementation({ function: "runEnterpriseThirdPartyAuthoringGuideSuite" }), 'Runner imports third-party authoring guide suite');
   context.assert(packageManifest.scripts['test:enterprise-third-party-authoring-guide'] === 'node scripts/run_xtend_tests.js enterprise-third-party-authoring-guide', 'Package exposes third-party authoring guide script');
 
   return context.result({

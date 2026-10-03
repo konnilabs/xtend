@@ -1,4 +1,4 @@
-import { xstate } from '../../../components/xstate.js';
+import { xtendState } from '../../../components/xtend-state.js';
 import type { XtendCustomEventMap, XtendFormControlUxProfile, XtendPublicEventContract } from '../../../components/xtend-public-types';
 
 export type XToggleAttributeName = 'name' | 'value' | 'checked' | 'disabled' | 'required' | 'label' | 'busy' | 'invalid' | 'density';
@@ -143,7 +143,7 @@ class XToggle extends HTMLElement {
         touchTargetMinPx: 44,
         disabledBusyGuards: true
       },
-      cleanup: ['toggle-event-listeners', 'xstate-subscription']
+      cleanup: ['toggle-event-listeners', 'xtendState-subscription']
     } as const;
   }
 
@@ -496,7 +496,7 @@ class XToggle extends HTMLElement {
     this.control.addEventListener('keydown', this.handleKeydown);
     this.syncControl();
     this.publishState('attribute');
-    this.unsubscribeState = xstate.subscribe((key, value) => {
+    this.unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === this.stateKey && typeof value === 'boolean' && value !== this.checked) {
         this.setChecked(value, { emit: false, source: 'property' });
       }
@@ -722,8 +722,8 @@ class XToggle extends HTMLElement {
       value: this.value,
       source
     };
-    xstate.set(this.stateKey, this.checked);
-    xstate.set(`xtoggle-state-${this.id}`, state);
+    xtendState.set(this.stateKey, this.checked);
+    xtendState.set(`xtoggle-state-${this.id}`, state);
     this.stateText.textContent = this.checked ? 'On' : 'Off';
   }
 }

@@ -1,0 +1,74 @@
+template demo.fastpass {
+  state nav type object initial { label "Berichte öffnen" }
+  state dismiss type object initial { label "Panel schließen" }
+  state focus type object initial { label "Navigation fokussieren" }
+  state panel type object initial { label "Maraca FastPass" hidden false }
+
+  state work type object initial { lastRequest "" }
+  datasource reports from host reports { mode invoke; contract "demo.reports.v1" }
+  action loadReports {
+    input request string
+    reduce state.work.lastRequest = input.request
+    effect fetch datasource reports
+  }
+  action updatePanel {
+    input label string
+    reduce state.panel.label = input.label
+  }
+
+  action showReports {
+    input source string
+    execution fastpass
+    effect navigation "#reports"
+  }
+  action dismissPanel {
+    input source string
+    execution fastpass
+    effect close surface panel
+  }
+  action focusNavigation {
+    input source string
+    execution fastpass
+    effect focus surface navigation
+  }
+
+  surface navigation kind region component x-button {
+    source state nav
+    lane visible weight 80 {
+      hydrate navigationView from state nav {
+        hydration policy eager
+        hydration insular true
+      }
+    }
+    on click "[data-maraca-surface='navigation']" -> action showReports { payload source from event.type }
+  }
+  surface closeButton kind region component x-button {
+    source state dismiss
+    lane visible weight 80 {
+      hydrate closeButtonView from state dismiss {
+        hydration policy eager
+        hydration insular true
+      }
+    }
+    on click "[data-maraca-surface='closeButton']" -> action dismissPanel { payload source from event.type }
+  }
+  surface focusButton kind region component x-button {
+    source state focus
+    lane visible weight 80 {
+      hydrate focusButtonView from state focus {
+        hydration policy eager
+        hydration insular true
+      }
+    }
+    on click "[data-maraca-surface='focusButton']" -> action focusNavigation { payload source from event.type }
+  }
+  surface panel kind window component x-section {
+    source state panel
+    lane visible weight 80 {
+      hydrate panelView from state panel {
+        hydration policy eager
+        hydration insular true
+      }
+    }
+  }
+}

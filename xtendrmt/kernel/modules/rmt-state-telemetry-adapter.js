@@ -11,7 +11,6 @@
     const STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_DIAGNOSTIC_CODES = Object.freeze([
         'rmt.bridge.state.mirrored',
         'rmt.bridge.state.unavailable',
-        'rmt.bridge.state-projection.legacy-alias',
         'rmt.bridge.scheduler.endpoint.scheduled',
         'rmt.bridge.scheduler.endpoint.queued',
         'rmt.bridge.diagnostics.emitted',
@@ -224,10 +223,6 @@
     function resolveBridgeSchedulerTarget(deps = {}, options = {}) {
         return options.scheduler
             || deps.scheduler
-            || options.performanceRuntime
-            || deps.performanceRuntime
-            || options.rmt
-            || deps.rmt
             || null;
     }
 
@@ -238,7 +233,6 @@
         const scheduledEndpoints = [];
         const telemetrySnapshots = [];
         const backpressureSignals = [];
-        let legacyStateProjectionDiagnostic = null;
         const maxTelemetryRecords = Number.isFinite(Number(deps.maxTelemetryRecords)) && Number(deps.maxTelemetryRecords) > 0
             ? Math.max(Math.floor(Number(deps.maxTelemetryRecords)), 8)
             : 80;
@@ -255,30 +249,9 @@
         }
 
         function getStateProjectionPort() {
-            if (deps.stateProjectionPort !== undefined && deps.stateProjectionPort !== null) {
-                return typeof deps.stateProjectionPort.batchUpdate === 'function'
-                    ? deps.stateProjectionPort
-                    : null;
-            }
-
-            // 0.6 compatibility only: xstate is accepted as an alias for the typed
-            // output port when it already implements the atomic batch contract.
-            // It is never read back and per-key writers are never adapted.
-            const legacyPort = deps.xstate || null;
-            if (!legacyPort || typeof legacyPort.batchUpdate !== 'function') return null;
-            if (!legacyStateProjectionDiagnostic) {
-                legacyStateProjectionDiagnostic = createStateSchedulerDiagnosticsBridgeDiagnostic(
-                    'rmt.bridge.state-projection.legacy-alias',
-                    'The xstate option is a deprecated alias; inject stateProjectionPort instead.',
-                    'createStateBridge',
-                    'state',
-                    { adapterId, replacement: 'stateProjectionPort' },
-                    'info'
-                );
-                diagnostics.push(legacyStateProjectionDiagnostic);
-                publishBridgeDiagnostic(legacyStateProjectionDiagnostic);
-            }
-            return legacyPort;
+            return deps.stateProjectionPort && typeof deps.stateProjectionPort.batchUpdate === 'function'
+                ? deps.stateProjectionPort
+                : null;
         }
 
         function writeState(key, value, options = {}) {
@@ -455,7 +428,7 @@
                 externalState: hasExternalState
             }, options);
             const operationDiagnostics = hasExternalState
-                ? (legacyStateProjectionDiagnostic ? [legacyStateProjectionDiagnostic] : [])
+                ? []
                 : [createStateSchedulerDiagnosticsBridgeDiagnostic(
                     'rmt.bridge.state.unavailable',
                     'RMT bridge created an in-memory state bridge because no batch-capable State Projection Port was provided.',
@@ -474,7 +447,6 @@
                 diagnostics: operationDiagnostics,
                 metadata: {
                     externalState: hasExternalState,
-                    legacyStateProjectionAlias: Boolean(legacyStateProjectionDiagnostic),
                     schema: STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA
                 }
             });
@@ -504,18 +476,8 @@
                 });
                 status = 'scheduled';
                 diagnosticCode = 'rmt.bridge.scheduler.endpoint.scheduled';
-            } else if (typeof deps.scheduleEndpoint === 'function') {
-                targetResult = deps.scheduleEndpoint(schedule.endpointName, schedule.scope, callback, {
-                    ...options,
-                    schedule,
-                    source: STATE_SCHEDULER_DIAGNOSTICS_BRIDGE_SCHEMA
-                });
-                status = 'scheduled';
-                diagnosticCode = 'rmt.bridge.scheduler.endpoint.scheduled';
-            } else if (options.runInline === true && typeof callback === 'function') {
-                targetResult = callback(jobContext);
-                status = 'scheduled';
-                diagnosticCode = 'rmt.bridge.scheduler.endpoint.scheduled';
+            } else {
+                throw new TypeError('RMT State/Telemetry Bridge requires one kernel scheduler authority.');
             }
             const endpointRecord = Object.freeze({
                 status,
@@ -543,7 +505,7 @@
                 status === 'scheduled' ? 'info' : 'warn'
             );
             diagnostics.push(diagnostic);
-            return createStateSchedulerDiagnosticsBridgeResult({
+            const bridgeResult = createStateSchedulerDiagnosticsBridgeResult({
                 ok: true,
                 status: status === 'scheduled' ? 'ok' : 'degraded',
                 adapterId,
@@ -562,6 +524,9 @@
                     scheduled: status === 'scheduled'
                 }
             });
+            return targetResult && targetResult.schema === 'xtend.rmt.kernel-job.v1'
+                ? targetResult
+                : bridgeResult;
         }
 
         function recordAdapterResult(result = {}, options = {}) {

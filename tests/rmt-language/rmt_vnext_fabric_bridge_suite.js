@@ -76,8 +76,8 @@ function runRmtVNextFabricBridgeSuite(options = {}) {
   const bridge = evidence.fabric && evidence.fabric.bridge;
   const laneMatrix = (bridge && bridge.laneMatrix) || [];
   const routeComponentFibers = bridge && bridge.routeComponentFibers;
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const bridgeDocs = FABRIC_BRIDGE_DOC_PATHS.map((docPath) => readText(docPath, rootDir)).join('\n');
   const workerPrerenderCompile = compileRmtVNextSource({
     text: [
@@ -171,7 +171,7 @@ function runRmtVNextFabricBridgeSuite(options = {}) {
   context.assert(workerRecord && workerRecord.workerPrerender && workerRecord.workerPrerender.status === 'supported', 'worker hydration record carries workerPrerender support');
   context.assert(workerRecord && workerRecord.fabricSchedule && workerRecord.fabricSchedule.scheduleRef === 'component.worker_prerender_hydrate', 'worker hydration record links Fabric worker schedule');
 
-  context.assert(runner.includes("id: 'rmt-vnext-fabric-bridge'"), 'test runner exposes PRIM-05 fabric bridge suite');
+  context.assert(runner.hasSuite("rmt-vnext-fabric-bridge"), 'test runner exposes PRIM-05 fabric bridge suite');
   context.assert(packageManifest.scripts['test:rmt-vnext-fabric-bridge'] === PACKAGE_SCRIPT, 'package exposes PRIM-05 fabric bridge script');
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives'].includes('rmt-vnext-fabric-bridge'), 'primitive aggregate includes PRIM-05 fabric bridge gate');
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives:report'].includes('rmt-vnext-fabric-bridge'), 'primitive report includes PRIM-05 fabric bridge gate');

@@ -28,7 +28,7 @@ function runManifestImportPolicySuite(options = {}) {
     id: 'manifest-import-policy',
     label: 'XTend manifest and dynamic import policy gates'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const currentManifest = readJson('components/manifest.json', rootDir);
   const policySource = readText('security/manifest-import-policy.js', rootDir);
   const routerSource = readText('components/xrouter.js', rootDir);

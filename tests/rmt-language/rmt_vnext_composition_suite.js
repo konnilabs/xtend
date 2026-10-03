@@ -134,9 +134,9 @@ function runRmtVNextCompositionSuite(options = {}) {
     id: 'rmt-vnext-composition',
     label: 'Epic 15 RMT vNext Composition and Component Binding Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextComposition;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
   const compositionContract = readText(COMPOSITION_CONTRACT_PATH, rootDir);
   const moduleSyntax = syntaxCheckFile(RMT_VNEXT_COMPOSITION_MODULE_PATH, { rootDir, extension: '.js' });
@@ -163,7 +163,7 @@ function runRmtVNextCompositionSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_COMPOSITION_PACKAGE_SCRIPT, 'package metadata declares composition package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-composition'] === 'string' ? packageManifest.exports['./rmt-language/vnext-composition'] : packageManifest.exports['./rmt-language/vnext-composition'] && packageManifest.exports['./rmt-language/vnext-composition'].default) === './tools/rmt-language/vnext-composition.js', 'package exports vNext composition contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-composition'] === 'node scripts/run_xtend_tests.js rmt-vnext-composition', 'package exposes vNext composition script');
-  context.assert(runner.includes("id: 'rmt-vnext-composition'"), 'test runner exposes rmt-vnext-composition suite');
+  context.assert(runner.hasSuite("rmt-vnext-composition"), 'test runner exposes rmt-vnext-composition suite');
   context.assert(epic.includes('| `WP-E15-10` | P1 | completed | WS3 |'), 'Epic marks WP-E15-10 completed');
   context.assert(epic.includes('| `WP-E15-11` | P1 | completed | WS3 |'), 'Epic records WP-E15-11 import resolver handoff after composition contract');
   context.assert(compositionContract.includes('schema: "xtend.rmt.vnext-composition.v1"'), 'Composition contract document declares schema');

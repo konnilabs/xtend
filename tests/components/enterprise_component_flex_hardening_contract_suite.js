@@ -48,8 +48,8 @@ function runEnterpriseComponentFlexHardeningContractSuite(options = {}) {
     id: 'enterprise-component-flex-hardening-contract',
     label: 'ECH-WP-01 Enterprise Component Flex Hardening Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(ENTERPRISE_COMPONENT_FLEX_HARDENING_CONTRACT_DOC, rootDir);
   const direction = readText('development/XTend-Signature-UI-und-Typografie-Designrichtung.md', rootDir);
   const signatureSuite = readText('tests/browser/signature_ui_visual_quality_suite.js', rootDir);
@@ -139,8 +139,8 @@ function runEnterpriseComponentFlexHardeningContractSuite(options = {}) {
     '--xtend-signature-surface-panel',
     '--xtend-font-family-body'
   ], 'x-header pilot signature token consumption');
-  context.assertIncludes(runner, "id: 'enterprise-component-flex-hardening-contract'", 'Runner exposes Enterprise Flex Hardening suite');
-  context.assertIncludes(runner, 'runEnterpriseComponentFlexHardeningContractSuite', 'Runner imports Enterprise Flex Hardening suite');
+  context.assert(runner.hasSuite("enterprise-component-flex-hardening-contract"), 'Runner exposes Enterprise Flex Hardening suite');
+  context.assert(runner.hasImplementation({ function: "runEnterpriseComponentFlexHardeningContractSuite" }), 'Runner imports Enterprise Flex Hardening suite');
   context.assert(packageManifest.scripts['test:enterprise-component-flex-hardening-contract'] === 'node scripts/run_xtend_tests.js enterprise-component-flex-hardening-contract', 'Package exposes Enterprise Flex Hardening test script');
 
   return context.result({

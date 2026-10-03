@@ -24,12 +24,6 @@
             || (typeof appModules.createRmtDiagnostics === 'function'
                 ? appModules.createRmtDiagnostics({ now })
                 : null);
-        const priorityQueue = deps.priorityQueue
-            || deps.schedulerQueue
-            || deps.renderPriorityQueue
-            || (typeof appModules.createRmtQueue === 'function'
-                ? appModules.createRmtQueue({ now })
-                : null);
         const reactivity = deps.reactivity
             || deps.rmtReactivity
             || deps.stateReactivity
@@ -56,7 +50,6 @@
             hostAdapter,
             diagnostics,
             schedulerDiagnostics: diagnostics,
-            priorityQueue,
             diagnosticsHub,
             panicMonitor,
             reactivity,

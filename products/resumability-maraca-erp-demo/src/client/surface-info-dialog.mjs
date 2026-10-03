@@ -278,8 +278,8 @@ async function ensureNativeComponents() {
   return nativeComponentsPromise;
 }
 
-function setXStateValue(xstate, key, value) {
-  if (xstate && typeof xstate.set === 'function') xstate.set(key, value);
+function setStateValue(stateRuntime, key, value) {
+  if (stateRuntime && typeof stateRuntime.set === 'function') stateRuntime.set(key, value);
 }
 
 function createActionButton(id, label, variant = 'secondary') {
@@ -332,7 +332,7 @@ function ensureDialog(options) {
     const telemetry = collectTelemetry(options.metrics || {}, 'button-refresh');
     renderTelemetry(content, telemetry);
     window.__XTendResumeDemo.surfaceInfoTelemetry = telemetry;
-    setXStateValue(options.xstate, 'erp.shell.surfaceInfoDialog.telemetryStatus', 'refreshed');
+    setStateValue(options.stateRuntime, 'erp.shell.surfaceInfoDialog.telemetryStatus', 'refreshed');
     if (typeof options.onRefresh === 'function') options.onRefresh('button-refresh', telemetry);
   });
 
@@ -344,9 +344,9 @@ function ensureDialog(options) {
     host.hidden = true;
     host.dataset.lazyState = 'loaded-closed';
     window.__XTendResumeDemo.surfaceInfoDialogOpen = false;
-    setXStateValue(options.xstate, 'erp.shell.surfaceInfoDialog.open', false);
-    setXStateValue(options.xstate, 'erp.shell.surfaceInfoDialog.hidden', true);
-    setXStateValue(options.xstate, 'erp.shell.surfaceInfoDialog.telemetryStatus', 'closed');
+    setStateValue(options.stateRuntime, 'erp.shell.surfaceInfoDialog.open', false);
+    setStateValue(options.stateRuntime, 'erp.shell.surfaceInfoDialog.hidden', true);
+    setStateValue(options.stateRuntime, 'erp.shell.surfaceInfoDialog.telemetryStatus', 'closed');
     if (typeof options.onClose === 'function') {
       options.onClose(event && event.detail && event.detail.source || 'dialog-closed');
     }
@@ -371,10 +371,10 @@ export async function openSurfaceInfoDialog(options = {}) {
   window.__XTendResumeDemo.surfaceInfoDialogLoaded = true;
   window.__XTendResumeDemo.surfaceInfoDialogOpen = true;
   window.__XTendResumeDemo.surfaceInfoTelemetry = telemetry;
-  setXStateValue(options.xstate, 'erp.shell.surfaceInfoDialog.open', true);
-  setXStateValue(options.xstate, 'erp.shell.surfaceInfoDialog.loaded', true);
-  setXStateValue(options.xstate, 'erp.shell.surfaceInfoDialog.hidden', false);
-  setXStateValue(options.xstate, 'erp.shell.surfaceInfoDialog.telemetryStatus', 'ready');
+  setStateValue(options.stateRuntime, 'erp.shell.surfaceInfoDialog.open', true);
+  setStateValue(options.stateRuntime, 'erp.shell.surfaceInfoDialog.loaded', true);
+  setStateValue(options.stateRuntime, 'erp.shell.surfaceInfoDialog.hidden', false);
+  setStateValue(options.stateRuntime, 'erp.shell.surfaceInfoDialog.telemetryStatus', 'ready');
 
   if (typeof dialog.open === 'function') dialog.open();
   else dialog.setAttribute('open', '');

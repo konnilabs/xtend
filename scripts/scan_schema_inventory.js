@@ -29,6 +29,13 @@ const SOURCE_EXCLUDES = new Set([
   'package-lock.json'
 ]);
 
+// Materialized knowledge aggregates preserve their canonical sources verbatim.
+// Scanning those packaged mirrors would manufacture duplicate schema usages and
+// make generated output look like an independent source of truth.
+const MATERIALIZED_AGGREGATE_EXCLUDED_PREFIXES = Object.freeze([
+  'products/xtend-mcp/generated/'
+]);
+
 const BINARY_EXTENSIONS = new Set([
   '.gif', '.ico', '.jpeg', '.jpg', '.pdf', '.png', '.ttf', '.vsix', '.webp', '.woff', '.woff2', '.zip'
 ]);
@@ -127,13 +134,10 @@ function stableStringify(value) {
   return JSON.stringify(stableValue(value), null, 2) + '\n';
 }
 
+const { discoverFiles, packageExportMappings } = require('../tools/project-index/sources');
+
 function trackedFiles(rootDir) {
-  const output = execFileSync('git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard'], {
-    cwd: rootDir,
-    encoding: 'buffer',
-    maxBuffer: 64 * 1024 * 1024
-  });
-  return output.toString('utf8').split('\0').filter(Boolean).map(toPosixPath).sort(compareStrings);
+  return discoverFiles(rootDir, { inventory: true });
 }
 
 function isGeneratedPath(relativePath) {
@@ -153,6 +157,7 @@ function isGeneratedPath(relativePath) {
 
 function shouldReadFile(relativePath, absolutePath) {
   if (SOURCE_EXCLUDES.has(relativePath) || path.posix.basename(relativePath) === 'package-lock.json') return false;
+  if (MATERIALIZED_AGGREGATE_EXCLUDED_PREFIXES.some((prefix) => relativePath.startsWith(prefix))) return false;
   if (BINARY_EXTENSIONS.has(path.extname(relativePath).toLowerCase())) return false;
   let stat;
   try {
@@ -1010,34 +1015,6 @@ function selectCanonicalDefinition(record) {
   };
 }
 
-function packageExportMappings(rootDir, files) {
-  const mappings = [];
-  files.filter((file) => file.path === 'package.json' || file.path.endsWith('/package.json')).forEach((file) => {
-    let manifest;
-    try {
-      manifest = JSON.parse(file.text);
-    } catch (error) {
-      return;
-    }
-    if (!manifest || typeof manifest.name !== 'string' || !manifest.exports) return;
-    const directory = path.posix.dirname(file.path) === '.' ? '' : path.posix.dirname(file.path);
-    function collectTargets(value, targets) {
-      if (typeof value === 'string') targets.push(value);
-      else if (value && typeof value === 'object') Object.values(value).forEach((entry) => collectTargets(entry, targets));
-    }
-    Object.entries(manifest.exports).forEach(([exportKey, exportValue]) => {
-      const targets = [];
-      collectTargets(exportValue, targets);
-      targets.forEach((target) => {
-        const cleanTarget = target.replace(/^\.\//u, '');
-        const relativeTarget = toPosixPath(directory ? directory + '/' + cleanTarget : cleanTarget);
-        const moduleName = exportKey === '.' ? manifest.name : manifest.name + '/' + exportKey.replace(/^\.\//u, '');
-        mappings.push({ target: relativeTarget, module: moduleName });
-      });
-    });
-  });
-  return mappings;
-}
 
 function exportedModulesForPath(relativePath, mappings) {
   const result = [];
@@ -1106,7 +1083,9 @@ function buildUsages(record, exportMappings) {
       });
     });
     group.symbols.forEach((symbol) => {
-      if (symbol.path.endsWith('.json') && String(symbol.symbol).startsWith('/')) {
+      if (isGeneratedPath(symbol.path)) {
+        references.push({ type: 'repo-symbol', path: symbol.path, symbol: null });
+      } else if (symbol.path.endsWith('.json') && String(symbol.symbol).startsWith('/')) {
         references.push({ type: 'json-pointer', path: symbol.path, pointer: symbol.symbol });
       } else {
         references.push({ type: 'symbol', path: symbol.path, symbol: symbol.symbol });
@@ -1709,6 +1688,7 @@ function createInventoryDocument(scan, existingInventory = null) {
       canonicalPrecedence: ['runtime-definition', 'public-declaration', 'package-metadata', 'test-or-fixture', 'documentation', 'generated-mirror'],
       generatedPathsAreCanonical: false,
       executesRepositoryModules: false,
+      materializedAggregateExcludedPrefixes: Array.from(MATERIALIZED_AGGREGATE_EXCLUDED_PREFIXES),
       selfExcludedPaths: [INVENTORY_PATH, INVENTORY_SUITE_PATH, SCANNER_PATH]
     },
     relatedRegistries: [
@@ -1868,6 +1848,7 @@ function validateInventoryDocument(inventory, scan, options = {}) {
   if (!scanPolicy || scanPolicy.source !== 'git-tracked-text-files'
     || scanPolicy.executesRepositoryModules !== false
     || scanPolicy.generatedPathsAreCanonical !== false
+    || !stableEqual(scanPolicy.materializedAggregateExcludedPrefixes, Array.from(MATERIALIZED_AGGREGATE_EXCLUDED_PREFIXES))
     || scanPolicy.versionedIdentifierPattern !== VERSIONED_IDENTIFIER_SOURCE) {
     errors.push(issue('invalid-scan-policy', 'scanPolicy must describe the static tracked-file scanner and generated-mirror boundary.'));
   }

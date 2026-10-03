@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 class XPlayer extends HTMLElement {
   static get observedAttributes() {
@@ -30,7 +30,7 @@ class XPlayer extends HTMLElement {
       commands: ["remote-play", "play-media", "pause-media", "set-source", "set-state", "apply-theme"],
       events: ["xplayer-remote-play", "xplayer-play", "xplayer-pause", "xplayer-state", "xplayer-fullscreen", "xplayer-pip", "xplayer-caption", "xplayer-mute"],
       stateKey: "xplayer-state-<id>",
-      stateBridge: "xstate-host-bridge",
+      stateBridge: "xtend-state-host-bridge",
       themeTokens: ["--x-player-primary", "--x-player-accent", "--x-player-background", "--x-player-radius"],
       parts: ["root", "media", "title", "overlay", "spinner-overlay", "spinner", "big-controls", "controls", "progress"]
     };
@@ -795,7 +795,7 @@ class XPlayer extends HTMLElement {
     if (!this.id) this.id = `xplayer-${Math.random().toString(36).slice(2, 10)}`;
 
     // Set initial state
-    xstate.set(`xplayer-state-${this.id}`, {
+    xtendState.set(`xplayer-state-${this.id}`, {
       src: this.getAttribute("src"),
       playing: false,
       currentTime: 0,
@@ -807,7 +807,7 @@ class XPlayer extends HTMLElement {
     this._internalStateUpdate = false; // Flag for internal updates
 
     // Subscribe to state changes, for example external control
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key !== `xplayer-state-${this.id}`) return; // React only to this player's own state
       if (this._dialogOpen) return;
       if (typeof value === "object" && this._media) {
@@ -917,7 +917,7 @@ class XPlayer extends HTMLElement {
             actions: [{ label: "OK", primary: true, callback: () => { this._dialogOpen = false; } }]
           });
           // Optional: state subscription for closing the dialog
-          const unsub = xstate.subscribe((key, value) => {
+          const unsub = xtendState.subscribe((key, value) => {
             if (key === `dialog-open-${dialogId}` && value === false) {
               this._dialogOpen = false;
               if (typeof unsub === 'function') unsub();
@@ -1037,7 +1037,7 @@ class XPlayer extends HTMLElement {
 
   setMediaState(patch = {}) {
     const stateKey = `xplayer-state-${this.id || "unmounted"}`;
-    const currentState = typeof xstate.get === "function" ? (xstate.get(stateKey) || {}) : {};
+    const currentState = typeof xtendState.get === "function" ? (xtendState.get(stateKey) || {}) : {};
     if (patch.src && patch.src !== this.getAttribute("src")) {
       this.setAttribute("src", patch.src);
     }
@@ -1055,7 +1055,7 @@ class XPlayer extends HTMLElement {
       volume: this._media ? this._media.volume : (typeof patch.volume === "number" ? patch.volume : currentState.volume || 1),
       muted: this._media ? this._media.muted : (typeof patch.muted === "boolean" ? patch.muted : Boolean(currentState.muted))
     };
-    if (typeof xstate.set === "function") xstate.set(stateKey, nextState);
+    if (typeof xtendState.set === "function") xtendState.set(stateKey, nextState);
     if (typeof CustomEvent === "function") {
       this.dispatchEvent(new CustomEvent("xplayer-state", { detail: nextState }));
     }
@@ -1355,14 +1355,14 @@ class XPlayer extends HTMLElement {
       if (spinnerOverlay) spinnerOverlay.classList.add("visible");
       if (overlay) overlay.classList.remove("visible");
       if (title) title.classList.remove("visible");
-      xstate.set(`xplayer-spinner-${this.id}`, true);
+      xtendState.set(`xplayer-spinner-${this.id}`, true);
     };
 
     const hideSpinner = () => {
       if (!isCurrentMedia()) return;
       const spinnerOverlay = this.shadowRoot.querySelector("#spinner-overlay");
       if (spinnerOverlay) spinnerOverlay.classList.remove("visible");
-      xstate.set(`xplayer-spinner-${this.id}`, false);
+      xtendState.set(`xplayer-spinner-${this.id}`, false);
     };
 
     media.addEventListener("waiting", showSpinner);
@@ -1412,9 +1412,9 @@ class XPlayer extends HTMLElement {
       }));
 
       this._internalStateUpdate = true;
-      const prev = xstate.get(`xplayer-state-${this.id}`) || {};
+      const prev = xtendState.get(`xplayer-state-${this.id}`) || {};
       if (!prev.playing) {
-        xstate.set(`xplayer-state-${this.id}`, {
+        xtendState.set(`xplayer-state-${this.id}`, {
           ...prev,
           playing: true,
           currentTime: media.currentTime
@@ -1437,9 +1437,9 @@ class XPlayer extends HTMLElement {
       }
 
       this._internalStateUpdate = true;
-      const prev = xstate.get(`xplayer-state-${this.id}`) || {};
+      const prev = xtendState.get(`xplayer-state-${this.id}`) || {};
       if (prev.playing) {
-        xstate.set(`xplayer-state-${this.id}`, {
+        xtendState.set(`xplayer-state-${this.id}`, {
           ...prev,
           playing: false,
           currentTime: media.currentTime
@@ -1451,9 +1451,9 @@ class XPlayer extends HTMLElement {
     media.addEventListener("seeked", () => {
       if (!isCurrentMedia()) return;
       this._internalStateUpdate = true;
-      const prev = xstate.get(`xplayer-state-${this.id}`) || {};
+      const prev = xtendState.get(`xplayer-state-${this.id}`) || {};
       if (Math.abs((prev.currentTime || 0) - media.currentTime) > 0.5) {
-        xstate.set(`xplayer-state-${this.id}`, {
+        xtendState.set(`xplayer-state-${this.id}`, {
           ...prev,
           currentTime: media.currentTime
         });
@@ -1464,9 +1464,9 @@ class XPlayer extends HTMLElement {
     media.addEventListener("volumechange", () => {
       if (!isCurrentMedia()) return;
       this._internalStateUpdate = true;
-      const prev = xstate.get(`xplayer-state-${this.id}`) || {};
+      const prev = xtendState.get(`xplayer-state-${this.id}`) || {};
       if (prev.volume !== media.volume || prev.muted !== media.muted) {
-        xstate.set(`xplayer-state-${this.id}`, {
+        xtendState.set(`xplayer-state-${this.id}`, {
           ...prev,
           volume: media.volume,
           muted: media.muted
@@ -1639,10 +1639,10 @@ class XPlayer extends HTMLElement {
   }
 
   _publishFullscreenState(isFullscreen) {
-    const prevState = xstate.get(`xplayer-state-${this.id}`);
+    const prevState = xtendState.get(`xplayer-state-${this.id}`);
     if (!prevState || prevState.fullscreen === isFullscreen) return;
     this._internalStateUpdate = true;
-    xstate.set(`xplayer-state-${this.id}`, {
+    xtendState.set(`xplayer-state-${this.id}`, {
       ...prevState,
       fullscreen: isFullscreen
     });

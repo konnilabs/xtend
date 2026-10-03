@@ -1,13 +1,25 @@
 import {
   createRmtAppRuntime,
   createRmtSearchRuntime
-} from '../../xtendrmt/rmt-app-runtime.compat.js';
+} from '../../xtendrmt/rmt-app-runtime.js';
+import { createRmtAppHostAdapter } from '../../xtendrmt/rmt-app-host-adapter.js';
+import { createRmtAppPresentationViewPort } from '../../xtendrmt/rmt-app-view-projector.js';
 import { createRmtDomDescriptorRenderer } from '../../xtendrmt/rmt-dom-descriptor-renderer.js';
 import { createRmtBrowserScheduler } from '../../xtendrmt/rmt-browser-scheduler.js';
+import { docsKernelScheduler } from './docs-kernel-scheduler.mjs';
 import '../../components/xutils.js';
+import { getDocsAppServices, immutable, TOAST_COMMAND } from './docs-app-services.mjs';
 
-if (window.xtendDocsRmtBootPromise) {
-  await window.xtendDocsRmtBootPromise;
+const docsAppServices = getDocsAppServices(document, window);
+const docsBootDescriptor = docsAppServices.descriptor;
+
+// Shell controls are progressive enhancements and must not be gated on the
+// complete Maraca resume. The resume itself adopts <xtend-doc-page>, so waiting
+// for it here can leave every control below the header inert when adoption is
+// waiting on the shell runtime. Component readiness is the actual prerequisite.
+const docsComponentBoot = window.__XTendDocsClassicLoaderBootPromise || window.__XTendLoaderBootPromise;
+if (docsComponentBoot) {
+  await Promise.resolve(docsComponentBoot).catch(() => null);
 }
 
 const DOCS_SHELL_RUNTIME_SCHEMA = 'xtend.docs.shell-runtime.v1';
@@ -22,7 +34,19 @@ const SEARCH_WEIGHTS = Object.freeze({
 });
 const disposers = [];
 const renderer = createRmtDomDescriptorRenderer({ documentTarget: document });
-const browserScheduler = createRmtBrowserScheduler({ windowTarget: window });
+const browserScheduler = createRmtBrowserScheduler({ windowTarget: window, scheduler: docsKernelScheduler });
+const appHostPort = createRmtAppHostAdapter({
+  windowTarget: window,
+  schedule(task, metadata = {}) {
+    return browserScheduler.scheduleEndpoint(
+      metadata.endpointName || 'docs.app-runtime.host-task',
+      metadata.scope || 'docs.app-runtime',
+      task,
+      metadata
+    );
+  }
+});
+const appPresentationViewPort = createRmtAppPresentationViewPort();
 const XUtils = window.XUtils;
 const bootStartedAt = performance.now();
 const fabric = window.XTendFabric && typeof window.XTendFabric.createXtendFabric === 'function'
@@ -30,11 +54,11 @@ const fabric = window.XTendFabric && typeof window.XTendFabric.createXtendFabric
       idPrefix: 'xtend.docs',
       window,
       performance,
-      xstate: window.xstate,
+      stateRuntime: window.XTend && window.XTend.state,
       api: window.XTend
     })
   : null;
-let searchScheduleDisposer = null;
+let searchScheduleHandle = null;
 let currentQuery = '';
 let renderedSearchSignature = '';
 let pendingSearchActivationSource = '';
@@ -55,7 +79,7 @@ function component(tag, attributes = {}, children = []) {
 }
 
 function locale() {
-  return window.xtendDocsCurrentLocale === 'en' ? 'en' : 'de';
+  return docsAppServices.locale.current();
 }
 
 function localized(record, activeLocale = locale()) {
@@ -68,21 +92,22 @@ function currentSlug() {
   const docsIndex = parts.lastIndexOf('docs');
   const routeParts = docsIndex >= 0 ? parts.slice(docsIndex + 1) : parts;
   const offset = routeParts[0] === 'de' || routeParts[0] === 'en' ? 1 : 0;
-  const requested = routeParts.slice(offset).join('/') || window.xtendInitialDocsSlug || 'readme';
-  return window.xtendDocsSlugAliases && window.xtendDocsSlugAliases[requested] || requested;
+  const requested = routeParts.slice(offset).join('/') || docsBootDescriptor.document.slug || 'readme';
+  return docsBootDescriptor.document.aliases[requested] || requested;
 }
 
 function pathFor(slug, activeLocale = locale()) {
-  const base = String(window.xtendDocsI18n && window.xtendDocsI18n.basePath || '/docs').replace(/\/$/, '');
-  return `${base}/${activeLocale}/${slug}`;
+  const base = String(docsBootDescriptor.configuration.basePath || '/docs').replace(/\/$/, '');
+  const normalizedSlug = String(slug || 'readme').replace(/^\/+|\/+$/g, '') || 'readme';
+  return `${base}/${activeLocale}/${normalizedSlug}${normalizedSlug === 'components' ? '/' : ''}`;
 }
 
 function menuConfig() {
-  return Array.isArray(window.xtendMenuConfig) ? window.xtendMenuConfig : [];
+  return Array.isArray(docsBootDescriptor.document.menu) ? docsBootDescriptor.document.menu : [];
 }
 
 function navigationConfig() {
-  const value = window.xtendDocsNavigation;
+  const value = docsBootDescriptor.document.navigation;
   return value && value.schema === 'xtend.docs.navigation.v1' ? value : { trunks: [] };
 }
 
@@ -94,22 +119,15 @@ function sortEntries(entries) {
   });
 }
 
-function iconFor(entry) {
-  if (entry && entry.icon) return entry.icon;
-  const slug = String(entry && entry.slug || '');
-  if (slug.includes('security') || slug.includes('trusted-dom') || slug.includes('supply-chain')) return 'shield-check';
-  if (slug.includes('performance') || slug.includes('hydration')) return 'gauge';
-  if (slug.includes('animation')) return 'sparkles';
-  if (slug.startsWith('components-')) return 'component';
-  if (slug.includes('rmt') || slug.includes('router')) return 'route';
-  return 'file-text';
-}
-
 function menuLinkDescriptor(entry, activeSlug) {
   const active = entry.slug === activeSlug;
-  return component('x-link', {
+  return element('a', {
+    'is-x-link': 'true',
+    'data-xtend-component': 'x-link',
+    navigation: 'auto',
     class: 'docs-menu-link',
     href: pathFor(entry.slug),
+    role: 'menuitem',
     'data-docs-menu-link': '',
     'data-doc-id': entry.id,
     'data-doc-rank': String(entry.rank || 0),
@@ -118,18 +136,42 @@ function menuLinkDescriptor(entry, activeSlug) {
     'aria-current': active ? 'page' : null,
     active: active ? '' : null
   }, [
-    component('x-icon', {
-      class: 'docs-menu-link-icon',
-      name: iconFor(entry),
-      pack: 'lucide',
-      decorative: '',
-      size: '0.95rem'
-    }),
     element('span', { class: 'docs-menu-link-label' }, [text(localized(entry))])
   ]);
 }
 
-function renderNavigation(activeSlug = currentSlug()) {
+function syncNavigationLinkState(link, active) {
+  link.toggleAttribute('active', active);
+  link.classList.toggle('active', active);
+  if (active) link.setAttribute('aria-current', 'page');
+  else link.removeAttribute('aria-current');
+}
+
+function syncNavigationState(root, entries, activeEntry, activeTrunk, activeSection) {
+  const expectedEntries = sortEntries(entries.filter((entry) => entry.trunk === activeTrunk));
+  const existingLinks = XUtils.findAll('[data-docs-menu-link]', root);
+  const expectedIds = new Set(expectedEntries.map((entry) => entry.id));
+  const existingIds = new Set(existingLinks.map((link) => link.getAttribute('data-doc-id')));
+  const canAdopt = root.getAttribute('data-docs-active-trunk-content') === activeTrunk
+    && existingLinks.length === expectedEntries.length
+    && existingIds.size === expectedIds.size
+    && expectedEntries.every((entry) => existingIds.has(entry.id));
+  if (!canAdopt) return false;
+
+  existingLinks.forEach((link) => {
+    syncNavigationLinkState(link, link.getAttribute('data-doc-id') === activeEntry.id);
+  });
+  XUtils.findAll('[data-docs-menu-section]', root).forEach((section) => {
+    section.toggleAttribute('open', section.getAttribute('data-docs-menu-section') === activeSection);
+  });
+  XUtils.findAll('[data-docs-trunk-link]').forEach((link) => {
+    syncNavigationLinkState(link, link.getAttribute('data-docs-trunk-link') === activeTrunk);
+  });
+  root.setAttribute('data-docs-navigation-activation', 'adopted');
+  return true;
+}
+
+function renderNavigation(activeSlug = currentSlug(), options = {}) {
   const entries = menuConfig();
   const activeEntry = entries.find((entry) => entry.slug === activeSlug) || entries.find((entry) => entry.slug === 'readme');
   if (!activeEntry) return false;
@@ -139,6 +181,7 @@ function renderNavigation(activeSlug = currentSlug()) {
   if (!root) return false;
   const trunk = navigationConfig().trunks.find((entry) => entry.id === activeTrunk);
   if (!trunk) return false;
+  if (!options.force && syncNavigationState(root, entries, activeEntry, activeTrunk, activeSection)) return true;
 
   const sections = (trunk.sections || []).map((section) => {
     const sectionEntries = sortEntries(entries.filter((entry) => entry.trunk === activeTrunk && entry.section === section.id));
@@ -174,13 +217,12 @@ function renderNavigation(activeSlug = currentSlug()) {
     source: { kind: 'docs-navigation', id: activeTrunk }
   });
   root.setAttribute('data-docs-active-trunk-content', activeTrunk);
+  root.setAttribute('data-docs-navigation-activation', 'rendered');
   const shell = XUtils.find('[data-docs-menu-shell]');
   if (shell) shell.setAttribute('data-docs-active-trunk', activeTrunk);
   XUtils.findAll('[data-docs-trunk-link]').forEach((link) => {
     const active = link.getAttribute('data-docs-trunk-link') === activeTrunk;
-    link.toggleAttribute('active', active);
-    if (active) link.setAttribute('aria-current', 'page');
-    else link.removeAttribute('aria-current');
+    syncNavigationLinkState(link, active);
   });
   return true;
 }
@@ -191,7 +233,7 @@ function routeRecord(entry, activeLocale) {
     id: entry.id || `docs.${String(entry.slug || '').replace(/-/g, '.')}`,
     path: pathFor(entry.slug, activeLocale),
     component: 'xtend-doc-page',
-    import: '/docs/utils/pageloader.js',
+    import: '/docs/utils/page/index.mjs',
     title,
     documentTitle: activeLocale === 'en' ? `${title} | XTend Documentation` : `${title} | XTend Dokumentation`,
     skeleton: 'article',
@@ -218,7 +260,7 @@ function registerRouterRoutes(activeLocale = locale()) {
     id: 'docs.notFound',
     path: '*',
     component: 'xtend-doc-page',
-    import: '/docs/utils/pageloader.js',
+    import: '/docs/utils/page/index.mjs',
     title: activeLocale === 'en' ? 'Page not found' : 'Seite nicht gefunden',
     documentTitle: activeLocale === 'en' ? 'Page not found | XTend Documentation' : 'Seite nicht gefunden | XTend Dokumentation',
     skeleton: 'article',
@@ -261,6 +303,7 @@ async function resolveSearchResource(resourceId) {
 }
 
 const searchRuntime = createRmtSearchRuntime({
+  hostPort: appHostPort,
   windowTarget: window,
   searchSources: ['de', 'en'].map((activeLocale) => ({
     id: `${SEARCH_SOURCE_PREFIX}${activeLocale}`,
@@ -276,6 +319,8 @@ const searchRuntime = createRmtSearchRuntime({
 });
 
 const appRuntime = createRmtAppRuntime({
+  hostPort: appHostPort,
+  presentationViewPort: appPresentationViewPort,
   initialState: {
     shell: { status: 'hydrating', locale: locale(), slug: currentSlug() },
     search: { query: '', status: 'idle', resultCount: 0 }
@@ -287,6 +332,14 @@ const appRuntime = createRmtAppRuntime({
     }
   }
 });
+
+disposers.push(XUtils.on(window, TOAST_COMMAND, (event) => {
+  appRuntime.command(TOAST_COMMAND, event.detail, {
+    lane: 'user-blocking',
+    sourceId: 'docs.toast.service',
+    event: TOAST_COMMAND
+  });
+}));
 
 function createFabricSnapshot(reason = 'dev-api-read', metadata = {}) {
   if (!fabric || typeof fabric.createTelemetrySnapshot !== 'function') {
@@ -427,9 +480,9 @@ async function runSearch(queryValue) {
 
 function scheduleSearch(query) {
   currentQuery = String(query || '').trim();
-  if (searchScheduleDisposer) searchScheduleDisposer();
-  searchScheduleDisposer = browserScheduler.scheduleEndpoint('docs.search.query', window.location.pathname, () => {
-    searchScheduleDisposer = null;
+  if (searchScheduleHandle) searchScheduleHandle.cancel('docs-search-superseded');
+  searchScheduleHandle = browserScheduler.scheduleEndpoint('docs.search.query', window.location.pathname, () => {
+    searchScheduleHandle = null;
     runSearch(query);
   }, { kind: 'delay', delayMs: 80 });
 }
@@ -652,7 +705,7 @@ function schedulePrismHighlight(root = document) {
     if (window.XTendRmtPrism && typeof window.XTendRmtPrism.register === 'function') window.XTendRmtPrism.register(window.Prism);
     if (typeof window.Prism.highlightAllUnder === 'function') window.Prism.highlightAllUnder(root);
   };
-  disposers.push(browserScheduler.scheduleEndpoint('docs.syntax.highlight', currentSlug(), run, { kind: 'idle', timeout: 700 }));
+  browserScheduler.scheduleEndpoint('docs.syntax.highlight', currentSlug(), run, { kind: 'idle', timeout: 700 });
 }
 
 function bindShellEvents() {
@@ -672,7 +725,7 @@ function bindShellEvents() {
   disposers.push(XUtils.on(window, 'xtend-docs-content-ready', (event) => {
     const detail = event.detail || {};
     schedulePrismHighlight(detail.root || document);
-    disposers.push(browserScheduler.afterPaint(checkViewportOverflow));
+    browserScheduler.afterPaint(checkViewportOverflow);
     ensureRouterRoutes();
     appRuntime.command('docs.content.ready', detail, {
       lane: 'visible', sourceId: 'docs.page', event: 'xtend-docs-content-ready'
@@ -697,11 +750,11 @@ function bindShellEvents() {
     registeredRouteLocale = '';
     renderedSearchSignature = '';
     ensureRouterRoutes();
-    renderNavigation(currentSlug());
+    renderNavigation(currentSlug(), { force: true });
     currentQuery = '';
     hideSearchResults();
   }));
-  disposers.push(XUtils.on(window, 'resize', () => disposers.push(browserScheduler.afterPaint(checkViewportOverflow)), { passive: true }));
+  disposers.push(XUtils.on(window, 'resize', () => browserScheduler.afterPaint(checkViewportOverflow), { passive: true }));
   disposers.push(XUtils.on(window, 'pagehide', dispose));
 }
 
@@ -712,12 +765,12 @@ function scheduleRouteRegistration() {
     disposers.push(XUtils.on(nav, 'focusin', ensureRouterRoutes));
   }
   const run = () => ensureRouterRoutes();
-  disposers.push(browserScheduler.scheduleEndpoint('docs.routes.register', 'docs.shell', run, { kind: 'idle', timeout: 1200 }));
+  browserScheduler.scheduleEndpoint('docs.routes.register', 'docs.shell', run, { kind: 'idle', timeout: 1200 });
 }
 
 function scheduleCompactIndex() {
   const run = () => searchRuntime.query(`${SEARCH_SOURCE_PREFIX}${locale()}`, '', { minQueryLength: 2 }).catch(() => {});
-  disposers.push(browserScheduler.scheduleEndpoint('docs.search.prewarm', 'docs.shell', run, { kind: 'idle', timeout: 1600 }));
+  browserScheduler.scheduleEndpoint('docs.search.prewarm', 'docs.shell', run, { kind: 'idle', timeout: 1600 });
 }
 
 async function recommendRelated(input = {}) {
@@ -774,7 +827,8 @@ async function recommendRelated(input = {}) {
 }
 
 function dispose() {
-  if (searchScheduleDisposer) searchScheduleDisposer();
+  if (searchScheduleHandle) searchScheduleHandle.cancel('docs-shell-disposed');
+  searchScheduleHandle = null;
   searchRuntime.dispose();
   disposers.splice(0).forEach((disposer) => {
     try { disposer(); } catch (_) {}
@@ -791,7 +845,7 @@ bindShellEvents();
 scheduleRouteRegistration();
 scheduleCompactIndex();
 schedulePrismHighlight(document);
-disposers.push(browserScheduler.afterPaint(checkViewportOverflow));
+browserScheduler.afterPaint(checkViewportOverflow);
 
 const hydrationMs = performance.now() - bootStartedAt;
 window.xtendDocsDevApi && window.xtendDocsDevApi.update({
@@ -814,7 +868,7 @@ window.xtendDocsShellRuntime = Object.freeze({
   },
   dispose,
   snapshot() {
-    return {
+    return immutable({
       schema: DOCS_SHELL_RUNTIME_SCHEMA,
       status: 'ready',
       locale: locale(),
@@ -823,7 +877,7 @@ window.xtendDocsShellRuntime = Object.freeze({
       commandCount: appRuntime.listCommands().length,
       registeredRouteLocale,
       diagnostics: appRuntime.listDiagnostics()
-    };
+    });
   }
 });
 
@@ -834,4 +888,4 @@ window.dispatchEvent(new CustomEvent('xtend-docs-shell-runtime-ready', {
   }
 }));
 
-export { DOCS_SHELL_RUNTIME_SCHEMA, appRuntime, fabric, searchRuntime, createFabricSnapshot, renderNavigation };
+export { DOCS_SHELL_RUNTIME_SCHEMA, appRuntime, docsAppServices, fabric, searchRuntime, createFabricSnapshot, renderNavigation };

@@ -2,8 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { spawn } = require('child_process');
 const { listenXtendDevServer } = require('../../scripts/serve_xtend_dev');
+const { normalizeEngine, runFixture } = require('../../tools/browser-hypervisor');
 const { createSuiteContext, printSuiteReport } = require('../utils/assertions');
 const { readJson, readText, resolveRepoPath, resolveRootDir } = require('../utils/files');
 const {
@@ -22,41 +22,11 @@ const {
   validateMaterialBrowserBaseline
 } = require('./material-browser-evidence');
 
-function findExecutable(candidates) {
-  return candidates.find((candidate) => fs.existsSync(candidate)) || null;
-}
-
-function runProcess(executable, args, options = {}) {
-  return new Promise((resolve) => {
-    const child = spawn(executable, args, { cwd: options.cwd, env: process.env });
-    let stdout = '';
-    let stderr = '';
-    const timer = setTimeout(() => child.kill('SIGKILL'), options.timeoutMs || 20000);
-    child.stdout.on('data', (chunk) => { stdout += chunk; });
-    child.stderr.on('data', (chunk) => { stderr += chunk; });
-    child.on('error', (error) => {
-      clearTimeout(timer);
-      resolve({ status: null, stdout, stderr: `${stderr}\n${error.message}` });
-    });
-    child.on('close', (status) => {
-      clearTimeout(timer);
-      resolve({ status, stdout, stderr });
-    });
-  });
-}
-
 function closeServer(server) {
   return new Promise((resolve) => server.close(resolve));
 }
 
-function parseViewportEvidence(dom) {
-  const expression = new RegExp(`<pre id="${MATERIAL_BROWSER_RESULT_ID}"[^>]*>([\\s\\S]*?)<\\/pre>`);
-  const match = dom.match(expression);
-  if (!match) throw new Error(`browser DOM does not expose #${MATERIAL_BROWSER_RESULT_ID}`);
-  return JSON.parse(match[1]);
-}
-
-async function captureChromiumEvidence(rootDir, origin, executable) {
+async function captureHypervisorEvidence(rootDir, origin, engine, options = {}) {
   const cells = [];
   const screenshots = [];
   const failures = [];
@@ -66,25 +36,22 @@ async function captureChromiumEvidence(rootDir, origin, executable) {
   for (const viewport of MATERIAL_BROWSER_DIMENSIONS.viewports) {
     const screenshot = path.join(artifactRoot, `${viewport.id}.png`);
     const url = `${origin}/${MATERIAL_BROWSER_FIXTURE_PATH}?viewport=${encodeURIComponent(viewport.id)}`;
-    const result = await runProcess(executable, [
-      '--headless=new',
-      '--no-sandbox',
-      '--disable-gpu',
-      '--hide-scrollbars',
-      '--run-all-compositor-stages-before-draw',
-      '--virtual-time-budget=3000',
-      `--window-size=${viewport.width},${viewport.height}`,
-      `--screenshot=${screenshot}`,
-      '--dump-dom',
-      url
-    ], { cwd: rootDir, timeoutMs: 30000 });
-
-    if (result.status !== 0) {
-      failures.push(`${viewport.id}: Chromium exited with ${result.status}: ${result.stderr.trim().slice(-600)}`);
-      continue;
-    }
     try {
-      const viewportEvidence = parseViewportEvidence(result.stdout);
+      const execution = await runFixture({
+        rootDir,
+        engine,
+        fixturePath: MATERIAL_BROWSER_FIXTURE_PATH,
+        resultKey: '__xtendMaterialBrowserEvidenceResult',
+        url,
+        width: viewport.width,
+        height: viewport.height,
+        screenshotPath: screenshot,
+        webDriverUrl: options.webDriverUrl,
+        driverPath: options.driverPath,
+        timeoutMs: options.timeoutMs || 30000,
+        accept: (result) => result && result.status === 'passed'
+      });
+      const viewportEvidence = execution.result;
       cells.push(...viewportEvidence.cells);
       if (fs.existsSync(screenshot) && fs.statSync(screenshot).size > 0) {
         screenshots.push({ viewport: viewport.id, path: path.relative(rootDir, screenshot), bytes: fs.statSync(screenshot).size });
@@ -97,8 +64,8 @@ async function captureChromiumEvidence(rootDir, origin, executable) {
   }
 
   return {
-    browser: 'chromium',
-    executable,
+    browser: engine,
+    primary: true,
     status: failures.length === 0 && cells.length === 384 ? 'passed' : 'failed',
     matrixCellCount: cells.length,
     cells,
@@ -114,22 +81,17 @@ async function runMaterialBrowserEvidenceSuite(options = {}) {
   const fixture = readText(MATERIAL_BROWSER_FIXTURE_PATH, rootDir);
   const policy = readText(MATERIAL_BROWSER_POLICY_PATH, rootDir);
   const packageManifest = readJson('package.json', rootDir);
-  const chromium = findExecutable(['/usr/bin/chromium-browser', '/usr/bin/chromium', '/snap/bin/chromium']);
-  const firefox = findExecutable(['/usr/bin/firefox', '/snap/bin/firefox']);
+  const engine = normalizeEngine(options.engine || process.env.XTEND_MATERIAL_BROWSER_ENGINE || 'chromium');
   const browserRuns = [];
-
-  if (!chromium) {
-    browserRuns.push({ browser: 'chromium', status: 'failed', cells: [], screenshots: [], failures: ['required Chromium hypervisor is unavailable'] });
-  } else {
-    const handle = await listenXtendDevServer({ rootDir, port: 0, defaultPath: MATERIAL_BROWSER_FIXTURE_PATH });
-    try {
-      browserRuns.push(await captureChromiumEvidence(rootDir, handle.origin, chromium));
-    } finally {
-      await closeServer(handle.server);
-    }
-  }
-  if (firefox) {
-    browserRuns.push({ browser: 'firefox', status: 'residual', owner: 'XTend Browser Hypervisor / XTM-10', reason: 'Firefox is locally available, but no deterministic screenshot/dump adapter is registered in the current hypervisor.' });
+  const handle = await listenXtendDevServer({ rootDir, port: 0, defaultPath: MATERIAL_BROWSER_FIXTURE_PATH });
+  try {
+    browserRuns.push(await captureHypervisorEvidence(rootDir, handle.origin, engine, {
+      webDriverUrl: options.webDriverUrl || process.env.XTEND_BROWSER_HYPERVISOR_URL,
+      driverPath: options.driverPath || process.env.XTEND_BROWSER_HYPERVISOR_DRIVER_PATH,
+      timeoutMs: options.timeoutMs
+    }));
+  } finally {
+    await closeServer(handle.server);
   }
 
   const report = createMaterialBrowserEvidenceReport({ baseline, browserRuns });
@@ -145,7 +107,7 @@ async function runMaterialBrowserEvidenceSuite(options = {}) {
   context.assert(fixture.includes('role="status"') && fixture.includes('aria-live="polite"'), 'fixture includes screen-reader announcement semantics');
   context.assert(fixture.includes('dialog.showModal') && fixture.includes('trigger.focus()'), 'fixture exercises dialog focus and restore');
   context.assert(report.schema === MATERIAL_BROWSER_EVIDENCE_SCHEMA, 'report declares xtend.material.browser-evidence.v1');
-  context.assert(report.matrixCellCount === 384 && report.evidencedCellCount === 384, 'all 384 matrix cells have Chromium evidence');
+  context.assert(report.matrixCellCount === 384 && report.evidencedCellCount === 384, `all 384 matrix cells have ${engine} Hypervisor evidence`);
   context.assert(report.failedCellCount === 0 && report.residualCellCount === 0, 'all required matrix cells pass without unowned residuals');
   context.assert(report.horizontalOverflowCount === 0, 'no matrix cell has horizontal overflow');
   context.assert(report.severeA11yFindingCount === 0, 'no critical or severe accessibility finding exists');

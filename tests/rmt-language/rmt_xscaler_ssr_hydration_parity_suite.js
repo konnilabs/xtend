@@ -177,20 +177,20 @@ async function runRmtXScalerSsrHydrationParitySuite(options = {}) {
   const invalid = invalids[0];
   const nodeTypes = readText(NODE_ADAPTER_TYPES_PATH, rootDir);
   const nodeSource = readText(NODE_ADAPTER_PATH, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const defaultWorkflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
   const nightlyWorkflow = readText('.github/workflows/xtend-nightly-build.yml', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.xscaler;
   const gateMatrix = packageManifest.xtend && packageManifest.xtend.ciGateMatrix;
 
-  context.assert(runner.includes("id: 'rmt-xscaler-ssr-hydration-parity'"), 'central runner registers XScaler SSR hydration parity');
+  context.assert(runner.hasSuite("rmt-xscaler-ssr-hydration-parity"), 'central runner registers XScaler SSR hydration parity');
   context.assert(packageManifest.scripts['test:rmt-xscaler-ssr-hydration-parity'] === 'node scripts/run_xtend_tests.js rmt-xscaler-ssr-hydration-parity', 'root package exposes the focused SSR parity script');
   context.assert(packageManifest.scripts['test:xscaler'].includes('rmt-xscaler-ssr-hydration-parity'), 'XScaler aggregate includes SSR hydration parity');
   context.assert(packageManifest.scripts['test:pr'].includes('rmt-xscaler-ssr-hydration-parity') && packageManifest.scripts['test:release:full'].includes('rmt-xscaler-ssr-hydration-parity'), 'PR and release scripts execute SSR hydration parity');
   context.assert(gateMatrix.prFastGate.suites.includes('rmt-xscaler-ssr-hydration-parity') && gateMatrix.fullReleaseGate.suites.includes('rmt-xscaler-ssr-hydration-parity'), 'CI matrices require SSR hydration parity');
   context.assert(metadata && metadata.ssrHydrationSchema === XSCALER_SSR_HYDRATION_SCHEMA && metadata.ssrHydrationParitySuiteId === 'rmt-xscaler-ssr-hydration-parity', 'XScaler metadata owns the versioned SSR hydration parity contract');
-  context.assert(defaultWorkflow.includes('npm run test:rmt-xscaler-ssr-hydration-parity:report') && nightlyWorkflow.includes('npm run test:rmt-xscaler-ssr-hydration-parity:report'), 'default and nightly workflows emit the dedicated SSR parity report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:rmt-xscaler-ssr-hydration-parity:report") && require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:rmt-xscaler-ssr-hydration-parity:report"), 'default and nightly workflows emit the dedicated SSR parity report');
   context.assert(metadata && Array.isArray(metadata.reportArtifacts) && metadata.reportArtifacts.includes(REPORT_PATH), 'XScaler metadata retains the SSR parity report artifact');
 
   context.assert(fs.existsSync(nodeAdapterPath), 'Node SSR adapter exists');

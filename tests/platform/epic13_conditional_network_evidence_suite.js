@@ -68,12 +68,12 @@ function runEpic13ConditionalNetworkEvidenceSuite(options = {}) {
   const plan = createEpic13ConditionalNetworkEvidencePlan({ rootDir });
   const validation = validateEpic13ConditionalNetworkEvidencePlan(plan);
   const report = createEpic13ConditionalNetworkEvidenceReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic13ConditionalNetworkEvidence;
   const ownerMetadata = packageManifest.xtend && packageManifest.xtend.epic13ReleaseOwnerAcceptance;
   const rc1Metadata = packageManifest.xtend && packageManifest.xtend.epic13Rc1Readiness;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const steering = readText(EPIC13_CONDITIONAL_NETWORK_EVIDENCE_STEERING, rootDir);
   const contractDoc = readText(EPIC13_CONDITIONAL_NETWORK_EVIDENCE_CONTRACT, rootDir);
   const workpackage = readText(EPIC13_CONDITIONAL_NETWORK_EVIDENCE_WORKPACKAGE_DOC, rootDir);
@@ -155,7 +155,7 @@ function runEpic13ConditionalNetworkEvidenceSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, EPIC13_CONDITIONAL_NETWORK_EVIDENCE_SCHEMA, 'Scaffold config declares network evidence schema');
   context.assertIncludes(scaffoldConfig, EPIC13_CONDITIONAL_NETWORK_EVIDENCE_LOCAL_GATE, 'Scaffold config references network evidence gate');
   context.assertIncludes(scaffoldConfig, 'nextWorkpackage: "WP-E13-13"', 'Scaffold config advances Epic 13 handoff');
-  context.assertIncludes(runner, "id: 'epic13-conditional-network-evidence'", 'Runner registers network evidence suite');
+  context.assert(runner.hasSuite("epic13-conditional-network-evidence"), 'Runner registers network evidence suite');
 
   assertTextIncludesAll(context, steering, [
     EPIC13_CONDITIONAL_NETWORK_EVIDENCE_SCHEMA,

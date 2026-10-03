@@ -46,7 +46,7 @@
 
   <script src="/xtendrmt/rmt-runtime.browser.js"></script>
   <script type="module">
-    import '/components/xstate.js';
+    import '/components/xtend-state.js';
     import '/components/xrouter.js';
     import '/components/xsection.js';
     import '/components/xcards.js';
@@ -388,7 +388,7 @@
         window.AppModules.createRmtStateSchedulerDiagnosticsBridge &&
         window.xtend &&
         window.xtend.rmt &&
-        window.xstate
+        window.XTend.state
       ), 5000);
 
       const appModules = window.AppModules;
@@ -429,16 +429,16 @@
       };
       const routeAdapter = appModules.createRmtXRouterAdapter({
         routerElement: router,
-        xstate: window.xstate
+        stateProjectionPort: window.XTend.state
       });
       const componentAdapter = appModules.createRmtXtendComponentAdapter({
         document,
         manifest,
         customElements,
-        xstate: window.xstate
+        stateProjectionPort: window.XTend.state
       });
       const bridge = appModules.createRmtStateSchedulerDiagnosticsBridge({
-        stateProjectionPort: window.xstate,
+        stateProjectionPort: window.XTend.state,
         scheduler,
         diagnosticsHub,
         schedules: normalizedDocument.schedules,
@@ -474,7 +474,7 @@
       bridge.recordAdapterResult(vanillaMount);
       bridge.recordAdapterResult(navigateSettings, { scheduleRef: 'route.visible.render' });
       await waitFor(() => {
-        const routeState = window.xstate.get('xtend.router.current');
+        const routeState = window.XTend.state.get('xtend.router.current');
         return routeState && routeState.routeId === 'settings' && router.shadowRoot && router.shadowRoot.querySelector('x-card');
       }, 4000);
       const settingsRouteRendered = router.shadowRoot.querySelector('x-card') instanceof HTMLElement;
@@ -485,16 +485,16 @@
       });
       bridge.recordAdapterResult(navigateVanilla, { scheduleRef: 'route.visible.render' });
       await waitFor(() => {
-        const routeState = window.xstate.get('xtend.router.current');
+        const routeState = window.XTend.state.get('xtend.router.current');
         return routeState && routeState.routeId === 'vanilla' && router.shadowRoot && router.shadowRoot.querySelector('vanilla-panel');
       }, 4000);
 
       const routedVanilla = router.shadowRoot.querySelector('vanilla-panel');
       const mountedCard = xtendRoot.querySelector('[data-rmt-component-id="x-card"]');
       const vanillaHostElement = vanillaRoot.querySelector('vanilla-panel[data-vanilla-host="true"]');
-      const routeState = window.xstate.get('rmt.route.settings.lastResult');
-      const cardState = window.xstate.get('rmt.component.x-card.lastResult');
-      const vanillaState = window.xstate.get('rmt.component.vanilla-panel.lastResult');
+      const routeState = window.XTend.state.get('rmt.route.settings.lastResult');
+      const cardState = window.XTend.state.get('rmt.component.x-card.lastResult');
+      const vanillaState = window.XTend.state.get('rmt.component.vanilla-panel.lastResult');
 
       recordCheck('rmt product surface installed', Boolean(window.xtend && window.xtend.rmt));
       recordCheck('rmt format normalized native document', normalizedDocument.normalization && normalizedDocument.normalization.status === 'normalized');
@@ -510,10 +510,10 @@
       recordCheck('vanilla host component mapped', vanillaMapping.status === 'mapped' && vanillaMapping.components.length === 1);
       recordCheck('vanilla host component mounted', vanillaMount.ok === true && vanillaHostElement instanceof HTMLElement);
       recordCheck('vanilla scheduler endpoint recorded', schedulerCalls.some((call) => call.endpointName === 'xtendrmt.vanilla.mount'));
-      recordCheck('route result mirrored to xstate', routeState && routeState.operation === 'navigate');
-      recordCheck('xtend component result mirrored to xstate', cardState && cardState.operation === 'hydrateComponent');
-      recordCheck('vanilla component result mirrored to xstate', vanillaState && vanillaState.operation === 'mountComponent');
-      recordCheck('state bridge created', stateBridge.ok === true && window.xstate.get('rmt.bridge.ready'));
+      recordCheck('route result mirrored to state', routeState && routeState.operation === 'navigate');
+      recordCheck('xtend component result mirrored to state', cardState && cardState.operation === 'hydrateComponent');
+      recordCheck('vanilla component result mirrored to state', vanillaState && vanillaState.operation === 'mountComponent');
+      recordCheck('state bridge created', stateBridge.ok === true && window.XTend.state.get('rmt.bridge.ready'));
       recordCheck('bridge avoided degraded diagnostics', !diagnostics.some((entry) => entry.code === 'rmt.bridge.adapter.result.degraded'));
 
       complete(window.__xtendRmtBrowserSmokeResult.errors.length === 0 ? 'passed' : 'failed');

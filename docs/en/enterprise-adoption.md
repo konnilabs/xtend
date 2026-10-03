@@ -33,4 +33,6 @@ Pin a tested package version and import documented exports only. Before upgradin
 
 Before handing the pilot to another team, verify its published entry points with the [Package Export Lock](./package-export-lock.md) and capture the package evidence with `npm run pack:dry-run:report`.
 
+Network-dependent audit and SBOM evidence follows the `xtend.epic13.conditional-network-evidence.v1` contract. The `network-restricted-local-default` local mode records a traceable deferral without sending data; execution and release approval are described in [Conditional Network Evidence](./conditional-network-evidence.md).
+
 Keep a working fallback until the new surface has demonstrated its failure and recovery paths in the product. A successful happy path alone is not sufficient adoption evidence.

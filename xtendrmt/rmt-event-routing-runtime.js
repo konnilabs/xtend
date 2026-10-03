@@ -1,4 +1,4 @@
-(function attachRmtEventRoutingRuntime(globalTarget) {
+function createRmtEventRoutingRuntimeModule() {
   const RMT_EVENT_ROUTING_RUNTIME_SCHEMA = 'xtend.epic18.rmt-event-routing-runtime.v2';
   const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-event-routing-diagnostic.v1';
   const RMT_COMMAND_SCHEMA = 'xtend.rmt.command.v1';
@@ -496,7 +496,8 @@
     const adapter = options.confirmAdapter || null;
     const message = resolveValue(record.message || binding.confirmMessage || 'Confirm action?', { binding, event, payload, metadata });
     if (adapter && typeof adapter.confirm === 'function') return adapter.confirm(message, { binding, payload, event, metadata }) !== false;
-    if (typeof globalTarget !== 'undefined' && globalTarget && typeof globalTarget.confirm === 'function') return globalTarget.confirm(message);
+    const hostTarget = options.hostTarget || options.windowTarget || null;
+    if (hostTarget && typeof hostTarget.confirm === 'function') return hostTarget.confirm(message);
     return record.default !== false;
   }
 
@@ -556,14 +557,15 @@
         'Event Router Post-Actions benoetigen den gemeinsam injizierten DOM Descriptor Renderer.'
       );
     }
+    const hostTarget = options.hostTarget || options.windowTarget || null;
     const documentTarget = options.documentTarget
       || (target && target.ownerDocument)
       || (options.root && options.root.ownerDocument)
-      || (globalTarget && globalTarget.document);
+      || (hostTarget && hostTarget.document);
     const factory = options.createDomRenderer
-      || (globalTarget
-        && globalTarget.XTendRmtDomDescriptorRenderer
-        && globalTarget.XTendRmtDomDescriptorRenderer.createRmtDomDescriptorRenderer);
+      || (hostTarget
+        && hostTarget.XTendRmtDomDescriptorRenderer
+        && hostTarget.XTendRmtDomDescriptorRenderer.createRmtDomDescriptorRenderer);
     if (!documentTarget || typeof documentTarget !== 'object' || typeof factory !== 'function') {
       throw domRendererError(
         'rmt.dom.compatibility-renderer-unavailable',
@@ -1239,15 +1241,10 @@
     createRmtEventRoutingRuntime
   };
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = api;
-  }
-  if (globalTarget) {
-    globalTarget.XTendRmtEventRoutingRuntime = api;
-  }
-})(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));
+  return Object.freeze(api);
+}
 
-const __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__ = globalThis.XTendRmtEventRoutingRuntime;
+const __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__ = createRmtEventRoutingRuntimeModule();
 
 export const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA;
 export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_EVENT_ROUTING_RUNTIME_SCHEMA;

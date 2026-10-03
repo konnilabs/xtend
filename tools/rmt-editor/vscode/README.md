@@ -8,7 +8,7 @@
 - Language ID: `rmt`
 - Primary extension: `.rmt`
 
-This extension contributes the native `.rmt` language id, RMT vNext-aware TextMate grammar, snippets, a real `vscode-languageclient` wrapper, XTend CLI tasks, a VS Code problem matcher and Debug Console launch templates.
+This extension contributes the native `.rmt` language id, RMT vNext-aware TextMate grammar, snippets, a real `vscode-languageclient` wrapper, XTend CLI tasks, a VS Code problem matcher, Debug Console launch templates, and the bundled XTend MCP 0.1 server.
 
 The RMT Language Server remains the only source of truth for diagnostics, completion, hover, symbols, definitions and code actions. The extension does not implement RMT analysis and does not import XTend UI runtime modules.
 
@@ -23,6 +23,20 @@ npm run build:rmt-editor:vscode
 ```
 
 The local builder uses the already vendored dependency tree from the previous VSIX and does not download packages from the registry.
+
+The VSIX build also stages exactly the publishable `@ccslabs/xtend-mcp` files plus its installed production dependency closure. It verifies the MCP package version, knowledge-manifest version, and documentation artifact hash before creating the VSIX.
+
+## XTend MCP
+
+The extension registers its bundled stdio server through the stable MCP Server Definition Provider API. It uses VS Code's Node runtime by default; `xtend.mcp.nodePath` can select another Node.js 24-or-newer executable.
+
+Settings:
+
+- `xtend.mcp.enabled` (default `true`)
+- `xtend.mcp.nodePath`
+- `xtend.mcp.allowWorkspaceWrites` (default `false`)
+
+Workspace writes remain unavailable unless the last setting is enabled. Even then, VS Code's normal confirmation for the destructive tool remains in effect. The Language Server and MCP server are separate processes and share the compiler and analysis packages rather than each other’s process state.
 
 ## Language Server
 

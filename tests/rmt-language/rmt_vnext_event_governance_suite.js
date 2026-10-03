@@ -136,9 +136,9 @@ function runRmtVNextEventGovernanceSuite(options = {}) {
     id: 'rmt-vnext-event-governance',
     label: 'Epic 16 RMT vNext Event Governance'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextEventGovernance;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_16_PATH, rootDir);
   const contract = readText(RMT_VNEXT_EVENT_GOVERNANCE_CONTRACT_PATH, rootDir);
   const workpackage = readText(RMT_VNEXT_EVENT_GOVERNANCE_WP_PATH, rootDir);
@@ -169,8 +169,8 @@ function runRmtVNextEventGovernanceSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_EVENT_GOVERNANCE_PACKAGE_SCRIPT, 'package metadata declares event governance package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-event-governance'] === 'string' ? packageManifest.exports['./rmt-language/vnext-event-governance'] : packageManifest.exports['./rmt-language/vnext-event-governance'] && packageManifest.exports['./rmt-language/vnext-event-governance'].default) === './tools/rmt-language/vnext-event-governance.js', 'package exports vNext event governance contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-event-governance'] === 'node scripts/run_xtend_tests.js rmt-vnext-event-governance', 'package exposes vNext event governance script');
-  context.assert(runner.includes("id: 'rmt-vnext-event-governance'"), 'test runner exposes rmt-vnext-event-governance suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-event-governance'), 'runner help references event governance gate');
+  context.assert(runner.hasSuite("rmt-vnext-event-governance"), 'test runner exposes rmt-vnext-event-governance suite');
+  context.assert(runner.hasSuite("rmt-vnext-event-governance"), 'runner help references event governance gate');
   context.assert(epic.includes('- Status: `completed / Epic 16 Enterprise MFE Release Handoff accepted`'), 'Epic records current E16 accepted status');
   context.assert(epic.includes('| `WP-E16-07` | P1 | completed | WS3 |'), 'Epic marks WP-E16-07 completed');
   context.assert(epic.includes('| `WP-E16-08` | P1 | completed | WS4 |'), 'Epic marks WP-E16-08 completed');

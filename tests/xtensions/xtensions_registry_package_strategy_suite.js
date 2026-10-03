@@ -101,7 +101,6 @@ function diagnosticCodes(record) {
 function dependencySectionCount(packageManifest) {
   return [
     'dependencies',
-    'devDependencies',
     'peerDependencies',
     'optionalDependencies'
   ].reduce((count, section) => count + Object.keys(packageManifest[section] || {}).length, 0);
@@ -114,10 +113,10 @@ function runXTensionsRegistryPackageStrategySuite(options = {}) {
     label: 'XTensions Registry and Package Strategy Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtensionsRegistryPackageStrategy;
   const xtendMetadata = packageManifest.xtend && packageManifest.xtend.xtensionsRegistryPackageStrategy;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const maracaContract = readText(MARACA_CONTRACT_PATH, rootDir);
@@ -174,8 +173,8 @@ function runXTensionsRegistryPackageStrategySuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/registry-package-strategy.js', 'package exports XTensions registry strategy module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/registry-package-strategy.d.ts', 'package exports XTensions registry strategy types');
   context.assert(packageManifest.scripts['test:xtensions-registry-package-strategy'] === 'node scripts/run_xtend_tests.js xtensions-registry-package-strategy', 'package exposes registry strategy test script');
-  context.assert(runner.includes("id: 'xtensions-registry-package-strategy'"), 'test runner exposes xtensions-registry-package-strategy suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xtensions-registry-package-strategy'), 'runner help references registry strategy gate');
+  context.assert(runner.hasSuite("xtensions-registry-package-strategy"), 'test runner exposes xtensions-registry-package-strategy suite');
+  context.assert(runner.hasSuite("xtensions-registry-package-strategy"), 'runner help references registry strategy gate');
 
   context.assert(backlog.includes('| `XTN-13` | P2 | completed | WS12 |'), 'backlog marks XTN-13 completed');
   context.assert(backlog.includes('development/XTensions-Registry-and-Package-Strategy-Contract.md'), 'backlog references registry strategy contract');
@@ -192,7 +191,8 @@ function runXTensionsRegistryPackageStrategySuite(options = {}) {
   context.assert(fixture.expectedRegistryId === 'xtensions.project-local.registry', 'fixture names expected registry id');
   context.assert(fixture.expectedStatus === 'ready', 'fixture names expected ready status');
   context.assert(fixture.expectedBlockedStatus === 'blocked', 'fixture names expected blocked status');
-  context.assert(dependencySectionCount(packageManifest) === 0, 'root package keeps dependency sections empty');
+  context.assert(dependencySectionCount(packageManifest) === 0, 'root package keeps production dependency sections empty');
+  context.assert(Object.keys(packageManifest.devDependencies || {}).every(name => ['@types/node', 'typescript', 'vite'].includes(name)), 'root development dependencies contain only the existing type-check and build tools');
 
   const dependencyBoundary = assertRegistryPackageStrategyDependencyBoundary({
     packageManifest,
@@ -225,6 +225,9 @@ function runXTensionsRegistryPackageStrategySuite(options = {}) {
   const compatibility = normalizeCompatibilityMatrix(fixture.entries[0].compatibility);
   context.assert(compatibility.schema === XTENSIONS_REGISTRY_COMPATIBILITY_MATRIX_SCHEMA, 'compatibility matrix normalizes with schema');
   context.assert(compatibility.status === 'supported', 'compatibility matrix keeps supported status');
+  context.assert(normalizeCompatibilityMatrix().xtendVersionRange === `^${packageManifest.version}`, 'implicit compatibility targets the current XTend release line');
+  context.assert(compatibility.xtendVersionRange === fixture.entries[0].compatibility.xtendVersionRange, 'explicit historical compatibility ranges remain unchanged');
+  context.assert(normalizeCompatibilityMatrix({ xtend: '^0.5.0' }).xtendVersionRange === '^0.5.0', 'legacy xtend range alias remains explicit');
   const deprecation = normalizeDeprecationPolicy(fixture.entries[1].deprecation);
   context.assert(deprecation.schema === XTENSIONS_REGISTRY_DEPRECATION_POLICY_SCHEMA, 'deprecation policy normalizes with schema');
   context.assert(deprecation.status === 'deprecated' && Boolean(deprecation.replacement), 'deprecated entry includes replacement');

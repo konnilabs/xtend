@@ -1,14 +1,4 @@
-(function attachRmtKernelFeatureAdoptionRegistry(globalTarget, factory) {
-  const api = factory(globalTarget || {});
-
-  if (typeof module === 'object' && module.exports) {
-    module.exports = api;
-  }
-
-  if (globalTarget && typeof globalTarget === 'object') {
-    globalTarget.XTendRmtKernelFeatureAdoptionRegistry = Object.freeze(api);
-  }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function createRmtKernelFeatureAdoptionRegistryModule() {
+function createRmtKernelFeatureAdoptionRegistryModule() {
   const RMT_KERNEL_FEATURE_ADOPTION_SCHEMA = 'xtend.rmt-kernel-feature-adoption.v1';
   const RMT_KERNEL_FEATURE_ADOPTION_REPORT_SCHEMA = 'xtend.rmt-kernel-feature-adoption-report.v1';
   const RMT_KERNEL_FEATURE_ADOPTION_DIAGNOSTIC_SCHEMA = 'xtend.rmt-kernel-feature-adoption-diagnostic.v1';
@@ -322,9 +312,9 @@
     RMT_KERNEL_FEATURE_ADOPTION_CAPABILITY_KEYS,
     createRmtKernelFeatureAdoptionRegistry
   });
-});
+}
 
-const __XTEND_RMT_KERNEL_FEATURE_ADOPTION_REGISTRY_API__ = globalThis.XTendRmtKernelFeatureAdoptionRegistry;
+const __XTEND_RMT_KERNEL_FEATURE_ADOPTION_REGISTRY_API__ = createRmtKernelFeatureAdoptionRegistryModule();
 
 export const RMT_KERNEL_FEATURE_ADOPTION_SCHEMA = __XTEND_RMT_KERNEL_FEATURE_ADOPTION_REGISTRY_API__.RMT_KERNEL_FEATURE_ADOPTION_SCHEMA;
 export const RMT_KERNEL_FEATURE_ADOPTION_REPORT_SCHEMA = __XTEND_RMT_KERNEL_FEATURE_ADOPTION_REGISTRY_API__.RMT_KERNEL_FEATURE_ADOPTION_REPORT_SCHEMA;

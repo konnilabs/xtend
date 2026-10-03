@@ -97,9 +97,9 @@ function assertIncludesAll(context, actual, expected, message) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextRemoteTooling;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_16_PATH, rootDir);
   const contract = readText(RMT_VNEXT_REMOTE_TOOLING_CONTRACT_PATH, rootDir);
   const workpackage = readText(RMT_VNEXT_REMOTE_TOOLING_WP_PATH, rootDir);
@@ -125,8 +125,8 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_REMOTE_TOOLING_PACKAGE_SCRIPT, 'package metadata declares remote tooling package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-remote-tooling'] === 'string' ? packageManifest.exports['./rmt-language/vnext-remote-tooling'] : packageManifest.exports['./rmt-language/vnext-remote-tooling'] && packageManifest.exports['./rmt-language/vnext-remote-tooling'].default) === './tools/rmt-language/vnext-remote-tooling.js', 'package exports vNext remote tooling');
   context.assert(packageManifest.scripts['test:rmt-vnext-remote-tooling'] === 'node scripts/run_xtend_tests.js rmt-vnext-remote-tooling', 'package exposes vNext remote tooling script');
-  context.assert(runner.includes("id: 'rmt-vnext-remote-tooling'"), 'test runner exposes rmt-vnext-remote-tooling suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-remote-tooling'), 'runner help references remote tooling gate');
+  context.assert(runner.hasSuite("rmt-vnext-remote-tooling"), 'test runner exposes rmt-vnext-remote-tooling suite');
+  context.assert(runner.hasSuite("rmt-vnext-remote-tooling"), 'runner help references remote tooling gate');
   context.assert(epic.includes('- Status: `completed / Epic 16 Enterprise MFE Release Handoff accepted`'), 'Epic records current E16 accepted status');
   context.assert(epic.includes('| `WP-E16-09` | P1 | completed | WS4 |'), 'Epic marks WP-E16-09 completed');
   context.assert(epic.includes('| `WP-E16-10` | P2 | completed | WS5 |'), 'Epic marks WP-E16-10 completed');

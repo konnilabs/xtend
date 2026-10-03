@@ -68,10 +68,10 @@ function runRmtDslAuthoringPolishSuite(options = {}) {
   const planValidation = validateRmtDslAuthoringPolishPlan(plan);
   const fixture = readJson(RMT_DSL_AUTHORING_POLISH_FIXTURE_PATH, rootDir);
   const fixtureValidation = validateRmtDslAuthoringPolishFixture(fixture, plan);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtDslAuthoringPolish;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const contractDoc = readText(RMT_DSL_AUTHORING_POLISH_CONTRACT_PATH, rootDir);
   const docs = readText(RMT_DSL_AUTHORING_POLISH_DOC_PATH, rootDir);
   const rmtReadme = readText('tests/rmt/README.md', rootDir);
@@ -156,7 +156,7 @@ function runRmtDslAuthoringPolishSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'rmtDslAuthoringPolish', 'Scaffold config exposes RMT DSL Authoring Polish section');
   context.assertIncludes(scaffoldConfig, RMT_DSL_AUTHORING_POLISH_SCHEMA, 'Scaffold config declares RMT DSL Authoring Polish schema');
   context.assertIncludes(scaffoldConfig, RMT_DSL_AUTHORING_POLISH_LOCAL_GATE, 'Scaffold config references RMT DSL Authoring Polish gate');
-  context.assertIncludes(runner, "id: 'rmt-dsl-authoring-polish'", 'Runner exposes RMT DSL Authoring Polish suite');
+  context.assert(runner.hasSuite("rmt-dsl-authoring-polish"), 'Runner exposes RMT DSL Authoring Polish suite');
 
   assertIncludesAll(context, contractDoc, [
     RMT_DSL_AUTHORING_POLISH_SCHEMA,

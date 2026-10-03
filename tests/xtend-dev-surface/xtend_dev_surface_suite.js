@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const {EXPECTED_CANONICAL_SLUG_COUNT} = require('../../scripts/verify_docs_public_quality');
 const {
   createSuiteContext,
   printSuiteReport
@@ -850,8 +851,8 @@ async function assertCompanion(context, rootDir) {
 }
 
 function assertPackageAndRunner(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.devSurface;
   context.assert(packageManifest.scripts['test:xtend-dev-surface'] === 'node scripts/run_xtend_tests.js xtend-dev-surface', 'package exposes Dev Surface test script');
   context.assert(packageManifest.scripts['test:xtend-dev-surface:report'] === 'node scripts/run_xtend_tests.js xtend-dev-surface --report .xtend-test-results/xtend-dev-surface-report.json', 'package exposes Dev Surface report script');
@@ -905,7 +906,7 @@ function assertPackageAndRunner(context, rootDir) {
   context.assert(metadata && metadata.reportScript === 'npm run test:xtend-dev-surface:report', 'package metadata declares report script');
   context.assert(metadata && metadata.reportPath === '.xtend-test-results/xtend-dev-surface-report.json', 'package metadata declares report path');
   context.assert(metadata && metadata.ciArtifactName === 'xtend-dev-surface-report-{artifactSuffix}', 'package metadata declares the per-runtime CI artifact pattern');
-  context.assert(runner.includes("id: 'xtend-dev-surface'"), 'runner exposes xtend-dev-surface suite');
+  context.assert(runner.hasSuite("xtend-dev-surface"), 'runner exposes xtend-dev-surface suite');
 }
 
 function assertDocs(context, rootDir) {
@@ -946,7 +947,7 @@ function assertDocs(context, rootDir) {
   const menuEntry = docsMenu.find((entry) => entry.slug === 'xtend-dev-surface');
   const devApiMenuEntry = docsMenu.find((entry) => entry.slug === 'xtend-dev-api');
   context.assert(menuEntry && menuEntry.group === 'quality' && menuEntry.contentType === 'tutorial', 'docs menu exposes Dev Surface as a quality tutorial');
-  context.assert(docsMenu.length === 170, 'docs menu exposes 170 canonical articles after DEV API registration');
+  context.assert(docsMenu.length === EXPECTED_CANONICAL_SLUG_COUNT, 'docs menu exposes the canonical article count after DEV API registration');
   context.assert(devApiMenuEntry && devApiMenuEntry.id === 'docs.xtend.dev.api' && devApiMenuEntry.group === 'quality', 'docs menu exposes the canonical XTend DEV API entry');
   context.assert(devApiMenuEntry && devApiMenuEntry.parent === 'xtend-dev-surface' && devApiMenuEntry.trunk === 'operate' && devApiMenuEntry.section === 'devtools', 'DEV API reference is nested in Operate Dev Tools');
   context.assert(devApiMenuEntry && devApiMenuEntry.contentType === 'reference' && devApiMenuEntry.tier === 'basic' && devApiMenuEntry.rank === 93 && devApiMenuEntry.icon === 'braces', 'DEV API menu metadata declares the planned reference profile');

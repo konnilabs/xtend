@@ -240,7 +240,7 @@ function assertPathExists(context, rootDir, relativePath, label) {
 }
 
 function assertRunnerGate(context, runner, gate) {
-  context.assertIncludes(runner, `id: '${gate}'`, `Runner registers ${gate}`);
+  context.assert(runner.hasSuite(gate), `Runner registers ${gate}`);
 }
 
 function countBy(items, field) {
@@ -275,8 +275,8 @@ function runNativeFirstRmtSyntaxGrowthSuite(options = {}) {
   const coreContract = readText('development/XTendRMT-vNext-Core-Format-Contract.md', rootDir);
   const grammarContract = readText('development/XTendRMT-vNext-Grammar-Contract.md', rootDir);
   const surfaceContract = readText('development/XTendRMT-vNext-Surface-Registry-Contract.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstRmtSyntaxGrowth;
   const registryMetadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRegistry;
@@ -454,8 +454,8 @@ function runNativeFirstRmtSyntaxGrowthSuite(options = {}) {
   ], 'Registry contract WP-15 extension');
 
   context.assert(packageScripts['test:rmt-syntax-growth'] === 'node scripts/run_xtend_tests.js rmt-syntax-growth', 'Package exposes WP-15 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_rmt_syntax_growth_suite')", 'Runner imports WP-15 suite');
-  context.assertIncludes(runner, "id: 'rmt-syntax-growth'", 'Runner registers WP-15 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_rmt_syntax_growth_suite.js" }), 'Runner imports WP-15 suite');
+  context.assert(runner.hasSuite("rmt-syntax-growth"), 'Runner registers WP-15 suite');
   REQUIRED_SOURCE_GATES.forEach((gate) => assertRunnerGate(context, runner, gate));
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-15 contract schema');

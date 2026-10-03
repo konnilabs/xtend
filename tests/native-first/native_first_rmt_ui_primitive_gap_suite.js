@@ -310,7 +310,7 @@ function assertPathExists(context, rootDir, relativePath, label) {
 }
 
 function assertRunnerGate(context, runner, gate) {
-  context.assertIncludes(runner, `id: '${gate}'`, `Runner registers ${gate}`);
+  context.assert(runner.hasSuite(gate), `Runner registers ${gate}`);
 }
 
 function countBy(items, field) {
@@ -339,8 +339,8 @@ function runNativeFirstRmtUiPrimitiveGapSuite(options = {}) {
   const marketMatrix = readText('development/XTend-Native-First-Market-Pattern-Parity-Matrix.md', rootDir);
   const parityMatrix = readText('development/XTend-Native-First-Contract-Runtime-Parity-Matrix.md', rootDir);
   const evidencePack = readText('development/XTend-Native-First-Audit-Evidence-Pack.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstRmtUiPrimitiveGapAnalysis;
   const registryMetadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRegistry;
@@ -489,8 +489,8 @@ function runNativeFirstRmtUiPrimitiveGapSuite(options = {}) {
   ], 'Registry contract WP-14 extension');
 
   context.assert(packageScripts['test:rmt-ui-primitive-gap'] === 'node scripts/run_xtend_tests.js rmt-ui-primitive-gap', 'Package exposes WP-14 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_rmt_ui_primitive_gap_suite')", 'Runner imports WP-14 suite');
-  context.assertIncludes(runner, "id: 'rmt-ui-primitive-gap'", 'Runner registers WP-14 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_rmt_ui_primitive_gap_suite.js" }), 'Runner imports WP-14 suite');
+  context.assert(runner.hasSuite("rmt-ui-primitive-gap"), 'Runner registers WP-14 suite');
   REQUIRED_SOURCE_GATES.forEach((gate) => assertRunnerGate(context, runner, gate));
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-14 contract schema');

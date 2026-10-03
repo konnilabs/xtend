@@ -1,0 +1,12 @@
+import type { PageClient, PageVisitOptions } from './page-client.js';
+import type { PageResponse } from './page-contract.js';
+export type FormValue = null | boolean | number | string | Blob | FormValue[] | {[key: string]: FormValue};
+export interface PageFormState<T> { values: T; errors: Record<string, string[]>; processing: boolean; validating: boolean; success: boolean; progress: {loaded: number; total?: number; percentage?: number} | null; dirty: boolean }
+export interface FormValidationInput { url: string; fields: string[]; values: Record<string, FormValue>; signal: AbortSignal }
+export interface PageFormOptions<T> { client: PageClient; persistent?: boolean; defaults?: T; origin?: string; timeoutMs?: number; errorBag?: string; XMLHttpRequest?: typeof XMLHttpRequest; headers?(): Record<string, string>; csrfToken?(): string | null; focusError?(field: string): void; validate?(input: FormValidationInput): Promise<{errors: Record<string, string[]>}>; onError?(error: unknown): void }
+export interface FormSubmitOptions extends Pick<PageVisitOptions, 'method' | 'headers'> { resetOnSuccess?: boolean; forceFormData?: boolean; transform?(values: Record<string, FormValue>): Record<string, FormValue> }
+export interface PageForm<T> { readonly state: PageFormState<T>; set<K extends keyof T>(name: K, value: T[K]): void; set(name: string, value: FormValue): void; defaults(values?: T): void; reset(...keys: string[]): void; setErrors(errors: Record<string, string[]>): void; subscribe(listener: (state: PageFormState<T>) => void): () => void; submit(url: string, options?: FormSubmitOptions): Promise<PageResponse | null>; validate(url: string, fields?: string[]): Promise<{errors: Record<string, string[]>}>; bind(element: HTMLElement, options?: FormSubmitOptions & {action?: string}): () => void; remember(key: string): void; restore(key: string): void; cancel(): void; dispose(): void }
+export function createPageForm<T extends Record<string, FormValue>>(options: PageFormOptions<T>): PageForm<T>;
+export interface LiveValidationOptions { origin?: string; fetch?: typeof fetch; method?: string; csrfToken?(): string | null; headers?(): Record<string,string> }
+export function createPrecognitionValidator(options?: LiveValidationOptions): (input: FormValidationInput) => Promise<{errors: Record<string,string[]>}>;
+export function createNodePageValidator(options?: LiveValidationOptions): (input: FormValidationInput) => Promise<{errors: Record<string,string[]>}>;

@@ -104,6 +104,7 @@ function cloneSnapshot(value) {
 
 function publishDevTelemetry(patch) {
   Object.assign(telemetry, patch);
+  if (listeners.size === 0) return;
   const event = cloneSnapshot({
     schema: 'xtend.devsurface.subscription-event.v1',
     status: telemetry.status
@@ -347,3 +348,21 @@ Bleiben Werte nach einer Route Transition veraltet, prüfe, ob die Methode einen
 - [XTend Fabric Runtime](./xtend-fabric-runtime.md)
 - [API](./api.md)
 - [RMT AnimationEngine](./rmt-animation-engine.md)
+
+## Bedarfsgesteuerte Maraca-Beobachtung
+
+In 0.8.0 erzeugt allein `window.__XTEND_DEV_API__` keinen laufenden Bedarf an Maraca-Vollsnapshots. Der kanonische Scaffold-Adapter verbindet DEV-Beobachter über `runtime.subscribeEvents()`, trennt die Verbindung nach dem letzten Abonnement und kann sie später erneut herstellen. Die Signale enthalten direkte, unveränderliche Lifecycle-Ereignisse; ein Diagnosewerkzeug ruft anschließend die benötigte Snapshot-Methode explizit ab.
+
+`runtime.subscribe()` bleibt ein vollständiges Snapshot-Abonnement und aktiviert diesen Aufwand bewusst. Ohne solche Abonnenten bleiben Fehler, Panic-/Recovery-Zustand, Zähler und `lastEvent` für spätere Abrufe erhalten. Bestehende Redigierung und synchrone Serialisierbarkeit gelten unverändert.
+
+Prüfe frühe und späte Verbindung, aktuelle Einzelabrufe nach Änderungen sowie Disconnect/Reconnect. Ein Adapter, der einen Snapshot nur beim Boot kopiert, erfüllt den Vertrag nicht; das obige manuelle Beispiel muss über laufende hosteigene Aktualisierungen gespeist werden. Siehe [Maraca-Diagnosen](./maraca-fastpass-abort-boundary.md) und [DEV Surface](./xtend-dev-surface.md).
+
+## Panic und Recovery auswerten
+
+`rmt.kernel.panic`, `rmt.kernel.recovery`, `rmt.kernel.escalation` und `rmt.kernel.scheduler_failure` sind die Diagnosekanäle für blockierte Ausgabe, Wiederherstellung, Host-Eskalation und Scheduler-Fehler. Ein fehlendes Live-Abonnement darf ihre gespeicherten Diagnoseinformationen nicht entfernen.
+
+Ordne einen Vorfall über `panicId` und `correlationId` dem betroffenen Scope und Job zu. `blockedCommitCount` zählt verhinderte Commits; `recoveryAction` beschreibt die konkrete Maßnahme. `quarantined` bedeutet, dass der Scope isoliert ist, und `hostNotified` dokumentiert die Host-Benachrichtigung. Die Schwere des Vorfalls (Incident Severity) ergibt sich aus Severity, betroffenem Scope und Recovery-Ergebnis; eine einzelne Warnung ist kein erfolgreich abgeschlossener oder zwingend fataler Vorgang.
+
+`rollback-last-safe-snapshot` stellt einen geprüften Stand wieder her, `render-safe-fallback` verwendet den sicheren Fallback und `notify-host` fordert eine Entscheidung des Hosts an. Ein `panic_blocked`-Commit darf nicht über einen direkten DOM-Pfad wiederholt werden. Ein durch eine neuere Präsentation `superseded` gewordenes Ergebnis ist dagegen ein kontrollierter Lifecycle-Abbruch und kein Panic.
+
+Erfasse Schema, Zeitpunkt, Korrelation, redigierte Fehlerursache und Recovery-Ergebnis. Prüfe nach Recovery mit einem neuen synchronen Snapshot, ob der Zustand tatsächlich `recovered` ist. Inhalte, Credentials und rohe Tokens gehören nicht in einen weitergegebenen Report. Siehe [Trusted DOM](./trusted-dom-sanitizing.md) für die Output-Migration.

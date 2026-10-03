@@ -93,20 +93,24 @@ function remoteAdapterError(code, message) {
   return error;
 }
 
-function normalizedOrigin(value) {
+function permittedProtocol(parsed, options = {}) {
+  return parsed.protocol === 'https:' || options.allowInsecureLoopback === true && parsed.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname);
+}
+
+function normalizedOrigin(value, options = {}) {
   try {
     const parsed = new URL(normalizeString(value));
-    if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.pathname !== '/' || parsed.search || parsed.hash) return null;
+    if (!permittedProtocol(parsed, options) || parsed.username || parsed.password || parsed.pathname !== '/' || parsed.search || parsed.hash) return null;
     return parsed.origin;
   } catch (_error) {
     return null;
   }
 }
 
-function normalizedRemoteUrl(value) {
+function normalizedRemoteUrl(value, options = {}) {
   try {
     const parsed = new URL(normalizeString(value));
-    if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.hash) return null;
+    if (!permittedProtocol(parsed, options) || parsed.username || parsed.password || parsed.hash) return null;
     return parsed.href;
   } catch (_error) {
     return null;
@@ -135,7 +139,7 @@ function remoteSurfaceId(plan) {
   return `remoteSurface:${surface}`;
 }
 
-function validateRemoteFacts(input = {}) {
+function validateRemoteFacts(input = {}, options = {}) {
   const diagnostics = [];
   const rawPlan = input.remoteSurfacePlan || input.plan || null;
   if (!rawPlan || rawPlan.schema !== XSCALER_REMOTE_SURFACE_PLAN_SCHEMA || rawPlan.protocol !== XSCALER_PROTOCOL) {
@@ -162,8 +166,8 @@ function validateRemoteFacts(input = {}) {
 
   const plan = createXScalerRemoteSurfacePlan(rawPlan);
   const surfaceId = remoteSurfaceId(plan);
-  const origin = normalizedOrigin(plan.origin);
-  const url = normalizedRemoteUrl(input.adapterUrl || input.url || rawPlan.adapterUrl || rawPlan.moduleUrl);
+  const origin = normalizedOrigin(plan.origin, options);
+  const url = normalizedRemoteUrl(input.adapterUrl || input.url || rawPlan.adapterUrl || rawPlan.moduleUrl, options);
   const integrity = normalizeSri(plan.integrity);
 
   if (!origin || !url) {
@@ -282,7 +286,7 @@ function createBrowserExternalModuleLoader(options = {}) {
   const documentTarget = options.documentTarget || (typeof document !== 'undefined' ? document : null);
   const adapterRegistrationTarget = registrationTarget(options, documentTarget);
   const load = function loadExternalXScalerModule(descriptor = {}) {
-    const url = normalizedRemoteUrl(descriptor.url);
+    const url = normalizedRemoteUrl(descriptor.url, options);
     const integrity = normalizeSriDigest(descriptor.integrity);
     if (!url || !integrity) {
       return Promise.reject(new Error('XScaler external module descriptor requires an HTTPS URL and a complete SRI digest.'));
@@ -780,7 +784,7 @@ function createXScalerRemoteAdapterLoader(options = {}) {
       return createResult(null, 'refused', { diagnostics: [entry], surfaceId: normalizeString(input.surfaceId) });
     }
 
-    const facts = validateRemoteFacts(input);
+    const facts = validateRemoteFacts(input, options);
     if (!loaderCapabilities.cspSafe || !loaderCapabilities.sri || !loaderCapabilities.externalOnly) {
       facts.diagnostics.push(diagnostic(
         XSCALER_REMOTE_LOADER_UNSAFE_CODE,

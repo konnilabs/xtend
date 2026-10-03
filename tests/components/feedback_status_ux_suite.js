@@ -130,9 +130,9 @@ function runFeedbackStatusUxSuite(options = {}) {
     tests: { assertions: [] }
   });
   const fixture = readJson(FEEDBACK_STATUS_UX_FIXTURE, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const contractDoc = readText(FEEDBACK_STATUS_UX_CONTRACT_DOC, rootDir);
   const workpackage = readText('development/WP-E11-09-Feedback-und-Status-UX-Reife-umsetzen.md', rootDir);
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
@@ -224,7 +224,7 @@ function runFeedbackStatusUxSuite(options = {}) {
   context.assert(metadata.kernelBoundary === KERNEL_BOUNDARY, 'Package metadata preserves RMT kernel boundary');
   context.assertIncludes(scaffoldConfig, 'feedbackStatusUxMaturity', 'Scaffold config exposes Feedback Status UX section');
   context.assertIncludes(scaffoldConfig, FEEDBACK_STATUS_UX_SCHEMA, 'Scaffold config declares Feedback Status UX schema');
-  context.assertIncludes(runner, "id: 'feedback-status-ux'", 'Runner exposes Feedback Status UX suite');
+  context.assert(runner.hasSuite("feedback-status-ux"), 'Runner exposes Feedback Status UX suite');
   context.assertIncludes(contractDoc, FEEDBACK_STATUS_UX_SCHEMA, 'Contract document declares Feedback Status UX schema');
   context.assertIncludes(contractDoc, '`xtendFeedbackStatusUxProfile`', 'Contract document describes runtime profile');
   context.assertIncludes(workpackage, 'xtend.epic11.wp09.feedback-status-ux.v1', 'WP-E11-09 document declares schema');

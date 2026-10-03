@@ -1,8 +1,8 @@
 {
   "name": "@ccslabs/xtend-rmt",
-  "version": "0.6.1",
+  "version": "0.9.0",
   "private": false,
-  "description": "XTendRMT scheduler runtime and browser bridge for 0.6.1 orchestration with XSurface Shard surface flows.",
+  "description": "XTendRMT scheduler runtime and browser bridge for 0.9.0 orchestration with XSurface Shard surface flows.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -28,6 +28,8 @@
     "rmt-runtime.browser.js",
     "rmt-browser-scheduler.d.ts",
     "rmt-browser-scheduler.js",
+    "rmt-kernel-scheduler.d.ts",
+    "rmt-kernel-scheduler.js",
     "rmt-dom-descriptor-renderer.d.ts",
     "rmt-dom-descriptor-renderer.js",
     "rmt-safe-preview.d.ts",
@@ -36,9 +38,8 @@
     "rmt-component-capability-registry.js",
     "rmt-state-selector-runtime.d.ts",
     "rmt-state-selector-runtime.js",
-    "rmt-state-selector-runtime.compat.js",
-    "rmt-xstate-host-adapter.d.ts",
-    "rmt-xstate-host-adapter.js",
+    "rmt-state-host-adapter.d.ts",
+    "rmt-state-host-adapter.js",
     "rmt-state-binding-view-projector.d.ts",
     "rmt-state-binding-view-projector.js",
     "rmt-action-effect-runtime.d.ts",
@@ -55,8 +56,6 @@
     "rmt-app-host-adapter.js",
     "rmt-app-runtime.d.ts",
     "rmt-app-runtime.js",
-    "rmt-app-runtime.compat.d.ts",
-    "rmt-app-runtime.compat.js",
     "rmt-form-validation-runtime.d.ts",
     "rmt-form-validation-runtime.js",
     "rmt-form-validation-evaluator.js",
@@ -86,7 +85,25 @@
     "rmt-php-app-service-adapter.php",
     "rmt.schema.json",
     "rmt-manifest.json",
-    "package.json"
+    "package.json",
+    "rmt-portable-render.js",
+    "rmt-portable-render.d.ts",
+    "page-contract.mjs",
+    "page-wire.mjs",
+    "page-initial.mjs",
+    "page-contract.d.ts",
+    "node-page-host.mjs",
+    "node-page-host.d.ts",
+    "page-client.mjs",
+    "page-client.d.ts",
+    "page-form.mjs",
+    "page-form.d.ts",
+    "rmt-php-ssr-adapter.php",
+    "rmt-portable-render.php",
+    "rmt-page-data.php",
+    "rmt-ssr-stream-host.js",
+    "rmt-resume-capture-adapter.d.ts",
+    "contracts"
   ],
   "exports": {
     ".": {
@@ -112,6 +129,10 @@
       "types": "./rmt-browser-scheduler.d.ts",
       "default": "./rmt-browser-scheduler.js"
     },
+    "./kernel-scheduler": {
+      "types": "./rmt-kernel-scheduler.d.ts",
+      "default": "./rmt-kernel-scheduler.js"
+    },
     "./dom-descriptor-renderer": {
       "types": "./rmt-dom-descriptor-renderer.d.ts",
       "default": "./rmt-dom-descriptor-renderer.js"
@@ -126,11 +147,11 @@
     },
     "./state-selector-runtime": {
       "types": "./rmt-state-selector-runtime.d.ts",
-      "default": "./rmt-state-selector-runtime.compat.js"
+      "default": "./rmt-state-selector-runtime.js"
     },
-    "./xstate-host-adapter": {
-      "types": "./rmt-xstate-host-adapter.d.ts",
-      "default": "./rmt-xstate-host-adapter.js"
+    "./state-host-adapter": {
+      "types": "./rmt-state-host-adapter.d.ts",
+      "default": "./rmt-state-host-adapter.js"
     },
     "./state-binding-view-projector": {
       "types": "./rmt-state-binding-view-projector.d.ts",
@@ -153,8 +174,8 @@
       "default": "./rmt-presentation-effect-adapter.js"
     },
     "./app-runtime": {
-      "types": "./rmt-app-runtime.compat.d.ts",
-      "default": "./rmt-app-runtime.compat.js"
+      "types": "./rmt-app-runtime.d.ts",
+      "default": "./rmt-app-runtime.js"
     },
     "./app-view-projector": {
       "types": "./rmt-app-view-projector.d.ts",
@@ -203,7 +224,34 @@
     "./php-app-service-adapter.php": "./rmt-php-app-service-adapter.php",
     "./schema": "./rmt.schema.json",
     "./manifest": "./rmt-manifest.json",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./portable-render": {
+      "types": "./rmt-portable-render.d.ts",
+      "default": "./rmt-portable-render.js"
+    },
+    "./page-contract": {
+      "types": "./page-contract.d.ts",
+      "default": "./page-contract.mjs"
+    },
+    "./node-page-host": {
+      "types": "./node-page-host.d.ts",
+      "default": "./node-page-host.mjs"
+    },
+    "./page-client": {
+      "types": "./page-client.d.ts",
+      "default": "./page-client.mjs"
+    },
+    "./page-form": {
+      "types": "./page-form.d.ts",
+      "default": "./page-form.mjs"
+    },
+    "./php-ssr-adapter.php": "./rmt-php-ssr-adapter.php",
+    "./resume-capture-adapter": {
+      "types": "./rmt-resume-capture-adapter.d.ts",
+      "import": "./rmt-resume-capture-adapter.js",
+      "default": "./rmt-resume-capture-adapter.js"
+    },
+    "./contracts/*": "./contracts/*"
   },
   "publishConfig": {
     "access": "public",

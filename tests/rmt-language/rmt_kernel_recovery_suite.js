@@ -196,7 +196,9 @@ function createRmtAppModulesFromArtifact(context, rootDir, artifactPath) {
     return null;
   }
 
-  if (!context.assert(sandbox.AppModules && typeof sandbox.AppModules === 'object', `${artifactPath} exposes AppModules`)) {
+  if (artifactPath.endsWith('.esm.js')) vm.runInNewContext('globalThis.AppModules = AppModules;', sandbox);
+  else sandbox.AppModules = sandbox.XTendRMT || sandbox['xtend.rmt'] || null;
+  if (!context.assert(sandbox.AppModules && typeof sandbox.AppModules === 'object', `${artifactPath} exposes private/public factory probe`)) {
     return null;
   }
   return {
@@ -396,10 +398,10 @@ function runRmtKernelRecoverySuite(options = {}) {
     id: 'rmt-kernel-recovery',
     label: 'RKSH-WP-05 Kernel Recovery Policy'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtKernelRecovery;
   const packageExport = getPackageExport(packageManifest, './rmt-language/kernel-recovery');
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(RMT_KERNEL_SECURITY_BACKLOG, rootDir);
   const contract = readText(RMT_KERNEL_RECOVERY_CONTRACT_PATH, rootDir);
   const workpackage = readText(RMT_KERNEL_RECOVERY_WP_PATH, rootDir);
@@ -432,8 +434,8 @@ function runRmtKernelRecoverySuite(options = {}) {
   context.assert(metadata && metadata.workpackage === RMT_KERNEL_RECOVERY_WORKPACKAGE, 'package metadata points to RKSH-WP-05');
   context.assert(metadata && metadata.localGate === RMT_KERNEL_RECOVERY_LOCAL_GATE, 'package metadata exposes recovery local gate');
   context.assert(metadata && metadata.packageScript === RMT_KERNEL_RECOVERY_PACKAGE_SCRIPT, 'package metadata exposes recovery package script');
-  context.assertIncludes(runner, "id: 'rmt-kernel-recovery'", 'runner registers recovery suite');
-  context.assertIncludes(runner, 'runRmtKernelRecoverySuite', 'runner imports recovery suite');
+  context.assert(runner.hasSuite("rmt-kernel-recovery"), 'runner registers recovery suite');
+  context.assert(runner.hasImplementation({ function: "runRmtKernelRecoverySuite" }), 'runner imports recovery suite');
 
   runStandaloneRecoveryAssertions(context);
 

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>RMT 0.8 retained warm reuse performance lab</title>
+</head>
+<body data-status="running">
+  <pre id="result">pending</pre>
+  <script type="module">
+    import '../../../components/xsurfacemanager.js';
+
+    const WARMUP_COUNT = 5;
+    const MEASUREMENT_COUNT = 30;
+    const BUDGETS = Object.freeze({
+      durationMs: 12,
+      waitMs: 24,
+      totalMs: 28,
+      longTaskMs: 24
+    });
+    const manager = document.createElement('x-surface-manager');
+
+    function percentile95(values) {
+      const ordered = values.slice().sort((left, right) => left - right);
+      return ordered[Math.max(0, Math.ceil(ordered.length * 0.95) - 1)] || 0;
+    }
+
+    function measureRetainedWarmReuse(index) {
+      const requestedAt = performance.now();
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const startedAt = performance.now();
+          const generation = `generation-${index % 2}`;
+          const result = manager.registerSurfaceChunkHandle(`surface-${index % 8}`, {
+            cancel() {}
+          }, {
+            scope: `scope-${index % 4}`,
+            generation,
+            source: 'rmt-0.8-browser-performance-lab'
+          });
+          const completedAt = performance.now();
+          resolve({
+            durationMs: completedAt - startedAt,
+            waitMs: startedAt - requestedAt,
+            totalMs: completedAt - requestedAt,
+            longTaskMs: completedAt - startedAt,
+            retainedCount: result.retention.retainedCount
+          });
+        }, 0);
+      });
+    }
+
+    for (let index = 0; index < WARMUP_COUNT; index += 1) {
+      await measureRetainedWarmReuse(index);
+    }
+    const measurements = [];
+    for (let index = 0; index < MEASUREMENT_COUNT; index += 1) {
+      measurements.push(await measureRetainedWarmReuse(index + WARMUP_COUNT));
+    }
+    const p95 = {
+      durationMs: percentile95(measurements.map((entry) => entry.durationMs)),
+      waitMs: percentile95(measurements.map((entry) => entry.waitMs)),
+      totalMs: percentile95(measurements.map((entry) => entry.totalMs)),
+      longTaskMs: percentile95(measurements.map((entry) => entry.longTaskMs))
+    };
+    const report = {
+      schema: 'xtend.rmt.retained-warm-reuse-browser-lab.v1',
+      budgetId: 'retained_warm_reuse',
+      warmupCount: WARMUP_COUNT,
+      measurementCount: MEASUREMENT_COUNT,
+      budgets: BUDGETS,
+      p95,
+      withinBudget: Object.keys(BUDGETS).every((key) => p95[key] <= BUDGETS[key]),
+      retainedCount: measurements.at(-1).retainedCount
+    };
+    document.querySelector('#result').textContent = JSON.stringify(report);
+    document.body.dataset.status = report.withinBudget ? 'passed' : 'failed';
+  </script>
+</body>
+</html>

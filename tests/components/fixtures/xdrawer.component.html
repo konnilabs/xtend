@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>x-drawer component fixture</title>
-    <script type="module" src="/components/xstate.js"></script>
+    <script type="module" src="/components/xtend-state.js"></script>
     <script type="module" src="/components/xdrawer.js"></script>
   </head>
   <body>
@@ -20,7 +20,7 @@
       <small slot="footer">Signed in</small>
     </x-drawer>
     <script>
-      window.xstate = window.xstate || {
+      window.XTend.state = window.XTend.state || {
         get: () => null,
         set: () => {},
         subscribe: () => () => {}

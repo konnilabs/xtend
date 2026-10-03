@@ -62,7 +62,7 @@ function runTypeExportsBuilderSuite(options = {}) {
     id: 'type-exports-builder',
     label: 'TypeExports Builder Declaration Gate'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const typeExportsPlan = createTypeExportsPlan({ rootDir, packageManifest });
   const plan = createTypeExportsBuilderPlan({ rootDir, packageManifest, typeExportsPlan });
   const validation = validateTypeExportsBuilderPlan(plan);
@@ -70,7 +70,7 @@ function runTypeExportsBuilderSuite(options = {}) {
   const metadata = packageManifest.xtend && packageManifest.xtend.typeExportsBuilder;
   const typeExportsMetadata = packageManifest.xtend && packageManifest.xtend.typeExports;
   const sharedDeclarationSource = readText(BUILDER_SHARED_DECLARATION_FILE, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const docsReadme = readText('docs/en/README.md', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const backlog = readText(TYPE_EXPORTS_BUILDER_BACKLOG, rootDir);
@@ -154,8 +154,8 @@ function runTypeExportsBuilderSuite(options = {}) {
   context.assert(typeExportsMetadata && typeExportsMetadata.completedWorkpackages.includes(TYPE_EXPORTS_BUILDER_WORKPACKAGE), 'TypeExports metadata records WP-TypeExports-06 completion');
   context.assert(typeExportsMetadata && typeExportsMetadata.completedWorkpackages.includes('WP-TypeExports-09'), 'TypeExports metadata records WP-TypeExports-09 completion');
   context.assert(typeExportsMetadata && Array.isArray(typeExportsMetadata.nextWorkpackages) && typeExportsMetadata.nextWorkpackages.length === 0, 'TypeExports metadata has no remaining TypeExports workpackages');
-  context.assertIncludes(runner, "id: 'type-exports-builder'", 'Runner registers Builder TypeExports suite');
-  context.assertIncludes(runner, 'runTypeExportsBuilderSuite', 'Runner imports Builder TypeExports suite');
+  context.assert(runner.hasSuite("type-exports-builder"), 'Runner registers Builder TypeExports suite');
+  context.assert(runner.hasImplementation({ function: "runTypeExportsBuilderSuite" }), 'Runner imports Builder TypeExports suite');
   context.assertIncludes(docsReadme, './xtend-builder-types.md', 'Docs README links Builder Type docs');
   context.assertIncludes(testsReadme, TYPE_EXPORTS_BUILDER_LOCAL_GATE, 'Tests README documents Builder TypeExports gate');
 

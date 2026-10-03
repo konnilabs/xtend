@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 const XROUTER_IMPORT_POLICY_CONTRACT = 'xtend.security.xrouter-import-policy.v1';
 const XROUTER_ALLOWED_IMPORT_PROTOCOLS = ['http:', 'https:', 'file:'];
@@ -195,7 +195,7 @@ class XRouter extends HTMLElement {
       lane: 'transition',
       hydrationPolicy: 'visible',
       criticalMeasurements: ['navigate', 'render', 'announce', 'focus'],
-      cleanup: ['window-listeners', 'document-listeners', 'xstate-subscription']
+      cleanup: ['window-listeners', 'document-listeners', 'xtend-state-subscription']
     };
   }
 
@@ -572,6 +572,7 @@ class XRouter extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
       <style>
+        @import url('/components/xrouter-docs-shell.css');
         :host {
           display: block;
           min-block-size: var(--xtend-router-reserved-block-size, var(--xtend-layout-reserved-block-size, 1px));
@@ -686,7 +687,7 @@ class XRouter extends HTMLElement {
     this._announcer = this.shadowRoot.querySelector('#route-announcer');
     this._onNavigate = this._handleNavigation.bind(this);
     this._onLinkClick = this._handleLinkClick.bind(this);
-    this._unsubscribeXStateNav = null;
+    this._unsubscribeStateNav = null;
     this._mode = this.getAttribute('mode') || 'hash';
     this._lastRouteDetail = null;
     this._previousScrollRestoration = null;
@@ -711,7 +712,7 @@ class XRouter extends HTMLElement {
       this._mode = newValue || 'hash';
     }
     if (name === 'reuse-component') {
-      xstate.set('xtend.router.reuseComponent', this._shouldReuseRouteComponents());
+      xtendState.set('xtend.router.reuseComponent', this._shouldReuseRouteComponents());
     }
     if (name === 'routesrc' && newValue && newValue !== oldValue) {
       this._loadRoutesFromSrc(newValue).then(() => this._handleNavigation());
@@ -729,9 +730,9 @@ class XRouter extends HTMLElement {
     }
     document.body.addEventListener('x-navigate', this._onNavigate);
     document.body.addEventListener('click', this._onLinkClick, true);
-    // xstate -> Router: Navigation per xstate.set('router-navigate', '/ziel')
-    if (typeof xstate.subscribe === 'function') {
-      this._unsubscribeXStateNav = xstate.subscribe((key, value) => {
+    // xtendState -> Router: Navigation per xtendState.set('router-navigate', '/ziel')
+    if (typeof xtendState.subscribe === 'function') {
+      this._unsubscribeStateNav = xtendState.subscribe((key, value) => {
         if (key === 'router-navigate' && typeof value === 'string') {
           this._navigateTo(value);
         }
@@ -793,9 +794,9 @@ class XRouter extends HTMLElement {
     }
     document.body.removeEventListener('x-navigate', this._onNavigate);
     document.body.removeEventListener('click', this._onLinkClick, true);
-    if (typeof this._unsubscribeXStateNav === 'function') {
-      this._unsubscribeXStateNav();
-      this._unsubscribeXStateNav = null;
+    if (typeof this._unsubscribeStateNav === 'function') {
+      this._unsubscribeStateNav();
+      this._unsubscribeStateNav = null;
     }
     this._clearScrollBoundaryChecks();
     this._restoreScrollRestoration();
@@ -907,6 +908,11 @@ class XRouter extends HTMLElement {
   }
 
   _navigateTo(path, state = undefined) {
+    if (this.pageClient) {
+      if (!this._emitBeforeNavigate(path, state)) return;
+      this.pageClient.visit(path).catch(error => this.dispatchEvent(new CustomEvent('navigation-error', { detail: { error } })));
+      return;
+    }
     const normalizedPath = path.startsWith('/') ? path : '/' + path;
     const currentPath = this._getCurrentPath();
 
@@ -927,8 +933,8 @@ class XRouter extends HTMLElement {
       window.location.hash = normalizedPath;
     }
 
-    xstate.set('router-navigated', normalizedPath);
-    xstate.set('xtend.router.lastNavigated', normalizedPath);
+    xtendState.set('router-navigated', normalizedPath);
+    xtendState.set('xtend.router.lastNavigated', normalizedPath);
   }
 
   _emitBeforeNavigate(path, state = undefined) {
@@ -949,6 +955,7 @@ class XRouter extends HTMLElement {
   }
 
   _handleLinkClick(e) {
+    if (this.pageClient) return; // The page client owns link and history handling.
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
       return;
     }
@@ -1061,7 +1068,7 @@ class XRouter extends HTMLElement {
       reason: detail.reason || (detail.adopted ? 'adopted' : 'unavailable'),
       diagnostic: detail.diagnostic || null
     };
-    xstate.set('xtend.router.routeAdoption', record);
+    xtendState.set('xtend.router.routeAdoption', record);
     this.dispatchEvent(new CustomEvent('xrouter-route-adopted', {
       detail: record,
       bubbles: true,
@@ -1084,6 +1091,10 @@ class XRouter extends HTMLElement {
     candidate.setAttribute('slot', 'prerendered-route');
     candidate.setAttribute('data-xrouter-adoption-pending', 'true');
     candidate.setAttribute('data-rmt-adoption-state', 'pending');
+    // Keep the trusted SSR route natively usable while its asynchronous
+    // adoption proof and component import complete. Making it inert turns a
+    // harmless timing delay into a frozen page with unselectable text.
+    candidate.removeAttribute('inert');
     this._prerenderedRouteCandidate = candidate;
     return candidate;
   }
@@ -1097,6 +1108,17 @@ class XRouter extends HTMLElement {
       this._emitRouteAdoption({ ...detail, adopted: false, reason });
     }
     return false;
+  }
+
+  _releasePrerenderedRoutePending(candidate) {
+    if (!candidate || !candidate.hasAttribute('data-xrouter-adoption-pending')) return false;
+    candidate.removeAttribute('data-xrouter-adoption-pending');
+    candidate.dispatchEvent(new CustomEvent('xrouter-adoption-pending-released', {
+      detail: { schema: 'xtend.router.adoption-pending-release.v1', owner: 'x-router' },
+      bubbles: true,
+      composed: true
+    }));
+    return true;
   }
 
   _isCurrentNavigation(generation) {
@@ -1349,11 +1371,13 @@ class XRouter extends HTMLElement {
         : (typeof candidate.updateRoute === 'function' ? candidate.updateRoute.bind(candidate) : null);
       if (!adopt) return this._rejectPrerenderedRouteCandidate('adoption-handler-missing', detail, candidate);
       candidate.removeAttribute('data-xrouter-adoption-pending');
+      candidate.removeAttribute('inert');
       const result = await adopt(adoptionContext);
       if (!this._isCurrentNavigation(navigationGeneration)) {
         return this._rejectPrerenderedRouteCandidate('navigation-superseded', detail, candidate);
       }
       if (result === false) return this._rejectPrerenderedRouteCandidate('adoption-refused', detail, candidate);
+      this._releasePrerenderedRoutePending(candidate);
       candidate.setAttribute('data-rmt-adoption-state', 'adopted');
       candidate.setAttribute('data-xrouter-route-adopted', 'true');
       await this._hydrateRouteTree(candidate, route);
@@ -1421,7 +1445,7 @@ class XRouter extends HTMLElement {
         source: 'x-router',
         stateKey: 'xtend.router.current'
       };
-      xstate.set('xtend.router.routeReused', reuseDetail);
+      xtendState.set('xtend.router.routeReused', reuseDetail);
       this.dispatchEvent(new CustomEvent('xrouter-route-reused', {
         detail: reuseDetail,
         bubbles: true,
@@ -1482,11 +1506,11 @@ class XRouter extends HTMLElement {
     };
     this._lastRouteDetail = enrichedDetail;
 
-    xstate.set('router-current', enrichedDetail);
-    xstate.set('xtend.router.current', enrichedDetail);
-    xstate.set('router-rendered', enrichedDetail);
-    xstate.set('xtend.router.lastRendered', enrichedDetail);
-    xstate.set('xtend.router.announcement', enrichedDetail.announcement);
+    xtendState.set('router-current', enrichedDetail);
+    xtendState.set('xtend.router.current', enrichedDetail);
+    xtendState.set('router-rendered', enrichedDetail);
+    xtendState.set('xtend.router.lastRendered', enrichedDetail);
+    xtendState.set('xtend.router.announcement', enrichedDetail.announcement);
 
     const routeChangedEvent = new CustomEvent('route-changed', {
       detail: enrichedDetail,
@@ -1563,7 +1587,7 @@ class XRouter extends HTMLElement {
     if (!this._outlet || !this.isConnected) return false;
     this._outlet.setAttribute('aria-busy', 'false');
     this._outlet.focus({ preventScroll: true });
-    xstate.set('xtend.router.focusRestored', {
+    xtendState.set('xtend.router.focusRestored', {
       ...(detail || {}),
       source: 'x-router',
       stateKey: 'xtend.router.current',
@@ -1601,8 +1625,6 @@ class XRouter extends HTMLElement {
       source: 'x-router',
       stateKey: 'xtend.router.current',
       mode: this._mode,
-      navigationPolicy: this._getNavigationPolicy(),
-      ready: this._routerReady,
       current: this._lastRouteDetail,
       routeCount: this._getRoutes().length,
       scheduleRef: 'diagnostics.snapshot'
@@ -1754,7 +1776,7 @@ class XRouter extends HTMLElement {
       active: Boolean(skeleton),
       status: skeleton ? 'shown' : 'loader-unavailable'
     };
-    xstate.set('xtend.router.skeleton', detail);
+    xtendState.set('xtend.router.skeleton', detail);
     this.dispatchEvent(new CustomEvent('xrouter-skeleton-shown', {
       detail,
       bubbles: true,
@@ -1777,7 +1799,7 @@ class XRouter extends HTMLElement {
       path: context.path || this._getCurrentPath(),
       active: false
     };
-    xstate.set('xtend.router.skeleton', detail);
+    xtendState.set('xtend.router.skeleton', detail);
     this.dispatchEvent(new CustomEvent('xrouter-skeleton-hidden', {
       detail,
       bubbles: true,
@@ -2105,6 +2127,7 @@ class XRouter extends HTMLElement {
   }
 
   async _handleNavigation(options = {}) {
+    if (this.pageClient) return; // Preserve SSR content on initial load and popstate.
     const navigationGeneration = ++this._navigationGeneration;
     const raw = this._getCurrentPath();
     const { path, query, queryObj } = this._parsePathAndQuery(raw);
@@ -2209,8 +2232,8 @@ class XRouter extends HTMLElement {
     this._setMetaTag('description', meta.description);
     this._setMetaTag('keywords', meta.keywords);
 
-    xstate.set('router-document-meta', meta);
-    xstate.set('xtend.router.documentMeta', meta);
+    xtendState.set('router-document-meta', meta);
+    xtendState.set('xtend.router.documentMeta', meta);
     this.dispatchEvent(new CustomEvent('xrouter-title-updated', {
       detail: meta,
       bubbles: true,
@@ -2268,8 +2291,8 @@ class XRouter extends HTMLElement {
       overlays: closedOverlays,
       count: closedOverlays.length
     };
-    xstate.set('router-closed-navigation-overlays', snapshot);
-    xstate.set('xtend.router.closedNavigationOverlays', snapshot);
+    xtendState.set('router-closed-navigation-overlays', snapshot);
+    xtendState.set('xtend.router.closedNavigationOverlays', snapshot);
     this.dispatchEvent(new CustomEvent('xrouter-navigation-overlays-closed', {
       detail: snapshot,
       bubbles: true,
@@ -2365,8 +2388,8 @@ class XRouter extends HTMLElement {
       deadzoneDetected
     };
 
-    xstate.set('router-scroll-boundary', snapshot);
-    xstate.set('xtend.router.scrollBoundary', snapshot);
+    xtendState.set('router-scroll-boundary', snapshot);
+    xtendState.set('xtend.router.scrollBoundary', snapshot);
 
     if (shouldNormalize) {
       this.dispatchEvent(new CustomEvent('xrouter-scroll-boundary-normalized', {

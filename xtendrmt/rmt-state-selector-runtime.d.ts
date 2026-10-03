@@ -1,15 +1,13 @@
 import type {
   RmtStateProjectionPort,
   RmtStateProjectionPortFactory,
-  RmtXStateBridge,
-  RmtXStateHostAdapterOptions
-} from './rmt-xstate-host-adapter.js';
+  RmtStateHostAdapterOptions
+} from './rmt-state-host-adapter.js';
 
 export type {
   RmtStateProjectionPort,
-  RmtStateProjectionPortFactory,
-  RmtXStateBridge
-} from './rmt-xstate-host-adapter.js';
+  RmtStateProjectionPortFactory
+} from './rmt-state-host-adapter.js';
 
 export const RMT_STATE_SELECTOR_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-state-selector-diagnostic.v1';
 export const RMT_STATE_SELECTOR_RUNTIME_SCHEMA: 'xtend.epic18.rmt-state-selector-runtime.v2';
@@ -30,7 +28,7 @@ export interface RmtStateDefinition {
   schema?: string;
   initial?: unknown;
   preserve?: 'attribute-sync' | 'component-state' | string;
-  xstateKey?: string;
+  projectionKey?: string;
 }
 
 export interface RmtSelectorDefinition {
@@ -172,12 +170,8 @@ export interface RmtStateSelectorRuntime {
   snapshot(): RmtStateSelectorSnapshot;
   planPatch(previousSnapshot: RmtStateSelectorSnapshot, nextSnapshot: RmtStateSelectorSnapshot): RmtStatePatchPlan;
   subscribe(listener: (event: RmtStateChangeEvent) => void): () => void;
-  connectStateProjection(target: unknown, options?: RmtXStateHostAdapterOptions): RmtStateProjectionPort;
+  connectStateProjection(target: unknown, options?: RmtStateHostAdapterOptions): RmtStateProjectionPort;
   stateProjectionPort: RmtStateProjectionPort | null;
-  /** @deprecated 0.6 compatibility alias exposed by the package facade. */
-  connectXState?(target: unknown): RmtXStateBridge;
-  /** @deprecated 0.6 compatibility alias exposed by the package facade. */
-  xstateBridge?: RmtXStateBridge | null;
   listDiagnostics(): unknown[];
 }
 
@@ -193,14 +187,8 @@ export interface RmtStateSelectorRuntimeOptions {
   stateProjectionPort?: RmtStateProjectionPort | null;
   createStateProjectionPort?: RmtStateProjectionPortFactory;
   stateProjectionTarget?: unknown;
-  /** @deprecated 0.6 package-facade alias for stateProjectionTarget. */
-  xstate?: unknown;
   strict?: boolean;
   strictMaraca?: boolean;
-  /** Compatibility-only initial adoption. Pass verified initialState instead. */
-  adoptStateProjection?: boolean;
-  /** @deprecated 0.6 package-facade alias for adoptStateProjection. */
-  adoptXState?: boolean;
   diagnosticsHub?: { publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown };
   diagnosticChannel?: string;
 }
@@ -216,8 +204,6 @@ export type RmtStateBindingOptions = import('./rmt-state-binding-view-projector.
   createStateBindingViewProjector?: typeof import('./rmt-state-binding-view-projector.js').createRmtStateBindingViewProjector;
 };
 
-/** @deprecated 0.6 compatibility factory. Import createRmtXStateHostAdapter from xstate-host-adapter. */
-export function createRmtXStateBridge(options?: RmtXStateHostAdapterOptions): RmtXStateBridge;
 export function createRmtStateSelectorRuntime(options?: RmtStateSelectorRuntimeOptions): RmtStateSelectorRuntime;
 export function planRmtStatePatch(previousSnapshot: RmtStateSelectorSnapshot, nextSnapshot: RmtStateSelectorSnapshot, options?: Record<string, unknown>): RmtStatePatchPlan;
 /** @deprecated Use createRmtStateBindingViewProjector().project() with model.snapshot(). */

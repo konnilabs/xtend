@@ -2,6 +2,7 @@ import { Readable } from 'node:stream';
 import { createHash } from 'node:crypto';
 import { createRmtComponentCapabilityRegistry } from './rmt-component-capability-registry.js';
 import { createRmtDomDescriptorRenderer } from './rmt-dom-descriptor-renderer.js';
+import { createRmtSsrStreamHost } from './rmt-ssr-stream-host.js';
 
 export const RMT_NODE_SSR_ADAPTER_SCHEMA = 'xtend.rmt.node-ssr-adapter.v1';
 export const RMT_NODE_SSR_RENDER_RESULT_SCHEMA = 'xtend.rmt.node-ssr-render-result.v1';
@@ -634,7 +635,9 @@ function createValueResolver() {
       createDocumentFragment: () => ({ nodeType: 11, childNodes: [] })
     }
   });
-  return (value, context = {}) => renderer.resolveValue(value, context);
+  const resolve = (value, context = {}) => renderer.resolveValue(value, context);
+  resolve.attribute = (value, context = {}) => renderer.resolveAttributeValue(value, {...context, rendererSchema: context.options?.rendererSchema});
+  return resolve;
 }
 
 function hasTrustBoundary(record, options = {}) {
@@ -691,9 +694,13 @@ function serializeAttribute(name, value, diagnostics, context) {
     return '';
   }
   const resolvedValue = context && typeof context.resolveValue === 'function'
-    ? context.resolveValue(value, context)
+    ? context.resolveValue.attribute(value, context)
     : value;
   if (resolvedValue == null || resolvedValue === false) return '';
+  if (!attrName.startsWith('data-') && (!['string', 'number', 'boolean'].includes(typeof resolvedValue) || typeof resolvedValue === 'number' && !Number.isFinite(resolvedValue))) {
+    diagnostics.publish('rmt.node_ssr.attribute_value_invalid', `Attribute "${attrName}" requires a scalar value.`, 'error', { tag: context && context.tag, attribute: attrName });
+    return '';
+  }
   if (URL_ATTRIBUTES.has(attrName) && !isSafeUrl(resolvedValue)) {
     diagnostics.publish('rmt.node_ssr.url_blocked', `Blocked unsafe URL in "${attrName}".`, 'error', { ...context, attribute: attrName });
     return '';
@@ -800,9 +807,14 @@ function resolveComponentDescriptor(descriptor, registry, diagnostics, context) 
 }
 
 function serializeElementLike(descriptor, context) {
-  const tag = normalizeTagName(descriptor.tag || descriptor.element || 'div', context.diagnostics, context);
+  const tag = descriptor.tag === 'form' && context.options.nativeForms === true ? 'form' : normalizeTagName(descriptor.tag || descriptor.element || 'div', context.diagnostics, context);
   const attributes = mergeAttributes(descriptor.attributes, descriptor.attrs);
+  if (context.coverage) {
+    context.coverage.descriptorElementNodes++;
+    if (attributes['data-rmt-resume-id']) context.coverage.resumeMarkedNodes++;
+  }
   const children = asArray(descriptor.children || descriptor.nodes || descriptor.childNodes);
+  if (!children.length && Object.prototype.hasOwnProperty.call(descriptor, 'text')) children.push({ type: 'text', text: descriptor.text });
   const open = `<${tag}${serializeAttributes(attributes, context.diagnostics, { ...context, tag })}>`;
   if (VOID_TAGS.has(tag)) return open;
   return `${open}${children.map((child, index) => serializeDescriptor(child, { ...context, source: { ...(context.source || {}), index } })).join('')}</${tag}>`;
@@ -812,7 +824,11 @@ function serializeComponent(descriptor, context) {
   const registryResult = resolveComponentDescriptor(descriptor, context.componentRegistry, context.diagnostics, context);
   const componentDescriptor = registryResult.descriptor;
   const capability = registryResult.capability || componentDescriptor.capability || null;
-  const tag = normalizeTagName(componentDescriptor.tag || descriptor.tag || 'div', context.diagnostics, context);
+  if (context.coverage) {
+    context.coverage.componentNodes++;
+    if (!capability) context.coverage.missingCapabilityNodes++;
+  }
+  const tag = normalizeTagName(componentDescriptor.tag || descriptor.tag || descriptor.componentTag || descriptor.host || descriptor.component || descriptor.ref || 'div', context.diagnostics, context);
   const partList = [
     ...asArray(componentDescriptor.parts),
     ...asArray(descriptor.parts || descriptor.part)
@@ -820,10 +836,11 @@ function serializeComponent(descriptor, context) {
   const eventAttributes = Object.fromEntries(Object.entries(objectRecord(componentDescriptor.events || descriptor.events || descriptor.eventBindings))
     .map(([eventName, action]) => [`data-rmt-event-${safeIdentifier(eventName, 'event')}`, stableString(action, '')]));
   const propertyAttributes = Object.fromEntries(Object.entries(objectRecord(componentDescriptor.properties || componentDescriptor.props || descriptor.properties || descriptor.props))
+    .map(([name, value]) => [name, context.resolveValue(value, context)])
     .filter(([, value]) => value == null || typeof value !== 'function')
     .map(([name, value]) => {
       if (value != null && typeof value === 'object') return [`data-rmt-prop-${safeIdentifier(name, 'prop')}`, JSON.stringify(value)];
-      return [name, value];
+      return [name, {op:'literal',value}];
     }));
   const attributes = mergeAttributes(
     componentDescriptor.attributes,
@@ -838,12 +855,17 @@ function serializeComponent(descriptor, context) {
     eventAttributes
   );
   if (partList.length) attributes.part = [...new Set(partList.map((entry) => stableString(entry, '').trim()).filter(Boolean))].join(' ');
+  if (context.coverage) {
+    context.coverage.descriptorElementNodes++;
+    if (attributes['data-rmt-resume-id']) context.coverage.resumeMarkedNodes++;
+  }
   const slotChildren = Object.entries(objectRecord(componentDescriptor.slots || descriptor.slots))
     .flatMap(([slotName, slotValue]) => asArray(slotValue).map((entry) => descriptorWithSlot(entry, slotName)));
   const children = [
     ...slotChildren,
     ...asArray(componentDescriptor.children || componentDescriptor.nodes || descriptor.children || descriptor.nodes)
   ];
+  if (!children.length && Object.prototype.hasOwnProperty.call(descriptor, 'text')) children.push({ type: 'text', text: descriptor.text });
   const open = `<${tag}${serializeAttributes(attributes, context.diagnostics, { ...context, tag, capability: capability && capability.tag || tag })}>`;
   return `${open}${children.map((child, index) => serializeDescriptor(child, { ...context, source: { ...(context.source || {}), index } })).join('')}</${tag}>`;
 }
@@ -854,6 +876,7 @@ function serializeDescriptor(descriptorInput, context) {
   if (type === 'empty') return '';
   if (type === 'text') return escapeHtml(context.resolveValue(descriptor.text, context));
   if (type === 'html' || type === 'trusted_html' || descriptor.html != null) {
+    if (context.coverage) context.coverage.rawHtmlFragments++;
     return sanitizeHtmlFragment(context.resolveValue(descriptor.html || descriptor.content || '', context), context.diagnostics, { ...context, descriptor }, context.options);
   }
   if (type === 'component') return serializeComponent(descriptor, context);
@@ -1211,7 +1234,7 @@ function toJsonlLine(frame) {
 }
 
 function createFrameFactory(base) {
-  let sequence = 0;
+  let sequence = base.sequence || 0;
   return (type, fields = {}) => ({
     schema: RMT_NODE_SSR_JSONL_FRAME_SCHEMA,
     type,
@@ -1270,11 +1293,13 @@ export function createRmtNodeSsrAdapter(options = {}) {
       ? decorateResumeDescriptor(normalized.descriptor, rootId, generation)
       : normalized.descriptor;
     const componentCapabilities = new Map();
+    const coverage = {schema:'xtend.rmt.ssr-coverage.v1',descriptorElementNodes:0,resumeMarkedNodes:0,componentNodes:0,missingCapabilityNodes:0,rawHtmlFragments:0};
     const html = serializeDescriptor(renderDescriptor, {
       options: mergedOptions,
       diagnostics,
       componentRegistry: mergedOptions.componentRegistry || componentRegistry,
       componentCapabilities,
+      coverage,
       model: mergedOptions.model || {},
       selectorValues: mergedOptions.selectorValues || {},
       source: { inputKind: normalized.kind, sourceRef: normalized.sourceRef },
@@ -1294,6 +1319,9 @@ export function createRmtNodeSsrAdapter(options = {}) {
       cspPolicy,
       xscaler
     };
+    // Marker coverage is not proof of a successful client resume. Opaque HTML
+    // nodes and actual browser fallback counts are intentionally not inferred.
+    const coverageRecord = {...coverage, resumeMarkerCoverage:coverage.descriptorElementNodes ? coverage.resumeMarkedNodes / coverage.descriptorElementNodes : null};
     const renderState = {
       requestId,
       rootId,
@@ -1340,7 +1368,8 @@ export function createRmtNodeSsrAdapter(options = {}) {
       streamingContract,
       componentCapabilities: [...componentCapabilities.values()],
       fabricTelemetryHints: {
-        schema: 'xtend.rmt.node-ssr-fabric-telemetry-hints.v1',
+        schema: 'xtend.rmt.node-ssr-fabric-telemetry-hints.v2',
+        coverage: coverageRecord,
         lanes: asArray(normalized.coreDocument && normalized.coreDocument.lanes).map((lane) => lane.id || lane.name).filter(Boolean),
         kernelBoundary: RMT_NODE_SSR_KERNEL_BOUNDARY,
         transport: 'node-ssr'
@@ -1351,8 +1380,35 @@ export function createRmtNodeSsrAdapter(options = {}) {
   }
 
   async function* streamJsonl(input, streamOptions = {}) {
+    const options = { ...adapterOptions, ...streamOptions };
+    const host = createRmtSsrStreamHost(options);
+    const iterator = streamFrames(input, { ...options, signal: host.signal });
+    let sequence = 0, requestId = safeIdentifier(options.requestId || 'rmt-node-stream'), count = 0;
+    try {
+      while (true) {
+        const next = await host.next(iterator);
+        if (next.done) break;
+        const record = JSON.parse(next.value);
+        requestId = record.requestId; sequence = record.sequence + 1;
+        if (record.type === 'diagnostic') count += record.diagnostics.length;
+        yield next.value;
+      }
+    } catch (error) {
+      const diagnostics = [createDiagnostic(host.signal.aborted ? 'rmt.node_ssr.stream_aborted' : 'rmt.node_ssr.stream_failed', 'The SSR stream did not complete.', 'error')];
+      try { options.onError?.(error); } catch { diagnostics.push(createDiagnostic('rmt.node_ssr.error_handler_failed', 'The host error handler failed.', 'error')); }
+      const frame = createFrameFactory({ requestId, sequence });
+      if (!sequence) yield toJsonlLine(frame('start'));
+      yield toJsonlLine(frame('error', { diagnostics, payload: { status: 'blocked' } }));
+      yield toJsonlLine(frame('complete', { payload: { ok: false, status: 'blocked', diagnostics: count + diagnostics.length } }));
+    } finally {
+      await host.close(iterator);
+    }
+  }
+
+  async function* streamFrames(input, streamOptions = {}) {
     const mergedOptions = { ...adapterOptions, ...streamOptions };
     const renderResult = await render(input, { ...mergedOptions, streamMode: true });
+    const streamDiagnostics = [...renderResult.diagnostics];
     const frame = createFrameFactory({ requestId: renderResult.requestId });
     yield toJsonlLine(frame('start', {
       payload: {
@@ -1383,13 +1439,14 @@ export function createRmtNodeSsrAdapter(options = {}) {
     );
     for (const operation of operations) {
       if (mergedOptions.signal && mergedOptions.signal.aborted) {
+        streamDiagnostics.push(createDiagnostic('rmt.node_ssr.stream_aborted', 'Node SSR JSONL stream was aborted.', 'error'));
         yield toJsonlLine(frame('error', {
           operationId: operation.operationId || operation.id,
           variant: operation.variant,
           capability: operation.capability,
           diagnostics: [createDiagnostic('rmt.node_ssr.stream_aborted', 'Node SSR JSONL stream was aborted.', 'error', { operationId: operation.operationId || operation.id })]
         }));
-        return;
+        break;
       }
       const operationId = operation.operationId || operation.id || null;
       const record = operation.dataSource
@@ -1405,20 +1462,18 @@ export function createRmtNodeSsrAdapter(options = {}) {
         : null;
       if (!record) continue;
       const diagnostics = createDiagnosticsCollector(mergedOptions);
-      const payload = normalizeJsonlPayload(await resolveDataSource(record, {
+      let payload;
+      try {
+        payload = normalizeJsonlPayload(await resolveDataSource(record, {
         options: mergedOptions,
         diagnostics,
         operationId,
         renderResult
       }));
-      for (const diagnostic of diagnostics.diagnostics) {
-        yield toJsonlLine(frame('diagnostic', {
-          operationId,
-          variant: operation.variant,
-          capability: operation.capability,
-          diagnostics: [diagnostic],
-          payload: { code: diagnostic.code }
-        }));
+      } catch (error) {
+        diagnostics.publish('rmt.node_ssr.datasource_failed', 'The host data source failed.', 'error', { operationId });
+        if (typeof mergedOptions.onError === 'function') mergedOptions.onError(error);
+        payload = {};
       }
       if (payload.html != null) {
         const html = sanitizeHtmlFragment(payload.html, diagnostics, {
@@ -1459,6 +1514,19 @@ export function createRmtNodeSsrAdapter(options = {}) {
           payload: { html: descriptorHtml, dataSourceId: record.id }
         }));
       }
+      streamDiagnostics.push(...diagnostics.diagnostics);
+      for (const diagnostic of diagnostics.diagnostics) {
+        yield toJsonlLine(frame('diagnostic', {
+          operationId,
+          variant: operation.variant,
+          capability: operation.capability,
+          diagnostics: [diagnostic],
+          payload: { code: diagnostic.code }
+        }));
+      }
+      if (diagnostics.diagnostics.some(d => ['error', 'fatal'].includes(d.severity))) {
+        yield toJsonlLine(frame('error', { operationId, diagnostics: diagnostics.diagnostics, payload: { status: 'blocked' } }));
+      }
     }
     yield toJsonlLine(frame('hydration', {
       variant: 'hydration',
@@ -1469,21 +1537,39 @@ export function createRmtNodeSsrAdapter(options = {}) {
     }));
     yield toJsonlLine(frame('complete', {
       payload: {
-        ok: renderResult.ok,
-        status: renderResult.status,
-        diagnostics: renderResult.diagnostics.length
+        ok: renderResult.ok && !streamDiagnostics.some(d => ['error', 'fatal'].includes(d.severity)),
+        status: streamDiagnostics.some(d => ['error', 'fatal'].includes(d.severity)) ? 'blocked' : renderResult.status,
+        diagnostics: streamDiagnostics.length
       }
     }));
   }
 
   function toNodeReadable(input, streamOptions = {}) {
-    return Readable.from(streamJsonl(input, streamOptions));
+    const host = createRmtSsrStreamHost({ ...adapterOptions, ...streamOptions });
+    const iterator = streamJsonl(input, { ...streamOptions, signal: host.signal })[Symbol.asyncIterator]();
+    let pending = false;
+    return new Readable({
+      objectMode: true,
+      read() {
+        if (pending) return;
+        pending = true;
+        iterator.next().then(next => {
+          pending = false;
+          if (!this.destroyed) this.push(next.done ? null : next.value);
+        }, error => this.destroy(error));
+      },
+      destroy(error, callback) {
+        // Abort before awaiting iterator.return(): a provider may still be pending.
+        host.abort(error);
+        host.close(iterator).then(() => callback(error), callback);
+      }
+    });
   }
 
   async function toHttpResponse(input, responseOptions = {}) {
     const result = await render(input, responseOptions);
     return {
-      status: responseOptions.status || (result.ok ? 200 : 500),
+      status: !result.ok && !(responseOptions.status >= 400) ? 500 : responseOptions.status || (result.ok ? 200 : 500),
       headers: createSsrSecurityHeaders(result.cspPolicy, {
         'Content-Type': 'text/html; charset=UTF-8',
         'X-XTend-RMT-SSR-Adapter': RMT_NODE_SSR_ADAPTER_SCHEMA,
@@ -1508,24 +1594,26 @@ export function createRmtNodeSsrAdapter(options = {}) {
   }
 
   function toReadableStream(input, streamOptions = {}) {
-    const iterable = streamJsonl(input, streamOptions);
     if (typeof ReadableStream === 'function') {
+      const host = createRmtSsrStreamHost({ ...adapterOptions, ...streamOptions });
+      const iterable = streamJsonl(input, { ...streamOptions, signal: host.signal });
       const iterator = iterable[Symbol.asyncIterator]();
       return new ReadableStream({
         async pull(controller) {
           const next = await iterator.next();
           if (next.done) {
+            await host.close();
             controller.close();
           } else {
             controller.enqueue(next.value);
           }
         },
         async cancel() {
-          if (typeof iterator.return === 'function') await iterator.return();
+          await host.close(iterator);
         }
       });
     }
-    return Readable.toWeb(Readable.from(iterable));
+    return Readable.toWeb(toNodeReadable(input, streamOptions));
   }
 
   return Object.freeze({
@@ -1565,7 +1653,25 @@ export function createRmtNodeSsrAdapter(options = {}) {
   });
 }
 
+export function getRmtSsrCoverage(result) {
+  const coverage = result?.fabricTelemetryHints?.coverage;
+  if (coverage?.schema !== 'xtend.rmt.ssr-coverage.v1') return null;
+  const counters = ['descriptorElementNodes', 'resumeMarkedNodes', 'componentNodes', 'missingCapabilityNodes', 'rawHtmlFragments'];
+  if (counters.some(key => !Number.isSafeInteger(coverage[key]) || coverage[key] < 0)
+      || coverage.resumeMarkedNodes > coverage.descriptorElementNodes
+      || coverage.componentNodes > coverage.descriptorElementNodes || coverage.missingCapabilityNodes > coverage.componentNodes
+      || coverage.resumeMarkerCoverage !== (coverage.descriptorElementNodes ? coverage.resumeMarkedNodes / coverage.descriptorElementNodes : null)) throw new Error('Invalid SSR coverage record.');
+  return {...coverage};
+}
+
+export const RMT_SSR_COVERAGE_SCHEMA = 'xtend.rmt.ssr-coverage.v1';
+export const RMT_SSR_FABRIC_TELEMETRY_SCHEMA = 'xtend.rmt.node-ssr-fabric-telemetry-hints.v2';
+export const RMT_SSR_FABRIC_TELEMETRY_LEGACY_SCHEMA = 'xtend.rmt.node-ssr-fabric-telemetry-hints.v1';
+
 export default {
+  RMT_SSR_COVERAGE_SCHEMA,
+  RMT_SSR_FABRIC_TELEMETRY_SCHEMA,
+  RMT_SSR_FABRIC_TELEMETRY_LEGACY_SCHEMA,
   RMT_NODE_SSR_ADAPTER_SCHEMA,
   RMT_NODE_SSR_RENDER_RESULT_SCHEMA,
   RMT_NODE_SSR_JSONL_FRAME_SCHEMA,
@@ -1584,5 +1690,6 @@ export default {
   RMT_SSR_CSP_HEADER,
   RMT_XSCALER_SSR_HYDRATION_SCHEMA,
   canonicalizeRmtResumePayload,
+  getRmtSsrCoverage,
   createRmtNodeSsrAdapter
 };

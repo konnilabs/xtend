@@ -5,7 +5,7 @@ export const xRadioPerformanceProfile = {
   lane: 'user-blocking',
   hydrationPolicy: 'visible',
   criticalMeasurements: ['mount', 'event'],
-  cleanup: ['xstate-subscription', 'group-keyboard-navigation']
+  cleanup: ['xtendState-subscription', 'group-keyboard-navigation']
 } as const;
 
 export type XRadioPerformanceProfile = typeof xRadioPerformanceProfile;

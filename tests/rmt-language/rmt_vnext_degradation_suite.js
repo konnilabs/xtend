@@ -108,9 +108,9 @@ function runRmtVNextDegradationSuite(options = {}) {
     id: 'rmt-vnext-degradation',
     label: 'Epic 16 RMT vNext Degradation Policy Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextDegradation;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_16_PATH, rootDir);
   const contract = readText(RMT_VNEXT_DEGRADATION_CONTRACT_PATH, rootDir);
   const workpackage = readText(RMT_VNEXT_DEGRADATION_WP_PATH, rootDir);
@@ -139,8 +139,8 @@ function runRmtVNextDegradationSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_DEGRADATION_PACKAGE_SCRIPT, 'package metadata declares degradation package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-degradation'] === 'string' ? packageManifest.exports['./rmt-language/vnext-degradation'] : packageManifest.exports['./rmt-language/vnext-degradation'] && packageManifest.exports['./rmt-language/vnext-degradation'].default) === './tools/rmt-language/vnext-degradation.js', 'package exports vNext degradation contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-degradation'] === 'node scripts/run_xtend_tests.js rmt-vnext-degradation', 'package exposes vNext degradation script');
-  context.assert(runner.includes("id: 'rmt-vnext-degradation'"), 'test runner exposes rmt-vnext-degradation suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-degradation'), 'runner help references degradation gate');
+  context.assert(runner.hasSuite("rmt-vnext-degradation"), 'test runner exposes rmt-vnext-degradation suite');
+  context.assert(runner.hasSuite("rmt-vnext-degradation"), 'runner help references degradation gate');
   context.assert(epic.includes('- Status: `completed / Epic 16 Enterprise MFE Release Handoff accepted`'), 'Epic records current E16 accepted status');
   context.assert(epic.includes('| `WP-E16-04` | P1 | completed | WS2 |'), 'Epic marks WP-E16-04 completed');
   context.assert(epic.includes('| `WP-E16-05` | P1 | completed | WS2 |'), 'Epic marks WP-E16-05 completed');

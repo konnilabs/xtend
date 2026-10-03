@@ -5,7 +5,7 @@ export const xProgressPerformanceProfile = {
   lane: 'background',
   hydrationPolicy: 'visible',
   criticalMeasurements: ['mount', 'hydrate', 'event'],
-  cleanup: ['xstate-subscription']
+  cleanup: ['xtendState-subscription']
 } as const;
 
 export type XProgressPerformanceProfile = typeof xProgressPerformanceProfile;

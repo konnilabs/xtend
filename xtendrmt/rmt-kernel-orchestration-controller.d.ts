@@ -1,4 +1,6 @@
-export const RMT_KERNEL_ORCHESTRATION_CONTROLLER_SCHEMA: 'xtend.rmt.kernel-orchestration-controller.v1';
+import type { RmtJobHandle, RmtKernelScheduler, RmtKernelSchedulerOptions } from './rmt-kernel-scheduler.js';
+
+export const RMT_KERNEL_ORCHESTRATION_CONTROLLER_SCHEMA: 'xtend.rmt.kernel-orchestration-controller.v2';
 export const RMT_KERNEL_ORCHESTRATION_DIAGNOSTIC_SCHEMA: 'xtend.rmt.kernel-orchestration-diagnostic.v1';
 
 export interface RmtKernelOrchestrationControllerOptions {
@@ -6,6 +8,9 @@ export interface RmtKernelOrchestrationControllerOptions {
   artifact?: Record<string, unknown> | null;
   plan?: Record<string, unknown>;
   scheduler?: Record<string, unknown> | null;
+  kernelScheduler?: RmtKernelScheduler | null;
+  schedulerFactory?: (options?: RmtKernelSchedulerOptions) => RmtKernelScheduler;
+  schedulerHostPort?: RmtKernelSchedulerOptions['hostPort'];
   diagnostics?: unknown[];
   strict?: boolean;
   hostAdapter?: Record<string, unknown> | null;
@@ -52,10 +57,11 @@ export interface RmtKernelOrchestrationController {
   readonly core: unknown;
   readonly performanceRuntime: unknown;
   readonly schedulerBridge: unknown;
+  readonly scheduler: RmtKernelScheduler;
   readonly hostAdapter: unknown;
   boot(): unknown;
-  scheduleWork(kind: string, callback: (context: unknown) => unknown, metadata?: Record<string, unknown>): unknown;
-  scheduleEndpoint(endpointName: string, scope: string, callback: (context: unknown) => unknown, metadata?: Record<string, unknown>): unknown;
+  scheduleWork<T = unknown>(kind: string, callback: (context: unknown) => T | PromiseLike<T>, metadata?: Record<string, unknown>): RmtJobHandle<T>;
+  scheduleEndpoint<T = unknown>(endpointName: string, scope: string, callback: (context: unknown) => T | PromiseLike<T>, metadata?: Record<string, unknown>): RmtJobHandle<T>;
   dispose(): void;
   recordAppRuntimeBackpressure(record?: Record<string, unknown>, metadata?: Record<string, unknown>): Record<string, unknown>;
   listScheduledEndpoints(): unknown[];

@@ -1,4 +1,6 @@
-import { xstate } from './xstate.js';
+import { componentStyleNonce } from './style-nonce.js';
+import { xtendState } from './xtend-state.js';
+import { trapOverlayFocus } from './overlay-focus.js';
 
 class XDrawer extends HTMLElement {
   static get observedAttributes() {
@@ -199,7 +201,7 @@ class XDrawer extends HTMLElement {
     this._onRouteChanged = this._handleRouteChanged.bind(this);
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
-      <style>
+      <style${componentStyleNonce(this.ownerDocument)}>
         :host {
           --xtend-overlay-surface: var(--xtend-surface, var(--section-bg, #ffffff));
           --xtend-overlay-text: var(--xtend-text, var(--text-color, #111827));
@@ -420,9 +422,9 @@ class XDrawer extends HTMLElement {
     this.shadowRoot.addEventListener('keydown', this._onShadowKeyDown);
     document.addEventListener('route-changed', this._onRouteChanged);
     document.addEventListener('xrouter-after-navigate', this._onRouteChanged);
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xdrawer-open-${this.id}` && typeof value === 'boolean') {
-        value ? this.openDrawer({ source: 'xstate' }) : this.closeDrawer({ source: 'xstate' });
+        value ? this.openDrawer({ source: 'xtend-state' }) : this.closeDrawer({ source: 'xtend-state' });
       }
     }, `xdrawer-open-${this.id}`);
     this.hasAttribute('open') ? this.openDrawer({ source: 'attribute', silent: true }) : this.closeDrawer({ source: 'initial', silent: true });
@@ -505,7 +507,7 @@ class XDrawer extends HTMLElement {
     this.toggleAttribute('open', isOpen);
     this._synchronizingAttribute = false;
     this._syncA11y();
-    xstate.set(`xdrawer-open-${this.id}`, isOpen);
+    xtendState.set(`xdrawer-open-${this.id}`, isOpen);
     if (!silent) {
       this.dispatchEvent(new CustomEvent(isOpen ? 'drawer-opened' : 'drawer-closed', {
         detail: { id: this.id, open: isOpen, source, placement: this.getAttribute('placement') || 'right', modal: this.modal },
@@ -622,18 +624,7 @@ class XDrawer extends HTMLElement {
 
   _handleFocusTrap(event) {
     if (!this._open || !this.modal || event.key !== 'Tab') return;
-    const focusable = this.shadowRoot.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-    if (!focusable.length) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    const activeElement = this.shadowRoot.activeElement || document.activeElement;
-    if (event.shiftKey && activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
+    trapOverlayFocus(event, this._drawer);
   }
 
   _handleRouteChanged(event) {

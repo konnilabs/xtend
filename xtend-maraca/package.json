@@ -1,8 +1,8 @@
 {
   "name": "@ccslabs/xtend-maraca",
-  "version": "0.6.1",
+  "version": "0.9.0",
   "private": false,
-  "description": "XTend Maraca ESM build and bundle planner for RMT-first 0.6.1 apps, XScaler and XSurface Shard.",
+  "description": "XTend Maraca ESM build and bundle planner for RMT-first 0.9.0 apps, XScaler and XSurface Shard.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -68,7 +68,19 @@
       "types": "./service-build-provider.d.ts",
       "default": "./service-build-provider.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./page-client": {
+      "types": "./page-client.d.ts",
+      "default": "./page-client.mjs"
+    },
+    "./page-bootstrap": {
+      "types": "./page-bootstrap.d.ts",
+      "default": "./page-bootstrap.mjs"
+    },
+    "./remote-surface": {
+      "types": "./remote-surface.d.ts",
+      "import": "./remote-surface.mjs"
+    }
   },
   "files": [
     "index.js",
@@ -76,6 +88,11 @@
     "runtime.js",
     "runtime.d.ts",
     "plan-runtime.mjs",
+    "abort-boundary.mjs",
+    "abort-boundary.d.ts",
+    "fastpass.mjs",
+    "fastpass.schema.json",
+    "fastpass-contract.js",
     "plan-runtime.d.ts",
     "browser-composition-runtime.mjs",
     "browser-composition-runtime.d.ts",
@@ -100,7 +117,13 @@
     "service-build-provider.js",
     "service-build-provider.d.ts",
     "README.md",
-    "package.json"
+    "package.json",
+    "page-client.mjs",
+    "page-client.d.ts",
+    "page-bootstrap.mjs",
+    "page-bootstrap.d.ts",
+    "remote-surface.mjs",
+    "remote-surface.d.ts"
   ],
   "engines": {
     "node": ">=24"
@@ -111,8 +134,8 @@
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
-    "@ccslabs/xtend": "0.6.1",
-    "@ccslabs/xtend-compiler": "0.6.1"
+    "@ccslabs/xtend": "0.9.0",
+    "@ccslabs/xtend-compiler": "0.9.0"
   },
   "peerDependenciesMeta": {
     "@ccslabs/xtend": {

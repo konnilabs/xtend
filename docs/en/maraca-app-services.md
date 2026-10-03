@@ -130,3 +130,11 @@ Start diagnostics with `dist/xtend.maraca.services.json` and `dist/xtend.maraca.
 | `xtend.maraca.app_services.manual_adapter_collision` | A legacy boot adapter collides with the generated registry; strict mode makes this an error. |
 
 Continue with [XTend Maraca](./xtend-maraca.md), [Maraca Orchestration](./xtend-maraca-orchestration.md), and [RMT Actions and Events](./learn-rmt-actions-events.md).
+
+## Request-scoped Laravel bridge and progressive controls
+
+`Ccslabs\XTend\AppServiceHost` connects a prebuilt AppService manifest, a PHP callable registry and the current Laravel request. The web route retains session and CSRF middleware. Handlers receive `context["laravelRequest"]`; RMT input policies run before the handler. Laravel validation failures return HTTP 422 with field errors and the error bag for the RMT validation group. A rejected check remains a failed invocation.
+
+With `viewTemplate.progressive: true`, supported XTend form controls use a native SSR projection adopted by the shared renderer. Input, button, form, select, textarea, checkbox and radio are supported. Native names, labels, value bindings and validity messages are preserved. `data-xtend-component` retains the declared component identity without creating a second control.
+
+`@ccslabs/xtend/maraca/remote-surface` binds declared RMT state to an XScaler plan. The separately built adapter loads after preflight, integrity verification and ATC attach. PHP uses `XScalerPhpFragmentAdapter` from the built Laravel package. It accepts data only for declared state targets, preserves failures and emits exactly one terminal state after cleanup. Hosts and I/O must honor the 30-second deadline; cleanup is limited to five seconds. Remote code does not execute in the RMT kernel.

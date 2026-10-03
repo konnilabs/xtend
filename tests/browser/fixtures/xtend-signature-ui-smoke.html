@@ -5,7 +5,7 @@
     <title>XTend Signature UI Visual Quality Smoke</title>
     <meta
       name="xtend-preload"
-      content="xstate,x-theme,x-icon,x-button,x-menu,x-header,x-drawer,x-side-panel,x-modal,x-popover,x-toast,x-input"
+      content="xtend-state,x-theme,x-icon,x-button,x-menu,x-header,x-drawer,x-side-panel,x-modal,x-popover,x-toast,x-input"
     >
     <style>
       :root {
@@ -155,13 +155,13 @@
     </style>
     <script>
       window.__xtendComponentState = {};
-      window.xstate = {
+      window.XTend.state = {
         get(key) { return window.__xtendComponentState[key]; },
         set(key, value) { window.__xtendComponentState[key] = value; },
         subscribe() { return function unsubscribe() {}; }
       };
     </script>
-    <script type="module" src="/components/xstate.js"></script>
+    <script type="module" src="/components/xtend-state.js"></script>
     <script type="module" src="/components/xicon.js"></script>
     <script type="module" src="/components/xbutton.js"></script>
     <script type="module" src="/components/xmenu.js"></script>

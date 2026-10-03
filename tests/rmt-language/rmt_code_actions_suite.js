@@ -268,10 +268,10 @@ function runLanguageServerCodeActionChecks(context, rootDir) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtCodeActions;
   const languageServerMetadata = packageManifest.xtend && packageManifest.xtend.rmtLanguageServer;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
 
@@ -287,7 +287,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(languageServerMetadata && languageServerMetadata.codeActionProvider === true, 'Language Server metadata enables code actions');
   context.assert((typeof packageManifest.exports['./rmt-language/code-actions'] === 'string' ? packageManifest.exports['./rmt-language/code-actions'] : packageManifest.exports['./rmt-language/code-actions'] && packageManifest.exports['./rmt-language/code-actions'].default) === './tools/rmt-language/code-actions.js', 'package exports RMT Code Actions provider');
   context.assert(packageManifest.scripts['test:rmt-code-actions'] === 'node scripts/run_xtend_tests.js rmt-code-actions', 'package exposes rmt-code-actions script');
-  context.assert(runner.includes("id: 'rmt-code-actions'"), 'test runner exposes rmt-code-actions suite');
+  context.assert(runner.hasSuite("rmt-code-actions"), 'test runner exposes rmt-code-actions suite');
   context.assert(epic.includes('| `WP-E14-10` | P1 | completed | WS5 |'), 'Epic marks WP-E14-10 completed');
   context.assert(epic.includes('WP-E14-11` ist `ready`'), 'Epic hands off WP-E14-11 as ready');
   context.assert(architecture.includes('Implementierungsstand nach `WP-E14-10`'), 'Architecture documents RMT Code Actions status');

@@ -1,4 +1,4 @@
-import { xstate } from '../../../components/xstate.js';
+import { xtendState } from '../../../components/xtend-state.js';
 
 export type XSelectEventName = 'select-changed' | 'select-invalid';
 
@@ -56,7 +56,7 @@ export class XSelect extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.id) this.id = `xselect-${Math.random().toString(36).slice(2, 10)}`;
-    xstate.set(`xselect-value-${this.id}`, this.value);
+    xtendState.set(`xselect-value-${this.id}`, this.value);
   }
 
   get values(): string[] {

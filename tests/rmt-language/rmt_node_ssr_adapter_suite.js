@@ -60,13 +60,13 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
     id: 'rmt-node-ssr-adapter',
     label: 'RMT Node SSR Adapter'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const xtendrmtManifest = readJson('xtendrmt/package.json', rootDir);
   const manifest = readJson('components/manifest.json', rootDir);
   const sourceTexts = createSourceTexts(manifest, rootDir);
   const adapterSource = readText(RMT_NODE_SSR_ADAPTER_PATH, rootDir);
   const adapterTypes = readText(RMT_NODE_SSR_ADAPTER_TYPES, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const syntax = syntaxCheckFile(RMT_NODE_SSR_ADAPTER_PATH, { rootDir, extension: '.js' });
   const adapterApi = await import(`file://${resolveRepoPath(RMT_NODE_SSR_ADAPTER_PATH, rootDir)}`);
 
@@ -91,6 +91,20 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
   context.assert(adapterTypes.includes('RmtResumeEnvelope'), 'declarations expose the resume envelope');
 
   const adapter = adapterApi.createRmtNodeSsrAdapter({ manifest, sourceTexts });
+  const atomic = adapter.renderDescriptorToHtml({ type: 'element', tag: 'input', attributes: {
+    type: 'search', name: 'query', role: 'search', value: '$model.search.query',
+    title: '${model.search.query}', placeholder: { op: 'literal', value: 'search' }
+  } }, { model: { search: { query: 'GNU/Linux', privateState: 'never-in-attributes' }, query: { privateState: true } } });
+  context.assert(atomic.html.includes('type="search"') && atomic.html.includes('name="query"') && atomic.html.includes('role="search"'), 'native attribute literals cannot alias model state');
+  context.assert(atomic.html.includes('value="GNU/Linux"') && atomic.html.includes('title="GNU/Linux"'), 'explicit attribute bindings and interpolation remain supported');
+  context.assert(!atomic.html.includes('never-in-attributes'), 'atomic attributes never serialize unrelated model payloads');
+  for (const value of [{ op: 'literal', value: { secret: 'blocked' } }, '$model.search', { op: 'literal', value: ['search'] }]) {
+    const invalid = adapter.renderDescriptorToHtml({ type: 'element', tag: 'input', attributes: { type: value } }, { model: { search: { secret: 'blocked' } } });
+    context.assert(!invalid.html.includes('type=') && !invalid.html.includes('blocked'), 'structured native attribute values are omitted');
+    context.assert(invalid.diagnostics.some(d => d.code === 'rmt.node_ssr.attribute_value_invalid'), 'structured native attribute values produce a stable diagnostic');
+  }
+  const coreComponents = await adapter.render({ descriptor: { type: 'fragment', children: Object.keys(manifest).filter(tag => tag.startsWith('x-')).map(tag => ({ type: 'component', tag })) } });
+  context.assert(!coreComponents.diagnostics.some(d => d.code === 'rmt.node_ssr.component_capability_missing'), 'all manifest core components have SSR capability coverage, including x-section');
   const descriptorRender = await adapter.render({
     descriptor: {
       type: 'component',
@@ -161,6 +175,8 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
     }
   });
   context.assert(resumeRender.ok === true, 'signed server prerender resume succeeds');
+  context.assert(resumeRender.fabricTelemetryHints.coverage.descriptorElementNodes === 1 && resumeRender.fabricTelemetryHints.coverage.resumeMarkedNodes === 1 && resumeRender.fabricTelemetryHints.coverage.resumeMarkerCoverage === 1, 'resume coverage counts rendered descriptor elements and adoption markers');
+  context.assert(coreComponents.fabricTelemetryHints.coverage.componentNodes === Object.keys(manifest).filter(tag => tag.startsWith('x-')).length && coreComponents.fabricTelemetryHints.coverage.missingCapabilityNodes === 0, 'coverage reports complete configured component registry');
   context.assert(resumeRender.resume && resumeRender.resume.schema === RMT_SSR_RESUME_ENVELOPE_SCHEMA, 'resume render emits the public resume envelope');
   context.assert(resumeRender.response.executionMode === 'server_prerender_resume', 'resume response keeps the requested execution mode');
   context.assert(resumeRender.html.includes('data-rmt-resume-root="true"'), 'resume HTML exposes a stable root adoption marker');
@@ -270,7 +286,7 @@ async function runRmtNodeSsrAdapterSuite(options = {}) {
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives'].includes('rmt-node-ssr-adapter'), 'primitive aggregate includes Node SSR adapter suite');
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives:report'].includes('rmt-node-ssr-adapter'), 'primitive report includes Node SSR adapter suite');
   context.assert((packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.suites || []).includes('rmt-node-ssr-adapter'), 'CI primitive gate includes Node SSR adapter suite');
-  context.assert(runner.includes("id: 'rmt-node-ssr-adapter'"), 'test runner registers Node SSR adapter suite');
+  context.assert(runner.hasSuite("rmt-node-ssr-adapter"), 'test runner registers Node SSR adapter suite');
   context.assert(packageManifest.xtend.rmtNodeSsrAdapter.schema === RMT_NODE_SSR_ADAPTER_SCHEMA, 'package metadata records Node SSR adapter schema');
   context.assert(packageManifest.xtend.rmtNodeSsrAdapter.localGate === RMT_NODE_SSR_LOCAL_GATE, 'package metadata records Node SSR adapter local gate');
   context.assert(packageManifest.xtend.rmtNodeSsrAdapter.packageScript === RMT_NODE_SSR_PACKAGE_SCRIPT, 'package metadata records Node SSR adapter package script');

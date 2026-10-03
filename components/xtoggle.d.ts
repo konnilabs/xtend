@@ -156,7 +156,7 @@ declare class XToggle extends HTMLElement {
             readonly touchTargetMinPx: 44;
             readonly disabledBusyGuards: true;
         };
-        readonly cleanup: readonly ["toggle-event-listeners", "xstate-subscription"];
+        readonly cleanup: readonly ["toggle-event-listeners", "xtendState-subscription"];
     };
     static get xtendFormControlUxProfile(): XToggleFormControlUxProfile;
     static get xtendScreenreaderSignals(): {

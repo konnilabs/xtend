@@ -170,7 +170,7 @@
     const registrations = new Map();
     const diagnostics = [];
     const chordTimeoutMs = Number.isFinite(Number(options.chordTimeoutMs)) ? Number(options.chordTimeoutMs) : DEFAULT_CHORD_TIMEOUT_MS;
-    const xstate = options.xstate || null;
+    const stateRuntime = options.stateRuntime || null;
     const fabric = options.fabric || null;
     const actionExecutor = typeof options.actionExecutor === 'function' ? options.actionExecutor : null;
     const referencePolicy = normalizeReferencePolicy(options, true);
@@ -178,11 +178,11 @@
     let lastStrokeAt = 0;
 
     function writeState(key, value) {
-      if (xstate && typeof xstate.set === 'function') xstate.set(key, clone(value));
+      if (stateRuntime && typeof stateRuntime.set === 'function') stateRuntime.set(key, clone(value));
     }
 
     function readState(key) {
-      if (xstate && typeof xstate.get === 'function') return xstate.get(key);
+      if (stateRuntime && typeof stateRuntime.get === 'function') return stateRuntime.get(key);
       return undefined;
     }
 

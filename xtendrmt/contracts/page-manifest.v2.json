@@ -1,0 +1,157 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "xtend.page-manifest.v2",
+  "title": "xtend.page-manifest.v2",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "enum": [
+        "xtend.page-manifest.v2"
+      ]
+    },
+    "version": {
+      "type": "string"
+    },
+    "initialResumeSchema": {
+      "enum": [
+        "xtend.page-initial-resume.v1"
+      ]
+    },
+    "pages": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "artifact": {
+            "anyOf": [
+              {
+                "$ref": "portable-render.v2.json"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "schema": {
+                    "enum": [
+                      "xtend.rmt.portable-render.v1"
+                    ]
+                  },
+                  "inputs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "defaults": {
+                    "type": "object"
+                  },
+                  "descriptor": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "schema",
+                  "inputs",
+                  "defaults",
+                  "descriptor"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "input": {
+            "type": "object"
+          },
+          "head": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "layout": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "maraca": {
+            "type": "object"
+          }
+        },
+        "required": [],
+        "additionalProperties": true
+      }
+    },
+    "layouts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "artifact": {
+            "anyOf": [
+              {
+                "$ref": "portable-render.v2.json"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "schema": {
+                    "enum": [
+                      "xtend.rmt.portable-render.v1"
+                    ]
+                  },
+                  "inputs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "defaults": {
+                    "type": "object"
+                  },
+                  "descriptor": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "schema",
+                  "inputs",
+                  "defaults",
+                  "descriptor"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "head": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "artifact"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "assets": {
+      "type": "object"
+    },
+    "assetFingerprints": {
+      "type": "object"
+    },
+    "runtimeFingerprints": {
+      "type": "object"
+    },
+    "configurationFingerprint": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "version",
+    "pages"
+  ],
+  "additionalProperties": true
+}

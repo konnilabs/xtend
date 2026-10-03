@@ -34,6 +34,7 @@
     routeFiberInstrumentation: 'xtend.fabric.route-fiber-instrumentation.v1',
     runtimeDiagnosticsBridge: 'xtend.fabric.runtime-diagnostics-bridge.v1',
     telemetrySnapshot: 'xtend.fabric.telemetry-snapshot.v1',
+    kernelSchedulerEvent: 'xtend.fabric.kernel-scheduler-event.v1',
     kernelPanicRecovery: 'xtend.fabric.kernel-panic-recovery.v1',
     prewarmWorkerTopology: 'xtend.rmt.prewarm-worker-topology.v1',
     backpressureSignal: 'xtend.fabric.backpressure-signal.v1',
@@ -1333,6 +1334,7 @@
     const fibers = [];
     const componentTelemetry = [];
     const kernelPanicRecoveryRecords = [];
+    const kernelSchedulerEvents = [];
     const reporters = [createNoopReporter()];
     let telemetrySnapshotCounter = 0;
 
@@ -1636,6 +1638,54 @@
       fibers.push(fiber);
       trimStore(fibers);
       return record;
+    }
+
+    function recordKernelSchedulerEvent(eventInput = {}, defaultsInput = {}) {
+      const input = asObject(eventInput);
+      const defaults = asObject(defaultsInput);
+      const event = Object.freeze({
+        schema: CONTRACTS.kernelSchedulerEvent,
+        sequence: Number(input.sequence) || kernelSchedulerEvents.length + 1,
+        jobId: clampString(input.jobId, ''),
+        phase: clampString(input.phase, 'unknown'),
+        status: clampString(input.status, 'unknown'),
+        endpointName: clampString(input.endpointName, ''),
+        scope: clampString(input.scope, ''),
+        rootId: clampString(input.rootId, ''),
+        lane: inferLane('rmt.scheduler', input.lane || 'diagnostics'),
+        priority: Number(input.priority) || 0,
+        reason: clampString(input.reason, ''),
+        createdAt: Number(input.createdAt) || 0,
+        startedAt: Number(input.startedAt) || 0,
+        finishedAt: Number(input.finishedAt) || 0,
+        yieldCount: Number(input.yieldCount) || 0,
+        source: clampString(defaults.source, 'rmt-kernel-scheduler'),
+        metadata: redactValue(input.metadata || {})
+      });
+      kernelSchedulerEvents.push(event);
+      trimStore(kernelSchedulerEvents);
+      const failed = event.status === 'failed' || event.status === 'aborted' || event.status === 'panic_blocked';
+      const fiber = normalizeFiber({
+        id: event.jobId || undefined,
+        kind: 'rmt.scheduler',
+        operation: event.endpointName || 'rmt.scheduler.work',
+        lane: event.lane,
+        phase: event.phase,
+        status: failed ? 'failed' : (event.status === 'completed' ? 'completed' : 'running'),
+        source: event.source,
+        scope: event.scope,
+        scheduleRef: event.endpointName,
+        metadata: {
+          schedulerEvent: event
+        }
+      }, {
+        idPrefix: config.idPrefix,
+        source: 'rmt-kernel-scheduler',
+        lane: event.lane
+      }, config.clock);
+      fibers.push(fiber);
+      trimStore(fibers);
+      return event;
     }
 
     function numericDuration(value) {
@@ -2211,7 +2261,7 @@
       }
       try {
         return target.recordTelemetrySnapshot(snapshot, {
-          xstate: options.xstate,
+          stateProjectionPort: options.stateProjectionPort,
           diagnosticsHub: options.diagnosticsHub,
           scheduler: options.scheduler,
           schedule: options.schedule,
@@ -2959,7 +3009,11 @@
       }
 
       function getStateTarget(stateTarget) {
-        return stateTarget || options.xstate || (config.window && config.window.xstate) || (globalTarget && globalTarget.xstate) || null;
+        return stateTarget
+          || options.stateRuntime
+          || (config.window && config.window.XTend && config.window.XTend.state)
+          || (globalTarget && globalTarget.XTend && globalTarget.XTend.state)
+          || null;
       }
 
       function mirrorDiagnosticToState(diagnostic, stateTarget = null, mirrorOptions = {}) {
@@ -2975,12 +3029,12 @@
         return wroteLast || wroteSnapshot;
       }
 
-      function connectXState(stateTarget = null, connectionOptions = {}) {
+      function connectState(stateTarget = null, connectionOptions = {}) {
         const target = getStateTarget(stateTarget);
         const connection = {
           schema: CONTRACTS.runtimeDiagnosticsBridge,
-          kind: 'xstate',
-          targetRef: connectionOptions.targetRef || 'xstate',
+          kind: 'xtend-state',
+          targetRef: connectionOptions.targetRef || 'xtend-state',
           disposed: false,
           dispose() {
             connection.disposed = true;
@@ -2997,8 +3051,8 @@
         if (!target) {
           emitDiagnostic({
             level: 'warn',
-            code: 'xtend.fabric.xstate.unavailable',
-            message: 'XTend-Fabric runtime diagnostics bridge could not find an xstate target.',
+            code: 'xtend.fabric.state.unavailable',
+            message: 'XTend-Fabric runtime diagnostics bridge could not find an XTend state target.',
             source: 'fabric',
             phase: 'state',
             metadata: {
@@ -3010,9 +3064,9 @@
         }
 
         connection.unregisterReporter = registerReporter(createReporterAdapter({
-          id: connectionOptions.reporterId || `${bridgeId}.xstate-reporter`,
-          kind: 'xstate',
-          delivery: 'xstate',
+          id: connectionOptions.reporterId || `${bridgeId}.state-reporter`,
+          kind: 'xtend-state',
+          delivery: 'xtend-state',
           external: false,
           minimumLevel: connectionOptions.minimumLevel || 'debug',
           capabilities: ['diagnostics', 'stateMirror'],
@@ -3033,9 +3087,9 @@
             if (connection.disposed || disposed || !key || isIgnoredStateKey(key)) return;
             emitDiagnostic({
               level: connectionOptions.level || 'debug',
-              code: 'xtend.fabric.xstate.changed',
-              message: `XTend xstate changed "${key}".`,
-              source: 'xstate',
+              code: 'xtend.fabric.state.changed',
+              message: `XTend state changed "${key}".`,
+              source: 'xtend-state',
               phase: 'state',
               correlationId: connectionOptions.correlationId,
               metadata: {
@@ -3050,8 +3104,8 @@
 
         emitDiagnostic({
           level: 'info',
-          code: 'xtend.fabric.xstate.connected',
-          message: 'XTend-Fabric runtime diagnostics bridge connected xstate.',
+          code: 'xtend.fabric.state.connected',
+          message: 'XTend-Fabric runtime diagnostics bridge connected XTend state.',
           source: 'fabric',
           phase: 'state',
           correlationId: connectionOptions.correlationId,
@@ -3176,8 +3230,8 @@
 
       function connectAll(connectionOptions = {}) {
         const activeConnections = [];
-        if (connectionOptions.xstate !== false) {
-          activeConnections.push(connectXState(connectionOptions.xstate || options.xstate, connectionOptions.xstateOptions || {}));
+        if (connectionOptions.stateRuntime !== false) {
+          activeConnections.push(connectState(connectionOptions.stateRuntime || options.stateRuntime, connectionOptions.stateOptions || {}));
         }
         if (connectionOptions.api !== false) {
           activeConnections.push(connectApi(connectionOptions.api || options.api, connectionOptions.apiOptions || {}));
@@ -3192,7 +3246,7 @@
         schema: CONTRACTS.runtimeDiagnosticsBridge,
         id: bridgeId,
         statePrefix,
-        connectXState,
+        connectState,
         connectApi,
         connectRmtDiagnostics: connectRmtDiagnosticsBridge,
         createRmtDiagnosticsHub,
@@ -3231,6 +3285,7 @@
       createBackpressureSignal,
       recordComponentTelemetry,
       recordKernelPanicRecovery,
+      recordKernelSchedulerEvent,
       normalizeKernelPanicRecoveryRecord,
       summarizeKernelPanicRecovery,
       summarizeStreamPressure,
@@ -3257,6 +3312,9 @@
       getKernelPanicRecoveryRecords() {
         return kernelPanicRecoveryRecords.slice();
       },
+      getKernelSchedulerEvents() {
+        return kernelSchedulerEvents.slice();
+      },
       getPanicRecoverySnapshot() {
         return summarizeKernelPanicRecovery(kernelPanicRecoveryRecords);
       },
@@ -3275,12 +3333,16 @@
       clearKernelPanicRecoveryRecords() {
         kernelPanicRecoveryRecords.splice(0, kernelPanicRecoveryRecords.length);
       },
+      clearKernelSchedulerEvents() {
+        kernelSchedulerEvents.splice(0, kernelSchedulerEvents.length);
+      },
       dispose() {
         reporters.splice(1).forEach((reporter) => reporter.dispose());
         diagnostics.splice(0, diagnostics.length);
         fibers.splice(0, fibers.length);
         componentTelemetry.splice(0, componentTelemetry.length);
         kernelPanicRecoveryRecords.splice(0, kernelPanicRecoveryRecords.length);
+        kernelSchedulerEvents.splice(0, kernelSchedulerEvents.length);
       }
     };
 

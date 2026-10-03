@@ -1,4 +1,4 @@
-import { xstate } from '../../../components/xstate.js';
+import { xtendState } from '../../../components/xtend-state.js';
 
 export type XTooltipEventName = 'tooltip-opened' | 'tooltip-closed';
 export type XTooltipPlacement = 'top' | 'right' | 'bottom' | 'left';
@@ -46,7 +46,7 @@ export class XTooltip extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.id) this.id = `xtooltip-${Math.random().toString(36).slice(2, 10)}`;
-    xstate.set(`xtooltip-open-${this.id}`, this.open);
+    xtendState.set(`xtooltip-open-${this.id}`, this.open);
   }
 
   get open(): boolean {

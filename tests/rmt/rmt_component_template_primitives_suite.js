@@ -378,8 +378,8 @@ async function runRmtComponentTemplatePrimitivesSuite(options = {}) {
   const workpackageDoc = readText(RMT_COMPONENT_TEMPLATE_PRIMITIVES_WORKPACKAGE_DOC, rootDir);
   const backlog = readText('development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md', rootDir);
   const epic = readText('development/docs-evidence/root/epic18-media-manager-vendor-upstream.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const runtimeSource = readText(RMT_COMPONENT_TEMPLATE_PRIMITIVES_RUNTIME, rootDir);
   const typeSource = readText(RMT_COMPONENT_TEMPLATE_PRIMITIVES_TYPES, rootDir);
   const rendererModule = await loadRendererModule(rootDir);
@@ -463,8 +463,8 @@ async function runRmtComponentTemplatePrimitivesSuite(options = {}) {
   );
   context.assert(epic.includes('| `WP-E18-06` | P0 | completed'), 'Epic marks WP-E18-06 completed');
   context.assert(epic.includes('rmt-component-template-primitives'), 'Epic gate chain includes component primitive gate');
-  context.assert(runner.includes("require('../tests/rmt/rmt_component_template_primitives_suite')"), 'Runner imports component primitive suite');
-  context.assert(runner.includes("id: 'rmt-component-template-primitives'"), 'Runner registers component primitive suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/rmt_component_template_primitives_suite.js" }), 'Runner imports component primitive suite');
+  context.assert(runner.hasSuite("rmt-component-template-primitives"), 'Runner registers component primitive suite');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:rmt-component-template-primitives'] === 'node scripts/run_xtend_tests.js rmt-component-template-primitives', 'Package exposes component primitive script');
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtComponentTemplatePrimitives;
   context.assert(metadata && metadata.schema === RMT_COMPONENT_TEMPLATE_PRIMITIVES_SCHEMA, 'Package metadata exposes component primitive schema');

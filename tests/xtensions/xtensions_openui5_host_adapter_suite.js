@@ -61,8 +61,8 @@ function createClock() {
 
 function loadCommon(rootDir) {
   return {
-    packageManifest: readJson('package.json', rootDir),
-    runner: readText('scripts/run_xtend_tests.js', rootDir),
+    packageManifest: require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir)),
+    runner: require('../utils/test-catalog').readRunnerCatalog(rootDir),
     backlog: readText(BACKLOG_PATH, rootDir),
     contractDoc: readText(XTENSIONS_OPENUI5_ADAPTER_CONTRACT_PATH, rootDir),
     fixture: readJson(XTENSIONS_OPENUI5_ADAPTER_FIXTURE_PATH, rootDir),
@@ -105,8 +105,8 @@ function assertPackageWiring(context, common) {
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/openui5-host-adapter.d.ts', 'package exports OpenUI5 host adapter types');
   context.assert(packageManifest.scripts['test:xtensions-openui5-host-controller'] === 'node scripts/run_xtend_tests.js xtensions-openui5-host-controller', 'package exposes OpenUI5 host test script');
   context.assert(packageManifest.scripts['test:xtensions-openui5-loader-boundary'] === 'node scripts/run_xtend_tests.js xtensions-openui5-loader-boundary', 'package exposes OpenUI5 loader boundary test script');
-  context.assert(common.runner.includes("id: 'xtensions-openui5-host-controller'"), 'runner exposes OpenUI5 host controller suite');
-  context.assert(common.runner.includes("id: 'xtensions-openui5-loader-boundary'"), 'runner exposes OpenUI5 loader boundary suite');
+  context.assert(common.runner.hasSuite('xtensions-openui5-host-controller'), 'runner exposes OpenUI5 host controller suite');
+  context.assert(common.runner.hasSuite('xtensions-openui5-loader-boundary'), 'runner exposes OpenUI5 loader boundary suite');
   context.assert(common.backlog.includes('| `XTN-16` | P2 | completed | WS14 |'), 'backlog marks XTN-16 completed');
   context.assert(common.contractDoc.includes('Contract: `xtend.xtensions.openui5-adapter.v1`'), 'contract document declares OpenUI5 schema');
   context.assert(common.contractDoc.includes('product-local-bundled'), 'contract document names product-local bundled dependency policy');

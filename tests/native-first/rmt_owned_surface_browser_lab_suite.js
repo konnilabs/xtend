@@ -151,8 +151,8 @@ function runRmtOwnedSurfaceBrowserLabSuite(options = {}) {
   const fixtures = readJson(FIXTURE_PATH, rootDir);
   const browserFixture = readText(BROWSER_FIXTURE_PATH, rootDir);
   const visualBaseline = readJson(VISUAL_BASELINE_PATH, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtOwnedSurfaceBrowserLabVisualEvidence;
   const suiteSyntax = syntaxCheckFile(SUITE_PATH, { rootDir, extension: '.js' });
 
@@ -367,10 +367,10 @@ function runRmtOwnedSurfaceBrowserLabSuite(options = {}) {
   ], 'Backlog WP-RMO-06 status');
 
   context.assert(packageManifest.scripts['test:rmt-owned-surface-browser-lab'] === 'node scripts/run_xtend_tests.js rmt-owned-surface-browser-lab', 'Package exposes WP-RMO-06 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/rmt_owned_surface_browser_lab_suite')", 'Runner imports WP-RMO-06 suite');
-  context.assertIncludes(runner, "id: 'rmt-owned-surface-browser-lab'", 'Runner registers WP-RMO-06 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/rmt_owned_surface_browser_lab_suite.js" }), 'Runner imports WP-RMO-06 suite');
+  context.assert(runner.hasSuite("rmt-owned-surface-browser-lab"), 'Runner registers WP-RMO-06 suite');
   REQUIRED_SOURCE_GATES.forEach((gate) => {
-    context.assertIncludes(runner, `id: '${gate}'`, `Runner registers source gate ${gate}`);
+    context.assert(runner.hasSuite(gate), `Runner registers source gate ${gate}`);
   });
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes contract schema');

@@ -1,8 +1,8 @@
 {
   "name": "@ccslabs/xtend-compiler",
-  "version": "0.6.1",
+  "version": "0.9.0",
   "private": false,
-  "description": "XTendRMT compiler, parser, linter and language tooling for 0.6.1 orchestration, XSurface Shard and XScaler flows.",
+  "description": "XTendRMT compiler, parser, linter and language tooling for 0.9.0 orchestration, XSurface Shard and XScaler flows.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -19,13 +19,18 @@
   "main": "./rmt-language/vnext-compiler.js",
   "types": "./rmt-language/vnext-compiler.d.ts",
   "bin": {
-    "xtend-rmt-lint": "./rmt-linter/cli.js"
+    "xtend-rmt-lint": "./rmt-linter/cli.js",
+    "xtend-rmt-jit-cache": "./rmt-jit-cache-cli.js"
   },
   "files": [
     "README.md",
+    "project-index",
     "rmt-language",
     "rmt-linter",
     "rmt-language-server",
+    "rmt-jit-kernel-cache.js",
+    "rmt-jit-kernel-cache.d.ts",
+    "rmt-jit-cache-cli.js",
     "tooling-bridge.js",
     "tooling-bridge.d.ts",
     "tooling-bridge-cli.js",
@@ -40,6 +45,10 @@
     "./rmt-language/vnext-compiler": {
       "types": "./rmt-language/vnext-compiler.d.ts",
       "default": "./rmt-language/vnext-compiler.js"
+    },
+    "./jit-kernel-cache": {
+      "types": "./rmt-jit-kernel-cache.d.ts",
+      "default": "./rmt-jit-kernel-cache.js"
     },
     "./tooling-bridge": {
       "types": "./tooling-bridge.d.ts",
@@ -74,6 +83,10 @@
       "types": "./rmt-linter/cli.d.ts",
       "default": "./rmt-linter/cli.js"
     },
+    "./rmt-linter/reporter": {
+      "types": "./rmt-linter/reporter.d.ts",
+      "default": "./rmt-linter/reporter.js"
+    },
     "./rmt-language-server/server": {
       "types": "./rmt-language-server/server.d.ts",
       "default": "./rmt-language-server/server.js"
@@ -82,7 +95,23 @@
       "types": "./rmt-language-server/protocol.d.ts",
       "default": "./rmt-language-server/protocol.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./project-index": {
+      "types": "./project-index/index.d.ts",
+      "default": "./project-index/index.js"
+    },
+    "./project-index/cli": {
+      "types": "./project-index/cli.d.ts",
+      "default": "./project-index/cli.js"
+    },
+    "./rmt-language/page-build": {
+      "types": "./rmt-language/page-build.d.ts",
+      "default": "./rmt-language/page-build.js"
+    },
+    "./rmt-language/compilation-session": {
+      "types": "./rmt-language/compilation-session.d.ts",
+      "default": "./rmt-language/compilation-session.js"
+    }
   },
   "publishConfig": {
     "access": "public",
@@ -93,8 +122,8 @@
     "node": ">=24"
   },
   "peerDependencies": {
-    "@ccslabs/xtend-maraca": "0.6.1",
-    "@ccslabs/xtend-rmt": "0.6.1"
+    "@ccslabs/xtend-maraca": "0.9.0",
+    "@ccslabs/xtend-rmt": "0.9.0"
   },
   "peerDependenciesMeta": {
     "@ccslabs/xtend-maraca": {

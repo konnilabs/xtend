@@ -1,0 +1,29 @@
+{
+  "schema": "xtend.page-build.v1",
+  "target": "php",
+  "host": "laravel",
+  "assets": {
+    "entry": "/build/page.mjs",
+    "css": [
+      "/build/store.css"
+    ]
+  },
+  "pages": {
+    "Store": {
+      "source": "src/app.rmt",
+      "inputs": [
+        "shop.data",
+        "shop.recommendations",
+        "shop.name",
+        "shop.email",
+        "shop.street",
+        "shop.postal",
+        "shop.city",
+        "shop.shipping"
+      ],
+      "maraca": {
+        "entry": "/build/maraca/xtend.maraca.mjs"
+      }
+    }
+  }
+}

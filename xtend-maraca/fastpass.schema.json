@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xtendrmt.dev/schemas/maraca-fastpass.v1.schema.json",
+  "title": "Maraca FastPass action",
+  "description": "Opt-in shell effects on the shared RMT scheduler; runtime and compiler enforce the same execution restrictions.",
+  "type": "object",
+  "required": [
+    "id",
+    "effects"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "execution": {
+      "const": "fastpass"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "effects": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "kind",
+              "path"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "navigation"
+              },
+              "path": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "kind",
+                      "path"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "kind": {
+                        "const": "reference"
+                      },
+                      "path": {
+                        "type": "string",
+                        "pattern": "^input\\.[A-Za-z0-9_.]+$"
+                      }
+                    }
+                  }
+                ]
+              },
+              "scope": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "kind",
+              "target"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "focus",
+                  "close"
+                ]
+              },
+              "target": {
+                "type": "string",
+                "minLength": 1
+              },
+              "scope": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

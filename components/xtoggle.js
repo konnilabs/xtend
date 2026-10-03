@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 const X_TOGGLE_STATE_SCHEMA = 'xtend.component.x-toggle.state.v1';
 class XToggle extends HTMLElement {
     static formAssociated = true;
@@ -93,7 +93,7 @@ class XToggle extends HTMLElement {
                 touchTargetMinPx: 44,
                 disabledBusyGuards: true
             },
-            cleanup: ['toggle-event-listeners', 'xstate-subscription']
+            cleanup: ['toggle-event-listeners', 'xtendState-subscription']
         };
     }
     static get xtendFormControlUxProfile() {
@@ -441,7 +441,7 @@ class XToggle extends HTMLElement {
         this.control.addEventListener('keydown', this.handleKeydown);
         this.syncControl();
         this.publishState('attribute');
-        this.unsubscribeState = xstate.subscribe((key, value) => {
+        this.unsubscribeState = xtendState.subscribe((key, value) => {
             if (key === this.stateKey && typeof value === 'boolean' && value !== this.checked) {
                 this.setChecked(value, { emit: false, source: 'property' });
             }
@@ -655,8 +655,8 @@ class XToggle extends HTMLElement {
             value: this.value,
             source
         };
-        xstate.set(this.stateKey, this.checked);
-        xstate.set(`xtoggle-state-${this.id}`, state);
+        xtendState.set(this.stateKey, this.checked);
+        xtendState.set(`xtoggle-state-${this.id}`, state);
         this.stateText.textContent = this.checked ? 'On' : 'Off';
     }
 }

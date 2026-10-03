@@ -104,6 +104,7 @@ function cloneSnapshot(value) {
 
 function publishDevTelemetry(patch) {
   Object.assign(telemetry, patch);
+  if (listeners.size === 0) return;
   const event = cloneSnapshot({
     schema: 'xtend.devsurface.subscription-event.v1',
     status: telemetry.status
@@ -347,3 +348,21 @@ If values remain stale after a route transition, inspect whether the method crea
 - [XTend Fabric Runtime](./xtend-fabric-runtime.md)
 - [API](./api.md)
 - [RMT AnimationEngine](./rmt-animation-engine.md)
+
+## Demand-driven Maraca observation
+
+In 0.8.0, the existence of `window.__XTEND_DEV_API__` does not create continuous demand for Maraca full snapshots. The canonical scaffold adapter connects DEV observers through `runtime.subscribeEvents()`, disconnects after the final subscription and can connect again later. Signals contain direct, immutable lifecycle events; a diagnostic tool then explicitly calls the snapshot method it needs.
+
+`runtime.subscribe()` remains a full-snapshot subscription and deliberately enables that cost. Without such subscribers, errors, panic/recovery state, counters and `lastEvent` remain available for later reads. Existing redaction and synchronous serializability requirements are unchanged.
+
+Check early and late attachment, current reads after changes, and disconnect/reconnect. An adapter that copies a snapshot only during boot violates this contract; the manual example above must be fed by ongoing host-owned updates. See [Maraca diagnostics](./maraca-fastpass-abort-boundary.md) and [DEV Surface](./xtend-dev-surface.md).
+
+## Investigate panic and recovery
+
+`rmt.kernel.panic`, `rmt.kernel.recovery`, `rmt.kernel.escalation` and `rmt.kernel.scheduler_failure` are diagnostic channels for blocked output, recovery, host escalation and scheduler failures. The absence of a live subscription must not remove their recorded diagnostic information.
+
+Use `panicId` and `correlationId` to identify the affected scope and job. `blockedCommitCount` counts prevented commits; `recoveryAction` describes the concrete response. `quarantined` means the scope is isolated, and `hostNotified` records host notification. Incident Severity depends on severity, affected scope and recovery outcome; a single warning proves neither successful completion nor a fatal condition.
+
+`rollback-last-safe-snapshot` restores a verified state, `render-safe-fallback` uses the safe fallback and `notify-host` requests a host decision. A `panic_blocked` commit must not be retried through a direct DOM path. A result made `superseded` by newer presentation is instead a controlled lifecycle cancellation, not a panic.
+
+Record schema, time, correlation, redacted cause and recovery outcome. After recovery, request a fresh synchronous snapshot to verify that the state actually became `recovered`. User content, credentials and raw tokens do not belong in a shared report. See [Trusted DOM](./trusted-dom-sanitizing.md) for output migration.

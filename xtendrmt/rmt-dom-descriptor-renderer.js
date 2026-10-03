@@ -1,5 +1,6 @@
 (function attachRmtDomDescriptorRenderer(globalTarget) {
-  const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
+  const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
+  const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
   const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';
   const RMT_DOM_COMMIT_RESULT_SCHEMA = 'xtend.rmt.dom-commit-result.v1';
   const RMT_DOM_APPLICATION_BINDING_SCHEMA = 'xtend.rmt.dom-application-binding.v1';
@@ -396,7 +397,7 @@
       }
       return domains;
     }
-    if (type === 'when') {
+    if (type === 'when' || type === 'conditional') {
       return descriptorDomains(
         evaluateCondition(descriptor, context) ? descriptor.then : descriptor.else || descriptor.fallback,
         context,
@@ -442,6 +443,7 @@
       type === 'fragment'
       || type === 'repeat'
       || type === 'when'
+      || type === 'conditional'
       || descriptor.children
       || descriptor.nodes
     ) domains.add('structure');
@@ -756,7 +758,8 @@
       throw createRendererError('rmt.dom.attribute.unsafe', `Unsicheres Attribut ${normalizedName}`, descriptor, context);
     }
     if (!domainAllowed(context, attributeDomain(normalizedName))) return;
-    const resolvedValue = resolveValue(value, context, context.item);
+    const resolvedValue = resolveAttributeValue(value, context, context.item);
+    validateAtomicAttribute(normalizedName, resolvedValue, descriptor, context);
     if (URL_ATTRIBUTE_NAMES.has(normalizedName.toLowerCase()) && !isSafeUrl(resolvedValue)) {
       throw createRendererError('rmt.dom.attribute.url-unsafe', `Unsichere URL fuer Attribut ${normalizedName}`, descriptor, context);
     }
@@ -941,8 +944,34 @@
         applyStyleObject(element, value, descriptor, context);
         return;
       }
+      if (shouldPreserveActiveInputDraft(element, name, context)) return;
       setAttributeSafe(element, name, value, descriptor, context);
     });
+  }
+
+  function isActiveEditingElement(element, context) {
+    if (!element) return false;
+    const documentTarget = context && context.documentTarget;
+    const activeElement = documentTarget && documentTarget.activeElement;
+    if (activeElement === element) return true;
+    if (element.shadowRoot && element.shadowRoot.activeElement) return true;
+    if (activeElement && typeof element.contains === 'function' && element.contains(activeElement)) return true;
+    if (typeof element.matches === 'function') {
+      try {
+        if (element.matches(':focus-within')) return true;
+      } catch (_) {}
+    }
+    return false;
+  }
+
+  function shouldPreserveActiveInputDraft(element, propertyName, context) {
+    if (!context || (
+      context.preserveActiveInputDraft !== true
+      && (!context.metadata || context.metadata.preserveActiveInputDraft !== true)
+    )) return false;
+    if (String(propertyName || '').toLowerCase() !== 'value') return false;
+    if (!('value' in element)) return false;
+    return true;
   }
 
   function applyProperties(element, properties, descriptor, context) {
@@ -953,6 +982,7 @@
       if (URL_PROPERTY_NAMES.has(normalizedName.toLowerCase()) && !isSafeUrl(resolvedValue)) {
         throw createRendererError('rmt.dom.property.url-unsafe', `Unsichere URL fuer Property ${normalizedName}`, descriptor, context);
       }
+      if (shouldPreserveActiveInputDraft(element, normalizedName, context)) return;
       if (context.rendererState) {
         let baselines = context.rendererState.propertyBaselines.get(element);
         if (!baselines) {
@@ -1520,6 +1550,28 @@
     return typeof resolved === 'undefined' ? value : resolved;
   }
 
+  // Attribute strings are literals. Bindings must be explicit ($model/$item,
+  // interpolation, or an expression record), never a coinciding model key.
+  function resolveAttributeValue(value, context, item) {
+    if (context.rendererSchema === RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA) {
+      const resolved = resolveValue(value, context, item);
+      if (typeof value === 'string' && !value.startsWith('$') && !value.includes('${') && resolved !== value) {
+        context.publishDiagnostic?.(createDiagnostic('rmt.dom.attribute.implicit-binding-deprecated',
+          `Implicit attribute binding ${value} is deprecated; use $model.${value}.`, {}, context, 'info'));
+      }
+      return resolved;
+    }
+    if (typeof value === 'string' && !value.startsWith('$') && !value.includes('${')) return value;
+    return resolveValue(value, context, item);
+  }
+
+  function validateAtomicAttribute(name, value, descriptor, context) {
+    if (value == null || name.startsWith('data-')) return;
+    if (!['string', 'number', 'boolean'].includes(typeof value) || typeof value === 'number' && !Number.isFinite(value)) {
+      throw createRendererError('rmt.dom.attribute.value-invalid', `Attribute ${name} requires a scalar value.`, descriptor, context);
+    }
+  }
+
   function resolveComponent(descriptor, context) {
     const componentId = descriptor.component || descriptor.ref || descriptor.id || '';
     const component = componentId && context.components ? context.components.get(componentId) : null;
@@ -1815,7 +1867,8 @@
       if (!isSafeAttributeName(normalizedName)) {
         throw createRendererError('rmt.dom.attribute.unsafe', `Unsicheres Attribut ${normalizedName}`, descriptor, context);
       }
-      const resolvedValue = resolveValue(value, context, context.item);
+      const resolvedValue = resolveAttributeValue(value, context, context.item);
+      validateAtomicAttribute(normalizedName, resolvedValue, descriptor, context);
       if (URL_ATTRIBUTE_NAMES.has(normalizedName.toLowerCase()) && !isSafeUrl(resolvedValue)) {
         throw createRendererError('rmt.dom.attribute.url-unsafe', `Unsichere URL fuer Attribut ${normalizedName}`, descriptor, context);
       }
@@ -1951,7 +2004,7 @@
       validateDescriptor(descriptor.children || descriptor.nodes || [], context, depth + 1);
       return;
     }
-    if (nodeType === 'when') {
+    if (nodeType === 'when' || nodeType === 'conditional') {
       validateDescriptor(evaluateCondition(descriptor, context) ? descriptor.then : descriptor.else || descriptor.fallback, context, depth + 1);
       return;
     }
@@ -2496,6 +2549,7 @@
         return renderTemplate(descriptor.template || descriptor.id, context, context.item);
       case 'slot':
         return renderSlot(descriptor.slot || descriptor.id, context, context.item);
+      case 'conditional':
       case 'when':
         return evaluateCondition(descriptor, context)
           ? renderNode(descriptor.then, context)
@@ -2780,6 +2834,7 @@
     previous.attributes.forEach((name) => {
       const domain = ownedAttributeDomain(name);
       if (next.attributes.has(name) || !domainAllowed(context, domain)) return;
+      if (shouldPreserveActiveInputDraft(element, name, context)) return;
       if (domain === 'class' || domain === 'part' || domain === 'styleTokens') {
         if (attributeValue(element, name) !== null && typeof element.removeAttribute === 'function') {
           element.removeAttribute(name);
@@ -2794,6 +2849,7 @@
     });
     previous.properties.forEach((name) => {
       if (next.properties.has(name) || !domainAllowed(context, 'properties')) return;
+      if (shouldPreserveActiveInputDraft(element, name, context)) return;
       const baselines = rendererState.propertyBaselines.get(element);
       const baseline = baselines && baselines.has(name)
         ? baselines.get(name)
@@ -2952,7 +3008,7 @@
         entries.push(...expandChildEntries(descriptor.children || descriptor.nodes, { ...context, item }, item));
         return;
       }
-      if (nodeType === 'when') {
+      if (nodeType === 'when' || nodeType === 'conditional') {
         entries.push(...expandChildEntries(
           evaluateCondition(descriptor, { ...context, item }) ? descriptor.then : descriptor.else || descriptor.fallback,
           { ...context, item },
@@ -3058,6 +3114,9 @@
   }
 
   function createRenderContext(documentTarget, options = {}, diagnosticsRecorder, rendererState = null) {
+    if (options.rendererSchema && ![RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA, RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA].includes(options.rendererSchema)) {
+      throw new Error(`Unsupported renderer contract: ${options.rendererSchema}`);
+    }
     let trustedDomRenderer = options.trustedDomRenderer;
     if (!trustedDomRenderer && typeof options.trustedDom === 'function') {
       trustedDomRenderer = options.trustedDom;
@@ -3074,6 +3133,7 @@
     }
     return {
       documentTarget,
+      rendererSchema: options.rendererSchema || RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA,
       model: options.model || {},
       selectorValues: options.selectorValues || {},
       components: options.components instanceof Map ? options.components : createMap(options.components),
@@ -3092,6 +3152,7 @@
       publishDiagnostic: diagnosticsRecorder.publish,
       source: options.source || {},
       metadata: options.metadata || null,
+      preserveActiveInputDraft: options.preserveActiveInputDraft === true,
       rendererState,
       commitTracker: options.commitTracker || null,
       reconcileMode: Boolean(options.reconcileMode),
@@ -3133,10 +3194,15 @@
   }
 
   function createRmtDomDescriptorRenderer(deps = {}) {
+    const rendererSchema = deps.rendererSchema || RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA;
+    if (![RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA, RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA].includes(rendererSchema)) {
+      throw new Error(`Unsupported renderer contract: ${rendererSchema}`);
+    }
     const documentTarget = resolveDocumentTarget(deps);
     const diagnosticsRecorder = createDiagnosticsRecorder(deps);
     const defaultContextOptions = {
       ...objectRecord(deps.renderOptions),
+      rendererSchema,
       componentRegistry: deps.componentRegistry || deps.registry || (deps.renderOptions && (deps.renderOptions.componentRegistry || deps.renderOptions.registry)),
       registry: deps.registry || (deps.renderOptions && deps.renderOptions.registry),
       trustedDomRenderer: deps.trustedDomRenderer || (deps.renderOptions && deps.renderOptions.trustedDomRenderer),
@@ -3381,7 +3447,7 @@
             setAttributeSafe(
               request.target,
               'data-rmt-renderer-schema',
-              RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA,
+              context.rendererSchema,
               markerDescriptor,
               context
             );
@@ -3456,7 +3522,7 @@
     }
 
     const renderer = {
-      schema: RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA,
+      schema: rendererSchema,
       trustedDomBoundary: TRUSTED_DOM_BOUNDARY,
       commit,
       dispose,
@@ -3532,6 +3598,17 @@
           return resolveValue(value, context, options.item);
         });
       },
+      resolveAttributeValue(value, options = {}) {
+        return runWithDiagnostics(() => {
+          const context = createRenderContext(documentTarget, {
+            ...defaultContextOptions, ...options
+          }, diagnosticsRecorder, rendererState);
+          return resolveAttributeValue(value, context, options.item);
+        });
+      },
+      resolveClasses(value, options = {}) {
+        return [...new Set(normalizeClassTokens(value, { ...defaultContextOptions, ...options }, options.item))];
+      },
       createNoManualHtmlGate,
       isUrlAllowed(value) {
         return isSafeUrl(value);
@@ -3547,6 +3624,7 @@
   const api = {
     RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA,
     RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA,
+    RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA,
     RMT_DOM_COMMIT_RESULT_SCHEMA,
     RMT_DOM_APPLICATION_BINDING_SCHEMA,
     RMT_DOM_BINDING_SCOPE_SCHEMA,
@@ -3567,6 +3645,7 @@ const __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__ = globalThis.XTendRmtDomDescript
 
 export const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA;
 export const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA;
+export const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA;
 export const RMT_DOM_COMMIT_RESULT_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_COMMIT_RESULT_SCHEMA;
 export const RMT_DOM_APPLICATION_BINDING_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_APPLICATION_BINDING_SCHEMA;
 export const RMT_DOM_BINDING_SCOPE_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_BINDING_SCOPE_SCHEMA;

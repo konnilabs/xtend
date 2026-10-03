@@ -42,7 +42,7 @@ const xtoastConfig = {
     { pattern: '| `duration` |', message: 'x-toast docs describe duration attribute' },
     { pattern: '`toast-shown`', message: 'x-toast docs describe toast-shown' },
     { pattern: '`toast-dismissed`', message: 'x-toast docs describe toast-dismissed' },
-    { pattern: "xstate.get('ui').toasts", message: 'x-toast docs describe API-managed state aggregation' },
+    { pattern: "xtendState.get('ui').toasts", message: 'x-toast docs describe API-managed state aggregation' },
     { pattern: 'window.XToast.show()', message: 'x-toast docs describe API entry point' },
     { pattern: 'viewport-sichere Surface', message: 'x-toast docs describe viewport-safe stack layout' }
   ]

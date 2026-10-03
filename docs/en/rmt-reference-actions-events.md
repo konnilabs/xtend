@@ -6,10 +6,11 @@ Actions describe state changes, effects and emitted events. Event bindings conne
 
 | Operator | Form | Allowed contexts | Parameters | Function | Diagnostics | Related operators |
 | --- | --- | --- | --- | --- | --- | --- |
+| <a id="execution-fastpass"></a>`execution fastpass` | `execution fastpass` | `action` | `fastpass` | Navigation, focus or close on `user-blocking` without a Model transaction. | Reducers, fetch, services, streams, custom effects and command chains are forbidden. | `effect navigation`, `effect close surface`, `effect focus surface` |
 | <a id="input"></a>`input` | `input id string` | `action` | name, type | Declares action payload fields. | Missing types are reported. | `payload` |
 | <a id="status"></a>`status` | `status app.request` | `action` | state path | Binds loading, success and error status. | Unknown state is semantic diagnostic. | `effect` |
-| <a id="effect"></a>`effect` | `effect fetch datasource tickets` | `action` | effect kind, optional source | Declares host-owned asynchronous work or a fixed component command. | Effect source must be `datasource`, `resource` or `selector`. Component commands accept only `focus`, `reset` and `snapshot`. | `on success ->` |
-| <a id="reduce"></a>`reduce` | `reduce state.app.status.text = "Saved"` | `action` | target path, expression | Writes declaratively to state. | Actions without reducers can be blocked. | `state`, `status` |
+| <a id="effect"></a>`effect` | `effect fetch datasource tickets` | `action` | effect kind, optional source | Declares host-owned asynchronous work or a fixed component command. | Fetch uses `datasource`; other effects use their declared source contract. FastPass supports navigation, `close surface` and `focus surface`; component commands permit only `focus`, `reset` and `snapshot`. | `on success ->` |
+| <a id="reduce"></a>`reduce` | `reduce state.app.status.text = "Saved"` | `action` | target path, expression | Writes declaratively to state. | Business actions require a valid reducer contract; FastPass forbids reducers. | `state`, `status` |
 | <a id="emit"></a>`emit` | `emit app.saved with id input.id` | `action` | event name, optional payload | Publishes a typed RMT event. | Missing payload contracts may be reported semantically. | `with`, `emits` |
 | <a id="with"></a>`with` | `with id input.id` | `emit` | key/value pairs | Maps event payload directly from action input or state. | Invalid payload values produce syntax errors. | `payload` |
 | <a id="on"></a>`on` | `on click -> action save` | `surface`, policy block, action result | event or phase | Binds events or action results. | `->` and `action` are required for event bindings. | `target`, `payload` |
@@ -23,7 +24,7 @@ Actions describe state changes, effects and emitted events. Event bindings conne
 
 ## Allowed contexts
 
-`input`, `status`, `effect`, `reduce`, `emit` and action result handlers belong in `action`. Event bindings belong in `surface` or lifecycle policy blocks.
+`execution fastpass`, `input`, `status`, `effect`, `reduce`, `emit` and action result handlers belong in `action`. Event bindings belong in `surface` or lifecycle policy blocks.
 
 ## Parameters
 
@@ -68,6 +69,31 @@ template reference.componentCommands {
 Here, `selector` is the authoring form for a static surface ID; the compiler resolves it to a `surface` target with a component type. This contract currently permits `x-textarea` and only `focus()`, `reset()` and `snapshot()`. Unknown surfaces, ineligible components, other source kinds and arbitrary method names are hard compiler errors with a source range.
 
 Maraca runs the command after rendering and hydration, within the orchestration root. It has no document fallback and does not traverse shadow roots. The action result remains visible in `XTendMaraca.orchestration.snapshot().actions[]`. `effects[].value.result` uses schema `xtend.maraca.component-command-result.v1` with `command`, `surfaceId`, `component` and `result`; `focus` and `reset` return `null`, while `snapshot` contains the public XTextarea snapshot. A component command does not mutate RMT state automatically.
+
+### FastPass (0.8.0)
+
+```rmt
+template reference.fastpass {
+  action showReports {
+    execution fastpass
+    effect navigation "#reports"
+  }
+  action dismissPanel {
+    execution fastpass
+    effect close surface panel
+  }
+  action focusNavigation {
+    execution fastpass
+    effect focus surface navigation
+  }
+  surface panel kind panel component x-section {}
+  surface navigation kind panel component x-section {}
+}
+```
+
+Navigation accepts a literal path or a declared input such as `input path string` with `effect navigation input.path`. Close and focus refer to named surfaces. FastPass focus uses the focus port; the separate `selector` component-command restriction to `x-textarea` does not apply. Event bindings and `dispatchCommand()` select the same executor for declared FastPass actions; `dispatchFastPass()` returns a cancellable job. Navigation and focus coalesce per scope. Business-command ordering is preserved.
+
+For restrictions, ports and presentation epochs, see [FastPass and Abort Boundary](./maraca-fastpass-abort-boundary.md).
 
 ## Examples
 

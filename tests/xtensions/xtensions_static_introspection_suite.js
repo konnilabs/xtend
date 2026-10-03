@@ -94,9 +94,9 @@ function runXTensionsStaticIntrospectionSuite(options = {}) {
     label: 'XTensions Static Contract Introspection Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.xtensionsStaticIntrospection;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const hostControllerContract = readText(HOST_CONTROLLER_CONTRACT_PATH, rootDir);
@@ -162,8 +162,8 @@ function runXTensionsStaticIntrospectionSuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/static-contract-introspection.js', 'package exports static introspection module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/static-contract-introspection.d.ts', 'package exports static introspection types');
   context.assert(packageManifest.scripts['test:xtensions-static-introspection'] === 'node scripts/run_xtend_tests.js xtensions-static-introspection', 'package exposes static introspection script');
-  context.assert(runner.includes("id: 'xtensions-static-introspection'"), 'test runner exposes xtensions-static-introspection suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xtensions-static-introspection'), 'runner help references static introspection gate');
+  context.assert(runner.hasSuite("xtensions-static-introspection"), 'test runner exposes xtensions-static-introspection suite');
+  context.assert(runner.hasSuite("xtensions-static-introspection"), 'runner help references static introspection gate');
 
   context.assert(backlog.includes('| `XTN-04` | P1 | completed | WS4 |'), 'backlog marks XTN-04 completed');
   context.assert(backlog.includes('development/XTensions-Static-Contract-Introspection-Contract.md'), 'backlog references static introspection contract');

@@ -110,9 +110,9 @@ function runRmtVNextImportResolverSuite(options = {}) {
     id: 'rmt-vnext-imports',
     label: 'Epic 15 RMT vNext Import Resolver and Module Graph Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextImportResolver;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
   const importContract = readText(IMPORT_CONTRACT_PATH, rootDir);
   const moduleSyntax = syntaxCheckFile(RMT_VNEXT_IMPORT_RESOLVER_MODULE_PATH, { rootDir, extension: '.js' });
@@ -138,7 +138,7 @@ function runRmtVNextImportResolverSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_IMPORT_RESOLVER_PACKAGE_SCRIPT, 'package metadata declares import resolver package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-import-resolver'] === 'string' ? packageManifest.exports['./rmt-language/vnext-import-resolver'] : packageManifest.exports['./rmt-language/vnext-import-resolver'] && packageManifest.exports['./rmt-language/vnext-import-resolver'].default) === './tools/rmt-language/vnext-import-resolver.js', 'package exports vNext import resolver contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-imports'] === 'node scripts/run_xtend_tests.js rmt-vnext-imports', 'package exposes vNext import resolver script');
-  context.assert(runner.includes("id: 'rmt-vnext-imports'"), 'test runner exposes rmt-vnext-imports suite');
+  context.assert(runner.hasSuite("rmt-vnext-imports"), 'test runner exposes rmt-vnext-imports suite');
   context.assert(epic.includes('| `WP-E15-11` | P1 | completed | WS3 |'), 'Epic marks WP-E15-11 completed');
   context.assert(epic.includes('| `WP-E15-12` | P1 | completed | WS3 |'), 'Epic records WP-E15-12 event/action handoff after import resolver');
   context.assert(importContract.includes('schema: "xtend.rmt.vnext-import-resolver.v1"'), 'Import resolver contract document declares schema');

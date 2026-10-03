@@ -1,4 +1,5 @@
 'use strict';
+const { EXPECTED_CANONICAL_SLUG_COUNT } = require('../../scripts/verify_docs_public_quality');
 
 const fs = require('fs');
 const path = require('path');
@@ -40,11 +41,11 @@ async function runDocsRelatedRecommendationsSuite(options = {}) {
   const en = readJson('docs/generated/search/en.compact.json', rootDir);
   const de = readJson('docs/generated/search/de.compact.json', rootDir);
   const golden = readJson('tests/docs/fixtures/docs-related-recommendations.json', rootDir);
-  const pageLoader = readText('docs/utils/pageloader.js', rootDir);
+  const pageLoader = readText('docs/utils/page/route-controller.mjs', rootDir);
   const shellRuntime = readText('docs/utils/docs-shell-runtime.mjs', rootDir);
   const workerSource = runtime.createRmtSearchWorkerSource();
 
-  context.assert(menu.length === 170 && en.entryCount === menu.length && de.entryCount === menu.length, 'localized compact indexes cover all 170 documentation articles');
+  context.assert(menu.length === EXPECTED_CANONICAL_SLUG_COUNT && en.entryCount === menu.length && de.entryCount === menu.length, 'localized compact indexes cover the canonical documentation inventory');
   context.assert(en.entries.every((entry) => Object.hasOwn(entry, 'parent') && Object.hasOwn(entry, 'rank') && Array.isArray(entry.relatedSlugs)), 'compact entries carry navigation rank and normalized internal-link signals');
   context.assert(en.entries.every((entry) => entry.locale === 'en') && de.entries.every((entry) => entry.locale === 'de'), 'compact recommendation corpora remain locale-separated');
   context.assert(runtime.RMT_SEARCH_RECOMMENDATION_RESPONSE_SCHEMA === 'xtend.rmt.search-recommendation-response.v1', 'recommendation response schema is public and stable');

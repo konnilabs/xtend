@@ -177,7 +177,7 @@ function createSurfaceManagerRmtAuthoringPlan(options = {}) {
       futureAdapter: 'xtend.surface',
       templateMode: 'dom_descriptor',
       eventBindingMode: 'dom-event-to-rmt-command',
-      statePolicy: 'digital-twin-ssot-xstate',
+      statePolicy: 'digital-twin-ssot-classic-state',
       componentContract: 'xtend.component.contract.v2',
       fabricApi: '@xtend-fabric',
       loaderPolicy: 'manifest-ensure-through-xtend-loader-policy'

@@ -7,7 +7,7 @@
 - Contract: `xtend.native-first.ui-primitive-capability.v1`
 - Matrix Contract: `xtend.native-first.ui-primitive-capability-matrix.v1`
 - Mission Contract: `xtend.native-first.mission-source-of-truth.v1`
-- Browser Primitive Radar: `xtend.native-first.browser-primitive-radar.v1`
+- Browser Primitive Radar: `xtend.native-first.browser-primitive-radar.v2`
 - Component Contract: `xtend.component.contract.v2`
 - Component Maturity Model: `xtend.component.maturity-model.v2`
 - Dependency Diet Policy: `xtend.native-first.dependency-diet-policy.v1`
@@ -78,7 +78,7 @@ Eine Capability darf nicht als `owned` claimen, wenn:
 | Status | Bedeutung |
 |--------|-----------|
 | `ready-as-owned` | als Native-First Framework-Hebel direkt nutzbar |
-| `ready-with-radar-watch` | owned, aber native Primitive-Evaluation bleibt offen |
+| `ready-with-terminal-radar-decision` | owned Pfad und atomare Native-Entscheidungen sind terminal dokumentiert |
 | `needs-hardening` | owned oder contract-only, braucht WP07/WP08/WP09/WP18/WP19 |
 | `needs-rmt-gap-analysis` | Capability existiert, aber RMT-Ausdruckskraft muss in WP14/WP15/WP16 bewertet werden |
 | `accepted-residual` | Restflaeche bleibt mit Exit-Plan akzeptiert |

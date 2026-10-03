@@ -1,0 +1,3 @@
+# Unreferenced legacy 0.7 bundle: the current Docs build has kernel: off.
+# Keep it out of the npm release; the active runtime modules remain packaged.
+xtendrmt-runtime.esm.mjs

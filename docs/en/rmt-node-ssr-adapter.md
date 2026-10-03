@@ -60,3 +60,26 @@ the JSONL frame shape for incremental SSR output.
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 - [XScaler Protocol](./xscaler-protocol.md)
+### Attribute literals and capability coverage
+
+Strings in `attributes`/`attrs` are literal, including `type: "search"` when
+the model also has a `search` key. Use explicit `$model.path`, `$item.path`,
+`${model.path}` interpolation, or expression records for bindings. This rule
+applies to portable Node/PHP projection and the DOM renderer as well. Bare
+model paths in attributes must migrate to explicit bindings. Native and ARIA
+attributes accept finite scalar values; structured values belong in component
+properties. Existing structured `data-*` serialization remains supported.
+Invalid structured native attributes are omitted with a diagnostic instead of
+serializing model objects into HTML.
+
+Component SSR capabilities require the registry supplied through `manifest`
+and `sourceTexts` (or a registry). Component metadata existing in a package does
+not automatically register it in a host. This includes `x-section`.
+
+`getRmtSsrCoverage(result)` reports `xtend.rmt.ssr-coverage.v1`: descriptor
+element nodes, resume-marked nodes, component nodes, missing-capability nodes,
+and raw HTML fragments. `resumeMarkerCoverage` is resume-marked nodes divided by
+descriptor element nodes, or null when there are none. It measures emitted
+adoption markers, **not successful browser resumes or fallback frequency**.
+Raw HTML fragments are reported separately because their inner nodes are not
+descriptor-enumerated. The record lives in `result.fabricTelemetryHints.coverage`; hydration v1 stays unchanged. Combine this output with browser resume diagnostics.

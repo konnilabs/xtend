@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 class XTooltip extends HTMLElement {
   static get observedAttributes() {
@@ -290,9 +290,9 @@ class XTooltip extends HTMLElement {
     this._tooltip.id = `${this.id}-tooltip`;
     this._bindAnchor();
     document.addEventListener('keydown', this._onKeyDown);
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xtooltip-open-${this.id}` && typeof value === 'boolean') {
-        value ? this.show({ source: 'xstate' }) : this.hide({ source: 'xstate' });
+        value ? this.show({ source: 'xtend-state' }) : this.hide({ source: 'xtend-state' });
       }
     }, `xtooltip-open-${this.id}`);
     if (this.hasAttribute('open')) {
@@ -406,7 +406,7 @@ class XTooltip extends HTMLElement {
       window.removeEventListener('resize', this._onViewportChange);
       window.removeEventListener('scroll', this._onViewportChange, true);
     }
-    xstate.set(`xtooltip-open-${this.id}`, isOpen);
+    xtendState.set(`xtooltip-open-${this.id}`, isOpen);
     this.dispatchEvent(new CustomEvent(isOpen ? 'tooltip-opened' : 'tooltip-closed', {
       detail: { id: this.id, open: isOpen, source, placement: this.getAttribute('placement') || 'top' },
       bubbles: true,

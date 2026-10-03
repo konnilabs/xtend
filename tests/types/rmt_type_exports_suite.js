@@ -65,7 +65,7 @@ function runTypeExportsRmtSuite(options = {}) {
     id: 'type-exports-rmt',
     label: 'TypeExports RMT Declaration Gate'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const typeExportsPlan = createTypeExportsPlan({ rootDir, packageManifest });
   const plan = createTypeExportsRmtPlan({ rootDir, packageManifest, typeExportsPlan });
   const validation = validateTypeExportsRmtPlan(plan);
@@ -74,7 +74,7 @@ function runTypeExportsRmtSuite(options = {}) {
   const typeExportsMetadata = packageManifest.xtend && packageManifest.xtend.typeExports;
   const sharedDeclarationSource = readText(RMT_SHARED_DECLARATION_FILE, rootDir);
   const rmtCoreDeclarationSource = readText('xtendrmt/rmt-core.d.ts', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const backlog = readText(TYPE_EXPORTS_RMT_BACKLOG, rootDir);
   const workpackage = readText(TYPE_EXPORTS_RMT_WORKPACKAGE_DOC, rootDir);
@@ -160,8 +160,8 @@ function runTypeExportsRmtSuite(options = {}) {
   context.assert(typeExportsMetadata && typeExportsMetadata.completedWorkpackages.includes(TYPE_EXPORTS_RMT_WORKPACKAGE), 'TypeExports metadata records WP-TypeExports-04 completion');
   context.assert(typeExportsMetadata && typeExportsMetadata.completedWorkpackages.includes('WP-TypeExports-09'), 'TypeExports metadata records WP-TypeExports-09 completion');
   context.assert(typeExportsMetadata && Array.isArray(typeExportsMetadata.nextWorkpackages) && typeExportsMetadata.nextWorkpackages.length === 0, 'TypeExports metadata has no remaining TypeExports workpackages');
-  context.assertIncludes(runner, "id: 'type-exports-rmt'", 'Runner registers RMT TypeExports suite');
-  context.assertIncludes(runner, 'runTypeExportsRmtSuite', 'Runner imports RMT TypeExports suite');
+  context.assert(runner.hasSuite("type-exports-rmt"), 'Runner registers RMT TypeExports suite');
+  context.assert(runner.hasImplementation({ function: "runTypeExportsRmtSuite" }), 'Runner imports RMT TypeExports suite');
   context.assertIncludes(testsReadme, TYPE_EXPORTS_RMT_LOCAL_GATE, 'Tests README documents RMT TypeExports gate');
 
   assertTextIncludesAll(context, backlog, [

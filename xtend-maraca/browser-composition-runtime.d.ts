@@ -10,9 +10,12 @@ export interface MaracaBrowserFacade {
   readonly model: MaracaPlanRuntime['model'] | null;
   boot(options?: Readonly<Record<string, unknown>>): Promise<MaracaPlanRuntimeSnapshot & Readonly<Record<string, unknown>>>;
   dispatchCommand(command: string | Readonly<Record<string, unknown>>, payload?: unknown, metadata?: Readonly<Record<string, unknown>>): Promise<unknown>;
+  dispatchFastPass: MaracaPlanRuntime['dispatchFastPass'];
+  getSurfaceBoundary: MaracaPlanRuntime['getSurfaceBoundary'];
   dispatchStreamPatch(patch: Readonly<Record<string, unknown>>, metadata?: Readonly<Record<string, unknown>>): Promise<unknown>;
   snapshot(): MaracaPlanRuntimeSnapshot;
   subscribe(listener: (snapshot: MaracaPlanRuntimeSnapshot) => void): () => void;
+  subscribeEvents(listener: (event: Readonly<Record<string, unknown>>) => void): () => void;
   ensureComponent(tag: string): Promise<string>;
   dispose(reason?: string): Readonly<Record<string, unknown>>;
 }

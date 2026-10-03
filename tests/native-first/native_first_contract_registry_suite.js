@@ -92,11 +92,11 @@ const REQUIRED_NATIVE_CONTRACTS = Object.freeze([
     phase: 'Phase 0'
   },
   {
-    contractId: 'xtend.native-first.browser-primitive-radar.v1',
+    contractId: 'xtend.native-first.browser-primitive-radar.v2',
     workpackage: 'NFM-WP-02',
     status: 'accepted',
     owner: 'browser-primitive-owner',
-    reportSchema: 'xtend.native-first.browser-primitive-radar-report.v1',
+    reportSchema: 'xtend.native-first.browser-primitive-radar-report.v2',
     localGate: 'browser-primitive-radar',
     docsPath: 'development/XTend-Native-First-Browser-Primitive-Radar-Contract.md',
     sourceOfTruth: 'browser-primitive-radar',
@@ -105,17 +105,30 @@ const REQUIRED_NATIVE_CONTRACTS = Object.freeze([
     phase: 'Phase 1'
   },
   {
-    contractId: 'xtend.native-first.primitive-adoption-gate.v1',
+    contractId: 'xtend.native-first.primitive-adoption-gate.v2',
     workpackage: 'NFM-WP-03',
     status: 'accepted',
     owner: 'architecture-governance-owner',
-    reportSchema: 'xtend.native-first.primitive-adoption-gate-report.v1',
+    reportSchema: 'xtend.native-first.primitive-adoption-gate-report.v2',
     localGate: 'primitive-adoption-gate',
     docsPath: 'development/XTend-Native-Primitive-Adoption-Gate-Contract.md',
     sourceOfTruth: 'primitive-adoption-gate',
     domain: 'native-first',
     evidenceRole: 'gate-plan',
     phase: 'Phase 1'
+  },
+  {
+    contractId: 'xtend.native-first.observatory-intake.v1',
+    workpackage: 'OBS-2026-09-03',
+    status: 'accepted-internal-intake',
+    owner: 'architecture-governance-owner',
+    reportSchema: 'xtend.native-first.browser-primitive-radar-report.v2',
+    localGate: 'browser-primitive-radar',
+    docsPath: 'development/XTend-Native-First-Feature-Adoption-Observatory-Contract.md',
+    sourceOfTruth: 'feature-adoption-observatory',
+    domain: 'native-first',
+    evidenceRole: 'source-contract',
+    phase: 'Continuous Review'
   },
   {
     contractId: 'xtend.native-first.dependency-diet-policy.v1',
@@ -410,8 +423,8 @@ function runNativeFirstContractRegistrySuite(options = {}) {
   const adoptionGate = readText('development/XTend-Native-Primitive-Adoption-Gate-Contract.md', rootDir);
   const marketContract = readText('development/XTend-Native-First-Market-Pattern-Parity-Contract.md', rootDir);
   const marketWorkpackage = readText('development/NFM-WP-10-Market-Pattern-Parity-Matrix-ohne-Framework-Abhaengigkeit-erstellen.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRegistry;
 
@@ -492,8 +505,8 @@ function runNativeFirstContractRegistrySuite(options = {}) {
   context.assertIncludes(marketWorkpackage, '`NFM-WP-11` hat Pattern-IDs und Claim-Status in Contract Registry/Discoverability aufgenommen', 'Market workpackage records WP-11 completion');
 
   context.assert(packageScripts['test:contract-registry'] === 'node scripts/run_xtend_tests.js contract-registry', 'Package exposes contract registry test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_contract_registry_suite')", 'Runner imports contract registry suite');
-  context.assertIncludes(runner, "id: 'contract-registry'", 'Runner registers contract registry suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_contract_registry_suite.js" }), 'Runner imports contract registry suite');
+  context.assert(runner.hasSuite("contract-registry"), 'Runner registers contract registry suite');
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-11 contract schema');
   context.assert(metadata && metadata.entrySchema === ENTRY_SCHEMA, 'Package metadata exposes WP-11 entry schema');

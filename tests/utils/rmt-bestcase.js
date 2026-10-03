@@ -114,7 +114,7 @@ function createProjectedMetadata(core) {
       tag: 'x-player',
       commands: ['play-media', 'pause-media', 'set-source', 'set-state', 'apply-theme'],
       events: ['xplayer-play', 'xplayer-pause', 'xplayer-state'],
-      stateBridge: 'xstate-host-bridge',
+      stateBridge: 'state-host-bridge',
       themeTokens: ['--x-player-primary', '--x-player-accent', '--x-player-background', '--x-player-radius'],
       parts: ['root', 'media', 'title', 'overlay', 'controls', 'progress'],
       kernelBoundary: 'no-product-shadowRoot-patching'

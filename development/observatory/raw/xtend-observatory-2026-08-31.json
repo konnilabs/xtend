@@ -1,0 +1,969 @@
+{
+  "findings": [
+    {
+      "id": "fetch-request-streaming-webkit-tp250",
+      "primitive": "Fetch request streaming backpressure",
+      "title": "WebKit ergänzt Backpressure für gestreamte Fetch-Uploads",
+      "category": "workers_streaming",
+      "maturity": "Safari Technology Preview 251; Chromium stabil; nicht interoperabel",
+      "verdict": "prototype_now",
+      "impactScore": 5,
+      "summary": "Safari Technology Preview 251 unterstützt seit dem 26. August 2026 Backpressure beim Upload eines ReadableStream-Request-Bodys. Damit wird WebKits erste Request-Streaming-Implementierung aus TP 250 um die für bounded-memory Produzenten entscheidende Flusskontrolle ergänzt.",
+      "impact": "Hoher Nutzen für Fabric-Backpressure, Worker-Koordination, Diagnostics-Uploads, Remote Surfaces und große vorkompilierte RMT-Artefakte. XTend kann einen Upload-Produzenten am tatsächlichen Netzwerkverbrauch drosseln.",
+      "risk": "Mittel bis hoch: Safari bleibt Technology-Preview-only. duplex: \"half\", CORS-Preflight, HTTP/2-or-newer, Redirect- und Proxy-Pufferungs-Caveats bleiben; stabiler Firefox-Support ist nicht bestätigt.",
+      "prototype": "Optionalen ReadableStream-Request-Adapter mit Capability-Test und JSON-Fallback ergänzen; großen Worker-Diagnostics-Trace hochladen und desiredSize, Scheduler-Pressure, Peak Memory und Producer-Stalls messen.",
+      "prototypeLocation": "xtend-maraca/app-services.js#createHttpAppServiceTransport",
+      "browserSupport": {
+        "chromium": "Stabil seit Chrome 105; duplex: \"half\".",
+        "webkit": "Backpressure ab Safari Technology Preview 251; nicht Safari Stable.",
+        "firefox": "Kein stabiler Support in den geprüften Primärquellen bestätigt."
+      },
+      "sources": [
+        {
+          "kind": "primary",
+          "url": "https://webkit.org/blog/18194/release-notes-for-safari-technology-preview-251/",
+          "label": "Safari Technology Preview 251"
+        },
+        {
+          "kind": "primary",
+          "url": "https://developer.chrome.com/docs/capabilities/web-apis/fetch-streaming-requests",
+          "label": "Chrome request streaming"
+        },
+        {
+          "kind": "primary",
+          "url": "https://bugzilla.mozilla.org/show_bug.cgi?id=1594633",
+          "label": "Mozilla implementation bug"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/xtend-maraca/app-services.js",
+          "label": "HTTP transport"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/xtendrmt/rmt-kernel-orchestration-controller.js",
+          "label": "Backpressure controller"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/xtendrmt/kernel/modules/rmt-prewarm-worker-runtime.js",
+          "label": "Prewarm worker"
+        }
+      ],
+      "xtendEvidence": {
+        "repository": "konnilabs/xtend",
+        "branch": "main",
+        "commit": "abf9cbe5d002ac5e6f865cd2667a832f49d6517f",
+        "inventoryStatus": "partial",
+        "codeReferences": [
+          {
+            "path": "xtend-maraca/app-services.js",
+            "symbol": "createHttpAppServiceTransport",
+            "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/xtend-maraca/app-services.js"
+          },
+          {
+            "path": "xtendrmt/rmt-kernel-orchestration-controller.js",
+            "symbol": "recordAppRuntimeBackpressure",
+            "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/xtendrmt/rmt-kernel-orchestration-controller.js"
+          },
+          {
+            "path": "xtendrmt/kernel/modules/rmt-prewarm-worker-runtime.js",
+            "symbol": "pauseForBackpressure / resume",
+            "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/xtendrmt/kernel/modules/rmt-prewarm-worker-runtime.js"
+          }
+        ],
+        "currentBehavior": "invoke() und stream() serialisieren Request-Bodies vollständig mit JSON.stringify(wireRequest); NDJSON-Responses werden inkrementell konsumiert. Der Kernel normalisiert Stream-Pressure und pausiert beziehungsweise reaktiviert den Prewarm-Worker. Eine Request-Produzentensteuerung über ReadableStream/desiredSize fehlt.",
+        "affectedSubsystems": [
+          "runtime_host_adapter",
+          "workers_streaming",
+          "fabric_scheduling",
+          "diagnostics_remote_surfaces"
+        ]
+      },
+      "tracking": {
+        "state": "updated",
+        "previousFindingId": "fetch-request-streaming-webkit-tp250",
+        "changeSummary": "WebKit TP 251 ergänzt am 26. August 2026 Upload-Backpressure zur TP-250-Implementierung."
+      },
+      "observedAt": "2026-08-31",
+      "developmentDate": "2026-08-26",
+      "sourceUrl": "https://webkit.org/blog/18194/release-notes-for-safari-technology-preview-251/",
+      "sourceLabel": "Safari Technology Preview 251",
+      "firstSeen": "2026-08-17",
+      "lastUpdated": "2026-08-31",
+      "events": [
+        {
+          "id": 5,
+          "happenedAt": "2026-08-26",
+          "maturity": "Safari Technology Preview 251",
+          "verdict": "prototype_now",
+          "note": "WebKit implementiert Backpressure für gestreamte Fetch-Request-Bodies.",
+          "sourceUrl": "https://webkit.org/blog/18194/release-notes-for-safari-technology-preview-251/"
+        },
+        {
+          "id": 1,
+          "happenedAt": "2026-08-13",
+          "maturity": "SAFARI TECHNOLOGY PREVIEW 250",
+          "verdict": "prototype_now",
+          "note": "WebKit aktiviert Fetch-Request-Streaming in Technology Preview 250.",
+          "sourceUrl": "https://webkit.org/blog/18191/release-notes-for-safari-technology-preview-250/"
+        }
+      ]
+    },
+    {
+      "id": "navigation-api-precommit",
+      "primitive": "Navigation API precommit handlers",
+      "title": "Navigation-Precommit-Handler erreichen WebKit",
+      "category": "ssr_progressive_activation",
+      "maturity": "Chrome stabil; Safari Technology Preview 251; nicht interoperabel",
+      "verdict": "prototype_now",
+      "impactScore": 4,
+      "summary": "Safari Technology Preview 251 unterstützt seit dem 26. August 2026 NavigateEvent.intercept() mit precommitHandler sowie NavigationTransition.to. Der Hook koordiniert Guards, Vorladen und Redirects vor dem History-Commit.",
+      "impact": "Mittel bis hoch für x-router, SSR/progressive Aktivierung, Route-Cancellation, Fokus- und Live-Region-Übergaben sowie selektive Hydration. XTend hat entsprechende Phasen, nutzt aber manuelle Click- und History-Interception.",
+      "risk": "Mittel: stabil nur in Chromium; Safari ist Technology Preview und Firefox nicht bestätigt. Nur abfangbare Navigationen sind geeignet, und ein verworfener Handler bricht die Navigation ab.",
+      "prototype": "Optionalen globalThis.navigation-Adapter ergänzen: precommitHandler auf Guards und Preloads abbilden, post-commit für DOM-Commit, Fokus und Ankündigung verwenden; vorhandenen Router-Fallback parallel testen.",
+      "prototypeLocation": "components/xrouter.js#_handleLinkClick / _handleNavigation",
+      "browserSupport": {
+        "chromium": "Precommit-Handler stabil seit Chrome 141.",
+        "webkit": "Ab Safari Technology Preview 251; nicht Safari Stable.",
+        "firefox": "Kein Support in den geprüften Primärquellen bestätigt."
+      },
+      "sources": [
+        {
+          "kind": "primary",
+          "url": "https://webkit.org/blog/18194/release-notes-for-safari-technology-preview-251/",
+          "label": "Safari Technology Preview 251"
+        },
+        {
+          "kind": "primary",
+          "url": "https://developer.chrome.com/release-notes/141",
+          "label": "Chrome 141"
+        },
+        {
+          "kind": "primary",
+          "url": "https://github.com/WICG/navigation-api/blob/main/README.md",
+          "label": "Navigation API"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/components/xrouter.js",
+          "label": "XTend router"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/docs/utils/page/route-controller.mjs",
+          "label": "Route controller"
+        }
+      ],
+      "xtendEvidence": {
+        "repository": "konnilabs/xtend",
+        "branch": "main",
+        "commit": "abf9cbe5d002ac5e6f865cd2667a832f49d6517f",
+        "inventoryStatus": "partial",
+        "codeReferences": [
+          {
+            "path": "components/xrouter.js",
+            "symbol": "canNavigate / _handleLinkClick / _handleNavigation",
+            "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/components/xrouter.js"
+          },
+          {
+            "path": "docs/utils/page/route-controller.mjs",
+            "symbol": "route controller",
+            "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/docs/utils/page/route-controller.mjs"
+          }
+        ],
+        "currentBehavior": "x-router prüft progressive/spa/document-Policies, erhält native Anchor-Fallbacks, fängt Links manuell ab und dispatcht before-navigate. Route-Arbeit und progressive Fallbacks sind vorhanden; globalThis.navigation und precommitHandler fehlen.",
+        "affectedSubsystems": [
+          "ssr_progressive_activation",
+          "hydration_resumability",
+          "components_lifecycle"
+        ]
+      },
+      "tracking": {
+        "state": "new",
+        "changeSummary": "Die Precommit-Phase ist mit WebKit TP 251 nun in einer zweiten Engine implementiert."
+      },
+      "observedAt": "2026-08-31",
+      "developmentDate": "2026-08-26",
+      "sourceUrl": "https://webkit.org/blog/18194/release-notes-for-safari-technology-preview-251/",
+      "sourceLabel": "Safari Technology Preview 251",
+      "firstSeen": "2026-08-31",
+      "lastUpdated": "2026-08-31",
+      "events": [
+        {
+          "id": 6,
+          "happenedAt": "2026-08-26",
+          "maturity": "Safari Technology Preview 251",
+          "verdict": "prototype_now",
+          "note": "WebKit implementiert Navigation API precommitHandler und NavigationTransition.to.",
+          "sourceUrl": "https://webkit.org/blog/18194/release-notes-for-safari-technology-preview-251/"
+        }
+      ]
+    },
+    {
+      "id": "cross-root-aria-reference-target",
+      "primitive": "Cross-root ARIA Reference Target",
+      "title": "Cross-root ARIA Reference Target ist in Chrome 152 stabil",
+      "category": "accessibility",
+      "maturity": "Chromium 152 stabil; andere Engines nicht shipping-bestätigt",
+      "verdict": "prototype_now",
+      "impactScore": 5,
+      "summary": "Chrome 152 liefert seit dem 25. August 2026 Reference Target stabil aus. shadowrootreferencetarget beziehungsweise ShadowRoot.referenceTarget leiten ID-Referenzen wie label[for], aria-labelledby, popovertarget und commandfor vom Shadow-Host an ein internes Ziel weiter.",
+      "impact": "Hoch für Accessibility vor und nach Hydration bei Shadow-DOM-Komponenten, besonders x-surface-manager und künftige native-first Controls. Das Primitive ermöglicht Host-zu-Control-Naming, ist aber kein allgemeiner cross-root IDREF-Graph.",
+      "risk": "Mittel: nur Chromium ist stabil bestätigt; Mozilla ist positiv, WebKit nicht stabil. Ein Fallback muss den zugänglichen Namen weiterhin am Host oder internen Control spiegeln.",
+      "prototype": "Je eine deklarative shadowrootreferencetarget- und imperative ShadowRoot.referenceTarget-Fixture ergänzen; Accessible Name und Relation vor Hydration, nach Aktivierung und Reconnect prüfen, mit Host-Naming-Fallback.",
+      "prototypeLocation": "tests/components/accessibility_hydration_suite.js#runAccessibilityHydrationSuite",
+      "browserSupport": {
+        "chromium": "Stabil ab Chrome 152 vom 25. August 2026.",
+        "firefox": "Positive Position; Implementierungs-Tracker offen, kein stabiler Versand.",
+        "webkit": "Keine stabile Auslieferung bestätigt."
+      },
+      "sources": [
+        {
+          "kind": "primary",
+          "url": "https://developer.chrome.com/release-notes/152",
+          "label": "Chrome 152"
+        },
+        {
+          "kind": "primary",
+          "url": "https://bugzilla.mozilla.org/show_bug.cgi?id=1952585",
+          "label": "Mozilla implementation tracker"
+        },
+        {
+          "kind": "primary",
+          "url": "https://github.com/mozilla/standards-positions/issues/1035",
+          "label": "Mozilla position"
+        },
+        {
+          "kind": "primary",
+          "url": "https://github.com/WebKit/standards-positions/issues/356",
+          "label": "WebKit position"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/components/xsurfacemanager.js",
+          "label": "Surface manager"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/a11y/runtime-a11y-contract.js",
+          "label": "A11y contract"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/tests/components/accessibility_hydration_suite.js",
+          "label": "A11y hydration tests"
+        }
+      ],
+      "xtendEvidence": {
+        "repository": "konnilabs/xtend",
+        "branch": "main",
+        "commit": "abf9cbe5d002ac5e6f865cd2667a832f49d6517f",
+        "inventoryStatus": "absent",
+        "codeReferences": [
+          {
+            "path": "components/xsurfacemanager.js",
+            "symbol": "constructor / _setSurfaceAriaModal",
+            "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/components/xsurfacemanager.js"
+          },
+          {
+            "path": "a11y/runtime-a11y-contract.js",
+            "symbol": "createRuntimeA11yContract / validateRuntimeA11yContract",
+            "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/a11y/runtime-a11y-contract.js"
+          },
+          {
+            "path": "tests/components/accessibility_hydration_suite.js",
+            "symbol": "runAccessibilityHydrationSuite",
+            "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/tests/components/accessibility_hydration_suite.js"
+          }
+        ],
+        "currentBehavior": "x-surface-manager erstellt einen offenen ShadowRoot und pflegt Rollen sowie ARIA-Zustände. Der Vertrag kennt aria-labelledby und Hydration-Tests prüfen ARIA-in-HTML-Semantik. referenceTarget und shadowrootreferencetarget fehlen am geprüften HEAD.",
+        "affectedSubsystems": [
+          "accessibility",
+          "components_lifecycle",
+          "hydration_resumability",
+          "ssr_progressive_activation"
+        ]
+      },
+      "tracking": {
+        "state": "new",
+        "changeSummary": "Reference Target erreicht am 25. August 2026 mit Chrome 152 erstmals Stable."
+      },
+      "observedAt": "2026-08-31",
+      "developmentDate": "2026-08-25",
+      "sourceUrl": "https://developer.chrome.com/release-notes/152",
+      "sourceLabel": "Chrome 152",
+      "firstSeen": "2026-08-31",
+      "lastUpdated": "2026-08-31",
+      "events": [
+        {
+          "id": 7,
+          "happenedAt": "2026-08-25",
+          "maturity": "Chrome 152 stable",
+          "verdict": "prototype_now",
+          "note": "Cross-root ARIA Reference Target wird stabil ausgeliefert.",
+          "sourceUrl": "https://developer.chrome.com/release-notes/152"
+        }
+      ]
+    },
+    {
+      "id": "connection-allowlists",
+      "primitive": "Connection Allowlists",
+      "title": "Connection Allowlists sind in Chrome 152 stabil",
+      "category": "diagnostics_remote_surfaces",
+      "maturity": "Chromium 152 stabil; WICG; nicht interoperabel",
+      "verdict": "prototype_now",
+      "impactScore": 5,
+      "summary": "Chrome 152 unterstützt seit dem 25. August 2026 Connection Allowlists. Ein HTTP-Response-Header begrenzt Netzwerkverbindungen eines Dokuments oder Workers vor dem Verbindungsaufbau und ergänzt CSP um eine zentrale browserseitige Egress-Grenze.",
+      "impact": "Hoch für Host-Adapter, Remote Surfaces, Worker, Streaming und Diagnostics. XTend besitzt anwendungsseitige Origin-Allowlisting und CSP, aber keine einheitliche Header-Synthese für Fetch-, Worker- und Echtzeitpfade.",
+      "risk": "Mittel bis hoch: unvollständige Allowlists blockieren legitime App-Service-, Worker- oder Remote-Surface-Ziele; Chromium ist die einzige bestätigte stabile Engine. Einstieg nur testorientiert und manifestgetrieben.",
+      "prototype": "Für eine Testseite den Header aus same-origin, Remote-Surface-Manifest und App-Service-Zielen erzeugen. Parität mit remote-origin-allowlist und createHttpAppServiceTransport prüfen und geblockte Verbindungen diagnostisch ausweisen.",
+      "prototypeLocation": "docs/index.php und components/xsurfacemanager.js#_createRemotePolicyDecision",
+      "browserSupport": {
+        "chromium": "Stabil ab Chrome 152 vom 25. August 2026.",
+        "firefox": "Positive Mozilla-Position, kein stabiler Versand.",
+        "webkit": "Offene Position, kein stabiler Versand."
+      },
+      "sources": [
+        {
+          "kind": "primary",
+          "url": "https://developer.chrome.com/release-notes/152",
+          "label": "Chrome 152"
+        },
+        {
+          "kind": "primary",
+          "url": "https://wicg.github.io/connection-allowlists/",
+          "label": "Connection Allowlists specification"
+        },
+        {
+          "kind": "primary",
+          "url": "https://github.com/mozilla/standards-positions/issues/1322",
+          "label": "Mozilla position"
+        },
+        {
+          "kind": "primary",
+          "url": "https://github.com/WebKit/standards-positions/issues/583",
+          "label": "WebKit position"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/components/xsurfacemanager.js",
+          "label": "Remote surface origin policy"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/docs/index.php",
+          "label": "Demo CSP"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/xtend-maraca/app-services.js",
+          "label": "HTTP transport"
+        }
+      ],
+      "xtendEvidence": {
+        "repository": "konnilabs/xtend",
+        "branch": "main",
+        "commit": "abf9cbe5d002ac5e6f865cd2667a832f49d6517f",
+        "inventoryStatus": "partial",
+        "codeReferences": [
+          {
+            "path": "components/xsurfacemanager.js",
+            "symbol": "_remoteAllowedOrigins / _createRemotePolicyDecision",
+            "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/components/xsurfacemanager.js"
+          },
+          {
+            "path": "docs/index.php",
+            "symbol": "Content-Security-Policy header",
+            "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/docs/index.php"
+          },
+          {
+            "path": "xtend-maraca/app-services.js",
+            "symbol": "createHttpAppServiceTransport",
+            "url": "https://github.com/konnilabs/xtend/blob/abf9cbe5d002ac5e6f865cd2667a832f49d6517f/xtend-maraca/app-services.js"
+          }
+        ],
+        "currentBehavior": "x-surface-manager erzwingt remote-origin-allowlist, docs/index.php liefert CSP connect-src 'self', und der Maraca-Transport kapselt ausgehende HTTP-Aufrufe. Connection-Allowlist-Header und zentrale Manifest-zu-Header-Synthese fehlen.",
+        "affectedSubsystems": [
+          "runtime_host_adapter",
+          "diagnostics_remote_surfaces",
+          "workers_streaming",
+          "ssr_progressive_activation"
+        ]
+      },
+      "tracking": {
+        "state": "new",
+        "changeSummary": "Connection Allowlists erreichen am 25. August 2026 mit Chrome 152 erstmals Stable."
+      },
+      "observedAt": "2026-08-31",
+      "developmentDate": "2026-08-25",
+      "sourceUrl": "https://developer.chrome.com/release-notes/152",
+      "sourceLabel": "Chrome 152",
+      "firstSeen": "2026-08-31",
+      "lastUpdated": "2026-08-31",
+      "events": [
+        {
+          "id": 8,
+          "happenedAt": "2026-08-25",
+          "maturity": "Chrome 152 stable",
+          "verdict": "prototype_now",
+          "note": "Connection Allowlists werden stabil ausgeliefert.",
+          "sourceUrl": "https://developer.chrome.com/release-notes/152"
+        }
+      ]
+    },
+    {
+      "id": "js-self-profiling-markers-chrome-153",
+      "primitive": "JavaScript Self-Profiling Markers",
+      "title": "Browser-Work-Marker machen Fabric-Traces attributionstauglich",
+      "category": "diagnostics_remote_surfaces",
+      "maturity": "CHROME 153 ORIGIN TRIAL",
+      "verdict": "prototype_now",
+      "impactScore": 4,
+      "summary": "Chrome 153 startete am 20. August 2026 einen Origin Trial für Marker in der JavaScript Self-Profiling API. Samples können Browserarbeit nun als script, gc, style, layout, paint oder other klassifizieren, statt Nicht-JavaScript-Zeit als nicht interpretierbare Lücke zu hinterlassen.",
+      "impact": "XTends bestehende Lane-, Stream-Pressure- und Backpressure-Telemetrie könnte damit reale Browserarbeit während Hydration, Surface-Aktivierung und Fabric-Tasks korrelieren. Besonders wertvoll wäre die Trennung von Scheduler-Arbeit, Garbage Collection und durch RMT-Projektion ausgelöstem Style/Layout/Paint.",
+      "risk": "Die Marker sind Chrome-only im zeitlich begrenzten Origin Trial, nicht Baseline und nicht interoperabel. Die Self-Profiling API benötigt Document-Policy: js-profiling; Marker sind wegen möglicher Side-Channels nur in cross-origin-isolierten Kontexten zugänglich. Trace-Format und Datenschutz-Budget dürfen nicht Teil eines stabilen Runtime-Vertrags werden.",
+      "prototype": "Im Performance-Lab einen optionalen Profiler-Adapter hinter die vorhandene performanceRuntime-Grenze hängen. Für eine begrenzte Hydration-/Stream-Session 10-ms-Samples erfassen, Marker nach Fabric-Lane und Phase aggregieren und ausschließlich Summen für script/gc/style/layout/paint gegen die bestehenden Stream-Pressure-Samples vergleichen.",
+      "prototypeLocation": "xtendrmt/labs/js-self-profiling-markers/",
+      "browserSupport": {
+        "Chrome": "153 Beta; Marker nur per Origin-Trial-Token und Capability Detection",
+        "Edge": "Keine bestätigte Marker-Freigabe; Chrome-Origin-Trial nicht automatisch übertragbar",
+        "Firefox": "Keine reguläre Implementierung der Self-Profiling-Marker",
+        "Safari": "Keine reguläre Implementierung der Self-Profiling-Marker"
+      },
+      "sources": [
+        {
+          "kind": "primary",
+          "url": "https://developer.chrome.com/blog/chrome-153-beta",
+          "label": "Chrome for Developers · Chrome 153 beta"
+        },
+        {
+          "kind": "primary",
+          "url": "https://github.com/WICG/js-self-profiling/blob/main/markers.md",
+          "label": "WICG · JS Self-Profiling Markers explainer"
+        },
+        {
+          "kind": "primary",
+          "url": "https://wicg.github.io/js-self-profiling/",
+          "label": "WICG · JavaScript Self-Profiling API specification"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/ad302f3d22bc1e94e15f3a93d9565bd6c3d05b19/xtendrmt/rmt-app-runtime.js",
+          "label": "XTend · RMT App Runtime"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/ad302f3d22bc1e94e15f3a93d9565bd6c3d05b19/xtendrmt/rmt-app-runtime.d.ts",
+          "label": "XTend · RMT App Runtime contract"
+        }
+      ],
+      "xtendEvidence": {
+        "repository": "konnilabs/xtend",
+        "branch": "main",
+        "commit": "ad302f3d22bc1e94e15f3a93d9565bd6c3d05b19",
+        "inventoryStatus": "partial",
+        "codeReferences": [
+          {
+            "path": "xtendrmt/rmt-app-runtime.js",
+            "symbol": "createRmtAppRuntime / reportStreamPressureSample / getPerformanceTelemetrySnapshot",
+            "url": "https://github.com/konnilabs/xtend/blob/ad302f3d22bc1e94e15f3a93d9565bd6c3d05b19/xtendrmt/rmt-app-runtime.js"
+          },
+          {
+            "path": "xtendrmt/rmt-app-runtime.d.ts",
+            "symbol": "RmtAppRuntimePerformanceTelemetrySnapshot / RmtAppPerformanceSamplePort",
+            "url": "https://github.com/konnilabs/xtend/blob/ad302f3d22bc1e94e15f3a93d9565bd6c3d05b19/xtendrmt/rmt-app-runtime.d.ts"
+          }
+        ],
+        "currentBehavior": "Der geprüfte App Runtime bindet scheduler/performanceRuntime/kernelRuntime als Performance-Sample-Port ein, erzeugt Lane-bezogene Stream-Pressure-Samples und stellt eine Telemetrie-Snapshot-API für Commands, Streams, Diagnostik und Backpressure bereit. Eine repository-weite Suche am geprüften HEAD ergab keine Profiler-, PerformanceObserver- oder Self-Profiling-Marker-Ingestion.",
+        "affectedSubsystems": [
+          "Fabric lanes",
+          "scheduler diagnostics",
+          "hydration and resume performance",
+          "stream backpressure",
+          "runtime telemetry"
+        ]
+      },
+      "tracking": {
+        "state": "new",
+        "changeSummary": "Neuer Chrome-153-Origin-Trial liefert erstmals Browser-Work-Kategorien für Self-Profiling-Samples."
+      },
+      "observedAt": "2026-08-24",
+      "developmentDate": "2026-08-20",
+      "sourceUrl": "https://developer.chrome.com/blog/chrome-153-beta",
+      "sourceLabel": "Chrome for Developers · Chrome 153 beta",
+      "firstSeen": "2026-08-24",
+      "lastUpdated": "2026-08-24",
+      "events": [
+        {
+          "id": 4,
+          "happenedAt": "2026-08-20",
+          "maturity": "CHROME 153 ORIGIN TRIAL",
+          "verdict": "prototype_now",
+          "note": "Chrome kündigt den Origin Trial für JavaScript Self-Profiling Markers in Chrome 153 Beta an.",
+          "sourceUrl": "https://developer.chrome.com/blog/chrome-153-beta"
+        }
+      ]
+    },
+    {
+      "id": "explicit-resource-management-webkit-tp250",
+      "primitive": "Explicit Resource Management",
+      "title": "using und Symbol.dispose erreichen WebKit Preview",
+      "category": "components_lifecycle",
+      "maturity": "SAFARI TECHNOLOGY PREVIEW 250",
+      "verdict": "prototype_now",
+      "impactScore": 4,
+      "summary": "WebKit implementierte in Safari Technology Preview 250 Explicit Resource Management mit using, await using, DisposableStack und Symbol.dispose.",
+      "impact": "XTend kann prüfen, ob Scheduler-, Surface- und Host-Ressourcen an einer einheitlichen lexikalischen Cleanup-Grenze hängen können. Das reduziert vergessene dispose()-Aufrufe bei Abbruch, Fehlern und partieller Aktivierung.",
+      "risk": "Die Syntax muss vom gesamten Build- und Browser-Ziel verstanden werden; eine direkte Produktionsumstellung wäre bei älteren Engines ein Parse-Fehler. Bestehende explizite Cleanup-Pfade bleiben der Fallback.",
+      "prototype": "Einen DisposableStack-Adapter um Scheduler-Tasks, Worker und Surface-Ressourcen legen und identische Cleanup-Invarianten bei normalem Abschluss, Throw und Abort gegen die heutigen dispose()-Aufrufe testen.",
+      "prototypeLocation": "xtendrmt/labs/explicit-resource-management/",
+      "browserSupport": {
+        "Chromium": "Shipping in aktuellen Releases",
+        "Safari": "Technology Preview 250",
+        "Firefox": "In Entwicklung / nicht regulär verfügbar"
+      },
+      "sources": [
+        {
+          "kind": "primary",
+          "url": "https://webkit.org/blog/18191/release-notes-for-safari-technology-preview-250/",
+          "label": "WebKit · Safari Technology Preview 250"
+        },
+        {
+          "kind": "primary",
+          "url": "https://v8.dev/features/explicit-resource-management",
+          "label": "V8 · Explicit Resource Management"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/aaca1bbf42f7f91358081fb75c4c3df7585674e2/xtendrmt/rmt-browser-scheduler.js",
+          "label": "XTend · Browser scheduler"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/aaca1bbf42f7f91358081fb75c4c3df7585674e2/xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "label": "XTend · Surface resource graph runtime"
+        }
+      ],
+      "xtendEvidence": {
+        "repository": "konnilabs/xtend",
+        "branch": "main",
+        "commit": "aaca1bbf42f7f91358081fb75c4c3df7585674e2",
+        "inventoryStatus": "partial",
+        "codeReferences": [
+          {
+            "path": "xtendrmt/rmt-browser-scheduler.js",
+            "symbol": "dispose",
+            "url": "https://github.com/konnilabs/xtend/blob/aaca1bbf42f7f91358081fb75c4c3df7585674e2/xtendrmt/rmt-browser-scheduler.js"
+          },
+          {
+            "path": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+            "symbol": "createRmtSurfaceResourceGraphRuntime",
+            "url": "https://github.com/konnilabs/xtend/blob/aaca1bbf42f7f91358081fb75c4c3df7585674e2/xtendrmt/rmt-surface-resource-graph-runtime.js"
+          }
+        ],
+        "currentBehavior": "Scheduler und Surface Resource Graph besitzen explizite dispose-/disposing-Lebenszyklen und brechen geplante Arbeit kontrolliert ab. Symbol.dispose, using und DisposableStack werden noch nicht verwendet.",
+        "affectedSubsystems": [
+          "component lifecycle",
+          "scheduler",
+          "surface resources",
+          "abort cleanup"
+        ]
+      },
+      "tracking": {
+        "state": "new",
+        "changeSummary": "Zweite Engine erreicht eine prototypisch nutzbare Implementierung."
+      },
+      "observedAt": "2026-08-17",
+      "developmentDate": "2026-08-13",
+      "sourceUrl": "https://webkit.org/blog/18191/release-notes-for-safari-technology-preview-250/",
+      "sourceLabel": "WebKit · Safari Technology Preview 250",
+      "firstSeen": "2026-08-17",
+      "lastUpdated": "2026-08-17",
+      "events": [
+        {
+          "id": 2,
+          "happenedAt": "2026-08-13",
+          "maturity": "SAFARI TECHNOLOGY PREVIEW 250",
+          "verdict": "prototype_now",
+          "note": "WebKit aktiviert Explicit Resource Management in Technology Preview 250.",
+          "sourceUrl": "https://webkit.org/blog/18191/release-notes-for-safari-technology-preview-250/"
+        }
+      ]
+    },
+    {
+      "id": "aria-in-html-recommendation-2026",
+      "primitive": "ARIA in HTML",
+      "title": "Neue Recommendation verschärft die Hydration-Baseline",
+      "category": "accessibility",
+      "maturity": "W3C RECOMMENDATION",
+      "verdict": "prototype_now",
+      "impactScore": 5,
+      "summary": "W3C veröffentlichte am 11. August 2026 eine aktualisierte ARIA-in-HTML-Recommendation. Die normative Zuordnung erlaubter Rollen und Attribute ist damit ein neuer stabiler Prüfstand für serverseitiges und hydratisiertes RMT-Markup.",
+      "impact": "Der bestehende native-first A11y-Vertrag und sein diagnose-and-fail-Gate sollten gegen die neue Regelmatrix verifiziert werden. Relevant sind besonders Zustandsübergänge, bei denen SSR-Markup vor Aktivierung bereits vollständig zugänglich sein muss.",
+      "risk": "Die Recommendation garantiert keine sofort einheitliche Accessibility-Tree-Umsetzung aller Browser/AT-Kombinationen. Ein Regelupdate darf native Semantik nicht durch zusätzliche ARIA-Rollen verschlechtern.",
+      "prototype": "Die festen XTend-Komponentenfamilien als SSR-, Pre-Hydration- und Post-Hydration-Snapshots durch aktualisierte ARIA-in-HTML-Regeln und bestehende a11y-hydration-Suites laufen lassen; nur echte Regelabweichungen als Gate aufnehmen.",
+      "prototypeLocation": "a11y/tests/aria-in-html-2026/",
+      "browserSupport": {
+        "Chromium": "Normativer Web-Standard; konkrete AOM/AT-Abweichungen weiter testen",
+        "Safari": "Normativer Web-Standard; konkrete AOM/AT-Abweichungen weiter testen",
+        "Firefox": "Normativer Web-Standard; konkrete AOM/AT-Abweichungen weiter testen"
+      },
+      "sources": [
+        {
+          "kind": "primary",
+          "url": "https://www.w3.org/TR/2026/REC-html-aria-20260811/",
+          "label": "W3C · ARIA in HTML Recommendation"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/aaca1bbf42f7f91358081fb75c4c3df7585674e2/a11y/runtime-a11y-contract.js",
+          "label": "XTend · Runtime accessibility contract"
+        },
+        {
+          "kind": "xtend",
+          "url": "https://github.com/konnilabs/xtend/blob/aaca1bbf42f7f91358081fb75c4c3df7585674e2/xtendrmt/rmt-component-capability-registry.js",
+          "label": "XTend · Component capability registry"
+        }
+      ],
+      "xtendEvidence": {
+        "repository": "konnilabs/xtend",
+        "branch": "main",
+        "commit": "aaca1bbf42f7f91358081fb75c4c3df7585674e2",
+        "inventoryStatus": "partial",
+        "codeReferences": [
+          {
+            "path": "a11y/runtime-a11y-contract.js",
+            "symbol": "createRuntimeA11yContract / validateRuntimeA11yContract",
+            "url": "https://github.com/konnilabs/xtend/blob/aaca1bbf42f7f91358081fb75c4c3df7585674e2/a11y/runtime-a11y-contract.js"
+          },
+          {
+            "path": "xtendrmt/rmt-component-capability-registry.js",
+            "symbol": "componentFamilies",
+            "url": "https://github.com/konnilabs/xtend/blob/aaca1bbf42f7f91358081fb75c4c3df7585674e2/xtendrmt/rmt-component-capability-registry.js"
+          }
+        ],
+        "currentBehavior": "Der Runtime-Vertrag ist native-first, behandelt ungültige ARIA-Zustände als diagnose-and-fail-Gate und verlangt eine a11y-hydration-Suite. Eine explizite Verifikation gegen die Recommendation vom 11. August 2026 ist im geprüften Stand nicht dokumentiert.",
+        "affectedSubsystems": [
+          "SSR semantics",
+          "hydration",
+          "custom elements",
+          "a11y diagnostics"
+        ]
+      },
+      "tracking": {
+        "state": "new",
+        "changeSummary": "Neue W3C Recommendation wird zur stabilen Conformance-Baseline."
+      },
+      "observedAt": "2026-08-17",
+      "developmentDate": "2026-08-11",
+      "sourceUrl": "https://www.w3.org/TR/2026/REC-html-aria-20260811/",
+      "sourceLabel": "W3C · ARIA in HTML Recommendation",
+      "firstSeen": "2026-08-17",
+      "lastUpdated": "2026-08-17",
+      "events": [
+        {
+          "id": 3,
+          "happenedAt": "2026-08-11",
+          "maturity": "W3C RECOMMENDATION",
+          "verdict": "prototype_now",
+          "note": "W3C veröffentlicht die aktualisierte ARIA-in-HTML-Recommendation.",
+          "sourceUrl": "https://www.w3.org/TR/2026/REC-html-aria-20260811/"
+        }
+      ]
+    },
+    {
+      "id": "scoped-custom-element-registries",
+      "primitive": "Scoped Custom Element Registries",
+      "title": "Lokale Registries werden zum Interop-Ziel",
+      "category": "components_lifecycle",
+      "maturity": "INTEROP 2026",
+      "verdict": "prototype_now",
+      "impactScore": 5,
+      "summary": "Browserhersteller arbeiten 2026 gemeinsam an interoperablen, bereichsgebundenen Custom-Element-Registries.",
+      "impact": "Surfaces und XTensions könnten identische Tag-Namen ohne globale Registry-Kollisionen kapseln. Das passt direkt zur Host-Adapter-Grenze und zu Remote Surface Shards.",
+      "risk": "Noch kein Ersatz für die bestehende globale Registry. Aktivierung muss strikt capability-basiert bleiben.",
+      "prototype": "Eine isolierte XSurface mit eigener Registry materialisieren und Lifecycle, Upgrade-Reihenfolge sowie SSR-Hydration gegen die globale Fallback-Registry messen.",
+      "browserSupport": {
+        "Chromium": "Interop-Arbeit 2026",
+        "Firefox": "Interop-Arbeit 2026",
+        "Safari": "Interop-Arbeit 2026"
+      },
+      "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+      "sourceLabel": "Web Platform Tests · Interop 2026",
+      "firstSeen": "2026-02-12",
+      "lastUpdated": "2026-08-09",
+      "events": [
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "INTEROP 2026",
+          "verdict": "prototype_now",
+          "note": "Als offizieller Interop-Fokus aufgenommen.",
+          "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md"
+        }
+      ]
+    },
+    {
+      "id": "scheduler-yield",
+      "primitive": "scheduler.yield()",
+      "title": "Priorisierte Fortsetzungen für Fabric-Arbeit",
+      "category": "fabric_scheduling",
+      "maturity": "LIMITED SHIPPING",
+      "verdict": "prototype_now",
+      "impactScore": 5,
+      "summary": "scheduler.yield() zerlegt Long Tasks und setzt die Fortsetzung höher priorisiert wieder an als gewöhnliche Queue-Arbeit.",
+      "impact": "Fabric könnte sichtbare Hydration und Chunk-Arbeit kooperativ unterbrechen, ohne Fortsetzungen hinter neu eingereihter Arbeit verhungern zu lassen. Das ist besonders für INP und Backpressure relevant.",
+      "risk": "Prioritätsvererbung ist nicht sinnvoll polyfillbar. Der bestehende Scheduler bleibt für nicht unterstützte Browser maßgeblich.",
+      "prototype": "Eine Maraca-Hydration mit 500 Komponenten in 4-ms-Scheiben vergleichen: scheduler.yield(), postTask-Fallback und bestehender Lane-Scheduler.",
+      "browserSupport": {
+        "Chromium": "129+",
+        "Firefox": "142+",
+        "Safari": "nicht verfügbar"
+      },
+      "sourceUrl": "https://developer.chrome.com/blog/use-scheduler-yield",
+      "sourceLabel": "Chrome for Developers",
+      "firstSeen": "2025-03-06",
+      "lastUpdated": "2026-08-09",
+      "events": [
+        {
+          "happenedAt": "2025-03-06",
+          "maturity": "SHIPPING / FEATURE DETECT",
+          "verdict": "watch",
+          "note": "Produktionsmuster und Fallback-Strategie dokumentiert.",
+          "sourceUrl": "https://developer.chrome.com/blog/use-scheduler-yield"
+        },
+        {
+          "happenedAt": "2026-08-09",
+          "maturity": "LIMITED SHIPPING",
+          "verdict": "prototype_now",
+          "note": "Firefox-Unterstützung macht einen Multi-Engine-Prototyp sinnvoll.",
+          "sourceUrl": "https://developer.chrome.com/blog/use-scheduler-yield"
+        }
+      ]
+    },
+    {
+      "id": "navigation-api",
+      "primitive": "Navigation API",
+      "title": "Browsernavigation als Router-Unterbau",
+      "category": "ssr_progressive_activation",
+      "maturity": "INTEROP 2026",
+      "verdict": "watch",
+      "impactScore": 5,
+      "summary": "Die Navigation API ist 2026 erstmals ein koordinierter Interop-Fokus und adressiert History- und Navigations-Lebenszyklen direkt.",
+      "impact": "Langfristig könnte der XRouter weniger History-Patching benötigen und Navigation, Abort sowie Transitionen an einer nativen Grenze koordinieren.",
+      "risk": "Interop-Fokus ist noch kein universelles Produktionssignal. Eine voreilige Kopplung würde den Router auf eine bewegliche Semantik festlegen.",
+      "prototype": "Nur im Capability-Lab: navigate-Events in RMT-Routen übersetzen und Abbruch, Back/Forward sowie scroll restoration gegen XRouter-Verhalten protokollieren.",
+      "browserSupport": {
+        "Chromium": "implementiert",
+        "Firefox": "Interop-Arbeit 2026",
+        "Safari": "Interop-Arbeit 2026"
+      },
+      "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+      "sourceLabel": "Web Platform Tests · Interop 2026",
+      "firstSeen": "2026-02-12",
+      "lastUpdated": "2026-08-09",
+      "events": [
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "INTEROP 2026",
+          "verdict": "watch",
+          "note": "In das koordinierte Browserprogramm aufgenommen.",
+          "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md"
+        }
+      ]
+    },
+    {
+      "id": "dialogs-popovers",
+      "primitive": "Dialog + Popover",
+      "title": "Interop-Schub für native Overlay-Komponenten",
+      "category": "components_lifecycle",
+      "maturity": "BROADLY SHIPPING",
+      "verdict": "prototype_now",
+      "impactScore": 4,
+      "summary": "Dialogs und Popovers sind 2026 ein Interop-Fokus; im Zentrum stehen verlässliche, engineübergreifende Verhaltensdetails.",
+      "impact": "XDialog, XMenu, Tooltips und Inspector-Flächen können Fokus, Top Layer und Escape-Verhalten stärker an native Primitive delegieren.",
+      "risk": "Bestehende Focus-Traps und Portals dürfen nicht parallel gegen den nativen Top Layer arbeiten.",
+      "prototype": "XDialog und XMenu hinter einer gemeinsamen Overlay-Capability auf native Popover-/Dialog-Pfade umstellen und die A11y-Hydrationstests dagegen laufen lassen.",
+      "browserSupport": {
+        "Chromium": "breit verfügbar",
+        "Firefox": "breit verfügbar",
+        "Safari": "breit verfügbar"
+      },
+      "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+      "sourceLabel": "Web Platform Tests · Interop 2026",
+      "firstSeen": "2026-02-12",
+      "lastUpdated": "2026-08-09",
+      "events": [
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "BROADLY SHIPPING",
+          "verdict": "prototype_now",
+          "note": "Verhaltenslücken werden im Interop-Programm getestet.",
+          "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md"
+        }
+      ]
+    },
+    {
+      "id": "a11y-testing-interop",
+      "primitive": "Cross-engine Accessibility Testing",
+      "title": "A11y-Testinfrastruktur wird Interop-Untersuchung",
+      "category": "accessibility",
+      "maturity": "INVESTIGATION",
+      "verdict": "watch",
+      "impactScore": 4,
+      "summary": "Interop 2026 untersucht engineübergreifende Accessibility-Tests statt nur einzelne UI-APIs zu vereinheitlichen.",
+      "impact": "XTends a11y-hydration-Suite könnte künftig reproduzierbarer prüfen, ob progressive Aktivierung Name, Rolle, Zustand und Fokus stabil hält.",
+      "risk": "Eine Investigation erzeugt zunächst Testgrundlagen, noch keine neue Produktions-API.",
+      "prototype": "Bestehende A11y-Hydration-Fälle auf relevante WPT-Strukturen abbilden und Lücken dokumentieren; noch keine Runtime-Änderung.",
+      "browserSupport": {
+        "Chromium": "Test-Investigation",
+        "Firefox": "Test-Investigation",
+        "Safari": "Test-Investigation"
+      },
+      "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+      "sourceLabel": "Web Platform Tests · Interop 2026",
+      "firstSeen": "2026-02-12",
+      "lastUpdated": "2026-08-09",
+      "events": [
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "INVESTIGATION",
+          "verdict": "watch",
+          "note": "Accessibility Testing als Untersuchung aufgenommen.",
+          "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md"
+        }
+      ]
+    },
+    {
+      "id": "jspi-wasm",
+      "primitive": "JSPI for WebAssembly",
+      "title": "Asynchrone Wasm-Grenze wird Interop-Fokus",
+      "category": "runtime_host_adapter",
+      "maturity": "INTEROP 2026",
+      "verdict": "watch",
+      "impactScore": 3,
+      "summary": "JavaScript Promise Integration für WebAssembly ist Teil des Interop-2026-Programms.",
+      "impact": "Künftige Wasm-XTensions könnten asynchrone Host-Aufrufe natürlicher abbilden, ohne ihren Ausführungszustand vollständig manuell zu zerlegen.",
+      "risk": "Für den heutigen DOM-/Custom-Element-Kern entsteht kein unmittelbarer Gewinn. Relevant wird es erst mit konkreten Wasm-Compute-Surfaces.",
+      "prototype": "Nur beobachten; bei einer realen Wasm-XTension einen isolierten Async-Hostcall-Benchmark als Capability-Test ergänzen.",
+      "browserSupport": {
+        "Chromium": "Interop-Arbeit 2026",
+        "Firefox": "Interop-Arbeit 2026",
+        "Safari": "Interop-Arbeit 2026"
+      },
+      "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+      "sourceLabel": "Web Platform Tests · Interop 2026",
+      "firstSeen": "2026-02-12",
+      "lastUpdated": "2026-08-09",
+      "events": [
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "INTEROP 2026",
+          "verdict": "watch",
+          "note": "Als browserübergreifender Fokus aufgenommen.",
+          "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md"
+        }
+      ]
+    },
+    {
+      "id": "declarative-shadow-slot-assignment",
+      "primitive": "Declarative Shadow DOM Slot Assignment",
+      "title": "Manuelle Slot-Zuordnung erreicht deklaratives Markup",
+      "category": "hydration_resumability",
+      "maturity": "CHROMIUM 151",
+      "verdict": "watch",
+      "impactScore": 4,
+      "summary": "Chrome 151 führt shadowrootslotassignment für deklarative Shadow Roots ein und bringt bisher imperative Slot-Konfiguration ins Server-Markup.",
+      "impact": "RMT-Artefakte könnten die Slot-Strategie einer Surface bereits im SSR-Output festlegen. Der Host-Adapter müsste beim Aktivieren weniger Shadow-Root-Konfiguration nachtragen.",
+      "risk": "Derzeit ist das ein Chromium-Signal, kein interoperables Primitive. Die Runtime darf daraus noch keine allgemeine Hydration-Annahme ableiten.",
+      "prototype": "Im Hydration-Lab denselben Custom-Element-Baum einmal mit deklarativem manual slot assignment und einmal über attachShadow konfigurieren; Parse-, Upgrade- und Reorder-Verhalten messen.",
+      "browserSupport": {
+        "Chromium": "151+",
+        "Firefox": "kein breites Signal",
+        "Safari": "kein breites Signal"
+      },
+      "sourceUrl": "https://developer.chrome.com/release-notes/151",
+      "sourceLabel": "Chrome 151 Release Notes",
+      "firstSeen": "2026-07-28",
+      "lastUpdated": "2026-07-28",
+      "events": [
+        {
+          "happenedAt": "2026-07-28",
+          "maturity": "CHROMIUM 151",
+          "verdict": "watch",
+          "note": "Deklarative Konfiguration für manual slot assignment ausgeliefert.",
+          "sourceUrl": "https://developer.chrome.com/release-notes/151"
+        }
+      ]
+    },
+    {
+      "id": "cross-document-view-transitions",
+      "primitive": "Cross-document View Transitions",
+      "title": "Native Übergänge für SSR- und MPA-Navigation",
+      "category": "ssr_progressive_activation",
+      "maturity": "SHIPPING + INTEROP",
+      "verdict": "prototype_now",
+      "impactScore": 4,
+      "summary": "Dokumentübergreifende View Transitions sind in Safari und Chromium verfügbar und Teil von Interop 2026.",
+      "impact": "Die XTend-Dokumentation kann klassische Servernavigation beibehalten und trotzdem visuelle Kontinuität liefern. XRouter muss dafür nicht die gesamte App-Shell besitzen.",
+      "risk": "Transition-Namen, BFCache und konkurrierende clientseitige Surface-Übergänge brauchen klare Ownership-Regeln.",
+      "prototype": "Eine Parsedown-Route als echte MPA-Navigation ausführen und nur Hauptinhalt, Breadcrumb und aktive Rail-Marke über View-Transition-Namen verbinden.",
+      "browserSupport": {
+        "Chromium": "126+",
+        "Firefox": "Interop-Fokus 2026",
+        "Safari": "18.2+"
+      },
+      "sourceUrl": "https://webkit.org/blog/16967/two-lines-of-cross-document-view-transitions-code-you-can-use-on-every-website-today/",
+      "sourceLabel": "WebKit Blog",
+      "firstSeen": "2024-12-09",
+      "lastUpdated": "2026-02-12",
+      "events": [
+        {
+          "happenedAt": "2024-12-09",
+          "maturity": "SHIPPING",
+          "verdict": "watch",
+          "note": "Safari 18.2 liefert dokumentübergreifende Übergänge aus.",
+          "sourceUrl": "https://webkit.org/blog/16301/webkit-features-in-safari-18-2/"
+        },
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "SHIPPING + INTEROP",
+          "verdict": "prototype_now",
+          "note": "Cross-document-Variante wird Interop-2026-Fokus.",
+          "sourceUrl": "https://webkit.org/blog/17818/announcing-interop-2026/"
+        }
+      ]
+    },
+    {
+      "id": "css-anchor-positioning",
+      "primitive": "CSS Anchor Positioning",
+      "title": "Layout-Primitive für Menüs und Tooltips konvergiert",
+      "category": "components_lifecycle",
+      "maturity": "INTEROP CARRY-OVER",
+      "verdict": "prototype_now",
+      "impactScore": 3,
+      "summary": "Anchor Positioning bleibt 2026 Interop-Fokus und nähert sich verlässlichem Einsatz über Engines hinweg.",
+      "impact": "Positionierungslogik für XMenu, XTooltip und kontextuelle Inspector-UI kann aus JavaScript in CSS wandern und Resize-/Scroll-Arbeit reduzieren.",
+      "risk": "Fallbacks bleiben nötig; komplexe Collision-Strategien sind noch nicht überall identisch.",
+      "prototype": "Eine tooltipartige XTend-Komponente mit CSS-Ankerpfad plus bestehendem JS-Fallback bauen und Layout-/Resize-Kosten vergleichen.",
+      "browserSupport": {
+        "Chromium": "shipping",
+        "Firefox": "Interop-Arbeit 2026",
+        "Safari": "Interop-Arbeit 2026"
+      },
+      "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md",
+      "sourceLabel": "Web Platform Tests · Interop 2026",
+      "firstSeen": "2025-02-13",
+      "lastUpdated": "2026-02-12",
+      "events": [
+        {
+          "happenedAt": "2026-02-12",
+          "maturity": "INTEROP CARRY-OVER",
+          "verdict": "prototype_now",
+          "note": "Als Carry-over für 2026 bestätigt.",
+          "sourceUrl": "https://github.com/web-platform-tests/interop/blob/main/2026/README.md"
+        }
+      ]
+    }
+  ]
+}

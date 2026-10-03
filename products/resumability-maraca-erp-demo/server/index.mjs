@@ -583,7 +583,7 @@ function sendNotFound(response) {
 
 function safeStaticPath(urlPath) {
   const rootComponents = new Set([
-    '/components/xstate.js',
+    '/components/xtend-state.js',
     '/components/xdialog.js',
     '/components/xbutton.js',
     '/components/xselect.js',

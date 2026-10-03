@@ -389,9 +389,9 @@ function runStaleSidecarSecurityChecks(context) {
 }
 
 function runPackagingAndDocsChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const toolsManifest = readJson('tools/package.json', rootDir);
-  const runnerText = readText('scripts/run_xtend_tests.js', rootDir);
+  const runnerText = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const registryText = readText('xtend-builder/generators/registry.js', rootDir);
   const cliText = readText('xtend-builder/lib/cli.js', rootDir);
   const configText = readText('xtend-builder/scaffold.config.js', rootDir);
@@ -406,8 +406,8 @@ function runPackagingAndDocsChecks(context, rootDir) {
   context.assert(packageManifest.xtend.rmtAppPlatformTooling.schema === RMT_APP_PLATFORM_TOOLING_SCHEMA, 'Package metadata exposes WP11 schema');
   context.assert(packageManifest.xtend.rmtAppPlatformTooling.localGate === RMT_APP_PLATFORM_TOOLING_LOCAL_GATE, 'Package metadata exposes WP11 gate');
   context.assert(packageManifest.xtend.rmtAppPlatformTooling.diagnosticCodes.length === REQUIRED_DIAGNOSTIC_CODES.length, 'Package metadata lists WP11 diagnostics');
-  context.assert(runnerText.includes('runRmtAppPlatformToolingSuite'), 'Runner imports WP11 suite');
-  context.assert(runnerText.includes("id: 'rmt-app-platform-tooling'"), 'Runner registers WP11 suite id');
+  context.assert(runnerText.hasImplementation({ function: "runRmtAppPlatformToolingSuite" }), 'Runner imports WP11 suite');
+  context.assert(runnerText.hasSuite("rmt-app-platform-tooling"), 'Runner registers WP11 suite id');
   context.assert(registryText.includes("command: 'rmt-app-platform'"), 'Builder registry exposes rmt-app-platform command');
   context.assert(cliText.includes("command === 'rmt-app-platform'"), 'Builder CLI exposes rmt-app-platform command');
   context.assert(configText.includes('rmtAppPlatformTooling'), 'Scaffold config exposes WP11 metadata');

@@ -125,7 +125,7 @@ function runRmtSourceModelSuite(options = {}) {
   });
   const packageManifest = readJson('package.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtSourceModel;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
   const moduleSyntax = syntaxCheckFile(RMT_SOURCE_MODEL_MODULE_PATH, { rootDir, extension: '.js' });
@@ -143,7 +143,7 @@ function runRmtSourceModelSuite(options = {}) {
   context.assert(metadata && metadata.suite === RMT_SOURCE_MODEL_SUITE_PATH, 'package metadata points to source model suite');
   context.assert(metadata && metadata.localGate === 'node scripts/run_xtend_tests.js rmt-source-model --json', 'package metadata declares local gate');
   context.assert(metadata && metadata.packageScript === RMT_SOURCE_MODEL_PACKAGE_SCRIPT, 'package metadata declares package script');
-  context.assert(runner.includes("id: 'rmt-source-model'"), 'test runner exposes rmt-source-model suite');
+  context.assert(runner.hasSuite("rmt-source-model"), 'test runner exposes rmt-source-model suite');
   context.assert(epic.includes('| `WP-E14-02` | P0 | completed | WS1 |'), 'Epic marks WP-E14-02 completed');
   context.assert(epic.includes('WP-E14-03` ist `ready`'), 'Epic hands off WP-E14-03 as ready');
   context.assert(architecture.includes('JSON Pointer zu Ranges mappen'), 'Architecture keeps JSON Pointer range duty visible');

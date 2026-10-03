@@ -33,11 +33,11 @@ Der Contract verlangt:
 Der Contract verlangt:
 
 - kanonische State-Keys unter `xtend.component.<tag>.<id>.` oder bestehenden Core-Namespaces wie `xtend.router.*`
-- `xstate.subscribe(fn, keyFilter?)` als kanonischen Subscription-Pfad
-- `xstate.set(key, value)` als Schreibpfad
+- `xtendState.subscribe(fn, keyFilter?)` als kanonischen Subscription-Pfad
+- `xtendState.set(key, value)` als Schreibpfad
 - Custom Events mit lesbaren `<domain>-<action>` Namen
 - bevorzugte API-Hinweise unter `window.XTend.*`
-- keine direkten `xstate.on/off` Aufrufe in generierten Patterns
+- keine direkten `xtendState.on/off` Aufrufe in generierten Patterns
 - keine neuen unnamespaced `window.show*` Helper
 - lokale UI-Felder nur als abgeleitete Render-Caches
 

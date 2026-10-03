@@ -119,7 +119,7 @@ function runPlanChecks(context, plan, report) {
 }
 
 function runPackageChecks(context, rootDir, plan) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic14RmtTooling;
 
   context.assert((packageManifest.exports['./catalog/epic14-rmt-tooling'] === './catalog/epic14-rmt-tooling.js' || (packageManifest.exports['./catalog/epic14-rmt-tooling'] && packageManifest.exports['./catalog/epic14-rmt-tooling'].default === './catalog/epic14-rmt-tooling.js')), 'Package exports Epic 14 RMT tooling module');
@@ -158,7 +158,7 @@ function runPackageChecks(context, rootDir, plan) {
 }
 
 function runDocumentationChecks(context, rootDir) {
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffold = readText(SCAFFOLD_CONFIG_PATH, rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
@@ -169,8 +169,8 @@ function runDocumentationChecks(context, rootDir) {
   const docsMenu = readText('docs/menu.json', rootDir);
   const workpackage = readText(EPIC14_RMT_TOOLING_WORKPACKAGE_DOC, rootDir);
 
-  context.assertIncludes(runner, "id: 'epic14-rmt-tooling'", 'Runner registers Epic 14 RMT tooling suite');
-  context.assertIncludes(runner, 'node scripts/run_xtend_tests.js epic14-rmt-tooling', 'Runner help references Epic 14 RMT tooling suite');
+  context.assert(runner.hasSuite("epic14-rmt-tooling"), 'Runner registers Epic 14 RMT tooling suite');
+  context.assert(runner.hasSuite("epic14-rmt-tooling"), 'Runner help references Epic 14 RMT tooling suite');
   context.assertIncludes(scaffold, 'epic14RmtTooling', 'Scaffold config exposes Epic 14 RMT tooling metadata');
   context.assertIncludes(scaffold, EPIC14_RMT_TOOLING_SCHEMA, 'Scaffold config declares Epic 14 RMT tooling schema');
   context.assertIncludes(scaffold, EPIC14_RMT_TOOLING_BUNDLE_SCRIPT, 'Scaffold config declares bundled RMT tooling script');

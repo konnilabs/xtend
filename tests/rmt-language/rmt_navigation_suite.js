@@ -265,9 +265,9 @@ function runFailureChecks(context, rootDir) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtNavigation;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
 
@@ -286,7 +286,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert((typeof packageManifest.exports['./rmt-language/symbols'] === 'string' ? packageManifest.exports['./rmt-language/symbols'] : packageManifest.exports['./rmt-language/symbols'] && packageManifest.exports['./rmt-language/symbols'].default) === './tools/rmt-language/symbols.js', 'package exports RMT Document Symbols provider');
   context.assert((typeof packageManifest.exports['./rmt-language/definitions'] === 'string' ? packageManifest.exports['./rmt-language/definitions'] : packageManifest.exports['./rmt-language/definitions'] && packageManifest.exports['./rmt-language/definitions'].default) === './tools/rmt-language/definitions.js', 'package exports RMT Definition provider');
   context.assert(packageManifest.scripts['test:rmt-navigation'] === 'node scripts/run_xtend_tests.js rmt-navigation', 'package exposes rmt-navigation script');
-  context.assert(runner.includes("id: 'rmt-navigation'"), 'test runner exposes rmt-navigation suite');
+  context.assert(runner.hasSuite("rmt-navigation"), 'test runner exposes rmt-navigation suite');
   context.assert(epic.includes('| `WP-E14-08` | P1 | completed | WS4 |'), 'Epic marks WP-E14-08 completed');
   context.assert(epic.includes('WP-E14-09` ist `ready`'), 'Epic hands off WP-E14-09 as ready');
   context.assert(architecture.includes('Implementierungsstand nach `WP-E14-08`'), 'Architecture documents RMT Navigation provider status');

@@ -69,12 +69,12 @@ function runTypeExportsSuite(options = {}) {
     id: 'type-exports',
     label: 'TypeExports Public Declaration Gate'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const plan = createTypeExportsPlan({ rootDir, packageManifest });
   const validation = validateTypeExportsPlan(plan);
   const report = createTypeExportsReport({ rootDir, plan });
   const metadata = packageManifest.xtend && packageManifest.xtend.typeExports;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const docsReadme = readText('docs/en/README.md', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const backlog = readText(TYPE_EXPORTS_BACKLOG, rootDir);
@@ -210,8 +210,8 @@ function runTypeExportsSuite(options = {}) {
   context.assert(packageManifest.xtend.releaseGates.includes(TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT), 'Release gates include TypeExports release bundle');
   context.assert(packageManifest.xtend.releaseChecklist.candidateGates.includes(TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT), 'Candidate gates include TypeExports release bundle');
   context.assert(packageManifest.xtend.releaseChecklist.artifactChecklist.includes('development/WP-TypeExports-09-TypeExports-Gate-Drift-Report-und-Docs-Handoff-produktisieren.md'), 'Artifact checklist includes WP-TypeExports-09 handoff');
-  context.assertIncludes(runner, "id: 'type-exports'", 'Runner registers TypeExports suite');
-  context.assertIncludes(runner, "runTypeExportsSuite", 'Runner imports TypeExports suite');
+  context.assert(runner.hasSuite("type-exports"), 'Runner registers TypeExports suite');
+  context.assert(runner.hasImplementation({ function: "runTypeExportsSuite" }), 'Runner imports TypeExports suite');
   context.assertIncludes(docsReadme, './type-exports.md', 'Docs README links TypeExports docs');
   context.assertIncludes(testsReadme, TYPE_EXPORTS_LOCAL_GATE, 'Tests README documents TypeExports gate');
 

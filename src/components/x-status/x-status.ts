@@ -1,4 +1,4 @@
-import { xstate } from '../../../components/xstate.js';
+import { xtendState } from '../../../components/xtend-state.js';
 import '../../../components/xicon.js';
 
 export type XStatusEventName = 'status-changed' | 'status-dismissed';
@@ -51,7 +51,7 @@ export class XStatus extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.id) this.id = `xstatus-${Math.random().toString(36).slice(2, 10)}`;
-    xstate.set(`xstatus-state-${this.id}`, this.state);
+    xtendState.set(`xstatus-state-${this.id}`, this.state);
   }
 
   get type(): string {

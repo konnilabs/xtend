@@ -176,7 +176,7 @@ function toPreviewSignalRows(previewContract) {
   const signals = previewContract.signals || {};
   const rows = [];
 
-  (signals.stateKeys || []).forEach((key) => rows.push(`| \`${key}\` | xstate reference |`));
+  (signals.stateKeys || []).forEach((key) => rows.push(`| \`${key}\` | XTend state reference |`));
   (signals.events || []).forEach((event) => rows.push(`| \`${event}\` | Custom Event reference |`));
   if (signals.rmtAdapter) {
     rows.push(`| \`${signals.rmtAdapter}\` | RMT component adapter |`);
@@ -379,7 +379,7 @@ function createComponentFiles(input = {}, options = {}) {
     featureEventsJson: toJsonArray(featureWiring.events.names),
     featureApiNamespacesJson: toJsonArray(featureWiring.api.namespaces),
     featureManifestJson: JSON.stringify(featureManifest, null, 2),
-    featureStateRows: toMarkdownRows(featureWiring.state.keys, 'kanonischer xstate-Key'),
+    featureStateRows: toMarkdownRows(featureWiring.state.keys, 'kanonischer XTend-State-Key'),
     featureEventRows: toMarkdownRows(featureWiring.events.names, 'Custom Event, bubbles/composed'),
     featureApiRows: toMarkdownRows(featureWiring.api.namespaces, 'bevorzugter XTend-Namespace'),
     featureReviewRules: toBulletList(featureWiring.reviewRules),

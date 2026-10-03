@@ -2,7 +2,7 @@
 
 Der RMT DOM Descriptor Renderer wandelt strukturierte RMT Records in Browser-Nodes um, ohne Anwendungsdaten als HTML zu behandeln. Verwende ihn, wenn ein RMT Template, Component Binding oder eine Surface owned DOM materialisieren soll und die Trust Boundary überprüfbar bleiben muss.
 
-Der Runtime-Vertrag ist `xtend.epic18.rmt-dom-descriptor-renderer.v1`. Implementierung und Deklarationen liegen in `xtendrmt/rmt-dom-descriptor-renderer.js` und `xtendrmt/rmt-dom-descriptor-renderer.d.ts`; der Package-Subpath lautet `@ccslabs/xtend/rmt/dom-descriptor-renderer`.
+Der Runtime-Vertrag ist `xtend.epic18.rmt-dom-descriptor-renderer.v2`. Implementierung und Deklarationen liegen in `xtendrmt/rmt-dom-descriptor-renderer.js` und `xtendrmt/rmt-dom-descriptor-renderer.d.ts`; der Package-Subpath lautet `@ccslabs/xtend/rmt/dom-descriptor-renderer`.
 
 ## Mental Model
 
@@ -19,7 +19,7 @@ Diagnostics.
 
 Die Kompatibilitätsmethoden bleiben synchron. `render()`, `renderNode()` und
 `renderKeyed()` delegieren auf die entsprechenden Commit-Operationen.
-`patchElement()` bleibt während der Migration in 0.6/0.7 eine Merge-Operation
+`patchElement()` bleibt in 0.8.0 eine diagnostizierte Merge-Operation
 und emittiert einmal pro Renderer `rmt.dom.patch-element.legacy-merge`. Neuer
 Framework-Code soll `commit()` direkt verwenden.
 

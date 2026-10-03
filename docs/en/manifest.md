@@ -4,7 +4,7 @@ The component manifest describes which XTend modules a host may load.
 
 ## What it covers
 
-The component manifest is a static mapping from custom-element names to local ES modules. The loader accepts valid custom-element tags and `.js` or `.mjs` targets only; reserved bootstrap modules such as `xstate` remain explicit.
+The component manifest is a static mapping from custom-element names to local ES modules. The loader accepts valid custom-element tags and `.js` or `.mjs` targets only; reserved bootstrap modules such as `xtend-state` remain explicit.
 
 ## Public building blocks
 

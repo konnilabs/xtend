@@ -383,7 +383,7 @@ function assertPathExists(context, rootDir, relativePath, label) {
 }
 
 function assertRunnerGate(context, runner, gate) {
-  context.assertIncludes(runner, `id: '${gate}'`, `Runner registers ${gate}`);
+  context.assert(runner.hasSuite(gate), `Runner registers ${gate}`);
 }
 
 function runNativeFirstAuditEvidencePackSuite(options = {}) {
@@ -402,8 +402,8 @@ function runNativeFirstAuditEvidencePackSuite(options = {}) {
   const parityWorkpackage = readText('development/NFM-WP-12-Contract-to-Runtime-Parity-Gate-fuer-Kernel-Components-und-RMT-bauen.md', rootDir);
   const roadmap = readText('development/ROADMAP-XTend-Native-First-Framework-Mission.md', rootDir);
   const mission = readText('development/XTend-Native-First-Mission-Source-of-Truth-Contract.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstAuditEvidencePack;
   const registryMetadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRegistry;
@@ -513,8 +513,8 @@ function runNativeFirstAuditEvidencePackSuite(options = {}) {
   context.assert(packageScripts['test:native-first-evidence-pack'] === 'node scripts/run_xtend_tests.js native-first-evidence-pack', 'Package exposes audit evidence pack test script');
   context.assert(packageScripts['native-first:evidence:prepare'] === `node ${EVIDENCE_PREPARATION_SCRIPT}`, 'Package exposes Native-First evidence preparation script');
   assertPathExists(context, rootDir, EVIDENCE_PREPARATION_SCRIPT, 'Native-First evidence preparation script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_audit_evidence_pack_suite')", 'Runner imports audit evidence pack suite');
-  context.assertIncludes(runner, "id: 'native-first-evidence-pack'", 'Runner registers audit evidence pack suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_audit_evidence_pack_suite.js" }), 'Runner imports audit evidence pack suite');
+  context.assert(runner.hasSuite("native-first-evidence-pack"), 'Runner registers audit evidence pack suite');
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-13 contract schema');
   context.assert(metadata && metadata.itemSchema === ITEM_SCHEMA, 'Package metadata exposes evidence item schema');

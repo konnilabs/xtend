@@ -97,6 +97,10 @@ const VNEXT_PRIMITIVE_SELECTOR_CLAUSES = Object.freeze([
 ]);
 
 const VNEXT_PRIMITIVE_ACTION_CLAUSES = Object.freeze([
+  ['execution fastpass', 'Shell-Aktion auf user-blocking ohne Model-Transaktion; nur Navigation, Fokus und Close.'],
+  ['effect navigation', 'FastPass-Navigation zu einem literalen Pfad oder deklarierten Input.'],
+  ['effect close surface', 'FastPass-Close einer benannten Surface.'],
+  ['effect focus surface', 'FastPass-Fokus auf eine benannte Surface.'],
   ['input', 'Typisierten Action-Input deklarieren.'],
   ['status', 'Status-State fuer Loading, Success und Error binden.'],
   ['reduce', 'State-Reducer deklarieren.'],
@@ -769,6 +773,8 @@ function analyzeRmtVNextToolingSource(input = {}, options = {}) {
   const diagnostics = toArray(compileResult.diagnostics).map((diagnostic) => normalizeDiagnostic(diagnostic, sourceModel));
   const status = compileResult.ok ? 'indexed' : 'source_unavailable';
   const indexes = coreDocument ? buildVNextIndexes(coreDocument) : buildVNextIndexes({});
+  require('./navigation-facts').attachVNextPositions(indexes,
+    compileResult.parserResult && compileResult.parserResult.ast, sourceMap);
 
   return {
     schema: RMT_VNEXT_TOOLING_SCHEMA,

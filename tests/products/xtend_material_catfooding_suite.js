@@ -5,11 +5,11 @@ const os = require('os');
 const path = require('path');
 const zlib = require('zlib');
 const { performance } = require('perf_hooks');
-const { spawn } = require('child_process');
 const { createMaterialAppScaffold } = require('../../xtend-builder/generators/material-app');
 const { buildMaracaBundleAsync, tuneMaracaBuild } = require('../../xtend-maraca');
 const { auditXtendMaterialMonkeypatching } = require('../../xtend-material/performance-contract');
 const { listenXtendDevServer } = require('../../scripts/serve_xtend_dev');
+const { detectAvailableEngine, runFixture } = require('../../tools/browser-hypervisor');
 const { createSuiteContext, printSuiteReport } = require('../utils/assertions');
 
 const REPORT_SCHEMA = 'xtend.material.catfooding-report.v1';
@@ -28,31 +28,28 @@ function readJson(rootDir, relativePath) {
   return JSON.parse(read(rootDir, relativePath));
 }
 
-function findChromium() {
-  return ['/usr/bin/chromium-browser', '/usr/bin/chromium', '/snap/bin/chromium'].find((entry) => fs.existsSync(entry)) || null;
-}
-
-function runProcess(executable, args, options = {}) {
-  return new Promise((resolve) => {
-    const child = spawn(executable, args, { cwd: options.cwd, env: process.env });
-    let stdout = '';
-    let stderr = '';
-    const timer = setTimeout(() => child.kill('SIGKILL'), options.timeoutMs || 30000);
-    child.stdout.on('data', (chunk) => { stdout += chunk; });
-    child.stderr.on('data', (chunk) => { stderr += chunk; });
-    child.on('error', (error) => {
-      clearTimeout(timer);
-      resolve({ status: null, stdout, stderr: `${stderr}\n${error.message}` });
-    });
-    child.on('close', (status) => {
-      clearTimeout(timer);
-      resolve({ status, stdout, stderr });
-    });
-  });
-}
-
 function closeServer(server) {
   return new Promise((resolve) => server.close(resolve));
+}
+
+async function captureDocument(options) {
+  const resultKey = `__xtendMaterialCatfood${options.id.replace(/[^a-z0-9]/giu, '')}`;
+  const execution = await runFixture({
+    rootDir: options.rootDir,
+    engine: options.engine,
+    fixturePath: `${PRODUCT_PATH}/site/index.html`,
+    url: options.url,
+    resultKey,
+    width: options.width,
+    height: options.height,
+    screenshotPath: options.screenshotPath,
+    timeoutMs: 30000,
+    scripts: [{
+      script: `(() => { const key = ${JSON.stringify(resultKey)}; const poll = () => { if (${options.readyExpression}) { window[key] = { status: 'passed', html: document.documentElement.outerHTML }; } else { window[key] = { status: 'pending' }; setTimeout(poll, 25); } }; poll(); })();`
+    }],
+    accept: (result) => result && result.status === 'passed' && typeof result.html === 'string'
+  });
+  return execution.result;
 }
 
 function productFiles(productRoot) {
@@ -78,8 +75,8 @@ function semanticClasses(...sources) {
 }
 
 async function captureBrowserEvidence(rootDir) {
-  const executable = findChromium();
-  if (!executable) return { ok: false, browser: 'chromium', failures: ['required Chromium hypervisor is unavailable'], screenshots: [] };
+  const engine = detectAvailableEngine({ engine: process.env.XTEND_BROWSER_HYPERVISOR_ENGINE || 'chromium' });
+  if (!engine) return { ok: false, browser: null, failures: ['required Browser Hypervisor provider is unavailable'], screenshots: [] };
   const artifactRoot = path.resolve(rootDir, '.xtend-test-results/xtend-material-workbench');
   fs.mkdirSync(artifactRoot, { recursive: true });
   const handle = await listenXtendDevServer({ rootDir, port: 0, defaultPath: `${PRODUCT_PATH}/site/index.html` });
@@ -90,57 +87,46 @@ async function captureBrowserEvidence(rootDir) {
     // instead of producing a misleading 390 px crop of a wider layout.
     for (const viewport of [{ id: 'desktop', width: 1440, height: 1000 }, { id: 'compact', width: 500, height: 844 }]) {
       const screenshotPath = path.join(artifactRoot, `${viewport.id}.png`);
-      const result = await runProcess(executable, [
-        '--headless=new', '--no-sandbox', '--disable-gpu', '--hide-scrollbars',
-        '--run-all-compositor-stages-before-draw', '--virtual-time-budget=2500',
-        `--window-size=${viewport.width},${viewport.height}`, `--screenshot=${screenshotPath}`,
-        '--dump-dom', `${handle.origin}/${PRODUCT_PATH}/site/index.html`
-      ], { cwd: rootDir, timeoutMs: 30000 });
-      const semanticsPresent = /<main\b/u.test(result.stdout) && /<nav\b/u.test(result.stdout) && /role="status"/u.test(result.stdout) && /aria-labelledby="review-title"/u.test(result.stdout);
-      const visualContractPresent = /data-xtm-visual-ready="true"/u.test(result.stdout)
-        && /data-xtm-navigation-visible="true"/u.test(result.stdout)
-        && /data-xtm-dev-api-boundary="projection-uninstrumented"/u.test(result.stdout)
-        && /Visual gate passed/u.test(result.stdout)
-        && result.stdout.includes(`viewport=${viewport.width}`)
-        && /overflow=0/u.test(result.stdout)
-        && !/<dialog\b[^>]*\bopen\b/u.test(result.stdout);
+      const result = await captureDocument({ id: viewport.id, rootDir, engine, url: `${handle.origin}/${PRODUCT_PATH}/site/index.html`, width: viewport.width, height: viewport.height, screenshotPath, readyExpression: "document.getElementById('xtend-material-workbench')?.dataset.xtmVisualReady === 'true'" });
+      const dom = result.html;
+      const semanticsPresent = /<main\b/u.test(dom) && /<nav\b/u.test(dom) && /role="status"/u.test(dom) && /aria-labelledby="review-title"/u.test(dom);
+      const visualContractPresent = /data-xtm-visual-ready="true"/u.test(dom)
+        && /data-xtm-navigation-visible="true"/u.test(dom)
+        && /data-xtm-dev-api-boundary="projection-uninstrumented"/u.test(dom)
+        && /Visual gate passed/u.test(dom)
+        && dom.includes(`viewport=${viewport.width}`)
+        && /overflow=0/u.test(dom)
+        && !/<dialog\b[^>]*\bopen\b/u.test(dom);
       const screenshotBytes = fs.existsSync(screenshotPath) ? fs.statSync(screenshotPath).size : 0;
-      if (result.status !== 0 || !semanticsPresent || !visualContractPresent || screenshotBytes === 0) failures.push(`${viewport.id}: browser status=${result.status}, semantics=${semanticsPresent}, visualContract=${visualContractPresent}, screenshotBytes=${screenshotBytes}`);
+      if (!semanticsPresent || !visualContractPresent || screenshotBytes === 0) failures.push(`${viewport.id}: semantics=${semanticsPresent}, visualContract=${visualContractPresent}, screenshotBytes=${screenshotBytes}`);
       else screenshots.push({ viewport: viewport.id, path: path.relative(rootDir, screenshotPath), bytes: screenshotBytes });
     }
-    const runtimeResult = await runProcess(executable, [
-      '--headless=new', '--no-sandbox', '--disable-gpu', '--hide-scrollbars',
-      '--run-all-compositor-stages-before-draw', '--virtual-time-budget=5000',
-      '--dump-dom', `${handle.origin}/${PRODUCT_PATH}/site/runtime.html`
-    ], { cwd: rootDir, timeoutMs: 30000 });
-    const runtimeReady = /data-maraca-runtime-ready="true"/u.test(runtimeResult.stdout)
-      && /data-xtend-dev-api-ready="true"/u.test(runtimeResult.stdout)
-      && /data-xtm-runtime-presentation-ready="true"/u.test(runtimeResult.stdout)
-      && /devApi=ready/u.test(runtimeResult.stdout)
-      && />15<\/output>/u.test(runtimeResult.stdout)
-      && /Runtime gate passed; surfaces=15/u.test(runtimeResult.stdout)
-      && /data-maraca-surface=/u.test(runtimeResult.stdout)
-      && ['evidence', 'lessons', 'settings'].every((route) => runtimeResult.stdout.includes(`data-route="${route}"`));
-    if (runtimeResult.status !== 0 || !runtimeReady) failures.push(`runtime: browser status=${runtimeResult.status}, maracaBoot=${runtimeReady}`);
+    const runtimeResult = await captureDocument({ id: 'runtime', rootDir, engine, url: `${handle.origin}/${PRODUCT_PATH}/site/runtime.html`, readyExpression: "document.documentElement.dataset.maracaRuntimeReady === 'true'" });
+    const runtimeDom = runtimeResult.html;
+    const runtimeReady = /data-maraca-runtime-ready="true"/u.test(runtimeDom)
+      && /data-xtend-dev-api-ready="true"/u.test(runtimeDom)
+      && /data-xtm-runtime-presentation-ready="true"/u.test(runtimeDom)
+      && /devApi=ready/u.test(runtimeDom)
+      && />15<\/output>/u.test(runtimeDom)
+      && /Runtime gate passed; surfaces=15/u.test(runtimeDom)
+      && /data-maraca-surface=/u.test(runtimeDom)
+      && ['evidence', 'lessons', 'settings'].every((route) => runtimeDom.includes(`data-route="${route}"`));
+    if (!runtimeReady) failures.push(`runtime: maracaBoot=${runtimeReady}`);
     for (const route of ['evidence', 'lessons', 'settings']) {
-      const routeResult = await runProcess(executable, [
-        '--headless=new', '--no-sandbox', '--disable-gpu', '--hide-scrollbars',
-        '--run-all-compositor-stages-before-draw', '--virtual-time-budget=2500',
-        '--dump-dom', `${handle.origin}/${PRODUCT_PATH}/site/index.html#${route}`
-      ], { cwd: rootDir, timeoutMs: 30000 });
-      const navigationLinks = Array.from(routeResult.stdout.matchAll(/<a\b[^>]*class="[^"]*xtm-nav-link[^"]*"[^>]*>/gu)).map((match) => match[0]);
+      const routeResult = await captureDocument({ id: `route-${route}`, rootDir, engine, url: `${handle.origin}/${PRODUCT_PATH}/site/index.html#${route}`, readyExpression: `document.getElementById('xtend-material-workbench')?.dataset.xtmRoute === ${JSON.stringify(route)}` });
+      const routeDom = routeResult.html;
+      const navigationLinks = Array.from(routeDom.matchAll(/<a\b[^>]*class="[^"]*xtm-nav-link[^"]*"[^>]*>/gu)).map((match) => match[0]);
       const routeLink = navigationLinks.find((link) => link.includes(`data-route="${route}"`));
-      const navigationReady = routeResult.status === 0
-        && navigationLinks.filter((link) => /data-route="(?:evidence|lessons|settings)"/u.test(link)).length === 3
+      const navigationReady = navigationLinks.filter((link) => /data-route="(?:evidence|lessons|settings)"/u.test(link)).length === 3
         && Boolean(routeLink && /aria-current="page"/u.test(routeLink))
-        && routeResult.stdout.includes(`data-xtm-route="${route}"`)
-        && routeResult.stdout.includes('data-xtm-navigation-visible="true"');
+        && routeDom.includes(`data-xtm-route="${route}"`)
+        && routeDom.includes('data-xtm-navigation-visible="true"');
       if (!navigationReady) failures.push(`route:${route}: persistent navigation=${navigationReady}, links=${navigationLinks.length}`);
     }
   } finally {
     await closeServer(handle.server);
   }
-  return { ok: failures.length === 0 && screenshots.length === 2, browser: 'chromium', runtimeBoot: failures.every((entry) => !entry.startsWith('runtime:')), screenshots, failures };
+  return { ok: failures.length === 0 && screenshots.length === 2, browser: engine, runtimeBoot: failures.every((entry) => !entry.startsWith('runtime:')), screenshots, failures };
 }
 
 async function runXtendMaterialCatfoodingSuite(options = {}) {
@@ -212,7 +198,7 @@ async function runXtendMaterialCatfoodingSuite(options = {}) {
   fs.writeFileSync(reportTarget, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 
   context.assert(manifest.xtend.schema === PRODUCT_SCHEMA && manifest.private === true, 'dedicated Products workbench declares the XTM-12 product contract');
-  context.assert(scaffold.ok && scaffold.scaffoldSchema === 'xtend.scaffold.app-preset.material.v1' && scaffold.files.length === 8, 'XTM-09 Material scaffold lineage including the XTM-14 runtime host is reproducible');
+  context.assert(scaffold.ok && scaffold.scaffoldSchema === 'xtend.scaffold.app-preset.material.v1' && scaffold.files.length === 13, 'XTM-09 Material scaffold lineage including the XTM-14 runtime and test assets is reproducible');
   context.assert(build.ok && report.build.airGapped, 'RMT and Maraca build succeeds through the local air-gapped Tailwind provider');
   context.assert(tune.ok && tune.status === 'checked' && tune.candidateCount === 12 && tune.acceptedCandidateCount === 12 && tune.configMatches, 'committed Maraca tune selection reproduces across all 12 candidates');
   context.assert(tunedConfig.selected.profile === 'max' && tunedConfig.selected.lazy === 'route' && tunedConfig.selected.css === 'inline', 'tuned config pins the measured max/route/inline selection');

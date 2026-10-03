@@ -1,0 +1,9 @@
+{
+  "x-input":{"tag":"input","value":"value","events":["input","change"]},
+  "x-button":{"tag":"button","events":["click"]},
+  "x-form":{"tag":"form","events":["submit","reset"]},
+  "x-select":{"tag":"select","value":"value","events":["input","change"]},
+  "x-textarea":{"tag":"textarea","value":"value","events":["input","change"]},
+  "x-checkbox":{"tag":"input","type":"checkbox","value":"checked","events":["input","change"]},
+  "x-radio":{"tag":"input","type":"radio","value":"checked","events":["input","change"]}
+}

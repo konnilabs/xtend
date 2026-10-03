@@ -1,16 +1,16 @@
 (async function () {
-  // Try to load xstate, either as a global variable or through dynamic import
-  let xstate;
-  if (window.xstate) {
-    xstate = window.xstate;
+  // Try to load xtendState, either as a global variable or through dynamic import
+  let xtendState;
+  if (window.XTend?.state) {
+    xtendState = window.XTend?.state;
   } else {
     try {
-      const module = await import('./xstate.js');
-      xstate = module.xstate;
+      const module = await import('./xtend-state.js');
+      xtendState = module.xtendState;
     } catch (e) {
-      console.error('Fehler beim Laden von xstate in xtheme.js:', e);
+      console.error('Fehler beim Laden von xtendState in xtheme.js:', e);
       // Dummy implementation as fallback
-      xstate = {
+      xtendState = {
         get: () => null,
         set: () => {},
         subscribe: () => () => {}
@@ -496,8 +496,8 @@
         this.performanceMeasurements.shift();
       }
 
-      xstate.set('xtend.theme.performance.lastMeasurement', measurement);
-      xstate.set('xtend.theme.performanceSnapshot', this.snapshotPerformance());
+      xtendState.set('xtend.theme.performance.lastMeasurement', measurement);
+      xtendState.set('xtend.theme.performanceSnapshot', this.snapshotPerformance());
       document.dispatchEvent(new CustomEvent('theme-performance-measured', { detail: measurement }));
       return measurement;
     }
@@ -678,12 +678,12 @@
       document.documentElement.setAttribute('data-xtend-contrast', this.a11yPreferences.contrast);
       document.documentElement.setAttribute('data-xtend-forced-colors', this.a11yPreferences.forcedColors ? 'active' : 'inactive');
 
-      xstate.set('xtend.theme.preferences', this.getA11yPreferences());
-      xstate.set('xtend.theme.prefersReducedMotion', this.a11yPreferences.prefersReducedMotion);
-      xstate.set('xtend.theme.forcedColors', this.a11yPreferences.forcedColors);
-      xstate.set('xtend.a11y.motion', this.a11yPreferences.motion);
-      xstate.set('xtend.a11y.contrast', this.a11yPreferences.contrast);
-      xstate.set('xtend.theme.preferenceReason', reason);
+      xtendState.set('xtend.theme.preferences', this.getA11yPreferences());
+      xtendState.set('xtend.theme.prefersReducedMotion', this.a11yPreferences.prefersReducedMotion);
+      xtendState.set('xtend.theme.forcedColors', this.a11yPreferences.forcedColors);
+      xtendState.set('xtend.a11y.motion', this.a11yPreferences.motion);
+      xtendState.set('xtend.a11y.contrast', this.a11yPreferences.contrast);
+      xtendState.set('xtend.theme.preferenceReason', reason);
 
       return this.a11yPreferences;
     }
@@ -792,12 +792,12 @@
       this._addMediaListener(this._forcedColorsMediaQuery, this._handleForcedColorsChange);
       this._applyDensityTokens(initialDensity);
 
-      xstate.subscribe((key, value) => {
+      xtendState.subscribe((key, value) => {
         if ((key === 'theme' || key === 'xtend.theme.current') && typeof value === 'string' && value !== this.currentTheme) {
           this.setTheme(value);
         }
         if (key === 'xtend.theme.density' && typeof value === 'string' && value !== this.currentDensity) {
-          this.setDensity(value, { reason: 'xstate-sync' });
+          this.setDensity(value, { reason: 'xtend-state-sync' });
         }
       });
 
@@ -899,17 +899,17 @@
       this.themeContext = this._buildThemeContext(reason);
       this.performanceCounters.propagationEvents += 1;
 
-      xstate.set('theme', this.currentTheme);
-      xstate.set('xtend.theme.current', this.currentTheme);
-      xstate.set('xtend.theme.density', this.currentDensity);
-      xstate.set('themes', availableThemes);
-      xstate.set('xtend.theme.available', availableThemes);
-      xstate.set('xtend.theme.a11yProfile', this.getA11yProfile());
-      xstate.set('xtend.theme.motionContrastPolicy', this.getMotionContrastPolicy());
-      xstate.set('xtend.theme.performanceProfile', this.getPerformanceProfile());
-      xstate.set('xtend.theme.rmtMetadata', this.getRmtMetadata());
-      xstate.set('xtend.theme.componentNetwork', this.getComponentNetworkContext());
-      xstate.set('xtend.theme.context', this.getThemeContext());
+      xtendState.set('theme', this.currentTheme);
+      xtendState.set('xtend.theme.current', this.currentTheme);
+      xtendState.set('xtend.theme.density', this.currentDensity);
+      xtendState.set('themes', availableThemes);
+      xtendState.set('xtend.theme.available', availableThemes);
+      xtendState.set('xtend.theme.a11yProfile', this.getA11yProfile());
+      xtendState.set('xtend.theme.motionContrastPolicy', this.getMotionContrastPolicy());
+      xtendState.set('xtend.theme.performanceProfile', this.getPerformanceProfile());
+      xtendState.set('xtend.theme.rmtMetadata', this.getRmtMetadata());
+      xtendState.set('xtend.theme.componentNetwork', this.getComponentNetworkContext());
+      xtendState.set('xtend.theme.context', this.getThemeContext());
 
       document.dispatchEvent(new CustomEvent('theme-context-changed', {
         detail: this.getThemeContext()

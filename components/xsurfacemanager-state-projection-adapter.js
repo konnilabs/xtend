@@ -7,7 +7,7 @@ function batchRequiredError() {
 }
 /**
  * The only Surface -> Model projection adapter. It never degrades to per-key
- * set()/setState() writes and never discovers a global XState target.
+ * set()/setState() writes and never discovers a global XTend State target.
  */
 export function createSurfaceStateProjectionAdapter(target, options = {}) {
     if (!target || typeof target.batchUpdate !== 'function') {

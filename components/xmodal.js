@@ -1,16 +1,16 @@
 // Selbst-ausfuehrende asynchrone Funktion statt direktem Import
 (async function() {
-  let xstate;
+  let xtendState;
 
-  if (window.xstate) {
-    xstate = window.xstate;
+  if (window.XTend?.state) {
+    xtendState = window.XTend?.state;
   } else {
     try {
-      const module = await import('./xstate.js');
-      xstate = module.xstate;
+      const module = await import('./xtend-state.js');
+      xtendState = module.xtendState;
     } catch (e) {
-      console.error('Fehler beim Laden von xstate in xmodal.js:', e);
-      xstate = {
+      console.error('Fehler beim Laden von xtendState in xmodal.js:', e);
+      xtendState = {
         get: () => null,
         set: () => {},
         subscribe: () => () => {}
@@ -27,17 +27,17 @@
 
   function setModalOpenState(id, isOpen) {
     if (!id) return;
-    getModalOpenKeys(id).forEach((key) => xstate.set(key, isOpen));
+    getModalOpenKeys(id).forEach((key) => xtendState.set(key, isOpen));
   }
 
   function getModalEntry(id) {
-    const uiState = xstate.get('ui');
+    const uiState = xtendState.get('ui');
     if (!uiState || !Array.isArray(uiState.modals)) return null;
     return uiState.modals.find((modal) => modal.id === id) || null;
   }
 
   function updateModalEntry(id, updater) {
-    const uiState = xstate.get('ui');
+    const uiState = xtendState.get('ui');
     if (!uiState || !Array.isArray(uiState.modals)) return;
 
     const modals = [...uiState.modals];
@@ -51,12 +51,12 @@
       modals[index] = nextEntry;
     }
 
-    xstate.set('ui', { ...uiState, modals });
+    xtendState.set('ui', { ...uiState, modals });
   }
 
   function readModalOpenState(id, fallbackOpen) {
     const explicitValues = getModalOpenKeys(id)
-      .map((key) => xstate.get(key))
+      .map((key) => xtendState.get(key))
       .filter((value) => typeof value === 'boolean');
 
     if (explicitValues.some((value) => value === true)) return true;
@@ -286,8 +286,8 @@
       document.addEventListener('keydown', this._onDocumentKeyDown);
       this.shadowRoot.addEventListener('keydown', this._onShadowKeyDown);
 
-      if (typeof xstate.subscribe === 'function') {
-        this._unsubscribeState = xstate.subscribe((key) => {
+      if (typeof xtendState.subscribe === 'function') {
+        this._unsubscribeState = xtendState.subscribe((key) => {
           if (
             key === null ||
             key === 'ui' ||
@@ -566,24 +566,38 @@
             border-radius: var(--xmodal-radius);
             box-shadow: var(--xmodal-shadow);
             padding: 2.2rem 1.5rem 1.5rem;
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-rows: auto minmax(0, 1fr) auto;
+            grid-template-areas:
+              "title close"
+              "content content"
+              "actions actions";
+            align-items: start;
+            column-gap: var(--modal-chrome-column-gap, 1rem);
+            row-gap: var(--modal-chrome-row-gap, 1rem);
             outline: none;
             border: var(--xtend-border, 1.5px solid rgba(255,255,255,0.12));
             backdrop-filter: blur(var(--xtend-glass-blur, 18px));
             animation: fadeInScale 0.25s cubic-bezier(.4,1.4,.6,1);
           }
           .x-modal-title {
+            grid-area: title;
+            min-width: 0;
             font-size: 1.3em;
             font-weight: 600;
-            margin-bottom: 1em;
+            margin: 0;
             color: var(--xmodal-accent);
             text-shadow: 0 2px 8px rgba(79,195,247,0.18);
           }
           .x-modal-content {
-            margin-bottom: 1.5em;
+            grid-area: content;
+            min-width: 0;
+            overflow: auto;
+            margin: 0;
           }
           .x-modal-actions {
+            grid-area: actions;
             display: flex;
             flex-wrap: wrap;
             gap: 1em;
@@ -607,9 +621,10 @@
             transform: scale(1.04);
           }
           .x-modal-close {
-            position: absolute;
-            top: 1.2em;
-            right: 1.2em;
+            grid-area: close;
+            position: static;
+            justify-self: end;
+            align-self: start;
             background: var(--xmodal-close-bg);
             border: none;
             color: var(--xmodal-text);
@@ -638,6 +653,7 @@
             height: 1.15em;
           }
           .x-modal-fallback {
+            grid-area: content;
             display: none;
             padding: 0.8em;
             background: #fff0f0;

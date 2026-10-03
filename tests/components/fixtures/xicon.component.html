@@ -18,7 +18,7 @@
     window.__xtendComponentState = {};
     window.__xtendComponentResult = { status: 'pending', checks: [], errors: [] };
     window.__xtendIconEvents = [];
-    window.xstate = {
+    window.XTend.state = {
       get(key) { return window.__xtendComponentState[key]; },
       set(key, value) { window.__xtendComponentState[key] = value; },
       subscribe() { return function unsubscribe() {}; }
@@ -59,7 +59,7 @@
     record('lucide icon resolved', initial.resolved && initial.pack === 'lucide');
     record('custom pack resolved', afterCustomPack.resolved && afterCustomPack.pack === 'fixture');
     record('semantic role applied', icon.getAttribute('role') === 'img' && icon.getAttribute('aria-label') === 'Fixture spark');
-    record('state synchronized', Boolean(window.xstate.get('xicon-state-component-icon')));
+    record('state synchronized', Boolean(window.XTend.state.get('xicon-state-component-icon')));
     record('icon-ready emitted', window.__xtendIconEvents.some((entry) => entry.schema === 'xtend.component.x-icon.ready.v1'));
     record('global register API available', typeof window.XTend.icons.register === 'function');
 

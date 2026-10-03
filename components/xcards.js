@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 class XCards extends HTMLElement {
   static get observedAttributes() {
@@ -138,13 +138,13 @@ class XCards extends HTMLElement {
     if (!this.id) this.id = `xcards-${Math.random().toString(36).slice(2, 10)}`;
 
     // Set initial state
-    xstate.set(`xcards-state-${this.id}`, {
+    xtendState.set(`xcards-state-${this.id}`, {
       columns: this.getAttribute("columns") || "3",
       gap: this.getAttribute("gap") || "1.5rem"
     });
 
     // Subscribe to state changes, for example external columns or gap updates
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xcards-state-${this.id}` && typeof value === "object") {
         if (typeof value.columns === "string" && value.columns !== this.getAttribute("columns")) {
           this.setAttribute("columns", value.columns);
@@ -175,7 +175,7 @@ class XCards extends HTMLElement {
     }
     // Update state
     if (this.id) {
-      xstate.set(`xcards-state-${this.id}`, {
+      xtendState.set(`xcards-state-${this.id}`, {
         columns: this.getAttribute("columns") || "3",
         gap: this.getAttribute("gap") || "1.5rem"
       });

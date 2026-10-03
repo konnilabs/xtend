@@ -131,7 +131,7 @@ function createComponentExtensionPoints(input = {}, options = {}) {
         : [],
       handoff: rootLifecycleAttachment.handoff || {},
       stateKeys: rootLifecycleAttachment.stateKeys || {},
-      statePolicy: rootLifecycleAttachment.statePolicy || 'digital-twin-ssot-xstate',
+      statePolicy: rootLifecycleAttachment.statePolicy || 'digital-twin-ssot-classic-state',
       sequence: [
         'constructor',
         'connectedCallback',
@@ -186,7 +186,7 @@ function createComponentExtensionPoints(input = {}, options = {}) {
         ? rootLifecycleAttachment.schedulerEndpointHints.map((hint) => Object.assign({}, hint))
         : [],
       visibleActivation: 'afterHydrate-afterRender-route-visible-render',
-      statePolicy: rootLifecycleAttachment.statePolicy || 'digital-twin-ssot-xstate',
+      statePolicy: rootLifecycleAttachment.statePolicy || 'digital-twin-ssot-classic-state',
       diagnosticsRef: rootLifecycleAttachment.stateKeys ? rootLifecycleAttachment.stateKeys.diagnostics : '',
       boundaries: rootLifecycleAttachment.boundaries || {}
     },
@@ -251,7 +251,7 @@ function createComponentExtensionPoints(input = {}, options = {}) {
     },
     reviewRules: [
       'Extension points must remain metadata and no-op hooks until Epic 04 or Epic 05 implements a runtime.',
-      'Root lifecycle hooks may not create a second source of truth beside xstate or the host runtime.',
+      'Root lifecycle hooks may not create a second source of truth beside XTend State or the host runtime.',
       'RMT scheduler handshakes may plan endpoint work but the XTend Host Adapter owns root lifecycle execution.',
       'Host capabilities may be negotiated as adapter data but must not become RMT kernel imports or window.XTend calls.',
       'RMT compatibility bindings must keep typing, manifest, preview and extension dry-runs aligned before productive bridge work.',

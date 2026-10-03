@@ -1,0 +1,37 @@
+{
+  "schema": "xtend.native-first.observatory-intake.v1",
+  "intakeId": "NFM-OBS-2026-08-09",
+  "trust": "untrusted-ai-generated",
+  "rawArtifact": {
+    "path": "development/observatory/raw/xtend-observatory-2026-08-09.json",
+    "sha256": "291796871d53ad3caa561bf7a0ef5f9d9fb0297aad962554839a986f0a550589",
+    "repositoryCopySha256": "ded63df908480287bf2364cc1b52c944df88ac7fdebb2cf3e367cae6f0efa14f",
+    "storageNormalization": "single-terminal-newline-added",
+    "immutable": true
+  },
+  "provenance": {
+    "agent": "unknown-unreported",
+    "model": "unknown-unreported",
+    "reportDate": "2026-08-09",
+    "reportDateBasis": "filename",
+    "accessedAt": "2026-08-17"
+  },
+  "findingIds": [
+    "scoped-custom-element-registries",
+    "scheduler-yield",
+    "navigation-api",
+    "dialogs-popovers",
+    "a11y-testing-interop",
+    "jspi-wasm",
+    "declarative-shadow-slot-assignment",
+    "cross-document-view-transitions",
+    "css-anchor-positioning"
+  ],
+  "automationPolicy": {
+    "mayMutateRadar": false,
+    "mayMutateRuntime": false,
+    "mayCreateShippingClaim": false,
+    "rawVerdictsAreSuggestionsOnly": true,
+    "requiredReviewSchema": "xtend.native-first.observatory-review.v1"
+  }
+}

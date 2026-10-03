@@ -4,7 +4,7 @@ XTend Fabric is the coordination layer for runtime work. It maps RMT scheduling 
 
 ## What This Layer Is
 
-Fabric is the bridge between kernel intent and host execution. The kernel describes which work exists; Fabric helps the host decide when that work should run and with which priority.
+Fabric supplies work intents and policy hints to the shared injected RMT scheduler. In 0.8.0, only that microkernel owns the queue, priority selection and host execution. Fabric does not run a second scheduler.
 
 ## What this layer knows
 
@@ -36,7 +36,7 @@ The primary public entry points are `createXtendFabric`, hydration policy helper
 
 ## Communication with other layers
 
-The RMT kernel provides schedule intent, lane names and diagnostics. Fabric normalizes that information and gives host adapters concrete execution and hydration hints.
+Compiled RMT records and host adapters provide scheduling intent. Fabric normalizes lanes and hydration hints, forwards work intents and backpressure to the shared scheduler, and consumes its completion and diagnostic signals.
 
 XTend UI and other framework adapters can use Fabric context to prioritize visible work before idle work, collect diagnostics and make component hydration traceable.
 
@@ -47,3 +47,5 @@ XTend UI and other framework adapters can use Fabric context to prioritize visib
 - [RMT Kernel Runtime](./rmt-kernel-runtime.md)
 - [XTend Fabric](./xtend-fabric.md)
 - [Fabric RMT Lane Mapping](./xtend-fabric-rmt-lane-mapping.md)
+
+The [0.8 migration](./rmt-kernel-0-8-migration.md) describes this shared authority. [Maraca FastPass](./maraca-fastpass-abort-boundary.md) uses its existing `user-blocking` lane.

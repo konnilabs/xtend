@@ -1,4 +1,4 @@
-import { xstate } from '../../../components/xstate.js';
+import { xtendState } from '../../../components/xtend-state.js';
 
 export type XPopoverEventName = 'popover-opened' | 'popover-closed';
 export type XPopoverPlacement = 'top' | 'right' | 'bottom' | 'left';
@@ -47,7 +47,7 @@ export class XPopover extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.id) this.id = `xpopover-${Math.random().toString(36).slice(2, 10)}`;
-    xstate.set(`xpopover-open-${this.id}`, this.open);
+    xtendState.set(`xpopover-open-${this.id}`, this.open);
   }
 
   get open(): boolean {

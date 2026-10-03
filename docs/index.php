@@ -233,7 +233,15 @@ $xtendAssetVersion = xtendAssetVersion([
     __DIR__ . '/../icons/apple-touch-icon.png',
     __DIR__ . '/../icons/xtend-scaffold.webp',
     __DIR__ . '/../XTend-Logo.png',
-    __DIR__ . '/../docs/utils/pageloader.js',
+    __DIR__ . '/../docs/utils/page/index.mjs',
+    __DIR__ . '/../docs/utils/page/route-controller.mjs',
+    __DIR__ . '/../docs/utils/page/shell-descriptor.mjs',
+    __DIR__ . '/../docs/utils/page/content-service.mjs',
+    __DIR__ . '/../docs/utils/page/locale-service.mjs',
+    __DIR__ . '/../docs/utils/page/trusted-content.mjs',
+    __DIR__ . '/../docs/utils/page/diagnostics.mjs',
+    __DIR__ . '/../docs/utils/page/island-scheduler.mjs',
+    __DIR__ . '/../docs/utils/page/playground-island.mjs',
     __DIR__ . '/../docs/utils/dev-api.js',
     __DIR__ . '/../docs/utils/trusted-dom-host.mjs',
     __DIR__ . '/../docs/utils/docs-shell-runtime.mjs',
@@ -320,7 +328,9 @@ function docsRoutePathFromRequest($basePath) {
 
 function docsBuildHistoryRoutePath($slug, $locale, $basePath = '') {
     $base = docsNormalizeBasePath($basePath);
-    return ($base === '' ? '' : $base) . '/' . docsNormalizeLocale($locale, $GLOBALS['docsAvailableLocales'], $GLOBALS['docsFallbackLocale']) . '/' . trim((string) ($slug ?: 'readme'), '/');
+    $normalizedSlug = trim((string) ($slug ?: 'readme'), '/');
+    $path = ($base === '' ? '' : $base) . '/' . docsNormalizeLocale($locale, $GLOBALS['docsAvailableLocales'], $GLOBALS['docsFallbackLocale']) . '/' . $normalizedSlug;
+    return $normalizedSlug === 'components' ? $path . '/' : $path;
 }
 
 function docsBuildHistoryRootPath($basePath = '') {
@@ -431,54 +441,6 @@ $docsNavigationConfig = docsLoadJsonContract($docsRoot . '/navigation.json', 'xt
 
 function docsRouteIdFromSlug($slug) {
     return 'docs.' . str_replace('-', '.', $slug);
-}
-
-function docsMenuIconForSlug($slug) {
-    $slug = (string) $slug;
-    $exact = [
-        'readme' => 'home',
-        'quick-start-guide' => 'book-open',
-        'about' => 'info',
-        'best-practices' => 'success',
-        'learn-rmt' => 'book-open',
-        'learn-rmt-playground' => 'terminal',
-        'xtend-maraca' => 'rocket',
-        'xtend-maraca-orchestration' => 'route',
-        'manifest' => 'file',
-        'api' => 'terminal',
-        'xtend-loader' => 'download',
-        'xtend-fabric' => 'zap',
-        'components' => 'component',
-        'component-platform' => 'layers',
-        'component-catalog-coverage' => 'boxes',
-        'design-tokens' => 'palette',
-        'xtendrmt-overview' => 'route',
-        'rmt-animation-engine' => 'sparkles',
-        'rmt-linter' => 'terminal',
-        'rmt-language-server' => 'server',
-        'performance' => 'gauge',
-        'hydration-policies' => 'zap',
-        'a11y-keyboard-smokes' => 'accessibility',
-        'trusted-dom-sanitizing' => 'shield-check',
-        'supply-chain-gates' => 'shield-check',
-        'rc0-gate-matrix' => 'package',
-        'rc1-readiness' => 'rocket',
-        'enterprise-adoption' => 'layers'
-    ];
-    if (isset($exact[$slug])) return $exact[$slug];
-    if (str_starts_with($slug, 'components-xcode')) return 'code';
-    if (str_starts_with($slug, 'components-xicon') || str_starts_with($slug, 'components-xtheme')) return 'palette';
-    if (str_starts_with($slug, 'components-xstate')) return 'database';
-    if (str_starts_with($slug, 'learn-rmt-')) return str_contains($slug, 'playground') ? 'terminal' : 'book-open';
-    if (str_starts_with($slug, 'xtend-maraca')) return 'rocket';
-    if (str_starts_with($slug, 'components-xrouter') || str_starts_with($slug, 'xtendrmt') || str_starts_with($slug, 'rmt-')) return 'route';
-    if (str_starts_with($slug, 'components-')) return 'component';
-    if (str_contains($slug, 'security') || str_contains($slug, 'trusted-dom') || str_contains($slug, 'supply-chain') || str_contains($slug, 'csp') || str_contains($slug, 'network')) return 'shield-check';
-    if (str_contains($slug, 'performance') || str_contains($slug, 'hydration')) return 'gauge';
-    if (str_contains($slug, 'a11y') || str_contains($slug, 'screenreader') || str_contains($slug, 'motion-contrast')) return 'accessibility';
-    if (str_contains($slug, 'release') || str_starts_with($slug, 'rc') || str_starts_with($slug, 'epic')) return 'rocket';
-    if (str_contains($slug, 'component') || str_contains($slug, 'surface') || str_contains($slug, 'visual')) return 'layers';
-    return 'docs';
 }
 
 function docsFallbackTitleFromPath($rel) {
@@ -686,7 +648,7 @@ function docsRouteAttributes($route, $pathOverride = null) {
     return [
         'path' => $pathOverride ?? ($route['path'] ?? ''),
         'component' => 'xtend-doc-page',
-        'import' => '/docs/utils/pageloader.js?v=' . $xtendAssetVersionAttr,
+        'import' => '/docs/utils/page/index.mjs?v=' . $xtendAssetVersionAttr,
         'title' => $route['title'] ?? '',
         'document-title' => $route['documentTitle'] ?? '',
         'title-template' => $route['titleTemplate'] ?? '',
@@ -959,8 +921,15 @@ function docsNormalizeServerMarkdownLinks($html, $sourceRel, $fileToSlug, $local
         $path = $parts[0] ?? '';
         $suffix = $parts[1] ?? '';
         $normalized = docsResolveServerMarkdownLinkPath($path, $sourceRel);
-        if (!is_string($normalized) || !isset($fileToSlug[$normalized])) return $matches[0];
-        $slug = (string) $fileToSlug[$normalized];
+        if (!is_string($normalized)) return $matches[0];
+        $lookupPath = $normalized;
+        if (!isset($fileToSlug[$lookupPath])) {
+            $legacyAlias = preg_replace('/([a-z0-9])([A-Z])/u', '$1-$2', $lookupPath);
+            $legacyAlias = is_string($legacyAlias) ? strtolower($legacyAlias) : '';
+            if ($legacyAlias === '' || !isset($fileToSlug[$legacyAlias])) return $matches[0];
+            $lookupPath = $legacyAlias;
+        }
+        $slug = (string) $fileToSlug[$lookupPath];
         if ($slug === '') return $matches[0];
         $target = docsBuildHistoryRoutePath($slug, $locale, $docsBasePath) . $suffix;
         $attributes = trim((string) $matches[1] . ' ' . (string) $matches[4]);
@@ -1494,13 +1463,6 @@ function docsBuildMenuShellDescriptor($menuConfig, $navigationConfig, $activeSlu
                     'aria-current' => $isActive ? 'page' : null,
                     'active' => $isActive ? true : null
                 ], [
-                    docsDescriptorComponent('x-icon', [
-                        'class' => 'docs-menu-link-icon',
-                        'name' => docsMenuIconForSlug($slug),
-                        'pack' => 'lucide',
-                        'decorative' => true,
-                        'size' => '0.95rem'
-                    ], []),
                     docsDescriptorElement('span', ['class' => 'docs-menu-link-label'], [
                         docsDescriptorText(docsMenuEntryLabel($entry, $locale, $fallbackLocale))
                     ])
@@ -1585,7 +1547,7 @@ function docsBuildDocsRootShellDescriptor($allPagesMeta, $localizedAllPagesMeta,
     $routeChildren[] = docsDescriptorElement('x-route', [
         'path' => '*',
         'component' => 'xtend-doc-page',
-        'import' => '/docs/utils/pageloader.js?v=' . $xtendAssetVersionAttr,
+        'import' => '/docs/utils/page/index.mjs?v=' . $xtendAssetVersionAttr,
         'title' => $notFoundTitle,
         'document-title' => $notFoundTitle . ' | ' . $docsTitle,
         'meta-description' => $notFoundDescription,
@@ -1892,33 +1854,37 @@ function docsCreateRmtMaracaPreviewBridge($bridgePath, $repoRoot, $nodeBinary = 
                 ], $featureOptions)
             ]
         ], ['nodeBinary' => $nodeBinary, 'timeoutSeconds' => $context['timeoutSeconds'] ?? 3]);
-        $plan = isset($response['result']) && is_array($response['result']) ? $response['result'] : null;
-        $orchestrationSummary = is_array($plan['orchestration']['summary'] ?? null) ? $plan['orchestration']['summary'] : [];
-        $validationSummary = is_array($plan['validation']['summary'] ?? null) ? $plan['validation']['summary'] : [];
-        $transitionSummary = is_array($plan['transitions']['summary'] ?? null) ? $plan['transitions']['summary'] : [];
-        $features = [];
-        foreach (['orchestration', 'kernel', 'hydration', 'validation', 'transitions'] as $key) {
-            $entry = is_array($plan[$key] ?? null) ? $plan[$key] : [];
-            $features[$key] = ['enabled' => ($entry['enabled'] ?? false) === true, 'mode' => $entry['mode'] ?? ($featureOptions[$key] ?? 'auto'), 'status' => $entry['status'] ?? 'unknown', 'supported' => ($entry['supported'] ?? false) === true, 'summary' => $entry['summary'] ?? new stdClass()];
-        }
-        return [
-            'schema' => 'xtend.docs.rmt-playground.maraca-preview.v1',
-            'bridgeSchema' => $response['bridgeSchema'] ?? 'xtend.compiler.tooling-bridge.v1',
-            'ok' => is_array($plan) && ($plan['ok'] ?? false) === true,
-            'status' => $plan['status'] ?? ($response['status'] ?? 'bridge-error'),
-            'diagnostics' => $response['diagnostics'] ?? ($plan['diagnostics'] ?? []),
-            'summary' => [
-                'surfaceCount' => (int) ($orchestrationSummary['surfaceCount'] ?? count($plan['surfaces'] ?? [])),
-                'actionCount' => (int) ($orchestrationSummary['actionCount'] ?? 0),
-                'eventCount' => (int) ($orchestrationSummary['eventCount'] ?? count($plan['events'] ?? [])),
-                'validationGroupCount' => (int) ($validationSummary['groupCount'] ?? 0),
-                'transitionCount' => (int) ($transitionSummary['transitionCount'] ?? 0)
-            ],
-            'features' => $features,
-            'runtimeModules' => $plan['runtimeModules'] ?? [],
-            'plan' => $plan
-        ];
+        return docsRmtPlaygroundMaracaFromBridge($response, $featureOptions);
     };
+}
+
+function docsRmtPlaygroundMaracaFromBridge($response, $featureOptions = []) {
+    $plan = isset($response['result']) && is_array($response['result']) ? $response['result'] : null;
+    $orchestrationSummary = is_array($plan['orchestration']['summary'] ?? null) ? $plan['orchestration']['summary'] : [];
+    $validationSummary = is_array($plan['validation']['summary'] ?? null) ? $plan['validation']['summary'] : [];
+    $transitionSummary = is_array($plan['transitions']['summary'] ?? null) ? $plan['transitions']['summary'] : [];
+    $features = [];
+    foreach (['orchestration', 'kernel', 'hydration', 'validation', 'transitions'] as $key) {
+        $entry = is_array($plan[$key] ?? null) ? $plan[$key] : [];
+        $features[$key] = ['enabled' => ($entry['enabled'] ?? false) === true, 'mode' => $entry['mode'] ?? ($featureOptions[$key] ?? 'auto'), 'status' => $entry['status'] ?? 'unknown', 'supported' => ($entry['supported'] ?? false) === true, 'summary' => $entry['summary'] ?? new stdClass()];
+    }
+    return [
+        'schema' => 'xtend.docs.rmt-playground.maraca-preview.v1',
+        'bridgeSchema' => $response['bridgeSchema'] ?? 'xtend.compiler.tooling-bridge.v1',
+        'ok' => is_array($plan) && ($plan['ok'] ?? false) === true,
+        'status' => $plan['status'] ?? ($response['status'] ?? 'bridge-error'),
+        'diagnostics' => $response['diagnostics'] ?? ($plan['diagnostics'] ?? []),
+        'summary' => [
+            'surfaceCount' => (int) ($orchestrationSummary['surfaceCount'] ?? count($plan['surfaces'] ?? [])),
+            'actionCount' => (int) ($orchestrationSummary['actionCount'] ?? 0),
+            'eventCount' => (int) ($orchestrationSummary['eventCount'] ?? count($plan['events'] ?? [])),
+            'validationGroupCount' => (int) ($validationSummary['groupCount'] ?? 0),
+            'transitionCount' => (int) ($transitionSummary['transitionCount'] ?? 0)
+        ],
+        'features' => $features,
+        'runtimeModules' => $plan['runtimeModules'] ?? [],
+        'plan' => $plan
+    ];
 }
 
 function docsCreateRmtLspBridge($bridgePath, $repoRoot, $nodeBinary = 'node') {
@@ -2509,19 +2475,50 @@ function docsRmtPlaygroundHandleCompile($repoRoot, $bridgePath, $maracaBridgePat
         docsRmtPlaygroundJson($response, 200);
     }
     $slot = docsRmtPlaygroundAcquireConcurrencySlot('compile', $schema);
-    $compiler = docsCreateRmtCompilerBridge($bridgePath, $repoRoot);
-    $compiled = $compiler($source, [
-        'filePath' => 'docs/rmt-playground-source.rmt',
-        'options' => [
-            'documentId' => 'docs.rmt.playground',
-            'source' => 'docs-rmt-playground'
-        ],
-        'timeoutSeconds' => 3
-    ]);
+    $jit = null;
+    if (getenv('XTEND_RMT_JIT_MODE') === 'hydrangea') {
+        $jitResponse = xtendToolingBridgeRequest((string) $bridgePath, (string) $repoRoot, [
+            'schema' => 'xtend.compiler.tooling-bridge.v1',
+            'requestId' => uniqid('docs-jit-', true),
+            'operation' => 'jit-compile',
+            'payload' => [
+                'source' => $source,
+                'filePath' => 'docs/rmt-playground-source.rmt',
+                'options' => ['documentId' => 'docs.rmt.playground', 'source' => 'docs-rmt-playground'],
+                'safePreview' => [
+                    'options' => [
+                        'componentRegistry' => docsLoadComponentManifest($repoRoot),
+                        'limits' => ['maxDepth' => 32, 'maxNodes' => 1000, 'maxTextBytes' => 65536, 'maxAttributes' => 32]
+                    ],
+                    'project' => ['baseUrl' => 'https://xtend.invalid/']
+                ],
+                'maraca' => $maracaOptions !== null && $maracaBridgePath ? array_replace([
+                    'profile' => 'debug', 'lazy' => 'component', 'css' => 'external', 'stack' => 'runtime', 'components' => 'document'
+                ], $maracaOptions) : false
+            ]
+        ], ['timeoutSeconds' => 3, 'concurrencyLimit' => 2, 'outputLimit' => 16777216]);
+        $jit = is_array($jitResponse['result'] ?? null) ? $jitResponse['result'] : [];
+        foreach ($jit['cacheDiagnostics'] ?? [] as $cacheDiagnostic) {
+            error_log('Hydrangea: ' . (string) ($cacheDiagnostic['code'] ?? 'cache_unavailable'));
+        }
+        $compiled = $jit['compile'] ?? $jitResponse;
+        $compiled['diagnostics'] = $jitResponse['diagnostics'] ?? ($compiled['diagnostics'] ?? []);
+    } else {
+        $compiler = docsCreateRmtCompilerBridge($bridgePath, $repoRoot);
+        $compiled = $compiler($source, [
+            'filePath' => 'docs/rmt-playground-source.rmt',
+            'options' => [
+                'documentId' => 'docs.rmt.playground',
+                'source' => 'docs-rmt-playground'
+            ],
+            'timeoutSeconds' => 3
+        ]);
+    }
     $diagnostics = docsRmtPlaygroundNormalizeDiagnostics($compiled['diagnostics'] ?? $compiled['compilerDiagnostics'] ?? []);
     $ok = isset($compiled['ok']) ? (bool) $compiled['ok'] : false;
     $coreDocument = $ok && is_array($compiled['coreDocument'] ?? null) ? $compiled['coreDocument'] : null;
-    $safePreview = $coreDocument ? docsRmtPlaygroundProjectSafePreview($repoRoot, $bridgePath, $coreDocument) : null;
+    $safePreview = $jit !== null ? ($jit['safePreview']['result'] ?? null)
+        : ($coreDocument ? docsRmtPlaygroundProjectSafePreview($repoRoot, $bridgePath, $coreDocument) : null);
     $response = [
         'schema' => $schema,
         'ok' => $ok,
@@ -2532,7 +2529,9 @@ function docsRmtPlaygroundHandleCompile($repoRoot, $bridgePath, $maracaBridgePat
     ];
     if ($maracaOptions !== null) {
         $response['maraca'] = ($ok && $maracaBridgePath)
-            ? docsRmtPlaygroundCompileMaracaPreview($repoRoot, $maracaBridgePath, $source, $maracaOptions)
+            ? ($jit !== null
+                ? docsRmtPlaygroundMaracaFromBridge($jit['maraca'] ?? [], $maracaOptions)
+                : docsRmtPlaygroundCompileMaracaPreview($repoRoot, $maracaBridgePath, $source, $maracaOptions))
             : docsRmtPlaygroundMaracaPreviewUnavailable('compile_failed', $diagnostics);
     }
     docsRmtPlaygroundJson($response, 200);
@@ -2560,7 +2559,7 @@ function docsBuildRouteIslandManifest($slug) {
             'id' => 'docs.component-demo',
             'activation' => 'visible-or-intent',
             'schedule' => 'docs.demo.prepare',
-            'module' => '/docs/utils/pageloader.js'
+            'module' => '/docs/utils/page/index.mjs'
         ];
     }
     if ($slug === 'learn-rmt-playground') {
@@ -2568,7 +2567,7 @@ function docsBuildRouteIslandManifest($slug) {
             'id' => 'docs.rmt-playground',
             'activation' => 'route-local-intent',
             'schedule' => 'docs.rich-content.prepare',
-            'module' => '/docs/utils/pageloader.js'
+            'module' => '/docs/utils/page/index.mjs'
         ];
     }
     if ($slug === 'rmt-animation-engine') {
@@ -3502,13 +3501,44 @@ header('Vary: Accept');
     <link rel="alternate" hreflang="<?= htmlspecialchars($hreflang, ENT_QUOTES, 'UTF-8') ?>" href="<?= htmlspecialchars($href, ENT_QUOTES, 'UTF-8') ?>">
 <?php endforeach; ?>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="xtend-preload" content="x-utils,x-theme,x-button,x-icon,x-input,x-form,x-header,x-hero,x-footer,x-select,x-menu,x-popover,x-summary">
+    <meta name="xtend-preload" content="x-utils,x-theme,x-button,x-icon,x-select,x-menu,x-popover,x-summary,x-link,x-input,x-form,x-header,x-hero,x-router,x-footer">
     <link rel="icon" href="<?= $docsFaviconIcoUrl ?>" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="<?= $docsFavicon32Url ?>">
     <link rel="icon" type="image/png" sizes="16x16" href="<?= $docsFavicon16Url ?>">
     <link rel="apple-touch-icon" href="<?= $docsAppleTouchIconUrl ?>">
     <link rel="stylesheet" href="/xtend.css?v=<?= $xtendAssetVersionAttr ?>">
+    <script type="module" src="/xtend.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>"></script>
     <script src="/fabric/xtend-fabric.js?v=<?= $xtendAssetVersionAttr ?>"></script>
+    <script id="xtend-docs-boot" type="application/json" nonce="<?= $nonce ?>"><?= docsJsonEncodeForHtml([
+      'schema' => 'xtend.docs.boot.v1',
+      'configuration' => [
+        'i18n' => [
+          'schema' => 'xtend.docs.i18n.v1',
+          'defaultLocale' => $docsDefaultLocale,
+          'fallbackLocale' => $docsFallbackLocale,
+          'storageKey' => 'xtend.docs.locale',
+          'available' => array_keys($docsAvailableLocales),
+          'locales' => $docsAvailableLocales
+        ],
+        'basePath' => $docsBasePath,
+        'routingMode' => 'history',
+        'pageEndpoint' => docsEndpointPath('xtend-docs-page={slug}&locale={locale}'),
+        'ssrEndpoint' => $docsSsrEndpoint
+      ],
+      'document' => [
+        'slug' => $initialDocsSlug,
+        'locale' => $pageLocale,
+        'menu' => $docsBootstrapMenuConfig,
+        'navigation' => $docsNavigationConfig,
+        'aliases' => $docsSlugAliases,
+        'pagesMeta' => $docsBootstrapPageMeta,
+        'localizedPagesMeta' => $docsBootstrapLocalizedMeta,
+        'titles' => $docsBootstrapTitles,
+        'localizedTitles' => $docsBootstrapLocalizedTitles,
+        'ssrPrehydration' => docsCompactDocsSsrPrehydrationForBootstrap($docsSsrPrehydration),
+        'rmtDocument' => json_decode($rmtPilotDocumentJson, true)
+      ]
+    ]); ?></script>
 <?php if (($docsSsrPrehydration['executionMode'] ?? null) === 'server_prerender_resume'): ?>
     <script nonce="<?= $nonce ?>">
     // XTEND_DOCS_DECLARED_PREBOOT_START
@@ -4015,12 +4045,10 @@ header('Vary: Accept');
           transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
         }
         .docs-menu-section x-link::part(link),
-        .docs-nav-link::part(link),
         .docs-menu-section a[is-x-link] {
           display: grid;
-          grid-template-columns: auto minmax(0, 1fr);
+          grid-template-columns: minmax(0, 1fr);
           align-items: center;
-          gap: 0.45rem;
           width: 100%;
           max-width: 100%;
           min-width: 0;
@@ -4029,14 +4057,7 @@ header('Vary: Accept');
           text-decoration: none;
           overflow-wrap: anywhere;
         }
-        .docs-menu-link-icon,
-        .docs-nav-link-icon {
-          color: var(--primary-color);
-          flex: none;
-          opacity: 0.92;
-        }
-        .docs-menu-link-label,
-        .docs-nav-link-label {
+        .docs-menu-link-label {
           min-width: 0;
           overflow-wrap: anywhere;
         }
@@ -4831,40 +4852,25 @@ header('Vary: Accept');
         }
     </style>
     <script nonce="<?= $nonce ?>">
-    window.xtendInitialDocsSlug = <?= docsJsonEncodeForHtml($initialDocsSlug); ?>;
-    window.xtendInitialDocsLocale = <?= docsJsonEncodeForHtml($pageLocale); ?>;
-    window.xtendDocsLocales = <?php echo docsJsonEncodeForHtml($docsAvailableLocales); ?>;
-    window.xtendMenuConfig = <?php echo docsJsonEncodeForHtml($docsBootstrapMenuConfig); ?>;
-    window.xtendDocsNavigation = <?php echo docsJsonEncodeForHtml($docsNavigationConfig); ?>;
-    window.xtendDocsI18n = {
-      schema: 'xtend.docs.i18n.v1',
-      defaultLocale: <?= docsJsonEncodeForHtml($docsDefaultLocale); ?>,
-      fallbackLocale: <?= docsJsonEncodeForHtml($docsFallbackLocale); ?>,
-      storageKey: 'xtend.docs.locale',
-      stateKeys: {
-        locale: 'xtend.docs.locale',
-        target: 'xtend.docs.locale.target',
-        source: 'xtend.docs.locale.source',
-        status: 'xtend.docs.locale.status',
-        busy: 'xtend.docs.locale.busy',
-        transition: 'xtend.docs.locale.transition',
-        error: 'xtend.docs.locale.error',
-        available: 'xtend.docs.locale.available',
-        fallback: 'xtend.docs.locale.fallback'
-      },
-      available: Object.keys(window.xtendDocsLocales || {})
-    };
+    const xtendDocsBootDescriptor = JSON.parse(document.getElementById('xtend-docs-boot').textContent || '{}');
+    const xtendDocsBootConfiguration = xtendDocsBootDescriptor.configuration || {};
+    const xtendDocsBootDocument = xtendDocsBootDescriptor.document || {};
+    window.xtendInitialDocsSlug = xtendDocsBootDocument.slug || 'readme';
+    window.xtendInitialDocsLocale = xtendDocsBootDocument.locale || 'de';
+    window.xtendDocsLocales = (xtendDocsBootConfiguration.i18n && xtendDocsBootConfiguration.i18n.locales) || {};
+    window.xtendMenuConfig = xtendDocsBootDocument.menu || [];
+    window.xtendDocsNavigation = xtendDocsBootDocument.navigation || {};
     window.xtendDocsLocalizedPages = Object.create(null);
-    window.xtendDocsLocalizedPagesMeta = <?php echo docsJsonEncodeForHtml($docsBootstrapLocalizedMeta); ?>;
-    window.xtendDocsLocalizedTitles = <?php echo docsJsonEncodeForHtml($docsBootstrapLocalizedTitles); ?>;
-    window.xtendDocsSlugAliases = <?php echo docsJsonEncodeForHtml($docsSlugAliases); ?>;
-    window.xtendDocsBasePath = <?= docsJsonEncodeForHtml($docsBasePath); ?>;
-    window.xtendDocsRoutingMode = 'history';
+    window.xtendDocsLocalizedPagesMeta = xtendDocsBootDocument.localizedPagesMeta || {};
+    window.xtendDocsLocalizedTitles = xtendDocsBootDocument.localizedTitles || {};
+    window.xtendDocsSlugAliases = xtendDocsBootDocument.aliases || {};
+    window.xtendDocsBasePath = xtendDocsBootConfiguration.basePath || '/docs';
+    window.xtendDocsRoutingMode = xtendDocsBootConfiguration.routingMode || 'history';
     (function() {
-      const config = window.xtendDocsI18n || {};
+      const config = xtendDocsBootConfiguration.i18n;
       const available = config.available || ['de'];
       const fallback = config.fallbackLocale || 'de';
-      const basePath = String(window.xtendDocsBasePath || '').replace(/\/+$/, '');
+      const basePath = String(xtendDocsBootConfiguration.basePath || '').replace(/\/+$/, '');
       const normalizeLocale = (value) => {
         const raw = String(value || '').toLowerCase();
         if (available.includes(raw)) return raw;
@@ -4909,11 +4915,11 @@ header('Vary: Accept');
       }
     })();
     window.xtendDocsPages = Object.create(null);
-    window.xtendDocsPageEndpoint = <?= docsJsonEncodeForHtml(docsEndpointPath('xtend-docs-page={slug}&locale={locale}')); ?>;
-    window.xtendDocsRmtSsrEndpoint = <?= docsJsonEncodeForHtml($docsSsrEndpoint); ?>;
-    window.xtendDocsSsrPrehydration = <?php echo docsJsonEncodeForHtml(docsCompactDocsSsrPrehydrationForBootstrap($docsSsrPrehydration)); ?>;
-    window.xtendDocsPagesMeta = <?php echo docsJsonEncodeForHtml($docsBootstrapPageMeta); ?>;
-    window.xtendDocsTitles = <?php echo docsJsonEncodeForHtml($docsBootstrapTitles); ?>;
+    window.xtendDocsPageEndpoint = xtendDocsBootConfiguration.pageEndpoint || '';
+    window.xtendDocsRmtSsrEndpoint = xtendDocsBootConfiguration.ssrEndpoint || '';
+    window.xtendDocsSsrPrehydration = xtendDocsBootDocument.ssrPrehydration || null;
+    window.xtendDocsPagesMeta = xtendDocsBootDocument.pagesMeta || {};
+    window.xtendDocsTitles = xtendDocsBootDocument.titles || {};
     window.xtendDocsAssetUrls = {
       favicon: '<?= $docsFaviconIcoUrl ?>',
       favicon32: '<?= $docsFavicon32Url ?>',
@@ -4923,7 +4929,7 @@ header('Vary: Accept');
       lightboxLogo: '<?= $docsLightboxLogoUrl ?>'
     };
     window.xtendDocsRmtRuntimeModule = '/xtendrmt/rmt-runtime.esm.js?v=<?= $xtendAssetVersionAttr ?>';
-    window.xtendDocsRmtDocument = <?php echo $rmtPilotDocumentJson; ?>;
+    window.xtendDocsRmtDocument = xtendDocsBootDocument.rmtDocument || null;
     window.xtendDocsRmtPilot = {
       schema: 'xtend.docs.parsedown-rmt-pilot.v1',
       workpackage: 'ER-WP-40',
@@ -5051,7 +5057,7 @@ window.xtendDocsRmtBootPromise = new Promise((resolve) => {
     data-module-cache-bust="<?= $xtendAssetVersionAttr ?>"
     nonce="<?= $nonce ?>"
 ></script>
-<script type="module" src="/docs/utils/pageloader.js?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">
+<script type="module" src="/docs/utils/page/index.mjs?v=<?= $xtendAssetVersionAttr ?>" nonce="<?= $nonce ?>">
 </script>
 <script type="module" src="/docs/utils/docs-shell-runtime.mjs?v=<?= $xtendAssetVersionAttr ?>"></script>
 </body>

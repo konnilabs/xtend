@@ -1,14 +1,14 @@
 # RMT Kernel Runtime
 
-Die RMT Kernel Runtime ist der host-neutrale Kern von XTendRMT. Sie verarbeitet kompilierte RMT Records, plant Runtime-Arbeit und hält App-Logik von konkreten UI-Frameworks getrennt.
+XTend 0.8.0 trennt den hostneutralen Microkernel von den darauf aufbauenden Runtime-Services. `createRmtKernelScheduler()` besitzt die gemeinsame Scheduler-Queue; die RMT Runtime verarbeitet kompilierte Records über injizierte Model-, Surface- und Host-Ports.
 
 ## Was diese Schicht ist
 
-Der Kernel ist kein Renderer. Er ist die Schicht, die State, Selectors, Actions, Events, Resources, Surfaces und Scheduling-Absicht zusammenführt. Dadurch kann RMT als orchestrierender Scheduler in XTend Apps, MFE-Shells oder bestehenden React-, Vue- und VanillaJS-Anwendungen laufen.
+Der Microkernel besitzt Priorisierung, Jobs, kooperative Fortsetzungen, Cancellation und Host-Dispatch. State, Selectors, Actions, Events, Resources und Surfaces gehören zu den komponierten Runtime-Services. Dadurch bleibt derselbe Scheduler in XTend Apps, MFE-Shells und React-, Vue- oder VanillaJS-Integrationen nutzbar.
 
 ## Was diese Schicht weiß
 
-Der Kernel kennt RMT Core Records, Runtime-State, Selector-Ausgaben, Action- und Event-Verträge, Resource-Lebenszyklen, Surface-Records, Schedule-Refs, Lanes, Diagnostics und Host-Adapter-Fähigkeiten.
+Die Runtime kennt RMT Core Records, Runtime-State, Selector-Ausgaben, Action- und Event-Verträge, Resource-Lebenszyklen und Surface-Records. Der Microkernel erhält daraus Work-Intents mit Scope, Lane, Priorität und Abort-Vertrag; er benötigt kein Wissen über DOM oder fachliche Modelle.
 
 Er kennt außerdem Policy-, Panic-, Recovery- und Backpressure-Signale, soweit sie als Runtime-Daten oder Diagnostics vorliegen.
 
@@ -43,9 +43,9 @@ Die wichtigsten öffentlichen Einstiege sind `createRmtRuntime`, `createRmtCore`
 
 ## Kommunikation mit anderen Schichten
 
-Der Compiler liefert Core Records. Der Kernel verarbeitet sie und gibt Scheduling-, State- und Diagnostics-Signale an Fabric oder Host Adapter weiter.
+Der Compiler liefert Core Records. Der Orchestration Controller verbindet ihre Runtime-Services mit genau einer Scheduler-Instanz und den Host-Adaptern.
 
-Fabric liest Schedule Records und Lane-Absicht. UI Adapter übersetzen Surface- und Component-Records in konkrete DOM- oder Framework-Aufrufe. Diese Trennung macht den Kernel als Scheduler in gemischten App-Landschaften nutzbar.
+Fabric liefert Work-Intents, Backpressure und Telemetrie an diese Instanz und besitzt keine zweite Queue. UI Adapter übersetzen Surface- und Component-Records in DOM- oder Framework-Aufrufe. Product Surface und Prewarm Worker bleiben explizite Opt-ins; ein ESM-Import bootet keine Runtime.
 
 ## Nächste Schritte
 
@@ -56,3 +56,9 @@ Fabric liest Schedule Records und Lane-Absicht. UI Adapter übersetzen Surface- 
 - [XTend Fabric Runtime](./xtend-fabric-runtime.md)
 - [XTendRMT Runtime Bridge](./xtendrmt-runtime-bridge.md)
 - [RMT State Selector Runtime](./rmt-state-selector-runtime.md)
+
+## Host-Warten in 0.8.0
+
+Warten auf Paint, Idle oder `postTask` belegt keinen aktiven Ausführungsslot. Ein Host-Callback meldet den Job bereit; die gemeinsame Prioritätsauswahl entscheidet über die Ausführung. Kooperative Fortsetzungen setzen am bestehenden Zustand fort. Cancellation, Timeout und Dispose entfernen Host-Handles; `postTask` erhält auch das `AbortSignal`. Synchrones JavaScript bleibt kooperativ aufzuteilen.
+
+Siehe [0.8-Migration](./rmt-kernel-0-8-migration.md) für `RmtJobHandle`, die sechs öffentlichen Lanes und entfernte Queue-Bypässe; [FastPass](./maraca-fastpass-abort-boundary.md) ergänzt darauf dringende Shell-Aktionen.

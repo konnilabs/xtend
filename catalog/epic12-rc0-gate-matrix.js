@@ -219,11 +219,11 @@ function createKnownResidualPolicy() {
     blockers: [],
     acceptedResiduals: [
       {
-        id: 'xstate-nonvisual-boundary-probe',
-        scope: 'xstate',
+        id: 'xtend-state-nonvisual-boundary-probe',
+        scope: 'xtend-state',
         status: 'contract-gated',
         ownerDecision: 'accepted-for-rc0',
-        reason: 'xstate is infrastructure boundary, not a visible component shell.'
+        reason: 'xtend-state is infrastructure boundary, not a visible component shell.'
       },
       {
         id: 'x-utils-utility-boundary-probe',
@@ -377,7 +377,7 @@ function validateEpic12Rc0GateMatrix(matrix = createEpic12Rc0GateMatrix()) {
   if (!matrix.knownResidualPolicy || matrix.knownResidualPolicy.schema !== RC0_KNOWN_RESIDUAL_POLICY_SCHEMA) errors.push('known residual policy must declare schema');
   if (!matrix.knownResidualPolicy || matrix.knownResidualPolicy.blockers.length !== 0) errors.push('known residual policy must not contain blockers');
   if (!matrix.knownResidualPolicy || matrix.knownResidualPolicy.publishAllowed !== false) errors.push('known residual policy must block publish');
-  ['xstate', 'x-utils', 'performance-regression'].forEach((scope) => {
+  ['xtend-state', 'x-utils', 'performance-regression'].forEach((scope) => {
     if (!matrix.knownResidualPolicy || !matrix.knownResidualPolicy.acceptedResiduals.some((entry) => entry.scope === scope)) {
       errors.push(`known residual policy missing ${scope}`);
     }

@@ -233,7 +233,7 @@ function runFabricTelemetrySnapshotSuite(options = {}) {
     compliance: {
       version: '2026-05-06',
       getCoreContracts() {
-        return { runtime: ['fabric', 'xstate'] };
+        return { runtime: ['fabric', 'xtend-state'] };
       },
       getChecklist() {
         return ['Telemetry snapshot gate'];

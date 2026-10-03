@@ -73,10 +73,10 @@ function runSurfaceManagerOverlayBridgeSuite(options = {}) {
   const plan = createSurfaceManagerOverlayBridgePlan({ rootDir });
   const validation = validateSurfaceManagerOverlayBridgePlan(plan);
   const report = createSurfaceManagerOverlayBridgeReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerOverlayBridge;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const bridgeRuntime = readText('components/xsurfaceoverlay-bridge.js', rootDir);
   const bridgeTypes = readText('components/xsurfaceoverlay-bridge.d.ts', rootDir);
   const managerRuntime = readText('components/xsurfacemanager.js', rootDir);
@@ -275,8 +275,8 @@ function runSurfaceManagerOverlayBridgeSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, 'surfaceManagerOverlayBridge', 'Scaffold config exposes surfaceManagerOverlayBridge');
   context.assertIncludes(scaffoldConfig, 'components/xsurfaceoverlay-bridge.js', 'Scaffold config references Surface overlay bridge runtime');
   context.assertIncludes(scaffoldConfig, SURFACE_MANAGER_OVERLAY_BRIDGE_LOCAL_GATE, 'Scaffold config references Surface overlay bridge local gate');
-  context.assertIncludes(runner, "require('../tests/components/surface_manager_overlay_bridge_suite')", 'Runner imports Surface overlay bridge suite');
-  context.assertIncludes(runner, "id: 'surface-overlay-bridge'", 'Runner registers surface-overlay-bridge suite');
+  context.assert(runner.hasImplementation({ path: "tests/components/surface_manager_overlay_bridge_suite.js" }), 'Runner imports Surface overlay bridge suite');
+  context.assert(runner.hasSuite("surface-overlay-bridge"), 'Runner registers surface-overlay-bridge suite');
   context.assertIncludes(docsReadme, 'SurfaceManager Overlay Bridge', 'Docs README links Surface overlay bridge');
   context.assertIncludes(docsMenu, 'surface-manager-overlay-bridge', 'Docs menu contains Surface overlay bridge page');
   context.assertIncludes(referenceRegistry, 'WP-SM-06', 'Reference registry contains WP-SM-06');

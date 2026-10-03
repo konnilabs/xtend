@@ -14,7 +14,7 @@ const {
   createXtendFabric
 } = require('../../fabric/xtend-fabric');
 
-function createFakeXState() {
+function createFakeState() {
   const values = {};
   const listeners = [];
   return {
@@ -51,29 +51,29 @@ function runFabricRuntimeDiagnosticsBridgeSuite(options = {}) {
   const rootDir = options.rootDir || path.resolve(__dirname, '..', '..');
   const context = createSuiteContext({
     id: 'fabric-runtime-bridge',
-    label: 'XTend-Fabric xstate API and RMT diagnostics bridge'
+    label: 'XTend-Fabric state API and RMT diagnostics bridge'
   });
   const { assert } = context;
   const source = readText('fabric/xtend-fabric.js', rootDir);
   const apiSource = readText('api.js', rootDir);
-  const xstateSource = readText('components/xstate.js', rootDir);
+  const stateSource = readText('components/xtend-state.js', rootDir);
   const rmtSource = readText('xtendrmt/rmt-runtime.esm.js', rootDir);
   const syntax = syntaxCheckFile('fabric/xtend-fabric.js', { rootDir, extension: '.js' });
 
   assert(syntax.ok, `Fabric runtime syntax check passes${syntax.ok ? '' : ` (${syntax.message})`}`);
   context.assertIncludes(source, 'xtend.fabric.runtime-diagnostics-bridge.v1', 'Fabric runtime declares runtime diagnostics bridge contract');
   context.assertIncludes(source, 'createRuntimeDiagnosticsBridge', 'Fabric runtime exposes runtime diagnostics bridge factory');
-  context.assertIncludes(source, 'connectXState', 'Fabric runtime exposes xstate bridge connector');
+  context.assertIncludes(source, 'connectState', 'Fabric runtime exposes state bridge connector');
   context.assertIncludes(source, 'connectApi', 'Fabric runtime exposes API bridge connector');
   context.assertIncludes(source, 'createRmtDiagnosticsHub', 'Fabric runtime exposes RMT diagnostics hub');
-  context.assertIncludes(source, 'xtend.fabric.xstate.connected', 'Fabric runtime declares xstate connected diagnostic');
+  context.assertIncludes(source, 'xtend.fabric.state.connected', 'Fabric runtime declares state connected diagnostic');
   context.assertIncludes(source, 'xtend.fabric.api.connected', 'Fabric runtime declares API connected diagnostic');
   context.assertIncludes(source, 'xtend.fabric.rmt.connected', 'Fabric runtime declares RMT connected diagnostic');
   assert(!source.includes("require('../../xtendrmt") && !source.includes('rmt-runtime.esm'), 'Runtime diagnostics bridge does not import the RMT runtime');
 
-  context.assertIncludes(xstateSource, 'subscribe(fn, keyFilter)', 'xstate exposes canonical subscribe surface');
+  context.assertIncludes(stateSource, 'subscribe(fn, keyFilter)', 'state exposes canonical subscribe surface');
   context.assertIncludes(apiSource, 'ensureComplianceAPI', 'API exposes compliance metadata path');
-  context.assertIncludes(apiSource, 'xtend.compliance.contracts', 'API mirrors compliance contracts into xstate');
+  context.assertIncludes(apiSource, 'xtend.compliance.contracts', 'API mirrors compliance contracts into state');
   context.assertIncludes(rmtSource, 'createRmtStateSchedulerDiagnosticsBridge', 'RMT runtime exposes state/scheduler/diagnostics bridge factory');
   context.assertIncludes(rmtSource, 'diagnosticsHub', 'RMT bridge supports diagnosticsHub injection');
   context.assertIncludes(rmtSource, 'recordTelemetrySnapshot', 'RMT bridge exposes Fabric telemetry snapshot ingestion');
@@ -81,7 +81,7 @@ function runFabricRuntimeDiagnosticsBridgeSuite(options = {}) {
 
   assert(CONTRACTS.runtimeDiagnosticsBridge === 'xtend.fabric.runtime-diagnostics-bridge.v1', 'Fabric exports runtime diagnostics bridge contract');
 
-  const xstate = createFakeXState();
+  const state = createFakeState();
   const fabric = createXtendFabric({
     idPrefix: 'runtime.bridge.fabric',
     now: createIncrementingClock()
@@ -97,18 +97,18 @@ function runFabricRuntimeDiagnosticsBridgeSuite(options = {}) {
 
   const bridge = fabric.createRuntimeDiagnosticsBridge({
     id: 'runtime.bridge',
-    xstate
+    stateRuntime: state
   });
   assert(bridge.schema === CONTRACTS.runtimeDiagnosticsBridge, 'Runtime diagnostics bridge exposes stable schema');
-  assert(typeof bridge.connectXState === 'function', 'Runtime diagnostics bridge exposes connectXState');
+  assert(typeof bridge.connectState === 'function', 'Runtime diagnostics bridge exposes connectState');
   assert(typeof bridge.connectApi === 'function', 'Runtime diagnostics bridge exposes connectApi');
   assert(typeof bridge.connectRmtDiagnostics === 'function', 'Runtime diagnostics bridge exposes connectRmtDiagnostics');
   assert(typeof bridge.createRmtDiagnosticsHub === 'function', 'Runtime diagnostics bridge exposes createRmtDiagnosticsHub');
   assert(typeof bridge.getSnapshot === 'function', 'Runtime diagnostics bridge exposes getSnapshot');
 
-  const xstateConnection = bridge.connectXState();
-  assert(xstateConnection.schema === CONTRACTS.runtimeDiagnosticsBridge, 'xstate connection carries runtime bridge schema');
-  assert(xstate.values['xtend.fabric.bridge.ready'].schema === CONTRACTS.runtimeDiagnosticsBridge, 'xstate mirror receives Fabric bridge ready state');
+  const stateConnection = bridge.connectState();
+  assert(stateConnection.schema === CONTRACTS.runtimeDiagnosticsBridge, 'state connection carries runtime bridge schema');
+  assert(state.values['xtend.fabric.bridge.ready'].schema === CONTRACTS.runtimeDiagnosticsBridge, 'state mirror receives Fabric bridge ready state');
 
   fabric.emitDiagnostic({
     level: 'warn',
@@ -121,22 +121,22 @@ function runFabricRuntimeDiagnosticsBridgeSuite(options = {}) {
       safe: 'visible'
     }
   });
-  assert(xstate.values['xtend.fabric.diagnostics.last'].code === 'xtend.fabric.runtime.bridge.probe', 'xstate mirror receives last Fabric diagnostic');
-  assert(xstate.values['xtend.fabric.diagnostics.last'].metadata.token === '[redacted]', 'xstate mirror receives redacted Fabric diagnostic');
-  assert(xstate.values['xtend.fabric.diagnostics.snapshot'].diagnosticCount >= 2, 'xstate mirror receives diagnostic snapshot');
+  assert(state.values['xtend.fabric.diagnostics.last'].code === 'xtend.fabric.runtime.bridge.probe', 'state mirror receives last Fabric diagnostic');
+  assert(state.values['xtend.fabric.diagnostics.last'].metadata.token === '[redacted]', 'state mirror receives redacted Fabric diagnostic');
+  assert(state.values['xtend.fabric.diagnostics.snapshot'].diagnosticCount >= 2, 'state mirror receives diagnostic snapshot');
 
-  xstate.set('app.ready', { ok: true });
-  assert(fabric.getDiagnostics().some((event) => event.code === 'xtend.fabric.xstate.changed' && event.metadata.key === 'app.ready'), 'xstate changes become Fabric diagnostics');
+  state.set('app.ready', { ok: true });
+  assert(fabric.getDiagnostics().some((event) => event.code === 'xtend.fabric.state.changed' && event.metadata.key === 'app.ready'), 'state changes become Fabric diagnostics');
   const diagnosticsAfterAppReady = fabric.getDiagnostics().length;
-  xstate.set('xtend.fabric.diagnostics.last', { ignored: true });
-  assert(fabric.getDiagnostics().length === diagnosticsAfterAppReady, 'Fabric ignores its own mirrored xstate keys');
+  state.set('xtend.fabric.diagnostics.last', { ignored: true });
+  assert(fabric.getDiagnostics().length === diagnosticsAfterAppReady, 'Fabric ignores its own mirrored state keys');
 
   const fakeApi = {
     compliance: {
       version: '2026-05-06',
       getCoreContracts() {
         return {
-          bootstrap: ['xstate', 'api.js'],
+          bootstrap: ['xtend-state', 'api.js'],
           routing: ['router-navigate']
         };
       },
@@ -152,7 +152,7 @@ function runFabricRuntimeDiagnosticsBridgeSuite(options = {}) {
   const apiDiagnostic = fabric.getDiagnostics().find((event) => event.code === 'xtend.fabric.api.connected');
   assert(apiDiagnostic && apiDiagnostic.source === 'api', 'API metadata is consumed as Fabric diagnostic');
   assert(apiDiagnostic && apiDiagnostic.metadata.complianceVersion === '2026-05-06', 'API diagnostic carries compliance version');
-  assert(apiDiagnostic && apiDiagnostic.metadata.coreContracts.bootstrap.includes('xstate'), 'API diagnostic carries core contracts');
+  assert(apiDiagnostic && apiDiagnostic.metadata.coreContracts.bootstrap.includes('xtend-state'), 'API diagnostic carries core contracts');
 
   const rmtHub = bridge.createRmtDiagnosticsHub();
   assert(rmtHub.schema === 'xtend.fabric.rmt-diagnostics-hub.v1', 'Runtime bridge exposes RMT diagnostics hub schema');
@@ -197,10 +197,10 @@ function runFabricRuntimeDiagnosticsBridgeSuite(options = {}) {
   assert(snapshot.diagnosticCount === fabric.getDiagnostics().length, 'Runtime bridge snapshot exposes diagnostic count');
   assert(snapshot.fiberCount === fabric.getFibers().length, 'Runtime bridge snapshot exposes fiber count');
 
-  xstateConnection.dispose();
+  stateConnection.dispose();
   const diagnosticsBeforeDisposedState = fabric.getDiagnostics().length;
-  xstate.set('app.afterDispose', true);
-  assert(fabric.getDiagnostics().length === diagnosticsBeforeDisposedState, 'Disposed xstate connection stops state diagnostics');
+  state.set('app.afterDispose', true);
+  assert(fabric.getDiagnostics().length === diagnosticsBeforeDisposedState, 'Disposed state connection stops state diagnostics');
 
   bridge.dispose();
   assert(bridge.getSnapshot().diagnosticCount === fabric.getDiagnostics().length, 'Disposed bridge keeps local snapshot readable');

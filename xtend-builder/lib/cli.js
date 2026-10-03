@@ -140,6 +140,8 @@ function buildHelpText() {
     '',
     'Usage:',
     '  xt --help',
+    '  xt index build|symbols|references|impact --root <project> --json',
+    '  xt pages build --root <project> --target node|php|both --json',
     '  xt create app --runtime maraca --design-kit none --out rmt-app --write --json',
     '  xt create app --runtime maraca --design-kit material --out material-app --write --json',
     '  xt serve --root dist --port 4173',
@@ -156,8 +158,8 @@ function buildHelpText() {
     '  xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json',
     '  xt kernel-lab analyze --json',
     '  xt kernel-lab build --profile clean --check --json',
-    '  xt kernel-lab build --profile clean --version 0.6.1 --write --json',
-    '  xt rmt kernel-lab build --profile clean --version 0.6.1 --write --json',
+    '  xt kernel-lab build --profile clean --version 0.8.0 --write --json',
+    '  xt rmt kernel-lab build --profile clean --version 0.8.0 --write --json',
     '  xt rmt lint tests/fixtures',
     '  xt component-files --tag x-example --profile display --json',
     '  xt workflow --json',
@@ -269,9 +271,9 @@ function buildKernelLabHelpText() {
     'Usage:',
     '  xt kernel-lab analyze --json',
     '  xt kernel-lab build --profile clean --check --json',
-    '  xt kernel-lab build --profile clean --version 0.6.1 --write --json',
+    '  xt kernel-lab build --profile clean --version 0.8.0 --write --json',
     '  xt rmt kernel-lab analyze --json',
-    '  xt rmt kernel-lab build --profile clean --version 0.6.1 --write --json',
+    '  xt rmt kernel-lab build --profile clean --version 0.8.0 --write --json',
     '',
     'Commands:',
     '  analyze  Inventory all 26 kernel modules and emit the module manifest report.',
@@ -360,6 +362,11 @@ function runCli(args = process.argv.slice(2), io = {}) {
   const stderr = io.stderr || process.stderr;
   const options = parseArgs(args);
   const command = normalizeCommand(options.command || (options.help ? 'help' : 'help'));
+
+  if (command === 'index') {
+    const { runProjectIndexCli } = requireLocalOrScoped(__filename, '../../tools/project-index/cli', '@ccslabs/xtend-compiler/project-index/cli');
+    return runProjectIndexCli(options.rest.concat(options.json ? ['--json'] : [], options.help ? ['--help'] : []), { stdout, stderr });
+  }
 
   if (command === 'help' || (options.help && command !== 'create' && command !== 'serve' && command !== 'rmt' && command !== 'maraca')) {
     writeLine(stdout, buildHelpText());
@@ -893,7 +900,7 @@ function runCli(args = process.argv.slice(2), io = {}) {
         '  xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json',
         '  xt rmt kernel-lab analyze --json',
         '  xt rmt kernel-lab build --profile clean --check --json',
-        '  xt rmt kernel-lab build --profile clean --version 0.6.1 --write --json',
+        '  xt rmt kernel-lab build --profile clean --version 0.8.0 --write --json',
         '  xt rmt lint tests/fixtures --fail-on warning',
         '  xt rmt lint app.rmt --format problem-matcher',
         '',
@@ -921,6 +928,11 @@ async function runCliAsync(args = process.argv.slice(2), io = {}) {
   const stderr = io.stderr || process.stderr;
   const options = parseArgs(args);
   const command = normalizeCommand(options.command || (options.help ? 'help' : 'help'));
+
+  if (command === 'pages') {
+    const { runPageBuildCli } = requireLocalOrScoped(__filename, '../../tools/rmt-language/page-build', '@ccslabs/xtend-compiler/rmt-language/page-build');
+    return runPageBuildCli([...options.rest, ...(options.help ? ['--help'] : []), ...(options.json ? ['--json'] : [])], { stdout, stderr });
+  }
 
   if (command === 'serve') {
     if (options.help) {

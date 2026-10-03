@@ -1,4 +1,5 @@
-import { xstate } from './xstate.js';
+import { componentStyleNonce } from './style-nonce.js';
+import { xtendState } from './xtend-state.js';
 
 const XHEADER_MENU_MODES = Object.freeze(['drawer', 'side-panel', 'popover', 'fullscreen', 'inline-main']);
 const XHEADER_MENU_PLACEMENTS = Object.freeze(['start', 'end', 'top', 'bottom']);
@@ -277,9 +278,9 @@ class XHeader extends HTMLElement {
     this._syncBrandPresentation({ source: "connected", emit: false });
     window.addEventListener("resize", this._onResize);
     this._syncState(true);
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xheader-state-${this.id}` && typeof value === "object") {
-        if (typeof value.menuOpen === "boolean") this.toggleMenu(value.menuOpen, { source: "xstate", sync: false });
+        if (typeof value.menuOpen === "boolean") this.toggleMenu(value.menuOpen, { source: "xtend-state", sync: false });
         if (typeof value.menuMode === "string" && value.menuMode !== this.getAttribute("menu-mode")) this.setAttribute("menu-mode", value.menuMode);
         if (typeof value.menuPlacement === "string" && value.menuPlacement !== this.getAttribute("menu-placement")) this.setAttribute("menu-placement", value.menuPlacement);
         if (typeof value.menuModal === "boolean") {
@@ -339,7 +340,7 @@ class XHeader extends HTMLElement {
     const menuInert = menuOpen ? "" : " inert";
     const menuHidden = menuOpen ? "false" : "true";
     this.shadowRoot.innerHTML = `
-      <style>
+      <style${componentStyleNonce(this.ownerDocument)}>
         :host {
           --xtend-header-surface: var(--xtend-layout-surface, var(--xtend-signature-surface-panel, var(--xtend-surface, var(--section-bg, #ffffff))));
           --xtend-header-text: var(--xtend-layout-text, var(--xtend-signature-ink, var(--xtend-text, var(--text-color, #1f2937))));
@@ -1097,7 +1098,7 @@ class XHeader extends HTMLElement {
   }
   _syncState(preserveMenuOpen = true) {
     if (!this.id) return;
-    xstate.set(`xheader-state-${this.id}`, {
+    xtendState.set(`xheader-state-${this.id}`, {
       menuOpen: preserveMenuOpen ? this.isMenuOpen() : false,
       src: this.getAttribute("src"),
       logoSize: this.getAttribute("logo-size"),

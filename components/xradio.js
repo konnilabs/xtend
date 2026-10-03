@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 class XRadio extends HTMLElement {
   static formAssociated = true;
@@ -76,7 +76,7 @@ class XRadio extends HTMLElement {
       lane: 'user-blocking',
       hydrationPolicy: 'visible',
       criticalMeasurements: ['mount', 'event'],
-      cleanup: ['xstate-subscription']
+      cleanup: ['xtend-state-subscription']
     };
   }
 
@@ -289,9 +289,9 @@ class XRadio extends HTMLElement {
     this._control.addEventListener('change', this._onChange);
     this._control.addEventListener('invalid', this._onInvalid);
     this._control.addEventListener('keydown', this._onKeydown);
-    xstate.set(`xradio-checked-${this.id}`, this.checked);
-    if (this.checked && this.name) xstate.set(`xradio-value-${this.name}`, this.value);
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    xtendState.set(`xradio-checked-${this.id}`, this.checked);
+    if (this.checked && this.name) xtendState.set(`xradio-value-${this.name}`, this.value);
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xradio-value-${this.name}` && typeof value === 'string') {
         this.checked = value === this.value;
       }
@@ -366,9 +366,9 @@ class XRadio extends HTMLElement {
     if (this._control.checked) {
       this._uncheckGroup();
       this.checked = true;
-      if (this.name) xstate.set(`xradio-value-${this.name}`, this.value);
+      if (this.name) xtendState.set(`xradio-value-${this.name}`, this.value);
     }
-    xstate.set(`xradio-checked-${this.id}`, this.checked);
+    xtendState.set(`xradio-checked-${this.id}`, this.checked);
     this.dispatchEvent(new CustomEvent('radio-changed', {
       detail: { checked: this.checked, value: this.value, name: this.name, source: 'x-radio' },
       bubbles: true,

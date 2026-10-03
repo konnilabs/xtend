@@ -595,7 +595,7 @@ class XLink extends HTMLElement {
       stateKey: `xlink-active-${this.id}`,
       scheduleRef: 'route.visible.render'
     };
-    const stateApi = globalThis.xstate;
+    const stateApi = globalThis.XTend?.state;
     if (stateApi && typeof stateApi.set === 'function' && (active || previousActive !== undefined)) {
       stateApi.set(`xlink-active-${this.id}`, detail);
     }
@@ -771,7 +771,6 @@ class XLink extends HTMLElement {
       source: 'x-link',
       stateKey: `xlink-active-${this.id}`,
       href: this.getAttribute('href') || '',
-      navigation: this._getNavigation(),
       active: this.hasAttribute('active'),
       external: this._isExternal(this.getAttribute('href') || ''),
       scheduleRef: 'diagnostics.snapshot'

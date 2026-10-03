@@ -107,7 +107,7 @@ function runSignatureUiVisualQualitySuite(options = {}) {
   const theme = readJson(SIGNATURE_THEME_PATH, rootDir);
   const fixture = readText(SIGNATURE_FIXTURE_PATH, rootDir);
   const suiteSource = readText(SIGNATURE_SUITE_PATH, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const xHeaderSource = readText('components/xheader.js', rootDir);
   const themeSyntax = (() => {
     try {
@@ -204,8 +204,8 @@ function runSignatureUiVisualQualitySuite(options = {}) {
   ], 'x-header source consumes Signature tokens');
 
   context.assertIncludes(suiteSource, SIGNATURE_VISUAL_QUALITY_REPORT_SCHEMA, 'Signature suite declares report schema');
-  context.assertIncludes(runner, "id: 'signature-ui-visual-quality'", 'XTend runner registers Signature visual quality suite');
-  context.assertIncludes(runner, 'runSignatureUiVisualQualitySuite', 'XTend runner imports Signature visual quality suite');
+  context.assert(runner.hasSuite("signature-ui-visual-quality"), 'XTend runner registers Signature visual quality suite');
+  context.assert(runner.hasImplementation({ function: "runSignatureUiVisualQualitySuite" }), 'XTend runner imports Signature visual quality suite');
 
   return context.result({
     report: {

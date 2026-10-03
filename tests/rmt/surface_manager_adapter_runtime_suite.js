@@ -200,9 +200,9 @@ function runSurfaceManagerAdapterRuntimeSuite(options = {}) {
   const fixture = readJson(SURFACE_MANAGER_ADAPTER_RUNTIME_FIXTURE, rootDir);
   const coreTypes = readText('xtendrmt/rmt-core.d.ts', rootDir);
   const manifest = readJson('xtendrmt/rmt-manifest.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerAdapterRuntime;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(SURFACE_MANAGER_ADAPTER_RUNTIME_BACKLOG, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_ADAPTER_RUNTIME_WORKPACKAGE_DOC, rootDir);
 
@@ -320,8 +320,8 @@ function runSurfaceManagerAdapterRuntimeSuite(options = {}) {
   context.assert(metadata && metadata.localGate === SURFACE_MANAGER_ADAPTER_RUNTIME_LOCAL_GATE, 'Package metadata exposes surface adapter runtime gate');
   context.assert(metadata && metadata.packageScript === SURFACE_MANAGER_ADAPTER_RUNTIME_PACKAGE_SCRIPT, 'Package metadata exposes surface adapter runtime package script');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-adapter-runtime'] === 'node scripts/run_xtend_tests.js surface-adapter-runtime', 'Package script test:surface-adapter-runtime exists');
-  context.assertIncludes(runner, "require('../tests/rmt/surface_manager_adapter_runtime_suite')", 'Runner imports surface adapter runtime suite');
-  context.assertIncludes(runner, "id: 'surface-adapter-runtime'", 'Runner registers surface adapter runtime suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/surface_manager_adapter_runtime_suite.js" }), 'Runner imports surface adapter runtime suite');
+  context.assert(runner.hasSuite("surface-adapter-runtime"), 'Runner registers surface adapter runtime suite');
   assertTextIncludesAll(context, backlog, [
     '`WP-SM-10` | P0 | completed',
     'Produktive `xtend.surface` Adapter Runtime bauen',

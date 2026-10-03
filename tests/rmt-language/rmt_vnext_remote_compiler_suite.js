@@ -201,9 +201,9 @@ function runRmtVNextRemoteCompilerSuite(options = {}) {
     id: 'rmt-vnext-remote-compiler',
     label: 'Epic 16 RMT vNext Remote Compiler'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextRemoteCompiler;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_16_PATH, rootDir);
   const contract = readText(RMT_VNEXT_REMOTE_COMPILER_CONTRACT_PATH, rootDir);
   const workpackage = readText(RMT_VNEXT_REMOTE_COMPILER_WP_PATH, rootDir);
@@ -238,8 +238,8 @@ function runRmtVNextRemoteCompilerSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_REMOTE_COMPILER_PACKAGE_SCRIPT, 'package metadata declares remote compiler package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-remote-compiler'] === 'string' ? packageManifest.exports['./rmt-language/vnext-remote-compiler'] : packageManifest.exports['./rmt-language/vnext-remote-compiler'] && packageManifest.exports['./rmt-language/vnext-remote-compiler'].default) === './tools/rmt-language/vnext-remote-compiler.js', 'package exports vNext remote compiler');
   context.assert(packageManifest.scripts['test:rmt-vnext-remote-compiler'] === 'node scripts/run_xtend_tests.js rmt-vnext-remote-compiler', 'package exposes vNext remote compiler script');
-  context.assert(runner.includes("id: 'rmt-vnext-remote-compiler'"), 'test runner exposes rmt-vnext-remote-compiler suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-remote-compiler'), 'runner help references remote compiler gate');
+  context.assert(runner.hasSuite("rmt-vnext-remote-compiler"), 'test runner exposes rmt-vnext-remote-compiler suite');
+  context.assert(runner.hasSuite("rmt-vnext-remote-compiler"), 'runner help references remote compiler gate');
   context.assert(epic.includes('- Status: `completed / Epic 16 Enterprise MFE Release Handoff accepted`'), 'Epic records current E16 accepted status');
   context.assert(epic.includes('| `WP-E16-08` | P1 | completed | WS4 |'), 'Epic marks WP-E16-08 completed');
   context.assert(epic.includes('| `WP-E16-09` | P1 | completed | WS4 |'), 'Epic marks WP-E16-09 completed');

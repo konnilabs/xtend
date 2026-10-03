@@ -39,3 +39,7 @@
 node scripts/run_xtend_tests.js rmt-kernel-handoff-docs --json
 ```
 
+
+## Aktualisierung zur Docs-Konsolidierung in 0.8.0
+
+Die drei historischen Root-Guides sind in den kanonischen Locale-Paaren aufgegangen: Migration und Trusted-Output-Authoring stehen in `docs/de/trusted-dom-sanitizing.md` und `docs/en/trusted-dom-sanitizing.md`; Incident-Diagnosen stehen in `docs/de/xtend-dev-api.md` und `docs/en/xtend-dev-api.md`. Der Gate prüft alle fachlichen Inhalte in beiden Sprachen, die aktuellen Menüeinträge und Package-Metadaten. Schema und historische Workpackage-Evidence bleiben unverändert; interne Marker sind keine Pflichtinhalte öffentlicher Artikel.

@@ -91,9 +91,9 @@ function runRmtVNextCompilerSuite(options = {}) {
     id: 'rmt-vnext-compiler',
     label: 'Epic 15 RMT vNext Compiler to Core'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextCompiler;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
   const coreContract = readText(CORE_CONTRACT_PATH, rootDir);
   const compilerSyntax = syntaxCheckFile(RMT_VNEXT_COMPILER_MODULE_PATH, { rootDir, extension: '.js' });
@@ -127,7 +127,7 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_COMPILER_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-compiler'] === 'string' ? packageManifest.exports['./rmt-language/vnext-compiler'] : packageManifest.exports['./rmt-language/vnext-compiler'] && packageManifest.exports['./rmt-language/vnext-compiler'].default) === './tools/rmt-language/vnext-compiler.js', 'package exports vNext compiler');
   context.assert(packageManifest.scripts['test:rmt-vnext-compiler'] === 'node scripts/run_xtend_tests.js rmt-vnext-compiler', 'package exposes vNext compiler script');
-  context.assert(runner.includes("id: 'rmt-vnext-compiler'"), 'test runner exposes rmt-vnext-compiler suite');
+  context.assert(runner.hasSuite("rmt-vnext-compiler"), 'test runner exposes rmt-vnext-compiler suite');
   context.assert(epic.includes('| `WP-E15-05` | P0 | completed | WS1 |'), 'Epic marks WP-E15-05 completed');
   context.assert(
     epic.includes('WP-E15-06` ist `completed`') || epic.includes('| `WP-E15-06` | P1 | completed | WS2 |'),
@@ -390,6 +390,16 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(maracaOrchestration.portals.some((portal) => portal.id === 'surface.root'), 'Maraca orchestration artifact includes surface portal');
   context.assert(maracaOrchestration.overlays.some((overlay) => overlay.id === 'feedback.toast'), 'Maraca orchestration artifact includes overlay records');
   context.assert(maracaOrchestration.render.mode === 'dom-descriptor' && maracaOrchestration.render.descriptors.length >= 2, 'Maraca orchestration artifact emits DOM render descriptors');
+  for (const descriptor of maracaOrchestration.render.descriptors) {
+    context.assert(!Object.hasOwn(descriptor.styleTokens || {}, 'surface'), `${descriptor.surface}: generated identity does not override the surface theme color`);
+    context.assert(descriptor.attributes['data-rmt-surface'].value === descriptor.surface, `${descriptor.surface}: surface identity remains available to navigation and event routing`);
+  }
+  const themedOrchestration = compileRmtVNextSource({
+    text: readText(VALID_MARACA_ORCHESTRATION_FIXTURE, rootDir).replace('initial {', 'initial {\n      viewTemplate { styleTokens { surface "#fbfcf9" } }'),
+    filePath: resolveRepoPath(VALID_MARACA_ORCHESTRATION_FIXTURE, rootDir)
+  });
+  context.assert(themedOrchestration.ok === true, 'Explicit surface color tokens compile');
+  context.assert(themedOrchestration.orchestrationArtifacts.render.descriptors.some(descriptor => descriptor.styleTokens.surface === '#fbfcf9'), 'Author-defined surface colors remain available');
   const nestedPortalSource = readText(VALID_NESTED_LOCAL_PORTALS_FIXTURE, rootDir);
   const nestedPortalResult = parseFixture(VALID_NESTED_LOCAL_PORTALS_FIXTURE, rootDir);
   const nestedPortalRoot = nestedPortalResult.orchestrationArtifacts && nestedPortalResult.orchestrationArtifacts.render.root;
@@ -414,6 +424,13 @@ function runRmtVNextCompilerSuite(options = {}) {
   context.assert(nestedFormDescriptor && nestedFormDescriptor.attributes.slot && nestedFormDescriptor.attributes.slot.value === 'windows', 'Direct x-surface-manager child receives the public windows slot');
   context.assert(nestedFieldsDescriptor && nestedFieldsDescriptor.attributes['data-xtm-slot'] === 'fields', 'Static viewTemplate portal target remains an explicit light-DOM group wrapper');
   context.assert(nestedEditorDescriptor && !nestedEditorDescriptor.attributes.slot, 'Static viewTemplate portal child is compiled into its group wrapper without a manager slot');
+  const conditionalTarget = '{ type "element" tag "div" attributes { id "demo-nested-fields" "data-xtm-slot" "fields" } }';
+  const conditionalSource = nestedPortalSource.replace(/\{\s*type "element"\s*tag "div"\s*attributes \{ id "demo-nested-fields" "data-xtm-slot" "fields" \}\s*\}/u, `{ type "conditional" test true then ${conditionalTarget} }`);
+  const conditionalPortal = compileRmtVNextSource({text:conditionalSource,filePath:resolveRepoPath('tmp/conditional-portal.rmt',rootDir)});
+  const conditionalForm = conditionalPortal.orchestrationArtifacts?.render.root.children[0].children.find(node=>node.surface==='demo.nested.form');
+  context.assert(conditionalPortal.ok && conditionalForm?.children[0].then.children.some(node=>node.surface==='demo.nested.editor'), 'Conditional portal children remain inside the active branch');
+  const duplicateBranch = compileRmtVNextSource({text:conditionalSource.replace(`then ${conditionalTarget}`,`then ${conditionalTarget} else ${conditionalTarget}`),filePath:resolveRepoPath('tmp/duplicate-conditional-portal.rmt',rootDir)});
+  context.assert(!duplicateBranch.ok && duplicateBranch.diagnostics.some(item=>item.code==='rmt.app_orchestration.portal_target_ambiguous'), 'Duplicate portal targets across conditional branches fail closed');
   context.assert(cyclicPortalResult.ok === false && cyclicPortalResult.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.app_orchestration.portal_parent_cycle' && diagnostic.severity === 'error'), 'Cyclic local portal parents fail closed');
   context.assert(unresolvedPortalResult.ok === false && unresolvedPortalResult.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.app_orchestration.portal_parent_unresolved' && diagnostic.severity === 'error'), 'Unknown local portal parents fail closed');
   context.assert(ambiguousPortalResult.ok === false && ambiguousPortalResult.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.app_orchestration.portal_parent_ambiguous' && diagnostic.severity === 'error'), 'Ambiguous local portal parents fail closed');

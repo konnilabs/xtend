@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 const XCODE_LANGUAGE_ALIASES = Object.freeze({
   js: 'javascript',
@@ -184,7 +184,7 @@ class XCode extends HTMLElement {
     this._observeLightDom();
 
     // Subscribe to state changes, for example external code or language updates
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xcode-state-${this.id}` && typeof value === "object") {
         if (typeof value.lang === "string" && value.lang !== this._getLanguageMeta().language) {
           this.setAttribute('lang', value.lang);
@@ -215,7 +215,7 @@ class XCode extends HTMLElement {
       // Update state
       if (this.id) {
         const languageMeta = this._getLanguageMeta();
-        xstate.set(`xcode-state-${this.id}`, {
+        xtendState.set(`xcode-state-${this.id}`, {
           lang: languageMeta.language,
           language: languageMeta.language,
           languageAlias: languageMeta.alias,
@@ -268,7 +268,7 @@ class XCode extends HTMLElement {
     this._render();
     if (this.id) {
       const languageMeta = this._getLanguageMeta();
-      xstate.set(`xcode-state-${this.id}`, {
+      xtendState.set(`xcode-state-${this.id}`, {
         lang: languageMeta.language,
         language: languageMeta.language,
         languageAlias: languageMeta.alias,
@@ -529,7 +529,7 @@ class XCode extends HTMLElement {
         // Update state, optionally for copy status
         if (this.id) {
           const nextLanguageMeta = this._getLanguageMeta();
-          xstate.set(`xcode-state-${this.id}`, {
+          xtendState.set(`xcode-state-${this.id}`, {
             lang: nextLanguageMeta.language,
             language: nextLanguageMeta.language,
             languageAlias: nextLanguageMeta.alias,

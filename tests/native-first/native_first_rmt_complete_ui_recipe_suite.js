@@ -323,7 +323,7 @@ function assertPathExists(context, rootDir, relativePath, label) {
 }
 
 function assertRunnerGate(context, runner, gate) {
-  context.assertIncludes(runner, `id: '${gate}'`, `Runner registers ${gate}`);
+  context.assert(runner.hasSuite(gate), `Runner registers ${gate}`);
 }
 
 function countBy(items, field) {
@@ -357,8 +357,8 @@ function runNativeFirstRmtCompleteUiRecipeSuite(options = {}) {
   const syntaxMatrix = readText('development/XTend-Native-First-RMT-Syntax-Growth-Decision-Matrix.md', rootDir);
   const actionMatrix = readText('development/XTend-Native-First-RMT-Action-Effect-Data-Resource-Primitives-Matrix.md', rootDir);
   const appPlatformFixture = readText('tests/fixtures/rmt-app-platform-fixture.core.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstRmtCompleteUiRecipes;
   const registryMetadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRegistry;
@@ -570,8 +570,8 @@ function runNativeFirstRmtCompleteUiRecipeSuite(options = {}) {
   ], 'Registry contract WP-17 extension');
 
   context.assert(packageScripts['test:rmt-complete-ui-recipes'] === 'node scripts/run_xtend_tests.js rmt-complete-ui-recipes', 'Package exposes WP-17 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_rmt_complete_ui_recipe_suite')", 'Runner imports WP-17 suite');
-  context.assertIncludes(runner, "id: 'rmt-complete-ui-recipes'", 'Runner registers WP-17 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_rmt_complete_ui_recipe_suite.js" }), 'Runner imports WP-17 suite');
+  context.assert(runner.hasSuite("rmt-complete-ui-recipes"), 'Runner registers WP-17 suite');
   REQUIRED_SOURCE_GATES.forEach((gate) => assertRunnerGate(context, runner, gate));
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-17 contract schema');

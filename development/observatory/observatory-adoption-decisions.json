@@ -1,0 +1,242 @@
+{
+  "schema": "xtend.native-first.observatory-adoption-decisions.v1",
+  "reviewRef": "NFM-OBS-REVIEW-2026-08-17",
+  "decisions": [
+    {
+      "schema": "xtend.native-first.primitive-adoption-adr.v1",
+      "status": "accepted-with-residuals",
+      "decisionId": "ADR-NFM-OBS-OVERLAY-ANCHOR-2026-08-17",
+      "primitiveName": "HTMLDialogElement, Popover API and CSS Anchor Positioning",
+      "primitiveCategory": [
+        "component",
+        "layout"
+      ],
+      "targetSurface": [
+        "component"
+      ],
+      "decisionOutcome": "defer-with-watch",
+      "owner": "Overlay/A11y Owner",
+      "reviewDate": "2026-09-03",
+      "primitiveRadarRef": [
+        "NFM-BPR-006",
+        "NFM-BPR-007",
+        "NFM-BPR-008"
+      ],
+      "prototypeStatus": "lab-fixture-ready-browser-evidence-insufficient",
+      "evidence": {
+        "browserSupport": "Per-engine browser lab artifacts are incomplete; native adoption remains blocked.",
+        "performanceImpact": "The lab compares CSS anchoring with owned rectangle measurement; no production measurement exists.",
+        "complexityImpact": "Separate dialog, non-modal popover and anchor ownership avoids a second modal stack.",
+        "a11yImpact": "Keyboard, focus return, Escape, light dismiss, nested overlays and reduced motion remain required.",
+        "securityImpact": "No new HTML, URL, property, event, style or import sink is authorized.",
+        "rmtImpact": "No RMT syntax or core record change.",
+        "contractParity": "Public events and Surface stack records remain unchanged.",
+        "fallbackAndDegradation": "Owned x-tooltip, x-popover and x-dialog paths remain default and fallback.",
+        "migrationImpact": "Lab-only opt-in; no export, default or SemVer change."
+      },
+      "fallbackPolicy": "owned-xtend-overlay-and-js-positioning",
+      "contractParity": "existing-component-events-and-surface-records",
+      "securityReview": "no-new-sinks",
+      "rmtBoundary": "rmt-kernel-remains-host-neutral",
+      "runtimeDependencies": [],
+      "reviewRef": "NFM-OBS-REVIEW-2026-08-17"
+    },
+    {
+      "schema": "xtend.native-first.primitive-adoption-adr.v1",
+      "status": "accepted-with-residuals",
+      "decisionId": "ADR-NFM-OBS-SCHEDULER-YIELD-2026-08-17",
+      "primitiveName": "scheduler.yield()",
+      "primitiveCategory": [
+        "scheduling"
+      ],
+      "targetSurface": [
+        "runtime",
+        "fabric",
+        "rmt"
+      ],
+      "decisionOutcome": "defer-with-watch",
+      "owner": "Scheduler Owner",
+      "reviewDate": "2026-09-03",
+      "primitiveRadarRef": [
+        "NFM-BPR-012"
+      ],
+      "prototypeStatus": "deterministic-lab-model-ready-browser-evidence-insufficient",
+      "evidence": {
+        "browserSupport": "Chromium and Firefox source evidence exists; Safari and real target-browser artifacts remain insufficient.",
+        "performanceImpact": "The model enforces 500 units, 4 ms slices, no slice over 50 ms and at most five percent modeled throughput regression.",
+        "complexityImpact": "yieldContinuation is internal and preserves the existing idle/timer fallback.",
+        "a11yImpact": "No direct semantic change; input responsiveness remains a measured adoption criterion.",
+        "securityImpact": "No sink or dependency change.",
+        "rmtImpact": "Lanes, ordering, cancellation and backpressure remain Source of Truth.",
+        "contractParity": "Existing scheduler and hydration budgets remain binding.",
+        "fallbackAndDegradation": "requestIdleCallback and timer paths remain available.",
+        "migrationImpact": "Lab-only opt-in; no public scheduler contract change."
+      },
+      "fallbackPolicy": "requestIdleCallback-then-timer",
+      "contractParity": "rmt-lanes-order-cancellation-backpressure",
+      "securityReview": "no-new-sinks",
+      "rmtBoundary": "rmt-kernel-remains-host-neutral",
+      "runtimeDependencies": [],
+      "reviewRef": "NFM-OBS-REVIEW-2026-08-17"
+    },
+    {
+      "schema": "xtend.native-first.primitive-adoption-adr.v1",
+      "status": "accepted-with-residuals",
+      "decisionId": "ADR-NFM-OBS-SCOPED-REGISTRIES-2026-08-17",
+      "primitiveName": "Scoped Custom Element Registries",
+      "primitiveCategory": [
+        "component"
+      ],
+      "targetSurface": [
+        "runtime",
+        "component",
+        "rmt"
+      ],
+      "decisionOutcome": "defer-with-watch",
+      "owner": "Component/Surface Owner",
+      "reviewDate": "2026-09-03",
+      "primitiveRadarRef": [
+        "NFM-BPR-021"
+      ],
+      "prototypeStatus": "isolation-model-and-browser-fixture-ready-browser-evidence-insufficient",
+      "evidence": {
+        "browserSupport": "Chromium ships, Firefox remains behind a preference and engine-specific WebKit evidence is missing.",
+        "performanceImpact": "Upgrade and hydration cost require target-engine measurement.",
+        "complexityImpact": "Global self-registration and missing constructor exports currently limit scope readiness.",
+        "a11yImpact": "No semantic change is permitted across registry scopes.",
+        "securityImpact": "Registry selection remains an injected host capability; no dynamic code or import sink.",
+        "rmtImpact": "The component adapter accepts registry capability without importing DOM types into the kernel.",
+        "contractParity": "Surface mount, hydration and global fallback remain required.",
+        "fallbackAndDegradation": "Global customElements registry remains explicit default and fallback.",
+        "migrationImpact": "No component registration rewrite or constructor export is authorized by this ADR."
+      },
+      "fallbackPolicy": "global-custom-elements-registry",
+      "contractParity": "component-adapter-and-surface-manager-ownership",
+      "securityReview": "injected-capability-no-dynamic-code",
+      "rmtBoundary": "rmt-kernel-remains-host-neutral",
+      "runtimeDependencies": [],
+      "reviewRef": "NFM-OBS-REVIEW-2026-08-17"
+    },
+    {
+      "schema": "xtend.native-first.primitive-adoption-adr.v1",
+      "status": "accepted-with-residuals",
+      "decisionId": "ADR-NFM-OBS-NAVIGATION-API-2026-08-17",
+      "primitiveName": "Navigation API",
+      "primitiveCategory": [
+        "navigation"
+      ],
+      "targetSurface": [
+        "component",
+        "rmt"
+      ],
+      "decisionOutcome": "defer-with-watch",
+      "owner": "Router Owner",
+      "reviewDate": "2026-11-17",
+      "primitiveRadarRef": [
+        "NFM-BPR-015"
+      ],
+      "prototypeStatus": "optional-host-adapter-model-ready-browser-evidence-insufficient",
+      "evidence": {
+        "browserSupport": "Baseline documentation exists; target-engine lifecycle evidence is not complete.",
+        "performanceImpact": "No production result for route interaction or hydration.",
+        "complexityImpact": "A host adapter must not duplicate x-router ownership.",
+        "a11yImpact": "Focus, title and announcements remain x-router responsibilities.",
+        "securityImpact": "External URL, target and download filtering remains unchanged.",
+        "rmtImpact": "Native events map to existing route lifecycle data only.",
+        "contractParity": "before/after navigation, abort, route reuse and SSR adoption remain unchanged.",
+        "fallbackAndDegradation": "History/hash remains owner and fallback.",
+        "migrationImpact": "Optional lab adapter only; no router default change."
+      },
+      "fallbackPolicy": "history-hash-owned",
+      "contractParity": "existing-x-router-lifecycle-focus-announcement-scroll",
+      "securityReview": "existing-url-and-navigation-policy",
+      "rmtBoundary": "rmt-kernel-remains-host-neutral",
+      "runtimeDependencies": [],
+      "reviewRef": "NFM-OBS-REVIEW-2026-08-17"
+    },
+    {
+      "schema": "xtend.native-first.primitive-adoption-adr.v1",
+      "status": "accepted-with-residuals",
+      "decisionId": "ADR-NFM-OBS-CROSS-DOCUMENT-VT-2026-08-17",
+      "primitiveName": "Cross-document View Transitions",
+      "primitiveCategory": [
+        "animation",
+        "navigation"
+      ],
+      "targetSurface": [
+        "docs",
+        "component"
+      ],
+      "decisionOutcome": "defer-with-watch",
+      "owner": "Docs/Router Owner",
+      "reviewDate": "docs-mpa-navigation-path",
+      "primitiveRadarRef": [
+        "NFM-BPR-011"
+      ],
+      "prototypeStatus": "same-origin-two-document-fixture-ready-browser-evidence-insufficient",
+      "evidence": {
+        "browserSupport": "WebKit shipping evidence exists; complete per-engine fixture artifacts do not.",
+        "performanceImpact": "No Docs performance claim or production measurement.",
+        "complexityImpact": "The isolated fixture avoids conflicting with the current SPA-shell router.",
+        "a11yImpact": "Reduced-motion behavior and navigation focus require browser evidence.",
+        "securityImpact": "Fixture is same-origin and introduces no URL policy change.",
+        "rmtImpact": "No RMT transition record change.",
+        "contractParity": "Docs SSR adoption and x-router ownership remain unchanged.",
+        "fallbackAndDegradation": "Normal cross-document navigation remains the fallback.",
+        "migrationImpact": "No Docs pilot until an actual MPA path exists."
+      },
+      "fallbackPolicy": "ordinary-cross-document-navigation",
+      "contractParity": "docs-spa-shell-and-x-router-unchanged",
+      "securityReview": "same-origin-fixture-only",
+      "rmtBoundary": "rmt-kernel-remains-host-neutral",
+      "runtimeDependencies": [],
+      "reviewRef": "NFM-OBS-REVIEW-2026-08-17"
+    },
+    {
+      "schema": "xtend.native-first.primitive-adoption-adr.v1",
+      "status": "accepted-with-residuals",
+      "decisionId": "ADR-NFM-OBS-EXPLICIT-RESOURCE-MANAGEMENT-2026-08-17",
+      "reviewRef": "NFM-OBS-REVIEW-2026-08-17-R2",
+      "primitiveName": "Explicit Resource Management",
+      "primitiveCategory": [
+        "lifecycle"
+      ],
+      "targetSurface": [
+        "runtime",
+        "component",
+        "fabric",
+        "rmt"
+      ],
+      "decisionOutcome": "defer-with-watch",
+      "owner": "Runtime Lifecycle Owner",
+      "reviewDate": "safari-stable-and-target-matrix-parse-safe",
+      "primitiveRadarRef": [
+        "NFM-BPR-024"
+      ],
+      "prototypeStatus": "deterministic-lifecycle-lab-ready-browser-evidence-incomplete",
+      "browserEvidenceArtifacts": [
+        "tests/fixtures/native-first/observatory-erm-browser-evidence-chromium-151.json"
+      ],
+      "evidence": {
+        "browserSupport": "Shipping sources exist for Chromium 134 and Firefox 141; a local Chromium 151 lab executed the isolated syntax, while Firefox has no local artifact and Safari evidence remains Technology Preview 250.",
+        "performanceImpact": "The lab adds no productive path; cleanup cost and bundle impact remain unmeasured.",
+        "complexityImpact": "Dynamic module isolation avoids parser failure, while productive disposal continues through existing explicit contracts.",
+        "a11yImpact": "No DOM semantics, focus, keyboard or assistive-technology behavior changes.",
+        "securityImpact": "No new DOM, URL, property, event, style, import-policy or dependency sink is authorized.",
+        "rmtImpact": "No RMT syntax or core record changes; resource lifetime stays host-owned.",
+        "contractParity": "The lab proves LIFO, exactly-once, Throw, Abort and suppressed-error behavior without modifying product contracts.",
+        "fallbackAndDegradation": "Existing idempotent dispose() paths remain default and fallback.",
+        "migrationImpact": "Lab-only opt-in; no public Symbol.dispose methods, exports, defaults or SemVer change."
+      },
+      "fallbackPolicy": "existing-idempotent-dispose-contracts",
+      "contractParity": "scheduler-worker-surface-cleanup-invariants",
+      "securityReview": "dynamic-test-module-only-no-product-import",
+      "rmtBoundary": "rmt-kernel-remains-host-neutral",
+      "runtimeDependencies": []
+    }
+  ],
+  "reviewRefs": [
+    "NFM-OBS-REVIEW-2026-08-17",
+    "NFM-OBS-REVIEW-2026-08-17-R2"
+  ]
+}

@@ -66,11 +66,11 @@ function runEpic13ReleaseOwnerAcceptanceSuite(options = {}) {
   const contract = createEpic13ReleaseOwnerAcceptanceContract({ rootDir });
   const validation = validateEpic13ReleaseOwnerAcceptanceContract(contract);
   const report = createEpic13ReleaseOwnerAcceptanceReport({ rootDir, contract });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic13ReleaseOwnerAcceptance;
   const rc1Metadata = packageManifest.xtend && packageManifest.xtend.epic13Rc1Readiness;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const steering = readText(EPIC13_RELEASE_OWNER_ACCEPTANCE_STEERING, rootDir);
   const contractDoc = readText(EPIC13_RELEASE_OWNER_ACCEPTANCE_CONTRACT, rootDir);
   const workpackage = readText(EPIC13_RELEASE_OWNER_ACCEPTANCE_WORKPACKAGE_DOC, rootDir);
@@ -158,7 +158,7 @@ function runEpic13ReleaseOwnerAcceptanceSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, EPIC13_RELEASE_OWNER_ACCEPTANCE_SCHEMA, 'Scaffold config declares owner acceptance schema');
   context.assertIncludes(scaffoldConfig, EPIC13_RELEASE_OWNER_ACCEPTANCE_LOCAL_GATE, 'Scaffold config references owner acceptance local gate');
   context.assertIncludes(scaffoldConfig, 'nextWorkpackage: "WP-E13-13"', 'Scaffold config advances Epic 13 handoff');
-  context.assertIncludes(runner, "id: 'epic13-release-owner-acceptance'", 'Runner registers owner acceptance suite');
+  context.assert(runner.hasSuite("epic13-release-owner-acceptance"), 'Runner registers owner acceptance suite');
 
   assertTextIncludesAll(context, steering, [
     EPIC13_RELEASE_OWNER_ACCEPTANCE_SCHEMA,

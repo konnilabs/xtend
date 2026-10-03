@@ -1,4 +1,4 @@
-import { xstate } from '../../../components/xstate.js';
+import { xtendState } from '../../../components/xtend-state.js';
 
 export type XRadioEventName = 'radio-changed' | 'radio-invalid';
 
@@ -51,8 +51,8 @@ export class XRadio extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.id) this.id = `xradio-${Math.random().toString(36).slice(2, 10)}`;
-    xstate.set(`xradio-checked-${this.id}`, this.checked);
-    if (this.checked && this.name) xstate.set(`xradio-value-${this.name}`, this.value);
+    xtendState.set(`xradio-checked-${this.id}`, this.checked);
+    if (this.checked && this.name) xtendState.set(`xradio-value-${this.name}`, this.value);
   }
 
   get name(): string {
@@ -78,7 +78,7 @@ export class XRadio extends HTMLElement {
 
   check(): void {
     this.checked = true;
-    if (this.name) xstate.set(`xradio-value-${this.name}`, this.value);
+    if (this.name) xtendState.set(`xradio-value-${this.name}`, this.value);
   }
 
   validate(): boolean {

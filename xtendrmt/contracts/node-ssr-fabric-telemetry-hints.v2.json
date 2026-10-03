@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "xtend.rmt.node-ssr-fabric-telemetry-hints.v2",
+  "title": "xtend.rmt.node-ssr-fabric-telemetry-hints.v2",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "enum": [
+        "xtend.rmt.node-ssr-fabric-telemetry-hints.v2"
+      ]
+    },
+    "coverage": {
+      "$ref": "ssr-coverage.v1.json"
+    },
+    "lanes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "kernelBoundary": {
+      "enum": [
+        "no-rmt-kernel-import-of-xtend-types"
+      ]
+    },
+    "transport": {
+      "enum": [
+        "node-ssr"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "coverage",
+    "lanes",
+    "kernelBoundary",
+    "transport"
+  ],
+  "additionalProperties": false
+}

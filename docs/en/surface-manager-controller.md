@@ -4,7 +4,7 @@ The controller is the host-neutral state model behind `x-surface-manager`. Its p
 
 ## Record model
 
-Every surface has a stable record containing ID, type, status, bounds, capabilities, lifecycle, and optional persistence metadata. The controller maintains a registry and exactly one active surface. It publishes `xtend.surface.snapshot` records and mirrors state to `xstate` only when the host supplies an adapter.
+Every surface has a stable record containing ID, type, status, bounds, capabilities, lifecycle, and optional persistence metadata. The controller maintains a registry and exactly one active surface. It publishes `xtend.surface.snapshot` records and projects state to a `stateProjectionPort` only when the host supplies an adapter.
 
 Windows, side panels, modals, dialogs, drawers, popovers, regions, and other types receive different default capabilities. A tooltip cannot be maximized implicitly, for example. Additional capabilities are registered explicitly; disabled capabilities remain blocked.
 

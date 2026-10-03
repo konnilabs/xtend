@@ -52,8 +52,8 @@ function runEnterpriseComponentStyleAuditSuite(options = {}) {
     id: 'enterprise-component-style-audit',
     label: 'ECH-WP-02 Enterprise Component Style Audit'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const moduleSource = readText(AUDIT_MODULE_PATH, rootDir);
   const suiteSource = readText(AUDIT_SUITE_PATH, rootDir);
@@ -144,8 +144,8 @@ function runEnterpriseComponentStyleAuditSuite(options = {}) {
   context.assertIncludes(backlog, AUDIT_MODULE_PATH, 'Backlog links Enterprise Style Audit module');
   context.assertIncludes(backlog, AUDIT_SUITE_PATH, 'Backlog links Enterprise Style Audit suite');
   context.assertIncludes(backlog, ENTERPRISE_COMPONENT_STYLE_AUDIT_LOCAL_GATE, 'Backlog exposes Enterprise Style Audit local gate');
-  context.assertIncludes(runner, "id: 'enterprise-component-style-audit'", 'Runner exposes Enterprise Style Audit suite');
-  context.assertIncludes(runner, 'runEnterpriseComponentStyleAuditSuite', 'Runner imports Enterprise Style Audit suite');
+  context.assert(runner.hasSuite("enterprise-component-style-audit"), 'Runner exposes Enterprise Style Audit suite');
+  context.assert(runner.hasImplementation({ function: "runEnterpriseComponentStyleAuditSuite" }), 'Runner imports Enterprise Style Audit suite');
   context.assert(packageManifest.scripts['test:enterprise-component-style-audit'] === 'node scripts/run_xtend_tests.js enterprise-component-style-audit', 'Package exposes Enterprise Style Audit test script');
 
   return context.result({

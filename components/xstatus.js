@@ -1,4 +1,5 @@
-import { xstate } from './xstate.js';
+import { componentStyleNonce } from './style-nonce.js';
+import { xtendState } from './xtend-state.js';
 import { createXtendRmtCommandDetail } from './rmt-command.js';
 import './xicon.js';
 
@@ -79,7 +80,7 @@ class XStatus extends HTMLElement {
       lane: 'feedback',
       hydrationPolicy: 'visible',
       criticalMeasurements: ['mount', 'hydrate', 'event'],
-      cleanup: ['xstate-subscription']
+      cleanup: ['xtend-state-subscription']
     };
   }
 
@@ -157,10 +158,10 @@ class XStatus extends HTMLElement {
   constructor() {
     super();
     this._unsubscribeState = null;
-    this._syncingFromXstate = false;
+    this._syncingFromState = false;
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
-      <style>
+      <style${componentStyleNonce(this.ownerDocument)}>
         :host {
           display: block;
           color: var(--text-color, #111827);
@@ -265,14 +266,14 @@ class XStatus extends HTMLElement {
     this._upgradeAttributes();
     this._syncState();
     this._dismissButton.addEventListener('click', this._onDismiss);
-    xstate.set(`xstatus-state-${this.id}`, this.state);
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    xtendState.set(`xstatus-state-${this.id}`, this.state);
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xstatus-state-${this.id}` && value && typeof value === 'object') {
-        this._syncingFromXstate = true;
+        this._syncingFromState = true;
         try {
           this.setStatus(value);
         } finally {
-          this._syncingFromXstate = false;
+          this._syncingFromState = false;
         }
       }
     }, `xstatus-state-${this.id}`);
@@ -320,7 +321,7 @@ class XStatus extends HTMLElement {
       composed: true,
       cancelable: true
     }));
-    if (this.id && !this._syncingFromXstate) xstate.set(`xstatus-state-${this.id}`, this.state);
+    if (this.id && !this._syncingFromState) xtendState.set(`xstatus-state-${this.id}`, this.state);
   }
 
   _onDismiss() {

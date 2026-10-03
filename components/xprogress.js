@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 const X_PROGRESS_RMT_COMMAND_SCHEMA = 'xtend.rmt.command.v1';
 
@@ -105,7 +105,7 @@ class XProgress extends HTMLElement {
       lane: 'background',
       hydrationPolicy: 'visible',
       criticalMeasurements: ['mount', 'hydrate', 'event'],
-      cleanup: ['xstate-subscription']
+      cleanup: ['xtend-state-subscription']
     };
   }
 
@@ -268,8 +268,8 @@ class XProgress extends HTMLElement {
     if (!this.id) this.id = `xprogress-${Math.random().toString(36).slice(2, 10)}`;
     this._upgradeAttributes();
     this._syncProgress();
-    xstate.set(`xprogress-value-${this.id}`, this.value);
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    xtendState.set(`xprogress-value-${this.id}`, this.value);
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xprogress-value-${this.id}` && typeof value === 'number' && value !== this.value) {
         this.setProgress(value);
       }
@@ -349,7 +349,7 @@ class XProgress extends HTMLElement {
       composed: true,
       cancelable: true
     }));
-    xstate.set(`xprogress-value-${this.id}`, this.value);
+    xtendState.set(`xprogress-value-${this.id}`, this.value);
     if (this.value >= this.max && !this.indeterminate) {
       this.dispatchEvent(new CustomEvent('progress-complete', {
         detail: { value: this.value, max: this.max, percent: 100, source: 'x-progress' },

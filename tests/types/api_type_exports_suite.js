@@ -62,7 +62,7 @@ function runTypeExportsApiSuite(options = {}) {
     id: 'type-exports-api',
     label: 'TypeExports API Declaration Gate'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const apiSource = readText('api.js', rootDir);
   const apiDeclarationSource = readText('api.d.ts', rootDir);
   const typeExportsPlan = createTypeExportsPlan({ rootDir, packageManifest });
@@ -77,7 +77,7 @@ function runTypeExportsApiSuite(options = {}) {
   const report = createTypeExportsApiReport({ plan });
   const metadata = packageManifest.xtend && packageManifest.xtend.typeExportsApi;
   const typeExportsMetadata = packageManifest.xtend && packageManifest.xtend.typeExports;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const docsReadme = readText('docs/en/README.md', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const backlog = readText(TYPE_EXPORTS_API_BACKLOG, rootDir);
@@ -173,8 +173,8 @@ function runTypeExportsApiSuite(options = {}) {
   context.assert(metadata && metadata.runtimeChanged === false, 'Package metadata keeps API runtime unchanged');
   context.assert(metadata && metadata.nextWorkpackage === 'WP-TypeExports-04', 'Package metadata hands off to WP-TypeExports-04');
   context.assert(typeExportsMetadata && typeExportsMetadata.completedWorkpackages.includes(TYPE_EXPORTS_API_WORKPACKAGE), 'TypeExports metadata records WP-TypeExports-03 completion');
-  context.assertIncludes(runner, "id: 'type-exports-api'", 'Runner registers API TypeExports suite');
-  context.assertIncludes(runner, 'runTypeExportsApiSuite', 'Runner imports API TypeExports suite');
+  context.assert(runner.hasSuite("type-exports-api"), 'Runner registers API TypeExports suite');
+  context.assert(runner.hasImplementation({ function: "runTypeExportsApiSuite" }), 'Runner imports API TypeExports suite');
   context.assertIncludes(docsReadme, './xtend-api-types.md', 'Docs README links API Type docs');
   context.assertIncludes(testsReadme, TYPE_EXPORTS_API_LOCAL_GATE, 'Tests README documents API TypeExports gate');
 

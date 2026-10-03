@@ -1,16 +1,4 @@
-/* xtend-kernel-mvc:compatibility-shell-start */
-(function attachXtendSurfaceController(globalTarget, factory) {
-  const api = factory(globalTarget);
-
-  if (typeof module === 'object' && module.exports) {
-    module.exports = api;
-  }
-
-  if (globalTarget && typeof globalTarget === 'object') {
-    globalTarget.XTendSurfaceController = Object.freeze({ ...api });
-  }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function createXtendSurfaceControllerModule() {
-/* xtend-kernel-mvc:compatibility-shell-end */
+function createXtendSurfaceControllerModule() {
   const SURFACE_CONTROLLER_SCHEMA = 'xtend.surface.controller.v2';
   const SURFACE_RECORD_SCHEMA = 'xtend.surface.record.v1';
   const SURFACE_SNAPSHOT_SCHEMA = 'xtend.surface.snapshot.v1';
@@ -345,7 +333,6 @@
     const managerId = clampString(options.managerId, 'xtend.surface.manager');
     const stateKey = clampString(options.stateKey, STATE_KEYS.registry);
     const stateProjection = options.stateProjection || null;
-    const legacyStateProjectionRequested = Object.prototype.hasOwnProperty.call(options, 'xstate');
     const fabric = options.fabric || null;
     const nowProvider = options.clock && typeof options.clock.now === 'function'
       ? () => options.clock.now()
@@ -1080,15 +1067,6 @@
     diagnostic('xtend.surface.controller.created', null, 'create', 'info', 'Surface controller created.', {
       stateKey
     });
-    if (legacyStateProjectionRequested && !stateProjection) {
-      diagnostic(
-        'xtend.surface.state-projection.batch-required',
-        null,
-        'state-projection',
-        'warning',
-        'Legacy xstate projection is disabled; inject the batch-only stateProjection port.'
-      );
-    }
     mirror();
 
     return {
@@ -1135,4 +1113,26 @@
     normalizeSurfaceBounds,
     normalizeSurfaceRecord
   };
-});
+}
+
+const __XTEND_SURFACE_CONTROLLER_API__ = Object.freeze(createXtendSurfaceControllerModule());
+
+export const {
+  CONTRACTS,
+  DEFAULT_BOUNDS,
+  DEFAULT_CAPABILITIES,
+  DIAGNOSTIC_CODES,
+  STATE_KEYS,
+  SURFACE_CONTROLLER_SCHEMA,
+  SURFACE_DIAGNOSTIC_SCHEMA,
+  SURFACE_OPERATION_RESULT_SCHEMA,
+  SURFACE_APPLY_RESULT_SCHEMA,
+  SURFACE_RECORD_SCHEMA,
+  SURFACE_SNAPSHOT_SCHEMA,
+  SURFACE_TYPES,
+  createSurfaceController,
+  normalizeSurfaceBounds,
+  normalizeSurfaceRecord
+} = __XTEND_SURFACE_CONTROLLER_API__;
+
+export default __XTEND_SURFACE_CONTROLLER_API__;

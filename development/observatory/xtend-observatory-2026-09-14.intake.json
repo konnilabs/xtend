@@ -1,0 +1,59 @@
+{
+  "schema": "xtend.native-first.observatory-intake.v1",
+  "intakeId": "NFM-OBS-2026-09-14",
+  "trust": "untrusted-ai-generated",
+  "rawArtifact": {
+    "path": "development/observatory/raw/xtend-observatory-2026-09-14.json",
+    "sha256": "07a0094dd902a5e2c0bf6af0e51865991dbae9092b11698068438cdd339a5529",
+    "repositoryCopySha256": "07a0094dd902a5e2c0bf6af0e51865991dbae9092b11698068438cdd339a5529",
+    "storageNormalization": "none",
+    "immutable": true
+  },
+  "provenance": {
+    "agent": "unknown-unreported",
+    "model": "unknown-unreported",
+    "reportDate": "2026-09-14",
+    "reportDateBasis": "latest-finding-lastUpdated-in-cumulative-api-snapshot",
+    "accessedAt": "2026-09-16",
+    "repositoryCommit": "f4499db66f403c476d25690db528e2941757c2af",
+    "sourceUrl": "https://xtend-platform-observatory.konnilabs.chatgpt.site/api/findings",
+    "sourceKind": "authenticated-live-api-snapshot",
+    "apiSchemaUrl": "https://xtend-platform-observatory.konnilabs.chatgpt.site/api/findings/schema",
+    "apiSchemaSha256": "359a959e60eb7d7de67674577a607910d2d3720e8071f302963da8b88682cf90",
+    "producerCompletion": "not-exposed-by-api; snapshot-read-complete",
+    "producerDatesIncluded": [
+      "2026-09-07",
+      "2026-09-14"
+    ]
+  },
+  "findingIds": [
+    "capability-elements-camera-microphone-chrome-153",
+    "streaming-fetch-response-delivery-webkit-tp252",
+    "webtransport-send-groups-firefox-155",
+    "module-load-failure-retry-firefox-155",
+    "html-streaming-insertion-chrome-154-beta",
+    "fetch-request-streaming-webkit-tp250",
+    "navigation-api-precommit",
+    "cross-root-aria-reference-target",
+    "connection-allowlists",
+    "js-self-profiling-markers-chrome-153",
+    "explicit-resource-management-webkit-tp250",
+    "aria-in-html-recommendation-2026",
+    "scoped-custom-element-registries",
+    "scheduler-yield",
+    "navigation-api",
+    "dialogs-popovers",
+    "a11y-testing-interop",
+    "jspi-wasm",
+    "declarative-shadow-slot-assignment",
+    "cross-document-view-transitions",
+    "css-anchor-positioning"
+  ],
+  "automationPolicy": {
+    "mayMutateRadar": false,
+    "mayMutateRuntime": false,
+    "mayCreateShippingClaim": false,
+    "rawVerdictsAreSuggestionsOnly": true,
+    "requiredReviewSchema": "xtend.native-first.observatory-review.v1"
+  }
+}

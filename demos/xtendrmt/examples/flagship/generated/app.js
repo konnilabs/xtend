@@ -1,4 +1,4 @@
-import { xstate } from '../../../../components/xstate.js';
+import { xtendState } from '../../../../components/xtend-state.js';
 import {
   createRmtFormat,
   createRmtRuntime,
@@ -645,7 +645,7 @@ function createDemoMetadata(vnextCore = {}) {
       planner: 'rmt-scheduler',
       executor: 'xtend-host-adapter',
       phaseSequence: ['create', 'mount', 'hydrate', 'activate', 'update', 'unmount', 'diagnostics'],
-      statePolicy: 'digital-twin-ssot-xstate',
+      statePolicy: 'digital-twin-ssot-classic-state',
       schedulerEndpointHints: [
         {
           phase: 'mount',
@@ -687,7 +687,7 @@ function createDemoMetadata(vnextCore = {}) {
       capabilityRefs: [
         'xtend.manifest',
         'xtend.custom-elements',
-        'xtend.state-bridge.xstate',
+        'xtend.state-projection.classic',
         'xtend.hydration',
         'xtend.scheduler-endpoints',
         'xtend.theme',
@@ -722,7 +722,7 @@ function createDemoMetadata(vnextCore = {}) {
       tag: 'x-player',
       commands: ['play-media', 'pause-media', 'set-source', 'set-state', 'apply-theme'],
       events: ['xplayer-play', 'xplayer-pause', 'xplayer-state'],
-      stateBridge: 'xstate-host-bridge',
+      stateBridge: 'state-host-adapter',
       themeTokens: ['--x-player-primary', '--x-player-accent', '--x-player-background', '--x-player-radius'],
       parts: ['root', 'media', 'title', 'overlay', 'controls', 'progress'],
       kernelBoundary: 'no-product-shadowRoot-patching'
@@ -773,7 +773,7 @@ function createDemoMetadata(vnextCore = {}) {
         'rmt-vnext compiler emits template/surface/lane/operation Core',
         'runtime projection maps route surfaces to XRouter records',
         'xtend-host-adapter materializes Custom Elements',
-        'xstate records pilot diagnostics'
+        'XTend State records pilot diagnostics'
       ],
       minimumGate: 'node scripts/run_xtend_tests.js rmt-compatibility --json',
       bridgeRuntime: 'reserved-for-Epic-05',
@@ -1218,7 +1218,7 @@ function createRuntimeDocumentFromVNextCore(vnextCore = {}, options = {}) {
       sourceUrl: options.sourceUrl || DEMO_DOCUMENT_URL,
       metadata: createDemoMetadata(vnextCore),
       reactivityHints: {
-        stateBridge: 'xstate',
+        stateProjection: 'classic-state',
         schedulerSnapshot: 'xtend.rmt.scheduler.snapshot',
         routeSnapshot: 'xtend.rmt.router.current'
       }
@@ -1356,7 +1356,7 @@ function readPlayerContractSnapshot() {
       tag: 'x-player',
       commands: ['play-media', 'pause-media', 'set-source', 'set-state', 'apply-theme'],
       events: ['xplayer-play', 'xplayer-pause', 'xplayer-state'],
-      stateBridge: 'xstate-host-bridge'
+      stateBridge: 'state-host-adapter'
     };
   return {
     ...contract,
@@ -1539,7 +1539,7 @@ function syncState() {
     schedule: state.activeSchedule
   };
 
-  xstate.set('xtend.rmt.demo.document', {
+  xtendState.set('xtend.rmt.demo.document', {
     documentId: state.document && state.document.manifest
       ? state.document.manifest.documentId
       : 'unknown',
@@ -1548,13 +1548,13 @@ function syncState() {
       ? state.document.templates.length
       : 0
   });
-  xstate.set('xtend.rmt.router.current', routeSnapshot);
-  xstate.set('xtend.rmt.templating.pilot', pilotSnapshot);
-  xstate.set('xtend.rmt.component.capabilities', componentSnapshot);
-  xstate.set('xtend.rmt.player.contract', playerSnapshot);
-  xstate.set('xtend.rmt.scheduler.snapshot', snapshot);
-  xstate.set('xtend.rmt.scheduler.jobs', state.jobs.slice(-12));
-  xstate.set('xtend.rmt.bestcase.flagship', flagshipSnapshot);
+  xtendState.set('xtend.rmt.router.current', routeSnapshot);
+  xtendState.set('xtend.rmt.templating.pilot', pilotSnapshot);
+  xtendState.set('xtend.rmt.component.capabilities', componentSnapshot);
+  xtendState.set('xtend.rmt.player.contract', playerSnapshot);
+  xtendState.set('xtend.rmt.scheduler.snapshot', snapshot);
+  xtendState.set('xtend.rmt.scheduler.jobs', state.jobs.slice(-12));
+  xtendState.set('xtend.rmt.bestcase.flagship', flagshipSnapshot);
 }
 
 function renderTimeline() {
@@ -1846,7 +1846,7 @@ function navigateWithRmt(path) {
       });
       recordAdapterResult(result, { scheduleRef: route.schedule || 'route.visible.render' });
     } else {
-      xstate.set('router-navigate', route.path);
+      xtendState.set('router-navigate', route.path);
       if (window.location.hash.replace(/^#/, '') !== route.path) {
         window.location.hash = route.path;
       }
@@ -1880,7 +1880,7 @@ function runTemplatePilotCycle() {
   return runScheduled('template.visible.inspect', 'Inspect RMT template pilot', async () => {
     await new Promise((resolve) => window.setTimeout(resolve, 45));
     const snapshot = readPilotFlowSnapshot();
-    xstate.set('xtend.rmt.templating.pilot', snapshot);
+    xtendState.set('xtend.rmt.templating.pilot', snapshot);
     setStatus(`RMT inspected template ${snapshot.templateRef}; XTend attachment remains adapter data.`, 'success');
     return snapshot;
   });
@@ -1890,7 +1890,7 @@ function runPrimitiveMatrixCycle() {
   return runScheduled('component.primitive.matrix', 'Refresh XTend component primitive matrix', async () => {
     const matrix = await loadComponentCapabilityMatrix();
     const snapshot = readComponentCapabilitySnapshot();
-    xstate.set('xtend.rmt.component.capabilities', snapshot);
+    xtendState.set('xtend.rmt.component.capabilities', snapshot);
     setStatus(`RMT refreshed ${snapshot.publicComponentCount || matrix.publicComponentCount || 0} XTend component capabilities without kernel imports.`, snapshot.ok ? 'success' : 'warning');
     return snapshot;
   });
@@ -1910,7 +1910,7 @@ function runPlayerContractCycle(status = 'playing') {
       player.dataset.rmtState = status;
     }
     const snapshot = readPlayerContractSnapshot();
-    xstate.set('xtend.rmt.player.contract', snapshot);
+    xtendState.set('xtend.rmt.player.contract', snapshot);
     setStatus(`RMT applied x-player ${status} request through the public player contract.`, 'success');
     return snapshot;
   });
@@ -1929,7 +1929,7 @@ function runFlagshipEvidenceCycle(kind = 'flagship') {
   return runScheduled(scheduleId, `Verify ${kind} flagship evidence`, async () => {
     await new Promise((resolve) => window.setTimeout(resolve, 50));
     const snapshot = readFlagshipSnapshot();
-    xstate.set('xtend.rmt.bestcase.flagship', snapshot);
+    xtendState.set('xtend.rmt.bestcase.flagship', snapshot);
     setStatus(`RMT verified ${kind} flagship evidence through ${scheduleId}.`, 'success');
     return snapshot;
   });
@@ -2246,7 +2246,7 @@ function defineDemoRouteComponents() {
               <x-card>
                 <h3>Player State</h3>
                 <span id="metric-player-state" class="metric">paused</span>
-                <span class="metric-label">Mirrored through xstate host bridge</span>
+                <span class="metric-label">Mirrored through the state host adapter</span>
               </x-card>
               <x-card>
                 <h3>Resources</h3>
@@ -2579,21 +2579,19 @@ function initializeProductiveAdapters() {
 
   state.adapters.router = createRmtXRouterAdapter({
     rmtFormat: getRmtFormat(),
-    routerElement: router,
-    xstate
+    routerElement: router
   });
   state.adapters.component = createRmtXtendComponentAdapter({
     rmtFormat: getRmtFormat(),
     document,
     customElements,
-    xstate,
     manifest: XTEND_COMPONENT_MANIFEST,
     dispatchCommand(commandName, payload) {
-      xstate.set(commandName, payload);
+      xtendState.set(commandName, payload);
     }
   });
   state.adapters.bridge = createRmtStateSchedulerDiagnosticsBridge({
-    xstate,
+    stateProjectionPort: xtendState,
     scheduler: state.runtime,
     schedules: state.metadata.schedules,
     document: state.document

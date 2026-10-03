@@ -74,9 +74,9 @@ function runSurfaceManagerStackPolicySuite(options = {}) {
   const docs = readText(SURFACE_MANAGER_STACK_POLICY_DOCS, rootDir);
   const backlog = readText(SURFACE_MANAGER_STACK_POLICY_BACKLOG, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_STACK_POLICY_WORKPACKAGE_DOC, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerStackPolicy;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   REQUIRED_ARTIFACTS.forEach((filePath) => {
     assertFileExists(context, filePath, rootDir, `${filePath} exists as surface stack policy artifact`);
@@ -218,8 +218,8 @@ function runSurfaceManagerStackPolicySuite(options = {}) {
   context.assert(metadata && metadata.overlayCompatibilityPreserved === true, 'Package metadata preserves overlay compatibility');
   context.assert(metadata && metadata.createsSecondRegistry === false, 'Package metadata keeps no-second-registry boundary');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:surface-stack-policy'] === 'node scripts/run_xtend_tests.js surface-stack-policy', 'Package script test:surface-stack-policy exists');
-  context.assertIncludes(runner, "require('../tests/components/surface_manager_stack_policy_suite')", 'Runner imports surface stack policy suite');
-  context.assertIncludes(runner, "id: 'surface-stack-policy'", 'Runner registers surface stack policy suite');
+  context.assert(runner.hasImplementation({ path: "tests/components/surface_manager_stack_policy_suite.js" }), 'Runner imports surface stack policy suite');
+  context.assert(runner.hasSuite("surface-stack-policy"), 'Runner registers surface stack policy suite');
 
   assertTextIncludesAll(context, backlog, [
     '`WP-SM-15` | P1 | completed',

@@ -61,7 +61,7 @@ function runTypeExportsCatalogSuite(options = {}) {
     id: 'type-exports-catalog',
     label: 'TypeExports Catalog Declaration Gate'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const typeExportsPlan = createTypeExportsPlan({ rootDir, packageManifest });
   const plan = createTypeExportsCatalogPlan({ rootDir, packageManifest, typeExportsPlan });
   const validation = validateTypeExportsCatalogPlan(plan);
@@ -69,7 +69,7 @@ function runTypeExportsCatalogSuite(options = {}) {
   const metadata = packageManifest.xtend && packageManifest.xtend.typeExportsCatalog;
   const typeExportsMetadata = packageManifest.xtend && packageManifest.xtend.typeExports;
   const sharedDeclarationSource = readText(CATALOG_SHARED_DECLARATION_FILE, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const docsReadme = readText('docs/en/README.md', rootDir);
   const testsReadme = readText('tests/README.md', rootDir);
   const backlog = readText(TYPE_EXPORTS_CATALOG_BACKLOG, rootDir);
@@ -153,8 +153,8 @@ function runTypeExportsCatalogSuite(options = {}) {
   context.assert(typeExportsMetadata && typeExportsMetadata.completedWorkpackages.includes(TYPE_EXPORTS_CATALOG_WORKPACKAGE), 'TypeExports metadata records WP-TypeExports-07 completion');
   context.assert(typeExportsMetadata && typeExportsMetadata.completedWorkpackages.includes('WP-TypeExports-09'), 'TypeExports metadata records WP-TypeExports-09 completion');
   context.assert(typeExportsMetadata && Array.isArray(typeExportsMetadata.nextWorkpackages) && typeExportsMetadata.nextWorkpackages.length === 0, 'TypeExports metadata has no remaining TypeExports workpackages');
-  context.assertIncludes(runner, "id: 'type-exports-catalog'", 'Runner registers Catalog TypeExports suite');
-  context.assertIncludes(runner, 'runTypeExportsCatalogSuite', 'Runner imports Catalog TypeExports suite');
+  context.assert(runner.hasSuite("type-exports-catalog"), 'Runner registers Catalog TypeExports suite');
+  context.assert(runner.hasImplementation({ function: "runTypeExportsCatalogSuite" }), 'Runner imports Catalog TypeExports suite');
   context.assertIncludes(docsReadme, './xtend-catalog-types.md', 'Docs README links Catalog Type docs');
   context.assertIncludes(testsReadme, TYPE_EXPORTS_CATALOG_LOCAL_GATE, 'Tests README documents Catalog TypeExports gate');
 

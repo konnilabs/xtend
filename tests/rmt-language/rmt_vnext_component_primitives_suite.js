@@ -159,9 +159,9 @@ async function runRmtVNextComponentPrimitivesSuite(options = {}) {
   });
   const manifest = readJson('components/manifest.json', rootDir);
   const sourceTexts = createSourceTexts(manifest, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const xtendrmtManifest = readJson('xtendrmt/package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const registrySource = readText(RMT_COMPONENT_CAPABILITY_REGISTRY_PATH, rootDir);
   const registryTypes = readText(RMT_COMPONENT_CAPABILITY_REGISTRY_TYPES, rootDir);
   const rendererSource = readText(RMT_DOM_DESCRIPTOR_RENDERER_PATH, rootDir);
@@ -213,7 +213,7 @@ async function runRmtVNextComponentPrimitivesSuite(options = {}) {
   context.assert(registry.resolveComponentCapability('x-utils').visualKind === 'non-visual-utility', 'x-utils is classified as utility module');
   context.assert(registry.resolveComponentCapability('x-rmt-lifecycle-demo-build').visualKind === 'demo-non-production', 'lifecycle demo is classified outside production UI');
   context.assert(registry.resolveComponentCapability('x-theme').visualKind === 'infrastructure-module', 'x-theme is classified as infrastructure module');
-  context.assert(registry.resolveComponentCapability('xstate').visualKind === 'infrastructure-module', 'xstate is classified as infrastructure module');
+  context.assert(registry.resolveComponentCapability('xtend-state').visualKind === 'infrastructure-module', 'XTend State is classified as infrastructure module');
 
   const descriptor = registry.buildComponentDescriptor({
     tag: 'x-select',
@@ -383,7 +383,7 @@ async function runRmtVNextComponentPrimitivesSuite(options = {}) {
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives'].includes('rmt-vnext-component-primitives'), 'primitive aggregate includes component primitive gate');
   context.assert(packageManifest.scripts['test:rmt-vnext-primitives:report'].includes('rmt-vnext-component-primitives'), 'primitive report aggregate includes component primitive gate');
   context.assert(packageManifest.xtend.ciGateMatrix.rmtVNextPrimitiveGate.suites.includes('rmt-vnext-component-primitives'), 'CI primitive gate metadata includes component primitive suite');
-  context.assertIncludes(runner, "id: 'rmt-vnext-component-primitives'", 'runner registers component primitive suite');
+  context.assert(runner.hasSuite("rmt-vnext-component-primitives"), 'runner registers component primitive suite');
   context.assertIncludes(rendererSource, 'componentRegistry', 'DOM descriptor renderer accepts component registry');
   assertTextIncludesAll(context, registryTypes, [
     'RmtComponentCapabilityRegistry',

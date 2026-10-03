@@ -1,4 +1,5 @@
-import { xstate } from './xstate.js';
+import { componentStyleNonce } from './style-nonce.js';
+import { xtendState } from './xtend-state.js';
 import { createXtendRmtCommandDetail } from './rmt-command.js';
 
 function createInputPayload(host) {
@@ -88,7 +89,7 @@ class XInput extends HTMLElement {
       lane: "user-blocking",
       hydrationPolicy: "visible",
       criticalMeasurements: ["mount", "event"],
-      cleanup: ["xstate-subscription", "input-listeners"]
+      cleanup: ["xtend-state-subscription", "input-listeners"]
     };
   }
 
@@ -167,7 +168,7 @@ class XInput extends HTMLElement {
     this.attachShadow({ mode: "open" });
 
     this.shadowRoot.innerHTML = `
-      <style>
+      <style${componentStyleNonce(this.ownerDocument)}>
         :host {
           display: block;
           box-sizing: border-box;
@@ -353,7 +354,7 @@ class XInput extends HTMLElement {
     this._upgradeAttributes();
 
     // Set initial state
-    xstate.set(`xinput-value-${this.id}`, this.value);
+    xtendState.set(`xinput-value-${this.id}`, this.value);
 
     const emitInputChanged = () => {
       this._internals?.setFormValue(this.value);
@@ -370,7 +371,7 @@ class XInput extends HTMLElement {
         cancelable: true
       }));
       // Update state
-      xstate.set(`xinput-value-${this.id}`, this.value);
+      xtendState.set(`xinput-value-${this.id}`, this.value);
     };
 
     this._input.addEventListener("input", emitInputChanged);
@@ -398,7 +399,7 @@ class XInput extends HTMLElement {
     });
 
     // Subscribe to state changes, for example external value updates
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xinput-value-${this.id}` && typeof value === "string" && value !== this.value) {
         this.value = value;
       }
@@ -421,7 +422,7 @@ class XInput extends HTMLElement {
     if (name === "value") {
       this._input.value = newValue;
       // Update state
-      if (this.id) xstate.set(`xinput-value-${this.id}`, newValue);
+      if (this.id) xtendState.set(`xinput-value-${this.id}`, newValue);
     } else if (name === "required" || name === "disabled") {
       this._input[name] = this.hasAttribute(name);
       if (name === "required") this._input.setAttribute("aria-required", String(this.hasAttribute(name)));
@@ -450,7 +451,7 @@ class XInput extends HTMLElement {
     this.setAttribute("value", val);
     this._internals?.setFormValue(val);
     // Update state
-    if (this.id) xstate.set(`xinput-value-${this.id}`, val);
+    if (this.id) xtendState.set(`xinput-value-${this.id}`, val);
   }
 
   checkValidity() {

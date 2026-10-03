@@ -27,7 +27,7 @@
       "migrationSource": "components[*].metadata.surface",
       "preferredAuthoringPath": "surfaces[*]",
       "releaseGate": "node scripts/run_xtend_tests.js surface-release-handoff --json",
-      "kernelBoundary": "RMT owns surface records, component refs, routes, schedules, templates and release metadata only. XTend surface execution, xstate access, Fabric execution and DOM materialization stay in host adapters."
+      "kernelBoundary": "RMT owns surface records, component refs, routes, schedules, templates and release metadata only. XTend surface execution, state access, Fabric execution and DOM materialization stay in host adapters."
     },
     "sourceSyntax": "rmt-vnext",
     "authoringSource": "tests/fixtures/rmt-surface-manager-component-lab.rmt"

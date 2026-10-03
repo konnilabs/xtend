@@ -5,7 +5,7 @@ export const xSelectPerformanceProfile = {
   lane: 'user-blocking',
   hydrationPolicy: 'visible',
   criticalMeasurements: ['mount', 'hydrate', 'event'],
-  cleanup: ['option-mutation-observer', 'xstate-subscription']
+  cleanup: ['option-mutation-observer', 'xtendState-subscription']
 } as const;
 
 export type XSelectPerformanceProfile = typeof xSelectPerformanceProfile;

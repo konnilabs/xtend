@@ -37,8 +37,8 @@ function runEnterpriseOverlayModeTokenParitySuite(options = {}) {
     id: 'enterprise-overlay-mode-token-parity',
     label: 'ECH-WP-06 Enterprise Overlay Mode/Token Parity'
   });
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const moduleSource = readText(OVERLAY_PARITY_MODULE_PATH, rootDir);
   const suiteSource = readText(OVERLAY_PARITY_SUITE_PATH, rootDir);
@@ -105,8 +105,8 @@ function runEnterpriseOverlayModeTokenParitySuite(options = {}) {
   context.assertIncludes(suiteSource, 'ENTERPRISE_OVERLAY_MODE_TOKEN_PARITY_REPORT_SCHEMA', 'Overlay parity suite declares report schema');
   context.assertIncludes(backlog, '| `ECH-WP-06` | P1 | completed |', 'Backlog marks ECH-WP-06 completed');
   context.assertIncludes(backlog, ENTERPRISE_OVERLAY_MODE_TOKEN_PARITY_LOCAL_GATE, 'Backlog exposes Overlay parity local gate');
-  context.assertIncludes(runner, "id: 'enterprise-overlay-mode-token-parity'", 'Runner exposes Overlay parity suite');
-  context.assertIncludes(runner, 'runEnterpriseOverlayModeTokenParitySuite', 'Runner imports Overlay parity suite');
+  context.assert(runner.hasSuite("enterprise-overlay-mode-token-parity"), 'Runner exposes Overlay parity suite');
+  context.assert(runner.hasImplementation({ function: "runEnterpriseOverlayModeTokenParitySuite" }), 'Runner imports Overlay parity suite');
   context.assert(packageManifest.scripts['test:enterprise-overlay-mode-token-parity'] === 'node scripts/run_xtend_tests.js enterprise-overlay-mode-token-parity', 'Package exposes Overlay parity script');
 
   return context.result({

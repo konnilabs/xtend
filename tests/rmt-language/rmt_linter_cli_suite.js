@@ -216,9 +216,9 @@ function runRmtLinterCliSuite(options = {}) {
     id: 'rmt-linter-cli',
     label: 'Epic 14 RMT Linter CLI'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtLinterCli;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_14_PATH, rootDir);
   const architecture = readText(TOOLING_ARCHITECTURE_PATH, rootDir);
   const moduleSyntax = syntaxCheckFile(RMT_LINTER_CLI_MODULE_PATH, { rootDir, extension: '.js' });
@@ -244,7 +244,7 @@ function runRmtLinterCliSuite(options = {}) {
     context.assert((typeof packageManifest.exports['./rmt-linter/cli'] === 'string' ? packageManifest.exports['./rmt-linter/cli'] : packageManifest.exports['./rmt-linter/cli'] && packageManifest.exports['./rmt-linter/cli'].default) === './tools/rmt-linter/cli.js', 'package exports RMT Linter CLI');
     context.assert(packageManifest.scripts['test:rmt-linter-cli'] === 'node scripts/run_xtend_tests.js rmt-linter-cli', 'package exposes rmt-linter-cli script');
     context.assert(packageManifest.bin.xt === 'xtend-builder/bin/xt', 'package keeps xt bin alias');
-    context.assert(runner.includes("id: 'rmt-linter-cli'"), 'test runner exposes rmt-linter-cli suite');
+    context.assert(runner.hasSuite("rmt-linter-cli"), 'test runner exposes rmt-linter-cli suite');
     context.assert(epic.includes('| `WP-E14-06` | P0 | completed | WS3 |'), 'Epic marks WP-E14-06 completed');
     context.assert(epic.includes('WP-E14-07` ist `ready`'), 'Epic hands off WP-E14-07 as ready');
     context.assert(architecture.includes('Implementierungsstand nach `WP-E14-06`'), 'Architecture documents RMT Linter CLI status');

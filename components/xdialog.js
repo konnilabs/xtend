@@ -1,16 +1,17 @@
 // Selbst-ausfuehrende asynchrone Funktion statt direktem Import
 (async function() {
-  let xstate;
+  const { componentStyleNonce } = await import('./style-nonce.js');
+  let xtendState;
 
-  if (window.xstate) {
-    xstate = window.xstate;
+  if (window.XTend?.state) {
+    xtendState = window.XTend?.state;
   } else {
     try {
-      const module = await import('./xstate.js');
-      xstate = module.xstate;
+      const module = await import('./xtend-state.js');
+      xtendState = module.xtendState;
     } catch (e) {
-      console.error('Fehler beim Laden von xstate in xdialog.js:', e);
-      xstate = {
+      console.error('Fehler beim Laden von xtendState in xdialog.js:', e);
+      xtendState = {
         get: () => null,
         set: () => {},
         subscribe: () => () => {}
@@ -19,6 +20,7 @@
   }
 
   const { createXtendRmtCommandDetail } = await import('./rmt-command.js');
+  const { trapOverlayFocus } = await import('./overlay-focus.js');
 
   function getDialogOpenKeys(id) {
     return [
@@ -30,17 +32,17 @@
 
   function setDialogOpenState(id, isOpen) {
     if (!id) return;
-    getDialogOpenKeys(id).forEach((key) => xstate.set(key, isOpen));
+    getDialogOpenKeys(id).forEach((key) => xtendState.set(key, isOpen));
   }
 
   function getDialogEntry(id) {
-    const uiState = xstate.get('ui');
+    const uiState = xtendState.get('ui');
     if (!uiState || !Array.isArray(uiState.dialogs)) return null;
     return uiState.dialogs.find((dialog) => dialog.id === id) || null;
   }
 
   function updateDialogEntry(id, updater) {
-    const uiState = xstate.get('ui');
+    const uiState = xtendState.get('ui');
     if (!uiState || !Array.isArray(uiState.dialogs)) return;
 
     const dialogs = [...uiState.dialogs];
@@ -54,12 +56,12 @@
       dialogs[index] = nextEntry;
     }
 
-    xstate.set('ui', { ...uiState, dialogs });
+    xtendState.set('ui', { ...uiState, dialogs });
   }
 
   function readDialogOpenState(id, fallbackOpen) {
     const explicitValues = getDialogOpenKeys(id)
-      .map((key) => xstate.get(key))
+      .map((key) => xtendState.get(key))
       .filter((value) => typeof value === 'boolean');
 
     if (explicitValues.some((value) => value === true)) return true;
@@ -283,8 +285,8 @@
       document.addEventListener('keydown', this._onDocumentKeyDown);
       this.shadowRoot.addEventListener('keydown', this._onShadowKeyDown);
 
-      if (typeof xstate.subscribe === 'function') {
-        this._unsubscribeState = xstate.subscribe((key) => {
+      if (typeof xtendState.subscribe === 'function') {
+        this._unsubscribeState = xtendState.subscribe((key) => {
           if (
             key === null ||
             key === 'ui' ||
@@ -459,7 +461,7 @@
 
     _render(state) {
       this.shadowRoot.innerHTML = `
-        <style>
+        <style${componentStyleNonce(this.ownerDocument)}>
           :host {
             --xtend-overlay-backdrop: var(--xtend-overlay-bg, rgba(30, 34, 44, 0.55));
             --xtend-overlay-surface: var(--xtend-surface, var(--xtend-overlay-backdrop));
@@ -513,30 +515,43 @@
             z-index: 1;
             padding: 2em 2em 1.5em;
             animation: fadeInScale 0.25s cubic-bezier(.4,1.4,.6,1);
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            justify-content: flex-start;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-rows: auto minmax(0, 1fr) auto;
+            grid-template-areas:
+              "title close"
+              "content content"
+              "actions actions";
+            align-items: start;
+            column-gap: var(--dialog-chrome-column-gap, 1rem);
+            row-gap: var(--dialog-chrome-row-gap, 0.9rem);
             backdrop-filter: blur(var(--xdialog-glass-blur));
             border: var(--xtend-border, 1.5px solid rgba(255,255,255,0.12));
             outline: none;
           }
           .xdialog-title {
+            grid-area: title;
+            min-width: 0;
             font-size: 1.3em;
             font-weight: 600;
-            margin-bottom: 0.7em;
+            margin: 0;
             letter-spacing: 0.02em;
             color: var(--xdialog-primary);
             text-shadow: 0 2px 8px rgba(79,195,247,0.18);
           }
           .xdialog-content {
+            grid-area: content;
+            min-width: 0;
+            overflow: auto;
             color: inherit;
           }
           .xdialog-actions {
+            grid-area: actions;
             display: flex;
+            flex-wrap: wrap;
             justify-content: flex-end;
             gap: 0.7em;
-            margin-top: var(--dialog-actions-margin-top, 1.5em);
+            margin: 0;
           }
           .xdialog-actions button {
             background: var(--xdialog-primary);
@@ -559,9 +574,10 @@
             transform: scale(1.08);
           }
           .xdialog-close {
-            position: absolute;
-            top: 1.1em;
-            right: 1.3em;
+            grid-area: close;
+            position: static;
+            justify-self: end;
+            align-self: start;
             background: var(--xdialog-close-bg);
             border: none;
             width: 2.2em;
@@ -586,6 +602,7 @@
             transform: scale(1.08);
           }
           .xdialog-fallback {
+            grid-area: content;
             color: #fff;
             background: #c00;
             padding: 1em;
@@ -639,7 +656,7 @@
         <div class="xdialog-wrapper" part="root overlay-root" role="presentation">
           ${state.overlay ? '<div class="xdialog-overlay" part="backdrop overlay" tabindex="-1" aria-hidden="true"></div>' : ''}
           <div class="xdialog" part="surface overlay-surface" role="dialog" aria-modal="true" aria-hidden="${state.open ? 'false' : 'true'}" tabindex="0">
-            <button class="xdialog-close" part="close control" aria-label="Schliessen">
+            <button class="xdialog-close" part="close control" type="button" aria-label="Schliessen">
               <svg part="close-icon control icon" width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.10)"></circle>
                 <path d="M8 8l8 8M16 8l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
@@ -756,24 +773,7 @@
 
     _handleFocusTrap(event) {
       if (!this._open || event.key !== 'Tab') return;
-
-      const focusable = this.shadowRoot.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-
-      if (!focusable.length) return;
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const activeElement = this.shadowRoot.activeElement || document.activeElement;
-
-      if (event.shiftKey && activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
+      trapOverlayFocus(event, this.shadowRoot.querySelector('.xdialog'));
     }
   }
 

@@ -6,6 +6,9 @@ const {
   readText,
   resolveRootDir
 } = require('../utils/files');
+const {
+  runAriaInHtmlConformanceSuite
+} = require('../a11y/aria_in_html_conformance_suite');
 
 const COMPONENT_GATES = [
   {
@@ -33,7 +36,7 @@ const COMPONENT_GATES = [
     fixtureContracts: [
       { pattern: '<x-alert', message: 'fixture contains x-alert markup' },
       { pattern: 'aria-label="Component alert"', message: 'fixture exercises aria-label' },
-      { pattern: 'window.xstate', message: 'fixture provides local xstate stub' },
+      { pattern: 'window.XTend.state', message: 'fixture provides local state stub' },
       { pattern: '__xtendComponentResult', message: 'fixture exposes hydration result object' }
     ]
   },
@@ -83,7 +86,7 @@ const COMPONENT_GATES = [
       { pattern: 'disconnectedCallback()', message: 'cleans up on detach' },
       { pattern: 'document.removeEventListener', message: 'removes global key listener' },
       { pattern: 'this.shadowRoot.removeEventListener', message: 'removes shadow key listener' },
-      { pattern: 'this._unsubscribeState()', message: 'removes xstate subscription' },
+      { pattern: 'this._unsubscribeState()', message: 'removes state subscription' },
       { pattern: '_syncOpenAttribute', message: 'keeps DOM attribute and state aligned' },
       { pattern: "slot.addEventListener('slotchange'", message: 'updates fallback content after slot hydration' },
       { pattern: 'xtend.component.x-modal.', message: 'syncs canonical component state' }
@@ -93,7 +96,7 @@ const COMPONENT_GATES = [
       { pattern: 'open', message: 'fixture starts in visible hydrated state' },
       { pattern: 'overlay', message: 'fixture exercises overlay mode' },
       { pattern: 'slot="actions"', message: 'fixture exercises action slot hydration' },
-      { pattern: 'window.xstate', message: 'fixture provides local xstate stub' },
+      { pattern: 'window.XTend.state', message: 'fixture provides local state stub' },
       { pattern: '__xtendComponentResult', message: 'fixture exposes hydration result object' }
     ]
   },
@@ -119,7 +122,7 @@ const COMPONENT_GATES = [
       { pattern: 'disconnectedCallback()', message: 'cleans up on detach' },
       { pattern: 'document.removeEventListener', message: 'removes global key listener' },
       { pattern: 'this.shadowRoot.removeEventListener', message: 'removes shadow key listener' },
-      { pattern: 'this._unsubscribeState()', message: 'removes xstate subscription' },
+      { pattern: 'this._unsubscribeState()', message: 'removes state subscription' },
       { pattern: '_syncOpenAttribute', message: 'keeps DOM attribute and state aligned' },
       { pattern: "slot.addEventListener('slotchange'", message: 'updates fallback content after slot hydration' },
       { pattern: 'xtend.component.x-dialog.', message: 'syncs canonical component state' }
@@ -215,9 +218,19 @@ function runAccessibilityHydrationSuite(options = {}) {
     assertContracts(context, fixture, fixtureGate.contracts, fixtureGate.label);
   });
 
+  const ariaInHtml = runAriaInHtmlConformanceSuite({ rootDir });
+  ariaInHtml.passes.forEach((message) => context.pass(`ARIA in HTML 2026: ${message}`));
+  ariaInHtml.failures.forEach((message) => context.fail(`ARIA in HTML 2026: ${message}`));
+
   return context.result({
     components: COMPONENT_GATES.map((target) => target.tag),
-    browserFixtures: BROWSER_HYDRATION_GATES.map((fixtureGate) => fixtureGate.path)
+    browserFixtures: BROWSER_HYDRATION_GATES.map((fixtureGate) => fixtureGate.path),
+    ariaInHtmlConformance: {
+      schema: ariaInHtml.schema,
+      ok: ariaInHtml.ok,
+      baseline: ariaInHtml.baseline,
+      claimBoundary: ariaInHtml.claimBoundary
+    }
   });
 }
 

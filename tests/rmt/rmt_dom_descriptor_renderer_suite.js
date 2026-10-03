@@ -394,6 +394,17 @@ function runRendererBehaviorAssertions(context, fixture, rendererModule) {
   }
   context.assert(blockedScript, 'renderer rejects executable script descriptors before DOM insertion');
 
+  const literalInput = harness.renderer.renderNode({
+    type: 'element', tag: 'input', attributes: { type: 'search', name: 'query', value: '$model.search.query' }
+  }, { ...harness.renderOptions, model: { search: { query: 'GNU/Linux' }, query: { privateState: true } } });
+  context.assert(literalInput.getAttribute('type') === 'search' && literalInput.getAttribute('name') === 'query', 'attribute literals remain literal when model roots collide');
+  context.assert(literalInput.getAttribute('value') === 'GNU/Linux', 'explicit attribute model bindings still resolve');
+  let invalidAtomic = false;
+  try {
+    harness.renderer.renderNode({ type: 'element', tag: 'input', attributes: { type: { op: 'literal', value: { privateState: true } } } }, harness.renderOptions);
+  } catch (error) { invalidAtomic = error.code === 'rmt.dom.attribute.value-invalid'; }
+  context.assert(invalidAtomic, 'DOM preflight rejects structured native attributes before insertion');
+
   const sidePanel = harness.renderer.renderNode({
     type: 'element',
     tag: 'x-side-panel',
@@ -617,6 +628,14 @@ function runCommitCoreAssertions(context, rendererModule) {
     diagnosticsHub
   });
   const refs = new Map();
+  const conditionalRoot = documentTarget.createElement('section');
+  const conditional = {type:'conditional',test:'$model.visible',then:{type:'element',tag:'button',key:'active',text:'$model.label',events:{click:'active'}},else:{type:'element',tag:'p',key:'inactive',text:'Hidden'}};
+  const commitConditional = (visible,label) => renderer.commit({operation:'reconcile-children',target:conditionalRoot,descriptors:[conditional],context:{model:{visible,label}}});
+  const firstConditional = commitConditional(true,'First').nodes[0];
+  const secondConditional = commitConditional(true,'Second').nodes[0];
+  context.assert(firstConditional === secondConditional && textContent(secondConditional) === 'Second', 'Portable conditional updates retain the active DOM node');
+  commitConditional(false,'Ignored');
+  context.assert(conditionalRoot.childNodes.length === 1 && conditionalRoot.childNodes[0].tagName === 'P' && !firstConditional._listeners.has('click'), 'Conditional branch changes release removed controls and bindings');
   const dispatched = [];
   const renderContext = {
     refs,
@@ -1051,6 +1070,90 @@ function runCommitCoreAssertions(context, rendererModule) {
       && nativePropertyTarget.getAttribute('value') === null,
     'native property setter errors stop the commit without falling back to attribute semantics'
   );
+
+  const activeDraftTarget = documentTarget.createElement('x-textarea');
+  let activeDraftValue = '';
+  let activeDraftSelection = 0;
+  Object.defineProperty(activeDraftTarget, 'value', {
+    configurable: true,
+    get() {
+      return activeDraftValue;
+    },
+    set(value) {
+      activeDraftValue = String(value == null ? '' : value);
+      activeDraftSelection = activeDraftValue.length;
+    }
+  });
+  Object.defineProperty(activeDraftTarget, 'selectionStart', {
+    configurable: true,
+    get() {
+      return activeDraftSelection;
+    },
+    set(value) {
+      activeDraftSelection = Number(value);
+    }
+  });
+  const setActiveDraftAttribute = activeDraftTarget.setAttribute.bind(activeDraftTarget);
+  activeDraftTarget.setAttribute = (name, value) => {
+    setActiveDraftAttribute(name, value);
+    if (String(name).toLowerCase() === 'value') activeDraftTarget.value = value;
+  };
+  renderer.commit({
+    operation: 'merge-element',
+    target: activeDraftTarget,
+    descriptor: {
+      type: 'element',
+      tag: 'x-textarea',
+      attributes: { value: 't' }
+    }
+  });
+  activeDraftTarget.value = 'this is a test';
+  activeDraftTarget.selectionStart = 7;
+  documentTarget.activeElement = null;
+  renderer.commit({
+    operation: 'reconcile-element',
+    target: activeDraftTarget,
+    descriptor: {
+      type: 'element',
+      tag: 'x-textarea',
+      attributes: { value: 'th', 'aria-invalid': 'false' }
+    },
+    context: { preserveActiveInputDraft: true }
+  });
+  context.assert(activeDraftTarget.value === 'this is a test'
+    && activeDraftTarget.selectionStart === 7
+    && activeDraftTarget.getAttribute('value') === 't'
+    && activeDraftTarget.getAttribute('aria-invalid') === 'false',
+  'input-originated reconcile preserves the live value and caret across a transient focus gap while applying non-value state');
+  renderer.commit({
+    operation: 'reconcile-element',
+    target: activeDraftTarget,
+    descriptor: {
+      type: 'element',
+      tag: 'x-textarea',
+      attributes: { 'aria-invalid': 'true' }
+    },
+    context: { metadata: { preserveActiveInputDraft: true } }
+  });
+  context.assert(activeDraftTarget.value === 'this is a test'
+    && activeDraftTarget.selectionStart === 7
+    && activeDraftTarget.getAttribute('value') === 't'
+    && activeDraftTarget.getAttribute('aria-invalid') === 'true',
+  'input-originated reconcile does not clear a temporarily omitted owned value field');
+  documentTarget.activeElement = null;
+  renderer.commit({
+    operation: 'reconcile-element',
+    target: activeDraftTarget,
+    descriptor: {
+      type: 'element',
+      tag: 'x-textarea',
+      attributes: { value: 'server reset', 'aria-invalid': 'false' }
+    },
+    context: { preserveActiveInputDraft: false }
+  });
+  context.assert(activeDraftTarget.value === 'server reset'
+    && activeDraftTarget.getAttribute('value') === 'server reset',
+  'non-input reconcile still applies intentional external value changes');
 
   ['innerHTML', 'outerHTML', 'insertAdjacentHTML', 'srcdoc', '__proto__', 'prototype', 'constructor'].forEach((propertyName) => {
     let dangerousPropertyBlocked = false;
@@ -1926,8 +2029,8 @@ async function runRmtDomDescriptorRendererSuite(options = {}) {
   const workpackageDoc = readText(RMT_DOM_DESCRIPTOR_RENDERER_WORKPACKAGE_DOC, rootDir);
   const backlog = readText('development/BACKLOG-EPIC-18-XTendRMT-App-Platform-und-Media-Manager-Vendor-Upstream.md', rootDir);
   const epic = readText('development/docs-evidence/root/epic18-media-manager-vendor-upstream.md', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const runtimeSource = readText(RMT_DOM_DESCRIPTOR_RENDERER_RUNTIME, rootDir);
   const typeSource = readText(RMT_DOM_DESCRIPTOR_RENDERER_TYPES, rootDir);
   const rendererModule = await loadRendererModule(rootDir);
@@ -2029,8 +2132,8 @@ async function runRmtDomDescriptorRendererSuite(options = {}) {
   );
   context.assert(epic.includes('| `WP-E18-05` | P0 | completed'), 'Epic marks WP-E18-05 completed');
   context.assert(epic.includes('rmt-dom-descriptor-renderer'), 'Epic gate chain includes DOM Descriptor renderer gate');
-  context.assert(runner.includes("require('../tests/rmt/rmt_dom_descriptor_renderer_suite')"), 'Runner imports DOM Descriptor renderer suite');
-  context.assert(runner.includes("id: 'rmt-dom-descriptor-renderer'"), 'Runner registers DOM Descriptor renderer suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/rmt_dom_descriptor_renderer_suite.js" }), 'Runner imports DOM Descriptor renderer suite');
+  context.assert(runner.hasSuite("rmt-dom-descriptor-renderer"), 'Runner registers DOM Descriptor renderer suite');
   context.assert(packageManifest.scripts && packageManifest.scripts['test:rmt-dom-descriptor-renderer'] === 'node scripts/run_xtend_tests.js rmt-dom-descriptor-renderer', 'Package exposes DOM Descriptor renderer script');
   context.assert(packageManifest.exports && packageManifest.exports['./rmt/dom-descriptor-renderer'], 'Package exports DOM Descriptor renderer');
   const packageMetadata = packageManifest.xtend && packageManifest.xtend.rmtDomDescriptorRenderer;
@@ -2067,6 +2170,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  createFakeDocument,
   printRmtDomDescriptorRendererReport,
   runRmtDomDescriptorRendererSuite
 };

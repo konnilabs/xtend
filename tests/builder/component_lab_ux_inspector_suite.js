@@ -93,7 +93,7 @@ function runComponentLabUxInspectorSuite(options = {}) {
   const validation = validateComponentLabUxInspectorPlan(plan);
   const gate = createComponentLabUxInspectorGate({ rootDir, plan });
   const fixture = readJson(COMPONENT_LAB_UX_INSPECTOR_FIXTURE_PATH, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.componentLabUxInspector;
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
@@ -102,7 +102,7 @@ function runComponentLabUxInspectorSuite(options = {}) {
   const workpackage = readText(COMPONENT_LAB_UX_INSPECTOR_WP_PATH, rootDir);
   const docsComponentLab = readText('docs/component-lab.md', rootDir);
   const previewReadme = readText('xtend-builder/preview/README.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const routeIds = (fixture.routes || []).map((route) => route.id);
   const componentIds = (fixture.components || []).map((component) => component.id);
@@ -211,7 +211,7 @@ function runComponentLabUxInspectorSuite(options = {}) {
   context.assertIncludes(registry, COMPONENT_LAB_UX_INSPECTOR_DOC_PATH, 'Reference registry links UX Inspector contract');
   context.assertIncludes(registry, COMPONENT_LAB_UX_INSPECTOR_FIXTURE_PATH, 'Reference registry links UX Inspector fixture');
   context.assertIncludes(registry, COMPONENT_LAB_UX_INSPECTOR_SUITE_PATH, 'Reference registry links UX Inspector suite');
-  context.assertIncludes(runner, "id: 'component-lab-ux-inspector'", 'XTend runner registers UX Inspector suite');
+  context.assert(runner.hasSuite("component-lab-ux-inspector"), 'XTend runner registers UX Inspector suite');
   context.assert((typeof packageManifest.exports['./builder/preview/component-lab-ux-inspector'] === 'string' ? packageManifest.exports['./builder/preview/component-lab-ux-inspector'] : packageManifest.exports['./builder/preview/component-lab-ux-inspector'] && packageManifest.exports['./builder/preview/component-lab-ux-inspector'].default) === './xtend-builder/preview/component-lab-ux-inspector.js', 'Package exports UX Inspector module');
   context.assert(packageManifest.scripts['test:component-lab-ux-inspector'] === 'node scripts/run_xtend_tests.js component-lab-ux-inspector', 'Package exposes UX Inspector test script');
   context.assert(metadata && metadata.schema === COMPONENT_LAB_UX_INSPECTOR_SCHEMA, 'Package metadata exposes UX Inspector schema');

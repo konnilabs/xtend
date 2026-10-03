@@ -158,10 +158,10 @@ function runRmtOwnedMigrationDeprecationDocsHandoffSuite(options = {}) {
   const residualFixtures = readJson('tests/fixtures/native-first/rmt-ui-maximality-owned-surface-residual-fixtures.json', rootDir);
   const nativeMigrationFixtures = readJson('tests/fixtures/native-first/native-first-migration-deprecation-fixtures.json', rootDir);
   const loaderRuntime = readText('xtend-loader.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtOwnedMigrationDeprecationDocsHandoff;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const suiteSyntax = syntaxCheckFile(SUITE_PATH, { rootDir, extension: '.js' });
 
   REQUIRED_ARTIFACTS.forEach((relativePath) => {
@@ -361,13 +361,13 @@ function runRmtOwnedMigrationDeprecationDocsHandoffSuite(options = {}) {
   ], 'Backlog WP-RMO-08 status');
 
   context.assert(packageScripts['test:rmt-owned-migration-deprecation-docs-handoff'] === 'node scripts/run_xtend_tests.js rmt-owned-migration-deprecation-docs-handoff', 'Package exposes WP-RMO-08 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/rmt_owned_migration_deprecation_docs_handoff_suite')", 'Runner imports WP-RMO-08 suite');
-  context.assertIncludes(runner, "id: 'rmt-owned-migration-deprecation-docs-handoff'", 'Runner registers WP-RMO-08 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/rmt_owned_migration_deprecation_docs_handoff_suite.js" }), 'Runner imports WP-RMO-08 suite');
+  context.assert(runner.hasSuite("rmt-owned-migration-deprecation-docs-handoff"), 'Runner registers WP-RMO-08 suite');
   REQUIRED_SOURCE_GATES.forEach((gate) => {
-    context.assertIncludes(runner, `id: '${gate}'`, `Runner registers source gate ${gate}`);
+    context.assert(runner.hasSuite(gate), `Runner registers source gate ${gate}`);
   });
   uniqueRequiredGates(entries).forEach((gate) => {
-    context.assertIncludes(runner, `id: '${gate}'`, `Runner registers handoff gate ${gate}`);
+    context.assert(runner.hasSuite(gate), `Runner registers handoff gate ${gate}`);
   });
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes contract schema');

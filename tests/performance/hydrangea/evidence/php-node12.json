@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "suiteCount": 1,
+  "passedCount": 1,
+  "failedCount": 0,
+  "suites": [
+    {
+      "id": "rmt-playground-security",
+      "label": "RMT Playground Security",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 70,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": [],
+      "report": {
+        "schema": "xtend.docs.rmt-playground-security-report.v1",
+        "endpoint": "docs/index.php?xtend-rmt-playground=compile",
+        "sourceLimitBytes": 65536
+      }
+    }
+  ],
+  "bridgeNode": "12.22.12",
+  "mode": "hydrangea"
+}

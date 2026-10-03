@@ -1,3 +1,4 @@
+const { validateFastPassAction } = require('../../xtend-maraca/fastpass-contract.js');
 const crypto = require('crypto');
 const {
   RMT_FILE_FALLBACK_CODE,
@@ -778,6 +779,7 @@ function createAppPlatformRecords(core) {
       })),
     actions: core.actions.map((record) => ({
       id: record.name,
+      ...(record.execution ? { execution: record.execution } : {}),
       inputs: record.inputs,
       status: record.status,
       reducers: record.reducers,
@@ -1788,7 +1790,8 @@ function createEventBindingRecords(appPlatform) {
 
   return toArray(appPlatform && appPlatform.events).map((event) => {
     const surface = surfaceByEvent.get(event.id) || null;
-    const shouldDelegateCommand = event.event === 'xtend-command' && (event.target || event.selector);
+    const selector = event.target || event.selector || '';
+    const shouldDelegateCommand = selector && (event.event === 'xtend-command' || selector.startsWith('.') && ['click','input','change','submit'].includes(event.event));
     return {
       id: event.id,
       kind: 'dom',
@@ -2105,7 +2108,7 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
   const attributes = {
     'data-maraca-surface': literal(surface.id),
     'data-rmt-surface': literal(surface.id),
-    'data-rmt-primitive-id': surface.id,
+    'data-rmt-primitive-id': literal(surface.id),
     'data-rmt-component': literal(component),
     'data-maraca-kind': literal(surface.kind || 'surface'),
     id: surface.source ? `$model.${surface.source}.id` : undefined,
@@ -2400,7 +2403,8 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
     attributes,
     parts: ['surface', surface.kind || 'surface'],
     styleTokens: {
-      surface: literal(surface.id),
+      // Surface identity already lives in data-rmt-surface. The public
+      // --xtend-surface token is a theme color, never an orchestration ID.
       portal: literal(surface.portal || 'portal.app')
     },
     bindings: toArray(surface.events),
@@ -2409,7 +2413,24 @@ function createRenderDescriptor(surface, eventBindings, initialStates = new Map(
   if (children.length === 0 && surface.source && hasStateField('text')) {
     descriptor.text = bindStateField('text');
   }
-  return applyViewTemplateToDescriptor(descriptor, initialState.viewTemplate || initialState.view || initialState.template);
+  const viewTemplate = initialState.viewTemplate || initialState.view || initialState.template;
+  const projected = applyViewTemplateToDescriptor(descriptor, viewTemplate);
+  // Opt-in native controls share the exact compiler descriptor in SSR and the
+  // browser. Component identity and public validity APIs remain discoverable.
+  if (viewTemplate && viewTemplate.progressive === true) {
+    const capability = require('./progressive-controls.json')[component];
+    const native = capability && capability.tag;
+    if (!native) throw new Error(`Component ${component} has no progressive control projection.`);
+    projected.type = 'element'; projected.tag = native;
+    projected.attributes['data-xtend-component'] = literal(component);
+    if (hasStateField('field')) projected.attributes.name = bindStateField('field');
+    if (hasStateField('label')) projected.attributes['aria-label'] = bindStateField('label');
+    if (capability.type) projected.attributes.type = literal(capability.type);
+    if (capability.value === 'checked' && hasStateField('checked')) projected.attributes.checked = bindStateField('checked');
+    if (native === 'textarea' && hasStateField('value')) { projected.text = bindStateField('value'); delete projected.children; }
+    if (native === 'input') { delete projected.children; delete projected.text; }
+  }
+  return projected;
 }
 
 function createCssPlan(appPlatform) {
@@ -3560,6 +3581,28 @@ function createRuntimeGraph(core, appPlatform, eventBindings, resources, validat
 }
 
 function createPatchPlan(appPlatform, reducers, renderDescriptors, validationPlan = null, transitionPlan = null) {
+  // A surface can read another state's fields in its render template. Those reads
+  // must invalidate the consumer as well as the surface declaring the state.
+  const sourceIds = [...toArray(appPlatform.state), ...toArray(appPlatform.selectors), ...toArray(appPlatform.derived)]
+    .map(entry => entry.id).filter(Boolean).sort((a, b) => b.length - a.length || a.localeCompare(b));
+  function descriptorSources(descriptor) {
+    const sources = new Set();
+    const add = path => {
+      const normalized = String(path).replace(/^\$(?:model|state|selector)\./u, '').replace(/^model\./u, '');
+      const id = sourceIds.find(id => normalized === id || normalized.startsWith(id + '.'));
+      if (id) sources.add(id);
+    };
+    const visit = value => {
+      if (typeof value === 'string' && /^\$(?:model|state|selector)\./u.test(value)) add(value);
+      else if (value && typeof value === 'object') {
+        if (['literal', 'const', 'static'].includes(value.op)) return;
+        if (value.op === 'path' && typeof value.path === 'string') add(value.path);
+        Object.values(value).forEach(visit);
+      }
+    };
+    visit(descriptor);
+    return [...sources].sort();
+  }
   const surfaceBySource = new Map(toArray(appPlatform && appPlatform.surfaces).map((surface) => [surface.source, surface]));
   const descriptorBySurface = new Map(toArray(renderDescriptors).map((descriptor) => [descriptor.surface, descriptor]));
   const transitionsByAction = new Map();
@@ -3573,6 +3616,7 @@ function createPatchPlan(appPlatform, reducers, renderDescriptors, validationPla
     schema: 'xtend.rmt.app-patch-plan.v1',
     defaultStrategy: 'attribute-sync',
     strategies: ['attribute-sync', 'property-sync', 'slot-patch', 'css-token-sync', 'surface-transition', 'structured-rerender'],
+    bindings: toArray(renderDescriptors).map(descriptor => ({surface:descriptor.surface, sources:descriptorSources(descriptor)})),
     reducers: reducers.map((reducer) => {
       const surface = surfaceBySource.get(reducer.state) || null;
       const descriptor = surface ? descriptorBySurface.get(surface.id) : null;
@@ -3647,6 +3691,9 @@ function collectStaticDescriptorIdOwners(descriptor, surfaceId, owners, pointer 
   toArray(descriptor.children).forEach((child, index) => {
     collectStaticDescriptorIdOwners(child, surfaceId, owners, `${pointer}/children/${index}`);
   });
+  if (descriptor.type === 'conditional') for (const branch of ['then', 'else', 'fallback']) {
+    collectStaticDescriptorIdOwners(descriptor[branch], surfaceId, owners, `${pointer}/${branch}`);
+  }
 }
 
 function appendAtStaticDescriptorId(descriptor, targetId, nestedDescriptors) {
@@ -3667,8 +3714,14 @@ function appendAtStaticDescriptorId(descriptor, targetId, nestedDescriptors) {
     count += result.count;
     return result.descriptor;
   });
+  const branches = {};
+  if (descriptor.type === 'conditional') for (const branch of ['then', 'else', 'fallback']) if (descriptor[branch]) {
+    const result = appendAtStaticDescriptorId(descriptor[branch], targetId, nestedDescriptors);
+    count += result.count;
+    branches[branch] = result.descriptor;
+  }
   return {
-    descriptor: children.length > 0 ? { ...descriptor, children } : descriptor,
+    descriptor: { ...descriptor, ...(children.length > 0 ? {children} : {}), ...branches },
     count
   };
 }
@@ -3876,7 +3929,7 @@ function createHostContracts() {
       'component.reportValidity',
       'surfaceTransition.run',
       'animationEngine.run',
-      'xstate.write',
+      'state.write',
       'uiEffects.resolve',
       'telemetry.publish',
       'diagnostics.redact'
@@ -4022,6 +4075,9 @@ function createRmtAppOrchestrationArtifacts(core) {
     return fetchEffect && fetchEffect.source && (fetchEffect.source.target || String(fetchEffect.source.ref || '').replace(/^dataSource:/u, '')) || '';
   };
   const initialStates = new Map(toArray(appPlatform.state).map((state) => [state.id, state.initial || {}]));
+  for (const selector of toArray(appPlatform.selectors)) {
+    if (!initialStates.has(selector.id) && initialStates.has(selector.from) && toArray(selector.clauses).every(clause => clause.kind === 'output')) initialStates.set(selector.id, initialStates.get(selector.from));
+  }
   const renderDescriptors = toArray(appPlatform.surfaces).map((surface) => createRenderDescriptor(surface, eventBindings, initialStates));
   const renderComposition = createRenderRoot(appPlatform, renderDescriptors);
   const hydration = createHydrationPlan(core, appPlatform);
@@ -4047,8 +4103,9 @@ function createRmtAppOrchestrationArtifacts(core) {
     actions: {
       actions: toArray(appPlatform.actions).map((action) => ({
         id: action.id,
+        ...(action.execution ? { execution: action.execution } : {}),
         inputs: action.inputs,
-        statusState: action.status && action.status.path || '',
+        statusState: String(action.status && action.status.path || '').replace(/^state\./u, ''),
         datasource: dataSourceForAction(action),
         reducers: action.reducers,
         emits: action.emits,
@@ -4058,6 +4115,7 @@ function createRmtAppOrchestrationArtifacts(core) {
       effects: toArray(core.effects).map((effect) => ({
         id: effect.id,
         kind: effect.kind || 'side-effect',
+        ...(effect.path != null ? { path: effect.path } : {}),
         action: effect.action || null,
         source: effect.source || null,
         target: effect.target || null,
@@ -4442,7 +4500,10 @@ class VNextCompiler {
     if (templateContext) record.scope = this.primitiveScope(templateContext);
 
     toArray(node.body).forEach((child, index) => {
-      if (child.type === 'RmtActionStatusClause') {
+      if (child.type === 'RmtActionExecutionClause') {
+        if (record.execution || child.path !== 'fastpass') this.addDiagnostic(createCompilerDiagnostic('rmt.fastpass.execution-invalid', 'An action may declare execution fastpass exactly once.', child, 'error'));
+        record.execution = child.path;
+      } else if (child.type === 'RmtActionStatusClause') {
         record.status = {
           path: child.path || null
         };
@@ -4480,6 +4541,10 @@ class VNextCompiler {
       }
     });
 
+    if (record.execution === 'fastpass') {
+      const errors = validateFastPassAction({ ...record, effects: effectRefs.map(id => this.core.effects.find(effect => effect.id === id)) });
+      errors.forEach(message => this.addDiagnostic(createCompilerDiagnostic('rmt.fastpass.invalid-action', message, node, 'error')));
+    }
     return addRecord(this.core, 'actions', record, node, 'RmtActionDeclaration');
   }
 
@@ -4629,6 +4694,8 @@ class VNextCompiler {
       action: actionRecord.name,
       actionRef: actionRecord.id,
       source,
+      ...(node.path ? { path: node.path.kind === 'path' ? { kind: 'reference', path: node.path.value } : primitiveValueToCore(node.path) } : {}),
+      ...(source && source.kind === 'surface' && ['close', 'focus'].includes(node.effectKind) ? { target: source.target } : {}),
       ...(node.componentCommand ? {
         componentCommand: {
           schema: RMT_COMPONENT_COMMAND_SCHEMA,
@@ -4784,6 +4851,14 @@ class VNextCompiler {
       const command = String(node.effectKind || node.kind || '').trim();
       const sourceKind = node.source && node.source.kind || '';
       const targetId = node.source && node.source.value || '';
+      const action = this.core.actions.find(action => action.name === effect.action);
+      if (action && action.execution === 'fastpass' && ['focus', 'close'].includes(command) && sourceKind === 'surface') {
+        const surface = this.core.surfaces.find(surface => surface.name === targetId || surface.id === targetId);
+        if (!surface) this.addDiagnostic(createCompilerDiagnostic('rmt.fastpass.surface-unknown', `Unknown FastPass surface ${targetId}.`, node, 'error'));
+        else effect.target = surface.name;
+        delete effect.componentCommand;
+        return;
+      }
       const commandIsAllowed = RMT_DECLARATIVE_COMPONENT_COMMANDS.has(command);
       const matchingSurfaces = sourceKind === 'selector' && targetId
         ? this.core.surfaces.filter((surface) => surface && (surface.name === targetId || surface.id === targetId))

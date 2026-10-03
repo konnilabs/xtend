@@ -1,0 +1,458 @@
+'use strict';
+
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+const { createSuiteContext, printSuiteReport } = require('../utils/assertions');
+const { readJson, readText, resolveRepoPath, resolveRootDir } = require('../utils/files');
+
+const SUITE_ID = 'browser-primitive-radar';
+const SUITE_LABEL = 'Browser Primitive Radar and Observatory Intake';
+const REPORT_SCHEMA = 'xtend.native-first.browser-primitive-radar-report.v2';
+const INTAKE_SCHEMA = 'xtend.native-first.observatory-intake.v1';
+const REVIEW_SCHEMA = 'xtend.native-first.observatory-review.v1';
+const RUN_INDEX_SCHEMA = 'xtend.native-first.observatory-run-index.v1';
+const RUN_INDEX_PATH = 'development/observatory/observatory-run-index.json';
+const ALLOWED_OUTCOMES = new Set(['corroborates-existing', 'corrected-candidate', 'new-radar-candidate', 'investigation-only', 'rejected']);
+const ALLOWED_SOURCE_KINDS = new Set([
+  'compat-docs',
+  'engine-docs',
+  'engine-issue',
+  'engine-release',
+  'origin-trial',
+  'standards-program',
+  'standards-recommendation',
+  'standards-spec',
+  'technology-preview'
+]);
+const SHIPPING_SOURCE_KINDS = new Set(['engine-release', 'engine-docs']);
+const PREVIEW_SOURCE_KINDS = new Set(['engine-release', 'engine-docs', 'technology-preview']);
+const DEVELOPMENT_SOURCE_KINDS = new Set(['engine-issue', 'engine-docs']);
+const STANDARD_SOURCE_KINDS = new Set(['standards-recommendation', 'standards-spec']);
+const ALLOWED_EVIDENCE_STATUSES = new Set([
+  'baseline',
+  'behind-flag',
+  'beta',
+  'in-development',
+  'insufficient-evidence',
+  'investigation',
+  'origin-trial',
+  'shipping',
+  'technology-preview'
+]);
+const ALLOWED_HOSTS = new Set([
+  'bugzilla.mozilla.org',
+  'developer.chrome.com',
+  'developer.mozilla.org',
+  'github.com',
+  'hacks.mozilla.org',
+  'tc39.es',
+  'v8.dev',
+  'webkit.org',
+  'www.w3.org'
+]);
+
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function isDate(value) {
+  return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
+}
+
+function sourceUrlError(value) {
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol !== 'https:') return 'source URL must use HTTPS';
+    if (parsed.username || parsed.password) return 'source URL must not contain credentials';
+    if (!ALLOWED_HOSTS.has(parsed.hostname)) return `source host is not allowlisted: ${parsed.hostname}`;
+    return null;
+  } catch (error) {
+    return 'source URL is invalid';
+  }
+}
+
+function topLevelDiffKeys(previousFinding, currentFinding) {
+  const keys = new Set([
+    ...Object.keys(previousFinding || {}),
+    ...Object.keys(currentFinding || {})
+  ]);
+  return Array.from(keys)
+    .filter((key) => JSON.stringify(previousFinding && previousFinding[key]) !== JSON.stringify(currentFinding && currentFinding[key]))
+    .sort();
+}
+
+function validateObservatoryDocuments(options) {
+  const {
+    rootDir,
+    raw,
+    intake,
+    review,
+    radar,
+    previousRun = null,
+    previousRuns = previousRun ? [previousRun] : []
+  } = options;
+  const errors = [];
+  if (!intake || intake.schema !== INTAKE_SCHEMA) errors.push('invalid intake schema');
+  if (!review || review.schema !== REVIEW_SCHEMA) errors.push('invalid review schema');
+  if (!intake || review && review.intakeRef !== intake.intakeId) errors.push('review must reference its intake');
+  const findings = raw && Array.isArray(raw.findings) ? raw.findings : [];
+  const records = review && Array.isArray(review.records) ? review.records : [];
+  const findingIds = findings.map((finding) => finding.id);
+  const recordIds = records.map((record) => record.findingId);
+  const previousFindings = new Map();
+  previousRuns.forEach((run) => {
+    (run.raw && Array.isArray(run.raw.findings) ? run.raw.findings : []).forEach((finding) => {
+      previousFindings.set(finding.id, { finding, run });
+    });
+  });
+  if (findings.length === 0) errors.push('raw intake has no findings');
+  if (new Set(findingIds).size !== findingIds.length) errors.push('raw finding IDs must be unique');
+  if (new Set(recordIds).size !== recordIds.length) errors.push('review finding IDs must be unique');
+  if (!intake || !Array.isArray(intake.findingIds) || intake.findingIds.join('|') !== findingIds.join('|')) errors.push('intake finding IDs must exactly match raw order');
+  if (recordIds.length !== findingIds.length || findingIds.some((id) => recordIds.filter((recordId) => recordId === id).length !== 1)) errors.push('each finding must have exactly one review record');
+  if (!review || !isDate(review.reviewedAt)) errors.push('review date must be a valid ISO date');
+
+  findings.forEach((finding) => {
+    if (!finding || typeof finding.id !== 'string' || finding.id.length === 0) errors.push('finding has no stable ID');
+    if (!isDate(finding.firstSeen) || !isDate(finding.lastUpdated) || finding.firstSeen > finding.lastUpdated) errors.push(`finding ${finding.id || 'unknown'} has contradictory dates`);
+    [finding.sourceUrl, ...(Array.isArray(finding.events) ? finding.events.map((event) => event.sourceUrl) : [])].filter(Boolean).forEach((url) => {
+      const error = sourceUrlError(url);
+      if (error) errors.push(`finding ${finding.id}: ${error}`);
+    });
+  });
+
+  records.forEach((record) => {
+    const label = record.findingId || 'unknown';
+    if (!ALLOWED_OUTCOMES.has(record.outcome)) errors.push(`review ${label} has invalid outcome`);
+    if (!Array.isArray(record.facts) || record.facts.length === 0) errors.push(`review ${label} has no reviewed facts`);
+    if (!Array.isArray(record.xtendHypotheses)) errors.push(`review ${label} does not separate XTend hypotheses`);
+    if (!Array.isArray(record.sources) || record.sources.length === 0) errors.push(`review ${label} has no sources`);
+    const sources = new Map();
+    (record.sources || []).forEach((source) => {
+      if (!source.id || sources.has(source.id)) errors.push(`review ${label} has missing or duplicate source ID`);
+      sources.set(source.id, source);
+      if (!ALLOWED_SOURCE_KINDS.has(source.kind)) errors.push(`review ${label} has unsupported source kind ${source.kind}`);
+      const error = sourceUrlError(source.url);
+      if (error) errors.push(`review ${label}: ${error}`);
+    });
+    (record.browserEvidence || []).forEach((evidence) => {
+      const source = evidence.sourceRef ? sources.get(evidence.sourceRef) : null;
+      if (!ALLOWED_EVIDENCE_STATUSES.has(evidence.status)) errors.push(`review ${label} has invalid browser evidence status`);
+      if (evidence.sourceRef && !source) errors.push(`review ${label} references unknown browser evidence source`);
+      if (['shipping', 'behind-flag'].includes(evidence.status) && (!source || !SHIPPING_SOURCE_KINDS.has(source.kind))) {
+        errors.push(`review ${label} has an unsupported engine shipping claim`);
+      }
+      if (['beta', 'technology-preview'].includes(evidence.status) && (!source || !PREVIEW_SOURCE_KINDS.has(source.kind))) {
+        errors.push(`review ${label} has an unsupported engine preview claim`);
+      }
+      if (evidence.status === 'origin-trial' && (!source || source.kind !== 'origin-trial')) {
+        errors.push(`review ${label} has an unsupported origin trial claim`);
+      }
+      if (evidence.status === 'in-development' && (!source || !DEVELOPMENT_SOURCE_KINDS.has(source.kind))) {
+        errors.push(`review ${label} has an unsupported engine development claim`);
+      }
+      if (evidence.status === 'baseline' && (!source || source.kind !== 'compat-docs')) errors.push(`review ${label} has an unsupported Baseline claim`);
+    });
+    if (!Array.isArray(record.browserEvidence) || record.browserEvidence.length === 0) errors.push(`review ${label} has no browser evidence classification`);
+    (record.standardsEvidence || []).forEach((evidence) => {
+      const source = evidence.sourceRef ? sources.get(evidence.sourceRef) : null;
+      if (!source || !STANDARD_SOURCE_KINDS.has(source.kind)) errors.push(`review ${label} has unsupported standards evidence`);
+    });
+    if (!Array.isArray(record.repoSymbols) || record.repoSymbols.length === 0) errors.push(`review ${label} has no real XTend repo symbols`);
+    (record.repoSymbols || []).forEach((repoSymbol) => {
+      const absolutePath = resolveRepoPath(repoSymbol.path || '', rootDir);
+      if (!repoSymbol.path || !fs.existsSync(absolutePath)) {
+        errors.push(`review ${label} references a non-existent XTend path`);
+        return;
+      }
+      if (!repoSymbol.symbol || !fs.readFileSync(absolutePath, 'utf8').includes(repoSymbol.symbol)) errors.push(`review ${label} references a non-existent XTend symbol`);
+    });
+    if (!Array.isArray(record.radarRefs)) errors.push(`review ${label} has no radarRefs array`);
+    if (record.outcome === 'investigation-only' && record.radarRefs && record.radarRefs.length !== 0) errors.push(`investigation ${label} must not create a radar primitive`);
+    if (!['investigation-only', 'rejected'].includes(record.outcome) && (!record.radarRefs || record.radarRefs.length === 0)) errors.push(`review ${label} requires a radar reference`);
+    (record.radarRefs || []).forEach((radarRef) => {
+      if (!/^NFM-BPR-\d{3}$/u.test(radarRef) || !radar.includes(`\`${radarRef}\``)) errors.push(`review ${label} references missing radar ID ${radarRef}`);
+    });
+    if (!record.owner || !record.nextReview) errors.push(`review ${label} requires owner and next review`);
+
+    const previous = previousFindings.get(record.findingId);
+    if (previous) {
+      const { finding: previousFinding, run: previousRun } = previous;
+      const finding = findings.find((candidate) => candidate.id === record.findingId);
+      const expectedDelta = topLevelDiffKeys(previousFinding, finding);
+      const declaredDelta = record.rawDelta && Array.isArray(record.rawDelta.changedFields)
+        ? record.rawDelta.changedFields.slice().sort()
+        : null;
+      if (!previousRun.review || record.previousReviewRef !== previousRun.review.reviewId) errors.push(`review ${label} must reference the previous review`);
+      if (!record.rawDelta || record.rawDelta.previousIntakeRef !== previousRun.intake.intakeId) errors.push(`review ${label} must reference the previous intake delta`);
+      if (!declaredDelta || declaredDelta.join('|') !== expectedDelta.join('|')) errors.push(`review ${label} has an incorrect carry-over delta`);
+      if (record.rawDelta && record.rawDelta.classificationOnly === true && expectedDelta.some((key) => key !== 'category')) {
+        errors.push(`review ${label} incorrectly classifies a substantive delta as classification-only`);
+      }
+    }
+  });
+  return errors;
+}
+
+function createRunDocuments(rootDir, run) {
+  const rawText = readText(run.raw, rootDir);
+  return {
+    descriptor: run,
+    rawText,
+    raw: JSON.parse(rawText),
+    intake: readJson(run.intake, rootDir),
+    review: readJson(run.review, rootDir)
+  };
+}
+
+function validateRunIndexDocuments(options) {
+  const { rootDir, runIndex, runs, radar, packageManifest } = options;
+  const errors = [];
+  if (!runIndex || runIndex.schema !== RUN_INDEX_SCHEMA) errors.push('invalid run index schema');
+  const descriptors = runIndex && Array.isArray(runIndex.runs) ? runIndex.runs : [];
+  if (descriptors.length === 0) errors.push('run index has no runs');
+  const intakeIds = descriptors.map((run) => run.intakeId);
+  const reviewIds = descriptors.map((run) => run.reviewId);
+  const reportDates = descriptors.map((run) => run.reportDate);
+  if (new Set(intakeIds).size !== intakeIds.length) errors.push('run intake IDs must be unique');
+  if (new Set(reviewIds).size !== reviewIds.length) errors.push('run review IDs must be unique');
+  if (new Set(reportDates).size !== reportDates.length || reportDates.some((date) => !isDate(date))) errors.push('run report dates must be valid and unique');
+  const current = descriptors.find((run) => run.intakeId === runIndex.currentRun);
+  const newestDate = reportDates.slice().sort().at(-1);
+  if (!current) errors.push('current run must reference a registered run');
+  if (current && current.reportDate !== newestDate) errors.push('current run must be the newest report');
+  const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstFeatureAdoptionObservatory;
+  if (!metadata || metadata.runIndex !== RUN_INDEX_PATH) errors.push('package metadata must reference the run index');
+  if (!metadata || metadata.runIndexSchema !== RUN_INDEX_SCHEMA) errors.push('package metadata must declare the run index schema');
+  if (current && metadata && metadata.currentRun !== current.intakeId) errors.push('package current run alias is stale');
+  if (current && metadata && (metadata.intake !== current.intake || metadata.review !== current.review)) errors.push('package current intake and review aliases are stale');
+
+  const documentsById = new Map((runs || []).map((run) => [run.intake.intakeId, run]));
+  descriptors.forEach((descriptor, index) => {
+    const documents = documentsById.get(descriptor.intakeId);
+    if (!documents) {
+      errors.push(`missing run documents for ${descriptor.intakeId}`);
+      return;
+    }
+    if (documents.intake.intakeId !== descriptor.intakeId || documents.review.reviewId !== descriptor.reviewId) errors.push(`run identity mismatch for ${descriptor.intakeId}`);
+    if (!documents.intake.rawArtifact || documents.intake.rawArtifact.path !== descriptor.raw) errors.push(`run raw path mismatch for ${descriptor.intakeId}`);
+    if (!documents.intake.provenance || documents.intake.provenance.reportDate !== descriptor.reportDate) errors.push(`run report date mismatch for ${descriptor.intakeId}`);
+    const repositoryDigest = crypto.createHash('sha256').update(documents.rawText).digest('hex');
+    const sourceBytes = documents.intake.rawArtifact && documents.intake.rawArtifact.storageNormalization === 'single-terminal-newline-added' && documents.rawText.endsWith('\n')
+      ? documents.rawText.slice(0, -1)
+      : documents.rawText;
+    const sourceDigest = crypto.createHash('sha256').update(sourceBytes).digest('hex');
+    if (!documents.intake.rawArtifact || documents.intake.rawArtifact.immutable !== true) errors.push(`run ${descriptor.intakeId} raw artifact is not immutable`);
+    if (!documents.intake.rawArtifact || documents.intake.rawArtifact.sha256 !== sourceDigest) errors.push(`run ${descriptor.intakeId} source digest mismatch`);
+    if (!documents.intake.rawArtifact || documents.intake.rawArtifact.repositoryCopySha256 !== repositoryDigest) errors.push(`run ${descriptor.intakeId} repository digest mismatch`);
+    if (!documents.intake.provenance || documents.intake.provenance.agent !== 'unknown-unreported' || documents.intake.provenance.model !== 'unknown-unreported') errors.push(`run ${descriptor.intakeId} must keep missing provenance explicit`);
+    if (!documents.intake.automationPolicy || documents.intake.automationPolicy.mayMutateRadar !== false || documents.intake.automationPolicy.mayMutateRuntime !== false) {
+      errors.push(`run ${descriptor.intakeId} must block raw automation mutations`);
+    }
+    const previousRuns = descriptors
+      .filter((candidate) => candidate.reportDate < descriptor.reportDate)
+      .sort((left, right) => left.reportDate.localeCompare(right.reportDate))
+      .map((candidate) => documentsById.get(candidate.intakeId))
+      .filter(Boolean);
+    validateObservatoryDocuments({ rootDir, raw: documents.raw, intake: documents.intake, review: documents.review, radar, previousRuns })
+      .forEach((error) => errors.push(`${descriptor.intakeId}: ${error}`));
+    if (descriptor.reportDate > '2026-09-03' && documents.review.records.some((record) => !['adopt-native', 'wrap-as-xtend-primitive', 'reject-for-now'].includes(record.terminalOutcome))) {
+      errors.push(`run ${descriptor.intakeId} requires a terminal disposition for every finding`);
+    }
+    if (index > 0 && descriptors[index - 1].reportDate >= descriptor.reportDate) errors.push('runs must be ordered by report date');
+  });
+  return errors;
+}
+
+function assertRejected(context, label, mutate, base) {
+  const candidate = clone(base);
+  mutate(candidate);
+  const errors = validateRunIndexDocuments(candidate);
+  context.assert(errors.length > 0, `Gate rejects ${label}`);
+}
+
+function runBrowserPrimitiveRadarSuite(options = {}) {
+  const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
+  const context = createSuiteContext({ id: SUITE_ID, label: SUITE_LABEL });
+  const runIndex = readJson(RUN_INDEX_PATH, rootDir);
+  const runs = runIndex.runs.map((run) => createRunDocuments(rootDir, run));
+  const radar = readText('development/XTend-Native-First-Browser-Primitive-Radar.md', rootDir);
+  const radarContract = readText('development/XTend-Native-First-Browser-Primitive-Radar-Contract.md', rootDir);
+  const observatoryContract = readText('development/XTend-Native-First-Feature-Adoption-Observatory-Contract.md', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const radarMatrix = readJson('tests/fixtures/native-first/browser-primitive-radar-v2.json', rootDir);
+  const decisionSet = readJson('development/observatory/observatory-adoption-decisions-2026-09-03.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const current = runs.find((run) => run.intake.intakeId === runIndex.currentRun);
+  const september = runs.find((run) => run.intake.intakeId === 'NFM-OBS-2026-09-03');
+  const august24 = runs.find((run) => run.intake.intakeId === 'NFM-OBS-2026-08-24');
+  const august31 = runs.find((run) => run.intake.intakeId === 'NFM-OBS-2026-08-31');
+  const base = { rootDir, runIndex, runs, radar, packageManifest };
+  const errors = validateRunIndexDocuments(base);
+  errors.forEach((error) => context.fail(error));
+  if (errors.length === 0) context.pass('All immutable Observatory runs and reviews satisfy the gate');
+
+  const expectedRadarIds = Array.from({ length: 24 }, (_, index) => `NFM-BPR-${String(index + 1).padStart(3, '0')}`);
+  const terminalOutcomes = new Set(['adopt-native', 'wrap-as-xtend-primitive', 'reject-for-now']);
+  const historicalIds = ['NFM-OBS-2026-08-09', 'NFM-OBS-2026-08-17', 'NFM-OBS-2026-08-24', 'NFM-OBS-2026-08-31', 'NFM-OBS-2026-09-03'];
+  const historicalRuns = runs.filter((run) => historicalIds.includes(run.intake.intakeId));
+  context.assert(historicalRuns.length === 5 && historicalRuns.reduce((sum, run) => sum + run.raw.findings.length, 0) === 74, 'Run index preserves five historical immutable runs and all 74 finding occurrences while accepting later runs');
+  context.assert(august24 && august24.raw.findings.length === 13 && august24.review.records.length === 13, 'August 24 backfill has one complete review record per finding');
+  context.assert(august24 && august24.intake.rawArtifact.sha256 === '32d7987304fc6d624f209903b93808d048e279a28faf5f947a4f1bb6d3020847' && august24.intake.rawArtifact.repositoryCopySha256 === '90fd74f01cf5099b68ec33e32decf048de0c6399170db67e16142150c5b68962', 'August 24 intake preserves source and repository-copy hashes');
+  const selfProfilingReview = august24 && august24.review.records.find((record) => record.findingId === 'js-self-profiling-markers-chrome-153');
+  context.assert(selfProfilingReview && selfProfilingReview.outcome === 'investigation-only' && selfProfilingReview.radarRefs.length === 0 && selfProfilingReview.browserEvidence.some((evidence) => evidence.engine === 'Chromium' && evidence.status === 'origin-trial'), 'Self-Profiling Markers remain an origin-trial investigation without a Radar mutation');
+  context.assert(august24 && august24.review.records.slice(1).every((record) => record.previousReviewRef === 'NFM-OBS-REVIEW-2026-08-17-R2' && record.rawDelta.previousIntakeRef === 'NFM-OBS-2026-08-17' && record.rawDelta.changedFields.length === 0), 'August 24 carry-overs bind the previous review and declare empty deltas');
+  context.assert(august31 && august31.raw.findings.length === 16 && august31.review.records.length === 16, 'August 31 intake has one complete review record per finding');
+  context.assert(august31 && august31.intake.rawArtifact.sha256 === 'f1e32e9b6802d362db4a63cf475263a9905a7036b43e2f9c88746949dc346f80' && august31.intake.rawArtifact.repositoryCopySha256 === 'f1e32e9b6802d362db4a63cf475263a9905a7036b43e2f9c88746949dc346f80', 'August 31 intake preserves the exact source bytes');
+  const august31NewFindings = new Set(['navigation-api-precommit', 'cross-root-aria-reference-target', 'connection-allowlists']);
+  context.assert(august31 && august31.review.records.filter((record) => august31NewFindings.has(record.findingId)).length === 3, 'August 31 review classifies all three new finding IDs');
+  const august31FetchReview = august31 && august31.review.records.find((record) => record.findingId === 'fetch-request-streaming-webkit-tp250');
+  context.assert(august31FetchReview && august31FetchReview.browserEvidence.some((evidence) => evidence.engine === 'WebKit' && evidence.status === 'technology-preview') && august31FetchReview.rawDelta.changedFields.includes('browserSupport') && august31FetchReview.rawDelta.classificationOnly !== true, 'Fetch upload backpressure remains preview evidence with a substantive declared delta');
+  const august31NavigationReview = august31 && august31.review.records.find((record) => record.findingId === 'navigation-api-precommit');
+  context.assert(august31NavigationReview && august31NavigationReview.outcome === 'corrected-candidate' && august31NavigationReview.radarRefs.includes('NFM-BPR-015') && august31NavigationReview.browserEvidence.some((evidence) => evidence.engine === 'WebKit' && evidence.status === 'technology-preview'), 'Navigation precommit evidence stays mapped to the rejected Navigation API member without an adoption mutation');
+  context.assert(august31 && august31.review.records.filter((record) => ['cross-root-aria-reference-target', 'connection-allowlists'].includes(record.findingId)).every((record) => record.outcome === 'investigation-only' && record.radarRefs.length === 0), 'Single-engine August 31 findings remain investigations without Radar mutation');
+  context.assert(september && september.raw.findings.length === 24 && september.review.records.length === 24, 'September baseline has one complete review record per Radar parent');
+  context.assert(september && september.review.records.every((record) => record.terminalOutcome), 'Every September baseline finding has a terminal outcome');
+  context.assert(radarMatrix.schema === 'xtend.native-first.browser-primitive-radar.v2' && radarMatrix.entries.length === 24, 'Radar v2 declares exactly 24 parent entries');
+  context.assert(radarMatrix.entries.map((entry) => entry.id).join('|') === expectedRadarIds.join('|'), 'Radar v2 preserves the stable ordered parent IDs');
+  context.assert(radarMatrix.entries.every((entry) => radarMatrix.terminalStates.includes(entry.status) && entry.members.length > 0 && entry.members.every((member) => terminalOutcomes.has(member.outcome))), 'Every parent and member is terminal');
+  context.assert(radarMatrix.entries.every((entry) => entry.followUp === 'none' && (entry.status !== 'closed' || entry.nextReview === 'none')), 'Closed entries have no follow-up or next review');
+  context.assert(radarMatrix.entries.filter((entry) => entry.status !== 'closed').every((entry) => entry.nextReview === '2026-12-03'), 'Accepted and mixed entries use the December hygiene review');
+  context.assert(decisionSet.decisions.length === 24 && new Set(decisionSet.decisions.map((entry) => entry.radarRef)).size === 24, 'Exactly one September decision exists per Radar parent');
+  expectedRadarIds.forEach((radarId, index) => {
+    context.assertIncludes(radar, `\`${radarId}\``, `Radar contains ${radarId}`);
+    const adr = resolveRepoPath(`development/observatory/adrs/ADR-NFM-BPR-${String(index + 1).padStart(3, '0')}-2026-09-03.md`, rootDir);
+    context.assert(fs.existsSync(adr), `September ADR exists for ${radarId}`);
+  });
+  context.assertIncludes(radarContract, 'xtend.native-first.browser-primitive-radar.v2', 'Radar contract declares v2');
+  context.assertIncludes(observatoryContract, 'standards-evidence-is-not-engine-shipping-evidence', 'Contract separates standards and engine evidence');
+  context.assert(runner.hasSuite("browser-primitive-radar"), 'Runner registers the browser primitive radar gate');
+  context.assert(packageManifest.scripts && packageManifest.scripts['test:browser-primitive-radar'] === 'node scripts/run_xtend_tests.js browser-primitive-radar', 'Package exposes browser primitive radar gate');
+
+  assertRejected(context, 'stale current pointer', (candidate) => { candidate.runIndex.currentRun = 'NFM-OBS-2026-08-09'; }, base);
+  assertRejected(context, 'invalid run index schema', (candidate) => { candidate.runIndex.schema = 'invalid-run-index-schema'; }, base);
+  assertRejected(context, 'invalid intake schema', (candidate) => { candidate.runs[1].intake.schema = 'invalid-intake-schema'; }, base);
+  assertRejected(context, 'invalid review schema', (candidate) => { candidate.runs[1].review.schema = 'invalid-review-schema'; }, base);
+  assertRejected(context, 'duplicate run IDs', (candidate) => { candidate.runIndex.runs[1].intakeId = candidate.runIndex.runs[0].intakeId; }, base);
+  assertRejected(context, 'duplicate review IDs', (candidate) => { candidate.runIndex.runs[1].reviewId = candidate.runIndex.runs[0].reviewId; }, base);
+  assertRejected(context, 'incorrect source digest', (candidate) => { candidate.runs[1].intake.rawArtifact.sha256 = '0'.repeat(64); }, base);
+  assertRejected(context, 'missing review record', (candidate) => { candidate.runs[1].review.records.pop(); }, base);
+  assertRejected(context, 'hidden carry-over delta', (candidate) => { candidate.runs[1].review.records.find((record) => record.previousReviewRef).rawDelta.changedFields = []; }, base);
+  assertRejected(context, 'unknown previous review', (candidate) => { candidate.runs[1].review.records.find((record) => record.previousReviewRef).previousReviewRef = 'unknown'; }, base);
+  assertRejected(context, 'standard source used for shipping', (candidate) => {
+    const record = candidate.runs[1].review.records.find((entry) => entry.findingId === 'explicit-resource-management-webkit-tp250');
+    record.browserEvidence[0].sourceRef = 'tc39-finished-proposals';
+  }, base);
+  assertRejected(context, 'technology preview used as stable shipping', (candidate) => {
+    const record = candidate.runs[1].review.records.find((entry) => entry.findingId === 'explicit-resource-management-webkit-tp250');
+    record.browserEvidence[2].status = 'shipping';
+  }, base);
+  assertRejected(context, 'origin trial used as stable shipping', (candidate) => {
+    const run = candidate.runs.find((entry) => entry.intake.intakeId === 'NFM-OBS-2026-08-24');
+    run.review.records[0].browserEvidence[0].status = 'shipping';
+  }, base);
+  assertRejected(context, 'origin trial with generic source kind', (candidate) => {
+    const run = candidate.runs.find((entry) => entry.intake.intakeId === 'NFM-OBS-2026-08-24');
+    run.review.records[0].sources.find((source) => source.id === 'chrome-153-beta').kind = 'engine-release';
+  }, base);
+  assertRejected(context, 'missing August 24 review record', (candidate) => {
+    const run = candidate.runs.find((entry) => entry.intake.intakeId === 'NFM-OBS-2026-08-24');
+    run.review.records.pop();
+  }, base);
+  assertRejected(context, 'incorrect August 24 source digest', (candidate) => {
+    const run = candidate.runs.find((entry) => entry.intake.intakeId === 'NFM-OBS-2026-08-24');
+    run.intake.rawArtifact.sha256 = '0'.repeat(64);
+  }, base);
+  assertRejected(context, 'investigation with a Radar mutation', (candidate) => {
+    const run = candidate.runs.find((entry) => entry.intake.intakeId === 'NFM-OBS-2026-08-24');
+    run.review.records[0].radarRefs = ['NFM-BPR-014'];
+  }, base);
+  assertRejected(context, 'insecure source URL', (candidate) => {
+    candidate.runs[1].review.records[0].sources[0].url = 'http://webkit.org/unsafe';
+  }, base);
+  assertRejected(context, 'credential-bearing source URL', (candidate) => {
+    candidate.runs[1].review.records[0].sources[0].url = 'https://user:secret@webkit.org/unsafe';
+  }, base);
+  assertRejected(context, 'non-allowlisted source host', (candidate) => {
+    candidate.runs[1].review.records[0].sources[0].url = 'https://example.invalid/claim';
+  }, base);
+  assertRejected(context, 'non-existent XTend symbol', (candidate) => {
+    candidate.runs[1].review.records[0].repoSymbols[0].symbol = 'ImaginaryStreamingTransport';
+  }, base);
+
+  // A weekly snapshot may repeat a finding absent from the intervening terminal review.
+  const latestRepeatedRun = runs.find((run) => run.intake.provenance.reportDate > '2026-09-03' && run.review.records.some((record) => record.previousReviewRef));
+  if (latestRepeatedRun) {
+    assertRejected(context, 'carry-over reference skipping the last occurrence', (candidate) => {
+      const run = candidate.runs.find((entry) => entry.intake.intakeId === latestRepeatedRun.intake.intakeId);
+      run.review.records.find((record) => record.previousReviewRef).previousReviewRef = 'NFM-OBS-REVIEW-2026-09-03';
+    }, base);
+    assertRejected(context, 'weekly finding without a terminal disposition', (candidate) => {
+      const run = candidate.runs.find((entry) => entry.intake.intakeId === latestRepeatedRun.intake.intakeId);
+      delete run.review.records[0].terminalOutcome;
+    }, base);
+  }
+
+  const next = clone(base);
+  const nextRun = clone(current);
+  const nextDate = new Date(`${current.intake.provenance.reportDate}T00:00:00Z`);
+  nextDate.setUTCDate(nextDate.getUTCDate() + 7);
+  const date = nextDate.toISOString().slice(0, 10);
+  nextRun.intake.intakeId = `NFM-OBS-${date}`;
+  nextRun.intake.provenance.reportDate = date;
+  nextRun.intake.rawArtifact.path = `development/observatory/raw/xtend-observatory-${date}.json`;
+  nextRun.review.reviewId = `NFM-OBS-REVIEW-${date}`;
+  nextRun.review.intakeRef = nextRun.intake.intakeId;
+  nextRun.review.reviewedAt = date;
+  nextRun.review.records.forEach((record) => {
+    record.previousReviewRef = current.review.reviewId;
+    record.rawDelta = { previousIntakeRef: current.intake.intakeId, changedFields: [], classificationOnly: false };
+    record.terminalOutcome = 'reject-for-now';
+  });
+  nextRun.descriptor = { ...current.descriptor, intakeId: nextRun.intake.intakeId, reportDate: date, raw: nextRun.intake.rawArtifact.path, intake: `development/observatory/xtend-observatory-${date}.intake.json`, review: `development/observatory/xtend-observatory-${date}.review.json`, reviewId: nextRun.review.reviewId };
+  next.runs.push(nextRun);
+  next.runIndex.runs.push(nextRun.descriptor);
+  next.runIndex.currentRun = nextRun.intake.intakeId;
+  Object.assign(next.packageManifest.xtend.nativeFirstFeatureAdoptionObservatory, { currentRun: nextRun.intake.intakeId, intake: nextRun.descriptor.intake, review: nextRun.descriptor.review });
+  context.assert(validateRunIndexDocuments(next).length === 0, 'A subsequent weekly run is accepted without changing the September adoption baseline');
+
+  return context.result({
+    report: {
+      schema: REPORT_SCHEMA,
+      intakeSchema: INTAKE_SCHEMA,
+      reviewSchema: REVIEW_SCHEMA,
+      runIndexSchema: RUN_INDEX_SCHEMA,
+      runs: runIndex.runs.length,
+      currentRun: runIndex.currentRun,
+      currentFindings: current.raw.findings.length,
+      currentReviews: current.review.records.length,
+      findingOccurrences: runs.reduce((sum, run) => sum + run.raw.findings.length, 0),
+      currentSha256: current.intake.rawArtifact.sha256,
+      resolved: 24,
+      watch: 0,
+      deferred: 0,
+      insufficientEvidence: 0,
+      unownedResiduals: 0,
+      failures: 0,
+      warnings: 0,
+      untrustedInputCannotAdopt: true
+    }
+  });
+}
+
+function printBrowserPrimitiveRadarReport(result) {
+  printSuiteReport(result, {
+    successTitle: 'Browser Primitive Radar und Observatory Intake erfolgreich.',
+    failureTitle: 'Browser Primitive Radar und Observatory Intake fehlgeschlagen:'
+  });
+}
+
+module.exports = {
+  printBrowserPrimitiveRadarReport,
+  runBrowserPrimitiveRadarSuite,
+  sourceUrlError,
+  topLevelDiffKeys,
+  validateObservatoryDocuments,
+  validateRunIndexDocuments
+};

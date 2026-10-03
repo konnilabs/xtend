@@ -79,7 +79,7 @@ function runEpic13RmtProductionReadinessSuite(options = {}) {
   const plan = createEpic13RmtProductionReadinessPlan({ rootDir });
   const validation = validateEpic13RmtProductionReadinessPlan(plan);
   const report = createEpic13RmtProductionReadinessReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.epic13RmtProductionReadiness;
   const rc1Metadata = packageManifest.xtend && packageManifest.xtend.epic13Rc1Readiness;
   const ownerMetadata = packageManifest.xtend && packageManifest.xtend.epic13ReleaseOwnerAcceptance;
@@ -89,7 +89,7 @@ function runEpic13RmtProductionReadinessSuite(options = {}) {
   const prodCspMetadata = packageManifest.xtend && packageManifest.xtend.epic13ProdBrowserCspSmoke;
   const visualMetadata = packageManifest.xtend && packageManifest.xtend.epic13VisualOwnerArtifact;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const steering = readText(EPIC13_RMT_PRODUCTION_READINESS_STEERING, rootDir);
   const contractDoc = readText(EPIC13_RMT_PRODUCTION_READINESS_CONTRACT, rootDir);
   const workpackage = readText(EPIC13_RMT_PRODUCTION_READINESS_WORKPACKAGE_DOC, rootDir);
@@ -242,7 +242,7 @@ function runEpic13RmtProductionReadinessSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, EPIC13_RMT_PRODUCTION_READINESS_LOCAL_GATE, 'Scaffold config references RMT production readiness local gate');
   context.assertIncludes(scaffoldConfig, 'expectedExportCount: 124', 'Scaffold config updates package export count');
   context.assertIncludes(scaffoldConfig, `nextWorkpackage: "${NEXT_WORKPACKAGE}"`, 'Scaffold config advances Epic 13 handoff to WP-E13-11');
-  context.assertIncludes(runner, "id: 'epic13-rmt-production-readiness'", 'Runner registers RMT production readiness suite');
+  context.assert(runner.hasSuite("epic13-rmt-production-readiness"), 'Runner registers RMT production readiness suite');
 
   assertTextIncludesAll(context, steering, [
     EPIC13_RMT_PRODUCTION_READINESS_SCHEMA,

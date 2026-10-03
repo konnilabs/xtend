@@ -75,7 +75,7 @@ export interface XPlayerRmtPlayerContract {
   commands: XPlayerRmtCommandName[];
   events: XPlayerEventName[];
   stateKey: 'xplayer-state-<id>';
-  stateBridge: 'xstate-host-bridge';
+  stateBridge: 'state-host-adapter';
   themeTokens: string[];
   parts: string[];
 }

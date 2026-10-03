@@ -1,4 +1,5 @@
 'use strict';
+const { EXPECTED_CANONICAL_SLUG_COUNT } = require('../../scripts/verify_docs_public_quality');
 
 const fs = require('fs');
 const path = require('path');
@@ -65,20 +66,20 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
     label: 'RMT AnimationEngine Docs and Live Demo'
   });
   const menu = readJson('docs/menu.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const artifact = readJson(OUTPUT_PATH, rootDir);
   const source = readText(SOURCE_PATH, rootDir);
-  const pageLoader = readText('docs/utils/pageloader.js', rootDir);
+  const pageLoader = readText('docs/utils/page/route-controller.mjs', rootDir);
   const demoModule = readText('docs/utils/animation-engine-demo.mjs', rootDir);
   const xUtilsSource = readText('components/xutils.js', rootDir);
   const builderSource = readText('scripts/build_docs_animation_engine_demo.js', rootDir);
   const browserSmoke = readText('scripts/smoke_docs_animation_engine_demo.mjs', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const indexPhp = readText('docs/index.php', rootDir);
   const implementationPlan = readText('development/XTend-Docs-Quality-Implementierungsplan.md', rootDir);
   const menuEntry = menu.find((entry) => entry.slug === ARTICLE_SLUG);
 
-  context.assert(menu.length === 170, 'Docs menu exposes exactly 170 canonical slugs');
+  context.assert(menu.length === EXPECTED_CANONICAL_SLUG_COUNT, 'Docs menu exposes the canonical slug count');
   context.assert(Boolean(menuEntry), 'Docs menu exposes the RMT AnimationEngine article');
   context.assert(menuEntry && menuEntry.id === 'docs.rmt.animation.engine', 'AnimationEngine menu id is stable');
   context.assert(menuEntry && menuEntry.group === 'rmt' && menuEntry.parent === 'rmt-vnext-authoring', 'AnimationEngine is nested below RMT Authoring');
@@ -87,7 +88,7 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
 
   for (const locale of ['de', 'en']) {
     const localeFiles = walkMarkdown(path.join(rootDir, 'docs', locale));
-    context.assert(localeFiles.length === 170, `${locale} contains exactly 170 public Markdown articles`);
+    context.assert(localeFiles.length === EXPECTED_CANONICAL_SLUG_COUNT, `${locale} contains the canonical public Markdown article count`);
   }
 
   const articleBlocks = [];
@@ -143,7 +144,13 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
   context.assert(pageLoader.includes("controls.setAttribute('data-slot-layout', 'fixed-responsive-grid')"), 'AnimationEngine skeleton declares its fixed responsive slot layout');
   context.assert(pageLoader.includes("['effect', 'duration', 'easing', 'motion']") && pageLoader.includes("createSlot('status', status)"), 'AnimationEngine skeleton reserves all six named control slots');
   context.assert(pageLoader.includes('--docs-animation-field-slot-size: 4.55rem') && pageLoader.includes('--docs-animation-status-slot-size: 5.5rem'), 'AnimationEngine skeleton reserves fixed field and status rows before hydration');
-  context.assert(pageLoader.includes('IntersectionObserver') && pageLoader.includes("scheduleDocsIdle(() => hydrate('visible-idle'))"), 'AnimationEngine hydration combines visibility and idle scheduling');
+  context.assert(
+    pageLoader.includes('IntersectionObserver')
+      && pageLoader.includes('const queueIdleHydration = () =>')
+      && pageLoader.includes('idleDisposer = scheduleDocsIdle(() => {')
+      && pageLoader.includes("hydrate('visible-idle')"),
+    'AnimationEngine hydration combines visibility and idle scheduling'
+  );
   context.assert(pageLoader.indexOf("window.dispatchEvent(new CustomEvent('xtend-docs-content-ready'") < pageLoader.indexOf('scheduleDocsAnimationEngineDemoHydration({'), 'Demo hydration is scheduled only after content-ready dispatch');
   context.assert(pageLoader.includes('requestImmediateHydration') && pageLoader.includes("hydrate('user-intent')"), 'Focus and pointer intent can advance lazy hydration');
   context.assert(pageLoader.includes('controller.dispose()') && pageLoader.includes('reconcileDocsAnimationEngineDemoSlot'), 'Route lifecycle disposes the demo controller');
@@ -170,7 +177,10 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
   context.assert(browserSmoke.includes('webDriverRequest(baseUrl, `/session/${sessionId}/screenshot`)'), 'Browser smoke captures screenshots from the verified WebDriver session');
 
   context.assert(builderSource.includes("const DEMO_SCHEMA = 'xtend.docs.animation-engine-demo.v1'"), 'Builder owns the docs artifact schema');
-  context.assert(indexPhp.includes("'rmt-animation-engine' => 'sparkles'"), 'PHP SSR icon mapping recognizes the article');
+  context.assert(
+    indexPhp.includes("foreach (['id', 'slug', 'label', 'labels', 'parent', 'rank', 'tier', 'icon', 'trunk', 'section'] as $key)"),
+    'PHP SSR bootstrap preserves canonical menu icon metadata'
+  );
   context.assert(implementationPlan.includes('XDQ-WP-09') && implementationPlan.includes('165 kanonische'), 'Docs quality plan tracks the AnimationEngine work and new corpus size');
 
   const metadata = packageManifest.xtend && packageManifest.xtend.docsAnimationEngine;
@@ -181,7 +191,7 @@ function runRmtAnimationEngineDocsSuite(options = {}) {
   context.assert(packageManifest.scripts['check:docs-animation-engine-demo'] === 'node scripts/build_docs_animation_engine_demo.js --check', 'Package exposes the deterministic demo check');
   context.assert(packageManifest.scripts['test:rmt-animation-engine-docs'] === 'node scripts/run_xtend_tests.js rmt-animation-engine-docs', 'Package exposes the focused docs suite');
   context.assert(packageManifest.scripts['test:rmt-animation-engine-docs:browser'] === 'node scripts/smoke_docs_animation_engine_demo.mjs', 'Package exposes the optional Chromium smoke');
-  context.assert(runner.includes("id: 'rmt-animation-engine-docs'"), 'Test runner registers the AnimationEngine docs suite');
+  context.assert(runner.hasSuite("rmt-animation-engine-docs"), 'Test runner registers the AnimationEngine docs suite');
   context.assert(syntaxCheckFile('docs/utils/pageloader.js', { rootDir, extension: '.js' }).ok, 'Docs page loader passes syntax check');
   context.assert(syntaxCheckFile('docs/utils/animation-engine-demo.mjs', { rootDir, extension: '.mjs' }).ok, 'AnimationEngine demo module passes syntax check');
   context.assert(syntaxCheckFile('scripts/build_docs_animation_engine_demo.js', { rootDir, extension: '.js' }).ok, 'AnimationEngine artifact builder passes syntax check');

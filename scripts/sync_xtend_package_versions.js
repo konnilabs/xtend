@@ -47,7 +47,26 @@ function syncManifest(filePath, version) {
   return { manifest, changed };
 }
 
-function syncPackageLock(rootDir, version) {
+function workspaceManifestPaths(rootDir, rootManifest) {
+  const workspaces = Array.isArray(rootManifest.workspaces) ? rootManifest.workspaces : [];
+  return workspaces
+    .filter((workspacePath) => typeof workspacePath === 'string' && !workspacePath.includes('*'))
+    .map((workspacePath) => path.join(rootDir, workspacePath, 'package.json'))
+    .filter((filePath) => fs.existsSync(filePath));
+}
+
+function syncWorkspaceDependencyVersions(rootDir, rootManifest, version, options = {}) {
+  const files = [];
+  workspaceManifestPaths(rootDir, rootManifest).forEach((filePath) => {
+    const manifest = readJson(filePath);
+    if (!syncDependencyVersions(manifest, version)) return;
+    files.push(path.relative(rootDir, filePath));
+    if (!options.check) writeJson(filePath, manifest);
+  });
+  return files;
+}
+
+function syncPackageLock(rootDir, rootManifest, version) {
   const filePath = path.join(rootDir, 'package-lock.json');
   if (!fs.existsSync(filePath)) return null;
   const lock = readJson(filePath);
@@ -67,6 +86,14 @@ function syncPackageLock(rootDir, version) {
     }
     changed = syncDependencyVersions(record, version) || changed;
   });
+  const workspaces = Array.isArray(rootManifest.workspaces) ? rootManifest.workspaces : [];
+  workspaces
+    .filter((workspacePath) => typeof workspacePath === 'string' && !workspacePath.includes('*'))
+    .forEach((workspacePath) => {
+      const record = packages[workspacePath];
+      if (!record) return;
+      changed = syncDependencyVersions(record, version) || changed;
+    });
   return { filePath, lock, changed };
 }
 
@@ -86,7 +113,11 @@ function syncXtendPackageVersions(options = {}) {
     }
   });
 
-  const lockResult = syncPackageLock(rootDir, version);
+  syncWorkspaceDependencyVersions(rootDir, rootManifest, version, options).forEach((filePath) => {
+    if (!files.includes(filePath)) files.push(filePath);
+  });
+
+  const lockResult = syncPackageLock(rootDir, rootManifest, version);
   if (lockResult && lockResult.changed) {
     files.push(path.relative(rootDir, lockResult.filePath));
     if (!options.check) writeJson(lockResult.filePath, lockResult.lock);

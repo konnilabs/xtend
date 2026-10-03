@@ -130,11 +130,11 @@ function diagnosticCodes(report) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const epic = readText(EPIC_15_PATH, rootDir);
   const contract = readText(COMPATIBILITY_CONTRACT_PATH, rootDir);
   const workpackage = readText(WP_E15_16_PATH, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextCompatibility;
 
   context.assert(metadata && metadata.schema === RMT_VNEXT_COMPATIBILITY_SCHEMA, 'package metadata declares vNext compatibility schema');
@@ -153,7 +153,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && ROUNDTRIP_COMPATIBLE_WARNINGS.every((code) => metadata.compatibleWarnings.includes(code)), 'package metadata documents compatible warning codes');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-compatibility'] === 'string' ? packageManifest.exports['./rmt-language/vnext-compatibility'] : packageManifest.exports['./rmt-language/vnext-compatibility'] && packageManifest.exports['./rmt-language/vnext-compatibility'].default) === './tools/rmt-language/vnext-compatibility.js', 'package exports vNext compatibility adapter');
   context.assert(packageManifest.scripts['test:rmt-vnext-compatibility'] === 'node scripts/run_xtend_tests.js rmt-vnext-compatibility', 'package exposes vNext compatibility script');
-  context.assert(runner.includes("id: 'rmt-vnext-compatibility'"), 'test runner exposes rmt-vnext-compatibility suite');
+  context.assert(runner.hasSuite("rmt-vnext-compatibility"), 'test runner exposes rmt-vnext-compatibility suite');
   context.assert(epic.includes('| `WP-E15-16` | P2 | completed | WS5 |'), 'Epic marks WP-E15-16 completed');
   context.assert(epic.includes('| `WP-E15-17` | P2 | completed | WS6 |'), 'Epic keeps WP-E15-17 completed after compatibility');
   context.assert(contract.includes(RMT_VNEXT_COMPATIBILITY_SCHEMA), 'compatibility contract declares matrix schema');

@@ -1,5 +1,7 @@
 'use strict';
 
+const XTEND_RELEASE_VERSION = require('../package.json').version;
+
 const {
   FORBIDDEN_FRAMEWORK_DEPENDENCIES,
   assertNoFrameworkDependencies
@@ -225,7 +227,7 @@ function normalizeCompatibilityMatrix(matrix = {}) {
   return {
     schema: XTENSIONS_REGISTRY_COMPATIBILITY_MATRIX_SCHEMA,
     status: normalizeString(source.status || 'supported'),
-    xtendVersionRange: normalizeString(source.xtendVersionRange || source.xtend || '^0.6.1'),
+    xtendVersionRange: normalizeString(source.xtendVersionRange || source.xtend || `^${XTEND_RELEASE_VERSION}`),
     maracaManifestSchema: normalizeString(source.maracaManifestSchema || XTENSIONS_MARACA_MANIFEST_SCHEMA),
     runtimeRegistrySchema: normalizeString(source.runtimeRegistrySchema || XTENSIONS_RUNTIME_CAPABILITY_REGISTRY_SCHEMA),
     securityGateSchema: normalizeString(source.securityGateSchema || XTENSIONS_SECURITY_INTEGRITY_GATE_SCHEMA),

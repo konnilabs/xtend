@@ -49,9 +49,9 @@ function createAdapter(rootDir) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextRegression;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
   const contract = readText(REGRESSION_CONTRACT_PATH, rootDir);
   const workpackage = readText(WP_E15_17_PATH, rootDir);
@@ -72,7 +72,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_REGRESSION_PACKAGE_SCRIPT, 'package metadata declares package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-regression'] === 'string' ? packageManifest.exports['./rmt-language/vnext-regression'] : packageManifest.exports['./rmt-language/vnext-regression'] && packageManifest.exports['./rmt-language/vnext-regression'].default) === './tools/rmt-language/vnext-regression.js', 'package exports vNext regression adapter');
   context.assert(packageManifest.scripts['test:rmt-vnext-regression'] === 'node scripts/run_xtend_tests.js rmt-vnext-regression', 'package exposes vNext regression script');
-  context.assert(runner.includes("id: 'rmt-vnext-regression'"), 'test runner exposes rmt-vnext-regression suite');
+  context.assert(runner.hasSuite("rmt-vnext-regression"), 'test runner exposes rmt-vnext-regression suite');
   context.assert(epic.includes('| `WP-E15-17` | P2 | completed | WS6 |'), 'Epic marks WP-E15-17 completed');
   context.assert(epic.includes('| `WP-E15-18` | P2 | completed | WS6 |'), 'Epic keeps WP-E15-18 completed after regression gate');
   context.assert(contract.includes(RMT_VNEXT_REGRESSION_SCHEMA), 'regression contract declares gate schema');

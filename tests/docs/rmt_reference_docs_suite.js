@@ -256,8 +256,8 @@ function runMarkdownChecks(context, rootDir) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const defaultWorkflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
   const nightlyWorkflow = readText('.github/workflows/xtend-nightly-build.yml', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtReferenceDocs;
@@ -274,16 +274,16 @@ function runMetadataChecks(context, rootDir) {
   context.assert(Array.isArray(metadata && metadata.docs) && metadata.docs.length === LOCALES.length * RMT_REFERENCE_SLUGS.length, 'package metadata lists every localized RMT Reference page');
   context.assert(packageManifest.scripts['test:rmt-reference-docs'] === 'node scripts/run_xtend_tests.js rmt-reference-docs', 'package exposes rmt-reference-docs script');
   context.assert(packageManifest.scripts['test:rmt-reference-docs:report'] === `node scripts/run_xtend_tests.js rmt-reference-docs --report ${RMT_REFERENCE_DOCS_REPORT_PATH}`, 'package exposes rmt-reference-docs report script');
-  context.assert(runner.includes("id: 'rmt-reference-docs'"), 'test runner exposes rmt-reference-docs suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-reference-docs'), 'test runner help references rmt-reference-docs');
+  context.assert(runner.hasSuite("rmt-reference-docs"), 'test runner exposes rmt-reference-docs suite');
+  context.assert(runner.hasSuite("rmt-reference-docs"), 'test runner help references rmt-reference-docs');
   context.assert(ciGateMatrix && ciGateMatrix.prFastGate && ciGateMatrix.prFastGate.suites.includes('rmt-reference-docs'), 'PR CI gate matrix includes rmt-reference-docs');
   context.assert(ciGateMatrix && ciGateMatrix.fullReleaseGate && ciGateMatrix.fullReleaseGate.suites.includes('rmt-reference-docs'), 'Full release CI gate matrix includes rmt-reference-docs');
   context.assert(ciGateMatrix && ciGateMatrix.nightlyBuild && ciGateMatrix.nightlyBuild.commandSet.includes(RMT_REFERENCE_DOCS_REPORT_SCRIPT), 'Nightly CI gate matrix runs the RMT Reference report script');
   context.assert(ciGateMatrix && ciGateMatrix.prFastGate && Array.isArray(ciGateMatrix.prFastGate.additionalReportPaths) && ciGateMatrix.prFastGate.additionalReportPaths.includes(RMT_REFERENCE_DOCS_REPORT_PATH), 'PR CI gate matrix uploads the RMT Reference report path');
   context.assert(ciGateMatrix && ciGateMatrix.fullReleaseGate && Array.isArray(ciGateMatrix.fullReleaseGate.additionalReportPaths) && ciGateMatrix.fullReleaseGate.additionalReportPaths.includes(RMT_REFERENCE_DOCS_REPORT_PATH), 'Full release CI gate matrix uploads the RMT Reference report path');
-  context.assert(defaultWorkflow.includes('npm run test:rmt-reference-docs:report'), 'Default GitHub Actions workflow runs the RMT Reference report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:rmt-reference-docs:report"), 'Default GitHub Actions workflow runs the RMT Reference report');
   context.assert(defaultWorkflow.includes(RMT_REFERENCE_DOCS_REPORT_PATH), 'Default GitHub Actions workflow uploads the RMT Reference report');
-  context.assert(nightlyWorkflow.includes('npm run test:rmt-reference-docs:report'), 'Nightly GitHub Actions workflow runs the RMT Reference report');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:rmt-reference-docs:report"), 'Nightly GitHub Actions workflow runs the RMT Reference report');
   context.assert(nightlyWorkflow.includes(RMT_REFERENCE_DOCS_REPORT_PATH), 'Nightly GitHub Actions workflow uploads the RMT Reference report');
   context.assert(nightlyWorkflow.includes('RMT Reference docs gate failed'), 'Nightly GitHub Actions workflow fails on RMT Reference report failure');
 }

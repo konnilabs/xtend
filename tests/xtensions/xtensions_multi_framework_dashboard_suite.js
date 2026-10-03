@@ -122,9 +122,9 @@ function runXTensionsMultiFrameworkDashboardSuite(options = {}) {
     label: 'XTensions Multi-Framework Dashboard Fixture and Browser Smokes Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.xtensionsMultiFrameworkDashboardFixture;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const securityContract = readText(SECURITY_CONTRACT_PATH, rootDir);
@@ -182,8 +182,8 @@ function runXTensionsMultiFrameworkDashboardSuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/multi-framework-dashboard-fixture.js', 'package exports XTensions dashboard module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/multi-framework-dashboard-fixture.d.ts', 'package exports XTensions dashboard types');
   context.assert(packageManifest.scripts['test:xtensions-multi-framework-dashboard'] === 'node scripts/run_xtend_tests.js xtensions-multi-framework-dashboard', 'package exposes dashboard test script');
-  context.assert(runner.includes("id: 'xtensions-multi-framework-dashboard'"), 'test runner exposes xtensions-multi-framework-dashboard suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js xtensions-multi-framework-dashboard'), 'runner help references dashboard gate');
+  context.assert(runner.hasSuite("xtensions-multi-framework-dashboard"), 'test runner exposes xtensions-multi-framework-dashboard suite');
+  context.assert(runner.hasSuite("xtensions-multi-framework-dashboard"), 'runner help references dashboard gate');
 
   context.assert(backlog.includes('| `XTN-12` | P2 | completed | WS11 |'), 'backlog marks XTN-12 completed');
   context.assert(backlog.includes('development/XTensions-Multi-Framework-Dashboard-Fixture-and-Browser-Smokes-Contract.md'), 'backlog references dashboard contract');

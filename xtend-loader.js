@@ -22,8 +22,8 @@ const ALLOWED_IMPORT_PROTOCOLS = ['http:', 'https:', 'file:'];
 const REFUSED_IMPORT_PROTOCOLS = ['javascript:', 'data:', 'vbscript:', 'blob:'];
 const ALLOWED_MANIFEST_EXTENSIONS = ['.json'];
 const ALLOWED_MODULE_EXTENSIONS = ['.js', '.mjs'];
-const RESERVED_MANIFEST_KEYS = ['xstate', 'xtend-i18n'];
-const BOOTSTRAP_MODULE_KEYS = ['xstate', 'xtend-i18n', 'x-utils'];
+const RESERVED_MANIFEST_KEYS = ['xtend-state', 'xtend-i18n'];
+const BOOTSTRAP_MODULE_KEYS = ['xtend-state', 'xtend-i18n', 'x-utils'];
 const CUSTOM_ELEMENT_NAME_PATTERN = /^[a-z][a-z0-9]*-[a-z0-9-]*[a-z0-9]$/;
 const MODULE_CACHE_BUST_PARAM = 'xtend-cache';
 const LOADER_DIAGNOSTIC_HISTORY_LIMIT = 100;
@@ -1147,7 +1147,7 @@ function readCacheBustFromUrl(value) {
 }
 
 function appendModuleCacheBust(tag, moduleUrl, cacheBust) {
-  if (!cacheBust || tag === 'xstate' || tag === 'xtend-i18n' || BOOTSTRAP_MODULE_KEYS.includes(tag)) return moduleUrl;
+  if (!cacheBust || tag === 'xtend-state' || tag === 'xtend-i18n' || BOOTSTRAP_MODULE_KEYS.includes(tag)) return moduleUrl;
   try {
     const url = new URL(moduleUrl, document.baseURI);
     if (url.searchParams.has(MODULE_CACHE_BUST_PARAM)) return url.href;
@@ -1170,11 +1170,11 @@ function loadScript(src, asModule = true) {
 }
 
 async function loadCoreModules(manifest) {
-  if (manifest.xstate) {
-    await tryLoad('xstate', manifest.xstate);
+  if (manifest['xtend-state']) {
+    await tryLoad('xtend-state', manifest['xtend-state']);
   } else {
-    emitLoaderDiagnostic('xtend.loader.core.xstate_missing', 'warn', 'Manifest enthaelt keinen xstate-Eintrag');
-    loaderVerboseWarn('XTend Loader: Manifest enthaelt keinen xstate-Eintrag.');
+    emitLoaderDiagnostic('xtend.loader.core.state_missing', 'warn', 'Manifest enthaelt keinen xtend-state-Eintrag');
+    loaderVerboseWarn('XTend Loader: Manifest enthaelt keinen xtend-state-Eintrag.');
   }
 
   if (manifest['xtend-i18n']) {

@@ -181,9 +181,9 @@ function runLayoutDisplayMediaUxSuite(options = {}) {
     tests: { assertions: [] }
   });
   const fixture = readJson(LAYOUT_DISPLAY_MEDIA_UX_FIXTURE, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const contractDoc = readText(LAYOUT_DISPLAY_MEDIA_UX_CONTRACT_DOC, rootDir);
   const workpackage = readText('development/WP-E11-12-Layout-Display-und-Media-Shell-Reife-umsetzen.md', rootDir);
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
@@ -277,7 +277,7 @@ function runLayoutDisplayMediaUxSuite(options = {}) {
   context.assert(metadata.kernelBoundary === KERNEL_BOUNDARY, 'Package metadata preserves RMT kernel boundary');
   context.assertIncludes(scaffoldConfig, 'layoutDisplayMediaUxMaturity', 'Scaffold config exposes Layout Display Media UX section');
   context.assertIncludes(scaffoldConfig, LAYOUT_DISPLAY_MEDIA_UX_SCHEMA, 'Scaffold config declares Layout Display Media UX schema');
-  context.assertIncludes(runner, "id: 'layout-display-media-ux'", 'Runner exposes Layout Display Media UX suite');
+  context.assert(runner.hasSuite("layout-display-media-ux"), 'Runner exposes Layout Display Media UX suite');
   context.assertIncludes(contractDoc, LAYOUT_DISPLAY_MEDIA_UX_SCHEMA, 'Contract document declares Layout Display Media UX schema');
   context.assertIncludes(contractDoc, '`xtendLayoutDisplayMediaUxProfile`', 'Contract document describes runtime profile');
   context.assertIncludes(workpackage, 'xtend.epic11.wp12.layout-display-media-ux.v1', 'WP-E11-12 document declares schema');

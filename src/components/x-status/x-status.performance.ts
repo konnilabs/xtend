@@ -5,7 +5,7 @@ export const xStatusPerformanceProfile = {
   lane: 'feedback',
   hydrationPolicy: 'visible',
   criticalMeasurements: ['mount', 'hydrate', 'event'],
-  cleanup: ['xstate-subscription']
+  cleanup: ['xtendState-subscription']
 } as const;
 
 export type XStatusPerformanceProfile = typeof xStatusPerformanceProfile;

@@ -66,11 +66,11 @@ function runXThemeComponentSuite(options = {}) {
   context.assert(source.includes('data-xtend-contrast'), 'x-theme synchronizes contrast preference attribute');
   context.assert(source.includes('--xtend-density-scale'), 'x-theme exposes density tokens');
   context.assert(source.includes('xtend-theme'), 'x-theme persists theme state under xtend-theme');
-  context.assert(source.includes("xstate.set('theme'"), 'x-theme mirrors current theme to xstate');
-  context.assert(source.includes("xstate.set('xtend.theme.density'"), 'x-theme mirrors density to xstate');
-  context.assert(source.includes("xstate.set('xtend.theme.context'"), 'x-theme mirrors theme context to xstate');
-  context.assert(source.includes("xstate.set('xtend.theme.performanceProfile'"), 'x-theme mirrors performance profile to xstate');
-  context.assert(source.includes("xstate.set('xtend.theme.preferences'"), 'x-theme mirrors A11y preferences to xstate');
+  context.assert(source.includes("xtendState.set('theme'"), 'x-theme mirrors current theme to state');
+  context.assert(source.includes("xtendState.set('xtend.theme.density'"), 'x-theme mirrors density to state');
+  context.assert(source.includes("xtendState.set('xtend.theme.context'"), 'x-theme mirrors theme context to state');
+  context.assert(source.includes("xtendState.set('xtend.theme.performanceProfile'"), 'x-theme mirrors performance profile to state');
+  context.assert(source.includes("xtendState.set('xtend.theme.preferences'"), 'x-theme mirrors A11y preferences to state');
   context.assert(types.includes('XThemeA11yPreferences'), 'x-theme public types expose A11y preferences');
   context.assert(types.includes('XThemeMotionContrastPolicy'), 'x-theme public types expose Motion/Contrast policy');
   context.assert(types.includes('XThemeDensity'), 'x-theme public types expose density type');
@@ -84,7 +84,7 @@ function runXThemeComponentSuite(options = {}) {
   context.assert(types.includes('theme-performance-measured'), 'x-theme public types include performance measurement event');
   context.assert(fixture.includes('/components/xtheme.js'), 'x-theme fixture loads the repo-local module');
   context.assert(!fixture.includes('https://cdn.ccs-networks.de'), 'x-theme fixture has no CDN dependency');
-  context.assert(fixture.includes('window.xstate'), 'x-theme fixture stubs xstate locally');
+  context.assert(fixture.includes('window.XTend.state'), 'x-theme fixture stubs state locally');
   context.assert(fixture.includes('setDensity'), 'x-theme fixture exercises density propagation');
   context.assert(fixture.includes('getThemeContext'), 'x-theme fixture checks theme context propagation');
   context.assert(fixture.includes('snapshotPerformance'), 'x-theme fixture checks performance snapshot');

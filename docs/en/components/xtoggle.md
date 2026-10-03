@@ -120,7 +120,7 @@ With `prefers-reduced-motion: reduce`, state must remain clear without a thumb a
 - Performance profile: `xtend.performance.component-profile.v1`
 - Schedules: `component.visible.mount`, `component.idle.hydrate`, `ui.user-blocking.input`, `a11y.announce`, `diagnostics.snapshot`
 
-The component publishes `xtoggle-checked-<id>` and `xtoggle-state-<id>` through `xstate`. In an RMT surface, bind `toggle-changed` and `toggle-invalid` DOM events to declarative commands. Neither the component nor a wrapper should import the RMT kernel to do so.
+The component publishes `xtoggle-checked-<id>` and `xtoggle-state-<id>` through XTend Classic State. In an RMT surface, bind `toggle-changed` and `toggle-invalid` DOM events to declarative commands. Neither the component nor a wrapper should import the RMT kernel to do so.
 
 ## Troubleshooting
 

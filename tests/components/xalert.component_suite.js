@@ -14,7 +14,7 @@ const xalertConfig = {
   profiles: ['feedback', 'stateful'],
   observedAttributes: ['type', 'closable', 'duration', 'overlay', 'aria-label'],
   sourceContracts: [
-    { pattern: 'xtend.component.x-alert.', message: 'x-alert syncs the canonical xstate key' },
+    { pattern: 'xtend.component.x-alert.', message: 'x-alert syncs the canonical state key' },
     { pattern: 'xalert-state-', message: 'x-alert documents the legacy compatibility state key' },
     { pattern: 'alert-shown', message: 'x-alert emits alert-shown' },
     { pattern: 'alert-dismissed', message: 'x-alert emits alert-dismissed' },
@@ -45,7 +45,7 @@ const xalertConfig = {
     { pattern: 'closable', message: 'x-alert fixture covers closable attribute' },
     { pattern: 'overlay', message: 'x-alert fixture covers overlay attribute' },
     { pattern: 'aria-label="Component alert"', message: 'x-alert fixture covers aria-label' },
-    { pattern: 'window.xstate', message: 'x-alert fixture stubs xstate locally' },
+    { pattern: 'window.XTend.state', message: 'x-alert fixture stubs state locally' },
     { pattern: '__xtendComponentResult', message: 'x-alert fixture exposes a component result object' }
   ],
   docContracts: [

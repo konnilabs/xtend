@@ -1,0 +1,59 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Native Maraca FastPass responsiveness</title>
+<link rel="stylesheet" href="/.xtend-build/maraca/fastpass/xtend.maraca.css">
+<main id="xtend-maraca-root"></main><pre id="result"></pre>
+<script>window.XTendMaracaAutoBoot=false;</script>
+<script type="module">
+const checks=[], measurements=[], errors=[];
+window.addEventListener('error', event => errors.push(event.message));
+window.addEventListener('unhandledrejection', event => errors.push(String(event.reason)));
+const check=(condition,message)=>{checks.push({message,ok:!!condition});if(!condition)throw Error(message);};
+const frame=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+const until=async predicate=>{const start=performance.now();while(!predicate()){if(performance.now()-start>4000)throw Error('Fixture condition timed out');await new Promise(resolve=>setTimeout(resolve,5));}};
+const surface=id=>document.querySelector(`[data-maraca-surface="${id}"]`);
+let releaseHost,hostStarted,holdHydration,releaseHydration,hydrationStarted,lateCharts=0;
+try {
+ const entry=await import('/.xtend-build/maraca/fastpass/xtend.maraca.mjs');
+ const app=entry.default;
+ await Promise.all(['x-button','x-section'].map(entry.ensureMaracaComponent));
+ for(const diagnostics of [false,true]) {
+  hostStarted=false;holdHydration=false;hydrationStarted=false;
+  await app.boot({root:document.querySelector('main'),
+   navigationAdapter:{navigate(path){history.replaceState(null,'',path);}},
+   dataSourceAdapters:{host:{invoke(){hostStarted=true;return new Promise(resolve=>releaseHost=resolve);}}},
+   componentRegistry:{hydrate(_root,_tags,context){if(!holdHydration)return;hydrationStarted=true;return new Promise(resolve=>releaseHydration=resolve).then(()=>{if(context.isCurrent())lateCharts++;});}},
+   fastPassActions:[{id:'latest',effects:[{kind:'navigation',path:{kind:'reference',path:'input.path'}}]}]
+  });
+  let fullSnapshots=0;
+  const unsubscribe=diagnostics?app.subscribe(()=>fullSnapshots++):()=>{};
+  const slow=app.dispatchCommand('loadReports',{request:'first'});
+  const next=app.dispatchCommand('loadReports',{request:'second'});
+  await until(()=>hostStarted);
+  const start=performance.now();surface('navigation').click();await until(()=>location.hash==='#reports');await frame();
+  measurements.push({diagnostics,action:'navigation',inputToPaintMs:performance.now()-start});
+  check(hostStarted,'Navigation applied while business host work remains held');
+  const first=app.dispatchFastPass('latest',{path:'#old'});first.result.catch(()=>{});
+  await app.dispatchCommand('latest',{path:'#latest'});
+  surface('focusButton').click();await until(()=>document.activeElement===surface('navigation'));
+  check(document.activeElement===surface('navigation'),'Focus event binding reaches the FastPass executor');
+  const closeStart=performance.now();surface('closeButton').click();await until(()=>surface('panel').hasAttribute('hidden'));await frame();
+  measurements.push({diagnostics,action:'close',inputToPaintMs:performance.now()-closeStart});
+  const firstRelease=releaseHost;firstRelease({ok:true});await slow;
+  await until(()=>releaseHost!==firstRelease);releaseHost({ok:true});await next;
+  check(location.hash==='#latest' && surface('panel').hasAttribute('hidden'),'Ordered late model work cannot reverse the latest shell intent');
+  check(!diagnostics || fullSnapshots>0,'Optional diagnostics retain the full subscription contract');
+  unsubscribe();app.dispose('next-round');
+  // A fresh boot gives the panel a new presentation lifetime.
+  await app.boot({root:document.querySelector('main'),componentRegistry:{hydrate(_root,_tags,context){if(!holdHydration)return;hydrationStarted=true;return new Promise(resolve=>releaseHydration=resolve).then(()=>{if(context.isCurrent())lateCharts++;});}}});
+  holdHydration=true;hydrationStarted=false;
+  const hydrating=app.dispatchCommand('updatePanel',{label:'Prepared asynchronously'});
+  await until(()=>hydrationStarted);
+  await app.dispatchFastPass('dismissPanel',{source:'fixture'}).result;
+  await hydrating;releaseHydration();await frame();
+  check(lateCharts===0 && surface('panel').hasAttribute('hidden'),'Closing held hydration settles the command and suppresses late chart commits');
+  app.dispose('fixture-complete');
+ }
+ check(errors.length===0,'No page errors or unhandled rejections');
+ window.__maracaResponsiveness={status:'passed',checks,measurements,errors};
+} catch(error) {window.__maracaResponsiveness={status:'failed',checks,measurements,errors,error:String(error.stack||error)};}
+document.querySelector('#result').textContent=JSON.stringify(window.__maracaResponsiveness,null,2);
+</script></html>

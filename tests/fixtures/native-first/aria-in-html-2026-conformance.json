@@ -1,0 +1,164 @@
+{
+  "schema": "xtend.a11y.aria-in-html-conformance.v1",
+  "baseline": {
+    "title": "ARIA in HTML",
+    "status": "W3C Recommendation",
+    "publishedDate": "2026-08-11",
+    "url": "https://www.w3.org/TR/2026/REC-html-aria-20260811/",
+    "sourceClass": "standards-recommendation",
+    "claimBoundary": "author-conformance-only-no-browser-aom-or-assistive-technology-support-claim"
+  },
+  "scope": [
+    "native-semantics",
+    "allowed-roles-and-aria",
+    "naming-prohibition",
+    "summary",
+    "label",
+    "selectedcontent-and-custom-select",
+    "html",
+    "img",
+    "aria-hidden-with-hidden"
+  ],
+  "rules": [
+    {
+      "id": "summary-direct-child-of-details",
+      "rolePolicy": "none",
+      "allowGlobalAria": true,
+      "allowedAria": ["aria-disabled", "aria-haspopup"],
+      "namingProhibited": false
+    },
+    {
+      "id": "label-associated-with-labelable",
+      "rolePolicy": "none",
+      "allowGlobalAria": true,
+      "allowedAria": [],
+      "namingProhibited": true
+    },
+    {
+      "id": "label-unassociated",
+      "rolePolicy": "any",
+      "allowGlobalAria": true,
+      "allowedAria": [],
+      "namingProhibited": true
+    },
+    {
+      "id": "selectedcontent-valid-custom-select-child",
+      "rolePolicy": "none",
+      "allowAria": false,
+      "allowGlobalAria": false,
+      "allowedAria": [],
+      "namingProhibited": true
+    },
+    {
+      "id": "button-first-child-of-custom-select",
+      "rolePolicy": "none",
+      "allowAria": false,
+      "allowGlobalAria": false,
+      "allowedAria": [],
+      "namingProhibited": true
+    },
+    {
+      "id": "html-root",
+      "rolePolicy": "allowed",
+      "allowedRoles": ["document", "generic"],
+      "notRecommendedRoles": ["document", "generic"],
+      "allowAria": false,
+      "allowGlobalAria": false,
+      "allowedAria": [],
+      "namingProhibited": true
+    },
+    {
+      "id": "img-with-non-empty-alt",
+      "rolePolicy": "allowed",
+      "allowedRoles": ["button", "checkbox", "link", "math", "menuitem", "menuitemcheckbox", "menuitemradio", "option", "progressbar", "radio", "scrollbar", "separator", "slider", "switch", "tab", "treeitem", "img"],
+      "allowGlobalAria": true,
+      "allowedAria": ["aria-checked", "aria-expanded", "aria-pressed", "aria-selected", "aria-valuemax", "aria-valuemin", "aria-valuenow", "aria-valuetext"],
+      "namingProhibited": false
+    },
+    {
+      "id": "img-with-empty-alt-and-no-name",
+      "rolePolicy": "allowed",
+      "allowedRoles": ["none", "presentation"],
+      "allowGlobalAria": false,
+      "allowedAria": ["aria-hidden"],
+      "allowedAriaValues": {"aria-hidden": ["true"]},
+      "namingProhibited": true
+    },
+    {
+      "id": "hidden-element",
+      "rolePolicy": "any",
+      "allowGlobalAria": true,
+      "allowedAria": [],
+      "namingProhibited": false
+    },
+    {
+      "id": "generic-container",
+      "rolePolicy": "any",
+      "allowGlobalAria": true,
+      "allowedAria": ["aria-modal"],
+      "namingProhibited": false
+    },
+    {
+      "id": "native-button",
+      "rolePolicy": "allowed",
+      "allowedRoles": ["button", "checkbox", "combobox", "gridcell", "link", "menuitem", "menuitemcheckbox", "menuitemradio", "option", "radio", "separator", "slider", "switch", "tab", "treeitem"],
+      "notRecommendedRoles": ["button"],
+      "allowGlobalAria": true,
+      "allowedAria": ["aria-checked", "aria-expanded", "aria-pressed", "aria-selected"],
+      "namingProhibited": false
+    },
+    {
+      "id": "native-form",
+      "rolePolicy": "allowed",
+      "allowedRoles": ["form", "none", "presentation", "search"],
+      "notRecommendedRoles": ["form"],
+      "allowGlobalAria": true,
+      "allowedAria": [],
+      "namingProhibited": false
+    },
+    {
+      "id": "native-select",
+      "rolePolicy": "allowed",
+      "allowedRoles": ["combobox", "menu"],
+      "notRecommendedRoles": ["combobox"],
+      "allowGlobalAria": true,
+      "allowedAria": ["aria-expanded", "aria-required"],
+      "namingProhibited": false
+    }
+  ],
+  "cases": [
+    {"id": "summary-native-positive", "ruleRef": "summary-direct-child-of-details", "element": "summary", "role": null, "aria": {}, "context": {"directDetailsChild": true}, "expectedValid": true},
+    {"id": "summary-explicit-role-negative", "ruleRef": "summary-direct-child-of-details", "element": "summary", "role": "button", "aria": {}, "context": {"directDetailsChild": true}, "expectedValid": false},
+    {"id": "summary-expanded-negative", "ruleRef": "summary-direct-child-of-details", "element": "summary", "role": null, "aria": {"aria-expanded": "true"}, "context": {"directDetailsChild": true}, "expectedValid": false},
+    {"id": "label-associated-positive", "ruleRef": "label-associated-with-labelable", "element": "label", "role": null, "aria": {}, "context": {"associated": true}, "expectedValid": true},
+    {"id": "label-role-negative", "ruleRef": "label-associated-with-labelable", "element": "label", "role": "note", "aria": {}, "context": {"associated": true}, "expectedValid": false},
+    {"id": "label-name-negative", "ruleRef": "label-unassociated", "element": "label", "role": null, "aria": {"aria-label": "Label"}, "context": {"associated": false}, "expectedValid": false},
+    {"id": "selectedcontent-positive", "ruleRef": "selectedcontent-valid-custom-select-child", "element": "selectedcontent", "role": null, "aria": {}, "context": {"validCustomSelectChild": true}, "expectedValid": true},
+    {"id": "selectedcontent-aria-negative", "ruleRef": "selectedcontent-valid-custom-select-child", "element": "selectedcontent", "role": null, "aria": {"aria-label": "Current"}, "context": {"validCustomSelectChild": true}, "expectedValid": false},
+    {"id": "custom-select-button-positive", "ruleRef": "button-first-child-of-custom-select", "element": "button", "role": null, "aria": {}, "context": {"firstCustomSelectChild": true}, "expectedValid": true},
+    {"id": "custom-select-button-role-negative", "ruleRef": "button-first-child-of-custom-select", "element": "button", "role": "combobox", "aria": {}, "context": {"firstCustomSelectChild": true}, "expectedValid": false},
+    {"id": "html-native-positive", "ruleRef": "html-root", "element": "html", "role": null, "aria": {}, "context": {}, "expectedValid": true},
+    {"id": "html-aria-negative", "ruleRef": "html-root", "element": "html", "role": null, "aria": {"aria-label": "Document"}, "context": {}, "expectedValid": false},
+    {"id": "img-named-math-positive", "ruleRef": "img-with-non-empty-alt", "element": "img", "role": "math", "aria": {}, "context": {"nonEmptyAlt": true}, "expectedValid": true},
+    {"id": "img-empty-presentation-positive", "ruleRef": "img-with-empty-alt-and-no-name", "element": "img", "role": "presentation", "aria": {"aria-hidden": "true"}, "context": {"emptyAlt": true}, "expectedValid": true},
+    {"id": "img-empty-button-negative", "ruleRef": "img-with-empty-alt-and-no-name", "element": "img", "role": "button", "aria": {}, "context": {"emptyAlt": true}, "expectedValid": false},
+    {"id": "hidden-redundant-positive", "ruleRef": "hidden-element", "element": "div", "role": null, "aria": {"aria-hidden": "true"}, "context": {"hidden": true, "focusable": false, "hiddenUntilFound": false}, "expectedValid": true},
+    {"id": "hidden-focusable-negative", "ruleRef": "hidden-element", "element": "button", "role": null, "aria": {"aria-hidden": "true"}, "context": {"hidden": true, "focusable": true, "hiddenUntilFound": false}, "expectedValid": false},
+    {"id": "hidden-until-found-negative", "ruleRef": "hidden-element", "element": "div", "role": null, "aria": {"aria-hidden": "true"}, "context": {"hidden": true, "focusable": false, "hiddenUntilFound": true}, "expectedValid": false},
+    {"id": "native-button-redundant-positive", "ruleRef": "native-button", "element": "button", "role": "button", "aria": {"aria-disabled": "false", "aria-busy": "false"}, "context": {}, "expectedValid": true},
+    {"id": "native-form-redundant-positive", "ruleRef": "native-form", "element": "form", "role": "form", "aria": {}, "context": {}, "expectedValid": true},
+    {"id": "native-select-redundant-positive", "ruleRef": "native-select", "element": "select", "role": "combobox", "aria": {"aria-describedby": "hint error"}, "context": {}, "expectedValid": true},
+    {"id": "dialog-positive", "ruleRef": "generic-container", "element": "div", "role": "dialog", "aria": {"aria-modal": "true", "aria-hidden": "false"}, "context": {}, "expectedValid": true},
+    {"id": "toast-status-positive", "ruleRef": "generic-container", "element": "div", "role": "status", "aria": {"aria-live": "polite", "aria-atomic": "true"}, "context": {}, "expectedValid": true}
+  ],
+  "componentPhases": [
+    {"component": "x-button", "semanticFingerprint": "native-button-with-disabled-and-busy-state", "phases": ["ssr", "pre-hydration", "post-hydration"], "caseRefs": ["native-button-redundant-positive"], "source": "components/xbutton.js", "sourceEvidence": ["<button part=\"button\" type=\"button\" role=\"button\"", "aria-disabled=\"false\"", "aria-busy=\"false\""]},
+    {"component": "x-input", "semanticFingerprint": "associated-label-and-assertive-validation", "phases": ["ssr", "pre-hydration", "post-hydration"], "caseRefs": ["label-associated-positive"], "source": "components/xinput.js", "sourceEvidence": ["<label id=\"label\" part=\"label\" for=\"input\">", "role=\"alert\"", "aria-live=\"assertive\""]},
+    {"component": "x-select", "semanticFingerprint": "associated-label-native-select-and-validation", "phases": ["ssr", "pre-hydration", "post-hydration"], "caseRefs": ["label-associated-positive", "native-select-redundant-positive"], "source": "components/xselect.js", "sourceEvidence": ["<label id=\"label\" part=\"label\" for=\"control\">", "<select id=\"control\" part=\"control icon\" role=\"combobox\""]},
+    {"component": "x-form", "semanticFingerprint": "native-form-with-status-and-alert-regions", "phases": ["ssr", "pre-hydration", "post-hydration"], "caseRefs": ["native-form-redundant-positive", "toast-status-positive"], "source": "components/xform.js", "sourceEvidence": ["<form part=\"root form\" role=\"form\">", "role=\"status\"", "role=\"alert\""]},
+    {"component": "x-summary", "semanticFingerprint": "native-details-summary-disclosure", "phases": ["ssr", "pre-hydration", "post-hydration"], "caseRefs": ["summary-native-positive"], "source": "components/xsummary.js", "sourceEvidence": ["<details part=\"container\">", "<summary part=\"summary\">"]},
+    {"component": "x-dialog", "semanticFingerprint": "modal-dialog-with-owned-focus-contract", "phases": ["ssr", "pre-hydration", "post-hydration"], "caseRefs": ["dialog-positive"], "source": "components/xdialog.js", "sourceEvidence": ["role=\"dialog\"", "aria-modal=\"true\"", "aria-hidden=\"${state.open ? 'false' : 'true'}\""]},
+    {"component": "x-modal", "semanticFingerprint": "modal-dialog-with-owned-focus-contract", "phases": ["ssr", "pre-hydration", "post-hydration"], "caseRefs": ["dialog-positive"], "source": "components/xmodal.js", "sourceEvidence": ["role=\"dialog\"", "aria-modal=\"true\"", "aria-hidden=\"${state.open ? 'false' : 'true'}\""]},
+    {"component": "x-toast", "semanticFingerprint": "polite-or-assertive-live-status", "phases": ["ssr", "pre-hydration", "post-hydration"], "caseRefs": ["toast-status-positive"], "source": "components/xtoast.js", "sourceEvidence": ["role=\"${role}\"", "aria-live=\"${live}\"", "aria-atomic=\"true\""]}
+  ]
+}

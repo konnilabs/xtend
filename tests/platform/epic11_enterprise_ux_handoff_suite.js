@@ -52,7 +52,7 @@ function runEpic11EnterpriseUxHandoffSuite(options = {}) {
   const plan = createEpic11EnterpriseUxHandoffPlan({ rootDir });
   const validation = validateEpic11EnterpriseUxHandoffPlan(plan);
   const report = createEpic11EnterpriseUxHandoffReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const manifest = readJson('components/manifest.json', rootDir);
   const expectedManifestCount = Object.keys(manifest).length;
   const metadata = packageManifest.xtend && packageManifest.xtend.epic11EnterpriseUxHandoff;
@@ -67,7 +67,7 @@ function runEpic11EnterpriseUxHandoffSuite(options = {}) {
   const handoffDocs = readText(EPIC11_ENTERPRISE_UX_HANDOFF_DOCS, rootDir);
   const contract = readText(EPIC11_ENTERPRISE_UX_HANDOFF_CONTRACT, rootDir);
   const workpackage = readText(EPIC11_ENTERPRISE_UX_HANDOFF_WORKPACKAGE_DOC, rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const moduleSyntax = syntaxCheckFile(EPIC11_ENTERPRISE_UX_HANDOFF_MODULE, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(EPIC11_ENTERPRISE_UX_HANDOFF_SUITE, { rootDir, extension: '.js' });
@@ -144,7 +144,7 @@ function runEpic11EnterpriseUxHandoffSuite(options = {}) {
   context.assertIncludes(registry, EPIC11_ENTERPRISE_UX_HANDOFF_CONTRACT, 'Reference registry links Handoff contract');
   context.assertIncludes(registry, EPIC11_ENTERPRISE_UX_HANDOFF_SUITE, 'Reference registry links Handoff suite');
   context.assertIncludes(registry, EPIC11_ENTERPRISE_UX_HANDOFF_DOCS, 'Reference registry links Handoff docs');
-  context.assertIncludes(runner, "id: 'epic11-enterprise-ux-handoff'", 'Runner registers Epic 11 Enterprise UX Handoff suite');
+  context.assert(runner.hasSuite("epic11-enterprise-ux-handoff"), 'Runner registers Epic 11 Enterprise UX Handoff suite');
   context.assertIncludes(scaffoldConfig, 'epic11EnterpriseUxHandoff', 'Scaffold config exposes Epic 11 Enterprise UX Handoff');
   context.assert((packageManifest.exports['./catalog/epic11-enterprise-ux-handoff'] === './catalog/epic11-enterprise-ux-handoff.js' || (packageManifest.exports['./catalog/epic11-enterprise-ux-handoff'] && packageManifest.exports['./catalog/epic11-enterprise-ux-handoff'].default === './catalog/epic11-enterprise-ux-handoff.js')), 'Package exports Epic 11 Enterprise UX Handoff module');
   context.assert(packageManifest.scripts['test:epic11-enterprise-ux-handoff'] === 'node scripts/run_xtend_tests.js epic11-enterprise-ux-handoff', 'Package exposes Epic 11 Enterprise UX Handoff script');

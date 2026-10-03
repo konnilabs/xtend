@@ -1697,6 +1697,56 @@
     }
   },
   {
+    "slug": "xtend-mcp",
+    "id": "docs.xtend.mcp",
+    "label": "XTend MCP 0.1",
+    "group": "rmt",
+    "parent": "rmt-language-server",
+    "tier": "basic",
+    "rank": 91,
+    "labels": {
+      "de": "XTend MCP 0.1",
+      "en": "XTend MCP 0.1"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-tooling",
+    "keywords": {
+      "de": [
+        "XTend MCP 0.1",
+        "xtend",
+        "mcp",
+        "tutorial",
+        "build",
+        "rmt-tooling",
+        "RMT",
+        "XTend MCP",
+        "Model Context Protocol",
+        "AI Knowledge Kit",
+        "VS Code",
+        "RAG",
+        "stdio",
+        "Streamable HTTP"
+      ],
+      "en": [
+        "XTend MCP 0.1",
+        "xtend",
+        "mcp",
+        "tutorial",
+        "build",
+        "rmt-tooling",
+        "RMT",
+        "XTend MCP",
+        "Model Context Protocol",
+        "AI Knowledge Kit",
+        "VS Code",
+        "RAG",
+        "stdio",
+        "Streamable HTTP"
+      ]
+    }
+  },
+  {
     "slug": "xtendrmt-app-dsl",
     "id": "docs.xtendrmt.app.dsl",
     "label": "XTendRMT App DSL",
@@ -1771,6 +1821,78 @@
         "concept",
         "build",
         "rmt-runtime"
+      ]
+    }
+  },
+  {
+    "slug": "migration-0-7-state",
+    "id": "docs.migration.0.7.state",
+    "label": "XTend State 0.7 Migration",
+    "group": "rmt",
+    "parent": "xtendrmt-overview",
+    "tier": "deep-dive",
+    "rank": 89,
+    "labels": {
+      "de": "XTend State 0.7 Migration",
+      "en": "XTend State 0.7 Migration"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-authoring",
+    "keywords": {
+      "de": [
+        "XTend State 0.7 Migration",
+        "migration",
+        "state",
+        "tutorial",
+        "build",
+        "rmt-authoring",
+        "RMT"
+      ],
+      "en": [
+        "XTend State 0.7 Migration",
+        "migration",
+        "state",
+        "tutorial",
+        "build",
+        "rmt-authoring",
+        "RMT"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-kernel-0-8-migration",
+    "id": "docs.rmt.kernel.0.8.migration",
+    "label": "RMT Kernel 0.8 Migration",
+    "group": "rmt",
+    "parent": "rmt-kernel-runtime",
+    "tier": "deep-dive",
+    "rank": 90,
+    "labels": {
+      "de": "RMT Kernel 0.8 Migration",
+      "en": "RMT Kernel 0.8 Migration"
+    },
+    "contentType": "tutorial",
+    "trunk": "build",
+    "section": "rmt-authoring",
+    "keywords": {
+      "de": [
+        "RMT Kernel 0.8 Migration",
+        "rmt",
+        "kernel",
+        "migration",
+        "tutorial",
+        "build",
+        "rmt-authoring"
+      ],
+      "en": [
+        "RMT Kernel 0.8 Migration",
+        "rmt",
+        "kernel",
+        "migration",
+        "tutorial",
+        "build",
+        "rmt-authoring"
       ]
     }
   },
@@ -1963,6 +2085,42 @@
         "concept",
         "build",
         "rmt-runtime"
+      ]
+    }
+  },
+  {
+    "slug": "ssr-pages",
+    "id": "docs.ssr.pages",
+    "label": "Node and Laravel Pages",
+    "group": "rmt",
+    "parent": "xtendrmt-runtime-bridge",
+    "tier": "basic",
+    "rank": 87,
+    "labels": {
+      "de": "Seitenlaufzeit für Node und Laravel",
+      "en": "Page runtime for Node and Laravel"
+    },
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "Seitenlaufzeit für Node und Laravel",
+        "ssr",
+        "pages",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
+      ],
+      "en": [
+        "Page runtime for Node and Laravel",
+        "ssr",
+        "pages",
+        "concept",
+        "build",
+        "rmt-runtime",
+        "RMT"
       ]
     }
   },
@@ -2560,6 +2718,42 @@
     }
   },
   {
+    "slug": "rmt-jit-hydrangea",
+    "id": "docs.rmt.jit.hydrangea",
+    "label": "RMT JIT Compiler Hydrangea",
+    "labels": {
+      "de": "RMT JIT Compiler Hydrangea",
+      "en": "RMT JIT Compiler Hydrangea"
+    },
+    "group": "rmt",
+    "parent": "rmt-app-platform-tooling",
+    "tier": "advanced",
+    "rank": 75,
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT JIT Compiler Hydrangea",
+        "rmt",
+        "jit",
+        "hydrangea",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT JIT Compiler Hydrangea",
+        "rmt",
+        "jit",
+        "hydrangea",
+        "concept",
+        "build",
+        "rmt-runtime"
+      ]
+    }
+  },
+  {
     "slug": "rmt-app-platform-fixture",
     "id": "docs.rmt.app.platform.fixture",
     "label": "RMT App Platform Fixture",
@@ -2810,6 +3004,42 @@
         "xtend",
         "maraca",
         "orchestration",
+        "concept",
+        "build"
+      ]
+    }
+  },
+  {
+    "slug": "maraca-fastpass-abort-boundary",
+    "id": "docs.maraca.fastpass.abort.boundary",
+    "label": "Maraca FastPass and Abort Boundaries",
+    "labels": {
+      "de": "Maraca FastPass und Abort Boundaries",
+      "en": "Maraca FastPass and Abort Boundaries"
+    },
+    "group": "maraca",
+    "parent": "xtend-maraca-orchestration",
+    "tier": "advanced",
+    "rank": 75,
+    "contentType": "concept",
+    "trunk": "build",
+    "section": "maraca",
+    "keywords": {
+      "de": [
+        "Maraca FastPass und Abort Boundaries",
+        "maraca",
+        "fastpass",
+        "abort",
+        "boundary",
+        "concept",
+        "build"
+      ],
+      "en": [
+        "Maraca FastPass and Abort Boundaries",
+        "maraca",
+        "fastpass",
+        "abort",
+        "boundary",
         "concept",
         "build"
       ]
@@ -5230,32 +5460,36 @@
     }
   },
   {
-    "slug": "components-xstate",
-    "id": "docs.components.xstate",
-    "label": "xstate",
+    "slug": "components-xtend-state",
+    "id": "docs.components.xtend.state",
+    "label": "XTend State",
     "group": "components",
     "parent": "components",
     "tier": "component-reference",
     "rank": 69.58,
     "labels": {
-      "de": "xstate",
-      "en": "xstate"
+      "de": "XTend State",
+      "en": "XTend State"
     },
     "contentType": "component",
     "trunk": "components",
     "section": "runtime-utilities",
     "keywords": {
       "de": [
-        "xstate",
+        "XTend State",
         "components",
+        "xtend",
+        "state",
         "component",
         "runtime-utilities",
         "Web Component",
         "Custom Element"
       ],
       "en": [
-        "xstate",
+        "XTend State",
         "components",
+        "xtend",
+        "state",
         "component",
         "runtime-utilities",
         "Web Component",

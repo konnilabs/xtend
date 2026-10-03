@@ -259,3 +259,9 @@ The Maraca snapshot exposes plan records and hydration history. The DEV API snap
 - [XScaler Protocol](./xscaler-protocol.md)
 - [XTend DEV API](./xtend-dev-api.md)
 - [XTend Dev Surface](./xtend-dev-surface.md)
+
+## Abort boundary for insular hydration
+
+From 0.8.0, managed Maraca hydration carries its surface presentation epoch. `metadata.surfaces` provides `id`, `boundary`, `token`, `signal` and `isCurrent()` for each island, plus a root guard. Custom hydrators carry these guards through every asynchronous step and recheck immediately before DOM construction or resource initialization. Stale results settle as `superseded` without starting a synchronous fallback.
+
+Valid worker preparation may still populate a shared cache. Visible commits and chart instances require an active boundary. This applies to client-only rendering and requires neither SSR nor resumability. Business imports retain their own cancellation contract. See [Maraca FastPass and Abort Boundary](./maraca-fastpass-abort-boundary.md) for examples.

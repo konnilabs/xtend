@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 
 // <x-summary>
 class XSummary extends HTMLElement {
@@ -167,7 +167,7 @@ class XSummary extends HTMLElement {
         }
       </style>
       <details part="container">
-        <summary part="summary" role="button" aria-expanded="false">
+        <summary part="summary">
           <span class="icon">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 10l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </span>
@@ -187,10 +187,10 @@ class XSummary extends HTMLElement {
     if (!this.id) this.id = `xsummary-${Math.random().toString(36).slice(2, 10)}`;
     this._stateKey = `xsummary-open-${this.id}`;
     this._applyOpenState(this.hasAttribute("open"), { syncState: false });
-    this._setXStateOpen(this._isOpen());
+    this._setStateOpen(this._isOpen());
 
     // Subscribe to state changes, for example open or close from outside
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === this._stateKey && typeof value === "boolean") {
         if (value === this._isOpen()) return;
         this._applyOpenState(value, { syncState: false });
@@ -200,7 +200,6 @@ class XSummary extends HTMLElement {
     this._details.addEventListener("toggle", this._onDetailsToggle);
     this._summary.addEventListener("keydown", this._onSummaryKeydown);
 
-    this._syncAria(this._isOpen());
   }
 
   disconnectedCallback() {
@@ -234,14 +233,10 @@ class XSummary extends HTMLElement {
     return Boolean(this._details && this._details.open);
   }
 
-  _syncAria(isOpen) {
-    if (this._summary) this._summary.setAttribute("aria-expanded", String(Boolean(isOpen)));
-  }
-
-  _setXStateOpen(isOpen) {
+  _setStateOpen(isOpen) {
     if (!this._stateKey) return;
-    if (typeof xstate.get === "function" && xstate.get(this._stateKey) === isOpen) return;
-    xstate.set(this._stateKey, Boolean(isOpen));
+    if (typeof xtendState.get === "function" && xtendState.get(this._stateKey) === isOpen) return;
+    xtendState.set(this._stateKey, Boolean(isOpen));
   }
 
   _applyOpenState(isOpen, options = {}) {
@@ -257,9 +252,8 @@ class XSummary extends HTMLElement {
         this._syncingAttribute = false;
       }
     }
-    this._syncAria(nextOpen);
     if (options.syncState !== false) {
-      this._setXStateOpen(nextOpen);
+      this._setStateOpen(nextOpen);
     }
   }
 

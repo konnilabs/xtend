@@ -134,9 +134,9 @@ function runOverlayInteractionUxSuite(options = {}) {
     tests: { assertions: [] }
   });
   const fixture = readJson(OVERLAY_INTERACTION_UX_FIXTURE, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const contractDoc = readText(OVERLAY_INTERACTION_UX_CONTRACT_DOC, rootDir);
   const workpackage = readText('development/WP-E11-11-Overlay-und-Interaction-UX-Reife-umsetzen.md', rootDir);
   const epic = readText('development/EPIC-11-XTend-Component-UX-Shell-Styling-A11y-und-Kompatibilitaetsreife.md', rootDir);
@@ -233,7 +233,7 @@ function runOverlayInteractionUxSuite(options = {}) {
   context.assert(metadata.kernelBoundary === KERNEL_BOUNDARY, 'Package metadata preserves RMT kernel boundary');
   context.assertIncludes(scaffoldConfig, 'overlayInteractionUxMaturity', 'Scaffold config exposes Overlay Interaction UX section');
   context.assertIncludes(scaffoldConfig, OVERLAY_INTERACTION_UX_SCHEMA, 'Scaffold config declares Overlay Interaction UX schema');
-  context.assertIncludes(runner, "id: 'overlay-interaction-ux'", 'Runner exposes Overlay Interaction UX suite');
+  context.assert(runner.hasSuite("overlay-interaction-ux"), 'Runner exposes Overlay Interaction UX suite');
   context.assertIncludes(contractDoc, OVERLAY_INTERACTION_UX_SCHEMA, 'Contract document declares Overlay Interaction UX schema');
   context.assertIncludes(contractDoc, '`xtendOverlayInteractionUxProfile`', 'Contract document describes runtime profile');
   context.assertIncludes(workpackage, 'xtend.epic11.wp11.overlay-interaction-ux.v1', 'WP-E11-11 document declares schema');

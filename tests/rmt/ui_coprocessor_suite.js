@@ -74,8 +74,8 @@ function runUiCoprocessorSuite(options = {}) {
   const featureAdoptionSource = readText('xtendrmt/rmt-kernel-feature-adoption-registry.js', rootDir);
   const compilerSource = readText('tools/rmt-language/vnext-compiler.js', rootDir);
   const coreTypes = readText('xtendrmt/rmt-core.d.ts', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const manifest = readJson('xtendrmt/rmt-manifest.json', rootDir);
 
   context.assert(suiteSyntax.ok, `UI Coprocessor suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
@@ -150,7 +150,7 @@ function runUiCoprocessorSuite(options = {}) {
   assertSourceIncludes(context, maracaSource, 'const MARACA_UI_COPROCESSOR = freezeMaracaSnapshot(', 'Generated Maraca bundle keeps the UI Coprocessor plan immutable');
   assertSourceIncludes(context, maracaSource, 'uiCoprocessor: MARACA_UI_COPROCESSOR,', 'Generated Maraca bundle passes the immutable UI Coprocessor plan into the composition root');
   assertSourceIncludes(context, packageManifest.xtend.maraca.uiCoprocessorPlanSchema, 'xtend.maraca.ui-coprocessor-plan.v1', 'Package metadata declares UI Coprocessor plan schema');
-  assertSourceIncludes(context, runner, "id: 'ui-coprocessor'", 'Runner registers UI Coprocessor suite');
+  context.assert(runner.hasSuite('ui-coprocessor'), 'Runner registers UI Coprocessor suite');
   context.assert(packageManifest.scripts['test:ui-coprocessor'] === 'node scripts/run_xtend_tests.js ui-coprocessor', 'Package exposes UI Coprocessor test script');
 
   return context.result({

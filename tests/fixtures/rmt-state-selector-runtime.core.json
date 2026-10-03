@@ -11,7 +11,7 @@
       "manualHtmlRendererAllowed": false,
       "htmlStringRendererRequired": false,
       "productSurfaceClone": false,
-      "xstateBridgeMode": "injected-host-adapter",
+      "stateProjectionMode": "injected-host-adapter",
       "kernelBoundary": "no-rmt-kernel-import-of-xtend-types"
     },
     "sourceSyntax": "rmt-vnext",
@@ -378,7 +378,7 @@
   "acceptance": {
     "selectionUpdatesPreserveDom": true,
     "filterUpdatesMayRerenderStructure": true,
-    "xstateBridgeInjected": true,
+    "stateProjectionInjected": true,
     "normalUiContainsHtmlStrings": false,
     "productSurfaceClone": false
   }

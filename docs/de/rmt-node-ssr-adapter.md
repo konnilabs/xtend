@@ -57,3 +57,28 @@ die JSONL Frame-Form für inkrementelle SSR-Ausgaben.
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
+### Attributliterale und Capability-Abdeckung
+
+Strings in `attributes`/`attrs` sind Literale. `type: "search"` bleibt daher
+auch bei einem Modellschlüssel `search` unverändert. Bindings verwenden explizit
+`$model.path`, `$item.path`, `${model.path}` oder Expression-Records.
+Dies gilt auch für die portable Node/PHP-Projektion und den DOM-Renderer.
+Bisherige implizite Modellpfade in Attributen müssen explizite Bindings erhalten.
+Native und ARIA-Attribute akzeptieren endliche Skalare; strukturierte Daten
+gehören in Component-Properties. Bestehende strukturierte `data-*`-Werte
+bleiben unterstützt. Ungültige strukturierte native Attribute werden mit einer
+Diagnose ausgelassen, statt Modellobjekte in HTML zu serialisieren.
+
+Der SSR-Host muss Component-Capabilities über `manifest` und `sourceTexts`
+(oder eine Registry) registrieren. Vorhandene Paketmetadaten allein reichen
+nicht; das gilt auch für `x-section`.
+
+`getRmtSsrCoverage(result)` liefert `xtend.rmt.ssr-coverage.v1` mit
+Descriptor-Elementen, Resume-Markierungen, Component-Nodes, fehlenden
+Capabilities und Raw-HTML-Fragmenten. `resumeMarkerCoverage` zählt Markierungen
+geteilt durch Descriptor-Elemente, ohne Elemente null. Diese Kennzahl misst
+**keine erfolgreichen Browser-Resumes oder Fallback-Häufigkeit**. Innere Nodes
+von Raw-HTML-Fragmenten werden nicht gezählt. Browser-Diagnosen ergänzen die
+serverseitige Kennzahl.
+
+Der Datensatz liegt in `result.fabricTelemetryHints.coverage`; Hydration v1 bleibt unverändert. Der Zugriff ist über `getRmtSsrCoverage(result)` typisiert und validiert.

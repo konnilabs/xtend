@@ -15,7 +15,7 @@
       "routerAdapter": "xtend.xrouter",
       "componentAdapter": "xtend.component",
       "fabricApi": "@xtend-fabric",
-      "kernelBoundary": "RMT owns app records, schedules, routes, templates and metadata only. XTend component execution, manifest lookup, XRouter registration, xstate access, Fabric execution and DOM materialization stay in host adapters."
+      "kernelBoundary": "RMT owns app records, schedules, routes, templates and metadata only. XTend component execution, manifest lookup, XRouter registration, state access, Fabric execution and DOM materialization stay in host adapters."
     },
     "sourceSyntax": "rmt-vnext",
     "authoringSource": "tests/fixtures/rmt-first-class-xtend-app.rmt"

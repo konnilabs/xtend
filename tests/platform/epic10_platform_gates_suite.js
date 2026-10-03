@@ -55,12 +55,12 @@ function runEpic10PlatformGatesSuite(options = {}) {
   const plan = createEpic10PlatformGatePlan({ rootDir });
   const validation = validateEpic10PlatformGatePlan(plan);
   const report = createEpic10PlatformGateReport({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const componentManifest = readJson('components/manifest.json', rootDir);
   const manifestComponentCount = Object.keys(componentManifest || {}).length;
   const metadata = packageManifest.xtend && packageManifest.xtend.epic10PlatformGates;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const browserSuite = readText('tests/browser/browser_smoke_suite.js', rootDir);
   const epic = readText('development/EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
@@ -166,7 +166,7 @@ function runEpic10PlatformGatesSuite(options = {}) {
   context.assertIncludes(registry, EPIC10_PLATFORM_GATES_SUITE, 'Reference registry links Platform Gates suite');
   context.assertIncludes(registry, EPIC10_PLATFORM_GATES_DEVELOPER_DOCS, 'Reference registry links Platform Gates docs');
   context.assertIncludes(scaffoldConfig, 'epic10PlatformGates', 'Scaffold config exposes Epic 10 Platform Gates');
-  context.assertIncludes(runner, "id: 'epic10-platform-gates'", 'Runner registers Epic 10 Platform Gates suite');
+  context.assert(runner.hasSuite("epic10-platform-gates"), 'Runner registers Epic 10 Platform Gates suite');
 
   context.assert((packageManifest.exports['./catalog/epic10-platform-gates'] === './catalog/epic10-platform-gates.js' || (packageManifest.exports['./catalog/epic10-platform-gates'] && packageManifest.exports['./catalog/epic10-platform-gates'].default === './catalog/epic10-platform-gates.js')), 'Package exports Epic 10 Platform Gates module');
   context.assert(packageManifest.scripts['test:epic10-platform-gates'] === 'node scripts/run_xtend_tests.js epic10-platform-gates', 'Package exposes Epic 10 Platform Gates test script');

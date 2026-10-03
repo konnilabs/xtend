@@ -1,6 +1,12 @@
 # RMT Kernel Feature Adoption Evaluation
 
-Stand: 2026-06-19
+XTendRMT 0.8 bewahrt diese Evaluationstracks als Entscheidungshistorie und schließt sie mit einem einzigen Kernel-Scheduler und expliziten optionalen Services ab.
+
+Direkter Microkernel-Boot ist der Default, Product Surface ein expliziter Opt-in-Service, Prewarm standardmäßig deaktiviert und die Panic-/Recovery-Projektion in Fabrics `diagnostics`-Lane redigiert. Das Release-Gate für `retained_warm_reuse` verwendet fünf Warmups, 30 Messungen, p95 und maximal fünf Prozent Regression gegen die eingecheckte Chromium-Baseline. Siehe den [0.8-Migrationsleitfaden](./rmt-kernel-0-8-migration.md).
+
+Stand: 2026-08-30
+
+Status: für XTendRMT 0.8.0 abgeschlossen
 
 Diese Evaluation baut auf der [RMT Kernel Topography Map](./rmt-kernel-topography-map.md) auf. Die Topography Map zeigt, welche Kernel-Flächen vorhanden sind. Dieses Dokument bewertet die bisher wenig genutzten Module: Ist das Modul für XTend nützlich, und falls ja, wo sollte es im Framework eingehängt werden?
 
@@ -17,7 +23,7 @@ Die größten Hebel sind:
 - **DOM Compat**: Sinnvoll als gemeinsame Ownership- und Island-Contract-Schicht für Surface Manager und RMT Surface Adapter.
 - **Worker/Server Prerender Transports**: Sinnvoll, aber stufenweise. Worker-Prerender ist naheliegend für browser-only und offline-fähige Apps; Server-Prerender sollte mit vorhandenen Node/PHP SSR-Adaptern verbunden werden.
 
-Nicht empfohlen ist eine sofortige globale Aktivierung aller Module. Die sinnvolle Linie ist: erst Build- und Report-Evidence, dann opt-in Runtime-Schalter, danach gezielte Produktionspfade.
+Die umgesetzte Linie lautet: Ein Microkernel-Scheduler ist immer vorhanden; Product Surface, Prewarm, Rendering und Reporting bleiben explizite Services oberhalb des Kernels.
 
 ## Bewertungsmatrix
 

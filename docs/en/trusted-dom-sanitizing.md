@@ -20,3 +20,25 @@ Treat Markdown or Parsedown HTML as untrusted even when it lives in the reposito
 
 - [Manifest Import Policy](./manifest-import-policy.md)
 - [Supply Chain checks](./supply-chain-gates.md)
+
+## Migrate RMT output
+
+The Trust Boundary also applies to `slot.html`, `prerender.html`, `fallback.html` and output from `remote-surface` or `adapter-output`. An `html_fragment` requires the declared boundary contract and `sanitize html`; a private endpoint or prewarm cache does not establish implicit trust.
+
+| Output | Safe integration |
+| --- | --- |
+| Text | `textContent` or a text descriptor, without HTML interpretation. |
+| HTML | Renderer trust path `commitTrustedHtml` with a checked `RmtKernelRuntimeTrustVerdict` and `commitAllowed`. |
+| Attributes | Validated binding path `commitTrustedAttribute`; `data-*` and `aria-*` carry data and semantics. |
+| Properties | Validated binding path `commitTrustedProperty`, without arbitrary object or DOM access. |
+| Fallback | `safeFallbackHtml` passes the same HTML check; its name alone does not authorize a commit. |
+
+`commitTrustedAttribute` and `commitTrustedProperty` name the renderer's internal binding guards, not freely callable Maraca facade methods. Inline handlers such as `onclick`, unchecked `style`, `srcdoc` and `javascript:` URLs belong in negative migration cases. Repair the source contract; do not remove a guard to force a blocked commit.
+
+For SemVer, newly blocking previously allowed legacy output is `major`; compatible warnings or opt-in diagnostics are `minor`; documentation-only or metadata corrections are `patch`. XTend 0.8.0 follows its announced breaking pre-1.0 migration.
+
+```bash
+node scripts/run_xtend_tests.js rmt-kernel-security-regression --json
+```
+
+The [DEV API](./xtend-dev-api.md) describes redacted panic/recovery data for investigating blocked output. A presentation [Abort Boundary](./maraca-fastpass-abort-boundary.md) additionally checks temporal validity; it does not replace a Trust Boundary.

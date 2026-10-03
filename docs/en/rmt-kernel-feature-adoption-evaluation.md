@@ -1,6 +1,12 @@
 # RMT Kernel Feature Adoption Evaluation
 
-Updated: 2026-06-19
+XTendRMT 0.8 retains these evaluation tracks as decision history and closes them with a single kernel-owned scheduler and explicit optional services.
+
+Direct Microkernel boot is the default, Product Surface is an explicit opt-in service, Prewarm is disabled by default, and panic/recovery projection into Fabric's `diagnostics` lane is redacted. The release gate for `retained_warm_reuse` uses five warmups, 30 measurements, p95 and a maximum five-percent regression against the checked-in Chromium baseline. See the [0.8 migration guide](./rmt-kernel-0-8-migration.md).
+
+Updated: 2026-08-30
+
+Status: completed for XTendRMT 0.8.0
 
 This evaluation builds on the [RMT Kernel Topography Map](./rmt-kernel-topography-map.md). The topography map shows which kernel surfaces exist. This document evaluates the currently underused modules: Is the module useful for XTend, and if so, where should it hook into the framework?
 
@@ -17,7 +23,7 @@ The largest levers are:
 - **DOM Compat**: Useful as a shared ownership and island-contract layer for Surface Manager and the RMT Surface Adapter.
 - **Worker/Server Prerender Transports**: Useful in stages. Worker prerender is natural for browser-only and offline-capable apps; server prerender should connect to the existing Node/PHP SSR adapters.
 
-The recommendation is not to switch everything on globally. The safer line is: build/report evidence first, then opt-in runtime flags, then targeted production paths.
+The adopted line is: one Microkernel scheduler is always present, while Product Surface, Prewarm, rendering and reporting remain explicit services above it.
 
 ## Evaluation Matrix
 

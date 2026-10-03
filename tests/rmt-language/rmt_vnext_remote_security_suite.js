@@ -122,9 +122,9 @@ function runRmtVNextRemoteSecuritySuite(options = {}) {
     id: 'rmt-vnext-remote-security',
     label: 'Epic 16 RMT vNext Remote Security Policy Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextRemoteSecurity;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_16_PATH, rootDir);
   const contract = readText(RMT_VNEXT_REMOTE_SECURITY_CONTRACT_PATH, rootDir);
   const workpackage = readText(RMT_VNEXT_REMOTE_SECURITY_WP_PATH, rootDir);
@@ -155,8 +155,8 @@ function runRmtVNextRemoteSecuritySuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_REMOTE_SECURITY_PACKAGE_SCRIPT, 'package metadata declares remote security package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-remote-security'] === 'string' ? packageManifest.exports['./rmt-language/vnext-remote-security'] : packageManifest.exports['./rmt-language/vnext-remote-security'] && packageManifest.exports['./rmt-language/vnext-remote-security'].default) === './tools/rmt-language/vnext-remote-security.js', 'package exports vNext remote security contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-remote-security'] === 'node scripts/run_xtend_tests.js rmt-vnext-remote-security', 'package exposes vNext remote security script');
-  context.assert(runner.includes("id: 'rmt-vnext-remote-security'"), 'test runner exposes rmt-vnext-remote-security suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js rmt-vnext-remote-security'), 'runner help references remote security gate');
+  context.assert(runner.hasSuite("rmt-vnext-remote-security"), 'test runner exposes rmt-vnext-remote-security suite');
+  context.assert(runner.hasSuite("rmt-vnext-remote-security"), 'runner help references remote security gate');
   context.assert(epic.includes('- Status: `completed / Epic 16 Enterprise MFE Release Handoff accepted`'), 'Epic records current E16 accepted status');
   context.assert(epic.includes('| `WP-E16-05` | P1 | completed | WS2 |'), 'Epic marks WP-E16-05 completed');
   context.assert(epic.includes('| `WP-E16-06` | P1 | completed | WS3 |'), 'Epic marks WP-E16-06 completed');

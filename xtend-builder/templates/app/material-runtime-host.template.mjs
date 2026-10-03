@@ -8,6 +8,21 @@ const requestedTheme = new URLSearchParams(location.search).get('theme');
 const theme = ['light', 'dark', 'high-contrast'].includes(requestedTheme) ? requestedTheme : 'light';
 document.documentElement.dataset.theme = theme;
 const startedAt = performance.now();
+const materialRoutes = Object.freeze(['dashboard', 'details']);
+
+function syncMaterialRoute() {
+  const requestedRoute = String(location.hash || '').replace(/^#\/?/u, '');
+  const route = materialRoutes.includes(requestedRoute) ? requestedRoute : 'dashboard';
+  document.documentElement.dataset.xtmRoute = route;
+  document.querySelectorAll('[data-xtm-route-link]').forEach((link) => {
+    if (link.dataset.xtmRouteLink === route) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  });
+  return route;
+}
+
+syncMaterialRoute();
+addEventListener('hashchange', syncMaterialRoute);
 
 function waitForMaracaBoot() {
   return new Promise((resolve, reject) => {
@@ -47,6 +62,7 @@ try {
   document.documentElement.dataset.xtmHorizontalOverflow = String(overflow);
   document.documentElement.dataset.xtmTheme = theme;
   document.documentElement.dataset.xtmColorScheme = getComputedStyle(document.documentElement).colorScheme || 'normal';
+  syncMaterialRoute();
   if (status) status.value = ready
     ? `{{appTitle}} ready; ${surfaceCount} orchestrated surfaces.`
     : `{{appTitle}} runtime degraded; ${surfaceCount}/${Number.isSafeInteger(expectedSurfaceCount) ? expectedSurfaceCount : 0} surfaces rendered.`;

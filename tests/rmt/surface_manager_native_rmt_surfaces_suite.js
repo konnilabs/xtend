@@ -211,10 +211,10 @@ function runSurfaceManagerNativeRmtSurfacesSuite(options = {}) {
   const semanticGraph = readText('tools/rmt-language/semantic-graph.js', rootDir);
   const completions = readText('tools/rmt-language/completions.js', rootDir);
   const linterDiagnostics = readText('tools/rmt-language/diagnostics.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerNativeRmtSurfaces;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const planningDoc = readText(SURFACE_MANAGER_NATIVE_RMT_PLAN, rootDir);
   const contractDoc = readText(SURFACE_MANAGER_NATIVE_RMT_CONTRACT, rootDir);
   const workpackageDoc = readText(SURFACE_MANAGER_NATIVE_RMT_WORKPACKAGE_DOC, rootDir);
@@ -388,8 +388,8 @@ function runSurfaceManagerNativeRmtSurfacesSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, SURFACE_MANAGER_NATIVE_RMT_SCHEMA, 'Scaffold config references native surfaces schema');
   context.assertIncludes(scaffoldConfig, SURFACE_MANAGER_NATIVE_RMT_FIXTURE, 'Scaffold config references native surfaces fixture');
   context.assertIncludes(scaffoldConfig, SURFACE_MANAGER_NATIVE_RMT_LOCAL_GATE, 'Scaffold config references native surfaces gate');
-  context.assertIncludes(runner, "require('../tests/rmt/surface_manager_native_rmt_surfaces_suite')", 'Runner imports native surfaces suite');
-  context.assertIncludes(runner, "id: 'surface-native-rmt'", 'Runner registers surface-native-rmt suite');
+  context.assert(runner.hasImplementation({ path: "tests/rmt/surface_manager_native_rmt_surfaces_suite.js" }), 'Runner imports native surfaces suite');
+  context.assert(runner.hasSuite("surface-native-rmt"), 'Runner registers surface-native-rmt suite');
 
   assertTextIncludesAll(context, contractDoc, [
     SURFACE_MANAGER_NATIVE_RMT_SCHEMA,

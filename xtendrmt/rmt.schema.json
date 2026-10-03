@@ -62,7 +62,7 @@
           "route.visible.render",
           "diagnostics.snapshot"
         ],
-        "statePolicy": "digital-twin-ssot-xstate",
+        "statePolicy": "digital-twin-ssot-classic-state",
         "kernelBoundary": "RMT scheduler plans root phases through endpoint hints; host adapters execute framework-specific lifecycle work."
       }
     ],
@@ -87,7 +87,7 @@
         "capabilityRefs": [
           "xtend.manifest",
           "xtend.custom-elements",
-          "xtend.state-bridge.xstate",
+          "xtend.state-projection.classic",
           "xtend.hydration",
           "xtend.scheduler-endpoints",
           "xtend.theme",
@@ -275,7 +275,7 @@
           "node scripts/run_xtend_tests.js rmt-compatibility --json",
           "node scripts/run_xtend_tests.js references --json"
         ],
-        "kernelBoundary": "RMT kernel may register adapter records and schedule abstract lifecycle operations, but host adapters execute framework-specific work. XTend, XRouter and xstate stay outside kernel imports.",
+        "kernelBoundary": "RMT kernel may register adapter records and schedule abstract lifecycle operations, but host adapters execute framework-specific work. XTend, XRouter and XTend State stay outside kernel imports.",
         "nextWorkpackage": "development/WP-E05-03-Adapter-Registry-und-Capability-Negotiation-modellieren.md"
       }
     ],
@@ -622,7 +622,7 @@
           "surfaces[*].schedule -> schedules[*].id|endpointName"
         ],
         "backwardCompatibility": "Component records with metadata.surface remain valid. During handoff, native surfaces records may coexist with component metadata and must preserve component, route, schedule and state keys.",
-        "kernelBoundary": "Surface records are declarative. RMT may parse, normalize and index them, but WindowManager execution, DOM materialization, xstate writes and Fabric diagnostics stay in the xtend.surface adapter and XTend components.",
+        "kernelBoundary": "Surface records are declarative. RMT may parse, normalize and index them, but WindowManager execution, DOM materialization, XTend State writes and Fabric diagnostics stay in the xtend.surface adapter and XTend components.",
         "minimumGates": [
           "node scripts/run_xtend_tests.js surface-native-rmt --json",
           "node scripts/run_xtend_tests.js surface-manager-quality --json",
@@ -667,7 +667,7 @@
         "runtimeImplemented": false,
         "kernelVisible": false,
         "componentCompatibility": "components[*].metadata.surface remains the migration source until productive adapter rollout.",
-        "kernelBoundary": "The xtend.surface adapter consumes normalized surface records and may call the SurfaceController, but the RMT kernel never imports XTend components, DOM APIs, xstate or Fabric.",
+        "kernelBoundary": "The xtend.surface adapter consumes normalized surface records and may call the SurfaceController, but the RMT kernel never imports XTend components, DOM APIs, XTend State or Fabric.",
         "minimumGates": [
           "node scripts/run_xtend_tests.js surface-native-rmt --json",
           "node scripts/run_xtend_tests.js surface-manager-quality --json"
@@ -732,7 +732,7 @@
           "RmtRmtDocument.diagnostics"
         ],
         "backwardCompatibility": "Template-only documents normalize with empty native domains, no required adapters/components/routes/schedules and templateOnlyCompatible=true.",
-        "kernelBoundary": "DSL normalization may build reference graphs and diagnostics, but adapter execution, router registration, component mounting, DOM work and xstate writes stay outside the RMT kernel.",
+        "kernelBoundary": "DSL normalization may build reference graphs and diagnostics, but adapter execution, router registration, component mounting, DOM work and XTend State writes stay outside the RMT kernel.",
         "minimumGates": [
           "node scripts/run_xtend_tests.js rmt-compatibility --json",
           "node scripts/run_xtend_tests.js references --json"
@@ -788,7 +788,7 @@
           "component adapters consume componentRegistry.byAdapter and componentRegistry.byTag",
           "scheduler bridges consume scheduleRef on route and component entries"
         ],
-        "kernelBoundary": "Runtime registries may index normalized records, expose lifecycle intents and emit missing route/component diagnostics, but route navigation, component mounting, DOM work, XTend, XRouter and xstate execution stay in adapters.",
+        "kernelBoundary": "Runtime registries may index normalized records, expose lifecycle intents and emit missing route/component diagnostics, but route navigation, component mounting, DOM work, XTend, XRouter and XTend State execution stay in adapters.",
         "minimumGates": [
           "node scripts/run_xtend_tests.js rmt-compatibility --json",
           "node scripts/run_xtend_tests.js references --json"
@@ -864,7 +864,7 @@
           "RmtXRouterMappedRoute",
           "RmtXRouterAdapter"
         ],
-        "kernelBoundary": "The XRouter adapter consumes runtime registry snapshots and may register XRouter routes or navigate through an XRouter target, but the RMT kernel only sees adapter operations and never imports XRouter, DOM APIs or xstate.",
+        "kernelBoundary": "The XRouter adapter consumes runtime registry snapshots and may register XRouter routes or navigate through an XRouter target, but the RMT kernel only sees adapter operations and never imports XRouter, DOM APIs or XTend State.",
         "minimumGates": [
           "node scripts/run_xtend_tests.js rmt-compatibility --json",
           "node scripts/run_xtend_tests.js references --json"
@@ -997,7 +997,7 @@
           "RmtXtendComponentLifecycleTelemetry",
           "RmtXtendComponentAdapter"
         ],
-        "kernelBoundary": "The XTend component adapter consumes component registry snapshots and may create, mount or hydrate Custom Elements through a host target, but the RMT kernel only sees adapter operations and never imports XTend components, the XTend manifest, Custom Elements, DOM APIs or xstate.",
+        "kernelBoundary": "The XTend component adapter consumes component registry snapshots and may create, mount or hydrate Custom Elements through a host target, but the RMT kernel only sees adapter operations and never imports XTend components, the XTend manifest, Custom Elements, DOM APIs or XTend State.",
         "minimumGates": [
           "node scripts/run_xtend_tests.js rmt-compatibility --json",
           "node scripts/run_xtend_tests.js rmt-component-lifecycle-telemetry --json",
@@ -1031,7 +1031,6 @@
           "schedules[*]",
           "adapter diagnostics",
           "optional typed stateProjectionPort",
-          "deprecated batch-capable xstate alias (0.6 compatibility)",
           "optional diagnostics hub",
           "optional performance runtime scheduleEndpoint",
           "optional Fabric telemetry snapshot",
@@ -1069,7 +1068,6 @@
           "scheduled endpoint -> rmt.bridge.scheduler.endpoint.scheduled",
           "queued endpoint -> rmt.bridge.scheduler.endpoint.queued",
           "state bridge publish -> rmt.bridge.state.mirrored",
-          "deprecated batch-capable xstate alias -> rmt.bridge.state-projection.legacy-alias",
           "Fabric telemetry snapshot -> rmt.bridge.telemetry.snapshot.recorded",
           "Fabric high/critical backpressure -> rmt.bridge.backpressure.high/rmt.bridge.backpressure.critical"
         ],
@@ -1086,7 +1084,6 @@
         "diagnosticCodes": [
           "rmt.bridge.state.mirrored",
           "rmt.bridge.state.unavailable",
-          "rmt.bridge.state-projection.legacy-alias",
           "rmt.bridge.scheduler.endpoint.scheduled",
           "rmt.bridge.scheduler.endpoint.queued",
           "rmt.bridge.diagnostics.emitted",
@@ -1104,7 +1101,7 @@
           "RmtStateBridgeHandle",
           "RmtBridgeSchedulePolicy"
         ],
-        "kernelBoundary": "The State/Scheduler/Diagnostics bridge consumes adapter results and schedule refs, projects telemetry through an injected atomic stateProjectionPort and may call host scheduler endpoints. The state projection is output-only: the bridge never reads it as model authority and never adapts per-key writers. The RMT kernel never imports xstate, XTend, XRouter, diagnostics hubs or performance runtimes.",
+        "kernelBoundary": "The State/Scheduler/Diagnostics bridge consumes adapter results and schedule refs, projects telemetry through an injected atomic stateProjectionPort and may call host scheduler endpoints. The state projection is output-only: the bridge never reads it as model authority and never adapts per-key writers. The RMT kernel never imports XTend State, XTend, XRouter, diagnostics hubs or performance runtimes.",
         "minimumGates": [
           "node scripts/run_xtend_tests.js rmt-compatibility --json",
           "node scripts/run_xtend_tests.js references --json"
@@ -1201,7 +1198,7 @@
           "normal-ui-html-sinks-absent"
         ],
         "buildPolicy": "Upstream RMT source remains the source-of-truth; xtendrmt/ artifacts are synchronized regression references in this repository. RKSH-WP-10 keeps the Trust/Panic/Recovery hardening layer in schema, manifest, types and runtime artifacts.",
-        "kernelBoundary": "Artifact parity checks drift only and must not introduce XTend, XRouter, xstate or DOM runtime imports into the RMT kernel.",
+        "kernelBoundary": "Artifact parity checks drift only and must not introduce XTend, XRouter, XTend State or DOM runtime imports into the RMT kernel.",
         "kernelHardeningSourceOfTruth": "development/WP-RKSH-10-Buildprozess-und-Artefakt-Paritaet-fuer-neue-Layer-absichern.md",
         "kernelHardeningContracts": [
           "xtend.rmt.kernel-artifact-parity.v1",
@@ -1305,7 +1302,7 @@
         "node scripts/run_xtend_tests.js references --json"
       ],
       "bridgeRuntime": "reserved-for-Epic-05",
-      "kernelBoundary": "RMT kernel remains host-neutral and must not import XTend, XRouter or xstate runtime modules."
+      "kernelBoundary": "RMT kernel remains host-neutral and must not import XTend, XRouter or XTend State runtime modules."
     },
     "domCommitContracts": [
       {

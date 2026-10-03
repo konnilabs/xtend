@@ -98,8 +98,8 @@ function validateMaterialBrowserBaseline(baseline) {
 function createMaterialBrowserEvidenceReport(options = {}) {
   const baseline = options.baseline || createMaterialBrowserBaseline();
   const browserRuns = Array.isArray(options.browserRuns) ? options.browserRuns : [];
-  const chromiumRun = browserRuns.find((run) => run.browser === 'chromium');
-  const cells = chromiumRun && Array.isArray(chromiumRun.cells) ? chromiumRun.cells : [];
+  const primaryRun = browserRuns.find((run) => run.primary === true) || browserRuns.find((run) => run.status === 'passed');
+  const cells = primaryRun && Array.isArray(primaryRun.cells) ? primaryRun.cells : [];
   const failures = cells.filter((cell) => cell.status !== 'passed');
   const severeA11yFindings = cells.flatMap((cell) => cell.findings || [])
     .filter((finding) => finding.severity === 'critical' || finding.severity === 'severe');
@@ -109,9 +109,9 @@ function createMaterialBrowserEvidenceReport(options = {}) {
     reason: run.reason
   }));
   const baselineValidation = validateMaterialBrowserBaseline(baseline);
-  const chromiumComplete = Boolean(chromiumRun && chromiumRun.status === 'passed' && cells.length === 384);
-  const screenshotCount = chromiumRun && Array.isArray(chromiumRun.screenshots) ? chromiumRun.screenshots.length : 0;
-  const ok = baselineValidation.ok && chromiumComplete && failures.length === 0 && severeA11yFindings.length === 0 && screenshotCount === 4;
+  const primaryComplete = Boolean(primaryRun && primaryRun.status === 'passed' && cells.length === 384);
+  const screenshotCount = primaryRun && Array.isArray(primaryRun.screenshots) ? primaryRun.screenshots.length : 0;
+  const ok = baselineValidation.ok && primaryComplete && failures.length === 0 && severeA11yFindings.length === 0 && screenshotCount === 4;
 
   return {
     schema: MATERIAL_BROWSER_EVIDENCE_SCHEMA,
@@ -127,7 +127,7 @@ function createMaterialBrowserEvidenceReport(options = {}) {
     evidencedCellCount: cells.length,
     passedCellCount: cells.length - failures.length,
     failedCellCount: failures.length,
-    residualCellCount: chromiumComplete ? 0 : baseline.matrixCellCount - cells.length,
+    residualCellCount: primaryComplete ? 0 : baseline.matrixCellCount - cells.length,
     screenshotCount,
     severeA11yFindingCount: severeA11yFindings.length,
     horizontalOverflowCount: cells.filter((cell) => cell.checks && cell.checks.horizontalOverflow === true).length,

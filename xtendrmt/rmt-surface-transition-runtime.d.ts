@@ -75,8 +75,6 @@ export interface RmtSurfaceTransitionRuntimeOptions {
     publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown;
   };
   diagnosticChannel?: string;
-  /** @deprecated Direct XState projection is ignored. Inject transitionStatePort. */
-  xstate?: unknown;
   transitionStatePort?: {
     apply?(projection: RmtSurfaceTransitionStateProjection): unknown;
     publish?(projection: RmtSurfaceTransitionStateProjection): unknown;
@@ -102,6 +100,8 @@ export interface RmtSurfaceTransitionStateProjection {
 }
 
 export interface RmtSurfaceTransitionPatchInput {
+  signal?: AbortSignal;
+  isCurrent?(): boolean;
   surface?: string;
   surfaceId?: string;
   element?: Element | null;
@@ -122,6 +122,7 @@ export interface RmtSurfaceTransitionRuntime {
     diagnostic: unknown;
   }>;
   applyVisibilityPatch(input: RmtSurfaceTransitionPatchInput): Promise<unknown> | unknown;
+  cancelSurface(surfaceId: string, reason?: string): boolean;
   findTransition(metadata?: Record<string, unknown>): RmtSurfaceTransitionRecord | null;
   listActiveTransitions(): unknown[];
   listDiagnostics(): unknown[];

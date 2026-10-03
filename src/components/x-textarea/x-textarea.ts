@@ -1,4 +1,4 @@
-import { xstate } from '../../../components/xstate.js';
+import { xtendState } from '../../../components/xtend-state.js';
 import { createXtendRmtCommandDetail, type XtendRmtCommandDetail } from '../../../components/rmt-command.js';
 
 export type XTextareaAttributeName =
@@ -285,7 +285,7 @@ export class XTextarea extends HTMLElement {
     lane: 'user-blocking',
     hydrationPolicy: 'visible',
     criticalMeasurements: ['mount', 'hydrate', 'event'],
-    cleanup: ['xstate-subscription', 'input-listeners']
+    cleanup: ['xtendState-subscription', 'input-listeners']
   } as const;
 
   static readonly observedAttributes: XTextareaAttributeName[] = [
@@ -346,7 +346,7 @@ export class XTextarea extends HTMLElement {
       if (this.hasAttribute(attribute)) this.attributeChangedCallback(attribute, null, this.getAttribute(attribute));
     });
     this.syncDerivedState();
-    xstate.set(`xtextarea-value-${this.id}`, this.value);
+    xtendState.set(`xtextarea-value-${this.id}`, this.value);
   }
 
   attributeChangedCallback(name: XTextareaAttributeName, oldValue: string | null, newValue: string | null): void {
@@ -451,7 +451,7 @@ export class XTextarea extends HTMLElement {
     const detail = this.changedPayload();
     this.dispatchEvent(new CustomEvent<XTextareaChangedEventDetail>('textarea-changed', { detail, bubbles: true, composed: true }));
     this.dispatchCommand('textarea-changed', detail);
-    xstate.set(`xtextarea-value-${this.id}`, this.value);
+    xtendState.set(`xtextarea-value-${this.id}`, this.value);
   }
 
   private onInvalid(): void {

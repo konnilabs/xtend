@@ -244,7 +244,6 @@ function hasCapability(request, capability) {
 
 function hostAllowsOrigin(hostCapabilities, origin) {
   const allowed = toArray(hostCapabilities && (hostCapabilities.allowedOrigins || hostCapabilities.origins)).map(normalizeString).filter(Boolean);
-  if (allowed.length === 0) return true;
   return allowed.includes(origin);
 }
 

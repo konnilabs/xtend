@@ -166,8 +166,8 @@ function runRmtOwnedContractBudgetRuntimeParitySuite(options = {}) {
   const budgetContract = readText('development/XTend-Native-First-Performance-Complexity-Bundle-Budget-Gates-Contract.md', rootDir);
   const browserLabFixtures = readJson('tests/fixtures/native-first/rmt-owned-surface-browser-lab-fixtures.json', rootDir);
   const visualBaseline = readJson('tests/browser/visual-baselines/rmt-owned-surface-browser-lab.dom-baseline.json', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtOwnedContractBudgetRuntimeParity;
   const packageScripts = packageManifest.scripts || {};
   const suiteSyntax = syntaxCheckFile(SUITE_PATH, { rootDir, extension: '.js' });
@@ -373,10 +373,10 @@ function runRmtOwnedContractBudgetRuntimeParitySuite(options = {}) {
   ], 'Backlog WP-RMO-07 status');
 
   context.assert(packageScripts['test:rmt-owned-contract-budget-runtime-parity'] === 'node scripts/run_xtend_tests.js rmt-owned-contract-budget-runtime-parity', 'Package exposes WP-RMO-07 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/rmt_owned_contract_budget_runtime_parity_suite')", 'Runner imports WP-RMO-07 suite');
-  context.assertIncludes(runner, "id: 'rmt-owned-contract-budget-runtime-parity'", 'Runner registers WP-RMO-07 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/rmt_owned_contract_budget_runtime_parity_suite.js" }), 'Runner imports WP-RMO-07 suite');
+  context.assert(runner.hasSuite("rmt-owned-contract-budget-runtime-parity"), 'Runner registers WP-RMO-07 suite');
   REQUIRED_SOURCE_GATES.forEach((gate) => {
-    context.assertIncludes(runner, `id: '${gate}'`, `Runner registers source gate ${gate}`);
+    context.assert(runner.hasSuite(gate), `Runner registers source gate ${gate}`);
   });
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes contract schema');

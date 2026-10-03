@@ -47,14 +47,14 @@ function runEpic10P0ComponentWaveSuite(options = {}) {
     id: 'epic10-p0-component-wave',
     label: 'Epic 10 P0 Component Wave Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const epic = readText('development/EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-10-XTend-Component-Platform-TypeScript-und-RMT-First-Class-Apps.md', rootDir);
   const registry = readText('development/XTend-Dokumentations-und-Demo-Referenzpfade.md', rootDir);
   const contractDoc = readText(EPIC10_P0_COMPONENT_WAVE_DOC, rootDir);
   const workpackageDoc = readText('development/WP-E10-08-P0-Komponentenwelle-priorisieren-und-Contracts-anlegen.md', rootDir);
   const docs = readText('development/docs-evidence/root/component-platform.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.epic10P0ComponentWave;
   const plan = createP0ComponentWavePlan();
@@ -150,7 +150,7 @@ function runEpic10P0ComponentWaveSuite(options = {}) {
   context.assertIncludes(registry, EPIC10_P0_COMPONENT_WAVE_SUITE, 'Reference registry links P0 wave suite');
   context.assertIncludes(registry, 'development/docs-evidence/root/component-platform.md', 'Reference registry links Component Platform docs');
   context.assertIncludes(scaffoldConfig, 'componentPlatformP0Wave', 'Scaffold config exposes P0 component wave metadata');
-  context.assertIncludes(runner, "id: 'epic10-p0-component-wave'", 'Runner registers P0 component wave suite');
+  context.assert(runner.hasSuite("epic10-p0-component-wave"), 'Runner registers P0 component wave suite');
   context.assert((packageManifest.exports['./catalog/epic10-p0-component-wave'] === './catalog/epic10-p0-component-wave.js' || (packageManifest.exports['./catalog/epic10-p0-component-wave'] && packageManifest.exports['./catalog/epic10-p0-component-wave'].default === './catalog/epic10-p0-component-wave.js')), 'Package exports P0 component wave module');
   context.assert(packageManifest.scripts['test:epic10-p0-component-wave'] === 'node scripts/run_xtend_tests.js epic10-p0-component-wave', 'Package exposes P0 component wave test script');
   context.assert(metadata && metadata.schema === EPIC10_P0_COMPONENT_WAVE_SCHEMA, 'Package metadata exposes P0 wave schema');

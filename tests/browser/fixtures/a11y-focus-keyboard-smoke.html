@@ -174,7 +174,7 @@
     }
 
     function readCurrentRoute() {
-      return window.xstate && window.xstate.get('router-current');
+      return window.XTend.state && window.XTend.state.get('router-current');
     }
 
     window.addEventListener('error', (event) => {
@@ -190,7 +190,7 @@
       await waitFor(() => (
         getComputedStyle(document.body).visibility === 'visible' &&
         getComputedStyle(document.body).opacity !== '0' &&
-        window.xstate &&
+        window.XTend.state &&
         window.XTend &&
         customElements.get('x-router') &&
         customElements.get('x-link') &&
@@ -213,7 +213,7 @@
       recordCheck('a11y keyboard fixture hydrated local loader', Boolean(window.XTendLoader && typeof window.XTendLoader.initiateXTend === 'function'));
       recordCheck('a11y keyboard custom elements defined', Boolean(customElements.get('x-link') && customElements.get('x-modal') && customElements.get('x-input')));
 
-      window.xstate.set('router-navigate', '/');
+      window.XTend.state.set('router-navigate', '/');
       await waitFor(() => {
         const route = readCurrentRoute();
         return route && route.component === 'xtend-keyboard-home';
@@ -247,14 +247,14 @@
       nativeInput.value = 'keyboard-value';
       nativeInput.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
       await waitFor(() => {
-        const formData = window.xstate.get(`xform-data-${form.id}`);
-        return window.xstate.get(`xinput-value-${input.id}`) === 'keyboard-value' &&
+        const formData = window.XTend.state.get(`xform-data-${form.id}`);
+        return window.XTend.state.get(`xinput-value-${input.id}`) === 'keyboard-value' &&
           formData &&
           formData.contact === 'keyboard-value' &&
           inputChangedValue === 'keyboard-value';
       }, 3000, 'Input and form state did not synchronize');
-      recordCheck('x-input keyboard input synchronized state', window.xstate.get(`xinput-value-${input.id}`) === 'keyboard-value');
-      recordCheck('x-form captured keyboard input data', window.xstate.get(`xform-data-${form.id}`).contact === 'keyboard-value');
+      recordCheck('x-input keyboard input synchronized state', window.XTend.state.get(`xinput-value-${input.id}`) === 'keyboard-value');
+      recordCheck('x-form captured keyboard input data', window.XTend.state.get(`xform-data-${form.id}`).contact === 'keyboard-value');
 
       await waitFor(() => tabs.shadowRoot.querySelectorAll('[role="tab"]').length === 2, 3000, 'Tabs did not render tab buttons');
       const tabHeader = tabs.shadowRoot.querySelector('.tabs');
@@ -288,7 +288,7 @@
       recordCheck('x-modal shift tab focus trap wrapped to last control', modal.shadowRoot.activeElement === closeButton);
 
       dispatchKeyboard(document, 'Escape');
-      await waitFor(() => !modal.hasAttribute('open') && window.xstate.get(`xtend.component.x-modal.${modal.id}.open`) === false, 3000, 'Escape did not close modal');
+      await waitFor(() => !modal.hasAttribute('open') && window.XTend.state.get(`xtend.component.x-modal.${modal.id}.open`) === false, 3000, 'Escape did not close modal');
       await waitFor(() => document.activeElement === origin, 3000, 'Modal did not restore focus to origin');
       recordCheck('x-modal escape restored focus to origin', document.activeElement === origin);
 

@@ -36,23 +36,44 @@ assert.equal(Object.isFrozen(registry.getXTendHost()), true, 'managed Registry h
 assert.equal(Object.isFrozen(registry.getXTendSnapshot()), true, 'managed Registry snapshots are frozen');
 assert.equal(registry.getXTendSnapshot().status, 'booted');
 let kernelScheduled = false;
-const kernelCancel = registry.schedule(() => { kernelScheduled = true; }, {
+const kernelHandle = registry.schedule(() => { kernelScheduled = true; }, {
   endpointName: 'test.registry.endpoint', scope: 'test.registry', lane: 'visible', timeout: 1, correlationId: 'test:registry:1'
 });
-assert.equal(typeof kernelCancel, 'function', 'kernel scheduling remains abortable');
-await new Promise((resolve) => setTimeout(resolve, 50));
+assert.equal(kernelHandle.schema, 'xtend.rmt.kernel-job.v1', 'kernel scheduling returns a JobHandle');
+assert.equal(typeof kernelHandle.cancel, 'function', 'kernel scheduling remains abortable through JobHandle.cancel()');
+await kernelHandle;
 assert.equal(kernelScheduled, true, 'kernel scheduler bridge executes custom endpoints');
 assert.ok(registry.getXTendSnapshot().fibers.some((entry) => entry.endpointName === 'test.registry.endpoint'), 'custom endpoints appear in kernel diagnostics');
 registry.disposeXTend();
 
+function createImmediateJobHandle(callback, onCancel = null) {
+  let status = 'queued';
+  const result = Promise.resolve().then(() => {
+    status = 'running';
+    return callback();
+  }).then((value) => {
+    status = 'completed';
+    return value;
+  });
+  return {
+    schema: 'xtend.rmt.kernel-job.v1',
+    result,
+    get status() { return status; },
+    cancel() { status = 'cancelled'; onCancel?.(); return true; },
+    then: result.then.bind(result),
+    catch: result.catch.bind(result),
+    finally: result.finally.bind(result)
+  };
+}
+
 const isolatedSchedulerA = {
-  scheduleEndpoint(_endpoint, _scope, callback) { callback(); return () => {}; },
-  afterPaint(callback) { callback(); return () => {}; },
+  scheduleEndpoint(_endpoint, _scope, callback) { return createImmediateJobHandle(callback); },
+  afterPaint(callback) { return createImmediateJobHandle(callback); },
   dispose() {}
 };
 const isolatedSchedulerB = {
-  scheduleEndpoint(_endpoint, _scope, callback) { callback(); return () => {}; },
-  afterPaint(callback) { callback(); return () => {}; },
+  scheduleEndpoint(_endpoint, _scope, callback) { return createImmediateJobHandle(callback); },
+  afterPaint(callback) { return createImmediateJobHandle(callback); },
   dispose() {}
 };
 const isolatedA = registry.createXTendRegistry({ orchestration: 'lightweight', scheduler: isolatedSchedulerA });
@@ -67,12 +88,12 @@ isolatedB.disposeXTend();
 
 let scheduled = 0;
 const fakeScheduler = {
-  scheduleEndpoint(_endpoint, _scope, callback) { callback(); return () => { scheduled -= 1; }; },
-  afterPaint(callback) { callback(); return () => {}; },
+  scheduleEndpoint(_endpoint, _scope, callback) { return createImmediateJobHandle(callback, () => { scheduled -= 1; }); },
+  afterPaint(callback) { return createImmediateJobHandle(callback); },
   dispose() { scheduled = -100; }
 };
 registry.configureXTend({ orchestration: 'lightweight', scheduler: fakeScheduler });
-registry.schedule(() => { scheduled += 1; });
+await registry.schedule(() => { scheduled += 1; });
 assert.equal(scheduled, 1, 'schedule delegates to the configured singleton');
 assert.throws(() => registry.configureXTend({}), /already initialized/, 'late configuration is rejected');
 registry.disposeXTend();
@@ -84,11 +105,11 @@ const fakeRenderer = {
   dispose() {}
 };
 registry.configureXTend({ orchestration: 'lightweight', renderer: fakeRenderer });
-assert.deepEqual(registry.renderNode('descriptor'), { descriptor: 'descriptor' }, 'renderNode delegates to an injected SSR renderer');
-assert.deepEqual(registry.commit({ operation: 'create-node', descriptor: 'descriptor' }), { operation: 'create-node' }, 'commit delegates synchronously to the configured renderer');
+assert.deepEqual(await registry.renderNode('descriptor'), { descriptor: 'descriptor' }, 'renderNode delegates to an injected SSR renderer through the scheduler');
+assert.deepEqual(await registry.commit({ operation: 'create-node', descriptor: 'descriptor' }), { operation: 'create-node' }, 'commit delegates through the scheduler to the configured renderer');
 registry.disposeXTend();
 registry.configureXTend({ orchestration: 'lightweight' });
-assert.throws(() => registry.renderNode({ type: 'text', text: 'SSR' }), /documentTarget/, 'SSR rendering requires an injected DOM');
+await assert.rejects(registry.renderNode({ type: 'text', text: 'SSR' }), /documentTarget/, 'SSR rendering requires an injected DOM');
 await assert.rejects(() => registry.boot(), /browser-only/, 'SSR loader aliases fail explicitly');
 registry.disposeXTend();
 

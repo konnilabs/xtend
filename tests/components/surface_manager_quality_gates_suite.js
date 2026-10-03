@@ -84,10 +84,10 @@ function runSurfaceManagerQualityGatesSuite(options = {}) {
   const validation = validateSurfaceManagerQualityGatesPlan(plan);
   const report = createSurfaceManagerQualityGatesReport({ rootDir, plan, domain: requestedDomain });
   const visualBaseline = readJson(SURFACE_MANAGER_QUALITY_VISUAL_BASELINE, rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.surfaceManagerQualityGates;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const browserSuite = readText('tests/browser/browser_smoke_suite.js', rootDir);
   const browserFixture = readText(SURFACE_MANAGER_QUALITY_BROWSER_FIXTURE, rootDir);
   const managerRuntime = readText('components/xsurfacemanager.js', rootDir);
@@ -284,10 +284,10 @@ function runSurfaceManagerQualityGatesSuite(options = {}) {
   context.assertIncludes(scaffoldConfig, SURFACE_MANAGER_QUALITY_GATES_SCHEMA, 'Scaffold config references SurfaceManager quality schema');
   context.assertIncludes(scaffoldConfig, SURFACE_MANAGER_QUALITY_BROWSER_FIXTURE, 'Scaffold config references SurfaceManager quality fixture');
   context.assertIncludes(scaffoldConfig, SURFACE_MANAGER_QUALITY_GATES_LOCAL_GATE, 'Scaffold config references SurfaceManager quality local gate');
-  context.assertIncludes(runner, "require('../tests/components/surface_manager_quality_gates_suite')", 'Runner imports SurfaceManager quality suite');
-  context.assertIncludes(runner, "id: 'surface-manager-quality'", 'Runner registers surface-manager-quality suite');
+  context.assert(runner.hasImplementation({ path: "tests/components/surface_manager_quality_gates_suite.js" }), 'Runner imports SurfaceManager quality suite');
+  context.assert(runner.hasSuite("surface-manager-quality"), 'Runner registers surface-manager-quality suite');
   DOMAIN_GATES.forEach((gate) => {
-    context.assertIncludes(runner, `id: '${gate.id}'`, `Runner registers ${gate.id}`);
+    context.assert(runner.hasSuite(gate.id), `Runner registers ${gate.id}`);
   });
 
   assertTextIncludesAll(context, contractDoc, [

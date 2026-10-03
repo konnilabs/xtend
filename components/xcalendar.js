@@ -1,4 +1,4 @@
-import { xstate } from './xstate.js';
+import { xtendState } from './xtend-state.js';
 import './xicon.js';
 
 class XCalendar extends HTMLElement {
@@ -64,7 +64,7 @@ class XCalendar extends HTMLElement {
       lane: 'user-blocking',
       hydrationPolicy: 'visible',
       criticalMeasurements: ['mount', 'render', 'event'],
-      cleanup: ['xstate-subscription']
+      cleanup: ['xtend-state-subscription']
     };
   }
 
@@ -203,7 +203,7 @@ class XCalendar extends HTMLElement {
     this._updateState();
 
     // Subscribe to state changes, for example external date or view updates
-    this._unsubscribeState = xstate.subscribe((key, value) => {
+    this._unsubscribeState = xtendState.subscribe((key, value) => {
       if (key === `xcalendar-state-${this.id}` && typeof value === "object" && value !== null) {
         if (value.selected && value.selected !== this.value) {
           this.value = value.selected;
@@ -288,7 +288,7 @@ class XCalendar extends HTMLElement {
 
   _updateState() {
     if (this.id) {
-      xstate.set(`xcalendar-state-${this.id}`, {
+      xtendState.set(`xcalendar-state-${this.id}`, {
         selected: this.value,
         viewDate: this._getViewDateString()
       });

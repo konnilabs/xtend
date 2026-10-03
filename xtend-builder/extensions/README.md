@@ -10,7 +10,7 @@ Der Contract beschreibt:
 
 - Root-Lifecycle-Hooks wie `beforeHydrate`, `afterHydrate`, `beforeRender`, `afterRender` und `onDisconnect`
 - ab Epic 04 / `WP-E04-05` den Root-Handschlag `xtend.rmt.root-handshake.v1` mit Phasen `create`, `mount`, `hydrate`, `activate`, `update`, `unmount` und `diagnostics`
-- ab Epic 04 / `WP-E04-06` Host Capabilities ueber `xtend.rmt.host-capabilities.v1` fuer Manifest, `xstate`, Theme, API, Hydration, Router und Diagnostics
+- ab Epic 04 / `WP-E04-06` Host Capabilities ueber `xtend.rmt.host-capabilities.v1` fuer Manifest, `xtend-state`, Theme, API, Hydration, Router und Diagnostics
 - Template-Anschluss ueber adapterbasierte Template-Referenzen
 - ab Epic 04 / `WP-E04-04` das Authoring-Modell `xtend.rmt.template-authoring.v1` fuer Template-Refs, Component-Refs, Slots und Event-Command-Bindings
 - Rendering-Hints fuer `shadowRoot`, sichtbare Aktivierung und spaetere Schedule Policies

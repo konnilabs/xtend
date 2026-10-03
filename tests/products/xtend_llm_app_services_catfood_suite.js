@@ -44,14 +44,14 @@ function runXtendLlmAppServicesCatfoodSuite(options = {}) {
     'local Electron catfood remains available only through an explicit product command'
   );
 
-  const packageManifest = readJson('package.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const defaultWorkflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
   const nightlyWorkflow = readText('.github/workflows/xtend-nightly-build.yml', rootDir);
   const smokeRunner = readText(`${PRODUCT_ROOT}/scripts/run-layout-smoke.mjs`, rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.maracaAppServices;
   const gateMatrix = packageManifest.xtend && packageManifest.xtend.ciGateMatrix;
-  context.assert(runner.includes("id: 'xtend-llm-app-services-catfood'"), 'central runner registers XTend LLM product catfood');
+  context.assert(runner.hasSuite("xtend-llm-app-services-catfood"), 'central runner registers XTend LLM product catfood');
   context.assert(packageManifest.scripts['test:maraca-app-services'].includes('xtend-llm-app-services-catfood'), 'AppServices aggregate includes XTend LLM product catfood');
   context.assert(packageManifest.scripts['test:pr'].includes('xtend-llm-app-services-catfood') && packageManifest.scripts['test:release:full'].includes('xtend-llm-app-services-catfood'), 'PR and release scripts execute product catfood');
   context.assert(gateMatrix.prFastGate.suites.includes('xtend-llm-app-services-catfood') && gateMatrix.fullReleaseGate.suites.includes('xtend-llm-app-services-catfood'), 'CI matrices require product catfood');
@@ -59,7 +59,9 @@ function runXtendLlmAppServicesCatfoodSuite(options = {}) {
   context.assert(defaultWorkflow.includes(REPORT_PATH) && nightlyWorkflow.includes(REPORT_PATH), 'default and nightly workflows retain the product-owned CI catfood artifact');
   context.assert(
     defaultWorkflow.includes('npm ci --prefix products/xtend-llm --ignore-scripts')
-      && nightlyWorkflow.includes('npm ci --prefix products/xtend-llm --ignore-scripts'),
+      && nightlyWorkflow.includes('nightly.js phase install_2')
+      && require('../../scripts/test-runner/catalog').catalog.ci['ci-nightly'].phases.install_2.commands.some(command =>
+        command.command === 'npm' && command.args.join(' ').startsWith('ci --prefix products/xtend-llm --ignore-scripts')),
     'default and nightly workflows install product dependencies without embedded-runtime install scripts'
   );
   context.assert(!/electron/iu.test(defaultWorkflow) && !/electron/iu.test(nightlyWorkflow), 'blocking GitHub workflows contain no Electron execution or evidence dependency');

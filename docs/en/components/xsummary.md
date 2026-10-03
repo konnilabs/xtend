@@ -91,7 +91,8 @@ CSS custom properties:
 - State key: `xsummary-open-<id>`.
 - RMT contract: `xtend.rmt.component-contract.v1`.
 - Performance profile: `xtend.performance.component-profile.v1`.
-- Accessibility state: `aria-expanded` reflects the public open state and stays synchronized with `xsummary-open-<id>`.
+- Accessibility state: The native `<details>`/`<summary>` path owns the expanded state. XTend mirrors only the public `open` attribute and `xsummary-open-<id>`, without adding a redundant role or `aria-expanded` to `<summary>`.
+- A11y conformance: The native expanded-state contract remains stable across SSR, pre-hydration and post-hydration markup.
 - The disclosure indicator points down while collapsed and up while expanded.
 
 RMT Hosts should treat the component as a Custom Element boundary: pass attributes as component props, bind DOM events to commands and keep scheduling metadata outside the component. Plain HTML hosts can use the same attributes and events without an RMT compiler.

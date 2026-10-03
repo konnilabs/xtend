@@ -60,7 +60,7 @@ function runVisualSnapshotAutomationSuite(options = {}) {
   const plan = createVisualSnapshotAutomationPlan({ rootDir });
   const validation = validateVisualSnapshotAutomationPlan(plan);
   const gate = createVisualSnapshotAutomationGate({ rootDir, plan });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.visualSnapshotAutomation;
   const scaffoldConfig = readText('xtend-builder/scaffold.config.js', rootDir);
   const backlog = readText('development/BACKLOG-EPIC-12-XTend-Long-Tail-Runtime-Hardening-und-Release-Candidate-Stabilisierung.md', rootDir);
@@ -72,7 +72,7 @@ function runVisualSnapshotAutomationSuite(options = {}) {
   const testsReadme = readText('tests/README.md', rootDir);
   const developerDocs = readText('docs/visual-browser-regression.md', rootDir);
   const snapshotDocs = readText('docs/visual-snapshot-automation.md', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const planSyntax = syntaxCheckFile(VISUAL_SNAPSHOT_AUTOMATION_PLAN_PATH, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(VISUAL_SNAPSHOT_AUTOMATION_SUITE_PATH, { rootDir, extension: '.js' });
 
@@ -140,7 +140,7 @@ function runVisualSnapshotAutomationSuite(options = {}) {
     context.assert(entry.artifacts.baselinePath.startsWith(VISUAL_SNAPSHOT_BASELINE_ROOT), `${entry.family}: snapshot baseline path uses baseline root`);
   });
 
-  context.assertIncludes(runner, "id: 'visual-snapshot-automation'", 'XTend runner registers Visual Snapshot Automation suite');
+  context.assert(runner.hasSuite("visual-snapshot-automation"), 'XTend runner registers Visual Snapshot Automation suite');
   context.assert(packageManifest.scripts['test:visual-snapshot-automation'] === 'node scripts/run_xtend_tests.js visual-snapshot-automation', 'Package exposes Visual Snapshot Automation test script');
   context.assert(metadata && metadata.schema === VISUAL_SNAPSHOT_AUTOMATION_SCHEMA, 'Package metadata exposes Snapshot schema');
   context.assert(metadata && metadata.entrySchema === VISUAL_SNAPSHOT_AUTOMATION_ENTRY_SCHEMA, 'Package metadata exposes Snapshot entry schema');

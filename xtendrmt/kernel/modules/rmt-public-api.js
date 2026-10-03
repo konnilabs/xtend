@@ -157,7 +157,7 @@
                 commandTransport: true,
                 diagnostics: true,
                 reactivity: true,
-                priorityQueue: true,
+                kernelScheduler: true,
                 runtimeProfiles: true,
                 performanceRuntime: true,
                 performanceBudgeting: true,
@@ -307,7 +307,7 @@
                         'browser-runtime-hardening-surfaces'
                     ],
                     buildPolicy: 'Upstream RMT source remains the source-of-truth; xtendrmt/ artifacts are synchronized regression references in this repository. RKSH-WP-10 keeps the Trust/Panic/Recovery hardening layer in schema, manifest, types and runtime artifacts.',
-                    kernelBoundary: 'Artifact parity checks drift only and must not introduce XTend, XRouter, xstate or DOM runtime imports into the RMT kernel.',
+                    kernelBoundary: 'Artifact parity checks drift only and must not introduce XTend, XRouter, XTend State or DOM runtime imports into the RMT kernel.',
                     kernelHardeningSourceOfTruth: 'development/WP-RKSH-10-Buildprozess-und-Artefakt-Paritaet-fuer-neue-Layer-absichern.md',
                     kernelHardeningContracts: [
                         'xtend.rmt.kernel-artifact-parity.v1',
@@ -866,8 +866,6 @@
         const createRmtDiagnosticsHubFactory = resolveFactory('createRmtDiagnosticsHub', deps.createRmtDiagnosticsHub);
         const createRmtReactivityFactory = resolveFactory('createRmtReactivity', deps.createRmtReactivity);
         const createRmtCommandBusFactory = resolveFactory('createRmtCommandBus', deps.createRmtCommandBus);
-        const createRmtQueueFactory = resolveFactory('createRmtQueue', deps.createRmtQueue)
-            || resolveFactory('createRmtPriorityQueue', deps.createRmtPriorityQueue);
 
         const hostAdapter = deps.hostAdapter
             || (typeof createRmtBrowserHostAdapterFactory === 'function'
@@ -905,12 +903,10 @@
                     diagnosticsHub
                 })
                 : null);
-        const priorityQueue = deps.priorityQueue
-            || (typeof createRmtQueueFactory === 'function'
-                ? createRmtQueueFactory({
-                    now: hostAdapter && typeof hostAdapter.now === 'function' ? hostAdapter.now : undefined
-                })
-                : null);
+        const kernelScheduler = deps.scheduler || deps.kernelScheduler || null;
+        if (!kernelScheduler || typeof kernelScheduler.schedule !== 'function') {
+            throw new Error('RMT Core 0.8 benoetigt eine injizierte Kernel-Scheduler-Instanz.');
+        }
         const compatibilityAdapters = Array.isArray(deps.compatibilityAdapters)
             ? deps.compatibilityAdapters.filter(Boolean)
             : (deps.compatibilityAdapter ? [deps.compatibilityAdapter] : []);
@@ -924,7 +920,7 @@
                 diagnosticsHub,
                 reactivity,
                 commandBus,
-                priorityQueue,
+                scheduler: kernelScheduler,
                 compatibilityAdapters
             });
 
@@ -936,7 +932,7 @@
                 diagnosticsHub: !!diagnosticsHub,
                 reactivity: !!reactivity,
                 commandBus: !!commandBus,
-                priorityQueue: !!priorityQueue,
+                kernelScheduler: true,
                 mountRoot: !!(rmt && typeof rmt.mountRoot === 'function'),
                 registerBindings: !!(rmt && typeof rmt.registerBindings === 'function'),
                 listRoots: !!(rmt && typeof rmt.listRoots === 'function')
@@ -957,12 +953,12 @@
             getDiagnostics: () => diagnostics,
             getDiagnosticsHub: () => diagnosticsHub,
             getHostAdapter: () => hostAdapter,
-            getPriorityQueue: () => priorityQueue,
+            getScheduler: () => kernelScheduler,
             getReactivity: () => reactivity,
             getRmt: () => rmt,
             hostAdapter,
-            priorityQueue,
             reactivity,
+            scheduler: kernelScheduler,
             rmt,
             version: PUBLIC_API_VERSION
         });

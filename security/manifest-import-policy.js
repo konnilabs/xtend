@@ -8,7 +8,7 @@ const ALLOWED_IMPORT_PROTOCOLS = ['http:', 'https:', 'file:'];
 const REFUSED_PROTOCOLS = ['javascript:', 'data:', 'vbscript:', 'blob:'];
 const ALLOWED_MANIFEST_EXTENSIONS = ['.json'];
 const ALLOWED_MODULE_EXTENSIONS = ['.js', '.mjs'];
-const RESERVED_BOOTSTRAP_KEYS = ['xstate', 'xtend-i18n'];
+const RESERVED_BOOTSTRAP_KEYS = ['xtend-state', 'xtend-i18n'];
 const CUSTOM_ELEMENT_NAME_PATTERN = /^[a-z][a-z0-9]*-[a-z0-9-]*[a-z0-9]$/;
 
 function clone(value) {

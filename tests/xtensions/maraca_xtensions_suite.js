@@ -92,9 +92,9 @@ function runMaracaXTensionsSuite(options = {}) {
     label: 'XTensions Maraca Manifest and Build Provenance Contract'
   });
 
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.xtensionsMaracaManifest;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const backlog = readText(BACKLOG_PATH, rootDir);
   const architectureContract = readText(ARCHITECTURE_CONTRACT_PATH, rootDir);
   const hostControllerContract = readText(HOST_CONTROLLER_CONTRACT_PATH, rootDir);
@@ -150,8 +150,8 @@ function runMaracaXTensionsSuite(options = {}) {
   context.assert(exportEntry && exportEntry.default === './tools/xtensions/maraca-xtension-manifest.js', 'package exports XTension Maraca manifest module');
   context.assert(exportEntry && exportEntry.types === './tools/xtensions/maraca-xtension-manifest.d.ts', 'package exports XTension Maraca manifest types');
   context.assert(packageManifest.scripts['test:maraca-xtensions'] === 'node scripts/run_xtend_tests.js maraca-xtensions', 'package exposes maraca-xtensions test script');
-  context.assert(runner.includes("id: 'maraca-xtensions'"), 'test runner exposes maraca-xtensions suite');
-  context.assert(runner.includes('node scripts/run_xtend_tests.js maraca-xtensions'), 'runner help references maraca-xtensions gate');
+  context.assert(runner.hasSuite("maraca-xtensions"), 'test runner exposes maraca-xtensions suite');
+  context.assert(runner.hasSuite("maraca-xtensions"), 'runner help references maraca-xtensions gate');
 
   context.assert(backlog.includes('| `XTN-03` | P0/P1 | completed | WS3 |'), 'backlog marks XTN-03 completed');
   context.assert(backlog.includes('development/XTensions-Maraca-Manifest-and-Build-Provenance-Contract.md'), 'backlog references XTension Maraca contract');

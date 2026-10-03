@@ -1,0 +1,44 @@
+{
+  "schema": "xtend.native-first.observatory-erm-browser-evidence-matrix.v1",
+  "intakeRef": "NFM-OBS-2026-08-17",
+  "decisionRef": "ADR-NFM-OBS-EXPLICIT-RESOURCE-MANAGEMENT-2026-08-17",
+  "capturedAt": "2026-08-17",
+  "harness": {
+    "path": "tests/browser/fixtures/observatory-explicit-resource-management-lab.html",
+    "sha256": "79abcad057d4d6aa3b5355ff85520a3364f1acbe56224b7bf62f26da6c4864b8",
+    "nativeModulePath": "tests/browser/fixtures/observatory-explicit-resource-management-native.mjs",
+    "nativeModuleSha256": "29c6bcac8b6e15bf3cd9a341142b76f6fdad766492492309ab6821f49cb50879"
+  },
+  "engines": [
+    {
+      "engine": "Chromium",
+      "version": "151.0.7922.108",
+      "status": "lab-evidence",
+      "capability": true,
+      "dynamicModuleStatus": "native-syntax-exercised",
+      "events": [
+        "using-body",
+        "using-dispose",
+        "await-using-body",
+        "await-using-dispose"
+      ],
+      "fallback": [
+        "surface-release",
+        "worker-terminate",
+        "scheduler-cancel"
+      ]
+    },
+    {
+      "engine": "Firefox",
+      "version": null,
+      "status": "insufficient-evidence"
+    },
+    {
+      "engine": "WebKit",
+      "version": null,
+      "status": "insufficient-evidence"
+    }
+  ],
+  "claimBoundary": "single-local-lab-not-shipping-support",
+  "adoptionBlocked": true
+}

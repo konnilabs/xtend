@@ -1,0 +1,2 @@
+# Hash-checked MCP knowledge artifacts must remain byte-identical on every runner.
+products/xtend-mcp/generated/** text eol=lf

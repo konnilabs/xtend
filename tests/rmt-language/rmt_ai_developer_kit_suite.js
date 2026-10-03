@@ -253,10 +253,10 @@ function runGeneratedArtifactChecks(context, kit, rootDir) {
 }
 
 function runMetadataChecks(context, rootDir) {
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const toolsManifest = readJson('tools/package.json', rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtAiDeveloperKit;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   context.assert(metadata && metadata.schema === RMT_AI_DEVELOPER_KIT_SCHEMA, 'Package metadata declares AI Developer Kit schema');
   context.assert(metadata && metadata.module === RMT_AI_DEVELOPER_KIT_MODULE_PATH, 'Package metadata points to AI Kit module');
@@ -269,7 +269,7 @@ function runMetadataChecks(context, rootDir) {
   context.assert(exportDefault(toolsManifest, './rmt-language/rmt-ai-developer-kit') === './rmt-language/rmt-ai-developer-kit.js', 'Tools package exports AI Kit module');
   context.assert(packageManifest.scripts['test:rmt-ai-developer-kit'] === 'node scripts/run_xtend_tests.js rmt-ai-developer-kit', 'Package exposes AI Kit test script');
   context.assert(packageManifest.scripts['test:rmt-tooling'].includes('rmt-ai-developer-kit'), 'Bundled RMT tooling gate includes AI Kit');
-  context.assert(runner.includes("id: 'rmt-ai-developer-kit'"), 'Test runner exposes AI Kit suite');
+  context.assert(runner.hasSuite("rmt-ai-developer-kit"), 'Test runner exposes AI Kit suite');
 }
 
 function runRmtAiDeveloperKitSuite(options = {}) {

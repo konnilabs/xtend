@@ -104,6 +104,34 @@ export interface RmtNodeSsrComponentCapabilityHint {
   kernelBoundary?: string;
 }
 
+export interface RmtSsrCoverage {
+    schema: 'xtend.rmt.ssr-coverage.v1';
+    descriptorElementNodes: number;
+    resumeMarkedNodes: number;
+    componentNodes: number;
+    missingCapabilityNodes: number;
+    rawHtmlFragments: number;
+    /** Descriptor marker coverage, not a count of successful client resumes. */
+    resumeMarkerCoverage: number | null;
+}
+
+export const RMT_SSR_COVERAGE_SCHEMA: 'xtend.rmt.ssr-coverage.v1';
+export const RMT_SSR_FABRIC_TELEMETRY_SCHEMA: 'xtend.rmt.node-ssr-fabric-telemetry-hints.v2';
+export const RMT_SSR_FABRIC_TELEMETRY_LEGACY_SCHEMA: 'xtend.rmt.node-ssr-fabric-telemetry-hints.v1';
+export interface RmtSsrFabricTelemetryHints {
+  schema: typeof RMT_SSR_FABRIC_TELEMETRY_SCHEMA;
+  coverage: RmtSsrCoverage;
+  lanes: string[];
+  kernelBoundary: typeof RMT_NODE_SSR_KERNEL_BOUNDARY;
+  transport: 'node-ssr';
+}
+export interface LegacyRmtSsrFabricTelemetryHints {
+  schema: typeof RMT_SSR_FABRIC_TELEMETRY_LEGACY_SCHEMA;
+  lanes: string[];
+  kernelBoundary: typeof RMT_NODE_SSR_KERNEL_BOUNDARY;
+  transport: 'node-ssr';
+}
+
 export interface RmtNodeSsrHydrationPayload {
   schema: typeof RMT_NODE_SSR_HYDRATION_SCHEMA;
   requestId: string;
@@ -246,6 +274,7 @@ export interface RmtNodeSsrDataSourceRecord {
 }
 
 export interface RmtNodeSsrOptions {
+  rendererSchema?: import('./rmt-dom-descriptor-renderer.js').RmtRendererSchema;
   executionMode?: RmtNodeSsrExecutionMode | 'worker_prerender_resume';
   requestId?: string;
   rootId?: string;
@@ -280,7 +309,12 @@ export interface RmtNodeSsrOptions {
   cspDirectives?: Record<string, string | string[]>;
   headers?: Record<string, string>;
   status?: number;
+  nativeForms?: boolean;
   signal?: AbortSignal;
+  streamTimeoutMs?: number;
+  cleanupTimeoutMs?: number;
+  onError?(error: unknown): void;
+  onCleanupError?(error: unknown): void;
   xscalerPreflight?: Record<string, unknown>;
   xscalerPreflights?: Array<Record<string, unknown>>;
   publishDiagnostic?: (diagnostic: RmtNodeSsrDiagnostic) => void;
@@ -340,3 +374,5 @@ declare const api: {
 };
 
 export default api;
+
+export function getRmtSsrCoverage(result: Pick<RmtNodeSsrRenderResult, 'fabricTelemetryHints'>): RmtSsrCoverage | null;

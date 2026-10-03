@@ -30,7 +30,7 @@
       "command": "node scripts/run_xtend_tests.js component-long-tail-migration --json",
       "passCount": 96,
       "residual": "component-long-tail-migration-docs-file",
-      "targetComponents": ["xstate", "x-utils", "xtend-i18n"]
+      "targetComponents": ["xtend-state", "x-utils", "xtend-i18n"]
     },
     {
       "id": "type-exports-vendor",

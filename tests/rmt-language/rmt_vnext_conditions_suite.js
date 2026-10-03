@@ -75,9 +75,9 @@ function runRmtVNextConditionsSuite(options = {}) {
     id: 'rmt-vnext-conditions',
     label: 'Epic 15 RMT vNext Condition Expression Contract'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextConditions;
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const epic = readText(EPIC_15_PATH, rootDir);
   const conditionContract = readText(CONDITION_CONTRACT_PATH, rootDir);
   const conditionSyntax = syntaxCheckFile(RMT_VNEXT_CONDITION_MODULE_PATH, { rootDir, extension: '.js' });
@@ -102,7 +102,7 @@ function runRmtVNextConditionsSuite(options = {}) {
   context.assert(metadata && metadata.packageScript === RMT_VNEXT_CONDITION_PACKAGE_SCRIPT, 'package metadata declares condition package script');
   context.assert((typeof packageManifest.exports['./rmt-language/vnext-conditions'] === 'string' ? packageManifest.exports['./rmt-language/vnext-conditions'] : packageManifest.exports['./rmt-language/vnext-conditions'] && packageManifest.exports['./rmt-language/vnext-conditions'].default) === './tools/rmt-language/vnext-conditions.js', 'package exports vNext condition contract');
   context.assert(packageManifest.scripts['test:rmt-vnext-conditions'] === 'node scripts/run_xtend_tests.js rmt-vnext-conditions', 'package exposes vNext condition script');
-  context.assert(runner.includes("id: 'rmt-vnext-conditions'"), 'test runner exposes rmt-vnext-conditions suite');
+  context.assert(runner.hasSuite("rmt-vnext-conditions"), 'test runner exposes rmt-vnext-conditions suite');
   context.assert(epic.includes('| `WP-E15-09` | P1 | completed | WS3 |'), 'Epic marks WP-E15-09 completed');
   context.assert(epic.includes('| `WP-E15-12` | P1 | completed | WS3 |'), 'Epic records WP-E15-12 after condition handoff');
   context.assert(conditionContract.includes('schema: "xtend.rmt.vnext-condition-contract.v1"'), 'Condition contract document declares schema');

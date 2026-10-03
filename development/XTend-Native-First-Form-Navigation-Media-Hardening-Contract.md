@@ -9,8 +9,8 @@
 - Report Contract: `xtend.native-first.form-navigation-media-hardening-report.v1`
 - Mission Contract: `xtend.native-first.mission-source-of-truth.v1`
 - Capability Contract: `xtend.native-first.ui-primitive-capability.v1`
-- Adoption Gate: `xtend.native-first.primitive-adoption-gate.v1`
-- Browser Primitive Radar: `xtend.native-first.browser-primitive-radar.v1`
+- Adoption Gate: `xtend.native-first.primitive-adoption-gate.v2`
+- Browser Primitive Radar: `xtend.native-first.browser-primitive-radar.v2`
 - Component Contract: `xtend.component.contract.v2`
 - Form Controls UX Contract: `xtend.component.form-controls-ux.v1`
 - Navigation Routing UX Contract: `xtend.component.navigation-routing-ux.v1`
@@ -34,9 +34,9 @@ WP-08 fuehrt keine neue externe UI-Framework-Abhaengigkeit ein. Native Form-, Na
 | Text- und Value-Inputs | `x-input`, `x-textarea`, `x-select`, `x-checkbox`, `x-radio`, `x-calendar` | owned baseline bleibt fuehrend; ElementInternals bleibt Radar- und ADR-pflichtig |
 | Form Host und Validation | `x-form`, validation events, form data aggregation | owned host validation bleibt fuehrend; Constraint Validation/FormData Adoption bleibt radar-linked |
 | Rich Text Entry | `x-writer` | owned form primitive mit vendored conversion residual aus `NFM-CAP-12` |
-| Navigation und App Shell | `x-router`, `x-link`, `x-tabs`, `x-menu` | owned routing/navigation bleibt fuehrend; Navigation API/URLPattern bleiben Radar-Watch |
+| Navigation und App Shell | `x-router`, `x-link`, `x-tabs`, `x-menu` | History ist als Wrapper akzeptiert; Navigation API und URLPattern sind terminal abgelehnt |
 | List-like Layout | `x-cards`, `x-masonry`, `x-summary`, `x-section` | owned display/list-like primitives, aber kein Data Grid/Table/Tree Claim |
-| Media | `x-player`, `x-lightbox` | owned media shell bleibt fuehrend; Media Session/PiP bleiben Radar-Watch |
+| Media | `x-player`, `x-lightbox` | PiP ist capability-gated akzeptiert; Media Session ist terminal abgelehnt |
 | RMT Authoring | Form, Navigation und Layout/Media RMT fixtures | authorbar ueber records/adapters/schedules, nicht ueber Inline-JS |
 
 ## Native Primitive Decisions
@@ -47,8 +47,8 @@ WP-08 fuehrt keine neue externe UI-Framework-Abhaengigkeit ein. Native Form-, Na
 | `NFM-BPR-004` | Constraint Validation und FormData APIs | `wrap-as-xtend-primitive` | `x-form` Aggregation bleibt Gate-Basis; native Interop bleibt ADR-pflichtig |
 | `NFM-BPR-009` | CSS Container Queries | `adopt-candidate` | Layout-/List-like Primitives duerfen Radar-Evidence vorbereiten, kein ungepruefter Produktclaim |
 | `NFM-BPR-013` | Resize/Mutation/Intersection Observer | `wrap-as-xtend-primitive` | Layout measurement, lazy hydration und diagnostics bleiben XTend-gesteuert |
-| `NFM-BPR-015` | History, URLPattern und Navigation API Kandidaten | `defer-with-watch` | `x-router`/`x-link` bleiben owned; native Navigation API braucht WP14/WP18 Evidence |
-| `NFM-BPR-018` | Media Session, PiP und media-control Primitives | `defer-with-watch` | `x-player`/`x-lightbox` bleiben owned; native Media-Adoption braucht Browser-Lab Evidence |
+| `NFM-BPR-015` | History, URLPattern und Navigation API Kandidaten | `resolved` | History wird gewrappt; URLPattern und Navigation API sind `reject-for-now`; `x-router` bleibt Owner |
+| `NFM-BPR-018` | Media Session, PiP und media-control Primitives | `resolved` | PiP wird capability-gated gewrappt; Media Session ist `reject-for-now` |
 | `NFM-BPR-020` | `focus-visible`, forced-colors, reduced-motion CSS | `adopt-native` | A11y CSS Primitives bleiben unter Component-Gates erlaubt |
 
 ## Hardening Requirements
@@ -87,4 +87,3 @@ WP-08 fuehrt keine neue externe UI-Framework-Abhaengigkeit ein. Native Form-, Na
 | RMT-Kernel bleibt host-neutral | erfuellt |
 | Keine Runtime-Dependency wird eingefuehrt | erfuellt |
 | Lokales WP-08-Gate ist definiert | erfuellt |
-

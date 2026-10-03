@@ -138,7 +138,9 @@ function createRmtAppModulesFromArtifact(context, rootDir, artifactPath) {
     return null;
   }
 
-  if (!context.assert(sandbox.AppModules && typeof sandbox.AppModules === 'object', `${artifactPath} exposes AppModules`)) {
+  if (artifactPath.endsWith('.esm.js')) vm.runInNewContext('globalThis.AppModules = AppModules;', sandbox);
+  else sandbox.AppModules = sandbox.XTendRMT || sandbox['xtend.rmt'] || null;
+  if (!context.assert(sandbox.AppModules && typeof sandbox.AppModules === 'object', `${artifactPath} exposes private/public factory probe`)) {
     return null;
   }
   return sandbox.AppModules;
@@ -336,10 +338,10 @@ async function runRmtKernelEscalationSuite(options = {}) {
     id: 'rmt-kernel-escalation',
     label: 'RKSH-WP-06 Diagnostics and Command Bus Escalation'
   });
-  const packageManifest = readJson('package.json', rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtKernelEscalation;
   const packageExport = getPackageExport(packageManifest, './rmt-language/kernel-escalation');
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const catalog = readText('catalog/type-exports-rmt.js', rootDir);
   const backlog = readText(RMT_KERNEL_SECURITY_BACKLOG, rootDir);
   const contract = readText(RMT_KERNEL_ESCALATION_CONTRACT_PATH, rootDir);
@@ -373,8 +375,8 @@ async function runRmtKernelEscalationSuite(options = {}) {
   context.assert(metadata && metadata.workpackage === RMT_KERNEL_ESCALATION_WORKPACKAGE, 'package metadata points to RKSH-WP-06');
   context.assert(metadata && metadata.localGate === RMT_KERNEL_ESCALATION_LOCAL_GATE, 'package metadata exposes escalation local gate');
   context.assert(metadata && metadata.packageScript === RMT_KERNEL_ESCALATION_PACKAGE_SCRIPT, 'package metadata exposes escalation package script');
-  context.assertIncludes(runner, "id: 'rmt-kernel-escalation'", 'runner registers escalation suite');
-  context.assertIncludes(runner, 'runRmtKernelEscalationSuite', 'runner imports escalation suite');
+  context.assert(runner.hasSuite("rmt-kernel-escalation"), 'runner registers escalation suite');
+  context.assert(runner.hasImplementation({ function: "runRmtKernelEscalationSuite" }), 'runner imports escalation suite');
   context.assertIncludes(catalog, './rmt-language/kernel-escalation', 'type export catalog includes escalation export');
 
   runStandaloneEscalationAssertions(context);

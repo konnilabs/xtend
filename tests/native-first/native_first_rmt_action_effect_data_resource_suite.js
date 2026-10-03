@@ -280,7 +280,7 @@ function assertPathExists(context, rootDir, relativePath, label) {
 }
 
 function assertRunnerGate(context, runner, gate) {
-  context.assertIncludes(runner, `id: '${gate}'`, `Runner registers ${gate}`);
+  context.assert(runner.hasSuite(gate), `Runner registers ${gate}`);
 }
 
 function countBy(items, field) {
@@ -316,8 +316,8 @@ function runNativeFirstRmtActionEffectDataResourceSuite(options = {}) {
   const runtimePlan = readText('catalog/epic18-rmt-action-effect-runtime.js', rootDir);
   const runtimeSource = readText('xtendrmt/rmt-action-effect-runtime.js', rootDir);
   const runtimeFixture = readText('tests/fixtures/rmt-action-effect-runtime.core.json', rootDir);
-  const runner = readText('scripts/run_xtend_tests.js', rootDir);
-  const packageManifest = readJson('package.json', rootDir);
+  const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
+  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const packageScripts = packageManifest.scripts || {};
   const metadata = packageManifest.xtend && packageManifest.xtend.nativeFirstRmtActionEffectDataResourcePrimitives;
   const registryMetadata = packageManifest.xtend && packageManifest.xtend.nativeFirstContractRegistry;
@@ -502,8 +502,8 @@ function runNativeFirstRmtActionEffectDataResourceSuite(options = {}) {
   ], 'Registry contract WP-16 extension');
 
   context.assert(packageScripts['test:rmt-action-effect-data-resource-primitives'] === 'node scripts/run_xtend_tests.js rmt-action-effect-data-resource-primitives', 'Package exposes WP-16 test script');
-  context.assertIncludes(runner, "require('../tests/native-first/native_first_rmt_action_effect_data_resource_suite')", 'Runner imports WP-16 suite');
-  context.assertIncludes(runner, "id: 'rmt-action-effect-data-resource-primitives'", 'Runner registers WP-16 suite');
+  context.assert(runner.hasImplementation({ path: "tests/native-first/native_first_rmt_action_effect_data_resource_suite.js" }), 'Runner imports WP-16 suite');
+  context.assert(runner.hasSuite("rmt-action-effect-data-resource-primitives"), 'Runner registers WP-16 suite');
   REQUIRED_SOURCE_GATES.forEach((gate) => assertRunnerGate(context, runner, gate));
 
   context.assert(metadata && metadata.schema === CONTRACT_SCHEMA, 'Package metadata exposes WP-16 contract schema');

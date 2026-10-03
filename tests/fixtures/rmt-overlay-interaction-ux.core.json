@@ -20,7 +20,7 @@
       "capabilities": [
         "manifest",
         "customElements",
-        "xstate",
+        "state",
         "events",
         "commands",
         "fabric",

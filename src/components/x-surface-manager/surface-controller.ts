@@ -142,7 +142,6 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
   const diagnostics: XtendSurfaceDiagnostic[] = [];
   const subscribers = new Set<(snapshot: XtendSurfaceSnapshot) => void>();
   const stateProjection = options.stateProjection || null;
-  const legacyStateProjectionRequested = Object.prototype.hasOwnProperty.call(options, 'xstate');
   const nowProvider = options.clock && typeof options.clock.now === 'function'
     ? () => options.clock!.now()
     : options.now;
@@ -555,13 +554,5 @@ export function createSurfaceController(options: XtendSurfaceControllerOptions =
       return result('dispose', null, true, event);
     }
   };
-  if (legacyStateProjectionRequested && !stateProjection) {
-    emit(
-      'xtend.surface.state-projection.batch-required',
-      null,
-      'state-projection',
-      'Legacy xstate projection is disabled; inject the batch-only stateProjection port.'
-    );
-  }
   return controller;
 }
