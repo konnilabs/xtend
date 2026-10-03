@@ -366,6 +366,8 @@ module.exports = {
 "ssr-pages-browser": async () => toRunnerResult('ssr-pages-browser', 'Node page browser lifecycle', await load('../tests/ssr-pages/node_browser_suite').runNodePageBrowserSuite({ rootDir })),
 "ssr-pages-laravel": () => toRunnerResult('ssr-pages-laravel', 'Isolated Laravel package integration', load('../tests/ssr-pages/laravel_integration_suite').runLaravelIntegrationSuite({ rootDir })),
 "ssr-pages-laravel-browser": async () => toRunnerResult('ssr-pages-laravel-browser', 'Laravel page browser lifecycle', await load('../tests/ssr-pages/laravel_browser_suite').runLaravelPageBrowserSuite({ rootDir })),
+"ssr-pages-laravel-matrix": async () => toRunnerResult('ssr-pages-laravel-matrix', 'Laravel 12/13 contract integration', await load('../tests/ssr-pages/laravel_matrix_suite').runLaravelMatrixSuite({ rootDir })),
+"ssr-pages-laravel-browser-matrix": async () => toRunnerResult('ssr-pages-laravel-browser-matrix', 'Laravel 12/13 browser lifecycle', await load('../tests/ssr-pages/laravel_matrix_suite').runLaravelMatrixSuite({ rootDir, browser: true })),
 "rmt-resume-runtime": async () => {
       const result = await load("../tests/rmt-language/rmt_resume_runtime_suite")["runRmtResumeRuntimeSuite"]({ rootDir });
       load("../tests/rmt-language/rmt_resume_runtime_suite")["printRmtResumeRuntimeReport"](result);

@@ -1,4 +1,4 @@
-// XTendRMT 0.8.0 type definitions
+// XTendRMT 0.9.0 type definitions
 import type { RmtJobContext, RmtJobHandle, RmtKernelScheduler } from './rmt-kernel-scheduler.js';
 
 export {
@@ -4382,7 +4382,9 @@ declare global {
 
 // <kernel-lab:rmt-dom-descriptor-renderer-types>
 export const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';
-export const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA: 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
+export const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA: 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
+export const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA: 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
+export type RmtRendererSchema = typeof RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA | typeof RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA;
 export const RMT_DOM_COMMIT_RESULT_SCHEMA: 'xtend.rmt.dom-commit-result.v1';
 export const RMT_DOM_APPLICATION_BINDING_SCHEMA: 'xtend.rmt.dom-application-binding.v1';
 export const RMT_DOM_BINDING_SCOPE_SCHEMA: 'xtend.rmt.dom-binding-scope.v1';
@@ -4413,6 +4415,8 @@ export interface RmtDomDescriptorDiagnostic {
 }
 
 export interface RmtDomDescriptorRendererOptions {
+  /** Legacy contracts are supported through 0.10; removal requires a major release. */
+  rendererSchema?: RmtRendererSchema;
   documentTarget?: Document;
   diagnosticsHub?: {
     publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown;
@@ -4433,6 +4437,7 @@ export interface RmtComponentRegistryLike {
 }
 
 export interface RmtDomDescriptorRenderOptions {
+  rendererSchema?: RmtRendererSchema;
   model?: Record<string, unknown>;
   selectorValues?: Record<string, unknown>;
   components?: Map<string, unknown> | unknown[];
@@ -4677,11 +4682,19 @@ export interface RmtDomDescriptorRenderer {
   patchElement(element: Element, descriptor: unknown, options?: RmtDomDescriptorRenderOptions): Element;
   resolveClasses(value: unknown, options?: RmtDomDescriptorRenderOptions & { item?: unknown }): string[];
   resolveValue(value: unknown, options?: RmtDomDescriptorRenderOptions & { item?: unknown }): unknown;
+  /** Strings are literal unless they use explicit binding/interpolation syntax. */
+  resolveAttributeValue(value: unknown, options?: RmtDomDescriptorRenderOptions & { item?: unknown }): unknown;
   createNoManualHtmlGate(options?: unknown): RmtNoManualHtmlGate;
   isUrlAllowed(value: unknown): boolean;
   listDiagnostics(): RmtDomDescriptorDiagnostic[];
 }
 
+export interface LegacyRmtDomDescriptorRenderer extends Omit<RmtDomDescriptorRenderer, 'schema'> {
+  schema: typeof RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA;
+}
+
 export function createNoManualHtmlGate(options?: unknown): RmtNoManualHtmlGate;
-export function createRmtDomDescriptorRenderer(options?: RmtDomDescriptorRendererOptions): RmtDomDescriptorRenderer;
+export function createRmtDomDescriptorRenderer(options: RmtDomDescriptorRendererOptions & {rendererSchema: typeof RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA}): LegacyRmtDomDescriptorRenderer;
+export function createRmtDomDescriptorRenderer(options?: RmtDomDescriptorRendererOptions & {rendererSchema?: typeof RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA}): RmtDomDescriptorRenderer;
+export function createRmtDomDescriptorRenderer(options: RmtDomDescriptorRendererOptions): RmtDomDescriptorRenderer | LegacyRmtDomDescriptorRenderer;
 // </kernel-lab:rmt-dom-descriptor-renderer-types>

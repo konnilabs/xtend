@@ -636,7 +636,7 @@ function createValueResolver() {
     }
   });
   const resolve = (value, context = {}) => renderer.resolveValue(value, context);
-  resolve.attribute = (value, context = {}) => renderer.resolveAttributeValue(value, context);
+  resolve.attribute = (value, context = {}) => renderer.resolveAttributeValue(value, {...context, rendererSchema: context.options?.rendererSchema});
   return resolve;
 }
 
@@ -1321,7 +1321,7 @@ export function createRmtNodeSsrAdapter(options = {}) {
     };
     // Marker coverage is not proof of a successful client resume. Opaque HTML
     // nodes and actual browser fallback counts are intentionally not inferred.
-    hydration.coverage = {...coverage, resumeMarkerCoverage:coverage.descriptorElementNodes ? coverage.resumeMarkedNodes / coverage.descriptorElementNodes : null};
+    const coverageRecord = {...coverage, resumeMarkerCoverage:coverage.descriptorElementNodes ? coverage.resumeMarkedNodes / coverage.descriptorElementNodes : null};
     const renderState = {
       requestId,
       rootId,
@@ -1368,7 +1368,8 @@ export function createRmtNodeSsrAdapter(options = {}) {
       streamingContract,
       componentCapabilities: [...componentCapabilities.values()],
       fabricTelemetryHints: {
-        schema: 'xtend.rmt.node-ssr-fabric-telemetry-hints.v1',
+        schema: 'xtend.rmt.node-ssr-fabric-telemetry-hints.v2',
+        coverage: coverageRecord,
         lanes: asArray(normalized.coreDocument && normalized.coreDocument.lanes).map((lane) => lane.id || lane.name).filter(Boolean),
         kernelBoundary: RMT_NODE_SSR_KERNEL_BOUNDARY,
         transport: 'node-ssr'
@@ -1652,7 +1653,25 @@ export function createRmtNodeSsrAdapter(options = {}) {
   });
 }
 
+export function getRmtSsrCoverage(result) {
+  const coverage = result?.fabricTelemetryHints?.coverage;
+  if (coverage?.schema !== 'xtend.rmt.ssr-coverage.v1') return null;
+  const counters = ['descriptorElementNodes', 'resumeMarkedNodes', 'componentNodes', 'missingCapabilityNodes', 'rawHtmlFragments'];
+  if (counters.some(key => !Number.isSafeInteger(coverage[key]) || coverage[key] < 0)
+      || coverage.resumeMarkedNodes > coverage.descriptorElementNodes
+      || coverage.componentNodes > coverage.descriptorElementNodes || coverage.missingCapabilityNodes > coverage.componentNodes
+      || coverage.resumeMarkerCoverage !== (coverage.descriptorElementNodes ? coverage.resumeMarkedNodes / coverage.descriptorElementNodes : null)) throw new Error('Invalid SSR coverage record.');
+  return {...coverage};
+}
+
+export const RMT_SSR_COVERAGE_SCHEMA = 'xtend.rmt.ssr-coverage.v1';
+export const RMT_SSR_FABRIC_TELEMETRY_SCHEMA = 'xtend.rmt.node-ssr-fabric-telemetry-hints.v2';
+export const RMT_SSR_FABRIC_TELEMETRY_LEGACY_SCHEMA = 'xtend.rmt.node-ssr-fabric-telemetry-hints.v1';
+
 export default {
+  RMT_SSR_COVERAGE_SCHEMA,
+  RMT_SSR_FABRIC_TELEMETRY_SCHEMA,
+  RMT_SSR_FABRIC_TELEMETRY_LEGACY_SCHEMA,
   RMT_NODE_SSR_ADAPTER_SCHEMA,
   RMT_NODE_SSR_RENDER_RESULT_SCHEMA,
   RMT_NODE_SSR_JSONL_FRAME_SCHEMA,
@@ -1671,5 +1690,6 @@ export default {
   RMT_SSR_CSP_HEADER,
   RMT_XSCALER_SSR_HYDRATION_SCHEMA,
   canonicalizeRmtResumePayload,
+  getRmtSsrCoverage,
   createRmtNodeSsrAdapter
 };

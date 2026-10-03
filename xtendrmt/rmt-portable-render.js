@@ -1,7 +1,8 @@
 import { createRmtStateSelectorRuntime } from './rmt-state-selector-runtime.js';
-import { createRmtDomDescriptorRenderer } from './rmt-dom-descriptor-renderer.js';
+import { createRmtDomDescriptorRenderer, RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA, RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA } from './rmt-dom-descriptor-renderer.js';
 
-export const RMT_PORTABLE_RENDER_SCHEMA = 'xtend.rmt.portable-render.v1';
+export const RMT_PORTABLE_RENDER_SCHEMA = 'xtend.rmt.portable-render.v2';
+export const RMT_PORTABLE_RENDER_LEGACY_SCHEMA = 'xtend.rmt.portable-render.v1';
 // This is an execution capability list for existing descriptor expressions, not a language grammar.
 const operators = new Set(['literal', 'const', 'static', 'path', 'fallback', 'concat', 'interpolate', 'slice', 'contains', 'includes', 'equals', 'eq', 'not-equals', 'neq', 'truthy', 'falsy', 'not', 'if', 'ternary', 'map', 'filter', 'reduce', 'countBy', 'count-by', 'formatBytes', 'bytes', 'formatDuration', 'duration']);
 const nodes = new Set(['element', 'component', 'text', 'fragment', 'empty', 'slot', 'conditional', 'repeat']);
@@ -54,11 +55,15 @@ export function createPortableRenderArtifact(input, options = {}) {
     error.diagnostics = diagnostics;
     throw error;
   }
-  return JSON.parse(JSON.stringify({ schema: RMT_PORTABLE_RENDER_SCHEMA, sourceRef: options.sourceRef || core.sourceRef || null, targets: diagnostics.length ? ['node'] : ['node', 'php'], inputs: options.inputs || Object.keys(defaults), defaults, descriptor, state }));
+  const schema = options.schema || RMT_PORTABLE_RENDER_SCHEMA;
+  if (![RMT_PORTABLE_RENDER_SCHEMA, RMT_PORTABLE_RENDER_LEGACY_SCHEMA].includes(schema)) throw new Error('Unsupported portable render contract.');
+  return JSON.parse(JSON.stringify({ schema, ...(schema === RMT_PORTABLE_RENDER_SCHEMA ? { rendererSchema: RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA } : {}), sourceRef: options.sourceRef || core.sourceRef || null, targets: diagnostics.length ? ['node'] : ['node', 'php'], inputs: options.inputs || Object.keys(defaults), defaults, descriptor, state }));
 }
 
 export function projectPortableRender(artifact, props = {}) {
-  if (artifact?.schema !== RMT_PORTABLE_RENDER_SCHEMA) throw new Error('Unsupported portable render artifact.');
+  if (![RMT_PORTABLE_RENDER_SCHEMA, RMT_PORTABLE_RENDER_LEGACY_SCHEMA].includes(artifact?.schema)) throw new Error('Unsupported portable render artifact.');
+  const rendererSchema = artifact.schema === RMT_PORTABLE_RENDER_LEGACY_SCHEMA ? RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA : artifact.rendererSchema;
+  if (artifact.schema === RMT_PORTABLE_RENDER_SCHEMA && rendererSchema !== RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA) throw new Error('Unsupported portable renderer contract.');
   let model = { ...artifact.defaults };
   for (const name of artifact.inputs) if (own(props, name)) model[name] = props[name];
   if (artifact.state) {
@@ -95,7 +100,7 @@ export function projectPortableRender(artifact, props = {}) {
     }
     const result = { ...input };
     if (own(input, 'text')) { const value = resolve(input.text, item); result.text = { op: 'literal', value: value == null || typeof value === 'object' ? '' : String(value) }; }
-    for (const field of ['attributes', 'attrs', 'properties', 'props']) if (input[field]) result[field] = Object.fromEntries(Object.entries(input[field]).map(([key, value]) => [key, { op: 'literal', value: field === 'attributes' || field === 'attrs' ? renderer.resolveAttributeValue(value, {model,item}) : resolve(value, item) }]));
+    for (const field of ['attributes', 'attrs', 'properties', 'props']) if (input[field]) result[field] = Object.fromEntries(Object.entries(input[field]).map(([key, value]) => [key, { op: 'literal', value: field === 'attributes' || field === 'attrs' ? renderer.resolveAttributeValue(value, {model,item,rendererSchema}) : resolve(value, item) }]));
     if (input.key) result.attributes = {...result.attributes, 'data-rmt-key': {op:'literal', value:resolve(input.key, item)}};
     const classes = renderer.resolveClasses([input.class, input.className, input.classes], {model,item});
     if (classes.length) result.attributes = {...result.attributes, class:{op:'literal', value:classes.join(' ')}};

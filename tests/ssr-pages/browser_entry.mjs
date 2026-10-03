@@ -1,18 +1,20 @@
 import {createPageClient} from '/runtime/page-client.mjs';
+import {decodePageInitialDocument} from '/runtime/page-contract.mjs';
 import {createPageForm,createNodePageValidator,createPrecognitionValidator} from '/runtime/page-form.mjs';
 import '/runtime/xrouter.js';
 
 const checks = [];
 const assert = (condition, message) => { if (!condition) throw new Error(message); checks.push(message); };
 const wait = async predicate => { const deadline=Date.now()+8000; while (!predicate()) { if(Date.now()>deadline) throw new Error('Browser state deadline exceeded.'); await new Promise(resolve=>setTimeout(resolve,20)); } };
-const initialPage = JSON.parse(document.getElementById('xtend-page-data').textContent);
+const initialDocument = JSON.parse(document.getElementById('xtend-page-data').textContent);
+const initialPage = decodePageInitialDocument(initialDocument);
 let downloaded, requests=0;
 const verify=async(canonical,integrity)=>{
   const key=await crypto.subtle.importKey('jwk',initialPage.shared.resumePublicKey,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
   const signature=Uint8Array.from(atob(integrity.signature.replace(/-/g,'+').replace(/_/g,'/')),character=>character.charCodeAt(0));
   return {verified:await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},key,signature,new TextEncoder().encode(canonical))};
 };
-const client = createPageClient({initialPage,window,encryptHistory:true,resume:{verify},pages:{Known:initialPage.renderArtifact},transition:async update=>{if(document.startViewTransition)await document.startViewTransition(update).updateCallbackDone;else await update();},fetch:(...args)=>{requests++;return fetch(...args);},onDownload:result=>{downloaded=result;}});
+const client = createPageClient({initialPage:initialDocument,window,encryptHistory:true,resume:{verify},pages:{Known:initialPage.renderArtifact},transition:async update=>{if(document.startViewTransition)await document.startViewTransition(update).updateCallbackDone;else await update();},fetch:(...args)=>{requests++;return fetch(...args);},onDownload:result=>{downloaded=result;}});
 window.pageClient = client;
 try {
   if(initialPage.ssr?.executionMode==='server_prerender_resume') {

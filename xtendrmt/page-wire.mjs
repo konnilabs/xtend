@@ -1,6 +1,7 @@
 // Lossless, response-local references. Existing page and signed resume contracts
 // are reconstructed before consumers see them; no reference crosses a response.
-export const PAGE_WIRE_SCHEMA = 'xtend.page-wire.v1';
+export const PAGE_WIRE_SCHEMA = 'xtend.page-wire.v2';
+export const PAGE_WIRE_LEGACY_SCHEMA = 'xtend.page-wire.v1';
 const MAX_NODES = 32768, MAX_DEPTH = 128, MAX_EXPANDED = 16 * 1024 * 1024;
 const fail = () => { throw Object.assign(new Error('Invalid or oversized XTend page reference table.'), {code:'page.invalid_wire'}); };
 const safeKey = key => !key.split('.').some(part => ['__proto__', 'prototype', 'constructor'].includes(part));
@@ -9,6 +10,7 @@ const primitiveSize = value => {
   return fail();
 };
 export function encodePageWire(page) {
+  if (!['xtend.page-response.v1', 'xtend.page-response.v2'].includes(page?.schema)) fail();
   const nodes = [], interned = new Map(), ancestors = new Set();
   function encode(value, depth = 0) {
     if (depth > MAX_DEPTH) fail();
@@ -32,10 +34,10 @@ export function encodePageWire(page) {
     }));
   } catch { fail(); }
   const root = encode(normalized);
-  return {schema:PAGE_WIRE_SCHEMA, root, nodes};
+  return {schema:page.schema === 'xtend.page-response.v1' ? PAGE_WIRE_LEGACY_SCHEMA : PAGE_WIRE_SCHEMA, root, nodes};
 }
 export function decodePageWire(input) {
-  if (input?.schema !== PAGE_WIRE_SCHEMA) return input;
+  if (![PAGE_WIRE_SCHEMA, PAGE_WIRE_LEGACY_SCHEMA].includes(input?.schema)) return input;
   if (!Array.isArray(input.nodes) || !input.nodes.length || input.nodes.length > MAX_NODES) fail();
   const decoded = [], sizes = [], depths = [];
   function read(value, limit) {
@@ -58,6 +60,6 @@ export function decodePageWire(input) {
     decoded.push(result); sizes.push(size); depths.push(depth);
   });
   const page = read(input.root, decoded.length).value;
-  if (page?.schema !== 'xtend.page-response.v1') fail();
+  if (page?.schema !== (input.schema === PAGE_WIRE_LEGACY_SCHEMA ? 'xtend.page-response.v1' : 'xtend.page-response.v2')) fail();
   return page;
 }

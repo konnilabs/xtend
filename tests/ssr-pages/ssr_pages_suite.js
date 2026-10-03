@@ -22,6 +22,7 @@ async function runSsrPagesSuite(options = {}) {
   const checkPhp = (name, action) => options.phpParityOnly ? runCheck(name, action) : undefined;
   const php = input => JSON.parse(execFileSync(process.env.XTEND_PHP_BINARY || 'php', [path.join(__dirname, 'portable_probe.php'), rootDir], { input: JSON.stringify(input), encoding: 'utf8', timeout: 10000 }));
   await require('./page_wire_checks').pageWireChecks({check,checkPhp,load,php});
+  await require('./contract_evolution_checks').contractEvolutionChecks({check,checkPhp,load,php});
   await check('portable Node projection preserves native attribute literals before SSR', async () => {
     const artifact=portable.createPortableRenderArtifact({descriptor:{type:'element',tag:'input',attributes:{type:'search',name:'query',value:'$model.search.query'}}},{inputs:['search','query']});
     const projected=portable.projectPortableRender(artifact,{search:{query:'GNU/Linux',secret:'never-in-attributes'},query:{secret:true}});
@@ -47,15 +48,15 @@ async function runSsrPagesSuite(options = {}) {
     assert(!result.html.includes('not-in-html'));
   });
   await check('portable resume documents omit duplicate HTML without changing signed state or descriptor recovery', async () => {
-    const { decodePageWire } = await load('page-wire.mjs');
+    const { decodePageInitialDocument } = await load('page-initial.mjs');
     const { canonicalizeRmtResumePayload } = await load('rmt-node-ssr-adapter.js');
     const descriptor = {type:'element',tag:'div',children:[{type:'text',text:'Recovered page'}]};
     const result = await createRmtNodeSsrAdapter().render({descriptor}, {executionMode:'server_prerender_resume',resume:{state:{draft:'preserved'},sign:()=>({keyId:'fixture',signature:'fixture'})}});
-    const page = {schema:'xtend.page-response.v1',renderArtifact:portable.createPortableRenderArtifact({descriptor}),ssr:result.response,head:[]};
+    const page = {schema:'xtend.page-response.v2',kind:'page',version:'fixture',contextKey:'fixture',page:'Index',url:'/',props:{},renderArtifact:portable.createPortableRenderArtifact({descriptor}),ssr:result.response,head:[]};
     const signed = canonicalizeRmtResumePayload(page.ssr.resume);
     for (const compact of [false,true]) {
-      const document = renderPageDocument(page,result.html,{},'',{compact});
-      const wire = decodePageWire(JSON.parse(document.match(/id="xtend-page-data"[^>]*>([\s\S]*?)<\/script>/)[1]));
+      const document = renderPageDocument(page,result.html,{},'',{compact,initialResumeSchema:'xtend.page-initial-resume.v1'});
+      const wire = decodePageInitialDocument(JSON.parse(document.match(/id="xtend-page-data"[^>]*>([\s\S]*?)<\/script>/)[1]));
       assert.equal(wire.ssr.chunk.markup.html,undefined);
       assert.equal(wire.ssr.chunks[0].markup.html,undefined);
       assert.deepEqual(wire.ssr.chunk.markup.descriptor,page.ssr.chunk.markup.descriptor);
@@ -184,7 +185,7 @@ async function runSsrPagesSuite(options = {}) {
     assert.equal(safePageJson({value:'</script>'}).includes('<'), false);
   });
   await check('Node pages serve initial HTML, selective JSON, redirects and host-isolated contexts', async () => {
-    const host = createNodePageHost({ manifest: { schema:'xtend.page-manifest.v1', version:'v1', pages:{ Index:{artifact} } },
+    const host = createNodePageHost({ manifest: { schema:'xtend.page-manifest.v2', version:'v1', pages:{ Index:{artifact} } },
       createContext: req => ({contextKey: req.headers['x-user'] || 'guest'}),
       resolvePage: ctx => ctx.request.url === '/redirect' ? {redirect:'/'} : { page:'Index', props:{ title:'Server title', visible:true, orders:[] }, head:[{tag:'link',attributes:{rel:'canonical',href:'https://example.test/product'}},{tag:'json-ld',key:'product',data:{name:'</script><img onerror=alert(1)>'}}] }
     });

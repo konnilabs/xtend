@@ -4,6 +4,7 @@ import { request as httpRequest } from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { execFileSync } from 'node:child_process';
 
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 
@@ -152,6 +153,34 @@ test('repair application aborts unchanged when the source or plan drifts', async
     repairIds: [current.repairs[0].repairId]
   }, options), /Repair plan drift detected/u);
   assert.equal(fs.readFileSync(filePath, 'utf8'), drifted);
+});
+
+test('atomic repairs preserve original modes under restrictive and ordinary umasks', {skip:process.platform === 'win32'}, () => {
+  const program = `
+    import assert from 'node:assert/strict';
+    import fs from 'node:fs';
+    import os from 'node:os';
+    import path from 'node:path';
+    import {applyRmtSafeRepairs,createRmtRepairPlan} from ${JSON.stringify(new URL('../src/tooling.mjs',import.meta.url).href)};
+    ${problemFixture.toString()}
+    process.umask(Number(process.argv[1]));
+    const root=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-mcp-umask-'));
+    try {
+      for(const mode of [0o640,0o644,0o750]) {
+        const file=path.join(root,'problem.rmt');
+        fs.writeFileSync(file,problemFixture('\\r\\n'));fs.chmodSync(file,mode);
+        const options={workspaceRoots:[root],allowWorkspaceWrite:true};
+        const {plan}=createRmtRepairPlan({path:'problem.rmt'},options);
+        const repair=plan.repairs.find(value=>value.diagnosticCode==='rmt.fabric.lane.unknown');
+        const result=await applyRmtSafeRepairs({path:'problem.rmt',sourceHash:plan.sourceHash,planHash:plan.planHash,repairIds:[repair.repairId]},options);
+        assert.equal(result.status,'applied');assert.equal(fs.statSync(file).mode&0o777,mode);
+        const source=fs.readFileSync(file,'utf8');
+        assert(!/(?<!\\r)\\n/u.test(source));assert(source.includes('missing.schedule'));
+        assert.deepEqual(fs.readdirSync(root),['problem.rmt']);
+      }
+    } finally {fs.rmSync(root,{recursive:true,force:true});}
+  `;
+  for (const mask of [0o077,0o022]) execFileSync(process.execPath,['--input-type=module','--eval',program,String(mask)],{timeout:30000,stdio:'pipe'});
 });
 
 test('Streamable HTTP stays on loopback and enforces Bearer, Host, and Origin checks', async (t) => {

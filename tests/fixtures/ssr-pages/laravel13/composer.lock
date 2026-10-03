@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b64d97016d8cd94248fe6de1883d96fc",
+    "content-hash": "141c5d648db8e9f1b4dfac8ba8c9bd36",
     "packages": [
         {
             "name": "brick/math",
@@ -136,11 +136,11 @@
         },
         {
             "name": "ccslabs/xtend-laravel",
-            "version": "0.8.0",
+            "version": "0.9.0",
             "dist": {
                 "type": "path",
                 "url": "./package",
-                "reference": "835c2adc9a6a834950aed48b5eb7de01e6b1ed13"
+                "reference": "f9a32b280cb307f3e120e2a14d7e34db02bdeedb"
             },
             "require": {
                 "illuminate/contracts": "^12.0 || ^13.0",
@@ -165,7 +165,9 @@
                     "runtime/rmt-portable-render.php",
                     "runtime/rmt-php-ssr-adapter.php",
                     "runtime/rmt-php-app-service-adapter.php",
-                    "runtime/rmt-page-data.php"
+                    "runtime/rmt-page-data.php",
+                    "runtime/xscaler-preflight.php",
+                    "runtime/xscaler-php-fragment-adapter.php"
                 ]
             },
             "license": [
@@ -8844,5 +8846,5 @@
     "platform-overrides": {
         "php": "8.3.0"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }

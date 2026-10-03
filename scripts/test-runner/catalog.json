@@ -7368,6 +7368,47 @@
         "repository"
       ],
       "timeoutMs": 300000
+    },
+    {
+      "id": "ssr-pages-laravel-matrix",
+      "label": "Laravel 12/13 contract integration",
+      "description": "Required isolated Laravel 12 and 13 matrix using the packaged PHP runtime.",
+      "defaultIncluded": false,
+      "handler": "ssr-pages-laravel-matrix",
+      "implementations": [
+        {
+          "path": "tests/ssr-pages/laravel_matrix_suite.js",
+          "function": "runLaravelMatrixSuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository"
+      ],
+      "timeoutMs": 360000
+    },
+    {
+      "id": "ssr-pages-laravel-browser-matrix",
+      "label": "Laravel 12/13 browser lifecycle",
+      "description": "Required isolated Laravel 12 and 13 matrix using the packaged PHP runtime.",
+      "defaultIncluded": false,
+      "handler": "ssr-pages-laravel-browser-matrix",
+      "implementations": [
+        {
+          "path": "tests/ssr-pages/laravel_matrix_suite.js",
+          "function": "runLaravelMatrixSuite",
+          "arguments": [
+            "{ rootDir, browser: true }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository",
+        "browser"
+      ],
+      "timeoutMs": 360000
     }
   ],
   "profiles": {
@@ -10281,7 +10322,9 @@
         "xscaler-public-api",
         "xscaler-php-preflight-parity",
         "rmt-xscaler-ssr-hydration-parity",
-        "xscaler-source-to-sea"
+        "xscaler-source-to-sea",
+        "minor-contracts",
+        "erp-resumability-catfood"
       ],
       "suites": [],
       "reports": [],
@@ -10400,6 +10443,24 @@
       "reports": [
         ".xtend-test-results/xtend-shop.json"
       ],
+      "requireNoSkips": true
+    },
+    "minor-contracts": {
+      "suites": [
+        "rmt-dom-descriptor-renderer",
+        "rmt-node-ssr-adapter",
+        "rmt-resume-runtime",
+        "ssr-pages",
+        "ssr-pages-php",
+        "ssr-pages-browser",
+        "ssr-pages-laravel-matrix",
+        "ssr-pages-laravel-browser-matrix",
+        "xtensions-imperative-host-pocs",
+        "xtensions-three-render-loop-poc"
+      ],
+      "includes": [],
+      "reports": [],
+      "advisory": [],
       "requireNoSkips": true
     }
   },
@@ -12765,6 +12826,17 @@
                 "--no-audit",
                 "--fund=false"
               ]
+            },
+            {
+              "command": "npm",
+              "args": [
+                "ci",
+                "--prefix",
+                "products/resumability-maraca-erp-demo",
+                "--ignore-scripts",
+                "--no-audit",
+                "--fund=false"
+              ]
             }
           ],
           "dependsOn": [
@@ -12816,7 +12888,8 @@
             }
           ],
           "dependsOn": [
-            "native_first_evidence_prepare"
+            "native_first_evidence_prepare",
+            "laravel_fixture_prepare"
           ],
           "timeoutMs": 1500000,
           "blocking": true
@@ -12944,6 +13017,21 @@
             "install_1"
           ],
           "timeoutMs": 300000,
+          "blocking": true
+        },
+        "laravel_fixture_prepare": {
+          "commands": [
+            {
+              "command": "node",
+              "args": [
+                "scripts/prepare_nightly_laravel.js"
+              ]
+            }
+          ],
+          "dependsOn": [
+            "capabilities"
+          ],
+          "timeoutMs": 600000,
           "blocking": true
         }
       },
@@ -13217,6 +13305,12 @@
           "path": ".xtend-test-results/nightly/capabilities.json",
           "kind": "outcome",
           "producer": "capabilities"
+        },
+        {
+          "path": ".xtend-test-results/nightly/laravel-fixtures.json",
+          "producer": "laravel_fixture_prepare",
+          "kind": "outcome",
+          "required": true
         }
       ]
     },

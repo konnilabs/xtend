@@ -6,7 +6,7 @@ const {
   RMT_APP_PLATFORM_AUTHORING_WORKPACKAGE
 } = require('./epic18-rmt-app-platform-authoring');
 
-const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
+const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
 const RMT_DOM_DESCRIPTOR_RENDERER_REPORT_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer-report.v1';
 const RMT_DOM_DESCRIPTOR_RENDERER_FIXTURE_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer-fixture.v1';
 const RMT_DOM_RENDERER_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';

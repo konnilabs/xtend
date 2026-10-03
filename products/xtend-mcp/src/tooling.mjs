@@ -312,6 +312,9 @@ function writeAtomically(filePath, content, mode) {
   let descriptor;
   try {
     descriptor = fs.openSync(tempPath, 'wx', mode & 0o777);
+    // open() applies umask. Restore the original permissions on this owned
+    // descriptor before the atomic replacement, including under umask 077.
+    fs.fchmodSync(descriptor, mode & 0o777);
     fs.writeFileSync(descriptor, content, 'utf8');
     fs.fsyncSync(descriptor);
     fs.closeSync(descriptor);

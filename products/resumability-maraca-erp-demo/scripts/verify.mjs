@@ -1,8 +1,10 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { tmpdir } from 'node:os';
+import { createRequire } from 'node:module';
 import { createErpSnapshot } from '../src/data/rng-erp.mjs';
 import { startServer } from '../server/index.mjs';
 
@@ -72,7 +74,7 @@ function commandExists(command) {
 }
 
 function findChromium() {
-  const candidates = ['chromium', 'chromium-browser', 'google-chrome', 'google-chrome-stable', '/usr/bin/chromium-browser', '/usr/bin/chromium', '/usr/bin/google-chrome'];
+  const candidates = [process.env.XTEND_BROWSER_HYPERVISOR_BROWSER_BINARY, 'chromium', 'chromium-browser', 'google-chrome', 'google-chrome-stable', '/usr/bin/chromium-browser', '/usr/bin/chromium', '/usr/bin/google-chrome'].filter(Boolean);
   return candidates.find((candidate) => commandExists(candidate)) || null;
 }
 
@@ -90,11 +92,28 @@ function stopProcessGroup(child, signal) {
 }
 
 function runChromiumSmoke(chromium, url) {
+  const { runFixture, findExecutable } = createRequire(import.meta.url)('../../../tools/browser-hypervisor');
+  const driverPath = process.env.XTEND_BROWSER_HYPERVISOR_DRIVER_PATH || findExecutable('chromedriver');
+  if (driverPath || process.env.XTEND_BROWSER_HYPERVISOR_URL) {
+    const browserBinary = path.isAbsolute(chromium) ? chromium : findExecutable(chromium);
+    return runFixture({
+      engine: 'chromium', driverPath, browserBinary, url,
+      timeoutMs: browserProcessTimeoutMs, resultKey: '__XTEND_ERP_DOM__',
+      capabilities: { 'goog:chromeOptions': { binary: browserBinary, args: ['--headless=new', '--no-sandbox', '--disable-dev-shm-usage', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } },
+      scripts: [{
+        waitFor: "document.getElementById('erp-demo-smoke-result')?.dataset.xtensionMounted === '8'",
+        script: "window.__XTEND_ERP_DOM__ = {status: 'passed', html: document.documentElement.outerHTML};"
+      }]
+    }).then(result => ({ status: 0, stdout: result.result.html, stderr: '', error: null }),
+      error => ({ status: 1, stdout: '', stderr: error.message, error }));
+  }
   return new Promise((resolve) => {
+    const profilePath = mkdtempSync(path.join(tmpdir(), 'xtend-erp-chromium-'));
     const child = spawn(chromium, [
       '--headless=new',
       '--no-sandbox',
       '--disable-dev-shm-usage',
+      `--user-data-dir=${profilePath}`,
       '--use-gl=swiftshader',
       '--enable-unsafe-swiftshader',
       '--enable-logging=stderr',
@@ -135,6 +154,7 @@ function runChromiumSmoke(chromium, url) {
     });
     child.on('close', (status, signal) => {
       clearTimeout(timeout);
+      rmSync(profilePath, { recursive: true, force: true });
       resolve({
         status,
         signal,
@@ -439,7 +459,7 @@ try {
     const browserBootError = (browser.stdout.match(/<html[^>]*>/u) || ['html-marker-missing'])[0];
     const browserDiagnostics = browser.stderr.split('\n').filter((line) => /error|fail|refused|violation|exception/iu.test(line)).slice(-12).join(' | ');
     assert(!browser.error, `Chromium browser smoke failed: ${browser.error ? browser.error.message : 'unknown error'}`);
-    assert(browser.status === 0, `Chromium browser smoke exited with ${browser.status}.`);
+    assert(browser.status === 0, `Chromium browser smoke exited with ${browser.status}. ${browserDiagnostics}`);
     assert(browser.stdout.includes('id="erp-demo-smoke-result"'), 'Browser smoke marker is missing.');
     assert(browser.stdout.includes('data-kernel-enabled="true"'), `Browser smoke did not observe an enabled Maraca kernel. ${browserMarker} ${browserBootError} ${browserDiagnostics}`);
     assert(browser.stdout.includes('data-resume-status="resumed"'), `Browser smoke did not complete the RMT resume path. ${browserMarker} ${browserBootError}`);

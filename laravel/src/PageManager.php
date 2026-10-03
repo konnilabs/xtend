@@ -13,7 +13,11 @@ final class PageManager {
     public function manifest(): array {
         if ($this->manifest !== null) return $this->manifest;
         $manifest = \RmtPortableRender::decodeJson(file_get_contents($this->config['manifest']));
-        if (($manifest['schema'] ?? '') !== 'xtend.page-manifest.v1' || !is_string($manifest['version'] ?? null)) throw new \RuntimeException('Invalid XTend page manifest.');
+        if (!in_array($manifest['schema'] ?? '', ['xtend.page-manifest.v1', 'xtend.page-manifest.v2'], true) || !is_string($manifest['version'] ?? null)) throw new \RuntimeException('Invalid XTend page manifest.');
+        if ($manifest['schema'] === 'xtend.page-manifest.v1') foreach (array_merge($manifest['pages'] ?? [], $manifest['layouts'] ?? []) as $definition) {
+            if (isset($definition['artifact']) && ($definition['artifact']['schema'] ?? '') !== 'xtend.rmt.portable-render.v1') throw new \RuntimeException('Legacy page manifests require legacy render artifacts.');
+        }
+        if (isset($manifest['initialResumeSchema']) && ($manifest['schema'] !== 'xtend.page-manifest.v2' || $manifest['initialResumeSchema'] !== \Ccslabs\XTend\Data\PageInitialResume::SCHEMA)) throw new \RuntimeException('Unsupported initial resume contract.');
         foreach ($manifest['runtimeFingerprints']['php'] ?? [] as $file=>$expected) if (!preg_match('/^[a-z0-9-]+\.php$/',$file) || hash_file('sha256', __DIR__ . '/../runtime/' . $file) !== $expected) throw new \RuntimeException('Page build and PHP runtime are incompatible. Rebuild the pages with the deployed package.');
         return $this->manifest = $manifest;
     }
@@ -37,7 +41,7 @@ final class PageManager {
     public function response(string $name, array $props, array $options) {
         $manifest = $this->manifest(); $definition = $manifest['pages'][$name] ?? null;
         if (!$definition) abort(404, 'Unknown XTend page.');
-        $base = ['schema' => 'xtend.page-response.v1', 'version' => $manifest['version'], 'contextKey' => $this->contextKey()];
+        $base = ['schema' => $manifest['schema'] === 'xtend.page-manifest.v1' ? 'xtend.page-response.v1' : 'xtend.page-response.v2', 'version' => $manifest['version'], 'contextKey' => $this->contextKey()];
         if ($version = $this->request->header('X-XTend-Version')) if ($version !== $manifest['version']) return response()->json($base + ['kind' => 'reload', 'location' => $this->request->fullUrl()], 409);
         $selection = $this->selection(); $context = ['request' => $this->request];
         $data = Prop::resolveAll($props, $context, $selection);
@@ -86,6 +90,8 @@ final class PageManager {
                 }, $policy)
                 : "$policy; style-src 'self' 'nonce-$nonce'";
         }
-        return response()->view($this->config['root_view'], ['page' => $page, 'pageData' => $compact ? \Ccslabs\XTend\Data\PageWire::encode($page) : $page, 'html' => $html, 'assets' => $manifest['assets'] ?? [], 'nonce' => $nonce], $options['status'] ?? 200, $headers);
+        $initialResume = ($page['renderArtifact']['schema'] ?? '') === 'xtend.rmt.portable-render.v2' && ($manifest['initialResumeSchema'] ?? '') === \Ccslabs\XTend\Data\PageInitialResume::SCHEMA && !empty($page['ssr']['resume']) && ($page['ssr']['executionMode'] ?? '') === 'server_prerender_resume';
+        $pageData = $initialResume ? \Ccslabs\XTend\Data\PageInitialResume::encode($page) : ($compact ? \Ccslabs\XTend\Data\PageWire::encode($page) : $page);
+        return response()->view($this->config['root_view'], ['page' => $page, 'pageData' => $pageData, 'html' => $html, 'assets' => $manifest['assets'] ?? [], 'nonce' => $nonce], $options['status'] ?? 200, $headers);
     }
 }

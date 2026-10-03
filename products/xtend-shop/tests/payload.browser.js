@@ -15,7 +15,7 @@ void (async () => {
   assert(window.XTendPage===client&&document.getElementById('store-header')===header,'Pagination replaced the document or shell');
   assert(performance.getEntriesByType('navigation').length===docNavigations,'Pagination caused a document reload');
   assert(document.querySelector('.store-catalog .store-card-name').textContent!==first,'Pagination retained stale products');
-  assert(pageRequests.some(r=>r.url.includes('page=2')&&r.header==='1'&&r.body.schema==='xtend.page-wire.v1'),'Pagination did not negotiate compact fetch transport');
+  assert(pageRequests.some(r=>r.url.includes('page=2')&&r.header==='1'&&r.body.schema==='xtend.page-wire.v2'),'Pagination did not negotiate compact fetch transport');
   assert(!client.page.ssr,'Navigation unnecessarily rendered another SSR envelope');
   history.back();await wait(()=>client.page.props['shop.data'].catalog.page===1,'Back did not restore the first result page');
   await client.visit('/produkt/nova-studio-kopfhoerer?sku=TEC-01-2');

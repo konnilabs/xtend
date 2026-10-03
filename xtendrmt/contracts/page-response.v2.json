@@ -1,0 +1,214 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "xtend.page-response.v2",
+  "title": "xtend.page-response.v2",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "enum": [
+        "xtend.page-response.v2"
+      ]
+    },
+    "kind": {
+      "enum": [
+        "page",
+        "redirect",
+        "reload"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "contextKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "page": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "props": {
+      "type": "object"
+    },
+    "layout": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "head": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "shared": {
+      "type": "object"
+    },
+    "flash": {
+      "type": "object"
+    },
+    "errors": {
+      "type": "object"
+    },
+    "partial": {
+      "type": "boolean"
+    },
+    "deferred": {
+      "type": "object"
+    },
+    "once": {
+      "type": "object"
+    },
+    "merge": {
+      "type": "object"
+    },
+    "pagination": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "csrfToken": {
+      "type": "string"
+    },
+    "renderArtifact": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "$ref": "portable-render.v2.json"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "schema": {
+                  "enum": [
+                    "xtend.rmt.portable-render.v1"
+                  ]
+                },
+                "inputs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "defaults": {
+                  "type": "object"
+                },
+                "descriptor": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "schema",
+                "inputs",
+                "defaults",
+                "descriptor"
+              ],
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "layoutArtifact": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "$ref": "portable-render.v2.json"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "schema": {
+                  "enum": [
+                    "xtend.rmt.portable-render.v1"
+                  ]
+                },
+                "inputs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "defaults": {
+                  "type": "object"
+                },
+                "descriptor": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "schema",
+                "inputs",
+                "defaults",
+                "descriptor"
+              ],
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ssr": {
+      "type": "object"
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1
+    },
+    "maraca": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "kind",
+    "version",
+    "contextKey"
+  ],
+  "additionalProperties": true,
+  "oneOf": [
+    {
+      "properties": {
+        "kind": {
+          "enum": [
+            "page"
+          ]
+        }
+      },
+      "required": [
+        "page",
+        "url",
+        "props"
+      ]
+    },
+    {
+      "properties": {
+        "kind": {
+          "enum": [
+            "redirect",
+            "reload"
+          ]
+        }
+      },
+      "required": [
+        "location"
+      ]
+    }
+  ]
+}

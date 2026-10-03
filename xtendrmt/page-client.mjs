@@ -1,4 +1,4 @@
-import { validatePageResponse, mergePageProps, safePageJson, pageError, composePageDescriptor, assertKey, mergePageHead } from './page-contract.mjs';
+import { validatePageResponse, decodePageInitialDocument, mergePageProps, safePageJson, pageError, composePageDescriptor, assertKey, mergePageHead } from './page-contract.mjs';
 import { createRmtDomDescriptorRenderer } from './rmt-dom-descriptor-renderer.js';
 import { projectPortableRender } from './rmt-portable-render.js';
 import { createRmtAnimationEngineRuntime } from './rmt-animation-engine-runtime.js';
@@ -30,7 +30,7 @@ export function createPageClient(options) {
   }
   function releaseRequest() { const next = waiting.shift(); if (next) next.resolve(); else inFlight--; }
   const historyKey = `xtend.history.key:${options.applicationKey || 'default'}`;
-  let page = validatePageResponse(options.initialPage), generation = 0, disposed = false, active = null, remembered = {}, revision = 0;
+  let page = decodePageInitialDocument(options.initialPage), generation = 0, disposed = false, active = null, remembered = {}, revision = 0;
   let commits = Promise.resolve();
   let pageAnimation = null;
   const skipTransition = () => { pageAnimation?.dispose(); pageAnimation = null; };

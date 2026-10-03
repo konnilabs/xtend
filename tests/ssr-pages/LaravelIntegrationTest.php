@@ -37,6 +37,22 @@ final class LaravelIntegrationTest extends \Orchestra\Testbench\TestCase {
     public function test_full_html_uses_controller_data_before_javascript(): void {
         $this->get('/orders')->assertOk()->assertSee('Controller title')->assertDontSee('>Initial<', false)->assertSee('xtend-page-data');
     }
+    public function test_canonical_manifest_emits_v2_responses_and_redirects(): void {
+        $manifest = json_decode(file_get_contents($this->manifestPath), true, 512, JSON_THROW_ON_ERROR);
+        $manifest['schema'] = 'xtend.page-manifest.v2';
+        $manifest['initialResumeSchema'] = 'xtend.page-initial-resume.v1';
+        $manifest['pages']['Orders/Index']['artifact']['schema'] = 'xtend.rmt.portable-render.v2';
+        $manifest['pages']['Orders/Index']['artifact']['rendererSchema'] = 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
+        file_put_contents($this->manifestPath,json_encode($manifest,JSON_THROW_ON_ERROR));
+        $this->get('/orders',['X-XTend-Page'=>'1'])->assertOk()->assertJsonPath('schema','xtend.page-response.v2')->assertJsonPath('props.title','Controller title');
+        $this->post('/orders',['name'=>'Valid'],['X-XTend-Page'=>'1'])->assertStatus(409)->assertJsonPath('schema','xtend.page-response.v2');
+    }
+    public function test_legacy_manifest_rejects_canonical_artifacts_instead_of_changing_old_bindings(): void {
+        $manifest=json_decode(file_get_contents($this->manifestPath),true,512,JSON_THROW_ON_ERROR);
+        $manifest['pages']['Orders/Index']['artifact']['schema']='xtend.rmt.portable-render.v2';
+        file_put_contents($this->manifestPath,json_encode($manifest,JSON_THROW_ON_ERROR));
+        $this->get('/orders')->assertStatus(500);
+    }
     public function test_negotiation_partial_data_and_deferred_groups(): void {
         $this->get('/orders', ['X-XTend-Page' => '1'])->assertOk()->assertJsonPath('page', 'Orders/Index')->assertJsonPath('props.title', 'Controller title')->assertJsonPath('deferred.statistics.0', 'later');
         $this->get('/orders', ['X-XTend-Page' => '1', 'X-XTend-Only' => '["title"]'])->assertOk()->assertJsonPath('partial', true)->assertJsonMissingPath('ssr');

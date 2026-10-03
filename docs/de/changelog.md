@@ -2,6 +2,10 @@
 
 Diese Seite beschreibt den 0.8.0-Stand der Codebase und seine Migrationen. Die Paketversion allein bestätigt keine Veröffentlichung; den ausgelieferten Stand bestimmen Manifest, Exports und Build-Artefakte.
 
+## XTend 0.9.0 – Renderer- und Resume-Verträge
+
+Literale Attribute, ausdrückliche Legacy-Kompatibilität, eigenständige SSR-Coverage und gemeinsamer initialer Resume-Envelope für Node/Laravel. Legacy-Verträge bleiben mindestens in 0.9/0.10 unterstützt, Entfernung frühestens mit 1.0. Kernel- und MCP-Artefakte werden neu erzeugt; die verpflichtende Nightly-Matrix umfasst Laravel 12/13. [Migration](./ssr-pages.md).
+
 ## Änderungen in 0.8.0
 
 | Bereich | Verhalten und Einstieg |
