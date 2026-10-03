@@ -98,6 +98,10 @@ async function contractEvolutionChecks({check, checkPhp, load, php}) {
     assert.equal(full.ssr.chunk.markup.html,result.html);
     assert.throws(()=>decodePageInitialDocument({...initial,schema:'xtend.page-initial-resume.v'+99}));
     assert.throws(()=>decodePageInitialDocument({...initial,ssr:{...initial.ssr,kind:full.ssr.kind}}));
+    assert.throws(()=>decodePageInitialDocument({...initial,page:{...initial.page,ssr:null}}));
+    assert.throws(()=>decodePageInitialDocument({...initial,ssr:{...initial.ssr,kind:''}}));
+    assert.throws(()=>decodePageInitialDocument({...initial,ssr:{...initial.ssr,version:0}}));
+    assert.throws(()=>decodePageInitialDocument({...initial,ssr:{...initial.ssr,chunk:{...initial.ssr.chunk,kind:null}}}));
     assert.throws(()=>decodePageInitialDocument({...initial,ssr:{...initial.ssr,resume:{...initial.ssr.resume,version:99}}}));
     assert.throws(()=>encodePageWire(initial),/reference table/);
     const legacy={...full,schema:'xtend.page-response.v1',renderArtifact:portable.createPortableRenderArtifact({descriptor},{schema:'xtend.rmt.portable-render.v1'})};
