@@ -46,6 +46,8 @@ Navigation/focus use `navigationAdapter.navigate` and `focusAdapter.focus`. Clos
 
 Compiler and runtime share validation. Reducers, status/result state, data sources, services, streams, resources, custom effects and chained business commands are forbidden. FastPass does not accelerate model transactions or preempt synchronous JavaScript. The default cooperative budget is 8 ms; exceeding it emits a diagnostic.
 
+FastPass navigation accepts local relative routes and fragments only. Absolute URLs (including HTTP(S)), protocol-relative URLs, executable schemes, control characters, backslashes and encoded route syntax that changes scheme or origin are rejected. Literal targets are checked by the compiler and action registration; resolved input targets are checked before any shell effect is scheduled, including when a custom navigation adapter is supplied. Rejection uses `xtend.maraca.fastpass.unsafe-navigation` at dispatch. The default browser adapter also validates targets and resolves them against the current HTTP(S) Location, independently of document `<base>` elements. External navigation must use a separately controlled application capability.
+
 ## Abort boundaries
 
 Managed surfaces expose `runtime.getSurfaceBoundary(id)`; omitting the ID returns the root boundary. External renderers can import `createMaracaAbortBoundary({ id, parent })` from `@ccslabs/xtend/maraca/plan-runtime`.

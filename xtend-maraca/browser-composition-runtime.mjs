@@ -1,3 +1,4 @@
+import { assertSafeFastPassNavigation } from './fastpass.mjs';
 import {
   COMPONENT_COMMAND_RESULT_SCHEMA,
   COMPONENT_COMMAND_SCHEMA,
@@ -228,7 +229,16 @@ function createRuntimeConfiguration(config, options, host, handles) {
     surfaceControllerId: options.surfaceControllerId,
     surfaceStateProjection: options.surfaceStateProjection || null,
     feedbackAdapter: options.feedbackAdapter || null,
-    navigationAdapter: options.navigationAdapter || { navigate(path) { handles.windowTarget.location.assign(path); } },
+    navigationAdapter: options.navigationAdapter || { navigate(path) {
+      assertSafeFastPassNavigation(path);
+      // Resolve against Location, not a potentially cross-origin document <base>.
+      const location = handles.windowTarget.location;
+      const destination = new URL(path, location.href);
+      if (!['http:', 'https:'].includes(destination.protocol) || destination.origin !== location.origin) {
+        throw Object.assign(new TypeError('FastPass navigation requires the current HTTP(S) origin.'), { code: 'xtend.maraca.fastpass.unsafe-navigation' });
+      }
+      location.assign(destination.href);
+    } },
     focusAdapter: options.focusAdapter || { focus(id) { return host.focusSurface(root, id, handles.renderer); } },
     effectAdapter: options.effectAdapter || null,
     presentationEffectPort: options.presentationEffectPort || null,

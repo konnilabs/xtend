@@ -1078,7 +1078,9 @@ async function runMaracaOrchestrationSuite(options = {}) {
       return { setAttribute() {} };
     }
   };
+  const assignedFastPassUrls = [];
   const compositionPlatformTarget = {
+    location: { href: 'https://app.example/start', origin: 'https://app.example', assign(value) { assignedFastPassUrls.push(value); } },
     XTendSurfaceController: surfaceControllerProvider
   };
   let capturedRuntimeConfiguration = null;
@@ -1143,6 +1145,16 @@ async function runMaracaOrchestrationSuite(options = {}) {
     initialCompositionBootPromise,
     concurrentCompositionBootPromise
   ]);
+  for (const value of ['javascript:alert(1)', 'data:text/html,test', '//attacker.example/', '/\\attacker.example/', 'javascript%3Aalert(1)', 'https://attacker.example/']) {
+    let rejected = false;
+    try { capturedRuntimeConfiguration.navigationAdapter.navigate(value); }
+    catch (error) { rejected = error.code === 'xtend.maraca.fastpass.unsafe-navigation'; }
+    context.assert(rejected && assignedFastPassUrls.length === 0, `default browser adapter blocks unsafe navigation ${value}`);
+  }
+  capturedRuntimeConfiguration.navigationAdapter.navigate('/reports');
+  capturedRuntimeConfiguration.navigationAdapter.navigate('#reports');
+  context.assert(assignedFastPassUrls.join() === 'https://app.example/reports,https://app.example/start#reports', 'default browser adapter resolves safe routes against Location');
+
   const repeatedCompositionBoot = await compositionRuntime.boot({
     root: compositionRootTarget,
     domRenderer: compositionRenderer,

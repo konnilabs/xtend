@@ -34,6 +34,8 @@ action focusNavigation {
 
 Navigation akzeptiert auch eine deklarierte Eingabe, z. B. `input path string` mit `effect navigation input.path`. Fokus und Close benötigen eine benannte Surface. Die vorhandenen Event-Bindings und `dispatchCommand()` erkennen FastPass automatisch; der Promise-Vertrag von `dispatchCommand()` bleibt erhalten.
 
+FastPass-Navigation akzeptiert ausschließlich lokale relative Routen und Fragmente. Absolute URLs (auch HTTP(S)), protokollrelative URLs, ausführbare Schemes, Steuerzeichen, Backslashes und kodierte Routensyntax, die Scheme oder Origin verändert, werden abgewiesen. Literale Ziele werden beim Kompilieren und Registrieren geprüft; aufgelöste Eingaben werden vor dem Einplanen sämtlicher Shell-Effekte geprüft, auch bei eigenen Navigationsadaptern. Die Dispatch-Diagnose lautet `xtend.maraca.fastpass.unsafe-navigation`. Der Standard-Browseradapter prüft zusätzlich und löst Ziele gegen die aktuelle HTTP(S)-Location auf, unabhängig von `<base>`-Elementen im Dokument. Externe Navigation benötigt eine separat kontrollierte Anwendungsschnittstelle.
+
 Programmatische Deklarationen werden beim Erstellen der Runtime über `fastPassActions` registriert:
 
 ```js
