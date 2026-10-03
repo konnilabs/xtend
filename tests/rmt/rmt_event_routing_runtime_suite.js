@@ -236,6 +236,46 @@ async function assertCanonicalTemplateBindingOwnership(context, rootDir, eventRu
     'destroyed template sessions return scoped removals for Event Router cleanup'
   );
 
+  const hostElement = createFakeTarget('host-element');
+  hostElement.textContent = 'host content';
+  let documentQueryCount = 0;
+  const isolatedRenderer = sandbox.AppModules.createRmtTemplateRuntimeRenderer({
+    documentTarget: {
+      querySelector() {
+        documentQueryCount += 1;
+        return hostElement;
+      }
+    }
+  });
+  const isolatedRoot = createFakeTarget('isolated-template-root');
+  isolatedRoot.querySelector = () => null;
+  const isolatedSession = isolatedRenderer.applyBindings({
+    rootId: 'isolated-template-root',
+    element: isolatedRoot,
+    templateQualifiedId: 'fixture:isolated-template',
+    modelSnapshot: {
+      bindingValue: 'escaped binding',
+      slotValue: 'escaped slot'
+    },
+    bindings: [{
+      id: 'binding.outside-root',
+      kind: 'text',
+      target: '#host-element',
+      source: 'bindingValue'
+    }],
+    slots: [{
+      id: 'slot.outside-root',
+      kind: 'text',
+      target: '#host-element',
+      source: 'slotValue'
+    }]
+  });
+  context.assert(
+    documentQueryCount === 0 && hostElement.textContent === 'host content',
+    'template bindings and slots cannot resolve or mutate targets outside their root'
+  );
+  isolatedSession.destroy();
+
   const interactionAdapterPath = resolveRepoPath('xtendrmt/kernel/modules/rmt-template-interaction-adapter.js', rootDir);
   vm.runInNewContext(
     fs.readFileSync(interactionAdapterPath, 'utf8').replaceAll('__XTENDRMT_GLOBAL__', 'globalThis'),
