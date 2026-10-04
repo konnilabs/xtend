@@ -34,6 +34,8 @@ sanitizing boundary and serializes its parser-sanitized output as HTML.
 Remote XScaler adapters must be self-contained bundles. Bundle dependencies before
 publication and update their SRI digest. Default verification limits are 1 MiB
 and 15 seconds; `maxAdapterBytes` and `verificationTimeoutMs` configure them.
+Maraca remote bindings forward these explicit budgets. The bundled, minified
+DemoPay adapter uses a two-MiB budget enforced by its build as well as its loader.
 Custom external loaders must also attest `closedGraphIntegrity: true` and enforce
 it, in addition to the existing CSP/SRI/external-script contract.
 
