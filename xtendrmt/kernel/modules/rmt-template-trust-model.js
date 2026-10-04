@@ -53,50 +53,9 @@
         );
     }
 
-    function sanitizeHtml(html) {
-        let output = String(html || '');
-        const removed = [];
-        ['script', 'iframe', 'object', 'embed', 'link', 'meta', 'base', 'form'].forEach((tagName) => {
-            const paired = new RegExp('<\\s*' + tagName + '\\b[^>]*>[\\s\\S]*?<\\s*\\/\\s*' + tagName + '\\s*>', 'gi');
-            output = output.replace(paired, (match) => {
-                removed.push({ type: 'element', name: tagName, sampleLength: match.length });
-                return '';
-            });
-            const single = new RegExp('<\\s*' + tagName + '\\b[^>]*\\/?\\s*>', 'gi');
-            output = output.replace(single, (match) => {
-                removed.push({ type: 'element', name: tagName, sampleLength: match.length });
-                return '';
-            });
-        });
-        output = output.replace(/\s+on[a-z0-9_-]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, (match) => {
-            removed.push({ type: 'attribute', name: match.trim().split('=')[0] });
-            return '';
-        });
-        output = output.replace(/\s+srcdoc\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, () => {
-            removed.push({ type: 'attribute', name: 'srcdoc' });
-            return '';
-        });
-        output = output.replace(/\s+(href|src|srcset|action|formaction|poster|xlink:href)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, (match, name, rawValue) => {
-            const unquoted = String(rawValue || '').replace(/^["']|["']$/g, '');
-            if (!isAllowedUrl(unquoted)) {
-                removed.push({ type: 'url', name, valueLength: unquoted.length });
-                return '';
-            }
-            return match;
-        });
-        return {
-            schema: TRUSTED_DOM_SANITIZER_SCHEMA,
-            ok: true,
-            sanitized: true,
-            boundary: TRUSTED_DOM_BOUNDARY,
-            markupClass: 'htmlFragment',
-            html: output,
-            removed,
-            removedCount: removed.length
-        };
-    }
-
-    appModules.createRmtTemplateTrustModel = function createRmtTemplateTrustModel() {
+    appModules.createRmtTemplateTrustModel = function createRmtTemplateTrustModel(deps = {}) {
+        const sanitizeHtml = typeof deps.sanitizeHtml === 'function' ? deps.sanitizeHtml
+            : (() => ({ok: false, html: '', removed: [], removedCount: 0}));
         return Object.freeze({
             kind: 'rmt_template_trust_model',
             version: '1.0',

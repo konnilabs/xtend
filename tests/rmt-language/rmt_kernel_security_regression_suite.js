@@ -1,4 +1,7 @@
 const fs = require('fs');
+const {JSDOM} = require('jsdom');
+const {createHtmlSanitizer} = require('../../xtendrmt/html-sanitizer.cjs');
+const sanitizeHtmlOutput = createHtmlSanitizer(new JSDOM('').window);
 const path = require('path');
 const vm = require('vm');
 const {
@@ -370,6 +373,7 @@ function runArtifactProbe(context, rootDir, artifactPath, fixtures) {
   const fallbackHtml = getFixturePayload(fixtures, 'maliciousHtmlFragments', 'html-fallback-event-handler');
   const renderer = AppModules.createRmtTemplateRuntimeRenderer({
     documentTarget,
+    sanitizeHtmlOutput,
     diagnosticsHub,
     onRecoveryOutcome(outcome) {
       hostNotifications.push(outcome);
@@ -465,6 +469,7 @@ function runArtifactProbe(context, rootDir, artifactPath, fixtures) {
 
   const executionPath = AppModules.createRmtTemplateExecutionPath({
     documentTarget,
+    sanitizeHtmlOutput,
     diagnosticsHub,
     registry: createTemplateRegistry('<strong>Fallback</strong>')
   });
@@ -478,6 +483,7 @@ function runArtifactProbe(context, rootDir, artifactPath, fixtures) {
   const boundaryElement = documentTarget.createElement('main');
   const boundaryPath = AppModules.createRmtTemplateExecutionPath({
     documentTarget,
+    sanitizeHtmlOutput,
     diagnosticsHub,
     registry: createTemplateRegistry(fallbackHtml),
     publicApi: {

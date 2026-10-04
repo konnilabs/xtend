@@ -507,52 +507,8 @@
         );
     }
 
-    function sanitizeRuntimeTrustedDomHtml(html) {
-        let output = String(html || '');
-        const removed = [];
-        ['script', 'iframe', 'object', 'embed', 'link', 'meta', 'base', 'form'].forEach((tagName) => {
-            const paired = new RegExp('<\\s*' + tagName + '\\b[^>]*>[\\s\\S]*?<\\s*\\/\\s*' + tagName + '\\s*>', 'gi');
-            output = output.replace(paired, (match) => {
-                removed.push({ type: 'element', name: tagName, sampleLength: match.length });
-                return '';
-            });
-
-            const single = new RegExp('<\\s*' + tagName + '\\b[^>]*\\/?\\s*>', 'gi');
-            output = output.replace(single, (match) => {
-                removed.push({ type: 'element', name: tagName, sampleLength: match.length });
-                return '';
-            });
-        });
-
-        output = output.replace(/\s+on[a-z0-9_-]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, (match) => {
-            removed.push({ type: 'attribute', name: match.trim().split('=')[0] });
-            return '';
-        });
-
-        output = output.replace(/\s+srcdoc\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, () => {
-            removed.push({ type: 'attribute', name: 'srcdoc' });
-            return '';
-        });
-
-        output = output.replace(/\s+(href|src|srcset|action|formaction|poster|xlink:href)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, (match, name, rawValue) => {
-            const unquoted = String(rawValue || '').replace(/^["']|["']$/g, '');
-            if (!isAllowedRuntimeTrustedDomUrl(unquoted)) {
-                removed.push({ type: 'url', name, valueLength: unquoted.length });
-                return '';
-            }
-            return match;
-        });
-
-        return {
-            schema: RMT_TRUSTED_DOM_SANITIZER_SCHEMA,
-            ok: true,
-            sanitized: true,
-            boundary: RMT_TRUSTED_DOM_BOUNDARY,
-            markupClass: 'htmlFragment',
-            html: output,
-            removed,
-            removedCount: removed.length
-        };
+    function sanitizeRuntimeTrustedDomHtml(html, windowTarget) {
+        return {ok: false, html: '', removed: [], removedCount: 0};
     }
 
     function toPlainObject(value) {
@@ -754,7 +710,7 @@
             ? deps.sanitizeHtmlOutput
             : (typeof deps.sanitizeTrustedDomHtml === 'function'
                 ? deps.sanitizeTrustedDomHtml
-                : sanitizeRuntimeTrustedDomHtml);
+                : ((html) => sanitizeRuntimeTrustedDomHtml(html, documentTarget?.defaultView || windowTarget)));
         const runtimeTrustVerdicts = [];
         const runtimePanicMonitor = deps.panicMonitor && typeof deps.panicMonitor.recordTrustVerdict === 'function'
             ? deps.panicMonitor
@@ -1203,9 +1159,9 @@
             }
             if (sanitizerResult && typeof sanitizerResult === 'object') {
                 const hasHtml = Object.prototype.hasOwnProperty.call(sanitizerResult, 'html');
-                const safeHtml = hasHtml ? String(sanitizerResult.html || '') : rawHtml;
+                const safeHtml = hasHtml ? sanitizerResult.html : '';
                 return {
-                    ok: sanitizerResult.ok !== false,
+                    ok: hasHtml && sanitizerResult.ok === true,
                     html: safeHtml,
                     removed: cloneSerializable(sanitizerResult.removed, []),
                     removedCount: Number.isFinite(sanitizerResult.removedCount)
@@ -1214,7 +1170,7 @@
                     boundary: clampString(sanitizerResult.boundary, RMT_TRUSTED_DOM_BOUNDARY)
                 };
             }
-            return sanitizeRuntimeTrustedDomHtml(rawHtml);
+            return {ok: false, html: '', removed: [], removedCount: 0};
         }
 
         function sanitizeTrustedRuntimeHtml(rawHtml, context = {}) {
@@ -1226,7 +1182,7 @@
                     sinkAdapterSchema: RMT_RUNTIME_TRUST_SINK_ADAPTER_SCHEMA
                 }));
             } catch (error) {
-                const fallback = sanitizeRuntimeTrustedDomHtml(rawHtml);
+                const fallback = {ok: false, html: '', removed: [], removedCount: 0};
                 fallback.sanitizerError = clampString(error && error.message, 'runtime-html-sanitizer-error');
                 return fallback;
             }
@@ -1351,7 +1307,7 @@
         function createTrustedHtmlCommit(html, context = {}) {
             const rawHtml = String(html || '');
             const sanitizerResult = sanitizeTrustedRuntimeHtml(rawHtml, context);
-            const trustedHtml = sanitizerResult.ok === false ? '' : String(sanitizerResult.html || '');
+            const trustedHtml = sanitizerResult.ok === true ? sanitizerResult.html : '';
             const verdict = recordRuntimeTrustVerdict(createRuntimeTrustVerdict({
                 ...context,
                 value: trustedHtml,
@@ -1387,7 +1343,7 @@
             if (!documentTarget || typeof documentTarget.createElement !== 'function') return null;
             const templateElement = documentTarget.createElement('template');
             if (!templateElement) return null;
-            templateElement.innerHTML = String(html || '');
+            templateElement.innerHTML = html || '';
             if (templateElement.content && typeof templateElement.content.cloneNode === 'function') {
                 return templateElement.content.cloneNode(true);
             }

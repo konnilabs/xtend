@@ -70,7 +70,7 @@
             : executionModelFactory({ registry, now });
         const trustModel = deps.trustModel && typeof deps.trustModel === 'object'
             ? deps.trustModel
-            : trustModelFactory();
+            : trustModelFactory({sanitizeHtml: deps.sanitizeHtmlOutput || appModules.createHtmlSanitizer(deps.windowTarget || deps.documentTarget?.defaultView)});
         const recoveryModel = deps.recoveryModel && typeof deps.recoveryModel === 'object'
             ? deps.recoveryModel
             : recoveryModelFactory({ now });
