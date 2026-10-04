@@ -72,14 +72,16 @@ window.__XTEND_DEV_API__ = {
 Der lokale Companion ist optional:
 
 ```bash
-XTEND_DEV_SURFACE_TOKEN=dev node tools/xtend-dev-surface/companion.js
+XTEND_DEV_SURFACE_ALLOWED_ORIGINS='chrome-extension://<extension-id>' node tools/xtend-dev-surface/companion.js
 ```
 
 Im DevTools-Panel den Tab `Gates` oeffnen, den Token im Companion-Bereich eintragen und `Check` ausfuehren. Der Token wird lokal im Extension-Panel gespeichert und nur an den lokalen Companion gesendet.
 
 Nur allowlistete Gates werden gestartet. Freie Shell-Kommandos sind nicht Teil des Contracts.
 
-Der Companion bietet `POST /handshake`, `POST /gate-runs`, `GET /gate-runs`, `GET /gate-runs/events` und allowlistete `/artifacts/:path`. Alle Gate-, Stream- und Artifact-Routen erwarten den Header `x-xtend-dev-surface-token`.
+Ersetze `<extension-id>` durch die ID der geladenen Extension. Die Startausgabe nennt eine private Token-Datei; lies den Token dort aus.
+
+Der Companion bietet `POST /handshake`, `POST /gate-runs`, `GET /gate-runs`, `POST /stream-ticket`, `GET /gate-runs/events` und allowlistete `/artifacts/:path`. Die Diagnose- und Gate-Routen erwarten den Header `x-xtend-dev-surface-token`; der EventSource-Stream verwendet ein kurzlebiges Einmalticket.
 
 ## Boundaries
 
@@ -97,3 +99,5 @@ Der Companion bietet `POST /handshake`, `POST /gate-runs`, `GET /gate-runs`, `GE
 - Gates bleiben blocked: Companion nicht gestartet, Token fehlt oder Gate-ID ist nicht allowlisted.
 - Extension laedt nicht: `node tools/xtend-dev-surface/build.js` erneut ausfuehren und `tools/xtend-dev-surface/dist/` neu laden.
 - Source/Dist drift: `npm run test:xtend-dev-surface` ausfuehren; die Suite prueft Paritaet und Manifest V3.
+
+The startup record reports an owner-only token file, not the credential. Read it locally and enter the token in the extension. Configured tokens must be CSPRNG-generated 256-bit hex or base64url values. CORS is disabled unless an exact extension origin is configured. Event streams use a single-use ticket issued by authenticated `POST /stream-ticket`; tickets expire after 30 seconds. Query-string bearer tokens are rejected.
