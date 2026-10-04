@@ -846,6 +846,7 @@ async function runNodeHostAssertions(context) {
   const requestPayload = JSON.stringify(wireRequest('server.sum', 'command', { left: 4, right: 5 }));
   const request = Readable.from([requestPayload]);
   request.method = 'POST';
+  request.headers = {'content-type': 'application/json'};
   request.url = '/api/xtend/services/server.sum';
   const response = new FakeNodeResponse();
   const handled = await host.handle(request, response);
@@ -866,6 +867,7 @@ async function runNodeHostAssertions(context) {
 
   const failureRequest = Readable.from([JSON.stringify(wireRequest('server.fail', 'query'))]);
   failureRequest.method = 'POST';
+  failureRequest.headers = {'content-type': 'application/json'};
   failureRequest.url = '/api/xtend/services/server.fail';
   const failureResponse = new FakeNodeResponse();
   await host.handle(failureRequest, failureResponse);
@@ -875,6 +877,7 @@ async function runNodeHostAssertions(context) {
   const disconnectPayload = JSON.stringify(wireRequest('server.disconnect', 'stream'));
   const disconnectRequest = Readable.from([disconnectPayload]);
   disconnectRequest.method = 'POST';
+  disconnectRequest.headers = {'content-type': 'application/json'};
   disconnectRequest.url = '/api/xtend/services/server.disconnect';
   const disconnectResponse = new FakeNodeResponse();
   let writeCount = 0;
@@ -902,6 +905,7 @@ async function runNodeHostAssertions(context) {
 
   const unrelated = Readable.from([]);
   unrelated.method = 'POST';
+  unrelated.headers = {'content-type': 'application/json'};
   unrelated.url = '/host-owned/route';
   context.assert(await host.handle(unrelated, new FakeNodeResponse()) === false, 'Node host leaves unrelated backend routes host-owned');
   context.assert(host.dispose() === true && host.dispose() === false, 'Node host disposal is idempotent');

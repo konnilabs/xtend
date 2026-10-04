@@ -1,6 +1,8 @@
+import staticFiles from '../../../security/static-files.cjs';
+const {resolvePublicFile, streamPublicFile} = staticFiles;
 import { createServer as createHttpServer } from 'node:http';
 import { generateKeyPairSync, randomBytes, sign as signBytes } from 'node:crypto';
-import { createReadStream, existsSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -593,20 +595,17 @@ function safeStaticPath(urlPath) {
     '/components/rmt-command.js'
   ]);
   if (rootComponents.has(urlPath)) {
-    return path.join(repoRoot, urlPath.slice(1));
+    return resolvePublicFile(repoRoot, urlPath.slice(1));
   }
   if (urlPath === '/xcommand/xcommand.js') {
-    return path.join(repoRoot, 'xcommand', 'xcommand.js');
+    return resolvePublicFile(repoRoot, 'xcommand/xcommand.js');
   }
   if (RMT_RUNTIME_MODULE_PATHS.has(urlPath)) {
-    return path.join(repoRoot, urlPath.slice(1));
+    return resolvePublicFile(repoRoot, urlPath.slice(1));
   }
-  const allowedPrefixes = ['/dist/', '/src/client/', '/src/styles/'];
-  if (!allowedPrefixes.some((prefix) => urlPath.startsWith(prefix))) return null;
-  const decoded = decodeURIComponent(urlPath);
-  const absolute = path.normalize(path.join(productRoot, decoded));
-  if (!absolute.startsWith(productRoot)) return null;
-  return absolute;
+  const routes = [['/dist/', 'dist'], ['/src/client/', 'src/client'], ['/src/styles/', 'src/styles']];
+  for (const [prefix, root] of routes) if (urlPath.startsWith(prefix)) return resolvePublicFile(path.join(productRoot, root), urlPath.slice(prefix.length));
+  return null;
 }
 
 function serveStatic(request, response, urlPath) {
@@ -615,11 +614,9 @@ function serveStatic(request, response, urlPath) {
     sendNotFound(response);
     return true;
   }
-  response.writeHead(200, {
-    'Content-Type': MIME_TYPES[path.extname(filePath)] || 'application/octet-stream',
-    'Cache-Control': 'no-store'
+  streamPublicFile(response, filePath, {
+    'Content-Type': MIME_TYPES[path.extname(filePath)] || 'application/octet-stream', 'Cache-Control': 'no-store'
   });
-  createReadStream(filePath).pipe(response);
   return true;
 }
 

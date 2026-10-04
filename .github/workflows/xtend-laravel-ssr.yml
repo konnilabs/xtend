@@ -61,7 +61,9 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/xtend-store-npm-cache
-          key: xtend-store-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('products/xtend-shop/package-lock.json') }}
+          key: xtend-store-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-shop/package-lock.json') }}
+      - name: Install locked Node SSR parser dependencies
+        run: npm ci --ignore-scripts --no-audit --fund=false
       - name: Provide PHP-FPM for the proxy acceptance
         if: matrix.fpm
         run: |

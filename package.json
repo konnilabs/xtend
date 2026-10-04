@@ -18208,11 +18208,18 @@
     "test:xtend-shop-browser": "node scripts/run_xtend_tests.js --profile xtend-shop-browser",
     "test:xtend-shop-browser:report": "node scripts/run_xtend_tests.js --profile xtend-shop-browser --report .xtend-test-results/xtend-shop-browser.json",
     "test:xtend-shop": "node scripts/run_xtend_tests.js --profile xtend-shop",
-    "test:xtend-shop:report": "node scripts/run_xtend_tests.js --profile xtend-shop --report .xtend-test-results/xtend-shop.json"
+    "test:xtend-shop:report": "node scripts/run_xtend_tests.js --profile xtend-shop --report .xtend-test-results/xtend-shop.json",
+    "build:html-sanitizer": "node scripts/build_html_sanitizer.js",
+    "check:html-sanitizer": "node scripts/build_html_sanitizer.js --check",
+    "test:security-scan-regressions": "node --test tests/security/*.test.*"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
     "typescript": "^5.9.3",
-    "vite": "^7.3.6"
+    "vite": "^7.3.6",
+    "acorn": "8.18.0"
+  },
+  "dependencies": {
+    "jsdom": "30.1.2"
   }
 }

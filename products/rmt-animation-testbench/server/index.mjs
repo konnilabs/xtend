@@ -1,6 +1,9 @@
+import {ResumeStore} from './resume-store.mjs';
+import staticFiles from '../../../security/static-files.cjs';
+const {resolvePublicFile, streamPublicFile} = staticFiles;
 import { createServer as createHttpServer } from 'node:http';
 import { randomBytes } from 'node:crypto';
-import { createReadStream, existsSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -31,7 +34,8 @@ const sourcePath = path.join(productRoot, 'src', 'rmt', 'animation-testbench.rmt
 const require = createRequire(import.meta.url);
 const { compileRmtVNextSource } = require(path.join(repoRoot, 'tools', 'rmt-language', 'vnext-compiler.js'));
 
-const resumeStore = new Map();
+const resumeStore = new ResumeStore();
+let activeRenders = 0;
 const telemetryStore = [];
 
 const MIME_TYPES = {
@@ -83,14 +87,20 @@ function textResponse(response, status, body, headers = {}) {
 }
 
 function createToken() {
-  return `tb-${Date.now().toString(36)}-${randomBytes(4).toString('hex')}`;
+  return `tb-${Date.now().toString(36)}-${randomBytes(32).toString('hex')}`;
 }
 
 async function readSource() {
   return readFile(sourcePath, 'utf8');
 }
 
+let compiledSource;
 async function compileRmtSource() {
+  if (compiledSource) return compiledSource;
+  compiledSource = compileOnce().catch((error) => { compiledSource = null; throw error; });
+  return compiledSource;
+}
+async function compileOnce() {
   const source = await readSource();
   const compileResult = compileRmtVNextSource({
     text: source,
@@ -284,12 +294,10 @@ function resolveStaticPath(urlPath) {
     { prefix: '/xtendrmt/', root: path.join(repoRoot, 'xtendrmt') },
     { prefix: '/xcommand/', root: path.join(repoRoot, 'xcommand') }
   ];
-  if (urlPath === '/xtend.css') return path.join(repoRoot, 'xtend.css');
+  if (urlPath === '/xtend.css') return resolvePublicFile(repoRoot, 'xtend.css');
   for (const route of routes) {
     if (!urlPath.startsWith(route.prefix)) continue;
-    const relative = decodeURIComponent(urlPath.slice(route.prefix.length));
-    const candidate = path.resolve(route.root, relative);
-    if (candidate === route.root || candidate.startsWith(`${route.root}${path.sep}`)) return candidate;
+    return resolvePublicFile(route.root, urlPath.slice(route.prefix.length));
   }
   return null;
 }
@@ -298,12 +306,11 @@ function sendStatic(request, response, urlPath) {
   const filePath = resolveStaticPath(urlPath);
   if (!filePath || !existsSync(filePath)) return false;
   const ext = path.extname(filePath).toLowerCase();
-  response.writeHead(200, {
+  streamPublicFile(response, filePath, {
     ...SECURITY_HEADERS,
     'content-type': MIME_TYPES[ext] || 'application/octet-stream',
     'cache-control': 'no-store'
   });
-  createReadStream(filePath).pipe(response);
   return true;
 }
 
@@ -323,12 +330,16 @@ function readBody(request, limit = 1024 * 256) {
   });
 }
 
-async function handleRequest(request, response) {
+async function handleRequest(request, response, options = {}) {
   const url = new URL(request.url || '/', 'http://127.0.0.1');
   try {
     if (request.method === 'GET' && (url.pathname === '/' || url.pathname === '/index.html')) {
-      const html = await renderPage(request);
-      textResponse(response, 200, html, { 'content-type': 'text/html; charset=UTF-8' });
+      if (activeRenders >= 4) { jsonResponse(response, 503, {ok: false, error: 'render-capacity'}); return; }
+      activeRenders += 1;
+      try {
+        const html = await (options.renderPage || renderPage)(request);
+        textResponse(response, 200, html, {'content-type': 'text/html; charset=UTF-8'});
+      } finally { activeRenders -= 1; }
       return;
     }
     if (request.method === 'GET' && (url.pathname === '/health' || url.pathname === '/healthz')) {
@@ -345,8 +356,8 @@ async function handleRequest(request, response) {
     }
     if (request.method === 'GET' && url.pathname === '/api/resume') {
       const token = url.searchParams.get('token');
-      const payload = token ? resumeStore.get(token) : Array.from(resumeStore.values()).at(-1);
-      jsonResponse(response, 200, {
+      const payload = token ? resumeStore.consume(token) : null;
+      jsonResponse(response, payload ? 200 : 404, {
         schema: 'xtend.product.rmt-animation-testbench.resume-response.v1',
         ok: Boolean(payload),
         payload: payload || null
@@ -403,7 +414,7 @@ async function handleRequest(request, response) {
 export function startServer(options = {}) {
   const port = Number(options.port ?? process.env.PORT ?? 9196);
   const host = options.host || process.env.HOST || '127.0.0.1';
-  const server = createHttpServer(handleRequest);
+  const server = createHttpServer((request, response) => handleRequest(request, response, options));
   return new Promise((resolve, reject) => {
     server.once('error', reject);
     server.listen(port, host, () => {

@@ -1615,6 +1615,36 @@
       ]
     },
     {
+      "id": "rmt-html-sanitizer",
+      "sourcePath": "xtendrmt/kernel/modules/rmt-html-sanitizer.js",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "output",
+      "provides": [
+        "createHtmlSanitizer"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtTemplateTrustPolicyPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "dom.trustedHtml",
+        "global.read",
+        "global.write"
+      ],
+      "ownershipDomains": [
+        "output.html-sanitization"
+      ],
+      "targets": [
+        "core-esm",
+        "runtime-esm",
+        "browser"
+      ]
+    },
+    {
       "id": "rmt-template-trust-model",
       "sourcePath": "xtendrmt/kernel/modules/rmt-template-trust-model.js",
       "sourceMode": "canonical",
@@ -1765,7 +1795,8 @@
         "createRmtTemplateRecoveryModel",
         "createRmtTemplateInteractionAdapter",
         "createRmtTemplateExecutionController",
-        "createRmtTemplateRuntimeRenderer"
+        "createRmtTemplateRuntimeRenderer",
+        "createHtmlSanitizer"
       ],
       "dependsOn": [
         "rmt-template-execution-model",
@@ -1773,7 +1804,8 @@
         "rmt-template-recovery-model",
         "rmt-template-interaction-adapter",
         "rmt-template-execution-controller",
-        "rmt-template-runtime-renderer"
+        "rmt-template-runtime-renderer",
+        "rmt-html-sanitizer"
       ],
       "ports": [
         "RmtTemplateExecutionModelPort",
@@ -2310,6 +2342,7 @@
       "rmt-template-binding-model",
       "rmt-template-compiler",
       "rmt-template-artifacts",
+      "rmt-html-sanitizer",
       "rmt-template-runtime-renderer",
       "rmt-template-trust-model",
       "rmt-template-recovery-model",

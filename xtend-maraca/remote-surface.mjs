@@ -22,6 +22,8 @@ export function bindMaracaRemoteSurface({runtime, root, client, binding, window:
   const loader = createXScalerRemoteAdapterLoader({
     documentTarget:win.document, registrationTarget:win,
     allowInsecureLoopback:binding.allowInsecureLoopback === true,
+    maxAdapterBytes:binding.maxAdapterBytes,
+    verificationTimeoutMs:binding.verificationTimeoutMs,
     async preflight(input) {
       // Local policy is authoritative even if the provider returns a permissive report.
       const local = evaluateXScalerPreflight(input);

@@ -136,8 +136,8 @@
     },
     {
       "path": "docs/de/maraca-fastpass-abort-boundary.md",
-      "sha256": "31c229ec777031aaca9a60636bf1433969f8dfa5c4429bf3c50c81830c2432ae",
-      "bytes": 7594
+      "sha256": "36da2ca972ade3babbad0ecc540f276b26db5d17eb5ce46facbfc3c25103715e",
+      "bytes": 8355
     },
     {
       "path": "docs/de/rmt-app-platform-tooling.md",
@@ -216,8 +216,8 @@
     },
     {
       "path": "docs/en/maraca-fastpass-abort-boundary.md",
-      "sha256": "ecb9b5a6e59ca3d53b3118227d923499849d7241d13b63b79928b45214f00a69",
-      "bytes": 6207
+      "sha256": "cd1bfc0a3895531e03091697bf95cc2facccaae7001a3fa453b252c0e99fbf54",
+      "bytes": 6955
     },
     {
       "path": "tools/rmt-language/diagnostics.d.ts",
@@ -241,8 +241,8 @@
     },
     {
       "path": "xtend-maraca/fastpass-contract.js",
-      "sha256": "09cc73ea9e180f7449304bcfb6d099e1d63800cc5ed922f85153d7dda69f2dcc",
-      "bytes": 2674
+      "sha256": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3",
+      "bytes": 4098
     },
     {
       "path": "xtend-maraca/fastpass.schema.json",

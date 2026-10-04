@@ -5,7 +5,7 @@
   "snapshotSchema": "xtend.devsurface.snapshot.v1",
   "workpackage": "XDS-WP-09",
   "status": "completed-handoff",
-  "generatedAt": "2026-07-09T22:38:40.548Z",
+  "generatedAt": "2026-10-04T21:04:19.062Z",
   "browserTarget": "chromium-devtools-extension",
   "manifestVersion": 3,
   "sourceRoot": "tools/xtend-dev-surface",

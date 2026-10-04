@@ -1,3 +1,4 @@
+import {configureAppServerSession} from '../src/main/app-server-session.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -13,7 +14,7 @@ import {
 import { createModelCachePaths } from '../src/main/model-cache.mjs';
 
 const require = createRequire(import.meta.url);
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, session } = require('electron');
 const productRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const resultDir = path.join(productRoot, '.xtend-llm-results');
 const args = process.argv.slice(2).filter((arg) => arg !== '--');
@@ -140,6 +141,7 @@ async function run() {
     height: 640,
     show: false,
     webPreferences: {
+      session: session.fromPartition('xtend-llm-terminal-test'),
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false
@@ -161,6 +163,7 @@ async function run() {
   window.webContents.on('render-process-gone', (_event, details) => {
     log(`renderer process gone: ${JSON.stringify(details)}`);
   });
+  configureAppServerSession(window.webContents.session, serverUrl, server.capability);
   await window.loadURL(new URL('/llm-harness', serverUrl).href);
   if (!fake) {
     const webgpu = await probeWebGpu();

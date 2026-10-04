@@ -6950,7 +6950,7 @@ function assertSupplyChainPolicyReference(context, rootDir) {
   }
 
   const plan = policyModule.createSupplyChainGatePlan();
-  const classification = policyModule.classifyPackageSupplyChain(packageManifest, []);
+  const classification = policyModule.classifyPackageSupplyChain(packageManifest, ['package-lock.json']);
   const report = verifyModule.runSupplyChainVerification({ rootDir });
 
   context.assert(policyModule.SUPPLY_CHAIN_GATE_PLAN_CONTRACT === 'xtend.security.supply-chain-gate-plan.v1', 'Supply-Chain module exports plan contract id');

@@ -474,6 +474,22 @@ function createNodeAppServiceHost(options = {}) {
       return true;
     }
 
+    const contentType = String(request?.headers?.['content-type'] || '');
+    if (!/^application\/json(?:\s*;\s*charset\s*=\s*(?:utf-8|"utf-8"))?\s*$/i.test(contentType)) {
+      writeJson(response, 415, responseEnvelope({serviceId: routeId}, {ok: false, error: {code: 'xtend.maraca.app-service.unsupported_media_type', message: 'AppService endpoints require application/json.'}}));
+      return true;
+    }
+    try {
+      const origin = request?.headers?.origin;
+      const origins = options.allowedOrigins;
+      const originAllowed = origin === undefined || (Array.isArray(origins) ? origins.includes(origin) : typeof options.requestPolicy === 'function');
+      const policyAllowed = typeof options.requestPolicy !== 'function' || await options.requestPolicy(request) === true;
+      if (!originAllowed || !policyAllowed) throw new Error('Request policy rejected.');
+    } catch (_) {
+      writeJson(response, 403, responseEnvelope({serviceId: routeId}, {ok: false, error: {code: 'xtend.maraca.app-service.request_forbidden', message: 'Request origin or capability rejected.'}}));
+      return true;
+    }
+
     const requestScope = openRequestScope(request, response, null);
     let streamHandle = null;
     let wireRequest = { serviceId: routeId };

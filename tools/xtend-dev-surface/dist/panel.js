@@ -596,11 +596,13 @@
     return result;
   }
 
-  function connectGateStream() {
+  async function connectGateStream() {
     if (state.gateStream || typeof EventSource !== 'function') return;
     const token = getCompanionToken();
     if (!token) return;
-    state.gateStream = new EventSource(`${state.companionOrigin}/gate-runs/events?token=${encodeURIComponent(token)}`);
+    const result = await fetchCompanion('/stream-ticket', {method: 'POST'});
+    if (!result.ok || !result.body.ticket || state.gateStream) return;
+    state.gateStream = new EventSource(`${state.companionOrigin}/gate-runs/events?ticket=${encodeURIComponent(result.body.ticket)}`);
     state.gateStream.addEventListener('snapshot', (event) => {
       const payload = JSON.parse(event.data || '{}');
       if (Array.isArray(payload.runs)) {

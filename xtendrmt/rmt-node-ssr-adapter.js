@@ -1,3 +1,5 @@
+import { JSDOM } from 'jsdom';
+import { createHtmlSanitizer } from './html-sanitizer.mjs';
 import { Readable } from 'node:stream';
 import { createHash } from 'node:crypto';
 import { createRmtComponentCapabilityRegistry } from './rmt-component-capability-registry.js';
@@ -646,26 +648,16 @@ function hasTrustBoundary(record, options = {}) {
   return [...candidates, ...optionCandidates].some((entry) => TRUST_BOUNDARY_TOKENS.has(stableString(entry, '').trim()));
 }
 
+let nodeHtmlSanitizer;
 function fallbackSanitizeHtml(html, diagnostics, context) {
-  let sanitized = stableString(html, '');
-  const before = sanitized;
-  sanitized = sanitized.replace(new RegExp(`<(${BLOCKED_MARKUP_TAG_PATTERN})\\b[^>]*>[\\s\\S]*?<\\/\\1>`, 'giu'), '');
-  sanitized = sanitized.replace(new RegExp(`<\\/?(${BLOCKED_MARKUP_TAG_PATTERN})\\b[^>]*>`, 'giu'), '');
-  sanitized = sanitized.replace(/\s+on[a-z0-9_-]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/giu, '');
-  sanitized = sanitized.replace(/\s+srcdoc\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/giu, '');
-  sanitized = sanitized.replace(/\s+(href|src|action|formaction|poster|xlink:href)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/giu, (match, name, rawValue) => {
-    const value = rawValue.replace(/^['"]|['"]$/gu, '');
-    return isSafeUrl(value) ? match : '';
-  });
-  if (before !== sanitized) {
-    diagnostics.publish(
-      'rmt.node_ssr.html_sanitized',
-      'Unsafe server markup was sanitized by the Node SSR adapter fallback sanitizer.',
-      'warning',
-      context
-    );
+  nodeHtmlSanitizer ||= createHtmlSanitizer(new JSDOM('').window);
+  const result = nodeHtmlSanitizer(html);
+  if (!result.ok) {
+    diagnostics.publish('rmt.node_ssr.html_sanitizer_missing', 'HTML sanitizer unavailable.', 'error', context);
+    return '';
   }
-  return sanitized;
+  if (String(result.html) !== String(html)) diagnostics.publish('rmt.node_ssr.html_sanitized', 'Unsafe server markup was sanitized.', 'warning', context);
+  return String(result.html);
 }
 
 function sanitizeHtmlFragment(html, diagnostics, context, options = {}) {
@@ -676,9 +668,16 @@ function sanitizeHtmlFragment(html, diagnostics, context, options = {}) {
       'error',
       context
     );
+    return '';
   }
   if (typeof options.sanitizeHtmlOutput === 'function') {
-    return stableString(options.sanitizeHtmlOutput(stableString(html, ''), { ...context, diagnostics: diagnostics.diagnostics }), '');
+    try {
+      const result = options.sanitizeHtmlOutput(stableString(html, ''), { ...context, diagnostics: diagnostics.diagnostics });
+      return typeof result === 'string' ? result : result?.ok === true ? String(result.html || '') : '';
+    } catch (_) {
+      diagnostics.publish('rmt.node_ssr.html_sanitizer_missing', 'Host HTML sanitizer failed.', 'error', context);
+      return '';
+    }
   }
   return fallbackSanitizeHtml(html, diagnostics, context);
 }

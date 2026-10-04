@@ -41,6 +41,9 @@ export interface NodeAppServiceHostOptions<TServices extends AppServiceMap = App
   /** RMT-generated AppService manifest used for authoritative server-side input revalidation. */
   manifest?: AppServiceInputPolicyManifest | null;
   exposeErrors?: boolean;
+  allowedOrigins?: readonly string[];
+  /** Runs before reading a request body. Return true to allow the request. */
+  requestPolicy?(request: NodeAppServiceRequest): boolean | Promise<boolean>;
   createContext?(
     request: NodeAppServiceRequest,
     wireRequest: AppServiceWireRequest

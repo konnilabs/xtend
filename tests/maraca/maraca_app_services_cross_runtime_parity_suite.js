@@ -350,6 +350,7 @@ async function runNodeHttp(host, operation) {
   const serviceId = operation.routeServiceId || operation.request && operation.request.serviceId || 'fixture.invoke';
   const request = Readable.from([body]);
   request.method = 'POST';
+  request.headers = {'content-type':'application/json'};
   request.url = `/api/xtend/services/${encodeURIComponent(serviceId)}`;
   const response = new MemoryNodeResponse();
   const handled = await host.handle(request, response);

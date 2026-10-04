@@ -1,3 +1,4 @@
+const {createHtmlSanitizer} = require('../xtendrmt/html-sanitizer.cjs');
 const {
   SANITIZING_BOUNDARY_CONTRACT,
   TRUSTED_TEXT_SANITIZER_CONTRACT,
@@ -203,53 +204,8 @@ function isAllowedTrustedDomUrl(value) {
 }
 
 function sanitizeTrustedDomHtml(html, options = {}) {
-  let output = String(html || '');
-  const removed = [];
-  const markupClass = normalizeMarkupClass(options.markupClass || 'htmlFragment');
-
-  TRUSTED_DOM_SANITIZER_POLICY.removesElements.forEach((tagName) => {
-    const paired = new RegExp(`<\\s*${tagName}\\b[^>]*>[\\s\\S]*?<\\s*\\/\\s*${tagName}\\s*>`, 'gi');
-    output = output.replace(paired, (match) => {
-      removed.push({ type: 'element', name: tagName });
-      return '';
-    });
-
-    const single = new RegExp(`<\\s*${tagName}\\b[^>]*\\/?\\s*>`, 'gi');
-    output = output.replace(single, (match) => {
-      removed.push({ type: 'element', name: tagName });
-      return '';
-    });
-  });
-
-  output = output.replace(/\s+on[a-z0-9_-]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, (match) => {
-    removed.push({ type: 'attribute', name: match.trim().split('=')[0] });
-    return '';
-  });
-
-  output = output.replace(/\s+srcdoc\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, (match) => {
-    removed.push({ type: 'attribute', name: 'srcdoc' });
-    return '';
-  });
-
-  output = output.replace(/\s+(href|src|action|poster)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, (match, name, rawValue) => {
-    const unquoted = String(rawValue || '').replace(/^['"]|['"]$/g, '');
-    if (!isAllowedTrustedDomUrl(unquoted)) {
-      removed.push({ type: 'url', name });
-      return '';
-    }
-    return match;
-  });
-
-  return {
-    schema: TRUSTED_DOM_SANITIZER_CONTRACT,
-    ok: true,
-    sanitized: true,
-    boundary: SANITIZING_BOUNDARY_CONTRACT,
-    markupClass,
-    html: output,
-    removed,
-    removedCount: removed.length
-  };
+  const windowTarget = options.windowTarget || (typeof window !== 'undefined' ? window : undefined);
+  return createHtmlSanitizer(windowTarget)(html);
 }
 
 function getMarkupClass(markupClass) {

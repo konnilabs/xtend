@@ -7,6 +7,7 @@ export interface MaracaRemoteSurfaceBinding {
   requestState:string;openState?:string;completeAction:string;errorAction?:string;resultUrl?:string;
   closeAction?:string;cancelAction?:string;
   allowInsecureLoopback?:boolean;capabilities?:string[];failureMessage?:string;
+  maxAdapterBytes?:number;verificationTimeoutMs?:number;
 }
 export function bindMaracaRemoteSurface(options:{runtime:MaracaBrowserFacade;root:Element;client:PageClient;binding:MaracaRemoteSurfaceBinding;window?:Window}):{snapshot():unknown;dispose():Promise<void>};
 export function createMaracaRemoteSurfaceAdapter(configuration:{createComposition():MaracaBrowserCompositionRoot;origin:string;rootId:string;inputState:string;streamState:string;streamService:string;resultState:string;cancelState:string;errorState:string;css?:string}):XScalerRemoteAdapter;

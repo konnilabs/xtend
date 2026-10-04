@@ -20,6 +20,13 @@ const LOCKFILE_CANDIDATES = [
 
 const ALLOWED_DEV_TOOLING_DEPENDENCIES = Object.freeze([
   {
+    name: 'acorn',
+    section: 'devDependencies',
+    versionRange: '8.18.0',
+    purpose: 'vendored-xscaler-import-graph-verifier',
+    runtime: false
+  },
+  {
     name: '@types/node',
     section: 'devDependencies',
     versionRange: '^24.13.3',
@@ -40,6 +47,13 @@ const ALLOWED_DEV_TOOLING_DEPENDENCIES = Object.freeze([
     purpose: 'typescript-demo-and-dev-hmr-spike-only',
     runtime: false
   }
+]);
+
+// Reviewed exceptions for the parser-based sanitizer. All other new runtime
+// dependencies remain forbidden, and these exact versions require a lockfile.
+const ALLOWED_SECURITY_RUNTIME_DEPENDENCIES = Object.freeze([
+  {name: 'jsdom', section: 'dependencies', versionRange: '30.1.2', purpose: 'node-html-sanitizer-parser', runtime: true},
+  {name: 'dompurify', section: 'dependencies', versionRange: '3.4.16', purpose: 'shared-html-sanitizer', runtime: true}
 ]);
 
 const SCOPED_RELEASE_PACKAGES = Object.freeze([
@@ -220,6 +234,7 @@ function createSupplyChainGatePlan(options = {}) {
     lockfileCandidates: clone(LOCKFILE_CANDIDATES),
     scopedReleasePackages: clone(SCOPED_RELEASE_PACKAGES),
     allowedDevToolingDependencies: clone(ALLOWED_DEV_TOOLING_DEPENDENCIES),
+    allowedSecurityRuntimeDependencies: clone(ALLOWED_SECURITY_RUNTIME_DEPENDENCIES),
     license: clone(LICENSE_POLICY),
     vulnerabilities: clone(VULNERABILITY_POLICY),
     runtimeDependencyPolicy: 'no-new-runtime-dependencies',
@@ -249,19 +264,23 @@ function classifyPackageSupplyChain(packageManifest = {}, lockfiles = []) {
       || dependency.section === 'optionalDependencies'
       || dependency.section === 'peerDependencies'
   ));
+  const allowedSecurityRuntimeDependencies = runtimeDependencies.filter(dependency =>
+    ALLOWED_SECURITY_RUNTIME_DEPENDENCIES.some(allowed => allowed.name === dependency.name && allowed.section === dependency.section && allowed.versionRange === dependency.version)
+  );
+  const unapprovedRuntimeDependencies = runtimeDependencies.filter(dependency => !allowedSecurityRuntimeDependencies.includes(dependency));
   const unapprovedDependencies = dependencies.filter((dependency) => (
-    !allowedDevToolingDependencies.some((allowedDependency) => (
+    ![...allowedDevToolingDependencies, ...allowedSecurityRuntimeDependencies].some((allowedDependency) => (
       allowedDependency.name === dependency.name
         && allowedDependency.section === dependency.section
     ))
   ));
   const diagnostics = [];
 
-  if (unapprovedDependencies.length > 0 && !hasLockfile) {
+  if ((unapprovedDependencies.length > 0 || allowedSecurityRuntimeDependencies.length > 0) && !hasLockfile) {
     diagnostics.push('xtend.security.supply_chain.lockfile.missing');
   }
 
-  if (runtimeDependencies.length > 0) {
+  if (unapprovedRuntimeDependencies.length > 0) {
     diagnostics.push('xtend.security.supply_chain.runtime_dependency.present');
   }
 
@@ -288,6 +307,8 @@ function classifyPackageSupplyChain(packageManifest = {}, lockfiles = []) {
     dependencies,
     runtimeDependencyCount: runtimeDependencies.length,
     runtimeDependencies,
+    allowedSecurityRuntimeDependencies,
+    unapprovedRuntimeDependencies,
     devToolingDependencyCount: allowedDevToolingDependencies.length,
     allowedDevToolingDependencies,
     unapprovedDependencies,
@@ -302,6 +323,7 @@ function classifyPackageSupplyChain(packageManifest = {}, lockfiles = []) {
 
 module.exports = {
   ALLOWED_DEV_TOOLING_DEPENDENCIES,
+  ALLOWED_SECURITY_RUNTIME_DEPENDENCIES,
   DEPENDENCY_AUDIT_GATE_CONTRACT,
   DEPENDENCY_SECTIONS,
   LICENSE_POLICY,

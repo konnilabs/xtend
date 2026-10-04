@@ -1,3 +1,5 @@
+const {JSDOM} = require('jsdom');
+const {createHtmlSanitizer} = require('../../xtendrmt/html-sanitizer.cjs');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -309,6 +311,7 @@ function runArtifactProbe(context, rootDir, artifactPath) {
 
   const renderer = AppModules.createRmtTemplateRuntimeRenderer({
     documentTarget,
+    sanitizeHtmlOutput: createHtmlSanitizer(new JSDOM('').window),
     diagnosticsHub
   });
   const session = renderer.applyBindings({
@@ -342,6 +345,7 @@ function runArtifactProbe(context, rootDir, artifactPath) {
 
   const executionPath = AppModules.createRmtTemplateExecutionPath({
     documentTarget,
+    sanitizeHtmlOutput: createHtmlSanitizer(new JSDOM('').window),
     diagnosticsHub,
     registry: createTemplateRegistry('<strong>Fallback</strong>')
   });
@@ -355,6 +359,7 @@ function runArtifactProbe(context, rootDir, artifactPath) {
   const boundaryElement = documentTarget.createElement('main');
   const boundaryPath = AppModules.createRmtTemplateExecutionPath({
     documentTarget,
+    sanitizeHtmlOutput: createHtmlSanitizer(new JSDOM('').window),
     diagnosticsHub,
     registry: createTemplateRegistry('<strong onclick="alert(1)">Oops</strong><script>alert(1)</script>'),
     publicApi: {

@@ -1,3 +1,4 @@
+const {JSDOM} = require('jsdom');
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
@@ -237,7 +238,7 @@ async function runEpic13TrustedDomBoundarySuite(options = {}) {
 
   const policy = getTrustedDomPolicy();
   const sanitized = sanitizeTrustedDomHtml('<p onclick="evil()">x</p><script>evil()</script><a href="javascript:evil()">x</a><iframe srcdoc="<b>x</b>"></iframe>', {
-    markupClass: 'parsedownHtml'
+    markupClass: 'parsedownHtml', windowTarget: new JSDOM('').window
   });
   const sanitizedText = sanitizeTrustedText('line one\r\nline two');
   const refusedText = sanitizeTrustedText('line one\u0000line two');

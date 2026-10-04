@@ -23,7 +23,8 @@ export interface XtendTrustedDomSanitizerVerdict {
   sanitized: boolean;
   boundary: typeof SANITIZING_BOUNDARY_CONTRACT;
   markupClass: string;
-  html: string;
+  /** Preserves a browser TrustedHTML value through the final sink. */
+  html: string | { toString(): string };
   removed: Array<{ type: string; name: string }>;
   removedCount: number;
 }

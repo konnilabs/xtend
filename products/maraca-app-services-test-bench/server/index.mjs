@@ -7,6 +7,8 @@ const parsedPort = process.env.XTEND_MARACA_PORT === undefined
   : Number(process.env.XTEND_MARACA_PORT);
 
 const app = await listenNodeAppHost({
+  // The host enforces its bound Host and same Origin before reading service bodies.
+  // Deployment-specific capabilities belong in appServices.requestPolicy.
   services,
   manifestPath: new URL('../dist/xtend.maraca.services.json', import.meta.url),
   rootDir: new URL('..', import.meta.url),

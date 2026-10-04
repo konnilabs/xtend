@@ -37,6 +37,7 @@ function protocolEsm() {
 
 function loaderEsm() {
   let source = read('xscaler/remote-adapter-loader.js');
+  source = source.replace("const {verifyAdapterBytes} = require('./verify-adapter');", "import {verifyAdapterBytes} from './verify-adapter.mjs';");
   source = replaceOnce(source, /^'use strict';\s*/u, '', 'loader strict-mode header');
   source = replaceOnce(
     source,
@@ -66,6 +67,10 @@ function indexEsm() {
 }
 
 const outputs = new Map([
+  ['xscaler/vendor/acorn.js', fs.readFileSync(require.resolve('acorn'), 'utf8')],
+  ['xscaler/vendor/acorn.mjs', fs.readFileSync(path.join(path.dirname(require.resolve('acorn')), 'acorn.mjs'), 'utf8')],
+  ['xscaler/vendor/Acorn-LICENSE', fs.readFileSync(path.join(path.dirname(require.resolve('acorn')), '..', 'LICENSE'), 'utf8')],
+  ['xscaler/verify-adapter.mjs', read('xscaler/verify-adapter.js').replace("const {parse} = require('./vendor/acorn');", "import {parse} from './vendor/acorn.mjs';").replace('module.exports = {verifyAdapterBytes};', 'export {verifyAdapterBytes};')],
   ['xscaler/protocol.mjs', protocolEsm()],
   ['xscaler/remote-adapter-loader.mjs', loaderEsm()],
   ['xscaler/app-service-transport.mjs', appServiceTransportEsm()],

@@ -300,7 +300,7 @@ export interface RmtNodeSsrOptions {
   endpointHandlers?: Record<string, (record: RmtNodeSsrDataSourceRecord, context: Record<string, unknown>) => unknown | Promise<unknown>>;
   resolveDataSource?: (record: RmtNodeSsrDataSourceRecord, context: Record<string, unknown>) => unknown | Promise<unknown>;
   fetchAdapter?: (record: RmtNodeSsrDataSourceRecord, context: Record<string, unknown>) => unknown | Promise<unknown>;
-  sanitizeHtmlOutput?: (html: string, context: Record<string, unknown>) => string;
+  sanitizeHtmlOutput?: (html: string, context: Record<string, unknown>) => string | { ok: boolean; html: string | { toString(): string } };
   trustBoundary?: string | string[];
   defaultTrustBoundary?: string | string[];
   contentSecurityPolicy?: string | { directives?: Record<string, string | string[]>; [key: string]: unknown };

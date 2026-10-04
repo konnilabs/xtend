@@ -148,8 +148,8 @@ function runSupplyChainVerification(options = {}) {
     }
   ));
   checks.push(createCheck(
-    'root package keeps runtime dependency inventory empty',
-    classification.runtimeDependencyCount === 0,
+    'root package limits runtime dependencies to pinned sanitizer exceptions',
+    classification.unapprovedRuntimeDependencies.length === 0,
     {
       runtimeDependencies: classification.runtimeDependencies
     }

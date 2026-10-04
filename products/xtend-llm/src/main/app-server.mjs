@@ -1,3 +1,8 @@
+import {randomBytes, timingSafeEqual} from 'node:crypto';
+import staticFiles from '../../../../security/static-files.cjs';
+import {ProxyBudget} from './proxy-budget.mjs';
+import {APP_CAPABILITY_HEADER} from './app-server-session.mjs';
+const {resolvePublicFile, streamPublicFile} = staticFiles;
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
@@ -75,16 +80,7 @@ function sendJson(res, statusCode, body) {
 }
 
 function sendFile(res, filePath) {
-  if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
-    send(res, 404, 'Not found', { 'content-type': 'text/plain; charset=utf-8' });
-    return;
-  }
-  res.writeHead(200, {
-    ...SECURITY_HEADERS,
-    'content-type': contentType(filePath),
-    'cache-control': filePath.includes(`${path.sep}build${path.sep}`) ? 'public, max-age=31536000, immutable' : 'no-cache'
-  });
-  fs.createReadStream(filePath).pipe(res);
+  streamPublicFile(res, filePath, withSecurityHeaders({'content-type': filePath ? contentType(filePath) : 'text/plain', 'cache-control': 'no-store'}));
 }
 
 function escapeScriptJson(value) {
@@ -173,11 +169,7 @@ function createSsrShellDescriptor() {
 }
 
 function safeStaticPath(root, requestPath) {
-  const clean = decodeURIComponent(requestPath).replace(/^\/+/u, '');
-  const resolved = path.resolve(root, clean);
-  const normalizedRoot = path.resolve(root);
-  if (!resolved.startsWith(normalizedRoot)) throw new Error('Static path escaped root.');
-  return resolved;
+  return resolvePublicFile(root, requestPath);
 }
 
 function sendTransformersVendorFile(res, requestPath) {
@@ -186,7 +178,7 @@ function sendTransformersVendorFile(res, requestPath) {
     sendFile(res, filePath);
     return;
   }
-  const fallbackName = path.basename(filePath);
+  const fallbackName = path.basename(requestPath);
   if (!/^ort[-.].+\.(mjs|wasm)$/u.test(fallbackName)) {
     send(res, 404, 'Not found', { 'content-type': 'text/plain; charset=utf-8' });
     return;
@@ -300,115 +292,70 @@ function renderLlmHarnessHtml() {
 }
 
 async function proxyHuggingFaceModel(req, res, cacheRoot, url, options = {}) {
-  const rest = decodeURIComponent(url.pathname.replace(/^\/hf\//u, ''));
-  if (!rest || rest.includes('..')) {
-    sendJson(res, 400, { ok: false, error: 'Invalid Hugging Face asset path.' });
-    return;
-  }
+  const rest = decodeURIComponent(url.pathname.slice('/hf/'.length));
+  if (!rest || Buffer.byteLength(rest) > 1024 || rest.split('/').length > 32 || rest.includes('..') || path.isAbsolute(rest) || rest.includes('\\')) { sendJson(res, 400, {ok: false, error: 'Invalid model asset path.'}); return; }
   const cachePath = safeCachePath(cacheRoot, rest);
-  if (fs.existsSync(cachePath)) {
-    notifyModelAssetProgress(options, {
-      phase: 'cache-hit',
-      asset: rest,
-      loaded: fs.statSync(cachePath).size,
-      total: fs.statSync(cachePath).size,
-      progress: 1
-    });
-    sendFile(res, cachePath);
-    return;
-  }
-  const targetUrl = `https://huggingface.co/${rest}${url.search || ''}`;
-  fs.mkdirSync(path.dirname(cachePath), { recursive: true });
-  const tmpPath = `${cachePath}.tmp-${process.pid}`;
-  const eventBase = {
-    asset: rest,
-    targetUrl
-  };
+  const budget = options.budget;
   try {
-    notifyModelAssetProgress(options, {
-      ...eventBase,
-      phase: 'download-start',
-      loaded: 0,
-      total: 0,
-      progress: 0
-    });
-    const response = await fetch(targetUrl);
-    if (!response.ok || !response.body) {
-      notifyModelAssetProgress(options, {
-        ...eventBase,
-        phase: 'download-error',
-        status: `${response.status} ${response.statusText}`
+    budget.reserve(0);
+    if (!fs.existsSync(cachePath)) {
+      await budget.download(cachePath, async () => {
+        budget.entries(); // Refuse symlinked cache ancestors before mutation.
+        fs.mkdirSync(path.dirname(cachePath), {recursive: true});
+        const temporary = `${cachePath}.tmp-${randomBytes(16).toString('hex')}`;
+        budget.temporaryFiles.add(temporary);
+        const limiter = budget.limiter();
+        try {
+          const response = await (options.fetch || fetch)(`https://huggingface.co/${rest}${url.search}`, {signal: AbortSignal.any([options.signal, AbortSignal.timeout(budget.timeoutMs)])});
+          if (!response.ok || !response.body) throw new Error('Model upstream failed.');
+          const declared = Number(response.headers.get('content-length'));
+          if (declared > budget.maxObjectBytes) { await response.body.cancel(); throw new Error('Model object byte limit exceeded.'); }
+          const eventBase = {asset: rest};
+          await pipeline(Readable.fromWeb(response.body), limiter.transform, createProgressTransform(options, eventBase, declared || 0), fs.createWriteStream(temporary, {flags: 'wx', mode: 0o600}));
+          fs.renameSync(temporary, cachePath);
+          notifyModelAssetProgress(options, {...eventBase, phase: 'download-complete', loaded: fs.statSync(cachePath).size, total: fs.statSync(cachePath).size, progress: 1});
+        } finally {
+          limiter.release();
+          if (fs.existsSync(temporary)) fs.unlinkSync(temporary);
+          budget.temporaryFiles.delete(temporary);
+        }
+        budget.reserve(0);
       });
-      sendJson(res, response.status || 502, {
-        ok: false,
-        error: `Unable to fetch model asset: ${response.status} ${response.statusText}`,
-        targetUrl
-      });
-      return;
     }
-    const total = Number.parseInt(response.headers.get('content-length') || '0', 10) || 0;
-    await pipeline(
-      Readable.fromWeb(response.body),
-      createProgressTransform(options, eventBase, total),
-      fs.createWriteStream(tmpPath)
-    );
-    fs.renameSync(tmpPath, cachePath);
-    notifyModelAssetProgress(options, {
-      ...eventBase,
-      phase: 'download-complete',
-      loaded: fs.statSync(cachePath).size,
-      total,
-      progress: 1
-    });
-    sendFile(res, cachePath);
-  } catch (error) {
-    if (fs.existsSync(tmpPath)) fs.rmSync(tmpPath, { force: true });
-    notifyModelAssetProgress(options, {
-      ...eventBase,
-      phase: 'download-error',
-      status: error && error.message ? error.message : String(error)
-    });
-    sendJson(res, 502, {
-      ok: false,
-      error: error && error.message ? error.message : String(error),
-      targetUrl
-    });
-  }
+    if (fs.existsSync(cachePath)) fs.utimesSync(cachePath, new Date(), new Date());
+    sendFile(res, resolvePublicFile(cacheRoot, rest));
+  } catch (_) { if (!res.destroyed) sendJson(res, 502, {ok: false, error: 'Model proxy request rejected or upstream failed.'}); }
 }
 
-async function proxyHuggingFaceApi(res, url) {
-  const rest = decodeURIComponent(url.pathname.replace(/^\/hf-api\//u, ''));
-  if (!rest || rest.includes('..')) {
-    sendJson(res, 400, { ok: false, error: 'Invalid Hugging Face API path.' });
-    return;
-  }
-  const targetUrl = `https://huggingface.co/api/${rest}${url.search || ''}`;
+async function proxyHuggingFaceApi(res, url, options) {
+  const rest = decodeURIComponent(url.pathname.slice('/hf-api/'.length));
+  if (!rest || rest.includes('..')) { sendJson(res, 400, {ok: false, error: 'Invalid API path.'}); return; }
   try {
-    const response = await fetch(targetUrl, {
-      headers: {
-        accept: 'application/json'
-      }
+    await options.budget.api(async () => {
+      const response = await (options.fetch || fetch)(`https://huggingface.co/api/${rest}${url.search}`, {signal: AbortSignal.any([options.signal, AbortSignal.timeout(options.budget.timeoutMs)]), headers: {accept: 'application/json'}});
+      const reader = response.body.getReader(); const chunks = []; let bytes = 0;
+      try {
+        for (;;) { const {done, value} = await reader.read(); if (done) break; bytes += value.length; if (bytes > options.budget.maxApiBytes) throw new Error('API response byte limit exceeded.'); chunks.push(Buffer.from(value)); }
+      } finally { await reader.cancel(); }
+      send(res, response.status, Buffer.concat(chunks), {'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store'});
     });
-    const body = await response.text();
-    send(res, response.status || 502, body, {
-      'content-type': response.headers.get('content-type') || 'application/json; charset=utf-8',
-      'cache-control': 'no-cache'
-    });
-  } catch (error) {
-    sendJson(res, 502, {
-      ok: false,
-      error: error && error.message ? error.message : String(error),
-      targetUrl
-    });
-  }
+  } catch (_) { sendJson(res, 502, {ok: false, error: 'API proxy request rejected or upstream failed.'}); }
 }
 
 export function createXtendLlmAppServer(options = {}) {
   const cacheRoot = options.cacheRoot || path.join(options.userData || productRoot, 'model-cache');
   const dev = options.dev === true;
+  const capability = randomBytes(32).toString('hex');
+  const budget = new ProxyBudget(cacheRoot, options.proxyLimits);
+  const proxyAbort = new AbortController();
+  let expectedAuthority = null;
+  const proxyOptions = {...options, budget, signal: proxyAbort.signal};
   const server = http.createServer(async (req, res) => {
     try {
-      const url = new URL(req.url || '/', 'http://127.0.0.1');
+      const provided = req.headers[APP_CAPABILITY_HEADER];
+      const tokenValid = typeof provided === 'string' && Buffer.byteLength(provided) === Buffer.byteLength(capability) && timingSafeEqual(Buffer.from(provided), Buffer.from(capability));
+      if (req.headers.host !== expectedAuthority || req.headers.origin !== undefined && req.headers.origin !== `http://${expectedAuthority}` || !tokenValid) { sendJson(res, 403, {ok: false, error: 'Request capability or origin rejected.'}); return; }
+      const url = new URL(req.url || '/', `http://${expectedAuthority}`);
       if (url.pathname === '/') {
         const html = await renderShellHtml({ dev });
         send(res, 200, html, { 'content-type': 'text/html; charset=utf-8' });
@@ -435,28 +382,26 @@ export function createXtendLlmAppServer(options = {}) {
         return;
       }
       if (url.pathname.startsWith('/hf/')) {
-        await proxyHuggingFaceModel(req, res, cacheRoot, url, options);
+        await proxyHuggingFaceModel(req, res, cacheRoot, url, proxyOptions);
         return;
       }
       if (url.pathname.startsWith('/hf-api/')) {
-        await proxyHuggingFaceApi(res, url);
+        await proxyHuggingFaceApi(res, url, proxyOptions);
         return;
       }
-      if (url.pathname.startsWith('/repo/')) {
+      if (dev && (options.publicRepoFiles || []).includes(url.pathname.slice('/repo/'.length)) && url.pathname.startsWith('/repo/')) {
         sendFile(res, safeStaticPath(repoRoot, url.pathname.slice('/repo/'.length)));
         return;
       }
       send(res, 404, 'Not found', { 'content-type': 'text/plain; charset=utf-8' });
     } catch (error) {
-      sendJson(res, 500, {
-        ok: false,
-        error: error && error.message ? error.message : String(error)
-      });
+      if (!res.headersSent && !res.destroyed) sendJson(res, 500, {ok: false, error: 'App server request failed.'});
     }
   });
 
   return {
     server,
+    capability,
     async listen(port = 0, host = '127.0.0.1') {
       await new Promise((resolve, reject) => {
         server.once('error', reject);
@@ -464,9 +409,11 @@ export function createXtendLlmAppServer(options = {}) {
       });
       const address = server.address();
       const resolvedPort = address && typeof address === 'object' ? address.port : port;
-      return `http://${host}:${resolvedPort}/`;
+      expectedAuthority = `${host}:${resolvedPort}`;
+      return `http://${expectedAuthority}/`;
     },
     async close() {
+      proxyAbort.abort();
       if (!server.listening) return;
       await new Promise((resolve) => server.close(resolve));
     }

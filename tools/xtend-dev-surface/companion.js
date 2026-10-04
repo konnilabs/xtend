@@ -4,7 +4,8 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
-const { randomBytes } = require('crypto');
+const { randomBytes, timingSafeEqual } = require('crypto');
+const os = require('os');
 const {
   COMPANION_DEFAULT_ORIGIN,
   DIAGNOSTIC_CATALOG,
@@ -29,7 +30,10 @@ const OUTPUT_TAIL_BYTES = 8000;
 let runSequence = 0;
 
 function normalizeToken(token) {
-  return typeof token === 'string' && token.trim() ? token.trim() : randomBytes(16).toString('hex');
+  if (token === undefined || token === null) return randomBytes(32).toString('hex');
+  const value = String(token).trim();
+  if (!/^(?:[a-f0-9]{64}|[A-Za-z0-9_-]{43})$/u.test(value) || new Set(value).size < 8) throw new Error('Companion token must be a randomly generated 256-bit hex or base64url token.');
+  return value;
 }
 
 function parseOrigin(origin = COMPANION_DEFAULT_ORIGIN) {
@@ -37,7 +41,7 @@ function parseOrigin(origin = COMPANION_DEFAULT_ORIGIN) {
     const url = new URL(origin);
     return {
       hostname: url.hostname || '127.0.0.1',
-      port: Number(url.port) || DEFAULT_PORT,
+      port: url.port ? Number(url.port) : DEFAULT_PORT,
       origin: url.origin
     };
   } catch (_error) {
@@ -49,9 +53,11 @@ function parseOrigin(origin = COMPANION_DEFAULT_ORIGIN) {
   }
 }
 
-function authorizeCompanionRequest(headers = {}, expectedToken, queryToken = null) {
-  const token = headers[TOKEN_HEADER] || headers[TOKEN_HEADER.toLowerCase()];
-  return Boolean(expectedToken && (token === expectedToken || queryToken === expectedToken));
+function authorizeCompanionRequest(headers = {}, expectedToken) {
+  const token = headers[TOKEN_HEADER];
+  if (typeof token !== 'string' || typeof expectedToken !== 'string') return false;
+  const actual = Buffer.from(token); const expected = Buffer.from(expectedToken);
+  return actual.length === expected.length && timingSafeEqual(actual, expected);
 }
 
 function timestampFromOptions(options = {}) {
@@ -193,7 +199,6 @@ function readJsonBody(request) {
 function sendJson(response, statusCode, payload, extraHeaders = {}) {
   response.writeHead(statusCode, {
     'content-type': 'application/json; charset=utf-8',
-    'access-control-allow-origin': '*',
     'access-control-allow-headers': `content-type, ${TOKEN_HEADER}`,
     'access-control-allow-methods': 'GET,POST,OPTIONS',
     ...extraHeaders
@@ -492,7 +497,6 @@ function sendArtifact(response, artifactPath, options = {}) {
   }
   response.writeHead(200, {
     'content-type': 'application/json; charset=utf-8',
-    'access-control-allow-origin': '*',
     'cache-control': 'no-store'
   });
   fs.createReadStream(absolutePath).pipe(response);
@@ -502,12 +506,23 @@ function createCompanionServer(options = {}) {
   const origin = parseOrigin(options.origin);
   const token = normalizeToken(options.token);
   const runStore = createRunStore();
+  const allowedOrigins = new Set(options.allowedOrigins || []);
+  for (const allowedOrigin of allowedOrigins) if (!/^chrome-extension:\/\/[a-p]{32}$/u.test(allowedOrigin)) throw new Error('Companion CORS origins must be exact Chromium extension origins.');
+  const streamTickets = new Map();
+  const clock = options.clockMs || Date.now;
 
   const server = http.createServer(async (request, response) => {
-    if (request.method === 'OPTIONS') {
-      sendJson(response, 204, {});
-      return;
+    const address = server.address();
+    const authority = `${origin.hostname}:${address?.port || origin.port}`;
+    const requestOrigin = request.headers.origin;
+    if (request.headers.host !== authority || requestOrigin !== undefined && !allowedOrigins.has(requestOrigin)) {
+      sendJson(response, 403, {ok: false, error: 'request-provenance-rejected'}); return;
     }
+    if (requestOrigin) {
+      response.setHeader('access-control-allow-origin', requestOrigin);
+      response.setHeader('vary', 'Origin');
+    }
+    if (request.method === 'OPTIONS') { sendJson(response, 204, {}); return; }
 
     const url = new URL(request.url, origin.origin);
     if (request.method === 'GET' && url.pathname === '/health') {
@@ -536,7 +551,12 @@ function createCompanionServer(options = {}) {
       return;
     }
 
-    if (!authorizeCompanionRequest(request.headers, token, url.searchParams.get('token'))) {
+    for (const [ticket, record] of streamTickets) if (record.expires <= clock()) streamTickets.delete(ticket);
+    const ticket = url.pathname === '/gate-runs/events' && request.method === 'GET' ? url.searchParams.get('ticket') : null;
+    const record = ticket && streamTickets.get(ticket);
+    if (ticket) streamTickets.delete(ticket);
+    const ticketAllowed = record && record.expires > clock() && record.origin === requestOrigin;
+    if (!ticketAllowed && !authorizeCompanionRequest(request.headers, token)) {
       sendJson(response, 401, {
         schema: COMPANION_SCHEMA,
         workpackage: 'XDS-WP-04',
@@ -550,6 +570,13 @@ function createCompanionServer(options = {}) {
         ]
       });
       return;
+    }
+
+    if (request.method === 'POST' && url.pathname === '/stream-ticket') {
+      while (streamTickets.size >= 256) streamTickets.delete(streamTickets.keys().next().value);
+      const ticket = randomBytes(32).toString('hex');
+      streamTickets.set(ticket, {expires: clock() + 30000, origin: requestOrigin});
+      sendJson(response, 200, {ok: true, ticket, expiresInMs: 30000}, {'cache-control': 'no-store'}); return;
     }
 
     if (request.method === 'GET' && url.pathname === '/gates') {
@@ -597,7 +624,7 @@ function createCompanionServer(options = {}) {
         'content-type': 'text/event-stream; charset=utf-8',
         'cache-control': 'no-cache',
         'connection': 'keep-alive',
-        'access-control-allow-origin': '*'
+        'x-content-type-options': 'nosniff'
       });
       response.write(`event: snapshot\ndata: ${JSON.stringify(runStore.snapshot())}\n\n`);
       const unsubscribe = runStore.subscribe((event) => {
@@ -683,14 +710,22 @@ function createCompanionServer(options = {}) {
 
 if (require.main === module) {
   const companion = createCompanionServer({
-    token: process.env.XTEND_DEV_SURFACE_TOKEN
+    token: process.env.XTEND_DEV_SURFACE_TOKEN,
+    allowedOrigins: (process.env.XTEND_DEV_SURFACE_ALLOWED_ORIGINS || '').split(',').filter(Boolean)
   });
+  const tokenDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-dev-surface-'));
+  fs.chmodSync(tokenDirectory, 0o700);
+  const tokenFile = path.join(tokenDirectory, 'token');
+  fs.writeFileSync(tokenFile, companion.token, {mode: 0o600, flag: 'wx'});
+  const removeToken = () => fs.rmSync(tokenDirectory, {recursive: true, force: true});
+  process.once('exit', removeToken);
+  for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { removeToken(); process.exit(0); });
   companion.listen(() => {
     console.log(JSON.stringify({
       schema: COMPANION_SCHEMA,
       workpackage: 'XDS-WP-04',
       origin: companion.origin,
-      token: companion.token,
+      tokenFile,
       tokenHeader: TOKEN_HEADER,
       handshakePath: '/handshake',
       gateStreamPath: '/gate-runs/events',

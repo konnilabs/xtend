@@ -25,7 +25,7 @@ function createAppServicesEsmSource(commonJsSource) {
 }
 
 function createTrustedDomPolicyEsmSource(commonJsSource) {
-  const source = String(commonJsSource || '').replace(
+  const source = String(commonJsSource || '').replace("const {createHtmlSanitizer} = require('../xtendrmt/html-sanitizer.cjs');", "import {createHtmlSanitizer} from '../xtendrmt/html-sanitizer.mjs';").replace(
     SECURITY_TRUSTED_TEXT_IMPORT_PATTERN,
     "import {\n$1\n} from '../xtend-maraca/trusted-text-sanitizer.mjs';"
   );
