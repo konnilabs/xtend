@@ -1,3 +1,4 @@
+import {configureAppServerSession} from './app-server-session.mjs';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import os from 'node:os';
@@ -46,7 +47,7 @@ import { closeXtendMcpClient } from '@ccslabs/xtend-mcp/client';
 import { executeRmtKnowledge } from './tools/rmt-knowledge.mjs';
 
 const require = createRequire(import.meta.url);
-const { app, BrowserWindow, clipboard, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, clipboard, ipcMain, shell, session } = require('electron');
 const productRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const dev = process.argv.includes('--dev') || process.argv.includes('--') && process.argv.includes('--dev');
 const layoutSmoke = process.argv.includes('--layout-smoke');
@@ -428,6 +429,8 @@ function registerIpc() {
 }
 
 async function createWindow() {
+  const appSession = session.fromPartition(`xtend-llm-${crypto.randomUUID()}`);
+  configureAppServerSession(appSession, serverUrl, appServer.capability);
   const preload = path.join(productRoot, 'src', 'main', 'preload.cjs');
   mainWindow = new BrowserWindow({
     width: 1160,
@@ -439,6 +442,7 @@ async function createWindow() {
     backgroundColor: '#f7f7f4',
     webPreferences: {
       preload,
+      session: appSession,
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false

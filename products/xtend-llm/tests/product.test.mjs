@@ -1338,8 +1338,9 @@ await run('app server serves browser-safe Transformers.js vendor assets', async 
     cacheRoot: path.join(tmp, 'model-cache')
   });
   const baseUrl = await server.listen(0);
+  const authenticatedFetch = (url) => fetch(url, {headers: {'x-xtend-llm-capability': server.capability}});
   try {
-    const shell = await fetch(baseUrl);
+    const shell = await authenticatedFetch(baseUrl);
     assert.equal(shell.status, 200);
     assert.equal(shell.headers.get('cross-origin-embedder-policy'), 'require-corp');
     const shellHtml = await shell.text();
@@ -1350,22 +1351,22 @@ await run('app server serves browser-safe Transformers.js vendor assets', async 
     assert.match(shellHtml, /worker_prerender_hydrate|workerPrewarmTargets/u);
     assert.match(shellHtml, /settings-dialog,delete-conversation-dialog,code-bridge/u);
 
-    const transformers = await fetch(new URL('/vendor/transformers/transformers.min.js', baseUrl));
+    const transformers = await authenticatedFetch(new URL('/vendor/transformers/transformers.min.js', baseUrl));
     assert.equal(transformers.status, 200);
     assert.match(transformers.headers.get('content-type') || '', /text\/javascript/u);
     assert.equal(transformers.headers.get('cross-origin-opener-policy'), 'same-origin');
     assert.ok((await transformers.arrayBuffer()).byteLength > 1024);
 
-    const ort = await fetch(new URL('/vendor/transformers/ort.bundle.min.mjs', baseUrl));
+    const ort = await authenticatedFetch(new URL('/vendor/transformers/ort.bundle.min.mjs', baseUrl));
     assert.equal(ort.status, 200);
     assert.match(ort.headers.get('content-type') || '', /text\/javascript/u);
     assert.ok((await ort.arrayBuffer()).byteLength > 1024);
 
-    const harness = await fetch(new URL('/llm-harness', baseUrl));
+    const harness = await authenticatedFetch(new URL('/llm-harness', baseUrl));
     assert.equal(harness.status, 200);
     assert.match(await harness.text(), /llm-terminal-harness\.mjs/u);
 
-    const harnessScript = await fetch(new URL('/tests/llm-terminal-harness.mjs', baseUrl));
+    const harnessScript = await authenticatedFetch(new URL('/tests/llm-terminal-harness.mjs', baseUrl));
     assert.equal(harnessScript.status, 200);
     assert.match(await harnessScript.text(), /__xtendLlmTerminalRun/u);
   } finally {
