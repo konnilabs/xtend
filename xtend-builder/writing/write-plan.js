@@ -3,6 +3,7 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const {validateContainedPath, atomicContainedWrite} = require('./contained-path');
 
 const SCAFFOLD_WRITE_PLAN_SCHEMA = 'xtend.scaffold.write-plan.v1';
 const SCAFFOLD_WRITE_REPORT_SCHEMA = 'xtend.scaffold.write-report.v1';
@@ -148,6 +149,7 @@ function readOwnershipManifest(rootDir, ownershipPath = DEFAULT_OWNERSHIP_PATH, 
   }
 
   const absolutePath = path.resolve(rootDir, normalized.path);
+  try { validateContainedPath(rootDir, absolutePath); } catch (error) { return {ok: false, path: normalized.path, manifest: createEmptyOwnershipManifest(requestedSchema), exists: false, errors: [error.message]}; }
   if (!isInsideRoot(rootDir, absolutePath)) {
     return {
       ok: false,
@@ -326,6 +328,7 @@ function createWriteOperation(entry, index, context) {
 
   const absolutePath = path.resolve(context.rootDir, normalized.path);
   const diagnostics = [];
+  try { validateContainedPath(context.rootDir, absolutePath); } catch (error) { diagnostics.push({code: 'unsafe-canonical-path', severity: 'error', message: error.message, path: normalized.path}); }
   const allowed = isAllowedPath(normalized.path, context.allowedRoots);
   if (!allowed) {
     diagnostics.push({
@@ -523,7 +526,8 @@ function summarizeWritePlan(plan) {
 }
 
 function createWritePlan(entries = [], options = {}) {
-  const rootDir = path.resolve(options.rootDir || process.cwd());
+  const selectedRoot = path.resolve(options.rootDir || process.cwd());
+  const rootDir = fs.existsSync(selectedRoot) ? fs.realpathSync(selectedRoot) : selectedRoot;
   const allowedRoots = normalizeAllowedRoots(options.allowedRoots);
   const mode = toBoolean(options.write) ? 'write' : (toBoolean(options.check) ? 'check' : 'dry-run');
   const requestedOwnershipSchema = normalizeOwnershipSchema(options.ownershipSchema);
@@ -563,9 +567,8 @@ function createWritePlan(entries = [], options = {}) {
   };
 }
 
-function writeOperation(operation) {
-  fs.mkdirSync(path.dirname(operation.absolutePath), { recursive: true });
-  fs.writeFileSync(operation.absolutePath, operation.content, 'utf8');
+function writeOperation(operation, rootDir) {
+  atomicContainedWrite(rootDir, operation.absolutePath, operation.content);
   return {
     id: operation.id,
     path: operation.path,
@@ -605,12 +608,12 @@ function writeOwnershipManifest(plan) {
 
   const ownershipPath = plan.ownershipPath || DEFAULT_OWNERSHIP_PATH;
   const absolutePath = path.resolve(plan.rootDir, ownershipPath);
+  validateContainedPath(plan.rootDir, absolutePath);
   const nextManifest = createNextOwnershipManifest(plan);
   const content = stableJson(nextManifest);
   const changed = !fs.existsSync(absolutePath) || fs.readFileSync(absolutePath, 'utf8') !== content;
   if (changed) {
-    fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
-    fs.writeFileSync(absolutePath, content, 'utf8');
+    atomicContainedWrite(plan.rootDir, absolutePath, content);
   }
 
   return {
@@ -681,7 +684,7 @@ function applyWritePlan(plan, options = {}) {
     }
 
     try {
-      writes.push(writeOperation(operation));
+      writes.push(writeOperation(operation, plan.rootDir));
     } catch (error) {
       errors.push(`Failed to write "${operation.path}": ${error.message}`);
     }
