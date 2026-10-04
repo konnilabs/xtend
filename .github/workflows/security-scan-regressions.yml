@@ -35,5 +35,9 @@ jobs:
         run: |
           node products/xtend-llm/scripts/rmt-build.mjs --profile production --quiet
           node products/xtend-llm/node_modules/electron/install.js
+      - name: Configure the Linux Electron sandbox helper
+        run: |
+          sudo chown root:root products/xtend-llm/node_modules/electron/dist/chrome-sandbox
+          sudo chmod 4755 products/xtend-llm/node_modules/electron/dist/chrome-sandbox
       - name: Exercise Electron shell, imports and worker capability propagation
         run: xvfb-run -a node products/xtend-llm/scripts/run-electron.mjs tests/llm-terminal-runner.mjs -- --fake
