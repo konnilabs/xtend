@@ -107,10 +107,11 @@ test('local upstream fixture enforces proxy concurrency, timeouts and failed-dow
   });
   upstream.listen(0,'127.0.0.1');await once(upstream,'listening');
   const temp=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-upstream-'));
-  const handle=createXtendLlmAppServer({cacheRoot:temp,proxyLimits:{maxConcurrent:1,timeoutMs:100,maxObjectBytes:16,maxCacheBytes:32},fetch:(url,options)=>fetch(`http://127.0.0.1:${upstream.address().port}${new URL(url).pathname}`,options)});
+  const handle=createXtendLlmAppServer({cacheRoot:temp,proxyLimits:{maxConcurrent:1,timeoutMs:3000,maxObjectBytes:16,maxCacheBytes:32},fetch:(url,options)=>fetch(`http://127.0.0.1:${upstream.address().port}${new URL(url).pathname}`,options)});
   const base=await handle.listen();const headers={[APP_CAPABILITY_HEADER]:handle.capability};
   try {
-    const blocked=fetch(new URL('/hf/model/stall',base),{headers});await ready;
+    const blocked=fetch(new URL('/hf/model/stall',base),{headers,signal:AbortSignal.timeout(10000)});
+    await Promise.race([ready,blocked.then(()=>{throw new Error('Proxy completed before the upstream fixture started.');})]);
     assert.equal((await fetch(new URL('/hf/model/other',base),{headers})).status,502);
     assert.equal((await blocked).status,502);
     assert.deepEqual(fs.readdirSync(path.join(temp,'model')),[]);
