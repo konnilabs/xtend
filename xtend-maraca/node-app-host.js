@@ -161,6 +161,14 @@ function createNodeAppHost(options = {}) {
   const appServiceOptions = objectRecord(options.appServices);
   const serviceHost = options.serviceHost || createNodeAppServiceHost({
     ...appServiceOptions,
+    allowedOrigins: appServiceOptions.allowedOrigins,
+    requestPolicy: appServiceOptions.requestPolicy || ((request) => {
+      const address = server.address();
+      const hostname = boundHost.includes(':') && !boundHost.startsWith('[') ? `[${boundHost}]` : boundHost;
+      const authority = `${hostname}:${address && typeof address === 'object' ? address.port : boundPort}`;
+      const origin = request.headers?.origin;
+      return request.headers?.host === authority && (origin === undefined || origin === `http://${authority}`);
+    }),
     services: options.services === undefined ? appServiceOptions.services : options.services,
     registry: options.registry === undefined ? appServiceOptions.registry : options.registry,
     manifest,
