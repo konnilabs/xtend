@@ -70,6 +70,7 @@ export interface XScalerRemoteAdapterOperationRequest<TInput = unknown> {
 export interface XScalerExternalLoaderCapabilities {
   cspSafe: true;
   sri: true;
+  closedGraphIntegrity: true;
   externalOnly: true;
 }
 
@@ -131,6 +132,9 @@ export interface XScalerRemoteAdapterLoaderOptions {
     remoteSurfacePlan: XScalerRemoteSurfacePlan;
     loadResult: unknown;
   }): XScalerRemoteAdapter | null | undefined;
+  fetch?: typeof fetch;
+  verificationTimeoutMs?: number;
+  maxAdapterBytes?: number;
   documentTarget?: Document;
   registrationTarget?: object;
   activateFallback?(activation: XScalerSurfaceFallbackActivation): unknown | Promise<unknown>;

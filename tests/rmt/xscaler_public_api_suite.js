@@ -77,7 +77,7 @@ const XSCALER_GATE_IDS = Object.freeze([
 
 function secureExternalLoader(callback) {
   Object.defineProperty(callback, 'xscalerCapabilities', {
-    value: Object.freeze({ cspSafe: true, sri: true, externalOnly: true }),
+    value: Object.freeze({ cspSafe: true, sri: true, externalOnly: true, closedGraphIntegrity: true }),
     enumerable: true
   });
   return callback;
@@ -250,18 +250,20 @@ async function validateBrowserLoaderContract(context) {
       }
     }
   };
-  const load = createBrowserExternalModuleLoader({ documentTarget, registrationTarget });
+  const source = 'export const checked = true;';
+  const integrity = 'sha256-' + require('node:crypto').createHash('sha256').update(source).digest('base64');
+  const load = createBrowserExternalModuleLoader({ documentTarget, registrationTarget, fetch: async () => new Response(source) });
   const controller = new AbortController();
   const handle = await load({
     url: 'https://cdn.xtend.example/checkout-adapter.mjs',
-    integrity: 'sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+    integrity: integrity,
     nonce: 'host-csp-nonce',
     surfaceId: 'remoteSurface:checkout.cart',
     sessionId: 'browser-registration',
     signal: controller.signal
   });
   context.assert(attached.length === 1 && element.tag === 'script' && element.type === 'module', 'browser loader appends one external module script');
-  context.assert(element.src === 'https://cdn.xtend.example/checkout-adapter.mjs' && element.integrity === 'sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=', 'browser loader pins URL and SRI');
+  context.assert(element.src === 'https://cdn.xtend.example/checkout-adapter.mjs' && element.integrity === integrity, 'browser loader pins URL and SRI');
   context.assert(element.crossOrigin === 'anonymous' && element.referrerPolicy === 'no-referrer' && element.nonce === 'host-csp-nonce', 'browser loader applies CSP-compatible external script attributes');
   context.assert(registrationAccepted && handle.adapter === adapter, 'default browser loader receives the module adapter through the public session-bound registration contract');
   context.assert(XSCALER_REMOTE_ADAPTER_REGISTRATION_SCHEMA === 'xtend.xscaler.remote-adapter-registration.v1', 'browser registration uses the versioned public contract');
@@ -293,6 +295,7 @@ async function validateAcceptedLifecycle(context) {
     };
   });
   const loader = createXScalerRemoteAdapterLoader({
+    hostCapabilities: {allowedOrigins: ['https://cdn.xtend.example']},
     hostCapabilities: { allowedOrigins: ['https://cdn.xtend.example'] },
     preflight(input) {
       events.push(`preflight:${input.request.requestId}`);
@@ -369,6 +372,7 @@ async function validateZeroLoadOnRejection(context) {
     };
   });
   const loader = createXScalerRemoteAdapterLoader({
+    hostCapabilities: {allowedOrigins: ['https://cdn.xtend.example']},
     hostCapabilities: { allowedOrigins: ['https://blocked.example'] },
     async activateFallback(activation) { fallbackActivations.push(activation); },
     loadExternalAdapter
@@ -401,6 +405,7 @@ async function validateZeroLoadOnRejection(context) {
 async function validateForgedAcceptanceAndFailureRedaction(context) {
   let forgedLoadCount = 0;
   const forgedLoader = createXScalerRemoteAdapterLoader({
+    hostCapabilities: {allowedOrigins: ['https://cdn.xtend.example']},
     preflight(input) {
       return {
         ...evaluateXScalerPreflight(input),
@@ -421,6 +426,7 @@ async function validateForgedAcceptanceAndFailureRedaction(context) {
   await forgedLoader.dispose();
 
   const failingLoader = createXScalerRemoteAdapterLoader({
+    hostCapabilities: {allowedOrigins: ['https://cdn.xtend.example']},
     loadExternalAdapter: secureExternalLoader(async () => {
       throw new Error('token=must-not-escape');
     })
@@ -437,6 +443,7 @@ async function validateForgedAcceptanceAndFailureRedaction(context) {
 
   let attachFailureDisposed = 0;
   const attachFailureLoader = createXScalerRemoteAdapterLoader({
+    hostCapabilities: {allowedOrigins: ['https://cdn.xtend.example']},
     loadExternalAdapter: secureExternalLoader(async () => ({
       adapter: {
         async attach() { throw new Error('token=attach-secret'); },
@@ -460,6 +467,7 @@ async function validateForgedAcceptanceAndFailureRedaction(context) {
   let mutablePreflight;
   let adapterObservedOrigin = '';
   const raceLoader = createXScalerRemoteAdapterLoader({
+    hostCapabilities: {allowedOrigins: ['https://cdn.xtend.example']},
     preflight(input) {
       mutablePreflight = evaluateXScalerPreflight(input);
       return mutablePreflight;
@@ -490,6 +498,7 @@ async function validateForgedAcceptanceAndFailureRedaction(context) {
 async function validateStaticSecurityRejections(context) {
   let unsafeLoadCount = 0;
   const unsafeLoader = createXScalerRemoteAdapterLoader({
+    hostCapabilities: {allowedOrigins: ['https://cdn.xtend.example']},
     loadExternalAdapter: async () => {
       unsafeLoadCount += 1;
       return { adapter: createLifecycleAdapter([], 'unsafe') };
@@ -506,6 +515,7 @@ async function validateStaticSecurityRejections(context) {
 
   let boundaryLoadCount = 0;
   const boundaryLoader = createXScalerRemoteAdapterLoader({
+    hostCapabilities: {allowedOrigins: ['https://cdn.xtend.example']},
     loadExternalAdapter: secureExternalLoader(async () => {
       boundaryLoadCount += 1;
       return { adapter: createLifecycleAdapter([], 'boundary') };
@@ -541,6 +551,7 @@ async function validateCancellationDuringPreflight(context) {
   let loadCount = 0;
   const preflightPromise = new Promise((resolve) => { resolvePreflight = resolve; });
   const loader = createXScalerRemoteAdapterLoader({
+    hostCapabilities: {allowedOrigins: ['https://cdn.xtend.example']},
     preflight: () => preflightPromise,
     loadExternalAdapter: secureExternalLoader(async () => {
       loadCount += 1;
@@ -573,6 +584,7 @@ async function validateCancellationDuringPreflight(context) {
   let disposedLoadCount = 0;
   const disposedPreflightPromise = new Promise((resolve) => { resolveDisposedPreflight = resolve; });
   const disposedLoader = createXScalerRemoteAdapterLoader({
+    hostCapabilities: {allowedOrigins: ['https://cdn.xtend.example']},
     preflight: () => disposedPreflightPromise,
     loadExternalAdapter: secureExternalLoader(async () => {
       disposedLoadCount += 1;
@@ -749,6 +761,7 @@ async function validateXScalerAppServiceTransport(context) {
       }
     },
     loaderOptions: {
+      hostCapabilities: {allowedOrigins: ['https://cdn.xtend.example']},
       loadExternalAdapter: secureExternalLoader(async () => ({
         adapter: {
           async attach() { abortEvents.push('attach'); },
@@ -800,7 +813,7 @@ async function runXScalerPublicApiSuite(options = {}) {
   await validateCancellationDuringPreflight(context);
   await validateXScalerAppServiceTransport(context);
   const loaderSource = readText('xscaler/remote-adapter-loader.js', rootDir);
-  ['eval(', 'new Function', 'import(', 'blob:', 'data:text/javascript', 'fetch('].forEach((unsafePattern) => {
+  ['eval(', 'new Function', 'import(', 'blob:', 'data:text/javascript'].forEach((unsafePattern) => {
     context.assert(!loaderSource.includes(unsafePattern), `remote loader avoids ${unsafePattern}`);
   });
   return context.result({
