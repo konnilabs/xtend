@@ -1,0 +1,39 @@
+name: Security scan regressions
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - run: npm ci --ignore-scripts --no-audit --fund=false
+      - run: npm ci --prefix products/resumability-maraca-erp-demo --ignore-scripts --no-audit --fund=false
+      - run: npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
+      - name: Check generated sanitizer and service artifacts
+        run: |
+          npm run check:html-sanitizer
+          node xtend-maraca/sync-app-services-esm.js --check
+          node xscaler/generate-esm.js --check
+          node scripts/verify_xtendrmt_artifact_parity.js
+          npm run ci:dependency-locks:check
+      - name: Run browser, HTTP and filesystem security regressions
+        env:
+          CHROMIUM_PATH: /usr/bin/google-chrome
+        run: npm run test:security-scan-regressions
+      - name: Build Electron shell and install its pinned runtime
+        run: |
+          node products/xtend-llm/scripts/rmt-build.mjs --profile production --quiet
+          node products/xtend-llm/node_modules/electron/install.js
+      - name: Exercise Electron shell, imports and worker capability propagation
+        run: xvfb-run -a node products/xtend-llm/scripts/run-electron.mjs tests/llm-terminal-runner.mjs -- --fake
