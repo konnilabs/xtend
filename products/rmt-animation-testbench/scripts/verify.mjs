@@ -102,7 +102,7 @@ try {
   assert(lazy.surface && lazy.surface.id === 'media', 'Lazy surface endpoint returned the wrong surface.');
   assert(lazy.preflight && lazy.preflight.networkDuringRender === false, 'Lazy surface does not include XScaler preflight evidence.');
 
-  const resume = await (await fetch(`${baseUrl}/api/resume`)).json();
+  const resume = await (await fetch(`${baseUrl}/api/resume?token=${encodeURIComponent(html.match(/data-resume-token="([^"]+)"/u)[1])}`)).json();
   assert(resume.ok === true, 'Resume endpoint is not ok.');
   assert(resume.payload && resume.payload.schema === 'xtend.product.rmt-animation-testbench.resume-payload.v1', 'Resume payload schema is missing.');
 
