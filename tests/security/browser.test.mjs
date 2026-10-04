@@ -10,6 +10,23 @@ import {fileURLToPath} from 'node:url';
 import staticFiles from '../../security/static-files.cjs';
 import {createRmtNodeSsrAdapter} from '../../xtendrmt/rmt-node-ssr-adapter.js';
 
+async function stopBrowser(child) {
+  if (!child?.pid) return;
+  let timer;
+  const running=()=>child.exitCode===null && child.signalCode===null;
+  const signal=name=>{
+    if (!running()) return;
+    if (process.platform==='win32') child.kill(name);
+    else {try {process.kill(-child.pid,name);} catch {child.kill(name);}}
+  };
+  const exited=running() ? once(child,'exit') : Promise.resolve();
+  const wait=()=>Promise.race([exited,new Promise(resolve=>{timer=setTimeout(resolve,2000);})]);
+  try {
+    signal('SIGTERM');await wait();clearTimeout(timer);
+    if(running()){signal('SIGKILL');await wait();}
+  } finally {clearTimeout(timer);child.stdin?.destroy();child.stdout?.destroy();child.stderr?.destroy();}
+}
+
 test('Chromium reparses production sanitizer output and preserves TrustedHTML through the runtime sink', async () => {
   const root=fileURLToPath(new URL('../..',import.meta.url));
   const ssr=createRmtNodeSsrAdapter();
@@ -48,14 +65,14 @@ try {
   let child;
   const profile=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-security-browser-')); 
   try {
-    child=spawn(process.env.CHROMIUM_PATH || '/usr/bin/chromium',[`--user-data-dir=${profile}`,'--headless=new','--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--disable-background-networking','--disable-component-update','--disable-default-apps','--disable-sync','--no-first-run','--remote-debugging-port=0','about:blank']);
+    child=spawn(process.env.CHROMIUM_PATH || '/usr/bin/chromium',[`--user-data-dir=${profile}`,'--headless=new','--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--disable-background-networking','--disable-component-update','--disable-default-apps','--disable-sync','--no-first-run','--remote-debugging-port=0','about:blank'],{detached:process.platform!=='win32'});
     let errors='';let launchError;child.stderr.on('data',chunk=>errors+=chunk);child.on('error',error=>{launchError=error;errors+=error.stack;});
     const deadline=Date.now()+30000;
     const wait=()=>new Promise(resolve=>setTimeout(resolve,100));
     let address;
     while(Date.now()<deadline && !address && !launchError && child.exitCode===null) {address=/DevTools listening on (ws:\/\/\S+)/.exec(errors)?.[1];await wait();}
     assert.ok(address,errors);
-    const socket=new WebSocket(address);await once(socket,'open');
+    const socket=new WebSocket(address);await once(socket,'open',{signal:AbortSignal.timeout(10000)});
     let nextId=0;const pending=new Map();
     socket.addEventListener('message',event=>{const result=JSON.parse(event.data);const handler=pending.get(result.id);if(handler){pending.delete(result.id);result.error?handler.reject(Error(JSON.stringify(result.error))):handler.resolve(result.result);}});
     const command=(method,params={},sessionId)=>new Promise((resolve,reject)=>{
@@ -71,5 +88,11 @@ try {
       while(Date.now()<deadline){result=await command('Runtime.evaluate',{expression:'JSON.stringify({result:document.body?.dataset.securityResult,html:document.body?.outerHTML})',returnByValue:true},sessionId);if(JSON.parse(result.result.value).result)break;await wait();}
       const output=JSON.parse(result.result.value);assert.equal(output.result,'passed',output.html);
     } finally {socket.close();}
-  } finally {child?.kill();fs.rmSync(profile,{recursive:true,force:true});server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
+  } finally {
+    try {await stopBrowser(child);}
+    finally {
+      server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
+      fs.rmSync(profile,{recursive:true,force:true,maxRetries:10,retryDelay:100});
+    }
+  }
 });
