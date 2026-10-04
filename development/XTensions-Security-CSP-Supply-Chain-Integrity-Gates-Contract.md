@@ -17,6 +17,8 @@ XTN-11 haertet XTensions an der Grenze zwischen Maraca-Artefakt, Runtime-Registr
 
 Der Gate-Lauf fuehrt keinen Framework-Code aus. React, Vue, Three.js, Leaflet, Chart.js und aehnliche Runtimes duerfen in Testdaten nur als Peer-/Optional-Metadaten erscheinen. Sie werden nicht installiert, importiert, vendored oder als XTend-Package-Dependency deklariert.
 
+Die Root-Package-Grenze wird ueber `assertXTensionsSecurityDependencyBoundary` und die gemeinsame HostController-Regel `assertNoFrameworkDependencies` geprueft. Build-/Tooling-`devDependencies` wie `@types/node`, `typescript` und `vite` sind erlaubt; leere Dependency-Sektionen sind keine XTensions-Sicherheitsinvariante. Verbotene Framework-Dependencies bleiben in `dependencies`, `devDependencies`, `peerDependencies`, `optionalDependencies`, `bundledDependencies` und `bundleDependencies` sowie als echte Framework-Imports blockiert. Peer-/Optional-Metadaten in XTension-Manifesten sind damit keine Erlaubnis fuer Framework-Dependencies im Root-Package; die bestehenden Vendoring- und Artifact-Truth-Gates bleiben verbindlich.
+
 ## Policy
 
 Die Default-Policy ist konservativ:

@@ -106,15 +106,6 @@ function diagnosticCodes(record) {
   return (record.diagnostics || []).map((diagnostic) => diagnostic.code);
 }
 
-function dependencySectionCount(packageManifest) {
-  return [
-    'dependencies',
-    'devDependencies',
-    'peerDependencies',
-    'optionalDependencies'
-  ].reduce((count, section) => count + Object.keys(packageManifest[section] || {}).length, 0);
-}
-
 function runXTensionsMultiFrameworkDashboardSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
@@ -199,13 +190,12 @@ function runXTensionsMultiFrameworkDashboardSuite(options = {}) {
   context.assert(fixture.expectedStatus === 'degraded', 'fixture names expected degraded status');
   assertIncludesAll(context, fixture.expectedSurfaceRoles, DASHBOARD_SURFACE_ROLES, 'fixture covers all required dashboard surface roles');
   assertIncludesAll(context, fixture.expectedFrameworks, ['native', 'react', 'vue', 'chart.js', 'leaflet', 'three'], 'fixture covers all framework classes');
-  context.assert(dependencySectionCount(packageManifest) === 0, 'root package keeps dependency sections empty');
 
   const dependencyBoundary = assertMultiFrameworkDashboardDependencyBoundary({
     packageManifest,
     sourceText: `${moduleText}\n${typesText}\n${fixtureText}\n${dashboardContract}`
   });
-  context.assert(dependencyBoundary.ok, `dashboard sources avoid real framework imports${dependencyBoundary.ok ? '' : ` (${dependencyBoundary.diagnostics.map((diagnostic) => diagnostic.message).join('; ')})`}`);
+  context.assert(dependencyBoundary.ok, `dashboard package and sources avoid framework dependencies${dependencyBoundary.ok ? '' : ` (${dependencyBoundary.diagnostics.map((diagnostic) => diagnostic.message).join('; ')})`}`);
   const badDependency = assertMultiFrameworkDashboardDependencyBoundary({
     sourceText: "import React from 'react'; import L from 'leaflet';"
   });
