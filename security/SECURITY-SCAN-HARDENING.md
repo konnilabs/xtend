@@ -78,6 +78,14 @@ its regular-file type and handles asynchronous read errors and client disconnect
 
 ## Reproduce
 
+Supply-chain policy retains the general ban on new runtime dependencies and adds
+exact-version, lockfile-required exceptions for DOMPurify/jsdom. Acorn is approved
+only as pinned build tooling; its checked vendor copies ship to browsers. The
+legacy PHP documentation sanitizer has a separate policy and still permits its
+documented data-image URLs. Its shared HTML fixture is compared after real parsing;
+the new browser/Node policy explicitly rejects those URLs. This does not extend the
+scan's claimed coverage to the legacy PHP sanitizer.
+
 Use the repository's pinned Node/npm versions. Install root workspace, ERP and LLM
 product dependencies. Run `npm run test:security-scan-regressions` with
 `CHROMIUM_PATH` pointing to Chrome/Chromium. This command fails if the browser is

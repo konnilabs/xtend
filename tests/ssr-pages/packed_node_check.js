@@ -19,8 +19,34 @@ async function checkPackedNode(rootDir) {
   try {
     const npm=npmCliPath();
     const pack=JSON.parse(execFileSync(process.execPath,[npm,'pack','--ignore-scripts','--json','--pack-destination',output],{cwd:path.join(rootDir,'xtendrmt'),encoding:'utf8',timeout:30000}))[0];
-    fs.writeFileSync(path.join(output,'package.json'),JSON.stringify({name:'xtend-page-isolated-test',version:'1.0.0',private:true,type:'module'}));
-    execFileSync(process.execPath,[npm,'install','--offline','--ignore-scripts','--no-audit','--no-fund','--package-lock=false',path.join(output,pack.filename)],{cwd:output,encoding:'utf8',timeout:30000});
+    const manifest={name:'xtend-page-isolated-test',version:'1.0.0',private:true,type:'module',dependencies:{'@ccslabs/xtend-rmt':`file:${pack.filename}`}};
+    const sourceLock=JSON.parse(fs.readFileSync(path.join(rootDir,'package-lock.json'),'utf8'));
+    const packageManifest=JSON.parse(fs.readFileSync(path.join(rootDir,'xtendrmt/package.json'),'utf8'));
+    const packages={'':manifest,'node_modules/@ccslabs/xtend-rmt':{version:pack.version,resolved:`file:${pack.filename}`,integrity:pack.integrity,dependencies:packageManifest.dependencies,engines:packageManifest.engines}};
+    // Reuse the CI-installed, integrity-pinned dependency closure. npm ci fills
+    // tarball caches but need not cache registry metadata for an offline install.
+    function addDependencies(dependencies, parent='') {
+      for(const name of Object.keys(dependencies || {})) {
+        let location=parent;
+        let key;
+        while(true) {
+          key=location ? `${location}/node_modules/${name}` : `node_modules/${name}`;
+          if(sourceLock.packages[key])break;
+          if(!location)throw new Error(`Packed runtime dependency is absent from the lockfile: ${name}`);
+          const separator=location.lastIndexOf('/node_modules/');
+          location=separator<0 ? '' : location.slice(0,separator);
+        }
+        if(packages[key])continue;
+        const entry=sourceLock.packages[key];
+        assert(!entry.link, `Packed runtime dependency must be a registry package: ${name}`);
+        packages[key]={...entry,dev:false};
+        addDependencies({...entry.dependencies,...entry.optionalDependencies},key);
+      }
+    }
+    addDependencies(packageManifest.dependencies);
+    fs.writeFileSync(path.join(output,'package.json'),JSON.stringify(manifest));
+    fs.writeFileSync(path.join(output,'package-lock.json'),JSON.stringify({name:manifest.name,version:manifest.version,lockfileVersion:3,requires:true,packages}));
+    execFileSync(process.execPath,[npm,'ci','--offline','--ignore-scripts','--no-audit','--no-fund'],{cwd:output,encoding:'utf8',timeout:30000});
     fs.writeFileSync(path.join(output,'verify.mjs'),`
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';

@@ -1,4 +1,5 @@
 const fs = require('fs');
+const {JSDOM} = require('jsdom');
 const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
@@ -464,10 +465,15 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   const hostileMarkup = '<p onclick="alert(1)">safe</p><script>alert(1)</script><iframe src="/bad"></iframe>'
     + '<a href="javascript:alert(1)">js</a><a href="vbscript:msgbox(1)">vbs</a>'
     + '<img src="data:text/html;base64,PHNjcmlwdD4=" onerror="alert(1)">'
-    + '<a href="/docs/de/readme">allowed</a><img src="data:image/png;base64,AA==">';
+    + '<a href="/docs/de/readme">allowed</a>';
   const phpSanitizer = runDocsSanitizerProbe(rootDir, hostileMarkup);
   const markdownLinkProbe = runDocsMarkdownLinkProbe(rootDir);
-  const browserPolicySanitizer = sanitizeTrustedDomHtml(hostileMarkup, { markupClass: 'parsedownHtml' });
+  const browserWindow = new JSDOM('').window;
+  const browserPolicySanitizer = sanitizeTrustedDomHtml(hostileMarkup, { markupClass: 'parsedownHtml', windowTarget: browserWindow });
+  const dataImage = '<img src="data:image/png;base64,AA==">';
+  const phpDataImage = runDocsSanitizerProbe(rootDir, dataImage);
+  const browserDataImage = sanitizeTrustedDomHtml(dataImage, {windowTarget: browserWindow});
+  browserWindow.close();
   const rawHtmlSeoMatrix = buildRawHtmlSeoMatrix(rootDir).map((fixture) => runRawHtmlSeoCase(rootDir, fixture));
 
   context.assert(fileExists(DOCS_SHELL_SOURCE, rootDir), 'Docs vNext shell source exists');
@@ -633,11 +639,14 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
     context.assert(!phpSanitizedHtml.toLowerCase().includes(vector), `PHP sanitizer removes ${vector}`);
     context.assert(!clientSanitizedHtml.toLowerCase().includes(vector), `browser sanitizer removes ${vector}`);
   });
-  ['/docs/de/readme', 'data:image/png'].forEach((safeUrl) => {
+  ['/docs/de/readme'].forEach((safeUrl) => {
     context.assert(phpSanitizedHtml.includes(safeUrl), `PHP sanitizer preserves safe URL ${safeUrl}`);
     context.assert(clientSanitizedHtml.includes(safeUrl), `browser sanitizer preserves safe URL ${safeUrl}`);
   });
-  context.assert(phpSanitizedHtml === clientSanitizedHtml, 'PHP and browser Trusted DOM policies produce byte-identical sanitized markup');
+  const parsedHtml = html => Array.from(JSDOM.fragment(String(html)).childNodes).map(node => node.outerHTML || node.textContent).join('');
+  context.assert(parsedHtml(phpSanitizedHtml) === parsedHtml(clientSanitizedHtml), 'PHP and browser sanitizer outputs agree after actual HTML parsing for the shared fixture');
+  context.assert(phpDataImage.payload?.html.includes('data:image/png'), 'Legacy PHP policy still permits its documented data image');
+  context.assert(browserDataImage.ok && !String(browserDataImage.html).includes('data:'), 'Parser-based browser policy rejects data URLs explicitly');
 
   context.assert(markdownLinkProbe.status === 0 && markdownLinkProbe.payload && typeof markdownLinkProbe.payload.html === 'string', 'Server Markdown link resolver probe completes');
   const normalizedMarkdownLinks = markdownLinkProbe.payload && markdownLinkProbe.payload.html || '';

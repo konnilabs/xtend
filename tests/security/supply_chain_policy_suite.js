@@ -40,7 +40,7 @@ function runSupplyChainPolicySuite(options = {}) {
   const versionSyncSource = readText('scripts/sync_xtend_package_versions.js', rootDir);
   const dependencyLockSource = readText('scripts/verify_ci_dependency_locks.js', rootDir);
   const plan = createSupplyChainGatePlan();
-  const classification = classifyPackageSupplyChain(packageManifest, []);
+  const classification = classifyPackageSupplyChain(packageManifest, ['package-lock.json']);
   const report = runSupplyChainVerification({ rootDir });
   const dependencyLockReport = verifyCiDependencyLocks({ rootDir });
 
@@ -116,9 +116,13 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(packageManifest.scripts['ci:dependency-locks:check'] === 'node scripts/verify_ci_dependency_locks.js', 'Package exposes the install-free CI dependency lock check');
   context.assert(packageManifest.xtend.releaseGates.includes('npm run test:supply-chain'), 'Release gates include supply-chain gate');
   context.assert(classification.ok === true, 'Current dependency inventory passes offline classification');
-  context.assert(classification.dependencyCount === 3, 'Current package has three external build-tool dependencies');
-  context.assert(classification.runtimeDependencyCount === 0, 'Current package has no external runtime dependency inventory');
-  context.assert(classification.devToolingDependencyCount === 3, 'Current package classifies Node types, TypeScript and Vite as dev tooling');
+  context.assert(classification.dependencyCount === 5, 'Current package has four build tools and one Node sanitizer parser');
+  context.assert(classification.runtimeDependencyCount === 1 && classification.allowedSecurityRuntimeDependencies[0]?.name === 'jsdom', 'Current runtime inventory is the pinned Node sanitizer parser');
+  context.assert(classification.unapprovedRuntimeDependencies.length === 0, 'Current package has no unapproved runtime dependencies');
+  context.assert(!classifyPackageSupplyChain(packageManifest, []).ok, 'Security runtime exceptions require a lockfile');
+  context.assert(!classifyPackageSupplyChain({...packageManifest, dependencies:{jsdom:'^30.1.2'}}, ['package-lock.json']).ok, 'Unpinned security runtime versions are rejected');
+  context.assert(!classifyPackageSupplyChain({...packageManifest, dependencies:{jsdom:'30.1.2', unexpected:'1.0.0'}}, ['package-lock.json']).ok, 'Unreviewed runtime dependencies remain rejected');
+  context.assert(classification.devToolingDependencyCount === 4, 'Current package classifies Node types, TypeScript, Vite and vendored Acorn as dev tooling');
   context.assert(classification.allowedDevToolingDependencies.some((dependency) => dependency.name === 'typescript'), 'Current dependency inventory allows TypeScript compiler tooling');
   context.assert(classification.allowedDevToolingDependencies.some((dependency) => dependency.name === '@types/node'), 'Current dependency inventory allows minimum-runtime Node declarations');
   context.assert(classification.allowedDevToolingDependencies.some((dependency) => dependency.name === 'vite'), 'Current dependency inventory allows Vite only as development tooling');

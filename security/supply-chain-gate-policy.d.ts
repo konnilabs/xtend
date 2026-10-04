@@ -15,6 +15,7 @@ export interface XtendSupplyChainGatePlan {
   lockfileCandidates: string[];
   scopedReleasePackages: Array<{ name: string; path: string; manifest: string; scope: string }>;
   allowedDevToolingDependencies: Array<{ name: string; section: string; versionRange: string; purpose: string; runtime: false }>;
+  allowedSecurityRuntimeDependencies: Array<{ name: string; section: string; versionRange: string; purpose: string; runtime: true }>;
   license: Record<string, unknown>;
   vulnerabilities: Record<string, unknown>;
   runtimeDependencyPolicy: string;
@@ -26,6 +27,8 @@ export interface XtendPackageSupplyChainReport extends XtendPolicyReport {
   dependencies: Array<{ section: string; name: string; version: string }>;
   runtimeDependencyCount: number;
   runtimeDependencies: Array<{ section: string; name: string; version: string }>;
+  allowedSecurityRuntimeDependencies: Array<{ section: string; name: string; version: string }>;
+  unapprovedRuntimeDependencies: Array<{ section: string; name: string; version: string }>;
   devToolingDependencyCount: number;
   allowedDevToolingDependencies: Array<{ section: string; name: string; version: string }>;
   unapprovedDependencies: Array<{ section: string; name: string; version: string }>;
@@ -38,6 +41,7 @@ export interface XtendPackageSupplyChainReport extends XtendPolicyReport {
 
 export declare const DEPENDENCY_AUDIT_GATE_CONTRACT: XtendPolicyConstant<string>;
 export declare const ALLOWED_DEV_TOOLING_DEPENDENCIES: XtendPolicyConstant<Array<{ name: string; section: string; versionRange: string; purpose: string; runtime: false }>>;
+export declare const ALLOWED_SECURITY_RUNTIME_DEPENDENCIES: XtendPolicyConstant<Array<{ name: string; section: string; versionRange: string; purpose: string; runtime: true }>>;
 export declare const DEPENDENCY_SECTIONS: XtendPolicyConstant<string[]>;
 export declare const LICENSE_POLICY: XtendPolicyConstant<Record<string, unknown>>;
 export declare const LICENSE_POLICY_CONTRACT: XtendPolicyConstant<string>;
