@@ -101,15 +101,6 @@ function diagnosticCodes(record) {
   return (record.diagnostics || []).map((diagnostic) => diagnostic.code);
 }
 
-function packageDependencyCount(packageManifest) {
-  return [
-    'dependencies',
-    'devDependencies',
-    'peerDependencies',
-    'optionalDependencies'
-  ].reduce((count, section) => count + Object.keys(packageManifest[section] || {}).length, 0);
-}
-
 function runXTensionsSecurityIntegrityGateSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
@@ -186,13 +177,49 @@ function runXTensionsSecurityIntegrityGateSuite(options = {}) {
   context.assert(fixture.schema === 'xtend.xtensions.security-integrity-gate.fixture.v1', 'fixture declares security gate fixture schema');
   context.assert(fixture.expectedStatus === 'ready', 'fixture names expected ready status');
   context.assert(fixture.expectedBlockedStatus === 'blocked', 'fixture names expected blocked status');
-  context.assert(packageDependencyCount(packageManifest) === 0, 'root package keeps dependency sections empty for XTensions gates');
-
   const dependencyBoundary = assertXTensionsSecurityDependencyBoundary({
     packageManifest,
     sourceText: `${moduleText}\n${typesText}\n${fixtureText}`
   });
-  context.assert(dependencyBoundary.ok, `XTensions security gate sources avoid real framework imports${dependencyBoundary.ok ? '' : ` (${dependencyBoundary.diagnostics.map((diagnostic) => diagnostic.message).join('; ')})`}`);
+  context.assert(dependencyBoundary.ok, `XTensions security gate package and sources avoid framework dependencies${dependencyBoundary.ok ? '' : ` (${dependencyBoundary.diagnostics.map((diagnostic) => diagnostic.message).join('; ')})`}`);
+  const toolingPackageManifest = {
+    devDependencies: {
+      '@types/node': '^24.0.0',
+      typescript: '^5.9.0',
+      vite: '^7.0.0'
+    }
+  };
+  const toolingBoundary = assertXTensionsSecurityDependencyBoundary({
+    packageManifest: toolingPackageManifest
+  });
+  context.assert(toolingBoundary.ok && toolingBoundary.diagnostics.length === 0, 'XTensions dependency boundary allows build and tooling devDependencies');
+  dependencyBoundary.forbiddenFrameworkDependencies.forEach((name) => {
+    [
+      'dependencies',
+      'devDependencies',
+      'peerDependencies',
+      'optionalDependencies',
+      'bundledDependencies',
+      'bundleDependencies'
+    ].forEach((section) => {
+      const frameworkBoundary = assertXTensionsSecurityDependencyBoundary({
+        packageManifest: {
+          ...toolingPackageManifest,
+          [section]: section === 'bundledDependencies' || section === 'bundleDependencies'
+            ? [name]
+            : { ...toolingPackageManifest[section], [name]: '^0.0.0' }
+        }
+      });
+      context.assert(
+        frameworkBoundary.ok === false && frameworkBoundary.diagnostics.some((diagnostic) => (
+          diagnostic.code === SECURITY_FRAMEWORK_DEPENDENCY_CODE
+          && diagnostic.metadata.section === section
+          && diagnostic.metadata.name === name
+        )),
+        `XTensions dependency boundary rejects ${name} in ${section} alongside tooling`
+      );
+    });
+  });
   const badImportBoundary = assertXTensionsSecurityDependencyBoundary({
     sourceText: "import React from 'react';"
   });
@@ -270,6 +297,27 @@ function runXTensionsSecurityIntegrityGateSuite(options = {}) {
   });
   context.assert(vueDriftReport.status === 'blocked', 'Vue host-provided manifest is blocked when bundle contains runtime signatures');
   context.assert(diagnosticCodes(vueDriftReport).includes(SECURITY_ARTIFACT_RUNTIME_BUNDLED_DRIFT_CODE), 'Vue artifact runtime drift diagnostic is emitted');
+
+  ['react', 'vue'].forEach((framework) => {
+    const vendoredManifest = cloneJson(fixture.xtensions[0]);
+    vendoredManifest.framework = framework;
+    vendoredManifest.dependencies = [{
+      name: framework,
+      classification: 'vendored',
+      bundled: true,
+      packageIncluded: true
+    }];
+    const vendoredReport = createXTensionsSecurityIntegrityGate({
+      policy,
+      packageManifest: toolingPackageManifest,
+      xtensions: [vendoredManifest]
+    }, { clock: createClock() });
+    context.assert(
+      vendoredReport.ok === false && vendoredReport.status === 'blocked'
+      && diagnosticCodes(vendoredReport).includes(SECURITY_PACKAGED_FRAMEWORK_DEPENDENCY_CODE),
+      `tooling devDependencies do not allow vendored ${framework} runtimes`
+    );
+  });
 
   const report = createXTensionsSecurityIntegrityGate({
     policy,

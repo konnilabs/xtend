@@ -93,15 +93,6 @@ function diagnosticCodes(record) {
   return (record.diagnostics || []).map((diagnostic) => diagnostic.code);
 }
 
-function dependencySectionCount(packageManifest) {
-  return [
-    'dependencies',
-    'devDependencies',
-    'peerDependencies',
-    'optionalDependencies'
-  ].reduce((count, section) => count + Object.keys(packageManifest[section] || {}).length, 0);
-}
-
 function docsWithText(fixture, rootDir) {
   return fixture.docs.map((doc) => ({
     ...doc,
@@ -200,7 +191,6 @@ function runXTensionsAdoptionHandoffSuite(options = {}) {
   context.assert(fixture.expectedStatus === 'ready', 'fixture names expected ready status');
   context.assert(fixture.expectedBlockedStatus === 'blocked', 'fixture names expected blocked status');
   context.assert(fixture.dependencyPolicy.frameworkDependenciesAllowed === false, 'fixture blocks framework dependencies');
-  context.assert(dependencySectionCount(packageManifest) === 0, 'root package keeps dependency sections empty');
   assertIncludesAll(context, fixture.boundaries, ADOPTION_REQUIRED_BOUNDARIES, 'fixture exposes adoption boundaries');
   assertIncludesAll(context, fixture.startPackages.map((startPackage) => startPackage.id), ADOPTION_START_PACKAGE_IDS, 'fixture exposes start package ids');
 
@@ -215,7 +205,7 @@ function runXTensionsAdoptionHandoffSuite(options = {}) {
     packageManifest,
     sourceText: `${moduleText}\n${typesText}\n${fixtureText}\n${docText}\n${adoptionContract}`
   });
-  context.assert(dependencyBoundary.ok, `adoption handoff sources avoid real framework imports${dependencyBoundary.ok ? '' : ` (${dependencyBoundary.diagnostics.map((diagnostic) => diagnostic.message).join('; ')})`}`);
+  context.assert(dependencyBoundary.ok, `adoption handoff package and sources avoid framework dependencies${dependencyBoundary.ok ? '' : ` (${dependencyBoundary.diagnostics.map((diagnostic) => diagnostic.message).join('; ')})`}`);
   const badDependency = assertAdoptionHandoffDependencyBoundary({
     sourceText: "import React from 'react';"
   });
