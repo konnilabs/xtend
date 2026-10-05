@@ -62,3 +62,23 @@ FastPass ist mit `execution fastpass` oder `fastPassActions` explizit. `dispatch
 Die erweiterten Verträge heißen `xtend.maraca.plan-runtime.v3` und `xtend.rmt.presentation-effect-adapter.v2`. Verbraucher mit expliziter Schema-Prüfung müssen diese IDs akzeptieren. Das additive FastPass-Authoring steht in `xtend-maraca/fastpass.schema.json`; das RMT-v2-Dokumentschema bleibt unverändert. Baue ausgelieferte Bundles und ihre Typen aus denselben 0.8.0-Quellen neu.
 
 [FastPass und Abort Boundary](./maraca-fastpass-abort-boundary.md) dokumentiert die API und die Grenzen zwischen Präsentation und fachlicher Arbeit. Ergänze die obigen Prüfungen um `maraca-responsiveness`, `maraca-orchestration`, `rmt-vnext-surfaces` und `xtend-dev-surface`.
+
+## Migration: begrenzte Scheduler-History
+
+Die bisher unbegrenzte `getJob`-History hält jetzt standardmäßig 200 terminale
+Jobs. Anwendungen, die alte IDs dauerhaft nachschlagen, müssen eine passende
+Grenze wählen oder ausdrücklich den Kompatibilitätsmodus verwenden:
+
+```js
+const scheduler = createRmtKernelScheduler({ maxCompletedJobs: Infinity });
+```
+
+Eine endliche Grenze wird beispielsweise mit `maxCompletedJobs: 500` gesetzt;
+`0` behält keine terminalen Jobs. Ungültige Werte fallen auf 200 zurück.
+Nach Eviction liefert `getJob(id)` `null`. Bereits ausgegebene Handles/Promises
+bleiben gültig; aktive Jobs sind von Eviction ausgenommen. Terminale Jobs werden
+in Abschlussreihenfolge entfernt, nicht nach Einplanungsreihenfolge.
+Kumulative Telemetrie bleibt erhalten; Snapshot-Bestandszähler beschreiben nur
+noch gehaltene Jobs. Dispose bricht weiterhin unfertige Jobs ab und behält die
+begrenzte History ohne zusätzlichen Reset.
+Details: [Scheduler-API](./rmt-kernel-runtime.md).

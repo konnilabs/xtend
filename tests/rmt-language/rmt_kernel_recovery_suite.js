@@ -1,3 +1,5 @@
+const { JSDOM } = require('jsdom');
+const { createHtmlSanitizer } = require('../../xtendrmt/html-sanitizer.cjs');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -173,7 +175,7 @@ function createRmtAppModulesFromArtifact(context, rootDir, artifactPath) {
     this.bubbles = init.bubbles === true;
     this.composed = init.composed === true;
   }
-  const documentTarget = createFakeDocument();
+  const documentTarget = new JSDOM('<!doctype html><html><body></body></html>').window.document;
   const sandbox = {
     console,
     setTimeout,
@@ -315,6 +317,7 @@ function runArtifactProbe(context, rootDir, artifactPath) {
   const hostNotifications = [];
   const renderer = AppModules.createRmtTemplateRuntimeRenderer({
     documentTarget,
+    sanitizeHtmlOutput: createHtmlSanitizer(documentTarget.defaultView),
     diagnosticsHub,
     onRecoveryOutcome(outcome) {
       hostNotifications.push(outcome);

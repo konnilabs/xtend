@@ -62,3 +62,24 @@ Fabric supplies work intents, backpressure and telemetry to that instance and ow
 Waiting for paint, idle or `postTask` does not occupy an active execution slot. A host callback marks the job ready; shared priority selection decides when it runs. Cooperative continuations retain their progress. Cancellation, timeout and dispose remove host handles; `postTask` also receives the `AbortSignal`. Synchronous JavaScript still needs cooperative splitting.
 
 See the [0.8 migration](./rmt-kernel-0-8-migration.md) for `RmtJobHandle`, the six public lanes and removed queue bypasses; [FastPass](./maraca-fastpass-abort-boundary.md) builds urgent shell actions on this scheduler.
+
+## Scheduler API: terminal job history
+
+`createRmtKernelScheduler({ maxCompletedJobs })` retains the latest **200 terminal
+jobs** for `getJob(id)` by default. Accepted values are nonnegative safe integers
+including `0`, or explicit `Infinity`. Missing or invalid values (including
+negative numbers, fractions, NaN, strings and null) use 200; `0` disables terminal
+history and `Infinity` retains unlimited history.
+
+The shared limit covers completed, failed, cancelled, aborted and panic_blocked.
+Eviction follows terminal transition order, not scheduling order, including
+transitions nested inside synchronous observers. Nonterminal jobs (including
+queued, waiting and yielded) are never removed by this history limit.
+`getJob(id)` returns `null` for evicted IDs; existing handles and their promises
+remain valid. `snapshot().counts` counts retained jobs, whereas
+`snapshot().telemetry` remains cumulative.
+
+`dispose()` still cancels unfinished jobs and retains terminal history within
+the same limit. It does not additionally clear history or reset cumulative
+counters. This history limit is not an admission/concurrency limit.
+See [migration](./rmt-kernel-0-8-migration.md).

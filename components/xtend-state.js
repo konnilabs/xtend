@@ -289,16 +289,18 @@ const xtendState = {
     if (this._debug) {
       console.log(`[XTendState] Setting path ${path}:`, value);
     }
-    this._incrementOperation('setPath');
-    
     const parts = path.split('.');
+    if (parts.some(part => ['__proto__', 'constructor', 'prototype'].includes(part))) {
+      throw new TypeError('Unsafe state path segment.');
+    }
+    this._incrementOperation('setPath');
     const lastKey = parts.pop();
     let current = this._data;
     
     // Create intermediate objects if they don't exist
     for (const part of parts) {
-      if (!current[part] || typeof current[part] !== 'object') {
-        current[part] = {};
+      if (!Object.hasOwn(current, part) || !current[part] || typeof current[part] !== 'object') {
+        current[part] = Object.create(null);
       }
       current = current[part];
     }

@@ -188,6 +188,16 @@ function createRmtKernelSchedulerModule(globalTarget = typeof globalThis !== 'un
     const strict = options.strict === true;
     const jobs = new Map();
     const pending = [];
+    // Bound terminal history; Infinity explicitly preserves unlimited lookup.
+    const maxCompletedJobs = options.maxCompletedJobs === Infinity ? Infinity
+      : Number.isSafeInteger(options.maxCompletedJobs) && options.maxCompletedJobs >= 0
+        ? options.maxCompletedJobs : 200;
+    const completedIds = [];
+    const maxMicrotaskTurns = Number.isInteger(options.maxMicrotaskTurns) && options.maxMicrotaskTurns > 0
+      ? options.maxMicrotaskTurns : 64;
+    let microtaskTurns = 0;
+    let hostYieldHandle = null;
+    let wakeAt = Infinity;
     const coalesceIndex = new Map();
     const diagnostics = [];
     const telemetry = {
@@ -329,12 +339,20 @@ function createRmtKernelSchedulerModule(globalTarget = typeof globalThis !== 'un
       else if (status === 'cancelled') telemetry.cancelled += 1;
       else if (status === 'aborted') telemetry.aborted += 1;
       else if (status === 'panic_blocked') telemetry.panicBlocked += 1;
+      if (maxCompletedJobs !== Infinity) {
+        completedIds.push(job.id);
+        while (completedIds.length > maxCompletedJobs) jobs.delete(completedIds.shift());
+      }
       emit(job, status, { reason: job.reason });
       if (job.yieldReject) {
         job.yieldReject(error || createAbortError(job.reason));
         job.yieldResolve = null;
         job.yieldReject = null;
       }
+      // The public handle/result/request survive; execution-only references do not.
+      job.work = null;
+      job.context = null;
+      job.workPromise = null;
       if (status === 'completed') job.resolve(value);
       else job.reject(error || createAbortError(job.reason, `rmt.scheduler.${status}`));
       queuePump();
@@ -403,12 +421,23 @@ function createRmtKernelSchedulerModule(globalTarget = typeof globalThis !== 'un
     }
 
     function handleWorkPromise(job, value) {
+      if (FINAL_STATUSES.has(job.status)) {
+        // Work can synchronously cancel/dispose before returning an async result.
+        Promise.resolve(value).catch(() => undefined);
+        return;
+      }
       if (value && typeof value.then === 'function') {
-        job.workPromise = Promise.resolve(value);
+        const workPromise = Promise.resolve(value);
+        if (FINAL_STATUSES.has(job.status)) {
+          // Reading a thenable getter can synchronously cancel or dispose.
+          workPromise.catch(() => undefined);
+          return;
+        }
+        job.workPromise = workPromise;
         if (job.status !== 'yielded') job.status = 'waiting';
         if (activeJob === job) activeJob = null;
         emit(job, job.status);
-        job.workPromise.then(
+        workPromise.then(
           (result) => settle(job, 'completed', 'resolved', result),
           (error) => {
             if (FINAL_STATUSES.has(job.status)) return;
@@ -511,25 +540,35 @@ function createRmtKernelSchedulerModule(globalTarget = typeof globalThis !== 'un
 
     function selectNext() {
       const at = now();
-      const ready = pending.filter((job) => !FINAL_STATUSES.has(job.status) && job.request.readyAt <= at);
-      if (ready.length === 0) return null;
-      ready.sort((left, right) => {
-        const scoreDelta = score(right, at) - score(left, at);
-        if (scoreDelta !== 0) return scoreDelta;
-        return left.sequence - right.sequence;
-      });
-      const selected = ready[0];
-      removePending(selected);
+      let selected = null;
+      let bestScore = -Infinity;
+      let selectedIndex = -1;
+      for (let index = 0; index < pending.length; index += 1) {
+        const candidate = pending[index];
+        if (FINAL_STATUSES.has(candidate.status) || candidate.request.readyAt > at) continue;
+        const candidateScore = score(candidate, at);
+        if (candidateScore > bestScore || (candidateScore === bestScore && candidate.sequence < selected.sequence)) {
+          selected = candidate;
+          selectedIndex = index;
+          bestScore = candidateScore;
+        }
+      }
+      if (selectedIndex >= 0) pending.splice(selectedIndex, 1);
       return selected;
     }
 
     function scheduleWakeForDelayedJob() {
-      if (wakeHandle != null || pending.length === 0) return;
+      if (pending.length === 0) return;
       const at = now();
-      const nextReadyAt = Math.min(...pending.map((job) => job.request.readyAt));
+      let nextReadyAt = Infinity;
+      for (const job of pending) nextReadyAt = Math.min(nextReadyAt, job.request.readyAt);
+      if (wakeHandle != null && wakeAt <= nextReadyAt) return;
+      if (wakeHandle != null) host.clearTimeout(wakeHandle);
+      wakeAt = nextReadyAt;
       const delay = Math.max(0, nextReadyAt - at);
       wakeHandle = host.setTimeout(() => {
         wakeHandle = null;
+        wakeAt = Infinity;
         queuePump();
       }, delay);
     }
@@ -548,7 +587,13 @@ function createRmtKernelSchedulerModule(globalTarget = typeof globalThis !== 'un
     function queuePump() {
       if (disposed || pumpQueued || activeJob) return;
       pumpQueued = true;
-      host.queueMicrotask(pump);
+      if (++microtaskTurns >= maxMicrotaskTurns) {
+        microtaskTurns = 0;
+        hostYieldHandle = host.setTimeout(() => {
+          hostYieldHandle = null;
+          pump();
+        }, 0);
+      } else host.queueMicrotask(pump);
     }
 
     function createHandle(job) {
@@ -596,6 +641,7 @@ function createRmtKernelSchedulerModule(globalTarget = typeof globalThis !== 'un
       if (disposed) throw new Error('RMT kernel scheduler is disposed.');
       if (typeof work !== 'function') throw new TypeError('scheduler.schedule() requires a work callback.');
       const request = normalizeRequest(requestInput);
+      if (request.id && jobs.has(request.id)) throw new Error(`Duplicate scheduler job id: ${request.id}`);
       let resolve;
       let reject;
       const result = new Promise((resolvePromise, rejectPromise) => {
@@ -604,6 +650,7 @@ function createRmtKernelSchedulerModule(globalTarget = typeof globalThis !== 'un
       });
       result.catch(() => undefined);
       sequence += 1;
+      if (!request.id) while (jobs.has(`rmt-job-${sequence}`)) sequence += 1;
       const id = request.id || `rmt-job-${sequence}`;
       const abortController = host.createAbortController ? host.createAbortController() : null;
       const job = {
@@ -705,6 +752,10 @@ function createRmtKernelSchedulerModule(globalTarget = typeof globalThis !== 'un
     function dispose(reason = 'scheduler_disposed') {
       if (disposed) return false;
       disposed = true;
+      if (hostYieldHandle != null) {
+        host.clearTimeout(hostYieldHandle);
+        hostYieldHandle = null;
+      }
       if (wakeHandle != null) {
         host.clearTimeout(wakeHandle);
         wakeHandle = null;

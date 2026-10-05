@@ -1320,10 +1320,17 @@
     });
   }
 
+  let performanceOwnerSequence = 0;
+
   function createXtendFabric(options = {}) {
+    const performanceOwner = `${++performanceOwnerSequence}-${Math.random().toString(36).slice(2)}`;
+    let lifecycleGeneration = 0;
+    const activeMeasurements = new Map();
+    const ownedMeasures = [];
+    let performanceSequence = 0;
     const config = {
       idPrefix: options.idPrefix || 'xtend.fabric',
-      storeLimit: Number.isInteger(options.storeLimit) ? options.storeLimit : 200,
+      storeLimit: Number.isInteger(options.storeLimit) && options.storeLimit >= 0 ? options.storeLimit : 200,
       clock: options.clock || options.now,
       includeStack: options.includeStack !== false,
       performance: options.performance || options.performanceTarget || null,
@@ -1404,35 +1411,53 @@
     }
 
     function startPerformanceMeasurement(fiber) {
-      if (!config.markPerformance) return null;
+      if (!config.markPerformance || config.storeLimit === 0) return null;
       const target = getPerformanceTarget();
       const measureName = PERFORMANCE_MEASURE_NAME_BY_FIBER_KIND[fiber.kind];
       if (!target || !measureName || typeof target.mark !== 'function') {
         return null;
       }
 
-      const startMark = `${measureName}.start.${fiber.id}`;
+      const startMark = `${measureName}.start.${performanceOwner}.${++performanceSequence}.${fiber.id}`;
       try {
+        while (activeMeasurements.size >= config.storeLimit) {
+          const oldest = activeMeasurements.values().next().value;
+          activeMeasurements.delete(oldest.startMark);
+          try { oldest.target.clearMarks?.(oldest.startMark); } catch (_) {}
+        }
         target.mark(startMark);
-        return { target, measureName, startMark };
+        const measurement = { target, measureName, startMark, entryName: `${measureName}.fabric.${performanceOwner}.${performanceSequence}` };
+        activeMeasurements.set(startMark, measurement);
+        return measurement;
       } catch (_) {
         return null;
       }
     }
 
     function finishPerformanceMeasurement(measurement, fiber) {
-      if (!measurement || !measurement.target) return;
-      const { target, measureName, startMark } = measurement;
-      const endMark = `${measureName}.end.${fiber.id}`;
+      if (!measurement || !activeMeasurements.has(measurement.startMark)) return;
+      const { target, entryName, startMark } = measurement;
+      activeMeasurements.delete(startMark);
+      const endMark = `${startMark}.end`;
       try {
         if (typeof target.mark === 'function') {
           target.mark(endMark);
         }
         if (typeof target.measure === 'function') {
-          target.measure(measureName, startMark, endMark);
+          target.measure(entryName, startMark, endMark);
+          ownedMeasures.push({ target, entryName });
+          while (ownedMeasures.length > config.storeLimit) {
+            const oldest = ownedMeasures.shift();
+            try { oldest.target.clearMeasures?.(oldest.entryName); } catch (_) {}
+          }
         }
       } catch (_) {
         // Embedded hosts may provide partial Performance APIs; Fibers remain authoritative.
+      } finally {
+        // Never clear public names shared with other instances or producers.
+        if (typeof target.clearMarks === 'function') {
+          try { target.clearMarks(startMark); target.clearMarks(endMark); } catch (_) {}
+        }
       }
     }
 
@@ -1458,6 +1483,7 @@
         throw new TypeError('fabric.runFiber requires a callback.');
       }
 
+      const runGeneration = lifecycleGeneration;
       const runningFiber = normalizeFiber(fiberInput, {
         idPrefix: `${config.idPrefix}.fiber`,
         status: 'running'
@@ -1469,10 +1495,12 @@
         const value = callback(runningFiber);
         if (value && typeof value.then === 'function') {
           return value.then((resolved) => {
+            if (runGeneration !== lifecycleGeneration) return resolved;
             const completedFiber = finishFiber(runningFiber, 'completed', 'ok');
             finishPerformanceMeasurement(performanceMeasurement, completedFiber);
             return resolved;
           }, (error) => {
+            if (runGeneration !== lifecycleGeneration) throw error;
             const diagnostic = captureError(error, {
               code: runningFiber.diagnosticCode || 'xtend.fabric.fiber.failed',
               message: runningFiber.diagnosticMessage || `Fabric fiber ${runningFiber.id} failed`,
@@ -1488,15 +1516,18 @@
               scheduleRef: runningFiber.scheduleRef,
               metadata: runningFiber.metadata
             });
+            if (runGeneration !== lifecycleGeneration) throw error;
             const failedFiber = finishFiber(runningFiber, 'failed', 'error', [diagnostic]);
             finishPerformanceMeasurement(performanceMeasurement, failedFiber);
             throw error;
           });
         }
+        if (runGeneration !== lifecycleGeneration) return value;
         const completedFiber = finishFiber(runningFiber, 'completed', 'ok');
         finishPerformanceMeasurement(performanceMeasurement, completedFiber);
         return value;
       } catch (error) {
+        if (runGeneration !== lifecycleGeneration) throw error;
         const diagnostic = captureError(error, {
           code: runningFiber.diagnosticCode || 'xtend.fabric.fiber.failed',
           message: runningFiber.diagnosticMessage || `Fabric fiber ${runningFiber.id} failed`,
@@ -1512,6 +1543,7 @@
           scheduleRef: runningFiber.scheduleRef,
           metadata: runningFiber.metadata
         });
+        if (runGeneration !== lifecycleGeneration) throw error;
         const failedFiber = finishFiber(runningFiber, 'failed', 'error', [diagnostic]);
         finishPerformanceMeasurement(performanceMeasurement, failedFiber);
         throw error;
@@ -2219,12 +2251,8 @@
         }
       }
 
-      const normalizedEntries = entries
-        .map((entry) => asObject(entry))
-        .filter((entry) => !prefix || String(entry.name || '').startsWith(prefix))
-        .map(normalizePerformanceEntry);
-
-      const slicedEntries = normalizedEntries.slice(-entryLimit);
+      const matchingEntries = entries.filter((entry) => !prefix || String(entry && entry.name || '').startsWith(prefix));
+      const slicedEntries = matchingEntries.slice(-entryLimit).map(normalizePerformanceEntry);
       const measurements = slicedEntries.map((entry, index) => createPerformanceMeasurement(entry, options, index));
       const phaseSummary = summarizePerformanceMeasurements(measurements);
       const totalDurationMs = slicedEntries.reduce((total, entry) => total + numericDuration(entry.duration), 0);
@@ -2232,7 +2260,7 @@
 
       return {
         supported: !!target || entries.length > 0,
-        entryCount: normalizedEntries.length,
+        entryCount: matchingEntries.length,
         entries: slicedEntries,
         measurementSchema: CONTRACTS.performanceMeasurement,
         measurementCount: measurements.length,
@@ -3337,6 +3365,14 @@
         kernelSchedulerEvents.splice(0, kernelSchedulerEvents.length);
       },
       dispose() {
+        lifecycleGeneration += 1;
+        activeMeasurements.forEach(({ target, startMark }) => {
+          try { target.clearMarks?.(startMark); } catch (_) {}
+        });
+        activeMeasurements.clear();
+        ownedMeasures.splice(0).forEach(({ target, entryName }) => {
+          try { target.clearMeasures?.(entryName); } catch (_) {}
+        });
         reporters.splice(1).forEach((reporter) => reporter.dispose());
         diagnostics.splice(0, diagnostics.length);
         fibers.splice(0, fibers.length);

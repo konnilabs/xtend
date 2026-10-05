@@ -49,7 +49,7 @@ function createRecordingPerformance() {
         name,
         entryType: 'measure',
         startTime: now(),
-        duration: name === 'xtend.component.hydrate' ? 36 : 18,
+        duration: name.startsWith('xtend.component.hydrate') ? 36 : 18,
         detail: {
           startMark,
           endMark
@@ -131,9 +131,9 @@ async function runFabricPerformanceMeasurementSuite(options = {}) {
   });
 
   const performanceEntries = performance.getEntriesByType('measure');
-  assert(performanceEntries.some((entry) => entry.name === 'xtend.component.hydrate'), 'Fabric records hydration performance measure');
-  assert(performanceEntries.some((entry) => entry.name === 'xtend.component.render'), 'Fabric records component render performance measure');
-  assert(performanceEntries.some((entry) => entry.name === 'xtend.route.render'), 'Fabric records route render performance measure');
+  assert(performanceEntries.some((entry) => entry.name.startsWith('xtend.component.hydrate.fabric.')), 'Fabric records hydration performance measure');
+  assert(performanceEntries.some((entry) => entry.name.startsWith('xtend.component.render.fabric.')), 'Fabric records component render performance measure');
+  assert(performanceEntries.some((entry) => entry.name.startsWith('xtend.route.render.fabric.')), 'Fabric records route render performance measure');
 
   const snapshot = fabric.createTelemetrySnapshot({
     id: 'performance.snapshot.test',

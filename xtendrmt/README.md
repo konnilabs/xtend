@@ -185,3 +185,36 @@ npm run test:scoped-package-readmes
 Lizenziert unter der Apache License 2.0. Siehe [LICENSE](../LICENSE).
 
 [Nach oben](#xtendrmt-runtime) · [English](#english)
+
+### Scheduler and preview resource limits
+
+The kernel scheduler permits host tasks after at most `maxMicrotaskTurns`
+pumps (default 64). Lane scoring and within-score FIFO ordering are unchanged;
+a cooperative yield may now allow a host timer/input task to run. Pending work
+is logically cancelled on dispose; cancellation still does not forcibly stop
+an arbitrary callback. Duplicate explicit job IDs throw before accepting work;
+automatically assigned IDs avoid existing IDs.
+
+`maxCompletedJobs` bounds terminal handles available through `getJob` (default
+200). Set `Infinity` explicitly for the previous unlimited-history behavior.
+Nonnegative safe integers are accepted; zero keeps no terminal history. Omitted
+or invalid values use 200. Eviction follows terminal transition order, never
+removes active jobs, and does not invalidate handles/promises already held by a
+caller. `getJob` returns `null` for evicted IDs. Snapshot counts describe retained
+jobs; cumulative telemetry is unaffected. Dispose still cancels unfinished jobs
+and retains the resulting bounded terminal history. Execution-only references
+are released on settlement. Admission and strict lane priority are unchanged.
+
+Deutsch: `maxCompletedJobs` begrenzt die terminale History standardmäßig auf 200.
+`Infinity` erhält ausdrücklich die bisherige unbegrenzte History; null Einträge
+werden mit `0` gewählt. Eigene Handles bleiben gültig, aktive Jobs bleiben
+abrufbar, kumulative Zähler bleiben erhalten. API und Migration:
+[Deutsch](../docs/de/rmt-kernel-runtime.md),
+[English](../docs/en/rmt-kernel-runtime.md).
+
+Safe Preview stops traversing sibling nodes at its structural budget and
+bounds diagnostics. `metrics.nodes` counts each visited descriptor once;
+`maxTextBytes` also accounts for accepted attribute names/values. Invalid
+numeric limits fall back to defaults. Large attributes can therefore be omitted
+where older versions emitted them, and metric/contract snapshots must be
+updated. This is a projector budget, not a replacement for transport-body limits.
