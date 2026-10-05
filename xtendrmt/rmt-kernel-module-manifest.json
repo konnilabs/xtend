@@ -3487,7 +3487,7 @@
       "id": "rmt-safe-preview",
       "sourcePath": "xtendrmt/rmt-safe-preview.js",
       "sourceMode": "canonical",
-      "sourceSha256": "8cf6e302ea9d1b3d8e4e03f8cda501d23f568d5a2ca74548b9f745bd0ccad576",
+      "sourceSha256": "03c5e6d416462526ea572a7a8d473b9975baa46e5ecb8e814ea1240c0b0a7b6b",
       "mvcRole": "adapter",
       "adapterDirection": "output",
       "provides": [

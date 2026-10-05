@@ -62,3 +62,24 @@ Fabric liefert Work-Intents, Backpressure und Telemetrie an diese Instanz und be
 Warten auf Paint, Idle oder `postTask` belegt keinen aktiven Ausführungsslot. Ein Host-Callback meldet den Job bereit; die gemeinsame Prioritätsauswahl entscheidet über die Ausführung. Kooperative Fortsetzungen setzen am bestehenden Zustand fort. Cancellation, Timeout und Dispose entfernen Host-Handles; `postTask` erhält auch das `AbortSignal`. Synchrones JavaScript bleibt kooperativ aufzuteilen.
 
 Siehe [0.8-Migration](./rmt-kernel-0-8-migration.md) für `RmtJobHandle`, die sechs öffentlichen Lanes und entfernte Queue-Bypässe; [FastPass](./maraca-fastpass-abort-boundary.md) ergänzt darauf dringende Shell-Aktionen.
+
+## Scheduler-API: terminale Job-History
+
+`createRmtKernelScheduler({ maxCompletedJobs })` hält standardmäßig die letzten
+**200 terminalen Jobs** für `getJob(id)` vor. Erlaubt sind nichtnegative sichere
+ganze Zahlen einschließlich `0` sowie ausdrücklich `Infinity`. Fehlende oder
+ungültige Werte (auch negative Zahlen, Brüche, NaN, Strings und null) verwenden
+200; `0` deaktiviert die terminale History, `Infinity` erhält sie unbegrenzt.
+
+Die Grenze gilt gemeinsam für completed, failed, cancelled, aborted und
+panic_blocked. Eviction folgt der Reihenfolge der terminalen Zustandswechsel,
+nicht der Einplanung; bei synchronen Observern gilt dieselbe Reihenfolge.
+Nichtterminale Jobs (auch queued, waiting und yielded) werden nie durch die
+History-Grenze entfernt. Für evictete IDs liefert `getJob(id)` `null`; bereits
+ausgegebene Handles und ihre Promises bleiben gültig. `snapshot().counts` zählt
+die gehaltenen Jobs, `snapshot().telemetry` bleibt kumulativ.
+
+`dispose()` bricht weiterhin unfertige Jobs ab und behält terminale History
+innerhalb derselben Grenze. Es leert sie nicht zusätzlich und setzt kumulative
+Zähler nicht zurück. Die History-Grenze ist keine Admission-/Concurrency-Grenze.
+Siehe [Migration](./rmt-kernel-0-8-migration.md).

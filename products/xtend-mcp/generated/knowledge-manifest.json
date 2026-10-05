@@ -21,7 +21,7 @@
     "menuEntries": 176,
     "menuSha256": "bb7b26c64de9fd7b6f169fd1d6c1ef9dbbc0110a8ace1b192a3d5e0adbfd87b5",
     "artifact": "docs.jsonl",
-    "artifactSha256": "d28385ea05aabb2d7db42a9e7186255aa4ed134e081cb3a982e282bbb370a876",
+    "artifactSha256": "1c46b321329913d14727a64e79b2c8c2ead975d042b2a296db3698f57284188a",
     "missingMenuDocs": []
   },
   "rmtKit": {

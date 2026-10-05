@@ -12,6 +12,9 @@
     const registry = options.componentRegistry;
     const allowedElements = new Set(array(options.allowedElements || ['div', 'section', 'article', 'header', 'footer', 'main', 'p', 'span', 'strong', 'em', 'ul', 'ol', 'li', 'button', 'label', 'input', 'textarea', 'select', 'option', 'pre', 'code']).map(String));
     const limits = { ...DEFAULT_LIMITS, ...record(options.limits) };
+    for (const [key, fallback] of Object.entries(DEFAULT_LIMITS)) {
+      if (!Number.isSafeInteger(limits[key]) || limits[key] < (key === 'maxNodes' ? 1 : 0)) limits[key] = fallback;
+    }
     const allowedProtocols = new Set(array(options.allowedProtocols || ['http:', 'https:', 'mailto:', 'tel:']).map(String));
     function isKnownComponent(tag) {
       if (!tag.includes('-')) return allowedElements.has(tag);
@@ -28,6 +31,23 @@
     }
     function project(coreDocument, projectOptions = {}) {
       const diagnostics = [];
+      let truncated = false;
+      function warn(code, message, details = {}) {
+        if (diagnostics.length < Math.min(limits.maxNodes, 100)) diagnostics.push(diagnostic(code, message, details));
+      }
+      function limit() {
+        if (!truncated) warn('rmt.safe-preview.limit', 'The preview was truncated at its resource limit.');
+        truncated = true;
+      }
+      function acceptText(value) {
+        const text = String(value);
+        const remaining = limits.maxTextBytes - counters.textBytes;
+        if (text.length > remaining) { limit(); return null; }
+        const bytes = typeof TextEncoder === 'function' ? new TextEncoder().encode(text).length : text.length;
+        if (bytes > remaining) { limit(); return null; }
+        counters.textBytes += bytes;
+        return text;
+      }
       const counters = { nodes: 0, textBytes: 0 };
       const source = record(coreDocument);
       function recordIds(entry) { const value = record(entry); return [value.id, value.name, value.qualifiedId].filter(Boolean).map(String); }
@@ -57,42 +77,64 @@
         if (tag === 'x-progress') { attributes.value = String(state.value || state.progress || state.percent || '0'); attributes.max = String(state.max || state.total || '100'); }
         return { type: 'component', tag, attributes, children: text ? [{ type: 'text', text }] : [] };
       }
-      const generatedRoot = array(source.surfaces).length ? { type: 'fragment', children: array(source.surfaces).map(surfaceDescriptor) } : null;
+      const generatedRoot = array(source.surfaces).length ? { type: 'fragment', children: array(source.surfaces).slice(0, limits.maxNodes).map(surfaceDescriptor) } : null;
       const root = projectOptions.descriptor
         || (source.render && record(source.render).root)
         || (source.descriptor && record(source.descriptor))
         || source.root
         || generatedRoot;
+      function childrenOf(children, depth) {
+        const result = [];
+        for (const child of array(children)) {
+          if (counters.nodes >= limits.maxNodes || depth > limits.maxDepth) { limit(); break; }
+          result.push(visit(child, depth));
+        }
+        return result;
+      }
       function visit(node, depth) {
         counters.nodes += 1;
-        if (depth > limits.maxDepth || counters.nodes > limits.maxNodes) {
-          diagnostics.push(diagnostic('rmt.safe-preview.limit', 'The preview was truncated at its structural limit.', { depth, nodes: counters.nodes }));
-          return { type: 'element', tag: 'p', attributes: { 'data-rmt-preview-degraded': 'limit' }, children: [{ type: 'text', text: 'Preview truncated.' }] };
-        }
         if (typeof node === 'string' || typeof node === 'number') {
-          const text = String(node);
-          counters.textBytes += typeof TextEncoder === 'function' ? new TextEncoder().encode(text).length : text.length;
-          return { type: 'text', text: counters.textBytes > limits.maxTextBytes ? '' : text };
+          return { type: 'text', text: acceptText(node) ?? '' };
         }
         const input = record(node);
-        if (input.type === 'text' || (!input.tag && Object.prototype.hasOwnProperty.call(input, 'text'))) return visit(String(input.text || ''), depth);
-        if (input.type === 'fragment' || (!input.tag && Array.isArray(input.children || input.nodes))) return { type: 'fragment', children: array(input.children || input.nodes).map((child) => visit(child, depth + 1)) };
+        if (input.type === 'text' || (!input.tag && Object.prototype.hasOwnProperty.call(input, 'text'))) {
+          return { type: 'text', text: acceptText(input.text ?? '') ?? '' };
+        }
+        if (input.type === 'fragment' || (!input.tag && Array.isArray(input.children || input.nodes))) {
+          return { type: 'fragment', children: childrenOf(input.children || input.nodes, depth + 1) };
+        }
         const tag = String(input.tag || input.component || '').toLowerCase();
         if (!/^[a-z][a-z0-9-]*$/.test(tag) || !isKnownComponent(tag)) {
-          diagnostics.push(diagnostic('rmt.safe-preview.component-unknown', `Component ${tag || '(missing)'} is not available in the preview registry.`, { tag }));
-          return { type: 'element', tag: 'p', attributes: { role: 'status', 'data-rmt-preview-degraded': 'unknown-component', 'data-rmt-preview-component': tag }, children: [{ type: 'text', text: `Preview unavailable: ${tag || 'unknown component'}` }] };
+          warn('rmt.safe-preview.component-unknown', 'Component is not available in the preview registry.', { tag: tag.slice(0, 128) });
+          return {
+            type: 'element', tag: 'p',
+            attributes: { role: 'status', 'data-rmt-preview-degraded': 'unknown-component', 'data-rmt-preview-component': acceptText(tag.slice(0, 128)) ?? '' },
+            children: childrenOf([{ type: 'text', text: `Preview unavailable: ${tag.slice(0, 128) || 'unknown component'}` }], depth + 1)
+          };
         }
-        const attributes = {};
-        Object.entries(record(input.attributes || input.props)).slice(0, limits.maxAttributes).forEach(([name, value]) => {
-          const normalized = String(name).toLowerCase();
+        const attributes = Object.create(null);
+        const sourceAttributes = record(input.attributes || input.props);
+        let attributeCount = 0;
+        for (const name in sourceAttributes) {
+          if (!Object.prototype.hasOwnProperty.call(sourceAttributes, name)) continue;
+          if (attributeCount++ >= limits.maxAttributes) { limit(); break; }
+          const value = sourceAttributes[name];
+          const normalized = name.toLowerCase();
           if (!/^[a-z_:][a-z0-9:_.-]*$/i.test(normalized) || BLOCKED_ATTRIBUTES.test(normalized) || value == null || typeof value === 'object') {
-            diagnostics.push(diagnostic('rmt.safe-preview.attribute-blocked', `Attribute ${name} was removed.`, { tag, attribute: name })); return;
+            warn('rmt.safe-preview.attribute-blocked', 'Attribute was removed.', { tag: tag.slice(0, 128), attribute: name.slice(0, 128) });
+            continue;
           }
-          const next = URL_ATTRIBUTES.has(normalized) ? safeUrl(value, projectOptions.baseUrl) : String(value === true ? '' : value);
-          if (next === null) { diagnostics.push(diagnostic('rmt.safe-preview.url-blocked', `URL attribute ${name} was removed.`, { tag, attribute: name })); return; }
+          const candidate = String(value === true ? '' : value);
+          // Check bytes before URL parsing or copying oversized attribute values.
+          if (acceptText(normalized + candidate) === null) continue;
+          const next = URL_ATTRIBUTES.has(normalized) ? safeUrl(candidate, projectOptions.baseUrl) : candidate;
+          if (next === null) {
+            warn('rmt.safe-preview.url-blocked', 'URL attribute was removed.', { tag: tag.slice(0, 128), attribute: name.slice(0, 128) });
+            continue;
+          }
           attributes[normalized] = next;
-        });
-        return { type: 'element', tag, attributes, children: array(input.children).map((child) => visit(child, depth + 1)) };
+        }
+        return { type: 'element', tag, attributes, children: childrenOf(input.children, depth + 1) };
       }
       const descriptor = visit(root || { type: 'fragment', children: [] }, 0);
       return Object.freeze({ schema: RMT_SAFE_PREVIEW_SCHEMA, ok: true, descriptor: clone(descriptor, {}), diagnostics: clone(diagnostics, []), metrics: { ...counters } });

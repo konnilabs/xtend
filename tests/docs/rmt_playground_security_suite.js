@@ -111,6 +111,11 @@ function runRmtPlaygroundSecuritySuite(options = {}) {
     id: 'rmt-playground-security',
     label: 'RMT Playground Security'
   });
+  const php = spawnSync('php', ['--version'], { encoding: 'utf8', timeout: 10000 });
+  if (php.error || php.status !== 0) {
+    context.fail('Required PHP CLI is unavailable for the playground endpoint tests.');
+    return context.result();
+  }
   const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const indexPhp = readText('docs/index.php', rootDir);

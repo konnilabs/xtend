@@ -158,6 +158,8 @@ async function runMaracaTailwindCssProviderSuite(options = {}) {
     fs.mkdirSync(path.join(untrustedRoot, 'design-tokens', 'tailwind'), { recursive: true });
     fs.writeFileSync(path.join(untrustedRoot, 'xtend-maraca-css-tailwind', 'index.js'), `require('fs').writeFileSync(${JSON.stringify(adapterMarker)}, 'executed');`);
     fs.writeFileSync(path.join(untrustedRoot, 'design-tokens', 'tailwind', 'xtend-tailwind-token-bridge.js'), `require('fs').writeFileSync(${JSON.stringify(tokenBridgeMarker)}, 'executed');`);
+    fs.mkdirSync(path.dirname(path.join(untrustedRoot, RMT_FIXTURE)), { recursive: true });
+    fs.copyFileSync(path.join(rootDir, RMT_FIXTURE), path.join(untrustedRoot, RMT_FIXTURE));
     const untrustedPlan = createMaracaBuildPlan({ source: RMT_FIXTURE, cssProvider: 'tailwind', cssPreflight: 'disabled' }, { rootDir: untrustedRoot });
     context.assert(untrustedPlan.ok && !fs.existsSync(adapterMarker) && !fs.existsSync(tokenBridgeMarker), 'Tailwind planning never executes adapters or token bridges from the supplied root');
   } finally {

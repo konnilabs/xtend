@@ -91,6 +91,11 @@ export interface RmtKernelSchedulerOptions {
   readonly strict?: boolean;
   readonly allowLegacyLanes?: boolean;
   readonly preferPostTask?: boolean;
+  /** Terminal handles retained by getJob: default 200; nonnegative safe integer or Infinity.
+   * Zero retains no terminal history; invalid values use 200. Active jobs and held handles survive eviction. */
+  readonly maxCompletedJobs?: number;
+  /** Maximum consecutive microtask pumps before allowing host timers/input to run (default 64). */
+  readonly maxMicrotaskTurns?: number;
   readonly globalTarget?: unknown;
 }
 

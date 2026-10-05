@@ -177,3 +177,20 @@ npm run test:scoped-package-readmes
 Lizenziert unter der Apache License 2.0. Siehe [LICENSE](../LICENSE).
 
 [Nach oben](#xtend-fabric) · [English](#english)
+
+### Bounded User Timing ownership
+
+Fabric-generated measure entry names now have the form
+`<logical-name>.fabric.<instance-id>.<sequence>` (for example,
+`xtend.component.render.fabric.1-abc.4`). Direct User Timing consumers must match
+this prefix instead of exact equality with `xtend.component.render`. The
+telemetry `measurements[].name` remains the logical name; `entryName` identifies
+the actual timing entry. The instance ID is opaque and must not be persisted.
+
+With a standard Performance API, each instance retains at most `storeLimit`
+measures and pending start marks (default 200). Completed start/end marks are
+removed immediately. Dispose removes only entries owned by that instance and
+ignores late instrumentation results, while the original work promise still
+settles normally. Other producers and other Fabric instances are preserved.
+Partial embedded Performance implementations need working `clearMarks` and
+`clearMeasures` to enforce retention; instrumentation remains best-effort there.
