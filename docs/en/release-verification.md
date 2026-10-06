@@ -88,3 +88,22 @@ node scripts/run_xtend_tests.js docs-public-quality docs-content-depth docs-qual
 After language-catalog changes, also generate the RMT AI Developer Kit with `xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json` before building MCP knowledge. After framework-runtime changes, rebuild the Docs shell with `xt maraca tune docs/xtendrmt-docs-document-v2.rmt --config docs/maraca.config.json --out docs/generated/shell --write --json`. Then use the corresponding `--check` paths.
 
 In the browser, verify new articles in both languages, search, locale switching and narrow views. Docs acceptance supplements the full release, type, schema, artifact and package checks; it replaces neither the CI matrix nor the separate publishing step.
+
+## Profile capability preflight and harness regressions
+
+The no-argument preflight retains the Nightly toolchain-stage contract (Node/subprocesses, npm, SQLite, PHP and a Chromium loopback probe). Run an explicit catalog profile after its fixtures have been prepared:
+
+```bash
+node scripts/test-runner/capabilities.js
+node scripts/test-runner/capabilities.js --profile ci-release
+node scripts/test-runner/capabilities.js --profile ci-nightly
+node --test tests/browser/lifecycle_harness.test.cjs
+```
+
+The profile report distinguishes required, optional and unselected browser coverage. PHP includes a real UTF-8 to UTF-16BE iconv conversion; selected Laravel checks require installed fixture files, locked PHP extensions and a working autoloader. A configured fixture path alone is insufficient. Composer is a preparation prerequisite, not a new requirement to execute an already installed fixture. The no-argument Nightly phase deliberately does not require fixtures that later phases install.
+
+Execution provenance records the effective PHP version, executable, extensions and ini hashes, plus configured local browser/driver versions. Changed PHP configuration invalidates report reuse. External WebDriver endpoint identity does not prove that a remote server has kept the same browser image; retain its actual browser evidence separately. Capability reports do not replace suite outcomes or prove every application-specific prerequisite. Existing advisory and skip rules remain unchanged.
+
+The focused Lifecycle test uses the registered result key and the existing 10-second browser deadline. It requires the unchanged fixture to pass, then rejects a wrong result key and a foreign-origin asset served from a second local port. Absolute same-origin HTTP(S) URLs remain valid. Missing browser infrastructure fails this explicit test; it is not silently skipped.
+
+`--verify --from` verifies an execution JSON and its provenance/suite records. Rejecting a missing input JSON does not establish integrity or freshness of logs/screenshots referenced inside it. Keep those artifact checks separate.

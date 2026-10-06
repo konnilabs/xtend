@@ -7,7 +7,7 @@ const { summaryFor, SCHEMA } = require('../../scripts/test-runner/executor');
 const { normalizeSuiteResult, createRunSummary, writeJsonReport } = require('../utils/reporting');
 const { begin, runPhase } = require('../../scripts/test-runner/nightly');
 const { SESSION_PATH, inspectArtifact, validateNightly } = require('../../scripts/test-runner/nightly-evidence');
-const { probeCapabilities } = require('../../scripts/test-runner/capabilities');
+const { probeCapabilities, requirementsFor, toolchainIdentity, PHP_PROBE } = require('../../scripts/test-runner/capabilities');
 const { verifyCiDependencyLocks } = require('../../scripts/verify_ci_dependency_locks');
 
 async function runNightlyRunnerChecks({ check, temp, identity, rootDir }) {
@@ -32,6 +32,59 @@ async function runNightlyRunnerChecks({ check, temp, identity, rootDir }) {
     assert(positive.ok);
     const negative=await probeCapabilities({commandProbe:command=>{if(command==='php')throw Error('PHP unavailable');return 'available';},browserProbe:()=>{throw Error('Browser unavailable');}});
     assert(!negative.ok);assert.equal(negative.checks.filter(c=>!c.ok).length,2);
+  });
+  await check('Profile preflight preserves optional coverage and validates PHP iconv behavior', async () => {
+    const {spawnSync}=require('node:child_process');
+    const commandProbe=(command,args)=>{
+      const result=spawnSync(command,args,{encoding:'utf8',timeout:10000});
+      if(result.error || result.status!==0)throw Error(result.error?.message || result.stderr);
+      return result.stdout.trim();
+    };
+    assert.match(commandProbe('php',['-r',PHP_PROBE]),/^\d+\./);
+    assert.throws(()=>commandProbe('php',['-n','-d','disable_functions=iconv','-r',PHP_PROBE]),/iconv/);
+    const withoutPhp=await probeCapabilities({profile:'core',commandProbe:(command)=>{assert.notEqual(command,'php');return 'available';},browserProbe:()=>{throw Error('must not probe unselected browser');}});
+    assert(withoutPhp.ok);
+    const optional=await probeCapabilities({suiteIds:['maraca-app-services-build'],commandProbe:()=> 'available',browserProbe:()=>{throw Error('optional browser absent');}});
+    assert(optional.ok);assert.equal(optional.checks.find(c=>c.id==='browser-and-loopback').required,false);
+    const mandatory=await probeCapabilities({suiteIds:['ssr-pages-browser'],commandProbe:()=> 'available',browserProbe:()=>{throw Error('required browser absent');}});
+    assert(!mandatory.ok);
+    const laravel=await probeCapabilities({suiteIds:['ssr-pages-laravel'],commandProbe:()=> 'available'});
+    if(!process.env.XTEND_LARAVEL_FIXTURE)assert(!laravel.ok,'unset fixture cannot count as installed');
+    for(const profile of ['ci-pr','ci-release','ci-nightly']){
+      const r=requirementsFor({profile});
+      assert.equal(r.requireNoSkips,Boolean(catalog.profiles[profile].requireNoSkips));
+      assert.deepEqual(r.advisory,catalog.profiles[profile].advisory || []);
+    }
+    assert.throws(()=>requirementsFor({profile:'nonexistent-profile'}),/Unknown/);
+    const previousPhp=process.env.XTEND_PHP_BINARY;
+    try {
+      process.env.XTEND_PHP_BINARY='explicit-php';
+      assert.deepEqual(requirementsFor({suiteIds:['ssr-pages-php']}).phpCommands,['explicit-php']);
+      assert.deepEqual(requirementsFor({suiteIds:['rmt-php-ssr-adapter']}).phpCommands,['php']);
+    } finally {if(previousPhp===undefined)delete process.env.XTEND_PHP_BINARY;else process.env.XTEND_PHP_BINARY=previousPhp;}
+  });
+  await check('Toolchain provenance changes with PHP configuration and executable identity', () => {
+    const {spawnSync}=require('node:child_process');
+    const regular=toolchainIdentity();
+    const withoutIni=toolchainIdentity({commandProbe:(command,args)=>{
+      const result=spawnSync(command,command==='php'?['-n',...args]:args,{encoding:'utf8',timeout:10000});
+      if(result.error || result.status!==0)throw Error('unavailable');return result.stdout.trim();
+    }});
+    assert(regular.php.find(p=>p.command==='php').available);
+    assert.notDeepEqual(regular.php,withoutIni.php);
+    const changed=toolchainIdentity({commandProbe:()=> 'different runtime identity'});
+    assert.notDeepEqual(regular,changed);
+    const missing=toolchainIdentity({commandProbe:()=>{throw Error('missing');}});
+    assert(missing.php.every(p=>p.available===false),'unavailable tools are identity evidence, not a provenance crash');
+  });
+  await check('Catalog readers bind suite registration and implementation without CLI text markers', () => {
+    const {readRunnerCatalog}=require('../utils/test-catalog');
+    const directory=path.join(temp,'catalog-probe');fs.mkdirSync(path.join(directory,'scripts/test-runner'),{recursive:true});
+    const source={suites:[{id:'fixture',label:'Fixture',description:'probe',implementations:[{path:'tests/fixture.js',function:'runFixture'}]}]};
+    const file=path.join(directory,'scripts/test-runner/catalog.json');fs.writeFileSync(file,JSON.stringify(source));
+    let view=readRunnerCatalog(directory);assert(view.hasSuite('fixture'));assert(view.hasImplementation({path:'tests/fixture.js',function:'runFixture'}));
+    source.suites[0].id='different';source.suites[0].implementations[0].function='wrong';fs.writeFileSync(file,JSON.stringify(source));
+    view=readRunnerCatalog(directory);assert(!view.hasSuite('fixture'));assert(!view.hasImplementation({path:'tests/fixture.js',function:'runFixture'}));
   });
   await check('CI cache setup needs no npm invocation before the required package manager is installed', () => {
     const {configureNpmCache}=require('../../scripts/configure_npm_cache');

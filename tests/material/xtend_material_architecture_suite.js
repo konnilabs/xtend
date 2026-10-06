@@ -27,7 +27,7 @@ function runXtendMaterialArchitectureSuite(options = {}) {
   const packageManifest = JSON.parse(readText(rootDir, 'package.json'));
   const adr = readText(rootDir, ADR_PATH);
   const backlog = readText(rootDir, BACKLOG_PATH);
-  const runner = readText(rootDir, 'scripts/run_xtend_tests.js');
+  const runner = require('../utils/test-catalog').readRunnerCatalog(rootDir);
   const metadata = packageManifest.xtend && packageManifest.xtend.xtendMaterialArchitecture;
   const rootDependencySections = [
     packageManifest.dependencies,
@@ -77,7 +77,7 @@ function runXtendMaterialArchitectureSuite(options = {}) {
   context.assert(backlog.includes('Product Target: `@xtend-material/core`'), 'backlog uses the complete core package target');
   context.assert(backlog.includes('NPM Scope Target: `@xtend-material`'), 'backlog records the requested npm scope');
   context.assert(backlog.includes('Build Adapter Target: `@xtend-material/maraca-tailwind`'), 'backlog keeps adapter in the same product scope');
-  context.assert(runner.includes("id: 'xtend-material-architecture'"), 'test runner exposes the XTM-00 gate');
+  context.assert(runner.hasSuite('xtend-material-architecture'), 'test runner exposes the XTM-00 gate');
   context.assert(packageManifest.scripts['test:xtend-material-architecture'] === 'node scripts/run_xtend_tests.js xtend-material-architecture', 'package exposes the isolated XTM-00 gate');
 
   return context.result({

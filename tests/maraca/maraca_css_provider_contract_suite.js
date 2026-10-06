@@ -53,7 +53,7 @@ async function runMaracaCssProviderContractSuite(options = {}) {
   const contractDoc = readText(rootDir, CONTRACT_PATH);
   const backlog = readText(rootDir, BACKLOG_PATH);
   const types = readText(rootDir, TYPES_PATH);
-  const runner = readText(rootDir, 'scripts/run_xtend_tests.js');
+  const runner = require('../utils/test-catalog').readRunnerCatalog(rootDir);
   const packageManifest = JSON.parse(readText(rootDir, 'package.json'));
   const maracaManifest = JSON.parse(readText(rootDir, 'xtend-maraca/package.json'));
   const metadata = packageManifest.xtend && packageManifest.xtend.maracaCssProvider;
@@ -259,7 +259,7 @@ async function runMaracaCssProviderContractSuite(options = {}) {
   context.assert(metadata && metadata.contract === CONTRACT_PATH && metadata.suite === SUITE_PATH, 'package metadata links contract and suite');
   context.assert(metadata && metadata.integrationWorkpackage === 'XTM-02', 'package metadata declares XTM-02 integration handoff');
   context.assert(packageManifest.scripts['test:maraca-css-provider'] === 'node scripts/run_xtend_tests.js maraca-css-provider', 'package exposes isolated CSS provider gate');
-  context.assert(runner.includes("id: 'maraca-css-provider'"), 'test runner exposes CSS provider gate');
+  context.assert(runner.hasSuite('maraca-css-provider'), 'test runner exposes CSS provider gate');
 
   return context.result({
     report: {
