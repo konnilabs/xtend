@@ -171,11 +171,8 @@ function runEpic13ReleaseReportPackDryRunEvidenceSuite(options = {}) {
     EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_SCHEMA,
     `expectedExportCount: ${expectedExportCount}`
   ], 'scaffold config');
-  assertTextIncludesAll(context, runner, [
-    'epic13_release_report_pack_dry_run_evidence_suite',
-    'epic13-release-report-pack-dry-run-evidence',
-    'runEpic13ReleaseReportPackDryRunEvidenceSuite'
-  ], 'test runner');
+  context.assert(runner.hasSuite('epic13-release-report-pack-dry-run-evidence'), 'test runner registers epic13-release-report-pack-dry-run-evidence');
+  context.assert(runner.hasImplementation({ path: 'tests/platform/epic13_release_report_pack_dry_run_evidence_suite.js', function: 'runEpic13ReleaseReportPackDryRunEvidenceSuite' }), 'test runner maps the expected implementation');
   assertTextIncludesAll(context, contract, [
     EPIC13_RELEASE_REPORT_PACK_DRY_RUN_EVIDENCE_SCHEMA,
     RELEASE_REPORT_COMMAND,

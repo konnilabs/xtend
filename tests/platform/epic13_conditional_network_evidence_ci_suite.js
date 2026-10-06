@@ -195,11 +195,8 @@ function runEpic13ConditionalNetworkEvidenceCiSuite(options = {}) {
     EPIC13_CONDITIONAL_NETWORK_EVIDENCE_CI_SCHEMA,
     `expectedExportCount: ${expectedExportCount}`
   ], 'scaffold config');
-  assertTextIncludesAll(context, runner, [
-    'epic13_conditional_network_evidence_ci_suite',
-    'epic13-conditional-network-evidence-ci',
-    'runEpic13ConditionalNetworkEvidenceCiSuite'
-  ], 'test runner');
+  context.assert(runner.hasSuite('epic13-conditional-network-evidence-ci'), 'test runner registers epic13-conditional-network-evidence-ci');
+  context.assert(runner.hasImplementation({ path: 'tests/platform/epic13_conditional_network_evidence_ci_suite.js', function: 'runEpic13ConditionalNetworkEvidenceCiSuite' }), 'test runner maps the expected implementation');
   assertTextIncludesAll(context, contract, [
     EPIC13_CONDITIONAL_NETWORK_EVIDENCE_CI_SCHEMA,
     'XTEND_CONDITIONAL_NETWORK_EXECUTE=1',

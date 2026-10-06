@@ -52,6 +52,7 @@ function provenance() {
     runtime: {
       node: process.version, platform: process.platform, arch: process.arch, nodeOptions: process.env.NODE_OPTIONS || '',
       runnerImage: `${process.env.ImageOS || ''}:${process.env.ImageVersion || ''}`,
+      toolchain: require('./capabilities').toolchainIdentity(),
       ...(laravel ? {laravel} : {}),
       ...(shop ? {shop} : {}),
       environmentFingerprint: hash(JSON.stringify(Object.keys(process.env).filter(key=>key.startsWith('XTEND_') && key !== 'XTEND_TEST_RUN_ID').sort().map(key=>[key,process.env[key]])))

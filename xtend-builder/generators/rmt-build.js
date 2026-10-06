@@ -440,7 +440,10 @@ function renderBrowserSmokeHtml(context) {
         recordCheck('rmt build scaffold report linked app', result.report.generated.app === '${context.paths.appPath}');
         const externalAssets = Array.from(document.querySelectorAll('script[src], link[href], img[src]'))
           .map((node) => node.getAttribute('src') || node.getAttribute('href') || '')
-          .filter((value) => /^https?:\\/\\//.test(value));
+          .filter((value) => {
+            const url = new URL(value, document.baseURI);
+            return ['http:', 'https:'].includes(url.protocol) && url.origin !== window.location.origin;
+          });
         recordCheck('rmt build local http assets only', externalAssets.length === 0, externalAssets.join(', '));
         window.__xtendRmtAppBuildSmokeResult.status = window.__xtendRmtAppBuildSmokeResult.errors.length ? 'failed' : 'passed';
         window.__xtendRmtAppBuildSmokeResult.counts = result.fingerprint.counts;

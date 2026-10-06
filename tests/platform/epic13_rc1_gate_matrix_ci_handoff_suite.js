@@ -166,11 +166,8 @@ function runEpic13Rc1GateMatrixCiHandoffSuite(options = {}) {
     `expectedExportCount: ${packageLockMetadata.expectedExportCount}`,
     'nextWorkpackage: "WP-E13-14"'
   ], 'scaffold config');
-  assertTextIncludesAll(context, runner, [
-    'epic13_rc1_gate_matrix_ci_handoff_suite',
-    'epic13-rc1-gate-matrix-ci-handoff',
-    'runEpic13Rc1GateMatrixCiHandoffSuite'
-  ], 'test runner');
+  context.assert(runner.hasSuite('epic13-rc1-gate-matrix-ci-handoff'), 'test runner registers epic13-rc1-gate-matrix-ci-handoff');
+  context.assert(runner.hasImplementation({ path: 'tests/platform/epic13_rc1_gate_matrix_ci_handoff_suite.js', function: 'runEpic13Rc1GateMatrixCiHandoffSuite' }), 'test runner maps the expected implementation');
   assertTextIncludesAll(context, steering, [
     EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_SCHEMA,
     EPIC13_RC1_GATE_MATRIX_CI_HANDOFF_LOCAL_GATE,

@@ -56,7 +56,7 @@ const BROWSER_FIXTURES = [
   {
     label: 'RMT Lifecycle Demo smoke fixture',
     path: RMT_LIFECYCLE_DEMO_SMOKE_FIXTURE_PATH,
-    resultKey: '__xtendRmtLifecycleDemoSmokeResult'
+    resultKey: '__xtendRmtAppBuildSmokeResult'
   },
   {
     label: 'SurfaceManager quality smoke fixture',
@@ -908,6 +908,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  BROWSER_FIXTURES,
   runBrowserSmokeSuite,
   printBrowserSmokeReport
 };

@@ -88,3 +88,22 @@ node scripts/run_xtend_tests.js docs-public-quality docs-content-depth docs-qual
 Bei geänderten Sprachkatalogen erzeuge zusätzlich das RMT AI Developer Kit über `xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json`, bevor die MCP-Wissensbasis gebaut wird. Bei geänderten Framework-Runtimes wird die Docs-Shell mit `xt maraca tune docs/xtendrmt-docs-document-v2.rmt --config docs/maraca.config.json --out docs/generated/shell --write --json` neu gebaut. Verwende anschließend die jeweiligen `--check`-Pfade.
 
 Prüfe im Browser neue Artikel in beiden Sprachen, Suche, Locale-Wechsel und schmale Ansichten. Diese Docs-Abnahme ergänzt die vollständigen Release-, Typ-, Schema-, Artefakt- und Paketprüfungen; sie ersetzt weder die CI-Matrix noch den separaten Veröffentlichungsschritt.
+
+## Profilbezogener Capability-Preflight und Harness-Regressionen
+
+Der Preflight ohne Argumente behält den Toolchain-Vertrag der Nightly-Vorphase bei (Node/Subprozesse, npm, SQLite, PHP und Chromium über Loopback). Ein ausdrückliches Katalogprofil wird nach Vorbereitung seiner Fixtures geprüft:
+
+```bash
+node scripts/test-runner/capabilities.js
+node scripts/test-runner/capabilities.js --profile ci-release
+node scripts/test-runner/capabilities.js --profile ci-nightly
+node --test tests/browser/lifecycle_harness.test.cjs
+```
+
+Der Profilbericht unterscheidet verpflichtende, optionale und nicht gewählte Browserabdeckung. PHP benötigt eine echte iconv-Konvertierung von UTF-8 nach UTF-16BE. Gewählte Laravel-Prüfungen verlangen installierte Fixture-Dateien, die PHP-Erweiterungen aus dem Lockfile und einen funktionierenden Autoloader. Ein gesetzter Fixture-Pfad genügt nicht. Composer bleibt eine Voraussetzung der Vorbereitung; für bereits installierte Fixtures entsteht keine neue Ausführungspflicht. Die Nightly-Vorphase ohne Argumente verlangt ausdrücklich keine erst später installierten Fixtures.
+
+Die Ausführungsprovenienz erfasst wirksame PHP-Version, Programmdatei, Erweiterungen und Ini-Hashes sowie konfigurierte lokale Browser-/Driver-Versionen. Geänderte PHP-Konfiguration verhindert Report-Wiederverwendung. Die Identität eines externen WebDriver-Endpunkts beweist nicht, dass dessen Browserimage unverändert ist; dessen tatsächliche Browserevidence bleibt separat erforderlich. Capability-Berichte ersetzen weder Suite-Ergebnisse noch alle anwendungsspezifischen Voraussetzungen. Bestehende Advisory- und Skip-Regeln bleiben unverändert.
+
+Der fokussierte Lifecycle-Test verwendet den registrierten Ergebnis-Key und das bestehende Browserzeitlimit von zehn Sekunden. Zuerst muss die unveränderte Fixture bestehen; danach werden ein falscher Ergebnis-Key und ein Asset fremder Origin von einem zweiten lokalen Port zurückgewiesen. Absolute HTTP(S)-URLs derselben Origin bleiben zulässig. Fehlende Browserinfrastruktur macht diesen ausdrücklichen Test rot; sie wird nicht still übersprungen.
+
+`--verify --from` prüft eine Execution-JSON samt Provenienz und Suite-Einträgen. Die Ablehnung einer fehlenden Eingabe-JSON belegt keine Integrität oder Frische darin referenzierter Logs/Screenshots. Diese Artefaktprüfungen bleiben getrennt.
