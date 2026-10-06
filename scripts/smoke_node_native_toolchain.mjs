@@ -115,6 +115,18 @@ async function run() {
     return { version: versionOf(esbuild), bytes: Buffer.byteLength(result.code) };
   });
 
+  await record('vite-oxc-transform', async () => {
+    const vite = await import('vite');
+    const result = await vite.transformWithOxc('export const answer: number = 42', 'native-toolchain-smoke.ts', {
+      lang: 'ts',
+      target: 'es2022'
+    });
+    const transformed = await import(`data:text/javascript,${encodeURIComponent(result.code)}`);
+    if (transformed.answer !== 42) throw new Error('Vite Oxc transform did not preserve the TypeScript fixture value.');
+    return { version: versionOf(vite), bytes: Buffer.byteLength(result.code) };
+  });
+
+  // Keep covering the optional esbuild bridge used by existing consumers.
   await record('vite-esbuild-bridge', async () => {
     const vite = await import('vite');
     const result = await vite.transformWithEsbuild('export const answer: number = 42', 'native-toolchain-smoke.ts', {
