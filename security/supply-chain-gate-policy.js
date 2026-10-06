@@ -41,9 +41,16 @@ const ALLOWED_DEV_TOOLING_DEPENDENCIES = Object.freeze([
     runtime: false
   },
   {
+    name: 'esbuild',
+    section: 'devDependencies',
+    versionRange: '^0.28.2',
+    purpose: 'native-toolchain-and-ssr-resource-tests',
+    runtime: false
+  },
+  {
     name: 'vite',
     section: 'devDependencies',
-    versionRange: '^7.3.6',
+    versionRange: '^8.3.3',
     purpose: 'typescript-demo-and-dev-hmr-spike-only',
     runtime: false
   }

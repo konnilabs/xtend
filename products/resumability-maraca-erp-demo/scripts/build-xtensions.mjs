@@ -776,10 +776,10 @@ async function buildFrameworkRuntimeProviders() {
           fileName: () => provider.fileName
         },
         outDir: provider.outDir,
-        rollupOptions: {
+        rolldownOptions: {
           output: {
             entryFileNames: provider.fileName,
-            inlineDynamicImports: true
+            codeSplitting: false
           }
         }
       },
@@ -817,10 +817,10 @@ async function buildAngularServerBundle(entry) {
       target: 'node18',
       ssr: path.join(angularAotOutRoot, 'server.js'),
       outDir: entry.outDir,
-      rollupOptions: {
+      rolldownOptions: {
         output: {
           entryFileNames: 'server.mjs',
-          inlineDynamicImports: true
+          codeSplitting: false
         }
       }
     },
@@ -855,11 +855,11 @@ for (const entry of entries) {
         fileName: () => 'index.mjs'
       },
       outDir: entry.outDir,
-      rollupOptions: {
+      rolldownOptions: {
         external: externalPackagesFor(entry),
         output: {
           entryFileNames: 'index.mjs',
-          inlineDynamicImports: true,
+          codeSplitting: false,
           paths: outputPathsFor(entry)
         }
       }

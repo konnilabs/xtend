@@ -51,7 +51,8 @@
     "@angular/compiler": "~19.2.0",
     "@angular/compiler-cli": "~19.2.0",
     "typescript": "~5.8.3",
-    "vite": "^5.4.21"
+    "vite": "^8.3.3",
+    "rollup": "^4.62.2"
   },
   "engines": {
     "node": ">=24"
