@@ -32,6 +32,28 @@ XScaler-Fixtures und Übergabe-Records verwenden fünf stabile Schema-Namen:
 
 Der Plan spiegelt den RMT-Remote-Surface-Vertrag: Owner, Origin, Integrity, Fallback-Surface und Lane-Ziel sind statische Fakten. XScaler lädt oder führt während der Validierung kein Remote-Bundle aus.
 
+## Integrität des Remote-Adapter-Artefakts
+
+Der Browser-Loader akzeptiert nur eigenständige Modul-Bundles. Alle ausführbaren
+Abhängigkeiten müssen vor Freigabe des SRI-Digests eingebündelt werden. Statische
+Imports, dynamische Imports (auch verzögert oder mit berechnetem Pfad) und Re-Exports
+anderer Module werden vor dem Erzeugen eines Script-Elements abgelehnt. Import-Text
+in Kommentaren oder Strings bleibt zulässig; die Prüfung nutzt einen JavaScript-Parser.
+
+Der Loader lädt ohne Credentials und ohne Redirects, begrenzt die Antwort standardmäßig
+auf 1 MiB und 15 Sekunden, prüft die Bytes gegen den freigegebenen Digest und parst diese
+verifizierten Bytes. Das native Modul-Script prüft beim Ausführungsabruf nochmals SRI.
+Dadurch kann auch ein zwischen Prüfung und Ausführung verändertes Root-Modul keine
+anderen Bytes einschleusen. Ein unverändertes Root-Modul mit veränderter Import-Abhängigkeit
+wird vollständig abgelehnt; der einzelne Digest verspricht keine transitive Browser-SRI.
+
+Eigene Host-Loader müssen dieselbe Grenze erzwingen und `closedGraphIntegrity: true`
+deklarieren. Dies ist eine vertrauenswürdige Host-Fähigkeit, kein Provider-Nachweis.
+Der Vertrag ist keine Sandbox und verbietet nicht sämtliche anderen APIs zum Nachladen
+von Code. CSP-Grenzen für Evaluation, Scripts und Worker bleiben notwendig; Provider-Code
+ohne Seitenberechtigung benötigt eine isolierte Origin/Sandbox. Der Regressionstest zu
+`csf_1e84f759699fec8ea5bf83f1` steht in `tests/security/xscaler.test.cjs`.
+
 ## SSR-Kompatibilität
 
 SSR-Adapter müssen XScaler als reinen Preflight-Vertrag behandeln. Ein kompatibler Plan setzt `networkDuringRender` auf `false`, hält Remote-Ausführung aus dem Server-Render-Pfad heraus und hydriert erst nach akzeptierter Preflight-Response.

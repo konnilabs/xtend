@@ -296,7 +296,7 @@ const entries = [
     prepare: 'angular-aot',
     dependencies: angularRuntimePackages.map((name) => ({
       name,
-      versionRange: name === 'rxjs' ? '^7.8.0' : '~19.2.0',
+      versionRange: name === 'rxjs' ? '^7.8.0' : '20.3.32',
       classification: 'product-local-bundled',
       bundled: true,
       packageIncluded: true
