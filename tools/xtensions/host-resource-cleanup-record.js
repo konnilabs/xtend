@@ -70,7 +70,18 @@ function resolveHostResourceCleanupSchema(schemaId) {
   };
 }
 
+// The private switcher used this generic record without xtensionId. Only the
+// trusted caller may supply the missing identity; failed releases stay failures.
+function normalizeHostResourceCleanupRecord(input = {}, context = {}) {
+  const generic = input.schema === 'xtend.xtensions.host-controller-cleanup-record.v1';
+  if (!generic && !resolveHostResourceCleanupSchema(input.schema)) throw new TypeError('Unknown cleanup record schema.');
+  if (input.status !== 'released') throw new TypeError('Only successful releases can be normalized.');
+  if (context.xtensionId && input.xtensionId && context.xtensionId !== input.xtensionId) throw new TypeError('Cleanup identity mismatch.');
+  return createHostResourceCleanupRecord({ ...input, xtensionId: context.xtensionId || input.xtensionId });
+}
+
 module.exports = {
+  normalizeHostResourceCleanupRecord,
   XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_LEGACY_SCHEMA_IDS,
   XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA,
   createHostResourceCleanupRecord,

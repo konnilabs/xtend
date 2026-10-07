@@ -28,6 +28,19 @@
     "rmt-language",
     "rmt-linter",
     "rmt-language-server",
+    "xtensions/NOTICE",
+    "xtensions/*-LICENSE.txt",
+    "xtensions/react-runtime-adapter.*",
+    "xtensions/vue-runtime-adapter.*",
+    "xtensions/runtime-host-controller.*",
+    "xtensions/cooperative-resource-scope.*",
+    "xtensions/react-runtime-boundary.js",
+    "xtensions/vue-runtime-boundary.js",
+    "xtensions/react-payload-boundary.js",
+    "xtensions/vue-payload-boundary.js",
+    "xtensions/host-controller-contract.*",
+    "xtensions/host-resource-cleanup-record.*",
+    "xtensions/signal-bridge-contract.*",
     "rmt-jit-kernel-cache.js",
     "rmt-jit-kernel-cache.d.ts",
     "rmt-jit-cache-cli.js",
@@ -111,6 +124,14 @@
     "./rmt-language/compilation-session": {
       "types": "./rmt-language/compilation-session.d.ts",
       "default": "./rmt-language/compilation-session.js"
+    },
+    "./xtensions/react-runtime-adapter": {
+      "types": "./xtensions/react-runtime-adapter.d.ts",
+      "default": "./xtensions/react-runtime-adapter.js"
+    },
+    "./xtensions/vue-runtime-adapter": {
+      "types": "./xtensions/vue-runtime-adapter.d.ts",
+      "default": "./xtensions/vue-runtime-adapter.js"
     }
   },
   "publishConfig": {

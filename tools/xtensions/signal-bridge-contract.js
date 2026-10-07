@@ -4,7 +4,7 @@ const {
   CANONICAL_SCHEDULER_LANES,
   RMT_VNEXT_SCHEDULER_SCHEMA,
   normalizeLaneName
-} = require('../rmt-language/vnext-scheduler');
+} = require('../rmt-language/scheduler-lanes');
 const {
   XTENSIONS_HOST_CONTROLLER_SCHEMA,
   assertNoFrameworkDependencies

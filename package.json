@@ -957,6 +957,14 @@
     "./rmt-language/compilation-session": {
       "types": "./tools/rmt-language/compilation-session.d.ts",
       "default": "./tools/rmt-language/compilation-session.js"
+    },
+    "./xtensions/react-runtime-adapter": {
+      "types": "./tools/xtensions/react-runtime-adapter.d.ts",
+      "default": "./tools/xtensions/react-runtime-adapter.js"
+    },
+    "./xtensions/vue-runtime-adapter": {
+      "types": "./tools/xtensions/vue-runtime-adapter.d.ts",
+      "default": "./tools/xtensions/vue-runtime-adapter.js"
     }
   },
   "publishConfig": {
@@ -18211,7 +18219,9 @@
     "test:xtend-shop:report": "node scripts/run_xtend_tests.js --profile xtend-shop --report .xtend-test-results/xtend-shop.json",
     "build:html-sanitizer": "node scripts/build_html_sanitizer.js",
     "check:html-sanitizer": "node scripts/build_html_sanitizer.js --check",
-    "test:security-scan-regressions": "node --test tests/security/*.test.*"
+    "test:security-scan-regressions": "node --test tests/security/*.test.*",
+    "test:xtensions-runtime": "node scripts/test_xtensions_runtime_adapters.cjs",
+    "test:xtensions-runtime:browser": "node scripts/test_xtensions_runtime_adapters.cjs --browser"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
