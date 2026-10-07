@@ -41,3 +41,6 @@ export interface HostResourceCleanupSchemaResolution {
 
 export function createHostResourceCleanupRecord(input: HostResourceCleanupRecordInput): HostResourceCleanupRecord;
 export function resolveHostResourceCleanupSchema(schemaId: unknown): HostResourceCleanupSchemaResolution | null;
+
+/** Normalize legacy releases; the host must supply xtensionId when absent. */
+export function normalizeHostResourceCleanupRecord(input: Record<string, unknown>, context?: { xtensionId?: string }): HostResourceCleanupRecord;

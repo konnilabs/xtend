@@ -1,5 +1,8 @@
 'use strict';
 
+// Payload diagnostics retain the legacy HostController diagnostic alias in react-payload-boundary.
+const { REACT_LEAK_KEYS, createReactPocDiagnostic, inspectReactPayloadBoundary } = require('./react-payload-boundary');
+
 const {
   DEFAULT_CLEANUP_RESOURCES,
   XTENSIONS_HOST_CONTROLLER_SCHEMA,
@@ -74,17 +77,7 @@ const DEFAULT_REACT_CLEANUP_RESOURCES = Object.freeze([
   'error-boundary'
 ]);
 
-const REACT_LEAK_KEYS = Object.freeze([
-  'reactContext',
-  '$reactContext',
-  'ReactContext',
-  'providerValue',
-  'reduxStore',
-  'zustandStore',
-  'reactStore',
-  '_owner',
-  '$$typeof'
-]);
+
 
 function normalizeString(value) {
   return typeof value === 'string' ? value.trim() : '';
@@ -119,23 +112,6 @@ function timestampFromOptions(options = {}) {
   return new Date().toISOString();
 }
 
-function createReactPocDiagnostic(subject, code, message, severity = 'error', metadata = {}) {
-  const diagnosticMetadata = cloneJson(metadata) || {};
-  return {
-    code,
-    message,
-    // `details` is retained as the legacy HostController diagnostic alias.
-    details: diagnosticMetadata,
-    schema: 'xtend.xtensions.react-host-controller-diagnostic.v1',
-    source: XTENSIONS_REACT_HOST_CONTROLLER_POC_SCHEMA,
-    workpackage: XTENSIONS_REACT_HOST_CONTROLLER_POC_WORKPACKAGE,
-    severity,
-    xtensionId: subject && (subject.xtensionId || subject.id) || null,
-    framework: 'react',
-    field: diagnosticMetadata.field || null,
-    metadata: diagnosticMetadata
-  };
-}
 
 function normalizeLane(lane) {
   const normalized = normalizeString(lane || 'fabric.default');
@@ -202,59 +178,7 @@ function decideReactSchedulingHint(input = {}, options = {}) {
   };
 }
 
-function collectPayloadDiagnostics(value, path = 'payload', seen = new Set()) {
-  const diagnostics = [];
-  const valueType = typeof value;
-  if (valueType === 'function' || valueType === 'symbol' || valueType === 'bigint') {
-    diagnostics.push(createReactPocDiagnostic(
-      { id: 'xtension.react.poc' },
-      REACT_POC_NON_SERIALIZABLE_PAYLOAD_CODE,
-      `React XTension payload field "${path}" must be serializable.`,
-      'error',
-      { field: path, valueType }
-    ));
-    return diagnostics;
-  }
 
-  if (!value || valueType !== 'object') return diagnostics;
-  if (seen.has(value)) {
-    diagnostics.push(createReactPocDiagnostic(
-      { id: 'xtension.react.poc' },
-      REACT_POC_NON_SERIALIZABLE_PAYLOAD_CODE,
-      `React XTension payload field "${path}" must not contain cycles.`,
-      'error',
-      { field: path, valueType: 'cycle' }
-    ));
-    return diagnostics;
-  }
-  seen.add(value);
-
-  Object.keys(value).forEach((key) => {
-    const childPath = `${path}.${key}`;
-    if (REACT_LEAK_KEYS.includes(key)) {
-      diagnostics.push(createReactPocDiagnostic(
-        { id: 'xtension.react.poc' },
-        key.toLowerCase().includes('store') ? REACT_POC_STORE_LEAK_CODE : REACT_POC_CONTEXT_LEAK_CODE,
-        `React XTension payload must not expose host-internal React context or store field "${key}".`,
-        'error',
-        { field: childPath, key }
-      ));
-    }
-    diagnostics.push(...collectPayloadDiagnostics(value[key], childPath, seen));
-  });
-  seen.delete(value);
-  return diagnostics;
-}
-
-function inspectReactPayloadBoundary(payload = {}) {
-  const diagnostics = collectPayloadDiagnostics(payload, 'payload');
-  return {
-    ok: diagnostics.length === 0,
-    diagnostics,
-    contextBoundary: 'internal-only',
-    serializable: diagnostics.every((diagnostic) => diagnostic.code !== REACT_POC_NON_SERIALIZABLE_PAYLOAD_CODE)
-  };
-}
 
 function createRenderRecord(operation, decision, payload = {}, options = {}) {
   return {

@@ -1,0 +1,46 @@
+XTensions runtime adapters — provenance and third-party notices
+
+XTend-owned adapter code, including the owned fragments derived from
+konnilabs/xtend-tests, is licensed under Apache License 2.0 (the XTend LICENSE,
+included verbatim here as Apache-2.0-LICENSE.txt for standalone packages).
+The user explicitly authorized this treatment and publication of a reviewed
+adapter patch on 2026-10-07 at 19:43 UTC. This permission concerns the owned
+derived fragments; it does not relicense the private test product as a whole
+or any third-party framework.
+
+Derivation: konnilabs/xtend-tests revision
+52b7b456c144c1cf7a1d8c99a27f91ff608950cc, src/controller.js,
+src/resources.js, src/fixtures/react.js and src/fixtures/vue.js.
+The extracted files are runtime-host-controller.js,
+cooperative-resource-scope.js, react-runtime-adapter.js and
+vue-runtime-adapter.js. Changes replace fixed demo workloads and switching
+with host-injected peers, generic cooperative resources, props/event adapters,
+boundary checks, guarded lifecycle completion and failure-contained teardown.
+The private reference remains unchanged. See the repository document
+development/XTensions-Runtime-Adapters-WP1.md for the full provenance record.
+
+React and ReactDOM are optional host-injected third-party runtimes, not bundled
+XTend core dependencies. They remain under the MIT License:
+- React / ReactDOM 18.3.1: Copyright (c) Facebook, Inc. and its affiliates.
+  Exact accompanying license: React-18-LICENSE.txt.
+- React / ReactDOM 19.3.0: Copyright (c) Meta Platforms, Inc. and affiliates.
+  Exact accompanying license: React-19-LICENSE.txt.
+Project: https://github.com/facebook/react
+
+Vue 3.5.22 is an optional host-injected third-party runtime, not a bundled
+XTend core dependency. It remains under the MIT License:
+Copyright (c) 2018-present, Yuxi (Evan) You.
+Exact accompanying license: Vue-LICENSE.txt.
+Project: https://github.com/vuejs/core
+
+The license texts were copied verbatim from the named installed npm packages;
+React and ReactDOM have identical texts within each listed version. Consumers
+distributing framework code must preserve the licenses and notices supplied
+with their actual framework versions, including other applicable dependencies.
+Apache-2.0 applies to XTend-owned adapter code, not to React, ReactDOM or Vue.
+
+DE: Eigene abgeleitete Adapterfragmente stehen gemäß Nutzerfreigabe unter der
+XTend-Lizenz Apache-2.0. React, ReactDOM und Vue bleiben Drittanbieter-Code unter
+ihren eigenen MIT-Lizenzen. Deren unveränderte Lizenztexte und Copyright-Hinweise
+werden mit diesen Hinweisen ausgeliefert; die Frameworks selbst sind nicht
+gebündelt. Die private Testquelle wird dadurch nicht insgesamt umlizenziert.

@@ -31,3 +31,8 @@ suite:
 ```sh
 node scripts/run_xtend_tests.js xtensions-vue-host-adapter xtensions-vue-host-controller-poc --json
 ```
+
+
+## Runtime extraction follow-up (local WP1)
+
+The existing `createVueHostAdapter` keeps its synchronous contract, defaults, snapshot shape and additional methods. Real injected framework execution is additive through `createVueRuntimeAdapter` from the separate `vue-runtime-adapter` subpath. Its lifecycle calls are awaitable; missing peers never select a stub. Existing host-adapter exports have no browser redirect. Configuration, error states, shutdown, limits, provenance and the proposed RMT follow-up are documented in [Runtime adapters WP1 (DE/EN)](XTensions-Runtime-Adapters-WP1.md). Report factories describe contracts and are not execution evidence.
