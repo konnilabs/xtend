@@ -32,6 +32,28 @@ XScaler fixtures and handoff records use five stable schema names:
 
 The plan mirrors the RMT remote-surface contract: owner, origin, integrity, fallback surface and lane target are static facts. XScaler does not load or execute the remote bundle during validation.
 
+## Remote adapter artifact integrity
+
+The browser adapter loader accepts only self-contained module bundles. Build and bundle
+all executable dependencies into the adapter before approving its SRI digest. Static
+imports, dynamic imports (including deferred or computed imports), and re-exports from
+another module are rejected before a script element is created. Import-like text in
+comments or strings is harmless; verification uses a JavaScript parser, not a text filter.
+
+The loader fetches with credentials omitted and redirects rejected, bounds the response
+(1 MiB and 15 seconds by default), verifies its bytes against the approved digest, and
+parses the verified bytes. Native module-script SRI then checks the execution fetch too,
+so changing the root between verification and execution cannot admit different bytes.
+An unchanged root importing a changed dependency is refused outright. The plan's single
+digest is not a claim of transitive browser SRI support.
+
+Custom host loaders must enforce the same closed-graph boundary and declare
+`closedGraphIntegrity: true`; this is a trusted host capability, not provider evidence.
+This contract does not sandbox approved JavaScript or prohibit every other code-loading
+API. Keep host CSP restrictions on evaluation, scripts and workers; use an isolated
+origin/sandbox when provider code must not receive page authority. The regression for
+`csf_1e84f759699fec8ea5bf83f1` is in `tests/security/xscaler.test.cjs`.
+
 ## SSR compatibility
 
 SSR adapters must treat XScaler as a preflight-only contract. A compatible plan sets `networkDuringRender` to `false`, keeps remote execution out of the server render path and hydrates only after the preflight response is accepted.

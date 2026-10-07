@@ -6,7 +6,7 @@ import {
   InjectionToken,
   computed,
   inject,
-  provideExperimentalZonelessChangeDetection,
+  provideZonelessChangeDetection,
   signal
 } from '@angular/core';
 import type { ApplicationRef, ComponentRef } from '@angular/core';
@@ -292,7 +292,7 @@ export function createAngularRiskWorkbench(options: Record<string, unknown> = {}
       appRef = await createApplication({
         providers: [
           AngularRiskStore,
-          provideExperimentalZonelessChangeDetection(),
+          provideZonelessChangeDetection(),
           {
             provide: XTEND_ANGULAR_HOST,
             useValue: {
@@ -325,7 +325,7 @@ export function createAngularRiskWorkbench(options: Record<string, unknown> = {}
         providers: [
           AngularRiskStore,
           provideClientHydration(),
-          provideExperimentalZonelessChangeDetection(),
+          provideZonelessChangeDetection(),
           {
             provide: XTEND_ANGULAR_HOST,
             useValue: { container, surfaceId: 'angular-risk-workbench', emit: options.emit }

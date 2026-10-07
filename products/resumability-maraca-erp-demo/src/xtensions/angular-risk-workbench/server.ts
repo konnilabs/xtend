@@ -1,4 +1,4 @@
-import { enableProdMode, provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { enableProdMode, provideZonelessChangeDetection } from '@angular/core';
 import { bootstrapApplication, provideClientHydration } from '@angular/platform-browser';
 import { provideServerRendering, renderApplication } from '@angular/platform-server';
 import {
@@ -25,7 +25,7 @@ export async function renderAngularRiskWorkbench(props: Partial<RiskProps> = {})
       providers: [
         provideServerRendering(),
         provideClientHydration(),
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         { provide: AngularRiskStore, useValue: store },
         {
           provide: XTEND_ANGULAR_HOST,
