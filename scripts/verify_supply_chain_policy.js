@@ -190,7 +190,7 @@ function runSupplyChainVerification(options = {}) {
   checks.push(createCheck(
     'ci network audit commands are planned but not part of the local default gate',
     plan.ciNetworkGates.includes('npm audit --audit-level=moderate')
-      && plan.ciNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json')
+      && plan.ciNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json --package-lock-only')
   ));
 
   const failures = checks.filter((check) => !check.ok);

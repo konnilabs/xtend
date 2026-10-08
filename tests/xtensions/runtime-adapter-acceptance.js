@@ -418,6 +418,14 @@ async function runRuntimeAcceptance({ React: R, ReactDOM, Vue: V, document }) {
         check(f.container.firstChild === ssr, 'SSR node identity preserved'); await clean.unmount(); check(f.container.firstChild === ssr, 'unmounted rejected adapter leaves SSR alone');
       } finally { await f.close(); }
     });
+    await test(`${framework}: bundled runtime remains forbidden`, async () => {
+      const f = fixture(framework, { runtimeBoundary: { runtimeProvider: { bundledInXtension: true } } });
+      try {
+        check((await f.adapter.mount(f.container, { title: 'bundled' })).status === 'policy-blocked', 'bundled provider rejected with real peers');
+        equal(f.stats.mounts, 0, 'denied provider never bootstraps the framework');
+        equal(f.container.childNodes.length, 0, 'denied provider cannot materialize DOM');
+      } finally { await f.close(); }
+    });
     await test(`${framework}: manifest version mismatch is rejected`, async () => {
       const f = fixture(framework, { expectedVersions: framework === 'react' ? { react: '19.0.0' } : { vue: '3.5.0' } });
       try { check(!(await f.adapter.mount(f.container, { title: 'version' })).ok, 'actual peer disagrees with host manifest'); equal(f.stats.mounts, 0, 'no bootstrap'); }

@@ -49,8 +49,13 @@ async function main() {
         ReactDOM: { ...peers('react-dom/client'), version: peers('react-dom').version }, Vue: peers('vue'), document: dom.window.document });
     } finally { dom.window.close(); }
   }
-  report.exports = exportsReport;
-  report.node = process.version; report.mode = browser ? 'chromium' : 'jsdom';
+  report = {
+    schema: 'xtend.xtensions.runtime-acceptance-report.v1',
+    ok: report.ok, passed: report.passed, failed: report.failed,
+    versions: report.versions, exports: exportsReport,
+    node: process.version, mode: browser ? 'chromium' : 'jsdom',
+    browser: report.browser || null, pageErrors: report.pageErrors || []
+  };
   const reportIndex = process.argv.indexOf('--report');
   if (reportIndex !== -1) fs.writeFileSync(process.argv[reportIndex + 1], JSON.stringify(report, null, 2) + '\n');
   console.log(`${report.mode} ${report.node}: ${report.passed.length} passed, ${report.failed.length} failed; peers ${JSON.stringify(report.versions)}`);

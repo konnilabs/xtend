@@ -1,3 +1,8 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const { isDeepStrictEqual } = require('node:util');
+const { syncCiDependencyLockMetadata } = require('../../scripts/sync_ci_dependency_lock_metadata');
 const {
   createSuiteContext,
   printSuiteReport
@@ -43,13 +48,44 @@ function runSupplyChainPolicySuite(options = {}) {
   const classification = classifyPackageSupplyChain(packageManifest, ['package-lock.json']);
   const report = runSupplyChainVerification({ rootDir });
   const dependencyLockReport = verifyCiDependencyLocks({ rootDir });
+  const { verifyLockSbom } = require('../../scripts/verify_lock_sbom');
+  const sbomLock = { packages: { '': {}, 'node_modules/lightningcss': { version: '1.32.0' }, 'node_modules/vite/node_modules/lightningcss': { version: '1.33.0' }, 'node_modules/vite/node_modules/lightningcss-linux-x64-musl': { version: '1.33.0', optional: true } } };
+  const completeSbom = { bomFormat: 'CycloneDX', components: [{ name: 'lightningcss', version: '1.32.0' }, { name: 'lightningcss', version: '1.33.0' }, { name: 'lightningcss-linux-x64-musl', version: '1.33.0' }] };
+  context.assert(verifyLockSbom({ lock: sbomLock, sbom: completeSbom }).ok, 'SBOM covers both locked parent versions and unsupported optional platform binaries');
+  context.assert(verifyLockSbom({ lock: {packages:{'node_modules/@fixture/scoped':{version:'1.0.0'}}}, sbom: {bomFormat:'CycloneDX',components:[{name:'different-display-name',scope:'required',version:'1.0.0',purl:'pkg:npm/%40fixture/scoped@1.0.0'}]} }).ok, 'SBOM identifies scoped packages by package URL, not display names or CycloneDX required/optional scope');
+  context.assert(!verifyLockSbom({ lock: sbomLock, sbom: { ...completeSbom, components: completeSbom.components.slice(0,2) } }).ok, 'Omitting optional platform packages from SBOM is forbidden');
+  context.assert(!verifyLockSbom({ lock: sbomLock, sbom: { ...completeSbom, components: completeSbom.components.map(c => ({ ...c, version: '1.32.0' })) } }).ok, 'SBOM cannot conflate incompatible parent/platform versions');
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-lock-metadata-regression-'));
+  try {
+    const paths = ['package.json', 'package-lock.json', ...packageManifest.workspaces.map(directory => `${directory}/package.json`), ...['products/xtend-llm','products/resumability-maraca-erp-demo'].flatMap(directory => [`${directory}/package.json`, `${directory}/package-lock.json`])];
+    for (const relative of paths) {
+      const target=path.join(fixture,relative);fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(path.join(rootDir,relative),target);
+    }
+    const rootFile=path.join(fixture,'package-lock.json'),llmFile=path.join(fixture,'products/xtend-llm/package-lock.json');
+    const originalRoot=JSON.parse(fs.readFileSync(rootFile)),originalLlm=JSON.parse(fs.readFileSync(llmFile));
+    const changedRoot=structuredClone(originalRoot),changedLlm=structuredClone(originalLlm);
+    changedRoot.packages['products/xtend-mcp'].dependencies['@modelcontextprotocol/client']='^2.2.0';
+    changedLlm.packages['../xtend-mcp'].dependencies['@modelcontextprotocol/client']='2.0.0';
+    fs.writeFileSync(rootFile,JSON.stringify(changedRoot,null,2)+'\n');fs.writeFileSync(llmFile,JSON.stringify(changedLlm,null,2)+'\n');
+    const drift=verifyCiDependencyLocks({rootDir:fixture});
+    context.assert(!drift.ok && drift.errors.some(error=>error.includes('products/xtend-mcp')) && drift.errors.some(error=>error.includes('products/xtend-llm')), 'Both root and embedded product metadata drift are rejected');
+    const repaired=syncCiDependencyLockMetadata({rootDir:fixture});
+    context.assert(repaired.ok && repaired.changes.length===2, 'Metadata synchronization repairs exactly the two reviewed records');
+    context.assert(isDeepStrictEqual(originalRoot,JSON.parse(fs.readFileSync(rootFile))) && isDeepStrictEqual(originalLlm,JSON.parse(fs.readFileSync(llmFile))), 'Synchronization leaves every locked resolution, integrity and unrelated record unchanged');
+    const bytes=fs.readFileSync(rootFile);
+    context.assert(syncCiDependencyLockMetadata({rootDir:fixture}).changes.length===0 && bytes.equals(fs.readFileSync(rootFile)), 'Metadata synchronization is idempotent');
+    changedRoot.packages['products/xtend-mcp'].version='0.0.0';fs.writeFileSync(rootFile,JSON.stringify(changedRoot));
+    let refused=false;try { syncCiDependencyLockMetadata({rootDir:fixture}); } catch { refused=true; }
+    context.assert(refused, 'Metadata-only synchronization refuses to change locked local package versions');
+  } finally { fs.rmSync(fixture,{recursive:true,force:true}); }
+
 
   context.assertIncludes(policySource, 'xtend.security.supply-chain-gate-plan.v1', 'Policy module declares supply-chain gate plan contract');
   context.assertIncludes(policySource, 'xtend.security.dependency-audit-gate.v1', 'Policy module declares dependency audit gate contract');
   context.assertIncludes(policySource, 'xtend.security.license-policy.v1', 'Policy module declares license policy contract');
   context.assertIncludes(policySource, 'xtend.security.vulnerability-policy.v1', 'Policy module declares vulnerability policy contract');
   context.assertIncludes(policySource, 'npm audit --audit-level=moderate', 'Policy plans npm audit CI gate');
-  context.assertIncludes(policySource, 'npm sbom --sbom-format=cyclonedx --json', 'Policy plans npm SBOM CI gate');
+  context.assertIncludes(policySource, 'npm sbom --sbom-format=cyclonedx --json --package-lock-only', 'Policy plans npm SBOM CI gate');
   context.assertIncludes(verifySource, REPORT_SCHEMA, 'Verify script declares supply-chain report schema');
   context.assertIncludes(versionSyncSource, 'xtend.release.package-version-sync-report.v1', 'Version sync helper declares stable report schema');
   context.assertIncludes(versionSyncSource, 'syncWorkspaceDependencyVersions', 'Version sync helper covers internal dependencies of every root workspace');
@@ -74,7 +110,7 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(plan.runtimeDependencyPolicy === 'no-new-runtime-dependencies', 'Plan keeps runtime dependency policy explicit');
   context.assert(plan.releaseScripts.includes('npm run test:supply-chain'), 'Plan includes supply-chain suite in release scripts');
   context.assert(plan.ciNetworkGates.includes('npm audit --audit-level=moderate'), 'Plan includes CI vulnerability audit');
-  context.assert(plan.ciNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json'), 'Plan includes CI SBOM export');
+  context.assert(plan.ciNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json --package-lock-only'), 'Plan includes CI SBOM export');
   context.assert(plan.license.currentPackageLicense === 'Apache-2.0', 'License policy records Apache-2.0 package license');
   context.assert(plan.license.projectLicenseDecision === 'accepted-apache-2.0', 'License policy records accepted Apache-2.0 decision');
   context.assert(plan.license.publicReleaseRequiresLicenseDecision === false, 'License policy no longer blocks on missing project license decision');

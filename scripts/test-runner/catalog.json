@@ -7409,6 +7409,69 @@
         "browser"
       ],
       "timeoutMs": 360000
+    },
+    {
+      "id": "xtensions-runtime",
+      "label": "Actual XTensions jsdom Acceptance",
+      "description": "Actual XTensions jsdom Acceptance with the committed isolated peer lock; failures and missing tools block the gate.",
+      "defaultIncluded": false,
+      "handler": "xtensions-runtime",
+      "implementations": [
+        {
+          "path": "tests/xtensions/xtensions_runtime_gate_suite.js",
+          "function": "runXTensionsRuntimeGate",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository",
+        "browser"
+      ],
+      "timeoutMs": 300000
+    },
+    {
+      "id": "xtensions-runtime-browser",
+      "label": "Actual XTensions Chromium Acceptance",
+      "description": "Actual XTensions Chromium Acceptance with the committed isolated peer lock; failures and missing tools block the gate.",
+      "defaultIncluded": false,
+      "handler": "xtensions-runtime-browser",
+      "implementations": [
+        {
+          "path": "tests/xtensions/xtensions_runtime_gate_suite.js",
+          "function": "runXTensionsRuntimeGate",
+          "arguments": [
+            "{ rootDir, browser: true }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository",
+        "browser"
+      ],
+      "timeoutMs": 300000
+    },
+    {
+      "id": "xtensions-consumer-package",
+      "label": "Packed XTensions Consumer Acceptance",
+      "description": "Packed XTensions Consumer Acceptance with the committed isolated peer lock; failures and missing tools block the gate.",
+      "defaultIncluded": false,
+      "handler": "xtensions-consumer-package",
+      "implementations": [
+        {
+          "path": "tests/xtensions/xtensions_consumer_package_suite.js",
+          "function": "runXTensionsConsumerPackageSuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository",
+        "browser"
+      ],
+      "timeoutMs": 300000
     }
   ],
   "profiles": {
@@ -9590,6 +9653,10 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-release-gate-report.json"
+      ],
+      "includes": [
+        "epic13-package-export-lock",
+        "xtensions-runtime-acceptance"
       ]
     },
     "security:xss-pentest": {
@@ -9766,6 +9833,10 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-release-report.json"
+      ],
+      "includes": [
+        "epic13-package-export-lock",
+        "xtensions-runtime-acceptance"
       ]
     },
     "epic13-rmt-production-readiness": {
@@ -10230,7 +10301,9 @@
         "rmt-xscaler-ssr-hydration-parity",
         "xscaler-source-to-sea",
         "rkfa-production-closure",
-        "docs-stub-inventory"
+        "docs-stub-inventory",
+        "epic13-package-export-lock",
+        "xtensions-runtime-acceptance"
       ],
       "suites": [],
       "reports": [],
@@ -10462,6 +10535,16 @@
       "reports": [],
       "advisory": [],
       "requireNoSkips": true
+    },
+    "xtensions-runtime-acceptance": {
+      "suites": [
+        "xtensions-runtime",
+        "xtensions-runtime-browser",
+        "xtensions-consumer-package"
+      ],
+      "reports": [
+        ".xtend-test-results/xtend-xtensions-runtime-gate-report.json"
+      ]
     }
   },
   "scripts": {
@@ -12431,6 +12514,12 @@
       "profile": "xtend-shop",
       "report": ".xtend-test-results/xtend-shop.json",
       "flags": []
+    },
+    "test:xtensions-runtime:ci": {
+      "profile": "xtensions-runtime-acceptance",
+      "reports": [
+        ".xtend-test-results/xtend-xtensions-runtime-gate-report.json"
+      ]
     }
   },
   "ci": {
@@ -13311,6 +13400,32 @@
           "producer": "laravel_fixture_prepare",
           "kind": "outcome",
           "required": true
+        },
+        {
+          "path": ".xtend-test-results/xtend-xtensions-runtime-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.xtensions.runtime-acceptance-report.v1",
+          "expectedMode": "jsdom"
+        },
+        {
+          "path": ".xtend-test-results/xtend-xtensions-runtime-browser-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.xtensions.runtime-acceptance-report.v1",
+          "expectedMode": "chromium"
+        },
+        {
+          "path": ".xtend-test-results/xtend-xtensions-consumer-package-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.xtensions.consumer-package-report.v1"
+        },
+        {
+          "path": ".xtend-test-results/xtend-xtensions-runtime-gate-report.json",
+          "kind": "report",
+          "producer": "full_release",
+          "profile": "xtensions-runtime-acceptance"
         }
       ]
     },

@@ -1,0 +1,96 @@
+CI-Gates nach PR #105 — lokaler Prüfbericht
+==========================================
+Basis: 2daf0fa427f9eabbac7c46c3f05e086fc4ae9905 (Merge PR #105), per regulär freigegebenem Fetch von origin/main.
+Branch: fix/ci-gates-post-105. Keine Remote-Schreiboperation, kein PR, Merge, Release oder Publish.
+AGENTS.md und Repo-SKILL.md: nicht vorhanden. Cloud-Environment-Runtime-Skill gelesen.
+Sandboxdiagnose: Standard-Sandbox verhinderte Proxy-Sockets und spawnSync git (EPERM). Normale require_escalated-Freigabe bestätigte erreichbaren konfigurierten Proxy und erfolgreiche Git-/Child-Process-Aufrufe. Keine Proxy-, Credential-, Netzwerk- oder Sicherheitseinstellung geändert.
+
+Ursachen/Coverage vor Änderungen: development/CI-Gates-Post-105-Causes.json.
+Diese Datei ist bewusst ein historischer Ausgangsbefund und enthält die ursprünglichen Fehler; sie ist kein aktueller Grünnachweis.
+
+Implementierung:
+* Explizite Allowlist 197 -> 199: ausschließlich ./xtensions/react-runtime-adapter und ./xtensions/vue-runtime-adapter ergänzt. Unbekannte Exporte und fehlende Runtime-Subpaths bleiben verboten; aktive Metadaten 192/197 -> 199, Typ-Fingerprint aktualisiert.
+* Vollständige Export-Lock-Suite in release:full/release und allen CI-Profilen obligatorisch.
+* Reproduzierbare, isolierte Peer-Installation aus bestehendem tests/xtensions/runtime-peers/package-lock.json außerhalb aller Workspaces; keine Framework-Dependencies für neutralen Core oder allgemeine Consumer.
+* Gate-Wrapper führt die echten npm-Skripte test:xtensions-runtime und test:xtensions-runtime:browser aus. Referenzpeers React/ReactDOM 18.3.1, Vue 3.5.22, jsdom 30.1.2, Playwright 1.56.0; realer Chromium 151.0.7922.173.
+* Bestehende 84 Adapter-Acceptance-Fälle bleiben erhalten; zwei zusätzliche Negativfälle gegen bundledInXtension -> 86. Strict-TS-Consumer, echte Root-/Compiler-Tarballs, fehlende Peers, explizit injizierte reale Peers, Render/Update/Unmount, zyklische Payloads und Browser-Core-Bundle ohne Framework-Inputs geprüft.
+* CI/Nightly-Upload und Nightly-Receipts erfassen frische Runtime-/Browser-/Consumer-Ausgänge; Negativtests verhindern falsches Grün durch leere, widersprüchliche, fremde oder fehlende Chromium-Evidenz.
+* Lock-Metadaten synchronisiert: Root-MCP ^2.2.0 -> 2.2.0 und LLM-MCP 2.0.0 -> 2.2.0. Exakt zwei Metadatendeltas; keine version/resolved/integrity-Änderung. Neues Sync-Kommando ist idempotent und verweigert lokale Paketversionsänderungen.
+* MCP docs.jsonl/knowledge-manifest aus vorhandenen Quellen regeneriert, keine erfundenen Dokumente.
+* Capability-Schema: bestehendes requirements-Feld und neue Quellenverwendungen nachvollzogen. Zwei interne Acceptance-Report-Schemas hinzugefügt. Kein --accept-baseline, keine aufgeweichten globalen Evolution-Policies, keine gesenkten Schwellen.
+* Fehlende native Evidenz mit echter Paket-/Audit-/SBOM-Ausführung vorbereitet. npm 11.17 SBOM aus installiertem Baum behandelt nicht installierbare optionale Plattformpakete inkonsistent; --package-lock-only berücksichtigt alle 192 gesperrten Nicht-Link-Paketrecords. Neuer Vollständigkeitscheck inklusive scoped/optional-Paketen; keine Dependencies entfernt oder geändert.
+
+Toolchain und wiederholbare Hauptkommandos:
+Node 24.18.0 bzw. 26.5.0, npm 11.17.0; Linux x64. Isolierte Toolchains außerhalb des Repos.
+npm ci --ignore-scripts --no-audit --fund=false
+npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
+npm ci --prefix products/resumability-maraca-erp-demo --ignore-scripts --no-audit --fund=false
+node scripts/sync_ci_dependency_lock_metadata.js
+node scripts/verify_ci_dependency_locks.js --json
+node scripts/run_xtend_tests.js --profile ci-nightly --jobs 2 --report <lane-report.json> --execution <lane-execution.json>
+Hauptläufe mit XTEND_NODE_WARNING_POLICY=project-error und NODE_OPTIONS='--trace-warnings --trace-deprecation --require=<repo>/scripts/node_warning_policy.cjs'. Kein Warnungsereignis-JSONL erzeugt: bestehender Recorder legt es erst bei einem Ereignis an; dessen Abwesenheit ist keine separate Warnungsprüfung.
+Profilprojektionen aus derselben vollständigen Nightly-Ausführung mit verifyExecution(... project:false) und exakt gleicher Provenienz. Release/Publish/PR wurden nicht als separate vollständige Läufe ausgegeben.
+Weitere Kommandos: npm run test:security-scan-regressions; npm run test:node-native-toolchain; npm run test:xtend-mcp; XTEND_CONDITIONAL_NETWORK_EXECUTE=1 XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL=0 node scripts/prepare_native_first_evidence_artifacts.js.
+
+Weitere bestätigte Ergebnisse:
+* Export-Lock: 393 Assertions. Supply-chain: 141. Schema-Inventory: 27.
+* Security-Scan-Regressionen: 35 bestanden, 0 Fehler/Skips.
+* MCP-Gates und Native-Toolchain jeweils auf beiden Node-Lanes bestanden.
+* Root npm audit: 0 Vulnerabilities. SBOM: alle 192 gesperrten Paketrecords enthalten.
+* Fünf npm publish --dry-run: Root, RMT, Compiler, Maraca, MCP; alle Exit 0. Dry-Run ist kein Nachweis für Registry-Schreibrechte, OIDC/Token-Konfiguration oder erfolgreiche Veröffentlichung.
+
+Offene Risiken / nicht ausgeführte Prüfungen:
+* PHP CLI, Composer, passender Chromium-WebDriver und isolierte Laravel-12/13-Fixtures fehlen. Diese Checks bleiben Fehler/Blocker; kein Skip als Erfolg akzeptiert. Vorhandene Chromium-CLI-ERP-Fallback-Smoke läuft in den bestehenden 60s-Timeout. Kein Timeout/Schwellwert erhöht.
+* Windows/macOS, zusätzliche Browser und React-19-Peermatrix nicht ausgeführt. Linux-Chromium-Acceptance belegt diese Plattformen nicht.
+* Zusätzliche echte npm audits: LLM 6 (2 high, 4 moderate), ERP 2 high, bestehende Testpeers 2 high. ERP/Testpeers: Vue/@vue/server-renderer, GHSA-g2v6-rqmx-r4w6 (<3.5.42). LLM: @huggingface/transformers, global-agent, onnxruntime-node, roarr, sharp, sprintf-js; npm schlägt transformers 4.3.1 als Major-Upgrade vor. Keine pauschalen Upgrades; unabhängige zielgerichtete Security-Folgeprüfung erforderlich. Root-Audit deckt diese isolierten Pakete nicht ab.
+* Keine GitHub-Runner-/OS-Matrix, kein Publish, kein Remote-PR. Lokale Profile sind insgesamt ROT und keine Release-Freigabe.
+
+Maschinenlesbare Rohberichte und Logs liegen lokal unter /workspace/work/ci-gates-audit (nicht committed; enthält Baseline und bewusst fehlgeschlagene Zwischenversuche). Für aktuelle Ergebnisse ausschließlich final24/final26 + verify24/verify26 heranziehen. .xtend-test-results enthält ignorierte generierte Evidenz; Nightly akzeptiert alte/fehlende Receipts ausdrücklich nicht.
+
+Vollständige finale Ausführungen:
+Node 24.18.0: 198/198 abgeschlossen, 179 bestanden, 19 fehlgeschlagen, 2 verpflichtende Browser-Skips als Fehler enthalten.
+Node 26.5.0: 198/198 abgeschlossen, 179 bestanden, identische 19 Fehlersuites, identische 2 Skips. Ein zuvor unterbrochener Node-26-Versuch wurde verworfen und vollständig neu ausgeführt.
+Exakte Provenienz aller folgenden Projektionen bestätigt (errors: []):
+Profil                         Suites   Fehler   Skips   Status (beide Lanes)
+release:full / release           167       15       2     failed
+ci-pr                           189       16       2     failed
+ci-release                      190       16       2     failed
+ci-nightly / ci-validation       198       19       2     failed
+ci-publish                      185       15       2     failed
+xtensions-runtime-acceptance       3        0       0     passed
+epic13-package-export-lock         1        0       0     passed
+Diese Zahlen sind Auswertungen derselben echten vollständigen Nightly-Lane, keine neun voneinander unabhängigen Profile-Ausführungen.
+Runtime: auf beiden Lanes jeweils 86/86 jsdom und 86/86 Chromium; Strict-TS bestanden; Packed-Consumer vier Assertions bestanden. Root-/Compiler-Consumer-Import und Browser-Core-Bundle werden tatsächlich ausgeführt.
+
+Vollständige Liste der verbleibenden roten Suites (beide Lanes):
+rmt-reference-docs; rmt-playground-security; rmt-jit-hydrangea;
+rmt-php-ssr-adapter; rmt-php-app-service-adapter;
+docs-php-ssr-prehydration; docs-php-ssr-performance-budget; docs-php-ssr-cls-budget;
+maraca-app-services-cross-runtime; maraca-app-services-build; maraca-kernel-integrity;
+xscaler-php-preflight-parity; rmt-xscaler-ssr-hydration-parity;
+test-runner (zwei vorhandene PHP-Positivchecks; neue Coverage-/Negativregressionen bestehen);
+ssr-pages-browser; ssr-pages-php; ssr-pages-laravel-matrix; ssr-pages-laravel-browser-matrix;
+erp-resumability-catfood (bestehender CLI-Browser-Timeout).
+Erste 14 sind PHP-/WebDriver-abhängig; SSR-Suites benötigen die oben genannten PHP-/Driver-/Composer-Fixtures. Ohne diese Umgebung kann kein Codefehler in den blockierten PHP/Laravel-Pfaden ausgeschlossen werden.
+
+Tatsächlicher Nightly-Phasenlauf (Node 24, neue eigene Session):
+node scripts/test-runner/nightly.js begin
+node scripts/test-runner/nightly.js phase <id> für alle zehn definierten Phasen.
+lock_guard, install_1, install_2, pack_root, pack_workspaces: passed.
+capabilities: failed (PHP und passender Chromium-WebDriver fehlen; Composer fehlt zusätzlich für die abhängige Laravel-Vorbereitung).
+laravel_fixture_prepare und native_first_evidence_prepare: vom Capability-Gate blockiert.
+full_release: von beiden Vorbereitungsphasen blockiert.
+xtend_mcp: vom Capability-Gate blockiert; separate echte MCP-Läufe auf beiden Lanes bestanden.
+Root-Pack und sieben Workspace-Pack-Dry-Runs erfolgreich: xtendrmt, fabric, tools, xtend-builder, xtend-maraca, @ccslabs/xtend-mcp, xsurface-shard.
+validateNightly(): ok:false, 242 Diagnoseeinträge (fehlende/blockierte Phasen, fremde/stale Ausführung und nicht frische Phase-Receipts; keine 242 unabhängigen Codefehler). Kein altes Artifact wurde zum Freigabenachweis umdeklariert.
+
+Ausführungsidentitäten vor der rein dokumentarischen Abschlussdatei und dem Commit:
+Node24 executionId 627e339b-d4a4-4080-8085-b17450dfbef0; complete:true; Laufdauer 409596ms.
+Node26 executionId 4dc77c25-1e1e-48f8-8428-061a501a5310; complete:true; Laufdauer 406378ms.
+Beide exakt gleicher Quellfingerprint: 1acfb4564c8ec2de1c4d692398f6d05d49ce6ca95b65c70ce753d8ad363033bd, Basis-Commit oben plus getesteter Working-Tree-Diff.
+Die Review-Datei wird nach der Provenienzprüfung hinzugefügt. Nach Commit ändern sich Git-Provenienz und Quellfingerprint; alte Berichte werden absichtlich nicht für einen neuen CI-Run als frisch akzeptiert. Für Release-Freigabe auf dem Commit neu ausführen, nachdem alle fehlenden Voraussetzungen erfüllt sind.
+
+Abschlusschecks nach Ergänzung der Review-Datei:
+verify_ci_dependency_locks.js bestanden; sync_ci_dependency_lock_metadata.js ok:true, changes:[].
+npm run test:schema-inventory bestanden (27 Assertions, bestehende 53 Inventory-Warnungen sichtbar; keine Warnungen weggefiltert oder als vollständige Schema-Abdeckung ausgegeben).
+git diff --check bestanden. Keine Implementierungsänderung seit den vollständigen Lane-Läufen; ausschließlich diese Abschlussdokumentation ergänzt.

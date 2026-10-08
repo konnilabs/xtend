@@ -234,7 +234,7 @@ function createSupplyChainGatePlan(options = {}) {
     ],
     ciNetworkGates: [
       'npm audit --audit-level=moderate',
-      'npm sbom --sbom-format=cyclonedx --json'
+      'npm sbom --sbom-format=cyclonedx --json --package-lock-only'
     ],
     gates: clone(SUPPLY_CHAIN_GATES),
     dependencySections: clone(DEPENDENCY_SECTIONS),

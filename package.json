@@ -4957,7 +4957,7 @@
       "localGate": "node scripts/verify_supply_chain_policy.js --json",
       "ciNetworkGates": [
         "npm audit --audit-level=moderate",
-        "npm sbom --sbom-format=cyclonedx --json"
+        "npm sbom --sbom-format=cyclonedx --json --package-lock-only"
       ]
     },
     "manifestImportPolicy": {
@@ -12493,7 +12493,11 @@
           "browser-hypervisor",
           "project-index",
           "ssr-pages",
-          "ssr-pages-browser"
+          "ssr-pages-browser",
+          "epic13-package-export-lock",
+          "xtensions-runtime",
+          "xtensions-runtime-browser",
+          "xtensions-consumer-package"
         ],
         "optionalSuites": [
           "rmt-vnext-source-to-sea"
@@ -12845,7 +12849,7 @@
       ],
       "conditionalNetworkGates": [
         "npm audit --audit-level=moderate",
-        "npm sbom --sbom-format=cyclonedx --json"
+        "npm sbom --sbom-format=cyclonedx --json --package-lock-only"
       ],
       "artifactChecklist": [
         "CHANGELOG.md",
@@ -15301,7 +15305,7 @@
       ],
       "conditionalNetworkGates": [
         "npm audit --audit-level=moderate",
-        "npm sbom --sbom-format=cyclonedx --json"
+        "npm sbom --sbom-format=cyclonedx --json --package-lock-only"
       ],
       "packageDryRun": "npm run pack:dry-run",
       "knownResiduals": [
@@ -15358,7 +15362,7 @@
       ],
       "conditionalNetworkGates": [
         "npm audit --audit-level=moderate",
-        "npm sbom --sbom-format=cyclonedx --json"
+        "npm sbom --sbom-format=cyclonedx --json --package-lock-only"
       ],
       "knownResiduals": [
         "xtend-state",
@@ -15422,7 +15426,7 @@
       ],
       "conditionalNetworkGates": [
         "npm audit --audit-level=moderate",
-        "npm sbom --sbom-format=cyclonedx --json"
+        "npm sbom --sbom-format=cyclonedx --json --package-lock-only"
       ],
       "knownResiduals": [
         "xtend-state",
@@ -15539,7 +15543,7 @@
       "packageScript": "npm run test:epic13-conditional-network-evidence",
       "commands": [
         "npm audit --audit-level=moderate",
-        "npm sbom --sbom-format=cyclonedx --json"
+        "npm sbom --sbom-format=cyclonedx --json --package-lock-only"
       ],
       "requiredArtifacts": [
         ".xtend-test-results/xtend-npm-audit-report.json",
@@ -15579,7 +15583,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 192,
+      "expectedExportCount": 199,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15604,8 +15608,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 197,
-      "lockedExportFingerprint": "89bc38ee2dbf81df12f2c2b7ffd9d1729408fdd29818db896022b68c288873f8",
+      "expectedExportCount": 199,
+      "lockedExportFingerprint": "5852b738283ed9e1679335f45026678aab727244cc84e0f45cc4684104715ba5",
       "p0Exports": [
         ".",
         "./loader",
@@ -18221,7 +18225,9 @@
     "check:html-sanitizer": "node scripts/build_html_sanitizer.js --check",
     "test:security-scan-regressions": "node --test tests/security/*.test.*",
     "test:xtensions-runtime": "node scripts/test_xtensions_runtime_adapters.cjs",
-    "test:xtensions-runtime:browser": "node scripts/test_xtensions_runtime_adapters.cjs --browser"
+    "test:xtensions-runtime:browser": "node scripts/test_xtensions_runtime_adapters.cjs --browser",
+    "ci:dependency-locks:sync-metadata": "node scripts/sync_ci_dependency_lock_metadata.js",
+    "test:xtensions-runtime:ci": "node scripts/run_xtend_tests.js --profile xtensions-runtime-acceptance"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",

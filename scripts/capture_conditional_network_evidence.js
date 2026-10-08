@@ -20,7 +20,7 @@ const cacheDir = process.env.XTEND_NPM_CACHE
 
 const commandArgs = {
   'npm-audit-moderate': ['audit', '--audit-level=moderate', '--json'],
-  'npm-sbom-json': ['sbom', '--sbom-format=cyclonedx', '--json']
+  'npm-sbom-json': ['sbom', '--sbom-format=cyclonedx', '--json', '--package-lock-only']
 };
 const auditSeverityOrder = ['info', 'low', 'moderate', 'high', 'critical'];
 const auditFailureSeverity = 'moderate';
@@ -191,6 +191,11 @@ function captureCommand(commandArtifact) {
       reason: deferral.reason,
       artifactPresent: true
     };
+  }
+
+  if (commandArtifact.id === 'npm-sbom-json') {
+    const coverage = require('./verify_lock_sbom').verifyLockSbom({ rootDir, lock: JSON.parse(fs.readFileSync(path.join(rootDir, 'package-lock.json'))), sbom: parseJson(result.stdout) });
+    if (!coverage.ok) throw new Error(`Incomplete lockfile SBOM: ${coverage.errors.join('; ')}`);
   }
 
   try {

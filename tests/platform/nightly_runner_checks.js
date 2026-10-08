@@ -27,6 +27,16 @@ async function runNightlyRunnerChecks({ check, temp, identity, rootDir }) {
     delete lock.packages['node_modules/external/node_modules/@fixture/internal'];
     save('package-lock.json',lock);manifest.devDependencies.external='2.0.0';save('package.json',manifest);assert.equal(inspect().ok,false);
   });
+  await check('Nightly rejects unknown, empty, contradictory and missing-browser Runtime artifacts', () => {
+    const {inspectArtifact}=require('../../scripts/test-runner/nightly-evidence');
+    const definition=catalog.ci['ci-nightly'].artifacts.find(a=>a.path.endsWith('xtend-xtensions-runtime-browser-report.json'));
+    const file=path.join(temp,'runtime-outcome.json');
+    const spec={...definition,path:path.basename(file)};
+    const good={schema:definition.expectedSchema,ok:true,passed:Array.from({length:86},(_,i)=>`case-${i}`),failed:[],pageErrors:[],versions:{react:'18.3.1',vue:'3.5.22'},node:process.version,mode:'chromium',browser:'actual-browser',exports:{legacySynchronousContracts:true,declarationExportParity:true,browserConditionParity:true,actualBrowserParity:true}};
+    const inspect=value=>{fs.writeFileSync(file,JSON.stringify(value));return inspectArtifact(spec,{rootDir:temp});};
+    assert(inspect(good).valid);
+    for(const bad of [{...good,schema:'unrelated'},{...good,passed:[]},{...good,failed:[{name:'broken'}]},{...good,pageErrors:['crash']},{...good,browser:null},{...good,mode:'jsdom'},{...good,exports:{...good.exports,actualBrowserParity:false}}])assert(!inspect(bad).valid);
+  });
   await check('Missing PHP or browser capabilities are explicit failures', async () => {
     const positive=await probeCapabilities({commandProbe:()=> 'available',browserProbe:()=>({ok:true})});
     assert(positive.ok);
