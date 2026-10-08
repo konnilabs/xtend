@@ -414,6 +414,10 @@ jobs:
             products/maraca-app-services-test-bench/.xtend-test-results/maraca-app-services-test-bench-evidence.json
             products/maraca-app-services-test-bench/.xtend-test-results/maraca-app-services-test-bench.png
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
+            .xtend-test-results/xtend-xtensions-runtime-report.json
+            .xtend-test-results/xtend-xtensions-runtime-browser-report.json
+            .xtend-test-results/xtend-xtensions-consumer-package-report.json
+            .xtend-test-results/xtend-xtensions-runtime-gate-report.json
             .xtend-test-results/xtend-dev-surface-report.json
             .xtend-test-results/xtend-docs-quality-report.json
             .xtend-test-results/xtend-docs-shell-catfooding-report.json

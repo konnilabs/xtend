@@ -60,6 +60,9 @@ function printDocsStubInventoryGateReport(result) {
 }
 
 module.exports = {
+"xtensions-runtime": () => toRunnerResult("xtensions-runtime", "Actual XTensions jsdom acceptance", load("../tests/xtensions/xtensions_runtime_gate_suite")["runXTensionsRuntimeGate"]({ rootDir })),
+"xtensions-runtime-browser": () => toRunnerResult("xtensions-runtime-browser", "Actual XTensions Chromium acceptance", load("../tests/xtensions/xtensions_runtime_gate_suite")["runXTensionsRuntimeGate"]({ rootDir, browser: true })),
+"xtensions-consumer-package": async () => toRunnerResult("xtensions-consumer-package", "Packed XTensions consumers", await load("../tests/xtensions/xtensions_consumer_package_suite")["runXTensionsConsumerPackageSuite"]({ rootDir })),
 "xtend-shop-contracts": async () => toRunnerResult("xtend-shop-contracts", "XTend.store contracts", await load("../tests/products/xtend_shop_suite").runXtendShopSuite({ rootDir, group: "contracts" })),
 "xtend-shop-php": async () => toRunnerResult("xtend-shop-php", "XTend.store php", await load("../tests/products/xtend_shop_suite").runXtendShopSuite({ rootDir, group: "php" })),
 "xtend-shop-browser": async () => toRunnerResult("xtend-shop-browser", "XTend.store browser", await load("../tests/products/xtend_shop_suite").runXtendShopSuite({ rootDir, group: "browser" })),

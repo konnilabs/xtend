@@ -6961,7 +6961,7 @@ function assertSupplyChainPolicyReference(context, rootDir) {
   context.assert(plan.localGate === 'node scripts/verify_supply_chain_policy.js --json', 'Supply-Chain plan exposes offline local gate');
   context.assert(plan.packageScript === 'npm run test:supply-chain', 'Supply-Chain plan exposes package script');
   context.assert(plan.ciNetworkGates.includes('npm audit --audit-level=moderate'), 'Supply-Chain plan includes npm audit CI handoff');
-  context.assert(plan.ciNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json'), 'Supply-Chain plan includes npm SBOM CI handoff');
+  context.assert(plan.ciNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json --package-lock-only'), 'Supply-Chain plan includes npm SBOM CI handoff');
   context.assert(classification.ok === true, 'Supply-Chain classifier accepts current package inventory');
   context.assert(report.schema === 'xtend.security.supply-chain-report.v1', 'Supply-Chain verify emits stable report schema');
   context.assert(report.ok === true, 'Supply-Chain verify passes for current package');
@@ -7536,7 +7536,7 @@ function assertReleaseChecklistReference(context, rootDir) {
   context.assert(Array.isArray(metadata.candidateGates) && metadata.candidateGates.includes('npm run test:rmt-php-app-service-adapter'), 'Release checklist requires PHP AppService adapter gate');
   context.assert(Array.isArray(metadata.candidateGates) && metadata.candidateGates.includes('npm run pack:dry-run'), 'Release checklist requires pack dry run');
   context.assert(Array.isArray(metadata.conditionalNetworkGates) && metadata.conditionalNetworkGates.includes('npm audit --audit-level=moderate'), 'Release checklist exposes audit as conditional network gate');
-  context.assert(Array.isArray(metadata.conditionalNetworkGates) && metadata.conditionalNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json'), 'Release checklist exposes SBOM as conditional network gate');
+  context.assert(Array.isArray(metadata.conditionalNetworkGates) && metadata.conditionalNetworkGates.includes('npm sbom --sbom-format=cyclonedx --json --package-lock-only'), 'Release checklist exposes SBOM as conditional network gate');
   context.assert(Array.isArray(metadata.artifactChecklist) && metadata.artifactChecklist.includes('CHANGELOG.md'), 'Release checklist requires changelog artifact');
   context.assert(Array.isArray(metadata.artifactChecklist) && metadata.artifactChecklist.includes(policyPath), 'Release checklist requires policy artifact');
   context.assert(Array.isArray(metadata.artifactChecklist) && metadata.artifactChecklist.includes('.xtend-test-results/xtend-xtensions-framework-adapters-report.json'), 'Release checklist requires XTensions framework adapter report artifact');

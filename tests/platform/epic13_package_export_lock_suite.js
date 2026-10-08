@@ -169,6 +169,18 @@ function runEpic13PackageExportLockSuite(options = {}) {
   context.assert(report.exportCount === EXPECTED_EXPORT_KEYS.length, 'Package export lock report counts locked exports');
   context.assert(report.missingExpectedExports.length === 0, 'Package export lock has no missing expected exports');
   context.assert(report.unexpectedExports.length === 0, 'Package export lock has no unexpected exports');
+  context.assert(EXPECTED_EXPORT_KEYS.length === 199, 'Reviewed export contract locks exactly 199 entries');
+  const unknownManifest = { ...packageManifest, exports: { ...packageManifest.exports, './xtensions/unknown-runtime-adapter': './tools/xtensions/react-runtime-adapter.js' } };
+  const unknownReport = createEpic13PackageExportLockReport({ plan: createEpic13PackageExportLockPlan({ packageManifest: unknownManifest }) });
+  context.assert(!unknownReport.ok && unknownReport.unexpectedExports.includes('./xtensions/unknown-runtime-adapter'), 'Unknown exports remain forbidden even when they target a known module');
+  for (const framework of ['react', 'vue']) {
+    const missingManifest = { ...packageManifest, exports: { ...packageManifest.exports } };
+    const subpath = `./xtensions/${framework}-runtime-adapter`;
+    delete missingManifest.exports[subpath];
+    const missingReport = createEpic13PackageExportLockReport({ plan: createEpic13PackageExportLockPlan({ packageManifest: missingManifest }) });
+    context.assert(!missingReport.ok && missingReport.missingExpectedExports.includes(subpath), `${framework} Runtime export is mandatory, not covered by a permissive wildcard`);
+  }
+
   context.assert(report.missingScopedPackages.length === 0, 'Package export lock report validates all root scoped package entries');
   assertIncludesAll(context, report.scopedPackageNames, EXPECTED_SCOPED_PACKAGES, 'Package export lock report scoped package names');
   context.assert(artifactSummary.schema === EPIC13_PACKAGE_DRY_RUN_ARTIFACT_SCHEMA, 'Pack dry-run artifact summary exposes schema');

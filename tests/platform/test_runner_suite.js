@@ -61,6 +61,31 @@ async function runTestRunnerSuite({ rootDir } = {}) {
       assert.deepEqual(select({ suiteIds: ['core','core'] }).map(s=>s.id), ['core']);
       assert.notEqual(canonicalSuite('surface-manager-browser').id, canonicalSuite('surface-manager-a11y').id);
     });
+    await check('CI/Release profiles require full export lock and real isolated Runtime/browser/consumer acceptance', () => {
+      const {profileIds}=require('../../scripts/test-runner/catalog');
+      const required=['epic13-package-export-lock','xtensions-runtime','xtensions-runtime-browser','xtensions-consumer-package'];
+      for(const profile of ['release:full','release','ci-pr','ci-release','ci-nightly','ci-publish']) {
+        const selected=profileIds(profile);
+        for(const id of required) {
+          assert.equal(selected.filter(candidate=>candidate===id).length,1, `${profile} must execute ${id} exactly once`);
+          assert(!(catalog.profiles[profile].advisory || []).includes(id), `${id} must block ${profile}`);
+        }
+      }
+      for(const id of required)assert.equal(canonicalSuite(id).aliasOf,undefined,'Full gates must not alias an unrelated partial suite');
+      const nightly=catalog.ci['ci-nightly'];
+      for(const id of required.slice(1))assert(nightly.artifacts.some(a=>a.path===`.xtend-test-results/xtend-${id}-report.json`&&a.producer==='full_release'&&a.kind==='outcome'));
+    });
+    await check('Isolated peer preparation rejects in-repo destinations and foreign locks before installing', () => {
+      const {prepareXTensionsTestPeers}=require('../../scripts/prepare_xtensions_test_peers');
+      const previous=process.env.XTENSIONS_TEST_PEERS;
+      try {
+        process.env.XTENSIONS_TEST_PEERS=rootDir;
+        assert.throws(()=>prepareXTensionsTestPeers({rootDir}),/outside the repository/);
+        process.env.XTENSIONS_TEST_PEERS=path.join(temp,'foreign-peer-lock');
+        assert.throws(()=>prepareXTensionsTestPeers({rootDir}),/committed test-only manifest and lock/);
+        assert(!fs.existsSync(path.join(process.env.XTENSIONS_TEST_PEERS,'package.json')),'Foreign destination remains unmodified');
+      } finally {if(previous===undefined)delete process.env.XTENSIONS_TEST_PEERS;else process.env.XTENSIONS_TEST_PEERS=previous;}
+    });
     await check('Observatory intake validation includes schema inventory coverage', () => {
       const manifest = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json')));
       const selected = scriptSuiteIds(manifest, 'test:feature-adoption-observatory');

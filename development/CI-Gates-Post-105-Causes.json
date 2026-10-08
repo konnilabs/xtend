@@ -1,0 +1,568 @@
+{
+  "base": "2daf0fa427f9eabbac7c46c3f05e086fc4ae9905",
+  "branch": "fix/ci-gates-post-105",
+  "phase": "before-corrections",
+  "instructions": "No AGENTS.md or repo SKILL.md found. No remote writes or publish authorized.",
+  "causes": [
+    {
+      "priority": 1,
+      "gate": "export-contract",
+      "cause": "Actual surface is 199; explicit allowlist is 197. Only react-runtime-adapter and vue-runtime-adapter are unexpected.",
+      "correction": "Add only these two keys and group requirements; keep unknown exports forbidden. Update type classification count/fingerprint.",
+      "regression": "Unknown/missing runtime subpaths rejected; type declarations and packed consumer resolution checked."
+    },
+    {
+      "priority": 1,
+      "gate": "export-metadata",
+      "cause": "epic13PackageExportLock.expectedExportCount is 192; type export lock is 197.",
+      "correction": "Align active metadata to reviewed 199-key allowlist."
+    },
+    {
+      "priority": 1,
+      "gate": "profile-coverage",
+      "cause": "Full export-lock suite and actual Runtime acceptance scripts are absent from release/CI profile closure.",
+      "correction": "Blocking export-lock and isolated jsdom/browser/consumer suites in release:full, release and all CI profiles; truthful reports required."
+    },
+    {
+      "priority": 2,
+      "gate": "dependency-locks",
+      "cause": "MCP manifest exactly 2.2.0; root record ^2.2.0 and LLM embedded MCP record 2.0.0.",
+      "correction": "Deterministic manifest-only synchronization, with no resolution/version/integrity upgrades.",
+      "regression": "Both kinds of drift rejected; unrelated records unchanged."
+    },
+    {
+      "gate": "mcp-knowledge",
+      "cause": "Knowledge check reports docs.jsonl drift.",
+      "correction": "Regenerate from localized source docs and menu; check twice and run MCP tests."
+    },
+    {
+      "gate": "capability-schema",
+      "cause": "Inventory check reports missing WP1-P2 documentation usage, usage-classification drift and shape-fingerprint drift for runner capabilities.",
+      "correction": "Review observed producer fields/uses, regenerate inventory without changing schema acceptance policy or thresholds."
+    },
+    {
+      "gate": "evidence-prerequisites",
+      "cause": "Package/audit/conditional-network artifacts not produced in this checkout before tests.",
+      "correction": "Run existing evidence preparation with actual pack/audit/SBOM execution; validate resulting outcomes rather than mere existence."
+    },
+    {
+      "gate": "local-toolchain",
+      "cause": "Initial incomplete attempt used npm 11.9.0 and absent jsdom; interrupted after recording partial results.",
+      "correction": "Isolated npm 11.17.0 and exact Node 24.18.0/26.5.0; npm ci existing locks. Historical or interrupted results are not full CI evidence."
+    },
+    {
+      "gate": "sandbox",
+      "cause": "Default sandbox prevents proxy socket and makes spawnSync git report EPERM despite child stdout.",
+      "correction": "Regular require_escalated approval confirmed existing proxy reachable and normal fetch/spawnSync succeed. No settings changed."
+    },
+    {
+      "gate": "unavailable-tools",
+      "cause": "PHP, Composer and Chromium WebDriver not present in PATH; Chromium itself present.",
+      "correction": "Record affected gates as blocked unless tools become available through normal installation; never silently skip mandatory Nightly prerequisites."
+    }
+  ],
+  "coverageBefore": {
+    "ci-pr": {
+      "suiteCount": 185,
+      "exportLock": false,
+      "runtimeAcceptance": false
+    },
+    "ci-release": {
+      "suiteCount": 186,
+      "exportLock": false,
+      "runtimeAcceptance": false
+    },
+    "ci-nightly": {
+      "suiteCount": 194,
+      "exportLock": false,
+      "runtimeAcceptance": false
+    },
+    "ci-publish": {
+      "suiteCount": 181,
+      "exportLock": false,
+      "runtimeAcceptance": false
+    },
+    "release:full": {
+      "suiteCount": 163,
+      "exportLock": false,
+      "runtimeAcceptance": false
+    },
+    "release": {
+      "suiteCount": 163,
+      "exportLock": false,
+      "runtimeAcceptance": false
+    }
+  },
+  "pending": "Corrections and fresh evidence next. Missing PHP/WebDriver/Laravel fixtures stay explicit blockers unless made available.",
+  "baseline": {
+    "node": "v24.18.0",
+    "status": "failed",
+    "complete": true,
+    "total": 194,
+    "failed": [
+      {
+        "id": "supply-chain",
+        "failures": [
+          "CI dependency locks align with all local file dependencies"
+        ]
+      },
+      {
+        "id": "rmt-reference-docs",
+        "failures": [
+          "docs/de/rmt-reference.md renders through safe Parsedown (undefined)",
+          "docs/de/rmt-reference-document-template-import.md renders through safe Parsedown (undefined)",
+          "docs/de/rmt-reference-document-template-import.md preserves safe table anchors",
+          "docs/de/rmt-reference-primitives.md renders through safe Parsedown (undefined)",
+          "docs/de/rmt-reference-primitives.md preserves safe table anchors",
+          "docs/de/rmt-reference-state-selectors-data.md renders through safe Parsedown (undefined)",
+          "docs/de/rmt-reference-state-selectors-data.md preserves safe table anchors",
+          "docs/de/rmt-reference-actions-events.md renders through safe Parsedown (undefined)",
+          "docs/de/rmt-reference-actions-events.md preserves safe table anchors",
+          "docs/de/rmt-reference-surfaces-lanes-lifecycle.md renders through safe Parsedown (undefined)",
+          "docs/de/rmt-reference-surfaces-lanes-lifecycle.md preserves safe table anchors",
+          "docs/de/rmt-reference-validation-transitions.md renders through safe Parsedown (undefined)",
+          "docs/de/rmt-reference-validation-transitions.md preserves safe table anchors",
+          "docs/de/rmt-reference-security-policies.md renders through safe Parsedown (undefined)",
+          "docs/de/rmt-reference-security-policies.md preserves safe table anchors",
+          "docs/de/rmt-reference-remote-surfaces.md renders through safe Parsedown (undefined)",
+          "docs/de/rmt-reference-remote-surfaces.md preserves safe table anchors",
+          "docs/de/rmt-reference-conditions-expressions.md renders through safe Parsedown (undefined)",
+          "docs/de/rmt-reference-conditions-expressions.md preserves safe table anchors",
+          "docs/de/rmt-reference-enums-catalogs.md renders through safe Parsedown (undefined)",
+          "docs/de/rmt-reference-enums-catalogs.md preserves safe table anchors",
+          "docs/en/rmt-reference.md renders through safe Parsedown (undefined)",
+          "docs/en/rmt-reference-document-template-import.md renders through safe Parsedown (undefined)",
+          "docs/en/rmt-reference-document-template-import.md preserves safe table anchors",
+          "docs/en/rmt-reference-primitives.md renders through safe Parsedown (undefined)",
+          "docs/en/rmt-reference-primitives.md preserves safe table anchors",
+          "docs/en/rmt-reference-state-selectors-data.md renders through safe Parsedown (undefined)",
+          "docs/en/rmt-reference-state-selectors-data.md preserves safe table anchors",
+          "docs/en/rmt-reference-actions-events.md renders through safe Parsedown (undefined)",
+          "docs/en/rmt-reference-actions-events.md preserves safe table anchors",
+          "docs/en/rmt-reference-surfaces-lanes-lifecycle.md renders through safe Parsedown (undefined)",
+          "docs/en/rmt-reference-surfaces-lanes-lifecycle.md preserves safe table anchors",
+          "docs/en/rmt-reference-validation-transitions.md renders through safe Parsedown (undefined)",
+          "docs/en/rmt-reference-validation-transitions.md preserves safe table anchors",
+          "docs/en/rmt-reference-security-policies.md renders through safe Parsedown (undefined)",
+          "docs/en/rmt-reference-security-policies.md preserves safe table anchors",
+          "docs/en/rmt-reference-remote-surfaces.md renders through safe Parsedown (undefined)",
+          "docs/en/rmt-reference-remote-surfaces.md preserves safe table anchors",
+          "docs/en/rmt-reference-conditions-expressions.md renders through safe Parsedown (undefined)",
+          "docs/en/rmt-reference-conditions-expressions.md preserves safe table anchors",
+          "docs/en/rmt-reference-enums-catalogs.md renders through safe Parsedown (undefined)",
+          "docs/en/rmt-reference-enums-catalogs.md preserves safe table anchors"
+        ]
+      },
+      {
+        "id": "rmt-playground-security",
+        "failures": [
+          "Required PHP CLI is unavailable for the playground endpoint tests."
+        ]
+      },
+      {
+        "id": "rmt-jit-hydrangea",
+        "failures": [
+          "Hydrangea transport.php: Error: spawnSync php ENOENT"
+        ]
+      },
+      {
+        "id": "rmt-php-ssr-adapter",
+        "failures": [
+          "TypeError: Cannot read properties of undefined (reading 'trim')\n    at syntaxCheckPhp (/workspace/xtend/tests/rmt-language/rmt_php_ssr_adapter_suite.js:50:28)\n    at Object.runRmtPhpSsrAdapterSuite (/workspace/xtend/tests/rmt-language/rmt_php_ssr_adapter_suite.js:332:18)\n    at rmt-php-ssr-adapter (/workspace/xtend/scripts/test-runner/handlers.js:377:111)\n    at process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:41)\n    at process.emit (node:events:509:28)\n    at emit (node:internal/child_process:972:14)\n    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)"
+        ]
+      },
+      {
+        "id": "rmt-php-app-service-adapter",
+        "failures": [
+          "TypeError: Cannot read properties of undefined (reading 'trim')\n    at syntaxCheckPhp (/workspace/xtend/tests/rmt-language/rmt_php_app_service_adapter_suite.js:78:28)\n    at Object.runRmtPhpAppServiceAdapterSuite (/workspace/xtend/tests/rmt-language/rmt_php_app_service_adapter_suite.js:340:25)\n    at rmt-php-app-service-adapter (/workspace/xtend/scripts/test-runner/handlers.js:382:126)\n    at process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:41)\n    at process.emit (node:events:509:28)\n    at emit (node:internal/child_process:972:14)\n    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)"
+        ]
+      },
+      {
+        "id": "docs-php-ssr-prehydration",
+        "failures": [
+          "docs/index.php passes PHP syntax ()",
+          "docs/de/components/index.php passes PHP syntax ()",
+          "docs/en/components/index.php passes PHP syntax ()",
+          "PHP SSR adapter passes syntax ()",
+          "Docs initial HTML renders through PHP (undefined)",
+          "Physical /docs/de/components/ directory route renders the complete localized article through PHP SSR",
+          "Components article exposes its reachable trailing-slash URL as canonical",
+          "Initial HTML exposes SSR prehydration payload",
+          "Initial HTML includes docs SSR prehydration schema",
+          "Feature flag off keeps the legacy shell-only response available",
+          "Document SSR compiles and reports the V2 document source",
+          "Canonical route Accept negotiation emits the route-fragment v1 contract",
+          "Route fragment carries one server-rendered adoptable route root",
+          "Route fragment carries head, content proof and route-local island manifest",
+          "Feature flag off compiles and reports only the V1 shell source",
+          "Initial HTML exposes Rmt template chunk shape",
+          "Initial HTML exposes server prerender hydrate mode",
+          "Initial HTML marks SSR root shell",
+          "Initial HTML marks prehydrated shell",
+          "Initial HTML marks hydration mode",
+          "Initial HTML contains a route skeleton before the client runtime upgrades XRouter",
+          "Document SSR hides the boot skeleton before hydration",
+          "Document SSR opts XRouter into prerendered route adoption",
+          "Document SSR emits one adoptable route node",
+          "Document SSR includes parsed article content in the raw response",
+          "Document SSR preserves the Read Further heading scaffold",
+          "Document SSR preserves the related-link grid needed for stable button spacing",
+          "Document SSR records its server sanitizer proof",
+          "Document SSR records a route content identity proof",
+          "Initial route skeleton opts into the shared pre-upgrade fallback contract",
+          "Initial HTML includes XRouter capability marker",
+          "Initial HTML renders history route records inside the router shell",
+          "Raw HTML SEO de/readme (readme) renders without JavaScript (undefined)",
+          "Raw HTML SEO de/readme (readme) emits the route-specific document title",
+          "Raw HTML SEO de/readme (readme) emits a non-empty meta description",
+          "Raw HTML SEO de/readme (readme) emits exactly one visible article",
+          "Raw HTML SEO de/readme (readme) exposes the Markdown H1 in the article",
+          "Raw HTML SEO de/readme (readme) exposes the distinctive Markdown lead in the article",
+          "Raw HTML SEO de/readme (readme) emits exactly one md-content root",
+          "Raw HTML SEO de/readme (readme) emits exactly one adoptable prerendered route",
+          "Raw HTML SEO de/readme (readme) binds the canonical localized path",
+          "Raw HTML SEO de/readme (readme) binds slug and locale markers",
+          "Raw HTML SEO de/readme (readme) carries content and trust proof markers",
+          "Raw HTML SEO de/readme (readme) carries the V2 document prehydration contract",
+          "Raw HTML SEO de/readme (readme) keeps the boot skeleton hidden beside SSR content",
+          "Raw HTML SEO de/readme (readme) rewrites an article-internal link to a localized progressive XLink anchor",
+          "Raw HTML SEO de/manifest (manifest) renders without JavaScript (undefined)",
+          "Raw HTML SEO de/manifest (manifest) emits the route-specific document title",
+          "Raw HTML SEO de/manifest (manifest) emits a non-empty meta description",
+          "Raw HTML SEO de/manifest (manifest) emits exactly one visible article",
+          "Raw HTML SEO de/manifest (manifest) exposes the Markdown H1 in the article",
+          "Raw HTML SEO de/manifest (manifest) exposes the distinctive Markdown lead in the article",
+          "Raw HTML SEO de/manifest (manifest) emits exactly one md-content root",
+          "Raw HTML SEO de/manifest (manifest) emits exactly one adoptable prerendered route",
+          "Raw HTML SEO de/manifest (manifest) binds the canonical localized path",
+          "Raw HTML SEO de/manifest (manifest) binds slug and locale markers",
+          "Raw HTML SEO de/manifest (manifest) carries content and trust proof markers",
+          "Raw HTML SEO de/manifest (manifest) carries the V2 document prehydration contract",
+          "Raw HTML SEO de/manifest (manifest) keeps the boot skeleton hidden beside SSR content",
+          "Raw HTML SEO de/manifest (manifest) rewrites an article-internal link to a localized progressive XLink anchor",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) renders without JavaScript (undefined)",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) emits the route-specific document title",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) emits a non-empty meta description",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) emits exactly one visible article",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) exposes the Markdown H1 in the article",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) exposes the distinctive Markdown lead in the article",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) emits exactly one md-content root",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) emits exactly one adoptable prerendered route",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) binds the canonical localized path",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) binds slug and locale markers",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) carries content and trust proof markers",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) carries the V2 document prehydration contract",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) keeps the boot skeleton hidden beside SSR content",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) rewrites an article-internal link to a localized progressive XLink anchor",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) keeps a stable server-rendered code block",
+          "Raw HTML SEO de/code-table (rmt-reference-actions-events) includes the server-rendered Markdown table",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) renders without JavaScript (undefined)",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) emits the route-specific document title",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) emits a non-empty meta description",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) emits exactly one visible article",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) exposes the Markdown H1 in the article",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) exposes the distinctive Markdown lead in the article",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) emits exactly one md-content root",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) emits exactly one adoptable prerendered route",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) binds the canonical localized path",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) binds slug and locale markers",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) carries content and trust proof markers",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) carries the V2 document prehydration contract",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) keeps the boot skeleton hidden beside SSR content",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) rewrites an article-internal link to a localized progressive XLink anchor",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) resolves components relative to the current Markdown directory",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) resolves public-component-types relative to the current Markdown directory",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) resolves components-xtend-state relative to the current Markdown directory",
+          "Raw HTML SEO de/nested-links (components-xtend-i18n) resolves components-xrouter relative to the current Markdown directory",
+          "Raw HTML SEO de/largest (ssr-pages) renders without JavaScript (undefined)",
+          "Raw HTML SEO de/largest (ssr-pages) emits the route-specific document title",
+          "Raw HTML SEO de/largest (ssr-pages) emits a non-empty meta description",
+          "Raw HTML SEO de/largest (ssr-pages) emits exactly one visible article",
+          "Raw HTML SEO de/largest (ssr-pages) exposes the Markdown H1 in the article",
+          "Raw HTML SEO de/largest (ssr-pages) exposes the distinctive Markdown lead in the article",
+          "Raw HTML SEO de/largest (ssr-pages) emits exactly one md-content root",
+          "Raw HTML SEO de/largest (ssr-pages) emits exactly one adoptable prerendered route",
+          "Raw HTML SEO de/largest (ssr-pages) binds the canonical localized path",
+          "Raw HTML SEO de/largest (ssr-pages) binds slug and locale markers",
+          "Raw HTML SEO de/largest (ssr-pages) carries content and trust proof markers",
+          "Raw HTML SEO de/largest (ssr-pages) carries the V2 document prehydration contract",
+          "Raw HTML SEO de/largest (ssr-pages) keeps the boot skeleton hidden beside SSR content",
+          "Raw HTML SEO de/largest (ssr-pages) rewrites an article-internal link to a localized progressive XLink anchor",
+          "Raw HTML SEO en/readme (readme) renders without JavaScript (undefined)",
+          "Raw HTML SEO en/readme (readme) emits the route-specific document title",
+          "Raw HTML SEO en/readme (readme) emits a non-empty meta description",
+          "Raw HTML SEO en/readme (readme) emits exactly one visible article",
+          "Raw HTML SEO en/readme (readme) exposes the Markdown H1 in the article",
+          "Raw HTML SEO en/readme (readme) exposes the distinctive Markdown lead in the article",
+          "Raw HTML SEO en/readme (readme) emits exactly one md-content root",
+          "Raw HTML SEO en/readme (readme) emits exactly one adoptable prerendered route",
+          "Raw HTML SEO en/readme (readme) binds the canonical localized path",
+          "Raw HTML SEO en/readme (readme) binds slug and locale markers",
+          "Raw HTML SEO en/readme (readme) carries content and trust proof markers",
+          "Raw HTML SEO en/readme (readme) carries the V2 document prehydration contract",
+          "Raw HTML SEO en/readme (readme) keeps the boot skeleton hidden beside SSR content",
+          "Raw HTML SEO en/readme (readme) rewrites an article-internal link to a localized progressive XLink anchor",
+          "Raw HTML SEO en/manifest (manifest) renders without JavaScript (undefined)",
+          "Raw HTML SEO en/manifest (manifest) emits the route-specific document title",
+          "Raw HTML SEO en/manifest (manifest) emits a non-empty meta description",
+          "Raw HTML SEO en/manifest (manifest) emits exactly one visible article",
+          "Raw HTML SEO en/manifest (manifest) exposes the Markdown H1 in the article",
+          "Raw HTML SEO en/manifest (manifest) exposes the distinctive Markdown lead in the article",
+          "Raw HTML SEO en/manifest (manifest) emits exactly one md-content root",
+          "Raw HTML SEO en/manifest (manifest) emits exactly one adoptable prerendered route",
+          "Raw HTML SEO en/manifest (manifest) binds the canonical localized path",
+          "Raw HTML SEO en/manifest (manifest) binds slug and locale markers",
+          "Raw HTML SEO en/manifest (manifest) carries content and trust proof markers",
+          "Raw HTML SEO en/manifest (manifest) carries the V2 document prehydration contract",
+          "Raw HTML SEO en/manifest (manifest) keeps the boot skeleton hidden beside SSR content",
+          "Raw HTML SEO en/manifest (manifest) rewrites an article-internal link to a localized progressive XLink anchor",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) renders without JavaScript (undefined)",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) emits the route-specific document title",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) emits a non-empty meta description",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) emits exactly one visible article",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) exposes the Markdown H1 in the article",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) exposes the distinctive Markdown lead in the article",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) emits exactly one md-content root",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) emits exactly one adoptable prerendered route",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) binds the canonical localized path",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) binds slug and locale markers",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) carries content and trust proof markers",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) carries the V2 document prehydration contract",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) keeps the boot skeleton hidden beside SSR content",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) rewrites an article-internal link to a localized progressive XLink anchor",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) keeps a stable server-rendered code block",
+          "Raw HTML SEO en/code-table (rmt-reference-actions-events) includes the server-rendered Markdown table",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) renders without JavaScript (undefined)",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) emits the route-specific document title",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) emits a non-empty meta description",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) emits exactly one visible article",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) exposes the Markdown H1 in the article",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) exposes the distinctive Markdown lead in the article",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) emits exactly one md-content root",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) emits exactly one adoptable prerendered route",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) binds the canonical localized path",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) binds slug and locale markers",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) carries content and trust proof markers",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) carries the V2 document prehydration contract",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) keeps the boot skeleton hidden beside SSR content",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) rewrites an article-internal link to a localized progressive XLink anchor",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) resolves components relative to the current Markdown directory",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) resolves public-component-types relative to the current Markdown directory",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) resolves components-xtend-state relative to the current Markdown directory",
+          "Raw HTML SEO en/nested-links (components-xtend-i18n) resolves components-xrouter relative to the current Markdown directory",
+          "Raw HTML SEO en/largest (ssr-pages) renders without JavaScript (undefined)",
+          "Raw HTML SEO en/largest (ssr-pages) emits the route-specific document title",
+          "Raw HTML SEO en/largest (ssr-pages) emits a non-empty meta description",
+          "Raw HTML SEO en/largest (ssr-pages) emits exactly one visible article",
+          "Raw HTML SEO en/largest (ssr-pages) exposes the Markdown H1 in the article",
+          "Raw HTML SEO en/largest (ssr-pages) exposes the distinctive Markdown lead in the article",
+          "Raw HTML SEO en/largest (ssr-pages) emits exactly one md-content root",
+          "Raw HTML SEO en/largest (ssr-pages) emits exactly one adoptable prerendered route",
+          "Raw HTML SEO en/largest (ssr-pages) binds the canonical localized path",
+          "Raw HTML SEO en/largest (ssr-pages) binds slug and locale markers",
+          "Raw HTML SEO en/largest (ssr-pages) carries content and trust proof markers",
+          "Raw HTML SEO en/largest (ssr-pages) carries the V2 document prehydration contract",
+          "Raw HTML SEO en/largest (ssr-pages) keeps the boot skeleton hidden beside SSR content",
+          "Raw HTML SEO en/largest (ssr-pages) rewrites an article-internal link to a localized progressive XLink anchor",
+          "Docs JSONL endpoint renders through PHP (undefined)",
+          "V1 shell JSONL endpoint remains exactly 29 frames",
+          "V1 shell preserves its exact frame-type sequence",
+          "V1 shell preserves its exact component capability sequence",
+          "V1 shell preserves its exact HTML datasource sequence",
+          "JSONL endpoint emits start frame",
+          "JSONL endpoint emits component frame",
+          "JSONL endpoint emits html frame",
+          "JSONL endpoint emits hydration frame",
+          "JSONL endpoint emits complete frame",
+          "Docs V2 document JSONL endpoint renders through PHP (undefined)",
+          "V2 document JSONL endpoint emits its static-sidebar-free 26-frame document contract",
+          "V2 document JSONL endpoint emits exactly one critical document mount frame",
+          "Document JSONL endpoint emits start frame",
+          "Document JSONL endpoint emits component frame",
+          "Document JSONL endpoint emits html frame",
+          "Document JSONL endpoint emits hydration frame",
+          "Document JSONL endpoint emits complete frame",
+          "Document JSONL endpoint carries the server-rendered article descriptor",
+          "PHP Parsedown sanitizer probe completes",
+          "PHP sanitizer preserves safe URL /docs/de/readme",
+          "PHP and browser sanitizer outputs agree after actual HTML parsing for the shared fixture",
+          "Legacy PHP policy still permits its documented data image",
+          "Server Markdown link resolver probe completes",
+          "Server Markdown link resolver preserves query and fragment on a progressive sibling anchor",
+          "Server Markdown link resolver resolves a progressive parent-directory anchor",
+          "Server Markdown link resolver leaves unsupported target unchanged: <a href=\"./missing.md\">missing</a>",
+          "Server Markdown link resolver leaves unsupported target unchanged: <a href=\"../../escape.md\">escape</a>",
+          "Server Markdown link resolver leaves unsupported target unchanged: <a href=\"https://example.com/reference.md\">external</a>",
+          "Server Markdown link resolver leaves unsupported target unchanged: <a href=\"/reference.md\">absolute</a>"
+        ]
+      },
+      {
+        "id": "docs-php-ssr-performance-budget",
+        "failures": [
+          "Docs HTML renders through PHP (undefined)",
+          "Initial prehydration payload is parseable and uses the document SSR schema",
+          "Prehydration payload references existing SSR DOM instead of embedding duplicate HTML",
+          "Render result summary references existing SSR DOM",
+          "Prehydration stores a compact document proof instead of duplicate article HTML",
+          "DE largest Markdown route renders through PHP (docs/de/ssr-pages.md)",
+          "DE largest route uses document SSR V2",
+          "DE largest route renders exactly one article (0)",
+          "EN largest Markdown route renders through PHP (docs/en/ssr-pages.md)",
+          "EN largest route uses document SSR V2",
+          "EN largest route renders exactly one article (0)",
+          "Initial SSR body contains the active documentation article",
+          "Chunk summaries retain Rmt template chunk schema",
+          "SSR header renders the task-trunk navigation with XTend menu components",
+          "SSR header renders exactly six task trunks (0)",
+          "SSR shell renders only the active trunk content (0)"
+        ]
+      },
+      {
+        "id": "docs-php-ssr-cls-budget",
+        "failures": [
+          "Docs HTML renders through PHP (undefined)",
+          "Initial SSR shell marks main CLS anchor",
+          "Initial SSR shell marks router CLS anchor",
+          "Initial SSR shell marks footer CLS anchor",
+          "Initial SSR shell reserves main route geometry",
+          "Initial SSR shell reserves router geometry",
+          "Initial SSR shell reserves footer geometry",
+          "Initial SSR shell includes the visible active article",
+          "Document SSR suppresses the route boot skeleton before hydration",
+          "SSR footer maps docs reserve into x-footer token",
+          "SSR router maps docs reserve into x-router token",
+          "SSR header maps the measured reserve into x-header",
+          "SSR hero maps the responsive reserve into x-hero"
+        ]
+      },
+      {
+        "id": "maraca-app-services-cross-runtime",
+        "failures": [
+          "PHP adapter syntax passes (undefined)",
+          "PHP parity fixture executes through RmtPhpAppServiceAdapter: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at runPhpFixture (/workspace/xtend/tests/maraca/maraca_app_services_cross_runtime_parity_suite.js:429:20)\n    at Object.runMaracaAppServicesCrossRuntimeParitySuite (/workspace/xtend/tests/maraca/maraca_app_services_cross_runtime_parity_suite.js:485:11)\n    at maraca-app-services-cross-runtime (/workspace/xtend/scripts/test-runner/handlers.js:1021:145)\n    at process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:41)\n    at process.emit (node:events:509:28)\n    at emit (node:internal/child_process:972:14)\n    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)"
+        ]
+      },
+      {
+        "id": "xscaler-php-preflight-parity",
+        "failures": [
+          "Error: PHP exited null\n    at evaluateWithPhp (/workspace/xtend/tests/rmt/xscaler_php_preflight_parity_suite.js:172:11)\n    at Object.runXScalerPhpPreflightParitySuite (/workspace/xtend/tests/rmt/xscaler_php_preflight_parity_suite.js:192:22)\n    at xscaler-php-preflight-parity (/workspace/xtend/scripts/test-runner/handlers.js:766:114)\n    at process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:41)\n    at process.emit (node:events:509:28)\n    at emit (node:internal/child_process:972:14)\n    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)"
+        ]
+      },
+      {
+        "id": "rmt-xscaler-ssr-hydration-parity",
+        "failures": [
+          "PHP SSR parity fixture executes: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at runPhpHarness (/workspace/xtend/tests/rmt-language/rmt_xscaler_ssr_hydration_parity_suite.js:142:20)\n    at Object.runRmtXScalerSsrHydrationParitySuite (/workspace/xtend/tests/rmt-language/rmt_xscaler_ssr_hydration_parity_suite.js:252:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async rmt-xscaler-ssr-hydration-parity (/workspace/xtend/scripts/test-runner/handlers.js:771:22)\n    at async process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:35)"
+        ]
+      },
+      {
+        "id": "schema-inventory",
+        "failures": [
+          "scanner validation errors: coverage-missing-source | xtend.ci.runner-capabilities.v1 | development/XTensions-Runtime-Adapters-WP1-P2-Validation.md | Scanned source path is missing from the inventory usage list.; usage-classification-drift | xtend.ci.runner-capabilities.v1 | A statically classified usage is missing from the inventory.; shape-fingerprint-drift | xtend.ci.runner-capabilities.v1 | Observed shape fingerprints differ from the inventory.",
+          "scan coverage gaps: coverage-missing-source | xtend.ci.runner-capabilities.v1 | development/XTensions-Runtime-Adapters-WP1-P2-Validation.md | Scanned source path is missing from the inventory usage list.; usage-classification-drift | xtend.ci.runner-capabilities.v1 | A statically classified usage is missing from the inventory."
+        ]
+      },
+      {
+        "id": "native-first-evidence-pack",
+        "failures": [
+          "Evidence artifact for NFM-AEP-04 exists at .xtend-test-results/xtend-npm-audit-report.json",
+          "Evidence artifact for NFM-AEP-10 exists at .xtend-test-results/xtend-conditional-network-evidence-report.json",
+          "Evidence artifact for NFM-AEP-12 exists at .xtend-test-results/xtend-pack-dry-run.json",
+          "Evidence artifact for NFM-AEP-12 exists at .xtend-test-results/xtend-package-export-lock-report.json",
+          "Package metadata artifact for NFM-AEP-04 exists at .xtend-test-results/xtend-npm-audit-report.json",
+          "Package metadata artifact for NFM-AEP-10 exists at .xtend-test-results/xtend-conditional-network-evidence-report.json",
+          "Package metadata artifact for NFM-AEP-12 exists at .xtend-test-results/xtend-pack-dry-run.json",
+          "Package metadata artifact for NFM-AEP-12 exists at .xtend-test-results/xtend-package-export-lock-report.json"
+        ]
+      },
+      {
+        "id": "test-runner",
+        "failures": [
+          "Nightly locks reject missing root locks, dependency drift and internal registry copies: AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(verifyCiDependencyLocks({rootDir}).ok)\n\n    at /workspace/xtend/tests/platform/nightly_runner_checks.js:17:5\n    at check (/workspace/xtend/tests/platform/test_runner_suite.js:15:51)\n    at Object.runNightlyRunnerChecks (/workspace/xtend/tests/platform/nightly_runner_checks.js:16:9)\n    at Object.runTestRunnerSuite (/workspace/xtend/tests/platform/test_runner_suite.js:149:46)\n    at async test-runner (/workspace/xtend/scripts/test-runner/handlers.js:1790:105)\n    at async process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:35)",
+          "Profile preflight preserves optional coverage and validates PHP iconv behavior: Error: spawnSync php ENOENT\n    at commandProbe (/workspace/xtend/tests/platform/nightly_runner_checks.js:40:50)\n    at /workspace/xtend/tests/platform/nightly_runner_checks.js:43:18\n    at check (/workspace/xtend/tests/platform/test_runner_suite.js:15:51)\n    at Object.runNightlyRunnerChecks (/workspace/xtend/tests/platform/nightly_runner_checks.js:36:9)\n    at async Object.runTestRunnerSuite (/workspace/xtend/tests/platform/test_runner_suite.js:149:5)\n    at async test-runner (/workspace/xtend/scripts/test-runner/handlers.js:1790:105)\n    at async process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:35)",
+          "Toolchain provenance changes with PHP configuration and executable identity: AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(regular.php.find(p=>p.command==='php').available)\n\n    at /workspace/xtend/tests/platform/nightly_runner_checks.js:73:5\n    at check (/workspace/xtend/tests/platform/test_runner_suite.js:15:51)\n    at Object.runNightlyRunnerChecks (/workspace/xtend/tests/platform/nightly_runner_checks.js:66:9)\n    at async Object.runTestRunnerSuite (/workspace/xtend/tests/platform/test_runner_suite.js:149:5)\n    at async test-runner (/workspace/xtend/scripts/test-runner/handlers.js:1790:105)\n    at async process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:35)"
+        ]
+      },
+      {
+        "id": "ssr-pages-browser",
+        "failures": [
+          "Error: chromedriver was not found; configure driverPath or webDriverUrl.\n    at runFixture (/workspace/xtend/tools/browser-hypervisor/index.js:312:28)\n    at Object.runNodePageBrowserSuite (/workspace/xtend/tests/ssr-pages/node_browser_suite.js:67:24)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async ssr-pages-browser (/workspace/xtend/scripts/test-runner/handlers.js:366:101)\n    at async process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:35)"
+        ]
+      },
+      {
+        "id": "erp-resumability-catfood",
+        "failures": [
+          "build, tune check and browser hypervisor pass: file:///workspace/xtend/products/resumability-maraca-erp-demo/scripts/verify.mjs:17 | if (!condition) throw new Error(message); | ^ | Error: Chromium browser smoke failed: Chromium browser smoke timed out. | at assert (file:///workspace/xtend/products/resumability-maraca-erp-demo/scripts/verify.mjs:17:25) | at file:///workspace/xtend/products/resumability-maraca-erp-demo/scripts/verify.mjs:461:5 | Node.js v24.18.0",
+          "central ERP resumability catfood report is green"
+        ]
+      },
+      {
+        "id": "ssr-pages-php",
+        "failures": [
+          "PHP reference transport preserves signed state values and object/array identity: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at execFileSync (node:child_process:954:15)\n    at php (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:23:35)\n    at /workspace/xtend/tests/ssr-pages/page_wire_checks.js:22:14\n    at runCheck (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:20:58)\n    at checkPhp (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:22:62)\n    at Object.pageWireChecks (/workspace/xtend/tests/ssr-pages/page_wire_checks.js:20:8)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async runSsrPagesSuite (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:24:3)",
+          "portable PHP preserves both released attribute contracts: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at execFileSync (node:child_process:954:15)\n    at php (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:23:35)\n    at /workspace/xtend/tests/ssr-pages/contract_evolution_checks.js:59:20\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async runCheck (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:20:52)\n    at async Object.contractEvolutionChecks (/workspace/xtend/tests/ssr-pages/contract_evolution_checks.js:55:3)\n    at async runSsrPagesSuite (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:25:3)\n    at async ssr-pages-php (/workspace/xtend/scripts/test-runner/handlers.js:364:97)",
+          "PHP and Node emit identical initial resume envelopes with preserved signatures and recovery: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at execFileSync (node:child_process:954:15)\n    at php (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:23:35)\n    at /workspace/xtend/tests/ssr-pages/contract_evolution_checks.js:119:22\n    at runCheck (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:20:58)\n    at checkPhp (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:22:62)\n    at Object.contractEvolutionChecks (/workspace/xtend/tests/ssr-pages/contract_evolution_checks.js:118:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async runSsrPagesSuite (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:25:3)",
+          "native attribute literals never alias model roots in portable Node/PHP projection: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at execFileSync (node:child_process:954:15)\n    at php (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:23:35)\n    at /workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:39:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async runCheck (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:20:52)\n    at async runSsrPagesSuite (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:34:3)\n    at async ssr-pages-php (/workspace/xtend/scripts/test-runner/handlers.js:364:97)\n    at async process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:35)",
+          "portable PHP rejects structured native attributes without exposing model payloads: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at execFileSync (node:child_process:954:15)\n    at php (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:23:35)\n    at /workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:45:18\n    at runCheck (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:20:58)\n    at checkPhp (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:22:62)\n    at runSsrPagesSuite (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:43:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async ssr-pages-php (/workspace/xtend/scripts/test-runner/handlers.js:364:97)",
+          "canonical and JSON-LD head records share safe PHP/Node validation and deduplication: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at execFileSync (node:child_process:954:15)\n    at php (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:23:35)\n    at /workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:82:20\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async runCheck (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:20:52)\n    at async runSsrPagesSuite (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:78:3)\n    at async ssr-pages-php (/workspace/xtend/scripts/test-runner/handlers.js:364:97)\n    at async process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:35)",
+          "portable PHP and Node render the same changing controller data: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at execFileSync (node:child_process:954:15)\n    at php (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:23:35)\n    at /workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:96:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async runCheck (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:20:52)\n    at async runSsrPagesSuite (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:91:3)\n    at async ssr-pages-php (/workspace/xtend/scripts/test-runner/handlers.js:364:97)\n    at async process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:35)",
+          "compiler state projection and static identities survive dynamic host values: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at execFileSync (node:child_process:954:15)\n    at php (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:23:35)\n    at /workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:114:20\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async runCheck (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:20:52)\n    at async runSsrPagesSuite (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:106:3)\n    at async ssr-pages-php (/workspace/xtend/scripts/test-runner/handlers.js:364:97)\n    at async process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:35)",
+          "projected data is evaluated once even if it resembles an expression: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at execFileSync (node:child_process:954:15)\n    at php (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:23:35)\n    at /workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:127:29\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async runCheck (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:20:52)\n    at async runSsrPagesSuite (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:122:3)\n    at async ssr-pages-php (/workspace/xtend/scripts/test-runner/handlers.js:364:97)\n    at async process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:35)",
+          "JSON objects, empty lists, nulls and multiple named slot children retain parity: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at execFileSync (node:child_process:954:15)\n    at php (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:23:35)\n    at /workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:135:45\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async runCheck (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:20:52)\n    at async runSsrPagesSuite (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:129:3)\n    at async ssr-pages-php (/workspace/xtend/scripts/test-runner/handlers.js:364:97)\n    at async process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:35)",
+          "portable expressions preserve scalar coercions, filters and Unicode slices: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at execFileSync (node:child_process:954:15)\n    at php (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:23:35)\n    at /workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:162:20\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async runCheck (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:20:52)\n    at async runSsrPagesSuite (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:145:3)\n    at async ssr-pages-php (/workspace/xtend/scripts/test-runner/handlers.js:364:97)\n    at async process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:35)",
+          "resolver failures terminate PHP and Node streams unsuccessfully without leaking errors: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at execFileSync (node:child_process:954:15)\n    at php (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:23:35)\n    at /workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:168:25\n    at runCheck (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:20:58)\n    at checkPhp (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:22:62)\n    at runSsrPagesSuite (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:166:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async ssr-pages-php (/workspace/xtend/scripts/test-runner/handlers.js:364:97)",
+          "PHP and Node providers share selection, once TTL and literal string behavior: Error: spawnSync php ENOENT\n    at Object.spawnSync (node:internal/child_process:1143:20)\n    at spawnSync (node:child_process:911:24)\n    at execFileSync (node:child_process:954:15)\n    at php (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:23:35)\n    at /workspace/xtend/tests/ssr-pages/operational_checks.js:108:69\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async runCheck (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:20:52)\n    at async Object.operationalChecks (/workspace/xtend/tests/ssr-pages/operational_checks.js:103:3)\n    at async runSsrPagesSuite (/workspace/xtend/tests/ssr-pages/ssr_pages_suite.js:288:3)\n    at async ssr-pages-php (/workspace/xtend/scripts/test-runner/handlers.js:364:97)"
+        ]
+      },
+      {
+        "id": "ssr-pages-laravel-matrix",
+        "failures": [
+          "Laravel 12: XTEND_LARAVEL_FIXTURE must name an isolated Composer installation.",
+          "Laravel 13: XTEND_LARAVEL_FIXTURE must name an isolated Composer installation."
+        ]
+      },
+      {
+        "id": "ssr-pages-laravel-browser-matrix",
+        "failures": [
+          "Laravel 12: Error: An installed isolated Laravel fixture is required.\n    at runLaravelPageBrowserSuite (/workspace/xtend/tests/ssr-pages/laravel_browser_suite.js:12:81)\n    at Object.runLaravelMatrixSuite (/workspace/xtend/tests/ssr-pages/laravel_matrix_suite.js:14:89)\n    at ssr-pages-laravel-browser-matrix (/workspace/xtend/scripts/test-runner/handlers.js:370:189)\n    at process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:41)\n    at process.emit (node:events:509:28)\n    at emit (node:internal/child_process:972:14)\n    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)",
+          "Laravel 13: Error: An installed isolated Laravel fixture is required.\n    at runLaravelPageBrowserSuite (/workspace/xtend/tests/ssr-pages/laravel_browser_suite.js:12:81)\n    at Object.runLaravelMatrixSuite (/workspace/xtend/tests/ssr-pages/laravel_matrix_suite.js:14:89)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async ssr-pages-laravel-browser-matrix (/workspace/xtend/scripts/test-runner/handlers.js:370:135)\n    at async process.<anonymous> (/workspace/xtend/scripts/test-runner/worker.js:12:35)"
+        ]
+      }
+    ],
+    "skipped": [
+      {
+        "id": "maraca-app-services-build",
+        "skips": [
+          "AppServices browser source-to-sea smoke skipped because no Hypervisor provider is available"
+        ]
+      },
+      {
+        "id": "maraca-kernel-integrity",
+        "skips": [
+          "kernel integrity browser smoke skipped because no Hypervisor provider is available; set XTEND_MARACA_KERNEL_INTEGRITY_BROWSER_REQUIRED=1 to make it blocking"
+        ]
+      }
+    ]
+  },
+  "additionalFindings": [
+    {
+      "gate": "active-export-contract-doc",
+      "cause": "Canonical package export contract still said 184; TypeExports WP1 document still said 197 and retained the old fingerprint.",
+      "correction": "Align active contract documentation to reviewed 199 exports and exact fingerprint."
+    },
+    {
+      "gate": "installed-tree-sbom",
+      "cause": "npm 11.17.0 installed-tree SBOM mis-resolves an absent optional musl package between two legitimate lightningcss versions. Lock already has the correct nested 1.33.0 and root 1.32.0 records.",
+      "correction": "Generate SBOM with --package-lock-only, retaining all 192 locked package records across platforms; add missing/version/scoped-name negative coverage tests. No dependency changes."
+    },
+    {
+      "gate": "erp-browser",
+      "cause": "Actual ERP Chromium CLI smoke times out on available Chromium 151.0.7922.173. No matching WebDriver is configured; isolated Runtime Playwright acceptance is green.",
+      "correction": "Retain failure; full ERP browser evidence remains unresolved in this environment."
+    },
+    {
+      "gate": "sbom-command-compatibility",
+      "cause": "Reference-path assertions compared old exact SBOM command strings after the reviewed full-lock SBOM change.",
+      "correction": "Keep strict checks and align their exact expected commands to the actual configured command."
+    }
+  ]
+}
