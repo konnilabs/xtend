@@ -8,8 +8,9 @@ test('generated public dependencies pin the CLI release and Material versions ex
  const root=fixture(t);assert.equal(scaffold(root,'write').ok,true);
  const pkg=JSON.parse(fs.readFileSync(path.join(root,'products/bench/package.json')));
  const version=require('../../xtend-builder/package.json').version;
- for(const name of ['@ccslabs/xtend','@ccslabs/xtend-maraca','@ccslabs/xtend-compiler','@ccslabs/xtend-rmt','@ccslabs/xtend-fabric','@ccslabs/xtend-xsurface-shard'])assert.equal(pkg.dependencies[name],version);
- assert.equal(pkg.dependencies['@ccslabs/xtend-mcp'],'0.1.0');
+ for(const name of ['@ccslabs/xtend','@ccslabs/xtend-maraca'])assert.equal(pkg.dependencies[name],version);
+ assert.equal(pkg.devDependencies['@ccslabs/xtend-compiler'],version);
+ for(const name of ['@ccslabs/xtend-mcp','@ccslabs/xtend-fabric','@ccslabs/xtend-xsurface-shard','@ccslabs/xtend-rmt'])for(const section of ['dependencies','devDependencies'])assert.equal(pkg[section][name],undefined,`irrelevant dependency ${name}`);
  assert.equal(pkg.devDependencies['@ccslabs/xtend-cli'],version);
  for(const section of ['dependencies','devDependencies'])for(const [name,value] of Object.entries(pkg[section]))if(name.startsWith('@ccslabs/')||name.startsWith('@xtend-material/'))assert.match(value,/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/);
  assert.equal(scaffold(root,'check').status,'current');
