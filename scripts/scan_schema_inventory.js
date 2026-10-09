@@ -984,7 +984,62 @@ function definitionTypeFor(record, occurrence) {
   return 'identifier-reference';
 }
 
+// Identifier-scoped initial authority proposal; never a general unreleased exemption.
+const INITIAL_CANDIDATE_AUTHORITY = Object.freeze({
+  enabled: true, schemaId: 'xtend.product-candidates.v1', familyId: 'xtend.product-candidates',
+  path: 'candidate-integrity.d.ts', symbol: 'CandidateManifest',
+  sourceSha256: '4b096560d425afd3c16aba9353d9a974e9e12138a5512e9941a69fa608382c47',
+  fingerprint: 'sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9'
+});
+function assertCandidateInitialAuthorityRetiredForRelease() {
+  if (INITIAL_CANDIDATE_AUTHORITY.enabled) throw Error('First CandidateManifest release requires source-level initial-authority retirement');
+  return true;
+}
+function initialCandidateCanonical() {
+  return { path: INITIAL_CANDIDATE_AUTHORITY.path, symbol: INITIAL_CANDIDATE_AUTHORITY.symbol,
+    definitionType: 'typescript-declaration', role: 'definition', visibility: 'internal' };
+}
+function isReviewedInitialCandidateAuthority(entry, inventory, scan, rootDir) {
+  const binding = INITIAL_CANDIDATE_AUTHORITY;
+  const review = entry.initialAuthorityReview;
+  if (!binding.enabled || entry.schemaId !== binding.schemaId || entry.familyId !== binding.familyId || entry.version !== 1
+    || entry.status !== 'active' || !stableEqual(entry.lifecycle, { status: 'active', rollout: 'planned' })
+    || entry.aliasOf !== null || entry.replacedBy !== null || entry.releasedFingerprintSetHash !== null
+    || entry.shapePolicy?.releasedFingerprintSetHash !== null || !review
+    || !stableEqual(review, { status: 'reviewed-unreleased', schemaId: binding.schemaId,
+      sourcePath: binding.path, symbol: binding.symbol, sourceSha256: binding.sourceSha256,
+      authoritativeFingerprint: binding.fingerprint, released: false })
+    || !stableEqual(entry.canonicalDefinition, initialCandidateCanonical())) return false;
+  const members = inventory.entries.filter(candidate => candidate.familyId === binding.familyId);
+  const families = (inventory.schemaFamilies || []).filter(family => family.familyId === binding.familyId);
+  if (members.length !== 1 || families.length !== 1 || inventory.entries.some(candidate => candidate.aliasOf === binding.schemaId)
+    || (entry.releaseHistory || []).length || (entry.history || []).length
+    || (inventory.releaseRecords || []).some(record => record.schemaId === binding.schemaId)) return false;
+  const family = families[0];
+  if (family.activeSchemaId !== binding.schemaId || family.currentVersion !== 1
+    || !Array.isArray(family.tombstones) || !Array.isArray(family.versions) || family.tombstones.length
+    || family.versions.length !== 1 || !stableEqual(family.versions[0], {
+      schemaId: binding.schemaId, version: 1, lifecycle: { status: 'active', rollout: 'planned' },
+      releasedFingerprintSetHash: null })) return false;
+  const observed = scan.entries.find(candidate => candidate.schemaId === binding.schemaId);
+  if (!observed || !stableEqual(authoritativeFingerprintHashes(observed.shapeFingerprints), [binding.fingerprint])
+    || !stableEqual(authoritativeFingerprintHashes(entry.shapeFingerprints), [binding.fingerprint])
+    || !stableEqual(uniqueSorted(entry.shapePolicy.authoritativeFingerprints || []), [binding.fingerprint])
+    || !stableEqual(uniqueSorted(entry.shapePolicy.acceptedFingerprints || []),
+      uniqueSorted(observed.shapeFingerprints.map(fingerprint => fingerprint.hash)))) return false;
+  const authority = observed.shapeFingerprints.find(fingerprint => fingerprint.hash === binding.fingerprint);
+  if (!authority.evidence.some(evidence => evidence.authoritative && evidence.completeness === 'complete'
+    && evidence.type === 'declared-type' && evidence.path === binding.path && evidence.symbol === binding.symbol)) return false;
+  try { return crypto.createHash('sha256').update(fs.readFileSync(path.join(rootDir, binding.path))).digest('hex') === binding.sourceSha256; }
+  catch { return false; }
+}
+
 function selectCanonicalDefinition(record) {
+  if (record.schemaId === INITIAL_CANDIDATE_AUTHORITY.schemaId && record.shapes.some(shape =>
+    shape.path === INITIAL_CANDIDATE_AUTHORITY.path && shape.symbol === INITIAL_CANDIDATE_AUTHORITY.symbol
+    && shape.hash === INITIAL_CANDIDATE_AUTHORITY.fingerprint && shape.authoritative)) {
+    return initialCandidateCanonical();
+  }
   if (record.formalJsonSchema) {
     const formalPath = uniqueSorted(record.formalJsonSchemaPaths).find((candidate) => !isGeneratedPath(candidate));
     if (!formalPath) return null;
@@ -1957,7 +2012,9 @@ function validateInventoryDocument(inventory, scan, options = {}) {
     }
     const mayRetainHistoricalReleasedHash = currentReleasedHash === null && entry.releasedFingerprintSetHash
       && (entry.aliasOf || entry.lifecycle && entry.lifecycle.status !== 'active');
-    if (entry.releasedFingerprintSetHash !== currentReleasedHash && !mayRetainHistoricalReleasedHash) {
+    const mayBindInitialCandidateAuthority = isReviewedInitialCandidateAuthority(entry, inventory, scan, rootDir);
+    if (entry.releasedFingerprintSetHash !== currentReleasedHash && !mayRetainHistoricalReleasedHash
+      && !mayBindInitialCandidateAuthority) {
       errors.push(issue('released-fingerprint-drift', 'A released authoritative fingerprint changed in place; publish a new major schema ID.', {
         schemaId: entry.schemaId,
         releasedFingerprintSetHash: entry.releasedFingerprintSetHash,
@@ -2271,6 +2328,7 @@ function main() {
 if (require.main === module) main();
 
 module.exports = {
+  assertCandidateInitialAuthorityRetiredForRelease,
   FORMAL_RMT_SCHEMA_FAMILY_ID,
   FORMAL_RMT_SCHEMA_ID,
   INVENTORY_PATH,
