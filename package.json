@@ -989,6 +989,10 @@
     "./candidate-integrity": {
       "types": "./candidate-integrity.d.ts",
       "default": "./candidate-integrity.cjs"
+    },
+    "./schema-inventory": {
+      "types": "./tools/schema-inventory/index.d.ts",
+      "default": "./tools/schema-inventory/index.cjs"
     }
   },
   "publishConfig": {
