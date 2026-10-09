@@ -46,7 +46,7 @@ if(require.main===module) {
   verifyReportFiles(reports,{directory,coreSha,demoSha:pin.demoSha});
   verifyInstallationFiles(installation,{directory,manifest});
   verifyEvidence(evidence,{coreSha,demoSha:pin.demoSha,packages:manifest.packages,php:manifest.php,installation,reports});
-  console.log(JSON.stringify({schema:'xtend.product-candidate-verification.v1',ok:true}));
+  console.log(JSON.stringify({schema:'xtend.product-candidate-verification.v1',ok:true,coreSha,demoSha:pin.demoSha,manifestSha256:digest(fs.readFileSync(path.join(directory,'manifest.json'))),evidenceSha256:digest(fs.readFileSync(process.argv[2]||path.join(root,'.xtend-test-results/product-candidate.json')))}));
  }catch(error){console.error(error.message);process.exitCode=1;}
 }
 module.exports={schema,required,verifyEvidence,verifyReportFiles,verifyInstallationFiles};

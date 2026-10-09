@@ -17526,7 +17526,6 @@
         "tests/maraca/maraca_app_services_runtime_suite.js",
         "tests/maraca/maraca_app_services_cross_runtime_parity_suite.js",
         "tests/maraca/maraca_node_app_host_suite.js",
-        "tests/products/xtend_llm_app_services_catfood_suite.js",
         "tests/maraca/maraca_app_services_build_suite.js"
       ],
       "suiteIds": [
@@ -17539,7 +17538,6 @@
       "crossRuntimeSuiteId": "maraca-app-services-cross-runtime",
       "crossRuntimePackageScript": "npm run test:maraca-app-services-cross-runtime",
       "crossRuntimeReportArtifact": ".xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json",
-      "catfoodSuite": "tests/products/xtend_llm_app_services_catfood_suite.js",
       "aggregatePackageScript": "npm run test:maraca-app-services",
       "aggregateReportArtifact": ".xtend-test-results/xtend-maraca-app-services-gate-report.json"
     },
