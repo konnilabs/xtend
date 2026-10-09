@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { packedFixture, registryFixture } = require('./fixtures.cjs');
-const { channelTag, promotionSupported, publishRelease, sourceRepository } = require('../../scripts/release/publish.cjs');
+const { channelTag, promotionSupported, publishRelease, sourceRepository } = require('./authority-fixture.cjs').loadPublisher();
 const { parseRegistryResult, parseHttpRegistryResult, npmAdapters } = require('../../scripts/release/npm.cjs');
 const { assertPublishInput } = require('../../scripts/release/cli.cjs');
 async function setup(t) {

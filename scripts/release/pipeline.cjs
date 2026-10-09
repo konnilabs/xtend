@@ -82,10 +82,10 @@ async function consumers({ directory, candidateSha256, demoRepository }) {
   check(run.status === 0 && !run.error, 'Required pinned product consumer gates failed');
   verifyProductConsumer({ directory, file, sourceSha: git(['rev-parse', 'HEAD']), demoSha: require('../../product-demos.lock.json').demoSha });
 }
-function verifyProductConsumer({ directory, file, sourceSha, demoSha }) {
+function verifyProductConsumer({ directory, file, sourceSha, demoSha, startedAt }) {
   const manifest = JSON.parse(fs.readFileSync(path.join(directory, 'manifest.json'))), evidence = JSON.parse(fs.readFileSync(file));
   require('../../candidate-integrity.cjs').verifyCandidates(manifest, { directory, coreSha: sourceSha, demoSha });
-  productEvidence.verifyReportFiles(evidence.reports, { directory, coreSha: sourceSha, demoSha });
+  productEvidence.verifyReportFiles(evidence.reports, { directory, coreSha: sourceSha, demoSha, manifest, startedAt });
   productEvidence.verifyInstallationFiles(evidence.installation, { directory, manifest });
   productEvidence.verifyEvidence(evidence, { coreSha: sourceSha, demoSha, packages: manifest.packages, php: manifest.php,
     installation: evidence.installation, reports: evidence.reports });

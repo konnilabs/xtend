@@ -989,6 +989,10 @@
     "./candidate-integrity": {
       "types": "./candidate-integrity.d.ts",
       "default": "./candidate-integrity.cjs"
+    },
+    "./schema-inventory": {
+      "types": "./tools/schema-inventory/index.d.ts",
+      "default": "./tools/schema-inventory/index.cjs"
     }
   },
   "publishConfig": {
@@ -18218,7 +18222,7 @@
     "test:xtensions-runtime:browser": "node scripts/test_xtensions_runtime_adapters.cjs --browser",
     "ci:dependency-locks:sync-metadata": "node scripts/sync_ci_dependency_lock_metadata.js",
     "test:xtensions-runtime:ci": "node scripts/run_xtend_tests.js --profile xtensions-runtime-acceptance",
-    "test:product-boundary": "node --test tests/migration/*.test.cjs",
+    "test:product-boundary": "node --test tests/migration/*.test.cjs tests/migration/manifest-initial-authority/*.test.cjs",
     "test:product-candidate": "node scripts/product-candidate-canary.cjs",
     "verify:product-candidate": "node scripts/product-candidate-evidence.cjs .xtend-test-results/product-candidate.json",
     "scaffold:dry-run": "node xtend-builder/scaffold.js component-files --tag x-example --profile display --feature state --json",

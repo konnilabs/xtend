@@ -1,0 +1,282 @@
+{
+  "schema": "xtend.product-candidate-evidence.v1",
+  "ok": true,
+  "status": "passed",
+  "coreSha": "f2b7ec2961ce71e1573997313d68af4fffed8a56",
+  "demoSha": "2222222222222222222222222222222222222222",
+  "packages": [
+    {
+      "name": "@fixture/core",
+      "version": "0.9.0",
+      "file": "fixture.tgz",
+      "sha256": "dda18a0e21ae47c53b4309434cbc02ae8bf764fa83a6defbb719431242722aa7",
+      "integrity": "sha512-CdIVw3JQKKaLAzRg/5yu43e3FABgIPownJSReR6GPtn4YisFwWvY4I8tQmQc3A+VVUPimg+/nou+oac/VjJY9Q=="
+    }
+  ],
+  "php": {
+    "file": "php.tar",
+    "sha256": "12a5d18ee896e59954bdce0f4acc7212eebe03dae1834ef4ce160ac5afa5c4a8",
+    "sources": {
+      "runtime.php": "41cf6794ba4200b839c53531555f0f3998df4cbb01a4d5cb0b94e3ca5e23947d"
+    }
+  },
+  "installation": [
+    {
+      "product": ".",
+      "file": "locks/root.json",
+      "status": "passed",
+      "lockSha256": "2e8238b921aa22f40570cba2eb6b1500f21321d832bb124149eacad014dc6c0f"
+    },
+    {
+      "product": "products/maraca-app-services-test-bench",
+      "file": "locks/maraca-app-services-test-bench.json",
+      "status": "passed",
+      "lockSha256": "2e8238b921aa22f40570cba2eb6b1500f21321d832bb124149eacad014dc6c0f"
+    },
+    {
+      "product": "products/resumability-maraca-erp-demo",
+      "file": "locks/resumability-maraca-erp-demo.json",
+      "status": "passed",
+      "lockSha256": "2e8238b921aa22f40570cba2eb6b1500f21321d832bb124149eacad014dc6c0f"
+    },
+    {
+      "product": "products/rmt-animation-testbench",
+      "file": "locks/rmt-animation-testbench.json",
+      "status": "passed",
+      "lockSha256": "2e8238b921aa22f40570cba2eb6b1500f21321d832bb124149eacad014dc6c0f"
+    },
+    {
+      "product": "products/rmt-maraca-kernel-orchestration",
+      "file": "locks/rmt-maraca-kernel-orchestration.json",
+      "status": "passed",
+      "lockSha256": "2e8238b921aa22f40570cba2eb6b1500f21321d832bb124149eacad014dc6c0f"
+    },
+    {
+      "product": "products/xtend-llm",
+      "file": "locks/xtend-llm.json",
+      "status": "passed",
+      "lockSha256": "2e8238b921aa22f40570cba2eb6b1500f21321d832bb124149eacad014dc6c0f"
+    },
+    {
+      "product": "products/xtend-material-workbench",
+      "file": "locks/xtend-material-workbench.json",
+      "status": "passed",
+      "lockSha256": "2e8238b921aa22f40570cba2eb6b1500f21321d832bb124149eacad014dc6c0f"
+    },
+    {
+      "product": "products/xtend-shop",
+      "file": "locks/xtend-shop.json",
+      "status": "passed",
+      "lockSha256": "2e8238b921aa22f40570cba2eb6b1500f21321d832bb124149eacad014dc6c0f"
+    }
+  ],
+  "reports": [
+    {
+      "id": "http-security",
+      "file": "reports/http-security.json",
+      "status": "passed",
+      "sha256": "b7df8cdaebd1ff2c3369607363c95f9322128705d284d3bfb84c84fd607a39d0"
+    },
+    {
+      "id": "product-xss",
+      "file": "reports/product-xss.json",
+      "status": "passed",
+      "sha256": "6c8c5c3f656b77c3df95d6be20723becdc86ed80cd84a00f71a29381075b1635"
+    },
+    {
+      "id": "product-builds",
+      "file": "reports/product-builds.json",
+      "status": "passed",
+      "sha256": "28500aa880c6bdb8e95aaa3c21ff24a8a8c2179125dfdb14702c5828b0ca4d9d"
+    },
+    {
+      "id": "product-owned-suites",
+      "file": "reports/product-owned-suites.json",
+      "status": "passed",
+      "sha256": "1e9f84851da2ec00258e42f9afb94a179b48929b600b321953ac6d53d47cb0ab"
+    },
+    {
+      "id": "shop-php",
+      "file": "reports/shop-php.json",
+      "status": "passed",
+      "sha256": "984167659193c9e4710f74af88ba1c5b74fa805fee37231200b5dfda28a6c3c7"
+    },
+    {
+      "id": "shop-browser",
+      "file": "reports/shop-browser.json",
+      "status": "passed",
+      "sha256": "d64bfb1f25574a1a507b1550a60517b1494f2eb123aec82d2bf3b03c03da1778"
+    },
+    {
+      "id": "shop-browser-fpm",
+      "file": "reports/shop-browser-fpm.json",
+      "status": "passed",
+      "sha256": "69a3c6701b3175324e385c332667d40e829fafc15b16964e4eed78194d0bd509"
+    },
+    {
+      "id": "electron-runtime",
+      "file": "reports/electron-runtime.json",
+      "status": "passed",
+      "sha256": "7697630d8786aedc6ddb9ff8398d0f8640434a7afb35f0d76446139c6a093f81"
+    },
+    {
+      "id": "electron-shell-import-worker",
+      "file": "reports/electron-shell-import-worker.json",
+      "status": "passed",
+      "sha256": "b777d940ce347b413fd1a203e1ac266aeb7027ca2ff3c92532e2905b36e929f2"
+    },
+    {
+      "id": "llm-contracts",
+      "file": "reports/llm-contracts.json",
+      "status": "passed",
+      "sha256": "ea9ab81ca0a54c9e444556845998087256a287ca652cf624db6e4bf6222711c0"
+    },
+    {
+      "id": "erp-resumability-catfood",
+      "file": "reports/erp-resumability-catfood.json",
+      "status": "passed",
+      "sha256": "2781d50ab948ab50571fd4b6340a02c6de7f13e9dfc2185cbab31002f2b7e2ad"
+    },
+    {
+      "id": "maraca-app-services-test-bench",
+      "file": "reports/maraca-app-services-test-bench.json",
+      "status": "passed",
+      "sha256": "6addb83d19daba6d62c3e4295e8ca499cf141c2489ef248cbc38ce1ce8be4384"
+    },
+    {
+      "id": "xtend-llm-app-services-catfood",
+      "file": "reports/xtend-llm-app-services-catfood.json",
+      "status": "passed",
+      "sha256": "bda46c81f61a49f32c5e37a5d6b15aee6abb6667a0b89c5f26ecdc73ad3aa105"
+    },
+    {
+      "id": "xtend-material-catfooding",
+      "file": "reports/xtend-material-catfooding.json",
+      "status": "passed",
+      "sha256": "d69bd3c4290a0d31c816193124648e8d689127f7627089658c08e047ef77792f"
+    },
+    {
+      "id": "xtend-shop-php",
+      "file": "reports/xtend-shop-php.json",
+      "status": "passed",
+      "sha256": "be6a910fc9856835a7100db9477df228aa25310d0429e0e1efbd29f839456243"
+    },
+    {
+      "id": "xtend-shop-browser",
+      "file": "reports/xtend-shop-browser.json",
+      "status": "passed",
+      "sha256": "2f1f30a0cc9bfec78d4c5d75fa07e1f88f247db93503be2622058ebb2d46b63e"
+    },
+    {
+      "id": "xtend-shop-contracts",
+      "file": "reports/xtend-shop-contracts.json",
+      "status": "passed",
+      "sha256": "b3a9e40b5cfbcb6e10a5d318d94b176c2505f65ff58ef8d9705f8ed73f842086"
+    }
+  ],
+  "commands": [
+    {
+      "id": "http-security",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "product-xss",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "product-builds",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "product-owned-suites",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "shop-php",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "shop-browser",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "shop-browser-fpm",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "electron-runtime",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "electron-shell-import-worker",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "llm-contracts",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "erp-resumability-catfood",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "maraca-app-services-test-bench",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "xtend-llm-app-services-catfood",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "xtend-material-catfooding",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "xtend-shop-php",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "xtend-shop-browser",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "xtend-shop-contracts",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    }
+  ],
+  "generatedAt": "2026-10-09T17:05:33.948Z"
+}

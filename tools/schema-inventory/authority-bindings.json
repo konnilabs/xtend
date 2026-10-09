@@ -1,0 +1,194 @@
+[
+  {
+    "schemaId": "xtend.a11y.profile.v1",
+    "oldSource": "components/x-rmt-lifecycle-demo.d.ts",
+    "sourceSha256": "4d0b770bc789c3757e5a2991de77f9e35f27e9cf53e30637d10d7de1326ee342",
+    "expectedFingerprint": "sha256:b4495da1b3687423698769984908dd4002c3132e8fd2008dc3b34ad8884400ba",
+    "originalReleasedFingerprintSetHash": "sha256:686fb507dfa63ed35c7af0523a14a1ca362abc4e8db77fc98fd960017cb7163d",
+    "packagePath": "tools/schema-inventory/authority-sources/components/x-rmt-lifecycle-demo.d.ts"
+  },
+  {
+    "schemaId": "xtend.component.form-control-snapshot.v1",
+    "oldSource": "components/xtextarea.d.ts",
+    "sourceSha256": "2edc78b656f78cc4d6965cb47979ff134cf371329fca347ab1de9bfd5746d905",
+    "expectedFingerprint": "sha256:ef34760745e7716a6f8324fcda1bb5d0e53c000ae4a152cdb5fc380dc18c3bb6",
+    "originalReleasedFingerprintSetHash": "sha256:38f091512ca53b35329a2555cf7ed30e78416c7fe29aa8aac3d680b0e521bfac",
+    "packagePath": "tools/schema-inventory/authority-sources/components/xtextarea.d.ts"
+  },
+  {
+    "schemaId": "xtend.component.form-control-snapshot.v1",
+    "oldSource": "src/components/x-textarea/x-textarea.ts",
+    "sourceSha256": "4d601ddf1f85bf13c0b9a0782992bd02e0f5750b9a55a2a609e4eb265c736844",
+    "expectedFingerprint": "sha256:ef34760745e7716a6f8324fcda1bb5d0e53c000ae4a152cdb5fc380dc18c3bb6",
+    "originalReleasedFingerprintSetHash": "sha256:38f091512ca53b35329a2555cf7ed30e78416c7fe29aa8aac3d680b0e521bfac",
+    "packagePath": "tools/schema-inventory/authority-sources/src/components/x-textarea/x-textarea.ts"
+  },
+  {
+    "schemaId": "xtend.component.performance-snapshot.v1",
+    "oldSource": "components/xtabs.d.ts",
+    "sourceSha256": "ea6ddba3ea875b8f6cdb89fb644a02c2ba298e3c16570bb7d50eaa6cc1b1f55b",
+    "expectedFingerprint": "sha256:6f7b26f33acd75590f25bf0cb8df714a77fee5a16e8d3c3d3f97f770c5a239df",
+    "originalReleasedFingerprintSetHash": "sha256:7a5f333ecace75be7ae07cef33c04b2fc6dcd2042f5e5fef0197c2dfefaa7575",
+    "packagePath": "tools/schema-inventory/authority-sources/components/xtabs.d.ts"
+  },
+  {
+    "schemaId": "xtend.component.x-button.state.v1",
+    "oldSource": "components/xbutton.d.ts",
+    "sourceSha256": "a847b5819bae763c88c23c2e345b2b156309894e8bebf8ba715f933ef18590d8",
+    "expectedFingerprint": "sha256:7a3e60b5570482588763282b3d27f342e9e8c56b09a6668de53aca775e532c7c",
+    "originalReleasedFingerprintSetHash": "sha256:660c1b737cfb4dc531af4bbb0a0478f5e3ab942032534b3ddc8d15d28bed6d5b",
+    "packagePath": "tools/schema-inventory/authority-sources/components/xbutton.d.ts"
+  },
+  {
+    "schemaId": "xtend.epic18.rmt-event-reconcile-report.v1",
+    "oldSource": "xtendrmt/rmt-event-routing-runtime.d.ts",
+    "sourceSha256": "1a18083529febb9041aa4434a8ed77ee9a8d4d291fcf38a5a04a04848eadd1c9",
+    "expectedFingerprint": "sha256:8c0f075ace6729bf4ad7a7f5b6c5d74f2558e7b95e305120bbd84c34dc637e07",
+    "originalReleasedFingerprintSetHash": "sha256:9f0e6a022a04a3f2d1137b472bc6cabca89d7329ff23e347b8f26a255631eee3",
+    "packagePath": "tools/schema-inventory/authority-sources/xtendrmt/rmt-event-routing-runtime.d.ts"
+  },
+  {
+    "schemaId": "xtend.maraca.browser-host-adapter.v2",
+    "oldSource": "xtend-maraca/browser-host-adapter.d.ts",
+    "sourceSha256": "45b25cf6ab6f0d9877a473da445e4ac0f16809b66f8a7cefaed2b7692edc2e86",
+    "expectedFingerprint": "sha256:d8767669cf61d9008460048f9e7d3f9308e86cbed1f68681eebd2a1c2f786ddb",
+    "originalReleasedFingerprintSetHash": "sha256:f38caa2dad9e4da067688f5a3322d56fc381ec93112472b5013f2a403f1eb864",
+    "packagePath": "tools/schema-inventory/authority-sources/xtend-maraca/browser-host-adapter.d.ts"
+  },
+  {
+    "schemaId": "xtend.material.performance-report.v1",
+    "oldSource": "xtend-material/performance-contract.d.ts",
+    "sourceSha256": "563bfaa8d18939c5543678bedbc59f6af8178cdb4952e80c0fa03ef028f6eecb",
+    "expectedFingerprint": "sha256:d42748ade69815c2f9a5a06ce1ed951993cab52337704c17c1cf55fecaf91984",
+    "originalReleasedFingerprintSetHash": "sha256:78f359b3366800572bd1827c9ac702dbd9bea970b64db46029af4195e34201ae",
+    "packagePath": "tools/schema-inventory/authority-sources/xtend-material/performance-contract.d.ts"
+  },
+  {
+    "schemaId": "xtend.performance.component-profile.v1",
+    "oldSource": "components/x-rmt-lifecycle-demo.d.ts",
+    "sourceSha256": "4d0b770bc789c3757e5a2991de77f9e35f27e9cf53e30637d10d7de1326ee342",
+    "expectedFingerprint": "sha256:8bb1b340671d3a7426676d06de1c0bb94ef50d83932edb3e7e4f6fb2572fad2e",
+    "originalReleasedFingerprintSetHash": "sha256:6651e0e48e037228b7b7773701f5f988d0e065e6b95972542ce97ac282e418f6",
+    "packagePath": "tools/schema-inventory/authority-sources/components/x-rmt-lifecycle-demo.d.ts"
+  },
+  {
+    "schemaId": "xtend.performance.component-profile.v1",
+    "oldSource": "components/xkeymap.d.ts",
+    "sourceSha256": "07169610513544432109ce566f4461e69f8c933e624a7b553315deb0c1c9dccc",
+    "expectedFingerprint": "sha256:94923129d73b49a5d0af4fdd74712b10a0e655f58a62ef4ee2b708156103a49b",
+    "originalReleasedFingerprintSetHash": "sha256:6651e0e48e037228b7b7773701f5f988d0e065e6b95972542ce97ac282e418f6",
+    "packagePath": "tools/schema-inventory/authority-sources/components/xkeymap.d.ts"
+  },
+  {
+    "schemaId": "xtend.performance.component-profile.v1",
+    "oldSource": "components/xmenu.d.ts",
+    "sourceSha256": "7eb9fb2867d5462c09591aad0a069a23069ef2398ead30f828714e8573195e3c",
+    "expectedFingerprint": "sha256:b3cbe5fac70b9a502217fd289e11148497749123ab0a6aac4521646176d9be53",
+    "originalReleasedFingerprintSetHash": "sha256:6651e0e48e037228b7b7773701f5f988d0e065e6b95972542ce97ac282e418f6",
+    "packagePath": "tools/schema-inventory/authority-sources/components/xmenu.d.ts"
+  },
+  {
+    "schemaId": "xtend.performance.component-profile.v1",
+    "oldSource": "components/xtabs.d.ts",
+    "sourceSha256": "ea6ddba3ea875b8f6cdb89fb644a02c2ba298e3c16570bb7d50eaa6cc1b1f55b",
+    "expectedFingerprint": "sha256:ed141a99a1ec538168d14757544d99928d1893d7c083ec6de8bf13968865d482",
+    "originalReleasedFingerprintSetHash": "sha256:6651e0e48e037228b7b7773701f5f988d0e065e6b95972542ce97ac282e418f6",
+    "packagePath": "tools/schema-inventory/authority-sources/components/xtabs.d.ts"
+  },
+  {
+    "schemaId": "xtend.performance.component-profile.v1",
+    "oldSource": "components/xbutton.d.ts",
+    "sourceSha256": "a847b5819bae763c88c23c2e345b2b156309894e8bebf8ba715f933ef18590d8",
+    "expectedFingerprint": "sha256:fb166d0390f79c3528c96275dd3dbe179a9e519070b818c747f686b4b74451fb",
+    "originalReleasedFingerprintSetHash": "sha256:6651e0e48e037228b7b7773701f5f988d0e065e6b95972542ce97ac282e418f6",
+    "packagePath": "tools/schema-inventory/authority-sources/components/xbutton.d.ts"
+  },
+  {
+    "schemaId": "xtend.performance.measurement.v1",
+    "oldSource": "components/xtabs.d.ts",
+    "sourceSha256": "ea6ddba3ea875b8f6cdb89fb644a02c2ba298e3c16570bb7d50eaa6cc1b1f55b",
+    "expectedFingerprint": "sha256:c16e2303d27fe6d57ca333b0b1477a30c7b973d18a1d42f432c9816fd6a7db0e",
+    "originalReleasedFingerprintSetHash": "sha256:6267e13a8a2b20ff416d6f99a3f2c23b317f66a99e89e36544faaea2a1ae6d2d",
+    "packagePath": "tools/schema-inventory/authority-sources/components/xtabs.d.ts"
+  },
+  {
+    "schemaId": "xtend.rmt.component-contract.v1",
+    "oldSource": "components/xkeymap.d.ts",
+    "sourceSha256": "07169610513544432109ce566f4461e69f8c933e624a7b553315deb0c1c9dccc",
+    "expectedFingerprint": "sha256:11305329030048910f912554fd067bfefd63838c1dcc808881c4469d99725788",
+    "originalReleasedFingerprintSetHash": "sha256:f815d48fa598879f08b19841dc7fba67888c17186cd5a5725983789016fae3ae",
+    "packagePath": "tools/schema-inventory/authority-sources/components/xkeymap.d.ts"
+  },
+  {
+    "schemaId": "xtend.rmt.component-contract.v1",
+    "oldSource": "components/xbutton.d.ts",
+    "sourceSha256": "a847b5819bae763c88c23c2e345b2b156309894e8bebf8ba715f933ef18590d8",
+    "expectedFingerprint": "sha256:a20ab6c913174b293891db9d1801a5cdfb61639fd2828b8088f0f17ecb0ad021",
+    "originalReleasedFingerprintSetHash": "sha256:f815d48fa598879f08b19841dc7fba67888c17186cd5a5725983789016fae3ae",
+    "packagePath": "tools/schema-inventory/authority-sources/components/xbutton.d.ts"
+  },
+  {
+    "schemaId": "xtend.rmt.form-validation-evaluator.v1",
+    "oldSource": "xtendrmt/rmt-form-validation-runtime.d.ts",
+    "sourceSha256": "14d1d0a5c54f28d299e17368d7fa5a47b803d2a54694a08148ad0cff8cb69c3e",
+    "expectedFingerprint": "sha256:a07e626ed699c773250c95a7c3cc7cab7a1a2b134c5a8190b5561bc975836735",
+    "originalReleasedFingerprintSetHash": "sha256:9c3af7d1c15f9fea723f85ef7b5980085e736f8581bb167128d3954aa1684439",
+    "packagePath": "tools/schema-inventory/authority-sources/xtendrmt/rmt-form-validation-runtime.d.ts"
+  },
+  {
+    "schemaId": "xtend.rmt.form-validation-runtime.v2",
+    "oldSource": "xtendrmt/rmt-form-validation-runtime.d.ts",
+    "sourceSha256": "14d1d0a5c54f28d299e17368d7fa5a47b803d2a54694a08148ad0cff8cb69c3e",
+    "expectedFingerprint": "sha256:04514e792926bd0b833d24c6427911dcc0a5c6ffb9da60850493939db40887c8",
+    "originalReleasedFingerprintSetHash": "sha256:b6b4ec54e77c0e20d4e3e48132900ecab350c55b1fef5f7cd329fec5a16f85a3",
+    "packagePath": "tools/schema-inventory/authority-sources/xtendrmt/rmt-form-validation-runtime.d.ts"
+  },
+  {
+    "schemaId": "xtend.rmt.form-validation-view-finalize-report.v1",
+    "oldSource": "xtendrmt/rmt-form-validation-runtime.d.ts",
+    "sourceSha256": "14d1d0a5c54f28d299e17368d7fa5a47b803d2a54694a08148ad0cff8cb69c3e",
+    "expectedFingerprint": "sha256:71ada0fd57b3349c1b6edee1eb3fa1d97460068f206fa8bf2d05537523992aa6",
+    "originalReleasedFingerprintSetHash": "sha256:606f2a961c6bea64f55677c0c7b5cb57e6b0929153fb64ab96d6703dee9e1789",
+    "packagePath": "tools/schema-inventory/authority-sources/xtendrmt/rmt-form-validation-runtime.d.ts"
+  },
+  {
+    "schemaId": "xtend.rmt.form-validation-view-projection.v1",
+    "oldSource": "xtendrmt/rmt-form-validation-runtime.d.ts",
+    "sourceSha256": "14d1d0a5c54f28d299e17368d7fa5a47b803d2a54694a08148ad0cff8cb69c3e",
+    "expectedFingerprint": "sha256:8ebfa75a790562056d1c26005823beb965a2f99fbeb8715cc822f1d9fd6c74e2",
+    "originalReleasedFingerprintSetHash": "sha256:0f24843e7af9efef0b11dfd78f490085ee0b3e88c155c34a002a159ccddac5af",
+    "packagePath": "tools/schema-inventory/authority-sources/xtendrmt/rmt-form-validation-runtime.d.ts"
+  },
+  {
+    "schemaId": "xtend.rmt.form-validation-view-projector.v1",
+    "oldSource": "xtendrmt/rmt-form-validation-runtime.d.ts",
+    "sourceSha256": "14d1d0a5c54f28d299e17368d7fa5a47b803d2a54694a08148ad0cff8cb69c3e",
+    "expectedFingerprint": "sha256:fe3a8fe5dbafa7727f7861adb41d8beab2d54f5882d9c8d9feeb31c8c18017b1",
+    "originalReleasedFingerprintSetHash": "sha256:559c64388f4d64a05c3d1bf567202997e2a780a6132337f04b975634bdc5d22a",
+    "packagePath": "tools/schema-inventory/authority-sources/xtendrmt/rmt-form-validation-runtime.d.ts"
+  },
+  {
+    "schemaId": "xtend.rmt.search-runtime.v1",
+    "oldSource": "xtendrmt/rmt-app-runtime.d.ts",
+    "sourceSha256": "9cc0ac770d32d3217de8e3191cbdc72d6b401bcdd8597876f02e7ed55db0d13f",
+    "expectedFingerprint": "sha256:44a86f32d3452cece72a81840819b5ff4f8ac445ebd7934bdf1288582eee65b3",
+    "originalReleasedFingerprintSetHash": "sha256:a5f866e691a995cf4e0dd90a9f0fd31a1822da05e4ebb0fe46a9444f6f2b0e57",
+    "packagePath": "tools/schema-inventory/authority-sources/xtendrmt/rmt-app-runtime.d.ts"
+  },
+  {
+    "schemaId": "xtend.surface.controller.v2",
+    "oldSource": "src/components/x-surface-manager/surface-record.ts",
+    "sourceSha256": "433c0d8e65b1f51fff0795365e9529f76715b9d34b68c7105a2e43ac4ecef47c",
+    "expectedFingerprint": "sha256:a895809b531e68be21e77377de4dcde098ff090fc2003c32c3aa79d975bc8b3f",
+    "originalReleasedFingerprintSetHash": "sha256:f763a8b657204de7da966671111cade0ae061aeb2a81b8174b6156eab183ca18",
+    "packagePath": "tools/schema-inventory/authority-sources/src/components/x-surface-manager/surface-record.ts"
+  },
+  {
+    "schemaId": "xtend.surface.controller.v2",
+    "oldSource": "components/xsurfacemanager-controller.d.ts",
+    "sourceSha256": "249d4bcbe84294b3e1cd818114db8647a304a559f5f9703b879dbab00396001c",
+    "expectedFingerprint": "sha256:e3703f08b8f779b7e80247a0d9002f3a9abcb7e38078614a139af8c393569335",
+    "originalReleasedFingerprintSetHash": "sha256:f763a8b657204de7da966671111cade0ae061aeb2a81b8174b6156eab183ca18",
+    "packagePath": "tools/schema-inventory/authority-sources/components/xsurfacemanager-controller.d.ts"
+  }
+]

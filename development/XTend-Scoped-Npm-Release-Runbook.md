@@ -1,14 +1,33 @@
 # Scoped npm releases: independent review checkpoint
 
-Status: local integration review; no merge or publication approval. The reviewed
+Status: blocked Draft PR109, with a local conflict reconciliation awaiting source
+review; no merge or publication approval. The original reviewed
 C7 base is `cce3faf8c283af7f0732231aafc74ee9f18560d7`, followed by explicitly
 reviewed Core fixes `b9fac305bba5fa57e8f9b37a1fe65bc94c8ff269` and
 `74730ec0898b52c7d82769e1eb785e52f02cb4ab`. The committed Demo dependency is
-`646d4a4e89e51af82bea145c2a0030bb5fefcd25`. The three approved release commits
+`646d4a4e89e51af82bea145c2a0030bb5fefcd25` was the first integration's Demo pin.
+The reconciliation merges the public scanner/ownership API from exactly
+`0aa3f66816194f1854009136277dfb2877fcaab6` and pins Demos to exactly
+`59130fdf1160f79ba5de3e4ccd2d92cba7bfde1c`. It also preserves the exact two-file
+runtime-peer Vue update from main `d4912deb30fe8d85d8e442e34d74ec6050f0fe09`.
+The three approved release commits
 are replayed with `cherry-pick -x`; their original hashes remain unchanged.
 No package versions change. Schema governance remains pending; known baseline
 failures remain blocking. Historical C6/D3 red evidence is not acceptance of any
 new source. New reports bind the actual integration HEAD and committed Demo SHA.
+
+The source-level CandidateManifest initial-unreleased exception remains enabled.
+The real publish CLI, publisher (including resume), and ci-publish execute/verify
+paths call the canonical scanner wrapper's
+`assertCandidateInitialAuthorityRetiredForRelease()`. Actual publication fails
+while it is active; the publisher preserves a failed ledger before any registry
+operation/upload. Read-only preflight remains available. First release requires
+separately reviewed source-level retirement plus all ownership, product, baseline
+and governance gates; metadata alone cannot retire the exception. Never invent a
+released fingerprint or disable the guard to obtain a green gate. The migration's
+24 residual ownership IDs and the eight retained release governance findings
+remain blocking. Four reviewed CandidateManifest registration shapes do not approve
+the six actually observed merged shapes; their wider polymorphism remains pending.
 
 ## Inventory and version policy
 
@@ -177,8 +196,15 @@ registry identities and never uploaded by a partial release.
 Both Node lanes consume the same prepared archive bytes. The original reviewed
 Demo installer uses `selectCandidateClosure()` per app, then validates dependency
 metadata and package locks after install, clean ci, and offline ci. The existing
-17 required product commands, reports, PHP/browser/FPM/Electron checks and eight
+17 product commands, reports, PHP/browser/FPM/Electron checks and eight
 installation locks remain mandatory. Missing or red product evidence blocks seal.
+The additional `schema-ownership-100` command is mandatory and calls the packaged
+public scanner API against actual Core/Demo ownership and the same tarball bytes.
+The adapter validates its receipt with the canonical public `verifyOwnershipEvidence`
+API, binding source SHAs, root archive SHA-256/version, the immutable governance
+ledger, 100 local/union rows and 24 imported authorities. Fresh receipts must
+postdate preparation. On immutable resume their original authenticated seal time
+is retained; no fresh evidence is manufactured and no archive is rebuilt.
 The wrapper adds the actually verified Node/npm lane identity without changing
 original package hashes or claiming synthetic success.
 

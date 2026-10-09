@@ -96,3 +96,46 @@ ctLogThreshold and tlogThreshold are the actual supported threshold option names
 Tests exercise the bundled Verifier.verifyPolicy and policy.js directly, as well
 as clean shells with no lifecycle variable and the actual workflow selection block.
 These are policy-path regression tests, not a claim of live hosted OIDC publishing.
+
+## PR109 local reconciliation (no push before review)
+
+The published, independently source-reviewed head remains
+`184434747245c02012824b120105f762f072f20d`. An own worktree and branch
+`feat/scoped-npm-release-reconciliation` preserves it as an ancestor. Normal
+remote refs were fetched and checked at Core
+`0aa3f66816194f1854009136277dfb2877fcaab6`, Demos
+`59130fdf1160f79ba5de3e4ccd2d92cba7bfde1c`, and main
+`d4912deb30fe8d85d8e442e34d74ec6050f0fe09`. Main's exact parents are
+`31d8c01f92538b55e57e741ed4e71a4e4a6604b5` and
+`168733ed12170950faa13e053e949dc44c3146dc`. Its two-file runtime-peer Vue
+3.5.22 to 3.5.43 patch was read and preserved in a normal local merge
+`351c5726c5a80d69aa789374fafd877fae57926c`; no Demos Vue update was made.
+
+The subsequent normal merge of the exact Core ref has three textual conflicts.
+The workflow retains the reviewed immutable-artifact publisher instead of
+reintroducing publisher-side build/cache/provision steps; preparation and sealing
+keep all prerequisite and product gates. The Demo pin uses the exact reviewed
+59130fdf source while retaining the historical C6 implementation/evidence chain
+and mergeBlocked flag. The inventory is merged by schema identity, preserving
+all disjoint migration governance changes and release entries/pending reviews.
+The one jointly edited CandidateManifest retains the migration's canonical
+declaration and source-level review provenance, but the larger actual six-shape
+observation has review-required policy with empty acceptance. No four-shape approval
+is extended to it. Only affected release observation metadata is refreshed.
+
+The real publish CLI and publisher now call the unchanged canonical scanner
+wrapper's initial-authority retirement assertion. Its active source capability
+blocks first publish and resume before registry reads or upload. Mock-publisher
+tests use only a temporary source-retired copy of the real engine; production
+has no injected bypass. The twelve portable migration authority cases retain
+the exact approved four-shape registration in a digest-bound 0aa3f668 fixture,
+and an extra negative case rejects the larger pending current observation.
+
+The release adapter consumes public ownership evidence bound to the original
+candidate manifest/tarballs and both exact source SHAs. The immutable report's
+time is checked against preparation and authenticated sealing; resume keeps the
+original evidence. The scanner engine, public ownership implementation and
+canonical packCandidates function remain those of the reviewed migration.
+Prior 6ae0faf tarballs and 203/212-test evidence are historical; they are never
+relabeled as evidence for this merge. Pending governance and baseline failures
+remain blocking. No original source checkpoint or review export is amended.

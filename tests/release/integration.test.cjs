@@ -10,7 +10,7 @@ const { digest, verifyArtifact, releaseSetIntegrity } = require('../../scripts/r
 const { adaptCandidates, inspectCandidates, verifyCandidateBinding } = require('../../scripts/release/candidates.cjs');
 const { verifyStatements } = require('../../scripts/release/provenance.cjs');
 const { gates, verifyNeeds, verifyArtifactMetadata, downloadSealedArtifact } = require('../../scripts/release/github.cjs');
-const { publishRelease } = require('../../scripts/release/publish.cjs');
+const { publishRelease } = require('./authority-fixture.cjs').loadPublisher();
 async function candidateFixture(t) {
   const f = await packedFixture(t), r = registryFixture(f.artifact), directory = path.join(f.directory, 'candidates');
   fs.mkdirSync(directory);
@@ -120,8 +120,8 @@ test('publish metadata projects the full inventory and preserves independent gro
  assert.ok(metadata.publishDryRunGate.includes('<verified.tgz>'));assert.ok(metadata.publishDryRunGate.includes('--dry-run'));
  assert.ok(metadata.commands.every(command=>!command.includes('--workspace')));
 });
-test('full product evidence is validated against the supplied artifact directory without checkout-path fallback',async t=>{
- const {f,directory,manifest,demoSha}=await candidateFixture(t);
+async function productFixture(t, generatedAt = new Date().toISOString()) {
+ const fixture=await candidateFixture(t),{f,directory,manifest,demoSha}=fixture;
  const api=require('../../candidate-integrity.cjs'),product=require('../../scripts/product-candidate-evidence.cjs');
  const products=['.','products/maraca-app-services-test-bench','products/resumability-maraca-erp-demo','products/rmt-animation-testbench','products/rmt-maraca-kernel-orchestration','products/xtend-llm','products/xtend-material-workbench','products/xtend-shop'];
  const app={dependencies:Object.fromEntries(manifest.packages.map(p=>[p.name,p.version]))};
@@ -131,12 +131,58 @@ test('full product evidence is validated against the supplied artifact directory
   return {product:name,status:'passed',file,lockSha256:api.digest(fs.readFileSync(path.join(directory,file)))};
  });
  const commands=product.required.map(id=>({id,status:'passed',exitCode:0,skips:[]}));
- const reports=commands.map(command=>{const file='reports/'+command.id+'.json';write(path.join(directory,file),{schema:'xtend.product-suite-result.v1',coreSha:f.sourceSha,demoSha,...command});return {id:command.id,file,status:'passed',sha256:api.digest(fs.readFileSync(path.join(directory,file)))};});
- const evidence={schema:product.schema,ok:true,status:'passed',coreSha:f.sourceSha,demoSha,packages:manifest.packages,php:manifest.php,installation,reports,commands,generatedAt:new Date().toISOString()};
+ const reports=commands.map(command=>{const file='reports/'+command.id+'.json';
+  const report=command.id==='schema-ownership-100'?require('./ownership-fixture.cjs').receipt({manifest,coreSha:f.sourceSha,demoSha,generatedAt}):{schema:'xtend.product-suite-result.v1',coreSha:f.sourceSha,demoSha,...command};
+  write(path.join(directory,file),report);return {id:command.id,file,status:'passed',sha256:api.digest(fs.readFileSync(path.join(directory,file)))};});
+ const evidence={schema:product.schema,ok:true,status:'passed',coreSha:f.sourceSha,demoSha,packages:manifest.packages,php:manifest.php,installation,reports,commands,generatedAt};
  const file=path.join(f.directory,'outside-checkout-product-report.json');write(file,evidence);
+ return {...fixture,evidence,file,reports};
+}
+test('full product evidence is validated against the supplied artifact directory without checkout-path fallback',async t=>{
+ const {f,directory,demoSha,file,reports}=await productFixture(t);
  const verify=require('../../scripts/release/pipeline.cjs').verifyProductConsumer;
  assert.equal(verify({directory,file,sourceSha:f.sourceSha,demoSha}).ok,true);
  fs.appendFileSync(path.join(directory,reports[0].file),'tampered');assert.throws(()=>verify({directory,file,sourceSha:f.sourceSha,demoSha}));
+});
+for (const damage of ['missing','digest','core-sha','demo-sha','package-bytes','authority','union','stale','pre-producer']) test(`actual product consumer rejects ownership receipt ${damage}`, async t => {
+ const {f,directory,demoSha,file,evidence}=await productFixture(t);
+ const binding=evidence.reports.find(report=>report.id==='schema-ownership-100');
+ const receiptFile=path.join(directory,binding.file),receipt=JSON.parse(fs.readFileSync(receiptFile));
+ if(damage==='missing'){evidence.reports=evidence.reports.filter(report=>report!==binding);}
+ else if(damage==='digest')fs.appendFileSync(receiptFile,'tampered');
+ else{
+  if(damage==='core-sha')receipt.coreSha='e'.repeat(40);
+  if(damage==='demo-sha')receipt.demoSha='e'.repeat(40);
+  if(damage==='package-bytes')receipt.packageSha256='e'.repeat(64);
+  if(damage==='authority')receipt.authorities.pop();
+  if(damage==='union')receipt.union[0].hashes=[];
+  if(damage==='stale')receipt.generatedAt=new Date(Date.now()-3601000).toISOString();
+  write(receiptFile,receipt);binding.sha256=require('../../candidate-integrity.cjs').digest(fs.readFileSync(receiptFile));
+ }
+ write(file,evidence);
+ const verify=require('../../scripts/release/pipeline.cjs').verifyProductConsumer;
+ assert.throws(()=>verify({directory,file,sourceSha:f.sourceSha,demoSha,
+  ...(damage==='pre-producer'?{startedAt:new Date(Date.now()+1000).toISOString()}: {})}));
+});
+test('sealed resume verifies original ownership receipt at authenticated seal time without rewriting bytes', async t => {
+ const generatedAt=new Date(Date.now()-86400000).toISOString();
+ const {f,directory,demoSha,options,evidence}=await productFixture(t,generatedAt);
+ const manifest=await adaptCandidates(options);
+ manifest.preparedAt=new Date(Date.parse(generatedAt)-1000).toISOString();
+ manifest.sealedAt=new Date(Date.parse(generatedAt)+1000).toISOString();
+ manifest.productEvidence=[];
+ for(const node of ['24.18.0','26.5.0']){
+  const lane=path.join(directory,'lanes',node);fs.mkdirSync(lane,{recursive:true});
+  for(const name of ['reports','locks'])fs.cpSync(path.join(directory,name),path.join(lane,name),{recursive:true});
+  const file=`lanes/${node}/product-candidate.json`;
+  write(path.join(directory,file),{...evidence,releaseRuntime:{node,npm:'11.17.0'}});
+  manifest.productEvidence.push({node,file,integrity:digest(fs.readFileSync(path.join(directory,file)))});
+ }
+ const artifact={...f.artifact,manifest,packages:manifest.packages};
+ const bytesBefore=fs.readFileSync(path.join(directory,'reports/schema-ownership-100.json'));
+ await verifyCandidateBinding(artifact,{directory,rootDir:f.rootDir,requireProductEvidence:true});
+ assert.deepEqual(fs.readFileSync(path.join(directory,'reports/schema-ownership-100.json')),bytesBefore);
+ await assert.rejects(verifyCandidateBinding(artifact,{directory,rootDir:f.rootDir,requireProductEvidence:true,now:Date.now()}),/Stale ownership evidence/);
 });
 for(const mode of ['valid','tampered','zip-traversal','zip-symlink','failed-gate'])test(`sealed artifact download ${mode} checks authenticated zip digest and producer receipt before use`,async t=>{
  const {f}=await candidateFixture(t),sourceSha=f.sourceSha;

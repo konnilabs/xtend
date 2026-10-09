@@ -1,0 +1,367 @@
+{
+  "schema": "xtend.product-execution.v1",
+  "coreSha": "5fbdedf54ee77d1401f7aa403241e4953a9fa5a3",
+  "demoSha": "646d4a4e89e51af82bea145c2a0030bb5fefcd25",
+  "ok": false,
+  "status": "failed",
+  "generatedAt": "2026-10-09T19:00:39.178Z",
+  "commands": [
+    {
+      "id": "migration-runner-contracts",
+      "command": [
+        "/workspace/.xtend-toolchain/node_modules/node/bin/node",
+        "--test",
+        "--test-reporter=tap",
+        "tests/migration/result-evidence.test.cjs",
+        "tests/migration/runtime-probes.test.cjs",
+        "tests/migration/fpm-runtime.test.cjs",
+        "tests/migration/shop-host-workflow.test.cjs",
+        "tests/migration/candidate-closure.test.cjs"
+      ],
+      "cwd": ".",
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [],
+      "sourceReports": [],
+      "log": ".xtend-test-results/migration-runner-contracts.log"
+    },
+    {
+      "id": "http-security",
+      "command": [
+        "/workspace/.xtend-toolchain/node_modules/node/bin/node",
+        "--test",
+        "--test-reporter=tap",
+        "tests/security/http.test.mjs"
+      ],
+      "cwd": ".",
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [],
+      "sourceReports": [],
+      "log": ".xtend-test-results/http-security.log"
+    },
+    {
+      "id": "product-xss",
+      "command": [
+        "runProductXss"
+      ],
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "ENOENT: no such file or directory, open '/workspace/work/migration/emitted-registration-proposal/controlled-runner/products/xtend-llm/src/main/app-server.mjs'"
+      ]
+    },
+    {
+      "id": "product-builds",
+      "command": [
+        "all product builds"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "xscaler-testbench",
+      "command": [
+        "runXScalerTestbenchSuite"
+      ],
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Cannot find module '../tests/products/xscaler_testbench_suite.js'\nRequire stack:\n- /workspace/work/migration/emitted-registration-proposal/controlled-runner/scripts/run-product-gates.cjs"
+      ]
+    },
+    {
+      "id": "product-node-host",
+      "command": [
+        "runProductNodeHost"
+      ],
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Cannot find module '../tests/products/node_host_contract_suite.js'\nRequire stack:\n- /workspace/work/migration/emitted-registration-proposal/controlled-runner/scripts/run-product-gates.cjs"
+      ]
+    },
+    {
+      "id": "product-business-ui-boundary",
+      "command": [
+        "runProductBoundarySuite"
+      ],
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Cannot find module '../tests/products/product_boundary_suite.js'\nRequire stack:\n- /workspace/work/migration/emitted-registration-proposal/controlled-runner/scripts/run-product-gates.cjs"
+      ]
+    },
+    {
+      "id": "erp-resumability-catfood",
+      "command": [
+        "runErpResumabilityCatfoodingSuite"
+      ],
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Cannot find module '../tests/products/erp_resumability_catfooding_suite.js'\nRequire stack:\n- /workspace/work/migration/emitted-registration-proposal/controlled-runner/scripts/run-product-gates.cjs"
+      ]
+    },
+    {
+      "id": "maraca-app-services-test-bench",
+      "command": [
+        "runMaracaAppServicesTestBenchSuite"
+      ],
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Cannot find module '../tests/products/maraca_app_services_test_bench_suite.js'\nRequire stack:\n- /workspace/work/migration/emitted-registration-proposal/controlled-runner/scripts/run-product-gates.cjs"
+      ]
+    },
+    {
+      "id": "xtend-llm-app-services-catfood",
+      "command": [
+        "runXtendLlmAppServicesCatfoodSuite"
+      ],
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Cannot find module '../tests/products/xtend_llm_app_services_catfood_suite.js'\nRequire stack:\n- /workspace/work/migration/emitted-registration-proposal/controlled-runner/scripts/run-product-gates.cjs"
+      ]
+    },
+    {
+      "id": "xtend-material-catfooding",
+      "command": [
+        "runXtendMaterialCatfoodingSuite"
+      ],
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Cannot find module '../tests/products/xtend_material_catfooding_suite.js'\nRequire stack:\n- /workspace/work/migration/emitted-registration-proposal/controlled-runner/scripts/run-product-gates.cjs"
+      ]
+    },
+    {
+      "id": "product-owned-suites",
+      "command": [
+        "all transferred suite IDs"
+      ],
+      "exitCode": 1,
+      "status": "failed",
+      "skips": []
+    },
+    {
+      "id": "shop-php",
+      "command": [
+        "npm",
+        "run",
+        "test:php"
+      ],
+      "cwd": "products/xtend-shop",
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Missing required runtime report: /workspace/work/migration/emitted-registration-proposal/controlled-runner/products/xtend-shop/storage/reports/xtend-store-php.json"
+      ],
+      "sourceReports": [],
+      "log": ".xtend-test-results/shop-php.log"
+    },
+    {
+      "id": "xtend-shop-php",
+      "command": [
+        "npm",
+        "run",
+        "test:php"
+      ],
+      "cwd": "products/xtend-shop",
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Missing required runtime report: /workspace/work/migration/emitted-registration-proposal/controlled-runner/products/xtend-shop/storage/reports/xtend-store-php.json"
+      ],
+      "sourceReports": [],
+      "log": ".xtend-test-results/shop-php.log",
+      "aliasOf": "shop-php"
+    },
+    {
+      "id": "shop-browser",
+      "command": [
+        "npm",
+        "run",
+        "test:browser"
+      ],
+      "cwd": "products/xtend-shop",
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Missing required runtime report: /workspace/work/migration/emitted-registration-proposal/controlled-runner/products/xtend-shop/storage/reports/xtend-store-browser.json"
+      ],
+      "sourceReports": [],
+      "log": ".xtend-test-results/shop-browser.log"
+    },
+    {
+      "id": "xtend-shop-browser",
+      "command": [
+        "npm",
+        "run",
+        "test:browser"
+      ],
+      "cwd": "products/xtend-shop",
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Missing required runtime report: /workspace/work/migration/emitted-registration-proposal/controlled-runner/products/xtend-shop/storage/reports/xtend-store-browser.json"
+      ],
+      "sourceReports": [],
+      "log": ".xtend-test-results/shop-browser.log",
+      "aliasOf": "shop-browser"
+    },
+    {
+      "id": "shop-contracts",
+      "command": [
+        "npm",
+        "run",
+        "test:contracts"
+      ],
+      "cwd": "products/xtend-shop",
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Missing required runtime report: /workspace/work/migration/emitted-registration-proposal/controlled-runner/products/xtend-shop/storage/reports/xtend-store-contracts.json"
+      ],
+      "sourceReports": [],
+      "log": ".xtend-test-results/shop-contracts.log"
+    },
+    {
+      "id": "xtend-shop-contracts",
+      "command": [
+        "npm",
+        "run",
+        "test:contracts"
+      ],
+      "cwd": "products/xtend-shop",
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Missing required runtime report: /workspace/work/migration/emitted-registration-proposal/controlled-runner/products/xtend-shop/storage/reports/xtend-store-contracts.json"
+      ],
+      "sourceReports": [],
+      "log": ".xtend-test-results/shop-contracts.log",
+      "aliasOf": "shop-contracts"
+    },
+    {
+      "id": "shop-browser-fpm",
+      "command": [
+        "/workspace/.xtend-toolchain/node_modules/node/bin/node",
+        "scripts/run-shop-host-gate.cjs",
+        "fpm"
+      ],
+      "cwd": ".",
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Missing required runtime report: /workspace/work/migration/emitted-registration-proposal/controlled-runner/products/xtend-shop/storage/reports/xtend-store-browser-fpm.json"
+      ],
+      "sourceReports": [],
+      "log": ".xtend-test-results/shop-browser-fpm.log"
+    },
+    {
+      "id": "electron-shell-import-worker",
+      "command": [
+        "xvfb-run",
+        "-a",
+        "/workspace/.xtend-toolchain/node_modules/node/bin/node",
+        "scripts/run-electron.mjs",
+        "tests/llm-terminal-runner.mjs",
+        "--",
+        "--fake"
+      ],
+      "cwd": "products/xtend-llm",
+      "exitCode": null,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Missing required runtime report: /workspace/work/migration/emitted-registration-proposal/controlled-runner/products/xtend-llm/.xtend-llm-results/llm-terminal-fake.json"
+      ],
+      "sourceReports": [],
+      "log": ".xtend-test-results/electron-shell-import-worker.log"
+    },
+    {
+      "id": "electron-runtime",
+      "command": [
+        "xvfb-run",
+        "-a",
+        "npm",
+        "run",
+        "test:electron:node24:product"
+      ],
+      "cwd": "products/xtend-llm",
+      "exitCode": null,
+      "status": "failed",
+      "skips": [],
+      "failures": [
+        "Missing required runtime report: /workspace/work/migration/emitted-registration-proposal/controlled-runner/products/xtend-llm/.xtend-llm-results/app-services-catfood.json",
+        "Missing required runtime report: /workspace/work/migration/emitted-registration-proposal/controlled-runner/products/xtend-llm/.xtend-llm-results/layout-smoke.json",
+        "Missing required runtime report: /workspace/work/migration/emitted-registration-proposal/controlled-runner/products/xtend-llm/.xtend-llm-results/electron-runtime-node-24-lts.json",
+        "Missing required runtime report: /workspace/work/migration/emitted-registration-proposal/controlled-runner/products/xtend-llm/.xtend-llm-results/native-runtime-node-24-lts.json"
+      ],
+      "sourceReports": [],
+      "log": ".xtend-test-results/electron-runtime.log"
+    },
+    {
+      "id": "llm-contracts",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "cwd": "products/xtend-llm",
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [],
+      "sourceReports": [],
+      "log": ".xtend-test-results/llm-contracts.log"
+    },
+    {
+      "id": "workbench-contracts",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "cwd": "products/xtend-material-workbench",
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [],
+      "sourceReports": [],
+      "log": ".xtend-test-results/workbench-contracts.log"
+    },
+    {
+      "id": "testbench-contracts",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "cwd": "products/maraca-app-services-test-bench",
+      "exitCode": 1,
+      "status": "failed",
+      "skips": [],
+      "failures": [],
+      "sourceReports": [],
+      "log": ".xtend-test-results/testbench-contracts.log"
+    }
+  ]
+}

@@ -129,6 +129,9 @@ async function publishRelease({ artifact, registry, publisher, ledgerFile, lockF
         version: entry.version, integrity: entry.integrity, state: 'pending', tag: channelTag(entry.version, prereleaseTag) })),
       registryDependencies: (artifact.registryDependencies || []).map(entry => ({ ...entry, state: 'pending' })) };
     save();
+    // Keep a failed ledger, but stop before registry reads, dry-runs, uploads,
+    // retries or optional promotion while initial-unreleased authority is active.
+    if (publish) require('../scan_schema_inventory').assertCandidateInitialAuthorityRetiredForRelease();
     if (promote) promotionSupported(npmVersion, distTagsAuthorized); // before first upload
     // Complete preflight before the first irreversible operation.
     for (const dependency of artifact.registryDependencies || []) {

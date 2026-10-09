@@ -86,7 +86,8 @@ async function verifyCandidateBinding(artifact, { directory, rootDir, requirePro
     const bytes = fs.readFileSync(artifactFile(directory, lane.file));
     check(digest(bytes) === lane.integrity, 'Product evidence integrity mismatch');
     const evidence = JSON.parse(bytes), laneDirectory = path.dirname(path.join(directory, lane.file));
-    product.verifyReportFiles(evidence.reports, { directory: laneDirectory, coreSha: artifact.sourceSha, demoSha: binding.demoSha });
+    product.verifyReportFiles(evidence.reports, { directory: laneDirectory, coreSha: artifact.sourceSha, demoSha: binding.demoSha,
+      manifest: original.manifest, startedAt: artifact.manifest.preparedAt, now: now ?? sealed });
     product.verifyInstallationFiles(evidence.installation, { directory: laneDirectory, manifest: original.manifest });
     // Original fresh reports are authenticated by immutable producer metadata.
     // On resume retain their timestamp; do not manufacture fresh acceptance.

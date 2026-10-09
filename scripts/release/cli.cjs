@@ -35,6 +35,9 @@ async function main(args = process.argv.slice(2)) {
   check(!values.promote || values.execute, '--promote requires --execute');
   check(!values.promote && !values['dist-tags-authorized'], 'Optional dist-tag promotion is not the integrated default; a separately reviewed capability is required');
   const selection = parseSelection(values);
+  // An explicit publish/first-release request must not bypass the migration's
+  // source-level initial-authority retirement, even before artifact loading.
+  if (values.execute) require('../scan_schema_inventory').assertCandidateInitialAuthorityRetiredForRelease();
   if (command === 'inventory') {
     const inventory = loadInventory(rootDir);
     console.log(JSON.stringify({ ...inventory, releaseScope: selectRelease(inventory, selection),
