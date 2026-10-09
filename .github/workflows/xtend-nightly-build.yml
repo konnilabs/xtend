@@ -65,6 +65,9 @@ jobs:
 
       - name: Setup PHP for the required Laravel 12/13 matrix
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        env:
+          update: true
+          use_package_cache: false
         with:
           php-version: '8.4'
           extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite
@@ -112,6 +115,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y xvfb xauth unzip php8.4-fpm
+          /usr/sbin/php-fpm8.4 -v
           printf 'XTEND_SHOP_FPM_BINARY=/usr/sbin/php-fpm8.4\n' >> "$GITHUB_ENV"
           node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
       - name: Run pinned independent product candidate acceptance

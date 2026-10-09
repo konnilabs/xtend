@@ -1022,10 +1022,13 @@ jobs:
 
     steps:
       - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        env:
+          update: true
+          use_package_cache: false
         with:
           php-version: 8.4
           extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
-          tools: composer:2.8.12
+          tools: composer:2.10.3
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
@@ -1080,6 +1083,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y xvfb xauth unzip php8.4-fpm
+          /usr/sbin/php-fpm8.4 -v
           printf 'XTEND_SHOP_FPM_BINARY=/usr/sbin/php-fpm8.4\n' >> "$GITHUB_ENV"
           node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
       - name: Require matching pinned Demo candidate acceptance
@@ -1174,14 +1178,18 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        env:
+          update: true
+          use_package_cache: false
         with:
           php-version: 8.4
           extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
-          tools: composer:2.8.12
+          tools: composer:2.10.3
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: ${{ matrix.node_version }}
+          package-manager-cache: false
       - name: Pin npm 11.17.0
         working-directory: ${{ runner.temp }}
         run: npm install --global npm@11.17.0
@@ -1199,6 +1207,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y xvfb xauth unzip php8.4-fpm
+          /usr/sbin/php-fpm8.4 -v
           printf 'XTEND_SHOP_FPM_BINARY=/usr/sbin/php-fpm8.4\n' >> "$GITHUB_ENV"
           node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
       - name: Run required product canary
