@@ -1,0 +1,15 @@
+{
+  "schema": "xtend.release.inventory.v1",
+  "packages": [
+    { "name": "@ccslabs/xtend-rmt", "path": "xtendrmt", "group": "core" },
+    { "name": "@ccslabs/xtend-fabric", "path": "fabric", "group": "core" },
+    { "name": "@ccslabs/xtend", "path": ".", "group": "core" },
+    { "name": "@ccslabs/xtend-compiler", "path": "tools", "group": "core" },
+    { "name": "@ccslabs/xtend-maraca", "path": "xtend-maraca", "group": "core" },
+    { "name": "@ccslabs/xtend-cli", "path": "xtend-builder", "group": "core" },
+    { "name": "@ccslabs/xtend-xsurface-shard", "path": "xsurface-shard", "group": "core" },
+    { "name": "@xtend-material/core", "path": "xtend-material", "group": "material" },
+    { "name": "@xtend-material/maraca-tailwind", "path": "xtend-maraca-css-tailwind", "group": "material" },
+    { "name": "@ccslabs/xtend-mcp", "path": "products/xtend-mcp", "group": "mcp" }
+  ]
+}

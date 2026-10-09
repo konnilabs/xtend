@@ -17,6 +17,7 @@ const {
   LICENSE_POLICY_CONTRACT,
   RELEASE_SUPPLY_CHAIN_GATE_CONTRACT,
   SCOPED_RELEASE_PACKAGES,
+  PUBLIC_RELEASE_PACKAGES,
   ALLOWED_DEV_TOOLING_DEPENDENCIES,
   SUPPLY_CHAIN_GATE_PLAN_CONTRACT,
   VULNERABILITY_POLICY_CONTRACT,
@@ -95,6 +96,8 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(VULNERABILITY_POLICY_CONTRACT === 'xtend.security.vulnerability-policy.v1', 'Exports vulnerability policy contract');
   context.assert(RELEASE_SUPPLY_CHAIN_GATE_CONTRACT === 'xtend.security.release-supply-chain-gate.v1', 'Exports release supply-chain gate contract');
   context.assert(Array.isArray(SCOPED_RELEASE_PACKAGES) && SCOPED_RELEASE_PACKAGES.length === 7, 'Exports scoped release package matrix');
+  context.assert(PUBLIC_RELEASE_PACKAGES.length === 10 && plan.publicReleasePackages.length === 10,
+    'Public release inventory includes Core, independent MCP and Material without changing the seven-package sync train');
   context.assert(ALLOWED_DEV_TOOLING_DEPENDENCIES.some((entry) => entry.name === 'typescript' && entry.section === 'devDependencies'), 'Exports allowed TypeScript dev tooling dependency');
   context.assert(ALLOWED_DEV_TOOLING_DEPENDENCIES.some((entry) => entry.name === '@types/node' && entry.versionRange.startsWith('^24.')), 'Exports Node 24 type declarations as build-only tooling');
   context.assert(ALLOWED_DEV_TOOLING_DEPENDENCIES.some((entry) => entry.name === 'vite' && entry.runtime === false), 'Exports Vite as demo/dev-only tooling');
@@ -149,13 +152,13 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(packageManifest.scripts['ci:dependency-locks:check'] === 'node scripts/verify_ci_dependency_locks.js', 'Package exposes the install-free CI dependency lock check');
   context.assert(packageManifest.xtend.releaseGates.includes('npm run test:supply-chain'), 'Release gates include supply-chain gate');
   context.assert(classification.ok === true, 'Current dependency inventory passes offline classification');
-  context.assert(classification.dependencyCount === 6, 'Current package has five build tools and one Node sanitizer parser');
+  context.assert(classification.dependencyCount === 8, 'Current package has seven build tools and one Node sanitizer parser');
   context.assert(classification.runtimeDependencyCount === 1 && classification.allowedSecurityRuntimeDependencies[0]?.name === 'jsdom', 'Current runtime inventory is the pinned Node sanitizer parser');
   context.assert(classification.unapprovedRuntimeDependencies.length === 0, 'Current package has no unapproved runtime dependencies');
   context.assert(!classifyPackageSupplyChain(packageManifest, []).ok, 'Security runtime exceptions require a lockfile');
   context.assert(!classifyPackageSupplyChain({...packageManifest, dependencies:{jsdom:'^30.1.2'}}, ['package-lock.json']).ok, 'Unpinned security runtime versions are rejected');
   context.assert(!classifyPackageSupplyChain({...packageManifest, dependencies:{jsdom:'30.1.2', unexpected:'1.0.0'}}, ['package-lock.json']).ok, 'Unreviewed runtime dependencies remain rejected');
-  context.assert(classification.devToolingDependencyCount === 5, 'Current package classifies Node types, TypeScript, Vite, esbuild and vendored Acorn as dev tooling');
+  context.assert(classification.devToolingDependencyCount === 7, 'Build-only tooling includes pinned SemVer and read-only tarball inspection');
   context.assert(classification.allowedDevToolingDependencies.some((dependency) => dependency.name === 'typescript'), 'Current dependency inventory allows TypeScript compiler tooling');
   context.assert(classification.allowedDevToolingDependencies.some((dependency) => dependency.name === '@types/node'), 'Current dependency inventory allows minimum-runtime Node declarations');
   context.assert(classification.allowedDevToolingDependencies.some((dependency) => dependency.name === 'vite'), 'Current dependency inventory allows Vite only as development tooling');

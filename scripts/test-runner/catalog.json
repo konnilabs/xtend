@@ -7367,6 +7367,26 @@
         "repository"
       ],
       "timeoutMs": 120000
+    },
+    {
+      "id": "release-safety",
+      "label": "Scoped npm release safety",
+      "description": "Offline artifact, registry, retry, inventory, and tag regression tests; activation deferred until migration review.",
+      "defaultIncluded": false,
+      "handler": "release-safety",
+      "implementations": [
+        {
+          "path": "tests/release/release_safety_suite.js",
+          "function": "runReleaseSafetySuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository"
+      ],
+      "timeoutMs": 300000
     }
   ],
   "profiles": {
