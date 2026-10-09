@@ -105,3 +105,58 @@ test('prepare/consumer/seal/download default to read-only plans without executin
   assert.equal(JSON.parse(output).mode,'dry-run');
  }
 });
+test('workflow reruns cannot silently rebuild an attempted release version',()=>{
+ const guard=require('../../scripts/release/pipeline.cjs').assertFreshPreparation;
+ guard({});guard({GITHUB_ACTIONS:'true',GITHUB_RUN_ATTEMPT:'1'});
+ for(const attempt of ['2','3',undefined,'bad'])assert.throws(()=>guard({GITHUB_ACTIONS:'true',GITHUB_RUN_ATTEMPT:attempt}),/resume the original sealed artifact/);
+});
+test('publish metadata projects the full inventory and preserves independent groups and both tag channels',()=>{
+ const root=path.resolve(__dirname,'../..'),metadata=require('../../package.json').xtend.npmPublishLatest,inventory=require('../../scripts/release/inventory.json');
+ assert.deepEqual(metadata.packageSet,inventory.packages.map(p=>p.name));assert.deepEqual(metadata.releaseGroups,['core','mcp','material']);
+ assert.equal(metadata.defaultPublish,false);assert.equal(metadata.tag,'latest');assert.equal(metadata.prereleaseTag,'next');
+ for(const gate of [...gates,'release-seal'])assert.ok(metadata.requires.includes(gate));
+ assert.equal(metadata.packer,'scripts/product-candidate-canary.cjs#packCandidates');
+ assert.equal(metadata.command,'node scripts/release/cli.cjs publish --execute');
+ assert.ok(metadata.publishDryRunGate.includes('<verified.tgz>'));assert.ok(metadata.publishDryRunGate.includes('--dry-run'));
+ assert.ok(metadata.commands.every(command=>!command.includes('--workspace')));
+});
+test('full product evidence is validated against the supplied artifact directory without checkout-path fallback',async t=>{
+ const {f,directory,manifest,demoSha}=await candidateFixture(t);
+ const api=require('../../candidate-integrity.cjs'),product=require('../../scripts/product-candidate-evidence.cjs');
+ const products=['.','products/maraca-app-services-test-bench','products/resumability-maraca-erp-demo','products/rmt-animation-testbench','products/rmt-maraca-kernel-orchestration','products/xtend-llm','products/xtend-material-workbench','products/xtend-shop'];
+ const app={dependencies:Object.fromEntries(manifest.packages.map(p=>[p.name,p.version]))};
+ const installation=products.map(name=>{
+  const lock={packages:{'':app,...Object.fromEntries(api.selectCandidateClosure(manifest,app).map(p=>[`node_modules/${p.name}`,{version:p.version,resolved:'file:.candidate/'+p.file,integrity:p.integrity,...Object.fromEntries(['dependencies','optionalDependencies','peerDependencies','peerDependenciesMeta'].filter(k=>p[k]).map(k=>[k,p[k]]))}]))}};
+  const file='locks/'+(name==='.'?'root':name.split('/').at(-1))+'.json';write(path.join(directory,file),lock);
+  return {product:name,status:'passed',file,lockSha256:api.digest(fs.readFileSync(path.join(directory,file)))};
+ });
+ const commands=product.required.map(id=>({id,status:'passed',exitCode:0,skips:[]}));
+ const reports=commands.map(command=>{const file='reports/'+command.id+'.json';write(path.join(directory,file),{schema:'xtend.product-suite-result.v1',coreSha:f.sourceSha,demoSha,...command});return {id:command.id,file,status:'passed',sha256:api.digest(fs.readFileSync(path.join(directory,file)))};});
+ const evidence={schema:product.schema,ok:true,status:'passed',coreSha:f.sourceSha,demoSha,packages:manifest.packages,php:manifest.php,installation,reports,commands,generatedAt:new Date().toISOString()};
+ const file=path.join(f.directory,'outside-checkout-product-report.json');write(file,evidence);
+ const verify=require('../../scripts/release/pipeline.cjs').verifyProductConsumer;
+ assert.equal(verify({directory,file,sourceSha:f.sourceSha,demoSha}).ok,true);
+ fs.appendFileSync(path.join(directory,reports[0].file),'tampered');assert.throws(()=>verify({directory,file,sourceSha:f.sourceSha,demoSha}));
+});
+for(const mode of ['valid','tampered','zip-traversal','zip-symlink','failed-gate'])test(`sealed artifact download ${mode} checks authenticated zip digest and producer receipt before use`,async t=>{
+ const {f}=await candidateFixture(t),sourceSha=f.sourceSha;
+ const receipt={schema:'xtend.release.gates.v1',sourceSha,runId:'34',repository:'konnilabs/xtend',workflow:'.github/workflows/xtend-default-gates.yml',manifestIntegrity:digest('{}'),needs:Object.fromEntries(gates.map(name=>[name,{result:'success'}]))};
+ if(mode==='failed-gate')receipt.needs[gates[0]].result='failure';
+ const zip=path.join(f.directory,'test-only-github-artifact.zip'),data={receipt,mode};
+ execFileSync('python3',['-c',`import zipfile,json,sys,stat
+d=json.loads(sys.argv[2]);z=zipfile.ZipFile(sys.argv[1],'w');z.writestr('release-manifest.json','{}');z.writestr('gate-receipt.json',json.dumps(d['receipt']))
+if d['mode']=='zip-traversal':z.writestr('../escape','bad')
+if d['mode']=='zip-symlink':
+ i=zipfile.ZipInfo('link');i.create_system=3;i.external_attr=(stat.S_IFLNK|0o777)<<16;z.writestr(i,'/etc/passwd')
+z.close()`,zip,JSON.stringify(data)]);
+ const bytes=fs.readFileSync(zip),now=Date.now();
+ const metadata={id:12,name:'xtend-release-sealed',expired:false,digest:'sha256:'+crypto.createHash('sha256').update(bytes).digest('hex'),workflow_run:{id:34,head_sha:sourceSha},created_at:new Date(now-1000).toISOString(),expires_at:new Date(now+100000).toISOString()};
+ const run={id:34,head_sha:sourceSha,head_branch:'main',event:'workflow_dispatch',repository:{full_name:'konnilabs/xtend'},head_repository:{full_name:'konnilabs/xtend'},workflow_id:56};
+ const api=async (resource,options)=>options?.raw?{status:302,headers:{get:()=> 'https://storage.example.test/signed'}}:resource.includes('/artifacts/')?metadata:resource.includes('/runs/')?run:{id:56,path:'.github/workflows/xtend-default-gates.yml'};
+ let storageOptions;
+ const request=async(_url,options)=>{storageOptions=options;return {status:200,arrayBuffer:async()=>mode==='tampered'?Buffer.from('tampered'):bytes};};
+ const action=()=>downloadSealedArtifact({id:12,directory:path.join(f.directory,'download'),sourceSha,api,request});
+ if(mode==='valid')assert.equal((await action()).manifestIntegrity,receipt.manifestIntegrity);else await assert.rejects(action());
+ assert.equal(storageOptions.headers,undefined,'GitHub bearer token is never forwarded');
+ assert.equal(fs.existsSync(path.join(f.directory,'escape')),false);
+});

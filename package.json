@@ -12713,23 +12713,15 @@
       "nodeVersion": "24.18.0",
       "registry": "https://registry.npmjs.org",
       "tag": "latest",
-      "dryRunCommand": "npm publish --dry-run --tag latest --access public",
-      "command": "npm publish --tag latest --provenance --access public",
+      "dryRunCommand": "node scripts/release/cli.cjs preflight",
+      "command": "node scripts/release/cli.cjs publish --execute",
       "dryRunCommands": [
-        "npm publish --dry-run --workspace @ccslabs/xtend-rmt --tag latest --access public",
-        "npm publish --dry-run --workspace @ccslabs/xtend-compiler --tag latest --access public",
-        "npm publish --dry-run --workspace @ccslabs/xtend-maraca --tag latest --access public",
-        "npm publish --dry-run --workspace @ccslabs/xtend-mcp --tag latest --access public",
-        "npm publish --dry-run --tag latest --access public"
+        "node scripts/release/cli.cjs preflight"
       ],
       "commands": [
-        "npm publish --workspace @ccslabs/xtend-rmt --tag latest --provenance --access public",
-        "npm publish --workspace @ccslabs/xtend-compiler --tag latest --provenance --access public",
-        "npm publish --workspace @ccslabs/xtend-maraca --tag latest --provenance --access public",
-        "npm publish --tag latest --provenance --access public",
-        "npm publish --workspace @ccslabs/xtend-mcp --tag latest --provenance --access public"
+        "node scripts/release/cli.cjs publish --execute"
       ],
-      "evidenceArtifactName": "xtend-npm-publish-latest-evidence-node-24-18-0",
+      "evidenceArtifactName": "xtend-npm-release-ledger-{runAttempt}",
       "requiredCommands": [
         "npm run native-first:evidence:prepare",
         "npm run test:release:full:report",
@@ -12743,9 +12735,10 @@
         "npm run release:report",
         "npm run pack:dry-run",
         "npm run conditional-network:evidence",
-        "npm publish --dry-run --tag latest --access public",
-        "npm publish --tag latest --provenance --access public",
-        "npm run verify:product-candidate"
+        "npm run verify:product-candidate",
+        "npm run test:ci-publish",
+        "node scripts/release/cli.cjs preflight",
+        "node scripts/release/cli.cjs publish --execute"
       ],
       "requires": [
         "full-release-gates",
@@ -12753,22 +12746,42 @@
         "package-structure",
         "conditional-network-evidence",
         "node-native-toolchain-smoke",
-        "xtend-mcp-vscode-smoke"
+        "xtend-mcp-vscode-smoke",
+        "laravel-release-gates",
+        "product-candidate-canary",
+        "release-seal"
       ],
       "permissions": [
         "contents: read",
+        "actions: read",
         "id-token: write"
       ],
       "packageSet": [
         "@ccslabs/xtend-rmt",
+        "@ccslabs/xtend-fabric",
+        "@ccslabs/xtend",
         "@ccslabs/xtend-compiler",
         "@ccslabs/xtend-maraca",
-        "@ccslabs/xtend",
+        "@ccslabs/xtend-cli",
+        "@ccslabs/xtend-xsurface-shard",
+        "@xtend-material/core",
+        "@xtend-material/maraca-tailwind",
         "@ccslabs/xtend-mcp"
       ],
       "repository": "git+https://github.com/konnilabs/xtend.git",
       "provenance": true,
-      "publishBoundary": "manual-workflow-dispatch-with-owner-approval"
+      "publishBoundary": "manual-workflow-dispatch-with-owner-approval",
+      "inventory": "scripts/release/inventory.json",
+      "releaseGroups": [
+        "core",
+        "mcp",
+        "material"
+      ],
+      "prereleaseTag": "next",
+      "defaultPublish": false,
+      "artifactMode": "immutable-verified-tarballs",
+      "packer": "scripts/product-candidate-canary.cjs#packCandidates",
+      "publishDryRunGate": "npm publish <verified.tgz> --dry-run --ignore-scripts --access=public --provenance --tag=<latest|next>"
     },
     "releaseChecklist": {
       "schema": "xtend.release.checklist-semver-policy.v1",

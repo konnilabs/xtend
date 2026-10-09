@@ -1044,6 +1044,8 @@ jobs:
         env:
           RELEASE_ARTIFACT_ID: ${{ needs.release-seal.outputs.artifactId }}
         run: node scripts/release/attempt.cjs init --execute
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: '24.18.0'
@@ -1053,6 +1055,8 @@ jobs:
       - name: Pin npm 11.17.0
         working-directory: ${{ runner.temp }}
         run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - name: Discover and verify the installed npm CLI for plain Node steps
+        run: node scripts/release/toolchain.cjs --execute
       - name: Capture and validate Node runtime evidence
         run: node scripts/capture_node_runtime_evidence.js --lane node-24-publish
       - name: Enable Node warning and deprecation policy
@@ -1123,6 +1127,13 @@ jobs:
           extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
           tools: composer:2.10.3
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: ${{ matrix.node_version }}
@@ -1130,6 +1141,8 @@ jobs:
       - name: Pin npm 11.17.0
         working-directory: ${{ runner.temp }}
         run: npm install --global npm@11.17.0
+      - name: Discover and verify the installed npm CLI for plain Node steps
+        run: node scripts/release/toolchain.cjs --execute
       - name: Capture and validate Node runtime evidence
         run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
       - name: Enable Node warning and deprecation policy
@@ -1190,6 +1203,13 @@ jobs:
           php-version: 8.4
           extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
           tools: composer:2.10.3
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: '24.18.0'
@@ -1197,6 +1217,8 @@ jobs:
       - name: Pin npm 11.17.0
         working-directory: ${{ runner.temp }}
         run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - name: Discover and verify the installed npm CLI for plain Node steps
+        run: node scripts/release/toolchain.cjs --execute
       - name: Capture and validate Node runtime evidence
         run: node scripts/capture_node_runtime_evidence.js --lane node-24-publish
       - name: Enable Node warning and deprecation policy
@@ -1223,7 +1245,8 @@ jobs:
           RESUME_ARTIFACT_ID: ${{ inputs.resume_artifact_id }}
         run: |
           scope=()
-          if [[ -n "$RELEASE_GROUPS$RELEASE_PACKAGES" ]]; then scope=(--groups "$RELEASE_GROUPS" --packages "$RELEASE_PACKAGES"); fi
+          if [[ -n "$RELEASE_GROUPS" ]]; then scope+=(--groups "$RELEASE_GROUPS"); fi
+          if [[ -n "$RELEASE_PACKAGES" ]]; then scope+=(--packages "$RELEASE_PACKAGES"); fi
           if [[ -n "$RESUME_ARTIFACT_ID" ]]; then
             node scripts/release/pipeline.cjs download --execute --artifact .xtend-test-results/product-candidates --artifact-id "$RESUME_ARTIFACT_ID" "${scope[@]}"
           else
@@ -1274,6 +1297,13 @@ jobs:
           php-version: 8.4
           extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
           tools: composer:2.10.3
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: '24.18.0'
@@ -1281,6 +1311,8 @@ jobs:
       - name: Pin npm 11.17.0
         working-directory: ${{ runner.temp }}
         run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - name: Discover and verify the installed npm CLI for plain Node steps
+        run: node scripts/release/toolchain.cjs --execute
       - name: Capture and validate Node runtime evidence
         run: node scripts/capture_node_runtime_evidence.js --lane node-24-publish
       - name: Enable Node warning and deprecation policy
@@ -1309,6 +1341,14 @@ jobs:
           cp .xtend-test-results/product-lanes/product-candidate-evidence-node-24-lts/product-candidates/installation.json .xtend-test-results/product-candidates/
           cp .xtend-test-results/product-lanes/product-candidate-evidence-node-24-lts/product-candidates/reports.json .xtend-test-results/product-candidates/
           node scripts/product-candidate-evidence.cjs
+      - name: Provision unchanged blocking publish browser runtime
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y xvfb xauth unzip
+          node scripts/provision_product_fpm.cjs 8.4
+          node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
       - name: Re-run existing blocking publish evidence against complete fresh candidate evidence
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -1346,3 +1386,11 @@ jobs:
           NEW_ARTIFACT_ID: ${{ steps.sealed.outputs.artifact-id }}
           RESUME_ARTIFACT_ID: ${{ inputs.resume_artifact_id }}
         run: printf 'artifactId=%s\n' "${RESUME_ARTIFACT_ID:-$NEW_ARTIFACT_ID}" >> "$GITHUB_OUTPUT"
+      - name: Preserve fresh seal gate evidence after success or failure
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtend-release-seal-evidence-${{ github.run_attempt }}
+          path: .xtend-test-results/
+          include-hidden-files: true
+          if-no-files-found: warn

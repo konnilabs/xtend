@@ -24,13 +24,16 @@ function assertNpmPublishCondition(context, workflow) {
     return;
   }
   const successfulNeeds = Object.fromEntries(gateIds.map((id) => [id, { result: 'success' }]));
-  function canPublish({ event = 'workflow_dispatch', enabled = true, cancelled = false, needs = successfulNeeds, ancestor = 'skipped' } = {}) {
+  function canPublish({ event = 'workflow_dispatch', enabled = true, cancelled = false, needs = successfulNeeds, ancestor = 'skipped', repository = 'konnilabs/xtend', ref = 'refs/heads/main' } = {}) {
     return (hasStatusFunction || ancestor === 'success') && Boolean(evaluate(
-      { event_name: event }, { publish_to_npm: enabled }, needs, () => cancelled
+      { event_name: event, repository, ref }, { publish_to_npm: enabled }, needs, () => cancelled
     ));
   }
   context.assert(canPublish(), 'Manual publish proceeds with successful release gates and a skipped PR-only ancestor');
   context.assert(!canPublish({ enabled: false }), 'Manual run without publish opt-in cannot publish');
+  context.assert(!canPublish({ repository: 'fork/xtend' }), 'A fork cannot publish');
+  context.assert(!canPublish({ ref: 'refs/heads/feature' }), 'A feature branch cannot publish');
+  context.assert(!canPublish({ ref: 'refs/tags/v1.0.0' }), 'A tag cannot publish');
   ['push', 'pull_request', 'schedule'].forEach((event) => {
     context.assert(!canPublish({ event }), `${event} cannot publish`);
   });

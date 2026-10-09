@@ -18,6 +18,13 @@ function main(args = process.argv.slice(2)) {
     fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(ledger, null, 2) + '\n', { flag: 'wx' });
   } else if (positionals[0] === 'finish') {
     ledger = JSON.parse(fs.readFileSync(file)); ledger.status = values.outcome === 'success' ? 'complete' : 'failed';
+    const resultFile = path.join(path.dirname(file), 'npm-release-ledger.json');
+    if (fs.existsSync(resultFile)) {
+      const result = JSON.parse(fs.readFileSync(resultFile));
+      if (result.schema !== 'xtend.release.ledger.v1' || result.sourceSha !== ledger.sourceSha) throw Error('Authoritative result ledger identity mismatch');
+      ledger.manifestIntegrity = result.manifestIntegrity; ledger.packages = result.packages;
+      ledger.registryDependencies = result.registryDependencies; ledger.resultStatus = result.status;
+    }
     ledger.completedAt = new Date().toISOString(); fs.writeFileSync(file, JSON.stringify(ledger, null, 2) + '\n');
   } else throw Error('Commands: init, finish; default is read-only');
 }

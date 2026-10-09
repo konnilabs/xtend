@@ -80,8 +80,7 @@ function npmAdapters({ npmCli, cwd, request = args => runNpm(npmCli, args, cwd),
       return result;
     }
   };
-  const publisher = {
-    async publish(entry, tag) {
+  async function publishTarball(entry, tag, dryRun) {
       // Publish a sealed byte-for-byte copy in a fresh directory. npm receives a
       // .tgz, never a workspace/folder; lifecycle hooks cannot rebuild it.
       const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-release-upload-'));
@@ -90,13 +89,16 @@ function npmAdapters({ npmCli, cwd, request = args => runNpm(npmCli, args, cwd),
         check(bytes.length === entry.size && digest(bytes) === entry.integrity, 'Artifact changed before sealed upload');
         const sealed = path.join(temporary, 'package.tgz'); fs.writeFileSync(sealed, bytes, { flag: 'wx', mode: 0o400 });
         const result = await publishCommand(npmCli, ['publish', sealed, '--ignore-scripts', '--access=public', '--provenance',
-          `--tag=${tag}`, '--json'], temporary);
+          `--tag=${tag}`, '--json', ...(dryRun ? ['--dry-run'] : [])], temporary);
         if (result.status !== 0) {
-          const error = Error('npm publish failed; check registry before any retry');
-          error.retryable = result.timedOut; throw error;
+          const error = Error(dryRun ? 'Tarball publish dry-run gate failed before uploads' : 'npm publish failed; check registry before any retry');
+          error.retryable = !dryRun && result.timedOut; throw error;
         }
       } finally { fs.rmSync(temporary, { recursive: true, force: true }); }
-    },
+  }
+  const publisher = {
+    dryRun: (entry, tag) => publishTarball(entry, tag, true),
+    publish: (entry, tag) => publishTarball(entry, tag, false),
     async tag(entry, tag) {
       const result = await request(['dist-tag', 'add', `${entry.name}@${entry.version}`, tag, '--json']);
       check(result.status === 0, 'OIDC dist-tag failed; inspect ledger and registry before resume');

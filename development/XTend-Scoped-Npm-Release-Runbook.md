@@ -97,6 +97,13 @@ instead bind their pinned original source. The production adapter cryptographica
 Sigstore verifier and TUF-authenticated roots, including transparency and
 certificate identity for the exact trusted workflow on main.
 
+After the complete preflight, every pending selected tarball must pass an npm
+publish dry-run using its sealed bytes and explicit public/provenance/tag flags,
+with lifecycle scripts disabled. All these dry-runs precede the first upload;
+a failure preserves the ledger and stops every upload. Registry-verified existing
+versions are skipped. The default read-only CLI preflight invokes no npm publish,
+including no publish dry-run. Dry-run success does not prove OIDC publication.
+
 Reject an unpublished stable version below either `latest` or any higher stable
 registry version. Recheck immediately before each upload and retry. A timeout
 is followed by an exact registry lookup: an identical upload is accepted, a
@@ -255,16 +262,34 @@ job neither builds nor packs, even for resume; it downloads the exact sealed
 artifact ID and checks the GitHub archive SHA-256 before safe extraction, then
 rechecks manifest SHA-512, all ten original archive hashes and selected file hashes.
 
+Each of the four release jobs discovers the installed `npm` executable immediately
+after the npm 11.17 global pin, resolves its real absolute `npm-cli.js`, checks
+package identity/version and executes that exact CLI with the current Node.
+The dependency-free discovery step writes `XTEND_NPM_CLI` to `GITHUB_ENV` before
+dependency installation. Plain Node release steps consume this explicit path;
+they do not depend on `npm_execpath`, which exists only in npm lifecycle shells.
+Local commands may supply an explicit installed CLI or resolve an actual CLI
+symlink on PATH; arbitrary shell shims and mismatched pins fail closed.
+
 Dispatch fields `release_groups` and `release_packages` select the scope, empty
 means all ten. For MCP-only use `release_groups=mcp`; Material-only uses
 `release_groups=material`. The selection is frozen into the artifact. On resume
 supply the original `resume_artifact_id`; never narrow or regenerate its scope.
-An explicit selection must match it. Download validates producer repository,
+An explicit selection must match it.
+Empty input arguments are omitted by the workflow. CLI parsing treats empty
+counterpart inputs as empty arrays; nonempty invalid or duplicated entries still
+fail. Groups-only, packages-only, combined and full selections apply equally to
+initial preparation and artifact resume.
+Download validates producer repository,
 main branch, dispatch event, workflow ID/path, source SHA and expiration. Restore
 requires the same source SHA as the workflow run. After main advances, rerun the
 original failed run at its original SHA; a new dispatch at another SHA is refused.
 Artifact retention/expiration limits recovery, so archive original sealed bytes
 and metadata before expiration; do not rebuild an attempted version.
+Preparation rejects a complete workflow rerun without an original sealed artifact
+ID. Rerun only the failed publish job (which retains its seal dependency output),
+or dispatch an explicit same-source artifact resume. Never rerun all jobs to
+recreate attempted package versions.
 
 Resume reruns current prerequisite/product checks against the original bytes;
 fresh acceptance is recorded separately. It preserves the original release

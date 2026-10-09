@@ -71,3 +71,28 @@ Focused green tests are not full aggregate or product acceptance. The complete
 review export records running and not-yet-run checks separately. Longer runs may
 finish after the immutable source checkpoint; append a separate evidence export,
 never amend its source or relabel earlier results.
+
+The first immutable integration checkpoint is
+`1713d821db3fb70daa046b0c44dda0c292f1ea23`; its complete source export is retained.
+The subsequent own branch `feat/scoped-npm-release-integration-followup` fixes
+consumer validation for an explicitly supplied artifact directory, preserves the
+actual tarball publish dry-run gate, provisions the reviewed browser/FPM runtime
+for the unchanged publish aggregate, and projects all ten packages into root
+publish metadata. Regression contracts now assert immutable artifact publication
+and permit only the deliberately removed publisher cache restore; they retain
+every original prerequisite and all other cache checks. Schema governance and
+unrelated baseline failures remain blocking. No original checkpoint is amended.
+
+Independent review identified three execution-path defects in 1713d82: plain Node
+steps had no persistent npm CLI path; groups-only/packages-only shell arguments
+contained an empty counterpart; and the npm-bundled Sigstore SAN matcher interpreted
+the unescaped identity as a regex. The follow-up exports a verified absolute CLI
+through GITHUB_ENV, omits/normalizes only empty selection inputs, and applies an
+escaped fully anchored SAN policy. npm11.17.0 bundles sigstore4.1.1 and
+@sigstore/verify3.1.1; its createVerificationPolicy forwards certificateIdentityURI
+to subjectAlternativeName and policy.js calls signerIdentity.match(policyIdentity).
+certificateIssuer maps to extensions.issuer, compared by strict equality;
+ctLogThreshold and tlogThreshold are the actual supported threshold option names.
+Tests exercise the bundled Verifier.verifyPolicy and policy.js directly, as well
+as clean shells with no lifecycle variable and the actual workflow selection block.
+These are policy-path regression tests, not a claim of live hosted OIDC publishing.

@@ -71,6 +71,40 @@ test('default is read-only, with an always-on pending ledger and complete prefli
   assert.equal(ledger.status, 'dry-run'); assert.ok(ledger.packages.every(p => p.state === 'pending'));
   assert.equal(r.calls.filter(c => c[0] === 'publish').length, 0); assert.equal(JSON.parse(fs.readFileSync(f.ledgerFile)).packages.length, 10);
 });
+test('all pending tarball publish dry-runs pass before the first upload; verified-existing versions are skipped', async t => {
+  const { f, r, run } = await setup(t); r.installed(f.artifact.packages[0], 'latest');
+  const dryRuns = [], original = r.publisher.publish;
+  r.publisher.dryRun = async (entry, tag) => { assert.equal(r.calls.filter(c => c[0] === 'publish').length, 0); dryRuns.push([entry.name, tag]); };
+  r.publisher.publish = async (...args) => { assert.equal(dryRuns.length, 9); return original(...args); };
+  const ledger = await run({ publish: true });
+  assert.deepEqual(dryRuns.map(item => item[0]), f.artifact.order.slice(1));
+  assert.ok(dryRuns.every(item => item[1] === 'latest'));
+  assert.equal(ledger.packages.filter(item => item.publishDryRun === 'passed').length, 9);
+});
+test('a failed tarball dry-run blocks all uploads and keeps a failed/pending result ledger', async t => {
+  const { f, r, run } = await setup(t); let calls = 0;
+  r.publisher.dryRun = async () => { if (++calls === 2) throw Error('dry-run rejected'); };
+  await assert.rejects(run({ publish: true }), /dry-run rejected/);
+  assert.equal(r.calls.filter(c => c[0] === 'publish').length, 0);
+  const ledger = JSON.parse(fs.readFileSync(f.ledgerFile));
+  assert.equal(ledger.status, 'failed'); assert.equal(ledger.packages[1].state, 'failed');
+  assert.ok(ledger.packages.slice(2).every(item => item.state === 'pending'));
+});
+test('default read-only preflight never invokes the tarball publish dry-run adapter', async t => {
+  const { r, run } = await setup(t);
+  r.publisher.dryRun = async () => { throw Error('must not invoke npm publish in read-only mode'); };
+  assert.equal((await run({})).status, 'dry-run');
+});
+test('npm dry-run uses the same sealed bytes and flags with --dry-run; errors stop without retry', async t => {
+  const { f } = await setup(t), entry = f.artifact.packages[0]; let sealed, count = 0;
+  const { publisher } = npmAdapters({ publishCommand: async (_cli, args) => {
+    count++; sealed = args[1]; assert.deepEqual(fs.readFileSync(sealed), fs.readFileSync(entry.absoluteFile));
+    for (const flag of ['--dry-run', '--ignore-scripts', '--access=public', '--provenance', '--tag=next']) assert.ok(args.includes(flag));
+    return { status: 1, timedOut: true };
+  } });
+  await assert.rejects(publisher.dryRun(entry, 'next'), error => /dry-run gate/.test(error.message) && error.retryable === false);
+  assert.equal(count, 1); assert.equal(fs.existsSync(sealed), false);
+});
 test('npm 11.17 direct standard path publishes ten exact archives sequentially with explicit latest and no tag command', async t => {
   const { f, r, run } = await setup(t), ledger = await run({ publish: true });
   assert.equal(ledger.status, 'complete'); assert.ok(ledger.packages.every(p => p.state === 'published' && p.tagState === 'verified'));

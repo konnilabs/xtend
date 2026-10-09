@@ -151,6 +151,15 @@ async function publishRelease({ artifact, registry, publisher, ledgerFile, lockF
       save();
     }
     if (!publish) { ledger.status = 'dry-run'; save(); return ledger; }
+    // Preserve the publish dry-run gate using the actual checked .tgz bytes.
+    // Run every pending package before the first upload; existing versions are
+    // verified through the registry instead. This does not test OIDC trust.
+    if (publisher.dryRun) for (const entry of entries) {
+      current = ledger.packages.find(item => item.name === entry.name);
+      if (current.state !== 'pending') continue;
+      await publisher.dryRun(entry, staged ? `${semver.prerelease(entry.version) ? 'prerelease' : 'stable'}-${artifact.sourceSha}` : current.tag);
+      current.publishDryRun = 'passed'; save();
+    }
     for (const entry of entries) {
       for (const dependency of artifact.registryDependencies || []) {
         current = ledger.registryDependencies.find(item => item.name === dependency.name);

@@ -1,5 +1,10 @@
 'use strict';
 const { check } = require('./inventory.cjs');
+function parseSelection(values) {
+  const present = value => value !== undefined && value !== '';
+  if (!present(values.groups) && !present(values.packages)) return undefined;
+  return { groups: present(values.groups) ? values.groups.split(',') : [], packages: present(values.packages) ? values.packages.split(',') : [] };
+}
 // Inventory membership and version groups remain global. Selection chooses uploads;
 // hard transitive dependencies outside it must already exist in the registry.
 function selectRelease(inventory, selection) {
@@ -33,4 +38,4 @@ function selectRelease(inventory, selection) {
   return { selection: { packages: order }, order, closureOrder: inventory.order.filter(name => closure.has(name)),
     registryDependencyNames: inventory.order.filter(name => closure.has(name) && !selected.has(name)) };
 }
-module.exports = { selectRelease };
+module.exports = { selectRelease, parseSelection };
