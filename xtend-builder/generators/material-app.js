@@ -61,8 +61,9 @@ function createMaterialAppEntries(outputDir, values) {
     if (!rendered.ok) return { error: rendered.error, definition };
     if (definition.kind === 'package') {
       const manifest = JSON.parse(rendered.content);
-      manifest.dependencies['@ccslabs/xtend'] = CLI_RELEASE_VERSION;
-      manifest.dependencies['@ccslabs/xtend-maraca'] = CLI_RELEASE_VERSION;
+      for (const name of ['@ccslabs/xtend', '@ccslabs/xtend-maraca', '@ccslabs/xtend-compiler', '@ccslabs/xtend-rmt', '@ccslabs/xtend-fabric', '@ccslabs/xtend-xsurface-shard']) {
+        manifest.dependencies[name] = CLI_RELEASE_VERSION;
+      }
       manifest.devDependencies['@ccslabs/xtend-cli'] = CLI_RELEASE_VERSION;
       rendered.content = `${JSON.stringify(manifest, null, 2)}\n`;
     }

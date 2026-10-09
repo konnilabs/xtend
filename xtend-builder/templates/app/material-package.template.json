@@ -16,6 +16,11 @@
   "dependencies": {
     "@ccslabs/xtend": "0.9.0",
     "@ccslabs/xtend-maraca": "0.9.0",
+    "@ccslabs/xtend-compiler": "0.9.0",
+    "@ccslabs/xtend-rmt": "0.9.0",
+    "@ccslabs/xtend-fabric": "0.9.0",
+    "@ccslabs/xtend-xsurface-shard": "0.9.0",
+    "@ccslabs/xtend-mcp": "0.1.0",
     "@xtend-material/core": "0.1.0"
   },
   "devDependencies": {
