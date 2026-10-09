@@ -1,5 +1,16 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+test('candidate setup avoids npm auto-cache before the required npm pin and provisions packaged FPM',()=>{
+ const root=path.resolve(__dirname,'../../.github/workflows');
+ for(const file of ['xtend-default-gates.yml','xtend-nightly-build.yml']) {
+  const source=fs.readFileSync(path.join(root,file),'utf8');
+  for(const step of source.split(/\n      - /).filter(step=>step.includes('uses: actions/setup-node@'))) assert.match(step,/package-manager-cache: false/,file);
+  for(const step of source.split(/\n      - /).filter(step=>step.includes('uses: shivammathur\/setup-php@'))) {
+   assert.match(step,/update: true/);assert.match(step,/use_package_cache: false/);assert.match(step,/composer:2\.10\.3/);
+  }
+  assert.match(source,/\/usr\/sbin\/php-fpm8\.4 -v/);
+ }
+});
 function checkWorkflow(source) {
  const jobs=source.split(/^jobs:\s*$/m)[1];if(!jobs)return [];
  const starts=[...jobs.matchAll(/^  ([a-zA-Z0-9_-]+):\s*$/gm)];const errors=[];
