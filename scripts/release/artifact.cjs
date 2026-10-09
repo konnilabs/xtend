@@ -5,6 +5,7 @@ const crypto = require('node:crypto');
 const tar = require('tar');
 const { isDeepStrictEqual } = require('node:util');
 const { check, readJson, relativePath, loadInventory } = require('./inventory.cjs');
+const { selectRelease } = require('./selection.cjs');
 const digest = bytes => `sha512-${crypto.createHash('sha512').update(bytes).digest('base64')}`;
 const canonical = value => Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object'
   ? Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])])) : value;
@@ -63,7 +64,12 @@ function checkEntrypoints(manifest, files) {
   for (const key of ['exports', 'bin', 'main', 'module', 'types', 'typings']) if (manifest[key]) target(manifest[key]);
   check(names.has('package.json') && names.has('README.md'), `Required package metadata/files missing: ${manifest.name}`);
 }
-async function verifyArtifact({ directory, manifestIntegrity, sourceSha, rootDir, requireCanary = true }) {
+function releaseSetIntegrity(manifest) {
+  return objectDigest({ sourceSha: manifest.sourceSha, toolchain: manifest.toolchain, edges: manifest.edges,
+    selection: manifest.selection, registryDependencies: manifest.registryDependencies,
+    packages: manifest.packages.map(({ name, version, group, file, size, integrity }) => ({ name, version, group, file, size, integrity })) });
+}
+async function verifyArtifact({ directory, manifestIntegrity, sourceSha, rootDir, requireCanary = true, selection: requestedSelection }) {
   check(typeof directory === 'string' && directory.length > 0, 'Artifact directory required');
   check(/^sha512-[A-Za-z0-9+/]{86}==$/.test(manifestIntegrity || ''), 'Reviewed external manifest SHA-512 required');
   check(/^[a-f0-9]{40}$/.test(sourceSha || ''), 'Expected full source SHA required');
@@ -72,6 +78,10 @@ async function verifyArtifact({ directory, manifestIntegrity, sourceSha, rootDir
   const manifest = JSON.parse(manifestBytes);
   check(manifest.schema === 'xtend.release.artifact.v1' && manifest.sourceSha === sourceSha, 'Artifact schema/source mismatch');
   const inventory = loadInventory(rootDir);
+  const scope = selectRelease(inventory, manifest.selection);
+  if (requestedSelection !== undefined) check(isDeepStrictEqual(scope.selection, selectRelease(inventory, requestedSelection).selection),
+    'Requested release selection differs from immutable artifact');
+  const mcpSelected = scope.order.includes('@ccslabs/xtend-mcp');
   const root = readJson(path.join(rootDir, 'package.json'));
   const toolchain = { node: fs.readFileSync(path.join(rootDir, '.nvmrc'), 'utf8').trim(), npm: root.packageManager.replace(/^npm@/, '') };
   check(isDeepStrictEqual(manifest.toolchain, toolchain), 'Artifact toolchain differs from committed pins');
@@ -80,14 +90,25 @@ async function verifyArtifact({ directory, manifestIntegrity, sourceSha, rootDir
   check(digest(buildBytes) === manifest.buildEvidence.integrity, 'Build evidence integrity mismatch');
   const buildEvidence = JSON.parse(buildBytes);
   check(buildEvidence.schema === 'xtend.release.build.v1' && buildEvidence.sourceSha === sourceSha &&
-    isDeepStrictEqual(buildEvidence.toolchain, toolchain) && buildEvidence.mcpKnowledgeGenerated === true &&
-    buildEvidence.mcpKnowledgeChecked === true, 'Explicit MCP knowledge generation/check must precede packing');
-  check(Array.isArray(manifest.packages) && manifest.packages.length === inventory.packages.length, 'Artifact package set incomplete');
+    isDeepStrictEqual(buildEvidence.toolchain, toolchain) && (!mcpSelected || buildEvidence.mcpKnowledgeGenerated === true &&
+    buildEvidence.mcpKnowledgeChecked === true), 'Explicit MCP knowledge generation/check must precede packing');
+  check(Array.isArray(manifest.packages) && manifest.packages.length === scope.order.length, 'Artifact package set incomplete');
+  const registryDependencies = Object.hasOwn(manifest, 'registryDependencies') ? manifest.registryDependencies : [];
+  check(Array.isArray(registryDependencies) && registryDependencies.length === scope.registryDependencyNames.length &&
+    new Set(registryDependencies.map(entry => entry.name)).size === registryDependencies.length,
+    'Registry dependency closure incomplete/duplicate');
+  for (const entry of registryDependencies) {
+    const expected = inventory.packages.find(item => item.name === entry.name);
+    check(expected && scope.registryDependencyNames.includes(entry.name) && entry.version === expected.version && entry.group === expected.group &&
+      /^sha512-[A-Za-z0-9+/]{86}==$/.test(entry.integrity || '') && /^[a-f0-9]{40}$/.test(entry.sourceSha || '') &&
+      Object.keys(entry).every(key => ['name', 'version', 'group', 'integrity', 'sourceSha'].includes(key)),
+      `Invalid pinned registry dependency: ${entry.name}`);
+  }
   check(isDeepStrictEqual(canonical(manifest.edges), canonical(inventory.edges)), 'Artifact dependency edges mismatch');
   const names = new Set(), tarballs = new Set(), inspected = [];
   for (const entry of manifest.packages) {
     const expected = inventory.packages.find(item => item.name === entry.name);
-    check(expected && !names.has(entry.name), `Unexpected/duplicate artifact package: ${entry.name}`); names.add(entry.name);
+    check(expected && scope.order.includes(entry.name) && !names.has(entry.name), `Unexpected/duplicate artifact package: ${entry.name}`); names.add(entry.name);
     check(entry.version === expected.version && entry.group === expected.group, `Artifact version/group mismatch: ${entry.name}`);
     check(typeof entry.file === 'string' && entry.file.endsWith('.tgz') && !tarballs.has(entry.file), 'Duplicate/invalid tarball path'); tarballs.add(entry.file);
     const file = artifactFile(directory, entry.file), bytes = fs.readFileSync(file);
@@ -98,8 +119,7 @@ async function verifyArtifact({ directory, manifestIntegrity, sourceSha, rootDir
     checkEntrypoints(content.manifest, content.files);
     inspected.push({ ...entry, absoluteFile: file });
   }
-  const tarballSetIntegrity = objectDigest({ sourceSha, toolchain, edges: manifest.edges,
-    packages: manifest.packages.map(({ name, version, group, file, size, integrity }) => ({ name, version, group, file, size, integrity })) });
+  const tarballSetIntegrity = releaseSetIntegrity(manifest);
   if (requireCanary) {
     check(manifest.canary?.file && manifest.canary?.integrity, 'Bound canary evidence required');
     const bytes = fs.readFileSync(artifactFile(directory, manifest.canary.file));
@@ -114,10 +134,12 @@ async function verifyArtifact({ directory, manifestIntegrity, sourceSha, rootDir
       check(result && result.integrity === entry.integrity && result.consumerInstall === true && result.entrypoints === true &&
         result.types === true && result.bin === true && result.files === true, `Incomplete canary: ${entry.name}`);
     }
-    check(evidence.mcpKnowledgeGenerated === true && evidence.mcpKnowledgeChecked === true && evidence.runtimeImports === true,
+    check(isDeepStrictEqual(canonical(evidence.registryDependencies ?? []), canonical(registryDependencies.map(entry => ({ ...entry, consumerInstall: true })))),
+      'Canary registry dependency identity/integrity binding mismatch');
+    check((!mcpSelected || evidence.mcpKnowledgeGenerated === true && evidence.mcpKnowledgeChecked === true) && evidence.runtimeImports === true,
       'MCP knowledge build/check and actual consumer runtime evidence required');
   }
   return { manifest, manifestIntegrity, sourceSha, toolchain, tarballSetIntegrity, packages: inspected,
-    order: inventory.order, inventory, buildEvidence };
+    ...scope, registryDependencies, inventory, buildEvidence };
 }
-module.exports = { digest, objectDigest, artifactFile, metadata, inspectTarball, checkEntrypoints, verifyArtifact };
+module.exports = { digest, objectDigest, releaseSetIntegrity, artifactFile, metadata, inspectTarball, checkEntrypoints, verifyArtifact };

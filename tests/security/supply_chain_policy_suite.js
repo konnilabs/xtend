@@ -96,7 +96,7 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(VULNERABILITY_POLICY_CONTRACT === 'xtend.security.vulnerability-policy.v1', 'Exports vulnerability policy contract');
   context.assert(RELEASE_SUPPLY_CHAIN_GATE_CONTRACT === 'xtend.security.release-supply-chain-gate.v1', 'Exports release supply-chain gate contract');
   context.assert(Array.isArray(SCOPED_RELEASE_PACKAGES) && SCOPED_RELEASE_PACKAGES.length === 7, 'Exports scoped release package matrix');
-  context.assert(PUBLIC_RELEASE_PACKAGES.length === 10 && plan.publicReleasePackages.length === 10,
+  context.assert(PUBLIC_RELEASE_PACKAGES.length === 10 && !Object.hasOwn(plan, 'publicReleasePackages'),
     'Public release inventory includes Core, independent MCP and Material without changing the seven-package sync train');
   context.assert(ALLOWED_DEV_TOOLING_DEPENDENCIES.some((entry) => entry.name === 'typescript' && entry.section === 'devDependencies'), 'Exports allowed TypeScript dev tooling dependency');
   context.assert(ALLOWED_DEV_TOOLING_DEPENDENCIES.some((entry) => entry.name === '@types/node' && entry.versionRange.startsWith('^24.')), 'Exports Node 24 type declarations as build-only tooling');

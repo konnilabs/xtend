@@ -230,7 +230,6 @@ function createSupplyChainGatePlan(options = {}) {
     licensePolicy: LICENSE_POLICY_CONTRACT,
     vulnerabilityPolicy: VULNERABILITY_POLICY_CONTRACT,
     releaseGate: RELEASE_SUPPLY_CHAIN_GATE_CONTRACT,
-    publicReleasePackages: PUBLIC_RELEASE_PACKAGES,
     mode: options.mode || 'plan-and-offline-local-gate',
     localGate: 'node scripts/verify_supply_chain_policy.js --json',
     packageScript: 'npm run test:supply-chain',

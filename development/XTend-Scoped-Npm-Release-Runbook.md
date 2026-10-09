@@ -32,6 +32,26 @@ its own two-package group. `SCOPED_RELEASE_PACKAGES` remains the legacy seven
 package version-sync policy; `PUBLIC_RELEASE_PACKAGES` exposes all ten from the
 central inventory. This does not decide ten-package lockstep.
 
+Release **selection** is separate from inventory and version policy. Use
+`release:inventory -- --groups=mcp`, `--groups=material`, `--groups=core,mcp`
+or an explicit comma-separated `--packages` list to inspect the scope. Selection
+never silently upgrades dependencies or changes versions. Its hard transitive
+closure includes runtime dependencies and required peers; optional peer cycles
+remain soft. The immutable manifest declares the selected package names. Without
+a selection it represents the full ten-package release. A supplied CLI selection
+must match the artifact exactly; it cannot narrow an existing ten-package artifact.
+
+MCP-only requires one new MCP archive and verified existing RMT, Compiler and
+Maraca versions. Material-only requires the two Material archives and verified
+existing Maraca. Those dependencies are **not rebuilt or republished**. The
+manifest pins their exact name, version, group, SHA-512 and original provenance
+`sourceSha`; the current release SHA describes only newly built archives. Check
+their repository identity, dependency metadata, exact registry version/integrity,
+consistent packument and original provenance before any selected upload and again
+before each operation. Missing dependencies stop: select them in a new, reviewed
+release artifact if they need publication, rather than extending scope during
+resume. Their dist-tags are never changed by this release.
+
 Exclude the private products `@xtend-products/store`,
 `@ccslabs/rmt-animation-testbench-product`, `@ccslabs/xtend-material-workbench`,
 `@ccslabs/xtend-llm-product`, other private products and the separate VSIX.
@@ -65,7 +85,9 @@ not accepted as an HTTP status. Authentication, DNS, timeout, transport, 429, 5x
 ambiguous errors stop the train. Absent package names require a reviewed
 ownership/bootstrap plan. Existing identical name/version/SHA-512 is reverified
 and skipped; conflicting integrity stops the entire preflight. Existing
-provenance must bind the same source and subject.
+provenance must bind the archive's source and subject. Needed registry dependencies
+instead bind their pinned original source. Cryptographic verification remains a
+required deferred gate for both.
 
 Reject an unpublished stable version below either `latest` or any higher stable
 registry version. Recheck immediately before each upload and retry. A timeout
@@ -95,6 +117,9 @@ versions. If an already existing version has a missing/older tag, report
 `tag-repair-required`; republishing that version cannot repair it. An independent
 authorized maintainer repair is needed. If `latest` is newer than an existing
 identical version, preserve the newer tag; recovery must never move it backwards.
+Missing/malformed packuments, inconsistent exact-version presence and malformed
+tags always stop further uploads. Only a missing/older channel tag on an otherwise
+valid, consistent packument can produce repair status.
 
 A filesystem lock excludes concurrent local trains using the same ledger
 directory. Later GitHub integration must serialize **all release refs** in one
@@ -131,8 +156,11 @@ The release consumer requires a versioned envelope `xtend.release.artifact.v1`:
 sourceSha: full canonical reviewed commit SHA
 toolchain: { node: exact committed .nvmrc, npm: exact packageManager version }
 edges: [{ from, to, range, kind, hard }] matching actual package manifests
-packages: all ten [{ name, version, group, file, size, integrity,
-                    files: [{ path, size, integrity }] }]
+selection: { packages: [explicit selected names in dependency order] }
+packages: selected [{ name, version, group, file, size, integrity,
+                      files: [{ path, size, integrity }] }]
+registryDependencies: unselected hard closure [{ name, version, group,
+                      integrity, sourceSha: original dependency build SHA }]
 buildEvidence: { file, integrity }
 canary: { file, integrity }
 ```
@@ -149,17 +177,26 @@ The build report `xtend.release.build.v1` binds source/toolchain and successful
 explicit `build:xtend-mcp-knowledge` generation plus
 `node products/xtend-mcp/scripts/build-knowledge.mjs --check --quiet` **before
 packing**. The consumer never relies on publish lifecycle hooks for this work.
+MCP generation/check is required when MCP is selected. A Material-only release
+does not invent MCP build evidence for an unrelated package.
 The packer owns building once and packing once.
 
 Consumer evidence `xtend.release.canary.v1` binds source/toolchain and
-`tarballSetIntegrity` (canonical sorted-key SHA-512 of source, toolchain, edges
-and package name/version/group/file/size/integrity list). It records each package's
+`tarballSetIntegrity` (canonical sorted-key SHA-512 of source, toolchain, edges,
+selection, registry closure and package name/version/group/file/size/integrity
+list). It records each package's
 integrity and successful clean installation, exports, types, bins, file hashes,
-runtime imports and MCP checks. `consumer.cjs` installs all ten explicit local
-tarball dependencies in a fresh temporary project, verifies installed file
+runtime imports and applicable MCP checks. `consumer.cjs` installs selected local
+tarballs and exact registry closure in a fresh temporary project, verifies installed file
 hashes and bins, resolves exports, compiles a TypeScript consumer, and imports
 the packages in a DOM host. The DOM host/compiler are test tooling; package
-imports resolve only in the installed consumer. Actual product tarball canaries
+imports resolve only in the installed consumer. Registry dependencies are
+preflight-verified against their pinned original provenance and metadata. Their
+installed lockfile version, SHA-512 and public-registry URL must match; npm checks
+downloaded bytes against the SRI. Evidence retains their original source identities
+and records successful installation. Runtime/type checks cover selected packages
+and their hard closure. Unrelated inventory packages need no archive in a partial
+release. Actual product tarball canaries
 remain to be run against the reviewed packer outputs, including browser-specific
 semantics and MCP knowledge parity. Fixture tests do not substitute for those.
 

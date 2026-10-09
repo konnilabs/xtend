@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { packedFixture, registryFixture } = require('./fixtures.cjs');
-const { channelTag, promotionSupported, publishRelease } = require('../../scripts/release/publish.cjs');
+const { channelTag, promotionSupported, publishRelease, sourceRepository } = require('../../scripts/release/publish.cjs');
 const { parseRegistryResult, parseHttpRegistryResult, npmAdapters } = require('../../scripts/release/npm.cjs');
 const { assertPublishInput } = require('../../scripts/release/cli.cjs');
 async function setup(t) {
@@ -133,12 +133,12 @@ test('missing package requires explicit bootstrap ownership plan', async t => {
 test('stale latest or a higher published stable version blocks before any upload', async t => {
   const { f, r, run } = await setup(t), pack = r.packages.get(f.artifact.packages.at(-1).name);
   pack.versions = ['1.0.0']; await assert.rejects(run({ publish: true }), /Stale stable/);
-  pack.versions = []; pack['dist-tags'].latest = '1.0.0'; await assert.rejects(run({ publish: true }), /Stale latest/);
+  pack.versions = ['1.0.0']; pack['dist-tags'].latest = '1.0.0'; await assert.rejects(run({ publish: true }), /Stale latest/);
   assert.equal(r.calls.filter(c => c[0] === 'publish').length, 0);
 });
 test('latest advancing after preflight blocks direct upload; resume preserves newer latest for identical existing bytes', async t => {
   const { f, r, run } = await setup(t), original = r.registry.version; let calls = 0;
-  r.registry.version = async entry => { if (++calls === 11) r.packages.get(entry.name)['dist-tags'].latest = '1.0.0'; return original(entry); };
+  r.registry.version = async entry => { if (++calls === 11) { r.packages.get(entry.name)['dist-tags'].latest = '1.0.0'; r.packages.get(entry.name).versions.push('1.0.0'); } return original(entry); };
   await assert.rejects(run({ publish: true }), /Stale latest/);
   r.registry.version = original; r.installed(f.artifact.packages[0], 'latest');
   r.packages.get(f.artifact.packages[0].name)['dist-tags'].latest = '1.0.0';
@@ -170,4 +170,120 @@ test('optional staged promotion checks capability before every upload and does n
   assert.equal(r.calls.filter(c => c[0] === 'publish').length, 0);
   const ledger = await run({ publish: true, staged: true, promote: true, npmVersion: '11.21.0', distTagsAuthorized: true });
   assert.equal(ledger.status, 'complete'); assert.equal(r.calls.filter(c => c[0] === 'tag').length, 10);
+});
+test('provenance accepts exact normalized GitHub source identities only', () => {
+  for (const uri of ['https://github.com/konnilabs/xtend', 'git+https://github.com/konnilabs/xtend.git',
+    'git+https://github.com/konnilabs/xtend@refs/heads/main', 'https://github.com/konnilabs/xtend.git#refs/tags/v1.2.0']) {
+    assert.equal(sourceRepository(uri), 'https://github.com/konnilabs/xtend');
+  }
+});
+for (const uri of ['https://evilgithub.com/konnilabs/xtend', 'https://github.com.evil.test/konnilabs/xtend',
+  'https://github.com@evil.test/konnilabs/xtend', 'https://user:password@github.com/konnilabs/xtend',
+  'https://github.com:443/konnilabs/xtend', 'https://github.com:8080/konnilabs/xtend',
+  'https://github.com/konnilabs/xtend/evil', 'https://github.com/konnilabs/xtend.git/evil',
+  'https://github.com/konnilabs/xtend-other', 'https://github.com/evil/xtend',
+  'https://github.com/konnilabs/evil/../xtend', 'https://github.com/konnilabs/%78tend',
+  'http://github.com/konnilabs/xtend', 'https://github.com/konnilabs/xtend?repository=evil']) {
+  test(`provenance rejects source ${uri}`, async t => {
+    const { f, r, run } = await setup(t); r.installed(f.artifact.packages[0], 'latest');
+    r.versions.get(f.artifact.packages[0].name).provenanceStatements[0].predicate.buildDefinition.resolvedDependencies[0].uri = uri;
+    await assert.rejects(run({ publish: true }), /Provenance source/);
+    assert.equal(r.calls.filter(call => call[0] === 'publish').length, 0);
+  });
+}
+const malformedPackuments = [null, {}, { name: 'wrong', versions: [], 'dist-tags': {} },
+  { versions: [], 'dist-tags': {} }, { versions: '0.9.0', 'dist-tags': {} },
+  { versions: [], 'dist-tags': [] }, { versions: [], 'dist-tags': { latest: 'garbage' } },
+  { versions: ['0.9.0', '0.9.0'], 'dist-tags': {} }];
+for (const [index, malformed] of malformedPackuments.entries()) {
+  test(`existing exact version rejects malformed packument ${index} before any next upload`, async t => {
+    const { f, r, run } = await setup(t), entry = f.artifact.packages[0]; r.installed(entry, 'latest');
+    r.packages.set(entry.name, malformed && { name: entry.name, ...structuredClone(malformed) });
+    await assert.rejects(run({ publish: true }), /Invalid registry metadata|Inconsistent registry version presence/);
+    assert.equal(r.calls.filter(call => call[0] === 'publish').length, 0);
+  });
+}
+test('existing version packument disappearing after complete preflight stops before later upload', async t => {
+  const { f, r, run } = await setup(t), entry = f.artifact.packages[0]; r.installed(entry, 'latest');
+  const original = r.registry.package; let count = 0;
+  r.registry.package = async value => value.name === entry.name && ++count === 2 ? null : original(value);
+  await assert.rejects(run({ publish: true }), /Invalid registry metadata/);
+  assert.equal(r.calls.filter(call => call[0] === 'publish').length, 0);
+});
+for (const [index, malformed] of malformedPackuments.entries()) if (malformed !== null && index !== 3) {
+  test(`pending exact version rejects malformed packument ${index} before first upload`, async t => {
+    const { f, r, run } = await setup(t), entry = f.artifact.packages[0];
+    r.packages.set(entry.name, { name: entry.name, ...structuredClone(malformed) });
+    await assert.rejects(run({ publish: true }), /Invalid registry metadata/);
+    assert.equal(r.calls.filter(call => call[0] === 'publish').length, 0);
+  });
+}
+test('postupload exact version with missing packument stops and retains partial ledger', async t => {
+  const { f, r, run } = await setup(t), original = r.publisher.publish;
+  r.publisher.publish = async (entry, tag) => { await original(entry, tag); r.packages.delete(entry.name); };
+  await assert.rejects(run({ publish: true }), /Invalid registry metadata/);
+  assert.equal(r.calls.filter(call => call[0] === 'publish').length, 1);
+  const ledger = JSON.parse(fs.readFileSync(f.ledgerFile));
+  assert.equal(ledger.packages[0].state, 'failed'); assert.ok(ledger.packages.slice(1).every(entry => entry.state === 'pending'));
+});
+test('exact-version presence must agree with validated packument for pending and existing paths', async t => {
+  const { f, r, run } = await setup(t), entry = f.artifact.packages[0];
+  r.packages.get(entry.name).versions.push(entry.version);
+  await assert.rejects(run({ publish: true }), /Inconsistent registry version presence/);
+  r.installed(entry, 'latest'); r.packages.get(entry.name).versions = []; r.packages.get(entry.name)['dist-tags'] = {};
+  await assert.rejects(run({ publish: true }), /Inconsistent registry version presence/);
+  assert.equal(r.calls.filter(call => call[0] === 'publish').length, 0);
+});
+for (const group of ['mcp', 'material']) {
+  test(`${group}-only minor publishes selected archives with immutable older-source registry closure on npm 11.17`, async t => {
+    const f = await packedFixture(t, { selection: { groups: [group] }, beforePack(fixture) {
+      for (const entry of fixture.specification.packages.filter(item => item.group === group)) fixture.mutate(entry.path, manifest => {
+        manifest.version = '1.2.0';
+        if (entry.name === '@xtend-material/maraca-tailwind') manifest.dependencies['@xtend-material/core'] = '1.2.0';
+      });
+    } });
+    const r = registryFixture(f.artifact);
+    for (const entry of f.artifact.registryDependencies) r.installed(entry, 'latest');
+    const coreTags = Object.fromEntries(f.artifact.registryDependencies.map(entry => [entry.name, structuredClone(r.packages.get(entry.name)['dist-tags'])]));
+    const ledger = await publishRelease({ artifact: f.artifact, ...r, ledgerFile: f.ledgerFile, publish: true });
+    assert.equal(ledger.status, 'complete'); assert.equal(f.artifact.inventory.packages.length, 10);
+    assert.equal(f.artifact.packages.length, group === 'mcp' ? 1 : 2);
+    assert.deepEqual(r.calls.filter(call => call[0] === 'publish').map(call => call[1]), f.artifact.order);
+    assert.ok(ledger.registryDependencies.every(entry => entry.sourceSha === 'b'.repeat(40) && entry.sourceSha !== f.artifact.sourceSha && entry.state === 'verified-existing'));
+    assert.deepEqual(Object.fromEntries(f.artifact.registryDependencies.map(entry => [entry.name, r.packages.get(entry.name)['dist-tags']])), coreTags);
+    assert.equal(r.calls.filter(call => call[0] === 'tag').length, 0);
+  });
+}
+for (const problem of ['absent', 'integrity', 'source', 'repository', 'metadata', 'packument']) {
+  test(`registry dependency ${problem} blocks every selected upload`, async t => {
+    const f = await packedFixture(t, { selection: { groups: ['mcp'] } }), r = registryFixture(f.artifact);
+    for (const entry of f.artifact.registryDependencies) r.installed(entry, 'latest');
+    const entry = f.artifact.registryDependencies[0], value = r.versions.get(entry.name);
+    if (problem === 'absent') r.versions.delete(entry.name);
+    if (problem === 'integrity') value.dist.integrity = 'wrong';
+    if (problem === 'source') value.provenanceStatements[0].predicate.buildDefinition.resolvedDependencies[0].digest.gitCommit = f.artifact.sourceSha;
+    if (problem === 'repository') value.repository.url = 'https://evilgithub.com/konnilabs/xtend';
+    if (problem === 'metadata') value.dependencies = { '@ccslabs/xtend-cli': '0.9.0' };
+    if (problem === 'packument') r.packages.delete(entry.name);
+    await assert.rejects(publishRelease({ artifact: f.artifact, ...r, ledgerFile: f.ledgerFile, publish: true }));
+    assert.equal(r.calls.filter(call => call[0] === 'publish').length, 0);
+  });
+}
+test('required registry dependency is reverified after preflight and before selected upload', async t => {
+  const f = await packedFixture(t, { selection: { groups: ['material'] } }), r = registryFixture(f.artifact);
+  const entry = f.artifact.registryDependencies[0]; r.installed(entry, 'latest');
+  const original = r.registry.version; let count = 0;
+  r.registry.version = async value => value.name === entry.name && ++count === 2 ? null : original(value);
+  await assert.rejects(publishRelease({ artifact: f.artifact, ...r, ledgerFile: f.ledgerFile, publish: true }), /Required registry dependency absent/);
+  assert.equal(r.calls.filter(call => call[0] === 'publish').length, 0);
+});
+test('MCP-only partial release resumes from the same selected artifact and original dependency identities', async t => {
+  const f = await packedFixture(t, { selection: { groups: ['mcp'] } }), r = registryFixture(f.artifact);
+  for (const entry of f.artifact.registryDependencies) r.installed(entry, 'latest');
+  const original = r.publisher.publish;
+  r.publisher.publish = async () => { throw Error('permission'); };
+  await assert.rejects(publishRelease({ artifact: f.artifact, ...r, ledgerFile: f.ledgerFile, publish: true }));
+  r.publisher.publish = original;
+  assert.equal((await publishRelease({ artifact: f.artifact, ...r, ledgerFile: f.ledgerFile, publish: true })).status, 'complete');
+  assert.equal(r.calls.filter(call => call[0] === 'publish').length, 1);
 });

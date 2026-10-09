@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const { fixture, write, repo } = require('./fixtures.cjs');
 const { loadInventory, edges, orderPackages } = require('../../scripts/release/inventory.cjs');
+const { selectRelease } = require('../../scripts/release/selection.cjs');
 test('real inventory covers all ten packages and preserves seven/one/two groups and versions', () => {
   const result = loadInventory(repo);
   assert.equal(result.packages.length, 10);
@@ -57,4 +58,26 @@ test('future 1.x minor versions are handled by SemVer without updating release c
   const packages = [{ name: 'a', version: '1.7.0', manifest: {} }, { name: 'b', version: '1.3.0', manifest: { dependencies: { a: '^1.0.0' } } }];
   assert.equal(edges(packages)[0].hard, true); assert.deepEqual(orderPackages(packages).map(p => p.name), ['a', 'b']);
   packages[0].version = '2.0.0'; assert.throws(() => edges(packages), /Unsatisfied/);
+});
+test('group selection retains complete inventory but computes required-only transitive closure', () => {
+  const inventory = loadInventory(repo);
+  const mcp = selectRelease(inventory, { groups: ['mcp'] });
+  assert.deepEqual(mcp.order, ['@ccslabs/xtend-mcp']);
+  assert.deepEqual(mcp.registryDependencyNames, ['@ccslabs/xtend-rmt', '@ccslabs/xtend-compiler', '@ccslabs/xtend-maraca']);
+  const material = selectRelease(inventory, { groups: ['material'] });
+  assert.deepEqual(material.order, ['@xtend-material/core', '@xtend-material/maraca-tailwind']);
+  assert.deepEqual(material.registryDependencyNames, ['@ccslabs/xtend-maraca']);
+  assert.equal(inventory.packages.length, 10);
+  const tailwind = selectRelease(inventory, { packages: ['@xtend-material/maraca-tailwind'] });
+  assert.deepEqual(tailwind.registryDependencyNames, ['@ccslabs/xtend-maraca', '@xtend-material/core']);
+  const combined = selectRelease(inventory, { groups: ['core', 'mcp'] });
+  assert.equal(combined.order.length, 8); assert.deepEqual(combined.registryDependencyNames, []);
+});
+test('release selection rejects empty, unknown, duplicate, private and out-of-inventory requests', () => {
+  const inventory = loadInventory(repo);
+  for (const selection of [{}, { groups: ['missing'] }, { groups: ['mcp', 'mcp'] },
+    { packages: ['@xtend-products/store'] }, { packages: ['@ccslabs/xtend-mcp', '@ccslabs/xtend-mcp'] }, { unknown: [] },
+    { groups: null, packages: ['@ccslabs/xtend-mcp'] }, { groups: '', packages: ['@ccslabs/xtend-mcp'] }]) {
+    assert.throws(() => selectRelease(inventory, selection));
+  }
 });

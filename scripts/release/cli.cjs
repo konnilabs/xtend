@@ -5,6 +5,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { parseArgs } = require('node:util');
 const { check, loadInventory } = require('./inventory.cjs');
+const { selectRelease } = require('./selection.cjs');
 const { verifyArtifact } = require('./artifact.cjs');
 const { publishRelease } = require('./publish.cjs');
 const { npmAdapters, runNpm } = require('./npm.cjs');
@@ -20,6 +21,7 @@ async function main(args = process.argv.slice(2)) {
   const { values, positionals } = parseArgs({ args, allowPositionals: true, strict: true, options: {
     artifact: { type: 'string' }, 'manifest-integrity': { type: 'string' }, 'source-sha': { type: 'string' },
     'npm-cli': { type: 'string' }, ledger: { type: 'string' }, 'prerelease-tag': { type: 'string', default: 'next' },
+    groups: { type: 'string' }, packages: { type: 'string' },
     execute: { type: 'boolean', default: false }, promote: { type: 'boolean', default: false },
     'dist-tags-authorized': { type: 'boolean', default: false }
   } });
@@ -27,12 +29,15 @@ async function main(args = process.argv.slice(2)) {
   check(positionals.length <= 1 && ['inventory', 'verify', 'preflight', 'publish'].includes(command), 'Commands: inventory, verify, preflight, publish');
   check(!values.execute || command === 'publish', '--execute only applies to publish');
   check(!values.promote || values.execute, '--promote requires --execute');
+  const selection = values.groups !== undefined || values.packages !== undefined
+    ? { groups: values.groups?.split(',') || [], packages: values.packages?.split(',') || [] } : undefined;
   if (command === 'inventory') {
     const inventory = loadInventory(rootDir);
-    console.log(JSON.stringify({ ...inventory, packages: inventory.packages.map(({ manifest, ...entry }) => entry) }, null, 2)); return;
+    console.log(JSON.stringify({ ...inventory, releaseScope: selectRelease(inventory, selection),
+      packages: inventory.packages.map(({ manifest, ...entry }) => entry) }, null, 2)); return;
   }
   const artifact = await verifyArtifact({ directory: values.artifact, manifestIntegrity: values['manifest-integrity'],
-    sourceSha: values['source-sha'], rootDir });
+    sourceSha: values['source-sha'], rootDir, selection });
   const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: rootDir, encoding: 'utf8' }).trim();
   check(head === artifact.sourceSha, 'Checkout must match immutable artifact source SHA');
   if (command === 'verify') { console.log(JSON.stringify({ ok: true, sourceSha: head, tarballSetIntegrity: artifact.tarballSetIntegrity })); return; }

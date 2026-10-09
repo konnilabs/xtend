@@ -68,3 +68,45 @@ test('real clean consumer installs all ten miniature tarballs offline, imports t
   assert.equal(report.ok, true); assert.equal(report.runtimeImports, true); assert.equal(report.packages.length, 10);
   assert.ok(report.packages.every(entry => entry.types && entry.files));
 });
+for (const group of ['mcp', 'material']) {
+  test(`partial ${group} artifact binds selection and older-source registry closure without Core tarballs`, async t => {
+    const f = await packedFixture(t, { selection: { groups: [group] } });
+    assert.equal(f.artifact.packages.length, group === 'mcp' ? 1 : 2);
+    assert.ok(f.artifact.registryDependencies.every(entry => entry.sourceSha !== f.sourceSha));
+    assert.equal((await f.verify({ selection: { groups: [group] } })).inventory.packages.length, 10);
+    await assert.rejects(f.verify({ selection: { groups: ['core'] } }), /selection differs/);
+    assert.equal((await runConsumers({ artifact: f.artifact, rootDir: f.rootDir })).registryDependencies.length, group === 'mcp' ? 3 : 1);
+  });
+}
+for (const problem of ['missing', 'extra', 'duplicate', 'version', 'integrity', 'source', 'canary', 'selection']) {
+  test(`partial artifact rejects registry closure ${problem}`, async t => {
+    const f = await packedFixture(t, { selection: { groups: ['mcp'] } });
+    const deps = f.manifest.registryDependencies;
+    if (problem === 'missing') deps.pop();
+    if (problem === 'extra') deps.push({ name: '@ccslabs/xtend-cli' });
+    if (problem === 'duplicate') deps[1] = deps[0];
+    if (problem === 'version') deps[0].version = '2.0.0';
+    if (problem === 'integrity') deps[0].integrity = 'bad';
+    if (problem === 'source') deps[0].sourceSha = 'short';
+    if (problem === 'selection') f.manifest.selection.packages.push('@ccslabs/xtend-cli');
+    if (problem === 'canary') {
+      f.canary.registryDependencies.pop(); write(path.join(f.artifactDir, 'canary.json'), f.canary);
+      f.manifest.canary.integrity = digest(fs.readFileSync(path.join(f.artifactDir, 'canary.json')));
+    }
+    f.reseal(); await assert.rejects(f.verify());
+  });
+}
+test('Material-only build/canary need no unrelated MCP evidence; MCP-only still requires it', async t => {
+  for (const group of ['material', 'mcp']) {
+    const f = await packedFixture(t, { selection: { groups: [group] } });
+    const build = JSON.parse(fs.readFileSync(path.join(f.artifactDir, 'build.json')));
+    build.mcpKnowledgeGenerated = false; build.mcpKnowledgeChecked = false;
+    write(path.join(f.artifactDir, 'build.json'), build);
+    f.manifest.buildEvidence.integrity = digest(fs.readFileSync(path.join(f.artifactDir, 'build.json')));
+    f.canary.mcpKnowledgeGenerated = false; f.canary.mcpKnowledgeChecked = false;
+    write(path.join(f.artifactDir, 'canary.json'), f.canary);
+    f.manifest.canary.integrity = digest(fs.readFileSync(path.join(f.artifactDir, 'canary.json'))); f.reseal();
+    if (group === 'material') assert.equal((await f.verify()).packages.length, 2);
+    else await assert.rejects(f.verify(), /MCP knowledge/);
+  }
+});
