@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { performance } = require('perf_hooks');
 const root = path.resolve(__dirname, '../../..');
-const source = fs.readFileSync(path.join(root,'products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt'),'utf8');
+const source = fs.readFileSync(path.join(root,'tools/rmt-language/fixtures/kernel-orchestration-contract.rmt'),'utf8');
 const io = {};
 for (const name of ['readFileSync','statSync','readdirSync','realpathSync','existsSync']) {
  const original=fs[name];

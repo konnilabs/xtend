@@ -10,7 +10,7 @@ String.prototype.replaceAll = undefined;
 const { executeToolingBridgeOperation } = require('../../../tools/tooling-bridge');
 
 async function main() {
-  const source = fs.readFileSync(path.join(rootDir, 'products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt'), 'utf8');
+  const source = fs.readFileSync(path.join(rootDir, 'tools/rmt-language/fixtures/kernel-orchestration-contract.rmt'), 'utf8');
   const filePath = 'docs/rmt-playground-source.rmt';
   const request = (operation, payload) => executeToolingBridgeOperation({
     operation, requestId: 'legacy-node-smoke', payload: { source, filePath, ...payload }

@@ -1,0 +1,23 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os');
+const {execFileSync,spawnSync}=require('node:child_process');
+const root=path.resolve(__dirname,'../..');
+function git(cwd,args){return execFileSync('git',args,{cwd,encoding:'utf8'}).trim();}
+function commit(cwd){git(cwd,['init','-q']);git(cwd,['add','.']);git(cwd,['-c','user.name=Fixture','-c','user.email=fixture@example.test','commit','-qm','test fixture']);return git(cwd,['rev-parse','HEAD']);}
+for(const mode of ['invalid','missing','stale','verification-throw'])test(`whole canary exits nonzero when runner exits zero with ${mode} evidence`,{timeout:60000},t=>{
+ const temporary=fs.mkdtempSync(path.join(os.tmpdir(),'canary-orchestration-'));t.after(()=>fs.rmSync(temporary,{recursive:true,force:true}));
+ const core=path.join(temporary,'core'),demo=path.join(temporary,'demo');fs.mkdirSync(path.join(core,'scripts'),{recursive:true});fs.mkdirSync(path.join(demo,'scripts'),{recursive:true});
+ for(const file of ['candidate-integrity.cjs','scripts/product-candidate-canary.cjs','scripts/product-candidate-evidence.cjs'])fs.copyFileSync(path.join(root,file),path.join(core,file));
+ fs.writeFileSync(path.join(core,'package.json'),JSON.stringify({name:'@fixture/core',version:'0.9.0',workspaces:[],files:['candidate-integrity.cjs']}));
+ fs.writeFileSync(path.join(core,'scripts/build_laravel_package.js'),`const fs=require('node:fs'),path=require('node:path'),{digest}=require('../candidate-integrity.cjs');exports.buildLaravelPackage=({output})=>{const archive=output+'.tar';fs.writeFileSync(archive,'php fixture');return {archive,sha256:digest(Buffer.from('php fixture')),files:{'runtime.php':digest(Buffer.from('runtime'))}}};`);
+ commit(core);
+ fs.writeFileSync(path.join(demo,'scripts/install-candidates.cjs'),`const fs=require('node:fs'),path=require('node:path'),{createHash}=require('node:crypto');const manifest=JSON.parse(fs.readFileSync(path.join(process.argv[2],'manifest.json')));const products=['.','products/maraca-app-services-test-bench','products/resumability-maraca-erp-demo','products/rmt-animation-testbench','products/rmt-maraca-kernel-orchestration','products/xtend-llm','products/xtend-material-workbench','products/xtend-shop'];const results=products.map(product=>{fs.mkdirSync(product,{recursive:true});const p=manifest.packages[0];const bytes=Buffer.from(JSON.stringify({packages:{'node_modules/@fixture/core':{version:p.version,resolved:'file:.candidate/'+p.file,integrity:p.integrity}}}));fs.writeFileSync(path.join(product,'package-lock.json'),bytes);return {product,status:'passed',lockSha256:createHash('sha256').update(bytes).digest('hex')}});console.log(JSON.stringify({results}));`);
+ fs.writeFileSync(path.join(demo,'scripts/prepare-product-runtime.cjs'),"console.log(JSON.stringify({ok:true,fixture:true}));");
+ const required=require('../../scripts/product-candidate-evidence.cjs').required;
+ fs.writeFileSync(path.join(demo,'scripts/run-product-gates.cjs'),`const fs=require('node:fs'),path=require('node:path');const filename=process.argv[process.argv.indexOf('--report')+1];fs.writeFileSync(path.join(path.dirname(filename),'runner-exited-zero'),'0');const mode=${JSON.stringify(mode)};if(mode!=='missing'){const commands=${JSON.stringify(required)}.map(id=>({id,status:'passed',exitCode:0,skips:[]}));fs.mkdirSync('.xtend-test-results/suites',{recursive:true});for(const c of commands)fs.writeFileSync('.xtend-test-results/suites/'+c.id+'.json',JSON.stringify({schema:'xtend.product-suite-result.v1',coreSha:process.env.XTEND_CORE_SHA,demoSha:process.env.XTEND_DEMO_SHA,...c}));if(mode==='verification-throw')commands[0].skips=['missing runtime'];fs.writeFileSync(filename,JSON.stringify({schema:'xtend.product-execution.v1',coreSha:process.env.XTEND_CORE_SHA,demoSha:process.env.XTEND_DEMO_SHA,ok:mode!=='invalid',status:'passed',generatedAt:mode==='stale'?'2000-01-01T00:00:00Z':new Date().toISOString(),commands}));}`);
+ const demoSha=commit(demo),output=path.join(temporary,'candidates');
+ const result=spawnSync(process.execPath,['scripts/product-candidate-canary.cjs','--demo-repository',demo,'--demo-sha',demoSha,'--out',output],{cwd:core,encoding:'utf8',timeout:55000});
+ assert.equal(fs.readFileSync(path.join(output,'runner-exited-zero'),'utf8'),'0',result.stderr);
+ assert.equal(result.status,1,result.stdout+'\n'+result.stderr);
+ const evidence=JSON.parse(fs.readFileSync(path.join(core,'.xtend-test-results/product-candidate.json')));assert.equal(evidence.ok,false);assert.equal(evidence.status,'failed');assert.ok(evidence.error);
+});

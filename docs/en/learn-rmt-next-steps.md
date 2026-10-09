@@ -14,7 +14,7 @@ Open the [RMT Playground](./learn-rmt-playground.md), add a second surface and g
 
 ## Production Path
 
-When your practice document contains state, actions, validation or surface transitions, continue it as a Maraca app. Start with [XTend Maraca](./xtend-maraca.md), then check [Maraca Orchestration](./xtend-maraca-orchestration.md) and compare your document with `products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt`. The decisive local check is the strict build, because it proves public app orchestration rather than only the parser path.
+When your practice document contains state, actions, validation or surface transitions, continue it as a Maraca app. Start with [XTend Maraca](./xtend-maraca.md), then check [Maraca Orchestration](./xtend-maraca-orchestration.md) and compare your document with `tools/rmt-language/fixtures/kernel-orchestration-contract.rmt`. The decisive local check is the strict build, because it proves public app orchestration rather than only the parser path.
 
 ## Local completion check
 

@@ -30,7 +30,11 @@ function buildLaravelPackage(options = {}) {
   timestamps(output);
   const archive = `${output}.tar`;
   if (fs.existsSync(archive)) throw new Error(`Archive output already exists: ${archive}`);
-  execFileSync(options.php || process.env.XTEND_PHP_BINARY || 'php', ['-r', '$archive = new PharData($argv[1]); $archive->buildFromDirectory($argv[2]);', archive, output], { stdio: 'pipe', timeout: 30000 });
+  if (options.archiveTool === 'tar') {
+    execFileSync('tar', ['--sort=name', '--mtime=@315532800', '--owner=0', '--group=0', '--numeric-owner', '-cf', archive, '-C', output, '.'], {stdio:'pipe', timeout:30000});
+  } else {
+    execFileSync(options.php || process.env.XTEND_PHP_BINARY || 'php', ['-r', '$archive = new PharData($argv[1]); $archive->buildFromDirectory($argv[2]);', archive, output], { stdio: 'pipe', timeout: 30000 });
+  }
   return { directory: output, archive, sha256: createHash('sha256').update(fs.readFileSync(archive)).digest('hex'), files };
 }
 if (require.main === module) console.log(JSON.stringify(buildLaravelPackage({ output: process.argv[2] }), null, 2));

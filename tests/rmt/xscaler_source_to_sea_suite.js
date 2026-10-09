@@ -41,9 +41,6 @@ const REMOTE_MANIFEST_FIXTURE = 'tests/rmt-language/fixtures/vnext-remote-manife
 const ENTERPRISE_REGISTRY_FIXTURE = 'tests/rmt-language/fixtures/vnext-enterprise-registry-fixture.json';
 const DEGRADATION_FIXTURE = 'tests/rmt-language/fixtures/vnext-degradation-policy-fixture.json';
 const REMOTE_SECURITY_FIXTURE = 'tests/rmt-language/fixtures/vnext-remote-security-policy-fixture.json';
-const TESTBENCH_SHARED = 'products/rmt-animation-testbench/src/shared/testbench-data.mjs';
-const TESTBENCH_SERVER = 'products/rmt-animation-testbench/server/index.mjs';
-const TESTBENCH_CLIENT = 'products/rmt-animation-testbench/src/client/testbench-controller.mjs';
 
 function createSourceToSeaInput(rootDir) {
   const remoteManifestInput = readJson(REMOTE_MANIFEST_FIXTURE, rootDir);
@@ -130,18 +127,6 @@ function validateAtcHandoff(context, input, preflightEvidence) {
   context.assert(canonicalAtc.sessionId === handoff.atc.sessionId, 'Canonical ATC handoff preserves XSurface session id');
 }
 
-function validateTestbenchEvidence(context, rootDir) {
-  const shared = readText(TESTBENCH_SHARED, rootDir);
-  const server = readText(TESTBENCH_SERVER, rootDir);
-  const client = readText(TESTBENCH_CLIENT, rootDir);
-
-  context.assert(shared.includes(XSCALER_PREFLIGHT_RESPONSE_SCHEMA), 'Testbench shared data uses canonical preflight response schema');
-  context.assert(shared.includes(XSCALER_ATC_HANDOFF_SCHEMA), 'Testbench shared data uses canonical ATC handoff schema');
-  context.assert(shared.includes('accepted: true') && shared.includes('ok: true'), 'Testbench preflight keeps accepted/ok compatibility');
-  context.assert(server.includes('/api/xscaler/preflight'), 'Testbench server exposes XScaler preflight endpoint');
-  context.assert(server.includes('/api/lazy-surface/'), 'Testbench server exposes lazy-surface endpoint');
-  context.assert(client.includes('/api/xscaler/preflight') && client.includes('/api/lazy-surface/'), 'Testbench client gates lazy surface loading through preflight');
-}
 
 function runXScalerSourceToSeaSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
@@ -152,12 +137,10 @@ function runXScalerSourceToSeaSuite(options = {}) {
   const input = createSourceToSeaInput(rootDir);
   const preflightEvidence = validateRemoteManifestToPreflight(context, input);
   validateAtcHandoff(context, input, preflightEvidence);
-  validateTestbenchEvidence(context, rootDir);
 
   return context.result({
     schema: XSCALER_SOURCE_TO_SEA_SCHEMA,
-    remoteManifest: REMOTE_MANIFEST_FIXTURE,
-    testbench: TESTBENCH_SHARED
+    remoteManifest: REMOTE_MANIFEST_FIXTURE
   });
 }
 

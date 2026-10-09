@@ -57,21 +57,20 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(!verifyLockSbom({ lock: sbomLock, sbom: { ...completeSbom, components: completeSbom.components.map(c => ({ ...c, version: '1.32.0' })) } }).ok, 'SBOM cannot conflate incompatible parent/platform versions');
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-lock-metadata-regression-'));
   try {
-    const paths = ['package.json', 'package-lock.json', ...packageManifest.workspaces.map(directory => `${directory}/package.json`), ...['products/xtend-llm','products/resumability-maraca-erp-demo'].flatMap(directory => [`${directory}/package.json`, `${directory}/package-lock.json`])];
+    const paths = ['package.json', 'package-lock.json', ...packageManifest.workspaces.map(directory => `${directory}/package.json`)];
     for (const relative of paths) {
       const target=path.join(fixture,relative);fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(path.join(rootDir,relative),target);
     }
-    const rootFile=path.join(fixture,'package-lock.json'),llmFile=path.join(fixture,'products/xtend-llm/package-lock.json');
-    const originalRoot=JSON.parse(fs.readFileSync(rootFile)),originalLlm=JSON.parse(fs.readFileSync(llmFile));
-    const changedRoot=structuredClone(originalRoot),changedLlm=structuredClone(originalLlm);
+    const rootFile=path.join(fixture,'package-lock.json');
+    const originalRoot=JSON.parse(fs.readFileSync(rootFile));
+    const changedRoot=structuredClone(originalRoot);
     changedRoot.packages['products/xtend-mcp'].dependencies['@modelcontextprotocol/client']='^2.2.0';
-    changedLlm.packages['../xtend-mcp'].dependencies['@modelcontextprotocol/client']='2.0.0';
-    fs.writeFileSync(rootFile,JSON.stringify(changedRoot,null,2)+'\n');fs.writeFileSync(llmFile,JSON.stringify(changedLlm,null,2)+'\n');
+    fs.writeFileSync(rootFile,JSON.stringify(changedRoot,null,2)+'\n');
     const drift=verifyCiDependencyLocks({rootDir:fixture});
-    context.assert(!drift.ok && drift.errors.some(error=>error.includes('products/xtend-mcp')) && drift.errors.some(error=>error.includes('products/xtend-llm')), 'Both root and embedded product metadata drift are rejected');
+    context.assert(!drift.ok && drift.errors.some(error=>error.includes('products/xtend-mcp')), 'Core workspace metadata drift is rejected');
     const repaired=syncCiDependencyLockMetadata({rootDir:fixture});
-    context.assert(repaired.ok && repaired.changes.length===2, 'Metadata synchronization repairs exactly the two reviewed records');
-    context.assert(isDeepStrictEqual(originalRoot,JSON.parse(fs.readFileSync(rootFile))) && isDeepStrictEqual(originalLlm,JSON.parse(fs.readFileSync(llmFile))), 'Synchronization leaves every locked resolution, integrity and unrelated record unchanged');
+    context.assert(repaired.ok && repaired.changes.length===1, 'Metadata synchronization repairs exactly the reviewed Core record');
+    context.assert(isDeepStrictEqual(originalRoot,JSON.parse(fs.readFileSync(rootFile))), 'Synchronization leaves every locked resolution, integrity and unrelated record unchanged');
     const bytes=fs.readFileSync(rootFile);
     context.assert(syncCiDependencyLockMetadata({rootDir:fixture}).changes.length===0 && bytes.equals(fs.readFileSync(rootFile)), 'Metadata synchronization is idempotent');
     changedRoot.packages['products/xtend-mcp'].version='0.0.0';fs.writeFileSync(rootFile,JSON.stringify(changedRoot));
@@ -90,8 +89,6 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assertIncludes(versionSyncSource, 'xtend.release.package-version-sync-report.v1', 'Version sync helper declares stable report schema');
   context.assertIncludes(versionSyncSource, 'syncWorkspaceDependencyVersions', 'Version sync helper covers internal dependencies of every root workspace');
   context.assertIncludes(dependencyLockSource, 'peerDependenciesMeta', 'CI dependency lock verifier compares linked package peer metadata');
-  context.assertIncludes(dependencyLockSource, 'products/xtend-llm', 'CI dependency lock verifier covers xtend-llm');
-  context.assertIncludes(dependencyLockSource, 'products/resumability-maraca-erp-demo', 'CI dependency lock verifier covers the resumability ERP demo');
   context.assert(SUPPLY_CHAIN_GATE_PLAN_CONTRACT === 'xtend.security.supply-chain-gate-plan.v1', 'Exports supply-chain plan contract');
   context.assert(DEPENDENCY_AUDIT_GATE_CONTRACT === 'xtend.security.dependency-audit-gate.v1', 'Exports dependency audit contract');
   context.assert(LICENSE_POLICY_CONTRACT === 'xtend.security.license-policy.v1', 'Exports license policy contract');
@@ -168,8 +165,8 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(report.checks.length >= 10, 'Verify script performs multiple supply-chain checks');
   context.assert(dependencyLockReport.schema === CI_DEPENDENCY_LOCK_REPORT_SCHEMA, 'CI dependency lock verifier returns its stable report schema');
   context.assert(dependencyLockReport.ok === true, 'CI dependency locks align with all local file dependencies');
-  context.assert(dependencyLockReport.products.length === 3 && dependencyLockReport.products[0].productPath === '.', 'CI dependency lock verifier covers the workspace and both standalone product installs');
-  context.assert(dependencyLockReport.products.reduce((sum, product) => sum + product.fileDependencies, 0) === 18, 'CI dependency lock verifier checks nine workspace links and nine product references');
+  context.assert(dependencyLockReport.products.length === 1 && dependencyLockReport.products[0].productPath === '.', 'CI dependency lock verifier covers the retained Core workspace install');
+  context.assert(dependencyLockReport.products.reduce((sum, product) => sum + product.fileDependencies, 0) === 9, 'CI dependency lock verifier checks all nine retained workspace links');
 
   return context.result({
     plan,

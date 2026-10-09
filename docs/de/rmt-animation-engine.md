@@ -1,5 +1,6 @@
 # RMT AnimationEngine
 
+
 Die RMT AnimationEngine beschreibt UI-Übergänge zusammen mit den Surfaces und Actions, die sie auslösen. Effekte, Dauer, Easing, Unterbrechungsverhalten und barrierearme Fallbacks werden dadurch bereits beim Build geprüft, statt erst in verteiltem Browsercode sichtbar zu werden.
 
 ## Voraussetzungen

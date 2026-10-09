@@ -26,9 +26,6 @@ const NODE_MANIFESTS = [
   'xtend-maraca-css-tailwind/package.json',
   'xtend-material/package.json',
   'xtendrmt/package.json',
-  'products/rmt-animation-testbench/package.json',
-  'products/xtend-material-workbench/package.json',
-  'products/xtend-llm/package.json'
 ];
 
 const GENERATED_MANIFEST_TEMPLATES = [
@@ -44,7 +41,6 @@ const NORMATIVE_NODE_SUPPORT_DOCS = [
   'xtend-builder/README.md',
   'xtend-maraca/README.md',
   'xtendrmt/README.md',
-  'products/xtend-llm/README.md',
   'docs/de/xtend-dev-surface.md',
   'docs/en/xtend-dev-surface.md',
   'docs/de/xtend-material.md',
@@ -157,12 +153,7 @@ function validateLockfiles(context, rootDir) {
     const record = rootLock.packages && rootLock.packages[workspacePath];
     context.assert(record && record.engines && record.engines.node === PUBLIC_ENGINE, `root lock record ${workspacePath || '.'} mirrors Node >=24`);
   });
-  const llmLock = readJson('products/xtend-llm/package-lock.json', rootDir);
-  context.assert(
-    llmLock.packages && llmLock.packages[''] && llmLock.packages[''].engines
-      && llmLock.packages[''].engines.node === PUBLIC_ENGINE,
-    'XTend LLM lock root mirrors its Node >=24 host contract'
-  );
+
 }
 
 function validateDocs(context, rootDir) {

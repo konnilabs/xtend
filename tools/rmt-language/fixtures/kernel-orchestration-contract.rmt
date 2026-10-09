@@ -1,0 +1,29 @@
+// Canonical deterministic kernel contract; full customer-service application lives in xtend-demos.
+template contract.kernel {
+  state contract.status type object preserve {
+    initial {
+      id "kernel-status"
+      text "Ready"
+      tone "neutral"
+    }
+  }
+  selector contract.status from state contract.status {
+    output KernelStatus
+  }
+  datasource contract.host from host "kernel-contract" {
+    method POST
+    contract KernelPatch
+    result state
+  }
+  action contract.refresh {
+    effect fetch datasource contract.host
+    reduce state.contract.status = result.status
+    emit contract.refreshed
+  }
+  surface contract.status kind card component x-status {
+    source selector contract.status
+    lane visible weight 90 {
+      hydrate kernel-status from selector contract.status
+    }
+  }
+}

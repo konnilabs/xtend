@@ -60,7 +60,7 @@ const REQUIRED_DEEP_DIVE_TOKENS = Object.freeze([
   'xtend-maraca:validation-blocked',
   'xtend-maraca:surface-transition-start',
   'xt-ui-effects="none"',
-  'products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt',
+  'tools/rmt-language/fixtures/kernel-orchestration-contract.rmt',
   'innerHTML',
   'durationMs',
   'target action',
@@ -158,7 +158,7 @@ function runDocContentChecks(context, rootDir) {
   assertIncludesAll(context, deSyntax.concat('\n', enSyntax).concat('\n', deNextSteps, '\n', enNextSteps), [
     './xtend-maraca-orchestration.md',
     'xt maraca build',
-    'products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt'
+    'tools/rmt-language/fixtures/kernel-orchestration-contract.rmt'
   ], 'Learn RMT production path');
 }
 

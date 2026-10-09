@@ -60,13 +60,11 @@ function printDocsStubInventoryGateReport(result) {
 }
 
 module.exports = {
+"product-migration-contracts": () => toRunnerResult("product-migration-contracts", "Product boundary", load("../tests/migration/product_boundary_suite").runProductBoundarySuite({rootDir})),
+"product-candidate-evidence": () => toRunnerResult("product-candidate-evidence", "Required Demo evidence", load("../tests/migration/product_boundary_suite").runCandidateEvidenceSuite({rootDir})),
 "xtensions-runtime": () => toRunnerResult("xtensions-runtime", "Actual XTensions jsdom acceptance", load("../tests/xtensions/xtensions_runtime_gate_suite")["runXTensionsRuntimeGate"]({ rootDir })),
 "xtensions-runtime-browser": () => toRunnerResult("xtensions-runtime-browser", "Actual XTensions Chromium acceptance", load("../tests/xtensions/xtensions_runtime_gate_suite")["runXTensionsRuntimeGate"]({ rootDir, browser: true })),
 "xtensions-consumer-package": async () => toRunnerResult("xtensions-consumer-package", "Packed XTensions consumers", await load("../tests/xtensions/xtensions_consumer_package_suite")["runXTensionsConsumerPackageSuite"]({ rootDir })),
-"xtend-shop-contracts": async () => toRunnerResult("xtend-shop-contracts", "XTend.store contracts", await load("../tests/products/xtend_shop_suite").runXtendShopSuite({ rootDir, group: "contracts" })),
-"xtend-shop-php": async () => toRunnerResult("xtend-shop-php", "XTend.store php", await load("../tests/products/xtend_shop_suite").runXtendShopSuite({ rootDir, group: "php" })),
-"xtend-shop-browser": async () => toRunnerResult("xtend-shop-browser", "XTend.store browser", await load("../tests/products/xtend_shop_suite").runXtendShopSuite({ rootDir, group: "browser" })),
-
 "project-index": () => {
       const result = load("../tests/rmt-language/project_index_suite")["runProjectIndexSuite"]({ rootDir });
       load("../tests/rmt-language/project_index_suite")["printProjectIndexReport"](result);
@@ -1030,16 +1028,6 @@ module.exports = {
       load("../tests/maraca/maraca_node_app_host_suite")["printMaracaNodeAppHostReport"](result);
       return toRunnerResult('maraca-node-app-host', 'XTend Maraca Node App Host', result);
     },
-"xtend-llm-app-services-catfood": () => {
-      const result = load("../tests/products/xtend_llm_app_services_catfood_suite")["runXtendLlmAppServicesCatfoodSuite"]({ rootDir });
-      load("../tests/products/xtend_llm_app_services_catfood_suite")["printXtendLlmAppServicesCatfoodReport"](result);
-      return toRunnerResult('xtend-llm-app-services-catfood', 'XTend LLM AppServices Catfood', result);
-    },
-"maraca-app-services-test-bench": async () => {
-      const result = await load("../tests/products/maraca_app_services_test_bench_suite")["runMaracaAppServicesTestBenchSuite"]({ rootDir });
-      load("../tests/products/maraca_app_services_test_bench_suite")["printMaracaAppServicesTestBenchReport"](result);
-      return toRunnerResult('maraca-app-services-test-bench', 'Maraca App Services Test Bench', result);
-    },
 "maraca-app-services-build": async () => {
       const result = await load("../tests/maraca/maraca_app_services_build_suite")["runMaracaAppServicesBuildSuite"]({ rootDir });
       load("../tests/maraca/maraca_app_services_build_suite")["printMaracaAppServicesBuildReport"](result);
@@ -1239,16 +1227,6 @@ module.exports = {
       const result = await load("../tests/performance/xtend_material_performance_suite")["runXtendMaterialPerformanceSuite"]({ rootDir });
       load("../tests/performance/xtend_material_performance_suite")["printXtendMaterialPerformanceReport"](result);
       return toRunnerResult('xtend-material-performance', 'XTM-11 XTend Material Quality and Anti-Monkeypatching', result);
-    },
-"xtend-material-catfooding": async () => {
-      const result = await load("../tests/products/xtend_material_catfooding_suite")["runXtendMaterialCatfoodingSuite"]({ rootDir });
-      load("../tests/products/xtend_material_catfooding_suite")["printXtendMaterialCatfoodingReport"](result);
-      return toRunnerResult('xtend-material-catfooding', 'XTM-12 XTend Material Catfooding Workbench', result);
-    },
-"erp-resumability-catfood": async () => {
-      const result = await load("../tests/products/erp_resumability_catfooding_suite")["runErpResumabilityCatfoodingSuite"]({ rootDir });
-      load("../tests/products/erp_resumability_catfooding_suite")["printErpResumabilityCatfoodingReport"](result);
-      return toRunnerResult('erp-resumability-catfood', 'RMT ERP Resumability Catfooding', result);
     },
 "xtend-material-cli-generated-app": async () => {
       const result = await load('../tests/products/xtend_material_cli_generated_app_suite')['runXtendMaterialCliGeneratedAppSuite']({ rootDir });
