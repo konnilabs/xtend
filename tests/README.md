@@ -1,5 +1,14 @@
 # XTend Test Suite
 
+The `release-safety` suite is included in PR/release/publish aggregates and runs
+all `tests/release/*.test.cjs`, including canonical candidate adapter, independent
+MCP/Material scopes, immutable artifact transfer, Sigstore-verifier rejection,
+registry retry safety and trusted-workflow checks. `test:product-boundary`
+retains the separate reviewed migration tests. Actual product consumers use the
+same once-packed candidate bytes on both Node pins; baseline reds and pending
+schema governance remain blocking. See
+`development/XTend-Scoped-Npm-Release-Runbook.md` for artifact resume and limits.
+
 This directory contains the staged test-suite structure introduced in Epic 02.
 
 ## Local Entry Points

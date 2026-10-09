@@ -1,0 +1,73 @@
+# Local release integration provenance
+
+No push, Draft-PR, publication, trust change, merge or deployment is authorized
+by this checkpoint. Independent source review precedes push/Draft-PR. Schema
+governance remains pending and every red gate stays blocking.
+
+## Verified normal remote refs
+
+| Repository / branch | Explicitly reviewed source |
+| --- | --- |
+| konnilabs/xtend / feat/product-demos-extraction | C7 cce3faf8c283af7f0732231aafc74ee9f18560d7 |
+| same branch, first narrow successor | b9fac305bba5fa57e8f9b37a1fe65bc94c8ff269 |
+| same branch, installed FPM discovery successor | 74730ec0898b52c7d82769e1eb785e52f02cb4ab |
+| konnilabs/xtend-demos / feat/product-demos-migration | D3 f6c2d9097a70449d3dd2420aaf8881304a79a512 |
+| same branch, first CI successor | 586eb6ca060b6fd612bb114c24235b992a52b635 |
+| same branch, installed FPM / actual Illuminate closure | 646d4a4e89e51af82bea145c2a0030bb5fefcd25 |
+
+All full SHAs were checked against fetched normal branch refs before use. Demos
+has a separate own clone, checked out at its exact SHA; no migration worktree is
+shared or edited. The integration owns a separate worktree and branch
+`feat/scoped-npm-release-integration` starting at C7.
+
+## Local replay, with unchanged original commits
+
+| Approved original | Local cherry-pick with -x |
+| --- | --- |
+| a8db5c10f4262bb70d5a8bca5fdf79043bcdf3d8 | b5ce82145ffffd7e7953207274c863623631265f |
+| 6f7cec618a9de22f5f7df079e8186c42c89a9a3f | 3a82eeb34bcb436e1a12ef0ac844a382838c09ba |
+| dd6bdc369745f81f6e17d3d1694d3948096c2e26 | d60454696379e5613af24f10a479133adf6f3ef3 |
+| b9fac305bba5fa57e8f9b37a1fe65bc94c8ff269 | cd7e8aa865e9f8fc2c48a0628bbd6479dc51f4ca |
+| 74730ec0898b52c7d82769e1eb785e52f02cb4ab | ebea6ff94d16e486b6b90d96831000daead3d5f2 |
+
+The first replay conflicted only in package scripts, test catalog and handler
+registration. Resolution retained every C7 migration script/handler/suite and
+added the release scripts/handler/suite; it did not restore removed private
+product workspaces. Both test sets remain present. Later release replays applied
+without conflict and retain the prior Core/MCP/Material version policy.
+
+Before the FPM successor, only the own in-progress default workflow was saved
+locally. Its exact source was retained in the review scratch export. The narrow
+successor was committed first, then the release workflow was reapplied and both
+FPM provisioning blocks were routed through its canonical
+`scripts/provision_product_fpm.cjs`. The old publisher's redundant product build
+is removed; new preparation uses the same reviewed FPM detector. No competing
+FPM detector, Composer pin, MCP generator or Demo workflow was introduced.
+
+## Canonical API and historical evidence
+
+`scripts/product-candidate-canary.cjs#packCandidates` is unchanged from C7;
+function-source SHA-256:
+`c9b1a8a0a78112de934a67bfcc62d45f7de80be3ad016f605593e3d1ccdbfa45`.
+Only CLI orchestration gains an authenticated existing-candidate branch. The
+release adapter verifies `xtend.product-candidates.v1`, original package bytes,
+both source identities, all dependency fields, all ten inventory entries and
+selected release/registry closure. The canonical public consumer APIs remain
+`verifyCandidates`, `selectCandidateClosure`, `verifyInstalledClosure` and
+`verifyResolution`; the reviewed Demo installer uses them per application.
+
+The old product pin's `implementationCoreSha` is historical C6, and the prior
+full C6/D3 candidate evidence was red. Updating the current `demoSha` does not
+rewrite that history or assert acceptance. New artifacts use actual integration
+HEAD as `coreSha/sourceSha` and current committed Demo SHA as `demoSha`.
+`mergeBlocked: true` and pending schema governance remain unchanged.
+
+## Evidence limits
+
+Local fixture publish tests use an in-memory registry and cannot publish npm.
+Node/npm pins are 24.18.0 and 26.5.0 with npm 11.17.0. Report every baseline,
+integration, tarball, product and hosted check with its real source/runtime.
+Focused green tests are not full aggregate or product acceptance. The complete
+review export records running and not-yet-run checks separately. Longer runs may
+finish after the immutable source checkpoint; append a separate evidence export,
+never amend its source or relabel earlier results.

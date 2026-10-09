@@ -1,11 +1,12 @@
 'use strict';
 const path = require('node:path');
+const fs = require('node:fs');
 const { spawnSync } = require('node:child_process');
 const { createSuiteContext } = require('../utils/assertions');
 function runReleaseSafetySuite({ rootDir }) {
   const context = createSuiteContext({ id: 'release-safety', label: 'Scoped npm release safety' });
-  const result = spawnSync(process.execPath, ['--test', '--test-isolation=none', '--test-reporter=tap', path.join(rootDir, 'tests/release/inventory.test.cjs'),
-    path.join(rootDir, 'tests/release/artifact.test.cjs'), path.join(rootDir, 'tests/release/publish.test.cjs')],
+  const result = spawnSync(process.execPath, ['--test', '--test-isolation=none', '--test-reporter=tap',
+    ...fs.readdirSync(path.join(rootDir, 'tests/release')).filter(name => name.endsWith('.test.cjs')).sort().map(name => path.join(rootDir, 'tests/release', name))],
     { cwd: rootDir, encoding: 'utf8', timeout: 240000, maxBuffer: 8 * 1024 * 1024 });
   console.log(result.stdout || '');
   context.assert(!result.error && result.status === 0, result.error?.message || result.stderr || 'Release security and regression tests pass');

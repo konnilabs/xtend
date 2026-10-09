@@ -1,10 +1,14 @@
 # Scoped npm releases: independent review checkpoint
 
-Status: scripts, tests and contract only; workflow integration and activation are
-deferred until an explicitly reviewed safe demo-migration checkpoint. Basis:
-`31d8c01f92538b55e57e741ed4e71a4e4a6604b5`. No package versions change here.
-The unreviewed migration commit `58269f399d7e2f7a4f5c524ab7723a99f11aa37f`
-is neither a source base nor reviewed release evidence.
+Status: local integration review; no merge or publication approval. The reviewed
+C7 base is `cce3faf8c283af7f0732231aafc74ee9f18560d7`, followed by explicitly
+reviewed Core fixes `b9fac305bba5fa57e8f9b37a1fe65bc94c8ff269` and
+`74730ec0898b52c7d82769e1eb785e52f02cb4ab`. The committed Demo dependency is
+`646d4a4e89e51af82bea145c2a0030bb5fefcd25`. The three approved release commits
+are replayed with `cherry-pick -x`; their original hashes remain unchanged.
+No package versions change. Schema governance remains pending; known baseline
+failures remain blocking. Historical C6/D3 red evidence is not acceptance of any
+new source. New reports bind the actual integration HEAD and committed Demo SHA.
 
 ## Inventory and version policy
 
@@ -58,7 +62,7 @@ resume. Their dist-tags are never changed by this release.
 Exclude the private products `@xtend-products/store`,
 `@ccslabs/rmt-animation-testbench-product`, `@ccslabs/xtend-material-workbench`,
 `@ccslabs/xtend-llm-product`, other private products and the separate VSIX.
-The existing publisher omits Fabric, CLI, Shard and both Material packages.
+The replaced five-package publisher omitted Fabric, CLI, Shard and both Material packages.
 
 The stable topological order currently is RMT, Fabric, Root, Compiler, Maraca,
 CLI, Shard, Material core, Material Tailwind, MCP. Hard internal edges come from
@@ -89,8 +93,9 @@ ambiguous errors stop the train. Absent package names require a reviewed
 ownership/bootstrap plan. Existing identical name/version/SHA-512 is reverified
 and skipped; conflicting integrity stops the entire preflight. Existing
 provenance must bind the archive's source and subject. Needed registry dependencies
-instead bind their pinned original source. Cryptographic verification remains a
-required deferred gate for both.
+instead bind their pinned original source. The production adapter cryptographically verifies both with npm 11.17’s bundled
+Sigstore verifier and TUF-authenticated roots, including transparency and
+certificate identity for the exact trusted workflow on main.
 
 Reject an unpublished stable version below either `latest` or any higher stable
 registry version. Recheck immediately before each upload and retry. A timeout
@@ -100,10 +105,10 @@ bounded retry of the **same archive bytes**. A successful command followed by
 404 stops for uncertain visibility rather than uploading again blindly.
 
 Postpublish checks exact name/version/integrity, the explicit tag and the registry
-provenance statement's tarball subject and source commit. Sigstore signature and
-certificate verification must still be connected to the existing gated release
-evidence before activation; a parsed statement alone is not cryptographic proof.
-The CLI keeps actual execution closed until this integration is reviewed.
+provenance statement's tarball subject and source commit. The production registry adapter verifies the DSSE signature, certificate chain,
+issuer, trusted main-workflow identity and transparency evidence before exposing
+any provenance statement. No malformed/unverified fallback is accepted. Test-only
+registry mocks do not constitute real npm/OIDC publication evidence.
 
 The local always-on JSON ledger records `published`, `verified-existing`,
 `failed`, `pending`, channel-tag state, source SHA and the reviewed manifest hash.
@@ -125,9 +130,9 @@ tags always stop further uploads. Only a missing/older channel tag on an otherwi
 valid, consistent packument can produce repair status.
 
 A filesystem lock excludes concurrent local trains using the same ledger
-directory. Later GitHub integration must serialize **all release refs** in one
-repository-wide concurrency group with `cancel-in-progress: false`, while
-preserving current CI cancellation behavior for nonrelease runs. Registry tag
+directory. The workflow serializes every publish dispatch in one repository-wide group
+`xtend-npm-publish-global`; publish runs are never cancelled by newer releases.
+PR cancellation behavior is preserved for other CI groups. Registry tag
 updates have no compare-and-swap transaction: the direct path's monotonicity
 also requires all publishers to participate in this serialization. An unrelated
 external/manual publisher racing between the last lookup and upload can defeat
@@ -141,17 +146,34 @@ separately allowed dist-tag permission. The npm-11.17 standard path runs no
 An npm upgrade, trust permission or staged-mode activation requires its own
 review; none is changed here.
 
-## Contract with the migration packer (not integrated)
+## Reviewed migration packer and adapter
 
-Do not implement another packer. The migration's current, **unreviewed** candidate
-shape is `xtend.product-candidates.v1`, `coreSha`/`demoSha`, packages with
-`name`, `version`, `file`, `integrity`, `sha256` and dependency metadata. No part
-of that shape is accepted as reviewed evidence yet. After the safe checkpoint,
-review its actual schema, packaging implementation and consumer evidence; add a
-small adapter if necessary. Preserve the original candidate manifest and both
-source identities. Determine explicitly which reviewed commit is the canonical
-package source; do not silently map `demoSha` to `coreSha` or accept an arbitrary
-unreviewed migration commit.
+`pipeline.cjs` calls the original C7 `packCandidates()` function unchanged.
+Its canonical source SHA-256 is
+`c9b1a8a0a78112de934a67bfcc62d45f7de80be3ad016f605593e3d1ccdbfa45`.
+There is one production npm packer: it packs a `git archive` snapshot and derives
+PHP/Laravel packaging from the same SHA. The wrapper's isolated build regenerates
+components, RMT ESM entrypoints, sanitizer and MCP knowledge once, checks knowledge,
+and rejects any change to committed generated bytes. Commit reviewed regeneration
+first; dirty or stale generated artifacts never become publish candidates.
+
+The original `xtend.product-candidates.v1` manifest stays intact with `coreSha`,
+`demoSha`, all ten archive names/versions/SHA-512/SHA-256 and dependency metadata.
+The release adapter inspects the actual archives, adds compressed sizes and full
+file inventories, and binds that original manifest and all ten byte identities.
+The migration consumer tests use this entire candidate bundle; publication uses
+only the selected Core/MCP/Material group. Unselected required registry dependencies
+are pinned to their real previously published identity/integrity/provenance SHA.
+Fresh unselected archives are candidate evidence, never replacements for those
+registry identities and never uploaded by a partial release.
+
+Both Node lanes consume the same prepared archive bytes. The original reviewed
+Demo installer uses `selectCandidateClosure()` per app, then validates dependency
+metadata and package locks after install, clean ci, and offline ci. The existing
+17 required product commands, reports, PHP/browser/FPM/Electron checks and eight
+installation locks remain mandatory. Missing or red product evidence blocks seal.
+The wrapper adds the actually verified Node/npm lane identity without changing
+original package hashes or claiming synthetic success.
 
 The release consumer requires a versioned envelope `xtend.release.artifact.v1`:
 
@@ -166,14 +188,17 @@ registryDependencies: unselected hard closure [{ name, version, group,
                       integrity, sourceSha: original dependency build SHA }]
 buildEvidence: { file, integrity }
 canary: { file, integrity }
+candidateBinding: { file, integrity, demoSha, allPackages: ten original byte identities }
+productEvidence: [{ node: pinned consumer lane, file, integrity }]
+preparedAt / sealedAt: actual producer timestamps
 ```
 
 `integrity` is SHA-512 SRI of the actual bytes. `size` is the compressed archive
 size for packages and the regular file size for file inventory entries. Archive
 inspection reads `.tgz` directly without extracting it and checks every file,
 export target, wildcard, bin and declaration target, source package metadata,
-duplicate/unsafe paths, links and archive limits. Retain and verify the candidate
-`sha256` in the later adapter as well; a manifest's integrity declaration alone
+duplicate/unsafe paths, links and archive limits. The adapter retains and verifies candidate
+`sha256` as well; a manifest's integrity declaration alone
 is not evidence that its actual tarball was read.
 
 The build report `xtend.release.build.v1` binds source/toolchain and successful
@@ -182,7 +207,7 @@ explicit `build:xtend-mcp-knowledge` generation plus
 packing**. The consumer never relies on publish lifecycle hooks for this work.
 MCP generation/check is required when MCP is selected. A Material-only release
 does not invent MCP build evidence for an unrelated package.
-The packer owns building once and packing once.
+The wrapper owns the isolated build once; the canonical packer owns packing once.
 
 Consumer evidence `xtend.release.canary.v1` binds source/toolchain and
 `tarballSetIntegrity` (canonical sorted-key SHA-512 of source, toolchain, edges,
@@ -198,10 +223,9 @@ preflight-verified against their pinned original provenance and metadata. Their
 installed lockfile version, SHA-512 and public-registry URL must match; npm checks
 downloaded bytes against the SRI. Evidence retains their original source identities
 and records successful installation. Runtime/type checks cover selected packages
-and their hard closure. Unrelated inventory packages need no archive in a partial
-release. Actual product tarball canaries
-remain to be run against the reviewed packer outputs, including browser-specific
-semantics and MCP knowledge parity. Fixture tests do not substitute for those.
+and their hard closure. The selected release consumer does not publish unrelated inventory packages.
+All ten original candidates remain present and verified for the migration’s full
+product canaries. Fixture tests do not substitute for actual consumer runs.
 
 Generate the canary from a preliminary externally hashed manifest with bound
 build evidence; `requireCanary: false` is available only to this consumer stage.
@@ -211,36 +235,61 @@ The final manifest's expected SHA-512 must come from independently reviewed
 immutable CI artifact metadata, not be recalculated from an arbitrary local file
 and accepted automatically. Hashes provide integrity, not review authorization.
 
-## Commands and future workflow activation
+## Workflow, defaults and immutable resume
 
-Defaults are read-only/dry-run with only local evidence writes:
+Inventory, artifact verification, preflight, publish and pipeline commands default
+to read-only/dry-run. `pipeline.cjs prepare|consumers|seal|download --execute`
+explicitly generates or verifies artifacts; none publishes npm packages.
+`cli.cjs publish --execute` requires all of: dispatch input `publish_to_npm=true`,
+repository `konnilabs/xtend`, main ref, unchanged trusted entry point
+`.github/workflows/xtend-default-gates.yml`, `npm-publish` environment, actual
+OIDC availability, successful current prerequisite results, matching source HEAD,
+verified immutable artifact and complete original producer gate receipt.
+
+The workflow performs prepare → both pinned product consumer lanes → seal →
+publish. The existing seven prerequisite jobs, product candidate job, publish
+aggregate, MCP report, export/pack dry-run evidence and nondeferred Audit/SBOM are
+retained. Their failures keep publish closed. `release-safety` is added to the
+aggregate profiles. The separate publish cache restore is removed. The publish
+job neither builds nor packs, even for resume; it downloads the exact sealed
+artifact ID and checks the GitHub archive SHA-256 before safe extraction, then
+rechecks manifest SHA-512, all ten original archive hashes and selected file hashes.
+
+Dispatch fields `release_groups` and `release_packages` select the scope, empty
+means all ten. For MCP-only use `release_groups=mcp`; Material-only uses
+`release_groups=material`. The selection is frozen into the artifact. On resume
+supply the original `resume_artifact_id`; never narrow or regenerate its scope.
+An explicit selection must match it. Download validates producer repository,
+main branch, dispatch event, workflow ID/path, source SHA and expiration. Restore
+requires the same source SHA as the workflow run. After main advances, rerun the
+original failed run at its original SHA; a new dispatch at another SHA is refused.
+Artifact retention/expiration limits recovery, so archive original sealed bytes
+and metadata before expiration; do not rebuild an attempted version.
+
+Resume reruns current prerequisite/product checks against the original bytes;
+fresh acceptance is recorded separately. It preserves the original release
+manifest, producer timestamps and artifact ID. It does not manufacture fresh old
+reports. The original reports are checked as of their real sealing time, with
+current gates required separately. The result ledger always re-queries registry
+state and skips only cryptographically verified identical versions. Download or
+setup failure also leaves a workflow attempt ledger; both ledgers upload with
+`always()`.
 
 ```bash
-npm run release:inventory
-npm run test:release-safety
+npm run release:inventory -- --groups=mcp
 npm run test:release-safety:unit
-npm run release:artifact:verify -- --artifact PATH --manifest-integrity SRI --source-sha SHA
-npm run release:preflight -- --artifact PATH --manifest-integrity SRI --source-sha SHA
-npm run release:publish -- --artifact PATH --manifest-integrity SRI --source-sha SHA
-npm run release:canary -- --artifact PATH --manifest-integrity PRELIMINARY_SRI --source-sha SHA
+node scripts/release/pipeline.cjs prepare --artifact NEW_DIRECTORY
+npm run release:preflight -- --artifact SEALED_DIRECTORY --manifest-integrity SRI --source-sha SHA
+npm run release:publish -- --artifact SEALED_DIRECTORY --manifest-integrity SRI --source-sha SHA
 ```
 
-`release:canary -- --execute --output NEW_FILE ...` explicitly installs/executes
-consumers; it never publishes. Use the pinned toolchain via npm or `--npm-cli`.
-`release:publish -- --execute` requires the exact workflow identity and explicit
-`publish_to_npm=true` input, but activation is deliberately closed at this
-checkpoint. Environment booleans are not sufficient proof of completed gates.
-The reviewed activation must verify the real gate evidence and immutable artifact
-identity, retain manual input default **false**, add local release-safety tests to
-the proper gate profiles, and upload ledgers/evidence with **always()**.
-
-Preserve every existing publish gate: full-release, RMT vNext / Native-First
-RMT-Owned, package structure, conditional network Audit/SBOM without deferral,
-native toolchain, MCP/VSIX smoke, Laravel, dependency lock alignment, publish
-aggregate and existing MCP/export/pack evidence. Run all applicable existing
-Node 24/26 lanes. Replace duplicate build/pack publication steps only after the
-shared packer and evidence are reviewed. Remove the separate publish-cache
-restore at that later integration checkpoint, not in this change.
+First publication of an absent name requires an independently approved bootstrap
+plan committed in `scripts/release/bootstrap-plan.json`: exact package name,
+`ownershipVerified: true`, `directPublishAllowed: true`, and `approvedPlan` pointing
+to concrete maintainer-approved evidence. The default list is empty and grants
+nothing. Review both npm scopes and permissions before filling it. The artifact
+freezes only the selected approved bootstrap names. This configuration does not
+create trust or credentials.
 
 ## One-time npm trust per package and first releases
 
@@ -295,12 +344,15 @@ version-specific script edits. Preleases use `next`; a later stable version is
 published directly with `latest`. There is no implicit tag promotion in this
 normal release sequence.
 
-## Explicitly outstanding at this checkpoint
+## Review and operational limits
 
-Reviewed migration schema/adapter and SHA mapping; actual ten-package product
-tarball consumers; full artifact-bound existing gate evidence; cryptographic
-Sigstore verification; always-on CI ledger upload; global noncancelling release
-concurrency; deferred publish-cache cleanup; final workflow activation and first
-scope/name ownership/bootstrap review. Push/Draft-PR require independent review
-of this local checkpoint first. npm publication, Git tag push, trust changes,
-credential/proxy/security changes, merge and deployment are outside this task.
+Schema governance remains pending, aggregate and product baseline failures must
+be fixed through their own reviewed work, and real hosted OIDC publication is not
+proven by local tests. Every current gate must pass before any future publication.
+Record executed, failed, unavailable and running checks with their exact source
+SHAs; never claim a fixture or older report proves a new integration commit.
+
+Push/Draft-PR require independent review of the immutable local checkpoint first.
+This task performs no npm publication, release tag push, trust creation, credential,
+proxy or security configuration change, merge or deployment. First scope/name
+ownership/bootstrap approval remains an operational prerequisite.

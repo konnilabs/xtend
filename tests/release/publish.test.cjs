@@ -24,11 +24,13 @@ test('missing input, fork, wrong workflow and wrong environment cannot activate 
   const good = { XTEND_RELEASE_PUBLISH: 'true', GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY: 'konnilabs/xtend',
     GITHUB_WORKFLOW_REF: 'konnilabs/xtend/.github/workflows/xtend-default-gates.yml@refs/heads/main',
     XTEND_RELEASE_ENVIRONMENT: 'npm-publish', ACTIONS_ID_TOKEN_REQUEST_URL: 'set', ACTIONS_ID_TOKEN_REQUEST_TOKEN: 'set',
-    XTEND_RELEASE_GATES_VERIFIED: 'true' };
+    GITHUB_REF: 'refs/heads/main', GITHUB_EVENT_NAME: 'workflow_dispatch',
+    XTEND_RELEASE_NEEDS: JSON.stringify(Object.fromEntries([...require('../../scripts/release/github.cjs').gates, 'release-seal'].map(name => [name, { result: 'success' }]))) };
   assertPublishInput(good);
   for (const [key, value] of [['XTEND_RELEASE_PUBLISH', 'false'], ['GITHUB_REPOSITORY', 'fork/xtend'],
     ['GITHUB_WORKFLOW_REF', 'konnilabs/xtend/.github/workflows/other.yml@refs/heads/main'],
-    ['XTEND_RELEASE_ENVIRONMENT', 'other'], ['XTEND_RELEASE_GATES_VERIFIED', 'false']]) assert.throws(() => assertPublishInput({ ...good, [key]: value }));
+    ['XTEND_RELEASE_ENVIRONMENT', 'other'], ['GITHUB_REF', 'refs/tags/v1.0.0'], ['GITHUB_EVENT_NAME', 'push'],
+    ['XTEND_RELEASE_NEEDS', '{}']]) assert.throws(() => assertPublishInput({ ...good, [key]: value }));
 });
 test('only structured definitive 404 means absent; network/auth/rate-limit/server/malformed errors stop', () => {
   assert.equal(parseRegistryResult({ status: 1, stdout: JSON.stringify({ error: { code: 'E404', summary: '404 Not Found - GET https://registry.npmjs.org/example' } }) }), null);

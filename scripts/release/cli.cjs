@@ -9,13 +9,16 @@ const { selectRelease } = require('./selection.cjs');
 const { verifyArtifact } = require('./artifact.cjs');
 const { publishRelease } = require('./publish.cjs');
 const { npmAdapters, runNpm } = require('./npm.cjs');
+const { verifyCandidateBinding } = require('./candidates.cjs');
+const { verifyNeeds } = require('./github.cjs');
 function assertPublishInput(env) {
   check(env.XTEND_RELEASE_PUBLISH === 'true', 'Actual publish requires explicit workflow input publish_to_npm=true');
   check(env.GITHUB_ACTIONS === 'true' && env.GITHUB_REPOSITORY === 'konnilabs/xtend' &&
-    /^konnilabs\/xtend\/\.github\/workflows\/xtend-default-gates\.yml@refs\/(heads\/main|tags\/[^\s]+)$/.test(env.GITHUB_WORKFLOW_REF || '') &&
+    env.GITHUB_WORKFLOW_REF === 'konnilabs/xtend/.github/workflows/xtend-default-gates.yml@refs/heads/main' &&
+    env.GITHUB_REF === 'refs/heads/main' && env.GITHUB_EVENT_NAME === 'workflow_dispatch' &&
     env.XTEND_RELEASE_ENVIRONMENT === 'npm-publish' && env.ACTIONS_ID_TOKEN_REQUEST_URL && env.ACTIONS_ID_TOKEN_REQUEST_TOKEN,
     'Publish requires the existing trusted workflow identity and npm-publish environment');
-  check(env.XTEND_RELEASE_GATES_VERIFIED === 'true', 'All existing release gates must have verified evidence for this source/artifact');
+  verifyNeeds(JSON.parse(env.XTEND_RELEASE_NEEDS || '{}'), { sealed: true });
 }
 async function main(args = process.argv.slice(2)) {
   const { values, positionals } = parseArgs({ args, allowPositionals: true, strict: true, options: {
@@ -29,6 +32,7 @@ async function main(args = process.argv.slice(2)) {
   check(positionals.length <= 1 && ['inventory', 'verify', 'preflight', 'publish'].includes(command), 'Commands: inventory, verify, preflight, publish');
   check(!values.execute || command === 'publish', '--execute only applies to publish');
   check(!values.promote || values.execute, '--promote requires --execute');
+  check(!values.promote && !values['dist-tags-authorized'], 'Optional dist-tag promotion is not the integrated default; a separately reviewed capability is required');
   const selection = values.groups !== undefined || values.packages !== undefined
     ? { groups: values.groups?.split(',') || [], packages: values.packages?.split(',') || [] } : undefined;
   if (command === 'inventory') {
@@ -44,9 +48,12 @@ async function main(args = process.argv.slice(2)) {
   if (values.execute) {
     assertPublishInput(process.env);
     check(execFileSync('git', ['status', '--porcelain'], { cwd: rootDir, encoding: 'utf8' }).trim() === '', 'Publish requires clean source checkout');
-    // Activation stays closed until reviewed integration can verify complete gate
-    // evidence and Sigstore authenticity, rather than accepting environment flags.
-    throw Error('Workflow activation deferred: reviewed migration checkpoint and gate/Sigstore integration required');
+    check(process.env.GITHUB_SHA === artifact.sourceSha, 'Publish run source must match immutable artifact');
+    await verifyCandidateBinding(artifact, { directory: values.artifact, rootDir, requireProductEvidence: true });
+    const receipt = JSON.parse(fs.readFileSync(path.join(values.artifact, 'gate-receipt.json')));
+    check(receipt.manifestIntegrity === artifact.manifestIntegrity && receipt.sourceSha === artifact.sourceSha &&
+      receipt.repository === 'konnilabs/xtend' && receipt.workflow === '.github/workflows/xtend-default-gates.yml', 'Immutable gate receipt mismatch');
+    verifyNeeds(receipt.needs);
   }
   const npmCli = values['npm-cli'] || process.env.npm_execpath;
   const actual = await runNpm(npmCli, ['--version'], rootDir);
@@ -55,7 +62,8 @@ async function main(args = process.argv.slice(2)) {
   const adapters = npmAdapters({ npmCli, cwd: rootDir });
   const ledger = await publishRelease({ artifact, ...adapters,
     ledgerFile: path.resolve(values.ledger || path.join(rootDir, '.xtend-test-results/npm-release-ledger.json')),
-    prereleaseTag: values['prerelease-tag'] });
+    prereleaseTag: values['prerelease-tag'], publish: values.execute,
+    bootstrapPackages: artifact.manifest.bootstrapPackages || [] });
   console.log(JSON.stringify(ledger, null, 2));
 }
 if (require.main === module) main().catch(error => { console.error(error.message); process.exitCode = 1; });

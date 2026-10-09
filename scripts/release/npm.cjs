@@ -6,6 +6,7 @@ const { execFile } = require('node:child_process');
 const { promisify } = require('node:util');
 const { check } = require('./inventory.cjs');
 const { digest } = require('./artifact.cjs');
+const { verifyStatements } = require('./provenance.cjs');
 const execute = promisify(execFile);
 const REGISTRY = 'https://registry.npmjs.org';
 async function runNpm(npmCli, args, cwd, timeout = 120000) {
@@ -51,22 +52,17 @@ async function readRegistry(url) {
       expectedVersion: segments.length === 2 ? decodeURIComponent(segments[1]) : undefined });
   } catch (error) { throw Error(`Registry lookup failed: ${error.message.includes('Registry HTTP') ? error.message : 'absence is unproven'}`); }
 }
-async function provenanceStatements(url) {
+async function provenanceStatements(url, options) {
   check(typeof url === 'string' && url.startsWith(`${REGISTRY}/-/npm/v1/attestations/`), 'Unexpected registry attestation URL');
   // curl follows the inherited managed proxy and CA settings. No direct fetch,
   // alternate endpoint, redirects, credentials, or TLS bypass is introduced.
   const { stdout } = await execute('curl', ['--fail', '--silent', '--show-error', '--max-time', '30', '--', url],
     { timeout: 35000, maxBuffer: 16 * 1024 * 1024, env: process.env });
   const response = JSON.parse(stdout);
-  check(Array.isArray(response.attestations), 'Invalid registry attestation response');
-  return response.attestations.map(item => {
-    const payload = item.bundle?.dsseEnvelope?.payload;
-    check(typeof payload === 'string', 'Attestation statement missing');
-    return JSON.parse(Buffer.from(payload, 'base64').toString('utf8'));
-  });
+  return verifyStatements(response, options);
 }
 function npmAdapters({ npmCli, cwd, request = args => runNpm(npmCli, args, cwd), registryRequest = readRegistry,
-  attestations = provenanceStatements, publishCommand = runNpm }) {
+  attestations = url => provenanceStatements(url, { npmCli }), publishCommand = runNpm }) {
   const registry = {
     async package(entry) {
       const result = await registryRequest(`${REGISTRY}/${encodeURIComponent(entry.name)}`);

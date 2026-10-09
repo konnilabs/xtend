@@ -64,8 +64,8 @@ function sourceRepository(uri) {
 function assertProvenance(entry, result, sourceSha) {
   check(result.dist?.attestations?.url && result.dist?.attestations?.provenance?.predicateType,
     `Provenance metadata missing: ${entry.name}`);
-  // The adapter retrieves the registry attestation; source and subject are checked
-  // here. Cryptographic Sigstore verification is a separate integration gate.
+  // The production adapter verifies the Sigstore bundle with npm's verifier
+  // before exposing these statements. Here source and tarball subject are bound.
   const statements = result.provenanceStatements;
   check(Array.isArray(statements) && statements.some(statement => {
     const subject = statement.subject?.some(item => item.digest?.sha512 === Buffer.from(entry.integrity.slice(7), 'base64').toString('hex'));

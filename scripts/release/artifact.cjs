@@ -67,6 +67,7 @@ function checkEntrypoints(manifest, files) {
 function releaseSetIntegrity(manifest) {
   return objectDigest({ sourceSha: manifest.sourceSha, toolchain: manifest.toolchain, edges: manifest.edges,
     selection: manifest.selection, registryDependencies: manifest.registryDependencies,
+    ...(manifest.candidateBinding ? { candidateBinding: manifest.candidateBinding } : {}),
     packages: manifest.packages.map(({ name, version, group, file, size, integrity }) => ({ name, version, group, file, size, integrity })) });
 }
 async function verifyArtifact({ directory, manifestIntegrity, sourceSha, rootDir, requireCanary = true, selection: requestedSelection }) {

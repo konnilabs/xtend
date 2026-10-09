@@ -10,10 +10,25 @@ on:
   workflow_dispatch:
     inputs:
       publish_to_npm:
-        description: 'Publish @ccslabs/xtend to npm with the latest dist-tag after all release gates pass.'
+        description: 'Publish selected exact verified tarballs with latest (stable) or next (prerelease), after all gates pass.'
         required: false
         default: false
         type: boolean
+      release_groups:
+        description: 'Comma-separated groups core,mcp,material; empty selects all.'
+        required: false
+        default: ''
+        type: string
+      release_packages:
+        description: 'Additional exact public package names.'
+        required: false
+        default: ''
+        type: string
+      resume_artifact_id:
+        description: 'Immutable xtend-release-sealed artifact ID from the SAME source SHA; empty prepares once.'
+        required: false
+        default: ''
+        type: string
       run_source_to_sea:
         description: 'Run the optional RMT vNext Source-to-Sea browser evidence job.'
         required: false
@@ -24,7 +39,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: xtend-ci-gates-${{ github.ref }}
+  group: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_to_npm && 'xtend-npm-publish-global' || format('xtend-ci-gates-{0}', github.ref) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -996,6 +1011,8 @@ jobs:
     if: >-
       ${{ !cancelled() &&
           github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true &&
+          github.repository == 'konnilabs/xtend' && github.ref == 'refs/heads/main' &&
+          needs['release-seal'].result == 'success' &&
           needs['full-release-gates'].result == 'success' &&
           needs['rmt-vnext-primitive-gates'].result == 'success' &&
           needs['package-structure'].result == 'success' &&
@@ -1013,158 +1030,79 @@ jobs:
       - xtend-mcp-vscode-smoke
       - laravel-release-gates
       - product-candidate-canary
-    runs-on: ubuntu-latest
+      - release-seal
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     permissions:
       contents: read
+      actions: read
       id-token: write
     environment: npm-publish
-
     steps:
-      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - name: Initialize always-on release attempt ledger
         env:
-          update: true
-          use_package_cache: false
-        with:
-          php-version: 8.4
-          extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
-          tools: composer:2.10.3
-      - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-      - name: Configure npm download cache
-        run: node scripts/configure_npm_cache.js
-
-      - name: Restore npm downloads
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ runner.temp }}/xtend-npm-cache
-          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
-
-      - name: Setup Node.js 24.18.0 for npm
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+          RELEASE_ARTIFACT_ID: ${{ needs.release-seal.outputs.artifactId }}
+        run: node scripts/release/attempt.cjs init --execute
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: '24.18.0'
           package-manager-cache: false
           registry-url: https://registry.npmjs.org
           scope: '@ccslabs'
-
       - name: Pin npm 11.17.0
         working-directory: ${{ runner.temp }}
         run: npm install --global npm@11.17.0 --no-audit --fund=false
-
       - name: Capture and validate Node runtime evidence
         run: node scripts/capture_node_runtime_evidence.js --lane node-24-publish
-
       - name: Enable Node warning and deprecation policy
         run: node scripts/enable_node_warning_policy.js --lane node-24-publish
-
-      - name: Print runtime versions
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: |
-          node --version
-          npm --version
-
       - name: Validate CI dependency lock alignment
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run ci:dependency-locks:check
-
-      - name: Install workspace links for release evidence
+      - name: Install verifier dependencies without lifecycle scripts
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        id: install_1
         run: npm ci --ignore-scripts --no-audit --fund=false
-
-      - name: Provision required product display and browser tooling
+      - name: Download and recheck exact immutable release artifact
+        id: artifact
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y xvfb xauth unzip
-          node scripts/provision_product_fpm.cjs 8.4
-          node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
-      - name: Require matching pinned Demo candidate acceptance
-        id: product_candidate
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_ARTIFACT_ID: ${{ needs.release-seal.outputs.artifactId }}
+        run: node scripts/release/pipeline.cjs download --execute --artifact .xtend-test-results/npm-release --artifact-id "$RELEASE_ARTIFACT_ID"
+      - name: Publish exact verified tarballs sequentially with registry rechecks
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: |
-          node scripts/product-candidate-canary.cjs
-          node scripts/product-candidate-evidence.cjs .xtend-test-results/product-candidate.json
-
-      - name: Re-run blocking release evidence
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-          XTEND_CONDITIONAL_NETWORK_EXECUTE: "1"
-          XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL: "0"
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
-        run: |
-          npm run native-first:evidence:prepare
-          npm run test:ci-publish
-          npm run test:xtend-mcp:report
-          npm run pack:dry-run
-          npm run conditional-network:evidence
-
-      - name: Final npm publish dry run
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: |
-          npm publish --dry-run --workspace @ccslabs/xtend-rmt --tag latest --access public
-          npm publish --dry-run --workspace @ccslabs/xtend-compiler --tag latest --access public
-          npm publish --dry-run --workspace @ccslabs/xtend-maraca --tag latest --access public
-          npm publish --dry-run --workspace @ccslabs/xtend-mcp --tag latest --access public
-          npm publish --dry-run --tag latest --access public
-
-      # Trusted Publishing uses this job's OIDC identity for each package; no npm token.
-      - name: Publish XTend MCP runtime dependency train
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: |
-          npm publish --access public --provenance --workspace @ccslabs/xtend-rmt --tag latest
-          npm publish --access public --provenance --workspace @ccslabs/xtend-compiler --tag latest
-          npm publish --access public --provenance --workspace @ccslabs/xtend-maraca --tag latest
-
-      - name: Publish root package to npm latest
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm publish --access public --provenance --tag latest
-
-      - name: Publish XTend MCP 0.1 to npm latest
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm publish --access public --provenance --workspace @ccslabs/xtend-mcp --tag latest
-
-      - name: Upload npm publish evidence
+          XTEND_RELEASE_PUBLISH: ${{ inputs.publish_to_npm }}
+          XTEND_RELEASE_ENVIRONMENT: npm-publish
+          XTEND_RELEASE_NEEDS: ${{ toJSON(needs) }}
+          MANIFEST_INTEGRITY: ${{ steps.artifact.outputs.manifestIntegrity }}
+        run: >-
+          node scripts/release/cli.cjs publish --execute
+          --artifact .xtend-test-results/npm-release
+          --manifest-integrity "$MANIFEST_INTEGRITY" --source-sha "$GITHUB_SHA"
+          --ledger .xtend-test-results/npm-release-ledger.json
+      - name: Finalize always-on attempt ledger
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        env:
+          JOB_STATUS: ${{ job.status }}
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/release/attempt.cjs finish --execute --outcome "$JOB_STATUS"
+      - name: Preserve release result ledger after success or failure
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: xtend-npm-publish-latest-evidence-node-24-18-0
+          name: xtend-npm-release-ledger-${{ github.run_attempt }}
           path: |
-            .xtend-test-results/runtime/xtend-node-runtime-node-24-publish.json
-            .xtend-test-results/runtime/xtend-node-warnings-node-24-publish.jsonl
-            .xtend-test-results/xtend-release-gate-report.json
-            .xtend-test-results/xtend-mcp-gate-report.json
-            .xtend-test-results/xtend-xtensions-framework-adapters-report.json
-            .xtend-test-results/xtend-xtensions-runtime-report.json
-            .xtend-test-results/xtend-xtensions-runtime-browser-report.json
-            .xtend-test-results/xtend-xtensions-consumer-package-report.json
-            .xtend-test-results/xtend-xtensions-runtime-gate-report.json
-            .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
-            .xtend-test-results/xtend-native-first-rmt-owned-release-report.json
-            .xtend-test-results/xtend-rkfa-production-closure-report.json
-            .xtend-test-results/xtend-release-report.json
-            .xtend-test-results/xtend-pack-dry-run.json
-            .xtend-test-results/xtend-package-export-surface-lock.json
-            .xtend-test-results/xtend-package-export-lock-report.json
-            .xtend-test-results/product-candidate.json
-            .xtend-test-results/product-candidates/
-            .xtend-test-results/xtend-npm-audit-report.json
-            .xtend-test-results/xtend-npm-sbom.json
-            .xtend-test-results/xtend-conditional-network-evidence-report.json
+            .xtend-test-results/npm-release-ledger.json
+            .xtend-test-results/npm-release-attempt.json
+            .xtend-test-results/runtime/
           if-no-files-found: warn
 
   product-candidate-canary:
+    needs: release-prepare
     name: Packed Core candidate against pinned independent demos
     strategy:
       fail-fast: false
@@ -1208,10 +1146,16 @@ jobs:
           sudo apt-get install --no-install-recommends -y xvfb xauth unzip
           node scripts/provision_product_fpm.cjs 8.4
           node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
-      - name: Run required product canary
+      - name: Download immutable prepared candidates
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: xtend-release-prepared
+          path: .xtend-test-results/product-candidates
+      - name: Run required product canary against shared exact bytes
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node scripts/product-candidate-canary.cjs
+          CANDIDATE_SHA256: ${{ needs.release-prepare.outputs.candidateSha256 }}
+        run: node scripts/release/pipeline.cjs consumers --execute --artifact .xtend-test-results/product-candidates --candidate-sha256 "$CANDIDATE_SHA256"
       - name: Require fresh complete candidate evidence
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -1225,3 +1169,180 @@ jobs:
             .xtend-test-results/product-candidate.json
             .xtend-test-results/product-candidates/
           if-no-files-found: error
+
+  release-prepare:
+    name: Build and pack exact release candidates once
+    timeout-minutes: 60
+    outputs:
+      manifestIntegrity: ${{ steps.prepare.outputs.manifestIntegrity }}
+      candidateSha256: ${{ steps.prepare.outputs.candidateSha256 }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        env:
+          update: true
+          use_package_cache: false
+        with:
+          php-version: 8.4
+          extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
+          tools: composer:2.10.3
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane node-24-publish
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane node-24-publish
+      - name: Install source verifier dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm ci --ignore-scripts --no-audit --fund=false
+      - name: Provision existing required browser and product tooling
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y xvfb xauth unzip
+          node scripts/provision_product_fpm.cjs 8.4
+          node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
+      - name: Prepare once or resume the immutable reviewed artifact
+        id: prepare
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_GROUPS: ${{ inputs.release_groups }}
+          RELEASE_PACKAGES: ${{ inputs.release_packages }}
+          RESUME_ARTIFACT_ID: ${{ inputs.resume_artifact_id }}
+        run: |
+          scope=()
+          if [[ -n "$RELEASE_GROUPS$RELEASE_PACKAGES" ]]; then scope=(--groups "$RELEASE_GROUPS" --packages "$RELEASE_PACKAGES"); fi
+          if [[ -n "$RESUME_ARTIFACT_ID" ]]; then
+            node scripts/release/pipeline.cjs download --execute --artifact .xtend-test-results/product-candidates --artifact-id "$RESUME_ARTIFACT_ID" "${scope[@]}"
+          else
+            node scripts/release/pipeline.cjs prepare --execute --artifact .xtend-test-results/product-candidates "${scope[@]}"
+          fi
+      - name: Upload exact prepared candidates for both consumer lanes
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtend-release-prepared
+          path: .xtend-test-results/product-candidates/
+          include-hidden-files: true
+          if-no-files-found: error
+      - name: Preserve preparation gate evidence on failure
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtend-release-preparation-evidence
+          path: .xtend-test-results/
+          include-hidden-files: true
+          if-no-files-found: warn
+
+  release-seal:
+    name: Bind all gates to the immutable release artifact
+    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true && needs.release-prepare.result == 'success' && needs.product-candidate-canary.result == 'success' }}
+    needs:
+      - release-prepare
+      - full-release-gates
+      - rmt-vnext-primitive-gates
+      - package-structure
+      - conditional-network-evidence
+      - node-native-toolchain-smoke
+      - xtend-mcp-vscode-smoke
+      - laravel-release-gates
+      - product-candidate-canary
+    outputs:
+      artifactId: ${{ steps.final.outputs.artifactId }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        env:
+          update: true
+          use_package_cache: false
+        with:
+          php-version: 8.4
+          extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
+          tools: composer:2.10.3
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane node-24-publish
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane node-24-publish
+      - name: Install source verifier dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm ci --ignore-scripts --no-audit --fund=false
+      - name: Download prepared exact bytes
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: xtend-release-prepared
+          path: .xtend-test-results/product-candidates
+      - name: Download complete product consumer evidence from both lanes
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          pattern: product-candidate-evidence-*
+          path: .xtend-test-results/product-lanes
+      - name: Validate fresh Node 24 product evidence for the publish aggregate
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: |
+          cp .xtend-test-results/product-lanes/product-candidate-evidence-node-24-lts/product-candidate.json .xtend-test-results/product-candidate.json
+          cp -a .xtend-test-results/product-lanes/product-candidate-evidence-node-24-lts/product-candidates/locks .xtend-test-results/product-candidates/
+          cp -a .xtend-test-results/product-lanes/product-candidate-evidence-node-24-lts/product-candidates/reports .xtend-test-results/product-candidates/
+          cp .xtend-test-results/product-lanes/product-candidate-evidence-node-24-lts/product-candidates/installation.json .xtend-test-results/product-candidates/
+          cp .xtend-test-results/product-lanes/product-candidate-evidence-node-24-lts/product-candidates/reports.json .xtend-test-results/product-candidates/
+          node scripts/product-candidate-evidence.cjs
+      - name: Re-run existing blocking publish evidence against complete fresh candidate evidence
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          XTEND_CONDITIONAL_NETWORK_EXECUTE: '1'
+          XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL: '0'
+        run: |
+          npm run native-first:evidence:prepare
+          npm run test:ci-publish
+          npm run test:xtend-mcp:report
+          npm run pack:dry-run
+          npm run conditional-network:evidence
+      - name: Verify and seal; resume preserves the original manifest and bytes
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          XTEND_RELEASE_NEEDS: ${{ toJSON(needs) }}
+          MANIFEST_INTEGRITY: ${{ needs.release-prepare.outputs.manifestIntegrity }}
+          RESUME_ARTIFACT_ID: ${{ inputs.resume_artifact_id }}
+        run: |
+          resume=()
+          if [[ -n "$RESUME_ARTIFACT_ID" ]]; then resume=(--resume); fi
+          node scripts/release/pipeline.cjs seal --execute --artifact .xtend-test-results/product-candidates --manifest-integrity "$MANIFEST_INTEGRITY" --lanes .xtend-test-results/product-lanes "${resume[@]}"
+      - name: Upload immutable sealed release artifact
+        if: inputs.resume_artifact_id == ''
+        id: sealed
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtend-release-sealed
+          path: .xtend-test-results/product-candidates/
+          include-hidden-files: true
+          if-no-files-found: error
+      - name: Identify the immutable original artifact
+        id: final
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          NEW_ARTIFACT_ID: ${{ steps.sealed.outputs.artifact-id }}
+          RESUME_ARTIFACT_ID: ${{ inputs.resume_artifact_id }}
+        run: printf 'artifactId=%s\n' "${RESUME_ARTIFACT_ID:-$NEW_ARTIFACT_ID}" >> "$GITHUB_OUTPUT"

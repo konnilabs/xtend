@@ -7371,8 +7371,8 @@
     {
       "id": "release-safety",
       "label": "Scoped npm release safety",
-      "description": "Offline artifact, registry, retry, inventory, and tag regression tests; activation deferred until migration review.",
-      "defaultIncluded": false,
+      "description": "Artifact, registry, retry, inventory, adapter, trusted workflow and tag regression tests.",
+      "defaultIncluded": true,
       "handler": "release-safety",
       "implementations": [
         {
@@ -10529,7 +10529,9 @@
         "epic13-package-export-lock",
         "xtensions-runtime-acceptance"
       ],
-      "suites": [],
+      "suites": [
+        "release-safety"
+      ],
       "reports": [],
       "advisory": [
         "docs-stub-inventory"
@@ -10555,7 +10557,9 @@
         "rkfa-production-closure",
         "docs-stub-inventory"
       ],
-      "suites": [],
+      "suites": [
+        "release-safety"
+      ],
       "reports": [],
       "advisory": [
         "docs-stub-inventory"
@@ -10634,7 +10638,8 @@
         "release"
       ],
       "suites": [
-        "product-candidate-evidence"
+        "product-candidate-evidence",
+        "release-safety"
       ],
       "reports": [],
       "advisory": []
