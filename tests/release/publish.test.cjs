@@ -287,3 +287,87 @@ test('MCP-only partial release resumes from the same selected artifact and origi
   assert.equal((await publishRelease({ artifact: f.artifact, ...r, ledgerFile: f.ledgerFile, publish: true })).status, 'complete');
   assert.equal(r.calls.filter(call => call[0] === 'publish').length, 1);
 });
+for (const group of ['mcp', 'material']) {
+  test(`${group} registry closure is freshly verified immediately before every actual upload and timeout retry`, async t => {
+    const f = await packedFixture(t, { selection: { groups: [group] } }), r = registryFixture(f.artifact);
+    for (const dependency of f.artifact.registryDependencies) r.installed(dependency, 'latest');
+    const expectedReads = f.artifact.registryDependencies.flatMap(dependency => [['version', dependency.name], ['package', dependency.name]]);
+    const original = r.publisher.publish; let attempts = 0;
+    r.publisher.publish = async (entry, tag) => {
+      // Assert registry reads at the irreversible boundary, not only their count.
+      assert.deepEqual(r.calls.slice(-expectedReads.length), expectedReads);
+      if (++attempts === 1) {
+        r.calls.push(['publish', entry.name, tag]);
+        throw Object.assign(Error('timeout before upload'), { retryable: true });
+      }
+      await original(entry, tag);
+    };
+    const ledger = await publishRelease({ artifact: f.artifact, ...r, ledgerFile: f.ledgerFile, publish: true });
+    assert.equal(ledger.status, 'complete'); assert.equal(attempts, f.artifact.packages.length + 1);
+    assert.ok(r.calls.filter(call => call[0] === 'publish').every(call => call[2] === 'latest'));
+    assert.equal(r.calls.filter(call => call[0] === 'tag').length, 0);
+  });
+}
+const retryDependencyDrifts = {
+  name: (r, dependency) => { r.versions.get(dependency.name).name = '@ccslabs/wrong'; },
+  version: (r, dependency) => { r.versions.get(dependency.name).version = '9.9.9'; },
+  integrity: (r, dependency) => { r.versions.get(dependency.name).dist.integrity = 'different'; },
+  absent: (r, dependency) => { r.versions.delete(dependency.name); },
+  source: (r, dependency) => { r.versions.get(dependency.name).provenanceStatements[0].predicate.buildDefinition.resolvedDependencies[0].digest.gitCommit = 'c'.repeat(40); },
+  repository: (r, dependency) => { r.versions.get(dependency.name).repository.url = 'https://evilgithub.com/konnilabs/xtend'; },
+  'missing-packument': (r, dependency) => { r.packages.delete(dependency.name); },
+  'malformed-packument': (r, dependency) => { r.packages.set(dependency.name, {}); },
+  'malformed-version': (r, dependency) => { r.versions.set(dependency.name, {}); },
+  'version-timeout': (r, dependency) => {
+    const original = r.registry.version;
+    r.registry.version = async entry => { if (entry.name === dependency.name) throw Error('ETIMEDOUT'); return original(entry); };
+  },
+  'version-auth': (r, dependency) => {
+    const original = r.registry.version;
+    r.registry.version = async entry => { if (entry.name === dependency.name) throw Error('E403'); return original(entry); };
+  },
+  'version-rate-limit': (r, dependency) => {
+    const original = r.registry.version;
+    r.registry.version = async entry => { if (entry.name === dependency.name) throw Error('E429'); return original(entry); };
+  },
+  'packument-network': (r, dependency) => {
+    const original = r.registry.package;
+    r.registry.package = async entry => { if (entry.name === dependency.name) throw Error('ECONNRESET'); return original(entry); };
+  }
+};
+for (const [problem, drift] of Object.entries(retryDependencyDrifts)) {
+  test(`dependency ${problem} between timeout and retry stops before another upload`, async t => {
+    const f = await packedFixture(t, { selection: { groups: ['mcp'] } }), r = registryFixture(f.artifact);
+    for (const dependency of f.artifact.registryDependencies) r.installed(dependency, 'latest');
+    const dependency = f.artifact.registryDependencies.at(-1), original = r.publisher.publish; let attempts = 0;
+    r.publisher.publish = async (entry, tag) => {
+      if (++attempts === 1) {
+        r.calls.push(['publish', entry.name, tag]); drift(r, dependency);
+        throw Object.assign(Error('timeout before upload'), { retryable: true });
+      }
+      await original(entry, tag);
+    };
+    await assert.rejects(publishRelease({ artifact: f.artifact, ...r, ledgerFile: f.ledgerFile, publish: true }),
+      /conflict|absent|Provenance source|repository mismatch|Invalid registry metadata|ETIMEDOUT|E403|E429|ECONNRESET/);
+    assert.equal(attempts, 1); assert.equal(r.calls.filter(call => call[0] === 'publish').length, 1);
+    assert.equal(r.calls.filter(call => call[0] === 'tag').length, 0);
+    assert.equal(r.versions.has(f.artifact.packages[0].name), false);
+    const ledger = JSON.parse(fs.readFileSync(f.ledgerFile));
+    assert.equal(ledger.status, 'failed'); assert.equal(ledger.packages[0].state, 'failed');
+    assert.equal(ledger.packages[0].attempt, 1); assert.equal(ledger.manifestIntegrity, f.artifact.manifestIntegrity);
+    assert.equal(ledger.sourceSha, f.artifact.sourceSha);
+  });
+}
+test('dependency drifting during the final target lookup stops even the first actual upload', async t => {
+  const f = await packedFixture(t, { selection: { groups: ['mcp'] } }), r = registryFixture(f.artifact);
+  for (const dependency of f.artifact.registryDependencies) r.installed(dependency, 'latest');
+  const dependency = f.artifact.registryDependencies[0], original = r.registry.package; let lookups = 0;
+  r.registry.package = async entry => {
+    const observed = await original(entry);
+    if (entry.name === f.artifact.packages[0].name && ++lookups === 2) r.versions.get(dependency.name).dist.integrity = 'different';
+    return observed;
+  };
+  await assert.rejects(publishRelease({ artifact: f.artifact, ...r, ledgerFile: f.ledgerFile, publish: true }), /conflict/);
+  assert.equal(r.calls.filter(call => call[0] === 'publish').length, 0);
+  assert.equal(JSON.parse(fs.readFileSync(f.ledgerFile)).packages[0].uploadAttempted, undefined);
+});

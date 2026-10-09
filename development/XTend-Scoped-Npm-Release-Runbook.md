@@ -48,7 +48,10 @@ manifest pins their exact name, version, group, SHA-512 and original provenance
 `sourceSha`; the current release SHA describes only newly built archives. Check
 their repository identity, dependency metadata, exact registry version/integrity,
 consistent packument and original provenance before any selected upload and again
-before each operation. Missing dependencies stop: select them in a new, reviewed
+before each operation and immediately before every actual upload attempt, including
+each retry. Dependency identity/version/integrity drift or a transient/invalid
+registry read stops before another upload; prior preflight evidence is insufficient.
+Missing dependencies stop: select them in a new, reviewed
 release artifact if they need publication, rather than extending scope during
 resume. Their dist-tags are never changed by this release.
 

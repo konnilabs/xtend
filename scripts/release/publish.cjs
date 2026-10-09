@@ -170,6 +170,12 @@ async function publishRelease({ artifact, registry, publisher, ledgerFile, lockF
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         const bytes = fs.readFileSync(entry.absoluteFile);
         check(bytes.length === entry.size && digest(bytes) === entry.integrity, 'Artifact changed before upload');
+        // Dependency evidence can drift while an upload times out. Revalidate
+        // the exact pinned closure before every attempt, including every retry.
+        // Any ambiguous read escapes before another upload is attempted.
+        for (const dependency of artifact.registryDependencies || []) {
+          await verifyRegistryDependency(artifact, dependency, registry);
+        }
         current.uploadAttempted = true; current.attempt = attempt; save();
         let uploadError;
         try { await publisher.publish(entry, uploadTag); } catch (error) { uploadError = error; }
