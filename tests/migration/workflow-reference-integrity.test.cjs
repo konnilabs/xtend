@@ -19,3 +19,21 @@ test('deleted, cross-job and output step references are rejected; present guards
  assert.deepEqual(checkWorkflow(fixture),['core: undefined step install_3','core: undefined step other']);
  assert.deepEqual(checkWorkflow(fixture.replaceAll('steps.install_3','steps.install_1').replaceAll('steps.other','steps.install_1')),[]);
 });
+function checkNightlyOutputs(source,keys) {
+ return [...source.matchAll(/steps\.nightly_finalize\.outputs\.([a-zA-Z0-9_]+)/g)].map(match=>match[1]).filter(key=>!keys.has(key));
+}
+test('every finalized Nightly workflow output is declared by its actual phase/profile contract',()=>{
+ const {catalog,profileGroups}=require('../../scripts/test-runner/catalog');
+ const keys=new Set([...Object.keys(catalog.ci['ci-nightly'].phases),...profileGroups('ci-nightly'),'accepted'].map(key=>key.replace(/[^a-zA-Z0-9_]/g,'_')));
+ const source=fs.readFileSync(path.resolve(__dirname,'../../.github/workflows/xtend-nightly-build.yml'),'utf8');
+ assert.deepEqual(checkNightlyOutputs(source,keys),[]);
+ assert.equal(catalog.ci['ci-nightly'].phases.product_candidate.blocking,true);
+ assert.match(source,/test "\$\{\{ steps\.nightly_finalize\.outputs\.product_candidate \}\}" = "success"/);
+ assert.match(source,/test "\$\{\{ steps\.nightly_finalize\.outputs\.accepted \}\}" = "success"/);
+ assert.match(source,/steps\.product_candidate_acceptance\.outcome/);
+ assert.ok(!source.includes('.xtend-test-results/xtend-maraca-app-services-test-bench-report.json'));
+ assert.ok(source.includes('.xtend-test-results/product-candidates/reports/maraca-app-services-test-bench.json'));
+ assert.deepEqual(checkNightlyOutputs(source+'\n${{ steps.nightly_finalize.outputs.xtend_llm_app_services_catfood }}',keys),['xtend_llm_app_services_catfood']);
+ const missingCandidate=new Set(keys);missingCandidate.delete('product_candidate');
+ assert.deepEqual(checkNightlyOutputs(source,missingCandidate),['product_candidate']);
+});

@@ -1079,7 +1079,8 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y xvfb xauth unzip
+          sudo apt-get install --no-install-recommends -y xvfb xauth unzip php8.4-fpm
+          printf 'XTEND_SHOP_FPM_BINARY=/usr/sbin/php-fpm8.4\n' >> "$GITHUB_ENV"
           node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
       - name: Require matching pinned Demo candidate acceptance
         id: product_candidate
@@ -1197,7 +1198,8 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y xvfb xauth unzip
+          sudo apt-get install --no-install-recommends -y xvfb xauth unzip php8.4-fpm
+          printf 'XTEND_SHOP_FPM_BINARY=/usr/sbin/php-fpm8.4\n' >> "$GITHUB_ENV"
           node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
       - name: Run required product canary
         env:

@@ -2,7 +2,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const {verifyCandidates,verifyInstalledClosure,digest}=require('../candidate-integrity.cjs');
 const schema='xtend.product-candidate-evidence.v1';
-const required=['http-security','product-xss','product-builds','product-owned-suites','shop-php','shop-browser','electron-runtime','electron-shell-import-worker','llm-contracts','erp-resumability-catfood','maraca-app-services-test-bench','xtend-llm-app-services-catfood','xtend-material-catfooding','xtend-shop-php','xtend-shop-browser','xtend-shop-contracts'];
+const required=['http-security','product-xss','product-builds','product-owned-suites','shop-php','shop-browser','shop-browser-fpm','electron-runtime','electron-shell-import-worker','llm-contracts','erp-resumability-catfood','maraca-app-services-test-bench','xtend-llm-app-services-catfood','xtend-material-catfooding','xtend-shop-php','xtend-shop-browser','xtend-shop-contracts'];
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 function verifyEvidence(evidence,{coreSha,demoSha,packages,php,installation,reports,startedAt,maxAgeMs=3600000,now=Date.now()}={}) {
  if(evidence?.schema!==schema||evidence.ok!==true||evidence.status!=='passed'||evidence.development)throw Error('Missing or failed required Demo evidence');

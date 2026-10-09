@@ -111,7 +111,8 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y xvfb xauth unzip
+          sudo apt-get install --no-install-recommends -y xvfb xauth unzip php8.4-fpm
+          printf 'XTEND_SHOP_FPM_BINARY=/usr/sbin/php-fpm8.4\n' >> "$GITHUB_ENV"
           node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
       - name: Run pinned independent product candidate acceptance
         id: product_candidate
@@ -266,21 +267,15 @@ jobs:
         if: always()
         run: test "${{ steps.nightly_finalize.outputs.maraca_app_services_cross_runtime }}" = "success"
 
-      - name: Run XTend LLM AppServices catfood report
-        id: xtend_llm_app_services_catfood
+      - name: Require finalized independent product Candidate acceptance
+        id: product_candidate_acceptance
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         if: always()
-        run: test "${{ steps.nightly_finalize.outputs.xtend_llm_app_services_catfood }}" = "success"
-
-      - name: Run Maraca App Services Test Bench catfood report
-        id: maraca_app_services_test_bench
-        continue-on-error: true
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        if: always()
-        run: test "${{ steps.nightly_finalize.outputs.maraca_app_services_test_bench }}" = "success"
+        run: |
+          test "${{ steps.nightly_finalize.outputs.product_candidate }}" = "success"
+          test "${{ steps.nightly_finalize.outputs.accepted }}" = "success"
 
       - name: Run XTensions framework adapter report
         id: xtensions_framework_adapters
@@ -417,7 +412,7 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
             .xtend-test-results/xtend-maraca-gate-report.json
             .xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json
-            .xtend-test-results/xtend-maraca-app-services-test-bench-report.json
+            .xtend-test-results/product-candidates/reports/maraca-app-services-test-bench.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-xtensions-runtime-report.json
             .xtend-test-results/xtend-xtensions-runtime-browser-report.json
@@ -471,8 +466,7 @@ jobs:
           if [ "${{ steps.pack_workspaces.outcome }}" != "success" ]; then echo "workspace package dry runs failed"; failed=1; fi
           if [ "${{ steps.maraca.outcome }}" != "success" ]; then echo "Maraca gate failed"; failed=1; fi
           if [ "${{ steps.maraca_app_services_cross_runtime.outcome }}" != "success" ]; then echo "Maraca AppServices Node/PHP parity gate failed"; failed=1; fi
-          if [ "${{ steps.xtend_llm_app_services_catfood.outcome }}" != "success" ]; then echo "XTend LLM AppServices catfood gate failed"; failed=1; fi
-          if [ "${{ steps.maraca_app_services_test_bench.outcome }}" != "success" ]; then echo "Maraca App Services Test Bench catfood gate failed"; failed=1; fi
+          if [ "${{ steps.product_candidate_acceptance.outcome }}" != "success" ]; then echo "required finalized product Candidate acceptance failed"; failed=1; fi
           if [ "${{ steps.xtensions_framework_adapters.outcome }}" != "success" ]; then echo "XTensions framework adapter gate failed"; failed=1; fi
           if [ "${{ steps.xtend_dev_surface.outcome }}" != "success" ]; then echo "XTend Dev Surface gate failed"; failed=1; fi
           if [ "${{ steps.docs_quality.outcome }}" != "success" ]; then echo "public docs quality gate failed"; failed=1; fi

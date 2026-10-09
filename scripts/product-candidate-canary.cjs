@@ -11,19 +11,28 @@ function packCandidates({output,demoSha,development=false}={}) {
  if(!development&&git(['status','--porcelain','--untracked-files=no']))throw Error('Core candidate must come from a clean commit');
  if(!/^[a-f0-9]{40}$/.test(demoSha||''))throw Error('Exact pinned Demo SHA required');
  if(fs.existsSync(output))throw Error('Candidate output must be fresh');fs.mkdirSync(output,{recursive:true});
- const manifest=JSON.parse(fs.readFileSync(path.join(root,'package.json')));
+ // Pack only tracked bytes of the asserted SHA, including in development mode.
+ // npm's published globs must never import ignored/untracked worktree files.
+ const snapshot=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-core-pack-'));
+ try {
+ const archive=execFileSync('git',['archive','--format=tar',coreSha],{cwd:root,maxBuffer:256*1024*1024});
+ execFileSync('tar',['-xf','-','-C',snapshot],{input:archive,stdio:['pipe','pipe','pipe'],timeout:60000});
+ const manifest=JSON.parse(fs.readFileSync(path.join(snapshot,'package.json')));
  const packages=[];
  for(const directory of ['.',...manifest.workspaces]) {
-  const data=JSON.parse(execFileSync('npm',['pack','--ignore-scripts','--json','--pack-destination',output],{cwd:path.join(root,directory),encoding:'utf8',maxBuffer:32*1024*1024}))[0];
+  const data=JSON.parse(execFileSync('npm',['pack','--ignore-scripts','--json','--pack-destination',output],{cwd:path.join(snapshot,directory),encoding:'utf8',maxBuffer:32*1024*1024}))[0];
   const sha256=digest(fs.readFileSync(path.join(output,data.filename)));
   const filename=data.filename.replace(/\.tgz$/,'.'+sha256.slice(0,16)+'.tgz');fs.renameSync(path.join(output,data.filename),path.join(output,filename));
-  const pkg=JSON.parse(fs.readFileSync(path.join(root,directory,'package.json')));
+  const pkg=JSON.parse(fs.readFileSync(path.join(snapshot,directory,'package.json')));
   const metadata=Object.fromEntries(['dependencies','optionalDependencies','peerDependencies','peerDependenciesMeta'].filter(key=>pkg[key]).map(key=>[key,pkg[key]]));
   packages.push({name:data.name,version:data.version,file:filename,integrity:data.integrity,sha256,...metadata});
  }
- const php=buildLaravelPackage({rootDir:root,output:path.join(output,'xtend-laravel'),archiveTool:'tar'});
+ // Generated PHP packaging metadata is derived solely from the same SHA archive;
+ // buildLaravelPackage fingerprints every copied runtime source.
+ const php=buildLaravelPackage({rootDir:snapshot,output:path.join(output,'xtend-laravel'),archiveTool:'tar'});
  const result={schema:'xtend.product-candidates.v1',coreSha,demoSha,development,packages,php:{file:path.basename(php.archive),sha256:php.sha256,sources:php.files}};
  verifyCandidates(result,{coreSha,demoSha,directory:output});fs.writeFileSync(path.join(output,'manifest.json'),JSON.stringify(result,null,2)+'\n');return result;
+ } finally {fs.rmSync(snapshot,{recursive:true,force:true});}
 }
 async function main() {
  const development=process.argv.includes('--development');

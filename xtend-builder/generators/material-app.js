@@ -15,6 +15,11 @@ const {
 const MATERIAL_APP_SCAFFOLD_SCHEMA = 'xtend.scaffold.app-preset.material.v1';
 const MATERIAL_APP_SCAFFOLD_REPORT_SCHEMA = 'xtend.scaffold.app-preset.material-report.v1';
 const MATERIAL_APP_OWNER = 'XTM-09-material-app';
+// This is metadata of the installed public CLI package, never a sibling checkout.
+const CLI_RELEASE_VERSION = require('../package.json').version;
+if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u.test(CLI_RELEASE_VERSION)) {
+  throw new Error('Material scaffold requires an exact CLI release version.');
+}
 const MATERIAL_APP_TEMPLATES = Object.freeze([
   { artifact: 'material-app-rmt', id: 'app-rmt', target: 'src/app.rmt', kind: 'rmt', ownershipMode: 'seed' },
   { artifact: 'material-app-css', id: 'app-css', target: 'src/app.css', kind: 'css', ownershipMode: 'seed' },
@@ -54,6 +59,13 @@ function createMaterialAppEntries(outputDir, values) {
   return filterAppTemplatesForServer(MATERIAL_APP_TEMPLATES, values.serverTarget).map((definition) => {
     const rendered = renderTemplateForArtifact(definition.artifact, values);
     if (!rendered.ok) return { error: rendered.error, definition };
+    if (definition.kind === 'package') {
+      const manifest = JSON.parse(rendered.content);
+      manifest.dependencies['@ccslabs/xtend'] = CLI_RELEASE_VERSION;
+      manifest.dependencies['@ccslabs/xtend-maraca'] = CLI_RELEASE_VERSION;
+      manifest.devDependencies['@ccslabs/xtend-cli'] = CLI_RELEASE_VERSION;
+      rendered.content = `${JSON.stringify(manifest, null, 2)}\n`;
+    }
     return {
       id: definition.id,
       path: path.posix.join(outputDir, definition.target),
