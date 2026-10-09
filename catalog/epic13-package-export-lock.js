@@ -248,7 +248,8 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   "./test-support/php-fpm",
   "./test-support/dev-server",
   "./laravel-package",
-  "./candidate-integrity"
+  "./candidate-integrity",
+  "./schema-inventory"
 ]);
 
 const REQUIRED_PACK_ROOTS = Object.freeze([
