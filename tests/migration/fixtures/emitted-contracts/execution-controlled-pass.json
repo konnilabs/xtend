@@ -1,0 +1,112 @@
+{
+  "schema": "xtend.product-execution.v1",
+  "coreSha": "f2b7ec2961ce71e1573997313d68af4fffed8a56",
+  "demoSha": "2222222222222222222222222222222222222222",
+  "ok": true,
+  "status": "passed",
+  "generatedAt": "2026-10-09T17:05:33.948Z",
+  "commands": [
+    {
+      "id": "http-security",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "product-xss",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "product-builds",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "product-owned-suites",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "shop-php",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "shop-browser",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "shop-browser-fpm",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "electron-runtime",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "electron-shell-import-worker",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "llm-contracts",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "erp-resumability-catfood",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "maraca-app-services-test-bench",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "xtend-llm-app-services-catfood",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "xtend-material-catfooding",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "xtend-shop-php",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "xtend-shop-browser",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    },
+    {
+      "id": "xtend-shop-contracts",
+      "status": "passed",
+      "exitCode": 0,
+      "skips": []
+    }
+  ]
+}
