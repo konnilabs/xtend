@@ -8,7 +8,7 @@ test('candidate setup avoids npm auto-cache before the required npm pin and prov
   for(const step of source.split(/\n      - /).filter(step=>step.includes('uses: shivammathur\/setup-php@'))) {
    assert.match(step,/update: true/);assert.match(step,/use_package_cache: false/);assert.match(step,/composer:2\.10\.3/);
   }
-  assert.match(source,/\/usr\/sbin\/php-fpm8\.4 -v/);
+  assert.match(source,/node scripts\/provision_product_fpm\.cjs 8\.4/);
  }
 });
 function checkWorkflow(source) {
