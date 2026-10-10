@@ -1,0 +1,13 @@
+{
+  "schema": "xtend.maraca.build-config.v1",
+  "options": {
+    "source": "app.rmt",
+    "out": "dist",
+    "profile": "debug",
+    "orchestration": "auto",
+    "kernel": "auto",
+    "hydration": "auto",
+    "validation": "auto",
+    "transitions": "auto"
+  }
+}

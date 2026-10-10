@@ -29,8 +29,8 @@ const TYPE_EXPORTS_RELEASE_STATUS = 'accepted-productive-type-exports-release-ga
 const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready';
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
-const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 199;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = '5852b738283ed9e1679335f45026678aab727244cc84e0f45cc4684104715ba5';
+const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 207;
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = "c2224955e47635f60bb9f69dd673b5753d18d2229d6091334f412887ae95db11";
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',
@@ -86,7 +86,33 @@ const ASSET_EXPORTS = Object.freeze([
   './package.json'
 ]);
 
+const PUBLIC_HELPER_EXPORT_CONTRACTS = Object.freeze({
+  "./product-support": {
+    "types": "./product-support.d.ts",
+    "default": "./product-support.cjs"
+  },
+  "./test-support/browser-hypervisor": "./tools/browser-hypervisor/index.js",
+  "./test-support/php-fpm": "./tools/browser-hypervisor/php-fpm.js",
+  "./test-support/dev-server": "./scripts/serve_xtend_dev.js",
+  "./laravel-package": "./scripts/build_laravel_package.js",
+  "./candidate-integrity": {
+    "types": "./candidate-integrity.d.ts",
+    "default": "./candidate-integrity.cjs"
+  },
+  "./schema-inventory": {
+    "types": "./tools/schema-inventory/index.d.ts",
+    "default": "./tools/schema-inventory/index.cjs"
+  }
+});
+
 const TYPE_EXPORT_GROUPS = Object.freeze([
+  {
+    id: 'public-migration-helpers',
+    priority: 'P1',
+    workpackage: 'WP-Product-Demo-Migration',
+    exports: Object.keys(PUBLIC_HELPER_EXPORT_CONTRACTS),
+    strategy: 'exact-existing-node-helper-runtime-and-declarations'
+  },
   {
     id: 'registry',
     priority: 'P0',
@@ -486,9 +512,9 @@ function createTypeExportsPlan(options = {}) {
       TYPE_EXPORTS_KERNEL_BOUNDARY,
       TYPE_EXPORTS_DECLARATION_BOUNDARY
     ],
-    lockedExportCount: TYPE_EXPORTS_LOCKED_EXPORT_COUNT,
-    lockedExportFingerprint: TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT,
-    packageExportLockFingerprint: createExportFingerprint(EXPECTED_EXPORT_KEYS),
+    lockedExportCount: xtendMetadata.typeExports && xtendMetadata.typeExports.expectedExportCount,
+    lockedExportFingerprint: xtendMetadata.typeExports && xtendMetadata.typeExports.lockedExportFingerprint,
+    packageExportLockFingerprint: createExportFingerprint(exportKeys),
     packageName: packageManifest.name,
     packageVersion: packageManifest.version,
     exportCount: exportKeys.length,
@@ -529,6 +555,7 @@ function validateTypeExportsPlan(plan = createTypeExportsPlan()) {
   if (!plan || plan.targetReadiness !== TYPE_EXPORTS_TARGET) errors.push(`targetReadiness must be ${TYPE_EXPORTS_TARGET}`);
   if (!plan || plan.lockedExportCount !== TYPE_EXPORTS_LOCKED_EXPORT_COUNT) errors.push(`lockedExportCount must be ${TYPE_EXPORTS_LOCKED_EXPORT_COUNT}`);
   if (!plan || plan.expectedExportCount !== TYPE_EXPORTS_LOCKED_EXPORT_COUNT) errors.push(`expectedExportCount must stay locked to ${TYPE_EXPORTS_LOCKED_EXPORT_COUNT}`);
+  if (!plan || plan.lockedExportFingerprint !== TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT) errors.push('package metadata locked export fingerprint differs from exact reviewed contract');
   if (!plan || plan.packageExportLockFingerprint !== TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT) errors.push('package export lock fingerprint changed; update TypeExports classification first');
   if (!plan || plan.exportCount !== TYPE_EXPORTS_LOCKED_EXPORT_COUNT) errors.push(`package export count must stay locked to ${TYPE_EXPORTS_LOCKED_EXPORT_COUNT}`);
   if (!plan || !Array.isArray(plan.boundaries) || !plan.boundaries.includes(TYPE_EXPORTS_BOUNDARY)) errors.push(`boundary must include ${TYPE_EXPORTS_BOUNDARY}`);
@@ -561,6 +588,12 @@ function validateTypeExportsPlan(plan = createTypeExportsPlan()) {
     }
   });
   classifications.forEach((entry) => {
+    const helper = PUBLIC_HELPER_EXPORT_CONTRACTS[entry.exportKey];
+    if (helper) {
+      if (JSON.stringify(entry.targets) !== JSON.stringify(collectExportTargets(helper))) errors.push(`${entry.exportKey} differs from its exact reviewed public helper target/type contract`);
+      const expectedTypes = selectCurrentTypesCondition(helper) || normalizeDeclarationCandidate(selectPrimaryTarget(helper));
+      if (entry.proposedTypesCondition !== expectedTypes || entry.currentTypesCondition !== selectCurrentTypesCondition(helper)) errors.push(`${entry.exportKey} differs from its exact reviewed public helper declaration`);
+    }
     if (entry.schema !== TYPE_EXPORTS_CLASSIFICATION_SCHEMA) errors.push(`${entry.exportKey} must expose classification schema`);
     if (!entry.exportKey || !entry.group || !entry.priority || !entry.typeDecision) errors.push(`${entry.exportKey || '<missing>'} has incomplete classification`);
     if (entry.typeDecision !== 'types-not-required' && !entry.proposedTypesCondition) errors.push(`${entry.exportKey} requires a proposed types condition`);

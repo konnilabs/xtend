@@ -39,7 +39,7 @@ The compile endpoint accepts POST requests only, limits source size and returns 
 
 Successful sources are also sent with `playgroundMode: "maraca-preview"` to `docs/index.php?xtend-rmt-playground=compile`. The response still contains `coreJson` and `preview`, and adds `maraca.schema = "xtend.docs.rmt-playground.maraca-preview.v1"` with feature status for `orchestration`, `kernel`, `hydration`, `validation` and `transitions`.
 
-Choose the `Customer Service Kernel` preset to run the app from `products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt` in the browser. The preview loads only the whitelisted runtime modules from `DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES`, materializes surfaces in an isolated root, routes DOM events to RMT actions, patches validation gates such as `product.service.nextContact` and records transition events such as `xtend-maraca:surface-transition-start`.
+Choose the `Customer Service Kernel` preset to run the app from `tools/rmt-language/fixtures/kernel-orchestration-contract.rmt` in the browser. The preview loads only the whitelisted runtime modules from `DOCS_RMT_PLAYGROUND_MARACA_RUNTIME_MODULES`, materializes surfaces in an isolated root, routes DOM events to RMT actions, patches validation gates such as `product.service.nextContact` and records transition events such as `xtend-maraca:surface-transition-start`.
 
 Browser smokes can read `window.xtendDocsRmtPlaygroundLastMaraca`. A successful snapshot includes kernel, validation and transition counters; the local gate is `node scripts/run_xtend_tests.js rmt-playground-docs rmt-playground-security --json`.
 

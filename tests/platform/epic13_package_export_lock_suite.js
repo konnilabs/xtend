@@ -169,7 +169,7 @@ function runEpic13PackageExportLockSuite(options = {}) {
   context.assert(report.exportCount === EXPECTED_EXPORT_KEYS.length, 'Package export lock report counts locked exports');
   context.assert(report.missingExpectedExports.length === 0, 'Package export lock has no missing expected exports');
   context.assert(report.unexpectedExports.length === 0, 'Package export lock has no unexpected exports');
-  context.assert(EXPECTED_EXPORT_KEYS.length === 199, 'Reviewed export contract locks exactly 199 entries');
+  context.assert(EXPECTED_EXPORT_KEYS.length === 207, 'Reviewed export contract locks exactly 207 entries');
   const unknownManifest = { ...packageManifest, exports: { ...packageManifest.exports, './xtensions/unknown-runtime-adapter': './tools/xtensions/react-runtime-adapter.js' } };
   const unknownReport = createEpic13PackageExportLockReport({ plan: createEpic13PackageExportLockPlan({ packageManifest: unknownManifest }) });
   context.assert(!unknownReport.ok && unknownReport.unexpectedExports.includes('./xtensions/unknown-runtime-adapter'), 'Unknown exports remain forbidden even when they target a known module');

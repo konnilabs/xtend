@@ -6,7 +6,7 @@ const path = require('path');
 const zlib = require('zlib');
 const {
   generateEntrypoint
-} = require('../../scripts/generate_xtendrmt_esm_entrypoints');
+} = require('node:module').createRequire(path.resolve(__dirname, '../../package.json'))('@ccslabs/xtend/product-support');
 const {
   DOM_COMMIT_RESULT_SCHEMA,
   DOM_RENDERER_FACTORY,
@@ -57,7 +57,7 @@ const KERNEL_ANALYSIS_TARGETS = Object.freeze([
 ]);
 
 function createKernelSourceInputCatalog() {
-  const repositoryRoot = path.resolve(__dirname, '..', '..');
+  const repositoryRoot = path.dirname(require('node:module').createRequire(path.resolve(__dirname, '../../package.json')).resolve('@ccslabs/xtend/package.json'));
   const manifest = JSON.parse(fs.readFileSync(path.join(repositoryRoot, SOURCE_MANIFEST_PATH), 'utf8'));
   const inputs = new Map();
   const add = (sourcePath, kind, id) => {

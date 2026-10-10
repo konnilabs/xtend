@@ -28,9 +28,73 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  union-source-artifact:
+    name: Verify pinned union source artifact
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+      core-sha: ${{ steps.pin.outputs.core-sha }}
+      demo-sha: ${{ steps.pin.outputs.demo-sha }}
+      archive-sha256: ${{ steps.produce.outputs.archive-sha256 }}
+      manifest-sha256: ${{ steps.produce.outputs.manifest-sha256 }}
+    steps:
+      - name: Checkout exact Core event head
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'push' && github.sha }}
+          fetch-depth: 0
+          path: union-core
+      - name: Verify Core identity and read immutable Demo pin
+        id: pin
+        env:
+          EXPECTED_CORE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'push' && github.sha }}
+        run: |
+          python3 - <<'PYTHON'
+          import json, os, re, subprocess
+          head = subprocess.check_output(['git', '-C', 'union-core', 'rev-parse', 'HEAD']).decode().strip()
+          assert head == os.environ['EXPECTED_CORE_SHA']
+          pin = json.load(open('union-core/product-demos.lock.json'))
+          assert pin['repository'] == 'https://github.com/konnilabs/xtend-demos.git'
+          assert re.fullmatch('[a-f0-9]{40}', pin['demoSha'])
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('core-sha=' + head + '\n' + 'demo-sha=' + pin['demoSha'] + '\n')
+          PYTHON
+      - name: Checkout exact pinned Demo source without dependencies
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: konnilabs/xtend-demos
+          ref: ${{ steps.pin.outputs.demo-sha }}
+          path: union-demo
+      - name: Produce verified regular-file source artifact
+        id: produce
+        env:
+          EXPECTED_CORE_SHA: ${{ steps.pin.outputs.core-sha }}
+          EXPECTED_DEMO_SHA: ${{ steps.pin.outputs.demo-sha }}
+        run: |
+          test "$(git -C union-demo rev-parse HEAD)" = "$EXPECTED_DEMO_SHA"
+          python3 union-core/scripts/build-union-source-artifact.py --mode committed --core union-core --demo union-demo --core-sha "$EXPECTED_CORE_SHA" --output "$RUNNER_TEMP/union-source-produced" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT"
+          python3 - <<'PYTHON'
+          import json, os
+          receipt = json.load(open(os.environ['RUNNER_TEMP'] + '/union-source-produced/producer-receipt.json'))
+          assert receipt['producerMode'] == 'committed'
+          assert receipt['coreSha'] == os.environ['EXPECTED_CORE_SHA'] and receipt['demoSha'] == os.environ['EXPECTED_DEMO_SHA']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('archive-sha256=' + receipt['archiveSha256'] + '\nmanifest-sha256=' + receipt['manifestSha256'] + '\n')
+          PYTHON
+      - name: Upload immutable same-run source artifact
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: xtend-union-source-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/union-source-produced/sources.tar.gz
+          if-no-files-found: error
+
   pr-fast-gates:
+    needs: union-source-artifact
     name: PR fast gates (Node ${{ matrix.node_version }})
-    if: github.event_name == 'pull_request'
+    if: ${{ !cancelled() && github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -45,8 +109,18 @@ jobs:
             artifact_suffix: node-26-5-0
 
     steps:
+      - name: Require successful source producer without fallback
+        env:
+          SOURCE_PRODUCER_RESULT: ${{ needs.union-source-artifact.result }}
+          SOURCE_ARTIFACT_ID: ${{ needs.union-source-artifact.outputs.artifact-id }}
+        run: |
+          test "$SOURCE_PRODUCER_RESULT" = success
+          [[ "$SOURCE_ARTIFACT_ID" =~ ^[0-9]+$ ]]
+
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Configure npm download cache
         run: node scripts/configure_npm_cache.js
@@ -55,7 +129,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/xtend-npm-cache
-          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
 
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -91,141 +165,172 @@ jobs:
         id: install_1
         run: npm ci --ignore-scripts --no-audit --fund=false
 
-      - name: Install XTend LLM CI catfood dependencies
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        id: install_2
-        run: npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
-
-      - name: Install ERP resumability catfood dependencies
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        id: install_3
-        run: npm ci --prefix products/resumability-maraca-erp-demo --ignore-scripts --no-audit --fund=false
-
       - name: Prepare Native-First release evidence artifacts
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         run: npm run native-first:evidence:prepare
 
       - name: Run XTend PR fast gate report
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         continue-on-error: true
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         run: npm run test:ci-pr
 
       - name: Run XTend MCP contract, security, parity, and evidence gates
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xtend-mcp:report
 
+      - name: Acquire exact same-run source artifact
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          artifact-ids: ${{ needs.union-source-artifact.outputs.artifact-id }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/xtend-union-source/download
+
+      - name: Verify independent head/pin and authenticated artifact expectations
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          EXPECTED_CORE_SHA: ${{ github.event.pull_request.head.sha }}
+          PRODUCER_CORE_SHA: ${{ needs.union-source-artifact.outputs.core-sha }}
+          PRODUCER_DEMO_SHA: ${{ needs.union-source-artifact.outputs.demo-sha }}
+          UNION_ARCHIVE_SHA256: ${{ needs.union-source-artifact.outputs.archive-sha256 }}
+          UNION_MANIFEST_SHA256: ${{ needs.union-source-artifact.outputs.manifest-sha256 }}
+          UNION_ARTIFACT_ID: ${{ needs.union-source-artifact.outputs.artifact-id }}
+        run: |
+          python3 - <<'PYTHON'
+          import json, os, pathlib, re, subprocess
+          env = os.environ
+          head = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
+          assert head == env['EXPECTED_CORE_SHA'] == env['PRODUCER_CORE_SHA']
+          assert re.fullmatch('[0-9]+', env['UNION_ARTIFACT_ID'])
+          pin = json.load(open('product-demos.lock.json'))
+          assert pin['repository'] == 'https://github.com/konnilabs/xtend-demos.git' and pin['demoSha'] == env['PRODUCER_DEMO_SHA']
+          expected = dict(producerMode='committed', coreSha=head, demoSha=pin['demoSha'], archiveSha256=env['UNION_ARCHIVE_SHA256'], manifestSha256=env['UNION_MANIFEST_SHA256'], context=dict(runId=env['GITHUB_RUN_ID'], runAttempt=env['GITHUB_RUN_ATTEMPT']))
+          target = pathlib.Path(env['RUNNER_TEMP']) / 'xtend-union-source' / 'expected.json'
+          target.write_text(json.dumps(expected))
+          with open(env['GITHUB_ENV'], 'a') as output:
+              output.write('XTEND_UNION_ARCHIVE=' + env['RUNNER_TEMP'] + '/xtend-union-source/download/sources.tar.gz\nXTEND_UNION_EXPECTED=' + str(target) + '\nXTEND_UNION_ARTIFACT_ID=' + env['UNION_ARTIFACT_ID'] + '\n')
+          PYTHON
+
+      - name: Required portable union source-provider boundary tests
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          XTEND_UNION_TEST_REPORT: .xtend-test-results/union-provider-tests.json
+        run: |
+          node --test tests/schemas/union_source_provider.test.cjs
+          node --test tests/schemas/expected_inventory_view.test.cjs
+
+      - name: Required productive full-source union validation
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        run: node scripts/check-union-source.cjs --archive "$XTEND_UNION_ARCHIVE" --expected "$XTEND_UNION_EXPECTED" --destination "$RUNNER_TEMP/xtend-union-source/$XTEND_UNION_ARTIFACT_ID" --output .xtend-test-results/union-source-validation.json
+
+      - name: Preserve union validation evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: xtend-union-validation-${{ matrix.artifact_suffix }}
+          path: |
+            .xtend-test-results/union-source-validation.json
+            .xtend-test-results/union-provider-tests.json
+          if-no-files-found: error
+
       - name: Run Feature Adoption Observatory gates
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         run: node scripts/run_xtend_tests.js --verify feature-adoption-observatory --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run XTensions framework adapter report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify xtensions-framework-adapters --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run XTend Dev Surface report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify xtend-dev-surface --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run public docs quality report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify docs-quality --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run Docs Shell catfooding report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify docs-shell-catfooding --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run Docs framework ownership report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify docs-framework-ownership --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run RMT Reference docs report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify rmt-reference-docs --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run XTendRMT demo structure report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify rmt-demos --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run Maraca AppServices Node/PHP parity report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify maraca-app-services-cross-runtime --from .xtend-test-results/xtend-test-execution.json
 
-      - name: Run XTend LLM AppServices catfood report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node scripts/run_xtend_tests.js --verify xtend-llm-app-services-catfood --from .xtend-test-results/xtend-test-execution.json
-
-      - name: Run ERP resumability catfood report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node scripts/run_xtend_tests.js --verify erp-resumability-catfood --from .xtend-test-results/xtend-test-execution.json
-
       - name: Run XScaler protocol gate report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify xscaler-protocol --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run XScaler public API gate report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify xscaler-public-api --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run XScaler JS/PHP preflight parity report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify xscaler-php-preflight-parity --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run RMT Node/PHP XScaler SSR hydration parity report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify rmt-xscaler-ssr-hydration-parity --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run XScaler source-to-sea gate report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify xscaler-source-to-sea --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run RKFA production closure report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify rkfa-production-closure --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run docs stub inventory report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -254,9 +359,6 @@ jobs:
             .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-rmt-demos-report.json
             .xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json
-            .xtend-test-results/xtend-llm-app-services-catfood-report.json
-            products/xtend-llm/.xtend-llm-results/app-services-catfood.json
-            .xtend-test-results/erp-resumability-catfood-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-public-api-report.json
             .xtend-test-results/xtend-xscaler-php-preflight-parity-report.json
@@ -309,7 +411,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/xtend-npm-cache
-          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
 
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -345,33 +447,21 @@ jobs:
         id: install_1
         run: npm ci --ignore-scripts --no-audit --fund=false
 
-      - name: Install XTend LLM CI catfood dependencies
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        id: install_2
-        run: npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
-
-      - name: Install ERP resumability catfood dependencies
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        id: install_3
-        run: npm ci --prefix products/resumability-maraca-erp-demo --ignore-scripts --no-audit --fund=false
-
       - name: Prepare Native-First release evidence artifacts
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         run: npm run native-first:evidence:prepare
 
       - name: Run XTend full release gate report
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         continue-on-error: true
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         run: npm run test:ci-release
 
       - name: Run XTend MCP contract, security, parity, and evidence gates
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xtend-mcp:report
@@ -379,107 +469,95 @@ jobs:
       - name: Run Feature Adoption Observatory gates
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         run: node scripts/run_xtend_tests.js --verify feature-adoption-observatory --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run XTensions framework adapter report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify xtensions-framework-adapters --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run XTend Dev Surface report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify xtend-dev-surface --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run public docs quality report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify docs-quality --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run Docs Shell catfooding report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify docs-shell-catfooding --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run Docs framework ownership report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify docs-framework-ownership --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run RMT Reference docs report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify rmt-reference-docs --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run XTendRMT demo structure report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify rmt-demos --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run Maraca AppServices Node/PHP parity report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify maraca-app-services-cross-runtime --from .xtend-test-results/xtend-test-execution.json
 
-      - name: Run XTend LLM AppServices catfood report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node scripts/run_xtend_tests.js --verify xtend-llm-app-services-catfood --from .xtend-test-results/xtend-test-execution.json
-
-      - name: Run ERP resumability catfood report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node scripts/run_xtend_tests.js --verify erp-resumability-catfood --from .xtend-test-results/xtend-test-execution.json
-
       - name: Run XScaler protocol gate report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify xscaler-protocol --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run XScaler public API gate report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify xscaler-public-api --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run XScaler JS/PHP preflight parity report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify xscaler-php-preflight-parity --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run RMT Node/PHP XScaler SSR hydration parity report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify rmt-xscaler-ssr-hydration-parity --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run XScaler source-to-sea gate report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify xscaler-source-to-sea --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run RKFA production closure report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --verify rkfa-production-closure --from .xtend-test-results/xtend-test-execution.json
 
       - name: Run docs stub inventory report
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_3.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -508,9 +586,6 @@ jobs:
             .xtend-test-results/xtend-rmt-reference-docs-report.json
             .xtend-test-results/xtend-rmt-demos-report.json
             .xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json
-            .xtend-test-results/xtend-llm-app-services-catfood-report.json
-            products/xtend-llm/.xtend-llm-results/app-services-catfood.json
-            .xtend-test-results/erp-resumability-catfood-report.json
             .xtend-test-results/xtend-xscaler-protocol-report.json
             .xtend-test-results/xtend-xscaler-public-api-report.json
             .xtend-test-results/xtend-xscaler-php-preflight-parity-report.json
@@ -564,7 +639,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/xtend-npm-cache
-          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
 
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -702,7 +777,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/xtend-npm-cache
-          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
 
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -757,6 +832,8 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run.json
             .xtend-test-results/xtend-package-export-surface-lock.json
             .xtend-test-results/xtend-package-export-lock-report.json
+            .xtend-test-results/product-candidate.json
+            .xtend-test-results/product-candidates/
             .xtend-test-results/xtend-pack-dry-run-xtendrmt.json
             .xtend-test-results/xtend-pack-dry-run-fabric.json
             .xtend-test-results/xtend-pack-dry-run-tools.json
@@ -793,7 +870,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/xtend-npm-cache
-          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
 
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -910,7 +987,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/xtend-npm-cache
-          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
 
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -983,7 +1060,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/xtend-npm-cache
-          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
 
       - name: Setup Node.js 24.18.0
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -1054,7 +1131,8 @@ jobs:
           needs['conditional-network-evidence'].result == 'success' &&
           needs['node-native-toolchain-smoke'].result == 'success' &&
           needs['xtend-mcp-vscode-smoke'].result == 'success' &&
-          needs['laravel-release-gates'].result == 'success' }}
+          needs['laravel-release-gates'].result == 'success' &&
+          needs['product-candidate-canary'].result == 'success' }}
     needs:
       - full-release-gates
       - rmt-vnext-primitive-gates
@@ -1063,6 +1141,7 @@ jobs:
       - node-native-toolchain-smoke
       - xtend-mcp-vscode-smoke
       - laravel-release-gates
+      - product-candidate-canary
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
@@ -1071,6 +1150,14 @@ jobs:
     environment: npm-publish
 
     steps:
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        env:
+          update: true
+          use_package_cache: false
+        with:
+          php-version: 8.4
+          extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
+          tools: composer:2.10.3
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
@@ -1081,7 +1168,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/xtend-npm-cache
-          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json', 'products/resumability-maraca-erp-demo/package-lock.json') }}
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
 
       - name: Setup Node.js 24.18.0 for npm
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -1119,24 +1206,28 @@ jobs:
         id: install_1
         run: npm ci --ignore-scripts --no-audit --fund=false
 
-      - name: Install XTend LLM CI catfood dependencies
+      - name: Provision required product display and browser tooling
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        id: install_2
-        run: npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
-
-      - name: Install ERP resumability catfood dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y xvfb xauth unzip
+          node scripts/provision_product_fpm.cjs 8.4
+          node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
+      - name: Require matching pinned Demo candidate acceptance
+        id: product_candidate
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        id: install_erp
-        run: npm ci --prefix products/resumability-maraca-erp-demo --ignore-scripts --no-audit --fund=false
+        run: |
+          node scripts/product-candidate-canary.cjs
+          node scripts/product-candidate-evidence.cjs .xtend-test-results/product-candidate.json
 
       - name: Re-run blocking release evidence
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           XTEND_CONDITIONAL_NETWORK_EXECUTE: "1"
           XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL: "0"
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.install_2.outcome == 'success' && steps.install_erp.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         run: |
           npm run native-first:evidence:prepare
           npm run test:ci-publish
@@ -1195,7 +1286,71 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run.json
             .xtend-test-results/xtend-package-export-surface-lock.json
             .xtend-test-results/xtend-package-export-lock-report.json
+            .xtend-test-results/product-candidate.json
+            .xtend-test-results/product-candidates/
             .xtend-test-results/xtend-npm-audit-report.json
             .xtend-test-results/xtend-npm-sbom.json
             .xtend-test-results/xtend-conditional-network-evidence-report.json
           if-no-files-found: warn
+
+  product-candidate-canary:
+    name: Packed Core candidate against pinned independent demos
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - node_version: 24.18.0
+            runtime_lane: node-24-lts
+          - node_version: 26.5.0
+            runtime_lane: node-26-current
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        env:
+          update: true
+          use_package_cache: false
+        with:
+          php-version: 8.4
+          extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
+          tools: composer:2.10.3
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: ${{ matrix.node_version }}
+          package-manager-cache: false
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
+      - name: Install verified Core dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Provision required product display and browser tooling
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y xvfb xauth unzip
+          node scripts/provision_product_fpm.cjs 8.4
+          node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
+      - name: Run required product canary
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/product-candidate-canary.cjs
+      - name: Require fresh complete candidate evidence
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/product-candidate-evidence.cjs .xtend-test-results/product-candidate.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: product-candidate-evidence-${{ matrix.runtime_lane }}
+          include-hidden-files: true
+          path: |
+            .xtend-test-results/product-candidate.json
+            .xtend-test-results/product-candidates/
+          if-no-files-found: error

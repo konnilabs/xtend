@@ -81,7 +81,17 @@
     "xsurface-shard",
     "xscaler",
     "xcommand",
-    "scripts/generate_xtendrmt_esm_entrypoints.js"
+    "scripts/generate_xtendrmt_esm_entrypoints.js",
+    "product-support.cjs",
+    "laravel",
+    "scripts/build_laravel_package.js",
+    "scripts/serve_xtend_dev.js",
+    "candidate-integrity.cjs",
+    "product-support.d.ts",
+    "candidate-integrity.d.ts",
+    "security/static-files.d.ts",
+    "scripts/serve_xtend_dev.d.ts",
+    "scripts/build_laravel_package.d.ts"
   ],
   "sideEffects": [
     "*.css",
@@ -965,6 +975,26 @@
     "./xtensions/vue-runtime-adapter": {
       "types": "./tools/xtensions/vue-runtime-adapter.d.ts",
       "default": "./tools/xtensions/vue-runtime-adapter.js"
+    },
+    "./product-support": {
+      "types": "./product-support.d.ts",
+      "default": "./product-support.cjs"
+    },
+    "./security/static-files": {
+      "types": "./security/static-files.d.ts",
+      "default": "./security/static-files.cjs"
+    },
+    "./test-support/browser-hypervisor": "./tools/browser-hypervisor/index.js",
+    "./test-support/php-fpm": "./tools/browser-hypervisor/php-fpm.js",
+    "./test-support/dev-server": "./scripts/serve_xtend_dev.js",
+    "./laravel-package": "./scripts/build_laravel_package.js",
+    "./candidate-integrity": {
+      "types": "./candidate-integrity.d.ts",
+      "default": "./candidate-integrity.cjs"
+    },
+    "./schema-inventory": {
+      "types": "./tools/schema-inventory/index.d.ts",
+      "default": "./tools/schema-inventory/index.cjs"
     }
   },
   "publishConfig": {
@@ -1278,36 +1308,6 @@
       "monkeypatchingAllowed": false,
       "localGate": "node scripts/run_xtend_tests.js xtend-material-performance maraca-size-budget supply-chain pack-dry-run --json",
       "packageScript": "npm run test:xtend-material-performance"
-    },
-    "materialCatfooding": {
-      "schema": "xtend.material.catfooding-report.v1",
-      "productSchema": "xtend.material.catfooding-product.v1",
-      "status": "integrated-by-XTM-12",
-      "workpackage": "XTM-12",
-      "product": "products/xtend-material-workbench",
-      "contract": "development/XTend-Material-Catfooding-Report.md",
-      "lessons": "products/xtend-material-workbench/src/data/lessons.json",
-      "tuneConfig": "products/xtend-material-workbench/maraca.tuned.config.json",
-      "report": ".xtend-test-results/xtend-material-catfooding-report.json",
-      "browserRequired": "chromium",
-      "monkeypatchingAllowed": false,
-      "localGate": "node scripts/run_xtend_tests.js xtend-material-catfooding --json",
-      "packageScript": "npm run test:xtend-material-catfooding"
-    },
-    "erpResumabilityCatfooding": {
-      "schema": "xtend.rmt.erp-resumability-catfood-report.v1",
-      "productSchema": "xtend.rmt.erp-resumability-catfood.v1",
-      "status": "required",
-      "owner": "XTend RMT Runtime",
-      "product": "products/resumability-maraca-erp-demo",
-      "source": "products/resumability-maraca-erp-demo/src/rmt/erp-shell.rmt",
-      "tuneConfig": "products/resumability-maraca-erp-demo/maraca.tuned.config.json",
-      "lessons": "products/resumability-maraca-erp-demo/catfooding-lessons.json",
-      "evidence": "products/resumability-maraca-erp-demo/catfooding-evidence.json",
-      "report": ".xtend-test-results/erp-resumability-catfood-report.json",
-      "browserRequired": "chromium-or-chrome",
-      "localGate": "node scripts/run_xtend_tests.js erp-resumability-catfood --json",
-      "packageScript": "npm run test:erp-resumability-catfood"
     },
     "materialCliGeneratedApp": {
       "schema": "xtend.material.cli-generated-app-report.v1",
@@ -4944,7 +4944,6 @@
       "npm run test:xtend-rmt-app-scaffold",
       "npm run test:maraca-app-services",
       "npm run test:maraca-app-services-cross-runtime",
-      "npm run test:xtend-llm-app-services-catfood",
       "npm run test:maraca",
       "npm run test:xcommand-kernel"
     ],
@@ -12252,7 +12251,6 @@
           "maraca-app-services-runtime",
           "maraca-app-services-cross-runtime",
           "maraca-node-app-host",
-          "xtend-llm-app-services-catfood",
           "maraca-app-services-build",
           "maraca-rmt-source-to-bundle",
           "maraca-orchestration",
@@ -12439,7 +12437,6 @@
           "maraca-app-services-runtime",
           "maraca-app-services-cross-runtime",
           "maraca-node-app-host",
-          "xtend-llm-app-services-catfood",
           "maraca-app-services-build",
           "maraca-rmt-source-to-bundle",
           "maraca-orchestration",
@@ -12535,10 +12532,15 @@
           "npm run test:native-first-rmt-owned-release:report",
           "npm run release:report",
           "npm run pack:dry-run",
+          "npm pack --workspace xtendrmt --dry-run --json --silent",
+          "npm pack --workspace fabric --dry-run --json --silent",
+          "npm pack --workspace tools --dry-run --json --silent",
+          "npm pack --workspace xtend-builder --dry-run --json --silent",
+          "npm pack --workspace xtend-maraca --dry-run --json --silent",
+          "npm pack --workspace @ccslabs/xtend-mcp --dry-run --json --silent",
+          "npm pack --workspace xsurface-shard --dry-run --json --silent",
           "npm run test:maraca:report",
           "npm run test:maraca-app-services-cross-runtime:report",
-          "npm run test:xtend-llm-app-services-catfood:report",
-          "npm run test:maraca-app-services-test-bench:report",
           "npm run test:xtensions-framework-adapters:report",
           "npm run test:xtend-dev-surface:report",
           "npm run test:docs-quality:report",
@@ -12549,7 +12551,8 @@
           "npm run test:xscaler-public-api:report",
           "npm run test:xscaler-php-preflight-parity:report",
           "npm run test:rmt-xscaler-ssr-hydration-parity:report",
-          "npm run test:xscaler-source-to-sea:report"
+          "npm run test:xscaler-source-to-sea:report",
+          "node scripts/product-candidate-canary.cjs"
         ],
         "workspaceDryRunCommands": [
           "npm pack --workspace xtendrmt --dry-run --json --silent",
@@ -12747,7 +12750,8 @@
         "npm run pack:dry-run",
         "npm run conditional-network:evidence",
         "npm publish --dry-run --tag latest --access public",
-        "npm publish --tag latest --provenance --access public"
+        "npm publish --tag latest --provenance --access public",
+        "npm run verify:product-candidate"
       ],
       "requires": [
         "full-release-gates",
@@ -12825,7 +12829,6 @@
         "npm run test:rmt-xscaler-ssr-hydration-parity",
         "npm run test:xscaler-source-to-sea",
         "npm run test:maraca-app-services-cross-runtime",
-        "npm run test:xtend-llm-app-services-catfood",
         "npm run test:docs-public-quality",
         "npm run test:docs-stub-inventory",
         "npm run test:docs-content-depth",
@@ -15583,7 +15586,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 199,
+      "expectedExportCount": 207,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15608,8 +15611,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 199,
-      "lockedExportFingerprint": "5852b738283ed9e1679335f45026678aab727244cc84e0f45cc4684104715ba5",
+      "expectedExportCount": 207,
+      "lockedExportFingerprint": "c2224955e47635f60bb9f69dd673b5753d18d2229d6091334f412887ae95db11",
       "p0Exports": [
         ".",
         "./loader",
@@ -17529,26 +17532,18 @@
         "tests/maraca/maraca_app_services_runtime_suite.js",
         "tests/maraca/maraca_app_services_cross_runtime_parity_suite.js",
         "tests/maraca/maraca_node_app_host_suite.js",
-        "tests/products/xtend_llm_app_services_catfood_suite.js",
         "tests/maraca/maraca_app_services_build_suite.js"
       ],
       "suiteIds": [
         "maraca-app-services-runtime",
         "maraca-app-services-cross-runtime",
         "maraca-node-app-host",
-        "xtend-llm-app-services-catfood",
         "maraca-app-services-build"
       ],
       "crossRuntimeSuite": "tests/maraca/maraca_app_services_cross_runtime_parity_suite.js",
       "crossRuntimeSuiteId": "maraca-app-services-cross-runtime",
       "crossRuntimePackageScript": "npm run test:maraca-app-services-cross-runtime",
       "crossRuntimeReportArtifact": ".xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json",
-      "catfoodSuite": "tests/products/xtend_llm_app_services_catfood_suite.js",
-      "catfoodSuiteId": "xtend-llm-app-services-catfood",
-      "catfoodProductCommand": "npm run test:catfood --prefix products/xtend-llm",
-      "catfoodPackageScript": "npm run test:xtend-llm-app-services-catfood",
-      "catfoodReportArtifact": "products/xtend-llm/.xtend-llm-results/app-services-catfood.json",
-      "aggregateGate": "node scripts/run_xtend_tests.js maraca-app-services-runtime maraca-app-services-cross-runtime maraca-node-app-host xtend-llm-app-services-catfood maraca-app-services-build xtend-rmt-app-scaffold --json",
       "aggregatePackageScript": "npm run test:maraca-app-services",
       "aggregateReportArtifact": ".xtend-test-results/xtend-maraca-app-services-gate-report.json"
     },
@@ -17679,7 +17674,6 @@
         "maraca-app-services-runtime",
         "maraca-app-services-cross-runtime",
         "maraca-node-app-host",
-        "xtend-llm-app-services-catfood",
         "maraca-app-services-build",
         "maraca-rmt-source-to-bundle",
         "maraca-orchestration",
@@ -17743,6 +17737,15 @@
       "localGate": "node scripts/run_xtend_tests.js typescript-components --json",
       "packageScript": "npm run test:typescript-components",
       "runtimeDependencyPolicy": "no-new-runtime-dependencies"
+    },
+    "productDemos": {
+      "schema": "xtend.product-demos-boundary.v1",
+      "repository": "https://github.com/konnilabs/xtend-demos",
+      "pin": "product-demos.lock.json",
+      "candidateCommand": "node scripts/product-candidate-canary.cjs",
+      "requiredEvidence": ".xtend-test-results/product-candidate.json",
+      "retainedFixture": "tools/rmt-language/fixtures/kernel-orchestration-contract.rmt",
+      "consumerFootprintClaim": false
     }
   },
   "supplyChain": {
@@ -17758,10 +17761,6 @@
     "scaffold": "node xtend-builder/scaffold.js",
     "scaffold:workflow": "node xtend-builder/scaffold.js workflow --json",
     "scaffold:verify": "node xtend-builder/scaffold.js verify --json",
-    "scaffold:dry-run": "node xtend-builder/scaffold.js component-files --tag x-example --profile display --feature state --json",
-    "scaffold:typing": "node xtend-builder/scaffold.js typing --tag x-example --profile display --feature state --json",
-    "scaffold:preview": "node xtend-builder/scaffold.js preview --tag x-example --profile display --feature state --json",
-    "scaffold:extensions": "node xtend-builder/scaffold.js extensions --tag x-example --profile display --feature state --json",
     "build:rmt-lifecycle-demo": "node xtend-builder/scaffold.js rmt-build --demo demos/xtendrmt/examples/lifecycle/demo.json --write --json",
     "build:rmt": "node xtend-builder/scaffold.js rmt-build --demo demos/xtendrmt/examples/lifecycle/demo.json --write --json",
     "build:rmt-esm-entrypoints": "node scripts/generate_xtendrmt_esm_entrypoints.js",
@@ -17787,9 +17786,6 @@
     "test:xtend-rmt-app-scaffold": "node scripts/run_xtend_tests.js xtend-rmt-app-scaffold",
     "test:xtend-material-browser-evidence": "node scripts/run_xtend_tests.js --profile xtend-material-browser-evidence",
     "test:xtend-material-performance": "node scripts/run_xtend_tests.js --profile xtend-material-performance",
-    "test:xtend-material-catfooding": "node scripts/run_xtend_tests.js xtend-material-catfooding",
-    "test:erp-resumability-catfood": "node scripts/run_xtend_tests.js erp-resumability-catfood",
-    "test:erp-resumability-catfood:report": "node scripts/run_xtend_tests.js erp-resumability-catfood --report .xtend-test-results/erp-resumability-catfood-report.json",
     "test:xtend-material-cli-generated-app": "node scripts/run_xtend_tests.js xtend-material-cli-generated-app",
     "test:xtend-material-docs": "node scripts/run_xtend_tests.js --profile xtend-material-docs",
     "test:components": "node scripts/run_xtend_tests.js components",
@@ -18153,7 +18149,6 @@
     "test:maraca-docs": "node scripts/run_xtend_tests.js maraca-docs",
     "release:sync-versions:check": "node scripts/sync_xtend_package_versions.js --check",
     "test:docs-stub-inventory:report": "node scripts/run_xtend_tests.js docs-stub-inventory --report .xtend-test-results/xtend-docs-stub-inventory-report.json",
-    "build:maraca": "node xtend-builder/scaffold.js maraca build tests/rmt-language/fixtures/maraca-known-components.rmt --out .xtend-build/maraca/source-to-sea --profile production --lazy component --css inline --json",
     "test:maraca-plan": "node scripts/run_xtend_tests.js maraca-plan",
     "test:maraca-bundle": "node scripts/run_xtend_tests.js maraca-bundle",
     "test:maraca-bundle-report": "node scripts/run_xtend_tests.js maraca-bundle-report",
@@ -18161,10 +18156,6 @@
     "test:maraca-node-app-host": "node scripts/run_xtend_tests.js maraca-node-app-host",
     "test:maraca-app-services-cross-runtime": "node scripts/run_xtend_tests.js maraca-app-services-cross-runtime",
     "test:maraca-app-services-cross-runtime:report": "node scripts/run_xtend_tests.js maraca-app-services-cross-runtime --report .xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json",
-    "test:xtend-llm-app-services-catfood": "node scripts/run_xtend_tests.js xtend-llm-app-services-catfood",
-    "test:xtend-llm-app-services-catfood:report": "node scripts/run_xtend_tests.js xtend-llm-app-services-catfood --report .xtend-test-results/xtend-llm-app-services-catfood-report.json",
-    "test:maraca-app-services-test-bench": "node scripts/run_xtend_tests.js maraca-app-services-test-bench",
-    "test:maraca-app-services-test-bench:report": "node scripts/run_xtend_tests.js maraca-app-services-test-bench --report .xtend-test-results/xtend-maraca-app-services-test-bench-report.json",
     "test:maraca-app-services-build": "node scripts/run_xtend_tests.js maraca-app-services-build",
     "test:maraca-app-services": "node scripts/run_xtend_tests.js --profile maraca-app-services",
     "test:maraca-app-services:report": "node scripts/run_xtend_tests.js --profile maraca-app-services --report .xtend-test-results/xtend-maraca-app-services-gate-report.json",
@@ -18213,21 +18204,21 @@
     "test:ssr-pages-laravel": "node scripts/run_xtend_tests.js --profile ssr-pages-laravel",
     "test:ssr-pages-laravel-browser": "node scripts/run_xtend_tests.js --profile ssr-pages-laravel-browser",
     "test:ssr-pages-php": "node scripts/run_xtend_tests.js --profile ssr-pages-php",
-    "test:xtend-shop-contracts": "node scripts/run_xtend_tests.js --profile xtend-shop-contracts",
-    "test:xtend-shop-contracts:report": "node scripts/run_xtend_tests.js --profile xtend-shop-contracts --report .xtend-test-results/xtend-shop-contracts.json",
-    "test:xtend-shop-php": "node scripts/run_xtend_tests.js --profile xtend-shop-php",
-    "test:xtend-shop-php:report": "node scripts/run_xtend_tests.js --profile xtend-shop-php --report .xtend-test-results/xtend-shop-php.json",
-    "test:xtend-shop-browser": "node scripts/run_xtend_tests.js --profile xtend-shop-browser",
-    "test:xtend-shop-browser:report": "node scripts/run_xtend_tests.js --profile xtend-shop-browser --report .xtend-test-results/xtend-shop-browser.json",
-    "test:xtend-shop": "node scripts/run_xtend_tests.js --profile xtend-shop",
-    "test:xtend-shop:report": "node scripts/run_xtend_tests.js --profile xtend-shop --report .xtend-test-results/xtend-shop.json",
     "build:html-sanitizer": "node scripts/build_html_sanitizer.js",
     "check:html-sanitizer": "node scripts/build_html_sanitizer.js --check",
     "test:security-scan-regressions": "node --test tests/security/*.test.*",
     "test:xtensions-runtime": "node scripts/test_xtensions_runtime_adapters.cjs",
     "test:xtensions-runtime:browser": "node scripts/test_xtensions_runtime_adapters.cjs --browser",
     "ci:dependency-locks:sync-metadata": "node scripts/sync_ci_dependency_lock_metadata.js",
-    "test:xtensions-runtime:ci": "node scripts/run_xtend_tests.js --profile xtensions-runtime-acceptance"
+    "test:xtensions-runtime:ci": "node scripts/run_xtend_tests.js --profile xtensions-runtime-acceptance",
+    "test:product-boundary": "node --test tests/migration/*.test.cjs tests/migration/manifest-initial-authority/*.test.cjs",
+    "test:product-candidate": "node scripts/product-candidate-canary.cjs",
+    "verify:product-candidate": "node scripts/product-candidate-evidence.cjs .xtend-test-results/product-candidate.json",
+    "scaffold:dry-run": "node xtend-builder/scaffold.js component-files --tag x-example --profile display --feature state --json",
+    "scaffold:typing": "node xtend-builder/scaffold.js typing --tag x-example --profile display --feature state --json",
+    "scaffold:preview": "node xtend-builder/scaffold.js preview --tag x-example --profile display --feature state --json",
+    "scaffold:extensions": "node xtend-builder/scaffold.js extensions --tag x-example --profile display --feature state --json",
+    "build:maraca": "node xtend-builder/scaffold.js maraca build tests/rmt-language/fixtures/maraca-known-components.rmt --out .xtend-build/maraca/source-to-sea --profile production --lazy component --css inline --json"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",

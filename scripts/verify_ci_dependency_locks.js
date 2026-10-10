@@ -4,10 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const REPORT_SCHEMA = 'xtend.ci.dependency-lock-alignment-report.v1';
-const PRODUCT_LOCK_PATHS = [
-  'products/xtend-llm',
-  'products/resumability-maraca-erp-demo'
-];
+const PRODUCT_LOCK_PATHS = []; // Product locks are checked in pinned xtend-demos candidate gates.
 const LOCKED_MANIFEST_SECTIONS = [
   'dependencies',
   'optionalDependencies',

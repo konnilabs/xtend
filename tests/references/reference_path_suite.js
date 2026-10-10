@@ -7378,7 +7378,7 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(nightlyBuild.workflow === nightlyWorkflowPath, 'Package metadata exposes nightly build workflow path');
   context.assert(nightlyBuild.nodeVersion === '24.18.0', 'Package metadata exposes the primary nightly Node version');
   context.assert(Array.isArray(nightlyBuild.nodeVersions) && nightlyBuild.nodeVersions.join(',') === '24.18.0,26.5.0', 'Package metadata exposes both required nightly Node versions');
-  context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.every(command => require('../utils/test-catalog').workflowHasScript(primaryNightlyWorkflow, command.replace('npm run ', ''))), 'Every declared nightly report obligation is covered by the resolved execution or a standalone check');
+  context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.every(command => require('../utils/test-catalog').workflowHasCommand(primaryNightlyWorkflow, command)), 'Every declared nightly report obligation is covered by the resolved execution or a standalone check');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet[0] === 'npm run ci:dependency-locks:check', 'Package metadata starts the nightly command set with the dependency lock guard');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run native-first:evidence:prepare'), 'Package metadata includes Native-First evidence preparation in nightly build');
   context.assert(Array.isArray(nightlyBuild.commandSet) && nightlyBuild.commandSet.includes('npm run test:xtend-mcp:report'), 'Package metadata includes the MCP report gate in nightly build');

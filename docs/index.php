@@ -2267,7 +2267,7 @@ function docsRmtPlaygroundHandlePreset($repoRoot) {
         ], 405);
     }
     $presets = [
-        'customer-service-kernel' => 'products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt'
+        'customer-service-kernel' => 'tools/rmt-language/fixtures/kernel-orchestration-contract.rmt'
     ];
     $name = strtolower(trim((string) ($_GET['name'] ?? '')));
     if (!isset($presets[$name])) {

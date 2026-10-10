@@ -517,9 +517,10 @@ function loadRmtKernelFeatureAdoptionRegistry(rootDir) {
   const packageRoot = path.dirname(path.dirname(__filename));
   const candidates = [
     path.resolve(rootDir || process.cwd(), KERNEL_FEATURE_ADOPTION_REGISTRY_MODULE),
-    path.resolve(packageRoot, KERNEL_FEATURE_ADOPTION_REGISTRY_MODULE)
+    path.resolve(packageRoot, KERNEL_FEATURE_ADOPTION_REGISTRY_MODULE),
+    resolveXtendPeerRoot() && path.resolve(resolveXtendPeerRoot(), KERNEL_FEATURE_ADOPTION_REGISTRY_MODULE)
   ];
-  const registryPath = candidates.find((candidate) => fs.existsSync(candidate));
+  const registryPath = candidates.find((candidate) => candidate && fs.existsSync(candidate));
   if (!registryPath) return null;
   try {
     rmtKernelFeatureAdoptionRegistryModule = require(registryPath);
@@ -543,9 +544,10 @@ function loadRmtKernelPolicyParityModule(rootDir) {
   const packageRoot = path.dirname(path.dirname(__filename));
   const candidates = [
     path.resolve(rootDir || process.cwd(), KERNEL_POLICY_PARITY_MODULE),
-    path.resolve(packageRoot, KERNEL_POLICY_PARITY_MODULE)
+    path.resolve(packageRoot, KERNEL_POLICY_PARITY_MODULE),
+    resolveXtendPeerRoot() && path.resolve(resolveXtendPeerRoot(), KERNEL_POLICY_PARITY_MODULE)
   ];
-  const modulePath = candidates.find((candidate) => fs.existsSync(candidate));
+  const modulePath = candidates.find((candidate) => candidate && fs.existsSync(candidate));
   if (!modulePath) {
     rmtKernelPolicyParityModuleError = new Error('RMT kernel policy parity module was not found.');
     return null;
@@ -2232,8 +2234,9 @@ function compileSource(options, compile = null) {
 function loadComponentManifest(rootDir) {
   const manifestPath = [
     path.join(rootDir, 'components', 'manifest.json'),
-    path.join(__dirname, '..', 'components', 'manifest.json')
-  ].find((candidate) => fs.existsSync(candidate));
+    path.join(__dirname, '..', 'components', 'manifest.json'),
+    resolveXtendPeerRoot() && path.join(resolveXtendPeerRoot(), 'components', 'manifest.json')
+  ].find((candidate) => candidate && fs.existsSync(candidate));
   if (!manifestPath) {
     throw new Error('Maraca component manifest not found in app root or vendored XTend package.');
   }
@@ -2647,9 +2650,10 @@ function resolveStackModuleRecords(runtimeModules, options, orchestrationPlan = 
   return Array.from(new Set(moduleIds)).sort().map((moduleId) => {
     const candidates = [
       path.resolve(options.rootDir, moduleId),
-      path.resolve(packageRoot, moduleId)
+      path.resolve(packageRoot, moduleId),
+      resolveXtendPeerRoot() && path.resolve(resolveXtendPeerRoot(), moduleId)
     ];
-    const absolutePath = candidates.find((candidate) => fs.existsSync(candidate));
+    const absolutePath = candidates.find((candidate) => candidate && fs.existsSync(candidate));
     return absolutePath ? {
       id: moduleId,
       source: moduleId,
@@ -5651,7 +5655,7 @@ function copyPlanRuntimeAsset(plan) {
     path.resolve(plan.rootDir || packageRoot, 'xtend-maraca/plan-runtime.mjs'),
     path.resolve(__dirname, 'plan-runtime.mjs')
   ];
-  const sourcePath = candidates.find((candidate) => fs.existsSync(candidate));
+  const sourcePath = candidates.find((candidate) => candidate && fs.existsSync(candidate));
   if (!sourcePath) return null;
   const targetPath = path.join(plan.outputDir, PLAN_RUNTIME_BUNDLE_FILE);
   fs.mkdirSync(path.dirname(targetPath), { recursive: true });
@@ -5809,9 +5813,10 @@ function copyKernelResumeRuntimeAssets(plan) {
   const packageRoot = path.dirname(path.dirname(__filename));
   const candidates = [
     path.resolve(plan.rootDir || packageRoot, 'xtendrmt/rmt-resume-runtime.js'),
-    path.resolve(packageRoot, 'xtendrmt/rmt-resume-runtime.js')
+    path.resolve(packageRoot, 'xtendrmt/rmt-resume-runtime.js'),
+    resolveXtendPeerRoot() && path.resolve(resolveXtendPeerRoot(), 'xtendrmt/rmt-resume-runtime.js')
   ];
-  const sourcePath = candidates.find((candidate) => fs.existsSync(candidate));
+  const sourcePath = candidates.find((candidate) => candidate && fs.existsSync(candidate));
   if (!sourcePath) return [];
   const sourceRoot = path.dirname(sourcePath);
   return collectRelativeEsmSourceClosure(sourcePath, sourceRoot).map((dependencyPath) => {
@@ -5841,9 +5846,10 @@ function copyKernelControllerRuntimeAssets(plan) {
   const packageRoot = path.dirname(path.dirname(__filename));
   const candidates = [
     path.resolve(plan.rootDir || packageRoot, 'xtendrmt/rmt-kernel-orchestration-controller.js'),
-    path.resolve(packageRoot, 'xtendrmt/rmt-kernel-orchestration-controller.js')
+    path.resolve(packageRoot, 'xtendrmt/rmt-kernel-orchestration-controller.js'),
+    resolveXtendPeerRoot() && path.resolve(resolveXtendPeerRoot(), 'xtendrmt/rmt-kernel-orchestration-controller.js')
   ];
-  const sourcePath = candidates.find((candidate) => fs.existsSync(candidate));
+  const sourcePath = candidates.find((candidate) => candidate && fs.existsSync(candidate));
   if (!sourcePath) return [];
   const targetPath = path.join(plan.outputDir, KERNEL_CONTROLLER_BUNDLE_FILE);
   fs.mkdirSync(path.dirname(targetPath), { recursive: true });

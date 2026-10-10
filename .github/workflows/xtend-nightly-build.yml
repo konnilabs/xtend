@@ -50,7 +50,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/xtend-npm-cache
-          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'products/xtend-llm/package-lock.json') }}
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
 
       - name: Setup Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -65,6 +65,9 @@ jobs:
 
       - name: Setup PHP for the required Laravel 12/13 matrix
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        env:
+          update: true
+          use_package_cache: false
         with:
           php-version: '8.4'
           extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite
@@ -106,13 +109,21 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/test-runner/nightly.js phase install_1
 
-      - name: Install product CI catfood dependencies
-        id: install_2
+      - name: Provision required product display and browser tooling
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y xvfb xauth unzip
+          node scripts/provision_product_fpm.cjs 8.4
+          node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
+      - name: Run pinned independent product candidate acceptance
+        id: product_candidate
         continue-on-error: true
         if: ${{ !cancelled() && steps.nightly_begin.outcome == 'success' }}
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node scripts/test-runner/nightly.js phase install_2
+        run: node scripts/test-runner/nightly.js phase product_candidate
 
       - name: Probe required runner capabilities
         id: capabilities
@@ -259,21 +270,15 @@ jobs:
         if: always()
         run: test "${{ steps.nightly_finalize.outputs.maraca_app_services_cross_runtime }}" = "success"
 
-      - name: Run XTend LLM AppServices catfood report
-        id: xtend_llm_app_services_catfood
+      - name: Require finalized independent product Candidate acceptance
+        id: product_candidate_acceptance
         continue-on-error: true
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         if: always()
-        run: test "${{ steps.nightly_finalize.outputs.xtend_llm_app_services_catfood }}" = "success"
-
-      - name: Run Maraca App Services Test Bench catfood report
-        id: maraca_app_services_test_bench
-        continue-on-error: true
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        if: always()
-        run: test "${{ steps.nightly_finalize.outputs.maraca_app_services_test_bench }}" = "success"
+        run: |
+          test "${{ steps.nightly_finalize.outputs.product_candidate }}" = "success"
+          test "${{ steps.nightly_finalize.outputs.accepted }}" = "success"
 
       - name: Run XTensions framework adapter report
         id: xtensions_framework_adapters
@@ -399,6 +404,8 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run.json
             .xtend-test-results/xtend-package-export-surface-lock.json
             .xtend-test-results/xtend-package-export-lock-report.json
+            .xtend-test-results/product-candidate.json
+            .xtend-test-results/product-candidates/
             .xtend-test-results/xtend-pack-dry-run-xtendrmt.json
             .xtend-test-results/xtend-pack-dry-run-fabric.json
             .xtend-test-results/xtend-pack-dry-run-tools.json
@@ -408,11 +415,7 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run-xsurface-shard.json
             .xtend-test-results/xtend-maraca-gate-report.json
             .xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json
-            .xtend-test-results/xtend-llm-app-services-catfood-report.json
-            products/xtend-llm/.xtend-llm-results/app-services-catfood.json
-            .xtend-test-results/xtend-maraca-app-services-test-bench-report.json
-            products/maraca-app-services-test-bench/.xtend-test-results/maraca-app-services-test-bench-evidence.json
-            products/maraca-app-services-test-bench/.xtend-test-results/maraca-app-services-test-bench.png
+            .xtend-test-results/product-candidates/reports/maraca-app-services-test-bench.json
             .xtend-test-results/xtend-xtensions-framework-adapters-report.json
             .xtend-test-results/xtend-xtensions-runtime-report.json
             .xtend-test-results/xtend-xtensions-runtime-browser-report.json
@@ -448,7 +451,7 @@ jobs:
           if [ "${{ steps.nightly_begin.outcome }}" != "success" ]; then echo "nightly_begin failed"; failed=1; fi
           if [ "${{ steps.lock_guard.outcome }}" != "success" ]; then echo "lock_guard failed"; failed=1; fi
           if [ "${{ steps.install_1.outcome }}" != "success" ]; then echo "install_1 failed"; failed=1; fi
-          if [ "${{ steps.install_2.outcome }}" != "success" ]; then echo "install_2 failed"; failed=1; fi
+          if [ "${{ steps.product_candidate.outcome }}" != "success" ]; then echo "product_candidate failed"; failed=1; fi
           if [ "${{ steps.capabilities.outcome }}" != "success" ]; then echo "capabilities failed"; failed=1; fi
           if [ "${{ steps.nightly_finalize.outcome }}" != "success" ]; then echo "nightly_finalize failed"; failed=1; fi
           if [ "${{ steps.native_first_evidence_prepare.outcome }}" != "success" ]; then echo "Native-First evidence preparation failed"; failed=1; fi
@@ -466,8 +469,7 @@ jobs:
           if [ "${{ steps.pack_workspaces.outcome }}" != "success" ]; then echo "workspace package dry runs failed"; failed=1; fi
           if [ "${{ steps.maraca.outcome }}" != "success" ]; then echo "Maraca gate failed"; failed=1; fi
           if [ "${{ steps.maraca_app_services_cross_runtime.outcome }}" != "success" ]; then echo "Maraca AppServices Node/PHP parity gate failed"; failed=1; fi
-          if [ "${{ steps.xtend_llm_app_services_catfood.outcome }}" != "success" ]; then echo "XTend LLM AppServices catfood gate failed"; failed=1; fi
-          if [ "${{ steps.maraca_app_services_test_bench.outcome }}" != "success" ]; then echo "Maraca App Services Test Bench catfood gate failed"; failed=1; fi
+          if [ "${{ steps.product_candidate_acceptance.outcome }}" != "success" ]; then echo "required finalized product Candidate acceptance failed"; failed=1; fi
           if [ "${{ steps.xtensions_framework_adapters.outcome }}" != "success" ]; then echo "XTensions framework adapter gate failed"; failed=1; fi
           if [ "${{ steps.xtend_dev_surface.outcome }}" != "success" ]; then echo "XTend Dev Surface gate failed"; failed=1; fi
           if [ "${{ steps.docs_quality.outcome }}" != "success" ]; then echo "public docs quality gate failed"; failed=1; fi

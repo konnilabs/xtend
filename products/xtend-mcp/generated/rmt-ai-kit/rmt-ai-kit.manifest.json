@@ -61,7 +61,7 @@
       "lineCount": 32
     },
     "rmt-ai-kit.recipes.jsonl": {
-      "sha256": "40def8ea5032e8f975266e928e471f54c9eb7dbb2d7e3ea3d84462540d49c583",
+      "sha256": "647baeecf3777f0c733e1aa1a058bff3b34b545173c20c93268b9791fae6a7b7",
       "lineCount": 6
     },
     "rmt-ai-kit.prompts.md": {
@@ -96,13 +96,13 @@
     },
     {
       "path": "docs/de/learn-rmt-next-steps.md",
-      "sha256": "ada67a45499b8f2d462c45d3049b524dede4658c421b5c3967eeedee67e9cc6e",
-      "bytes": 2028
+      "sha256": "e84f31f4085f056c12553a3b902400ee4ede2c2b030c3e7e3857c8d4b5eb8c8d",
+      "bytes": 2020
     },
     {
       "path": "docs/de/learn-rmt-playground.md",
-      "sha256": "0557cd9a417e783f8e1cf94aa8a64104af7aaf4950f350cf1a1a09c43516961e",
-      "bytes": 3882
+      "sha256": "486d0c81c1a2ecf08b17229ee6dc4588f9be4c122f9ccb8ea7a281d54364fe3b",
+      "bytes": 3874
     },
     {
       "path": "docs/de/learn-rmt-scheduling-lanes.md",
@@ -206,8 +206,8 @@
     },
     {
       "path": "docs/de/xtend-maraca-orchestration.md",
-      "sha256": "bdfa216e33a2835407e5df17f42ec9c08da28c5acf77c22c7df112561d7519ad",
-      "bytes": 10501
+      "sha256": "e1625f1e3cd5b22e3fcdc0afa81ff964b118c1d96610092d4fe1495f97fe870a",
+      "bytes": 10468
     },
     {
       "path": "docs/de/xtendrmt-app-dsl.md",
