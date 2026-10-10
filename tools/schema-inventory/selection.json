@@ -53,6 +53,7 @@
   "xtend.rmt.app-hydration-plan.v1",
   "xtend.rmt.app-resumability-capability.v1",
   "xtend.rmt.app-runtime-graph.v1",
+  "xtend.rmt.command.v1",
   "xtend.rmt.component-contract.v1",
   "xtend.rmt.form-validation-apply-report.v1",
   "xtend.rmt.form-validation-boot.v1",

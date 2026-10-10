@@ -57,7 +57,7 @@ const SOURCE_EXCLUDES = new Set([
   'tools/schema-inventory/engine.cjs', 'tools/schema-inventory/index.cjs',
   'tools/schema-inventory/index.d.ts', 'tools/schema-inventory/ownership.cjs',
   'tools/schema-inventory/ownership-ledger.json', 'tools/schema-inventory/selection.json',
-  'tools/schema-inventory/authority-bindings.json', 'tests/schemas/ownership-100.json'
+  'tools/schema-inventory/authority-bindings.json', 'tests/schemas/ownership-101.json', 'tools/schema-inventory/command-lexical-overlay.json'
 ]);
 
 // Materialized knowledge aggregates preserve their canonical sources verbatim.

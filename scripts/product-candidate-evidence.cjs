@@ -2,7 +2,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const {verifyCandidates,verifyInstalledClosure,digest}=require('../candidate-integrity.cjs');
 const schema='xtend.product-candidate-evidence.v1';
-const required=['http-security','product-xss','product-builds','product-owned-suites','shop-php','shop-browser','shop-browser-fpm','electron-runtime','electron-shell-import-worker','llm-contracts','erp-resumability-catfood','maraca-app-services-test-bench','xtend-llm-app-services-catfood','xtend-material-catfooding','xtend-shop-php','xtend-shop-browser','xtend-shop-contracts','schema-ownership-100'];
+const required=['http-security','product-xss','product-builds','product-owned-suites','shop-php','shop-browser','shop-browser-fpm','electron-runtime','electron-shell-import-worker','llm-contracts','erp-resumability-catfood','maraca-app-services-test-bench','xtend-llm-app-services-catfood','xtend-material-catfooding','xtend-shop-php','xtend-shop-browser','xtend-shop-contracts','schema-ownership-101'];
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 function verifyEvidence(evidence,{coreSha,demoSha,packages,php,installation,reports,startedAt,maxAgeMs=3600000,now=Date.now()}={}) {
  if(evidence?.schema!==schema||evidence.ok!==true||evidence.status!=='passed'||evidence.development)throw Error('Missing or failed required Demo evidence');
@@ -21,7 +21,7 @@ function verifyReportFiles(reports,{directory,coreSha,demoSha,manifest,startedAt
  for(const report of reports) {
   if(report.file!=='reports/'+report.id+'.json'||!/^[a-z0-9-]+$/.test(report.id))throw Error('Invalid report path');
   const bytes=fs.readFileSync(path.join(directory,report.file));if(digest(bytes)!==report.sha256)throw Error('Report digest mismatch');
-  if(report.id==='schema-ownership-100'){require('../tools/schema-inventory/ownership.cjs').verifyOwnershipEvidence(report,{directory,coreSha,demoSha,manifest,startedAt});continue;}
+  if(report.id==='schema-ownership-101'){require('../tools/schema-inventory/ownership.cjs').verifyOwnershipEvidence(report,{directory,coreSha,demoSha,manifest,startedAt});continue;}
   const result=JSON.parse(bytes);if(result.schema!=='xtend.product-suite-result.v1'||result.id!==report.id||result.coreSha!==coreSha||result.demoSha!==demoSha||result.status!=='passed'||result.exitCode!==0||result.skips?.length||result.failures?.length)throw Error('Required report outcome/identity mismatch');
  }
  return true;
