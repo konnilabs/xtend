@@ -89,7 +89,9 @@
     "candidate-integrity.cjs",
     "product-support.d.ts",
     "candidate-integrity.d.ts",
-    "security/static-files.d.ts"
+    "security/static-files.d.ts",
+    "scripts/serve_xtend_dev.d.ts",
+    "scripts/build_laravel_package.d.ts"
   ],
   "sideEffects": [
     "*.css",
