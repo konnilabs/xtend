@@ -1122,5 +1122,32 @@
         "bytes": 17854
       }
     }
+  ],
+  "comparisonArchives": [
+    {
+      "owner": "demo",
+      "path": "migration/workflow-comparison/workflows.tar.gz",
+      "gitBlob": "3696e91d2ad9cd154c87ce44407fc9189228f44a",
+      "sha256": "1a3ce881eff69d7e87597141775004bebd3efcec9801ef3aee73a29f30147c02",
+      "bytes": 8835,
+      "members": [
+        {
+          "member": "xtend-default-gates.yml",
+          "originalSourcePath": ".github/workflows/xtend-default-gates.yml",
+          "originalCoreSha": "31d8c01f92538b55e57e741ed4e71a4e4a6604b5",
+          "gitBlob": "d98011bf040cdfc1df3c6cbe17a9682d5a0b2df9",
+          "sha256": "3cda49b3014ec9cfcab2ba48ff92e541a800ccf8a994aadbe04e67613a303a20",
+          "bytes": 65179
+        },
+        {
+          "member": "xtend-nightly-build.yml",
+          "originalSourcePath": ".github/workflows/xtend-nightly-build.yml",
+          "originalCoreSha": "31d8c01f92538b55e57e741ed4e71a4e4a6604b5",
+          "gitBlob": "c29b8cd907a0d8ee1ebcdd9481e819254b1cf1c2",
+          "sha256": "6426d6de5a31be5ea138eb8f265a075d267f5a8521c3c66b61400985e159b2ac",
+          "bytes": 34241
+        }
+      ]
+    }
   ]
 }

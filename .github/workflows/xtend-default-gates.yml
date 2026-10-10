@@ -224,6 +224,7 @@ jobs:
         run: |
           node --test tests/schemas/union_source_provider.test.cjs
           node --test tests/schemas/expected_inventory_view.test.cjs
+          node --test tests/schemas/workflow_comparison.test.cjs
 
       - name: Required productive full-source union validation
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}

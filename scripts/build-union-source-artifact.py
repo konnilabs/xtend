@@ -45,6 +45,24 @@ def main():
     bindings=json.loads(policy_bytes)
     subprocess.check_call(['git','-C',str(core),'merge-base','--is-ancestor',pin['implementationCoreSha'],a.core_sha])
     c,cb=repository(core,a.core_sha); d,db=repository(demo,pin['demoSha']); h,_=repository(core,bindings['historicalCoreSha'],False)
+    # Validate the exact compressed comparison closure against immutable original Git sources.
+    archives=bindings.get('comparisonArchives',[])
+    known={row['path'] for row in archives}
+    if any(row['path'].startswith('migration/workflow-comparison/') and row['path'] not in known for row in d['files']): raise ValueError('Unknown workflow comparison archive')
+    for archive in archives:
+        data=db.get(archive['path'])
+        if archive['owner']!='demo' or data is None or len(data)!=archive['bytes'] or hashlib.sha256(data).hexdigest()!=archive['sha256']:
+            raise ValueError('Missing or changed workflow comparison archive')
+        if hashlib.sha1(('blob '+str(len(data))+'\0').encode()+data).hexdigest()!=archive['gitBlob']: raise ValueError('Workflow archive Git blob mismatch')
+        with tarfile.open(fileobj=io.BytesIO(data),mode='r:gz') as nested:
+            members=nested.getmembers()
+            if len(members)!=len(archive['members']) or {m.name for m in members}!={m['member'] for m in archive['members']}: raise ValueError('Unexpected workflow comparison member')
+            for item in archive['members']:
+                member=nested.getmember(item['member'])
+                if not member.isfile() or member.mode!=0o644: raise ValueError('Invalid workflow comparison member')
+                original=git(core,'show',item['originalCoreSha']+':'+item['originalSourcePath'])
+                content=nested.extractfile(member).read()
+                if item['originalCoreSha']!=bindings['historicalCoreSha'] or content!=original or len(content)!=item['bytes'] or hashlib.sha256(content).hexdigest()!=item['sha256'] or hashlib.sha1(('blob '+str(len(content))+'\0').encode()+content).hexdigest()!=item['gitBlob']: raise ValueError('Workflow comparison source provenance mismatch')
     context=dict(runId=a.run_id,runAttempt=a.run_attempt)
     manifest=dict(format=1,repository='konnilabs/xtend',demoRepository='konnilabs/xtend-demos',context=context,producer=producer,core=c,demo=d,historical=h)
     mb=(json.dumps(manifest,sort_keys=True,separators=(',',':'))+'\n').encode()

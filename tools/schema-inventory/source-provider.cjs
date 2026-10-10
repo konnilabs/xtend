@@ -112,6 +112,29 @@ function createSourceProvider({ archive, destination, expected }) {
     evidence.push({ memberPath, owner: 'historical', path: binding.formerPath, bytes: old.bytes, sha256: old.sha256 });
     check(index.get(binding.formerPath)?.owner === 'demo', 'Missing current mapped source');
   }
+  // Exact, Git-bound workflow archives are comparison transport, never live fallback.
+  const comparisons = [];
+  const archives = bindings.comparisonArchives || [];
+  const archivePaths = new Set(archives.map(row => row.path));
+  check(manifest.demo.files.filter(row => row.path.startsWith('migration/workflow-comparison/')).every(row => archivePaths.has(row.path)), 'Unknown workflow comparison archive');
+  for (const archive of archives) {
+    const row = index.get('@demo/' + archive.path);
+    check(archive.owner === 'demo' && row && row.sha256 === archive.sha256 && row.gitBlob === archive.gitBlob && row.bytes === archive.bytes, 'Missing or changed workflow comparison archive');
+    const compressed = members.get(row.memberPath).bytes;
+    const decoded = tarMembers(compressed);
+    check(decoded.size === archive.members.length && [...decoded.keys()].every(name => archive.members.some(item => item.member === name)), 'Unexpected workflow comparison member');
+    for (const item of archive.members) {
+      const historical = manifest.historical.files.find(file => file.path === item.originalSourcePath);
+      const member = decoded.get(item.member);
+      check(item.originalCoreSha === bindings.historicalCoreSha && historical && historical.gitBlob === item.gitBlob && historical.sha256 === item.sha256 && historical.bytes === item.bytes
+        && member && member.mode === 0o644 && member.bytes.length === item.bytes && hash(member.bytes) === item.sha256 && objectId('blob', member.bytes) === item.gitBlob, 'Workflow comparison source provenance mismatch');
+      const memberPath = 'evidence/workflow-comparison/' + safePath(item.member);
+      check(!members.has(memberPath), 'Duplicate workflow comparison output');
+      members.set(memberPath, member);
+      const comparison = { memberPath, owner: 'historical', path: item.originalSourcePath, bytes: item.bytes, sha256: item.sha256 };
+      evidence.push(comparison); comparisons.push({ ...comparison, originalCoreSha: item.originalCoreSha, gitBlob: item.gitBlob, archivePath: archive.path, archiveSha256: archive.sha256 });
+    }
+  }
   const pin = JSON.parse(members.get('current/core/product-demos.lock.json')?.bytes || '{}');
   check(pin.repository === 'https://github.com/konnilabs/xtend-demos.git' && pin.demoSha === expected.demoSha
     && /^[a-f0-9]{40}$/.test(pin.implementationCoreSha), 'Current Core Demo pin mismatch');
@@ -132,6 +155,7 @@ function createSourceProvider({ archive, destination, expected }) {
     manifestSha256: expected.manifestSha256, producer: manifest.producer, context: manifest.context, productiveFiles: materialized.length, historicalProductiveFiles: 0,
     bindings: materialized.map(({ owner, path, logicalPath, sha256, gitBlob }) => ({ owner, sourcePath: path, logicalPath, sha256, gitBlob })) };
   const provider = Object.freeze({
+    comparisonEvidence() { return comparisons.map(row => ({ ...row, bytes: fs.readFileSync(recheck(row)) })); },
     files() { evidence.forEach(recheck); return materialized.map(row => ({ ...row, absolutePath: recheck(row) })); },
     hasCurrent(relative) { const row = index.get(relative); if (!row) return false; recheck(row); return true; },
     readCurrent(relative) { check(index.has(relative), 'Missing current source'); const row = index.get(relative), bytes = fs.readFileSync(recheck(row)); check(hash(bytes) === row.sha256, 'Current source changed during read'); return bytes; },
