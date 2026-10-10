@@ -7,17 +7,18 @@ const stable = value => Array.isArray(value) ? value.map(stable) : value && type
 const equal = (a,b) => JSON.stringify(stable(a)) === JSON.stringify(stable(b));
 const check = (condition, message) => { if (!condition) throw Error(message); };
 const approved = Object.freeze({
-  core: 'd6866aabeda550e577e0871b11242cb263f8bed74420fc5c95797f7703a01e37',
-  demo: 'fa24da7838b82c89a1afede37b42fa87ecb0c584093e87847a28b5c35f156547',
+  core: 'bb5969b4dbe6d037bea65331c99bb5d520852bc131fa2299af9757ad4c6315ef',
+  demo: 'c9bfc8375c418550a1197d049ce32580bb9bf732eb6516eb47c9d07a9f0c9177',
   ledger: '40a4e1d38dbf9e64a724d69178803768e6bff22c90c8260f5644916c24e127c8',
   overlay: '6cf0062f99130ff59bb858fbb8c812fa81604f3c4f9a72694c80f010df59f29b',
+  forms: 'ceadceeaf29da62825fc47e35dd592d1c396e1f4403acd341ecc386c2e955c12',
   authorityBindings: 'b592726800e8a7f4d52e6217fe5aa1c2efd70e8f7907723f4915fa828801589d'
 });
 // This internal pure assembler consumes EXPECTED records only. The productive
 // entry point below authenticates their bytes through a verified source provider.
-function assembleExpectedView({core, demo, ledger, selection, authorityBindings, overlay, resolvePath}) {
-  check(hash(Buffer.from(JSON.stringify(stable(core)))) === '47a5cfb03b8b3d442039c3410d4fa46ac3944fa04f12729b0252cc416f7a86f1', 'Unreviewed Core expected record mutation');
-  check(hash(Buffer.from(JSON.stringify(stable(demo)))) === '3da9857f0f6ef79bb60e048296f3f411719006c79174a33d06468a2def7e2135', 'Unreviewed Demo expected record mutation');
+function assembleExpectedView({core, demo, ledger, selection, authorityBindings, overlay, forms, resolvePath}) {
+  check(hash(Buffer.from(JSON.stringify(stable(core)))) === '86c0b531e2a389972532ed88401553b68933609aafd7bd1c49515350e13f5457', 'Unreviewed Core expected record mutation');
+  check(hash(Buffer.from(JSON.stringify(stable(demo)))) === 'd2d0e4aa7b7a70ee3e47845a27c69530460b2600011de5d857ba28e330bf53dd', 'Unreviewed Demo expected record mutation');
   const preservedLedger = JSON.parse(require('node:zlib').gunzipSync(require('node:fs').readFileSync(require('node:path').join(__dirname,'ownership-ledger.json.gz'))));
   check(equal(ledger,preservedLedger), 'Original expected ledger mutation');
   const localInput = (name, digest) => {
@@ -27,6 +28,8 @@ function assembleExpectedView({core, demo, ledger, selection, authorityBindings,
   };
   check(equal(overlay,localInput('command-lexical-overlay.json',approved.overlay)), 'Reviewed expected overlay input changed');
   check(equal(authorityBindings,localInput('authority-bindings.json',approved.authorityBindings)), 'Reviewed expected authority bindings changed');
+  check(equal(forms,localInput('form-validation-lexical-overlay.json',approved.forms)), 'Reviewed expected form overlay input changed');
+  const overlays = [overlay,...forms];
   ownership.assertSelection(selection);
   ownership.verifySelectedGovernance(core); ownership.verifySelectedGovernance(demo.governance);
   check(demo.ledgerSha256 === approved.ledger && demo.governanceLedgerSha256 === approved.ledger, 'Expected owner ledger binding changed');
@@ -88,7 +91,7 @@ function assembleExpectedView({core, demo, ledger, selection, authorityBindings,
     }
     result.shapeFingerprints = [...shapes.values()].sort((a,b)=>a.hash.localeCompare(b.hash));
     result.shapePolicy = structuredClone(original.shapePolicy);
-    result.shapePolicy.acceptedFingerprints = [...new Set([...original.shapePolicy.acceptedFingerprints,...(id === overlay.schemaId ? overlay.variants.map(v=>v.hash) : [])])].sort();
+    result.shapePolicy.acceptedFingerprints = [...new Set([...original.shapePolicy.acceptedFingerprints,...(overlays.find(o=>o.schemaId === id)?.variants || []).map(v=>v.hash)])].sort();
     const currentCanonicals = projected.map(entry => entry.canonicalDefinition);
     const historical = original.canonicalDefinition;
     const originalOwnerCanonical = entry => entry.canonicalDefinition && {...entry.canonicalDefinition,path:entry.canonicalDefinition.path.replace(/^imports\/core\/\{CORE_SHA\}\//,'')};
@@ -118,11 +121,11 @@ function createExpectedInventory(provider) {
   assertSourceProvider(provider);
   const provenance = provider.provenance(), byOwner = new Map(provenance.bindings.map(row=>[row.owner+'\0'+row.sourcePath,row]));
   function read(owner,source) { const row=byOwner.get(owner+'\0'+source);check(row,'Missing approved expected owner source');return provider.readCurrent(row.logicalPath); }
-  const coreBytes=read('core','tests/schemas/xtend-schema-inventory.json'),demoBytes=read('demo','tests/schemas/ownership-101.json');
+  const coreBytes=read('core','tests/schemas/xtend-schema-inventory.json'),demoBytes=read('demo','tests/schemas/ownership-103.json');
   check(hash(coreBytes)===approved.core && hash(demoBytes)===approved.demo,'Unreviewed or tampered expected owner records');
   const ledgerBytes=require('node:zlib').gunzipSync(read('core','tools/schema-inventory/ownership-ledger.json.gz'));
   check(hash(ledgerBytes)===approved.ledger,'Original expected ledger changed');
-  return assembleExpectedView({core:JSON.parse(coreBytes),demo:JSON.parse(demoBytes),ledger:JSON.parse(ledgerBytes),selection:JSON.parse(read('core','tools/schema-inventory/selection.json')),authorityBindings:JSON.parse(read('core','tools/schema-inventory/authority-bindings.json')),overlay:JSON.parse(read('core','tools/schema-inventory/command-lexical-overlay.json')),
+  return assembleExpectedView({core:JSON.parse(coreBytes),demo:JSON.parse(demoBytes),ledger:JSON.parse(ledgerBytes),selection:JSON.parse(read('core','tools/schema-inventory/selection.json')),authorityBindings:JSON.parse(read('core','tools/schema-inventory/authority-bindings.json')),overlay:JSON.parse(read('core','tools/schema-inventory/command-lexical-overlay.json')),forms:JSON.parse(read('core','tools/schema-inventory/form-validation-lexical-overlay.json')),
     resolvePath(owner,source,expectedHash) { const row=byOwner.get(owner+'\0'+source);check(row,'Missing current expected source');if(expectedHash)check(row.sha256===expectedHash,'Imported expected authority source changed');provider.readCurrent(row.logicalPath);return row.logicalPath; }});
 }
 module.exports={createExpectedInventory,assembleExpectedView};

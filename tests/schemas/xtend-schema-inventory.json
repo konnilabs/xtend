@@ -662760,17 +662760,16 @@
     {
       "aliasOf": null,
       "canonicalDefinition": {
-        "definitionType": "object-shape",
         "path": "xtend-maraca/plan-runtime.mjs",
-        "role": "producer",
         "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
         "visibility": "public"
       },
       "description": "Identifies the rmt form validation action gate schema used by XTendRMT.",
       "descriptionStatus": "accepted-initial-audit",
       "familyId": "xtend.rmt.form-validation-action-gate",
       "kinds": [
-        "event-id",
         "runtime-discriminator"
       ],
       "lifecycle": {
@@ -662782,20 +662781,6 @@
       "schemaId": "xtend.rmt.form-validation-action-gate.v1",
       "shapeFingerprints": [
         {
-          "authoritative": false,
-          "completeness": "partial",
-          "evidence": [
-            {
-              "authoritative": false,
-              "completeness": "partial",
-              "path": "xtendrmt/rmt-form-validation-evaluator.js",
-              "symbol": "evaluateAction",
-              "type": "runtime-observation"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
           "hash": "sha256:26498140ef888b5b1a0d602e18b38524f46e2267821c9c1a0cbc9edfa2a7bb03",
           "shape": {
             "fieldCount": 6,
@@ -662807,6 +662792,7 @@
               "results",
               "valid"
             ],
+            "signature": "action:unknown|evaluation:unknown|gateCount:{\"unresolved\":\"gates.length\"}|gated:boolean|results:unknown|valid:unknown",
             "normalized": {
               "fields": {
                 "action": {
@@ -662836,31 +662822,30 @@
                   "type": "unknown"
                 }
               }
-            },
-            "signature": "action:unknown|evaluation:unknown|gateCount:{\"unresolved\":\"gates.length\"}|gated:boolean|results:unknown|valid:unknown"
+            }
           },
           "sourcePaths": [
             "xtendrmt/rmt-form-validation-evaluator.js"
           ],
           "symbols": [
             "evaluateAction"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "runtime-observation",
               "completeness": "partial",
-              "path": "xtendrmt/rmt-form-validation-runtime.js",
-              "symbol": "report",
-              "type": "runtime-observation"
+              "authoritative": false,
+              "path": "xtendrmt/rmt-form-validation-evaluator.js",
+              "symbol": "evaluateAction"
             }
           ],
           "evidenceTypes": [
             "runtime-observation"
           ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:298687c94a084e82aa26f030f2b5f8128f668835e6d4be3f48deae078476e749",
           "shape": {
             "fieldCount": 5,
@@ -662871,6 +662856,7 @@
               "results",
               "valid"
             ],
+            "signature": "action:unknown|gateCount:{\"unresolved\":\"gate.gateCount\"}|gated:boolean|results:{\"unresolved\":\"gate.results\"}|valid:{\"unresolved\":\"gate.valid\"}",
             "normalized": {
               "fields": {
                 "action": {
@@ -662900,161 +662886,30 @@
                   }
                 }
               }
-            },
-            "signature": "action:unknown|gateCount:{\"unresolved\":\"gate.gateCount\"}|gated:boolean|results:{\"unresolved\":\"gate.results\"}|valid:{\"unresolved\":\"gate.valid\"}"
+            }
           },
           "sourcePaths": [
             "xtendrmt/rmt-form-validation-runtime.js"
           ],
           "symbols": [
             "report"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "runtime-observation",
               "completeness": "partial",
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
-              "symbol": "o",
-              "type": "generated"
-            }
-          ],
-          "evidenceTypes": [
-            "generated"
-          ],
-          "hash": "sha256:2dc9af639173d138e743a881131fee285a1f200ace02dc0d8cbe69fd794abfec",
-          "shape": {
-            "fieldCount": 5,
-            "fields": [
-              "action",
-              "gateCount",
-              "gated",
-              "results",
-              "valid"
-            ],
-            "normalized": {
-              "fields": {
-                "action": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "gateCount": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "a.gateCount"
-                  }
-                },
-                "gated": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "!0"
-                  }
-                },
-                "results": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "a.results"
-                  }
-                },
-                "valid": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "a.valid"
-                  }
-                }
-              }
-            },
-            "signature": "action:unknown|gateCount:{\"unresolved\":\"a.gateCount\"}|gated:{\"unresolved\":\"!0\"}|results:{\"unresolved\":\"a.results\"}|valid:{\"unresolved\":\"a.valid\"}"
-          },
-          "sourcePaths": [
-            "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs"
-          ],
-          "symbols": [
-            "o"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
-          "evidence": [
-            {
               "authoritative": false,
-              "completeness": "partial",
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
-              "symbol": "Pe",
-              "type": "generated"
-            }
-          ],
-          "evidenceTypes": [
-            "generated"
-          ],
-          "hash": "sha256:48a4787c0add0521030aad48eafa6559a7b1f99c3c8a26ac398900cc538b994b",
-          "shape": {
-            "fieldCount": 5,
-            "fields": [
-              "action",
-              "evaluation",
-              "gated",
-              "results",
-              "valid"
-            ],
-            "normalized": {
-              "fields": {
-                "action": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "evaluation": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "gated": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "!1"
-                  }
-                },
-                "results": {
-                  "optional": false,
-                  "type": {
-                    "array": []
-                  }
-                },
-                "valid": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "!0"
-                  }
-                }
-              }
-            },
-            "signature": "action:unknown|evaluation:unknown|gated:{\"unresolved\":\"!1\"}|results:array<>|valid:{\"unresolved\":\"!0\"}"
-          },
-          "sourcePaths": [
-            "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs"
-          ],
-          "symbols": [
-            "Pe"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
-          "evidence": [
-            {
-              "authoritative": false,
-              "completeness": "partial",
-              "path": "xtendrmt/rmt-form-validation-evaluator.js",
-              "symbol": "evaluateAction",
-              "type": "runtime-observation"
+              "path": "xtendrmt/rmt-form-validation-runtime.js",
+              "symbol": "report"
             }
           ],
           "evidenceTypes": [
             "runtime-observation"
           ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:c0be02372ae4fae94f16a59c2cd9f08c0dd1215c14aa77ae8ed36da6f4017fe7",
           "shape": {
             "fieldCount": 5,
@@ -663065,6 +662920,7 @@
               "results",
               "valid"
             ],
+            "signature": "action:unknown|evaluation:unknown|gated:boolean|results:array<>|valid:boolean",
             "normalized": {
               "fields": {
                 "action": {
@@ -663090,46 +662946,30 @@
                   "type": "boolean"
                 }
               }
-            },
-            "signature": "action:unknown|evaluation:unknown|gated:boolean|results:array<>|valid:boolean"
+            }
           },
           "sourcePaths": [
             "xtendrmt/rmt-form-validation-evaluator.js"
           ],
           "symbols": [
             "evaluateAction"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "runtime-observation",
               "completeness": "partial",
-              "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": "validationStage",
-              "type": "generated"
-            },
-            {
               "authoritative": false,
-              "completeness": "partial",
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": "validationStage",
-              "type": "generated"
-            },
-            {
-              "authoritative": false,
-              "completeness": "partial",
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "symbol": "validationStage",
-              "type": "runtime-observation"
+              "path": "xtendrmt/rmt-form-validation-evaluator.js",
+              "symbol": "evaluateAction"
             }
           ],
           "evidenceTypes": [
-            "generated",
             "runtime-observation"
           ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:d40c4edfead430db27e1856ab7240999a277efa13956e32eacc50508c89c7a87",
           "shape": {
             "fieldCount": 5,
@@ -663140,6 +662980,7 @@
               "results",
               "valid"
             ],
+            "signature": "action:union<union<unknown>|string>|gateCount:{\"unresolved\":\"selection.gates.length\"}|gated:{\"unresolved\":\"selection.gates.length > 0\"}|results:unknown|valid:unknown",
             "normalized": {
               "fields": {
                 "action": {
@@ -663176,95 +663017,45 @@
                   "type": "unknown"
                 }
               }
-            },
-            "signature": "action:union<union<unknown>|string>|gateCount:{\"unresolved\":\"selection.gates.length\"}|gated:{\"unresolved\":\"selection.gates.length > 0\"}|results:unknown|valid:unknown"
+            }
           },
           "sourcePaths": [
             "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-            "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
             "xtend-maraca/plan-runtime.mjs"
           ],
           "symbols": [
             "validationStage"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "generated",
               "completeness": "partial",
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
-              "symbol": "Pe",
-              "type": "generated"
+              "authoritative": false,
+              "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
+              "symbol": "validationStage"
+            },
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/plan-runtime.mjs",
+              "symbol": "validationStage"
             }
           ],
           "evidenceTypes": [
-            "generated"
+            "generated",
+            "runtime-observation"
           ],
-          "hash": "sha256:da5a6bed1f876ae90792d661b29570c5b63f8580f146d935f119e4cd7bf20c5d",
-          "shape": {
-            "fieldCount": 6,
-            "fields": [
-              "action",
-              "evaluation",
-              "gateCount",
-              "gated",
-              "results",
-              "valid"
-            ],
-            "normalized": {
-              "fields": {
-                "action": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "evaluation": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "gateCount": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "a.length"
-                  }
-                },
-                "gated": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "!0"
-                  }
-                },
-                "results": {
-                  "optional": false,
-                  "type": "null"
-                },
-                "valid": {
-                  "optional": false,
-                  "type": "unknown"
-                }
-              }
-            },
-            "signature": "action:unknown|evaluation:unknown|gateCount:{\"unresolved\":\"a.length\"}|gated:{\"unresolved\":\"!0\"}|results:null|valid:unknown"
-          },
-          "sourcePaths": [
-            "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs"
-          ],
-          "symbols": [
-            "Pe"
-          ]
+          "completeness": "partial",
+          "authoritative": false
         }
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
           "sha256:26498140ef888b5b1a0d602e18b38524f46e2267821c9c1a0cbc9edfa2a7bb03",
           "sha256:298687c94a084e82aa26f030f2b5f8128f668835e6d4be3f48deae078476e749",
-          "sha256:2dc9af639173d138e743a881131fee285a1f200ace02dc0d8cbe69fd794abfec",
-          "sha256:48a4787c0add0521030aad48eafa6559a7b1f99c3c8a26ac398900cc538b994b",
           "sha256:c0be02372ae4fae94f16a59c2cd9f08c0dd1215c14aa77ae8ed36da6f4017fe7",
-          "sha256:d40c4edfead430db27e1856ab7240999a277efa13956e32eacc50508c89c7a87",
-          "sha256:da5a6bed1f876ae90792d661b29570c5b63f8580f146d935f119e4cd7bf20c5d"
+          "sha256:d40c4edfead430db27e1856ab7240999a277efa13956e32eacc50508c89c7a87"
         ],
         "authoritativeFingerprints": [],
         "decision": "accepted-initial-audit",
@@ -663276,95 +663067,74 @@
       "usages": [
         {
           "application": "XTend Documentation",
-          "interfaceReferences": [
-            {
-              "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "generated-mirror",
+          "visibility": "generated",
           "sourcePaths": [
             "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs"
           ],
-          "visibility": "generated"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
+              "symbol": null
+            }
+          ]
         },
         {
           "application": "XTend Maraca",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-maraca/plan-runtime",
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/maraca/plan-runtime",
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "type": "package-export"
-            },
-            {
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "symbol": "validationStage",
-              "type": "symbol"
-            }
-          ],
           "role": "producer",
+          "visibility": "public",
           "sourcePaths": [
             "xtend-maraca/plan-runtime.mjs"
           ],
-          "visibility": "public"
-        },
-        {
-          "application": "XTend Products",
           "interfaceReferences": [
             {
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
             },
             {
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/plan-runtime.mjs",
+              "symbol": "validationStage"
             }
-          ],
-          "role": "generated-mirror",
-          "sourcePaths": [
-            "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
-            "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs"
-          ],
-          "visibility": "generated"
+          ]
         },
         {
           "application": "XTendRMT",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-rmt/form-validation-runtime",
-              "path": "xtendrmt/rmt-form-validation-runtime.js",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/rmt/form-validation-runtime",
-              "path": "xtendrmt/rmt-form-validation-runtime.js",
-              "type": "package-export"
-            },
-            {
-              "path": "xtendrmt/rmt-form-validation-evaluator.js",
-              "symbol": "evaluateAction",
-              "type": "symbol"
-            },
-            {
-              "path": "xtendrmt/rmt-form-validation-runtime.js",
-              "symbol": "report",
-              "type": "symbol"
-            }
-          ],
           "role": "producer",
+          "visibility": "public",
           "sourcePaths": [
             "xtendrmt/rmt-form-validation-evaluator.js",
             "xtendrmt/rmt-form-validation-runtime.js"
           ],
-          "visibility": "public"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/form-validation-runtime",
+              "path": "xtendrmt/rmt-form-validation-runtime.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/form-validation-runtime",
+              "path": "xtendrmt/rmt-form-validation-runtime.js"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-form-validation-evaluator.js",
+              "symbol": "evaluateAction"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-form-validation-runtime.js",
+              "symbol": "report"
+            }
+          ]
         }
       ],
       "version": 1
@@ -666990,17 +666760,16 @@
     {
       "aliasOf": null,
       "canonicalDefinition": {
-        "definitionType": "object-shape",
         "path": "xtend-maraca/plan-runtime.mjs",
-        "role": "producer",
         "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
         "visibility": "public"
       },
       "description": "Identifies the rmt form validation view projection plan event payload used by XTend Maraca.",
       "descriptionStatus": "accepted-initial-audit",
       "familyId": "xtend.rmt.form-validation-view-projection-plan",
       "kinds": [
-        "event-id",
         "runtime-discriminator"
       ],
       "lifecycle": {
@@ -667012,75 +666781,6 @@
       "schemaId": "xtend.rmt.form-validation-view-projection-plan.v1",
       "shapeFingerprints": [
         {
-          "authoritative": false,
-          "completeness": "partial",
-          "evidence": [
-            {
-              "authoritative": false,
-              "completeness": "partial",
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
-              "symbol": "m",
-              "type": "generated"
-            }
-          ],
-          "evidenceTypes": [
-            "generated"
-          ],
-          "hash": "sha256:2411d20af7f219cb77911f17061a9419edbc43f45d696da9ebb47d0028180cca",
-          "shape": {
-            "fieldCount": 4,
-            "fields": [
-              "metadata",
-              "projectionCount",
-              "projections",
-              "valid"
-            ],
-            "normalized": {
-              "fields": {
-                "metadata": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "projectionCount": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "r.length"
-                  }
-                },
-                "projections": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "valid": {
-                  "optional": false,
-                  "type": "boolean"
-                }
-              }
-            },
-            "signature": "metadata:unknown|projectionCount:{\"unresolved\":\"r.length\"}|projections:unknown|valid:boolean"
-          },
-          "sourcePaths": [
-            "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs"
-          ],
-          "symbols": [
-            "m"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
-          "evidence": [
-            {
-              "authoritative": false,
-              "completeness": "partial",
-              "path": "xtendrmt/rmt-form-validation-view-projector.js",
-              "symbol": "prepare",
-              "type": "runtime-observation"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
           "hash": "sha256:29b6aa51873f6fd76d8a6eb7530746a7d0e34050b914ad1915a795dbc18b7e60",
           "shape": {
             "fieldCount": 4,
@@ -667090,6 +666790,7 @@
               "projections",
               "valid"
             ],
+            "signature": "metadata:unknown|projectionCount:{\"unresolved\":\"projections.length\"}|projections:unknown|valid:boolean",
             "normalized": {
               "fields": {
                 "metadata": {
@@ -667111,31 +666812,30 @@
                   "type": "boolean"
                 }
               }
-            },
-            "signature": "metadata:unknown|projectionCount:{\"unresolved\":\"projections.length\"}|projections:unknown|valid:boolean"
+            }
           },
           "sourcePaths": [
             "xtendrmt/rmt-form-validation-view-projector.js"
           ],
           "symbols": [
             "prepare"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "runtime-observation",
               "completeness": "partial",
-              "path": "xtendrmt/rmt-form-validation-runtime.d.ts",
-              "symbol": "RmtFormValidationViewProjectionPlan",
-              "type": "declared-type"
+              "authoritative": false,
+              "path": "xtendrmt/rmt-form-validation-view-projector.js",
+              "symbol": "prepare"
             }
           ],
           "evidenceTypes": [
-            "declared-type"
+            "runtime-observation"
           ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:31f53b57e0192aa309a05cfa9b9d541f8a8e9e2da0d6ff06a30746e5dfbc124e",
           "shape": {
             "fieldCount": 4,
@@ -667145,6 +666845,7 @@
               "projections",
               "valid"
             ],
+            "signature": "metadata:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}],\"unresolvedReference\":\"Readonly\"}|projectionCount:number|projections:array<{group:string,invalid:boolean,message:string,report:boolean,revealed:boolean,target:{component:union<string|literal<null>>,field:union<string|literal<null>>,state:string,surface:union<string|literal<null>>}}>|valid:boolean",
             "normalized": {
               "fields": {
                 "metadata": {
@@ -667243,46 +666944,30 @@
                   "type": "boolean"
                 }
               }
-            },
-            "signature": "metadata:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}],\"unresolvedReference\":\"Readonly\"}|projectionCount:number|projections:array<{group:string,invalid:boolean,message:string,report:boolean,revealed:boolean,target:{component:union<string|literal<null>>,field:union<string|literal<null>>,state:string,surface:union<string|literal<null>>}}>|valid:boolean"
+            }
           },
           "sourcePaths": [
             "xtendrmt/rmt-form-validation-runtime.d.ts"
           ],
           "symbols": [
             "RmtFormValidationViewProjectionPlan"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "declared-type",
               "completeness": "partial",
-              "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": "projectionPlan",
-              "type": "generated"
-            },
-            {
               "authoritative": false,
-              "completeness": "partial",
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": "projectionPlan",
-              "type": "generated"
-            },
-            {
-              "authoritative": false,
-              "completeness": "partial",
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "symbol": "projectionPlan",
-              "type": "runtime-observation"
+              "path": "xtendrmt/rmt-form-validation-runtime.d.ts",
+              "symbol": "RmtFormValidationViewProjectionPlan"
             }
           ],
           "evidenceTypes": [
-            "generated",
-            "runtime-observation"
+            "declared-type"
           ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:622583d81289b5577ef86a96b4d86d40c9e46950f7a913cbc5e59773aeeb037c",
           "shape": {
             "fieldCount": 4,
@@ -667292,6 +666977,7 @@
               "projections",
               "valid"
             ],
+            "signature": "metadata:{action:union<union<unknown>|string>,correlationId:{\"unresolved\":\"metadata.correlationId || ''\"},operation:string}|projectionCount:{\"unresolved\":\"asArray(evaluation && evaluation.viewProjection).length\"}|projections:unknown|valid:{\"unresolved\":\"evaluation && evaluation.valid !== false\"}",
             "normalized": {
               "fields": {
                 "metadata": {
@@ -667341,33 +667027,39 @@
                   }
                 }
               }
-            },
-            "signature": "metadata:{action:union<union<unknown>|string>,correlationId:{\"unresolved\":\"metadata.correlationId || ''\"},operation:string}|projectionCount:{\"unresolved\":\"asArray(evaluation && evaluation.viewProjection).length\"}|projections:unknown|valid:{\"unresolved\":\"evaluation && evaluation.valid !== false\"}"
+            }
           },
           "sourcePaths": [
             "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-            "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
             "xtend-maraca/plan-runtime.mjs"
           ],
           "symbols": [
             "projectionPlan"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "generated",
               "completeness": "partial",
-              "path": "tests/docs/docs_framework_ownership_suite.js",
-              "symbol": "prepare",
-              "type": "test"
+              "authoritative": false,
+              "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
+              "symbol": "projectionPlan"
+            },
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/plan-runtime.mjs",
+              "symbol": "projectionPlan"
             }
           ],
           "evidenceTypes": [
-            "test"
+            "generated",
+            "runtime-observation"
           ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:b2fe9fbfef649b63ffb4b4e3deb0fca12b94d2044ed073af317f701d9bb9e8e4",
           "shape": {
             "fieldCount": 4,
@@ -667377,6 +667069,7 @@
               "projections",
               "valid"
             ],
+            "signature": "metadata:unknown|projectionCount:{\"unresolved\":\"evaluation.viewProjection.length\"}|projections:unknown|valid:{\"unresolved\":\"evaluation.valid !== false\"}",
             "normalized": {
               "fields": {
                 "metadata": {
@@ -667400,20 +667093,32 @@
                   }
                 }
               }
-            },
-            "signature": "metadata:unknown|projectionCount:{\"unresolved\":\"evaluation.viewProjection.length\"}|projections:unknown|valid:{\"unresolved\":\"evaluation.valid !== false\"}"
+            }
           },
           "sourcePaths": [
             "tests/docs/docs_framework_ownership_suite.js"
           ],
           "symbols": [
             "prepare"
-          ]
+          ],
+          "evidence": [
+            {
+              "type": "test",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tests/docs/docs_framework_ownership_suite.js",
+              "symbol": "prepare"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "completeness": "partial",
+          "authoritative": false
         }
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
-          "sha256:2411d20af7f219cb77911f17061a9419edbc43f45d696da9ebb47d0028180cca",
           "sha256:29b6aa51873f6fd76d8a6eb7530746a7d0e34050b914ad1915a795dbc18b7e60",
           "sha256:31f53b57e0192aa309a05cfa9b9d541f8a8e9e2da0d6ff06a30746e5dfbc124e",
           "sha256:622583d81289b5577ef86a96b4d86d40c9e46950f7a913cbc5e59773aeeb037c",
@@ -667429,160 +667134,139 @@
       "usages": [
         {
           "application": "XTend Documentation",
-          "interfaceReferences": [
-            {
-              "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "generated-mirror",
+          "visibility": "generated",
           "sourcePaths": [
             "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs"
           ],
-          "visibility": "generated"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
+              "symbol": null
+            }
+          ]
         },
         {
           "application": "XTend Maraca",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-maraca/plan-runtime",
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/maraca/plan-runtime",
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "type": "package-export"
-            },
-            {
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "symbol": "projectionPlan",
-              "type": "symbol"
-            }
-          ],
           "role": "producer",
+          "visibility": "public",
           "sourcePaths": [
             "xtend-maraca/plan-runtime.mjs"
           ],
-          "visibility": "public"
-        },
-        {
-          "application": "XTend Products",
           "interfaceReferences": [
             {
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
             },
             {
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/plan-runtime.mjs",
+              "symbol": "projectionPlan"
             }
-          ],
-          "role": "generated-mirror",
-          "sourcePaths": [
-            "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
-            "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs"
-          ],
-          "visibility": "generated"
+          ]
         },
         {
           "application": "XTend Tests: Docs",
-          "interfaceReferences": [
-            {
-              "path": "tests/docs/docs_framework_ownership_suite.js",
-              "symbol": "prepare",
-              "type": "symbol"
-            }
-          ],
           "role": "producer",
+          "visibility": "test",
           "sourcePaths": [
             "tests/docs/docs_framework_ownership_suite.js"
           ],
-          "visibility": "test"
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/docs/docs_framework_ownership_suite.js",
+              "symbol": "prepare"
+            }
+          ]
         },
         {
           "application": "XTend Tests: Docs",
-          "interfaceReferences": [
-            {
-              "path": "tests/docs/docs_framework_ownership_suite.js",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "assertion",
+          "visibility": "test",
           "sourcePaths": [
             "tests/docs/docs_framework_ownership_suite.js"
           ],
-          "visibility": "test"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/docs/docs_framework_ownership_suite.js",
+              "symbol": null
+            }
+          ]
         },
         {
           "application": "XTendRMT",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-rmt/form-validation-runtime",
-              "path": "xtendrmt/rmt-form-validation-runtime.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/rmt/form-validation-runtime",
-              "path": "xtendrmt/rmt-form-validation-runtime.d.ts",
-              "type": "package-export"
-            },
-            {
-              "path": "xtendrmt/rmt-form-validation-runtime.d.ts",
-              "symbol": "RmtFormValidationViewProjectionPlan",
-              "type": "symbol"
-            }
-          ],
           "role": "definition",
+          "visibility": "public",
           "sourcePaths": [
             "xtendrmt/rmt-form-validation-runtime.d.ts"
           ],
-          "visibility": "public"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/form-validation-runtime",
+              "path": "xtendrmt/rmt-form-validation-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/form-validation-runtime",
+              "path": "xtendrmt/rmt-form-validation-runtime.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-form-validation-runtime.d.ts",
+              "symbol": "RmtFormValidationViewProjectionPlan"
+            }
+          ]
         },
         {
           "application": "XTendRMT",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-rmt/form-validation-runtime",
-              "path": "xtendrmt/rmt-form-validation-runtime.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/rmt/form-validation-runtime",
-              "path": "xtendrmt/rmt-form-validation-runtime.d.ts",
-              "type": "package-export"
-            },
-            {
-              "path": "xtendrmt/rmt-form-validation-view-projector.js",
-              "symbol": "prepare",
-              "type": "symbol"
-            }
-          ],
           "role": "producer",
+          "visibility": "public",
           "sourcePaths": [
             "xtendrmt/rmt-form-validation-runtime.d.ts",
             "xtendrmt/rmt-form-validation-view-projector.js"
           ],
-          "visibility": "public"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/form-validation-runtime",
+              "path": "xtendrmt/rmt-form-validation-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/form-validation-runtime",
+              "path": "xtendrmt/rmt-form-validation-runtime.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-form-validation-view-projector.js",
+              "symbol": "prepare"
+            }
+          ]
         },
         {
           "application": "XTendRMT",
-          "interfaceReferences": [
-            {
-              "path": "xtendrmt/rmt-form-validation-view-projector.js",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "reference",
+          "visibility": "public",
           "sourcePaths": [
             "xtendrmt/rmt-form-validation-view-projector.js"
           ],
-          "visibility": "public"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "xtendrmt/rmt-form-validation-view-projector.js",
+              "symbol": null
+            }
+          ]
         }
       ],
       "version": 1
