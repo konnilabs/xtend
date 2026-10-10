@@ -1,8 +1,8 @@
 {
   "schema": "xtend.product-demo-pin.v1",
   "repository": "https://github.com/konnilabs/xtend-demos.git",
-  "demoSha": "ba8eb3a9ca6c09f2742de3e6b136e7e71614c366",
+  "demoSha": "ae66be48d3ac8adc379e23582302ed7aca98f553",
   "status": "local-reviewed-paired-101-ownership-checkpoint-23-residual-blocked",
   "mergeBlocked": true,
-  "implementationCoreSha": "7e1fb24d66d6c081877f14e4bb0f291dc40e5344"
+  "implementationCoreSha": "362618f0d9f3fe5f863fda3ec2b4a78123b55867"
 }
