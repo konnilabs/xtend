@@ -177,10 +177,10 @@ const RECIPE_RECORDS = Object.freeze([
     profile: 'maraca',
     domains: ['validation', 'transition', 'maraca'],
     title: 'Validation and Transition for Maraca Strict',
-    intent: 'Use the production orchestration fixture when agents need a complete strict-mode source.',
-    sourceRef: 'tools/rmt-language/fixtures/kernel-orchestration-contract.rmt',
+    intent: 'Use the retained deterministic validation/transition fixture for a complete strict-mode source.',
+    sourceRef: 'tools/rmt-language/fixtures/validation-transition-contract.rmt',
     commands: [
-      'xt maraca plan tools/rmt-language/fixtures/kernel-orchestration-contract.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --json'
+      'xt maraca plan tools/rmt-language/fixtures/validation-transition-contract.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --json'
     ]
   }),
   recipeRecord({
@@ -203,7 +203,7 @@ const RECIPE_RECORDS = Object.freeze([
     domains: ['maraca', 'build'],
     title: 'Maraca Plan and Build',
     intent: 'Plan first, build second; use strict mode for production hardening.',
-    sourceRef: 'tools/rmt-language/fixtures/kernel-orchestration-contract.rmt',
+    sourceRef: 'tools/rmt-language/fixtures/validation-transition-contract.rmt',
     commands: [
       'xt maraca plan app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --json',
       'xt maraca build app.rmt --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --css external --json'
