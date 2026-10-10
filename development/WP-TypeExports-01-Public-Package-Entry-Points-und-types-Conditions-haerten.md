@@ -47,3 +47,21 @@ Naechster startbarer Run ist `WP-TypeExports-02`: `XTendLoader`, `XTendStyleRegi
 Die additive SSR-Erweiterung klassifiziert fünf Laufzeitzugänge und den Seitenbuild. Die beiden bereits ausgelieferten Projektindex-Zugänge sind ebenfalls explizit klassifiziert. Jeder Zugang besitzt konkrete Deklarationen; der Lock wurde anhand dieser acht Entscheidungen aktualisiert.
 
 XTend.store ergänzt genau fünf typisierte Exports: `maraca/page-client`, `maraca/page-bootstrap`, `maraca/remote-surface`, `rmt/resume-capture-adapter` und `rmt-language/compilation-session`. Sie verbinden die vorhandenen Seiten-, Resume- und Compilerverträge; die bestehenden Klassifikationen bleiben erhalten.
+
+## Unapplied product-migration wiring proposal (2026-10-09)
+
+The historical counts and fingerprints above describe earlier snapshots. The proposed current contract is exactly 207 ordered export keys, SHA-256 `c2224955e47635f60bb9f69dd673b5753d18d2229d6091334f412887ae95db11` (UTF-8 keys joined by newline, without a final newline). It supersedes the count-only proposal; count alone cannot prove key identity or target/type correctness. No export key or runtime target is added or changed.
+
+All seven existing helpers are explicitly classified as P1 Node helper APIs with declarations, rather than assets or an unrestricted prefix group:
+
+| Existing export | Classification rationale | Declaration binding |
+| --- | --- | --- |
+| `./product-support` | Shared product orchestration/support is callable Node API, not an asset. | Existing explicit runtime/types conditions retained. |
+| `./test-support/browser-hypervisor` | Browser discovery, capabilities and execution are callable test infrastructure. | Matching sibling declaration describes existing browser helper exports. |
+| `./test-support/php-fpm` | FPM lifecycle/proxy configuration and returned handle are callable infrastructure. | Matching sibling declaration binds existing options and handle. |
+| `./test-support/dev-server` | Existing development-server creation/listening API requires typed options. | Matching sibling declaration reuses existing builder dev-server types and declares the existing CSP constant. |
+| `./laravel-package` | Existing Laravel artifact builder takes build options and returns artifact metadata. | Matching sibling declaration describes the existing build API. |
+| `./candidate-integrity` | Candidate packing/resolution/integrity checks are executable public migration contracts. | Existing explicit runtime/types conditions retained. |
+| `./schema-inventory` | Scanner/ownership/authority verification is executable public migration infrastructure. | Existing explicit runtime/types conditions retained. |
+
+The exact ordered-key fingerprint, expected count, classification and each helper runtime/type target are checked independently. Unreviewed keys, same-count substitutions, wrong existing targets/types, reordered keys and stale metadata fail validation. These classification changes do not accept any schema inventory or governance proposal.
