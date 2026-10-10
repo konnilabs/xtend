@@ -161,5 +161,6 @@ async function assertSealedArtifact(artifact) {
   const checked = await verifyArtifact({ ...binding, phase: 'sealed' });
   for (const key of ['manifest', 'manifestIntegrity', 'sourceSha', 'toolchain', 'tarballSetIntegrity', 'packages', 'order', 'registryDependencies', 'inventory'])
     check(isDeepStrictEqual(artifact[key], checked[key]), `Verified sealed artifact changed: ${key}`);
+  return binding;
 }
 module.exports = { digest, objectDigest, releaseSetIntegrity, artifactFile, metadata, inspectTarball, checkEntrypoints, verifyArtifact, assertSealedArtifact };

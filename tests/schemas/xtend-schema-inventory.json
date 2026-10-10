@@ -17845,7 +17845,7 @@
       "baselineAccepted": true,
       "confidence": "medium",
       "origin": "reviewed-2026-10-09-specific-initial-authority-review",
-      "rationale": "Static analysis observes 4 normalized shapes for this identifier. Reviewed 2026-10-09 exact CandidateManifest source/test polymorphism decision; only the four observed hashes are covered. Separate proposed follow-up binds exactly the two additional test-only fixtures; the original four hashes, rationale and immutable four-shape snapshot remain historical evidence.",
+      "rationale": "Static analysis observes 4 normalized shapes for this identifier. Reviewed 2026-10-09 exact CandidateManifest source/test polymorphism decision; only the four observed hashes are covered. Separate proposed follow-up binds exactly the two additional test-only fixtures; the original four hashes, rationale and immutable four-shape snapshot remain historical evidence. Historical four/six observation preserved; separate UNAPPLIED current-five proposal follows the actual dynamic-ID source inherited from b6ca020, not the Vue merge. No review of a future reintroduced variant is inferred.",
       "recommendation": "Confirm that the variants are intentional before adding another shape.",
       "resolution": {
         "fingerprints": [
@@ -17853,11 +17853,10 @@
           "sha256:88bb888b7d2e4db3a1ff057fa3644bffbe33d29655b5378c92e8800136366eb7",
           "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9",
           "sha256:cbf425e3446cc0586f0d2a1d4cc422dc893fd2a5f6bd1e4f9875d3330b1d2a69",
-          "sha256:0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc",
-          "sha256:d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2"
+          "sha256:0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc"
         ],
         "kind": "intentional-candidate-manifest-source-test-variants",
-        "rationale": "The formal CandidateManifest declaration is the single authority; observed source and test expression inference variants are separately fingerprint-bound. No declaration authority is discarded, no released hash is fabricated, and no new variant is automatically accepted. Proposed six-shape follow-up adds only the two bound test-only hashes; the formal authority, exact sourcehash, null release hashes and planned lifecycle are preserved. Publication remains blocked by the mandatory initial-authority guard."
+        "rationale": "The formal CandidateManifest declaration is the single authority; observed source and test expression inference variants are separately fingerprint-bound. No declaration authority is discarded, no released hash is fabricated, and no new variant is automatically accepted. Proposed six-shape follow-up adds only the two bound test-only hashes; the formal authority, exact sourcehash, null release hashes and planned lifecycle are preserved. Publication remains blocked by the mandatory initial-authority guard. Proposal-only current set is exactly the historical six minus d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2; all other accepted hashes and initial authority fields are conserved. A real reintroduced literal test variant or any unknown observed shape must fail this current binding. Both immutable historical snapshots remain intact; no released hash, exception retirement or first-release authorization follows."
       },
       "reviewId": "polymorphic-a243e253d8cb",
       "schemaIds": [
@@ -510468,7 +510467,7 @@
         "symbol": "CandidateManifest",
         "visibility": "internal"
       },
-      "description": "Committed candidate manifest binding exact Core/Demo source identities, public tarballs, dependency metadata and PHP sources. The migration reviewed four registration shapes; six shapes are now observed, including the release and packaged-authority fixtures. Their wider polymorphism remains pending. Proposed follow-up: an independently reviewable exact six-shape metadata decision covers only these two additional fixtures; it grants no publication or exception retirement.",
+      "description": "Committed candidate manifest binding exact Core/Demo source identities, public tarballs, dependency metadata and PHP sources. The migration reviewed four registration shapes; six shapes are now observed, including the release and packaged-authority fixtures. Their wider polymorphism remains pending. Proposed follow-up: an independently reviewable exact six-shape metadata decision covers only these two additional fixtures; it grants no publication or exception retirement. Historical note: the preceding four/six-shape wording records their original checkpoints; the current five-shape proposal is exactly historical six minus d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2. This separate unapplied decision requires independent review and grants no release authority.",
       "descriptionStatus": "curated",
       "familyId": "xtend.product-candidates",
       "initialAuthorityReview": {
@@ -511016,114 +511015,6 @@
           ],
           "completeness": "partial",
           "authoritative": false
-        },
-        {
-          "hash": "sha256:d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2",
-          "shape": {
-            "fieldCount": 4,
-            "fields": [
-              "coreSha",
-              "demoSha",
-              "packages",
-              "php"
-            ],
-            "signature": "coreSha:unknown|demoSha:unknown|packages:array<{file:{\"unresolved\":\"pack.filename\"},integrity:{\"unresolved\":\"'sha512-'+crypto.createHash('sha512').update(bytes).digest('base64')\"},name:string,sha256:unknown,version:{\"unresolved\":\"pack.version\"}}>|php:{file:string,sha256:unknown,sources:{controlled:unknown}}",
-            "normalized": {
-              "fields": {
-                "coreSha": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "demoSha": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "packages": {
-                  "optional": false,
-                  "type": {
-                    "array": [
-                      {
-                        "fields": {
-                          "file": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "pack.filename"
-                            }
-                          },
-                          "integrity": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "'sha512-'+crypto.createHash('sha512').update(bytes).digest('base64')"
-                            }
-                          },
-                          "name": {
-                            "optional": false,
-                            "type": "string"
-                          },
-                          "sha256": {
-                            "optional": false,
-                            "type": "unknown"
-                          },
-                          "version": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "pack.version"
-                            }
-                          }
-                        }
-                      }
-                    ]
-                  }
-                },
-                "php": {
-                  "optional": false,
-                  "type": {
-                    "fields": {
-                      "file": {
-                        "optional": false,
-                        "type": "string"
-                      },
-                      "sha256": {
-                        "optional": false,
-                        "type": "unknown"
-                      },
-                      "sources": {
-                        "optional": false,
-                        "type": {
-                          "fields": {
-                            "controlled": {
-                              "optional": false,
-                              "type": "unknown"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "tests/migration/packaged-authority.test.cjs"
-          ],
-          "symbols": [
-            "manifest"
-          ],
-          "evidence": [
-            {
-              "type": "test",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "tests/migration/packaged-authority.test.cjs",
-              "symbol": "manifest"
-            }
-          ],
-          "evidenceTypes": [
-            "test"
-          ],
-          "completeness": "partial",
-          "authoritative": false
         }
       ],
       "shapePolicy": {
@@ -511132,16 +511023,15 @@
           "sha256:88bb888b7d2e4db3a1ff057fa3644bffbe33d29655b5378c92e8800136366eb7",
           "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9",
           "sha256:cbf425e3446cc0586f0d2a1d4cc422dc893fd2a5f6bd1e4f9875d3330b1d2a69",
-          "sha256:0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc",
-          "sha256:d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2"
+          "sha256:0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc"
         ],
         "authoritativeFingerprints": [
           "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
         ],
         "mode": "polymorphic",
-        "rationale": "Preserve reviewed declaration identity and initial-unreleased provenance from 0aa3f668. Its four-shape registration approval does not cover the current six-shape observation. Require a new explicit fingerprint-bound review; no released hash or accepted set is inferred. Separate proposed six-shape decision preserves the historical four-shape snapshot and accepts only the release miniature-archive fixture 0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc and packaged-authority validation fixture d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2. Existing declaration/source authority, planned rollout, null released hashes and mandatory source-retirement publish guard remain unchanged; no future seventh shape is inferred.",
+        "rationale": "Preserve reviewed declaration identity and initial-unreleased provenance from 0aa3f668. Its four-shape registration approval does not cover the current six-shape observation. Require a new explicit fingerprint-bound review; no released hash or accepted set is inferred. Separate proposed six-shape decision preserves the historical four-shape snapshot and accepts only the release miniature-archive fixture 0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc and packaged-authority validation fixture d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2. Existing declaration/source authority, planned rollout, null released hashes and mandatory source-retirement publish guard remain unchanged; no future seventh shape is inferred. Separate proposal-only current-five binding: preserve all four original hashes and 0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc; remove only d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2 from the CURRENT observed/accepted set. Migration commit 610fb9ece97e7ad1fc04a96fd6b03802d646d114 made its test schema ID dynamic without changing generated manifest bytes; b6ca020 already includes this source, M only inherits it. The original four/six snapshots and preceding rationales remain historical evidence, not current observation. Any unknown or reintroduced historical variant requires a separate review; source authority, null released hashes, active/planned lifecycle and mandatory retirement guard remain unchanged.",
         "releasedFingerprintSetHash": null,
-        "decision": "Exact six-shape CandidateManifest source/test registration; only two named additional fixture variants, no release authority"
+        "decision": "Historical six-shape decision retained in proposed-six-registration.json.gz; proposal-only current exact five-shape registration, no release authority"
       },
       "status": "active",
       "usages": [
@@ -601288,10 +601178,10 @@
     {
       "aliasOf": null,
       "canonicalDefinition": {
-        "definitionType": "constant",
         "path": "components/rmt-command.js",
-        "role": "definition",
         "symbol": "XTEND_RMT_COMMAND_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
         "visibility": "public"
       },
       "description": "Identifies the rmt command schema used by XTend Components.",
@@ -601310,20 +601200,6 @@
       "schemaId": "xtend.rmt.command.v1",
       "shapeFingerprints": [
         {
-          "authoritative": false,
-          "completeness": "partial",
-          "evidence": [
-            {
-              "authoritative": false,
-              "completeness": "partial",
-              "path": "components/rmt-command.d.ts",
-              "symbol": "XtendRmtCommandDetail",
-              "type": "declared-type"
-            }
-          ],
-          "evidenceTypes": [
-            "declared-type"
-          ],
           "hash": "sha256:00aaa7a17c397f349459c9cb858cad9da1e3422f3b8f7f3f54405740db21159b",
           "shape": {
             "fieldCount": 9,
@@ -601338,6 +601214,7 @@
               "target",
               "timestamp"
             ],
+            "signature": "command:string|correlationId:string|id:string|lane:string|payload:{\"arguments\":[],\"unresolvedReference\":\"TPayload\"}|runId:string|source:{event:string,id:string,kind:string,surfaceId:string}|target:unknown|timestamp:string",
             "normalized": {
               "fields": {
                 "command": {
@@ -601399,38 +601276,30 @@
                   "type": "string"
                 }
               }
-            },
-            "signature": "command:string|correlationId:string|id:string|lane:string|payload:{\"arguments\":[],\"unresolvedReference\":\"TPayload\"}|runId:string|source:{event:string,id:string,kind:string,surfaceId:string}|target:unknown|timestamp:string"
+            }
           },
           "sourcePaths": [
             "components/rmt-command.d.ts"
           ],
           "symbols": [
             "XtendRmtCommandDetail"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "declared-type",
               "completeness": "partial",
-              "path": "docs/generated/shell/chunks/x-status-BbVXEOVj.mjs",
-              "symbol": "ns",
-              "type": "generated"
-            },
-            {
               "authoritative": false,
-              "completeness": "partial",
-              "path": "docs/generated/shell/chunks/x-status-ChsjjCLX.mjs",
-              "symbol": "ns",
-              "type": "generated"
+              "path": "components/rmt-command.d.ts",
+              "symbol": "XtendRmtCommandDetail"
             }
           ],
           "evidenceTypes": [
-            "generated"
+            "declared-type"
           ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:10f509485797ce1a19ceaf98a34c72bd8082653c059d46f0dfb6f81b6097dc03",
           "shape": {
             "fieldCount": 9,
@@ -601445,6 +601314,7 @@
               "target",
               "timestamp"
             ],
+            "signature": "command:unknown|correlationId:{\"unresolved\":\"n.correlationId||`rmt.correlation:${a}:${i}`\"}|id:{\"unresolved\":\"n.id||`rmt.command:${a}:${e}:${i}`\"}|lane:{\"unresolved\":\"n.lane||n.defaultLane||\\\"user-blocking\\\"\"}|payload:unknown|runId:{\"unresolved\":\"n.runId||\\\"\\\"\"}|source:{event:{\"unresolvedReference\":\"e\"},id:unknown,kind:{\"unresolved\":\"n.sourceKind||\\\"component\\\"\"},surfaceId:{\"unresolved\":\"n.surfaceId||es(t,\\\"surfaceId\\\")||ts(t,\\\"surface-id\\\")||\\\"\\\"\"}}|target:union<{\"unresolved\":\"n.target\"}|null>|timestamp:{\"unresolved\":\"n.timestamp||new Date(i).toISOString()\"}",
             "normalized": {
               "fields": {
                 "command": {
@@ -601526,8 +601396,7 @@
                   }
                 }
               }
-            },
-            "signature": "command:unknown|correlationId:{\"unresolved\":\"n.correlationId||`rmt.correlation:${a}:${i}`\"}|id:{\"unresolved\":\"n.id||`rmt.command:${a}:${e}:${i}`\"}|lane:{\"unresolved\":\"n.lane||n.defaultLane||\\\"user-blocking\\\"\"}|payload:unknown|runId:{\"unresolved\":\"n.runId||\\\"\\\"\"}|source:{event:{\"unresolvedReference\":\"e\"},id:unknown,kind:{\"unresolved\":\"n.sourceKind||\\\"component\\\"\"},surfaceId:{\"unresolved\":\"n.surfaceId||es(t,\\\"surfaceId\\\")||ts(t,\\\"surface-id\\\")||\\\"\\\"\"}}|target:union<{\"unresolved\":\"n.target\"}|null>|timestamp:{\"unresolved\":\"n.timestamp||new Date(i).toISOString()\"}"
+            }
           },
           "sourcePaths": [
             "docs/generated/shell/chunks/x-status-BbVXEOVj.mjs",
@@ -601535,81 +601404,30 @@
           ],
           "symbols": [
             "ns"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "complete",
+          ],
           "evidence": [
             {
+              "type": "generated",
+              "completeness": "partial",
               "authoritative": false,
-              "completeness": "complete",
-              "path": "products/maraca-app-services-test-bench/test/maraca-app-services-test-bench.catfood.test.cjs",
-              "symbol": "submitCurrentTextarea",
-              "type": "runtime-observation"
+              "path": "docs/generated/shell/chunks/x-status-BbVXEOVj.mjs",
+              "symbol": "ns"
+            },
+            {
+              "type": "generated",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "docs/generated/shell/chunks/x-status-ChsjjCLX.mjs",
+              "symbol": "ns"
             }
           ],
           "evidenceTypes": [
-            "runtime-observation"
+            "generated"
           ],
-          "hash": "sha256:1b96c0a662c9d7699f28ee0623b1642a6170fe04611fe25ec7ecf0db58294361",
-          "shape": {
-            "fieldCount": 2,
-            "fields": [
-              "command",
-              "sourceEvent"
-            ],
-            "normalized": {
-              "fields": {
-                "command": {
-                  "optional": false,
-                  "type": "string"
-                },
-                "sourceEvent": {
-                  "optional": false,
-                  "type": "string"
-                }
-              }
-            },
-            "signature": "command:string|sourceEvent:string"
-          },
-          "sourcePaths": [
-            "products/maraca-app-services-test-bench/test/maraca-app-services-test-bench.catfood.test.cjs"
-          ],
-          "symbols": [
-            "submitCurrentTextarea"
-          ]
-        },
-        {
-          "authoritative": false,
           "completeness": "partial",
-          "evidence": [
-            {
-              "authoritative": false,
-              "completeness": "partial",
-              "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": "render",
-              "type": "generated"
-            },
-            {
-              "authoritative": false,
-              "completeness": "partial",
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": "render",
-              "type": "generated"
-            },
-            {
-              "authoritative": false,
-              "completeness": "partial",
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "symbol": "render",
-              "type": "runtime-observation"
-            }
-          ],
-          "evidenceTypes": [
-            "generated",
-            "runtime-observation"
-          ],
+          "authoritative": false
+        },
+        {
           "hash": "sha256:2101c481d87cbc004871cb32ca14fef5852527335de616dcea8398bb5dd279dd",
           "shape": {
             "fieldCount": 2,
@@ -601617,6 +601435,7 @@
               "command",
               "metadata"
             ],
+            "signature": "command:string|metadata:{operation:{\"unresolved\":\"asRecord(metadata).operation || 'maraca.render'\"}}",
             "normalized": {
               "fields": {
                 "command": {
@@ -601640,48 +601459,39 @@
                   }
                 }
               }
-            },
-            "signature": "command:string|metadata:{operation:{\"unresolved\":\"asRecord(metadata).operation || 'maraca.render'\"}}"
+            }
           },
           "sourcePaths": [
             "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-            "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
             "xtend-maraca/plan-runtime.mjs"
           ],
           "symbols": [
             "render"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "generated",
               "completeness": "partial",
+              "authoritative": false,
               "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": "refresh",
-              "type": "generated"
+              "symbol": "render"
             },
             {
-              "authoritative": false,
+              "type": "runtime-observation",
               "completeness": "partial",
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": "refresh",
-              "type": "generated"
-            },
-            {
               "authoritative": false,
-              "completeness": "partial",
               "path": "xtend-maraca/plan-runtime.mjs",
-              "symbol": "refresh",
-              "type": "runtime-observation"
+              "symbol": "render"
             }
           ],
           "evidenceTypes": [
             "generated",
             "runtime-observation"
           ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:2d2c899ede2b75e7d9f52897b69d3a86f6d2b8398c5e19f4ee9f891aaf213e53",
           "shape": {
             "fieldCount": 2,
@@ -601689,6 +601499,7 @@
               "command",
               "metadata"
             ],
+            "signature": "command:string|metadata:{operation:{\"unresolved\":\"asRecord(metadata).operation || 'maraca.refresh'\"}}",
             "normalized": {
               "fields": {
                 "command": {
@@ -601712,33 +601523,39 @@
                   }
                 }
               }
-            },
-            "signature": "command:string|metadata:{operation:{\"unresolved\":\"asRecord(metadata).operation || 'maraca.refresh'\"}}"
+            }
           },
           "sourcePaths": [
             "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-            "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
             "xtend-maraca/plan-runtime.mjs"
           ],
           "symbols": [
             "refresh"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "generated",
               "completeness": "partial",
-              "path": "xtendrmt/rmt-event-routing-runtime.js",
-              "symbol": "createCommandEnvelope",
-              "type": "runtime-observation"
+              "authoritative": false,
+              "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
+              "symbol": "refresh"
+            },
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/plan-runtime.mjs",
+              "symbol": "refresh"
             }
           ],
           "evidenceTypes": [
+            "generated",
             "runtime-observation"
           ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:4f212f4053cab0814e9e8ddd36f129ae61e41152fd0e8b284667453abaa3e0fb",
           "shape": {
             "fieldCount": 9,
@@ -601753,6 +601570,7 @@
               "target",
               "timestamp"
             ],
+            "signature": "command:unknown|correlationId:unknown|id:unknown|lane:unknown|payload:unknown|runId:unknown|source:{event:unknown,id:unknown,kind:unknown,surfaceId:unknown}|target:{\"unresolved\":\"binding.commandTarget || commandDetail && commandDetail.target || null\"}|timestamp:{\"unresolved\":\"metadata.timestamp || commandDetail && commandDetail.timestamp || nowIso()\"}",
             "normalized": {
               "fields": {
                 "command": {
@@ -601815,31 +601633,30 @@
                   }
                 }
               }
-            },
-            "signature": "command:unknown|correlationId:unknown|id:unknown|lane:unknown|payload:unknown|runId:unknown|source:{event:unknown,id:unknown,kind:unknown,surfaceId:unknown}|target:{\"unresolved\":\"binding.commandTarget || commandDetail && commandDetail.target || null\"}|timestamp:{\"unresolved\":\"metadata.timestamp || commandDetail && commandDetail.timestamp || nowIso()\"}"
+            }
           },
           "sourcePaths": [
             "xtendrmt/rmt-event-routing-runtime.js"
           ],
           "symbols": [
             "createCommandEnvelope"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "runtime-observation",
               "completeness": "partial",
-              "path": "tests/rmt/rmt_event_routing_runtime_suite.js",
-              "symbol": "promptCommand",
-              "type": "test"
+              "authoritative": false,
+              "path": "xtendrmt/rmt-event-routing-runtime.js",
+              "symbol": "createCommandEnvelope"
             }
           ],
           "evidenceTypes": [
-            "test"
+            "runtime-observation"
           ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:5f885ecaedc14dec36c539a8eaca8bd97604c5e8ecbd97e39a1d4920c392c1ba",
           "shape": {
             "fieldCount": 7,
@@ -601852,6 +601669,7 @@
               "source",
               "timestamp"
             ],
+            "signature": "command:string|correlationId:string|id:string|lane:string|payload:{empty:boolean,value:string}|source:{event:string,id:string,kind:string}|timestamp:unknown",
             "normalized": {
               "fields": {
                 "command": {
@@ -601909,149 +601727,30 @@
                   "type": "unknown"
                 }
               }
-            },
-            "signature": "command:string|correlationId:string|id:string|lane:string|payload:{empty:boolean,value:string}|source:{event:string,id:string,kind:string}|timestamp:unknown"
+            }
           },
           "sourcePaths": [
             "tests/rmt/rmt_event_routing_runtime_suite.js"
           ],
           "symbols": [
             "promptCommand"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "test",
               "completeness": "partial",
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-button-BCPaXyug.mjs",
-              "symbol": "gn",
-              "type": "generated"
+              "authoritative": false,
+              "path": "tests/rmt/rmt_event_routing_runtime_suite.js",
+              "symbol": "promptCommand"
             }
           ],
           "evidenceTypes": [
-            "generated"
+            "test"
           ],
-          "hash": "sha256:643ffe5451cd812d23370c986e9512b3297d80fd814064f1f374faebfb70e8c4",
-          "shape": {
-            "fieldCount": 9,
-            "fields": [
-              "command",
-              "correlationId",
-              "id",
-              "lane",
-              "payload",
-              "runId",
-              "source",
-              "target",
-              "timestamp"
-            ],
-            "normalized": {
-              "fields": {
-                "command": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "correlationId": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "o.correlationId||`rmt.correlation:${i}:${a}`"
-                  }
-                },
-                "id": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "o.id||`rmt.command:${i}:${t}:${a}`"
-                  }
-                },
-                "lane": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "o.lane||o.defaultLane||\"user-blocking\""
-                  }
-                },
-                "payload": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "runId": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "o.runId||\"\""
-                  }
-                },
-                "source": {
-                  "optional": false,
-                  "type": {
-                    "fields": {
-                      "event": {
-                        "optional": false,
-                        "type": "unknown"
-                      },
-                      "id": {
-                        "optional": false,
-                        "type": "unknown"
-                      },
-                      "kind": {
-                        "optional": false,
-                        "type": {
-                          "unresolved": "o.sourceKind||\"component\""
-                        }
-                      },
-                      "surfaceId": {
-                        "optional": false,
-                        "type": {
-                          "unresolved": "o.surfaceId||bn(e,\"surfaceId\")||mn(e,\"surface-id\")||\"\""
-                        }
-                      }
-                    }
-                  }
-                },
-                "target": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      {
-                        "unresolved": "o.target"
-                      },
-                      "null"
-                    ]
-                  }
-                },
-                "timestamp": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "o.timestamp||new Date(a).toISOString()"
-                  }
-                }
-              }
-            },
-            "signature": "command:unknown|correlationId:{\"unresolved\":\"o.correlationId||`rmt.correlation:${i}:${a}`\"}|id:{\"unresolved\":\"o.id||`rmt.command:${i}:${t}:${a}`\"}|lane:{\"unresolved\":\"o.lane||o.defaultLane||\\\"user-blocking\\\"\"}|payload:unknown|runId:{\"unresolved\":\"o.runId||\\\"\\\"\"}|source:{event:unknown,id:unknown,kind:{\"unresolved\":\"o.sourceKind||\\\"component\\\"\"},surfaceId:{\"unresolved\":\"o.surfaceId||bn(e,\\\"surfaceId\\\")||mn(e,\\\"surface-id\\\")||\\\"\\\"\"}}|target:union<{\"unresolved\":\"o.target\"}|null>|timestamp:{\"unresolved\":\"o.timestamp||new Date(a).toISOString()\"}"
-          },
-          "sourcePaths": [
-            "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-button-BCPaXyug.mjs"
-          ],
-          "symbols": [
-            "gn"
-          ]
+          "completeness": "partial",
+          "authoritative": false
         },
         {
-          "authoritative": false,
-          "completeness": "partial",
-          "evidence": [
-            {
-              "authoritative": false,
-              "completeness": "partial",
-              "path": "components/rmt-command.js",
-              "symbol": "createXtendRmtCommandDetail",
-              "type": "runtime-observation"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
           "hash": "sha256:650b792903bcc79211a8d406fce9449cb0255eb7d8b2e70e4c6f9ef18d5bcb1b",
           "shape": {
             "fieldCount": 9,
@@ -602066,6 +601765,7 @@
               "target",
               "timestamp"
             ],
+            "signature": "command:unknown|correlationId:{\"unresolved\":\"options.correlationId || `rmt.correlation:${sourceId}:${now}`\"}|id:{\"unresolved\":\"options.id || `rmt.command:${sourceId}:${eventName}:${now}`\"}|lane:{\"unresolved\":\"options.lane || options.defaultLane || 'user-blocking'\"}|payload:unknown|runId:{\"unresolved\":\"options.runId || ''\"}|source:{event:{\"unresolvedReference\":\"eventName\"},id:unknown,kind:{\"unresolved\":\"options.sourceKind || 'component'\"},surfaceId:{\"unresolved\":\"options.surfaceId || readDataset(host, 'surfaceId') || readAttribute(host, 'surface-id') || ''\"}}|target:union<{\"unresolved\":\"options.target\"}|null>|timestamp:{\"unresolved\":\"options.timestamp || new Date(now).toISOString()\"}",
             "normalized": {
               "fields": {
                 "command": {
@@ -602147,31 +601847,30 @@
                   }
                 }
               }
-            },
-            "signature": "command:unknown|correlationId:{\"unresolved\":\"options.correlationId || `rmt.correlation:${sourceId}:${now}`\"}|id:{\"unresolved\":\"options.id || `rmt.command:${sourceId}:${eventName}:${now}`\"}|lane:{\"unresolved\":\"options.lane || options.defaultLane || 'user-blocking'\"}|payload:unknown|runId:{\"unresolved\":\"options.runId || ''\"}|source:{event:{\"unresolvedReference\":\"eventName\"},id:unknown,kind:{\"unresolved\":\"options.sourceKind || 'component'\"},surfaceId:{\"unresolved\":\"options.surfaceId || readDataset(host, 'surfaceId') || readAttribute(host, 'surface-id') || ''\"}}|target:union<{\"unresolved\":\"options.target\"}|null>|timestamp:{\"unresolved\":\"options.timestamp || new Date(now).toISOString()\"}"
+            }
           },
           "sourcePaths": [
             "components/rmt-command.js"
           ],
           "symbols": [
             "createXtendRmtCommandDetail"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "runtime-observation",
               "completeness": "partial",
-              "path": "components/xprogress.js",
-              "symbol": "createRmtCommandDetail",
-              "type": "runtime-observation"
+              "authoritative": false,
+              "path": "components/rmt-command.js",
+              "symbol": "createXtendRmtCommandDetail"
             }
           ],
           "evidenceTypes": [
             "runtime-observation"
           ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:8a71487fb2c902ec16cb24ad551ed4a07ca4bb340d1d40373942bfd1cbf001b4",
           "shape": {
             "fieldCount": 9,
@@ -602186,6 +601885,7 @@
               "target",
               "timestamp"
             ],
+            "signature": "command:{\"unresolved\":\"host.getAttribute('command')\\n    || host.dataset.command\\n    || host.dataset.action\\n    || host.id\\n    || eventName\"}|correlationId:string|id:string|lane:{\"unresolved\":\"options.lane || 'visible'\"}|payload:{\"unresolvedReference\":\"payload\"}|runId:string|source:{event:{\"unresolvedReference\":\"eventName\"},id:{\"unresolved\":\"host.id || 'x-progress'\"},kind:string,surfaceId:{\"unresolved\":\"host.dataset.surfaceId || host.getAttribute('surface-id') || ''\"}}|target:{\"unresolved\":\"options.target || null\"}|timestamp:unknown",
             "normalized": {
               "fields": {
                 "command": {
@@ -602258,96 +601958,30 @@
                   "type": "unknown"
                 }
               }
-            },
-            "signature": "command:{\"unresolved\":\"host.getAttribute('command')\\n    || host.dataset.command\\n    || host.dataset.action\\n    || host.id\\n    || eventName\"}|correlationId:string|id:string|lane:{\"unresolved\":\"options.lane || 'visible'\"}|payload:{\"unresolvedReference\":\"payload\"}|runId:string|source:{event:{\"unresolvedReference\":\"eventName\"},id:{\"unresolved\":\"host.id || 'x-progress'\"},kind:string,surfaceId:{\"unresolved\":\"host.dataset.surfaceId || host.getAttribute('surface-id') || ''\"}}|target:{\"unresolved\":\"options.target || null\"}|timestamp:unknown"
+            }
           },
           "sourcePaths": [
             "components/xprogress.js"
           ],
           "symbols": [
             "createRmtCommandDetail"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "runtime-observation",
               "completeness": "partial",
-              "path": "products/resumability-maraca-erp-demo/src/client/xtension-control-dialog.mjs",
-              "symbol": "dispatchRmtCommand",
-              "type": "runtime-observation"
+              "authoritative": false,
+              "path": "components/xprogress.js",
+              "symbol": "createRmtCommandDetail"
             }
           ],
           "evidenceTypes": [
             "runtime-observation"
           ],
-          "hash": "sha256:aac0d71f93f3828fe10fb7fb0c2c39898ec1582c7a18a44d2d289e767f6d177b",
-          "shape": {
-            "fieldCount": 2,
-            "fields": [
-              "command",
-              "payload"
-            ],
-            "normalized": {
-              "fields": {
-                "command": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "command"
-                  }
-                },
-                "payload": {
-                  "optional": false,
-                  "type": {
-                    "fields": {
-                      "label": {
-                        "optional": false,
-                        "type": {
-                          "unresolvedReference": "label"
-                        }
-                      },
-                      "source": {
-                        "optional": false,
-                        "type": {
-                          "unresolvedReference": "label"
-                        }
-                      }
-                    },
-                    "unresolvedSpreads": [
-                      {
-                        "unresolvedReference": "extra"
-                      }
-                    ]
-                  }
-                }
-              }
-            },
-            "signature": "command:{\"unresolvedReference\":\"command\"}|payload:{label:{\"unresolvedReference\":\"label\"},source:{\"unresolvedReference\":\"label\"}}"
-          },
-          "sourcePaths": [
-            "products/resumability-maraca-erp-demo/src/client/xtension-control-dialog.mjs"
-          ],
-          "symbols": [
-            "dispatchRmtCommand"
-          ]
+          "completeness": "partial",
+          "authoritative": false
         },
         {
-          "authoritative": false,
-          "completeness": "partial",
-          "evidence": [
-            {
-              "authoritative": false,
-              "completeness": "partial",
-              "path": "tests/docs/docs_framework_ownership_suite.js",
-              "symbol": "createCommandEnvelope",
-              "type": "test"
-            }
-          ],
-          "evidenceTypes": [
-            "test"
-          ],
           "hash": "sha256:bb4158290af8f0583373375f17c40f2b1deee3573e745c8e153caab5e8218ee2",
           "shape": {
             "fieldCount": 3,
@@ -602356,6 +601990,7 @@
               "correlationId",
               "payload"
             ],
+            "signature": "command:{\"unresolved\":\"input.command || input.id || input.action\"}|correlationId:{\"unresolved\":\"metadata.correlationId || input.correlationId || ''\"}|payload:{\"unresolved\":\"input.payload || {}\"}",
             "normalized": {
               "fields": {
                 "command": {
@@ -602377,31 +602012,30 @@
                   }
                 }
               }
-            },
-            "signature": "command:{\"unresolved\":\"input.command || input.id || input.action\"}|correlationId:{\"unresolved\":\"metadata.correlationId || input.correlationId || ''\"}|payload:{\"unresolved\":\"input.payload || {}\"}"
+            }
           },
           "sourcePaths": [
             "tests/docs/docs_framework_ownership_suite.js"
           ],
           "symbols": [
             "createCommandEnvelope"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "complete",
+          ],
           "evidence": [
             {
+              "type": "test",
+              "completeness": "partial",
               "authoritative": false,
-              "completeness": "complete",
               "path": "tests/docs/docs_framework_ownership_suite.js",
-              "symbol": "appDispatchResult",
-              "type": "test"
+              "symbol": "createCommandEnvelope"
             }
           ],
           "evidenceTypes": [
             "test"
           ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:c953b53fb287ed1360e7f1503486e5c0aa9bb6c8b4dcee23ea4a769eca90a8db",
           "shape": {
             "fieldCount": 3,
@@ -602410,6 +602044,7 @@
               "correlationId",
               "payload"
             ],
+            "signature": "command:string|correlationId:string|payload:{first:string,second:string}",
             "normalized": {
               "fields": {
                 "command": {
@@ -602436,31 +602071,30 @@
                   }
                 }
               }
-            },
-            "signature": "command:string|correlationId:string|payload:{first:string,second:string}"
+            }
           },
           "sourcePaths": [
             "tests/docs/docs_framework_ownership_suite.js"
           ],
           "symbols": [
             "appDispatchResult"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
+              "type": "test",
+              "completeness": "complete",
               "authoritative": false,
-              "completeness": "partial",
-              "path": "xtendrmt/rmt-app-runtime.js",
-              "symbol": "createRmtCommandEnvelope",
-              "type": "runtime-observation"
+              "path": "tests/docs/docs_framework_ownership_suite.js",
+              "symbol": "appDispatchResult"
             }
           ],
           "evidenceTypes": [
-            "runtime-observation"
+            "test"
           ],
+          "completeness": "complete",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:e6efe17ee8756e8806b85e498a4398e8a9ca8009abd04d61146b2e421c079fc1",
           "shape": {
             "fieldCount": 9,
@@ -602475,6 +602109,7 @@
               "target",
               "timestamp"
             ],
+            "signature": "command:{\"unresolved\":\"context.command || null\"}|correlationId:unknown|id:unknown|lane:unknown|payload:unknown|runId:unknown|source:unknown|target:union<union<{\"unresolved\":\"defaults.target\"}|null>|{\"unresolved\":\"input.target\"}>|timestamp:{\"unresolved\":\"input.timestamp || defaults.timestamp || nowIso(defaults.clock, hostPort)\"}",
             "normalized": {
               "fields": {
                 "command": {
@@ -602532,31 +602167,30 @@
                   }
                 }
               }
-            },
-            "signature": "command:{\"unresolved\":\"context.command || null\"}|correlationId:unknown|id:unknown|lane:unknown|payload:unknown|runId:unknown|source:unknown|target:union<union<{\"unresolved\":\"defaults.target\"}|null>|{\"unresolved\":\"input.target\"}>|timestamp:{\"unresolved\":\"input.timestamp || defaults.timestamp || nowIso(defaults.clock, hostPort)\"}"
+            }
           },
           "sourcePaths": [
             "xtendrmt/rmt-app-runtime.js"
           ],
           "symbols": [
             "createRmtCommandEnvelope"
-          ]
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
+          ],
           "evidence": [
             {
-              "authoritative": false,
+              "type": "runtime-observation",
               "completeness": "partial",
-              "path": "xtendrmt/rmt-app-runtime.d.ts",
-              "symbol": "RmtCommandEnvelope",
-              "type": "declared-type"
+              "authoritative": false,
+              "path": "xtendrmt/rmt-app-runtime.js",
+              "symbol": "createRmtCommandEnvelope"
             }
           ],
           "evidenceTypes": [
-            "declared-type"
+            "runtime-observation"
           ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:f4da7039cf545c5de21a0ff9916a861b122b70668c67421d6879dc472496742b",
           "shape": {
             "fieldCount": 9,
@@ -602571,6 +602205,7 @@
               "target",
               "timestamp"
             ],
+            "signature": "command:string|correlationId:string|id:string|lane:string|payload:{\"arguments\":[],\"unresolvedReference\":\"TPayload\"}|runId?:string|source:{event:string,id:string,kind:string,surfaceId:string}|target?:unknown|timestamp:string",
             "normalized": {
               "fields": {
                 "command": {
@@ -602632,30 +602267,40 @@
                   "type": "string"
                 }
               }
-            },
-            "signature": "command:string|correlationId:string|id:string|lane:string|payload:{\"arguments\":[],\"unresolvedReference\":\"TPayload\"}|runId?:string|source:{event:string,id:string,kind:string,surfaceId:string}|target?:unknown|timestamp:string"
+            }
           },
           "sourcePaths": [
             "xtendrmt/rmt-app-runtime.d.ts"
           ],
           "symbols": [
             "RmtCommandEnvelope"
-          ]
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtendrmt/rmt-app-runtime.d.ts",
+              "symbol": "RmtCommandEnvelope"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
         }
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
           "sha256:00aaa7a17c397f349459c9cb858cad9da1e3422f3b8f7f3f54405740db21159b",
           "sha256:10f509485797ce1a19ceaf98a34c72bd8082653c059d46f0dfb6f81b6097dc03",
-          "sha256:1b96c0a662c9d7699f28ee0623b1642a6170fe04611fe25ec7ecf0db58294361",
           "sha256:2101c481d87cbc004871cb32ca14fef5852527335de616dcea8398bb5dd279dd",
           "sha256:2d2c899ede2b75e7d9f52897b69d3a86f6d2b8398c5e19f4ee9f891aaf213e53",
           "sha256:4f212f4053cab0814e9e8ddd36f129ae61e41152fd0e8b284667453abaa3e0fb",
           "sha256:5f885ecaedc14dec36c539a8eaca8bd97604c5e8ecbd97e39a1d4920c392c1ba",
-          "sha256:643ffe5451cd812d23370c986e9512b3297d80fd814064f1f374faebfb70e8c4",
           "sha256:650b792903bcc79211a8d406fce9449cb0255eb7d8b2e70e4c6f9ef18d5bcb1b",
           "sha256:8a71487fb2c902ec16cb24ad551ed4a07ca4bb340d1d40373942bfd1cbf001b4",
-          "sha256:aac0d71f93f3828fe10fb7fb0c2c39898ec1582c7a18a44d2d289e767f6d177b",
           "sha256:bb4158290af8f0583373375f17c40f2b1deee3573e745c8e153caab5e8218ee2",
           "sha256:c953b53fb287ed1360e7f1503486e5c0aa9bb6c8b4dcee23ea4a769eca90a8db",
           "sha256:e6efe17ee8756e8806b85e498a4398e8a9ca8009abd04d61146b2e421c079fc1",
@@ -602671,480 +602316,418 @@
       "usages": [
         {
           "application": "XTend Components",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend/components/rmt-command.d.ts",
-              "path": "components/rmt-command.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/components/rmt-command.js",
-              "path": "components/rmt-command.js",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/components/xprogress.js",
-              "path": "components/xprogress.js",
-              "type": "package-export"
-            },
-            {
-              "path": "components/rmt-command.d.ts",
-              "symbol": "XTEND_RMT_COMMAND_SCHEMA",
-              "type": "symbol"
-            },
-            {
-              "path": "components/rmt-command.d.ts",
-              "symbol": "XtendRmtCommandDetail",
-              "type": "symbol"
-            },
-            {
-              "path": "components/rmt-command.js",
-              "symbol": "XTEND_RMT_COMMAND_SCHEMA",
-              "type": "symbol"
-            },
-            {
-              "path": "components/xprogress.js",
-              "symbol": "X_PROGRESS_RMT_COMMAND_SCHEMA",
-              "type": "symbol"
-            }
-          ],
           "role": "definition",
+          "visibility": "public",
           "sourcePaths": [
             "components/rmt-command.d.ts",
             "components/rmt-command.js",
             "components/xprogress.js"
           ],
-          "visibility": "public"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/components/rmt-command.d.ts",
+              "path": "components/rmt-command.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/components/rmt-command.js",
+              "path": "components/rmt-command.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/components/xprogress.js",
+              "path": "components/xprogress.js"
+            },
+            {
+              "type": "symbol",
+              "path": "components/rmt-command.d.ts",
+              "symbol": "XTEND_RMT_COMMAND_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "components/rmt-command.d.ts",
+              "symbol": "XtendRmtCommandDetail"
+            },
+            {
+              "type": "symbol",
+              "path": "components/rmt-command.js",
+              "symbol": "XTEND_RMT_COMMAND_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "components/xprogress.js",
+              "symbol": "X_PROGRESS_RMT_COMMAND_SCHEMA"
+            }
+          ]
         },
         {
           "application": "XTend Components",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend/components/rmt-command.js",
-              "path": "components/rmt-command.js",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/components/xprogress.js",
-              "path": "components/xprogress.js",
-              "type": "package-export"
-            },
-            {
-              "path": "components/rmt-command.js",
-              "symbol": "createXtendRmtCommandDetail",
-              "type": "symbol"
-            },
-            {
-              "path": "components/xprogress.js",
-              "symbol": "createRmtCommandDetail",
-              "type": "symbol"
-            }
-          ],
           "role": "producer",
+          "visibility": "public",
           "sourcePaths": [
             "components/rmt-command.js",
             "components/xprogress.js"
           ],
-          "visibility": "public"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/components/rmt-command.js",
+              "path": "components/rmt-command.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/components/xprogress.js",
+              "path": "components/xprogress.js"
+            },
+            {
+              "type": "symbol",
+              "path": "components/rmt-command.js",
+              "symbol": "createXtendRmtCommandDetail"
+            },
+            {
+              "type": "symbol",
+              "path": "components/xprogress.js",
+              "symbol": "createRmtCommandDetail"
+            }
+          ]
         },
         {
           "application": "XTend Components",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend/components/rmt-command.d.ts",
-              "path": "components/rmt-command.d.ts",
-              "type": "package-export"
-            }
-          ],
           "role": "reference",
+          "visibility": "public",
           "sourcePaths": [
             "components/rmt-command.d.ts"
           ],
-          "visibility": "public"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/components/rmt-command.d.ts",
+              "path": "components/rmt-command.d.ts"
+            }
+          ]
         },
         {
           "application": "XTend Documentation",
-          "interfaceReferences": [
-            {
-              "path": "docs/generated/shell/chunks/x-status-BbVXEOVj.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
-            },
-            {
-              "path": "docs/generated/shell/chunks/x-status-ChsjjCLX.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
-            },
-            {
-              "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
-            },
-            {
-              "path": "docs/generated/shell/xtend.maraca.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "generated-mirror",
+          "visibility": "generated",
           "sourcePaths": [
             "docs/generated/shell/chunks/x-status-BbVXEOVj.mjs",
             "docs/generated/shell/chunks/x-status-ChsjjCLX.mjs",
             "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
             "docs/generated/shell/xtend.maraca.mjs"
           ],
-          "visibility": "generated"
-        },
-        {
-          "application": "XTend LLM",
           "interfaceReferences": [
             {
-              "path": "products/xtend-llm/src/main/electron-main.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
+              "type": "repo-symbol",
+              "path": "docs/generated/shell/chunks/x-status-BbVXEOVj.mjs",
+              "symbol": null
+            },
+            {
+              "type": "repo-symbol",
+              "path": "docs/generated/shell/chunks/x-status-ChsjjCLX.mjs",
+              "symbol": null
+            },
+            {
+              "type": "repo-symbol",
+              "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
+              "symbol": null
+            },
+            {
+              "type": "repo-symbol",
+              "path": "docs/generated/shell/xtend.maraca.mjs",
+              "symbol": null
             }
-          ],
-          "role": "producer",
-          "sourcePaths": [
-            "products/xtend-llm/src/main/electron-main.mjs"
-          ],
-          "visibility": "internal"
+          ]
         },
         {
           "application": "XTend Maraca",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-maraca/plan-runtime",
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/maraca/plan-runtime",
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "type": "package-export"
-            },
-            {
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "symbol": "refresh",
-              "type": "symbol"
-            },
-            {
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "symbol": "render",
-              "type": "symbol"
-            }
-          ],
           "role": "producer",
+          "visibility": "public",
           "sourcePaths": [
             "xtend-maraca/plan-runtime.mjs"
           ],
-          "visibility": "public"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/plan-runtime.mjs",
+              "symbol": "refresh"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/plan-runtime.mjs",
+              "symbol": "render"
+            }
+          ]
         },
         {
           "application": "XTend Maraca",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-maraca/plan-runtime",
-              "path": "xtend-maraca/plan-runtime.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend-maraca/plan-runtime",
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/maraca/plan-runtime",
-              "path": "xtend-maraca/plan-runtime.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/maraca/plan-runtime",
-              "path": "xtend-maraca/plan-runtime.mjs",
-              "type": "package-export"
-            }
-          ],
           "role": "reference",
+          "visibility": "public",
           "sourcePaths": [
             "xtend-maraca/plan-runtime.d.ts",
             "xtend-maraca/plan-runtime.mjs"
           ],
-          "visibility": "public"
-        },
-        {
-          "application": "XTend Products",
           "interfaceReferences": [
             {
-              "path": "products/maraca-app-services-test-bench/test/maraca-app-services-test-bench.catfood.test.cjs",
-              "symbol": "submitCurrentTextarea",
-              "type": "symbol"
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.d.ts"
             },
             {
-              "path": "products/resumability-maraca-erp-demo/src/client/xtension-control-dialog.mjs",
-              "symbol": "dispatchRmtCommand",
-              "type": "symbol"
-            }
-          ],
-          "role": "producer",
-          "sourcePaths": [
-            "products/maraca-app-services-test-bench/test/maraca-app-services-test-bench.catfood.test.cjs",
-            "products/resumability-maraca-erp-demo/src/client/xtension-control-dialog.mjs"
-          ],
-          "visibility": "internal"
-        },
-        {
-          "application": "XTend Products",
-          "interfaceReferences": [
-            {
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-button-BCPaXyug.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
             },
             {
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.d.ts"
             },
             {
-              "path": "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
             }
-          ],
-          "role": "generated-mirror",
-          "sourcePaths": [
-            "products/rmt-maraca-kernel-orchestration/site/build/chunks/x-button-BCPaXyug.mjs",
-            "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
-            "products/rmt-maraca-kernel-orchestration/site/build/xtend.maraca.mjs"
-          ],
-          "visibility": "generated"
-        },
-        {
-          "application": "XTend Products",
-          "interfaceReferences": [
-            {
-              "path": "products/maraca-app-services-test-bench/test/maraca-app-services-test-bench.catfood.test.cjs",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
-          "role": "reference",
-          "sourcePaths": [
-            "products/maraca-app-services-test-bench/test/maraca-app-services-test-bench.catfood.test.cjs",
-            "products/resumability-maraca-erp-demo/src/client/resume-bridge.mjs"
-          ],
-          "visibility": "internal"
+          ]
         },
         {
           "application": "XTend Tests: Docs",
-          "interfaceReferences": [
-            {
-              "path": "tests/docs/docs_framework_ownership_suite.js",
-              "symbol": "appDispatchResult",
-              "type": "symbol"
-            },
-            {
-              "path": "tests/docs/docs_framework_ownership_suite.js",
-              "symbol": "createCommandEnvelope",
-              "type": "symbol"
-            }
-          ],
           "role": "producer",
+          "visibility": "test",
           "sourcePaths": [
             "tests/docs/docs_framework_ownership_suite.js"
           ],
-          "visibility": "test"
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/docs/docs_framework_ownership_suite.js",
+              "symbol": "appDispatchResult"
+            },
+            {
+              "type": "symbol",
+              "path": "tests/docs/docs_framework_ownership_suite.js",
+              "symbol": "createCommandEnvelope"
+            }
+          ]
         },
         {
           "application": "XTend Tests: Docs",
-          "interfaceReferences": [
-            {
-              "path": "tests/docs/docs_framework_ownership_suite.js",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "assertion",
+          "visibility": "test",
           "sourcePaths": [
             "tests/docs/docs_framework_ownership_suite.js"
           ],
-          "visibility": "test"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/docs/docs_framework_ownership_suite.js",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Migration",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/migration/command-lexical-semantics.test.cjs",
+            "tests/migration/contract-source-cleanup.test.cjs",
+            "tests/migration/ownership-conservation.test.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/migration/contract-source-cleanup.test.cjs",
+              "symbol": "file"
+            }
+          ]
         },
         {
           "application": "XTend Tests: Rmt",
-          "interfaceReferences": [
-            {
-              "path": "tests/rmt/rmt_app_runtime_suite.js",
-              "symbol": "RMT_COMMAND_SCHEMA",
-              "type": "symbol"
-            }
-          ],
           "role": "definition",
+          "visibility": "test",
           "sourcePaths": [
             "tests/rmt/rmt_app_runtime_suite.js"
           ],
-          "visibility": "test"
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/rmt/rmt_app_runtime_suite.js",
+              "symbol": "RMT_COMMAND_SCHEMA"
+            }
+          ]
         },
         {
           "application": "XTend Tests: Rmt",
-          "interfaceReferences": [
-            {
-              "path": "tests/rmt/rmt_event_routing_runtime_suite.js",
-              "symbol": "promptCommand",
-              "type": "symbol"
-            }
-          ],
           "role": "producer",
+          "visibility": "test",
           "sourcePaths": [
             "tests/rmt/rmt_event_routing_runtime_suite.js"
           ],
-          "visibility": "test"
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/rmt/rmt_event_routing_runtime_suite.js",
+              "symbol": "promptCommand"
+            }
+          ]
         },
         {
           "application": "XTend Tests: Rmt",
-          "interfaceReferences": [
-            {
-              "path": "tests/rmt/rmt_app_runtime_suite.js",
-              "symbol": "RMT_COMMAND_SCHEMA",
-              "type": "symbol"
-            }
-          ],
           "role": "assertion",
+          "visibility": "test",
           "sourcePaths": [
             "tests/rmt/rmt_app_runtime_suite.js",
             "tests/rmt/rmt_event_routing_runtime_suite.js"
           ],
-          "visibility": "test"
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/rmt/rmt_app_runtime_suite.js",
+              "symbol": "RMT_COMMAND_SCHEMA"
+            }
+          ]
         },
         {
           "application": "XTendRMT",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-rmt/app-runtime",
-              "path": "xtendrmt/rmt-app-runtime.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend-rmt/app-runtime",
-              "path": "xtendrmt/rmt-app-runtime.js",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend-rmt/event-routing-runtime",
-              "path": "xtendrmt/rmt-event-routing-runtime.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend-rmt/event-routing-runtime",
-              "path": "xtendrmt/rmt-event-routing-runtime.js",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/rmt/event-routing-runtime",
-              "path": "xtendrmt/rmt-event-routing-runtime.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/rmt/event-routing-runtime",
-              "path": "xtendrmt/rmt-event-routing-runtime.js",
-              "type": "package-export"
-            },
-            {
-              "path": "xtendrmt/rmt-app-runtime.d.ts",
-              "symbol": "RMT_COMMAND_SCHEMA",
-              "type": "symbol"
-            },
-            {
-              "path": "xtendrmt/rmt-app-runtime.d.ts",
-              "symbol": "RmtCommandEnvelope",
-              "type": "symbol"
-            },
-            {
-              "path": "xtendrmt/rmt-app-runtime.js",
-              "symbol": "RMT_COMMAND_SCHEMA",
-              "type": "symbol"
-            },
-            {
-              "path": "xtendrmt/rmt-event-routing-runtime.d.ts",
-              "symbol": "RMT_COMMAND_SCHEMA",
-              "type": "symbol"
-            },
-            {
-              "path": "xtendrmt/rmt-event-routing-runtime.js",
-              "symbol": "RMT_COMMAND_SCHEMA",
-              "type": "symbol"
-            }
-          ],
           "role": "definition",
+          "visibility": "public",
           "sourcePaths": [
             "xtendrmt/rmt-app-runtime.d.ts",
             "xtendrmt/rmt-app-runtime.js",
             "xtendrmt/rmt-event-routing-runtime.d.ts",
             "xtendrmt/rmt-event-routing-runtime.js"
           ],
-          "visibility": "public"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/app-runtime",
+              "path": "xtendrmt/rmt-app-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/app-runtime",
+              "path": "xtendrmt/rmt-app-runtime.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/event-routing-runtime",
+              "path": "xtendrmt/rmt-event-routing-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/event-routing-runtime",
+              "path": "xtendrmt/rmt-event-routing-runtime.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/event-routing-runtime",
+              "path": "xtendrmt/rmt-event-routing-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/event-routing-runtime",
+              "path": "xtendrmt/rmt-event-routing-runtime.js"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-app-runtime.d.ts",
+              "symbol": "RMT_COMMAND_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-app-runtime.d.ts",
+              "symbol": "RmtCommandEnvelope"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-app-runtime.js",
+              "symbol": "RMT_COMMAND_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-event-routing-runtime.d.ts",
+              "symbol": "RMT_COMMAND_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-event-routing-runtime.js",
+              "symbol": "RMT_COMMAND_SCHEMA"
+            }
+          ]
         },
         {
           "application": "XTendRMT",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-rmt/app-runtime",
-              "path": "xtendrmt/rmt-app-runtime.js",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend-rmt/event-routing-runtime",
-              "path": "xtendrmt/rmt-event-routing-runtime.js",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/rmt/event-routing-runtime",
-              "path": "xtendrmt/rmt-event-routing-runtime.js",
-              "type": "package-export"
-            },
-            {
-              "path": "xtendrmt/rmt-app-runtime.js",
-              "symbol": "createRmtCommandEnvelope",
-              "type": "symbol"
-            },
-            {
-              "path": "xtendrmt/rmt-event-routing-runtime.js",
-              "symbol": "createCommandEnvelope",
-              "type": "symbol"
-            }
-          ],
           "role": "producer",
+          "visibility": "public",
           "sourcePaths": [
             "xtendrmt/rmt-app-runtime.js",
             "xtendrmt/rmt-event-routing-runtime.js"
           ],
-          "visibility": "public"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/app-runtime",
+              "path": "xtendrmt/rmt-app-runtime.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/event-routing-runtime",
+              "path": "xtendrmt/rmt-event-routing-runtime.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/event-routing-runtime",
+              "path": "xtendrmt/rmt-event-routing-runtime.js"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-app-runtime.js",
+              "symbol": "createRmtCommandEnvelope"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-event-routing-runtime.js",
+              "symbol": "createCommandEnvelope"
+            }
+          ]
         },
         {
           "application": "XTendRMT",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-rmt/app-runtime",
-              "path": "xtendrmt/rmt-app-runtime.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend-rmt/event-routing-runtime",
-              "path": "xtendrmt/rmt-event-routing-runtime.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/rmt/event-routing-runtime",
-              "path": "xtendrmt/rmt-event-routing-runtime.d.ts",
-              "type": "package-export"
-            }
-          ],
           "role": "reference",
+          "visibility": "public",
           "sourcePaths": [
             "xtendrmt/rmt-app-runtime.d.ts",
             "xtendrmt/rmt-event-routing-runtime.d.ts"
           ],
-          "visibility": "public"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/app-runtime",
+              "path": "xtendrmt/rmt-app-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/event-routing-runtime",
+              "path": "xtendrmt/rmt-event-routing-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/event-routing-runtime",
+              "path": "xtendrmt/rmt-event-routing-runtime.d.ts"
+            }
+          ]
         }
       ],
       "version": 1

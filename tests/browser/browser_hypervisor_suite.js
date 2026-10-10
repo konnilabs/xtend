@@ -72,7 +72,6 @@ async function runBrowserHypervisorSuite(options = {}) {
     context.assert(!source.includes("require('child_process')") && !source.includes('/System/Cryptexes/App/usr/bin/safaridriver') && !source.includes('/usr/bin/chromedriver') && !source.includes('process.platform'), `${consumerPath} has no browser lifecycle, OS or executable-path special case`);
   });
   [
-    'tests/products/xtend_material_catfooding_suite.js',
     'tests/products/xtend_material_cli_generated_app_suite.js',
     'tests/maraca/maraca_app_services_build_suite.js',
     'tests/maraca/maraca_suite.js'

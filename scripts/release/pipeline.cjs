@@ -92,9 +92,16 @@ function verifyProductConsumer({ directory, file, sourceSha, demoSha, startedAt 
     installation: evidence.installation, reports: evidence.reports });
   return evidence;
 }
-async function seal({ directory, manifestIntegrity, lanesDirectory, resume = false }) {
+async function seal({ directory, manifestIntegrity, lanesDirectory, resume = false, unionApi, unionFetch }) {
   const sourceSha = git(['rev-parse', 'HEAD']), artifact = await verifyArtifact({ directory, manifestIntegrity, sourceSha, rootDir, phase: resume ? 'sealed' : 'prepared' });
   await verifyCandidateBinding(artifact, { directory, rootDir });
+  const union = require('./union.cjs');
+  if (resume) union.verifyStoredUnion({ directory, artifact });
+  const unionTemporary = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-release-union-seal-'));
+  try {
+  const unionDirectory = path.join(unionTemporary, 'evidence');
+  await union.verifyFreshUnion({ directory: unionDirectory, sourceSha,
+    demoSha: artifact.manifest.candidateBinding.demoSha, request: unionApi, fetchBytes: unionFetch });
   const manifest = structuredClone(artifact.manifest);
   const originalDirectory = directory;
   if (resume) {
@@ -119,6 +126,9 @@ async function seal({ directory, manifestIntegrity, lanesDirectory, resume = fal
   // Validate before writing the final, immutable release manifest.
   await verifyCandidateBinding({ ...artifact, manifest }, { directory, rootDir, requireProductEvidence: true, now: Date.now() });
   if (resume) return { sourceSha, manifestIntegrity, candidateSha256: require('../../candidate-integrity.cjs').digest(fs.readFileSync(path.join(originalDirectory, 'manifest.json'))) };
+  check(!fs.existsSync(path.join(directory, 'union-evidence')), 'Fresh union proof destination required');
+  fs.cpSync(unionDirectory, path.join(directory, 'union-evidence'), { recursive: true, errorOnExist: true, force: false });
+  manifest.unionEvidence = { file: 'union-evidence/index.json', integrity: digest(fs.readFileSync(path.join(directory, 'union-evidence/index.json'))) };
   const finalFile = path.join(directory, 'release-manifest.json');
   fs.writeFileSync(finalFile, JSON.stringify(manifest, null, 2) + '\n');
   const finalIntegrity = digest(fs.readFileSync(finalFile));
@@ -130,6 +140,7 @@ async function seal({ directory, manifestIntegrity, lanesDirectory, resume = fal
     workflow: '.github/workflows/xtend-default-gates.yml', runId: process.env.GITHUB_RUN_ID, sourceSha, manifestIntegrity: finalIntegrity, needs });
   return { sourceSha, manifestIntegrity: finalIntegrity, candidateSha256: require('../../candidate-integrity.cjs').digest(fs.readFileSync(path.join(directory, 'manifest.json'))) };
   } finally { if (resume) fs.rmSync(directory, { recursive: true, force: true }); }
+  } finally { fs.rmSync(unionTemporary, { recursive: true, force: true }); }
 }
 async function main(args = process.argv.slice(2)) {
   const { values, positionals } = parseArgs({ args, allowPositionals: true, options: {
@@ -152,6 +163,7 @@ async function main(args = process.argv.slice(2)) {
       candidateSha256: require('../../candidate-integrity.cjs').digest(fs.readFileSync(path.join(options.directory, 'manifest.json'))) };
     const artifact = await verifyArtifact({ directory: options.directory, manifestIntegrity: result.manifestIntegrity, sourceSha, rootDir, selection, phase: 'sealed' });
     await verifyCandidateBinding(artifact, { directory: options.directory, rootDir, requireProductEvidence: true });
+    require('./union.cjs').verifyStoredUnion({ directory: options.directory, artifact });
   } else result = await ({ prepare, consumers, seal })[command](options);
   if (result && process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, Object.entries(result).map(([key, value]) => `${key}=${value}\n`).join(''));
   if (result) console.log(JSON.stringify(result));

@@ -2,9 +2,21 @@
 
 const crypto = require('crypto');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { createSuiteContext, printSuiteReport } = require('../utils/assertions');
 const { readJson, readText, resolveRepoPath, resolveRootDir } = require('../utils/files');
+
+// Only these immutable pre-migration records may use the historical source.
+// Fingerprints bind complete parsed records plus review ID, intake and timestamp;
+// JSON.stringify preserves the original property order (no normalization).
+const ARCHIVED_LLM_RECORDS = new Map([
+  ['NFM-OBS-REVIEW-2026-08-17:jspi-wasm', 'efb692d45a1dd9ec98fd105ed9d485207d7d018f963dca92cbe0dcfd464073ee'],
+  ['NFM-OBS-REVIEW-2026-08-17-R2:jspi-wasm', 'cb55cf72baddfa74618bd6c4d44386ceec73cabacfbac82d6e805ab8c215f77b'],
+  ['NFM-OBS-REVIEW-2026-08-25:jspi-wasm', '056bb5e8a9b84bf32c8df7602ef075c9c1bee9c569912598e0c81b8f72c9f21f'],
+  ['NFM-OBS-REVIEW-2026-09-01:jspi-wasm', 'b479427977e4991f15b32294c7fb169a2673518b887e92ca90c61545d96e674a'],
+  ['NFM-OBS-REVIEW-2026-09-14:jspi-wasm', 'd6583baab61737bbd668bbed758552b76a53cbb8415b8bc35eeb3c3704193b82']
+]);
 
 const SUITE_ID = 'browser-primitive-radar';
 const SUITE_LABEL = 'Browser Primitive Radar and Observatory Intake';
@@ -161,9 +173,29 @@ function validateObservatoryDocuments(options) {
     });
     if (!Array.isArray(record.repoSymbols) || record.repoSymbols.length === 0) errors.push(`review ${label} has no real XTend repo symbols`);
     (record.repoSymbols || []).forEach((repoSymbol) => {
-      const absolutePath = resolveRepoPath(repoSymbol.path || '', rootDir);
+      // Immutable Observatory records keep their original source path. This one
+      // moved security source is archived byte-for-byte at the migration boundary;
+      // its live product assertion is required independently in xtend-demos.
+      const archived = repoSymbol.path === 'products/xtend-llm/src/llm/transformers-worker.mjs';
+      if (archived) {
+        const expected = ARCHIVED_LLM_RECORDS.get(`${review.reviewId}:${record.findingId}`);
+        const fingerprint = crypto.createHash('sha256').update(JSON.stringify({
+          reviewId: review.reviewId, intakeRef: review.intakeRef, reviewedAt: review.reviewedAt, record
+        })).digest('hex');
+        if (!expected || fingerprint !== expected) {
+          errors.push(`review ${label} is not authorized to reuse archived XTend source`);
+          return;
+        }
+      }
+      const absolutePath = resolveRepoPath(archived
+        ? 'tests/fixtures/native-first/observatory-llm-source.mjs.txt'
+        : repoSymbol.path || '', rootDir);
       if (!repoSymbol.path || !fs.existsSync(absolutePath)) {
         errors.push(`review ${label} references a non-existent XTend path`);
+        return;
+      }
+      if (archived && crypto.createHash('sha256').update(fs.readFileSync(absolutePath)).digest('hex') !== 'f38030e7a4dd28fff5e4cd2f204519bc7fdfb303b20c4e51ae9bd736da996f7d') {
+        errors.push(`review ${label} references altered historical XTend source`);
         return;
       }
       if (!repoSymbol.symbol || !fs.readFileSync(absolutePath, 'utf8').includes(repoSymbol.symbol)) errors.push(`review ${label} references a non-existent XTend symbol`);
@@ -272,6 +304,45 @@ function assertRejected(context, label, mutate, base) {
   context.assert(errors.length > 0, `Gate rejects ${label}`);
 }
 
+// Portable exception-contract tests run inside the existing automatic suite.
+function assertHistoricalArchiveNegatives(context, base) {
+  const archivePath = 'tests/fixtures/native-first/observatory-llm-source.mjs.txt';
+  const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-observatory-archive-'));
+  try {
+    // Copy referenced security evidence only; never mutate the real checkout.
+    const sourcePaths = new Set(base.runs.flatMap((run) => run.review.records.flatMap((record) =>
+      (record.repoSymbols || []).map((symbol) => symbol.path))));
+    sourcePaths.delete('products/xtend-llm/src/llm/transformers-worker.mjs');
+    sourcePaths.forEach((sourcePath) => {
+      const target = resolveRepoPath(sourcePath, temporaryRoot);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.copyFileSync(resolveRepoPath(sourcePath, base.rootDir), target);
+    });
+    const candidate = { ...base, rootDir: temporaryRoot };
+    const archiveTarget = resolveRepoPath(archivePath, temporaryRoot);
+    fs.mkdirSync(path.dirname(archiveTarget), { recursive: true });
+    fs.copyFileSync(resolveRepoPath(archivePath, base.rootDir), archiveTarget);
+    context.assert(validateRunIndexDocuments(candidate).length === 0, 'Portable archive fixture control accepts the five historical records');
+    fs.unlinkSync(archiveTarget);
+    context.assert(validateRunIndexDocuments(candidate).some((error) => error.includes('review jspi-wasm references a non-existent XTend path')), 'Gate rejects missing historical LLM fixture');
+    fs.writeFileSync(archiveTarget, Buffer.concat([fs.readFileSync(resolveRepoPath(archivePath, base.rootDir)), Buffer.from('\n')]));
+    context.assert(validateRunIndexDocuments(candidate).some((error) => error.includes('altered historical XTend source')), 'Gate rejects tampered historical LLM fixture');
+  } finally {
+    fs.rmSync(temporaryRoot, { recursive: true, force: true });
+  }
+  for (const mutation of ['unrecognized-review', 'unrecognized-record', 'changed-record', 'later-review', 'changed-intake']) {
+    const candidate = clone(base);
+    const run = candidate.runs.find((entry) => entry.review.reviewId === 'NFM-OBS-REVIEW-2026-09-14');
+    const record = run.review.records.find((entry) => entry.findingId === 'jspi-wasm');
+    if (mutation === 'unrecognized-review') run.review.reviewId = 'NFM-OBS-REVIEW-UNRECOGNIZED';
+    if (mutation === 'unrecognized-record') record.findingId = 'unrecognized-jspi-wasm';
+    if (mutation === 'changed-record') record.facts.push('changed historical record');
+    if (mutation === 'later-review') run.review.reviewedAt = '2026-10-11';
+    if (mutation === 'changed-intake') run.review.intakeRef = 'NFM-OBS-2026-10-11';
+    context.assert(validateRunIndexDocuments(candidate).some((error) => error.includes('not authorized to reuse archived XTend source')), `Gate rejects archived LLM reuse by ${mutation}`);
+  }
+}
+
 function runBrowserPrimitiveRadarSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({ id: SUITE_ID, label: SUITE_LABEL });
@@ -289,6 +360,7 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
   const august24 = runs.find((run) => run.intake.intakeId === 'NFM-OBS-2026-08-24');
   const august31 = runs.find((run) => run.intake.intakeId === 'NFM-OBS-2026-08-31');
   const base = { rootDir, runIndex, runs, radar, packageManifest };
+  assertHistoricalArchiveNegatives(context, base);
   const errors = validateRunIndexDocuments(base);
   errors.forEach((error) => context.fail(error));
   if (errors.length === 0) context.pass('All immutable Observatory runs and reviews satisfy the gate');
@@ -415,6 +487,10 @@ function runBrowserPrimitiveRadarSuite(options = {}) {
   next.runIndex.runs.push(nextRun.descriptor);
   next.runIndex.currentRun = nextRun.intake.intakeId;
   Object.assign(next.packageManifest.xtend.nativeFirstFeatureAdoptionObservatory, { currentRun: nextRun.intake.intakeId, intake: nextRun.descriptor.intake, review: nextRun.descriptor.review });
+  context.assert(validateRunIndexDocuments(next).some((error) => error.includes('not authorized to reuse archived XTend source')), 'A new weekly review cannot inherit archived LLM source');
+  nextRun.review.records.forEach((record) => {
+    record.repoSymbols = record.repoSymbols.filter((symbol) => symbol.path !== 'products/xtend-llm/src/llm/transformers-worker.mjs');
+  });
   context.assert(validateRunIndexDocuments(next).length === 0, 'A subsequent weekly run is accepted without changing the September adoption baseline');
 
   return context.result({

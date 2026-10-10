@@ -10,11 +10,16 @@ function receipt({ manifest, coreSha, demoSha, generatedAt = new Date().toISOStr
   const ledger = JSON.parse(bytes);
   const ids = require(path.join(prefix, 'selection.json'));
   const bindings = require(path.join(prefix, 'authority-bindings.json'));
+  const overlay = require(path.join(prefix, 'command-lexical-overlay.json'));
   const item = manifest.packages.find(entry => entry.name === '@ccslabs/xtend');
   const rows = ids.map(schemaId => ({ schemaId, hashes: ledger.entries.find(entry => entry.schemaId === schemaId).shapePolicy.acceptedFingerprints.slice().sort() }));
+  const demo = structuredClone(rows);
+  const command = demo.find(row => row.schemaId === overlay.schemaId);
+  command.hashes = [...new Set([...command.hashes, ...overlay.variants.map(variant => variant.hash)])].sort();
+  const union = structuredClone(demo);
   return { selection: ids, coreSha, demoSha, packageSha256: item.sha256, packageVersion: item.version,
     ledgerSha256: crypto.createHash('sha256').update(bytes).digest('hex'), selectionOk: true, migrationComplete: false,
-    remainingOwnershipIds: 24, generatedAt, core: structuredClone(rows), demo: structuredClone(rows), union: rows,
+    remainingOwnershipIds: 23, generatedAt, core: structuredClone(rows), demo, union,
     authorities: bindings.map(binding => ({ ...binding, coreSha, packageSha256: item.sha256, packageVersion: item.version,
       importedSource: 'imports/core/' + coreSha + '/' + binding.oldSource })) };
 }

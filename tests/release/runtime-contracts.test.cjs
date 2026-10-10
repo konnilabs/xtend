@@ -167,6 +167,10 @@ function pipelineForFixture(rootDir, sourceSha) {
     execFileSync(program, args) {
       assert.equal(program, 'git'); assert.deepEqual(args, ['rev-parse', 'HEAD']); return sourceSha;
     }, spawnSync() { throw Error('No build/npm/product process may run in seal/resume verification'); }
+  } : name === './union.cjs' ? {
+    // This existing test isolates immutable candidate/product resume mechanics.
+    // The real union/Seal boundary is exercised separately in union.test.cjs.
+    verifyStoredUnion() {}, verifyFreshUnion({ directory }) { fs.mkdirSync(directory); }
   } : realRequire(name);
   const source = fs.readFileSync(file, 'utf8');
   // Only the temporary fixture root/backend is substituted. Seal/resume body,
@@ -210,15 +214,15 @@ test('sealed enrollment cannot be forged by cloning a primitive artifact; real l
     registry: { version: forbidden, package: forbidden }, publisher: { publish: forbidden } }), /fully verified sealed/);
   assert.equal(calls, 0);
 });
-test('real sealed validation boundary reaches only in-memory sequential publishing under a source-retired test loader', async t => {
+test('real library requires authenticated union proof even after candidate/product seal under a source-retired test loader', async t => {
   const f = await productionFixture(t, { sealed: true, group: 'mcp' });
   const artifact = await f.verify({ phase: 'sealed' });
   for (const entry of artifact.packages) {
     f.r.versions.delete(entry.name); f.r.packages.get(entry.name).versions = []; f.r.packages.get(entry.name)['dist-tags'] = {};
   }
   const strict = require('./authority-fixture.cjs').loadPublisher(true, { sealedBoundary: 'real' });
-  const ledger = await strict.publishRelease({ artifact, ledgerFile: f.f.ledgerFile, ...f.r, publish: true });
-  assert.equal(ledger.status, 'complete'); assert.equal(f.r.calls.filter(c => c[0] === 'publish').length, 1);
+  await assert.rejects(strict.publishRelease({ artifact, ledgerFile: f.f.ledgerFile, ...f.r, publish: true }), /original manifest proof integrity/);
+  assert.equal(f.r.calls.filter(c => c[0] === 'publish').length, 0);
   assert.throws(() => require('../../scripts/scan_schema_inventory').assertCandidateInitialAuthorityRetiredForRelease(), /source-level/);
 });
 test('sealed file tampering or mutation after verification stops before registry', async t => {

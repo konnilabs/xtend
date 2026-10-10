@@ -57,6 +57,7 @@ async function main(args = process.argv.slice(2)) {
     check(receipt.manifestIntegrity === artifact.manifestIntegrity && receipt.sourceSha === artifact.sourceSha &&
       receipt.repository === 'konnilabs/xtend' && receipt.workflow === '.github/workflows/xtend-default-gates.yml', 'Immutable gate receipt mismatch');
     verifyNeeds(receipt.needs);
+    require('./union.cjs').verifyStoredUnion({ directory: values.artifact, artifact });
   }
   const npmCli = resolveNpmCli({ explicit: values['npm-cli'] });
   const actual = await runNpm(npmCli, ['--version'], rootDir);

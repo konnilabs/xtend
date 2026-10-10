@@ -16,6 +16,7 @@ function loadPublisher(retired = true, { sealedBoundary = 'controlled' } = {}) {
     // Explicit unit-only backend: registry state-machine tests do not claim a
     // full product seal. Runtime contract tests use sealedBoundary='real'.
     if (name === './artifact.cjs' && sealedBoundary === 'controlled') return { ...realRequire(name), assertSealedArtifact: async () => {} };
+    if (name === './union.cjs' && sealedBoundary === 'controlled') return { verifyStoredUnion: () => {} };
     return realRequire(name);
   };
   fixture._compile(fs.readFileSync(file, 'utf8'), file);

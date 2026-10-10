@@ -10,7 +10,11 @@ const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const proofBytes = fs.readFileSync(path.join(__dirname, 'proposed-six-registration.json.gz'));
 assert.equal(sha(proofBytes), 'c6ea40a991d4994e1784e638d96bbfec92319e7753da5cf2b969fa99cfb27243');
 const proof = JSON.parse(zlib.gunzipSync(proofBytes));
+// Historical six-shape model: never asserted to be the current source inventory.
 const current = JSON.parse(fs.readFileSync(path.join(harness.root, 'tests/schemas/xtend-schema-inventory.json')));
+current.entries = current.entries.map(e => e.schemaId === id ? structuredClone(proof.entry) : e);
+current.schemaFamilies = current.schemaFamilies.map(f => f.familyId === familyId ? structuredClone(proof.family) : f);
+current.duplicateReviews = current.duplicateReviews.filter(r => !r.schemaIds?.includes(id)).concat(structuredClone(proof.duplicateReviews));
 const entry = value => value.entries.find(e => e.schemaId === id);
 const errors = (doc = current, scan = proof.observation, rootDir = harness.root) =>
   scanner.validateInventoryDocument(doc, scan, { rootDir }).errors
@@ -18,7 +22,7 @@ const errors = (doc = current, scan = proof.observation, rootDir = harness.root)
 const bound = (doc = current, scan = proof.observation, rootDir = harness.root) =>
   scanner.__testInitialAuthority(entry(doc), doc, scan, rootDir);
 
-test('separate exact six-shape proposal preserves the four-shape snapshot and sole initial authority', () => {
+test('historical exact six-shape model preserves the four-shape snapshot and sole initial authority', () => {
   assert.equal(proof.proposalOnly, true);
   assert.equal(proof.sourceHead, 'b29b7816fe82b9b725f6321628054e7081551698');
   const oldBytes = fs.readFileSync(path.join(__dirname, 'approved-registration.json.gz'));
@@ -42,12 +46,12 @@ test('separate exact six-shape proposal preserves the four-shape snapshot and so
   assert.throws(() => scanner.assertCandidateInitialAuthorityRetiredForRelease(), /source-level/);
 });
 
-test('actual portable source scan still observes exactly the proposed six hashes', () => {
-  const actual = scanner.scanSchemaInventory({ rootDir: harness.root });
-  assert.deepEqual(actual.entries.find(e => e.schemaId === id).shapeFingerprints.map(f => f.hash).sort(),
-    entry(current).shapePolicy.acceptedFingerprints.slice().sort());
-  assert.equal(bound(current, actual), true);
-  assert.deepEqual(errors(current, actual), []);
+test('historical six observation is frozen evidence, not the current five registration', () => {
+  const live = JSON.parse(fs.readFileSync(path.join(harness.root, 'tests/schemas/xtend-schema-inventory.json')));
+  assert.equal(entry(current).shapeFingerprints.length, 6);
+  assert.equal(entry(live).shapeFingerprints.length, 5);
+  assert.equal(bound(live, proof.observation), false);
+  assert.ok(errors(live, proof.observation).some(e => e.code === 'released-fingerprint-drift'));
 });
 
 for (const mutant of ['extra-accepted', 'seventh-observed', 'wrong-source-review', 'wrong-authority-review', 'wrong-authority-set']) {

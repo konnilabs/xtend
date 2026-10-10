@@ -133,7 +133,8 @@ async function publishRelease({ artifact, registry, publisher, ledgerFile, lockF
     // retries or optional promotion while initial-unreleased authority is active.
     if (publish) {
       require('../scan_schema_inventory').assertCandidateInitialAuthorityRetiredForRelease();
-      await assertSealedArtifact(artifact);
+      const sealed = await assertSealedArtifact(artifact);
+      require('./union.cjs').verifyStoredUnion({ directory: sealed?.directory, artifact });
     }
     if (promote) promotionSupported(npmVersion, distTagsAuthorized); // before first upload
     // Complete preflight before the first irreversible operation.

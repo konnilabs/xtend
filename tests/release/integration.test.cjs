@@ -136,7 +136,7 @@ async function productFixture(t, generatedAt = new Date().toISOString()) {
  });
  const commands=product.required.map(id=>({id,status:'passed',exitCode:0,skips:[]}));
  const reports=commands.map(command=>{const file='reports/'+command.id+'.json';
-  const report=command.id==='schema-ownership-100'?require('./ownership-fixture.cjs').receipt({manifest,coreSha:f.sourceSha,demoSha,generatedAt}):{schema:'xtend.product-suite-result.v1',coreSha:f.sourceSha,demoSha,...command};
+  const report=command.id==='schema-ownership-101'?require('./ownership-fixture.cjs').receipt({manifest,coreSha:f.sourceSha,demoSha,generatedAt}):{schema:'xtend.product-suite-result.v1',coreSha:f.sourceSha,demoSha,...command};
   write(path.join(directory,file),report);return {id:command.id,file,status:'passed',sha256:api.digest(fs.readFileSync(path.join(directory,file)))};});
  const evidence={schema:product.schema,ok:true,status:'passed',coreSha:f.sourceSha,demoSha,packages:manifest.packages,php:manifest.php,installation,reports,commands,generatedAt};
  const file=path.join(f.directory,'outside-checkout-product-report.json');write(file,evidence);
@@ -148,9 +148,20 @@ test('full product evidence is validated against the supplied artifact directory
  assert.equal(verify({directory,file,sourceSha:f.sourceSha,demoSha}).ok,true);
  fs.appendFileSync(path.join(directory,reports[0].file),'tampered');assert.throws(()=>verify({directory,file,sourceSha:f.sourceSha,demoSha}));
 });
-for (const damage of ['missing','digest','core-sha','demo-sha','package-bytes','authority','union','stale','pre-producer']) test(`actual product consumer rejects ownership receipt ${damage}`, async t => {
+test('ownership101 validation calls the public wrapper with the explicit verification time',async t=>{
+ const {f,directory,demoSha,evidence,manifest}=await productFixture(t);
+ const api=require('../../tools/schema-inventory/index.cjs'),original=api.verifyOwnershipEvidence;
+ const now=Date.now();let observed;
+ api.verifyOwnershipEvidence=(binding,options)=>{observed=options;return original(binding,options);};
+ t.after(()=>{api.verifyOwnershipEvidence=original;});
+ require('../../scripts/product-candidate-evidence.cjs').verifyReportFiles(evidence.reports,
+  {directory,coreSha:f.sourceSha,demoSha,manifest,now});
+ assert.equal(observed.now,now);
+ assert.equal(observed.coreSha,f.sourceSha);
+});
+for (const damage of ['missing','digest','core-sha','demo-sha','package-bytes','authority','union','stale','pre-producer','selection100','residual24','authority25','core-overlay']) test(`actual product consumer rejects ownership receipt ${damage}`, async t => {
  const {f,directory,demoSha,file,evidence}=await productFixture(t);
- const binding=evidence.reports.find(report=>report.id==='schema-ownership-100');
+ const binding=evidence.reports.find(report=>report.id==='schema-ownership-101');
  const receiptFile=path.join(directory,binding.file),receipt=JSON.parse(fs.readFileSync(receiptFile));
  if(damage==='missing'){evidence.reports=evidence.reports.filter(report=>report!==binding);}
  else if(damage==='digest')fs.appendFileSync(receiptFile,'tampered');
@@ -160,6 +171,10 @@ for (const damage of ['missing','digest','core-sha','demo-sha','package-bytes','
   if(damage==='package-bytes')receipt.packageSha256='e'.repeat(64);
   if(damage==='authority')receipt.authorities.pop();
   if(damage==='union')receipt.union[0].hashes=[];
+  if(damage==='selection100')receipt.selection.pop();
+  if(damage==='residual24')receipt.remainingOwnershipIds=24;
+  if(damage==='authority25')receipt.authorities.push(structuredClone(receipt.authorities[0]));
+  if(damage==='core-overlay')receipt.core.find(row=>row.schemaId==='xtend.rmt.command.v1').hashes=receipt.union.find(row=>row.schemaId==='xtend.rmt.command.v1').hashes.slice();
   if(damage==='stale')receipt.generatedAt=new Date(Date.now()-3601000).toISOString();
   write(receiptFile,receipt);binding.sha256=require('../../candidate-integrity.cjs').digest(fs.readFileSync(receiptFile));
  }
@@ -183,9 +198,9 @@ test('sealed resume verifies original ownership receipt at authenticated seal ti
   manifest.productEvidence.push({node,file,integrity:digest(fs.readFileSync(path.join(directory,file)))});
  }
  const artifact={...f.artifact,manifest,packages:manifest.packages};
- const bytesBefore=fs.readFileSync(path.join(directory,'reports/schema-ownership-100.json'));
+ const bytesBefore=fs.readFileSync(path.join(directory,'reports/schema-ownership-101.json'));
  await verifyCandidateBinding(artifact,{directory,rootDir:f.rootDir,requireProductEvidence:true});
- assert.deepEqual(fs.readFileSync(path.join(directory,'reports/schema-ownership-100.json')),bytesBefore);
+ assert.deepEqual(fs.readFileSync(path.join(directory,'reports/schema-ownership-101.json')),bytesBefore);
  await assert.rejects(verifyCandidateBinding(artifact,{directory,rootDir:f.rootDir,requireProductEvidence:true,now:Date.now()}),/Stale ownership evidence/);
 });
 for(const mode of ['valid','tampered','zip-traversal','zip-symlink','failed-gate'])test(`sealed artifact download ${mode} checks authenticated zip digest and producer receipt before use`,async t=>{
