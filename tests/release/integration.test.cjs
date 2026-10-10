@@ -174,7 +174,10 @@ for (const damage of ['missing','digest','core-sha','demo-sha','package-bytes','
   if(damage==='selection100')receipt.selection.pop();
   if(damage==='residual24')receipt.remainingOwnershipIds=24;
   if(damage==='authority25')receipt.authorities.push(structuredClone(receipt.authorities[0]));
-  if(damage==='core-overlay')receipt.core.find(row=>row.schemaId==='xtend.rmt.command.v1').hashes=receipt.union.find(row=>row.schemaId==='xtend.rmt.command.v1').hashes.slice();
+  if(damage==='core-overlay'){
+   const schemaId=require('../../tools/schema-inventory/command-lexical-overlay.json').schemaId;
+   receipt.core.find(row=>row.schemaId===schemaId).hashes=receipt.union.find(row=>row.schemaId===schemaId).hashes.slice();
+  }
   if(damage==='stale')receipt.generatedAt=new Date(Date.now()-3601000).toISOString();
   write(receiptFile,receipt);binding.sha256=require('../../candidate-integrity.cjs').digest(fs.readFileSync(receiptFile));
  }
