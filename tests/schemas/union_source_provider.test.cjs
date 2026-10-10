@@ -95,8 +95,24 @@ test('historical duplicate-review membership is not cleared or narrowed', () => 
 
 test('deliberate negative public-version literal remains an error, never registration', () => {
   const fake = ['xtend', 'product-candidates', 'v2'].join('.');
-  assert.ok(baseline.validation.errors.some(error => error.code === 'coverage-missing-schema' && error.schemaId === fake));
+  assert.ok(!baseline.observed.entries.some(entry => entry.schemaId === fake));
   assert.ok(!baseline.inventory.entries.some(entry => entry.schemaId === fake));
+  const provider = materialize(...mutated('invalid-v2'));
+  assert.equal(provider.readCurrent('unscoped-invalid-v2.mjs').toString('utf8'), `export const SCHEMA = '${fake}';\n`);
+  const result = scan(provider), observed = result.observed.entries.find(entry => entry.schemaId === fake);
+  assert.ok(observed);
+  assert.ok(observed.usages.some(usage => usage.sourcePaths.includes('unscoped-invalid-v2.mjs')));
+  assert.ok(result.observed.sourceProvenance.bindings.some(row => row.owner === 'core' && row.sourcePath === 'unscoped-invalid-v2.mjs'));
+  assert.equal(result.validation.valid, false);
+  assert.ok(result.validation.errors.some(error => error.code === 'coverage-missing-schema' && error.schemaId === fake));
+  assert.ok(!result.inventory.entries.some(entry => entry.schemaId === fake));
+  const output = process.env.XTEND_UNION_TEST_REPORT;
+  if (output) fs.writeFileSync(output + '.invalid-v2.json', JSON.stringify({
+    kind: 'actual generated current-source artifact and verified productive extraction',
+    sourceIdentity: provider.provenance(), baselineHasFake: false, inventoryHasFake: false,
+    emittedSource: provider.readCurrent('unscoped-invalid-v2.mjs').toString('utf8'), observed,
+    rejectionDiagnostics: result.validation.errors.filter(error => error.schemaId === fake), strictValid: result.validation.valid
+  }, null, 2));
 });
 test('current source path operates without a Demo dependency installation', () => {
   assert.ok(baseline.observed.sourceProvenance.bindings.every(row => !row.sourcePath.split('/').includes('node_modules')));

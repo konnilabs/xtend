@@ -52,6 +52,9 @@ elif mutation=='copied-authority':
 elif mutation=='new-id':
     identifier='.'.join(['xtend','unreviewed-union-contract','v1'])
     add_current('unscoped-new-contract.mjs',("export const SCHEMA = '"+identifier+"';\n").encode())
+elif mutation=='invalid-v2':
+    identifier='.'.join(['xtend','product-candidates','v2'])
+    add_current('unscoped-invalid-v2.mjs',("export const SCHEMA = '"+identifier+"';\n").encode())
 elif mutation=='extra-authority':
     identifier='.'.join(['xtend','surface','controller','v2'])
     add_current('unscoped-extra-authority.d.ts',("export interface ExtraAuthority { schema: '"+identifier+"'; unreviewedAuthority: number; }\n").encode())
