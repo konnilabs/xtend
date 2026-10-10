@@ -49,9 +49,15 @@ elif mutation=='same-hash-declaration':
     add_current('unreviewed-same-hash-authority.d.ts',('export interface UnreviewedCurrentAuthority { schema: '+repr(identifier)+'; status: string; }\n').encode())
 elif mutation=='copied-authority':
     add_current('unreviewed-authority-copy.d.ts',members['current/core/candidate-integrity.d.ts'][1])
-elif mutation=='new-id': add_current('unscoped-new-contract.mjs',b"export const SCHEMA = 'xtend.unreviewed-union-contract.v1';\n")
-elif mutation=='extra-authority': add_current('unscoped-extra-authority.d.ts',b"export interface ExtraAuthority { schema: 'xtend.surface.controller.v2'; unreviewedAuthority: number; }\n")
-elif mutation=='unscoped-usage': add_current('unscoped-new-usage.mjs',b"export const SCHEMA = 'xtend.surface.controller.v2';\n")
+elif mutation=='new-id':
+    identifier='.'.join(['xtend','unreviewed-union-contract','v1'])
+    add_current('unscoped-new-contract.mjs',("export const SCHEMA = '"+identifier+"';\n").encode())
+elif mutation=='extra-authority':
+    identifier='.'.join(['xtend','surface','controller','v2'])
+    add_current('unscoped-extra-authority.d.ts',("export interface ExtraAuthority { schema: '"+identifier+"'; unreviewedAuthority: number; }\n").encode())
+elif mutation=='unscoped-usage':
+    identifier='.'.join(['xtend','surface','controller','v2'])
+    add_current('unscoped-new-usage.mjs',("export const SCHEMA = '"+identifier+"';\n").encode())
 else: raise ValueError(mutation)
 mb=(json.dumps(manifest,sort_keys=True,separators=(',',':'))+'\n').encode();members['manifest.json']=(members['manifest.json'][0],mb)
 output=pathlib.Path(output);output.mkdir()
