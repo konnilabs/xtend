@@ -2,7 +2,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const {verifyCandidates,verifyInstalledClosure,digest}=require('../candidate-integrity.cjs');
 const schema='xtend.product-candidate-evidence.v1';
-const required=['http-security','product-xss','product-builds','product-owned-suites','shop-php','shop-browser','shop-browser-fpm','electron-runtime','electron-shell-import-worker','llm-contracts','erp-resumability-catfood','maraca-app-services-test-bench','xtend-llm-app-services-catfood','xtend-material-catfooding','xtend-shop-php','xtend-shop-browser','xtend-shop-contracts','schema-ownership-103'];
+const required=['http-security','product-xss','product-builds','product-owned-suites','shop-php','shop-browser','shop-browser-fpm','electron-runtime','electron-actual-app-attestation','electron-shell-import-worker','llm-contracts','erp-resumability-catfood','maraca-app-services-test-bench','xtend-llm-app-services-catfood','xtend-material-catfooding','xtend-shop-php','xtend-shop-browser','xtend-shop-contracts','schema-ownership-103'];
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 function verifyEvidence(evidence,{coreSha,demoSha,packages,php,installation,reports,startedAt,maxAgeMs=3600000,now=Date.now()}={}) {
  if(evidence?.schema!==schema||evidence.ok!==true||evidence.status!=='passed'||evidence.development)throw Error('Missing or failed required Demo evidence');
@@ -17,12 +17,28 @@ function verifyEvidence(evidence,{coreSha,demoSha,packages,php,installation,repo
  for(const command of evidence.commands)if(!reports.some(report=>report.id===command.id))throw Error('Missing required report for '+command.id);
  return true;
 }
+const appSourcePaths=['src/main/electron-main.mjs','src/main/preload.cjs','src/renderer/app-controller.mjs','src/main/app-server.mjs','src/main/app-server-session.mjs','site/index.html','scripts/electron-sandbox-policy.mjs'];
+function verifyActualAppFiles(binding,{directory,coreSha,demoSha,startedAt,now=Date.now()}={}) {
+ if(!binding||binding.coreSha!==coreSha||binding.demoSha!==demoSha)throw Error('Missing actual application suite binding/identity');
+ const read=(key,file)=>{const entry=binding[key];if(entry?.file!==file||!/^[a-f0-9]{64}$/.test(entry.sha256||''))throw Error('Missing actual application '+key+' digest binding');const target=path.join(directory,file);if(!fs.lstatSync(target).isFile()||fs.lstatSync(target).isSymbolicLink())throw Error('Invalid actual application '+key+' file');const bytes=fs.readFileSync(target);if(digest(bytes)!==entry.sha256)throw Error('Actual application '+key+' digest mismatch');return JSON.parse(bytes);};
+ const app=read('app','electron-sandbox-attestation.json'),consumer=read('consumer','electron-app-attestation-consumer.json');
+ if(app.format!==1||app.proofKind!=='actual-application-main-frame'||app.mainFrameAttestation!==true||app.coreSha!==coreSha||app.demoSha!==demoSha||consumer.ok!==true||consumer.proofKind!=='consumed-actual-application-main-frame'||consumer.coreSha!==coreSha||consumer.demoSha!==demoSha)throw Error('Actual application raw identity/main-frame mismatch');
+ const generated=Date.parse(app.generatedAt);if(!Number.isFinite(generated)||generated>now+1000||now-generated>3600000||startedAt&&generated<Date.parse(startedAt)||consumer.generatedAt!==app.generatedAt)throw Error('Stale actual application raw evidence');
+ if(!Number.isInteger(app.applicationUid)||app.applicationUid<=0||!Number.isInteger(app.rendererPid)||app.rendererPid<=0||app.rendererSeccomp!=='2'||app.sandboxed!==true||app.contextIsolated!==true||app.nodeIntegration!==false||app.sandboxPreference!==true||!app.preloadPath?.endsWith('/products/xtend-llm/src/main/preload.cjs')||app.runtimeIdentity?.attestationMode!=='mandatory-ci')throw Error('Actual application raw sandbox/preload proof failed');
+ const zip='edcfae0a8cf2a75ceee8a9842a0117521283164708b193495f4cb60ab2d6aa0d',dist='/opt/xtend-electron/42.10.0/'+zip+'/dist',identity=app.runtimeIdentity;
+ if(identity.electronVersion!=='42.10.0'||identity.executable!==dist+'/electron'||identity.helper!==dist+'/chrome-sandbox'||identity.executableSha256!=='0636c96f07de2c74a3eaf8692fc1743d81259c0bf66c8ebde7f7179211a8aff9'||identity.helperSha256!=='2015304df43beff0b74409cdc4d858107efcde650d9bc8afb1288041d62cec4b'||identity.helperUid!==0||identity.helperGid!==0||identity.helperMode!==0o4755)throw Error('Actual application raw official-helper identity mismatch');
+ if(consumer.reportSha256!==binding.app.sha256||!/^[a-f0-9]{64}$/.test(binding.provisioningReceiptSha256||'')||consumer.provisioningReceiptSha256!==binding.provisioningReceiptSha256)throw Error('Actual application raw consumer cross-binding mismatch');
+ for(const hashes of [binding.sourceHashes,consumer.sourceHashes,app.sources])if(!hashes||!same(Object.keys(hashes).sort(),appSourcePaths.slice().sort()))throw Error('Actual application raw exact source set mismatch');
+ for(const source of appSourcePaths)if(!/^[a-f0-9]{64}$/.test(binding.sourceHashes[source]||'')||consumer.sourceHashes[source]!==binding.sourceHashes[source]||app.sources[source]!==binding.sourceHashes[source])throw Error('Actual application raw source identity mismatch: '+source);
+ return true;
+}
 function verifyReportFiles(reports,{directory,coreSha,demoSha,manifest,startedAt}={}) {
  for(const report of reports) {
   if(report.file!=='reports/'+report.id+'.json'||!/^[a-z0-9-]+$/.test(report.id))throw Error('Invalid report path');
   const bytes=fs.readFileSync(path.join(directory,report.file));if(digest(bytes)!==report.sha256)throw Error('Report digest mismatch');
   if(report.id==='schema-ownership-103'){require('../tools/schema-inventory/ownership.cjs').verifyOwnershipEvidence(report,{directory,coreSha,demoSha,manifest,startedAt});continue;}
   const result=JSON.parse(bytes);if(result.schema!=='xtend.product-suite-result.v1'||result.id!==report.id||result.coreSha!==coreSha||result.demoSha!==demoSha||result.status!=='passed'||result.exitCode!==0||result.skips?.length||result.failures?.length)throw Error('Required report outcome/identity mismatch');
+  if(report.id==='electron-actual-app-attestation')verifyActualAppFiles(result.attestation,{directory,coreSha,demoSha,startedAt});
  }
  return true;
 }
