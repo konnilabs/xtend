@@ -17,11 +17,11 @@ function verifyEvidence(evidence,{coreSha,demoSha,packages,php,installation,repo
  for(const command of evidence.commands)if(!reports.some(report=>report.id===command.id))throw Error('Missing required report for '+command.id);
  return true;
 }
-function verifyReportFiles(reports,{directory,coreSha,demoSha,manifest,startedAt}={}) {
+function verifyReportFiles(reports,{directory,coreSha,demoSha,manifest,startedAt,now}={}) {
  for(const report of reports) {
   if(report.file!=='reports/'+report.id+'.json'||!/^[a-z0-9-]+$/.test(report.id))throw Error('Invalid report path');
   const bytes=fs.readFileSync(path.join(directory,report.file));if(digest(bytes)!==report.sha256)throw Error('Report digest mismatch');
-  if(report.id==='schema-ownership-100'){require('../tools/schema-inventory/ownership.cjs').verifyOwnershipEvidence(report,{directory,coreSha,demoSha,manifest,startedAt});continue;}
+  if(report.id==='schema-ownership-100'){require('../tools/schema-inventory/index.cjs').verifyOwnershipEvidence(report,{directory,coreSha,demoSha,manifest,startedAt,now});continue;}
   const result=JSON.parse(bytes);if(result.schema!=='xtend.product-suite-result.v1'||result.id!==report.id||result.coreSha!==coreSha||result.demoSha!==demoSha||result.status!=='passed'||result.exitCode!==0||result.skips?.length||result.failures?.length)throw Error('Required report outcome/identity mismatch');
  }
  return true;

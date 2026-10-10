@@ -3836,7 +3836,7 @@ function runMaracaPackageExportsSuite(options = {}) {
     context.assert(packageManifest.scripts['test:release:full'].includes(suiteId) && packageManifest.scripts['test:release:full:report'].includes(suiteId) && packageManifest.scripts['release:report'].includes(suiteId), `release scripts execute ${suiteId}`);
   });
   context.assert(packageManifest.xtend.releaseGates.includes('npm run test:maraca-app-services'), 'release metadata includes the focused AppServices MVP gate');
-  context.assert(require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:maraca-app-services-cross-runtime:report") && defaultWorkflow.includes('scripts/product-candidate-canary.cjs'), 'default CI emits dedicated AppServices parity and product catfood reports');
+  context.assert(require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:maraca-app-services-cross-runtime:report") && defaultWorkflow.includes('scripts/release/pipeline.cjs consumers') && readText('scripts/release/pipeline.cjs', rootDir).includes("['scripts/product-candidate-canary.cjs', '--existing-candidates'"), 'default CI emits AppServices parity and reuses the canonical product canary against immutable tarballs');
   context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:maraca-app-services-cross-runtime:report") && nightlyWorkflow.includes('nightly.js phase product_candidate'), 'nightly CI emits dedicated AppServices parity and product catfood reports');
   context.assert(defaultWorkflow.includes('.xtend-test-results/product-candidate.json') && nightlyWorkflow.includes('.xtend-test-results/product-candidate.json'), 'default and nightly artifacts retain the product-owned XMS-11 evidence');
   MARACA_SUITES.forEach((suiteId) => {

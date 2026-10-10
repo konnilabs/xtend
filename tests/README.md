@@ -1,8 +1,32 @@
 # XTend Test Suite
 
+The `release-safety` suite is included in PR/release/publish aggregates and runs
+all `tests/release/*.test.cjs`, including canonical candidate adapter, independent
+MCP/Material scopes, immutable artifact transfer, Sigstore-verifier rejection,
+registry retry safety and trusted-workflow checks. `test:product-boundary`
+retains the separate reviewed migration tests. Actual product consumers use the
+same once-packed candidate bytes on both Node pins; baseline reds and pending
+schema governance remain blocking. See
+`development/XTend-Scoped-Npm-Release-Runbook.md` for artifact resume and limits.
+
 This directory contains the staged test-suite structure introduced in Epic 02.
 
 ## Local Entry Points
+
+The independent scoped npm release safety suite covers inventory/discovery,
+actual archive inspection, immutable artifacts, registry errors, retries,
+partial publication, channel tags, and parallel release exclusion:
+
+```bash
+npm run release:inventory
+npm run test:release-safety
+npm run test:release-safety:unit
+```
+
+It is registered locally with `defaultIncluded: false`. Existing CI profiles and
+workflows stay unchanged until the reviewed demo-migration checkpoint. See
+`development/XTend-Scoped-Npm-Release-Runbook.md` for the artifact contract and
+the commands that require explicit opt-in.
 
 The `scoped-package-readmes` gate derives all public packages from `package.json#scopedPackages` and validates the English-first bilingual README contract, synchronized executable examples, public API anchors, package inclusion and relative links.
 

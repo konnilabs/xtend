@@ -83,5 +83,10 @@
     "runtimeBoundary": "css-and-metadata-only",
     "componentRegistry": false,
     "browserTailwindRuntime": false
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konnilabs/xtend.git",
+    "directory": "xtend-material"
   }
 }

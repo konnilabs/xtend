@@ -40,7 +40,16 @@ async function main() {
  const pin=fs.existsSync(path.join(root,'product-demos.lock.json'))?require('../product-demos.lock.json'):{};
  const demoSha=arg('--demo-sha')||pin.demoSha;
  const output=path.resolve(arg('--out')||path.join(root,'.xtend-test-results/product-candidates'));
- const manifest=packCandidates({output,demoSha,development});
+ // Reuse the reviewed packer's immutable bytes in both consumer lanes and on
+ // resume. This branch never invokes npm pack or changes the source manifest.
+ const existing=process.argv.includes('--existing-candidates');
+ const manifest=existing?JSON.parse(fs.readFileSync(path.join(output,'manifest.json'))):packCandidates({output,demoSha,development});
+ if(existing){
+  const expected=arg('--manifest-sha256');
+  if(!/^[a-f0-9]{64}$/.test(expected||'')||digest(fs.readFileSync(path.join(output,'manifest.json')))!==expected)throw Error('Immutable candidate manifest hash mismatch');
+  if(manifest.development||development)throw Error('Development candidates cannot be reused for release');
+  verifyCandidates(manifest,{coreSha:git(['rev-parse','HEAD']),demoSha,directory:output});
+ }
  if(process.argv.includes('--pack-only')){console.log(JSON.stringify(manifest));return;}
  const temporary=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-demo-candidate-'));
  const checkout=path.join(temporary,'demos'),startedAt=new Date().toISOString();

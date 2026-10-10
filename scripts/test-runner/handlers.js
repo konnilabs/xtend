@@ -60,6 +60,7 @@ function printDocsStubInventoryGateReport(result) {
 }
 
 module.exports = {
+"release-safety": () => toRunnerResult("release-safety", "Scoped npm release safety", load("../tests/release/release_safety_suite").runReleaseSafetySuite({ rootDir })),
 "product-migration-contracts": () => toRunnerResult("product-migration-contracts", "Product boundary", load("../tests/migration/product_boundary_suite").runProductBoundarySuite({rootDir})),
 "product-candidate-evidence": () => toRunnerResult("product-candidate-evidence", "Required Demo evidence", load("../tests/migration/product_boundary_suite").runCandidateEvidenceSuite({rootDir})),
 "xtensions-runtime": () => toRunnerResult("xtensions-runtime", "Actual XTensions jsdom acceptance", load("../tests/xtensions/xtensions_runtime_gate_suite")["runXTensionsRuntimeGate"]({ rootDir })),
