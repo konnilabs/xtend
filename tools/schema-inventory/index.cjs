@@ -4,3 +4,5 @@ exports.createScanner=options=>{const api=createLegacyScanner(options);return Ob
 Object.assign(exports,require('./ownership.cjs'));
 
 exports.createSourceProvider=require('./source-provider.cjs').createSourceProvider;
+
+exports.createExpectedInventory=require('./expected-view.cjs').createExpectedInventory;

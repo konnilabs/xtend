@@ -221,7 +221,9 @@ jobs:
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
           XTEND_UNION_TEST_REPORT: .xtend-test-results/union-provider-tests.json
-        run: node --test tests/schemas/union_source_provider.test.cjs
+        run: |
+          node --test tests/schemas/union_source_provider.test.cjs
+          node --test tests/schemas/expected_inventory_view.test.cjs
 
       - name: Required productive full-source union validation
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}

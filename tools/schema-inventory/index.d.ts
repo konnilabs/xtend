@@ -11,3 +11,6 @@ export function verifySelectedGovernance(inventory: unknown): {duplicateReviews:
 export interface SourceProvider { readonly files: () => ReadonlyArray<{owner: string; path: string; logicalPath: string; absolutePath: string}>; readonly hasCurrent: (path: string) => boolean; readonly readCurrent: (path: string) => Uint8Array; readonly provenance: () => unknown; }
 export interface SourceArtifactExpectation { producerMode: 'committed' | 'local-uncommitted-proposal'; coreSha: string; demoSha: string; archiveSha256: string; manifestSha256: string; context: {runId: string; runAttempt: string}; }
 export function createSourceProvider(options: {archive: string; destination: string; expected: SourceArtifactExpectation}): SourceProvider;
+
+/** Temporary expected view from verified approved records; never writes an inventory. */
+export function createExpectedInventory(provider: SourceProvider): unknown;

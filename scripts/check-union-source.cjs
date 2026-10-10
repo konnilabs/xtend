@@ -6,7 +6,7 @@ function run({ archive, destination, expected, output, typescript = require('typ
   const scanner = api.createScanner({ typescript });
   const startedAt = new Date().toISOString();
   const scan = scanner.scanSchemaInventory({ rootDir: path.join(destination, 'current/core'), sourceProvider: provider });
-  const inventory = JSON.parse(provider.readCurrent('tests/schemas/xtend-schema-inventory.json'));
+  const inventory = api.createExpectedInventory(provider);
   const validation = scanner.validateInventoryDocument(inventory, scan, { sourceProvider: provider });
   const report = { startedAt, finishedAt: new Date().toISOString(), ok: validation.valid,
     productiveSource: provider.provenance(), stats: scan.stats, validation };
