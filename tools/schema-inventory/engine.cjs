@@ -9,6 +9,8 @@ const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
 const ts = typescript;
+const scanProviders = new WeakMap();
+const providerScanContent = new WeakMap();
 
 const INVENTORY_PATH = 'tests/schemas/xtend-schema-inventory.json';
 const INVENTORY_SUITE_PATH = 'tests/schemas/schema_inventory_suite.js';
@@ -187,6 +189,8 @@ function isGeneratedPath(relativePath) {
 }
 
 function shouldReadFile(relativePath, absolutePath) {
+  // Preserve discovery's existing unconditional vendor boundary for provider inputs.
+  if (relativePath.split('/').includes('vendor')) return false;
   if (SOURCE_EXCLUDES.has(relativePath) || path.posix.basename(relativePath) === 'package-lock.json') return false;
   if (MATERIALIZED_AGGREGATE_EXCLUDED_PREFIXES.some((prefix) => relativePath.startsWith(prefix))) return false;
   if (BINARY_EXTENSIONS.has(path.extname(relativePath).toLowerCase())) return false;
@@ -1031,6 +1035,7 @@ function initialCandidateCanonical() {
     definitionType: 'typescript-declaration', role: 'definition', visibility: 'internal' };
 }
 function isReviewedInitialCandidateAuthority(entry, inventory, scan, rootDir) {
+  const provider = scanProviders.get(scan);
   const binding = INITIAL_CANDIDATE_AUTHORITY;
   const review = entry.initialAuthorityReview;
   if (!binding.enabled || entry.schemaId !== binding.schemaId || entry.familyId !== binding.familyId || entry.version !== 1
@@ -1061,7 +1066,7 @@ function isReviewedInitialCandidateAuthority(entry, inventory, scan, rootDir) {
   const authority = observed.shapeFingerprints.find(fingerprint => fingerprint.hash === binding.fingerprint);
   if (!authority.evidence.some(evidence => evidence.authoritative && evidence.completeness === 'complete'
     && evidence.type === 'declared-type' && evidence.path === binding.path && evidence.symbol === binding.symbol)) return false;
-  try { return crypto.createHash('sha256').update(fs.readFileSync(path.join(rootDir, binding.path))).digest('hex') === binding.sourceSha256; }
+  try { return crypto.createHash('sha256').update(provider ? provider.readCurrent(binding.path) : fs.readFileSync(path.join(rootDir, binding.path))).digest('hex') === binding.sourceSha256; }
   catch { return false; }
 }
 
@@ -1072,14 +1077,14 @@ function selectCanonicalDefinition(record) {
     return initialCandidateCanonical();
   }
   if (record.formalJsonSchema) {
-    const formalPath = uniqueSorted(record.formalJsonSchemaPaths).find((candidate) => !isGeneratedPath(candidate));
+    const formalPath = uniqueSorted(record.formalJsonSchemaPaths).find((candidate) => !(record.sourceContexts?.get(candidate)?.generated ?? isGeneratedPath(candidate)));
     if (!formalPath) return null;
     return {
       path: formalPath,
       symbol: null,
       definitionType: 'json-schema',
       role: 'definition',
-      visibility: visibilityForPath(formalPath, isGeneratedPath(formalPath))
+      visibility: visibilityForPath(record.sourceContexts?.get(formalPath)?.path || formalPath, false)
     };
   }
   const canonicalOccurrences = record.occurrences.filter((occurrence) => !occurrence.generated);
@@ -1159,7 +1164,7 @@ function buildUsages(record, exportMappings) {
     }
     const group = groups.get(key);
     group.sourcePaths.push(occurrence.path);
-    if (occurrence.symbol) group.symbols.push({ path: occurrence.path, symbol: occurrence.symbol });
+    if (occurrence.symbol) group.symbols.push({ path: occurrence.path, symbol: occurrence.symbol, generated: isGeneratedPath(occurrence.sourcePath || occurrence.path) });
   });
   return Array.from(groups.values()).map((group) => {
     const references = [];
@@ -1169,7 +1174,7 @@ function buildUsages(record, exportMappings) {
       });
     });
     group.symbols.forEach((symbol) => {
-      if (isGeneratedPath(symbol.path)) {
+      if (symbol.generated) {
         references.push({ type: 'repo-symbol', path: symbol.path, symbol: null });
       } else if (symbol.path.endsWith('.json') && String(symbol.symbol).startsWith('/')) {
         references.push({ type: 'json-pointer', path: symbol.path, pointer: symbol.symbol });
@@ -1611,24 +1616,46 @@ function mergeExcludedCandidates(candidates) {
 
 function scanSchemaInventory(options = {}) {
   const rootDir = resolveRootDir(options.rootDir);
-  const files = readTrackedTextFiles(rootDir);
+  const provider = options.sourceProvider;
+  if (provider) require('./source-provider.cjs').assertSourceProvider(provider);
+  const files = provider ? provider.files().filter(file => shouldReadFile(file.path, file.absolutePath))
+    .map(file => ({ ...file, text: provider.readCurrent(file.logicalPath).toString('utf8'), generated: isGeneratedPath(file.path) }))
+    .filter(file => !file.text.includes('\0')) : readTrackedTextFiles(rootDir);
   const records = new Map();
   const excludedCandidates = [];
   files.forEach((file) => {
-    collectBroadIdentifiers(file, records);
-    extractCodeShapes(file, records);
-    extractJsonShapes(file, records, excludedCandidates);
+    // Classification/extraction use the owning repository path. Only raw
+    // observations are translated; finalized inventories are never merged.
+    const target = provider ? new Map() : records;
+    const excluded = provider ? [] : excludedCandidates;
+    collectBroadIdentifiers(file, target);
+    extractCodeShapes(file, target);
+    extractJsonShapes(file, target, excluded);
+    if (provider) {
+      target.forEach(record => {
+        const merged = recordFor(records, record.schemaId);
+        record.occurrences.forEach(occurrence => addOccurrence(merged, { ...occurrence,
+          path: file.logicalPath, owner: file.owner, sourcePath: file.path }));
+        merged.shapes.push(...record.shapes.map(shape => ({ ...shape, path: file.logicalPath })));
+        merged.sourceContexts ||= new Map();
+        merged.sourceContexts.set(file.logicalPath, { path: file.path, generated: file.generated });
+        merged.formalJsonSchema ||= record.formalJsonSchema;
+        merged.formalJsonSchemaPaths.push(...record.formalJsonSchemaPaths.map(() => file.logicalPath));
+      });
+      excludedCandidates.push(...excluded.map(item => ({ ...item, evidencePaths: [file.logicalPath] })));
+    }
   });
-  const exportMappings = packageExportMappings(rootDir, files);
+  const exportMappings = provider ? provider.exportMappings(files, packageExportMappings) : packageExportMappings(rootDir, files);
   const entries = Array.from(records.values()).filter((record) => record.occurrences.length > 0)
     .map((record) => entryFromRecord(record, exportMappings))
     .sort((left, right) => compareStrings(left.schemaId, right.schemaId));
   const duplicateReviews = mergeReviews(dynamicDuplicateReviews(entries), []);
   const duplicateAudit = auditDuplicateCandidates(entries, []);
   const excluded = mergeExcludedCandidates(excludedCandidates);
-  return {
+  const result = {
     rootDir,
-    files: files.map((file) => file.path),
+    files: files.map((file) => provider ? file.logicalPath : file.path),
+    ...(provider ? { sourceProvenance: provider.provenance() } : {}),
     entries,
     duplicateReviews,
     duplicateAudit,
@@ -1644,6 +1671,11 @@ function scanSchemaInventory(options = {}) {
       excludedCandidates: excluded.length
     }
   };
+  if (provider) {
+    scanProviders.set(result, provider);
+    providerScanContent.set(result, sha256(JSON.stringify(result)));
+  }
+  return result;
 }
 
 function mergeExistingEntry(generated, existing) {
@@ -1901,7 +1933,8 @@ function usageMatchKey(usage) {
   return [usage.application, usage.role, usage.visibility].join('\0');
 }
 
-function validRepoPath(rootDir, relativePath) {
+function validRepoPath(rootDir, relativePath, provider) {
+  if (provider) return provider.hasCurrent(relativePath);
   if (typeof relativePath !== 'string' || !relativePath || path.isAbsolute(relativePath)) return false;
   const normalized = path.normalize(relativePath);
   return normalized !== '..' && !normalized.startsWith('..' + path.sep) && fs.existsSync(path.join(rootDir, normalized));
@@ -1916,6 +1949,14 @@ function referenceHasTarget(reference) {
 
 function validateInventoryDocument(inventory, scan, options = {}) {
   const rootDir = resolveRootDir(options.rootDir || scan && scan.rootDir);
+  const provider = options.sourceProvider;
+  if (provider) require('./source-provider.cjs').assertSourceProvider(provider);
+  if (scan && (scanProviders.has(scan) || scan.sourceProvenance) && !provider) throw Error('Union validation requires its verified source provider');
+  if (provider && (!scan || scanProviders.get(scan) !== provider
+    || providerScanContent.get(scan) !== sha256(JSON.stringify(scan)))) {
+    throw Error('Provider-backed validation requires its unmodified verified extraction; cloned or mutated scans are rejected');
+  }
+  if (provider) provider.files(); // Recheck the verified closure before trusting extraction.
   const errors = [];
   const warnings = [];
   if (!inventory || inventory.inventoryVersion !== 2) errors.push(issue('invalid-version', 'inventoryVersion must equal 2.'));
@@ -1941,7 +1982,7 @@ function validateInventoryDocument(inventory, scan, options = {}) {
   const relatedRegistries = inventory && Array.isArray(inventory.relatedRegistries) ? inventory.relatedRegistries : [];
   const nativeRegistry = relatedRegistries.find((registry) => registry && registry.relationship === 'governance-subset');
   if (!nativeRegistry || nativeRegistry.contractId !== 'xtend.native-first.contract-registry.v1'
-    || !validRepoPath(rootDir, nativeRegistry.path)) {
+    || !validRepoPath(rootDir, nativeRegistry.path, provider)) {
     errors.push(issue('invalid-related-registry', 'The Native-First Contract Registry must be a resolvable governance subset.'));
   }
   const expectedExcluded = scan && Array.isArray(scan.excludedCandidates) ? scan.excludedCandidates : [];
@@ -1974,9 +2015,9 @@ function validateInventoryDocument(inventory, scan, options = {}) {
       if (entry.status !== 'generated-mirror') errors.push(issue('missing-canonical-definition', 'Only generated-mirror entries may omit a canonical definition.', { schemaId: entry.schemaId }));
     } else if (!entry.canonicalDefinition || typeof entry.canonicalDefinition.path !== 'string') {
       errors.push(issue('missing-canonical-definition', 'Inventory entry has no canonical definition.', { schemaId: entry.schemaId }));
-    } else if (!validRepoPath(rootDir, entry.canonicalDefinition.path)) {
+    } else if (!validRepoPath(rootDir, entry.canonicalDefinition.path, provider)) {
       errors.push(issue('missing-canonical-path', 'Canonical definition path does not exist.', { schemaId: entry.schemaId, path: entry.canonicalDefinition.path }));
-    } else if (isGeneratedPath(entry.canonicalDefinition.path)) {
+    } else if (isGeneratedPath(provider ? provider.originalPath(entry.canonicalDefinition.path) : entry.canonicalDefinition.path)) {
       errors.push(issue('generated-canonical', 'Generated mirrors cannot be canonical definitions.', { schemaId: entry.schemaId, path: entry.canonicalDefinition.path }));
     }
     if (!Array.isArray(entry.usages) || entry.usages.length === 0) {
@@ -1988,7 +2029,7 @@ function validateInventoryDocument(inventory, scan, options = {}) {
           return;
         }
         (Array.isArray(usage.sourcePaths) ? usage.sourcePaths : []).forEach((sourcePath) => {
-          if (!validRepoPath(rootDir, sourcePath)) errors.push(issue('missing-usage-path', 'Inventory usage path does not exist.', { schemaId: entry.schemaId, path: sourcePath }));
+          if (!validRepoPath(rootDir, sourcePath, provider)) errors.push(issue('missing-usage-path', 'Inventory usage path does not exist.', { schemaId: entry.schemaId, path: sourcePath }));
         });
         if (!Array.isArray(usage.sourcePaths) || usage.sourcePaths.length === 0) errors.push(issue('missing-usage-paths', 'Inventory usage has no source paths.', { schemaId: entry.schemaId }));
         if (!Array.isArray(usage.interfaceReferences) || usage.interfaceReferences.length === 0) {
@@ -2023,7 +2064,7 @@ function validateInventoryDocument(inventory, scan, options = {}) {
         errors.push(issue('shape-evidence-drift', 'Fingerprint evidence summary differs from its provenance records.', { schemaId: entry.schemaId, fingerprint: fingerprint.hash }));
       }
       (Array.isArray(fingerprint && fingerprint.sourcePaths) ? fingerprint.sourcePaths : []).forEach((sourcePath) => {
-        if (!validRepoPath(rootDir, sourcePath)) errors.push(issue('missing-shape-source', 'Shape provenance path does not exist.', { schemaId: entry.schemaId, path: sourcePath }));
+        if (!validRepoPath(rootDir, sourcePath, provider)) errors.push(issue('missing-shape-source', 'Shape provenance path does not exist.', { schemaId: entry.schemaId, path: sourcePath }));
       });
     });
     const hashes = uniqueSorted(fingerprints.map((fingerprint) => fingerprint && fingerprint.hash).filter(Boolean));
@@ -2223,6 +2264,36 @@ function validateInventoryDocument(inventory, scan, options = {}) {
   entries.forEach((entry) => {
     if (!scanById.has(entry.schemaId)) errors.push(issue('orphan-entry', 'Inventory entry is no longer observed in tracked sources.', { schemaId: entry.schemaId }));
   });
+
+  if (provider) {
+    scanEntries.forEach(scanned => {
+      const stored = inventoryById.get(scanned.schemaId);
+      const acceptedAuthority = new Set(stored?.shapePolicy?.authoritativeFingerprints || []);
+      (scanned.shapeFingerprints || []).forEach(fingerprint => {
+        const authorityEvidence = (fingerprint.evidence || []).filter(evidence => evidence.authoritative === true);
+        if (authorityEvidence.length === 0) return;
+        const accepted = (stored?.shapeFingerprints || []).find(item => item.hash === fingerprint.hash
+          && item.authoritative === true && acceptedAuthority.has(item.hash));
+        if (!accepted) {
+          errors.push(issue('provider-unaccepted-authority-hash', 'Current extracted authority is outside the stored accepted authority set.', {
+            schemaId: scanned.schemaId, fingerprint: fingerprint.hash,
+            sourcePaths: uniqueSorted(authorityEvidence.map(evidence => evidence.path))
+          }));
+          return;
+        }
+        const acceptedEvidence = new Set((accepted.evidence || []).filter(evidence => evidence.authoritative === true)
+          .map(evidence => JSON.stringify(stableValue(evidence))));
+        authorityEvidence.forEach(evidence => {
+          if (!acceptedEvidence.has(JSON.stringify(stableValue(evidence)))) {
+            errors.push(issue('provider-unaccepted-authority-provenance', 'Current extracted authority provenance is outside its stored accepted binding.', {
+              schemaId: scanned.schemaId, fingerprint: fingerprint.hash, path: evidence.path, symbol: evidence.symbol,
+              evidenceType: evidence.type, completeness: evidence.completeness
+            }));
+          }
+        });
+      });
+    });
+  }
 
   const inventoryReviews = Array.isArray(inventory && inventory.duplicateReviews) ? inventory.duplicateReviews : [];
   const inventoriedReviewsByKey = new Map(inventoryReviews.map((review) => [reviewMatchKey(review), review]));

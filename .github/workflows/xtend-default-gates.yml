@@ -28,9 +28,73 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  union-source-artifact:
+    name: Verify pinned union source artifact
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+      core-sha: ${{ steps.pin.outputs.core-sha }}
+      demo-sha: ${{ steps.pin.outputs.demo-sha }}
+      archive-sha256: ${{ steps.produce.outputs.archive-sha256 }}
+      manifest-sha256: ${{ steps.produce.outputs.manifest-sha256 }}
+    steps:
+      - name: Checkout exact Core event head
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'push' && github.sha }}
+          fetch-depth: 0
+          path: union-core
+      - name: Verify Core identity and read immutable Demo pin
+        id: pin
+        env:
+          EXPECTED_CORE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'push' && github.sha }}
+        run: |
+          python3 - <<'PYTHON'
+          import json, os, re, subprocess
+          head = subprocess.check_output(['git', '-C', 'union-core', 'rev-parse', 'HEAD']).decode().strip()
+          assert head == os.environ['EXPECTED_CORE_SHA']
+          pin = json.load(open('union-core/product-demos.lock.json'))
+          assert pin['repository'] == 'https://github.com/konnilabs/xtend-demos.git'
+          assert re.fullmatch('[a-f0-9]{40}', pin['demoSha'])
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('core-sha=' + head + '\n' + 'demo-sha=' + pin['demoSha'] + '\n')
+          PYTHON
+      - name: Checkout exact pinned Demo source without dependencies
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: konnilabs/xtend-demos
+          ref: ${{ steps.pin.outputs.demo-sha }}
+          path: union-demo
+      - name: Produce verified regular-file source artifact
+        id: produce
+        env:
+          EXPECTED_CORE_SHA: ${{ steps.pin.outputs.core-sha }}
+          EXPECTED_DEMO_SHA: ${{ steps.pin.outputs.demo-sha }}
+        run: |
+          test "$(git -C union-demo rev-parse HEAD)" = "$EXPECTED_DEMO_SHA"
+          python3 union-core/scripts/build-union-source-artifact.py --mode committed --core union-core --demo union-demo --core-sha "$EXPECTED_CORE_SHA" --output "$RUNNER_TEMP/union-source-produced" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT"
+          python3 - <<'PYTHON'
+          import json, os
+          receipt = json.load(open(os.environ['RUNNER_TEMP'] + '/union-source-produced/producer-receipt.json'))
+          assert receipt['producerMode'] == 'committed'
+          assert receipt['coreSha'] == os.environ['EXPECTED_CORE_SHA'] and receipt['demoSha'] == os.environ['EXPECTED_DEMO_SHA']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('archive-sha256=' + receipt['archiveSha256'] + '\nmanifest-sha256=' + receipt['manifestSha256'] + '\n')
+          PYTHON
+      - name: Upload immutable same-run source artifact
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: xtend-union-source-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/union-source-produced/sources.tar.gz
+          if-no-files-found: error
+
   pr-fast-gates:
+    needs: union-source-artifact
     name: PR fast gates (Node ${{ matrix.node_version }})
-    if: github.event_name == 'pull_request'
+    if: ${{ !cancelled() && github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -45,8 +109,18 @@ jobs:
             artifact_suffix: node-26-5-0
 
     steps:
+      - name: Require successful source producer without fallback
+        env:
+          SOURCE_PRODUCER_RESULT: ${{ needs.union-source-artifact.result }}
+          SOURCE_ARTIFACT_ID: ${{ needs.union-source-artifact.outputs.artifact-id }}
+        run: |
+          test "$SOURCE_PRODUCER_RESULT" = success
+          [[ "$SOURCE_ARTIFACT_ID" =~ ^[0-9]+$ ]]
+
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Configure npm download cache
         run: node scripts/configure_npm_cache.js
@@ -109,6 +183,59 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xtend-mcp:report
+
+      - name: Acquire exact same-run source artifact
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          artifact-ids: ${{ needs.union-source-artifact.outputs.artifact-id }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/xtend-union-source/download
+
+      - name: Verify independent head/pin and authenticated artifact expectations
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          EXPECTED_CORE_SHA: ${{ github.event.pull_request.head.sha }}
+          PRODUCER_CORE_SHA: ${{ needs.union-source-artifact.outputs.core-sha }}
+          PRODUCER_DEMO_SHA: ${{ needs.union-source-artifact.outputs.demo-sha }}
+          UNION_ARCHIVE_SHA256: ${{ needs.union-source-artifact.outputs.archive-sha256 }}
+          UNION_MANIFEST_SHA256: ${{ needs.union-source-artifact.outputs.manifest-sha256 }}
+          UNION_ARTIFACT_ID: ${{ needs.union-source-artifact.outputs.artifact-id }}
+        run: |
+          python3 - <<'PYTHON'
+          import json, os, pathlib, re, subprocess
+          env = os.environ
+          head = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
+          assert head == env['EXPECTED_CORE_SHA'] == env['PRODUCER_CORE_SHA']
+          assert re.fullmatch('[0-9]+', env['UNION_ARTIFACT_ID'])
+          pin = json.load(open('product-demos.lock.json'))
+          assert pin['repository'] == 'https://github.com/konnilabs/xtend-demos.git' and pin['demoSha'] == env['PRODUCER_DEMO_SHA']
+          expected = dict(producerMode='committed', coreSha=head, demoSha=pin['demoSha'], archiveSha256=env['UNION_ARCHIVE_SHA256'], manifestSha256=env['UNION_MANIFEST_SHA256'], context=dict(runId=env['GITHUB_RUN_ID'], runAttempt=env['GITHUB_RUN_ATTEMPT']))
+          target = pathlib.Path(env['RUNNER_TEMP']) / 'xtend-union-source' / 'expected.json'
+          target.write_text(json.dumps(expected))
+          with open(env['GITHUB_ENV'], 'a') as output:
+              output.write('XTEND_UNION_ARCHIVE=' + env['RUNNER_TEMP'] + '/xtend-union-source/download/sources.tar.gz\nXTEND_UNION_EXPECTED=' + str(target) + '\nXTEND_UNION_ARTIFACT_ID=' + env['UNION_ARTIFACT_ID'] + '\n')
+          PYTHON
+
+      - name: Required portable union source-provider boundary tests
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          XTEND_UNION_TEST_REPORT: .xtend-test-results/union-provider-tests.json
+        run: node --test tests/schemas/union_source_provider.test.cjs
+
+      - name: Required productive full-source union validation
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        run: node scripts/check-union-source.cjs --archive "$XTEND_UNION_ARCHIVE" --expected "$XTEND_UNION_EXPECTED" --destination "$RUNNER_TEMP/xtend-union-source/$XTEND_UNION_ARTIFACT_ID" --output .xtend-test-results/union-source-validation.json
+
+      - name: Preserve union validation evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: xtend-union-validation-${{ matrix.artifact_suffix }}
+          path: |
+            .xtend-test-results/union-source-validation.json
+            .xtend-test-results/union-provider-tests.json
+          if-no-files-found: error
 
       - name: Run Feature Adoption Observatory gates
         env:
