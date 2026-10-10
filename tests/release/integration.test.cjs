@@ -26,7 +26,10 @@ async function candidateFixture(t) {
   write(path.join(directory,'manifest.json'), manifest);
   write(path.join(f.rootDir,'product-demos.lock.json'), {demoSha});
   write(path.join(f.rootDir,'scripts/release/bootstrap-plan.json'), {schema:'xtend.release.bootstrap.v1',repository:'konnilabs/xtend',packages:[]});
-  return { f, r, directory, manifest, demoSha, options: { directory, sourceSha: f.sourceSha, demoSha, rootDir:f.rootDir, registry:r.registry, buildEvidence:f.artifact.buildEvidence } };
+  const buildEvidence = structuredClone(f.artifact.buildEvidence);
+  buildEvidence.commands = require('../../scripts/release/contracts.cjs').buildCommands();
+  f.canary.buildEvidenceIntegrity = digest(JSON.stringify(buildEvidence));
+  return { f, r, directory, manifest, demoSha, options: { directory, sourceSha: f.sourceSha, demoSha, rootDir:f.rootDir, registry:r.registry, buildEvidence } };
 }
 for (const group of ['mcp','material']) test(`reviewed candidate adapter preserves all original bytes and independently publishes ${group}-only`, async t=>{
   const {f,r,directory,options,manifest:original} = await candidateFixture(t);
@@ -37,6 +40,7 @@ for (const group of ['mcp','material']) test(`reviewed candidate adapter preserv
   assert.equal(manifest.packages.length,group==='mcp'?1:2);
   assert.ok(manifest.registryDependencies.length>0);
   for(const entry of manifest.registryDependencies)assert.equal(entry.sourceSha,'b'.repeat(40));
+  manifest.preparedAt = new Date().toISOString();
   const canary={...f.canary,tarballSetIntegrity:releaseSetIntegrity(manifest),packages:f.canary.packages.filter(e=>manifest.packages.some(p=>p.name===e.name)),registryDependencies:manifest.registryDependencies.map(entry=>({...entry,consumerInstall:true}))};
   write(path.join(directory,'consumer.json'),canary);manifest.canary={file:'consumer.json',integrity:digest(fs.readFileSync(path.join(directory,'consumer.json')))};write(path.join(directory,'release-manifest.json'),manifest);
   const artifact=await verifyArtifact({directory,sourceSha:f.sourceSha,rootDir:f.rootDir,manifestIntegrity:digest(fs.readFileSync(path.join(directory,'release-manifest.json')))});

@@ -7,6 +7,7 @@ const { execFile } = require('node:child_process');
 const { promisify, parseArgs } = require('node:util');
 const { check } = require('./inventory.cjs');
 const { verifyArtifact, digest } = require('./artifact.cjs');
+const { buildCanaryIntegrity } = require('./contracts.cjs');
 const { runNpm, npmAdapters } = require('./npm.cjs');
 const { verifyRegistryDependency } = require('./publish.cjs');
 const execute = promisify(execFile);
@@ -29,7 +30,7 @@ async function runConsumers({ artifact, rootDir, npmCli, buildEvidence = artifac
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-release-consumer-'));
   const report = { schema: 'xtend.release.canary.v1', ok: false, sourceSha: artifact.sourceSha,
     toolchain: artifact.toolchain, tarballSetIntegrity: artifact.tarballSetIntegrity,
-    buildEvidenceIntegrity: digest(JSON.stringify(buildEvidence)), mcpKnowledgeGenerated: mcpSelected && buildEvidence.mcpKnowledgeGenerated === true,
+    buildEvidenceIntegrity: buildCanaryIntegrity(buildEvidence), mcpKnowledgeGenerated: mcpSelected && buildEvidence.mcpKnowledgeGenerated === true,
     mcpKnowledgeChecked: false, runtimeImports: false, packages: [], registryDependencies: [], error: null };
   try {
     for (const entry of dependenciesFromRegistry) await verifyRegistryDependency(artifact, entry, registry);

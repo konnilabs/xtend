@@ -32,12 +32,10 @@ test('three exact registration-boundary mutations reject', () => {
     assert.ok(scoped(changed).length, mutation);
   }
 });
-test('additional current candidate shapes never inherit the reviewed four-shape initial authority', () => {
-  const entry = current.entries.find(entry => entry.schemaId === id);
-  assert.ok(entry.shapeFingerprints.length > approved.entry.shapeFingerprints.length);
-  assert.equal(entry.shapePolicy.mode, 'review-required');
-  assert.deepEqual(entry.shapePolicy.acceptedFingerprints, []);
-  assert.equal(scanner.__testInitialAuthority(entry, current, scan, harness.root), false);
-  const codes = scoped(current).map(error => error.code);
-  assert.ok(codes.includes('polymorphism-decision-required'));
+test('the historical four-shape registration alone cannot inherit the new six-shape observation', () => {
+  const six = JSON.parse(zlib.gunzipSync(fs.readFileSync(__dirname + '/proposed-six-registration.json.gz'))).observation;
+  const historicalEntry = doc.entries.find(entry => entry.schemaId === id);
+  assert.equal(approved.entry.shapeFingerprints.length, 4);
+  assert.equal(six.entries.find(entry => entry.schemaId === id).shapeFingerprints.length, 6);
+  assert.equal(scanner.__testInitialAuthority(historicalEntry, doc, six, harness.root), false);
 });

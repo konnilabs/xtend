@@ -6,12 +6,18 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const Module = require('node:module');
-function loadPublisher(retired = true) {
+function loadPublisher(retired = true, { sealedBoundary = 'controlled' } = {}) {
   const file = path.resolve(__dirname, '../../scripts/release/publish.cjs');
   const scanner = require('../migration/manifest-initial-authority/harness.cjs').load(retired);
   const fixture = new Module(file, module), realRequire = Module.createRequire(file);
   fixture.filename = file;
-  fixture.require = name => name === '../scan_schema_inventory' ? scanner : realRequire(name);
+  fixture.require = name => {
+    if (name === '../scan_schema_inventory') return scanner;
+    // Explicit unit-only backend: registry state-machine tests do not claim a
+    // full product seal. Runtime contract tests use sealedBoundary='real'.
+    if (name === './artifact.cjs' && sealedBoundary === 'controlled') return { ...realRequire(name), assertSealedArtifact: async () => {} };
+    return realRequire(name);
+  };
   fixture._compile(fs.readFileSync(file, 'utf8'), file);
   return fixture.exports;
 }

@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const semver = require('semver');
 const { check, readJson } = require('./inventory.cjs');
-const { digest } = require('./artifact.cjs');
+const { digest, assertSealedArtifact } = require('./artifact.cjs');
 const { isDeepStrictEqual } = require('node:util');
 function channelTag(version, prereleaseTag = 'next') {
   check(semver.valid(version), `Invalid release version: ${version}`);
@@ -131,7 +131,10 @@ async function publishRelease({ artifact, registry, publisher, ledgerFile, lockF
     save();
     // Keep a failed ledger, but stop before registry reads, dry-runs, uploads,
     // retries or optional promotion while initial-unreleased authority is active.
-    if (publish) require('../scan_schema_inventory').assertCandidateInitialAuthorityRetiredForRelease();
+    if (publish) {
+      require('../scan_schema_inventory').assertCandidateInitialAuthorityRetiredForRelease();
+      await assertSealedArtifact(artifact);
+    }
     if (promote) promotionSupported(npmVersion, distTagsAuthorized); // before first upload
     // Complete preflight before the first irreversible operation.
     for (const dependency of artifact.registryDependencies || []) {

@@ -104,6 +104,7 @@ test('Material-only build/canary need no unrelated MCP evidence; MCP-only still 
     write(path.join(f.artifactDir, 'build.json'), build);
     f.manifest.buildEvidence.integrity = digest(fs.readFileSync(path.join(f.artifactDir, 'build.json')));
     f.canary.mcpKnowledgeGenerated = false; f.canary.mcpKnowledgeChecked = false;
+    f.canary.buildEvidenceIntegrity = digest(JSON.stringify(build));
     write(path.join(f.artifactDir, 'canary.json'), f.canary);
     f.manifest.canary.integrity = digest(fs.readFileSync(path.join(f.artifactDir, 'canary.json'))); f.reseal();
     if (group === 'material') assert.equal((await f.verify()).packages.length, 2);

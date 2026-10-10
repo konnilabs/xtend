@@ -70,13 +70,14 @@ async function packedFixture(t, { selection, beforePack = () => {} } = {}) {
     registryDependencies: manifest.registryDependencies.map(entry => ({ ...entry, consumerInstall: true })),
     packages: manifest.packages.map(entry => ({ name: entry.name, integrity: entry.integrity,
       consumerInstall: true, entrypoints: true, types: true, files: true, bin: true })) };
+  canary.buildEvidenceIntegrity = digest(JSON.stringify(build));
   write(path.join(f.artifactDir, 'canary.json'), canary);
   manifest.canary = { file: 'canary.json', integrity: digest(fs.readFileSync(path.join(f.artifactDir, 'canary.json'))) };
   write(path.join(f.artifactDir, 'release-manifest.json'), manifest);
   f.manifest = manifest; f.canary = canary;
   f.integrity = () => digest(fs.readFileSync(path.join(f.artifactDir, 'release-manifest.json')));
   f.reseal = () => write(path.join(f.artifactDir, 'release-manifest.json'), manifest);
-  f.verify = (options = {}) => verifyArtifact({ directory: f.artifactDir, manifestIntegrity: f.integrity(), sourceSha, rootDir: f.rootDir, ...options });
+  f.verify = (options = {}) => verifyArtifact({ directory: f.artifactDir, manifestIntegrity: f.integrity(), sourceSha, rootDir: f.rootDir, phase: 'primitive', ...options });
   f.artifact = await f.verify(); return f;
 }
 function registryFixture(artifact) {

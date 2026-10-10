@@ -44,7 +44,7 @@ async function main(args = process.argv.slice(2)) {
       packages: inventory.packages.map(({ manifest, ...entry }) => entry) }, null, 2)); return;
   }
   const artifact = await verifyArtifact({ directory: values.artifact, manifestIntegrity: values['manifest-integrity'],
-    sourceSha: values['source-sha'], rootDir, selection });
+    sourceSha: values['source-sha'], rootDir, selection, phase: values.execute ? 'sealed' : undefined });
   const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: rootDir, encoding: 'utf8' }).trim();
   check(head === artifact.sourceSha, 'Checkout must match immutable artifact source SHA');
   if (command === 'verify') { console.log(JSON.stringify({ ok: true, sourceSha: head, tarballSetIntegrity: artifact.tarballSetIntegrity })); return; }

@@ -9,6 +9,7 @@ const { check, loadInventory } = require('./inventory.cjs');
 const { resolveNpmCli } = require('./toolchain.cjs');
 const { parseSelection, selectRelease } = require('./selection.cjs');
 const { verifyArtifact, digest } = require('./artifact.cjs');
+const { buildCommands } = require('./contracts.cjs');
 const { adaptCandidates, inspectCandidates, verifyCandidateBinding, write } = require('./candidates.cjs');
 const { runConsumers } = require('./consumer.cjs');
 const { npmAdapters } = require('./npm.cjs');
@@ -30,8 +31,7 @@ function buildCommittedSource(sourceSha) {
     const tracked = git(['ls-files', '-z']).split('\0').filter(Boolean);
     const before = new Map(tracked.filter(file => fs.statSync(path.join(temporary, file)).isFile()).map(file => [file, digest(fs.readFileSync(path.join(temporary, file)))]));
     fs.symlinkSync(path.join(rootDir, 'node_modules'), path.join(temporary, 'node_modules'), 'dir');
-    const commands = [['scripts', 'build:components'], ['scripts', 'build:rmt-esm-entrypoints'], ['scripts', 'build:html-sanitizer'],
-      ['node', 'products/xtend-mcp/scripts/build-knowledge.mjs'], ['node', 'products/xtend-mcp/scripts/build-knowledge.mjs', '--check', '--quiet']];
+    const commands = buildCommands();
     const npmCli = resolveNpmCli();
     for (const command of commands) execFileSync(process.execPath, command[0] === 'scripts' ? [npmCli, 'run', command[1]] : command.slice(1),
       { cwd: temporary, stdio: 'pipe', timeout: 300000, maxBuffer: 16 * 1024 * 1024 });
@@ -55,11 +55,12 @@ async function prepare({ directory, selection }) {
   manifest.preparedAt = preparedAt;
   fs.writeFileSync(path.join(directory, 'release-manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   let manifestIntegrity = digest(fs.readFileSync(path.join(directory, 'release-manifest.json')));
-  const artifact = await verifyArtifact({ directory, sourceSha, rootDir, manifestIntegrity, requireCanary: false });
+  const artifact = await verifyArtifact({ directory, sourceSha, rootDir, manifestIntegrity, requireCanary: false, phase: 'prepared' });
   await runConsumers({ artifact, rootDir, npmCli: resolveNpmCli(), executeCanary: true, outputFile: path.join(directory, 'consumer.json') });
   manifest.canary = { file: 'consumer.json', integrity: digest(fs.readFileSync(path.join(directory, 'consumer.json'))) };
   fs.writeFileSync(path.join(directory, 'release-manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   manifestIntegrity = digest(fs.readFileSync(path.join(directory, 'release-manifest.json')));
+  await verifyArtifact({ directory, sourceSha, rootDir, manifestIntegrity, phase: 'prepared' });
   return { sourceSha, demoSha, manifestIntegrity, candidateSha256: require('../../candidate-integrity.cjs').digest(fs.readFileSync(path.join(directory, 'manifest.json'))) };
 }
 function assertFreshPreparation(env) {
@@ -92,7 +93,7 @@ function verifyProductConsumer({ directory, file, sourceSha, demoSha, startedAt 
   return evidence;
 }
 async function seal({ directory, manifestIntegrity, lanesDirectory, resume = false }) {
-  const sourceSha = git(['rev-parse', 'HEAD']), artifact = await verifyArtifact({ directory, manifestIntegrity, sourceSha, rootDir });
+  const sourceSha = git(['rev-parse', 'HEAD']), artifact = await verifyArtifact({ directory, manifestIntegrity, sourceSha, rootDir, phase: resume ? 'sealed' : 'prepared' });
   await verifyCandidateBinding(artifact, { directory, rootDir });
   const manifest = structuredClone(artifact.manifest);
   const originalDirectory = directory;
@@ -121,6 +122,7 @@ async function seal({ directory, manifestIntegrity, lanesDirectory, resume = fal
   const finalFile = path.join(directory, 'release-manifest.json');
   fs.writeFileSync(finalFile, JSON.stringify(manifest, null, 2) + '\n');
   const finalIntegrity = digest(fs.readFileSync(finalFile));
+  await verifyArtifact({ directory, sourceSha, rootDir, manifestIntegrity: finalIntegrity, phase: 'sealed' });
   const needs = JSON.parse(process.env.XTEND_RELEASE_NEEDS || '{}'); verifyNeeds(needs);
   check(process.env.GITHUB_REPOSITORY === 'konnilabs/xtend' && /^\d+$/.test(process.env.GITHUB_RUN_ID || '') && process.env.GITHUB_SHA === sourceSha,
     'Sealing requires authenticated workflow run identity');
@@ -148,7 +150,7 @@ async function main(args = process.argv.slice(2)) {
     const downloaded = await downloadSealedArtifact({ id: values['artifact-id'], directory: options.directory, sourceSha });
     result = { sourceSha, manifestIntegrity: downloaded.manifestIntegrity,
       candidateSha256: require('../../candidate-integrity.cjs').digest(fs.readFileSync(path.join(options.directory, 'manifest.json'))) };
-    const artifact = await verifyArtifact({ directory: options.directory, manifestIntegrity: result.manifestIntegrity, sourceSha, rootDir, selection });
+    const artifact = await verifyArtifact({ directory: options.directory, manifestIntegrity: result.manifestIntegrity, sourceSha, rootDir, selection, phase: 'sealed' });
     await verifyCandidateBinding(artifact, { directory: options.directory, rootDir, requireProductEvidence: true });
   } else result = await ({ prepare, consumers, seal })[command](options);
   if (result && process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, Object.entries(result).map(([key, value]) => `${key}=${value}\n`).join(''));
