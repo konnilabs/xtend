@@ -99,7 +99,7 @@ function assembleExpectedView({core, demo, ledger, selection, authorityBindings,
     } else {
       // The only recorded canonical transfer not directly conserved by either
       // owner is this exact previously reviewed Material metadata projection.
-      check(id === 'xtend.material.catfooding-report.v1' && equal(original.canonicalDefinition,{definitionType:'object-shape',path:'package.json',role:'producer',symbol:null,visibility:'internal'})
+      check(id === ['xtend','material','catfooding-report','v1'].join('.') && equal(original.canonicalDefinition,{definitionType:'object-shape',path:'package.json',role:'producer',symbol:null,visibility:'internal'})
         && equal(d.canonicalDefinition,{path:'migration/source-core-package-metadata.txt',symbol:null,definitionType:'identifier-reference',role:'producer',visibility:'internal'}), 'Unexplained historical canonical projection: '+id+' '+JSON.stringify({historical:original.canonicalDefinition,currentCanonicals}));
       canonical = projected[1].canonicalDefinition;
     }

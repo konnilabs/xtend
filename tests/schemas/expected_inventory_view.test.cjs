@@ -1,5 +1,5 @@
 'use strict';
-const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os'),crypto=require('node:crypto'),zlib=require('node:zlib');
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os'),crypto=require('node:crypto'),zlib=require('node:zlib'),{execFileSync}=require('node:child_process');
 const api=require('../../tools/schema-inventory/index.cjs'),{assembleExpectedView}=require('../../tools/schema-inventory/expected-view.cjs');
 let provider,inputs,directory;const events=[];
 function required(name,body){test(name,()=>{try{body();events.push({name,ok:true});}catch(error){events.push({name,ok:false,error:error.message});throw error;}});}
@@ -20,3 +20,21 @@ required('tampered materialized expected owner bytes reject before view construc
 required('overlay third hash rejects independently of owner record digests',()=>mutate(x=>x.overlay.variants.push({...x.overlay.variants[0],hash:'sha256:'+'2'.repeat(64)}),/Reviewed expected overlay input changed/));
 required('substituted overlay ID rejects independently of owner record digests',()=>mutate(x=>x.overlay.schemaId=x.selection[0],/Reviewed expected overlay input changed/));
 required('authority binding mutation rejects independently of owner record digests',()=>mutate(x=>x.authorityBindings[0].sourceSha256='3'.repeat(64),/Reviewed expected authority bindings changed/));
+
+required('Material control-flow guard is not a declaration; real current declarations remain strictly observed',()=>{
+ const id=['xtend','material','catfooding-report','v1'].join('.'),root=path.join(directory,'material-current'),helper='tools/schema-inventory/expected-view.cjs';
+ fs.mkdirSync(path.join(root,path.dirname(helper)),{recursive:true});fs.writeFileSync(path.join(root,helper),fs.readFileSync(path.resolve(__dirname,'../../',helper)));
+ execFileSync('git',['init','--quiet',root]);execFileSync('git',['add',helper],{cwd:root});
+ const scanner=api.createScanner({typescript:require('typescript')}),before=scanner.scanSchemaInventory({rootDir:root});assert.ok(!before.entries.some(row=>row.schemaId===id),'The unchanged meaning of the control-flow guard must not invent a current schema declaration');
+ const declaration='products/material/src/current-report.cjs';fs.mkdirSync(path.join(root,path.dirname(declaration)),{recursive:true});fs.writeFileSync(path.join(root,declaration),'module.exports = '+JSON.stringify({schema:id,generatedCurrent:true})+';\n');execFileSync('git',['add',declaration],{cwd:root});
+ const after=scanner.scanSchemaInventory({rootDir:root}),entry=after.entries.find(row=>row.schemaId===id);assert.ok(entry);assert.ok(entry.usages.some(row=>row.sourcePaths.includes(declaration)));assert.ok(entry.shapeFingerprints.some(row=>row.sourcePaths.includes(declaration)));
+ const strict=scanner.validateInventoryDocument(inputs.core,after,{rootDir:root});assert.equal(strict.valid,false);const generated=entry.shapeFingerprints.find(row=>row.sourcePaths.includes(declaration));
+ assert.equal(generated.hash,'sha256:4dc72c142348816ebb785cbbc241806927bded6029a02a1ffe58008feb3bb072');assert.deepEqual(generated.sourcePaths,[declaration]);assert.deepEqual(generated.evidence,[{type:'runtime-observation',completeness:'complete',authoritative:false,path:declaration,symbol:null}]);assert.ok(!inputs.core.entries.find(row=>row.schemaId===id).shapePolicy.acceptedFingerprints.includes(generated.hash));
+ const rejection=strict.errors.find(row=>row.schemaId===id&&row.code==='shape-fingerprint-drift');assert.ok(rejection,'Generated unapproved payload must specifically fail shape-fingerprint-drift');
+ if(process.env.XTEND_MATERIAL_DECLARATION_PROOF)fs.writeFileSync(process.env.XTEND_MATERIAL_DECLARATION_PROOF,JSON.stringify({emittedBytes:fs.readFileSync(path.join(root,declaration),'utf8'),observedFingerprint:generated,rejection,acceptedShapePolicy:inputs.core.entries.find(row=>row.schemaId===id).shapePolicy},null,2)+'\n');assert.deepEqual(inputs.core.entries.find(row=>row.schemaId===id).shapePolicy,JSON.parse(provider.readCurrent('tests/schemas/xtend-schema-inventory.json')).entries.find(row=>row.schemaId===id).shapePolicy);
+});
+required('Material global canonical transfer still requires its exact current Demo package snapshot',()=>{
+ const id=['xtend','material','catfooding-report','v1'].join('.'),expected=api.createExpectedInventory(provider),entry=expected.entries.find(row=>row.schemaId===id),historical=inputs.ledger.entries.find(row=>row.schemaId===id);
+ assert.deepEqual(entry.canonicalDefinition,{path:'@demo/migration/source-core-package-metadata.txt',symbol:null,definitionType:'identifier-reference',role:'producer',visibility:'internal'});assert.deepEqual(entry.shapePolicy.authoritativeFingerprints,historical.shapePolicy.authoritativeFingerprints);assert.equal(entry.releasedFingerprintSetHash,historical.releasedFingerprintSetHash);assert.equal(crypto.createHash('sha256').update(provider.readCurrent('@demo/migration/source-core-package-metadata.txt')).digest('hex'),'ecb00902c18961d35be2e1f56d13f1227a8d34a45d943a39c8d5dbdeb6a42e9c');
+ assert.throws(()=>assembleExpectedView({...inputs,resolvePath(owner,p,digest){if(owner==='demo'&&p==='migration/source-core-package-metadata.txt')throw Error('Missing mandatory current Material snapshot');return inputs.resolvePath(owner,p,digest);}}),/Missing mandatory current Material snapshot/);
+});
