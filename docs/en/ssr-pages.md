@@ -263,3 +263,26 @@ only in 1.0 or later after a documented migration. Packaged JSON Schemas live at
 `@ccslabs/xtend-rmt/contracts/*.json`. The
 [architecture decision](../../development/ADR-XTend-0.9-Renderer-SSR-Resume.md)
 records the complete contract graph and release gates.
+
+## Opt-in public resource cache
+
+`createPageResourceCache` from `@ccslabs/xtend/rmt/page-resource-cache` stores only
+explicit JSON resources in memory, with TTL, LRU and UTF-8 byte limits. Reads and
+writes are copied; TTL never slides. `stats()` exposes counts, never keys.
+
+Set PageClient `resourceCache: {resolve, project, clear}`. `resolve(url, context)`
+receives `{page, signal, cache}` and must return null for unapproved routes.
+`project(resource, context)` returns a complete same-origin, same-version and
+same-context page with no SSR envelope or CSRF token, using loaded page artifacts.
+Use `visit(url, {cache: 'reuse'})` or `data-xtend-cache="reuse"` for reuse; the
+default is `reload`. The policy also receives reload visits to delete a target.
+History restoration requests reuse only when a policy is installed. Pages with
+CSRF tokens never enter this path. Prefetch authorization revalidation is unchanged.
+
+Dispose, context/version changes and `invalidate()` call `clear`. Errors in a
+resource policy fall back to normal transport; superseded resolutions cannot
+commit. Never cache DOM, SSR/resume envelopes, event replay, credentials, editing
+drafts or authenticated pages. Revalidate permissions through a metadata-only
+App Service when needed. The Maraca bootstrap forwards `resourceCache` and `fetch`.
+
+See [the two-view Maraca App Services example](../../examples/page-resource-cache/README.md).

@@ -1,0 +1,40 @@
+template cache.demo {
+  state demo.data type object preserve {
+    initial {
+      title "View A"
+      viewTemplate {
+        children [
+          {
+            type "element"
+            tag "h1"
+            text "$model.demo.data.title"
+          }
+          {
+            type "element"
+            tag "a"
+            attributes {
+              href "/a"
+              "data-xtend-cache" "reuse"
+            }
+            text "A"
+          }
+          {
+            type "element"
+            tag "a"
+            attributes {
+              href "/b"
+              "data-xtend-cache" "reuse"
+            }
+            text "B"
+          }
+        ]
+      }
+    }
+  }
+  datasource demo.cache.read from host demo.cache.read {
+    mode invoke
+  }
+  datasource demo.cache.write from host demo.cache.write {
+    mode invoke
+  }
+}

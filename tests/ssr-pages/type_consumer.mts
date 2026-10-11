@@ -27,3 +27,11 @@ createPortableRenderArtifact({descriptor:{type:'text',text:()=> 'function'}});
 // @ts-expect-error Requests are bounded with numeric limits.
 createPageClient({initialPage,maxConcurrentRequests:'unbounded'});
 form.dispose();client.dispose();
+
+import {createPageResourceCache} from '@ccslabs/xtend-rmt/page-resource-cache';
+import type {PageResourceCachePolicy} from '@ccslabs/xtend-rmt/page-client';
+const resources=createPageResourceCache<{title:string}>({ttlMs:1000,maxEntries:2,maxBytes:1024});
+resources.set('public:v1:a',{title:'A'});
+const title:string|undefined=resources.get('public:v1:a')?.title;
+const policy:PageResourceCachePolicy={resolve:()=>null,project:()=>{throw new Error('No resource');},clear:()=>resources.clear()};
+void title;void policy;

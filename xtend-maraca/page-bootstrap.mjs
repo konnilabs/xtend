@@ -32,7 +32,7 @@ export async function startMaracaPageApplication(configuration) {
       return {verified:await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},key,raw,new TextEncoder().encode(canonical))};
     } catch { return false; }
   };
-  client = createMaracaPageClient({initialPage,root,resume:{verify},applicationKey:configuration.applicationKey,viewTransitions:configuration.viewTransitions,
+  client = createMaracaPageClient({initialPage,root,resume:{verify},fetch:configuration.fetch,resourceCache:configuration.resourceCache,applicationKey:configuration.applicationKey,viewTransitions:configuration.viewTransitions,
     intentQueue:()=>{installed.dispose();return capture.listIntents();}, maraca:configuration.maraca,remoteSurfaces:configuration.remoteSurfaces,navigationAction:configuration.navigationAction});
   client.subscribe(event=>window.dispatchEvent(new CustomEvent('xtend-page:event',{detail:event})));
     await client.start();
