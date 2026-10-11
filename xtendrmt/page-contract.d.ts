@@ -50,11 +50,15 @@ export type PageWire = CanonicalPageWire | LegacyPageWire;
 export function encodePageWire(page: PageResult): PageWire;
 export function decodePageWire(page: PageWire | PageResult): PageResult;
 
+export const PAGE_INITIAL_WIRE_SCHEMA: 'xtend.page-initial-wire.v1';
+export interface PageInitialWire {schema:typeof PAGE_INITIAL_WIRE_SCHEMA;root:PageWireReference;nodes:CanonicalPageWire['nodes']}
 export const PAGE_INITIAL_RESUME_SCHEMA: 'xtend.page-initial-resume.v1';
 export type InitialResumeChunk = Omit<RmtNodeSsrPrerenderResponseEnvelope['chunk'], 'kind' | 'version' | 'markup'> & {markup: {descriptor: unknown}};
 export type InitialResumeResponse = Omit<RmtNodeSsrPrerenderResponseEnvelope, 'kind' | 'version' | 'chunk' | 'chunks'> & {chunk: InitialResumeChunk; chunks: InitialResumeChunk[]};
 export interface PageInitialResume { schema: typeof PAGE_INITIAL_RESUME_SCHEMA; page: Omit<PageResponse, 'ssr'>; ssr: InitialResumeResponse }
 export type PageInitialResumeState = Omit<PageResponse, 'ssr'> & {ssr: InitialResumeResponse};
 export type PageClientState = PageResponse | LegacyPageResponse | PageInitialResumeState;
-export function encodePageInitialResume(page: PageResponse): PageInitialResume;
-export function decodePageInitialDocument(page: PageInitialResume | PageResult | PageWire): PageClientState;
+export function encodePageInitialResume(page: PageResponse, options:{compact:true}): PageInitialWire;
+export function encodePageInitialResume(page: PageResponse, options?:{compact?:false}): PageInitialResume;
+export function encodePageInitialResume(page: PageResponse, options:{compact?:boolean}): PageInitialResume | PageInitialWire;
+export function decodePageInitialDocument(page: PageInitialWire | PageInitialResume | PageResult | PageWire): PageClientState;

@@ -297,3 +297,5 @@ bei Bedarf über einen Metadaten-App-Service geprüft. Der Maraca-Bootstrap reic
 `resourceCache` und `fetch` weiter.
 
 Siehe [das Maraca-App-Services-Beispiel mit zwei Ansichten](../../examples/page-resource-cache/README.md).
+
+Bei kompakten Antworten nutzt das Initial-Resume-Envelope `xtend.page-initial-wire.v1`. `decodePageInitialDocument` expandiert die begrenzte Referenztabelle vor der Envelope-Validierung. Signierter Zustand und Deskriptoren bleiben unverändert; normale PageResponse-Decoder akzeptieren weiterhin keine reduzierten SSR-Chunks.

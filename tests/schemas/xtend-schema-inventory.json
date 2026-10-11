@@ -8724,6 +8724,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "Formal reference-table bounds and TypeScript declarations are intentionally different evidence projections of the same initial-document transport; expansion and envelope validation remain separate from ordinary PageResponse decoding."
+      },
+      "reviewId": "polymorphic-83de2889759b",
+      "schemaIds": [
+        "xtend.page-initial-wire.v1"
+      ],
+      "status": "accepted",
+      "type": "same-id-multiple-shapes",
+      "baseline": "XTend-0.9-resource-cache-dogfood"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -509380,6 +509398,485 @@
             "xtendrmt/page-initial.mjs"
           ],
           "visibility": "public"
+        },
+        {
+          "application": "XTendRMT",
+          "interfaceReferences": [
+            {
+              "path": "xtendrmt/page-wire.mjs",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "reference",
+          "sourcePaths": [
+            "xtendrmt/page-wire.mjs"
+          ],
+          "visibility": "public"
+        }
+      ],
+      "version": 1
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "definitionType": "json-schema",
+        "path": "xtendrmt/contracts/page-initial-wire.v1.json",
+        "role": "definition",
+        "symbol": null,
+        "visibility": "public"
+      },
+      "description": "Compact response-local reference table for the initial-resume document boundary; preserves signed state and descriptor recovery without changing ordinary PageResponse envelopes.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.page-initial-wire",
+      "kinds": [
+        "json-schema"
+      ],
+      "lifecycle": {
+        "rollout": "complete",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": "sha256:c757272e4ea7107fe2cdf1b15318de1c258e083651f29c9b910f3ae59c071d0e",
+      "replacedBy": null,
+      "schemaId": "xtend.page-initial-wire.v1",
+      "shapeFingerprints": [
+        {
+          "authoritative": true,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": true,
+              "completeness": "complete",
+              "path": "xtendrmt/contracts/page-initial-wire.v1.json",
+              "symbol": null,
+              "type": "formal-schema"
+            }
+          ],
+          "evidenceTypes": [
+            "formal-schema"
+          ],
+          "hash": "sha256:427e3ac77e994988bbbdf68c63996e1a5ce04eb14073bf313a99fd25e190e044",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "$formalSchema"
+            ],
+            "normalized": {
+              "fields": {
+                "$formalSchema": {
+                  "optional": false,
+                  "type": {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "additionalProperties": false,
+                    "definitions": {
+                      "reference": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "r": {
+                            "minimum": 0,
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "r"
+                        ],
+                        "type": "object"
+                      },
+                      "value": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/definitions/reference"
+                          },
+                          {
+                            "type": [
+                              "boolean",
+                              "null",
+                              "number",
+                              "string"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "properties": {
+                      "nodes": {
+                        "items": {
+                          "anyOf": [
+                            {
+                              "additionalProperties": {
+                                "$ref": "#/definitions/value"
+                              },
+                              "type": "object"
+                            },
+                            {
+                              "items": {
+                                "$ref": "#/definitions/value"
+                              },
+                              "type": "array"
+                            }
+                          ]
+                        },
+                        "maxItems": 32768,
+                        "type": "array"
+                      },
+                      "root": {
+                        "$ref": "#/definitions/reference"
+                      },
+                      "schema": {
+                        "enum": [
+                          "xtend.page-initial-wire.v1"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "nodes",
+                      "root",
+                      "schema"
+                    ],
+                    "type": "object"
+                  }
+                }
+              },
+              "formalSchema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "additionalProperties": false,
+                "definitions": {
+                  "reference": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "r": {
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "r"
+                    ],
+                    "type": "object"
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/definitions/reference"
+                      },
+                      {
+                        "type": [
+                          "boolean",
+                          "null",
+                          "number",
+                          "string"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "properties": {
+                  "nodes": {
+                    "items": {
+                      "anyOf": [
+                        {
+                          "additionalProperties": {
+                            "$ref": "#/definitions/value"
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "items": {
+                            "$ref": "#/definitions/value"
+                          },
+                          "type": "array"
+                        }
+                      ]
+                    },
+                    "maxItems": 32768,
+                    "type": "array"
+                  },
+                  "root": {
+                    "$ref": "#/definitions/reference"
+                  },
+                  "schema": {
+                    "enum": [
+                      "xtend.page-initial-wire.v1"
+                    ]
+                  }
+                },
+                "required": [
+                  "nodes",
+                  "root",
+                  "schema"
+                ],
+                "type": "object"
+              }
+            },
+            "signature": "$formalSchema:{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\":false,\"definitions\":{\"reference\":{\"additionalProperties\":false,\"properties\":{\"r\":{\"minimum\":0,\"type\":\"integer\"}},\"required\":[\"r\"],\"type\":\"object\"},\"value\":{\"anyOf\":[{\"$ref\":\"#/definitions/reference\"},{\"type\":[\"boolean\",\"null\",\"number\",\"string\"]}]}},\"properties\":{\"nodes\":{\"items\":{\"anyOf\":[{\"additionalProperties\":{\"$ref\":\"#/definitions/value\"},\"type\":\"object\"},{\"items\":{\"$ref\":\"#/definitions/value\"},\"type\":\"array\"}]},\"maxItems\":32768,\"type\":\"array\"},\"root\":{\"$ref\":\"#/definitions/reference\"},\"schema\":{\"enum\":[\"xtend.page-initial-wire.v1\"]}},\"required\":[\"nodes\",\"root\",\"schema\"],\"type\":\"object\"}"
+          },
+          "sourcePaths": [
+            "xtendrmt/contracts/page-initial-wire.v1.json"
+          ],
+          "symbols": []
+        },
+        {
+          "authoritative": true,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": true,
+              "completeness": "complete",
+              "path": "xtendrmt/page-contract.d.ts",
+              "symbol": "PageInitialWire",
+              "type": "declared-type"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "hash": "sha256:c8c36be7c96f07e855d3611172782501ea2f0f770d61da466a7719d4ff5341c8",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "nodes",
+              "root"
+            ],
+            "normalized": {
+              "fields": {
+                "nodes": {
+                  "optional": false,
+                  "type": {
+                    "indexedAccess": {
+                      "index": {
+                        "literal": "nodes"
+                      },
+                      "object": {
+                        "fields": {
+                          "nodes": {
+                            "optional": false,
+                            "type": {
+                              "elementType": {
+                                "union": [
+                                  {
+                                    "elementType": {
+                                      "union": [
+                                        "boolean",
+                                        "number",
+                                        "string",
+                                        {
+                                          "fields": {
+                                            "r": {
+                                              "optional": false,
+                                              "type": "number"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "literal": null
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "record": {
+                                      "key": "string",
+                                      "value": {
+                                        "union": [
+                                          "boolean",
+                                          "number",
+                                          "string",
+                                          {
+                                            "fields": {
+                                              "r": {
+                                                "optional": false,
+                                                "type": "number"
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "literal": null
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "root": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "r": {
+                                  "optional": false,
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "root": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "r": {
+                        "optional": false,
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "signature": "nodes:{\"indexedAccess\":{\"index\":{\"literal\":\"nodes\"},\"object\":{\"fields\":{\"nodes\":{\"optional\":false,\"type\":{\"elementType\":{\"union\":[{\"elementType\":{\"union\":[\"boolean\",\"number\",\"string\",{\"fields\":{\"r\":{\"optional\":false,\"type\":\"number\"}}},{\"literal\":null}]}},{\"record\":{\"key\":\"string\",\"value\":{\"union\":[\"boolean\",\"number\",\"string\",{\"fields\":{\"r\":{\"optional\":false,\"type\":\"number\"}}},{\"literal\":null}]}}}]}}},\"root\":{\"optional\":false,\"type\":{\"fields\":{\"r\":{\"optional\":false,\"type\":\"number\"}}}}}}}}|root:{r:number}"
+          },
+          "sourcePaths": [
+            "xtendrmt/page-contract.d.ts"
+          ],
+          "symbols": [
+            "PageInitialWire"
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "acceptedFingerprints": [
+          "sha256:427e3ac77e994988bbbdf68c63996e1a5ce04eb14073bf313a99fd25e190e044",
+          "sha256:c8c36be7c96f07e855d3611172782501ea2f0f770d61da466a7719d4ff5341c8"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:427e3ac77e994988bbbdf68c63996e1a5ce04eb14073bf313a99fd25e190e044",
+          "sha256:c8c36be7c96f07e855d3611172782501ea2f0f770d61da466a7719d4ff5341c8"
+        ],
+        "decision": "retain-polymorphic",
+        "mode": "polymorphic",
+        "rationale": "Formal reference-table bounds and TypeScript declarations are intentionally different evidence projections of the same initial-document transport; expansion and envelope validation remain separate from ordinary PageResponse decoding.",
+        "releasedFingerprintSetHash": "sha256:c757272e4ea7107fe2cdf1b15318de1c258e083651f29c9b910f3ae59c071d0e"
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/Page-Resource-Cache-Validation.md",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "development/Page-Resource-Cache-Validation.md"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTend Documentation",
+          "interfaceReferences": [
+            {
+              "path": "docs/de/ssr-pages.md",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "docs/de/ssr-pages.md",
+            "docs/en/ssr-pages.md"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTend Tests: Ssr Pages",
+          "interfaceReferences": [
+            {
+              "path": "tests/ssr-pages/contract_evolution_checks.js",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "assertion",
+          "sourcePaths": [
+            "tests/ssr-pages/contract_evolution_checks.js"
+          ],
+          "visibility": "test"
+        },
+        {
+          "application": "XTendRMT",
+          "interfaceReferences": [
+            {
+              "module": "@ccslabs/xtend-rmt/contracts/page-initial-wire.v1.json",
+              "path": "xtendrmt/contracts/page-initial-wire.v1.json",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend-rmt/page-contract",
+              "path": "xtendrmt/page-contract.d.ts",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/rmt/page-contract",
+              "path": "xtendrmt/page-contract.d.ts",
+              "type": "package-export"
+            },
+            {
+              "path": "xtendrmt/page-contract.d.ts",
+              "symbol": "PAGE_INITIAL_WIRE_SCHEMA",
+              "type": "symbol"
+            },
+            {
+              "path": "xtendrmt/page-contract.d.ts",
+              "symbol": "PageInitialWire",
+              "type": "symbol"
+            },
+            {
+              "path": "xtendrmt/page-initial.mjs",
+              "symbol": "PAGE_INITIAL_WIRE_SCHEMA",
+              "type": "symbol"
+            }
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "xtendrmt/contracts/page-initial-wire.v1.json",
+            "xtendrmt/page-contract.d.ts",
+            "xtendrmt/page-initial.mjs"
+          ],
+          "visibility": "public"
+        },
+        {
+          "application": "XTendRMT",
+          "interfaceReferences": [
+            {
+              "module": "@ccslabs/xtend-rmt/page-contract",
+              "path": "xtendrmt/page-contract.d.ts",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/rmt/page-contract",
+              "path": "xtendrmt/page-contract.d.ts",
+              "type": "package-export"
+            }
+          ],
+          "role": "producer",
+          "sourcePaths": [
+            "xtendrmt/page-contract.d.ts"
+          ],
+          "visibility": "public"
+        },
+        {
+          "application": "XTendRMT",
+          "interfaceReferences": [
+            {
+              "path": "xtendrmt/page-wire.mjs",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "reference",
+          "sourcePaths": [
+            "xtendrmt/page-wire.mjs"
+          ],
+          "visibility": "public"
         }
       ],
       "version": 1
@@ -513225,21 +513722,6 @@
             "xtendrmt/page-contract.d.ts",
             "xtendrmt/page-contract.mjs",
             "xtendrmt/rmt-page-data.php"
-          ],
-          "visibility": "public"
-        },
-        {
-          "application": "XTendRMT",
-          "interfaceReferences": [
-            {
-              "path": "xtendrmt/page-wire.mjs",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
-          "role": "producer",
-          "sourcePaths": [
-            "xtendrmt/page-wire.mjs"
           ],
           "visibility": "public"
         },
@@ -1043024,6 +1043506,7 @@
       "evidencePaths": [
         "xtendrmt/contracts/node-ssr-fabric-telemetry-hints.v2.json",
         "xtendrmt/contracts/page-initial-resume.v1.json",
+        "xtendrmt/contracts/page-initial-wire.v1.json",
         "xtendrmt/contracts/page-manifest.v2.json",
         "xtendrmt/contracts/page-response.v2.json",
         "xtendrmt/contracts/page-wire.v2.json",
@@ -1061770,6 +1062253,23 @@
           },
           "releasedFingerprintSetHash": "sha256:6d8126fe1699a847135bf22e42bd5205dfa893afbb7a01ae007334ac6bcb3620",
           "schemaId": "xtend.page-initial-resume.v1",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "activeSchemaId": "xtend.page-initial-wire.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.page-initial-wire",
+      "tombstones": [],
+      "versions": [
+        {
+          "lifecycle": {
+            "rollout": "complete",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:c757272e4ea7107fe2cdf1b15318de1c258e083651f29c9b910f3ae59c071d0e",
+          "schemaId": "xtend.page-initial-wire.v1",
           "version": 1
         }
       ]

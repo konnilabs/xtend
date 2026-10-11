@@ -286,3 +286,5 @@ drafts or authenticated pages. Revalidate permissions through a metadata-only
 App Service when needed. The Maraca bootstrap forwards `resourceCache` and `fetch`.
 
 See [the two-view Maraca App Services example](../../examples/page-resource-cache/README.md).
+
+When compact responses are enabled, the initial resume envelope uses `xtend.page-initial-wire.v1`. `decodePageInitialDocument` expands its bounded response-local reference table before validating the initial envelope. Signed state and descriptors are unchanged; ordinary PageResponse decoding still rejects reduced SSR chunks.

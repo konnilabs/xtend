@@ -21,7 +21,7 @@ export function renderPageDocument(page, html, assets = {}, nonce = '', options 
   // Generic adapter responses and HTML-only consumers keep their full chunks.
   const initialResume = options.initialResumeSchema === PAGE_INITIAL_RESUME_SCHEMA && page.ssr?.resume
     && page.schema === PAGE_RESPONSE_SCHEMA && page.ssr.executionMode === 'server_prerender_resume' && page.renderArtifact?.schema === 'xtend.rmt.portable-render.v2' && page.ssr.chunk?.markup?.descriptor;
-  const payload = initialResume ? encodePageInitialResume(page) : options.compact ? encodePageWire(page) : page;
+  const payload = initialResume ? encodePageInitialResume(page,{compact:options.compact}) : options.compact ? encodePageWire(page) : page;
   const head = mergePageHead([], page.head || []).map(tag => {
     if (tag.tag === 'title') return `<title>${escape(tag.text)}</title>`;
     if (tag.tag === 'link') return `<link data-xtend-page-head rel="canonical" href="${escape(tag.attributes.href)}">`;

@@ -1,10 +1,11 @@
 import { validatePageResponse, pageError } from './page-contract.mjs';
-import { decodePageWire } from './page-wire.mjs';
+import { decodePageWire,encodeInitialResumeWire,decodeInitialResumeWire } from './page-wire.mjs';
 
+export const PAGE_INITIAL_WIRE_SCHEMA = 'xtend.page-initial-wire.v1';
 export const PAGE_INITIAL_RESUME_SCHEMA = 'xtend.page-initial-resume.v1';
 
 /** This envelope owns reduced chunks; they are never ordinary SSR responses. */
-export function encodePageInitialResume(page) {
+export function encodePageInitialResume(page, options = {}) {
   validatePageResponse(page);
   if (page?.schema !== 'xtend.page-response.v2' || page.kind !== 'page' || !page.ssr?.resume || page.ssr.executionMode !== 'server_prerender_resume'
       || page.renderArtifact?.schema !== 'xtend.rmt.portable-render.v2'
@@ -18,11 +19,12 @@ export function encodePageInitialResume(page) {
   const { kind, version, ...initialSsr } = ssr;
   const envelope = { schema: PAGE_INITIAL_RESUME_SCHEMA, page: data, ssr: { ...initialSsr, chunk: project(ssr.chunk), chunks: ssr.chunks.map(project) } };
   decodePageInitialDocument(envelope);
-  return envelope;
+  return options.compact ? encodeInitialResumeWire(envelope) : envelope;
 }
 
 /** Initial-document boundary: validate before any client state or DOM changes. */
 export function decodePageInitialDocument(input) {
+  input=decodeInitialResumeWire(input);
   if (input?.schema !== PAGE_INITIAL_RESUME_SCHEMA) return validatePageResponse(decodePageWire(input));
   const page = validatePageResponse(input.page);
   const ssr = input.ssr;
