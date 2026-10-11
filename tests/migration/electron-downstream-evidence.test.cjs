@@ -11,3 +11,7 @@ test('actual downstream aggregate rejects omission of actual-app required comman
  evidence.commands.push({id:'electron-actual-app-attestation',status:'passed',exitCode:0});assert.throws(()=>verifyEvidence(evidence,{coreSha,demoSha,packages,php,installation,reports}),/Missing required report for electron-actual-app-attestation/);
 });
 
+
+test('actual downstream rejects obsolete destination even with raw app digest rebound',t=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'electron-old-location-'));t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));const f=fixture(directory);for(const key of ['executable','helper'])f.app.runtimeIdentity[key]=f.app.runtimeIdentity[key].replace('/usr/lib/xtend-electron','/opt/xtend-electron');f.suite.attestation.app=f.write('electron-sandbox-attestation.json',f.app);f.consumer.reportSha256=f.suite.attestation.app.sha256;f.suite.attestation.consumer=f.write('electron-app-attestation-consumer.json',f.consumer);assert.throws(()=>verifyReportFiles([f.report()],f.options),/raw official-helper identity mismatch/);
+});
