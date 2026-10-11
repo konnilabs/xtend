@@ -63,7 +63,7 @@ async function main() {
   fs.writeFileSync(path.join(output,'installation.json'),JSON.stringify(installation,null,2)+'\n');
   const runtime=spawnSync(process.execPath,['scripts/prepare-product-runtime.cjs'],{cwd:checkout,encoding:'utf8',maxBuffer:32*1024*1024,timeout:600000,env:{...process.env,REQUIRED_CI_ATTESTATION:'1',XTEND_CORE_SHA:manifest.coreSha,XTEND_DEMO_SHA:demoSha}});
   fs.writeFileSync(path.join(output,'runtime-provisioning.log'),`${runtime.stdout||''}\n${runtime.stderr||''}`);
-  if(runtime.status!==0)throw Error('Required PHP/Electron runtime provisioning failed: '+runtime.status);
+  if(runtime.status!==0){try{require(path.join(checkout,'scripts/runtime-preparation-diagnostics.cjs')).relay(runtime.stderr);}catch{}throw Error('Required PHP/Electron runtime provisioning failed: '+runtime.status);}
   const ownership=spawnSync(process.execPath,['scripts/verify-schema-ownership.cjs',root,output,git(['rev-parse','HEAD']),demoSha],{cwd:checkout,encoding:'utf8',timeout:600000,maxBuffer:32*1024*1024});
   fs.writeFileSync(path.join(output,'schema-ownership.log'),`${ownership.stdout||''}\n${ownership.stderr||''}`);
   if(ownership.status!==0||ownership.error)throw Error('Required paired 103-ID ownership gate failed');
