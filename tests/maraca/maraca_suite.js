@@ -91,7 +91,6 @@ const MARACA_SUITES = [
   'maraca-app-services-runtime',
   'maraca-app-services-cross-runtime',
   'maraca-node-app-host',
-  'xtend-llm-app-services-catfood',
   'maraca-app-services-build',
   'maraca-rmt-source-to-bundle',
   'maraca-orchestration',
@@ -3820,15 +3819,15 @@ function runMaracaPackageExportsSuite(options = {}) {
   context.assert(appServicesMetadata && appServicesMetadata.schema === 'xtend.maraca.app-services.v1', 'root xtend metadata declares the AppServices contract');
   context.assert(appServicesMetadata && appServicesMetadata.suiteId === 'maraca-app-services-runtime' && appServicesMetadata.implicitRetries === false, 'AppServices metadata binds the runtime gate and no-retry policy');
   context.assert(appServicesMetadata && appServicesMetadata.suiteIds.includes('maraca-app-services-cross-runtime') && appServicesMetadata.crossRuntimeReportArtifact === '.xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json', 'AppServices metadata binds Node/PHP parity and its report');
-  context.assert(appServicesMetadata && appServicesMetadata.suiteIds.includes('xtend-llm-app-services-catfood') && appServicesMetadata.catfoodReportArtifact === 'products/xtend-llm/.xtend-llm-results/app-services-catfood.json', 'AppServices metadata binds XMS-11 product catfood and its evidence');
+  context.assert(packageManifest.xtend.productDemos.requiredEvidence === '.xtend-test-results/product-candidate.json' && packageManifest.xtend.productDemos.pin === 'product-demos.lock.json', 'AppServices product owner is pinned with required candidate evidence');
   context.assert(serviceBuildProviderMetadata && serviceBuildProviderMetadata.schema === 'xtend.maraca.service-build-provider.v1', 'root xtend metadata declares the service build provider');
   context.assert(serviceBuildProviderMetadata && serviceBuildProviderMetadata.suiteId === 'maraca-app-services-build' && serviceBuildProviderMetadata.productionBundler === 'rollup-terser', 'service build provider metadata binds the production build gate');
   context.assert(scaffoldMetadata && scaffoldMetadata.schema === 'xtend.scaffold.app-preset.rmt.v1', 'root xtend metadata declares the provider-neutral RMT app scaffold');
   context.assert(scaffoldMetadata && scaffoldMetadata.suiteId === 'xtend-rmt-app-scaffold' && scaffoldMetadata.materialMode === 'overlay', 'neutral scaffold metadata binds its gate and Material overlay boundary');
   context.assert(packageManifest.scripts['build:maraca'].includes('maraca build'), 'package exposes build:maraca script');
-  context.assert(packageManifest.scripts['test:maraca-app-services'].includes('maraca-app-services-runtime maraca-app-services-cross-runtime maraca-node-app-host xtend-llm-app-services-catfood maraca-app-services-build xtend-rmt-app-scaffold'), 'package exposes the focused AppServices MVP gate');
+  context.assert(packageManifest.scripts['test:maraca-app-services'].includes('maraca-app-services-runtime maraca-app-services-cross-runtime maraca-node-app-host maraca-app-services-build xtend-rmt-app-scaffold'), 'package exposes the focused AppServices MVP gate');
   context.assert(packageManifest.scripts['test:maraca'].includes(MARACA_SUITES.join(' ')), 'package exposes combined Maraca test script');
-  const appServicesSuiteIds = ['xtend-rmt-app-scaffold', 'maraca-app-services-runtime', 'maraca-app-services-cross-runtime', 'maraca-node-app-host', 'xtend-llm-app-services-catfood', 'maraca-app-services-build'];
+  const appServicesSuiteIds = ['xtend-rmt-app-scaffold', 'maraca-app-services-runtime', 'maraca-app-services-cross-runtime', 'maraca-node-app-host', 'maraca-app-services-build'];
   appServicesSuiteIds.forEach((suiteId) => {
     context.assert(defaultGatesMetadata && defaultGatesMetadata.defaultGate === 'npm run test:report' && runner.hasSuite(suiteId), `default all-suite CI gate executes ${suiteId}`);
     context.assert(gateMatrixMetadata && gateMatrixMetadata.prFastGate.suites.includes(suiteId), `PR gate matrix requires ${suiteId}`);
@@ -3837,9 +3836,9 @@ function runMaracaPackageExportsSuite(options = {}) {
     context.assert(packageManifest.scripts['test:release:full'].includes(suiteId) && packageManifest.scripts['test:release:full:report'].includes(suiteId) && packageManifest.scripts['release:report'].includes(suiteId), `release scripts execute ${suiteId}`);
   });
   context.assert(packageManifest.xtend.releaseGates.includes('npm run test:maraca-app-services'), 'release metadata includes the focused AppServices MVP gate');
-  context.assert(require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:maraca-app-services-cross-runtime:report") && require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:xtend-llm-app-services-catfood:report"), 'default CI emits dedicated AppServices parity and product catfood reports');
-  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:maraca-app-services-cross-runtime:report") && require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:xtend-llm-app-services-catfood:report"), 'nightly CI emits dedicated AppServices parity and product catfood reports');
-  context.assert(defaultWorkflow.includes('products/xtend-llm/.xtend-llm-results/app-services-catfood.json') && nightlyWorkflow.includes('products/xtend-llm/.xtend-llm-results/app-services-catfood.json'), 'default and nightly artifacts retain the product-owned XMS-11 evidence');
+  context.assert(require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:maraca-app-services-cross-runtime:report") && defaultWorkflow.includes('scripts/product-candidate-canary.cjs'), 'default CI emits dedicated AppServices parity and product catfood reports');
+  context.assert(require("../utils/test-catalog").workflowHasScript(nightlyWorkflow, "test:maraca-app-services-cross-runtime:report") && nightlyWorkflow.includes('nightly.js phase product_candidate'), 'nightly CI emits dedicated AppServices parity and product catfood reports');
+  context.assert(defaultWorkflow.includes('.xtend-test-results/product-candidate.json') && nightlyWorkflow.includes('.xtend-test-results/product-candidate.json'), 'default and nightly artifacts retain the product-owned XMS-11 evidence');
   MARACA_SUITES.forEach((suiteId) => {
     context.assert(runner.hasSuite(suiteId), `test runner registers ${suiteId}`);
   });

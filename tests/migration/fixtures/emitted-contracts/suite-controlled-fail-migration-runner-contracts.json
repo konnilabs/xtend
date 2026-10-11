@@ -1,0 +1,23 @@
+{
+  "schema": "xtend.product-suite-result.v1",
+  "coreSha": "5fbdedf54ee77d1401f7aa403241e4953a9fa5a3",
+  "demoSha": "646d4a4e89e51af82bea145c2a0030bb5fefcd25",
+  "id": "migration-runner-contracts",
+  "command": [
+    "/workspace/.xtend-toolchain/node_modules/node/bin/node",
+    "--test",
+    "--test-reporter=tap",
+    "tests/migration/result-evidence.test.cjs",
+    "tests/migration/runtime-probes.test.cjs",
+    "tests/migration/fpm-runtime.test.cjs",
+    "tests/migration/shop-host-workflow.test.cjs",
+    "tests/migration/candidate-closure.test.cjs"
+  ],
+  "cwd": ".",
+  "exitCode": 1,
+  "status": "failed",
+  "skips": [],
+  "failures": [],
+  "sourceReports": [],
+  "log": ".xtend-test-results/migration-runner-contracts.log"
+}

@@ -3971,48 +3971,6 @@
       "timeoutMs": 300000
     },
     {
-      "id": "xtend-llm-app-services-catfood",
-      "label": "XTend LLM AppServices Catfood",
-      "description": "Builds the XTend LLM production product through Maraca and validates its AppServices source, service graph, bundle, types and budget evidence.",
-      "defaultIncluded": true,
-      "handler": "xtend-llm-app-services-catfood",
-      "implementations": [
-        {
-          "path": "tests/products/xtend_llm_app_services_catfood_suite.js",
-          "function": "runXtendLlmAppServicesCatfoodSuite",
-          "arguments": [
-            "{ rootDir }"
-          ]
-        }
-      ],
-      "resources": [
-        "repository",
-        "browser"
-      ],
-      "timeoutMs": 300000
-    },
-    {
-      "id": "maraca-app-services-test-bench",
-      "label": "Maraca App Services Test Bench",
-      "description": "Builds and exercises the strict CLI-generated Node/SQLite AppServices catfood product.",
-      "defaultIncluded": true,
-      "handler": "maraca-app-services-test-bench",
-      "implementations": [
-        {
-          "path": "tests/products/maraca_app_services_test_bench_suite.js",
-          "function": "runMaracaAppServicesTestBenchSuite",
-          "arguments": [
-            "{ rootDir }"
-          ]
-        }
-      ],
-      "resources": [
-        "repository",
-        "browser"
-      ],
-      "timeoutMs": 300000
-    },
-    {
       "id": "maraca-app-services-build",
       "label": "XTend Maraca AppServices Build Source-to-Sea",
       "description": "Runs XMS-01/XMS-03 service-manifest, TypeScript, split-graph, strict diagnostics and secret-barrier gates.",
@@ -4843,48 +4801,6 @@
         {
           "path": "tests/performance/xtend_material_performance_suite.js",
           "function": "runXtendMaterialPerformanceSuite",
-          "arguments": [
-            "{ rootDir }"
-          ]
-        }
-      ],
-      "resources": [
-        "repository",
-        "browser"
-      ],
-      "timeoutMs": 300000
-    },
-    {
-      "id": "xtend-material-catfooding",
-      "label": "XTM-12 XTend Material Catfooding Workbench",
-      "description": "Builds and tunes the RMT-first Workbench, captures product browser evidence and gates lessons, Dev Surface, Trusted DOM and anti-monkeypatching ownership.",
-      "defaultIncluded": true,
-      "handler": "xtend-material-catfooding",
-      "implementations": [
-        {
-          "path": "tests/products/xtend_material_catfooding_suite.js",
-          "function": "runXtendMaterialCatfoodingSuite",
-          "arguments": [
-            "{ rootDir }"
-          ]
-        }
-      ],
-      "resources": [
-        "repository",
-        "browser"
-      ],
-      "timeoutMs": 300000
-    },
-    {
-      "id": "erp-resumability-catfood",
-      "label": "RMT ERP Resumability Catfooding",
-      "description": "Builds and tunes the tracked ERP product, then gates signed resume, exact node adoption, intent replay, fallback and the eight-XTension matrix in Chromium.",
-      "defaultIncluded": true,
-      "handler": "erp-resumability-catfood",
-      "implementations": [
-        {
-          "path": "tests/products/erp_resumability_catfooding_suite.js",
-          "function": "runErpResumabilityCatfoodingSuite",
           "arguments": [
             "{ rootDir }"
           ]
@@ -7289,67 +7205,6 @@
       "timeoutMs": 300000
     },
     {
-      "id": "xtend-shop-contracts",
-      "label": "XTend.store compiler and browser contracts",
-      "description": "XTend.store compiler and browser contracts",
-      "defaultIncluded": false,
-      "handler": "xtend-shop-contracts",
-      "implementations": [
-        {
-          "path": "tests/products/xtend_shop_suite.js",
-          "function": "runXtendShopSuite",
-          "arguments": [
-            "{ rootDir, group: \"contracts\" }"
-          ]
-        }
-      ],
-      "resources": [
-        "repository"
-      ],
-      "timeoutMs": 300000
-    },
-    {
-      "id": "xtend-shop-php",
-      "label": "XTend.store PHP parity and domain",
-      "description": "XTend.store PHP parity and domain",
-      "defaultIncluded": false,
-      "handler": "xtend-shop-php",
-      "implementations": [
-        {
-          "path": "tests/products/xtend_shop_suite.js",
-          "function": "runXtendShopSuite",
-          "arguments": [
-            "{ rootDir, group: \"php\" }"
-          ]
-        }
-      ],
-      "resources": [
-        "repository"
-      ],
-      "timeoutMs": 300000
-    },
-    {
-      "id": "xtend-shop-browser",
-      "label": "XTend.store isolated guest checkout",
-      "description": "XTend.store isolated guest checkout",
-      "defaultIncluded": false,
-      "handler": "xtend-shop-browser",
-      "implementations": [
-        {
-          "path": "tests/products/xtend_shop_suite.js",
-          "function": "runXtendShopSuite",
-          "arguments": [
-            "{ rootDir, group: \"browser\" }"
-          ]
-        }
-      ],
-      "resources": [
-        "repository",
-        "browser"
-      ],
-      "timeoutMs": 300000
-    },
-    {
       "id": "maraca-responsiveness",
       "label": "Maraca responsiveness",
       "description": "Scheduler host barriers, demand-driven diagnostics, FastPass and presentation abort boundaries.",
@@ -7472,6 +7327,46 @@
         "browser"
       ],
       "timeoutMs": 300000
+    },
+    {
+      "id": "product-migration-contracts",
+      "label": "Product package boundary and negative provenance contracts",
+      "description": "Product package boundary and negative provenance contracts",
+      "defaultIncluded": true,
+      "handler": "product-migration-contracts",
+      "implementations": [
+        {
+          "path": "tests/migration/product_boundary_suite.js",
+          "function": "runProductBoundarySuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository"
+      ],
+      "timeoutMs": 120000
+    },
+    {
+      "id": "product-candidate-evidence",
+      "label": "Required pinned Demo evidence",
+      "description": "Required pinned Demo evidence",
+      "defaultIncluded": false,
+      "handler": "product-candidate-evidence",
+      "implementations": [
+        {
+          "path": "tests/migration/product_boundary_suite.js",
+          "function": "runCandidateEvidenceSuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository"
+      ],
+      "timeoutMs": 120000
     }
   ],
   "profiles": {
@@ -7479,73 +7374,86 @@
       "suites": [
         "scaffold-write-plan"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "scaffold-component-write": {
       "suites": [
         "scaffold-component-write"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "scaffold-manifest-patch": {
       "suites": [
         "scaffold-manifest-patch"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "scaffold-rmt-build": {
       "suites": [
         "scaffold-rmt-build"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "scaffold-kernel-lab": {
       "suites": [
         "scaffold-kernel-lab"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "default": {
       "suites": [],
       "reports": [],
-      "defaultIncluded": true
+      "defaultIncluded": true,
+      "includes": []
     },
     "core": {
       "suites": [
-        "core"
+        "core",
+        "product-migration-contracts"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "architecture": {
       "suites": [
         "architecture"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtend-material-architecture": {
       "suites": [
         "xtend-material-architecture"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-css-provider": {
       "suites": [
         "maraca-css-provider"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-tailwind-css-provider": {
       "suites": [
         "maraca-tailwind-css-provider"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-tailwind-source-inventory": {
       "suites": [
         "rmt-tailwind-source-inventory",
         "maraca-tailwind-css-provider"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "tailwind-token-bridge": {
       "suites": [
@@ -7553,7 +7461,8 @@
         "xtheme-token-alias-layer",
         "tailwind-token-bridge"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtend-material-contract": {
       "suites": [
@@ -7561,7 +7470,8 @@
         "scoped-package-readmes",
         "package-exports"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtend-material-shell-recipes": {
       "suites": [
@@ -7569,7 +7479,8 @@
         "rmt-component-template-primitives",
         "layout-display-media-ux"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtend-material-flow-recipes": {
       "suites": [
@@ -7578,7 +7489,8 @@
         "feedback-status-ux",
         "overlay-interaction-ux"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtend-material-scaffold": {
       "suites": [
@@ -7586,13 +7498,15 @@
         "maraca-rmt-source-to-bundle",
         "scaffold-ownership"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtend-rmt-app-scaffold": {
       "suites": [
         "xtend-rmt-app-scaffold"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtend-material-browser-evidence": {
       "suites": [
@@ -7600,7 +7514,8 @@
         "visual-snapshots",
         "component-runtime-a11y"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtend-material-performance": {
       "suites": [
@@ -7609,27 +7524,15 @@
         "supply-chain",
         "pack-dry-run"
       ],
-      "reports": []
-    },
-    "xtend-material-catfooding": {
-      "suites": [
-        "xtend-material-catfooding"
-      ],
-      "reports": []
-    },
-    "erp-resumability-catfood": {
-      "suites": [
-        "erp-resumability-catfood"
-      ],
-      "reports": [
-        ".xtend-test-results/erp-resumability-catfood-report.json"
-      ]
+      "reports": [],
+      "includes": []
     },
     "xtend-material-cli-generated-app": {
       "suites": [
         "xtend-material-cli-generated-app"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtend-material-docs": {
       "suites": [
@@ -7639,259 +7542,302 @@
         "package-exports",
         "references"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "components": {
       "suites": [
         "components"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "component-contract-v2": {
       "suites": [
         "component-contract-v2"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "component-shell-contract": {
       "suites": [
         "component-shell-contract"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "component-styling-contract": {
       "suites": [
         "component-styling-contract"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "enterprise-component-flex-hardening-contract": {
       "suites": [
         "enterprise-component-flex-hardening-contract"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "enterprise-component-style-audit": {
       "suites": [
         "enterprise-component-style-audit"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "enterprise-icon-control-audit": {
       "suites": [
         "enterprise-icon-control-audit"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xheader-menu-modes": {
       "suites": [
         "xheader-menu-modes"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "enterprise-overlay-mode-token-parity": {
       "suites": [
         "enterprise-overlay-mode-token-parity"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "enterprise-layout-display-media-tokenization": {
       "suites": [
         "enterprise-layout-display-media-tokenization"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "enterprise-form-control-theme-a11y": {
       "suites": [
         "enterprise-form-control-theme-a11y"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "enterprise-navigation-routing-state-hardening": {
       "suites": [
         "enterprise-navigation-routing-state-hardening"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "builder-typescript-blueprint": {
       "suites": [
         "builder-typescript-blueprint"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic10-p0-component-wave": {
       "suites": [
         "epic10-p0-component-wave"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "component-lab": {
       "suites": [
         "component-lab-rmt-inspector"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "component-lab-ux-inspector": {
       "suites": [
         "component-lab-ux-inspector"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "component-ux-browser-smokes": {
       "suites": [
         "component-ux-browser-smokes"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "component-shell-theme-matrix": {
       "suites": [
         "component-shell-theme-matrix"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "signature-ui-visual-quality": {
       "suites": [
         "signature-ui-visual-quality"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "enterprise-visual-dom-snapshot-matrix": {
       "suites": [
         "enterprise-visual-dom-snapshot-matrix"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "enterprise-third-party-authoring-guide": {
       "suites": [
         "enterprise-third-party-authoring-guide"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "enterprise-component-flex-release-handoff": {
       "suites": [
         "enterprise-component-flex-release-handoff"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "visual-snapshot-automation": {
       "suites": [
         "visual-snapshot-automation"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "visual-snapshots": {
       "suites": [
         "visual-snapshots"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "design-tokens": {
       "suites": [
         "design-tokens"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtheme-token-alias-layer": {
       "suites": [
         "xtheme-token-alias-layer"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-dsl-authoring-polish": {
       "suites": [
         "rmt-dsl-authoring-polish"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-source-model": {
       "suites": [
         "rmt-source-model"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-parser": {
       "suites": [
         "rmt-parser"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-parser": {
       "suites": [
         "rmt-vnext-parser"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-compiler": {
       "suites": [
         "rmt-vnext-compiler"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-lifecycle": {
       "suites": [
         "rmt-vnext-lifecycle"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-host-controller": {
       "suites": [
         "xtensions-host-controller"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-resume-adapter": {
       "suites": [
         "xtensions-resume-adapter"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-signal-bridge": {
       "suites": [
         "xtensions-signal-bridge"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-xtensions": {
       "suites": [
         "maraca-xtensions"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-static-introspection": {
       "suites": [
         "xtensions-static-introspection"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-runtime-capability-registry": {
       "suites": [
         "xtensions-runtime-capability-registry"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-react-host-controller-poc": {
       "suites": [
         "xtensions-react-host-controller-poc"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-react-host-adapter": {
       "suites": [
         "xtensions-react-host-adapter"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-vue-host-controller-poc": {
       "suites": [
         "xtensions-vue-host-controller-poc"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-vue-host-adapter": {
       "suites": [
         "xtensions-vue-host-adapter"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-framework-adapters": {
       "suites": [
@@ -7903,289 +7849,337 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-xtensions-framework-adapters-report.json"
-      ]
+      ],
+      "includes": []
     },
     "xtensions-imperative-host-pocs": {
       "suites": [
         "xtensions-imperative-host-pocs"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-three-render-loop-poc": {
       "suites": [
         "xtensions-three-render-loop-poc"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-diagnostic-trail": {
       "suites": [
         "xtensions-diagnostic-trail"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-security-integrity-gate": {
       "suites": [
         "xtensions-security-integrity-gate"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-multi-framework-dashboard": {
       "suites": [
         "xtensions-multi-framework-dashboard"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-registry-package-strategy": {
       "suites": [
         "xtensions-registry-package-strategy"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-adoption-handoff": {
       "suites": [
         "xtensions-adoption-handoff"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-vanilla-host-controller": {
       "suites": [
         "xtensions-vanilla-host-controller"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-dom-boundary": {
       "suites": [
         "xtensions-dom-boundary"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-legacy-sandbox-adapter": {
       "suites": [
         "xtensions-legacy-sandbox-adapter"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-openui5-host-controller": {
       "suites": [
         "xtensions-openui5-host-controller"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-openui5-loader-boundary": {
       "suites": [
         "xtensions-openui5-loader-boundary"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-angular-host-controller": {
       "suites": [
         "xtensions-angular-host-controller"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtensions-angular-zone-boundary": {
       "suites": [
         "xtensions-angular-zone-boundary"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-scheduler": {
       "suites": [
         "rmt-vnext-scheduler"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-kernel-scheduler": {
       "suites": [
         "rmt-kernel-scheduler"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-retained-warm-reuse-performance": {
       "suites": [
         "rmt-retained-warm-reuse-performance"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-surfaces": {
       "suites": [
         "rmt-vnext-surfaces"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-conditions": {
       "suites": [
         "rmt-vnext-conditions"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-composition": {
       "suites": [
         "rmt-vnext-composition"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-imports": {
       "suites": [
         "rmt-vnext-imports"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-events": {
       "suites": [
         "rmt-vnext-events"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-security": {
       "suites": [
         "rmt-vnext-security"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-kernel-trust-authority": {
       "suites": [
         "rmt-kernel-trust-authority"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-kernel-trusted-dom-runtime": {
       "suites": [
         "rmt-kernel-trusted-dom-runtime"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-kernel-binding-security": {
       "suites": [
         "rmt-kernel-binding-security"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-kernel-panic-monitor": {
       "suites": [
         "rmt-kernel-panic-monitor"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-kernel-recovery": {
       "suites": [
         "rmt-kernel-recovery"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-kernel-escalation": {
       "suites": [
         "rmt-kernel-escalation"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-kernel-scheduler-failure": {
       "suites": [
         "rmt-kernel-scheduler-failure"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-kernel-policy-parity": {
       "suites": [
         "rmt-kernel-policy-parity"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-kernel-security-regression": {
       "suites": [
         "rmt-kernel-security-regression"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-kernel-handoff-docs": {
       "suites": [
         "rmt-kernel-handoff-docs"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-streaming": {
       "suites": [
         "rmt-vnext-streaming"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-tooling": {
       "suites": [
         "rmt-vnext-tooling"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-compatibility": {
       "suites": [
         "rmt-vnext-compatibility"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-fabric-bridge": {
       "suites": [
         "rmt-vnext-fabric-bridge"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-source-to-sea": {
       "suites": [
         "rmt-vnext-source-to-sea"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-component-primitives": {
       "suites": [
         "rmt-vnext-component-primitives"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-node-ssr-adapter": {
       "suites": [
         "rmt-node-ssr-adapter"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-resume-runtime": {
       "suites": [
         "rmt-resume-runtime"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-php-ssr-adapter": {
       "suites": [
         "rmt-php-ssr-adapter"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-php-app-service-adapter": {
       "suites": [
         "rmt-php-app-service-adapter"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "docs-php-ssr-prehydration": {
       "suites": [
         "docs-php-ssr-prehydration"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "docs-php-ssr-performance-budget": {
       "suites": [
         "docs-php-ssr-performance-budget"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "docs-php-ssr-cls-budget": {
       "suites": [
         "docs-php-ssr-cls-budget"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtend-layout-stability-contract": {
       "suites": [
         "xtend-layout-stability-contract"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-primitives": {
       "suites": [
@@ -8216,85 +8210,99 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json"
-      ]
+      ],
+      "includes": []
     },
     "rmt-vnext-regression": {
       "suites": [
         "rmt-vnext-regression"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-release": {
       "suites": [
         "rmt-vnext-release"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-remote-manifest": {
       "suites": [
         "rmt-vnext-remote-manifest"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-enterprise-registry": {
       "suites": [
         "rmt-vnext-enterprise-registry"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-degradation": {
       "suites": [
         "rmt-vnext-degradation"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-remote-security": {
       "suites": [
         "rmt-vnext-remote-security"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-cross-surface-events": {
       "suites": [
         "rmt-vnext-cross-surface-events"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-event-governance": {
       "suites": [
         "rmt-vnext-event-governance"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-remote-compiler": {
       "suites": [
         "rmt-vnext-remote-compiler"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-remote-tooling": {
       "suites": [
         "rmt-vnext-remote-tooling"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-remote-compatibility": {
       "suites": [
         "rmt-vnext-remote-compatibility"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-enterprise-fixtures": {
       "suites": [
         "rmt-vnext-enterprise-fixtures"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-vnext-enterprise-release": {
       "suites": [
         "rmt-vnext-enterprise-release"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xsurface-shard": {
       "suites": [
@@ -8302,85 +8310,99 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-xsurface-shard-report.json"
-      ]
+      ],
+      "includes": []
     },
     "rmt-semantic-graph": {
       "suites": [
         "rmt-semantic-graph"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-linter-rules": {
       "suites": [
         "rmt-linter-rules"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-linter-cli": {
       "suites": [
         "rmt-linter-cli"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-completions": {
       "suites": [
         "rmt-completions"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-navigation": {
       "suites": [
         "rmt-navigation"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-language-server": {
       "suites": [
         "rmt-language-server"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-code-actions": {
       "suites": [
         "rmt-code-actions"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-agent-report": {
       "suites": [
         "rmt-agent-report"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-ai-developer-kit": {
       "suites": [
         "rmt-ai-developer-kit"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-editor-packaging": {
       "suites": [
         "rmt-editor-packaging"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-language-regression": {
       "suites": [
         "rmt-language-regression"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-tooling-docs": {
       "suites": [
         "rmt-tooling-docs"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-linter": {
       "suites": [
         "rmt-linter-cli"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-tooling": {
       "suites": [
@@ -8401,7 +8423,8 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-rmt-tooling-gate-report.json"
-      ]
+      ],
+      "includes": []
     },
     "pr:rmt": {
       "suites": [
@@ -8412,19 +8435,22 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-rmt-pr-gate-report.json"
-      ]
+      ],
+      "includes": []
     },
     "epic14-rmt-tooling": {
       "suites": [
         "epic14-rmt-tooling"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic14-rmt-tooling-release-gates": {
       "suites": [
         "epic14-rmt-tooling-release-gates"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rkfa-production-closure": {
       "suites": [
@@ -8434,127 +8460,148 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-rkfa-production-closure-report.json"
-      ]
+      ],
+      "includes": []
     },
     "epic14-lsp-handoff": {
       "suites": [
         "epic14-lsp-handoff"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rc0-gate-matrix": {
       "suites": [
         "rc0-gate-matrix"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic12-docs-adoption": {
       "suites": [
         "epic12-docs-adoption"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic12-rc0-handoff": {
       "suites": [
         "epic12-rc0-handoff"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-rc1-readiness": {
       "suites": [
         "epic13-rc1-readiness"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-release-owner-acceptance": {
       "suites": [
         "epic13-release-owner-acceptance"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-conditional-network-evidence": {
       "suites": [
         "epic13-conditional-network-evidence"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-package-export-lock": {
       "suites": [
         "epic13-package-export-lock"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "type-exports": {
       "suites": [
         "type-exports"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "type-exports-loader": {
       "suites": [
         "type-exports-loader"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "type-exports-api": {
       "suites": [
         "type-exports-api"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "type-exports-rmt": {
       "suites": [
         "type-exports-rmt"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "type-exports-policy": {
       "suites": [
         "type-exports-policy"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-known-residual-triage": {
       "suites": [
         "epic13-known-residual-triage"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-hydration-performance-closure": {
       "suites": [
         "epic13-hydration-performance-closure"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-prod-browser-csp-smoke": {
       "suites": [
         "epic13-prod-browser-csp-smoke"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-visual-owner-artifact": {
       "suites": [
         "epic13-visual-owner-artifact"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "component-ux-authoring-docs": {
       "suites": [
         "component-ux-authoring-docs"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "component-long-tail-migration": {
       "suites": [
         "component-long-tail-migration"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic11-enterprise-ux-handoff": {
       "suites": [
         "epic11-enterprise-ux-handoff"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-demos": {
       "suites": [
@@ -8568,296 +8615,345 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-rmt-demos-report.json"
-      ]
+      ],
+      "includes": []
     },
     "rmt-first-demo-app": {
       "suites": [
         "rmt-first-demo-app"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-lifecycle-demo": {
       "suites": [
         "rmt-lifecycle-demo"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "existing-component-metadata": {
       "suites": [
         "existing-component-metadata"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic10-platform-gates": {
       "suites": [
         "epic10-platform-gates"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic10-release-handoff": {
       "suites": [
         "epic10-release-handoff"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-first-class-app": {
       "suites": [
         "rmt-first-class-app"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-surface-authoring": {
       "suites": [
         "rmt-surface-authoring"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-controller": {
       "suites": [
         "surface-controller"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-manager": {
       "suites": [
         "surface-manager"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-side-panel": {
       "suites": [
         "surface-side-panel"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-workbench-fixture": {
       "suites": [
         "surface-workbench-fixture"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-overlay-bridge": {
       "suites": [
         "surface-overlay-bridge"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-manager-quality": {
       "suites": [
         "surface-manager-quality"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-manager-browser": {
       "suites": [
         "surface-manager-browser"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-manager-a11y": {
       "suites": [
         "surface-manager-a11y"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-manager-performance": {
       "suites": [
         "surface-manager-performance"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-manager-visual": {
       "suites": [
         "surface-manager-visual"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-native-rmt": {
       "suites": [
         "surface-native-rmt"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-release-handoff": {
       "suites": [
         "surface-release-handoff"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-adapter-runtime": {
       "suites": [
         "surface-adapter-runtime"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-native-materialization": {
       "suites": [
         "surface-native-materialization"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-persistence": {
       "suites": [
         "surface-persistence"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-lazy-hydration": {
       "suites": [
         "surface-lazy-hydration"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-route-lifecycle": {
       "suites": [
         "surface-route-lifecycle"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-stack-policy": {
       "suites": [
         "surface-stack-policy"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-layout-engines": {
       "suites": [
         "surface-layout-engines"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-remote-policy": {
       "suites": [
         "surface-remote-policy"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-browser-lab": {
       "suites": [
         "surface-browser-lab"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "surface-runtime-release-handoff": {
       "suites": [
         "surface-runtime-release-handoff"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-component-fabric-ingestion": {
       "suites": [
         "rmt-component-fabric-ingestion"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-component-lifecycle-telemetry": {
       "suites": [
         "rmt-component-lifecycle-telemetry"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "a11y": {
       "suites": [
         "a11y-hydration",
         "aria-in-html-conformance"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "aria-in-html-conformance": {
       "suites": [
         "aria-in-html-conformance"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "screenreader-signals": {
       "suites": [
         "screenreader-signals"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "motion-contrast": {
       "suites": [
         "motion-contrast"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "runtime-a11y-contract": {
       "suites": [
         "runtime-a11y-contract"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "component-ux-performance": {
       "suites": [
         "component-ux-performance"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "component-network-contract": {
       "suites": [
         "component-network-contract"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-shell-authoring-ux": {
       "suites": [
         "rmt-shell-authoring-ux"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "form-controls-ux": {
       "suites": [
         "form-controls-ux"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "feedback-status-ux": {
       "suites": [
         "feedback-status-ux"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "navigation-routing-ux": {
       "suites": [
         "navigation-routing-ux"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "overlay-interaction-ux": {
       "suites": [
         "overlay-interaction-ux"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "native-first-overlay-focus": {
       "suites": [
         "native-first-overlay-focus"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "browser-primitive-radar": {
       "suites": [
         "browser-primitive-radar"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "primitive-adoption-gate": {
       "suites": [
         "primitive-adoption-gate"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "observatory-adoption-labs": {
       "suites": [
         "observatory-adoption-labs"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "browser-hypervisor": {
       "suites": [
         "browser-hypervisor"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "feature-adoption-observatory": {
       "suites": [
@@ -8868,31 +8964,36 @@
         "aria-in-html-conformance",
         "schema-inventory"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "native-first-form-navigation-media": {
       "suites": [
         "native-first-form-navigation-media"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "native-first-framework-leverage": {
       "suites": [
         "native-first-framework-leverage"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "native-first-market-pattern-parity": {
       "suites": [
         "native-first-market-pattern-parity"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "contract-registry": {
       "suites": [
         "contract-registry"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "schema-inventory": {
       "suites": [
@@ -8900,127 +9001,148 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-schema-inventory-report.json"
-      ]
+      ],
+      "includes": []
     },
     "contract-runtime-parity": {
       "suites": [
         "contract-runtime-parity"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "native-first-evidence-pack": {
       "suites": [
         "native-first-evidence-pack"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-ui-primitive-gap": {
       "suites": [
         "rmt-ui-primitive-gap"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-syntax-growth": {
       "suites": [
         "rmt-syntax-growth"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-action-effect-data-resource-primitives": {
       "suites": [
         "rmt-action-effect-data-resource-primitives"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-complete-ui-recipes": {
       "suites": [
         "rmt-complete-ui-recipes"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-renderer-dom-descriptor-proofs": {
       "suites": [
         "rmt-renderer-dom-descriptor-proofs"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "native-first-budget-gates": {
       "suites": [
         "native-first-budget-gates"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "native-first-docs-authoring": {
       "suites": [
         "native-first-docs-authoring"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "native-first-migration-deprecation": {
       "suites": [
         "native-first-migration-deprecation"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "native-first-mission-handoff": {
       "suites": [
         "native-first-mission-handoff"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-ui-maximality-owned-surface-baseline": {
       "suites": [
         "rmt-ui-maximality-owned-surface-baseline"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-ui-maximality-owned-surface-gate-hygiene": {
       "suites": [
         "rmt-ui-maximality-owned-surface-gate-hygiene"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-owned-data-display-primitives": {
       "suites": [
         "rmt-owned-data-display-primitives"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-owned-command-search-primitives": {
       "suites": [
         "rmt-owned-command-search-primitives"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-owned-recipe-extension": {
       "suites": [
         "rmt-owned-recipe-extension"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-owned-surface-browser-lab": {
       "suites": [
         "rmt-owned-surface-browser-lab"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-owned-contract-budget-runtime-parity": {
       "suites": [
         "rmt-owned-contract-budget-runtime-parity"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-owned-migration-deprecation-docs-handoff": {
       "suites": [
         "rmt-owned-migration-deprecation-docs-handoff"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-owned-release-handoff": {
       "suites": [
         "rmt-owned-release-handoff"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "native-first-rmt-owned-release": {
       "suites": [
@@ -9053,103 +9175,120 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-native-first-rmt-owned-release-report.json"
-      ]
+      ],
+      "includes": []
     },
     "layout-display-media-ux": {
       "suites": [
         "layout-display-media-ux"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "catalog-coverage": {
       "suites": [
         "catalog-coverage"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "regression-priority": {
       "suites": [
         "regression-priority"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "fabric": {
       "suites": [
         "fabric"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "fabric-lanes": {
       "suites": [
         "fabric-lane-mapping"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "fabric-lifecycle": {
       "suites": [
         "fabric-lifecycle-boundary"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "fabric-reporters": {
       "suites": [
         "fabric-reporters"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "fabric-runtime-bridge": {
       "suites": [
         "fabric-runtime-bridge"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "fabric-component-fibers": {
       "suites": [
         "fabric-component-fibers"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "fabric-route-fibers": {
       "suites": [
         "fabric-route-fibers"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "fabric-telemetry": {
       "suites": [
         "fabric-telemetry-snapshot"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "fabric-performance": {
       "suites": [
         "fabric-performance-measurements"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "performance": {
       "suites": [
         "performance-regression"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "hydration-policy": {
       "suites": [
         "hydration-policy"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "super-prewarm-worker-experiment": {
       "suites": [
         "super-prewarm-worker-experiment"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "ui-coprocessor": {
       "suites": [
         "ui-coprocessor"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtend-dev-surface": {
       "suites": [
@@ -9157,164 +9296,191 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-dev-surface-report.json"
-      ]
+      ],
+      "includes": []
     },
     "maraca-web-app-manifest": {
       "suites": [
         "maraca-web-app-manifest"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-pwa-service-worker": {
       "suites": [
         "maraca-pwa-service-worker"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "references": {
       "suites": [
         "references"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "supply-chain": {
       "suites": [
         "supply-chain"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "manifest-policy": {
       "suites": [
         "manifest-import-policy"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xss-pentest": {
       "suites": [
         "xss-pentest"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-compatibility": {
       "suites": [
         "rmt-compatibility"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-bestcase-flagship": {
       "suites": [
         "rmt-bestcase-flagship"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-app-platform-authoring": {
       "suites": [
         "rmt-app-platform-authoring"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-dom-descriptor-renderer": {
       "suites": [
         "rmt-dom-descriptor-renderer"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-component-template-primitives": {
       "suites": [
         "rmt-component-template-primitives"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-state-selector-runtime": {
       "suites": [
         "rmt-state-selector-runtime"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-action-effect-runtime": {
       "suites": [
         "rmt-action-effect-runtime"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-event-routing-runtime": {
       "suites": [
         "rmt-event-routing-runtime"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-surface-resource-graph-runtime": {
       "suites": [
         "rmt-surface-resource-graph-runtime"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-app-platform-tooling": {
       "suites": [
         "rmt-app-platform-tooling"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-app-platform-fixture": {
       "suites": [
         "rmt-app-platform-fixture"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-native-shell-migration": {
       "suites": [
         "rmt-native-shell-migration"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt:check": {
       "suites": [
         "rmt-native-shell-migration"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic18-rmt-app-platform": {
       "suites": [
         "epic18-rmt-app-platform"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "docs-rmt-pilot": {
       "suites": [
         "docs-rmt-pilot"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "docs-pageloader-target-architecture": {
       "suites": [
         "docs-pageloader-target-architecture"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "browser": {
       "suites": [
         "browser"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "browser:local": {
       "suites": [
         "browser"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "landing-page": {
       "suites": [
         "landing-page"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "report": {
       "suites": [],
       "reports": [
         ".xtend-test-results/xtend-test-report.json"
       ],
-      "defaultIncluded": true
+      "defaultIncluded": true,
+      "includes": []
     },
     "pr": {
       "suites": [
@@ -9426,7 +9592,6 @@
         "maraca-app-services-runtime",
         "maraca-app-services-cross-runtime",
         "maraca-node-app-host",
-        "xtend-llm-app-services-catfood",
         "maraca-app-services-build",
         "maraca-rmt-source-to-bundle",
         "maraca-orchestration",
@@ -9479,11 +9644,13 @@
         "browser-hypervisor",
         "project-index",
         "ssr-pages",
-        "ssr-pages-browser"
+        "ssr-pages-browser",
+        "product-migration-contracts"
       ],
       "reports": [
         ".xtend-test-results/xtend-pr-gate-report.json"
-      ]
+      ],
+      "includes": []
     },
     "release:full": {
       "suites": [
@@ -9595,7 +9762,6 @@
         "maraca-app-services-runtime",
         "maraca-app-services-cross-runtime",
         "maraca-node-app-host",
-        "xtend-llm-app-services-catfood",
         "maraca-app-services-build",
         "maraca-rmt-source-to-bundle",
         "maraca-orchestration",
@@ -9649,7 +9815,8 @@
         "browser-hypervisor",
         "project-index",
         "ssr-pages",
-        "ssr-pages-browser"
+        "ssr-pages-browser",
+        "product-migration-contracts"
       ],
       "reports": [
         ".xtend-test-results/xtend-release-gate-report.json"
@@ -9663,7 +9830,8 @@
       "suites": [
         "xss-pentest"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "release": {
       "suites": [
@@ -9775,7 +9943,6 @@
         "maraca-app-services-runtime",
         "maraca-app-services-cross-runtime",
         "maraca-node-app-host",
-        "xtend-llm-app-services-catfood",
         "maraca-app-services-build",
         "maraca-rmt-source-to-bundle",
         "maraca-orchestration",
@@ -9843,61 +10010,71 @@
       "suites": [
         "epic13-rmt-production-readiness"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-docs-rmt-production-hardening": {
       "suites": [
         "epic13-docs-rmt-production-hardening"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-trusted-dom-boundary": {
       "suites": [
         "epic13-trusted-dom-boundary"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-rc1-migration-notes": {
       "suites": [
         "epic13-rc1-migration-notes"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-rc1-gate-matrix-ci-handoff": {
       "suites": [
         "epic13-rc1-gate-matrix-ci-handoff"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-release-report-pack-dry-run-evidence": {
       "suites": [
         "epic13-release-report-pack-dry-run-evidence"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "epic13-conditional-network-evidence-ci": {
       "suites": [
         "epic13-conditional-network-evidence-ci"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "type-exports-builder": {
       "suites": [
         "type-exports-builder"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "type-exports-catalog": {
       "suites": [
         "type-exports-catalog"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "type-exports-vendor": {
       "suites": [
         "type-exports-vendor"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "type-exports:release": {
       "suites": [
@@ -9912,7 +10089,8 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-type-exports-report.json"
-      ]
+      ],
+      "includes": []
     },
     "scoped-package-readmes": {
       "suites": [
@@ -9920,7 +10098,8 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-scoped-package-readmes-report.json"
-      ]
+      ],
+      "includes": []
     },
     "xtend-classic-branding": {
       "suites": [
@@ -9928,19 +10107,22 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-classic-branding-report.json"
-      ]
+      ],
+      "includes": []
     },
     "docs-content-depth": {
       "suites": [
         "docs-content-depth"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "docs-quality-gates": {
       "suites": [
         "docs-quality-gates"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "docs-quality": {
       "suites": [
@@ -9954,25 +10136,29 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-docs-quality-report.json"
-      ]
+      ],
+      "includes": []
     },
     "rmt-stack-docs": {
       "suites": [
         "rmt-stack-docs"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-playground-docs": {
       "suites": [
         "rmt-playground-docs"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-animation-engine-docs": {
       "suites": [
         "rmt-animation-engine-docs"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "docs-shell-catfooding": {
       "suites": [
@@ -9986,13 +10172,15 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-docs-shell-catfooding-report.json"
-      ]
+      ],
+      "includes": []
     },
     "rmt-search-runtime": {
       "suites": [
         "rmt-search-runtime"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "docs-related-recommendations": {
       "suites": [
@@ -10000,7 +10188,8 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-docs-related-recommendations-report.json"
-      ]
+      ],
+      "includes": []
     },
     "docs-framework-ownership": {
       "suites": [
@@ -10008,25 +10197,29 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-docs-framework-ownership-report.json"
-      ]
+      ],
+      "includes": []
     },
     "rmt-prewarm-worker-search": {
       "suites": [
         "rmt-prewarm-worker-search"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xtend-loader-skeleton-profiles": {
       "suites": [
         "xtend-loader-skeleton-profiles"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-tune": {
       "suites": [
         "maraca-tune"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "rmt-reference-docs": {
       "suites": [
@@ -10034,19 +10227,22 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-rmt-reference-docs-report.json"
-      ]
+      ],
+      "includes": []
     },
     "rmt-playground-security": {
       "suites": [
         "rmt-playground-security"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-docs": {
       "suites": [
         "maraca-docs"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "docs-stub-inventory": {
       "suites": [
@@ -10054,37 +10250,43 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-docs-stub-inventory-report.json"
-      ]
+      ],
+      "includes": []
     },
     "maraca-plan": {
       "suites": [
         "maraca-plan"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-bundle": {
       "suites": [
         "maraca-bundle"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-bundle-report": {
       "suites": [
         "maraca-bundle-report"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-app-services-runtime": {
       "suites": [
         "maraca-app-services-runtime"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-node-app-host": {
       "suites": [
         "maraca-node-app-host"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-app-services-cross-runtime": {
       "suites": [
@@ -10092,91 +10294,85 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json"
-      ]
-    },
-    "xtend-llm-app-services-catfood": {
-      "suites": [
-        "xtend-llm-app-services-catfood"
       ],
-      "reports": [
-        ".xtend-test-results/xtend-llm-app-services-catfood-report.json"
-      ]
-    },
-    "maraca-app-services-test-bench": {
-      "suites": [
-        "maraca-app-services-test-bench"
-      ],
-      "reports": [
-        ".xtend-test-results/xtend-maraca-app-services-test-bench-report.json"
-      ]
+      "includes": []
     },
     "maraca-app-services-build": {
       "suites": [
         "maraca-app-services-build"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-app-services": {
       "suites": [
         "maraca-app-services-runtime",
         "maraca-app-services-cross-runtime",
         "maraca-node-app-host",
-        "xtend-llm-app-services-catfood",
         "maraca-app-services-build",
         "xtend-rmt-app-scaffold",
         "xtend-material-scaffold"
       ],
       "reports": [
         ".xtend-test-results/xtend-maraca-app-services-gate-report.json"
-      ]
+      ],
+      "includes": []
     },
     "maraca-rmt-source-to-bundle": {
       "suites": [
         "maraca-rmt-source-to-bundle"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-orchestration": {
       "suites": [
         "maraca-orchestration"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-kernel-orchestration": {
       "suites": [
         "maraca-kernel-orchestration"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-kernel-integrity": {
       "suites": [
         "maraca-kernel-integrity"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-validation": {
       "suites": [
         "maraca-validation"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-transitions": {
       "suites": [
         "maraca-transitions"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-package-exports": {
       "suites": [
         "maraca-package-exports"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca-size-budget": {
       "suites": [
         "maraca-size-budget"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "maraca": {
       "suites": [
@@ -10186,7 +10382,6 @@
         "maraca-app-services-runtime",
         "maraca-app-services-cross-runtime",
         "maraca-node-app-host",
-        "xtend-llm-app-services-catfood",
         "maraca-app-services-build",
         "maraca-rmt-source-to-bundle",
         "maraca-orchestration",
@@ -10201,7 +10396,8 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-maraca-gate-report.json"
-      ]
+      ],
+      "includes": []
     },
     "xscaler-protocol": {
       "suites": [
@@ -10209,7 +10405,8 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-xscaler-protocol-report.json"
-      ]
+      ],
+      "includes": []
     },
     "xscaler-public-api": {
       "suites": [
@@ -10217,7 +10414,8 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-xscaler-public-api-report.json"
-      ]
+      ],
+      "includes": []
     },
     "xscaler-php-preflight-parity": {
       "suites": [
@@ -10225,7 +10423,8 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-xscaler-php-preflight-parity-report.json"
-      ]
+      ],
+      "includes": []
     },
     "rmt-xscaler-ssr-hydration-parity": {
       "suites": [
@@ -10233,7 +10432,8 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-rmt-xscaler-ssr-hydration-parity-report.json"
-      ]
+      ],
+      "includes": []
     },
     "xscaler": {
       "suites": [
@@ -10245,7 +10445,8 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-xscaler-gate-report.json"
-      ]
+      ],
+      "includes": []
     },
     "xcommand-kernel": {
       "suites": [
@@ -10253,13 +10454,15 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-xcommand-kernel-report.json"
-      ]
+      ],
+      "includes": []
     },
     "typescript-components": {
       "suites": [
         "typescript-components"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "xscaler-source-to-sea": {
       "suites": [
@@ -10267,19 +10470,22 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-xscaler-source-to-sea-report.json"
-      ]
+      ],
+      "includes": []
     },
     "node-runtime-policy": {
       "suites": [
         "node-runtime-policy"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "project-index": {
       "suites": [
         "project-index"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "ci-pr-main": {
       "includes": [
@@ -10293,8 +10499,6 @@
         "rmt-reference-docs",
         "rmt-demos",
         "maraca-app-services-cross-runtime",
-        "xtend-llm-app-services-catfood",
-        "erp-resumability-catfood",
         "xscaler-protocol",
         "xscaler-public-api",
         "xscaler-php-preflight-parity",
@@ -10323,8 +10527,6 @@
         "rmt-reference-docs",
         "rmt-demos",
         "maraca-app-services-cross-runtime",
-        "xtend-llm-app-services-catfood",
-        "erp-resumability-catfood",
         "xscaler-protocol",
         "xscaler-public-api",
         "xscaler-php-preflight-parity",
@@ -10383,8 +10585,6 @@
         "release",
         "maraca",
         "maraca-app-services-cross-runtime",
-        "xtend-llm-app-services-catfood",
-        "maraca-app-services-test-bench",
         "xtensions-framework-adapters",
         "xtend-dev-surface",
         "docs-quality",
@@ -10396,8 +10596,7 @@
         "xscaler-php-preflight-parity",
         "rmt-xscaler-ssr-hydration-parity",
         "xscaler-source-to-sea",
-        "minor-contracts",
-        "erp-resumability-catfood"
+        "minor-contracts"
       ],
       "suites": [],
       "reports": [],
@@ -10414,7 +10613,9 @@
         "rkfa-production-closure",
         "release"
       ],
-      "suites": [],
+      "suites": [
+        "product-candidate-evidence"
+      ],
       "reports": [],
       "advisory": []
     },
@@ -10433,25 +10634,29 @@
       "suites": [
         "ssr-pages"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "ssr-pages-browser": {
       "suites": [
         "ssr-pages-browser"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "ssr-pages-laravel": {
       "suites": [
         "ssr-pages-laravel"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "ssr-pages-laravel-browser": {
       "suites": [
         "ssr-pages-laravel-browser"
       ],
-      "reports": []
+      "reports": [],
+      "includes": []
     },
     "ssr-pages:node": {
       "suites": [
@@ -10459,7 +10664,8 @@
         "ssr-pages-browser"
       ],
       "reports": [],
-      "requireNoSkips": true
+      "requireNoSkips": true,
+      "includes": []
     },
     "ssr-pages:laravel": {
       "suites": [
@@ -10467,7 +10673,8 @@
         "ssr-pages-laravel"
       ],
       "reports": [],
-      "requireNoSkips": true
+      "requireNoSkips": true,
+      "includes": []
     },
     "ssr-pages:laravel-browser": {
       "includes": [
@@ -10483,40 +10690,8 @@
       "suites": [
         "ssr-pages-php"
       ],
-      "reports": []
-    },
-    "xtend-shop-contracts": {
-      "suites": [
-        "xtend-shop-contracts"
-      ],
       "reports": [],
-      "requireNoSkips": true
-    },
-    "xtend-shop-php": {
-      "suites": [
-        "xtend-shop-php"
-      ],
-      "reports": [],
-      "requireNoSkips": true
-    },
-    "xtend-shop-browser": {
-      "suites": [
-        "xtend-shop-browser"
-      ],
-      "reports": [],
-      "requireNoSkips": true
-    },
-    "xtend-shop": {
-      "includes": [
-        "xtend-shop-contracts",
-        "xtend-shop-php",
-        "xtend-shop-browser"
-      ],
-      "suites": [],
-      "reports": [
-        ".xtend-test-results/xtend-shop.json"
-      ],
-      "requireNoSkips": true
+      "includes": []
     },
     "minor-contracts": {
       "suites": [
@@ -10544,7 +10719,8 @@
       ],
       "reports": [
         ".xtend-test-results/xtend-xtensions-runtime-gate-report.json"
-      ]
+      ],
+      "includes": []
     }
   },
   "scripts": {
@@ -10646,21 +10822,6 @@
     "test:xtend-material-performance": {
       "profile": "xtend-material-performance",
       "report": null,
-      "flags": []
-    },
-    "test:xtend-material-catfooding": {
-      "profile": "xtend-material-catfooding",
-      "report": null,
-      "flags": []
-    },
-    "test:erp-resumability-catfood": {
-      "profile": "erp-resumability-catfood",
-      "report": null,
-      "flags": []
-    },
-    "test:erp-resumability-catfood:report": {
-      "profile": "erp-resumability-catfood",
-      "report": ".xtend-test-results/erp-resumability-catfood-report.json",
       "flags": []
     },
     "test:xtend-material-cli-generated-app": {
@@ -12280,26 +12441,6 @@
       "report": ".xtend-test-results/xtend-maraca-app-services-cross-runtime-report.json",
       "flags": []
     },
-    "test:xtend-llm-app-services-catfood": {
-      "profile": "xtend-llm-app-services-catfood",
-      "report": null,
-      "flags": []
-    },
-    "test:xtend-llm-app-services-catfood:report": {
-      "profile": "xtend-llm-app-services-catfood",
-      "report": ".xtend-test-results/xtend-llm-app-services-catfood-report.json",
-      "flags": []
-    },
-    "test:maraca-app-services-test-bench": {
-      "profile": "maraca-app-services-test-bench",
-      "report": null,
-      "flags": []
-    },
-    "test:maraca-app-services-test-bench:report": {
-      "profile": "maraca-app-services-test-bench",
-      "report": ".xtend-test-results/xtend-maraca-app-services-test-bench-report.json",
-      "flags": []
-    },
     "test:maraca-app-services-build": {
       "profile": "maraca-app-services-build",
       "report": null,
@@ -12473,46 +12614,6 @@
     "test:ssr-pages-php": {
       "profile": "ssr-pages-php",
       "report": null,
-      "flags": []
-    },
-    "test:xtend-shop-contracts": {
-      "profile": "xtend-shop-contracts",
-      "report": null,
-      "flags": []
-    },
-    "test:xtend-shop-contracts:report": {
-      "profile": "xtend-shop-contracts",
-      "report": ".xtend-test-results/xtend-shop-contracts.json",
-      "flags": []
-    },
-    "test:xtend-shop-php": {
-      "profile": "xtend-shop-php",
-      "report": null,
-      "flags": []
-    },
-    "test:xtend-shop-php:report": {
-      "profile": "xtend-shop-php",
-      "report": ".xtend-test-results/xtend-shop-php.json",
-      "flags": []
-    },
-    "test:xtend-shop-browser": {
-      "profile": "xtend-shop-browser",
-      "report": null,
-      "flags": []
-    },
-    "test:xtend-shop-browser:report": {
-      "profile": "xtend-shop-browser",
-      "report": ".xtend-test-results/xtend-shop-browser.json",
-      "flags": []
-    },
-    "test:xtend-shop": {
-      "profile": "xtend-shop",
-      "report": null,
-      "flags": []
-    },
-    "test:xtend-shop:report": {
-      "profile": "xtend-shop",
-      "report": ".xtend-test-results/xtend-shop.json",
       "flags": []
     },
     "test:xtensions-runtime:ci": {
@@ -12903,37 +13004,6 @@
           "timeoutMs": 300000,
           "blocking": true
         },
-        "install_2": {
-          "commands": [
-            {
-              "command": "npm",
-              "args": [
-                "ci",
-                "--prefix",
-                "products/xtend-llm",
-                "--ignore-scripts",
-                "--no-audit",
-                "--fund=false"
-              ]
-            },
-            {
-              "command": "npm",
-              "args": [
-                "ci",
-                "--prefix",
-                "products/resumability-maraca-erp-demo",
-                "--ignore-scripts",
-                "--no-audit",
-                "--fund=false"
-              ]
-            }
-          ],
-          "dependsOn": [
-            "install_1"
-          ],
-          "timeoutMs": 300000,
-          "blocking": true
-        },
         "capabilities": {
           "commands": [
             {
@@ -12945,7 +13015,7 @@
             }
           ],
           "dependsOn": [
-            "install_2"
+            "install_1"
           ],
           "timeoutMs": 60000,
           "blocking": true
@@ -12978,7 +13048,8 @@
           ],
           "dependsOn": [
             "native_first_evidence_prepare",
-            "laravel_fixture_prepare"
+            "laravel_fixture_prepare",
+            "product_candidate"
           ],
           "timeoutMs": 1500000,
           "blocking": true
@@ -13122,6 +13193,22 @@
           ],
           "timeoutMs": 600000,
           "blocking": true
+        },
+        "product_candidate": {
+          "commands": [
+            {
+              "command": "node",
+              "args": [
+                "scripts/product-candidate-canary.cjs"
+              ],
+              "output": ".xtend-test-results/product-candidate-command.json"
+            }
+          ],
+          "dependsOn": [
+            "install_1"
+          ],
+          "timeoutMs": 1500000,
+          "blocking": true
         }
       },
       "manifestCommands": [
@@ -13147,8 +13234,6 @@
         "npm pack --workspace xsurface-shard --dry-run --json --silent",
         "npm run test:maraca:report",
         "npm run test:maraca-app-services-cross-runtime:report",
-        "npm run test:xtend-llm-app-services-catfood:report",
-        "npm run test:maraca-app-services-test-bench:report",
         "npm run test:xtensions-framework-adapters:report",
         "npm run test:xtend-dev-surface:report",
         "npm run test:docs-quality:report",
@@ -13159,7 +13244,8 @@
         "npm run test:xscaler-public-api:report",
         "npm run test:xscaler-php-preflight-parity:report",
         "npm run test:rmt-xscaler-ssr-hydration-parity:report",
-        "npm run test:xscaler-source-to-sea:report"
+        "npm run test:xscaler-source-to-sea:report",
+        "node scripts/product-candidate-canary.cjs"
       ],
       "artifacts": [
         {
@@ -13276,33 +13362,6 @@
           "kind": "outcome",
           "producer": "full_release",
           "profile": "maraca-app-services-cross-runtime"
-        },
-        {
-          "path": ".xtend-test-results/xtend-llm-app-services-catfood-report.json",
-          "kind": "outcome",
-          "producer": "full_release",
-          "profile": "xtend-llm-app-services-catfood"
-        },
-        {
-          "path": "products/xtend-llm/.xtend-llm-results/app-services-catfood.json",
-          "kind": "outcome",
-          "producer": "full_release"
-        },
-        {
-          "path": ".xtend-test-results/xtend-maraca-app-services-test-bench-report.json",
-          "kind": "outcome",
-          "producer": "full_release",
-          "profile": "maraca-app-services-test-bench"
-        },
-        {
-          "path": "products/maraca-app-services-test-bench/.xtend-test-results/maraca-app-services-test-bench-evidence.json",
-          "kind": "outcome",
-          "producer": "full_release"
-        },
-        {
-          "path": "products/maraca-app-services-test-bench/.xtend-test-results/maraca-app-services-test-bench.png",
-          "kind": "png",
-          "producer": "full_release"
         },
         {
           "path": ".xtend-test-results/xtend-xtensions-framework-adapters-report.json",
@@ -13426,6 +13485,12 @@
           "kind": "report",
           "producer": "full_release",
           "profile": "xtensions-runtime-acceptance"
+        },
+        {
+          "path": ".xtend-test-results/product-candidate.json",
+          "kind": "candidate",
+          "producer": "product_candidate",
+          "expectedSchema": "xtend.product-candidate-evidence.v1"
         }
       ]
     },
@@ -13458,6 +13523,12 @@
         {
           "script": "conditional-network:evidence",
           "step": "Re-run blocking release evidence",
+          "condition": null,
+          "advisory": false
+        },
+        {
+          "script": "verify:product-candidate",
+          "step": "Require exact fresh Demo candidate evidence before publish",
           "condition": null,
           "advisory": false
         }

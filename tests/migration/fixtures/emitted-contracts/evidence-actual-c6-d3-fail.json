@@ -1,0 +1,187 @@
+{
+  "schema": "xtend.product-candidate-evidence.v1",
+  "ok": false,
+  "status": "failed",
+  "coreSha": "b41bc710be9710a93054c3e9d64874f79706746d",
+  "demoSha": "f6c2d9097a70449d3dd2420aaf8881304a79a512",
+  "packages": [
+    {
+      "name": "@ccslabs/xtend",
+      "version": "0.9.0",
+      "file": "ccslabs-xtend-0.9.0.14fc98cbe8366e53.tgz",
+      "integrity": "sha512-fkaWaDIswfPL67MddhlqLwlejp7tuZYZdOsvX/YiAV8BaGgLY4CiwAp4HDymUpeZeZ5q9TwOtKiGMferrpTKwA==",
+      "sha256": "14fc98cbe8366e5324c49d4f8ea66b6c5b986459af843ae34ff46577ef02b8ed",
+      "dependencies": {
+        "jsdom": "30.1.2"
+      }
+    },
+    {
+      "name": "@ccslabs/xtend-rmt",
+      "version": "0.9.0",
+      "file": "ccslabs-xtend-rmt-0.9.0.a0a0d5910abd7c00.tgz",
+      "integrity": "sha512-02KE863cv87SOpVrIzkfgnBmjvOxIUXtW0W7qbx1Cfx+CSXZ2QgkzE/HBQOtfgRuZKhaLdJ+oM92d3tP1JhaqA==",
+      "sha256": "a0a0d5910abd7c002de2bfea6395bd188f62ca5ed07d492d933e13c3287f5225",
+      "dependencies": {
+        "dompurify": "3.4.16",
+        "jsdom": "30.1.2"
+      }
+    },
+    {
+      "name": "@ccslabs/xtend-fabric",
+      "version": "0.9.0",
+      "file": "ccslabs-xtend-fabric-0.9.0.23aa7322822c4012.tgz",
+      "integrity": "sha512-U4zl+lXS2owZiIOLIkjjn7JR5ptQIZmMYYs7cdVza/e7ddtG3XrlTcmvzRCP05gODFJmZV7/5UxP5Ew7pCWJrQ==",
+      "sha256": "23aa7322822c4012c07fb05e2197cd4910809e749c575342385f8b30cbedec5d"
+    },
+    {
+      "name": "@ccslabs/xtend-cli",
+      "version": "0.9.0",
+      "file": "ccslabs-xtend-cli-0.9.0.d74e8bf34687f9b3.tgz",
+      "integrity": "sha512-OyL2W10X2TvD3ncdmHHo2jv5k1K9f6VX8TdHwTWAkQoSKduNV87xnRrO3oH1sFpB1smqHxy1Ozdmk4CO5IkcwQ==",
+      "sha256": "d74e8bf34687f9b3a0b4f318be245de411306c129962130bf11bb3d413f31517",
+      "peerDependencies": {
+        "@ccslabs/xtend": "0.9.0",
+        "@ccslabs/xtend-compiler": "0.9.0"
+      },
+      "peerDependenciesMeta": {
+        "@ccslabs/xtend": {
+          "optional": true
+        },
+        "@ccslabs/xtend-compiler": {
+          "optional": true
+        }
+      }
+    },
+    {
+      "name": "@ccslabs/xtend-compiler",
+      "version": "0.9.0",
+      "file": "ccslabs-xtend-compiler-0.9.0.cc8472c9c91aee89.tgz",
+      "integrity": "sha512-gmQYrWAwHeFql5LrkXvfhHJPUz9ivKgMEBzXdzOcq+nI9yJLau1FccKayOy+NMe3FmzKYx2eKwG10STtfgO1ew==",
+      "sha256": "cc8472c9c91aee893383a402989460cedea32bd6c77e15b32398c0c6a8fdcf6c",
+      "peerDependencies": {
+        "@ccslabs/xtend-maraca": "0.9.0",
+        "@ccslabs/xtend-rmt": "0.9.0"
+      },
+      "peerDependenciesMeta": {
+        "@ccslabs/xtend-maraca": {
+          "optional": true
+        },
+        "@ccslabs/xtend-rmt": {
+          "optional": true
+        }
+      }
+    },
+    {
+      "name": "@ccslabs/xtend-maraca",
+      "version": "0.9.0",
+      "file": "ccslabs-xtend-maraca-0.9.0.d2d17dee19cd94c0.tgz",
+      "integrity": "sha512-xTIg/wUXGyYhAs5j01YH7oJk2r28go2Sfxgui7+J8NS5HR9O3WoUf0DIX/ZGPSDSFLxMdszU3tbLlxD+q2bbaQ==",
+      "sha256": "d2d17dee19cd94c0aa0364b5efc89a51514af590f68e54390dbe200c6baefe65",
+      "dependencies": {
+        "rollup": "^4.60.4",
+        "terser": "^5.48.0",
+        "typescript": "^5.9.3"
+      },
+      "peerDependencies": {
+        "@ccslabs/xtend": "0.9.0",
+        "@ccslabs/xtend-compiler": "0.9.0"
+      },
+      "peerDependenciesMeta": {
+        "@ccslabs/xtend": {
+          "optional": true
+        },
+        "@ccslabs/xtend-compiler": {
+          "optional": true
+        }
+      }
+    },
+    {
+      "name": "@xtend-material/core",
+      "version": "0.1.0",
+      "file": "xtend-material-core-0.1.0.4bd7c5d4c59482a5.tgz",
+      "integrity": "sha512-p4w9vv6uf29aM9mF0iv3eFpyGQiYj04Q4tO/rb4oqexsz9i4vise5QjlkhuKRJGa35hfgCVfE+fWszpvlFgQ0g==",
+      "sha256": "4bd7c5d4c59482a516d64dc53b2fda16dd50e4a69f03248c66492b1624b9ef89",
+      "dependencies": {
+        "tailwindcss": "4.3.2"
+      },
+      "peerDependencies": {
+        "@ccslabs/xtend": "0.9.0"
+      },
+      "peerDependenciesMeta": {
+        "@ccslabs/xtend": {
+          "optional": true
+        }
+      }
+    },
+    {
+      "name": "@xtend-material/maraca-tailwind",
+      "version": "0.1.0",
+      "file": "xtend-material-maraca-tailwind-0.1.0.524d25177ce8ee1a.tgz",
+      "integrity": "sha512-uuEbeppecAbQyFfG7A0mMHi6TnjFkO/cgAiIM91gL6qXYb+AfcHu0CSBqE/e58b4AOYspMfW8NyAZbgM4WlfCQ==",
+      "sha256": "524d25177ce8ee1a00e6559cc2660dad6e737cf7d74835096886c83cd3a084df",
+      "dependencies": {
+        "@xtend-material/core": "0.1.0",
+        "@tailwindcss/node": "4.3.2",
+        "tailwindcss": "4.3.2"
+      },
+      "peerDependencies": {
+        "@ccslabs/xtend-maraca": "0.9.0"
+      }
+    },
+    {
+      "name": "@ccslabs/xtend-mcp",
+      "version": "0.1.0",
+      "file": "ccslabs-xtend-mcp-0.1.0.299a5312792504e3.tgz",
+      "integrity": "sha512-KhtiaaH949qCZ9WOIDacnup9xIdj7tCe+XeozF2QMu3tk1OC1rMnjkl6ufqTH4IlZMpk4drJijtb2hhuqE9dTw==",
+      "sha256": "299a5312792504e335e33b61553f12136585421910d591c19f27ba38f24b58c7",
+      "dependencies": {
+        "@ccslabs/xtend-compiler": "0.9.0",
+        "@ccslabs/xtend-maraca": "0.9.0",
+        "@ccslabs/xtend-rmt": "0.9.0",
+        "@modelcontextprotocol/client": "2.2.0",
+        "@modelcontextprotocol/node": "2.0.0",
+        "@modelcontextprotocol/server": "2.0.0",
+        "zod": "^4.4.3"
+      }
+    },
+    {
+      "name": "@ccslabs/xtend-xsurface-shard",
+      "version": "0.9.0",
+      "file": "ccslabs-xtend-xsurface-shard-0.9.0.ed6bd0fb68e44d80.tgz",
+      "integrity": "sha512-6vnRiDDsxyZDctwbGrW70obmQUecPMHmxkLoGKUntcq1v5Hz1x32/VtUS5MlUzfu1XWlfpY6clAcJUgtdREYBA==",
+      "sha256": "ed6bd0fb68e44d80878d16b93a5bd2494a763bde487dc55466129084eef31259",
+      "peerDependencies": {
+        "@ccslabs/xtend": "0.9.0",
+        "@ccslabs/xtend-compiler": "0.9.0",
+        "@ccslabs/xtend-rmt": "0.9.0"
+      },
+      "peerDependenciesMeta": {
+        "@ccslabs/xtend": {
+          "optional": true
+        },
+        "@ccslabs/xtend-compiler": {
+          "optional": true
+        },
+        "@ccslabs/xtend-rmt": {
+          "optional": true
+        }
+      }
+    }
+  ],
+  "php": {
+    "file": "xtend-laravel.tar",
+    "sha256": "cfce9f8f6e3fe55e799116b28604a31b4b00d3ea5036e5da26d35af220ed34a3",
+    "sources": {
+      "rmt-portable-render.php": "41e29ab03bd49405e92bf443864898d4c0d2b912779553cf49c5c01670d0990e",
+      "rmt-php-ssr-adapter.php": "95029e6350076d338b8db1d4d8bdd9e448251dcece300b8ee1ba58ed92305c2d",
+      "rmt-php-app-service-adapter.php": "03ed2071fb761209a4531c906ec5d6fd17903c9667e6af552c4982216a646b51",
+      "rmt-page-data.php": "59c8e2f253b38151e2afb7e906d2652def417cf25ebd2d8f817c5cf20879ef34",
+      "xscaler-preflight.php": "152b3ec698d92e1546e369fbedd158504d7a0070119f3cec62c4dcd8028f2bc0",
+      "xscaler-php-fragment-adapter.php": "1f9bb0d4882ca31f4eb8bfe3a1e35a036d10b9d2bcc8d87a01bced267673e060"
+    }
+  },
+  "generatedAt": "2026-10-09T15:47:43.844Z",
+  "commands": [],
+  "development": false,
+  "error": "Invalid, missing or stale product execution evidence"
+}

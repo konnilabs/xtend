@@ -1,5 +1,6 @@
 # XTend Dev Surface
 
+
 XTend Dev Surface adds an XTend telemetry panel to Chromium DevTools. It lets you inspect performance budgets, hydration and XScaler, kernel health, Fabric lanes and local quality gates without patching the application runtime.
 
 The extension does not identify XTend apps by DOM names or framework heuristics. A page is instrumented only when it explicitly exposes `window.__XTEND_DEV_API__`. If you open the panel on another page, Dev Surface blocks its telemetry views with `No XTend app detected`. Placeholder data can therefore never be mistaken for a real measurement.

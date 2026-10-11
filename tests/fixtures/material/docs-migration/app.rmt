@@ -1,0 +1,115 @@
+// Deterministic semantic CSS/provider contract, without Workbench business UI.
+template contract.material {
+  state contract.item0 type object preserve {
+    initial {
+      id "contract-item-0"
+      text "Contract"
+      viewTemplate { class "xtm-app-shell" }
+    }
+  }
+  selector contract.item0 from state contract.item0 {
+    output ContractItem0
+  }
+  surface contract.item0 kind card component x-status {
+    source selector contract.item0
+    lane visible weight 90 {
+      hydrate contract-item-0 from selector contract.item0
+    }
+  }
+  state contract.item1 type object preserve {
+    initial {
+      id "contract-item-1"
+      text "Contract"
+      viewTemplate { class "xtm-top-app-bar" }
+    }
+  }
+  selector contract.item1 from state contract.item1 {
+    output ContractItem1
+  }
+  surface contract.item1 kind card component x-status {
+    source selector contract.item1
+    lane visible weight 90 {
+      hydrate contract-item-1 from selector contract.item1
+    }
+  }
+  state contract.item2 type object preserve {
+    initial {
+      id "contract-item-2"
+      text "Contract"
+      viewTemplate { class "xtm-navigation-rail" }
+    }
+  }
+  selector contract.item2 from state contract.item2 {
+    output ContractItem2
+  }
+  surface contract.item2 kind card component x-status {
+    source selector contract.item2
+    lane visible weight 90 {
+      hydrate contract-item-2 from selector contract.item2
+    }
+  }
+  state contract.item3 type object preserve {
+    initial {
+      id "contract-item-3"
+      text "Contract"
+      viewTemplate { class "xtm-workspace" }
+    }
+  }
+  selector contract.item3 from state contract.item3 {
+    output ContractItem3
+  }
+  surface contract.item3 kind card component x-status {
+    source selector contract.item3
+    lane visible weight 90 {
+      hydrate contract-item-3 from selector contract.item3
+    }
+  }
+  state contract.item4 type object preserve {
+    initial {
+      id "contract-item-4"
+      text "Contract"
+      viewTemplate { class "xtm-dashboard" }
+    }
+  }
+  selector contract.item4 from state contract.item4 {
+    output ContractItem4
+  }
+  surface contract.item4 kind card component x-status {
+    source selector contract.item4
+    lane visible weight 90 {
+      hydrate contract-item-4 from selector contract.item4
+    }
+  }
+  state contract.item5 type object preserve {
+    initial {
+      id "contract-item-5"
+      text "Contract"
+      viewTemplate { class "xtm-form-flow" }
+    }
+  }
+  selector contract.item5 from state contract.item5 {
+    output ContractItem5
+  }
+  surface contract.item5 kind card component x-status {
+    source selector contract.item5
+    lane visible weight 90 {
+      hydrate contract-item-5 from selector contract.item5
+    }
+  }
+  state contract.item6 type object preserve {
+    initial {
+      id "contract-item-6"
+      text "Contract"
+      viewTemplate { class "xtm-feedback-stack" }
+    }
+  }
+  selector contract.item6 from state contract.item6 {
+    output ContractItem6
+  }
+  surface contract.item6 kind card component x-status {
+    source selector contract.item6
+    lane visible weight 90 {
+      hydrate contract-item-6 from selector contract.item6
+    }
+  }
+}

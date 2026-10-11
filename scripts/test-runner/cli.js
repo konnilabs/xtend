@@ -27,6 +27,10 @@ async function main(args = process.argv.slice(2)) {
     return;
   }
   if (options.list) { console.log(catalog.suites.map(s=>`${s.id}\t${s.label}\t${s.description}`).join('\n')); return; }
+  // The real publish execution and evidence-verification paths must retire the initial source exception.
+  if (!options.plan && (options.profile === 'ci-publish' || options.verify === 'ci-publish')) {
+    require('../scan_schema_inventory').assertCandidateInitialAuthorityRetiredForRelease();
+  }
   if (options.verify) {
     profileIds(options.verify);
     const result = require('./executor').verifyExecution(options);

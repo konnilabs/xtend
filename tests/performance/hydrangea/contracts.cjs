@@ -10,7 +10,7 @@ const filePath = 'docs/rmt-playground-source.rmt';
 const options = { documentId: 'docs.rmt.playground', source: 'docs-rmt-playground' };
 const maraca = { profile: 'debug', lazy: 'component', css: 'external', stack: 'runtime', components: 'document', orchestration: 'auto', kernel: 'auto', hydration: 'auto', validation: 'auto', transitions: 'auto' };
 const safePreview = { options: { componentRegistry: JSON.parse(fs.readFileSync(path.join(rootDir, 'components/manifest.json'))), limits: { maxDepth: 32, maxNodes: 1000, maxTextBytes: 65536, maxAttributes: 32 } }, project: { baseUrl: 'https://xtend.invalid/' } };
-const fixturePaths = ['tests/rmt-language/fixtures/vnext-valid-minimal.rmt', 'products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt', 'tests/rmt-language/fixtures/maraca-orchestration-app.rmt', 'tests/rmt-language/fixtures/maraca-validation-app.rmt', 'tests/rmt-language/fixtures/maraca-transitions-app.rmt'];
+const fixturePaths = ['tests/rmt-language/fixtures/vnext-valid-minimal.rmt', 'tools/rmt-language/fixtures/kernel-orchestration-contract.rmt', 'tests/rmt-language/fixtures/maraca-orchestration-app.rmt', 'tests/rmt-language/fixtures/maraca-validation-app.rmt', 'tests/rmt-language/fixtures/maraca-transitions-app.rmt'];
 const fixtures = fixturePaths.map(file => ({ name: path.basename(file), source: fs.readFileSync(path.join(rootDir, file), 'utf8') }));
 fixtures.push({ name: 'incomplete', source: 'template broken {' }, { name: 'import', source: 'import "./missing.rmt";\n' + fixtures[0].source }, { name: 'near-limit', source: fixtures[0].source + '\n//' + 'x'.repeat(65000 - Buffer.byteLength(fixtures[0].source)) });
 function digest(value) {
