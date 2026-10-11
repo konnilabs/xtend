@@ -108,7 +108,9 @@ async function runNightlyRunnerChecks({ check, temp, identity, rootDir }) {
       assert(!/^\s+cache: npm\s*$/m.test(source),'setup-node must not query npm before its version is pinned');
       const setups=(source.match(/uses: actions\/setup-node@/g)||[]).length;
       assert.equal((source.match(/run: node scripts\/configure_npm_cache.js/g)||[]).length,setups);
-      assert.equal((source.match(/uses: actions\/cache@[a-f0-9]{40}/g)||[]).length,setups);
+      const publisher=name==='xtend-default-gates.yml'?(source.split('\n  npm-publish-latest:\n')[1]||'').split(/\n  [a-z][\w-]*:\n/u)[0]:null;
+      if(publisher!==null)assert(!publisher.includes('uses: actions/cache@'),'publisher must not restore a separate dependency cache');
+      assert.equal((source.match(/uses: actions\/cache@[a-f0-9]{40}/g)||[]).length,setups-(publisher!==null?1:0));
       assert(!/^\s+NPM_CONFIG_CACHE: \.xtend/m.test(source),'cache paths must remain absolute across working directories');
     }
   });

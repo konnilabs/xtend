@@ -7,7 +7,7 @@ const stable = value => Array.isArray(value) ? value.map(stable) : value && type
 const equal = (a,b) => JSON.stringify(stable(a)) === JSON.stringify(stable(b));
 const check = (condition, message) => { if (!condition) throw Error(message); };
 const approved = Object.freeze({
-  core: 'd6866aabeda550e577e0871b11242cb263f8bed74420fc5c95797f7703a01e37',
+  core: '10443992aee73fb15634a527f6b6bd970128dbef46fb67e238a09818eed6fa38',
   demo: 'fa24da7838b82c89a1afede37b42fa87ecb0c584093e87847a28b5c35f156547',
   ledger: '40a4e1d38dbf9e64a724d69178803768e6bff22c90c8260f5644916c24e127c8',
   overlay: '6cf0062f99130ff59bb858fbb8c812fa81604f3c4f9a72694c80f010df59f29b',
@@ -16,7 +16,7 @@ const approved = Object.freeze({
 // This internal pure assembler consumes EXPECTED records only. The productive
 // entry point below authenticates their bytes through a verified source provider.
 function assembleExpectedView({core, demo, ledger, selection, authorityBindings, overlay, resolvePath}) {
-  check(hash(Buffer.from(JSON.stringify(stable(core)))) === '47a5cfb03b8b3d442039c3410d4fa46ac3944fa04f12729b0252cc416f7a86f1', 'Unreviewed Core expected record mutation');
+  check(hash(Buffer.from(JSON.stringify(stable(core)))) === '7d968c2ac973c9b1a5efebbf0294fe812a7f3074e6cc158f4573329e0e754b2d', 'Unreviewed Core expected record mutation');
   check(hash(Buffer.from(JSON.stringify(stable(demo)))) === '3da9857f0f6ef79bb60e048296f3f411719006c79174a33d06468a2def7e2135', 'Unreviewed Demo expected record mutation');
   const preservedLedger = JSON.parse(require('node:zlib').gunzipSync(require('node:fs').readFileSync(require('node:path').join(__dirname,'ownership-ledger.json.gz'))));
   check(equal(ledger,preservedLedger), 'Original expected ledger mutation');
