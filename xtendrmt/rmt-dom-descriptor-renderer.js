@@ -460,7 +460,7 @@
     if (descriptor.part || descriptor.parts) domains.add('part');
     if (descriptor.styleToken || descriptor.styleTokens || descriptor['style-token']) domains.add('styleTokens');
     if (Object.keys(objectRecord(descriptor.events)).length) domains.add('events');
-    if (descriptor.command || descriptor.commands) domains.add('events');
+    // Command declarations produce inert binding metadata, not event handlers.
     toArray(descriptor.children || descriptor.nodes).forEach((entry) => {
       descriptorDomains(entry, context, depth + 1).forEach((domain) => domains.add(domain));
     });
@@ -1504,7 +1504,7 @@
   }
 
   function applyCommand(element, descriptor, context) {
-    if (!domainAllowed(context, 'events')) return;
+    // The event-router alone installs handlers from these validated records.
     const commandSpecs = toArray(descriptor.commands || descriptor.command)
       .map((spec) => normalizeCommandSpec(spec, descriptor))
       .filter((spec) => spec.command && spec.event);

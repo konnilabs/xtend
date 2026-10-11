@@ -165,6 +165,10 @@ jobs:
         id: install_1
         run: npm ci --ignore-scripts --no-audit --fund=false
 
+      - name: Required command-binding metadata ownership regression
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        run: test -f tests/maraca/ownership-command-projection.test.mjs && test -f tests/maraca/ownership-projection-gate.test.cjs && node --test --test-reporter=tap tests/maraca/ownership-command-projection.test.mjs tests/maraca/ownership-projection-gate.test.cjs
+
       - name: Prepare Native-First release evidence artifacts
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
