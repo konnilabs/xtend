@@ -195,6 +195,7 @@ jobs:
       - name: Verify independent head/pin and authenticated artifact expectations
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           EXPECTED_CORE_SHA: ${{ github.event.pull_request.head.sha }}
           PRODUCER_CORE_SHA: ${{ needs.union-source-artifact.outputs.core-sha }}
           PRODUCER_DEMO_SHA: ${{ needs.union-source-artifact.outputs.demo-sha }}
@@ -220,6 +221,7 @@ jobs:
       - name: Required portable union source-provider boundary tests
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           XTEND_UNION_TEST_REPORT: .xtend-test-results/union-provider-tests.json
         run: |
           node --test tests/schemas/union_source_provider.test.cjs
@@ -228,6 +230,8 @@ jobs:
 
       - name: Required productive full-source union validation
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/check-union-source.cjs --archive "$XTEND_UNION_ARCHIVE" --expected "$XTEND_UNION_EXPECTED" --destination "$RUNNER_TEMP/xtend-union-source/$XTEND_UNION_ARTIFACT_ID" --output .xtend-test-results/union-source-validation.json
 
       - name: Preserve union validation evidence
