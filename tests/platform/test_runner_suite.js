@@ -7,7 +7,7 @@ const { spawnSync } = require('node:child_process');
 const { createSuiteContext } = require('../utils/assertions');
 const { normalizeSuiteResult } = require('../utils/reporting');
 const { parseArgs } = require('../../scripts/test-runner/cli');
-const { catalog, select, canonicalSuite, scriptSuiteIds } = require('../../scripts/test-runner/catalog');
+const { catalog, select, canonicalSuite, scriptSuiteIds, profileIds } = require('../../scripts/test-runner/catalog');
 const { execute, verifyExecution } = require('../../scripts/test-runner/executor');
 
 async function runTestRunnerSuite({ rootDir } = {}) {
@@ -127,7 +127,7 @@ require.cache[p]={exports:{
  hang:()=>new Promise(()=>{}),
  invalid:()=>null,
  last:()=>{const r=JSON.parse(require('fs').readFileSync(${JSON.stringify(execution)}));return {ok:r.complete===false&&r.results.some(e=>e.id==='first')}},
- core:()=>({ok:true}),
+ ${profileIds('core').map(id => JSON.stringify(id)+':()=>({ok:true})').join(',\n ')},
  skipped:()=>({ok:true,skipCount:0,skips:['required capability unavailable']}),
  slow:()=>new Promise(r=>setTimeout(()=>r({ok:true}),60))
 }};require(${JSON.stringify(path.join(rootDir,'scripts/test-runner/worker.js'))});`);
@@ -156,12 +156,18 @@ require.cache[p]={exports:{
       assert(evidence.results.find(e=>e.id==='alias').reused);
     });
     await check('Unknown resources serialize; provenance and missing results fail verification', async () => {
-      const selected = [suite('core'),{...suite('slow'),resources:undefined}];
+      const selected = [...profileIds('core').map(id=>({...suite(id),resources:canonicalSuite(id).resources})),{...suite('slow'),resources:undefined}];
       await execute(selected,{workerPath,execution,provenance:identity,resolveSuite:id=>selected.find(s=>s.id===id),json:true,jobs:2,cleanupMs:100});
       assert.equal(JSON.parse(fs.readFileSync(execution)).workerCount,1);
       assert.equal(verifyExecution({verify:'core',from:execution,project:false,provenance:identity}).status,'passed');
       for (const key of ['run','commit','sourceFingerprint','catalogFingerprint','runtime']) assert.equal(verifyExecution({verify:'core',from:execution,project:false,provenance:{...identity,[key]:'foreign'}}).status,'failed');
-      const evidence=JSON.parse(fs.readFileSync(execution));evidence.results=[];fs.writeFileSync(execution,JSON.stringify(evidence));
+      const evidence=JSON.parse(fs.readFileSync(execution));
+      for (const id of profileIds('core')) {
+        const missing = {...evidence,results:evidence.results.filter(entry=>entry.id!==id)};
+        fs.writeFileSync(execution,JSON.stringify(missing));
+        assert.equal(verifyExecution({verify:'core',from:execution,project:false,provenance:identity}).status,'failed',`Missing ${id} must block the complete core profile`);
+      }
+      evidence.results=[];fs.writeFileSync(execution,JSON.stringify(evidence));
       assert.equal(verifyExecution({verify:'core',from:execution,project:false,provenance:identity}).status,'failed');
     });
     await check('Required Nightly skips fail while optional local skips stay visible', async () => {

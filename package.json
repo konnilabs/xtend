@@ -12303,7 +12303,8 @@
           "browser-hypervisor",
           "project-index",
           "ssr-pages",
-          "ssr-pages-browser"
+          "ssr-pages-browser",
+          "product-migration-contracts"
         ]
       },
       "fullReleaseGate": {
@@ -12491,6 +12492,7 @@
           "project-index",
           "ssr-pages",
           "ssr-pages-browser",
+          "product-migration-contracts",
           "epic13-package-export-lock",
           "xtensions-runtime",
           "xtensions-runtime-browser",

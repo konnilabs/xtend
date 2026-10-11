@@ -60,8 +60,8 @@ function printDocsStubInventoryGateReport(result) {
 }
 
 module.exports = {
-"product-migration-contracts": () => toRunnerResult("product-migration-contracts", "Product boundary", load("../tests/migration/product_boundary_suite").runProductBoundarySuite({rootDir})),
-"product-candidate-evidence": () => toRunnerResult("product-candidate-evidence", "Required Demo evidence", load("../tests/migration/product_boundary_suite").runCandidateEvidenceSuite({rootDir})),
+"product-migration-contracts": () => toRunnerResult("product-migration-contracts", "Product boundary", load("../tests/migration/product_boundary_suite").runProductBoundarySuite({ rootDir })),
+"product-candidate-evidence": () => toRunnerResult("product-candidate-evidence", "Required Demo evidence", load("../tests/migration/product_boundary_suite").runCandidateEvidenceSuite({ rootDir })),
 "xtensions-runtime": () => toRunnerResult("xtensions-runtime", "Actual XTensions jsdom acceptance", load("../tests/xtensions/xtensions_runtime_gate_suite")["runXTensionsRuntimeGate"]({ rootDir })),
 "xtensions-runtime-browser": () => toRunnerResult("xtensions-runtime-browser", "Actual XTensions Chromium acceptance", load("../tests/xtensions/xtensions_runtime_gate_suite")["runXTensionsRuntimeGate"]({ rootDir, browser: true })),
 "xtensions-consumer-package": async () => toRunnerResult("xtensions-consumer-package", "Packed XTensions consumers", await load("../tests/xtensions/xtensions_consumer_package_suite")["runXTensionsConsumerPackageSuite"]({ rootDir })),
