@@ -1,6 +1,5 @@
 'use strict';
 const fs=require('fs'),path=require('path'),crypto=require('crypto');
-const {createDownstreamNoManualHtmlGate}=require('../tools/rmt-language/app-platform-tooling');
 
 function checkMaracaHtmlSecurity(configuration,rootDir){
  if(configuration===undefined || configuration===false)return null;
@@ -20,6 +19,7 @@ function checkMaracaHtmlSecurity(configuration,rootDir){
    }catch{add('xtend.maraca.html_security.source_invalid','HTML security could not read an application source within the configured root.',typeof file==='string'?file:undefined);}
   }
  }
+ const {createDownstreamNoManualHtmlGate}=require('../tools/rmt-language/app-platform-tooling');
  const gate=createDownstreamNoManualHtmlGate({syntax:true,rootDir});
  diagnostics.push(...gate.scanFiles(files));
  return {schema:'xtend.maraca.html-security-report.v1',ok:!diagnostics.some(d=>d.severity==='error'),sources,diagnostics};
