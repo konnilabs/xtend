@@ -573,7 +573,9 @@ class XToggle extends HTMLElement {
     }
     setChecked(value, options) {
         const nextChecked = Boolean(value);
-        const previous = this.checked;
+        // Native input activation changes control.checked before change fires.
+        // The reflected attribute still holds the last committed component state.
+        const previous = this.hasAttribute('checked');
         this.control.checked = nextChecked;
         if (nextChecked) {
             if (!this.hasAttribute('checked'))
