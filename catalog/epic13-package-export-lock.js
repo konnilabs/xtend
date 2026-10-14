@@ -207,6 +207,7 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   './rmt/page-contract',
   './rmt/node-page-host',
   './rmt/page-client',
+  './rmt/page-resource-cache',
   './rmt/page-form',
   './rmt-language/page-build',
   './rmt/resume-runtime',

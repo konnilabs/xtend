@@ -91,6 +91,13 @@ async function contractEvolutionChecks({check, checkPhp, load, php}) {
   const result=await createRmtNodeSsrAdapter().render({descriptor},{executionMode:'server_prerender_resume',resume:{state:{draft:'kept'},sign:()=>({keyId:'fixture',signature:'fixture'})}});
   const full=page({renderArtifact:portable.createPortableRenderArtifact({descriptor}),ssr:result.response});
   const initial=encodePageInitialResume(full);
+  await check('compact initial resume references preserve signatures, recovery and the ordinary response boundary',()=>{
+    const compact=encodePageInitialResume(full,{compact:true});assert.equal(compact.schema,'xtend.page-initial-wire.v1');assert.deepEqual(decodePageInitialDocument(compact),decodePageInitialDocument(initial));
+    assert.deepEqual(decodePageWire(compact),compact,'ordinary wire decoding must not promote reduced chunks');
+    assert.throws(()=>decodePageInitialDocument({...compact,root:{r:compact.nodes.length}}),/reference table/);
+    const poisoned=JSON.parse(JSON.stringify(compact));poisoned.nodes[0]={unsafe:{r:0}};assert.throws(()=>decodePageInitialDocument(poisoned),/reference table/);
+    assert.equal(full.ssr.chunk.markup.html,result.html);
+  });
   await check('initial resume owns reduced chunks and leaves ordinary responses complete', () => {
     assert.equal(initial.ssr.kind,undefined);assert.equal(initial.ssr.chunk.kind,undefined);
     assert.deepEqual(Object.keys(initial.ssr.chunk.markup),['descriptor']);

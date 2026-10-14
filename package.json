@@ -965,6 +965,10 @@
     "./xtensions/vue-runtime-adapter": {
       "types": "./tools/xtensions/vue-runtime-adapter.d.ts",
       "default": "./tools/xtensions/vue-runtime-adapter.js"
+    },
+    "./rmt/page-resource-cache": {
+      "types": "./xtendrmt/page-resource-cache.d.ts",
+      "default": "./xtendrmt/page-resource-cache.mjs"
     }
   },
   "publishConfig": {
@@ -15583,7 +15587,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 199,
+      "expectedExportCount": 200,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15608,7 +15612,7 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 199,
+      "expectedExportCount": 200,
       "lockedExportFingerprint": "5852b738283ed9e1679335f45026678aab727244cc84e0f45cc4684104715ba5",
       "p0Exports": [
         ".",
