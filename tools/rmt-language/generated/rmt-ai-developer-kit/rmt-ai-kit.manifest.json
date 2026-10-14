@@ -251,8 +251,8 @@
     },
     {
       "path": "xtend-maraca/index.d.ts",
-      "sha256": "c98ed05768a61d3e8a6285f13cbe5057937a21e1a999af4f4f1e1d8030a6c978",
-      "bytes": 40144
+      "sha256": "e75debd2d2c3267940db758da8f046d973eb7ff12d8cd7c361b27fcc717f7dd9",
+      "bytes": 40167
     }
   ],
   "rootDir": ""
