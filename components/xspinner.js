@@ -1,4 +1,5 @@
 import { xtendState } from './xtend-state.js';
+import { createComponentStyle } from './style-nonce.js';
 
 // <x-spinner>
 class XSpinner extends HTMLElement {
@@ -175,8 +176,7 @@ class XSpinner extends HTMLElement {
     slot.name = "content";
     container.append(this._spinner, slot);
     // Styles
-    const style = document.createElement("style");
-    style.textContent = `
+    const style = createComponentStyle(`
       .spinner-container {
         display: flex;
         align-items: center;
@@ -251,7 +251,7 @@ class XSpinner extends HTMLElement {
       @keyframes dot-bounce {
         to { transform: translateY(-50%); opacity: 0.5; }
       }
-    `;
+    `, this.ownerDocument);
     shadow.append(style, this._overlay, container);
     this._container = container;
     this._slot = slot;

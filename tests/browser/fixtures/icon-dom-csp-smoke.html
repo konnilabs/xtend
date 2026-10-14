@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Native component CSP styles</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'nonce-iconSmokeNonce123'; style-src 'nonce-iconSmokeNonce123'; style-src-attr 'none'; object-src 'none'">
+<script id="xtend-page-data" nonce="iconSmokeNonce123"></script>
+<p id="result" role="status">Checking native component styles…</p>
+<script type="module" nonce="iconSmokeNonce123">
+const errors=[];let htmlWrites=0;
+window.addEventListener('error',event=>errors.push(event.message));
+window.addEventListener('securitypolicyviolation',event=>errors.push('CSP: '+event.effectiveDirective));
+for(const prototype of [Element.prototype,ShadowRoot.prototype]){
+ const descriptor=Object.getOwnPropertyDescriptor(prototype,'innerHTML');
+ Object.defineProperty(prototype,'innerHTML',{...descriptor,set(){htmlWrites++;throw new Error('HTML sink forbidden');}});
+}
+try{
+ for(const name of ['xbutton','xspinner','xtoggle','xsection','xtoast','xdialog','xalert'])await import('/components/'+name+'.js');
+ const tags=['x-icon','x-button','x-spinner','x-toggle','x-section','x-toast','x-dialog','x-alert'];
+ for(const tag of tags)await customElements.whenDefined(tag);
+ const checks=[];
+ for(const tag of tags){
+  const node=document.createElement(tag);node.setAttribute('name','search');node.setAttribute('icon-name','search');node.setAttribute('title','Literal <img src=x onerror=alert(1)>');node.setAttribute('duration','0');document.body.append(node);
+  checks.push({name:tag+' uses the host stylesheet nonce',passed:node.shadowRoot.querySelector('style').nonce==='iconSmokeNonce123'});
+ }
+ await new Promise(resolve=>setTimeout(resolve,200));
+ for(const check of checks)if(!check.passed)errors.push(check.name);
+ if(htmlWrites)errors.push('Unexpected HTML writes');
+ window.__iconDomCspResult={status:errors.length?'failed':'passed',checks,errors,htmlWrites};
+ document.getElementById('result').textContent=window.__iconDomCspResult.status;
+}catch(error){window.__iconDomCspResult={status:'failed',errors:[error.message,...errors],htmlWrites};}
+</script>
+</html>

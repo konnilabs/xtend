@@ -669,7 +669,7 @@
           ])
         ]),
         componentNode(this.ownerDocument, "noscript", {}, [
-          componentNode(this.ownerDocument, "div", {"role": "dialog", "style": "padding:1em;background:#fff;border-radius:4px;max-width:90vw;"}, [
+          componentNode(this.ownerDocument, "div", {"role": "dialog"}, [
             "\n              Dialog kann nicht angezeigt werden. Bitte aktivieren Sie JavaScript.\n            "
           ])
         ])
