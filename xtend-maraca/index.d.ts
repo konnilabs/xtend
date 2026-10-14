@@ -694,6 +694,18 @@ export interface MaracaComponentRecord {
   known: boolean;
 }
 
+/** Additive opt-in extension; the released base build contracts are unchanged. */
+export type MaracaAuditedBuildInput = MaracaBuildInput & {htmlSecurity?: false | {sources: string[]}};
+export type MaracaAuditedRunOptions = MaracaRunOptions & {htmlSecurity?: false | {sources: string[]}};
+export type MaracaAuditedBuildPlan = MaracaBuildPlan & {htmlSecurity?: MaracaHtmlSecurityReport};
+
+export interface MaracaHtmlSecurityReport {
+  schema: 'xtend.maraca.html-security-report.v1';
+  ok: boolean;
+  sources: Array<{file: string; sha256: string}>;
+  diagnostics: MaracaDiagnostic[];
+}
+
 export interface MaracaBuildPlan {
   schema: typeof MARACA_BUILD_PLAN_SCHEMA;
   ok: boolean;

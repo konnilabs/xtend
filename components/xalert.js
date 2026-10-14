@@ -1,5 +1,6 @@
 // Selbst-ausfuehrende asynchrone Funktion statt direktem Import
 (async function() {
+  const { createComponentStyle, componentNode, createCloseIcon } = await import('./component-dom.js');
   let xtendState;
 
   if (window.XTend?.state) {
@@ -294,8 +295,7 @@
       const ariaLive = isAssertive ? 'assertive' : 'polite';
       const role = isAssertive ? 'alert' : 'status';
 
-      this.shadowRoot.innerHTML = `
-        <style>
+      const style = createComponentStyle(`
           :host {
             display: block;
             font-family: var(--xtend-font-family, 'Inter', 'Segoe UI', Arial, sans-serif);
@@ -488,9 +488,9 @@
               right: 0.3em;
             }
           }
-        </style>
-        ${overlay ? '<div class="alert-overlay"></div>' : ''}
-      `;
+        `, this.ownerDocument);
+      this.shadowRoot.replaceChildren(style,
+      ...(overlay ? [componentNode(this.ownerDocument, "div", {"class":"alert-overlay"})] : []));
 
       const container = document.createElement('div');
       container.className = `alert ${type}${closable ? ' is-closable' : ''}`;
@@ -513,12 +513,7 @@
         button.setAttribute('part', 'close control');
         button.type = 'button';
         button.setAttribute('aria-label', 'Schliessen');
-        button.innerHTML = `
-          <svg part="close-icon control icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.10)"></circle>
-            <path d="M8 8l8 8M16 8l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
-          </svg>
-        `;
+        button.append(createCloseIcon(this.ownerDocument));
         button.addEventListener('click', () => this.dismiss('button'));
         container.appendChild(button);
       }

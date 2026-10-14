@@ -1,4 +1,5 @@
-import { componentStyleNonce } from './style-nonce.js';
+import { createComponentStyle } from './style-nonce.js';
+import { isSafeIconUrl, createSvgElement, createUrlElement } from './icon-dom.js';
 import { xtendState } from './xtend-state.js';
 import { createXtendButtonPayloadBase, createXtendRmtCommandDetail } from './rmt-command.js';
 import './xicon.js';
@@ -163,8 +164,7 @@ class XButton extends HTMLElement {
   constructor() {
     super();
     const shadow = this.attachShadow({ mode: "open" });
-    shadow.innerHTML = `
-      <style${componentStyleNonce(this.ownerDocument)}>
+    const style = createComponentStyle(`
         :host {
           display: inline-block;
           --xtend-button-surface: var(--xtend-surface-control, var(--xtend-surface-panel, var(--xtend-surface-muted, ButtonFace)));
@@ -305,18 +305,32 @@ class XButton extends HTMLElement {
             border-top-color: Highlight;
           }
         }
-      </style>
-      <button part="button" type="button" role="button" aria-disabled="false" aria-busy="false">
-        <span class="icon" part="icon"></span>
-        <span class="label" part="label"><slot><span class="fallback-label" part="label-fallback"></span></slot></span>
-        <span class="spinner" part="spinner" style="display:none"></span>
-      </button>
-    `;
-    this._btn = shadow.querySelector("button");
-    this._icon = shadow.querySelector(".icon");
-    this._slot = shadow.querySelector("slot");
-    this._fallbackLabel = shadow.querySelector(".fallback-label");
-    this._spinner = shadow.querySelector(".spinner");
+    `, this.ownerDocument);
+    this._btn = this.ownerDocument.createElement("button");
+    this._btn.setAttribute("part", "button");
+    this._btn.type = "button";
+    this._btn.setAttribute("role", "button");
+    this._btn.setAttribute("aria-disabled", "false");
+    this._btn.setAttribute("aria-busy", "false");
+    this._icon = this.ownerDocument.createElement("span");
+    this._icon.className = "icon";
+    this._icon.setAttribute("part", "icon");
+    const label = this.ownerDocument.createElement("span");
+    label.className = "label";
+    label.setAttribute("part", "label");
+    this._slot = this.ownerDocument.createElement("slot");
+    this._fallbackLabel = this.ownerDocument.createElement("span");
+    this._fallbackLabel.className = "fallback-label";
+    this._fallbackLabel.setAttribute("part", "label-fallback");
+    this._slot.append(this._fallbackLabel);
+    label.append(this._slot);
+    this._spinner = this.ownerDocument.createElement("span");
+    this._spinner.className = "spinner";
+    this._spinner.setAttribute("part", "spinner");
+    this._spinner.style.display = "none";
+    this._btn.append(this._icon, label, this._spinner);
+    shadow.append(style, this._btn);
+    this._iconKey = null;
     this._unsubscribeState = null;
     this._eventsForwarded = false;
     this._lastLoading = null;
@@ -388,17 +402,23 @@ class XButton extends HTMLElement {
     const iconName = this.getAttribute("icon-name");
     const iconPack = this.getAttribute("icon-pack") || "core";
     const icon = this.getAttribute("icon");
-    if (iconName) {
-      this._renderPackIcon(iconName, iconPack);
-    } else if (icon && icon.startsWith('<svg')) {
-      this._icon.innerHTML = icon;
-      this._icon.style.display = "inline-flex";
-    } else if (icon) {
-      this._icon.innerHTML = `<img src="${icon}" alt="" style="width:1.2em;height:1.2em;">`;
-      this._icon.style.display = "inline-flex";
-    } else {
-      this._icon.innerHTML = "";
-      this._icon.style.display = "none";
+    const iconKey = JSON.stringify([iconName, iconPack, icon]);
+    if (this._iconKey !== iconKey) {
+      if (iconName) {
+        this._renderPackIcon(iconName, iconPack);
+      } else {
+        const options = { decorative: true, document: this.ownerDocument, preserveRootAttributes: true };
+        const node = icon && icon.trim().startsWith('<svg')
+          ? createSvgElement({ svg: icon, fill: 'black', stroke: 'none' }, options)
+          : (isSafeIconUrl(icon) ? createUrlElement({ src: icon }, options) : null);
+        if (node) {
+          node.style.width = "1.2em";
+          node.style.height = "1.2em";
+        }
+        this._icon.replaceChildren(...(node ? [node] : []));
+        this._icon.style.display = node ? "inline-flex" : "none";
+      }
+      this._iconKey = iconKey;
     }
     // Loading
     this._btn.setAttribute("aria-busy", isBusy);
@@ -423,27 +443,15 @@ class XButton extends HTMLElement {
   }
 
   _renderPackIcon(iconName, iconPack) {
-    const render = () => {
-      if (this.getAttribute("icon-name") !== iconName) return;
-      this._icon.innerHTML = "";
-      const icon = document.createElement("x-icon");
-      icon.setAttribute("name", iconName);
-      icon.setAttribute("pack", iconPack || "core");
-      icon.setAttribute("decorative", "true");
-      icon.setAttribute("size", "1.15em");
-      this._icon.append(icon);
-      this._icon.style.display = "inline-flex";
-    };
-    if (customElements.get("x-icon")) {
-      render();
-      return;
-    }
-    import("./xicon.js")
-      .then(render)
-      .catch(() => {
-        this._icon.textContent = "";
-        this._icon.style.display = "none";
-      });
+    // The static xicon import registers the element before XButton is defined.
+    // No delayed import callback can overwrite a newer icon or pack selection.
+    const icon = this.ownerDocument.createElement("x-icon");
+    icon.setAttribute("name", iconName);
+    icon.setAttribute("pack", iconPack || "core");
+    icon.setAttribute("decorative", "true");
+    icon.setAttribute("size", "1.15em");
+    this._icon.replaceChildren(icon);
+    this._icon.style.display = "inline-flex";
   }
 
   _upgradeAttributes() {

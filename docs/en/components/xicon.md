@@ -102,3 +102,9 @@ Theming should flow through XTend design tokens first. CSS parts are intended fo
 - [Component development](../components.md)
 - [Public Component Types](../public-component-types.md)
 - [RMT Component Primitives](../rmt-vnext-component-primitives.md)
+
+## Native icon materialization
+
+The private shadow shell is constructed with DOM APIs. No `innerHTML` setter is used. Pack SVG strings are parsed as inert XML and rebuilt from supported geometry and attributes; script, event handlers, embedded HTML, external image nodes, DTDs and external paint URLs are not materialized. URL icons use a native image element and reject executable schemes and non-image data URLs. Prefer node-based local packs to avoid parsing entirely.
+
+Maraca still owns the host view and state through the existing RMT contract. This component change does not introduce another renderer or router. The internal icon root remains stable across updates.

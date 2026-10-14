@@ -9,7 +9,7 @@ const artifacts = [
     source: '.xtend-build/components-ts/x-toggle/x-toggle.js',
     target: 'components/xtoggle.js',
     transform(content) {
-      return content.replace("from '../../../components/xtend-state.js'", "from './xtend-state.js'");
+      return content.replace(/from '\.\.\/\.\.\/\.\.\/components\//g, "from './");
     }
   },
   {

@@ -48,7 +48,7 @@ const COMPONENT_SIGNAL_CONTRACTS = [
     tag: 'x-dialog',
     path: 'components/xdialog.js',
     signals: ['dialog-context', 'focus-return'],
-    regions: ['role="dialog"', 'aria-modal="true"', "dialog.setAttribute('aria-labelledby', 'xdialog-title')"]
+    regions: ['"role": "dialog"', '"aria-modal": "true"', "dialog.setAttribute('aria-labelledby', 'xdialog-title')"]
   },
   {
     tag: 'x-form',

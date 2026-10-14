@@ -1,3 +1,4 @@
+import { createComponentStyle, componentNode } from './component-dom.js';
 import { xtendState } from './xtend-state.js';
 const X_TOGGLE_STATE_SCHEMA = 'xtend.component.x-toggle.state.v1';
 class XToggle extends HTMLElement {
@@ -171,8 +172,7 @@ class XToggle extends HTMLElement {
         super();
         this.internalsRef = this.attachInternals?.();
         this.attachShadow({ mode: 'open' });
-        this.shadowRoot.innerHTML = `
-      <style>
+        const style = createComponentStyle(`
         :host {
           display: inline-block;
           box-sizing: border-box;
@@ -409,22 +409,39 @@ class XToggle extends HTMLElement {
             padding: 0.25rem;
           }
         }
-      </style>
-      <label class="root" part="root">
-        <input id="control" part="control" type="checkbox" role="switch" aria-describedby="hint error">
-        <span class="track" part="track" aria-hidden="true">
-          <span class="state" part="state">
-            <span class="state-label state-label-on"><slot name="on-label">I</slot></span>
-            <span class="state-label state-label-off"><slot name="off-label">O</slot></span>
-          </span>
-          <span class="thumb" part="thumb"></span>
-        </span>
-        <span class="label" part="label"><slot name="label"><span id="label-text"></span></slot><slot></slot></span>
-        <span id="hint" class="hint" part="helper"><slot name="hint"></slot></span>
-        <span id="error" class="error" part="error status" role="alert" aria-live="assertive" aria-atomic="true"><slot name="error">This toggle is required.</slot></span>
-      </label>
-      <span id="state-status" part="status" role="status" aria-live="polite" aria-atomic="true" hidden></span>
-    `;
+      `, this.ownerDocument);
+        this.shadowRoot.replaceChildren(style, componentNode(this.ownerDocument, "label", { "class": "root", "part": "root" }, [
+            componentNode(this.ownerDocument, "input", { "id": "control", "part": "control", "type": "checkbox", "role": "switch", "aria-describedby": "hint error" }),
+            componentNode(this.ownerDocument, "span", { "class": "track", "part": "track", "aria-hidden": "true" }, [
+                componentNode(this.ownerDocument, "span", { "class": "state", "part": "state" }, [
+                    componentNode(this.ownerDocument, "span", { "class": "state-label state-label-on" }, [
+                        componentNode(this.ownerDocument, "slot", { "name": "on-label" }, [
+                            "I"
+                        ])
+                    ]),
+                    componentNode(this.ownerDocument, "span", { "class": "state-label state-label-off" }, [
+                        componentNode(this.ownerDocument, "slot", { "name": "off-label" }, [
+                            "O"
+                        ])
+                    ])
+                ]),
+                componentNode(this.ownerDocument, "span", { "class": "thumb", "part": "thumb" })
+            ]),
+            componentNode(this.ownerDocument, "span", { "class": "label", "part": "label" }, [
+                componentNode(this.ownerDocument, "slot", { "name": "label" }, [
+                    componentNode(this.ownerDocument, "span", { "id": "label-text" })
+                ]),
+                componentNode(this.ownerDocument, "slot", {})
+            ]),
+            componentNode(this.ownerDocument, "span", { "id": "hint", "class": "hint", "part": "helper" }, [
+                componentNode(this.ownerDocument, "slot", { "name": "hint" })
+            ]),
+            componentNode(this.ownerDocument, "span", { "id": "error", "class": "error", "part": "error status", "role": "alert", "aria-live": "assertive", "aria-atomic": "true" }, [
+                componentNode(this.ownerDocument, "slot", { "name": "error" }, [
+                    "This toggle is required."
+                ])
+            ])
+        ]), componentNode(this.ownerDocument, "span", { "id": "state-status", "part": "status", "role": "status", "aria-live": "polite", "aria-atomic": "true", "hidden": true }));
         this.control = this.shadowRoot.querySelector('#control');
         this.labelText = this.shadowRoot.querySelector('#label-text');
         this.stateText = this.shadowRoot.querySelector('#state-status');

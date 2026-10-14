@@ -102,3 +102,9 @@ Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezi
 - [Komponenten-Entwicklung](../components.md)
 - [Public Component Types](../public-component-types.md)
 - [RMT Component Primitives](../rmt-vnext-component-primitives.md)
+
+## Native Icon-Erzeugung
+
+Die interne Shadow-DOM-Hülle entsteht mit DOM-APIs ohne `innerHTML`-Setter. SVG-Strings aus Packs werden als inertes XML gelesen und aus erlaubter Geometrie und Attributen neu aufgebaut. Scripts, Event-Handler, eingebettetes HTML, externe Bildknoten, DTDs und externe Paint-URLs werden nicht übernommen. URL-Icons verwenden ein natives Bildelement; ausführbare Schemes und Data-URLs ohne Bildformat werden abgewiesen. Lokale Packs mit Geometrieknoten benötigen keinen Parser.
+
+Maraca bleibt über den vorhandenen RMT-Vertrag für Host-Ansicht und Zustand verantwortlich. Es entsteht kein zusätzlicher Renderer oder Router. Der interne Icon-Root bleibt bei Aktualisierungen erhalten.

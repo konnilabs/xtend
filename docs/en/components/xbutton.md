@@ -131,3 +131,9 @@ Theming should flow through XTend design tokens first. CSS parts are intended fo
 - [Component development](../components.md)
 - [Public Component Types](../public-component-types.md)
 - [RMT Component Primitives](../rmt-vnext-component-primitives.md)
+
+## Icon input safety and updates
+
+Prefer `icon-name` and `icon-pack` for local icons. Legacy `icon` SVG strings use the same geometry allowlist as XIcon; they cannot provide arbitrary HTML, event handlers or external SVG resources. Root presentation attributes such as `fill` and `stroke` remain supported. Legacy image URLs are assigned to a native image element rather than interpolated into HTML. Executable schemes and non-image data URLs are rejected.
+
+The button shell uses native DOM construction. Icon selection is synchronous; unrelated label, variant or busy updates preserve the existing icon, native control and default slot. No delayed icon import may replace a newer selection. Label attributes remain literal text. Public parts, slots, events and RMT command contracts are unchanged.

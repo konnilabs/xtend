@@ -209,7 +209,7 @@ function runOverlayInteractionUxSuite(options = {}) {
     context.assert(source.includes('xtend.a11y.screenreader-signals.v1'), `${profile.tag} source exposes screenreader signals`);
     context.assert(source.includes('prefers-reduced-motion'), `${profile.tag} source is reduced-motion safe`);
     context.assert(source.includes('forced-colors'), `${profile.tag} source is forced-colors safe`);
-    context.assert(source.includes('part=') || source.includes('setAttribute("part"') || source.includes("setAttribute('part'"), `${profile.tag} source exposes CSS parts`);
+    context.assert(source.includes('part=') || /["']part["']\s*:/.test(source) || source.includes('setAttribute("part"') || source.includes("setAttribute('part'"), `${profile.tag} source exposes CSS parts`);
     context.assert(source.includes(paths.event), `${profile.tag} source exposes ${paths.event}`);
     context.assert(source.includes(profile.schedule), `${profile.tag} source declares schedule ${profile.schedule}`);
     context.assert(source.includes(paths.stateKey.replace('<id>', '${this.id}')) || source.includes(paths.stateKey), `${profile.tag} source declares state key ${paths.stateKey}`);

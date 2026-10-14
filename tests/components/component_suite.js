@@ -138,7 +138,10 @@ const {
   runComponentPublicTypesSuite
 } = require('./component_public_types_suite');
 
+const { runIconDomSafetySuite } = require('./icon_dom_safety_suite');
+
 const componentSuites = [
+  runIconDomSafetySuite,
   runXAlertComponentSuite,
   runXToastComponentSuite,
   runXModalComponentSuite,
