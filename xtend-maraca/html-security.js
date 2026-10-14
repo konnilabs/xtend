@@ -25,7 +25,7 @@ function checkMaracaHtmlSecurity(configuration,rootDir){
  return {schema:'xtend.maraca.html-security-report.v1',ok:!diagnostics.some(d=>d.severity==='error'),sources,diagnostics};
 }
 function applyMaracaHtmlSecurity(plan,input,options){
- const report=checkMaracaHtmlSecurity(input.htmlSecurity??options.htmlSecurity,plan.rootDir);
+ const report=checkMaracaHtmlSecurity(input.htmlSecurity === undefined ? options.htmlSecurity : input.htmlSecurity,plan.rootDir);
  if(!report)return;
  plan.htmlSecurity=report;plan.diagnostics.push(...report.diagnostics);
  if(!report.ok){plan.ok=false;plan.status='blocked';}

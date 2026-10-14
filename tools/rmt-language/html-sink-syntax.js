@@ -32,7 +32,7 @@ function scanHtmlSinkSyntax(text, filePath, options = {}) {
     if (ts.isIdentifier(node)) return aliases.get(node.text) || null;
     const m=member(node);
     if (m && (methods.has(m.name) || ['write','writeln'].includes(m.name) && /(?:^|\.)document$/.test(m.receiver.getText(source)))) return m.name;
-    if (ts.isCallExpression(node)) { const b=member(node.expression); if (b?.name==='bind') return methodName(b.receiver); }
+    if (ts.isCallExpression(node)) { const b=member(node.expression); if (b && b.name==='bind') return methodName(b.receiver); }
     return null;
   };
   const record = (node,sink) => found.push({sink,index:node.getStart(source),length:node.getWidth(source),code:'rmt.app.no-manual-shell.html-sink'});
@@ -54,7 +54,7 @@ function scanHtmlSinkSyntax(text, filePath, options = {}) {
       const name=methodName(node.expression), m=member(node.expression);
       if(name) record(node,name);
       else if(m && ['call','apply'].includes(m.name)) { const alias=methodName(m.receiver); if(alias) record(node,alias); }
-      else if(m?.name==='setAttribute' && literal(node.arguments[0])==='srcdoc') record(node,'srcdoc');
+      else if(m && m.name==='setAttribute' && literal(node.arguments[0])==='srcdoc') record(node,'srcdoc');
     }
     ts.forEachChild(node,visit);
   };
