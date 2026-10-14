@@ -131,3 +131,9 @@ Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezi
 - [Komponenten-Entwicklung](../components.md)
 - [Public Component Types](../public-component-types.md)
 - [RMT Component Primitives](../rmt-vnext-component-primitives.md)
+
+## Sicherheit und Aktualisierung von Icon-Eingaben
+
+Für lokale Icons sind `icon-name` und `icon-pack` vorgesehen. Ältere SVG-Eingaben über `icon` verwenden dieselbe Geometrie-Allowlist wie XIcon; beliebiges HTML, Event-Handler und externe SVG-Ressourcen werden nicht übernommen. Root-Präsentationsattribute wie `fill` und `stroke` bleiben unterstützt. Bild-URLs werden an einem nativen Bildelement gesetzt und nicht in HTML interpoliert. Ausführbare Schemes und Data-URLs ohne Bildformat werden abgewiesen.
+
+Die Button-Hülle entsteht nativ im DOM. Die Icon-Auswahl ist synchron; Änderungen an Label, Variante oder Busy-State erhalten Icon, natives Steuerelement und Default-Slot. Kein verzögerter Import überschreibt eine neuere Auswahl. Labels bleiben Text. Öffentliche Parts, Slots, Events und RMT-Commands bleiben unverändert.

@@ -329,7 +329,7 @@ class XSpinner extends HTMLElement {
 
   _renderSpinner() {
     // Remove old spinner content
-    this._spinner.innerHTML = "";
+    this._spinner.replaceChildren();
     this._spinner.className = "spinner";
     // Size
     const size = this.getAttribute("size") || "24";

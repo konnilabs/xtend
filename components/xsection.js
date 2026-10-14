@@ -1,4 +1,4 @@
-import { componentStyleNonce } from './style-nonce.js';
+import { createComponentStyle, componentNode } from './component-dom.js';
 import { xtendState } from './xtend-state.js';
 
 // <x-section>
@@ -87,8 +87,7 @@ class XSection extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
-      <style${componentStyleNonce(this.ownerDocument)}>
+    const style = createComponentStyle(`
         :host {
           display: block;
           padding: var(--section-padding, var(--xtend-layout-spacing, 2em));
@@ -172,14 +171,22 @@ class XSection extends HTMLElement {
             border-color: CanvasText;
           }
         }
-      </style>
-      <div class="container" part="root container" role="region" aria-label="${this.getAttribute("label") || "Section"}">
-        <header part="header"><slot name="header"></slot></header>
-        <aside part="aside"><slot name="aside"></slot></aside>
-        <main part="content"><slot></slot></main>
-        <footer part="footer"><slot name="footer"></slot></footer>
-      </div>
-    `;
+      `, this.ownerDocument);
+      this.shadowRoot.replaceChildren(style,
+      componentNode(this.ownerDocument, "div", {"class": "container", "part": "root container", "role": "region", "aria-label": this.getAttribute("label") || "Section"}, [
+        componentNode(this.ownerDocument, "header", {"part": "header"}, [
+          componentNode(this.ownerDocument, "slot", {"name": "header"})
+        ]),
+        componentNode(this.ownerDocument, "aside", {"part": "aside"}, [
+          componentNode(this.ownerDocument, "slot", {"name": "aside"})
+        ]),
+        componentNode(this.ownerDocument, "main", {"part": "content"}, [
+          componentNode(this.ownerDocument, "slot", {})
+        ]),
+        componentNode(this.ownerDocument, "footer", {"part": "footer"}, [
+          componentNode(this.ownerDocument, "slot", {"name": "footer"})
+        ])
+      ]));
     this._unsubscribeState = null;
   }
 

@@ -139,6 +139,8 @@ export interface MaracaBuildInput {
   policyParityContracts?: Array<Record<string, unknown>>;
   policyParityRuntimeHooks?: string[];
   policyParityRequiredFactories?: string[];
+  /** Opt-in build-time syntax audit of the complete application-owned source list. */
+  htmlSecurity?: false | {sources: string[]};
   services?: false | true | MaracaServicesConfig;
   servicesEntry?: string;
   'services-entry'?: string;
@@ -154,6 +156,8 @@ export interface MaracaBuildInput {
 }
 
 export interface MaracaRunOptions {
+  /** Build-only; no raw-HTML bypass or browser runtime hook. */
+  htmlSecurity?: false | {sources: string[]};
   /** Skip bundler discovery for callers that consume only a plan. Defaults to true. */
   inspectToolchain?: boolean;
   /** Validated static artifacts from prepareRmtJitKernelCache; scoped to this synchronous plan. */
@@ -694,7 +698,16 @@ export interface MaracaComponentRecord {
   known: boolean;
 }
 
+export interface MaracaHtmlSecurityReport {
+  schema: 'xtend.maraca.html-security-report.v1';
+  ok: boolean;
+  sources: Array<{file: string; sha256: string}>;
+  diagnostics: MaracaDiagnostic[];
+}
+
 export interface MaracaBuildPlan {
+  /** Present only when the opt-in application-source security audit runs. */
+  htmlSecurity?: MaracaHtmlSecurityReport;
   schema: typeof MARACA_BUILD_PLAN_SCHEMA;
   ok: boolean;
   status: string;

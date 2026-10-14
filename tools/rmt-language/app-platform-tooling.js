@@ -1,4 +1,5 @@
 const fs = require('fs');
+const {scanHtmlSinkSyntax} = require('./html-sink-syntax');
 const path = require('path');
 const {
   createRmtParser
@@ -110,7 +111,7 @@ function lineColumnAt(text, index) {
 
 function shouldAllowManualHtmlFile(filePath, options = {}) {
   const normalized = normalizeFilePath(filePath);
-  const allowedFiles = new Set(DEFAULT_DOWNSTREAM_HTML_GATE_ALLOWED_FILES.concat(toArray(options.allowedFiles).map(normalizeFilePath)));
+  const allowedFiles = new Set((options.syntax === true ? [] : DEFAULT_DOWNSTREAM_HTML_GATE_ALLOWED_FILES).concat(toArray(options.allowedFiles).map(normalizeFilePath)));
   if (allowedFiles.has(normalized)) return true;
   return toArray(options.allowedPatterns).some((pattern) => {
     if (typeof pattern === 'string') return normalized.includes(pattern);
@@ -123,6 +124,15 @@ function scanDownstreamManualHtmlSinks(text, metadata = {}, options = {}) {
   if (shouldAllowManualHtmlFile(filePath, options)) return [];
   const source = String(text || '');
   const diagnostics = [];
+  if (options.syntax === true) {
+    return scanHtmlSinkSyntax(source,filePath,options).map(hit => {
+      const position=lineColumnAt(source,hit.index);
+      return {schema:'xtend.rmt.linter.diagnostic.v1',source:'rmt-downstream-no-manual-html-gate',code:hit.code,ruleId:'rmt.downstream.no-manual-html',severity:'error',category:'security',file:filePath,sink:hit.sink,
+        range:{start:position,end:lineColumnAt(source,hit.index+hit.length)},
+        message:hit.sink==='toolchain-missing'?'Syntax HTML audit requires the locally installed TypeScript build tool.':hit.sink==='source-invalid'?'Syntax HTML audit refuses an invalid source.':'Application HTML output must use an explicit Trusted-DOM boundary or a structured RMT view.',
+        repair:{kind:'replace-with-rmt-dom-descriptor',title:'Use text, descriptors or an explicit sanitizing Trusted-DOM boundary',safe:false}};
+    });
+  }
   DOWNSTREAM_HTML_SINK_PATTERN.lastIndex = 0;
   let match = DOWNSTREAM_HTML_SINK_PATTERN.exec(source);
   while (match) {

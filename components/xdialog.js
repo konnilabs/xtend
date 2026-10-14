@@ -1,6 +1,6 @@
 // Selbst-ausfuehrende asynchrone Funktion statt direktem Import
 (async function() {
-  const { componentStyleNonce } = await import('./style-nonce.js');
+  const { createComponentStyle, componentNode, createCloseIcon } = await import('./component-dom.js');
   let xtendState;
 
   if (window.XTend?.state) {
@@ -460,8 +460,7 @@
     }
 
     _render(state) {
-      this.shadowRoot.innerHTML = `
-        <style${componentStyleNonce(this.ownerDocument)}>
+      const style = createComponentStyle(`
           :host {
             --xtend-overlay-backdrop: var(--xtend-overlay-bg, rgba(30, 34, 44, 0.55));
             --xtend-overlay-surface: var(--xtend-surface, var(--xtend-overlay-backdrop));
@@ -652,28 +651,29 @@
               outline-color: Highlight;
             }
           }
-        </style>
-        <div class="xdialog-wrapper" part="root overlay-root" role="presentation">
-          ${state.overlay ? '<div class="xdialog-overlay" part="backdrop overlay" tabindex="-1" aria-hidden="true"></div>' : ''}
-          <div class="xdialog" part="surface overlay-surface" role="dialog" aria-modal="true" aria-hidden="${state.open ? 'false' : 'true'}" tabindex="0">
-            <button class="xdialog-close" part="close control" type="button" aria-label="Schliessen">
-              <svg part="close-icon control icon" width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.10)"></circle>
-                <path d="M8 8l8 8M16 8l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
-              </svg>
-            </button>
-            <div class="xdialog-title" part="title" id="xdialog-title">${state.title}</div>
-            <div class="xdialog-content" part="content"></div>
-            <div class="xdialog-actions" part="actions"></div>
-            <div class="xdialog-fallback">[XDialog sichtbar - kein Inhalt im Slot]</div>
-          </div>
-          <noscript>
-            <div role="dialog" style="padding:1em;background:#fff;border-radius:4px;max-width:90vw;">
-              Dialog kann nicht angezeigt werden. Bitte aktivieren Sie JavaScript.
-            </div>
-          </noscript>
-        </div>
-      `;
+        `, this.ownerDocument);
+      this.shadowRoot.replaceChildren(style,
+      componentNode(this.ownerDocument, "div", {"class": "xdialog-wrapper", "part": "root overlay-root", "role": "presentation"}, [
+        ...(state.overlay ? [componentNode(this.ownerDocument, "div", {"class":"xdialog-overlay", "part":"backdrop overlay", "tabindex":"-1", "aria-hidden":"true"})] : []),
+        componentNode(this.ownerDocument, "div", {"class": "xdialog", "part": "surface overlay-surface", "role": "dialog", "aria-modal": "true", "aria-hidden": state.open ? 'false' : 'true', "tabindex": "0"}, [
+          componentNode(this.ownerDocument, "button", {"class": "xdialog-close", "part": "close control", "type": "button", "aria-label": "Schliessen"}, [
+            createCloseIcon(this.ownerDocument, true)
+          ]),
+          componentNode(this.ownerDocument, "div", {"class": "xdialog-title", "part": "title", "id": "xdialog-title"}, [
+            String(state.title || "")
+          ]),
+          componentNode(this.ownerDocument, "div", {"class": "xdialog-content", "part": "content"}),
+          componentNode(this.ownerDocument, "div", {"class": "xdialog-actions", "part": "actions"}),
+          componentNode(this.ownerDocument, "div", {"class": "xdialog-fallback"}, [
+            "[XDialog sichtbar - kein Inhalt im Slot]"
+          ])
+        ]),
+        componentNode(this.ownerDocument, "noscript", {}, [
+          componentNode(this.ownerDocument, "div", {"role": "dialog", "style": "padding:1em;background:#fff;border-radius:4px;max-width:90vw;"}, [
+            "\n              Dialog kann nicht angezeigt werden. Bitte aktivieren Sie JavaScript.\n            "
+          ])
+        ])
+      ]));
 
       const dialog = this.shadowRoot.querySelector('.xdialog');
       const overlay = this.shadowRoot.querySelector('.xdialog-overlay');

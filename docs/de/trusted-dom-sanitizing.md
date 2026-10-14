@@ -43,3 +43,24 @@ node scripts/run_xtend_tests.js rmt-kernel-security-regression --json
 ```
 
 Die [DEV API](./xtend-dev-api.md) beschreibt die redigierten Panic-/Recovery-Daten zur Auswertung eines geblockten Outputs. Eine Präsentations-[Abort Boundary](./maraca-fastpass-abort-boundary.md) prüft zusätzlich die zeitliche Gültigkeit; sie ersetzt keine Trust Boundary.
+
+## Prüfung von App-Quellen im Maraca-Build
+
+`buildMaracaBundle()` und `buildMaracaBundleAsync()` akzeptieren optional `htmlSecurity: { sources: [...] }` im Build-Input oder in den Run-Optionen. Die Liste muss sämtliche eigenen Browserquellen einschließlich importierter Controller und eigener Komponenten umfassen. Maraca prüft sie vor dem Schreiben der Bundle-Artefakte. `plan.htmlSecurity` enthält nur Dateipfade, SHA-256 und Diagnosen. Dateien und Symlink-Ziele müssen innerhalb des App-Roots liegen. Fehlende Dateien, eine leere Liste, ungültige Syntax oder ein fehlendes lokales TypeScript-Build-Tool brechen die Prüfung ab.
+
+```js
+await buildMaracaBundleAsync(buildInput, {
+  rootDir,
+  htmlSecurity: { sources: ['src/services.ts', 'src/controller.mjs'] }
+});
+```
+
+`createDownstreamNoManualHtmlGate({ syntax: true, rootDir })` erkennt Schreibzugriffe auf `innerHTML`, `outerHTML` und `srcdoc`, auch mit zusammengesetzten Zuweisungen, konstant berechneten Namen und einfachen lokalen Methoden-Aliasen. HTML-Einfügemethoden sowie `document.write/writeln` werden ebenfalls erfasst. Kommentare, Dokumentationsstrings und reine Lesezugriffe gelten nicht als Schreibzugriff. Der bestehende Regex-Modus bleibt kompatibel. Der Syntaxmodus erlaubt keine implizite Legacy-Dateiausnahme.
+
+Der Gate prüft die angegebenen Quellen; er beweist nicht die Sicherheit beliebigen JavaScripts. Dynamische Property-Namen, Datenfluss über Modulgrenzen und nicht gelistete Abhängigkeiten benötigen eigene Prüfung. CSP, Trusted Types, Sanitizer und Laufzeit-Ownership bleiben erforderlich. Der Gate bereinigt oder verändert keinen Code.
+
+## Explizite HTML-Ausnahme ohne Bypass
+
+XTend besitzt bereits den Descriptor `trusted_html` mit `trustedBoundary: 'xtend.rmt.trusted-dom-boundary.explicit'`, `policyRef` und einem verpflichtenden Host-`trustedDomRenderer`. Dies ist der nachvollziehbare Ausnahmeweg. Ein Policy-Name allein erlaubt noch keinen Inhalt: Der Host muss den vorgesehenen Sanitizer anwenden und unter entsprechender CSP TrustedHTML erhalten. `sanitizeTrustedDomHtml()` bleibt die Sanitizer-API.
+
+Ein ungeprüfter Wrapper nach Art von `bypassSecurityTrustHtml` oder `dangerouslySetInnerHTML` wird nicht ergänzt. Das Verpacken eines Strings begründet kein Vertrauen und verhindert keinen verspäteten asynchronen Commit. HTML-Vertrauensprüfung und Presentation-Abort-/Generationsgrenzen bleiben getrennte Verträge. Normale UI, Icons und Steuerelemente verwenden Text oder strukturierte RMT-Descriptoren.
