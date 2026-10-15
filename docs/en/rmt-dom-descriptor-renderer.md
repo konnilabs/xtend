@@ -29,6 +29,12 @@ collisions fail closed. Compatibility mode keeps the reserved owner and
 records a diagnostic. `dispose()` releases renderer-owned event, ref and
 component-binding handles and can optionally clear owned root DOM.
 
+## Optional bindings
+
+Explicit references such as `$model.view.title`, `$state.view.title`, `$item.name`, `$selector.ready` and `$derive.label` remain bindings when their value is absent. The DOM/Node renderer returns `undefined`; portable PHP uses its missing-value sentinel. Conditions are false, optional attributes are absent, and text or interpolation is empty. The `if` and `fallback` expressions can select their intended replacement. Defined values such as `null`, `false`, `0` and empty strings are never replaced by the reference text.
+
+Unbound ordinary text and existing implicit bare-string lookup remain compatible. To display a reference-looking string, use `{op:'literal', value:'$model.example'}`. Application data still renders as text.
+
 ## Minimal example
 
 ```js

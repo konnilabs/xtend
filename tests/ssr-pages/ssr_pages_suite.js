@@ -23,6 +23,19 @@ async function runSsrPagesSuite(options = {}) {
   const php = input => JSON.parse(execFileSync(process.env.XTEND_PHP_BINARY || 'php', [path.join(__dirname, 'portable_probe.php'), rootDir], { input: JSON.stringify(input), encoding: 'utf8', timeout: 10000 }));
   await require('./page_wire_checks').pageWireChecks({check,checkPhp,load,php});
   await require('./contract_evolution_checks').contractEvolutionChecks({check,checkPhp,load,php});
+  await runCheck('missing explicit references select the same text fallback in DOM, Node and PHP', async () => {
+    const artifact=portable.createPortableRenderArtifact({descriptor:{type:'element',tag:'p',attributes:{title:'$model.view.title'},children:[
+      {type:'text',text:{op:'if',test:'$model.view.title',then:'$model.view.title',else:'Readable fallback'}},
+      {type:'text',text:'${model.view.missing}'},
+      {type:'text',text:{op:'literal',value:'$model.view.literal'}}
+    ]}},{inputs:['view']});
+    for (const view of [{},{title:null},{title:''},{title:'Present'}]) {
+      const props={view},projected=portable.projectPortableRender(artifact,props);
+      const node=await createRmtNodeSsrAdapter().render({descriptor:projected.descriptor},{model:projected.model});
+      const result=php({artifact,props});assert(node.ok&&result.result.ok);assert.equal(node.html,result.result.html);
+      assert(node.html.includes(view.title||'Readable fallback'));assert(!node.html.includes('$model.view.title'));assert(!node.html.includes('$model.view.missing'));assert(node.html.includes('$model.view.literal'));
+    }
+  });
   await check('portable Node projection preserves native attribute literals before SSR', async () => {
     const artifact=portable.createPortableRenderArtifact({descriptor:{type:'element',tag:'input',attributes:{type:'search',name:'query',value:'$model.search.query'}}},{inputs:['search','query']});
     const projected=portable.projectPortableRender(artifact,{search:{query:'GNU/Linux',secret:'never-in-attributes'},query:{secret:true}});

@@ -394,6 +394,20 @@ function runRendererBehaviorAssertions(context, fixture, rendererModule) {
   }
   context.assert(blockedScript, 'renderer rejects executable script descriptors before DOM insertion');
 
+  const emptyContext = { ...harness.renderOptions, model: { 'view.data': {} } };
+  for (const reference of ['$model.view.data.title', '$state.view.data.title', '$item.missing', '$item', '$event.missing', '$event', '$target.missing', '$target', '$currentTarget.missing', '$currentTarget', '$selector.missing', '$derive.missing']) {
+    context.assert(harness.renderer.resolveValue(reference, emptyContext) === undefined, `missing explicit reference is undefined: ${reference}`);
+  }
+  const optionalCopy = {op:'if',test:'$model.view.data.title',then:'$model.view.data.title',else:'Readable fallback'};
+  const optionalNode = harness.renderer.renderNode({type:'element',tag:'p',text:optionalCopy,attributes:{title:'$model.view.data.title'}}, emptyContext);
+  context.assert(textContent(optionalNode) === 'Readable fallback', 'missing explicit text condition selects fallback instead of printing a model path');
+  context.assert(optionalNode.getAttribute('title') === null, 'missing explicit attribute binding is absent');
+  context.assert(harness.renderer.resolveValue({op:'fallback',value:'$model.view.data.title',fallback:'Fallback'},emptyContext)==='Fallback', 'fallback operator handles missing explicit references');
+  context.assert(harness.renderer.resolveValue('Value: ${model.view.data.title}',emptyContext)==='Value: ', 'missing interpolated reference is empty');
+  for (const literal of ['Ordinary text', '$USD', 'legacy.path']) context.assert(harness.renderer.resolveValue(literal,emptyContext)===literal, `unbound ordinary text stays literal: ${literal}`);
+  context.assert(harness.renderer.resolveValue({op:'literal',value:'$model.view.data.title'},emptyContext)==='$model.view.data.title', 'explicit literal preserves a reference-looking string');
+  for (const value of [null, '', false, 0, 'Present']) context.assert(harness.renderer.resolveValue('$model.view.data.title',{...emptyContext,model:{'view.data':{title:value}}})===value, 'defined falsy and nonempty values keep their identity');
+
   const literalInput = harness.renderer.renderNode({
     type: 'element', tag: 'input', attributes: { type: 'search', name: 'query', value: '$model.search.query' }
   }, { ...harness.renderOptions, model: { search: { query: 'GNU/Linux' }, query: { privateState: true } } });

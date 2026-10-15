@@ -129,6 +129,7 @@ final class RmtPortableRender
         if (!is_string($value)) return $value;
         if (str_contains($value, '${')) return preg_replace_callback('/\$\{([^}]+)\}/u', fn($m) => self::text(self::value(str_starts_with(trim($m[1]), '$') ? trim($m[1]) : '$' . trim($m[1]), $model, $item)), $value);
         $result = self::reference($value, $model, $item, $found);
+        if (preg_match('/^\$(?:(?:model|state|selector|derive)\.|(?:item|event|target|currentTarget)(?:\.|$))/u', $value)) return $result;
         return $found ? $result : $value;
     }
     private static function reference(string $value, array $model, $item, &$found) {
