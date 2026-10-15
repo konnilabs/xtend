@@ -53,6 +53,12 @@ console.log(result.nodeCount, result.diagnostics);
 
 Das Result verwendet `xtend.epic18.rmt-dom-render-result.v1`. Übergib Source Locations in den Render-Optionen, wenn Diagnostics auf Dokument, Template, Node, Zeile oder Spalte zurückführen sollen.
 
+## Optionale Bindungen
+
+Explizite Referenzen wie `$model.view.title`, `$state.view.title`, `$item.name`, `$selector.ready` und `$derive.label` bleiben Bindungen, wenn der Wert fehlt. Der DOM-/Node-Renderer liefert dann `undefined`, die portable PHP-Projektion ihren Missing-Wert. Bedingungen sind dadurch falsch, optionale Attribute fehlen und Texte beziehungsweise Interpolationen bleiben leer. `if` und `fallback` können die vorgesehene Ersatzdarstellung wählen. Definierte Werte wie `null`, `false`, `0` und leere Strings werden nicht durch den Pfadtext ersetzt.
+
+Ungebundener gewöhnlicher Text und die bisherige implizite Auflösung einfacher Strings bleiben kompatibel. Soll ein referenzähnlicher String sichtbar sein, verwende `{op:'literal', value:'$model.example'}`. Anwendungsdaten werden dabei weiterhin als Text gerendert.
+
 ## Trust Boundary
 
 Normale UI folgt der No-Manual-HTML-Regel. Der Renderer blockiert `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, `createContextualFragment`, Inline-Event-Handler, unsichere URL-Schemas und gesperrte Tags wie `script` oder `iframe`. Attribute und Properties durchlaufen explizite Allowlists statt beliebiger Zuweisungen.
