@@ -2,7 +2,7 @@
 const { catalog, select, profileIds, canonicalSuite, fingerprint } = require('./catalog');
 function parseArgs(args) {
   const options = { suiteIds: [], jobs: 1 };
-  const valued = new Map([['--profile','profile'],['--report','report'],['--execution','execution'],['--jobs','jobs'],['--verify','verify'],['--from','from']]);
+  const valued = new Map([['--profile','profile'],['--report','report'],['--execution','execution'],['--jobs','jobs'],['--verify','verify'],['--from','from'],['--imported-ci','importedCi']]);
   for (let i=0;i<args.length;i++) {
     const [key, ...tail] = args[i].split('=');
     if (valued.has(key)) {
@@ -17,13 +17,14 @@ function parseArgs(args) {
   options.jobs = Number(options.jobs);
   if (!Number.isInteger(options.jobs) || options.jobs < 1 || options.jobs > 2) throw new Error('--jobs must be 1 or 2.');
   if (Boolean(options.from) !== Boolean(options.verify)) throw new Error('--verify and --from must be used together.');
+  if (options.importedCi && !options.verify) throw new Error('--imported-ci requires --verify and --from.');
   if (options.verify && (options.profile || options.suiteIds.length || options.plan)) throw new Error('Verification cannot be combined with execution selection.');
   return options;
 }
 async function main(args = process.argv.slice(2)) {
   const options = parseArgs(args);
   if (options.help) {
-    console.log('XTend Test Runner\n\nUsage: node scripts/run_xtend_tests.js [suite...] [options]\n\n--profile <name>  Resolve a catalog profile\n--plan --json     Print selection without loading suites\n--jobs <1|2>     Worker limit (default 1; resource locks apply)\n--report <path>  Compatible JSON report\n--execution <path>  Execution provenance and partial results\n--verify <profile> --from <path>  Verify and project an existing execution\n--json           JSON output\n--list           List suite IDs\n--help           Show this help\n\nExample: node scripts/run_xtend_tests.js --profile pr --json');
+    console.log('XTend Test Runner\n\nUsage: node scripts/run_xtend_tests.js [suite...] [options]\n\n--profile <name>  Resolve a catalog profile\n--plan --json     Print selection without loading suites\n--jobs <1|2>     Worker limit (default 1; resource locks apply)\n--report <path>  Compatible JSON report\n--execution <path>  Execution provenance and partial results\n--verify <profile> --from <path>  Verify and project an existing execution\n--imported-ci <binding>  Verify imported CI against an independent producer binding\n--json           JSON output\n--list           List suite IDs\n--help           Show this help\n\nExample: node scripts/run_xtend_tests.js --profile pr --json');
     return;
   }
   if (options.list) { console.log(catalog.suites.map(s=>`${s.id}\t${s.label}\t${s.description}`).join('\n')); return; }

@@ -31,6 +31,8 @@ jobs:
   pr-fast-gates:
     name: PR fast gates (Node ${{ matrix.node_version }})
     if: github.event_name == 'pull_request'
+    env:
+      XTEND_CI_LANE: ${{ matrix.runtime_lane }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -276,7 +278,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: xtend-shared-execution-${{ matrix.runtime_lane }}
+          name: xtend-shared-execution-${{ matrix.runtime_lane }}-${{ github.job }}-attempt-${{ github.run_attempt }}
           if-no-files-found: error
           path: |
             .xtend-test-results/xtend-test-execution.json
@@ -285,6 +287,8 @@ jobs:
   full-release-gates:
     name: Full release gates (Node ${{ matrix.node_version }})
     if: github.event_name != 'pull_request'
+    env:
+      XTEND_CI_LANE: ${{ matrix.runtime_lane }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     strategy:
@@ -530,7 +534,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: xtend-shared-execution-${{ matrix.runtime_lane }}
+          name: xtend-shared-execution-${{ matrix.runtime_lane }}-${{ github.job }}-attempt-${{ github.run_attempt }}
           if-no-files-found: error
           path: |
             .xtend-test-results/xtend-test-execution.json
@@ -540,6 +544,11 @@ jobs:
     needs: [pr-fast-gates, full-release-gates]
     if: ${{ always() && !cancelled() }}
     name: RMT vNext and Native-First RMT Owned gates (Node ${{ matrix.node_version }})
+    permissions:
+      contents: read
+      actions: read
+    env:
+      XTEND_CI_LANE: ${{ matrix.runtime_lane }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
@@ -594,22 +603,22 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run ci:dependency-locks:check
 
-      - name: Download same-run shared XTend execution
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-        with:
-          name: xtend-shared-execution-${{ matrix.runtime_lane }}
-          path: .xtend-test-results
+      - name: Resolve and verify immutable producer execution
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/test-runner/imported-ci.js
 
       - name: Run RMT vNext primitive gate report
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node scripts/run_xtend_tests.js --verify rmt-vnext-primitives --from .xtend-test-results/xtend-test-execution.json
+        run: node scripts/run_xtend_tests.js --verify rmt-vnext-primitives --from .xtend-test-results/xtend-test-execution.json --imported-ci .xtend-test-results/imported-ci-binding.json
 
       - name: Run Native-First and RMT Owned release report
         if: always()
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node scripts/run_xtend_tests.js --verify native-first-rmt-owned-release --from .xtend-test-results/xtend-test-execution.json
+        run: node scripts/run_xtend_tests.js --verify native-first-rmt-owned-release --from .xtend-test-results/xtend-test-execution.json --imported-ci .xtend-test-results/imported-ci-binding.json
 
       - name: Capture RMT vNext source-to-sea browser evidence
         if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.run_source_to_sea == true }}

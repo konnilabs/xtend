@@ -230,6 +230,20 @@ The project index reads the catalog without executing test modules. Existing pac
 
 Local acceptance and actual GitHub Actions matrix results must be reported separately. A local main run does not replace the second Node version, Windows, macOS or separate CI jobs.
 
+### Portable imported CI verification
+
+The two RMT consumer projections use an explicit `--imported-ci .xtend-test-results/imported-ci-binding.json` together with `--verify` and `--from`. The binding is trusted local output of `node scripts/test-runner/imported-ci.js`, not a file supplied by the producer archive. The resolver derives the expected producer job, lane, exactly pinned `producerNode`, Linux/x64 matrix, owner profile, tested SHA, repository, workflow and run independently from workflow configuration and GitHub context. Only the consumer job receives `actions: read`.
+
+Producer reports capture their actual job, lane, run and attempt at execution time. Upload names include that identity and attempt. The resolver uses the latest producer job's actual start/end window to select exactly one artifact, then downloads its immutable numeric ID and verifies its SHA-256 ZIP digest before reading the execution report. It checks the producer again after downloading, fails on ambiguity, expired/missing evidence or unsuccessful producers, and never searches backwards for a green result. GitHub's latest Jobs API can relabel inherited jobs with the consumer attempt and a different job ID; neither field establishes the actual producer attempt. Archive creation and execution timestamps must fit the selected producer window. The report's captured identity must match the independently resolved identity.
+
+A real producer rerun supersedes earlier artifacts. A consumer-only rerun may reuse the explicitly bound, unchanged producer from its earlier attempt, with the same artifact ID/digest; there is no blanket `attempt <= current` rule. Legacy artifacts without the captured identity and unique name fail closed and require a fresh producer run.
+
+Imported verification compares commit/tested SHA and source/catalog fingerprints, exact producer Node, OS family and architecture. It validates the complete owner profile, including required suites outside the consumer subset: missing, duplicate, invalid or failed required suites cannot pass. The full producer runtime remains in the execution report and verification output. Producer image, PHP, browser, Node options and environment details need not equal the consumer runtime. Ordinary `--verify` remains strict about the entire runtime and run/attempt; Nightly acceptance, PHP capability checks and phase-artifact checks retain their existing rules.
+
+The resolver requires the hosted Ubuntu tools `gh` and `unzip`; download and extracted-report sizes and command durations are bounded. API, tool or digest failures block verification and remove stale local bindings. Local fixture checks do not replace a real Actions matrix run.
+
+Historical reference: run `38625435006` has Node-24 artifacts `11924377674` (19:45:12Z) and `11923649729` (19:54:25Z), and Node-26 artifact `11923793711` (19:47:12Z), on 2026-10-14. The accessible Jobs API confirms a fresh successful Node-24 producer in attempt 2 and unchanged Node-26 execution timestamps from attempt 1 despite its attempt-2 API label. Archive contents, the reported ERP failure and all 189 successful suites were not independently accessible in this environment. Regression fixtures replay these IDs/windows with synthetic reports and the new naming protocol; they are not claims of downloaded historical suite evidence.
+
 ### Nightly acceptance and runner capabilities
 
 Nightly uses `ubuntu-24.04` with the existing Node 24 and Node 26 lanes. Before testing, it checks workspace and product lockfiles, Node subprocesses, SQLite, PHP and an actual Chromium WebDriver session over loopback. Missing capabilities and skipped required checks fail acceptance. The ERP installation is removed because this profile does not use its dependencies.
