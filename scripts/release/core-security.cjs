@@ -93,7 +93,7 @@ function verifyCoreSecurityReport(execution,{artifact,envelope,provider,now}){
     execution.sourceFingerprint===hash(Buffer.alloc(0))&&execution.runtime?.node==='v'+node&&
     execution.runtime.platform==='linux'&&execution.runtime.arch==='x64','Core browser raw execution source/run/attempt/runtime mismatch');
   const catalog=require('../test-runner/catalog');
-  for(const file of ['catalog.json','catalog.js','handlers.js','executor.js','worker.js','cli.js','nightly.js','nightly-evidence.js',
+  for(const file of ['catalog.json','catalog.js','handlers.js','executor.js','worker.js','cli.js','imported-ci.js','nightly.js','nightly-evidence.js',
     'capabilities.js','../create_xtend_nightly_manifest.js','../verify_ci_dependency_locks.js']){
     const relative=path.posix.normalize('scripts/test-runner/'+file);
     check(provider.readCurrent(relative).equals(fs.readFileSync(path.resolve(__dirname,'../test-runner',file))),

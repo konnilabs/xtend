@@ -177,6 +177,7 @@ require.cache[p]={exports:{
         assert.equal(result.status,strict?'failed':'passed');
       }
     });
+    await require('./imported_ci_runner_checks').runImportedCiRunnerChecks({check,temp,rootDir});
     await require('./nightly_runner_checks').runNightlyRunnerChecks({check,temp,identity,rootDir});
     await check('Package capture propagates a negative checker outcome to its process exit', () => {
       const program = `const Module=require('module');const original=Module._load;Module._load=function(name,...args){
