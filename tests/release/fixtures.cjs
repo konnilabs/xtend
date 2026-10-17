@@ -43,7 +43,7 @@ function fixture(t) {
 async function packedFixture(t, { selection, beforePack = () => {} } = {}) {
   const f = fixture(t); beforePack(f);
   const inventory = loadInventory(f.rootDir), scope = selectRelease(inventory, selection);
-  const manifest = { schema: 'xtend.release.artifact.v1', sourceSha,
+  const manifest = { schema: 'xtend.release.artifact.v2', profile: 'xtend.npm.core-only.v1', sourceSha,
     toolchain: { node: process.versions.node, npm: '11.17.0' }, edges: inventory.edges, packages: [],
     selection: scope.selection, registryDependencies: scope.registryDependencyNames.map(name => {
       const entry = inventory.packages.find(item => item.name === name);
@@ -65,7 +65,7 @@ async function packedFixture(t, { selection, beforePack = () => {} } = {}) {
       size: bytes.length, integrity: digest(bytes), files: content.files });
   }
   const tarballSetIntegrity = releaseSetIntegrity(manifest);
-  const canary = { schema: 'xtend.release.canary.v1', sourceSha, toolchain: manifest.toolchain, tarballSetIntegrity,
+  const canary = { schema: 'xtend.release.canary.v2', profile: 'xtend.npm.core-only.v1', sourceSha, toolchain: manifest.toolchain, tarballSetIntegrity,
     ok: true, runtimeImports: true, mcpKnowledgeGenerated: true, mcpKnowledgeChecked: true,
     registryDependencies: manifest.registryDependencies.map(entry => ({ ...entry, consumerInstall: true })),
     packages: manifest.packages.map(entry => ({ name: entry.name, integrity: entry.integrity,

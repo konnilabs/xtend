@@ -17,7 +17,8 @@ function boundJSON(directory, binding) {
   return JSON.parse(bytes);
 }
 function verifyConsumer(report, lock, { artifact, node, now, startedAt, directory, candidateSDKLock }) {
-  check(report.schema === 'xtend.release.canary.v1' && report.profile === PROFILE && !Object.hasOwn(report, 'demoSha') &&
+  coreContract(report, 'xtend.release.canary.v2');
+  check(report.schema === 'xtend.release.canary.v2' && report.profile === PROFILE && !Object.hasOwn(report, 'demoSha') &&
     report.ok === true && report.sourceSha === artifact.sourceSha && report.tarballSetIntegrity === releaseSetIntegrity(artifact.manifest) &&
     isDeepStrictEqual(report.toolchain, artifact.toolchain) && report.runtime?.node === node && report.runtime?.npm === artifact.toolchain.npm,
     'Core consumer source/profile/producer-toolchain/runtime mismatch');

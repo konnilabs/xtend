@@ -14,7 +14,7 @@ test('current legacy declaration remains authoritative without inheriting histor
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'productive-candidate-declaration-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
  const source=fs.readFileSync(root+'/candidate-integrity.d.ts');fs.writeFileSync(path.join(dir,'candidate-integrity.d.ts'),source);
  const result=current.scanSchemaInventory({rootDir:dir}),observed=result.entries.find(e=>e.schemaId===id);
- assert.ok(observed);assert.equal(observed.canonicalDefinition.path,'candidate-integrity.d.ts');assert.equal(observed.canonicalDefinition.symbol,'LegacyCandidateManifest');
+ assert.ok(observed);assert.equal(observed.canonicalDefinition.path,'candidate-integrity.d.ts');assert.equal(observed.canonicalDefinition.symbol,'CandidateManifest');
  assert.ok(observed.shapeFingerprints.some(f=>f.authoritative&&f.sourcePaths.includes('candidate-integrity.d.ts')));
  assert.deepEqual(fs.readFileSync(path.join(dir,'candidate-integrity.d.ts')),source);
 });

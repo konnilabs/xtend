@@ -248,10 +248,11 @@ MCP generation/check is required when MCP is selected. A Material-only release
 does not invent MCP build evidence for an unrelated package.
 The wrapper owns the isolated build once; the canonical packer owns packing once.
 
-Consumer evidence `xtend.release.canary.v1` binds source/toolchain and
+Current Core consumer evidence `xtend.release.canary.v2` binds the Core-only profile, source/toolchain and
 `tarballSetIntegrity` (canonical sorted-key SHA-512 of source, toolchain, edges,
 selection, registry closure and package name/version/group/file/size/integrity
-list). It records each package's
+list). Historical `xtend.release.canary.v1` remains a separate legacy contract;
+it is not deprecated or accepted as Core v2 release evidence. It records each package's
 integrity and successful clean installation, exports, types, bins, file hashes,
 runtime imports and applicable MCP checks. `consumer.cjs` installs selected local
 tarballs and exact registry closure in a fresh temporary project, verifies installed file

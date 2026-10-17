@@ -137,7 +137,8 @@ async function verifyArtifact({ directory, manifestIntegrity, sourceSha, rootDir
     const bytes = fs.readFileSync(artifactFile(directory, manifest.canary.file));
     check(digest(bytes) === manifest.canary.integrity, 'Canary evidence integrity mismatch');
     const evidence = JSON.parse(bytes);
-    check(evidence.schema === 'xtend.release.canary.v1' && evidence.profile === PROFILE && !Object.hasOwn(evidence,'demoSha') && evidence.sourceSha === sourceSha && evidence.ok === true &&
+    coreContract(evidence, 'xtend.release.canary.v2');
+    check(evidence.schema === 'xtend.release.canary.v2' && evidence.profile === PROFILE && !Object.hasOwn(evidence,'demoSha') && evidence.sourceSha === sourceSha && evidence.ok === true &&
       evidence.tarballSetIntegrity === tarballSetIntegrity && isDeepStrictEqual(evidence.toolchain, toolchain), 'Canary source/toolchain/tarball binding mismatch');
     check(evidence.buildEvidenceIntegrity === buildCanaryIntegrity(buildEvidence), 'Canary compact-build digest differs from the raw-SRI-verified build object');
     check(evidence.packages?.length === inspected.length && new Set(evidence.packages.map(item => item.name)).size === inspected.length,

@@ -107,7 +107,7 @@ async function runConsumers({ artifact, rootDir, npmCli, buildEvidence = artifac
   const scopes = consumerScopes(artifact, original).map(scope => ({ ...scope,
     packages: scope.packages.map(entry => ({ ...entry, absoluteFile: path.join(directory, entry.file) })) }));
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-release-consumer-'));
-  const report = { schema: 'xtend.release.canary.v1', profile: PROFILE, startedAt: new Date().toISOString(),
+  const report = { schema: 'xtend.release.canary.v2', profile: PROFILE, startedAt: new Date().toISOString(),
     runtime: { node: process.versions.node, npm: artifact.toolchain.npm }, ok: false, sourceSha: artifact.sourceSha,
     toolchain: artifact.toolchain, tarballSetIntegrity: artifact.tarballSetIntegrity,
     buildEvidenceIntegrity: buildCanaryIntegrity(buildEvidence), candidateSDK: null,

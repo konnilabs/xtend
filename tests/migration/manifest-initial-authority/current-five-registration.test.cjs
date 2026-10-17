@@ -45,12 +45,13 @@ test('current source cannot inherit the frozen five-shape initial authority revi
   const actual = scanner.scanSchemaInventory({ rootDir: harness.root });
   const observed = entry(actual);
   assert.ok(observed.shapeFingerprints.some(f => f.authoritative
-    && f.evidence.some(e => e.symbol === 'LegacyCandidateManifest')));
+    && f.evidence.some(e => e.symbol === 'CandidateManifest')));
   assert.ok(observed.shapeFingerprints.some(f => f.authoritative
     && f.hash === proof.entry.shapePolicy.authoritativeFingerprints[0]));
   assert.equal(bound(inventory, actual, harness.root), false);
   assert.ok(scoped(inventory, actual, harness.root).some(e => e.code === 'released-fingerprint-drift'));
-  assert.ok(scoped(inventory, actual, harness.root).some(e => e.code === 'canonical-definition-drift'));
+  assert.equal(observed.canonicalDefinition.symbol, 'CandidateManifest');
+  assert.notEqual(digest(fs.readFileSync(path.join(harness.root,'candidate-integrity.d.ts'))), digest(fs.readFileSync(path.join(harness.historicalRoot,'candidate-integrity.d.ts'))));
   if (process.env.XTEND_CURRENT_FIVE_OBSERVATION) fs.writeFileSync(process.env.XTEND_CURRENT_FIVE_OBSERVATION,
     JSON.stringify({ proposalOnly: true, productAcceptance: false, observation: observed,
       scopedCandidateErrors: scoped(inventory, actual, harness.root), scanStats: actual.stats }, null, 2) + '\n');

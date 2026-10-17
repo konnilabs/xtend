@@ -1865,6 +1865,12 @@ function normalizeInput(input) {
   return input && typeof input === 'object' ? { ...input } : {};
 }
 
+// Preserve the historical falsy inputs before validating the semantic value.
+// Never rewrite a loaded config: its original bytes remain fingerprint-bound.
+function normalizeLegacyServiceGraphFingerprint(value) {
+  return value === false || value === 0 || value === '' ? null : value;
+}
+
 function isOptionalServiceGraphFingerprint(value) {
   return value === undefined || value === null
     || (typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value));
@@ -1898,7 +1904,7 @@ function loadMaracaBuildConfig(values, rootDir) {
         }]
       };
     }
-    if (!isOptionalServiceGraphFingerprint(config.serviceGraphFingerprint)) {
+    if (!isOptionalServiceGraphFingerprint(normalizeLegacyServiceGraphFingerprint(config.serviceGraphFingerprint))) {
       return {
         path: configPath,
         config,
@@ -7487,14 +7493,15 @@ function maracaTuneCandidateRecord(result, requested) {
 }
 
 function createMaracaTuneConfig(input = {}) {
-  if (!isOptionalServiceGraphFingerprint(input.serviceGraphFingerprint)) {
+  const serviceGraphFingerprint = normalizeLegacyServiceGraphFingerprint(input.serviceGraphFingerprint);
+  if (!isOptionalServiceGraphFingerprint(serviceGraphFingerprint)) {
     throw new TypeError('Maraca service graph fingerprint must be absent, null, or a SHA256 string.');
   }
   const base = {
     schema: MARACA_BUILD_CONFIG_SCHEMA,
     source: input.source,
     sourceFingerprint: input.sourceFingerprint,
-    serviceGraphFingerprint: input.serviceGraphFingerprint ?? null,
+    serviceGraphFingerprint: serviceGraphFingerprint ?? null,
     output: input.output,
     selected: input.selected,
     locked: input.locked,

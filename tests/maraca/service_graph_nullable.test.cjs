@@ -19,10 +19,24 @@ test('actual consumer accepts historical absent field and current null, with unc
   const normalized=configured(dir,config);assert.equal(normalized.lazy,lazy);assert.equal(normalized.css,'external');assert.deepEqual(errors(normalized),[]);
  }
 });
-for(const value of [false,0,'',42,{},[], 'not-a-hash','A'.repeat(64)])test('producer and actual loader reject malformed '+JSON.stringify(value),t=>{
+for(const value of [true,42,{},[], 'not-a-hash','A'.repeat(64)])test('producer and actual loader reject malformed '+JSON.stringify(value),t=>{
  const dir=setup(t);assert.throws(()=>api.createMaracaTuneConfig({...input(),serviceGraphFingerprint:value}),/absent, null, or a SHA256/);
  const config=api.createMaracaTuneConfig(input());config.serviceGraphFingerprint=value;delete config.configFingerprint;
  const normalized=configured(dir,config);assert.ok(errors(normalized).some(e=>e.code==='xtend.maraca.build_config_service_graph_invalid'));
+});
+
+for(const value of [false,0,''])test('historical falsy input normalizes before validation without rewriting loaded bytes '+JSON.stringify(value),t=>{
+ const dir=setup(t),base=input({services:false,lazy:'none'});
+ const config=api.createMaracaTuneConfig({...base,serviceGraphFingerprint:value});
+ assert.deepEqual(config,api.createMaracaTuneConfig({...base,serviceGraphFingerprint:null}));
+ assert.equal(config.serviceGraphFingerprint,null);
+ const historical={...config,serviceGraphFingerprint:value};delete historical.configFingerprint;
+ const file=path.join(dir,'maraca.config.json');fs.writeFileSync(file,JSON.stringify(historical));
+ const before=fs.readFileSync(file);const loaded=local.loadMaracaBuildConfig({config:'maraca.config.json'},dir);
+ assert.deepEqual(loaded.diagnostics,[]);assert.equal(loaded.config.serviceGraphFingerprint,value);
+ assert.deepEqual(fs.readFileSync(file),before);assert.deepEqual(errors(configured(dir,historical)),[]);
+ const tampered={...config,serviceGraphFingerprint:value};
+ assert.ok(errors(configured(dir,tampered)).some(e=>e.code==='xtend.maraca.build_config_fingerprint_drift'));
 });
 test('enabled exact graph hash is generated from real source bytes; wrong hash/source mutation remains rejected',t=>{
  const dir=setup(t),services={clientEntry:'src/services.ts',targets:['browser'],strict:true};const fingerprint=local.createMaracaServiceSourceFingerprint(services,dir);assert.match(fingerprint,/^[a-f0-9]{64}$/);const config=api.createMaracaTuneConfig({...input({services,lazy:'route'}),serviceGraphFingerprint:fingerprint});

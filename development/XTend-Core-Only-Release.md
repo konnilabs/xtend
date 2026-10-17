@@ -24,6 +24,7 @@ PHP/Laravel, package, type and API checks remain mandatory.
 | Profile | `xtend.npm.core-only.v1` |
 | Candidate manifest | `xtend.product-candidates.v2` |
 | Release artifact | `xtend.release.artifact.v2` |
+| Installed consumer canary | `xtend.release.canary.v2` |
 | Evidence envelope | `xtend.release.core-evidence.v1` |
 | Producer runtime | Node `24.18.0`, npm `11.17.0` |
 | Installed consumer lanes | Node `24.18.0` and `26.5.0` |
@@ -56,7 +57,10 @@ The following files must be independently reviewed from a fresh final capture:
 
 Pending/null decisions are blocking. Candidate v1 must retain its genuine fixed
 historical complete authority and history. Candidate v2 needs an explicit initial
-unreleased registration and family transition. No generated scan, historical green
+unreleased registration and an explicit parallel-profile family decision. Existing
+v1 contracts remain active; this migration does not deprecate them. The current
+single-active-version registry cannot yet represent both active profiles, so that
+review remains blocking rather than silently changing lifecycle or guards. No generated scan, historical green
 report or metadata edit may invent a released fingerprint or retire the separate
 first-release publication guard.
 
@@ -122,3 +126,23 @@ The existing Demo pin must be updated only after the audited Core commit is
 reviewed and durably available. A local integration tree or local review snapshot
 is not a replacement remote pin. Pending Core projection/authority decisions and
 the initial-publication guard remain mandatory and unchanged.
+
+## Compatibility preserved in the local migration
+
+The public `interface CandidateManifest` retains the complete legacy v1 shape,
+including `demoSha`. `LegacyCandidateManifest` is an alias to that interface;
+`CoreCandidateManifest` is separate. Shared selectors explicitly accept the union.
+The original interface remains augmentable. These API decisions do not approve
+new exact declaration-byte bindings or retire the first-release guard.
+
+Core produces and validates `xtend.release.canary.v2`, including its Core profile,
+source, package/build digests and installed-consumer evidence. Historical
+`xtend.release.canary.v1` evidence remains v1 and cannot authorize a Core v2 release.
+Legacy candidate, artifact and canary v1 contracts are not deprecated here.
+
+Maraca preserves historical `false`, `0` and empty-string fingerprint inputs: the
+producer normalizes them to null before validating. The config loader validates
+the same normalized meaning without rewriting the stored config or its digest.
+Absent/null and valid lowercase SHA-256 values retain their behavior; malformed
+truthy values, wrong service-source hashes and changed config fingerprints still
+fail. The exact source/shape registrations remain a separate pending review.
