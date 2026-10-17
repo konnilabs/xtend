@@ -137,6 +137,7 @@ export function createPageClient(options) {
   }
   function invalidate() {
     cache.clear(); once.clear(); remembered = {}; revision++;
+    options.resourceCache?.clear();
     try { win?.sessionStorage?.removeItem(historyKey); } catch { /* memory state was already cleared */ }
   }
   async function crypt(value, decode = false) {
@@ -198,6 +199,8 @@ export function createPageClient(options) {
     emit('download');
   }
   async function visit(url, settings = {}) {
+    if(disposed) throw pageError('page.disposed','Page client is disposed.');
+    if(settings.cache !== undefined && !['reload','reuse'].includes(settings.cache)) throw pageError('page.resource_cache_mode','Cache mode must be reload or reuse.');
     const target = absolute(url);
     if (target.origin !== origin) { win?.location.assign(target.href); return null; }
     skipTransition();
@@ -215,13 +218,30 @@ export function createPageClient(options) {
     try {
       const key = `${scope()}:${target.href}`, cached = cache.get(key);
       let next;
-      if (cached?.expires > Date.now() && !settings.method && !settings.only && !settings.deferred) {
+      if(options.resourceCache && !settings.method && !settings.only && !settings.deferred && !page.csrfToken) {
+        const resourceContext={page,signal:controller.signal,cache:settings.cache || 'reload'};
+        try {
+          const resource=await options.resourceCache.resolve(target.href,resourceContext);
+          if(disposed || current!==generation || controller.signal.aborted)return null;
+          if(resourceContext.cache==='reuse' && resource!==null && resource!==undefined) {
+            next=await options.resourceCache.project(resource,{...resourceContext,page});
+            if(disposed || current!==generation || controller.signal.aborted)return null;
+            validatePageResponse(next);
+            if(next.kind!=='page'||next.partial||next.ssr||next.csrfToken||next.version!==page.version||next.contextKey!==page.contextKey||absolute(next.url).href!==target.href)throw pageError('page.resource_cache_identity','Cached resources require a complete same-context page without an SSR envelope.');
+            emit('cache-hit');
+          }
+        } catch(error) {
+          if(disposed || current!==generation || controller.signal.aborted)return null;
+          next=undefined;emit('cache-error',{error});
+        }
+      }
+      if (!next && cached?.expires > Date.now() && !settings.method && !settings.only && !settings.deferred) {
         // Recheck authorization, context and one-time session data on every visit.
         const [prepared, fresh] = await Promise.all([cached.promise, request(target.href, { ...settings, only: [], signal: controller.signal })]);
         cache.delete(key);
         if (prepared.kind === 'page' && fresh.kind === 'page' && prepared.contextKey === fresh.contextKey && prepared.version === fresh.version && prepared.page === fresh.page) next = { ...prepared, ...fresh, props: prepared.props, partial: false, ssr: prepared.ssr, once: prepared.once, merge: prepared.merge };
         else next = fresh.kind !== 'page' ? fresh : await request(target.href, { ...settings, signal: controller.signal });
-      } else next = await request(target.href, { ...settings, signal: controller.signal });
+      } else if(!next) next = await request(target.href, { ...settings, signal: controller.signal });
       if (current !== generation) return null;
       if (next.kind === 'download') { await download(next); return null; }
       if (next.kind === 'redirect') return visit(next.location, { replace: true });
@@ -262,7 +282,7 @@ export function createPageClient(options) {
   }
   const restoreHistory = async event => {
     const state = event.state?.xtend;
-    const restored = await visit(win.location.href, { fromHistory: true, preserveScroll: true });
+    const restored = await visit(win.location.href, { fromHistory: true, preserveScroll: true, cache:options.resourceCache?'reuse':'reload' });
     if (!restored) return;
     const current = generation;
     let data;
@@ -273,12 +293,12 @@ export function createPageClient(options) {
     emit('restore');
   };
   const popstate = event => { restoreHistory(event).catch(error => emit('error', { error })); };
-  const navigationOptions = element => Object.fromEntries([
+  const navigationOptions = element => ({...Object.fromEntries([
     ['preserveScroll', 'data-xtend-preserve-scroll'],
     ['preserveState', 'data-xtend-preserve-state'],
     ['transition', 'data-xtend-transition']
   ].filter(([, attribute]) => element.hasAttribute(attribute))
-    .map(([key, attribute]) => [key, element.getAttribute(attribute) !== 'false' && (key !== 'transition' || element.getAttribute(attribute) !== 'none')]));
+    .map(([key, attribute]) => [key, element.getAttribute(attribute) !== 'false' && (key !== 'transition' || element.getAttribute(attribute) !== 'none')])), ...(element.hasAttribute('data-xtend-cache')?{cache:element.getAttribute('data-xtend-cache')}:{})});
   const click = event => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const link = event.target.closest?.('a[href]');
@@ -330,7 +350,7 @@ export function createPageClient(options) {
       } else await render(page, page);
       await saveHistory(true); await Promise.all(Object.keys(page.deferred || {}).map(group => reload({deferred:[group]}).catch(error => emit('data-error', {group,error})))); return page;
     },
-    dispose() { disposed = true; generation++; skipTransition(); active?.abort(); for (const controller of controllers) controller.abort(); release(); release(layoutResources); listeners.clear(); cache.clear(); win?.removeEventListener('popstate', popstate); doc?.removeEventListener('click', click); doc?.removeEventListener('submit', submit); if (options.router?.pageClient === api) options.router.pageClient = null; }
+    dispose() { disposed = true; generation++; skipTransition(); active?.abort(); for (const controller of controllers) controller.abort(); release(); release(layoutResources); listeners.clear(); cache.clear(); options.resourceCache?.clear(); win?.removeEventListener('popstate', popstate); doc?.removeEventListener('click', click); doc?.removeEventListener('submit', submit); if (options.router?.pageClient === api) options.router.pageClient = null; }
   };
   if (options.router) options.router.pageClient = api;
   return api;

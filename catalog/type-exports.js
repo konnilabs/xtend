@@ -30,7 +30,7 @@ const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready'
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
 const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 207;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = "c2224955e47635f60bb9f69dd673b5753d18d2229d6091334f412887ae95db11";
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = "d052ac3e171c4e4d9e29423d0a267fcb6f569db3c333ca6208a1a3ef37a2cbab";
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',
@@ -98,10 +98,6 @@ const PUBLIC_HELPER_EXPORT_CONTRACTS = Object.freeze({
   "./candidate-integrity": {
     "types": "./candidate-integrity.d.ts",
     "default": "./candidate-integrity.cjs"
-  },
-  "./schema-inventory": {
-    "types": "./tools/schema-inventory/index.d.ts",
-    "default": "./tools/schema-inventory/index.cjs"
   }
 });
 
@@ -181,7 +177,7 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'ssr-pages',
     priority: 'P1',
     workpackage: 'WP-SSR-Node-Laravel',
-    exports: ['./rmt/portable-render', './rmt/page-contract', './rmt/node-page-host', './rmt/page-client', './rmt/page-form'],
+    exports: ['./rmt/portable-render', './rmt/page-contract', './rmt/node-page-host', './rmt/page-client', './rmt/page-form', './rmt/page-resource-cache'],
     strategy: 'shared-page-contract-and-independent-host-declarations'
   },
   {
@@ -512,8 +508,9 @@ function createTypeExportsPlan(options = {}) {
       TYPE_EXPORTS_KERNEL_BOUNDARY,
       TYPE_EXPORTS_DECLARATION_BOUNDARY
     ],
-    lockedExportCount: xtendMetadata.typeExports && xtendMetadata.typeExports.expectedExportCount,
-    lockedExportFingerprint: xtendMetadata.typeExports && xtendMetadata.typeExports.lockedExportFingerprint,
+    // Expected field types of a valid plan; preserve raw dynamic values for validation.
+    lockedExportCount: /** @type {number} */ (xtendMetadata.typeExports && xtendMetadata.typeExports.expectedExportCount),
+    lockedExportFingerprint: /** @type {string} */ (xtendMetadata.typeExports && xtendMetadata.typeExports.lockedExportFingerprint),
     packageExportLockFingerprint: createExportFingerprint(exportKeys),
     packageName: packageManifest.name,
     packageVersion: packageManifest.version,

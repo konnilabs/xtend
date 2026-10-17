@@ -4,6 +4,13 @@ This extraction moves seven complete product applications to konnilabs/xtend-dem
 
 ## Commit and merge sequence
 
+The paired sequence and commands below document the independent migration audit.
+Core npm release now uses the separate [Core-only release contract](XTend-Core-Only-Release.md).
+Demo Electron failures do not block that Core publish chain. The Core inventory,
+authority, installed-consumer and security gates still block until independently
+accepted. The private schema API change and the Demo audit consumer remain an
+open integration item; no audit assertion is implicitly waived.
+
 1. Core C1 contains the public APIs and reproducible pack workflow. Review it locally; no package publishing is implied.
 2. Demo D1 pins exact Core C1 in candidate-source.lock.json and uses candidate locks with verified digest-named tarballs.
 3. Core C2 pins exact Demo D1 in product-demos.lock.json. Its independent-checkout canary must test D1 against the exact C2 tarballs as well. C2 changes only required pin/evidence wiring relative to C1.
@@ -35,6 +42,6 @@ PHP 8.4 CLI with mbstring, DOM/XML, curl, zip and SQLite, Composer 2.8.12, Xvfb/
 
 Core's canary clones the pinned Demo commit into an independent temporary checkout, verifies all candidate bytes, provisions runtimes, runs required product reports, copies and verifies npm locks and reports, then checks exact Core/Demo SHAs, package closure, PHP digest and source fingerprints and freshness. Missing, stale, failed, skipped or mismatched evidence is a hard failure. A caught verification exception forces ok=false/status=failed and nonzero exit. Unit and whole-orchestrator tests include runner Exit 0 with invalid/missing/stale evidence and verifier exceptions.
 
-Before any separately authorized release, build and accept the whole package closure. The planned public package order is root, RMT/Fabric, compiler/CLI and Material core, Maraca, Material adapter/XSurface Shard, then MCP; optional peer cycles are checked as a complete pinned candidate set. The existing actual publish workflow is only coupled to mandatory canary acceptance here; changing publishing order/auth/trust or performing publication requires the separate publishing task. Do not publish individual versions until every exact candidate and PHP runtime gate has passed and the release owner has approved the package closure/release sequence.
+Before any separately authorized Core release, build and accept the whole package closure under the Core-only contract. The planned public package order is root, RMT/Fabric, compiler/CLI and Material core, Maraca, Material adapter/XSurface Shard, then MCP; optional peer cycles are checked as a complete pinned candidate set. Core installed-consumer and PHP/Laravel evidence remain required. The paired Demo canary is an independent migration audit, not a Core publication prerequisite. Publishing order/auth/trust changes and publication require their own authorization.
 
 No workflow is manually triggered, no package is published, and no deployment/merge is performed by this migration. Final review must separate passed, failed and not executed checks. Node 26/Chrome preflight timeout investigations remain separate from migration changes.

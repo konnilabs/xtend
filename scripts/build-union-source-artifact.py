@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """Read-only Git-object producer: no source execution or dependency installation."""
 import argparse, base64, gzip, hashlib, io, json, pathlib, subprocess, tarfile
+def verify_pin_records(pin,demo_pin=None):
+    import re
+    if not isinstance(pin,dict) or pin.get('schema')!='xtend.product-demo-pin.v1' or pin.get('repository')!='https://github.com/konnilabs/xtend-demos.git' or not all(isinstance(pin.get(k),str) and re.fullmatch('[a-f0-9]{40}',pin[k]) for k in ('demoSha','implementationCoreSha')):
+        raise ValueError('Wrong Core Demo pin schema/source')
+    if demo_pin is not None and (not isinstance(demo_pin,dict) or demo_pin.get('schema')!='xtend.demo-candidate-source.v1' or demo_pin.get('requiredApi')!='public-product-support-and-candidate-integrity-v1' or demo_pin.get('repository')!='https://github.com/konnilabs/xtend.git' or demo_pin.get('coreSha')!=pin['implementationCoreSha']):
+        raise ValueError('Wrong paired Candidate source schema/API/identity')
 def git(root,*args): return subprocess.check_output(['git','-C',str(root),*args])
 def repository(root,sha,all_bytes=True):
     if git(root,'rev-parse',sha+'^{commit}').decode().strip()!=sha: raise ValueError('Wrong commit identity')
@@ -41,10 +47,11 @@ def main():
     producer=dict(mode=producer_mode,implementationSha256=hashlib.sha256(implementation_bytes).hexdigest(),policySha256=hashlib.sha256(policy_bytes).hexdigest())
     # Product sources and pin always come from the exact Core head.
     pin=json.loads(git(core,'show',a.core_sha+':product-demos.lock.json'))
-    if pin['repository']!='https://github.com/konnilabs/xtend-demos.git': raise ValueError('Wrong Demo repository')
+    verify_pin_records(pin)
     bindings=json.loads(policy_bytes)
     subprocess.check_call(['git','-C',str(core),'merge-base','--is-ancestor',pin['implementationCoreSha'],a.core_sha])
     c,cb=repository(core,a.core_sha); d,db=repository(demo,pin['demoSha']); h,_=repository(core,bindings['historicalCoreSha'],False)
+    verify_pin_records(pin,json.loads(db['candidate-source.lock.json']))
     # Validate the exact compressed comparison closure against immutable original Git sources.
     archives=bindings.get('comparisonArchives',[])
     known={row['path'] for row in archives}

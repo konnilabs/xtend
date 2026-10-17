@@ -1865,6 +1865,11 @@ function normalizeInput(input) {
   return input && typeof input === 'object' ? { ...input } : {};
 }
 
+function isOptionalServiceGraphFingerprint(value) {
+  return value === undefined || value === null
+    || (typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value));
+}
+
 function loadMaracaBuildConfig(values, rootDir) {
   const requestedPath = values.config || values.configPath || values['build-config'];
   if (!requestedPath) return { path: null, config: null, diagnostics: [] };
@@ -1890,6 +1895,17 @@ function loadMaracaBuildConfig(values, rootDir) {
           code: 'xtend.maraca.build_config_schema_invalid',
           severity: 'error',
           message: `Maraca build config must use ${MARACA_BUILD_CONFIG_SCHEMA}.`
+        }]
+      };
+    }
+    if (!isOptionalServiceGraphFingerprint(config.serviceGraphFingerprint)) {
+      return {
+        path: configPath,
+        config,
+        diagnostics: [{
+          code: 'xtend.maraca.build_config_service_graph_invalid',
+          severity: 'error',
+          message: 'Maraca service graph fingerprint must be absent, null, or a SHA256 string.'
         }]
       };
     }
@@ -7471,11 +7487,14 @@ function maracaTuneCandidateRecord(result, requested) {
 }
 
 function createMaracaTuneConfig(input = {}) {
+  if (!isOptionalServiceGraphFingerprint(input.serviceGraphFingerprint)) {
+    throw new TypeError('Maraca service graph fingerprint must be absent, null, or a SHA256 string.');
+  }
   const base = {
     schema: MARACA_BUILD_CONFIG_SCHEMA,
     source: input.source,
     sourceFingerprint: input.sourceFingerprint,
-    serviceGraphFingerprint: input.serviceGraphFingerprint || null,
+    serviceGraphFingerprint: input.serviceGraphFingerprint ?? null,
     output: input.output,
     selected: input.selected,
     locked: input.locked,

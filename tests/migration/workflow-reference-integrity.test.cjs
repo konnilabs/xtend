@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-test('candidate setup avoids npm auto-cache before the required npm pin and provisions packaged FPM',()=>{
+test('workflow setup avoids npm auto-cache; the independent Nightly demo audit provisions FPM',()=>{
  const root=path.resolve(__dirname,'../../.github/workflows');
  for(const file of ['xtend-default-gates.yml','xtend-nightly-build.yml']) {
   const source=fs.readFileSync(path.join(root,file),'utf8');
@@ -8,7 +8,14 @@ test('candidate setup avoids npm auto-cache before the required npm pin and prov
   for(const step of source.split(/\n      - /).filter(step=>step.includes('uses: shivammathur\/setup-php@'))) {
    assert.match(step,/update: true/);assert.match(step,/use_package_cache: false/);assert.match(step,/composer:2\.10\.3/);
   }
-  assert.match(source,/node scripts\/provision_product_fpm\.cjs 8\.4/);
+  if(file==='xtend-nightly-build.yml')assert.match(source,/node scripts\/provision_product_fpm\.cjs 8\.4/);
+  else {
+   assert.ok(!source.includes('scripts/provision_product_fpm.cjs'));
+   assert.ok(!source.includes('scripts/product-candidate-canary.cjs'));
+   assert.ok(!source.includes('needs.product-candidate'));
+   assert.ok(source.includes('core-installed-consumers'));
+   assert.ok(source.includes('core-security-browser'));
+  }
  }
 });
 function checkWorkflow(source) {

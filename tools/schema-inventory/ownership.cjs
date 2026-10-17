@@ -27,8 +27,19 @@ function executableClosure(){
  const base=path.resolve(packageRoot,path.dirname(relative),specifier);if(!base.startsWith(packageRoot+path.sep))throw Error('Scanner helper escaped package');const resolved=[base,base+'.js',base+'.cjs',base+'.json'].find(f=>fs.existsSync(f)&&fs.statSync(f).isFile());if(!resolved)throw Error('Missing scanner helper: '+specifier);const target=path.relative(packageRoot,resolved);if(target.endsWith('.json'))files.add(target);else queue.push(target);}
  }return [...files].sort();
 }
-function verifiedPackage({manifest,directory,coreSha,demoSha,ownerRoot}){
- integrity.verifyCandidates(manifest,{directory,coreSha,demoSha});
+function verifiedPackage({manifest,directory,coreSha,demoSha,ownerRoot,sourceAudit=false,coreRoot}){
+ integrity.verifyCandidates(manifest,{directory,coreSha,...(manifest.schema==='xtend.product-candidates.v1'?{demoSha}:{profile:'xtend.npm.core-only.v1'})});
+ if(sourceAudit){
+  if(!/^[a-f0-9]{40}$/.test(demoSha||''))throw Error('Exact independent Demo audit identity required');
+  require('./source-audit.cjs').assertSourceCheckout({coreRoot,coreSha});
+  if(fs.realpathSync(coreRoot)!==fs.realpathSync(packageRoot))throw Error('Audit must execute the exact independent pinned Core source');
+  const owner=fs.realpathSync(ownerRoot),source=fs.realpathSync(coreRoot);
+  if(owner===source||owner.startsWith(source+path.sep))throw Error('Audit requires an independent Demo owner checkout');
+  const item=manifest.packages.find(p=>p.name==='@ccslabs/xtend');
+  if(!item||require('../../package.json').version!==item.version)throw Error('Audit candidate identity mismatch');
+  for(const binding of bindings)if(sha(fs.readFileSync(path.join(packageRoot,binding.packagePath)))!==binding.sourceSha256)throw Error('Historical authority source changed');
+  return item;
+ }
  const expected=path.join(fs.realpathSync(ownerRoot),'node_modules','@ccslabs','xtend');
  if(fs.realpathSync(packageRoot)!==expected)throw Error('Public scanner must resolve from independent owner installation, never sibling/registry checkout');
  const item=manifest.packages.find(p=>p.name==='@ccslabs/xtend');if(!item||require('../../package.json').version!==item.version)throw Error('Scanner candidate identity mismatch');
@@ -81,8 +92,8 @@ function validateOwner(scan,localInventory,owner){
 function verifyUnion(coreScan,demoScan){
  const rows=[];for(const id of ids){const old=ledger.entries.find(e=>e.schemaId===id);const shapes=[...(coreScan.entries.find(e=>e.schemaId===id)?.shapeFingerprints||[]),...(demoScan.entries.find(e=>e.schemaId===id)?.shapeFingerprints||[])];const union=[...new Set(shapes.map(f=>f.hash))].sort();if(!equal(union,expectedHashes(old)))throw Error('103-ID accepted union mismatch: '+id);for(const f of shapes)if(!equal(f.shape,allowedShape(old,f.hash)?.shape))throw Error('Current normalized shape differs from historical accepted shape: '+id);rows.push({schemaId:id,hashes:union});}return rows;
 }
-function verifyPair({scanner,coreRoot,ownerRoot,localInventory,manifest,directory,coreSha,demoSha}){
- const options={manifest,directory,coreSha,demoSha,ownerRoot};const item=verifiedPackage(options);
+function verifyPair({scanner,coreRoot,ownerRoot,localInventory,manifest,directory,coreSha,demoSha,sourceAudit=false}){
+ const options={manifest,directory,coreSha,demoSha,ownerRoot,coreRoot,sourceAudit};const item=verifiedPackage(options);
  for(const overlay of overlays)if(sha(fs.readFileSync(path.join(ownerRoot,overlay.sourcePath)))!==overlay.sourceSha256)throw Error('Exact regenerated command/form artifact digest required');
  const git=(root,args)=>execFileSync('git',args,{cwd:root,encoding:'utf8'}).trim();
  if(git(coreRoot,['rev-parse','HEAD'])!==coreSha||git(coreRoot,['status','--porcelain','--untracked-files=no'])||git(ownerRoot,['rev-parse','HEAD'])!==demoSha)throw Error('Exact clean source checkout required');
@@ -101,7 +112,7 @@ function verifyPair({scanner,coreRoot,ownerRoot,localInventory,manifest,director
  if(scoped.length)throw Error('Required production Core scanner rejects selected owner/family: '+JSON.stringify(scoped.slice(0,3)));
  const projected=JSON.parse(JSON.stringify(localInventory).replaceAll('imports/core/{CORE_SHA}/','imports/core/'+coreSha+'/'));
  const core=validateOwner(coreScan,current,'core'),demo=validateOwner(demoScan,projected,'demo'),union=verifyUnion(coreScan,demoScan);
- return {selection:ids,coreSha,demoSha,ledgerSha256:sha(ledgerBytes()),packageVersion:item.version,packageSha256:item.sha256,authorities:records,core,demo,union,selectionOk:true,migrationComplete:false,remainingOwnershipIds:21,generatedAt:new Date().toISOString()};
+ return {...(sourceAudit?{auditSource:{mode:'committed-core-source',coreSha}}:{}),selection:ids,coreSha,demoSha,ledgerSha256:sha(ledgerBytes()),packageVersion:item.version,packageSha256:item.sha256,authorities:records,core,demo,union,selectionOk:true,migrationComplete:false,remainingOwnershipIds:21,generatedAt:new Date().toISOString()};
 }
 function verifyOwnershipEvidence(binding,{directory,coreSha,demoSha,manifest,startedAt,now=Date.now()}){
  if(!binding||!['schema-ownership-103.json','reports/schema-ownership-103.json'].includes(binding.file)||!binding.sha256)throw Error('Missing required ownership evidence');
@@ -118,4 +129,4 @@ function verifyOwnershipEvidence(binding,{directory,coreSha,demoSha,manifest,sta
  for(const b of bindings){const record=report.authorities.find(r=>r.schemaId===b.schemaId&&r.oldSource===b.oldSource&&r.expectedFingerprint===b.expectedFingerprint);if(!record||record.coreSha!==coreSha||record.packageSha256!==item.sha256||record.packageVersion!==item.version||record.sourceSha256!==b.sourceSha256||record.importedSource!=='imports/core/'+coreSha+'/'+b.oldSource)throw Error('Ownership authority evidence identity/digest mismatch');}
  return true;
 }
-module.exports={importAuthorities,verifyPair,validateOwner,verifyUnion,assertSelection,verifyOwnershipEvidence,normalizeUsages,verifySelectedGovernance};
+module.exports={importSourceAuthorities:options=>importAuthorities({...options,sourceAudit:true}),verifySourcePair:options=>verifyPair({...options,sourceAudit:true}),importAuthorities,verifyPair,validateOwner,verifyUnion,assertSelection,verifyOwnershipEvidence,normalizeUsages,verifySelectedGovernance};

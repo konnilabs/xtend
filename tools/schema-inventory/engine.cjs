@@ -28,6 +28,8 @@ const TEXT_SIZE_LIMIT = 16 * 1024 * 1024;
 
 const SOURCE_EXCLUDES = new Set([
   INVENTORY_PATH,
+  'tests/schemas/core-release-inventory.json',
+  'development/core-candidate-authority.json',
   INVENTORY_SUITE_PATH,
   SCANNER_PATH,
   'package-lock.json',
@@ -650,6 +652,15 @@ function normalizeTsType(node, sourceFile, context = {}, stack = new Set(), subs
 
 function normalizeTsExpression(node, sourceFile, context = {}, stack = new Set()) {
   if (!node) return 'unknown';
+  // Standard JS JSDoc type assertions are source declarations, not runtime coercions.
+  if (ts.isParenthesizedExpression(node) && ts.isJSDocTypeAssertion(node)) {
+    const declared = ts.getJSDocType(node);
+    // The parser may recover a type from malformed JSDoc; do not grant that type.
+    const comments = node.jsDoc || [];
+    const malformed = (sourceFile.jsDocDiagnostics || []).some((diagnostic) =>
+      comments.some((comment) => diagnostic.start >= comment.pos && diagnostic.start < comment.end));
+    if (declared && !malformed) return normalizeTsType(declared, sourceFile, context, stack);
+  }
   if (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) || ts.isTypeAssertionExpression(node) || ts.isNonNullExpression(node)) {
     return normalizeTsExpression(node.expression, sourceFile, context, stack);
   }
@@ -1070,7 +1081,130 @@ function isReviewedInitialCandidateAuthority(entry, inventory, scan, rootDir) {
   catch { return false; }
 }
 
-function selectCanonicalDefinition(record) {
+// Closed Core registration for this two-version family only. Historical v1
+// release facts are read from the unchanged audit, never inferred from a scan.
+const CORE_CANDIDATE_PROFILE = 'xtend.npm.core-only.v1';
+const CORE_CANDIDATE_DECISION = 'development/core-candidate-authority.json';
+const LEGACY_CANDIDATE_INVENTORY_SHA256 = '0c1ca03e989f4c1cfa5e07b2296e163ddda0090fd138677bc410feafce9661f3';
+function assertCoreCandidateAuthority(inventory, scan, provider) {
+  require('./source-provider.cjs').assertSourceProvider(provider);
+  const demand = (ok, message) => { if (!ok) throw Error('Core Candidate authority: ' + message); };
+  demand(provider.provenance().profile === CORE_CANDIDATE_PROFILE && scanProviders.get(scan) === provider
+    && providerScanContent.get(scan) === sha256(JSON.stringify(scan)), 'same authenticated unmodified Core scan required');
+  provider.files();
+  const policy = JSON.parse(provider.readCurrent('scripts/release/core-projection-policy.json'));
+  demand(policy.status === 'reviewed-core-owned-projection', 'Core projection still pending');
+  const bytes = provider.readCurrent(CORE_CANDIDATE_DECISION);
+  const digest = crypto.createHash('sha256').update(bytes).digest('hex');
+  demand(/^[a-f0-9]{64}$/.test(policy.coreCandidateAuthoritySha256 || '')
+    && policy.coreCandidateAuthoritySha256 === digest, 'missing or substituted reviewed decision');
+  const decision = JSON.parse(bytes);
+  demand(decision.format === 1 && decision.profile === CORE_CANDIDATE_PROFILE
+    && decision.familyId === 'xtend.product-candidates'
+    && decision.status === 'reviewed-core-candidate-registration'
+    && decision.firstRelease?.status === 'reviewed-unreleased-registration'
+    && decision.firstRelease.releasedFingerprintSetHash === null
+    && decision.firstRelease.publicationGuardRetired === false, 'pending or invalid first-release registration');
+  const historicalBytes = provider.readCurrent(INVENTORY_PATH);
+  demand(crypto.createHash('sha256').update(historicalBytes).digest('hex') === LEGACY_CANDIDATE_INVENTORY_SHA256
+    && decision.legacyInventorySha256 === LEGACY_CANDIDATE_INVENTORY_SHA256, 'historical audit changed');
+  const historical = JSON.parse(historicalBytes);
+  const old = historical.entries.find(entry => entry.schemaId === 'xtend.product-candidates.v1');
+  const oldFamily = historical.schemaFamilies.find(family => family.familyId === decision.familyId);
+  demand(old && oldFamily, 'historical v1 record missing');
+  const members = inventory.entries.filter(entry => entry.familyId === decision.familyId);
+  const family = inventory.schemaFamilies.filter(item => item.familyId === decision.familyId);
+  demand(members.length === 2 && family.length === 1 && family[0].currentVersion === 2
+    && family[0].activeSchemaId === 'xtend.product-candidates.v2'
+    && stableEqual(family[0].tombstones, oldFamily.tombstones), 'explicit v1 -> v2 family transition required');
+  demand(Array.isArray(decision.registrations) && decision.registrations.length === 2
+    && stableEqual(decision.registrations.map(row => row.schemaId), ['xtend.product-candidates.v1', 'xtend.product-candidates.v2']),
+    'exact ordered current v1 and v2 registrations required');
+  const fixedSources = ['candidate-integrity.cjs', 'candidate-integrity.d.ts', 'scripts/pack-candidates.cjs', 'scripts/release/profile.cjs'];
+  demand(Array.isArray(decision.sources) && stableEqual(decision.sources.map(row => row.path), fixedSources), 'exact producer/declaration source bindings required');
+  for (const row of decision.sources) demand(/^[a-f0-9]{64}$/.test(row.sha256 || '')
+    && crypto.createHash('sha256').update(provider.readCurrent(row.path)).digest('hex') === row.sha256, 'source bytes differ: ' + row.path);
+  const declarationHash = decision.sources.find(row => row.path === 'candidate-integrity.d.ts').sha256;
+  for (const version of [1, 2]) {
+    const id = 'xtend.product-candidates.v' + version;
+    const entry = members.find(item => item.schemaId === id);
+    const observed = scan.entries.find(item => item.schemaId === id);
+    const registration = decision.registrations[version - 1];
+    const symbol = version === 1 ? 'LegacyCandidateManifest' : 'CoreCandidateManifest';
+    const canonical = { path: 'candidate-integrity.d.ts', symbol, definitionType: 'typescript-declaration', role: 'definition', visibility: 'internal' };
+    demand(entry && observed && registration.version === version && registration.familyId === decision.familyId
+      && registration.status === 'reviewed-current-source' && registration.sourceSha256 === declarationHash
+      && stableEqual(registration.canonicalDefinition, canonical)
+      && stableEqual(entry.canonicalDefinition, canonical) && stableEqual(observed.canonicalDefinition, canonical)
+      && entry.version === version && entry.aliasOf === null && entry.status === observed.status,
+      'current declaration identity/classification mismatch: ' + id);
+    const hashes = uniqueSorted(observed.shapeFingerprints.map(row => row.hash));
+    const authority = authoritativeFingerprintHashes(observed.shapeFingerprints);
+    demand(authority.length > 0 && stableEqual(registration.observedFingerprints, hashes)
+      && stableEqual(registration.authoritativeFingerprints, authority)
+      && stableEqual(registration.acceptedFingerprints, hashes)
+      && stableEqual(entry.shapeFingerprints, observed.shapeFingerprints)
+      && stableEqual(uniqueSorted(entry.shapePolicy?.authoritativeFingerprints || []), authority)
+      && stableEqual(uniqueSorted(entry.shapePolicy?.acceptedFingerprints || []), hashes), 'pending or mismatched normalized fingerprint sets: ' + id);
+    demand(observed.shapeFingerprints.some(row => row.evidence.some(evidence => evidence.authoritative === true
+      && evidence.completeness === 'complete' && evidence.type === 'declared-type'
+      && evidence.path === canonical.path && evidence.symbol === symbol)), 'complete current declaration authority missing: ' + id);
+    demand(allUsagePaths(observed).includes('scripts/pack-candidates.cjs'), 'current producer observation missing: ' + id);
+    demand(stableEqual(entry.currentAuthorityRegistration, registration), 'entry registration differs from reviewed decision: ' + id);
+    const released = version === 1 ? old.releasedFingerprintSetHash : null;
+    demand(entry.releasedFingerprintSetHash === released && entry.shapePolicy.releasedFingerprintSetHash === released,
+      'unreleased v2 or genuine historical v1 released facts changed');
+    if (version === 1) {
+      // The rename is not a new authority grant. Every complete current v1
+      // authority must retain the genuine historical normalized shape.
+      demand(stableEqual(authoritativeFingerprintHashes(old.shapeFingerprints), [INITIAL_CANDIDATE_AUTHORITY.fingerprint])
+        && stableEqual(authority, [INITIAL_CANDIDATE_AUTHORITY.fingerprint])
+        && stableEqual(authoritativeFingerprintHashes(entry.shapeFingerprints), [INITIAL_CANDIDATE_AUTHORITY.fingerprint]),
+        'v1 authoritative shape changed; registration cannot waive a schema evolution');
+      demand(stableEqual(entry.history || [], old.history || []) && stableEqual(entry.releaseHistory || [], old.releaseHistory || [])
+        && stableEqual(entry.historicalAuthority, { inventorySha256: LEGACY_CANDIDATE_INVENTORY_SHA256,
+          canonicalDefinition: old.canonicalDefinition, initialAuthorityReview: old.initialAuthorityReview,
+          shapePolicy: old.shapePolicy, releasedFingerprintSetHash: old.releasedFingerprintSetHash,
+          family: oldFamily }) && stableEqual(entry.initialAuthorityReview, old.initialAuthorityReview), 'genuine v1 history must remain separate from current observations');
+      demand(stableEqual(entry.lifecycle, { status: 'deprecated', rollout: 'planned' })
+        && entry.replacedBy === 'xtend.product-candidates.v2'
+        && decision.transition?.status === 'reviewed-family-transition'
+        && decision.transition.from === id && decision.transition.to === entry.replacedBy
+        && typeof decision.transition.compatibility === 'string' && decision.transition.compatibility.trim().length > 0
+        && typeof decision.transition.rationale === 'string' && decision.transition.rationale.trim().length >= 8
+        && stableEqual(entry.replacementDecision, { compatibility: decision.transition.compatibility, rationale: decision.transition.rationale }), 'v1 read-window/migration decision pending');
+    } else demand(stableEqual(entry.lifecycle, { status: 'active', rollout: 'planned' }) && entry.replacedBy === null
+      && !(entry.history || []).length && !(entry.releaseHistory || []).length
+      && !(inventory.releaseRecords || []).some(row => row.schemaId === id), 'v2 must remain honestly unreleased');
+  }
+  demand(stableEqual((inventory.releaseRecords || []).filter(row => row.schemaId === 'xtend.product-candidates.v1'),
+    (historical.releaseRecords || []).filter(row => row.schemaId === 'xtend.product-candidates.v1')), 'v1 release records changed');
+  demand(!inventory.entries.some(row => members.some(member => row.aliasOf === member.schemaId)), 'initial family may not be aliased');
+  demand(stableEqual(family[0].versions, members.slice().sort((a,b) => a.version-b.version).map(entry => ({
+    schemaId: entry.schemaId, version: entry.version, lifecycle: entry.lifecycle, releasedFingerprintSetHash: entry.releasedFingerprintSetHash
+  }))), 'family version facts differ from registered entries');
+  return { profile: CORE_CANDIDATE_PROFILE, decisionSha256: digest, familyId: decision.familyId,
+    schemaId: 'xtend.product-candidates.v2', releasedFingerprintSetHash: null, publicationGuardRetired: false };
+}
+
+function selectCanonicalDefinition(record, provider) {
+  const coreSymbol = record.schemaId === 'xtend.product-candidates.v1' ? 'LegacyCandidateManifest'
+    : record.schemaId === 'xtend.product-candidates.v2' ? 'CoreCandidateManifest' : null;
+  if (provider?.provenance().profile === CORE_CANDIDATE_PROFILE && coreSymbol) {
+    require('./source-provider.cjs').assertSourceProvider(provider);
+    // Reuse actual complete declaration extraction, including dependent types.
+    // No fabricated occurrence or acceptance fingerprint enters the scan.
+    const declarations = new Map();
+    extractCodeShapes({ path: 'candidate-integrity.d.ts', generated: false,
+      text: provider.readCurrent('candidate-integrity.d.ts').toString('utf8') }, declarations);
+    const shapes = declarations.get(record.schemaId)?.shapes.filter(shape =>
+      shape.path === 'candidate-integrity.d.ts' && shape.symbol === coreSymbol &&
+      shape.evidenceType === 'declared-type' && shape.completeness === 'complete' && shape.authoritative === true) || [];
+    if (shapes.length !== 1 || !record.shapes.some(shape => stableEqual(shape, shapes[0])))
+      throw Error('Core Candidate canonical declaration missing, partial or inconsistent: ' + record.schemaId);
+    return { path: 'candidate-integrity.d.ts', symbol: coreSymbol,
+      definitionType: 'typescript-declaration', role: 'definition', visibility: 'internal' };
+  }
   if (record.schemaId === INITIAL_CANDIDATE_AUTHORITY.schemaId && record.shapes.some(shape =>
     shape.path === INITIAL_CANDIDATE_AUTHORITY.path && shape.symbol === INITIAL_CANDIDATE_AUTHORITY.symbol
     && shape.hash === INITIAL_CANDIDATE_AUTHORITY.fingerprint && shape.authoritative)) {
@@ -1320,11 +1454,11 @@ function shapePolicyFor(schemaId, shapeFingerprints) {
   };
 }
 
-function entryFromRecord(record, exportMappings) {
+function entryFromRecord(record, exportMappings, provider) {
   const occurrences = record.occurrences.slice().sort((left, right) => compareStrings(occurrenceKey(left), occurrenceKey(right)));
   const kinds = inferKinds(record.schemaId, occurrences, record.formalJsonSchema);
   const shapeFingerprints = buildShapeFingerprints(record);
-  const canonicalDefinition = selectCanonicalDefinition(record);
+  const canonicalDefinition = selectCanonicalDefinition(record, provider);
   const version = parseSchemaVersion(record.schemaId);
   const releasedFingerprintSetHash = authoritativeFingerprintSetHash(shapeFingerprints);
   return {
@@ -1647,7 +1781,7 @@ function scanSchemaInventory(options = {}) {
   });
   const exportMappings = provider ? provider.exportMappings(files, packageExportMappings) : packageExportMappings(rootDir, files);
   const entries = Array.from(records.values()).filter((record) => record.occurrences.length > 0)
-    .map((record) => entryFromRecord(record, exportMappings))
+    .map((record) => entryFromRecord(record, exportMappings, provider))
     .sort((left, right) => compareStrings(left.schemaId, right.schemaId));
   const duplicateReviews = mergeReviews(dynamicDuplicateReviews(entries), []);
   const duplicateAudit = auditDuplicateCandidates(entries, []);
@@ -1959,6 +2093,11 @@ function validateInventoryDocument(inventory, scan, options = {}) {
   if (provider) provider.files(); // Recheck the verified closure before trusting extraction.
   const errors = [];
   const warnings = [];
+  let coreCandidateRegistration = null;
+  if (provider?.provenance().profile === CORE_CANDIDATE_PROFILE) {
+    try { coreCandidateRegistration = assertCoreCandidateAuthority(inventory, scan, provider); }
+    catch (error) { errors.push(issue('core-candidate-authority', error.message)); }
+  }
   if (!inventory || inventory.inventoryVersion !== 2) errors.push(issue('invalid-version', 'inventoryVersion must equal 2.'));
   const evolutionPolicy = inventory && inventory.evolutionPolicy;
   const expectedEvolutionPolicy = defaultEvolutionPolicy();
@@ -2084,8 +2223,17 @@ function validateInventoryDocument(inventory, scan, options = {}) {
     }
     const mayRetainHistoricalReleasedHash = currentReleasedHash === null && entry.releasedFingerprintSetHash
       && (entry.aliasOf || entry.lifecycle && entry.lifecycle.status !== 'active');
-    const mayBindInitialCandidateAuthority = isReviewedInitialCandidateAuthority(entry, inventory, scan, rootDir);
+    const mayBindInitialCandidateAuthority = provider?.provenance().profile === CORE_CANDIDATE_PROFILE
+      ? coreCandidateRegistration !== null && entry.schemaId === 'xtend.product-candidates.v2'
+        && entry.releasedFingerprintSetHash === null
+      : isReviewedInitialCandidateAuthority(entry, inventory, scan, rootDir);
+    // Historical v1 was already explicitly unreleased. Preserve that fact only
+    // while the current complete authority is exactly its fixed historical set.
+    const mayRetainCoreV1Continuity = coreCandidateRegistration !== null
+      && entry.schemaId === 'xtend.product-candidates.v1' && entry.releasedFingerprintSetHash === null
+      && stableEqual(authoritative, [INITIAL_CANDIDATE_AUTHORITY.fingerprint]);
     if (entry.releasedFingerprintSetHash !== currentReleasedHash && !mayRetainHistoricalReleasedHash
+      && !mayRetainCoreV1Continuity
       && !mayBindInitialCandidateAuthority) {
       errors.push(issue('released-fingerprint-drift', 'A released authoritative fingerprint changed in place; publish a new major schema ID.', {
         schemaId: entry.schemaId,
@@ -2432,6 +2580,7 @@ function main() {
 return {
  main,
   assertCandidateInitialAuthorityRetiredForRelease,
+  assertCoreCandidateAuthority,
   FORMAL_RMT_SCHEMA_FAMILY_ID,
   FORMAL_RMT_SCHEMA_ID,
   INVENTORY_PATH,

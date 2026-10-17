@@ -1,10 +1,17 @@
 import type { RmtResumeRuntimeOptions } from './rmt-resume-runtime.js';
 import type { JsonValue, PortableRenderArtifact } from './rmt-portable-render.js';
 import type { PageResponse, PageResult, PageSelection, PageInitialResume, PageWire, PageClientState } from './page-contract.js';
-export interface PageVisitOptions extends PageSelection { method?: string; body?: BodyInit; signal?: AbortSignal; headers?: Record<string, string>; preserveState?: boolean; preserveScroll?: boolean; replace?: boolean; fromHistory?: boolean; transition?: boolean; instant?: string; placeholder?: Record<string, JsonValue>; ttl?: number }
+export interface PageResourceContext { readonly page:PageClientState; readonly signal:AbortSignal; readonly cache:'reload'|'reuse' }
+export interface PageResourceCachePolicy {
+  /** Return null for every route not explicitly approved for public resource reuse. */
+  resolve(url:string,context:PageResourceContext):unknown|Promise<unknown>;
+  project(resource:unknown,context:PageResourceContext):PageClientState|Promise<PageClientState>;
+  clear():void;
+}
+export interface PageVisitOptions extends PageSelection { cache?:'reload'|'reuse'; method?: string; body?: BodyInit; signal?: AbortSignal; headers?: Record<string, string>; preserveState?: boolean; preserveScroll?: boolean; replace?: boolean; fromHistory?: boolean; transition?: boolean; instant?: string; placeholder?: Record<string, JsonValue>; ttl?: number }
 export interface PageClientEvent { type: string; page: PageClientState; error?: unknown; group?: string; next?: PageResult }
 export interface PageDownload { kind: 'download'; filename: string; blob: Blob; url: string }
-export interface PageClientOptions { viewTransitions?: boolean; activateInitial?(page: PageClientState): Promise<{resume?: import("./rmt-resume-runtime.js").RmtResumeResult}>; transition?(update: () => Promise<void>): void | Promise<void>; initialPage: PageClientState | PageInitialResume | PageWire; applicationKey?: string; onDownload?(result: PageDownload): void | Promise<void>; resume?: RmtResumeRuntimeOptions; links?: boolean; forms?: boolean; window?: Window; origin?: string; fetch?: typeof fetch; root?: Element; router?: {pageClient?: {visit(url: string): Promise<unknown>} | null}; headers?(): Record<string, string>; timeoutMs?: number; cacheSize?: number; maxConcurrentRequests?: number; maxQueuedRequests?: number; onceLimit?: number; encryptHistory?: boolean; pages?: Record<string, PortableRenderArtifact>; render?(next: PageClientState, context: {previous?: PageClientState; preserveLayout: boolean; isCurrent():boolean}): void | Promise<void>; onVersionMismatch?(next: PageResult): void | Promise<void> }
+export interface PageClientOptions { resourceCache?:PageResourceCachePolicy; viewTransitions?: boolean; activateInitial?(page: PageClientState): Promise<{resume?: import("./rmt-resume-runtime.js").RmtResumeResult}>; transition?(update: () => Promise<void>): void | Promise<void>; initialPage: PageClientState | PageInitialResume | PageWire; applicationKey?: string; onDownload?(result: PageDownload): void | Promise<void>; resume?: RmtResumeRuntimeOptions; links?: boolean; forms?: boolean; window?: Window; origin?: string; fetch?: typeof fetch; root?: Element; router?: {pageClient?: {visit(url: string): Promise<unknown>} | null}; headers?(): Record<string, string>; timeoutMs?: number; cacheSize?: number; maxConcurrentRequests?: number; maxQueuedRequests?: number; onceLimit?: number; encryptHistory?: boolean; pages?: Record<string, PortableRenderArtifact>; render?(next: PageClientState, context: {previous?: PageClientState; preserveLayout: boolean; isCurrent():boolean}): void | Promise<void>; onVersionMismatch?(next: PageResult): void | Promise<void> }
 export interface PageClient {
   readonly page: PageClientState;
   start(): Promise<PageClientState>;

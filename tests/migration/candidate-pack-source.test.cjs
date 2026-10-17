@@ -6,6 +6,7 @@ test('SHA archive packing excludes untracked published files and fingerprints ge
  const source=path.join(temp,'core'),output=path.join(temp,'candidates');fs.mkdirSync(path.join(source,'scripts'),{recursive:true});
  const root=path.resolve(__dirname,'../..');
  for(const file of ['candidate-integrity.cjs','scripts/product-candidate-canary.cjs','scripts/product-candidate-evidence.cjs','scripts/build_laravel_package.js'])fs.copyFileSync(path.join(root,file),path.join(source,file));
+ for(const file of ['scripts/pack-candidates.cjs','scripts/release/toolchain.cjs','scripts/release/profile.cjs']){const target=path.join(source,file);fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(path.join(root,file),target);}
  fs.writeFileSync(path.join(source,'package.json'),JSON.stringify({name:'@fixture/exact-core',version:'0.9.0',workspaces:[],files:['candidate-integrity.cjs','docs','security','tools']}));
  fs.writeFileSync(path.join(source,'LICENSE'),'fixture license');
  for(const directory of ['laravel/src','laravel/config','laravel/resources','xtendrmt','xscaler','docs','security','tools'])fs.mkdirSync(path.join(source,directory),{recursive:true});

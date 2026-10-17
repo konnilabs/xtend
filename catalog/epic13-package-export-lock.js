@@ -249,7 +249,7 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   "./test-support/dev-server",
   "./laravel-package",
   "./candidate-integrity",
-  "./schema-inventory"
+  "./rmt/page-resource-cache"
 ]);
 
 const REQUIRED_PACK_ROOTS = Object.freeze([
@@ -275,7 +275,13 @@ const REQUIRED_PACK_ROOTS = Object.freeze([
   'xtend-maraca',
   'xsurface-shard',
   'xscaler',
-  'tools',
+  'tools/rmt-language',
+  'tools/rmt-language-server',
+  'tools/rmt-linter',
+  'tools/rmt-editor',
+  'tools/tooling-bridge.js',
+  'tools/tooling-bridge.d.ts',
+  'tools/xtensions',
   'security',
   'docs'
 ]);
@@ -442,7 +448,7 @@ const SURFACE_GROUPS = Object.freeze([
       './rmt-language/snippets',
       './rmt-editor/vscode'
     ],
-    requiredPackRoots: ['tools']
+    requiredPackRoots: ['tools/rmt-language', 'tools/rmt-language-server', 'tools/rmt-linter', 'tools/rmt-editor', 'tools/tooling-bridge.js', 'tools/tooling-bridge.d.ts']
   },
   {
     id: 'xtensions',
@@ -467,7 +473,7 @@ const SURFACE_GROUPS = Object.freeze([
       './xtensions/openui5-host-adapter',
       './xtensions/angular-host-adapter'
     ],
-    requiredPackRoots: ['tools']
+    requiredPackRoots: ['tools/xtensions']
   }
 ]);
 

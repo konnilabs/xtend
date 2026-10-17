@@ -7367,9 +7367,79 @@
         "repository"
       ],
       "timeoutMs": 120000
+    },
+    {
+      "id": "release-safety",
+      "label": "Scoped npm release safety",
+      "description": "Artifact, registry, retry, inventory, adapter, trusted workflow and tag regression tests.",
+      "defaultIncluded": true,
+      "handler": "release-safety",
+      "implementations": [
+        {
+          "path": "tests/release/release_safety_suite.js",
+          "function": "runReleaseSafetySuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository"
+      ],
+      "timeoutMs": 300000
+    },
+    {
+      "id": "core-security-browser",
+      "label": "Core sanitizer and Trusted Types actual sandboxed Chromium",
+      "description": "Runs the existing sanitizer/Trusted Types Chromium test on the dedicated Node24 Core job; no skips or unsafe launcher fallback.",
+      "defaultIncluded": false,
+      "handler": "core-security-browser",
+      "implementations": [
+        {
+          "path": "scripts/release/core-security.cjs",
+          "function": "runCoreSecuritySuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository",
+        "browser"
+      ],
+      "timeoutMs": 300000
+    },
+    {
+      "id": "core-release-evidence",
+      "label": "Required immutable Core release evidence",
+      "description": "Required same-run Core source, all-ten SDK and selected release consumers bound to immutable candidate bytes",
+      "defaultIncluded": false,
+      "handler": "core-release-evidence",
+      "implementations": [
+        {
+          "path": "scripts/release/evidence-gate.cjs",
+          "function": "runCoreEvidenceGate",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository"
+      ],
+      "timeoutMs": 120000
     }
   ],
   "profiles": {
+    "core-security-browser": {
+      "suites": [
+        "core-security-browser"
+      ],
+      "reports": [],
+      "includes": [],
+      "advisory": [],
+      "requireNoSkips": true
+    },
     "scaffold-write-plan": {
       "suites": [
         "scaffold-write-plan"
@@ -7413,8 +7483,7 @@
     },
     "core": {
       "suites": [
-        "core",
-        "product-migration-contracts"
+        "core"
       ],
       "reports": [],
       "includes": []
@@ -9644,8 +9713,7 @@
         "browser-hypervisor",
         "project-index",
         "ssr-pages",
-        "ssr-pages-browser",
-        "product-migration-contracts"
+        "ssr-pages-browser"
       ],
       "reports": [
         ".xtend-test-results/xtend-pr-gate-report.json"
@@ -9815,8 +9883,7 @@
         "browser-hypervisor",
         "project-index",
         "ssr-pages",
-        "ssr-pages-browser",
-        "product-migration-contracts"
+        "ssr-pages-browser"
       ],
       "reports": [
         ".xtend-test-results/xtend-release-gate-report.json"
@@ -10509,7 +10576,9 @@
         "epic13-package-export-lock",
         "xtensions-runtime-acceptance"
       ],
-      "suites": [],
+      "suites": [
+        "release-safety"
+      ],
       "reports": [],
       "advisory": [
         "docs-stub-inventory"
@@ -10535,7 +10604,9 @@
         "rkfa-production-closure",
         "docs-stub-inventory"
       ],
-      "suites": [],
+      "suites": [
+        "release-safety"
+      ],
       "reports": [],
       "advisory": [
         "docs-stub-inventory"
@@ -10614,7 +10685,8 @@
         "release"
       ],
       "suites": [
-        "product-candidate-evidence"
+        "release-safety",
+        "core-release-evidence"
       ],
       "reports": [],
       "advisory": []
@@ -10721,6 +10793,15 @@
         ".xtend-test-results/xtend-xtensions-runtime-gate-report.json"
       ],
       "includes": []
+    },
+    "migration:audit": {
+      "includes": [],
+      "suites": [
+        "product-migration-contracts",
+        "product-candidate-evidence"
+      ],
+      "reports": [],
+      "advisory": []
     }
   },
   "scripts": {
@@ -13527,8 +13608,8 @@
           "advisory": false
         },
         {
-          "script": "verify:product-candidate",
-          "step": "Require exact fresh Demo candidate evidence before publish",
+          "script": "release:verify-core-evidence",
+          "step": "Require exact sealed Core source and both installed-consumer lanes",
           "condition": null,
           "advisory": false
         }

@@ -11,6 +11,9 @@ const primitiveSize = value => {
 };
 export function encodePageWire(page) {
   if (!['xtend.page-response.v1', 'xtend.page-response.v2'].includes(page?.schema)) fail();
+  return encodeGraph(page,page.schema === 'xtend.page-response.v1' ? PAGE_WIRE_LEGACY_SCHEMA : PAGE_WIRE_SCHEMA);
+}
+function encodeGraph(page,schema){
   const nodes = [], interned = new Map(), ancestors = new Set();
   function encode(value, depth = 0) {
     if (depth > MAX_DEPTH) fail();
@@ -34,10 +37,13 @@ export function encodePageWire(page) {
     }));
   } catch { fail(); }
   const root = encode(normalized);
-  return {schema:page.schema === 'xtend.page-response.v1' ? PAGE_WIRE_LEGACY_SCHEMA : PAGE_WIRE_SCHEMA, root, nodes};
+  return {schema, root, nodes};
 }
 export function decodePageWire(input) {
   if (![PAGE_WIRE_SCHEMA, PAGE_WIRE_LEGACY_SCHEMA].includes(input?.schema)) return input;
+  return decodeGraph(input,input.schema === PAGE_WIRE_LEGACY_SCHEMA ? 'xtend.page-response.v1' : 'xtend.page-response.v2');
+}
+function decodeGraph(input,expectedSchema){
   if (!Array.isArray(input.nodes) || !input.nodes.length || input.nodes.length > MAX_NODES) fail();
   const decoded = [], sizes = [], depths = [];
   function read(value, limit) {
@@ -60,6 +66,10 @@ export function decodePageWire(input) {
     decoded.push(result); sizes.push(size); depths.push(depth);
   });
   const page = read(input.root, decoded.length).value;
-  if (page?.schema !== (input.schema === PAGE_WIRE_LEGACY_SCHEMA ? 'xtend.page-response.v1' : 'xtend.page-response.v2')) fail();
+  if (page?.schema !== expectedSchema) fail();
   return page;
 }
+
+// Private initial-document codec; ordinary PageResponse decoding stays strict.
+export function encodeInitialResumeWire(initial){if(initial?.schema!=='xtend.page-initial-resume.v1')fail();return encodeGraph(initial,'xtend.page-initial-wire.v1');}
+export function decodeInitialResumeWire(input){return input?.schema==='xtend.page-initial-wire.v1'?decodeGraph(input,'xtend.page-initial-resume.v1'):input;}

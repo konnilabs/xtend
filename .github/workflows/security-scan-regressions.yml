@@ -25,7 +25,11 @@ jobs:
           node xscaler/generate-esm.js --check
           node scripts/verify_xtendrmt_artifact_parity.js
           npm run ci:dependency-locks:check
+      - name: Configure pinned unprivileged sandbox-capable Core browser
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-security-browser"
       - name: Run browser, HTTP and filesystem security regressions
         env:
-          CHROMIUM_PATH: /usr/bin/google-chrome
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:security-scan-regressions

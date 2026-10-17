@@ -4,8 +4,21 @@ const policyBytes = fs.readFileSync(path.join(__dirname, 'source-bindings.json')
 const bindings = JSON.parse(policyBytes);
 const verified = new WeakSet();
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
+const implementationSha256 = hash(fs.readFileSync(__filename));
 const objectId = (kind, bytes) => crypto.createHash('sha1').update(Buffer.from(`${kind} ${bytes.length}\0`)).update(bytes).digest('hex');
 function check(ok, message) { if (!ok) throw Error(message); }
+function verifyProductDemoPin(pin, expectedDemoSha = pin?.demoSha) {
+  check(pin?.schema === 'xtend.product-demo-pin.v1' && pin.repository === 'https://github.com/konnilabs/xtend-demos.git'
+    && typeof pin.demoSha === 'string' && /^[a-f0-9]{40}$/.test(pin.demoSha) && pin.demoSha === expectedDemoSha
+    && typeof pin.implementationCoreSha === 'string' && /^[a-f0-9]{40}$/.test(pin.implementationCoreSha), 'Current Core Demo pin mismatch');
+  return pin;
+}
+function verifyCandidateSourcePin(pin, implementationCoreSha = pin?.coreSha) {
+  check(pin?.schema === 'xtend.demo-candidate-source.v1' && pin.requiredApi === 'public-product-support-and-candidate-integrity-v1'
+    && pin.repository === 'https://github.com/konnilabs/xtend.git' && typeof pin.coreSha === 'string'
+    && /^[a-f0-9]{40}$/.test(pin.coreSha) && pin.coreSha === implementationCoreSha, 'Paired implementation pin mismatch');
+  return pin;
+}
 function safePath(value) {
   check(typeof value === 'string' && value && !value.includes('\\') && !value.includes('\0') && !path.posix.isAbsolute(value)
     && value.split('/').every(part => part && part !== '.' && part !== '..'), 'Unsafe artifact path');
@@ -136,10 +149,9 @@ function createSourceProvider({ archive, destination, expected }) {
     }
   }
   const pin = JSON.parse(members.get('current/core/product-demos.lock.json')?.bytes || '{}');
-  check(pin.repository === 'https://github.com/konnilabs/xtend-demos.git' && pin.demoSha === expected.demoSha
-    && /^[a-f0-9]{40}$/.test(pin.implementationCoreSha), 'Current Core Demo pin mismatch');
+  verifyProductDemoPin(pin, expected.demoSha);
   const demoPin = JSON.parse(members.get('current/demo/candidate-source.lock.json')?.bytes || '{}');
-  check(demoPin.repository === 'https://github.com/konnilabs/xtend.git' && demoPin.coreSha === pin.implementationCoreSha, 'Paired implementation pin mismatch');
+  verifyCandidateSourcePin(demoPin, pin.implementationCoreSha);
   const allowed = new Set(['manifest.json', ...materialized.map(row => row.memberPath), ...evidence.map(row => row.memberPath)]);
   check(members.size === allowed.size && [...members.keys()].every(name => allowed.has(name)), 'Unexpected artifact member');
   assertDestinationAncestors(destination);
@@ -177,5 +189,66 @@ function createSourceProvider({ archive, destination, expected }) {
     }
   }); verified.add(provider); return provider;
 }
+// Repository-private Core transport adapter. Reuses the same Git, tar, path,
+// live member integrity and scanner brand; it never acquires a Demo repository.
+function createCoreReleaseProvider({archive,destination,expected}) {
+  const profile='xtend.npm.core-only.v1';
+  check(expected?.profile===profile && expected.producerMode==='committed' &&
+    /^[a-f0-9]{40}$/.test(expected.sourceSha||'') &&
+    /^[a-f0-9]{64}$/.test(expected.archiveSha256||'') && /^[a-f0-9]{64}$/.test(expected.manifestSha256||'') &&
+    ['runId','runAttempt'].every(key=>/^[1-9][0-9]*$/.test(expected.context?.[key]||'')), 'Exact trusted Core source context required');
+  destination=path.resolve(destination);assertDestinationAncestors(destination);
+  const archiveBytes=fs.readFileSync(archive);check(hash(archiveBytes)===expected.archiveSha256,'Core source archive digest mismatch');
+  const members=tarMembers(archiveBytes),mb=members.get('manifest.json')?.bytes;
+  check(mb&&hash(mb)===expected.manifestSha256,'Core source manifest digest mismatch');
+  const manifest=JSON.parse(mb);
+  check(manifest.format===2&&manifest.profile===profile&&manifest.repository==='konnilabs/xtend'&&
+    Object.keys(manifest).every(key=>['format','profile','repository','context','producer','core'].includes(key))&&
+    manifest.context?.runId===expected.context.runId&&manifest.context?.runAttempt===expected.context.runAttempt&&Object.keys(manifest.context).length===2,
+    'Core source transport/version/repository/context mismatch');
+  verifyRepository(manifest.core,expected.sourceSha);
+  check(manifest.producer?.mode==='committed','Core producer must be exact committed tooling');
+  for(const [name,digest] of [['scripts/build-core-source-artifact.py',manifest.producer.implementationSha256],
+    ['scripts/release/core-projection-policy.json',manifest.producer.policySha256]]) {
+    const row=manifest.core.files.find(item=>item.path===name);check(row&&row.sha256===digest,'Core producer implementation/policy Git binding mismatch');
+  }
+  const index=new Map();
+  for(const row of manifest.core.files) {
+    const memberPath='current/core/'+safePath(row.path),member=members.get(memberPath);
+    check(member&&member.bytes.length===row.bytes&&hash(member.bytes)===row.sha256&&objectId('blob',member.bytes)===row.gitBlob&&
+      member.mode===parseInt(row.mode.slice(3),8),'Core current member integrity mismatch');
+    index.set(row.path,{...row,owner:'core',logicalPath:row.path,memberPath});
+  }
+  const allowed=new Set(['manifest.json',...[...index.values()].map(row=>row.memberPath)]);
+  check(members.size===allowed.size&&[...members.keys()].every(name=>allowed.has(name)),
+    'Missing/extra/mixed Core source member');
+  check(!fs.existsSync(destination),'Core source destination must be new');fs.mkdirSync(destination,{recursive:true});
+  for(const [name,member] of members){const target=path.join(destination,name);assertDestinationAncestors(path.dirname(target));
+    fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,member.bytes,{flag:'wx',mode:member.mode});}
+  const recheck=row=>{const target=path.join(destination,row.memberPath),st=fs.lstatSync(target);
+    check(fs.realpathSync(destination)===destination&&fs.realpathSync(target)===target&&st.isFile()&&!st.isSymbolicLink()&&
+      st.size===row.bytes&&hash(fs.readFileSync(target))===row.sha256,'Core materialized source changed');return target;};
+  const provenance={profile,coreSha:expected.sourceSha,repository:'konnilabs/xtend',archiveSha256:expected.archiveSha256,
+    manifestSha256:expected.manifestSha256,producer:manifest.producer,context:manifest.context,
+    productiveFiles:index.size,historicalProductiveFiles:0,bindings:[...index.values()].map(row=>({owner:'core',sourcePath:row.path,
+      logicalPath:row.path,sha256:row.sha256,gitBlob:row.gitBlob}))};
+  const provider=Object.freeze({
+    comparisonEvidence(){return [];},files(){return [...index.values()].map(row=>({...row,absolutePath:recheck(row)}));},
+    hasCurrent(relative){const row=index.get(relative);if(!row)return false;recheck(row);return true;},
+    readCurrent(relative){const row=index.get(relative);check(row,'Missing Core source');const bytes=fs.readFileSync(recheck(row));
+      check(hash(bytes)===row.sha256,'Core source changed during read');return bytes;},
+    originalPath(relative){return index.get(relative)?.path||relative;},provenance(){return structuredClone(provenance);},
+    exportMappings(files,extract){return extract(null,files);}
+  });verified.add(provider);return provider;
+}
+
 function assertSourceProvider(provider) { check(verified.has(provider), 'Verified manifest-backed source provider required'); }
-module.exports = { createSourceProvider, assertSourceProvider };
+function assertImplementationBinding(expectedBytes, expectedPolicyBytes) {
+  check(hash(expectedBytes) === implementationSha256 && hash(fs.readFileSync(__filename)) === implementationSha256
+    && hash(expectedPolicyBytes) === hash(policyBytes)
+    && hash(fs.readFileSync(path.join(__dirname, 'source-bindings.json'))) === hash(policyBytes)
+    && require.cache[__filename] === module && module.exports === implementationExports,
+    'Source-provider implementation/cached module differs from authenticated source');
+}
+const implementationExports = Object.freeze({ createSourceProvider, assertSourceProvider, verifyProductDemoPin, verifyCandidateSourcePin, createCoreReleaseProvider, assertImplementationBinding });
+module.exports = implementationExports;

@@ -1,0 +1,9 @@
+{
+  "status": "pending-independent-source-and-authority-review",
+  "inventoryFile": "tests/schemas/core-release-inventory.json",
+  "inventorySha256": null,
+  "productivePaths": null,
+  "authorityDecisionSha256": null,
+  "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
+  "coreCandidateAuthoritySha256": null
+}

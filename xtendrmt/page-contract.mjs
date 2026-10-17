@@ -1,6 +1,6 @@
 import {decodePageWire} from './page-wire.mjs';
 export {PAGE_WIRE_SCHEMA, PAGE_WIRE_LEGACY_SCHEMA, encodePageWire, decodePageWire} from './page-wire.mjs';
-export {PAGE_INITIAL_RESUME_SCHEMA, encodePageInitialResume, decodePageInitialDocument} from './page-initial.mjs';
+export {PAGE_INITIAL_RESUME_SCHEMA, PAGE_INITIAL_WIRE_SCHEMA, encodePageInitialResume, decodePageInitialDocument} from './page-initial.mjs';
 export const PAGE_RESPONSE_SCHEMA = 'xtend.page-response.v2';
 export const PAGE_RESPONSE_LEGACY_SCHEMA = 'xtend.page-response.v1';
 export const PAGE_MANIFEST_SCHEMA = 'xtend.page-manifest.v2';

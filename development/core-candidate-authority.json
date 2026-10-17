@@ -1,0 +1,73 @@
+{
+  "format": 1,
+  "profile": "xtend.npm.core-only.v1",
+  "familyId": "xtend.product-candidates",
+  "status": "pending-fresh-core-capture-and-independent-review",
+  "legacyInventorySha256": "0c1ca03e989f4c1cfa5e07b2296e163ddda0090fd138677bc410feafce9661f3",
+  "sources": [
+    {
+      "path": "candidate-integrity.cjs",
+      "sha256": null
+    },
+    {
+      "path": "candidate-integrity.d.ts",
+      "sha256": null
+    },
+    {
+      "path": "scripts/pack-candidates.cjs",
+      "sha256": null
+    },
+    {
+      "path": "scripts/release/profile.cjs",
+      "sha256": null
+    }
+  ],
+  "registrations": [
+    {
+      "schemaId": "xtend.product-candidates.v1",
+      "familyId": "xtend.product-candidates",
+      "version": 1,
+      "status": "pending",
+      "canonicalDefinition": {
+        "path": "candidate-integrity.d.ts",
+        "symbol": "LegacyCandidateManifest",
+        "definitionType": "typescript-declaration",
+        "role": "definition",
+        "visibility": "internal"
+      },
+      "sourceSha256": null,
+      "observedFingerprints": null,
+      "authoritativeFingerprints": null,
+      "acceptedFingerprints": null
+    },
+    {
+      "schemaId": "xtend.product-candidates.v2",
+      "familyId": "xtend.product-candidates",
+      "version": 2,
+      "status": "pending",
+      "canonicalDefinition": {
+        "path": "candidate-integrity.d.ts",
+        "symbol": "CoreCandidateManifest",
+        "definitionType": "typescript-declaration",
+        "role": "definition",
+        "visibility": "internal"
+      },
+      "sourceSha256": null,
+      "observedFingerprints": null,
+      "authoritativeFingerprints": null,
+      "acceptedFingerprints": null
+    }
+  ],
+  "transition": {
+    "status": "pending",
+    "from": "xtend.product-candidates.v1",
+    "to": "xtend.product-candidates.v2",
+    "compatibility": null,
+    "rationale": null
+  },
+  "firstRelease": {
+    "status": "pending",
+    "releasedFingerprintSetHash": null,
+    "publicationGuardRetired": false
+  }
+}

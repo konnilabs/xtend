@@ -202,6 +202,7 @@ async function runSsrPagesSuite(options = {}) {
     } finally { host.dispose(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
   });
   const page = (name, extra = {}) => ({schema:'xtend.page-response.v1',kind:'page',version:'1',contextKey:'alice',page:name,url:`/${name}`,props:{},head:[],errors:{},flash:{},shared:{},deferred:{},once:{},merge:{},partial:false,layout:null,...extra});
+  await require('./resource_cache_checks').resourceCacheChecks({check,createPageClient,page,load});
   await require('./navigation_checks').navigationChecks({check, createPageClient, page});
   await check('a late navigation cannot replace a newer page', async () => {
     let release;

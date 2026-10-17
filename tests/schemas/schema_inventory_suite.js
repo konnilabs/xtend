@@ -1,21 +1,60 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const schemaInventoryScanner = require('../../scripts/scan_schema_inventory');
+function createSuite(coreContext = null) {
+const sourceProvider = coreContext?.provider;
+const schemaInventoryScanner = coreContext?.scanner || require('../../scripts/scan_schema_inventory');
+const { INVENTORY_PATH } = schemaInventoryScanner;
+// The existing public validator owns released-fingerprint acceptance, including
+// its source-bound unreleased registration. No positive release permission here.
 const {
-  INVENTORY_PATH,
   scanSchemaInventory,
   validateInventoryDocument
-} = schemaInventoryScanner;
+} = coreContext?.scanner || require('../../tools/schema-inventory/index.cjs').createScanner({ typescript: require('typescript') });
 const {
   createSuiteContext,
   printSuiteReport
 } = require('../utils/assertions');
 const {
-  readJson,
-  resolveRepoPath,
+  readJson: legacyReadJson,
+  resolveRepoPath: legacyResolveRepoPath,
   resolveRootDir
 } = require('../utils/files');
+
+// Source access is scoped to one authenticated provider. A Core miss never
+// falls back to the working checkout, including runtime API assertions.
+function readJson(relative, rootDir) {
+  return sourceProvider ? JSON.parse(sourceProvider.readCurrent(toPosixPath(relative))) : legacyReadJson(relative, rootDir);
+}
+function readText(relative, rootDir) {
+  return sourceProvider ? sourceProvider.readCurrent(toPosixPath(relative)).toString('utf8')
+    : fs.readFileSync(path.join(rootDir, relative), 'utf8');
+}
+function resolveRepoPath(relative, rootDir) {
+  if (!sourceProvider) return legacyResolveRepoPath(relative, rootDir);
+  const row = sourceProvider.files().find(file => file.logicalPath === toPosixPath(relative));
+  if (!row || row.owner !== 'core') throw Error('Missing authenticated Core source: ' + relative);
+  return row.absolutePath;
+}
+function requireSource(relative, rootDir) {
+  if (!sourceProvider) return require(legacyResolveRepoPath(relative, rootDir));
+  const absolute = resolveRepoPath(relative, rootDir);
+  sourceProvider.readCurrent(toPosixPath(relative));
+  const value = require(absolute);
+  // Existing cleanup assertions execute the same captured modules and their
+  // captured local dependency closure. Foreign cached modules are not evidence.
+  const allowed = new Set(sourceProvider.files().map(row => row.absolutePath));
+  const visited = new Set();
+  function checkModule(module) {
+    if (!module || visited.has(module)) return;
+    visited.add(module);
+    if (!allowed.has(module.filename)) throw Error('Runtime assertion loaded foreign Core source: ' + module.filename);
+    module.children.forEach(checkModule);
+  }
+  checkModule(require.cache[absolute]);
+  sourceProvider.files();
+  return value;
+}
 
 const SUITE_ID = 'schema-inventory';
 const SUITE_LABEL = 'XTend Schema Inventory';
@@ -154,7 +193,7 @@ function assertNoIssues(context, issues, passMessage, failureLabel) {
 }
 
 function relativeInventoryPath(rootDir) {
-  const configuredPath = INVENTORY_PATH || 'tests/schemas/xtend-schema-inventory.json';
+  const configuredPath = sourceProvider ? 'tests/schemas/core-release-inventory.json' : INVENTORY_PATH || 'tests/schemas/xtend-schema-inventory.json';
   return path.isAbsolute(configuredPath)
     ? path.relative(rootDir, configuredPath)
     : configuredPath;
@@ -164,6 +203,10 @@ function isRepoLocalExistingPath(relativePath, rootDir) {
   if (!isNonEmptyString(relativePath) || path.isAbsolute(relativePath)) return false;
   const normalized = path.normalize(relativePath);
   if (normalized === '..' || normalized.startsWith(`..${path.sep}`)) return false;
+  if (sourceProvider) {
+    const logical = toPosixPath(normalized).replace(/\/$/u, '');
+    return sourceProvider.hasCurrent(logical) || sourceProvider.files().some(row => row.logicalPath.startsWith(logical + '/'));
+  }
   return fs.existsSync(resolveRepoPath(normalized, rootDir));
 }
 
@@ -315,6 +358,15 @@ function substituteWildcards(pattern, captures) {
 
 function discoverPackageManifests(rootDir) {
   const manifests = [];
+  if (sourceProvider) {
+    for (const row of sourceProvider.files()) {
+      if (path.posix.basename(row.logicalPath) !== 'package.json') continue;
+      const manifest = readJson(row.logicalPath, rootDir);
+      if (isNonEmptyString(manifest.name) && isRecord(manifest.exports))
+        manifests.push({ directory: path.join(rootDir, path.posix.dirname(row.logicalPath)), manifest, path: row.logicalPath });
+    }
+    return manifests;
+  }
   const skippedDirectories = new Set([
     '.git',
     '.xtend-build',
@@ -380,7 +432,7 @@ function readSourceText(relativePath, rootDir, sourceCache) {
   const normalized = toPosixPath(relativePath);
   if (!sourceCache.has(normalized)) {
     try {
-      sourceCache.set(normalized, fs.readFileSync(path.join(rootDir, normalized), 'utf8'));
+      sourceCache.set(normalized, readText(normalized, rootDir));
     } catch (error) {
       sourceCache.set(normalized, null);
     }
@@ -507,7 +559,7 @@ function createInterfaceResolver(rootDir) {
       const normalizedPath = toPosixPath(reference.path);
       if (!jsonCache.has(normalizedPath)) {
         try {
-          jsonCache.set(normalizedPath, JSON.parse(fs.readFileSync(path.join(rootDir, normalizedPath), 'utf8')));
+          jsonCache.set(normalizedPath, readJson(normalizedPath, rootDir));
         } catch (error) {
           jsonCache.set(normalizedPath, null);
         }
@@ -657,8 +709,12 @@ function validateEvolutionPolicy(inventory) {
   return issues;
 }
 
-function validateEntryEvolutionFields(entries) {
-  const issues = [];
+function validateEntryEvolutionFields(entries, publicValidation) {
+  // Fail closed if extraction or public source validation was unavailable.
+  // All contracts share this rule; no suite-local identifier exemption exists.
+  const issues = publicValidation && Array.isArray(publicValidation.errors)
+    ? publicValidation.errors.filter((issue) => issue.code === 'released-fingerprint-drift').map(validationIssueText)
+    : ['released-fingerprint binding could not be validated by the public scanner'];
   entries.forEach((entry, index) => {
     if (!isRecord(entry)) return;
     const label = entry.schemaId || `entries[${index}]`;
@@ -703,21 +759,7 @@ function validateEntryEvolutionFields(entries) {
       || policy.releasedFingerprintSetHash !== entry.releasedFingerprintSetHash) {
       issues.push(`${label} entry and shapePolicy released fingerprint hashes must agree`);
     }
-    const authoritativeHashes = entryAuthoritativeFingerprints(entry);
-    let expectedReleasedHash = authoritativeHashes.length > 0 ? fingerprintSetHash(authoritativeHashes) : null;
-    if (typeof schemaInventoryScanner.authoritativeFingerprintSetHash === 'function') {
-      try {
-        expectedReleasedHash = schemaInventoryScanner.authoritativeFingerprintSetHash(entry);
-      } catch (error) {
-        // The suite-local deterministic hash is compatible with scanner-v2's public contract.
-      }
-    }
-    const mayRetainHistoricalReleasedHash = expectedReleasedHash === null
-      && isNonEmptyString(entry.releasedFingerprintSetHash)
-      && (isNonEmptyString(entry.aliasOf) || entry.lifecycle && entry.lifecycle.status !== 'active');
-    if (entry.releasedFingerprintSetHash !== expectedReleasedHash && !mayRetainHistoricalReleasedHash) {
-      issues.push(`${label}.releasedFingerprintSetHash does not bind its authoritative fingerprints`);
-    }
+
 
     (Array.isArray(entry.shapeFingerprints) ? entry.shapeFingerprints : []).forEach((fingerprint, fingerprintIndex) => {
       const fingerprintLabel = `${label} shapeFingerprints[${fingerprintIndex}]`;
@@ -1360,7 +1402,7 @@ function validateGateIntegration(packageManifest, rootDir) {
   });
   const workflowPath = '.github/workflows/xtend-default-gates.yml';
   const workflow = isRepoLocalExistingPath(workflowPath, rootDir)
-    ? fs.readFileSync(path.join(rootDir, workflowPath), 'utf8')
+    ? readText(workflowPath, rootDir)
     : '';
   if (workflow.split(INVENTORY_REPORT_PATH).length - 1 < 2) {
     issues.push(`PR and release workflow artifacts must both upload ${INVENTORY_REPORT_PATH}`);
@@ -1515,7 +1557,7 @@ function validateCleanupMvp(inventory, entries, packageManifest, rootDir, duplic
       if (!types || !types.includes(token)) issues.push(`${producer.typesPath} does not surface ${token}`);
     });
     try {
-      const producerApi = require(resolveRepoPath(producer.path, rootDir));
+      const producerApi = requireSource(producer.path, rootDir);
       if (producerApi.XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA !== HOST_RESOURCE_CLEANUP_SCHEMA
         || typeof producerApi.resolveHostResourceCleanupSchema !== 'function') {
         issues.push(`${producer.module} runtime API does not re-export the canonical constant and resolver`);
@@ -1539,7 +1581,7 @@ function validateCleanupMvp(inventory, entries, packageManifest, rootDir, duplic
   });
 
   try {
-    const cleanupApi = require(resolveRepoPath(HOST_RESOURCE_CLEANUP_RUNTIME_PATH, rootDir));
+    const cleanupApi = requireSource(HOST_RESOURCE_CLEANUP_RUNTIME_PATH, rootDir);
     if (cleanupApi.XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA !== HOST_RESOURCE_CLEANUP_SCHEMA
       || !sameStringSet(cleanupApi.XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_LEGACY_SCHEMA_IDS, HOST_RESOURCE_CLEANUP_LEGACY_ALIASES)) {
       issues.push('cleanup factory exports do not declare the canonical ID and exact five Legacy IDs');
@@ -1642,8 +1684,17 @@ function cloneJson(value) {
 
 function validateNegativeGateBehavior(inventory, scan, rootDir) {
   const issues = [];
+  if (sourceProvider) {
+    for (const candidate of [cloneJson(scan), { ...scan, entries: [] }]) {
+      let rejected = false;
+      try { validateInventoryDocument(inventory, candidate, { rootDir, sourceProvider }); }
+      catch (error) { rejected = /unmodified verified extraction|cloned or mutated/iu.test(error.message); }
+      if (!rejected) issues.push('foreign cloned/mutated Core scan is not rejected');
+    }
+  }
   const validationErrors = (document, scanned = scan) => {
-    const result = validateInventoryDocument(document, scanned, { rootDir });
+    if (sourceProvider && scanned !== scan) throw Error('Core negative probes must retain the same authenticated scan');
+    const result = validateInventoryDocument(document, scanned, { rootDir, ...(sourceProvider ? { sourceProvider } : {}) });
     return Array.isArray(result && result.errors) ? result.errors : [];
   };
   const rejectsAs = (document, codes, pattern, scanned = scan) => validationErrors(document, scanned).some((entry) => (
@@ -1841,7 +1892,7 @@ function runSchemaInventorySuite(options = {}) {
   let inventory = null;
 
   try {
-    inventory = readJson(inventoryPath, rootDir);
+    inventory = coreContext ? coreContext.inventory : readJson(inventoryPath, rootDir);
     context.pass(`${inventoryPath} is valid JSON`);
   } catch (error) {
     context.fail(`${inventoryPath} is not readable JSON: ${error.message}`);
@@ -1889,9 +1940,20 @@ function runSchemaInventorySuite(options = {}) {
   assertNoIssues(context, structure.pathIssues, 'all canonical and source paths exist in the repository', 'invalid inventory paths');
   assertNoIssues(context, structure.referenceIssues, 'all interface references are typed and qualified', 'invalid interface references');
   assertNoIssues(context, structure.fingerprintIssues, 'all shape fingerprints and shape policies are internally consistent', 'invalid shape fingerprints');
+  let scan = null;
+  let validation = null;
+  let duplicateAudit = normalizeDuplicateAudit(null, entries, inventory.consolidations);
+  try {
+    scan = coreContext ? coreContext.scan : scanSchemaInventory({ rootDir });
+    validation = validateInventoryDocument(inventory, scan, { rootDir, ...(sourceProvider ? { sourceProvider } : {}) });
+    duplicateAudit = normalizeDuplicateAudit(scan, entries, inventory.consolidations);
+  } catch (error) {
+    context.fail(`schema inventory scanner failed: ${error.message}`);
+  }
+
   assertNoIssues(
     context,
-    validateEntryEvolutionFields(entries),
+    validateEntryEvolutionFields(entries, validation),
     'all entries bind family, version, lifecycle, alias, replacement, evidence and released fingerprints',
     'invalid entry evolution metadata'
   );
@@ -1908,7 +1970,7 @@ function runSchemaInventorySuite(options = {}) {
     'invalid alias or replacement graph'
   );
 
-  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const packageManifest = requireSource('tests/utils/test-catalog.js', rootDir).resolveManifestProfiles(readJson('package.json', rootDir));
   assertNoIssues(
     context,
     validateNativeFirstSubset(inventoryIds, packageManifest),
@@ -1940,16 +2002,6 @@ function runSchemaInventorySuite(options = {}) {
     'formal JSON Schema mismatch'
   );
 
-  let scan = null;
-  let validation = null;
-  let duplicateAudit = normalizeDuplicateAudit(null, entries, inventory.consolidations);
-  try {
-    scan = scanSchemaInventory({ rootDir });
-    validation = validateInventoryDocument(inventory, scan, { rootDir });
-    duplicateAudit = normalizeDuplicateAudit(scan, entries, inventory.consolidations);
-  } catch (error) {
-    context.fail(`schema inventory scanner failed: ${error.message}`);
-  }
 
   assertNoIssues(
     context,
@@ -2017,9 +2069,13 @@ function runSchemaInventorySuite(options = {}) {
   rollout.productiveLegacyProducers = duplicateAudit.rollout.filter((reference) => (
     reference && Array.isArray(reference.producerPaths) && reference.producerPaths.length > 0
   )).length;
+  if (coreContext) require('../../scripts/release/core-source.cjs').assertCoreSchemaContext(coreContext);
   return context.result({
     warnings: warnings.map(validationIssueText),
     report: {
+      ...(coreContext ? { profile: coreContext.provider.provenance().profile,
+        productiveSource: coreContext.provider.provenance(), inventorySha256: coreContext.inventorySha256,
+        policySha256: coreContext.policySha256 } : {}),
       inventoryVersion: inventory.inventoryVersion,
       exactGroups: duplicateAudit.exactGroups.length,
       overlaps: duplicateAudit.overlaps.length,
@@ -2061,13 +2117,31 @@ function printSchemaInventoryReport(result) {
   });
 }
 
+return { runSchemaInventorySuite, printSchemaInventoryReport };
+}
+
+function runSchemaInventorySuite(options = {}) {
+  const core = require('../../scripts/release/core-source.cjs');
+  if (options.coreContext) {
+    core.assertCoreSchemaContext(options.coreContext);
+    return core.runCoreSchemaSuite(options.coreContext, options);
+  }
+  if (options.sourceProvider || options.scan || options.inventory) throw Error('Branded Core schema context required');
+  if (process.env.XTEND_CORE_REQUIRED === 'true' || process.env.XTEND_CORE_ARCHIVE || process.env.XTEND_CORE_EXPECTED) {
+    return core.withCoreSourceEnvironment({ rootDir: options.rootDir || path.resolve(__dirname, '../..'), typescript: require('typescript') },
+      coreContext => core.runCoreSchemaSuite(coreContext, options));
+  }
+  return createSuite().runSchemaInventorySuite(options);
+}
+function printSchemaInventoryReport(result) { return createSuite().printSchemaInventoryReport(result); }
 if (require.main === module) {
   const result = runSchemaInventorySuite();
   printSchemaInventoryReport(result);
   process.exitCode = result.ok ? 0 : 1;
 }
-
-module.exports = {
-  printSchemaInventoryReport,
-  runSchemaInventorySuite
-};
+function runAuthenticatedCoreSuite(coreContext, options = {}) {
+  const core = require('../../scripts/release/core-source.cjs');
+  core.assertCoreSuiteModule(coreContext, module);
+  return createSuite(coreContext).runSchemaInventorySuite({ ...options, rootDir: coreContext.rootDir, coreContext });
+}
+module.exports = { printSchemaInventoryReport, runSchemaInventorySuite, runAuthenticatedCoreSuite };

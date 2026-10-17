@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>XToggle native change regression</title>
+<x-toggle id="ux-toggle" label="Native toggle" name="notifications" value="enabled"></x-toggle>
+<p id="result" role="status">Testing native events…</p>
+<script type="module">
+import '/components/xtoggle.js';
+const result={status:'pending',checks:[],errors:[]};
+window.__xtendToggleNativeSmokeResult=result;
+const record=(name,passed,details={})=>{result.checks.push({name,passed,details});if(!passed)result.errors.push(name);};
+try{
+ await customElements.whenDefined('x-toggle');
+ const toggle=document.getElementById('ux-toggle'),input=toggle.shadowRoot.querySelector('input'),events=[];
+ toggle.addEventListener('toggle-changed',e=>events.push(e.detail.checked));
+ toggle.checked=true;
+ record('toggle property writes stay silent',events.length===0);
+ input.click();input.click();
+ record('toggle native activations emit exactly once',events.length===2&&events[0]===false&&events[1]===true&&toggle.checked&&toggle.hasAttribute('checked'),{events:[...events]});
+ input.dispatchEvent(new Event('change',{bubbles:true}));
+ toggle.checked=false;toggle.checked=true;
+ record('toggle duplicate changes and property writes stay silent',events.length===2);
+ toggle.toggle();toggle.checked=true;toggle.reset();
+ record('toggle public actions emit exactly once',events.length===4&&events[2]===false&&events[3]===false);
+ toggle.checked=true;
+ for(const guard of ['disabled','busy']){
+  toggle.setAttribute(guard,'');input.click();toggle.toggle();
+  record('toggle '+guard+' prevents native and public changes',toggle.checked&&events.length===4);
+  toggle.removeAttribute(guard);
+ }
+}catch(error){result.errors.push(error.message);}
+result.status=result.errors.length?'failed':'passed';
+document.getElementById('result').textContent=result.status.toUpperCase()+(result.errors.length?': '+result.errors.join(', '):' — native activation, duplicate events, property writes, public actions and guards');
+</script>
+</html>

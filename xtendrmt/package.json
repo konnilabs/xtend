@@ -106,7 +106,9 @@
     "contracts",
     "html-sanitizer.cjs",
     "html-sanitizer.mjs",
-    "DOMPurify-LICENSE"
+    "DOMPurify-LICENSE",
+    "page-resource-cache.mjs",
+    "page-resource-cache.d.ts"
   ],
   "exports": {
     ".": {
@@ -254,7 +256,11 @@
       "import": "./rmt-resume-capture-adapter.js",
       "default": "./rmt-resume-capture-adapter.js"
     },
-    "./contracts/*": "./contracts/*"
+    "./contracts/*": "./contracts/*",
+    "./page-resource-cache": {
+      "types": "./page-resource-cache.d.ts",
+      "default": "./page-resource-cache.mjs"
+    }
   },
   "publishConfig": {
     "access": "public",

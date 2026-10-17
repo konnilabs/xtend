@@ -10,10 +10,25 @@ on:
   workflow_dispatch:
     inputs:
       publish_to_npm:
-        description: 'Publish @ccslabs/xtend to npm with the latest dist-tag after all release gates pass.'
+        description: 'Publish selected exact verified tarballs with latest (stable) or next (prerelease), after all gates pass.'
         required: false
         default: false
         type: boolean
+      release_groups:
+        description: 'Comma-separated groups core,mcp,material; empty selects all.'
+        required: false
+        default: ''
+        type: string
+      release_packages:
+        description: 'Additional exact public package names.'
+        required: false
+        default: ''
+        type: string
+      resume_artifact_id:
+        description: 'Immutable xtend-release-sealed artifact ID from the SAME source SHA; empty prepares once.'
+        required: false
+        default: ''
+        type: string
       run_source_to_sea:
         description: 'Run the optional RMT vNext Source-to-Sea browser evidence job.'
         required: false
@@ -24,75 +39,53 @@ permissions:
   contents: read
 
 concurrency:
-  group: xtend-ci-gates-${{ github.ref }}
+  group: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_to_npm && 'xtend-npm-publish-global' || format('xtend-ci-gates-{0}', github.ref) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  union-source-artifact:
-    name: Verify pinned union source artifact
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+  core-source-artifact:
+    name: Verify committed Core source artifact
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
+      core-sha: ${{ steps.identity.outputs.core-sha }}
+      archive-sha256: ${{ steps.producer.outputs.archive-sha256 }}
+      manifest-sha256: ${{ steps.producer.outputs.manifest-sha256 }}
       artifact-id: ${{ steps.upload.outputs.artifact-id }}
-      core-sha: ${{ steps.pin.outputs.core-sha }}
-      demo-sha: ${{ steps.pin.outputs.demo-sha }}
-      archive-sha256: ${{ steps.produce.outputs.archive-sha256 }}
-      manifest-sha256: ${{ steps.produce.outputs.manifest-sha256 }}
     steps:
-      - name: Checkout exact Core event head
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'push' && github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
-          path: union-core
-      - name: Verify Core identity and read immutable Demo pin
-        id: pin
+      - name: Bind exact Core event head
+        id: identity
         env:
-          EXPECTED_CORE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'push' && github.sha }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          python3 - <<'PYTHON'
-          import json, os, re, subprocess
-          head = subprocess.check_output(['git', '-C', 'union-core', 'rev-parse', 'HEAD']).decode().strip()
-          assert head == os.environ['EXPECTED_CORE_SHA']
-          pin = json.load(open('union-core/product-demos.lock.json'))
-          assert pin['repository'] == 'https://github.com/konnilabs/xtend-demos.git'
-          assert re.fullmatch('[a-f0-9]{40}', pin['demoSha'])
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
-              output.write('core-sha=' + head + '\n' + 'demo-sha=' + pin['demoSha'] + '\n')
-          PYTHON
-      - name: Checkout exact pinned Demo source without dependencies
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          repository: konnilabs/xtend-demos
-          ref: ${{ steps.pin.outputs.demo-sha }}
-          path: union-demo
-      - name: Produce verified regular-file source artifact
-        id: produce
+          test "$(git rev-parse HEAD)" = "$EVENT_HEAD"
+          echo "core-sha=$EVENT_HEAD" >> "$GITHUB_OUTPUT"
+      - name: Produce single-repository source transport
+        id: producer
         env:
-          EXPECTED_CORE_SHA: ${{ steps.pin.outputs.core-sha }}
-          EXPECTED_DEMO_SHA: ${{ steps.pin.outputs.demo-sha }}
+          CORE_SHA: ${{ steps.identity.outputs.core-sha }}
         run: |
-          test "$(git -C union-demo rev-parse HEAD)" = "$EXPECTED_DEMO_SHA"
-          python3 union-core/scripts/build-union-source-artifact.py --mode committed --core union-core --demo union-demo --core-sha "$EXPECTED_CORE_SHA" --output "$RUNNER_TEMP/union-source-produced" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT"
-          python3 - <<'PYTHON'
-          import json, os
-          receipt = json.load(open(os.environ['RUNNER_TEMP'] + '/union-source-produced/producer-receipt.json'))
-          assert receipt['producerMode'] == 'committed'
-          assert receipt['coreSha'] == os.environ['EXPECTED_CORE_SHA'] and receipt['demoSha'] == os.environ['EXPECTED_DEMO_SHA']
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
-              output.write('archive-sha256=' + receipt['archiveSha256'] + '\nmanifest-sha256=' + receipt['manifestSha256'] + '\n')
-          PYTHON
-      - name: Upload immutable same-run source artifact
+          python3 scripts/build-core-source-artifact.py --core . --core-sha "$CORE_SHA" --output "$RUNNER_TEMP/core-produced" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT"
+          python3 - <<'PYCORE'
+          import json,os
+          value=json.load(open(os.environ['RUNNER_TEMP']+'/core-produced/producer-receipt.json'))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as output:
+              output.write('archive-sha256='+value['archiveSha256']+'\nmanifest-sha256='+value['manifestSha256']+'\n')
+          PYCORE
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         id: upload
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: xtend-union-source-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/union-source-produced/sources.tar.gz
+          name: xtend-core-source-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/core-produced/sources.tar.gz
           if-no-files-found: error
 
   pr-fast-gates:
-    needs: union-source-artifact
+    needs: core-source-artifact
     name: PR fast gates (Node ${{ matrix.node_version }})
     if: ${{ !cancelled() && github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
@@ -109,18 +102,10 @@ jobs:
             artifact_suffix: node-26-5-0
 
     steps:
-      - name: Require successful source producer without fallback
-        env:
-          SOURCE_PRODUCER_RESULT: ${{ needs.union-source-artifact.result }}
-          SOURCE_ARTIFACT_ID: ${{ needs.union-source-artifact.outputs.artifact-id }}
-        run: |
-          test "$SOURCE_PRODUCER_RESULT" = success
-          [[ "$SOURCE_ARTIFACT_ID" =~ ^[0-9]+$ ]]
-
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Configure npm download cache
         run: node scripts/configure_npm_cache.js
@@ -165,6 +150,30 @@ jobs:
         id: install_1
         run: npm ci --ignore-scripts --no-audit --fund=false
 
+      - name: Acquire required same-run Core source
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          artifact-ids: ${{ needs.core-source-artifact.outputs.artifact-id }}
+          path: ${{ runner.temp }}/core-source
+      - name: Bind Core source expectation
+        env:
+          CORE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
+          CORE_ARCHIVE_SHA256: ${{ needs.core-source-artifact.outputs.archive-sha256 }}
+          CORE_MANIFEST_SHA256: ${{ needs.core-source-artifact.outputs.manifest-sha256 }}
+        run: |
+          python3 - <<'PYCORE'
+          import json,os
+          e=os.environ
+          expected=dict(profile='xtend.npm.core-only.v1',producerMode='committed',sourceSha=e['CORE_SHA'],archiveSha256=e['CORE_ARCHIVE_SHA256'],manifestSha256=e['CORE_MANIFEST_SHA256'],context=dict(runId=e['GITHUB_RUN_ID'],runAttempt=e['GITHUB_RUN_ATTEMPT']))
+          destination=e['RUNNER_TEMP']+'/core-expected.json'
+          with open(destination,'x') as output:json.dump(expected,output)
+          with open(e['GITHUB_ENV'],'a') as output:output.write('XTEND_CORE_REQUIRED=true\nXTEND_CORE_ARCHIVE='+e['RUNNER_TEMP']+'/core-source/sources.tar.gz\nXTEND_CORE_EXPECTED='+destination+'\n')
+          PYCORE
+      - name: Required Core source and projection validation
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/check-core-source.cjs
+
       - name: Required command-binding metadata ownership regression
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         run: test -f tests/maraca/ownership-command-projection.test.mjs && test -f tests/maraca/ownership-projection-gate.test.cjs && node --test --test-reporter=tap tests/maraca/ownership-command-projection.test.mjs tests/maraca/ownership-projection-gate.test.cjs
@@ -187,66 +196,6 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:xtend-mcp:report
-
-      - name: Acquire exact same-run source artifact
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        with:
-          artifact-ids: ${{ needs.union-source-artifact.outputs.artifact-id }}
-          merge-multiple: true
-          path: ${{ runner.temp }}/xtend-union-source/download
-
-      - name: Verify independent head/pin and authenticated artifact expectations
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-          EXPECTED_CORE_SHA: ${{ github.event.pull_request.head.sha }}
-          PRODUCER_CORE_SHA: ${{ needs.union-source-artifact.outputs.core-sha }}
-          PRODUCER_DEMO_SHA: ${{ needs.union-source-artifact.outputs.demo-sha }}
-          UNION_ARCHIVE_SHA256: ${{ needs.union-source-artifact.outputs.archive-sha256 }}
-          UNION_MANIFEST_SHA256: ${{ needs.union-source-artifact.outputs.manifest-sha256 }}
-          UNION_ARTIFACT_ID: ${{ needs.union-source-artifact.outputs.artifact-id }}
-        run: |
-          python3 - <<'PYTHON'
-          import json, os, pathlib, re, subprocess
-          env = os.environ
-          head = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
-          assert head == env['EXPECTED_CORE_SHA'] == env['PRODUCER_CORE_SHA']
-          assert re.fullmatch('[0-9]+', env['UNION_ARTIFACT_ID'])
-          pin = json.load(open('product-demos.lock.json'))
-          assert pin['repository'] == 'https://github.com/konnilabs/xtend-demos.git' and pin['demoSha'] == env['PRODUCER_DEMO_SHA']
-          expected = dict(producerMode='committed', coreSha=head, demoSha=pin['demoSha'], archiveSha256=env['UNION_ARCHIVE_SHA256'], manifestSha256=env['UNION_MANIFEST_SHA256'], context=dict(runId=env['GITHUB_RUN_ID'], runAttempt=env['GITHUB_RUN_ATTEMPT']))
-          target = pathlib.Path(env['RUNNER_TEMP']) / 'xtend-union-source' / 'expected.json'
-          target.write_text(json.dumps(expected))
-          with open(env['GITHUB_ENV'], 'a') as output:
-              output.write('XTEND_UNION_ARCHIVE=' + env['RUNNER_TEMP'] + '/xtend-union-source/download/sources.tar.gz\nXTEND_UNION_EXPECTED=' + str(target) + '\nXTEND_UNION_ARTIFACT_ID=' + env['UNION_ARTIFACT_ID'] + '\n')
-          PYTHON
-
-      - name: Required portable union source-provider boundary tests
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-          XTEND_UNION_TEST_REPORT: .xtend-test-results/union-provider-tests.json
-        run: |
-          node --test tests/schemas/union_source_provider.test.cjs
-          node --test tests/schemas/expected_inventory_view.test.cjs
-          node --test tests/schemas/workflow_comparison.test.cjs
-
-      - name: Required productive full-source union validation
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node scripts/check-union-source.cjs --archive "$XTEND_UNION_ARCHIVE" --expected "$XTEND_UNION_EXPECTED" --destination "$RUNNER_TEMP/xtend-union-source/$XTEND_UNION_ARTIFACT_ID" --output .xtend-test-results/union-source-validation.json
-
-      - name: Preserve union validation evidence
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: xtend-union-validation-${{ matrix.artifact_suffix }}
-          path: |
-            .xtend-test-results/union-source-validation.json
-            .xtend-test-results/union-provider-tests.json
-          if-no-files-found: error
 
       - name: Run Feature Adoption Observatory gates
         env:
@@ -394,6 +343,7 @@ jobs:
             .xtend-test-results/test-runner/**/*.log
 
   full-release-gates:
+    needs: core-source-artifact
     name: Full release gates (Node ${{ matrix.node_version }})
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -412,6 +362,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Configure npm download cache
         run: node scripts/configure_npm_cache.js
@@ -455,6 +407,30 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         id: install_1
         run: npm ci --ignore-scripts --no-audit --fund=false
+
+      - name: Acquire required same-run Core source
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          artifact-ids: ${{ needs.core-source-artifact.outputs.artifact-id }}
+          path: ${{ runner.temp }}/core-source
+      - name: Bind Core source expectation
+        env:
+          CORE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
+          CORE_ARCHIVE_SHA256: ${{ needs.core-source-artifact.outputs.archive-sha256 }}
+          CORE_MANIFEST_SHA256: ${{ needs.core-source-artifact.outputs.manifest-sha256 }}
+        run: |
+          python3 - <<'PYCORE'
+          import json,os
+          e=os.environ
+          expected=dict(profile='xtend.npm.core-only.v1',producerMode='committed',sourceSha=e['CORE_SHA'],archiveSha256=e['CORE_ARCHIVE_SHA256'],manifestSha256=e['CORE_MANIFEST_SHA256'],context=dict(runId=e['GITHUB_RUN_ID'],runAttempt=e['GITHUB_RUN_ATTEMPT']))
+          destination=e['RUNNER_TEMP']+'/core-expected.json'
+          with open(destination,'x') as output:json.dump(expected,output)
+          with open(e['GITHUB_ENV'],'a') as output:output.write('XTEND_CORE_REQUIRED=true\nXTEND_CORE_ARCHIVE='+e['RUNNER_TEMP']+'/core-source/sources.tar.gz\nXTEND_CORE_EXPECTED='+destination+'\n')
+          PYCORE
+      - name: Required Core source and projection validation
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/check-core-source.cjs
 
       - name: Prepare Native-First release evidence artifacts
         env:
@@ -640,6 +616,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Configure npm download cache
         run: node scripts/configure_npm_cache.js
@@ -778,6 +756,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Configure npm download cache
         run: node scripts/configure_npm_cache.js
@@ -841,8 +821,7 @@ jobs:
             .xtend-test-results/xtend-pack-dry-run.json
             .xtend-test-results/xtend-package-export-surface-lock.json
             .xtend-test-results/xtend-package-export-lock-report.json
-            .xtend-test-results/product-candidate.json
-            .xtend-test-results/product-candidates/
+            .xtend-test-results/core-candidates/
             .xtend-test-results/xtend-pack-dry-run-xtendrmt.json
             .xtend-test-results/xtend-pack-dry-run-fabric.json
             .xtend-test-results/xtend-pack-dry-run-tools.json
@@ -871,6 +850,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Configure npm download cache
         run: node scripts/configure_npm_cache.js
@@ -988,6 +969,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Configure npm download cache
         run: node scripts/configure_npm_cache.js
@@ -1061,6 +1044,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Configure npm download cache
         run: node scripts/configure_npm_cache.js
@@ -1134,6 +1119,8 @@ jobs:
     if: >-
       ${{ !cancelled() &&
           github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true &&
+          github.repository == 'konnilabs/xtend' && github.ref == 'refs/heads/main' &&
+          needs['release-seal'].result == 'success' &&
           needs['full-release-gates'].result == 'success' &&
           needs['rmt-vnext-primitive-gates'].result == 'success' &&
           needs['package-structure'].result == 'success' &&
@@ -1141,7 +1128,7 @@ jobs:
           needs['node-native-toolchain-smoke'].result == 'success' &&
           needs['xtend-mcp-vscode-smoke'].result == 'success' &&
           needs['laravel-release-gates'].result == 'success' &&
-          needs['product-candidate-canary'].result == 'success' }}
+          needs['core-installed-consumers'].result == 'success' && needs['core-security-browser'].result == 'success' && needs['core-source-artifact'].result == 'success' }}
     needs:
       - full-release-gates
       - rmt-vnext-primitive-gates
@@ -1150,216 +1137,479 @@ jobs:
       - node-native-toolchain-smoke
       - xtend-mcp-vscode-smoke
       - laravel-release-gates
-      - product-candidate-canary
-    runs-on: ubuntu-latest
+      - core-installed-consumers
+      - core-security-browser
+      - core-source-artifact
+      - release-prepare
+      - release-seal
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     permissions:
       contents: read
+      actions: read
       id-token: write
     environment: npm-publish
-
     steps:
-      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
-        env:
-          update: true
-          use_package_cache: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
-          php-version: 8.4
-          extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
-          tools: composer:2.10.3
-      - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Initialize always-on release attempt ledger
+        env:
+          RELEASE_ARTIFACT_ID: ${{ needs.release-seal.outputs.artifactId }}
+        run: node scripts/release/attempt.cjs init --execute
       - name: Configure npm download cache
         run: node scripts/configure_npm_cache.js
-
-      - name: Restore npm downloads
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ runner.temp }}/xtend-npm-cache
-          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
-
-      - name: Setup Node.js 24.18.0 for npm
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: '24.18.0'
           package-manager-cache: false
           registry-url: https://registry.npmjs.org
           scope: '@ccslabs'
-
       - name: Pin npm 11.17.0
         working-directory: ${{ runner.temp }}
         run: npm install --global npm@11.17.0 --no-audit --fund=false
-
+      - name: Discover and verify the installed npm CLI for plain Node steps
+        run: node scripts/release/toolchain.cjs --execute
       - name: Capture and validate Node runtime evidence
         run: node scripts/capture_node_runtime_evidence.js --lane node-24-publish
-
       - name: Enable Node warning and deprecation policy
         run: node scripts/enable_node_warning_policy.js --lane node-24-publish
-
-      - name: Print runtime versions
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: |
-          node --version
-          npm --version
-
       - name: Validate CI dependency lock alignment
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run ci:dependency-locks:check
-
-      - name: Install workspace links for release evidence
+      - name: Install verifier dependencies without lifecycle scripts
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        id: install_1
         run: npm ci --ignore-scripts --no-audit --fund=false
-
-      - name: Provision required product display and browser tooling
+      - name: Download and recheck exact immutable release artifact
+        id: artifact
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y xvfb xauth unzip
-          node scripts/provision_product_fpm.cjs 8.4
-          node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
-      - name: Require matching pinned Demo candidate acceptance
-        id: product_candidate
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_ARTIFACT_ID: ${{ needs.release-seal.outputs.artifactId }}
+        run: node scripts/release/pipeline.cjs download --execute --artifact .xtend-test-results/npm-release --artifact-id "$RELEASE_ARTIFACT_ID"
+      - name: Publish exact verified tarballs sequentially with registry rechecks
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: |
-          node scripts/product-candidate-canary.cjs
-          node scripts/product-candidate-evidence.cjs .xtend-test-results/product-candidate.json
-
-      - name: Re-run blocking release evidence
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-          XTEND_CONDITIONAL_NETWORK_EXECUTE: "1"
-          XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL: "0"
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
-        run: |
-          npm run native-first:evidence:prepare
-          npm run test:ci-publish
-          npm run test:xtend-mcp:report
-          npm run pack:dry-run
-          npm run conditional-network:evidence
-
-      - name: Final npm publish dry run
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: |
-          npm publish --dry-run --workspace @ccslabs/xtend-rmt --tag latest --access public
-          npm publish --dry-run --workspace @ccslabs/xtend-compiler --tag latest --access public
-          npm publish --dry-run --workspace @ccslabs/xtend-maraca --tag latest --access public
-          npm publish --dry-run --workspace @ccslabs/xtend-mcp --tag latest --access public
-          npm publish --dry-run --tag latest --access public
-
-      # Trusted Publishing uses this job's OIDC identity for each package; no npm token.
-      - name: Publish XTend MCP runtime dependency train
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: |
-          npm publish --access public --provenance --workspace @ccslabs/xtend-rmt --tag latest
-          npm publish --access public --provenance --workspace @ccslabs/xtend-compiler --tag latest
-          npm publish --access public --provenance --workspace @ccslabs/xtend-maraca --tag latest
-
-      - name: Publish root package to npm latest
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm publish --access public --provenance --tag latest
-
-      - name: Publish XTend MCP 0.1 to npm latest
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm publish --access public --provenance --workspace @ccslabs/xtend-mcp --tag latest
-
-      - name: Upload npm publish evidence
+          XTEND_RELEASE_PUBLISH: ${{ inputs.publish_to_npm }}
+          XTEND_RELEASE_ENVIRONMENT: npm-publish
+          XTEND_RELEASE_ARTIFACT_ID: ${{ needs.release-seal.outputs.artifactId }}
+          XTEND_RELEASE_NEEDS: ${{ toJSON(needs) }}
+          MANIFEST_INTEGRITY: ${{ steps.artifact.outputs.manifestIntegrity }}
+        run: >-
+          node scripts/release/cli.cjs publish --execute
+          --artifact .xtend-test-results/npm-release
+          --manifest-integrity "$MANIFEST_INTEGRITY" --source-sha "$GITHUB_SHA"
+          --ledger .xtend-test-results/npm-release-ledger.json
+      - name: Finalize always-on attempt ledger
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        env:
+          JOB_STATUS: ${{ job.status }}
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/release/attempt.cjs finish --execute --outcome "$JOB_STATUS"
+      - name: Preserve release result ledger after success or failure
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: xtend-npm-publish-latest-evidence-node-24-18-0
+          name: xtend-npm-release-ledger-${{ github.run_attempt }}
           path: |
-            .xtend-test-results/runtime/xtend-node-runtime-node-24-publish.json
-            .xtend-test-results/runtime/xtend-node-warnings-node-24-publish.jsonl
-            .xtend-test-results/xtend-release-gate-report.json
-            .xtend-test-results/xtend-mcp-gate-report.json
-            .xtend-test-results/xtend-xtensions-framework-adapters-report.json
-            .xtend-test-results/xtend-xtensions-runtime-report.json
-            .xtend-test-results/xtend-xtensions-runtime-browser-report.json
-            .xtend-test-results/xtend-xtensions-consumer-package-report.json
-            .xtend-test-results/xtend-xtensions-runtime-gate-report.json
-            .xtend-test-results/xtend-rmt-vnext-primitives-gate-report.json
-            .xtend-test-results/xtend-native-first-rmt-owned-release-report.json
-            .xtend-test-results/xtend-rkfa-production-closure-report.json
-            .xtend-test-results/xtend-release-report.json
-            .xtend-test-results/xtend-pack-dry-run.json
-            .xtend-test-results/xtend-package-export-surface-lock.json
-            .xtend-test-results/xtend-package-export-lock-report.json
-            .xtend-test-results/product-candidate.json
-            .xtend-test-results/product-candidates/
-            .xtend-test-results/xtend-npm-audit-report.json
-            .xtend-test-results/xtend-npm-sbom.json
-            .xtend-test-results/xtend-conditional-network-evidence-report.json
+            .xtend-test-results/npm-release-ledger.json
+            .xtend-test-results/npm-release-attempt.json
+            .xtend-test-results/runtime/
           if-no-files-found: warn
 
-  product-candidate-canary:
-    name: Packed Core candidate against pinned independent demos
+  core-installed-consumers:
+    needs: [core-source-artifact, release-prepare]
+    name: Core installed consumer (Node ${{ matrix.node_version }})
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - node_version: 24.18.0
-            runtime_lane: node-24-lts
-          - node_version: 26.5.0
-            runtime_lane: node-26-current
+        node_version: [24.18.0, 26.5.0]
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
     steps:
-      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
-        env:
-          update: true
-          use_package_cache: false
-        with:
-          php-version: 8.4
-          extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
-          tools: composer:2.10.3
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: ${{ matrix.node_version }}
           package-manager-cache: false
       - name: Pin npm 11.17.0
         working-directory: ${{ runner.temp }}
-        run: npm install --global npm@11.17.0
-      - name: Capture and validate Node runtime evidence
-        run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
-      - name: Enable Node warning and deprecation policy
-        run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
-      - name: Install verified Core dependencies
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - name: Discover and verify npm CLI
+        run: node scripts/release/toolchain.cjs --execute
+      - name: Capture runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane core-${{ matrix.node_version }}
+      - name: Enable warning policy
+        run: node scripts/enable_node_warning_policy.js --lane core-${{ matrix.node_version }}
+      - name: Install verified Core test dependencies
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: npm ci --ignore-scripts --no-audit --no-fund
-      - name: Provision required product display and browser tooling
+        run: npm ci --ignore-scripts --no-audit --fund=false
+      - name: Acquire required same-run Core source
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          artifact-ids: ${{ needs.core-source-artifact.outputs.artifact-id }}
+          path: ${{ runner.temp }}/core-source
+      - name: Bind Core source expectation
+        env:
+          CORE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
+          CORE_ARCHIVE_SHA256: ${{ needs.core-source-artifact.outputs.archive-sha256 }}
+          CORE_MANIFEST_SHA256: ${{ needs.core-source-artifact.outputs.manifest-sha256 }}
+        run: |
+          python3 - <<'PYCORE'
+          import json,os
+          e=os.environ
+          expected=dict(profile='xtend.npm.core-only.v1',producerMode='committed',sourceSha=e['CORE_SHA'],archiveSha256=e['CORE_ARCHIVE_SHA256'],manifestSha256=e['CORE_MANIFEST_SHA256'],context=dict(runId=e['GITHUB_RUN_ID'],runAttempt=e['GITHUB_RUN_ATTEMPT']))
+          destination=e['RUNNER_TEMP']+'/core-expected.json'
+          with open(destination,'x') as output:json.dump(expected,output)
+          with open(e['GITHUB_ENV'],'a') as output:output.write('XTEND_CORE_REQUIRED=true\nXTEND_CORE_ARCHIVE='+e['RUNNER_TEMP']+'/core-source/sources.tar.gz\nXTEND_CORE_EXPECTED='+destination+'\n')
+          PYCORE
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          artifact-ids: ${{ needs.release-prepare.outputs.preparedArtifactId }}
+          path: .xtend-test-results/core-candidates
+      - name: Consume exact archives and preserve raw Core evidence
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          CANDIDATE_SHA256: ${{ needs.release-prepare.outputs.candidateSha256 }}
+          MANIFEST_INTEGRITY: ${{ needs.release-prepare.outputs.manifestIntegrity }}
+        run: node scripts/release/pipeline.cjs consumers --execute --artifact .xtend-test-results/core-candidates --candidate-sha256 "$CANDIDATE_SHA256" --manifest-integrity "$MANIFEST_INTEGRITY" --output .xtend-test-results/core-lane
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: xtend-core-consumer-node-${{ matrix.node_version }}-attempt-${{ github.run_attempt }}
+          path: .xtend-test-results/core-lane/
+          if-no-files-found: error
+
+  release-prepare:
+    needs: core-source-artifact
+    name: Build and pack exact Core release candidates once
+    timeout-minutes: 60
+    outputs:
+      manifestIntegrity: ${{ steps.prepare.outputs.manifestIntegrity }}
+      candidateSha256: ${{ steps.prepare.outputs.candidateSha256 }}
+      artifactId: ${{ steps.prepare.outputs.artifactId }}
+      preparedArtifactId: ${{ steps.prepared.outputs.artifact-id }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        env:
+          update: true
+          use_package_cache: false
+        with:
+          php-version: 8.4
+          extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
+          tools: composer:2.10.3
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - name: Discover and verify the installed npm CLI for plain Node steps
+        run: node scripts/release/toolchain.cjs --execute
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane node-24-publish
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane node-24-publish
+      - name: Install source verifier dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm ci --ignore-scripts --no-audit --fund=false
+      - name: Acquire required same-run Core source
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          artifact-ids: ${{ needs.core-source-artifact.outputs.artifact-id }}
+          path: ${{ runner.temp }}/core-source
+      - name: Bind Core source expectation
+        env:
+          CORE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
+          CORE_ARCHIVE_SHA256: ${{ needs.core-source-artifact.outputs.archive-sha256 }}
+          CORE_MANIFEST_SHA256: ${{ needs.core-source-artifact.outputs.manifest-sha256 }}
+        run: |
+          python3 - <<'PYCORE'
+          import json,os
+          e=os.environ
+          expected=dict(profile='xtend.npm.core-only.v1',producerMode='committed',sourceSha=e['CORE_SHA'],archiveSha256=e['CORE_ARCHIVE_SHA256'],manifestSha256=e['CORE_MANIFEST_SHA256'],context=dict(runId=e['GITHUB_RUN_ID'],runAttempt=e['GITHUB_RUN_ATTEMPT']))
+          destination=e['RUNNER_TEMP']+'/core-expected.json'
+          with open(destination,'x') as output:json.dump(expected,output)
+          with open(e['GITHUB_ENV'],'a') as output:output.write('XTEND_CORE_REQUIRED=true\nXTEND_CORE_ARCHIVE='+e['RUNNER_TEMP']+'/core-source/sources.tar.gz\nXTEND_CORE_EXPECTED='+destination+'\n')
+          PYCORE
+      - name: Prepare once or resume the immutable reviewed artifact
+        id: prepare
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_GROUPS: ${{ inputs.release_groups }}
+          RELEASE_PACKAGES: ${{ inputs.release_packages }}
+          RESUME_ARTIFACT_ID: ${{ inputs.resume_artifact_id }}
+        run: |
+          scope=()
+          if [[ -n "$RELEASE_GROUPS" ]]; then scope+=(--groups "$RELEASE_GROUPS"); fi
+          if [[ -n "$RELEASE_PACKAGES" ]]; then scope+=(--packages "$RELEASE_PACKAGES"); fi
+          if [[ -n "$RESUME_ARTIFACT_ID" ]]; then
+            node scripts/release/pipeline.cjs download --execute --artifact .xtend-test-results/core-candidates --artifact-id "$RESUME_ARTIFACT_ID" "${scope[@]}"
+          else
+            node scripts/release/pipeline.cjs prepare --execute --artifact .xtend-test-results/core-candidates "${scope[@]}"
+          fi
+      - name: Upload exact prepared candidates for both consumer lanes
+        id: prepared
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtend-release-prepared
+          path: .xtend-test-results/core-candidates/
+          include-hidden-files: true
+          if-no-files-found: error
+      - name: Preserve preparation gate evidence on failure
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtend-release-preparation-evidence
+          path: .xtend-test-results/
+          include-hidden-files: true
+          if-no-files-found: warn
+
+  core-security-browser:
+    needs: [core-source-artifact, release-prepare]
+    name: Core security browser (Node 24.18.0)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      artifact-id: ${{ steps.security.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ needs.core-source-artifact.outputs.core-sha }}
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - name: Capture Node24 runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane core-security-node24
+      - name: Enable warning policy
+        run: node scripts/enable_node_warning_policy.js --lane core-security-node24
+      - name: Install exact Core security dependencies without lifecycle scripts
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm ci --ignore-scripts --no-audit --fund=false
+      - name: Acquire required same-run Core source
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          artifact-ids: ${{ needs.core-source-artifact.outputs.artifact-id }}
+          path: ${{ runner.temp }}/core-source
+      - name: Bind Core source expectation
+        env:
+          CORE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
+          CORE_ARCHIVE_SHA256: ${{ needs.core-source-artifact.outputs.archive-sha256 }}
+          CORE_MANIFEST_SHA256: ${{ needs.core-source-artifact.outputs.manifest-sha256 }}
+        run: |
+          python3 - <<'PYCORE'
+          import json,os
+          e=os.environ
+          expected=dict(profile='xtend.npm.core-only.v1',producerMode='committed',sourceSha=e['CORE_SHA'],archiveSha256=e['CORE_ARCHIVE_SHA256'],manifestSha256=e['CORE_MANIFEST_SHA256'],context=dict(runId=e['GITHUB_RUN_ID'],runAttempt=e['GITHUB_RUN_ATTEMPT']))
+          destination=e['RUNNER_TEMP']+'/core-expected.json'
+          with open(destination,'x') as output:json.dump(expected,output)
+          with open(e['GITHUB_ENV'],'a') as output:output.write('XTEND_CORE_REQUIRED=true\nXTEND_CORE_ARCHIVE='+e['RUNNER_TEMP']+'/core-source/sources.tar.gz\nXTEND_CORE_EXPECTED='+destination+'\n')
+          PYCORE
+      - name: Require authenticated Core source and projection
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/check-core-source.cjs
+      - name: Configure pinned browser without changing sandbox or privilege settings
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-security-browser"
+      - name: Check committed sanitizer and renderer hash mirrors
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: |
+          npm run check:html-sanitizer
+          node xtend-maraca/sync-app-services-esm.js --check
+          node xscaler/generate-esm.js --check
+          node scripts/verify_xtendrmt_artifact_parity.js
+          npm run ci:dependency-locks:check
+      - name: Execute maintained real sanitizer and Trusted Types browser assertions without skips
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/run_xtend_tests.js --profile core-security-browser --execution .xtend-test-results/core-security/security-execution.json
+      - name: Retain exact raw Core security report on success or failure
+        id: security
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtend-core-security-node-24.18.0-attempt-${{ github.run_attempt }}
+          path: .xtend-test-results/core-security/security-execution.json
+          if-no-files-found: error
+
+  release-seal:
+    name: Bind all gates to the immutable release artifact
+    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true && needs.release-prepare.result == 'success' && needs.core-installed-consumers.result == 'success' && needs['core-security-browser'].result == 'success' }}
+    needs:
+      - core-source-artifact
+      - release-prepare
+      - full-release-gates
+      - rmt-vnext-primitive-gates
+      - package-structure
+      - conditional-network-evidence
+      - node-native-toolchain-smoke
+      - xtend-mcp-vscode-smoke
+      - laravel-release-gates
+      - core-installed-consumers
+      - core-security-browser
+    outputs:
+      artifactId: ${{ steps.final.outputs.artifactId }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        env:
+          update: true
+          use_package_cache: false
+        with:
+          php-version: 8.4
+          extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
+          tools: composer:2.10.3
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - name: Discover and verify the installed npm CLI for plain Node steps
+        run: node scripts/release/toolchain.cjs --execute
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane node-24-publish
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane node-24-publish
+      - name: Install source verifier dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm ci --ignore-scripts --no-audit --fund=false
+      - name: Acquire required same-run Core source
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          artifact-ids: ${{ needs.core-source-artifact.outputs.artifact-id }}
+          path: ${{ runner.temp }}/core-source
+      - name: Bind Core source expectation
+        env:
+          CORE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
+          CORE_ARCHIVE_SHA256: ${{ needs.core-source-artifact.outputs.archive-sha256 }}
+          CORE_MANIFEST_SHA256: ${{ needs.core-source-artifact.outputs.manifest-sha256 }}
+        run: |
+          python3 - <<'PYCORE'
+          import json,os
+          e=os.environ
+          expected=dict(profile='xtend.npm.core-only.v1',producerMode='committed',sourceSha=e['CORE_SHA'],archiveSha256=e['CORE_ARCHIVE_SHA256'],manifestSha256=e['CORE_MANIFEST_SHA256'],context=dict(runId=e['GITHUB_RUN_ID'],runAttempt=e['GITHUB_RUN_ATTEMPT']))
+          destination=e['RUNNER_TEMP']+'/core-expected.json'
+          with open(destination,'x') as output:json.dump(expected,output)
+          with open(e['GITHUB_ENV'],'a') as output:output.write('XTEND_CORE_REQUIRED=true\nXTEND_CORE_ARCHIVE='+e['RUNNER_TEMP']+'/core-source/sources.tar.gz\nXTEND_CORE_EXPECTED='+destination+'\n')
+          PYCORE
+      - name: Download prepared exact bytes
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          artifact-ids: ${{ needs.release-prepare.outputs.preparedArtifactId }}
+          path: .xtend-test-results/core-candidates
+      - name: Verify and seal both authenticated raw Core lanes; preserve original resume bytes
+        id: seal
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          GITHUB_TOKEN: ${{ github.token }}
+          XTEND_RELEASE_PUBLISH: ${{ inputs.publish_to_npm }}
+          XTEND_RELEASE_NEEDS: ${{ toJSON(needs) }}
+          XTEND_CORE_RESUME_EVIDENCE: ${{ github.workspace }}/.xtend-test-results/current-resume/core-evidence
+          MANIFEST_INTEGRITY: ${{ needs.release-prepare.outputs.manifestIntegrity }}
+          RESUME_ARTIFACT_ID: ${{ inputs.resume_artifact_id }}
+        run: |
+          resume=()
+          if [[ -n "$RESUME_ARTIFACT_ID" ]]; then resume=(--resume --artifact-id "$RESUME_ARTIFACT_ID"); fi
+          node scripts/release/pipeline.cjs seal --execute --artifact .xtend-test-results/core-candidates --manifest-integrity "$MANIFEST_INTEGRITY" "${resume[@]}"
+      - name: Provision unchanged blocking publish browser runtime
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y xvfb xauth unzip
-          node scripts/provision_product_fpm.cjs 8.4
           node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
-      - name: Run required product canary
+      - name: Run all existing blocking publish checks against the verified Core artifact
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node scripts/product-candidate-canary.cjs
-      - name: Require fresh complete candidate evidence
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node scripts/product-candidate-evidence.cjs .xtend-test-results/product-candidate.json
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        if: always()
+          XTEND_RELEASE_ARTIFACT: ${{ github.workspace }}/.xtend-test-results/core-candidates
+          XTEND_RELEASE_MANIFEST_INTEGRITY: ${{ steps.seal.outputs.manifestIntegrity }}
+          XTEND_CONDITIONAL_NETWORK_EXECUTE: '1'
+          XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL: '0'
+        run: |
+          npm run native-first:evidence:prepare
+          npm run test:ci-publish
+          npm run test:xtend-mcp:report
+          npm run pack:dry-run
+          npm run conditional-network:evidence
+      - name: Upload immutable sealed release artifact
+        if: inputs.resume_artifact_id == ''
+        id: sealed
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: product-candidate-evidence-${{ matrix.runtime_lane }}
+          name: xtend-release-sealed
+          path: .xtend-test-results/core-candidates/
           include-hidden-files: true
-          path: |
-            .xtend-test-results/product-candidate.json
-            .xtend-test-results/product-candidates/
           if-no-files-found: error
+      - name: Identify the immutable original artifact
+        id: final
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          NEW_ARTIFACT_ID: ${{ steps.sealed.outputs.artifact-id }}
+          RESUME_ARTIFACT_ID: ${{ inputs.resume_artifact_id }}
+        run: printf 'artifactId=%s\n' "${RESUME_ARTIFACT_ID:-$NEW_ARTIFACT_ID}" >> "$GITHUB_OUTPUT"
+      - name: Preserve fresh seal gate evidence after success or failure
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtend-release-seal-evidence-${{ github.run_attempt }}
+          path: .xtend-test-results/
+          include-hidden-files: true
+          if-no-files-found: warn
