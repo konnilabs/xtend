@@ -45,6 +45,7 @@ async function packedFixture(t, { selection, beforePack = () => {} } = {}) {
   const inventory = loadInventory(f.rootDir), scope = selectRelease(inventory, selection);
   const manifest = { schema: 'xtend.release.artifact.v2', profile: 'xtend.npm.core-only.v1', sourceSha,
     toolchain: { node: process.versions.node, npm: '11.17.0' }, edges: inventory.edges, packages: [],
+    candidateBinding: { profile: require('../../scripts/release/profile.cjs').PROFILE },
     selection: scope.selection, registryDependencies: scope.registryDependencyNames.map(name => {
       const entry = inventory.packages.find(item => item.name === name);
       return { name, version: entry.version, group: entry.group, integrity: digest(`old registry fixture: ${name}`), sourceSha: 'b'.repeat(40) };

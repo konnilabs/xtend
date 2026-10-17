@@ -1,13 +1,15 @@
 'use strict';
+// Legacy v1 audit suite; frozen release envelope code, current shared verifiers.
+// Current Core v2 boundaries are covered separately in core-contracts.test.cjs.
 const fs = require('node:fs'), path = require('node:path'), os = require('node:os');
 const crypto = require('node:crypto'), Module = require('node:module');
 const { execFileSync } = require('node:child_process');
 const test = require('node:test'), assert = require('node:assert/strict');
 const { isDeepStrictEqual } = require('node:util');
-const { digest, verifyArtifact, releaseSetIntegrity, assertSealedArtifact } = require('../../scripts/release/artifact.cjs');
-const { adaptCandidates } = require('../../scripts/release/candidates.cjs');
-const { buildCommands, buildCanaryIntegrity, verifyBuildCommands } = require('../../scripts/release/contracts.cjs');
-const { packedFixture, write } = require('./fixtures.cjs');
+const { digest, verifyArtifact, releaseSetIntegrity, assertSealedArtifact } = require('./legacy-runtime.cjs').load('scripts/release/artifact.cjs');
+const { adaptCandidates } = require('./legacy-runtime.cjs').load('scripts/release/candidates.cjs');
+const { buildCommands, buildCanaryIntegrity, verifyBuildCommands } = require('./legacy-runtime.cjs').load('scripts/release/contracts.cjs');
+const { packedFixture, write } = require('./legacy-runtime.cjs').load('tests/release/fixtures.cjs');
 const root = path.resolve(__dirname, '../..');
 
 // Execute the existing controlled miniature candidate/product fixture functions,
@@ -161,7 +163,7 @@ test('original sealed resume validates old receipts at original seal time withou
   await assert.rejects(f.verify({ phase: 'sealed', now: Date.now() }), /Stale actual application raw evidence/);
 });
 function pipelineForFixture(rootDir, sourceSha) {
-  const file = path.join(root, 'scripts/release/pipeline.cjs'), realRequire = Module.createRequire(file);
+  const file = path.join(root, 'scripts/release/pipeline.cjs'), realRequire = require('./legacy-runtime.cjs').requireFrom('scripts/release/pipeline.cjs');
   const compiled = new Module(file, module); compiled.filename = file;
   compiled.require = name => name === 'node:child_process' ? {
     execFileSync(program, args) {
@@ -172,7 +174,7 @@ function pipelineForFixture(rootDir, sourceSha) {
     // The real union/Seal boundary is exercised separately in union.test.cjs.
     verifyStoredUnion() {}, verifyFreshUnion({ directory }) { fs.mkdirSync(directory); }
   } : realRequire(name);
-  const source = fs.readFileSync(file, 'utf8');
+  const source = require('./legacy-runtime.cjs').source('scripts/release/pipeline.cjs');
   // Only the temporary fixture root/backend is substituted. Seal/resume body,
   // contracts and all candidate/product validation are the actual proposal.
   const needle = "const rootDir = path.resolve(__dirname, '../..');";

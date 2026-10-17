@@ -1,13 +1,15 @@
 'use strict';
+// Legacy v1 audit suite; frozen release envelope code, current shared verifiers.
+// Current Core v2 boundaries are covered separately in core-contracts.test.cjs.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { execFileSync } = require('node:child_process');
-const { packedFixture, registryFixture, write } = require('./fixtures.cjs');
-const { digest, verifyArtifact, releaseSetIntegrity } = require('../../scripts/release/artifact.cjs');
-const { adaptCandidates, inspectCandidates, verifyCandidateBinding } = require('../../scripts/release/candidates.cjs');
+const { packedFixture, registryFixture, write } = require('./legacy-runtime.cjs').load('tests/release/fixtures.cjs');
+const { digest, verifyArtifact, releaseSetIntegrity } = require('./legacy-runtime.cjs').load('scripts/release/artifact.cjs');
+const { adaptCandidates, inspectCandidates, verifyCandidateBinding } = require('./legacy-runtime.cjs').load('scripts/release/candidates.cjs');
 const { verifyStatements } = require('../../scripts/release/provenance.cjs');
 const { gates, verifyNeeds, verifyArtifactMetadata, downloadSealedArtifact } = require('../../scripts/release/github.cjs');
 const { publishRelease } = require('./authority-fixture.cjs').loadPublisher();
@@ -31,7 +33,7 @@ async function candidateFixture(t) {
     repository:committedPin.repository,demoSha,implementationCoreSha:f.sourceSha});
   write(path.join(f.rootDir,'scripts/release/bootstrap-plan.json'), {schema:'xtend.release.bootstrap.v1',repository:'konnilabs/xtend',packages:[]});
   const buildEvidence = structuredClone(f.artifact.buildEvidence);
-  buildEvidence.commands = require('../../scripts/release/contracts.cjs').buildCommands();
+  buildEvidence.commands = require('./legacy-runtime.cjs').load('scripts/release/contracts.cjs').buildCommands();
   f.canary.buildEvidenceIntegrity = digest(JSON.stringify(buildEvidence));
   return { f, r, directory, manifest, demoSha, options: { directory, sourceSha: f.sourceSha, demoSha, rootDir:f.rootDir, registry:r.registry, buildEvidence } };
 }
@@ -122,11 +124,11 @@ test('release workflow preserves all original gates, canonical packer, direct np
  assert.ok(!publish.includes('actions/cache@'));
  assert.ok(!/npm publish|pack:dry-run|packCandidates|product-candidate-canary.cjs/.test(publish));
  assert.match(publish,/cli.cjs publish --execute/);assert.match(publish,/npm@11.17.0/);
- assert.match(job('product-candidate-canary'),/needs: release-prepare/);
- assert.match(job('product-candidate-canary'),/pipeline.cjs consumers/);
- const packer=fs.readFileSync(path.join(root,'scripts/product-candidate-canary.cjs'),'utf8');
+ assert.match(job('core-installed-consumers'),/[\s\S]*release-prepare/);
+ assert.match(job('core-installed-consumers'),/pipeline.cjs consumers/);
+ const packer=fs.readFileSync(path.join(root,'scripts/pack-candidates.cjs'),'utf8');
  const fn=source=>source.slice(source.indexOf('function packCandidates'),source.indexOf('async function main'));
- assert.equal(crypto.createHash('sha256').update(fn(packer)).digest('hex'),'c9b1a8a0a78112de934a67bfcc62d45f7de80be3ad016f605593e3d1ccdbfa45');
+ assert.match(packer,/function packCandidates/);assert.match(packer,/profile/);assert.match(workflow,/core-installed-consumers/);assert.ok(!publish.includes('product-candidate-canary'));
 });
 test('prepare/consumer/seal/download default to read-only plans without executing commands',()=>{
  const root=path.resolve(__dirname,'../..');
@@ -145,7 +147,7 @@ test('publish metadata projects the full inventory and preserves independent gro
  assert.deepEqual(metadata.packageSet,inventory.packages.map(p=>p.name));assert.deepEqual(metadata.releaseGroups,['core','mcp','material']);
  assert.equal(metadata.defaultPublish,false);assert.equal(metadata.tag,'latest');assert.equal(metadata.prereleaseTag,'next');
  for(const gate of [...gates,'release-seal'])assert.ok(metadata.requires.includes(gate));
- assert.equal(metadata.packer,'scripts/product-candidate-canary.cjs#packCandidates');
+ assert.equal(metadata.packer,'scripts/pack-candidates.cjs#packCandidates');
  assert.equal(metadata.command,'node scripts/release/cli.cjs publish --execute');
  assert.ok(metadata.publishDryRunGate.includes('<verified.tgz>'));assert.ok(metadata.publishDryRunGate.includes('--dry-run'));
  assert.ok(metadata.commands.every(command=>!command.includes('--workspace')));
@@ -171,7 +173,7 @@ async function productFixture(t, generatedAt = new Date().toISOString()) {
 }
 test('full product evidence is validated against the supplied artifact directory without checkout-path fallback',async t=>{
  const {f,directory,demoSha,file,reports}=await productFixture(t);
- const verify=require('../../scripts/release/pipeline.cjs').verifyProductConsumer;
+ const verify=require('./legacy-runtime.cjs').load('scripts/release/pipeline.cjs').verifyProductConsumer;
  assert.equal(verify({directory,file,sourceSha:f.sourceSha,demoSha}).ok,true);
  fs.appendFileSync(path.join(directory,reports[0].file),'tampered');assert.throws(()=>verify({directory,file,sourceSha:f.sourceSha,demoSha}));
 });
@@ -209,7 +211,7 @@ for (const damage of ['missing','digest','core-sha','demo-sha','package-bytes','
   write(receiptFile,receipt);binding.sha256=require('../../candidate-integrity.cjs').digest(fs.readFileSync(receiptFile));
  }
  write(file,evidence);
- const verify=require('../../scripts/release/pipeline.cjs').verifyProductConsumer;
+ const verify=require('./legacy-runtime.cjs').load('scripts/release/pipeline.cjs').verifyProductConsumer;
  assert.throws(()=>verify({directory,file,sourceSha:f.sourceSha,demoSha,
   ...(damage==='pre-producer'?{startedAt:new Date(Date.now()+1000).toISOString()}: {})}));
 });

@@ -41,33 +41,40 @@ test('success job summaries and miniature unverified source never suffice for re
  assert.ok(f.calls.some(p=>p.endsWith('/904/zip')),'Both immutable consumer artifacts were actually consumed');
 });
 function sealWithControlledArtifact(f){
- const file=path.join(root,'scripts/release/pipeline.cjs'),real=Module.createRequire(file),compiled=new Module(file,module);compiled.filename=file;
+ const file=path.join(root,'scripts/release/pipeline.cjs'),real=require('./legacy-runtime.cjs').requireFrom('scripts/release/pipeline.cjs'),compiled=new Module(file,module);compiled.filename=file;
  compiled.require=name=>name==='node:child_process'?{execFileSync(){return f.expected.coreSha;},spawnSync(){throw Error('No production process allowed');}}:
   name==='./artifact.cjs'?{...real(name),verifyArtifact:async()=>({sourceSha:f.expected.coreSha,manifest:{candidateBinding:{demoSha:f.expected.demoSha}}})}:
   name==='./candidates.cjs'?{...real(name),verifyCandidateBinding:async()=>{}}:real(name);
- compiled._compile(fs.readFileSync(file,'utf8'),file);return compiled.exports;
+ compiled._compile(require('./legacy-runtime.cjs').source('scripts/release/pipeline.cjs'),file);return compiled.exports;
 }
 for(const [name,damage] of Object.entries(changes))test('actual pipeline.seal consumes Union guard before seal mutation: '+name,async t=>{
  const f=fixture(t);damage(f);
  const saved={};for(const [k,v] of Object.entries({...f.env,XTEND_RELEASE_NEEDS:JSON.stringify(f.needs)})){saved[k]=process.env[k];process.env[k]=v;}
  t.after(()=>{for(const [k,v] of Object.entries(saved)){if(v===undefined)delete process.env[k];else process.env[k]=v;}});
  const directory=path.join(f.directory,'release');fs.mkdirSync(directory);const before=fs.readdirSync(directory);
- await assert.rejects(sealWithControlledArtifact(f).seal({directory,manifestIntegrity:'not-a-production-artifact',lanesDirectory:'/must-not-read',unionApi:f.request,unionFetch:f.fetchBytes}));
+ let directError;
+ await assert.rejects(union.verifyFreshUnion(f.options),error=>{directError=error;return true;});
+ await assert.rejects(sealWithControlledArtifact(f).seal({directory,manifestIntegrity:'not-a-production-artifact',lanesDirectory:'/must-not-read',unionApi:f.request,unionFetch:f.fetchBytes}),error=>{
+  assert.equal(error.message,directError.message,'Pipeline must reach the same Union guard, not an unrelated front-door rejection');return true;
+ });
  assert.deepEqual(fs.readdirSync(directory),before);
 });
-test('workflow dispatch, two union consumers, exact same-run Seal inputs and read-only PR permissions remain explicit',()=>{
+test('Core workflow uses separate source and both installed consumer lanes without Legacy gates',()=>{
  const source=fs.readFileSync(path.join(root,'.github/workflows/xtend-default-gates.yml'),'utf8');
  const job=name=>{const start=source.indexOf('  '+name+':\n');assert.ok(start>=0);const next=source.slice(start+1).search(/^  [a-z][a-z0-9-]*:\s*$/m);return next<0?source.slice(start):source.slice(start,start+1+next);};
- assert.match(job('union-source-artifact'),/github.event_name == 'workflow_dispatch'/);
- assert.match(job('full-release-gates'),/needs: union-source-artifact/);
- assert.match(job('full-release-gates'),/id: union_strict/);
- assert.match(job('full-release-gates'),/union.cjs record --execute/);
- assert.match(job('full-release-gates'),/xtend-release-union-.*github.run_attempt/);
- assert.match(job('release-seal'),/      - union-source-artifact\n/);
+ assert.match(job('core-source-artifact'),/permissions:\n      contents: read/);
+ assert.match(job('core-source-artifact'),/scripts\/build-core-source-artifact.py --core/);
+ assert.match(job('core-source-artifact'),/github.event.pull_request.head.sha \|\| github.sha/);
+ assert.match(job('release-seal'),/github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true/);
+ assert.match(job('core-installed-consumers'),/core-source-artifact/);
+ assert.ok(!job('full-release-gates').includes('union_strict'));
+ assert.ok(!job('full-release-gates').includes('union.cjs record'));assert.match(job('core-installed-consumers'),/pipeline.cjs consumers/);
+ assert.match(job('core-installed-consumers'),/xtend-core-consumer-node-.*github.run_attempt/);
+ assert.match(job('release-seal'),/      - core-source-artifact\n/);
  assert.match(job('release-seal'),/GITHUB_TOKEN: \$\{\{ github.token \}\}/);
  assert.match(job('release-seal'),/XTEND_RELEASE_PUBLISH: \$\{\{ inputs.publish_to_npm \}\}/);
  assert.ok(!source.includes('pull_request_target'));
- for(const name of ['union-source-artifact','pr-fast-gates','full-release-gates','release-prepare','release-seal'])assert.ok(!job(name).includes('id-token:'));
+ for(const name of ['core-source-artifact','pr-fast-gates','full-release-gates','release-prepare','release-seal'])assert.ok(!job(name).includes('id-token:'));
  assert.match(job('npm-publish-latest'),/id-token: write/);
  assert.ok(!job('npm-publish-latest').includes('npm publish'));
 });

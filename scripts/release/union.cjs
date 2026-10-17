@@ -138,7 +138,7 @@ function verifyBundle({ directory, receipt, sourceSha, demoSha, now, expectedFre
   checkJobsEndpoint(index.jobsEndpoint, context);
   checkJob(index.jobs, 'Verify pinned union source artifact', context);
   checkMetadata(index.sourceMetadata, 'xtend-union-source-' + context.runId + '-' + context.runAttempt, context);
-  const work = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-union-check-'));
+  const work = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-union-check-')));
   try {
     const sourceZip = path.join(directory, 'source.zip');
     check('sha256:' + hash(fs.readFileSync(sourceZip)) === index.sourceMetadata.digest, 'Stored Union source archive changed');
@@ -212,7 +212,7 @@ function recordLane({ archive, expected, reportFile, output, sourceArtifactId, n
   check(isDeepStrictEqual(expected, bound.expected), 'Union committed producer expectation mismatch');
   check(isDeepStrictEqual(expected.context, { runId: env.GITHUB_RUN_ID, runAttempt: env.GITHUB_RUN_ATTEMPT }) &&
     node === process.versions.node && lanes.includes(node), 'Union record actual runtime/run/attempt mismatch');
-  const work = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-union-record-'));
+  const work = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-union-record-')));
   try {
     const provider = api.createSourceProvider({ archive, expected, destination: path.join(work, 'source') });
     const reportBytes = fs.readFileSync(reportFile);

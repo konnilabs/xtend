@@ -3,7 +3,7 @@
 // product acceptance. Actual-source tests separately use the canonical archive.
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),crypto=require('node:crypto');
 const {execFileSync}=require('node:child_process');
-const {gates}=require('../../scripts/release/github.cjs');
+const gates=[...require('../../scripts/release/profile.cjs').gates,'product-candidate-canary'];
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 const zip=(file,entries)=>{execFileSync('python3',['-c',`import zipfile,json,base64,sys
 z=zipfile.ZipFile(sys.argv[1],'w')

@@ -39,7 +39,7 @@ test('invalid explicit npm paths and shell shims fail closed', t => {
 });
 test('every relevant workflow job exports the verified installed CLI after the pin and before release commands', () => {
   const workflow = fs.readFileSync(path.join(root, '.github/workflows/xtend-default-gates.yml'), 'utf8');
-  for (const name of ['release-prepare', 'product-candidate-canary', 'release-seal', 'npm-publish-latest']) {
+  for (const name of ['release-prepare', 'core-installed-consumers', 'release-seal', 'npm-publish-latest']) {
     const job = workflow.split('\n  ' + name + ':\n')[1].split(/\n  [a-z][\w-]*:\n/u)[0];
     const pin = job.indexOf('npm install --global npm@11.17.0');
     const exported = job.indexOf('node scripts/release/toolchain.cjs --execute');

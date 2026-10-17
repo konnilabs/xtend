@@ -27,7 +27,7 @@ function pinnedRuntime() {
   return toolchain;
 }
 function buildCommittedSource(sourceSha) {
-  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-release-build-'));
+  const temporary = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-release-build-')));
   try {
     const archive = execFileSync('git', ['archive', '--format=tar', sourceSha], { cwd: rootDir, maxBuffer: 256 * 1024 * 1024 });
     execFileSync('tar', ['-xf', '-', '-C', temporary], { input: archive });
@@ -75,7 +75,7 @@ async function withCheckedSource(sourceSha, action) {
   const expected = JSON.parse(fs.readFileSync(process.env.XTEND_CORE_EXPECTED));
   check(expected.sourceSha === sourceSha && expected.context?.runId === process.env.GITHUB_RUN_ID &&
     expected.context?.runAttempt === process.env.GITHUB_RUN_ATTEMPT, 'Core source independent identity/run/attempt mismatch');
-  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-core-source-'));
+  const temporary = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-core-source-')));
   let loaded;
   try {
     loaded = coreSource.loadCoreSource({ archive: process.env.XTEND_CORE_ARCHIVE,
@@ -107,7 +107,7 @@ async function seal({ directory, manifestIntegrity, resume = false, artifactId }
   const sourceSha=git(['rev-parse','HEAD']);
   const artifact=await verifyArtifact({directory,manifestIntegrity,sourceSha,rootDir,requireCanary:resume,phase:resume?'sealed':'prepared'});
   const needs=JSON.parse(process.env.XTEND_RELEASE_NEEDS||'{}');verifyNeeds(needs);
-  const temporary=resume?fs.mkdtempSync(path.join(os.tmpdir(),'xtend-core-resume-proof-')):null;
+  const temporary=resume?fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(),'xtend-core-resume-proof-'))):null;
   const evidenceRoot=resume?temporary:directory, evidenceDirectory=path.join(evidenceRoot,'core-evidence');
   try {
     const envelope=await coreAuth.collect({directory:evidenceDirectory,artifact,needs});

@@ -130,6 +130,7 @@ async function publishRelease({ artifact, registry, publisher, ledgerFile, lockF
         version: entry.version, integrity: entry.integrity, state: 'pending', tag: channelTag(entry.version, prereleaseTag) })),
       registryDependencies: (artifact.registryDependencies || []).map(entry => ({ ...entry, state: 'pending' })) };
     save();
+    if (publish) require('../scan_schema_inventory').assertCandidateInitialAuthorityRetiredForRelease();
     await require('./release-evidence.cjs').verifyPreflightAuthority(artifact);
     // Keep a failed ledger, but stop before registry reads, dry-runs, uploads,
     // retries or optional promotion while initial-unreleased authority is active.

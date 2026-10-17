@@ -25,10 +25,10 @@ for (const resume of [false, true]) test(`actual publisher rejects active initia
   assert(ledger.packages.every(entry => entry.state === 'pending' && !entry.uploadAttempted));
   assert.equal(fs.existsSync(path.join(path.dirname(f.ledgerFile), 'npm-release.lock')), false);
 });
-test('production read-only preflight remains available while actual first release is blocked', async t => {
-  const f = await packedFixture(t), r = registryFixture(f.artifact);
-  const ledger = await production.publishRelease({ artifact: f.artifact, ...r, ledgerFile: f.ledgerFile });
-  assert.equal(ledger.status, 'dry-run'); assert.equal(r.calls.filter(call => call[0] === 'publish').length, 0);
+test('production preflight rejects a primitive fixture before every registry read', async t => {
+  const f=await packedFixture(t),r=registryFixture(f.artifact);
+  await assert.rejects(production.publishRelease({artifact:f.artifact,...r,ledgerFile:f.ledgerFile}),/Preflight requires verified/);
+  assert.equal(r.calls.length,0);
 });
 for (const scope of [['--groups','mcp'], ['--groups','material'], ['--packages','@ccslabs/xtend']]) {
   test(`actual clean-shell explicit first-release CLI rejects before artifact/toolchain: ${scope.join(' ')}`, () => {

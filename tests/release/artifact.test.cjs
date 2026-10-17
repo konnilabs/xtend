@@ -57,7 +57,8 @@ test('missing export, wildcard, bin and declaration targets fail', () => {
     assert.throws(() => checkEntrypoints(manifest, files), /Missing/);
 });
 test('real clean consumer installs all ten miniature tarballs offline, imports them and compiles declarations', async t => {
-  const f = await packedFixture(t);
+  const prepared = await require('./core-fixture.cjs').preparedFixture(t);
+  const f = {...prepared.f, artifact:await prepared.verify()};
   fs.symlinkSync(path.join(__dirname, '../../node_modules'), path.join(f.rootDir, 'node_modules'), 'dir');
   const script = path.join(f.rootDir, 'products/xtend-mcp/scripts/build-knowledge.mjs');
   fs.mkdirSync(path.dirname(script), { recursive: true }); fs.writeFileSync(script, '// Fixture knowledge check exits successfully.\n');

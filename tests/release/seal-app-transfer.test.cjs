@@ -1,9 +1,11 @@
 'use strict';
+// Legacy v1 audit suite; frozen release envelope code, current shared verifiers.
+// Current Core v2 boundaries are covered separately in core-contracts.test.cjs.
 const test = require('node:test'), assert = require('node:assert/strict');
 const fs = require('node:fs'), path = require('node:path'), Module = require('node:module');
 const { execFileSync } = require('node:child_process');
-const { digest, verifyArtifact } = require('../../scripts/release/artifact.cjs');
-const { write } = require('./fixtures.cjs');
+const { digest, verifyArtifact } = require('./legacy-runtime.cjs').load('scripts/release/artifact.cjs');
+const { write } = require('./legacy-runtime.cjs').load('tests/release/fixtures.cjs');
 const product = require('../../scripts/product-candidate-evidence.cjs');
 const { fixture: unionFixture } = require('./union-fixture.cjs');
 const root = path.resolve(__dirname, '../..');
@@ -41,7 +43,7 @@ function restoreEnvironment(t, env) {
   } });
 }
 function actualPipeline(f, trusted) {
-  const file = path.join(root, 'scripts/release/pipeline.cjs'), real = Module.createRequire(file);
+  const file = path.join(root, 'scripts/release/pipeline.cjs'), real = require('./legacy-runtime.cjs').requireFrom('scripts/release/pipeline.cjs');
   const compiled = new Module(file, module); compiled.filename = file;
   compiled.require = name => name === 'node:child_process' ? {
     execFileSync(program, args) { assert.equal(program, 'git'); assert.deepEqual(args, ['rev-parse', 'HEAD']); return f.f.sourceSha; },
@@ -59,7 +61,7 @@ function actualPipeline(f, trusted) {
       fs.mkdirSync(directory); write(path.join(directory, 'index.json'), { controlledUnitOnly: true });
     }
   } : real(name);
-  const bytes = fs.readFileSync(file, 'utf8'), needle = "const rootDir = path.resolve(__dirname, '../..');";
+  const bytes = require('./legacy-runtime.cjs').source('scripts/release/pipeline.cjs'), needle = "const rootDir = path.resolve(__dirname, '../..');";
   assert.equal(bytes.split(needle).length, 2);
   compiled._compile(bytes.replace(needle, 'const rootDir = ' + JSON.stringify(f.f.rootDir) + ';'), file);
   return compiled.exports;
@@ -195,10 +197,9 @@ for (const mutation of ['source', 'main', 'run', 'attempt']) test('actual Seal t
   await assert.rejects(f.seal(), /identity|source\/pin|trusted main|workflow run\/attempt|actual source head, never PR merge\/target execution/);
   assert.deepEqual(snapshot(f.directory), before);
 });
-test('actual YAML Node24 pre-Seal hydration transfers byte-identical digest-bound raw files', async t => {
-  const f = await productionFixture(t), yaml = JSON.parse(execFileSync('python3', ['-c', 'import yaml,json,sys;print(json.dumps(yaml.safe_load(sys.stdin)))'], { input: fs.readFileSync(path.join(root, '.github/workflows/xtend-default-gates.yml')), encoding: 'utf8' }));
-  const step = yaml.jobs['release-seal'].steps.find(s => s.run?.includes('copyActualAppFiles'));
-  assert.ok(step); assert.match(step.env.NODE_OPTIONS, /node_warning_policy/);
+test('Core workflow excludes Demo hydration; legacy transfer preserves exact raw bytes and digests', async t => {
+  const f=await productionFixture(t),workflow=fs.readFileSync(path.join(root,'.github/workflows/xtend-default-gates.yml'),'utf8');
+  assert.ok(!workflow.includes('copyActualAppFiles'));assert.ok(!workflow.includes('product-candidate-canary:'));assert.match(workflow,/core-installed-consumers:/);
   const isolated = path.join(f.f.directory, 'yaml-hydration'); fs.mkdirSync(isolated);
   fs.symlinkSync(path.join(root, 'scripts'), path.join(isolated, 'scripts'), 'dir');
   const incoming = path.join(isolated, '.xtend-test-results/product-lanes/product-candidate-evidence-node-24-lts/product-candidates');
@@ -208,10 +209,7 @@ test('actual YAML Node24 pre-Seal hydration transfers byte-identical digest-boun
   fs.copyFileSync(path.join(f.directory, 'manifest.json'), path.join(destination, 'manifest.json'));
   write(path.join(isolated, '.xtend-test-results/product-lanes/product-candidate-evidence-node-24-lts/product-candidate.json'), f.evidence);
   write(path.join(incoming, 'installation.json'), { results: f.evidence.installation }); write(path.join(incoming, 'reports.json'), f.evidence.reports);
-  // Execute the actual YAML transfer commands, stopping before the independent
-  // git-HEAD standalone verifier (fixture aaaa is not a committed product SHA).
-  const commands = step.run.slice(0, step.run.lastIndexOf('node scripts/product-candidate-evidence.cjs'));
-  execFileSync('bash', ['-e', '-o', 'pipefail', '-c', commands], { cwd: isolated, env: { ...process.env, PATH: path.dirname(process.execPath) + ':' + process.env.PATH } });
+  product.copyActualAppFiles(f.evidence.reports,{directory:incoming,destination,coreSha:f.f.sourceSha,demoSha:f.demoSha});
   for (const name of rawFiles) assert.equal(fs.readFileSync(path.join(destination, name)).equals(fs.readFileSync(path.join(incoming, name))), true);
   for (const name of rawFiles) {
     fs.unlinkSync(path.join(destination, name)); fs.appendFileSync(path.join(incoming, name), ' ');

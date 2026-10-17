@@ -12772,7 +12772,10 @@
         "node-native-toolchain-smoke",
         "xtend-mcp-vscode-smoke",
         "laravel-release-gates",
-        "product-candidate-canary",
+        "core-source-artifact",
+        "release-prepare",
+        "core-installed-consumers",
+        "core-security-browser",
         "release-seal"
       ],
       "permissions": [
@@ -12804,7 +12807,7 @@
       "prereleaseTag": "next",
       "defaultPublish": false,
       "artifactMode": "immutable-verified-tarballs",
-      "packer": "scripts/product-candidate-canary.cjs#packCandidates",
+      "packer": "scripts/pack-candidates.cjs#packCandidates",
       "publishDryRunGate": "npm publish <verified.tgz> --dry-run --ignore-scripts --access=public --provenance --tag=<latest|next>"
     },
     "releaseChecklist": {

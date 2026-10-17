@@ -170,7 +170,7 @@ function withCoreSourceEnvironment({ rootDir, typescript, env = process.env }, a
   const sourceSha = require('node:child_process').execFileSync('git', ['rev-parse', 'HEAD'], { cwd: rootDir, encoding: 'utf8' }).trim();
   check(expected.sourceSha === sourceSha && expected.context?.runId === env.GITHUB_RUN_ID &&
     expected.context?.runAttempt === env.GITHUB_RUN_ATTEMPT, 'Core suite independent source/run/attempt mismatch');
-  const temporary = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'xtend-core-schema-'));
+  const temporary = fs.realpathSync(fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'xtend-core-schema-')));
   let context;
   try {
     const loaded = loadCoreSource({ archive: env.XTEND_CORE_ARCHIVE, expected, destination: path.join(temporary, 'source') });

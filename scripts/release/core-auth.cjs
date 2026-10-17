@@ -42,7 +42,7 @@ function verifyStoredAuthentication(envelope,{directory,artifact}) {
   check(String(source.metadata.id)===producer['artifact-id']&&producer['core-sha']===artifact.sourceSha&&
     producer['archive-sha256']===source.expected.archiveSha256&&producer['manifest-sha256']===source.expected.manifestSha256,
     'Stored Core source proof differs from authenticated producer outputs');
-  const work=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-core-proof-'));
+  const work=fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(),'xtend-core-proof-')));
   try {
     const zip=artifactFile(directory,source.file);
     check('sha256:'+hash(fs.readFileSync(zip))===source.metadata.digest,'Core source archive substitution');
@@ -93,7 +93,7 @@ async function collect({directory,artifact,needs,env=process.env,request=auth.gi
   const metadata=await request(`/repos/${repository}/actions/artifacts/${ctx.sourceArtifactId}`);auth.checkMetadata(metadata,sourceName(ctx),ctx);
   const available=await auth.pages(request,`/repos/${repository}/actions/runs/${ctx.runId}/artifacts`,'artifacts');
   fs.mkdirSync(directory,{recursive:true});
-  const temporary=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-core-collect-'));
+  const temporary=fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(),'xtend-core-collect-')));
   try {
     await auth.download(metadata,path.join(directory,'source.zip'),request,fetchBytes);
     auth.extract(path.join(directory,'source.zip'),path.join(temporary,'producer'),['sources.tar.gz']);

@@ -1,0 +1,42 @@
+{
+  "status": "historical-test-reference-only-not-current-Core-runtime",
+  "sourceCommit": "5dbe5bd198c96d6bb67e39d972507534c33359ee",
+  "files": [
+    {
+      "path": "scripts/release/artifact.cjs",
+      "file": "scripts__release__artifact.cjs.gz",
+      "sha256": "f42fd24785a577c4d0ba8745a8f89cede9d722715751d23ff329dfdef050c8f1",
+      "gitBlob": "6a3c8e09d378d6efdc34a65f0424697e32d523e2"
+    },
+    {
+      "path": "scripts/release/candidates.cjs",
+      "file": "scripts__release__candidates.cjs.gz",
+      "sha256": "8e7c088ebaf6353a8d3e04ade080d2a204943cb8cb1cbd37a196fc3f64146422",
+      "gitBlob": "97ba7fcfe72c5aa0eaf55775f0c4ca21e316472f"
+    },
+    {
+      "path": "scripts/release/contracts.cjs",
+      "file": "scripts__release__contracts.cjs.gz",
+      "sha256": "fa114353e61c8389f040e0447652733b8c71a674037a6d198a2933e246895ec3",
+      "gitBlob": "b69596b2813b2d415d1308387dd31d1561e67770"
+    },
+    {
+      "path": "scripts/release/pipeline.cjs",
+      "file": "scripts__release__pipeline.cjs.gz",
+      "sha256": "310b302ef9aba1424effe5d56d1905c81e1043a8c2469ff6ee48e89b5ede51ac",
+      "gitBlob": "7175fd8f3bc72f8ccad3a88540e7d847e7d94514"
+    },
+    {
+      "path": "tests/release/fixtures.cjs",
+      "file": "tests__release__fixtures.cjs.gz",
+      "sha256": "ae616aef1ac29da5015f14db28f68e399ee84f0bdc441a6f0d4e9bd4027405d4",
+      "gitBlob": "ea828c02a3fb0eccafaa41bb49c1c1b7b2cd1f38"
+    },
+    {
+      "path": "scripts/release/github.cjs",
+      "file": "scripts__release__github.cjs.gz",
+      "sha256": "3c8e4ffeff367d7dcee661d6b2858e4625134db2316dde119a46cc8a2f5efb14",
+      "gitBlob": "3070fdb76395d99ecb16898d0248ce4528743bee"
+    }
+  ]
+}
