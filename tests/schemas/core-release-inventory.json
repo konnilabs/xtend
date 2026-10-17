@@ -425361,7 +425361,8 @@
           "role": "documentation",
           "visibility": "docs",
           "sourcePaths": [
-            "development/XTend-Core-Only-Release.md"
+            "development/XTend-Core-Only-Release.md",
+            "development/core-release-authority-decision.json"
           ],
           "interfaceReferences": [
             {
@@ -474995,6 +474996,85 @@
       "replacementDecision": {
         "compatibility": "PROPOSED: separate profile-specific contracts; not a source or publication approval",
         "rationale": "Core release accepts only the explicit Core-only v2 manifest; the separate product audit retains v1. No automatic v1-to-v2 payload conversion and no alias."
+      },
+      "currentAuthorityRegistration": {
+        "schemaId": "xtend.product-candidates.v1",
+        "familyId": "xtend.product-candidates",
+        "version": 1,
+        "status": "pending",
+        "canonicalDefinition": {
+          "path": "candidate-integrity.d.ts",
+          "symbol": "LegacyCandidateManifest",
+          "definitionType": "typescript-declaration",
+          "role": "definition",
+          "visibility": "internal"
+        },
+        "sourceSha256": "3cae3fae47c4ceee7329bbea33c7d423031b34d7fcdd82915dfdc8fb7474d8d6",
+        "observedFingerprints": [
+          "sha256:0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc",
+          "sha256:191543f54471986c9b8f5b9fcf98ffecdff67f280c9b0aa98da6ce7899d9f2dc",
+          "sha256:6f7d68d9169c8382108f54adb1ffe08cee6c76b3dbe737797f25853f2289cac1",
+          "sha256:88bb888b7d2e4db3a1ff057fa3644bffbe33d29655b5378c92e8800136366eb7",
+          "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
+        ],
+        "authoritativeFingerprints": null,
+        "acceptedFingerprints": null,
+        "observedAuthorityFingerprints": [
+          "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
+        ]
+      },
+      "historicalAuthority": {
+        "inventorySha256": "0c1ca03e989f4c1cfa5e07b2296e163ddda0090fd138677bc410feafce9661f3",
+        "canonicalDefinition": {
+          "definitionType": "typescript-declaration",
+          "path": "candidate-integrity.d.ts",
+          "role": "definition",
+          "symbol": "CandidateManifest",
+          "visibility": "internal"
+        },
+        "initialAuthorityReview": {
+          "authoritativeFingerprint": "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9",
+          "released": false,
+          "schemaId": "xtend.product-candidates.v1",
+          "sourcePath": "candidate-integrity.d.ts",
+          "sourceSha256": "4b096560d425afd3c16aba9353d9a974e9e12138a5512e9941a69fa608382c47",
+          "status": "reviewed-unreleased",
+          "symbol": "CandidateManifest"
+        },
+        "shapePolicy": {
+          "acceptedFingerprints": [
+            "sha256:191543f54471986c9b8f5b9fcf98ffecdff67f280c9b0aa98da6ce7899d9f2dc",
+            "sha256:88bb888b7d2e4db3a1ff057fa3644bffbe33d29655b5378c92e8800136366eb7",
+            "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9",
+            "sha256:cbf425e3446cc0586f0d2a1d4cc422dc893fd2a5f6bd1e4f9875d3330b1d2a69",
+            "sha256:0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc"
+          ],
+          "authoritativeFingerprints": [
+            "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
+          ],
+          "mode": "polymorphic",
+          "rationale": "Preserve reviewed declaration identity and initial-unreleased provenance from 0aa3f668. Its four-shape registration approval does not cover the current six-shape observation. Require a new explicit fingerprint-bound review; no released hash or accepted set is inferred. Separate proposed six-shape decision preserves the historical four-shape snapshot and accepts only the release miniature-archive fixture 0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc and packaged-authority validation fixture d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2. Existing declaration/source authority, planned rollout, null released hashes and mandatory source-retirement publish guard remain unchanged; no future seventh shape is inferred. Separate proposal-only current-five binding: preserve all four original hashes and 0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc; remove only d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2 from the CURRENT observed/accepted set. Migration commit 610fb9ece97e7ad1fc04a96fd6b03802d646d114 made its test schema ID dynamic without changing generated manifest bytes; b6ca020 already includes this source, M only inherits it. The original four/six snapshots and preceding rationales remain historical evidence, not current observation. Any unknown or reintroduced historical variant requires a separate review; source authority, null released hashes, active/planned lifecycle and mandatory retirement guard remain unchanged.",
+          "releasedFingerprintSetHash": null,
+          "decision": "Historical six-shape decision retained in proposed-six-registration.json.gz; proposal-only current exact five-shape registration, no release authority"
+        },
+        "releasedFingerprintSetHash": null,
+        "family": {
+          "activeSchemaId": "xtend.product-candidates.v1",
+          "currentVersion": 1,
+          "familyId": "xtend.product-candidates",
+          "tombstones": [],
+          "versions": [
+            {
+              "lifecycle": {
+                "rollout": "planned",
+                "status": "active"
+              },
+              "releasedFingerprintSetHash": null,
+              "schemaId": "xtend.product-candidates.v1",
+              "version": 1
+            }
+          ]
+        }
       }
     },
     {
@@ -475340,7 +475420,30 @@
           "completeness": "partial",
           "authoritative": false
         }
-      ]
+      ],
+      "currentAuthorityRegistration": {
+        "schemaId": "xtend.product-candidates.v2",
+        "familyId": "xtend.product-candidates",
+        "version": 2,
+        "status": "pending",
+        "canonicalDefinition": {
+          "path": "candidate-integrity.d.ts",
+          "symbol": "CoreCandidateManifest",
+          "definitionType": "typescript-declaration",
+          "role": "definition",
+          "visibility": "internal"
+        },
+        "sourceSha256": "3cae3fae47c4ceee7329bbea33c7d423031b34d7fcdd82915dfdc8fb7474d8d6",
+        "observedFingerprints": [
+          "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea",
+          "sha256:9ed3963ef1f6971c8aa1003eba8be0a2eab001dda80c4147058c43ef74d06d8e"
+        ],
+        "authoritativeFingerprints": null,
+        "acceptedFingerprints": null,
+        "observedAuthorityFingerprints": [
+          "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea"
+        ]
+      }
     },
     {
       "aliasOf": null,
@@ -977522,7 +977625,7 @@
   ],
   "projectionReview": {
     "status": "pending-contract-and-authority-review",
-    "sourceCommit": "931af782914ed2f268f4b345822727b29f74ef4f",
+    "sourceCommit": "dd86077d53ad9a7ebd1483caa0c0701e991cbe1c",
     "historicalInventorySha256": "0c1ca03e989f4c1cfa5e07b2296e163ddda0090fd138677bc410feafce9661f3",
     "notReleaseApproval": true
   }

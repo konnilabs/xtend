@@ -7,19 +7,19 @@
   "sources": [
     {
       "path": "candidate-integrity.cjs",
-      "sha256": null
+      "sha256": "c31694f5321c4e816777c533ffdbba0e728af646459e1292d016a281149fbbb9"
     },
     {
       "path": "candidate-integrity.d.ts",
-      "sha256": null
+      "sha256": "3cae3fae47c4ceee7329bbea33c7d423031b34d7fcdd82915dfdc8fb7474d8d6"
     },
     {
       "path": "scripts/pack-candidates.cjs",
-      "sha256": null
+      "sha256": "34519014054420de0b68015edba6dd2100f29e667f9f4fb8b3443cff5ee4471f"
     },
     {
       "path": "scripts/release/profile.cjs",
-      "sha256": null
+      "sha256": "d85fe40d769ef8c8162de4ba6f6891d44ae7c105a1a7c162089808a5c88d3c06"
     }
   ],
   "registrations": [
@@ -35,10 +35,19 @@
         "role": "definition",
         "visibility": "internal"
       },
-      "sourceSha256": null,
-      "observedFingerprints": null,
+      "sourceSha256": "3cae3fae47c4ceee7329bbea33c7d423031b34d7fcdd82915dfdc8fb7474d8d6",
+      "observedFingerprints": [
+        "sha256:0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc",
+        "sha256:191543f54471986c9b8f5b9fcf98ffecdff67f280c9b0aa98da6ce7899d9f2dc",
+        "sha256:6f7d68d9169c8382108f54adb1ffe08cee6c76b3dbe737797f25853f2289cac1",
+        "sha256:88bb888b7d2e4db3a1ff057fa3644bffbe33d29655b5378c92e8800136366eb7",
+        "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
+      ],
       "authoritativeFingerprints": null,
-      "acceptedFingerprints": null
+      "acceptedFingerprints": null,
+      "observedAuthorityFingerprints": [
+        "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
+      ]
     },
     {
       "schemaId": "xtend.product-candidates.v2",
@@ -52,10 +61,16 @@
         "role": "definition",
         "visibility": "internal"
       },
-      "sourceSha256": null,
-      "observedFingerprints": null,
+      "sourceSha256": "3cae3fae47c4ceee7329bbea33c7d423031b34d7fcdd82915dfdc8fb7474d8d6",
+      "observedFingerprints": [
+        "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea",
+        "sha256:9ed3963ef1f6971c8aa1003eba8be0a2eab001dda80c4147058c43ef74d06d8e"
+      ],
       "authoritativeFingerprints": null,
-      "acceptedFingerprints": null
+      "acceptedFingerprints": null,
+      "observedAuthorityFingerprints": [
+        "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea"
+      ]
     }
   ],
   "transition": {
@@ -69,5 +84,23 @@
     "status": "pending",
     "releasedFingerprintSetHash": null,
     "publicationGuardRetired": false
+  },
+  "observationsAreApproval": false,
+  "proposedTransition": {
+    "fromId": "xtend.product-candidates.v1",
+    "toId": "xtend.product-candidates.v2",
+    "status": "pending-user-contract-decision",
+    "proposedLegacyLifecycle": {
+      "status": "deprecated",
+      "rollout": "planned"
+    },
+    "proposedCompatibility": {
+      "compatibility": "PROPOSED: separate profile-specific contracts; not a source or publication approval",
+      "rationale": "Core release accepts only the explicit Core-only v2 manifest; the separate product audit retains v1. No automatic v1-to-v2 payload conversion and no alias."
+    },
+    "historicalLifecycle": {
+      "rollout": "planned",
+      "status": "active"
+    }
   }
 }
