@@ -481781,10 +481781,11 @@
       },
       "shapeFingerprints": [
         {
-          "hash": "sha256:34595b9da22a5b2949051b7ec8f805649debfd7690a9cfed6ff2943df93f933b",
+          "hash": "sha256:96f3e7283be50d0238ee9a0ad0a1f2f16871eb5bf25c8c74f5ab74413f3ff821",
           "shape": {
-            "fieldCount": 7,
+            "fieldCount": 8,
             "fields": [
+              "candidateBinding",
               "edges",
               "packages",
               "profile",
@@ -481793,9 +481794,22 @@
               "sourceSha",
               "toolchain"
             ],
-            "signature": "edges:{\"unresolved\":\"inventory.edges\"}|packages:array<>|profile:string|registryDependencies:unknown|selection:{\"unresolved\":\"scope.selection\"}|sourceSha:unknown|toolchain:{node:{\"unresolved\":\"process.versions.node\"},npm:string}",
+            "signature": "candidateBinding:{profile:{\"unresolved\":\"require('../../scripts/release/profile.cjs').PROFILE\"}}|edges:{\"unresolved\":\"inventory.edges\"}|packages:array<>|profile:string|registryDependencies:unknown|selection:{\"unresolved\":\"scope.selection\"}|sourceSha:unknown|toolchain:{node:{\"unresolved\":\"process.versions.node\"},npm:string}",
             "normalized": {
               "fields": {
+                "candidateBinding": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "profile": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "require('../../scripts/release/profile.cjs').PROFILE"
+                        }
+                      }
+                    }
+                  }
+                },
                 "edges": {
                   "optional": false,
                   "type": {
@@ -977832,7 +977846,7 @@
   ],
   "projectionReview": {
     "status": "pending-exact-source-and-authority-review",
-    "sourceCommit": "e1c33794d1f3894942e6d9af30dec75f95e719db",
+    "sourceCommit": "97ec7434185f1bde1ac98c4872f67b4fdbf3413c",
     "historicalInventorySha256": "0c1ca03e989f4c1cfa5e07b2296e163ddda0090fd138677bc410feafce9661f3",
     "notReleaseApproval": true
   }
