@@ -182,7 +182,7 @@ test('current-five metadata leaves the actual publisher guard before every regis
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
   let calls = 0; const forbidden = () => { calls++; throw Error('No registry/backend permitted'); };
   await assert.rejects(require('../../../scripts/release/publish.cjs').publishRelease({
-    artifact: { order: [], packages: [], sourceSha: 'a'.repeat(40), manifestIntegrity: 'controlled-unusable', toolchain: { npm: '11.17.0' } },
+    artifact: { manifest: { schema: ['xtend', 'release', 'artifact', 'v1'].join('.'), candidateBinding: { demoSha: 'b'.repeat(40) }, unionEvidence: {} }, order: [], packages: [], sourceSha: 'a'.repeat(40), manifestIntegrity: 'controlled-unusable', toolchain: { npm: '11.17.0' } },
     ledgerFile: path.join(directory, 'ledger.json'), publish: true,
     registry: { version: forbidden, package: forbidden }, publisher: { publish: forbidden, dryRun: forbidden }
   }), /source-level initial-authority retirement/);

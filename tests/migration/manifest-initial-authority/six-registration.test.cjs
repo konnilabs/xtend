@@ -86,7 +86,7 @@ test('six-shape metadata never authorizes the actual publisher library before re
   let calls = 0;
   const forbidden = () => { calls++; throw Error('Registry/backend must not be reached'); };
   const publish = require('../../../scripts/release/publish.cjs').publishRelease;
-  await assert.rejects(publish({ artifact: { order: [], packages: [], sourceSha: 'a'.repeat(40),
+  await assert.rejects(publish({ artifact: { manifest: { schema: ['xtend', 'release', 'artifact', 'v1'].join('.'), candidateBinding: { demoSha: 'b'.repeat(40) }, unionEvidence: {} }, order: [], packages: [], sourceSha: 'a'.repeat(40),
     manifestIntegrity: 'controlled-unusable', toolchain: { npm: '11.17.0' } },
     ledgerFile: path.join(directory, 'ledger.json'), publish: true,
     registry: { version: forbidden, package: forbidden }, publisher: { publish: forbidden, dryRun: forbidden } }), /source-level/);

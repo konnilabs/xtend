@@ -58,9 +58,9 @@ The following files must be independently reviewed from a fresh final capture:
 Pending/null decisions are blocking. Candidate v1 must retain its genuine fixed
 historical complete authority and history. Candidate v2 needs an explicit initial
 unreleased registration and an explicit parallel-profile family decision. Existing
-v1 contracts remain active; this migration does not deprecate them. The current
-single-active-version registry cannot yet represent both active profiles, so that
-review remains blocking rather than silently changing lifecycle or guards. No generated scan, historical green
+v1 contracts remain active; this migration does not deprecate them. The closed profile registry represents both active profiles with exactly one
+current version in each verified context. Its exact source/authority registration
+remains pending; a structural mapping alone cannot authorize a release. No generated scan, historical green
 report or metadata edit may invent a released fingerprint or retire the separate
 first-release publication guard.
 
@@ -146,3 +146,25 @@ the same normalized meaning without rewriting the stored config or its digest.
 Absent/null and valid lowercase SHA-256 values retain their behavior; malformed
 truthy values, wrong service-source hashes and changed config fingerprints still
 fail. The exact source/shape registrations remain a separate pending review.
+
+## Closed profile registry
+
+Only the Candidate, Artifact and Canary families support the explicit paired
+Legacy-v1 and Core-v2 mapping. They use `profileCurrents` instead of global
+`currentVersion`/`activeSchemaId`; all other families retain the one-active-version
+rule. The internal Legacy context is `legacy-paired-audit`; this does not add a
+profile field to historical v1 payloads.
+
+The source provider assigns context only after authenticating the committed Git
+closure. Payload claims, copied providers, uncommitted proposal transports and
+missing or contradictory contexts cannot select a profile. Productive resolution
+requires the hash-bound decision, complete Core source membership and exact
+inventory bytes. Pending decisions always reject; no highest-version or other-
+profile fallback exists.
+
+The generator can emit a draft only from a verified context. Baseline acceptance
+rejects these profile families before mutating lifecycle or accepted observations.
+The Candidate Authority guard preserves active historical v1 and its unchanged
+release facts, independently verifies complete current v1/v2 authorities, and
+requires a separate exact coexistence registration. The narrow historical initial
+authority exception and the first-release publication guard remain unchanged.

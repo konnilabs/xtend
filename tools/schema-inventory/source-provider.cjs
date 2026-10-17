@@ -3,6 +3,7 @@ const fs = require('node:fs'), path = require('node:path'), crypto = require('no
 const policyBytes = fs.readFileSync(path.join(__dirname, 'source-bindings.json'));
 const bindings = JSON.parse(policyBytes);
 const verified = new WeakSet();
+const verifiedProfiles = new WeakMap();
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const implementationSha256 = hash(fs.readFileSync(__filename));
 const objectId = (kind, bytes) => crypto.createHash('sha1').update(Buffer.from(`${kind} ${bytes.length}\0`)).update(bytes).digest('hex');
@@ -187,7 +188,9 @@ function createSourceProvider({ archive, destination, expected }) {
         });
       }).flat());
     }
-  }); verified.add(provider); return provider;
+  }); verified.add(provider);
+  if (manifest.producer.mode === 'committed') verifiedProfiles.set(provider, 'legacy-paired-audit');
+  return provider;
 }
 // Repository-private Core transport adapter. Reuses the same Git, tar, path,
 // live member integrity and scanner brand; it never acquires a Demo repository.
@@ -239,10 +242,16 @@ function createCoreReleaseProvider({archive,destination,expected}) {
       check(hash(bytes)===row.sha256,'Core source changed during read');return bytes;},
     originalPath(relative){return index.get(relative)?.path||relative;},provenance(){return structuredClone(provenance);},
     exportMappings(files,extract){return extract(null,files);}
-  });verified.add(provider);return provider;
+  });verified.add(provider);verifiedProfiles.set(provider,profile);return provider;
 }
 
 function assertSourceProvider(provider) { check(verified.has(provider), 'Verified manifest-backed source provider required'); }
+function verifiedSourceProfile(provider) {
+  assertSourceProvider(provider);provider.files();
+  const profile=verifiedProfiles.get(provider);
+  check(profile==='xtend.npm.core-only.v1'||profile==='legacy-paired-audit', 'Committed verified source profile required');
+  return profile;
+}
 function assertImplementationBinding(expectedBytes, expectedPolicyBytes) {
   check(hash(expectedBytes) === implementationSha256 && hash(fs.readFileSync(__filename)) === implementationSha256
     && hash(expectedPolicyBytes) === hash(policyBytes)
@@ -250,5 +259,5 @@ function assertImplementationBinding(expectedBytes, expectedPolicyBytes) {
     && require.cache[__filename] === module && module.exports === implementationExports,
     'Source-provider implementation/cached module differs from authenticated source');
 }
-const implementationExports = Object.freeze({ createSourceProvider, assertSourceProvider, verifyProductDemoPin, verifyCandidateSourcePin, createCoreReleaseProvider, assertImplementationBinding });
+const implementationExports = Object.freeze({ createSourceProvider, assertSourceProvider, verifiedSourceProfile, verifyProductDemoPin, verifyCandidateSourcePin, createCoreReleaseProvider, assertImplementationBinding });
 module.exports = implementationExports;

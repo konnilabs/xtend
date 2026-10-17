@@ -27,7 +27,7 @@ function scan(provider) {
 }
 test.before(() => {
   assert.ok(archive && receipt, 'Actual pinned artifact and authenticated expected receipt are required; do not skip');
-  expected = JSON.parse(fs.readFileSync(receipt)); base = fs.mkdtempSync(path.join(os.tmpdir(), 'union-provider-tests-'));
+  expected = JSON.parse(fs.readFileSync(receipt)); base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'union-provider-tests-')));
 });
 test.after(() => { const output = process.env.XTEND_UNION_TEST_REPORT; if (output && fs.existsSync(output)) { const report = JSON.parse(fs.readFileSync(output)); report.portableTests = events; fs.writeFileSync(output, JSON.stringify(report, null, 2)); } if (base) fs.rmSync(base, { recursive: true, force: true }); });
 test('local productive full-source path, both owners, zero historical observations; full reds remain red', () => {

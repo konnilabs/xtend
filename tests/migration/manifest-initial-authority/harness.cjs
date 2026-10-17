@@ -35,6 +35,7 @@ exports.load = (retired = false, legacy = false) => {
   replaceOnce('return {\n main,', 'return {\n __testInitialAuthority:isReviewedInitialCandidateAuthority,\n main,');
   if (retired) replaceOnce('enabled: true, schemaId:', 'enabled: false, schemaId:');
   if (legacy) replaceOnce(': isReviewedInitialCandidateAuthority(entry, inventory, scan, rootDir);', ': false;');
+  code = code.replaceAll("require('./profile-registry.cjs')", 'require(' + JSON.stringify(path.join(root, 'tools/schema-inventory/profile-registry.cjs')) + ')');
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'manifest-scanner-'));
   const file = path.join(directory, 'scanner.cjs');
   fs.writeFileSync(file, code);

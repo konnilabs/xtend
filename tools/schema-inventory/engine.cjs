@@ -30,6 +30,7 @@ const SOURCE_EXCLUDES = new Set([
   INVENTORY_PATH,
   'tests/schemas/core-release-inventory.json',
   'development/core-candidate-authority.json',
+  'development/core-release-authority-decision.json',
   INVENTORY_SUITE_PATH,
   SCANNER_PATH,
   'package-lock.json',
@@ -58,7 +59,7 @@ const SOURCE_EXCLUDES = new Set([
   'tools/schema-inventory/authority-sources/src/components/x-surface-manager/surface-record.ts',
   'tools/schema-inventory/authority-sources/components/xsurfacemanager-controller.d.ts',
 
-  'tools/schema-inventory/engine.cjs', 'tools/schema-inventory/index.cjs',
+  'tools/schema-inventory/engine.cjs', 'tools/schema-inventory/profile-registry.cjs', 'tools/schema-inventory/index.cjs',
   'tools/schema-inventory/index.d.ts', 'tools/schema-inventory/ownership.cjs',
   'tools/schema-inventory/ownership-ledger.json', 'tools/schema-inventory/selection.json',
   'tools/schema-inventory/authority-bindings.json', 'tests/schemas/ownership-101.json', 'tests/schemas/ownership-103.json', 'tools/schema-inventory/command-lexical-overlay.json', 'tools/schema-inventory/form-validation-lexical-overlay.json'
@@ -1114,9 +1115,12 @@ function assertCoreCandidateAuthority(inventory, scan, provider) {
   demand(old && oldFamily, 'historical v1 record missing');
   const members = inventory.entries.filter(entry => entry.familyId === decision.familyId);
   const family = inventory.schemaFamilies.filter(item => item.familyId === decision.familyId);
-  demand(members.length === 2 && family.length === 1 && family[0].currentVersion === 2
-    && family[0].activeSchemaId === 'xtend.product-candidates.v2'
-    && stableEqual(family[0].tombstones, oldFamily.tombstones), 'explicit v1 -> v2 family transition required');
+  const profiles = require('./profile-registry.cjs');
+  demand(members.length === 2 && family.length === 1
+    && stableEqual(family[0].tombstones, oldFamily.tombstones), 'exact historical/current family membership required');
+  const current = profiles.resolveProfileCurrent(family[0], inventory.entries, provider, CORE_CANDIDATE_PROFILE);
+  demand(current.schemaId === 'xtend.product-candidates.v2' && current.version === 2,
+    'exact Core-profile Candidate v2 selection required');
   demand(Array.isArray(decision.registrations) && decision.registrations.length === 2
     && stableEqual(decision.registrations.map(row => row.schemaId), ['xtend.product-candidates.v1', 'xtend.product-candidates.v2']),
     'exact ordered current v1 and v2 registrations required');
@@ -1166,13 +1170,13 @@ function assertCoreCandidateAuthority(inventory, scan, provider) {
           canonicalDefinition: old.canonicalDefinition, initialAuthorityReview: old.initialAuthorityReview,
           shapePolicy: old.shapePolicy, releasedFingerprintSetHash: old.releasedFingerprintSetHash,
           family: oldFamily }) && stableEqual(entry.initialAuthorityReview, old.initialAuthorityReview), 'genuine v1 history must remain separate from current observations');
-      demand(stableEqual(entry.lifecycle, { status: 'deprecated', rollout: 'planned' })
-        && entry.replacedBy === 'xtend.product-candidates.v2'
-        && decision.transition?.status === 'reviewed-family-transition'
-        && decision.transition.from === id && decision.transition.to === entry.replacedBy
-        && typeof decision.transition.compatibility === 'string' && decision.transition.compatibility.trim().length > 0
-        && typeof decision.transition.rationale === 'string' && decision.transition.rationale.trim().length >= 8
-        && stableEqual(entry.replacementDecision, { compatibility: decision.transition.compatibility, rationale: decision.transition.rationale }), 'v1 read-window/migration decision pending');
+      demand(stableEqual(entry.lifecycle, old.lifecycle) && entry.lifecycle.status === 'active'
+        && entry.replacedBy === old.replacedBy && stableEqual(entry.replacementDecision, old.replacementDecision)
+        && !Object.hasOwn(decision, 'transition')
+        && stableEqual(decision.coexistence, { status: 'reviewed-profile-coexistence',
+          legacyProfile: profiles.LEGACY, coreProfile: CORE_CANDIDATE_PROFILE,
+          legacySchemaId: id, coreSchemaId: 'xtend.product-candidates.v2' }),
+        'active historical v1 and exact profile coexistence registration required');
     } else demand(stableEqual(entry.lifecycle, { status: 'active', rollout: 'planned' }) && entry.replacedBy === null
       && !(entry.history || []).length && !(entry.releaseHistory || []).length
       && !(inventory.releaseRecords || []).some(row => row.schemaId === id), 'v2 must remain honestly unreleased');
@@ -1633,7 +1637,7 @@ function auditDuplicateCandidates(entries, consolidations = []) {
       fingerprintMatch: entry.releasedFingerprintSetHash !== null
         && entry.releasedFingerprintSetHash === (entryById.get(entry.aliasOf) || {}).releasedFingerprintSetHash
     })).sort((left, right) => compareStrings(left.schemaId, right.schemaId));
-  const versionFamilies = buildSchemaFamilies(entries, null);
+  const versionFamilies = buildSchemaFamilies(entries, null, undefined, true);
   const legacyReferences = aliasStatus.map((alias) => {
     const entry = entryById.get(alias.schemaId);
     const productiveUsages = (entry.usages || []).filter((usage) => ['public', 'internal'].includes(usage.visibility));
@@ -1869,7 +1873,7 @@ function defaultEvolutionPolicy() {
   };
 }
 
-function buildSchemaFamilies(entries, existingFamilies) {
+function buildSchemaFamilies(entries, existingFamilies, sourceProvider, diagnosticOnly = false) {
   const existingById = new Map((Array.isArray(existingFamilies) ? existingFamilies : []).map((family) => [family.familyId, family]));
   const entryGroups = new Map();
   (entries || []).forEach((entry) => {
@@ -1908,7 +1912,7 @@ function buildSchemaFamilies(entries, existingFamilies) {
         });
       }
     });
-    return {
+    const result = {
       ...previous,
       familyId,
       currentVersion: current ? current.version : null,
@@ -1917,6 +1921,14 @@ function buildSchemaFamilies(entries, existingFamilies) {
       tombstones: Array.from(tombstonesById.values())
         .sort((left, right) => left.version - right.version || compareStrings(left.schemaId, right.schemaId))
     };
+    const profiles = require('./profile-registry.cjs');
+    if (Object.hasOwn(previous, 'profileCurrents') || profiles.FAMILIES.includes(familyId) && versions.length > 1) {
+      // Duplicate diagnostics describe observed membership; they never select a current.
+      if (diagnosticOnly) return {familyId, versions, tombstones: result.tombstones};
+      if (Object.hasOwn(previous, 'profileCurrents')) profiles.assertProfileFamily(previous, entries);
+      return profiles.buildProfileFamily(result, entries, sourceProvider);
+    }
+    return result;
   }).sort((left, right) => compareStrings(left.familyId, right.familyId));
 }
 
@@ -1951,7 +1963,7 @@ function createInventoryDocument(scan, existingInventory = null) {
         contractId: 'xtend.native-first.contract-registry.v1'
       }
     ],
-    schemaFamilies: buildSchemaFamilies(entries, existingInventory && existingInventory.schemaFamilies),
+    schemaFamilies: buildSchemaFamilies(entries, existingInventory && existingInventory.schemaFamilies, scanProviders.get(scan)),
     consolidations,
     entries,
     duplicateReviews: mergeReviews(scan.duplicateReviews, existingInventory && existingInventory.duplicateReviews),
@@ -1961,6 +1973,10 @@ function createInventoryDocument(scan, existingInventory = null) {
 
 function acceptCurrentBaseline(inventory) {
   const entries = Array.isArray(inventory && inventory.entries) ? inventory.entries : [];
+  const profiles = require('./profile-registry.cjs');
+  if ((inventory?.schemaFamilies || []).some(family => Object.hasOwn(family, 'profileCurrents'))
+    || profiles.FAMILIES.some(id => entries.filter(entry => entry.familyId === id).length > 1))
+    throw Error('Profile families require exact separate registration; baseline acceptance cannot mutate them');
   const releasedDrifts = entries.filter((entry) => {
     if (!entry || entry.aliasOf) return false;
     return entry.releasedFingerprintSetHash !== authoritativeFingerprintSetHash(entry.shapeFingerprints);
@@ -2291,11 +2307,16 @@ function validateInventoryDocument(inventory, scan, options = {}) {
     const actualVersionIds = uniqueSorted(family.versions.map((version) => version && version.schemaId).filter(Boolean));
     const expectedVersionIds = uniqueSorted(expectedEntries.map((entry) => entry.schemaId));
     if (!stableEqual(actualVersionIds, expectedVersionIds)) errors.push(issue('invalid-family', 'Family version membership differs from inventory entries.', { familyId: family.familyId }));
-    const activeVersions = expectedEntries.filter((entry) => entry.lifecycle && entry.lifecycle.status === 'active');
-    if (activeVersions.length > 1) errors.push(issue('multiple-current-family-version', 'A family may have only one active/current version.', { familyId: family.familyId }));
-    const current = activeVersions[0] || expectedEntries.slice().sort((left, right) => right.version - left.version)[0] || null;
-    if (current && (family.currentVersion !== current.version || family.activeSchemaId !== current.schemaId)) {
-      errors.push(issue('invalid-current-family-version', 'Family currentVersion and activeSchemaId must identify its sole active version.', { familyId: family.familyId }));
+    if (Object.hasOwn(family, 'profileCurrents')) {
+      try { require('./profile-registry.cjs').resolveProfileCurrent(family, entries, provider); }
+      catch (error) { errors.push(issue('profile-family-registration', error.message, { familyId: family.familyId })); }
+    } else {
+      const activeVersions = expectedEntries.filter((entry) => entry.lifecycle && entry.lifecycle.status === 'active');
+      if (activeVersions.length > 1) errors.push(issue('multiple-current-family-version', 'A family may have only one active/current version.', { familyId: family.familyId }));
+      const current = activeVersions[0] || expectedEntries.slice().sort((left, right) => right.version - left.version)[0] || null;
+      if (current && (family.currentVersion !== current.version || family.activeSchemaId !== current.schemaId)) {
+        errors.push(issue('invalid-current-family-version', 'Family currentVersion and activeSchemaId must identify its sole active version.', { familyId: family.familyId }));
+      }
     }
     family.tombstones.forEach((tombstone) => {
       if (!tombstone || typeof tombstone.schemaId !== 'string' || !Number.isInteger(tombstone.version)
