@@ -73,29 +73,17 @@
       ]
     }
   ],
-  "transition": {
-    "status": "pending",
-    "from": "xtend.product-candidates.v1",
-    "to": "xtend.product-candidates.v2",
-    "compatibility": null,
-    "rationale": null
-  },
   "firstRelease": {
     "status": "pending",
     "releasedFingerprintSetHash": null,
     "publicationGuardRetired": false
   },
   "observationsAreApproval": false,
-  "proposedTransition": {
-    "fromId": "xtend.product-candidates.v1",
-    "toId": "xtend.product-candidates.v2",
-    "status": "local-contract-direction-authorized-exact-authority-pending",
-    "legacyLifecycle": {
-      "rollout": "planned",
-      "status": "active"
-    },
-    "legacyDeprecationAuthorized": false,
-    "compatibility": "Independent profile-specific contracts. Legacy v1 remains active; Core consumes only its own v2. No relabeling or automatic conversion.",
-    "unresolvedRegistryConstraint": "The unchanged family validator permits only one active version. A separately reviewed profile-aware registration model is required."
+  "coexistence": {
+    "status": "pending-exact-profile-coexistence",
+    "legacyProfile": "legacy-paired-audit",
+    "coreProfile": "xtend.npm.core-only.v1",
+    "legacySchemaId": "xtend.product-candidates.v1",
+    "coreSchemaId": "xtend.product-candidates.v2"
   }
 }

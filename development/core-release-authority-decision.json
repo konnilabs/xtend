@@ -6,5 +6,56 @@
   "inventoryFile": "tests/schemas/core-release-inventory.json",
   "inventorySha256": null,
   "sourceMembershipSha256": null,
-  "reviewProposal": "development/core-projection-review.json.gz"
+  "reviewProposal": "development/core-projection-review.json.gz",
+  "profileRegistry": {
+    "format": 1,
+    "status": "pending-exact-profile-registry",
+    "families": [
+      {
+        "familyId": "xtend.product-candidates",
+        "profileCurrents": [
+          {
+            "profile": "legacy-paired-audit",
+            "schemaId": "xtend.product-candidates.v1",
+            "version": 1
+          },
+          {
+            "profile": "xtend.npm.core-only.v1",
+            "schemaId": "xtend.product-candidates.v2",
+            "version": 2
+          }
+        ]
+      },
+      {
+        "familyId": "xtend.release.artifact",
+        "profileCurrents": [
+          {
+            "profile": "legacy-paired-audit",
+            "schemaId": "xtend.release.artifact.v1",
+            "version": 1
+          },
+          {
+            "profile": "xtend.npm.core-only.v1",
+            "schemaId": "xtend.release.artifact.v2",
+            "version": 2
+          }
+        ]
+      },
+      {
+        "familyId": "xtend.release.canary",
+        "profileCurrents": [
+          {
+            "profile": "legacy-paired-audit",
+            "schemaId": "xtend.release.canary.v1",
+            "version": 1
+          },
+          {
+            "profile": "xtend.npm.core-only.v1",
+            "schemaId": "xtend.release.canary.v2",
+            "version": 2
+          }
+        ]
+      }
+    ]
+  }
 }

@@ -425360,8 +425360,7 @@
           "role": "documentation",
           "visibility": "docs",
           "sourcePaths": [
-            "development/XTend-Core-Only-Release.md",
-            "development/core-release-authority-decision.json"
+            "development/XTend-Core-Only-Release.md"
           ],
           "interfaceReferences": [
             {
@@ -959650,8 +959649,6 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.product-candidates.v1",
-      "currentVersion": 1,
       "familyId": "xtend.product-candidates",
       "tombstones": [],
       "versions": [
@@ -959672,6 +959669,18 @@
             "rollout": "planned"
           },
           "releasedFingerprintSetHash": null
+        }
+      ],
+      "profileCurrents": [
+        {
+          "profile": "legacy-paired-audit",
+          "schemaId": "xtend.product-candidates.v1",
+          "version": 1
+        },
+        {
+          "profile": "xtend.npm.core-only.v1",
+          "schemaId": "xtend.product-candidates.v2",
+          "version": 2
         }
       ]
     },
@@ -959982,8 +959991,6 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.release.artifact.v1",
-      "currentVersion": 1,
       "familyId": "xtend.release.artifact",
       "tombstones": [],
       "versions": [
@@ -960004,6 +960011,18 @@
             "rollout": "planned"
           },
           "releasedFingerprintSetHash": null
+        }
+      ],
+      "profileCurrents": [
+        {
+          "profile": "legacy-paired-audit",
+          "schemaId": "xtend.release.artifact.v1",
+          "version": 1
+        },
+        {
+          "profile": "xtend.npm.core-only.v1",
+          "schemaId": "xtend.release.artifact.v2",
+          "version": 2
         }
       ]
     },
@@ -960059,8 +960078,6 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.release.canary.v1",
-      "currentVersion": 1,
       "familyId": "xtend.release.canary",
       "tombstones": [],
       "versions": [
@@ -960081,6 +960098,18 @@
             "rollout": "planned"
           },
           "releasedFingerprintSetHash": null
+        }
+      ],
+      "profileCurrents": [
+        {
+          "profile": "legacy-paired-audit",
+          "schemaId": "xtend.release.canary.v1",
+          "version": 1
+        },
+        {
+          "profile": "xtend.npm.core-only.v1",
+          "schemaId": "xtend.release.canary.v2",
+          "version": 2
         }
       ]
     },
@@ -977803,7 +977832,7 @@
   ],
   "projectionReview": {
     "status": "pending-exact-source-and-authority-review",
-    "sourceCommit": "7be03b9c1d5d3977e85eb7d1efcf4e1ab7299499",
+    "sourceCommit": "e1c33794d1f3894942e6d9af30dec75f95e719db",
     "historicalInventorySha256": "0c1ca03e989f4c1cfa5e07b2296e163ddda0090fd138677bc410feafce9661f3",
     "notReleaseApproval": true
   }
