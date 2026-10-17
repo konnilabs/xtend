@@ -947104,7 +947104,7 @@
           "evidenceTypes": [
             "runtime-observation"
           ],
-          "hash": "sha256:4f84ed78ca1b8832a962558e3ceb053c1a6812ff1a64a0662a5d647281def666",
+          "hash": "sha256:96b487195ba27e8a591d1fe391fc8bf81536be7eab2c8a25488e9e6b270f826d",
           "shape": {
             "fieldCount": 5,
             "fields": [
@@ -947152,7 +947152,38 @@
                     ]
                   }
                 }
-              }
+              },
+              "unresolvedSpreads": [
+                {
+                  "union": [
+                    {
+                      "fields": {
+                        "artifact": {
+                          "optional": false,
+                          "type": {
+                            "unresolved": "imported.artifact"
+                          }
+                        },
+                        "producer": {
+                          "optional": false,
+                          "type": {
+                            "unresolved": "report.producer"
+                          }
+                        },
+                        "producerRuntime": {
+                          "optional": false,
+                          "type": {
+                            "unresolved": "report.runtime"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "fields": {}
+                    }
+                  ]
+                }
+              ]
             },
             "signature": "errors:array<>|executionId:{\"unresolved\":\"report.executionId || null\"}|profile:{\"unresolved\":\"options.verify\"}|status:union<string|unknown>|summary:union<null|unknown>"
           },
@@ -947166,11 +947197,11 @@
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
-          "sha256:4f84ed78ca1b8832a962558e3ceb053c1a6812ff1a64a0662a5d647281def666"
+          "sha256:96b487195ba27e8a591d1fe391fc8bf81536be7eab2c8a25488e9e6b270f826d"
         ],
         "authoritativeFingerprints": [],
         "mode": "single",
-        "rationale": "Reviewed initial verification envelope after runner integration: one shape for both outcomes, with errors and nullable summary; no previously released contract is changed.",
+        "rationale": "Reviewed internal, unreleased verification envelope: existing required fields and outcomes are unchanged; optional imported-CI metadata preserves producer identity, full runtime and immutable artifact binding. No authoritative or released fingerprint is changed.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
@@ -947187,6 +947218,204 @@
           "role": "producer",
           "sourcePaths": [
             "scripts/test-runner/executor.js"
+          ],
+          "visibility": "internal"
+        }
+      ],
+      "version": 1
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "definitionType": "constant",
+        "path": "scripts/test-runner/imported-ci.js",
+        "role": "definition",
+        "symbol": "BINDING_SCHEMA",
+        "visibility": "internal"
+      },
+      "description": "Trusted local resolver receipt for imported CI: independently expected producer identity and lane, exact producer Node/OS/architecture, owner profile, actual producer window, immutable artifact ID and ZIP digest, and extracted execution digest. Never accepted from the producer archive.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.test.imported-ci-binding",
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "lifecycle": {
+        "rollout": "complete",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": null,
+      "replacedBy": null,
+      "schemaId": "xtend.test.imported-ci-binding.v1",
+      "shapeFingerprints": [
+        {
+          "authoritative": false,
+          "completeness": "partial",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "partial",
+              "path": "scripts/test-runner/imported-ci.js",
+              "symbol": "selectArtifact",
+              "type": "runtime-observation"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "hash": "sha256:8405075eea22ce45103f25ce5126ca9d55414afa32fa7f319f0dc83576e527d8",
+          "shape": {
+            "fieldCount": 7,
+            "fields": [
+              "arch",
+              "artifact",
+              "platform",
+              "producer",
+              "producerNode",
+              "producerWindow",
+              "profile"
+            ],
+            "normalized": {
+              "fields": {
+                "arch": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "arch"
+                  }
+                },
+                "artifact": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "digest": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "artifact.digest"
+                        }
+                      },
+                      "id": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "artifact.id"
+                        }
+                      },
+                      "name": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "artifact.name"
+                        }
+                      },
+                      "runId": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "expected.runId"
+                        }
+                      }
+                    }
+                  }
+                },
+                "platform": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "platform"
+                  }
+                },
+                "producer": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "attempt": {
+                        "optional": false,
+                        "type": "unknown"
+                      }
+                    },
+                    "unresolvedSpreads": [
+                      {
+                        "unresolvedReference": "producer"
+                      }
+                    ]
+                  }
+                },
+                "producerNode": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "producerNode"
+                  }
+                },
+                "producerWindow": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "completedAt": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "job.completed_at"
+                        }
+                      },
+                      "startedAt": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "job.started_at"
+                        }
+                      }
+                    }
+                  }
+                },
+                "profile": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "profile"
+                  }
+                }
+              }
+            },
+            "signature": "arch:{\"unresolvedReference\":\"arch\"}|artifact:{digest:{\"unresolved\":\"artifact.digest\"},id:{\"unresolved\":\"artifact.id\"},name:{\"unresolved\":\"artifact.name\"},runId:{\"unresolved\":\"expected.runId\"}}|platform:{\"unresolvedReference\":\"platform\"}|producer:{attempt:unknown}|producerNode:{\"unresolvedReference\":\"producerNode\"}|producerWindow:{completedAt:{\"unresolved\":\"job.completed_at\"},startedAt:{\"unresolved\":\"job.started_at\"}}|profile:{\"unresolvedReference\":\"profile\"}"
+          },
+          "sourcePaths": [
+            "scripts/test-runner/imported-ci.js"
+          ],
+          "symbols": [
+            "selectArtifact"
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "acceptedFingerprints": [
+          "sha256:8405075eea22ce45103f25ce5126ca9d55414afa32fa7f319f0dc83576e527d8"
+        ],
+        "authoritativeFingerprints": [],
+        "mode": "single",
+        "rationale": "One statically comparable shape is currently observed for this identifier.",
+        "releasedFingerprintSetHash": null
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTend Build and Test Tooling",
+          "interfaceReferences": [
+            {
+              "path": "scripts/test-runner/imported-ci.js",
+              "symbol": "BINDING_SCHEMA",
+              "type": "symbol"
+            }
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "scripts/test-runner/imported-ci.js"
+          ],
+          "visibility": "internal"
+        },
+        {
+          "application": "XTend Build and Test Tooling",
+          "interfaceReferences": [
+            {
+              "path": "scripts/test-runner/imported-ci.js",
+              "symbol": "selectArtifact",
+              "type": "symbol"
+            }
+          ],
+          "role": "producer",
+          "sourcePaths": [
+            "scripts/test-runner/imported-ci.js"
           ],
           "visibility": "internal"
         }
@@ -1076208,6 +1076437,23 @@
           },
           "releasedFingerprintSetHash": null,
           "schemaId": "xtend.test.execution-verification.v1",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "activeSchemaId": "xtend.test.imported-ci-binding.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.test.imported-ci-binding",
+      "tombstones": [],
+      "versions": [
+        {
+          "lifecycle": {
+            "rollout": "complete",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null,
+          "schemaId": "xtend.test.imported-ci-binding.v1",
           "version": 1
         }
       ]
