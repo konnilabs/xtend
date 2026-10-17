@@ -16,10 +16,10 @@ current.entries = current.entries.map(e => e.schemaId === id ? structuredClone(p
 current.schemaFamilies = current.schemaFamilies.map(f => f.familyId === familyId ? structuredClone(proof.family) : f);
 current.duplicateReviews = current.duplicateReviews.filter(r => !r.schemaIds?.includes(id)).concat(structuredClone(proof.duplicateReviews));
 const entry = value => value.entries.find(e => e.schemaId === id);
-const errors = (doc = current, scan = proof.observation, rootDir = harness.root) =>
+const errors = (doc = current, scan = proof.observation, rootDir = harness.historicalRoot) =>
   scanner.validateInventoryDocument(doc, scan, { rootDir }).errors
     .filter(e => e.schemaId === id || e.familyId === familyId || e.schemaIds?.includes(id));
-const bound = (doc = current, scan = proof.observation, rootDir = harness.root) =>
+const bound = (doc = current, scan = proof.observation, rootDir = harness.historicalRoot) =>
   scanner.__testInitialAuthority(entry(doc), doc, scan, rootDir);
 
 test('historical exact six-shape model preserves the four-shape snapshot and sole initial authority', () => {
@@ -39,7 +39,7 @@ test('historical exact six-shape model preserves the four-shape snapshot and sol
   assert.equal(entry(current).shapePolicy.releasedFingerprintSetHash, null);
   assert.deepEqual(entry(current).shapePolicy.authoritativeFingerprints,
     ['sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9']);
-  assert.equal(sha(fs.readFileSync(path.join(harness.root, 'candidate-integrity.d.ts'))),
+  assert.equal(sha(fs.readFileSync(path.join(harness.historicalRoot, 'candidate-integrity.d.ts'))),
     '4b096560d425afd3c16aba9353d9a974e9e12138a5512e9941a69fa608382c47');
   assert.deepEqual(errors(), []);
   assert.equal(bound(), true);

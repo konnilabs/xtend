@@ -17,11 +17,11 @@ const doc = structuredClone(current);
 doc.entries = doc.entries.map(entry => entry.schemaId === id ? approved.entry : entry);
 doc.schemaFamilies = doc.schemaFamilies.map(family => family.familyId === familyId ? approved.family : family);
 doc.duplicateReviews = doc.duplicateReviews.filter(review => !review.schemaIds?.includes(id)).concat(approved.duplicateReviews);
-const scoped = value => scanner.validateInventoryDocument(value, scan, { rootDir: harness.root }).errors
+const scoped = value => scanner.validateInventoryDocument(value, scan, { rootDir: harness.historicalRoot }).errors
   .filter(error => error.schemaId === id || error.familyId === familyId || error.schemaIds?.includes(id));
 test('exact proposed Entry Family and duplicate register without a released hash', () => {
   assert.deepEqual(scoped(doc), []);
-  assert.equal(scanner.__testInitialAuthority(doc.entries.find(entry => entry.schemaId === id), doc, scan, harness.root), true);
+  assert.equal(scanner.__testInitialAuthority(doc.entries.find(entry => entry.schemaId === id), doc, scan, harness.historicalRoot), true);
 });
 test('three exact registration-boundary mutations reject', () => {
   for (const mutation of ['missing-specific-duplicate', 'missing-family', 'extra-accepted-hash']) {

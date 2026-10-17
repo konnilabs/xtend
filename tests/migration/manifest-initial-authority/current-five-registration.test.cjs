@@ -13,9 +13,9 @@ assert.equal(digest(bytes), 'a99cc69a791172883e1941721a364e10a7bec96a0c10fa1162c
 const proof = JSON.parse(zlib.gunzipSync(bytes));
 const inventory = JSON.parse(fs.readFileSync(path.join(harness.root, 'tests/schemas/xtend-schema-inventory.json')));
 const entry = doc => doc.entries.find(e => e.schemaId === id);
-const scoped = (doc, scan, rootDir = harness.root) => scanner.validateInventoryDocument(doc, scan, { rootDir }).errors
+const scoped = (doc, scan, rootDir = harness.historicalRoot) => scanner.validateInventoryDocument(doc, scan, { rootDir }).errors
   .filter(e => e.schemaId === id || e.familyId === family || e.schemaIds?.includes(id));
-const bound = (doc, scan, rootDir = harness.root) => model.__testInitialAuthority(entry(doc), doc, scan, rootDir);
+const bound = (doc, scan, rootDir = harness.historicalRoot) => model.__testInitialAuthority(entry(doc), doc, scan, rootDir);
 
 test('unapplied current five is exactly historical six minus one named test variant; both snapshots and authority survive', () => {
   assert.equal(proof.proposalOnly, true); assert.equal(proof.approvalApplied, false);
@@ -34,23 +34,26 @@ test('unapplied current five is exactly historical six minus one named test vari
   assert.equal(entry(inventory).shapePolicy.releasedFingerprintSetHash, null);
   assert.deepEqual(entry(inventory).shapePolicy.authoritativeFingerprints, six.entry.shapePolicy.authoritativeFingerprints);
   assert.deepEqual(inventory.schemaFamilies.find(f => f.familyId === family), six.family);
-  assert.equal(digest(fs.readFileSync(path.join(harness.root, 'candidate-integrity.d.ts'))),
+  assert.equal(digest(fs.readFileSync(path.join(harness.historicalRoot, 'candidate-integrity.d.ts'))),
     '4b096560d425afd3c16aba9353d9a974e9e12138a5512e9941a69fa608382c47');
   assert.deepEqual(scoped(inventory, proof.observation), []);
   assert.equal(bound(inventory, proof.observation), true);
   assert.throws(() => require('../../../scripts/scan_schema_inventory').assertCandidateInitialAuthorityRetiredForRelease(), /source-level/);
 });
 
-test('real public scanner observes exactly the proposed current five; this is no full-schema or product acceptance', t => {
+test('current source cannot inherit the frozen five-shape initial authority review', t => {
   const actual = scanner.scanSchemaInventory({ rootDir: harness.root });
   const observed = entry(actual);
-  assert.equal(observed.shapeFingerprints.length, 5);
-  assert.deepEqual(observed.shapeFingerprints.map(f => f.hash).sort(), proof.currentFiveFingerprints.slice().sort());
-  assert.equal(bound(inventory, actual), true);
-  assert.deepEqual(scoped(inventory, actual), []);
+  assert.ok(observed.shapeFingerprints.some(f => f.authoritative
+    && f.evidence.some(e => e.symbol === 'LegacyCandidateManifest')));
+  assert.ok(observed.shapeFingerprints.some(f => f.authoritative
+    && f.hash === proof.entry.shapePolicy.authoritativeFingerprints[0]));
+  assert.equal(bound(inventory, actual, harness.root), false);
+  assert.ok(scoped(inventory, actual, harness.root).some(e => e.code === 'released-fingerprint-drift'));
+  assert.ok(scoped(inventory, actual, harness.root).some(e => e.code === 'canonical-definition-drift'));
   if (process.env.XTEND_CURRENT_FIVE_OBSERVATION) fs.writeFileSync(process.env.XTEND_CURRENT_FIVE_OBSERVATION,
     JSON.stringify({ proposalOnly: true, productAcceptance: false, observation: observed,
-      scopedCandidateErrors: scoped(inventory, actual), scanStats: actual.stats }, null, 2) + '\n');
+      scopedCandidateErrors: scoped(inventory, actual, harness.root), scanStats: actual.stats }, null, 2) + '\n');
   t.diagnostic('Current exact fingerprints: ' + JSON.stringify(observed.shapeFingerprints.map(f => f.hash).sort()));
 });
 
@@ -96,8 +99,10 @@ function reintroduceHistoricalDiscriminator(current) {
   return current.slice(0, producer.expressionStart) + JSON.stringify(id) + current.slice(producer.expressionEnd);
 }
 
-test('historical full-file evidence and current Candidate producer/inputs remain separate and byte-equivalent', () => {
-  const current = fs.readFileSync(path.join(harness.root, 'tests/migration/packaged-authority.test.cjs'), 'utf8');
+test('frozen producer preserves exact inputs; changed current producer cannot inherit historical equivalence', () => {
+  const currentSource = fs.readFileSync(path.join(harness.root, 'tests/migration/packaged-authority.test.cjs'), 'utf8');
+  assert.throws(() => checkedProducer(currentSource), /Candidate/);
+  const current = historicalProducerBytes.toString('utf8');
   const actual = checkedProducer(current), historical = producerSource(historicalProducerBytes.toString('utf8'));
   // Evaluate only the proven-equivalent manifest expressions with identical explicit
   // controlled inputs. This executes neither npm pack nor either ownership test body.
@@ -125,13 +130,13 @@ for (const [name, before, after] of [
   ['discriminator', "['xtend','product-candidates','v1'].join('.')", "['xtend','product-candidates','v2'].join('.')"],
   ['root-helper', "path.resolve(__dirname,'../..')", "path.resolve(__dirname,'../../..')"]
 ]) test('producer equivalence rejects ' + name + ' mutation before test-dispatch replacement', () => {
-  const current = fs.readFileSync(path.join(harness.root, 'tests/migration/packaged-authority.test.cjs'), 'utf8');
+  const current = historicalProducerBytes.toString('utf8');
   assert.equal(current.split(before).length, 2, 'Mutation must target exactly one real source expression');
   assert.throws(() => reintroduceHistoricalDiscriminator(current.replace(before, after)), /Candidate/);
 });
 
 test('producer equivalence rejects duplicate declarations/expressions and altered historical evidence', () => {
-  const current = fs.readFileSync(path.join(harness.root, 'tests/migration/packaged-authority.test.cjs'), 'utf8');
+  const current = historicalProducerBytes.toString('utf8');
   const expression = checkedProducer(current).expression;
   assert.throws(() => checkedProducer(current + '\n// ' + expression + '\n'), /Exactly one discriminator/);
   assert.throws(() => checkedProducer(current + '\nconst manifest = {};\n'), /Exactly one Candidate manifest/);
@@ -145,7 +150,7 @@ for (const variant of ['unknown', 'reintroduced-historical']) test('real scanned
     fs.writeFileSync(path.join(directory, 'unknown.cjs'), 'const manifest = { schema: ' + JSON.stringify(id) + ', unreviewed: true };\n');
   } else {
     const relative = 'tests/migration/packaged-authority.test.cjs';
-    const original = fs.readFileSync(path.join(harness.root, relative), 'utf8');
+    const original = historicalProducerBytes.toString('utf8');
     const target = path.join(directory, relative); fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, reintroduceHistoricalDiscriminator(original));
   }
