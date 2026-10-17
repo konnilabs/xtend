@@ -864425,21 +864425,27 @@
           ],
           "interfaceReferences": [
             {
-              "type": "package-export",
               "module": "@ccslabs/xtend/xcommand",
-              "path": "xcommand/xcommand.js"
+              "path": "xcommand/xcommand.js",
+              "type": "package-export"
             },
             {
-              "type": "symbol",
               "path": "xcommand/xcommand.js",
-              "symbol": "createXKeymapModel"
+              "symbol": "createXCommandKernel",
+              "type": "symbol"
             },
             {
-              "type": "symbol",
               "path": "xcommand/xcommand.js",
-              "symbol": "getKeymap"
+              "symbol": "createXKeymapModel",
+              "type": "symbol"
+            },
+            {
+              "path": "xcommand/xcommand.js",
+              "symbol": "getKeymap",
+              "type": "symbol"
             }
-          ]
+          ],
+          "curated": true
         },
         {
           "application": "XCommand",
@@ -864461,15 +864467,32 @@
           "role": "producer",
           "visibility": "public",
           "sourcePaths": [
+            "components/xkeymap.d.ts",
             "components/xkeymap.js"
           ],
           "interfaceReferences": [
             {
-              "type": "package-export",
+              "member": [
+                "entries",
+                "open",
+                "close"
+              ],
+              "path": "components/xkeymap.d.ts",
+              "symbol": "XKeymapElement",
+              "type": "symbol"
+            },
+            {
               "module": "@ccslabs/xtend/components/xkeymap.js",
-              "path": "components/xkeymap.js"
+              "path": "components/xkeymap.js",
+              "type": "package-export"
+            },
+            {
+              "name": "x-keymap",
+              "path": "components/xkeymap.js",
+              "type": "custom-element"
             }
-          ]
+          ],
+          "curated": true
         },
         {
           "application": "XTend Development Contracts",
@@ -881508,6 +881531,22 @@
               "symbol": null
             }
           ]
+        },
+        {
+          "application": "XTensions",
+          "curated": true,
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/host-resource-cleanup-record.js",
+              "symbol": "resolveHostResourceCleanupSchema",
+              "type": "internal-repo-symbol"
+            }
+          ],
+          "role": "consumer",
+          "sourcePaths": [
+            "tools/xtensions/host-resource-cleanup-record.js"
+          ],
+          "visibility": "internal"
         }
       ],
       "version": 1
@@ -895469,6 +895508,22 @@
               "symbol": null
             }
           ]
+        },
+        {
+          "application": "XTensions",
+          "curated": true,
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/host-resource-cleanup-record.js",
+              "symbol": "resolveHostResourceCleanupSchema",
+              "type": "internal-repo-symbol"
+            }
+          ],
+          "role": "consumer",
+          "sourcePaths": [
+            "tools/xtensions/host-resource-cleanup-record.js"
+          ],
+          "visibility": "internal"
         }
       ],
       "version": 1
@@ -903305,6 +903360,22 @@
               "symbol": null
             }
           ]
+        },
+        {
+          "application": "XTensions",
+          "curated": true,
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/host-resource-cleanup-record.js",
+              "symbol": "resolveHostResourceCleanupSchema",
+              "type": "internal-repo-symbol"
+            }
+          ],
+          "role": "consumer",
+          "sourcePaths": [
+            "tools/xtensions/host-resource-cleanup-record.js"
+          ],
+          "visibility": "internal"
         }
       ],
       "version": 1
@@ -928217,6 +928288,22 @@
               "symbol": null
             }
           ]
+        },
+        {
+          "application": "XTensions",
+          "curated": true,
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/host-resource-cleanup-record.js",
+              "symbol": "resolveHostResourceCleanupSchema",
+              "type": "internal-repo-symbol"
+            }
+          ],
+          "role": "consumer",
+          "sourcePaths": [
+            "tools/xtensions/host-resource-cleanup-record.js"
+          ],
+          "visibility": "internal"
         }
       ],
       "version": 1
@@ -936770,6 +936857,22 @@
               "symbol": null
             }
           ]
+        },
+        {
+          "application": "XTensions",
+          "curated": true,
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/host-resource-cleanup-record.js",
+              "symbol": "resolveHostResourceCleanupSchema",
+              "type": "internal-repo-symbol"
+            }
+          ],
+          "role": "consumer",
+          "sourcePaths": [
+            "tools/xtensions/host-resource-cleanup-record.js"
+          ],
+          "visibility": "internal"
         }
       ],
       "version": 1
