@@ -11,7 +11,7 @@
     },
     {
       "path": "candidate-integrity.d.ts",
-      "sha256": "3cae3fae47c4ceee7329bbea33c7d423031b34d7fcdd82915dfdc8fb7474d8d6"
+      "sha256": "f917f09469494ade03d1401ba34fd24225540df5ec813943b776ad25c9bec01d"
     },
     {
       "path": "scripts/pack-candidates.cjs",
@@ -30,12 +30,12 @@
       "status": "pending",
       "canonicalDefinition": {
         "path": "candidate-integrity.d.ts",
-        "symbol": "LegacyCandidateManifest",
+        "symbol": "CandidateManifest",
         "definitionType": "typescript-declaration",
         "role": "definition",
         "visibility": "internal"
       },
-      "sourceSha256": "3cae3fae47c4ceee7329bbea33c7d423031b34d7fcdd82915dfdc8fb7474d8d6",
+      "sourceSha256": "f917f09469494ade03d1401ba34fd24225540df5ec813943b776ad25c9bec01d",
       "observedFingerprints": [
         "sha256:0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc",
         "sha256:191543f54471986c9b8f5b9fcf98ffecdff67f280c9b0aa98da6ce7899d9f2dc",
@@ -61,7 +61,7 @@
         "role": "definition",
         "visibility": "internal"
       },
-      "sourceSha256": "3cae3fae47c4ceee7329bbea33c7d423031b34d7fcdd82915dfdc8fb7474d8d6",
+      "sourceSha256": "f917f09469494ade03d1401ba34fd24225540df5ec813943b776ad25c9bec01d",
       "observedFingerprints": [
         "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea",
         "sha256:9ed3963ef1f6971c8aa1003eba8be0a2eab001dda80c4147058c43ef74d06d8e"
@@ -89,18 +89,13 @@
   "proposedTransition": {
     "fromId": "xtend.product-candidates.v1",
     "toId": "xtend.product-candidates.v2",
-    "status": "pending-user-contract-decision",
-    "proposedLegacyLifecycle": {
-      "status": "deprecated",
-      "rollout": "planned"
-    },
-    "proposedCompatibility": {
-      "compatibility": "PROPOSED: separate profile-specific contracts; not a source or publication approval",
-      "rationale": "Core release accepts only the explicit Core-only v2 manifest; the separate product audit retains v1. No automatic v1-to-v2 payload conversion and no alias."
-    },
-    "historicalLifecycle": {
+    "status": "local-contract-direction-authorized-exact-authority-pending",
+    "legacyLifecycle": {
       "rollout": "planned",
       "status": "active"
-    }
+    },
+    "legacyDeprecationAuthorized": false,
+    "compatibility": "Independent profile-specific contracts. Legacy v1 remains active; Core consumes only its own v2. No relabeling or automatic conversion.",
+    "unresolvedRegistryConstraint": "The unchanged family validator permits only one active version. A separately reviewed profile-aware registration model is required."
   }
 }

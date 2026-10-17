@@ -7076,6 +7076,23 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-702d679402c8",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "unreviewed",
+      "origin": "scanner",
+      "baselineAccepted": false,
+      "resolution": {
+        "kind": "pending-review",
+        "rationale": "Current Core source observation recorded; a contract decision is still required."
+      },
+      "schemaIds": [
+        "xtend.release.canary.v2"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape."
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -14404,24 +14421,6 @@
       "reviewId": "polymorphic-e7c24d2fe1a9",
       "schemaIds": [
         "xtend.security.xss-pentest-report.v1"
-      ],
-      "status": "accepted-polymorphic-for-inventory",
-      "type": "same-id-multiple-shapes"
-    },
-    {
-      "baseline": "inventory-v2",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "origin": "scanner",
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "All observed fingerprints are bound to the entry shapePolicy and remain subject to drift checks."
-      },
-      "reviewId": "polymorphic-e7cf4f560541",
-      "schemaIds": [
-        "xtend.release.canary.v1"
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
@@ -262949,6 +262948,102 @@
       "schemaId": "xtend.maraca.build-config.v1",
       "shapeFingerprints": [
         {
+          "hash": "sha256:031956ead4357c0ec2663288dc5b7d31c7828f5f7c2a292bf3ce9f8dae3ce730",
+          "shape": {
+            "fieldCount": 9,
+            "fields": [
+              "candidateMatrixFingerprint",
+              "locked",
+              "options",
+              "output",
+              "selected",
+              "serviceGraphFingerprint",
+              "source",
+              "sourceFingerprint",
+              "toolchain"
+            ],
+            "signature": "candidateMatrixFingerprint:{\"unresolved\":\"input.candidateMatrixFingerprint\"}|locked:{\"unresolved\":\"input.locked\"}|options:{\"unresolved\":\"input.options\"}|output:{\"unresolved\":\"input.output\"}|selected:{\"unresolved\":\"input.selected\"}|serviceGraphFingerprint:{\"unresolved\":\"serviceGraphFingerprint ?? null\"}|source:{\"unresolved\":\"input.source\"}|sourceFingerprint:{\"unresolved\":\"input.sourceFingerprint\"}|toolchain:{\"unresolved\":\"input.toolchain\"}",
+            "normalized": {
+              "fields": {
+                "candidateMatrixFingerprint": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.candidateMatrixFingerprint"
+                  }
+                },
+                "locked": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.locked"
+                  }
+                },
+                "options": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.options"
+                  }
+                },
+                "output": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.output"
+                  }
+                },
+                "selected": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.selected"
+                  }
+                },
+                "serviceGraphFingerprint": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "serviceGraphFingerprint ?? null"
+                  }
+                },
+                "source": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.source"
+                  }
+                },
+                "sourceFingerprint": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.sourceFingerprint"
+                  }
+                },
+                "toolchain": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.toolchain"
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/index.js"
+          ],
+          "symbols": [
+            "base"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/index.js",
+              "symbol": "base"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:142c98c55eef1bd9facca29fd95708de8e7cd4682257ead3725c3c56ae71ecb0",
           "shape": {
             "fieldCount": 10,
@@ -265014,102 +265109,6 @@
           ],
           "evidenceTypes": [
             "declared-type"
-          ],
-          "completeness": "partial",
-          "authoritative": false
-        },
-        {
-          "hash": "sha256:9c54e076a650179d73c9ac25134d966db7ab429fdf996d6403b07df33984ebcf",
-          "shape": {
-            "fieldCount": 9,
-            "fields": [
-              "candidateMatrixFingerprint",
-              "locked",
-              "options",
-              "output",
-              "selected",
-              "serviceGraphFingerprint",
-              "source",
-              "sourceFingerprint",
-              "toolchain"
-            ],
-            "signature": "candidateMatrixFingerprint:{\"unresolved\":\"input.candidateMatrixFingerprint\"}|locked:{\"unresolved\":\"input.locked\"}|options:{\"unresolved\":\"input.options\"}|output:{\"unresolved\":\"input.output\"}|selected:{\"unresolved\":\"input.selected\"}|serviceGraphFingerprint:{\"unresolved\":\"input.serviceGraphFingerprint ?? null\"}|source:{\"unresolved\":\"input.source\"}|sourceFingerprint:{\"unresolved\":\"input.sourceFingerprint\"}|toolchain:{\"unresolved\":\"input.toolchain\"}",
-            "normalized": {
-              "fields": {
-                "candidateMatrixFingerprint": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.candidateMatrixFingerprint"
-                  }
-                },
-                "locked": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.locked"
-                  }
-                },
-                "options": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.options"
-                  }
-                },
-                "output": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.output"
-                  }
-                },
-                "selected": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.selected"
-                  }
-                },
-                "serviceGraphFingerprint": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.serviceGraphFingerprint ?? null"
-                  }
-                },
-                "source": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.source"
-                  }
-                },
-                "sourceFingerprint": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.sourceFingerprint"
-                  }
-                },
-                "toolchain": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.toolchain"
-                  }
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "xtend-maraca/index.js"
-          ],
-          "symbols": [
-            "base"
-          ],
-          "evidence": [
-            {
-              "type": "runtime-observation",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "xtend-maraca/index.js",
-              "symbol": "base"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
           ],
           "completeness": "partial",
           "authoritative": false
@@ -425388,6 +425387,21 @@
           ]
         },
         {
+          "application": "XTend Tests: Release",
+          "role": "fixture",
+          "visibility": "fixture",
+          "sourcePaths": [
+            "tests/release/fixtures.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/release/fixtures.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
           "application": "XTend Tooling",
           "role": "definition",
           "visibility": "internal",
@@ -474311,7 +474325,7 @@
       "aliasOf": null,
       "canonicalDefinition": {
         "path": "candidate-integrity.d.ts",
-        "symbol": "LegacyCandidateManifest",
+        "symbol": "CandidateManifest",
         "definitionType": "typescript-declaration",
         "role": "definition",
         "visibility": "internal"
@@ -474332,11 +474346,11 @@
         "runtime-discriminator"
       ],
       "lifecycle": {
-        "status": "deprecated",
-        "rollout": "planned"
+        "rollout": "planned",
+        "status": "active"
       },
       "releasedFingerprintSetHash": null,
-      "replacedBy": "xtend.product-candidates.v2",
+      "replacedBy": null,
       "schemaId": "xtend.product-candidates.v1",
       "shapeFingerprints": [
         {
@@ -474874,7 +474888,7 @@
             {
               "type": "symbol",
               "path": "candidate-integrity.d.ts",
-              "symbol": "LegacyCandidateManifest"
+              "symbol": "CandidateManifest"
             }
           ]
         },
@@ -474993,10 +475007,6 @@
         }
       ],
       "version": 1,
-      "replacementDecision": {
-        "compatibility": "PROPOSED: separate profile-specific contracts; not a source or publication approval",
-        "rationale": "Core release accepts only the explicit Core-only v2 manifest; the separate product audit retains v1. No automatic v1-to-v2 payload conversion and no alias."
-      },
       "currentAuthorityRegistration": {
         "schemaId": "xtend.product-candidates.v1",
         "familyId": "xtend.product-candidates",
@@ -475004,12 +475014,12 @@
         "status": "pending",
         "canonicalDefinition": {
           "path": "candidate-integrity.d.ts",
-          "symbol": "LegacyCandidateManifest",
+          "symbol": "CandidateManifest",
           "definitionType": "typescript-declaration",
           "role": "definition",
           "visibility": "internal"
         },
-        "sourceSha256": "3cae3fae47c4ceee7329bbea33c7d423031b34d7fcdd82915dfdc8fb7474d8d6",
+        "sourceSha256": "f917f09469494ade03d1401ba34fd24225540df5ec813943b776ad25c9bec01d",
         "observedFingerprints": [
           "sha256:0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc",
           "sha256:191543f54471986c9b8f5b9fcf98ffecdff67f280c9b0aa98da6ce7899d9f2dc",
@@ -475093,7 +475103,7 @@
       "aliasOf": null,
       "replacedBy": null,
       "releasedFingerprintSetHash": null,
-      "description": "Unreleased Core-only candidate manifest with an explicit profile and no Demo identity; proposed major-version transition remains pending.",
+      "description": "User-authorized Core-only candidate manifest with an explicit profile and no Demo identity; exact source/authority registration remains pending.",
       "descriptionStatus": "curated",
       "canonicalDefinition": {
         "path": "candidate-integrity.d.ts",
@@ -475433,7 +475443,7 @@
           "role": "definition",
           "visibility": "internal"
         },
-        "sourceSha256": "3cae3fae47c4ceee7329bbea33c7d423031b34d7fcdd82915dfdc8fb7474d8d6",
+        "sourceSha256": "f917f09469494ade03d1401ba34fd24225540df5ec813943b776ad25c9bec01d",
         "observedFingerprints": [
           "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea",
           "sha256:9ed3963ef1f6971c8aa1003eba8be0a2eab001dda80c4147058c43ef74d06d8e"
@@ -481608,29 +481618,183 @@
       "descriptionStatus": "curated",
       "familyId": "xtend.release.artifact",
       "kinds": [
-        "runtime-discriminator"
+        "identifier-only"
       ],
       "lifecycle": {
-        "status": "deprecated",
-        "rollout": "planned"
+        "rollout": "planned",
+        "status": "active"
       },
       "releasedFingerprintSetHash": null,
-      "replacedBy": "xtend.release.artifact.v2",
+      "replacedBy": null,
       "schemaId": "xtend.release.artifact.v1",
+      "shapeFingerprints": [],
+      "shapePolicy": {
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "mode": "unresolved",
+        "rationale": "Observed normalized variants are recorded without acceptance; a fingerprint-bound human governance decision remains pending. Proposed exact source/fixture inventory decision on cf532e296b38624fadded7d89d8374b7819591db: The nine-field producer expression is a partial static observation of the adapted envelope, not a closed production declaration. Its production refinement requires the original ten candidate archives and their manifest/source/demo/toolchain/hash binding, normalized release scope and dependency closure, raw build evidence, and explicit bootstrap metadata. Prepared and sealed fields are added by the unchanged pipeline and enforced by verifyEnvelopePhase; sealed also requires both bound product lanes and actual report/install/ownership validation. The six-field primitive archive fixture is accepted only as inventory observation and remains excluded from production/sealed enrollment and publishing. Only the two listed partial, non-authoritative fingerprints are covered. No full-production authority, product acceptance, release hash or initial-authority retirement is implied; future observed foreign shapes require another review. Core projection: omitted observations remain in the immutable historical inventory. Only separately named local technical observations are added; unresolved contract observations are not accepted.",
+        "releasedFingerprintSetHash": null,
+        "decision": "proposed-cf532e2-specific-source-fixture-runtime-minima"
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTend Build and Test Tooling",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "scripts/release/release-evidence.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "scripts/release/release-evidence.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/XTend-Scoped-Npm-Release-Runbook.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/XTend-Scoped-Npm-Release-Runbook.md",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "version": 1
+    },
+    {
+      "schemaId": "xtend.release.artifact.v2",
+      "familyId": "xtend.release.artifact",
+      "version": 2,
+      "kinds": [
+        "event-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "User-authorized Core-only release artifact discriminator; legacy v1 remains active, exact source/authority registration pending.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "scripts/release/profile.cjs",
+        "symbol": "ARTIFACT",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Build and Test Tooling",
+          "role": "definition",
+          "visibility": "internal",
+          "sourcePaths": [
+            "scripts/release/profile.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "scripts/release/profile.cjs",
+              "symbol": "ARTIFACT"
+            }
+          ]
+        },
+        {
+          "application": "XTend Build and Test Tooling",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "scripts/release/profile.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "scripts/release/profile.cjs",
+              "symbol": "ARTIFACT"
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/XTend-Core-Only-Release.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/XTend-Core-Only-Release.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Release",
+          "role": "producer",
+          "visibility": "fixture",
+          "sourcePaths": [
+            "tests/release/fixtures.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/release/fixtures.cjs",
+              "symbol": "manifest"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Release",
+          "role": "fixture",
+          "visibility": "fixture",
+          "sourcePaths": [
+            "tests/release/fixtures.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/release/fixtures.cjs",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Explicit unapproved registration draft. Observed source shapes are not accepted contract or release authority."
+      },
       "shapeFingerprints": [
         {
-          "hash": "sha256:0eeb801738cf9178b551e183bfe9215c1952b1fc11fe607c1d6eed3aa666b925",
+          "hash": "sha256:34595b9da22a5b2949051b7ec8f805649debfd7690a9cfed6ff2943df93f933b",
           "shape": {
-            "fieldCount": 6,
+            "fieldCount": 7,
             "fields": [
               "edges",
               "packages",
+              "profile",
               "registryDependencies",
               "selection",
               "sourceSha",
               "toolchain"
             ],
-            "signature": "edges:{\"unresolved\":\"inventory.edges\"}|packages:array<>|registryDependencies:unknown|selection:{\"unresolved\":\"scope.selection\"}|sourceSha:unknown|toolchain:{node:{\"unresolved\":\"process.versions.node\"},npm:string}",
+            "signature": "edges:{\"unresolved\":\"inventory.edges\"}|packages:array<>|profile:string|registryDependencies:unknown|selection:{\"unresolved\":\"scope.selection\"}|sourceSha:unknown|toolchain:{node:{\"unresolved\":\"process.versions.node\"},npm:string}",
             "normalized": {
               "fields": {
                 "edges": {
@@ -481644,6 +481808,10 @@
                   "type": {
                     "array": []
                   }
+                },
+                "profile": {
+                  "optional": false,
+                  "type": "string"
                 },
                 "registryDependencies": {
                   "optional": false,
@@ -481700,165 +481868,7 @@
           "completeness": "partial",
           "authoritative": false
         }
-      ],
-      "shapePolicy": {
-        "acceptedFingerprints": [
-          "sha256:0eeb801738cf9178b551e183bfe9215c1952b1fc11fe607c1d6eed3aa666b925"
-        ],
-        "authoritativeFingerprints": [],
-        "mode": "single",
-        "rationale": "Observed normalized variants are recorded without acceptance; a fingerprint-bound human governance decision remains pending. Proposed exact source/fixture inventory decision on cf532e296b38624fadded7d89d8374b7819591db: The nine-field producer expression is a partial static observation of the adapted envelope, not a closed production declaration. Its production refinement requires the original ten candidate archives and their manifest/source/demo/toolchain/hash binding, normalized release scope and dependency closure, raw build evidence, and explicit bootstrap metadata. Prepared and sealed fields are added by the unchanged pipeline and enforced by verifyEnvelopePhase; sealed also requires both bound product lanes and actual report/install/ownership validation. The six-field primitive archive fixture is accepted only as inventory observation and remains excluded from production/sealed enrollment and publishing. Only the two listed partial, non-authoritative fingerprints are covered. No full-production authority, product acceptance, release hash or initial-authority retirement is implied; future observed foreign shapes require another review. Core projection: omitted observations remain in the immutable historical inventory. Only separately named local technical observations are added; unresolved contract observations are not accepted.",
-        "releasedFingerprintSetHash": null,
-        "decision": "proposed-cf532e2-specific-source-fixture-runtime-minima"
-      },
-      "status": "active",
-      "usages": [
-        {
-          "application": "XTend Build and Test Tooling",
-          "role": "reference",
-          "visibility": "internal",
-          "sourcePaths": [
-            "scripts/release/release-evidence.cjs"
-          ],
-          "interfaceReferences": [
-            {
-              "type": "repo-symbol",
-              "path": "scripts/release/release-evidence.cjs",
-              "symbol": null
-            }
-          ]
-        },
-        {
-          "application": "XTend Development Contracts",
-          "role": "documentation",
-          "visibility": "docs",
-          "sourcePaths": [
-            "development/XTend-Scoped-Npm-Release-Runbook.md"
-          ],
-          "interfaceReferences": [
-            {
-              "type": "repo-symbol",
-              "path": "development/XTend-Scoped-Npm-Release-Runbook.md",
-              "symbol": null
-            }
-          ]
-        },
-        {
-          "application": "XTend Tests: Release",
-          "role": "producer",
-          "visibility": "fixture",
-          "sourcePaths": [
-            "tests/release/fixtures.cjs"
-          ],
-          "interfaceReferences": [
-            {
-              "type": "symbol",
-              "path": "tests/release/fixtures.cjs",
-              "symbol": "manifest"
-            }
-          ]
-        },
-        {
-          "application": "XTend Tests: Release",
-          "role": "fixture",
-          "visibility": "fixture",
-          "sourcePaths": [
-            "tests/release/fixtures.cjs"
-          ],
-          "interfaceReferences": [
-            {
-              "type": "repo-symbol",
-              "path": "tests/release/fixtures.cjs",
-              "symbol": null
-            }
-          ]
-        }
-      ],
-      "version": 1,
-      "replacementDecision": {
-        "compatibility": "PROPOSED: separate profile-specific contracts; not a source or publication approval",
-        "rationale": "Core release artifact v2 binds the Core-only profile; old paired v1 artifacts are rejected by Core release validation and retained as historical audit evidence."
-      }
-    },
-    {
-      "schemaId": "xtend.release.artifact.v2",
-      "familyId": "xtend.release.artifact",
-      "version": 2,
-      "kinds": [
-        "event-id"
-      ],
-      "status": "active",
-      "lifecycle": {
-        "status": "active",
-        "rollout": "planned"
-      },
-      "aliasOf": null,
-      "replacedBy": null,
-      "releasedFingerprintSetHash": null,
-      "description": "Unreleased Core-only release artifact discriminator; compatibility with the older paired artifact is pending explicit review.",
-      "descriptionStatus": "curated",
-      "canonicalDefinition": {
-        "path": "scripts/release/profile.cjs",
-        "symbol": "ARTIFACT",
-        "definitionType": "constant",
-        "role": "definition",
-        "visibility": "internal"
-      },
-      "usages": [
-        {
-          "application": "XTend Build and Test Tooling",
-          "role": "definition",
-          "visibility": "internal",
-          "sourcePaths": [
-            "scripts/release/profile.cjs"
-          ],
-          "interfaceReferences": [
-            {
-              "type": "symbol",
-              "path": "scripts/release/profile.cjs",
-              "symbol": "ARTIFACT"
-            }
-          ]
-        },
-        {
-          "application": "XTend Build and Test Tooling",
-          "role": "reference",
-          "visibility": "internal",
-          "sourcePaths": [
-            "scripts/release/profile.cjs"
-          ],
-          "interfaceReferences": [
-            {
-              "type": "symbol",
-              "path": "scripts/release/profile.cjs",
-              "symbol": "ARTIFACT"
-            }
-          ]
-        },
-        {
-          "application": "XTend Development Contracts",
-          "role": "documentation",
-          "visibility": "docs",
-          "sourcePaths": [
-            "development/XTend-Core-Only-Release.md"
-          ],
-          "interfaceReferences": [
-            {
-              "type": "repo-symbol",
-              "path": "development/XTend-Core-Only-Release.md",
-              "symbol": null
-            }
-          ]
-        }
-      ],
-      "shapePolicy": {
-        "mode": "unresolved",
-        "acceptedFingerprints": [],
-        "authoritativeFingerprints": [],
-        "releasedFingerprintSetHash": null,
-        "rationale": "Explicit unapproved registration draft. Observed source shapes are not accepted contract or release authority."
-      },
-      "shapeFingerprints": []
+      ]
     },
     {
       "aliasOf": null,
@@ -482351,17 +482361,17 @@
     {
       "aliasOf": null,
       "canonicalDefinition": {
-        "path": "scripts/release/consumer.cjs",
+        "path": "development/XTend-Core-Only-Release.md",
         "symbol": null,
-        "definitionType": "object-shape",
-        "role": "producer",
-        "visibility": "internal"
+        "definitionType": "documentation",
+        "role": "documentation",
+        "visibility": "docs"
       },
       "description": "Independent release safety envelope; workflow/packer activation is deferred. Partial selection binds new tarballs and original-source registry dependency closure.",
       "descriptionStatus": "curated",
       "familyId": "xtend.release.canary",
       "kinds": [
-        "runtime-discriminator"
+        "identifier-only"
       ],
       "lifecycle": {
         "rollout": "complete",
@@ -482370,87 +482380,148 @@
       "releasedFingerprintSetHash": null,
       "replacedBy": null,
       "schemaId": "xtend.release.canary.v1",
-      "shapeFingerprints": [
+      "shapeFingerprints": [],
+      "shapePolicy": {
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "decision": "accepted-initial-audit",
+        "mode": "unresolved",
+        "rationale": "Fingerprint-bound review of the new independent release scripts, fixtures and evidence variants; not a released runtime schema. Real product tarball verification and cryptographic provenance are still deferred integration gates. Core projection: omitted observations remain in the immutable historical inventory. Only separately named local technical observations are added; unresolved contract observations are not accepted.",
+        "releasedFingerprintSetHash": null
+      },
+      "status": "docs-example",
+      "usages": [
         {
-          "hash": "sha256:1df8f3e4aad5d2a5724867a2cd52f1922caf08a646cb833fbc61f257997e0bbc",
-          "shape": {
-            "fieldCount": 9,
-            "fields": [
-              "mcpKnowledgeChecked",
-              "mcpKnowledgeGenerated",
-              "ok",
-              "packages",
-              "registryDependencies",
-              "runtimeImports",
-              "sourceSha",
-              "tarballSetIntegrity",
-              "toolchain"
-            ],
-            "signature": "mcpKnowledgeChecked:boolean|mcpKnowledgeGenerated:boolean|ok:boolean|packages:unknown|registryDependencies:unknown|runtimeImports:boolean|sourceSha:unknown|tarballSetIntegrity:unknown|toolchain:{\"unresolved\":\"manifest.toolchain\"}",
-            "normalized": {
-              "fields": {
-                "mcpKnowledgeChecked": {
-                  "optional": false,
-                  "type": "boolean"
-                },
-                "mcpKnowledgeGenerated": {
-                  "optional": false,
-                  "type": "boolean"
-                },
-                "ok": {
-                  "optional": false,
-                  "type": "boolean"
-                },
-                "packages": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "registryDependencies": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "runtimeImports": {
-                  "optional": false,
-                  "type": "boolean"
-                },
-                "sourceSha": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "tarballSetIntegrity": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "toolchain": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "manifest.toolchain"
-                  }
-                }
-              }
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/XTend-Core-Only-Release.md",
+            "development/XTend-Scoped-Npm-Release-Runbook.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/XTend-Core-Only-Release.md",
+              "symbol": null
             }
-          },
+          ]
+        }
+      ],
+      "version": 1
+    },
+    {
+      "schemaId": "xtend.release.canary.v2",
+      "familyId": "xtend.release.canary",
+      "version": 2,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "User-authorized separate Core-only installed-consumer canary; historical v1 remains active and cannot authorize Core v2 release.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "scripts/release/consumer.cjs",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Build and Test Tooling",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "scripts/release/consumer.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "scripts/release/consumer.cjs",
+              "symbol": "report"
+            }
+          ]
+        },
+        {
+          "application": "XTend Build and Test Tooling",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "scripts/release/artifact.cjs",
+            "scripts/release/core-evidence.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "scripts/release/artifact.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/XTend-Core-Only-Release.md",
+            "development/XTend-Scoped-Npm-Release-Runbook.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/XTend-Core-Only-Release.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Release",
+          "role": "producer",
+          "visibility": "fixture",
           "sourcePaths": [
             "tests/release/fixtures.cjs"
           ],
-          "symbols": [
-            "canary"
-          ],
-          "evidence": [
+          "interfaceReferences": [
             {
-              "type": "test",
-              "completeness": "partial",
-              "authoritative": false,
+              "type": "symbol",
               "path": "tests/release/fixtures.cjs",
               "symbol": "canary"
             }
-          ],
-          "evidenceTypes": [
-            "test"
-          ],
-          "completeness": "partial",
-          "authoritative": false
+          ]
         },
+        {
+          "application": "XTend Tests: Release",
+          "role": "fixture",
+          "visibility": "fixture",
+          "sourcePaths": [
+            "tests/release/fixtures.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/release/fixtures.cjs",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Explicit unapproved registration draft. Observed source shapes are not accepted contract or release authority.",
+        "decision": "pending-independent-contract-review"
+      },
+      "shapeFingerprints": [
         {
           "hash": "sha256:1f0f0fccf1ebbb36ba464de8b0441a233f88641e6fde961f2902680930d213ca",
           "shape": {
@@ -482590,98 +482661,93 @@
           ],
           "completeness": "partial",
           "authoritative": false
-        }
-      ],
-      "shapePolicy": {
-        "acceptedFingerprints": [
-          "sha256:1df8f3e4aad5d2a5724867a2cd52f1922caf08a646cb833fbc61f257997e0bbc"
-        ],
-        "authoritativeFingerprints": [],
-        "decision": "accepted-initial-audit",
-        "mode": "polymorphic",
-        "rationale": "Fingerprint-bound review of the new independent release scripts, fixtures and evidence variants; not a released runtime schema. Real product tarball verification and cryptographic provenance are still deferred integration gates. Core projection: omitted observations remain in the immutable historical inventory. Only separately named local technical observations are added; unresolved contract observations are not accepted.",
-        "releasedFingerprintSetHash": null
-      },
-      "status": "active",
-      "usages": [
-        {
-          "application": "XTend Build and Test Tooling",
-          "role": "producer",
-          "visibility": "internal",
-          "sourcePaths": [
-            "scripts/release/consumer.cjs"
-          ],
-          "interfaceReferences": [
-            {
-              "type": "symbol",
-              "path": "scripts/release/consumer.cjs",
-              "symbol": "report"
-            }
-          ]
         },
         {
-          "application": "XTend Build and Test Tooling",
-          "role": "reference",
-          "visibility": "internal",
-          "sourcePaths": [
-            "scripts/release/artifact.cjs",
-            "scripts/release/core-evidence.cjs"
-          ],
-          "interfaceReferences": [
-            {
-              "type": "repo-symbol",
-              "path": "scripts/release/artifact.cjs",
-              "symbol": null
+          "hash": "sha256:fb8f2e09c7e13bc26e81c91c1b2d4ea6c7680e9480481efaff8be70f814406df",
+          "shape": {
+            "fieldCount": 10,
+            "fields": [
+              "mcpKnowledgeChecked",
+              "mcpKnowledgeGenerated",
+              "ok",
+              "packages",
+              "profile",
+              "registryDependencies",
+              "runtimeImports",
+              "sourceSha",
+              "tarballSetIntegrity",
+              "toolchain"
+            ],
+            "signature": "mcpKnowledgeChecked:boolean|mcpKnowledgeGenerated:boolean|ok:boolean|packages:unknown|profile:string|registryDependencies:unknown|runtimeImports:boolean|sourceSha:unknown|tarballSetIntegrity:unknown|toolchain:{\"unresolved\":\"manifest.toolchain\"}",
+            "normalized": {
+              "fields": {
+                "mcpKnowledgeChecked": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "mcpKnowledgeGenerated": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "ok": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "packages": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "profile": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "registryDependencies": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "runtimeImports": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "sourceSha": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "tarballSetIntegrity": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "toolchain": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "manifest.toolchain"
+                  }
+                }
+              }
             }
-          ]
-        },
-        {
-          "application": "XTend Development Contracts",
-          "role": "documentation",
-          "visibility": "docs",
-          "sourcePaths": [
-            "development/XTend-Scoped-Npm-Release-Runbook.md"
-          ],
-          "interfaceReferences": [
-            {
-              "type": "repo-symbol",
-              "path": "development/XTend-Scoped-Npm-Release-Runbook.md",
-              "symbol": null
-            }
-          ]
-        },
-        {
-          "application": "XTend Tests: Release",
-          "role": "producer",
-          "visibility": "fixture",
+          },
           "sourcePaths": [
             "tests/release/fixtures.cjs"
           ],
-          "interfaceReferences": [
+          "symbols": [
+            "canary"
+          ],
+          "evidence": [
             {
-              "type": "symbol",
+              "type": "test",
+              "completeness": "partial",
+              "authoritative": false,
               "path": "tests/release/fixtures.cjs",
               "symbol": "canary"
             }
-          ]
-        },
-        {
-          "application": "XTend Tests: Release",
-          "role": "fixture",
-          "visibility": "fixture",
-          "sourcePaths": [
-            "tests/release/fixtures.cjs"
           ],
-          "interfaceReferences": [
-            {
-              "type": "repo-symbol",
-              "path": "tests/release/fixtures.cjs",
-              "symbol": null
-            }
-          ]
+          "evidenceTypes": [
+            "test"
+          ],
+          "completeness": "partial",
+          "authoritative": false
         }
-      ],
-      "version": 1
+      ]
     },
     {
       "aliasOf": null,
@@ -959584,8 +959650,8 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.product-candidates.v2",
-      "currentVersion": 2,
+      "activeSchemaId": "xtend.product-candidates.v1",
+      "currentVersion": 1,
       "familyId": "xtend.product-candidates",
       "tombstones": [],
       "versions": [
@@ -959593,8 +959659,8 @@
           "schemaId": "xtend.product-candidates.v1",
           "version": 1,
           "lifecycle": {
-            "status": "deprecated",
-            "rollout": "planned"
+            "rollout": "planned",
+            "status": "active"
           },
           "releasedFingerprintSetHash": null
         },
@@ -959916,8 +959982,8 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.release.artifact.v2",
-      "currentVersion": 2,
+      "activeSchemaId": "xtend.release.artifact.v1",
+      "currentVersion": 1,
       "familyId": "xtend.release.artifact",
       "tombstones": [],
       "versions": [
@@ -959925,8 +959991,8 @@
           "schemaId": "xtend.release.artifact.v1",
           "version": 1,
           "lifecycle": {
-            "status": "deprecated",
-            "rollout": "planned"
+            "rollout": "planned",
+            "status": "active"
           },
           "releasedFingerprintSetHash": null
         },
@@ -960004,6 +960070,15 @@
           "lifecycle": {
             "rollout": "complete",
             "status": "active"
+          },
+          "releasedFingerprintSetHash": null
+        },
+        {
+          "schemaId": "xtend.release.canary.v2",
+          "version": 2,
+          "lifecycle": {
+            "status": "active",
+            "rollout": "planned"
           },
           "releasedFingerprintSetHash": null
         }
@@ -977727,8 +977802,8 @@
     }
   ],
   "projectionReview": {
-    "status": "pending-contract-and-authority-review",
-    "sourceCommit": "dd86077d53ad9a7ebd1483caa0c0701e991cbe1c",
+    "status": "pending-exact-source-and-authority-review",
+    "sourceCommit": "7be03b9c1d5d3977e85eb7d1efcf4e1ab7299499",
     "historicalInventorySha256": "0c1ca03e989f4c1cfa5e07b2296e163ddda0090fd138677bc410feafce9661f3",
     "notReleaseApproval": true
   }

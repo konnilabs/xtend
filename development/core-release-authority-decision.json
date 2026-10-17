@@ -2,7 +2,7 @@
   "format": 1,
   "profile": "xtend.npm.core-only.v1",
   "repository": "konnilabs/xtend",
-  "status": "pending-contract-and-authority-review",
+  "status": "pending-exact-source-and-authority-review",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
   "inventorySha256": null,
   "sourceMembershipSha256": null,
