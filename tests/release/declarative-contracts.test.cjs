@@ -90,3 +90,16 @@ test('source AST field inventory includes late assignments and all composed prod
  assert.deepEqual(inspect('scripts/release/consumer.cjs','runInstalledScope','report').late.sort(),['lockIntegrity','mcpKnowledgeChecked','mcpKnowledgeGenerated','ok','resolution','runtimeImports'].sort());
  assert.ok(inspect('scripts/release/core-auth.cjs','collect','envelope').late.includes('security'));
 });
+test('approved admission separation accounts for every producer root field and concrete validator',()=>{
+ const phases=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../../contracts/release/admission-phases.json')));assert.equal(phases.status,'proposal-only-not-finally-bound');assert.equal(phases.authorityBinding,null);assert.equal(phases.firstReleaseRetirement,false);assert.equal(phases.runtimeBehaviorChanged,false);assert.equal(phases.boundaries.length,7);
+ for(const boundary of phases.boundaries){const schema=Object.values(schemas).find(s=>s.$id===boundary.contractId);assert.ok(schema);assert.deepEqual(Object.keys(boundary.fieldPolicies).sort(),Object.keys(schema.properties).sort());assert.equal(boundary.publicationAuthority,false);for(const field of ['demoSha','demoRepository','productEvidence','unionEvidence'])assert.equal(boundary.fieldPolicies[field].presence,'forbidden');for(const reference of boundary.entrypoints){const [file,symbol]=reference.split('#');assert.ok(fs.readFileSync(path.resolve(__dirname,'../../'+file),'utf8').includes('function '+symbol.split('(')[0]+'('),reference);}for(const [,fields] of boundary.predicates)for(const field of fields)assert.ok(boundary.fieldPolicies[field],field);}
+});
+test('prepared admission without canary keeps an uninspected malformed binding outside producer authority',async t=>{
+ const f=await prepared(t);f.manifest.canary={file:0,integrity:null};write(path.join(f.directory,'release-manifest.json'),f.manifest);reject('artifact-v2',f.manifest);const a=await f.verify({phase:'prepared',requireCanary:false});await assert.rejects(artifact.assertPreflightArtifact(a),/verified prepared/);
+});
+test('seal admission retains existing missing-error acceptance independently of producer shape',async t=>{
+ const f=await prepared(t),a=await f.verify(),p=installedProof(a,JSON.parse(fs.readFileSync(path.join(f.directory,'manifest.json'))),profile.lanes[0]);assert.equal(Object.hasOwn(p.report,'error'),false);reject('canary-v2',p.report);require('../../scripts/release/core-evidence.cjs').verifyConsumer(p.report,p.selectedLock,{artifact:a,node:profile.lanes[0],now:Date.now(),startedAt:a.manifest.preparedAt,directory:f.directory,candidateSDKLock:p.sdkLock});
+});
+test('seal admission retains fresh noncanonical Date.parse formatting without widening producer output',async t=>{
+ const f=await prepared(t),a=await f.verify(),p=installedProof(a,JSON.parse(fs.readFileSync(path.join(f.directory,'manifest.json'))),profile.lanes[0]);p.report.error=null;p.report.startedAt=p.report.startedAt.replace('T',' ');p.report.finishedAt=p.report.finishedAt.replace('T',' ');reject('canary-v2',p.report);require('../../scripts/release/core-evidence.cjs').verifyConsumer(p.report,p.selectedLock,{artifact:a,node:profile.lanes[0],now:Date.now(),startedAt:a.manifest.preparedAt,directory:f.directory,candidateSDKLock:p.sdkLock});
+});

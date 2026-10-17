@@ -68,13 +68,16 @@ The producer declaration and existing admission language are not identical:
    attempt, valid digest or SHA) require actual runtime comparison. A schema pass
    does not authenticate values.
 
-These differences are recorded, not silently fixed. Before normative authority,
-choose either **separate producer and per-boundary admission contracts** preserving
-all current behavior, or **strengthen validators** to require complete producer
-output (a separately authorized behavior change with compatibility review).
-This patch implements the producer declarations and tests the existing boundaries;
-it does not decide that product question or grant a single interchangeable
-producer/validator authority. Partial reports stay non-authoritative.
+The user approved **separate producer and per-boundary admission contracts** on
+2026-10-17 while preserving existing runtime behavior. The declarative
+`contracts/release/admission-phases.json` accounts for every producer root field
+at all seven production admission boundaries and names the existing relational
+validators. It records ignored fields and conditional obligations explicitly; it
+is not a replacement runtime validator. Tests cover missing/non-null error,
+noncanonical but fresh Date.parse inputs, and malformed uninspected canary
+bindings. No validator tightening is included. Final exact Source/Authority
+binding and FirstRelease retirement remain separately unapproved. Partial
+reports cannot borrow complete producer or sealed authority.
 
 ## Maraca: existing phases and the remaining semantic conflict
 
@@ -131,7 +134,9 @@ validator for the factory's declared TypeScript return type.
 Concrete alternatives for a later decision: preserve the permissive factory and
 explicitly separate its partial JS/serialized result from a complete tune-produced
 config; or require complete factory input and update compatibility/API contracts.
-Neither is selected here. There is no new Maraca formal authority. Full phase and
+The user keeps this older public factory type correction separate. There is no
+new full-factory Maraca authority; the complete tune-produced phase and permissive
+factory must remain distinct. Full phase and
 field documentation and existing absent/null/hash/falsy compatibility tests can
 proceed independently.
 
