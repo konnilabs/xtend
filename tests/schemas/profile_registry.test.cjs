@@ -51,7 +51,7 @@ test('duplicate audit describes membership without inventing a current context',
  for(const id of profiles.FAMILIES){const f=family({schemaFamilies:audit.versionFamilies},id);assert.ok(!Object.hasOwn(f,'currentVersion')&&!Object.hasOwn(f,'activeSchemaId')&&!Object.hasOwn(f,'profileCurrents'));}
 });
 test('acceptCurrentBaseline rejects before changing any profile family or global field',()=>{
- for(const removeMap of [false,true]){const d=inventory(provider('pending'));if(removeMap)for(const f of d.schemaFamilies)delete f.profileCurrents;const bytes=JSON.stringify(d);assert.throws(()=>engine.acceptCurrentBaseline(d),/profile/i);assert.equal(JSON.stringify(d),bytes);}
+ for(const variant of ['complete','no-map','only-v2']){const d=inventory(provider('pending'));if(variant!=='complete')for(const f of d.schemaFamilies)delete f.profileCurrents;if(variant==='only-v2')d.entries=d.entries.filter(e=>!profiles.FAMILIES.includes(e.familyId)||e.version===2);const bytes=JSON.stringify(d);assert.throws(()=>engine.acceptCurrentBaseline(d),/profile/i);assert.equal(JSON.stringify(d),bytes);}
 });
 test('ordinary families retain global single-active validation',()=>{
  const p=provider('core'),d=inventory(p),scan=engine.scanSchemaInventory({sourceProvider:p});

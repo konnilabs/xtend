@@ -1922,7 +1922,7 @@ function buildSchemaFamilies(entries, existingFamilies, sourceProvider, diagnost
         .sort((left, right) => left.version - right.version || compareStrings(left.schemaId, right.schemaId))
     };
     const profiles = require('./profile-registry.cjs');
-    if (Object.hasOwn(previous, 'profileCurrents') || profiles.FAMILIES.includes(familyId) && versions.length > 1) {
+    if (Object.hasOwn(previous, 'profileCurrents') || profiles.FAMILIES.includes(familyId) && (versions.length > 1 || versions.some(version => version.version !== 1))) {
       // Duplicate diagnostics describe observed membership; they never select a current.
       if (diagnosticOnly) return {familyId, versions, tombstones: result.tombstones};
       if (Object.hasOwn(previous, 'profileCurrents')) profiles.assertProfileFamily(previous, entries);
@@ -1975,7 +1975,7 @@ function acceptCurrentBaseline(inventory) {
   const entries = Array.isArray(inventory && inventory.entries) ? inventory.entries : [];
   const profiles = require('./profile-registry.cjs');
   if ((inventory?.schemaFamilies || []).some(family => Object.hasOwn(family, 'profileCurrents'))
-    || profiles.FAMILIES.some(id => entries.filter(entry => entry.familyId === id).length > 1))
+    || profiles.FAMILIES.some(id => { const members = entries.filter(entry => entry.familyId === id); return members.length > 1 || members.some(entry => entry.version !== 1); }))
     throw Error('Profile families require exact separate registration; baseline acceptance cannot mutate them');
   const releasedDrifts = entries.filter((entry) => {
     if (!entry || entry.aliasOf) return false;
