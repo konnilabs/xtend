@@ -1130,7 +1130,7 @@ function assertCoreCandidateAuthority(inventory, scan, provider) {
     const entry = members.find(item => item.schemaId === id);
     const observed = scan.entries.find(item => item.schemaId === id);
     const registration = decision.registrations[version - 1];
-    const symbol = version === 1 ? 'LegacyCandidateManifest' : 'CoreCandidateManifest';
+    const symbol = version === 1 ? 'CandidateManifest' : 'CoreCandidateManifest';
     const canonical = { path: 'candidate-integrity.d.ts', symbol, definitionType: 'typescript-declaration', role: 'definition', visibility: 'internal' };
     demand(entry && observed && registration.version === version && registration.familyId === decision.familyId
       && registration.status === 'reviewed-current-source' && registration.sourceSha256 === declarationHash
@@ -1188,7 +1188,7 @@ function assertCoreCandidateAuthority(inventory, scan, provider) {
 }
 
 function selectCanonicalDefinition(record, provider) {
-  const coreSymbol = record.schemaId === 'xtend.product-candidates.v1' ? 'LegacyCandidateManifest'
+  const coreSymbol = record.schemaId === 'xtend.product-candidates.v1' ? 'CandidateManifest'
     : record.schemaId === 'xtend.product-candidates.v2' ? 'CoreCandidateManifest' : null;
   if (provider?.provenance().profile === CORE_CANDIDATE_PROFILE && coreSymbol) {
     require('./source-provider.cjs').assertSourceProvider(provider);
