@@ -3,7 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const root=process.env.XTEND_MARACA_SOURCE_ROOT||path.resolve(__dirname,'../..');
 const filename=path.join(root,'xtend-maraca/index.js'),source=fs.readFileSync(process.env.XTEND_MARACA_PROPOSAL||filename,'utf8');
 const compiled=new Module(filename,module);compiled.filename=filename;compiled.paths=Module._nodeModulePaths(path.dirname(filename));
-compiled._compile(source+'\nmodule.exports.__nullableTest={normalizeOptions,loadMaracaBuildConfig,createMaracaServiceSourceFingerprint};\n',filename);const api=compiled.exports,local=api.__nullableTest;
+compiled._compile(source+'\nmodule.exports.__nullableTest={normalizeOptions,loadMaracaBuildConfig,createMaracaServiceSourceFingerprint,stableJson,hashText};\n',filename);const api=compiled.exports,local=api.__nullableTest;
 function setup(t){const rootDir=fs.mkdtempSync(path.join(os.tmpdir(),'maraca-nullable-'));t.after(()=>fs.rmSync(rootDir,{recursive:true,force:true}));fs.mkdirSync(path.join(rootDir,'src'));fs.writeFileSync(path.join(rootDir,'app.rmt'),'Controlled RMT source bytes; no build is run');fs.writeFileSync(path.join(rootDir,'src/services.ts'),'export const actualServiceInput = 1;\n');return rootDir;}
 function input(options={}){return{source:'app.rmt',sourceFingerprint:null,output:'dist',selected:{profile:'production',lazy:'none',css:'external'},locked:{},options,toolchain:{rollup:null,terser:null,mode:'rollup-terser'},candidateMatrixFingerprint:'a'.repeat(64)};}
 function configured(dir,value){fs.writeFileSync(path.join(dir,'maraca.config.json'),JSON.stringify(value));return local.normalizeOptions({config:'maraca.config.json'},{rootDir:dir});}
@@ -31,6 +31,7 @@ for(const value of [false,0,''])test('historical falsy input normalizes before v
  assert.deepEqual(config,api.createMaracaTuneConfig({...base,serviceGraphFingerprint:null}));
  assert.equal(config.serviceGraphFingerprint,null);
  const historical={...config,serviceGraphFingerprint:value};delete historical.configFingerprint;
+ historical.configFingerprint=local.hashText(local.stableJson(historical));
  const file=path.join(dir,'maraca.config.json');fs.writeFileSync(file,JSON.stringify(historical));
  const before=fs.readFileSync(file);const loaded=local.loadMaracaBuildConfig({config:'maraca.config.json'},dir);
  assert.deepEqual(loaded.diagnostics,[]);assert.equal(loaded.config.serviceGraphFingerprint,value);
