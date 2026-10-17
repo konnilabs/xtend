@@ -7,7 +7,7 @@ const rootDir = path.resolve(__dirname, '../..');
 const byId = new Map(catalog.suites.map(suite => [suite.id, suite]));
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 function fingerprint() {
-  return hash(['catalog.json', 'catalog.js', 'handlers.js', 'executor.js', 'worker.js', 'cli.js', 'nightly.js', 'nightly-evidence.js', 'capabilities.js', '../create_xtend_nightly_manifest.js', '../verify_ci_dependency_locks.js'].map(name => fs.readFileSync(path.join(__dirname, name))).map(buffer => hash(buffer)).join('\n'));
+  return hash(['catalog.json', 'catalog.js', 'handlers.js', 'executor.js', 'worker.js', 'cli.js', 'nightly.js', 'nightly-evidence.js', 'capabilities.js', 'imported-ci.js', '../create_xtend_nightly_manifest.js', '../verify_ci_dependency_locks.js'].map(name => fs.readFileSync(path.join(__dirname, name))).map(buffer => hash(buffer)).join('\n'));
 }
 function profileIds(name, visiting = new Set()) {
   const profile = catalog.profiles[name];

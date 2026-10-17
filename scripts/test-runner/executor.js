@@ -48,6 +48,11 @@ function provenance() {
   }
   return {
     commit, sourceFingerprint, catalogFingerprint: fingerprint(),
+    ...(process.env.GITHUB_RUN_ID && process.env.XTEND_CI_LANE ? { producer: {
+      repository: process.env.GITHUB_REPOSITORY, workflow: process.env.GITHUB_WORKFLOW_REF,
+      job: process.env.GITHUB_JOB, lane: process.env.XTEND_CI_LANE, runId: process.env.GITHUB_RUN_ID,
+      attempt: process.env.GITHUB_RUN_ATTEMPT || '1', testedSHA: process.env.GITHUB_SHA
+    } } : {}),
     run: process.env.GITHUB_RUN_ID ? `${process.env.GITHUB_RUN_ID}:${process.env.GITHUB_RUN_ATTEMPT || '1'}` : process.env.XTEND_TEST_RUN_ID || `local:${randomUUID()}`,
     runtime: {
       node: process.version, platform: process.platform, arch: process.arch, nodeOptions: process.env.NODE_OPTIONS || '',
@@ -236,7 +241,9 @@ async function execute(selected, options = {}) {
 }
 
 function verifyExecution(options) {
-  const report = options.executionReport || JSON.parse(fs.readFileSync(path.resolve(rootDir, options.from), 'utf8'));
+  const bytes = options.executionBytes || (!options.executionReport ? fs.readFileSync(path.resolve(rootDir, options.from)) : null);
+  const report = options.executionReport || JSON.parse(bytes);
+  const imported = typeof options.importedCi === 'string' ? JSON.parse(fs.readFileSync(path.resolve(rootDir, options.importedCi), 'utf8')) : options.importedCi;
   const current = options.provenance || provenance();
   const errors = [];
   if (report.schema !== SCHEMA || !report.executionId || report.complete !== true) errors.push('Missing or incomplete execution report.');
@@ -244,7 +251,9 @@ function verifyExecution(options) {
   if (!Array.isArray(report.expected) || !Array.isArray(report.results) ||
       new Set(report.expected).size !== report.expected.length ||
       report.expected.some(id => report.results.filter(entry=>entry.id === id && entry.completedAt && entry.result).length !== 1)) errors.push('Expected execution results are incomplete or duplicated.');
-  for (const key of ['run', 'commit', 'sourceFingerprint', 'catalogFingerprint', 'runtime']) if (JSON.stringify(report[key]) !== JSON.stringify(current[key])) errors.push(`Execution provenance mismatch: ${key}.`);
+  if (options.importedCi !== undefined && !imported) errors.push('Missing Imported-CI binding.');
+  if (imported) errors.push(...require('./imported-ci').importedErrors(report, imported, current, bytes));
+  else for (const key of ['run', 'commit', 'sourceFingerprint', 'catalogFingerprint', 'runtime']) if (JSON.stringify(report[key]) !== JSON.stringify(current[key])) errors.push(`Execution provenance mismatch: ${key}.`);
   const ids = profileIds(options.verify);
   for (const id of ids) {
     const matches = (Array.isArray(report.results) ? report.results : []).filter(entry => entry.id === id);
@@ -256,6 +265,7 @@ function verifyExecution(options) {
     if (options.report) writeJsonReport(summary, options.report, rootDir);
   }
   return { schema: 'xtend.test.execution-verification.v1', status: errors.length ? 'failed' : blockingStatus(summary, catalog.profiles[options.verify].advisory || [], catalog.profiles[options.verify].requireNoSkips),
-    executionId: report.executionId || null, profile: options.verify, errors, summary };
+    executionId: report.executionId || null, profile: options.verify,
+    ...(imported ? { producer: report.producer, producerRuntime: report.runtime, artifact: imported.artifact } : {}), errors, summary };
 }
 module.exports = { execute, verifyExecution, provenance, summaryFor, SCHEMA };
