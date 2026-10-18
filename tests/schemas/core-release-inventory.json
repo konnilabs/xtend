@@ -16896,6 +16896,87 @@
       ],
       "status": "open",
       "type": "different-id-same-shape"
+    },
+    {
+      "baseline": "inventory-v2",
+      "baselineAccepted": true,
+      "confidence": "high",
+      "origin": "curated",
+      "rationale": "The five framework-specific host-resource cleanup records are exact aliases of the shared declared contract; the host-controller cleanup record remains distinct because it has no xtensionId field.",
+      "recommendation": "Write the canonical host-resource cleanup ID, retain the five legacy IDs only in compatibility readers, and keep the six-field host-controller contract separate.",
+      "resolution": {
+        "kind": "consolidated-with-distinct-contract",
+        "rationale": "The cleanup MVP migrated all five identical producers to xtend.xtensions.host-resource-cleanup-record.v1 and documented the non-identical host-controller record as a separate contract."
+      },
+      "reviewId": "xtensions-cleanup-record-family",
+      "schemaIds": [
+        "xtend.xtensions.chart-cleanup-record.v1",
+        "xtend.xtensions.host-controller-cleanup-record.v1",
+        "xtend.xtensions.host-resource-cleanup-record.v1",
+        "xtend.xtensions.leaflet-cleanup-record.v1",
+        "xtend.xtensions.react-host-controller-cleanup-record.v1",
+        "xtend.xtensions.three-cleanup-record.v1",
+        "xtend.xtensions.vue-host-controller-cleanup-record.v1"
+      ],
+      "status": "accepted",
+      "type": "curated-consolidation-decision"
+    },
+    {
+      "baseline": "inventory-v2",
+      "baselineAccepted": true,
+      "confidence": "high",
+      "origin": "curated",
+      "rationale": "The component-profile identifier appears only in xsurfaceportal while the established accessibility profile identifier is used across the component catalog.",
+      "recommendation": "Confirm whether xsurfaceportal should adopt the established accessibility profile identifier.",
+      "resolution": {
+        "kind": "review-case",
+        "rationale": "The initial audit retains the identifiers as separate entities and records the collision for domain-owner review; no runtime or API migration is performed here."
+      },
+      "reviewId": "a11y-component-profile-drift",
+      "schemaIds": [
+        "xtend.a11y.component-profile.v1",
+        "xtend.a11y.profile.v1"
+      ],
+      "status": "open",
+      "type": "near-name-drift"
+    },
+    {
+      "baseline": "inventory-v2",
+      "baselineAccepted": true,
+      "confidence": "high",
+      "origin": "curated",
+      "rationale": "The React and Vue bad-payload fixtures exercise the same negative adapter boundary with parallel data shapes.",
+      "recommendation": "Retain framework-specific fixtures only while they prove distinct adapter behavior.",
+      "resolution": {
+        "kind": "review-case",
+        "rationale": "The initial audit retains the identifiers as separate entities and records the collision for domain-owner review; no runtime or API migration is performed here."
+      },
+      "reviewId": "xtensions-react-vue-bad-payload-fixtures",
+      "schemaIds": [
+        "xtend.xtensions.react-host-adapter.bad-payload.fixture.v1",
+        "xtend.xtensions.vue-host-adapter.bad-payload.fixture.v1"
+      ],
+      "status": "open",
+      "type": "parallel-fixture-shape"
+    },
+    {
+      "baseline": "inventory-v2",
+      "baselineAccepted": true,
+      "confidence": "high",
+      "origin": "curated",
+      "rationale": "The React and Vue missing-peer fixtures encode the same missing host-provided runtime condition.",
+      "recommendation": "Review whether the fixtures should share one adapter-neutral failure contract.",
+      "resolution": {
+        "kind": "review-case",
+        "rationale": "The initial audit retains the identifiers as separate entities and records the collision for domain-owner review; no runtime or API migration is performed here."
+      },
+      "reviewId": "xtensions-react-vue-missing-peer-fixtures",
+      "schemaIds": [
+        "xtend.xtensions.react-host-adapter.missing-peer-runtime.fixture.v1",
+        "xtend.xtensions.vue-host-adapter.missing-peer-runtime.fixture.v1"
+      ],
+      "status": "open",
+      "type": "parallel-fixture-shape"
     }
   ],
   "entries": [
