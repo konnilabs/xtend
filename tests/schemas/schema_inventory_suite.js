@@ -1773,14 +1773,32 @@ function validateNegativeGateBehavior(inventory, scan, rootDir) {
     issues.push('an invalid usage path does not fail validation');
   }
 
-  const fingerprintEntry = inventory.entries.find((entry) => Array.isArray(entry.shapeFingerprints) && entry.shapeFingerprints.length > 0);
+  const fingerprintEntry = inventory.entries.find((entry) => (
+    entry.schemaId !== inventory.entries[0]?.schemaId
+      && Array.isArray(entry.shapeFingerprints) && entry.shapeFingerprints.length > 0
+  ));
   if (fingerprintEntry) {
-    const tamperedShape = cloneJson(inventory);
-    const target = tamperedShape.entries.find((entry) => entry.schemaId === fingerprintEntry.schemaId);
-    target.shapeFingerprints[0].shape.signature = `${target.shapeFingerprints[0].shape.signature}|tampered:unknown`;
-    if (!rejectsAs(tamperedShape, ['invalid-shape-hash'], /shape.*hash|fingerprint/iu)) {
+    // These mutations affect distinct entries. Share one complete validation,
+    // but require each target's own error; unrelated drift is not evidence.
+    const shapeAndVersion = cloneJson(inventory);
+    const shapeTarget = shapeAndVersion.entries.find((entry) => entry.schemaId === fingerprintEntry.schemaId);
+    shapeTarget.shapeFingerprints[0].shape.signature = `${shapeTarget.shapeFingerprints[0].shape.signature}|tampered:unknown`;
+    const minorVersionSchemaId = 'xtend.schema-inventory.invalid-minor-version.v1.2';
+    const versionTarget = shapeAndVersion.entries[0];
+    versionTarget.schemaId = minorVersionSchemaId;
+    versionTarget.familyId = 'xtend.schema-inventory.invalid-minor-version';
+    versionTarget.version = 1;
+    const shapeAndVersionErrors = validationErrors(shapeAndVersion);
+    if (!shapeAndVersionErrors.some((entry) => entry && entry.code === 'invalid-shape-hash'
+      && entry.schemaId === fingerprintEntry.schemaId)) {
       issues.push('tampered normalized shape content does not fail its fingerprint hash');
     }
+    if (!shapeAndVersionErrors.some((entry) => entry && entry.code === 'invalid-family-version'
+      && entry.schemaId === minorVersionSchemaId)) {
+      issues.push('minor schema version suffixes are not rejected by the major-only policy');
+    }
+  } else {
+    issues.push('distinct shape and version targets are required for the negative probes');
   }
 
   const profileFamilies = new Set((inventory.schemaFamilies || [])
@@ -1818,14 +1836,6 @@ function validateNegativeGateBehavior(inventory, scan, rootDir) {
     issues.push('lifecycle curation can incorrectly overwrite the static scan status');
   }
 
-  const minorVersion = cloneJson(inventory);
-  minorVersion.entries[0].schemaId = 'xtend.schema-inventory.invalid-minor-version.v1.2';
-  minorVersion.entries[0].familyId = 'xtend.schema-inventory.invalid-minor-version';
-  minorVersion.entries[0].version = 1;
-  if (!rejectsAs(minorVersion, ['invalid-family-version'], /major-only|family.*version/iu)) {
-    issues.push('minor schema version suffixes are not rejected by the major-only policy');
-  }
-
   const exactDecision = (inventory.consolidations || []).find((consolidation) => (
     consolidation && consolidation.kind === 'exact-authoritative' && consolidation.decision
   ));
@@ -1852,7 +1862,9 @@ function validateNegativeGateBehavior(inventory, scan, rootDir) {
     target.decision = 'consolidate';
     target.canonicalSchemaId = target.schemaIds[0];
     target.owner = 'negative-probe';
-    if (!rejectsAs(unsafeMerge, ['invalid-consolidation'], /consolidat|fingerprint|authoritative/iu)) {
+    if (!validationErrors(unsafeMerge).some((entry) => entry && entry.code === 'invalid-consolidation'
+      && entry.consolidationId === insufficient.consolidationId
+      && entry.message === 'A consolidate decision requires identical authoritative released fingerprint sets.')) {
       issues.push('partial/test/docs/generated evidence can incorrectly trigger consolidation');
     }
   }
