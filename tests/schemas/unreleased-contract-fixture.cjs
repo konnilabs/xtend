@@ -69,13 +69,13 @@ function reviewedFixtureData() {
     })};
   return {inventory, candidate, decision, policy, overrides: {}};
 }
-function create(t, mutate = () => {}, {pending = false} = {}) {
+function create(t, mutate = () => {}, {pending = false, current = false} = {}) {
   const folder = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'core-unreleased-contract-')));
   t.after(() => fs.rmSync(folder, {recursive: true, force: true}));
   const sources = require('../../tools/schema-inventory/source-provider.cjs');
   let archive = path.join(capture, 'source-capture/sources.tar.gz');
   let expected = JSON.parse(fs.readFileSync(path.join(capture, 'source-capture/producer-receipt.json')));
-  if (!pending) {
+  if (!current) {
     const fixture = reviewedFixtureData();
     mutate(fixture);
     const paths = unique([...scan.sourceProvenance.bindings.map(row => row.logicalPath), ...Object.keys(fixture.overrides)]);
@@ -84,6 +84,9 @@ function create(t, mutate = () => {}, {pending = false} = {}) {
     fixture.policy.coreCandidateAuthoritySha256 = hash(data(fixture.candidate));
     fixture.decision.sourceMembershipSha256 = hash(JSON.stringify(paths));
     fixture.policy.authorityDecisionSha256 = hash(data(fixture.decision));
+    // Keep a real authenticated pending negative after productive registration.
+    // Only its controlled policy is pending; no gate or negative case is skipped.
+    if (pending) fixture.policy.status = 'pending-exact-source-and-authority-review';
     const overrides = {...fixture.overrides, [inventoryFile]: data(fixture.inventory), [candidateFile]: data(fixture.candidate),
       [decisionFile]: data(fixture.decision), [policyFile]: data(fixture.policy)};
     const output = path.join(folder, 'capture');

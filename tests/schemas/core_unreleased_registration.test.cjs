@@ -4,11 +4,20 @@ const fs = require('node:fs'), path = require('node:path');
 const fixture = require('./unreleased-contract-fixture.cjs');
 const {ids, candidateIds, entry} = fixture;
 const registration = value => value.decision.unreleasedContracts;
-test('real captured pending source retains all release drift diagnostics and the publication guard', t => {
+test('authenticated pending policy retains all release drift diagnostics and the publication guard', t => {
   const f = fixture.create(t, undefined, {pending: true});
   assert.throws(() => f.engine.assertCoreUnreleasedContracts(f.inventory, f.scan, f.provider), /pending/);
   const validation = f.engine.validateInventoryDocument(f.inventory, f.scan, {sourceProvider: f.provider});
   for (const id of ids) assert.ok(validation.errors.some(row => row.code === 'released-fingerprint-drift' && row.schemaId === id));
+  assert.throws(() => f.engine.assertCandidateInitialAuthorityRetiredForRelease(), /source-level/);
+});
+test('real captured approved source validates exact registration while FirstRelease remains active', t => {
+  const f = fixture.create(t, undefined, {current: true});
+  const core = require('../../scripts/release/core-source.cjs');
+  const validation = f.engine.validateInventoryDocument(f.inventory, f.scan, {sourceProvider:f.provider});
+  assert.deepEqual(validation.errors, []);
+  assert.equal(core.validateCoreAuthority({provider:f.provider,inventory:f.inventory,rootDir:f.root,typescript:require('typescript')}).publicationGuardRetired,false);
+  for (const id of [...ids, ...candidateIds]) assert.equal(entry(f.inventory,id).releasedFingerprintSetHash,null);
   assert.throws(() => f.engine.assertCandidateInitialAuthorityRetiredForRelease(), /source-level/);
 });
 test('reviewed fixture permits exactly three null-release contracts through the provider-bound Core context', t => {
