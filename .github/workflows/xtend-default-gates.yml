@@ -1481,6 +1481,7 @@ jobs:
           npm run ci:dependency-locks:check
       - name: Execute maintained real sanitizer and Trusted Types browser assertions without skips
         env:
+          XTEND_SECURITY_HOST_DIAGNOSTICS: "1"
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --profile core-security-browser --execution .xtend-test-results/core-security/security-execution.json
       - name: Retain exact raw Core security report on success or failure
