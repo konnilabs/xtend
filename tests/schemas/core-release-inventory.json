@@ -5153,12 +5153,12 @@
       "reviewId": "polymorphic-500bb8ab8717",
       "type": "same-id-multiple-shapes",
       "confidence": "medium",
-      "status": "unreviewed",
+      "status": "reviewed",
       "origin": "scanner",
-      "baselineAccepted": false,
+      "baselineAccepted": true,
       "resolution": {
-        "kind": "pending-review",
-        "rationale": "Current Core source observation recorded; a contract decision is still required."
+        "kind": "accepted-polymorphic",
+        "rationale": "Explicit user approval 2026-10-18, annex 632c42a46099b7b5f62c6f24585a65313b15ce4a0d00fb4cefad09c2e4e05c7d: xtend.release.core-evidence.v1 has exactly the bound observation set. Only its complete declaration/formal schema is authority; partial runtime/test forms do not replace admission or release evidence."
       },
       "schemaIds": [
         "xtend.release.core-evidence.v1"
@@ -7096,12 +7096,12 @@
       "reviewId": "polymorphic-702d679402c8",
       "type": "same-id-multiple-shapes",
       "confidence": "medium",
-      "status": "unreviewed",
+      "status": "reviewed",
       "origin": "scanner",
-      "baselineAccepted": false,
+      "baselineAccepted": true,
       "resolution": {
-        "kind": "pending-review",
-        "rationale": "Current Core source observation recorded; a contract decision is still required."
+        "kind": "accepted-polymorphic",
+        "rationale": "Explicit user approval 2026-10-18, annex 632c42a46099b7b5f62c6f24585a65313b15ce4a0d00fb4cefad09c2e4e05c7d: xtend.release.canary.v2 has exactly the bound observation set. Only its complete declaration/formal schema is authority; partial runtime/test forms do not replace admission or release evidence."
       },
       "schemaIds": [
         "xtend.release.canary.v2"
@@ -9219,12 +9219,12 @@
       "reviewId": "polymorphic-9766a3472352",
       "type": "same-id-multiple-shapes",
       "confidence": "medium",
-      "status": "unreviewed",
+      "status": "reviewed",
       "origin": "scanner",
-      "baselineAccepted": false,
+      "baselineAccepted": true,
       "resolution": {
-        "kind": "pending-review",
-        "rationale": "Current Core source observation recorded; a contract decision is still required."
+        "kind": "accepted-polymorphic",
+        "rationale": "Explicit user approval 2026-10-18, annex 632c42a46099b7b5f62c6f24585a65313b15ce4a0d00fb4cefad09c2e4e05c7d: xtend.release.artifact.v2 has exactly the bound observation set. Only its complete declaration/formal schema is authority; partial runtime/test forms do not replace admission or release evidence."
       },
       "schemaIds": [
         "xtend.release.artifact.v2"
@@ -15615,12 +15615,12 @@
       "reviewId": "polymorphic-fb2408e46577",
       "type": "same-id-multiple-shapes",
       "confidence": "medium",
-      "status": "unreviewed",
+      "status": "reviewed",
       "origin": "scanner",
-      "baselineAccepted": false,
+      "baselineAccepted": true,
       "resolution": {
-        "kind": "pending-review",
-        "rationale": "Current Core source observation recorded; a contract decision is still required."
+        "kind": "accepted-polymorphic",
+        "rationale": "Explicit user approval 2026-10-18, annex 632c42a46099b7b5f62c6f24585a65313b15ce4a0d00fb4cefad09c2e4e05c7d: xtend.product-candidates.v2 has exactly the bound observation set. Only its complete declaration/formal schema is authority; partial runtime/test forms do not replace admission or release evidence."
       },
       "schemaIds": [
         "xtend.product-candidates.v2"
@@ -263016,102 +263016,6 @@
       "schemaId": "xtend.maraca.build-config.v1",
       "shapeFingerprints": [
         {
-          "hash": "sha256:031956ead4357c0ec2663288dc5b7d31c7828f5f7c2a292bf3ce9f8dae3ce730",
-          "shape": {
-            "fieldCount": 9,
-            "fields": [
-              "candidateMatrixFingerprint",
-              "locked",
-              "options",
-              "output",
-              "selected",
-              "serviceGraphFingerprint",
-              "source",
-              "sourceFingerprint",
-              "toolchain"
-            ],
-            "signature": "candidateMatrixFingerprint:{\"unresolved\":\"input.candidateMatrixFingerprint\"}|locked:{\"unresolved\":\"input.locked\"}|options:{\"unresolved\":\"input.options\"}|output:{\"unresolved\":\"input.output\"}|selected:{\"unresolved\":\"input.selected\"}|serviceGraphFingerprint:{\"unresolved\":\"serviceGraphFingerprint ?? null\"}|source:{\"unresolved\":\"input.source\"}|sourceFingerprint:{\"unresolved\":\"input.sourceFingerprint\"}|toolchain:{\"unresolved\":\"input.toolchain\"}",
-            "normalized": {
-              "fields": {
-                "candidateMatrixFingerprint": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.candidateMatrixFingerprint"
-                  }
-                },
-                "locked": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.locked"
-                  }
-                },
-                "options": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.options"
-                  }
-                },
-                "output": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.output"
-                  }
-                },
-                "selected": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.selected"
-                  }
-                },
-                "serviceGraphFingerprint": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "serviceGraphFingerprint ?? null"
-                  }
-                },
-                "source": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.source"
-                  }
-                },
-                "sourceFingerprint": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.sourceFingerprint"
-                  }
-                },
-                "toolchain": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.toolchain"
-                  }
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "xtend-maraca/index.js"
-          ],
-          "symbols": [
-            "base"
-          ],
-          "evidence": [
-            {
-              "type": "runtime-observation",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "xtend-maraca/index.js",
-              "symbol": "base"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
-          "completeness": "partial",
-          "authoritative": false
-        },
-        {
           "hash": "sha256:142c98c55eef1bd9facca29fd95708de8e7cd4682257ead3725c3c56ae71ecb0",
           "shape": {
             "fieldCount": 10,
@@ -263426,6 +263330,105 @@
             "generated"
           ],
           "completeness": "complete",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:185c8f822e74fa3a6d4daf8119bb5727b95b569c916de635b5672ebb45f9494a",
+          "shape": {
+            "fieldCount": 9,
+            "fields": [
+              "candidateMatrixFingerprint",
+              "locked",
+              "options",
+              "output",
+              "selected",
+              "serviceGraphFingerprint",
+              "source",
+              "sourceFingerprint",
+              "toolchain"
+            ],
+            "signature": "candidateMatrixFingerprint:{\"unresolved\":\"input.candidateMatrixFingerprint\"}|locked:{\"unresolved\":\"input.locked\"}|options:{\"unresolved\":\"input.options\"}|output:{\"unresolved\":\"input.output\"}|selected:{\"unresolved\":\"input.selected\"}|serviceGraphFingerprint:union<null|unknown>|source:{\"unresolved\":\"input.source\"}|sourceFingerprint:{\"unresolved\":\"input.sourceFingerprint\"}|toolchain:{\"unresolved\":\"input.toolchain\"}",
+            "normalized": {
+              "fields": {
+                "candidateMatrixFingerprint": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.candidateMatrixFingerprint"
+                  }
+                },
+                "locked": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.locked"
+                  }
+                },
+                "options": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.options"
+                  }
+                },
+                "output": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.output"
+                  }
+                },
+                "selected": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.selected"
+                  }
+                },
+                "serviceGraphFingerprint": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      "null",
+                      "unknown"
+                    ]
+                  }
+                },
+                "source": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.source"
+                  }
+                },
+                "sourceFingerprint": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.sourceFingerprint"
+                  }
+                },
+                "toolchain": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.toolchain"
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/index.js"
+          ],
+          "symbols": [
+            "base"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/index.js",
+              "symbol": "base"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
           "authoritative": false
         },
         {
@@ -265258,13 +265261,15 @@
       "shapePolicy": {
         "acceptedFingerprints": [
           "sha256:142c98c55eef1bd9facca29fd95708de8e7cd4682257ead3725c3c56ae71ecb0",
+          "sha256:185c8f822e74fa3a6d4daf8119bb5727b95b569c916de635b5672ebb45f9494a",
           "sha256:4f4ad2c58e18e9e87d91f162b0d40e30af5f7b5f9f43b7424185014969501cbe",
+          "sha256:70c90495ac0d7558778992dd739ab907d69d7e84525991eb65356905993c83b7",
           "sha256:de8f5646c85146eaa90f2f1c2e95d95c13dfcc75694370f13281be907132b370"
         ],
         "authoritativeFingerprints": [],
-        "decision": "XTend-store-2026-09",
+        "decision": "user-approved-2026-10-18-group-D",
         "mode": "polymorphic",
-        "rationale": "All observed variants are fingerprint-bound after the XTend 0.7 State metadata migration; future fingerprint changes require a new review. XTend.store review: Shop and provider configurations instantiate strict existing Maraca options with browser/PHP services and independently built output directories; both use the same canonical builder. Reviewed retained-Core migration decision (2026-10-09): accept only fixture de8f5646c85146eaa90f2f1c2e95d95c13dfcc75694370f13281be907132b370 as an options-only input to the existing canonical Builderoptions parser. Loaded and direct options yield identical semantic build plans; schema/config/source digest negatives remain fail-closed. This addition does not project Workbench owners or accept generated variants. Core projection: omitted observations remain in the immutable historical inventory. Only separately named local technical observations are added; unresolved contract observations are not accepted.",
+        "rationale": "All observed variants are fingerprint-bound after the XTend 0.7 State metadata migration; future fingerprint changes require a new review. XTend.store review: Shop and provider configurations instantiate strict existing Maraca options with browser/PHP services and independently built output directories; both use the same canonical builder. Reviewed retained-Core migration decision (2026-10-09): accept only fixture de8f5646c85146eaa90f2f1c2e95d95c13dfcc75694370f13281be907132b370 as an options-only input to the existing canonical Builderoptions parser. Loaded and direct options yield identical semantic build plans; schema/config/source digest negatives remain fail-closed. This addition does not project Workbench owners or accept generated variants. Core projection: omitted observations remain in the immutable historical inventory. Only separately named local technical observations are added; unresolved contract observations are not accepted. Explicit user approval on 2026-10-18 for group D at source 610499fc2c9f8ee5242837a2951e12b73794d698, annex SHA256 632c42a46099b7b5f62c6f24585a65313b15ce4a0d00fb4cefad09c2e4e05c7d. Only the exact listed observations and complete authority forms are registered; partial observations remain non-authoritative. Historical release facts and the FirstRelease guard are unchanged.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
@@ -359599,12 +359604,13 @@
         "acceptedFingerprints": [
           "sha256:630a996dddc457372ea3bc3866095a143f9a66f0c678e947316757e9f9f5547e",
           "sha256:8999b387189504952d0cb008c83b44855aaaa8bb82927ee0f48794f467a7d5e3",
-          "sha256:debd68bb9fb6cf2be6ff85ea6f83bf9284325e3fd63738acb5fc56885822070c"
+          "sha256:debd68bb9fb6cf2be6ff85ea6f83bf9284325e3fd63738acb5fc56885822070c",
+          "sha256:defb533de0e9a40b5c6cc626411702c5c4fdf783dd8f7383c60bb0e7b109bb4c"
         ],
         "authoritativeFingerprints": [],
-        "decision": "accepted-initial-audit",
+        "decision": "user-approved-2026-10-18-group-D",
         "mode": "polymorphic",
-        "rationale": "All observed variants are fingerprint-bound after the XTend 0.7 State metadata migration; future fingerprint changes require a new review. Core projection: omitted observations remain in the immutable historical inventory. Only separately named local technical observations are added; unresolved contract observations are not accepted.",
+        "rationale": "All observed variants are fingerprint-bound after the XTend 0.7 State metadata migration; future fingerprint changes require a new review. Core projection: omitted observations remain in the immutable historical inventory. Only separately named local technical observations are added; unresolved contract observations are not accepted. Explicit user approval on 2026-10-18 for group D at source 610499fc2c9f8ee5242837a2951e12b73794d698, annex SHA256 632c42a46099b7b5f62c6f24585a65313b15ce4a0d00fb4cefad09c2e4e05c7d. Only the exact listed observations and complete authority forms are registered; partial observations remain non-authoritative. Historical release facts and the FirstRelease guard are unchanged.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
@@ -475186,9 +475192,9 @@
           "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
         ],
         "mode": "polymorphic",
-        "rationale": "Preserve reviewed declaration identity and initial-unreleased provenance from 0aa3f668. Its four-shape registration approval does not cover the current six-shape observation. Require a new explicit fingerprint-bound review; no released hash or accepted set is inferred. Separate proposed six-shape decision preserves the historical four-shape snapshot and accepts only the release miniature-archive fixture 0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc and packaged-authority validation fixture d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2. Existing declaration/source authority, planned rollout, null released hashes and mandatory source-retirement publish guard remain unchanged; no future seventh shape is inferred. Separate proposal-only current-five binding: preserve all four original hashes and 0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc; remove only d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2 from the CURRENT observed/accepted set. Migration commit 610fb9ece97e7ad1fc04a96fd6b03802d646d114 made its test schema ID dynamic without changing generated manifest bytes; b6ca020 already includes this source, M only inherits it. The original four/six snapshots and preceding rationales remain historical evidence, not current observation. Any unknown or reintroduced historical variant requires a separate review; source authority, null released hashes, active/planned lifecycle and mandatory retirement guard remain unchanged. Core projection: omitted observations remain in the immutable historical inventory. Only separately named local technical observations are added; unresolved contract observations are not accepted.",
+        "rationale": "Preserve reviewed declaration identity and initial-unreleased provenance from 0aa3f668. Its four-shape registration approval does not cover the current six-shape observation. Require a new explicit fingerprint-bound review; no released hash or accepted set is inferred. Separate proposed six-shape decision preserves the historical four-shape snapshot and accepts only the release miniature-archive fixture 0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc and packaged-authority validation fixture d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2. Existing declaration/source authority, planned rollout, null released hashes and mandatory source-retirement publish guard remain unchanged; no future seventh shape is inferred. Separate proposal-only current-five binding: preserve all four original hashes and 0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc; remove only d4fcaf302c31c4e8ba8dda598507e6d4e522d0c8a44c5c31a626b54c3b6ae3b2 from the CURRENT observed/accepted set. Migration commit 610fb9ece97e7ad1fc04a96fd6b03802d646d114 made its test schema ID dynamic without changing generated manifest bytes; b6ca020 already includes this source, M only inherits it. The original four/six snapshots and preceding rationales remain historical evidence, not current observation. Any unknown or reintroduced historical variant requires a separate review; source authority, null released hashes, active/planned lifecycle and mandatory retirement guard remain unchanged. Core projection: omitted observations remain in the immutable historical inventory. Only separately named local technical observations are added; unresolved contract observations are not accepted. Explicit user approval on 2026-10-18 for group B at source 610499fc2c9f8ee5242837a2951e12b73794d698, annex SHA256 632c42a46099b7b5f62c6f24585a65313b15ce4a0d00fb4cefad09c2e4e05c7d. Only the exact listed observations and complete authority forms are registered; partial observations remain non-authoritative. Historical release facts and the FirstRelease guard are unchanged.",
         "releasedFingerprintSetHash": null,
-        "decision": "Historical six-shape decision retained in proposed-six-registration.json.gz; proposal-only current exact five-shape registration, no release authority"
+        "decision": "user-approved-2026-10-18-group-B"
       },
       "status": "active",
       "usages": [
@@ -475346,7 +475352,7 @@
         "schemaId": "xtend.product-candidates.v1",
         "familyId": "xtend.product-candidates",
         "version": 1,
-        "status": "pending",
+        "status": "reviewed-current-source",
         "canonicalDefinition": {
           "path": "candidate-integrity.d.ts",
           "symbol": "CandidateManifest",
@@ -475362,8 +475368,16 @@
           "sha256:88bb888b7d2e4db3a1ff057fa3644bffbe33d29655b5378c92e8800136366eb7",
           "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
         ],
-        "authoritativeFingerprints": null,
-        "acceptedFingerprints": null,
+        "authoritativeFingerprints": [
+          "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
+        ],
+        "acceptedFingerprints": [
+          "sha256:0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc",
+          "sha256:191543f54471986c9b8f5b9fcf98ffecdff67f280c9b0aa98da6ce7899d9f2dc",
+          "sha256:6f7d68d9169c8382108f54adb1ffe08cee6c76b3dbe737797f25853f2289cac1",
+          "sha256:88bb888b7d2e4db3a1ff057fa3644bffbe33d29655b5378c92e8800136366eb7",
+          "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
+        ],
         "observedAuthorityFingerprints": [
           "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
         ]
@@ -475577,11 +475591,16 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "acceptedFingerprints": [],
-        "authoritativeFingerprints": [],
+        "acceptedFingerprints": [
+          "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea",
+          "sha256:9ed3963ef1f6971c8aa1003eba8be0a2eab001dda80c4147058c43ef74d06d8e"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea"
+        ],
         "releasedFingerprintSetHash": null,
-        "rationale": "Explicit unapproved registration draft. Observed source shapes are not accepted contract or release authority.",
-        "decision": "pending-independent-contract-review"
+        "rationale": "Explicit unapproved registration draft. Observed source shapes are not accepted contract or release authority. Explicit user approval on 2026-10-18 for group B at source 610499fc2c9f8ee5242837a2951e12b73794d698, annex SHA256 632c42a46099b7b5f62c6f24585a65313b15ce4a0d00fb4cefad09c2e4e05c7d. Only the exact listed observations and complete authority forms are registered; partial observations remain non-authoritative. Historical release facts and the FirstRelease guard are unchanged.",
+        "decision": "user-approved-2026-10-18-group-B"
       },
       "shapeFingerprints": [
         {
@@ -475786,7 +475805,7 @@
         "schemaId": "xtend.product-candidates.v2",
         "familyId": "xtend.product-candidates",
         "version": 2,
-        "status": "pending",
+        "status": "reviewed-current-source",
         "canonicalDefinition": {
           "path": "candidate-integrity.d.ts",
           "symbol": "CoreCandidateManifest",
@@ -475799,8 +475818,13 @@
           "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea",
           "sha256:9ed3963ef1f6971c8aa1003eba8be0a2eab001dda80c4147058c43ef74d06d8e"
         ],
-        "authoritativeFingerprints": null,
-        "acceptedFingerprints": null,
+        "authoritativeFingerprints": [
+          "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea"
+        ],
+        "acceptedFingerprints": [
+          "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea",
+          "sha256:9ed3963ef1f6971c8aa1003eba8be0a2eab001dda80c4147058c43ef74d06d8e"
+        ],
         "observedAuthorityFingerprints": [
           "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea"
         ]
@@ -482156,11 +482180,16 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "acceptedFingerprints": [],
-        "authoritativeFingerprints": [],
+        "acceptedFingerprints": [
+          "sha256:96f3e7283be50d0238ee9a0ad0a1f2f16871eb5bf25c8c74f5ab74413f3ff821",
+          "sha256:b16d797209ddf5b8799c44f6666612b0efd58cd36b43aa1204323feae49a32bf"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:b16d797209ddf5b8799c44f6666612b0efd58cd36b43aa1204323feae49a32bf"
+        ],
         "releasedFingerprintSetHash": null,
-        "rationale": "Explicit unapproved registration draft. Observed source shapes are not accepted contract or release authority.",
-        "decision": "pending-independent-contract-review"
+        "rationale": "Explicit unapproved registration draft. Observed source shapes are not accepted contract or release authority. Explicit user approval on 2026-10-18 for group C at source 610499fc2c9f8ee5242837a2951e12b73794d698, annex SHA256 632c42a46099b7b5f62c6f24585a65313b15ce4a0d00fb4cefad09c2e4e05c7d. Only the exact listed observations and complete authority forms are registered; partial observations remain non-authoritative. Historical release facts and the FirstRelease guard are unchanged.",
+        "decision": "user-approved-2026-10-18-group-C"
       },
       "shapeFingerprints": [
         {
@@ -483891,11 +483920,17 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "acceptedFingerprints": [],
-        "authoritativeFingerprints": [],
+        "acceptedFingerprints": [
+          "sha256:1f0f0fccf1ebbb36ba464de8b0441a233f88641e6fde961f2902680930d213ca",
+          "sha256:aa318c5c3bc6cf0c0b5ad2192e38e0322e8e1c09c4ee6f6dac7b671cb751bee0",
+          "sha256:fb8f2e09c7e13bc26e81c91c1b2d4ea6c7680e9480481efaff8be70f814406df"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:aa318c5c3bc6cf0c0b5ad2192e38e0322e8e1c09c4ee6f6dac7b671cb751bee0"
+        ],
         "releasedFingerprintSetHash": null,
-        "rationale": "Explicit unapproved registration draft. Observed source shapes are not accepted contract or release authority.",
-        "decision": "pending-independent-contract-review"
+        "rationale": "Explicit unapproved registration draft. Observed source shapes are not accepted contract or release authority. Explicit user approval on 2026-10-18 for group C at source 610499fc2c9f8ee5242837a2951e12b73794d698, annex SHA256 632c42a46099b7b5f62c6f24585a65313b15ce4a0d00fb4cefad09c2e4e05c7d. Only the exact listed observations and complete authority forms are registered; partial observations remain non-authoritative. Historical release facts and the FirstRelease guard are unchanged.",
+        "decision": "user-approved-2026-10-18-group-C"
       },
       "shapeFingerprints": [
         {
@@ -485734,11 +485769,16 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "acceptedFingerprints": [],
-        "authoritativeFingerprints": [],
+        "acceptedFingerprints": [
+          "sha256:b9f4e041ded588a25817ff308b0478af74b972fc60749c86bf14d9a9df1d57a8",
+          "sha256:c6205ef8ba220d56a8a8095149b09aa60438d59427e31450489112abec8ae652"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:b9f4e041ded588a25817ff308b0478af74b972fc60749c86bf14d9a9df1d57a8"
+        ],
         "releasedFingerprintSetHash": null,
-        "rationale": "Explicit unapproved registration draft. Observed source shapes are not accepted contract or release authority.",
-        "decision": "pending-independent-contract-review"
+        "rationale": "Explicit unapproved registration draft. Observed source shapes are not accepted contract or release authority. Explicit user approval on 2026-10-18 for group C at source 610499fc2c9f8ee5242837a2951e12b73794d698, annex SHA256 632c42a46099b7b5f62c6f24585a65313b15ce4a0d00fb4cefad09c2e4e05c7d. Only the exact listed observations and complete authority forms are registered; partial observations remain non-authoritative. Historical release facts and the FirstRelease guard are unchanged.",
+        "decision": "user-approved-2026-10-18-group-C"
       },
       "shapeFingerprints": [
         {
@@ -983582,8 +983622,8 @@
     }
   ],
   "projectionReview": {
-    "status": "pending-exact-source-and-authority-review",
-    "sourceCommit": "2402539aa8701b2554bb47e0b8ea4d7e711cde29",
+    "status": "reviewed-core-owned-projection",
+    "sourceCommit": "610499fc2c9f8ee5242837a2951e12b73794d698",
     "historicalInventorySha256": "0c1ca03e989f4c1cfa5e07b2296e163ddda0090fd138677bc410feafce9661f3",
     "notReleaseApproval": true
   }

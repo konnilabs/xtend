@@ -2,14 +2,14 @@
   "format": 1,
   "profile": "xtend.npm.core-only.v1",
   "repository": "konnilabs/xtend",
-  "status": "pending-exact-source-and-authority-review",
+  "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": null,
-  "sourceMembershipSha256": null,
+  "inventorySha256": "c11f0481cf86603aac24d5b3c1fad4859bd473a3335a34f481446081b8acf21a",
+  "sourceMembershipSha256": "f0adc16ec9ffcf30a990fa9e69bed9eccadf11bf3c45b6a06dc50c06999ef2e3",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
-    "status": "pending-exact-profile-registry",
+    "status": "reviewed-exact-profile-registry",
     "families": [
       {
         "familyId": "xtend.product-candidates",
@@ -60,8 +60,224 @@
   },
   "unreleasedContracts": {
     "format": 1,
-    "status": "pending-exact-contract-registration",
     "publicationGuardRetired": false,
-    "registrations": []
+    "registrations": [
+      {
+        "acceptedFingerprints": [
+          "sha256:96f3e7283be50d0238ee9a0ad0a1f2f16871eb5bf25c8c74f5ab74413f3ff821",
+          "sha256:b16d797209ddf5b8799c44f6666612b0efd58cd36b43aa1204323feae49a32bf"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:b16d797209ddf5b8799c44f6666612b0efd58cd36b43aa1204323feae49a32bf"
+        ],
+        "canonicalDefinition": {
+          "definitionType": "json-schema",
+          "path": "contracts/release/artifact-v2.schema.json",
+          "role": "definition",
+          "symbol": null,
+          "visibility": "internal"
+        },
+        "familyId": "xtend.release.artifact",
+        "observedFingerprints": [
+          "sha256:96f3e7283be50d0238ee9a0ad0a1f2f16871eb5bf25c8c74f5ab74413f3ff821",
+          "sha256:b16d797209ddf5b8799c44f6666612b0efd58cd36b43aa1204323feae49a32bf"
+        ],
+        "releasedFingerprintSetHash": null,
+        "schemaId": "xtend.release.artifact.v2",
+        "sources": [
+          {
+            "path": "candidate-integrity.cjs",
+            "sha256": "c31694f5321c4e816777c533ffdbba0e728af646459e1292d016a281149fbbb9"
+          },
+          {
+            "path": "contracts/release/admission-phases.json",
+            "sha256": "2988b1271c05a8b67604604e10e13b922951b869b819214e1a0a70308ff01e93"
+          },
+          {
+            "path": "contracts/release/artifact-v2.schema.json",
+            "sha256": "1181430925451575c8a88319a55e79411bb6abc1330ff269bb647e93c80cf45d"
+          },
+          {
+            "path": "development/XTend-Core-Only-Release.md",
+            "sha256": "01235e8f94400ad3dffdee385e769709a0e9cb0b4770574f1c3a2380eb389991"
+          },
+          {
+            "path": "development/core-release-contracts.md",
+            "sha256": "dd1b28f76e2747efca80c1a8a0c16247b2cd84fbea1d1930c837319189203533"
+          },
+          {
+            "path": "scripts/release/artifact.cjs",
+            "sha256": "2ffbae9071753d70ffa1811bbf8c01a6c41326ab4c494fbbaedd4a8f06a3348d"
+          },
+          {
+            "path": "scripts/release/candidates.cjs",
+            "sha256": "ff7b67d3747a806f484190a4de169cde9d61b7b80216581ccbc29fec013a1e84"
+          },
+          {
+            "path": "scripts/release/contracts.cjs",
+            "sha256": "91c310128691b018c47e68a748784e5b708209a0551f613b702f4dda2b63d937"
+          },
+          {
+            "path": "scripts/release/pipeline.cjs",
+            "sha256": "c72cd48e860caf58c35a1cd13891ede6ed0c5b3279b80d6339deee0dcbe2f70a"
+          },
+          {
+            "path": "scripts/release/profile.cjs",
+            "sha256": "d85fe40d769ef8c8162de4ba6f6891d44ae7c105a1a7c162089808a5c88d3c06"
+          },
+          {
+            "path": "tests/release/fixtures.cjs",
+            "sha256": "64625b45dbd111506d6959e62f9f986289c4486315b46a6eac589fece854d42e"
+          }
+        ],
+        "status": "reviewed-current-source",
+        "version": 2
+      },
+      {
+        "acceptedFingerprints": [
+          "sha256:1f0f0fccf1ebbb36ba464de8b0441a233f88641e6fde961f2902680930d213ca",
+          "sha256:aa318c5c3bc6cf0c0b5ad2192e38e0322e8e1c09c4ee6f6dac7b671cb751bee0",
+          "sha256:fb8f2e09c7e13bc26e81c91c1b2d4ea6c7680e9480481efaff8be70f814406df"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:aa318c5c3bc6cf0c0b5ad2192e38e0322e8e1c09c4ee6f6dac7b671cb751bee0"
+        ],
+        "canonicalDefinition": {
+          "definitionType": "json-schema",
+          "path": "contracts/release/canary-v2.schema.json",
+          "role": "definition",
+          "symbol": null,
+          "visibility": "internal"
+        },
+        "familyId": "xtend.release.canary",
+        "observedFingerprints": [
+          "sha256:1f0f0fccf1ebbb36ba464de8b0441a233f88641e6fde961f2902680930d213ca",
+          "sha256:aa318c5c3bc6cf0c0b5ad2192e38e0322e8e1c09c4ee6f6dac7b671cb751bee0",
+          "sha256:fb8f2e09c7e13bc26e81c91c1b2d4ea6c7680e9480481efaff8be70f814406df"
+        ],
+        "releasedFingerprintSetHash": null,
+        "schemaId": "xtend.release.canary.v2",
+        "sources": [
+          {
+            "path": "contracts/release/admission-phases.json",
+            "sha256": "2988b1271c05a8b67604604e10e13b922951b869b819214e1a0a70308ff01e93"
+          },
+          {
+            "path": "contracts/release/canary-v2.schema.json",
+            "sha256": "a1a669444ee460ea3be6a0f4d7bb56661b3c060eaf79dc581d71ff0fb4755747"
+          },
+          {
+            "path": "development/XTend-Core-Only-Release.md",
+            "sha256": "01235e8f94400ad3dffdee385e769709a0e9cb0b4770574f1c3a2380eb389991"
+          },
+          {
+            "path": "development/XTend-Scoped-Npm-Release-Runbook.md",
+            "sha256": "445e28eb5e83567fad36581e637647d64384ced931e15f4a16c6ed883f6c2f63"
+          },
+          {
+            "path": "development/core-release-contracts.md",
+            "sha256": "dd1b28f76e2747efca80c1a8a0c16247b2cd84fbea1d1930c837319189203533"
+          },
+          {
+            "path": "scripts/release/artifact.cjs",
+            "sha256": "2ffbae9071753d70ffa1811bbf8c01a6c41326ab4c494fbbaedd4a8f06a3348d"
+          },
+          {
+            "path": "scripts/release/consumer.cjs",
+            "sha256": "2a8f9468b8b42965836e5f185f967851cb77a8dcba1c17e622b304dfc43d4153"
+          },
+          {
+            "path": "scripts/release/contracts.cjs",
+            "sha256": "91c310128691b018c47e68a748784e5b708209a0551f613b702f4dda2b63d937"
+          },
+          {
+            "path": "scripts/release/core-evidence.cjs",
+            "sha256": "9ce26f2d4160f006e70c3abcee99e036f032ab2e2ee33e24924671a3fa28788f"
+          },
+          {
+            "path": "scripts/release/profile.cjs",
+            "sha256": "d85fe40d769ef8c8162de4ba6f6891d44ae7c105a1a7c162089808a5c88d3c06"
+          },
+          {
+            "path": "tests/release/fixtures.cjs",
+            "sha256": "64625b45dbd111506d6959e62f9f986289c4486315b46a6eac589fece854d42e"
+          }
+        ],
+        "status": "reviewed-current-source",
+        "version": 2
+      },
+      {
+        "acceptedFingerprints": [
+          "sha256:b9f4e041ded588a25817ff308b0478af74b972fc60749c86bf14d9a9df1d57a8",
+          "sha256:c6205ef8ba220d56a8a8095149b09aa60438d59427e31450489112abec8ae652"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:b9f4e041ded588a25817ff308b0478af74b972fc60749c86bf14d9a9df1d57a8"
+        ],
+        "canonicalDefinition": {
+          "definitionType": "json-schema",
+          "path": "contracts/release/core-evidence-v1.schema.json",
+          "role": "definition",
+          "symbol": null,
+          "visibility": "internal"
+        },
+        "familyId": "xtend.release.core-evidence",
+        "observedFingerprints": [
+          "sha256:b9f4e041ded588a25817ff308b0478af74b972fc60749c86bf14d9a9df1d57a8",
+          "sha256:c6205ef8ba220d56a8a8095149b09aa60438d59427e31450489112abec8ae652"
+        ],
+        "releasedFingerprintSetHash": null,
+        "schemaId": "xtend.release.core-evidence.v1",
+        "sources": [
+          {
+            "path": "contracts/release/admission-phases.json",
+            "sha256": "2988b1271c05a8b67604604e10e13b922951b869b819214e1a0a70308ff01e93"
+          },
+          {
+            "path": "contracts/release/core-evidence-v1.schema.json",
+            "sha256": "0aa49b04fbaec5fc94ba3a8eecaf8e0f4739fc0fef12585deb9b568e6c090dfd"
+          },
+          {
+            "path": "development/XTend-Core-Only-Release.md",
+            "sha256": "01235e8f94400ad3dffdee385e769709a0e9cb0b4770574f1c3a2380eb389991"
+          },
+          {
+            "path": "development/core-release-contracts.md",
+            "sha256": "dd1b28f76e2747efca80c1a8a0c16247b2cd84fbea1d1930c837319189203533"
+          },
+          {
+            "path": "scripts/release/artifact.cjs",
+            "sha256": "2ffbae9071753d70ffa1811bbf8c01a6c41326ab4c494fbbaedd4a8f06a3348d"
+          },
+          {
+            "path": "scripts/release/core-auth.cjs",
+            "sha256": "e7e821cd31cb0331ef4b07fc39794903cb56393cfbe0826844efe7c5fe70e3b8"
+          },
+          {
+            "path": "scripts/release/core-evidence.cjs",
+            "sha256": "9ce26f2d4160f006e70c3abcee99e036f032ab2e2ee33e24924671a3fa28788f"
+          },
+          {
+            "path": "scripts/release/core-security.cjs",
+            "sha256": "13c522622144fedea89fe7dfa1a8a87f3fb4bd1ad328dc6c4b0409821cac18ea"
+          },
+          {
+            "path": "scripts/release/core-source.cjs",
+            "sha256": "9624dd917dbba6802c06489995226cb279836b54abb0922880bb6e3be8105544"
+          },
+          {
+            "path": "scripts/release/github.cjs",
+            "sha256": "14a217a4a88079e74fa452b78ec8306c8bb006f24c8e7bfd28b637558a99b07b"
+          },
+          {
+            "path": "scripts/release/profile.cjs",
+            "sha256": "d85fe40d769ef8c8162de4ba6f6891d44ae7c105a1a7c162089808a5c88d3c06"
+          }
+        ],
+        "status": "reviewed-current-source",
+        "version": 1
+      }
+    ],
+    "status": "reviewed-unreleased-contract-registration"
   }
 }

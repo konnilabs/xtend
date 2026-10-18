@@ -2,7 +2,7 @@
   "format": 1,
   "profile": "xtend.npm.core-only.v1",
   "familyId": "xtend.product-candidates",
-  "status": "pending-fresh-core-capture-and-independent-review",
+  "status": "reviewed-core-candidate-registration",
   "legacyInventorySha256": "0c1ca03e989f4c1cfa5e07b2296e163ddda0090fd138677bc410feafce9661f3",
   "sources": [
     {
@@ -27,7 +27,7 @@
       "schemaId": "xtend.product-candidates.v1",
       "familyId": "xtend.product-candidates",
       "version": 1,
-      "status": "pending",
+      "status": "reviewed-current-source",
       "canonicalDefinition": {
         "path": "candidate-integrity.d.ts",
         "symbol": "CandidateManifest",
@@ -43,8 +43,16 @@
         "sha256:88bb888b7d2e4db3a1ff057fa3644bffbe33d29655b5378c92e8800136366eb7",
         "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
       ],
-      "authoritativeFingerprints": null,
-      "acceptedFingerprints": null,
+      "authoritativeFingerprints": [
+        "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
+      ],
+      "acceptedFingerprints": [
+        "sha256:0d00d4a76e848ac1ff4b002d25faafebd1c3a06afd61dbb119a61453c31c7ccc",
+        "sha256:191543f54471986c9b8f5b9fcf98ffecdff67f280c9b0aa98da6ce7899d9f2dc",
+        "sha256:6f7d68d9169c8382108f54adb1ffe08cee6c76b3dbe737797f25853f2289cac1",
+        "sha256:88bb888b7d2e4db3a1ff057fa3644bffbe33d29655b5378c92e8800136366eb7",
+        "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
+      ],
       "observedAuthorityFingerprints": [
         "sha256:9e5c32f5a6256cefd292cd5a4073baf1af4369eb01e878566ab10a8c976d20d9"
       ]
@@ -53,7 +61,7 @@
       "schemaId": "xtend.product-candidates.v2",
       "familyId": "xtend.product-candidates",
       "version": 2,
-      "status": "pending",
+      "status": "reviewed-current-source",
       "canonicalDefinition": {
         "path": "candidate-integrity.d.ts",
         "symbol": "CoreCandidateManifest",
@@ -66,21 +74,26 @@
         "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea",
         "sha256:9ed3963ef1f6971c8aa1003eba8be0a2eab001dda80c4147058c43ef74d06d8e"
       ],
-      "authoritativeFingerprints": null,
-      "acceptedFingerprints": null,
+      "authoritativeFingerprints": [
+        "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea"
+      ],
+      "acceptedFingerprints": [
+        "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea",
+        "sha256:9ed3963ef1f6971c8aa1003eba8be0a2eab001dda80c4147058c43ef74d06d8e"
+      ],
       "observedAuthorityFingerprints": [
         "sha256:56be51c9ceeb05c445b6f1b5b365993c7761f4f2c5150cc4259da49969c2e9ea"
       ]
     }
   ],
   "firstRelease": {
-    "status": "pending",
+    "status": "reviewed-unreleased-registration",
     "releasedFingerprintSetHash": null,
     "publicationGuardRetired": false
   },
   "observationsAreApproval": false,
   "coexistence": {
-    "status": "pending-exact-profile-coexistence",
+    "status": "reviewed-profile-coexistence",
     "legacyProfile": "legacy-paired-audit",
     "coreProfile": "xtend.npm.core-only.v1",
     "legacySchemaId": "xtend.product-candidates.v1",
