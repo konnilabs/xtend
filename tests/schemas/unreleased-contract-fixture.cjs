@@ -58,7 +58,7 @@ function reviewedFixtureData() {
     registrations: ids.map((id, index) => {
       const observed = entry(scan, id), current = entry(inventory, id);
       const files = unique([...observed.usages.flatMap(row => row.sourcePaths), ...observed.shapeFingerprints.flatMap(row => row.sourcePaths),
-        ...validators[index], 'contracts/release/admission-phases.json', 'docs/development/core-release-contracts.md']);
+        ...validators[index], 'contracts/release/admission-phases.json', 'development/core-release-contracts.md']);
       return {schemaId: id, familyId: current.familyId, version: current.version, status: 'reviewed-current-source',
         canonicalDefinition: observed.canonicalDefinition,
         sources: files.map(file => ({path: file, sha256: hash(fs.readFileSync(path.join(root, file)))})),

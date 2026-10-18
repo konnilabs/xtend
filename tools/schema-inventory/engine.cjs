@@ -1269,7 +1269,7 @@ function assertCoreUnreleasedContracts(inventory, scan, provider) {
       && stableEqual(entry.shapePolicy.authoritativeFingerprints, authority),
       'accepted observation/authority sets differ: ' + spec.schemaId);
     const boundPaths = uniqueSorted([...allUsagePaths(observed), ...spec.observations, ...spec.validators,
-      'contracts/release/admission-phases.json', 'docs/development/core-release-contracts.md']);
+      'contracts/release/admission-phases.json', 'development/core-release-contracts.md']);
     const expected = { schemaId: spec.schemaId, familyId: spec.familyId, version: spec.version,
       status: 'reviewed-current-source', canonicalDefinition: canonical,
       sources: boundPaths.map(sourcePath => ({ path: sourcePath, sha256: sourceHash(provider.readCurrent(sourcePath)) })),
