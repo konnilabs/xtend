@@ -4,20 +4,30 @@ const fs = require('node:fs'), path = require('node:path'), os = require('node:o
 const {verifyStateBranding} = require('../../scripts/verify_state_branding.js');
 const runtime = require('../../scripts/capture_node_runtime_evidence.js');
 const removed = ['x', 'state'].join('');
-const historical = `development/ER-WP-11-Fabric-an-${removed}-API-und-XTendRMT-Diagnostics-anbinden.md`;
+const pascal = ['X', 'State'].join('');
+const historicalPaths = [
+  `development/ER-WP-11-Fabric-an-${removed}-API-und-XTendRMT-Diagnostics-anbinden.md`,
+  `development/WP-05-${pascal}-Core-Contract-Vereinheitlichung.md`,
+  `development/WP-E12-08-${removed}-Adapter-Typing-und-Lifecycle-Boundary-Probe-bauen.md`,
+  `development/WP-E18-07-Typed-State-Selectors-und-${pascal}-Bridge-fuer-Apps-bauen.md`
+];
+const historical = historicalPaths[0];
 const policyPath = 'scripts/release/core-projection-policy.json';
 function fixture(t) {
   const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'branding-membership-')));
   t.after(() => fs.rmSync(root, {recursive: true, force: true}));
   const write = (file, content) => {fs.mkdirSync(path.dirname(path.join(root, file)), {recursive: true}); fs.writeFileSync(path.join(root, file), content);};
   write('components/xtend-state.js', `const LEGACY_STATE_STORAGE_KEY = '${removed}-data';`);
-  write(historical, 'Historical development note');
-  const policy = {productivePaths: [historical]};
+  historicalPaths.forEach(file => write(file, 'Historical development note'));
+  const policy = {productivePaths: [...historicalPaths]};
   const check = () => {write(policyPath, JSON.stringify(policy, null, 2)); return verifyStateBranding({rootDir: root});};
   return {root, write, policy, check};
 }
 test('historical membership path is retained while the branding gate accepts its metadata reference', t => {
-  const f=fixture(t); assert.equal(f.check().ok,true); assert.deepEqual(JSON.parse(fs.readFileSync(path.join(f.root,policyPath))).productivePaths,[historical]);
+  const f=fixture(t); assert.equal(f.check().ok,true); assert.deepEqual(JSON.parse(fs.readFileSync(path.join(f.root,policyPath))).productivePaths,historicalPaths);
+});
+for (const [index, file] of historicalPaths.entries()) test('historical metadata exemption never applies to active field '+index, t => {
+  const f=fixture(t);f.policy.activeName=file;assert.equal(f.check().ok,false);
 });
 for (const [name, mutate] of [
   ['active field', f => {f.policy.description=removed;}],
