@@ -47,7 +47,7 @@ const COMPONENT_GATES = [
     accessibilityContracts: [
       { pattern: "role = type === 'error' ? 'alert' : 'status'", message: 'uses status-or-alert live-region role' },
       { pattern: 'aria-live', message: 'sets live-region politeness' },
-      { pattern: 'aria-label="Schliessen"', message: 'labels the dismiss control' },
+      { pattern: '"aria-label": "Schliessen"', message: 'labels the dismiss control' },
       { pattern: 'focus-visible', message: 'keeps keyboard focus visible' },
       { pattern: 'prefers-reduced-motion', message: 'respects reduced-motion users' }
     ],
@@ -105,10 +105,10 @@ const COMPONENT_GATES = [
     sourcePath: 'components/xdialog.js',
     fixturePath: null,
     accessibilityContracts: [
-      { pattern: 'role="dialog"', message: 'uses dialog role' },
-      { pattern: 'aria-modal="true"', message: 'marks modal context' },
+      { pattern: '"role": "dialog"', message: 'uses dialog role' },
+      { pattern: '"aria-modal": "true"', message: 'marks modal context' },
       { pattern: 'aria-hidden', message: 'syncs hidden state for assistive tech' },
-      { pattern: 'tabindex="0"', message: 'creates an initial focus target' },
+      { pattern: '"tabindex": "0"', message: 'creates an initial focus target' },
       { pattern: "dialog.setAttribute('aria-labelledby', 'xdialog-title')", message: 'links title to dialog' },
       { pattern: "event.key === 'Escape'", message: 'supports Escape dismissal' },
       { pattern: "event.key !== 'Tab'", message: 'implements Tab focus trap guard' },

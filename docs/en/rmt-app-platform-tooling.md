@@ -50,3 +50,13 @@ node scripts/run_xtend_tests.js maraca-docs rmt-tooling-docs rmt-reference-docs 
 Editor and reference catalogs include `execution fastpass`, `effect navigation`, `effect close surface` and `effect focus surface`. Compiler and runtime validate the same restricted shell contract; see [Actions and Events](./rmt-reference-actions-events.md).
 
 [Hydrangea JIT](./rmt-jit-hydrangea.md) adds the opt-in `jit-compile` Tooling Bridge operation. It combines compile, safe preview and optional Maraca preparation without changing the Core schema or compiler rules. Its framework-artifact cache stays separate from user source; the existing backend remains the default.
+
+## No-Manual-HTML source gate
+
+The tooling contract is `xtend.epic18.rmt-app-platform-tooling.v1`. The optional syntax audit rejects application `innerHTML` writes and reports source positions; structured RMT views and the explicit Trusted-DOM boundary remain the output paths.
+
+```bash
+node scripts/run_xtend_tests.js rmt-app-platform-tooling --json
+```
+
+See [Trusted DOM and Sanitizing](./trusted-dom-sanitizing.md) for Maraca build integration and the syntax-audit limits.

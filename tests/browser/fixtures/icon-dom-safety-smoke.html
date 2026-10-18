@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Native icon DOM safety regression</title>
+<script id="xtend-page-data" nonce="iconSmokeNonce123"></script>
+<p id="result" role="status">Testing icon materialization…</p>
+<script type="module" nonce="iconSmokeNonce123">
+const errors=[];let htmlWrites=0;
+window.addEventListener('error',event=>errors.push(event.message));
+for(const prototype of [Element.prototype,ShadowRoot.prototype]){
+ const descriptor=Object.getOwnPropertyDescriptor(prototype,'innerHTML');
+ Object.defineProperty(prototype,'innerHTML',{...descriptor,set(){htmlWrites++;throw new Error('HTML sink forbidden');}});
+}
+try{
+ await import('/components/xbutton.js');await import('/components/xspinner.js');
+ for(const name of ['xtoggle','xsection','xtoast','xdialog','xalert'])await import('/components/'+name+'.js');
+ for(const tag of ['x-toggle','x-section','x-toast','x-dialog','x-alert'])await customElements.whenDefined(tag);
+ const {runIconDomCases}=await import('/tests/components/icon_dom_cases.mjs');
+ const result=await runIconDomCases(document);result.errors.push(...errors);
+ result.htmlWrites=htmlWrites;if(htmlWrites)result.errors.push('Unexpected HTML writes');
+ result.status=result.errors.length?'failed':'passed';window.__iconDomSafetyResult=result;
+ document.getElementById('result').textContent=result.status.toUpperCase();
+}catch(error){window.__iconDomSafetyResult={status:'failed',errors:[error.message,...errors],htmlWrites};}
+</script>
+</html>

@@ -1,4 +1,5 @@
 const fs = require('fs');
+const {applyMaracaHtmlSecurity} = require('./html-security');
 const path = require('path');
 const crypto = require('crypto');
 const os = require('os');
@@ -7133,6 +7134,7 @@ async function executeCssProvider(plan, input, options) {
 
 function buildMaracaBundle(input = {}, options = {}) {
   const plan = createMaracaBuildPlan(input, options);
+  applyMaracaHtmlSecurity(plan, input, options);
   if (!plan.ok) {
     return {
       schema: MARACA_BUNDLE_REPORT_SCHEMA,
@@ -7230,6 +7232,7 @@ function buildMaracaBundle(input = {}, options = {}) {
 
 async function buildMaracaBundleAsync(input = {}, options = {}) {
   const plan = createMaracaBuildPlan(input, options);
+  applyMaracaHtmlSecurity(plan, input, options);
   if (!plan.ok) {
     return {
       schema: MARACA_BUNDLE_REPORT_SCHEMA,

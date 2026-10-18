@@ -156,8 +156,8 @@ function runEnterpriseIconControlAuditSuite(options = {}) {
   assertIncludesAll(context, xHeader, ['part="trigger control"', 'part="trigger-icon control icon"'], 'x-header menu trigger icon parts');
   assertIncludesAll(context, xDrawer, ['part="close control"', 'part="close-icon control icon"'], 'x-drawer close icon parts');
   assertIncludesAll(context, xModal, ['part="close control"', 'part="close-icon control icon"'], 'x-modal close icon parts');
-  assertIncludesAll(context, xDialog, ['part="close control"', 'part="close-icon control icon"'], 'x-dialog close icon parts');
-  assertIncludesAll(context, xToast, ['part="close control"', 'part="close-icon control icon"'], 'x-toast close icon parts');
+  assertIncludesAll(context, xDialog, ['"part": "close control"', 'createCloseIcon(this.ownerDocument, true)'], 'x-dialog native close icon parts');
+  assertIncludesAll(context, xToast, ['"part": "close control"', 'createCloseIcon(this.ownerDocument)'], 'x-toast native close icon parts');
   assertIncludesAll(context, xLightbox, ['part="close control"', 'part="close-icon control icon"'], 'x-lightbox close icon parts');
   assertIncludesAll(context, xCode, ['part="copy control"', 'part="copy-icon control icon"'], 'x-code copy icon parts');
 

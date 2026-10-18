@@ -1547,6 +1547,9 @@
     if (typeof value !== 'string') return value;
     if (value.includes('${')) return interpolateString(value, context, item);
     const resolved = resolvePathExpression(value, context, item);
+    // Namespaced references are bindings even when the optional value is absent.
+    // Preserve implicit bare-string lookup/literal compatibility separately.
+    if (/^\$(?:(?:model|state|selector|derive)\.|(?:item|event|target|currentTarget)(?:\.|$))/u.test(value)) return resolved;
     return typeof resolved === 'undefined' ? value : resolved;
   }
 
