@@ -118,8 +118,8 @@
   "domCommitSource": {
     "renderer": {
       "path": "xtendrmt/rmt-dom-descriptor-renderer.js",
-      "sha256": "c623ea47470050b33ae38f8386a444ec04c2f616c33524fdaee1b299c0990970",
-      "byteCount": 151891
+      "sha256": "6478ceeb7a2acc5da4d91968849b3432fd8b8b152a3a8f19a328f323c7a5dc41",
+      "byteCount": 151924
     },
     "types": {
       "path": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
@@ -1191,9 +1191,9 @@
       "path": "xtendrmt/rmt-runtime.esm.js",
       "kind": "esm",
       "exists": true,
-      "byteCount": 1489553,
+      "byteCount": 1489586,
       "lineCount": 31754,
-      "sha256": "d4b15150dac5959de0d664024df0d17779fc0ef3f55504a05d02a236f0a54ff2",
+      "sha256": "00114d465822f3f15943e44bb63d530bdac3fcf0f5db7e7fcf77bf5a3679e742",
       "moduleCount": 41,
       "publicExports": [
         "createRmtBrowserHostAdapter",
@@ -1245,9 +1245,9 @@
       "path": "xtendrmt/rmt-runtime.browser.js",
       "kind": "browser",
       "exists": true,
-      "byteCount": 1485701,
+      "byteCount": 1485734,
       "lineCount": 31715,
-      "sha256": "ea0215c3b192ed95729d96a24c63707788c58ba8bbb464ba01b7bfc9a15e62ef",
+      "sha256": "4078457cc503325d23fb14f06cb6b1bea4fac4a6ffee05821f6c2e9594aa0554",
       "moduleCount": 41,
       "publicExports": [],
       "legacyAliases": [],
@@ -1867,7 +1867,7 @@
       "droppedSymbols": [],
       "sourcePath": "xtendrmt/rmt-dom-descriptor-renderer.js",
       "sourceMode": "canonical",
-      "sourceSha256": "c623ea47470050b33ae38f8386a444ec04c2f616c33524fdaee1b299c0990970",
+      "sourceSha256": "6478ceeb7a2acc5da4d91968849b3432fd8b8b152a3a8f19a328f323c7a5dc41",
       "mvcRole": "view",
       "adapterDirection": null,
       "provides": [
@@ -3441,7 +3441,7 @@
       "id": "rmt-dom-descriptor-renderer",
       "sourcePath": "xtendrmt/rmt-dom-descriptor-renderer.js",
       "sourceMode": "canonical",
-      "sourceSha256": "c623ea47470050b33ae38f8386a444ec04c2f616c33524fdaee1b299c0990970",
+      "sourceSha256": "6478ceeb7a2acc5da4d91968849b3432fd8b8b152a3a8f19a328f323c7a5dc41",
       "mvcRole": "view",
       "adapterDirection": null,
       "provides": [
