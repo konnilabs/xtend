@@ -32,4 +32,5 @@ jobs:
       - name: Run browser, HTTP and filesystem security regressions
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          XTEND_SECURITY_HOST_DIAGNOSTICS: '1'
         run: npm run test:security-scan-regressions
