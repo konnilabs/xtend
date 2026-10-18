@@ -12,10 +12,10 @@ function hashCurrentFile(file, sizeHint) {
   if (sizeHint <= chunkSize) return hash(fs.readFileSync(file));
   const fd = fs.openSync(file, 'r');
   try {
-    const stat = fs.fstatSync(fd);
-    if (!stat.isFile() || stat.size <= chunkSize) return hash(fs.readFileSync(fd));
-    const buffer = Buffer.allocUnsafe(chunkSize), digest = crypto.createHash('sha256');
-    let remaining = stat.size;
+    const stat = fs.fstatSync(fd), size = stat.isFile() ? stat.size : 0;
+    const buffer = Buffer.allocUnsafe(size ? Math.min(size, chunkSize) : 8192);
+    const digest = crypto.createHash('sha256');
+    let remaining = size || Infinity;
     while (remaining > 0) {
       const count = fs.readSync(fd, buffer, 0, Math.min(buffer.length, remaining), null);
       if (count === 0) break;
