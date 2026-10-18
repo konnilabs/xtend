@@ -1,12 +1,15 @@
 name: XTend independent migration audit
 on:
   workflow_dispatch:
+  pull_request:
+    types: [labeled]
+    branches: [codex/migration-main112-integration]
 permissions:
   contents: read
 jobs:
   union-source-artifact:
     name: Verify pinned union source artifact
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -167,3 +170,160 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: npm run test:product-boundary
+
+  # Temporary measurement only. Existing portable gates and security integrations are unchanged.
+  node-schema-diagnostic:
+    name: Isolated Node schema comparison on one Linux runner
+    if: >-
+      ${{ github.event_name == 'pull_request' && github.event.action == 'labeled' &&
+          github.event.label.name == 'xtend-schema-profile-20261018' &&
+          github.event.pull_request.number == 117 && github.event.pull_request.draft &&
+          github.event.pull_request.head.repo.full_name == 'konnilabs/xtend' &&
+          github.event.pull_request.head.ref == 'codex/core-unreleased-contract-registration' &&
+          github.event.pull_request.base.sha == 'b77f1ada0ff6b953f05e192a8bc6d7943df70829' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    env:
+      DIAGNOSTIC_DIR: ${{ runner.temp }}/xtend-node-schema-diagnostic
+      DIAGNOSTIC_WORKFLOW_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout the identical measured source for every trial
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 03f413dc4bac743b34f68f4fab1727fab0343d84
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Node 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - name: Retain Node 24 path and install the exact diagnostic npm
+        run: |
+          echo "DIAG_NODE24=$(command -v node)" >> "$GITHUB_ENV"
+          npm install --prefix "$RUNNER_TEMP/xtend-diagnostic-npm" npm@11.17.0 --ignore-scripts --no-audit --fund=false
+          echo "DIAG_NPM_CLI=$RUNNER_TEMP/xtend-diagnostic-npm/node_modules/npm/bin/npm-cli.js" >> "$GITHUB_ENV"
+      - name: Setup Node 26 on the same runner
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '26.5.0'
+          package-manager-cache: false
+      - name: Retain Node 26 path and install locked workspace dependencies once
+        run: |
+          echo "DIAG_NODE26=$(command -v node)" >> "$GITHUB_ENV"
+          "$DIAG_NODE24" "$DIAG_NPM_CLI" ci --ignore-scripts --no-audit --fund=false
+      - name: Measure six serial trials with one authenticated capture
+        id: measure
+        run: |
+          python3 - <<'PYDIAGNOSTIC'
+          from pathlib import Path
+          import datetime,hashlib,json,os,resource,shutil,subprocess,time
+
+          root=Path.cwd();out=Path(os.environ['DIAGNOSTIC_DIR']);out.mkdir(parents=True,exist_ok=True)
+          source='03f413dc4bac743b34f68f4fab1727fab0343d84'
+          def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          def now():return datetime.datetime.now(datetime.timezone.utc).isoformat()
+          def write(p,data):Path(p).write_text(json.dumps(data,indent=2)+'\n')
+          def optional(p):
+              try:return Path(p).read_text()
+              except OSError:return None
+          def git(*args):return subprocess.check_output(['git',*args],text=True).strip()
+          assert git('rev-parse','HEAD')==source
+          assert not git('status','--porcelain','--untracked-files=no')
+          capture=out/'source-capture'
+          subprocess.run(['python3','scripts/build-core-source-artifact.py','--core',str(root),'--core-sha',source,'--output',str(capture),'--run-id',os.environ['GITHUB_RUN_ID'],'--run-attempt',os.environ['GITHUB_RUN_ATTEMPT']],check=True)
+          receipt=json.loads((capture/'producer-receipt.json').read_text());archive=capture/'sources.tar.gz'
+          assert receipt['sourceSha']==source and sha(archive)==receipt['archiveSha256']
+          nodes={'24.18.0':Path(os.environ['DIAG_NODE24']),'26.5.0':Path(os.environ['DIAG_NODE26'])}
+          npm=Path(os.environ['DIAG_NPM_CLI']);shim=out/'bin';shim.mkdir();(shim/'npm').symlink_to(npm)
+          metadata={
+              'sourceSha':source,'workflowHead':os.environ['DIAGNOSTIC_WORKFLOW_HEAD'],
+              'capturedAt':now(),'receipt':receipt,'npmCliSha256':sha(npm),
+              'runner':{k:os.environ.get(k) for k in ['RUNNER_NAME','RUNNER_OS','RUNNER_ARCH','ImageOS','ImageVersion','GITHUB_JOB','GITHUB_RUN_ID','GITHUB_RUN_ATTEMPT','GITHUB_WORKFLOW_REF']},
+              'platformScope':'Optional Linux-host observations only; no portable Core or development requirement',
+              'optionalLinux':{p:optional(p) for p in ['/proc/cpuinfo','/sys/fs/cgroup/cpu.max','/sys/fs/cgroup/cpu.stat','/proc/pressure/cpu']},
+              'runtimes':{},'originalSuiteTimeoutMs':300000,
+              'design':'Plain 24, plain 26, profiled 24, profiled 26, plain 26, plain 24; serial on one runner. No OS cache flush. Overhead estimates are bracketed, not randomized.'}
+          runtimeScript="const os=require('node:os');console.log(JSON.stringify({versions:process.versions,platform:process.platform,arch:process.arch,kernel:os.release(),cpuModel:os.cpus()[0]?.model,logicalCpus:os.cpus().length,availableParallelism:os.availableParallelism(),totalMemory:os.totalmem(),freeMemory:os.freemem(),loadAverage:os.loadavg()}))"
+          for version,node in nodes.items():
+              env=dict(os.environ,PATH=str(shim)+os.pathsep+str(node.parent)+os.pathsep+os.environ['PATH'])
+              info=json.loads(subprocess.check_output([str(node),'-e',runtimeScript],env=env,text=True))
+              assert info['versions']['node']==version
+              info['nodeBinarySha256']=sha(node);info['npmVersion']=subprocess.check_output([str(node),str(npm),'--version'],env=env,text=True).strip()
+              assert info['npmVersion']=='11.17.0';metadata['runtimes'][version]=info
+          write(out/'metadata.json',metadata)
+          sequence=[('24.18.0',False),('26.5.0',False),('24.18.0',True),('26.5.0',True),('26.5.0',False),('24.18.0',False)]
+          results=[]
+          for index,(version,profiled) in enumerate(sequence,1):
+              assert sha(archive)==receipt['archiveSha256'] and git('rev-parse','HEAD')==source
+              assert not git('status','--porcelain','--untracked-files=no')
+              trial=out/f'{index:02d}-node-{version}-{"profiled" if profiled else "plain"}'
+              trial.mkdir();node=nodes[version]
+              env=dict(os.environ,PATH=str(shim)+os.pathsep+str(node.parent)+os.pathsep+os.environ['PATH'],XTEND_CORE_REQUIRED='true',XTEND_CORE_ARCHIVE=str(archive),XTEND_CORE_EXPECTED=str(capture/'producer-receipt.json'),XTEND_CI_LANE='node-24-lts' if version.startswith('24') else 'node-26-current',XTEND_NPM_CLI=str(npm),NODE_OPTIONS='--trace-warnings --trace-deprecation --require='+str(root/'scripts/node_warning_policy.cjs'))
+              execution=trial/'execution.json';report=trial/'report.json'
+              command=[str(node)]+(['--prof','--logfile='+str(trial/'v8-profile.log')] if profiled else [])+['scripts/run_xtend_tests.js','schema-inventory','--execution',str(execution),'--report',str(report)]
+              row={'order':index,'node':version,'profiled':profiled,'startedAt':now(),'sourceSha':source,'archiveSha256':sha(archive),'command':command,'hostBefore':json.loads(subprocess.check_output([str(node),'-e',runtimeScript],env=env,text=True)),'cpuPressureBefore':optional('/proc/pressure/cpu'),'cpuStatBefore':optional('/sys/fs/cgroup/cpu.stat')}
+              print(json.dumps({'startingTrial':index,'node':version,'profiled':profiled,'at':row['startedAt']}),flush=True)
+              before=resource.getrusage(resource.RUSAGE_CHILDREN);start=time.monotonic();outerTimeout=False
+              with (trial/'stdout.log').open('x') as log:
+                  try:run=subprocess.run(command,env=env,stdout=log,stderr=subprocess.STDOUT,timeout=360);exitCode=run.returncode
+                  except subprocess.TimeoutExpired:outerTimeout=True;exitCode=None
+              elapsed=time.monotonic()-start;after=resource.getrusage(resource.RUSAGE_CHILDREN)
+              row.update(completedAt=now(),wallSeconds=round(elapsed,3),exitCode=exitCode,outerHarnessTimeout=outerTimeout,childCpuSeconds={'user':after.ru_utime-before.ru_utime,'system':after.ru_stime-before.ru_stime},cpuPressureAfter=optional('/proc/pressure/cpu'),cpuStatAfter=optional('/sys/fs/cgroup/cpu.stat'),archiveUnchanged=sha(archive)==receipt['archiveSha256'])
+              if execution.exists():
+                  data=json.loads(execution.read_text());row['executionStatus']=data['status'];row['complete']=data['complete'];row['infrastructureErrors']=data.get('infrastructureErrors',[])
+                  entries=[r for r in data['results'] if r['result']['id']=='schema-inventory']
+                  if entries:
+                      entry=entries[0];row['schema']={k:entry.get(k) for k in ['durationMs','abortCause','rssBytes','maxRssBytes']};row['schema']['result']={k:entry['result'].get(k) for k in ['status','passCount','failureCount','skipCount','warningCount','failures']}
+                      logPath=root/entry['logPath']
+                      if logPath.is_file():shutil.copyfile(logPath,trial/'schema.log')
+              row['profileLogs']=[{'name':p.name,'bytes':p.stat().st_size,'sha256':sha(p)} for p in sorted(trial.glob('*-v8-profile.log'))]
+              write(trial/'summary.json',row);results.append(row);write(out/'results.json',results)
+              print(json.dumps({k:v for k,v in row.items() if k not in ['command','hostBefore','profileLogs','cpuPressureBefore','cpuPressureAfter','cpuStatBefore','cpuStatAfter']}),flush=True)
+              if outerTimeout or row.get('infrastructureErrors') or not row['archiveUnchanged']:
+                  print('Stopping subsequent measurements after infrastructure/identity failure; earlier failures remain recorded.',flush=True);break
+          PYDIAGNOSTIC
+      - name: Decode retained CPU logs with their exact Node runtime
+        if: ${{ always() && steps.measure.outcome != 'skipped' }}
+        run: |
+          python3 - <<'PYPROFILE'
+          from pathlib import Path
+          import json,os,subprocess
+          root=Path(os.environ['DIAGNOSTIC_DIR']);results=[]
+          for folder in sorted(root.glob('*-node-*-profiled')):
+              node=os.environ['DIAG_NODE24' if '24.18.0' in folder.name else 'DIAG_NODE26']
+              for log in sorted(folder.glob('*-v8-profile.log')):
+                  row={'rawLog':str(log.relative_to(root))}
+                  with (folder/(log.name+'.processed.txt')).open('w') as output:
+                      try:
+                          run=subprocess.run([node,'--prof-process',str(log)],stdout=output,stderr=subprocess.STDOUT,timeout=120)
+                          row['exitCode']=run.returncode
+                      except subprocess.TimeoutExpired:row['decodeTimedOut']=True
+                  results.append(row)
+          root.mkdir(parents=True,exist_ok=True)
+          (root/'profile-decoding.json').write_text(json.dumps(results,indent=2)+'\n')
+          PYPROFILE
+      - name: Preserve diagnostic results including failed or timed out trials
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtend-node-schema-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/xtend-node-schema-diagnostic
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+      - name: Report actual trial outcome without waiving any gate
+        if: ${{ always() }}
+        run: |
+          python3 - <<'PYRESULT'
+          import json,os
+          from pathlib import Path
+          rows=json.loads((Path(os.environ['DIAGNOSTIC_DIR'])/'results.json').read_text())
+          assert len(rows)==6, 'Not all six measurements completed'
+          assert all(r['archiveUnchanged'] for r in rows), 'Capture changed'
+          assert all(r['exitCode']==0 and r['complete'] and not r['infrastructureErrors'] and
+                     r['schema']['result']['passCount']==27 and r['schema']['result']['failureCount']==0 and
+                     r['schema']['result']['skipCount']==0 for r in rows), 'A schema trial failed; retained evidence is authoritative'
+          PYRESULT
