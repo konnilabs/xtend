@@ -9713,7 +9713,8 @@
         "browser-hypervisor",
         "project-index",
         "ssr-pages",
-        "ssr-pages-browser"
+        "ssr-pages-browser",
+        "product-migration-contracts"
       ],
       "reports": [
         ".xtend-test-results/xtend-pr-gate-report.json"
@@ -9883,7 +9884,8 @@
         "browser-hypervisor",
         "project-index",
         "ssr-pages",
-        "ssr-pages-browser"
+        "ssr-pages-browser",
+        "product-migration-contracts"
       ],
       "reports": [
         ".xtend-test-results/xtend-release-gate-report.json"
