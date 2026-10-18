@@ -613,6 +613,7 @@ jobs:
       actions: read
     env:
       XTEND_CI_LANE: ${{ matrix.runtime_lane }}
+      XTEND_TESTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:

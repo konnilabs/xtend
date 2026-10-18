@@ -51,7 +51,7 @@ function provenance() {
     ...(process.env.GITHUB_RUN_ID && process.env.XTEND_CI_LANE ? { producer: {
       repository: process.env.GITHUB_REPOSITORY, workflow: process.env.GITHUB_WORKFLOW_REF,
       job: process.env.GITHUB_JOB, lane: process.env.XTEND_CI_LANE, runId: process.env.GITHUB_RUN_ID,
-      attempt: process.env.GITHUB_RUN_ATTEMPT || '1', testedSHA: process.env.GITHUB_SHA
+      attempt: process.env.GITHUB_RUN_ATTEMPT || '1', testedSHA: commit
     } } : {}),
     run: process.env.GITHUB_RUN_ID ? `${process.env.GITHUB_RUN_ID}:${process.env.GITHUB_RUN_ATTEMPT || '1'}` : process.env.XTEND_TEST_RUN_ID || `local:${randomUUID()}`,
     runtime: {

@@ -5,6 +5,26 @@ const bindings = JSON.parse(policyBytes);
 const verified = new WeakSet();
 const verifiedProfiles = new WeakMap();
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
+function hashCurrentFile(file, sizeHint) {
+  // Reopen and read every byte for each check. Bound only the temporary buffer,
+  // retaining readFileSync's fresh descriptor size and short-read semantics.
+  const chunkSize = 1024 * 1024;
+  if (sizeHint <= chunkSize) return hash(fs.readFileSync(file));
+  const fd = fs.openSync(file, 'r');
+  try {
+    const stat = fs.fstatSync(fd), size = stat.isFile() ? stat.size : 0;
+    const buffer = Buffer.allocUnsafe(size ? Math.min(size, chunkSize) : 8192);
+    const digest = crypto.createHash('sha256');
+    let remaining = size || Infinity;
+    while (remaining > 0) {
+      const count = fs.readSync(fd, buffer, 0, Math.min(buffer.length, remaining), null);
+      if (count === 0) break;
+      digest.update(buffer.subarray(0, count));
+      remaining -= count;
+    }
+    return digest.digest('hex');
+  } finally { fs.closeSync(fd); }
+}
 const implementationSha256 = hash(fs.readFileSync(__filename));
 const objectId = (kind, bytes) => crypto.createHash('sha1').update(Buffer.from(`${kind} ${bytes.length}\0`)).update(bytes).digest('hex');
 function check(ok, message) { if (!ok) throw Error(message); }
@@ -230,7 +250,7 @@ function createCoreReleaseProvider({archive,destination,expected}) {
     fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,member.bytes,{flag:'wx',mode:member.mode});}
   const recheck=row=>{const target=path.join(destination,row.memberPath),st=fs.lstatSync(target);
     check(fs.realpathSync(destination)===destination&&fs.realpathSync(target)===target&&st.isFile()&&!st.isSymbolicLink()&&
-      st.size===row.bytes&&hash(fs.readFileSync(target))===row.sha256,'Core materialized source changed');return target;};
+      st.size===row.bytes&&hashCurrentFile(target,st.size)===row.sha256,'Core materialized source changed');return target;};
   const provenance={profile,coreSha:expected.sourceSha,repository:'konnilabs/xtend',archiveSha256:expected.archiveSha256,
     manifestSha256:expected.manifestSha256,producer:manifest.producer,context:manifest.context,
     productiveFiles:index.size,historicalProductiveFiles:0,bindings:[...index.values()].map(row=>({owner:'core',sourcePath:row.path,

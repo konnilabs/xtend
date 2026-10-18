@@ -1,8 +1,8 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os'),crypto=require('node:crypto'),{spawnSync}=require('node:child_process');
 // Exact baseline for the consolidated Core migration workflow in Draft #116.
-// Replaces the pre-Core-split baseline; preserves the full-byte assertion and all negative cases.
-const WORKFLOW_BEFORE_OWNERSHIP_GATE_SHA256='03a4f65900bed8cf2fabf24d0282ba1acc4340cd6a553fbea4d4fddeeb3ef2ac';
+// Includes the independent event-head SHA expectation; preserves all other workflow bytes and negative cases.
+const WORKFLOW_BEFORE_OWNERSHIP_GATE_SHA256='985863ad56f8ddbf69844f2fa883bc76dd9ed9c89ea8e6af64c8d37faf9b63e2';
 const filename=path.resolve(__dirname,'../../.github/workflows/xtend-default-gates.yml');const workflow=fs.readFileSync(filename,'utf8');
 const command='test -f tests/maraca/ownership-command-projection.test.mjs && test -f tests/maraca/ownership-projection-gate.test.cjs && node --test --test-reporter=tap tests/maraca/ownership-command-projection.test.mjs tests/maraca/ownership-projection-gate.test.cjs';
 const step="      - name: Required command-binding metadata ownership regression\n        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}\n        env:\n          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs\n        run: "+command+'\n\n';
