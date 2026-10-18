@@ -9341,6 +9341,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "baseline": "PR-112-html-security-review",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "Both partial static representations expose the same three fields; the explicitly reviewed fingerprints are bound to shapePolicy."
+      },
+      "reviewId": "polymorphic-9a279f26ff41",
+      "schemaIds": [
+        "xtend.maraca.html-security-report.v1"
+      ],
+      "status": "accepted-polymorphic-for-inventory",
+      "type": "same-id-multiple-shapes"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -212431,6 +212449,22 @@
           ]
         },
         {
+          "application": "XTend Documentation",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "docs/de/rmt-app-platform-tooling.md",
+            "docs/en/rmt-app-platform-tooling.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "docs/de/rmt-app-platform-tooling.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
           "application": "XTend Tests: Fixtures",
           "role": "fixture",
           "visibility": "fixture",
@@ -308600,6 +308634,269 @@
               "type": "package-export",
               "module": "@ccslabs/xtend/builder/templates/app/server-services.template.php",
               "path": "xtend-builder/templates/app/server-services.template.php"
+            }
+          ]
+        }
+      ],
+      "version": 1
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "path": "xtend-maraca/html-security.js",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "public"
+      },
+      "description": "Optional Maraca application-source audit with file/hash scope and redacted diagnostics; it does not authorize HTML.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.maraca.html-security-report",
+      "kinds": [
+        "report-id",
+        "runtime-discriminator"
+      ],
+      "lifecycle": {
+        "rollout": "complete",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": null,
+      "replacedBy": null,
+      "schemaId": "xtend.maraca.html-security-report.v1",
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:3870abdb8fd50a45edcf6aad2306616939ce102b99bc526bc9fed208f70207ae",
+          "shape": {
+            "fieldCount": 3,
+            "fields": [
+              "diagnostics",
+              "ok",
+              "sources"
+            ],
+            "signature": "diagnostics:array<>|ok:{\"unresolved\":\"!diagnostics.some(d=>d.severity==='error')\"}|sources:array<>",
+            "normalized": {
+              "fields": {
+                "diagnostics": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                },
+                "ok": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "!diagnostics.some(d=>d.severity==='error')"
+                  }
+                },
+                "sources": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/html-security.js"
+          ],
+          "symbols": [
+            "checkMaracaHtmlSecurity"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/html-security.js",
+              "symbol": "checkMaracaHtmlSecurity"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:9794ff53a943dfb69b521e553b6d54e07c8975509c72521dc793c221fc80eb02",
+          "shape": {
+            "fieldCount": 3,
+            "fields": [
+              "diagnostics",
+              "ok",
+              "sources"
+            ],
+            "signature": "diagnostics:array<{code:string,event?:string,message:string,resource?:string,severity:union<literal<\"error\">|literal<\"info\">|literal<\"warning\">>,surface?:string,tag?:string,target?:string}>|ok:boolean|sources:array<{file:string,sha256:string}>",
+            "normalized": {
+              "fields": {
+                "diagnostics": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "code": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "event": {
+                          "optional": true,
+                          "type": "string"
+                        },
+                        "message": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "resource": {
+                          "optional": true,
+                          "type": "string"
+                        },
+                        "severity": {
+                          "optional": false,
+                          "type": {
+                            "union": [
+                              {
+                                "literal": "error"
+                              },
+                              {
+                                "literal": "info"
+                              },
+                              {
+                                "literal": "warning"
+                              }
+                            ]
+                          }
+                        },
+                        "surface": {
+                          "optional": true,
+                          "type": "string"
+                        },
+                        "tag": {
+                          "optional": true,
+                          "type": "string"
+                        },
+                        "target": {
+                          "optional": true,
+                          "type": "string"
+                        }
+                      },
+                      "indexSignatures": [
+                        {
+                          "key": "string",
+                          "readonly": false,
+                          "value": "unknown"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ok": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "sources": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "file": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "optional": false,
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/index.d.ts"
+          ],
+          "symbols": [
+            "MaracaHtmlSecurityReport"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/index.d.ts",
+              "symbol": "MaracaHtmlSecurityReport"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ],
+      "shapePolicy": {
+        "acceptedFingerprints": [
+          "sha256:3870abdb8fd50a45edcf6aad2306616939ce102b99bc526bc9fed208f70207ae",
+          "sha256:9794ff53a943dfb69b521e553b6d54e07c8975509c72521dc793c221fc80eb02"
+        ],
+        "authoritativeFingerprints": [],
+        "decision": "accepted-initial-audit",
+        "mode": "polymorphic",
+        "rationale": "PR #112: runtime inference and the declaration both expose ok/sources/diagnostics; different partial static fingerprints represent typed arrays versus initialized runtime arrays. No HTML trust is granted.",
+        "releasedFingerprintSetHash": null
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/index.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca",
+              "path": "xtend-maraca/index.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca",
+              "path": "xtend-maraca/index.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/index.d.ts",
+              "symbol": "MaracaHtmlSecurityReport"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/html-security.js",
+            "xtend-maraca/index.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca",
+              "path": "xtend-maraca/index.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca",
+              "path": "xtend-maraca/index.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/html-security.js",
+              "symbol": "checkMaracaHtmlSecurity"
             }
           ]
         }
@@ -661910,6 +662207,124 @@
           "authoritative": false
         },
         {
+          "hash": "sha256:7b846a837e907766b53a1db8561c19b7a08e03f877f076ec88592e031553e804",
+          "shape": {
+            "fieldCount": 10,
+            "fields": [
+              "category",
+              "code",
+              "file",
+              "message",
+              "range",
+              "repair",
+              "ruleId",
+              "severity",
+              "sink",
+              "source"
+            ],
+            "signature": "category:string|code:{\"unresolved\":\"hit.code\"}|file:unknown|message:union<union<string>|string>|range:{end:unknown,start:unknown}|repair:{kind:string,safe:boolean}|ruleId:string|severity:string|sink:{\"unresolved\":\"hit.sink\"}|source:string",
+            "normalized": {
+              "fields": {
+                "category": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "code": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "hit.code"
+                  }
+                },
+                "file": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "message": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "union": [
+                          "string"
+                        ]
+                      },
+                      "string"
+                    ]
+                  }
+                },
+                "range": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "end": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "start": {
+                        "optional": false,
+                        "type": "unknown"
+                      }
+                    }
+                  }
+                },
+                "repair": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "kind": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "safe": {
+                        "optional": false,
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "ruleId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "severity": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "sink": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "hit.sink"
+                  }
+                },
+                "source": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/rmt-language/app-platform-tooling.js"
+          ],
+          "symbols": [
+            "scanDownstreamManualHtmlSinks"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/rmt-language/app-platform-tooling.js",
+              "symbol": "scanDownstreamManualHtmlSinks"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:8d378ffd30623ee9e13abf2c2affe3f783d4efb28f2888fd8579fc62bb3fe0e8",
           "shape": {
             "fieldCount": 10,
@@ -663889,6 +664304,7 @@
           "sha256:4ad3d13a5b35cf286d59bfe6194c9ca0b817db01b701da699c93577afba803ad",
           "sha256:57fc609b18b3bdf325ffa679c0d5e4b39c209a469b54234db54b19cb0edf1a0c",
           "sha256:7a1bcf83ace624176089e83b3f3c5a62bc79bf4426ce88572a6b4cb23b877b0a",
+          "sha256:7b846a837e907766b53a1db8561c19b7a08e03f877f076ec88592e031553e804",
           "sha256:8d378ffd30623ee9e13abf2c2affe3f783d4efb28f2888fd8579fc62bb3fe0e8",
           "sha256:91898c673ce526bf08211e7e9a1e1c09dd8538304d4153e7bc6113140a7fa874",
           "sha256:990274f01d1adac5bf7620eafd02cba8fd8e676be1b05a7aceb8439c6cc3d042",
@@ -663910,7 +664326,7 @@
         "authoritativeFingerprints": [],
         "decision": "accepted-initial-audit",
         "mode": "polymorphic",
-        "rationale": "All observed variants are fingerprint-bound after the XTend 0.7 State metadata migration; future fingerprint changes require a new review.",
+        "rationale": "PR #112: source HTML-sink diagnostics preserve the existing linter envelope and add sink/file/range metadata; the syntax gate is opt-in. Runtime variants remain supported.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
@@ -959966,6 +960382,23 @@
       ]
     },
     {
+      "activeSchemaId": "xtend.maraca.html-security-report.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.maraca.html-security-report",
+      "tombstones": [],
+      "versions": [
+        {
+          "schemaId": "xtend.maraca.html-security-report.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "complete",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ]
+    },
+    {
       "activeSchemaId": "xtend.maraca.hydration-history-entry.v1",
       "currentVersion": 1,
       "familyId": "xtend.maraca.hydration-history-entry",
@@ -983150,7 +983583,7 @@
   ],
   "projectionReview": {
     "status": "pending-exact-source-and-authority-review",
-    "sourceCommit": "63f77e580db6dd8ca24abfd7c3e562b08da7a4d3",
+    "sourceCommit": "2402539aa8701b2554bb47e0b8ea4d7e711cde29",
     "historicalInventorySha256": "0c1ca03e989f4c1cfa5e07b2296e163ddda0090fd138677bc410feafce9661f3",
     "notReleaseApproval": true
   }
