@@ -186,7 +186,6 @@ jobs:
     permissions:
       contents: read
     env:
-      DIAGNOSTIC_DIR: ${{ runner.temp }}/xtend-node-schema-diagnostic
       DIAGNOSTIC_WORKFLOW_HEAD: ${{ github.event.pull_request.head.sha }}
     steps:
       - name: Checkout the identical measured source for every trial
@@ -202,6 +201,7 @@ jobs:
           package-manager-cache: false
       - name: Retain Node 24 path and install the exact diagnostic npm
         run: |
+          echo "DIAGNOSTIC_DIR=$RUNNER_TEMP/xtend-node-schema-diagnostic" >> "$GITHUB_ENV"
           echo "DIAG_NODE24=$(command -v node)" >> "$GITHUB_ENV"
           npm install --prefix "$RUNNER_TEMP/xtend-diagnostic-npm" npm@11.17.0 --ignore-scripts --no-audit --fund=false
           echo "DIAG_NPM_CLI=$RUNNER_TEMP/xtend-diagnostic-npm/node_modules/npm/bin/npm-cli.js" >> "$GITHUB_ENV"
