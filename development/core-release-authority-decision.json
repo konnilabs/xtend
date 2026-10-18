@@ -57,5 +57,11 @@
         ]
       }
     ]
+  },
+  "unreleasedContracts": {
+    "format": 1,
+    "status": "pending-exact-contract-registration",
+    "publicationGuardRetired": false,
+    "registrations": []
   }
 }

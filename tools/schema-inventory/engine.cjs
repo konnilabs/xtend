@@ -1191,6 +1191,116 @@ function assertCoreCandidateAuthority(inventory, scan, provider) {
     schemaId: 'xtend.product-candidates.v2', releasedFingerprintSetHash: null, publicationGuardRetired: false };
 }
 
+// Closed registration of three first-release contracts. This is deliberately
+// separate from Candidate continuity and never manufactures released facts.
+const CORE_UNRELEASED_CONTRACTS = [
+  { schemaId: 'xtend.release.artifact.v2', familyId: 'xtend.release.artifact', version: 2,
+    declaration: 'contracts/release/artifact-v2.schema.json',
+    observations: ['contracts/release/artifact-v2.schema.json', 'tests/release/fixtures.cjs'],
+    validators: ['candidate-integrity.cjs', 'scripts/release/artifact.cjs', 'scripts/release/candidates.cjs',
+      'scripts/release/contracts.cjs', 'scripts/release/pipeline.cjs', 'scripts/release/profile.cjs'] },
+  { schemaId: 'xtend.release.canary.v2', familyId: 'xtend.release.canary', version: 2,
+    declaration: 'contracts/release/canary-v2.schema.json',
+    observations: ['contracts/release/canary-v2.schema.json', 'scripts/release/consumer.cjs', 'tests/release/fixtures.cjs'],
+    validators: ['scripts/release/artifact.cjs', 'scripts/release/consumer.cjs', 'scripts/release/contracts.cjs',
+      'scripts/release/core-evidence.cjs', 'scripts/release/profile.cjs'] },
+  { schemaId: 'xtend.release.core-evidence.v1', familyId: 'xtend.release.core-evidence', version: 1,
+    declaration: 'contracts/release/core-evidence-v1.schema.json',
+    observations: ['contracts/release/core-evidence-v1.schema.json', 'scripts/release/core-auth.cjs'],
+    validators: ['scripts/release/artifact.cjs', 'scripts/release/core-auth.cjs', 'scripts/release/core-evidence.cjs',
+      'scripts/release/core-security.cjs', 'scripts/release/core-source.cjs', 'scripts/release/github.cjs', 'scripts/release/profile.cjs'] }
+];
+function assertCoreUnreleasedContracts(inventory, scan, provider) {
+  const sources = require('./source-provider.cjs');
+  const sourceHash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
+  sources.assertSourceProvider(provider);
+  const demand = (ok, message) => { if (!ok) throw Error('Core unreleased contracts: ' + message); };
+  demand(sources.verifiedSourceProfile(provider) === CORE_CANDIDATE_PROFILE
+    && scanProviders.get(scan) === provider && providerScanContent.get(scan) === sha256(JSON.stringify(scan)),
+    'same authenticated unmodified Core scan required');
+  const profiles = require('./profile-registry.cjs');
+  const reviewed = profiles.assertReviewedProfileRegistry(provider);
+  demand(stableEqual(inventory, reviewed.inventory), 'inventory differs from authenticated reviewed bytes');
+  const decision = JSON.parse(provider.readCurrent('development/core-release-authority-decision.json'));
+  const registration = decision.unreleasedContracts;
+  const ids = CORE_UNRELEASED_CONTRACTS.map(spec => spec.schemaId);
+  demand(registration && stableEqual(Object.keys(registration).sort(),
+    ['format', 'publicationGuardRetired', 'registrations', 'status'])
+    && registration.format === 1 && registration.status === 'reviewed-unreleased-contract-registration'
+    && registration.publicationGuardRetired === false && Array.isArray(registration.registrations)
+    && stableEqual(registration.registrations.map(row => row?.schemaId), ids),
+    'exact ordered three-contract review is pending or changed');
+  const historicalBytes = provider.readCurrent(INVENTORY_PATH);
+  demand(sourceHash(historicalBytes) === LEGACY_CANDIDATE_INVENTORY_SHA256, 'historical audit changed');
+  const historical = JSON.parse(historicalBytes);
+  for (const [index, spec] of CORE_UNRELEASED_CONTRACTS.entries()) {
+    const matches = inventory.entries.filter(row => row.schemaId === spec.schemaId);
+    const observedMatches = scan.entries.filter(row => row.schemaId === spec.schemaId);
+    demand(matches.length === 1 && observedMatches.length === 1, 'exact entry/extraction required: ' + spec.schemaId);
+    const entry = matches[0], observed = observedMatches[0];
+    const canonical = { path: spec.declaration, symbol: null, definitionType: 'json-schema', role: 'definition', visibility: 'internal' };
+    const hashes = uniqueSorted(observed.shapeFingerprints.map(row => row.hash));
+    const authority = authoritativeFingerprintHashes(observed.shapeFingerprints);
+    demand(entry.familyId === spec.familyId && entry.version === spec.version && entry.status === 'active'
+      && stableEqual(entry.lifecycle, { status: 'active', rollout: 'planned' })
+      && entry.aliasOf === null && entry.replacedBy === null
+      && (entry.replacementDecision === undefined || entry.replacementDecision === null)
+      && entry.releasedFingerprintSetHash === null && entry.shapePolicy?.releasedFingerprintSetHash === null
+      && (entry.history === undefined || stableEqual(entry.history, []))
+      && (entry.releaseHistory === undefined || stableEqual(entry.releaseHistory, []))
+      && !inventory.entries.some(row => row.aliasOf === spec.schemaId)
+      && !(inventory.releaseRecords || []).some(row => row.schemaId === spec.schemaId),
+      'contract must remain active, unaliased and genuinely unreleased: ' + spec.schemaId);
+    demand(!historical.entries.some(row => row.schemaId === spec.schemaId)
+      && !(historical.releaseRecords || []).some(row => row.schemaId === spec.schemaId)
+      && !historical.schemaFamilies.some(row => row.versions?.some(version => version.schemaId === spec.schemaId)
+        || row.tombstones?.some(version => version.schemaId === spec.schemaId)),
+      'historical identity cannot receive first-release registration: ' + spec.schemaId);
+    demand(stableEqual(entry.canonicalDefinition, canonical) && stableEqual(observed.canonicalDefinition, canonical)
+      && JSON.parse(provider.readCurrent(spec.declaration)).$id === spec.schemaId
+      && stableEqual(entry.shapeFingerprints, observed.shapeFingerprints)
+      && stableEqual(uniqueSorted(observed.shapeFingerprints.flatMap(row => row.sourcePaths)), spec.observations)
+      && authority.length === 1 && observed.shapeFingerprints.filter(row => row.authoritative).every(row =>
+        row.completeness === 'complete' && stableEqual(row.sourcePaths, [spec.declaration])
+        && row.evidence.length === 1 && stableEqual(row.evidence[0], {
+          authoritative: true, completeness: 'complete', path: spec.declaration, symbol: null, type: 'formal-schema' })),
+      'exact complete declaration and observation provenance required: ' + spec.schemaId);
+    demand(stableEqual(entry.shapePolicy.acceptedFingerprints, hashes)
+      && stableEqual(entry.shapePolicy.authoritativeFingerprints, authority),
+      'accepted observation/authority sets differ: ' + spec.schemaId);
+    const boundPaths = uniqueSorted([...allUsagePaths(observed), ...spec.observations, ...spec.validators,
+      'contracts/release/admission-phases.json', 'docs/development/core-release-contracts.md']);
+    const expected = { schemaId: spec.schemaId, familyId: spec.familyId, version: spec.version,
+      status: 'reviewed-current-source', canonicalDefinition: canonical,
+      sources: boundPaths.map(sourcePath => ({ path: sourcePath, sha256: sourceHash(provider.readCurrent(sourcePath)) })),
+      observedFingerprints: hashes, acceptedFingerprints: hashes, authoritativeFingerprints: authority,
+      releasedFingerprintSetHash: null };
+    demand(stableEqual(registration.registrations[index], expected),
+      'exact reviewed declaration/source/fingerprint binding differs: ' + spec.schemaId);
+    const families = inventory.schemaFamilies.filter(row => row.familyId === spec.familyId);
+    demand(families.length === 1, 'exact contract family required: ' + spec.schemaId);
+    if (spec.version === 2) {
+      demand(profiles.resolveProfileCurrent(families[0], inventory.entries, provider, CORE_CANDIDATE_PROFILE).schemaId === spec.schemaId,
+        'Core profile selected another version: ' + spec.schemaId);
+      const legacyId = spec.familyId + '.v1';
+      const previous = historical.entries.find(row => row.schemaId === legacyId);
+      const current = inventory.entries.find(row => row.schemaId === legacyId);
+      demand(previous && current && ['familyId', 'version', 'lifecycle', 'aliasOf', 'replacedBy', 'replacementDecision',
+        'releasedFingerprintSetHash', 'history', 'releaseHistory'].every(key => stableEqual(current[key], previous[key]))
+        && stableEqual(current.shapePolicy.releasedFingerprintSetHash, previous.shapePolicy.releasedFingerprintSetHash)
+        && stableEqual(current.shapePolicy.authoritativeFingerprints, previous.shapePolicy.authoritativeFingerprints)
+        && stableEqual((inventory.releaseRecords || []).filter(row => row.schemaId === legacyId),
+          (historical.releaseRecords || []).filter(row => row.schemaId === legacyId)),
+        'legacy v1 release facts changed: ' + legacyId);
+    } else demand(stableEqual(families[0], { familyId: spec.familyId, tombstones: [], currentVersion: 1,
+      activeSchemaId: spec.schemaId, versions: [{ schemaId: spec.schemaId, version: 1,
+        lifecycle: { status: 'active', rollout: 'planned' }, releasedFingerprintSetHash: null }] }),
+      'exact first-version family required: ' + spec.schemaId);
+  }
+  provider.files();
+  return { schemaIds: ids, decisionSha256: reviewed.decisionSha256, released: false, publicationGuardRetired: false };
+}
+
 function selectCanonicalDefinition(record, provider) {
   const coreSymbol = record.schemaId === 'xtend.product-candidates.v1' ? 'CandidateManifest'
     : record.schemaId === 'xtend.product-candidates.v2' ? 'CoreCandidateManifest' : null;
@@ -2110,9 +2220,12 @@ function validateInventoryDocument(inventory, scan, options = {}) {
   const errors = [];
   const warnings = [];
   let coreCandidateRegistration = null;
+  let coreUnreleasedRegistration = null;
   if (provider?.provenance().profile === CORE_CANDIDATE_PROFILE) {
     try { coreCandidateRegistration = assertCoreCandidateAuthority(inventory, scan, provider); }
     catch (error) { errors.push(issue('core-candidate-authority', error.message)); }
+    try { coreUnreleasedRegistration = assertCoreUnreleasedContracts(inventory, scan, provider); }
+    catch (error) { errors.push(issue('core-unreleased-contract-registration', error.message)); }
   }
   if (!inventory || inventory.inventoryVersion !== 2) errors.push(issue('invalid-version', 'inventoryVersion must equal 2.'));
   const evolutionPolicy = inventory && inventory.evolutionPolicy;
@@ -2248,8 +2361,11 @@ function validateInventoryDocument(inventory, scan, options = {}) {
     const mayRetainCoreV1Continuity = coreCandidateRegistration !== null
       && entry.schemaId === 'xtend.product-candidates.v1' && entry.releasedFingerprintSetHash === null
       && stableEqual(authoritative, [INITIAL_CANDIDATE_AUTHORITY.fingerprint]);
+    const mayRegisterCoreUnreleasedContract = coreUnreleasedRegistration !== null
+      && coreUnreleasedRegistration.schemaIds.includes(entry.schemaId) && entry.releasedFingerprintSetHash === null;
     if (entry.releasedFingerprintSetHash !== currentReleasedHash && !mayRetainHistoricalReleasedHash
       && !mayRetainCoreV1Continuity
+      && !mayRegisterCoreUnreleasedContract
       && !mayBindInitialCandidateAuthority) {
       errors.push(issue('released-fingerprint-drift', 'A released authoritative fingerprint changed in place; publish a new major schema ID.', {
         schemaId: entry.schemaId,
@@ -2602,6 +2718,7 @@ return {
  main,
   assertCandidateInitialAuthorityRetiredForRelease,
   assertCoreCandidateAuthority,
+  assertCoreUnreleasedContracts,
   FORMAL_RMT_SCHEMA_FAMILY_ID,
   FORMAL_RMT_SCHEMA_ID,
   INVENTORY_PATH,
