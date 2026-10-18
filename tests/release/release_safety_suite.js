@@ -5,9 +5,11 @@ const { spawnSync } = require('node:child_process');
 const { createSuiteContext } = require('../utils/assertions');
 function runReleaseSafetySuite({ rootDir }) {
   const context = createSuiteContext({ id: 'release-safety', label: 'Scoped npm release safety' });
+  const npmCli = require('../../scripts/release/toolchain.cjs').resolveNpmCli({ explicit: process.env.XTEND_RELEASE_TEST_NPM_CLI });
+  const env = { ...process.env, XTEND_RELEASE_TEST_NPM_CLI: npmCli };
   const result = spawnSync(process.execPath, ['--test', '--test-isolation=none', '--test-reporter=tap',
     ...fs.readdirSync(path.join(rootDir, 'tests/release')).filter(name => name.endsWith('.test.cjs')).sort().map(name => path.join(rootDir, 'tests/release', name))],
-    { cwd: rootDir, encoding: 'utf8', timeout: 240000, maxBuffer: 8 * 1024 * 1024 });
+    { cwd: rootDir, env, encoding: 'utf8', timeout: 240000, maxBuffer: 8 * 1024 * 1024 });
   console.log(result.stdout || '');
   context.assert(!result.error && result.status === 0, result.error?.message || result.stderr || 'Release security and regression tests pass');
   context.assert(Number(result.stdout?.match(/# tests (\d+)/)?.[1]) >= 50, 'Runner reports the executed individual assertions, not only file summaries');

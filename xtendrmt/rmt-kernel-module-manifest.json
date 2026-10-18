@@ -1137,9 +1137,9 @@
       "path": "xtendrmt/rmt-core.esm.js",
       "kind": "esm",
       "exists": true,
-      "byteCount": 1489550,
+      "byteCount": 1489583,
       "lineCount": 31754,
-      "sha256": "55cc4d68ead8f8d285b0ff9ed3c2932de24c51d0439e4ed8084836195d861a04",
+      "sha256": "6d646b9db21d13f39616611bc589507163551001e2f98c15c7ab1d9b84f5e8b7",
       "moduleCount": 41,
       "publicExports": [
         "createRmtBrowserHostAdapter",
@@ -1845,7 +1845,7 @@
       "registerName": "registerRmtDomDescriptorRendererModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 165418,
+      "byteCount": 165451,
       "lineCount": 3658,
       "factories": [
         "RMT_DOM_COMMIT_RESULT_SCHEMA",

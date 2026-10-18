@@ -7504,7 +7504,7 @@ function createMaracaTuneConfig(input = {}) {
     schema: MARACA_BUILD_CONFIG_SCHEMA,
     source: input.source,
     sourceFingerprint: input.sourceFingerprint,
-    serviceGraphFingerprint: serviceGraphFingerprint ?? null,
+    serviceGraphFingerprint: serviceGraphFingerprint == null ? null : serviceGraphFingerprint,
     output: input.output,
     selected: input.selected,
     locked: input.locked,
