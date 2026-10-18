@@ -42,3 +42,24 @@ node scripts/run_xtend_tests.js rmt-kernel-security-regression --json
 ```
 
 The [DEV API](./xtend-dev-api.md) describes redacted panic/recovery data for investigating blocked output. A presentation [Abort Boundary](./maraca-fastpass-abort-boundary.md) additionally checks temporal validity; it does not replace a Trust Boundary.
+
+## Application source audit in Maraca
+
+`buildMaracaBundle()` and `buildMaracaBundleAsync()` accept an opt-in `htmlSecurity: { sources: [...] }` configuration, in the build input or run options. List every application-owned browser source (including imported controllers and custom component implementations). Maraca scans these files before writing bundle artifacts and records only source paths, SHA-256 and diagnostics in `plan.htmlSecurity`. Sources and symlink targets must be files inside the application root. Missing files, an empty list, invalid syntax or a missing local TypeScript build tool fail closed.
+
+```js
+await buildMaracaBundleAsync(buildInput, {
+  rootDir,
+  htmlSecurity: { sources: ['src/services.ts', 'src/controller.mjs'] }
+});
+```
+
+The shared `createDownstreamNoManualHtmlGate({ syntax: true, rootDir })` detects writes to `innerHTML`, `outerHTML` and `srcdoc`, including compound assignments, constant computed names and simple local method aliases. It also detects HTML insertion methods and `document.write/writeln`. Comments, literal documentation strings and read-only HTML access are not writes. The existing regex mode remains compatible. Syntax mode has no implicit legacy-file exemption.
+
+This is a build-time guard over the listed source, not a proof of all JavaScript behavior. Dynamic property names, inter-module data flow and unlisted third-party code need separate review; CSP, Trusted Types, sanitizer checks and runtime ownership still matter. The gate does not sanitize or rewrite code.
+
+## Explicit rich-HTML exception, without a bypass
+
+XTend already has a `trusted_html` descriptor with `trustedBoundary: 'xtend.rmt.trusted-dom-boundary.explicit'`, a `policyRef` and a required host `trustedDomRenderer`. This is the auditable exception path. A policy name alone never authorizes content: the host must apply the declared sanitizer and retain TrustedHTML where required by CSP. `sanitizeTrustedDomHtml()` remains the sanitizer API.
+
+No `bypassSecurityTrustHtml`-style wrapper or unrestricted `dangerouslySetInnerHTML` facade is introduced. Wrapping a string cannot establish trust and cannot solve a stale asynchronous commit. HTML trust checks and the presentation abort/generation boundary remain separate contracts. Prefer text or structured RMT descriptors for normal UI, including icons and controls.

@@ -141,8 +141,8 @@
     },
     {
       "path": "docs/de/rmt-app-platform-tooling.md",
-      "sha256": "8698fff97901e16876ca3b5073addca3bb3d2ec5f860db7eef7c8c5df3827117",
-      "bytes": 2699
+      "sha256": "c8cc09fef36784872540da07f5ddc8688bd039b01e61c269406c859e09b4cb8c",
+      "bytes": 3176
     },
     {
       "path": "docs/de/rmt-reference-actions-events.md",
@@ -251,8 +251,8 @@
     },
     {
       "path": "xtend-maraca/index.d.ts",
-      "sha256": "b6122d9450bb3327245617740a222a8fded2d61b5ead159a5951d3c74bba7987",
-      "bytes": 39582
+      "sha256": "e75debd2d2c3267940db758da8f046d973eb7ff12d8cd7c361b27fcc717f7dd9",
+      "bytes": 40167
     }
   ],
   "rootDir": ""
