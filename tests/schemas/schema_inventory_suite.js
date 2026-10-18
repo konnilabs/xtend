@@ -1709,6 +1709,42 @@ function cloneJson(value) {
 function validateNegativeGateBehavior(inventory, scan, rootDir) {
   const issues = [];
   if (sourceProvider) {
+    // A prior successful check must not turn immutable metadata into trust in
+    // mutable files. These probes touch only this provider's private materialization.
+    const rejectsLiveMutation = () => {
+      try { validateInventoryDocument(inventory, scan, { rootDir, sourceProvider }); }
+      catch (error) { return /materialized source changed/iu.test(error.message); }
+      return false;
+    };
+    const row = sourceByPath.get('package.json');
+    if (!row) throw Error('Core mutation probe requires the authenticated package manifest');
+    const original = fs.readFileSync(row.absolutePath);
+    const stat = fs.statSync(row.absolutePath);
+    const changed = Buffer.from(original);
+    changed[0] ^= 1;
+    try {
+      fs.writeFileSync(row.absolutePath, changed);
+      fs.utimesSync(row.absolutePath, stat.atime, stat.mtime);
+      if (!rejectsLiveMutation()) issues.push('same-size source mutation with restored mtime is not rejected');
+    } finally {
+      fs.writeFileSync(row.absolutePath, original);
+      fs.utimesSync(row.absolutePath, stat.atime, stat.mtime);
+    }
+    const savedPath = row.absolutePath + '.schema-inventory-original';
+    if (fs.existsSync(savedPath)) throw Error('Core mutation probe backup path already exists');
+    fs.renameSync(row.absolutePath, savedPath);
+    try {
+      fs.symlinkSync(savedPath, row.absolutePath);
+      if (!rejectsLiveMutation()) issues.push('byte-identical source symlink replacement is not rejected');
+    } finally {
+      if (fs.existsSync(row.absolutePath)) fs.unlinkSync(row.absolutePath);
+      fs.renameSync(savedPath, row.absolutePath);
+      fs.utimesSync(row.absolutePath, stat.atime, stat.mtime);
+    }
+    let foreignProviderRejected = false;
+    try { validateInventoryDocument(inventory, scan, { rootDir, sourceProvider: { ...sourceProvider } }); }
+    catch (error) { foreignProviderRejected = /Verified manifest-backed source provider required/u.test(error.message); }
+    if (!foreignProviderRejected) issues.push('a copied provider is not rejected after live source checks');
     for (const candidate of [cloneJson(scan), { ...scan, entries: [] }]) {
       let rejected = false;
       try { validateInventoryDocument(inventory, candidate, { rootDir, sourceProvider }); }

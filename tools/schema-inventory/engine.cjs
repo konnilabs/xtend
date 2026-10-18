@@ -1194,7 +1194,7 @@ function assertCoreCandidateAuthority(inventory, scan, provider) {
 function selectCanonicalDefinition(record, provider) {
   const coreSymbol = record.schemaId === 'xtend.product-candidates.v1' ? 'CandidateManifest'
     : record.schemaId === 'xtend.product-candidates.v2' ? 'CoreCandidateManifest' : null;
-  if (provider?.provenance().profile === CORE_CANDIDATE_PROFILE && coreSymbol) {
+  if (coreSymbol && provider?.provenance().profile === CORE_CANDIDATE_PROFILE) {
     require('./source-provider.cjs').assertSourceProvider(provider);
     // Reuse actual complete declaration extraction, including dependent types.
     // No fabricated occurrence or acceptance fingerprint enters the scan.
@@ -2107,10 +2107,13 @@ function validateInventoryDocument(inventory, scan, options = {}) {
     throw Error('Provider-backed validation requires its unmodified verified extraction; cloned or mutated scans are rejected');
   }
   if (provider) provider.files(); // Recheck the verified closure before trusting extraction.
+  // The branded provider owns immutable provenance. Read only its profile once
+  // per invocation; live source bytes and scan identity are still checked above.
+  const providerProfile = provider?.provenance().profile;
   const errors = [];
   const warnings = [];
   let coreCandidateRegistration = null;
-  if (provider?.provenance().profile === CORE_CANDIDATE_PROFILE) {
+  if (providerProfile === CORE_CANDIDATE_PROFILE) {
     try { coreCandidateRegistration = assertCoreCandidateAuthority(inventory, scan, provider); }
     catch (error) { errors.push(issue('core-candidate-authority', error.message)); }
   }
@@ -2239,7 +2242,7 @@ function validateInventoryDocument(inventory, scan, options = {}) {
     }
     const mayRetainHistoricalReleasedHash = currentReleasedHash === null && entry.releasedFingerprintSetHash
       && (entry.aliasOf || entry.lifecycle && entry.lifecycle.status !== 'active');
-    const mayBindInitialCandidateAuthority = provider?.provenance().profile === CORE_CANDIDATE_PROFILE
+    const mayBindInitialCandidateAuthority = providerProfile === CORE_CANDIDATE_PROFILE
       ? coreCandidateRegistration !== null && entry.schemaId === 'xtend.product-candidates.v2'
         && entry.releasedFingerprintSetHash === null
       : isReviewedInitialCandidateAuthority(entry, inventory, scan, rootDir);
