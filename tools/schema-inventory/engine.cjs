@@ -1880,10 +1880,15 @@ function buildSchemaFamilies(entries, existingFamilies, sourceProvider, diagnost
     if (!entryGroups.has(entry.familyId)) entryGroups.set(entry.familyId, []);
     entryGroups.get(entry.familyId).push(entry);
   });
+  // Authenticate the frozen registry once for this synchronous metadata build,
+  // then reauthenticate after use. A private require performs fresh bootstrap
+  // and source-byte checks; doing it for every ordinary family is redundant.
+  // Productive profile resolution retains all of its own live source checks.
+  const profiles = require('./profile-registry.cjs');
   // A retirement record is emitted only alongside an observed successor in
   // the same family. This keeps removed one-off identifiers from becoming
   // empty compatibility families while still reserving every migrated major.
-  return Array.from(entryGroups.entries()).map(([familyId, familyEntries]) => {
+  const families = Array.from(entryGroups.entries()).map(([familyId, familyEntries]) => {
     const previous = existingById.get(familyId) || {};
     const previousVersions = new Map((previous.versions || []).map((version) => [version.schemaId, version]));
     const versions = familyEntries.map((entry) => ({
@@ -1921,7 +1926,6 @@ function buildSchemaFamilies(entries, existingFamilies, sourceProvider, diagnost
       tombstones: Array.from(tombstonesById.values())
         .sort((left, right) => left.version - right.version || compareStrings(left.schemaId, right.schemaId))
     };
-    const profiles = require('./profile-registry.cjs');
     if (Object.hasOwn(previous, 'profileCurrents') || profiles.FAMILIES.includes(familyId) && (versions.length > 1 || versions.some(version => version.version !== 1))) {
       // Duplicate diagnostics describe observed membership; they never select a current.
       if (diagnosticOnly) return {familyId, versions, tombstones: result.tombstones};
@@ -1930,6 +1934,8 @@ function buildSchemaFamilies(entries, existingFamilies, sourceProvider, diagnost
     }
     return result;
   }).sort((left, right) => compareStrings(left.familyId, right.familyId));
+  if (require('./profile-registry.cjs') !== profiles) throw Error('Profile registry identity changed during family construction');
+  return families;
 }
 
 function createInventoryDocument(scan, existingInventory = null) {
@@ -2300,13 +2306,20 @@ function validateInventoryDocument(inventory, scan, options = {}) {
   if (!Array.isArray(inventory && inventory.schemaFamilies)) errors.push(issue('invalid-family', 'schemaFamilies must be an array.'));
   const familyById = new Map();
   const tombstoneIds = new Set();
+  // Invocation-local membership index only. Source paths/bytes, scan identity,
+  // profile authority and each family fact are still validated below.
+  const entriesByFamily = new Map();
+  for (const entry of entries) {
+    if (!entriesByFamily.has(entry.familyId)) entriesByFamily.set(entry.familyId, []);
+    entriesByFamily.get(entry.familyId).push(entry);
+  }
   families.forEach((family) => {
     if (!family || typeof family.familyId !== 'string' || familyById.has(family.familyId) || !Array.isArray(family.versions) || !Array.isArray(family.tombstones)) {
       errors.push(issue('invalid-family', 'Every schema family must be unique and contain versions and tombstones.', { familyId: family && family.familyId }));
       return;
     }
     familyById.set(family.familyId, family);
-    const expectedEntries = entries.filter((entry) => entry.familyId === family.familyId);
+    const expectedEntries = entriesByFamily.get(family.familyId) || [];
     const actualVersionIds = uniqueSorted(family.versions.map((version) => version && version.schemaId).filter(Boolean));
     const expectedVersionIds = uniqueSorted(expectedEntries.map((entry) => entry.schemaId));
     if (!stableEqual(actualVersionIds, expectedVersionIds)) errors.push(issue('invalid-family', 'Family version membership differs from inventory entries.', { familyId: family.familyId }));
