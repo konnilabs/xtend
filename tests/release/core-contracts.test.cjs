@@ -51,7 +51,12 @@ test('Core preparation permits a separate consumer phase but cannot self-declare
 test('real Core publisher stops before registry for pending source and independent FirstRelease',async t=>{
  const f=await preparedFixture(t),a=await f.verify();let calls=0;const forbidden=()=>{calls++;throw Error('No registry or upload permitted');};
  const publish=require('../../scripts/release/publish.cjs').publishRelease;
+ // This miniature fixture deliberately has no source proof; do not inherit the CI checkout's transport.
+ const sourceKeys=['XTEND_CORE_ARCHIVE','XTEND_CORE_EXPECTED'],saved=sourceKeys.map(key=>[key,process.env[key]]);
+ try {
+  for(const key of sourceKeys)delete process.env[key];
  await assert.rejects(publish({artifact:a,ledgerFile:f.f.ledgerFile,registry:{version:forbidden,package:forbidden},publisher:{publish:forbidden}}),/Core source|XTEND_CORE|authenticated/i);
+ } finally {for(const [key,value] of saved){if(value===undefined)delete process.env[key];else process.env[key]=value;}}
  await assert.rejects(publish({artifact:a,ledgerFile:f.f.ledgerFile,publish:true,registry:{version:forbidden,package:forbidden},publisher:{publish:forbidden}}),/source-level initial-authority retirement/);
  assert.equal(calls,0);assert.equal(fs.existsSync(path.join(path.dirname(f.f.ledgerFile),'npm-release.lock')),false);
 });

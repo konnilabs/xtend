@@ -159,6 +159,7 @@ jobs:
           path: ${{ runner.temp }}/core-source
       - name: Bind Core source expectation
         env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           CORE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
           CORE_ARCHIVE_SHA256: ${{ needs.core-source-artifact.outputs.archive-sha256 }}
           CORE_MANIFEST_SHA256: ${{ needs.core-source-artifact.outputs.manifest-sha256 }}
@@ -178,6 +179,8 @@ jobs:
 
       - name: Required command-binding metadata ownership regression
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: test -f tests/maraca/ownership-command-projection.test.mjs && test -f tests/maraca/ownership-projection-gate.test.cjs && node --test --test-reporter=tap tests/maraca/ownership-command-projection.test.mjs tests/maraca/ownership-projection-gate.test.cjs
 
       - name: Prepare Native-First release evidence artifacts
@@ -419,6 +422,7 @@ jobs:
           path: ${{ runner.temp }}/core-source
       - name: Bind Core source expectation
         env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           CORE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
           CORE_ARCHIVE_SHA256: ${{ needs.core-source-artifact.outputs.archive-sha256 }}
           CORE_MANIFEST_SHA256: ${{ needs.core-source-artifact.outputs.manifest-sha256 }}
@@ -1130,6 +1134,7 @@ jobs:
           github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true &&
           github.repository == 'konnilabs/xtend' && github.ref == 'refs/heads/main' &&
           needs['release-seal'].result == 'success' &&
+          needs['release-prepare'].result == 'success' &&
           needs['full-release-gates'].result == 'success' &&
           needs['rmt-vnext-primitive-gates'].result == 'success' &&
           needs['package-structure'].result == 'success' &&
@@ -1254,7 +1259,7 @@ jobs:
         run: node scripts/release/toolchain.cjs --execute
       - name: Capture runtime evidence
         run: node scripts/capture_node_runtime_evidence.js --lane core-${{ matrix.node_version }}
-      - name: Enable warning policy
+      - name: Enable Node warning and deprecation policy
         run: node scripts/enable_node_warning_policy.js --lane core-${{ matrix.node_version }}
       - name: Install verified Core test dependencies
         env:
@@ -1267,6 +1272,7 @@ jobs:
           path: ${{ runner.temp }}/core-source
       - name: Bind Core source expectation
         env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           CORE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
           CORE_ARCHIVE_SHA256: ${{ needs.core-source-artifact.outputs.archive-sha256 }}
           CORE_MANIFEST_SHA256: ${{ needs.core-source-artifact.outputs.manifest-sha256 }}
@@ -1352,6 +1358,7 @@ jobs:
           path: ${{ runner.temp }}/core-source
       - name: Bind Core source expectation
         env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           CORE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
           CORE_ARCHIVE_SHA256: ${{ needs.core-source-artifact.outputs.archive-sha256 }}
           CORE_MANIFEST_SHA256: ${{ needs.core-source-artifact.outputs.manifest-sha256 }}
@@ -1428,7 +1435,7 @@ jobs:
         run: npm install --global npm@11.17.0 --no-audit --fund=false
       - name: Capture Node24 runtime evidence
         run: node scripts/capture_node_runtime_evidence.js --lane core-security-node24
-      - name: Enable warning policy
+      - name: Enable Node warning and deprecation policy
         run: node scripts/enable_node_warning_policy.js --lane core-security-node24
       - name: Install exact Core security dependencies without lifecycle scripts
         env:
@@ -1441,6 +1448,7 @@ jobs:
           path: ${{ runner.temp }}/core-source
       - name: Bind Core source expectation
         env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           CORE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
           CORE_ARCHIVE_SHA256: ${{ needs.core-source-artifact.outputs.archive-sha256 }}
           CORE_MANIFEST_SHA256: ${{ needs.core-source-artifact.outputs.manifest-sha256 }}
@@ -1547,6 +1555,7 @@ jobs:
           path: ${{ runner.temp }}/core-source
       - name: Bind Core source expectation
         env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           CORE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
           CORE_ARCHIVE_SHA256: ${{ needs.core-source-artifact.outputs.archive-sha256 }}
           CORE_MANIFEST_SHA256: ${{ needs.core-source-artifact.outputs.manifest-sha256 }}
