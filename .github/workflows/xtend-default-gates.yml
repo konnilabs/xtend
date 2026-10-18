@@ -1258,7 +1258,7 @@ jobs:
       - name: Discover and verify npm CLI
         run: node scripts/release/toolchain.cjs --execute
       - name: Capture runtime evidence
-        run: node scripts/capture_node_runtime_evidence.js --lane core-${{ matrix.node_version }}
+        run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.node_version == '24.18.0' && 'node-24-lts' || 'node-26-current' }}
       - name: Enable Node warning and deprecation policy
         run: node scripts/enable_node_warning_policy.js --lane core-${{ matrix.node_version }}
       - name: Install verified Core test dependencies
@@ -1434,7 +1434,7 @@ jobs:
         working-directory: ${{ runner.temp }}
         run: npm install --global npm@11.17.0 --no-audit --fund=false
       - name: Capture Node24 runtime evidence
-        run: node scripts/capture_node_runtime_evidence.js --lane core-security-node24
+        run: node scripts/capture_node_runtime_evidence.js --lane node-24-lts
       - name: Enable Node warning and deprecation policy
         run: node scripts/enable_node_warning_policy.js --lane core-security-node24
       - name: Install exact Core security dependencies without lifecycle scripts
