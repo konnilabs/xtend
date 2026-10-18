@@ -1,0 +1,38 @@
+'use strict';
+const test = require('node:test'), assert = require('node:assert/strict');
+const fs = require('node:fs'), path = require('node:path'), os = require('node:os');
+const {verifyStateBranding} = require('../../scripts/verify_state_branding.js');
+const runtime = require('../../scripts/capture_node_runtime_evidence.js');
+const removed = ['x', 'state'].join('');
+const historical = `development/ER-WP-11-Fabric-an-${removed}-API-und-XTendRMT-Diagnostics-anbinden.md`;
+const policyPath = 'scripts/release/core-projection-policy.json';
+function fixture(t) {
+  const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'branding-membership-')));
+  t.after(() => fs.rmSync(root, {recursive: true, force: true}));
+  const write = (file, content) => {fs.mkdirSync(path.dirname(path.join(root, file)), {recursive: true}); fs.writeFileSync(path.join(root, file), content);};
+  write('components/xtend-state.js', `const LEGACY_STATE_STORAGE_KEY = '${removed}-data';`);
+  write(historical, 'Historical development note');
+  const policy = {productivePaths: [historical]};
+  const check = () => {write(policyPath, JSON.stringify(policy, null, 2)); return verifyStateBranding({rootDir: root});};
+  return {root, write, policy, check};
+}
+test('historical membership path is retained while the branding gate accepts its metadata reference', t => {
+  const f=fixture(t); assert.equal(f.check().ok,true); assert.deepEqual(JSON.parse(fs.readFileSync(path.join(f.root,policyPath))).productivePaths,[historical]);
+});
+for (const [name, mutate] of [
+  ['active field', f => {f.policy.description=removed;}],
+  ['active source path', f => {f.policy.productivePaths.push(`src/${removed}.js`);f.write(`src/${removed}.js`,'const active = true;');}],
+  ['active runtime source', f => {f.write('src/runtime.js',`const name = '${removed}';`);}],
+  ['other metadata field', f => {f.policy.otherPaths=[historical];}],
+  ['missing historical target', f => {fs.unlinkSync(path.join(f.root,historical));}],
+  ['different historical path', f => {const p=`development/other-${removed}.md`;f.write(p,'note');f.policy.productivePaths.push(p);}],
+  ['historical reference outside policy', f => {f.write('scripts/other.json',JSON.stringify({productivePaths:[historical]}));}]
+]) test('branding still rejects '+name, t => {const f=fixture(t);mutate(f);assert.equal(f.check().ok,false);});
+test('malformed policy does not gain a historical path exemption', t=> {const f=fixture(t);f.write(policyPath,JSON.stringify(f.policy)+' invalid');assert.equal(verifyStateBranding({rootDir:f.root}).ok,false);});
+test('Core workflow selects only the pre-existing exact runtime lanes',()=>{
+  const workflow=fs.readFileSync(path.join(__dirname,'../../.github/workflows/xtend-default-gates.yml'),'utf8');
+  assert.ok(workflow.includes("capture_node_runtime_evidence.js --lane ${{ matrix.node_version == '24.18.0' && 'node-24-lts' || 'node-26-current' }}"));
+  assert.ok(workflow.includes('capture_node_runtime_evidence.js --lane node-24-lts'));
+  assert.ok(!/capture_node_runtime_evidence\.js --lane core-/u.test(workflow));
+  assert.deepEqual(Object.keys(runtime.RUNTIME_LANES).sort(),['node-24-lts','node-24-publish','node-26-current']);
+});

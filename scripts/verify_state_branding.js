@@ -117,6 +117,19 @@ function stripAllowedDocsSearchMigration(content) {
   }
 }
 
+function stripHistoricalMembershipReference(content, rootDir) {
+  try {
+    const document = JSON.parse(content);
+    const historicalPath = `development/ER-WP-11-Fabric-an-${REMOVED_LOWER_BRAND}-API-und-XTendRMT-Diagnostics-anbinden.md`;
+    const absolute = path.join(rootDir, historicalPath);
+    if (!Array.isArray(document.productivePaths) || !isExcluded(historicalPath)
+      || !fs.existsSync(absolute) || !fs.lstatSync(absolute).isFile()
+      || fs.realpathSync(absolute) !== path.resolve(absolute)) return content;
+    return JSON.stringify({ ...document, productivePaths: document.productivePaths
+      .map(value => value === historicalPath ? ' '.repeat(value.length) : value) }, null, 2);
+  } catch (_) { return content; }
+}
+
 function lineAt(content, index) {
   return content.slice(0, index).split(/\r?\n/u).length;
 }
@@ -130,9 +143,9 @@ function verifyStateBranding(options = {}) {
   files.sort().forEach((relativePath) => {
     if (relativePath === 'components/xtend-state.js') return;
     const content = fs.readFileSync(path.join(rootDir, relativePath), 'utf8');
-    const generatedContent = relativePath.startsWith('docs/generated/search/')
-      ? stripAllowedDocsSearchMigration(content)
-      : content;
+    const generatedContent = relativePath === 'scripts/release/core-projection-policy.json'
+      ? stripHistoricalMembershipReference(content, rootDir)
+      : relativePath.startsWith('docs/generated/search/') ? stripAllowedDocsSearchMigration(content) : content;
     const scannedContent = relativePath.startsWith('docs/generated/')
       ? stripAllowedStorageMigration(generatedContent)
       : generatedContent;

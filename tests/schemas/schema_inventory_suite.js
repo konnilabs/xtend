@@ -21,6 +21,20 @@ const {
   resolveRootDir
 } = require('../utils/files');
 
+// Index immutable manifest metadata once, never source bytes. The branded
+// context still rechecks the full closure before and after the suite. Every
+// file access and directory witness below also rechecks its captured bytes.
+const sourceFiles = sourceProvider ? sourceProvider.files() : [];
+const sourceByPath = new Map(sourceFiles.map(row => [row.logicalPath, row]));
+const sourceDirectoryWitness = new Map();
+for (const row of sourceFiles) {
+  let directory = path.posix.dirname(row.logicalPath);
+  while (directory !== '.') {
+    if (!sourceDirectoryWitness.has(directory)) sourceDirectoryWitness.set(directory, row.logicalPath);
+    directory = path.posix.dirname(directory);
+  }
+}
+
 // Source access is scoped to one authenticated provider. A Core miss never
 // falls back to the working checkout, including runtime API assertions.
 function readJson(relative, rootDir) {
@@ -32,7 +46,8 @@ function readText(relative, rootDir) {
 }
 function resolveRepoPath(relative, rootDir) {
   if (!sourceProvider) return legacyResolveRepoPath(relative, rootDir);
-  const row = sourceProvider.files().find(file => file.logicalPath === toPosixPath(relative));
+  const row = sourceByPath.get(toPosixPath(relative));
+  if (row) sourceProvider.hasCurrent(row.logicalPath);
   if (!row || row.owner !== 'core') throw Error('Missing authenticated Core source: ' + relative);
   return row.absolutePath;
 }
@@ -43,7 +58,7 @@ function requireSource(relative, rootDir) {
   const value = require(absolute);
   // Existing cleanup assertions execute the same captured modules and their
   // captured local dependency closure. Foreign cached modules are not evidence.
-  const allowed = new Set(sourceProvider.files().map(row => row.absolutePath));
+  const allowed = new Set(sourceFiles.map(row => row.absolutePath));
   const visited = new Set();
   function checkModule(module) {
     if (!module || visited.has(module)) return;
@@ -205,7 +220,8 @@ function isRepoLocalExistingPath(relativePath, rootDir) {
   if (normalized === '..' || normalized.startsWith(`..${path.sep}`)) return false;
   if (sourceProvider) {
     const logical = toPosixPath(normalized).replace(/\/$/u, '');
-    return sourceProvider.hasCurrent(logical) || sourceProvider.files().some(row => row.logicalPath.startsWith(logical + '/'));
+    const witness = sourceDirectoryWitness.get(logical);
+    return sourceProvider.hasCurrent(logical) || Boolean(witness && sourceProvider.hasCurrent(witness));
   }
   return fs.existsSync(resolveRepoPath(normalized, rootDir));
 }
@@ -359,7 +375,7 @@ function substituteWildcards(pattern, captures) {
 function discoverPackageManifests(rootDir) {
   const manifests = [];
   if (sourceProvider) {
-    for (const row of sourceProvider.files()) {
+    for (const row of sourceFiles) {
       if (path.posix.basename(row.logicalPath) !== 'package.json') continue;
       const manifest = readJson(row.logicalPath, rootDir);
       if (isNonEmptyString(manifest.name) && isRecord(manifest.exports))
@@ -830,10 +846,18 @@ function validateSchemaFamilies(inventory, entries) {
     }
     if (familyById.has(family.familyId)) issues.push(`${label} is declared more than once`);
     familyById.set(family.familyId, family);
-    if (!Number.isInteger(family.currentVersion) || family.currentVersion < 1) {
+    const profileFamily = Object.hasOwn(family, 'profileCurrents');
+    if (profileFamily) {
+      try {
+        if (!coreContext) throw Error('Authenticated Core context required for profile families');
+        coreContext.modules.load('tools/schema-inventory/profile-registry.cjs')
+          .resolveProfileCurrent(family, entries, sourceProvider);
+      } catch (error) { issues.push(`${label}: ${error.message}`); }
+    }
+    if (!profileFamily && (!Number.isInteger(family.currentVersion) || family.currentVersion < 1)) {
       issues.push(`${label}.currentVersion must be a positive integer`);
     }
-    if (!isNonEmptyString(family.activeSchemaId)) issues.push(`${label}.activeSchemaId is missing`);
+    if (!profileFamily && !isNonEmptyString(family.activeSchemaId)) issues.push(`${label}.activeSchemaId is missing`);
     if (!Array.isArray(family.versions) || family.versions.length === 0) {
       issues.push(`${label}.versions must be non-empty`);
       return;
@@ -844,15 +868,15 @@ function validateSchemaFamilies(inventory, entries) {
     }
     const managedEntries = actualEntries.filter((entry) => entry.aliasOf === null);
     const active = managedEntries.filter((entry) => entry.lifecycle && entry.lifecycle.status === 'active');
-    if (managedEntries.length > 0 && active.length !== 1) {
+    if (!profileFamily && managedEntries.length > 0 && active.length !== 1) {
       issues.push(`${label} must have exactly one current non-alias schema`);
     }
     const activeEntry = entryById.get(family.activeSchemaId);
-    if (!activeEntry || activeEntry.familyId !== family.familyId
+    if (!profileFamily && (!activeEntry || activeEntry.familyId !== family.familyId
       || managedEntries.length > 0 && (activeEntry.aliasOf !== null
-        || !activeEntry.lifecycle || activeEntry.lifecycle.status !== 'active')) {
+        || !activeEntry.lifecycle || activeEntry.lifecycle.status !== 'active'))) {
       issues.push(`${label}.activeSchemaId must identify the family current schema`);
-    } else if (activeEntry.version !== family.currentVersion) {
+    } else if (!profileFamily && activeEntry.version !== family.currentVersion) {
       issues.push(`${label}.currentVersion does not match activeSchemaId`);
     }
     family.versions.forEach((version, versionIndex) => {
@@ -1723,20 +1747,33 @@ function validateNegativeGateBehavior(inventory, scan, rootDir) {
     }
   }
 
+  const profileFamilies = new Set((inventory.schemaFamilies || [])
+    .filter(family => Object.hasOwn(family, 'profileCurrents')).map(family => family.familyId));
+  if (profileFamilies.size && typeof schemaInventoryScanner.acceptCurrentBaseline === 'function') {
+    const profileAdvance = cloneJson(inventory), before = JSON.stringify(profileAdvance);
+    let refused = false;
+    try { schemaInventoryScanner.acceptCurrentBaseline(profileAdvance); }
+    catch (error) { refused = String(error.message) === 'Profile families require exact separate registration; baseline acceptance cannot mutate them'; }
+    if (!refused || JSON.stringify(profileAdvance) !== before)
+      issues.push('baseline acceptance does not refuse profile registration without mutation');
+  }
   const releasedEntry = inventory.entries.find((entry) => (
-    entry && isNonEmptyString(entry.releasedFingerprintSetHash) && !entry.aliasOf
+    entry && isNonEmptyString(entry.releasedFingerprintSetHash) && !entry.aliasOf && !profileFamilies.has(entry.familyId)
   ));
   if (releasedEntry && typeof schemaInventoryScanner.acceptCurrentBaseline === 'function') {
-    const unsafeAdvance = cloneJson(inventory);
-    const target = unsafeAdvance.entries.find((entry) => entry.schemaId === releasedEntry.schemaId);
-    target.releasedFingerprintSetHash = `sha256:${'0'.repeat(64)}`;
+    // Isolate an actual ordinary released contract so the earlier profile guard
+    // cannot hide a missing released-fingerprint guard. No baseline is accepted.
+    const unsafeAdvance = { entries: [cloneJson(releasedEntry)], schemaFamilies: [] };
+    unsafeAdvance.entries[0].releasedFingerprintSetHash = `sha256:${'0'.repeat(64)}`;
+    const before = JSON.stringify(unsafeAdvance);
     let refused = false;
-    try {
-      schemaInventoryScanner.acceptCurrentBaseline(unsafeAdvance);
-    } catch (error) {
-      refused = /released fingerprint drift|new major schema ID/iu.test(String(error && error.message));
+    try { schemaInventoryScanner.acceptCurrentBaseline(unsafeAdvance); }
+    catch (error) {
+      refused = /released fingerprint drift|new major schema ID/iu.test(String(error.message))
+        && String(error.message).includes(releasedEntry.schemaId);
     }
-    if (!refused) issues.push('baseline acceptance does not refuse released fingerprint drift before a major schema migration');
+    if (!refused || JSON.stringify(unsafeAdvance) !== before)
+      issues.push('baseline acceptance does not refuse released fingerprint drift before a major schema migration');
   }
 
   const statusDrift = cloneJson(inventory);
@@ -1960,7 +1997,7 @@ function runSchemaInventorySuite(options = {}) {
   assertNoIssues(
     context,
     validateSchemaFamilies(inventory, entries),
-    'schema families have one managed current version and immutable retired tombstones',
+    'schema families have one managed current version per verified profile and immutable retired tombstones',
     'invalid schema family metadata'
   );
   assertNoIssues(
