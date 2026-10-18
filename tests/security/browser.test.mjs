@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import {once} from 'node:events';
 import sandboxedBrowser from './sandboxed-browser.cjs';
+import hostDiagnostics from './host-diagnostics.cjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -48,12 +49,17 @@ try {
   let child,launch;
   const profile=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-security-browser-')); 
   try {
+    hostDiagnostics.emit('preflight',()=>hostDiagnostics.hostSnapshot());
+    const launchStartedAt=Date.now();
     launch=sandboxedBrowser.launchSandboxedBrowser(profile);child=launch.child;
+    hostDiagnostics.emit('launch',()=>({identity:launch.identity,argv:launch.argv,process:hostDiagnostics.processSnapshot(child.pid)}));
     let errors='';let launchError;child.stderr.on('data',chunk=>errors+=chunk);child.on('error',error=>{launchError=error;errors+=error.stack;});
     const deadline=Date.now()+30000;
     const wait=()=>new Promise(resolve=>setTimeout(resolve,100));
     let address;
     while(Date.now()<deadline && !address && !launchError && child.exitCode===null) {address=/DevTools listening on (ws:\/\/\S+)/.exec(errors)?.[1];await wait();}
+    if(!address) hostDiagnostics.emit('failed-launch',()=>({process:hostDiagnostics.processSnapshot(child.pid),
+      audit:hostDiagnostics.auditSnapshot({pid:child.pid,binary:launch.identity.binary,startedAt:launchStartedAt})}));
     assert.ok(address,errors);
     const endpoint=new URL(address);
     assert.equal(endpoint.protocol,'ws:');assert.equal(endpoint.hostname,'127.0.0.1');
