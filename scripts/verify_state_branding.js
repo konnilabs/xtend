@@ -120,13 +120,20 @@ function stripAllowedDocsSearchMigration(content) {
 function stripHistoricalMembershipReference(content, rootDir) {
   try {
     const document = JSON.parse(content);
-    const historicalPath = `development/ER-WP-11-Fabric-an-${REMOVED_LOWER_BRAND}-API-und-XTendRMT-Diagnostics-anbinden.md`;
-    const absolute = path.join(rootDir, historicalPath);
-    if (!Array.isArray(document.productivePaths) || !isExcluded(historicalPath)
-      || !fs.existsSync(absolute) || !fs.lstatSync(absolute).isFile()
-      || fs.realpathSync(absolute) !== path.resolve(absolute)) return content;
-    return JSON.stringify({ ...document, productivePaths: document.productivePaths
-      .map(value => value === historicalPath ? ' '.repeat(value.length) : value) }, null, 2);
+    const historicalPaths = new Set([
+      `development/ER-WP-11-Fabric-an-${REMOVED_LOWER_BRAND}-API-und-XTendRMT-Diagnostics-anbinden.md`,
+      `development/WP-05-${REMOVED_PASCAL_BRAND}-Core-Contract-Vereinheitlichung.md`,
+      `development/WP-E12-08-${REMOVED_LOWER_BRAND}-Adapter-Typing-und-Lifecycle-Boundary-Probe-bauen.md`,
+      `development/WP-E18-07-Typed-State-Selectors-und-${REMOVED_PASCAL_BRAND}-Bridge-fuer-Apps-bauen.md`
+    ]);
+    if (!Array.isArray(document.productivePaths)) return content;
+    return JSON.stringify({ ...document, productivePaths: document.productivePaths.map(value => {
+      if (!historicalPaths.has(value) || !isExcluded(value)) return value;
+      const absolute = path.join(rootDir, value);
+      if (!fs.existsSync(absolute) || !fs.lstatSync(absolute).isFile()
+        || fs.realpathSync(absolute) !== path.resolve(absolute)) return value;
+      return ' '.repeat(value.length);
+    }) }, null, 2);
   } catch (_) { return content; }
 }
 
