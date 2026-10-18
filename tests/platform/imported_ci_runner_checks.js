@@ -5,7 +5,7 @@ const path = require('node:path');
 const { crc32 } = require('node:zlib');
 const { hash, profileIds, canonicalSuite } = require('../../scripts/test-runner/catalog');
 const { normalizeSuiteResult } = require('../utils/reporting');
-const { SCHEMA, verifyExecution } = require('../../scripts/test-runner/executor');
+const { SCHEMA, verifyExecution, provenance } = require('../../scripts/test-runner/executor');
 const { BINDING_SCHEMA, expectedProducer, selectArtifact, readArchive, resolveImportedCi } = require('../../scripts/test-runner/imported-ci');
 const { parseArgs } = require('../../scripts/test-runner/cli');
 
@@ -28,7 +28,18 @@ function archive(entries) {
 
 async function runImportedCiRunnerChecks({ check, temp, rootDir }) {
   const env = { GITHUB_EVENT_NAME: 'pull_request', GITHUB_REPOSITORY: 'konnilabs/xtend', GITHUB_WORKFLOW_REF: 'konnilabs/xtend/.github/workflows/xtend-default-gates.yml@refs/pull/112/merge',
-    GITHUB_RUN_ID: '38625435006', GITHUB_SHA: 'tested-merge-sha', XTEND_CI_LANE: 'node-24-lts' };
+    GITHUB_RUN_ID: '38625435006', GITHUB_SHA: 'b'.repeat(40), XTEND_TESTED_SHA: 'a'.repeat(40), XTEND_CI_LANE: 'node-24-lts' };
+  await check('Producer records actual checkout; independent PR head rejects missing, invalid or substituted expected SHA', () => {
+    const saved = ['GITHUB_RUN_ID','XTEND_CI_LANE','GITHUB_SHA'].map(key => [key,process.env[key]]);
+    try {
+      process.env.GITHUB_RUN_ID=env.GITHUB_RUN_ID;process.env.XTEND_CI_LANE=env.XTEND_CI_LANE;process.env.GITHUB_SHA=env.GITHUB_SHA;
+      const actual=provenance();assert.equal(actual.producer.testedSHA,actual.commit);assert.notEqual(actual.producer.testedSHA,env.GITHUB_SHA);
+    } finally { for(const [key,value] of saved){if(value===undefined)delete process.env[key];else process.env[key]=value;} }
+    assert.equal(expectedProducer(env).testedSHA,env.XTEND_TESTED_SHA);
+    for(const value of [undefined,'','not-a-sha'])assert.throws(()=>expectedProducer({...env,XTEND_TESTED_SHA:value}),/independent tested source SHA/);
+    const push=expectedProducer({...env,GITHUB_EVENT_NAME:'push',GITHUB_SHA:'c'.repeat(40),XTEND_TESTED_SHA:'c'.repeat(40)});
+    assert.equal(push.testedSHA,'c'.repeat(40));
+  });
   const expected = expectedProducer(env);
   const job = { name: expected.jobName, status: 'completed', conclusion: 'success', run_attempt: 2,
     started_at: '2026-10-14T19:48:54Z', completed_at: '2026-10-14T19:54:30Z' };
@@ -38,7 +49,7 @@ async function runImportedCiRunnerChecks({ check, temp, rootDir }) {
   const binding = selectArtifact({ jobs: [job], artifacts: [old, fresh], expected });
   const ids = profileIds(expected.profile);
   const report = { schema: SCHEMA, executionId: 'actual-producer-execution', profile: expected.profile, producer: binding.producer,
-    run: `${env.GITHUB_RUN_ID}:2`, commit: env.GITHUB_SHA, sourceFingerprint: 'source', catalogFingerprint: 'catalog',
+    run: `${env.GITHUB_RUN_ID}:2`, commit: env.XTEND_TESTED_SHA, sourceFingerprint: 'source', catalogFingerprint: 'catalog',
     runtime: { node: 'v24.18.0', platform: 'linux', arch: 'x64', runnerImage: 'producer-image', php: '8.4', browser: 'producer-browser', environmentFingerprint: 'producer-env' },
     startedAt: '2026-10-14T19:49:00Z', completedAt: '2026-10-14T19:54:00Z', complete: true, status: 'passed', expected: ids,
     results: ids.map(id => ({ id, executionId: canonicalSuite(id).id, completedAt: '2026-10-14T19:54:00Z', result: normalizeSuiteResult({ id, ok: true }) })) };
@@ -60,6 +71,8 @@ async function runImportedCiRunnerChecks({ check, temp, rootDir }) {
       r => { r.startedAt = '2026-10-14T19:38:59Z'; }, r => { r.completedAt = 'invalid'; }, r => { r.complete = false; }, r => { r.status = 'failed'; }];
     for (const mutate of mutations) { const bad = structuredClone(report); mutate(bad); assert.equal(verify(bad).status, 'failed', String(mutate)); }
     assert.equal(verify(report, binding, { ...current, run: 'other:2' }).status, 'failed');
+    assert.equal(verify(report, {...binding,producer:{...binding.producer,testedSHA:env.GITHUB_SHA}}).status,'failed');
+    assert.equal(verify(report,binding,{...current,commit:env.GITHUB_SHA}).status,'failed');
     assert.equal(verify(report, { ...binding, producerNode: '^24' }).status, 'failed');
     assert.equal(verify(report, { ...binding, artifact: { ...binding.artifact, digest: 'bad' } }).status, 'failed');
   });
@@ -131,6 +144,7 @@ async function runImportedCiRunnerChecks({ check, temp, rootDir }) {
     assert.deepEqual(actionReadJobs, ['core-installed-consumers', 'core-security-browser', 'npm-publish-latest', 'release-prepare', 'release-seal', 'rmt-vnext-primitive-gates']);
     assert.equal((workflow.match(/actions: read/g) || []).length, actionReadJobs.length);
     const consumer = workflow.split('  rmt-vnext-primitive-gates:\n')[1].split(/\n  [\w-]+:\n/)[0];
+    assert(consumer.includes('XTEND_TESTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}'));
     assert(consumer.includes('actions: read')); assert(consumer.includes('GH_TOKEN: ${{ github.token }}'));
     assert(consumer.includes('run: node scripts/test-runner/imported-ci.js'));
     assert(!consumer.includes('actions/download-artifact@')); assert.equal((consumer.match(/--imported-ci /g) || []).length, 2);

@@ -84,6 +84,7 @@
   },
   "files": [
     "index.js",
+    "html-security.js",
     "index.d.ts",
     "runtime.js",
     "runtime.d.ts",

@@ -19,9 +19,14 @@ function checkMaracaHtmlSecurity(configuration,rootDir){
    }catch{add('xtend.maraca.html_security.source_invalid','HTML security could not read an application source within the configured root.',typeof file==='string'?file:undefined);}
   }
  }
- const {createDownstreamNoManualHtmlGate}=require('../tools/rmt-language/app-platform-tooling');
- const gate=createDownstreamNoManualHtmlGate({syntax:true,rootDir});
- diagnostics.push(...gate.scanFiles(files));
+ try{
+  const {createDownstreamNoManualHtmlGate}=require('@ccslabs/xtend-compiler/rmt-language/app-platform-tooling');
+  const gate=createDownstreamNoManualHtmlGate({syntax:true,rootDir});
+  diagnostics.push(...gate.scanFiles(files));
+ }catch(error){
+  if(!['MODULE_NOT_FOUND','ERR_PACKAGE_PATH_NOT_EXPORTED'].includes(error.code))throw error;
+  add('rmt.app.no-manual-shell.toolchain-missing','HTML security requires the locally installed XTend compiler and its audit dependencies.');
+ }
  return {schema:'xtend.maraca.html-security-report.v1',ok:!diagnostics.some(d=>d.severity==='error'),sources,diagnostics};
 }
 function applyMaracaHtmlSecurity(plan,input,options){
