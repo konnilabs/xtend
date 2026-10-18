@@ -7477,7 +7477,8 @@ function assertCiDefaultGatesReference(context, rootDir) {
   context.assert(npmPublishLatest.defaultPublish === false && npmPublishLatest.prereleaseTag === 'next', 'Publish remains opt-in and separates prerelease tags');
   const releaseInventory = readJson('scripts/release/inventory.json', rootDir);
   context.assert(npmPublishLatest.inventory === 'scripts/release/inventory.json' && npmPublishLatest.packageSet.length === releaseInventory.packages.length && releaseInventory.packages.every(entry => npmPublishLatest.packageSet.includes(entry.name)), 'Publish metadata includes all ten central inventory packages');
-  ['laravel-release-gates', 'product-candidate-canary', 'release-seal'].forEach(gate => context.assert(npmPublishLatest.requires.includes(gate), `Publish metadata preserves ${gate}`));
+  ['laravel-release-gates', 'core-source-artifact', 'release-prepare', 'core-installed-consumers', 'core-security-browser', 'release-seal'].forEach(gate => context.assert(npmPublishLatest.requires.includes(gate), `Publish metadata preserves ${gate}`));
+  context.assert(!npmPublishLatest.requires.includes('product-candidate-canary'), 'Core publish metadata remains independent of Demo-owned canary gates');
   context.assert(Array.isArray(npmPublishLatest.requiredCommands) && npmPublishLatest.requiredCommands.includes('npm run release:report'), 'Package metadata requires release report before npm publish');
   context.assert(Array.isArray(npmPublishLatest.requiredCommands) && npmPublishLatest.requiredCommands.includes('npm run test:xtensions-framework-adapters:report'), 'Package metadata requires XTensions framework adapter report before npm publish');
   context.assert(Array.isArray(npmPublishLatest.requiredCommands) && npmPublishLatest.requiredCommands.includes('npm run test:xtend-dev-surface:report'), 'Package metadata requires XTend Dev Surface report before npm publish');
