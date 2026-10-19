@@ -104,3 +104,28 @@ async function runSurfaceRetentionAssertions(context, { createRmtSurfaceResource
   }
 }
 module.exports.runSurfaceRetentionAssertions = runSurfaceRetentionAssertions;
+
+function runStateProjectionRetentionAssertions(context, { createRmtStateHostAdapter }) {
+  const state = new Map(); let batches = 0;
+  const target = { batchUpdate(values) { batches++; Object.entries(values).forEach(([key, value]) => state.set(key, value)); }, get: key => state.get(key) };
+  const defaults = createRmtStateHostAdapter({ target, strict: true });
+  for (let i = 0; i < 350; i++) { defaults.batchUpdate({ a: { frame: i }, b: i }); defaults.get('a'); }
+  const writes = defaults.listWrites();
+  context.assert(writes.length === 100 && writes[0].value.frame === 300 && writes[99].value === 349, 'State projection retains the latest 100 per-key writes across atomic batches');
+  context.assert(defaults.listReads().length === 100 && batches === 350 && state.get('b') === 349, 'read journals are bounded independently of atomic projection delivery');
+  writes[0].value.frame = -1;
+  context.assert(defaults.listWrites()[0].value.frame === 300, 'projection journal reads remain defensive copies');
+  for (const limit of [0, 1, 3, Infinity, -1, 1.5, NaN, null, '3', Number.MAX_SAFE_INTEGER + 1]) {
+    const valid = limit === Infinity || Number.isSafeInteger(limit) && limit >= 0;
+    const adapter = createRmtStateHostAdapter({ target, writeHistoryLimit: limit, readHistoryLimit: limit });
+    for (let i = 0; i < 6; i++) { adapter.set('single', i); adapter.batchUpdate({ a: i }); adapter.get('a'); }
+    context.assert(adapter.listWrites().length === (valid ? Math.min(12, limit) : 12) && adapter.listReads().length === (valid ? Math.min(6, limit) : 6), `State projection journal limits normalize ${String(limit)}`);
+  }
+  let metadataReads = 0;
+  const metadata = { get expensiveDiagnostic() { metadataReads++; return 'unused'; } };
+  const disabled = createRmtStateHostAdapter({ target, strict: true, writeHistoryLimit: 0, readHistoryLimit: 2 });
+  disabled.batchUpdate({ a: { frame: 777 } }, metadata);
+  disabled.get('a'); disabled.get('a'); disabled.get('a');
+  context.assert(metadataReads === 0 && disabled.listWrites().length === 0 && disabled.listReads().length === 2 && state.get('a').frame === 777, 'write opt-out skips diagnostic-only cloning while preserving delivery and independent read retention');
+}
+module.exports.runStateProjectionRetentionAssertions = runStateProjectionRetentionAssertions;

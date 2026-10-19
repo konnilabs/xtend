@@ -2447,6 +2447,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         );
       }
       const state = stateFactory({
+        stateProjectionWriteHistoryLimit: options.stateProjectionWriteHistoryLimit,
+        stateProjectionReadHistoryLimit: options.stateProjectionReadHistoryLimit,
         states: asRecord(artifact.state).states || [],
         selectors: asRecord(artifact.state).selectors || [],
         derive: asRecord(artifact.state).derive || asRecord(artifact.state).derived || [],

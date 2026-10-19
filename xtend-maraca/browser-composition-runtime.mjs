@@ -207,6 +207,8 @@ function createRuntimeConfiguration(config, options, host, handles) {
     fastPassActions: options.fastPassActions || [],
     actionHistoryLimit: options.actionHistoryLimit,
     commandHistoryLimit: options.commandHistoryLimit,
+    stateProjectionWriteHistoryLimit: options.stateProjectionWriteHistoryLimit,
+    stateProjectionReadHistoryLimit: options.stateProjectionReadHistoryLimit,
     diagnosticLimit: options.diagnosticLimit,
     actionResultDiagnostics: options.actionResultDiagnostics,
     domRenderer: handles.renderer,

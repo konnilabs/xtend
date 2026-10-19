@@ -199,6 +199,8 @@ steuern. Die Browser Composition Root reicht sie an die Plan Runtime weiter:
 await bootXtendMaraca({
   actionHistoryLimit: 0,
   commandHistoryLimit: 0,
+  stateProjectionWriteHistoryLimit: 0,
+  stateProjectionReadHistoryLimit: 0,
   diagnosticLimit: 50,
   actionResultDiagnostics: 'current'
 });
@@ -218,3 +220,11 @@ Streams, Hydration und Transition-Telemetrie haben eigene Lifecycles und Verträ
 Für Beobachter ist `subscribeEvents()` der leichte Signalpfad; `subscribe()` und
 `snapshot()` erzeugen vollständige Snapshots einschließlich gehaltener Historien.
 Siehe [Action Effect Runtime](./rmt-action-effect-runtime.md#begrenzte-diagnose--und-ergebnisaufbewahrung).
+
+`stateProjectionWriteHistoryLimit` und `stateProjectionReadHistoryLimit` steuern
+unabhängig die Journale des State Host Adapters (Standard jeweils 100 Records).
+Ein Write-Record entspricht einem projizierten Schlüssel, nicht einem ganzen Batch.
+Ein Journal-Limit von `0` überspringt auch die ausschließlich dafür angelegten
+Wert-/Metadatenkopien; die atomare Host-Projektion bleibt erhalten. Bei direkter
+Adapter-Komposition heißen die Optionen `writeHistoryLimit` und `readHistoryLimit`.
+Die gleichen Limits stehen am State Selector Runtime Factory zur Verfügung.

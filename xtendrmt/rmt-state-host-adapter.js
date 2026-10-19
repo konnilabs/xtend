@@ -33,6 +33,22 @@
     const strict = options.strict === true || options.strictMaraca === true;
     const writes = [];
     const reads = [];
+    const limit = value => value === Infinity ? Infinity
+      : Number.isSafeInteger(value) && value >= 0 ? value : 100;
+    const writeHistoryLimit = limit(options.writeHistoryLimit);
+    const readHistoryLimit = limit(options.readHistoryLimit);
+    const retain = (store, entry, size) => {
+      store.push(entry);
+      if (store.length > size) store.splice(0, store.length - size);
+    };
+    function recordWrite(key, value, mirrored, metadata, batched = false) {
+      // In particular, opt-out must skip diagnostic-only value/metadata clones.
+      if (writeHistoryLimit === 0) return;
+      retain(writes, {
+        key, value: cloneValue(value, value), mirrored,
+        ...(batched ? { batched: true } : {}), metadata: cloneValue(metadata, {})
+      }, writeHistoryLimit);
+    }
 
     if (strict && target && typeof target.batchUpdate !== 'function') {
       throw createBatchRequiredError();
@@ -49,12 +65,7 @@
         target.setState(safeKey, cloneValue(value, value));
         mirrored = true;
       }
-      writes.push({
-        key: safeKey,
-        value: cloneValue(value, value),
-        mirrored,
-        metadata: cloneValue(metadata, {})
-      });
+      recordWrite(safeKey, value, mirrored, metadata);
       return mirrored;
     }
 
@@ -82,13 +93,7 @@
         });
       }
       entries.forEach(([key, value]) => {
-        writes.push({
-          key,
-          value: cloneValue(value, value),
-          mirrored,
-          batched: true,
-          metadata: cloneValue(metadata, {})
-        });
+        recordWrite(key, value, mirrored, metadata, true);
       });
       return mirrored;
     }
@@ -101,7 +106,7 @@
       } else if (target && typeof target.getState === 'function') {
         value = target.getState(safeKey);
       }
-      reads.push({ key: safeKey, hit: typeof value !== 'undefined' });
+      if (readHistoryLimit > 0) retain(reads, { key: safeKey, hit: typeof value !== 'undefined' }, readHistoryLimit);
       return typeof value === 'undefined' ? fallbackValue : value;
     }
 

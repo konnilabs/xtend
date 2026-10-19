@@ -253,6 +253,9 @@ export interface MaracaPlanRuntimeOptions {
   /** Completed Action and Command history limits (default 100 each). 0 disables storage; Infinity is unbounded. */
   actionHistoryLimit?: number;
   commandHistoryLimit?: number;
+  /** Per-key State Host Adapter journals (default 100 records each). 0 disables journaling; Infinity is unbounded. */
+  stateProjectionWriteHistoryLimit?: number;
+  stateProjectionReadHistoryLimit?: number;
   /** Retained runtime diagnostics (default 200). Does not disable live diagnostic publication. */
   diagnosticLimit?: number;
   /** Action result diagnostics: this run (default), retained history, or none. */
