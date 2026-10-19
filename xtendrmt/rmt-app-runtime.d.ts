@@ -322,6 +322,10 @@ export interface RmtAppPerformanceSamplePort {
 }
 
 export interface RmtAppRuntimeOptions extends Record<string, unknown> {
+  /** Retained completed commands (default 100). 0 disables storage; Infinity opts into unbounded history. */
+  historyLimit?: number;
+  /** Retained diagnostics (default 200). Hub publication is independent of retention. */
+  diagnosticLimit?: number;
   hostPort?: RmtAppHostPort;
   appHostPort?: RmtAppHostPort;
   managedModel?: boolean;

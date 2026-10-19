@@ -189,3 +189,32 @@ Für angrenzende Themen lies weiter bei [RMT App Platform Tooling](./rmt-app-pla
 Maraca kann vollständig clientseitig über einen HTTP-Server rendern; SSR und Resumability sind optionale Integrationen. Dringende Navigation, Close und Fokus lassen sich mit [FastPass](./maraca-fastpass-abort-boundary.md) deklarieren. Dieselbe Seite erläutert automatische Präsentationsepochen und die schlanke Lifecycle-Beobachtung über `subscribeEvents()`.
 
 Für servergestützte Anwendungen bietet die [Seitenlaufzeit](./ssr-pages.md) unabhängige Node- und Laravel-Hosts, Page Wire und die Referenzanwendung XTend.store. [Hydrangea JIT](./rmt-jit-hydrangea.md) optimiert optional den Tooling-Pfad des Playgrounds; es ist keine Voraussetzung für ausgelieferte Maraca-Bundles.
+
+## Runtime-Historien und Browsergames
+
+Lange laufende Anwendungen können die Aufbewahrung über dokumentierte Boot-Optionen
+steuern. Die Browser Composition Root reicht sie an die Plan Runtime weiter:
+
+```js
+await bootXtendMaraca({
+  actionHistoryLimit: 0,
+  commandHistoryLimit: 0,
+  diagnosticLimit: 50,
+  actionResultDiagnostics: 'current'
+});
+```
+
+`actionHistoryLimit` und `commandHistoryLimit` sind unabhängig und haben jeweils den
+Standard 100; `diagnosticLimit` ist 200 für Plan-, Action-, App- und Surface-Graph-
+Diagnosen. `0` deaktiviert die jeweilige Speicherung, `Infinity` ist ein explizites
+Opt-in für unbegrenzte History. Ungültige Limits verwenden den jeweiligen Standard.
+`actionResultDiagnostics` unterstützt `'current'` (Standard), `'history'` und `'none'`.
+Die ehemalige kumulative Ergebnisdiagnostik lässt sich mit `'history'` wieder
+aktivieren; zusammen mit unbegrenzter History ist ihr Speicherbedarf unbeschränkt.
+
+Diese Optionen verändern weder RMT-Zustandsautorität, Renderer noch Validierung.
+Sie sind keine globalen Schalter für sämtliche Framework-Caches: Scheduler-Jobs,
+Streams, Hydration und Transition-Telemetrie haben eigene Lifecycles und Verträge.
+Für Beobachter ist `subscribeEvents()` der leichte Signalpfad; `subscribe()` und
+`snapshot()` erzeugen vollständige Snapshots einschließlich gehaltener Historien.
+Siehe [Action Effect Runtime](./rmt-action-effect-runtime.md#begrenzte-diagnose--und-ergebnisaufbewahrung).

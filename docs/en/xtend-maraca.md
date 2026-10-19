@@ -189,3 +189,32 @@ For adjacent topics, continue with [RMT App Platform Tooling](./rmt-app-platform
 Maraca can render entirely on the client over an HTTP server; SSR and resumability are optional integrations. Declare urgent navigation, close and focus with [FastPass](./maraca-fastpass-abort-boundary.md). That guide also covers automatic presentation epochs and lightweight lifecycle observation through `subscribeEvents()`.
 
 For server-backed applications, the [page runtime](./ssr-pages.md) provides independent Node and Laravel hosts, Page Wire and the XTend.store reference application. [Hydrangea JIT](./rmt-jit-hydrangea.md) optionally optimizes the Playground tooling path; deployed Maraca bundles do not require it.
+
+## Runtime histories and browser games
+
+Long-running applications can control retention through public boot options.
+The browser Composition Root forwards these to the Plan Runtime:
+
+```js
+await bootXtendMaraca({
+  actionHistoryLimit: 0,
+  commandHistoryLimit: 0,
+  diagnosticLimit: 50,
+  actionResultDiagnostics: 'current'
+});
+```
+
+`actionHistoryLimit` and `commandHistoryLimit` are independent, defaulting to 100
+each. `diagnosticLimit` defaults to 200 for Plan, Action, App and Surface Graph
+diagnostics. `0` disables the respective store; `Infinity` explicitly opts into
+unlimited history. Invalid limits use the respective default.
+`actionResultDiagnostics` accepts `'current'` (default), `'history'` and `'none'`.
+The former cumulative result diagnostics can be restored with `'history'`; when
+combined with unlimited history, memory consumption is unbounded.
+
+These options do not change RMT state authority, the renderer or validation. They
+are not global switches for every framework cache: scheduler jobs, streams,
+hydration and transition telemetry have separate lifecycles and contracts.
+For observers, `subscribeEvents()` is the lightweight signal path; `subscribe()`
+and `snapshot()` produce full snapshots including retained histories.
+See [Action Effect Runtime](./rmt-action-effect-runtime.md#bounded-diagnostic-and-result-retention).

@@ -505,6 +505,7 @@ async function runRmtActionEffectRuntimeSuite(options = {}) {
   const runtimeSyntax = syntaxCheckFile(RMT_ACTION_EFFECT_RUNTIME_RUNTIME, { rootDir, extension: '.js' });
   const actionRuntimeModule = await loadActionRuntimeModule(rootDir);
   const stateRuntimeModule = await loadStateRuntimeModule(rootDir);
+  await require('./runtime_retention_assertions').runActionRetentionAssertions(context, actionRuntimeModule);
 
   REQUIRED_ARTIFACTS.forEach((filePath) => {
     assertFileExists(context, filePath, rootDir, `${filePath} exists as WP-E18-08 artifact`);

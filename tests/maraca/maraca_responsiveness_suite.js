@@ -287,6 +287,25 @@ async function runMaracaResponsivenessSuite({ rootDir = path.resolve(__dirname, 
     catch (error) { rejected = error.code === 'xtend.maraca.fastpass.invalid-action'; }
     context.assert(rejected, `runtime rejects unsafe FastPass definition ${JSON.stringify(extra)}`);
   }
+  const retentionRoot = documentTarget.createElement('main'); retentionRoot.ownerDocument = documentTarget;
+  const retentionScheduler = schedulerApi.createRmtKernelScheduler({ preferPostTask: false });
+  let actionOptions, appOptions, graphOptions;
+  const retentionModules = { ...modules,
+    action: { ...modules.action, createRmtActionEffectRuntime(options) { actionOptions = options; return modules.action.createRmtActionEffectRuntime(options); } },
+    app: { ...modules.app, createRmtAppRuntime(options) { appOptions = options; return modules.app.createRmtAppRuntime(options); } },
+    surfaces: { ...modules.surfaces, createRmtSurfaceResourceGraphRuntime(options) { graphOptions = options; return modules.surfaces.createRmtSurfaceResourceGraphRuntime(options); } }
+  };
+  const retentionRuntime = createMaracaPlanRuntime({
+    plan: { artifact: { state: {}, actions: { actions: [{ id: 'tick' }] }, render: { root: { type: 'fragment', children: [] } } } },
+    root: retentionRoot, documentTarget, scheduler: retentionScheduler, moduleApis: retentionModules,
+    actionHistoryLimit: 0, commandHistoryLimit: 7, diagnosticLimit: 0, actionResultDiagnostics: 'none'
+  });
+  await retentionRuntime.boot();
+  const retainedResult = await retentionRuntime.dispatchCommand('tick');
+  const retainedSnapshot = retentionRuntime.snapshot();
+  context.assert(actionOptions.historyLimit === 0 && actionOptions.diagnosticLimit === 0 && actionOptions.resultDiagnostics === 'none' && appOptions.historyLimit === 7 && appOptions.diagnosticLimit === 0 && graphOptions.diagnosticLimit === 0, 'Plan Runtime forwards granular retention to native Action, App and Surface ports');
+  context.assert(retainedResult.status === 'success' && retainedResult.diagnostics.length === 0 && retainedSnapshot.actions.length === 0 && retainedSnapshot.diagnostics.length === 0, 'zero retention preserves public command execution without storing results or diagnoses');
+  retentionRuntime.dispose(); retentionScheduler.dispose();
   return context.result();
 }
 function printMaracaResponsivenessReport(result) { printSuiteReport(result); }

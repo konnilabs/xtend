@@ -250,6 +250,13 @@ export interface MaracaHydrationContext extends Record<string, unknown> {
 }
 
 export interface MaracaPlanRuntimeOptions {
+  /** Completed Action and Command history limits (default 100 each). 0 disables storage; Infinity is unbounded. */
+  actionHistoryLimit?: number;
+  commandHistoryLimit?: number;
+  /** Retained runtime diagnostics (default 200). Does not disable live diagnostic publication. */
+  diagnosticLimit?: number;
+  /** Action result diagnostics: this run (default), retained history, or none. */
+  actionResultDiagnostics?: 'current' | 'history' | 'none';
   plan: Record<string, unknown>;
   fastPassActions?: readonly MaracaFastPassAction[];
   root: ParentNode & { replaceChildren(...nodes: Node[]): void };

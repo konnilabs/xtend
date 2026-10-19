@@ -183,6 +183,8 @@ export interface RmtSurfaceManagerLike {
 }
 
 export interface RmtSurfaceResourceGraphRuntimeOptions {
+  /** Retained diagnostics (default 200). 0 disables storage; Infinity opts into unbounded history. */
+  diagnosticLimit?: number;
   getSurfaceBoundary?(id: string): RmtPresentationBoundaryPort;
   surfaces?: RmtSurfaceDefinition[];
   surfaceTemplates?: RmtSurfaceDefinition[];

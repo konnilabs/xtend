@@ -68,14 +68,26 @@ function createRmtActionEffectRuntimeModule() {
     return value;
   }
 
+  function normalizeRetentionLimit(value, fallback) {
+    return value === Infinity ? Infinity
+      : Number.isSafeInteger(value) && value >= 0 ? value : fallback;
+  }
+
+  function retainEntry(store, entry, limit) {
+    if (limit === 0) return;
+    store.push(entry);
+    if (store.length > limit) store.splice(0, store.length - limit);
+  }
+
   function createDiagnosticsRecorder(deps = {}) {
     const diagnostics = [];
+    const diagnosticLimit = normalizeRetentionLimit(deps.diagnosticLimit, 200);
     const diagnosticsHub = deps.diagnosticsHub || null;
     const channel = clampString(deps.diagnosticChannel, DEFAULT_DIAGNOSTIC_CHANNEL);
     return {
       diagnostics,
       publish(diagnostic) {
-        diagnostics.push(diagnostic);
+        retainEntry(diagnostics, diagnostic, diagnosticLimit);
         if (diagnosticsHub && typeof diagnosticsHub.publish === 'function') {
           diagnosticsHub.publish(channel, diagnostic, {
             schema: RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA
@@ -482,6 +494,13 @@ function createRmtActionEffectRuntimeModule() {
     const planningOnly = options.planningOnly === true || options.managedController === true || !modelCommandPort;
     const actionStatus = {};
     const actionHistory = [];
+    const historyLimit = normalizeRetentionLimit(options.historyLimit, 100);
+    const resultDiagnostics = ['current', 'history', 'none'].includes(options.resultDiagnostics)
+      ? options.resultDiagnostics : 'current';
+    function diagnosticsForResult(current) {
+      return resultDiagnostics === 'none' ? []
+        : resultDiagnostics === 'history' ? diagnosticsRecorder.diagnostics.slice() : current.slice();
+    }
     const activeRuns = new Map();
     let runSequence = 0;
 
@@ -593,6 +612,12 @@ function createRmtActionEffectRuntimeModule() {
       const action = actionIndex.get(clampString(actionId));
       if (!action) throw new Error(`RMT Action ${actionId} ist nicht definiert.`);
       const source = action.datasource ? dataSourceIndex.get(action.datasource) : null;
+      // Per-run collection avoids cross-talk between concurrent executions.
+      const runDiagnostics = [];
+      const publishRunDiagnostic = diagnostic => {
+        runDiagnostics.push(diagnostic);
+        return diagnosticsRecorder.publish(diagnostic);
+      };
       runSequence += 1;
       const runId = clampString(
         hostPort.createRunId && hostPort.createRunId(action.id, runSequence),
@@ -622,18 +647,18 @@ function createRmtActionEffectRuntimeModule() {
         patchState(modelCommandPort, action.statusState, { status: 'loading', action: action.id }, { operation: 'action.loading', action: action.id });
         if (action.loadingState) writeState(modelCommandPort, action.loadingState, true, { operation: 'action.loading', action: action.id });
       }
-      diagnosticsRecorder.publish(createDiagnostic('rmt.action.loading', `RMT Action ${action.id} laeuft.`, { action: action.id }, 'info'));
+      publishRunDiagnostic(createDiagnostic('rmt.action.loading', `RMT Action ${action.id} laeuft.`, { action: action.id }, 'info'));
       try {
-        if (token.cancelled) return cancelResult(action, runId, ownerId, payload, metadata);
+        if (token.cancelled) return cancelResult(action, runId, ownerId, payload, metadata, runDiagnostics);
         await resourceManager.acquireMany(action.resources, ownerId, { action, payload, stateRuntime, signal: controller.signal });
         if (token.cancelled) {
-          return cancelResult(action, runId, ownerId, payload, metadata);
+          return cancelResult(action, runId, ownerId, payload, metadata, runDiagnostics);
         }
         const data = source
           ? await runDataSource(source, payload, { dataSourceAdapters: options.dataSourceAdapters, hostServiceRegistry, context: { action, payload, stateRuntime, hostServiceRegistry, signal: controller.signal, commandEnvelope: metadata.commandEnvelope || null, correlationId: metadata.correlationId || null } })
           : cloneValue(payload, payload);
         if (token.cancelled) {
-          return cancelResult(action, runId, ownerId, payload, metadata);
+          return cancelResult(action, runId, ownerId, payload, metadata, runDiagnostics);
         }
         const modelOperations = [];
         if (action.resultState) modelOperations.push({ operation: 'set', state: action.resultState, value: cloneValue(data, data) });
@@ -677,7 +702,7 @@ function createRmtActionEffectRuntimeModule() {
           }));
         }
         actionStatus[action.id] = 'success';
-        diagnosticsRecorder.publish(createDiagnostic('rmt.action.success', `RMT Action ${action.id} war erfolgreich.`, { action: action.id }, 'info'));
+        publishRunDiagnostic(createDiagnostic('rmt.action.success', `RMT Action ${action.id} war erfolgreich.`, { action: action.id }, 'info'));
         const result = {
           schema: 'xtend.epic18.rmt-action-result.v1',
           id: action.id,
@@ -692,13 +717,13 @@ function createRmtActionEffectRuntimeModule() {
           reducers: reducerResults.map((entry) => cloneValue(entry, entry)),
           commandEnvelope: metadata.commandEnvelope ? cloneValue(metadata.commandEnvelope, metadata.commandEnvelope) : null,
           correlationId: metadata.correlationId || metadata.commandEnvelope && metadata.commandEnvelope.correlationId || null,
-          diagnostics: diagnosticsRecorder.diagnostics.slice()
+          diagnostics: diagnosticsForResult(runDiagnostics)
         };
-        actionHistory.push(result);
+        retainEntry(actionHistory, result, historyLimit);
         return result;
       } catch (error) {
         if (token.cancelled || controller.signal.aborted) {
-          return cancelResult(action, runId, ownerId, payload, metadata);
+          return cancelResult(action, runId, ownerId, payload, metadata, runDiagnostics);
         }
         const modelOperations = [];
         if (action.loadingState) modelOperations.push({ operation: 'set', state: action.loadingState, value: false });
@@ -708,7 +733,7 @@ function createRmtActionEffectRuntimeModule() {
           patchState(modelCommandPort, action.statusState, { status: 'error', action: action.id, error: normalizeError(error) }, { operation: 'action.error', action: action.id });
         }
         actionStatus[action.id] = 'error';
-        diagnosticsRecorder.publish(createDiagnostic('rmt.action.error', `RMT Action ${action.id} ist fehlgeschlagen.`, { action: action.id, error: normalizeError(error) }, 'error'));
+        publishRunDiagnostic(createDiagnostic('rmt.action.error', `RMT Action ${action.id} ist fehlgeschlagen.`, { action: action.id, error: normalizeError(error) }, 'error'));
         const result = {
           schema: 'xtend.epic18.rmt-action-result.v1',
           id: action.id,
@@ -717,9 +742,9 @@ function createRmtActionEffectRuntimeModule() {
           error: normalizeError(error),
           modelOperations: planningOnly ? modelOperations : [],
           postCommitEffects: [],
-          diagnostics: diagnosticsRecorder.diagnostics.slice()
+          diagnostics: diagnosticsForResult(runDiagnostics)
         };
-        actionHistory.push(result);
+        retainEntry(actionHistory, result, historyLimit);
         return result;
       } finally {
         if (typeof token.cleanup === 'function') token.cleanup();
@@ -727,7 +752,7 @@ function createRmtActionEffectRuntimeModule() {
       }
     }
 
-    function cancelResult(action, runId, ownerId, payload, metadata = {}) {
+    function cancelResult(action, runId, ownerId, payload, metadata = {}, runDiagnostics = []) {
       activeRuns.delete(runId);
       actionStatus[action.id] = 'cancelled';
       const modelOperations = [];
@@ -738,7 +763,9 @@ function createRmtActionEffectRuntimeModule() {
         patchState(modelCommandPort, action.statusState, { status: 'cancelled', action: action.id }, { operation: 'action.cancelled', action: action.id });
       }
       resourceManager.releaseOwner(ownerId);
-      diagnosticsRecorder.publish(createDiagnostic('rmt.action.cancelled', `RMT Action ${action.id} wurde abgebrochen.`, { action: action.id }, 'warning'));
+      const diagnostic = createDiagnostic('rmt.action.cancelled', `RMT Action ${action.id} wurde abgebrochen.`, { action: action.id }, 'warning');
+      runDiagnostics.push(diagnostic);
+      diagnosticsRecorder.publish(diagnostic);
       const result = {
         schema: 'xtend.epic18.rmt-action-result.v1',
         id: action.id,
@@ -748,9 +775,9 @@ function createRmtActionEffectRuntimeModule() {
         postCommitEffects: [],
         payload: cloneValue(payload, payload),
         metadata: cloneValue(metadata, {}),
-        diagnostics: diagnosticsRecorder.diagnostics.slice()
+        diagnostics: diagnosticsForResult(runDiagnostics)
       };
-      actionHistory.push(result);
+      retainEntry(actionHistory, result, historyLimit);
       return result;
     }
 
