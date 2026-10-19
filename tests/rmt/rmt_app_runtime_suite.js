@@ -260,6 +260,7 @@ async function runSourceToSeaAssertions(context, rootDir) {
     loadKernelControllerModule(rootDir),
     loadComponentCommandHelper(rootDir)
   ]);
+  await require('./runtime_retention_assertions').runCommandRetentionAssertions(context, appRuntimeModule);
   const presentationViewPort = appViewProjectorModule.createRmtAppPresentationViewPort();
 
   const hostPortCalls = [];

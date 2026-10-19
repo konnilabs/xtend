@@ -1127,6 +1127,7 @@ async function runMaracaOrchestrationSuite(options = {}) {
   });
   const compositionRenderer = { commit() { return null; }, dispose() { return false; } };
   const initialCompositionBootPromise = compositionRuntime.boot({
+    actionHistoryLimit: 0, commandHistoryLimit: 7, diagnosticLimit: 5, actionResultDiagnostics: 'none', stateProjectionWriteHistoryLimit: 0, stateProjectionReadHistoryLimit: 4,
     root: compositionRootTarget,
     domRenderer: compositionRenderer,
     surfaceController: explicitSurfaceController,
@@ -1151,6 +1152,7 @@ async function runMaracaOrchestrationSuite(options = {}) {
     catch (error) { rejected = error.code === 'xtend.maraca.fastpass.unsafe-navigation'; }
     context.assert(rejected && assignedFastPassUrls.length === 0, `default browser adapter blocks unsafe navigation ${value}`);
   }
+  context.assert(capturedRuntimeConfiguration.actionHistoryLimit === 0 && capturedRuntimeConfiguration.commandHistoryLimit === 7 && capturedRuntimeConfiguration.diagnosticLimit === 5 && capturedRuntimeConfiguration.actionResultDiagnostics === 'none' && capturedRuntimeConfiguration.stateProjectionWriteHistoryLimit === 0 && capturedRuntimeConfiguration.stateProjectionReadHistoryLimit === 4, 'browser boot forwards granular retention options without replacing zero limits');
   capturedRuntimeConfiguration.navigationAdapter.navigate('/reports');
   capturedRuntimeConfiguration.navigationAdapter.navigate('#reports');
   context.assert(assignedFastPassUrls.join() === 'https://app.example/reports,https://app.example/start#reports', 'default browser adapter resolves safe routes against Location');

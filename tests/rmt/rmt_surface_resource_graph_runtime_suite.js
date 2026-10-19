@@ -708,6 +708,7 @@ async function runRmtSurfaceResourceGraphRuntimeSuite(options = {}) {
   const runtimeSyntax = syntaxCheckFile(RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_RUNTIME, { rootDir, extension: '.js' });
   const actionRuntimeModule = await loadActionRuntimeModule(rootDir);
   const surfaceRuntimeModule = await loadSurfaceRuntimeModule(rootDir);
+  await require('./runtime_retention_assertions').runSurfaceRetentionAssertions(context, surfaceRuntimeModule, await import('../../components/xsurfacemanager-controller.js'));
 
   REQUIRED_ARTIFACTS.forEach((filePath) => {
     assertFileExists(context, filePath, rootDir, `${filePath} exists as WP-E18-10 artifact`);

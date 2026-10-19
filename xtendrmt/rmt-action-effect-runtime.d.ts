@@ -129,6 +129,12 @@ export interface RmtActionEffectRuntime {
 }
 
 export interface RmtActionEffectRuntimeOptions {
+  /** Retained completed results (default 100). 0 disables storage; Infinity opts into unbounded history. */
+  historyLimit?: number;
+  /** Retained diagnostics (default 200). Hub publication is independent of retention. */
+  diagnosticLimit?: number;
+  /** Result diagnostics: this run (default), retained history, or none. */
+  resultDiagnostics?: 'current' | 'history' | 'none';
   actions?: RmtActionDefinition[];
   dataSources?: RmtDataSourceDefinition[];
   datasources?: RmtDataSourceDefinition[];
