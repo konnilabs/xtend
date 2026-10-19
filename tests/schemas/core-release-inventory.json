@@ -16977,6 +16977,23 @@
       ],
       "status": "open",
       "type": "parallel-fixture-shape"
+    },
+    {
+      "reviewId": "polymorphic-2ad410efc8e9",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "Scope of the approved runtime diagnostics patch: exactly the empty producer probe array and the populated timeout test fixture. Both are non-authoritative internal observations; no error is accepted and no runtime identity check is changed."
+      },
+      "schemaIds": [
+        "xtend.test.probe-diagnostics.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape."
     }
   ],
   "entries": [
@@ -853813,7 +853830,7 @@
       "schemaId": "xtend.test.execution-report.v1",
       "shapeFingerprints": [
         {
-          "hash": "sha256:dcd043d02c9a01bb886cc4643f2c21bbed420e679d784f2b2399929acd9ecbfb",
+          "hash": "sha256:ee2a396b921a2a262b9c9ea3657376c756818d291af303d287491c58f8d609ac",
           "shape": {
             "fieldCount": 12,
             "fields": [
@@ -853892,7 +853909,7 @@
               },
               "unresolvedSpreads": [
                 {
-                  "unresolved": "options.provenance || provenance()"
+                  "unresolved": "options.provenance || provenance({onProbeFailure:record=>{if(probeFailures.length<8)probeFailures.push(record);}})"
                 }
               ]
             }
@@ -853921,11 +853938,11 @@
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
-          "sha256:dcd043d02c9a01bb886cc4643f2c21bbed420e679d784f2b2399929acd9ecbfb"
+          "sha256:ee2a396b921a2a262b9c9ea3657376c756818d291af303d287491c58f8d609ac"
         ],
         "authoritativeFingerprints": [],
         "mode": "single",
-        "rationale": "One statically comparable shape is currently observed for this identifier.",
+        "rationale": "Reviewed internal diagnostic addition: existing required fields, exact provenance comparison and blocking outcomes are unchanged. Optional probe/mismatch diagnostics remain outside runtime; only the current non-authoritative runtime observation is rebound. No released or authoritative fingerprint is changed.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
@@ -854018,7 +854035,7 @@
       "schemaId": "xtend.test.execution-verification.v1",
       "shapeFingerprints": [
         {
-          "hash": "sha256:96b487195ba27e8a591d1fe391fc8bf81536be7eab2c8a25488e9e6b270f826d",
+          "hash": "sha256:25ba53aedbf18c74b0f8e706eb909fe51fdb378121464668b2f6ffc056ddd424",
           "shape": {
             "fieldCount": 5,
             "fields": [
@@ -854097,6 +854114,21 @@
                       "fields": {}
                     }
                   ]
+                },
+                {
+                  "union": [
+                    {
+                      "fields": {
+                        "diagnostics": {
+                          "optional": false,
+                          "type": "unknown"
+                        }
+                      }
+                    },
+                    {
+                      "fields": {}
+                    }
+                  ]
                 }
               ]
             }
@@ -854125,11 +854157,11 @@
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
-          "sha256:96b487195ba27e8a591d1fe391fc8bf81536be7eab2c8a25488e9e6b270f826d"
+          "sha256:25ba53aedbf18c74b0f8e706eb909fe51fdb378121464668b2f6ffc056ddd424"
         ],
         "authoritativeFingerprints": [],
         "mode": "single",
-        "rationale": "Reviewed internal, unreleased verification envelope: existing required fields and outcomes are unchanged; optional imported-CI metadata preserves producer identity, full runtime and immutable artifact binding. No authoritative or released fingerprint is changed.",
+        "rationale": "Reviewed internal diagnostic addition: existing required fields, exact provenance comparison and blocking outcomes are unchanged. Optional probe/mismatch diagnostics remain outside runtime; only the current non-authoritative runtime observation is rebound. No released or authoritative fingerprint is changed.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
@@ -854349,6 +854381,188 @@
         }
       ],
       "version": 1
+    },
+    {
+      "schemaId": "xtend.test.probe-diagnostics.v1",
+      "familyId": "xtend.test.probe-diagnostics",
+      "version": 1,
+      "kinds": [
+        "diagnostic-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "complete"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Identifies the test probe diagnostics diagnostic payload emitted by XTend Build and Test Tooling.",
+      "descriptionStatus": "generated",
+      "canonicalDefinition": {
+        "path": "scripts/test-runner/executor.js",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Build and Test Tooling",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "scripts/test-runner/executor.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "scripts/test-runner/executor.js",
+              "symbol": "execute"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Platform",
+          "role": "producer",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/platform/test_runner_suite.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/platform/test_runner_suite.js",
+              "symbol": "runTestRunnerSuite"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Platform",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/platform/test_runner_suite.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/platform/test_runner_suite.js",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "acceptedFingerprints": [
+          "sha256:a2d14e9aa33a9d21ff522ea6477ada54397b7e272084989d7f3d8f228792ec94",
+          "sha256:a419aaddf7c23a3b97b97e927d73a5e750d18b5cc8ec4171de9fe43d25e6cc78"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Internal optional diagnostics only: the producer empty probe array and populated timeout test fixture are intentional observations of the same bounded allowlisted record. Runtime comparison, failure handling, identity and release authority are unchanged."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:a2d14e9aa33a9d21ff522ea6477ada54397b7e272084989d7f3d8f228792ec94",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "probeFailures"
+            ],
+            "signature": "probeFailures:array<>",
+            "normalized": {
+              "fields": {
+                "probeFailures": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "scripts/test-runner/executor.js"
+          ],
+          "symbols": [
+            "execute"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "scripts/test-runner/executor.js",
+              "symbol": "execute"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:a419aaddf7c23a3b97b97e927d73a5e750d18b5cc8ec4171de9fe43d25e6cc78",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "probeFailures"
+            ],
+            "signature": "probeFailures:array<{code:string,kind:string,probe:string}>",
+            "normalized": {
+              "fields": {
+                "probeFailures": {
+                  "optional": false,
+                  "type": {
+                    "array": [
+                      {
+                        "fields": {
+                          "code": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "kind": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "probe": {
+                            "optional": false,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tests/platform/test_runner_suite.js"
+          ],
+          "symbols": [
+            "runTestRunnerSuite"
+          ],
+          "evidence": [
+            {
+              "type": "test",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "tests/platform/test_runner_suite.js",
+              "symbol": "runTestRunnerSuite"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        }
+      ]
     },
     {
       "aliasOf": null,
@@ -854687,6 +854901,98 @@
         }
       ],
       "version": 1
+    },
+    {
+      "schemaId": "xtend.test.runtime-diagnostics.v1",
+      "familyId": "xtend.test.runtime-diagnostics",
+      "version": 1,
+      "kinds": [
+        "diagnostic-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "complete"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Identifies the test runtime diagnostics diagnostic payload emitted by XTend Build and Test Tooling.",
+      "descriptionStatus": "generated",
+      "canonicalDefinition": {
+        "path": "scripts/test-runner/capabilities.js",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Build and Test Tooling",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "scripts/test-runner/capabilities.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "scripts/test-runner/capabilities.js",
+              "symbol": "base"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "acceptedFingerprints": [
+          "sha256:c078a50fa91d2e67462745d8c4e4e7d8c7444b2575eff3d500477a316075d38d"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Internal optional mismatch diagnostics only; allowlisted values and redacted fields are reporting metadata outside the compared runtime. No released or authoritative fingerprint is introduced."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:c078a50fa91d2e67462745d8c4e4e7d8c7444b2575eff3d500477a316075d38d",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "coverage"
+            ],
+            "signature": "coverage:string",
+            "normalized": {
+              "fields": {
+                "coverage": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "scripts/test-runner/capabilities.js"
+          ],
+          "symbols": [
+            "base"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "scripts/test-runner/capabilities.js",
+              "symbol": "base"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        }
+      ]
     },
     {
       "aliasOf": null,
@@ -979078,6 +979384,23 @@
       ]
     },
     {
+      "activeSchemaId": "xtend.test.probe-diagnostics.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.test.probe-diagnostics",
+      "tombstones": [],
+      "versions": [
+        {
+          "schemaId": "xtend.test.probe-diagnostics.v1",
+          "version": 1,
+          "lifecycle": {
+            "status": "active",
+            "rollout": "complete"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ]
+    },
+    {
       "activeSchemaId": "xtend.test.report.v1",
       "currentVersion": 1,
       "familyId": "xtend.test.report",
@@ -979089,6 +979412,23 @@
           "lifecycle": {
             "rollout": "complete",
             "status": "active"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ]
+    },
+    {
+      "activeSchemaId": "xtend.test.runtime-diagnostics.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.test.runtime-diagnostics",
+      "tombstones": [],
+      "versions": [
+        {
+          "schemaId": "xtend.test.runtime-diagnostics.v1",
+          "version": 1,
+          "lifecycle": {
+            "status": "active",
+            "rollout": "complete"
           },
           "releasedFingerprintSetHash": null
         }
