@@ -178,6 +178,29 @@ require.cache[p]={exports:{
       }
     });
     await require('./imported_ci_runner_checks').runImportedCiRunnerChecks({check,temp,rootDir});
+    await check('Producer probe diagnostics remain outside the compared runtime and preserve verification', async () => {
+      const capabilities=require('../../scripts/test-runner/capabilities'),original=capabilities.toolchainIdentity;
+      const record={probe:'browser.binary',kind:'timeout',code:'ETIMEDOUT'},previousRun=process.env.XTEND_TEST_RUN_ID;
+      try {
+        process.env.XTEND_TEST_RUN_ID='runtime-diagnostic-fixture';
+        capabilities.toolchainIdentity=options=>{
+          options.onProbeFailure?.(record);
+          return {browser:{binary:{command:'/fixture/browser',available:false}},configurationFingerprint:'a'.repeat(64)};
+        };
+        const selected=profileIds('core').map(suite);
+        await execute(selected,{workerPath,execution,resolveSuite:id=>selected.find(s=>s.id===id),json:true,cleanupMs:100});
+        const evidence=JSON.parse(fs.readFileSync(execution));
+        assert.deepEqual(evidence.diagnostics,{schema:'xtend.test.probe-diagnostics.v1',probeFailures:[record]});
+        assert(!Object.hasOwn(evidence.runtime,'diagnostics'));
+        const current=require('../../scripts/test-runner/executor').provenance();
+        assert.deepEqual(evidence.runtime,current.runtime);
+        assert.equal(verifyExecution({verify:'core',from:execution,project:false,provenance:current}).status,'passed');
+      } finally {
+        capabilities.toolchainIdentity=original;
+        if(previousRun===undefined)delete process.env.XTEND_TEST_RUN_ID;else process.env.XTEND_TEST_RUN_ID=previousRun;
+      }
+    });
+    await require('./runtime_provenance_diagnostics_checks').runRuntimeProvenanceDiagnosticsChecks({check});
     await require('./nightly_runner_checks').runNightlyRunnerChecks({check,temp,identity,rootDir});
     await check('Package capture propagates a negative checker outcome to its process exit', () => {
       const program = `const Module=require('module');const original=Module._load;Module._load=function(name,...args){
