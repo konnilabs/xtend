@@ -854398,8 +854398,8 @@
       "aliasOf": null,
       "replacedBy": null,
       "releasedFingerprintSetHash": null,
-      "description": "Identifies the test probe diagnostics diagnostic payload emitted by XTend Build and Test Tooling.",
-      "descriptionStatus": "generated",
+      "description": "Optional internal execution-report diagnostics containing up to eight allowlisted toolchain probe failure records, outside the compared runtime identity.",
+      "descriptionStatus": "curated",
       "canonicalDefinition": {
         "path": "scripts/test-runner/executor.js",
         "symbol": null,
@@ -854462,7 +854462,8 @@
         ],
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
-        "rationale": "Internal optional diagnostics only: the producer empty probe array and populated timeout test fixture are intentional observations of the same bounded allowlisted record. Runtime comparison, failure handling, identity and release authority are unchanged."
+        "rationale": "Accept exactly the two fingerprint-bound internal observations: the statically observed empty array initialization in the producer and the populated timeout test fixture. The producer attaches diagnostics only when probeFailures is nonempty. These optional diagnostics remain outside the compared runtime identity; failure handling, identity checks and release authority are unchanged.",
+        "decision": "accepted-internal-diagnostic-variants"
       },
       "shapeFingerprints": [
         {
@@ -854918,8 +854919,8 @@
       "aliasOf": null,
       "replacedBy": null,
       "releasedFingerprintSetHash": null,
-      "description": "Identifies the test runtime diagnostics diagnostic payload emitted by XTend Build and Test Tooling.",
-      "descriptionStatus": "generated",
+      "description": "Optional internal verification diagnostics explaining a runtime provenance mismatch through bounded, allowlisted differences and redacted probe failure summaries, without changing verification outcomes.",
+      "descriptionStatus": "curated",
       "canonicalDefinition": {
         "path": "scripts/test-runner/capabilities.js",
         "symbol": null,
