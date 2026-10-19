@@ -10,7 +10,7 @@ const SCHEMA = 'xtend.test.execution-report.v1';
 const CLEANUP_MS = 5000;
 const DEFAULT_REPORT = '.xtend-test-results/xtend-test-execution.json';
 
-function provenance() {
+function provenance(options = {}) {
   const git = args => execFileSync('git', args, { cwd: rootDir, maxBuffer: 256 * 1024 * 1024 });
   const commit = git(['rev-parse', 'HEAD']).toString().trim();
   const untracked = git(['ls-files', '--others', '--exclude-standard', '-z']).toString().split('\0').filter(Boolean).sort();
@@ -57,7 +57,7 @@ function provenance() {
     runtime: {
       node: process.version, platform: process.platform, arch: process.arch, nodeOptions: process.env.NODE_OPTIONS || '',
       runnerImage: `${process.env.ImageOS || ''}:${process.env.ImageVersion || ''}`,
-      toolchain: require('./capabilities').toolchainIdentity(),
+      toolchain: require('./capabilities').toolchainIdentity({onProbeFailure:options.onProbeFailure}),
       ...(laravel ? {laravel} : {}),
       ...(shop ? {shop} : {}),
       environmentFingerprint: hash(JSON.stringify(Object.keys(process.env).filter(key=>key.startsWith('XTEND_') && key !== 'XTEND_TEST_RUN_ID').sort().map(key=>[key,process.env[key]])))
@@ -118,7 +118,8 @@ async function execute(selected, options = {}) {
   const jobs = options.jobs || 1;
   if (![1, 2].includes(jobs)) throw new Error('Worker count must be 1 or 2.');
   if (!selected.length) throw new Error('An execution must contain at least one suite.');
-  const identity = options.provenance || provenance();
+  const probeFailures = [];
+  const identity = options.provenance || provenance({onProbeFailure:record=>{if(probeFailures.length<8)probeFailures.push(record);}});
   const executionId = randomUUID();
   const logDir = path.join(rootDir, '.xtend-test-results/test-runner', executionId);
   fs.mkdirSync(logDir, { recursive: true });
@@ -126,6 +127,7 @@ async function execute(selected, options = {}) {
   const queue = [...new Map(selected.map(suite => { const entry = resolve(suite.id); return [entry.id, entry]; })).values()];
   const expected = selected.map(suite => suite.id);
   const report = { schema: SCHEMA, executionId, ...identity, profile: options.profile || null, startedAt: new Date().toISOString(), completedAt: null, complete: false, status: 'failed', jobs, expected, results: [], executions: [], workerCount: 0, peakWorkerRssBytes: 0 };
+  if (probeFailures.length) report.diagnostics = {schema:'xtend.test.probe-diagnostics.v1',probeFailures};
   const workers = [];
   const active = new Map();
   let aborted = null;
@@ -244,7 +246,8 @@ function verifyExecution(options) {
   const bytes = options.executionBytes || (!options.executionReport ? fs.readFileSync(path.resolve(rootDir, options.from)) : null);
   const report = options.executionReport || JSON.parse(bytes);
   const imported = typeof options.importedCi === 'string' ? JSON.parse(fs.readFileSync(path.resolve(rootDir, options.importedCi), 'utf8')) : options.importedCi;
-  const current = options.provenance || provenance();
+  const probeFailures = [];
+  const current = options.provenance || provenance({onProbeFailure:record=>{if(probeFailures.length<8)probeFailures.push(record);}});
   const errors = [];
   if (report.schema !== SCHEMA || !report.executionId || report.complete !== true) errors.push('Missing or incomplete execution report.');
   if (report.infrastructureErrors?.length) errors.push(...report.infrastructureErrors);
@@ -266,6 +269,7 @@ function verifyExecution(options) {
   }
   return { schema: 'xtend.test.execution-verification.v1', status: errors.length ? 'failed' : blockingStatus(summary, catalog.profiles[options.verify].advisory || [], catalog.profiles[options.verify].requireNoSkips),
     executionId: report.executionId || null, profile: options.verify,
+    ...(errors.includes('Execution provenance mismatch: runtime.') ? {diagnostics:require('./capabilities').runtimeMismatchDiagnostics(report,current,probeFailures)} : {}),
     ...(imported ? { producer: report.producer, producerRuntime: report.runtime, artifact: imported.artifact } : {}), errors, summary };
 }
 module.exports = { execute, verifyExecution, provenance, summaryFor, SCHEMA };

@@ -11,7 +11,14 @@ const { detectAvailableEngine, runFixture, findExecutable, providerOptions } = r
 
 function commandProbe(command, args) {
   const result = spawnSync(command, args, { encoding: 'utf8', timeout: 10000, maxBuffer: 1024 * 1024 });
-  if (result.error || result.status !== 0) throw new Error(result.error?.message || result.stderr || `${command} exited ${result.status}`);
+  if (result.error || result.status !== 0) {
+    const error = new Error(result.error?.message || result.stderr || `${command} exited ${result.status}`);
+    // Classification only; diagnostic consumers never receive message/stdout/stderr/argv.
+    error.code = result.error?.code;
+    error.status = result.status;
+    error.signal = result.signal;
+    throw error;
+  }
   return result.stdout.trim();
 }
 
@@ -66,16 +73,104 @@ const PHP_PROBE = 'if(!extension_loaded("json")||!extension_loaded("openssl")||!
 // never turned into a global execution requirement. No ini contents are exposed.
 function toolchainIdentity(options = {}) {
   const run = options.commandProbe || commandProbe;
-  const capture = (command,args) => {try{return {command,available:true,value:run(command,args)};}catch{return {command,available:false};}};
+  const capture = (probe,command,args) => {
+    try { return {command,available:true,value:run(command,args)}; }
+    catch (error) {
+      // Reporting is optional and cannot change the existing identity or failure handling.
+      try { options.onProbeFailure?.(probeFailure(probe,error)); } catch {}
+      return {command,available:false};
+    }
+  };
   const phpCode = '$ext=get_loaded_extensions();sort($ext);$files=array_filter(array_merge([php_ini_loaded_file()],explode(",",(string)php_ini_scanned_files())));$ini=[];foreach($files as $f){$f=trim($f);if($f!=="")$ini[$f]=is_file($f)?hash_file("sha256",$f):null;}ksort($ini);echo json_encode(["version"=>PHP_VERSION,"binary"=>PHP_BINARY,"binaryHash"=>hash_file("sha256",PHP_BINARY),"extensions"=>$ext,"ini"=>$ini,"disabled"=>ini_get("disable_functions"),"iconv"=>is_callable("iconv")?bin2hex(iconv("UTF-8","UTF-16BE","a")):null]);';
   const provider = providerOptions({});
   const driver = findExecutable('chromedriver',provider.driverPath,{explicitOnly:Boolean(provider.driverPath)});
   const binary = provider.browserBinary || findExecutable('chromium') || findExecutable('google-chrome');
   const phpCommands = [...new Set(['php',process.env.XTEND_PHP_BINARY].filter(Boolean))];
-  const php = phpCommands.map(command=>capture(command,['-r',phpCode]));
-  const browser = {endpoint:provider.webDriverUrl || null,driver:driver ? capture(driver,['--version']) : {available:false},binary:binary ? capture(binary,['--version']) : {available:false}};
+  const php = phpCommands.map(command=>capture('php',command,['-r',phpCode]));
+  const browser = {endpoint:provider.webDriverUrl || null,driver:driver ? capture('browser.driver',driver,['--version']) : {available:false},binary:binary ? capture('browser.binary',binary,['--version']) : {available:false}};
   const configuration = {PHPRC:process.env.PHPRC || '',PHP_INI_SCAN_DIR:process.env.PHP_INI_SCAN_DIR || '',browser};
   return {php,browser,configurationFingerprint:createHash('sha256').update(JSON.stringify(configuration)).digest('hex')};
+}
+
+// All diagnostic names and values are allowlisted. Unknown fields, paths, arguments,
+// endpoints, PHP output and process output never leave these helpers verbatim.
+const PROBE_CODES = new Set(['ETIMEDOUT','ENOENT','EACCES','EPERM','ENOBUFS','EAGAIN','ENOMEM']);
+const PROBE_SIGNALS = new Set(['SIGTERM','SIGKILL','SIGINT','SIGABRT','SIGSEGV','SIGBUS','SIGILL','SIGFPE']);
+function probeFailure(probe,error) {
+  const record = {probe:['php','browser.driver','browser.binary'].includes(probe) ? probe : 'unknown',kind:'unclassified'};
+  try {
+    const {code,signal,status} = error || {};
+    if (PROBE_CODES.has(code)) record.code = code;
+    if (PROBE_SIGNALS.has(signal)) record.signal = signal;
+    if (Number.isInteger(status) && status >= 0 && status <= 255) record.status = status;
+    record.kind = record.code === 'ETIMEDOUT' ? 'timeout' : record.code ? 'spawn-error' : record.signal ? 'signal' : record.status > 0 ? 'nonzero-exit' : 'unclassified';
+  } catch { record.kind = 'diagnostic-unavailable'; }
+  return record;
+}
+function probeFailureList(records) {
+  if (!Array.isArray(records)) return [];
+  return records.slice(0,8).map(record=>{
+    const safe = probeFailure(record?.probe,record);
+    if (record?.kind === 'diagnostic-unavailable') safe.kind = 'diagnostic-unavailable';
+    return safe;
+  });
+}
+function runtimeMismatchDiagnostics(report,current,verifierProbeFailures = []) {
+  const base = {schema:'xtend.test.runtime-diagnostics.v1',coverage:'allowlisted-values; other values and field names redacted'};
+  try {
+    const expectedJson = JSON.stringify(report.runtime), actualJson = JSON.stringify(current.runtime);
+    if (expectedJson?.length > 131072 || actualJson?.length > 131072) return {...base,unavailable:'diagnostic-size-limit'};
+    const expected = JSON.parse(expectedJson), actual = JSON.parse(actualJson), differences = [];
+    let visits = 0, truncated = false, unlisted = false;
+    const missing = Symbol('missing');
+    const version = value => typeof value === 'string' && /^v?\d{1,3}\.\d{1,3}\.\d{1,3}$/u.test(value);
+    const fingerprint = value => typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value);
+    const browserVersion = value => typeof value === 'string' && value.length <= 160 && /^(?:Chromium|Google Chrome|ChromeDriver|MSEdgeDriver|Microsoft Edge|geckodriver) \d{1,3}(?:\.\d{1,5}){1,3}(?: \([a-f0-9]{40}-refs\/branch-heads\/\d{1,5}@\{#\d{1,6}\}\))?$/u.test(value);
+    const rules = [
+      [/^\$\.runtime\.node$/u,version],
+      [/^\$\.runtime\.platform$/u,value=>['linux','darwin','win32','freebsd','openbsd','aix','sunos','android'].includes(value)],
+      [/^\$\.runtime\.arch$/u,value=>['x64','arm64','arm','ia32','ppc64','s390x','riscv64','loong64'].includes(value)],
+      [/^\$\.runtime\.runnerImage$/u,value=>typeof value === 'string' && /^(?:ubuntu\d{0,2}|macos(?:-\d{1,2})?|windows(?:-\d{4})?):[\d.]{1,32}$/u.test(value)],
+      [/^\$\.runtime\.(?:environmentFingerprint|toolchain\.configurationFingerprint)$/u,fingerprint],
+      [/^\$\.runtime\.nodeOptions$/u,()=>false],
+      [/^\$\.runtime\.toolchain\.browser\.endpoint$/u,()=>false],
+      [/^\$\.runtime\.toolchain\.browser\.(?:driver|binary)\.command$/u,()=>false],
+      [/^\$\.runtime\.toolchain\.browser\.(?:driver|binary)\.available$/u,value=>typeof value === 'boolean'],
+      [/^\$\.runtime\.toolchain\.browser\.(?:driver|binary)\.value$/u,browserVersion],
+      [/^\$\.runtime\.toolchain\.php\[\d\]\.(?:command|value)$/u,()=>false],
+      [/^\$\.runtime\.toolchain\.php\[\d\]\.available$/u,value=>typeof value === 'boolean']
+    ];
+    const record = (field,a,b) => {
+      const rule = rules.find(([pattern])=>pattern.test(field));
+      if (!rule) { unlisted = true; return; }
+      if (differences.length >= 32) { truncated = true; return; }
+      const value = input => input === missing ? '[missing]' : input === null ? null : rule[1](input) ? input : '[redacted]';
+      differences.push({path:field,expected:value(a),actual:value(b)});
+    };
+    const walk = (a,b,field,depth) => {
+      if (Object.is(a,b)) return;
+      if (++visits > 256 || depth > 8) { truncated = true; return; }
+      if (a && b && typeof a === 'object' && typeof b === 'object' && Array.isArray(a) === Array.isArray(b)) {
+        if (Array.isArray(a) && a.length !== b.length) unlisted = true;
+        const keys = [...new Set([...Object.keys(a),...Object.keys(b)])];
+        if (keys.length > 64) truncated = true;
+        for (const key of keys.slice(0,64)) {
+          if (!(Array.isArray(a) ? /^(?:0|[1-9]\d*)$/u : /^[a-zA-Z_][a-zA-Z0-9_]*$/u).test(key)) {
+            if (JSON.stringify(a[key]) !== JSON.stringify(b[key])) unlisted = true;
+            continue;
+          }
+          const child = Array.isArray(a) ? `${field}[${key}]` : `${field}.${key}`;
+          walk(Object.hasOwn(a,key) ? a[key] : missing,Object.hasOwn(b,key) ? b[key] : missing,child,depth+1);
+        }
+      } else record(field,a,b);
+    };
+    walk(expected,actual,'$.runtime',0);
+    return {...base,differences,unlistedFieldsDiffer:unlisted,truncated,
+      producerProbeFailures:probeFailureList(report.diagnostics?.probeFailures),
+      verifierProbeFailures:probeFailureList(verifierProbeFailures)};
+  } catch {
+    return {...base,unavailable:'diagnostic-error'};
+  }
 }
 
 async function probeCapabilities(options = {}) {
@@ -126,4 +221,4 @@ if (require.main === module) Promise.resolve().then(()=>{
   if (!report.ok) process.exitCode = 1;
 }).catch(error => { console.error(error); process.exitCode = 1; });
 
-module.exports = { probeCapabilities, requirementsFor, toolchainIdentity, PHP_PROBE };
+module.exports = { probeCapabilities, requirementsFor, toolchainIdentity, PHP_PROBE, runtimeMismatchDiagnostics };
