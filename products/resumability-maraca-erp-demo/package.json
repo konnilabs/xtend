@@ -33,7 +33,7 @@
     "@angular/common": "20.3.32",
     "@angular/core": "20.3.32",
     "@angular/platform-browser": "20.3.32",
-    "@angular/platform-server": "20.3.32",
+    "@angular/platform-server": "20.3.33",
     "@openui5/sap.m": "1.149.1",
     "@openui5/sap.ui.core": "1.149.1",
     "@openui5/sap.ui.layout": "1.149.1",
