@@ -1155,6 +1155,9 @@ jobs:
         with:
           node-version: '24.18.0'
           package-manager-cache: false
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
       - name: Require the complete development subset
         env:
           XTEND_DEVELOPMENT_NEEDS: ${{ toJSON(needs) }}
@@ -1524,6 +1527,8 @@ jobs:
         run: node scripts/run_xtend_tests.js --profile core-security-browser --execution .xtend-test-results/core-security/security-execution.json
       - name: Explain browser preflight, product and owned-group cleanup outcomes
         if: always()
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node tests/security/browser-gate.cjs --execution .xtend-test-results/core-security/security-execution.json
       - name: Retain exact raw Core security report on success or failure
         id: security
