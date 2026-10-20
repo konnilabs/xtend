@@ -183,6 +183,12 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: test -f tests/maraca/ownership-command-projection.test.mjs && test -f tests/maraca/ownership-projection-gate.test.cjs && node --test --test-reporter=tap tests/maraca/ownership-command-projection.test.mjs tests/maraca/ownership-projection-gate.test.cjs
 
+      - name: Required browser gate separation regression
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node --test --test-reporter=tap tests/security/browser-gate.test.cjs
+
       - name: Prepare Native-First release evidence artifacts
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -439,6 +445,12 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/check-core-source.cjs
+
+      - name: Required browser gate separation regression
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node --test --test-reporter=tap tests/security/browser-gate.test.cjs
 
       - name: Prepare Native-First release evidence artifacts
         env:
@@ -1122,6 +1134,32 @@ jobs:
             .xtend-test-results/xtend-rmt-editor-vsix-smoke.json
           if-no-files-found: error
 
+  development-core-node-rmt:
+    name: Core / Node / RMT development checks
+    # This explicit subset does not supply browser or release acceptance.
+    needs: [core-source-artifact, pr-fast-gates, rmt-vnext-primitive-gates, release-prepare, core-installed-consumers, package-structure, node-native-toolchain-smoke, xtend-mcp-vscode-smoke]
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - name: Require the complete development subset
+        env:
+          XTEND_DEVELOPMENT_NEEDS: ${{ toJSON(needs) }}
+        run: node scripts/development-gate.cjs
+
   laravel-release-gates:
     if: github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true
     uses: ./.github/workflows/xtend-laravel-ssr.yml
@@ -1484,6 +1522,9 @@ jobs:
           XTEND_SECURITY_HOST_DIAGNOSTICS: "1"
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --profile core-security-browser --execution .xtend-test-results/core-security/security-execution.json
+      - name: Explain browser preflight, product and owned-group cleanup outcomes
+        if: always()
+        run: node tests/security/browser-gate.cjs --execution .xtend-test-results/core-security/security-execution.json
       - name: Retain exact raw Core security report on success or failure
         id: security
         if: always()

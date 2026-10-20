@@ -5,7 +5,7 @@
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
   "inventorySha256": "2234d220966a142e97586d01beb04fae2c459b93348b990101287e33f67ace5b",
-  "sourceMembershipSha256": "27ca0e3296bba3e1e035d8f2615dd7c824651fcc2d20f246d9855630c1362fd8",
+  "sourceMembershipSha256": "90a761193cb86c6291c200223e581860a906d520214d7522f1c71c5fd0fe686b",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -259,7 +259,7 @@
           },
           {
             "path": "scripts/release/core-security.cjs",
-            "sha256": "13c522622144fedea89fe7dfa1a8a87f3fb4bd1ad328dc6c4b0409821cac18ea"
+            "sha256": "592ddac38bca597b9b0e554eb02f80da43adb24050f2eed018891ff4067e495e"
           },
           {
             "path": "scripts/release/core-source.cjs",

@@ -6,10 +6,11 @@ const {isDeepStrictEqual}=require('node:util');
 const {createSuiteContext}=require('../../tests/utils/assertions');
 const {assertSourceProvider}=require('../../tools/schema-inventory/source-provider.cjs');
 const {pin,browserArguments}=require('../../tests/security/sandboxed-browser.cjs');
+const {requirePassedGate}=require('../../tests/security/browser-gate.cjs');
 const {check}=require('./inventory.cjs');
 const id='core-security-browser',node='24.18.0',job='Core security browser (Node 24.18.0)';
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
-const sourceFiles=Object.freeze(['tests/security/browser.test.mjs','tests/security/sandboxed-browser.cjs',
+const sourceFiles=Object.freeze(['tests/security/browser.test.mjs','tests/security/sandboxed-browser.cjs','tests/security/browser-gate.cjs',
   'tests/security/owned-browser-process.cjs','scripts/test-runner/worker.js',
   'scripts/release/core-security.cjs','scripts/node_warning_policy.cjs','security/static-files.cjs',
   'xtendrmt/html-sanitizer.mjs','xtendrmt/html-sanitizer.cjs','xtendrmt/rmt-runtime.esm.js','xtendrmt/rmt-node-ssr-adapter.js']);
@@ -22,10 +23,10 @@ function verifyTap(stdout){
     check(matches.length===1&&Number(matches[0][1])===expected,'Missing, skipped or contradictory real-browser TAP outcome: '+name);
   }
 }
-async function runBrowserTest(rootDir,proofFile,signal){
+async function runBrowserTest(rootDir,proofFile,gateFile,signal){
   check(signal===undefined||signal instanceof AbortSignal,'Exact AbortSignal required');
   const owned=spawnOwned(process.execPath,argv,{cwd:rootDir,env:{...process.env,
-    XTEND_CORE_BROWSER_PROOF:proofFile,XTEND_CORE_SECURITY_SUPERVISOR_PID:String(process.pid)}});
+    XTEND_CORE_BROWSER_PROOF:proofFile,XTEND_BROWSER_GATE_REPORT:gateFile,XTEND_CORE_SECURITY_SUPERVISOR_PID:String(process.pid)}});
   const {child}=owned;const result={status:null,signal:null,stdout:'',stderr:'',abortCause:null,cleanup:null};
   let settled=false,complete,timer;const done=new Promise(resolve=>{complete=resolve;});
   const finish=cause=>{if(cause&&!result.abortCause)result.abortCause=cause;if(settled)return;settled=true;complete();};
@@ -66,17 +67,22 @@ async function runCoreSecuritySuite({rootDir,signal}){
   const context=createSuiteContext({id,label:'Core sanitizer and Trusted Types actual sandboxed Chromium'});
   const temporary=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-core-security-'));
   const report={command:['node',...argv],node:process.versions.node,startedAt:new Date().toISOString(),
-    sourceHashes:sourceHashes(rootDir),exitCode:null,signal:null,browserProof:null,stdout:'',stderr:''};
+    sourceHashes:sourceHashes(rootDir),exitCode:null,signal:null,browserProof:null,browserGate:null,stdout:'',stderr:''};
   try{
     check(process.versions.node===node,'Dedicated security suite requires committed Node24 pin');
-    // Launcher rejects root/unconfigured/unsupported host before any browser spawn.
-    require('../../tests/security/sandboxed-browser.cjs').configuredBrowser();
-    const proofFile=path.join(temporary,'browser-proof.json');
-    const result=await runBrowserTest(rootDir,proofFile,signal);
+    // The child records configuration/startup separately from product assertions.
+    // It uses the unchanged launcher, which rejects unsafe setup before spawn.
+    const proofFile=path.join(temporary,'browser-proof.json'),gateFile=path.join(temporary,'browser-gate.json');
+    const result=await runBrowserTest(rootDir,proofFile,gateFile,signal);
     report.exitCode=result.status;report.signal=result.signal;report.stdout=result.stdout;report.stderr=result.stderr;
     report.abortCause=result.abortCause;report.cleanup=result.cleanup;report.cleanupError=result.cleanupError||null;
+    if(fs.existsSync(gateFile)){
+      check(fs.lstatSync(gateFile).isFile()&&fs.realpathSync(gateFile)===gateFile,'Required regular browser phase report missing');
+      report.browserGate=JSON.parse(fs.readFileSync(gateFile));
+    }
     check(!result.abortCause&&!result.cleanupError&&result.cleanup?.complete===true&&result.status===0&&result.signal===null,
       'Required real Chromium test/owned cleanup failed: '+(result.abortCause||result.cleanupError||report.stderr));
+    requirePassedGate(report.browserGate);
     verifyTap(report.stdout);
     check(fs.lstatSync(proofFile).isFile()&&fs.realpathSync(proofFile)===proofFile,'Required regular browser proof missing');
     report.browserProof=JSON.parse(fs.readFileSync(proofFile));
@@ -117,11 +123,15 @@ function verifyCoreSecurityReport(execution,{artifact,envelope,provider,now}){
     [[],['SIGTERM'],['SIGTERM','SIGKILL']].some(value=>isDeepStrictEqual(value,report.cleanup.signals)),
     'Core browser owned process group cleanup/reaping proof missing or failed');
   verifyTap(report.stdout);
+  requirePassedGate(report.browserGate);
   const keys=Object.keys(report.sourceHashes||{}).sort();
   check(isDeepStrictEqual(keys,[...sourceFiles].sort()),'Core browser exact source set missing/changed');
   for(const file of sourceFiles)check(report.sourceHashes[file]===hash(provider.readCurrent(file)),
     'Core browser actual producer/test/runtime source hash mismatch: '+file);
   const proof=report.browserProof,browser=proof?.browser;
+  check(report.browserGate.preflightProof?.browserPid===proof?.browserPid&&
+    isDeepStrictEqual(report.browserGate.preflightProof?.browser,browser),
+    'Browser preflight and product proof must refer to the same configured live browser');
   check(proof?.sanitizerTrustedTypes==='passed'&&browser?.version===pin.version&&browser.archiveSha256===pin.archives['chrome-linux64.zip']&&
     /^[a-f0-9]{64}$/.test(browser.sha256||'')&&path.isAbsolute(browser.binary||'')&&Number.isInteger(browser.uid)&&browser.uid>0&&
     Number.isInteger(browser.gid)&&browser.gid>0&&Array.isArray(proof.argv)&&

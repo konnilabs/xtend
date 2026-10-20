@@ -1628,6 +1628,7 @@
     "scripts/create_component_docs_inventory.js",
     "scripts/create_docs_stub_inventory.js",
     "scripts/create_xtend_nightly_manifest.js",
+    "scripts/development-gate.cjs",
     "scripts/docs_content_profiles.js",
     "scripts/enable_node_warning_policy.js",
     "scripts/finalize_component_build.js",
@@ -1671,6 +1672,7 @@
     "scripts/rmt_playground_maraca_preview_bridge.js",
     "scripts/run_xtend_tests.js",
     "scripts/scan_schema_inventory.js",
+    "scripts/security-node-tests.cjs",
     "scripts/serve_xtend_dev.d.ts",
     "scripts/serve_xtend_dev.js",
     "scripts/smoke_docs_animation_engine_demo.mjs",
@@ -2616,6 +2618,8 @@
     "tests/schemas/workflow_comparison_mutation.py",
     "tests/schemas/xtend-schema-inventory.json",
     "tests/security/README.md",
+    "tests/security/browser-gate.cjs",
+    "tests/security/browser-gate.test.cjs",
     "tests/security/browser.test.mjs",
     "tests/security/building-blocks.test.mjs",
     "tests/security/filesystem.test.cjs",
@@ -3391,7 +3395,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "0a3117b4ba0ecdad448f3e92cad4c6663dd1efeacb4a1e0fbb277ff622e3577e",
+  "authorityDecisionSha256": "aaeb2876b72614d7a73457baab27bd2f11111a3ce6e5cc2e89e7b004c599745c",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "f1956bfe2a69f16a4f4b6b88a1366be20de6294284c3e4e1abc3da015eda3587"
 }
