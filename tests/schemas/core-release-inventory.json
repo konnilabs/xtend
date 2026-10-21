@@ -798695,7 +798695,8 @@
           "role": "fixture",
           "visibility": "fixture",
           "sourcePaths": [
-            "tests/browser/fixtures/epic13-trusted-dom-boundary-smoke.html"
+            "tests/browser/fixtures/epic13-trusted-dom-boundary-smoke.html",
+            "tests/browser/neutral-prototype/fixture-server.cjs"
           ],
           "interfaceReferences": [
             {

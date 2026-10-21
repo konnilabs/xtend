@@ -1,0 +1,130 @@
+name: XTend isolated Firefox qualification
+
+# Review-only until explicitly published. No push/PR/schedule trigger, no release gate.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Initial functional pair or preplanned stability series
+        required: true
+        default: initial
+        type: choice
+        options: [initial, stability]
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        node: ['24.18.0', '26.5.0']
+        replica: ${{ fromJSON(inputs.mode == 'stability' && '[1,2,3]' || '[1]') }}
+    env:
+      QUAL_MODE: ${{ inputs.mode }}
+      QUAL_NODE: ${{ matrix.node }}
+      QUAL_REPLICA: ${{ matrix.replica }}
+      QUAL_LANE: ${{ matrix.node == '24.18.0' && 'node-24-lts' || 'node-26-current' }}
+      QUAL_EVIDENCE: ${{ runner.temp }}/firefox-evidence
+      QUAL_TOOLCHAIN: ${{ runner.temp }}/firefox-toolchain
+    steps:
+      - name: Create evidence directory before setup
+        run: mkdir -p "$QUAL_EVIDENCE"
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+      - name: Pin npm 11.17.0 outside repository devEngines
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install --prefix "$RUNNER_TEMP/qualified-npm" npm@11.17.0 --no-audit --fund=false
+          echo "$RUNNER_TEMP/qualified-npm/node_modules/.bin" >> "$GITHUB_PATH"
+      - name: Install locked test dependencies
+        id: install
+        run: npm ci --ignore-scripts --no-audit --fund=false
+      - name: Verify exact runtime
+        id: runtime
+        run: |
+          node -e 'if(process.versions.node!==process.env.QUAL_NODE)process.exit(1)'
+          test "$(npm --version)" = 11.17.0
+          node scripts/capture_node_runtime_evidence.js --lane "$QUAL_LANE" --out "$QUAL_EVIDENCE/runtime.json"
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane "$QUAL_LANE"
+      - name: Negative controller and observer regressions
+        id: controls
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node --test --test-reporter=tap tests/browser/neutral-prototype/*.test.cjs > "$QUAL_EVIDENCE/controllers.tap" 2>&1
+      - name: Provision official pinned Linux archives
+        id: provision
+        run: python3 tests/browser/neutral-prototype/provision-linux.py "$QUAL_TOOLCHAIN" > "$QUAL_EVIDENCE/provisioning.log" 2>&1
+      - name: Execute planned fresh browser cycles
+        id: browser
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node tests/browser/neutral-prototype/campaign.cjs run "$QUAL_EVIDENCE" "$QUAL_TOOLCHAIN" "$QUAL_MODE" "$QUAL_REPLICA" > "$QUAL_EVIDENCE/campaign.log" 2>&1
+      - name: Preserve terminal outcomes even after setup failure
+        if: always()
+        env:
+          STEP_OUTCOMES: ${{ toJSON(steps) }}
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib,shutil
+          root=pathlib.Path(os.environ['QUAL_EVIDENCE']);root.mkdir(exist_ok=True)
+          steps=json.loads(os.environ['STEP_OUTCOMES'])
+          value={'acceptedForRelease':False,'mode':os.environ['QUAL_MODE'],'node':os.environ['QUAL_NODE'],
+            'replica':int(os.environ['QUAL_REPLICA']),'outcomes':{key:steps.get(key,{}).get('outcome','not-provided') for key in ['install','runtime','controls','provision','browser']}}
+          (root/'job-terminal.json').write_text(json.dumps(value,indent=2)+'\n')
+          source=pathlib.Path(os.environ['QUAL_TOOLCHAIN'])/'provisioning.json'
+          if source.exists():shutil.copyfile(source,root/'provisioning.json')
+          warnings=pathlib.Path('.xtend-test-results/runtime')
+          if warnings.exists():shutil.copytree(warnings,root/'runtime',dirs_exist_ok=True)
+          PY
+      - name: Retain complete failure artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: firefox-qualification-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.node }}-${{ matrix.replica }}
+          path: ${{ runner.temp }}/firefox-evidence
+          if-no-files-found: error
+          retention-days: 30
+
+  aggregate:
+    if: always()
+    needs: qualify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          pattern: firefox-qualification-${{ github.run_id }}-${{ github.run_attempt }}-*
+          path: ${{ runner.temp }}/firefox-matrix
+      - name: Require every planned job, phase and cleanup result
+        if: always()
+        env:
+          QUAL_MODE: ${{ inputs.mode }}
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node tests/browser/neutral-prototype/campaign.cjs aggregate "$RUNNER_TEMP/firefox-matrix" "$QUAL_MODE" "$RUNNER_TEMP/firefox-summary.json"
+      - name: Retain strict aggregate
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: firefox-summary-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/firefox-summary.json
+          if-no-files-found: error

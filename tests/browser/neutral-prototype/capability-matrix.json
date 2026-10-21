@@ -1,0 +1,86 @@
+{
+  "purpose": "local unintegrated prototype; limited macOS evidence, no release attestation",
+  "sourceCommit": "ad36c290cfc34e6b7cce8a0f424d4162319e5a84",
+  "observedFirefoxExecution": "macOS 27.0.1 arm64: real sessions on Node 24.18.0 and 26.5.0 still fail overall after the documented boot promise fix because XRouter selects root for /detail; BiDi, security assertions, lifecycle and cleanup pass; see qualification-review.md",
+  "candidateToolchain": {
+    "firefox": "158.0.1",
+    "geckodriver": "0.37.1",
+    "pinStatus": "macOS official archive SHA256s and signatures/notarization verified; Linux archive digests obtained from official metadata, Linux execution pending"
+  },
+  "profiles": [
+    {
+      "id": "standard-dom",
+      "required": [
+        "dom",
+        "customElements",
+        "shadowDom"
+      ],
+      "transport": "W3C WebDriver HTTP",
+      "firefox": "Core 5/17 and A11y 2/16 assertions reached; navigation then fails because the production matcher selects root for /detail. 26 checks not reached. Lifecycle six assertions passed; other standard fixtures not run.",
+      "chromium": "candidate through sandbox-preserving adapter",
+      "sourceExamples": [
+        "tests/browser/fixtures/custom-elements-smoke.html",
+        "tests/browser/fixtures/core-flows-smoke.html",
+        "tests/browser/fixtures/a11y-focus-keyboard-smoke.html",
+        "tests/ssr-pages/node_browser_suite.js",
+        "tests/ssr-pages/laravel_browser_suite.js"
+      ],
+      "acceptance": "all declared fixture assertions passed; no skipped or empty evidence; OS sandbox and cleanup independently passed"
+    },
+    {
+      "id": "sanitizer-trusted-dom",
+      "required": [
+        "dom",
+        "trustedTypes",
+        "trustedTypesEnforced",
+        "policyAllowlistEnforced"
+      ],
+      "transport": "W3C WebDriver HTTP; maintained script uses standard Web APIs",
+      "firefox": "native Trusted Types, CSP enforcement and maintained sanitizer/TrustedHTML/SSR assertion chain passed in real Firefox 158.0.1 on macOS, Node 24 and 26",
+      "chromium": "existing pinned security contract remains required and unchanged",
+      "sourceExamples": [
+        "tests/security/browser.test.mjs",
+        "xtendrmt/html-sanitizer.mjs"
+      ],
+      "acceptance": "DOMPurify 3.4.16 output, native TrustedHTML sink, denied raw string and unauthorized policy, SSR browser reparse; missing capability is non-passing",
+      "nativeSanitizer": "observed only, not required; native setHTML must not replace the maintained DOMPurify contract"
+    },
+    {
+      "id": "pre-navigation-instrumentation",
+      "required": [
+        "WebDriver BiDi script.addPreloadScript"
+      ],
+      "transport": "WebDriver BiDi negotiated via webSocketUrl; context-scoped addPreloadScript and removePreloadScript implemented",
+      "firefox": "Real macOS proof on both Node versions: before-page ordering, preserved Hydrangea fetch/abort instrumentation, context isolation, removal and foreign-origin negative assertion; full Hydrangea appserver suite not run",
+      "chromium": "existing harness uses Page.addScriptToEvaluateOnNewDocument through CDP",
+      "sourceExamples": [
+        "tests/browser/lifecycle_harness.test.cjs",
+        "tests/performance/hydrangea/docs-browser.cjs"
+      ],
+      "acceptance": "same negative foreign-origin fixture and fetch lifecycle assertions, with identical event ordering; no post-load substitute"
+    },
+    {
+      "id": "engine-capability-labs",
+      "required": [
+        "feature-specific probe and approved fallback assertion"
+      ],
+      "transport": "W3C WebDriver plus in-document capability detection",
+      "sourceExamples": [
+        "tests/browser/material_browser_evidence_suite.js",
+        "tests/browser/surface_manager_browser_lab_suite.js",
+        "tests/native-first/rmt_owned_surface_browser_lab_suite.js",
+        "tests/fixtures/native-first/browser-primitive-radar-v2.json"
+      ],
+      "acceptance": "report native support and tested fallback separately; unsupported-with-valid-fallback must never count as native security proof"
+    },
+    {
+      "id": "linux-browser-sandbox",
+      "transport": "engine/OS observer; not a WebDriver Web API",
+      "chromium": "existing chrome://sandbox, Browser.getVersion, SystemInfo.getProcessInfo, namespace, seccomp and executable provenance checks remain",
+      "firefox": "Linux observer implemented with owned process identities and content-thread extra seccomp/NoNewPrivs/capability checks; model regressions pass, real Linux validation not provided",
+      "acceptance": "verify authenticated executable, unprivileged owned process tree and active browser/content sandbox; reject overrides; require before/after continuity and complete owned-group cleanup",
+      "macOS": "limited active Seatbelt observation on owned content processes before/after product passed; policy strength/all process roles not proven; sandbox-extension diagnostics retained; not Linux proof"
+    }
+  ],
+  "acceptedForRelease": false
+}

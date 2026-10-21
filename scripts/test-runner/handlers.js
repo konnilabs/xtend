@@ -60,6 +60,7 @@ function printDocsStubInventoryGateReport(result) {
 }
 
 module.exports = {
+"firefox-qualification-controls": () => toRunnerResult("firefox-qualification-controls", "Isolated Firefox qualification controller regressions", load("../tests/browser/neutral-prototype/controller-suite.cjs").runNeutralControllerSuite({ rootDir })),
 "core-security-browser": async () => toRunnerResult("core-security-browser", "Core sanitizer and Trusted Types actual sandboxed Chromium", await load("../scripts/release/core-security.cjs").runCoreSecuritySuite({ rootDir })),
 "core-release-evidence": async () => toRunnerResult("core-release-evidence", "Required immutable Core evidence", await load("../scripts/release/evidence-gate.cjs").runCoreEvidenceGate({ rootDir })),
 "release-safety": () => toRunnerResult("release-safety", "Scoped npm release safety", load("../tests/release/release_safety_suite").runReleaseSafetySuite({ rootDir })),

@@ -7428,6 +7428,27 @@
         "repository"
       ],
       "timeoutMs": 120000
+    },
+    {
+      "id": "firefox-qualification-controls",
+      "label": "Isolated Firefox qualification controller regressions",
+      "description": "Opt-in controller, BiDi, readiness, Linux evidence-model and aggregation tests; no real browser or release proof.",
+      "defaultIncluded": false,
+      "handler": "firefox-qualification-controls",
+      "implementations": [
+        {
+          "path": "tests/browser/neutral-prototype/controller-suite.cjs",
+          "function": "runNeutralControllerSuite",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository",
+        "browser"
+      ],
+      "timeoutMs": 60000
     }
   ],
   "profiles": {
@@ -10804,6 +10825,11 @@
       ],
       "reports": [],
       "advisory": []
+    },
+    "firefox-qualification-controls": {
+      "suites": [
+        "firefox-qualification-controls"
+      ]
     }
   },
   "scripts": {
