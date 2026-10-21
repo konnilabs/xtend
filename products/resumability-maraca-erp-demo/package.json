@@ -30,7 +30,7 @@
     "@ccslabs/xtend-compiler": "file:../../tools",
     "@ccslabs/xtend-maraca": "file:../../xtend-maraca",
     "@ccslabs/xtend-rmt": "file:../../xtendrmt",
-    "@angular/common": "20.3.32",
+    "@angular/common": "20.3.34",
     "@angular/core": "20.3.32",
     "@angular/platform-browser": "20.3.32",
     "@angular/platform-server": "20.3.32",
