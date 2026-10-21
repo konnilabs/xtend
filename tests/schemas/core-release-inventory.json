@@ -46363,6 +46363,106 @@
       "version": 1
     },
     {
+      "schemaId": "xtend.browser-functional.observation.v1",
+      "familyId": "xtend.browser-functional.observation",
+      "version": 1,
+      "kinds": [
+        "identifier-only"
+      ],
+      "status": "test-only",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "complete"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Private browser test result identifier; runtime contract and negative tests validate execution, provenance, coverage and independent recognition. No published API or sandbox certification is implied.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tests/browser/neutral-prototype/result-contract.cjs",
+        "symbol": null,
+        "definitionType": "identifier-reference",
+        "role": "assertion",
+        "visibility": "test"
+      },
+      "usages": [
+        {
+          "application": "XTend Tests: Browser",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/browser/neutral-prototype/result-contract.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/browser/neutral-prototype/result-contract.cjs",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "unresolved",
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "No statically comparable object or type shape is available; the identifier remains discoverable but is not structurally comparable."
+      },
+      "shapeFingerprints": []
+    },
+    {
+      "schemaId": "xtend.browser-functional.review.v1",
+      "familyId": "xtend.browser-functional.review",
+      "version": 1,
+      "kinds": [
+        "identifier-only"
+      ],
+      "status": "test-only",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "complete"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Private browser test result identifier; runtime contract and negative tests validate execution, provenance, coverage and independent recognition. No published API or sandbox certification is implied.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tests/browser/neutral-prototype/result-contract.cjs",
+        "symbol": null,
+        "definitionType": "identifier-reference",
+        "role": "assertion",
+        "visibility": "test"
+      },
+      "usages": [
+        {
+          "application": "XTend Tests: Browser",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/browser/neutral-prototype/result-contract.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/browser/neutral-prototype/result-contract.cjs",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "unresolved",
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "No statically comparable object or type shape is available; the identifier remains discoverable but is not structurally comparable."
+      },
+      "shapeFingerprints": []
+    },
+    {
       "aliasOf": null,
       "canonicalDefinition": {
         "path": "tools/browser-hypervisor/index.js",
@@ -47806,6 +47906,121 @@
         }
       ],
       "version": 1
+    },
+    {
+      "schemaId": "xtend.browser-neutral.observation.v2",
+      "familyId": "xtend.browser-neutral.observation",
+      "version": 2,
+      "kinds": [
+        "identifier-only"
+      ],
+      "status": "test-only",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "complete"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Private browser test result identifier; runtime contract and negative tests validate execution, provenance, coverage and independent recognition. No published API or sandbox certification is implied.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tests/browser/neutral-prototype/result-contract.cjs",
+        "symbol": "format",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "test"
+      },
+      "usages": [
+        {
+          "application": "XTend Tests: Browser",
+          "role": "definition",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/browser/neutral-prototype/result-contract.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/browser/neutral-prototype/result-contract.cjs",
+              "symbol": "format"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Browser",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/browser/neutral-prototype/result-contract.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/browser/neutral-prototype/result-contract.cjs",
+              "symbol": "format"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "unresolved",
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "No statically comparable object or type shape is available; the identifier remains discoverable but is not structurally comparable."
+      },
+      "shapeFingerprints": []
+    },
+    {
+      "schemaId": "xtend.browser-neutral.review.v2",
+      "familyId": "xtend.browser-neutral.review",
+      "version": 2,
+      "kinds": [
+        "identifier-only"
+      ],
+      "status": "test-only",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "complete"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Private browser test result identifier; runtime contract and negative tests validate execution, provenance, coverage and independent recognition. No published API or sandbox certification is implied.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tests/browser/neutral-prototype/result-contract.cjs",
+        "symbol": null,
+        "definitionType": "identifier-reference",
+        "role": "assertion",
+        "visibility": "test"
+      },
+      "usages": [
+        {
+          "application": "XTend Tests: Browser",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/browser/neutral-prototype/result-contract.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/browser/neutral-prototype/result-contract.cjs",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "unresolved",
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "No statically comparable object or type shape is available; the identifier remains discoverable but is not structurally comparable."
+      },
+      "shapeFingerprints": []
     },
     {
       "aliasOf": null,
@@ -425777,6 +425992,7 @@
           "visibility": "internal",
           "sourcePaths": [
             ".github/workflows/xtend-default-gates.yml",
+            ".github/workflows/xtend-migration-completion.yml",
             "candidate-integrity.cjs",
             "candidate-integrity.d.ts",
             "contracts/release/artifact-v2.schema.json",
@@ -425792,6 +426008,11 @@
               "type": "package-export",
               "module": "@ccslabs/xtend/candidate-integrity",
               "path": "candidate-integrity.d.ts"
+            },
+            {
+              "type": "repo-symbol",
+              "path": ".github/workflows/xtend-migration-completion.yml",
+              "symbol": null
             }
           ]
         },
@@ -949488,6 +949709,40 @@
       ]
     },
     {
+      "activeSchemaId": "xtend.browser-functional.observation.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.browser-functional.observation",
+      "tombstones": [],
+      "versions": [
+        {
+          "schemaId": "xtend.browser-functional.observation.v1",
+          "version": 1,
+          "lifecycle": {
+            "status": "active",
+            "rollout": "complete"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ]
+    },
+    {
+      "activeSchemaId": "xtend.browser-functional.review.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.browser-functional.review",
+      "tombstones": [],
+      "versions": [
+        {
+          "schemaId": "xtend.browser-functional.review.v1",
+          "version": 1,
+          "lifecycle": {
+            "status": "active",
+            "rollout": "complete"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ]
+    },
+    {
       "activeSchemaId": "xtend.browser-hypervisor.v1",
       "currentVersion": 1,
       "familyId": "xtend.browser-hypervisor",
@@ -949533,6 +949788,40 @@
           "lifecycle": {
             "rollout": "complete",
             "status": "active"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ]
+    },
+    {
+      "activeSchemaId": "xtend.browser-neutral.observation.v2",
+      "currentVersion": 2,
+      "familyId": "xtend.browser-neutral.observation",
+      "tombstones": [],
+      "versions": [
+        {
+          "schemaId": "xtend.browser-neutral.observation.v2",
+          "version": 2,
+          "lifecycle": {
+            "status": "active",
+            "rollout": "complete"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ]
+    },
+    {
+      "activeSchemaId": "xtend.browser-neutral.review.v2",
+      "currentVersion": 2,
+      "familyId": "xtend.browser-neutral.review",
+      "tombstones": [],
+      "versions": [
+        {
+          "schemaId": "xtend.browser-neutral.review.v2",
+          "version": 2,
+          "lifecycle": {
+            "status": "active",
+            "rollout": "complete"
           },
           "releasedFingerprintSetHash": null
         }
