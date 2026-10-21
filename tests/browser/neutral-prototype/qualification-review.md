@@ -152,3 +152,27 @@ live identity. Success requires both confirmed group disappearance (including
 the existing ESRCH probe) and the actual child close event. A persistent zombie,
 unknown/reused identity or missing child close fails; waiting alone is not proof
 of reaping. No second Linux session or retry is part of this patch.
+
+
+## Bounded thread acquisition after run 39622686469
+
+A content-process observation now collects newly discovered live thread identities
+within fixed limits: 250 ms, at most eight rounds and 256 distinct identities per
+process. Each new thread requires matching PID/TID/start/group/session identity
+before and after its complete security-field read. A final enumeration must have
+no surviving unmeasured threads. Every collected security sample remains subject
+to the unchanged UID, capabilities, NoNewPrivs and extra-seccomp checks.
+
+This is bounded collection of additional objects, not a retry of failed reads or
+product tests. A read error never becomes success through another attempt.
+Confirmed departures are recorded without granting a security pass. Identity
+reuse, missing data, an oversized identity set, persistent arrivals or the
+observation deadline fail closed. Artifacts record round counts, cumulative
+identities, measured/departed counts and the final live set size.
+
+The measurement is a bounded snapshot, not atomic capture or continuous monitoring
+of all thread lifetimes. Threads can begin or end outside the observation window;
+filter contents, broker behavior and other subprocess roles are not proved by
+these kernel fields. Namespace availability and release acceptance remain separate.
+The workflow still runs one fresh Node24 browser VM and one aggregator using the
+unchanged pins. This separately authorized run has no automatic retry.

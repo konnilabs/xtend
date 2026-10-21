@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {endpoint,connect}=require('./bidi.cjs');
-const {parseStat,parseStatus,processRole,createProcReader,Continuity,validateContent}=require('./linux-observer.cjs');
+const {parseStat,parseStatus,processRole,threadObservationLimits,createProcReader,Continuity,validateContent}=require('./linux-observer.cjs');
 const {diagnosticDriverLog}=require('./run-firefox.cjs');
 const {pinned,hydrangeaPreload,negativeLifecycle}=require('./qualification.cjs');
 const contracts=require('./fixture-contracts.json');
@@ -108,7 +108,7 @@ test('Lifecycle negative acceptance rejects extra failures, partial checks and s
 });
 
 // Kernel model only: these regressions exercise real reader logic, not a browser.
-function procFixture(change=()=>{}){
+function procFixture(change=()=>{},readerOptions={}){
   const row={...leader,pid:21,start:'101'},tasks=new Map([[21,{...row}],[22,{...row,pid:22,start:'102'}]]);
   const state={row,tasks,events:[]};
   const missing=()=>{throw Object.assign(Error('fixture absent'),{code:'ENOENT'});};
@@ -117,12 +117,12 @@ function procFixture(change=()=>{}){
   const io={
     readFileSync(file){change(state,file,'read');const match=file.match(/^\/proc\/21(?:\/task\/(\d+))?\/(stat|status|cmdline)$/);assert(match,file);
       const r=match[1]?tasks.get(Number(match[1])):state.row;if(!state.row||!r)missing();
-      if(match[2]==='stat')return stat(r);if(match[2]==='status')return status;
+      if(match[2]==='stat')return stat(r);if(match[2]==='status')return r.status??status;
       return '/browser/firefox\0-contentproc\0tab\0';},
     readlinkSync(file){change(state,file,'link');if(!state.row)missing();return file.endsWith('/exe')?'/browser/firefox':'namespace:[1]';},
     readdirSync(file){change(state,file,'list');assert.equal(file,'/proc/21/task');if(!state.row)missing();return [...tasks.keys()].map(String);}
   };
-  return {...state,state,reader:createProcReader({io,events:state.events}),expected:{...row}};
+  return {...state,state,reader:createProcReader({io,events:state.events,...readerOptions}),expected:{...row}};
 }
 test('Proc reader authenticates all surviving content threads with start identities',()=>{
   const f=procFixture(),value=f.reader.read(f.expected);
@@ -141,7 +141,7 @@ test('Confirmed task departure retains evidence for every surviving task, never 
   const value=f.reader.read(f.expected);assert.equal(value.threads.length,1);assert.equal(value.threads[0].tid,21);
   assert.equal(f.events[0].outcome,'thread-ended');assert.equal(f.events[0].thread.start,'102');assert.equal(f.events[0].stage,'thread-status');
 });
-for(const kind of ['missing-live-security','permission','process-reuse','thread-reuse','no-initial-thread-identity','new-live-thread'])test('Proc reader fails closed: '+kind,()=>{
+for(const kind of ['missing-live-security','permission','process-reuse','thread-reuse','no-initial-thread-identity'])test('Proc reader fails closed: '+kind,()=>{
   let lists=0;
   const f=procFixture((s,file,op)=>{
     if(kind==='missing-live-security'&&file==='/proc/21/task/22/status')throw Object.assign(Error('gone'),{code:'ENOENT'});
@@ -149,7 +149,6 @@ for(const kind of ['missing-live-security','permission','process-reuse','thread-
     if(kind==='process-reuse'&&file==='/proc/21/exe'){s.row.start='999';throw Object.assign(Error('gone'),{code:'ENOENT'});}
     if(kind==='thread-reuse'&&file==='/proc/21/task/22/status'){s.tasks.get(22).start='999';throw Object.assign(Error('gone'),{code:'ENOENT'});}
     if(kind==='no-initial-thread-identity'&&file==='/proc/21/task/22/stat')s.tasks.delete(22);
-    if(kind==='new-live-thread'&&op==='list'&&++lists===2)s.tasks.set(23,{...s.row,pid:23,start:'103'});
   });
   assert.throws(()=>f.reader.read(f.expected),/unavailable|identity changed|Unmeasured/);
   assert.equal(f.events.length,1);assert.notEqual(f.events[0].outcome,'thread-ended');
@@ -165,4 +164,77 @@ test('Missing live process executable is blocked instead of being mistaken for e
   const f=procFixture((_s,file)=>{if(file==='/proc/21/exe')throw Object.assign(Error('gone'),{code:'ENOENT'});});
   assert.throws(()=>f.reader.read(f.expected),/pid=21 stage=process-executable/);
   assert.equal(f.events[0].outcome,'security-evidence-unavailable');
+});
+
+for(const arrivalRounds of [1,3])test('Bounded acquisition fully measures new tasks then observes a complete set: '+arrivalRounds,()=>{
+  let lists=0;const reads=new Map();
+  const f=procFixture((s,file,op)=>{
+    if(op==='list'&&++lists>=2&&lists<=arrivalRounds+1){const tid=21+lists;s.tasks.set(tid,{...s.row,pid:tid,start:String(101+lists)});}
+    const match=file.match(/task\/(\d+)\/status$/);if(match)reads.set(Number(match[1]),(reads.get(Number(match[1]))||0)+1);
+  });
+  const value=f.reader.read(f.expected);assert.equal(value.threads.length,2+arrivalRounds);
+  assert.equal(value.threadObservation.rounds,1+arrivalRounds);assert.equal(value.threadObservation.liveAtEnd,value.threads.length);
+  assert.equal(value.threadObservation.measured,value.threads.length);assert.deepEqual(value.threadObservation.limits,threadObservationLimits);
+  assert([...reads.values()].every(count=>count===1));assert.equal(validateContent([value],browser,501,['/browser/firefox']).length,1);
+});
+test('New authenticated task departure before its security read is recorded without fabricating a pass',()=>{
+  let lists=0;const f=procFixture((s,file,op)=>{
+    if(op==='list'&&++lists===2)s.tasks.set(23,{...s.row,pid:23,start:'103'});
+    if(file==='/proc/21/task/23/status')s.tasks.delete(23);
+  });
+  const value=f.reader.read(f.expected);assert.equal(value.threads.length,2);assert.equal(value.threadObservation.departed,1);
+  assert.equal(value.threadObservation.rounds,2);assert(f.events.some(e=>e.outcome==='thread-ended'&&e.thread.start==='103'));
+});
+for(const change of ['reuse','process-reuse','missing-field','unreadable','unsafe-filter','wrong-user','wrong-group'])test('New task never bypasses identity or security requirements: '+change,()=>{
+  let lists=0,taskReads=0;const f=procFixture((s,file,op)=>{
+    if(op==='list'&&++lists===2)s.tasks.set(23,{...s.row,pid:23,start:'103'});
+    if(lists===2&&file==='/proc/21/task/23/stat'&&++taskReads===2){
+      if(change==='reuse')s.tasks.get(23).start='999';
+      if(change==='wrong-group')s.tasks.get(23).group=99;
+    }
+    if(file==='/proc/21/task/23/status'){
+      if(change==='process-reuse')s.row.start='999';
+      if(change==='unreadable')throw Object.assign(Error('fixture denied'),{code:'EACCES'});
+      if(change==='missing-field')s.tasks.get(23).status='Uid: 501 501 501 501\nNoNewPrivs: 1\nSeccomp: 2\nCapEff: 0000';
+      if(change==='unsafe-filter')s.tasks.get(23).status='Uid: 501 501 501 501\nNoNewPrivs: 1\nSeccomp: 2\nSeccomp_filters: 1\nCapEff: 0000';
+      if(change==='wrong-user')s.tasks.get(23).status='Uid: 0 0 0 0\nNoNewPrivs: 1\nSeccomp: 2\nSeccomp_filters: 2\nCapEff: 0000';
+    }
+  });
+  assert.throws(()=>validateContent([f.reader.read(f.expected)],browser,501,['/browser/firefox']),/identity|ownership|field|unavailable|seccomp|privilege/i);
+});
+test('Persistent task arrivals exhaust the fixed round budget without retrying security reads',()=>{
+  let lists=0;const f=procFixture((s,_file,op)=>{if(op==='list'&&++lists>=2){const tid=21+lists;s.tasks.set(tid,{...s.row,pid:tid,start:String(101+lists)});}});
+  assert.throws(()=>f.reader.read(f.expected),/round limit exceeded/);assert.equal(lists,threadObservationLimits.rounds+1);
+  assert.equal(f.events.at(-1).outcome,'round limit exceeded');
+});
+test('Thread acquisition enforces the clock deadline even if a complete set would otherwise result',()=>{
+  let clock=0;const f=procFixture((_s,file)=>{if(file==='/proc/21/task/22/status')clock=threadObservationLimits.milliseconds;},{now:()=>clock});
+  assert.throws(()=>f.reader.read(f.expected),/time limit exceeded/);assert.equal(f.events.at(-1).outcome,'time limit exceeded');
+});
+test('Thread acquisition bounds cumulative identities even when departing tasks keep the current set small',()=>{
+  let lists=0;const f=procFixture((s,_file,op)=>{
+    if(op==='list'&&++lists>=2){for(const tid of [...s.tasks.keys()])if(tid>22)s.tasks.delete(tid);
+      for(let i=0;i<100;i++){const tid=1000*lists+i;s.tasks.set(tid,{...s.row,pid:tid,start:String(tid)});}}
+  });
+  assert.throws(()=>f.reader.read(f.expected),/identity limit exceeded/);assert.equal(f.events.at(-1).outcome,'identity limit exceeded');
+});
+
+test('Known newcomer disappearing before its measurement is explicitly confirmed absent',()=>{
+  let lists=0,reads=0;const f=procFixture((s,file,op)=>{
+    if(op==='list'&&++lists===2)s.tasks.set(23,{...s.row,pid:23,start:'103'});
+    if(file==='/proc/21/task/23/stat'&&++reads===2)s.tasks.delete(23);
+  });
+  const value=f.reader.read(f.expected);assert.equal(value.threads.length,2);assert.equal(value.threadObservation.liveAtEnd,2);
+  assert.equal(value.threadObservation.departed,1);assert(f.events.some(e=>e.outcome==='thread-ended'&&e.thread.start==='103'));
+});
+test('A measured TID changing identity during follow-up cannot inherit its earlier security evidence',()=>{
+  let lists=0;const f=procFixture((s,_file,op)=>{
+    if(op==='list'&&++lists===2)s.tasks.set(23,{...s.row,pid:23,start:'103'});
+    if(op==='list'&&lists===3)s.tasks.get(22).start='999';
+  });
+  assert.throws(()=>f.reader.read(f.expected),/Thread identity changed/);
+});
+test('Oversized current task sets are rejected before security sampling',()=>{
+  const f=procFixture((s,_file,op)=>{if(op==='list')for(let i=100;i<100+threadObservationLimits.identities;i++)s.tasks.set(i,{...s.row,pid:i,start:String(i)});});
+  assert.throws(()=>f.reader.read(f.expected),/identity limit exceeded/);
 });

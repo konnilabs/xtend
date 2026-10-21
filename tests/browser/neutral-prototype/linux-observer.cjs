@@ -56,7 +56,8 @@ function validateContent(rows,browser,uid,executables){
 }
 // Every tolerated departure needs a previously read kernel identity and a fresh
 // absence/terminal-state observation. No missing security field becomes a pass.
-function createProcReader({io=fs,events=[]}={}){
+const threadObservationLimits=Object.freeze({milliseconds:250,rounds:8,identities:256});
+function createProcReader({io=fs,events=[],now=()=>performance.now()}={}){
   const absent=error=>['ENOENT','ESRCH'].includes(error.code);
   const identity=(pid,tid)=>{
     try{return parseStat(io.readFileSync(tid===undefined?`/proc/${pid}/stat`:`/proc/${pid}/task/${tid}/stat`,'utf8'),tid??pid);}
@@ -101,34 +102,68 @@ function createProcReader({io=fs,events=[]}={}){
       stage='process-executable';const executable=io.readlinkSync(`/proc/${before.pid}/exe`);
       stage='process-status';const security=parseStatus(io.readFileSync(`/proc/${before.pid}/status`,'utf8'));
       stage='process-role';const role=processRole(io.readFileSync(`/proc/${before.pid}/cmdline`,'utf8'));
-      const threads=[],knownThreads=new Map();
+      const threads=[],knownThreads=new Map(),measured=new Map(),departed=new Set();let threadObservation;
       if(role.contentProcess){
-        stage='thread-list';const tids=io.readdirSync(`/proc/${before.pid}/task`).filter(n=>/^[1-9]\d*$/.test(n)).map(Number);
-        for(const tid of tids){
-          let thread,threadStage='thread-identity';
-          try{
-            thread=identity(before.pid,tid);if(!thread)throw ended();knownThreads.set(tid,thread);
-            if(!live(thread))throw ended();
-            if(thread.group!==before.group||thread.session!==before.session)throw Error('Thread ownership mismatch');
-            threadStage='thread-status';const status=parseStatus(io.readFileSync(`/proc/${before.pid}/task/${tid}/status`,'utf8'));
-            threadStage='thread-identity-after';const after=identity(before.pid,tid);if(!after||!live(after))throw ended();
-            if(!same(thread,after))throw Error('Thread identity changed during observation');
-            threads.push({tid,identity:thread,...status});
-          }catch(error){
-            if(!absent(error)&&!['EACCES','EPERM'].includes(error.code))throw error;
-            if(failure(before,tid,thread,threadStage,error)==='process-ended')return null;
-          }
+        const started=now();let rounds=0;
+        function limit(reason){
+          note(before,undefined,undefined,'thread-observation-limit',{},before,null,reason);
+          throw new InfrastructureBlocked(`Content thread observation ${reason}: pid=${before.pid}`);
         }
-        // A newly observed live task has no security evidence in this snapshot.
-        // Fail closed instead of retrying until a convenient thread set appears.
-        stage='thread-list-after';
-        for(const tid of io.readdirSync(`/proc/${before.pid}/task`).filter(n=>/^[1-9]\d*$/.test(n)).map(Number)){
-          const saved=threads.find(t=>t.tid===tid);let current;
-          try{current=identity(before.pid,tid);if(!current||!live(current))throw ended();}
-          catch(error){if(!absent(error))throw error;if(failure(before,tid,knownThreads.get(tid),'thread-final-identity',error)==='process-ended')return null;continue;}
-          if(!saved||!same(saved.identity,current)){
-            note(before,tid,saved?.identity,'thread-set-completeness',{},before,current,'security-evidence-unavailable');
-            throw new InfrastructureBlocked(`Unmeasured or reused content thread: pid=${before.pid} tid=${tid}`);
+        const budget=()=>{if(now()-started>=threadObservationLimits.milliseconds)limit('time limit exceeded');};
+        function remember(tid,current){
+          const saved=knownThreads.get(tid);
+          if(saved&&!same(saved,current)){
+            note(before,tid,saved,'thread-identity-continuity',{},before,current,'identity-unresolved');
+            throw Error('Thread identity changed during observation');
+          }
+          if(!saved&&knownThreads.size>=threadObservationLimits.identities)limit('identity limit exceeded');
+          knownThreads.set(tid,current);
+        }
+        function list(){
+          budget();const ids=io.readdirSync(`/proc/${before.pid}/task`).filter(n=>/^[1-9]\d*$/.test(n)).map(Number);budget();
+          if(ids.length>threadObservationLimits.identities)limit('identity limit exceeded');
+          return ids;
+        }
+        stage='thread-list';let pending=list();
+        for(;;){
+          budget();if(++rounds>threadObservationLimits.rounds)limit('round limit exceeded');
+          // Only newly observed identities are measured. A failed read is never
+          // retried, and successful samples remain subject to validateContent.
+          for(const tid of pending){
+            budget();let thread=knownThreads.get(tid),threadStage='thread-identity';
+            try{
+              const current=identity(before.pid,tid);if(!current)throw ended();remember(tid,current);thread=current;
+              if(!live(thread))throw ended();
+              if(thread.group!==before.group||thread.session!==before.session)throw Error('Thread ownership mismatch');
+              budget();threadStage='thread-status';const status=parseStatus(io.readFileSync(`/proc/${before.pid}/task/${tid}/status`,'utf8'));
+              budget();threadStage='thread-identity-after';const after=identity(before.pid,tid);if(!after||!live(after))throw ended();
+              if(!same(thread,after))throw Error('Thread identity changed during observation');
+              const sample={tid,identity:thread,...status};threads.push(sample);measured.set(tid,sample);
+            }catch(error){
+              if(!absent(error)&&!['EACCES','EPERM'].includes(error.code))throw error;
+              if(failure(before,tid,thread,threadStage,error)==='process-ended')return null;
+              departed.add(tid);
+            }
+          }
+          stage='thread-list-after';pending=[];let liveAtEnd=0;
+          for(const tid of list()){
+            budget();let current;
+            try{current=identity(before.pid,tid);if(!current||!live(current))throw ended();}
+            catch(error){if(!absent(error))throw error;if(failure(before,tid,knownThreads.get(tid),'thread-final-identity',error)==='process-ended')return null;departed.add(tid);continue;}
+            const known=knownThreads.has(tid);remember(tid,current);liveAtEnd++;
+            if(departed.has(tid))throw Error('Ended thread identity became live during observation');
+            if(!measured.has(tid)){
+              pending.push(tid);
+              if(!known)note(before,tid,current,'thread-discovery',{},before,current,'pending-security-measurement');
+            }
+          }
+          budget();
+          if(!pending.length){
+            if(!liveAtEnd)throw new InfrastructureBlocked('No surviving content thread evidence');
+            const elapsedMs=now()-started;if(elapsedMs>=threadObservationLimits.milliseconds)limit('time limit exceeded');
+            threadObservation={rounds,identities:knownThreads.size,measured:measured.size,departed:departed.size,
+              liveAtEnd,elapsedMs,limits:threadObservationLimits,scope:'bounded snapshot; not continuous lifetime coverage'};
+            break;
           }
         }
       }
@@ -136,7 +171,7 @@ function createProcReader({io=fs,events=[]}={}){
       for(const name of ['user','pid','net','ipc','mnt']){stage='namespace-'+name;namespaces[name]=io.readlinkSync(`/proc/${before.pid}/ns/${name}`);}
       stage='process-identity-after';const after=identity(before.pid);if(!after||!live(after))throw ended();
       if(!same(before,after))throw Error('Proc identity changed during observation');
-      return {...before,executable,security,contentProcess:role.contentProcess,role:role.role,argumentFormat:role.format,threads,namespaces};
+      return {...before,executable,security,contentProcess:role.contentProcess,role:role.role,argumentFormat:role.format,threads,threadObservation,namespaces};
     }catch(error){
       if(!absent(error)&&!['EACCES','EPERM'].includes(error.code))throw error;
       failure(expected,undefined,undefined,stage,error);return null;
@@ -191,4 +226,4 @@ function createLinuxObserver({owned,binary,driver,profileRoot}){
   }
   return {owner,sandbox,snapshots,procEvents,initialize};
 }
-module.exports={parseStat,parseStatus,same,processRole,createProcReader,Continuity,validateContent,createLinuxObserver};
+module.exports={parseStat,parseStatus,same,processRole,threadObservationLimits,createProcReader,Continuity,validateContent,createLinuxObserver};
