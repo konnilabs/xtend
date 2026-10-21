@@ -1,5 +1,7 @@
 name: XTend migration Core completion checks
-# Additive migration evidence only. No publish, browser startup or release seal.
+# Additive migration regressions and installed consumers. No publish or release seal.
+# The existing PR profile includes legacy browser checks; only the separate pinned
+# functional workflow supplies the newly accepted browser-function evidence.
 on:
   push:
     branches:
@@ -174,7 +176,25 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         continue-on-error: true
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
-        run: npm run test:ci-pr
+        run: |
+          python3 - <<'PYREGRESSION'
+          import os,subprocess,tempfile
+          # Existing framework browser regressions inherit only these public
+          # toolchain/provenance values, never Actions tokens or credentials.
+          allowed = ['PATH','LANG','LC_ALL','NODE_OPTIONS','npm_config_cache',
+                     'ImageOS','ImageVersion','CI','GITHUB_ACTIONS','GITHUB_REPOSITORY',
+                     'GITHUB_WORKFLOW','GITHUB_WORKFLOW_REF','GITHUB_WORKFLOW_SHA',
+                     'GITHUB_JOB','GITHUB_SHA','GITHUB_REF','GITHUB_REF_NAME',
+                     'GITHUB_EVENT_NAME','GITHUB_RUN_ID','GITHUB_RUN_ATTEMPT',
+                     'GITHUB_WORKSPACE','RUNNER_OS','RUNNER_ARCH','RUNNER_ENVIRONMENT',
+                     'XTEND_CI_LANE','XTEND_CORE_REQUIRED','XTEND_CORE_ARCHIVE',
+                     'XTEND_CORE_EXPECTED','XTEND_NODE_WARNING_POLICY','XTEND_NODE_WARNING_REPORT']
+          environment = {key:os.environ[key] for key in allowed if key in os.environ}
+          with tempfile.TemporaryDirectory(prefix='migration-regression-home-') as home:
+              environment.update(HOME=home,TMPDIR=home)
+              result = subprocess.run(['npm','run','test:ci-pr'],env=environment)
+          raise SystemExit(result.returncode)
+          PYREGRESSION
 
       - name: Run XTend MCP contract, security, parity, and evidence gates
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
