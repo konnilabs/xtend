@@ -88,9 +88,10 @@ keine statistische Stabilitätsgarantie oder automatische Release-Freigabe.
 
 ## Entscheidungen vor externer Ausführung
 
-1. Readiness ist jetzt am dokumentierten Boot-Promise ausgerichtet. Der anschließend
-   belegte XRouter-Präfixfehler erfordert eine separate Runtime-Fixentscheidung;
-   Assertions und Reihenfolge der Routen bleiben unverändert.
+1. Readiness ist am dokumentierten Boot-Promise ausgerichtet. Der separat genehmigte
+   XRouter-Fix besteht die 33 Core-/A11y-Assertions lokal auf beiden Node-Versionen;
+   Assertions und Reihenfolge der Routen bleiben unverändert. Die externe Linux-
+   Qualifikation benötigt weiterhin eine gesonderte Freigabe.
 2. Ein neuer manueller Workflow muss laut [GitHub](https://docs.github.com/actions/managing-workflow-runs/manually-running-a-workflow)
    zunächst auf dem Default-Branch vorhanden sein. Ein Push allein auf #117 ist
    kein zugesicherter Dispatch-Weg. Workflowregistrierung oder ein separat

@@ -1,7 +1,7 @@
 # Browserneutraler XTend-Runner: lokaler Qualifizierungsprototyp
 
 Stand 2026-10-21 auf `ad36c290cfc34e6b7cce8a0f424d4162319e5a84`.
-Nur lokaler Patch: kein Commit, Push, Workflowlauf oder Änderung bestehender Gates.
+Lokale Review-Commits; kein Push, Workflowlauf oder Änderung bestehender Gates.
 Der aktuelle [Reviewbericht](qualification-review.md) enthält echte Testergebnisse
 und offene Entscheidungen; der [Actions-Plan](linux-actions-plan.md) beschreibt
 Ressourcen und Abnahmekriterien. Alle Berichte tragen `acceptedForRelease:false`.
@@ -55,12 +55,13 @@ Firefox **158.0.1**, Geckodriver **0.37.1**, macOS **27.0.1 arm64**:
   gepflegte Security-Assertionkette, alle drei BiDi-Fälle, Lifecycle mit sechs
   Checks und beide negativen Kontrollen bestanden.
 - Core und A11y: dokumentierter Boot-Promise wird jetzt korrekt abgewartet.
-  Danach besteht ein separater XRouter-Produktfehler: `/` matcht als erster Präfix
-  auch `/detail`. Core erreicht 5/17, A11y 2/16 Assertions; 26 bleiben unerreicht.
-  Die Runtime wird nicht geändert; Details und Fixvorschlag im Reviewbericht.
+  Der separat genehmigte XRouter-Fix verlangt vollständigen Pfadverbrauch.
+  Core **17/17** und A11y **16/16** bestehen auf beiden Node-Versionen.
+  Der separate Router-Commit enthält 21 Routing-/SSR-Regressionen; Details im Reviewbericht.
 - Beobachtete macOS-Content-Sandbox, Preload-/Transport-Cleanup sowie Session- und
   Prozessgruppen-Cleanup bestanden. Browserdiagnosen und frühe Fehlversuche bleiben
-  in den Artefakten erhalten. Die Gesamtqualifikation ist **fehlgeschlagen**.
+  in den Artefakten erhalten. Die begrenzte macOS-Qualifikation ist **bestanden**;
+  Linux und die übrige Browserabdeckung bleiben offen.
 
 Die engere frühere [macOS-Validierung](mac-validation.md) ist historisch.
 Linux-Observer und Provisionierung sind implementiert, aber nicht auf einem echten
@@ -85,7 +86,7 @@ optional **6 frische VMs / 12 geplante Sessions**, jeweils plus Aggregator. Es g
 keine automatischen Fehler-Retries. Drei Hosts pro Node sind keine statistische
 Stabilitätsgarantie. Ein exakter neuer Push-Branch ist als Aktivierungsweg ohne Default-Branch-Schreibzugriff
 vorgeschlagen, noch nicht aktiviert. Quellenliste und optionale Testsuite sind registriert.
-Der XRouter-Produktfehler braucht einen separaten Runtime-Fixauftrag.
+Der XRouter-Produktfehler ist in einem separat reviewbaren lokalen Commit behoben.
 Bestehende Gates wurden nicht vollständig wiederholt, Release-Anforderungen nicht
 geändert. Der lokale `node_modules`-Symlink ist kein Bestandteil des Patches.
 

@@ -1,7 +1,7 @@
 {
-  "purpose": "local unintegrated prototype; limited macOS evidence, no release attestation",
+  "purpose": "local opt-in qualification prototype; limited macOS evidence, no release attestation",
   "sourceCommit": "ad36c290cfc34e6b7cce8a0f424d4162319e5a84",
-  "observedFirefoxExecution": "macOS 27.0.1 arm64: real sessions on Node 24.18.0 and 26.5.0 still fail overall after the documented boot promise fix because XRouter selects root for /detail; BiDi, security assertions, lifecycle and cleanup pass; see qualification-review.md",
+  "observedFirefoxExecution": "macOS 27.0.1 arm64, Firefox 158.0.1: real sessions on Node 24.18.0 and 26.5.0 pass Core 17/17, A11y 16/16, BiDi, maintained security assertions, lifecycle and cleanup after the separately approved XRouter full-path fix; Linux not run; see qualification-review.md",
   "candidateToolchain": {
     "firefox": "158.0.1",
     "geckodriver": "0.37.1",
@@ -16,7 +16,7 @@
         "shadowDom"
       ],
       "transport": "W3C WebDriver HTTP",
-      "firefox": "Core 5/17 and A11y 2/16 assertions reached; navigation then fails because the production matcher selects root for /detail. 26 checks not reached. Lifecycle six assertions passed; other standard fixtures not run.",
+      "firefox": "Core 17/17, A11y 16/16 and Lifecycle 6/6 passed on both Node versions with the separate XRouter fix. Other standard fixtures not run.",
       "chromium": "candidate through sandbox-preserving adapter",
       "sourceExamples": [
         "tests/browser/fixtures/custom-elements-smoke.html",
