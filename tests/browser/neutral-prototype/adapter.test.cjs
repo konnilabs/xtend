@@ -31,7 +31,7 @@ async function scenario(options = {}) {
   });
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const origin = `http://127.0.0.1:${server.address().port}`;
-  const owner = {assertCurrent(){},async stop(){stopCount++;if(options.groupError)throw Error('Owned group continuity lost');return {complete:true,evidenceKind:'test-double'};}};
+  const owner = {assertCurrent(){},observeTransition(event){options.transitions?.push(event);},async stop(){stopCount++;if(options.groupError){const error=Error('Owned group continuity lost');if(options.cleanupDetails)error.cleanup=options.cleanupDetails;throw error;}return {complete:true,evidenceKind:'test-double'};}};
   const sandbox = {async verify(){sandboxCount++;if(options.lateSandboxError && sandboxCount === 2)throw new InfrastructureBlocked('late sandbox loss');if(options.sandboxError)throw options.sandboxError;return {status:options.sandboxStatus || 'passed',evidenceKind:'test-double'};}};
   try {
     const report = await run({engine,version:'151.0',binary:'/test-only/browser',endpointUrl:origin,
@@ -120,6 +120,13 @@ test('product, session cleanup and owned-group continuity errors remain separate
 test('cleanup failure overrides a blocked preflight without hiding either outcome',async()=>{
   const {report}=await scenario({noSandboxObserver:true,groupError:true});
   assert.equal(report.status,'failed');assert.equal(report.phases.sandbox.status,'infrastructure-blocked');
+});
+test('Session transitions are observed on failure and structured cleanup failure is retained',async()=>{
+  const transitions=[],cleanupDetails={complete:false,groupGone:false,childReaped:true,signals:['SIGTERM'],remaining:null};
+  const {report}=await scenario({deleteError:true,groupError:true,cleanupDetails,transitions});
+  assert.deepEqual(transitions,['before-session-delete','after-session-delete']);
+  assert.deepEqual(report.cleanup,cleanupDetails);assert.equal(report.phases.groupCleanup.status,'failed');
+  assert.equal(report.phases.sessionCleanup.status,'failed');assert.equal(report.acceptedForRelease,false);
 });
 test('fixture service preserves production sanitizer assertions and strict CSP',async()=>{
   const server = await start();

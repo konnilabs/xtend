@@ -68,19 +68,21 @@ test('missing, incomplete or forged all-green summary cannot satisfy the browser
 
 // Exercise the unchanged process-identity implementation against controlled
 // /proc records. No real process is signalled by these failure fixtures.
-function ownedFixture({killWorks = true} = {}) {
+function ownedFixture({killWorks = true, diagnostics = false, zombiesOnKill = false} = {}) {
   const child = new EventEmitter(); child.pid = 200;
   const records = new Map([[100,{pid:100,group:100,session:100,start:'10'}], [200,{pid:200,group:200,session:200,start:'20'}]]);
   const signals = []; let clock = 0, monitor;
   const proc = {platform:'linux',pid:100,kill(group, signal) {
     if(signal === 0) {if(![...records.values()].some(r => r.group === -group)){const e=Error('gone');e.code='ESRCH';throw e;}return;}
     signals.push([group,signal]);
-    if(killWorks){records.delete(200);child.emit('close');}
+    if(zombiesOnKill){records.get(200).state='Z';child.emit('close');}
+    else if(killWorks){records.delete(200);child.emit('close');}
   }};
   const fakeFs = {readdirSync:() => [...records.keys()].map(String),readFileSync(file) {
+    if(file.endsWith('/status'))return 'Uid:\t1001\t1001\t1001\t1001\n';
     const pid=Number(/\/proc\/(\d+)\/stat/.exec(file)?.[1]), r=records.get(pid);
     if(!r){const e=Error('gone');e.code='ENOENT';throw e;}
-    const fields=Array(20).fill('0');fields[0]='S';fields[1]='100';fields[2]=String(r.group);fields[3]=String(r.session);fields[19]=r.start;
+    const fields=Array(20).fill('0');fields[0]=r.state||'S';fields[1]=String(r.parent||100);fields[2]=String(r.group);fields[3]=String(r.session);fields[19]=r.start;
     return pid+' (fixture) '+fields.join(' ');
   }};
   const module={exports:{}};
@@ -89,7 +91,7 @@ function ownedFixture({killWorks = true} = {}) {
     process:proc,performance:{now:()=>clock},setInterval:fn=>{monitor=fn;return 1;},clearInterval:()=>{},
     setTimeout:fn=>{clock+=25;queueMicrotask(fn);}
   });
-  const owned=module.exports.spawnOwned('controlled-child',[],{});child.emit('spawn');
+  const owned=module.exports.spawnOwned('controlled-child',[],{},{diagnostics});child.emit('spawn');
   return {owned,records,signals,monitor:()=>monitor()};
 }
 test('authenticated live process group can be stopped and reaped', async () => {
@@ -109,6 +111,26 @@ test('bounded cleanup failure stays separate and never claims a reaped group', a
   const f=ownedFixture({killWorks:false});
   await assert.rejects(f.owned.stop(),error => {assert.equal(error.cleanup.complete,false);assert.equal(error.cleanup.childReaped,false);return /not gone\/reaped/.test(error.message);});
   assert.deepEqual(f.signals,[[-200,'SIGTERM'],[-200,'SIGKILL']]);
+});
+for(const kind of ['reuse','unknown','zombies'])test('Diagnostic ownership trace preserves safe failure: '+kind,async()=>{
+  const f=ownedFixture({diagnostics:true});
+  f.owned.observe('before-session-delete');
+  if(kind==='reuse')f.records.get(200).start='999';
+  if(kind==='unknown'){f.records.delete(200);f.records.set(201,{pid:201,parent:1,group:200,session:200,start:'21'});}
+  if(kind==='zombies')f.records.get(200).state='Z';
+  f.owned.observe('after-session-delete');f.monitor();
+  await assert.rejects(f.owned.stop());assert.deepEqual(f.signals,[]);
+  const trace=f.owned.observations,first=trace.find(r=>r.event===(kind==='reuse'?'leader-reused':'first-continuity-failure'));
+  assert(first);assert.equal(first.processes[0].uids.join(','),'1001,1001,1001,1001');
+  assert.equal(first.processes[0].state,kind==='zombies'?'Z':'S');
+  assert(trace.every(r=>Number.isFinite(r.monotonicMs)&&!Number.isNaN(Date.parse(r.observedAt))));
+  assert(!/controlled-child|command|environ|argv/.test(JSON.stringify(trace)));
+});
+test('Post-TERM zombie transition retains first failure and never authorizes KILL',async()=>{
+  const f=ownedFixture({diagnostics:true,zombiesOnKill:true});
+  await assert.rejects(f.owned.stop(),error=>{assert.equal(error.cleanup.signals.join(','),'SIGTERM');assert.equal(error.cleanup.childReaped,true);return /continuity/.test(error.message);});
+  assert.deepEqual(f.signals,[[-200,'SIGTERM']]);
+  assert.equal(f.owned.observations.filter(r=>r.event==='first-continuity-failure').length,1);
 });
 
 test('development aggregation can pass its complete subset while browser evidence remains explicitly outside scope', () => {

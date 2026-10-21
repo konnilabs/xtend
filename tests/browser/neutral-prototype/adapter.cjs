@@ -73,6 +73,7 @@ async function run({engine, binary, version, endpointUrl, probeUrl, fixtureUrl, 
   const phase = async (name, action) => {
     try { await action(); phases[name] = {status:'passed'}; return true; }
     catch(error) {
+      if(name==='groupCleanup' && error.cleanup)report.cleanup=error.cleanup;
       phases[name] = {status:['startup','sandbox'].includes(name) && error instanceof InfrastructureBlocked ? 'infrastructure-blocked' :
         name === 'capabilities' && error instanceof MissingCapability ? 'capability-missing' : 'failed', reason:error.message};
       return false;
@@ -124,7 +125,11 @@ async function run({engine, binary, version, endpointUrl, probeUrl, fixtureUrl, 
     }));
     return report;
   } finally {
-    await phase('sessionCleanup',async()=>{if(sessionId) await command('DELETE',`/session/${sessionId}`,undefined,true);});
+    await phase('sessionCleanup',async()=>{
+      owner?.observeTransition?.('before-session-delete');
+      try{if(sessionId) await command('DELETE',`/session/${sessionId}`,undefined,true);}
+      finally{owner?.observeTransition?.('after-session-delete');}
+    });
     await phase('groupCleanup',async()=>{
       if (!owner) throw Error('No process ownership evidence');
       const cleanup = await owner.stop();

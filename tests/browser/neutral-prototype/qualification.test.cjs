@@ -1,7 +1,8 @@
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {endpoint,connect}=require('./bidi.cjs');
-const {parseStat,parseStatus,Continuity,validateContent}=require('./linux-observer.cjs');
+const {parseStat,parseStatus,processRole,Continuity,validateContent}=require('./linux-observer.cjs');
+const {diagnosticDriverLog}=require('./run-firefox.cjs');
 const {pinned,hydrangeaPreload,negativeLifecycle}=require('./qualification.cjs');
 const contracts=require('./fixture-contracts.json');
 const owner={assertCurrent(){}};
@@ -44,6 +45,29 @@ test('Linux proc parser binds start identity and rejects incomplete security fie
   assert.equal(parseStatus(text).seccomp,2);assert.throws(()=>parseStatus(text.replace('Seccomp_filters:\t1','')));
 });
 const leader={pid:20,parent:1,group:20,session:20,start:'100',state:'S'};
+test('Firefox NUL argv and official forkserver joined titles identify exact roles',()=>{
+  for(const separator of ['\0',' '])for(const role of ['tab','socket','rdd','gpu','utility','gmplugin','vr','forkserver']){
+    const result=processRole(['/opt/firefox/firefox-bin','-contentproc','-prefsHandle','123','10',role].join(separator)+'\0');
+    assert.equal(result.role,role);assert.equal(result.contentProcess,role==='tab');
+    assert.equal(result.format,separator==='\0'?'nul-argv':'joined-title');
+  }
+  assert.equal(processRole('/opt/test browser/firefox-bin\0-contentproc\0tab\0').contentProcess,true);
+});
+test('Role matcher rejects absent, truncated, duplicate, mixed and ambiguous role markers',()=>{
+  for(const value of ['', '/opt/firefox/firefox-bin -contentproc tab', 'Web Content\0',
+    '/opt/firefox/firefox-bin -contentproc tab utility\0','/opt/firefox/firefox-bin -contentproc utility tab\0',
+    '/opt/firefox/firefox-bin -contentproc -contentproc tab\0','/opt/firefox/firefox-bin --contentproc tab\0',
+    '/opt/test browser/firefox-bin -contentproc tab\0','/opt/firefox/firefox-bin -contentproc  tab\0',
+    '/opt/firefox/firefox-bin\0-contentproc\0tab\0unexpected\0','/opt/firefox/firefox-bin\0-contentproc\0socket tab\0',
+    '/opt/firefox/firefox-bin\0-contentproc\0tab\n\0'])assert.equal(processRole(value).contentProcess,false);
+});
+test('Driver diagnostic artifacts omit argv, environment and unclassified page output',()=>{
+  const output=diagnosticDriverLog('[31] Sandbox: CanCreateUserNamespace() unshare(CLONE_NEWPID): EPERM\n'+
+    '1792587215396\tMarionette\tINFO\tListening on port 1234\n'+
+    'Running command: /browser --secret=value\nTOKEN=private-value\nconsole.log(private-value)\n');
+  assert.match(output,/EPERM/);assert.match(output,/Listening on port 1234/);
+  assert(!/private-value|secret|TOKEN|Running command|console.log/.test(output));assert.match(output,/omitted: 3/);
+});
 test('Linux continuity survives observed child handoff but never reseeds a reused group',()=>{
   const child={...leader,pid:21,parent:20,start:'101'};const tracker=new Continuity(leader);
   tracker.observe([leader,child]);tracker.observe([child]);
@@ -51,6 +75,12 @@ test('Linux continuity survives observed child handoff but never reseeds a reuse
   assert.throws(()=>tracker.observe([{...leader,start:'999'}]),/reused/);
   assert.throws(()=>tracker.observe([]),/observable/);
   assert.throws(()=>tracker.observe([{...child,session:1}]),/mismatch/);
+});
+test('Zombie and unknown-live transitions never become ownership witnesses',()=>{
+  const tracker=new Continuity(leader),child={...leader,pid:21,parent:20,start:'101'};
+  tracker.observe([leader,child]);
+  assert.throws(()=>tracker.observe([{...leader,state:'Z'},{...child,state:'Z'}]),/continuity/);
+  assert.throws(()=>tracker.observe([{...leader,state:'Z'},{...child,pid:22,start:'102'}]),/continuity/);
 });
 const security={uids:[501,501,501,501],seccomp:2,noNewPrivs:1,filters:2,capEff:'0000000000000000'};
 const browser={...leader,security:{...security,filters:1}};

@@ -7,6 +7,17 @@ const {start}=require('./fixture-server.cjs');
 const {exercise}=require('./qualification.cjs');
 const digest=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
+function diagnosticDriverLog(text){
+  // Driver output can include complete launch argv, preferences and page data.
+  // Keep only explicitly bounded lifecycle/sandbox messages, never raw output.
+  const lines=text.split(/\r?\n/),kept=[];let omitted=0;
+  for(const line of lines){
+    if(/^\[\d+\] Sandbox: CanCreateUserNamespace\(\) (?:unshare\(CLONE_NEWPID\)|clone\(\) failure): [A-Z0-9]+$/.test(line) ||
+      /^\d+\s+(?:Marionette|geckodriver)\s+INFO\s+(?:Listening on (?:port |127\.0\.0\.1:)?\d+|Stopped listening on port \d+)$/.test(line))kept.push(line);
+    else if(line)omitted++;
+  }
+  return kept.join('\n')+'\n[unclassified driver lines omitted: '+omitted+']\n';
+}
 async function main(args=process.argv.slice(2)){
   if(!['darwin','linux'].includes(process.platform) || process.getuid()===0 || !path.isAbsolute(args[0]||''))throw Error('Explicit private output directory and unprivileged supported OS required');
   const out=path.resolve(args[0]),toolchain=fs.realpathSync(args[1]||'/tmp/xtend-firefox-toolchain-20261021');
@@ -36,7 +47,7 @@ async function main(args=process.argv.slice(2)){
     const port=await availablePort(),driverArgs=['--host','127.0.0.1','--port',String(port),'--profile-root',dirs.profiles,'--log','info'];
     const options={stdio:['ignore','pipe','pipe'],env:{PATH:'/usr/bin:/bin:/usr/sbin:/sbin',TMPDIR:dirs.tmp,LANG:'en_US.UTF-8',MOZ_APP_DATA:dirs['app-data'],MOZ_LOCAL_APP_DATA:dirs['local-app-data']}};
     if(mac){launch=spawn(driver,driverArgs,{...options,detached:true});observer=require('./mac-owner.cjs').createMacObserver({launch,bundle,binary,driver,profileRoot:dirs.profiles});}
-    else{owned=require('../../security/owned-browser-process.cjs').spawnOwned(driver,driverArgs,options);launch=owned.child;observer=require('./linux-observer.cjs').createLinuxObserver({owned,binary,driver,profileRoot:dirs.profiles});}
+    else{owned=require('../../security/owned-browser-process.cjs').spawnOwned(driver,driverArgs,options,{diagnostics:true});launch=owned.child;observer=require('./linux-observer.cjs').createLinuxObserver({owned,binary,driver,profileRoot:dirs.profiles});}
     launch.once('close',()=>{closed=true;});
     for(const stream of [launch.stdout,launch.stderr])stream.on('data',chunk=>{driverOutput+=chunk;});
     await observer.initialize();
@@ -54,7 +65,7 @@ async function main(args=process.argv.slice(2)){
   }catch(error){report.error=error.stack;report.status='failed';}
   finally {
     try{if(observer && !report.phases?.groupCleanup)report.cleanup=await observer.owner.stop();}
-    catch(error){report.cleanupError=error.message;report.status='failed';}
+    catch(error){report.cleanup=error.cleanup||null;report.cleanupError=error.message;report.status='failed';}
     if(launch && !observer && !closed){launch.kill('SIGTERM');await delay(250);if(!closed)report.cleanupError='Direct driver child not reaped';}
     if(server)await server.stop();
     if(foreign){foreign.closeAllConnections();await new Promise(r=>foreign.close(r));}
@@ -64,7 +75,8 @@ async function main(args=process.argv.slice(2)){
     report.sourceDigests=sources;
     fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
     fs.writeFileSync(path.join(out,'process-observations.json'),JSON.stringify(observer?.snapshots||[],null,2)+'\n');
-    fs.writeFileSync(path.join(out,'driver.log'),driverOutput);
+    fs.writeFileSync(path.join(out,'ownership-observations.json'),JSON.stringify(owned?.observations||[],null,2)+'\n');
+    fs.writeFileSync(path.join(out,'driver.log'),diagnosticDriverLog(driverOutput));
     console.log(JSON.stringify({status:report.status,node:report.node,phases:report.phases,cases:report.qualification?.cases,
       qualificationError:report.qualification?.error,cleanup:report.cleanup,error:report.error,report:path.join(out,'report.json')}));
     if(report.status!=='passed')process.exitCode=1;
@@ -72,4 +84,4 @@ async function main(args=process.argv.slice(2)){
   return report;
 }
 if(require.main===module)main().catch(error=>{console.error(error);process.exitCode=1;});
-module.exports={main};
+module.exports={main,diagnosticDriverLog};

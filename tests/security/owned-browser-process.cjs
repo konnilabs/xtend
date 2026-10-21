@@ -21,18 +21,43 @@ function observeChild(child){
   child.once('close',()=>{state.closed=true;});child.once('error',error=>{state.error=error;});
   return state;
 }
-function spawnOwned(command,args,options){
+function spawnOwned(command,args,options,{diagnostics=false}={}){
   if(process.platform!=='linux')throw Error('Owned browser cleanup requires Linux');
   const child=spawn(command,args,{...options,detached:true}),state=observeChild(child);
   // PID is the exact session/process-group identifier allocated by this spawn.
   const group=child.pid;let leaderStart,retired=false,cleanup,ownershipError;
   const owned=new Map(),live=record=>record&&/^[RSDTtWIP]$/.test(record.state);
   const same=(record,start)=>live(record)&&record.start===start&&record.group===group&&record.session===group;
+  const observations=[];let firstContinuityFailure=false;
+  function record(event,records,extra={}){
+    if(!diagnostics)return;
+    const entry={event,observedAt:new Date().toISOString(),monotonicMs:performance.now(),group,
+      leaderStart:leaderStart||null,childClosed:state.closed,...extra,known:[...owned].map(([pid,start])=>({pid,start})),processes:[]};
+    for(const row of records){
+      const item={...row};
+      try{
+        const status=fs.readFileSync('/proc/'+row.pid+'/status','utf8');
+        const uids=status.match(/^Uid:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/m);
+        item.uids=uids?uids.slice(1).map(Number):null;
+        const fresh=identity(row.pid);
+        item.identityStable=Boolean(fresh&&fresh.start===row.start&&fresh.group===row.group&&fresh.session===row.session);
+      }catch(error){item.unavailable=error.code||'observation-error';}
+      entry.processes.push(item);
+    }
+    observations.push(entry);
+  }
+  // Read-only diagnostic enumeration grants no ownership and sends no signals.
+  function observe(event){
+    if(!diagnostics)return;
+    try{record(event,groupMembers(group));}
+    catch(error){record(event,[],{unavailable:error.code||'observation-error'});}
+  }
   function continuous(records,saved=owned){
     for(const record of records){
       const start=saved.get(record.pid);
       if(start&&same(record,start)&&same(identity(record.pid),start))return record;
     }
+    if(!firstContinuityFailure){firstContinuityFailure=true;record('first-continuity-failure',records,{saved:[...saved].map(([pid,start])=>({pid,start}))});}
     throw Error('Owned group continuity lost; refusing to signal an uncertain/reused group');
   }
   function members(){
@@ -46,7 +71,7 @@ function spawnOwned(command,args,options){
       throw Error('Process group exists without an observable owned identity');
     }
     if(group===identity(process.pid)?.group||records.some(record=>record.session!==group))throw Error('Owned process-group identity mismatch');
-    if(leader&&leader.start!==leaderStart)throw Error('Owned group leader PID was reused');
+    if(leader&&leader.start!==leaderStart){record('leader-reused',records);throw Error('Owned group leader PID was reused');}
     // No reseeding from a numeric session/group after the original leader dies.
     // Learn additional members only while an already saved identity is live.
     continuous(records);
@@ -64,12 +89,14 @@ function spawnOwned(command,args,options){
   // lifetime is intentionally a failed cleanup, never permission to guess.
   const monitor=setInterval(()=>{try{members();}catch(error){ownershipError=error;state.error=error;}},100);
   function signal(name){
+    observe('before-'+name);
     const saved=new Map(owned),records=members();
     if(!records.length)return false;
     // Require a fresh PID/start match saved BEFORE this signal's lookup.
     // There is no await between the final identity recheck and group syscall.
     continuous(records,saved);
     try{process.kill(-group,name);}catch(error){if(error.code!=='ESRCH')throw error;}
+    observe('after-'+name);
     return true;
   }
   async function waitUntil(deadline){
@@ -95,11 +122,11 @@ function spawnOwned(command,args,options){
         if(!error.cleanup)error.cleanup={group:group||null,leaderStart:leaderStart||null,signals,remaining:null,
           childReaped:state.closed,groupGone:false,complete:false,termMs,killMs,ownershipError:error.message};
         throw error;
-      }finally{clearInterval(monitor);}
+      }finally{clearInterval(monitor);observe('cleanup-terminal');}
     })();
     return cleanup;
   }
-  return {child,group,state,stop};
+  return {child,group,state,stop,observe,observations};
 }
 function supervisedGroup(){
   const text=process.env.XTEND_CORE_SECURITY_SUPERVISOR_PID;

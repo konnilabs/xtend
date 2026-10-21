@@ -102,3 +102,27 @@ Aktuelle Belege und Router-/Gesamtpatch:
 `/Users/konnitroetscher/Documents/Codex/2026-10-19/task/xrouter-path-consumption-20261021`.
 Frühere fehlgeschlagene Browserläufe bleiben unter `firefox-readiness-20261021`
 und `firefox-bidi-linux-qualification-20261021` unverändert erhalten.
+# Single-run Linux diagnosis, 2026-10-21
+
+The qualification branch now schedules exactly one Node 24.18.0 browser VM,
+one fresh Firefox session and a separate aggregator in `diagnostic` mode.
+Initial two-lane qualification and stability-mode acceptance remain distinct;
+this run cannot supply either or grant release acceptance.
+
+Firefox 158.0.1 forkserver titles join argv with spaces. The observer recognizes
+that form and NUL-separated argv, rejects ambiguous roles, and keeps the same
+executable, start identity, UID, group/session and per-thread sandbox checks.
+Namespace availability remains separately visible; the documented EPERM is
+not evidence of a confirmed upstream Firefox defect or absent seccomp.
+
+Optional lifecycle diagnostics record only timestamps, PID/start/PPID/PGID/SID,
+state and UID data, before/after session deletion, around existing signals and
+at the first failed continuity check. Diagnostics never seed ownership or
+authorize signals. The adapter retains structured cleanup failures. Driver
+artifacts use a narrow lifecycle/sandbox message allowlist, omitting argv,
+environment and unclassified page output.
+
+The same pinned official archives, sandbox settings, existing product assertions
+and strict cleanup requirements apply. No retries are scheduled. Every report
+continues to carry `acceptedForRelease:false`. The exact outcome is recorded
+in the new run's artifacts; no success or Linux coverage is assumed here.

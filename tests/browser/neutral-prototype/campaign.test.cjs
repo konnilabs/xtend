@@ -7,18 +7,27 @@ function report(node){return {status:'passed',acceptedForRelease:false,node:'v'+
   cleanup:{complete:true,childReaped:true,groupGone:true,remaining:[]},
   phases:Object.fromEntries(['startup','sandbox','capabilities','product','qualification','sessionCleanup','groupCleanup'].map(n=>[n,{status:'passed'}])),
   qualification:{status:'passed',acceptedForRelease:false,cases:Object.fromEntries(cases.map(n=>[n,{status:'passed'}])),preloadCleanup:{status:'passed',remaining:0},transportCleanup:{status:'passed'}}};}
-function matrix(){
+function matrix(mode='initial',plannedNodes=['24.18.0','26.5.0']){
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-qualification-aggregate-'));
-  for(const node of ['24.18.0','26.5.0']){
+  for(const node of plannedNodes){
     const dir=path.join(root,node);fs.mkdirSync(dir);fs.mkdirSync(path.join(dir,'cycle-1'));
-    fs.writeFileSync(path.join(dir,'job-terminal.json'),JSON.stringify({node,replica:1,mode:'initial',outcomes:Object.fromEntries(['install','runtime','controls','provision','browser'].map(n=>[n,'success']))}));
-    fs.writeFileSync(path.join(dir,'campaign.json'),JSON.stringify({node,replica:1,mode:'initial',acceptedForRelease:false,commit:process.env.GITHUB_SHA||'a'.repeat(40),runId:process.env.GITHUB_RUN_ID||'1',attempt:process.env.GITHUB_RUN_ATTEMPT||'1',status:'passed',cycles:[{cycle:1,status:'passed'}]}));
+    fs.writeFileSync(path.join(dir,'job-terminal.json'),JSON.stringify({node,replica:1,mode,outcomes:Object.fromEntries(['install','runtime','controls','provision','browser'].map(n=>[n,'success']))}));
+    fs.writeFileSync(path.join(dir,'campaign.json'),JSON.stringify({node,replica:1,mode,acceptedForRelease:false,commit:process.env.GITHUB_SHA||'a'.repeat(40),runId:process.env.GITHUB_RUN_ID||'1',attempt:process.env.GITHUB_RUN_ATTEMPT||'1',status:'passed',cycles:[{cycle:1,status:'passed'}]}));
     fs.writeFileSync(path.join(dir,'cycle-1/report.json'),JSON.stringify(report(node)));
   }
   return root;
 }
 test('Campaign resource bounds distinguish initial pair from planned stability cycles',()=>{
-  assert.deepEqual(shape('initial'),{replicas:1,cycles:1});assert.deepEqual(shape('stability'),{replicas:3,cycles:2});assert.throws(()=>shape('unbounded'));
+  assert.deepEqual(shape('diagnostic'),{replicas:1,cycles:1});assert.deepEqual(shape('initial'),{replicas:1,cycles:1});assert.deepEqual(shape('stability'),{replicas:3,cycles:2});assert.throws(()=>shape('unbounded'));
+});
+test('Diagnostic aggregation requires exactly one Node24 session, never substitutes for the initial pair',()=>{
+  for(const planned of [['24.18.0'],['26.5.0'],['24.18.0','26.5.0'],[]]){
+    const root=matrix('diagnostic',planned);
+    try{const value=aggregate(root,'diagnostic');assert.equal(value.status,planned.length===1&&planned[0]==='24.18.0'?'passed':'failed');
+      assert.equal(value.expectedJobs,1);assert.equal(value.expectedSessions,1);assert.equal(value.acceptedForRelease,false);
+      assert.equal(aggregate(root,'initial').status,'failed');
+    }finally{fs.rmSync(root,{recursive:true});}
+  }
 });
 test('Aggregate accepts complete modeled Linux evidence without granting release acceptance',()=>{
   const root=matrix();try{const value=aggregate(root,'initial');assert.equal(value.status,'passed');assert.equal(value.acceptedForRelease,false);assert.equal(value.expectedSessions,2);}finally{fs.rmSync(root,{recursive:true});}

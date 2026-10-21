@@ -1,6 +1,6 @@
 name: XTend isolated Firefox qualification
 
-# Isolated initial qualification: exact branch only, no PR/schedule or release gate.
+# One diagnostic browser session on one fresh Node24 VM; no qualification series.
 on:
   push:
     branches: [qualification/firefox-initial-20261021]
@@ -15,12 +15,12 @@ jobs:
     timeout-minutes: 15
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 1
       matrix:
-        node: ['24.18.0', '26.5.0']
+        node: ['24.18.0']
         replica: [1]
     env:
-      QUAL_MODE: initial
+      QUAL_MODE: diagnostic
       QUAL_NODE: ${{ matrix.node }}
       QUAL_REPLICA: ${{ matrix.replica }}
       QUAL_LANE: ${{ matrix.node == '24.18.0' && 'node-24-lts' || 'node-26-current' }}
@@ -62,7 +62,7 @@ jobs:
       - name: Provision official pinned Linux archives
         id: provision
         run: python3 tests/browser/neutral-prototype/provision-linux.py "$QUAL_TOOLCHAIN" > "$QUAL_EVIDENCE/provisioning.log" 2>&1
-      - name: Execute planned fresh browser cycles
+      - name: Execute exactly one diagnostic browser session
         id: browser
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -114,7 +114,7 @@ jobs:
       - name: Require every planned job, phase and cleanup result
         if: always()
         env:
-          QUAL_MODE: initial
+          QUAL_MODE: diagnostic
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node tests/browser/neutral-prototype/campaign.cjs aggregate "$RUNNER_TEMP/firefox-matrix" "$QUAL_MODE" "$RUNNER_TEMP/firefox-summary.json"
       - name: Retain strict aggregate

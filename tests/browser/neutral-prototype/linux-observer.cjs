@@ -14,6 +14,21 @@ function parseStatus(text){
 }
 function same(a,b){return a && b && a.pid===b.pid && a.start===b.start && a.group===b.group && a.session===b.session;}
 function live(row){return row && !['Z','X','x'].includes(row.state);}
+// Firefox 158 ForkServer/SetProcessTitle also exposes one space-joined title.
+// Role text never substitutes for executable/start/UID/thread authentication.
+function processRole(text){
+  const unknown={role:'unknown',format:'unrecognized',contentProcess:false};
+  if(typeof text!=='string' || !text.endsWith('\0') || /[\r\n\t]/.test(text))return unknown;
+  const args=text.split('\0').filter(Boolean),joined=args.length===1;
+  const tokens=joined ? args[0].split(' ') : args;
+  if(!tokens.length || tokens.some(s=>!s) || tokens.filter(s=>s==='-contentproc').length!==1 ||
+    tokens.some(s=>s!=='-contentproc' && s.includes('-contentproc')))return unknown;
+  // Flattened paths containing spaces are ambiguous: never guess boundaries.
+  if(!/^\/(?:[^\0\r\n\t]+\/)*firefox(?:-bin)?$/.test(tokens[0]) || (joined&&/\s/.test(tokens[0])) || tokens[1]!=='-contentproc')return unknown;
+  const roles=['tab','socket','rdd','gpu','utility','gmplugin','vr','forkserver'],role=tokens.at(-1);
+  if(!roles.includes(role) || tokens.slice(2,-1).some(s=>roles.includes(s)))return unknown;
+  return {role,format:joined?'joined-title':'nul-argv',contentProcess:role==='tab'};
+}
 class Continuity {
   constructor(leader){this.group=leader.group;this.leader=leader;this.known=new Map([[leader.pid,leader.start]]);}
   observe(rows){
@@ -47,13 +62,13 @@ function createLinuxObserver({owned,binary,driver,profileRoot}){
     const before=stat(pid),executable=fs.readlinkSync(`/proc/${pid}/exe`);
     const security=parseStatus(fs.readFileSync(`/proc/${pid}/status`,'utf8'));
     // Only exact owned group members are inspected; no arguments/environment are emitted.
-    const args=fs.readFileSync(`/proc/${pid}/cmdline`,'utf8').split('\0').filter(Boolean);
-    const contentProcess=args.at(-1)==='tab' && args.includes('-contentproc');
+    const role=processRole(fs.readFileSync(`/proc/${pid}/cmdline`,'utf8'));
+    const contentProcess=role.contentProcess;
     const threads=contentProcess ? fs.readdirSync(`/proc/${pid}/task`).filter(n=>/^\d+$/.test(n)).map(tid=>({tid:Number(tid),...parseStatus(fs.readFileSync(`/proc/${pid}/task/${tid}/status`,'utf8'))})):[];
     const namespaces={};
     for(const name of ['user','pid','net','ipc','mnt'])namespaces[name]=fs.readlinkSync(`/proc/${pid}/ns/${name}`);
     if(!same(before,stat(pid)))throw Error('Proc identity changed during observation');
-    return {...before,executable,security,contentProcess,threads,namespaces};
+    return {...before,executable,security,contentProcess,role:role.role,argumentFormat:role.format,threads,namespaces};
   }
   function snapshot(){
     if(owned.state.error)throw owned.state.error;
@@ -70,12 +85,12 @@ function createLinuxObserver({owned,binary,driver,profileRoot}){
     try{rows=records.filter(live).map(r=>read(r.pid));}
     catch(error){if(['EACCES','EPERM','ENOENT','ESRCH'].includes(error.code))throw new InfrastructureBlocked('Owned /proc sandbox evidence unavailable: '+error.code);throw error;}
     if(rows.some(r=>r.security.uids.some(uid=>uid!==process.getuid())))throw Error('Unexpected owned process user');
-    snapshots.push({platform:'linux',processes:rows});return rows;
+    snapshots.push({platform:'linux',observedAt:new Date().toISOString(),monotonicMs:performance.now(),processes:rows});return rows;
   }
   const owner={assertCurrent(){
     if(owned.state.error || owned.state.closed || launch.exitCode!==null || launch.signalCode!==null)throw owned.state.error || Error('Driver stopped');
     const row=stat(group);if(!same(row,continuity?.leader)||fs.readlinkSync(`/proc/${group}/exe`)!==driver)throw Error('Driver identity changed');
-  },stop:()=>owned.stop()};
+  },observeTransition:event=>owned.observe?.(event),stop:()=>owned.stop()};
   const sandbox={async verify({identity}){
     owner.assertCurrent();const rows=snapshot(),browser=rows.find(r=>r.pid===identity['moz:processID']);
     const candidates=[binary,path.join(path.dirname(binary),'firefox-bin')].filter(p=>fs.existsSync(p)).map(p=>fs.realpathSync(p));
@@ -97,4 +112,4 @@ function createLinuxObserver({owned,binary,driver,profileRoot}){
   }
   return {owner,sandbox,snapshots,initialize};
 }
-module.exports={parseStat,parseStatus,same,Continuity,validateContent,createLinuxObserver};
+module.exports={parseStat,parseStatus,same,processRole,Continuity,validateContent,createLinuxObserver};

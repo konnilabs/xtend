@@ -3,7 +3,8 @@ const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),asse
 const {execFileSync}=require('node:child_process');
 const pins=require('./toolchain-pins.json');
 const cases=['bidi-preload-order-fetch','bidi-context-isolation','bidi-removal','core','a11y','lifecycle','lifecycle-wrong-key','lifecycle-foreign-origin'];
-function shape(mode){if(!['initial','stability'].includes(mode))throw Error('Unknown campaign mode');return {replicas:mode==='initial'?1:3,cycles:mode==='initial'?1:2};}
+function shape(mode){if(!['diagnostic','initial','stability'].includes(mode))throw Error('Unknown campaign mode');return {replicas:mode==='stability'?3:1,cycles:mode==='stability'?2:1};}
+const nodes=mode=>mode==='diagnostic'?['24.18.0']:pins.nodes;
 function skipped(value){return value && typeof value==='object' && Object.entries(value).some(([key,item])=>(key==='skipped'&&Boolean(item))||(key==='status'&&item==='skipped')||skipped(item));}
 function accepted(report,node){
   if(skipped(report) || report?.status!=='passed' || report.acceptedForRelease!==false || report.node!=='v'+node || report.platform!=='linux' ||
@@ -17,7 +18,7 @@ function accepted(report,node){
 }
 async function execute(evidence,toolchain,mode,replica){
   const config=shape(mode);if(!Number.isInteger(replica)||replica<1||replica>config.replicas)throw Error('Unexpected replica');
-  const node=process.versions.node;if(!pins.nodes.includes(node))throw Error('Exact pinned Node required');
+  const node=process.versions.node;if(!nodes(mode).includes(node))throw Error('Exact planned Node required');
   if(process.platform!=='linux')throw Error('Campaign execution requires real Linux');
   fs.mkdirSync(evidence,{recursive:true});
   const commit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
@@ -33,7 +34,7 @@ async function execute(evidence,toolchain,mode,replica){
     fs.mkdirSync(dest,{recursive:false});let report;
     try{report=await require('./run-firefox.cjs').main([work,toolchain]);}
     catch(error){report={status:'failed',error:error.message,acceptedForRelease:false};}
-    for(const name of ['report.json','driver.log','process-observations.json'])if(fs.existsSync(path.join(work,name)))fs.copyFileSync(path.join(work,name),path.join(dest,name));
+    for(const name of ['report.json','driver.log','process-observations.json','ownership-observations.json'])if(fs.existsSync(path.join(work,name)))fs.copyFileSync(path.join(work,name),path.join(dest,name));
     job.cycles.push({cycle,status:accepted(report,node)?'passed':'failed'});save();
     // Planned repetitions are not retries. Uncertain cleanup blocks later starts.
     if(!report.cleanup?.complete){for(let next=cycle+1;next<=config.cycles;next++)job.cycles.push({cycle:next,status:'not-run',reason:'preceding cleanup incomplete'});break;}
@@ -42,13 +43,13 @@ async function execute(evidence,toolchain,mode,replica){
   if(job.status!=='passed')process.exitCode=1;return job;
 }
 function aggregate(directory,mode){
-  const config=shape(mode),result={acceptedForRelease:false,status:'failed',mode,expectedJobs:2*config.replicas,expectedSessions:2*config.replicas*config.cycles,errors:[],jobs:[]};
+  const config=shape(mode),result={acceptedForRelease:false,status:'failed',mode,expectedJobs:nodes(mode).length*config.replicas,expectedSessions:nodes(mode).length*config.replicas*config.cycles,errors:[],jobs:[]};
   try{
     const seen=new Set();let provenance;
     for(const name of fs.readdirSync(directory)){
       const dir=path.join(directory,name);if(!fs.statSync(dir).isDirectory())continue;
       const terminal=JSON.parse(fs.readFileSync(path.join(dir,'job-terminal.json'),'utf8'));
-      assert(pins.nodes.includes(terminal.node));assert(terminal.replica>=1 && terminal.replica<=config.replicas);assert.equal(terminal.mode,mode);
+      assert(nodes(mode).includes(terminal.node));assert(terminal.replica>=1 && terminal.replica<=config.replicas);assert.equal(terminal.mode,mode);
       const key=terminal.node+'/'+terminal.replica;assert(!seen.has(key),'Duplicate job');seen.add(key);
       assert(['install','runtime','controls','provision','browser'].every(id=>terminal.outcomes[id]==='success'),'Failed, missing or skipped workflow step');
       const job=JSON.parse(fs.readFileSync(path.join(dir,'campaign.json'),'utf8'));
