@@ -36,7 +36,7 @@ async function scenario(options = {}) {
   try {
     const report = await run({engine,version:'151.0',binary:'/test-only/browser',endpointUrl:origin,
       probeUrl:origin+'/probe',fixtureUrl:origin+'/fixture',resultKey:'__fixture',timeoutMs:options.timeoutMs || 1000,
-      required:options.required || ['dom','customElements','shadowDom'],assertions,owner,sandbox:options.noSandboxObserver ? undefined : sandbox});
+      required:options.required || ['dom','customElements','shadowDom'],assertions,owner,sandbox:options.noSandboxObserver ? undefined : sandbox,exercise:options.exercise});
     return {report,calls,stopCount,sandboxCount};
   } finally {server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
 }
@@ -59,6 +59,13 @@ test('launch configuration never inherits unsafe Chromium defaults or Firefox pr
   }
   assert.throws(()=>capabilities({engine:'webkit',binary:'/browser',version:'151.0'}));
   assert.throws(()=>capabilities({engine:'firefox',binary:'firefox',version:'151.0'}));
+});
+for(const engine of ['chromium','firefox'])test(`${engine}: exercise selects only the required protocol capability (MODEL ONLY)`,async()=>{
+  let exercised=0;
+  const {report,calls}=await scenario({engine,exercise:async()=>{exercised++;}});
+  assert.equal(report.status,'passed');assert.equal(exercised,1);
+  const requested=calls.find(c=>c.url==='/session').payload.capabilities.alwaysMatch;
+  assert.equal(requested.webSocketUrl,engine==='firefox'?true:undefined);
 });
 test('remote endpoints, credentials and file URLs are rejected',()=>{
   for(const url of ['https://127.0.0.1','http://example.com','http://u:p@127.0.0.1','file:///tmp/file','http://0.0.0.0']) assert.throws(()=>localUrl(url));

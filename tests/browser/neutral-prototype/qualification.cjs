@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
-const {connect}=require('./bidi.cjs');
+const {createEngineAdapter}=require('./engine-adapters.cjs');
 const {acceptProduct}=require('./adapter.cjs');
 const contracts=require('./fixture-contracts.json');
 const root=path.resolve(__dirname,'../../..');
@@ -23,11 +23,11 @@ function negativeLifecycle(result,fixture,foreignUrl){
   assert.deepEqual(result.errors,['rmt build local http assets only']);
   assert(!result.checks.some(r=>r.skipped || r.status==='skipped'));
 }
-function exercise(origin,foreignOrigin){return async({report,command,identity,sessionId,owner,sandbox,binary})=>{
+function exercise(origin,foreignOrigin,{engine='firefox',adapterFactory=createEngineAdapter}={}){return async({report,command,identity,sessionId,owner,sandbox,binary})=>{
   const names=['bidi-preload-order-fetch','bidi-context-isolation','bidi-removal','core','a11y','lifecycle','lifecycle-wrong-key','lifecycle-foreign-origin'];
   const evidence=report.qualification={acceptedForRelease:false,cases:Object.fromEntries(names.map(n=>[n,{status:'not-run'}])),
-    preloadCleanup:{status:'not-run'},transportCleanup:{status:'not-run'},sandboxObservations:[]};
-  let bidi,secondary;const scripts=new Set();
+    preloadCleanup:{status:'not-run'},transportCleanup:{status:'not-run'},sandboxObservations:[],sandboxObservationStatus:'not-run'};
+  let transport,secondary;const scripts=new Set();
   const exec=script=>command('POST',`/session/${sessionId}/execute/sync`,{script,args:[]});
   const navigate=url=>command('POST',`/session/${sessionId}/url`,{url});
   const poll=async(key,budget=20000)=>{const end=Date.now()+budget;while(Date.now()<end){
@@ -35,7 +35,8 @@ function exercise(origin,foreignOrigin){return async({report,command,identity,se
     if(value?.status && value.status!=='pending')return value;
     await new Promise(r=>setTimeout(r,50));
   }throw Error('Fixture result deadline exceeded: '+key);};
-  const guard=async()=>{const value=await sandbox.verify({identity,sessionId,binary});if(value.status!=='passed')throw Error('Qualification sandbox proof failed');evidence.sandboxObservations.push(value);};
+  const guard=async()=>{try{const value=await sandbox.verify({identity,sessionId,binary});if(value.status!=='passed')throw Error('Qualification sandbox proof failed');evidence.sandboxObservations.push(value);evidence.sandboxObservationStatus='passed';}
+    catch(error){evidence.sandboxObservationStatus='failed';throw error;}};
   const check=async(name,fn)=>{await guard();const start=performance.now();try{
     evidence.cases[name]={status:'passed',result:await fn(),durationMs:performance.now()-start};
   }catch(error){evidence.cases[name]={status:'failed',reason:error.message,durationMs:performance.now()-start};
@@ -49,15 +50,13 @@ function exercise(origin,foreignOrigin){return async({report,command,identity,se
       resources:performance.getEntriesByType('resource').map(r=>({url:r.name,status:r.responseStatus,initiator:r.initiatorType}))};`);}catch(_){}
   }
   await guard();};
-  const add=async(context,source)=>{const value=await bidi.command('script.addPreloadScript',{functionDeclaration:`() => {\n${source}\n}`,contexts:[context]});
-    assert.equal(typeof value.script,'string');scripts.add(value.script);return value.script;};
-  const remove=async id=>{await bidi.command('script.removePreloadScript',{script:id});scripts.delete(id);};
+  const add=async(context,source)=>{const id=await transport.addPreload(context,source);scripts.add(id);return id;};
+  const remove=async id=>{await transport.removePreload(id);scripts.delete(id);};
   try {
     for(const f of contracts.fixtures)pinned(f);
-    bidi=await connect(identity.webSocketUrl,sessionId,owner);
-    const context=await command('GET',`/session/${sessionId}/window`);
-    const tree=await bidi.command('browsingContext.getTree',{maxDepth:0});
-    assert(tree.contexts.some(c=>c.context===context));
+    transport=await adapterFactory({engine,command,identity,sessionId,owner});
+    evidence.transport={engine,protocol:transport.protocol};
+    const context=transport.primary;
     const preload=await add(context,`window.__neutralPreload={readyState:document.readyState,beforePage:!window.__pageSeen};\n`+hydrangeaPreload());
     await check('bidi-preload-order-fetch',async()=>{
       await navigate(origin+'/__neutral/bidi');const result=await poll('__bidiFixture');
@@ -67,11 +66,11 @@ function exercise(origin,foreignOrigin){return async({report,command,identity,se
       return result;
     });
     await check('bidi-context-isolation',async()=>{
-      secondary=(await bidi.command('browsingContext.create',{type:'tab'})).context;
-      await bidi.command('browsingContext.navigate',{context:secondary,url:origin+'/__neutral/bidi',wait:'complete'});
-      const value=await bidi.command('script.evaluate',{expression:'JSON.stringify({absent:!window.__hydrangea && !window.__neutralPreload, page:window.__pageSeen})',target:{context:secondary},awaitPromise:false});
-      assert.equal(value.type,'success');const result=JSON.parse(value.result.value);assert.equal(result.absent,true);assert.equal(result.page,true);
-      await bidi.command('browsingContext.close',{context:secondary});secondary=null;
+      secondary=await transport.createContext();
+      await transport.navigateContext(secondary,origin+'/__neutral/bidi');
+      const result=await transport.evaluateContext(secondary,'({absent:!window.__hydrangea && !window.__neutralPreload, page:window.__pageSeen})');
+      assert.equal(result.absent,true);assert.equal(result.page,true);
+      await transport.closeContext(secondary);secondary=null;
       await command('POST',`/session/${sessionId}/window`,{handle:context});return result;
     });
     await remove(preload);
@@ -96,11 +95,11 @@ function exercise(origin,foreignOrigin){return async({report,command,identity,se
     await remove(negative);
   } catch(error){evidence.error=error.message;}
   finally {
-    try {if(!bidi)throw Error('BiDi not established');for(const id of [...scripts])await remove(id);
-      if(secondary)await bidi.command('browsingContext.close',{context:secondary});
+    try {if(!transport)throw Error('Engine adapter not established');for(const id of [...scripts])await remove(id);
+      if(secondary)await transport.closeContext(secondary);
       evidence.preloadCleanup={status:'passed',remaining:scripts.size};
     }catch(error){evidence.preloadCleanup={status:'failed',reason:error.message};}
-    try {if(!bidi)throw Error('BiDi not established');evidence.transportCleanup=await bidi.close();}
+    try {if(!transport)throw Error('Engine adapter not established');evidence.transportCleanup=await transport.close();}
     catch(error){evidence.transportCleanup={status:'failed',reason:error.message};}
   }
   evidence.status=!evidence.error && Object.values(evidence.cases).every(r=>r.status==='passed') &&

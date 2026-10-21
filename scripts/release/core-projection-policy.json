@@ -1854,6 +1854,8 @@
     "tests/browser/neutral-prototype/campaign.test.cjs",
     "tests/browser/neutral-prototype/capability-matrix.json",
     "tests/browser/neutral-prototype/controller-suite.cjs",
+    "tests/browser/neutral-prototype/engine-adapters.cjs",
+    "tests/browser/neutral-prototype/engine-adapters.test.cjs",
     "tests/browser/neutral-prototype/fixture-contracts.json",
     "tests/browser/neutral-prototype/fixture-server.cjs",
     "tests/browser/neutral-prototype/linux-actions-plan.md",
@@ -1867,6 +1869,8 @@
     "tests/browser/neutral-prototype/qualification.cjs",
     "tests/browser/neutral-prototype/qualification.test.cjs",
     "tests/browser/neutral-prototype/readiness.test.cjs",
+    "tests/browser/neutral-prototype/result-contract.cjs",
+    "tests/browser/neutral-prototype/result-contract.test.cjs",
     "tests/browser/neutral-prototype/run-firefox.cjs",
     "tests/browser/neutral-prototype/run-mac-firefox.cjs",
     "tests/browser/neutral-prototype/toolchain-pins.json",
@@ -3421,7 +3425,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "b80a55d4e7e5137701dc6be1d6a238cf45557fc3a015a5e302c80c860491917e",
+  "authorityDecisionSha256": "5a68c385c388244f59abadd2919be8e128d913f22c45b65c2ec8ed6e5530a243",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "f1956bfe2a69f16a4f4b6b88a1366be20de6294284c3e4e1abc3da015eda3587"
 }

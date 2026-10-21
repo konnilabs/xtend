@@ -89,7 +89,7 @@ async function run({engine, binary, version, endpointUrl, probeUrl, fixtureUrl, 
       endpoint = parseEndpoint(endpointUrl);
       const ready = await command('GET','/status');
       if (ready?.ready !== true) throw new InfrastructureBlocked('Driver not ready');
-      const session = await command('POST','/session',capabilities({engine,binary,version,bidi:Boolean(exercise)}));
+      const session = await command('POST','/session',capabilities({engine,binary,version,bidi:engine === 'firefox' && Boolean(exercise)}));
       sessionId = session?.sessionId;
       if (typeof sessionId !== 'string' || !/^[\w-]+$/.test(sessionId)) {sessionId = null; throw Error('Invalid session identity');}
       identity = session.capabilities;
