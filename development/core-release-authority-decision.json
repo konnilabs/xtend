@@ -5,7 +5,7 @@
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
   "inventorySha256": "871416d0f67dc56b67dd3573701af20ee1fd9d331da8a3ed54751579288c5c27",
-  "sourceMembershipSha256": "3348527d9d64939eea7b29fba5a5f0fc64ada32c67dbcdb593f02e7639efd24a",
+  "sourceMembershipSha256": "ebb605408ba2ca00df62ae9fda11097f0af3ff3e986eef72b0ef6aea8518b616",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -99,11 +99,11 @@
           },
           {
             "path": "development/XTend-Core-Only-Release.md",
-            "sha256": "01235e8f94400ad3dffdee385e769709a0e9cb0b4770574f1c3a2380eb389991"
+            "sha256": "2e1c64dd0fa2ecfa67fc684691d6c37a78157c0d5dfbbcde106c6b36cb0e544c"
           },
           {
             "path": "development/core-release-contracts.md",
-            "sha256": "dd1b28f76e2747efca80c1a8a0c16247b2cd84fbea1d1930c837319189203533"
+            "sha256": "afdb296c15c08e139f49529ee9164bd04f21d80b80dde3c2714ec80ff54f39c4"
           },
           {
             "path": "scripts/release/artifact.cjs",
@@ -168,15 +168,15 @@
           },
           {
             "path": "development/XTend-Core-Only-Release.md",
-            "sha256": "01235e8f94400ad3dffdee385e769709a0e9cb0b4770574f1c3a2380eb389991"
+            "sha256": "2e1c64dd0fa2ecfa67fc684691d6c37a78157c0d5dfbbcde106c6b36cb0e544c"
           },
           {
             "path": "development/XTend-Scoped-Npm-Release-Runbook.md",
-            "sha256": "445e28eb5e83567fad36581e637647d64384ced931e15f4a16c6ed883f6c2f63"
+            "sha256": "bbb383327e415282ed12e05fe67616e944f49ce6366bb683b04986ca1073173a"
           },
           {
             "path": "development/core-release-contracts.md",
-            "sha256": "dd1b28f76e2747efca80c1a8a0c16247b2cd84fbea1d1930c837319189203533"
+            "sha256": "afdb296c15c08e139f49529ee9164bd04f21d80b80dde3c2714ec80ff54f39c4"
           },
           {
             "path": "scripts/release/artifact.cjs",
@@ -239,11 +239,11 @@
           },
           {
             "path": "development/XTend-Core-Only-Release.md",
-            "sha256": "01235e8f94400ad3dffdee385e769709a0e9cb0b4770574f1c3a2380eb389991"
+            "sha256": "2e1c64dd0fa2ecfa67fc684691d6c37a78157c0d5dfbbcde106c6b36cb0e544c"
           },
           {
             "path": "development/core-release-contracts.md",
-            "sha256": "dd1b28f76e2747efca80c1a8a0c16247b2cd84fbea1d1930c837319189203533"
+            "sha256": "afdb296c15c08e139f49529ee9164bd04f21d80b80dde3c2714ec80ff54f39c4"
           },
           {
             "path": "scripts/release/artifact.cjs",

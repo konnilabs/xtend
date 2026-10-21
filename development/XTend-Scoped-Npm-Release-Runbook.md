@@ -35,6 +35,18 @@ released fingerprint or disable the guard to obtain a green gate. The migration'
 remain blocking. Four reviewed CandidateManifest registration shapes do not approve
 the six actually observed merged shapes; their wider polymorphism remains pending.
 
+## Current migration status (2026-10-21)
+
+The earlier Draft-PR109 status and baseline counts above describe its historical
+checkpoint. The consolidated Core line preserves its release functions and uses
+the reviewed Core-only registrations in `core-unreleased-registration.md`.
+Historical residual counts are not current acceptance evidence. The private Demo
+audit and coordinated source pins require their own fresh handoff evidence.
+The migration-only functional browser decision is recorded in
+`migration-functional-acceptance.json`; it does not waive Core release security,
+retire FirstRelease or authorize publishing. PR108/109 remain open until a
+separate replacement/closure decision.
+
 ## Inventory and version policy
 
 `scripts/release/inventory.json` is the release inventory. `release:inventory`
@@ -404,8 +416,9 @@ normal release sequence.
 
 ## Review and operational limits
 
-Schema governance remains pending, aggregate and product baseline failures must
-be fixed through their own reviewed work, and real hosted OIDC publication is not
+Exact reviewed schema registrations still require current source verification;
+aggregate and product failures must be fixed through their own reviewed work.
+Real hosted OIDC publication is not
 proven by local tests. Every current gate must pass before any future publication.
 Record executed, failed, unavailable and running checks with their exact source
 SHAs; never claim a fixture or older report proves a new integration commit.

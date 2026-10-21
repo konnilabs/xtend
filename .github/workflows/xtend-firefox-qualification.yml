@@ -80,9 +80,9 @@ jobs:
           python3 - <<'PY'
           import json,os,pathlib,shutil
           root=pathlib.Path(os.environ['QUAL_EVIDENCE']);root.mkdir(exist_ok=True)
-          steps=json.loads(os.environ['STEP_OUTCOMES'])
+          step_outcomes=json.loads(os.environ['STEP_OUTCOMES'])
           value={'acceptedForMerge':False,'acceptedForRelease':False,'mode':'ci-functional-only','sandboxEnabled':False,'sandboxEvidence':'not-provided','node':os.environ['QUAL_NODE'],
-            'outcomes':{key:steps.get(key,{}).get('outcome','not-provided') for key in ['install','runtime','controls','provision','browser']}}
+            'outcomes':{key:step_outcomes.get(key,{}).get('outcome','not-provided') for key in ['install','runtime','controls','provision','browser']}}
           (root/'job-terminal.json').write_text(json.dumps(value,indent=2)+'\n')
           source=pathlib.Path(os.environ['QUAL_TOOLCHAIN'])/'provisioning.json'
           if source.exists():shutil.copyfile(source,root/'provisioning.json')
@@ -123,11 +123,15 @@ jobs:
       - name: Verify complete same-head functional matrix
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node tests/browser/neutral-prototype/functional-matrix.cjs "$RUNNER_TEMP/functional-matrix" "$RUNNER_TEMP/functional-matrix-result.json"
+        run: |
+          node tests/browser/neutral-prototype/functional-matrix.cjs "$RUNNER_TEMP/functional-matrix" "$RUNNER_TEMP/functional-matrix-result.json"
+          node scripts/migration-functional-acceptance.cjs "$RUNNER_TEMP/functional-matrix" "$RUNNER_TEMP/migration-function-acceptance.json"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         if: always()
         with:
           name: chromium-functional-matrix-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/functional-matrix-result.json
+          path: |
+            ${{ runner.temp }}/functional-matrix-result.json
+            ${{ runner.temp }}/migration-function-acceptance.json
           if-no-files-found: error
           retention-days: 30

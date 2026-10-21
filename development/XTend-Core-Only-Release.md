@@ -1,9 +1,9 @@
 # Core-only npm release
 
 This is the current release contract for the Core 0.9 migration proposal. It is
-not release acceptance. The reviewed inventory projection and Candidate v1/v2
-authority decisions remain pending, and the first-release publication guard is
-still active. Historical paired Core/Demo evidence cannot authorize this path.
+not release acceptance. The inventory projection, Candidate v1/v2 coexistence
+and exact unreleased registrations are reviewed in the bound authority decision
+files. The first-release publication guard is still active. Historical paired Core/Demo evidence cannot authorize this path.
 
 ## Ownership
 
@@ -60,7 +60,7 @@ historical complete authority and history. Candidate v2 needs an explicit initia
 unreleased registration and an explicit parallel-profile family decision. Existing
 v1 contracts remain active; this migration does not deprecate them. The closed profile registry represents both active profiles with exactly one
 current version in each verified context. Its exact source/authority registration
-remains pending; a structural mapping alone cannot authorize a release. No generated scan, historical green
+is recorded in the reviewed decision files; a structural mapping alone cannot authorize a release. No generated scan, historical green
 report or metadata edit may invent a released fingerprint or retire the separate
 first-release publication guard.
 
@@ -124,8 +124,8 @@ Core release preparation, seals and publication do not consume this audit.
 
 The existing Demo pin must be updated only after the audited Core commit is
 reviewed and durably available. A local integration tree or local review snapshot
-is not a replacement remote pin. Pending Core projection/authority decisions and
-the initial-publication guard remain mandatory and unchanged.
+is not a replacement remote pin. Exact Core projection/authority verification and the initial-publication guard
+remain mandatory and unchanged.
 
 ## Compatibility preserved in the local migration
 
@@ -145,7 +145,8 @@ producer normalizes them to null before validating. The config loader validates
 the same normalized meaning without rewriting the stored config or its digest.
 Absent/null and valid lowercase SHA-256 values retain their behavior; malformed
 truthy values, wrong service-source hashes and changed config fingerprints still
-fail. The exact source/shape registrations remain a separate pending review.
+fail. The reviewed exact source/shape registrations are recorded separately in
+`core-unreleased-registration.md` and the bound decision files.
 
 ## Closed profile registry
 
@@ -168,3 +169,21 @@ The Candidate Authority guard preserves active historical v1 and its unchanged
 release facts, independently verifies complete current v1/v2 authorities, and
 requires a separate exact coexistence registration. The narrow historical initial
 authority exception and the first-release publication guard remain unchanged.
+
+## Migration-only functional evidence decision (2026-10-21)
+
+The user accepted the isolated Chromium CI functional profile for the browser
+function condition of the migration. `migration-functional-acceptance.json`
+records its exact scope. Both Node lanes must execute the same product assertions
+at one committed Core head on fresh GitHub-hosted Linux runners, with complete
+ownership and cleanup evidence. The profile explicitly disables the browser
+sandbox and provides no sandbox proof. A green function result does not establish
+general browser support, stability, release readiness or a merge decision.
+
+`scripts/migration-functional-acceptance.cjs` recomputes both lane observations
+from their same-run raw artifacts. It recognizes only the browser-function
+condition. Core packages/contracts, current paired Demo handoff, durable source
+pins and user review remain separate migration conditions. Existing Core release
+security contracts and FirstRelease remain unchanged; the release pipeline does
+not import the migration decision. Chromium and Firefox remain test adapters;
+no browser or driver becomes a production package dependency.

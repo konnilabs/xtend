@@ -325,3 +325,21 @@ for(const [name,change] of [
  ['symlink evidence',f=>{const p=path.join(f.dirs[1],'report.json');fs.renameSync(p,p+'.real');fs.symlinkSync(p+'.real',p);}],
  ['sandbox claim',f=>f.change('summary.json',v=>v.sandboxEnabled=true)]
 ])test('artifact matrix rejects '+name,t=>{const f=matrixFiles(t);change(f);assert.throws(()=>require('./functional-matrix.cjs').load(f.root,f.expected));});
+test('migration decision recognizes only complete functions and keeps all other conditions open',t=>{
+ const f=matrixFiles(t),r=require('../../../scripts/migration-functional-acceptance.cjs').evaluate(f.root,f.expected);
+ assert.equal(r.browserFunctionsAcceptedForMigration,true);assert.equal(r.migrationComplete,false);assert.equal(r.sandboxEvidence,'not-provided');
+ for(const key of ['acceptedForSecurity','acceptedForMerge','acceptedForRelease'])assert.equal(r[key],false);
+ assert(r.remainingMigrationConditions.includes('paired-demo-handoff-at-exact-pins'));assert(r.remainingMigrationConditions.includes('user-review-and-merge-decision'));
+});
+for(const [name,mutate] of [
+ ['global merge approval',d=>d.acceptedForMerge=true],['publish guard retirement',d=>d.firstReleasePublicationGuardRetired=true],
+ ['missing handoff',d=>d.remainingMigrationConditions=[]],['invented sandbox proof',d=>d.sandboxEvidence='passed'],['one Node only',d=>d.nodeLanes.pop()],
+ ['unreviewed decision',d=>d.status='proposed']
+])test('migration decision rejects '+name,t=>{
+ const f=matrixFiles(t),d=structuredClone(require('../../../development/migration-functional-acceptance.json'));mutate(d);
+ assert.throws(()=>require('../../../scripts/migration-functional-acceptance.cjs').evaluate(f.root,f.expected,d));
+});
+test('migration recognition refuses failed product evidence',t=>{
+ const f=matrixFiles(t);f.change('report.json',r=>r.product.checks[0].passed=false);
+ assert.throws(()=>require('../../../scripts/migration-functional-acceptance.cjs').evaluate(f.root,f.expected));
+});

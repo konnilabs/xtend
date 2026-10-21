@@ -14,6 +14,7 @@
     ".github/workflows/xtend-firefox-qualification.yml",
     ".github/workflows/xtend-laravel-ssr.yml",
     ".github/workflows/xtend-migration-audit.yml",
+    ".github/workflows/xtend-migration-completion.yml",
     ".github/workflows/xtend-nightly-build.yml",
     ".gitignore",
     ".nvmrc",
@@ -1056,6 +1057,7 @@
     "development/docs-evidence/root/surface-manager-window-runtime.md",
     "development/docs-evidence/root/surface-manager-workbench-fixture.md",
     "development/docs-evidence/root/trusted-dom-boundary-browser-proof.md",
+    "development/migration-functional-acceptance.json",
     "development/observatory/README.md",
     "development/observatory/adrs/ADR-NFM-BPR-001-2026-09-03.md",
     "development/observatory/adrs/ADR-NFM-BPR-002-2026-09-03.md",
@@ -1634,6 +1636,7 @@
     "scripts/enable_node_warning_policy.js",
     "scripts/finalize_component_build.js",
     "scripts/generate_xtendrmt_esm_entrypoints.js",
+    "scripts/migration-functional-acceptance.cjs",
     "scripts/node_warning_policy.cjs",
     "scripts/node_warning_policy_classifier.cjs",
     "scripts/pack-candidates.cjs",
@@ -3431,7 +3434,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "e611e2aee44c9090db440170e5bb6ef3a194c3301889624a9e7d3002ba650a9f",
+  "authorityDecisionSha256": "9b531ffe227ecaa1a1f91790a788b26e2a69b0ca36d29f5d9b05725f918be040",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "f1956bfe2a69f16a4f4b6b88a1366be20de6294284c3e4e1abc3da015eda3587"
 }

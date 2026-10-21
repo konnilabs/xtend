@@ -45,3 +45,15 @@ Core's canary clones the pinned Demo commit into an independent temporary checko
 Before any separately authorized Core release, build and accept the whole package closure under the Core-only contract. The planned public package order is root, RMT/Fabric, compiler/CLI and Material core, Maraca, Material adapter/XSurface Shard, then MCP; optional peer cycles are checked as a complete pinned candidate set. Core installed-consumer and PHP/Laravel evidence remain required. The paired Demo canary is an independent migration audit, not a Core publication prerequisite. Publishing order/auth/trust changes and publication require their own authorization.
 
 No workflow is manually triggered, no package is published, and no deployment/merge is performed by this migration. Final review must separate passed, failed and not executed checks. Node 26/Chrome preflight timeout investigations remain separate from migration changes.
+
+## Browser function acceptance for migration
+
+The 2026-10-21 user decision permits only the isolated CI functional profile
+recorded in `migration-functional-acceptance.json`. Both pinned Node versions
+must execute the same shared assertions at the exact common Core head.
+`sandboxEnabled:false` and `sandboxEvidence:not-provided` remain mandatory.
+No local unsandboxed execution, automatic fallback, skipped assertion, missing
+ownership or incomplete cleanup can satisfy this condition. The independent
+Core release contract and FirstRelease publication guard remain unchanged.
+Migration completion still needs the current Core/package contracts, complete
+paired Demo handoff, durable source reachability and the user's merge decision.

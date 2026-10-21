@@ -1,4 +1,4 @@
-# Core release declarations — unapproved review material
+# Core release declarations — reviewed unreleased registrations
 
 The three draft-07 files in `contracts/release` describe complete serialized
 **producer** structures. They are maintained declarations, not fixture snapshots.
@@ -6,6 +6,10 @@ Their IDs retain the existing payload discriminators. No `phase` member is added
 They are not imported by production and do not grant source, schema, FirstRelease,
 seal or publication authority. A complete scanner observation is not an accepted
 contract. No legacy v1 policy or public API is changed.
+
+The exact registrations are recorded in `core-unreleased-registration.md` and
+`core-release-authority-decision.json`. Reviewed registration is not FirstRelease
+retirement, a release seal or publication approval.
 
 ## Existing phases
 
@@ -37,7 +41,7 @@ schema, a synthetic fixture, a successful schema test or a self-asserted flag.
 | candidateSDK, selected packages and registry dependencies | two runInstalledScope calls | core-evidence.verifyConsumer plus candidate-integrity.verifyInstalledClosure/verifyResolution: ten exact SDK archives with no registry packages; separate selected archives plus exact pinned registry closure. Every package's install/exports/types/bin/files/resolution and runtime imports pass. SDK requires both MCP flags; selected requires them when MCP is selected. |
 | lockIntegrity and candidateSDK.lockIntegrity | completed installed scopes | SHA512 of compact JSON.stringify(parsed npm lock). Raw `consumer-lock.json` / `candidate-sdk-lock.json` bytes have separate lane SRIs and ZIP-member equality. npm lock root dependencies, versions, resolutions, integrity, all dependency metadata, transitive namespace/link exclusions and exact closure remain validated by the generic candidate validator. This is not a new npm lock format. |
 | startedAt, finishedAt, preparedAt, sealedAt | prepare/consumer/collect/seal | canonical artifact times, ordered preparation/consumer/seal window, max one-hour consumer/source freshness at original seal time, future tolerance 1s; runtime Date.parse semantics are retained. |
-| source.expected / provenance / candidateAuthority / inventorySha256 / policySha256 | committed source provider | exact Core source/run/attempt/producer archive+manifest, every Git blob/SHA256/logical path, zero historical productive files, full scanner and pending authority checks. Controlled test doubles never satisfy the production provider brand or authority gate. |
+| source.expected / provenance / candidateAuthority / inventorySha256 / policySha256 | committed source provider | exact Core source/run/attempt/producer archive+manifest, every Git blob/SHA256/logical path, zero historical productive files, full scanner and exact reviewed authority checks. Controlled test doubles never satisfy the production provider brand or authority gate. |
 | needs and requiredGates | trusted workflow context | mandatory individual successful gates; prepare manifest SRI/candidate SHA; source SHA/artifact ID/archive+manifest SHA; exact security artifact output ID. Extra needs entries are allowed; requiredGates is closed. |
 | run / workflowMetadata / jobsEndpoint / jobs | authenticated Actions API | exact repository/main/workflow_dispatch/SHA/run/attempt/workflow identity, authenticated attempts endpoint, exactly one required successful source/security/job per lane. Optional job run_attempt is checked when present. Unrelated jobs retain raw API fields/statuses. |
 | source/lane/security metadata and archives | core-auth.collect | immutable artifact ID/name/non-expiry/SHA256 digest/run/SHA, bounded authenticated HTTPS download with no token forwarded to storage, exact allowed ZIP members. All downloaded bytes are replayed, never trusted by status alone. |
