@@ -161,3 +161,47 @@ Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezi
 - [Komponenten-Entwicklung](../components.md)
 - [Public Component Types](../public-component-types.md)
 - [RMT Component Primitives](../rmt-vnext-component-primitives.md)
+
+## ECH-WP-09 Token-Tabelle und Navigation States
+
+`signatureDesign`: `x-header` verbindet eine hochwertige Enterprise-App-Shell mit sichtbar stabiler Navigation. Active/Current/Selected, Hover, Focus und Disabled gelten fuer slotted `nav`-Eintraege in `drawer`, `side-panel`, `popover`, `fullscreen` und `inline-main`.
+
+| Token | Zweck |
+| --- | --- |
+| `--xtend-nav-surface` | Menue- und Nav-Surface |
+| `--xtend-nav-text` | Nav-Text |
+| `--xtend-nav-border-color` | Menue- und Nav-Kante |
+| `--xtend-nav-radius` | Nav-Radius |
+| `--xtend-nav-gap` | Abstand im Menue |
+| `--xtend-nav-font-family` | Navigationstypografie |
+| `--xtend-nav-font-size` | Navigationstextgroesse |
+| `--xtend-nav-active-surface` | Active/Current/Selected Flaeche |
+| `--xtend-nav-active-text` | Active/Current/Selected Text |
+| `--xtend-nav-current-indicator` | nicht farb-only Current-Indikator |
+| `--xtend-nav-hover-surface` | Hover-Flaeche |
+| `--xtend-nav-focus-ring` | Tastaturfokus |
+| `--xtend-nav-disabled-opacity` | Disabled-Dimmung |
+
+## ECH-WP-09 Keyboard-Verhalten
+
+Der Menue-Trigger ist ein Icon Control mit `part="trigger-icon control icon"`. Overlay-Modi unterstuetzen Escape, Outside Click, Focus Return und bei `menu-modal` Focus Trap. Slotted Navigation kann `aria-current="page"`, `aria-selected="true"`, `active`, `disabled` oder `aria-disabled="true"` tragen. Verschachtelte Navigation muss Disclosure Icons als Icon Controls, z.B. `part="disclosure-icon control icon"`, auszeichnen.
+
+## ECH-WP-09 Fremdtheme
+
+```css
+[data-xtend-nav-theme="enterprise-foreign"] x-header {
+  --xtend-nav-surface: #f7f4ee;
+  --xtend-nav-text: #17231f;
+  --xtend-nav-border-color: rgba(23, 35, 31, 0.22);
+  --xtend-nav-radius: 0.35rem;
+  --xtend-nav-gap: 0.45rem;
+  --xtend-nav-font-family: "Aptos", "Segoe UI", sans-serif;
+  --xtend-nav-font-size: 0.98rem;
+  --xtend-nav-active-surface: #173f35;
+  --xtend-nav-active-text: #fffaf0;
+  --xtend-nav-current-indicator: #b56b35;
+  --xtend-nav-hover-surface: rgba(181, 107, 53, 0.14);
+  --xtend-nav-focus-ring: 3px solid #b56b35;
+  --xtend-nav-disabled-opacity: 0.44;
+}
+```

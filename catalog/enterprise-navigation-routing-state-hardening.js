@@ -75,7 +75,7 @@ const NAVIGATION_ROUTING_STATE_TARGETS = Object.freeze([
   {
     tag: 'x-menu',
     file: 'components/xmenu.js',
-    docs: 'docs/components/xmenu.md',
+    docs: 'docs/de/components/xmenu.md',
     fixture: 'tests/components/fixtures/xmenu.component.html',
     requiredEvents: ['menu-item-clicked', 'menu-navigate', 'menu-keyboard-navigation'],
     requiredCommands: ['_resolveNextEnabledIndex', '_syncDisclosureIconControl'],
@@ -84,7 +84,7 @@ const NAVIGATION_ROUTING_STATE_TARGETS = Object.freeze([
   {
     tag: 'x-tabs',
     file: 'components/xtabs.js',
-    docs: 'docs/components/xtabs.md',
+    docs: 'docs/de/components/xtabs.md',
     fixture: 'tests/components/fixtures/xtabs.component.html',
     requiredEvents: ['tab-selected'],
     requiredCommands: ['_resolveNextEnabledTabIndex', 'selectTab(i)'],
@@ -93,7 +93,7 @@ const NAVIGATION_ROUTING_STATE_TARGETS = Object.freeze([
   {
     tag: 'x-router',
     file: 'components/xrouter.js',
-    docs: 'docs/components/xrouter.md',
+    docs: 'docs/de/components/xrouter.md',
     fixture: 'tests/components/fixtures/xrouter.component.html',
     requiredEvents: ['route-announced', 'xrouter-after-navigate'],
     requiredCommands: ['announceRoute', 'focusRoute'],
@@ -102,7 +102,7 @@ const NAVIGATION_ROUTING_STATE_TARGETS = Object.freeze([
   {
     tag: 'x-link',
     file: 'components/xlink.js',
-    docs: 'docs/components/xlink.md',
+    docs: 'docs/de/components/xlink.md',
     fixture: 'tests/components/fixtures/xlink.component.html',
     requiredEvents: ['before-navigate', 'after-navigate', 'x-navigate'],
     requiredCommands: ['updateActive', '_syncAnchorState'],
@@ -111,7 +111,7 @@ const NAVIGATION_ROUTING_STATE_TARGETS = Object.freeze([
   {
     tag: 'x-header',
     file: 'components/xheader.js',
-    docs: 'docs/components/xheader.md',
+    docs: 'docs/de/components/xheader.md',
     fixture: 'tests/components/fixtures/xheader.component.html',
     requiredEvents: ['menu-opened', 'menu-closed', 'menu-mode-changed', 'menu-placement-changed'],
     requiredCommands: ['toggleMenu', '_trapMenuFocus'],
