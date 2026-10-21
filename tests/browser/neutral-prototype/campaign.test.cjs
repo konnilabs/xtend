@@ -12,7 +12,7 @@ function matrix(){
   for(const node of ['24.18.0','26.5.0']){
     const dir=path.join(root,node);fs.mkdirSync(dir);fs.mkdirSync(path.join(dir,'cycle-1'));
     fs.writeFileSync(path.join(dir,'job-terminal.json'),JSON.stringify({node,replica:1,mode:'initial',outcomes:Object.fromEntries(['install','runtime','controls','provision','browser'].map(n=>[n,'success']))}));
-    fs.writeFileSync(path.join(dir,'campaign.json'),JSON.stringify({node,replica:1,mode:'initial',acceptedForRelease:false,commit:'a'.repeat(40),runId:'1',attempt:'1',status:'passed',cycles:[{cycle:1,status:'passed'}]}));
+    fs.writeFileSync(path.join(dir,'campaign.json'),JSON.stringify({node,replica:1,mode:'initial',acceptedForRelease:false,commit:process.env.GITHUB_SHA||'a'.repeat(40),runId:process.env.GITHUB_RUN_ID||'1',attempt:process.env.GITHUB_RUN_ATTEMPT||'1',status:'passed',cycles:[{cycle:1,status:'passed'}]}));
     fs.writeFileSync(path.join(dir,'cycle-1/report.json'),JSON.stringify(report(node)));
   }
   return root;
@@ -28,6 +28,8 @@ test('Aggregate rejects missing jobs, skipped steps, mixed commits and incomplet
     root=>fs.rmSync(path.join(root,'26.5.0'),{recursive:true}),
     root=>{const p=path.join(root,'24.18.0/job-terminal.json'),v=JSON.parse(fs.readFileSync(p));v.outcomes.browser='skipped';fs.writeFileSync(p,JSON.stringify(v));},
     root=>{const p=path.join(root,'24.18.0/campaign.json'),v=JSON.parse(fs.readFileSync(p));v.commit='b'.repeat(40);fs.writeFileSync(p,JSON.stringify(v));},
+    root=>{const p=path.join(root,'24.18.0/campaign.json'),v=JSON.parse(fs.readFileSync(p));v.runId=String(BigInt(v.runId)+1n);fs.writeFileSync(p,JSON.stringify(v));},
+    root=>{const p=path.join(root,'24.18.0/campaign.json'),v=JSON.parse(fs.readFileSync(p));v.attempt=String(BigInt(v.attempt)+1n);fs.writeFileSync(p,JSON.stringify(v));},
     root=>fs.rmSync(path.join(root,'24.18.0/cycle-1/report.json'))
   ]){const root=matrix();try{alter(root);assert.equal(aggregate(root,'initial').status,'failed');}finally{fs.rmSync(root,{recursive:true});}}
 });
