@@ -1856,6 +1856,8 @@
     "tests/browser/neutral-prototype/controller-suite.cjs",
     "tests/browser/neutral-prototype/engine-adapters.cjs",
     "tests/browser/neutral-prototype/engine-adapters.test.cjs",
+    "tests/browser/neutral-prototype/final-chromium.cjs",
+    "tests/browser/neutral-prototype/final-chromium.test.cjs",
     "tests/browser/neutral-prototype/fixture-contracts.json",
     "tests/browser/neutral-prototype/fixture-server.cjs",
     "tests/browser/neutral-prototype/linux-actions-plan.md",
@@ -1864,6 +1866,7 @@
     "tests/browser/neutral-prototype/mac-owner.cjs",
     "tests/browser/neutral-prototype/mac-process-evidence.py",
     "tests/browser/neutral-prototype/mac-validation.md",
+    "tests/browser/neutral-prototype/provision-chromium.py",
     "tests/browser/neutral-prototype/provision-linux.py",
     "tests/browser/neutral-prototype/qualification-review.md",
     "tests/browser/neutral-prototype/qualification.cjs",
@@ -3425,7 +3428,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "5a68c385c388244f59abadd2919be8e128d913f22c45b65c2ec8ed6e5530a243",
+  "authorityDecisionSha256": "4fdc74ba2d5280c93c3fcadf52a942cec4599099c1f3ad592d08945596ab6e1b",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "f1956bfe2a69f16a4f4b6b88a1366be20de6294284c3e4e1abc3da015eda3587"
 }
