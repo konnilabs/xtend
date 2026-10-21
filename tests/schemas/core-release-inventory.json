@@ -360053,6 +360053,21 @@
               "path": "xtend-maraca/index.d.ts"
             }
           ]
+        },
+        {
+          "application": "XTend Tooling",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/schema-inventory/current-pair-decision.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "tools/schema-inventory/current-pair-decision.json",
+              "pointer": "/"
+            }
+          ]
         }
       ],
       "version": 1
