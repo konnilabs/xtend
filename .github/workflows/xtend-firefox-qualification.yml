@@ -1,21 +1,16 @@
 name: XTend isolated Firefox qualification
 
-# Review-only until explicitly published. No push/PR/schedule trigger, no release gate.
+# Isolated initial qualification: exact branch only, no PR/schedule or release gate.
 on:
-  workflow_dispatch:
-    inputs:
-      mode:
-        description: Initial functional pair or preplanned stability series
-        required: true
-        default: initial
-        type: choice
-        options: [initial, stability]
+  push:
+    branches: [qualification/firefox-initial-20261021]
 
 permissions:
   contents: read
 
 jobs:
   qualify:
+    if: github.repository == 'konnilabs/xtend' && github.event_name == 'push' && github.ref == 'refs/heads/qualification/firefox-initial-20261021'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     strategy:
@@ -23,9 +18,9 @@ jobs:
       max-parallel: 2
       matrix:
         node: ['24.18.0', '26.5.0']
-        replica: ${{ fromJSON(inputs.mode == 'stability' && '[1,2,3]' || '[1]') }}
+        replica: [1]
     env:
-      QUAL_MODE: ${{ inputs.mode }}
+      QUAL_MODE: initial
       QUAL_NODE: ${{ matrix.node }}
       QUAL_REPLICA: ${{ matrix.replica }}
       QUAL_LANE: ${{ matrix.node == '24.18.0' && 'node-24-lts' || 'node-26-current' }}
@@ -98,7 +93,7 @@ jobs:
           retention-days: 30
 
   aggregate:
-    if: always()
+    if: always() && github.repository == 'konnilabs/xtend' && github.event_name == 'push' && github.ref == 'refs/heads/qualification/firefox-initial-20261021'
     needs: qualify
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -118,7 +113,7 @@ jobs:
       - name: Require every planned job, phase and cleanup result
         if: always()
         env:
-          QUAL_MODE: ${{ inputs.mode }}
+          QUAL_MODE: initial
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node tests/browser/neutral-prototype/campaign.cjs aggregate "$RUNNER_TEMP/firefox-matrix" "$QUAL_MODE" "$RUNNER_TEMP/firefox-summary.json"
       - name: Retain strict aggregate
