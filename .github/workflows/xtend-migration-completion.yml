@@ -171,6 +171,12 @@ jobs:
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         run: npm run native-first:evidence:prepare
 
+      - name: Discover pinned npm for release model tests
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/release/toolchain.cjs --execute
+
       - name: Run XTend PR fast gate report
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -181,16 +187,29 @@ jobs:
           import os,subprocess,tempfile
           # Existing framework browser regressions inherit only these public
           # toolchain/provenance values, never Actions tokens or credentials.
-          allowed = ['PATH','LANG','LC_ALL','NODE_OPTIONS','npm_config_cache',
+          allowed = ['PATH','LANG','LC_ALL','NODE_OPTIONS','NPM_CONFIG_CACHE','npm_config_cache',
                      'ImageOS','ImageVersion','CI','GITHUB_ACTIONS','GITHUB_REPOSITORY',
                      'GITHUB_WORKFLOW','GITHUB_WORKFLOW_REF','GITHUB_WORKFLOW_SHA',
                      'GITHUB_JOB','GITHUB_SHA','GITHUB_REF','GITHUB_REF_NAME',
                      'GITHUB_EVENT_NAME','GITHUB_RUN_ID','GITHUB_RUN_ATTEMPT',
                      'GITHUB_WORKSPACE','RUNNER_OS','RUNNER_ARCH','RUNNER_ENVIRONMENT',
-                     'XTEND_CI_LANE','XTEND_CORE_REQUIRED','XTEND_CORE_ARCHIVE',
+                     'XTEND_CI_LANE','XTEND_NPM_CACHE','XTEND_NPM_CLI',
+                     'XTEND_CORE_REQUIRED','XTEND_CORE_ARCHIVE',
                      'XTEND_CORE_EXPECTED','XTEND_NODE_WARNING_POLICY','XTEND_NODE_WARNING_REPORT']
+          # Verifiers use the same XTEND_* identity. Reject unexpected additions
+          # rather than leaking them or producing evidence they cannot verify.
+          unknown = {key for key in os.environ if key.startswith('XTEND_') and key != 'XTEND_TEST_RUN_ID'} - set(allowed)
+          if unknown:
+              raise SystemExit('Unlisted XTend execution identity; review the explicit allowlist')
           environment = {key:os.environ[key] for key in allowed if key in os.environ}
-          with tempfile.TemporaryDirectory(prefix='migration-regression-home-') as home:
+          cache = environment.get('NPM_CONFIG_CACHE','')
+          if not os.path.isabs(cache) or environment.get('XTEND_NPM_CACHE') != cache or environment.get('npm_config_cache',cache) != cache:
+              raise SystemExit('Consistent explicit npm cache required')
+          if not os.path.isabs(environment.get('XTEND_NPM_CLI','')):
+              raise SystemExit('Discovered npm CLI required before execution')
+          # Chromium nests its Unix socket below worker temp dirs; retain a
+          # fresh private home while staying below the Linux socket-path limit.
+          with tempfile.TemporaryDirectory(prefix='xg-',dir='/tmp') as home:
               environment.update(HOME=home,TMPDIR=home)
               result = subprocess.run(['npm','run','test:ci-pr'],env=environment)
           raise SystemExit(result.returncode)
@@ -346,11 +365,6 @@ jobs:
           path: |
             .xtend-test-results/xtend-test-execution.json
             .xtend-test-results/test-runner/**/*.log
-      - name: Discover pinned npm for release model tests
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node scripts/release/toolchain.cjs --execute
       - name: Complete release, migration, router and adapter regressions
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
