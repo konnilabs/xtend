@@ -134,9 +134,9 @@ Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezi
 - [Public Component Types](../public-component-types.md)
 - [RMT Component Primitives](../rmt-vnext-component-primitives.md)
 
-## ECH-WP-09 Token-Tabelle und Navigation States
+## Token-Tabelle und Navigation States
 
-`signatureDesign`: `x-link` ist der kompakte Enterprise-Router-Link mit sichtbarem Current-Indikator und tokenisiertem Active/Disabled-Verhalten. Active/Current/Selected, Hover, Focus und Disabled muessen auch in dichten Headern, Sidebars und Menues lesbar bleiben.
+`signatureDesign`: `x-link` ist der kompakte Enterprise-Router-Link mit sichtbarem Current-Indikator und tokenisiertem Active/Disabled-Verhalten. Active/Current/Selected, Hover, Focus und Disabled müssen auch in dichten Headern, Sidebars und Menüs lesbar bleiben.
 
 | Token | Zweck |
 | --- | --- |
@@ -146,19 +146,19 @@ Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezi
 | `--xtend-nav-radius` | Link-Radius |
 | `--xtend-nav-gap` | Abstand zwischen Icon und Label |
 | `--xtend-nav-font-family` | Link-Typografie |
-| `--xtend-nav-font-size` | Link-Textgroesse |
-| `--xtend-nav-active-surface` | Active/Current/Selected Flaeche |
+| `--xtend-nav-font-size` | Link-Textgröße |
+| `--xtend-nav-active-surface` | Active/Current/Selected Fläche |
 | `--xtend-nav-active-text` | Active/Current/Selected Text |
 | `--xtend-nav-current-indicator` | nicht farb-only Current-Indikator |
-| `--xtend-nav-hover-surface` | Hover-Flaeche |
+| `--xtend-nav-hover-surface` | Hover-Fläche |
 | `--xtend-nav-focus-ring` | Tastaturfokus |
 | `--xtend-nav-disabled-opacity` | Disabled-Dimmung |
 
-## ECH-WP-09 Keyboard-Verhalten
+## Keyboard-Verhalten
 
-`Enter` und `Space` aktivieren interne Links ueber denselben Navigationspfad wie Click. Disabled Links entfernen den internen `href`, setzen `aria-disabled="true"` und sind nicht tastaturaktivierbar. Active/Current wird ueber `aria-current="page"` gespiegelt; Composite-Navigation kann `aria-selected="true"` auf dem Host ergaenzen.
+`Enter` und `Space` aktivieren interne Links über denselben Navigationspfad wie Click. Disabled Links entfernen den internen `href`, setzen `aria-disabled="true"` und sind nicht tastaturaktivierbar. Active/Current wird über `aria-current="page"` gespiegelt; Composite-Navigation kann `aria-selected="true"` auf dem Host ergänzen.
 
-## ECH-WP-09 Fremdtheme
+## Fremdtheme
 
 ```css
 [data-xtend-nav-theme="enterprise-foreign"] x-link {

@@ -162,31 +162,31 @@ Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezi
 - [Public Component Types](../public-component-types.md)
 - [RMT Component Primitives](../rmt-vnext-component-primitives.md)
 
-## ECH-WP-09 Token-Tabelle und Navigation States
+## Token-Tabelle und Navigation States
 
-`signatureDesign`: `x-header` verbindet eine hochwertige Enterprise-App-Shell mit sichtbar stabiler Navigation. Active/Current/Selected, Hover, Focus und Disabled gelten fuer slotted `nav`-Eintraege in `drawer`, `side-panel`, `popover`, `fullscreen` und `inline-main`.
+`signatureDesign`: `x-header` verbindet eine hochwertige Enterprise-App-Shell mit sichtbar stabiler Navigation. Active/Current/Selected, Hover, Focus und Disabled gelten für slotted `nav`-Einträge in `drawer`, `side-panel`, `popover`, `fullscreen` und `inline-main`.
 
 | Token | Zweck |
 | --- | --- |
-| `--xtend-nav-surface` | Menue- und Nav-Surface |
+| `--xtend-nav-surface` | Menü- und Nav-Surface |
 | `--xtend-nav-text` | Nav-Text |
-| `--xtend-nav-border-color` | Menue- und Nav-Kante |
+| `--xtend-nav-border-color` | Menü- und Nav-Kante |
 | `--xtend-nav-radius` | Nav-Radius |
-| `--xtend-nav-gap` | Abstand im Menue |
+| `--xtend-nav-gap` | Abstand im Menü |
 | `--xtend-nav-font-family` | Navigationstypografie |
-| `--xtend-nav-font-size` | Navigationstextgroesse |
-| `--xtend-nav-active-surface` | Active/Current/Selected Flaeche |
+| `--xtend-nav-font-size` | Navigationstextgröße |
+| `--xtend-nav-active-surface` | Active/Current/Selected Fläche |
 | `--xtend-nav-active-text` | Active/Current/Selected Text |
 | `--xtend-nav-current-indicator` | nicht farb-only Current-Indikator |
-| `--xtend-nav-hover-surface` | Hover-Flaeche |
+| `--xtend-nav-hover-surface` | Hover-Fläche |
 | `--xtend-nav-focus-ring` | Tastaturfokus |
 | `--xtend-nav-disabled-opacity` | Disabled-Dimmung |
 
-## ECH-WP-09 Keyboard-Verhalten
+## Keyboard-Verhalten
 
-Der Menue-Trigger ist ein Icon Control mit `part="trigger-icon control icon"`. Overlay-Modi unterstuetzen Escape, Outside Click, Focus Return und bei `menu-modal` Focus Trap. Slotted Navigation kann `aria-current="page"`, `aria-selected="true"`, `active`, `disabled` oder `aria-disabled="true"` tragen. Verschachtelte Navigation muss Disclosure Icons als Icon Controls, z.B. `part="disclosure-icon control icon"`, auszeichnen.
+Der Menü-Trigger ist ein Icon Control mit `part="trigger-icon control icon"`. Overlay-Modi unterstützen Escape, Outside Click, Focus Return und bei `menu-modal` Focus Trap. Slotted Navigation kann `aria-current="page"`, `aria-selected="true"`, `active`, `disabled` oder `aria-disabled="true"` tragen. Verschachtelte Navigation muss Disclosure Icons als Icon Controls, z.B. `part="disclosure-icon control icon"`, auszeichnen.
 
-## ECH-WP-09 Fremdtheme
+## Fremdtheme
 
 ```css
 [data-xtend-nav-theme="enterprise-foreign"] x-header {

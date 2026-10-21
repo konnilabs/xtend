@@ -116,9 +116,9 @@ Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezi
 - [Public Component Types](../public-component-types.md)
 - [RMT Component Primitives](../rmt-vnext-component-primitives.md)
 
-## ECH-WP-09 Token-Tabelle und Navigation States
+## Token-Tabelle und Navigation States
 
-`signatureDesign`: `x-tabs` erzeugt eine eigenstaendige Enterprise-Tabnavigation mit sichtbarer Selected-Schiene, wrap-sicheren Labels und frei austauschbarer Typografie. Active/Current/Selected, Hover, Focus und Disabled sind ueber gemeinsame Navigationstokens themebar.
+`signatureDesign`: `x-tabs` erzeugt eine eigenständige Enterprise-Tabnavigation mit sichtbarer Selected-Schiene, wrap-sicheren Labels und frei austauschbarer Typografie. Active/Current/Selected, Hover, Focus und Disabled sind über gemeinsame Navigationstokens themebar.
 
 | Token | Zweck |
 | --- | --- |
@@ -128,19 +128,19 @@ Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezi
 | `--xtend-nav-radius` | Tab-Radius |
 | `--xtend-nav-gap` | Abstand zwischen Tabs |
 | `--xtend-nav-font-family` | Tab-Typografie |
-| `--xtend-nav-font-size` | Tab-Textgroesse |
-| `--xtend-nav-active-surface` | Selected-Flaeche |
+| `--xtend-nav-font-size` | Tab-Textgröße |
+| `--xtend-nav-active-surface` | Selected-Fläche |
 | `--xtend-nav-active-text` | Selected-Text |
 | `--xtend-nav-current-indicator` | nicht farb-only Selected-Indikator |
-| `--xtend-nav-hover-surface` | Hover-Flaeche |
+| `--xtend-nav-hover-surface` | Hover-Fläche |
 | `--xtend-nav-focus-ring` | Tastaturfokus |
 | `--xtend-nav-disabled-opacity` | Disabled-Dimmung |
 
-## ECH-WP-09 Keyboard-Verhalten
+## Keyboard-Verhalten
 
-`ArrowRight`, `ArrowLeft`, `Home`, `End`, `Enter` und `Space` bleiben die verbindlichen Tasten. Disabled Tabs werden nicht fokussiert oder aktiviert. Active/Current/Selected wird ueber `aria-selected="true"` am Tab und `role="tabpanel"` am Panel gespiegelt; Route-Tabs koennen zusaetzlich `aria-current="page"` durch Host-Logik tragen.
+`ArrowRight`, `ArrowLeft`, `Home`, `End`, `Enter` und `Space` bleiben die verbindlichen Tasten. Disabled Tabs werden nicht fokussiert oder aktiviert. Active/Current/Selected wird über `aria-selected="true"` am Tab und `role="tabpanel"` am Panel gespiegelt; Route-Tabs können zusätzlich `aria-current="page"` durch Host-Logik tragen.
 
-## ECH-WP-09 Fremdtheme
+## Fremdtheme
 
 ```css
 [data-xtend-nav-theme="enterprise-foreign"] x-tabs {

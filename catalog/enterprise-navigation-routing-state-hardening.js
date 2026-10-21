@@ -38,7 +38,7 @@ const REQUIRED_SOURCE_MARKERS = Object.freeze([
 ]);
 
 const REQUIRED_DOC_MARKERS = Object.freeze([
-  'ECH-WP-09',
+  'Navigation States',
   'Token-Tabelle',
   'Keyboard-Verhalten',
   'Active/Current/Selected',

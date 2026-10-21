@@ -327,6 +327,9 @@ jobs:
             .xtend-test-results/xtend-test-execution.json
             .xtend-test-results/test-runner/**/*.log
       - name: Discover pinned npm for release model tests
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/release/toolchain.cjs --execute
       - name: Complete release, migration, router and adapter regressions
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
