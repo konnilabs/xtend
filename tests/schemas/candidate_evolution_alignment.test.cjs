@@ -93,3 +93,69 @@ test('the independent actual publication retirement guard remains active',()=>{
 });
 
 test('current renamed declaration cannot silently inherit the historical source approval',()=>{assert.ok(drift(errors(doc,root)).length);});
+
+// Controlled diagnostics model: verifies that batching never accepts a different
+// mutation's failure. Real validator and provider negatives run in the full suite.
+const probeModule=new Module(suiteFile,module);probeModule.filename=suiteFile;probeModule.paths=Module._nodeModulePaths(__dirname);
+const validationCall='const result = validateInventoryDocument(document, scanned, { rootDir, ...(sourceProvider ? { sourceProvider } : {}) });';
+assert.equal(source.split(validationCall).length,2);
+probeModule._compile(source.replace(validationCall,'const result = { errors: module.__diagnosticModel(document) };')
+ .replace(returnStatement,'return { runSchemaInventorySuite, printSchemaInventoryReport, negativeProbe: validateNegativeGateBehavior };')
+ +'\nmodule.exports.negativeProbe=createSuite().negativeProbe;\n',suiteFile);
+const fixtureIds=new Set(base.entries.slice(0,3).map(e=>e.schemaId));
+const add=e=>{if(e)fixtureIds.add(e.schemaId);};
+const aliasRows=base.entries.filter(e=>e.aliasOf).slice(0,4);
+for(const e of aliasRows){add(e);add(base.entries.find(row=>row.schemaId===e.aliasOf));}
+add(base.entries.find(e=>e.releasedFingerprintSetHash&&!e.aliasOf&&e.lifecycle.status==='active'));
+const multi=base.schemaFamilies.find(f=>f.versions.filter(v=>base.entries.find(e=>e.schemaId===v.schemaId)?.aliasOf===null).length>1);
+for(const v of multi?.versions||[])add(base.entries.find(e=>e.schemaId===v.schemaId));
+const exact=base.consolidations.find(c=>c.kind==='exact-authoritative'&&c.decision);
+const insufficient=base.consolidations.find(c=>c.kind==='insufficient-evidence');
+const cleanup=base.consolidations.find(c=>c.decision==='consolidate'&&c.canonicalSchemaId===['xtend','xtensions','host-resource-cleanup-record','v1'].join('.'));
+for(const id of cleanup?.schemaIds||[])add(base.entries.find(e=>e.schemaId===id));
+const probeFixture={...base,entries:base.entries.filter(e=>fixtureIds.has(e.schemaId)),
+ schemaFamilies:base.schemaFamilies.filter(f=>f.versions.some(v=>fixtureIds.has(v.schemaId))),
+ consolidations:[...new Set([exact,insufficient,cleanup].filter(Boolean))]};
+const originalEntries=new Map(probeFixture.entries.map(e=>[e.schemaId,e]));
+const batchCases=[
+ ['coverage-missing-schema','removing an inventory entry does not fail scan coverage'],
+ ['missing-usage-path','an invalid usage path does not fail validation'],
+ ['classification-status-drift','lifecycle curation can incorrectly overwrite the static scan status'],
+ ['unresolved-exact-consolidation','removing a new exact-group decision does not block validation'],
+ ['invalid-consolidation','partial/test/docs/generated evidence can incorrectly trigger consolidation'],
+ ['alias-fingerprint-mismatch','alias released-fingerprint mismatches are not rejected'],
+ ['invalid-replaced-by','invalid replacedBy targets are not rejected']
+];
+function diagnosticModel(document){
+ const rows=[{code:'alias-target-missing'},{code:'alias-chain'},{code:'alias-cycle'},
+  {code:'multiple-current-family-version'},{code:'tombstone-reuse'},{code:'invalid-consolidation-rollout'}];
+ for(const e of probeFixture.entries)if(!document.entries.some(row=>row.schemaId===e.schemaId))rows.push({code:'coverage-missing-schema',schemaId:e.schemaId});
+ for(const e of document.entries){
+  const old=originalEntries.get(e.schemaId);
+  if(e.schemaId.endsWith('.v1.2'))rows.push({code:'invalid-family-version',schemaId:e.schemaId});
+  if(e.shapeFingerprints?.some(f=>String(f.shape.signature).includes('|tampered:unknown')))rows.push({code:'invalid-shape-hash',schemaId:e.schemaId});
+  if(old&&old.status!==e.status)rows.push({code:'classification-status-drift',schemaId:e.schemaId});
+  for(const u of e.usages||[])for(const p of u.sourcePaths||[])if(p==='does/not/exist.schema-inventory-fixture')rows.push({code:'missing-usage-path',schemaId:e.schemaId,path:p});
+  if(e.aliasOf&&old&&old.releasedFingerprintSetHash!==e.releasedFingerprintSetHash)rows.push({code:'alias-fingerprint-mismatch',schemaId:e.schemaId});
+  if(e.aliasOf&&e.replacedBy===e.aliasOf)rows.push({code:'invalid-replaced-by',schemaId:e.schemaId});
+ }
+ for(const c of document.consolidations||[]){
+  if(c.consolidationId===exact.consolidationId&&!c.decision)rows.push({code:'unresolved-exact-consolidation',consolidationId:c.consolidationId});
+  if(c.consolidationId===insufficient.consolidationId&&c.decision==='consolidate')rows.push({code:'invalid-consolidation',consolidationId:c.consolidationId,message:'A consolidate decision requires identical authoritative released fingerprint sets.'});
+ }
+ return rows;
+}
+test('all batched mutations require their own matching diagnostics in a controlled model',()=>{
+ probeModule.__diagnosticModel=diagnosticModel;
+ assert.deepEqual(probeModule.exports.negativeProbe(probeFixture,{},root),[]);
+});
+for(const [code,message] of batchCases)test('another failure cannot mask an omitted batched diagnostic: '+code,()=>{
+ probeModule.__diagnosticModel=document=>diagnosticModel(document).filter(row=>row.code!==code);
+ assert.ok(probeModule.exports.negativeProbe(probeFixture,{},root).includes(message));
+});
+test('right diagnostic codes for unrelated targets do not satisfy batched mutations',()=>{
+ const selected=new Set(batchCases.map(([code])=>code));
+ probeModule.__diagnosticModel=document=>diagnosticModel(document).map(row=>selected.has(row.code)?{...row,schemaId:'foreign',consolidationId:'foreign',path:'foreign'}:row);
+ const issues=probeModule.exports.negativeProbe(probeFixture,{},root);
+ for(const [,message] of batchCases)assert.ok(issues.includes(message),message);
+});

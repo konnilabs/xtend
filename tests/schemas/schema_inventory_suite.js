@@ -1761,16 +1761,24 @@ function validateNegativeGateBehavior(inventory, scan, rootDir) {
     codes.includes(entry && entry.code) || pattern.test(validationIssueText(entry))
   ));
 
-  const missingEntry = cloneJson(inventory);
-  missingEntry.entries.shift();
-  if (!rejectsAs(missingEntry, ['coverage-missing-schema'], /coverage|missing schema/iu)) {
-    issues.push('removing an inventory entry does not fail scan coverage');
-  }
-
-  const invalidPath = cloneJson(inventory);
-  invalidPath.entries[0].usages[0].sourcePaths.push('does/not/exist.schema-inventory-fixture');
-  if (!rejectsAs(invalidPath, ['missing-usage-path'], /usage path/iu)) {
-    issues.push('an invalid usage path does not fail validation');
+  // Independent targets share one complete validation. Each mutation still
+  // needs its own exact diagnostic; another failure cannot satisfy the probe.
+  if (inventory.entries.length >= 3) {
+    const coveragePathStatus = cloneJson(inventory);
+    const removed = coveragePathStatus.entries.shift();
+    const pathTarget = coveragePathStatus.entries[0], statusTarget = coveragePathStatus.entries[1];
+    const missingPath = 'does/not/exist.schema-inventory-fixture';
+    pathTarget.usages[0].sourcePaths.push(missingPath);
+    statusTarget.status = statusTarget.status === 'active' ? 'test-only' : 'active';
+    const diagnostics = validationErrors(coveragePathStatus);
+    if (!diagnostics.some(entry => entry.code === 'coverage-missing-schema' && entry.schemaId === removed.schemaId))
+      issues.push('removing an inventory entry does not fail scan coverage');
+    if (!diagnostics.some(entry => entry.code === 'missing-usage-path' && entry.schemaId === pathTarget.schemaId && entry.path === missingPath))
+      issues.push('an invalid usage path does not fail validation');
+    if (!diagnostics.some(entry => entry.code === 'classification-status-drift' && entry.schemaId === statusTarget.schemaId))
+      issues.push('lifecycle curation can incorrectly overwrite the static scan status');
+  } else {
+    issues.push('three distinct entries are required for coverage, path and classification negative probes');
   }
 
   const fingerprintEntry = inventory.entries.find((entry) => (
@@ -1830,43 +1838,26 @@ function validateNegativeGateBehavior(inventory, scan, rootDir) {
       issues.push('baseline acceptance does not refuse released fingerprint drift before a major schema migration');
   }
 
-  const statusDrift = cloneJson(inventory);
-  statusDrift.entries[0].status = statusDrift.entries[0].status === 'active' ? 'test-only' : 'active';
-  if (!rejectsAs(statusDrift, ['classification-status-drift'], /status.*classification|classification.*status/iu)) {
-    issues.push('lifecycle curation can incorrectly overwrite the static scan status');
-  }
-
-  const exactDecision = (inventory.consolidations || []).find((consolidation) => (
-    consolidation && consolidation.kind === 'exact-authoritative' && consolidation.decision
-  ));
-  if (exactDecision) {
-    const unresolvedExact = cloneJson(inventory);
-    unresolvedExact.consolidations.find((consolidation) => (
-      consolidation.consolidationId === exactDecision.consolidationId
-    )).decision = null;
-    if (!rejectsAs(unresolvedExact, ['unresolved-exact-consolidation'], /exact.*decision|decision.*exact/iu)) {
+  const exactDecision = (inventory.consolidations || []).find(consolidation =>
+    consolidation && consolidation.kind === 'exact-authoritative' && consolidation.decision);
+  const insufficient = (inventory.consolidations || []).find(consolidation =>
+    consolidation && consolidation.kind === 'insufficient-evidence');
+  if (!exactDecision) issues.push('inventory has no decided exact group available for the negative decision probe');
+  if (exactDecision || insufficient) {
+    const invalidDecisions = cloneJson(inventory);
+    if (exactDecision) invalidDecisions.consolidations.find(row => row.consolidationId === exactDecision.consolidationId).decision = null;
+    if (insufficient) {
+      const target = invalidDecisions.consolidations.find(row => row.consolidationId === insufficient.consolidationId);
+      target.decision = 'consolidate'; target.canonicalSchemaId = target.schemaIds[0]; target.owner = 'negative-probe';
+    }
+    const diagnostics = validationErrors(invalidDecisions);
+    if (exactDecision && !diagnostics.some(entry => entry.code === 'unresolved-exact-consolidation'
+      && entry.consolidationId === exactDecision.consolidationId))
       issues.push('removing a new exact-group decision does not block validation');
-    }
-  } else {
-    issues.push('inventory has no decided exact group available for the negative decision probe');
-  }
-
-  const insufficient = (inventory.consolidations || []).find((consolidation) => (
-    consolidation && consolidation.kind === 'insufficient-evidence'
-  ));
-  if (insufficient) {
-    const unsafeMerge = cloneJson(inventory);
-    const target = unsafeMerge.consolidations.find((consolidation) => (
-      consolidation.consolidationId === insufficient.consolidationId
-    ));
-    target.decision = 'consolidate';
-    target.canonicalSchemaId = target.schemaIds[0];
-    target.owner = 'negative-probe';
-    if (!validationErrors(unsafeMerge).some((entry) => entry && entry.code === 'invalid-consolidation'
+    if (insufficient && !diagnostics.some(entry => entry.code === 'invalid-consolidation'
       && entry.consolidationId === insufficient.consolidationId
-      && entry.message === 'A consolidate decision requires identical authoritative released fingerprint sets.')) {
+      && entry.message === 'A consolidate decision requires identical authoritative released fingerprint sets.'))
       issues.push('partial/test/docs/generated evidence can incorrectly trigger consolidation');
-    }
   }
 
   const aliasIds = inventory.entries.filter((entry) => isNonEmptyString(entry && entry.aliasOf)).map((entry) => entry.schemaId);
@@ -1886,23 +1877,24 @@ function validateNegativeGateBehavior(inventory, scan, rootDir) {
     issues.push('inventory has too few aliases for target/chain/cycle negative probes');
   }
 
-  const releasedAlias = inventory.entries.find((entry) => isNonEmptyString(entry && entry.aliasOf));
-  if (releasedAlias) {
-    const fingerprintMismatch = cloneJson(inventory);
-    const alias = fingerprintMismatch.entries.find((entry) => entry.schemaId === releasedAlias.schemaId);
-    alias.releasedFingerprintSetHash = `sha256:${'0'.repeat(64)}`;
-    alias.shapePolicy.releasedFingerprintSetHash = alias.releasedFingerprintSetHash;
-    if (!rejectsAs(fingerprintMismatch, ['alias-fingerprint-mismatch'], /alias.*fingerprint|fingerprint.*alias/iu)) {
+  const releasedAlias = inventory.entries.find(entry => isNonEmptyString(entry && entry.aliasOf));
+  const replacementAlias = inventory.entries.find(entry => isNonEmptyString(entry && entry.aliasOf)
+    && entry.schemaId !== releasedAlias?.schemaId);
+  if (releasedAlias && replacementAlias) {
+    const invalidAliasFacts = cloneJson(inventory);
+    const fingerprintTarget = invalidAliasFacts.entries.find(entry => entry.schemaId === releasedAlias.schemaId);
+    fingerprintTarget.releasedFingerprintSetHash = `sha256:${'0'.repeat(64)}`;
+    fingerprintTarget.shapePolicy.releasedFingerprintSetHash = fingerprintTarget.releasedFingerprintSetHash;
+    const replacementTarget = invalidAliasFacts.entries.find(entry => entry.schemaId === replacementAlias.schemaId);
+    replacementTarget.replacedBy = replacementTarget.aliasOf;
+    replacementTarget.replacementDecision = { compatibility: 'negative-probe', rationale: 'Must fail: target is not a higher version in this family.' };
+    const diagnostics = validationErrors(invalidAliasFacts);
+    if (!diagnostics.some(entry => entry.code === 'alias-fingerprint-mismatch' && entry.schemaId === releasedAlias.schemaId))
       issues.push('alias released-fingerprint mismatches are not rejected');
-    }
-
-    const invalidReplacement = cloneJson(inventory);
-    const replacementEntry = invalidReplacement.entries.find((entry) => entry.schemaId === releasedAlias.schemaId);
-    replacementEntry.replacedBy = replacementEntry.aliasOf;
-    replacementEntry.replacementDecision = { compatibility: 'negative-probe', rationale: 'Must fail: target is not a higher version in this family.' };
-    if (!rejectsAs(invalidReplacement, ['invalid-replaced-by'], /replacedBy|higher version/iu)) {
+    if (!diagnostics.some(entry => entry.code === 'invalid-replaced-by' && entry.schemaId === replacementAlias.schemaId))
       issues.push('invalid replacedBy targets are not rejected');
-    }
+  } else if (releasedAlias) {
+    issues.push('two distinct aliases are required for fingerprint and replacement negative probes');
   }
 
   const multiVersionFamily = (inventory.schemaFamilies || []).find((family) => (
