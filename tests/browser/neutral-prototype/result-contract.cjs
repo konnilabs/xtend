@@ -8,6 +8,7 @@ const {acceptProduct} = require('./adapter.cjs');
 const fixtures = require('./fixture-contracts.json');
 const {maintainedScript} = require('./fixture-server.cjs');
 const {negativeLifecycle} = require('./qualification.cjs');
+const executionProfiles=require('./execution-profile.cjs');
 const format = 'xtend.browser-neutral.observation.v2';
 const statuses = ['passed', 'failed', 'blocked', 'not-run'];
 const nativeRequired = ['dom', 'customElements', 'shadowDom', 'trustedTypes', 'trustedTypesEnforced', 'policyAllowlistEnforced'];
@@ -33,14 +34,19 @@ function contractDigest(files) {
     'tools/browser-hypervisor/index.js',...fixtures.fixtures.map(f => f.path),fixtures.hydrangea.path])
     assert.equal(at(file),current(file),'Recorded assertion dependency changed: '+file);
   for (const entry of [...fixtures.fixtures, fixtures.hydrangea]) assert.equal(sha256(fs.readFileSync(path.resolve(__dirname,'../../..',entry.path))), entry.sha256, 'Reviewed fixture byte mismatch');
+  const names=['adapter.cjs','engine-adapters.cjs','qualification.cjs','result-contract.cjs'];
+  if(!files || files.some(f=>f.path==='tests/browser/neutral-prototype/execution-profile.cjs'))names.push('execution-profile.cjs');
   return hash({fixtures, security:sha256(maintainedScript()), hypervisor:at('tools/browser-hypervisor/index.js'), sources:Object.fromEntries(
-    ['adapter.cjs','engine-adapters.cjs','qualification.cjs','result-contract.cjs'].map(file => [file, at('tests/browser/neutral-prototype/'+file)]))});
+    names.map(file => [file, at('tests/browser/neutral-prototype/'+file)]))});
 }
-function profile(input) {
-  exactKeys(input, ['id','engine','browserVersion','driverVersion','browserSha256','driverSha256','os','node','capabilities','transport','sandboxPolicy'], 'Explicit closed profile required');
+function validateProfile(input,functional=false) {
+  exactKeys(input, ['id','engine','browserVersion','driverVersion','browserSha256','driverSha256','os','node','capabilities','transport','sandboxPolicy',...(functional?['purpose']:[])], 'Explicit closed profile required');
   assert(/^[a-z0-9][a-z0-9.-]{0,99}$/.test(input.id || ''), 'Profile ID required');
   assert(['chromium','firefox'].includes(input.engine), 'Reviewed engine adapter required');
-  assert.equal(input.sandboxPolicy, 'required', 'Unsandboxed profiles cannot enter this security qualification contract');
+  if(functional){
+    assert.equal(input.id,executionProfiles.functional);assert.equal(input.purpose,'ci-functional-only');
+    assert.equal(input.sandboxPolicy,'disabled');assert.equal(input.engine,'chromium');assert.equal(input.os,'linux');assert.equal(input.node,'24.18.0');
+  }else assert.equal(input.sandboxPolicy, 'required', 'Unsandboxed profiles cannot enter this security qualification contract');
   exactKeys(input.transport, ['backend','protocol','adapterSha256'], 'Transport identity separate from engine/binary required');
   assert.equal(input.transport.backend, 'hypervisor-webdriver', 'Unqualified backend');
   assert.equal(input.transport.protocol, input.engine === 'firefox' ? 'webdriver-bidi' : 'webdriver-cdp');
@@ -61,6 +67,8 @@ function profile(input) {
   assert(nativeRequired.every(id => input.capabilities.some(row => row.id === id)), 'Shared security capability contract cannot be reduced');
   return structuredClone(input);
 }
+function profile(input){return validateProfile(input);}
+function functionalProfile(input){return validateProfile(input,true);}
 function sourceIdentity(value) {
   assert(value && typeof value === 'object', 'Discriminated source identity required');
   if (value.type === 'committed') {
@@ -186,21 +194,30 @@ function scenarioPassed(name, result) {
     negativeLifecycle(result.product, fixtures.fixtures.find(f => f.id === 'lifecycle'), url);
   }
 }
-function observe(raw, inputProfile, inputProvenance, worktreeEvidence) {
-  const p = profile(inputProfile), origin = provenance(inputProvenance,{raw,worktreeEvidence});
+function observeWithPurpose(raw, inputProfile, inputProvenance, worktreeEvidence, functional) {
+  const p = validateProfile(inputProfile,functional), origin = provenance(inputProvenance,{raw,worktreeEvidence});
   assert(raw && typeof raw === 'object'); noSkips(raw);
   if (origin.source.type === 'worktree') assert.equal(raw.sourceDigests['engine-adapters.cjs'],p.transport.adapterSha256,'Executed adapter/profile byte mismatch');
   assert.equal(raw.acceptedForRelease, false, 'Input cannot grant release authority');
   assert.notEqual(raw.acceptedForMerge,true,'Input cannot grant merge authority');
+  if(functional){
+    assert.equal(raw.executionProfile,executionProfiles.functional);assert.equal(raw.sandboxEnabled,false);
+    assert.equal(raw.acceptedForSecurity,false);assert.equal(raw.sandboxEvidence?.status,'not-provided');
+    assert.equal(raw.sandbox,undefined,'Functional evidence cannot claim sandbox proof');
+  }else {
+    assert.notEqual(raw.sandboxEnabled,false,'Disabled sandbox cannot enter security observation');
+    assert.notEqual(raw.executionProfile,executionProfiles.functional,'Functional scope cannot enter security observation');
+  }
   assert.equal(raw.node, 'v'+p.node); assert.equal(raw.platform, p.os); assert.equal(raw.engine, p.engine);
   for (const key of ['browserSha256','driverSha256']) assert.equal(raw[key], p[key], 'Toolchain byte mismatch');
   const phases = raw.phases || {};
   exactKeys(phases, ['startup','sandbox','capabilities','product','qualification','sessionCleanup','groupCleanup'], 'Complete phase ledger required');
   const phaseRows = Object.entries(phases).map(([id, row]) => ({id, status:status(row.status)}));
+  if(functional)assert.equal(phases.sandbox.status,'not-run','Disabled sandbox must not be recorded as a pass');
   status(raw.status);
   for (const [prior, next] of [['startup',['sandbox','capabilities','product','qualification']], ['sandbox',['capabilities','product','qualification']],
     ['capabilities',['product','qualification']], ['product',['qualification']]]) {
-    if (phases[prior].status !== 'passed') assert(next.every(id => phases[id].status === 'not-run'), 'Execution after failed prerequisite');
+    if (!(functional && prior==='sandbox') && phases[prior].status !== 'passed') assert(next.every(id => phases[id].status === 'not-run'), 'Execution after failed prerequisite');
   }
   let normalizedOs=null;
   if (phases.startup.status === 'passed') {
@@ -216,6 +233,7 @@ function observe(raw, inputProfile, inputProvenance, worktreeEvidence) {
     exactKeys(q.cases, [...Object.values(aliases), ...fixtures.fixtures.map(f => f.id)], 'Complete case ledger required');
     if (q.transport) { assert.equal(q.transport.engine, p.engine); assert.equal(q.transport.protocol, p.transport.protocol); }
     assert.notEqual(phases.qualification.status, 'not-run', 'Unexecuted qualification has results');
+    if(functional){assert.equal(q.sandboxObservationStatus,'not-run');assert.deepEqual(q.sandboxObservations,[]);}
   }
   if (phases.product.status === 'not-run') assert(!raw.product, 'Unexecuted product has results');
   const rows = assertions(raw.product, securityContract, 'security', status(phases.product.status));
@@ -239,8 +257,10 @@ function observe(raw, inputProfile, inputProvenance, worktreeEvidence) {
     assert(!q.error, 'Qualification controller failed');
     assert.equal(q.preloadCleanup?.status, 'passed'); assert.equal(q.preloadCleanup.remaining, 0);
     assert.equal(q.transportCleanup?.status, 'passed'); assert.equal(q.transportCleanup.closed, true);
-    assert.equal(q.sandboxObservationStatus, 'passed'); assert(q.sandboxObservations?.length > 0, 'Qualification sandbox observations absent');
-    assert(q.sandboxObservations.every(row => row.status === 'passed'), 'Negative sandbox observation cannot become a pass');
+    if(!functional){
+      assert.equal(q.sandboxObservationStatus, 'passed'); assert(q.sandboxObservations?.length > 0, 'Qualification sandbox observations absent');
+      assert(q.sandboxObservations.every(row => row.status === 'passed'), 'Negative sandbox observation cannot become a pass');
+    }
   }
   if (phases.groupCleanup.status === 'passed') {
     assert.equal(raw.cleanup?.complete, true); assert.equal(raw.cleanup.groupGone, true); assert.equal(raw.cleanup.childReaped, true);
@@ -252,25 +272,31 @@ function observe(raw, inputProfile, inputProvenance, worktreeEvidence) {
     {id:'preload-cleanup',status:status(q?.preloadCleanup?.status || 'not-run')},
     {id:'transport-cleanup',status:status(q?.transportCleanup?.status || 'not-run')}];
   const runnerRows=[...phaseRows.filter(r => !['product','capabilities','qualification'].includes(r.id)),guard,...transportRows];
-  const observedStatus = combine([...phaseRows, ...rows, ...capabilityRows, ...runnerRows]);
+  const operational=row=>!functional || !['sandbox','qualification-sandbox-observation'].includes(row.id);
+  const observedStatus = combine([...phaseRows.filter(operational), ...rows, ...capabilityRows, ...runnerRows.filter(operational)]);
   if (raw.status === 'passed') assert.equal(observedStatus, 'passed', 'Overall pass without full execution');
   if (raw.status === 'failed') assert.notEqual(observedStatus, 'passed', 'Failure cannot be erased');
   const actual = rows.filter(row => row.executed);
-  return {format, profile:p, provenance:origin, rawSha256:hash(raw), status:observedStatus,
+  return {format:functional?'xtend.browser-functional.observation.v1':format, profile:p, provenance:origin, rawSha256:hash(raw), status:observedStatus,
+    ...(functional?{purpose:'ci-functional-only',sandboxEnabled:false,acceptedForSecurity:false}:{}),
     platformIdentity:{hostRaw:raw.platform,webdriverRaw:raw.identity?.platformName ?? null,normalizedOs},
     evaluation:{mode:origin.kind === 'recorded-artifact' ? 'stored-observation-re-evaluation' : 'observation',contractSha256:contractDigest(),executionContractSha256:origin.contractSha256},
     layers:{core:{status:'not-run', reason:'separate Core/package evidence required'},
       web:{status:combine([...rows, phaseRows.find(r => r.id === 'product'), ...Object.values(q?.cases || {})]), assertions:rows},
       capabilities:{status:combine(capabilityRows), assertions:capabilityRows},
-      runner:{status:combine(runnerRows), phases:runnerRows,
+      ...(functional?{browserSandbox:{status:'not-run',enabled:false,evidence:'not-provided'},productSecurity:{status:status(phases.product.status),scope:'sanitizer / Trusted Types / SSR product assertions; not browser sandbox'}}:{}),
+      runner:{status:combine(runnerRows.filter(operational)), phases:runnerRows,
         claimBoundary:'bounded external observations only; no continuous lifetime or complete policy proof',
         namespaceIsolation:'not-established-by-this-contract'}},
     coverage:{expected:rows.length, executed:actual.length, passed:actual.filter(r => r.status === 'passed').length,
       failed:actual.filter(r => r.status === 'failed').length, granularAssertions:actual.filter(r => r.granularity === 'assertion').length},
-    recognition:origin.source.type === 'worktree' ? {status:'blocked',reason:'uncommitted worktree: local regression only; no merge/release recognition'} :
+    recognition:functional?{status:'blocked',reason:'CI functional scope with disabled sandbox; no security/merge/release recognition'} :
+      origin.source.type === 'worktree' ? {status:'blocked',reason:'uncommitted worktree: local regression only; no merge/release recognition'} :
       {status:'not-evaluated', reason:'independent provenance and profile acceptance required'},
     acceptedForMerge:false, acceptedForRelease:false};
 }
+function observe(raw,p,origin,proof){return observeWithPurpose(raw,p,origin,proof,false);}
+function observeFunctional(raw,p,origin,proof){return observeWithPurpose(raw,p,origin,proof,true);}
 function aggregate({profiles, expected, records, authenticatedBindings = []}) {
   assert(Array.isArray(profiles) && profiles.length > 0, 'Explicit planned profiles required; no default support matrix');
   const plans = profiles.map(profile); assert.equal(new Set(plans.map(p => p.id)).size, plans.length, 'Duplicate profile plan');
@@ -300,4 +326,4 @@ function aggregate({profiles, expected, records, authenticatedBindings = []}) {
     status:combine(results), profiles:results.map(r => ({id:r.profile.id, status:r.status, coverage:r.coverage})),
     recognition, acceptedForMerge:false, acceptedForRelease:false};
 }
-module.exports = {format, hash, profile, provenance, sourceIdentity, normalizePlatform, contractDigest, observe, aggregate, nativeRequired, securityLabel};
+module.exports = {format, hash, profile, functionalProfile, provenance, sourceIdentity, normalizePlatform, contractDigest, observe, observeFunctional, aggregate, nativeRequired, securityLabel};

@@ -2,6 +2,7 @@
 // Test-only prototype. No launcher, downloads, production dependency or release proof.
 const path = require('node:path');
 const {requestJson, parseEndpoint} = require('../../../tools/browser-hypervisor');
+const executionProfiles=require('./execution-profile.cjs');
 
 class MissingCapability extends Error {}
 class InfrastructureBlocked extends Error {}
@@ -12,13 +13,15 @@ function localUrl(value) {
   }
   return url;
 }
-function capabilities({engine, binary, version, bidi = false}) {
+function capabilities({engine, binary, version, bidi = false, executionProfile = executionProfiles.qualified}) {
+  executionProfiles.validate(executionProfile,engine);
   if (!path.isAbsolute(binary || '') || !/^\d+(?:\.\d+)+$/.test(version || '')) throw Error('Exact browser binary and version required');
   const names = {firefox:'firefox', chromium:'chrome'};
   if (!names[engine]) throw Error('Engine has no reviewed adapter');
   const vendor = engine === 'firefox' ? 'moz:firefoxOptions' : 'goog:chromeOptions';
   return {capabilities:{alwaysMatch:{browserName:names[engine], browserVersion:version,
-    acceptInsecureCerts:false, ...(bidi ? {webSocketUrl:true} : {}), [vendor]:{binary, args:[engine === 'firefox' ? '-headless' : '--headless=new']}}}};
+    acceptInsecureCerts:false, ...(bidi ? {webSocketUrl:true} : {}), [vendor]:{binary,
+      args:[engine === 'firefox' ? '-headless' : '--headless=new',...(executionProfile===executionProfiles.functional?['--no-sandbox']:[])]}}}};
 }
 const featureProbe = `return {
   dom: typeof document.createElement === 'function',
@@ -44,8 +47,8 @@ function acceptProduct(result, contract) {
       !row.skipped && (!row.status || row.status === 'passed')) &&
     !(result.skipped || result.skips || result.summary?.skipped || result.summary?.failed || result.errors?.length);
 }
-function summarize(phases) {
-  const values = Object.values(phases).map(row=>row.status);
+function summarize(phases,executionProfile=executionProfiles.qualified) {
+  const values = Object.entries(phases).filter(([name])=>executionProfile!==executionProfiles.functional||name!=='sandbox').map(([,row])=>row.status);
   if (values.includes('failed')) return 'failed';
   if (values.every(status=>status === 'passed')) return 'passed';
   if (values.includes('infrastructure-blocked')) return 'infrastructure-blocked';
@@ -55,12 +58,17 @@ function summarize(phases) {
 
 // The owner and sandbox adapters are trusted harness components, not fixture input.
 // A real Linux Firefox sandbox observer is deliberately NOT fabricated here.
-// Missing observers stop product execution. Mocks only demonstrate controller behavior.
+// Missing observers stop qualified execution. The explicitly scoped CI functional
+// profile records sandbox evidence as not-run. Mocks only demonstrate controller behavior.
 async function run({engine, binary, version, endpointUrl, probeUrl, fixtureUrl, resultKey,
-  required = ['dom','customElements','shadowDom'], assertions, timeoutMs = 10000, cleanupMs = 1000, owner, sandbox, exercise}) {
+  required = ['dom','customElements','shadowDom'], assertions, timeoutMs = 10000, cleanupMs = 1000, owner, sandbox, exercise, executionProfile=executionProfiles.qualified}) {
+  executionProfiles.validate(executionProfile,engine);
+  const functional=executionProfile===executionProfiles.functional;
+  if(functional)executionProfiles.requireFunctionalHost();
   const phases = Object.fromEntries(['startup','sandbox','capabilities','product','sessionCleanup','groupCleanup']
     .map(name=>[name,{status:'not-run'}]));
   const report = {engine, evidenceKind:'prototype-controller-only', acceptedForRelease:false, phases};
+  if(functional)Object.assign(report,{executionProfile,sandboxEnabled:false,sandboxEvidence:{status:'not-provided',reason:'explicit CI functional profile disables browser sandbox'},acceptedForSecurity:false});
   if(exercise)phases.qualification={status:'not-run'};
   let endpoint, sessionId, identity;
   const command = async (method, route, body, cleanup = false) => {
@@ -89,7 +97,7 @@ async function run({engine, binary, version, endpointUrl, probeUrl, fixtureUrl, 
       endpoint = parseEndpoint(endpointUrl);
       const ready = await command('GET','/status');
       if (ready?.ready !== true) throw new InfrastructureBlocked('Driver not ready');
-      const session = await command('POST','/session',capabilities({engine,binary,version,bidi:engine === 'firefox' && Boolean(exercise)}));
+      const session = await command('POST','/session',capabilities({engine,binary,version,bidi:engine === 'firefox' && Boolean(exercise),executionProfile}));
       sessionId = session?.sessionId;
       if (typeof sessionId !== 'string' || !/^[\w-]+$/.test(sessionId)) {sessionId = null; throw Error('Invalid session identity');}
       identity = session.capabilities;
@@ -98,7 +106,7 @@ async function run({engine, binary, version, endpointUrl, probeUrl, fixtureUrl, 
       report.identity = {browserName:identity.browserName,browserVersion:identity.browserVersion,platformName:identity.platformName};
       await command('POST',`/session/${sessionId}/url`,{url:probeUrl});
     })) return report;
-    if (!await phase('sandbox',async()=>{
+    if (!functional && !await phase('sandbox',async()=>{
       if (typeof sandbox?.verify !== 'function') throw new InfrastructureBlocked('Engine/OS sandbox proof unavailable');
       const evidence = await sandbox.verify({identity,sessionId,binary});
       if (evidence?.status !== 'passed') throw new InfrastructureBlocked('Engine/OS sandbox proof not passed');
@@ -117,8 +125,10 @@ async function run({engine, binary, version, endpointUrl, probeUrl, fixtureUrl, 
         await new Promise(resolve=>setTimeout(resolve,20));
       }
       if (!acceptProduct(report.product,assertions)) throw Error('Product assertions failed, missing, timed out, or skipped');
-      const evidence = await sandbox.verify({identity,sessionId,binary});
-      if (evidence?.status !== 'passed') throw Error('Sandbox continuity proof failed after product assertions');
+      if(!functional){
+        const evidence = await sandbox.verify({identity,sessionId,binary});
+        if (evidence?.status !== 'passed') throw Error('Sandbox continuity proof failed after product assertions');
+      }
     });
     if(exercise && phases.product.status==='passed')await phase('qualification',()=>exercise({
       report,command,identity,sessionId,owner,sandbox,binary,deadline
@@ -136,7 +146,7 @@ async function run({engine, binary, version, endpointUrl, probeUrl, fixtureUrl, 
       report.cleanup = cleanup;
       if (cleanup?.complete !== true) throw Error('Owned process group cleanup incomplete');
     });
-    report.status = summarize(phases);
+    report.status = summarize(phases,executionProfile);
   }
 }
 module.exports = {capabilities, localUrl, featureProbe, acceptProduct, summarize, run, InfrastructureBlocked};

@@ -1,7 +1,7 @@
 'use strict';
 const {test} = require('node:test');
 const assert = require('node:assert/strict');
-const {profile,observe,aggregate,hash,contractDigest,nativeRequired,securityLabel} = require('./result-contract.cjs');
+const {profile,observe,observeFunctional,aggregate,hash,contractDigest,nativeRequired,securityLabel} = require('./result-contract.cjs');
 const fixtures = require('./fixture-contracts.json').fixtures;
 const fs=require('node:fs'),path=require('node:path');
 const {sha256}=require('../../../tools/browser-hypervisor');
@@ -156,7 +156,7 @@ function worktreeSample(node='24.18.0',oldController=false) {
   const s=sample('firefox',node),root=path.resolve(__dirname,'../../..');
   const names=[...fixtures.map(f=>f.path),require('./fixture-contracts.json').hydrangea.path,
     'tools/browser-hypervisor/index.js','tests/security/browser.test.mjs',
-    ...['fixture-contracts.json','fixture-server.cjs','adapter.cjs','engine-adapters.cjs','qualification.cjs','result-contract.cjs'].map(n=>'tests/browser/neutral-prototype/'+n)];
+    ...['fixture-contracts.json','fixture-server.cjs','adapter.cjs','engine-adapters.cjs','qualification.cjs','result-contract.cjs','execution-profile.cjs'].map(n=>'tests/browser/neutral-prototype/'+n)];
   const files=names.sort().map(file=>({path:file,sha256:sha256(fs.readFileSync(path.join(root,file)))}));
   if(oldController)files.find(f=>f.path.endsWith('/result-contract.cjs')).sha256='e'.repeat(64);
   const patchBytes=Buffer.from('SYNTHETIC MODEL PATCH, NOT A BROWSER EXECUTION\n');
@@ -246,3 +246,35 @@ for(const [name,change] of [
   ['invented merge acceptance',c=>c.records[0].observation.acceptedForMerge=true],
   ['invented release acceptance',c=>c.records[0].observation.acceptedForRelease=true],
 ])test('worktree aggregation rejects '+name,()=>{const c=worktreeCampaign();change(c);assert.throws(()=>aggregate(c));});
+
+function functionalSample(){
+  const s=sample('chromium'),id=require('./execution-profile.cjs').functional;
+  Object.assign(s.p,{id,purpose:'ci-functional-only',sandboxPolicy:'disabled'});
+  Object.assign(s.raw,{executionProfile:id,sandboxEnabled:false,acceptedForSecurity:false,sandboxEvidence:{status:'not-provided'}});
+  delete s.raw.sandbox;s.raw.phases.sandbox.status='not-run';s.raw.qualification.sandboxObservationStatus='not-run';s.raw.qualification.sandboxObservations=[];
+  return s;
+}
+test('functional MODEL covers identical product assertions while sandbox evidence stays absent',()=>{
+  const s=functionalSample(),r=observeFunctional(s.raw,s.p,s.origin);
+  assert.equal(r.status,'passed');assert.equal(r.coverage.passed,45);assert.equal(r.layers.productSecurity.status,'passed');
+  assert.equal(r.sandboxEnabled,false);assert.equal(r.layers.browserSandbox.status,'not-run');assert.equal(r.layers.browserSandbox.evidence,'not-provided');
+  assert.equal(r.recognition.status,'blocked');for(const key of ['acceptedForSecurity','acceptedForMerge','acceptedForRelease'])assert.equal(r[key],false);
+  assert.throws(()=>observe(s.raw,s.p,s.origin));
+  const securityProfile={...s.p,id:'chromium-security',sandboxPolicy:'required'};delete securityProfile.purpose;
+  assert.throws(()=>observe(s.raw,securityProfile,s.origin),/Disabled sandbox/);
+  assert.throws(()=>aggregate({profiles:[s.p],expected:{},records:[{raw:s.raw,observation:r}]}));
+});
+test('functional MODEL does not hide an actual product assertion failure',()=>{
+  const s=functionalSample();s.raw.status='failed';s.raw.phases.qualification.status='failed';s.raw.qualification.status='failed';
+  const f=s.raw.qualification.cases.core;f.status='failed';f.result.status='failed';f.result.checks[0].ok=false;
+  const r=observeFunctional(s.raw,s.p,s.origin);assert.equal(r.status,'failed');assert.equal(r.coverage.failed,1);assert.equal(r.layers.runner.status,'passed');
+});
+for(const [name,change] of [
+  ['security purpose',s=>s.p.purpose='security'],['missing opt-in',s=>delete s.raw.executionProfile],
+  ['wrong OS',s=>s.p.os='darwin'],['wrong engine',s=>s.p.engine='firefox'],['wrong Node',s=>s.p.node='26.5.0'],
+  ['claimed sandbox enabled',s=>s.raw.sandboxEnabled=true],['sandbox pass',s=>s.raw.phases.sandbox.status='passed'],
+  ['fabricated sandbox evidence',s=>s.raw.sandbox={status:'passed'}],['fabricated later sandbox sample',s=>s.raw.qualification.sandboxObservations=[{status:'passed'}]],
+  ['security acceptance',s=>s.raw.acceptedForSecurity=true],['release acceptance',s=>s.raw.acceptedForRelease=true],
+  ['merge acceptance',s=>s.raw.acceptedForMerge=true],['silent skip',s=>s.raw.qualification.cases.core.result.checks[0].skipped=true],
+  ['partial coverage',s=>s.raw.qualification.cases.a11y.result.checks.pop()],['missing cleanup',s=>s.raw.cleanup.complete=false]
+])test('functional contract rejects '+name,()=>{const s=functionalSample();change(s);assert.throws(()=>observeFunctional(s.raw,s.p,s.origin));});

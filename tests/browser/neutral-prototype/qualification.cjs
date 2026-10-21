@@ -2,6 +2,7 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
 const {createEngineAdapter}=require('./engine-adapters.cjs');
 const {acceptProduct}=require('./adapter.cjs');
+const executionProfiles=require('./execution-profile.cjs');
 const contracts=require('./fixture-contracts.json');
 const root=path.resolve(__dirname,'../../..');
 function pinned(entry){
@@ -24,6 +25,8 @@ function negativeLifecycle(result,fixture,foreignUrl){
   assert(!result.checks.some(r=>r.skipped || r.status==='skipped'));
 }
 function exercise(origin,foreignOrigin,{engine='firefox',adapterFactory=createEngineAdapter}={}){return async({report,command,identity,sessionId,owner,sandbox,binary})=>{
+  const functional=report.executionProfile===executionProfiles.functional;
+  if(functional){assert.equal(engine,'chromium');assert.equal(report.sandboxEnabled,false);}
   const names=['bidi-preload-order-fetch','bidi-context-isolation','bidi-removal','core','a11y','lifecycle','lifecycle-wrong-key','lifecycle-foreign-origin'];
   const evidence=report.qualification={acceptedForRelease:false,cases:Object.fromEntries(names.map(n=>[n,{status:'not-run'}])),
     preloadCleanup:{status:'not-run'},transportCleanup:{status:'not-run'},sandboxObservations:[],sandboxObservationStatus:'not-run'};
@@ -35,7 +38,8 @@ function exercise(origin,foreignOrigin,{engine='firefox',adapterFactory=createEn
     if(value?.status && value.status!=='pending')return value;
     await new Promise(r=>setTimeout(r,50));
   }throw Error('Fixture result deadline exceeded: '+key);};
-  const guard=async()=>{try{const value=await sandbox.verify({identity,sessionId,binary});if(value.status!=='passed')throw Error('Qualification sandbox proof failed');evidence.sandboxObservations.push(value);evidence.sandboxObservationStatus='passed';}
+  const guard=async()=>{if(functional){owner.assertCurrent();return;}
+    try{const value=await sandbox.verify({identity,sessionId,binary});if(value.status!=='passed')throw Error('Qualification sandbox proof failed');evidence.sandboxObservations.push(value);evidence.sandboxObservationStatus='passed';}
     catch(error){evidence.sandboxObservationStatus='failed';throw error;}};
   const check=async(name,fn)=>{await guard();const start=performance.now();try{
     evidence.cases[name]={status:'passed',result:await fn(),durationMs:performance.now()-start};

@@ -1856,6 +1856,8 @@
     "tests/browser/neutral-prototype/controller-suite.cjs",
     "tests/browser/neutral-prototype/engine-adapters.cjs",
     "tests/browser/neutral-prototype/engine-adapters.test.cjs",
+    "tests/browser/neutral-prototype/execution-profile.cjs",
+    "tests/browser/neutral-prototype/execution-profile.test.cjs",
     "tests/browser/neutral-prototype/final-chromium.cjs",
     "tests/browser/neutral-prototype/final-chromium.test.cjs",
     "tests/browser/neutral-prototype/fixture-contracts.json",
@@ -3428,7 +3430,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "4fdc74ba2d5280c93c3fcadf52a942cec4599099c1f3ad592d08945596ab6e1b",
+  "authorityDecisionSha256": "b24ab37564b1d6074edc641c34905d1da3b07c0b042665f1e01be5811f96a6ed",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "f1956bfe2a69f16a4f4b6b88a1366be20de6294284c3e4e1abc3da015eda3587"
 }

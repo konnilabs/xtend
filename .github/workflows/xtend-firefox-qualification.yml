@@ -1,6 +1,7 @@
-name: XTend final Chromium sandbox qualification
+name: XTend isolated Chromium functions (sandbox disabled)
 
-# Final authorized attempt: one fresh Linux VM, Node 24, one Chromium session. No retry.
+# Explicit CI functional-only opt-in. Browser sandbox is disabled and supplies no security proof.
+# One fresh hosted Linux VM, Node 24, one session. Existing release gates are unchanged.
 on:
   push:
     branches: [qualification/firefox-initial-20261021]
@@ -19,6 +20,7 @@ jobs:
       matrix:
         node: ['24.18.0']
     env:
+      XTEND_CI_FUNCTIONAL_PROFILE: chromium-linux-ci-functions-no-sandbox-v1
       QUAL_NODE: ${{ matrix.node }}
       QUAL_LANE: node-24-lts
     steps:
@@ -61,11 +63,11 @@ jobs:
         run: |
           node -p 'JSON.stringify(require("./tests/security/sandboxed-browser.cjs").pin)' > "$QUAL_EVIDENCE/toolchain-pins.json"
           python3 tests/browser/neutral-prototype/provision-chromium.py "$QUAL_TOOLCHAIN" "$QUAL_EVIDENCE/toolchain-pins.json" > "$QUAL_EVIDENCE/provisioning.log" 2>&1
-      - name: Execute the single final Chromium session
+      - name: Execute the opt-in functional-only Chromium session
         id: browser
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node tests/browser/neutral-prototype/final-chromium.cjs "$QUAL_EVIDENCE" "$QUAL_TOOLCHAIN" > "$QUAL_EVIDENCE/execution.log" 2>&1
+        run: node tests/browser/neutral-prototype/final-chromium.cjs "$QUAL_EVIDENCE" "$QUAL_TOOLCHAIN" "$XTEND_CI_FUNCTIONAL_PROFILE" > "$QUAL_EVIDENCE/execution.log" 2>&1
       - name: Preserve terminal outcomes even after setup failure
         if: always()
         env:
@@ -75,7 +77,7 @@ jobs:
           import json,os,pathlib,shutil
           root=pathlib.Path(os.environ['QUAL_EVIDENCE']);root.mkdir(exist_ok=True)
           steps=json.loads(os.environ['STEP_OUTCOMES'])
-          value={'acceptedForMerge':False,'acceptedForRelease':False,'mode':'final-single-session','node':os.environ['QUAL_NODE'],
+          value={'acceptedForMerge':False,'acceptedForRelease':False,'mode':'ci-functional-only','sandboxEnabled':False,'sandboxEvidence':'not-provided','node':os.environ['QUAL_NODE'],
             'outcomes':{key:steps.get(key,{}).get('outcome','not-provided') for key in ['install','runtime','controls','provision','browser']}}
           (root/'job-terminal.json').write_text(json.dumps(value,indent=2)+'\n')
           source=pathlib.Path(os.environ['QUAL_TOOLCHAIN'])/'provisioning.json'
@@ -87,7 +89,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: chromium-final-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.node }}
+          name: chromium-functional-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.node }}
           path: |
             ${{ runner.temp }}/chromium-evidence/*.json
             ${{ runner.temp }}/chromium-evidence/*.log

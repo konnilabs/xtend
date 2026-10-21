@@ -36,7 +36,7 @@ async function scenario(options = {}) {
   try {
     const report = await run({engine,version:'151.0',binary:'/test-only/browser',endpointUrl:origin,
       probeUrl:origin+'/probe',fixtureUrl:origin+'/fixture',resultKey:'__fixture',timeoutMs:options.timeoutMs || 1000,
-      required:options.required || ['dom','customElements','shadowDom'],assertions,owner,sandbox:options.noSandboxObserver ? undefined : sandbox,exercise:options.exercise});
+      required:options.required || ['dom','customElements','shadowDom'],assertions,owner,sandbox:options.noSandboxObserver ? undefined : sandbox,exercise:options.exercise,executionProfile:options.executionProfile});
     return {report,calls,stopCount,sandboxCount};
   } finally {server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
 }
@@ -50,6 +50,20 @@ for (const engine of ['firefox','chromium']) test(`${engine}: standard WebDriver
   assert.deepEqual(calls.filter(c=>c.url.endsWith('/url')).map(c=>new URL(c.payload.url).pathname),['/probe','/fixture']);
   assert(calls.every(c=>!c.url.includes('cdp')));
   assert.equal(calls.at(-1).method,'DELETE');
+});
+test('explicit functional controller MODEL runs assertions, never claims a sandbox and cleans up',async t=>{
+  const profiles=require('./execution-profile.cjs');let hostChecks=0;
+  t.mock.method(profiles,'requireFunctionalHost',()=>{hostChecks++;}); // Only the loopback WebDriver test double above.
+  const {report,calls,stopCount,sandboxCount}=await scenario({engine:'chromium',executionProfile:profiles.functional});
+  assert.equal(hostChecks,1);assert.equal(report.status,'passed');assert.equal(report.phases.product.status,'passed');
+  assert.equal(report.phases.sandbox.status,'not-run');assert.equal(report.sandboxEnabled,false);assert.equal(report.acceptedForSecurity,false);
+  assert.equal(sandboxCount,0);assert.equal(stopCount,1);
+  assert.deepEqual(calls.find(c=>c.url==='/session').payload.capabilities.alwaysMatch['goog:chromeOptions'].args,['--headless=new','--no-sandbox']);
+});
+test('functional controller MODEL retains assertion and ownership failures',async t=>{
+  const profiles=require('./execution-profile.cjs');t.mock.method(profiles,'requireFunctionalHost',()=>{});
+  const {report}=await scenario({engine:'chromium',executionProfile:profiles.functional,groupError:true,product:{status:'failed',checks:[]}});
+  assert.equal(report.status,'failed');assert.equal(report.phases.product.status,'failed');assert.equal(report.phases.groupCleanup.status,'failed');
 });
 test('launch configuration never inherits unsafe Chromium defaults or Firefox preferences',()=>{
   for(const engine of ['firefox','chromium']) {
