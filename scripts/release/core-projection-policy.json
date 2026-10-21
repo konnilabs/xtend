@@ -2023,6 +2023,7 @@
     "tests/components/xprogress.component_suite.js",
     "tests/components/xradio.component_suite.js",
     "tests/components/xrouter.component_suite.js",
+    "tests/components/xrouter_path_consumption_checks.js",
     "tests/components/xsection.component_suite.js",
     "tests/components/xselect.component_suite.js",
     "tests/components/xsidepanel.component_suite.js",
@@ -3420,7 +3421,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "b7bcdce13b7144ca18de10bd86ae6da713f9df1d977da8c3fb35c06d66788892",
+  "authorityDecisionSha256": "b80a55d4e7e5137701dc6be1d6a238cf45557fc3a015a5e302c80c860491917e",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "f1956bfe2a69f16a4f4b6b88a1366be20de6294284c3e4e1abc3da015eda3587"
 }
