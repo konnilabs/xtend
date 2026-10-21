@@ -54,22 +54,101 @@ function validateContent(rows,browser,uid,executables){
   }
   return content;
 }
+// Every tolerated departure needs a previously read kernel identity and a fresh
+// absence/terminal-state observation. No missing security field becomes a pass.
+function createProcReader({io=fs,events=[]}={}){
+  const absent=error=>['ENOENT','ESRCH'].includes(error.code);
+  const identity=(pid,tid)=>{
+    try{return parseStat(io.readFileSync(tid===undefined?`/proc/${pid}/stat`:`/proc/${pid}/task/${tid}/stat`,'utf8'),tid??pid);}
+    catch(error){if(absent(error))return null;throw error;}
+  };
+  function note(expected,tid,thread,stage,error,processNow,threadNow,outcome){
+    const value={event:'proc-read-transition',observedAt:new Date().toISOString(),monotonicMs:performance.now(),
+      object:tid===undefined?'process':'thread',process:expected,thread:tid===undefined?null:thread||{pid:tid,start:null},
+      stage,errno:/^[A-Z0-9]+$/.test(error.code||'')?error.code:null,processNow,threadNow:threadNow||null,outcome};
+    events.push(value);return value;
+  }
+  function failure(expected,tid,thread,stage,error){
+    let current,task;
+    try{
+      current=identity(expected.pid);
+      if(current&&!same(current,expected))throw Error('Process identity changed during observation');
+      if(absent(error)&&(!current||!live(current))){
+        note(expected,tid,thread,stage,error,current,null,'process-ended');return 'process-ended';
+      }
+      if(tid!==undefined&&current){
+        task=identity(expected.pid,tid);
+        if(thread&&task&&!same(task,thread))throw Error('Thread identity changed during observation');
+        if(absent(error)&&thread&&(!task||!live(task))){
+          // The parent remains the same live process across the task lookup.
+          const after=identity(expected.pid);
+          if(!same(current,after))throw Error('Parent identity changed while confirming thread exit');
+          note(expected,tid,thread,stage,error,after,task,'thread-ended');return 'thread-ended';
+        }
+      }
+    }catch(check){note(expected,tid,thread,stage,error,current||null,task,'identity-unresolved');throw check;}
+    note(expected,tid,thread,stage,error,current||null,task,'security-evidence-unavailable');
+    throw new InfrastructureBlocked(`Owned /proc evidence unavailable: pid=${expected.pid}`+
+      (tid===undefined?'':` tid=${tid}`)+` stage=${stage} errno=${error.code||'unknown'}`);
+  }
+  const ended=()=>Object.assign(Error('Kernel object ended'),{code:'ENOENT'});
+  function read(expected){
+    let stage='process-identity';
+    try{
+      const before=identity(expected.pid);
+      if(!before||!live(before))throw ended();
+      if(!same(before,expected))throw Error('Process identity changed before observation');
+      stage='process-executable';const executable=io.readlinkSync(`/proc/${before.pid}/exe`);
+      stage='process-status';const security=parseStatus(io.readFileSync(`/proc/${before.pid}/status`,'utf8'));
+      stage='process-role';const role=processRole(io.readFileSync(`/proc/${before.pid}/cmdline`,'utf8'));
+      const threads=[],knownThreads=new Map();
+      if(role.contentProcess){
+        stage='thread-list';const tids=io.readdirSync(`/proc/${before.pid}/task`).filter(n=>/^[1-9]\d*$/.test(n)).map(Number);
+        for(const tid of tids){
+          let thread,threadStage='thread-identity';
+          try{
+            thread=identity(before.pid,tid);if(!thread)throw ended();knownThreads.set(tid,thread);
+            if(!live(thread))throw ended();
+            if(thread.group!==before.group||thread.session!==before.session)throw Error('Thread ownership mismatch');
+            threadStage='thread-status';const status=parseStatus(io.readFileSync(`/proc/${before.pid}/task/${tid}/status`,'utf8'));
+            threadStage='thread-identity-after';const after=identity(before.pid,tid);if(!after||!live(after))throw ended();
+            if(!same(thread,after))throw Error('Thread identity changed during observation');
+            threads.push({tid,identity:thread,...status});
+          }catch(error){
+            if(!absent(error)&&!['EACCES','EPERM'].includes(error.code))throw error;
+            if(failure(before,tid,thread,threadStage,error)==='process-ended')return null;
+          }
+        }
+        // A newly observed live task has no security evidence in this snapshot.
+        // Fail closed instead of retrying until a convenient thread set appears.
+        stage='thread-list-after';
+        for(const tid of io.readdirSync(`/proc/${before.pid}/task`).filter(n=>/^[1-9]\d*$/.test(n)).map(Number)){
+          const saved=threads.find(t=>t.tid===tid);let current;
+          try{current=identity(before.pid,tid);if(!current||!live(current))throw ended();}
+          catch(error){if(!absent(error))throw error;if(failure(before,tid,knownThreads.get(tid),'thread-final-identity',error)==='process-ended')return null;continue;}
+          if(!saved||!same(saved.identity,current)){
+            note(before,tid,saved?.identity,'thread-set-completeness',{},before,current,'security-evidence-unavailable');
+            throw new InfrastructureBlocked(`Unmeasured or reused content thread: pid=${before.pid} tid=${tid}`);
+          }
+        }
+      }
+      const namespaces={};
+      for(const name of ['user','pid','net','ipc','mnt']){stage='namespace-'+name;namespaces[name]=io.readlinkSync(`/proc/${before.pid}/ns/${name}`);}
+      stage='process-identity-after';const after=identity(before.pid);if(!after||!live(after))throw ended();
+      if(!same(before,after))throw Error('Proc identity changed during observation');
+      return {...before,executable,security,contentProcess:role.contentProcess,role:role.role,argumentFormat:role.format,threads,namespaces};
+    }catch(error){
+      if(!absent(error)&&!['EACCES','EPERM'].includes(error.code))throw error;
+      failure(expected,undefined,undefined,stage,error);return null;
+    }
+  }
+  return {read,identity};
+}
 function createLinuxObserver({owned,binary,driver,profileRoot}){
   if(process.platform!=='linux' || process.getuid()===0)throw Error('Linux observer requires unprivileged Linux');
-  const {child:launch,group}=owned,snapshots=[];let continuity;
-  const stat=pid=>parseStat(fs.readFileSync(`/proc/${pid}/stat`,'utf8'),pid);
-  function read(pid){
-    const before=stat(pid),executable=fs.readlinkSync(`/proc/${pid}/exe`);
-    const security=parseStatus(fs.readFileSync(`/proc/${pid}/status`,'utf8'));
-    // Only exact owned group members are inspected; no arguments/environment are emitted.
-    const role=processRole(fs.readFileSync(`/proc/${pid}/cmdline`,'utf8'));
-    const contentProcess=role.contentProcess;
-    const threads=contentProcess ? fs.readdirSync(`/proc/${pid}/task`).filter(n=>/^\d+$/.test(n)).map(tid=>({tid:Number(tid),...parseStatus(fs.readFileSync(`/proc/${pid}/task/${tid}/status`,'utf8'))})):[];
-    const namespaces={};
-    for(const name of ['user','pid','net','ipc','mnt'])namespaces[name]=fs.readlinkSync(`/proc/${pid}/ns/${name}`);
-    if(!same(before,stat(pid)))throw Error('Proc identity changed during observation');
-    return {...before,executable,security,contentProcess,role:role.role,argumentFormat:role.format,threads,namespaces};
-  }
+  const {child:launch,group}=owned,snapshots=[],procEvents=[];let continuity;
+  const reader=createProcReader({events:procEvents});
+  const stat=pid=>{const row=reader.identity(pid);if(!row)throw Object.assign(Error('Process absent'),{code:'ENOENT'});return row;};
   function snapshot(){
     if(owned.state.error)throw owned.state.error;
     const records=[],all=[];
@@ -82,7 +161,7 @@ function createLinuxObserver({owned,binary,driver,profileRoot}){
     if(all.some(row=>live(row) && row.group!==group && (descendants.has(row.pid)||continuity.known.get(row.pid)===row.start)))throw Error('Owned descendant escaped the original process group');
     continuity.observe(records);
     let rows;
-    try{rows=records.filter(live).map(r=>read(r.pid));}
+    try{rows=records.filter(live).map(r=>reader.read(r)).filter(Boolean);}
     catch(error){if(['EACCES','EPERM','ENOENT','ESRCH'].includes(error.code))throw new InfrastructureBlocked('Owned /proc sandbox evidence unavailable: '+error.code);throw error;}
     if(rows.some(r=>r.security.uids.some(uid=>uid!==process.getuid())))throw Error('Unexpected owned process user');
     snapshots.push({platform:'linux',observedAt:new Date().toISOString(),monotonicMs:performance.now(),processes:rows});return rows;
@@ -110,6 +189,6 @@ function createLinuxObserver({owned,binary,driver,profileRoot}){
     const leader=stat(group);if(leader.group!==group || leader.session!==group || !live(leader))throw Error('Unowned Linux leader');
     continuity=new Continuity(leader);owner.assertCurrent();
   }
-  return {owner,sandbox,snapshots,initialize};
+  return {owner,sandbox,snapshots,procEvents,initialize};
 }
-module.exports={parseStat,parseStatus,same,processRole,Continuity,validateContent,createLinuxObserver};
+module.exports={parseStat,parseStatus,same,processRole,createProcReader,Continuity,validateContent,createLinuxObserver};

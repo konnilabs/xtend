@@ -34,7 +34,7 @@ async function execute(evidence,toolchain,mode,replica){
     fs.mkdirSync(dest,{recursive:false});let report;
     try{report=await require('./run-firefox.cjs').main([work,toolchain]);}
     catch(error){report={status:'failed',error:error.message,acceptedForRelease:false};}
-    for(const name of ['report.json','driver.log','process-observations.json','ownership-observations.json'])if(fs.existsSync(path.join(work,name)))fs.copyFileSync(path.join(work,name),path.join(dest,name));
+    for(const name of ['report.json','driver.log','process-observations.json','proc-events.json','ownership-observations.json'])if(fs.existsSync(path.join(work,name)))fs.copyFileSync(path.join(work,name),path.join(dest,name));
     job.cycles.push({cycle,status:accepted(report,node)?'passed':'failed'});save();
     // Planned repetitions are not retries. Uncertain cleanup blocks later starts.
     if(!report.cleanup?.complete){for(let next=cycle+1;next<=config.cycles;next++)job.cycles.push({cycle:next,status:'not-run',reason:'preceding cleanup incomplete'});break;}
@@ -46,10 +46,29 @@ function aggregate(directory,mode){
   const config=shape(mode),result={acceptedForRelease:false,status:'failed',mode,expectedJobs:nodes(mode).length*config.replicas,expectedSessions:nodes(mode).length*config.replicas*config.cycles,errors:[],jobs:[]};
   try{
     const seen=new Set();let provenance;
-    for(const name of fs.readdirSync(directory)){
-      const dir=path.join(directory,name);if(!fs.statSync(dir).isDirectory())continue;
+    // download-artifact flattens a single match. Locate evidence, not arbitrary
+    // directories (cycle-1/runtime), and reject mixed, nested or orphan layouts.
+    const markers=[],reports=[];
+    function scan(dir){
+      for(const entry of fs.readdirSync(dir,{withFileTypes:true})){
+        const file=path.join(dir,entry.name);
+        assert(!entry.isSymbolicLink(),'Symlink in qualification evidence');
+        if(entry.isDirectory())scan(file);
+        else if(['job-terminal.json','campaign.json'].includes(entry.name))markers.push(file);
+        else if(entry.name==='report.json')reports.push(file);
+      }
+    }
+    scan(directory);
+    const roots=[...new Set(markers.map(file=>path.dirname(file)))];
+    assert(roots.every(dir=>dir===directory||path.dirname(dir)===directory),'Nested job evidence');
+    assert(!(roots.includes(directory)&&roots.length!==1),'Mixed flat and directory job evidence');
+    const expectedReports=new Set();
+    for(const dir of roots){
+      assert(markers.includes(path.join(dir,'job-terminal.json'))&&markers.includes(path.join(dir,'campaign.json')),'Orphan job evidence');
+      const cycleDirs=fs.readdirSync(dir).filter(name=>/^cycle-/.test(name)).sort();
+      assert.deepEqual(cycleDirs,Array.from({length:config.cycles},(_,i)=>'cycle-'+(i+1)).sort(),'Unexpected cycle evidence');
       const terminal=JSON.parse(fs.readFileSync(path.join(dir,'job-terminal.json'),'utf8'));
-      assert(nodes(mode).includes(terminal.node));assert(terminal.replica>=1 && terminal.replica<=config.replicas);assert.equal(terminal.mode,mode);
+      assert(nodes(mode).includes(terminal.node));assert(Number.isInteger(terminal.replica)&&terminal.replica>=1 && terminal.replica<=config.replicas);assert.equal(terminal.mode,mode);
       const key=terminal.node+'/'+terminal.replica;assert(!seen.has(key),'Duplicate job');seen.add(key);
       assert(['install','runtime','controls','provision','browser'].every(id=>terminal.outcomes[id]==='success'),'Failed, missing or skipped workflow step');
       const job=JSON.parse(fs.readFileSync(path.join(dir,'campaign.json'),'utf8'));
@@ -62,11 +81,13 @@ function aggregate(directory,mode){
       if(provenance)assert.equal(bound,provenance,'Mixed source/run evidence');else provenance=bound;
       assert.equal(job.status,'passed');assert.equal(job.cycles.length,config.cycles);
       for(let cycle=1;cycle<=config.cycles;cycle++){
+        expectedReports.add(path.join(dir,'cycle-'+cycle,'report.json'));
         assert.equal(job.cycles[cycle-1].cycle,cycle);assert.equal(job.cycles[cycle-1].status,'passed');
         assert(accepted(JSON.parse(fs.readFileSync(path.join(dir,'cycle-'+cycle,'report.json'),'utf8')),job.node),'Incomplete real Linux report');
       }
       result.jobs.push({key,commit:job.commit,status:'passed'});
     }
+    assert.deepEqual(reports.sort(),[...expectedReports].sort(),'Unexpected or missing report evidence');
     assert.equal(seen.size,result.expectedJobs,'Incomplete job matrix');result.status='passed';
   }catch(error){result.errors.push(error.message);}
   return result;

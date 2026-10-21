@@ -75,6 +75,7 @@ async function main(args=process.argv.slice(2)){
     report.sourceDigests=sources;
     fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
     fs.writeFileSync(path.join(out,'process-observations.json'),JSON.stringify(observer?.snapshots||[],null,2)+'\n');
+    fs.writeFileSync(path.join(out,'proc-events.json'),JSON.stringify(observer?.procEvents||[],null,2)+'\n');
     fs.writeFileSync(path.join(out,'ownership-observations.json'),JSON.stringify(owned?.observations||[],null,2)+'\n');
     fs.writeFileSync(path.join(out,'driver.log'),diagnosticDriverLog(driverOutput));
     console.log(JSON.stringify({status:report.status,node:report.node,phases:report.phases,cases:report.qualification?.cases,

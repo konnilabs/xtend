@@ -49,3 +49,28 @@ test('Mac, sandbox absence, cleanup errors and nested skips never qualify as Lin
     const value=structuredClone(base);alter(value);assert(!accepted(value,'24.18.0'));
   }
 });
+
+function flatten(root){const source=path.join(root,'24.18.0');for(const name of fs.readdirSync(source))fs.renameSync(path.join(source,name),path.join(root,name));fs.rmdirSync(source);}
+test('Single downloaded artifact is accepted directly at the destination root',()=>{
+  const root=matrix('diagnostic',['24.18.0']);try{flatten(root);assert.equal(aggregate(root,'diagnostic').status,'passed');assert.equal(aggregate(root,'initial').status,'failed');}finally{fs.rmSync(root,{recursive:true});}
+});
+for(const kind of ['mixed-layout','duplicate-job','nested-job','orphan','extra-cycle','extra-report','symlink'])test('Aggregate rejects ambiguous or duplicate evidence: '+kind,()=>{
+  const root=matrix('diagnostic',['24.18.0']),job=path.join(root,'24.18.0');
+  try{
+    if(kind==='mixed-layout'){fs.cpSync(job,path.join(root,'copy'),{recursive:true});flatten(root);}
+    if(kind==='duplicate-job')fs.cpSync(job,path.join(root,'copy'),{recursive:true});
+    if(kind==='nested-job'){fs.mkdirSync(path.join(root,'nested'));fs.renameSync(job,path.join(root,'nested','job'));}
+    if(kind==='orphan')fs.rmSync(path.join(job,'campaign.json'));
+    if(kind==='extra-cycle')fs.cpSync(path.join(job,'cycle-1'),path.join(job,'cycle-2'),{recursive:true});
+    if(kind==='extra-report'){fs.mkdirSync(path.join(job,'other'));fs.copyFileSync(path.join(job,'cycle-1/report.json'),path.join(job,'other/report.json'));}
+    if(kind==='symlink')fs.symlinkSync(path.join(job,'cycle-1'),path.join(job,'alias'));
+    assert.equal(aggregate(root,'diagnostic').status,'failed');
+  }finally{fs.rmSync(root,{recursive:true});}
+});
+test('Flat layout retains strict workflow provenance, step and report completeness',()=>{
+  for(const alter of [
+    job=>job.commit='invalid',job=>job.runId='wrong',job=>job.attempt='0',job=>job.replica=1.5,
+    job=>job.cycles=[],job=>job.acceptedForRelease=true
+  ]){const root=matrix('diagnostic',['24.18.0']);try{flatten(root);const p=path.join(root,'campaign.json'),job=JSON.parse(fs.readFileSync(p));alter(job);fs.writeFileSync(p,JSON.stringify(job));assert.equal(aggregate(root,'diagnostic').status,'failed');}finally{fs.rmSync(root,{recursive:true});}}
+  for(const target of ['campaign.json','cycle-1/report.json']){const root=matrix('diagnostic',['24.18.0']);try{flatten(root);fs.rmSync(path.join(root,target));assert.equal(aggregate(root,'diagnostic').status,'failed');}finally{fs.rmSync(root,{recursive:true});}}
+});

@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {endpoint,connect}=require('./bidi.cjs');
-const {parseStat,parseStatus,processRole,Continuity,validateContent}=require('./linux-observer.cjs');
+const {parseStat,parseStatus,processRole,createProcReader,Continuity,validateContent}=require('./linux-observer.cjs');
 const {diagnosticDriverLog}=require('./run-firefox.cjs');
 const {pinned,hydrangeaPreload,negativeLifecycle}=require('./qualification.cjs');
 const contracts=require('./fixture-contracts.json');
@@ -105,4 +105,64 @@ test('Lifecycle negative acceptance rejects extra failures, partial checks and s
   for(const transform of [r=>r.checks.pop(),r=>r.checks[0].passed=false,r=>r.checks[0].skipped=true,r=>r.errors.push('other')]){
     const copy=structuredClone(result);transform(copy);assert.throws(()=>negativeLifecycle(copy,fixture,foreign));
   }
+});
+
+// Kernel model only: these regressions exercise real reader logic, not a browser.
+function procFixture(change=()=>{}){
+  const row={...leader,pid:21,start:'101'},tasks=new Map([[21,{...row}],[22,{...row,pid:22,start:'102'}]]);
+  const state={row,tasks,events:[]};
+  const missing=()=>{throw Object.assign(Error('fixture absent'),{code:'ENOENT'});};
+  const stat=r=>{if(!r)missing();const fields=Array(20).fill('0');Object.assign(fields,{0:r.state,1:String(r.parent),2:String(r.group),3:String(r.session),19:r.start});return r.pid+' (fixture) '+fields.join(' ');};
+  const status='Uid: 501 501 501 501\nNoNewPrivs: 1\nSeccomp: 2\nSeccomp_filters: 2\nCapEff: 0000';
+  const io={
+    readFileSync(file){change(state,file,'read');const match=file.match(/^\/proc\/21(?:\/task\/(\d+))?\/(stat|status|cmdline)$/);assert(match,file);
+      const r=match[1]?tasks.get(Number(match[1])):state.row;if(!state.row||!r)missing();
+      if(match[2]==='stat')return stat(r);if(match[2]==='status')return status;
+      return '/browser/firefox\0-contentproc\0tab\0';},
+    readlinkSync(file){change(state,file,'link');if(!state.row)missing();return file.endsWith('/exe')?'/browser/firefox':'namespace:[1]';},
+    readdirSync(file){change(state,file,'list');assert.equal(file,'/proc/21/task');if(!state.row)missing();return [...tasks.keys()].map(String);}
+  };
+  return {...state,state,reader:createProcReader({io,events:state.events}),expected:{...row}};
+}
+test('Proc reader authenticates all surviving content threads with start identities',()=>{
+  const f=procFixture(),value=f.reader.read(f.expected);
+  assert.equal(value.threads.length,2);assert.equal(value.threads[1].identity.start,'102');
+  assert.equal(validateContent([value],browser,501,['/browser/firefox']).length,1);assert.equal(f.events.length,0);
+});
+for(const state of ['absent','Z'])test('Proc reader records confirmed process departure: '+state,()=>{
+  const f=procFixture((s,file)=>{if(file==='/proc/21/exe'){if(state==='absent')s.row=null;else s.row.state='Z';throw Object.assign(Error('gone'),{code:'ENOENT'});}});
+  assert.equal(f.reader.read(f.expected),null);assert.equal(f.events[0].outcome,'process-ended');
+  assert.equal(f.events[0].process.start,'101');assert.equal(f.events[0].stage,'process-executable');
+  assert(Number.isFinite(f.events[0].monotonicMs));assert(!Number.isNaN(Date.parse(f.events[0].observedAt)));
+  assert.throws(()=>validateContent([],browser,501,['/browser/firefox']),/No authenticated/);
+});
+test('Confirmed task departure retains evidence for every surviving task, never a pass for the departed task',()=>{
+  const f=procFixture((s,file)=>{if(file==='/proc/21/task/22/status')s.tasks.delete(22);});
+  const value=f.reader.read(f.expected);assert.equal(value.threads.length,1);assert.equal(value.threads[0].tid,21);
+  assert.equal(f.events[0].outcome,'thread-ended');assert.equal(f.events[0].thread.start,'102');assert.equal(f.events[0].stage,'thread-status');
+});
+for(const kind of ['missing-live-security','permission','process-reuse','thread-reuse','no-initial-thread-identity','new-live-thread'])test('Proc reader fails closed: '+kind,()=>{
+  let lists=0;
+  const f=procFixture((s,file,op)=>{
+    if(kind==='missing-live-security'&&file==='/proc/21/task/22/status')throw Object.assign(Error('gone'),{code:'ENOENT'});
+    if(kind==='permission'&&file==='/proc/21/task/22/status')throw Object.assign(Error('denied'),{code:'EACCES'});
+    if(kind==='process-reuse'&&file==='/proc/21/exe'){s.row.start='999';throw Object.assign(Error('gone'),{code:'ENOENT'});}
+    if(kind==='thread-reuse'&&file==='/proc/21/task/22/status'){s.tasks.get(22).start='999';throw Object.assign(Error('gone'),{code:'ENOENT'});}
+    if(kind==='no-initial-thread-identity'&&file==='/proc/21/task/22/stat')s.tasks.delete(22);
+    if(kind==='new-live-thread'&&op==='list'&&++lists===2)s.tasks.set(23,{...s.row,pid:23,start:'103'});
+  });
+  assert.throws(()=>f.reader.read(f.expected),/unavailable|identity changed|Unmeasured/);
+  assert.equal(f.events.length,1);assert.notEqual(f.events[0].outcome,'thread-ended');
+  assert(!/argv|environ|command|private-value/.test(JSON.stringify(f.events)));
+});
+
+test('Known terminal task remains an explicit departure, never a live security witness',()=>{
+  const f=procFixture((s,file)=>{if(file==='/proc/21/task/22/status'){s.tasks.get(22).state='Z';throw Object.assign(Error('gone'),{code:'ENOENT'});}});
+  const value=f.reader.read(f.expected);assert.equal(value.threads.length,1);
+  assert(f.events.every(event=>event.outcome==='thread-ended'&&event.thread.start==='102'));
+});
+test('Missing live process executable is blocked instead of being mistaken for exit',()=>{
+  const f=procFixture((_s,file)=>{if(file==='/proc/21/exe')throw Object.assign(Error('gone'),{code:'ENOENT'});});
+  assert.throws(()=>f.reader.read(f.expected),/pid=21 stage=process-executable/);
+  assert.equal(f.events[0].outcome,'security-evidence-unavailable');
 });

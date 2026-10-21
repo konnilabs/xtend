@@ -60,7 +60,7 @@ function spawnOwned(command,args,options,{diagnostics=false}={}){
     if(!firstContinuityFailure){firstContinuityFailure=true;record('first-continuity-failure',records,{saved:[...saved].map(([pid,start])=>({pid,start}))});}
     throw Error('Owned group continuity lost; refusing to signal an uncertain/reused group');
   }
-  function members(){
+  function members({observeExit=false}={}){
     if(ownershipError)throw ownershipError;
     if(!group||retired)return [];
     const records=groupMembers(group),leader=records.find(record=>record.pid===group);
@@ -72,6 +72,10 @@ function spawnOwned(command,args,options,{diagnostics=false}={}){
     }
     if(group===identity(process.pid)?.group||records.some(record=>record.session!==group))throw Error('Owned process-group identity mismatch');
     if(leader&&leader.start!==leaderStart){record('leader-reused',records);throw Error('Owned group leader PID was reused');}
+    // A saved zombie can only be observed while awaiting disappearance. It
+    // never supplies a live witness, adds identities, or authorizes a signal.
+    if(observeExit&&records.every(row=>row.state==='Z'&&owned.get(row.pid)===row.start&&
+      (()=>{const fresh=identity(row.pid);return !fresh||(fresh.state==='Z'&&fresh.start===row.start&&fresh.group===group&&fresh.session===group);})()))return records;
     // No reseeding from a numeric session/group after the original leader dies.
     // Learn additional members only while an already saved identity is live.
     continuous(records);
@@ -87,7 +91,7 @@ function spawnOwned(command,args,options,{diagnostics=false}={}){
   });
   // Preserve observed child identities before leader exit. Missing an entire
   // lifetime is intentionally a failed cleanup, never permission to guess.
-  const monitor=setInterval(()=>{try{members();}catch(error){ownershipError=error;state.error=error;}},100);
+  const monitor=setInterval(()=>{try{members({observeExit:true});}catch(error){ownershipError=error;state.error=error;}},100);
   function signal(name){
     observe('before-'+name);
     const saved=new Map(owned),records=members();
@@ -100,20 +104,21 @@ function spawnOwned(command,args,options,{diagnostics=false}={}){
     return true;
   }
   async function waitUntil(deadline){
-    while(performance.now()<deadline){if(!members().length&&state.closed)return true;await delay();}
-    return !members().length&&state.closed;
+    while(performance.now()<deadline){if(!members({observeExit:true}).length&&state.closed)return true;await delay();}
+    return !members({observeExit:true}).length&&state.closed;
   }
   async function stop(){
     if(cleanup)return cleanup;
     cleanup=(async()=>{
       const started=performance.now(),signals=[];
       try{
-        if(signal('SIGTERM'))signals.push('SIGTERM');
+        if(members({observeExit:true}).some(live)&&signal('SIGTERM'))signals.push('SIGTERM');
+        observe('awaiting-group-disappearance-and-child-close');
         let clean=await waitUntil(started+termMs);
         // Leader exit does not authorize a new group: KILL needs continuity too.
-        if(!clean&&signal('SIGKILL'))signals.push('SIGKILL');
+        if(!clean&&members({observeExit:true}).some(live)&&signal('SIGKILL'))signals.push('SIGKILL');
         clean=await waitUntil(started+termMs+killMs);
-        const remaining=members();
+        const remaining=members({observeExit:true});
         const result={group:group||null,leaderStart:leaderStart||null,signals,remaining:remaining.map(row=>row.pid),
           childReaped:state.closed,groupGone:remaining.length===0,complete:clean,termMs,killMs};
         if(!clean){const error=Error('Owned browser process group was not gone/reaped within bounded cleanup');error.cleanup=result;throw error;}

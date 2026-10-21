@@ -126,3 +126,29 @@ The same pinned official archives, sandbox settings, existing product assertions
 and strict cleanup requirements apply. No retries are scheduled. Every report
 continues to carry `acceptedForRelease:false`. The exact outcome is recorded
 in the new run's artifacts; no success or Linux coverage is assumed here.
+
+
+## Bounded harness repair after run 39614905322
+
+The next separately authorized diagnosis keeps the same single Node24 VM and
+pinned toolchain. Aggregation accepts either the download action's flat single
+artifact or one directory per job. It rejects mixed/nested layouts, duplicate
+lanes, orphan metadata, extra cycle/report evidence and symlinks; provenance,
+phase completion and release non-acceptance remain mandatory.
+
+The Linux reader records only timestamped PID/TID/start/group/session/state
+identities, a fixed read-stage label and errno in `proc-events.json`. A process
+or thread departure is tolerated only after its recorded kernel identity is
+confirmed absent or terminal. Missing live security data, unmeasured new tasks,
+identity reuse and unconfirmed departures still block the observation. Departed
+objects receive no security pass, and every surviving sampled content thread
+must provide the existing seccomp/NoNewPrivs/privilege evidence. These snapshots
+do not prove coverage of every task lifetime or the full sandbox policy.
+
+Cleanup can wait within the existing deadline for previously authenticated
+zombies. This read-only path neither learns identities nor provides a live
+witness for signals. The unchanged signal path still requires a fresh saved
+live identity. Success requires both confirmed group disappearance (including
+the existing ESRCH probe) and the actual child close event. A persistent zombie,
+unknown/reused identity or missing child close fails; waiting alone is not proof
+of reaping. No second Linux session or retry is part of this patch.
