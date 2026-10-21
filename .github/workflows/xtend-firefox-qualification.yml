@@ -1,7 +1,7 @@
 name: XTend isolated Chromium functions (sandbox disabled)
 
 # Explicit CI functional-only opt-in. Browser sandbox is disabled and supplies no security proof.
-# One fresh hosted Linux VM, Node 24, one session. Existing release gates are unchanged.
+# Two fresh hosted Linux VMs, one session per pinned Node lane. Existing release gates are unchanged.
 on:
   push:
     branches: [qualification/firefox-initial-20261021]
@@ -16,13 +16,17 @@ jobs:
     timeout-minutes: 15
     strategy:
       fail-fast: false
-      max-parallel: 1
+      max-parallel: 2
       matrix:
-        node: ['24.18.0']
+        include:
+          - node: '24.18.0'
+            lane: node-24-lts
+          - node: '26.5.0'
+            lane: node-26-current
     env:
       XTEND_CI_FUNCTIONAL_PROFILE: chromium-linux-ci-functions-no-sandbox-v1
       QUAL_NODE: ${{ matrix.node }}
-      QUAL_LANE: node-24-lts
+      QUAL_LANE: ${{ matrix.lane }}
     steps:
       - name: Create evidence directory before setup
         run: |
@@ -95,5 +99,35 @@ jobs:
             ${{ runner.temp }}/chromium-evidence/*.log
             ${{ runner.temp }}/chromium-evidence/*.tap
             ${{ runner.temp }}/chromium-evidence/runtime
+          if-no-files-found: error
+          retention-days: 30
+
+  aggregate:
+    needs: qualify
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          pattern: chromium-functional-${{ github.run_id }}-${{ github.run_attempt }}-*
+          path: ${{ runner.temp }}/functional-matrix
+      - name: Verify complete same-head functional matrix
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node tests/browser/neutral-prototype/functional-matrix.cjs "$RUNNER_TEMP/functional-matrix" "$RUNNER_TEMP/functional-matrix-result.json"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: chromium-functional-matrix-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/functional-matrix-result.json
           if-no-files-found: error
           retention-days: 30

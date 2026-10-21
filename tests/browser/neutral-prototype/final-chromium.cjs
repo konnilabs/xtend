@@ -68,7 +68,7 @@ function exactContext(env,commit,dirty) {
   assert(/^[1-9]\d*$/.test(env.GITHUB_RUN_ID||''));assert.equal(env.GITHUB_RUN_ATTEMPT,'1','No rerun authorized');
 }
 async function main([evidence,toolchain,executionProfile=executionProfiles.qualified]=process.argv.slice(2)) {
-  assert.equal(process.platform,'linux');assert.equal(process.arch,'x64');assert.equal(process.versions.node,'24.18.0');assert(process.getuid()>0);
+  assert.equal(process.platform,'linux');assert.equal(process.arch,'x64');assert(executionProfiles.nodes.includes(process.versions.node),'Pinned Node required');assert(process.getuid()>0);
   executionProfiles.validate(executionProfile,'chromium');
   const functional=executionProfile===executionProfiles.functional;
   if(functional)executionProfiles.requireFunctionalHost();

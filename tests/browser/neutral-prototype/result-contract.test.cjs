@@ -1,7 +1,7 @@
 'use strict';
 const {test} = require('node:test');
 const assert = require('node:assert/strict');
-const {profile,observe,observeFunctional,aggregate,hash,contractDigest,nativeRequired,securityLabel} = require('./result-contract.cjs');
+const {profile,observe,observeFunctional,aggregate,aggregateFunctional,hash,contractDigest,nativeRequired,securityLabel} = require('./result-contract.cjs');
 const fixtures = require('./fixture-contracts.json').fixtures;
 const fs=require('node:fs'),path=require('node:path');
 const {sha256}=require('../../../tools/browser-hypervisor');
@@ -247,8 +247,8 @@ for(const [name,change] of [
   ['invented release acceptance',c=>c.records[0].observation.acceptedForRelease=true],
 ])test('worktree aggregation rejects '+name,()=>{const c=worktreeCampaign();change(c);assert.throws(()=>aggregate(c));});
 
-function functionalSample(){
-  const s=sample('chromium'),id=require('./execution-profile.cjs').functional;
+function functionalSample(node='24.18.0'){
+  const s=sample('chromium',node),id=require('./execution-profile.cjs').functional;
   Object.assign(s.p,{id,purpose:'ci-functional-only',sandboxPolicy:'disabled'});
   Object.assign(s.raw,{executionProfile:id,sandboxEnabled:false,acceptedForSecurity:false,sandboxEvidence:{status:'not-provided'}});
   delete s.raw.sandbox;s.raw.phases.sandbox.status='not-run';s.raw.qualification.sandboxObservationStatus='not-run';s.raw.qualification.sandboxObservations=[];
@@ -271,10 +271,57 @@ test('functional MODEL does not hide an actual product assertion failure',()=>{
 });
 for(const [name,change] of [
   ['security purpose',s=>s.p.purpose='security'],['missing opt-in',s=>delete s.raw.executionProfile],
-  ['wrong OS',s=>s.p.os='darwin'],['wrong engine',s=>s.p.engine='firefox'],['wrong Node',s=>s.p.node='26.5.0'],
+  ['wrong OS',s=>s.p.os='darwin'],['wrong engine',s=>s.p.engine='firefox'],['wrong Node',s=>s.p.node='22.0.0'],
   ['claimed sandbox enabled',s=>s.raw.sandboxEnabled=true],['sandbox pass',s=>s.raw.phases.sandbox.status='passed'],
   ['fabricated sandbox evidence',s=>s.raw.sandbox={status:'passed'}],['fabricated later sandbox sample',s=>s.raw.qualification.sandboxObservations=[{status:'passed'}]],
   ['security acceptance',s=>s.raw.acceptedForSecurity=true],['release acceptance',s=>s.raw.acceptedForRelease=true],
   ['merge acceptance',s=>s.raw.acceptedForMerge=true],['silent skip',s=>s.raw.qualification.cases.core.result.checks[0].skipped=true],
   ['partial coverage',s=>s.raw.qualification.cases.a11y.result.checks.pop()],['missing cleanup',s=>s.raw.cleanup.complete=false]
 ])test('functional contract rejects '+name,()=>{const s=functionalSample();change(s);assert.throws(()=>observeFunctional(s.raw,s.p,s.origin));});
+
+function functionalCampaign(){
+ const samples=require('./execution-profile.cjs').nodes.map(node=>functionalSample(node));
+ const {sessionId,startedAt,finishedAt,...expected}=samples[0].origin;
+ return {profiles:samples.map(s=>s.p),expected,records:samples.map(s=>({raw:s.raw,observation:observeFunctional(s.raw,s.p,s.origin)}))};
+}
+test('functional two-lane MODEL aggregates at one exact source without security/release authority',()=>{
+ const r=aggregateFunctional(functionalCampaign());assert.equal(r.status,'passed');assert.equal(r.profiles.length,2);
+ assert.equal(r.sandboxEnabled,false);assert.equal(r.sandboxEvidence,'not-provided');assert.equal(r.recognition.status,'blocked');
+ for(const k of ['acceptedForSecurity','acceptedForMerge','acceptedForRelease'])assert.equal(r[k],false);
+});
+for(const [name,mutate] of [
+ ['missing lane',c=>c.records.pop()],['duplicate lane',c=>c.records[1]=c.records[0]],
+ ['wrong head',c=>c.records[1].observation.provenance.source.commit='f'.repeat(40)],
+ ['wrong run',c=>c.records[1].observation.provenance.runId='other'],['wrong attempt',c=>c.records[1].observation.provenance.attempt=2],
+ ['reused session',c=>c.records[1].observation.provenance.sessionId=c.records[0].observation.provenance.sessionId],
+ ['false coverage',c=>c.records[1].observation.coverage.executed++],['reduced plan',c=>c.profiles.pop()],
+ ['release claim',c=>c.records[0].observation.acceptedForRelease=true]
+])test('functional matrix rejects '+name,()=>{const c=functionalCampaign();mutate(c);assert.throws(()=>aggregateFunctional(c));});
+function matrixFiles(t){
+ const root=fs.mkdtempSync(path.join(require('node:os').tmpdir(),'xtend-functional-matrix-model-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
+ const pin=require('../../security/sandboxed-browser.cjs').pin;
+ const samples=require('./execution-profile.cjs').nodes.map(node=>{const s=functionalSample(node);s.origin.kind='live-session';s.origin.runId='12345';
+  s.p.browserVersion=pin.version;s.p.driverVersion=pin.version;s.raw.identity.browserVersion=pin.version;s.raw.driverVersion=pin.version;return s;});
+ const {sessionId,startedAt,finishedAt,...expected}=samples[0].origin;
+ const dirs=[];
+ for(const s of samples){const dir=path.join(root,`chromium-functional-12345-1-${s.p.node}`);fs.mkdirSync(dir);dirs.push(dir);
+  const observation=observeFunctional(s.raw,s.p,s.origin);
+  const summary={node:s.p.node,source:s.origin.source,runId:s.origin.runId,attempt:1,sessionId:s.origin.sessionId,sessionCreationRequests:1,observation,status:'passed',mapping:{status:'passed'},sandboxEnabled:false,acceptedForMerge:false,acceptedForRelease:false};
+  const terminal={node:s.p.node,mode:'ci-functional-only',sandboxEnabled:false,sandboxEvidence:'not-provided',acceptedForMerge:false,acceptedForRelease:false,outcomes:Object.fromEntries(['install','runtime','controls','provision','browser'].map(id=>[id,'success']))};
+  const provision={version:pin.version,archives:pin.archives,executables:{'chrome-linux64/chrome':s.p.browserSha256,'chromedriver-linux64/chromedriver':s.p.driverSha256}};
+  for(const [name,value] of Object.entries({'summary.json':summary,'report.json':s.raw,'job-terminal.json':terminal,'provisioning.json':provision}))fs.writeFileSync(path.join(dir,name),JSON.stringify(value));
+ }
+ return {root,expected,dirs,change(file,fn){const p=path.join(dirs[1],file),v=JSON.parse(fs.readFileSync(p));fn(v);fs.writeFileSync(p,JSON.stringify(v));}};
+}
+test('same-run artifact MODEL reconstructs both functional lanes without granting release',t=>{
+ const f=matrixFiles(t),r=require('./functional-matrix.cjs').load(f.root,f.expected);assert.equal(r.status,'passed');assert.equal(r.acceptedForMerge,false);assert.equal(r.acceptedForRelease,false);
+});
+for(const [name,change] of [
+ ['missing artifact',f=>fs.rmSync(f.dirs[1],{recursive:true})],['foreign artifact',f=>fs.mkdirSync(path.join(f.root,'foreign'))],
+ ['wrong session budget',f=>f.change('summary.json',v=>v.sessionCreationRequests=2)],['false job success',f=>f.change('job-terminal.json',v=>v.outcomes.browser='skipped')],
+ ['foreign archive',f=>f.change('provisioning.json',v=>v.archives['chrome-linux64.zip']='e'.repeat(64))],
+ ['foreign binary',f=>f.change('provisioning.json',v=>v.executables['chrome-linux64/chrome']='e'.repeat(64))],
+ ['wrong source',f=>f.expected.source.commit='f'.repeat(40)],['wrong run',f=>f.expected.runId='54321'],['wrong attempt',f=>f.expected.attempt=2],
+ ['symlink evidence',f=>{const p=path.join(f.dirs[1],'report.json');fs.renameSync(p,p+'.real');fs.symlinkSync(p+'.real',p);}],
+ ['sandbox claim',f=>f.change('summary.json',v=>v.sandboxEnabled=true)]
+])test('artifact matrix rejects '+name,t=>{const f=matrixFiles(t);change(f);assert.throws(()=>require('./functional-matrix.cjs').load(f.root,f.expected));});

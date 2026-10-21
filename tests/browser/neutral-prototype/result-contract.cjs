@@ -45,7 +45,7 @@ function validateProfile(input,functional=false) {
   assert(['chromium','firefox'].includes(input.engine), 'Reviewed engine adapter required');
   if(functional){
     assert.equal(input.id,executionProfiles.functional);assert.equal(input.purpose,'ci-functional-only');
-    assert.equal(input.sandboxPolicy,'disabled');assert.equal(input.engine,'chromium');assert.equal(input.os,'linux');assert.equal(input.node,'24.18.0');
+    assert.equal(input.sandboxPolicy,'disabled');assert.equal(input.engine,'chromium');assert.equal(input.os,'linux');assert(executionProfiles.nodes.includes(input.node),'Pinned functional Node required');
   }else assert.equal(input.sandboxPolicy, 'required', 'Unsandboxed profiles cannot enter this security qualification contract');
   exactKeys(input.transport, ['backend','protocol','adapterSha256'], 'Transport identity separate from engine/binary required');
   assert.equal(input.transport.backend, 'hypervisor-webdriver', 'Unqualified backend');
@@ -297,33 +297,38 @@ function observeWithPurpose(raw, inputProfile, inputProvenance, worktreeEvidence
 }
 function observe(raw,p,origin,proof){return observeWithPurpose(raw,p,origin,proof,false);}
 function observeFunctional(raw,p,origin,proof){return observeWithPurpose(raw,p,origin,proof,true);}
-function aggregate({profiles, expected, records, authenticatedBindings = []}) {
+function aggregateWithPurpose({profiles, expected, records, authenticatedBindings = []},functional=false) {
   assert(Array.isArray(profiles) && profiles.length > 0, 'Explicit planned profiles required; no default support matrix');
-  const plans = profiles.map(profile); assert.equal(new Set(plans.map(p => p.id)).size, plans.length, 'Duplicate profile plan');
+  const key=p=>functional?p.id+'/'+p.node:p.id;
+  const plans = profiles.map(p=>validateProfile(p,functional)); assert.equal(new Set(plans.map(key)).size, plans.length, 'Duplicate profile plan');
+  if(functional)assert.deepEqual(plans.map(p=>p.node).sort(),[...executionProfiles.nodes].sort(),'Both functional Node lanes required');
   exactKeys(expected, ['repository','source','runId','attempt','kind','contractSha256'], 'Externally supplied campaign identity required');
   sourceIdentity(expected.source);
   assert(Array.isArray(records)); assert.equal(records.length, plans.length, 'Missing or extra profile evidence');
   assert(Array.isArray(authenticatedBindings));
   const seen = new Set(), sessions = new Set(), results = [];
   for (const {observation, raw, worktreeEvidence} of records) {
-    const p = plans.find(p => p.id === observation?.profile?.id); assert(p, 'Foreign profile'); assert(!seen.has(p.id), 'Duplicate profile evidence'); seen.add(p.id);
+    const p = plans.find(p => observation?.profile && key(p) === key(observation.profile)); assert(p, 'Foreign profile'); assert(!seen.has(key(p)), 'Duplicate profile evidence'); seen.add(key(p));
     for (const key of Object.keys(expected)) assert.deepEqual(observation.provenance[key], expected[key], 'Foreign or stale campaign evidence: '+key);
     assert(!sessions.has(observation.provenance.sessionId), 'Reused session evidence'); sessions.add(observation.provenance.sessionId);
-    assert.deepEqual(observation, observe(raw, p, observation.provenance,worktreeEvidence), 'Altered result, coverage, profile or raw evidence');
+    assert.deepEqual(observation, (functional?observeFunctional:observe)(raw, p, observation.provenance,worktreeEvidence), 'Altered result, coverage, profile or raw evidence');
     results.push(observation);
   }
   const bound = new Set();
   for (const receipt of authenticatedBindings) {
     exactKeys(receipt, ['profileId','observationSha256','rawSha256'], 'Closed external authentication binding required');
-    const item = results.find(r => r.profile.id === receipt.profileId); assert(item && !bound.has(receipt.profileId), 'Foreign or duplicate authentication binding');
+    const item = results.find(r => key(r.profile) === receipt.profileId); assert(item && !bound.has(receipt.profileId), 'Foreign or duplicate authentication binding');
     assert.equal(receipt.observationSha256, hash(item)); assert.equal(receipt.rawSha256, item.rawSha256); bound.add(receipt.profileId);
   }
   const recognition = expected.source.type === 'worktree' ? {status:'blocked',reason:'uncommitted worktree: local regression only; no merge/release recognition'} :
     expected.kind !== 'live-session' ? {status:'blocked', reason:expected.kind+' is not fresh browser qualification'} :
     bound.size !== plans.length ? {status:'blocked', reason:'independent authenticated bindings missing'} :
       {status:'not-evaluated', reason:'profile support and governance decision still required'};
-  return {format:'xtend.browser-neutral.review.v2', evidenceKind:expected.kind, claimBoundary:'observation of explicitly planned profiles; not a support matrix',
-    status:combine(results), profiles:results.map(r => ({id:r.profile.id, status:r.status, coverage:r.coverage})),
+  return {format:functional?'xtend.browser-functional.review.v1':'xtend.browser-neutral.review.v2',
+    ...(functional?{purpose:'ci-functional-only',sandboxEnabled:false,sandboxEvidence:'not-provided',acceptedForSecurity:false}:{} ), evidenceKind:expected.kind, claimBoundary:'observation of explicitly planned profiles; not a support matrix',
+    status:combine(results), profiles:results.map(r => ({id:key(r.profile), node:r.profile.node,status:r.status, coverage:r.coverage})),
     recognition, acceptedForMerge:false, acceptedForRelease:false};
 }
-module.exports = {format, hash, profile, functionalProfile, provenance, sourceIdentity, normalizePlatform, contractDigest, observe, observeFunctional, aggregate, nativeRequired, securityLabel};
+function aggregate(campaign){return aggregateWithPurpose(campaign);}
+function aggregateFunctional(campaign){return aggregateWithPurpose(campaign,true);}
+module.exports = {format, hash, profile, functionalProfile, provenance, sourceIdentity, normalizePlatform, contractDigest, observe, observeFunctional, aggregate, aggregateFunctional, nativeRequired, securityLabel};

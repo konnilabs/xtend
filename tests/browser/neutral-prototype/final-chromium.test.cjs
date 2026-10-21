@@ -38,13 +38,14 @@ test('both driver invocations use the credential-free environment',()=>{
  assert.match(source,/execFileSync\(driver,\['--version'\],\{encoding:'utf8',timeout:5000,env:executionProfiles.childEnvironment\(tmp\)\}/);
  assert.match(source,/spawnOwned\(driver,[^\n]+env:executionProfiles.childEnvironment\(tmp\)/);
 });
-test('functional workflow explicitly opts in to one Node24 job without dispatch/retry',()=>{
+test('functional workflow explicitly opts in to both pinned Node jobs without dispatch/retry',()=>{
  const source=fs.readFileSync(path.resolve(__dirname,'../../../.github/workflows/xtend-firefox-qualification.yml'),'utf8');
- assert.match(source,/node: \['24\.18\.0'\]/);assert(!source.includes('26.5.0'));assert(!source.includes('campaign.cjs run'));
+ assert.match(source,/node: '24\.18\.0'/);assert.match(source,/node: '26\.5\.0'/);assert(!source.includes('campaign.cjs run'));
  assert.equal((source.match(/final-chromium\.cjs "\$QUAL_EVIDENCE"/g)||[]).length,1);
  assert(!/workflow_dispatch:|continue-on-error:|--no-sandbox|sudo |apt-get|sysctl|apparmor/.test(source));
  assert.match(source,/XTEND_CI_FUNCTIONAL_PROFILE: chromium-linux-ci-functions-no-sandbox-v1/);
  assert.match(source,/final-chromium\.cjs "\$QUAL_EVIDENCE" "\$QUAL_TOOLCHAIN" "\$XTEND_CI_FUNCTIONAL_PROFILE"/);
  assert.match(source,/name: XTend isolated Chromium functions \(sandbox disabled\)/);
- assert.equal((source.match(/^  [a-z]+:\n    if:/gm)||[]).length,1);
+ assert.match(source,/aggregate:\n    needs: qualify/);
+ assert.match(source,/functional-matrix.cjs/);
 });
