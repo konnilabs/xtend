@@ -54,7 +54,7 @@ async function main() {
   if(ownership.status!==0||ownership.error)throw Error('Required paired 103-ID ownership gate failed');
   fs.copyFileSync(path.join(checkout,'.xtend-test-results/schema-ownership-103.json'),path.join(output,'schema-ownership-103.json'));
   const ownershipBinding={file:'schema-ownership-103.json',sha256:digest(fs.readFileSync(path.join(output,'schema-ownership-103.json')))};
-  require('../tools/schema-inventory/index.cjs').verifyOwnershipEvidence(ownershipBinding,{directory:output,coreSha:git(['rev-parse','HEAD']),demoSha,manifest,startedAt,now:Date.now()});
+  require('../tools/schema-inventory/index.cjs').verifyMigrationOwnershipEvidence(ownershipBinding,{directory:output,coreSha:git(['rev-parse','HEAD']),demoSha,manifest,startedAt,now:Date.now()});
 
   const run=spawnSync(process.execPath,['scripts/run-product-gates.cjs','--report',path.join(output,'demo-execution.json')],{cwd:checkout,encoding:'utf8',maxBuffer:32*1024*1024,timeout:1500000,env:{...process.env,REQUIRED_CI_ATTESTATION:'1',XTEND_CORE_SHA:manifest.coreSha,XTEND_DEMO_SHA:demoSha,XTEND_SCHEMA_AUDIT_CORE_ROOT:root}});
   fs.writeFileSync(path.join(output,'demo-gates.log'),`${run.stdout||''}\n${run.stderr||''}`);

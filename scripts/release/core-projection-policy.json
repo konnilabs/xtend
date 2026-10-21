@@ -1005,6 +1005,7 @@
     "development/core-release-authority-decision.json",
     "development/core-release-contracts.md",
     "development/core-unreleased-registration.md",
+    "development/current-pair-contract.md",
     "development/docs-evidence/components/xsurfacemanager.md",
     "development/docs-evidence/components/xsurfacewindow.md",
     "development/docs-evidence/legacy-routes/de/docs-rmt-production-hardening.md",
@@ -2254,6 +2255,7 @@
     "tests/migration/command-lexical-semantics.test.cjs",
     "tests/migration/contract-source-cleanup.test.cjs",
     "tests/migration/core-contract-compatibility.test.cjs",
+    "tests/migration/current-pair-contract.test.cjs",
     "tests/migration/electron-attestation-fixture.cjs",
     "tests/migration/electron-ci-attestation-wiring.test.cjs",
     "tests/migration/electron-downstream-evidence.test.cjs",
@@ -2925,6 +2927,8 @@
     "tools/schema-inventory/authority-sources/xtendrmt/rmt-event-routing-runtime.d.ts",
     "tools/schema-inventory/authority-sources/xtendrmt/rmt-form-validation-runtime.d.ts",
     "tools/schema-inventory/command-lexical-overlay.json",
+    "tools/schema-inventory/current-pair-contract.cjs",
+    "tools/schema-inventory/current-pair-decision.json",
     "tools/schema-inventory/engine.cjs",
     "tools/schema-inventory/expected-view.cjs",
     "tools/schema-inventory/form-validation-lexical-overlay.json",
@@ -3434,7 +3438,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "8a4e7e384c4d3fda57e630c43b027f0a65509b37c43229396da79a9c3c4630b2",
+  "authorityDecisionSha256": "bc789b1f9dd9f8c0e99ded4987e4c2f464d428f936567272b6536cd71872667a",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "f1956bfe2a69f16a4f4b6b88a1366be20de6294284c3e4e1abc3da015eda3587"
 }

@@ -56,7 +56,7 @@ function verifyReportFiles(reports,{directory,coreSha,demoSha,manifest,startedAt
  for(const report of reports) {
   if(report.file!=='reports/'+report.id+'.json'||!/^[a-z0-9-]+$/.test(report.id))throw Error('Invalid report path');
   const bytes=fs.readFileSync(path.join(directory,report.file));if(digest(bytes)!==report.sha256)throw Error('Report digest mismatch');
-  if(report.id==='schema-ownership-103'){require('../tools/schema-inventory/index.cjs').verifyOwnershipEvidence(report,{directory,coreSha,demoSha,manifest,startedAt,now});continue;}
+  if(report.id==='schema-ownership-103'){require('../tools/schema-inventory/index.cjs').verifyMigrationOwnershipEvidence(report,{directory,coreSha,demoSha,manifest,startedAt,now});continue;}
   const result=JSON.parse(bytes);if(result.schema!=='xtend.product-suite-result.v1'||result.id!==report.id||result.coreSha!==coreSha||result.demoSha!==demoSha||result.status!=='passed'||result.exitCode!==0||result.skips?.length||result.failures?.length)throw Error('Required report outcome/identity mismatch');
   if(report.id==='electron-actual-app-attestation')verifyActualAppFiles(result.attestation,{directory,coreSha,demoSha,startedAt,now});
  }

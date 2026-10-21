@@ -40,3 +40,11 @@ test('foreign pins, module shadows and source symlinks cannot load as the pinned
   const helper = path.join(f.coreRoot, 'tools/project-index/sources.js'); fs.renameSync(helper, helper + '.saved'); fs.symlinkSync(helper + '.saved', helper);
   assert.throws(() => f.loader.loadSourceAudit(f), /clean exact committed|symlink/);
 });
+test('current paired decision belongs to the committed private dependency closure', t => {
+  const f = setup(t, 2), relative = 'tools/schema-inventory/current-pair-decision.json';
+  assert.equal(typeof f.api.verifyCurrentPair, 'function');
+  assert.ok(f.loader.assertSourceCheckout(f).files.includes(relative));
+  f.git(['update-index', '--assume-unchanged', relative]);
+  fs.appendFileSync(path.join(f.coreRoot, relative), '\n');
+  assert.throws(() => f.loader.loadSourceAudit(f), /differs from committed/);
+});

@@ -45,6 +45,7 @@ function loadSourceAudit(options) {
   return Object.freeze({
     createScanner(parser) { assertSourceCheckout(options); return api.createScanner(parser); },
     verifyPair(args) { assertSourceCheckout(options); return api.verifySourcePair({ ...args, ...options }); },
+    verifyCurrentPair(args) { assertSourceCheckout(options); return api.verifyCurrentSourcePair({ ...args, ...options }); },
     importAuthorities(args) { assertSourceCheckout(options); return api.importSourceAuthorities({ ...args, ...options }); }
   });
 }
