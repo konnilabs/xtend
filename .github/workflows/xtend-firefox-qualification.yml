@@ -24,11 +24,12 @@ jobs:
       QUAL_NODE: ${{ matrix.node }}
       QUAL_REPLICA: ${{ matrix.replica }}
       QUAL_LANE: ${{ matrix.node == '24.18.0' && 'node-24-lts' || 'node-26-current' }}
-      QUAL_EVIDENCE: ${{ runner.temp }}/firefox-evidence
-      QUAL_TOOLCHAIN: ${{ runner.temp }}/firefox-toolchain
     steps:
       - name: Create evidence directory before setup
-        run: mkdir -p "$QUAL_EVIDENCE"
+        run: |
+          mkdir -p "$RUNNER_TEMP/firefox-evidence"
+          printf 'QUAL_EVIDENCE=%s\n' "$RUNNER_TEMP/firefox-evidence" >> "$GITHUB_ENV"
+          printf 'QUAL_TOOLCHAIN=%s\n' "$RUNNER_TEMP/firefox-toolchain" >> "$GITHUB_ENV"
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           ref: ${{ github.sha }}
