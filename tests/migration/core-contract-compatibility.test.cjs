@@ -71,3 +71,39 @@ test('historical v1 fixture contracts remain preserved and distinct from current
  assert.ok(old.includes(canary(1)));assert.ok(!old.includes(canary(2)));assert.ok(current.includes(canary(2)));assert.ok(!current.includes(canary(1)));
  assert.ok(old.includes(['xtend','release','artifact','v1'].join('.')));assert.ok(current.includes(['xtend','release','artifact','v2'].join('.')));
 });
+
+test('paired source pins explicitly distinguish historical and current private audit contracts',()=>{
+ const api=require('../../tools/schema-inventory/source-provider.cjs'),coreSha='a'.repeat(40),demoSha='b'.repeat(40);
+ const corePin={schema:['xtend','product-demo-pin','v1'].join('.'),repository:'https://github.com/konnilabs/xtend-demos.git',demoSha,implementationCoreSha:coreSha};
+ const legacy={schema:['xtend','demo-candidate-source','v1'].join('.'),repository:'https://github.com/konnilabs/xtend.git',coreSha,requiredApi:'public-product-support-and-candidate-integrity-v1'};
+ const current={...legacy,requiredApi:'public-product-support-candidate-v1-v2-and-private-current-pair-source-audit'};
+ assert.equal(api.verifyProductDemoPin(corePin),corePin);
+ assert.equal(api.verifyCandidateSourcePin(legacy,coreSha),legacy);
+ const paired={...corePin,ownershipContract:'current-pair-v1',sourceRefs:{core:'refs/tags/migration-source/core-c1-20261021-aaaaaaaa',demo:'refs/tags/migration-source/demo-d1-20261021-bbbbbbbb'}};
+ assert.equal(api.verifyProductDemoPin(paired),paired);
+ assert.equal(api.verifyCandidateSourcePin(current,paired.implementationCoreSha,paired.ownershipContract),current);
+ for(const [pin,mode] of [[current,undefined],[legacy,'current-pair-v1'],[current,'unknown']])assert.throws(()=>api.verifyCandidateSourcePin(pin,coreSha,mode));
+ for(const mutation of [{coreSha:'main'},{coreSha:'c'.repeat(40)},{repository:'https://example.invalid/other'},{requiredApi:'unreviewed-api'}])assert.throws(()=>api.verifyCandidateSourcePin({...current,...mutation},coreSha,'current-pair-v1'));
+ assert.throws(()=>api.verifyProductDemoPin({...paired,ownershipContract:'unknown'}));
+ assert.throws(()=>api.verifyProductDemoPin({...paired,demoSha:'main'}));
+ for(const owner of ['core','demo'])for(const ref of [undefined,'refs/heads/main','refs/tags/v0.9.0','refs/tags/migration-source/'+owner+'-c1-20261021-cccccccc'])assert.throws(()=>api.verifyProductDemoPin({...paired,sourceRefs:{...paired.sourceRefs,[owner]:ref}}));
+});
+
+test('Python producer and Node consumer agree on current, historical and invalid paired pins',()=>{
+ const api=require('../../tools/schema-inventory/source-provider.cjs'),pin=require('../../product-demos.lock.json');
+ const candidate={schema:['xtend','demo-candidate-source','v1'].join('.'),repository:'https://github.com/konnilabs/xtend.git',coreSha:pin.implementationCoreSha,requiredApi:'public-product-support-candidate-v1-v2-and-private-current-pair-source-audit'};
+ const legacy={schema:pin.schema,repository:pin.repository,demoSha:pin.demoSha,implementationCoreSha:pin.implementationCoreSha};
+ const rows=[[pin,candidate],[legacy,{...candidate,requiredApi:'public-product-support-and-candidate-integrity-v1'}],
+  [pin,{...candidate,requiredApi:'public-product-support-and-candidate-integrity-v1'}],[legacy,candidate],
+  [pin,{...candidate,coreSha:'0'.repeat(40)}],[{...pin,ownershipContract:'foreign'},candidate],
+  [{...pin,sourceRefs:{...pin.sourceRefs,core:'refs/heads/main'}},candidate],
+  [{...pin,sourceRefs:{...pin.sourceRefs,demo:'refs/tags/v0.9.0'}},candidate],
+  [{...pin,sourceRefs:{}},candidate],[{...pin,demoSha:'main'},candidate],
+  [{...pin,ownershipContract:null},candidate],
+  [{...pin,sourceRefs:{...pin.sourceRefs,core:[pin.sourceRefs.core]}},candidate]];
+ const node=rows.map(([p,d])=>{try{api.verifyProductDemoPin(p);api.verifyCandidateSourcePin(d,p.implementationCoreSha,p.ownershipContract);return true;}catch{return false;}});
+ assert.deepEqual(node,[true,true,false,false,false,false,false,false,false,false,false,false]);
+ const code="import sys,json,runpy\nverify=runpy.run_path(sys.argv[1])['verify_pin_records']\nresults=[]\nfor pin,demo in json.load(sys.stdin):\n try:\n  verify(pin,demo);results.append(True)\n except (ValueError,TypeError,KeyError):results.append(False)\nprint(json.dumps(results))\n";
+ const result=require('node:child_process').spawnSync('python3',['-c',code,path.join(root,'scripts/build-union-source-artifact.py')],{input:JSON.stringify(rows),encoding:'utf8',timeout:10000});
+ assert.equal(result.status,0,result.stderr);assert.deepEqual(JSON.parse(result.stdout),node);
+});

@@ -54,7 +54,7 @@ async function main() {
   if(ownership.status!==0||ownership.error)throw Error('Required paired 103-ID ownership gate failed');
   fs.copyFileSync(path.join(checkout,'.xtend-test-results/schema-ownership-103.json'),path.join(output,'schema-ownership-103.json'));
   const ownershipBinding={file:'schema-ownership-103.json',sha256:digest(fs.readFileSync(path.join(output,'schema-ownership-103.json')))};
-  require('../tools/schema-inventory/index.cjs').verifyMigrationOwnershipEvidence(ownershipBinding,{directory:output,coreSha:git(['rev-parse','HEAD']),demoSha,manifest,startedAt,now:Date.now()});
+  require('../tools/schema-inventory/index.cjs').verifyMigrationOwnershipEvidence(ownershipBinding,{directory:output,coreSha:git(['rev-parse','HEAD']),demoSha,manifest,startedAt,now:Date.now(),ownershipContract:pin.ownershipContract});
 
   const run=spawnSync(process.execPath,['scripts/run-product-gates.cjs','--report',path.join(output,'demo-execution.json')],{cwd:checkout,encoding:'utf8',maxBuffer:32*1024*1024,timeout:1500000,env:{...process.env,REQUIRED_CI_ATTESTATION:'1',XTEND_CORE_SHA:manifest.coreSha,XTEND_DEMO_SHA:demoSha,XTEND_SCHEMA_AUDIT_CORE_ROOT:root}});
   fs.writeFileSync(path.join(output,'demo-gates.log'),`${run.stdout||''}\n${run.stderr||''}`);
@@ -74,7 +74,7 @@ async function main() {
   execution.commands.push({id:'schema-ownership-103',status:'passed',exitCode:ownership.status,skips:[],failures:[]});
   fs.writeFileSync(path.join(output,'reports.json'),JSON.stringify(reports,null,2)+'\n');
   report={...report,installation:installation.results,reports,commands:execution.commands,generatedAt:new Date().toISOString(),status:run.status===0?'passed':'failed',ok:run.status===0&&!development};
-  if(report.ok){verifyReportFiles(reports,{directory:output,coreSha:manifest.coreSha,demoSha,manifest,startedAt});verifyInstallationFiles(installation.results,{directory:output,manifest});verifyEvidence(report,{coreSha:manifest.coreSha,demoSha,packages:manifest.packages,php:manifest.php,installation:installation.results,reports,startedAt});}
+  if(report.ok){verifyReportFiles(reports,{directory:output,coreSha:manifest.coreSha,demoSha,manifest,startedAt,ownershipContract:pin.ownershipContract});verifyInstallationFiles(installation.results,{directory:output,manifest});verifyEvidence(report,{coreSha:manifest.coreSha,demoSha,packages:manifest.packages,php:manifest.php,installation:installation.results,reports,startedAt});}
  }catch(error){report.ok=false;report.status='failed';report.error=error.message;}finally {
   const target=path.join(root,'.xtend-test-results/product-candidate.json');fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,JSON.stringify(report,null,2)+'\n');fs.rmSync(temporary,{recursive:true,force:true});
  }

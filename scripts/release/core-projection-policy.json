@@ -1,7 +1,7 @@
 {
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "25cae4659b2d5650e392868de10ebffec13979c60a0be7964bf6e3ec929236dc",
+  "inventorySha256": "939888b5efdb144fa174c6ef923aff730f8bb8d59f7e2ee56591670210af3962",
   "productivePaths": [
     ".codex",
     ".comments/XScaler ATC.png.xml",
@@ -3438,7 +3438,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "6f6ebe6a5535d3a9047199304d2c12ef5fa9f8f16346c85d427c053596c2ed44",
+  "authorityDecisionSha256": "7898d73886f77dd87c98a5647fa170bca6ca7fb068a172572e421971e03f4c31",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "f1956bfe2a69f16a4f4b6b88a1366be20de6294284c3e4e1abc3da015eda3587"
 }

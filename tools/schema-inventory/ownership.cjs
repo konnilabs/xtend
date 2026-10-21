@@ -143,6 +143,8 @@ function verifyOwnershipEvidence(binding,{directory,coreSha,demoSha,manifest,sta
 function verifyMigrationOwnershipEvidence(binding,options){
  if(!binding||!['schema-ownership-103.json','reports/schema-ownership-103.json'].includes(binding.file))throw Error('Missing required ownership evidence');
  const bytes=fs.readFileSync(path.join(options.directory,binding.file));if(sha(bytes)!==binding.sha256)throw Error('Ownership evidence digest mismatch');
- return verifyOwnershipEvidence(binding,options,JSON.parse(bytes).currentPair!==undefined);
+ const current=JSON.parse(bytes).currentPair!==undefined;
+ if(options.ownershipContract!==undefined&&(options.ownershipContract!=='current-pair-v1'||!current))throw Error('Pinned current ownership contract requires current paired evidence');
+ return verifyOwnershipEvidence(binding,options,current);
 }
 module.exports={verifyMigrationOwnershipEvidence,verifyCurrentSourcePair:options=>verifyPair({...options,sourceAudit:true},true),verifyCurrentUnion:(a,b)=>verifyUnion(a,b,true),verifyCurrentOwnershipEvidence:(binding,options)=>verifyOwnershipEvidence(binding,options,true),importSourceAuthorities:options=>importAuthorities({...options,sourceAudit:true}),verifySourcePair:options=>verifyPair({...options,sourceAudit:true}),importAuthorities,verifyPair:options=>verifyPair(options),validateOwner:(a,b,c)=>validateOwner(a,b,c),verifyUnion:(a,b)=>verifyUnion(a,b),assertSelection,verifyOwnershipEvidence:(a,b)=>verifyOwnershipEvidence(a,b),normalizeUsages,verifySelectedGovernance};

@@ -476189,17 +476189,19 @@
       "schemaId": "xtend.product-demo-pin.v1",
       "shapeFingerprints": [
         {
-          "hash": "sha256:191622664b053376c9817b87fa935a763594e950bf1b7451c33484fdd8378efd",
+          "hash": "sha256:73e0d3b45ef62b7cc298b08d3e1a3982d1069515160df3c70e66e1f6f662da2b",
           "shape": {
-            "fieldCount": 5,
+            "fieldCount": 7,
             "fields": [
               "demoSha",
               "implementationCoreSha",
               "mergeBlocked",
+              "ownershipContract",
               "repository",
+              "sourceRefs",
               "status"
             ],
-            "signature": "demoSha:string|implementationCoreSha:string|mergeBlocked:boolean|repository:string|status:string",
+            "signature": "demoSha:string|implementationCoreSha:string|mergeBlocked:boolean|ownershipContract:string|repository:string|sourceRefs:{core:string,demo:string}|status:string",
             "normalized": {
               "fields": {
                 "demoSha": {
@@ -476214,9 +476216,28 @@
                   "optional": false,
                   "type": "boolean"
                 },
+                "ownershipContract": {
+                  "optional": false,
+                  "type": "string"
+                },
                 "repository": {
                   "optional": false,
                   "type": "string"
+                },
+                "sourceRefs": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "core": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "demo": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
                 },
                 "status": {
                   "optional": false,
@@ -476249,7 +476270,7 @@
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
-          "sha256:191622664b053376c9817b87fa935a763594e950bf1b7451c33484fdd8378efd"
+          "sha256:73e0d3b45ef62b7cc298b08d3e1a3982d1069515160df3c70e66e1f6f662da2b"
         ],
         "authoritativeFingerprints": [],
         "mode": "single",

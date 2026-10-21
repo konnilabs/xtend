@@ -32,10 +32,21 @@ function verifyProductDemoPin(pin, expectedDemoSha = pin?.demoSha) {
   check(pin?.schema === 'xtend.product-demo-pin.v1' && pin.repository === 'https://github.com/konnilabs/xtend-demos.git'
     && typeof pin.demoSha === 'string' && /^[a-f0-9]{40}$/.test(pin.demoSha) && pin.demoSha === expectedDemoSha
     && typeof pin.implementationCoreSha === 'string' && /^[a-f0-9]{40}$/.test(pin.implementationCoreSha), 'Current Core Demo pin mismatch');
+  check(pin.ownershipContract === undefined || pin.ownershipContract === 'current-pair-v1', 'Unknown paired ownership contract');
+  if (pin.ownershipContract === 'current-pair-v1') {
+    // Structural binding only. Remote tag existence/retention is independently
+    // verified before acceptance; a tag-looking string is not reachability proof.
+    for (const [owner,stage,sha] of [['core','c1',pin.implementationCoreSha],['demo','d1',pin.demoSha]])
+      check(typeof pin.sourceRefs?.[owner] === 'string' && new RegExp('^refs/tags/migration-source/'+owner+'-'+stage+'-[0-9]{8}-'+sha.slice(0,8)+'$').test(pin.sourceRefs[owner]), 'Exact named migration source ref required');
+  }
   return pin;
 }
-function verifyCandidateSourcePin(pin, implementationCoreSha = pin?.coreSha) {
-  check(pin?.schema === 'xtend.demo-candidate-source.v1' && pin.requiredApi === 'public-product-support-and-candidate-integrity-v1'
+function verifyCandidateSourcePin(pin, implementationCoreSha = pin?.coreSha, ownershipContract) {
+  check(ownershipContract === undefined || ownershipContract === 'current-pair-v1', 'Unknown paired ownership contract');
+  const requiredApi = ownershipContract === 'current-pair-v1'
+    ? 'public-product-support-candidate-v1-v2-and-private-current-pair-source-audit'
+    : 'public-product-support-and-candidate-integrity-v1';
+  check(pin?.schema === 'xtend.demo-candidate-source.v1' && pin.requiredApi === requiredApi
     && pin.repository === 'https://github.com/konnilabs/xtend.git' && typeof pin.coreSha === 'string'
     && /^[a-f0-9]{40}$/.test(pin.coreSha) && pin.coreSha === implementationCoreSha, 'Paired implementation pin mismatch');
   return pin;
@@ -172,7 +183,7 @@ function createSourceProvider({ archive, destination, expected }) {
   const pin = JSON.parse(members.get('current/core/product-demos.lock.json')?.bytes || '{}');
   verifyProductDemoPin(pin, expected.demoSha);
   const demoPin = JSON.parse(members.get('current/demo/candidate-source.lock.json')?.bytes || '{}');
-  verifyCandidateSourcePin(demoPin, pin.implementationCoreSha);
+  verifyCandidateSourcePin(demoPin, pin.implementationCoreSha, pin.ownershipContract);
   const allowed = new Set(['manifest.json', ...materialized.map(row => row.memberPath), ...evidence.map(row => row.memberPath)]);
   check(members.size === allowed.size && [...members.keys()].every(name => allowed.has(name)), 'Unexpected artifact member');
   assertDestinationAncestors(destination);

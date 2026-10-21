@@ -175,11 +175,11 @@ test('stored raw App and ownership receipts stay valid at original sealedAt afte
   const integrity = f.integrity(), result = await f.seal(); assert.equal(result.manifestIntegrity, integrity);
   assert.deepEqual(snapshot(f.directory), before);
 });
-test('public ownership verification and actual App verification consume the same explicit old verification time', async t => {
+test('migration ownership verification and actual App verification consume the same explicit old verification time', async t => {
   const f = await productionFixture(t, { old: true }), api = require('../../tools/schema-inventory/index.cjs');
-  const original = api.verifyOwnershipEvidence, now = Date.parse(f.evidence.generatedAt) + 1000; let observed;
-  api.verifyOwnershipEvidence = (binding, options) => { observed = options.now; return original(binding, options); };
-  t.after(() => { api.verifyOwnershipEvidence = original; });
+  const original = api.verifyMigrationOwnershipEvidence, now = Date.parse(f.evidence.generatedAt) + 1000; let observed;
+  api.verifyMigrationOwnershipEvidence = (binding, options) => { observed = options.now; return original(binding, options); };
+  t.after(() => { api.verifyMigrationOwnershipEvidence = original; });
   assert.equal(product.verifyReportFiles(f.evidence.reports, { directory: f.directory, coreSha: f.f.sourceSha,
     demoSha: f.demoSha, manifest: f.manifest, now }), true);
   assert.equal(observed, now);

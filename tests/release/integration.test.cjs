@@ -177,12 +177,12 @@ test('full product evidence is validated against the supplied artifact directory
  assert.equal(verify({directory,file,sourceSha:f.sourceSha,demoSha}).ok,true);
  fs.appendFileSync(path.join(directory,reports[0].file),'tampered');assert.throws(()=>verify({directory,file,sourceSha:f.sourceSha,demoSha}));
 });
-test('ownership103 validation calls the public wrapper with the explicit verification time',async t=>{
+test('ownership103 validation calls the explicit migration wrapper with the explicit verification time',async t=>{
  const {f,directory,demoSha,evidence,manifest}=await productFixture(t);
- const api=require('../../tools/schema-inventory/index.cjs'),original=api.verifyOwnershipEvidence;
+ const api=require('../../tools/schema-inventory/index.cjs'),original=api.verifyMigrationOwnershipEvidence;
  const now=Date.now();let observed;
- api.verifyOwnershipEvidence=(binding,options)=>{observed=options;return original(binding,options);};
- t.after(()=>{api.verifyOwnershipEvidence=original;});
+ api.verifyMigrationOwnershipEvidence=(binding,options)=>{observed=options;return original(binding,options);};
+ t.after(()=>{api.verifyMigrationOwnershipEvidence=original;});
  require('../../scripts/product-candidate-evidence.cjs').verifyReportFiles(evidence.reports,
   {directory,coreSha:f.sourceSha,demoSha,manifest,now});
  assert.equal(observed.now,now);

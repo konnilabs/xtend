@@ -51,6 +51,10 @@ function report(){
 test('current evidence is explicit, digest-bound and cannot impersonate historical proof',t=>{
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'current-evidence-'));t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));const {manifest,value}=report(),bytes=JSON.stringify(value),binding={file:'schema-ownership-103.json',sha256:sha(bytes)},options={directory,coreSha:value.coreSha,demoSha:value.demoSha,manifest};fs.writeFileSync(path.join(directory,binding.file),bytes);
  assert.equal(api.verifyCurrentOwnershipEvidence(binding,options),true);assert.equal(api.verifyMigrationOwnershipEvidence(binding,options),true);assert.throws(()=>api.verifyOwnershipEvidence(binding,options),/historical conservation/);
+ assert.equal(api.verifyMigrationOwnershipEvidence(binding,{...options,ownershipContract:'current-pair-v1'}),true);
+ assert.throws(()=>api.verifyMigrationOwnershipEvidence(binding,{...options,ownershipContract:'foreign'}),/Pinned current ownership/);
+ const historical=structuredClone(value);delete historical.currentPair;const oldBytes=JSON.stringify(historical);fs.writeFileSync(path.join(directory,binding.file),oldBytes);
+ assert.throws(()=>api.verifyMigrationOwnershipEvidence({...binding,sha256:sha(oldBytes)},{...options,ownershipContract:'current-pair-v1'}),/Pinned current ownership/);
 });
 for(const kind of ['core-pin','demo-pin','candidate','digest','decision','approval','history','missing','duplicate','authority','owner','merge','release','disposition','stale','mode-confusion'])test('current evidence rejects '+kind,t=>{
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'current-evidence-'));t.after(()=>fs.rmSync(directory,{recursive:true,force:true}));const {manifest,value}=report(),options={directory,coreSha:value.coreSha,demoSha:value.demoSha,manifest};

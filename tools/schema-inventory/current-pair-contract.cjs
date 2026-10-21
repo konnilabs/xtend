@@ -5,7 +5,7 @@ const decision = require('./current-pair-decision.json');
 const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const stable = x => Array.isArray(x) ? x.map(stable) : x && typeof x === 'object' ? Object.fromEntries(Object.keys(x).sort().map(k => [k, stable(x[k])])) : x;
 const equal = (a, b) => JSON.stringify(stable(a)) === JSON.stringify(stable(b));
-const decisionDigest = 'b1607f50dcd0ff2eca4caa658171dc9d82b11b04305285650ebc20828f073339';
+const decisionDigest = 'e6cd078b87a27d2126d9aaea3b1cf569267c56ed222114af9257f0d6ee6e9706';
 function assertDecision() {
   const bytes = fs.readFileSync(path.join(__dirname, 'current-pair-decision.json'));
   if (digest(bytes) !== decisionDigest || !equal(JSON.parse(bytes), decision)) throw Error('Current pair decision substituted');

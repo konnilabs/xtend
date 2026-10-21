@@ -5,7 +5,15 @@ def verify_pin_records(pin,demo_pin=None):
     import re
     if not isinstance(pin,dict) or pin.get('schema')!='xtend.product-demo-pin.v1' or pin.get('repository')!='https://github.com/konnilabs/xtend-demos.git' or not all(isinstance(pin.get(k),str) and re.fullmatch('[a-f0-9]{40}',pin[k]) for k in ('demoSha','implementationCoreSha')):
         raise ValueError('Wrong Core Demo pin schema/source')
-    if demo_pin is not None and (not isinstance(demo_pin,dict) or demo_pin.get('schema')!='xtend.demo-candidate-source.v1' or demo_pin.get('requiredApi')!='public-product-support-and-candidate-integrity-v1' or demo_pin.get('repository')!='https://github.com/konnilabs/xtend.git' or demo_pin.get('coreSha')!=pin['implementationCoreSha']):
+    mode=pin.get('ownershipContract')
+    if 'ownershipContract' in pin and mode!='current-pair-v1': raise ValueError('Unknown paired ownership contract')
+    if mode=='current-pair-v1':
+        refs=pin.get('sourceRefs',{})
+        for owner,stage,sha in [('core','c1',pin['implementationCoreSha']),('demo','d1',pin['demoSha'])]:
+            if not isinstance(refs,dict) or not isinstance(refs.get(owner),str) or not re.fullmatch('refs/tags/migration-source/'+owner+'-'+stage+'-[0-9]{8}-'+sha[:8],refs[owner]):
+                raise ValueError('Exact named migration source ref required')
+    required_api='public-product-support-candidate-v1-v2-and-private-current-pair-source-audit' if mode=='current-pair-v1' else 'public-product-support-and-candidate-integrity-v1'
+    if demo_pin is not None and (not isinstance(demo_pin,dict) or demo_pin.get('schema')!='xtend.demo-candidate-source.v1' or demo_pin.get('requiredApi')!=required_api or demo_pin.get('repository')!='https://github.com/konnilabs/xtend.git' or demo_pin.get('coreSha')!=pin['implementationCoreSha']):
         raise ValueError('Wrong paired Candidate source schema/API/identity')
 def git(root,*args): return subprocess.check_output(['git','-C',str(root),*args])
 def repository(root,sha,all_bytes=True):

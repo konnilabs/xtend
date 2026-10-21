@@ -52,11 +52,11 @@ function copyActualAppFiles(reports,{directory,destination,coreSha,demoSha,start
  verifyActualAppFiles(binding,{directory:targetRoot,coreSha,demoSha,startedAt,now});
  return true;
 }
-function verifyReportFiles(reports,{directory,coreSha,demoSha,manifest,startedAt,now=Date.now()}={}) {
+function verifyReportFiles(reports,{directory,coreSha,demoSha,manifest,startedAt,now=Date.now(),ownershipContract}={}) {
  for(const report of reports) {
   if(report.file!=='reports/'+report.id+'.json'||!/^[a-z0-9-]+$/.test(report.id))throw Error('Invalid report path');
   const bytes=fs.readFileSync(path.join(directory,report.file));if(digest(bytes)!==report.sha256)throw Error('Report digest mismatch');
-  if(report.id==='schema-ownership-103'){require('../tools/schema-inventory/index.cjs').verifyMigrationOwnershipEvidence(report,{directory,coreSha,demoSha,manifest,startedAt,now});continue;}
+  if(report.id==='schema-ownership-103'){require('../tools/schema-inventory/index.cjs').verifyMigrationOwnershipEvidence(report,{directory,coreSha,demoSha,manifest,startedAt,now,ownershipContract});continue;}
   const result=JSON.parse(bytes);if(result.schema!=='xtend.product-suite-result.v1'||result.id!==report.id||result.coreSha!==coreSha||result.demoSha!==demoSha||result.status!=='passed'||result.exitCode!==0||result.skips?.length||result.failures?.length)throw Error('Required report outcome/identity mismatch');
   if(report.id==='electron-actual-app-attestation')verifyActualAppFiles(result.attestation,{directory,coreSha,demoSha,startedAt,now});
  }
@@ -88,7 +88,7 @@ if(require.main===module) {
   const evidence=JSON.parse(fs.readFileSync(process.argv[2]||path.join(root,'.xtend-test-results/product-candidate.json')));
   const manifest=JSON.parse(fs.readFileSync(path.join(directory,'manifest.json'))),installation=verifyInstallationEnvelope(JSON.parse(fs.readFileSync(path.join(directory,'installation.json'))),{coreSha,demoSha:pin.demoSha}),reports=JSON.parse(fs.readFileSync(path.join(directory,'reports.json')));
   verifyCandidates(manifest,{coreSha,demoSha:pin.demoSha,directory});
-  verifyReportFiles(reports,{directory,coreSha,demoSha:pin.demoSha,manifest});
+  verifyReportFiles(reports,{directory,coreSha,demoSha:pin.demoSha,manifest,ownershipContract:pin.ownershipContract});
   verifyInstallationFiles(installation,{directory,manifest});
   verifyEvidence(evidence,{coreSha,demoSha:pin.demoSha,packages:manifest.packages,php:manifest.php,installation,reports});
   console.log(JSON.stringify({schema:'xtend.product-candidate-verification.v1',ok:true,coreSha,demoSha:pin.demoSha,manifestSha256:digest(fs.readFileSync(path.join(directory,'manifest.json'))),evidenceSha256:digest(fs.readFileSync(process.argv[2]||path.join(root,'.xtend-test-results/product-candidate.json')))}));

@@ -13,7 +13,9 @@ test('whole verification CLI binds its actual validated inputs and rejects chang
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-verification-contract-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));fs.mkdirSync(path.join(dir,'scripts'));
  for(const file of ['candidate-integrity.cjs','scripts/product-candidate-evidence.cjs'])fs.copyFileSync(path.join(root,file),path.join(dir,file));
  fs.mkdirSync(path.join(dir,'tools'),{recursive:true});fs.cpSync(path.join(root,'tools/schema-inventory'),path.join(dir,'tools/schema-inventory'),{recursive:true});
- const demoSha='2'.repeat(40);fs.writeFileSync(path.join(dir,'product-demos.lock.json'),JSON.stringify({...require('../../product-demos.lock.json'),demoSha}));
+ const demoSha='2'.repeat(40),sourcePin=require('../../product-demos.lock.json');
+ // This CLI regression deliberately exercises historical model evidence, not the current paired audit.
+ fs.writeFileSync(path.join(dir,'product-demos.lock.json'),JSON.stringify({schema:sourcePin.schema,repository:sourcePin.repository,implementationCoreSha:sourcePin.implementationCoreSha,demoSha}));
  const git=args=>execFileSync('git',args,{cwd:dir,encoding:'utf8'}).trim();git(['init','-q']);git(['add','.']);git(['-c','user.name=Fixture','-c','user.email=fixture@example.test','commit','-qm','verification fixture']);const coreSha=git(['rev-parse','HEAD']);
  const output=path.join(dir,'.xtend-test-results/product-candidates');fs.mkdirSync(path.join(output,'locks'),{recursive:true});const appFixture=require('./electron-attestation-fixture.cjs').fixture(output);
  Object.assign(appFixture.app,{coreSha,demoSha});Object.assign(appFixture.consumer,{coreSha,demoSha});Object.assign(appFixture.suite.attestation,{coreSha,demoSha});
