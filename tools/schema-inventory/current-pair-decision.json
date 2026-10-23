@@ -3,7 +3,7 @@
   "mode": "current-pair-v1",
   "historicalLedgerSha256": "40a4e1d38dbf9e64a724d69178803768e6bff22c90c8260f5644916c24e127c8",
   "coreInventoryFile": "tests/schemas/core-release-inventory.json",
-  "coreInventorySha256": "80a08bfe7e2e4f948ad2a499e1481b122711baf829ba38086945c3d8c4263d7a",
+  "coreInventorySha256": "3dd3c50e1d11adc35eecdf0a6b9364e8be9240187ae284938a6957e7c63e66d7",
   "approval": {
     "sourceDecision": "user-approved-2026-10-18-group-D",
     "sourceCommit": "610499fc2c9f8ee5242837a2951e12b73794d698",

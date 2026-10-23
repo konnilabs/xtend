@@ -426050,6 +426050,7 @@
           "visibility": "internal",
           "sourcePaths": [
             "scripts/build-core-source-artifact.py",
+            "scripts/demo-functional-ci.cjs",
             "scripts/release/core-source.cjs",
             "scripts/release/profile.cjs"
           ],
