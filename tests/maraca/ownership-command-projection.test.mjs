@@ -23,7 +23,7 @@ const normalizeReport = vm.runInNewContext(normalizeSource + '\nnormalizeRendere
   hasOwn: (value, key) => Object.hasOwn(value, key),
   clone: (value, fallback) => value === undefined ? fallback : structuredClone(value),
   viewChildNodes: target => [...target.childNodes],
-  DOM_COMMIT_SCHEMA: 'xtend.rmt.dom-commit-result.v1'
+  DOM_COMMIT_SCHEMA: vm.runInNewContext(source.slice(source.indexOf('const PLAN_RUNTIME_SCHEMA'), source.indexOf('const VISIBILITY_ATTRIBUTES')) + '\nDOM_COMMIT_SCHEMA')
 });
 test('controller normalization preserves exact binding targets and routes native commands through state reconciliation', async () => {
   const {dom,root,renderer}=setup(); const calls=[];
