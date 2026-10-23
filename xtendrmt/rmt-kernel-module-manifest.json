@@ -118,13 +118,13 @@
   "domCommitSource": {
     "renderer": {
       "path": "xtendrmt/rmt-dom-descriptor-renderer.js",
-      "sha256": "6478ceeb7a2acc5da4d91968849b3432fd8b8b152a3a8f19a328f323c7a5dc41",
-      "byteCount": 151924
+      "sha256": "c0cb9d1f20daeac738b959bb09a3a7f6cf4249af03733010be31ce06da68b1b6",
+      "byteCount": 155130
     },
     "types": {
       "path": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
-      "sha256": "f11e907373e71540d073e703d262ccfa95f10963cd0b9ba89347850ea8b233d2",
-      "byteCount": 11483
+      "sha256": "15aa77f2aff013c057e4dea1f118a325765a6e41a074c2be9a8fa8f958bef05b",
+      "byteCount": 11840
     },
     "modulePath": "modules/rmt-dom-descriptor-renderer.js",
     "factory": "createRmtDomDescriptorRenderer",
@@ -1191,9 +1191,9 @@
       "path": "xtendrmt/rmt-runtime.esm.js",
       "kind": "esm",
       "exists": true,
-      "byteCount": 1489586,
-      "lineCount": 31754,
-      "sha256": "00114d465822f3f15943e44bb63d530bdac3fcf0f5db7e7fcf77bf5a3679e742",
+      "byteCount": 1493000,
+      "lineCount": 31808,
+      "sha256": "ff6d52333e68f15a6775239b480cfa7d08af9bb379b2b4bbfd8624f5f62c0ad2",
       "moduleCount": 41,
       "publicExports": [
         "createRmtBrowserHostAdapter",
@@ -1245,9 +1245,9 @@
       "path": "xtendrmt/rmt-runtime.browser.js",
       "kind": "browser",
       "exists": true,
-      "byteCount": 1485734,
-      "lineCount": 31715,
-      "sha256": "4078457cc503325d23fb14f06cb6b1bea4fac4a6ffee05821f6c2e9594aa0554",
+      "byteCount": 1489148,
+      "lineCount": 31769,
+      "sha256": "6d2310b01ab3b5a84ccdb55442520b39562637641704bef22d7285781688ebaa",
       "moduleCount": 41,
       "publicExports": [],
       "legacyAliases": [],

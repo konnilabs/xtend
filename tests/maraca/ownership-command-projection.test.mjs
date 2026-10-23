@@ -89,3 +89,78 @@ test('controller recipe boundary retains disabled behavior, nested targets, diag
   const model=createRmtStateSelectorRuntime({states:[{id:'fixture.menu',type:'object',initial:menu()}]});
   assert.throws(()=>model.modelCommandPort.apply([{operation:'set',state:'fixture.menu',value:null}]),/Typ object/);
 });
+const {createRmtAppPresentationViewPort,RMT_APP_PRESENTATION_MODEL_SCHEMA} = await import('../../xtendrmt/rmt-app-view-projector.js');
+const {createRmtSurfaceTransitionRuntime} = await import('../../xtendrmt/rmt-surface-transition-runtime.js');
+const visibilitySource=source.slice(source.indexOf('  async function syncDescriptorVisibility('),source.indexOf('\n  async function syncOwnedVisibility('));
+function visibilityOwner(root,transition,phase='ready') {
+  return vm.runInNewContext(visibilitySource+'\nsyncDescriptorVisibility',{
+    root,phase,hasOwn:(value,key)=>Object.hasOwn(value,key),reservedOwners:{visibility:true},runtimes:{transitions:transition},
+    presentationBoundary:{capture:()=>1,isCurrent:token=>token===1}
+  });
+}
+function choiceFixture() {
+  const {dom,root,renderer}=setup();
+  const template={type:'choice-menu',source:'$model.menu',buttonId:'trigger',optionsId:'options'};
+  const descriptor=createRmtAppPresentationViewPort().project({schema:RMT_APP_PRESENTATION_MODEL_SCHEMA,template,model:{}});
+  const transition=createRmtSurfaceTransitionRuntime({strict:true,domRenderer:renderer,transitionPlan:{transitions:[]},windowTarget:dom.window});
+  const sync=visibilityOwner(root,transition);
+  const commit=(open,previous,replace=false)=>renderer.commit({operation:replace?'replace-children':'reconcile-children',target:root,...(replace?{descriptor}:{descriptors:[descriptor]}),ownership,context:{model:{menu:{...menu(),open}},previousContext:{model:{menu:{...menu(),open:previous}}}}});
+  return {dom,root,renderer,descriptor,transition,sync,commit};
+}
+test('choice menu visibility is projected only by its existing Transition owner through normalized commits',async()=>{
+  const f=choiceFixture();
+  try {
+    const initial=f.commit(false,false,true),target=f.root.querySelector('#options');
+    assert.equal(target.hidden,false,'renderer has not written a reserved domain');
+    assert.equal(initial.visibilityBindings.length,1);assert.equal(initial.visibilityBindings[0].target,target);
+    await f.sync(normalizeReport(initial,{operation:'replace-children',target:f.root}));assert.equal(target.hidden,true);
+    const open=f.commit(true,false);assert.equal(target.hidden,true);assert.equal(open.visibilityBindings[0].previousHidden,true);assert.equal(open.visibilityBindings[0].nextHidden,false);
+    await f.sync(normalizeReport(open,{operation:'reconcile-children',target:f.root}));assert.equal(target.hidden,false);
+    await f.sync(normalizeReport(f.commit(false,true),{operation:'reconcile-children',target:f.root}));assert.equal(target.hidden,true);
+    assert.equal(f.transition.snapshot().fallbackCount,0);
+  } finally {f.transition.dispose();f.renderer.dispose();f.dom.window.close();}
+});
+test('owned visibility rejects missing Model predecessor, invalid declarations and competing direct writes',()=>{
+  for(const descriptor of [{type:'element',tag:'div',visibility:{hidden:true}},{type:'element',tag:'div',visibility:{hidden:'invalid'}}]) {
+    const {dom,root,renderer}=setup();assert.throws(()=>renderer.commit({operation:'replace-children',target:root,descriptor,ownership}),e=>e.code.startsWith('rmt.dom.visibility.'));dom.window.close();
+  }
+  const {dom,root,renderer}=setup();
+  assert.throws(()=>renderer.commit({operation:'replace-children',target:root,descriptor:{type:'element',tag:'div',attributes:{hidden:true}},ownership}),e=>e.code==='rmt.dom.ownership.collision');
+  const report=renderer.commit({operation:'replace-children',target:root,descriptor:{type:'element',tag:'div',visibility:{hidden:true}},ownership:{mode:'strict',domains:{visibility:'descriptor-renderer'}}});
+  assert.equal(root.firstChild.hidden,true);assert.equal(report.visibilityBindings.length,0);dom.window.close();
+});
+test('visibility handoff rejects foreign targets, duplicate identities, missing fields and disposed presentation',async()=>{
+  const f=choiceFixture();
+  try {
+    const raw=f.commit(false,false,true),binding=raw.visibilityBindings[0],target=binding.target;
+    for(const bindings of [null,[binding,binding],[{...binding,target:f.dom.window.document.createElement('aside')}],[{...binding,previousHidden:undefined}],[{...binding,nextHidden:'true'}]]) {
+      await assert.rejects(f.sync({...raw,visibilityBindings:bindings}),/visibility evidence/);
+      assert.equal(target.hidden,false);
+    }
+    await visibilityOwner(f.root,f.transition,'disposed')(raw);assert.equal(target.hidden,false);
+    await f.sync(raw);assert.equal(target.hidden,true);
+  } finally {f.transition.dispose();f.renderer.dispose();f.dom.window.close();}
+});
+test('nested declared hidden intent survives owner projection without overriding surface visibility or validation',()=>{
+  const original={type:'element',tag:'section',surface:'fixture.surface',attributes:{hidden:'$model.shell.hidden'},children:[{type:'element',tag:'div',attributes:{hidden:'$model.nested.hidden','aria-invalid':true}}]};
+  const result=project(original,{visibility:true,validation:true});
+  assert.equal(Object.hasOwn(result.attributes,'hidden'),false);assert.equal(result.visibility,undefined);
+  assert.equal(result.children[0].visibility.hidden,'$model.nested.hidden');assert.equal(Object.hasOwn(result.children[0].attributes,'hidden'),false);assert.equal(Object.hasOwn(result.children[0].attributes,'aria-invalid'),false);
+  assert.equal(original.children[0].attributes.hidden,'$model.nested.hidden');
+});
+
+test('visibility preflight rejects unpaired repeated items before any DOM mutation',()=>{
+  const {dom,root,renderer}=setup();root.innerHTML='<strong>retained</strong>';
+  const descriptor={type:'element',tag:'section',children:[{type:'element',tag:'div',visibility:{hidden:'$item.hidden'}}]};
+  assert.throws(()=>renderer.commit({operation:'replace-children',target:root,descriptor,ownership,context:{item:{hidden:true},previousContext:{model:{}}}}),e=>e.code.startsWith('rmt.dom.visibility.'));
+  assert.equal(root.innerHTML,'<strong>retained</strong>');renderer.dispose();dom.window.close();
+});
+test('visibility handoff cannot reuse a removed target or partially apply a foreign batch',async()=>{
+  const f=choiceFixture();
+  try {
+    const raw=f.commit(false,false,true),binding=raw.visibilityBindings[0],target=binding.target;
+    await assert.rejects(f.sync({...raw,visibilityBindings:[binding,{...binding,id:'foreign',target:f.dom.window.document.createElement('aside')}]}),/visibility evidence/);
+    assert.equal(target.hidden,false);target.remove();
+    await assert.rejects(f.sync(raw),/visibility evidence/);assert.equal(target.hidden,false);
+  }finally{f.transition.dispose();f.renderer.dispose();f.dom.window.close();}
+});
