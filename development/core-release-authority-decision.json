@@ -4,7 +4,7 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "939888b5efdb144fa174c6ef923aff730f8bb8d59f7e2ee56591670210af3962",
+  "inventorySha256": "f154d0f52ea9bfe436abde4913a367fe1651c1973337447d066d9661bc63c78e",
   "sourceMembershipSha256": "051af08fe5bd8786c2efab6af90bbe08c0f700d8f4eaf976b41d112943e1d59a",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
@@ -279,5 +279,126 @@
       }
     ],
     "status": "reviewed-unreleased-contract-registration"
+  },
+  "migrationRuntimeRepairs": {
+    "sourceCommit": "8fade18df1f579e098f1200521adba29244ebd02",
+    "priorInventorySha256": "939888b5efdb144fa174c6ef923aff730f8bb8d59f7e2ee56591670210af3962",
+    "registrations": [
+      {
+        "schemaId": "xtend.maraca.app-services-runtime.v1",
+        "scope": "Current non-authoritative observation of the tested migration runtime repair; original ledger and release history unchanged.",
+        "previousFingerprints": [
+          "sha256:08a055da2bb6968bb92568d0f8ad84efd0bdfd710101f262e3a78c3306ba5c52",
+          "sha256:43bed9463061da411a7f7840281452ec950b3399f5141b5c02a5a52ecc06c119"
+        ],
+        "currentFingerprints": [
+          "sha256:08a055da2bb6968bb92568d0f8ad84efd0bdfd710101f262e3a78c3306ba5c52",
+          "sha256:43bed9463061da411a7f7840281452ec950b3399f5141b5c02a5a52ecc06c119",
+          "sha256:932fcd1f1dee5d0132bdbafd9327931d5ebca09b7888540ab5c58bb238705d92"
+        ],
+        "sources": [
+          {
+            "path": "xtend-maraca/browser-composition-runtime.mjs",
+            "sha256": "7a40570cdd3139e60420c82f17553f6030c965cf874e0dbe13987f0429d21d7c"
+          }
+        ]
+      },
+      {
+        "schemaId": "xtend.rmt.dom-commit-result.v1",
+        "scope": "Current non-authoritative observation of the tested migration runtime repair; original ledger and release history unchanged.",
+        "previousFingerprints": [
+          "sha256:05321bfb368e68f9670fb357616f1ba0d6db6b549ca2895c1f89d3510ddafdb7",
+          "sha256:1444ebd0a4cfa8d17f911eca58b8084b6c25fb2f26d8da5cc2f0ea8e84662f2e",
+          "sha256:3f2910b491c47c79f8842f0d1c8629372abab918fc43e4d15312626b72afa123",
+          "sha256:4a29fa6389acad5b767a47c8bb59af26aeabc5fd3a0c38b1bcbeb0ad7ebd89c9",
+          "sha256:5771ddcede933d9ffac2748c0746c04d04ae7554094419a6ebba39139539e8ad",
+          "sha256:671ad3708b5b6abae70b260828f6801bd193d15fae241b9e0d20d62debe40473",
+          "sha256:6fbdf0906996ea0927edf50fd9a6f9aec686ff728b535ae0cd12ff8cd1820b2f",
+          "sha256:7b8d67c4f326d81e305502bda0ea6e554f99e804583613ca99dba97a88fba088",
+          "sha256:803abece752825b225caeee9b3723ddb218c4fdd2aa5c85e0f620d43f5d1f3b5",
+          "sha256:8092c488ddf3ad5b5082624d53abf2e8d63622f6cad73d9cdfa8d86135363122",
+          "sha256:89041d8e22306148a56ce3cd0b474da2238ba9d539fcaf5071454218ce8581ed",
+          "sha256:8a5359471bba55573476222e5c24e03dd23413f5b329e3f27050820ce7446a2d",
+          "sha256:a2748e2d1f365421c24a4f36bd0f45c0d9a195c266fc9cdd3c5c59507d5428a0",
+          "sha256:a8885888b1428c0ebfb852f9da018a230909ba55268b418903f7a7830e79aa7e",
+          "sha256:b6a19229e44fc96cb19dcc7f4b78ec456e64fbce854c656dcfc906d3ef364b75",
+          "sha256:dfc6c6ae875300d0334db988da2ab2bb3cf296990ad0e71f7d43c5f2c08a397a",
+          "sha256:f6d813f9442ae860c31937c3ee48f2b918b0e3e0dc3347d7e937846fe59f2db4",
+          "sha256:f8099060948efa05d7374c863cdfcd4c040e01562158e017f88ff201757ce448",
+          "sha256:fa74e8ea815343ff377c068950c9e919573c22136de64444d1acfb388ef8d3a8"
+        ],
+        "currentFingerprints": [
+          "sha256:05321bfb368e68f9670fb357616f1ba0d6db6b549ca2895c1f89d3510ddafdb7",
+          "sha256:1444ebd0a4cfa8d17f911eca58b8084b6c25fb2f26d8da5cc2f0ea8e84662f2e",
+          "sha256:3f2910b491c47c79f8842f0d1c8629372abab918fc43e4d15312626b72afa123",
+          "sha256:4a29fa6389acad5b767a47c8bb59af26aeabc5fd3a0c38b1bcbeb0ad7ebd89c9",
+          "sha256:5771ddcede933d9ffac2748c0746c04d04ae7554094419a6ebba39139539e8ad",
+          "sha256:671ad3708b5b6abae70b260828f6801bd193d15fae241b9e0d20d62debe40473",
+          "sha256:6fbdf0906996ea0927edf50fd9a6f9aec686ff728b535ae0cd12ff8cd1820b2f",
+          "sha256:7b8d67c4f326d81e305502bda0ea6e554f99e804583613ca99dba97a88fba088",
+          "sha256:803abece752825b225caeee9b3723ddb218c4fdd2aa5c85e0f620d43f5d1f3b5",
+          "sha256:8092c488ddf3ad5b5082624d53abf2e8d63622f6cad73d9cdfa8d86135363122",
+          "sha256:89041d8e22306148a56ce3cd0b474da2238ba9d539fcaf5071454218ce8581ed",
+          "sha256:8a5359471bba55573476222e5c24e03dd23413f5b329e3f27050820ce7446a2d",
+          "sha256:9d00fd8294d966616cb438f8b74d07713e16b33649e1e26b51ef64aa0bc8acf9",
+          "sha256:a2748e2d1f365421c24a4f36bd0f45c0d9a195c266fc9cdd3c5c59507d5428a0",
+          "sha256:a8885888b1428c0ebfb852f9da018a230909ba55268b418903f7a7830e79aa7e",
+          "sha256:a8ea4e9e50511f6dc000478e3941d92a453e4440529d1d0d034c2618218be8c6",
+          "sha256:b6a19229e44fc96cb19dcc7f4b78ec456e64fbce854c656dcfc906d3ef364b75",
+          "sha256:dfc6c6ae875300d0334db988da2ab2bb3cf296990ad0e71f7d43c5f2c08a397a",
+          "sha256:f6d813f9442ae860c31937c3ee48f2b918b0e3e0dc3347d7e937846fe59f2db4",
+          "sha256:f8099060948efa05d7374c863cdfcd4c040e01562158e017f88ff201757ce448",
+          "sha256:fa74e8ea815343ff377c068950c9e919573c22136de64444d1acfb388ef8d3a8"
+        ],
+        "sources": [
+          {
+            "path": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
+            "sha256": "15aa77f2aff013c057e4dea1f118a325765a6e41a074c2be9a8fa8f958bef05b"
+          },
+          {
+            "path": "xtendrmt/rmt-dom-descriptor-renderer.js",
+            "sha256": "9230eb098ac3145dd7fd2b4a873b6c63ddd8e2dc0cf4483ee50c49e5a40bdf8a"
+          },
+          {
+            "path": "xtendrmt/rmt-runtime.browser.js",
+            "sha256": "686776c6be34b93e9d173e9791a6a4560296faac4383c34eb2d9c879d94c0327"
+          },
+          {
+            "path": "xtendrmt/rmt-runtime.esm.js",
+            "sha256": "05c291d3a683f252271e623e1b3b1be3bbc0bf304c4e598229e38f27c0d633ef"
+          }
+        ]
+      },
+      {
+        "schemaId": "xtend.rmt.view-template.v1",
+        "scope": "Current non-authoritative observation of the tested migration runtime repair; original ledger and release history unchanged.",
+        "previousFingerprints": [
+          "sha256:03c6c462386fa698f1c2764f81544e0502c6dddd7786c85063d81cf369c301df",
+          "sha256:3e86cd8db89758350cf80cff40d4e664b1f58674cb46012fc4ec145a1221ff9c",
+          "sha256:7ef2ce98ed1887dcac24e178ddd85dcfd92d4c7cdbcfff2edb65a30f712db985",
+          "sha256:c2959d1b4320ba9943ee18e3678fa2ab0210d308cb391d05609fa818dad4e9d7",
+          "sha256:c5f67bbff2d09350231ccfdec721a552adae622f044a33dcd1c2ab0d68e6059f",
+          "sha256:cc5d08abfaa929005799bf24dcedd8523c79cc023a710cbabd65b891502a6546",
+          "sha256:eb2b9b2aab6bbf8df70d69e08be4ae15d3b6472aef9a83e36d1748eba1a622aa"
+        ],
+        "currentFingerprints": [
+          "sha256:03c6c462386fa698f1c2764f81544e0502c6dddd7786c85063d81cf369c301df",
+          "sha256:3e86cd8db89758350cf80cff40d4e664b1f58674cb46012fc4ec145a1221ff9c",
+          "sha256:6ab7f7f8229a73ea937fa433da4713a0f6bf82eca452239b663f5593c19e36d9",
+          "sha256:c2959d1b4320ba9943ee18e3678fa2ab0210d308cb391d05609fa818dad4e9d7",
+          "sha256:c5f67bbff2d09350231ccfdec721a552adae622f044a33dcd1c2ab0d68e6059f",
+          "sha256:cc5d08abfaa929005799bf24dcedd8523c79cc023a710cbabd65b891502a6546",
+          "sha256:eb2b9b2aab6bbf8df70d69e08be4ae15d3b6472aef9a83e36d1748eba1a622aa"
+        ],
+        "sources": [
+          {
+            "path": "xtendrmt/rmt-app-view-projector.js",
+            "sha256": "b7e38a3dbda64a39ead08ed7cd24a3dde761ed4c9e2f010635e10e0bf849d5c4"
+          }
+        ]
+      }
+    ],
+    "acceptedForMerge": false,
+    "acceptedForRelease": false
   }
 }

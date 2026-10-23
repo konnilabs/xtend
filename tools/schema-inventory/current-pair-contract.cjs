@@ -5,7 +5,7 @@ const decision = require('./current-pair-decision.json');
 const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const stable = x => Array.isArray(x) ? x.map(stable) : x && typeof x === 'object' ? Object.fromEntries(Object.keys(x).sort().map(k => [k, stable(x[k])])) : x;
 const equal = (a, b) => JSON.stringify(stable(a)) === JSON.stringify(stable(b));
-const decisionDigest = 'e6cd078b87a27d2126d9aaea3b1cf569267c56ed222114af9257f0d6ee6e9706';
+const decisionDigest = '617629667e80fe9d67ceb994affa6e1120f403bf9e20ae39cdbeea511fbd37bd';
 const generatedDigest = 'f8fb2e6901f1a4771cdb96c9fb2aa3b4ecf39594c5c2f51ec18265bcb2238a1f';
 function generatedMirrors() {
   const bytes = require('node:zlib').gunzipSync(fs.readFileSync(path.join(__dirname, 'current-generated-mirrors.json.gz')));
