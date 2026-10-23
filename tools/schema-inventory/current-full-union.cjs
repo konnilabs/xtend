@@ -4,7 +4,7 @@ const fs = require('node:fs'), path = require('node:path'), crypto = require('no
 const {isDeepStrictEqual: equal} = require('node:util');
 const source = require('./source-provider.cjs');
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
-const dataDigest = 'c969fa411f42a232215bb76286e3998d77353c5312f59ecb383012b03b962943';
+const dataDigest = '88f541468539c855b33830d2e4368f25692ea89c6c6cde7d619259686c3d7c7d';
 const keys = ['schemaId', 'familyId', 'version', 'kinds', 'status', 'canonicalDefinition', 'usages', 'shapeFingerprints'];
 const check = (condition, message) => { if (!condition) throw Error(message); };
 function readExpected() {

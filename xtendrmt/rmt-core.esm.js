@@ -10939,7 +10939,10 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
         if (!context.previousContext || domainAllowed(context, 'visibility')) return items.map(item => ({ ...context, item }));
         const previousContext = { ...context, ...context.previousContext };
         const previousItems = resolveValue(descriptor.source, previousContext, previousContext.item);
-        if (!Array.isArray(previousItems)) throw createRendererError('rmt.dom.visibility.previous-context-missing', 'Repeated visibility needs the previous Model collection.', descriptor, context);
+        // Plain repeats may materialize a page whose previous optional collection
+        // did not exist. Do not invent a visibility predecessor: any actual
+        // visibility declaration still fails preflight with this missing context.
+        if (!Array.isArray(previousItems)) return items.map(item => ({ ...context, item, previousContext: null }));
         const keyed = (values, ctx) => {
           const result = new Map();
           values.forEach((item, index) => {

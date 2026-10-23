@@ -185,6 +185,26 @@ test('repeated visibility rejects ambiguous keys and absent prior collections be
     assert.equal(root.innerHTML,'<strong>retained</strong>');
   }renderer.dispose();dom.window.close();
 });
+test('plain page repeats do not require a previous visibility collection',()=>{
+  const {dom,root,renderer}=setup();
+  const descriptor={type:'repeat',source:'$model.page.rows',key:'$item.id',node:{type:'element',tag:'button',attributes:{'data-id':'$item.id'},text:'$item.label',command:{command:'fixture.select',payload:{id:'$item.id'}}}};
+  try {
+    for(const previous of [{page:null},{page:{rows:null}},{page:{}}]) {
+      const report=renderer.commit({operation:'replace-children',target:root,descriptor,ownership,context:{model:{page:{rows:[{id:'new',label:'New page'}]}},previousContext:{model:previous}}});
+      assert.equal(root.textContent,'New page');assert.equal(report.bindings.length,1);assert.equal(report.visibilityBindings.length,0);
+    }
+    renderer.commit({operation:'reconcile-children',target:root,descriptors:[descriptor],ownership,context:{model:{page:null},previousContext:{model:{page:null}}}});
+    assert.equal(root.children.length,0);
+  }finally{renderer.dispose();dom.window.close();}
+});
+test('missing repeated predecessor still rejects nested visibility before mutation',()=>{
+  const {dom,root,renderer}=setup();root.innerHTML='<strong>retained</strong>';
+  const descriptor={type:'repeat',source:'$model.rows',key:'id',node:{type:'element',tag:'section',children:[{type:'element',tag:'div',visibility:{hidden:'$item.hidden'}}]}};
+  try {
+    assert.throws(()=>renderer.commit({operation:'replace-children',target:root,descriptor,ownership,context:{model:{rows:[{id:'one',hidden:false}]},previousContext:{model:{rows:null}}}}),e=>e.code==='rmt.dom.visibility.previous-context-missing');
+    assert.equal(root.innerHTML,'<strong>retained</strong>');
+  }finally{renderer.dispose();dom.window.close();}
+});
 test('AppServices snapshot exposes measured status without returning private registry or payloads',()=>{
   const composition=fs.readFileSync(new URL('../../xtend-maraca/browser-composition-runtime.mjs',import.meta.url),'utf8');
   const code=composition.slice(composition.indexOf('function createAppServicesPort('),composition.indexOf('\nfunction createRuntimeConfiguration('));
