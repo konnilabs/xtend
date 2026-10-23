@@ -26,6 +26,6 @@ test('SHA archive packing excludes untracked published files and fingerprints ge
  assert.ok(!packed.includes('untracked-must-not-publish'),packed);
  const {digest}=require('../../candidate-integrity.cjs');
  assert.equal(manifest.php.sources['runtime.php'],digest(Buffer.from('<?php // tracked runtime')));
- const phpSource=execFileSync('tar',['-xOf',path.join(output,manifest.php.file),'./runtime/runtime.php']);
+ const phpSource=execFileSync('tar',['-xOf',path.join(output,manifest.php.file),process.platform==='darwin'?'runtime/runtime.php':'./runtime/runtime.php']);
  assert.equal(digest(phpSource),manifest.php.sources['runtime.php']);
 });

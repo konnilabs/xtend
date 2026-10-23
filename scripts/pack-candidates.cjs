@@ -33,7 +33,9 @@ function packCandidates({output,profile,demoSha,development=false}={}) {
  }
  // Generated PHP packaging metadata is derived solely from the same SHA archive;
  // buildLaravelPackage fingerprints every copied runtime source.
- const php=buildLaravelPackage({rootDir:snapshot,output:path.join(output,'xtend-laravel'),archiveTool:'tar'});
+ // macOS ships BSD tar; use the existing unprivileged Phar writer there.
+ // Its archive digest is measured independently, never equated to Linux bytes.
+ const php=buildLaravelPackage({rootDir:snapshot,output:path.join(output,'xtend-laravel'),archiveTool:process.platform==='darwin'?'php':'tar'});
  const result={...(core?{schema:'xtend.product-candidates.v2',profile:PROFILE}:{schema:'xtend.product-candidates.v1',demoSha}),coreSha,development,packages,php:{file:path.basename(php.archive),sha256:php.sha256,sources:php.files}};
  verifyCandidates(result,core?{coreSha,profile:PROFILE,directory:output}:{coreSha,demoSha,directory:output});fs.writeFileSync(path.join(output,'manifest.json'),JSON.stringify(result,null,2)+'\n');return result;
  } finally {fs.rmSync(snapshot,{recursive:true,force:true});}
