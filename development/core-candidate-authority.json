@@ -15,7 +15,7 @@
     },
     {
       "path": "scripts/pack-candidates.cjs",
-      "sha256": "34519014054420de0b68015edba6dd2100f29e667f9f4fb8b3443cff5ee4471f"
+      "sha256": "6b5a538dd9b7b72ca55ecbe2733ee22a0a571ec25579e30cab1ec0273b14ba8e"
     },
     {
       "path": "scripts/release/profile.cjs",
