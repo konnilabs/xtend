@@ -1635,6 +1635,7 @@
     "scripts/create_docs_stub_inventory.js",
     "scripts/create_xtend_nightly_manifest.js",
     "scripts/demo-functional-ci.cjs",
+    "scripts/demo-macos-evidence.cjs",
     "scripts/development-gate.cjs",
     "scripts/docs_content_profiles.js",
     "scripts/enable_node_warning_policy.js",
@@ -1862,6 +1863,7 @@
     "tests/browser/neutral-prototype/capability-matrix.json",
     "tests/browser/neutral-prototype/controller-suite.cjs",
     "tests/browser/neutral-prototype/demo-functional-ci.test.cjs",
+    "tests/browser/neutral-prototype/demo-macos-evidence.test.cjs",
     "tests/browser/neutral-prototype/engine-adapters.cjs",
     "tests/browser/neutral-prototype/engine-adapters.test.cjs",
     "tests/browser/neutral-prototype/execution-profile.cjs",
@@ -3446,7 +3448,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "b30957ee5ddbb03721899c85a2069e99231939e1b50f20344d4980232cd769a0",
+  "authorityDecisionSha256": "bfbfcdf7999b6ba3fc822ed595ba825b90925d85975bbfa7008bb7f2e40537a3",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "8fc57e4eb96a3a6fd0155234f06cc4b95879fc9d492fdaad8171e26345e4f865"
 }

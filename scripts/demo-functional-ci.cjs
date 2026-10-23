@@ -13,7 +13,7 @@ const read=file=>JSON.parse(fs.readFileSync(file));
 const write=(file,value)=>fs.writeFileSync(file,JSON.stringify(value,null,2)+'\n');
 const git=(root,...args)=>execFileSync('git',args,{cwd:root,encoding:'utf8'}).trim();
 function host(env=process.env,platform=process.platform,uid=process.getuid?.(),arch=process.arch,node=process.versions.node) {
-  profile.requireFunctionalHost({platform,arch,node,uid,env});
+  (env.GITHUB_REPOSITORY==='konnilabs/xtend-demos'?profile.requireDemoFunctionalHost:profile.requireFunctionalHost)({platform,arch,node,uid,env});
   assert(/^[a-f0-9]{40}$/.test(env.GITHUB_SHA||''),'Exact controller source required');
   assert(/^[1-9]\d*$/.test(env.GITHUB_RUN_ID||''),'Exact run required');
   assert.equal(env.GITHUB_RUN_ATTEMPT,'1','No blind workflow retries');
@@ -29,8 +29,9 @@ function environment({scratch,node=process.execPath,browser,driver,fpm,group,sou
     XTEND_CHROMIUM_PATH:browser,CHROMIUM_PATH:browser,
     XTEND_CORE_SHA:source.coreSha,XTEND_DEMO_SHA:source.demoSha,
     XTEND_CI_FUNCTIONAL_PROFILE:profile.functional};
-  for(const key of ['GITHUB_ACTIONS','RUNNER_ENVIRONMENT','GITHUB_REPOSITORY','GITHUB_EVENT_NAME','GITHUB_REF','GITHUB_SHA','GITHUB_RUN_ID','GITHUB_RUN_ATTEMPT'])env[key]=ci[key];
+  for(const key of ['GITHUB_ACTIONS','RUNNER_ENVIRONMENT','GITHUB_REPOSITORY','GITHUB_EVENT_NAME','GITHUB_REF','GITHUB_SHA','GITHUB_RUN_ID','GITHUB_RUN_ATTEMPT','XTEND_DEMO_EVENT_SHA','XTEND_DEMO_CONTROLLER_SHA','XTEND_DEMO_HEAD_REPOSITORY','XTEND_DEMO_BASE_REF','XTEND_DEMO_PR_NUMBER'])if(ci[key]!==undefined)env[key]=ci[key];
   if(group==='shop-fpm')env.XTEND_SHOP_FPM_BINARY=fpm;
+  if(ci.XTEND_SHOP_FIXTURE!==undefined){assert(path.isAbsolute(ci.XTEND_SHOP_FIXTURE)&&!/[\r\n]/.test(ci.XTEND_SHOP_FIXTURE));env.XTEND_SHOP_FIXTURE=ci.XTEND_SHOP_FIXTURE;}
   return env;
 }
 function accepted(value) {
@@ -39,8 +40,15 @@ function accepted(value) {
   if(skipped(value))return false;
   return true;
 }
+function expectedSources(controller,env=process.env) {
+  if(env.GITHUB_REPOSITORY==='konnilabs/xtend-demos') {
+    assertExecutionIdentity(git(controller,'rev-parse','HEAD'),env.XTEND_DEMO_EVENT_SHA,env);
+    return {implementationCoreSha:env.XTEND_DEMO_CONTROLLER_SHA,demoSha:env.XTEND_DEMO_EVENT_SHA};
+  }
+  return read(path.join(controller,'product-demos.lock.json'));
+}
 function sourceIdentity(controller,demo) {
-  const expected=read(path.join(controller,'product-demos.lock.json'));
+  const expected=expectedSources(controller);
   const coreSha=expected.implementationCoreSha,demoSha=expected.demoSha;
   assert.equal(git(demo,'rev-parse','HEAD'),demoSha,'Demo source mismatch');
   assert.equal(read(path.join(demo,'candidate-source.lock.json')).coreSha,coreSha,'Installed Core pin mismatch');
@@ -55,6 +63,7 @@ function validateRecord(record,expected) {
   assert(record&&record.format===1&&record.purpose==='migration-demo-functions');
   assert.equal(record.node,expected.node);assert.deepEqual(record.source,expected.source);
   assert.equal(record.runId,expected.runId);assert.equal(record.attempt,1);
+  if(expected.repository!==undefined)assert.equal(record.executionRepository,expected.repository,'Foreign evidence repository');
   assert.equal(record.sandboxEnabled,false);assert.equal(record.sandboxEvidence,'not-provided');
   assert.equal(record.acceptedForMerge,false);assert.equal(record.acceptedForRelease,false);
   assert.deepEqual(record.groups.map(row=>row.id),groups,'Missing/duplicate/reordered suites');
@@ -64,6 +73,17 @@ function validateRecord(record,expected) {
     assert(accepted(row.result),'Missing executed assertions: '+row.id);
     assert(row.cleanup?.complete&&row.cleanup.groupGone&&row.cleanup.childReaped,'Incomplete cleanup: '+row.id);
     assert(row.startedAt&&row.finishedAt&&Date.parse(row.finishedAt)>=Date.parse(row.startedAt),'Missing execution interval');
+  }
+  return true;
+}
+function assertExecutionIdentity(controllerSha,demoSha,env=process.env) {
+  assert(/^[a-f0-9]{40}$/.test(controllerSha)&&/^[a-f0-9]{40}$/.test(demoSha),'Exact execution source required');
+  if(env.GITHUB_REPOSITORY==='konnilabs/xtend-demos') {
+    assert.equal(controllerSha,env.XTEND_DEMO_CONTROLLER_SHA,'Controller checkout substitution');
+    assert.equal(demoSha,env.XTEND_DEMO_EVENT_SHA,'Demo PR/event source substitution');
+  } else {
+    assert.equal(env.GITHUB_REPOSITORY,'konnilabs/xtend');
+    assert.equal(controllerSha,env.GITHUB_SHA,'Core controller event source substitution');
   }
   return true;
 }
@@ -108,15 +128,7 @@ async function executeGroup({demo,group,evidence,toolchain,fpm,source,ci}) {
   const row={id:group,status:completed==='complete'&&reportedPassed&&!protocolError&&accepted(result)&&cleanup.complete?'passed':'failed',startedAt,finishedAt:new Date().toISOString(),completion:completed,protocolError,result,cleanup};
   write(path.join(directory,'terminal.json'),row);return row;
 }
-async function run(demo,evidence,toolchain,fpm) {
-  host();const controller=path.resolve(__dirname,'..');
-  assert.equal(git(controller,'rev-parse','HEAD'),process.env.GITHUB_SHA);
-  const source=read(path.join(evidence,'source.json')),expected=read(path.join(controller,'product-demos.lock.json'));
-  assert.equal(source.controllerSha,process.env.GITHUB_SHA);assert.equal(source.demoSha,git(demo,'rev-parse','HEAD'));
-  assert.equal(source.demoSha,expected.demoSha);assert.equal(source.coreSha,expected.implementationCoreSha);
-  assert.equal(source.manifestSha256,sha(fs.readFileSync(path.join(demo,'.candidate-source/manifest.json'))));
-  const generated=git(demo,'diff','--name-only').split('\n').filter(Boolean).map(file=>({file,sha256:sha(fs.readFileSync(path.join(demo,file)))}));
-  write(path.join(evidence,'prepared-fixture-files.json'),{source,generated});
+function toolchainIdentity(toolchain,evidence){
   const browser=configuredBrowser({CHROMIUM_PATH:path.join(toolchain,'chrome-linux64/chrome'),XTEND_SECURITY_BROWSER_ARCHIVE:path.join(toolchain,'chrome-linux64.zip')});
   assert.equal(sha(fs.readFileSync(path.join(toolchain,'chromedriver-linux64.zip'))),pin.archives['chromedriver-linux64.zip']);
   const driverFile=path.join(toolchain,'chromedriver-linux64/chromedriver');
@@ -124,7 +136,26 @@ async function run(demo,evidence,toolchain,fpm) {
   const driverHash=execFileSync('python3',['-c','import hashlib,zipfile,sys; z=zipfile.ZipFile(sys.argv[1]); print(hashlib.sha256(z.read("chromedriver-linux64/chromedriver")).hexdigest())',path.join(toolchain,'chromedriver-linux64.zip')],{encoding:'utf8',timeout:30000}).trim();
   assert.equal(sha(fs.readFileSync(driverFile)),driverHash,'Installed driver/archive mismatch');
   const version=execFileSync(driverFile,['--version'],{env:profile.childEnvironment(evidence),encoding:'utf8',timeout:5000}).trim();assert(version.startsWith('ChromeDriver '+pin.version+' '),'Pinned driver version mismatch');
-  const record={format:1,purpose:'migration-demo-functions',source,node:process.versions.node,runId:process.env.GITHUB_RUN_ID,attempt:1,
+  return {browser,driverHash,version};
+}
+async function shop(demo,evidence,toolchain,fpm,mode) {
+  host();assert(['cli','fpm'].includes(mode));const source=sourceIdentity(path.resolve(__dirname,'..'),demo);assertExecutionIdentity(source.controllerSha,source.demoSha);
+  fs.mkdirSync(evidence,{recursive:true});const tools=toolchainIdentity(toolchain,evidence);
+  const row=await executeGroup({demo,group:'shop-'+mode,evidence,toolchain,fpm,source,ci:process.env});
+  write(path.join(evidence,'shop-host.json'),{format:1,purpose:'migration-shop-host',source,node:process.versions.node,runId:process.env.GITHUB_RUN_ID,attempt:1,sandboxEnabled:false,sandboxEvidence:'not-provided',acceptedForMerge:false,acceptedForRelease:false,tools,...row});
+  assert.equal(row.status,'passed');assert(accepted(row.result));assert(row.cleanup?.complete&&row.cleanup.childReaped&&row.cleanup.groupGone);
+}
+async function run(demo,evidence,toolchain,fpm) {
+  host();const controller=path.resolve(__dirname,'..');
+  const source=read(path.join(evidence,'source.json')),expected=expectedSources(controller);
+  assert.equal(source.controllerSha,git(controller,'rev-parse','HEAD'));assertExecutionIdentity(source.controllerSha,source.demoSha);
+  assert.equal(source.demoSha,git(demo,'rev-parse','HEAD'));
+  assert.equal(source.demoSha,expected.demoSha);assert.equal(source.coreSha,expected.implementationCoreSha);
+  assert.equal(source.manifestSha256,sha(fs.readFileSync(path.join(demo,'.candidate-source/manifest.json'))));
+  const generated=git(demo,'diff','--name-only').split('\n').filter(Boolean).map(file=>({file,sha256:sha(fs.readFileSync(path.join(demo,file)))}));
+  write(path.join(evidence,'prepared-fixture-files.json'),{source,generated});
+  const {browser,driverHash,version}=toolchainIdentity(toolchain,evidence);
+  const record={format:1,purpose:'migration-demo-functions',source,node:process.versions.node,runId:process.env.GITHUB_RUN_ID,attempt:1,executionRepository:process.env.GITHUB_REPOSITORY,
     browser,driver:{version,sha256:driverHash,archiveSha256:pin.archives['chromedriver-linux64.zip']},sandboxEnabled:false,sandboxEvidence:'not-provided',acceptedForMerge:false,acceptedForRelease:false,groups:[]};
   const terminal=path.join(evidence,'demo-functional.json');
   for(const group of groups) {
@@ -139,7 +170,7 @@ async function run(demo,evidence,toolchain,fpm) {
     const dest=path.join(evidence,id,'screenshots');fs.mkdirSync(dest,{recursive:true});
     for(const file of fs.readdirSync(directory))if(/^[a-zA-Z0-9_-]+\.png$/.test(file)&&fs.lstatSync(path.join(directory,file)).isFile())fs.copyFileSync(path.join(directory,file),path.join(dest,file));
   }
-  write(terminal,record);validateRecord(record,{source,node:process.versions.node,runId:process.env.GITHUB_RUN_ID});return record;
+  write(terminal,record);validateRecord(record,{source,node:process.versions.node,runId:process.env.GITHUB_RUN_ID,repository:process.env.GITHUB_REPOSITORY});return record;
 }
 function reportFiles(directory) {
   const files=[];let count=0;
@@ -150,18 +181,19 @@ function reportFiles(directory) {
 }
 function validateMatrix(reports,expected) {
   assert.equal(reports.length,2);const seen=new Set();
-  for(const report of reports){assert(nodes.includes(report.node)&&!seen.has(report.node),'Foreign or duplicate lane');seen.add(report.node);assert.equal(report.source.controllerSha,expected.controllerSha);assert.equal(report.source.coreSha,expected.coreSha);assert.equal(report.source.demoSha,expected.demoSha);validateRecord(report,{source:reports[0].source,node:report.node,runId:expected.runId});}
+  for(const report of reports){assert(nodes.includes(report.node)&&!seen.has(report.node),'Foreign or duplicate lane');seen.add(report.node);assert.equal(report.source.controllerSha,expected.controllerSha);assert.equal(report.source.coreSha,expected.coreSha);assert.equal(report.source.demoSha,expected.demoSha);validateRecord(report,{source:reports[0].source,node:report.node,runId:expected.runId,repository:expected.repository});}
   return {format:1,ok:true,source:reports[0].source,nodes:[...seen].sort(),runId:expected.runId,attempt:1,sandboxEnabled:false,sandboxEvidence:'not-provided',acceptedForMerge:false,acceptedForRelease:false};
 }
 function aggregate(directory,output) {
-  host();const pin=read(path.resolve(__dirname,'../product-demos.lock.json'));
-  const result=validateMatrix(reportFiles(directory).map(read),{controllerSha:process.env.GITHUB_SHA,coreSha:pin.implementationCoreSha,demoSha:pin.demoSha,runId:process.env.GITHUB_RUN_ID});write(output,result);return result;
+  host();const pin=expectedSources(path.resolve(__dirname,'..'));
+  const controllerSha=git(path.resolve(__dirname,'..'),'rev-parse','HEAD');assertExecutionIdentity(controllerSha,pin.demoSha);
+  const result=validateMatrix(reportFiles(directory).map(read),{controllerSha,coreSha:pin.implementationCoreSha,demoSha:pin.demoSha,runId:process.env.GITHUB_RUN_ID,repository:process.env.GITHUB_REPOSITORY});write(output,result);return result;
 }
 if(require.main===module){const [mode,...args]=process.argv.slice(2);Promise.resolve().then(()=>{
-  if(mode==='bind'){host();const source=sourceIdentity(path.resolve(__dirname,'..'),args[0]);assert.equal(source.controllerSha,process.env.GITHUB_SHA);write(args[1],source);return source;}
-  if(mode==='child')return child(...args);if(mode==='run')return run(...args);if(mode==='aggregate')return aggregate(...args);throw Error('Unknown mode');
+  if(mode==='bind'){host();const source=sourceIdentity(path.resolve(__dirname,'..'),args[0]);assertExecutionIdentity(source.controllerSha,source.demoSha);write(args[1],source);return source;}
+  if(mode==='shop')return shop(...args);if(mode==='child')return child(...args);if(mode==='run')return run(...args);if(mode==='aggregate')return aggregate(...args);throw Error('Unknown mode');
 }).catch(error=>{console.error(error.message);process.exitCode=1;if(process.send){
   const message=String(error.message).replace(/-----BEGIN [\s\S]*?-----END [^-]+-----/g,'[redacted key]').replace(/(?:Bearer\s+|(?:token|secret|password|APP_KEY|DEMOPAY_SECRET)[=: ]+)[^\s]+/gi,'[redacted]').slice(0,2000);
   write(args[2],{ok:false,passes:[],failures:[message],skips:[]});process.send({type:'complete',passed:false});setInterval(()=>{},1000);
 }});}
-module.exports={groups,nodes,host,environment,accepted,validateRecord,sourceIdentity,aggregate,reportFiles,validateMatrix};
+module.exports={groups,nodes,host,environment,accepted,validateRecord,sourceIdentity,expectedSources,assertExecutionIdentity,aggregate,reportFiles,validateMatrix};

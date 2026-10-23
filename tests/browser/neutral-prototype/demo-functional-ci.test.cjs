@@ -51,3 +51,25 @@ test('artifact collection rejects missing, nested, duplicate and symbolic eviden
   fs.unlinkSync(path.join(root,'lane26','demo-functional.json'));assert.throws(()=>runner.reportFiles(root));
  }finally{fs.rmSync(root,{recursive:true,force:true});}
 });
+const demoCI={...ci,GITHUB_REPOSITORY:'konnilabs/xtend-demos',GITHUB_EVENT_NAME:'pull_request',GITHUB_REF:'refs/pull/2/merge',GITHUB_SHA:'e'.repeat(40),XTEND_DEMO_EVENT_SHA:source.demoSha,XTEND_DEMO_CONTROLLER_SHA:source.controllerSha,XTEND_DEMO_HEAD_REPOSITORY:'konnilabs/xtend-demos',XTEND_DEMO_BASE_REF:'main',XTEND_DEMO_PR_NUMBER:'2'};
+test('explicit Demo PR model authenticates separate event and controller sources',()=>{
+  assert.doesNotThrow(()=>runner.host(demoCI,'linux',1001,'x64','24.18.0'));
+  assert(runner.assertExecutionIdentity(source.controllerSha,source.demoSha,demoCI));
+  assert.throws(()=>runner.assertExecutionIdentity(demoCI.GITHUB_SHA,source.demoSha,demoCI));
+  assert.throws(()=>runner.assertExecutionIdentity(source.controllerSha,demoCI.GITHUB_SHA,demoCI));
+  const env=runner.environment({scratch:'/tmp/demo-pr-model',browser:'/tool/chrome',driver:'/tool/driver',group:'erp',source,ci:demoCI});
+  assert.equal(env.XTEND_DEMO_EVENT_SHA,source.demoSha);assert.equal(env.XTEND_DEMO_CONTROLLER_SHA,source.controllerSha);
+  for(const key of ['GITHUB_TOKEN','ACTIONS_RUNTIME_TOKEN','NODE_OPTIONS','LD_PRELOAD'])assert(!Object.hasOwn(env,key));
+});
+for(const [key,value] of [['GITHUB_REPOSITORY','foreign/demo'],['GITHUB_EVENT_NAME','pull_request_target'],['GITHUB_REF','refs/pull/3/merge'],['XTEND_DEMO_PR_NUMBER','3'],['XTEND_DEMO_BASE_REF','develop'],['XTEND_DEMO_HEAD_REPOSITORY','foreign/xtend-demos'],['XTEND_DEMO_EVENT_SHA','missing'],['XTEND_DEMO_CONTROLLER_SHA','missing'],['GITHUB_RUN_ATTEMPT','2'],['RUNNER_ENVIRONMENT','self-hosted']])test('Demo PR host rejects '+key,()=>assert.throws(()=>runner.host({...demoCI,[key]:value},'linux',1001,'x64','24.18.0')));
+test('Demo main supports the same bounded profile without changing the Core branch restriction',()=>{
+  for(const GITHUB_EVENT_NAME of ['push','schedule','workflow_dispatch'])assert.doesNotThrow(()=>runner.host({...demoCI,GITHUB_EVENT_NAME,GITHUB_REF:'refs/heads/main',GITHUB_SHA:source.demoSha},'linux',1001,'x64','26.5.0'));
+  assert.throws(()=>runner.host({...demoCI,GITHUB_EVENT_NAME:'push',GITHUB_REF:'refs/heads/main'},'linux',1001,'x64','26.5.0'));
+  assert.throws(()=>runner.host({...ci,GITHUB_REF:'refs/heads/main'},'linux',1001,'x64','24.18.0'));
+});
+test('repository identity is mandatory in the execution CLI validation and cannot be substituted',()=>{
+  const r={...model(),executionRepository:'konnilabs/xtend-demos'};
+  assert(runner.validateRecord(r,{...expected,repository:'konnilabs/xtend-demos'}));
+  assert.throws(()=>runner.validateRecord(r,{...expected,repository:'konnilabs/xtend'}));
+  assert.throws(()=>runner.validateRecord(model(),{...expected,repository:'konnilabs/xtend-demos'}));
+});
