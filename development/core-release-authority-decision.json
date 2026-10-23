@@ -4,7 +4,7 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "f154d0f52ea9bfe436abde4913a367fe1651c1973337447d066d9661bc63c78e",
+  "inventorySha256": "80a08bfe7e2e4f948ad2a499e1481b122711baf829ba38086945c3d8c4263d7a",
   "sourceMembershipSha256": "051af08fe5bd8786c2efab6af90bbe08c0f700d8f4eaf976b41d112943e1d59a",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
@@ -399,6 +399,73 @@
       }
     ],
     "acceptedForMerge": false,
-    "acceptedForRelease": false
+    "acceptedForRelease": false,
+    "generatedMirrorSynchronization": {
+      "sourceCommit": "a99c0a94bdb16d73faac1d0e074a79c76d155420",
+      "priorInventorySha256": "f154d0f52ea9bfe436abde4913a367fe1651c1973337447d066d9661bc63c78e",
+      "schemaId": "xtend.rmt.dom-commit-result.v1",
+      "scope": "Canonical generated Core runtime/type copies now expose the already reviewed visibility-result partials. No new authoritative or released fingerprint. Historical ledger and preceding repair observations are unchanged.",
+      "previousFingerprints": [
+        "sha256:05321bfb368e68f9670fb357616f1ba0d6db6b549ca2895c1f89d3510ddafdb7",
+        "sha256:1444ebd0a4cfa8d17f911eca58b8084b6c25fb2f26d8da5cc2f0ea8e84662f2e",
+        "sha256:3f2910b491c47c79f8842f0d1c8629372abab918fc43e4d15312626b72afa123",
+        "sha256:4a29fa6389acad5b767a47c8bb59af26aeabc5fd3a0c38b1bcbeb0ad7ebd89c9",
+        "sha256:5771ddcede933d9ffac2748c0746c04d04ae7554094419a6ebba39139539e8ad",
+        "sha256:671ad3708b5b6abae70b260828f6801bd193d15fae241b9e0d20d62debe40473",
+        "sha256:6fbdf0906996ea0927edf50fd9a6f9aec686ff728b535ae0cd12ff8cd1820b2f",
+        "sha256:7b8d67c4f326d81e305502bda0ea6e554f99e804583613ca99dba97a88fba088",
+        "sha256:803abece752825b225caeee9b3723ddb218c4fdd2aa5c85e0f620d43f5d1f3b5",
+        "sha256:8092c488ddf3ad5b5082624d53abf2e8d63622f6cad73d9cdfa8d86135363122",
+        "sha256:89041d8e22306148a56ce3cd0b474da2238ba9d539fcaf5071454218ce8581ed",
+        "sha256:8a5359471bba55573476222e5c24e03dd23413f5b329e3f27050820ce7446a2d",
+        "sha256:9d00fd8294d966616cb438f8b74d07713e16b33649e1e26b51ef64aa0bc8acf9",
+        "sha256:a2748e2d1f365421c24a4f36bd0f45c0d9a195c266fc9cdd3c5c59507d5428a0",
+        "sha256:a8885888b1428c0ebfb852f9da018a230909ba55268b418903f7a7830e79aa7e",
+        "sha256:a8ea4e9e50511f6dc000478e3941d92a453e4440529d1d0d034c2618218be8c6",
+        "sha256:b6a19229e44fc96cb19dcc7f4b78ec456e64fbce854c656dcfc906d3ef364b75",
+        "sha256:dfc6c6ae875300d0334db988da2ab2bb3cf296990ad0e71f7d43c5f2c08a397a",
+        "sha256:f6d813f9442ae860c31937c3ee48f2b918b0e3e0dc3347d7e937846fe59f2db4",
+        "sha256:f8099060948efa05d7374c863cdfcd4c040e01562158e017f88ff201757ce448",
+        "sha256:fa74e8ea815343ff377c068950c9e919573c22136de64444d1acfb388ef8d3a8"
+      ],
+      "currentFingerprints": [
+        "sha256:05321bfb368e68f9670fb357616f1ba0d6db6b549ca2895c1f89d3510ddafdb7",
+        "sha256:1444ebd0a4cfa8d17f911eca58b8084b6c25fb2f26d8da5cc2f0ea8e84662f2e",
+        "sha256:3f2910b491c47c79f8842f0d1c8629372abab918fc43e4d15312626b72afa123",
+        "sha256:4a29fa6389acad5b767a47c8bb59af26aeabc5fd3a0c38b1bcbeb0ad7ebd89c9",
+        "sha256:5771ddcede933d9ffac2748c0746c04d04ae7554094419a6ebba39139539e8ad",
+        "sha256:671ad3708b5b6abae70b260828f6801bd193d15fae241b9e0d20d62debe40473",
+        "sha256:6fbdf0906996ea0927edf50fd9a6f9aec686ff728b535ae0cd12ff8cd1820b2f",
+        "sha256:7b8d67c4f326d81e305502bda0ea6e554f99e804583613ca99dba97a88fba088",
+        "sha256:8092c488ddf3ad5b5082624d53abf2e8d63622f6cad73d9cdfa8d86135363122",
+        "sha256:89041d8e22306148a56ce3cd0b474da2238ba9d539fcaf5071454218ce8581ed",
+        "sha256:8a5359471bba55573476222e5c24e03dd23413f5b329e3f27050820ce7446a2d",
+        "sha256:9d00fd8294d966616cb438f8b74d07713e16b33649e1e26b51ef64aa0bc8acf9",
+        "sha256:a2748e2d1f365421c24a4f36bd0f45c0d9a195c266fc9cdd3c5c59507d5428a0",
+        "sha256:a8885888b1428c0ebfb852f9da018a230909ba55268b418903f7a7830e79aa7e",
+        "sha256:a8ea4e9e50511f6dc000478e3941d92a453e4440529d1d0d034c2618218be8c6",
+        "sha256:b6a19229e44fc96cb19dcc7f4b78ec456e64fbce854c656dcfc906d3ef364b75",
+        "sha256:dfc6c6ae875300d0334db988da2ab2bb3cf296990ad0e71f7d43c5f2c08a397a",
+        "sha256:f6d813f9442ae860c31937c3ee48f2b918b0e3e0dc3347d7e937846fe59f2db4",
+        "sha256:f8099060948efa05d7374c863cdfcd4c040e01562158e017f88ff201757ce448",
+        "sha256:fa74e8ea815343ff377c068950c9e919573c22136de64444d1acfb388ef8d3a8"
+      ],
+      "sources": [
+        {
+          "path": "xtendrmt/rmt-core.esm.js",
+          "sha256": "f9dd36ebb9a61a7ca62f7fa1b4b1ba64218579e80baa047343fa954e462e3e41"
+        },
+        {
+          "path": "xtendrmt/rmt-core.d.ts",
+          "sha256": "906515851d1aae1ba40927c140377457c97bb4eeb601ee8e8ced4f521db83bc0"
+        },
+        {
+          "path": "xtendrmt/rmt-kernel-module-manifest.json",
+          "sha256": "5bf4f69ebdf6a2fd47c4a2d6e6fbf466a6e31decacf8157615569fa1d771d98f"
+        }
+      ],
+      "acceptedForMerge": false,
+      "acceptedForRelease": false
+    }
   }
 }
