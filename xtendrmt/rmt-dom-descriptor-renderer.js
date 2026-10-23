@@ -2060,15 +2060,16 @@
     if (nodeType === 'repeat') {
       const sourceValue = resolveValue(descriptor.source, context, context.item);
       const items = Array.isArray(sourceValue) ? sourceValue : [];
-      items.forEach((item) => {
+      repeatContexts(descriptor, context, items).forEach((itemContext) => {
+        const item = itemContext.item;
         if (descriptor.item) {
           const template = context.templates && context.templates.get(descriptor.item);
           if (!template) {
             throw createRendererError('rmt.dom.template.missing', `RMT Template ${descriptor.item} wurde nicht gefunden.`, descriptor, context);
           }
-          validateDescriptor(template.root || template.node || template, { ...context, item }, depth + 1);
+          validateDescriptor(template.root || template.node || template, itemContext, depth + 1);
         } else {
-          validateDescriptor(descriptor.template || descriptor.node || descriptor.children || { type: 'text', text: '$item' }, { ...context, item }, depth + 1);
+          validateDescriptor(descriptor.template || descriptor.node || descriptor.children || { type: 'text', text: '$item' }, itemContext, depth + 1);
         }
       });
       return;
@@ -2276,17 +2277,40 @@
     return resolved == null || resolved === '' ? index : resolved;
   }
 
+  function repeatContexts(descriptor, context, items) {
+    if (!context.previousContext || domainAllowed(context, 'visibility')) return items.map(item => ({ ...context, item }));
+    const previousContext = { ...context, ...context.previousContext };
+    const previousItems = resolveValue(descriptor.source, previousContext, previousContext.item);
+    if (!Array.isArray(previousItems)) throw createRendererError('rmt.dom.visibility.previous-context-missing', 'Repeated visibility needs the previous Model collection.', descriptor, context);
+    const keyed = (values, ctx) => {
+      const result = new Map();
+      values.forEach((item, index) => {
+        const key = String(resolveRepeatKey(descriptor.key, ctx, item, index));
+        if (result.has(key)) throw createRendererError('rmt.dom.visibility.repeat-key-ambiguous', 'Repeated visibility requires unique Model keys.', descriptor, context);
+        result.set(key, item);
+      });
+      return result;
+    };
+    const previous = keyed(previousItems, previousContext);
+    keyed(items, context);
+    return items.map((item, index) => {
+      const key = String(resolveRepeatKey(descriptor.key, context, item, index));
+      // A new key has no previous element: initialize from its current Model,
+      // rather than inventing a predecessor or consulting mutable DOM state.
+      const paired = previous.has(key) ? { ...previousContext, item: previous.get(key) } : { ...context, item };
+      return { ...context, item, previousContext: paired };
+    });
+  }
+
   function renderRepeat(descriptor, context) {
     const sourceValue = resolveValue(descriptor.source, context, context.item);
     const items = Array.isArray(sourceValue) ? sourceValue : [];
     const fragment = createFragment(context.documentTarget);
-    items.forEach((item, index) => {
+    repeatContexts(descriptor, context, items).forEach((itemContext, index) => {
+      const item = itemContext.item;
       const rendered = descriptor.item
-        ? renderTemplate(descriptor.item, context, item)
-        : renderNode(descriptor.template || descriptor.node || descriptor.children || { type: 'text', text: '$item' }, {
-            ...context,
-            item
-          });
+        ? renderTemplate(descriptor.item, itemContext, item)
+        : renderNode(descriptor.template || descriptor.node || descriptor.children || { type: 'text', text: '$item' }, itemContext);
       toArray(rendered).forEach((node) => {
         if (node && node.nodeType !== 11 && descriptor.key) {
           setAttributeSafe(node, 'data-rmt-key', resolveRepeatKey(descriptor.key, context, item, index), descriptor, context);
@@ -3040,14 +3064,15 @@
       if (nodeType === 'repeat') {
         const sourceValue = resolveValue(descriptor.source, context, item);
         const items = Array.isArray(sourceValue) ? sourceValue : [];
-        items.forEach((repeatItem, index) => {
+        repeatContexts(descriptor, { ...context, item }, items).forEach((itemContext, index) => {
+          const repeatItem = itemContext.item;
           let childDescriptor = descriptor.template || descriptor.node || descriptor.children || { type: 'text', text: '$item' };
           if (descriptor.item) {
             const template = context.templates && context.templates.get(descriptor.item);
             childDescriptor = template && (template.root || template.node || template);
           }
           const repeatKey = clampString(resolveRepeatKey(descriptor.key, context, repeatItem, index), String(index));
-          expandChildEntries(childDescriptor, { ...context, item: repeatItem }, repeatItem).forEach((entry) => {
+          expandChildEntries(childDescriptor, itemContext, repeatItem).forEach((entry) => {
             entries.push({
               ...entry,
               key: entry.key || repeatKey

@@ -164,3 +164,24 @@ test('visibility handoff cannot reuse a removed target or partially apply a fore
     await assert.rejects(f.sync(raw),/visibility evidence/);assert.equal(target.hidden,false);
   }finally{f.transition.dispose();f.renderer.dispose();f.dom.window.close();}
 });
+test('keyed repeated visibility pairs Model predecessors across insertion, reorder and removal',async()=>{
+  const {dom,root,renderer}=setup();const transition=createRmtSurfaceTransitionRuntime({strict:true,domRenderer:renderer,transitionPlan:{transitions:[]},windowTarget:dom.window});const sync=visibilityOwner(root,transition);
+  const descriptor={type:'repeat',source:'$model.rows',key:'$item.id',node:{type:'element',tag:'div',attributes:{'data-id':'$item.id'},visibility:{hidden:'$item.hidden'}}};
+  const a={id:'a',hidden:true},b={id:'b',hidden:false},c={id:'c',hidden:true};
+  const commit=(rows,previous,first=false)=>renderer.commit({operation:first?'replace-children':'reconcile-children',target:root,...(first?{descriptor}:{descriptors:[descriptor]}),ownership,context:{model:{rows},previousContext:{model:{rows:previous}}}});
+  try{
+    const initial=commit([a,b],[],true);await sync(initial);assert.equal(root.querySelector('[data-id=a]').hidden,true);assert.equal(root.querySelector('[data-id=b]').hidden,false);
+    const aNode=root.querySelector('[data-id=a]');const reordered=commit([{...b,hidden:true},{...a,hidden:false},c],[a,b]);
+    const intent=Object.fromEntries(reordered.visibilityBindings.map(x=>[x.target.getAttribute('data-id'),[x.previousHidden,x.nextHidden]]));
+    assert.deepEqual(intent,{a:[true,false],b:[false,true],c:[true,true]});await sync(reordered);assert.equal(root.querySelector('[data-id=a]'),aNode);assert.equal(aNode.hidden,false);
+    const removed=commit([c],[{...b,hidden:true},{...a,hidden:false},c]);assert.equal(removed.visibilityBindings.length,1);await sync(removed);assert.equal(root.children.length,1);
+  }finally{transition.dispose();renderer.dispose();dom.window.close();}
+});
+test('repeated visibility rejects ambiguous keys and absent prior collections before mutation',()=>{
+  const {dom,root,renderer}=setup();root.innerHTML='<strong>retained</strong>';
+  const descriptor={type:'repeat',source:'$model.rows',key:'$item.id',node:{type:'element',tag:'div',visibility:{hidden:'$item.hidden'}}};const a={id:'a',hidden:true};
+  for(const [rows,previous] of [[[a,a],[]],[[a],[a,a]],[[a],null],[[{id:'b',hidden:'bad'}],[]]]){
+    assert.throws(()=>renderer.commit({operation:'replace-children',target:root,descriptor,ownership,context:{model:{rows},previousContext:{model:{rows:previous}}}}),e=>e.code.startsWith('rmt.dom.visibility.'));
+    assert.equal(root.innerHTML,'<strong>retained</strong>');
+  }renderer.dispose();dom.window.close();
+});
