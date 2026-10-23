@@ -6,7 +6,7 @@ const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const stable = x => Array.isArray(x) ? x.map(stable) : x && typeof x === 'object' ? Object.fromEntries(Object.keys(x).sort().map(k => [k, stable(x[k])])) : x;
 const equal = (a, b) => JSON.stringify(stable(a)) === JSON.stringify(stable(b));
 const decisionDigest = '617629667e80fe9d67ceb994affa6e1120f403bf9e20ae39cdbeea511fbd37bd';
-const generatedDigest = 'e7d1a5dd5a42a097b4c008ceb88c901568faf5d10f01784abf57251752acf96b';
+const generatedDigest = '972b6c5331119713cc1409e0bc88a4e58a277eae4a71facea10383b02ad9644e';
 function generatedMirrors() {
   const bytes = require('node:zlib').gunzipSync(fs.readFileSync(path.join(__dirname, 'current-generated-mirrors.json.gz')));
   if (digest(bytes) !== generatedDigest) throw Error('Reviewed generated mirror transition substituted');
@@ -17,6 +17,16 @@ function assertGeneratedSources(ownerRoot) {
     const file = path.resolve(ownerRoot, source);
     if (!file.startsWith(path.resolve(ownerRoot) + path.sep) || fs.realpathSync(file) !== file || digest(fs.readFileSync(file)) !== expected)
       throw Error('Reviewed generated mirror source changed');
+  }
+}
+function assertOverlaySources(ownerRoot, overlays) {
+  const sources = generatedMirrors().sourceHashes;
+  for (const overlay of overlays) {
+    const expected = sources[overlay.sourcePath];
+    const file = path.resolve(ownerRoot, overlay.sourcePath);
+    if (!/^[a-f0-9]{64}$/.test(expected || '') || !file.startsWith(path.resolve(ownerRoot) + path.sep)
+      || fs.realpathSync(file) !== file || digest(fs.readFileSync(file)) !== expected)
+      throw Error('Exact current regenerated command/form artifact digest required');
   }
 }
 function assertDecision() {
@@ -68,4 +78,4 @@ function facts() {
     acceptedForMerge: false, acceptedForRelease: false };
 }
 function assertFacts(value) { if (!equal(value, facts())) throw Error('Current pair evidence decision/history/acceptance mismatch'); }
-module.exports = { assertDecision, readProjection, expectedHashes, checkShape, facts, assertFacts, generatedMirrors, assertGeneratedSources };
+module.exports = { assertDecision, readProjection, expectedHashes, checkShape, facts, assertFacts, generatedMirrors, assertGeneratedSources, assertOverlaySources };

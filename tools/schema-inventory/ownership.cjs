@@ -98,7 +98,8 @@ function verifyUnion(coreScan,demoScan,current=false){
 function verifyPair({scanner,coreRoot,ownerRoot,localInventory,manifest,directory,coreSha,demoSha,sourceAudit=false},currentPairMode=false){ if(currentPairMode&&!sourceAudit)throw Error('Current paired contract requires exact private source audit');
  if(currentPairMode)currentPair.assertGeneratedSources(fs.realpathSync(ownerRoot));
  const options={manifest,directory,coreSha,demoSha,ownerRoot,coreRoot,sourceAudit};const item=verifiedPackage(options);
- for(const overlay of overlays)if(sha(fs.readFileSync(path.join(ownerRoot,overlay.sourcePath)))!==overlay.sourceSha256)throw Error('Exact regenerated command/form artifact digest required');
+ if(currentPairMode)currentPair.assertOverlaySources(fs.realpathSync(ownerRoot),overlays);
+ else for(const overlay of overlays)if(sha(fs.readFileSync(path.join(ownerRoot,overlay.sourcePath)))!==overlay.sourceSha256)throw Error('Exact regenerated command/form artifact digest required');
  const git=(root,args)=>execFileSync('git',args,{cwd:root,encoding:'utf8'}).trim();
  if(git(coreRoot,['rev-parse','HEAD'])!==coreSha||git(coreRoot,['status','--porcelain','--untracked-files=no'])||git(ownerRoot,['rev-parse','HEAD'])!==demoSha)throw Error('Exact clean source checkout required');
  const changed=git(ownerRoot,['diff','HEAD','--name-only']).split('\n').filter(Boolean);
