@@ -185,3 +185,12 @@ test('repeated visibility rejects ambiguous keys and absent prior collections be
     assert.equal(root.innerHTML,'<strong>retained</strong>');
   }renderer.dispose();dom.window.close();
 });
+test('AppServices snapshot exposes measured status without returning private registry or payloads',()=>{
+  const composition=fs.readFileSync(new URL('../../xtend-maraca/browser-composition-runtime.mjs',import.meta.url),'utf8');
+  const code=composition.slice(composition.indexOf('function createAppServicesPort('),composition.indexOf('\nfunction createRuntimeConfiguration('));
+  const create=vm.runInNewContext(code+'\ncreateAppServicesPort',{deepFreeze:value=>Object.freeze(value),clone:value=>structuredClone(value)});
+  const registry={listActive:()=>[{}],listListenerErrors:()=>[],listHistory:()=>[{serviceId:'fixture.stream',kind:'stream',target:'local',status:'fulfilled',payload:{private:'not returned'},controller:{}}],listInputPolicyVerdicts:()=>[],dispose(){},invoke(){},stream(){}};
+  const port=create({appServices:{enabled:true,manifest:{services:[{id:'fixture.stream'}]}}},{appServiceDefinition:{},createAppServiceRegistry:()=>registry},{},()=>{}),snapshot=port.snapshot();
+  assert.equal(snapshot.activeCount,1);assert.equal(snapshot.listenerErrorCount,0);assert.equal(snapshot.history[0].status,'fulfilled');assert.equal(snapshot.serviceCount,1);
+  assert.equal(snapshot.registry,undefined);assert.equal(snapshot.history[0].payload,undefined);assert.equal(snapshot.history[0].controller,undefined);assert.equal(snapshot.stream,undefined);
+});
