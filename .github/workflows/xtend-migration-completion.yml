@@ -20,6 +20,10 @@ jobs:
       archive-sha256: ${{ steps.producer.outputs.archive-sha256 }}
       manifest-sha256: ${{ steps.producer.outputs.manifest-sha256 }}
       artifact-id: ${{ steps.upload.outputs.artifact-id }}
+      demo-sha: ${{ steps.identity.outputs.demo-sha }}
+      union-archive-sha256: ${{ steps.union-producer.outputs.archive-sha256 }}
+      union-manifest-sha256: ${{ steps.union-producer.outputs.manifest-sha256 }}
+      union-artifact-id: ${{ steps.union-upload.outputs.artifact-id }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
@@ -33,6 +37,12 @@ jobs:
         run: |
           test "$(git rev-parse HEAD)" = "$EVENT_HEAD"
           echo "core-sha=$EVENT_HEAD" >> "$GITHUB_OUTPUT"
+          python3 - <<'PYPIN'
+          import json,os,re
+          pin=json.load(open("product-demos.lock.json"))["demoSha"]
+          assert re.fullmatch("[a-f0-9]{40}",pin)
+          with open(os.environ["GITHUB_OUTPUT"],"a") as output:output.write("demo-sha="+pin+"\n")
+          PYPIN
       - name: Produce single-repository source transport
         id: producer
         env:
@@ -50,6 +60,32 @@ jobs:
         with:
           name: xtend-core-source-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/core-produced/sources.tar.gz
+          if-no-files-found: error
+
+      - name: Checkout exact paired Demo source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: konnilabs/xtend-demos
+          ref: ${{ steps.identity.outputs.demo-sha }}
+          path: paired-demo
+          persist-credentials: false
+      - name: Produce exact current paired source transport
+        id: union-producer
+        env:
+          CORE_SHA: ${{ steps.identity.outputs.core-sha }}
+        run: |
+          python3 scripts/build-union-source-artifact.py --core . --demo paired-demo --core-sha "$CORE_SHA" --output "$RUNNER_TEMP/union-produced" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT"
+          python3 - <<'PYUNION'
+          import json,os
+          value=json.load(open(os.environ['RUNNER_TEMP']+'/union-produced/producer-receipt.json'))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as output:
+              output.write('archive-sha256='+value['archiveSha256']+'\nmanifest-sha256='+value['manifestSha256']+'\n')
+          PYUNION
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        id: union-upload
+        with:
+          name: xtend-current-paired-source-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/union-produced/sources.tar.gz
           if-no-files-found: error
 
   pr-fast-gates:
@@ -152,6 +188,32 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/check-core-source.cjs
+
+      - name: Acquire exact same-run current pair
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          artifact-ids: ${{ needs.core-source-artifact.outputs.union-artifact-id }}
+          path: ${{ runner.temp }}/union-source
+      - name: Verify complete current migration union
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          CORE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
+          DEMO_SHA: ${{ needs.core-source-artifact.outputs.demo-sha }}
+          UNION_ARCHIVE_SHA256: ${{ needs.core-source-artifact.outputs.union-archive-sha256 }}
+          UNION_MANIFEST_SHA256: ${{ needs.core-source-artifact.outputs.union-manifest-sha256 }}
+        run: |
+          python3 - <<'PYUNION'
+          import json,os
+          e=os.environ
+          expected=dict(producerMode='committed',coreSha=e['CORE_SHA'],demoSha=e['DEMO_SHA'],archiveSha256=e['UNION_ARCHIVE_SHA256'],manifestSha256=e['UNION_MANIFEST_SHA256'],context=dict(runId=e['GITHUB_RUN_ID'],runAttempt=e['GITHUB_RUN_ATTEMPT']))
+          with open(e['RUNNER_TEMP']+'/union-expected.json','x') as output:json.dump(expected,output)
+          PYUNION
+          node scripts/check-current-full-union.cjs --archive "$RUNNER_TEMP/union-source/sources.tar.gz" --destination "$RUNNER_TEMP/union-current" --expected "$RUNNER_TEMP/union-expected.json" --output .xtend-test-results/current-full-union.json
+      - name: Current pair and full-union negative regressions
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node --test --test-reporter=tap tests/migration/current-pair-contract.test.cjs tests/migration/current-full-union.test.cjs
 
       - name: Required command-binding metadata ownership regression
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}

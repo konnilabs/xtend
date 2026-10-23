@@ -11,6 +11,7 @@ function fixture(){
  for(const scan of [core,demo]){const e=scan.entries.find(e=>e.schemaId===transition.schemaId);e.shapeFingerprints=e.shapeFingerprints.filter(f=>f.hash!==transition.historicalHash);}
  core.entries.find(e=>e.schemaId===transition.schemaId).shapeFingerprints.push(structuredClone(current));
  for(const o of [require('../../tools/schema-inventory/command-lexical-overlay.json'),...require('../../tools/schema-inventory/form-validation-lexical-overlay.json')])demo.entries.find(e=>e.schemaId===o.schemaId).shapeFingerprints.push(...structuredClone(o.variants));
+ for(const row of contract.generatedMirrors().entries){for(const scan of [core,demo]){const e=scan.entries.find(e=>e.schemaId===row.schemaId);e.shapeFingerprints=e.shapeFingerprints.filter(f=>!row.historicalOnly.includes(f.hash));}demo.entries.find(e=>e.schemaId===row.schemaId).shapeFingerprints.push(...structuredClone(row.variants));}
  return {core,demo};
 }
 test('current 103 union has the approved partial transition; immutable history retains its original hash',()=>{

@@ -1624,6 +1624,7 @@
     "scripts/capture_pack_dry_run.js",
     "scripts/capture_rmt_vnext_source_to_sea_evidence.js",
     "scripts/check-core-source.cjs",
+    "scripts/check-current-full-union.cjs",
     "scripts/check-union-source.cjs",
     "scripts/check_rmt_demos.js",
     "scripts/check_syntax.js",
@@ -2255,6 +2256,7 @@
     "tests/migration/command-lexical-semantics.test.cjs",
     "tests/migration/contract-source-cleanup.test.cjs",
     "tests/migration/core-contract-compatibility.test.cjs",
+    "tests/migration/current-full-union.test.cjs",
     "tests/migration/current-pair-contract.test.cjs",
     "tests/migration/electron-attestation-fixture.cjs",
     "tests/migration/electron-ci-attestation-wiring.test.cjs",
@@ -2927,6 +2929,9 @@
     "tools/schema-inventory/authority-sources/xtendrmt/rmt-event-routing-runtime.d.ts",
     "tools/schema-inventory/authority-sources/xtendrmt/rmt-form-validation-runtime.d.ts",
     "tools/schema-inventory/command-lexical-overlay.json",
+    "tools/schema-inventory/current-full-union.cjs",
+    "tools/schema-inventory/current-full-union.json.gz",
+    "tools/schema-inventory/current-generated-mirrors.json.gz",
     "tools/schema-inventory/current-pair-contract.cjs",
     "tools/schema-inventory/current-pair-decision.json",
     "tools/schema-inventory/engine.cjs",
@@ -3438,7 +3443,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "7898d73886f77dd87c98a5647fa170bca6ca7fb068a172572e421971e03f4c31",
+  "authorityDecisionSha256": "4a75b1b9c23e414977bdbc63889b7fa33077ac93cc956806c381dc5298fd5681",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "f1956bfe2a69f16a4f4b6b88a1366be20de6294284c3e4e1abc3da015eda3587"
 }
