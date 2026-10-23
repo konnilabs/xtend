@@ -73,3 +73,10 @@ test('repository identity is mandatory in the execution CLI validation and canno
   assert.throws(()=>runner.validateRecord(r,{...expected,repository:'konnilabs/xtend'}));
   assert.throws(()=>runner.validateRecord(model(),{...expected,repository:'konnilabs/xtend-demos'}));
 });
+test('Demo event source and installed package Core remain independent from controller revision',()=>{
+ const root=path.resolve(__dirname,'../../..'),sha=require('node:child_process').execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
+ const env={...demoCI,XTEND_DEMO_CONTROLLER_SHA:sha,XTEND_CORE_SHA:source.coreSha};
+ assert.deepEqual(runner.expectedSources(root,env),{implementationCoreSha:source.coreSha,demoSha:source.demoSha});
+ assert.throws(()=>runner.expectedSources(root,{...env,XTEND_CORE_SHA:'missing'}));
+ assert.throws(()=>runner.expectedSources(root,{...env,XTEND_DEMO_CONTROLLER_SHA:'0'.repeat(40)}));
+});

@@ -43,7 +43,8 @@ function accepted(value) {
 function expectedSources(controller,env=process.env) {
   if(env.GITHUB_REPOSITORY==='konnilabs/xtend-demos') {
     assertExecutionIdentity(git(controller,'rev-parse','HEAD'),env.XTEND_DEMO_EVENT_SHA,env);
-    return {implementationCoreSha:env.XTEND_DEMO_CONTROLLER_SHA,demoSha:env.XTEND_DEMO_EVENT_SHA};
+    assert(/^[a-f0-9]{40}$/.test(env.XTEND_CORE_SHA||''),'Independent installed Core source required');
+    return {implementationCoreSha:env.XTEND_CORE_SHA,demoSha:env.XTEND_DEMO_EVENT_SHA};
   }
   return read(path.join(controller,'product-demos.lock.json'));
 }
