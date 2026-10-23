@@ -14,3 +14,40 @@ test('forged owner attribution cannot authorize actual renderer handler writes',
 test('handler installer belongs only to router, metadata generation is not owner relabeling',async()=>{const {dom,root,renderer}=setup();let installs=0;const native=dom.window.EventTarget.prototype.addEventListener;dom.window.EventTarget.prototype.addEventListener=function(...args){if(this.localName==='button')installs++;return native.apply(this,args);};const report=renderer.commit({operation:'replace-children',target:root,descriptor:{type:'element',tag:'button',command:'fixture.once'},ownership});assert.equal(installs,0);assert.equal(root.firstChild.onclick,null);const calls=[];const router=createRmtEventRoutingRuntime({root,commandBus:{async dispatchCommand(e){calls.push(e);return {status:'ok'};}}});router.reconcile(root,report);assert.equal(installs,1);router.reconcile(root,report);assert.equal(installs,1);root.firstChild.click();await settle();assert.equal(calls.length,1);router.dispose();root.firstChild.click();await settle();assert.equal(calls.length,1);dom.window.EventTarget.prototype.addEventListener=native;dom.window.close();});
 test('canonical renderer and both existing embedded distributions retain identical command boundary change',()=>{for(const file of ['rmt-dom-descriptor-renderer.js','rmt-runtime.browser.js','rmt-runtime.esm.js']){const bytes=fs.readFileSync(new URL('../../xtendrmt/'+file,import.meta.url),'utf8');assert.ok(bytes.includes('// Command declarations produce inert binding metadata, not event handlers.'));assert.ok(bytes.includes('// The event-router alone installs handlers from these validated records.'));assert.ok(!bytes.includes("if (descriptor.command || descriptor.commands) domains.add('events');"));assert.ok(!/function applyCommand\(element, descriptor, context\) \{\s*if \(!domainAllowed\(context, 'events'\)\)/.test(bytes));}});
 test('strict router rejects compiled versus dynamic binding-ID collision without installing competing handler',async()=>{const {dom,root,renderer}=setup();const report=renderer.commit({operation:'replace-children',target:root,descriptor:{type:'element',tag:'button',attributes:{id:'collision'},command:{command:'fixture.dynamic',bindingId:'shared.binding'}},ownership});assert.equal(report.bindings[0].id,'shared.binding');const calls=[];const router=createRmtEventRoutingRuntime({root,strict:true,events:[{id:'shared.binding',event:'click',target:'#collision',command:'fixture.compiled',payload:{n:9},owner:'compiled.owner'}],commandBus:{async dispatchCommand(e){calls.push(e);return {status:'ok'};}}});assert.throws(()=>router.reconcile(root,report),e=>e.code==='rmt.event.commit-binding.compiled-collision'&&e.diagnostic.details.bindingId==='shared.binding');root.firstChild.click();await settle();assert.equal(calls.length,0);router.reconcile(root);root.firstChild.click();await settle();assert.deepEqual(calls.map(e=>e.command),['fixture.compiled']);assert.deepEqual({...calls[0].payload},{n:9});router.dispose();dom.window.close();});
+
+// Exercise the controller's actual report boundary, not only renderer -> router.
+const normalizeSource = source.slice(source.indexOf('  function normalizeRendererReport('), source.indexOf('\n  function legacyFullRender(', source.indexOf('  function normalizeRendererReport(')));
+const normalizeReport = vm.runInNewContext(normalizeSource + '\nnormalizeRendererReport', {
+  asRecord: value => value && typeof value === 'object' ? value : {},
+  asArray: value => Array.isArray(value) ? value : [],
+  hasOwn: (value, key) => Object.hasOwn(value, key),
+  clone: (value, fallback) => value === undefined ? fallback : structuredClone(value),
+  viewChildNodes: target => [...target.childNodes],
+  DOM_COMMIT_SCHEMA: 'xtend.rmt.dom-commit.v1'
+});
+test('controller normalization preserves exact binding targets and routes native commands through state reconciliation', async () => {
+  const {dom,root,renderer}=setup(); const calls=[];
+  const router=createRmtEventRoutingRuntime({root,strict:true,commandBus:{async dispatchCommand(e){calls.push(e.command);return {status:'ok'};}}});
+  const descriptor={type:'element',tag:'button',attributes:{id:'cancel'},command:{command:'fixture.close',payload:{label:'Cancel'}}};
+  const initial={operation:'replace-children',target:root,descriptor,ownership};
+  const raw=renderer.commit(initial), normalized=normalizeReport(raw,initial);
+  assert.equal(normalized.bindings,raw.bindings); assert.equal(normalized.bindingScope,raw.bindingScope);
+  assert.equal(normalized.bindings[0].target,root.firstChild);
+  router.reconcile(root,normalized); root.firstChild.click(); await settle();
+  const update={operation:'reconcile-children',target:root,descriptors:[{...descriptor,text:'Cancel preparation'}],ownership};
+  router.reconcile(root,normalizeReport(renderer.commit(update),update));
+  router.reconcile(root,normalizeReport(renderer.commit(update),update));
+  root.firstChild.click(); await settle(); assert.deepEqual(calls,['fixture.close','fixture.close']);
+  const remove={...update,descriptors:[]}; const old=root.firstChild;
+  router.reconcile(root,normalizeReport(renderer.commit(remove),remove)); old.click(); await settle();
+  assert.equal(calls.length,2); router.dispose(); dom.window.close();
+});
+test('controller does not invent absent binding evidence or hide malformed and foreign binding scopes', () => {
+  const {dom,root,renderer}=setup(); const request={operation:'replace-children',target:root,descriptor:{type:'element',tag:'button',command:'fixture.close'},ownership};
+  const raw=renderer.commit(request), router=createRmtEventRoutingRuntime({root,strict:true});
+  const absent=normalizeReport({},request); assert.equal(Object.hasOwn(absent,'bindings'),false); assert.equal(Object.hasOwn(absent,'bindingScope'),false);
+  for (const bad of [{...raw,bindings:null},{...raw,bindingScope:null},{...raw,bindingScope:{...raw.bindingScope,roots:[dom.window.document.createElement('aside')]}}]) {
+    assert.throws(()=>router.reconcile(root,normalizeReport(bad,request)),e=>e.code.startsWith('rmt.event.commit-'));
+  }
+  router.dispose();dom.window.close();
+});

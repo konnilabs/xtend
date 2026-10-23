@@ -831,6 +831,11 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       changed: typeof value.changed === 'boolean' ? value.changed : defaults.changed !== false,
       structural: typeof value.structural === 'boolean' ? value.structural : defaults.structural === true,
       diagnostics: asArray(value.diagnostics),
+      // Preserve renderer evidence, including live EventTargets, for the sole
+      // handler owner. Do not fabricate or sanitize malformed binding data:
+      // the event-router validates scope, identity and completeness itself.
+      ...(hasOwn(value, 'bindings') ? { bindings: value.bindings } : {}),
+      ...(hasOwn(value, 'bindingScope') ? { bindingScope: value.bindingScope } : {}),
       metadata: clone(value.metadata, clone(request.context && request.context.metadata, null))
     };
   }
