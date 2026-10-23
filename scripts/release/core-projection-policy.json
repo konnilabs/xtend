@@ -11,6 +11,7 @@
     ".github/workflows/security-scan-regressions.yml",
     ".github/workflows/xtend-browser-hypervisor-matrix.yml",
     ".github/workflows/xtend-default-gates.yml",
+    ".github/workflows/xtend-demo-functional.yml",
     ".github/workflows/xtend-firefox-qualification.yml",
     ".github/workflows/xtend-laravel-ssr.yml",
     ".github/workflows/xtend-migration-audit.yml",
@@ -1633,6 +1634,7 @@
     "scripts/create_component_docs_inventory.js",
     "scripts/create_docs_stub_inventory.js",
     "scripts/create_xtend_nightly_manifest.js",
+    "scripts/demo-functional-ci.cjs",
     "scripts/development-gate.cjs",
     "scripts/docs_content_profiles.js",
     "scripts/enable_node_warning_policy.js",
@@ -1859,6 +1861,7 @@
     "tests/browser/neutral-prototype/campaign.test.cjs",
     "tests/browser/neutral-prototype/capability-matrix.json",
     "tests/browser/neutral-prototype/controller-suite.cjs",
+    "tests/browser/neutral-prototype/demo-functional-ci.test.cjs",
     "tests/browser/neutral-prototype/engine-adapters.cjs",
     "tests/browser/neutral-prototype/engine-adapters.test.cjs",
     "tests/browser/neutral-prototype/execution-profile.cjs",
@@ -3443,7 +3446,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "b417557a2d22f9a5a352daf5190b8ee2a2dfec31e2f4d23a34f66bbf8fefcb16",
+  "authorityDecisionSha256": "3965313d2f12d35365411eaa8dfac770c538f0147a3860f0569c5271bd09695e",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "8fc57e4eb96a3a6fd0155234f06cc4b95879fc9d492fdaad8171e26345e4f865"
 }
