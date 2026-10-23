@@ -1,13 +1,13 @@
 {
   "schema": "xtend.product-demo-pin.v1",
   "repository": "https://github.com/konnilabs/xtend-demos.git",
-  "demoSha": "92952ef4dfe15001b7a5771b73f4f0676e70c914",
+  "demoSha": "dca80f48358c4d71d11d99887e29d8238cf976f9",
   "status": "replacement-pr-checks-and-source-ref-pending",
   "mergeBlocked": true,
   "implementationCoreSha": "6c5e87960567063c5fc4c54badfda0cd7dac24a7",
   "ownershipContract": "current-pair-v1",
   "sourceRefs": {
     "core": "refs/tags/migration-source/core-c1-20261023-6c5e8796",
-    "demo": "refs/tags/migration-source/demo-d1-20261023-92952ef4"
+    "demo": "refs/tags/migration-source/demo-d1-20261023-dca80f48"
   }
 }
