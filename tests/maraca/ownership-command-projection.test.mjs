@@ -51,3 +51,41 @@ test('controller does not invent absent binding evidence or hide malformed and f
   }
   router.dispose();dom.window.close();
 });
+
+const {applyRmtReducerRecipe} = await import('../../xtendrmt/rmt-app-runtime.js');
+const {createRmtStateSelectorRuntime} = await import('../../xtendrmt/rmt-state-selector-runtime.js');
+const reducerLoop = source.slice(source.indexOf('    reducers.forEach((reducer) => {'), source.indexOf('\n    const changedValidationStates', source.indexOf('    reducers.forEach((reducer) => {')));
+const planReducers = vm.runInNewContext(source.slice(source.indexOf('const PLAN_RUNTIME_SCHEMA'), source.indexOf('const VISIBILITY_ATTRIBUTES')) + `
+  (reducers, initial, recipePort, payload = {}) => {
+    const runtimes = { applyReducerRecipe: recipePort };
+    const actionResult = {}, metadata = {}, diagnostics = [];
+    const recordDiagnostic = (...args) => diagnostics.push(args);
+    const modelOperations = []; let workingStates = clone(initial, {});
+    ${reducerLoop}
+    return {modelOperations, workingStates, diagnostics};
+  }`);
+const menu = () => ({open:false,disabled:false,activeTool:'auto',items:[{value:'auto',label:'Auto',triggerLabel:'Use tool',activeAttr:''},{value:'web_search',label:'Web search',activeAttr:'web_search'}]});
+test('controller plans declared recipes using the existing pure reducer and commits typed model operations', () => {
+  const initial={'fixture.menu':menu()}; const before=JSON.stringify(initial);
+  const toggle={state:'fixture.menu',path:'',target:'state.fixture.menu',recipe:'toggle-choice-menu',mode:'recipe',value:null};
+  const result=planReducers([toggle,{...toggle,recipe:'select-choice-menu',value:'input.tool'}],initial,applyRmtReducerRecipe,{tool:'web_search'});
+  assert.equal(JSON.stringify(initial),before);
+  const model=createRmtStateSelectorRuntime({states:[{id:'fixture.menu',type:'object',initial:menu()}]});
+  model.modelCommandPort.apply(result.modelOperations);
+  const observed=model.modelReader.snapshot().states['fixture.menu'];
+  assert.equal(result.modelOperations[0].value.open,true); assert.equal(observed.open,false); assert.equal(observed.activeTool,'web_search');
+  assert.equal(observed.activeToolLabel,'Web search'); assert.equal(observed.activeToolAttr,'web_search');
+});
+test('controller recipe boundary retains disabled behavior, nested targets, diagnostics and fail-closed errors', () => {
+  const base={state:'fixture.menu',path:'',recipe:'toggle-choice-menu',mode:'recipe',value:null};
+  assert.equal(planReducers([base],{'fixture.menu':{...menu(),disabled:true}},applyRmtReducerRecipe).workingStates['fixture.menu'].open,false);
+  assert.equal(planReducers([{...base,path:'child'}],{'fixture.menu':{child:menu()}},applyRmtReducerRecipe).workingStates['fixture.menu'].child.open,true);
+  const invalid=planReducers([{...base,recipe:'select-choice-menu',value:'missing'}],{'fixture.menu':menu()},applyRmtReducerRecipe);
+  assert.equal(invalid.workingStates['fixture.menu'].activeTool,'auto'); assert.equal(invalid.diagnostics.length,1);
+  assert.throws(()=>planReducers([base],{'fixture.menu':menu()},null),/recipe/i);
+  assert.throws(()=>planReducers([{...base,recipe:'unknown-recipe'}],{'fixture.menu':menu()},applyRmtReducerRecipe),/Unsupported RMT reducer recipe/);
+  const literal=planReducers([{state:'fixture.menu',path:'open',value:true}],{'fixture.menu':menu()},null);
+  assert.equal(literal.workingStates['fixture.menu'].open,true);
+  const model=createRmtStateSelectorRuntime({states:[{id:'fixture.menu',type:'object',initial:menu()}]});
+  assert.throws(()=>model.modelCommandPort.apply([{operation:'set',state:'fixture.menu',value:null}]),/Typ object/);
+});

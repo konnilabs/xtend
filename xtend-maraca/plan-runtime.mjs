@@ -1158,9 +1158,24 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
 
     reducers.forEach((reducer) => {
       const value = reducerValue(reducer.value, payload, actionResult && actionResult.data || actionResult);
-      const next = reducer.path
-        ? writePath(clone(workingStates[reducer.state], {}), reducer.path, value)
-        : clone(value, value);
+      let next;
+      if (reducer.recipe || reducer.mode === 'recipe') {
+        if (typeof runtimes.applyReducerRecipe !== 'function') {
+          throw new Error('Managed recipe reducers require the pure RMT reducer recipe port.');
+        }
+        next = runtimes.applyReducerRecipe(workingStates[reducer.state], {
+          recipe: reducer.recipe,
+          path: reducer.path || '',
+          value
+        }, {
+          ...metadata,
+          publishDiagnostic: diagnostic => recordDiagnostic(diagnostic.code, diagnostic.severity, diagnostic.message, diagnostic.details || {})
+        });
+      } else {
+        next = reducer.path
+          ? writePath(clone(workingStates[reducer.state], {}), reducer.path, value)
+          : clone(value, value);
+      }
       modelOperations.push({
         operation: 'set',
         state: reducer.state,
@@ -2819,6 +2834,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       runtimes = {
         state,
         modelPlanningFactory: stateFactory,
+        applyReducerRecipe: runtimeFactory(api.app, 'applyRmtReducerRecipe'),
         kernel,
         action,
         actionFacade,
