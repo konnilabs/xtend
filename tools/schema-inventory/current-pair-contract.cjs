@@ -6,7 +6,7 @@ const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const stable = x => Array.isArray(x) ? x.map(stable) : x && typeof x === 'object' ? Object.fromEntries(Object.keys(x).sort().map(k => [k, stable(x[k])])) : x;
 const equal = (a, b) => JSON.stringify(stable(a)) === JSON.stringify(stable(b));
 const decisionDigest = '617629667e80fe9d67ceb994affa6e1120f403bf9e20ae39cdbeea511fbd37bd';
-const generatedDigest = 'f8fb2e6901f1a4771cdb96c9fb2aa3b4ecf39594c5c2f51ec18265bcb2238a1f';
+const generatedDigest = 'e7d1a5dd5a42a097b4c008ceb88c901568faf5d10f01784abf57251752acf96b';
 function generatedMirrors() {
   const bytes = require('node:zlib').gunzipSync(fs.readFileSync(path.join(__dirname, 'current-generated-mirrors.json.gz')));
   if (digest(bytes) !== generatedDigest) throw Error('Reviewed generated mirror transition substituted');
