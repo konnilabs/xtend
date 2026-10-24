@@ -69,21 +69,33 @@ function requirementsFor(options = {}) {
 
 const PHP_PROBE = 'if(!extension_loaded("json")||!extension_loaded("openssl")||!is_callable("proc_open")||!is_callable("iconv")){fwrite(STDERR,"PHP requires JSON, OpenSSL, proc_open and iconv");exit(1);}if(bin2hex(iconv("UTF-8","UTF-16BE","a"))!=="0061"){fwrite(STDERR,"PHP iconv conversion failed");exit(1);}echo PHP_VERSION;';
 
-// Synchronous, non-fatal identity capture: missing optional tools are recorded,
-// never turned into a global execution requirement. No ini contents are exposed.
+// Missing optional tools are recorded, never made global requirements. Execution
+// requests complete identity for discovered tools; transient probe errors block.
 function toolchainIdentity(options = {}) {
   const run = options.commandProbe || commandProbe;
   const capture = (probe,command,args) => {
-    try { return {command,available:true,value:run(command,args)}; }
+    try {
+      const value=run(command,args);
+      if(options.requireComplete && (typeof value!=='string'||!value.trim()))throw Error('Empty tool identity');
+      return {command,available:true,value};
+    }
     catch (error) {
-      // Reporting is optional and cannot change the existing identity or failure handling.
-      try { options.onProbeFailure?.(probeFailure(probe,error)); } catch {}
+      // Diagnostics cannot override strict capture or expose command output.
+      const failure=probeFailure(probe,error);
+      try { options.onProbeFailure?.(failure); } catch {}
+      // A discovered browser/driver cannot be called absent after a failed
+      // identity probe. Unknown tool identity blocks before any suite starts.
+      // A missing optional PATH PHP remains distinguishable from a failed probe.
+      if(options.requireComplete && !(probe==='php'&&failure.code==='ENOENT')) {
+        throw Error(`Incomplete toolchain identity: ${failure.probe} (${failure.kind})`);
+      }
       return {command,available:false};
     }
   };
   const phpCode = '$ext=get_loaded_extensions();sort($ext);$files=array_filter(array_merge([php_ini_loaded_file()],explode(",",(string)php_ini_scanned_files())));$ini=[];foreach($files as $f){$f=trim($f);if($f!=="")$ini[$f]=is_file($f)?hash_file("sha256",$f):null;}ksort($ini);echo json_encode(["version"=>PHP_VERSION,"binary"=>PHP_BINARY,"binaryHash"=>hash_file("sha256",PHP_BINARY),"extensions"=>$ext,"ini"=>$ini,"disabled"=>ini_get("disable_functions"),"iconv"=>is_callable("iconv")?bin2hex(iconv("UTF-8","UTF-16BE","a")):null]);';
   const provider = providerOptions({});
   const driver = findExecutable('chromedriver',provider.driverPath,{explicitOnly:Boolean(provider.driverPath)});
+  if(options.requireComplete&&provider.driverPath&&!driver)throw Error('Incomplete toolchain identity: browser.driver (configured executable unavailable)');
   const binary = provider.browserBinary || findExecutable('chromium') || findExecutable('google-chrome');
   const phpCommands = [...new Set(['php',process.env.XTEND_PHP_BINARY].filter(Boolean))];
   const php = phpCommands.map(command=>capture('php',command,['-r',phpCode]));

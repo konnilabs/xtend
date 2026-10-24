@@ -57,7 +57,7 @@ function provenance(options = {}) {
     runtime: {
       node: process.version, platform: process.platform, arch: process.arch, nodeOptions: process.env.NODE_OPTIONS || '',
       runnerImage: `${process.env.ImageOS || ''}:${process.env.ImageVersion || ''}`,
-      toolchain: require('./capabilities').toolchainIdentity({onProbeFailure:options.onProbeFailure}),
+      toolchain: require('./capabilities').toolchainIdentity({requireComplete:true,onProbeFailure:options.onProbeFailure}),
       ...(laravel ? {laravel} : {}),
       ...(shop ? {shop} : {}),
       environmentFingerprint: hash(JSON.stringify(Object.keys(process.env).filter(key=>key.startsWith('XTEND_') && key !== 'XTEND_TEST_RUN_ID').sort().map(key=>[key,process.env[key]])))
@@ -251,6 +251,12 @@ function verifyExecution(options) {
   const errors = [];
   if (report.schema !== SCHEMA || !report.executionId || report.complete !== true) errors.push('Missing or incomplete execution report.');
   if (report.infrastructureErrors?.length) errors.push(...report.infrastructureErrors);
+  try {
+    const failures=report.diagnostics?.probeFailures;
+    const browser=report.runtime?.toolchain?.browser;
+    const incomplete=['binary','driver'].some(key=>browser?.[key]?.command&&browser[key].available!==true);
+    if(incomplete||(failures!==undefined&&(!Array.isArray(failures)||failures.some(record=>!(record?.probe==='php'&&record?.code==='ENOENT')))))errors.push('Incomplete producer toolchain identity.');
+  } catch { errors.push('Incomplete producer toolchain identity.'); }
   if (!Array.isArray(report.expected) || !Array.isArray(report.results) ||
       new Set(report.expected).size !== report.expected.length ||
       report.expected.some(id => report.results.filter(entry=>entry.id === id && entry.completedAt && entry.result).length !== 1)) errors.push('Expected execution results are incomplete or duplicated.');

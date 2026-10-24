@@ -178,7 +178,16 @@ require.cache[p]={exports:{
       }
     });
     await require('./imported_ci_runner_checks').runImportedCiRunnerChecks({check,temp,rootDir});
-    await check('Producer probe diagnostics remain outside the compared runtime and preserve verification', async () => {
+    await check('Incomplete toolchain identity stops execution before workers or success reports', async()=>{
+      const capabilities=require('../../scripts/test-runner/capabilities'),original=capabilities.toolchainIdentity;
+      const destination=path.join(temp,'identity-must-not-execute.json');let captures=0;
+      try {
+        capabilities.toolchainIdentity=options=>{captures++;assert.equal(options.requireComplete,true);throw Error('Incomplete toolchain identity: browser.binary (timeout)');};
+        await assert.rejects(execute([suite('core')],{workerPath,execution:destination,json:true,cleanupMs:100}),/Incomplete toolchain identity/);
+        assert.equal(captures,1);assert(!fs.existsSync(destination));
+      } finally {capabilities.toolchainIdentity=original;}
+    });
+    await check('Producer probe diagnostics remain outside runtime but incomplete identity cannot pass verification', async () => {
       const capabilities=require('../../scripts/test-runner/capabilities'),original=capabilities.toolchainIdentity;
       const record={probe:'browser.binary',kind:'timeout',code:'ETIMEDOUT'},previousRun=process.env.XTEND_TEST_RUN_ID;
       try {
@@ -194,7 +203,8 @@ require.cache[p]={exports:{
         assert(!Object.hasOwn(evidence.runtime,'diagnostics'));
         const current=require('../../scripts/test-runner/executor').provenance();
         assert.deepEqual(evidence.runtime,current.runtime);
-        assert.equal(verifyExecution({verify:'core',from:execution,project:false,provenance:current}).status,'passed');
+        const rejected=verifyExecution({verify:'core',from:execution,project:false,provenance:current});
+        assert.equal(rejected.status,'failed');assert.deepEqual(rejected.errors,['Incomplete producer toolchain identity.']);
       } finally {
         capabilities.toolchainIdentity=original;
         if(previousRun===undefined)delete process.env.XTEND_TEST_RUN_ID;else process.env.XTEND_TEST_RUN_ID=previousRun;

@@ -8,7 +8,7 @@ const secret = 'DO_NOT_LOG_DIAGNOSTIC_SECRET';
 const runtime = () => ({node:'v24.18.0',platform:'linux',arch:'x64',nodeOptions:'--trace-warnings',
   runnerImage:'ubuntu24:20261018.339.1',environmentFingerprint:'a'.repeat(64),
   toolchain:{configurationFingerprint:'b'.repeat(64),php:[{command:'php',available:true,value:'private PHP configuration'}],
-    browser:{endpoint:null,driver:{command:'/driver',available:true,value:'ChromeDriver 155.0.8059.84'},binary:{command:'/browser',available:false}}}});
+    browser:{endpoint:null,driver:{command:'/driver',available:true,value:'ChromeDriver 155.0.8059.84'},binary:{command:'/browser',available:true,value:'Chromium 155.0.8059.0'}}}});
 function fixture(value) {
   const identity = {run:'fixture',commit:'fixture',sourceFingerprint:'fixture',catalogFingerprint:'fixture',runtime:value};
   const ids=profileIds('core'),time='2026-10-19T00:00:00.000Z';
@@ -18,6 +18,7 @@ function fixture(value) {
 async function runRuntimeProvenanceDiagnosticsChecks({check}) {
   await check('Runtime diagnosis reports exact allowlisted changes without altering either identity', () => {
     const before=runtime(),after=structuredClone(before);
+    before.toolchain.browser.binary.available=false;delete before.toolchain.browser.binary.value;
     after.toolchain.browser.binary.available=true;after.toolchain.browser.binary.value='Chromium 155.0.8059.0';
     const original=JSON.stringify([before,after]);
     const d=runtimeMismatchDiagnostics({runtime:before},{runtime:after});
@@ -44,7 +45,7 @@ async function runRuntimeProvenanceDiagnosticsChecks({check}) {
   });
   await check('Runtime mismatch remains blocking and matching runtime remains accepted', () => {
     const {report,identity}=fixture(runtime()),changed=structuredClone(identity);
-    changed.runtime.toolchain.browser.binary.available=true;
+    changed.runtime.toolchain.browser.binary.value='Chromium 155.0.8059.1';
     const options={verify:'core',executionReport:report,project:false};
     const rejected=verifyExecution({...options,provenance:changed});
     assert.equal(rejected.status,'failed');assert.deepEqual(rejected.errors,['Execution provenance mismatch: runtime.']);
@@ -59,7 +60,7 @@ async function runRuntimeProvenanceDiagnosticsChecks({check}) {
     const {report,identity}=fixture(runtime()),changed=structuredClone(identity);changed.runtime.node='v26.5.0';
     Object.defineProperty(report,'diagnostics',{get(){throw Error(secret);}});
     const r=verifyExecution({verify:'core',executionReport:report,project:false,provenance:changed});
-    assert.equal(r.status,'failed');assert.deepEqual(r.errors,['Execution provenance mismatch: runtime.']);
+    assert.equal(r.status,'failed');assert.deepEqual(r.errors,['Incomplete producer toolchain identity.','Execution provenance mismatch: runtime.']);
     assert.equal(r.diagnostics.unavailable,'diagnostic-error');assert(!JSON.stringify(r).includes(secret));
     const cyclic={};cyclic.self=cyclic;
     assert.equal(runtimeMismatchDiagnostics({runtime:cyclic},{runtime:{}}).unavailable,'diagnostic-error');
@@ -101,6 +102,48 @@ async function runRuntimeProvenanceDiagnosticsChecks({check}) {
       toolchainIdentity({commandProbe(){throw changing;},onProbeFailure:row=>once.push(row)});
       assert(!JSON.stringify(once).includes(secret));
     } finally {for(const name of names){if(old[name]===undefined)delete process.env[name];else process.env[name]=old[name];}}
+  });
+  await check('Strict identity rejects timeout, unavailable discovered browser and empty output without retries', () => {
+    const key='XTEND_BROWSER_HYPERVISOR_BROWSER_BINARY',previous=process.env[key];
+    process.env[key]='/model/browser';
+    try {
+      for(const code of ['ETIMEDOUT','ENOENT','EACCES',null]) {
+        let attempts=0;
+        assert.throws(()=>toolchainIdentity({requireComplete:true,commandProbe(command){
+          if(command!=='/model/browser')return 'identified';
+          attempts++;if(code)throw Object.assign(Error(secret),{code});return '';
+        }}),error=>/Incomplete toolchain identity: browser.binary/.test(error.message)&&!error.message.includes(secret));
+        assert.equal(attempts,1);
+      }
+      const captured=toolchainIdentity({requireComplete:true,commandProbe:()=> 'identified'});
+      assert.equal(captured.browser.binary.available,true);
+    } finally {if(previous===undefined)delete process.env[key];else process.env[key]=previous;}
+  });
+  await check('Incomplete producer identity cannot pass even when later runtime matches', () => {
+    for(const failure of [{probe:'browser.binary',code:'ETIMEDOUT'}, {probe:'browser.driver',code:'ENOENT'}, null]) {
+      const {identity,report}=fixture(runtime());report.diagnostics={probeFailures:[failure]};
+      const result=verifyExecution({verify:'core',executionReport:report,provenance:identity,project:false});
+      assert.equal(result.status,'failed');assert(result.errors.includes('Incomplete producer toolchain identity.'));
+    }
+    const {identity,report}=fixture(runtime());
+    report.runtime.toolchain.browser.binary.available=false;delete report.runtime.toolchain.browser.binary.value;
+    assert.equal(verifyExecution({verify:'core',executionReport:report,provenance:identity,project:false}).status,'failed','Missing discovered identity must fail even without diagnostics');
+  });
+  await check('Pinned preparation verifies both exact tool versions once before exporting identity',()=>{
+    const {verifyToolchainVersions}=require('../../scripts/prepare_product_browser_toolchain.cjs');
+    const {pin}=require('../security/sandboxed-browser.cjs'),calls=[];
+    const run=(file,args,options)=>{calls.push(file);assert.deepEqual(args,['--version']);assert.equal(options.timeout,10000);return (file==='/browser'?'Google Chrome for Testing ':'ChromeDriver ')+pin.version;};
+    const identity=verifyToolchainVersions('/browser','/driver',run);
+    assert.equal(identity.version,pin.version);assert.deepEqual(calls,['/browser','/driver']);
+    for(const failing of ['/browser','/driver'])for(const mode of ['timeout','wrong-version','empty']) {
+      let attempts=0;
+      assert.throws(()=>verifyToolchainVersions('/browser','/driver',(file,args,options)=>{
+        if(file!==failing)return run(file,args,options);
+        attempts++;if(mode==='timeout')throw Object.assign(Error(secret),{code:'ETIMEDOUT'});
+        return mode==='empty'?'':'Chromium 155.0.8059.0';
+      }),error=>/probe failed|version mismatch/.test(error.message)&&!error.message.includes(secret));
+      assert.equal(attempts,1);
+    }
   });
 }
 module.exports={runRuntimeProvenanceDiagnosticsChecks};

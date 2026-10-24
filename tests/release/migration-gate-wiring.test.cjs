@@ -46,3 +46,24 @@ test('Core workflow selects only the pre-existing exact runtime lanes',()=>{
   assert.ok(!/capture_node_runtime_evidence\.js --lane core-/u.test(workflow));
   assert.deepEqual(Object.keys(runtime.RUNTIME_LANES).sort(),['node-24-lts','node-24-publish','node-26-current']);
 });
+
+test('Core job identity setup precedes execution and remains pinned without sandbox flags',()=>{
+  const check=(source,job,nextJob,command)=>{
+    const block=source.slice(source.indexOf('\n  '+job+':'),source.indexOf('\n  '+nextJob+':'));
+    const setup=block.indexOf('run: node scripts/prepare_product_browser_toolchain.cjs');
+    const execute=block.indexOf(command);
+    assert(setup>0&&execute>setup,'Exact identity must be prepared before execution');
+    const step=block.slice(block.lastIndexOf('      - name:',setup),block.indexOf('      - name:',setup));
+    assert(!step.includes('continue-on-error'));assert(!step.includes('--no-sandbox'));
+    assert(step.includes('$RUNNER_TEMP/xtend-core-browser-toolchain'));
+    assert(step.includes('id: browser_toolchain'));
+    const runStep=block.slice(block.lastIndexOf('      - name:',execute),execute);
+    assert(runStep.includes("steps.browser_toolchain.outcome == 'success'"),'Failed identity preparation must prevent product execution');
+  };
+  const regular=fs.readFileSync(path.join(__dirname,'../../.github/workflows/xtend-default-gates.yml'),'utf8');
+  check(regular,'pr-fast-gates','full-release-gates','run: npm run test:ci-pr');
+  check(regular,'full-release-gates','rmt-vnext-primitive-gates','run: npm run test:ci-release');
+  const migration=fs.readFileSync(path.join(__dirname,'../../.github/workflows/xtend-migration-completion.yml'),'utf8');
+  check(migration,'pr-fast-gates','release-prepare',"subprocess.run(['npm','run','test:ci-pr']");
+  for(const variable of ['XTEND_BROWSER_HYPERVISOR_BROWSER_BINARY','XTEND_BROWSER_HYPERVISOR_DRIVER_PATH','CHROMIUM_PATH','XTEND_SECURITY_BROWSER_ARCHIVE'])assert(migration.includes("'"+variable+"'"));
+});

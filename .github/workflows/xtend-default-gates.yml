@@ -157,6 +157,11 @@ jobs:
         with:
           artifact-ids: ${{ needs.core-source-artifact.outputs.artifact-id }}
           path: ${{ runner.temp }}/core-source
+      - name: Prepare exact browser tool identity before execution
+        id: browser_toolchain
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/prepare_product_browser_toolchain.cjs "$RUNNER_TEMP/xtend-core-browser-toolchain"
       - name: Bind Core source expectation
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -199,7 +204,7 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         continue-on-error: true
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.browser_toolchain.outcome == 'success' }}
         run: npm run test:ci-pr
 
       - name: Run XTend MCP contract, security, parity, and evidence gates
@@ -452,6 +457,12 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node --test --test-reporter=tap tests/security/browser-gate.test.cjs
 
+      - name: Prepare exact browser tool identity before execution
+        id: browser_toolchain
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/prepare_product_browser_toolchain.cjs "$RUNNER_TEMP/xtend-core-browser-toolchain"
+
       - name: Prepare Native-First release evidence artifacts
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -462,7 +473,7 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         continue-on-error: true
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.browser_toolchain.outcome == 'success' }}
         run: npm run test:ci-release
 
       - name: Run XTend MCP contract, security, parity, and evidence gates

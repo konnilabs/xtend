@@ -169,6 +169,11 @@ jobs:
         with:
           artifact-ids: ${{ needs.core-source-artifact.outputs.artifact-id }}
           path: ${{ runner.temp }}/core-source
+      - name: Prepare exact browser tool identity before execution
+        id: browser_toolchain
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/prepare_product_browser_toolchain.cjs "$RUNNER_TEMP/xtend-core-browser-toolchain"
       - name: Bind Core source expectation
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
@@ -243,7 +248,7 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         continue-on-error: true
-        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.browser_toolchain.outcome == 'success' }}
         run: |
           python3 - <<'PYREGRESSION'
           import os,subprocess,tempfile
@@ -257,7 +262,9 @@ jobs:
                      'GITHUB_WORKSPACE','RUNNER_OS','RUNNER_ARCH','RUNNER_ENVIRONMENT',
                      'XTEND_CI_LANE','XTEND_NPM_CACHE','XTEND_NPM_CLI',
                      'XTEND_CORE_REQUIRED','XTEND_CORE_ARCHIVE',
-                     'XTEND_CORE_EXPECTED','XTEND_NODE_WARNING_POLICY','XTEND_NODE_WARNING_REPORT']
+                     'XTEND_CORE_EXPECTED','XTEND_NODE_WARNING_POLICY','XTEND_NODE_WARNING_REPORT',
+                     'XTEND_BROWSER_HYPERVISOR_BROWSER_BINARY','XTEND_BROWSER_HYPERVISOR_DRIVER_PATH',
+                     'CHROMIUM_PATH','XTEND_SECURITY_BROWSER_ARCHIVE']
           # Verifiers use the same XTEND_* identity. Reject unexpected additions
           # rather than leaking them or producing evidence they cannot verify.
           unknown = {key for key in os.environ if key.startswith('XTEND_') and key != 'XTEND_TEST_RUN_ID'} - set(allowed)
