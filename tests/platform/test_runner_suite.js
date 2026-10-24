@@ -187,6 +187,17 @@ require.cache[p]={exports:{
         assert.equal(captures,1);assert(!fs.existsSync(destination));
       } finally {capabilities.toolchainIdentity=original;}
     });
+    await check('Imported artifact readers retain independent runtime while local verification requires complete identity',()=>{
+      const capabilities=require('../../scripts/test-runner/capabilities'),original=capabilities.toolchainIdentity,captures=[];
+      try {
+        capabilities.toolchainIdentity=options=>{captures.push(options.requireComplete);return {browser:{binary:{available:false}},configurationFingerprint:'a'.repeat(64)};};
+        const current=require('../../scripts/test-runner/executor').provenance();assert.deepEqual(captures,[false]);
+        const report={schema:'xtend.test.execution-report.v1',executionId:'model',complete:true,expected:[],results:[],runtime:current.runtime};
+        const imported=verifyExecution({verify:'core',executionReport:report,importedCi:{},project:false});
+        assert.equal(captures.at(-1),false);assert.equal(imported.status,'failed','Missing imported binding still fails');
+        verifyExecution({verify:'core',executionReport:report,project:false});assert.equal(captures.at(-1),true);
+      } finally {capabilities.toolchainIdentity=original;}
+    });
     await check('Producer probe diagnostics remain outside runtime but incomplete identity cannot pass verification', async () => {
       const capabilities=require('../../scripts/test-runner/capabilities'),original=capabilities.toolchainIdentity;
       const record={probe:'browser.binary',kind:'timeout',code:'ETIMEDOUT'},previousRun=process.env.XTEND_TEST_RUN_ID;

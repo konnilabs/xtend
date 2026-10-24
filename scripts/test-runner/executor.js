@@ -57,7 +57,7 @@ function provenance(options = {}) {
     runtime: {
       node: process.version, platform: process.platform, arch: process.arch, nodeOptions: process.env.NODE_OPTIONS || '',
       runnerImage: `${process.env.ImageOS || ''}:${process.env.ImageVersion || ''}`,
-      toolchain: require('./capabilities').toolchainIdentity({requireComplete:true,onProbeFailure:options.onProbeFailure}),
+      toolchain: require('./capabilities').toolchainIdentity({requireComplete:options.requireComplete===true,onProbeFailure:options.onProbeFailure}),
       ...(laravel ? {laravel} : {}),
       ...(shop ? {shop} : {}),
       environmentFingerprint: hash(JSON.stringify(Object.keys(process.env).filter(key=>key.startsWith('XTEND_') && key !== 'XTEND_TEST_RUN_ID').sort().map(key=>[key,process.env[key]])))
@@ -119,7 +119,7 @@ async function execute(selected, options = {}) {
   if (![1, 2].includes(jobs)) throw new Error('Worker count must be 1 or 2.');
   if (!selected.length) throw new Error('An execution must contain at least one suite.');
   const probeFailures = [];
-  const identity = options.provenance || provenance({onProbeFailure:record=>{if(probeFailures.length<8)probeFailures.push(record);}});
+  const identity = options.provenance || provenance({requireComplete:true,onProbeFailure:record=>{if(probeFailures.length<8)probeFailures.push(record);}});
   const executionId = randomUUID();
   const logDir = path.join(rootDir, '.xtend-test-results/test-runner', executionId);
   fs.mkdirSync(logDir, { recursive: true });
@@ -247,7 +247,9 @@ function verifyExecution(options) {
   const report = options.executionReport || JSON.parse(bytes);
   const imported = typeof options.importedCi === 'string' ? JSON.parse(fs.readFileSync(path.resolve(rootDir, options.importedCi), 'utf8')) : options.importedCi;
   const probeFailures = [];
-  const current = options.provenance || provenance({onProbeFailure:record=>{if(probeFailures.length<8)probeFailures.push(record);}});
+  // Imported CI authenticates the producer's runtime; the reader does not run
+  // those tests and must not acquire a new local browser prerequisite.
+  const current = options.provenance || provenance({requireComplete:!imported,onProbeFailure:record=>{if(probeFailures.length<8)probeFailures.push(record);}});
   const errors = [];
   if (report.schema !== SCHEMA || !report.executionId || report.complete !== true) errors.push('Missing or incomplete execution report.');
   if (report.infrastructureErrors?.length) errors.push(...report.infrastructureErrors);
