@@ -8,7 +8,7 @@ const { createSuiteContext } = require('../utils/assertions');
 const { normalizeSuiteResult } = require('../utils/reporting');
 const { parseArgs } = require('../../scripts/test-runner/cli');
 const { catalog, select, canonicalSuite, scriptSuiteIds, profileIds } = require('../../scripts/test-runner/catalog');
-const { execute, verifyExecution } = require('../../scripts/test-runner/executor');
+const { execute, verifyExecution, SCHEMA } = require('../../scripts/test-runner/executor');
 
 async function runTestRunnerSuite({ rootDir } = {}) {
   const context = createSuiteContext({ id: 'test-runner', label: 'Runner supervision and profiles' });
@@ -192,7 +192,7 @@ require.cache[p]={exports:{
       try {
         capabilities.toolchainIdentity=options=>{captures.push(options.requireComplete);return {browser:{binary:{available:false}},configurationFingerprint:'a'.repeat(64)};};
         const current=require('../../scripts/test-runner/executor').provenance();assert.deepEqual(captures,[false]);
-        const report={schema:'xtend.test.execution-report.v1',executionId:'model',complete:true,expected:[],results:[],runtime:current.runtime};
+        const report={schema:SCHEMA,executionId:'model',complete:true,expected:[],results:[],runtime:current.runtime};
         const imported=verifyExecution({verify:'core',executionReport:report,importedCi:{},project:false});
         assert.equal(captures.at(-1),false);assert.equal(imported.status,'failed','Missing imported binding still fails');
         verifyExecution({verify:'core',executionReport:report,project:false});assert.equal(captures.at(-1),true);
