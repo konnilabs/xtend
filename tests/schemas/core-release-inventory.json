@@ -854511,7 +854511,7 @@
       "schemaId": "xtend.test.execution-report.v1",
       "shapeFingerprints": [
         {
-          "hash": "sha256:ee2a396b921a2a262b9c9ea3657376c756818d291af303d287491c58f8d609ac",
+          "hash": "sha256:beab67bb93332f78c0ab08bfa91710a64f51981ec8a6716fe0d26cfb9a57eddf",
           "shape": {
             "fieldCount": 12,
             "fields": [
@@ -854590,7 +854590,7 @@
               },
               "unresolvedSpreads": [
                 {
-                  "unresolved": "options.provenance || provenance({onProbeFailure:record=>{if(probeFailures.length<8)probeFailures.push(record);}})"
+                  "unresolved": "options.provenance || provenance({requireComplete:true,onProbeFailure:record=>{if(probeFailures.length<8)probeFailures.push(record);}})"
                 }
               ]
             }
@@ -854619,11 +854619,11 @@
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
-          "sha256:ee2a396b921a2a262b9c9ea3657376c756818d291af303d287491c58f8d609ac"
+          "sha256:beab67bb93332f78c0ab08bfa91710a64f51981ec8a6716fe0d26cfb9a57eddf"
         ],
         "authoritativeFingerprints": [],
         "mode": "single",
-        "rationale": "Reviewed internal diagnostic addition: existing required fields, exact provenance comparison and blocking outcomes are unchanged. Optional probe/mismatch diagnostics remain outside runtime; only the current non-authoritative runtime observation is rebound. No released or authoritative fingerprint is changed.",
+        "rationale": "Reviewed internal provenance prerequisite: the runtime observation adds requireComplete:true to the existing unresolved provenance spread. Required report fields and strict provenance comparison are unchanged; incomplete tool identity now blocks execution. No released or authoritative fingerprint changes.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",

@@ -4,7 +4,7 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "3dd3c50e1d11adc35eecdf0a6b9364e8be9240187ae284938a6957e7c63e66d7",
+  "inventorySha256": "c66d24d680259e90806637f922b7df276f6217333721a9d680fb526fcb564f17",
   "sourceMembershipSha256": "539b7dfce28cf458106cfc3ddc2a8db439e44f1e4f630b2cbf80cace618f4926",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
