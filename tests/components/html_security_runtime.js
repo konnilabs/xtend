@@ -15,6 +15,22 @@ for(const source of [
 for(const source of ['// node.innerHTML=data\nnode.textContent=data','const literal="node.innerHTML = data"','const html=node.innerHTML','const value: string="text";'])record('syntax gate accepts inert source '+source,()=>assert.equal(gate.scanText(source,{filePath:'app.ts'}).length,0));
 record('legacy boundary filename cannot implicitly bypass syntax mode',()=>assert(gate.scanText('node.innerHTML=data',{filePath:'components/xplayer.js'}).length));
 record('invalid source fails closed',()=>assert.equal(gate.scanText('const broken = (',{filePath:'app.ts'})[0].code,'rmt.app.no-manual-shell.source-invalid'));
+record('optional compiler is loaded only for active audits and missing prerequisites fail closed',()=>{
+ const Module=require('module'),filename=path.resolve(__dirname,'../../xtend-maraca/html-security.js');
+ for(const code of ['MODULE_NOT_FOUND','ERR_PACKAGE_PATH_NOT_EXPORTED']){
+  const isolated=new Module(filename,module),real=Module.createRequire(filename);let requests=0;
+  isolated.filename=filename;isolated.require=name=>{
+   if(name==='@ccslabs/xtend-compiler/rmt-language/app-platform-tooling'){requests++;throw Object.assign(new Error('controlled missing optional compiler'),{code});}
+   return real(name);
+  };
+  isolated._compile(fs.readFileSync(filename,'utf8'),filename);
+  for(const value of [undefined,false])assert.equal(isolated.exports.checkMaracaHtmlSecurity(value,process.cwd()),null);
+  assert.equal(requests,0);
+  const result=isolated.exports.checkMaracaHtmlSecurity({sources:[]},process.cwd());
+  assert.equal(result.ok,false);assert.equal(requests,1);assert(result.diagnostics.some(d=>d.code==='rmt.app.no-manual-shell.toolchain-missing'));
+ }
+});
+
 const folder=fs.mkdtempSync(path.join(process.cwd(),'.xtend-html-security-'));
 try{
  fs.writeFileSync(path.join(folder,'clean.ts'),'const value: string="text"; node.textContent=value;');

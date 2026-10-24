@@ -1039,6 +1039,8 @@ export interface MaracaBuildConfig {
   schema: typeof MARACA_BUILD_CONFIG_SCHEMA;
   source: string;
   sourceFingerprint: string;
+  /** Absent/null for no bound AppService graph; a present hash retains source-drift checks. */
+  serviceGraphFingerprint?: string | null;
   output: string;
   selected: {
     profile: 'production' | 'max';

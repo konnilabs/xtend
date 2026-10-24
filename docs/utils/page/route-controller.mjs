@@ -385,7 +385,7 @@ const DOCS_RMT_PLAYGROUND_PRESETS = Object.freeze([
   Object.freeze({ id: 'minimal', source: DOCS_RMT_PLAYGROUND_DEFAULT_SOURCE, filePath: 'docs/rmt-playground-minimal.rmt' }),
   Object.freeze({ id: 'kernel-form', source: DOCS_RMT_PLAYGROUND_KERNEL_FORM_SOURCE, filePath: 'docs/rmt-playground-kernel-form.rmt' }),
   Object.freeze({ id: 'transitions', source: DOCS_RMT_PLAYGROUND_TRANSITIONS_SOURCE, filePath: 'docs/rmt-playground-transitions.rmt' }),
-  Object.freeze({ id: 'customer-service-kernel', endpoint: 'customer-service-kernel', filePath: 'products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt' })
+  Object.freeze({ id: 'customer-service-kernel', endpoint: 'customer-service-kernel', filePath: 'tools/rmt-language/fixtures/kernel-orchestration-contract.rmt' })
 ]);
 const DOCS_SHELL_SHADOW_STYLE_ID = 'xtend-docs-shell-shadow-styles';
 const DOCS_RMT_EXTENSION_SLOTS = Object.freeze([

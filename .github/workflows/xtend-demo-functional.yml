@@ -1,0 +1,126 @@
+name: XTend isolated Demo migration functions
+on:
+  push:
+    branches: [qualification/firefox-initial-20261021]
+permissions:
+  contents: read
+env:
+  XTEND_CI_FUNCTIONAL_PROFILE: chromium-linux-ci-functions-no-sandbox-v1
+jobs:
+  functions:
+    if: github.repository == 'konnilabs/xtend' && github.event_name == 'push' && github.ref == 'refs/heads/qualification/firefox-initial-20261021'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['24.18.0', '26.5.0']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Bind exact sources and evidence paths
+        id: source
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs'),pin=require('./product-demos.lock.json');
+          for(const sha of [pin.demoSha,pin.implementationCoreSha])if(!/^[a-f0-9]{40}$/.test(sha))throw Error('Exact source required');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'demo='+pin.demoSha+'\n');
+          NODE
+          mkdir -p "$RUNNER_TEMP/demo-evidence"
+          printf 'DEMO_EVIDENCE=%s/demo-evidence\nDEMO_TOOLCHAIN=%s/demo-browser\n' "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: konnilabs/xtend-demos
+          ref: ${{ steps.source.outputs.demo }}
+          path: demo-source
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+      - name: Pin npm
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --ignore-scripts --no-audit --no-fund
+      - name: Isolation and aggregation negative tests
+        id: isolation
+        run: node --test tests/browser/neutral-prototype/demo-functional-ci.test.cjs
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        env:
+          update: true
+          use_package_cache: false
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, xml, xmlwriter, pdo_sqlite, curl, zip
+          tools: composer:2.10.3
+      - name: Prepare immutable Core candidates and all consumers
+        id: candidates
+        working-directory: demo-source
+        run: node scripts/prepare-ci-candidates.cjs
+      - name: Bind clean committed source before fixture builds
+        run: node scripts/demo-functional-ci.cjs bind "$GITHUB_WORKSPACE/demo-source" "$DEMO_EVIDENCE/source.json"
+      - name: Prepare only required fixtures and unprivileged FPM
+        id: fixtures
+        working-directory: demo-source
+        run: |
+          node scripts/provision-product-fpm.cjs 8.3
+          mkdir -p "$RUNNER_TEMP/browser-provision-home"
+          NODE_BINARY="$(command -v node)"
+          env -i PATH="$(dirname "$NODE_BINARY"):/usr/local/bin:/usr/bin:/bin" HOME="$RUNNER_TEMP/browser-provision-home" TMPDIR="$RUNNER_TEMP/browser-provision-home" LANG=C.UTF-8 "$NODE_BINARY" scripts/prepare-browser-toolchain.cjs "$DEMO_TOOLCHAIN"
+          npm run build --prefix products/xtend-material-workbench
+          node products/xtend-shop/scripts/prepare-packages.cjs
+          composer install --working-dir=products/xtend-shop --no-interaction --no-progress --prefer-dist --no-scripts --no-plugins
+          composer install --working-dir=products/xtend-shop/payment-provider --no-interaction --no-progress --prefer-dist --no-scripts --no-plugins
+          composer check-platform-reqs --working-dir=products/xtend-shop
+          php products/xtend-shop/scripts/setup.php
+      - name: Execute the five existing groups in isolated owned subprocesses
+        id: browser
+        run: node scripts/demo-functional-ci.cjs run "$GITHUB_WORKSPACE/demo-source" "$DEMO_EVIDENCE" "$DEMO_TOOLCHAIN" "$XTEND_SHOP_FPM_BINARY"
+      - name: Record setup or execution outcomes
+        if: always()
+        env:
+          OUTCOMES: ${{ toJSON(steps) }}
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs'),p=require('node:path'),o=JSON.parse(process.env.OUTCOMES);
+          fs.mkdirSync(process.env.DEMO_EVIDENCE,{recursive:true});
+          fs.writeFileSync(p.join(process.env.DEMO_EVIDENCE,'job-terminal.json'),JSON.stringify({node:process.versions.node,controllerSha:process.env.GITHUB_SHA,runId:process.env.GITHUB_RUN_ID,attempt:Number(process.env.GITHUB_RUN_ATTEMPT),outcomes:Object.fromEntries(['isolation','candidates','fixtures','browser'].map(k=>[k,o[k]?.outcome||'not-run'])),sandboxEnabled:false,sandboxEvidence:'not-provided',acceptedForMerge:false,acceptedForRelease:false},null,2)+'\n');
+          NODE
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: demo-functions-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.node }}
+          path: |
+            ${{ runner.temp }}/demo-evidence/*.json
+            ${{ runner.temp }}/demo-evidence/*/*.json
+            ${{ runner.temp }}/demo-evidence/*/screenshots/*.png
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+  aggregate:
+    needs: functions
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          pattern: demo-functions-${{ github.run_id }}-${{ github.run_attempt }}-*
+          path: ${{ runner.temp }}/demo-functions
+      - name: Require both complete same-source lanes
+        run: node scripts/demo-functional-ci.cjs aggregate "$RUNNER_TEMP/demo-functions" "$RUNNER_TEMP/demo-functions-result.json"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: demo-functions-aggregate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/demo-functions-result.json
+          if-no-files-found: error

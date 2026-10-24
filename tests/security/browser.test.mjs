@@ -2,30 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import {once} from 'node:events';
-import {spawn} from 'node:child_process';
+import sandboxedBrowser from './sandboxed-browser.cjs';
+import browserGate from './browser-gate.cjs';
+import hostDiagnostics from './host-diagnostics.cjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import staticFiles from '../../security/static-files.cjs';
 import {createRmtNodeSsrAdapter} from '../../xtendrmt/rmt-node-ssr-adapter.js';
-
-async function stopBrowser(child) {
-  if (!child?.pid) return;
-  let timer;
-  const running=()=>child.exitCode===null && child.signalCode===null;
-  const signal=name=>{
-    if (!running()) return;
-    if (process.platform==='win32') child.kill(name);
-    else {try {process.kill(-child.pid,name);} catch {child.kill(name);}}
-  };
-  const exited=running() ? once(child,'exit') : Promise.resolve();
-  const wait=()=>Promise.race([exited,new Promise(resolve=>{timer=setTimeout(resolve,2000);})]);
-  try {
-    signal('SIGTERM');await wait();clearTimeout(timer);
-    if(running()){signal('SIGKILL');await wait();}
-  } finally {clearTimeout(timer);child.stdin?.destroy();child.stdout?.destroy();child.stderr?.destroy();}
-}
 
 test('Chromium reparses production sanitizer output and preserves TrustedHTML through the runtime sink', async () => {
   const root=fileURLToPath(new URL('../..',import.meta.url));
@@ -62,37 +47,67 @@ try {
     staticFiles.streamPublicFile(response,file,{'content-type':'text/javascript'});
   });
   server.listen(0,'127.0.0.1');await once(server,'listening');
-  let child;
-  const profile=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-security-browser-')); 
-  try {
-    child=spawn(process.env.CHROMIUM_PATH || '/usr/bin/chromium',[`--user-data-dir=${profile}`,'--headless=new','--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--disable-background-networking','--disable-component-update','--disable-default-apps','--disable-sync','--no-first-run','--remote-debugging-port=0','about:blank'],{detached:process.platform!=='win32'});
-    let errors='';let launchError;child.stderr.on('data',chunk=>errors+=chunk);child.on('error',error=>{launchError=error;errors+=error.stack;});
-    const deadline=Date.now()+30000;
-    const wait=()=>new Promise(resolve=>setTimeout(resolve,100));
-    let address;
-    while(Date.now()<deadline && !address && !launchError && child.exitCode===null) {address=/DevTools listening on (ws:\/\/\S+)/.exec(errors)?.[1];await wait();}
-    assert.ok(address,errors);
-    const socket=new WebSocket(address);await once(socket,'open',{signal:AbortSignal.timeout(10000)});
-    let nextId=0;const pending=new Map();
-    socket.addEventListener('message',event=>{const result=JSON.parse(event.data);const handler=pending.get(result.id);if(handler){pending.delete(result.id);result.error?handler.reject(Error(JSON.stringify(result.error))):handler.resolve(result.result);}});
-    const command=(method,params={},sessionId)=>new Promise((resolve,reject)=>{
-      const id=++nextId;pending.set(id,{resolve,reject});socket.send(JSON.stringify({id,method,params,sessionId}));
-      const timer=setTimeout(()=>{if(pending.delete(id))reject(Error(`Browser command timed out: ${method}\n${errors}`));},10000);timer.unref();
-    });
-    try {
+  let child,launch,socket,command,preflightProof,productProof;
+  const profile=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-security-browser-'));
+  const gate=await browserGate.runBrowserGate({
+    preflight: async () => {
+      hostDiagnostics.emit('preflight',()=>hostDiagnostics.hostSnapshot());
+      const launchStartedAt=Date.now();
+      launch=sandboxedBrowser.launchSandboxedBrowser(profile);child=launch.child;
+      hostDiagnostics.emit('launch',()=>({identity:launch.identity,argv:launch.argv,process:hostDiagnostics.processSnapshot(child.pid)}));
+      let errors='',launchError,address;
+      child.stderr.on('data',chunk=>{errors=(errors+chunk).slice(-65536);address ||= /DevTools listening on (ws:\/\/\S+)/.exec(errors)?.[1];});
+      child.on('error',error=>{launchError=error;errors=(errors+error.stack).slice(-65536);});
+      const deadline=Date.now()+30000;
+      while(Date.now()<deadline && !address && !launchError && child.exitCode===null && child.signalCode===null) await new Promise(resolve=>setTimeout(resolve,100));
+      if(!address) {
+        hostDiagnostics.emit('failed-launch',()=>({process:hostDiagnostics.processSnapshot(child.pid),
+          audit:hostDiagnostics.auditSnapshot({pid:child.pid,binary:launch.identity.binary,startedAt:launchStartedAt})}));
+        throw browserGate.startupFailure({stderr:errors,exitCode:child.exitCode,signalCode:child.signalCode});
+      }
+      const endpoint=new URL(address);
+      assert.equal(endpoint.protocol,'ws:');assert.equal(endpoint.hostname,'127.0.0.1');
+      assert.equal(endpoint.username,'');assert.equal(endpoint.password,'');
+      socket=new WebSocket(address);await once(socket,'open',{signal:AbortSignal.timeout(10000)});
+      let nextId=0;const pending=new Map();
+      socket.addEventListener('message',event=>{const result=JSON.parse(event.data);const handler=pending.get(result.id);if(handler){pending.delete(result.id);clearTimeout(handler.timer);result.error?handler.reject(Error(JSON.stringify(result.error))):handler.resolve(result.result);}});
+      command=(method,params={},sessionId)=>new Promise((resolve,reject)=>{
+        const id=++nextId;
+        const timer=setTimeout(()=>{if(pending.delete(id))reject(Error(`Browser command timed out: ${method}\n${errors}`));},10000);timer.unref();
+        pending.set(id,{resolve,reject,timer});socket.send(JSON.stringify({id,method,params,sessionId}));
+      });
+      // The actual product test uses this same live process, binary, argv,
+      // environment and profile. Preflight does not invoke product assertions.
+      preflightProof=await sandboxedBrowser.verifySandbox(command,child,launch.identity);
+      return {deadline};
+    },
+    product: async ({deadline}) => {
       const {targetId}=await command('Target.createTarget',{url:'about:blank'});
       const {sessionId}=await command('Target.attachToTarget',{targetId,flatten:true});
       await command('Page.enable',{},sessionId);
       await command('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/`},sessionId);
       let result;
-      while(Date.now()<deadline){result=await command('Runtime.evaluate',{expression:'JSON.stringify({result:document.body?.dataset.securityResult,html:document.body?.outerHTML})',returnByValue:true},sessionId);if(JSON.parse(result.result.value).result)break;await wait();}
+      while(Date.now()<deadline){result=await command('Runtime.evaluate',{expression:'JSON.stringify({result:document.body?.dataset.securityResult,html:document.body?.outerHTML})',returnByValue:true},sessionId);if(JSON.parse(result.result.value).result)break;await new Promise(resolve=>setTimeout(resolve,100));}
       const output=JSON.parse(result.result.value);assert.equal(output.result,'passed',output.html);
-    } finally {socket.close();}
-  } finally {
-    try {await stopBrowser(child);}
-    finally {
-      server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
-      fs.rmSync(profile,{recursive:true,force:true,maxRetries:10,retryDelay:100});
+      const proof=await sandboxedBrowser.verifySandbox(command,child,launch.identity);
+      productProof={...proof,argv:launch.argv,sanitizerTrustedTypes:'passed'};
+    },
+    cleanup: async () => {
+      const failures=[];
+      try {socket?.close();} catch(error) {failures.push(error);}
+      try {await launch?.stop();} catch(error) {failures.push(error);}
+      try {server.closeAllConnections();await new Promise(resolve=>server.close(resolve));} catch(error) {failures.push(error);}
+      try {fs.rmSync(profile,{recursive:true,force:true,maxRetries:10,retryDelay:100});} catch(error) {failures.push(error);}
+      if(failures.length){
+        const error=new AggregateError(failures,failures.map(item=>item.message).join('; '));
+        error.cleanup=failures.find(item=>item.cleanup)?.cleanup;
+        throw error;
+      }
     }
-  }
+  });
+  const report={...gate,preflightProof:preflightProof||null};
+  if(process.env.XTEND_BROWSER_GATE_REPORT)fs.writeFileSync(process.env.XTEND_BROWSER_GATE_REPORT,JSON.stringify(report)+'\n',{flag:'wx'});
+  console.log('XTEND_BROWSER_GATE '+JSON.stringify(report));
+  assert.equal(gate.status,'passed',JSON.stringify(gate));
+  if(process.env.XTEND_CORE_BROWSER_PROOF)fs.writeFileSync(process.env.XTEND_CORE_BROWSER_PROOF,JSON.stringify(productProof)+'\n',{flag:'wx'});
 });

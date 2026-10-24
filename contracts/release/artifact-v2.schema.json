@@ -1,0 +1,460 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "xtend.release.artifact.v2",
+  "title": "artifact-v2",
+  "$comment": "Review-only complete producer structure. Open JSON extension boundaries are intentional; relational guards and source-authority acceptance remain mandatory. Never a release authorization.",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "xtend.release.artifact.v2"
+    },
+    "profile": {
+      "const": "xtend.npm.core-only.v1"
+    },
+    "sourceSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "toolchain": {
+      "$ref": "#/definitions/toolchain"
+    },
+    "selection": {
+      "type": "object",
+      "properties": {
+        "packages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "packages"
+      ],
+      "additionalProperties": true
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "range": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "dependencies",
+              "optionalDependencies",
+              "peerDependencies"
+            ]
+          },
+          "hard": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "range",
+          "kind",
+          "hard"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "registryDependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/registry"
+      }
+    },
+    "bootstrapPackages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "packages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/package"
+      },
+      "minItems": 1,
+      "maxItems": 10
+    },
+    "buildEvidence": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "const": "build.json"
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        }
+      },
+      "required": [
+        "file",
+        "integrity"
+      ],
+      "additionalProperties": true
+    },
+    "candidateBinding": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "const": "manifest.json"
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        },
+        "profile": {
+          "const": "xtend.npm.core-only.v1"
+        },
+        "demoSha": false,
+        "allPackages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "file": {
+                "type": "string"
+              },
+              "integrity": {
+                "type": "string",
+                "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "name",
+              "version",
+              "file",
+              "integrity",
+              "sha256",
+              "size"
+            ],
+            "additionalProperties": true
+          },
+          "minItems": 10,
+          "maxItems": 10
+        }
+      },
+      "required": [
+        "file",
+        "integrity",
+        "profile",
+        "allPackages"
+      ],
+      "additionalProperties": true
+    },
+    "preparedAt": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+    },
+    "canary": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        }
+      },
+      "required": [
+        "file",
+        "integrity"
+      ],
+      "additionalProperties": true
+    },
+    "sealedAt": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+    },
+    "coreEvidence": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "const": "core-evidence/index.json"
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        }
+      },
+      "required": [
+        "file",
+        "integrity"
+      ],
+      "additionalProperties": true
+    },
+    "demoSha": false,
+    "demoRepository": false,
+    "productEvidence": false,
+    "unionEvidence": false
+  },
+  "required": [
+    "schema",
+    "profile",
+    "sourceSha",
+    "toolchain",
+    "selection",
+    "edges",
+    "registryDependencies",
+    "bootstrapPackages",
+    "packages",
+    "buildEvidence",
+    "candidateBinding"
+  ],
+  "additionalProperties": true,
+  "oneOf": [
+    {
+      "$ref": "#/definitions/adapted"
+    },
+    {
+      "$ref": "#/definitions/prepared"
+    },
+    {
+      "$ref": "#/definitions/sealed"
+    }
+  ],
+  "definitions": {
+    "toolchain": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "const": "24.18.0"
+        },
+        "npm": {
+          "const": "11.17.0"
+        }
+      },
+      "required": [
+        "node",
+        "npm"
+      ],
+      "additionalProperties": true
+    },
+    "registry": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "group": {
+          "enum": [
+            "core",
+            "mcp",
+            "material"
+          ]
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        },
+        "sourceSha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "group",
+        "integrity",
+        "sourceSha"
+      ],
+      "additionalProperties": false
+    },
+    "package": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "group": {
+          "enum": [
+            "core",
+            "mcp",
+            "material"
+          ]
+        },
+        "file": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "integrity": {
+                "type": "string",
+                "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+              }
+            },
+            "required": [
+              "path",
+              "size",
+              "integrity"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "dependencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "optionalDependencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "peerDependencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "peerDependenciesMeta": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "optional": {
+                "type": "boolean"
+              }
+            },
+            "required": [],
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "group",
+        "file",
+        "integrity",
+        "sha256",
+        "size",
+        "files"
+      ],
+      "additionalProperties": true
+    },
+    "rawBinding": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        }
+      },
+      "required": [
+        "file",
+        "integrity"
+      ],
+      "additionalProperties": true
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "runId": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "runAttempt": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        }
+      },
+      "required": [
+        "runId",
+        "runAttempt"
+      ],
+      "additionalProperties": true
+    },
+    "adapted": {
+      "required": [],
+      "properties": {
+        "preparedAt": false,
+        "canary": false,
+        "sealedAt": false,
+        "coreEvidence": false
+      }
+    },
+    "prepared": {
+      "required": [
+        "preparedAt"
+      ],
+      "properties": {
+        "sealedAt": false,
+        "coreEvidence": false
+      }
+    },
+    "sealed": {
+      "required": [
+        "preparedAt",
+        "sealedAt",
+        "canary",
+        "coreEvidence"
+      ],
+      "properties": {}
+    }
+  }
+}

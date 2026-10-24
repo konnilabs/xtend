@@ -7,8 +7,8 @@ const { spawnSync } = require('node:child_process');
 const { createSuiteContext } = require('../utils/assertions');
 const { normalizeSuiteResult } = require('../utils/reporting');
 const { parseArgs } = require('../../scripts/test-runner/cli');
-const { catalog, select, canonicalSuite, scriptSuiteIds } = require('../../scripts/test-runner/catalog');
-const { execute, verifyExecution } = require('../../scripts/test-runner/executor');
+const { catalog, select, canonicalSuite, scriptSuiteIds, profileIds } = require('../../scripts/test-runner/catalog');
+const { execute, verifyExecution, SCHEMA } = require('../../scripts/test-runner/executor');
 
 async function runTestRunnerSuite({ rootDir } = {}) {
   const context = createSuiteContext({ id: 'test-runner', label: 'Runner supervision and profiles' });
@@ -127,7 +127,7 @@ require.cache[p]={exports:{
  hang:()=>new Promise(()=>{}),
  invalid:()=>null,
  last:()=>{const r=JSON.parse(require('fs').readFileSync(${JSON.stringify(execution)}));return {ok:r.complete===false&&r.results.some(e=>e.id==='first')}},
- core:()=>({ok:true}),
+ ${profileIds('core').map(id => JSON.stringify(id)+':()=>({ok:true})').join(',\n ')},
  skipped:()=>({ok:true,skipCount:0,skips:['required capability unavailable']}),
  slow:()=>new Promise(r=>setTimeout(()=>r({ok:true}),60))
 }};require(${JSON.stringify(path.join(rootDir,'scripts/test-runner/worker.js'))});`);
@@ -156,12 +156,18 @@ require.cache[p]={exports:{
       assert(evidence.results.find(e=>e.id==='alias').reused);
     });
     await check('Unknown resources serialize; provenance and missing results fail verification', async () => {
-      const selected = [suite('core'),{...suite('slow'),resources:undefined}];
+      const selected = [...profileIds('core').map(id=>({...suite(id),resources:canonicalSuite(id).resources})),{...suite('slow'),resources:undefined}];
       await execute(selected,{workerPath,execution,provenance:identity,resolveSuite:id=>selected.find(s=>s.id===id),json:true,jobs:2,cleanupMs:100});
       assert.equal(JSON.parse(fs.readFileSync(execution)).workerCount,1);
       assert.equal(verifyExecution({verify:'core',from:execution,project:false,provenance:identity}).status,'passed');
       for (const key of ['run','commit','sourceFingerprint','catalogFingerprint','runtime']) assert.equal(verifyExecution({verify:'core',from:execution,project:false,provenance:{...identity,[key]:'foreign'}}).status,'failed');
-      const evidence=JSON.parse(fs.readFileSync(execution));evidence.results=[];fs.writeFileSync(execution,JSON.stringify(evidence));
+      const evidence=JSON.parse(fs.readFileSync(execution));
+      for (const id of profileIds('core')) {
+        const missing = {...evidence,results:evidence.results.filter(entry=>entry.id!==id)};
+        fs.writeFileSync(execution,JSON.stringify(missing));
+        assert.equal(verifyExecution({verify:'core',from:execution,project:false,provenance:identity}).status,'failed',`Missing ${id} must block the complete core profile`);
+      }
+      evidence.results=[];fs.writeFileSync(execution,JSON.stringify(evidence));
       assert.equal(verifyExecution({verify:'core',from:execution,project:false,provenance:identity}).status,'failed');
     });
     await check('Required Nightly skips fail while optional local skips stay visible', async () => {
@@ -172,6 +178,50 @@ require.cache[p]={exports:{
       }
     });
     await require('./imported_ci_runner_checks').runImportedCiRunnerChecks({check,temp,rootDir});
+    await check('Incomplete toolchain identity stops execution before workers or success reports', async()=>{
+      const capabilities=require('../../scripts/test-runner/capabilities'),original=capabilities.toolchainIdentity;
+      const destination=path.join(temp,'identity-must-not-execute.json');let captures=0;
+      try {
+        capabilities.toolchainIdentity=options=>{captures++;assert.equal(options.requireComplete,true);throw Error('Incomplete toolchain identity: browser.binary (timeout)');};
+        await assert.rejects(execute([suite('core')],{workerPath,execution:destination,json:true,cleanupMs:100}),/Incomplete toolchain identity/);
+        assert.equal(captures,1);assert(!fs.existsSync(destination));
+      } finally {capabilities.toolchainIdentity=original;}
+    });
+    await check('Imported artifact readers retain independent runtime while local verification requires complete identity',()=>{
+      const capabilities=require('../../scripts/test-runner/capabilities'),original=capabilities.toolchainIdentity,captures=[];
+      try {
+        capabilities.toolchainIdentity=options=>{captures.push(options.requireComplete);return {browser:{binary:{available:false}},configurationFingerprint:'a'.repeat(64)};};
+        const current=require('../../scripts/test-runner/executor').provenance();assert.deepEqual(captures,[false]);
+        const report={schema:SCHEMA,executionId:'model',complete:true,expected:[],results:[],runtime:current.runtime};
+        const imported=verifyExecution({verify:'core',executionReport:report,importedCi:{},project:false});
+        assert.equal(captures.at(-1),false);assert.equal(imported.status,'failed','Missing imported binding still fails');
+        verifyExecution({verify:'core',executionReport:report,project:false});assert.equal(captures.at(-1),true);
+      } finally {capabilities.toolchainIdentity=original;}
+    });
+    await check('Producer probe diagnostics remain outside runtime but incomplete identity cannot pass verification', async () => {
+      const capabilities=require('../../scripts/test-runner/capabilities'),original=capabilities.toolchainIdentity;
+      const record={probe:'browser.binary',kind:'timeout',code:'ETIMEDOUT'},previousRun=process.env.XTEND_TEST_RUN_ID;
+      try {
+        process.env.XTEND_TEST_RUN_ID='runtime-diagnostic-fixture';
+        capabilities.toolchainIdentity=options=>{
+          options.onProbeFailure?.(record);
+          return {browser:{binary:{command:'/fixture/browser',available:false}},configurationFingerprint:'a'.repeat(64)};
+        };
+        const selected=profileIds('core').map(suite);
+        await execute(selected,{workerPath,execution,resolveSuite:id=>selected.find(s=>s.id===id),json:true,cleanupMs:100});
+        const evidence=JSON.parse(fs.readFileSync(execution));
+        assert.deepEqual(evidence.diagnostics,{schema:'xtend.test.probe-diagnostics.v1',probeFailures:[record]});
+        assert(!Object.hasOwn(evidence.runtime,'diagnostics'));
+        const current=require('../../scripts/test-runner/executor').provenance();
+        assert.deepEqual(evidence.runtime,current.runtime);
+        const rejected=verifyExecution({verify:'core',from:execution,project:false,provenance:current});
+        assert.equal(rejected.status,'failed');assert.deepEqual(rejected.errors,['Incomplete producer toolchain identity.']);
+      } finally {
+        capabilities.toolchainIdentity=original;
+        if(previousRun===undefined)delete process.env.XTEND_TEST_RUN_ID;else process.env.XTEND_TEST_RUN_ID=previousRun;
+      }
+    });
+    await require('./runtime_provenance_diagnostics_checks').runRuntimeProvenanceDiagnosticsChecks({check});
     await require('./nightly_runner_checks').runNightlyRunnerChecks({check,temp,identity,rootDir});
     await check('Package capture propagates a negative checker outcome to its process exit', () => {
       const program = `const Module=require('module');const original=Module._load;Module._load=function(name,...args){

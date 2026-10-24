@@ -179,3 +179,47 @@ Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezi
 - [Komponenten-Entwicklung](../components.md)
 - [Public Component Types](../public-component-types.md)
 - [RMT Component Primitives](../rmt-vnext-component-primitives.md)
+
+## Token-Tabelle und Navigation States
+
+`signatureDesign`: `x-router` ist die ruhige Route-Outlet-Basis für Enterprise-Shells. Der Router selbst delegiert Active/Current/Selected an `x-link`, `x-menu`, `x-tabs` und `x-header`, stellt aber denselben Navigation-State-Contract, Route Announcements und Focus Restore bereit.
+
+| Token | Zweck |
+| --- | --- |
+| `--xtend-nav-surface` | optionale Outlet-/Route-Surface |
+| `--xtend-nav-text` | Outlet-Text und vererbte Navigationsfarbe |
+| `--xtend-nav-border-color` | geteilte Navigationskante für Route-Shells |
+| `--xtend-nav-radius` | geteilte Radius-Vorgabe |
+| `--xtend-nav-gap` | geteilte Navigation-Abstände |
+| `--xtend-nav-font-family` | vererbte Navigationstypografie |
+| `--xtend-nav-font-size` | vererbte Navigationstextgröße |
+| `--xtend-nav-active-surface` | Active/Current/Selected Fläche für angeschlossene Navigation |
+| `--xtend-nav-active-text` | Active/Current/Selected Text |
+| `--xtend-nav-current-indicator` | nicht farb-only Current-Indikator |
+| `--xtend-nav-hover-surface` | Hover-Fläche für angeschlossene Navigation |
+| `--xtend-nav-focus-ring` | Route-Focus und Navigation-Focus |
+| `--xtend-nav-disabled-opacity` | Disabled-Dimmung für angeschlossene Navigation |
+
+## Keyboard-Verhalten
+
+Der Router fokussiert nach dem Rendern das Outlet und emittiert `route-announced` über eine polite Live Region. Link- und Menü-Keyboard-Verhalten bleibt in den jeweiligen Navigationselementen; der Router hält den Route Context `xtend.router.current`, sodass Active/Current/Selected per `aria-current="page"` und `aria-selected="true"` synchronisiert werden können.
+
+## Fremdtheme
+
+```css
+[data-xtend-nav-theme="enterprise-foreign"] x-router {
+  --xtend-nav-surface: transparent;
+  --xtend-nav-text: #17231f;
+  --xtend-nav-border-color: rgba(23, 35, 31, 0.22);
+  --xtend-nav-radius: 0.35rem;
+  --xtend-nav-gap: 0.45rem;
+  --xtend-nav-font-family: "Aptos", "Segoe UI", sans-serif;
+  --xtend-nav-font-size: 1rem;
+  --xtend-nav-active-surface: #173f35;
+  --xtend-nav-active-text: #fffaf0;
+  --xtend-nav-current-indicator: #b56b35;
+  --xtend-nav-hover-surface: rgba(181, 107, 53, 0.14);
+  --xtend-nav-focus-ring: 3px solid #b56b35;
+  --xtend-nav-disabled-opacity: 0.44;
+}
+```

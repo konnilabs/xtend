@@ -131,7 +131,10 @@ function runTypeExportsRmtSuite(options = {}) {
     context.assert(classification && classification.typeDecision === 'declaration-ready', `TypeExports marks ${exportKey} declaration ready`);
   });
   context.assert(packageManifest.files.includes('xtendrmt'), 'Package files include xtendrmt root');
-  context.assert(packageManifest.files.includes('tools'), 'Package files include tools root');
+  const exportLock = require('../../catalog/epic13-package-export-lock');
+  const packRoots = exportLock.REQUIRED_PACK_ROOTS.filter(root => root.startsWith('tools/'));
+  packRoots.forEach(root => context.assert(packageManifest.files.includes(root), `Package files include required public tooling root ${root}`));
+  context.assert(!packageManifest.files.includes('tools') && !packageManifest.files.includes('tools/schema-inventory'), 'Private schema inventory stays outside the public tooling roots');
 
   RMT_SHARED_TYPE_TOKENS.forEach((token) => {
     context.assertIncludes(sharedDeclarationSource, token, `RMT shared declaration includes ${token}`);

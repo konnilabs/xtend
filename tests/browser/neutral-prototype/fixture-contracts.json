@@ -1,0 +1,83 @@
+{
+  "fixtures": [
+    {
+      "id": "core",
+      "path": "tests/browser/fixtures/core-flows-smoke.html",
+      "sha256": "82c4f1e18dae3c5cbb836e5f918e57fc79aa314d8949c0e2eae4366267f8e101",
+      "resultKey": "__xtendCoreSmokeResult",
+      "assertions": {
+        "idField": "name",
+        "verdictField": "ok",
+        "expectedChecks": [
+          "loader kept body visible by default",
+          "api compliance ready",
+          "api ui state initialized",
+          "router custom element defined",
+          "link custom element defined",
+          "router rendered detail route",
+          "router state synchronized",
+          "theme changed document attribute",
+          "theme state synchronized",
+          "toast api rendered visible component",
+          "toast state registered",
+          "alert api rendered visible component",
+          "alert state synchronized",
+          "dialog api rendered visible component",
+          "dialog open state synchronized",
+          "modal api rendered visible component",
+          "modal open state synchronized"
+        ]
+      }
+    },
+    {
+      "id": "a11y",
+      "path": "tests/browser/fixtures/a11y-focus-keyboard-smoke.html",
+      "sha256": "e9546454332d6538d8ebe29ebf811b799036051558b07b5b721dfc9a5ab1818b",
+      "resultKey": "__xtendA11yKeyboardSmokeResult",
+      "assertions": {
+        "idField": "name",
+        "verdictField": "ok",
+        "expectedChecks": [
+          "a11y keyboard fixture hydrated local loader",
+          "a11y keyboard custom elements defined",
+          "x-link enter key navigated route",
+          "x-link detail aria-current synchronized",
+          "x-link space key navigated route",
+          "x-link home aria-current synchronized",
+          "x-input delegated focus",
+          "x-input keyboard input synchronized state",
+          "x-form captured keyboard input data",
+          "x-tabs arrow right selected next tab",
+          "x-tabs arrow left selected previous tab",
+          "x-tabs enter activated current tab",
+          "x-modal initial focus moved inside overlay",
+          "x-modal tab focus trap wrapped to first control",
+          "x-modal shift tab focus trap wrapped to last control",
+          "x-modal escape restored focus to origin"
+        ]
+      }
+    },
+    {
+      "id": "lifecycle",
+      "path": "demos/xtendrmt/examples/lifecycle/browser-smoke.html",
+      "sha256": "6c1a615a258b9bc39255cc40a005c4e33a454b2a257af2f6eae1a454e1b86ed2",
+      "resultKey": "__xtendRmtAppBuildSmokeResult",
+      "assertions": {
+        "idField": "label",
+        "verdictField": "passed",
+        "expectedChecks": [
+          "rmt build source loaded",
+          "rmt build component defined",
+          "rmt build app rendered",
+          "rmt build core has template",
+          "rmt build scaffold report linked app",
+          "rmt build local http assets only"
+        ]
+      }
+    }
+  ],
+  "hydrangea": {
+    "path": "tests/performance/hydrangea/docs-browser.cjs",
+    "sha256": "acbbb90b52152675c4a971df73d2946d5e0305dfeb2dbf010c08f072d72e265d"
+  }
+}

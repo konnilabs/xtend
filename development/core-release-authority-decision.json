@@ -1,0 +1,471 @@
+{
+  "format": 1,
+  "profile": "xtend.npm.core-only.v1",
+  "repository": "konnilabs/xtend",
+  "status": "reviewed-core-owned-projection",
+  "inventoryFile": "tests/schemas/core-release-inventory.json",
+  "inventorySha256": "c66d24d680259e90806637f922b7df276f6217333721a9d680fb526fcb564f17",
+  "sourceMembershipSha256": "539b7dfce28cf458106cfc3ddc2a8db439e44f1e4f630b2cbf80cace618f4926",
+  "reviewProposal": "development/core-projection-review.json.gz",
+  "profileRegistry": {
+    "format": 1,
+    "status": "reviewed-exact-profile-registry",
+    "families": [
+      {
+        "familyId": "xtend.product-candidates",
+        "profileCurrents": [
+          {
+            "profile": "legacy-paired-audit",
+            "schemaId": "xtend.product-candidates.v1",
+            "version": 1
+          },
+          {
+            "profile": "xtend.npm.core-only.v1",
+            "schemaId": "xtend.product-candidates.v2",
+            "version": 2
+          }
+        ]
+      },
+      {
+        "familyId": "xtend.release.artifact",
+        "profileCurrents": [
+          {
+            "profile": "legacy-paired-audit",
+            "schemaId": "xtend.release.artifact.v1",
+            "version": 1
+          },
+          {
+            "profile": "xtend.npm.core-only.v1",
+            "schemaId": "xtend.release.artifact.v2",
+            "version": 2
+          }
+        ]
+      },
+      {
+        "familyId": "xtend.release.canary",
+        "profileCurrents": [
+          {
+            "profile": "legacy-paired-audit",
+            "schemaId": "xtend.release.canary.v1",
+            "version": 1
+          },
+          {
+            "profile": "xtend.npm.core-only.v1",
+            "schemaId": "xtend.release.canary.v2",
+            "version": 2
+          }
+        ]
+      }
+    ]
+  },
+  "unreleasedContracts": {
+    "format": 1,
+    "publicationGuardRetired": false,
+    "registrations": [
+      {
+        "acceptedFingerprints": [
+          "sha256:96f3e7283be50d0238ee9a0ad0a1f2f16871eb5bf25c8c74f5ab74413f3ff821",
+          "sha256:b16d797209ddf5b8799c44f6666612b0efd58cd36b43aa1204323feae49a32bf"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:b16d797209ddf5b8799c44f6666612b0efd58cd36b43aa1204323feae49a32bf"
+        ],
+        "canonicalDefinition": {
+          "definitionType": "json-schema",
+          "path": "contracts/release/artifact-v2.schema.json",
+          "role": "definition",
+          "symbol": null,
+          "visibility": "internal"
+        },
+        "familyId": "xtend.release.artifact",
+        "observedFingerprints": [
+          "sha256:96f3e7283be50d0238ee9a0ad0a1f2f16871eb5bf25c8c74f5ab74413f3ff821",
+          "sha256:b16d797209ddf5b8799c44f6666612b0efd58cd36b43aa1204323feae49a32bf"
+        ],
+        "releasedFingerprintSetHash": null,
+        "schemaId": "xtend.release.artifact.v2",
+        "sources": [
+          {
+            "path": "candidate-integrity.cjs",
+            "sha256": "c31694f5321c4e816777c533ffdbba0e728af646459e1292d016a281149fbbb9"
+          },
+          {
+            "path": "contracts/release/admission-phases.json",
+            "sha256": "2988b1271c05a8b67604604e10e13b922951b869b819214e1a0a70308ff01e93"
+          },
+          {
+            "path": "contracts/release/artifact-v2.schema.json",
+            "sha256": "1181430925451575c8a88319a55e79411bb6abc1330ff269bb647e93c80cf45d"
+          },
+          {
+            "path": "development/XTend-Core-Only-Release.md",
+            "sha256": "2e1c64dd0fa2ecfa67fc684691d6c37a78157c0d5dfbbcde106c6b36cb0e544c"
+          },
+          {
+            "path": "development/core-release-contracts.md",
+            "sha256": "afdb296c15c08e139f49529ee9164bd04f21d80b80dde3c2714ec80ff54f39c4"
+          },
+          {
+            "path": "scripts/release/artifact.cjs",
+            "sha256": "2ffbae9071753d70ffa1811bbf8c01a6c41326ab4c494fbbaedd4a8f06a3348d"
+          },
+          {
+            "path": "scripts/release/candidates.cjs",
+            "sha256": "ff7b67d3747a806f484190a4de169cde9d61b7b80216581ccbc29fec013a1e84"
+          },
+          {
+            "path": "scripts/release/contracts.cjs",
+            "sha256": "91c310128691b018c47e68a748784e5b708209a0551f613b702f4dda2b63d937"
+          },
+          {
+            "path": "scripts/release/pipeline.cjs",
+            "sha256": "c72cd48e860caf58c35a1cd13891ede6ed0c5b3279b80d6339deee0dcbe2f70a"
+          },
+          {
+            "path": "scripts/release/profile.cjs",
+            "sha256": "d85fe40d769ef8c8162de4ba6f6891d44ae7c105a1a7c162089808a5c88d3c06"
+          },
+          {
+            "path": "tests/release/fixtures.cjs",
+            "sha256": "64625b45dbd111506d6959e62f9f986289c4486315b46a6eac589fece854d42e"
+          }
+        ],
+        "status": "reviewed-current-source",
+        "version": 2
+      },
+      {
+        "acceptedFingerprints": [
+          "sha256:1f0f0fccf1ebbb36ba464de8b0441a233f88641e6fde961f2902680930d213ca",
+          "sha256:aa318c5c3bc6cf0c0b5ad2192e38e0322e8e1c09c4ee6f6dac7b671cb751bee0",
+          "sha256:fb8f2e09c7e13bc26e81c91c1b2d4ea6c7680e9480481efaff8be70f814406df"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:aa318c5c3bc6cf0c0b5ad2192e38e0322e8e1c09c4ee6f6dac7b671cb751bee0"
+        ],
+        "canonicalDefinition": {
+          "definitionType": "json-schema",
+          "path": "contracts/release/canary-v2.schema.json",
+          "role": "definition",
+          "symbol": null,
+          "visibility": "internal"
+        },
+        "familyId": "xtend.release.canary",
+        "observedFingerprints": [
+          "sha256:1f0f0fccf1ebbb36ba464de8b0441a233f88641e6fde961f2902680930d213ca",
+          "sha256:aa318c5c3bc6cf0c0b5ad2192e38e0322e8e1c09c4ee6f6dac7b671cb751bee0",
+          "sha256:fb8f2e09c7e13bc26e81c91c1b2d4ea6c7680e9480481efaff8be70f814406df"
+        ],
+        "releasedFingerprintSetHash": null,
+        "schemaId": "xtend.release.canary.v2",
+        "sources": [
+          {
+            "path": "contracts/release/admission-phases.json",
+            "sha256": "2988b1271c05a8b67604604e10e13b922951b869b819214e1a0a70308ff01e93"
+          },
+          {
+            "path": "contracts/release/canary-v2.schema.json",
+            "sha256": "a1a669444ee460ea3be6a0f4d7bb56661b3c060eaf79dc581d71ff0fb4755747"
+          },
+          {
+            "path": "development/XTend-Core-Only-Release.md",
+            "sha256": "2e1c64dd0fa2ecfa67fc684691d6c37a78157c0d5dfbbcde106c6b36cb0e544c"
+          },
+          {
+            "path": "development/XTend-Scoped-Npm-Release-Runbook.md",
+            "sha256": "bbb383327e415282ed12e05fe67616e944f49ce6366bb683b04986ca1073173a"
+          },
+          {
+            "path": "development/core-release-contracts.md",
+            "sha256": "afdb296c15c08e139f49529ee9164bd04f21d80b80dde3c2714ec80ff54f39c4"
+          },
+          {
+            "path": "scripts/release/artifact.cjs",
+            "sha256": "2ffbae9071753d70ffa1811bbf8c01a6c41326ab4c494fbbaedd4a8f06a3348d"
+          },
+          {
+            "path": "scripts/release/consumer.cjs",
+            "sha256": "2a8f9468b8b42965836e5f185f967851cb77a8dcba1c17e622b304dfc43d4153"
+          },
+          {
+            "path": "scripts/release/contracts.cjs",
+            "sha256": "91c310128691b018c47e68a748784e5b708209a0551f613b702f4dda2b63d937"
+          },
+          {
+            "path": "scripts/release/core-evidence.cjs",
+            "sha256": "9ce26f2d4160f006e70c3abcee99e036f032ab2e2ee33e24924671a3fa28788f"
+          },
+          {
+            "path": "scripts/release/profile.cjs",
+            "sha256": "d85fe40d769ef8c8162de4ba6f6891d44ae7c105a1a7c162089808a5c88d3c06"
+          },
+          {
+            "path": "tests/release/fixtures.cjs",
+            "sha256": "64625b45dbd111506d6959e62f9f986289c4486315b46a6eac589fece854d42e"
+          }
+        ],
+        "status": "reviewed-current-source",
+        "version": 2
+      },
+      {
+        "acceptedFingerprints": [
+          "sha256:b9f4e041ded588a25817ff308b0478af74b972fc60749c86bf14d9a9df1d57a8",
+          "sha256:c6205ef8ba220d56a8a8095149b09aa60438d59427e31450489112abec8ae652"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:b9f4e041ded588a25817ff308b0478af74b972fc60749c86bf14d9a9df1d57a8"
+        ],
+        "canonicalDefinition": {
+          "definitionType": "json-schema",
+          "path": "contracts/release/core-evidence-v1.schema.json",
+          "role": "definition",
+          "symbol": null,
+          "visibility": "internal"
+        },
+        "familyId": "xtend.release.core-evidence",
+        "observedFingerprints": [
+          "sha256:b9f4e041ded588a25817ff308b0478af74b972fc60749c86bf14d9a9df1d57a8",
+          "sha256:c6205ef8ba220d56a8a8095149b09aa60438d59427e31450489112abec8ae652"
+        ],
+        "releasedFingerprintSetHash": null,
+        "schemaId": "xtend.release.core-evidence.v1",
+        "sources": [
+          {
+            "path": "contracts/release/admission-phases.json",
+            "sha256": "2988b1271c05a8b67604604e10e13b922951b869b819214e1a0a70308ff01e93"
+          },
+          {
+            "path": "contracts/release/core-evidence-v1.schema.json",
+            "sha256": "0aa49b04fbaec5fc94ba3a8eecaf8e0f4739fc0fef12585deb9b568e6c090dfd"
+          },
+          {
+            "path": "development/XTend-Core-Only-Release.md",
+            "sha256": "2e1c64dd0fa2ecfa67fc684691d6c37a78157c0d5dfbbcde106c6b36cb0e544c"
+          },
+          {
+            "path": "development/core-release-contracts.md",
+            "sha256": "afdb296c15c08e139f49529ee9164bd04f21d80b80dde3c2714ec80ff54f39c4"
+          },
+          {
+            "path": "scripts/release/artifact.cjs",
+            "sha256": "2ffbae9071753d70ffa1811bbf8c01a6c41326ab4c494fbbaedd4a8f06a3348d"
+          },
+          {
+            "path": "scripts/release/core-auth.cjs",
+            "sha256": "e7e821cd31cb0331ef4b07fc39794903cb56393cfbe0826844efe7c5fe70e3b8"
+          },
+          {
+            "path": "scripts/release/core-evidence.cjs",
+            "sha256": "9ce26f2d4160f006e70c3abcee99e036f032ab2e2ee33e24924671a3fa28788f"
+          },
+          {
+            "path": "scripts/release/core-security.cjs",
+            "sha256": "592ddac38bca597b9b0e554eb02f80da43adb24050f2eed018891ff4067e495e"
+          },
+          {
+            "path": "scripts/release/core-source.cjs",
+            "sha256": "9624dd917dbba6802c06489995226cb279836b54abb0922880bb6e3be8105544"
+          },
+          {
+            "path": "scripts/release/github.cjs",
+            "sha256": "14a217a4a88079e74fa452b78ec8306c8bb006f24c8e7bfd28b637558a99b07b"
+          },
+          {
+            "path": "scripts/release/profile.cjs",
+            "sha256": "d85fe40d769ef8c8162de4ba6f6891d44ae7c105a1a7c162089808a5c88d3c06"
+          }
+        ],
+        "status": "reviewed-current-source",
+        "version": 1
+      }
+    ],
+    "status": "reviewed-unreleased-contract-registration"
+  },
+  "migrationRuntimeRepairs": {
+    "sourceCommit": "8fade18df1f579e098f1200521adba29244ebd02",
+    "priorInventorySha256": "939888b5efdb144fa174c6ef923aff730f8bb8d59f7e2ee56591670210af3962",
+    "registrations": [
+      {
+        "schemaId": "xtend.maraca.app-services-runtime.v1",
+        "scope": "Current non-authoritative observation of the tested migration runtime repair; original ledger and release history unchanged.",
+        "previousFingerprints": [
+          "sha256:08a055da2bb6968bb92568d0f8ad84efd0bdfd710101f262e3a78c3306ba5c52",
+          "sha256:43bed9463061da411a7f7840281452ec950b3399f5141b5c02a5a52ecc06c119"
+        ],
+        "currentFingerprints": [
+          "sha256:08a055da2bb6968bb92568d0f8ad84efd0bdfd710101f262e3a78c3306ba5c52",
+          "sha256:43bed9463061da411a7f7840281452ec950b3399f5141b5c02a5a52ecc06c119",
+          "sha256:932fcd1f1dee5d0132bdbafd9327931d5ebca09b7888540ab5c58bb238705d92"
+        ],
+        "sources": [
+          {
+            "path": "xtend-maraca/browser-composition-runtime.mjs",
+            "sha256": "7a40570cdd3139e60420c82f17553f6030c965cf874e0dbe13987f0429d21d7c"
+          }
+        ]
+      },
+      {
+        "schemaId": "xtend.rmt.dom-commit-result.v1",
+        "scope": "Current non-authoritative observation of the tested migration runtime repair; original ledger and release history unchanged.",
+        "previousFingerprints": [
+          "sha256:05321bfb368e68f9670fb357616f1ba0d6db6b549ca2895c1f89d3510ddafdb7",
+          "sha256:1444ebd0a4cfa8d17f911eca58b8084b6c25fb2f26d8da5cc2f0ea8e84662f2e",
+          "sha256:3f2910b491c47c79f8842f0d1c8629372abab918fc43e4d15312626b72afa123",
+          "sha256:4a29fa6389acad5b767a47c8bb59af26aeabc5fd3a0c38b1bcbeb0ad7ebd89c9",
+          "sha256:5771ddcede933d9ffac2748c0746c04d04ae7554094419a6ebba39139539e8ad",
+          "sha256:671ad3708b5b6abae70b260828f6801bd193d15fae241b9e0d20d62debe40473",
+          "sha256:6fbdf0906996ea0927edf50fd9a6f9aec686ff728b535ae0cd12ff8cd1820b2f",
+          "sha256:7b8d67c4f326d81e305502bda0ea6e554f99e804583613ca99dba97a88fba088",
+          "sha256:803abece752825b225caeee9b3723ddb218c4fdd2aa5c85e0f620d43f5d1f3b5",
+          "sha256:8092c488ddf3ad5b5082624d53abf2e8d63622f6cad73d9cdfa8d86135363122",
+          "sha256:89041d8e22306148a56ce3cd0b474da2238ba9d539fcaf5071454218ce8581ed",
+          "sha256:8a5359471bba55573476222e5c24e03dd23413f5b329e3f27050820ce7446a2d",
+          "sha256:a2748e2d1f365421c24a4f36bd0f45c0d9a195c266fc9cdd3c5c59507d5428a0",
+          "sha256:a8885888b1428c0ebfb852f9da018a230909ba55268b418903f7a7830e79aa7e",
+          "sha256:b6a19229e44fc96cb19dcc7f4b78ec456e64fbce854c656dcfc906d3ef364b75",
+          "sha256:dfc6c6ae875300d0334db988da2ab2bb3cf296990ad0e71f7d43c5f2c08a397a",
+          "sha256:f6d813f9442ae860c31937c3ee48f2b918b0e3e0dc3347d7e937846fe59f2db4",
+          "sha256:f8099060948efa05d7374c863cdfcd4c040e01562158e017f88ff201757ce448",
+          "sha256:fa74e8ea815343ff377c068950c9e919573c22136de64444d1acfb388ef8d3a8"
+        ],
+        "currentFingerprints": [
+          "sha256:05321bfb368e68f9670fb357616f1ba0d6db6b549ca2895c1f89d3510ddafdb7",
+          "sha256:1444ebd0a4cfa8d17f911eca58b8084b6c25fb2f26d8da5cc2f0ea8e84662f2e",
+          "sha256:3f2910b491c47c79f8842f0d1c8629372abab918fc43e4d15312626b72afa123",
+          "sha256:4a29fa6389acad5b767a47c8bb59af26aeabc5fd3a0c38b1bcbeb0ad7ebd89c9",
+          "sha256:5771ddcede933d9ffac2748c0746c04d04ae7554094419a6ebba39139539e8ad",
+          "sha256:671ad3708b5b6abae70b260828f6801bd193d15fae241b9e0d20d62debe40473",
+          "sha256:6fbdf0906996ea0927edf50fd9a6f9aec686ff728b535ae0cd12ff8cd1820b2f",
+          "sha256:7b8d67c4f326d81e305502bda0ea6e554f99e804583613ca99dba97a88fba088",
+          "sha256:803abece752825b225caeee9b3723ddb218c4fdd2aa5c85e0f620d43f5d1f3b5",
+          "sha256:8092c488ddf3ad5b5082624d53abf2e8d63622f6cad73d9cdfa8d86135363122",
+          "sha256:89041d8e22306148a56ce3cd0b474da2238ba9d539fcaf5071454218ce8581ed",
+          "sha256:8a5359471bba55573476222e5c24e03dd23413f5b329e3f27050820ce7446a2d",
+          "sha256:9d00fd8294d966616cb438f8b74d07713e16b33649e1e26b51ef64aa0bc8acf9",
+          "sha256:a2748e2d1f365421c24a4f36bd0f45c0d9a195c266fc9cdd3c5c59507d5428a0",
+          "sha256:a8885888b1428c0ebfb852f9da018a230909ba55268b418903f7a7830e79aa7e",
+          "sha256:a8ea4e9e50511f6dc000478e3941d92a453e4440529d1d0d034c2618218be8c6",
+          "sha256:b6a19229e44fc96cb19dcc7f4b78ec456e64fbce854c656dcfc906d3ef364b75",
+          "sha256:dfc6c6ae875300d0334db988da2ab2bb3cf296990ad0e71f7d43c5f2c08a397a",
+          "sha256:f6d813f9442ae860c31937c3ee48f2b918b0e3e0dc3347d7e937846fe59f2db4",
+          "sha256:f8099060948efa05d7374c863cdfcd4c040e01562158e017f88ff201757ce448",
+          "sha256:fa74e8ea815343ff377c068950c9e919573c22136de64444d1acfb388ef8d3a8"
+        ],
+        "sources": [
+          {
+            "path": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
+            "sha256": "15aa77f2aff013c057e4dea1f118a325765a6e41a074c2be9a8fa8f958bef05b"
+          },
+          {
+            "path": "xtendrmt/rmt-dom-descriptor-renderer.js",
+            "sha256": "9230eb098ac3145dd7fd2b4a873b6c63ddd8e2dc0cf4483ee50c49e5a40bdf8a"
+          },
+          {
+            "path": "xtendrmt/rmt-runtime.browser.js",
+            "sha256": "686776c6be34b93e9d173e9791a6a4560296faac4383c34eb2d9c879d94c0327"
+          },
+          {
+            "path": "xtendrmt/rmt-runtime.esm.js",
+            "sha256": "05c291d3a683f252271e623e1b3b1be3bbc0bf304c4e598229e38f27c0d633ef"
+          }
+        ]
+      },
+      {
+        "schemaId": "xtend.rmt.view-template.v1",
+        "scope": "Current non-authoritative observation of the tested migration runtime repair; original ledger and release history unchanged.",
+        "previousFingerprints": [
+          "sha256:03c6c462386fa698f1c2764f81544e0502c6dddd7786c85063d81cf369c301df",
+          "sha256:3e86cd8db89758350cf80cff40d4e664b1f58674cb46012fc4ec145a1221ff9c",
+          "sha256:7ef2ce98ed1887dcac24e178ddd85dcfd92d4c7cdbcfff2edb65a30f712db985",
+          "sha256:c2959d1b4320ba9943ee18e3678fa2ab0210d308cb391d05609fa818dad4e9d7",
+          "sha256:c5f67bbff2d09350231ccfdec721a552adae622f044a33dcd1c2ab0d68e6059f",
+          "sha256:cc5d08abfaa929005799bf24dcedd8523c79cc023a710cbabd65b891502a6546",
+          "sha256:eb2b9b2aab6bbf8df70d69e08be4ae15d3b6472aef9a83e36d1748eba1a622aa"
+        ],
+        "currentFingerprints": [
+          "sha256:03c6c462386fa698f1c2764f81544e0502c6dddd7786c85063d81cf369c301df",
+          "sha256:3e86cd8db89758350cf80cff40d4e664b1f58674cb46012fc4ec145a1221ff9c",
+          "sha256:6ab7f7f8229a73ea937fa433da4713a0f6bf82eca452239b663f5593c19e36d9",
+          "sha256:c2959d1b4320ba9943ee18e3678fa2ab0210d308cb391d05609fa818dad4e9d7",
+          "sha256:c5f67bbff2d09350231ccfdec721a552adae622f044a33dcd1c2ab0d68e6059f",
+          "sha256:cc5d08abfaa929005799bf24dcedd8523c79cc023a710cbabd65b891502a6546",
+          "sha256:eb2b9b2aab6bbf8df70d69e08be4ae15d3b6472aef9a83e36d1748eba1a622aa"
+        ],
+        "sources": [
+          {
+            "path": "xtendrmt/rmt-app-view-projector.js",
+            "sha256": "b7e38a3dbda64a39ead08ed7cd24a3dde761ed4c9e2f010635e10e0bf849d5c4"
+          }
+        ]
+      }
+    ],
+    "acceptedForMerge": false,
+    "acceptedForRelease": false,
+    "generatedMirrorSynchronization": {
+      "sourceCommit": "a99c0a94bdb16d73faac1d0e074a79c76d155420",
+      "priorInventorySha256": "f154d0f52ea9bfe436abde4913a367fe1651c1973337447d066d9661bc63c78e",
+      "schemaId": "xtend.rmt.dom-commit-result.v1",
+      "scope": "Canonical generated Core runtime/type copies now expose the already reviewed visibility-result partials. No new authoritative or released fingerprint. Historical ledger and preceding repair observations are unchanged.",
+      "previousFingerprints": [
+        "sha256:05321bfb368e68f9670fb357616f1ba0d6db6b549ca2895c1f89d3510ddafdb7",
+        "sha256:1444ebd0a4cfa8d17f911eca58b8084b6c25fb2f26d8da5cc2f0ea8e84662f2e",
+        "sha256:3f2910b491c47c79f8842f0d1c8629372abab918fc43e4d15312626b72afa123",
+        "sha256:4a29fa6389acad5b767a47c8bb59af26aeabc5fd3a0c38b1bcbeb0ad7ebd89c9",
+        "sha256:5771ddcede933d9ffac2748c0746c04d04ae7554094419a6ebba39139539e8ad",
+        "sha256:671ad3708b5b6abae70b260828f6801bd193d15fae241b9e0d20d62debe40473",
+        "sha256:6fbdf0906996ea0927edf50fd9a6f9aec686ff728b535ae0cd12ff8cd1820b2f",
+        "sha256:7b8d67c4f326d81e305502bda0ea6e554f99e804583613ca99dba97a88fba088",
+        "sha256:803abece752825b225caeee9b3723ddb218c4fdd2aa5c85e0f620d43f5d1f3b5",
+        "sha256:8092c488ddf3ad5b5082624d53abf2e8d63622f6cad73d9cdfa8d86135363122",
+        "sha256:89041d8e22306148a56ce3cd0b474da2238ba9d539fcaf5071454218ce8581ed",
+        "sha256:8a5359471bba55573476222e5c24e03dd23413f5b329e3f27050820ce7446a2d",
+        "sha256:9d00fd8294d966616cb438f8b74d07713e16b33649e1e26b51ef64aa0bc8acf9",
+        "sha256:a2748e2d1f365421c24a4f36bd0f45c0d9a195c266fc9cdd3c5c59507d5428a0",
+        "sha256:a8885888b1428c0ebfb852f9da018a230909ba55268b418903f7a7830e79aa7e",
+        "sha256:a8ea4e9e50511f6dc000478e3941d92a453e4440529d1d0d034c2618218be8c6",
+        "sha256:b6a19229e44fc96cb19dcc7f4b78ec456e64fbce854c656dcfc906d3ef364b75",
+        "sha256:dfc6c6ae875300d0334db988da2ab2bb3cf296990ad0e71f7d43c5f2c08a397a",
+        "sha256:f6d813f9442ae860c31937c3ee48f2b918b0e3e0dc3347d7e937846fe59f2db4",
+        "sha256:f8099060948efa05d7374c863cdfcd4c040e01562158e017f88ff201757ce448",
+        "sha256:fa74e8ea815343ff377c068950c9e919573c22136de64444d1acfb388ef8d3a8"
+      ],
+      "currentFingerprints": [
+        "sha256:05321bfb368e68f9670fb357616f1ba0d6db6b549ca2895c1f89d3510ddafdb7",
+        "sha256:1444ebd0a4cfa8d17f911eca58b8084b6c25fb2f26d8da5cc2f0ea8e84662f2e",
+        "sha256:3f2910b491c47c79f8842f0d1c8629372abab918fc43e4d15312626b72afa123",
+        "sha256:4a29fa6389acad5b767a47c8bb59af26aeabc5fd3a0c38b1bcbeb0ad7ebd89c9",
+        "sha256:5771ddcede933d9ffac2748c0746c04d04ae7554094419a6ebba39139539e8ad",
+        "sha256:671ad3708b5b6abae70b260828f6801bd193d15fae241b9e0d20d62debe40473",
+        "sha256:6fbdf0906996ea0927edf50fd9a6f9aec686ff728b535ae0cd12ff8cd1820b2f",
+        "sha256:7b8d67c4f326d81e305502bda0ea6e554f99e804583613ca99dba97a88fba088",
+        "sha256:8092c488ddf3ad5b5082624d53abf2e8d63622f6cad73d9cdfa8d86135363122",
+        "sha256:89041d8e22306148a56ce3cd0b474da2238ba9d539fcaf5071454218ce8581ed",
+        "sha256:8a5359471bba55573476222e5c24e03dd23413f5b329e3f27050820ce7446a2d",
+        "sha256:9d00fd8294d966616cb438f8b74d07713e16b33649e1e26b51ef64aa0bc8acf9",
+        "sha256:a2748e2d1f365421c24a4f36bd0f45c0d9a195c266fc9cdd3c5c59507d5428a0",
+        "sha256:a8885888b1428c0ebfb852f9da018a230909ba55268b418903f7a7830e79aa7e",
+        "sha256:a8ea4e9e50511f6dc000478e3941d92a453e4440529d1d0d034c2618218be8c6",
+        "sha256:b6a19229e44fc96cb19dcc7f4b78ec456e64fbce854c656dcfc906d3ef364b75",
+        "sha256:dfc6c6ae875300d0334db988da2ab2bb3cf296990ad0e71f7d43c5f2c08a397a",
+        "sha256:f6d813f9442ae860c31937c3ee48f2b918b0e3e0dc3347d7e937846fe59f2db4",
+        "sha256:f8099060948efa05d7374c863cdfcd4c040e01562158e017f88ff201757ce448",
+        "sha256:fa74e8ea815343ff377c068950c9e919573c22136de64444d1acfb388ef8d3a8"
+      ],
+      "sources": [
+        {
+          "path": "xtendrmt/rmt-core.esm.js",
+          "sha256": "f9dd36ebb9a61a7ca62f7fa1b4b1ba64218579e80baa047343fa954e462e3e41"
+        },
+        {
+          "path": "xtendrmt/rmt-core.d.ts",
+          "sha256": "906515851d1aae1ba40927c140377457c97bb4eeb601ee8e8ced4f521db83bc0"
+        },
+        {
+          "path": "xtendrmt/rmt-kernel-module-manifest.json",
+          "sha256": "5bf4f69ebdf6a2fd47c4a2d6e6fbf466a6e31decacf8157615569fa1d771d98f"
+        }
+      ],
+      "acceptedForMerge": false,
+      "acceptedForRelease": false
+    }
+  }
+}

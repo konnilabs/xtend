@@ -460,7 +460,7 @@
     if (descriptor.part || descriptor.parts) domains.add('part');
     if (descriptor.styleToken || descriptor.styleTokens || descriptor['style-token']) domains.add('styleTokens');
     if (Object.keys(objectRecord(descriptor.events)).length) domains.add('events');
-    if (descriptor.command || descriptor.commands) domains.add('events');
+    // Command declarations produce inert binding metadata, not event handlers.
     toArray(descriptor.children || descriptor.nodes).forEach((entry) => {
       descriptorDomains(entry, context, depth + 1).forEach((domain) => domains.add(domain));
     });
@@ -1503,8 +1503,53 @@
     };
   }
 
+  function resolveVisibilityDeclaration(descriptor, context) {
+    if (!Object.prototype.hasOwnProperty.call(descriptor, 'visibility')) return null;
+    const declaration = descriptor.visibility;
+    if (!declaration || typeof declaration !== 'object' || Array.isArray(declaration)
+      || Object.keys(declaration).length !== 1 || !Object.prototype.hasOwnProperty.call(declaration, 'hidden')) {
+      throw createRendererError('rmt.dom.visibility.invalid', 'Visibility declaration requires exactly hidden.', descriptor, context);
+    }
+    const nextHidden = resolveValue(declaration.hidden, context, context.item);
+    if (typeof nextHidden !== 'boolean') {
+      throw createRendererError('rmt.dom.visibility.invalid', 'Visibility declaration must resolve to a boolean.', descriptor, context);
+    }
+    if (domainAllowed(context, 'visibility')) return { nextHidden };
+    if (!context.previousContext || !context.rendererState) {
+      throw createRendererError('rmt.dom.visibility.previous-context-missing', 'Owned visibility needs the previous Model context.', descriptor, context);
+    }
+    if (JSON.stringify(declaration.hidden).includes('$item') && !Object.prototype.hasOwnProperty.call(context.previousContext, 'item')) {
+      throw createRendererError('rmt.dom.visibility.previous-context-missing', 'Item visibility needs an explicitly paired previous Model item.', descriptor, context);
+    }
+    const previousHidden = resolveValue(declaration.hidden, { ...context, ...context.previousContext }, context.previousContext.item);
+    if (typeof previousHidden !== 'boolean') {
+      throw createRendererError('rmt.dom.visibility.invalid', 'Previous visibility must resolve to a boolean.', descriptor, context);
+    }
+    return { previousHidden, nextHidden };
+  }
+
+  // Declarative visibility is handed to its owner without a renderer write.
+  function applyVisibilityDeclaration(element, descriptor, context) {
+    const state = context.rendererState;
+    const intent = resolveVisibilityDeclaration(descriptor, context);
+    if (!intent) {
+      if (state) state.visibilityBindings.delete(element);
+      return;
+    }
+    if (domainAllowed(context, 'visibility')) {
+      setAttributeSafe(element, 'hidden', intent.nextHidden, descriptor, context);
+      if (state) state.visibilityBindings.delete(element);
+      return;
+    }
+    state.visibilityBindings.set(element, Object.freeze({
+      id: bindingIdFor(element, 'visibility:hidden', '', descriptor, context),
+      target: element,
+      ...intent
+    }));
+  }
+
   function applyCommand(element, descriptor, context) {
-    if (!domainAllowed(context, 'events')) return;
+    // The event-router alone installs handlers from these validated records.
     const commandSpecs = toArray(descriptor.commands || descriptor.command)
       .map((spec) => normalizeCommandSpec(spec, descriptor))
       .filter((spec) => spec.command && spec.event);
@@ -1966,6 +2011,7 @@
   }
 
   function validateDescriptor(descriptor, context, depth = 0) {
+    if (descriptor && typeof descriptor === 'object' && !Array.isArray(descriptor)) resolveVisibilityDeclaration(descriptor, context);
     if (depth > 100) {
       throw createRendererError('rmt.dom.descriptor.depth-exceeded', 'DOM Descriptor ueberschreitet die maximal erlaubte Verschachtelung.', {}, context);
     }
@@ -2014,15 +2060,16 @@
     if (nodeType === 'repeat') {
       const sourceValue = resolveValue(descriptor.source, context, context.item);
       const items = Array.isArray(sourceValue) ? sourceValue : [];
-      items.forEach((item) => {
+      repeatContexts(descriptor, context, items).forEach((itemContext) => {
+        const item = itemContext.item;
         if (descriptor.item) {
           const template = context.templates && context.templates.get(descriptor.item);
           if (!template) {
             throw createRendererError('rmt.dom.template.missing', `RMT Template ${descriptor.item} wurde nicht gefunden.`, descriptor, context);
           }
-          validateDescriptor(template.root || template.node || template, { ...context, item }, depth + 1);
+          validateDescriptor(template.root || template.node || template, itemContext, depth + 1);
         } else {
-          validateDescriptor(descriptor.template || descriptor.node || descriptor.children || { type: 'text', text: '$item' }, { ...context, item }, depth + 1);
+          validateDescriptor(descriptor.template || descriptor.node || descriptor.children || { type: 'text', text: '$item' }, itemContext, depth + 1);
         }
       });
       return;
@@ -2098,6 +2145,7 @@
     applyRefPrimitive(element, descriptor, context);
     applyEvents(element, descriptor.events || {}, descriptor, context);
     applyCommand(element, descriptor, context);
+    applyVisibilityDeclaration(element, descriptor, context);
     if (
       Object.prototype.hasOwnProperty.call(descriptor, 'text')
       && domainAllowed(context, 'content')
@@ -2229,17 +2277,43 @@
     return resolved == null || resolved === '' ? index : resolved;
   }
 
+  function repeatContexts(descriptor, context, items) {
+    if (!context.previousContext || domainAllowed(context, 'visibility')) return items.map(item => ({ ...context, item }));
+    const previousContext = { ...context, ...context.previousContext };
+    const previousItems = resolveValue(descriptor.source, previousContext, previousContext.item);
+    // Plain repeats may materialize a page whose previous optional collection
+    // did not exist. Do not invent a visibility predecessor: any actual
+    // visibility declaration still fails preflight with this missing context.
+    if (!Array.isArray(previousItems)) return items.map(item => ({ ...context, item, previousContext: null }));
+    const keyed = (values, ctx) => {
+      const result = new Map();
+      values.forEach((item, index) => {
+        const key = String(resolveRepeatKey(descriptor.key, ctx, item, index));
+        if (result.has(key)) throw createRendererError('rmt.dom.visibility.repeat-key-ambiguous', 'Repeated visibility requires unique Model keys.', descriptor, context);
+        result.set(key, item);
+      });
+      return result;
+    };
+    const previous = keyed(previousItems, previousContext);
+    keyed(items, context);
+    return items.map((item, index) => {
+      const key = String(resolveRepeatKey(descriptor.key, context, item, index));
+      // A new key has no previous element: initialize from its current Model,
+      // rather than inventing a predecessor or consulting mutable DOM state.
+      const paired = previous.has(key) ? { ...previousContext, item: previous.get(key) } : { ...context, item };
+      return { ...context, item, previousContext: paired };
+    });
+  }
+
   function renderRepeat(descriptor, context) {
     const sourceValue = resolveValue(descriptor.source, context, context.item);
     const items = Array.isArray(sourceValue) ? sourceValue : [];
     const fragment = createFragment(context.documentTarget);
-    items.forEach((item, index) => {
+    repeatContexts(descriptor, context, items).forEach((itemContext, index) => {
+      const item = itemContext.item;
       const rendered = descriptor.item
-        ? renderTemplate(descriptor.item, context, item)
-        : renderNode(descriptor.template || descriptor.node || descriptor.children || { type: 'text', text: '$item' }, {
-            ...context,
-            item
-          });
+        ? renderTemplate(descriptor.item, itemContext, item)
+        : renderNode(descriptor.template || descriptor.node || descriptor.children || { type: 'text', text: '$item' }, itemContext);
       toArray(rendered).forEach((node) => {
         if (node && node.nodeType !== 11 && descriptor.key) {
           setAttributeSafe(node, 'data-rmt-key', resolveRepeatKey(descriptor.key, context, item, index), descriptor, context);
@@ -2890,6 +2964,7 @@
     ) || [];
     children.forEach((child) => cleanupNode(child, rendererState));
     rendererState.applicationBindings.delete(node);
+    rendererState.visibilityBindings.delete(node);
     rendererState.bindingIds.delete(node);
     const componentBinding = rendererState.componentBindings.get(node);
     if (componentBinding) {
@@ -2950,6 +3025,7 @@
     }
     applyEvents(element, next.events || {}, next, context);
     applyCommand(element, next, context);
+    applyVisibilityDeclaration(element, next, context);
     if (Object.prototype.hasOwnProperty.call(next, 'text') && domainAllowed(context, 'content')) {
       const target = childContainerFor(element);
       const children = getChildren(target);
@@ -2991,14 +3067,15 @@
       if (nodeType === 'repeat') {
         const sourceValue = resolveValue(descriptor.source, context, item);
         const items = Array.isArray(sourceValue) ? sourceValue : [];
-        items.forEach((repeatItem, index) => {
+        repeatContexts(descriptor, { ...context, item }, items).forEach((itemContext, index) => {
+          const repeatItem = itemContext.item;
           let childDescriptor = descriptor.template || descriptor.node || descriptor.children || { type: 'text', text: '$item' };
           if (descriptor.item) {
             const template = context.templates && context.templates.get(descriptor.item);
             childDescriptor = template && (template.root || template.node || template);
           }
           const repeatKey = clampString(resolveRepeatKey(descriptor.key, context, repeatItem, index), String(index));
-          expandChildEntries(childDescriptor, { ...context, item: repeatItem }, repeatItem).forEach((entry) => {
+          expandChildEntries(childDescriptor, itemContext, repeatItem).forEach((entry) => {
             entries.push({
               ...entry,
               key: entry.key || repeatKey
@@ -3138,6 +3215,7 @@
       documentTarget,
       rendererSchema: options.rendererSchema || RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA,
       model: options.model || {},
+      previousContext: options.previousContext || null,
       selectorValues: options.selectorValues || {},
       components: options.components instanceof Map ? options.components : createMap(options.components),
       templates: options.templates instanceof Map ? options.templates : createMap(options.templates),
@@ -3213,6 +3291,7 @@
     };
     const rendererState = {
       applicationBindings: new WeakMap(),
+      visibilityBindings: new WeakMap(),
       bindingIds: new WeakMap(),
       bindingScopes: new WeakMap(),
       bindingSequence: 0,
@@ -3485,6 +3564,9 @@
           structural: tracker.structural,
           bindings: bindingState.bindings,
           bindingScope: bindingState.bindingScope,
+          visibilityBindings: Object.freeze(Array.from(rendererState.trackedNodes)
+            .filter(node => bindingState.bindingScope.roots.some(root => isWithinTarget(node, root)))
+            .map(node => rendererState.visibilityBindings.get(node)).filter(Boolean)),
           diagnostics: diagnosticsRecorder.diagnostics.slice(diagnosticsStart),
           metadata: Object.prototype.hasOwnProperty.call(request, 'metadata')
             ? request.metadata

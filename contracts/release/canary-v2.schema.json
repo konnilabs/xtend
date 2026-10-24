@@ -1,0 +1,576 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "xtend.release.canary.v2",
+  "title": "canary-v2",
+  "$comment": "Review-only complete producer structure. Open JSON extension boundaries are intentional; relational guards and source-authority acceptance remain mandatory. Never a release authorization.",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "xtend.release.canary.v2"
+    },
+    "profile": {
+      "const": "xtend.npm.core-only.v1"
+    },
+    "startedAt": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+    },
+    "finishedAt": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+    },
+    "runtime": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "enum": [
+            "24.18.0",
+            "26.5.0"
+          ]
+        },
+        "npm": {
+          "const": "11.17.0"
+        }
+      },
+      "required": [
+        "node",
+        "npm"
+      ],
+      "additionalProperties": true
+    },
+    "ok": {
+      "type": "boolean"
+    },
+    "sourceSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "toolchain": {
+      "$ref": "#/definitions/toolchain"
+    },
+    "tarballSetIntegrity": {
+      "type": "string",
+      "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+    },
+    "buildEvidenceIntegrity": {
+      "type": "string",
+      "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+    },
+    "candidateSDK": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/definitions/sdkSuccess"
+        }
+      ]
+    },
+    "mcpKnowledgeGenerated": {
+      "type": "boolean"
+    },
+    "mcpKnowledgeChecked": {
+      "type": "boolean"
+    },
+    "runtimeImports": {
+      "type": "boolean"
+    },
+    "resolution": {
+      "type": "boolean"
+    },
+    "packages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/packageCheck"
+      }
+    },
+    "registryDependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/registryCheck"
+      }
+    },
+    "error": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lockIntegrity": {
+      "type": "string",
+      "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+    },
+    "demoSha": false,
+    "demoRepository": false,
+    "productEvidence": false,
+    "unionEvidence": false
+  },
+  "required": [
+    "schema",
+    "profile",
+    "startedAt",
+    "finishedAt",
+    "runtime",
+    "ok",
+    "sourceSha",
+    "toolchain",
+    "tarballSetIntegrity",
+    "buildEvidenceIntegrity",
+    "candidateSDK",
+    "mcpKnowledgeGenerated",
+    "mcpKnowledgeChecked",
+    "runtimeImports",
+    "resolution",
+    "packages",
+    "registryDependencies",
+    "error"
+  ],
+  "additionalProperties": true,
+  "oneOf": [
+    {
+      "$ref": "#/definitions/completed"
+    },
+    {
+      "$ref": "#/definitions/sdkFailed"
+    },
+    {
+      "$ref": "#/definitions/selectedFailed"
+    }
+  ],
+  "definitions": {
+    "toolchain": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "const": "24.18.0"
+        },
+        "npm": {
+          "const": "11.17.0"
+        }
+      },
+      "required": [
+        "node",
+        "npm"
+      ],
+      "additionalProperties": true
+    },
+    "registry": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "group": {
+          "enum": [
+            "core",
+            "mcp",
+            "material"
+          ]
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        },
+        "sourceSha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "group",
+        "integrity",
+        "sourceSha"
+      ],
+      "additionalProperties": false
+    },
+    "package": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "group": {
+          "enum": [
+            "core",
+            "mcp",
+            "material"
+          ]
+        },
+        "file": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "integrity": {
+                "type": "string",
+                "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+              }
+            },
+            "required": [
+              "path",
+              "size",
+              "integrity"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "dependencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "optionalDependencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "peerDependencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "peerDependenciesMeta": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "optional": {
+                "type": "boolean"
+              }
+            },
+            "required": [],
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "group",
+        "file",
+        "integrity",
+        "sha256",
+        "size",
+        "files"
+      ],
+      "additionalProperties": true
+    },
+    "rawBinding": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        }
+      },
+      "required": [
+        "file",
+        "integrity"
+      ],
+      "additionalProperties": true
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "runId": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "runAttempt": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        }
+      },
+      "required": [
+        "runId",
+        "runAttempt"
+      ],
+      "additionalProperties": true
+    },
+    "packageCheck": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        },
+        "consumerInstall": {
+          "const": true
+        },
+        "entrypoints": {
+          "const": true
+        },
+        "files": {
+          "const": true
+        },
+        "bin": {
+          "const": true
+        },
+        "types": {
+          "const": true
+        },
+        "resolution": {
+          "const": true
+        }
+      },
+      "required": [
+        "name",
+        "integrity",
+        "consumerInstall",
+        "entrypoints",
+        "files",
+        "bin",
+        "types",
+        "resolution"
+      ],
+      "additionalProperties": true
+    },
+    "registryCheck": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "group": {
+          "enum": [
+            "core",
+            "mcp",
+            "material"
+          ]
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        },
+        "sourceSha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "consumerInstall": {
+          "const": true
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "group",
+        "integrity",
+        "sourceSha",
+        "consumerInstall"
+      ],
+      "additionalProperties": false
+    },
+    "scopeSuccess": {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "const": true
+        },
+        "packages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/packageCheck"
+          },
+          "minItems": 1,
+          "maxItems": 10
+        },
+        "registryDependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/registryCheck"
+          }
+        },
+        "runtimeImports": {
+          "const": true
+        },
+        "resolution": {
+          "const": true
+        },
+        "mcpKnowledgeGenerated": {
+          "type": "boolean"
+        },
+        "mcpKnowledgeChecked": {
+          "type": "boolean"
+        },
+        "lockIntegrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        }
+      },
+      "required": [
+        "ok",
+        "packages",
+        "registryDependencies",
+        "runtimeImports",
+        "resolution",
+        "mcpKnowledgeGenerated",
+        "mcpKnowledgeChecked",
+        "lockIntegrity"
+      ],
+      "additionalProperties": true
+    },
+    "sdkSuccess": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/scopeSuccess"
+        },
+        {
+          "properties": {
+            "packages": {
+              "minItems": 10,
+              "maxItems": 10
+            },
+            "registryDependencies": {
+              "maxItems": 0
+            },
+            "mcpKnowledgeGenerated": {
+              "const": true
+            },
+            "mcpKnowledgeChecked": {
+              "const": true
+            }
+          }
+        }
+      ]
+    },
+    "completed": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/scopeSuccess"
+        },
+        {
+          "properties": {
+            "candidateSDK": {
+              "$ref": "#/definitions/sdkSuccess"
+            },
+            "error": {
+              "const": null
+            }
+          }
+        }
+      ]
+    },
+    "sdkFailed": {
+      "allOf": [
+        {
+          "properties": {
+            "ok": {
+              "const": false
+            },
+            "error": {
+              "type": "string"
+            },
+            "packages": {
+              "maxItems": 0
+            },
+            "registryDependencies": {
+              "maxItems": 0
+            },
+            "lockIntegrity": false,
+            "mcpKnowledgeGenerated": {
+              "const": false
+            },
+            "mcpKnowledgeChecked": {
+              "const": false
+            },
+            "runtimeImports": {
+              "const": false
+            },
+            "resolution": {
+              "const": false
+            }
+          }
+        },
+        {
+          "properties": {
+            "candidateSDK": {
+              "const": null
+            }
+          }
+        }
+      ]
+    },
+    "selectedFailed": {
+      "allOf": [
+        {
+          "properties": {
+            "ok": {
+              "const": false
+            },
+            "error": {
+              "type": "string"
+            },
+            "packages": {
+              "maxItems": 0
+            },
+            "registryDependencies": {
+              "maxItems": 0
+            },
+            "lockIntegrity": false,
+            "mcpKnowledgeGenerated": {
+              "const": false
+            },
+            "mcpKnowledgeChecked": {
+              "const": false
+            },
+            "runtimeImports": {
+              "const": false
+            },
+            "resolution": {
+              "const": false
+            }
+          }
+        },
+        {
+          "properties": {
+            "candidateSDK": {
+              "$ref": "#/definitions/sdkSuccess"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

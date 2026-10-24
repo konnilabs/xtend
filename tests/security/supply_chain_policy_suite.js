@@ -17,6 +17,7 @@ const {
   LICENSE_POLICY_CONTRACT,
   RELEASE_SUPPLY_CHAIN_GATE_CONTRACT,
   SCOPED_RELEASE_PACKAGES,
+  PUBLIC_RELEASE_PACKAGES,
   ALLOWED_DEV_TOOLING_DEPENDENCIES,
   SUPPLY_CHAIN_GATE_PLAN_CONTRACT,
   VULNERABILITY_POLICY_CONTRACT,
@@ -57,21 +58,20 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(!verifyLockSbom({ lock: sbomLock, sbom: { ...completeSbom, components: completeSbom.components.map(c => ({ ...c, version: '1.32.0' })) } }).ok, 'SBOM cannot conflate incompatible parent/platform versions');
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-lock-metadata-regression-'));
   try {
-    const paths = ['package.json', 'package-lock.json', ...packageManifest.workspaces.map(directory => `${directory}/package.json`), ...['products/xtend-llm','products/resumability-maraca-erp-demo'].flatMap(directory => [`${directory}/package.json`, `${directory}/package-lock.json`])];
+    const paths = ['package.json', 'package-lock.json', ...packageManifest.workspaces.map(directory => `${directory}/package.json`)];
     for (const relative of paths) {
       const target=path.join(fixture,relative);fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(path.join(rootDir,relative),target);
     }
-    const rootFile=path.join(fixture,'package-lock.json'),llmFile=path.join(fixture,'products/xtend-llm/package-lock.json');
-    const originalRoot=JSON.parse(fs.readFileSync(rootFile)),originalLlm=JSON.parse(fs.readFileSync(llmFile));
-    const changedRoot=structuredClone(originalRoot),changedLlm=structuredClone(originalLlm);
+    const rootFile=path.join(fixture,'package-lock.json');
+    const originalRoot=JSON.parse(fs.readFileSync(rootFile));
+    const changedRoot=structuredClone(originalRoot);
     changedRoot.packages['products/xtend-mcp'].dependencies['@modelcontextprotocol/client']='^2.2.0';
-    changedLlm.packages['../xtend-mcp'].dependencies['@modelcontextprotocol/client']='2.0.0';
-    fs.writeFileSync(rootFile,JSON.stringify(changedRoot,null,2)+'\n');fs.writeFileSync(llmFile,JSON.stringify(changedLlm,null,2)+'\n');
+    fs.writeFileSync(rootFile,JSON.stringify(changedRoot,null,2)+'\n');
     const drift=verifyCiDependencyLocks({rootDir:fixture});
-    context.assert(!drift.ok && drift.errors.some(error=>error.includes('products/xtend-mcp')) && drift.errors.some(error=>error.includes('products/xtend-llm')), 'Both root and embedded product metadata drift are rejected');
+    context.assert(!drift.ok && drift.errors.some(error=>error.includes('products/xtend-mcp')), 'Core workspace metadata drift is rejected');
     const repaired=syncCiDependencyLockMetadata({rootDir:fixture});
-    context.assert(repaired.ok && repaired.changes.length===2, 'Metadata synchronization repairs exactly the two reviewed records');
-    context.assert(isDeepStrictEqual(originalRoot,JSON.parse(fs.readFileSync(rootFile))) && isDeepStrictEqual(originalLlm,JSON.parse(fs.readFileSync(llmFile))), 'Synchronization leaves every locked resolution, integrity and unrelated record unchanged');
+    context.assert(repaired.ok && repaired.changes.length===1, 'Metadata synchronization repairs exactly the reviewed Core record');
+    context.assert(isDeepStrictEqual(originalRoot,JSON.parse(fs.readFileSync(rootFile))), 'Synchronization leaves every locked resolution, integrity and unrelated record unchanged');
     const bytes=fs.readFileSync(rootFile);
     context.assert(syncCiDependencyLockMetadata({rootDir:fixture}).changes.length===0 && bytes.equals(fs.readFileSync(rootFile)), 'Metadata synchronization is idempotent');
     changedRoot.packages['products/xtend-mcp'].version='0.0.0';fs.writeFileSync(rootFile,JSON.stringify(changedRoot));
@@ -90,14 +90,14 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assertIncludes(versionSyncSource, 'xtend.release.package-version-sync-report.v1', 'Version sync helper declares stable report schema');
   context.assertIncludes(versionSyncSource, 'syncWorkspaceDependencyVersions', 'Version sync helper covers internal dependencies of every root workspace');
   context.assertIncludes(dependencyLockSource, 'peerDependenciesMeta', 'CI dependency lock verifier compares linked package peer metadata');
-  context.assertIncludes(dependencyLockSource, 'products/xtend-llm', 'CI dependency lock verifier covers xtend-llm');
-  context.assertIncludes(dependencyLockSource, 'products/resumability-maraca-erp-demo', 'CI dependency lock verifier covers the resumability ERP demo');
   context.assert(SUPPLY_CHAIN_GATE_PLAN_CONTRACT === 'xtend.security.supply-chain-gate-plan.v1', 'Exports supply-chain plan contract');
   context.assert(DEPENDENCY_AUDIT_GATE_CONTRACT === 'xtend.security.dependency-audit-gate.v1', 'Exports dependency audit contract');
   context.assert(LICENSE_POLICY_CONTRACT === 'xtend.security.license-policy.v1', 'Exports license policy contract');
   context.assert(VULNERABILITY_POLICY_CONTRACT === 'xtend.security.vulnerability-policy.v1', 'Exports vulnerability policy contract');
   context.assert(RELEASE_SUPPLY_CHAIN_GATE_CONTRACT === 'xtend.security.release-supply-chain-gate.v1', 'Exports release supply-chain gate contract');
   context.assert(Array.isArray(SCOPED_RELEASE_PACKAGES) && SCOPED_RELEASE_PACKAGES.length === 7, 'Exports scoped release package matrix');
+  context.assert(PUBLIC_RELEASE_PACKAGES.length === 10 && !Object.hasOwn(plan, 'publicReleasePackages'),
+    'Public release inventory includes Core, independent MCP and Material without changing the seven-package sync train');
   context.assert(ALLOWED_DEV_TOOLING_DEPENDENCIES.some((entry) => entry.name === 'typescript' && entry.section === 'devDependencies'), 'Exports allowed TypeScript dev tooling dependency');
   context.assert(ALLOWED_DEV_TOOLING_DEPENDENCIES.some((entry) => entry.name === '@types/node' && entry.versionRange.startsWith('^24.')), 'Exports Node 24 type declarations as build-only tooling');
   context.assert(ALLOWED_DEV_TOOLING_DEPENDENCIES.some((entry) => entry.name === 'vite' && entry.runtime === false), 'Exports Vite as demo/dev-only tooling');
@@ -152,13 +152,13 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(packageManifest.scripts['ci:dependency-locks:check'] === 'node scripts/verify_ci_dependency_locks.js', 'Package exposes the install-free CI dependency lock check');
   context.assert(packageManifest.xtend.releaseGates.includes('npm run test:supply-chain'), 'Release gates include supply-chain gate');
   context.assert(classification.ok === true, 'Current dependency inventory passes offline classification');
-  context.assert(classification.dependencyCount === 6, 'Current package has five build tools and one Node sanitizer parser');
+  context.assert(classification.dependencyCount === 8, 'Current package has seven build tools and one Node sanitizer parser');
   context.assert(classification.runtimeDependencyCount === 1 && classification.allowedSecurityRuntimeDependencies[0]?.name === 'jsdom', 'Current runtime inventory is the pinned Node sanitizer parser');
   context.assert(classification.unapprovedRuntimeDependencies.length === 0, 'Current package has no unapproved runtime dependencies');
   context.assert(!classifyPackageSupplyChain(packageManifest, []).ok, 'Security runtime exceptions require a lockfile');
   context.assert(!classifyPackageSupplyChain({...packageManifest, dependencies:{jsdom:'^30.1.2'}}, ['package-lock.json']).ok, 'Unpinned security runtime versions are rejected');
   context.assert(!classifyPackageSupplyChain({...packageManifest, dependencies:{jsdom:'30.1.2', unexpected:'1.0.0'}}, ['package-lock.json']).ok, 'Unreviewed runtime dependencies remain rejected');
-  context.assert(classification.devToolingDependencyCount === 5, 'Current package classifies Node types, TypeScript, Vite, esbuild and vendored Acorn as dev tooling');
+  context.assert(classification.devToolingDependencyCount === 7, 'Build-only tooling includes pinned SemVer and read-only tarball inspection');
   context.assert(classification.allowedDevToolingDependencies.some((dependency) => dependency.name === 'typescript'), 'Current dependency inventory allows TypeScript compiler tooling');
   context.assert(classification.allowedDevToolingDependencies.some((dependency) => dependency.name === '@types/node'), 'Current dependency inventory allows minimum-runtime Node declarations');
   context.assert(classification.allowedDevToolingDependencies.some((dependency) => dependency.name === 'vite'), 'Current dependency inventory allows Vite only as development tooling');
@@ -168,8 +168,8 @@ function runSupplyChainPolicySuite(options = {}) {
   context.assert(report.checks.length >= 10, 'Verify script performs multiple supply-chain checks');
   context.assert(dependencyLockReport.schema === CI_DEPENDENCY_LOCK_REPORT_SCHEMA, 'CI dependency lock verifier returns its stable report schema');
   context.assert(dependencyLockReport.ok === true, 'CI dependency locks align with all local file dependencies');
-  context.assert(dependencyLockReport.products.length === 3 && dependencyLockReport.products[0].productPath === '.', 'CI dependency lock verifier covers the workspace and both standalone product installs');
-  context.assert(dependencyLockReport.products.reduce((sum, product) => sum + product.fileDependencies, 0) === 18, 'CI dependency lock verifier checks nine workspace links and nine product references');
+  context.assert(dependencyLockReport.products.length === 1 && dependencyLockReport.products[0].productPath === '.', 'CI dependency lock verifier covers the retained Core workspace install');
+  context.assert(dependencyLockReport.products.reduce((sum, product) => sum + product.fileDependencies, 0) === 9, 'CI dependency lock verifier checks all nine retained workspace links');
 
   return context.result({
     plan,

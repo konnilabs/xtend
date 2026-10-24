@@ -1,0 +1,119 @@
+{
+  "schemaId": "xtend.rmt.command.v1",
+  "status": "REVIEWED_2026-10-09",
+  "decision": "Keep all 15 historical accepted hashes; exactly two regenerated lexical render/refresh variants; no global normalization",
+  "sourcePath": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
+  "sourceSha256": "16e583631727612eac9922c20a24d078a30af0b10b43306fb3d8ee2f7b12673c",
+  "variants": [
+    {
+      "hash": "sha256:0f5bd9a5c6234ca5ead0fb9c2952a31e936be186557ae3c9a539753936e7a1ac",
+      "shape": {
+        "fieldCount": 2,
+        "fields": [
+          "command",
+          "metadata"
+        ],
+        "signature": "command:string|metadata:{operation:{\"unresolved\":\"asRecord(metadata).operation||\\\"maraca.render\\\"\"}}",
+        "normalized": {
+          "fields": {
+            "command": {
+              "optional": false,
+              "type": "string"
+            },
+            "metadata": {
+              "optional": false,
+              "type": {
+                "fields": {
+                  "operation": {
+                    "optional": false,
+                    "type": {
+                      "unresolved": "asRecord(metadata).operation||\"maraca.render\""
+                    }
+                  }
+                },
+                "unresolvedSpreads": [
+                  "unknown"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "sourcePaths": [
+        "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs"
+      ],
+      "symbols": [
+        "render"
+      ],
+      "evidence": [
+        {
+          "type": "generated",
+          "completeness": "partial",
+          "authoritative": false,
+          "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
+          "symbol": "render"
+        }
+      ],
+      "evidenceTypes": [
+        "generated"
+      ],
+      "completeness": "partial",
+      "authoritative": false
+    },
+    {
+      "hash": "sha256:4d893229587f1cd1fc87f8f3812b1ab89bf5076a5da801eeec0ba6f624877726",
+      "shape": {
+        "fieldCount": 2,
+        "fields": [
+          "command",
+          "metadata"
+        ],
+        "signature": "command:string|metadata:{operation:{\"unresolved\":\"asRecord(metadata).operation||\\\"maraca.refresh\\\"\"}}",
+        "normalized": {
+          "fields": {
+            "command": {
+              "optional": false,
+              "type": "string"
+            },
+            "metadata": {
+              "optional": false,
+              "type": {
+                "fields": {
+                  "operation": {
+                    "optional": false,
+                    "type": {
+                      "unresolved": "asRecord(metadata).operation||\"maraca.refresh\""
+                    }
+                  }
+                },
+                "unresolvedSpreads": [
+                  "unknown"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "sourcePaths": [
+        "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs"
+      ],
+      "symbols": [
+        "refresh"
+      ],
+      "evidence": [
+        {
+          "type": "generated",
+          "completeness": "partial",
+          "authoritative": false,
+          "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
+          "symbol": "refresh"
+        }
+      ],
+      "evidenceTypes": [
+        "generated"
+      ],
+      "completeness": "partial",
+      "authoritative": false
+    }
+  ]
+}

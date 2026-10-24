@@ -7,7 +7,8 @@ on:
 permissions:
   contents: read
 jobs:
-  regression:
+  node-security:
+    name: Node security regressions
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -18,8 +19,6 @@ jobs:
           package-manager-cache: false
       - run: npm install --global npm@11.17.0 --no-audit --fund=false
       - run: npm ci --ignore-scripts --no-audit --fund=false
-      - run: npm ci --prefix products/resumability-maraca-erp-demo --ignore-scripts --no-audit --fund=false
-      - run: npm ci --prefix products/xtend-llm --ignore-scripts --no-audit --fund=false
       - name: Check generated sanitizer and service artifacts
         run: |
           npm run check:html-sanitizer
@@ -27,17 +26,56 @@ jobs:
           node xscaler/generate-esm.js --check
           node scripts/verify_xtendrmt_artifact_parity.js
           npm run ci:dependency-locks:check
-      - name: Run browser, HTTP and filesystem security regressions
+      - name: Run all Node security regressions independently of Chromium
         env:
-          CHROMIUM_PATH: /usr/bin/google-chrome
-        run: npm run test:security-scan-regressions
-      - name: Build Electron shell and install its pinned runtime
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/security-node-tests.cjs
+
+  browser-security:
+    name: Sandboxed Chromium security evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - run: npm ci --ignore-scripts --no-audit --fund=false
+      - name: Configure pinned unprivileged sandbox-capable Core browser
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-security-browser"
+      - name: Preflight sandbox then execute product assertions in the same browser
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          XTEND_SECURITY_HOST_DIAGNOSTICS: '1'
+          XTEND_BROWSER_GATE_REPORT: .xtend-test-results/security-browser-gate.json
         run: |
-          node products/xtend-llm/scripts/rmt-build.mjs --profile production --quiet
-          node products/xtend-llm/node_modules/electron/install.js
-      - name: Configure the Linux Electron sandbox helper
+          mkdir -p .xtend-test-results
+          node --test --test-reporter=tap tests/security/browser.test.mjs
+      - name: Explain preflight, product and cleanup outcomes
+        if: always()
+        run: node tests/security/browser-gate.cjs --gate .xtend-test-results/security-browser-gate.json
+      - name: Retain browser phase evidence even when blocked
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: security-browser-phases-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .xtend-test-results/security-browser-gate.json
+          if-no-files-found: error
+
+  regression:
+    # Preserve the existing strict check: missing browser coverage stays red.
+    needs: [node-security, browser-security]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require both Node and browser security evidence
+        env:
+          NODE_RESULT: ${{ needs.node-security.result }}
+          BROWSER_RESULT: ${{ needs.browser-security.result }}
         run: |
-          sudo chown root:root products/xtend-llm/node_modules/electron/dist/chrome-sandbox
-          sudo chmod 4755 products/xtend-llm/node_modules/electron/dist/chrome-sandbox
-      - name: Exercise Electron shell, imports and worker capability propagation
-        run: xvfb-run -a node products/xtend-llm/scripts/run-electron.mjs tests/llm-terminal-runner.mjs -- --fake
+          test "$NODE_RESULT" = success
+          test "$BROWSER_RESULT" = success

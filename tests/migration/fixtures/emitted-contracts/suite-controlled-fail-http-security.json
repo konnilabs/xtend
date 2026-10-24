@@ -1,0 +1,19 @@
+{
+  "schema": "xtend.product-suite-result.v1",
+  "coreSha": "5fbdedf54ee77d1401f7aa403241e4953a9fa5a3",
+  "demoSha": "646d4a4e89e51af82bea145c2a0030bb5fefcd25",
+  "id": "http-security",
+  "command": [
+    "/workspace/.xtend-toolchain/node_modules/node/bin/node",
+    "--test",
+    "--test-reporter=tap",
+    "tests/security/http.test.mjs"
+  ],
+  "cwd": ".",
+  "exitCode": 1,
+  "status": "failed",
+  "skips": [],
+  "failures": [],
+  "sourceReports": [],
+  "log": ".xtend-test-results/http-security.log"
+}
