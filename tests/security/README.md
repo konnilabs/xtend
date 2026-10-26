@@ -8,7 +8,7 @@ required real Chromium security test.
 `scripts/security-node-tests.cjs` runs every `*.test.cjs`, `*.test.mjs` and
 `*.test.js` in this directory except `browser.test.mjs`. The standalone Security
 workflow runs that browser test in its own job. Its existing `regression` check
-still requires both jobs to succeed. Missing browser coverage never passes it.
+still requires both jobs to succeed under the event-specific policy described below.
 The original `npm run test:security-scan-regressions` command still runs all tests.
 
 The browser test records three phases:
@@ -23,7 +23,7 @@ Only an observed unsuccessful launch containing `No usable sandbox!` is labelled
 `infrastructure-blocked`. Unknown crashes, launch timeouts, invalid binary pins,
 unsafe configuration and all post-preflight assertion failures remain failures.
 A blocked preflight does not run product assertions, produces no product proof,
-and exits unsuccessfully. Cleanup failure makes the overall result failed while
+and the raw test and Core runner suite exit unsuccessfully. Cleanup failure makes the overall result failed while
 preserving the original preflight/product outcome.
 
 The Core supervisor additionally records its own process-group cleanup. A lost
@@ -50,11 +50,33 @@ results. It does not replace existing checks or remove browser assertions from
 any existing producer suite. Browser-dependent failures within those suites
 remain failures.
 
-The browser job and overall Security check can remain red while this explicitly
-scoped development summary is green. This is not a green whole workflow, security
-approval, merge approval or release evidence. No repository required-check setting
-is changed. Whether to use this additional summary for development policy is a
-separate decision.
+For `pull_request` only, the two dedicated browser jobs use a separate policy
+wrapper. It can succeed with `infrastructure-not-executed`, explicitly reporting
+browser security coverage unavailable and release eligibility false. This permits
+PR acceptance without executed browser security coverage; it is a deliberate
+project policy, not a security-test pass. Every other required job must still
+succeed. Dependency locks, audits and product assertions receive no exception.
+
+The wrapper independently verifies the pinned, configuration-allowed,
+unprivileged browser before and after the producer. It invokes only the fixed
+browser test or fixed Core browser profile under owned-process supervision. The
+exception requires a fresh nonce-bound report, unchanged source and configuration,
+the recognized Chromium pre-DevTools fatal sandbox diagnostic with a nonzero exit
+or SIGABRT/SIGTRAP, product `not-run`, complete browser and supervisor cleanup,
+and exactly the expected raw assertion failure. Extra runner/TAP failures,
+unknown crashes, timeouts, cancellation, spawn errors, post-launch sandbox
+failures, unsafe configuration, missing/malformed/stale/substituted evidence,
+source changes and cleanup failures remain failures. The Core producer checks
+source integrity before its strict blocked-startup failure.
+
+Raw reports retain their unsuccessful outcomes. A separate `.policy.json` receipt
+records the decision, source/run/attempt/invocation, raw digest, launch and
+supervisor evidence. The summary rechecks that receipt against the raw report and
+current source/context. Core release artifact contents and names are unchanged;
+the PR receipt is retained in a separate artifact. Main pushes, manual workflows,
+Nightly and local commands retain their strict behavior. No repository settings,
+host policy, binary pins or sandbox flags are changed; no unsandboxed fallback or
+blanket error suppression is used.
 
 `release-seal` and `npm-publish-latest` still require the Core browser job to
 succeed, and the authenticated release verifier additionally requires all three
@@ -71,8 +93,10 @@ node scripts/security-node-tests.cjs
 ```
 
 The real browser test still requires the pinned unprivileged Linux x64 runtime.
-Tests of controlled phase outcomes are not substitutes for that real browser
-evidence.
+Tests of controlled phase and wrapper outcomes are not substitutes for that real
+browser evidence. `tests/release/core-contracts.test.cjs` also exercises the real
+release verifier with a Git-object-backed source provider and confirms that even
+forged passing outer statuses cannot admit blocked browser evidence.
 
 ## XSS Pentest
 
