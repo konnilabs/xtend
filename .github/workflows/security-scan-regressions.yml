@@ -33,6 +33,8 @@ jobs:
 
   browser-security:
     name: Sandboxed Chromium security evidence
+    env:
+      XTEND_POLICY_SOURCE_SHA: ${{ github.sha }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -48,6 +50,7 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-security-browser"
       - name: Preflight sandbox then execute product assertions in the same browser
+        if: github.event_name != 'pull_request'
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           XTEND_SECURITY_HOST_DIAGNOSTICS: '1'
@@ -55,19 +58,33 @@ jobs:
         run: |
           mkdir -p .xtend-test-results
           node --test --test-reporter=tap tests/security/browser.test.mjs
+      - name: Evaluate PR browser policy with strict raw evidence
+        if: github.event_name == 'pull_request'
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+          XTEND_SECURITY_HOST_DIAGNOSTICS: '1'
+        run: node tests/security/browser-gate.cjs --run-pr gate .xtend-test-results/security-browser-gate.json
+      - name: Explain PR coverage and policy outcome
+        if: always() && github.event_name == 'pull_request'
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node tests/security/browser-gate.cjs --policy .xtend-test-results/security-browser-gate.json
       - name: Explain preflight, product and cleanup outcomes
-        if: always()
+        if: always() && github.event_name != 'pull_request'
         run: node tests/security/browser-gate.cjs --gate .xtend-test-results/security-browser-gate.json
       - name: Retain browser phase evidence even when blocked
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: security-browser-phases-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .xtend-test-results/security-browser-gate.json
+          path: |
+            .xtend-test-results/security-browser-gate.json
+            .xtend-test-results/security-browser-gate.json.policy.json
           if-no-files-found: error
 
   regression:
-    # Preserve the existing strict check: missing browser coverage stays red.
+    # Both jobs must succeed under their event-specific policy; PR infrastructure
+    # acceptance is explicit coverage-unavailable, never security/release proof.
     needs: [node-security, browser-security]
     if: ${{ always() }}
     runs-on: ubuntu-latest

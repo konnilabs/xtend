@@ -3448,7 +3448,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "b9a77bf6ae34e908f03751fe27d0e9b910bc7f7d868ab1546e49c764a3e6de32",
+  "authorityDecisionSha256": "6836ca86efb1197804b811094ef1f3459b055b6fc2d762b3221470de46216f05",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "8fc57e4eb96a3a6fd0155234f06cc4b95879fc9d492fdaad8171e26345e4f865"
 }

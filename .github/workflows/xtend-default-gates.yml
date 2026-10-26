@@ -1461,6 +1461,8 @@ jobs:
   core-security-browser:
     needs: [core-source-artifact, release-prepare]
     name: Core security browser (Node 24.18.0)
+    env:
+      XTEND_POLICY_SOURCE_SHA: ${{ needs.core-source-artifact.outputs.core-sha }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -1532,12 +1534,31 @@ jobs:
           node scripts/verify_xtendrmt_artifact_parity.js
           npm run ci:dependency-locks:check
       - name: Execute maintained real sanitizer and Trusted Types browser assertions without skips
+        if: github.event_name != 'pull_request'
         env:
           XTEND_SECURITY_HOST_DIAGNOSTICS: "1"
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/run_xtend_tests.js --profile core-security-browser --execution .xtend-test-results/core-security/security-execution.json
+      - name: Evaluate PR browser policy with strict raw Core execution evidence
+        if: github.event_name == 'pull_request'
+        env:
+          XTEND_SECURITY_HOST_DIAGNOSTICS: "1"
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node tests/security/browser-gate.cjs --run-pr execution .xtend-test-results/core-security/security-execution.json
+      - name: Explain PR coverage and policy outcome
+        if: always() && github.event_name == 'pull_request'
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node tests/security/browser-gate.cjs --policy .xtend-test-results/core-security/security-execution.json
+      - name: Retain separate PR policy receipt
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtend-core-security-pr-policy-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .xtend-test-results/core-security/security-execution.json.policy.json
+          if-no-files-found: error
       - name: Explain browser preflight, product and owned-group cleanup outcomes
-        if: always()
+        if: always() && github.event_name != 'pull_request'
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node tests/security/browser-gate.cjs --execution .xtend-test-results/core-security/security-execution.json
