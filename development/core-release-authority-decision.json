@@ -259,7 +259,7 @@
           },
           {
             "path": "scripts/release/core-security.cjs",
-            "sha256": "592ddac38bca597b9b0e554eb02f80da43adb24050f2eed018891ff4067e495e"
+            "sha256": "07e3e006d3da6bae8fb605ad38b80de850884cae7c5bcbf8d59aca1072786846"
           },
           {
             "path": "scripts/release/core-source.cjs",

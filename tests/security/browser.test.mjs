@@ -47,13 +47,15 @@ try {
     staticFiles.streamPublicFile(response,file,{'content-type':'text/javascript'});
   });
   server.listen(0,'127.0.0.1');await once(server,'listening');
-  let child,launch,socket,command,preflightProof,productProof;
+  let child,launch,socket,command,preflightProof,productProof,launchProof;
   const profile=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-security-browser-'));
   const gate=await browserGate.runBrowserGate({
     preflight: async () => {
       hostDiagnostics.emit('preflight',()=>hostDiagnostics.hostSnapshot());
       const launchStartedAt=Date.now();
       launch=sandboxedBrowser.launchSandboxedBrowser(profile);child=launch.child;
+      launchProof={browser:launch.identity,argv:launch.argv,pid:child.pid,startedAt:new Date(launchStartedAt).toISOString(),
+        devTools:false,spawnError:null,exitCode:null,signalCode:null};
       hostDiagnostics.emit('launch',()=>({identity:launch.identity,argv:launch.argv,process:hostDiagnostics.processSnapshot(child.pid)}));
       let errors='',launchError,address;
       child.stderr.on('data',chunk=>{errors=(errors+chunk).slice(-65536);address ||= /DevTools listening on (ws:\/\/\S+)/.exec(errors)?.[1];});
@@ -61,10 +63,14 @@ try {
       const deadline=Date.now()+30000;
       while(Date.now()<deadline && !address && !launchError && child.exitCode===null && child.signalCode===null) await new Promise(resolve=>setTimeout(resolve,100));
       if(!address) {
+        Object.assign(launchProof,{finishedAt:new Date().toISOString(),spawnError:launchError?.message||null,
+          exitCode:child.exitCode,signalCode:child.signalCode});
         hostDiagnostics.emit('failed-launch',()=>({process:hostDiagnostics.processSnapshot(child.pid),
           audit:hostDiagnostics.auditSnapshot({pid:child.pid,binary:launch.identity.binary,startedAt:launchStartedAt})}));
+        if(launchError)throw launchError;
         throw browserGate.startupFailure({stderr:errors,exitCode:child.exitCode,signalCode:child.signalCode});
       }
+      launchProof.devTools=true;
       const endpoint=new URL(address);
       assert.equal(endpoint.protocol,'ws:');assert.equal(endpoint.hostname,'127.0.0.1');
       assert.equal(endpoint.username,'');assert.equal(endpoint.password,'');
@@ -105,7 +111,8 @@ try {
       }
     }
   });
-  const report={...gate,preflightProof:preflightProof||null};
+  const report={...gate,preflightProof:preflightProof||null,launch:launchProof||null,
+    invocation:process.env.XTEND_BROWSER_POLICY_INVOCATION||null};
   if(process.env.XTEND_BROWSER_GATE_REPORT)fs.writeFileSync(process.env.XTEND_BROWSER_GATE_REPORT,JSON.stringify(report)+'\n',{flag:'wx'});
   console.log('XTEND_BROWSER_GATE '+JSON.stringify(report));
   assert.equal(gate.status,'passed',JSON.stringify(gate));
