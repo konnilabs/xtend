@@ -6,7 +6,7 @@ const {isDeepStrictEqual}=require('node:util');
 const {createSuiteContext}=require('../../tests/utils/assertions');
 const {assertSourceProvider}=require('../../tools/schema-inventory/source-provider.cjs');
 const {pin,browserArguments}=require('../../tests/security/sandboxed-browser.cjs');
-const {requirePassedGate}=require('../../tests/security/browser-gate.cjs');
+const {requirePassedGate,blockedFailure}=require('../../tests/security/browser-gate.cjs');
 const {check}=require('./inventory.cjs');
 const id='core-security-browser',node='24.18.0',job='Core security browser (Node 24.18.0)';
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
@@ -23,10 +23,10 @@ function verifyTap(stdout){
     check(matches.length===1&&Number(matches[0][1])===expected,'Missing, skipped or contradictory real-browser TAP outcome: '+name);
   }
 }
-async function runBrowserTest(rootDir,proofFile,gateFile,signal){
+async function runOwnedCommand(rootDir,commandArgv,environment,signal){
   check(signal===undefined||signal instanceof AbortSignal,'Exact AbortSignal required');
-  const owned=spawnOwned(process.execPath,argv,{cwd:rootDir,env:{...process.env,
-    XTEND_CORE_BROWSER_PROOF:proofFile,XTEND_BROWSER_GATE_REPORT:gateFile,XTEND_CORE_SECURITY_SUPERVISOR_PID:String(process.pid)}});
+  const owned=spawnOwned(process.execPath,commandArgv,{cwd:rootDir,env:{...environment,
+    XTEND_CORE_SECURITY_SUPERVISOR_PID:String(process.pid)}});
   const {child}=owned;const result={status:null,signal:null,stdout:'',stderr:'',abortCause:null,cleanup:null};
   let settled=false,complete,timer;const done=new Promise(resolve=>{complete=resolve;});
   const finish=cause=>{if(cause&&!result.abortCause)result.abortCause=cause;if(settled)return;settled=true;complete();};
@@ -63,6 +63,32 @@ async function runBrowserTest(rootDir,proofFile,gateFile,signal){
   }
   return result;
 }
+function runBrowserTest(rootDir,proofFile,gateFile,signal){
+  return runOwnedCommand(rootDir,argv,{...process.env,XTEND_CORE_BROWSER_PROOF:proofFile,XTEND_BROWSER_GATE_REPORT:gateFile},signal);
+}
+async function runPolicyProducer({rootDir,mode,file,environment}){
+  check(['gate','execution'].includes(mode),'Unknown browser policy producer');
+  if(mode==='gate')return {kind:'process',...await runOwnedCommand(rootDir,argv,{...environment,XTEND_BROWSER_GATE_REPORT:file})};
+  // Use the maintained runner in this process: a second process-group killer
+  // must not cut short its existing detached-worker cleanup on cancellation.
+  const previous=process.env.XTEND_BROWSER_POLICY_INVOCATION;
+  process.env.XTEND_BROWSER_POLICY_INVOCATION=environment.XTEND_BROWSER_POLICY_INVOCATION;
+  let abortCause=null;
+  const handlers=new Map(['SIGINT','SIGTERM','SIGHUP','disconnect'].map(name=>[name,()=>{
+    abortCause ||= name;
+    if(name==='SIGHUP'||name==='disconnect')process.emit('SIGTERM');
+  }]));
+  for(const [name,handler]of handlers)process.on(name,handler);
+  try{
+    const {select}=require('../test-runner/catalog'),{execute}=require('../test-runner/executor');
+    const result=await execute(select({profile:id}),{profile:id,execution:file,jobs:1});
+    return {kind:'runner',status:result.status==='passed'?0:1,signal:null,abortCause,cleanupError:null};
+  }finally{
+    for(const [name,handler]of handlers)process.off(name,handler);
+    if(previous===undefined)delete process.env.XTEND_BROWSER_POLICY_INVOCATION;
+    else process.env.XTEND_BROWSER_POLICY_INVOCATION=previous;
+  }
+}
 async function runCoreSecuritySuite({rootDir,signal}){
   const context=createSuiteContext({id,label:'Core sanitizer and Trusted Types actual sandboxed Chromium'});
   const temporary=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-core-security-'));
@@ -80,6 +106,11 @@ async function runCoreSecuritySuite({rootDir,signal}){
       check(fs.lstatSync(gateFile).isFile()&&fs.realpathSync(gateFile)===gateFile,'Required regular browser phase report missing');
       report.browserGate=JSON.parse(fs.readFileSync(gateFile));
     }
+    // Check source integrity on unsuccessful startup too, before its strict failure.
+    check(isDeepStrictEqual(report.sourceHashes,sourceHashes(rootDir)),'Core test/runtime source changed during real browser execution');
+    report.sourceIntegrity='passed';
+    if(!result.abortCause&&!result.cleanupError&&result.cleanup?.complete===true&&result.status===1&&result.signal===null&&
+      report.browserGate?.status==='infrastructure-blocked')throw Error(blockedFailure);
     check(!result.abortCause&&!result.cleanupError&&result.cleanup?.complete===true&&result.status===0&&result.signal===null,
       'Required real Chromium test/owned cleanup failed: '+(result.abortCause||result.cleanupError||report.stderr));
     requirePassedGate(report.browserGate);
@@ -157,4 +188,4 @@ function verifyCoreSecurityReport(execution,{artifact,envelope,provider,now}){
   }
   return true;
 }
-module.exports={id,node,job,runCoreSecuritySuite,verifyCoreSecurityReport};
+module.exports={id,node,job,runCoreSecuritySuite,verifyCoreSecurityReport,runPolicyProducer,sourceHashes};
