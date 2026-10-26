@@ -81,11 +81,11 @@ function fixture(t) {
     process.env.XTEND_BROWSER_HYPERVISOR_BROWSER_BINARY = files.browser;
     process.env.XTEND_BROWSER_HYPERVISOR_DRIVER_PATH = files.driver;
   };
-  const artifact = { path: 'candidate.json', kind: 'outcome', producer: 'product_candidate', expectedSchema: 'nightly.order.fixture.v1' };
+  const artifact = { path: 'candidate.json', kind: 'outcome', producer: 'product_candidate', expectedSchema: 'fixture' };
   const contract = { artifacts: [artifact], phases: {
     lock_guard: { commands: [], timeoutMs: 10000 },
     install_1: { commands: [], dependsOn: ['lock_guard'], timeoutMs: 10000 },
-    product_candidate: { commands: [{ command: 'node', args: ['-e', 'console.log(JSON.stringify({schema:"nightly.order.fixture.v1",ok:true}))'], output: artifact.path }], dependsOn: ['install_1'], timeoutMs: 10000 }
+    product_candidate: { commands: [{ command: 'node', args: ['-e', 'console.log(JSON.stringify({schema:"fixture",ok:true}))'], output: artifact.path }], dependsOn: ['install_1'], timeoutMs: 10000 }
   } };
   const run = id => runPhase(id, { rootDir, contract });
   const read = () => JSON.parse(fs.readFileSync(path.join(rootDir, SESSION_PATH), 'utf8'));
