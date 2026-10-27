@@ -4,7 +4,7 @@ const runner=require('../../../scripts/demo-functional-ci.cjs');
 const source={controllerSha:'a'.repeat(40),coreSha:'b'.repeat(40),demoSha:'c'.repeat(40),manifestSha256:'d'.repeat(64)};
 const ci={GITHUB_ACTIONS:'true',RUNNER_ENVIRONMENT:'github-hosted',GITHUB_REPOSITORY:'konnilabs/xtend',GITHUB_EVENT_NAME:'push',GITHUB_REF:'refs/heads/qualification/firefox-initial-20261021',GITHUB_SHA:source.controllerSha,GITHUB_RUN_ID:'123',GITHUB_RUN_ATTEMPT:'1',XTEND_CI_FUNCTIONAL_PROFILE:'chromium-linux-ci-functions-no-sandbox-v1',GITHUB_TOKEN:'must-not-inherit',ACTIONS_RUNTIME_TOKEN:'must-not-inherit',NODE_OPTIONS:'--require=foreign',HOME:'/credential-home',LD_PRELOAD:'/foreign'};
 function model(){return {format:1,purpose:'migration-demo-functions',source,node:'24.18.0',runId:'123',attempt:1,sandboxEnabled:false,sandboxEvidence:'not-provided',acceptedForMerge:false,acceptedForRelease:false,groups:runner.groups.map(id=>({id,status:'passed',completion:'complete',startedAt:'2026-10-23T00:00:00Z',finishedAt:'2026-10-23T00:00:01Z',result:{ok:true,passes:['explicit model assertion'],failures:[],skips:[]},cleanup:{complete:true,childReaped:true,groupGone:true}}))};}
-const expected={source,node:'24.18.0',runId:'123'};
+const expected={source,node:'24.18.0',runId:'123',attempt:1};
 test('explicit environment never copies credentials, injection flags or user profiles',()=>{
  const env=runner.environment({scratch:'/tmp/isolated',node:'/tool/node',browser:'/tool/chrome',driver:'/tool/driver',group:'erp',source,ci});
  for(const key of ['GITHUB_TOKEN','ACTIONS_RUNTIME_TOKEN','NODE_OPTIONS','LD_PRELOAD'])assert(!Object.hasOwn(env,key));
@@ -19,7 +19,7 @@ test('FPM is explicit and limited to the FPM group',()=>{
 test('all five explicit model groups accepted without release or sandbox recognition',()=>assert(runner.validateRecord(model(),expected)));
 for(const [name,change] of [
  ['missing group',r=>r.groups.pop()],['duplicate group',r=>r.groups[4]=r.groups[0]],['foreign source',r=>r.source={...r.source,demoSha:'0'.repeat(40)}],
- ['foreign run',r=>r.runId='999'],['retry',r=>r.attempt=2],['foreign Node',r=>r.node='22.0.0'],
+ ['foreign run',r=>r.runId='999'],['foreign attempt',r=>r.attempt=2],['foreign Node',r=>r.node='22.0.0'],
  ['not run',r=>r.groups[0].status='not-run'],['no assertions',r=>r.groups[0].result.passes=[]],['assertion failure',r=>r.groups[0].result.failures=['failed']],
  ['green skip',r=>r.groups[0].result.skips=['unavailable']],['missing cleanup',r=>delete r.groups[0].cleanup],['unreaped child',r=>r.groups[0].cleanup.childReaped=false],
  ['nested skip',r=>r.groups[0].result.report={skipped:1}],
@@ -37,7 +37,7 @@ test('workflow fixes exact branch, two lanes, read permissions and credential-fr
  assert(text.includes('--no-scripts --no-plugins'));assert(text.includes('provision-product-fpm.cjs 8.3'));
 });
 test('matrix requires both exact lanes, source and run with no substitute or duplicate',()=>{
- const a=model(),b={...model(),node:'26.5.0'},expected={...source,runId:'123'};
+ const a=model(),b={...model(),node:'26.5.0'},expected={...source,runId:'123',attempt:1};
  assert(runner.validateMatrix([a,b],expected).ok);
  for(const reports of [[a],[a,a],[a,{...b,source:{...source,coreSha:'0'.repeat(40)}}],[a,{...b,runId:'456'}]])assert.throws(()=>runner.validateMatrix(reports,expected));
 });
@@ -61,7 +61,7 @@ test('explicit Demo PR model authenticates separate event and controller sources
   assert.equal(env.XTEND_DEMO_EVENT_SHA,source.demoSha);assert.equal(env.XTEND_DEMO_CONTROLLER_SHA,source.controllerSha);
   for(const key of ['GITHUB_TOKEN','ACTIONS_RUNTIME_TOKEN','NODE_OPTIONS','LD_PRELOAD'])assert(!Object.hasOwn(env,key));
 });
-for(const [key,value] of [['GITHUB_REPOSITORY','foreign/demo'],['GITHUB_EVENT_NAME','pull_request_target'],['GITHUB_REF','refs/pull/3/merge'],['XTEND_DEMO_PR_NUMBER','3'],['XTEND_DEMO_BASE_REF','develop'],['XTEND_DEMO_HEAD_REPOSITORY','foreign/xtend-demos'],['XTEND_DEMO_EVENT_SHA','missing'],['XTEND_DEMO_CONTROLLER_SHA','missing'],['GITHUB_RUN_ATTEMPT','2'],['RUNNER_ENVIRONMENT','self-hosted']])test('Demo PR host rejects '+key,()=>assert.throws(()=>runner.host({...demoCI,[key]:value},'linux',1001,'x64','24.18.0')));
+for(const [key,value] of [['GITHUB_REPOSITORY','foreign/demo'],['GITHUB_EVENT_NAME','pull_request_target'],['GITHUB_REF','refs/pull/3/merge'],['XTEND_DEMO_PR_NUMBER','3'],['XTEND_DEMO_BASE_REF','develop'],['XTEND_DEMO_HEAD_REPOSITORY','foreign/xtend-demos'],['XTEND_DEMO_EVENT_SHA','missing'],['XTEND_DEMO_CONTROLLER_SHA','missing'],['GITHUB_RUN_ATTEMPT','0'],['RUNNER_ENVIRONMENT','self-hosted']])test('Demo PR host rejects '+key,()=>assert.throws(()=>runner.host({...demoCI,[key]:value},'linux',1001,'x64','24.18.0')));
 test('Demo main supports the same bounded profile without changing the Core branch restriction',()=>{
   for(const GITHUB_EVENT_NAME of ['push','schedule','workflow_dispatch'])assert.doesNotThrow(()=>runner.host({...demoCI,GITHUB_EVENT_NAME,GITHUB_REF:'refs/heads/main',GITHUB_SHA:source.demoSha},'linux',1001,'x64','26.5.0'));
   assert.throws(()=>runner.host({...demoCI,GITHUB_EVENT_NAME:'push',GITHUB_REF:'refs/heads/main'},'linux',1001,'x64','26.5.0'));
@@ -79,4 +79,39 @@ test('Demo event source and installed package Core remain independent from contr
  assert.deepEqual(runner.expectedSources(root,env),{implementationCoreSha:source.coreSha,demoSha:source.demoSha});
  assert.throws(()=>runner.expectedSources(root,{...env,XTEND_CORE_SHA:'missing'}));
  assert.throws(()=>runner.expectedSources(root,{...env,XTEND_DEMO_CONTROLLER_SHA:'0'.repeat(40)}));
+});
+for(const attempt of [2,17])test('later attempt '+attempt+' binds the host, record and both model lanes to the same invocation',()=>{
+ const invocation={runId:'123',attempt};
+ for(const env of [ci,demoCI,{...demoCI,GITHUB_EVENT_NAME:'push',GITHUB_REF:'refs/heads/main',GITHUB_SHA:source.demoSha}]) {
+  for(const node of runner.nodes)assert.deepEqual(runner.host({...env,GITHUB_RUN_ATTEMPT:String(attempt)},'linux',1001,'x64',node),invocation);
+ }
+ const a={...model(),attempt,executionRepository:'konnilabs/xtend-demos'},b={...a,node:'26.5.0'};
+ assert(runner.validateRecord(a,{...expected,...invocation,repository:'konnilabs/xtend-demos'}));
+ const result=runner.validateMatrix([a,b],{...source,...invocation,repository:'konnilabs/xtend-demos'});
+ assert.equal(result.attempt,attempt);assert.equal(result.runId,'123');
+ assert.equal(result.sandboxEvidence,'not-provided');assert.equal(result.acceptedForMerge,false);assert.equal(result.acceptedForRelease,false);
+ const env=runner.environment({scratch:'/tmp/later-attempt-model',browser:'/tool/chrome',driver:'/tool/driver',group:'erp',source,ci:{...demoCI,GITHUB_RUN_ATTEMPT:String(attempt)}});
+ assert.equal(env.GITHUB_RUN_ATTEMPT,String(attempt));assert.equal(env.GITHUB_RUN_ID,'123');assert(!Object.hasOwn(env,'GITHUB_TOKEN'));
+});
+for(const value of [undefined,'','0','01','-1','1.0','1e2',' 2','2 ','NaN','Infinity','9007199254740992',2])test('reject malformed workflow attempt '+JSON.stringify(value),()=>{
+ for(const env of [ci,demoCI])assert.throws(()=>runner.host({...env,GITHUB_RUN_ATTEMPT:value},'linux',1001,'x64','24.18.0'));
+});
+for(const value of [undefined,'','0','01','foreign',123])test('reject malformed workflow run '+JSON.stringify(value),()=>{
+ assert.throws(()=>runner.host({...demoCI,GITHUB_RUN_ID:value,GITHUB_RUN_ATTEMPT:'2'},'linux',1001,'x64','24.18.0'));
+});
+for(const attempt of [undefined,0,-1,1.5,'2',NaN,Infinity,Number.MAX_SAFE_INTEGER+1])test('record validation requires an explicit valid expected attempt '+String(attempt),()=>{
+ const record={...model(),attempt:2};assert.throws(()=>runner.validateRecord(record,{...expected,attempt}));
+});
+test('later-attempt matrix rejects mixed attempts and consistent but foreign invocation evidence',()=>{
+ const a={...model(),attempt:2,executionRepository:'konnilabs/xtend-demos'},b={...a,node:'26.5.0'};
+ const wanted={...source,runId:'123',attempt:2,repository:'konnilabs/xtend-demos'};
+ for(const reports of [
+  [a,{...b,attempt:1}],[{...a,attempt:1},{...b,attempt:1}],
+  [a,{...b,attempt:3}],[{...a,attempt:3},{...b,attempt:3}],
+  [a,{...b,runId:'456'}],[{...a,runId:'456'},{...b,runId:'456'}],
+  [a,{...b,attempt:'2'}],[a,{...b,attempt:undefined}],
+  [a,{...b,executionRepository:'foreign/demo'}],
+  [a,{...b,source:{...source,controllerSha:'0'.repeat(40)}}]
+ ])assert.throws(()=>runner.validateMatrix(reports,wanted));
+ assert.throws(()=>runner.validateMatrix([a,b],{...wanted,attempt:undefined}));
 });
