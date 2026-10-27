@@ -285,7 +285,7 @@ test('HTTP and stdio reject oversized tool arguments while preserving subsequent
     assert.match(rejected.content[0].text, /maximum of 256 elements/u);
     const accepted = await client.callTool({ name: 'xtend_knowledge_search', arguments: { query: 'RMT', ignored: Array(254).fill(null) } });
     assert.equal(accepted.isError, undefined);
-    assert.equal(accepted.structuredContent.schema, 'xtend.mcp.tool-result.v1');
+    assert.ok(accepted.structuredContent.data.hitCount > 0);
     await client.close();
   }
 });
