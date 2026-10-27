@@ -40,7 +40,9 @@ export async function startXtendMcpHttp(options = {}) {
   const token = String(options.token || crypto.randomBytes(32).toString('base64url'));
   if (token.length < 24) throw new Error('XTend MCP HTTP Bearer token must contain at least 24 characters.');
 
-  const mcpHandler = createMcpHandler(createXtendMcpServerFactory(options));
+  const mcpHandler = createMcpHandler(createXtendMcpServerFactory(options), {
+    maxRequestBodySize: 4 * 1024 * 1024
+  });
   const nodeHandler = toNodeHandler(mcpHandler);
   const validateHost = localhostHostValidation();
   const validateOrigin = localhostOriginValidation();
