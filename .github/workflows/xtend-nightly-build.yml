@@ -87,6 +87,16 @@ jobs:
           node --version
           npm --version
 
+      # Finish runtime provisioning and apply GITHUB_ENV exports before identity capture.
+      - name: Provision required product display and browser tooling
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y xvfb xauth unzip
+          node scripts/provision_product_fpm.cjs 8.4
+          node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
+
       - name: Initialize bounded Nightly execution
         id: nightly_begin
         env:
@@ -109,14 +119,6 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/test-runner/nightly.js phase install_1
 
-      - name: Provision required product display and browser tooling
-        env:
-          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y xvfb xauth unzip
-          node scripts/provision_product_fpm.cjs 8.4
-          node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
       - name: Run pinned independent product candidate acceptance
         id: product_candidate
         continue-on-error: true
