@@ -7,6 +7,8 @@ import test from 'node:test';
 import { execFileSync } from 'node:child_process';
 
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
+import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
+import { fileURLToPath } from 'node:url';
 
 import { startXtendMcpHttp } from '../src/transports.mjs';
 import {
@@ -57,6 +59,7 @@ function rawHttpRequest(url, options = {}) {
       port: target.port,
       path: target.pathname,
       method: options.method || 'POST',
+      agent: false,
       headers: options.headers || {}
     }, (response) => {
       const chunks = [];
@@ -64,7 +67,12 @@ function rawHttpRequest(url, options = {}) {
       response.on('end', () => resolve({ status: response.statusCode, body: Buffer.concat(chunks).toString('utf8') }));
     });
     request.once('error', reject);
-    request.end(options.body || '');
+    request.setTimeout(15000, () => request.destroy(new Error('HTTP boundary test timed out')));
+    if (options.chunked) {
+      const body = Buffer.from(options.body || '');
+      for (let i = 0; i < body.length; i += 16384) request.write(body.subarray(i, i + 16384));
+      request.end();
+    } else request.end(options.body || '');
   });
 }
 
@@ -219,4 +227,65 @@ test('Streamable HTTP stays on loopback and enforces Bearer, Host, and Origin ch
   await client.connect(transport);
   t.after(() => client.close());
   assert.ok((await client.listTools()).tools.some((tool) => tool.name === 'xtend_knowledge_search'));
+});
+
+test('HTTP enforces the 4 MiB wire-byte boundary for declared and chunked bodies', async (t) => {
+  const handle = await startXtendMcpHttp({ token: 'bounded-http-test-token-24-characters', port: 0 });
+  t.after(() => handle.close());
+  const limit = 4 * 1024 * 1024;
+  const base = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' });
+  const headers = { authorization: `Bearer ${handle.token}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream' };
+  for (const protocol of ['2025-11-25', '2026-07-28']) {
+    const message = protocol === '2025-11-25' ? base : JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: { _meta: {
+      'io.modelcontextprotocol/protocolVersion': protocol,
+      'io.modelcontextprotocol/clientCapabilities': {}
+    } } });
+    for (const chunked of [false, true]) {
+      for (const bytes of [limit, limit + 1]) {
+        const body = message + ' '.repeat(bytes - Buffer.byteLength(message));
+        const response = await rawHttpRequest(handle.url, { body, chunked, headers: {
+          ...headers, 'mcp-protocol-version': protocol, 'mcp-method': 'tools/list',
+          ...(chunked ? {} : { 'content-length': bytes })
+        } });
+        assert.equal(response.status, bytes === limit ? 200 : 413, `${protocol}, chunked=${chunked}, bytes=${bytes}: ${response.body.slice(0, 200)}`);
+        assert.match(response.body, bytes === limit ? /xtend_knowledge_search/u : /Payload Too Large|exceeds|too large/iu);
+      }
+    }
+  }
+  // These fit the source character schema but exceed the serialized UTF-8 budget.
+  for (const source of ['界'.repeat(1_500_000), '\u0001'.repeat(800_000)]) {
+    const body = JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'xtend_rmt_diagnostics', arguments: { source } } });
+    assert.ok(source.length < 2_000_000);
+    assert.ok(Buffer.byteLength(body) > limit);
+    const response = await rawHttpRequest(handle.url, { body, headers: { ...headers, 'content-length': Buffer.byteLength(body) } });
+    assert.equal(response.status, 413);
+  }
+  // Authentication and Host/Origin rejection must happen before body admission.
+  for (const [override, expected] of [[{ authorization: 'Bearer invalid' }, 401], [{ host: 'attacker.example' }, 403], [{ origin: 'https://attacker.example' }, 403]]) {
+    const response = await rawHttpRequest(handle.url, { body: '{}', headers: { ...headers, ...override, 'content-length': limit + 1 } });
+    assert.equal(response.status, expected);
+  }
+  const healthy = await Promise.all(Array.from({ length: 3 }, () => rawHttpRequest(handle.url, { body: base, headers: { ...headers, 'mcp-protocol-version': '2025-11-25' } })));
+  assert.ok(healthy.every((response) => response.status === 200 && response.body.includes('xtend_knowledge_search')));
+});
+
+test('HTTP and stdio reject oversized tool arguments while preserving subsequent calls', async (t) => {
+  const handle = await startXtendMcpHttp({ token: 'bounded-tool-test-token-24-characters', port: 0 });
+  t.after(() => handle.close());
+  const transports = [
+    new StreamableHTTPClientTransport(new URL(handle.url), { requestInit: { headers: { authorization: `Bearer ${handle.token}` } } }),
+    new StdioClientTransport({ command: process.execPath, args: [fileURLToPath(new URL('../bin/xtend-mcp.mjs', import.meta.url)), 'stdio'], stderr: 'pipe' })
+  ];
+  for (const transport of transports) {
+    const client = new Client({ name: 'input-budget-contract', version: '0.1.0' });
+    t.after(() => client.close());
+    await client.connect(transport);
+    const rejected = await client.callTool({ name: 'xtend_knowledge_search', arguments: { query: 'RMT', ignored: Array(255).fill(null) } });
+    assert.equal(rejected.isError, true);
+    assert.match(rejected.content[0].text, /maximum of 256 elements/u);
+    const accepted = await client.callTool({ name: 'xtend_knowledge_search', arguments: { query: 'RMT', ignored: Array(254).fill(null) } });
+    assert.equal(accepted.isError, undefined);
+    assert.equal(accepted.structuredContent.schema, 'xtend.mcp.tool-result.v1');
+    await client.close();
+  }
 });
