@@ -51,8 +51,8 @@
     "@ccslabs/xtend-maraca": "0.9.0",
     "@ccslabs/xtend-rmt": "0.9.0",
     "@modelcontextprotocol/client": "2.3.0",
-    "@modelcontextprotocol/node": "2.0.0",
-    "@modelcontextprotocol/server": "2.3.0",
+    "@modelcontextprotocol/node": "2.1.2",
+    "@modelcontextprotocol/server": "2.4.0",
     "zod": "^4.6.6"
   },
   "publishConfig": {
