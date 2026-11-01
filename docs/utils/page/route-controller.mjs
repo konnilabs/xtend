@@ -2911,8 +2911,8 @@ async function verifyDocsRouteFragment(payload) {
     }
   }
   Object.defineProperties(payload, {
-    __xtendRouteRoot: { value: routeRoot, configurable: true },
-    __xtendRouteResume: { value: resumeResult, configurable: true }
+    __xtendRouteRoot: { value: routeRoot, configurable: true, enumerable: false },
+    __xtendRouteResume: { value: resumeResult, configurable: true, enumerable: false }
   });
   return {
     ok: true,
@@ -3090,12 +3090,17 @@ function loadDocsParsedownContent(slug, rmtMeta = {}, locale = getCurrentDocsLoc
       return response.json();
     })
     .then(async (payload) => {
+      if (options.signal && options.signal.aborted) throw new DOMException('Route request aborted.', 'AbortError');
       const verification = await verifyDocsRouteFragment(payload);
+      if (options.signal && options.signal.aborted) throw new DOMException('Route request aborted.', 'AbortError');
       if (!verification.ok) {
         const error = new Error(verification.reason);
         error.docsFallbackHref = payload && payload.fallbackHref;
         throw error;
       }
+      // Keep the parsed route DOM private to verification. The resume node
+      // manifest does not authenticate arbitrary routeHtml content/attributes;
+      // article HTML must still commit through the kernel sanitizer below.
       return rememberDocsPagePayload(slug, {
         ...payload,
         source: 'route-fragment',
@@ -3103,7 +3108,7 @@ function loadDocsParsedownContent(slug, rmtMeta = {}, locale = getCurrentDocsLoc
       }, normalizedLocale);
     })
     .catch((error) => {
-      if (error && error.name === 'AbortError') {
+      if ((options.signal && options.signal.aborted) || (error && error.name === 'AbortError')) {
         return {
           schema: 'xtend.docs.parsedown-rmt-page-payload.v1',
           ok: false,
