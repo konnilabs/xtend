@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "c66d24d680259e90806637f922b7df276f6217333721a9d680fb526fcb564f17",
-  "sourceMembershipSha256": "539b7dfce28cf458106cfc3ddc2a8db439e44f1e4f630b2cbf80cace618f4926",
+  "inventorySha256": "1a37b0064c321af02ec8bcdf82ff67979f9ae5f42ecee5af901e7a7d25e629f5",
+  "sourceMembershipSha256": "e03a284c37c763c2681351ae0967068a3da03651107e0f727a4a4b1733b59816",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -467,5 +467,34 @@
       "acceptedForMerge": false,
       "acceptedForRelease": false
     }
+  },
+  "proposalReview": {
+    "status": "user-authorized-scoped-pr118-projection",
+    "observedSourceSha": "33c533b78a59dd7f0de85858e576e63aee8c3ec3",
+    "observedSourceTree": "9386e525590c97ed84889ae3d2afd9056db9ab66",
+    "observedCaptureArchiveSha256": "cbeca5c7265a9796c146adce7b970cceac59e98a0ac2ba95653e71441db63bec",
+    "observedCaptureManifestSha256": "5363f320ceaeb6f6b993aae8df2a6d284d8fe02fec1d26af941a9ea76ddc8a0b",
+    "previousInventorySha256": "c66d24d680259e90806637f922b7df276f6217333721a9d680fb526fcb564f17",
+    "previousSourceMembershipSha256": "539b7dfce28cf458106cfc3ddc2a8db439e44f1e4f630b2cbf80cace618f4926",
+    "historicalReviewProposalUnchanged": "development/core-projection-review.json.gz",
+    "scope": "Two PR118 membership additions and two non-authoritative schema observations only. Historical registrations and runtime-repair decisions do not approve this new projection.",
+    "freshFinalCaptureRequired": true,
+    "acceptedForMerge": false,
+    "acceptedForRelease": false,
+    "authorization": {
+      "decision": "user-approved-scoped-pr118-source-schema-bindings",
+      "reference": "Sentinel_25904e13ab208191b15ef24e298f2d90",
+      "timestamp": "2026-11-01T21:58:57.923162Z",
+      "proposalArchiveSha256": "609d101ea250924ffb5615b3554d98306a96ded73a8b466d913783baa883d849",
+      "proposalPatchSha256": "2531fbca7c6f9ad4f694eb5a9f82aa2938a48fc328ac772962342e3f9fb0113b",
+      "scope": "Two source membership additions, two non-authoritative observations, current Core migration bindings and their derived decision digests; no merge or release authority."
+    },
+    "independentProposalReview": {
+      "scope": "Read-only technical review of the pending proposal only; not authority approval.",
+      "patchSha256": "2531fbca7c6f9ad4f694eb5a9f82aa2938a48fc328ac772962342e3f9fb0113b",
+      "reportSha256": "72b00bc9746ee75a631ece33b8227e55693c0d394caa854d653f4f567ab09e2d",
+      "result": "No blocking defect within the explicitly pending proposal scope."
+    },
+    "finalSourceTechnicalReview": "Required from a fresh final committed capture before acceptance; the proposal review alone is insufficient."
   }
 }

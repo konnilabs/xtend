@@ -542013,6 +542013,123 @@
           "authoritative": false
         },
         {
+          "hash": "sha256:1930cfd0fda07714cfc070077737fee57eb0eb89c8d82a0ef04801fdcfcd8e43",
+          "shape": {
+            "fieldCount": 14,
+            "fields": [
+              "backpressureSignalCount",
+              "backpressureSignals",
+              "commandCount",
+              "diagnosticCount",
+              "highestStreamPressureLevel",
+              "schedulerPressureSamples",
+              "schedulerSampleCount",
+              "streamCount",
+              "streamPatchCount",
+              "streamPressureRecordCount",
+              "streamPressureRecords",
+              "streams",
+              "yieldActionCount",
+              "yieldActions"
+            ],
+            "signature": "backpressureSignalCount:{\"unresolved\":\"backpressureSignals.length\"}|backpressureSignals:unknown|commandCount:number|diagnosticCount:{\"unresolved\":\"diagnostics.length\"}|highestStreamPressureLevel:unknown|schedulerPressureSamples:unknown|schedulerSampleCount:{\"unresolved\":\"schedulerPressureSamples.length\"}|streamCount:{\"unresolved\":\"streamRecords.size\"}|streamPatchCount:{\"unresolved\":\"streamHistory.length\"}|streamPressureRecordCount:{\"unresolved\":\"streamPressureRecords.length\"}|streamPressureRecords:unknown|streams:unknown|yieldActionCount:{\"unresolved\":\"yieldActions.length\"}|yieldActions:unknown",
+            "normalized": {
+              "fields": {
+                "backpressureSignalCount": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "backpressureSignals.length"
+                  }
+                },
+                "backpressureSignals": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "commandCount": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "diagnosticCount": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "diagnostics.length"
+                  }
+                },
+                "highestStreamPressureLevel": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "schedulerPressureSamples": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "schedulerSampleCount": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "schedulerPressureSamples.length"
+                  }
+                },
+                "streamCount": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "streamRecords.size"
+                  }
+                },
+                "streamPatchCount": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "streamHistory.length"
+                  }
+                },
+                "streamPressureRecordCount": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "streamPressureRecords.length"
+                  }
+                },
+                "streamPressureRecords": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "streams": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "yieldActionCount": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "yieldActions.length"
+                  }
+                },
+                "yieldActions": {
+                  "optional": false,
+                  "type": "unknown"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtendrmt/rmt-app-runtime.js"
+          ],
+          "symbols": [
+            "getPerformanceTelemetrySnapshot"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtendrmt/rmt-app-runtime.js",
+              "symbol": "getPerformanceTelemetrySnapshot"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:4bc98348308b99bb906f5e96a1d54d1085ac5ef213377c318b71bc7a7a75f4be",
           "shape": {
             "fieldCount": 14,
@@ -542130,137 +542247,18 @@
           ],
           "completeness": "partial",
           "authoritative": false
-        },
-        {
-          "hash": "sha256:feff4d277c1615d7499398bf00640571b16e76393086d248841c094209a3c8eb",
-          "shape": {
-            "fieldCount": 14,
-            "fields": [
-              "backpressureSignalCount",
-              "backpressureSignals",
-              "commandCount",
-              "diagnosticCount",
-              "highestStreamPressureLevel",
-              "schedulerPressureSamples",
-              "schedulerSampleCount",
-              "streamCount",
-              "streamPatchCount",
-              "streamPressureRecordCount",
-              "streamPressureRecords",
-              "streams",
-              "yieldActionCount",
-              "yieldActions"
-            ],
-            "signature": "backpressureSignalCount:{\"unresolved\":\"backpressureSignals.length\"}|backpressureSignals:unknown|commandCount:{\"unresolved\":\"commandHistory.length\"}|diagnosticCount:{\"unresolved\":\"diagnostics.length\"}|highestStreamPressureLevel:unknown|schedulerPressureSamples:unknown|schedulerSampleCount:{\"unresolved\":\"schedulerPressureSamples.length\"}|streamCount:{\"unresolved\":\"streamRecords.size\"}|streamPatchCount:{\"unresolved\":\"streamHistory.length\"}|streamPressureRecordCount:{\"unresolved\":\"streamPressureRecords.length\"}|streamPressureRecords:unknown|streams:unknown|yieldActionCount:{\"unresolved\":\"yieldActions.length\"}|yieldActions:unknown",
-            "normalized": {
-              "fields": {
-                "backpressureSignalCount": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "backpressureSignals.length"
-                  }
-                },
-                "backpressureSignals": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "commandCount": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "commandHistory.length"
-                  }
-                },
-                "diagnosticCount": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "diagnostics.length"
-                  }
-                },
-                "highestStreamPressureLevel": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "schedulerPressureSamples": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "schedulerSampleCount": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "schedulerPressureSamples.length"
-                  }
-                },
-                "streamCount": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "streamRecords.size"
-                  }
-                },
-                "streamPatchCount": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "streamHistory.length"
-                  }
-                },
-                "streamPressureRecordCount": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "streamPressureRecords.length"
-                  }
-                },
-                "streamPressureRecords": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "streams": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "yieldActionCount": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "yieldActions.length"
-                  }
-                },
-                "yieldActions": {
-                  "optional": false,
-                  "type": "unknown"
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "xtendrmt/rmt-app-runtime.js"
-          ],
-          "symbols": [
-            "getPerformanceTelemetrySnapshot"
-          ],
-          "evidence": [
-            {
-              "type": "runtime-observation",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "xtendrmt/rmt-app-runtime.js",
-              "symbol": "getPerformanceTelemetrySnapshot"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
-          "completeness": "partial",
-          "authoritative": false
         }
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
           "sha256:11f560546654c9577db7120f7819b25279130f0bcadbfe5447b3e4299a0e6d64",
-          "sha256:4bc98348308b99bb906f5e96a1d54d1085ac5ef213377c318b71bc7a7a75f4be",
-          "sha256:feff4d277c1615d7499398bf00640571b16e76393086d248841c094209a3c8eb"
+          "sha256:1930cfd0fda07714cfc070077737fee57eb0eb89c8d82a0ef04801fdcfcd8e43",
+          "sha256:4bc98348308b99bb906f5e96a1d54d1085ac5ef213377c318b71bc7a7a75f4be"
         ],
         "authoritativeFingerprints": [],
-        "decision": "accepted-initial-audit",
+        "decision": "user-approved-pr118-retention-observation-2026-11-01",
         "mode": "polymorphic",
-        "rationale": "All observed variants are fingerprint-bound after the XTend 0.7 State metadata migration; future fingerprint changes require a new review. Core projection: omitted observations remain in the immutable historical inventory. Only separately named local technical observations are added; unresolved contract observations are not accepted.",
+        "rationale": "Scoped PR118 source/schema decision: bind the partial runtime observation of cumulative numeric commandCount. The declaration and documentation observations are unchanged. No authoritative or released fingerprint is added; historical observations remain in the immutable historical inventory. New scoped authorization is recorded in the Core decision; final authenticated source review remains required.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
@@ -617248,6 +617246,134 @@
               "type": "symbol",
               "path": "tools/rmt-language/format-adapter.js",
               "symbol": "parseAndNormalizeSource"
+            }
+          ]
+        }
+      ],
+      "version": 1
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "path": "tests/performance/rmt_history_retention_bench.mjs",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "test"
+      },
+      "description": "Identifies the rmt history retention bench schema used by XTend Tests: Performance.",
+      "descriptionStatus": "generated",
+      "familyId": "xtend.rmt.history-retention-bench",
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "lifecycle": {
+        "status": "active",
+        "rollout": "complete"
+      },
+      "releasedFingerprintSetHash": null,
+      "replacedBy": null,
+      "schemaId": "xtend.rmt.history-retention-bench.v1",
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:c9df95ddd833f4fdf37bd12b8c8c456e28a888a74a89b8cd2a775a56ed683acb",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "forcedGc",
+              "mode",
+              "node",
+              "samples"
+            ],
+            "signature": "forcedGc:{\"unresolved\":\"typeof global.gc === 'function'\"}|mode:{\"unresolved\":\"args[0] || 'bounded-defaults'\"}|node:{\"unresolved\":\"process.version\"}|samples:array<>",
+            "normalized": {
+              "fields": {
+                "forcedGc": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "typeof global.gc === 'function'"
+                  }
+                },
+                "mode": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "args[0] || 'bounded-defaults'"
+                  }
+                },
+                "node": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "process.version"
+                  }
+                },
+                "samples": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tests/performance/rmt_history_retention_bench.mjs"
+          ],
+          "symbols": [],
+          "evidence": [
+            {
+              "type": "test",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tests/performance/rmt_history_retention_bench.mjs",
+              "symbol": null
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "acceptedFingerprints": [
+          "sha256:c9df95ddd833f4fdf37bd12b8c8c456e28a888a74a89b8cd2a775a56ed683acb"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped PR118 source/schema decision: register only this partial, non-authoritative test benchmark observation. This grants no runtime, merge or release authority. New scoped authorization is recorded in the Core decision; final authenticated source review remains required.",
+        "decision": "user-approved-pr118-test-observation-2026-11-01"
+      },
+      "status": "test-only",
+      "usages": [
+        {
+          "application": "XTend Tests: Performance",
+          "role": "producer",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/performance/rmt_history_retention_bench.mjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/performance/rmt_history_retention_bench.mjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Performance",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/performance/rmt_history_retention_bench.mjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/performance/rmt_history_retention_bench.mjs",
+              "symbol": null
             }
           ]
         }
@@ -970528,6 +970654,23 @@
       ]
     },
     {
+      "activeSchemaId": "xtend.rmt.history-retention-bench.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.rmt.history-retention-bench",
+      "tombstones": [],
+      "versions": [
+        {
+          "schemaId": "xtend.rmt.history-retention-bench.v1",
+          "version": 1,
+          "lifecycle": {
+            "status": "active",
+            "rollout": "complete"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ]
+    },
+    {
       "activeSchemaId": "xtend.rmt.host-adapter-lifecycle.v1",
       "currentVersion": 1,
       "familyId": "xtend.rmt.host-adapter-lifecycle",
@@ -984794,8 +984937,11 @@
   ],
   "projectionReview": {
     "status": "reviewed-core-owned-projection",
-    "sourceCommit": "610499fc2c9f8ee5242837a2951e12b73794d698",
+    "sourceCommit": "33c533b78a59dd7f0de85858e576e63aee8c3ec3",
     "historicalInventorySha256": "0c1ca03e989f4c1cfa5e07b2296e163ddda0090fd138677bc410feafce9661f3",
-    "notReleaseApproval": true
+    "notReleaseApproval": true,
+    "proposalApproval": "user-authorized-scoped-pr118-projection",
+    "sourceCommitMeaning": "Reviewed PR118 runtime base; final metadata/test commit is authenticated separately by its fresh source capture.",
+    "authorizationReference": "Sentinel_25904e13ab208191b15ef24e298f2d90"
   }
 }

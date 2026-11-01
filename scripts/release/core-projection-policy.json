@@ -1,7 +1,7 @@
 {
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "c66d24d680259e90806637f922b7df276f6217333721a9d680fb526fcb564f17",
+  "inventorySha256": "1a37b0064c321af02ec8bcdf82ff67979f9ae5f42ecee5af901e7a7d25e629f5",
   "productivePaths": [
     ".codex",
     ".comments/XScaler ATC.png.xml",
@@ -2387,6 +2387,7 @@
     "tests/performance/hydrangea/transport.php",
     "tests/performance/hydration_policy_suite.js",
     "tests/performance/performance_regression_suite.js",
+    "tests/performance/rmt_history_retention_bench.mjs",
     "tests/performance/rmt_retained_warm_reuse_performance_suite.js",
     "tests/performance/xtend_layout_stability_contract_suite.js",
     "tests/performance/xtend_material_performance_suite.js",
@@ -2636,6 +2637,7 @@
     "tests/rmt/rmt_surface_manager_authoring_suite.js",
     "tests/rmt/rmt_surface_resource_graph_runtime_suite.js",
     "tests/rmt/rmt_tailwind_source_inventory_suite.js",
+    "tests/rmt/runtime_retention_assertions.js",
     "tests/rmt/super_prewarm_worker_experiment_suite.js",
     "tests/rmt/surface_manager_adapter_runtime_suite.js",
     "tests/rmt/surface_manager_materialization_suite.js",
@@ -3448,7 +3450,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "6836ca86efb1197804b811094ef1f3459b055b6fc2d762b3221470de46216f05",
+  "authorityDecisionSha256": "242b708edbcbbaffccaa631e7fdfc4858c968f05bed34b4668e218443248e40f",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "8fc57e4eb96a3a6fd0155234f06cc4b95879fc9d492fdaad8171e26345e4f865"
 }

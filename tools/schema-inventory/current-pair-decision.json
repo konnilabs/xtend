@@ -3,7 +3,7 @@
   "mode": "current-pair-v1",
   "historicalLedgerSha256": "40a4e1d38dbf9e64a724d69178803768e6bff22c90c8260f5644916c24e127c8",
   "coreInventoryFile": "tests/schemas/core-release-inventory.json",
-  "coreInventorySha256": "c66d24d680259e90806637f922b7df276f6217333721a9d680fb526fcb564f17",
+  "coreInventorySha256": "1a37b0064c321af02ec8bcdf82ff67979f9ae5f42ecee5af901e7a7d25e629f5",
   "approval": {
     "sourceDecision": "user-approved-2026-10-18-group-D",
     "sourceCommit": "610499fc2c9f8ee5242837a2951e12b73794d698",
@@ -43,5 +43,17 @@
     "scope": "One non-authoritative partial declaration; historical hash remains historical and is not claimed as a current observation."
   },
   "acceptedForMerge": false,
-  "acceptedForRelease": false
+  "acceptedForRelease": false,
+  "projectionUpdate": {
+    "status": "user-authorized-scoped-pr118-projection",
+    "observedCoreSourceSha": "33c533b78a59dd7f0de85858e576e63aee8c3ec3",
+    "previousCoreInventorySha256": "c66d24d680259e90806637f922b7df276f6217333721a9d680fb526fcb564f17",
+    "previousDecisionSha256": "6149f481fb76bd28c433cd49effc2894677e83d803db834dbe3f0fe73be82a43",
+    "selectedEntriesUnchanged": true,
+    "scope": "Current Core inventory reference only, newly authorized for PR118. The approval object describes the unchanged historical transition; it does not approve this new projection binding. Final authenticated source review remains required.",
+    "independentAnalysisGrantsAuthority": false,
+    "acceptedForMerge": false,
+    "acceptedForRelease": false,
+    "authorizationReference": "Sentinel_25904e13ab208191b15ef24e298f2d90"
+  }
 }
