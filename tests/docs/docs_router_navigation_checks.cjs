@@ -58,7 +58,7 @@ async function runChecks(rootDir) {
   }
 
   async function boot(route = '/docs/de/readme', signed = false) {
-    const errors = [], requests = [], fallbacks = [];
+    const errors = [], requests = [], fallbacks = [], verifiedSnapshots = [];
     const virtualConsole = new VirtualConsole();
     virtualConsole.on('jsdomError', error => {
       if (error.type !== 'not-implemented') errors.push(error.message);
@@ -124,6 +124,12 @@ async function runChecks(rootDir) {
       // the browser smoke's responsibility, not a claim made by this DOM test.
       const bootstrap = fs.readFileSync(path.join(rootDir, 'docs/utils/docs-resume-bootstrap.mjs'), 'utf8');
       window.eval(bootstrap.slice(0, bootstrap.indexOf('window.__XTendMaracaDisableAutoBoot')));
+      const verify = window.xtendDocsVerifyResumeEnvelope;
+      window.xtendDocsVerifyResumeEnvelope = async (...args) => {
+        const result = await verify(...args);
+        if (result.ok) verifiedSnapshots.push(JSON.parse(args[0]).snapshot);
+        return result;
+      };
     }
     await load('/docs/utils/trusted-dom-host.mjs');
     await load('/components/xrouter.js');
@@ -141,7 +147,7 @@ async function runChecks(rootDir) {
     }
     await ready(route.split('/').pop());
     await until(() => window.xtendDocsShellRuntime.snapshot().registeredRouteLocale !== '', 'routes did not register');
-    return { window, router, page, content, originalPage, originalContent, ready, requests, errors, fallbacks, control,
+    return { window, router, page, content, originalPage, originalContent, ready, requests, errors, fallbacks, verifiedSnapshots, control,
       async navigate(slug, locale = 'de') { router.navigate(`/docs/${locale}/${slug}`); await ready(slug); },
       close() { window.xtendDocsShellRuntime.dispose(); window.dispatchEvent(new window.Event('pagehide')); dom.window.close(); }
     };
@@ -160,9 +166,11 @@ async function runChecks(rootDir) {
           assert.equal(app.page().getAttribute('data-xrouter-route-adopted'), 'true');
         });
         await check(`${mode}: first and repeated navigation commit real article content`, async () => {
+          const shell = app.page().querySelector('.docs-app-shell');
           await app.navigate('manifest');
-          assert.equal(app.page().getAttribute('data-docs-route-fragment-commit'), 'atomic-shell-replace');
-          assert.equal(app.page().getAttribute('data-docs-route-fragment-activation'), signed ? 'resumed' : 'hydrate');
+          assert.equal(app.page().querySelector('.docs-app-shell'), shell);
+          assert.equal(app.content(), app.originalContent);
+          if (signed) assert(app.verifiedSnapshots.some(snapshot => snapshot.state['xtend.docs.route'].slug === 'manifest'));
           assert.match(app.content().querySelector('h1').textContent, /Manifest/);
           assert.match(app.window.document.title, /Manifest/);
           const introduction = app.content().querySelector('p').textContent;
@@ -183,6 +191,28 @@ async function runChecks(rootDir) {
           assert.equal(app.window.location.pathname, '/docs/de/manifest');
           assert.equal(app.window.document, document);
           assert.equal(app.fallbacks.length, 0);
+        });
+        await check(`${mode}: download interaction remains bound to the current article`, async () => {
+          const button = app.page().querySelector('#download-link');
+          const requests = [];
+          const fetch = app.window.fetch, toast = app.window.xtendShowToast;
+          app.window.fetch = async (input, options) => {
+            if (!String(input).startsWith('?download=')) return fetch(input, options);
+            requests.push(String(input));
+            return { ok: false }; // Exercise listener/route ownership; no file download in JSDOM.
+          };
+          app.window.xtendShowToast = async () => {};
+          const activate = async () => {
+            button.dispatchEvent(new app.window.CustomEvent('button-interaction', { bubbles: true, composed: true }));
+            await until(() => !button.hasAttribute('disabled'), 'download listener did not settle');
+          };
+          try {
+            await activate();
+            await app.navigate('readme');
+            assert.equal(app.page().querySelector('#download-link'), button);
+            await activate();
+            assert.deepEqual(requests, ['?download=manifest&locale=de', '?download=readme&locale=de']);
+          } finally { app.window.fetch = fetch; app.window.xtendShowToast = toast; }
         });
         await check(`${mode}: trusted HTML is sanitized by the kernel before cached-route commits`, async () => {
           const host = app.window.xtendDocsTrustedDomRuntime;
@@ -220,6 +250,25 @@ async function runChecks(rootDir) {
           assert.equal(app.fallbacks.length, 0);
           assert.equal(app.window.location.pathname, '/docs/de/readme');
           assert.equal(app.content().querySelector('h1').textContent, 'XTend Developer Center');
+        });
+        for (const suppliedHandles of [false, true]) await check(`${mode}: routeHtml tampering${suppliedHandles ? ' with private response keys' : ''} never enters live DOM`, async () => {
+          app.control.transport = request => {
+            const payload = JSON.parse(php(request.path, true, signed));
+            // Keep payload.html, hashes and the signed envelope unchanged.
+            payload.routeHtml = payload.routeHtml
+              .replace('</h1>', '</h1><img data-injected-content src=x onerror="bad()">')
+              .replace('class="docs-shell-toolbar"', 'class="docs-shell-toolbar" data-injected-shell onmouseover="bad()"');
+            if (suppliedHandles) {
+              payload.__xtendRouteRoot = null;
+              payload.__xtendRouteResume = null;
+            }
+            return { ok: true, json: async () => payload };
+          };
+          try { await app.navigate(suppliedHandles ? 'rmt-reference-actions-events' : 'api'); }
+          finally { app.control.transport = null; }
+          assert.equal(app.page().querySelector('[data-injected-content],[data-injected-shell],[onerror],[onmouseover]'), null);
+          assert.equal(app.content(), app.originalContent);
+          assert.equal(app.fallbacks.length, 0);
         });
         await check(`${mode}: corrupt current fragment still falls back to document navigation`, async () => {
           app.control.transport = request => {

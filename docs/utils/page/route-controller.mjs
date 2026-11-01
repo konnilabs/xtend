@@ -2911,8 +2911,8 @@ async function verifyDocsRouteFragment(payload) {
     }
   }
   Object.defineProperties(payload, {
-    __xtendRouteRoot: { value: routeRoot, configurable: true },
-    __xtendRouteResume: { value: resumeResult, configurable: true }
+    __xtendRouteRoot: { value: routeRoot, configurable: true, enumerable: false },
+    __xtendRouteResume: { value: resumeResult, configurable: true, enumerable: false }
   });
   return {
     ok: true,
@@ -3098,12 +3098,14 @@ function loadDocsParsedownContent(slug, rmtMeta = {}, locale = getCurrentDocsLoc
         error.docsFallbackHref = payload && payload.fallbackHref;
         throw error;
       }
-      // Verification attaches non-enumerable DOM/resume handles. Preserve that
-      // exact payload so the route can adopt the verified server-rendered shell.
-      return rememberDocsPagePayload(slug, Object.assign(payload, {
+      // Keep the parsed route DOM private to verification. The resume node
+      // manifest does not authenticate arbitrary routeHtml content/attributes;
+      // article HTML must still commit through the kernel sanitizer below.
+      return rememberDocsPagePayload(slug, {
+        ...payload,
         source: 'route-fragment',
         cacheHit: false
-      }), normalizedLocale);
+      }, normalizedLocale);
     })
     .catch((error) => {
       if ((options.signal && options.signal.aborted) || (error && error.name === 'AbortError')) {
