@@ -36,7 +36,7 @@ function commit(target, html, context = {}) {
     boundary: TRUSTED_DOM_BOUNDARY,
     session,
     verdicts,
-    verdict
+    verdict: verdicts[verdicts.length - 1] || null
   };
 }
 
