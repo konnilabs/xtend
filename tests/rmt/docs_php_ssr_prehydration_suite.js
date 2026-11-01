@@ -726,6 +726,10 @@ async function runDocsPhpSsrPrehydrationSuite(options = {}) {
   context.assert(packageManifest.xtend.docsPhpSsrPrehydration.localGate === DOCS_PHP_SSR_LOCAL_GATE, 'package metadata records local gate');
   context.assert(packageManifest.xtend.rmtPhpSsrAdapter.docsAppIntegrationStatus === 'active-docs-php-ssr-prehydration', 'PHP adapter metadata marks docs app integration active');
 
+  const navigation = require('../docs/docs_router_navigation_checks.cjs').runDocsRouterNavigationChecks(rootDir);
+  navigation.passes.forEach(message => context.pass(message));
+  navigation.failures.forEach(message => context.fail(message));
+
   return context.result({
     schema: DOCS_PHP_SSR_REPORT_SCHEMA,
     prehydrationSchema: DOCS_PHP_SSR_SCHEMA,

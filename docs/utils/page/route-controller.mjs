@@ -3090,20 +3090,23 @@ function loadDocsParsedownContent(slug, rmtMeta = {}, locale = getCurrentDocsLoc
       return response.json();
     })
     .then(async (payload) => {
+      if (options.signal && options.signal.aborted) throw new DOMException('Route request aborted.', 'AbortError');
       const verification = await verifyDocsRouteFragment(payload);
+      if (options.signal && options.signal.aborted) throw new DOMException('Route request aborted.', 'AbortError');
       if (!verification.ok) {
         const error = new Error(verification.reason);
         error.docsFallbackHref = payload && payload.fallbackHref;
         throw error;
       }
-      return rememberDocsPagePayload(slug, {
-        ...payload,
+      // Verification attaches non-enumerable DOM/resume handles. Preserve that
+      // exact payload so the route can adopt the verified server-rendered shell.
+      return rememberDocsPagePayload(slug, Object.assign(payload, {
         source: 'route-fragment',
         cacheHit: false
-      }, normalizedLocale);
+      }), normalizedLocale);
     })
     .catch((error) => {
-      if (error && error.name === 'AbortError') {
+      if ((options.signal && options.signal.aborted) || (error && error.name === 'AbortError')) {
         return {
           schema: 'xtend.docs.parsedown-rmt-page-payload.v1',
           ok: false,
