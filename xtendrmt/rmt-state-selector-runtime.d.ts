@@ -187,6 +187,9 @@ export interface RmtStateSelectorRuntimeOptions {
   stateProjectionPort?: RmtStateProjectionPort | null;
   createStateProjectionPort?: RmtStateProjectionPortFactory;
   stateProjectionTarget?: unknown;
+  /** Per-key projection journal limits forwarded to the adapter factory (default 100 each). */
+  stateProjectionWriteHistoryLimit?: number;
+  stateProjectionReadHistoryLimit?: number;
   strict?: boolean;
   strictMaraca?: boolean;
   diagnosticsHub?: { publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown };

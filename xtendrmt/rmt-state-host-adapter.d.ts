@@ -30,6 +30,9 @@ export interface RmtStateHostTarget {
 }
 
 export interface RmtStateHostAdapterOptions {
+  /** Retained per-key write/read journal records (default 100 each). 0 disables journaling; Infinity is unbounded. */
+  writeHistoryLimit?: number;
+  readHistoryLimit?: number;
   target?: RmtStateHostTarget | null;
   strict?: boolean;
   strictMaraca?: boolean;

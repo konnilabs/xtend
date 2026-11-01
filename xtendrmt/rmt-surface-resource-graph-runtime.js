@@ -125,12 +125,17 @@
 
   function createDiagnosticsRecorder(deps = {}) {
     const diagnostics = [];
+    const diagnosticLimit = deps.diagnosticLimit === Infinity ? Infinity
+      : Number.isSafeInteger(deps.diagnosticLimit) && deps.diagnosticLimit >= 0 ? deps.diagnosticLimit : 200;
     const diagnosticsHub = deps.diagnosticsHub || null;
     const channel = clampString(deps.diagnosticChannel, DEFAULT_DIAGNOSTIC_CHANNEL);
     return {
       diagnostics,
       publish(diagnostic) {
-        diagnostics.push(diagnostic);
+        if (diagnosticLimit > 0) {
+          diagnostics.push(diagnostic);
+          if (diagnostics.length > diagnosticLimit) diagnostics.splice(0, diagnostics.length - diagnosticLimit);
+        }
         if (diagnosticsHub && typeof diagnosticsHub.publish === 'function') {
           diagnosticsHub.publish(channel, diagnostic, {
             schema: RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA

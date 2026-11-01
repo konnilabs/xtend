@@ -127,3 +127,42 @@ Weiterlesen:
 - [RMT Event Routing Runtime](./rmt-event-routing-runtime.md)
 - [RMT Surface Resource Graph Runtime](./rmt-surface-resource-graph-runtime.md)
 - [Native-First RMT Recipes](./native-first-rmt-recipes.md)
+
+## Begrenzte Diagnose- und Ergebnisaufbewahrung
+
+Die Action- und App-Runtime behalten standardmäßig die letzten 100 abgeschlossenen
+Action-Ergebnisse beziehungsweise Commands. Die Diagnosepuffer halten jeweils 200
+Einträge. Das begrenzt die Anzahl gehaltener Records, nicht deren Byte-Größe.
+`historyLimit` und `diagnosticLimit` akzeptieren nichtnegative sichere ganze Zahlen:
+`0` schaltet die jeweilige Speicherung ab, `Infinity` aktiviert ausdrücklich eine
+unbegrenzte Historie. Fehlende oder ungültige Werte (einschließlich `null`, Strings,
+NaN, Brüchen und negativen Zahlen) verwenden den jeweiligen Standard.
+
+Action-Ergebnisse enthalten standardmäßig nur Diagnosen ihres eigenen Laufs
+(`resultDiagnostics: 'current'`), auch bei parallelen Actions und bei Fehler oder
+Abbruch. `listDiagnostics()` bleibt das separate Diagnosefenster der Runtime.
+`'none'` liefert keine Ergebnisdiagnosen; `'history'` kopiert ausdrücklich das
+aktuell gehaltene Diagnosefenster in jedes Ergebnis. Unbegrenzte Diagnosehistorie
+zusammen mit `'history'` kann quadratisch Speicher belegen und ist nur für bewusst
+begrenzte Debug-Sitzungen geeignet.
+
+```js
+const actions = createRmtActionEffectRuntime({
+  actions: definitions,
+  historyLimit: 0,
+  diagnosticLimit: 50,
+  resultDiagnostics: 'current'
+});
+const app = createRmtAppRuntime({
+  actionRuntime: actions,
+  historyLimit: 0,
+  diagnosticLimit: 50
+});
+```
+
+Eviction folgt der Abschlussreihenfolge. Bereits ausgegebene Ergebnisse bleiben
+gültig, History-Lesezugriffe liefern weiterhin defensive Kopien. Der kumulative
+Command-Zähler bleibt von Eviction unabhängig. Die Limits ändern weder laufende
+Commands, Model-Commits noch Live-Veröffentlichungen an den Diagnostics Hub.
+Externe Subscriber müssen ihre eigene Aufbewahrung begrenzen. Die Surface Resource
+Graph Runtime besitzt ebenfalls `diagnosticLimit` mit Standard 200.

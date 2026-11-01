@@ -206,6 +206,8 @@ function createRmtStateSelectorRuntimeModule() {
     let port = options.stateProjectionPort || null;
     if (!port && factory) {
       port = factory({
+        writeHistoryLimit: options.stateProjectionWriteHistoryLimit,
+        readHistoryLimit: options.stateProjectionReadHistoryLimit,
         target: options.stateProjectionTarget || null,
         strict,
         strictMaraca: options.strictMaraca === true
@@ -1059,6 +1061,8 @@ function createRmtStateSelectorRuntimeModule() {
           );
         }
         return options.createStateProjectionPort({
+          writeHistoryLimit: options.stateProjectionWriteHistoryLimit,
+          readHistoryLimit: options.stateProjectionReadHistoryLimit,
           ...objectRecord(connectionOptions),
           target,
           strict: strict || connectionOptions.strict === true,

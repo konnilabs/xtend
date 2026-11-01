@@ -178,14 +178,26 @@ const __XTEND_RMT_APP_RUNTIME_API__ = (() => {
     return schedulerPort.schedule(task, metadata);
   }
 
+  function normalizeRetentionLimit(value, fallback) {
+    return value === Infinity ? Infinity
+      : Number.isSafeInteger(value) && value >= 0 ? value : fallback;
+  }
+
+  function retainEntry(store, entry, limit) {
+    if (limit === 0) return;
+    store.push(entry);
+    if (store.length > limit) store.splice(0, store.length - limit);
+  }
+
   function createDiagnosticsRecorder(deps = {}) {
     const diagnostics = [];
+    const diagnosticLimit = normalizeRetentionLimit(deps.diagnosticLimit, 200);
     const diagnosticsHub = deps.diagnosticsHub || null;
     const channel = clampString(deps.diagnosticChannel, DEFAULT_DIAGNOSTIC_CHANNEL);
     return {
       diagnostics,
       publish(diagnostic) {
-        diagnostics.push(diagnostic);
+        retainEntry(diagnostics, diagnostic, diagnosticLimit);
         if (diagnosticsHub && typeof diagnosticsHub.publish === 'function') {
           diagnosticsHub.publish(channel, diagnostic, { schema: RMT_APP_RUNTIME_DIAGNOSTIC_SCHEMA });
         }
@@ -1516,6 +1528,8 @@ const __XTEND_RMT_APP_RUNTIME_API__ = (() => {
           hostPort
         });
     const commandHistory = [];
+    let commandCount = 0;
+    const historyLimit = normalizeRetentionLimit(options.historyLimit, 100);
     const streamHistory = [];
     const streamRecords = new Map();
     const streamPressureRecords = [];
@@ -1771,7 +1785,8 @@ const __XTEND_RMT_APP_RUNTIME_API__ = (() => {
           result: cloneValue(result, result),
           status: result && result.status || 'dispatched'
         };
-        commandHistory.push(record);
+        commandCount += 1;
+        retainEntry(commandHistory, record, historyLimit);
         diagnosticsRecorder.publish(createDiagnostic('rmt.command.dispatched', `RMT command ${command.command} dispatched.`, {
           command: command.command,
           commandId: command.id,
@@ -2057,7 +2072,7 @@ const __XTEND_RMT_APP_RUNTIME_API__ = (() => {
       });
       return {
         schema: 'xtend.rmt.app-runtime-performance-telemetry.v1',
-        commandCount: commandHistory.length,
+        commandCount,
         streamPatchCount: streamHistory.length,
         streamCount: streamRecords.size,
         diagnosticCount: diagnostics.length,

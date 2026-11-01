@@ -127,3 +127,39 @@ Read next:
 - [RMT Event Routing Runtime](./rmt-event-routing-runtime.md)
 - [RMT Surface Resource Graph Runtime](./rmt-surface-resource-graph-runtime.md)
 - [Native-First RMT Recipes](./native-first-rmt-recipes.md)
+
+## Bounded diagnostic and result retention
+
+The Action and App runtimes retain the latest 100 completed Action results and
+Commands respectively. Each diagnostic buffer retains 200 entries. These limits
+bound record counts, not payload bytes. `historyLimit` and `diagnosticLimit` accept
+nonnegative safe integers: `0` disables the respective store, while `Infinity`
+explicitly opts into unlimited retention. Missing or invalid values (including
+`null`, strings, NaN, fractions and negative numbers) use the respective default.
+
+By default, Action results contain diagnostics from that execution only
+(`resultDiagnostics: 'current'`), including concurrent, failed and cancelled runs.
+`listDiagnostics()` remains the separate runtime diagnostic window. `'none'`
+omits result diagnostics; `'history'` explicitly copies the retained diagnostic
+window into each result. Unlimited diagnostics combined with `'history'` can use
+quadratic memory and should be reserved for deliberately bounded debug sessions.
+
+```js
+const actions = createRmtActionEffectRuntime({
+  actions: definitions,
+  historyLimit: 0,
+  diagnosticLimit: 50,
+  resultDiagnostics: 'current'
+});
+const app = createRmtAppRuntime({
+  actionRuntime: actions,
+  historyLimit: 0,
+  diagnosticLimit: 50
+});
+```
+
+Eviction follows completion order. Previously returned results remain valid and
+history reads remain defensive copies. Cumulative Command counts survive eviction.
+Limits affect neither active Commands, Model commits nor live Diagnostics Hub
+publication. External subscribers must bound their own retention. The Surface
+Resource Graph Runtime also accepts `diagnosticLimit`, defaulting to 200.

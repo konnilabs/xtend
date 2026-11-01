@@ -197,6 +197,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   });
 
   const diagnostics = [];
+  const diagnosticLimit = options.diagnosticLimit === Infinity ? Infinity
+    : Number.isSafeInteger(options.diagnosticLimit) && options.diagnosticLimit >= 0 ? options.diagnosticLimit : 200;
   const diagnosticCodes = new Set();
   const subscriptions = new Set();
   const eventSubscriptions = new Set();
@@ -417,7 +419,10 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       message,
       ...clone(details, {})
     });
-    diagnostics.push(diagnostic);
+    if (diagnosticLimit > 0) {
+      diagnostics.push(diagnostic);
+      if (diagnostics.length > diagnosticLimit) diagnostics.splice(0, diagnostics.length - diagnosticLimit);
+    }
     publish('diagnostic', { diagnostic });
     return diagnostic;
   }
@@ -2502,6 +2507,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         );
       }
       const state = stateFactory({
+        stateProjectionWriteHistoryLimit: options.stateProjectionWriteHistoryLimit,
+        stateProjectionReadHistoryLimit: options.stateProjectionReadHistoryLimit,
         states: asRecord(artifact.state).states || [],
         selectors: asRecord(artifact.state).selectors || [],
         derive: asRecord(artifact.state).derive || asRecord(artifact.state).derived || [],
@@ -2557,6 +2564,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       }
       const actionModelReaderPort = createActionModelReaderPort(state);
       const action = actionFactory ? actionFactory({
+        historyLimit: options.actionHistoryLimit,
+        diagnosticLimit: options.diagnosticLimit,
+        resultDiagnostics: options.actionResultDiagnostics,
         actions: asRecord(artifact.actions).actions || [],
         dataSources: asRecord(artifact.actions).dataSources || [],
         effects: asRecord(artifact.actions).effects || [],
@@ -2654,6 +2664,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         cancelAction: (id) => action && action.cancelAction ? action.cancelAction(id) : { status: 'cancelled', action: id }
       });
       const app = appFactory ? appFactory({
+        historyLimit: options.commandHistoryLimit,
+        diagnosticLimit: options.diagnosticLimit,
         actionRuntime: actionFacade,
         hostServices: hostServiceRegistry,
         managedModel: true,
@@ -2709,6 +2721,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         throw error;
       }
       const surfaceGraph = surfaceFactory ? surfaceFactory({
+        diagnosticLimit: options.diagnosticLimit,
         surfaces: surfaces.map(surface => ({ ...surface, initialState: surface.initialState || (surfaceHidden(state.snapshot(), surface) === true ? 'closed' : 'open') })),
         getSurfaceBoundary,
         portals: asArray(artifact.portals).length ? artifact.portals : asArray(plan.portals),
