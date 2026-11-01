@@ -97,10 +97,10 @@ The AnimationEngine uses WAAPI first and CSS/instant fallback after that. `cross
 
 ## Demo And Local Checks
 
-The real-system demo is `products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt`. It models a multi-step customer service form with `x-input`, `x-select`, `x-textarea`, `x-button`, validation gates, kernel scheduling and surface transitions.
+The real-system demo is `tools/rmt-language/fixtures/kernel-orchestration-contract.rmt`. It models a multi-step customer service form with `x-input`, `x-select`, `x-textarea`, `x-button`, validation gates, kernel scheduling and surface transitions.
 
 ```bash
-xt maraca build products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt --out products/rmt-maraca-kernel-orchestration/dist --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --css external --json
+xt maraca build tools/rmt-language/fixtures/kernel-orchestration-contract.rmt --out .xtend-build/kernel-contract --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --css external --json
 node scripts/run_xtend_tests.js maraca-orchestration maraca-kernel-orchestration maraca-validation maraca-transitions --json
 ```
 

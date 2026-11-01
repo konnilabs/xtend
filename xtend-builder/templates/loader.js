@@ -4,10 +4,10 @@ const {
   getTemplateForArtifact
 } = require('./registry');
 
-const rootDir = path.resolve(__dirname, '..', '..');
+const cliRoot = path.resolve(__dirname, '..');
 
 function getTemplateAbsolutePath(template) {
-  return path.join(rootDir, template.path);
+  return path.join(cliRoot, template.path.replace(/^xtend-builder\//u, ''));
 }
 
 function renderTemplateString(template, values) {

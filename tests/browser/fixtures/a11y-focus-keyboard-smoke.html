@@ -187,11 +187,18 @@
     });
 
     async function runA11yKeyboardSmokeChecks() {
+      // The module load event does not await the loader's asynchronous boot.
+      // See docs/en/xtend-classic.md and XTendLoaderBootResult.
+      const boot = window.__XTendLoaderBootPromise;
+      if (!boot || typeof boot.then !== 'function') {
+        throw new Error('XTend loader boot promise is missing');
+      }
+      await boot;
       await waitFor(() => (
         getComputedStyle(document.body).visibility === 'visible' &&
         getComputedStyle(document.body).opacity !== '0' &&
-        window.XTend.state &&
         window.XTend &&
+        window.XTend.state &&
         customElements.get('x-router') &&
         customElements.get('x-link') &&
         customElements.get('x-modal') &&

@@ -1,0 +1,1104 @@
+{
+  "format": 1,
+  "purpose": "Complete phase-specific admission binding proposal; preserves existing runtime predicates rather than pretending structural JSON Schema can replace authentication, coercion or digest comparisons.",
+  "direction": "Producer and phase-specific Admission contracts separated by user instruction on 2026-10-17.",
+  "status": "proposal-only-not-finally-bound",
+  "authorityBinding": null,
+  "firstReleaseRetirement": false,
+  "runtimeBehaviorChanged": false,
+  "producerDeclarations": [
+    "artifact-v2.schema.json",
+    "canary-v2.schema.json",
+    "core-evidence-v1.schema.json"
+  ],
+  "interpretation": {
+    "fieldPolicies": "Every root producer field is accounted for per boundary. Nested checked members and context dependencies are specified by predicates and exact named current validators. Extra fields retain current ignored semantics unless the listed validator closes the object.",
+    "notAJSONSchemaReplacement": "These declarative admission obligations include existing code predicates, not a new accepting runtime validator or a claim of all JavaScript coercions being JSON Schema.",
+    "internalStates": "initial canary/envelope construction and primitive test-only artifact validation are not production producer/authority variants.",
+    "failureReports": "Canary SDK/selected failure reports remain complete producer variants but are rejected by both successful-canary admission boundaries.",
+    "maraca": "Only complete tune-produced config/report phases are described as such. Permissive factory return type correction remains a separate public API task; no full factory authority inferred."
+  },
+  "boundaries": [
+    {
+      "contractId": "xtend.release.artifact.v2",
+      "boundary": "adapted-without-canary",
+      "producerDeclaration": "artifact-v2.schema.json",
+      "arguments": {
+        "phase": "adapted",
+        "requireCanary": false
+      },
+      "entrypoints": [
+        "scripts/release/artifact.cjs#verifyArtifact",
+        "scripts/release/contracts.cjs#verifyEnvelopePhase",
+        "scripts/release/candidates.cjs#verifyCandidateBinding"
+      ],
+      "fieldPolicies": {
+        "schema": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "profile": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "sourceSha": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "toolchain": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "selection": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "edges": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "registryDependencies": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "bootstrapPackages": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "packages": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "buildEvidence": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "candidateBinding": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "preparedAt": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "canary": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "sealedAt": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "coreEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "demoSha": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "demoRepository": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "productEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "unionEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        }
+      },
+      "predicates": [
+        [
+          "external-identity",
+          [
+            "sourceSha",
+            "toolchain"
+          ],
+          "artifact.verifyArtifact: manifest raw SRI and exact expected full SHA; toolchain equals committed .nvmrc/packageManager; verified build source/toolchain and ordered commands."
+        ],
+        [
+          "candidate-identity",
+          [
+            "candidateBinding"
+          ],
+          "contracts.verifyEnvelopePhase + candidates.verifyCandidateBinding: manifest.json/profile/raw SRI, no demoSha, all ten exact name/version/file/integrity/sha256/size records, original package byte equality."
+        ],
+        [
+          "selection-closure",
+          [
+            "selection",
+            "edges",
+            "bootstrapPackages",
+            "registryDependencies"
+          ],
+          "normalized selection and inventory edges exact; selected membership, bootstrap uniqueness/subset; pinned registry identities exact closed five-field objects and full selected closure."
+        ],
+        [
+          "archive-content",
+          [
+            "packages"
+          ],
+          "exact source package names/versions/groups, unique names/files, regular safe tgz paths, size/SRI/SHA256, source metadata/entrypoints and exact file inventory. Optional copied dependency metadata is not independently trusted from this artifact field; source tarball metadata and original candidates remain authoritative."
+        ],
+        [
+          "build-binding",
+          [
+            "buildEvidence"
+          ],
+          "build.json raw SRI; existing schema/source/toolchain/MCP command checks; compact buildCanaryIntegrity is a separate digest."
+        ]
+      ],
+      "resultTrust": "no preflight or sealed enrollment",
+      "publicationAuthority": false
+    },
+    {
+      "contractId": "xtend.release.artifact.v2",
+      "boundary": "prepared-without-canary",
+      "producerDeclaration": "artifact-v2.schema.json",
+      "arguments": {
+        "phase": "prepared",
+        "requireCanary": false
+      },
+      "entrypoints": [
+        "scripts/release/artifact.cjs#verifyArtifact",
+        "scripts/release/contracts.cjs#verifyEnvelopePhase",
+        "scripts/release/candidates.cjs#verifyCandidateBinding"
+      ],
+      "fieldPolicies": {
+        "schema": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "profile": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "sourceSha": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "toolchain": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "selection": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "edges": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "registryDependencies": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "bootstrapPackages": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "packages": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "buildEvidence": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "candidateBinding": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "preparedAt": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "canary": {
+          "presence": "optional",
+          "meaning": "ignored by this boundary"
+        },
+        "sealedAt": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "coreEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "demoSha": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "demoRepository": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "productEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "unionEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        }
+      },
+      "predicates": [
+        [
+          "external-identity",
+          [
+            "sourceSha",
+            "toolchain"
+          ],
+          "artifact.verifyArtifact: manifest raw SRI and exact expected full SHA; toolchain equals committed .nvmrc/packageManager; verified build source/toolchain and ordered commands."
+        ],
+        [
+          "candidate-identity",
+          [
+            "candidateBinding"
+          ],
+          "contracts.verifyEnvelopePhase + candidates.verifyCandidateBinding: manifest.json/profile/raw SRI, no demoSha, all ten exact name/version/file/integrity/sha256/size records, original package byte equality."
+        ],
+        [
+          "selection-closure",
+          [
+            "selection",
+            "edges",
+            "bootstrapPackages",
+            "registryDependencies"
+          ],
+          "normalized selection and inventory edges exact; selected membership, bootstrap uniqueness/subset; pinned registry identities exact closed five-field objects and full selected closure."
+        ],
+        [
+          "archive-content",
+          [
+            "packages"
+          ],
+          "exact source package names/versions/groups, unique names/files, regular safe tgz paths, size/SRI/SHA256, source metadata/entrypoints and exact file inventory. Optional copied dependency metadata is not independently trusted from this artifact field; source tarball metadata and original candidates remain authoritative."
+        ],
+        [
+          "build-binding",
+          [
+            "buildEvidence"
+          ],
+          "build.json raw SRI; existing schema/source/toolchain/MCP command checks; compact buildCanaryIntegrity is a separate digest."
+        ],
+        [
+          "prepared-time",
+          [
+            "preparedAt"
+          ],
+          "canonical ISO timestamp not later than verification time + 1000 ms."
+        ]
+      ],
+      "resultTrust": "no preflight or sealed enrollment",
+      "publicationAuthority": false
+    },
+    {
+      "contractId": "xtend.release.artifact.v2",
+      "boundary": "prepared-with-canary",
+      "producerDeclaration": "artifact-v2.schema.json",
+      "arguments": {
+        "phase": "prepared",
+        "requireCanary": true
+      },
+      "entrypoints": [
+        "scripts/release/artifact.cjs#verifyArtifact",
+        "scripts/release/contracts.cjs#verifyEnvelopePhase",
+        "scripts/release/candidates.cjs#verifyCandidateBinding"
+      ],
+      "fieldPolicies": {
+        "schema": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "profile": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "sourceSha": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "toolchain": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "selection": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "edges": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "registryDependencies": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "bootstrapPackages": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "packages": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "buildEvidence": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "candidateBinding": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "preparedAt": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "canary": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "sealedAt": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "coreEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "demoSha": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "demoRepository": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "productEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "unionEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        }
+      },
+      "predicates": [
+        [
+          "external-identity",
+          [
+            "sourceSha",
+            "toolchain"
+          ],
+          "artifact.verifyArtifact: manifest raw SRI and exact expected full SHA; toolchain equals committed .nvmrc/packageManager; verified build source/toolchain and ordered commands."
+        ],
+        [
+          "candidate-identity",
+          [
+            "candidateBinding"
+          ],
+          "contracts.verifyEnvelopePhase + candidates.verifyCandidateBinding: manifest.json/profile/raw SRI, no demoSha, all ten exact name/version/file/integrity/sha256/size records, original package byte equality."
+        ],
+        [
+          "selection-closure",
+          [
+            "selection",
+            "edges",
+            "bootstrapPackages",
+            "registryDependencies"
+          ],
+          "normalized selection and inventory edges exact; selected membership, bootstrap uniqueness/subset; pinned registry identities exact closed five-field objects and full selected closure."
+        ],
+        [
+          "archive-content",
+          [
+            "packages"
+          ],
+          "exact source package names/versions/groups, unique names/files, regular safe tgz paths, size/SRI/SHA256, source metadata/entrypoints and exact file inventory. Optional copied dependency metadata is not independently trusted from this artifact field; source tarball metadata and original candidates remain authoritative."
+        ],
+        [
+          "build-binding",
+          [
+            "buildEvidence"
+          ],
+          "build.json raw SRI; existing schema/source/toolchain/MCP command checks; compact buildCanaryIntegrity is a separate digest."
+        ],
+        [
+          "prepared-time",
+          [
+            "preparedAt"
+          ],
+          "canonical ISO timestamp not later than verification time + 1000 ms."
+        ],
+        [
+          "canary-reference",
+          [
+            "canary"
+          ],
+          "raw file SRI, then the prepared-canary boundary below; presence alone grants nothing."
+        ]
+      ],
+      "resultTrust": "verified preflight object enrollment only",
+      "publicationAuthority": false
+    },
+    {
+      "contractId": "xtend.release.artifact.v2",
+      "boundary": "sealed-with-canary",
+      "producerDeclaration": "artifact-v2.schema.json",
+      "arguments": {
+        "phase": "sealed",
+        "requireCanary": true
+      },
+      "entrypoints": [
+        "scripts/release/artifact.cjs#verifyArtifact",
+        "scripts/release/contracts.cjs#verifyEnvelopePhase",
+        "scripts/release/candidates.cjs#verifyCandidateBinding"
+      ],
+      "fieldPolicies": {
+        "schema": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "profile": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "sourceSha": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "toolchain": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "selection": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "edges": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "registryDependencies": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "bootstrapPackages": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "packages": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "buildEvidence": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "candidateBinding": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "preparedAt": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "canary": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "sealedAt": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "coreEvidence": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "demoSha": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "demoRepository": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "productEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "unionEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        }
+      },
+      "predicates": [
+        [
+          "external-identity",
+          [
+            "sourceSha",
+            "toolchain"
+          ],
+          "artifact.verifyArtifact: manifest raw SRI and exact expected full SHA; toolchain equals committed .nvmrc/packageManager; verified build source/toolchain and ordered commands."
+        ],
+        [
+          "candidate-identity",
+          [
+            "candidateBinding"
+          ],
+          "contracts.verifyEnvelopePhase + candidates.verifyCandidateBinding: manifest.json/profile/raw SRI, no demoSha, all ten exact name/version/file/integrity/sha256/size records, original package byte equality."
+        ],
+        [
+          "selection-closure",
+          [
+            "selection",
+            "edges",
+            "bootstrapPackages",
+            "registryDependencies"
+          ],
+          "normalized selection and inventory edges exact; selected membership, bootstrap uniqueness/subset; pinned registry identities exact closed five-field objects and full selected closure."
+        ],
+        [
+          "archive-content",
+          [
+            "packages"
+          ],
+          "exact source package names/versions/groups, unique names/files, regular safe tgz paths, size/SRI/SHA256, source metadata/entrypoints and exact file inventory. Optional copied dependency metadata is not independently trusted from this artifact field; source tarball metadata and original candidates remain authoritative."
+        ],
+        [
+          "build-binding",
+          [
+            "buildEvidence"
+          ],
+          "build.json raw SRI; existing schema/source/toolchain/MCP command checks; compact buildCanaryIntegrity is a separate digest."
+        ],
+        [
+          "prepared-time",
+          [
+            "preparedAt"
+          ],
+          "canonical ISO timestamp not later than verification time + 1000 ms."
+        ],
+        [
+          "canary-reference",
+          [
+            "canary"
+          ],
+          "raw file SRI, then the prepared-canary boundary below; presence alone grants nothing."
+        ],
+        [
+          "seal",
+          [
+            "sealedAt",
+            "coreEvidence"
+          ],
+          "canonical original seal time >= preparedAt, not future; exact core-evidence/index.json raw SRI; full verifyCoreEvidence and authenticated replay, never refreshed by resume."
+        ]
+      ],
+      "resultTrust": "verified sealed object enrollment only after full Core evidence",
+      "publicationAuthority": false
+    },
+    {
+      "contractId": "xtend.release.canary.v2",
+      "boundary": "prepared-canary",
+      "producerDeclaration": "canary-v2.schema.json",
+      "entrypoints": [
+        "scripts/release/artifact.cjs#verifyArtifact(requireCanary=true)"
+      ],
+      "fieldPolicies": {
+        "schema": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "profile": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "startedAt": {
+          "presence": "optional",
+          "meaning": "ignored by this boundary"
+        },
+        "finishedAt": {
+          "presence": "optional",
+          "meaning": "ignored by this boundary"
+        },
+        "runtime": {
+          "presence": "optional",
+          "meaning": "ignored by this boundary"
+        },
+        "ok": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "sourceSha": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "toolchain": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "tarballSetIntegrity": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "buildEvidenceIntegrity": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "candidateSDK": {
+          "presence": "optional",
+          "meaning": "ignored by this boundary"
+        },
+        "mcpKnowledgeGenerated": {
+          "presence": "conditional",
+          "meaning": "true required when selected release includes @ccslabs/xtend-mcp; otherwise not inspected"
+        },
+        "mcpKnowledgeChecked": {
+          "presence": "conditional",
+          "meaning": "true required when selected release includes @ccslabs/xtend-mcp; otherwise not inspected"
+        },
+        "runtimeImports": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "resolution": {
+          "presence": "optional",
+          "meaning": "ignored by this boundary"
+        },
+        "packages": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "registryDependencies": {
+          "presence": "conditional",
+          "meaning": "null/absent coalesces to []; exact canonical expected pinned registry records plus consumerInstall:true"
+        },
+        "error": {
+          "presence": "optional",
+          "meaning": "ignored by this boundary"
+        },
+        "lockIntegrity": {
+          "presence": "optional",
+          "meaning": "ignored by this boundary"
+        },
+        "demoSha": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "demoRepository": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "productEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "unionEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        }
+      },
+      "predicates": [
+        [
+          "identity",
+          [
+            "schema",
+            "profile",
+            "sourceSha",
+            "toolchain",
+            "tarballSetIntegrity",
+            "buildEvidenceIntegrity",
+            "ok"
+          ],
+          "Core v2/profile, no foreign root fields, ok===true, exact source/toolchain/selected digest and compact parsed-build SRI."
+        ],
+        [
+          "selected-packages",
+          [
+            "packages",
+            "runtimeImports"
+          ],
+          "exact unique selected coverage; matching integrity and consumerInstall/entrypoints/types/bin/files===true; runtimeImports===true."
+        ],
+        [
+          "registry",
+          [
+            "registryDependencies"
+          ],
+          "exact expected registry identity objects plus consumerInstall:true; extras in these identity objects fail equality."
+        ]
+      ],
+      "resultTrust": "prepared preflight canary only; incomplete SDK/runtime/lock/freshness evidence cannot become a seal",
+      "publicationAuthority": false
+    },
+    {
+      "contractId": "xtend.release.canary.v2",
+      "boundary": "seal-consumer",
+      "producerDeclaration": "canary-v2.schema.json",
+      "entrypoints": [
+        "scripts/release/core-evidence.cjs#verifyConsumer"
+      ],
+      "fieldPolicies": {
+        "schema": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "profile": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "startedAt": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "finishedAt": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "runtime": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "ok": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "sourceSha": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "toolchain": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "tarballSetIntegrity": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "buildEvidenceIntegrity": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "candidateSDK": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "mcpKnowledgeGenerated": {
+          "presence": "conditional",
+          "meaning": "true required when selected release includes @ccslabs/xtend-mcp; otherwise not inspected"
+        },
+        "mcpKnowledgeChecked": {
+          "presence": "conditional",
+          "meaning": "true required when selected release includes @ccslabs/xtend-mcp; otherwise not inspected"
+        },
+        "runtimeImports": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "resolution": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "packages": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "registryDependencies": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "error": {
+          "presence": "optional",
+          "meaning": "ignored by this boundary"
+        },
+        "lockIntegrity": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "demoSha": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "demoRepository": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "productEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "unionEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        }
+      },
+      "predicates": [
+        [
+          "identity",
+          [
+            "schema",
+            "profile",
+            "sourceSha",
+            "toolchain",
+            "tarballSetIntegrity",
+            "buildEvidenceIntegrity",
+            "ok"
+          ],
+          "Core v2/profile, no foreign root fields, ok===true, exact source/toolchain/selected digest and compact parsed-build SRI."
+        ],
+        [
+          "selected-packages",
+          [
+            "packages",
+            "runtimeImports"
+          ],
+          "exact unique selected coverage; matching integrity and consumerInstall/entrypoints/types/bin/files===true; runtimeImports===true."
+        ],
+        [
+          "registry",
+          [
+            "registryDependencies"
+          ],
+          "exact expected registry identity objects plus consumerInstall:true; extras in these identity objects fail equality."
+        ],
+        [
+          "runtime",
+          [
+            "runtime"
+          ],
+          "runtime.node equals independently selected committed lane; npm equals artifact producer pin."
+        ],
+        [
+          "freshness",
+          [
+            "startedAt",
+            "finishedAt"
+          ],
+          "existing Date.parse conversion, finite values, start>=preparedAt, start<=end, end<=seal+1000ms and age<=1 hour. Canonical producer formatting is not an added admission requirement."
+        ],
+        [
+          "locks",
+          [
+            "lockIntegrity",
+            "candidateSDK"
+          ],
+          "two independent parsed lock digests using compact JSON.stringify; raw locks separately authenticated in their envelope. verifyInstalledClosure on both SDK and selected scopes preserves exact dependency metadata, transitive namespace/link rejection and closure."
+        ],
+        [
+          "sdk",
+          [
+            "candidateSDK"
+          ],
+          "ok/runtimeImports/resolution===true; exactly ten unique original archives, every package consumerInstall/entrypoints/types/bin/files/resolution===true; registryDependencies exactly []; both MCP flags true."
+        ],
+        [
+          "resolution",
+          [
+            "resolution",
+            "packages"
+          ],
+          "selected scope resolution===true and every selected package resolution===true."
+        ]
+      ],
+      "resultTrust": "one successful installed consumer proof; not an authenticated envelope or publication permission",
+      "publicationAuthority": false
+    },
+    {
+      "contractId": "xtend.release.core-evidence.v1",
+      "boundary": "authenticated-envelope-replay",
+      "producerDeclaration": "core-evidence-v1.schema.json",
+      "entrypoints": [
+        "scripts/release/core-evidence.cjs#verifyCoreEvidenceEnvelope",
+        "scripts/release/core-auth.cjs#verifyStoredAuthentication",
+        "scripts/release/core-security.cjs#verifyCoreSecurityReport"
+      ],
+      "fieldPolicies": {
+        "schema": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "profile": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "repository": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "workflow": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "sourceSha": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "context": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "sealedAt": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "needs": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "candidateIntegrity": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "buildIntegrity": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "tarballSetIntegrity": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "requiredGates": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "run": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "workflowMetadata": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "jobsEndpoint": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "jobs": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "source": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "lanes": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "security": {
+          "presence": "required",
+          "meaning": "checked by the named existing predicates"
+        },
+        "demoSha": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "demoRepository": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "productEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        },
+        "unionEvidence": {
+          "presence": "forbidden",
+          "meaning": "rejected on presence"
+        }
+      },
+      "predicates": [
+        [
+          "identity",
+          [
+            "schema",
+            "profile",
+            "repository",
+            "workflow",
+            "sourceSha",
+            "context",
+            "sealedAt"
+          ],
+          "exact Core identity and source, run/attempt and canonical original sealedAt."
+        ],
+        [
+          "artifact-bindings",
+          [
+            "candidateIntegrity",
+            "buildIntegrity",
+            "tarballSetIntegrity"
+          ],
+          "exact original candidate raw SRI, build raw SRI and selected set digest."
+        ],
+        [
+          "gates",
+          [
+            "needs",
+            "requiredGates"
+          ],
+          "individual required needs results success; requiredGates exact closed seven-member map. Source and security output IDs/hashes bind authenticated artifacts. Prepare outputs are mandatory during collect.context, but replay does not independently revalidate the prepare outputs; the artifact digest fields remain mandatory."
+        ],
+        [
+          "github",
+          [
+            "run",
+            "workflowMetadata",
+            "jobsEndpoint",
+            "jobs"
+          ],
+          "existing checkRun/checkJobsEndpoint/checkJob: exact repository/main/workflow_dispatch/source/run/attempt, workflow ID equality, authenticated attempt jobs resource, exactly one successful required source/security/job per lane; optional job run_attempt checked if present. Other API members retain existing unchecked semantics."
+        ],
+        [
+          "source",
+          [
+            "source"
+          ],
+          "source expected identity/context, immutable metadata name/id/expiry/archive SHA256; exact allowed sources.tar.gz ZIP member; branded provider validates committed archive/manifest/Git blobs and current reader; inventory/policy/provenance/candidateAuthority equal verified source."
+        ],
+        [
+          "lanes",
+          [
+            "lanes"
+          ],
+          "exactly two distinct committed Node lanes; each consumer/lock/candidateSDKLock/sourceReport raw SRI and safe path; full seal-consumer validation, strict successful source/schema suite, no skips/failures, exact source/authority/inventory/policy and freshness; bytes equal authenticated same-attempt ZIP members. Source/lane file locations remain safe bound paths as accepted by runtime, not newly fixed to producer layout."
+        ],
+        [
+          "security",
+          [
+            "security"
+          ],
+          "single Node24/job, exact security ZIP/report locations, immutable metadata/output ID/archive digest/report SRI/raw equality; unchanged full Linux browser execution verification. Unknown security properties are ignored and grant nothing."
+        ]
+      ],
+      "resultTrust": "authenticated evidence for original sealed bytes; FirstRelease and publication gates remain separate",
+      "publicationAuthority": false
+    }
+  ],
+  "reviewExamples": [
+    {
+      "case": "partial prepared canary",
+      "producer": "rejected",
+      "prepared-canary": "accepted",
+      "seal-consumer": "rejected"
+    },
+    {
+      "case": "complete canary with non-null error",
+      "producer": "rejected",
+      "seal-consumer": "accepted because error is ignored"
+    },
+    {
+      "case": "noncanonical but otherwise valid/fresh Date.parse input",
+      "producer": "outside canonical producer shape",
+      "seal-consumer": "existing Date.parse semantics retained; relation still required"
+    },
+    {
+      "case": "unknown security extension",
+      "producer": "permitted extension with no meaning",
+      "authenticated-envelope-replay": "ignored; cannot replace required bindings"
+    }
+  ]
+}

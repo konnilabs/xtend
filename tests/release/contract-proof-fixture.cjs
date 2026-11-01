@@ -1,0 +1,10 @@
+'use strict';
+// Controlled locks only: never release or authority evidence.
+const candidates=require('../../scripts/release/candidates.cjs'),artifact=require('../../scripts/release/artifact.cjs'),profile=require('../../scripts/release/profile.cjs');
+function installedProof(a,original,node){
+ const scopes=candidates.consumerScopes(a,original),lock=s=>({packages:{'':{...s.app,dependencies:Object.fromEntries(Object.entries(s.app.dependencies).map(([name,version])=>[name,s.registryPackages.some(p=>p.name===name)?version:'file:.candidate/'+s.packages.find(p=>p.name===name).file]))},...Object.fromEntries(s.manifest.packages.map(p=>['node_modules/'+p.name,{version:p.version,resolved:s.registryPackages.some(r=>r.name===p.name)?'https://registry.npmjs.org/'+p.name+'/-/fixture.tgz':'file:.candidate/'+p.file,integrity:p.integrity,...Object.fromEntries(['dependencies','optionalDependencies','peerDependencies','peerDependenciesMeta'].filter(k=>p[k]).map(k=>[k,p[k]]))}]))}});
+ const sdkLock=lock(scopes[0]),selectedLock=lock(scopes[1]),result=p=>({name:p.name,integrity:p.integrity,consumerInstall:true,entrypoints:true,types:true,bin:true,files:true,resolution:true});
+ const report={schema:['xtend','release','canary','v2'].join('.'),profile:profile.PROFILE,ok:true,sourceSha:a.sourceSha,toolchain:a.toolchain,runtime:{node,npm:a.toolchain.npm},tarballSetIntegrity:a.tarballSetIntegrity,startedAt:a.manifest.preparedAt,finishedAt:new Date().toISOString(),buildEvidenceIntegrity:require('../../scripts/release/contracts.cjs').buildCanaryIntegrity(a.buildEvidence),lockIntegrity:artifact.digest(Buffer.from(JSON.stringify(selectedLock))),runtimeImports:true,resolution:true,mcpKnowledgeGenerated:true,mcpKnowledgeChecked:true,packages:a.packages.map(result),registryDependencies:a.registryDependencies.map(p=>({...p,consumerInstall:true})),candidateSDK:{ok:true,runtimeImports:true,resolution:true,lockIntegrity:artifact.digest(Buffer.from(JSON.stringify(sdkLock))),packages:original.packages.map(result),registryDependencies:[],mcpKnowledgeGenerated:true,mcpKnowledgeChecked:true}};
+ return {report,selectedLock,sdkLock};
+}
+module.exports={installedProof};

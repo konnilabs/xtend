@@ -174,6 +174,13 @@ function createAppServicesPort(config, dependencies, options, publish) {
         runtimeStatus: 'booted',
         serviceCount: serviceIds.length,
         serviceIds,
+        activeCount: registry.listActive().length,
+        listenerErrorCount: registry.listListenerErrors().length,
+        history: registry.listHistory().map(entry => ({
+          serviceId: entry.serviceId, kind: entry.kind, target: entry.target,
+          concurrency: entry.concurrency, invocationId: entry.invocationId,
+          correlationId: entry.correlationId, sequence: entry.sequence, status: entry.status
+        })),
         inputPolicyVerdicts: typeof registry.listInputPolicyVerdicts === 'function'
           ? clone(registry.listInputPolicyVerdicts())
           : []

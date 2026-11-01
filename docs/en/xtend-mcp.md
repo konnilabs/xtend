@@ -74,3 +74,11 @@ The server binds exclusively to `127.0.0.1`. `/mcp` requires a process-scoped Be
 ## XTend LLM catfooding
 
 `XTEND_LLM_KNOWLEDGE_MODE=direct|mcp|shadow` controls knowledge access. `direct` uses the shared core in-process, `mcp` uses only the bundled stdio server, and `shadow` compares both while returning the direct response. The default changes to `mcp` only after the defined parity and stability gates pass.
+
+### Request limits and compatibility
+
+Every tool call has a fixed aggregate budget of **256 object keys and array entries**, counted recursively across all arguments, including unknown fields, before schema validation or tool execution. This guard applies to both stdio and HTTP. Oversized calls return an MCP tool error; the server remains available. Existing per-field limits still apply, including at most 100 repair IDs, two scopes and six domains. Unknown nested input that was previously discarded by a schema can now be rejected by this budget.
+
+HTTP POST bodies are limited to **4 MiB (4,194,304 UTF-8 bytes)**, including the complete JSON-RPC envelope, whitespace and JSON escaping. Bodies over the limit receive HTTP 413, whether Content-Length is supplied or the body is streamed. Host, Origin and Bearer-token checks run before the SDK reads the body. The byte limit is separate from the inline-source limit of 2,000,000 JavaScript string code units: multibyte text or escaped characters can fit the source schema but exceed the HTTP limit. Use a workspace-relative `path` for large sources, subject to the existing workspace and file safeguards. Stdio has the aggregate tool-input budget but not this HTTP body limit.
+
+The server SDK 2.3.0 upgrade alone does not enable its optional input guard. XTend explicitly configures `maxToolInputElements: 256` and `maxRequestBodySize: 4194304` to address the validation-allocation risk described in [GHSA-46jr-4wx8-v453](https://github.com/modelcontextprotocol/typescript-sdk/security/advisories/GHSA-46jr-4wx8-v453). These bounds do not promise immunity to every memory-exhaustion scenario or change authentication, workspace-write permissions or network exposure.

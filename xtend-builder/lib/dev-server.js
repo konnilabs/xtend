@@ -65,6 +65,7 @@ function createXtendDevServer(options = {}) {
       return;
     }
 
+    if(!fs.existsSync(filePath)&&typeof options.resolveAsset==='function'){try{filePath=options.resolveAsset(path.relative(rootDir,filePath).split(path.sep).join('/'));}catch{}}
     fs.readFile(filePath, (error, content) => {
       if (error) {
         response.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });

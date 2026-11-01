@@ -4,7 +4,14 @@ const {
 } = require('./priority_component_contracts');
 
 function runXRouterComponentSuite(options = {}) {
-  return runPriorityComponentSuite('x-router', options);
+  const result = runPriorityComponentSuite('x-router', options);
+  const routing = require('./xrouter_path_consumption_checks').runXRouterPathConsumptionChecks({
+    rootDir: options.rootDir || require('path').resolve(__dirname, '../..')
+  });
+  result.passes.push(...routing.passes);
+  result.failures.push(...routing.failures);
+  result.ok = result.ok && routing.ok;
+  return result;
 }
 
 function printXRouterComponentReport(result) {

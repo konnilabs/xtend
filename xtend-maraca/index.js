@@ -518,9 +518,10 @@ function loadRmtKernelFeatureAdoptionRegistry(rootDir) {
   const packageRoot = path.dirname(path.dirname(__filename));
   const candidates = [
     path.resolve(rootDir || process.cwd(), KERNEL_FEATURE_ADOPTION_REGISTRY_MODULE),
-    path.resolve(packageRoot, KERNEL_FEATURE_ADOPTION_REGISTRY_MODULE)
+    path.resolve(packageRoot, KERNEL_FEATURE_ADOPTION_REGISTRY_MODULE),
+    resolveXtendPeerRoot() && path.resolve(resolveXtendPeerRoot(), KERNEL_FEATURE_ADOPTION_REGISTRY_MODULE)
   ];
-  const registryPath = candidates.find((candidate) => fs.existsSync(candidate));
+  const registryPath = candidates.find((candidate) => candidate && fs.existsSync(candidate));
   if (!registryPath) return null;
   try {
     rmtKernelFeatureAdoptionRegistryModule = require(registryPath);
@@ -544,9 +545,10 @@ function loadRmtKernelPolicyParityModule(rootDir) {
   const packageRoot = path.dirname(path.dirname(__filename));
   const candidates = [
     path.resolve(rootDir || process.cwd(), KERNEL_POLICY_PARITY_MODULE),
-    path.resolve(packageRoot, KERNEL_POLICY_PARITY_MODULE)
+    path.resolve(packageRoot, KERNEL_POLICY_PARITY_MODULE),
+    resolveXtendPeerRoot() && path.resolve(resolveXtendPeerRoot(), KERNEL_POLICY_PARITY_MODULE)
   ];
-  const modulePath = candidates.find((candidate) => fs.existsSync(candidate));
+  const modulePath = candidates.find((candidate) => candidate && fs.existsSync(candidate));
   if (!modulePath) {
     rmtKernelPolicyParityModuleError = new Error('RMT kernel policy parity module was not found.');
     return null;
@@ -1864,6 +1866,17 @@ function normalizeInput(input) {
   return input && typeof input === 'object' ? { ...input } : {};
 }
 
+// Preserve the historical falsy inputs before validating the semantic value.
+// Never rewrite a loaded config: its original bytes remain fingerprint-bound.
+function normalizeLegacyServiceGraphFingerprint(value) {
+  return value === false || value === 0 || value === '' ? null : value;
+}
+
+function isOptionalServiceGraphFingerprint(value) {
+  return value === undefined || value === null
+    || (typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value));
+}
+
 function loadMaracaBuildConfig(values, rootDir) {
   const requestedPath = values.config || values.configPath || values['build-config'];
   if (!requestedPath) return { path: null, config: null, diagnostics: [] };
@@ -1889,6 +1902,17 @@ function loadMaracaBuildConfig(values, rootDir) {
           code: 'xtend.maraca.build_config_schema_invalid',
           severity: 'error',
           message: `Maraca build config must use ${MARACA_BUILD_CONFIG_SCHEMA}.`
+        }]
+      };
+    }
+    if (!isOptionalServiceGraphFingerprint(normalizeLegacyServiceGraphFingerprint(config.serviceGraphFingerprint))) {
+      return {
+        path: configPath,
+        config,
+        diagnostics: [{
+          code: 'xtend.maraca.build_config_service_graph_invalid',
+          severity: 'error',
+          message: 'Maraca service graph fingerprint must be absent, null, or a SHA256 string.'
         }]
       };
     }
@@ -2233,8 +2257,9 @@ function compileSource(options, compile = null) {
 function loadComponentManifest(rootDir) {
   const manifestPath = [
     path.join(rootDir, 'components', 'manifest.json'),
-    path.join(__dirname, '..', 'components', 'manifest.json')
-  ].find((candidate) => fs.existsSync(candidate));
+    path.join(__dirname, '..', 'components', 'manifest.json'),
+    resolveXtendPeerRoot() && path.join(resolveXtendPeerRoot(), 'components', 'manifest.json')
+  ].find((candidate) => candidate && fs.existsSync(candidate));
   if (!manifestPath) {
     throw new Error('Maraca component manifest not found in app root or vendored XTend package.');
   }
@@ -2648,9 +2673,10 @@ function resolveStackModuleRecords(runtimeModules, options, orchestrationPlan = 
   return Array.from(new Set(moduleIds)).sort().map((moduleId) => {
     const candidates = [
       path.resolve(options.rootDir, moduleId),
-      path.resolve(packageRoot, moduleId)
+      path.resolve(packageRoot, moduleId),
+      resolveXtendPeerRoot() && path.resolve(resolveXtendPeerRoot(), moduleId)
     ];
-    const absolutePath = candidates.find((candidate) => fs.existsSync(candidate));
+    const absolutePath = candidates.find((candidate) => candidate && fs.existsSync(candidate));
     return absolutePath ? {
       id: moduleId,
       source: moduleId,
@@ -5652,7 +5678,7 @@ function copyPlanRuntimeAsset(plan) {
     path.resolve(plan.rootDir || packageRoot, 'xtend-maraca/plan-runtime.mjs'),
     path.resolve(__dirname, 'plan-runtime.mjs')
   ];
-  const sourcePath = candidates.find((candidate) => fs.existsSync(candidate));
+  const sourcePath = candidates.find((candidate) => candidate && fs.existsSync(candidate));
   if (!sourcePath) return null;
   const targetPath = path.join(plan.outputDir, PLAN_RUNTIME_BUNDLE_FILE);
   fs.mkdirSync(path.dirname(targetPath), { recursive: true });
@@ -5810,9 +5836,10 @@ function copyKernelResumeRuntimeAssets(plan) {
   const packageRoot = path.dirname(path.dirname(__filename));
   const candidates = [
     path.resolve(plan.rootDir || packageRoot, 'xtendrmt/rmt-resume-runtime.js'),
-    path.resolve(packageRoot, 'xtendrmt/rmt-resume-runtime.js')
+    path.resolve(packageRoot, 'xtendrmt/rmt-resume-runtime.js'),
+    resolveXtendPeerRoot() && path.resolve(resolveXtendPeerRoot(), 'xtendrmt/rmt-resume-runtime.js')
   ];
-  const sourcePath = candidates.find((candidate) => fs.existsSync(candidate));
+  const sourcePath = candidates.find((candidate) => candidate && fs.existsSync(candidate));
   if (!sourcePath) return [];
   const sourceRoot = path.dirname(sourcePath);
   return collectRelativeEsmSourceClosure(sourcePath, sourceRoot).map((dependencyPath) => {
@@ -5842,9 +5869,10 @@ function copyKernelControllerRuntimeAssets(plan) {
   const packageRoot = path.dirname(path.dirname(__filename));
   const candidates = [
     path.resolve(plan.rootDir || packageRoot, 'xtendrmt/rmt-kernel-orchestration-controller.js'),
-    path.resolve(packageRoot, 'xtendrmt/rmt-kernel-orchestration-controller.js')
+    path.resolve(packageRoot, 'xtendrmt/rmt-kernel-orchestration-controller.js'),
+    resolveXtendPeerRoot() && path.resolve(resolveXtendPeerRoot(), 'xtendrmt/rmt-kernel-orchestration-controller.js')
   ];
-  const sourcePath = candidates.find((candidate) => fs.existsSync(candidate));
+  const sourcePath = candidates.find((candidate) => candidate && fs.existsSync(candidate));
   if (!sourcePath) return [];
   const targetPath = path.join(plan.outputDir, KERNEL_CONTROLLER_BUNDLE_FILE);
   fs.mkdirSync(path.dirname(targetPath), { recursive: true });
@@ -7468,11 +7496,15 @@ function maracaTuneCandidateRecord(result, requested) {
 }
 
 function createMaracaTuneConfig(input = {}) {
+  const serviceGraphFingerprint = normalizeLegacyServiceGraphFingerprint(input.serviceGraphFingerprint);
+  if (!isOptionalServiceGraphFingerprint(serviceGraphFingerprint)) {
+    throw new TypeError('Maraca service graph fingerprint must be absent, null, or a SHA256 string.');
+  }
   const base = {
     schema: MARACA_BUILD_CONFIG_SCHEMA,
     source: input.source,
     sourceFingerprint: input.sourceFingerprint,
-    serviceGraphFingerprint: input.serviceGraphFingerprint || null,
+    serviceGraphFingerprint: serviceGraphFingerprint == null ? null : serviceGraphFingerprint,
     output: input.output,
     selected: input.selected,
     locked: input.locked,

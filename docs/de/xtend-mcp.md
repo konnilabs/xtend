@@ -74,3 +74,11 @@ Der Server bindet ausschließlich an `127.0.0.1`. `/mcp` verlangt ein pro Prozes
 ## XTend-LLM-Catfooding
 
 `XTEND_LLM_KNOWLEDGE_MODE=direct|mcp|shadow` steuert den Knowledge-Zugriff. `direct` verwendet den gemeinsamen Kern im Prozess, `mcp` ausschließlich den gebündelten stdio-Server und `shadow` vergleicht beide Wege, verwendet aber die direkte Antwort. Der Wechsel des Standards auf `mcp` erfolgt erst nach den definierten Paritäts- und Stabilitäts-Gates.
+
+### Anfragegrenzen und Kompatibilität
+
+Jeder Tool-Aufruf hat ein festes Gesamtbudget von **256 Objektschlüsseln und Array-Einträgen**. Es wird rekursiv über alle Argumente einschließlich unbekannter Felder gezählt, bevor Schema-Validierung oder Tool-Ausführung beginnen. Die Grenze gilt für stdio und HTTP. Zu große Aufrufe liefern einen MCP-Tool-Fehler; der Server bleibt verfügbar. Bestehende Feldgrenzen gelten weiterhin, darunter maximal 100 Repair-IDs, zwei Scopes und sechs Domains. Unbekannte verschachtelte Eingaben, die ein Schema bisher verworfen hat, können nun am Gesamtbudget scheitern.
+
+HTTP-POST-Bodies sind auf **4 MiB (4.194.304 UTF-8-Bytes)** begrenzt, einschließlich des gesamten JSON-RPC-Umschlags, Leerraums und JSON-Escapings. Größere Bodies erhalten HTTP 413, mit Content-Length ebenso wie beim Streaming. Host-, Origin- und Bearer-Token-Prüfungen erfolgen vor dem Lesen des Bodys durch das SDK. Die Byte-Grenze ist unabhängig von der Inline-Quelltextgrenze von 2.000.000 JavaScript-String-Codeeinheiten: Mehrbytezeichen oder escapte Zeichen können das Quelltextschema erfüllen und dennoch die HTTP-Grenze überschreiten. Für große Quellen kann ein Workspace-relativer `path` unter den bestehenden Workspace- und Dateischutzregeln verwendet werden. Für stdio gilt das Gesamtbudget der Tool-Argumente, aber nicht diese HTTP-Body-Grenze.
+
+Das Upgrade auf Server-SDK 2.3.0 allein aktiviert dessen optionale Eingabeschutzfunktion nicht. XTend setzt ausdrücklich `maxToolInputElements: 256` und `maxRequestBodySize: 4194304` gegen das in [GHSA-46jr-4wx8-v453](https://github.com/modelcontextprotocol/typescript-sdk/security/advisories/GHSA-46jr-4wx8-v453) beschriebene Speicherallokationsrisiko bei der Validierung. Diese Grenzen garantieren keinen Schutz gegen jede Form der Speichererschöpfung und ändern weder Authentifizierung noch Workspace-Schreibrechte oder Netzwerkfreigaben.

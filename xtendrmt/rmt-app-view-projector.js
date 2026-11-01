@@ -119,9 +119,9 @@
             class: record.optionsClass || record.menuClass || 'xtend-rmt-choice-menu-options',
             attributes: {
               id: record.optionsId || record.menuId || 'choice-menu-options',
-              role: record.optionsRole || 'menu',
-              hidden: { op: 'not', source: statePath('open') }
+              role: record.optionsRole || 'menu'
             },
+            visibility: { hidden: { op: 'not', source: statePath('open') } },
             children: [
               {
                 type: 'repeat',

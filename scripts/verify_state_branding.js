@@ -117,6 +117,26 @@ function stripAllowedDocsSearchMigration(content) {
   }
 }
 
+function stripHistoricalMembershipReference(content, rootDir) {
+  try {
+    const document = JSON.parse(content);
+    const historicalPaths = new Set([
+      `development/ER-WP-11-Fabric-an-${REMOVED_LOWER_BRAND}-API-und-XTendRMT-Diagnostics-anbinden.md`,
+      `development/WP-05-${REMOVED_PASCAL_BRAND}-Core-Contract-Vereinheitlichung.md`,
+      `development/WP-E12-08-${REMOVED_LOWER_BRAND}-Adapter-Typing-und-Lifecycle-Boundary-Probe-bauen.md`,
+      `development/WP-E18-07-Typed-State-Selectors-und-${REMOVED_PASCAL_BRAND}-Bridge-fuer-Apps-bauen.md`
+    ]);
+    if (!Array.isArray(document.productivePaths)) return content;
+    return JSON.stringify({ ...document, productivePaths: document.productivePaths.map(value => {
+      if (!historicalPaths.has(value) || !isExcluded(value)) return value;
+      const absolute = path.join(rootDir, value);
+      if (!fs.existsSync(absolute) || !fs.lstatSync(absolute).isFile()
+        || fs.realpathSync(absolute) !== path.resolve(absolute)) return value;
+      return ' '.repeat(value.length);
+    }) }, null, 2);
+  } catch (_) { return content; }
+}
+
 function lineAt(content, index) {
   return content.slice(0, index).split(/\r?\n/u).length;
 }
@@ -130,9 +150,9 @@ function verifyStateBranding(options = {}) {
   files.sort().forEach((relativePath) => {
     if (relativePath === 'components/xtend-state.js') return;
     const content = fs.readFileSync(path.join(rootDir, relativePath), 'utf8');
-    const generatedContent = relativePath.startsWith('docs/generated/search/')
-      ? stripAllowedDocsSearchMigration(content)
-      : content;
+    const generatedContent = relativePath === 'scripts/release/core-projection-policy.json'
+      ? stripHistoricalMembershipReference(content, rootDir)
+      : relativePath.startsWith('docs/generated/search/') ? stripAllowedDocsSearchMigration(content) : content;
     const scannedContent = relativePath.startsWith('docs/generated/')
       ? stripAllowedStorageMigration(generatedContent)
       : generatedContent;

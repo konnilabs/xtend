@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import { Client } from '@modelcontextprotocol/client';
 import { InMemoryTransport } from '@modelcontextprotocol/server';
+import * as z from 'zod/v4';
 
 import { createXtendMcpServer } from '../src/server.mjs';
 
@@ -21,6 +22,53 @@ async function connect(options = {}) {
     }
   };
 }
+
+test('tool input budget counts all nested keys and array entries before schema validation or execution', async (t) => {
+  const handle = await connect();
+  t.after(() => handle.close());
+  let validated = 0;
+  let executed = 0;
+  handle.server.registerTool('budget_probe', {
+    inputSchema: z.object({ values: z.array(z.unknown()).transform((value) => { validated++; return value; }) })
+  }, async () => { executed++; return { content: [{ type: 'text', text: 'accepted' }] }; });
+
+  // One object key plus 255 array entries: exactly 256 aggregate elements.
+  const accepted = await handle.client.callTool({ name: 'budget_probe', arguments: { values: Array(255).fill(null) } });
+  assert.equal(accepted.isError, undefined);
+  assert.equal(validated, 1);
+  assert.equal(executed, 1);
+  for (const args of [
+    { values: Array(256).fill(null) },
+    { values: [], ignored: Array(255).fill(null) },
+    { values: [{ nested: Array(254).fill(null) }] },
+    { values: [], ignored: Object.fromEntries(Array.from({ length: 255 }, (_, i) => [`key${i}`, null])) }
+  ]) {
+    const rejected = await handle.client.callTool({ name: 'budget_probe', arguments: args });
+    assert.equal(rejected.isError, true);
+    assert.match(rejected.content[0].text, /maximum of 256 elements/u);
+    assert.equal(validated, 1, 'oversized input must not reach the schema transform');
+    assert.equal(executed, 1, 'oversized input must not reach the tool handler');
+  }
+  const validAgain = await handle.client.callTool({ name: 'budget_probe', arguments: { values: [] } });
+  assert.equal(validAgain.isError, undefined);
+  assert.equal(executed, 2);
+  const search = await handle.client.callTool({ name: 'xtend_knowledge_search', arguments: { query: 'RMT', scopes: ['docs', 'rmt-kit'], domains: Array(6).fill('repair'), limit: 10 } });
+  assert.equal(search.isError, undefined);
+  assert.ok((await handle.client.listResources()).resources.length > 0);
+  assert.equal((await handle.client.listPrompts()).prompts.length, 6);
+});
+
+test('the maximum repair selection reaches existing workspace safeguards within the input budget', async (t) => {
+  const handle = await connect({ allowWorkspaceWrite: true });
+  t.after(() => handle.close());
+  const result = await handle.client.callTool({ name: 'xtend_rmt_apply_safe_repairs', arguments: {
+    path: 'missing.rmt', sourceHash: '0'.repeat(64), planHash: '0'.repeat(64),
+    repairIds: Array.from({ length: 100 }, (_, i) => `repair-${i}`)
+  } });
+  assert.equal(result.isError, true);
+  assert.match(result.structuredContent.warnings[0], /workspace root/iu);
+  assert.doesNotMatch(result.content[0].text, /maximum of 256|Invalid arguments/u);
+});
 
 test('MCP initialization publishes versioned resources, templates, six derived prompts, and read-only tools', async (t) => {
   const handle = await connect();

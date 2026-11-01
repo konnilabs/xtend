@@ -1,0 +1,25 @@
+{
+  "format": 1,
+  "purpose": "core-0.9-demo-extraction-migration",
+  "status": "user-approved-functional-evidence",
+  "decisionDate": "2026-10-21",
+  "browserProfile": "chromium-linux-ci-functions-no-sandbox-v1",
+  "nodeLanes": ["24.18.0", "26.5.0"],
+  "execution": "fresh-github-hosted-linux-local-fixtures-only",
+  "sandboxEnabled": false,
+  "sandboxEvidence": "not-provided",
+  "recognition": "browser-function-condition-only",
+  "remainingMigrationConditions": [
+    "exact-common-core-head",
+    "core-source-schema-inventory-authority",
+    "core-package-consumers-both-node-lanes",
+    "core-node-security-rmt-php-mcp-contracts",
+    "navigation-doc-catalog-regression",
+    "paired-demo-handoff-at-exact-pins",
+    "durable-core-demo-source-reachability",
+    "user-review-and-merge-decision"
+  ],
+  "firstReleasePublicationGuardRetired": false,
+  "acceptedForMerge": false,
+  "acceptedForRelease": false
+}

@@ -10,6 +10,47 @@ const { SESSION_PATH, inspectArtifact, validateNightly } = require('../../script
 const { probeCapabilities, requirementsFor, toolchainIdentity, PHP_PROBE } = require('../../scripts/test-runner/capabilities');
 const { verifyCiDependencyLocks } = require('../../scripts/verify_ci_dependency_locks');
 
+// Documents current workflow behavior, not a historical no-cache provenance guarantee.
+function assertWorkflowCachePolicy(name, source) {
+  assert(!/^\s+cache: npm\s*$/m.test(source),'setup-node must not query npm before its version is pinned');
+  assert(!/^\s+NPM_CONFIG_CACHE: \.xtend/m.test(source),'cache paths must remain absolute across working directories');
+  const jobs=[...source.matchAll(/^  ([a-zA-Z0-9_-]+):\s*$/gm)];
+  let checked=0,seenCanary=false;
+  for(let i=0;i<jobs.length;i++) {
+    const job=source.slice(jobs[i].index,i+1<jobs.length?jobs[i+1].index:source.length);
+    const setups=(job.match(/uses: actions\/setup-node@/g)||[]).length;
+    if(!setups)continue;
+    checked+=setups;
+    assert.equal(setups,1,`Unexpected setup-node multiplicity in ${name}/${jobs[i][1]}`);
+    const configure=(job.match(/run: node scripts\/configure_npm_cache.js/g)||[]).length;
+    const restore=(job.match(/uses: actions\/cache@[a-f0-9]{40}/g)||[]).length;
+    const setupAt=job.indexOf('uses: actions/setup-node@');
+    const nextStep=job.indexOf('\n      - ',setupAt);
+    const setupStep=job.slice(setupAt,nextStep<0?job.length:nextStep);
+    const canary=name==='xtend-default-gates.yml' && jobs[i][1]==='core-installed-consumers';
+    const publisher=name==='xtend-default-gates.yml' && jobs[i][1]==='npm-publish-latest';
+    if(canary) {
+      seenCanary=true;
+      assert.equal(configure,0,'Candidate canary must not configure the persisted download cache');
+      assert(!/uses:\s*['"]?actions\/cache(?:[\/@]|\s|['"]|$)/im.test(job),'Candidate canary must not restore persisted cache');
+      assert(/package-manager-cache: false\s*$/m.test(setupStep),'Candidate canary must disable setup-node package-manager caching');
+      assert(!/^\s+cache(?:-dependency-path)?:/m.test(setupStep),'Candidate canary must not enable setup-node cache');
+    } else {
+      assert.equal(configure,setups,`Missing cache configuration in ${name}/${jobs[i][1]}`);
+      if(publisher) {
+        assert(!/uses:\s*['"]?actions\/cache(?:[\/@]|\s|['"]|$)/im.test(job),'Publisher must not restore a separate dependency cache');
+        assert(/package-manager-cache: false\s*$/m.test(setupStep),'Publisher must disable setup-node package-manager caching');
+        assert(!/^\s+cache(?:-dependency-path)?:/m.test(setupStep),'Publisher must not enable setup-node cache');
+      } else {
+        assert.equal(restore,setups,`Missing cache restoration in ${name}/${jobs[i][1]}`);
+        assert(/path: \$\{\{ runner\.temp \}\}\/xtend-npm-cache/.test(job),'Cache must use the explicit runner-temp download path');
+      }
+    }
+  }
+  if(name==='xtend-default-gates.yml')assert(seenCanary,'Required named candidate canary setup-node step missing');
+  assert.equal(checked,(source.match(/uses: actions\/setup-node@/g)||[]).length,'Every setup-node step must have a recognized job policy');
+}
+
 async function runNightlyRunnerChecks({ check, temp, identity, rootDir }) {
   const fixture = path.join(temp, 'nightly'); fs.mkdirSync(fixture);
   const save = (name, value) => writeJsonReport(value, name, fixture);
@@ -105,12 +146,40 @@ async function runNightlyRunnerChecks({ check, temp, identity, rootDir }) {
     assert.throws(()=>configureNpmCache({}),/required/);
     for(const name of ['xtend-default-gates.yml','xtend-nightly-build.yml','xtend-browser-hypervisor-matrix.yml']){
       const source=fs.readFileSync(path.join(rootDir,'.github/workflows',name),'utf8');
-      assert(!/^\s+cache: npm\s*$/m.test(source),'setup-node must not query npm before its version is pinned');
-      const setups=(source.match(/uses: actions\/setup-node@/g)||[]).length;
-      assert.equal((source.match(/run: node scripts\/configure_npm_cache.js/g)||[]).length,setups);
-      assert.equal((source.match(/uses: actions\/cache@[a-f0-9]{40}/g)||[]).length,setups);
-      assert(!/^\s+NPM_CONFIG_CACHE: \.xtend/m.test(source),'cache paths must remain absolute across working directories');
+      assertWorkflowCachePolicy(name,source);
     }
+  });
+  await check('CI cache policy rejects canary caching, missing ordinary caches and unknown uncached jobs', () => {
+    const name='xtend-default-gates.yml';
+    const source=fs.readFileSync(path.join(rootDir,'.github/workflows',name),'utf8');
+    const start=source.indexOf('  core-installed-consumers:');
+    assert(start>=0);
+    const prefix=source.slice(0,start),canary=source.slice(start);
+    assertWorkflowCachePolicy(name,source);
+    assert.throws(()=>assertWorkflowCachePolicy(name,prefix+canary.replace('package-manager-cache: false','package-manager-cache: true')),/disable setup-node/);
+    assert.throws(()=>assertWorkflowCachePolicy(name,prefix+canary.replace('package-manager-cache: false','package-manager-cache: false\n          cache: npm')),/must not query npm/);
+    assert.throws(()=>assertWorkflowCachePolicy(name,prefix+canary.replace('    steps:','    steps:\n      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9')),/must not restore persisted cache/);
+    assert.throws(()=>assertWorkflowCachePolicy(name,prefix+canary.replace('    steps:','    steps:\n      - uses: actions/cache@v4')),/must not restore persisted cache/);
+    assert.throws(()=>assertWorkflowCachePolicy(name,prefix+canary.replace('    steps:','    steps:\n      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9')),/must not restore persisted cache/);
+    assert.throws(()=>assertWorkflowCachePolicy(name,source.replace('run: node scripts/configure_npm_cache.js','run: node scripts/unrecognized-cache.js')),/Missing cache configuration/);
+    assert.throws(()=>assertWorkflowCachePolicy(name,source.replace('uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9','uses: actions/checkout@55cc8345863c7cc4c66a329aec7e433d2d1c52a9')),/Missing cache restoration/);
+    assert.throws(()=>assertWorkflowCachePolicy(name,source+'\n'+canary.replace('  core-installed-consumers:','  unrecognized-uncached-job:')),/Missing cache configuration/);
+  });
+  await check('Publisher cache policy preserves configuration and rejects every separate restoration', () => {
+    const name='xtend-default-gates.yml';
+    const source=fs.readFileSync(path.join(rootDir,'.github/workflows',name),'utf8');
+    const start=source.indexOf('  npm-publish-latest:');
+    assert(start>=0);
+    const next=source.slice(start+1).search(/^  [a-zA-Z0-9_-]+:\s*$/m);
+    const end=next<0?source.length:start+1+next;
+    const prefix=source.slice(0,start),publisher=source.slice(start,end<0?source.length:end),suffix=end<0?'':source.slice(end);
+    const mutate=replacement=>prefix+replacement+suffix;
+    assertWorkflowCachePolicy(name,source);
+    for(const action of ['actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9','actions/cache@v4','actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9']) {
+      assert.throws(()=>assertWorkflowCachePolicy(name,mutate(publisher.replace('    steps:','    steps:\n      - uses: '+action))),/must not restore a separate dependency cache/);
+    }
+    assert.throws(()=>assertWorkflowCachePolicy(name,mutate(publisher.replace('package-manager-cache: false','package-manager-cache: true'))),/disable setup-node/);
+    assert.throws(()=>assertWorkflowCachePolicy(name,mutate(publisher.replace('run: node scripts/configure_npm_cache.js','run: node scripts/unrecognized-cache.js'))),/Missing cache configuration/);
   });
   await check('Failed prerequisites block dependent commands; independent phases and partial receipts survive a timeout', async () => {
     const artifact={path:'phase.json',kind:'outcome',producer:'last'};

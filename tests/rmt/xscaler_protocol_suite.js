@@ -270,23 +270,6 @@ function validateRegistration(context, rootDir) {
   });
 }
 
-function validateTestbenchDriftGuards(context, rootDir) {
-  const files = [
-    'products/rmt-animation-testbench/src/shared/testbench-data.mjs',
-    'products/rmt-animation-testbench/server/index.mjs',
-    'products/rmt-animation-testbench/src/client/testbench-controller.mjs',
-    'products/rmt-animation-testbench/scripts/verify.mjs',
-    'products/rmt-animation-testbench/scripts/browser-smoke.mjs'
-  ];
-  const combined = files.map((file) => readText(file, rootDir)).join('\n');
-  OLD_TESTBENCH_SCHEMAS.forEach((schema) => {
-    context.assert(!combined.includes(schema), `Testbench no longer references old schema ${schema}`);
-  });
-  context.assert(combined.includes(XSCALER_PREFLIGHT_RESPONSE_SCHEMA), 'Testbench references canonical preflight response schema');
-  context.assert(combined.includes(XSCALER_ATC_HANDOFF_SCHEMA), 'Testbench references canonical ATC handoff schema');
-  context.assert(combined.includes('accepted: true'), 'Testbench emits accepted preflight alias');
-  context.assert(combined.includes('ok: true'), 'Testbench keeps ok compatibility alias');
-}
 
 function runXScalerProtocolSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
@@ -296,7 +279,6 @@ function runXScalerProtocolSuite(options = {}) {
   validateContractModule(context, rootDir);
   validateFixtures(context, rootDir);
   validateDocs(context, rootDir);
-  validateTestbenchDriftGuards(context, rootDir);
   validateRegistration(context, rootDir);
   return context.result({
     schema: XSCALER_PROTOCOL_SCHEMA,

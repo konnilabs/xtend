@@ -1,21 +1,75 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const schemaInventoryScanner = require('../../scripts/scan_schema_inventory');
+function createSuite(coreContext = null) {
+const sourceProvider = coreContext?.provider;
+const schemaInventoryScanner = coreContext?.scanner || require('../../scripts/scan_schema_inventory');
+const { INVENTORY_PATH } = schemaInventoryScanner;
+// The existing public validator owns released-fingerprint acceptance, including
+// its source-bound unreleased registration. No positive release permission here.
 const {
-  INVENTORY_PATH,
   scanSchemaInventory,
   validateInventoryDocument
-} = schemaInventoryScanner;
+} = coreContext?.scanner || require('../../tools/schema-inventory/index.cjs').createScanner({ typescript: require('typescript') });
 const {
   createSuiteContext,
   printSuiteReport
 } = require('../utils/assertions');
 const {
-  readJson,
-  resolveRepoPath,
+  readJson: legacyReadJson,
+  resolveRepoPath: legacyResolveRepoPath,
   resolveRootDir
 } = require('../utils/files');
+
+// Index immutable manifest metadata once, never source bytes. The branded
+// context still rechecks the full closure before and after the suite. Every
+// file access and directory witness below also rechecks its captured bytes.
+const sourceFiles = sourceProvider ? sourceProvider.files() : [];
+const sourceByPath = new Map(sourceFiles.map(row => [row.logicalPath, row]));
+const sourceDirectoryWitness = new Map();
+for (const row of sourceFiles) {
+  let directory = path.posix.dirname(row.logicalPath);
+  while (directory !== '.') {
+    if (!sourceDirectoryWitness.has(directory)) sourceDirectoryWitness.set(directory, row.logicalPath);
+    directory = path.posix.dirname(directory);
+  }
+}
+
+// Source access is scoped to one authenticated provider. A Core miss never
+// falls back to the working checkout, including runtime API assertions.
+function readJson(relative, rootDir) {
+  return sourceProvider ? JSON.parse(sourceProvider.readCurrent(toPosixPath(relative))) : legacyReadJson(relative, rootDir);
+}
+function readText(relative, rootDir) {
+  return sourceProvider ? sourceProvider.readCurrent(toPosixPath(relative)).toString('utf8')
+    : fs.readFileSync(path.join(rootDir, relative), 'utf8');
+}
+function resolveRepoPath(relative, rootDir) {
+  if (!sourceProvider) return legacyResolveRepoPath(relative, rootDir);
+  const row = sourceByPath.get(toPosixPath(relative));
+  if (row) sourceProvider.hasCurrent(row.logicalPath);
+  if (!row || row.owner !== 'core') throw Error('Missing authenticated Core source: ' + relative);
+  return row.absolutePath;
+}
+function requireSource(relative, rootDir) {
+  if (!sourceProvider) return require(legacyResolveRepoPath(relative, rootDir));
+  const absolute = resolveRepoPath(relative, rootDir);
+  sourceProvider.readCurrent(toPosixPath(relative));
+  const value = require(absolute);
+  // Existing cleanup assertions execute the same captured modules and their
+  // captured local dependency closure. Foreign cached modules are not evidence.
+  const allowed = new Set(sourceFiles.map(row => row.absolutePath));
+  const visited = new Set();
+  function checkModule(module) {
+    if (!module || visited.has(module)) return;
+    visited.add(module);
+    if (!allowed.has(module.filename)) throw Error('Runtime assertion loaded foreign Core source: ' + module.filename);
+    module.children.forEach(checkModule);
+  }
+  checkModule(require.cache[absolute]);
+  sourceProvider.files();
+  return value;
+}
 
 const SUITE_ID = 'schema-inventory';
 const SUITE_LABEL = 'XTend Schema Inventory';
@@ -154,7 +208,7 @@ function assertNoIssues(context, issues, passMessage, failureLabel) {
 }
 
 function relativeInventoryPath(rootDir) {
-  const configuredPath = INVENTORY_PATH || 'tests/schemas/xtend-schema-inventory.json';
+  const configuredPath = sourceProvider ? 'tests/schemas/core-release-inventory.json' : INVENTORY_PATH || 'tests/schemas/xtend-schema-inventory.json';
   return path.isAbsolute(configuredPath)
     ? path.relative(rootDir, configuredPath)
     : configuredPath;
@@ -164,6 +218,11 @@ function isRepoLocalExistingPath(relativePath, rootDir) {
   if (!isNonEmptyString(relativePath) || path.isAbsolute(relativePath)) return false;
   const normalized = path.normalize(relativePath);
   if (normalized === '..' || normalized.startsWith(`..${path.sep}`)) return false;
+  if (sourceProvider) {
+    const logical = toPosixPath(normalized).replace(/\/$/u, '');
+    const witness = sourceDirectoryWitness.get(logical);
+    return sourceProvider.hasCurrent(logical) || Boolean(witness && sourceProvider.hasCurrent(witness));
+  }
   return fs.existsSync(resolveRepoPath(normalized, rootDir));
 }
 
@@ -315,6 +374,15 @@ function substituteWildcards(pattern, captures) {
 
 function discoverPackageManifests(rootDir) {
   const manifests = [];
+  if (sourceProvider) {
+    for (const row of sourceFiles) {
+      if (path.posix.basename(row.logicalPath) !== 'package.json') continue;
+      const manifest = readJson(row.logicalPath, rootDir);
+      if (isNonEmptyString(manifest.name) && isRecord(manifest.exports))
+        manifests.push({ directory: path.join(rootDir, path.posix.dirname(row.logicalPath)), manifest, path: row.logicalPath });
+    }
+    return manifests;
+  }
   const skippedDirectories = new Set([
     '.git',
     '.xtend-build',
@@ -380,7 +448,7 @@ function readSourceText(relativePath, rootDir, sourceCache) {
   const normalized = toPosixPath(relativePath);
   if (!sourceCache.has(normalized)) {
     try {
-      sourceCache.set(normalized, fs.readFileSync(path.join(rootDir, normalized), 'utf8'));
+      sourceCache.set(normalized, readText(normalized, rootDir));
     } catch (error) {
       sourceCache.set(normalized, null);
     }
@@ -507,7 +575,7 @@ function createInterfaceResolver(rootDir) {
       const normalizedPath = toPosixPath(reference.path);
       if (!jsonCache.has(normalizedPath)) {
         try {
-          jsonCache.set(normalizedPath, JSON.parse(fs.readFileSync(path.join(rootDir, normalizedPath), 'utf8')));
+          jsonCache.set(normalizedPath, readJson(normalizedPath, rootDir));
         } catch (error) {
           jsonCache.set(normalizedPath, null);
         }
@@ -657,8 +725,12 @@ function validateEvolutionPolicy(inventory) {
   return issues;
 }
 
-function validateEntryEvolutionFields(entries) {
-  const issues = [];
+function validateEntryEvolutionFields(entries, publicValidation) {
+  // Fail closed if extraction or public source validation was unavailable.
+  // All contracts share this rule; no suite-local identifier exemption exists.
+  const issues = publicValidation && Array.isArray(publicValidation.errors)
+    ? publicValidation.errors.filter((issue) => issue.code === 'released-fingerprint-drift').map(validationIssueText)
+    : ['released-fingerprint binding could not be validated by the public scanner'];
   entries.forEach((entry, index) => {
     if (!isRecord(entry)) return;
     const label = entry.schemaId || `entries[${index}]`;
@@ -703,21 +775,7 @@ function validateEntryEvolutionFields(entries) {
       || policy.releasedFingerprintSetHash !== entry.releasedFingerprintSetHash) {
       issues.push(`${label} entry and shapePolicy released fingerprint hashes must agree`);
     }
-    const authoritativeHashes = entryAuthoritativeFingerprints(entry);
-    let expectedReleasedHash = authoritativeHashes.length > 0 ? fingerprintSetHash(authoritativeHashes) : null;
-    if (typeof schemaInventoryScanner.authoritativeFingerprintSetHash === 'function') {
-      try {
-        expectedReleasedHash = schemaInventoryScanner.authoritativeFingerprintSetHash(entry);
-      } catch (error) {
-        // The suite-local deterministic hash is compatible with scanner-v2's public contract.
-      }
-    }
-    const mayRetainHistoricalReleasedHash = expectedReleasedHash === null
-      && isNonEmptyString(entry.releasedFingerprintSetHash)
-      && (isNonEmptyString(entry.aliasOf) || entry.lifecycle && entry.lifecycle.status !== 'active');
-    if (entry.releasedFingerprintSetHash !== expectedReleasedHash && !mayRetainHistoricalReleasedHash) {
-      issues.push(`${label}.releasedFingerprintSetHash does not bind its authoritative fingerprints`);
-    }
+
 
     (Array.isArray(entry.shapeFingerprints) ? entry.shapeFingerprints : []).forEach((fingerprint, fingerprintIndex) => {
       const fingerprintLabel = `${label} shapeFingerprints[${fingerprintIndex}]`;
@@ -788,10 +846,18 @@ function validateSchemaFamilies(inventory, entries) {
     }
     if (familyById.has(family.familyId)) issues.push(`${label} is declared more than once`);
     familyById.set(family.familyId, family);
-    if (!Number.isInteger(family.currentVersion) || family.currentVersion < 1) {
+    const profileFamily = Object.hasOwn(family, 'profileCurrents');
+    if (profileFamily) {
+      try {
+        if (!coreContext) throw Error('Authenticated Core context required for profile families');
+        coreContext.modules.load('tools/schema-inventory/profile-registry.cjs')
+          .resolveProfileCurrent(family, entries, sourceProvider);
+      } catch (error) { issues.push(`${label}: ${error.message}`); }
+    }
+    if (!profileFamily && (!Number.isInteger(family.currentVersion) || family.currentVersion < 1)) {
       issues.push(`${label}.currentVersion must be a positive integer`);
     }
-    if (!isNonEmptyString(family.activeSchemaId)) issues.push(`${label}.activeSchemaId is missing`);
+    if (!profileFamily && !isNonEmptyString(family.activeSchemaId)) issues.push(`${label}.activeSchemaId is missing`);
     if (!Array.isArray(family.versions) || family.versions.length === 0) {
       issues.push(`${label}.versions must be non-empty`);
       return;
@@ -802,15 +868,15 @@ function validateSchemaFamilies(inventory, entries) {
     }
     const managedEntries = actualEntries.filter((entry) => entry.aliasOf === null);
     const active = managedEntries.filter((entry) => entry.lifecycle && entry.lifecycle.status === 'active');
-    if (managedEntries.length > 0 && active.length !== 1) {
+    if (!profileFamily && managedEntries.length > 0 && active.length !== 1) {
       issues.push(`${label} must have exactly one current non-alias schema`);
     }
     const activeEntry = entryById.get(family.activeSchemaId);
-    if (!activeEntry || activeEntry.familyId !== family.familyId
+    if (!profileFamily && (!activeEntry || activeEntry.familyId !== family.familyId
       || managedEntries.length > 0 && (activeEntry.aliasOf !== null
-        || !activeEntry.lifecycle || activeEntry.lifecycle.status !== 'active')) {
+        || !activeEntry.lifecycle || activeEntry.lifecycle.status !== 'active'))) {
       issues.push(`${label}.activeSchemaId must identify the family current schema`);
-    } else if (activeEntry.version !== family.currentVersion) {
+    } else if (!profileFamily && activeEntry.version !== family.currentVersion) {
       issues.push(`${label}.currentVersion does not match activeSchemaId`);
     }
     family.versions.forEach((version, versionIndex) => {
@@ -1360,7 +1426,7 @@ function validateGateIntegration(packageManifest, rootDir) {
   });
   const workflowPath = '.github/workflows/xtend-default-gates.yml';
   const workflow = isRepoLocalExistingPath(workflowPath, rootDir)
-    ? fs.readFileSync(path.join(rootDir, workflowPath), 'utf8')
+    ? readText(workflowPath, rootDir)
     : '';
   if (workflow.split(INVENTORY_REPORT_PATH).length - 1 < 2) {
     issues.push(`PR and release workflow artifacts must both upload ${INVENTORY_REPORT_PATH}`);
@@ -1515,7 +1581,7 @@ function validateCleanupMvp(inventory, entries, packageManifest, rootDir, duplic
       if (!types || !types.includes(token)) issues.push(`${producer.typesPath} does not surface ${token}`);
     });
     try {
-      const producerApi = require(resolveRepoPath(producer.path, rootDir));
+      const producerApi = requireSource(producer.path, rootDir);
       if (producerApi.XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA !== HOST_RESOURCE_CLEANUP_SCHEMA
         || typeof producerApi.resolveHostResourceCleanupSchema !== 'function') {
         issues.push(`${producer.module} runtime API does not re-export the canonical constant and resolver`);
@@ -1539,7 +1605,7 @@ function validateCleanupMvp(inventory, entries, packageManifest, rootDir, duplic
   });
 
   try {
-    const cleanupApi = require(resolveRepoPath(HOST_RESOURCE_CLEANUP_RUNTIME_PATH, rootDir));
+    const cleanupApi = requireSource(HOST_RESOURCE_CLEANUP_RUNTIME_PATH, rootDir);
     if (cleanupApi.XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_SCHEMA !== HOST_RESOURCE_CLEANUP_SCHEMA
       || !sameStringSet(cleanupApi.XTENSIONS_HOST_RESOURCE_CLEANUP_RECORD_LEGACY_SCHEMA_IDS, HOST_RESOURCE_CLEANUP_LEGACY_ALIASES)) {
       issues.push('cleanup factory exports do not declare the canonical ID and exact five Legacy IDs');
@@ -1642,95 +1708,156 @@ function cloneJson(value) {
 
 function validateNegativeGateBehavior(inventory, scan, rootDir) {
   const issues = [];
+  if (sourceProvider) {
+    // A prior successful check must not turn immutable metadata into trust in
+    // mutable files. These probes touch only this provider's private materialization.
+    const rejectsLiveMutation = () => {
+      try { validateInventoryDocument(inventory, scan, { rootDir, sourceProvider }); }
+      catch (error) { return /materialized source changed/iu.test(error.message); }
+      return false;
+    };
+    const row = sourceByPath.get('package.json');
+    if (!row) throw Error('Core mutation probe requires the authenticated package manifest');
+    const original = fs.readFileSync(row.absolutePath);
+    const stat = fs.statSync(row.absolutePath);
+    const changed = Buffer.from(original);
+    changed[0] ^= 1;
+    try {
+      fs.writeFileSync(row.absolutePath, changed);
+      fs.utimesSync(row.absolutePath, stat.atime, stat.mtime);
+      if (!rejectsLiveMutation()) issues.push('same-size source mutation with restored mtime is not rejected');
+    } finally {
+      fs.writeFileSync(row.absolutePath, original);
+      fs.utimesSync(row.absolutePath, stat.atime, stat.mtime);
+    }
+    const savedPath = row.absolutePath + '.schema-inventory-original';
+    if (fs.existsSync(savedPath)) throw Error('Core mutation probe backup path already exists');
+    fs.renameSync(row.absolutePath, savedPath);
+    try {
+      fs.symlinkSync(savedPath, row.absolutePath);
+      if (!rejectsLiveMutation()) issues.push('byte-identical source symlink replacement is not rejected');
+    } finally {
+      if (fs.existsSync(row.absolutePath)) fs.unlinkSync(row.absolutePath);
+      fs.renameSync(savedPath, row.absolutePath);
+      fs.utimesSync(row.absolutePath, stat.atime, stat.mtime);
+    }
+    let foreignProviderRejected = false;
+    try { validateInventoryDocument(inventory, scan, { rootDir, sourceProvider: { ...sourceProvider } }); }
+    catch (error) { foreignProviderRejected = /Verified manifest-backed source provider required/u.test(error.message); }
+    if (!foreignProviderRejected) issues.push('a copied provider is not rejected after live source checks');
+    for (const candidate of [cloneJson(scan), { ...scan, entries: [] }]) {
+      let rejected = false;
+      try { validateInventoryDocument(inventory, candidate, { rootDir, sourceProvider }); }
+      catch (error) { rejected = /unmodified verified extraction|cloned or mutated/iu.test(error.message); }
+      if (!rejected) issues.push('foreign cloned/mutated Core scan is not rejected');
+    }
+  }
   const validationErrors = (document, scanned = scan) => {
-    const result = validateInventoryDocument(document, scanned, { rootDir });
+    if (sourceProvider && scanned !== scan) throw Error('Core negative probes must retain the same authenticated scan');
+    const result = validateInventoryDocument(document, scanned, { rootDir, ...(sourceProvider ? { sourceProvider } : {}) });
     return Array.isArray(result && result.errors) ? result.errors : [];
   };
   const rejectsAs = (document, codes, pattern, scanned = scan) => validationErrors(document, scanned).some((entry) => (
     codes.includes(entry && entry.code) || pattern.test(validationIssueText(entry))
   ));
 
-  const missingEntry = cloneJson(inventory);
-  missingEntry.entries.shift();
-  if (!rejectsAs(missingEntry, ['coverage-missing-schema'], /coverage|missing schema/iu)) {
-    issues.push('removing an inventory entry does not fail scan coverage');
+  // Independent targets share one complete validation. Each mutation still
+  // needs its own exact diagnostic; another failure cannot satisfy the probe.
+  if (inventory.entries.length >= 3) {
+    const coveragePathStatus = cloneJson(inventory);
+    const removed = coveragePathStatus.entries.shift();
+    const pathTarget = coveragePathStatus.entries[0], statusTarget = coveragePathStatus.entries[1];
+    const missingPath = 'does/not/exist.schema-inventory-fixture';
+    pathTarget.usages[0].sourcePaths.push(missingPath);
+    statusTarget.status = statusTarget.status === 'active' ? 'test-only' : 'active';
+    const diagnostics = validationErrors(coveragePathStatus);
+    if (!diagnostics.some(entry => entry.code === 'coverage-missing-schema' && entry.schemaId === removed.schemaId))
+      issues.push('removing an inventory entry does not fail scan coverage');
+    if (!diagnostics.some(entry => entry.code === 'missing-usage-path' && entry.schemaId === pathTarget.schemaId && entry.path === missingPath))
+      issues.push('an invalid usage path does not fail validation');
+    if (!diagnostics.some(entry => entry.code === 'classification-status-drift' && entry.schemaId === statusTarget.schemaId))
+      issues.push('lifecycle curation can incorrectly overwrite the static scan status');
+  } else {
+    issues.push('three distinct entries are required for coverage, path and classification negative probes');
   }
 
-  const invalidPath = cloneJson(inventory);
-  invalidPath.entries[0].usages[0].sourcePaths.push('does/not/exist.schema-inventory-fixture');
-  if (!rejectsAs(invalidPath, ['missing-usage-path'], /usage path/iu)) {
-    issues.push('an invalid usage path does not fail validation');
-  }
-
-  const fingerprintEntry = inventory.entries.find((entry) => Array.isArray(entry.shapeFingerprints) && entry.shapeFingerprints.length > 0);
+  const fingerprintEntry = inventory.entries.find((entry) => (
+    entry.schemaId !== inventory.entries[0]?.schemaId
+      && Array.isArray(entry.shapeFingerprints) && entry.shapeFingerprints.length > 0
+  ));
   if (fingerprintEntry) {
-    const tamperedShape = cloneJson(inventory);
-    const target = tamperedShape.entries.find((entry) => entry.schemaId === fingerprintEntry.schemaId);
-    target.shapeFingerprints[0].shape.signature = `${target.shapeFingerprints[0].shape.signature}|tampered:unknown`;
-    if (!rejectsAs(tamperedShape, ['invalid-shape-hash'], /shape.*hash|fingerprint/iu)) {
+    // These mutations affect distinct entries. Share one complete validation,
+    // but require each target's own error; unrelated drift is not evidence.
+    const shapeAndVersion = cloneJson(inventory);
+    const shapeTarget = shapeAndVersion.entries.find((entry) => entry.schemaId === fingerprintEntry.schemaId);
+    shapeTarget.shapeFingerprints[0].shape.signature = `${shapeTarget.shapeFingerprints[0].shape.signature}|tampered:unknown`;
+    const minorVersionSchemaId = 'xtend.schema-inventory.invalid-minor-version.v1.2';
+    const versionTarget = shapeAndVersion.entries[0];
+    versionTarget.schemaId = minorVersionSchemaId;
+    versionTarget.familyId = 'xtend.schema-inventory.invalid-minor-version';
+    versionTarget.version = 1;
+    const shapeAndVersionErrors = validationErrors(shapeAndVersion);
+    if (!shapeAndVersionErrors.some((entry) => entry && entry.code === 'invalid-shape-hash'
+      && entry.schemaId === fingerprintEntry.schemaId)) {
       issues.push('tampered normalized shape content does not fail its fingerprint hash');
     }
-  }
-
-  const releasedEntry = inventory.entries.find((entry) => (
-    entry && isNonEmptyString(entry.releasedFingerprintSetHash) && !entry.aliasOf
-  ));
-  if (releasedEntry && typeof schemaInventoryScanner.acceptCurrentBaseline === 'function') {
-    const unsafeAdvance = cloneJson(inventory);
-    const target = unsafeAdvance.entries.find((entry) => entry.schemaId === releasedEntry.schemaId);
-    target.releasedFingerprintSetHash = `sha256:${'0'.repeat(64)}`;
-    let refused = false;
-    try {
-      schemaInventoryScanner.acceptCurrentBaseline(unsafeAdvance);
-    } catch (error) {
-      refused = /released fingerprint drift|new major schema ID/iu.test(String(error && error.message));
-    }
-    if (!refused) issues.push('baseline acceptance does not refuse released fingerprint drift before a major schema migration');
-  }
-
-  const statusDrift = cloneJson(inventory);
-  statusDrift.entries[0].status = statusDrift.entries[0].status === 'active' ? 'test-only' : 'active';
-  if (!rejectsAs(statusDrift, ['classification-status-drift'], /status.*classification|classification.*status/iu)) {
-    issues.push('lifecycle curation can incorrectly overwrite the static scan status');
-  }
-
-  const minorVersion = cloneJson(inventory);
-  minorVersion.entries[0].schemaId = 'xtend.schema-inventory.invalid-minor-version.v1.2';
-  minorVersion.entries[0].familyId = 'xtend.schema-inventory.invalid-minor-version';
-  minorVersion.entries[0].version = 1;
-  if (!rejectsAs(minorVersion, ['invalid-family-version'], /major-only|family.*version/iu)) {
-    issues.push('minor schema version suffixes are not rejected by the major-only policy');
-  }
-
-  const exactDecision = (inventory.consolidations || []).find((consolidation) => (
-    consolidation && consolidation.kind === 'exact-authoritative' && consolidation.decision
-  ));
-  if (exactDecision) {
-    const unresolvedExact = cloneJson(inventory);
-    unresolvedExact.consolidations.find((consolidation) => (
-      consolidation.consolidationId === exactDecision.consolidationId
-    )).decision = null;
-    if (!rejectsAs(unresolvedExact, ['unresolved-exact-consolidation'], /exact.*decision|decision.*exact/iu)) {
-      issues.push('removing a new exact-group decision does not block validation');
+    if (!shapeAndVersionErrors.some((entry) => entry && entry.code === 'invalid-family-version'
+      && entry.schemaId === minorVersionSchemaId)) {
+      issues.push('minor schema version suffixes are not rejected by the major-only policy');
     }
   } else {
-    issues.push('inventory has no decided exact group available for the negative decision probe');
+    issues.push('distinct shape and version targets are required for the negative probes');
   }
 
-  const insufficient = (inventory.consolidations || []).find((consolidation) => (
-    consolidation && consolidation.kind === 'insufficient-evidence'
+  const profileFamilies = new Set((inventory.schemaFamilies || [])
+    .filter(family => Object.hasOwn(family, 'profileCurrents')).map(family => family.familyId));
+  if (profileFamilies.size && typeof schemaInventoryScanner.acceptCurrentBaseline === 'function') {
+    const profileAdvance = cloneJson(inventory), before = JSON.stringify(profileAdvance);
+    let refused = false;
+    try { schemaInventoryScanner.acceptCurrentBaseline(profileAdvance); }
+    catch (error) { refused = String(error.message) === 'Profile families require exact separate registration; baseline acceptance cannot mutate them'; }
+    if (!refused || JSON.stringify(profileAdvance) !== before)
+      issues.push('baseline acceptance does not refuse profile registration without mutation');
+  }
+  const releasedEntry = inventory.entries.find((entry) => (
+    entry && isNonEmptyString(entry.releasedFingerprintSetHash) && !entry.aliasOf && !profileFamilies.has(entry.familyId)
   ));
-  if (insufficient) {
-    const unsafeMerge = cloneJson(inventory);
-    const target = unsafeMerge.consolidations.find((consolidation) => (
-      consolidation.consolidationId === insufficient.consolidationId
-    ));
-    target.decision = 'consolidate';
-    target.canonicalSchemaId = target.schemaIds[0];
-    target.owner = 'negative-probe';
-    if (!rejectsAs(unsafeMerge, ['invalid-consolidation'], /consolidat|fingerprint|authoritative/iu)) {
-      issues.push('partial/test/docs/generated evidence can incorrectly trigger consolidation');
+  if (releasedEntry && typeof schemaInventoryScanner.acceptCurrentBaseline === 'function') {
+    // Isolate an actual ordinary released contract so the earlier profile guard
+    // cannot hide a missing released-fingerprint guard. No baseline is accepted.
+    const unsafeAdvance = { entries: [cloneJson(releasedEntry)], schemaFamilies: [] };
+    unsafeAdvance.entries[0].releasedFingerprintSetHash = `sha256:${'0'.repeat(64)}`;
+    const before = JSON.stringify(unsafeAdvance);
+    let refused = false;
+    try { schemaInventoryScanner.acceptCurrentBaseline(unsafeAdvance); }
+    catch (error) {
+      refused = /released fingerprint drift|new major schema ID/iu.test(String(error.message))
+        && String(error.message).includes(releasedEntry.schemaId);
     }
+    if (!refused || JSON.stringify(unsafeAdvance) !== before)
+      issues.push('baseline acceptance does not refuse released fingerprint drift before a major schema migration');
+  }
+
+  const exactDecision = (inventory.consolidations || []).find(consolidation =>
+    consolidation && consolidation.kind === 'exact-authoritative' && consolidation.decision);
+  const insufficient = (inventory.consolidations || []).find(consolidation =>
+    consolidation && consolidation.kind === 'insufficient-evidence');
+  if (!exactDecision) issues.push('inventory has no decided exact group available for the negative decision probe');
+  if (exactDecision || insufficient) {
+    const invalidDecisions = cloneJson(inventory);
+    if (exactDecision) invalidDecisions.consolidations.find(row => row.consolidationId === exactDecision.consolidationId).decision = null;
+    if (insufficient) {
+      const target = invalidDecisions.consolidations.find(row => row.consolidationId === insufficient.consolidationId);
+      target.decision = 'consolidate'; target.canonicalSchemaId = target.schemaIds[0]; target.owner = 'negative-probe';
+    }
+    const diagnostics = validationErrors(invalidDecisions);
+    if (exactDecision && !diagnostics.some(entry => entry.code === 'unresolved-exact-consolidation'
+      && entry.consolidationId === exactDecision.consolidationId))
+      issues.push('removing a new exact-group decision does not block validation');
+    if (insufficient && !diagnostics.some(entry => entry.code === 'invalid-consolidation'
+      && entry.consolidationId === insufficient.consolidationId
+      && entry.message === 'A consolidate decision requires identical authoritative released fingerprint sets.'))
+      issues.push('partial/test/docs/generated evidence can incorrectly trigger consolidation');
   }
 
   const aliasIds = inventory.entries.filter((entry) => isNonEmptyString(entry && entry.aliasOf)).map((entry) => entry.schemaId);
@@ -1750,23 +1877,24 @@ function validateNegativeGateBehavior(inventory, scan, rootDir) {
     issues.push('inventory has too few aliases for target/chain/cycle negative probes');
   }
 
-  const releasedAlias = inventory.entries.find((entry) => isNonEmptyString(entry && entry.aliasOf));
-  if (releasedAlias) {
-    const fingerprintMismatch = cloneJson(inventory);
-    const alias = fingerprintMismatch.entries.find((entry) => entry.schemaId === releasedAlias.schemaId);
-    alias.releasedFingerprintSetHash = `sha256:${'0'.repeat(64)}`;
-    alias.shapePolicy.releasedFingerprintSetHash = alias.releasedFingerprintSetHash;
-    if (!rejectsAs(fingerprintMismatch, ['alias-fingerprint-mismatch'], /alias.*fingerprint|fingerprint.*alias/iu)) {
+  const releasedAlias = inventory.entries.find(entry => isNonEmptyString(entry && entry.aliasOf));
+  const replacementAlias = inventory.entries.find(entry => isNonEmptyString(entry && entry.aliasOf)
+    && entry.schemaId !== releasedAlias?.schemaId);
+  if (releasedAlias && replacementAlias) {
+    const invalidAliasFacts = cloneJson(inventory);
+    const fingerprintTarget = invalidAliasFacts.entries.find(entry => entry.schemaId === releasedAlias.schemaId);
+    fingerprintTarget.releasedFingerprintSetHash = `sha256:${'0'.repeat(64)}`;
+    fingerprintTarget.shapePolicy.releasedFingerprintSetHash = fingerprintTarget.releasedFingerprintSetHash;
+    const replacementTarget = invalidAliasFacts.entries.find(entry => entry.schemaId === replacementAlias.schemaId);
+    replacementTarget.replacedBy = replacementTarget.aliasOf;
+    replacementTarget.replacementDecision = { compatibility: 'negative-probe', rationale: 'Must fail: target is not a higher version in this family.' };
+    const diagnostics = validationErrors(invalidAliasFacts);
+    if (!diagnostics.some(entry => entry.code === 'alias-fingerprint-mismatch' && entry.schemaId === releasedAlias.schemaId))
       issues.push('alias released-fingerprint mismatches are not rejected');
-    }
-
-    const invalidReplacement = cloneJson(inventory);
-    const replacementEntry = invalidReplacement.entries.find((entry) => entry.schemaId === releasedAlias.schemaId);
-    replacementEntry.replacedBy = replacementEntry.aliasOf;
-    replacementEntry.replacementDecision = { compatibility: 'negative-probe', rationale: 'Must fail: target is not a higher version in this family.' };
-    if (!rejectsAs(invalidReplacement, ['invalid-replaced-by'], /replacedBy|higher version/iu)) {
+    if (!diagnostics.some(entry => entry.code === 'invalid-replaced-by' && entry.schemaId === replacementAlias.schemaId))
       issues.push('invalid replacedBy targets are not rejected');
-    }
+  } else if (releasedAlias) {
+    issues.push('two distinct aliases are required for fingerprint and replacement negative probes');
   }
 
   const multiVersionFamily = (inventory.schemaFamilies || []).find((family) => (
@@ -1841,7 +1969,7 @@ function runSchemaInventorySuite(options = {}) {
   let inventory = null;
 
   try {
-    inventory = readJson(inventoryPath, rootDir);
+    inventory = coreContext ? coreContext.inventory : readJson(inventoryPath, rootDir);
     context.pass(`${inventoryPath} is valid JSON`);
   } catch (error) {
     context.fail(`${inventoryPath} is not readable JSON: ${error.message}`);
@@ -1889,16 +2017,27 @@ function runSchemaInventorySuite(options = {}) {
   assertNoIssues(context, structure.pathIssues, 'all canonical and source paths exist in the repository', 'invalid inventory paths');
   assertNoIssues(context, structure.referenceIssues, 'all interface references are typed and qualified', 'invalid interface references');
   assertNoIssues(context, structure.fingerprintIssues, 'all shape fingerprints and shape policies are internally consistent', 'invalid shape fingerprints');
+  let scan = null;
+  let validation = null;
+  let duplicateAudit = normalizeDuplicateAudit(null, entries, inventory.consolidations);
+  try {
+    scan = coreContext ? coreContext.scan : scanSchemaInventory({ rootDir });
+    validation = validateInventoryDocument(inventory, scan, { rootDir, ...(sourceProvider ? { sourceProvider } : {}) });
+    duplicateAudit = normalizeDuplicateAudit(scan, entries, inventory.consolidations);
+  } catch (error) {
+    context.fail(`schema inventory scanner failed: ${error.message}`);
+  }
+
   assertNoIssues(
     context,
-    validateEntryEvolutionFields(entries),
+    validateEntryEvolutionFields(entries, validation),
     'all entries bind family, version, lifecycle, alias, replacement, evidence and released fingerprints',
     'invalid entry evolution metadata'
   );
   assertNoIssues(
     context,
     validateSchemaFamilies(inventory, entries),
-    'schema families have one managed current version and immutable retired tombstones',
+    'schema families have one managed current version per verified profile and immutable retired tombstones',
     'invalid schema family metadata'
   );
   assertNoIssues(
@@ -1908,7 +2047,7 @@ function runSchemaInventorySuite(options = {}) {
     'invalid alias or replacement graph'
   );
 
-  const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
+  const packageManifest = requireSource('tests/utils/test-catalog.js', rootDir).resolveManifestProfiles(readJson('package.json', rootDir));
   assertNoIssues(
     context,
     validateNativeFirstSubset(inventoryIds, packageManifest),
@@ -1940,16 +2079,6 @@ function runSchemaInventorySuite(options = {}) {
     'formal JSON Schema mismatch'
   );
 
-  let scan = null;
-  let validation = null;
-  let duplicateAudit = normalizeDuplicateAudit(null, entries, inventory.consolidations);
-  try {
-    scan = scanSchemaInventory({ rootDir });
-    validation = validateInventoryDocument(inventory, scan, { rootDir });
-    duplicateAudit = normalizeDuplicateAudit(scan, entries, inventory.consolidations);
-  } catch (error) {
-    context.fail(`schema inventory scanner failed: ${error.message}`);
-  }
 
   assertNoIssues(
     context,
@@ -2017,9 +2146,13 @@ function runSchemaInventorySuite(options = {}) {
   rollout.productiveLegacyProducers = duplicateAudit.rollout.filter((reference) => (
     reference && Array.isArray(reference.producerPaths) && reference.producerPaths.length > 0
   )).length;
+  if (coreContext) require('../../scripts/release/core-source.cjs').assertCoreSchemaContext(coreContext);
   return context.result({
     warnings: warnings.map(validationIssueText),
     report: {
+      ...(coreContext ? { profile: coreContext.provider.provenance().profile,
+        productiveSource: coreContext.provider.provenance(), inventorySha256: coreContext.inventorySha256,
+        policySha256: coreContext.policySha256 } : {}),
       inventoryVersion: inventory.inventoryVersion,
       exactGroups: duplicateAudit.exactGroups.length,
       overlaps: duplicateAudit.overlaps.length,
@@ -2061,13 +2194,31 @@ function printSchemaInventoryReport(result) {
   });
 }
 
+return { runSchemaInventorySuite, printSchemaInventoryReport };
+}
+
+function runSchemaInventorySuite(options = {}) {
+  const core = require('../../scripts/release/core-source.cjs');
+  if (options.coreContext) {
+    core.assertCoreSchemaContext(options.coreContext);
+    return core.runCoreSchemaSuite(options.coreContext, options);
+  }
+  if (options.sourceProvider || options.scan || options.inventory) throw Error('Branded Core schema context required');
+  if (process.env.XTEND_CORE_REQUIRED === 'true' || process.env.XTEND_CORE_ARCHIVE || process.env.XTEND_CORE_EXPECTED) {
+    return core.withCoreSourceEnvironment({ rootDir: options.rootDir || path.resolve(__dirname, '../..'), typescript: require('typescript') },
+      coreContext => core.runCoreSchemaSuite(coreContext, options));
+  }
+  return createSuite().runSchemaInventorySuite(options);
+}
+function printSchemaInventoryReport(result) { return createSuite().printSchemaInventoryReport(result); }
 if (require.main === module) {
   const result = runSchemaInventorySuite();
   printSchemaInventoryReport(result);
   process.exitCode = result.ok ? 0 : 1;
 }
-
-module.exports = {
-  printSchemaInventoryReport,
-  runSchemaInventorySuite
-};
+function runAuthenticatedCoreSuite(coreContext, options = {}) {
+  const core = require('../../scripts/release/core-source.cjs');
+  core.assertCoreSuiteModule(coreContext, module);
+  return createSuite(coreContext).runSchemaInventorySuite({ ...options, rootDir: coreContext.rootDir, coreContext });
+}
+module.exports = { printSchemaInventoryReport, runSchemaInventorySuite, runAuthenticatedCoreSuite };

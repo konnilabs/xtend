@@ -1,5 +1,6 @@
 # RMT AnimationEngine
 
+
 RMT AnimationEngine keeps UI transitions beside the surfaces and actions that trigger them. Effects, duration, easing, interruption behavior and accessible fallbacks can therefore be checked at build time instead of emerging later from unrelated browser handlers.
 
 ## Prerequisites

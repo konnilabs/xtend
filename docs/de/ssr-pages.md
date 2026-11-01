@@ -1,5 +1,6 @@
 # Seitenlaufzeit für Node und Laravel
 
+
 Node und PHP/Laravel sind eigenständige SSR-Hosts. Node behält seine Compilerzugänge,
 JavaScript-Services und Streams. Laravel verwendet im Produktionsbetrieb vorgebaute
 RMT-Artefakte und das Composer-Paket; ein Node-Prozess ist dort nach dem Build nicht erforderlich.
@@ -199,7 +200,7 @@ Die Seitenlaufzeit verwaltet URL, History und Transport, Maraca den UI-Zustand u
 
 Der gemeinsame Head-Vertrag unterstützt zusätzlich Canonical-Links (`tag: "link"`, `rel: "canonical"`, HTTP(S)-URL) und benannte JSON-LD-Datensätze (`tag: "json-ld"`, `key`, `data`). Node, PHP und Browser deduplizieren nach Identität. JSON wird sicher in Script-Tags serialisiert; Eventattribute und ausführbare Canonical-URLs werden abgelehnt.
 
-[XTend.store](../../products/xtend-shop/README.md) zeigt diese Integration mit Laravel, Gastwarenkorb und einem separaten PHP-DemoPay-Provider. Der Node-SSR-Adapter und `createNodePageHost()` bleiben eigenständige Zugänge. Der Shop ist eine zusätzliche Referenzanwendung.
+[XTend.store](https://github.com/konnilabs/xtend-demos/tree/HEAD/products/xtend-shop/README.md) zeigt diese Integration mit Laravel, Gastwarenkorb und einem separaten PHP-DemoPay-Provider. Der Node-SSR-Adapter und `createNodePageHost()` bleiben eigenständige Zugänge. Der Shop ist eine zusätzliche Referenzanwendung.
 
 Maraca-Seiten übernehmen auch native GET-Such- und Filterformulare in die Seitennavigation. Die Basisseiten-API schaltet dies mit `forms: true` ein; `navigationAction` kann vor einem Besuch deklarierte RMT-Surfaces schließen. POST-Formulare behalten ihren Host- beziehungsweise RMT-Vertrag.
 

@@ -1,0 +1,1374 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "xtend.release.core-evidence.v1",
+  "title": "core-evidence-v1",
+  "$comment": "Review-only complete producer structure. Open JSON extension boundaries are intentional; relational guards and source-authority acceptance remain mandatory. Never a release authorization.",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "xtend.release.core-evidence.v1"
+    },
+    "profile": {
+      "const": "xtend.npm.core-only.v1"
+    },
+    "repository": {
+      "const": "konnilabs/xtend"
+    },
+    "workflow": {
+      "const": ".github/workflows/xtend-default-gates.yml"
+    },
+    "sourceSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "context": {
+      "$ref": "#/definitions/context"
+    },
+    "sealedAt": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+    },
+    "needs": {
+      "type": "object",
+      "properties": {
+        "full-release-gates": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "const": "success"
+            }
+          },
+          "required": [
+            "result"
+          ],
+          "additionalProperties": true
+        },
+        "rmt-vnext-primitive-gates": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "const": "success"
+            }
+          },
+          "required": [
+            "result"
+          ],
+          "additionalProperties": true
+        },
+        "package-structure": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "const": "success"
+            }
+          },
+          "required": [
+            "result"
+          ],
+          "additionalProperties": true
+        },
+        "conditional-network-evidence": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "const": "success"
+            }
+          },
+          "required": [
+            "result"
+          ],
+          "additionalProperties": true
+        },
+        "node-native-toolchain-smoke": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "const": "success"
+            }
+          },
+          "required": [
+            "result"
+          ],
+          "additionalProperties": true
+        },
+        "xtend-mcp-vscode-smoke": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "const": "success"
+            }
+          },
+          "required": [
+            "result"
+          ],
+          "additionalProperties": true
+        },
+        "laravel-release-gates": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "const": "success"
+            }
+          },
+          "required": [
+            "result"
+          ],
+          "additionalProperties": true
+        },
+        "core-source-artifact": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "const": "success"
+            },
+            "outputs": {
+              "type": "object",
+              "properties": {
+                "core-sha": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{40}$"
+                },
+                "artifact-id": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$"
+                },
+                "archive-sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "manifest-sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "core-sha",
+                "artifact-id",
+                "archive-sha256",
+                "manifest-sha256"
+              ],
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "result",
+            "outputs"
+          ],
+          "additionalProperties": true
+        },
+        "release-prepare": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "const": "success"
+            },
+            "outputs": {
+              "type": "object",
+              "properties": {
+                "manifestIntegrity": {
+                  "type": "string",
+                  "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+                },
+                "candidateSha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "manifestIntegrity",
+                "candidateSha256"
+              ],
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "result",
+            "outputs"
+          ],
+          "additionalProperties": true
+        },
+        "core-installed-consumers": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "const": "success"
+            }
+          },
+          "required": [
+            "result"
+          ],
+          "additionalProperties": true
+        },
+        "core-security-browser": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "const": "success"
+            },
+            "outputs": {
+              "type": "object",
+              "properties": {
+                "artifact-id": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$"
+                }
+              },
+              "required": [
+                "artifact-id"
+              ],
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "result",
+            "outputs"
+          ],
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "full-release-gates",
+        "rmt-vnext-primitive-gates",
+        "package-structure",
+        "conditional-network-evidence",
+        "node-native-toolchain-smoke",
+        "xtend-mcp-vscode-smoke",
+        "laravel-release-gates",
+        "core-source-artifact",
+        "release-prepare",
+        "core-installed-consumers",
+        "core-security-browser"
+      ],
+      "additionalProperties": true
+    },
+    "candidateIntegrity": {
+      "type": "string",
+      "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+    },
+    "buildIntegrity": {
+      "type": "string",
+      "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+    },
+    "tarballSetIntegrity": {
+      "type": "string",
+      "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+    },
+    "requiredGates": {
+      "type": "object",
+      "properties": {
+        "full-release-gates": {
+          "const": "success"
+        },
+        "rmt-vnext-primitive-gates": {
+          "const": "success"
+        },
+        "package-structure": {
+          "const": "success"
+        },
+        "conditional-network-evidence": {
+          "const": "success"
+        },
+        "node-native-toolchain-smoke": {
+          "const": "success"
+        },
+        "xtend-mcp-vscode-smoke": {
+          "const": "success"
+        },
+        "laravel-release-gates": {
+          "const": "success"
+        }
+      },
+      "required": [
+        "full-release-gates",
+        "rmt-vnext-primitive-gates",
+        "package-structure",
+        "conditional-network-evidence",
+        "node-native-toolchain-smoke",
+        "xtend-mcp-vscode-smoke",
+        "laravel-release-gates"
+      ],
+      "additionalProperties": false
+    },
+    "run": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          ]
+        },
+        "run_attempt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          ]
+        },
+        "head_sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "head_branch": {
+          "const": "main"
+        },
+        "event": {
+          "const": "workflow_dispatch"
+        },
+        "repository": {
+          "type": "object",
+          "properties": {
+            "full_name": {
+              "const": "konnilabs/xtend"
+            }
+          },
+          "required": [
+            "full_name"
+          ],
+          "additionalProperties": true
+        },
+        "head_repository": {
+          "type": "object",
+          "properties": {
+            "full_name": {
+              "const": "konnilabs/xtend"
+            }
+          },
+          "required": [
+            "full_name"
+          ],
+          "additionalProperties": true
+        },
+        "workflow_id": true
+      },
+      "required": [
+        "id",
+        "run_attempt",
+        "head_sha",
+        "head_branch",
+        "event",
+        "repository",
+        "head_repository",
+        "workflow_id"
+      ],
+      "additionalProperties": true
+    },
+    "workflowMetadata": {
+      "type": "object",
+      "properties": {
+        "id": true,
+        "path": {
+          "const": ".github/workflows/xtend-default-gates.yml"
+        }
+      },
+      "required": [
+        "id",
+        "path"
+      ],
+      "additionalProperties": true
+    },
+    "jobsEndpoint": {
+      "type": "string",
+      "pattern": "^/repos/konnilabs/xtend/actions/runs/[1-9][0-9]*/attempts/[1-9][0-9]*/jobs$"
+    },
+    "jobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "allOf": [
+        {
+          "contains": {
+            "$ref": "#/definitions/requiredJob0"
+          }
+        },
+        {
+          "contains": {
+            "$ref": "#/definitions/requiredJob1"
+          }
+        },
+        {
+          "contains": {
+            "$ref": "#/definitions/requiredJob2"
+          }
+        },
+        {
+          "contains": {
+            "$ref": "#/definitions/requiredJob3"
+          }
+        }
+      ]
+    },
+    "source": {
+      "$ref": "#/definitions/source"
+    },
+    "lanes": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/lane24.18.0"
+          },
+          {
+            "$ref": "#/definitions/lane26.5.0"
+          }
+        ]
+      },
+      "minItems": 2,
+      "maxItems": 2,
+      "allOf": [
+        {
+          "contains": {
+            "$ref": "#/definitions/lane24.18.0"
+          }
+        },
+        {
+          "contains": {
+            "$ref": "#/definitions/lane26.5.0"
+          }
+        }
+      ]
+    },
+    "security": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "const": "24.18.0"
+        },
+        "job": {
+          "const": "Core security browser (Node 24.18.0)"
+        },
+        "metadata": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/metadata"
+            },
+            {
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^xtend-core-security-node-24\\.18\\.0-attempt-[1-9][0-9]*$"
+                }
+              }
+            }
+          ]
+        },
+        "archive": {
+          "const": "core-evidence/security.zip"
+        },
+        "report": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "const": "core-evidence/security/security-execution.json"
+            },
+            "integrity": {
+              "type": "string",
+              "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+            }
+          },
+          "required": [
+            "file",
+            "integrity"
+          ],
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "node",
+        "job",
+        "metadata",
+        "archive",
+        "report"
+      ],
+      "additionalProperties": true
+    },
+    "demoSha": false,
+    "demoRepository": false,
+    "productEvidence": false,
+    "unionEvidence": false
+  },
+  "required": [
+    "schema",
+    "profile",
+    "repository",
+    "workflow",
+    "sourceSha",
+    "context",
+    "sealedAt",
+    "needs",
+    "candidateIntegrity",
+    "buildIntegrity",
+    "tarballSetIntegrity",
+    "requiredGates",
+    "run",
+    "workflowMetadata",
+    "jobsEndpoint",
+    "jobs",
+    "source",
+    "lanes",
+    "security"
+  ],
+  "additionalProperties": true,
+  "definitions": {
+    "toolchain": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "const": "24.18.0"
+        },
+        "npm": {
+          "const": "11.17.0"
+        }
+      },
+      "required": [
+        "node",
+        "npm"
+      ],
+      "additionalProperties": true
+    },
+    "registry": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "group": {
+          "enum": [
+            "core",
+            "mcp",
+            "material"
+          ]
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        },
+        "sourceSha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "group",
+        "integrity",
+        "sourceSha"
+      ],
+      "additionalProperties": false
+    },
+    "package": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "group": {
+          "enum": [
+            "core",
+            "mcp",
+            "material"
+          ]
+        },
+        "file": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "integrity": {
+                "type": "string",
+                "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+              }
+            },
+            "required": [
+              "path",
+              "size",
+              "integrity"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "dependencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "optionalDependencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "peerDependencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "peerDependenciesMeta": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "optional": {
+                "type": "boolean"
+              }
+            },
+            "required": [],
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "group",
+        "file",
+        "integrity",
+        "sha256",
+        "size",
+        "files"
+      ],
+      "additionalProperties": true
+    },
+    "rawBinding": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+        }
+      },
+      "required": [
+        "file",
+        "integrity"
+      ],
+      "additionalProperties": true
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "runId": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "runAttempt": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        }
+      },
+      "required": [
+        "runId",
+        "runAttempt"
+      ],
+      "additionalProperties": true
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "expired": {
+          "const": false
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "workflow_run": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$"
+                },
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              ]
+            },
+            "head_sha": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$"
+            }
+          },
+          "required": [
+            "id",
+            "head_sha"
+          ],
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "expired",
+        "digest",
+        "workflow_run"
+      ],
+      "additionalProperties": true
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "const": "xtend.npm.core-only.v1"
+        },
+        "coreSha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "repository": {
+          "const": "konnilabs/xtend"
+        },
+        "archiveSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "manifestSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "producer": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "const": "committed"
+            },
+            "implementationSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "policySha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "mode",
+            "implementationSha256",
+            "policySha256"
+          ],
+          "additionalProperties": true
+        },
+        "context": {
+          "$ref": "#/definitions/context"
+        },
+        "productiveFiles": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "historicalProductiveFiles": {
+          "const": 0
+        },
+        "bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "owner": {
+                "const": "core"
+              },
+              "sourcePath": {
+                "type": "string"
+              },
+              "logicalPath": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "gitBlob": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{40}$"
+              }
+            },
+            "required": [
+              "owner",
+              "sourcePath",
+              "logicalPath",
+              "sha256",
+              "gitBlob"
+            ],
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "profile",
+        "coreSha",
+        "repository",
+        "archiveSha256",
+        "manifestSha256",
+        "producer",
+        "context",
+        "productiveFiles",
+        "historicalProductiveFiles",
+        "bindings"
+      ],
+      "additionalProperties": true
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "expected": {
+          "type": "object",
+          "properties": {
+            "profile": {
+              "const": "xtend.npm.core-only.v1"
+            },
+            "producerMode": {
+              "const": "committed"
+            },
+            "sourceSha": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$"
+            },
+            "archiveSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "manifestSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "context": {
+              "$ref": "#/definitions/context"
+            }
+          },
+          "required": [
+            "profile",
+            "producerMode",
+            "sourceSha",
+            "archiveSha256",
+            "manifestSha256",
+            "context"
+          ],
+          "additionalProperties": true
+        },
+        "metadata": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/metadata"
+            },
+            {
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^xtend-core-source-[1-9][0-9]*-[1-9][0-9]*$"
+                }
+              }
+            }
+          ]
+        },
+        "file": {
+          "const": "core-evidence/source.zip"
+        },
+        "candidateAuthority": {
+          "type": "object",
+          "properties": {
+            "profile": {
+              "const": "xtend.npm.core-only.v1"
+            },
+            "decisionSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "familyId": {
+              "const": "xtend.product-candidates"
+            },
+            "schemaId": {
+              "const": "xtend.product-candidates.v2"
+            },
+            "releasedFingerprintSetHash": {
+              "const": null
+            },
+            "publicationGuardRetired": {
+              "const": false
+            }
+          },
+          "required": [
+            "profile",
+            "decisionSha256",
+            "familyId",
+            "schemaId",
+            "releasedFingerprintSetHash",
+            "publicationGuardRetired"
+          ],
+          "additionalProperties": true
+        },
+        "provenance": {
+          "$ref": "#/definitions/provenance"
+        },
+        "inventorySha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "policySha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "expected",
+        "metadata",
+        "file",
+        "candidateAuthority",
+        "provenance",
+        "inventorySha256",
+        "policySha256"
+      ],
+      "additionalProperties": true
+    },
+    "lane24.18.0": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "const": "24.18.0"
+        },
+        "metadata": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/metadata"
+            },
+            {
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^xtend-core-consumer-node-24\\.18\\.0-attempt-[1-9][0-9]*$"
+                }
+              }
+            }
+          ]
+        },
+        "archive": {
+          "const": "core-evidence/24.18.0.zip"
+        },
+        "consumer": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "const": "core-evidence/24.18.0/consumer.json"
+            },
+            "integrity": {
+              "type": "string",
+              "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+            }
+          },
+          "required": [
+            "file",
+            "integrity"
+          ],
+          "additionalProperties": true
+        },
+        "lock": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "const": "core-evidence/24.18.0/consumer-lock.json"
+            },
+            "integrity": {
+              "type": "string",
+              "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+            }
+          },
+          "required": [
+            "file",
+            "integrity"
+          ],
+          "additionalProperties": true
+        },
+        "candidateSDKLock": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "const": "core-evidence/24.18.0/candidate-sdk-lock.json"
+            },
+            "integrity": {
+              "type": "string",
+              "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+            }
+          },
+          "required": [
+            "file",
+            "integrity"
+          ],
+          "additionalProperties": true
+        },
+        "sourceReport": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "const": "core-evidence/24.18.0/source-report.json"
+            },
+            "integrity": {
+              "type": "string",
+              "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+            }
+          },
+          "required": [
+            "file",
+            "integrity"
+          ],
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "node",
+        "metadata",
+        "archive",
+        "consumer",
+        "lock",
+        "candidateSDKLock",
+        "sourceReport"
+      ],
+      "additionalProperties": true
+    },
+    "lane26.5.0": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "const": "26.5.0"
+        },
+        "metadata": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/metadata"
+            },
+            {
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^xtend-core-consumer-node-26\\.5\\.0-attempt-[1-9][0-9]*$"
+                }
+              }
+            }
+          ]
+        },
+        "archive": {
+          "const": "core-evidence/26.5.0.zip"
+        },
+        "consumer": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "const": "core-evidence/26.5.0/consumer.json"
+            },
+            "integrity": {
+              "type": "string",
+              "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+            }
+          },
+          "required": [
+            "file",
+            "integrity"
+          ],
+          "additionalProperties": true
+        },
+        "lock": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "const": "core-evidence/26.5.0/consumer-lock.json"
+            },
+            "integrity": {
+              "type": "string",
+              "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+            }
+          },
+          "required": [
+            "file",
+            "integrity"
+          ],
+          "additionalProperties": true
+        },
+        "candidateSDKLock": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "const": "core-evidence/26.5.0/candidate-sdk-lock.json"
+            },
+            "integrity": {
+              "type": "string",
+              "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+            }
+          },
+          "required": [
+            "file",
+            "integrity"
+          ],
+          "additionalProperties": true
+        },
+        "sourceReport": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "const": "core-evidence/26.5.0/source-report.json"
+            },
+            "integrity": {
+              "type": "string",
+              "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+            }
+          },
+          "required": [
+            "file",
+            "integrity"
+          ],
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "node",
+        "metadata",
+        "archive",
+        "consumer",
+        "lock",
+        "candidateSDKLock",
+        "sourceReport"
+      ],
+      "additionalProperties": true
+    },
+    "requiredJob0": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "Verify committed Core source artifact"
+        },
+        "status": {
+          "const": "completed"
+        },
+        "conclusion": {
+          "const": "success"
+        },
+        "run_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          ]
+        },
+        "head_sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "run_attempt": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "conclusion",
+        "run_id",
+        "head_sha"
+      ],
+      "additionalProperties": true
+    },
+    "requiredJob1": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "Core security browser (Node 24.18.0)"
+        },
+        "status": {
+          "const": "completed"
+        },
+        "conclusion": {
+          "const": "success"
+        },
+        "run_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          ]
+        },
+        "head_sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "run_attempt": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "conclusion",
+        "run_id",
+        "head_sha"
+      ],
+      "additionalProperties": true
+    },
+    "requiredJob2": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "Core installed consumer (Node 24.18.0)"
+        },
+        "status": {
+          "const": "completed"
+        },
+        "conclusion": {
+          "const": "success"
+        },
+        "run_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          ]
+        },
+        "head_sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "run_attempt": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "conclusion",
+        "run_id",
+        "head_sha"
+      ],
+      "additionalProperties": true
+    },
+    "requiredJob3": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "Core installed consumer (Node 26.5.0)"
+        },
+        "status": {
+          "const": "completed"
+        },
+        "conclusion": {
+          "const": "success"
+        },
+        "run_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$"
+            },
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          ]
+        },
+        "head_sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "run_attempt": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "conclusion",
+        "run_id",
+        "head_sha"
+      ],
+      "additionalProperties": true
+    }
+  }
+}

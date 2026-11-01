@@ -307,3 +307,7 @@ Release-Metadaten und Gates sind in `package.json#xtend` verankert. GitHub Relea
 XTend steht unter der Apache License 2.0. Siehe [LICENSE](./LICENSE).
 
 [Nach oben](#xtend) · [English](#english)
+
+## Product applications
+
+The seven complete product applications are maintained in [xtend-demos](https://github.com/konnilabs/xtend-demos). Deterministic framework fixtures, runnable Core documentation examples and XTend MCP remain here. See the [Core-only release contract](development/XTend-Core-Only-Release.md) for required Core gates and pending authority decisions, and the [migration runbook](development/Product-Demo-Migration.md) for the independent Demo audit and candidate installation. Demo Electron results do not gate Core npm publication.

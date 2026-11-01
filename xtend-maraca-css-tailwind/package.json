@@ -54,5 +54,10 @@
     "releaseLine": "0.1.x",
     "activation": "explicit",
     "browserTailwindRuntime": false
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konnilabs/xtend.git",
+    "directory": "xtend-maraca-css-tailwind"
   }
 }

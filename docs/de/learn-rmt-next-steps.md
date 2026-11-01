@@ -14,7 +14,7 @@ Für UI-Integration lies [SurfaceManager Authoring](./surface-manager-authoring-
 
 ## Produktionspfad
 
-Wenn dein Übungsdokument State, Actions, Validation oder Surface Transitions enthält, baue es als Maraca App weiter. Starte mit [XTend Maraca](./xtend-maraca.md), prüfe danach [Maraca Orchestrierung](./xtend-maraca-orchestration.md) und vergleiche dein Dokument mit `products/rmt-maraca-kernel-orchestration/kernel-orchestration-app.rmt`. Der entscheidende lokale Check ist der Strict-Build, weil er die öffentliche App-Orchestrierung und nicht nur den Parserpfad beweist.
+Wenn dein Übungsdokument State, Actions, Validation oder Surface Transitions enthält, baue es als Maraca App weiter. Starte mit [XTend Maraca](./xtend-maraca.md), prüfe danach [Maraca Orchestrierung](./xtend-maraca-orchestration.md) und vergleiche dein Dokument mit `tools/rmt-language/fixtures/kernel-orchestration-contract.rmt`. Der entscheidende lokale Check ist der Strict-Build, weil er die öffentliche App-Orchestrierung und nicht nur den Parserpfad beweist.
 
 ## Lokaler Abschlusscheck
 

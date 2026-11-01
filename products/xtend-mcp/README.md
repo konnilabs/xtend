@@ -89,3 +89,19 @@ Generierte Wissensdateien sind Build-Artefakte und dürfen nicht manuell bearbei
 Lizenziert unter der Apache License 2.0. Siehe [LICENSE](../../LICENSE).
 
 [Zum Anfang](#xtend-mcp) · [English](#english)
+
+### Request limits and compatibility
+
+Every tool call has a fixed aggregate budget of **256 object keys and array entries**, counted recursively across all arguments, including unknown fields, before schema validation or tool execution. This guard applies to both stdio and HTTP. Oversized calls return an MCP tool error; the server remains available. Existing per-field limits still apply, including at most 100 repair IDs, two scopes and six domains. Unknown nested input that was previously discarded by a schema can now be rejected by this budget.
+
+HTTP POST bodies are limited to **4 MiB (4,194,304 UTF-8 bytes)**, including the complete JSON-RPC envelope, whitespace and JSON escaping. Bodies over the limit receive HTTP 413, whether Content-Length is supplied or the body is streamed. Host, Origin and Bearer-token checks run before the SDK reads the body. The byte limit is separate from the inline-source limit of 2,000,000 JavaScript string code units: multibyte text or escaped characters can fit the source schema but exceed the HTTP limit. Use a workspace-relative `path` for large sources, subject to the existing workspace and file safeguards. Stdio has the aggregate tool-input budget but not this HTTP body limit.
+
+The server SDK 2.3.0 upgrade alone does not enable its optional input guard. XTend explicitly configures `maxToolInputElements: 256` and `maxRequestBodySize: 4194304` to address the validation-allocation risk described in [GHSA-46jr-4wx8-v453](https://github.com/modelcontextprotocol/typescript-sdk/security/advisories/GHSA-46jr-4wx8-v453). These bounds do not promise immunity to every memory-exhaustion scenario or change authentication, workspace-write permissions or network exposure.
+
+### Anfragegrenzen und Kompatibilität
+
+Jeder Tool-Aufruf hat ein festes Gesamtbudget von **256 Objektschlüsseln und Array-Einträgen**. Es wird rekursiv über alle Argumente einschließlich unbekannter Felder gezählt, bevor Schema-Validierung oder Tool-Ausführung beginnen. Die Grenze gilt für stdio und HTTP. Zu große Aufrufe liefern einen MCP-Tool-Fehler; der Server bleibt verfügbar. Bestehende Feldgrenzen gelten weiterhin, darunter maximal 100 Repair-IDs, zwei Scopes und sechs Domains. Unbekannte verschachtelte Eingaben, die ein Schema bisher verworfen hat, können nun am Gesamtbudget scheitern.
+
+HTTP-POST-Bodies sind auf **4 MiB (4.194.304 UTF-8-Bytes)** begrenzt, einschließlich des gesamten JSON-RPC-Umschlags, Leerraums und JSON-Escapings. Größere Bodies erhalten HTTP 413, mit Content-Length ebenso wie beim Streaming. Host-, Origin- und Bearer-Token-Prüfungen erfolgen vor dem Lesen des Bodys durch das SDK. Die Byte-Grenze ist unabhängig von der Inline-Quelltextgrenze von 2.000.000 JavaScript-String-Codeeinheiten: Mehrbytezeichen oder escapte Zeichen können das Quelltextschema erfüllen und dennoch die HTTP-Grenze überschreiten. Für große Quellen kann ein Workspace-relativer `path` unter den bestehenden Workspace- und Dateischutzregeln verwendet werden. Für stdio gilt das Gesamtbudget der Tool-Argumente, aber nicht diese HTTP-Body-Grenze.
+
+Das Upgrade auf Server-SDK 2.3.0 allein aktiviert dessen optionale Eingabeschutzfunktion nicht. XTend setzt ausdrücklich `maxToolInputElements: 256` und `maxRequestBodySize: 4194304` gegen das in [GHSA-46jr-4wx8-v453](https://github.com/modelcontextprotocol/typescript-sdk/security/advisories/GHSA-46jr-4wx8-v453) beschriebene Speicherallokationsrisiko bei der Validierung. Diese Grenzen garantieren keinen Schutz gegen jede Form der Speichererschöpfung und ändern weder Authentifizierung noch Workspace-Schreibrechte oder Netzwerkfreigaben.

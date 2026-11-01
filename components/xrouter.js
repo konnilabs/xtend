@@ -377,13 +377,14 @@ class XRouter extends HTMLElement {
             }
           }
           if (isMatch) {
-            // Nested
-            if (route.children && pathSegments.length > routeSegments.length) {
+            // A prefix is valid only when nested routes consume the remainder.
+            if (pathSegments.length > routeSegments.length) {
               const restPath = '/' + pathSegments.slice(routeSegments.length).join('/');
-              const childMatch = matchRoute(restPath, route.children);
+              const childMatch = route.children && matchRoute(restPath, route.children);
               if (childMatch) {
                 return { route, params, child: childMatch };
               }
+              continue;
             }
             return { route, params };
           }
@@ -466,10 +467,11 @@ class XRouter extends HTMLElement {
             }
           }
           if (isMatch) {
-            // Nested
-            if (route.children && pathSegments.length > routeSegments.length) {
+            if (pathSegments.length > routeSegments.length) {
               const restPath = '/' + pathSegments.slice(routeSegments.length).join('/');
-              return findMeta(restPath, route.children);
+              const childMeta = route.children && findMeta(restPath, route.children);
+              if (childMeta) return childMeta;
+              continue;
             }
             const title = normalizeMetaValue(readMetaValue(route, ['title']));
             const documentTitle = normalizeMetaValue(readMetaValue(route, ['documentTitle', 'document_title'])) || title;
@@ -482,9 +484,11 @@ class XRouter extends HTMLElement {
           }
         }
       }
-      return {};
+      // A scoped wildcard consumes the remainder but keeps its existing empty
+      // metadata contract, rather than leaking metadata from a later sibling.
+      return routes.some(route => route.path === '*') ? {} : null;
     };
-    return findMeta(path, routeArr);
+    return findMeta(path, routeArr) || {};
   }
 
   static normalizeRmtRouteRecord(routeRecord = {}) {
@@ -2051,57 +2055,61 @@ class XRouter extends HTMLElement {
    * Rekursive Suche nach passender Route inkl. Nested Routes, Aliases und Redirects
    */
   _matchRoute(path, routes = null, options = {}) {
-    routes = routes || this._getRoutes();
-    const pathSegments = path.split('/').filter(Boolean);
-    for (const route of routes) {
-      // Aliases: route kann ein alias-Attribut (Komma-separiert) haben
-      const routePath = this._getRoutePath(route);
-      const aliases = (route.getAttribute && route.getAttribute('alias'))
-        ? route.getAttribute('alias').split(',').map(a => a.trim()).filter(Boolean)
-        : [];
-      const allPaths = [routePath, ...aliases];
-      for (const testPath of allPaths) {
-        if (testPath === '*') continue;
-        const routeSegments = testPath.split('/').filter(Boolean);
-        if (pathSegments.length < routeSegments.length) continue;
-        const params = {};
-        let isMatch = true;
-        for (let i = 0; i < routeSegments.length; i++) {
-          const segment = routeSegments[i];
-          if (segment.startsWith(':')) {
-            params[segment.substring(1)] = pathSegments[i];
-          } else if (segment !== pathSegments[i]) {
-            isMatch = false;
-            break;
-          }
-        }
-        if (isMatch) {
-          // Redirect: route kann ein redirect-Attribut haben
-          const redirect = route.getAttribute && route.getAttribute('redirect');
-          if (redirect) {
-            if (options.navigateRedirect !== false) {
-              this._navigateTo(redirect);
-            }
-            return null;
-          }
-          // Check for nested routes
-          const childRoutes = this._getTopLevelChildRoutes(route);
-          if (childRoutes.length && pathSegments.length > routeSegments.length) {
-            const restPath = '/' + pathSegments.slice(routeSegments.length).join('/');
-            const childMatch = this._matchRoute(restPath, childRoutes, options);
-            if (childMatch) {
-              return { route, params, child: childMatch };
+    // Resolve a complete chain before navigating. A redirected child must not
+    // be confused with an unmatched child and fall through to its parent.
+    const findMatch = (path, routes) => {
+      const pathSegments = path.split('/').filter(Boolean);
+      for (const route of routes) {
+        // Aliases: route kann ein alias-Attribut (Komma-separiert) haben
+        const routePath = this._getRoutePath(route);
+        const aliases = (route.getAttribute && route.getAttribute('alias'))
+          ? route.getAttribute('alias').split(',').map(a => a.trim()).filter(Boolean)
+          : [];
+        const allPaths = [routePath, ...aliases];
+        for (const testPath of allPaths) {
+          if (testPath === '*') continue;
+          const routeSegments = testPath.split('/').filter(Boolean);
+          if (pathSegments.length < routeSegments.length) continue;
+          const params = {};
+          let isMatch = true;
+          for (let i = 0; i < routeSegments.length; i++) {
+            const segment = routeSegments[i];
+            if (segment.startsWith(':')) {
+              params[segment.substring(1)] = pathSegments[i];
+            } else if (segment !== pathSegments[i]) {
+              isMatch = false;
+              break;
             }
           }
-          return { route, params };
+          if (isMatch) {
+            let childResult = null;
+            const childRoutes = this._getTopLevelChildRoutes(route);
+            if (pathSegments.length > routeSegments.length) {
+              const restPath = '/' + pathSegments.slice(routeSegments.length).join('/');
+              childResult = childRoutes.length && findMatch(restPath, childRoutes);
+              if (!childResult) continue;
+            }
+            const redirect = (route.getAttribute && route.getAttribute('redirect'))
+              || (childResult && childResult.redirect);
+            const match = childResult
+              ? { route, params, child: childResult.match }
+              : { route, params };
+            return { match, redirect };
+          }
         }
       }
-    }
 
-    const notFoundRoute = options.includeNotFound === false
-      ? null
-      : (routes || []).find(r => this._getRoutePath(r) === '*');
-    return notFoundRoute ? { route: notFoundRoute, params: {} } : null;
+      const notFoundRoute = options.includeNotFound === false
+        ? null
+        : routes.find(r => this._getRoutePath(r) === '*');
+      return notFoundRoute ? { match: { route: notFoundRoute, params: {} }, redirect: null } : null;
+    };
+    const result = findMatch(path, routes || this._getRoutes());
+    if (result && result.redirect) {
+      if (options.navigateRedirect !== false) this._navigateTo(result.redirect);
+      return null;
+    }
+    return result ? result.match : null;
   }
 
   _escapeHtml(value = '') {

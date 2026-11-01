@@ -1,0 +1,47 @@
+{
+  "format": 1,
+  "mode": "current-pair-v1",
+  "historicalLedgerSha256": "40a4e1d38dbf9e64a724d69178803768e6bff22c90c8260f5644916c24e127c8",
+  "coreInventoryFile": "tests/schemas/core-release-inventory.json",
+  "coreInventorySha256": "c66d24d680259e90806637f922b7df276f6217333721a9d680fb526fcb564f17",
+  "approval": {
+    "sourceDecision": "user-approved-2026-10-18-group-D",
+    "sourceCommit": "610499fc2c9f8ee5242837a2951e12b73794d698",
+    "annexSha256": "632c42a46099b7b5f62c6f24585a65313b15ce4a0d00fb4cefad09c2e4e05c7d",
+    "pairedContractDecision": "user-approved-2026-10-21-current-pair-preserving-history"
+  },
+  "transition": {
+    "schemaId": "xtend.maraca.tune-report.v1",
+    "owner": "core",
+    "historicalHash": "sha256:5d31e1f56473b05eab13fe9a39ed860c493fe473eab1b1583ad761df5a9ee570",
+    "current": {
+      "hash": "sha256:defb533de0e9a40b5c6cc626411702c5c4fdf783dd8f7383c60bb0e7b109bb4c",
+      "sourcePaths": [
+        "xtend-maraca/index.d.ts"
+      ],
+      "symbols": [
+        "MaracaTuneReport"
+      ],
+      "evidence": [
+        {
+          "type": "declared-type",
+          "completeness": "partial",
+          "authoritative": false,
+          "path": "xtend-maraca/index.d.ts",
+          "symbol": "MaracaTuneReport"
+        }
+      ],
+      "evidenceTypes": [
+        "declared-type"
+      ],
+      "completeness": "partial",
+      "authoritative": false,
+      "shapeSha256": "defb533de0e9a40b5c6cc626411702c5c4fdf783dd8f7383c60bb0e7b109bb4c"
+    },
+    "sourcePath": "xtend-maraca/index.d.ts",
+    "sourceSha256": "79ce8dba39c5ab03aff48818524eb6db7a12d64ed6288f0cc08ecc38f8639b76",
+    "scope": "One non-authoritative partial declaration; historical hash remains historical and is not claimed as a current observation."
+  },
+  "acceptedForMerge": false,
+  "acceptedForRelease": false
+}

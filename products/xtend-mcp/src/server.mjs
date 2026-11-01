@@ -341,7 +341,7 @@ export function createXtendMcpServer(options = {}) {
   };
   const server = new McpServer(
     { name: 'XTend MCP', version: XTEND_MCP_VERSION },
-    { instructions: XTEND_MCP_INSTRUCTIONS }
+    { instructions: XTEND_MCP_INSTRUCTIONS, maxToolInputElements: 256 }
   );
   registerKnowledgeResources(server, normalizedOptions);
   registerKitPrompts(server, normalizedOptions);

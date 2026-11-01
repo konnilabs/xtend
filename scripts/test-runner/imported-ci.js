@@ -15,10 +15,12 @@ const { isDeepStrictEqual: same } = require('node:util');
 function expectedProducer(env = process.env) {
   const job = env.GITHUB_EVENT_NAME === 'pull_request' ? 'pr-fast-gates' : 'full-release-gates';
   const node = ['node-24-lts', 'node-26-current'].includes(env.XTEND_CI_LANE) ? RUNTIME_LANES[env.XTEND_CI_LANE].node : null;
+  const testedSHA = env.XTEND_TESTED_SHA;
+  if (!/^[a-f0-9]{40}$/.test(testedSHA || '')) throw Error('Missing independent tested source SHA.');
   if (!node || !positive(env.GITHUB_RUN_ID) || !env.GITHUB_SHA || !env.GITHUB_REPOSITORY || !env.GITHUB_WORKFLOW_REF) throw Error('Missing independent Imported-CI expectations.');
   return { repository: env.GITHUB_REPOSITORY, workflow: env.GITHUB_WORKFLOW_REF, job,
     jobName: `${job === 'pr-fast-gates' ? 'PR fast gates' : 'Full release gates'} (Node ${node})`,
-    lane: env.XTEND_CI_LANE, runId: env.GITHUB_RUN_ID, testedSHA: env.GITHUB_SHA,
+    lane: env.XTEND_CI_LANE, runId: env.GITHUB_RUN_ID, testedSHA,
     producerNode: `v${node}`, platform: 'linux', arch: 'x64', profile: job === 'pr-fast-gates' ? 'ci-pr' : 'ci-release' };
 }
 

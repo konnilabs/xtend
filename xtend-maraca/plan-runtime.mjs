@@ -119,7 +119,15 @@ function descriptorForOwners(descriptor, reservations = {}) {
     next.attributes = {};
     Object.entries(descriptor.attributes).forEach(([name, value]) => {
       const normalized = String(name).toLowerCase();
-      if (reservations.visibility && VISIBILITY_ATTRIBUTES.has(normalized)) return;
+      if (reservations.visibility && VISIBILITY_ATTRIBUTES.has(normalized)) {
+        // Surface roots already have a Transition-owned Model projection.
+        // Nested hidden intent must reach the same owner without a DOM write.
+        if (normalized === 'hidden' && !descriptor.surface && !descriptor.attributes['data-maraca-surface']) {
+          if (next.visibility && Object.prototype.hasOwnProperty.call(next.visibility, 'hidden')) throw new Error('Ambiguous hidden visibility declaration.');
+          next.visibility = { hidden: value === '' ? true : value };
+        }
+        return;
+      }
       if (reservations.validation && VALIDATION_ATTRIBUTES.has(normalized)) return;
       if (normalized === 'style' && value && typeof value === 'object' && !Array.isArray(value)) {
         next.attributes['style'] = Object.fromEntries(Object.entries(value).filter(([styleName]) => (
@@ -773,7 +781,35 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     return Promise.all(work);
   }
 
-  async function syncOwnedVisibility(stateSnapshot, surfaceIds = null, metadata = {}, previousSnapshot = null) {
+  async function syncDescriptorVisibility(report, metadata = {}) {
+    if (!report || !hasOwn(report, 'visibilityBindings')) return [];
+    const bindings = report.visibilityBindings;
+    const roots = report.bindingScope && report.bindingScope.roots;
+    if (!Array.isArray(bindings) || !Array.isArray(roots)) throw new Error('Invalid owned visibility evidence.');
+    if (!bindings.length) return [];
+    if (!reservedOwners.visibility || typeof runtimes.transitions?.applyVisibilityPatch !== 'function') throw new Error('Owned visibility requires the Transition port.');
+    const ids = new Set(), targets = new Set();
+    for (const binding of bindings) {
+      if (!binding || typeof binding.id !== 'string' || !binding.id || ids.has(binding.id) || targets.has(binding.target)
+        || typeof binding.previousHidden !== 'boolean' || typeof binding.nextHidden !== 'boolean'
+        || !roots.every(target => target && (target === root || root.contains(target)))
+        || !roots.some(target => target === binding.target || target.contains(binding.target))
+        || !root.contains(binding.target)) throw new Error('Foreign, duplicate or incomplete owned visibility evidence.');
+      ids.add(binding.id); targets.add(binding.target);
+    }
+    const token = presentationBoundary.capture();
+    return Promise.all(bindings.map(binding => runtimes.transitions.applyVisibilityPatch({
+      surface: 'descriptor-visibility:' + binding.id,
+      element: binding.target,
+      previousHidden: binding.previousHidden,
+      nextHidden: binding.nextHidden,
+      isCurrent: () => phase !== 'disposed' && presentationBoundary.isCurrent(token) && root.contains(binding.target),
+      metadata: { operation: 'maraca.descriptor.visibility', correlationId: metadata.correlationId || '' }
+    })));
+  }
+
+  async function syncOwnedVisibility(stateSnapshot, surfaceIds = null, metadata = {}, previousSnapshot = null, commitReport = null) {
+    await syncDescriptorVisibility(commitReport, metadata);
     if (!reservedOwners.visibility || !runtimes.transitions || typeof runtimes.transitions.applyVisibilityPatch !== 'function') return [];
     const scoped = surfaceIds instanceof Set
       ? surfaces.filter((surface) => surface && surfaceIds.has(String(surface.id || '')))
@@ -800,6 +836,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   }
 
   function createRenderContext(metadata = {}, stateSnapshot = null) {
+    stateSnapshot = stateSnapshot || runtimes.state?.modelReader?.snapshot?.() || null;
     const trustedDomRenderer = options.trustedDomRenderer || options.trustedDom;
     const preserveActiveInputDraft = preservesActiveInputDraft(metadata);
     const extra = {
@@ -814,7 +851,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         ...extra,
         model: clone(stateSnapshot.model, {}),
         selectorValues: clone(stateSnapshot.selectors, {}),
-        derivedValues: clone(stateSnapshot.derived, {})
+        derivedValues: clone(stateSnapshot.derived, {}),
+        previousContext: { model: clone(stateSnapshot.model, {}), selectorValues: clone(stateSnapshot.selectors, {}), derivedValues: clone(stateSnapshot.derived, {}) }
       };
     }
     return runtimes.state && typeof runtimes.state.createRenderContext === 'function'
@@ -836,6 +874,12 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       changed: typeof value.changed === 'boolean' ? value.changed : defaults.changed !== false,
       structural: typeof value.structural === 'boolean' ? value.structural : defaults.structural === true,
       diagnostics: asArray(value.diagnostics),
+      // Preserve renderer evidence, including live EventTargets, for the sole
+      // handler owner. Do not fabricate or sanitize malformed binding data:
+      // the event-router validates scope, identity and completeness itself.
+      ...(hasOwn(value, 'bindings') ? { bindings: value.bindings } : {}),
+      ...(hasOwn(value, 'bindingScope') ? { bindingScope: value.bindingScope } : {}),
+      ...(hasOwn(value, 'visibilityBindings') ? { visibilityBindings: value.visibilityBindings } : {}),
       metadata: clone(value.metadata, clone(request.context && request.context.metadata, null))
     };
   }
@@ -1158,9 +1202,24 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
 
     reducers.forEach((reducer) => {
       const value = reducerValue(reducer.value, payload, actionResult && actionResult.data || actionResult);
-      const next = reducer.path
-        ? writePath(clone(workingStates[reducer.state], {}), reducer.path, value)
-        : clone(value, value);
+      let next;
+      if (reducer.recipe || reducer.mode === 'recipe') {
+        if (typeof runtimes.applyReducerRecipe !== 'function') {
+          throw new Error('Managed recipe reducers require the pure RMT reducer recipe port.');
+        }
+        next = runtimes.applyReducerRecipe(workingStates[reducer.state], {
+          recipe: reducer.recipe,
+          path: reducer.path || '',
+          value
+        }, {
+          ...metadata,
+          publishDiagnostic: diagnostic => recordDiagnostic(diagnostic.code, diagnostic.severity, diagnostic.message, diagnostic.details || {})
+        });
+      } else {
+        next = reducer.path
+          ? writePath(clone(workingStates[reducer.state], {}), reducer.path, value)
+          : clone(value, value);
+      }
       modelOperations.push({
         operation: 'set',
         state: reducer.state,
@@ -1625,6 +1684,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       { operation: 'maraca.state-commit', action: commandId, ...metadata },
       transaction.next
     );
+    context.previousContext = { model: clone(transaction.previous.model, {}), selectorValues: clone(transaction.previous.selectors, {}), derivedValues: clone(transaction.previous.derived, {}) };
     const projectedRoot = descriptorForCommit(
       asRecord(artifact.render).root || { type: 'fragment', children: [] },
       validationStage
@@ -1845,7 +1905,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         operation: 'maraca.command.visibility',
         action: prepared.commandId,
         correlationId: metadata.correlationId || ''
-      }, prepared.transaction.previous);
+      }, prepared.transaction.previous, committed.report);
       presentationGuard = captureCommandPresentationGuard();
       await syncingVisibility;
       recordDomCommit(committed.report, {
@@ -2059,7 +2119,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         await syncOwnedVisibility(transaction.next, committed.surfaceIds, {
           ...streamMetadata,
           operation: 'maraca.stream-patch.visibility'
-        }, transaction.previous);
+        }, transaction.previous, committed.report);
         recordDomCommit(committed.report, {
           ...streamMetadata,
           stateCommit: true,
@@ -2827,6 +2887,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       runtimes = {
         state,
         modelPlanningFactory: stateFactory,
+        applyReducerRecipe: runtimeFactory(api.app, 'applyRmtReducerRecipe'),
         kernel,
         action,
         actionFacade,
@@ -2906,7 +2967,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       await syncOwnedVisibility(initialStateSnapshot, null, {
         operation: options.adoptExisting === true ? 'maraca.boot.adopt-existing.visibility' : 'maraca.boot.visibility',
         phase: 'boot'
-      });
+      }, initialStateSnapshot, initialCommit);
       assertCurrentBoot();
       reconcileEvents(initialCommit);
       if (options.hydrateOnBoot !== false) {

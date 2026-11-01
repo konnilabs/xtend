@@ -1,5 +1,6 @@
 # Page runtime for Node and Laravel
 
+
 Node and PHP/Laravel are independent SSR hosts. Node retains its compiler access,
 JavaScript services and streams. Production Laravel uses prebuilt RMT artifacts and
 the Composer package; it needs no Node process after the build.
@@ -186,7 +187,7 @@ The page runtime owns URL, history and transport; Maraca owns UI state and DOM c
 
 The shared head contract also accepts canonical links (`tag: "link"`, `rel: "canonical"`, HTTP(S) URL) and identified JSON-LD records (`tag: "json-ld"`, `key`, `data`). Node, PHP and browser consumers deduplicate by identity. Script content is serialized safely; event attributes and executable canonical URLs are rejected.
 
-[XTend.store](../../products/xtend-shop/README.en.md) demonstrates this integration with Laravel, a guest cart and a separate PHP DemoPay provider. The Node SSR adapter and `createNodePageHost()` remain independent integration APIs. The store is an additional reference application.
+[XTend.store](https://github.com/konnilabs/xtend-demos/tree/HEAD/products/xtend-shop/README.en.md) demonstrates this integration with Laravel, a guest cart and a separate PHP DemoPay provider. The Node SSR adapter and `createNodePageHost()` remain independent integration APIs. The store is an additional reference application.
 
 Maraca pages also route native GET search and filter forms through page navigation. The base page API enables this with `forms: true`; `navigationAction` can close declared RMT surfaces before a visit. POST forms retain their host or RMT contract.
 

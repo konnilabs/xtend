@@ -1,11 +1,13 @@
 import { createRmtTemplateRuntimeRenderer } from '../../xtendrmt/rmt-runtime.esm.js';
+import { createHtmlSanitizer } from '../../xtendrmt/html-sanitizer.mjs';
 
 const DOCS_TRUSTED_DOM_HOST_SCHEMA = 'xtend.docs.trusted-dom-host.v1';
 const TRUSTED_DOM_BOUNDARY = 'xtend.security.sanitizing-boundary.v1';
 
 const renderer = createRmtTemplateRuntimeRenderer({
   windowTarget: window,
-  documentTarget: document
+  documentTarget: document,
+  sanitizeHtmlOutput: createHtmlSanitizer(window)
 });
 
 function commit(target, html, context = {}) {
@@ -24,6 +26,10 @@ function commit(target, html, context = {}) {
     modelSnapshot: { content: String(html || '') }
   });
   const verdicts = renderer.listTrustVerdicts().slice(beforeVerdicts);
+  const verdict = verdicts[verdicts.length - 1];
+  if (!verdict || verdict.commitAllowed !== true) {
+    throw new Error('Docs Trusted DOM commit was rejected.');
+  }
   return {
     schema: DOCS_TRUSTED_DOM_HOST_SCHEMA,
     committed: true,

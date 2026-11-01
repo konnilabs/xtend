@@ -1,0 +1,174 @@
+[
+  {
+    "schemaId": "xtend.rmt.form-validation-action-gate.v1",
+    "status": "PROPOSED_UNAPPLIED",
+    "decision": "Preserve every historical accepted hash/policy; add only this source-bound lexical observation. No global normalization.",
+    "sourcePath": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
+    "sourceSha256": "16e583631727612eac9922c20a24d078a30af0b10b43306fb3d8ee2f7b12673c",
+    "variants": [
+      {
+        "hash": "sha256:1730f3081921be72464813162e447b9c4dc3b7978e3d69123d2e61837784e2ca",
+        "shape": {
+          "fieldCount": 5,
+          "fields": [
+            "action",
+            "gateCount",
+            "gated",
+            "results",
+            "valid"
+          ],
+          "signature": "action:union<union<unknown>|string>|gateCount:{\"unresolved\":\"selection.gates.length\"}|gated:{\"unresolved\":\"selection.gates.length>0\"}|results:unknown|valid:unknown",
+          "normalized": {
+            "fields": {
+              "action": {
+                "optional": false,
+                "type": {
+                  "union": [
+                    {
+                      "union": [
+                        "unknown"
+                      ]
+                    },
+                    "string"
+                  ]
+                }
+              },
+              "gateCount": {
+                "optional": false,
+                "type": {
+                  "unresolved": "selection.gates.length"
+                }
+              },
+              "gated": {
+                "optional": false,
+                "type": {
+                  "unresolved": "selection.gates.length>0"
+                }
+              },
+              "results": {
+                "optional": false,
+                "type": "unknown"
+              },
+              "valid": {
+                "optional": false,
+                "type": "unknown"
+              }
+            }
+          }
+        },
+        "sourcePaths": [
+          "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs"
+        ],
+        "symbols": [
+          "validationStage"
+        ],
+        "evidence": [
+          {
+            "type": "generated",
+            "completeness": "partial",
+            "authoritative": false,
+            "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
+            "symbol": "validationStage"
+          }
+        ],
+        "evidenceTypes": [
+          "generated"
+        ],
+        "completeness": "partial",
+        "authoritative": false
+      }
+    ]
+  },
+  {
+    "schemaId": "xtend.rmt.form-validation-view-projection-plan.v1",
+    "status": "PROPOSED_UNAPPLIED",
+    "decision": "Preserve every historical accepted hash/policy; add only this source-bound lexical observation. No global normalization.",
+    "sourcePath": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
+    "sourceSha256": "16e583631727612eac9922c20a24d078a30af0b10b43306fb3d8ee2f7b12673c",
+    "variants": [
+      {
+        "hash": "sha256:060446e006c4e047034a498042a11072c9d120aed3102a41bb8794313b01d342",
+        "shape": {
+          "fieldCount": 4,
+          "fields": [
+            "metadata",
+            "projectionCount",
+            "projections",
+            "valid"
+          ],
+          "signature": "metadata:{action:union<union<unknown>|string>,correlationId:{\"unresolved\":\"metadata.correlationId||\\\"\\\"\"},operation:string}|projectionCount:{\"unresolved\":\"asArray(evaluation&&evaluation.viewProjection).length\"}|projections:unknown|valid:{\"unresolved\":\"evaluation&&evaluation.valid!==false\"}",
+          "normalized": {
+            "fields": {
+              "metadata": {
+                "optional": false,
+                "type": {
+                  "fields": {
+                    "action": {
+                      "optional": false,
+                      "type": {
+                        "union": [
+                          {
+                            "union": [
+                              "unknown"
+                            ]
+                          },
+                          "string"
+                        ]
+                      }
+                    },
+                    "correlationId": {
+                      "optional": false,
+                      "type": {
+                        "unresolved": "metadata.correlationId||\"\""
+                      }
+                    },
+                    "operation": {
+                      "optional": false,
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "projectionCount": {
+                "optional": false,
+                "type": {
+                  "unresolved": "asArray(evaluation&&evaluation.viewProjection).length"
+                }
+              },
+              "projections": {
+                "optional": false,
+                "type": "unknown"
+              },
+              "valid": {
+                "optional": false,
+                "type": {
+                  "unresolved": "evaluation&&evaluation.valid!==false"
+                }
+              }
+            }
+          }
+        },
+        "sourcePaths": [
+          "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs"
+        ],
+        "symbols": [
+          "projectionPlan"
+        ],
+        "evidence": [
+          {
+            "type": "generated",
+            "completeness": "partial",
+            "authoritative": false,
+            "path": "products/rmt-maraca-kernel-orchestration/site/build/runtime/xtend-maraca-plan-runtime.mjs",
+            "symbol": "projectionPlan"
+          }
+        ],
+        "evidenceTypes": [
+          "generated"
+        ],
+        "completeness": "partial",
+        "authoritative": false
+      }
+    ]
+  }
+]

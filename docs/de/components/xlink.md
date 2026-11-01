@@ -133,3 +133,47 @@ Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezi
 - [Komponenten-Entwicklung](../components.md)
 - [Public Component Types](../public-component-types.md)
 - [RMT Component Primitives](../rmt-vnext-component-primitives.md)
+
+## Token-Tabelle und Navigation States
+
+`signatureDesign`: `x-link` ist der kompakte Enterprise-Router-Link mit sichtbarem Current-Indikator und tokenisiertem Active/Disabled-Verhalten. Active/Current/Selected, Hover, Focus und Disabled müssen auch in dichten Headern, Sidebars und Menüs lesbar bleiben.
+
+| Token | Zweck |
+| --- | --- |
+| `--xtend-nav-surface` | Link-Surface |
+| `--xtend-nav-text` | Link-Text |
+| `--xtend-nav-border-color` | geteilte Navigationskante |
+| `--xtend-nav-radius` | Link-Radius |
+| `--xtend-nav-gap` | Abstand zwischen Icon und Label |
+| `--xtend-nav-font-family` | Link-Typografie |
+| `--xtend-nav-font-size` | Link-Textgröße |
+| `--xtend-nav-active-surface` | Active/Current/Selected Fläche |
+| `--xtend-nav-active-text` | Active/Current/Selected Text |
+| `--xtend-nav-current-indicator` | nicht farb-only Current-Indikator |
+| `--xtend-nav-hover-surface` | Hover-Fläche |
+| `--xtend-nav-focus-ring` | Tastaturfokus |
+| `--xtend-nav-disabled-opacity` | Disabled-Dimmung |
+
+## Keyboard-Verhalten
+
+`Enter` und `Space` aktivieren interne Links über denselben Navigationspfad wie Click. Disabled Links entfernen den internen `href`, setzen `aria-disabled="true"` und sind nicht tastaturaktivierbar. Active/Current wird über `aria-current="page"` gespiegelt; Composite-Navigation kann `aria-selected="true"` auf dem Host ergänzen.
+
+## Fremdtheme
+
+```css
+[data-xtend-nav-theme="enterprise-foreign"] x-link {
+  --xtend-nav-surface: transparent;
+  --xtend-nav-text: #17231f;
+  --xtend-nav-border-color: transparent;
+  --xtend-nav-radius: 0.3rem;
+  --xtend-nav-gap: 0.4rem;
+  --xtend-nav-font-family: "Aptos", "Segoe UI", sans-serif;
+  --xtend-nav-font-size: 0.96rem;
+  --xtend-nav-active-surface: rgba(181, 107, 53, 0.16);
+  --xtend-nav-active-text: #173f35;
+  --xtend-nav-current-indicator: #b56b35;
+  --xtend-nav-hover-surface: rgba(181, 107, 53, 0.1);
+  --xtend-nav-focus-ring: 3px solid #b56b35;
+  --xtend-nav-disabled-opacity: 0.44;
+}
+```

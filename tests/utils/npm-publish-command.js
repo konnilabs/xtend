@@ -34,7 +34,10 @@ function assertNpmPublishCommand(context, workflow) {
     context.assert(!isRootPublishCommand(invalid), `Publish command rejects: ${invalid}`);
   });
   const job = (workflow.split('\n  npm-publish-latest:\n')[1] || '').split(/\n  [a-z][\w-]*:\n/u)[0];
-  context.assert(job.split('\n').some(isRootPublishCommand), 'CI workflow publishes latest with npm provenance');
+  context.assert(job.includes('node scripts/release/cli.cjs publish --execute') &&
+    job.includes('--manifest-integrity "$MANIFEST_INTEGRITY" --source-sha "$GITHUB_SHA"') &&
+    job.includes('--artifact .xtend-test-results/npm-release'), 'CI publishes the verified immutable artifact with explicit manifest and source identity');
+  context.assert(!/\bnpm publish\b|--workspace/.test(job), 'Publish job delegates to the checked tarball adapter without packing workspaces');
 }
 
 module.exports = { assertNpmPublishCommand };

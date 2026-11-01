@@ -1,0 +1,15 @@
+{
+  "schema": "xtend.product-suite-result.v1",
+  "coreSha": "5fbdedf54ee77d1401f7aa403241e4953a9fa5a3",
+  "demoSha": "646d4a4e89e51af82bea145c2a0030bb5fefcd25",
+  "id": "maraca-app-services-test-bench",
+  "command": [
+    "runMaracaAppServicesTestBenchSuite"
+  ],
+  "exitCode": 1,
+  "status": "failed",
+  "skips": [],
+  "failures": [
+    "Cannot find module '../tests/products/maraca_app_services_test_bench_suite.js'\nRequire stack:\n- /workspace/work/migration/emitted-registration-proposal/controlled-runner/scripts/run-product-gates.cjs"
+  ]
+}

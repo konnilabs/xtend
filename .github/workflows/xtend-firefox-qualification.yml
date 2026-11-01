@@ -1,0 +1,137 @@
+name: XTend isolated Chromium functions (sandbox disabled)
+
+# Explicit CI functional-only opt-in. Browser sandbox is disabled and supplies no security proof.
+# Two fresh hosted Linux VMs, one session per pinned Node lane. Existing release gates are unchanged.
+on:
+  push:
+    branches: [qualification/firefox-initial-20261021]
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    if: github.repository == 'konnilabs/xtend' && github.event_name == 'push' && github.ref == 'refs/heads/qualification/firefox-initial-20261021'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - node: '24.18.0'
+            lane: node-24-lts
+          - node: '26.5.0'
+            lane: node-26-current
+    env:
+      XTEND_CI_FUNCTIONAL_PROFILE: chromium-linux-ci-functions-no-sandbox-v1
+      QUAL_NODE: ${{ matrix.node }}
+      QUAL_LANE: ${{ matrix.lane }}
+    steps:
+      - name: Create evidence directory before setup
+        run: |
+          mkdir -p "$RUNNER_TEMP/chromium-evidence"
+          printf 'QUAL_EVIDENCE=%s\n' "$RUNNER_TEMP/chromium-evidence" >> "$GITHUB_ENV"
+          printf 'QUAL_TOOLCHAIN=%s\n' "$RUNNER_TEMP/chromium-toolchain" >> "$GITHUB_ENV"
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+      - name: Pin npm 11.17.0 outside repository devEngines
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install --prefix "$RUNNER_TEMP/qualified-npm" npm@11.17.0 --no-audit --fund=false
+          echo "$RUNNER_TEMP/qualified-npm/node_modules/.bin" >> "$GITHUB_PATH"
+      - name: Install locked test dependencies
+        id: install
+        run: npm ci --ignore-scripts --no-audit --fund=false
+      - name: Verify exact runtime
+        id: runtime
+        run: |
+          node -e 'if(process.versions.node!==process.env.QUAL_NODE)process.exit(1)'
+          test "$(npm --version)" = 11.17.0
+          node scripts/capture_node_runtime_evidence.js --lane "$QUAL_LANE" --out "$QUAL_EVIDENCE/runtime.json"
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane "$QUAL_LANE"
+      - name: Negative controller and observer regressions
+        id: controls
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node --test --test-reporter=tap tests/browser/neutral-prototype/*.test.cjs > "$QUAL_EVIDENCE/controllers.tap" 2>&1
+      - name: Provision official pinned Linux archives
+        id: provision
+        run: |
+          node -p 'JSON.stringify(require("./tests/security/sandboxed-browser.cjs").pin)' > "$QUAL_EVIDENCE/toolchain-pins.json"
+          python3 tests/browser/neutral-prototype/provision-chromium.py "$QUAL_TOOLCHAIN" "$QUAL_EVIDENCE/toolchain-pins.json" > "$QUAL_EVIDENCE/provisioning.log" 2>&1
+      - name: Execute the opt-in functional-only Chromium session
+        id: browser
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node tests/browser/neutral-prototype/final-chromium.cjs "$QUAL_EVIDENCE" "$QUAL_TOOLCHAIN" "$XTEND_CI_FUNCTIONAL_PROFILE" > "$QUAL_EVIDENCE/execution.log" 2>&1
+      - name: Preserve terminal outcomes even after setup failure
+        if: always()
+        env:
+          STEP_OUTCOMES: ${{ toJSON(steps) }}
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib,shutil
+          root=pathlib.Path(os.environ['QUAL_EVIDENCE']);root.mkdir(exist_ok=True)
+          step_outcomes=json.loads(os.environ['STEP_OUTCOMES'])
+          value={'acceptedForMerge':False,'acceptedForRelease':False,'mode':'ci-functional-only','sandboxEnabled':False,'sandboxEvidence':'not-provided','node':os.environ['QUAL_NODE'],
+            'outcomes':{key:step_outcomes.get(key,{}).get('outcome','not-provided') for key in ['install','runtime','controls','provision','browser']}}
+          (root/'job-terminal.json').write_text(json.dumps(value,indent=2)+'\n')
+          source=pathlib.Path(os.environ['QUAL_TOOLCHAIN'])/'provisioning.json'
+          if source.exists():shutil.copyfile(source,root/'provisioning.json')
+          warnings=pathlib.Path('.xtend-test-results/runtime')
+          if warnings.exists():shutil.copytree(warnings,root/'runtime',dirs_exist_ok=True)
+          PY
+      - name: Retain complete failure artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: chromium-functional-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.node }}
+          path: |
+            ${{ runner.temp }}/chromium-evidence/*.json
+            ${{ runner.temp }}/chromium-evidence/*.log
+            ${{ runner.temp }}/chromium-evidence/*.tap
+            ${{ runner.temp }}/chromium-evidence/runtime
+          if-no-files-found: error
+          retention-days: 30
+
+  aggregate:
+    needs: qualify
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          pattern: chromium-functional-${{ github.run_id }}-${{ github.run_attempt }}-*
+          path: ${{ runner.temp }}/functional-matrix
+      - name: Verify complete same-head functional matrix
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: |
+          node tests/browser/neutral-prototype/functional-matrix.cjs "$RUNNER_TEMP/functional-matrix" "$RUNNER_TEMP/functional-matrix-result.json"
+          node scripts/migration-functional-acceptance.cjs "$RUNNER_TEMP/functional-matrix" "$RUNNER_TEMP/migration-function-acceptance.json"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: chromium-functional-matrix-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/functional-matrix-result.json
+            ${{ runner.temp }}/migration-function-acceptance.json
+          if-no-files-found: error
+          retention-days: 30

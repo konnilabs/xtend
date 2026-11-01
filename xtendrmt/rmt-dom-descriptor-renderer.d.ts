@@ -57,6 +57,7 @@ export interface RmtDomDescriptorRenderOptions {
   rendererSchema?: RmtRendererSchema;
   model?: Record<string, unknown>;
   selectorValues?: Record<string, unknown>;
+  previousContext?: {model: Record<string, unknown>; selectorValues?: Record<string, unknown>; derivedValues?: Record<string, unknown>; item?: unknown};
   components?: Map<string, unknown> | unknown[];
   templates?: Map<string, unknown> | unknown[];
   slots?: Map<string, unknown> | unknown[];
@@ -244,6 +245,8 @@ export interface RmtDomCommitResult {
   structural: boolean;
   bindings: readonly RmtDomApplicationBindingRecord[];
   bindingScope: RmtDomBindingScope;
+  /** Inert, Model-derived intent; the Transition owner alone writes visibility. */
+  visibilityBindings: readonly Readonly<{id: string; target: Element; previousHidden: boolean; nextHidden: boolean}>[];
   diagnostics: RmtDomDescriptorDiagnostic[];
   metadata: unknown;
 }

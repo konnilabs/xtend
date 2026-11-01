@@ -4,10 +4,10 @@
     "safePreview": "dc71a2f21c63c057591306fa7ea31a79a0c485e14e3b29d59e6d2bfb5928a8c2",
     "maraca": "5318dbaa8f6fd01054600400739300f42de1e4cdcea9ccb749f0ea681aa73e3d"
   },
-  "kernel-orchestration-app.rmt": {
-    "compile": "ebbc499d314d56cb2a7932f7ba0827f6344cec02feb76b9d3c2c175ed01348fa",
-    "safePreview": "2770a39a3d1642e21105b078abd5c4757d5679600e3ce91fad3922f19eeb5eda",
-    "maraca": "ce7e5d7edca106a37edbea1de96ff6fd314cc874fe9b1efb259501e1d0daa9db"
+  "kernel-orchestration-contract.rmt": {
+    "compile": "5612fce1f4cad19195a846f900f08c6837f36bc24188b0abc82394efe824a4f1",
+    "safePreview": "080858b88649dc6d75c7a3e5ccc741b6e31a8c3d4bc37213a92a64dfd333d8dd",
+    "maraca": "96805afa7de28a1b676b92a6a9485947e6b5db787209928ab67087066748e20b"
   },
   "maraca-orchestration-app.rmt": {
     "compile": "df2e42b64763c985855e748ba7f2d063ce936c8be0ac0859b8bef5e72bb74cbd",

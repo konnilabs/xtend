@@ -19,6 +19,8 @@ const LOCKFILE_CANDIDATES = [
 ];
 
 const ALLOWED_DEV_TOOLING_DEPENDENCIES = Object.freeze([
+  { name: 'semver', section: 'devDependencies', versionRange: '7.8.5', purpose: 'release-internal-dependency-satisfiability', runtime: false },
+  { name: 'tar', section: 'devDependencies', versionRange: '7.5.22', purpose: 'read-only-release-tarball-inspection', runtime: false },
   {
     name: 'acorn',
     section: 'devDependencies',
@@ -63,6 +65,8 @@ const ALLOWED_SECURITY_RUNTIME_DEPENDENCIES = Object.freeze([
   {name: 'dompurify', section: 'dependencies', versionRange: '3.4.16', purpose: 'shared-html-sanitizer', runtime: true}
 ]);
 
+// Legacy version-sync train: deliberately remains the seven Core packages.
+// Public release coverage is independently derived from the central inventory.
 const SCOPED_RELEASE_PACKAGES = Object.freeze([
   {
     name: '@ccslabs/xtend',
@@ -107,6 +111,9 @@ const SCOPED_RELEASE_PACKAGES = Object.freeze([
     scope: 'remote-surface-runtime'
   }
 ]);
+
+const PUBLIC_RELEASE_PACKAGES = Object.freeze(require('../scripts/release/inventory.json').packages.map(entry =>
+  Object.freeze({ ...entry, manifest: entry.path === '.' ? 'package.json' : `${entry.path}/package.json` })));
 
 const LICENSE_POLICY = {
   currentPackageLicense: 'Apache-2.0',
@@ -337,6 +344,7 @@ module.exports = {
   LICENSE_POLICY_CONTRACT,
   LOCKFILE_CANDIDATES,
   SCOPED_RELEASE_PACKAGES,
+  PUBLIC_RELEASE_PACKAGES,
   RELEASE_SUPPLY_CHAIN_GATE_CONTRACT,
   SUPPLY_CHAIN_GATE_PLAN_CONTRACT,
   SUPPLY_CHAIN_GATES,
