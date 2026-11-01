@@ -617261,8 +617261,8 @@
         "role": "producer",
         "visibility": "test"
       },
-      "description": "Identifies the rmt history retention bench schema used by XTend Tests: Performance.",
-      "descriptionStatus": "generated",
+      "description": "Final report from the informational Node.js retained-heap benchmark for RMT Action and Command histories, recording the selected retention mode, Node version, forced-GC availability, and command-count, heap, RSS and elapsed-time samples. It does not define performance pass/fail thresholds.",
+      "descriptionStatus": "curated",
       "familyId": "xtend.rmt.history-retention-bench",
       "kinds": [
         "runtime-discriminator"
