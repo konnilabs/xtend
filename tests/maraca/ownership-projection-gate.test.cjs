@@ -1,8 +1,8 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os'),crypto=require('node:crypto'),{spawnSync}=require('node:child_process');
-// Exact baseline for the reviewed Core PR sandbox-infrastructure policy workflow.
-// Includes PR-only policy receipts and strict non-PR execution; the mandatory ownership step and negative cases remain unchanged.
-const WORKFLOW_BEFORE_OWNERSHIP_GATE_SHA256='f76da71288ed6693e7711efc7ebdeee81130385ce16e8613f66f4539b4a43947';
+// Exact baseline for the independently reviewed release-preparation workflow in 531cc4ec.
+// Includes publish-free preparation, upload recovery and the existing browser policy; the mandatory ownership step and negative cases remain unchanged.
+const WORKFLOW_BEFORE_OWNERSHIP_GATE_SHA256='65bfc97932849dae5b56fcb19b5af32811e0031a1314f5b9fbab54aed7a11c1a';
 const filename=path.resolve(__dirname,'../../.github/workflows/xtend-default-gates.yml');const workflow=fs.readFileSync(filename,'utf8');
 const command='test -f tests/maraca/ownership-command-projection.test.mjs && test -f tests/maraca/ownership-projection-gate.test.cjs && node --test --test-reporter=tap tests/maraca/ownership-command-projection.test.mjs tests/maraca/ownership-projection-gate.test.cjs';
 const step="      - name: Required command-binding metadata ownership regression\n        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}\n        env:\n          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs\n        run: "+command+'\n\n';
