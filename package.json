@@ -18262,6 +18262,8 @@
     "test:ci-pr": "node scripts/run_xtend_tests.js --profile ci-pr",
     "test:ci-release": "node scripts/run_xtend_tests.js --profile ci-release",
     "test:ci-nightly": "node scripts/run_xtend_tests.js --profile ci-nightly",
+    "test:ci-prepare": "node scripts/run_xtend_tests.js --profile ci-prepare",
+    "release:verify-preparation-evidence": "node scripts/run_xtend_tests.js core-preparation-evidence --json",
     "test:ci-publish": "node scripts/run_xtend_tests.js --profile ci-publish",
     "test:ssr-pages": "node scripts/run_xtend_tests.js --profile ssr-pages",
     "test:ssr-pages-browser": "node scripts/run_xtend_tests.js --profile ssr-pages-browser",

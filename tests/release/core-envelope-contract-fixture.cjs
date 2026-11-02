@@ -6,14 +6,14 @@ const fs=require('node:fs'),path=require('node:path'),Module=require('node:modul
 const {zip,hash}=require('./union-fixture.cjs'),{installedProof}=require('./contract-proof-fixture.cjs');
 const profile=require('../../scripts/release/profile.cjs'),artifactModule=require('../../scripts/release/artifact.cjs');
 function scoped(file,overrides){file=path.resolve(__dirname,'../../scripts/release/'+file);const m=new Module(file,module),real=Module.createRequire(file);m.filename=file;m.require=n=>Object.hasOwn(overrides,n)?overrides[n]:real(n);m._compile(fs.readFileSync(file,'utf8'),file);return m.exports;}
-async function envelopeFixture(f){
+async function envelopeFixture(f,{env:envPatch={},mutate=()=>{},authorityError=false,defer=false}={}){
  const artifact=await f.verify(),now=Date.now(),context={runId:'441',runAttempt:'1'},sourceSha=artifact.sourceSha,zeros='a'.repeat(64),repository='konnilabs/xtend',workflow='.github/workflows/xtend-default-gates.yml';
  const expected={profile:profile.PROFILE,producerMode:'committed',sourceSha,archiveSha256:zeros,manifestSha256:zeros,context};
  const provenance={profile:profile.PROFILE,repository,coreSha:sourceSha,archiveSha256:zeros,manifestSha256:zeros,producer:{mode:'committed',implementationSha256:zeros,policySha256:zeros},context,productiveFiles:0,historicalProductiveFiles:0,bindings:[]};
  const candidateAuthority={profile:profile.PROFILE,decisionSha256:zeros,familyId:'xtend.product-candidates',schemaId:'xtend.product-candidates.v2',releasedFingerprintSetHash:null,publicationGuardRetired:false};
  const provider={provenance:()=>structuredClone(provenance),files:()=>[]},loaded={provider,inventorySha256:zeros,policySha256:zeros};
  let sourceChecks=0,securityChecks=0;
- const overrides={'./core-source.cjs':{loadCoreSource:()=>loaded,validateCoreAuthority:()=>{sourceChecks++;return structuredClone(candidateAuthority);}},'./core-security.cjs':{...require('../../scripts/release/core-security.cjs'),verifyCoreSecurityReport:report=>{securityChecks++;if(report.controlledProtocolFixture!==true)throw Error('Wrong controlled security member');}}};
+ const overrides={'./core-source.cjs':{loadCoreSource:()=>loaded,validateCoreAuthority:()=>{sourceChecks++;if(authorityError)throw Error('Controlled source authority absent');return structuredClone(candidateAuthority);}},'./core-security.cjs':{...require('../../scripts/release/core-security.cjs'),verifyCoreSecurityReport:report=>{securityChecks++;if(report.controlledProtocolFixture!==true)throw Error('Wrong controlled security member');}}};
  const auth=scoped('core-auth.cjs',overrides),evidence=scoped('core-evidence.cjs',{'./core-auth.cjs':auth});
  const needs=Object.fromEntries(require('../../scripts/release/github.cjs').gates.map(g=>[g,{result:'success'}]));
  needs['release-prepare'].outputs={manifestIntegrity:artifact.manifestIntegrity,candidateSha256:zeros};
@@ -32,7 +32,9 @@ async function envelopeFixture(f){
  add(904,'xtend-core-security-node-24.18.0-attempt-1',{'security-execution.json':JSON.stringify({controlledProtocolFixture:true})});
  const request=async resource=>{if(resource.endsWith('/workflows/xtend-default-gates.yml'))return workflowMetadata;if(/\/attempts\/1$/.test(resource))return run;if(resource.includes('/jobs?'))return {total_count:jobs.length,jobs};if(resource.includes('/artifacts?'))return {total_count:metadata.length,artifacts:metadata};const match=/\/artifacts\/(\d+)(\/zip)?$/.exec(resource);if(match)return match[2]?{status:302,headers:{get:()=>`https://storage.invalid/${match[1]}`}}:metadata.find(m=>String(m.id)===match[1]);throw Error('Unexpected controlled API '+resource);};
  const fetchBytes=async url=>({status:200,arrayBuffer:async()=>bytes.get(Number(new URL(url).pathname.slice(1)))});
- const envelope=await auth.collect({directory:path.join(f.directory,'core-evidence'),artifact,needs,env,request,fetchBytes,now});
- return {envelope,artifact,verify:(value=envelope)=>evidence.verifyCoreEvidenceEnvelope(artifact,value,{directory:f.directory,now}),counts:()=>({sourceChecks,securityChecks}),auth};
+ Object.assign(env,envPatch);mutate({env,needs,metadata,jobs,bytes,run});
+ const collect=options=>auth.collect({directory:path.join(f.directory,'core-evidence'),artifact,needs,env,request,fetchBytes,now,...options});
+ const envelope=defer?undefined:await collect();
+ return {envelope,artifact,verify:(value=envelope)=>evidence.verifyCoreEvidenceEnvelope(artifact,value,{directory:f.directory,now}),counts:()=>({sourceChecks,securityChecks}),auth,evidence,collect,env,needs};
 }
 module.exports={envelopeFixture,scoped};

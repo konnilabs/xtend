@@ -16,4 +16,20 @@ async function runCoreEvidenceGate({rootDir}) {
   } catch(error){context.fail(error.message);}
   return context.result();
 }
-module.exports={runCoreEvidenceGate};
+// This separate read-only gate proves sealed preparation bytes, never release
+// authorization. The publication gate above retains every FirstRelease check.
+async function runCorePreparationGate({rootDir}) {
+  const context=createSuiteContext({id:'core-preparation-evidence',label:'Required sealed Core preparation evidence'});
+  try {
+    if(!process.env.XTEND_RELEASE_ARTIFACT||!process.env.XTEND_RELEASE_MANIFEST_INTEGRITY||!process.env.GITHUB_SHA)
+      throw Error('Required sealed Core artifact/source/hash inputs absent');
+    const artifact=await require('./artifact.cjs').verifyArtifact({directory:path.resolve(process.env.XTEND_RELEASE_ARTIFACT),
+      manifestIntegrity:process.env.XTEND_RELEASE_MANIFEST_INTEGRITY,sourceSha:process.env.GITHUB_SHA,rootDir,phase:'sealed'});
+    if(require('./release-evidence.cjs').evidenceContract(artifact)!==require('./profile.cjs').PROFILE)
+      throw Error('ci-prepare requires the exact Core release profile');
+    await require('./release-evidence.cjs').verifyPreflightAuthority(artifact);
+    context.assert(true,'Sealed source, both Core consumer lanes and mandatory security evidence verified; no publication authorization');
+  } catch(error){context.fail(error.message);}
+  return context.result();
+}
+module.exports={runCoreEvidenceGate,runCorePreparationGate};

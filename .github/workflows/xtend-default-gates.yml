@@ -9,6 +9,11 @@ on:
       - develop
   workflow_dispatch:
     inputs:
+      prepare_release:
+        description: 'Prepare and seal exact release artifacts after mandatory checks, without npm publishing.'
+        required: false
+        default: false
+        type: boolean
       publish_to_npm:
         description: 'Publish selected exact verified tarballs with latest (stable) or next (prerelease), after all gates pass.'
         required: false
@@ -1175,7 +1180,7 @@ jobs:
         run: node scripts/development-gate.cjs
 
   laravel-release-gates:
-    if: github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true
+    if: github.event_name == 'workflow_dispatch' && (inputs.publish_to_npm == true || inputs.prepare_release == true)
     uses: ./.github/workflows/xtend-laravel-ssr.yml
 
   npm-publish-latest:
@@ -1581,7 +1586,7 @@ jobs:
 
   release-seal:
     name: Bind all gates to the immutable release artifact
-    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true && needs.release-prepare.result == 'success' && needs.core-installed-consumers.result == 'success' && needs['core-security-browser'].result == 'success' }}
+    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && (inputs.publish_to_npm == true || inputs.prepare_release == true) && needs.release-prepare.result == 'success' && needs.core-installed-consumers.result == 'success' && needs['core-security-browser'].result == 'success' }}
     needs:
       - core-source-artifact
       - release-prepare
@@ -1667,6 +1672,7 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           GITHUB_TOKEN: ${{ github.token }}
           XTEND_RELEASE_PUBLISH: ${{ inputs.publish_to_npm }}
+          XTEND_RELEASE_PREPARE: ${{ inputs.prepare_release }}
           XTEND_RELEASE_NEEDS: ${{ toJSON(needs) }}
           XTEND_CORE_RESUME_EVIDENCE: ${{ github.workspace }}/.xtend-test-results/current-resume/core-evidence
           MANIFEST_INTEGRITY: ${{ needs.release-prepare.outputs.manifestIntegrity }}
@@ -1682,16 +1688,21 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y xvfb xauth unzip
           node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-browser"
-      - name: Run all existing blocking publish checks against the verified Core artifact
+      - name: Run blocking checks against the verified Core artifact for the requested mode
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           XTEND_RELEASE_ARTIFACT: ${{ github.workspace }}/.xtend-test-results/core-candidates
           XTEND_RELEASE_MANIFEST_INTEGRITY: ${{ steps.seal.outputs.manifestIntegrity }}
           XTEND_CONDITIONAL_NETWORK_EXECUTE: '1'
           XTEND_CONDITIONAL_NETWORK_ALLOW_DEFERRAL: '0'
+          RELEASE_PUBLISH: ${{ inputs.publish_to_npm }}
         run: |
           npm run native-first:evidence:prepare
-          npm run test:ci-publish
+          if [[ "$RELEASE_PUBLISH" == 'true' ]]; then
+            npm run test:ci-publish
+          else
+            npm run test:ci-prepare
+          fi
           npm run test:xtend-mcp:report
           npm run pack:dry-run
           npm run conditional-network:evidence

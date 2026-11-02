@@ -251,7 +251,7 @@
           },
           {
             "path": "scripts/release/core-auth.cjs",
-            "sha256": "e7e821cd31cb0331ef4b07fc39794903cb56393cfbe0826844efe7c5fe70e3b8"
+            "sha256": "f250a8e463094649739abffe6baaee17cf3b6aa85de7f2c1ed4b3999da4d3e44"
           },
           {
             "path": "scripts/release/core-evidence.cjs",
@@ -496,5 +496,32 @@
       "result": "No blocking defect within the explicitly pending proposal scope."
     },
     "finalSourceTechnicalReview": "Required from a fresh final committed capture before acceptance; the proposal review alone is insufficient."
+  },
+  "preparationInterfaceReview": {
+    "status": "user-authorized-scoped-preparation-interface",
+    "sourceBase": "72041e0ef448684dcd652acdcc23aae9f5c440a4",
+    "remoteBase": "0e2e7c9e7ee3cf7316ff8b9073ec033e7c7d0836",
+    "scope": "Explicit publish-free preparation and test interface only. Exactly one CoreEvidence validator source binding changes, with its derived decision digest. No declaration, fingerprint, source membership, candidate authority or release fact changes.",
+    "authorization": {
+      "reference": "Sentinel_5f1b390b7c0c8191b1ae5b7f88404960",
+      "timestamp": "2026-11-02T14:01:54Z",
+      "decision": "User authorizes the bounded preparation contract-binding adjustment and independent review; no push, workflow dispatch, publication or FirstRelease retirement."
+    },
+    "sourceBinding": {
+      "path": "scripts/release/core-auth.cjs",
+      "previousSha256": "e7e821cd31cb0331ef4b07fc39794903cb56393cfbe0826844efe7c5fe70e3b8",
+      "sha256": "f250a8e463094649739abffe6baaee17cf3b6aa85de7f2c1ed4b3999da4d3e44"
+    },
+    "independentFunctionalReview": {
+      "reviewer": "/root/release_code_review",
+      "patchSha256": "2bd41269cfb8c4cea5e77010b970702f1b640448583ef76858422b6c7c6a9c65",
+      "reportSha256": "48510397de4fcce811823bdafc75de0897eb85a9604d85e7074e7dca6559d60d",
+      "result": "No findings; 156 focused controlled-protocol/mock tests passed with zero skips. This review predates this metadata and provides no hosted acceptance or publication authority."
+    },
+    "finalSourceTechnicalReview": "Required from a fresh final committed capture, strict source/schema validation, registration tests on both supported Node versions and independent exact-byte review. Evidence is retained outside the source to avoid a self-referential source hash.",
+    "freshFinalCaptureRequired": true,
+    "publicationGuardRetired": false,
+    "acceptedForMerge": false,
+    "acceptedForRelease": false
   }
 }

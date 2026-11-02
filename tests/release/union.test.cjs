@@ -65,7 +65,7 @@ test('Core workflow uses separate source and both installed consumer lanes witho
  assert.match(job('core-source-artifact'),/permissions:\n      contents: read/);
  assert.match(job('core-source-artifact'),/scripts\/build-core-source-artifact.py --core/);
  assert.match(job('core-source-artifact'),/github.event.pull_request.head.sha \|\| github.sha/);
- assert.match(job('release-seal'),/github.event_name == 'workflow_dispatch' && inputs.publish_to_npm == true/);
+ assert.match(job('release-seal'),/github.event_name == 'workflow_dispatch' && \(inputs.publish_to_npm == true \|\| inputs.prepare_release == true\)/);
  assert.match(job('core-installed-consumers'),/core-source-artifact/);
  assert.ok(!job('full-release-gates').includes('union_strict'));
  assert.ok(!job('full-release-gates').includes('union.cjs record'));assert.match(job('core-installed-consumers'),/pipeline.cjs consumers/);
