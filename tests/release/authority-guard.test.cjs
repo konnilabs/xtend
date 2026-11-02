@@ -13,7 +13,11 @@ for (const resume of [false, true]) test(`actual publisher rejects active initia
   if (resume) {
     fs.mkdirSync(path.dirname(f.ledgerFile), { recursive: true });
     fs.writeFileSync(f.ledgerFile, JSON.stringify({ schema: ['xtend','release','ledger','v1'].join('.'),
-      sourceSha: f.sourceSha, manifestIntegrity: f.artifact.manifestIntegrity }));
+      sourceSha: f.sourceSha, manifestIntegrity: f.artifact.manifestIntegrity,
+      packages: f.artifact.order.map(name => {
+        const entry = f.artifact.packages.find(item => item.name === name);
+        return { name, version: entry.version, integrity: entry.integrity, tag: 'latest', state: 'pending' };
+      }) }));
   }
   let calls = 0;
   const forbidden = () => { calls++; throw Error('Registry/publisher backend must not be reached'); };

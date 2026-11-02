@@ -5,6 +5,7 @@ const semver = require('semver');
 const { check, readJson } = require('./inventory.cjs');
 const { digest } = require('./artifact.cjs');
 const { isDeepStrictEqual } = require('node:util');
+const { safeDiagnostic, redact } = require('./npm.cjs');
 function channelTag(version, prereleaseTag = 'next') {
   check(semver.valid(version), `Invalid release version: ${version}`);
   check(['next', 'beta', 'rc', 'canary'].includes(prereleaseTag), 'Explicit prerelease tag must be next/beta/rc/canary');
@@ -107,35 +108,62 @@ function writeLedger(file, ledger) {
 }
 async function publishRelease({ artifact, registry, publisher, ledgerFile, lockFile = path.join(path.dirname(ledgerFile), 'npm-release.lock'),
   publish = false, staged = false, promote = false, npmVersion = artifact.toolchain.npm, distTagsAuthorized = false,
-  prereleaseTag = 'next', maxAttempts = 2, bootstrapPackages = [], onLedger = () => {} }) {
+  prereleaseTag = 'next', maxAttempts = 2, bootstrapPackages = [], onLedger = () => {}, priorLedgers = [], loadPriorLedgers = async () => [],
+  visibilityAttempts = 4, visibilityDelayMs = 5000, wait = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
   require('./release-evidence.cjs').evidenceContract(artifact);
   check(Number.isInteger(maxAttempts) && maxAttempts >= 1 && maxAttempts <= 3, 'Publish attempts must be 1..3');
+  check(Number.isInteger(visibilityAttempts) && visibilityAttempts >= 1 && visibilityAttempts <= 10, 'Visibility attempts must be 1..10');
+  check(Number.isInteger(visibilityDelayMs) && visibilityDelayMs >= 0 && visibilityDelayMs <= 10000, 'Visibility delay must be 0..10000ms');
+  // maxAttempts remains accepted for old callers, but never permits upload retries.
   check(!promote || publish && staged, 'Promotion requires explicit staged publish');
   fs.mkdirSync(path.dirname(lockFile), { recursive: true });
   // Never remove a foreign/stale lock automatically. Recovery requires review.
   const lock = fs.openSync(lockFile, 'wx');
-  let ledger, current;
+  let ledger, current, writable = false;
   function save() { writeLedger(ledgerFile, ledger); onLedger(structuredClone(ledger)); }
   try {
     const entries = artifact.order.map(name => artifact.packages.find(entry => entry.name === name));
     check(entries.every(Boolean) && entries.length === artifact.packages.length && new Set(artifact.order).size === entries.length,
       'Publish order differs from artifact');
-    if (fs.existsSync(ledgerFile)) {
-      const previous = readJson(ledgerFile);
-      check(previous.schema === 'xtend.release.ledger.v1' && previous.manifestIntegrity === artifact.manifestIntegrity &&
-        previous.sourceSha === artifact.sourceSha, 'Resume refused: ledger belongs to another immutable artifact');
-    }
+    check(Array.isArray(priorLedgers), 'Authenticated upload history must be an array');
+    let history = [...priorLedgers];
+    if (fs.existsSync(ledgerFile)) history.push(readJson(ledgerFile));
     ledger = { schema: 'xtend.release.ledger.v1', manifestIntegrity: artifact.manifestIntegrity, sourceSha: artifact.sourceSha,
       mode: publish ? (staged ? 'staged-publish' : 'direct-publish') : 'dry-run', status: 'pending', packages: entries.map(entry => ({ name: entry.name,
         version: entry.version, integrity: entry.integrity, state: 'pending', tag: channelTag(entry.version, prereleaseTag) })),
       registryDependencies: (artifact.registryDependencies || []).map(entry => ({ ...entry, state: 'pending' })) };
-    save();
-    if (publish) require('../scan_schema_inventory').assertCandidateInitialAuthorityRetiredForRelease();
-    await require('./release-evidence.cjs').verifyPreflightAuthority(artifact);
-    // Keep a failed ledger, but stop before registry reads, dry-runs, uploads,
-    // retries or optional promotion while initial-unreleased authority is active.
-    if (publish) {
-      await require('./release-evidence.cjs').verifyPublicationEvidence(artifact);
+    // Save validated local markers before any fallible hosted history read. A
+    // transient API error then leaves an honest no-new-upload snapshot, while
+    // every older attempt is still mandatory on the next invocation.
+    for (let phase = 0; phase < 2; phase++) {
+      for (const previous of history) {
+        check(previous?.schema === ledger.schema && previous.manifestIntegrity === artifact.manifestIntegrity &&
+          previous.sourceSha === artifact.sourceSha, 'Resume refused: ledger belongs to another immutable artifact');
+        check(Array.isArray(previous.packages) && previous.packages.length === ledger.packages.length &&
+          previous.packages.every((item, index) => ['name', 'version', 'integrity', 'tag'].every(key => item[key] === ledger.packages[index][key])),
+          'Resume refused: package/order/channel identity differs from immutable artifact');
+        for (const [index, item] of previous.packages.entries()) {
+          check(item.attempt === undefined || Number.isInteger(item.attempt) && item.attempt >= 1 && item.attempt <= 3, 'Invalid prior upload attempt');
+          if (item.uploadAttempted !== undefined) check(typeof item.uploadAttempted === 'boolean', 'Invalid prior upload marker');
+          if (item.uploadAttempted || item.attempt > 0 || ['published', 'pending-verification'].includes(item.state)) {
+            const target = ledger.packages[index];
+            target.uploadAttempted = true; target.attempt = item.attempt || 1;
+            target.uploadTag = item.uploadTag || (previous.mode === 'staged-publish' ?
+              `${semver.prerelease(target.version) ? 'prerelease' : 'stable'}-${artifact.sourceSha}` : target.tag);
+            check(target.uploadTag === (staged ? `${semver.prerelease(target.version) ? 'prerelease' : 'stable'}-${artifact.sourceSha}` : target.tag),
+              'Resume refused: upload channel differs from prior attempt');
+            if (item.publishDiagnostic) target.publishDiagnostic = safeDiagnostic(item.publishDiagnostic);
+          }
+        }
+      }
+      writable = true; save();
+      if (phase === 0) {
+        if (publish) require('../scan_schema_inventory').assertCandidateInitialAuthorityRetiredForRelease();
+        await require('./release-evidence.cjs').verifyPreflightAuthority(artifact);
+        if (publish) await require('./release-evidence.cjs').verifyPublicationEvidence(artifact);
+        history = await loadPriorLedgers();
+        check(Array.isArray(history), 'Authenticated upload history must be an array');
+      }
     }
     if (promote) promotionSupported(npmVersion, distTagsAuthorized); // before first upload
     // Complete preflight before the first irreversible operation.
@@ -144,8 +172,44 @@ async function publishRelease({ artifact, registry, publisher, ledgerFile, lockF
       await verifyRegistryDependency(artifact, dependency, registry);
       current.state = 'verified-existing'; save();
     }
+    async function verifyAttempt(entry, target) {
+      // The write-ahead marker means absence can NEVER authorize another upload.
+      target.state = 'pending-verification'; save();
+      for (let poll = 1; poll <= visibilityAttempts; poll++) {
+        for (const dependency of artifact.registryDependencies || []) await verifyRegistryDependency(artifact, dependency, registry);
+        target.verificationChecks = (target.verificationChecks || 0) + 1;
+        let existing, observed, readFailed = false;
+        try { existing = await registry.version(entry); }
+        catch (error) { target.verificationError = redact(error.message); readFailed = true; }
+        if (!readFailed && classifyVersion(entry, existing) === 'verified-existing') {
+          assertProvenance(entry, existing, artifact.sourceSha);
+          try { observed = await registry.package(entry); }
+          catch (error) { target.verificationError = redact(error.message); readFailed = true; }
+          if (!readFailed && observed !== null) {
+            // Validate shape and integrity immediately; only eventual presence/tag
+            // convergence is polled, never a conflicting immutable version.
+            validatePackument(entry, observed);
+            const uploadTagState = observed.versions.includes(entry.version) ? existingTagState(entry, observed, target.uploadTag) : 'repair-required';
+            if (uploadTagState === 'verified' || target.uploadTag === target.tag && uploadTagState === 'preserved-newer') {
+              target.state = 'published';
+              target.tagState = existingTagState(entry, observed, target.tag);
+              delete target.verificationError; save(); return true;
+            }
+          }
+        }
+        save();
+        if (poll < visibilityAttempts) await wait(visibilityDelayMs);
+      }
+      return false;
+    }
+    // Reconcile ALL earlier requests before dry-runs or any new upload, including
+    // when called in read-only mode. A later dry-run cannot erase upload history.
     for (const entry of entries) {
       current = ledger.packages.find(item => item.name === entry.name);
+      if (current.uploadAttempted) {
+        if (!await verifyAttempt(entry, current)) { ledger.status = 'pending-verification'; save(); return ledger; }
+        continue;
+      }
       const existing = await registry.version(entry);
       current.state = classifyVersion(entry, existing);
       if (existing) {
@@ -184,34 +248,27 @@ async function publishRelease({ artifact, registry, publisher, ledgerFile, lockF
       }
       pendingPackument(entry, await registry.package(entry), current.tag, bootstrapPackages);
       const uploadTag = staged ? `${semver.prerelease(entry.version) ? 'prerelease' : 'stable'}-${artifact.sourceSha}` : current.tag;
-      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        const bytes = fs.readFileSync(entry.absoluteFile);
-        check(bytes.length === entry.size && digest(bytes) === entry.integrity, 'Artifact changed before upload');
-        // Dependency evidence can drift while an upload times out. Revalidate
-        // the exact pinned closure before every attempt, including every retry.
-        // Any ambiguous read escapes before another upload is attempted.
-        for (const dependency of artifact.registryDependencies || []) {
-          await verifyRegistryDependency(artifact, dependency, registry);
-        }
-        current.uploadAttempted = true; current.attempt = attempt; save();
-        let uploadError;
-        try { await publisher.publish(entry, uploadTag); } catch (error) { uploadError = error; }
-        // Always check registry after return/timeout, before retry. Query errors
-        // stop the train; only a definitive 404 permits retry of the same bytes.
-        existing = await registry.version(entry);
-        if (classifyVersion(entry, existing) === 'verified-existing') {
-          assertProvenance(entry, existing, artifact.sourceSha);
-          const observed = await registry.package(entry);
-          validatePackument(entry, observed, true);
-          check(observed['dist-tags'][uploadTag] === entry.version, `Postpublish upload tag mismatch: ${entry.name}`);
-          if (!staged) current.tagState = 'verified';
-          current.state = 'published'; current.uploadTag = uploadTag; save(); break;
-        }
-        check(uploadError?.retryable === true && attempt < maxAttempts,
-          `Publish failed or visibility uncertain: ${entry.name}; retain artifact and resume after review`);
-        pendingPackument(entry, await registry.package(entry), current.tag, bootstrapPackages);
+      check(!current.uploadAttempted, 'Previously attempted version disappeared; never upload again');
+      const bytes = fs.readFileSync(entry.absoluteFile);
+      check(bytes.length === entry.size && digest(bytes) === entry.integrity, 'Artifact changed before upload');
+      for (const dependency of artifact.registryDependencies || []) {
+        await verifyRegistryDependency(artifact, dependency, registry);
+      }
+      // Persist before invoking npm, including a crash/timeout during the request.
+      current.uploadAttempted = true; current.attempt = 1; current.uploadTag = uploadTag;
+      current.state = 'pending-verification'; save();
+      try { await publisher.publish(entry, uploadTag); }
+      catch (error) {
+        // npm output and arbitrary adapter exceptions are untrusted. Keep only a
+        // recognized code and its static actionable explanation.
+        current.publishDiagnostic = safeDiagnostic(error.diagnostic);
+        save();
+      }
+      if (!await verifyAttempt(entry, current)) {
+        ledger.status = 'pending-verification'; save(); return ledger;
       }
     }
+
     // Optional staging/promotion is capability gated. The default publishes
     // directly with explicit latest/next on npm 11.17; there is no tag command.
     if (promote) for (const entry of entries) {
@@ -232,11 +289,11 @@ async function publishRelease({ artifact, registry, publisher, ledgerFile, lockF
       ledger.packages.some(entry => entry.tagState === 'repair-required') ? 'tag-repair-required' : 'complete';
     save(); return ledger;
   } catch (error) {
-    if (ledger) {
-      if (current) { current.previousState = current.state; current.state = 'failed'; current.error = error.message; }
-      ledger.status = 'failed'; ledger.error = error.message; save();
+    if (ledger && writable) {
+      if (current) { current.previousState = current.state; current.state = 'failed'; current.error = redact(error.message); }
+      ledger.status = 'failed'; ledger.error = redact(error.message); save();
     }
-    throw error;
+    throw Error(redact(error.message));
   } finally { fs.closeSync(lock); fs.unlinkSync(lockFile); }
 }
 module.exports = { channelTag, promotionSupported, classifyVersion, validatePackument, sourceRepository,

@@ -1258,6 +1258,7 @@ jobs:
         run: node scripts/release/pipeline.cjs download --execute --artifact .xtend-test-results/npm-release --artifact-id "$RELEASE_ARTIFACT_ID"
       - name: Publish exact verified tarballs sequentially with registry rechecks
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           XTEND_RELEASE_PUBLISH: ${{ inputs.publish_to_npm }}
           XTEND_RELEASE_ENVIRONMENT: npm-publish
@@ -1269,6 +1270,13 @@ jobs:
           --artifact .xtend-test-results/npm-release
           --manifest-integrity "$MANIFEST_INTEGRITY" --source-sha "$GITHUB_SHA"
           --ledger .xtend-test-results/npm-release-ledger.json
+      - name: Preserve write-ahead upload state for safe resume on fresh runners
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtend-npm-upload-state-${{ github.run_attempt }}
+          path: .xtend-test-results/npm-release-ledger.json
+          if-no-files-found: warn
       - name: Finalize always-on attempt ledger
         if: always()
         env:
