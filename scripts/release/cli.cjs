@@ -69,12 +69,16 @@ async function main(args = process.argv.slice(2)) {
   check(actual.status === 0 && actual.stdout.trim() === artifact.toolchain.npm &&
     process.versions.node === artifact.toolchain.node, 'Preflight must use the committed Node/npm pins');
   const adapters = npmAdapters({ npmCli, cwd: rootDir });
+  const ledgerFile = path.resolve(values.ledger || path.join(rootDir, '.xtend-test-results/npm-release-ledger.json'));
+  const loadPriorLedgers = values.execute ? () => require('./npm.cjs').loadUploadHistory({ artifact }) : undefined;
   const ledger = await publishRelease({ artifact, ...adapters,
-    ledgerFile: path.resolve(values.ledger || path.join(rootDir, '.xtend-test-results/npm-release-ledger.json')),
+    ledgerFile, loadPriorLedgers,
     prereleaseTag: values['prerelease-tag'], publish: values.execute,
     bootstrapPackages: artifact.manifest.bootstrapPackages || [] });
   console.log(JSON.stringify(ledger, null, 2));
-  check(!values.execute || ledger.status === 'complete', 'Release needs explicit tag repair or recovery; inspect the preserved ledger');
+  check(!values.execute || ledger.status === 'complete', ledger.status === 'pending-verification' ?
+    'Release pending registry verification; preserve this ledger and resume the same artifact without another upload' :
+    'Release needs explicit tag repair or recovery; inspect the preserved ledger');
 }
 if (require.main === module) main().catch(error => { console.error(error.message); process.exitCode = 1; });
 module.exports = { main, assertPublishInput };

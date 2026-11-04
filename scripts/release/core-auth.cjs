@@ -11,7 +11,8 @@ const repository='konnilabs/xtend',workflow='.github/workflows/xtend-default-gat
 const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
 function context({sourceSha,artifact,env=process.env,needs}) {
   check(env.GITHUB_ACTIONS==='true'&&env.GITHUB_REPOSITORY===repository&&env.GITHUB_SHA===sourceSha&&
-    env.GITHUB_EVENT_NAME==='workflow_dispatch'&&env.GITHUB_REF==='refs/heads/main'&&env.XTEND_RELEASE_PUBLISH==='true'&&
+    env.GITHUB_EVENT_NAME==='workflow_dispatch'&&env.GITHUB_REF==='refs/heads/main'&&
+    (env.XTEND_RELEASE_PUBLISH==='true'||env.XTEND_RELEASE_PUBLISH==='false'&&env.XTEND_RELEASE_PREPARE==='true')&&
     env.GITHUB_WORKFLOW_REF===repository+'/'+workflow+'@refs/heads/main'&&
     /^[1-9][0-9]*$/.test(env.GITHUB_RUN_ID||'')&&/^[1-9][0-9]*$/.test(env.GITHUB_RUN_ATTEMPT||''),
     'Core seal requires exact trusted main/run/attempt/source identity');

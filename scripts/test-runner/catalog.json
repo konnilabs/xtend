@@ -7430,6 +7430,26 @@
       "timeoutMs": 120000
     },
     {
+      "id": "core-preparation-evidence",
+      "label": "Required sealed Core preparation evidence",
+      "description": "Same authenticated source, consumer and security proof as sealed release bytes; no publication authorization",
+      "defaultIncluded": false,
+      "handler": "core-preparation-evidence",
+      "implementations": [
+        {
+          "path": "scripts/release/evidence-gate.cjs",
+          "function": "runCorePreparationGate",
+          "arguments": [
+            "{ rootDir }"
+          ]
+        }
+      ],
+      "resources": [
+        "repository"
+      ],
+      "timeoutMs": 120000
+    },
+    {
       "id": "firefox-qualification-controls",
       "label": "Isolated Firefox qualification controller regressions",
       "description": "Opt-in controller, BiDi, readiness, Linux evidence-model and aggregation tests; no real browser or release proof.",
@@ -10830,6 +10850,23 @@
       "suites": [
         "firefox-qualification-controls"
       ]
+    },
+    "ci-prepare": {
+      "includes": [
+        "release:full",
+        "feature-adoption-observatory",
+        "xtensions-framework-adapters",
+        "rmt-vnext-primitives",
+        "native-first-rmt-owned-release",
+        "rkfa-production-closure",
+        "release"
+      ],
+      "suites": [
+        "release-safety",
+        "core-preparation-evidence"
+      ],
+      "reports": [],
+      "advisory": []
     }
   },
   "scripts": {
@@ -12730,6 +12767,11 @@
       "reports": [
         ".xtend-test-results/xtend-xtensions-runtime-gate-report.json"
       ]
+    },
+    "test:ci-prepare": {
+      "profile": "ci-prepare",
+      "report": null,
+      "flags": []
     }
   },
   "ci": {
@@ -13827,6 +13869,46 @@
         {
           "script": "conditional-network:evidence",
           "step": "Re-run blocking release evidence",
+          "condition": null,
+          "advisory": false
+        }
+      ]
+    },
+    "ci-prepare": {
+      "additionalChecks": [
+        {
+          "script": "ci:dependency-locks:check",
+          "step": "Validate CI dependency lock alignment",
+          "condition": null,
+          "advisory": false
+        },
+        {
+          "script": "native-first:evidence:prepare",
+          "step": "Re-run blocking release evidence",
+          "condition": null,
+          "advisory": false
+        },
+        {
+          "script": "test:xtend-mcp:report",
+          "step": "Re-run blocking release evidence",
+          "condition": null,
+          "advisory": false
+        },
+        {
+          "script": "pack:dry-run",
+          "step": "Re-run blocking release evidence",
+          "condition": null,
+          "advisory": false
+        },
+        {
+          "script": "conditional-network:evidence",
+          "step": "Re-run blocking release evidence",
+          "condition": null,
+          "advisory": false
+        },
+        {
+          "script": "release:verify-preparation-evidence",
+          "step": "Require exact sealed Core source and both installed-consumer lanes",
           "condition": null,
           "advisory": false
         }

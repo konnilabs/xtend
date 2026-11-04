@@ -4,6 +4,109 @@ const {candidateFixture,preparedFixture}=require('./core-fixture.cjs'),{write}=r
 const artifact=require('../../scripts/release/artifact.cjs'),candidates=require('../../scripts/release/candidates.cjs');
 const profile=require('../../scripts/release/profile.cjs'),evidence=require('../../scripts/release/release-evidence.cjs');
 const consumer=require('../../scripts/release/core-evidence.cjs'),integrity=require('../../candidate-integrity.cjs');
+const {envelopeFixture,scoped}=require('./core-envelope-contract-fixture.cjs');
+const prepareEnv={XTEND_RELEASE_PUBLISH:'false',XTEND_RELEASE_PREPARE:'true'};
+async function withEnvironment(values,action){
+ const saved=Object.keys(values).map(key=>[key,process.env[key]]);
+ try {for(const [key,value] of Object.entries(values)){if(value===undefined)delete process.env[key];else process.env[key]=value;}return await action();}
+ finally {for(const [key,value] of saved){if(value===undefined)delete process.env[key];else process.env[key]=value;}}
+}
+// Only the existing explicitly controlled source/security protocol doubles are
+// threaded through the REAL artifact, candidate, seal and preflight validators.
+// These fixtures are not hosted source, browser or release acceptance evidence.
+function preparationModules(p){
+ const boundCandidates=scoped('candidates.cjs',{'./core-evidence.cjs':p.evidence});
+ const boundArtifact=scoped('artifact.cjs',{'./candidates.cjs':boundCandidates});
+ const boundEvidence=scoped('release-evidence.cjs',{'./artifact.cjs':boundArtifact,'./core-evidence.cjs':p.evidence});
+ const gate=scoped('evidence-gate.cjs',{'./artifact.cjs':boundArtifact,'./release-evidence.cjs':boundEvidence});
+ return {boundArtifact,boundEvidence,gate};
+}
+test('publish-free sealing verifies full controlled proof, preserves tgz bytes and cannot authorize publishing',async t=>{
+ const f=await preparedFixture(t),p=await envelopeFixture(f,{env:prepareEnv,defer:true}),m=preparationModules(p);
+ let forbiddenCalls=0;const forbidden=()=>{forbiddenCalls++;throw Error('No registry mutation, upload, consumer install or rebuild permitted');};
+ const before=new Map(p.artifact.manifest.candidateBinding.allPackages.map(entry=>[entry.file,fs.readFileSync(path.join(f.directory,entry.file))]));
+ const pipeline=scoped('pipeline.cjs',{
+  'node:child_process':{execFileSync:(command,args)=>{assert.equal(command,'git');assert.deepEqual(args,['rev-parse','HEAD']);return f.f.sourceSha;},spawnSync:forbidden},
+  './artifact.cjs':{...m.boundArtifact,verifyArtifact:options=>m.boundArtifact.verifyArtifact({...options,rootDir:f.f.rootDir})},
+  './core-auth.cjs':{...p.auth,collect:p.collect},'./core-evidence.cjs':p.evidence,
+  './npm.cjs':{npmAdapters:forbidden},'./consumer.cjs':{runConsumers:forbidden},'../pack-candidates.cjs':{packCandidates:forbidden}
+ });
+ await withEnvironment({...p.env,XTEND_RELEASE_NEEDS:JSON.stringify(p.needs)},async()=>{
+  const sealed=await pipeline.seal({directory:f.directory,manifestIntegrity:p.artifact.manifestIntegrity});
+  assert.notEqual(sealed.manifestIntegrity,p.artifact.manifestIntegrity);
+  const a=await m.boundArtifact.verifyArtifact({directory:f.directory,rootDir:f.f.rootDir,sourceSha:f.f.sourceSha,manifestIntegrity:sealed.manifestIntegrity,phase:'sealed'});
+  assert.equal((await m.boundArtifact.assertPreflightArtifact(a)).phase,'sealed');
+  await withEnvironment({XTEND_RELEASE_ARTIFACT:f.directory,XTEND_RELEASE_MANIFEST_INTEGRITY:sealed.manifestIntegrity},async()=>{
+   const result=await m.gate.runCorePreparationGate({rootDir:f.f.rootDir});assert.equal(result.ok,true,JSON.stringify(result.failures));assert.deepEqual(result.skips,[]);
+   const publishGate=await m.gate.runCoreEvidenceGate({rootDir:f.f.rootDir});assert.equal(publishGate.ok,false);assert.match(publishGate.failures.join(),/source-level/);
+  });
+  await assert.rejects(m.boundEvidence.verifyPublicationEvidence(a),/source-level/);
+  await assert.rejects(m.boundArtifact.assertSealedArtifact(a),/source-level/);
+  assert.equal(fs.existsSync(f.f.ledgerFile),false,'preparation never enters the publisher ledger');
+  await assert.rejects(require('../../scripts/release/publish.cjs').publishRelease({artifact:a,publish:true,ledgerFile:f.f.ledgerFile,registry:{version:forbidden,package:forbidden},publisher:{publish:forbidden,dryRun:forbidden}}),/source-level/);
+  for(const [file,bytes] of before)assert.deepEqual(fs.readFileSync(path.join(f.directory,file)),bytes);
+  assert.equal(a.manifest.coreEvidence.file,'core-evidence/index.json');assert.equal(p.counts().sourceChecks>1,true);assert.equal(p.counts().securityChecks>1,true);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(f.directory,'core-evidence/index.json'))).source.candidateAuthority.publicationGuardRetired,false);
+ });
+ assert.equal(forbiddenCalls,0);
+});
+for(const [label,options] of [
+ ['implicit mode',{env:{XTEND_RELEASE_PUBLISH:'false'}}],
+ ['missing publish flag',{env:{XTEND_RELEASE_PUBLISH:undefined,XTEND_RELEASE_PREPARE:'true'}}],
+ ['untyped prepare flag',{env:{...prepareEnv,XTEND_RELEASE_PREPARE:'1'}}],
+ ['wrong source',{mutate:({env})=>{env.GITHUB_SHA='f'.repeat(40);}}],
+ ['wrong ref',{mutate:({env})=>{env.GITHUB_REF='refs/heads/untrusted';}}],
+ ['automatic event',{mutate:({env})=>{env.GITHUB_EVENT_NAME='push';}}],
+ ['missing mandatory gate',{mutate:({needs})=>{delete needs['laravel-release-gates'];}}],
+ ['failed mandatory gate',{mutate:({needs})=>{needs['core-security-browser'].result='failure';}}],
+ ['missing consumer lane',{mutate:({metadata})=>{metadata.splice(2,1);}}],
+ ['missing security proof',{mutate:({metadata})=>{metadata.pop();}}],
+ ['tampered zip',{mutate:({bytes})=>{bytes.set(902,Buffer.from('tampered'));}}],
+ ['missing source authority',{authorityError:true}]
+])test('publish-free collection fails closed: '+label,async t=>{
+ const f=await preparedFixture(t);await assert.rejects(envelopeFixture(f,{env:prepareEnv,...options}));
+ assert.equal(fs.existsSync(path.join(f.directory,'core-evidence/index.json')),false);
+ assert.equal(Object.hasOwn(JSON.parse(fs.readFileSync(path.join(f.directory,'release-manifest.json'))),'sealedAt'),false);
+});
+test('preparation gate rejects missing inputs, unsealed bytes and tampered sealed evidence',async t=>{
+ const f=await preparedFixture(t);
+ await withEnvironment({XTEND_RELEASE_ARTIFACT:undefined,XTEND_RELEASE_MANIFEST_INTEGRITY:undefined,GITHUB_SHA:undefined},async()=>{
+  assert.equal((await require('../../scripts/release/evidence-gate.cjs').runCorePreparationGate({rootDir:f.f.rootDir})).ok,false);
+ });
+ const p=await envelopeFixture(f,{env:prepareEnv}),m=preparationModules(p);
+ const env={XTEND_RELEASE_ARTIFACT:f.directory,GITHUB_SHA:f.f.sourceSha,XTEND_RELEASE_MANIFEST_INTEGRITY:p.artifact.manifestIntegrity};
+ await withEnvironment(env,async()=>assert.equal((await m.gate.runCorePreparationGate({rootDir:f.f.rootDir})).ok,false));
+ f.manifest.sealedAt=p.envelope.sealedAt;f.manifest.coreEvidence={file:'core-evidence/index.json',integrity:artifact.digest(fs.readFileSync(path.join(f.directory,'core-evidence/index.json')))};
+ f.manifest.canary=p.envelope.lanes[0].consumer;write(path.join(f.directory,'release-manifest.json'),f.manifest);
+ env.XTEND_RELEASE_MANIFEST_INTEGRITY=artifact.digest(fs.readFileSync(path.join(f.directory,'release-manifest.json')));
+ await withEnvironment(env,async()=>{
+  assert.equal((await m.gate.runCorePreparationGate({rootDir:f.f.rootDir})).ok,true);
+  const proofFile=path.join(f.directory,p.envelope.security.report.file);fs.appendFileSync(proofFile,' ');
+  const result=await m.gate.runCorePreparationGate({rootDir:f.f.rootDir});assert.equal(result.ok,false);assert.match(result.failures.join(),/integrity|differs/);
+ });
+});
+test('preparation profile retains every technical check with a distinct non-publishing evidence identity',()=>{
+ const c=require('../../scripts/test-runner/catalog');
+ const replace=id=>id==='core-release-evidence'?'core-preparation-evidence':id;
+ assert.deepEqual(c.profileIds('ci-prepare').sort(),c.profileIds('ci-publish').map(replace).sort());
+ assert.equal(c.canonicalSuite('core-preparation-evidence').id,'core-preparation-evidence');
+ assert.equal(c.byId.get('core-preparation-evidence').defaultIncluded,false);
+ assert.deepEqual(c.catalog.profiles['ci-prepare'],{...c.catalog.profiles['ci-publish'],suites:c.catalog.profiles['ci-publish'].suites.map(replace)});
+ assert.deepEqual(c.catalog.ci['ci-prepare'],JSON.parse(JSON.stringify(c.catalog.ci['ci-publish']).replace('release:verify-core-evidence','release:verify-preparation-evidence')));
+ const executor=require('../../scripts/test-runner/executor'),ids=c.profileIds('ci-prepare');
+ const provenance={run:'controlled',commit:'a'.repeat(40),sourceFingerprint:'controlled',catalogFingerprint:c.fingerprint(),runtime:{node:process.version}};
+ const report={...provenance,schema:executor.SCHEMA,executionId:'controlled-projection',complete:true,profile:'ci-prepare',expected:ids,
+  results:ids.map(id=>({id,executionId:c.canonicalSuite(id).id,completedAt:new Date().toISOString(),result:{id,status:'passed',failures:[],skips:[]}}))};
+ const rejected=executor.verifyExecution({verify:'ci-publish',executionReport:report,provenance,project:false});
+ assert.equal(rejected.status,'failed');assert.ok(rejected.errors.includes('Missing, duplicate or invalid suite result: core-release-evidence.'));
+});
+test('prepare-only flags do not bypass ci-publish execution or verification guards',async()=>{
+ await withEnvironment(prepareEnv,async()=>{
+  const cli=require('../../scripts/test-runner/cli');
+  await assert.rejects(cli.main(['--profile','ci-publish']),/source-level/);
+  await assert.rejects(cli.main(['--verify','ci-publish','--from','/nonexistent-preparation-report']),/source-level/);
+ });
+});
 for(const selection of [undefined,{groups:['mcp']},{groups:['material']}])test('Core adapter verifies unchanged candidate bytes with scope '+JSON.stringify(selection),async t=>{
  const f=await preparedFixture(t,{selection}),bytes=fs.readFileSync(path.join(f.directory,'manifest.json')),a=await f.verify();
  assert.equal(a.manifest.schema,profile.ARTIFACT);assert.equal(a.manifest.profile,profile.PROFILE);

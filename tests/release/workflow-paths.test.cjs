@@ -9,6 +9,37 @@ const { createRequire } = require('node:module');
 const { resolveNpmCli } = require('../../scripts/release/toolchain.cjs');
 const { CERTIFICATE_IDENTITY, VERIFICATION_OPTIONS } = require('../../scripts/release/provenance.cjs');
 const root = path.resolve(__dirname, '../..');
+test('manual preparation enables the same sealing gates without activating npm publication',()=>{
+  const workflow=fs.readFileSync(path.join(root,'.github/workflows/xtend-default-gates.yml'),'utf8');
+  const job=name=>workflow.split('\n  '+name+':\n')[1].split(/\n  [a-z][\w-]*:\n/u)[0];
+  const condition=name=>{
+    const value=job(name).match(/^    if: (.*(?:\n {6,}[^\n]*)*)/m)[1];
+    return value.replace(/^>-\s*/,'').replace(/\$\{\{|\}\}/g,'').replace(/needs\.([\w-]+)/g,"needs['$1']").trim();
+  };
+  const needs=Object.fromEntries([...require('../../scripts/release/github.cjs').gates,'release-seal'].map(id=>[id,{result:'success'}]));
+  for(const event of ['workflow_dispatch','push','pull_request'])for(const prepare of [false,true])for(const publish of [false,true]){
+    const context={github:{event_name:event,repository:'konnilabs/xtend',ref:'refs/heads/main'},inputs:{prepare_release:prepare,publish_to_npm:publish},needs,cancelled:()=>false};
+    const expected=event==='workflow_dispatch';
+    for(const id of ['laravel-release-gates','release-seal'])assert.equal(require('node:vm').runInNewContext(condition(id),context),expected&&(prepare||publish),id);
+    assert.equal(require('node:vm').runInNewContext(condition('npm-publish-latest'),context),expected&&publish);
+  }
+  assert.match(workflow,/prepare_release:[\s\S]*?default: false\n\s+type: boolean/);
+  assert.match(job('release-seal'),/XTEND_RELEASE_PREPARE: \$\{\{ inputs.prepare_release \}\}/);
+  for(const id of ['release-prepare','release-seal','laravel-release-gates'])assert.ok(!job(id).includes('id-token:'));
+});
+test('actual seal check shell selects preparation or guarded publish while retaining all blocking commands',t=>{
+  const shell=cleanShell(t),workflow=fs.readFileSync(path.join(root,'.github/workflows/xtend-default-gates.yml'),'utf8');
+  const step=workflow.slice(workflow.indexOf('      - name: Run blocking checks against the verified Core artifact for the requested mode'));
+  const run=step.match(/run: \|\n((?: {10}[^\n]*\n)+)/)[1].replace(/^ {10}/gm,'');
+  // Shell function intercepts every npm command; no npm CLI/backend is run.
+  for(const publish of ['false','true']){
+    shell.env.RELEASE_PUBLISH=publish;
+    const commands=shell.run('set -e\nnpm() { printf "%s\\n" "$*"; }\n'+run).trim().split('\n');
+    assert.deepEqual(commands,['run native-first:evidence:prepare','run test:ci-'+(publish==='true'?'publish':'prepare'),
+      'run test:xtend-mcp:report','run pack:dry-run','run conditional-network:evidence']);
+  }
+  assert.throws(()=>shell.run('set -e\nnpm() { return 19; }\n'+run),error=>error.status===19);
+});
 function cleanShell(t) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-release-shell-'));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
