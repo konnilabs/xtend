@@ -1,0 +1,176 @@
+name: XTend optional macOS evidence
+
+# Deliberate edge-case evidence only; never a PR, release-seal or npm prerequisite.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: xtend-optional-macos-evidence-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  optional-macos-native-toolchain:
+    name: Optional macOS native toolchain (${{ matrix.runner_label }}, Node ${{ matrix.node_version }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            runner_label: macos-15-arm64
+            expected_platform: darwin
+            expected_arch: arm64
+            node_version: '24.18.0'
+            runtime_lane: node-24-lts
+            artifact_suffix: macos-15-arm64-node-24-18-0
+          - runner: macos-15
+            runner_label: macos-15-arm64
+            expected_platform: darwin
+            expected_arch: arm64
+            node_version: '26.5.0'
+            runtime_lane: node-26-current
+            artifact_suffix: macos-15-arm64-node-26-5-0
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Setup Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node_version }}
+          architecture: ${{ matrix.expected_arch }}
+          package-manager-cache: false
+
+      - name: Verify runner OS and architecture
+        run: node -e "const expected={platform:'${{ matrix.expected_platform }}',arch:'${{ matrix.expected_arch }}'}; const observed={platform:process.platform,arch:process.arch}; console.log(JSON.stringify({expected,observed})); if(observed.platform!==expected.platform||observed.arch!==expected.arch){console.error('Runner OS/architecture mismatch.');process.exit(1)}"
+
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane ${{ matrix.runtime_lane }}
+
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane ${{ matrix.runtime_lane }}
+
+      - name: Validate CI dependency lock alignment
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run ci:dependency-locks:check
+
+      - name: Install root native-toolchain dependencies without lifecycle scripts
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        id: install_1
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
+      - name: Run Node native toolchain smoke
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        run: npm run test:node-native-toolchain
+
+      - name: Upload Node native toolchain smoke evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: xtend-optional-macos-native-toolchain-${{ matrix.artifact_suffix }}
+          path: |
+            .xtend-test-results/runtime/xtend-node-runtime-${{ matrix.runtime_lane }}.json
+            .xtend-test-results/runtime/xtend-node-warnings-${{ matrix.runtime_lane }}.jsonl
+            .xtend-test-results/xtend-node-native-toolchain-smoke.json
+          if-no-files-found: error
+
+  optional-macos-mcp-vscode:
+    name: Optional macOS MCP VSIX (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Configure npm download cache
+        run: node scripts/configure_npm_cache.js
+
+      - name: Restore npm downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/xtend-npm-cache
+          key: xtend-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Setup Node.js 24.18.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+
+      - name: Pin npm 11.17.0
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@11.17.0 --no-audit --fund=false
+
+      - name: Capture and validate Node runtime evidence
+        run: node scripts/capture_node_runtime_evidence.js --lane node-24-lts
+
+      - name: Enable Node warning and deprecation policy
+        run: node scripts/enable_node_warning_policy.js --lane node-24-lts
+
+      - name: Validate CI dependency lock alignment
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run ci:dependency-locks:check
+
+      - name: Install workspace dependencies
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        id: install_1
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
+      - name: Build hash-checked VSIX
+        id: build_vsix
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run build:rmt-editor:vscode
+
+      - name: Start bundled read-only and write-opt-in servers
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' && steps.build_vsix.outcome == 'success' }}
+        run: npm run test:xtend-mcp-vsix-smoke
+
+      - name: Upload VSIX smoke artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: xtend-optional-macos-mcp-vsix-${{ matrix.os }}
+          path: |
+            tools/rmt-editor/vscode/xtend-rmt-language-0.1.0-rc.1.vsix
+            .xtend-test-results/runtime/xtend-node-runtime-node-24-lts.json
+            .xtend-test-results/runtime/xtend-node-warnings-node-24-lts.jsonl
+            .xtend-test-results/xtend-mcp-vsix-smoke.json
+            .xtend-test-results/xtend-rmt-editor-vsix-smoke.json
+          if-no-files-found: error

@@ -993,20 +993,6 @@ jobs:
             node_version: '26.5.0'
             runtime_lane: node-26-current
             artifact_suffix: windows-2025-x64-node-26-5-0
-          - runner: macos-15
-            runner_label: macos-15-arm64
-            expected_platform: darwin
-            expected_arch: arm64
-            node_version: '24.18.0'
-            runtime_lane: node-24-lts
-            artifact_suffix: macos-15-arm64-node-24-18-0
-          - runner: macos-15
-            runner_label: macos-15-arm64
-            expected_platform: darwin
-            expected_arch: arm64
-            node_version: '26.5.0'
-            runtime_lane: node-26-current
-            artifact_suffix: macos-15-arm64-node-26-5-0
 
     steps:
       - name: Checkout repository
@@ -1081,7 +1067,6 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
-          - macos-latest
 
     steps:
       - name: Checkout repository

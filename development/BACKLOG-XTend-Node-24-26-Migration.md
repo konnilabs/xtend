@@ -93,7 +93,7 @@ Der Ausgangszustand hatte zwei unterschiedliche Wahrheiten: CI verwendete eine b
 
 ## N26-04 – Native Komponenten und eingebettete Runtimes
 
-Die blockierende GitHub-Matrix umfasst `ubuntu-24.04` x64, `windows-2025` x64 und `macos-15` arm64, jeweils unter Node 24 und 26. Plattform und Architektur werden vor dem Build fail-closed geprüft. Diese Matrix führt ausschließlich die von XTend kontrollierte Node-native Toolchain aus. Sie startet weder Electron noch einen von Electron abhängigen Produkt- oder Layout-Smoke.
+Die blockierende GitHub-Matrix umfasst `ubuntu-24.04` x64 und `windows-2025` x64, jeweils unter Node 24.18.0 und 26.5.0. `macos-15` arm64 mit denselben Node-Pins sowie der MCP-VSIX-Smoke auf `macos-latest` bleiben im separaten Workflow `xtend-macos-optional-evidence.yml` ausschließlich per `workflow_dispatch` als optionale Edge-Case-Evidence verfügbar. macOS ist keine Voraussetzung für PR, Release-Sealing, npm-Publish oder Node-Cutover; längere Runner-Wartezeiten werden nur bei einem bewussten manuellen Lauf in Kauf genommen. Dispatch und Artefakte sind im Scoped-Npm-Release-Runbook dokumentiert. Plattform und Architektur werden vor dem Build fail-closed geprüft. Diese Matrix führt ausschließlich die von XTend kontrollierte Node-native Toolchain aus. Sie startet weder Electron noch einen von Electron abhängigen Produkt- oder Layout-Smoke.
 
 Das XTend-LLM-Produkt trennt zwei Evidenzklassen:
 
@@ -104,11 +104,11 @@ Der portable Node-Launcher entfernt für diese lokale Evidence `ELECTRON_RUN_AS_
 
 Der Grund für diese Grenze ist technisch: Die Electron-SUID-Sandbox benötigt Hostkonfiguration, die auf GitHub-Runnern nicht zuverlässig und sicher hergestellt werden kann. Ein Lauf mit `--no-sandbox` ist keine akzeptierte Ersatz-Evidenz. Electron bleibt daher eine upstream-owned eingebettete Runtime und keine Projekt-Node-Freigabevoraussetzung.
 
-**DoD:** Sechs grüne Cross-OS-Lanes der Electron-freien Node-nativen Toolchain; AppServices-Build-/Contract-Catfood in den regulären Gates; Electron-Major, eingebetteter Node-Major, Layout sowie Sharp-/ONNX-Ausführung ausschließlich als getrennte lokale/manuelle Owner-Evidence.
+**DoD:** Vier grüne Linux-/Windows-Lanes der Electron-freien Node-nativen Toolchain; macOS als getrennte optionale manuelle Evidence; AppServices-Build-/Contract-Catfood in den regulären Gates; Electron-Major, eingebetteter Node-Major, Layout sowie Sharp-/ONNX-Ausführung ausschließlich als getrennte lokale/manuelle Owner-Evidence.
 
 ## N26-05 – Node-26-LTS-Cutover und Release
 
-N26-05 ist vor dem 28. Oktober 2026 nicht ausführbar. Danach sind mindestens 14 aufeinanderfolgende grüne Tage, grüne Full-Release-Gates in beiden Lanes sowie grüne Electron-freie Node-Native-Smokes auf allen drei Betriebssystemen erforderlich. Lokale Electron-Evidenz ist informativ für Desktop-Owner, aber keine Cutover- oder Publish-Bedingung.
+N26-05 ist vor dem 28. Oktober 2026 nicht ausführbar. Danach sind mindestens 14 aufeinanderfolgende grüne Tage, grüne Full-Release-Gates in beiden Lanes sowie grüne Electron-freie Node-Native-Smokes auf Linux und Windows erforderlich. macOS-Smokes bleiben optionale manuelle Evidence. Lokale Electron-Evidenz ist informativ für Desktop-Owner, aber keine Cutover- oder Publish-Bedingung.
 
 Erst dann werden in einem koordinierten Breaking Release alle Engines und Templates auf `>=26`, Contributor-/Publish-Default auf eine zu diesem Zeitpunkt aktuelle signierte Node-26-LTS-Patchversion und `@types/node` auf 26 gesetzt. Die Node-24-Hostlane wird entfernt; Electrons eingebettete Node-24-Runtime darf als sichtbare Upstream-Ausnahme weiterbestehen. Migration Guide, Changelog und Release Notes nennen den Support-Drop ausdrücklich.
 

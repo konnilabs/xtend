@@ -5,7 +5,7 @@
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
   "inventorySha256": "34202c19a1090d5eccf95c15e62ec1d6dca21ab9b639ac29960c3d90d9101ba2",
-  "sourceMembershipSha256": "bc5aa92b342422d0e406c8ad1e2b84e4bd0d501c054dce8d615196961e990bc2",
+  "sourceMembershipSha256": "4415792aa51fd8675cbe2fe7b0c274e200d203f7c3e1ac35a6d387863ec116d4",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,

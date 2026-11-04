@@ -177,7 +177,8 @@ function validateDocs(context, rootDir) {
 function validateCiContracts(context, rootDir) {
   const workflowPaths = [
     '.github/workflows/xtend-default-gates.yml',
-    '.github/workflows/xtend-nightly-build.yml'
+    '.github/workflows/xtend-nightly-build.yml',
+    '.github/workflows/xtend-macos-optional-evidence.yml'
   ];
   workflowPaths.forEach((relativePath) => {
     const workflow = readText(relativePath, rootDir);
@@ -204,10 +205,12 @@ function validateCiContracts(context, rootDir) {
   const defaultWorkflow = readText('.github/workflows/xtend-default-gates.yml', rootDir);
   const nightlyWorkflow = readText('.github/workflows/xtend-nightly-build.yml', rootDir);
   context.assert(defaultWorkflow.includes('node-native-toolchain-smoke:'), 'Default CI exposes a blocking cross-platform Node-native toolchain smoke job');
-  ['ubuntu-24.04', 'windows-2025', 'macos-15'].forEach((runner) => {
+  ['ubuntu-24.04', 'windows-2025'].forEach((runner) => {
     context.assert(defaultWorkflow.includes(`runner: ${runner}`), `Native smoke matrix includes ${runner}`);
   });
-  context.assert(defaultWorkflow.includes('expected_arch: arm64'), 'macOS native smoke is explicitly arm64');
+  const macosWorkflow = readText('.github/workflows/xtend-macos-optional-evidence.yml', rootDir);
+  context.assert(!/macos|darwin/iu.test(defaultWorkflow), 'Required PR and release workflow has no macOS runner');
+  context.assert(macosWorkflow.includes('runner: macos-15') && macosWorkflow.includes('expected_arch: arm64'), 'Optional macOS native smoke remains explicitly arm64');
   context.assert(require("../utils/test-catalog").workflowHasScript(defaultWorkflow, "test:node-native-toolchain"), 'Native smoke executes the TypeScript/Rollup/Terser/Vite/native toolchain probe');
   context.assert(
     !/electron/iu.test(defaultWorkflow) && !/electron/iu.test(nightlyWorkflow),
