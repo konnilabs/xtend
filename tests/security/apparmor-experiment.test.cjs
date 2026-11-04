@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {runnerContext,profileText,present,withTemporaryProfile,validateGate}=require('../../scripts/experiment_browser_apparmor.cjs');
+const {runnerContext,evidenceTarget,producerOutcome,profileText,present,withTemporaryProfile,validateGate}=require('../../scripts/experiment_browser_apparmor.cjs');
 const runner={GITHUB_ACTIONS:'true',RUNNER_ENVIRONMENT:'github-hosted',GITHUB_REPOSITORY:'konnilabs/xtend',
   ImageOS:'ubuntu24',RUNNER_OS:'Linux',RUNNER_ARCH:'X64',GITHUB_EVENT_NAME:'workflow_dispatch',
   GITHUB_RUN_ID:'123',GITHUB_RUN_ATTEMPT:'1',RUNNER_TEMP:'/home/runner/work/_temp'};
@@ -55,4 +55,35 @@ test('blocked, skipped and contradictory product evidence remains failure',()=>{
   for(const status of ['infrastructure-blocked','not-run','failed','skipped'])
     assert.throws(()=>validateGate({...passed,product:{status}}));
   assert.throws(()=>validateGate({...passed,status:'infrastructure-blocked'}));
+});
+test('regular gates permit only their exact workflow/job and supported event contexts',()=>{
+  for(const mode of ['gate','execution']){
+    const workflow=mode==='gate'?'security-scan-regressions.yml':'xtend-default-gates.yml';
+    const job=mode==='gate'?'browser-security':'core-security-browser';
+    for(const [event,ref] of [['workflow_dispatch','refs/heads/experiment/apparmor-userns'],['push','refs/heads/main'],['pull_request','refs/pull/123/merge']]){
+      const env={...runner,GITHUB_EVENT_NAME:event,GITHUB_REF:ref,GITHUB_JOB:job,
+        GITHUB_WORKFLOW_REF:'konnilabs/xtend/.github/workflows/'+workflow+'@'+ref};
+      const context=runnerContext('regular-'+mode,env,ubuntu);
+      assert.equal(context.regular,true);assert.equal(context.producerMode,mode);
+      assert.equal(context.binary,'/home/runner/work/_temp/xtend-security-browser/chrome-linux64/chrome');
+      assert.notEqual(context.profile,runnerContext(mode,runner,ubuntu).profile);
+      const file=evidenceTarget(context,'/ignored');
+      assert.ok(file.endsWith(mode==='gate'?'/security-browser-gate.json':'/core-security/security-execution.json'));
+      for(const override of [{GITHUB_EVENT_NAME:'pull_request_target'},{GITHUB_JOB:'other'},
+        {GITHUB_WORKFLOW_REF:'other'},{GITHUB_REF:'refs/heads/substituted'},{RUNNER_ENVIRONMENT:'self-hosted'}])
+        assert.throws(()=>runnerContext('regular-'+mode,{...env,...override},ubuntu));
+    }
+  }
+});
+test('regular lifecycle preserves PR-only unavailable coverage without relabeling it as a test pass',()=>{
+  const success={status:0,signal:null,abortCause:null,cleanupError:null};
+  const unavailable={outcome:'infrastructure-not-executed',browserSecurityCoverage:'unavailable',releaseEligible:false};
+  assert.equal(producerOutcome(success),'passed');
+  assert.throws(()=>producerOutcome({...success,status:1}));
+  assert.equal(producerOutcome({...success,status:1},unavailable),'infrastructure-not-executed');
+  assert.throws(()=>producerOutcome(success,unavailable));
+  for(const policy of [{...unavailable,releaseEligible:true},{...unavailable,browserSecurityCoverage:'executed'},
+    {...unavailable,outcome:'passed'}])assert.throws(()=>producerOutcome({...success,status:1},policy));
+  for(const override of [{signal:'SIGTERM'},{abortCause:'timeout'},{cleanupError:'group survived'}])
+    assert.throws(()=>producerOutcome({...success,status:1,...override},unavailable));
 });

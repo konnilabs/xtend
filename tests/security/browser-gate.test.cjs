@@ -167,7 +167,7 @@ test('workflow keeps strict security aggregation and release browser dependencie
   assert.match(security,/test "\$NODE_RESULT" = success/);assert.match(security,/test "\$BROWSER_RESULT" = success/);
   assert.doesNotMatch(security,/continue-on-error|--no-sandbox/);
   assert.match(security,/node scripts\/security-node-tests\.cjs/);
-  assert.match(security,/node --test --test-reporter=tap tests\/security\/browser\.test\.mjs/);
+  assert.match(security,/node scripts\/experiment_browser_apparmor\.cjs regular-gate/);
   const workflow=fs.readFileSync(path.join(root,'.github/workflows/xtend-default-gates.yml'),'utf8');
   const job=name=>workflow.split('\n  '+name+':\n')[1]?.split(/\n  [a-z][\w-]*:\n/)[0] || '';
   const development=job('development-core-node-rmt');
@@ -285,13 +285,19 @@ for(const mode of ['gate','execution'])test(mode+' policy requires PR scope and 
 test('workflow routes only pull_request through policy and keeps raw release archive unchanged',()=>{
   for(const [file,mode]of [['security-scan-regressions.yml','gate'],['xtend-default-gates.yml','execution']]){
     const text=fs.readFileSync(path.join(root,'.github/workflows',file),'utf8');
-    assert.match(text,new RegExp("if: github.event_name == 'pull_request'[\\s\\S]*?run: node tests/security/browser-gate.cjs --run-pr "+mode));
+    assert.match(text,new RegExp("if: github.event_name == 'pull_request'[\\s\\S]*?run: node scripts/experiment_browser_apparmor.cjs regular-"+mode));
     assert.match(text,/if: always\(\) && github.event_name == 'pull_request'\n        env:\n          NODE_OPTIONS: [^\n]+\n        run: node tests\/security\/browser-gate\.cjs --policy/);
-    assert.match(text,/if: github.event_name != 'pull_request'[\s\S]*?node (?:--test|scripts\/run_xtend_tests\.js)/);
+    assert.match(text,new RegExp("if: github.event_name != 'pull_request'[\\s\\S]*?node scripts/experiment_browser_apparmor.cjs regular-"+mode));
     assert.match(text,/if: always\(\) && github.event_name != 'pull_request'[\s\S]*?--(?:gate|execution)/);
     const browserJob=text.split("\n  "+(mode==='gate'?'browser-security':'core-security-browser')+":\n")[1].split(/\n  [a-z][\w-]*:\n/)[0];
     assert.doesNotMatch(browserJob,/continue-on-error/);
+    assert.match(browserJob,/runs-on: ubuntu-24\.04/);
+    assert.match(browserJob,new RegExp('if: always\\(\\)\\n        run: node scripts/experiment_browser_apparmor.cjs regular-'+mode+' --cleanup'));
   }
+  const lifecycle=fs.readFileSync(path.join(root,'scripts/experiment_browser_apparmor.cjs'),'utf8');
+  assert.match(lifecycle,/context\.regular&&process\.env\.GITHUB_EVENT_NAME==='pull_request'/);
+  assert.match(lifecycle,/await runPolicy\(context\.producerMode,file\)/);
+  assert.match(lifecycle,/await runPolicyProducer\(\{rootDir,mode:context\.producerMode,file/);
   const core=fs.readFileSync(path.join(root,'scripts/release/core-security.cjs'),'utf8');
   assert.ok(core.indexOf("report.sourceIntegrity='passed'")<core.indexOf('throw Error(blockedFailure)'));
 });

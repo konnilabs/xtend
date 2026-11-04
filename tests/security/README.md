@@ -36,12 +36,13 @@ The official [Chromium AppArmor/user-namespace documentation](https://chromium.g
 describes Linux host-policy restrictions that can prevent downloaded Chromium
 builds from creating their sandbox. This is a known runner/binary/policy
 compatibility class, not proof of the cause of XTend's observed launches and not a
-confirmed Chromium upstream defect. This patch changes no AppArmor, userns,
-privilege, sandbox, binary pin or timeout setting.
-
-A separately triggered [isolated AppArmor experiment](APPARMOR-EXPERIMENT.md)
-tests an exact-path temporary exception on disposable GitHub-hosted runners.
-It is not enabled by either required workflow and supplies no release acceptance.
+confirmed Chromium upstream defect. Both regular browser jobs now use the
+[tested temporary AppArmor lifecycle](APPARMOR-EXPERIMENT.md) on Ubuntu 24.04:
+only the verified pinned Chrome executable receives a userns exception, removed
+after the producer and checked again in an independent `always()` step. Global
+userns policy, browser flags, identity, binary pin and timeout remain unchanged.
+The existing raw report paths and release verification are preserved; additional
+AppArmor lifecycle evidence is uploaded separately from the release artifact.
 
 ## Development aggregation versus release acceptance
 
@@ -79,7 +80,8 @@ supervisor evidence. The summary rechecks that receipt against the raw report an
 current source/context. Core release artifact contents and names are unchanged;
 the PR receipt is retained in a separate artifact. Main pushes, manual workflows,
 Nightly and local commands retain their strict behavior. No repository settings,
-host policy, binary pins or sandbox flags are changed; no unsandboxed fallback or
+binary pins or sandbox flags are changed; the temporary exact-path AppArmor
+exception above is the only host-policy adjustment. No unsandboxed fallback or
 blanket error suppression is used.
 
 `release-seal` and `npm-publish-latest` still require the Core browser job to
