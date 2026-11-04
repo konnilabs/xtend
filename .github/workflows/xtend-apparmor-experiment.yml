@@ -1,0 +1,59 @@
+name: Isolated pinned Chrome AppArmor experiment
+on:
+  # This scratch branch is the only automatic trigger. Publishing it requires
+  # separate authorization; this workflow does not change any required gate.
+  push:
+    branches: [experiment/apparmor-userns]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  experiment:
+    name: Temporary exact-path AppArmor (${{ matrix.mode }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [gate, execution]
+    env:
+      XTEND_SECURITY_HOST_DIAGNOSTICS: '1'
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.18.0'
+          package-manager-cache: false
+      - run: npm install --global npm@11.17.0 --no-audit --fund=false
+      - name: Enable strict Node warning policy
+        run: node scripts/enable_node_warning_policy.js --lane apparmor-experiment
+      - run: npm ci --ignore-scripts --no-audit --fund=false
+      - name: Validate source and artifact integrity before changing host policy
+        run: |
+          python3 scripts/build-core-source-artifact.py --core . --core-sha "$GITHUB_SHA" --output "$RUNNER_TEMP/apparmor-core-source" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT"
+          export XTEND_CORE_ARCHIVE="$RUNNER_TEMP/apparmor-core-source/sources.tar.gz"
+          export XTEND_CORE_EXPECTED="$RUNNER_TEMP/apparmor-core-source/producer-receipt.json"
+          node scripts/check-core-source.cjs
+          npm run check:html-sanitizer
+          node xtend-maraca/sync-app-services-esm.js --check
+          node xscaler/generate-esm.js --check
+          node scripts/verify_xtendrmt_artifact_parity.js
+          npm run ci:dependency-locks:check
+          node --test tests/security/apparmor-experiment.test.cjs
+      - name: Prepare the unchanged official Chrome pin
+        run: node scripts/prepare_product_browser_toolchain.cjs "$RUNNER_TEMP/xtend-apparmor-browser"
+      - name: Temporarily allow userns for only the verified Chrome path and run strict assertions
+        run: node scripts/experiment_browser_apparmor.cjs '${{ matrix.mode }}'
+      - name: Independently remove only this run's temporary profile
+        if: always()
+        run: node scripts/experiment_browser_apparmor.cjs '${{ matrix.mode }}' --cleanup
+      - name: Retain exact reports, TAP, profile and cleanup evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: apparmor-experiment-${{ matrix.mode }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .xtend-test-results/
+          include-hidden-files: true
+          if-no-files-found: error

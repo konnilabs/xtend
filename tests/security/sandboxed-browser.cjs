@@ -108,14 +108,27 @@ async function verifySandbox(command,child,identity){
   check(rendererRows.length>0&&rendererRows.length<=64,'Actual sandboxed renderer proof required');
   const namespaces=pid=>({pid:fs.readlinkSync('/proc/'+pid+'/ns/pid'),net:fs.readlinkSync('/proc/'+pid+'/ns/net')});
   const browserNamespaces=namespaces(child.pid),renderers=[];
+  // The isolated AppArmor experiment adds evidence; it cannot relax a gate.
+  const expectedProfile=process.env.XTEND_SECURITY_APPARMOR_PROFILE;
+  const apparmor=pid=>{
+    check(/^xtend-userns-[a-f0-9]{32}$/.test(expectedProfile),'Invalid experiment AppArmor profile');
+    const label=fs.readFileSync('/proc/'+pid+'/attr/apparmor/current','utf8').trim();
+    check(label===expectedProfile+' (unconfined)','Live browser/renderer AppArmor attachment mismatch');
+    return {label,userNamespace:fs.readlinkSync('/proc/'+pid+'/ns/user')};
+  };
+  const browserAppArmor=expectedProfile?apparmor(child.pid):null;
   for(const row of rendererRows){
     check(Number.isSafeInteger(row.id)&&descendant(row.id,child.pid),'Renderer not owned by launched browser');
     const record=status(row.id);unprivileged(record,identity.uid,identity.gid);
     const actual=namespaces(row.id);
     check(record.noNewPrivs==='1'&&record.seccomp==='2'&&actual.pid!==browserNamespaces.pid&&actual.net!==browserNamespaces.net,
       'Actual renderer namespace/no-new-privileges/seccomp proof failed');
-    renderers.push({...record,namespaces:actual});
+    const rendererAppArmor=expectedProfile?apparmor(row.id):null;
+    if(expectedProfile)check(rendererAppArmor.userNamespace!==browserAppArmor.userNamespace,
+      'Actual renderer user namespace must differ from browser namespace');
+    renderers.push({...record,namespaces:actual,...(expectedProfile?{apparmor:rendererAppArmor}:{})});
   }
-  return {browser:identity,browserPid:child.pid,browserNamespaces,sandboxRows:rows,renderers};
+  return {browser:identity,browserPid:child.pid,browserNamespaces,sandboxRows:rows,renderers,
+    ...(expectedProfile?{apparmor:browserAppArmor}:{})};
 }
 module.exports={pin,configuredBrowser,browserArguments,launchSandboxedBrowser,verifySandbox};

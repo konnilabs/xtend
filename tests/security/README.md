@@ -39,6 +39,10 @@ compatibility class, not proof of the cause of XTend's observed launches and not
 confirmed Chromium upstream defect. This patch changes no AppArmor, userns,
 privilege, sandbox, binary pin or timeout setting.
 
+A separately triggered [isolated AppArmor experiment](APPARMOR-EXPERIMENT.md)
+tests an exact-path temporary exception on disposable GitHub-hosted runners.
+It is not enabled by either required workflow and supplies no release acceptance.
+
 ## Development aggregation versus release acceptance
 
 `Core / Node / RMT development checks` is a PR-only summary of the explicitly
