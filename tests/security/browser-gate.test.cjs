@@ -292,7 +292,7 @@ test('workflow routes only pull_request through policy and keeps raw release arc
     const browserJob=text.split("\n  "+(mode==='gate'?'browser-security':'core-security-browser')+":\n")[1].split(/\n  [a-z][\w-]*:\n/)[0];
     assert.doesNotMatch(browserJob,/continue-on-error/);
     assert.match(browserJob,/runs-on: ubuntu-24\.04/);
-    assert.match(browserJob,new RegExp('if: always\\(\\)\\n        run: node scripts/experiment_browser_apparmor.cjs regular-'+mode+' --cleanup'));
+    assert.match(browserJob,new RegExp('if: always\\(\\)\\n        env:\\n          NODE_OPTIONS: [^\\n]+node_warning_policy\\.cjs\\n        run: node scripts/experiment_browser_apparmor.cjs regular-'+mode+' --cleanup'));
   }
   const lifecycle=fs.readFileSync(path.join(root,'scripts/experiment_browser_apparmor.cjs'),'utf8');
   assert.match(lifecycle,/context\.regular&&process\.env\.GITHUB_EVENT_NAME==='pull_request'/);

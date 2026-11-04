@@ -64,6 +64,8 @@ jobs:
         run: node scripts/experiment_browser_apparmor.cjs regular-gate
       - name: Independently remove the temporary browser AppArmor profile
         if: always()
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/experiment_browser_apparmor.cjs regular-gate --cleanup
       - name: Retain AppArmor lifecycle and owned-process evidence separately
         if: always()
