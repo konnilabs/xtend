@@ -9,6 +9,7 @@
     ".comments/XTend RMT.png.xml",
     ".gitattributes",
     ".github/workflows/security-scan-regressions.yml",
+    ".github/workflows/xtend-apparmor-experiment.yml",
     ".github/workflows/xtend-browser-hypervisor-matrix.yml",
     ".github/workflows/xtend-default-gates.yml",
     ".github/workflows/xtend-demo-functional.yml",
@@ -1639,6 +1640,7 @@
     "scripts/development-gate.cjs",
     "scripts/docs_content_profiles.js",
     "scripts/enable_node_warning_policy.js",
+    "scripts/experiment_browser_apparmor.cjs",
     "scripts/finalize_component_build.js",
     "scripts/generate_xtendrmt_esm_entrypoints.js",
     "scripts/migration-functional-acceptance.cjs",
@@ -2667,7 +2669,9 @@
     "tests/schemas/workflow_comparison.test.cjs",
     "tests/schemas/workflow_comparison_mutation.py",
     "tests/schemas/xtend-schema-inventory.json",
+    "tests/security/APPARMOR-EXPERIMENT.md",
     "tests/security/README.md",
+    "tests/security/apparmor-experiment.test.cjs",
     "tests/security/browser-gate.cjs",
     "tests/security/browser-gate.test.cjs",
     "tests/security/browser.test.mjs",
@@ -3450,7 +3454,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "a119dee05527ea16fded010f51b196e7990a7c1c43335aa8d03003641e27dd41",
+  "authorityDecisionSha256": "e9140b945b6d74b728ecef0e1260de4b01bc2b1724178378ba6d1ea3e385a130",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "8fc57e4eb96a3a6fd0155234f06cc4b95879fc9d492fdaad8171e26345e4f865"
 }
