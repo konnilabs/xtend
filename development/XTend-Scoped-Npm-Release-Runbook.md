@@ -287,6 +287,42 @@ The final manifest's expected SHA-512 must come from independently reviewed
 immutable CI artifact metadata, not be recalculated from an arbitrary local file
 and accepted automatically. Hashes provide integrity, not review authorization.
 
+## Optional macOS evidence
+
+The required `node-native-toolchain-smoke` job covers Ubuntu 24.04 x64 and
+Windows 2025 x64 on both Node 24.18.0 and 26.5.0. The required
+`xtend-mcp-vscode-smoke` job covers Linux and Windows on Node 24.18.0.
+Both jobs remain prerequisites of PR development checks, release sealing and npm
+publication. All existing source/projection, authentication, browser, warning and
+publish-authority checks remain mandatory.
+
+For deliberate macOS edge-case checks, manually run **XTend optional macOS
+evidence** (`.github/workflows/xtend-macos-optional-evidence.yml`). It retains the
+native toolchain smoke on `macos-15` arm64 for both exact Node pins, plus the MCP
+VSIX smoke on `macos-latest`. It uses the same strict warning policy, npm pin,
+lock validation, commands and evidence uploads as the required jobs. Failed
+checks fail this optional run; they never supply or block PR/release acceptance.
+The workflow has only `workflow_dispatch`, read-only repository permission and
+no release or publication jobs. Its independent concurrency group cannot cancel
+required runs. Runner queue time is an accepted cost of an explicit dispatch.
+
+Once the workflow exists on the default branch, use Actions → **XTend optional
+macOS evidence** → **Run workflow**, select the desired branch, and run it, or:
+
+```bash
+gh workflow run xtend-macos-optional-evidence.yml --repo konnilabs/xtend --ref <branch>
+```
+
+The selected ref must contain the workflow. A new workflow present only on an
+unmerged PR branch is not dispatchable until it exists on the default branch
+([GitHub dispatch documentation](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow)); adding this file does not authorize a merge. Record the run URL and exact
+head SHA with any benchmark interpretation. Download the three artifacts named
+`xtend-optional-macos-native-toolchain-macos-15-arm64-node-24-18-0`,
+`xtend-optional-macos-native-toolchain-macos-15-arm64-node-26-5-0`, and
+`xtend-optional-macos-mcp-vsix-macos-latest`. They include the original smoke and
+runtime/warning reports (and the VSIX); they are optional diagnostic evidence,
+not a release receipt or authenticated Core acceptance proof.
+
 ## Workflow, defaults and immutable resume
 
 Inventory, artifact verification, preflight, publish and pipeline commands default

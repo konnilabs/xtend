@@ -993,20 +993,6 @@ jobs:
             node_version: '26.5.0'
             runtime_lane: node-26-current
             artifact_suffix: windows-2025-x64-node-26-5-0
-          - runner: macos-15
-            runner_label: macos-15-arm64
-            expected_platform: darwin
-            expected_arch: arm64
-            node_version: '24.18.0'
-            runtime_lane: node-24-lts
-            artifact_suffix: macos-15-arm64-node-24-18-0
-          - runner: macos-15
-            runner_label: macos-15-arm64
-            expected_platform: darwin
-            expected_arch: arm64
-            node_version: '26.5.0'
-            runtime_lane: node-26-current
-            artifact_suffix: macos-15-arm64-node-26-5-0
 
     steps:
       - name: Checkout repository
@@ -1081,7 +1067,6 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
-          - macos-latest
 
     steps:
       - name: Checkout repository
@@ -1533,7 +1518,7 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/check-core-source.cjs
-      - name: Configure pinned browser without changing sandbox or privilege settings
+      - name: Configure pinned unprivileged browser for the temporary exact-path AppArmor profile
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/prepare_product_browser_toolchain.cjs "${{ runner.temp }}/xtend-security-browser"
@@ -1551,13 +1536,25 @@ jobs:
         env:
           XTEND_SECURITY_HOST_DIAGNOSTICS: "1"
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node scripts/run_xtend_tests.js --profile core-security-browser --execution .xtend-test-results/core-security/security-execution.json
+        run: node scripts/experiment_browser_apparmor.cjs regular-execution
       - name: Evaluate PR browser policy with strict raw Core execution evidence
         if: github.event_name == 'pull_request'
         env:
           XTEND_SECURITY_HOST_DIAGNOSTICS: "1"
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
-        run: node tests/security/browser-gate.cjs --run-pr execution .xtend-test-results/core-security/security-execution.json
+        run: node scripts/experiment_browser_apparmor.cjs regular-execution
+      - name: Independently remove the temporary browser AppArmor profile
+        if: always()
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/experiment_browser_apparmor.cjs regular-execution --cleanup
+      - name: Retain AppArmor lifecycle evidence outside the release artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtend-core-security-apparmor-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .xtend-test-results/apparmor-regular-execution/
+          if-no-files-found: error
       - name: Explain PR coverage and policy outcome
         if: always() && github.event_name == 'pull_request'
         env:

@@ -35,7 +35,7 @@ jobs:
     name: Sandboxed Chromium security evidence
     env:
       XTEND_POLICY_SOURCE_SHA: ${{ github.sha }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -55,15 +55,25 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           XTEND_SECURITY_HOST_DIAGNOSTICS: '1'
           XTEND_BROWSER_GATE_REPORT: .xtend-test-results/security-browser-gate.json
-        run: |
-          mkdir -p .xtend-test-results
-          node --test --test-reporter=tap tests/security/browser.test.mjs
+        run: node scripts/experiment_browser_apparmor.cjs regular-gate
       - name: Evaluate PR browser policy with strict raw evidence
         if: github.event_name == 'pull_request'
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
           XTEND_SECURITY_HOST_DIAGNOSTICS: '1'
-        run: node tests/security/browser-gate.cjs --run-pr gate .xtend-test-results/security-browser-gate.json
+        run: node scripts/experiment_browser_apparmor.cjs regular-gate
+      - name: Independently remove the temporary browser AppArmor profile
+        if: always()
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/experiment_browser_apparmor.cjs regular-gate --cleanup
+      - name: Retain AppArmor lifecycle and owned-process evidence separately
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: security-browser-apparmor-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .xtend-test-results/apparmor-regular-gate/
+          if-no-files-found: error
       - name: Explain PR coverage and policy outcome
         if: always() && github.event_name == 'pull_request'
         env:
