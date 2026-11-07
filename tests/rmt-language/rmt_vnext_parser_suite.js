@@ -172,7 +172,7 @@ function runRmtVNextParserSuite(options = {}) {
 
   const primitiveResult = parseFixture(PRIMITIVE_GRAMMAR_FIXTURE, rootDir);
   context.assert(primitiveResult.ok === true, 'primitive grammar fixture parses successfully');
-  context.assert(collectNodes(primitiveResult.ast, 'RmtStateDeclaration').length === 3, 'primitive fixture has three state declarations');
+  context.assert(collectNodes(primitiveResult.ast, 'RmtStateDeclaration').length === 4, 'primitive fixture declares its four states including Action status');
   context.assert(collectNodes(primitiveResult.ast, 'RmtSelectorDeclaration').length === 2, 'primitive fixture has two selectors');
   context.assert(collectNodes(primitiveResult.ast, 'RmtDataSourceDeclaration').length === 2, 'primitive fixture has two datasources');
   context.assert(collectNodes(primitiveResult.ast, 'RmtActionDeclaration').length === 2, 'primitive fixture has two actions');

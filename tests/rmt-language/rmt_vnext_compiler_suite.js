@@ -34,11 +34,13 @@ const {
   RMT_APP_PLATFORM_RECORDS_SCHEMA,
   RMT_KERNEL_BOUNDARY,
   RMT_KERNEL_RECORDS_SCHEMA,
+  compileRmtVNextAst,
   compileRmtVNextSource,
   createRmtAppServiceDemands,
   createRmtVNextCompiler,
   serializeRmtVNextCore
 } = require('../../tools/rmt-language/vnext-compiler');
+const { parseRmtVNextSource } = require('../../tools/rmt-language/vnext-parser');
 const {
   RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES,
   RMT_VNEXT_PRIMITIVE_SEMANTIC_GRAPH_SCHEMA
@@ -84,6 +86,172 @@ function assertSourceMapForRecord(context, core, domain, index, message) {
     Boolean(entry && entry.range && entry.range.start && entry.range.end),
     `${message} range`
   );
+}
+
+function assertAstCompilerBoundary(context, rootDir) {
+  for (const fixture of [VALID_MINIMAL_FIXTURE, VALID_COMPLEX_FIXTURE, VALID_PRIMITIVE_FIXTURE, VALID_RESUMABILITY_FIXTURE]) {
+    const result = parseFixture(fixture, rootDir);
+    const ast = JSON.parse(JSON.stringify(result.parserResult.ast));
+    const before = JSON.stringify(ast);
+    const core = compileRmtVNextAst(ast, { sourceModel: result.parserResult.sourceModel });
+    context.assert(serializeRmtVNextCore(core) === result.coreJson, `AST and source entrypoints emit the same Core for ${fixture}`);
+    context.assert(JSON.stringify(ast) === before, 'checked AST compilation does not mutate the input');
+  }
+  const compiler = createRmtVNextCompiler({ documentId: 'ast.defaults', namespace: 'ast' });
+  const input = { text: readText(VALID_PRIMITIVE_FIXTURE, rootDir), filePath: resolveRepoPath(VALID_PRIMITIVE_FIXTURE, rootDir) };
+  context.assert(
+    serializeRmtVNextCore(compiler.compileAst(parseRmtVNextSource(input).ast)) === compiler.compileSource(input).coreJson,
+    'compiler factory applies the same defaults to checked AST and source compilation'
+  );
+  for (const fixture of [INVALID_PRIMITIVE_FIXTURE, INVALID_RESPONSIVE_BOUNDS_MODE_FIXTURE]) {
+    const result = parseFixture(fixture, rootDir);
+    let error;
+    try { compileRmtVNextAst(result.parserResult.ast, { sourceModel: result.parserResult.sourceModel }); }
+    catch (failure) { error = failure; }
+    context.assert(error?.code === 'rmt.vnext.ast.compilation_failed' && error.phase === result.phase,
+      `AST compilation rejects the same ${result.phase} errors as source compilation`);
+    context.assert(JSON.stringify(error?.diagnostics) === JSON.stringify(result.diagnostics),
+      'AST rejection preserves source diagnostic codes, pointers and ranges');
+    let factoryRejected = false;
+    try { compiler.compileAst(result.parserResult.ast); }
+    catch (failure) { factoryRejected = failure.code === 'rmt.vnext.ast.compilation_failed'; }
+    context.assert(factoryRejected, 'factory compileAst cannot bypass compiler validation');
+  }
+  const validAst = parseRmtVNextSource(input).ast;
+  const cyclic = { ...validAst };
+  cyclic.metadata = cyclic;
+  for (const ast of [null, { ...validAst, schema: 'unknown' }, { ...validAst, body: {} },
+    { ...validAst, body: [{ type: 'RmtUnknownDeclaration' }] }, { ...validAst, metadata: () => 1 }, cyclic]) {
+    let rejected = false;
+    try { compileRmtVNextAst(ast); }
+    catch (error) { rejected = error.code === 'rmt.vnext.ast.compilation_failed' && error.phase === 'ast' && error.diagnostics?.length > 0; }
+    context.assert(rejected, 'AST boundary rejects malformed roots and nonserializable data with diagnostics');
+  }
+}
+
+function assertIdentityAndSelectorSourceBoundaries(context, rootDir) {
+  function assertRejected(text, code, phase, label) {
+    const input = { text, filePath: resolveRepoPath('tmp/a01-boundary.rmt', rootDir) };
+    const result = compileRmtVNextSource(input);
+    context.assert(result.parserResult.ok, `${label}: source is syntactically valid`);
+    context.assert(!result.ok && result.phase === phase, `${label}: compilation rejects at ${phase}`);
+    context.assert(result.coreDocument === null && result.coreJson === null
+      && result.orchestrationArtifacts === null && result.appServiceDemands === null
+      && result.primitiveArtifacts == null, `${label}: no ambiguous or unexecutable artifacts escape`);
+    const diagnostic = result.diagnostics.find(item => item.code === code);
+    context.assert(diagnostic?.severity === 'error' && diagnostic.range?.endOffset > diagnostic.range?.startOffset,
+      `${label}: rejection includes the source range`);
+    let error;
+    try { compileRmtVNextAst(result.parserResult.ast, { sourceModel: result.parserResult.sourceModel }); }
+    catch (failure) { error = failure; }
+    context.assert(error?.code === 'rmt.vnext.ast.compilation_failed' && error.phase === phase
+      && JSON.stringify(error.diagnostics) === JSON.stringify(result.diagnostics),
+    `${label}: AST compilation enforces the same boundary and diagnostics`);
+    return diagnostic;
+  }
+
+  const collisions = [
+    ['state names differing in case', 'template identity {\n state app.One type number initial 1\n state app.one type number initial 2\n}'],
+    ['state names differing by trimmed underscores', 'template identity {\n state _app type number initial 1\n state app type number initial 2\n}'],
+    ['selector names differing in case', 'template identity {\n state rows type array initial []\n selector View from state rows {}\n selector view from state rows {}\n}'],
+    ['template names without primitive declarations', 'template App {}\ntemplate app {}'],
+    ['lane names within one surface', 'template identity {\n surface root {\n lane Visible { hydrate first }\n lane visible { hydrate second }\n }\n}'],
+    ['slot names within one operation', 'template identity {\n surface root {\n lane visible {\n hydrate shell {\n slot Main { hydrate first }\n slot main { hydrate second }\n }\n }\n }\n}']
+  ];
+  for (const [label, text] of collisions) {
+    const diagnostic = assertRejected(text, 'rmt.vnext.core.id_collision', 'compile', label);
+    context.assert(diagnostic?.pointer && diagnostic.corePointer && diagnostic.sourceRef
+      && diagnostic.relatedInformation?.some(item => item.pointer !== diagnostic.pointer
+        && item.range?.endOffset > item.range?.startOffset),
+    `${label}: collision identifies both source locations`);
+  }
+
+  const valid = compileRmtVNextSource({ text: `template identity {
+  state shared type array initial []
+  state app.One type number initial 1
+  state app.two type number initial 2
+  selector shared from state shared {}
+  surface first { lane Visible { hydrate one } }
+  surface second { lane Visible { hydrate two } }
+}` });
+  context.assert(valid.ok && valid.coreDocument.states[1].id === 'state:app.one'
+    && valid.coreDocument.states[2].id === 'state:app.two', 'noncolliding records retain existing normalized IDs');
+  context.assert(valid.ok && new Set(valid.coreDocument.sourceMap.map(item => item.id)).size === valid.coreDocument.sourceMap.length,
+    'different domains and different surface scopes preserve unique source identities');
+
+  for (const kind of ['datasource', 'dataSource', 'endpoint', 'host', 'resource', 'unknown']) {
+    const diagnostic = assertRejected(`template sources {
+  datasource remote from endpoint "/api/items" { contract Items\n result records }
+  selector picked from ${kind} remote { output object[] }
+}`, 'rmt.vnext.selector.source_kind_unsupported', 'semantic', `selector source ${kind}`);
+    context.assert(diagnostic?.pointer?.endsWith('/source'), `selector source ${kind}: diagnostic points to the source clause`);
+  }
+  assertRejected('template sources {\n selector picked { output object[] }\n}',
+    'rmt.vnext.selector.source_missing', 'semantic', 'selector without source');
+  for (const kind of ['state', 'selector']) {
+    assertRejected(`template sources {\n selector picked from ${kind} missing {}\n}`,
+      RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.unknownReference, 'semantic', `unknown ${kind} source`);
+  }
+}
+
+function assertOrchestrationDiagnosticBoundary(context, rootDir) {
+  const input = {
+    text: readText(VALID_MARACA_VALIDATION_FIXTURE, rootDir).replace(/component x-input/gu, 'component x-button'),
+    filePath: resolveRepoPath('tmp/a01-validation-diagnostics.rmt', rootDir)
+  };
+  const result = compileRmtVNextSource(input);
+  const code = 'rmt.form_validation.component_capability_missing';
+  const warnings = result.diagnostics.filter(item => item.code === code);
+  context.assert(result.ok && warnings.length === 2, 'validation capability warnings reach the compiler without blocking compilation');
+  context.assert(result.compilerDiagnostics.filter(item => item.code === code).length === 2,
+    'compiler diagnostics include both distinct validation fields once');
+  context.assert(warnings.length === 2 && warnings.every(item => item.stage === 'orchestration' && item.plan === 'validation'
+    && item.sourceRef && item.pointer && item.range?.endOffset > item.range?.startOffset
+    && input.text.slice(item.range.startOffset, item.range.endOffset).startsWith('field ')),
+  'plan diagnostics retain their origin and map to the validation field source');
+  const astCore = compileRmtVNextAst(result.parserResult.ast, { sourceModel: result.parserResult.sourceModel });
+  context.assert(serializeRmtVNextCore(astCore) === result.coreJson, 'nonblocking plan warnings preserve AST/source Core parity');
+
+  const motion = compileRmtVNextSource({ text: `template diagnostic.motion {
+  animation motion { effect unknownEffect }
+  transition move { trigger action missing\n from surfaces [missingFrom]\n to surfaces [missingFrom]\n effect unknownEffect }
+}` });
+  context.assert(motion.ok && motion.diagnostics.some(item => item.code === 'rmt.animation.effect_unknown')
+    && motion.diagnostics.some(item => item.code === 'rmt.surface_transition.effect_unknown'),
+  'animation and transition warnings reach the compiler without blocking compilation');
+  context.assert(motion.primitiveSemanticGraph.diagnostics.every(item =>
+    motion.diagnostics.some(candidate => JSON.stringify(candidate) === JSON.stringify(item))),
+  'successful compilation retains semantic warnings as well as compiler and plan diagnostics');
+  context.assert(motion.orchestrationArtifacts.transitions.diagnostics.filter(item => item.code === 'rmt.surface_transition.surface_missing').length === 1,
+    'identical plan facts from from/to references are deduplicated without merging distinct source diagnostics');
+  for (const compiled of [result, motion]) {
+    const plans = compiled.orchestrationArtifacts;
+    for (const diagnostic of plans.diagnostics) {
+      context.assert(compiled.diagnostics.filter(item => JSON.stringify(item) === JSON.stringify(diagnostic)).length === 1,
+        `${diagnostic.code}: aggregate diagnostic occurs exactly once at the compiler boundary`);
+    }
+    for (const plan of ['render', 'hydration', 'validation', 'transitions', 'animationEngine']) {
+      context.assert(plans[plan].diagnostics.every(diagnostic =>
+        plans.diagnostics.some(item => JSON.stringify(item) === JSON.stringify(diagnostic))),
+      `${plan}: child diagnostics also occur in the orchestration aggregate`);
+    }
+    context.assert(JSON.stringify(compiled.diagnostics) === JSON.stringify(compileRmtVNextSource({
+      text: compiled.parserResult.sourceModel.text,
+      filePath: compiled.parserResult.sourceModel.filePath
+    }).diagnostics), 'diagnostic aggregation and ordering are deterministic');
+  }
+  const invalid = compileRmtVNextSource({
+    text: readText(VALID_NESTED_LOCAL_PORTALS_FIXTURE, rootDir).replace('root "#xtend-maraca-root"', 'root "[data-maraca-surface=\'demo.nested.missing\']"'),
+    filePath: resolveRepoPath('tmp/a01-render-diagnostics.rmt', rootDir)
+  });
+  const errors = invalid.diagnostics.filter(item => item.code === 'rmt.app_orchestration.portal_parent_unresolved');
+  context.assert(!invalid.ok && errors.length === 1 && errors[0].severity === 'error' && errors[0].sourceRef,
+    'blocking plan errors retain severity and occur exactly once with source context');
+  let rejection;
+  try { compileRmtVNextAst(invalid.parserResult.ast, { sourceModel: invalid.parserResult.sourceModel }); }
+  catch (error) { rejection = error; }
+  context.assert(JSON.stringify(rejection?.diagnostics) === JSON.stringify(invalid.diagnostics),
+    'AST rejection preserves the complete aggregate of plan errors and warnings');
 }
 
 async function assertSelectorSourceRuntime(context, rootDir) {
@@ -222,6 +390,10 @@ async function runRmtVNextCompilerSuite(options = {}) {
     id: 'rmt-vnext-compiler',
     label: 'Epic 15 RMT vNext Compiler to Core'
   });
+  assertAstCompilerBoundary(context, rootDir);
+  await require('./rmt_classic_contract_checks').runClassicContractChecks(context, rootDir);
+  assertIdentityAndSelectorSourceBoundaries(context, rootDir);
+  assertOrchestrationDiagnosticBoundary(context, rootDir);
   await assertSelectorSourceRuntime(context, rootDir);
   const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextCompiler;
@@ -337,7 +509,7 @@ async function runRmtVNextCompilerSuite(options = {}) {
   context.assert(primitiveResult.primitiveLoweringSchema === RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA, 'primitive compiler result declares lowering schema');
   context.assert(primitiveResult.primitiveLoweringWorkpackage === RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE, 'primitive compiler result belongs to PRIM-04');
   context.assert(primitiveResult.primitiveSemanticGraph.schema === RMT_VNEXT_PRIMITIVE_SEMANTIC_GRAPH_SCHEMA, 'primitive compile uses PRIM-03 semantic graph');
-  context.assert(primitive.states.length === 3, 'primitive core lowers state records');
+  context.assert(primitive.states.length === 4, 'primitive core lowers state records including the Action status target');
   context.assert(primitive.selectors.length === 2, 'primitive core lowers selector records');
   context.assert(primitive.dataSources.filter((record) => record.primitive === true).length === 2, 'primitive core lowers datasource records');
   context.assert(primitive.actions.length === 2, 'primitive core lowers action records');
@@ -514,7 +686,8 @@ async function runRmtVNextCompilerSuite(options = {}) {
     filePath: resolveRepoPath(VALID_MARACA_ORCHESTRATION_FIXTURE, rootDir)
   });
   const unsafeReducers = unsafeReducerResult.orchestrationArtifacts && unsafeReducerResult.orchestrationArtifacts.state.reducers || [];
-  context.assert(unsafeReducerResult.ok === true, 'Unsafe reducer fixture still compiles without preserving polluted path');
+  context.assert(unsafeReducerResult.ok === false && unsafeReducerResult.diagnostics.some(item => item.code === 'rmt.classic.ref.reducer_target'),
+    'Unsafe reducer source is rejected with a Classic reference diagnostic');
   context.assert(!unsafeReducers.some((reducer) => reducer.path.includes('__proto__') || reducer.path.includes('constructor') || reducer.path.includes('prototype')), 'Compiler drops reducer paths with prototype pollution segments');
   context.assert(maracaOrchestration.actions.dataSources.some((source) => source.id === 'demo.orchestration.save' && source.kind === 'rest'), 'Maraca orchestration artifact lowers REST datasource placeholder');
   context.assert(maracaOrchestration.events.some((event) => event.action === 'demo.orchestration.save' && event.payloadContract && event.payloadContract.required.includes('label')), 'Maraca orchestration artifact includes typed event bindings');

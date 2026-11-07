@@ -1,4 +1,4 @@
-# RMT vNext Enterprise Surface Registry
+# RMT Classic Enterprise Surface Registry
 
 The Enterprise Surface Registry describes which local and remote surfaces a host may discover without turning the registry into a runtime manager. It is a discovery and audit artifact for micro-frontend shells: owner, shell target, fallback, version, integrity and governance are brought together here.
 

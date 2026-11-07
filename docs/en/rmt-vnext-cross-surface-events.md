@@ -20,8 +20,8 @@ Define owner, event name, version, and payload schema. Register the receiver exp
 
 - [XTendRMT overview](./xtendrmt-overview.md)
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
-- [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md)
-- [RMT vNext Enterprise MFE contract](./rmt-vnext-remote-surfaces.md)
+- [RMT Classic Remote Surfaces](./rmt-vnext-remote-surfaces.md)
+- [RMT Classic Enterprise MFE contract](./rmt-vnext-remote-surfaces.md)
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 

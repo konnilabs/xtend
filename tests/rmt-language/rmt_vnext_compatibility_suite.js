@@ -221,6 +221,11 @@ function runMigrationChecks(context, rootDir) {
 
 function runPrimitiveMigrationChecks(context, rootDir) {
   const input = fixtureInput(APP_PLATFORM_LEGACY_CORE_FIXTURE, rootDir);
+  const invalidStatus = createAppPlatformPrimitiveMigrationPreview(input, { rootDir });
+  context.assert(!invalidStatus.ok && invalidStatus.projection === null, 'migration blocks an undeclared legacy Action status State');
+  const document = JSON.parse(input.text);
+  document.state.push({ id: 'state.action-status', type: 'object', initial: { status: 'idle' } });
+  input.text = JSON.stringify(document);
   const reportOnly = createMigrationReport(input, {
     rootDir
   });
@@ -297,7 +302,7 @@ function runPrimitiveMigrationChecks(context, rootDir) {
   context.assert(applyPlan.authoringDraft === preview.authoringDraft, 'primitive migration apply plan reuses preview authoring draft');
   context.assert(applyPlan.compileStatus === 'compiled', 'primitive migration apply plan reports compile status');
   context.assert(parseBlockedApplyPlan.status === 'blocked' && parseBlockedApplyPlan.ok === false, 'primitive migration apply plan blocks non-compilable or unparsable drafts');
-  context.assert(preview.domainMapping.state === 1 && preview.domainMapping.dataSources === 1, 'primitive migration reports source domain counts');
+  context.assert(preview.domainMapping.state === 2 && preview.domainMapping.dataSources === 1, 'primitive migration reports source domain counts');
   context.assert(preview.domainMapping.actions === 2 && preview.domainMapping.surfaces === 1, 'primitive migration maps actions and surfaces');
   context.assert(APP_PLATFORM_PRIMITIVE_DOMAINS.includes('surfaces') && APP_PLATFORM_PRIMITIVE_DOMAINS.includes('resources'), 'primitive migration exports App-Platform primitive domains');
   context.assert(previewDiagnostics.includes(MIGRATION_LEGACY_BACKGROUNDED_CODE), 'primitive migration reports legacy backgrounding');

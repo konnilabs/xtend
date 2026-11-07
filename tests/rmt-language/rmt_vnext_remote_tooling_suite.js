@@ -223,7 +223,7 @@ function runProviderChecks(context, rootDir) {
   context.assert(shellCompletions.items.some((item) => item.label === 'shell.slot'), 'remote shell completions include shell.slot');
   context.assert(shellCompletions.items.some((item) => item.label === 'shell.slot:sidebar.cart'), 'remote shell completions include discovered shell target');
   context.assert(eventRefs.items.some((item) => item.label === 'checkout.cart.updated.v1'), 'remote event completions include discovered event');
-  context.assert(snippetCompletions.items.some((item) => item.detail === 'rmt-vnext-remote-surface'), 'remote snippet completions include remote surface snippet');
+  context.assert(snippetCompletions.items.some((item) => item.detail === 'rmt-classic-remote-surface'), 'remote snippet completions include remote surface snippet');
   context.assert(hover.status === 'found' && hover.hover.markdown.includes('Remote Surface: checkout.cart'), 'remote hover explains remote surface');
   context.assert(symbols.symbols.some((symbol) => symbol.name === 'remoteSurfaces'), 'remote symbols include remoteSurfaces namespace');
   context.assert(symbols.symbols.some((symbol) => symbol.name === 'crossSurfaceEvents'), 'remote symbols include cross surface events namespace');
@@ -245,9 +245,9 @@ function runSnippetChecks(context, rootDir) {
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-remote-event'), 'snippet catalog includes remote event snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-remote-fallback'), 'snippet catalog includes remote fallback snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-remote-degradation'), 'snippet catalog includes remote degradation snippet');
-  context.assert(generatedSnippets['RMT vNext Remote Surface'].prefix === 'rmt-vnext-remote-surface', 'generated snippets include remote surface prefix');
-  context.assert(sourceSnippets['RMT vNext Remote Surface'].prefix === generatedSnippets['RMT vNext Remote Surface'].prefix, 'source snippets include remote surface prefix');
-  context.assert(packagedSnippets['RMT vNext Remote Surface'].prefix === generatedSnippets['RMT vNext Remote Surface'].prefix, 'packaged snippets include remote surface prefix');
+  context.assert(generatedSnippets['RMT Classic Remote Surface'].prefix.includes('rmt-classic-remote-surface') && generatedSnippets['RMT Classic Remote Surface'].prefix.includes('rmt-vnext-remote-surface'), 'generated snippets include remote surface prefix');
+  context.assert(JSON.stringify(sourceSnippets['RMT Classic Remote Surface'].prefix) === JSON.stringify(generatedSnippets['RMT Classic Remote Surface'].prefix), 'source snippets include remote surface prefix');
+  context.assert(JSON.stringify(packagedSnippets['RMT Classic Remote Surface'].prefix) === JSON.stringify(generatedSnippets['RMT Classic Remote Surface'].prefix), 'packaged snippets include remote surface prefix');
   context.assert(JSON.stringify(sourceSnippets) === JSON.stringify(packagedSnippets), 'source and packaged snippets stay in sync');
 }
 

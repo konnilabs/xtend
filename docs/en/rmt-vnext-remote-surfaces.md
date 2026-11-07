@@ -20,8 +20,8 @@ Register a local fallback first. Then validate origin, version, and integrity, g
 
 - [XTendRMT overview](./xtendrmt-overview.md)
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
-- [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
-- [RMT vNext Enterprise MFE contract](./rmt-vnext-remote-surfaces.md)
+- [RMT Classic Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
+- [RMT Classic Enterprise MFE contract](./rmt-vnext-remote-surfaces.md)
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 

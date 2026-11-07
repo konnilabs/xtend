@@ -1,13 +1,13 @@
 # Learn RMT
 
-Learn RMT ist der geführte Einstieg in RMT-vNext. Die Strecke beginnt mit dem Sprachmodell und führt dann zu State, Actions, Ressourcen, Scheduling und dem integrierten Playground. Für ausgelieferte Anwendungen ist Maraca der anschließende Orchestrierungspfad.
+Learn RMT ist der geführte Einstieg in RMT-RMT Classic. Die Strecke beginnt mit dem Sprachmodell und führt dann zu State, Actions, Ressourcen, Scheduling und dem integrierten Playground. Für ausgelieferte Anwendungen ist Maraca der anschließende Orchestrierungspfad.
 
 ## Was RMT Ist
 
 RMT beschreibt Anwendungsstruktur als kompilierbares Dokument. Statt jede Surface von Hand zu verdrahten, deklarierst du das App-Template, den eigenen State, Selectors für View-Modelle, Actions für Zustandsänderungen und die Surfaces, die XTend rendern oder hydrieren soll.
 
 Der Compiler erzeugt daraus ein stabiles Core-Dokument, das XTend Runtime, SSR-Adapter und Tooling auswerten können.
-Die Syntax wird in `tools/rmt-language/parser.js` gelesen; `tools/rmt-language/vnext-compiler.js` erzeugt das vNext Core-Modell.
+Die Syntax wird in `tools/rmt-language/parser.js` gelesen; `tools/rmt-language/vnext-compiler.js` erzeugt das RMT Classic Core-Modell.
 
 ```rmt
 template learn.rmt.hello {

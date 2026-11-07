@@ -4,6 +4,7 @@ const {
 const {
   parseRmtVNextSource
 } = require('./vnext-parser');
+const { validateClassicSemantics } = require('./classic-semantic-rules');
 
 const RMT_SEMANTIC_GRAPH_SCHEMA = 'xtend.rmt.semantic-graph.v1';
 const RMT_SEMANTIC_GRAPH_REPORT_SCHEMA = 'xtend.rmt.semantic-graph-report.v1';
@@ -82,6 +83,8 @@ const RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES = {
   resourceKindMissing: 'rmt.vnext.primitive.resource-kind-missing',
   actionReducerMissing: 'rmt.vnext.primitive.action-reducer-missing',
   effectSourceMissing: 'rmt.vnext.primitive.effect-source-missing',
+  selectorSourceMissing: 'rmt.vnext.selector.source_missing',
+  selectorSourceKindUnsupported: 'rmt.vnext.selector.source_kind_unsupported',
   unsafeHtml: 'rmt.vnext.primitive.unsafe-html',
   kernelBoundary: 'rmt.vnext.primitive.kernel-boundary',
   validationMessageMissing: 'rmt.vnext.primitive.validation-message-missing',
@@ -135,6 +138,9 @@ const RMT_VNEXT_EXTERNAL_SOURCE_KINDS = new Set([
   'sse',
   'worker'
 ]);
+// A Model selector is a pure read. Host/DataSource execution belongs to actions
+// and must commit its result to State before a selector can consume it.
+const RMT_VNEXT_SELECTOR_SOURCE_KINDS = new Set(['state', 'selector']);
 const RMT_VNEXT_AST_CHILD_KEYS = [
   'body',
   'attributes',
@@ -819,7 +825,7 @@ function createVNextPrimitiveDiagnostic(sourceModel, input = {}) {
     source: 'rmt-language',
     code: input.code || 'rmt.vnext.primitive.diagnostic',
     severity: input.severity || 'error',
-    message: input.message || input.code || 'RMT vNext primitive diagnostic',
+    message: input.message || input.code || 'RMT Classic primitive diagnostic',
     uri: sourceModel ? sourceModel.uri : null,
     file: sourceModel ? sourceModel.filePath : null,
     pointer: input.pointer || (node && node.astPointer) || null,
@@ -1349,13 +1355,30 @@ function collectVNextPrimitiveReferences(graphState, ast) {
     }
 
     if (node.type === 'RmtSelectorDeclaration') {
-      addVNextSourceReference(graphState, {
-        sourceDomain: 'selectors',
-        sourceId: normalizeString(node.name),
-        sourceRef: node.source,
-        relationship: 'selector.source',
-        node
-      });
+      const source = getPrimitiveSourceRef(node.source);
+      if (!source || !source.targetId) {
+        graphState.diagnostics.push(createVNextPrimitiveDiagnostic(graphState.sourceModel, {
+          code: RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.selectorSourceMissing,
+          severity: 'error',
+          message: `Selector "${node.name}" requires a source: from state or from selector.`,
+          node: node.source || node
+        }));
+      } else if (!RMT_VNEXT_SELECTOR_SOURCE_KINDS.has(source.kind)) {
+        graphState.diagnostics.push(createVNextPrimitiveDiagnostic(graphState.sourceModel, {
+          code: RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.selectorSourceKindUnsupported,
+          severity: 'error',
+          message: `Selector source kind "${source.kind}" is not executable by the Model; use state or selector. Commit host data to State through an action/reducer.`,
+          node: node.source
+        }));
+      } else {
+        addVNextSourceReference(graphState, {
+          sourceDomain: 'selectors',
+          sourceId: normalizeString(node.name),
+          sourceRef: node.source,
+          relationship: 'selector.source',
+          node
+        });
+      }
     }
 
     if (node.type === 'RmtStateDeclaration' && !stateHasInitialValue(node)) {
@@ -1710,12 +1733,19 @@ function buildRmtVNextPrimitiveSemanticGraph(input = {}, options = {}) {
     sourceModel,
     indexes,
     references: createVNextPrimitiveReferencesIndex(),
-    diagnostics: Array.isArray(parserResult.diagnostics) ? parserResult.diagnostics.slice() : []
+    diagnostics: Array.isArray(parserResult.diagnostics) ? parserResult.diagnostics.slice() : [],
+    ast: parserResult.ast
   };
 
   if (parserResult.ast && (parserResult.ok || options.includePartialDeclarations === true)) {
     collectVNextPrimitiveDeclarations(graphState, parserResult.ast);
-    if (parserResult.ok) collectVNextPrimitiveReferences(graphState, parserResult.ast);
+    if (parserResult.ok) {
+      collectVNextPrimitiveReferences(graphState, parserResult.ast);
+      validateClassicSemantics(graphState, {
+        diagnostic: input => createVNextPrimitiveDiagnostic(sourceModel, input),
+        reference: input => addVNextPrimitiveReference(graphState, input)
+      });
+    }
   }
 
   function getDomainIndex(domain) {

@@ -1,10 +1,30 @@
 export * from './rmt-tooling-public-types';
-import type { RmtAppServiceDemandManifest, RmtCompileResult, RmtJsonValue, RmtToolingConstant, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
+import type { RmtAppServiceDemandManifest, RmtCompileResult, RmtJsonValue, RmtToolingConstant, RmtToolingDiagnostic, RmtToolingFactory, RmtToolingFunction } from './rmt-tooling-public-types';
 
-export declare const compileRmtVNextAst: RmtToolingFunction<RmtCompileResult>;
+export interface RmtVNextCoreDocument {
+  schema: 'xtend.rmt.core-format.vnext.v1';
+  kind: 'rmt_document';
+  version: '2.0-vnext';
+  [key: string]: RmtJsonValue;
+}
+export interface RmtAstCompilationError extends Error {
+  code: 'rmt.vnext.ast.compilation_failed';
+  phase: string;
+  diagnostics: RmtToolingDiagnostic[];
+}
+export interface RmtVNextCompiler {
+  readonly schema: string;
+  readonly coreSchema: string;
+  readonly compileSource: typeof compileRmtVNextSource;
+  readonly compileAst: typeof compileRmtVNextAst;
+  readonly serializeCore: (coreDocument: RmtVNextCoreDocument) => string;
+  readonly [metadata: string]: unknown;
+}
+/** Runs the shared semantic/compiler pipeline; throws RmtAstCompilationError on rejection. */
+export declare function compileRmtVNextAst(ast: RmtJsonValue, options?: Record<string, unknown>): RmtVNextCoreDocument;
 export declare const compileRmtVNextSource: RmtToolingFunction<RmtCompileResult>;
 export declare const createRmtAppServiceDemands: (coreDocument?: RmtJsonValue) => RmtAppServiceDemandManifest;
-export declare const createRmtVNextCompiler: RmtToolingFactory;
+export declare const createRmtVNextCompiler: RmtToolingFactory<RmtVNextCompiler>;
 export declare const RMT_FILE_FALLBACK_CODE: RmtToolingConstant;
 export declare const RMT_APP_ORCHESTRATION_SCHEMA: RmtToolingConstant;
 export declare const RMT_APP_ORCHESTRATION_WORKPACKAGE: RmtToolingConstant;
@@ -28,4 +48,4 @@ export declare const RMT_VNEXT_CORE_SCHEMA: RmtToolingConstant;
 export declare const RMT_VNEXT_PARSER_WORKPACKAGE: RmtToolingConstant;
 export declare const RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA: RmtToolingConstant;
 export declare const RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE: RmtToolingConstant;
-export declare const serializeRmtVNextCore: RmtToolingFunction;
+export declare function serializeRmtVNextCore(coreDocument: RmtVNextCoreDocument): string;

@@ -5,7 +5,7 @@ RMT AnimationEngine keeps UI transitions beside the surfaces and actions that tr
 
 ## Prerequisites
 
-Start with an RMT vNext source containing at least two surfaces and an action that moves between them. A shipped bundle must enable Maraca orchestration and transitions. The local compiler lives at `tools/rmt-language/vnext-compiler.js`; the browser runtime is provided by `xtendrmt/rmt-animation-engine-runtime.js`.
+Start with an RMT Classic source containing at least two surfaces and an action that moves between them. A shipped bundle must enable Maraca orchestration and transitions. The local compiler lives at `tools/rmt-language/vnext-compiler.js`; the browser runtime is provided by `xtendrmt/rmt-animation-engine-runtime.js`.
 
 ```bash
 xt rmt lint app.rmt --json

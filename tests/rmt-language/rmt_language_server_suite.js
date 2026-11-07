@@ -166,6 +166,27 @@ function runInitializeAndDocumentSyncChecks(context, rootDir) {
   context.assert(closeNotifications[0].params.diagnostics.length === 0, 'didClose clears diagnostics');
 }
 
+function runVNextPlanDiagnosticChecks(context, rootDir) {
+  const filePath = resolveRepoPath('tmp/a01-lsp-validation.rmt', rootDir);
+  const uri = pathToFileURL(filePath).href;
+  const text = readText('tests/rmt-language/fixtures/maraca-validation-app.rmt', rootDir)
+    .replace(/component x-input/gu, 'component x-button');
+  const server = createRmtLanguageServer({ rootDir });
+  sendRequest(server, 1, 'initialize', { rootUri: pathToFileURL(rootDir).href });
+  const notifications = sendNotification(server, 'textDocument/didOpen', {
+    textDocument: { uri, languageId: 'rmt', version: 1, text }
+  });
+  const diagnostics = notifications[0].params.diagnostics;
+  const warnings = diagnostics.filter(item => item.code === 'rmt.form_validation.component_capability_missing');
+  context.assert(warnings.length === 2 && warnings.every(item => item.severity === 2),
+    'vNext compiler plan warnings are published by LSP once per validation field');
+  context.assert(warnings.length === 2 && warnings.every(item => item.data.stage === 'orchestration'
+    && item.data.plan === 'validation' && item.data.sourceRef && item.data.corePointer
+    && text.split('\n')[item.range.start.line].trimStart().startsWith('field ')),
+  'LSP preserves plan origin, source identity and precise field ranges');
+  context.assert(diagnostics.every(item => item.severity !== 1), 'nonblocking plan warnings do not become LSP errors');
+}
+
 function runProviderMappingChecks(context, rootDir) {
   const fixture = createFixture(rootDir);
   const server = createRmtLanguageServer({ rootDir });
@@ -380,6 +401,7 @@ function runRmtLanguageServerSuite(options = {}) {
 
   runMetadataChecks(context, rootDir);
   runInitializeAndDocumentSyncChecks(context, rootDir);
+  runVNextPlanDiagnosticChecks(context, rootDir);
   runProviderMappingChecks(context, rootDir);
   runProtocolChecks(context, rootDir);
   runStdioTransportHardeningChecks(context, rootDir);

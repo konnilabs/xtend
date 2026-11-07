@@ -11,7 +11,7 @@ XTend MCP exposes the canonical XTend documentation, the curated RMT AI Develope
 
 The deterministic knowledge build copies complete Markdown files, including headings and code fences. Every resource retains its locale, slug, source path, and SHA-256. MCP does not use the shortened browser search index as a source.
 
-For RMT authoring conventions and the underlying language boundary, continue with the [RMT vNext authoring guide](rmt-vnext-authoring.md).
+For RMT authoring conventions and the underlying language boundary, continue with the [RMT Classic authoring guide](rmt-vnext-authoring.md).
 
 ## Installation and stdio
 

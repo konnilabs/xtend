@@ -1,13 +1,13 @@
 # RMT Reference: Primitives
 
-Primitives sind die stabilen App-Platform-Records in RMT vNext.
+Primitives sind die stabilen App-Platform-Records in RMT Classic.
 
 ## Syntax
 
 | Operator | Form | Allowed contexts | Parameters | Function | Diagnostics | Related operators |
 | --- | --- | --- | --- | --- | --- | --- |
 | <a id="state"></a>`state` | `state app.status type object preserve { ... }` | Top-Level, `template`, primitive `surface` | Identifier, `type`, `initial`, `preserve` | Deklariert dauerhaften oder lifecycle-gebundenen App-State. | State-Blöcke dürfen nur `initial` enthalten. | `selector`, `reduce` |
-| <a id="selector"></a>`selector` | `selector view from state app.status { ... }` | Top-Level, `template`, primitive `surface` | Identifier, Source-Referenz | Leitet ein View-Modell aus State oder DataSource ab. | Selector-Blöcke erlauben nur `where`, `find`, `sort by`, `output`. | `from state`, `from datasource` |
+| <a id="selector"></a>`selector` | `selector view from state app.status { ... }` | Top-Level, `template`, primitive `surface` | Identifier, Source-Referenz | Leitet ein View-Modell aus State oder einem anderen Selector ab. | Quelle ist erforderlich; nur `state` und `selector` sind erlaubt. Blöcke erlauben `where`, `find`, `sort by`, `output`. | `from state`, `from selector` |
 | <a id="datasource"></a>`datasource` | `datasource list from endpoint "/api" { ... }` | Top-Level, `template`, primitive `surface` | Identifier, Source-Art, Source-Ziel | Beschreibt Datenzugriff ohne freie Runtime-Ausführung. | DataSource-Blöcke erlauben nur `method`, `contract`, `result`, `fallback`. | `endpoint`, `fixture`, `worker` |
 | <a id="action"></a>`action` | `action save { ... }` | Top-Level, `template`, primitive `surface` | Identifier | Deklariert typisierte Eingaben, Reducer, Effects und Events. | Action-Blöcke erlauben nur `input`, `status`, `effect`, `reduce`, `emit`, `on`. | `emit`, `reduce`, `on success ->` |
 | <a id="portal"></a>`portal` | `portal app.root root "#app" layer surface` | Top-Level, `template` | `root`, `layer`, optional `z` | Bindet Surfaces an einen Host-Root und Layer. | Unerwartete Inline-Attribute werden abgewiesen. | `surface`, `overlay` |
@@ -33,6 +33,7 @@ Primitives bilden die Brücke zwischen RMT-Authoring und Core-Format. Sie werden
 
 ```rmt
 template reference.primitives {
+  state app.email type string initial ""
   state app.status type object preserve {
     initial {
       text "Ready"
@@ -86,6 +87,8 @@ template reference.primitives {
     reducedMotion fade
     lane transition
   }
+
+  surface done kind card component x-status {}
 
   surface home kind card component x-status {
     portal app.root

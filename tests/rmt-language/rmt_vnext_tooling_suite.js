@@ -1,3 +1,7 @@
+function hasClassicPrefix(prefix, legacy) {
+  return Array.isArray(prefix) && prefix[0] === legacy.replace('rmt-vnext-', 'rmt-classic-') && prefix.includes(legacy);
+}
+
 const fs = require('fs');
 const path = require('path');
 const { pathToFileURL } = require('url');
@@ -423,7 +427,7 @@ function runPrimitiveAuthoringChecks(context, rootDir) {
   const transitionNamespaces = transitionSymbols.symbols.map((symbol) => symbol.name);
 
   context.assert(RMT_VNEXT_PRIMITIVE_AUTHORING_WORKPACKAGE === 'RMT-VNEXT-PRIM-07', 'vNext tooling exports PRIM-07 authoring workpackage marker');
-  context.assert(analysis.ok === true && analysis.coreDocument.states.length === 3, 'primitive vNext fixture is indexed for authoring');
+  context.assert(analysis.ok === true && analysis.coreDocument.states.length === 4, 'primitive vNext fixture is indexed for authoring');
   context.assert(validationAnalysis.ok === true && validationAnalysis.coreDocument.validations.length >= 1, 'validation vNext fixture indexes validation records');
   context.assert(transitionAnalysis.ok === true && transitionAnalysis.coreDocument.transitions.length >= 1, 'transition vNext fixture indexes transition records');
   context.assert(transitionAnalysis.ok === true && transitionAnalysis.coreDocument.animations.length >= 1, 'transition vNext fixture indexes animation records');
@@ -752,25 +756,25 @@ function runFormatterSnippetAndAgentChecks(context, rootDir) {
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-animation'), 'snippet catalog includes vNext animation snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-transition'), 'snippet catalog includes vNext transition snippet');
   context.assert(catalog.snippets.some((snippet) => snippet.id === 'rmt-vnext-maraca-orchestration-app'), 'snippet catalog includes Maraca orchestration app snippet');
-  context.assert(generatedSnippets['RMT vNext Stream'].prefix === 'rmt-vnext-stream', 'generated VS Code snippets include vNext stream prefix');
-  context.assert(generatedSnippets['RMT vNext Resumability Policy'].prefix === 'rmt-vnext-resumability', 'generated VS Code snippets include vNext resumability prefix');
-  context.assert(generatedSnippets['RMT vNext Primitive Shell'].prefix === 'rmt-vnext-primitive-shell', 'generated VS Code snippets include vNext primitive shell prefix');
-  context.assert(generatedSnippets['RMT vNext Validation'].prefix === 'rmt-vnext-validation', 'generated VS Code snippets include vNext validation prefix');
-  context.assert(generatedSnippets['RMT vNext AnimationEngine Preset'].prefix === 'rmt-vnext-animation', 'generated VS Code snippets include vNext animation prefix');
-  context.assert(generatedSnippets['RMT vNext Surface Transition'].prefix === 'rmt-vnext-transition', 'generated VS Code snippets include vNext transition prefix');
-  context.assert(generatedSnippets['RMT vNext Maraca Orchestration App'].prefix === 'rmt-vnext-maraca-orchestration-app', 'generated VS Code snippets include Maraca orchestration app prefix');
-  context.assert(staticSnippets['RMT vNext Stream'].prefix === generatedSnippets['RMT vNext Stream'].prefix, 'static source snippets include vNext stream prefix');
-  context.assert(staticSnippets['RMT vNext Primitive Shell'].prefix === generatedSnippets['RMT vNext Primitive Shell'].prefix, 'static source snippets include vNext primitive shell prefix');
-  context.assert(staticSnippets['RMT vNext Validation'].prefix === generatedSnippets['RMT vNext Validation'].prefix, 'static source snippets include vNext validation prefix');
-  context.assert(staticSnippets['RMT vNext AnimationEngine Preset'].prefix === generatedSnippets['RMT vNext AnimationEngine Preset'].prefix, 'static source snippets include vNext animation prefix');
-  context.assert(staticSnippets['RMT vNext Surface Transition'].prefix === generatedSnippets['RMT vNext Surface Transition'].prefix, 'static source snippets include vNext transition prefix');
-  context.assert(staticSnippets['RMT vNext Maraca Orchestration App'].prefix === generatedSnippets['RMT vNext Maraca Orchestration App'].prefix, 'static source snippets include Maraca orchestration app prefix');
-  context.assert(packagedSnippets['RMT vNext Stream'].prefix === generatedSnippets['RMT vNext Stream'].prefix, 'packaged VS Code snippets include vNext stream prefix');
-  context.assert(packagedSnippets['RMT vNext Primitive Shell'].prefix === generatedSnippets['RMT vNext Primitive Shell'].prefix, 'packaged VS Code snippets include vNext primitive shell prefix');
-  context.assert(packagedSnippets['RMT vNext Validation'].prefix === generatedSnippets['RMT vNext Validation'].prefix, 'packaged VS Code snippets include vNext validation prefix');
-  context.assert(packagedSnippets['RMT vNext AnimationEngine Preset'].prefix === generatedSnippets['RMT vNext AnimationEngine Preset'].prefix, 'packaged VS Code snippets include vNext animation prefix');
-  context.assert(packagedSnippets['RMT vNext Surface Transition'].prefix === generatedSnippets['RMT vNext Surface Transition'].prefix, 'packaged VS Code snippets include vNext transition prefix');
-  context.assert(packagedSnippets['RMT vNext Maraca Orchestration App'].prefix === generatedSnippets['RMT vNext Maraca Orchestration App'].prefix, 'packaged VS Code snippets include Maraca orchestration app prefix');
+  context.assert(hasClassicPrefix(generatedSnippets['RMT Classic Stream'].prefix, 'rmt-vnext-stream'), 'generated VS Code snippets include vNext stream prefix');
+  context.assert(hasClassicPrefix(generatedSnippets['RMT Classic Resumability Policy'].prefix, 'rmt-vnext-resumability'), 'generated VS Code snippets include vNext resumability prefix');
+  context.assert(hasClassicPrefix(generatedSnippets['RMT Classic Primitive Shell'].prefix, 'rmt-vnext-primitive-shell'), 'generated VS Code snippets include vNext primitive shell prefix');
+  context.assert(hasClassicPrefix(generatedSnippets['RMT Classic Validation'].prefix, 'rmt-vnext-validation'), 'generated VS Code snippets include vNext validation prefix');
+  context.assert(hasClassicPrefix(generatedSnippets['RMT Classic AnimationEngine Preset'].prefix, 'rmt-vnext-animation'), 'generated VS Code snippets include vNext animation prefix');
+  context.assert(hasClassicPrefix(generatedSnippets['RMT Classic Surface Transition'].prefix, 'rmt-vnext-transition'), 'generated VS Code snippets include vNext transition prefix');
+  context.assert(hasClassicPrefix(generatedSnippets['RMT Classic Maraca Orchestration App'].prefix, 'rmt-vnext-maraca-orchestration-app'), 'generated VS Code snippets include Maraca orchestration app prefix');
+  context.assert(JSON.stringify(staticSnippets['RMT Classic Stream'].prefix) === JSON.stringify(generatedSnippets['RMT Classic Stream'].prefix), 'static source snippets include vNext stream prefix');
+  context.assert(JSON.stringify(staticSnippets['RMT Classic Primitive Shell'].prefix) === JSON.stringify(generatedSnippets['RMT Classic Primitive Shell'].prefix), 'static source snippets include vNext primitive shell prefix');
+  context.assert(JSON.stringify(staticSnippets['RMT Classic Validation'].prefix) === JSON.stringify(generatedSnippets['RMT Classic Validation'].prefix), 'static source snippets include vNext validation prefix');
+  context.assert(JSON.stringify(staticSnippets['RMT Classic AnimationEngine Preset'].prefix) === JSON.stringify(generatedSnippets['RMT Classic AnimationEngine Preset'].prefix), 'static source snippets include vNext animation prefix');
+  context.assert(JSON.stringify(staticSnippets['RMT Classic Surface Transition'].prefix) === JSON.stringify(generatedSnippets['RMT Classic Surface Transition'].prefix), 'static source snippets include vNext transition prefix');
+  context.assert(JSON.stringify(staticSnippets['RMT Classic Maraca Orchestration App'].prefix) === JSON.stringify(generatedSnippets['RMT Classic Maraca Orchestration App'].prefix), 'static source snippets include Maraca orchestration app prefix');
+  context.assert(JSON.stringify(packagedSnippets['RMT Classic Stream'].prefix) === JSON.stringify(generatedSnippets['RMT Classic Stream'].prefix), 'packaged VS Code snippets include vNext stream prefix');
+  context.assert(JSON.stringify(packagedSnippets['RMT Classic Primitive Shell'].prefix) === JSON.stringify(generatedSnippets['RMT Classic Primitive Shell'].prefix), 'packaged VS Code snippets include vNext primitive shell prefix');
+  context.assert(JSON.stringify(packagedSnippets['RMT Classic Validation'].prefix) === JSON.stringify(generatedSnippets['RMT Classic Validation'].prefix), 'packaged VS Code snippets include vNext validation prefix');
+  context.assert(JSON.stringify(packagedSnippets['RMT Classic AnimationEngine Preset'].prefix) === JSON.stringify(generatedSnippets['RMT Classic AnimationEngine Preset'].prefix), 'packaged VS Code snippets include vNext animation prefix');
+  context.assert(JSON.stringify(packagedSnippets['RMT Classic Surface Transition'].prefix) === JSON.stringify(generatedSnippets['RMT Classic Surface Transition'].prefix), 'packaged VS Code snippets include vNext transition prefix');
+  context.assert(JSON.stringify(packagedSnippets['RMT Classic Maraca Orchestration App'].prefix) === JSON.stringify(generatedSnippets['RMT Classic Maraca Orchestration App'].prefix), 'packaged VS Code snippets include Maraca orchestration app prefix');
   context.assert(agentReport.fileReports[0].languageMode === 'vnext', 'agent report marks vNext language mode');
   context.assert(agentReport.fileReports[0].sourceMapSummary.totalCount > 20, 'agent report exposes vNext source map summary');
 }
@@ -804,7 +808,7 @@ function runRmtVNextToolingSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
     id: 'rmt-vnext-tooling',
-    label: 'Epic 15 RMT vNext Tooling Adapter'
+    label: 'Epic 15 RMT Classic Tooling Adapter'
   });
   const moduleSyntax = syntaxCheckFile(RMT_VNEXT_TOOLING_MODULE_PATH, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(RMT_VNEXT_TOOLING_SUITE_PATH, { rootDir, extension: '.js' });
@@ -847,8 +851,8 @@ function runRmtVNextToolingSuite(options = {}) {
 
 function printRmtVNextToolingReport(result) {
   printSuiteReport(result, {
-    successTitle: 'Epic 15 RMT vNext Tooling Adapter erfolgreich.',
-    failureTitle: 'Epic 15 RMT vNext Tooling Adapter fehlgeschlagen:'
+    successTitle: 'Epic 15 RMT Classic Tooling Adapter erfolgreich.',
+    failureTitle: 'Epic 15 RMT Classic Tooling Adapter fehlgeschlagen:'
   });
 }
 

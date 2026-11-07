@@ -6,6 +6,14 @@ Planungsgrundlage: [RMTX – Konzept für die Einführung einer integrierten Tem
 
 **Nachtrag vom 7. November 2026:** B01 ist im lokalen Arbeitsstand auf Basis von Commit `08c2e4be` korrigiert. Die folgenden Abschnitte bleiben die historische Bestandsaufnahme vom 5. November; Umsetzung und neue Prüfergebnisse stehen im [Korrekturvermerk](#korrekturvermerk-vom-7-november-2026-b01).
 
+**Weitere Prüfungsrunde am 7. November 2026:** Auch B02 und B03 sind auf Basis von Commit `5d7a295c` korrigiert. Die [Fortschreibung und aktuelle Reihenfolge](#fortschreibung-vom-7-november-2026-b02-und-b03) trennt die behobenen Defekte von den noch offenen Architektur- und Integrationsfragen.
+
+**A01 gestartet am 7. November 2026:** Eine [reproduzierbare Strukturinventur mit Abdeckungsmatrix](rmtx-a01/README.md) erfasst AST, Core, Artefakte, Operatoren und Auswerter. Vier zusätzliche Inkonsistenzen sind isoliert dokumentiert. Ein gemeinsamer normativer Frontend-/Backend-Vertrag ist damit noch nicht abgeschlossen.
+
+**A01 fortgesetzt am 7. November 2026:** F01 (nicht ausführbare Selektorquellen) und F02 (kollidierende Core-Identitäten) sind im Arbeitsstand korrigiert und mit Source-/AST-Regressionen abgesichert. Der [implementierte Teilvertrag](rmtx-a01/identity-and-selector-sources.md) hält Ablehnungsregeln und verbleibende Grenzen fest.
+
+**Weitere A01-Korrekturen am 7. November 2026:** Auch F03 (Diagnosekanäle) und F04 (Zieloperatoren) sind im Arbeitsstand korrigiert. Der [ergänzende Teilvertrag](rmtx-a01/diagnostics-and-render-capabilities.md) beschreibt vollständige Compiler-/LSP-Diagnosen und die geprüften Render-/Model-/Regelprofile für Node und PHP.
+
 ## 1. Ergebnis und Reichweite
 
 **RMTX und XTensions 2.0 können auf einer erheblichen vorhandenen Infrastruktur aufbauen. Der wichtigste gemeinsame Arbeitsgegenstand ist ein geprüfter semantischer Vertrag zwischen Autorensprache, Compiler, App-Orchestrierung und Framework-Hosts.** Nur einen JSX-Parser anzuschließen würde die entscheidenden Integrationslücken nicht schließen.
@@ -350,4 +358,103 @@ Nachweise: Die [Compiler-Suite](../tests/rmt-language/rmt_vnext_compiler_suite.j
 
 Unter **Node v24.22.1** bestanden neun gezielte Suiten: `rmt-vnext-compiler` (354 Assertions), `rmt-vnext-parser` (89), `rmt-vnext-conditions` (59), `rmt-semantic-graph` (148), `maraca-plan` (115), `rmt-artifact-parity` (291), `rmt-reference-docs` (694), `ssr-pages` (47) und `ssr-pages-php` (15). Die DE-/EN-Referenzbeispiele kompilieren ebenfalls ohne Diagnosen. Die benötigten, versionsgebundenen Testabhängigkeiten wurden isoliert unter `/tmp` installiert und temporär verknüpft; Paketmanifeste und Lockfiles wurden nicht geändert. Berichte: `/tmp/xtend-selector-before.json`, `/tmp/xtend-selector-final.json`, `/tmp/xtend-selector-ssr-final.json` und `/tmp/xtend-selector-node-ssr-final.json`; spätere Läufe ersetzen darin die zuvor durch fehlende Testabhängigkeiten blockierten SSR-Ergebnisse.
 
-**Weiter offen:** B02 (Prüfgrenze des AST-Einstiegs) und B03 (fehlende `rmt-state-selector-runtime.compat.js`). B03 wurde auch unter Node 24 reproduziert; die separate State-Suite bricht weiterhin vor ihren Runtime-Assertions ab. Die neuen Compiler-Regressionen führen die tatsächliche State-Runtime unabhängig davon aus. Ein vollständiges 0.9-Release-Gate wurde nicht ausgeführt.
+**Zum Zeitpunkt der B01-Korrektur noch offen:** B02 (Prüfgrenze des AST-Einstiegs) und B03 (fehlende `rmt-state-selector-runtime.compat.js`). B03 wurde auch unter Node 24 reproduziert; die separate State-Suite brach vor ihren Runtime-Assertions ab. Die neuen Compiler-Regressionen führten die tatsächliche State-Runtime unabhängig davon aus. B02 und B03 sind in der folgenden Prüfungsrunde bearbeitet; ein vollständiges 0.9-Release-Gate wurde nicht ausgeführt.
+
+## Fortschreibung vom 7. November 2026: B02 und B03
+
+### B02 – Gemeinsame semantische Prüfgrenze umgesetzt
+
+`compileRmtVNextSource()` und `compileRmtVNextAst()` verwenden jetzt dieselbe interne Pipeline für semantischen Graphen, Lowering, AppService-Prüfungen sowie Ableitung und Prüfung der Orchestrierungsartefakte. Der AST-Einstieg gibt bei Erfolg weiterhin das Core-Dokument zurück. Bei Fehlern wirft er einen `RmtAstCompilationError` mit `code: rmt.vnext.ast.compilation_failed`, Phase und vollständigen Diagnosen. Die bisher unzutreffende Result-Typdeklaration ist an diesen Core-Rückgabevertrag angepasst; auch `createRmtVNextCompiler().compileAst()` ist entsprechend typisiert.
+
+Eine gemeinsame Eingangsprüfung kontrolliert AST-Schema, Dokumentwurzel, Top-Level-Deklarationen und den Datencharakter des Baums. Sie weist unter anderem zyklische oder ausführbare Werte zurück. Die Syntaxprüfung bleibt beim Frontend: Erwartet wird ein syntaktisch gültiger AST des bestehenden Parsers. Diese Korrektur definiert noch kein vollständiges AST-JSON-Schema und keine neue Zwischenrepräsentation für RMTX; dieser Teil von D01 bleibt offen.
+
+Die [Compiler-Regressionen](../tests/rmt-language/rmt_vnext_compiler_suite.js) vergleichen Source- und AST-Output für minimale, komplexe, primitive und Resume-Fixtures einschließlich Factory-Defaults und unveränderter Eingabebäume. Die ursprüngliche semantisch ungültige Fixture wird jetzt auch über den AST-Einstieg abgewiesen; eine zweite Fixture prüft die späteren Compilerfehler. Codes, Pointer und Ranges stimmen mit dem Source-Pfad überein. Die neuen Negativtests schlugen vor der Korrektur fehl. API-Details stehen im [Authoring Guide](../docs/de/rmt-vnext-authoring.md#compiler-einstiege-und-prüfgrenze).
+
+### B03 – Veraltete Tests und Exportdeklarationen korrigiert
+
+Die Git-Historie erklärt die fehlende Datei: Commit `957745650bd55c25c0fac7aa78bcb8e6fe834de4` entfernte `rmt-state-selector-runtime.compat.js` bei der Einführung von RMT 0.8. Die aktuellen Package-Exports zeigen auf die reine Model-Runtime. In Tests, Syntaxcheck-Liste und Typdeklarationen waren noch Verweise auf die entfernte Fassade beziehungsweise deren Funktionen verblieben.
+
+Die [State-Suite](../tests/rmt/rmt_state_selector_runtime_suite.js) importiert jetzt die kanonische Model-Runtime. Host-Verbindungen erhalten ihre Factory ausdrücklich über `createStateProjectionPort`; DOM-Projektion läuft über den vorhandenen View-Projector und eingefrorene Model-Reader-Snapshots. Die Suite prüft weiterhin State, Selektoren, Reducer, atomare Batches, Transaktionen/Rollback, DOM-Erhalt, Sink-/Pfadgrenzen sowie idempotentes Dispose. Zusätzlich prüft sie, dass ein injizierter Port allein keine Factory für weitere Verbindungen bereitstellt. Die Runtime-fremden Funktionen `applyRmtStateBindings` und `createRmtStateBindingAdapter` werden nicht länger fälschlich als Model-Exports deklariert. Vorhandene reine Typ-Aliase bleiben erhalten.
+
+Ergebnis: **262 tatsächliche State-/View-/Host-Assertions bestanden**, statt des vorherigen `ENOENT`-Abbruchs. Die gültigen Schnittstellen sind in [DE](../docs/de/rmt-state-selector-runtime.md) und [EN](../docs/en/rmt-state-selector-runtime.md) dokumentiert. Die entfernte Fassade wurde nicht wieder eingeführt.
+
+### Prüfnachweise dieser Runde
+
+Unter **Node v24.22.1** bestanden elf Suiten:
+
+| Suite | Bestandene Assertions |
+| --- | ---: |
+| `rmt-vnext-compiler` | 375 |
+| `rmt-vnext-parser` | 89 |
+| `rmt-semantic-graph` | 148 |
+| `rmt-state-selector-runtime` | 262 |
+| `rmt-artifact-parity` | 291 |
+| `type-exports-rmt` | 478 |
+| `maraca-plan` | 115 |
+| `rmt-jit-hydrangea` | 5 Fixture-Gruppen |
+| `ssr-pages` | 47 |
+| `ssr-pages-php` | 15 |
+| `rmt-reference-docs` | 694 |
+
+Zusätzlich bestanden der Syntaxcheck aller zehn aktuellen Zielmodule und ein strikter TypeScript-5.9.3-Consumercheck für den AST-Core-Rückgabewert, Factory-Typen, Fehlerdiagnosen und die entfernten Model-Funktionsexports. Die vorhandenen isolierten Testabhängigkeiten unter `/tmp` wurden temporär verknüpft; Paketmanifeste und Lockfiles bleiben unverändert. Berichte: `/tmp/xtend-findings-b02-before.json`, `/tmp/xtend-findings-b03-before.json`, `/tmp/xtend-findings-core.json`, `/tmp/xtend-findings-final.json`; TypeScript-Probe: `/tmp/xtend-findings-types.mts`. Das sind gezielte Regressionsnachweise, kein vollständiges Release-Gate.
+
+### Aktuelle Liste und Reihenfolge
+
+Die folgenden A-IDs ordnen die bereits in dieser Bestandsaufnahme beschriebenen Architektur-/Integrationslücken; sie bezeichnen keine neu reproduzierten Laufzeitdefekte.
+
+| Punkt | Status | Nächster konkreter Nachweis |
+| --- | --- | --- |
+| B01 – Selektor-Lowering | behoben in `5d7a295c` | Source-/Model-Regressionen und Node-/PHP-Vergleich erhalten. |
+| B02 – AST-/Source-Prüfgrenze | behoben im aktuellen Arbeitsstand | Gemeinsame Pipeline und AST-Negativtests erhalten; vollständiger Fremdfrontend-Vertrag bleibt A01. |
+| B03 – Entfernte Compat-Fassade in Tests/Types | behoben im aktuellen Arbeitsstand | Kanonische State-Suite, explizite Host-/View-Komposition und Export-Parität erhalten. |
+| A01 – Schema-/Operator- und Artefaktvertrag | gemeinsamer AST-Eingangsvertrag implementiert; F01–F04 korrigiert | [Matrix und Quellen](rmtx-a01/README.md), [Feld-/Referenz-/Versionsvertrag](rmtx-a01/compiler-contract.md) und Source-/AST-Parität liegen vor. Erweiterungen für neue Featurefähigkeiten folgen A02–A06. |
+| A02 – XTension-State und Instanzidentität | offen; X02/X03 | Einen kontrollierten State-Slice mit stabiler Instanzadresse durch Model-Commit, XTend-State-Projektion, Props und Rückkanal führen. |
+| A03 – Tatsächliche Orchestrierungsgranularität | offen; X01/X04 | Einen echten XTension-Host über einen beobachtbaren Kernel-Job steuern; Fähigkeiten und kooperative Grenzen pro Adapter nachweisen. |
+| A04 – Maraca-/Manifest-/Provider-Verkettung | offen; X05 | Deklaration, statischen Contract, Buildgraph/Chunk, verifizierten Provider, Host-Instanz und Cleanup in einem vertikalen Pfad verbinden. |
+| A05 – Framework-SSR und Resume/Ownership | offen; D07/X06 | Echte Adoption mit stabilen IDs, Restore vor Replay und getrenntem Fallback nachweisen. |
+| A06 – RMTX-Syntax, DX und Koexistenz | offen; D02/D04/D06/D08 | Gleiche Beispielsuite für Syntaxvarianten, frühe Editorfehler und ein gemischtes Projekt; keine Syntaxentscheidung durch diese Fehlerkorrekturen vorwegnehmen. |
+
+Der nächste Arbeitsstrang ist damit A01; sein erster Inventarstand ist nachfolgend verknüpft. Die übrigen Architektur-/Integrationsfragen bleiben offen.
+
+## Fortschreibung vom 7. November 2026: A01 gestartet
+
+Die [A01-Dokumentation](rmtx-a01/README.md) und das [maschinenlesbare Inventar](rmtx-a01/inventory.json) grenzen Dokument-JSON, Parser-AST, Core, App-/Kernel-Records, Orchestrierung und zielbezogenes Rendering voneinander ab. Der [Generator](rmtx-a01/inspect.cjs) erfasst 45 Eingabedateien mit Inhalts-Hashes. Der Corpus aus 15 erfolgreich kompilierten Quellen beobachtet alle 122 statisch erfassten AST-Knotentypen; hinzu kommen 23 Core-Listen, 295 Artefakt-Pfadmuster, 110 Interfaces und Operatorzweige der ausgewählten Auswerter. Das belegt strukturelle Abdeckung, nicht die Semantik sämtlicher Feldkombinationen oder Laufzeitziele.
+
+Die vorhandene Schema-Governance wurde lesend abgeglichen; ihre Freigaben und Baselines wurden nicht geändert. Insbesondere sind das bestehende Dokument-JSON-Schema und die versionierten AST-/Core-/Plan-Discriminatoren unterschiedliche Vertragsstufen.
+
+Im ersten Inventarstand wurden vier neue Befunde mit reproduzierbaren Beobachtungen dokumentiert:
+
+| Befund | Beobachtung | Folgeschritt |
+| --- | --- | --- |
+| A01-F01 – Selector-Source-Kinds | Eine akzeptierte DataSource-Quelle liefert in der Model-Runtime den Referenzstring statt Daten. | Zulässige Quellen je Kontext mit ausführbarem Vertrag festlegen. |
+| A01-F02 – Core-Identität | `app.One` und `app.one` kompilieren zu derselben Core-ID und Source-Ref. | Kollisionen diagnostizieren oder eine eindeutige, migrationsfähige ID-Regel definieren. |
+| A01-F03 – Diagnosekanäle | Validation-Capability-Warnungen erscheinen im Plan, fehlen aber in den Top-Level-Compilerdiagnosen. | Verbindliche Aggregation, Deduplizierung und Source-Zuordnung festlegen. Warnungen müssen den Compile nicht blockieren. |
+| A01-F04 – Zieloperatoren | Ein für Node akzeptierter `gt`-Renderausdruck ergibt leeren Text; das Model liefert `true`. | Operatorfähigkeiten je Kontext nachweisen und nicht ausführbare Records ablehnen oder lowern. |
+
+Die erste Inventur änderte keine Produktsemantik oder RMTX-Schreibweise. Die anschließenden F01-/F02-Korrekturen sind nachfolgend beschrieben. **A01 bleibt in Bearbeitung:** Zieloperatoren, Diagnosekanäle, vollständige Pflicht-/Alternativfelder und Referenztypen klären und den versionierten gemeinsamen Vertrag festlegen.
+
+### A01-F01/F02 – Prüfgrenzen implementiert
+
+Der Compiler weist nun alle dokumentweit kollidierenden Source-Map-Identitäten mit `rmt.vnext.core.id_collision` ab, bevor App-/Kernel-/Orchestrierungsprojektionen entstehen. Die Diagnose zeigt beide Fundstellen. Eindeutige bisherige IDs bleiben unverändert; Case-, Unterstrich-, Template-, Lane- und Slot-Kollisionen sind regressionsgeprüft. Die Korrektur definiert keine neue Migration oder dauerhaft stabile Resume-/Instanzadresse.
+
+Selektoren benötigen eine bekannte State- oder Selektorquelle. Fehlende Quellen erzeugen `rmt.vnext.selector.source_missing`; nicht ausführbare Quellenarten erzeugen `rmt.vnext.selector.source_kind_unsupported` im semantischen Graphen. Eine DataSource wird explizit über Effects bezogen und ihr Ergebnis durch Reducer in State übernommen. Bei beiden Fehlerklassen bleiben Core-/JSON-/Service-/Orchestrierungsartefakte aus; Source- und AST-Einstieg liefern dieselben Diagnosen.
+
+Der [Teilvertrag](rmtx-a01/identity-and-selector-sources.md) beschreibt die konkreten Regeln. Der [aktualisierte Inventarstand](rmtx-a01/inventory.json) hält beide Proben jetzt als diagnostizierte Negativfälle fest. Alle 15 positiven Quellen und alle 122 AST-Knotentypen bleiben abgedeckt. Zehn gezielte Suites bestanden diese Prüfungsrunde, darunter Compiler (464 Assertions), semantischer Graph, Parser, Linter, Language Server, Artefakt-Parität, Maraca, Hydrangea und Referenzdokumentation; [Prüfdetails und Grenzen](rmtx-a01/README.md#10-prüfung-der-f01-f02-korrekturen). Die anschließenden F03-/F04-Korrekturen sind nachfolgend beschrieben.
+
+### A01-F03/F04 – Diagnosekanäle und Zieloperatoren abgesichert
+
+Der vollständige Compilerkanal vereint jetzt Parser, zuständige Semantik, Compiler und alle Orchestrierungspläne. Identische Meldungen werden dedupliziert; unterschiedliche Felder und Quellstellen bleiben erhalten. Planherkunft und Source-Map-Bezug werden bis zum LSP transportiert. Die Validation-Probe liefert beide Capability-Warnungen mit Feld-Range im Compiler und als LSP-Warnungen, ohne den Compile zu blockieren. Error-Severity und AST-/Source-Parität bleiben erhalten.
+
+Portable Artefakte prüfen Node und PHP separat nach Render-, Model- und Regelkontext. Der im Model gültige `gt`-Ausdruck wird im nicht unterstützten Renderkontext klar abgewiesen; `target: node` und importierte Target-Labels können die Prüfung nicht umgehen. Node-Formatter bleiben verfügbar. Literalinhalte werden vor rekursiver DOM-Auswertung übernommen; die drei ausgelieferten Runtime-Bundles und ihr Kernel-Manifest sind neu erzeugt und per Build-Check abgeglichen.
+
+Der [ergänzende Teilvertrag](rmtx-a01/diagnostics-and-render-capabilities.md) hält diese Regeln und Grenzen fest. 17 betroffene Suites bestehen, einschließlich Compiler, LSP, DOM-/Model-Runtime, Maraca, Hydrangea, gepacktem TypeScript-Consumer und tatsächlicher Node/PHP-SSR-Parität. Für Hydrangea wurde genau ein Compiler-Erwartungshash nach Prüfung der nun sichtbaren Payload-Contract-Warnung korrigiert; Core, Status, Preview und Maraca bleiben für alle acht Fixtures unverändert. [Nachweise und Grenzen](rmtx-a01/README.md#11-prüfung-der-f03-f04-korrekturen).
+
+Das aktualisierte Inventar bindet 48 Eingaben und beobachtet 15 erfolgreiche Quellen, alle 122 AST-Knotentypen, 23 Core-Listen, 301 Artefakt-Pfadmuster und 115 Interfaces. **F01–F04 sind adressiert; A01 bleibt für den vollständigen Feld-/Referenz- und öffentlichen IR-/Versionsvertrag in Bearbeitung.**
+
+## Fortschreibung vom 7. November 2026: Classic-Vertrag und Release 0.9
+
+Die bisherige RMT-vNext-Sprache heißt nun **RMT Classic**. Der [gemeinsame Compilervertrag](rmtx-a01/compiler-contract.md) ist als geschlossener AST-Eingang für alle 122 vorhandenen Knotentypen implementiert: kuratierte Feld-/Kontextregeln, erzeugtes JSON-Schema/TypeScript, Herkunftskohärenz und semantische Referenz-/Typ-/Zyklusprüfungen. Classic-Source und AST verwenden dasselbe Backend; bestehende technische vNext-APIs und Wire-IDs bleiben kompatibel. Selektorpläne werden vor tatsächlicher Model-Auswertung nach ihren Quellen und Prädikatabhängigkeiten geordnet. Die Primitive-Fixture deklariert nun ihren bisher fehlenden Action-Status-State.
+
+**RMTX und XTensions 2.0 sind verpflichtender Umfang von 0.9.0.** Der [maschinenlesbare Releaseumfang](../scripts/release/feature-scope.json) führt beide noch als `preparing`. Versiegelung und Publish-Grenze prüfen den vollständigen Umfang und quellgebundene Ausführungsnachweise; technische CI-Kandidaten verlangen den vollständigen gültigen Plan. Ein reduzierter Umfang oder bloße Bereitschaftsflags bestehen die Prüfung nicht. Diese Implementierungsvorbereitung setzt weder die RMTX-Syntax fest noch erklärt sie XTensions 2.0 für umgesetzt. Der nächste offene vertikale Pfad bleibt A02; die öffentliche [Releaseübersicht](../docs/de/release-0-9.md) weist den Stand aus.
+
+Die abschließenden [A01-/Releasevorbereitungsprüfungen](rmtx-a01/README.md#13-abschließende-prüfung-von-vertrag-und-09-vorbereitung) umfassen 31 bestandene Suites einschließlich 634 Release-Sicherheitsfällen. Navigation, Suchindizes, AI-Kit und MCP-Wissen sind auf dem neuen Stand. Alle Paketstände sind konsistent bei 0.9.0; die neue Feature-Readiness bleibt wegen RMTX und XTensions 2.0 bewusst offen.

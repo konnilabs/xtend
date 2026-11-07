@@ -1,6 +1,6 @@
 # RMT Playground
 
-The RMT Playground compiles RMT-vNext source inside the Developer Center. It uses `x-surface-manager` for the workspace, `x-textarea` for the first editor version, diagnostics and JSON output panels, and a safe preview target that never renders raw compiler HTML.
+The RMT Playground compiles RMT-RMT Classic source inside the Developer Center. It uses `x-surface-manager` for the workspace, `x-textarea` for the first editor version, diagnostics and JSON output panels, and a safe preview target that never renders raw compiler HTML.
 
 ## Try It
 

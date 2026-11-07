@@ -10,7 +10,7 @@ Dieser Guide ersetzt imperative App-Verdrahtung durch RMT Records, ohne eine Big
 
 - `tools/rmt-language/vnext-parser.js` validiert die neue Source.
 - `xtendrmt/rmt-app-runtime.js` übernimmt kompilierte Core-Records.
-- `rmt-vnext-migration-notes` dokumentiert Änderungen innerhalb der vNext-Sprache.
+- `rmt-vnext-migration-notes` dokumentiert Änderungen innerhalb der RMT Classic-Sprache.
 
 ## Empfohlener Ablauf
 

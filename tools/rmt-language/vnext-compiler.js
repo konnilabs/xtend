@@ -1,3 +1,4 @@
+const { validateRmtClassicAst } = require('./classic-ast-contract');
 const { validateFastPassAction } = require('../../xtend-maraca/fastpass-contract.js');
 const crypto = require('crypto');
 const {
@@ -6,6 +7,7 @@ const {
   RMT_VNEXT_PARSER_WORKPACKAGE,
   parseRmtVNextSource
 } = require('./vnext-parser');
+const { createRmtSourceModel } = require('./source-model');
 const {
   buildRmtVNextPrimitiveSemanticGraph
 } = require('./semantic-graph');
@@ -448,6 +450,38 @@ function createCompilerDiagnostic(code, message, node, severity = 'error', detai
   };
 }
 
+function validateCoreSourceIdentities(core) {
+  const firstBySourceRef = new Map();
+  const diagnostics = [];
+  // Every Core record and mapped child is registered here before projections
+  // consume IDs as lookup keys. Keep the existing ID format, reject ambiguity.
+  for (const entry of core.sourceMap) {
+    const first = firstBySourceRef.get(entry.id);
+    if (first) {
+      diagnostics.push(createCompilerDiagnostic(
+        'rmt.vnext.core.id_collision',
+        `Core source identity "${entry.id}" is produced more than once after ID normalization. Rename the conflicting declaration.`,
+        entry,
+        'error',
+        {
+          pointer: entry.astPointer,
+          corePointer: entry.corePointer,
+          sourceRef: entry.id,
+          relatedInformation: [{
+            message: 'First definition of this Core source identity',
+            pointer: first.astPointer,
+            corePointer: first.corePointer,
+            range: cloneRange(first.range)
+          }]
+        }
+      ));
+    } else {
+      firstBySourceRef.set(entry.id, entry);
+    }
+  }
+  return diagnostics;
+}
+
 function compileAppServiceInputPolicy(input, compiler) {
   if (!input || !input.policy) return null;
   const body = toArray(input.policy.body);
@@ -784,6 +818,43 @@ function hasPrimitiveCoreRecords(core) {
     || core.surfaces.some((surface) => surface.primitive === true);
 }
 
+function selectorsInDependencyOrder(selectors) {
+  const byName = new Map(selectors.map(selector => [selector.name, selector]));
+  const names = [...byName.keys()].sort((left, right) => right.length - left.length);
+  const dependencies = new Map(selectors.map(selector => {
+    const refs = new Set();
+    if (selector.source?.kind === 'selector') refs.add(selector.source.target);
+    function expression(value) {
+      if (typeof value === 'string' && value.startsWith('selector.')) {
+        const path = value.slice(9);
+        const name = names.find(name => path === name || path.startsWith(`${name}.`));
+        if (name) refs.add(name);
+      } else if (value && typeof value === 'object' && !['literal', 'const', 'static'].includes(value.op)) {
+        Object.values(value).forEach(expression);
+      }
+    }
+    toArray(selector.clauses).forEach(clause => expression(clause.expression));
+    return [selector.name, [...refs].filter(name => byName.has(name))];
+  }));
+  const output = [], done = new Set(), active = new Set();
+  for (const selector of selectors) {
+    if (done.has(selector.name)) continue;
+    const stack = [{ name: selector.name, index: 0 }]; active.add(selector.name);
+    while (stack.length) {
+      const frame = stack[stack.length - 1];
+      const dependency = dependencies.get(frame.name)[frame.index++];
+      if (dependency === undefined) {
+        output.push(byName.get(frame.name)); done.add(frame.name); active.delete(frame.name); stack.pop();
+      } else if (active.has(dependency)) {
+        throw new TypeError(`Cyclic Classic selector dependency: ${dependency}.`);
+      } else if (!done.has(dependency)) {
+        active.add(dependency); stack.push({ name: dependency, index: 0 });
+      }
+    }
+  }
+  return output;
+}
+
 function createAppPlatformRecords(core) {
   return {
     schema: RMT_APP_PLATFORM_RECORDS_SCHEMA,
@@ -795,7 +866,7 @@ function createAppPlatformRecords(core) {
       preserve: record.preserve,
       initial: record.initial
     })),
-    selectors: core.selectors.map((record) => ({
+    selectors: selectorsInDependencyOrder(core.selectors).map((record) => ({
       id: record.name,
       from: record.source && record.source.target,
       clauses: record.clauses,
@@ -4092,6 +4163,45 @@ function createOrchestrationDiagnostics(appPlatform, eventBindings) {
   return diagnostics;
 }
 
+function mergeDiagnostics(...lists) {
+  const seen = new Set();
+  return lists.flatMap(toArray).filter((diagnostic) => {
+    const key = JSON.stringify(stableSortObject(diagnostic));
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function withOrchestrationDiagnosticSource(core, diagnostic, plan) {
+  const sourceMap = toArray(core.sourceMap);
+  let source = sourceMap.find(entry => diagnostic.sourceRef && entry.id === diagnostic.sourceRef);
+  const domains = [['validation', 'validations'], ['transition', 'transitions'], ['animation', 'animations'],
+    ['operation', 'operations'], ['resource', 'resources'], ['event', 'events'], ['surface', 'surfaces'],
+    ['portal', 'portals'], ['overlay', 'overlays'], ['action', 'actions']];
+  for (const [field, domain] of domains) {
+    if (source || !diagnostic[field]) continue;
+    const record = toArray(core[domain]).find(entry => entry.name === diagnostic[field] || entry.id === diagnostic[field]);
+    if (!record) continue;
+    source = sourceMap.find(entry => entry.id === record.sourceRef);
+    if (domain === 'validations' && diagnostic.field && source) {
+      const index = toArray(record.fields).findIndex(field => field.state === diagnostic.field);
+      const fields = sourceMap.filter(entry => entry.nodeType === 'RmtValidationFieldClause'
+        && entry.corePointer.startsWith(`${source.corePointer}/body/`));
+      source = fields[index] || source;
+    }
+  }
+  return {
+    ...diagnostic,
+    stage: 'orchestration',
+    plan,
+    sourceRef: diagnostic.sourceRef || source && source.id || null,
+    pointer: diagnostic.pointer || source && source.astPointer || null,
+    corePointer: diagnostic.corePointer || source && source.corePointer || null,
+    range: diagnostic.range || source && cloneRange(source.range) || null
+  };
+}
+
 function createRmtAppOrchestrationArtifacts(core) {
   if (!core || !core.appPlatform) return null;
 
@@ -4134,6 +4244,14 @@ function createRmtAppOrchestrationArtifacts(core) {
   const runtimeGraph = createRuntimeGraph(core, appPlatform, eventBindings, resources, validation, transitions);
   const patchPlan = createPatchPlan(appPlatform, reducers, renderDescriptors, validation, transitions);
   const telemetry = createTelemetryPlan();
+  const diagnosticPlans = {
+    orchestration: { diagnostics: createOrchestrationDiagnostics(appPlatform, eventBindings) },
+    render: renderComposition, hydration, validation, transitions, animationEngine
+  };
+  for (const [name, plan] of Object.entries(diagnosticPlans)) {
+    plan.diagnostics = mergeDiagnostics(toArray(plan.diagnostics).map(diagnostic => withOrchestrationDiagnosticSource(core, diagnostic, name)));
+  }
+  const diagnostics = mergeDiagnostics(...Object.values(diagnosticPlans).map(plan => plan.diagnostics));
 
   return {
     schema: RMT_APP_ORCHESTRATION_SCHEMA,
@@ -4202,7 +4320,7 @@ function createRmtAppOrchestrationArtifacts(core) {
     },
     observability: telemetry,
     telemetry,
-    diagnostics: createOrchestrationDiagnostics(appPlatform, eventBindings).concat(renderComposition.diagnostics).concat(hydration.diagnostics).concat(validation.diagnostics).concat(transitions.diagnostics).concat(animationEngine.diagnostics),
+    diagnostics,
     sourceMap: sourceMapForOrchestration(core)
   };
 }
@@ -4241,6 +4359,11 @@ class VNextCompiler {
       }
     });
 
+    const identityDiagnostics = validateCoreSourceIdentities(this.core);
+    if (identityDiagnostics.length) {
+      this.diagnostics.push(...identityDiagnostics);
+      return null;
+    }
     this.finalizePrimitiveLowering();
     return this.core;
   }
@@ -4303,7 +4426,7 @@ class VNextCompiler {
     const portalNode = getPrimitiveBodyNode(node, 'RmtSurfacePortalClause');
     const boundsNode = getPrimitiveBodyNode(node, 'RmtSurfaceBoundsClause');
     const preserveNode = getPrimitiveBodyNode(node, 'RmtSurfacePreserveClause');
-    const destroyNode = getPrimitiveBodyNode(node, 'RmtSurfaceDestroyClause');
+    const destroyNodes = toArray(node.body).filter(child => child.type === 'RmtSurfaceDestroyClause');
     const declaredKind = primitive ? getPrimitiveHeaderValue(node, 'kind') || 'named_surface' : name === 'root' ? 'root' : 'named_surface';
     const record = {
       id: surfaceId,
@@ -4340,7 +4463,7 @@ class VNextCompiler {
         text: preserveNode.text || '',
         tokens: toArray(preserveNode.tokens)
       } : null;
-      record.resourceRefs = destroyNode ? this.compileDestroyResourceRefs(destroyNode) : [];
+      record.resourceRefs = destroyNodes.flatMap(child => this.compileDestroyResourceRefs(child));
     }
 
     const surfaceRecord = addRecord(this.core, 'surfaces', record, node, 'RmtSurfaceDeclaration');
@@ -5342,8 +5465,32 @@ class VNextCompiler {
 }
 
 function compileRmtVNextAst(ast, options = {}) {
-  const compiler = new VNextCompiler(ast, options);
-  return compiler.compile();
+  const sourceModel = options.sourceModel || createRmtSourceModel({
+    text: options.sourceText || '', filePath: options.filePath, uri: options.uri
+  });
+  const result = compileRmtVNextParserResult({
+    schema: RMT_VNEXT_PARSER_SCHEMA,
+    ok: true,
+    phase: 'parse',
+    status: 'parsed',
+    ast,
+    sourceModel,
+    diagnostics: []
+  }, options);
+  if (!result.ok) {
+    const error = new Error(result.diagnostics.map(diagnostic => diagnostic.message).join('\n'));
+    error.name = 'RmtAstCompilationError';
+    error.code = 'rmt.vnext.ast.compilation_failed';
+    error.phase = result.phase;
+    error.diagnostics = result.diagnostics;
+    throw error;
+  }
+  // Preserve the existing Core-only return contract, after the complete pipeline.
+  return result.coreDocument;
+}
+
+function validateCompilerAst(ast, sourceModel) {
+  return validateRmtClassicAst(ast, { sourceModel });
 }
 
 function coreDocumentForSerialization(coreDocument) {
@@ -5377,8 +5524,10 @@ function serializeRmtVNextCore(coreDocument) {
 }
 
 function compileRmtVNextSource(input = {}, options = {}) {
-  const parserResult = parseRmtVNextSource(input, options);
+  return compileRmtVNextParserResult(parseRmtVNextSource(input, options), options);
+}
 
+function compileRmtVNextParserResult(parserResult, options = {}) {
   if (!parserResult.ok) {
     return {
       schema: RMT_VNEXT_COMPILER_SCHEMA,
@@ -5396,11 +5545,22 @@ function compileRmtVNextSource(input = {}, options = {}) {
     };
   }
 
-  const primitiveSemanticGraph = buildRmtVNextPrimitiveSemanticGraph(input, {
+  const astDiagnostics = validateCompilerAst(parserResult.ast, parserResult.sourceModel);
+  if (astDiagnostics.length) {
+    return {
+      schema: RMT_VNEXT_COMPILER_SCHEMA, workpackage: RMT_VNEXT_COMPILER_WORKPACKAGE,
+      ok: false, phase: 'ast', status: 'invalid_ast', parserResult,
+      appServiceDemands: null, orchestrationArtifacts: null, coreDocument: null, coreJson: null,
+      diagnostics: parserResult.diagnostics.concat(astDiagnostics), compilerDiagnostics: astDiagnostics
+    };
+  }
+  const primitiveSemanticGraph = buildRmtVNextPrimitiveSemanticGraph({}, {
     ...options,
     parserResult
   });
   const primitiveInput = hasPrimitiveDeclarations(parserResult.ast);
+  // The primitive graph is not the validator for orchestration-only documents.
+  const sourceDiagnostics = primitiveInput ? primitiveSemanticGraph.diagnostics : parserResult.diagnostics;
   const primitiveErrors = primitiveInput
     ? primitiveSemanticGraph.listDiagnostics({ severity: 'error' })
     : [];
@@ -5430,6 +5590,19 @@ function compileRmtVNextSource(input = {}, options = {}) {
     semanticGraph: primitiveSemanticGraph
   });
   const coreDocument = compiler.compile();
+  if (!coreDocument) {
+    return {
+      schema: RMT_VNEXT_COMPILER_SCHEMA,
+      workpackage: RMT_VNEXT_COMPILER_WORKPACKAGE,
+      primitiveLoweringSchema: RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA,
+      primitiveLoweringWorkpackage: RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE,
+      ok: false, phase: 'compile', status: 'compile_error',
+      parserResult, primitiveSemanticGraph,
+      appServiceDemands: null, orchestrationArtifacts: null, coreDocument: null, coreJson: null,
+      diagnostics: mergeDiagnostics(sourceDiagnostics, compiler.diagnostics),
+      compilerDiagnostics: compiler.diagnostics
+    };
+  }
   const coreJson = serializeRmtVNextCore(coreDocument);
   const appServiceDemands = createRmtAppServiceDemands(coreDocument);
   const compilerDiagnostics = compiler.diagnostics.concat(appServiceInputPolicyDiagnostics(appServiceDemands, parserResult.ast));
@@ -5466,9 +5639,8 @@ function compileRmtVNextSource(input = {}, options = {}) {
     ].includes(entry.nodeType))
   } : null;
   const orchestrationArtifacts = createRmtAppOrchestrationArtifacts(coreDocument);
-  compilerDiagnostics.push(...toArray(orchestrationArtifacts && orchestrationArtifacts.render && orchestrationArtifacts.render.diagnostics));
-  compilerDiagnostics.push(...toArray(orchestrationArtifacts && orchestrationArtifacts.hydration && orchestrationArtifacts.hydration.diagnostics));
-  const diagnostics = parserResult.diagnostics.concat(compilerDiagnostics);
+  compilerDiagnostics.push(...toArray(orchestrationArtifacts && orchestrationArtifacts.diagnostics));
+  const diagnostics = mergeDiagnostics(sourceDiagnostics, compilerDiagnostics);
 
   return {
     schema: RMT_VNEXT_COMPILER_SCHEMA,
@@ -5486,7 +5658,7 @@ function compileRmtVNextSource(input = {}, options = {}) {
     coreDocument,
     coreJson,
     diagnostics,
-    compilerDiagnostics
+    compilerDiagnostics: mergeDiagnostics(compilerDiagnostics)
   };
 }
 

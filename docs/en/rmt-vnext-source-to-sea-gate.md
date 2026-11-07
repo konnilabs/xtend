@@ -1,4 +1,4 @@
-# RMT vNext Source-to-Sea
+# RMT Classic Source-to-Sea
 
 The Source-to-Sea check connects an `.rmt` source file with compiler Core, kernel schedules, Fabric fibers, host adapters, XTend UI and browser evidence. It is intentionally outside default CI because the browser driver needs its own local or GitHub Actions environment. For release candidates it is still the strongest evidence chain: a third-party developer can see that the compiler output, route switches, cross-primitive events and resource cleanup all correlate in the browser.
 

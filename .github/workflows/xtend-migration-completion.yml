@@ -194,6 +194,12 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/check-core-source.cjs
 
+      - name: Check 0.9 development preparation
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run check:release-preparation
+
       - name: Acquire exact same-run current pair
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:

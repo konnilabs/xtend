@@ -280,7 +280,7 @@ function createLifecycleOperationPlan(coreDocument, options = {}) {
         coreDocument,
         operation,
         LIFECYCLE_OPERATION_UNSUPPORTED_CODE,
-        `Lifecycle operation "${op || 'unknown'}" is not part of the vNext operation contract.`
+        `Lifecycle operation "${op || 'unknown'}" is not part of the RMT Classic operation contract.`
       ));
     }
 

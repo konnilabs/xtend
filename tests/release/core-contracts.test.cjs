@@ -4,7 +4,14 @@ const {candidateFixture,preparedFixture}=require('./core-fixture.cjs'),{write}=r
 const artifact=require('../../scripts/release/artifact.cjs'),candidates=require('../../scripts/release/candidates.cjs');
 const profile=require('../../scripts/release/profile.cjs'),evidence=require('../../scripts/release/release-evidence.cjs');
 const consumer=require('../../scripts/release/core-evidence.cjs'),integrity=require('../../candidate-integrity.cjs');
-const {envelopeFixture,scoped}=require('./core-envelope-contract-fixture.cjs');
+const {envelopeFixture,scoped:scopedProtocol}=require('./core-envelope-contract-fixture.cjs');
+// Existing source/seal protocol tests use a controlled successful feature port.
+// The dedicated failure case overrides it; this is no feature acceptance proof.
+const scoped=(name,overrides)=>scopedProtocol(name,name==='pipeline.cjs'?{
+ './feature-scope.cjs':{assertReleaseFeatureReadiness:(_root,options)=>{
+  assert.match(options.sourceSha,/^[a-f0-9]{40}$/);assert.equal(typeof options.version,'string');
+ }},...overrides
+}:overrides);
 const prepareEnv={XTEND_RELEASE_PUBLISH:'false',XTEND_RELEASE_PREPARE:'true'};
 async function withEnvironment(values,action){
  const saved=Object.keys(values).map(key=>[key,process.env[key]]);
@@ -21,6 +28,21 @@ function preparationModules(p){
  const gate=scoped('evidence-gate.cjs',{'./artifact.cjs':boundArtifact,'./release-evidence.cjs':boundEvidence});
  return {boundArtifact,boundEvidence,gate};
 }
+test('feature readiness blocks sealing before any manifest mutation',async t=>{
+ const f=await preparedFixture(t),p=await envelopeFixture(f,{env:prepareEnv,defer:true}),m=preparationModules(p);
+ const before=fs.readFileSync(path.join(f.directory,'release-manifest.json'));let calls=0;
+ const pipeline=scoped('pipeline.cjs',{
+  'node:child_process':{execFileSync:()=>f.f.sourceSha},
+  './artifact.cjs':{...m.boundArtifact,verifyArtifact:options=>m.boundArtifact.verifyArtifact({...options,rootDir:f.f.rootDir})},
+  './feature-scope.cjs':{assertReleaseFeatureReadiness:(_root,options)=>{
+   calls++;assert.equal(options.sourceSha,f.f.sourceSha);assert(f.f.artifact.packages.some(entry=>entry.version===options.version));
+   throw Object.assign(Error('Required feature acceptance pending'),{code:'xtend.release.features_pending'});
+  }},
+  './core-auth.cjs':{...p.auth,collect:()=>{throw Error('Must stop before evidence collection');}}
+ });
+ await assert.rejects(pipeline.seal({directory:f.directory,manifestIntegrity:p.artifact.manifestIntegrity}),error=>error.code==='xtend.release.features_pending');
+ assert.equal(calls,1);assert.deepEqual(fs.readFileSync(path.join(f.directory,'release-manifest.json')),before);
+});
 test('publish-free sealing verifies full controlled proof, preserves tgz bytes and cannot authorize publishing',async t=>{
  const f=await preparedFixture(t),p=await envelopeFixture(f,{env:prepareEnv,defer:true}),m=preparationModules(p);
  let forbiddenCalls=0;const forbidden=()=>{forbiddenCalls++;throw Error('No registry mutation, upload, consumer install or rebuild permitted');};

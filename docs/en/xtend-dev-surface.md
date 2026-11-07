@@ -209,7 +209,7 @@ Help, listing and planning load neither suite modules nor TypeScript. Explicit I
 
 `ci-pr` and `ci-release` combine the existing main checks and the RMT/Native-First subset. Their owner jobs execute this union once per Node version. The existing `rmt-vnext-primitive-gates` check downloads evidence from the same workflow run and verifies its required subset. Node/OS matrices and check names remain unchanged. `ci-nightly` and `ci-publish` use the same execution and projection logic; publication still requires a fresh acceptance run.
 
-Domain reports and alias IDs remain available as projections. Docs stub inventory is advisory in PR/release CI and blocking in Nightly. Existing language, browser, package and contract coverage remains mandatory. Project index, LSP, import resolver and runner contracts are also included in the main profiles. The separate editor job exercises Legacy/vNext analysis and navigation from an actual VSIX unpacked outside the checkout.
+Domain reports and alias IDs remain available as projections. Docs stub inventory is advisory in PR/release CI and blocking in Nightly. Existing language, browser, package and contract coverage remains mandatory. Project index, LSP, import resolver and runner contracts are also included in the main profiles. The separate editor job exercises Legacy/RMT Classic analysis and navigation from an actual VSIX unpacked outside the checkout.
 
 The execution plan also identifies separate CI checks. Changed files never automatically select or skip tests. Successful results are not cached between runs. npm download caches use lockfiles and platform keys. Failed installation prevents subsequent test cascades; final status evaluation and diagnostic uploads remain active.
 

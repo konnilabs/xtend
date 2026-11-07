@@ -1321,6 +1321,12 @@
 
   function evaluateExpression(record, context, item) {
     const op = clampString(record.op || record.operator || record.kind || record.format, '');
+    // Literal payloads are data, including nested records with op/type keys.
+    // Select them before resolving an expression source or constructing a RegExp.
+    if (['literal', 'const', 'static'].includes(op)) {
+      const value = Object.prototype.hasOwnProperty.call(record, 'value') ? record.value : record.source;
+      return applyFallback(value, record.fallback, context, item);
+    }
     const hasValue = Object.prototype.hasOwnProperty.call(record, 'value') || Object.prototype.hasOwnProperty.call(record, 'from') || Object.prototype.hasOwnProperty.call(record, 'source');
     const sourceExpression = Object.prototype.hasOwnProperty.call(record, 'value')
       ? record.value
@@ -1329,11 +1335,6 @@
     let result;
 
     switch (op) {
-      case 'literal':
-      case 'const':
-      case 'static':
-        result = Object.prototype.hasOwnProperty.call(record, 'value') ? record.value : record.source;
-        break;
       case '':
       case 'path':
         result = record.path ? resolvePathExpression(record.path, context, item) : source;

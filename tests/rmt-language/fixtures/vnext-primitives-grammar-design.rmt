@@ -59,6 +59,9 @@ template media.manager {
     on error -> overlay feedback.toast message error.message tone "danger"
   }
 
+  // Action status is Model state and must be declared before runtime writes it.
+  state actionStatus.reindex type object initial { status "idle" }
+
   portal surface.root root "#media-manager-root" layer surface
 
   portal overlay.root root "body" layer overlay z 1000 {

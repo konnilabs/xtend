@@ -10,7 +10,7 @@ The page runtime extends the existing [Node](./rmt-node-ssr-adapter.md) and
 
 ## Build and contracts
 
-`xt pages build --root /path/to/app --target both --json` uses the existing vNext
+`xt pages build --root /path/to/app --target both --json` uses the existing RMT Classic
 compiler and import resolver. Render targets are `node`, `php` and `both`;
 `--host laravel` selects the Laravel output path. Existing CLI server targets remain available.
 
@@ -43,6 +43,8 @@ explicit formatting handle structured data. PHP decoding preserves JSON objects 
 PHP supports the expressions listed by the portable renderer. Regex replacement and
 JavaScript functions, for example, are outside that target. A PHP build diagnoses these
 capabilities. Existing Node compiler and adapter access remains available.
+
+Portable artifacts validate Node and PHP capabilities separately. `target: 'node'` retains Node formatters such as `uppercase`, regex `replace` and `formatDateShort`, but rejects unsupported render expressions such as `gt`. Relational comparisons remain available in supported filter rules and Node Model expressions. Unknown operators are rejected with target, context and JSON-pointer diagnostics, including expressions inside named slots and branches. `targets` advertises only validated profiles; `projectPortableRender()` requires Node support and validates imported artifacts again. Literal contents and attribute/property/class names remain data. These checks cover portable artifacts; general host adapters have their own contracts.
 
 `assets.entry` and `assets.css` contain same-origin URLs. Alternatively,
 `"vite": {"manifest": "public/build/manifest.json", "entry": "resources/js/app.js"}`

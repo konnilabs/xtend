@@ -4,7 +4,7 @@ Contract: `xtend.surface.workbench-fixture.v1`
 
 The Workbench Fixture proves an RMT-first Surface App with route, manager, windows, side panel and shared snapshot.
 
-It is registered as a stable regression fixture under `demos/xtendrmt/fixtures/surface-workbench/`. The `.rmt` source and reproducible vNext core form the single source-of-truth chain.
+It is registered as a stable regression fixture under `demos/xtendrmt/fixtures/surface-workbench/`. The `.rmt` source and reproducible RMT Classic core form the single source-of-truth chain.
 
 Gate:
 

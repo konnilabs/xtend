@@ -1,0 +1,43 @@
+// A01 parser/lowering coverage only; no services, recipes or animations run.
+template inventory.variants {
+  state app.options type object initial { "enabled" true }
+  state app.records type array initial []
+  state app.result type object initial {}
+
+  datasource app.api from host "inventory.service" {
+    mode invoke
+    contract Result
+    result payload
+  }
+  action app.load {
+    input query string {
+      trust boundary "xtend.security.sanitizing-boundary.v1"
+      sanitize text
+    }
+    effect fetch datasource app.api
+    reduce state.app.result = result.payload
+  }
+  action app.navigate {
+    execution fastpass
+    effect navigation "/next"
+  }
+  action app.append {
+    recipe "append" target state.app.records value result.record
+  }
+
+  validation app.base {
+    mode blocking
+  }
+  validation app.composed {
+    mode blocking
+    include app.base
+  }
+  animation app.motion {
+    preset fade
+    effect fade
+    allowFilter true
+    timeline {
+      parallel enter exit
+    }
+  }
+}

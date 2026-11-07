@@ -1,6 +1,6 @@
 # RMT Syntax-Grundlagen
 
-Diese Seite zeigt die Grundform einer gültigen RMT-vNext-Quelldatei. Vorwissen zu HTML und JavaScript reicht für den Einstieg aus.
+Diese Seite zeigt die Grundform einer gültigen RMT-RMT Classic-Quelldatei. Vorwissen zu HTML und JavaScript reicht für den Einstieg aus.
 
 ## Dokumentform
 
@@ -68,7 +68,7 @@ transition demo.contactToIssue {
 }
 ```
 
-`required`, `email`, `minLength`, `maxLength`, `pattern`, `message`, `target action`, `use animation`, `from surfaces`, `to surfaces`, `effect`, `durationMs`, `interrupt` und `reducedMotion` sind Teil der vNext-Syntax. `lane transition` sorgt dafür, dass der Wechsel über den Kernel Scheduler geplant werden kann.
+`required`, `email`, `minLength`, `maxLength`, `pattern`, `message`, `target action`, `use animation`, `from surfaces`, `to surfaces`, `effect`, `durationMs`, `interrupt` und `reducedMotion` sind Teil der RMT Classic-Syntax. `lane transition` sorgt dafür, dass der Wechsel über den Kernel Scheduler geplant werden kann.
 
 ## Maraca-Relevanz
 

@@ -23,7 +23,7 @@ node tools/rmt-language-server/server.js
 
 The server supports VS Code, JetBrains, Neovim and Helix through stdio. Snippets such as `rmt-app`, `rmt-component`, `rmt-route` and `rmt-template-dom` speed up new files. The relevant schemas are `xtend.rmt.language-server.v1`, `xtend.rmt.editor-packaging.v1` and `xtend.rmt.snippet-catalog.v1`.
 
-VS Code also contributes `XTendRMT: Show vNext Primitive Apply Experience` and `XTendRMT: Run Active RMT Lint`. Problem-matcher workflows use `xt rmt lint app.rmt --format problem-matcher --fail-on warning`; debug configurations are available as a template at `tools/rmt-editor/vscode/templates/launch.json`.
+VS Code also contributes `XTendRMT: Show Classic Primitive Apply Experience` and `XTendRMT: Run Active RMT Lint`. Problem-matcher workflows use `xt rmt lint app.rmt --format problem-matcher --fail-on warning`; debug configurations are available as a template at `tools/rmt-editor/vscode/templates/launch.json`.
 
 ## Orchestration DX
 

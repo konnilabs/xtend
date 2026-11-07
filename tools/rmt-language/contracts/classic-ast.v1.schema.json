@@ -1,0 +1,5126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "xtend.rmt.vnext.ast.v1",
+  "title": "RMT Classic compiler input, version 1",
+  "description": "Shared declarative compiler input. The vnext discriminator is retained for wire compatibility. Core and execution plans are outputs, not alternative input shapes.",
+  "$ref": "#/definitions/RmtVNextDocument",
+  "definitions": {
+    "Position": {
+      "type": "object",
+      "properties": {
+        "line": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "character": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "line",
+        "character"
+      ],
+      "additionalProperties": false
+    },
+    "Range": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "$ref": "#/definitions/Position"
+        },
+        "end": {
+          "$ref": "#/definitions/Position"
+        },
+        "startOffset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "endOffset": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "additionalProperties": false
+    },
+    "Token": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "null"
+          ]
+        },
+        "startOffset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "endOffset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "raw": {
+          "type": "string"
+        },
+        "escaped": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "value",
+        "startOffset",
+        "endOffset"
+      ],
+      "additionalProperties": false
+    },
+    "Scope": {
+      "type": "object",
+      "properties": {
+        "templateName": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "surfaceName": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "laneName": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "topLevel": {
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "RmtVNextDocument": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtVNextDocument"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "schema": {
+          "const": "xtend.rmt.vnext.ast.v1"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtImportDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtTemplateDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtSurfaceDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtRemoteSurfaceDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtStateDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtSelectorDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtDataSourceDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtActionDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtValidationDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtAnimationDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtTransitionDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtPortalDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtOverlayDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtResourceDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtSearchSourceDeclaration"
+              }
+            ]
+          }
+        },
+        "imports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtImportDeclaration"
+          }
+        },
+        "templates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtTemplateDeclaration"
+          }
+        },
+        "surfaces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtSurfaceDeclaration"
+          }
+        },
+        "remoteSurfaces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtRemoteSurfaceDeclaration"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "schema",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtIdentifier": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtIdentifier"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "escaped": {
+          "type": "boolean"
+        },
+        "startToken": {
+          "$ref": "#/definitions/Token"
+        },
+        "endToken": {
+          "$ref": "#/definitions/Token"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtImportDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtImportDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mode": {
+          "enum": [
+            "static_file",
+            "static_glob"
+          ]
+        },
+        "pathRange": {
+          "$ref": "#/definitions/Range"
+        }
+      },
+      "required": [
+        "type",
+        "path",
+        "mode"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTemplateDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTemplateDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtImportDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtSurfaceDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtStateDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtSelectorDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtDataSourceDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtActionDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtValidationDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtAnimationDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtTransitionDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtPortalDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtOverlayDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtResourceDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtSearchSourceDeclaration"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSurfaceDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSurfaceDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "metadata": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtSurfaceHeaderClause"
+          }
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtLaneDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtEventBinding"
+              },
+              {
+                "$ref": "#/definitions/RmtSurfaceSourceClause"
+              },
+              {
+                "$ref": "#/definitions/RmtSurfaceRepeatClause"
+              },
+              {
+                "$ref": "#/definitions/RmtSurfaceKeyClause"
+              },
+              {
+                "$ref": "#/definitions/RmtSurfacePortalClause"
+              },
+              {
+                "$ref": "#/definitions/RmtSurfaceBoundsClause"
+              },
+              {
+                "$ref": "#/definitions/RmtSurfacePreserveClause"
+              },
+              {
+                "$ref": "#/definitions/RmtSurfaceDestroyClause"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "metadata",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSurfaceHeaderClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSurfaceHeaderClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "enum": [
+            "kind",
+            "component"
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtStateDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtStateDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "dataType": {
+          "$ref": "#/definitions/RmtTypeReference"
+        },
+        "initial": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtPrimitiveValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "preserve": {
+          "type": "boolean"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtInitialBlock"
+          }
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "dataType",
+        "initial",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTypeReference": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTypeReference"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtInitialBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtInitialBlock"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtInitialValueEntry"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtInitialValueEntry": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtInitialValueEntry"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "keyNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "key",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtObjectValueKey": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtObjectValueKey"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtObjectValueField": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtObjectValueField"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "keyNode": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtIdentifier"
+            },
+            {
+              "$ref": "#/definitions/RmtObjectValueKey"
+            }
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "key",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtPrimitiveValue": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtPrimitiveValue"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "literal"
+            },
+            "value": {
+              "type": [
+                "string",
+                "number",
+                "boolean",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtPrimitiveValue"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "path"
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            },
+            "path": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1
+            },
+            "pathNode": {
+              "$ref": "#/definitions/RmtIdentifier"
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "value",
+            "path"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtPrimitiveValue"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "array"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RmtPrimitiveValue"
+              }
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "items"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtPrimitiveValue"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "object"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RmtObjectValueField"
+              }
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "fields"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "RmtSelectorDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSelectorDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtSelectorWhereClause"
+              },
+              {
+                "$ref": "#/definitions/RmtSelectorFindClause"
+              },
+              {
+                "$ref": "#/definitions/RmtSelectorSortClause"
+              },
+              {
+                "$ref": "#/definitions/RmtSelectorOutputClause"
+              }
+            ]
+          }
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtPrimitiveSourceReference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "body",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSelectorWhereClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSelectorWhereClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "where"
+        },
+        "expression": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtConditionExpression"
+            },
+            {
+              "$ref": "#/definitions/RmtSelectorExpression"
+            }
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "expression"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSelectorFindClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSelectorFindClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "find"
+        },
+        "expression": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtConditionExpression"
+            },
+            {
+              "$ref": "#/definitions/RmtSelectorExpression"
+            }
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "expression"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSelectorSortClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSelectorSortClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "byNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "by",
+        "direction"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSelectorOutputClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSelectorOutputClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "dataType": {
+          "$ref": "#/definitions/RmtTypeReference"
+        }
+      },
+      "required": [
+        "type",
+        "dataType"
+      ],
+      "additionalProperties": false
+    },
+    "RmtConditionExpression": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtConditionExpression"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "literal"
+            },
+            "value": {
+              "type": [
+                "string",
+                "number",
+                "boolean",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtConditionExpression"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "path"
+            },
+            "path": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "path",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtConditionExpression"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "unary"
+            },
+            "op": {
+              "const": "!"
+            },
+            "argument": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RmtConditionExpression"
+                },
+                {
+                  "$ref": "#/definitions/RmtSelectorExpression"
+                }
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "op",
+            "argument"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtConditionExpression"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "binary"
+            },
+            "op": {
+              "enum": [
+                "==",
+                "!=",
+                ">",
+                ">=",
+                "<",
+                "<="
+              ]
+            },
+            "left": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RmtConditionExpression"
+                },
+                {
+                  "$ref": "#/definitions/RmtSelectorExpression"
+                }
+              ]
+            },
+            "right": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RmtConditionExpression"
+                },
+                {
+                  "$ref": "#/definitions/RmtSelectorExpression"
+                }
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "op",
+            "left",
+            "right"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtConditionExpression"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "logical"
+            },
+            "op": {
+              "enum": [
+                "&&",
+                "||"
+              ]
+            },
+            "left": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RmtConditionExpression"
+                },
+                {
+                  "$ref": "#/definitions/RmtSelectorExpression"
+                }
+              ]
+            },
+            "right": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RmtConditionExpression"
+                },
+                {
+                  "$ref": "#/definitions/RmtSelectorExpression"
+                }
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "op",
+            "left",
+            "right"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtConditionExpression"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "group"
+            },
+            "expression": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RmtConditionExpression"
+                },
+                {
+                  "$ref": "#/definitions/RmtSelectorExpression"
+                }
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "expression"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "RmtSelectorExpression": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtSelectorExpression"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "path"
+            },
+            "path": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "path",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtSelectorExpression"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "call"
+            },
+            "name": {
+              "const": "contains"
+            },
+            "args": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/RmtConditionExpression"
+                  },
+                  {
+                    "$ref": "#/definitions/RmtSelectorExpression"
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "name",
+            "args"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "RmtPrimitiveSourceReference": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtPrimitiveSourceReference"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueNode": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtIdentifier"
+            },
+            {
+              "$ref": "#/definitions/RmtPrimitiveValue"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "kind",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtDataSourceDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtDataSourceDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtDataSourceModeClause"
+              },
+              {
+                "$ref": "#/definitions/RmtDataSourceMethodClause"
+              },
+              {
+                "$ref": "#/definitions/RmtDataSourceContractClause"
+              },
+              {
+                "$ref": "#/definitions/RmtDataSourceResultClause"
+              },
+              {
+                "$ref": "#/definitions/RmtDataSourceFallbackClause"
+              }
+            ]
+          }
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtPrimitiveSourceReference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "body",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "RmtDataSourceModeClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtDataSourceModeClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "mode"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtDataSourceMethodClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtDataSourceMethodClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "method"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtDataSourceContractClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtDataSourceContractClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "contract"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtDataSourceResultClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtDataSourceResultClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "result"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtResourceImportClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtResourceImportClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "import"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtEventOptionClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtEventOptionClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "preventDefault"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtAnimationDurationClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtAnimationDurationClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "durationMs"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtAnimationEasingClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtAnimationEasingClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "easing"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtAnimationAllowFilterClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtAnimationAllowFilterClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "allowFilter"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtDataSourceFallbackClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtDataSourceFallbackClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "kind",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtActionDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtActionDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtActionInputClause"
+              },
+              {
+                "$ref": "#/definitions/RmtActionStatusClause"
+              },
+              {
+                "$ref": "#/definitions/RmtActionExecutionClause"
+              },
+              {
+                "$ref": "#/definitions/RmtEffectStatement"
+              },
+              {
+                "$ref": "#/definitions/RmtReducerStatement"
+              },
+              {
+                "$ref": "#/definitions/RmtReducerRecipeStatement"
+              },
+              {
+                "$ref": "#/definitions/RmtEmitStatement"
+              },
+              {
+                "$ref": "#/definitions/RmtActionResultHandler"
+              }
+            ]
+          }
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtActionInputClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtActionInputClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "dataType": {
+          "$ref": "#/definitions/RmtTypeReference"
+        },
+        "policy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtActionInputPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "dataType",
+        "policy"
+      ],
+      "additionalProperties": false
+    },
+    "RmtActionInputPolicy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtActionInputPolicy"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtTrustBoundaryPolicy"
+              },
+              {
+                "$ref": "#/definitions/RmtSanitizePolicy"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtActionStatusClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtActionStatusClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "status"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pathNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "RmtActionExecutionClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtActionExecutionClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "execution"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pathNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSurfaceKeyClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSurfaceKeyClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "key"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pathNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSurfacePortalClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSurfacePortalClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "portal"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pathNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "EffectSource": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "datasource",
+            "resource",
+            "selector",
+            "surface"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "kind",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "ComponentCommand": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "authoringKind": {
+          "const": "selector"
+        }
+      },
+      "required": [
+        "command",
+        "target",
+        "authoringKind"
+      ],
+      "additionalProperties": false
+    },
+    "RmtEffectStatement": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtEffectStatement"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "effectKind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "effectKindNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EffectSource"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "path": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        },
+        "componentCommand": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ComponentCommand"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "effectKind",
+        "source",
+        "componentCommand"
+      ],
+      "additionalProperties": false
+    },
+    "RmtReducerStatement": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtReducerStatement"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "expression": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expressionTokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "target",
+        "expression"
+      ],
+      "additionalProperties": false
+    },
+    "RmtReducerRecipeStatement": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtReducerRecipeStatement"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "recipe": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "valueExpression": {
+          "type": "string"
+        },
+        "valueTokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "recipe",
+        "target",
+        "valueExpression"
+      ],
+      "additionalProperties": false
+    },
+    "PayloadEntry": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "keyNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "key",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtEmitStatement": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtEmitStatement"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "event": {
+          "type": "string",
+          "minLength": 1
+        },
+        "eventNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "payload": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PayloadEntry"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "event",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "ResultEffect": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "text",
+        "tokens"
+      ],
+      "additionalProperties": false
+    },
+    "RmtActionResultHandler": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtActionResultHandler"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "phase": {
+          "type": "string",
+          "minLength": 1
+        },
+        "phaseNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "effect": {
+          "$ref": "#/definitions/ResultEffect"
+        }
+      },
+      "required": [
+        "type",
+        "phase",
+        "effect"
+      ],
+      "additionalProperties": false
+    },
+    "RmtValidationDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtValidationDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtValidationModeClause"
+              },
+              {
+                "$ref": "#/definitions/RmtValidationTargetClause"
+              },
+              {
+                "$ref": "#/definitions/RmtValidationFieldClause"
+              },
+              {
+                "$ref": "#/definitions/RmtValidationIncludeClause"
+              }
+            ]
+          }
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtValidationModeClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtValidationModeClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "minLength": 1
+        },
+        "modeNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "mode"
+      ],
+      "additionalProperties": false
+    },
+    "RmtValidationTargetClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtValidationTargetClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "kind",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "RmtValidationFieldClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtValidationFieldClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fieldNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtValidationRule"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "field",
+        "rules"
+      ],
+      "additionalProperties": false
+    },
+    "RmtValidationRule": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtValidationRule"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "required",
+                "email"
+              ]
+            },
+            "value": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "RmtPrimitiveValue"
+                },
+                "range": {
+                  "$ref": "#/definitions/Range"
+                },
+                "astPointer": {
+                  "type": "string"
+                },
+                "kind": {
+                  "const": "literal"
+                },
+                "value": {
+                  "const": true
+                }
+              },
+              "required": [
+                "type",
+                "kind",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtValidationRule"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "minLength",
+                "maxLength"
+              ]
+            },
+            "value": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "RmtPrimitiveValue"
+                },
+                "range": {
+                  "$ref": "#/definitions/Range"
+                },
+                "astPointer": {
+                  "type": "string"
+                },
+                "kind": {
+                  "const": "literal"
+                },
+                "value": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "type",
+                "kind",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "RmtValidationRule"
+            },
+            "range": {
+              "$ref": "#/definitions/Range"
+            },
+            "astPointer": {
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "pattern",
+                "message"
+              ]
+            },
+            "value": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "RmtPrimitiveValue"
+                },
+                "range": {
+                  "$ref": "#/definitions/Range"
+                },
+                "astPointer": {
+                  "type": "string"
+                },
+                "kind": {
+                  "const": "literal"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "kind",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "value"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "RmtValidationIncludeClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtValidationIncludeClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "refNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "ref"
+      ],
+      "additionalProperties": false
+    },
+    "RmtAnimationDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtAnimationDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtAnimationPresetClause"
+              },
+              {
+                "$ref": "#/definitions/RmtAnimationEffectClause"
+              },
+              {
+                "$ref": "#/definitions/RmtAnimationDurationClause"
+              },
+              {
+                "$ref": "#/definitions/RmtAnimationEasingClause"
+              },
+              {
+                "$ref": "#/definitions/RmtAnimationSpringClause"
+              },
+              {
+                "$ref": "#/definitions/RmtAnimationKeyframeClause"
+              },
+              {
+                "$ref": "#/definitions/RmtAnimationTimelineClause"
+              },
+              {
+                "$ref": "#/definitions/RmtAnimationReducedMotionClause"
+              },
+              {
+                "$ref": "#/definitions/RmtAnimationAllowFilterClause"
+              }
+            ]
+          }
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtAnimationPresetClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtAnimationPresetClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "preset": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "preset"
+      ],
+      "additionalProperties": false
+    },
+    "RmtAnimationEffectClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtAnimationEffectClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "effect": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "effect"
+      ],
+      "additionalProperties": false
+    },
+    "RmtAnimationReducedMotionClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtAnimationReducedMotionClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "policy"
+      ],
+      "additionalProperties": false
+    },
+    "RmtAnimationSpringClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtAnimationSpringClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtAnimationSpringField"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "RmtAnimationSpringField": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtAnimationSpringField"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "keyNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "key",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtAnimationKeyframeClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtAnimationKeyframeClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "phase": {
+          "type": "string",
+          "minLength": 1
+        },
+        "phaseNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtAnimationKeyframeField"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "phase",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "RmtAnimationKeyframeField": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtAnimationKeyframeField"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "keyNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "key",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtTransitionTriggerClause"
+              },
+              {
+                "$ref": "#/definitions/RmtTransitionFromClause"
+              },
+              {
+                "$ref": "#/definitions/RmtTransitionToClause"
+              },
+              {
+                "$ref": "#/definitions/RmtTransitionEffectClause"
+              },
+              {
+                "$ref": "#/definitions/RmtTransitionDurationClause"
+              },
+              {
+                "$ref": "#/definitions/RmtTransitionEasingClause"
+              },
+              {
+                "$ref": "#/definitions/RmtTransitionLaneClause"
+              },
+              {
+                "$ref": "#/definitions/RmtTransitionUseAnimationClause"
+              },
+              {
+                "$ref": "#/definitions/RmtTransitionTimelineClause"
+              },
+              {
+                "$ref": "#/definitions/RmtTransitionLayoutKeyClause"
+              },
+              {
+                "$ref": "#/definitions/RmtTransitionInterruptClause"
+              },
+              {
+                "$ref": "#/definitions/RmtTransitionReducedMotionClause"
+              }
+            ]
+          }
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionTriggerClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionTriggerClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "kind",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionFromClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionFromClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionToClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionToClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionDurationClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionDurationClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionEasingClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionEasingClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionLayoutKeyClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionLayoutKeyClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionEffectClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionEffectClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "effect": {
+          "type": "string",
+          "minLength": 1
+        },
+        "effectNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "effect"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionLaneClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionLaneClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "lane": {
+          "type": "string",
+          "minLength": 1
+        },
+        "laneNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "lane"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionUseAnimationClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionUseAnimationClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "refNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "ref"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionInterruptClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionInterruptClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policyNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "policy"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionReducedMotionClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionReducedMotionClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policyNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "policy"
+      ],
+      "additionalProperties": false
+    },
+    "RmtAnimationTimelineClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtAnimationTimelineClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtAnimationTimelineStep"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "text",
+        "steps"
+      ],
+      "additionalProperties": false
+    },
+    "RmtAnimationTimelineStep": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtAnimationTimelineStep"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "text",
+        "tokens"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionTimelineClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionTimelineClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtTransitionTimelineStep"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "text",
+        "steps"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTransitionTimelineStep": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTransitionTimelineStep"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "text",
+        "tokens"
+      ],
+      "additionalProperties": false
+    },
+    "RmtPrimitiveAttribute": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtPrimitiveAttribute"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtPortalDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtPortalDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtPortalPolicyClause"
+          }
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtPrimitiveAttribute"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "body",
+        "attributes"
+      ],
+      "additionalProperties": false
+    },
+    "RmtOverlayDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtOverlayDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtOverlayPolicyClause"
+          }
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtPrimitiveAttribute"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "body",
+        "attributes"
+      ],
+      "additionalProperties": false
+    },
+    "RmtResourceDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtResourceDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtResourceImportClause"
+              },
+              {
+                "$ref": "#/definitions/RmtResourceSourceClause"
+              },
+              {
+                "$ref": "#/definitions/RmtResourceDisposeClause"
+              }
+            ]
+          }
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RmtPrimitiveAttribute"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "body",
+        "attributes"
+      ],
+      "additionalProperties": false
+    },
+    "RmtResourceSourceClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtResourceSourceClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "source"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "refNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "kind",
+        "ref"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSurfaceSourceClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSurfaceSourceClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "source"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "refNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "kind",
+        "ref"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSearchQueryClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSearchQueryClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "query"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "refNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "kind",
+        "ref"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSearchResourceClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSearchResourceClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "resource"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "refNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "kind",
+        "ref"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSearchFallbackResourceClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSearchFallbackResourceClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "fallback"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "refNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "kind",
+        "ref"
+      ],
+      "additionalProperties": false
+    },
+    "RmtPortalPolicyClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtPortalPolicyClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "text",
+        "tokens"
+      ],
+      "additionalProperties": false
+    },
+    "RmtOverlayPolicyClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtOverlayPolicyClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "text",
+        "tokens"
+      ],
+      "additionalProperties": false
+    },
+    "RmtResourceDisposeClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtResourceDisposeClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "dispose"
+        },
+        "text": {
+          "type": "string"
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "text",
+        "tokens"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSurfacePreserveClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSurfacePreserveClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "preserve"
+        },
+        "text": {
+          "type": "string"
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "text",
+        "tokens"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSurfaceDestroyClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSurfaceDestroyClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "const": "destroy"
+        },
+        "text": {
+          "type": "string"
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "text",
+        "tokens"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSearchSourceDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSearchSourceDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtSearchQueryClause"
+              },
+              {
+                "$ref": "#/definitions/RmtSearchResourceClause"
+              },
+              {
+                "$ref": "#/definitions/RmtSearchFallbackResourceClause"
+              },
+              {
+                "$ref": "#/definitions/RmtSearchWeightClause"
+              },
+              {
+                "$ref": "#/definitions/RmtSearchValueClause"
+              }
+            ]
+          }
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSearchValueClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSearchValueClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "keyword": {
+          "enum": [
+            "minQueryLength",
+            "debounceMs",
+            "resultLimit",
+            "fallbackThreshold",
+            "resultTemplate",
+            "emptyTemplate",
+            "loadingTemplate",
+            "activeIndexState",
+            "selectionState",
+            "localePolicy",
+            "a11y"
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "keyword",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSearchWeightClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSearchWeightClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fieldNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "type",
+        "field",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSurfaceRepeatClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSurfaceRepeatClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtPrimitiveSourceReference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "BoundsField": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "keyNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "value": {
+          "$ref": "#/definitions/RmtPrimitiveValue"
+        }
+      },
+      "required": [
+        "key",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSurfaceBoundsClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSurfaceBoundsClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BoundsField"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "RmtLaneDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtLaneDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtLifecycleStatement"
+              },
+              {
+                "$ref": "#/definitions/RmtStreamStatement"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "weight",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSlotDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSlotDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtLifecycleStatement"
+              },
+              {
+                "$ref": "#/definitions/RmtStreamStatement"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtLifecycleStatement": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtLifecycleStatement"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "op": {
+          "enum": [
+            "mount",
+            "hydrate",
+            "suspend",
+            "resume",
+            "invalidate",
+            "dispose",
+            "prewarm",
+            "recycle",
+            "detach",
+            "reattach"
+          ]
+        },
+        "target": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtSourceClause"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtConditionClause"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "policy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtPolicyBlock"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        }
+      },
+      "required": [
+        "type",
+        "op",
+        "target",
+        "source",
+        "condition",
+        "policy"
+      ],
+      "additionalProperties": false
+    },
+    "RmtStreamStatement": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtStreamStatement"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "op": {
+          "const": "stream"
+        },
+        "target": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "source": {
+          "$ref": "#/definitions/RmtSourceClause"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtConditionClause"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "policy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtPolicyBlock"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        }
+      },
+      "required": [
+        "type",
+        "op",
+        "target",
+        "source",
+        "condition",
+        "policy"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSourceClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSourceClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "endpoint",
+            "sse",
+            "worker",
+            "selector",
+            "state",
+            "datasource",
+            "fixture",
+            "resource"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "kind",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "RmtConditionClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtConditionClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "expression": {
+          "$ref": "#/definitions/RmtConditionExpression"
+        }
+      },
+      "required": [
+        "type",
+        "expression"
+      ],
+      "additionalProperties": false
+    },
+    "RmtPolicyBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtPolicyBlock"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtSlotDeclaration"
+              },
+              {
+                "$ref": "#/definitions/RmtEventBinding"
+              },
+              {
+                "$ref": "#/definitions/RmtTrustBoundaryPolicy"
+              },
+              {
+                "$ref": "#/definitions/RmtSanitizePolicy"
+              },
+              {
+                "$ref": "#/definitions/RmtHydrationPolicy"
+              },
+              {
+                "$ref": "#/definitions/RmtResumabilityPolicy"
+              },
+              {
+                "$ref": "#/definitions/RmtIsolationPolicy"
+              }
+            ]
+          }
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        }
+      },
+      "required": [
+        "type",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtEventBinding": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtEventBinding"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "event": {
+          "type": "string",
+          "minLength": 1
+        },
+        "eventNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1
+        },
+        "actionNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "selector": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtEventSelector"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "targetNode": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtIdentifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtConditionClause"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "policy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RmtEventPayloadBlock"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "event",
+        "action",
+        "selector",
+        "target",
+        "condition",
+        "policy"
+      ],
+      "additionalProperties": false
+    },
+    "RmtEventSelector": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtEventSelector"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtEventPayloadBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtEventPayloadBlock"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtEventPayloadMapping"
+              },
+              {
+                "$ref": "#/definitions/RmtEventOptionClause"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtEventPayloadMapping": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtEventPayloadMapping"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "RmtTrustBoundaryPolicy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtTrustBoundaryPolicy"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "boundary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "boundary"
+      ],
+      "additionalProperties": false
+    },
+    "RmtSanitizePolicy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtSanitizePolicy"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1
+        },
+        "formatNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "format"
+      ],
+      "additionalProperties": false
+    },
+    "RmtHydrationPolicy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtHydrationPolicy"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "policy": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mode": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "insularHydration": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "policy",
+        "mode",
+        "insularHydration"
+      ],
+      "additionalProperties": false
+    },
+    "RmtResumabilityPolicy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtResumabilityPolicy"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "mode": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "snapshot": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "eventReplay": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "integrity": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "mode",
+        "snapshot",
+        "eventReplay",
+        "integrity"
+      ],
+      "additionalProperties": false
+    },
+    "RmtIsolationPolicy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtIsolationPolicy"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "boundary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mode": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "boundary",
+        "mode"
+      ],
+      "additionalProperties": false
+    },
+    "RmtRemoteSurfaceDeclaration": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtRemoteSurfaceDeclaration"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "remoteId": {
+          "type": "string"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtRemoteOwnerClause"
+              },
+              {
+                "$ref": "#/definitions/RmtRemoteVersionClause"
+              },
+              {
+                "$ref": "#/definitions/RmtRemoteOriginClause"
+              },
+              {
+                "$ref": "#/definitions/RmtRemoteIntegrityClause"
+              },
+              {
+                "$ref": "#/definitions/RmtRemoteTrustBoundaryClause"
+              },
+              {
+                "$ref": "#/definitions/RmtRemoteFallbackClause"
+              },
+              {
+                "$ref": "#/definitions/RmtRemoteExposeClause"
+              },
+              {
+                "$ref": "#/definitions/RmtRemoteEventClause"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "remoteId",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtRemoteOwnerClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtRemoteOwnerClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "kind": {
+          "const": "team"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "kind",
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "RmtRemoteVersionClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtRemoteVersionClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtRemoteOriginClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtRemoteOriginClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtRemoteEventPayloadClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtRemoteEventPayloadClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "RmtRemoteIntegrityClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtRemoteIntegrityClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "algorithm": {
+          "type": "string",
+          "minLength": 1
+        },
+        "algorithmNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "digest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "algorithm",
+        "digest"
+      ],
+      "additionalProperties": false
+    },
+    "RmtRemoteTrustBoundaryClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtRemoteTrustBoundaryClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "boundary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "boundary"
+      ],
+      "additionalProperties": false
+    },
+    "RmtRemoteFallbackClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtRemoteFallbackClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "kind": {
+          "const": "surface"
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "refNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "kind",
+        "ref"
+      ],
+      "additionalProperties": false
+    },
+    "RemoteTarget": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "astPointer": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "ref"
+      ],
+      "additionalProperties": false
+    },
+    "RmtRemoteExposeClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtRemoteExposeClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "surface": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lane": {
+          "type": "string",
+          "minLength": 1
+        },
+        "laneNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "target": {
+          "$ref": "#/definitions/RemoteTarget"
+        }
+      },
+      "required": [
+        "type",
+        "surface",
+        "lane",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "RmtRemoteEventClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtRemoteEventClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "surface": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "emits",
+            "consumes"
+          ]
+        },
+        "event": {
+          "type": "string",
+          "minLength": 1
+        },
+        "eventNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/RmtRemoteOwnerClause"
+              },
+              {
+                "$ref": "#/definitions/RmtRemoteEventDirectionClause"
+              },
+              {
+                "$ref": "#/definitions/RmtRemoteEventLaneClause"
+              },
+              {
+                "$ref": "#/definitions/RmtRemoteEventFromClause"
+              },
+              {
+                "$ref": "#/definitions/RmtRemoteEventPayloadClause"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "surface",
+        "kind",
+        "event",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "RmtRemoteEventDirectionClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtRemoteEventDirectionClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "direction": {
+          "enum": [
+            "outbound",
+            "inbound"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "direction"
+      ],
+      "additionalProperties": false
+    },
+    "RmtRemoteEventLaneClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtRemoteEventLaneClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "lane": {
+          "type": "string",
+          "minLength": 1
+        },
+        "laneNode": {
+          "$ref": "#/definitions/RmtIdentifier"
+        }
+      },
+      "required": [
+        "type",
+        "lane"
+      ],
+      "additionalProperties": false
+    },
+    "RmtRemoteEventFromClause": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "RmtRemoteEventFromClause"
+        },
+        "range": {
+          "$ref": "#/definitions/Range"
+        },
+        "astPointer": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/definitions/RemoteTarget"
+        }
+      },
+      "required": [
+        "type",
+        "source"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

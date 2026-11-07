@@ -146,7 +146,7 @@ function createLexerDiagnostic(sourceModel, input = {}) {
     schema: input.schema,
     code: input.code || RMT_VNEXT_SYNTAX_ERROR_CODE,
     severity: input.severity || 'error',
-    message: input.message || 'Invalid RMT vNext syntax',
+    message: input.message || 'Invalid RMT Classic syntax',
     startOffset: input.startOffset,
     endOffset: input.endOffset,
     range: input.range,
@@ -163,7 +163,7 @@ function createFilePolicyDiagnostics(sourceModel) {
     sourceModel.createDiagnostic({
       code: RMT_FILE_FALLBACK_CODE,
       severity: 'warning',
-      message: `${sourceModel.filePolicy.extension} is only an RMT fallback file type. New vNext documents should use .rmt.`,
+      message: `${sourceModel.filePolicy.extension} is only an RMT fallback file type. New RMT Classic documents should use .rmt.`,
       range: sourceModel.lineRange(0),
       workpackage: RMT_VNEXT_PARSER_WORKPACKAGE
     })
@@ -461,7 +461,7 @@ class VNextParser {
   reportUnexpectedTopLevel() {
     const token = this.current();
     if (IMPERATIVE_WORDS.has(token.value)) {
-      this.addDiagnostic(token, `Imperative keyword "${token.value}" is not part of RMT vNext.`, RMT_VNEXT_CONTEXT_ERROR_CODE);
+      this.addDiagnostic(token, `Imperative keyword "${token.value}" is not part of RMT Classic.`, RMT_VNEXT_CONTEXT_ERROR_CODE);
     } else {
       this.addDiagnostic(token, `Unexpected top-level token "${token.value}".`);
     }
@@ -576,7 +576,7 @@ class VNextParser {
     while (!this.isAtEnd() && !this.matches('{') && !this.isStatementBoundary()) {
       if (this.matches('type')) {
         this.consume();
-        dataType = this.parseTypeReference('Expected state type.', ['initial', 'preserve']);
+        dataType = this.parseTypeReference('Expected state type.', ['initial', 'preserve', '{']);
       } else if (this.matches('initial')) {
         this.consume();
         initial = this.parsePrimitiveValue();
@@ -2278,7 +2278,7 @@ class VNextParser {
         }
         this.addDiagnostic(this.current(), options.selector
           ? 'Only the declarative contains(value, search) operation is allowed in selector expressions.'
-          : 'Function calls are not allowed in RMT vNext conditions.');
+          : 'Function calls are not allowed in RMT Classic conditions.');
         this.skipParenthesized();
       }
 

@@ -61,7 +61,7 @@ function parseArticle(markdown, fallbackTitle) {
     title: stripMarkdown(titleMatch ? titleMatch[1] : fallbackTitle),
     headings,
     // Keep the eager summary small; headings and the lazy full-text index retain discovery.
-    summary: (paragraphs[0] || '').slice(0, 220)
+    summary: (paragraphs[0] || '').slice(0, 160)
   };
 }
 

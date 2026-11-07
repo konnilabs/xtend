@@ -12,13 +12,13 @@ WP-E15-18 schliesst Epic 15 ab. Entwickler koennen die vNext-Syntax anhand der D
 ## Artefakte
 
 - Contract: `development/XTendRMT-vNext-Release-Handoff-Contract.md`
-- Authoring Guide: `docs/rmt-vnext-authoring.md`
-- Migration Notes: `docs/rmt-vnext-migration-notes.md`
+- Authoring Guide: `docs/en/rmt-vnext-authoring.md`
+- Migration Notes: `docs/en/rmt-vnext-migration-notes.md`
 - Release Handoff Docs: `development/docs-evidence/legacy-routes/en/rmt-vnext-release-handoff.md`
 - Modul: `tools/rmt-language/vnext-release.js`
 - Suite: `tests/rmt-language/rmt_vnext_release_handoff_suite.js`
-- Reference Demo: `xtendrmt/rmt-vnext-reference-demo.rmt`
-- Reference Core Output: `xtendrmt/rmt-vnext-reference-demo.core.json`
+- Reference Demo: `demos/xtendrmt/fixtures/vnext-reference/source.rmt`
+- Reference Core Output: `demos/xtendrmt/fixtures/vnext-reference/generated/core.json`
 - Package Export: `./rmt-language/vnext-release`
 - Package Script: `npm run test:rmt-vnext-release`
 
@@ -57,3 +57,5 @@ Folgearbeiten:
 - Entwickler koennen vNext-Syntax anhand der Docs schreiben.
 - Release-Gates und Handoff sind vollstaendig.
 - Folgearbeiten sind als separate Epics oder WPs benannt.
+
+Aktuelle Einordnung (7. November 2026): Der hier historisch abgenommene Sprachstand heißt RMT Classic. Die Release-Abnahme von 0.9 setzt zusätzlich RMTX und XTensions 2.0 voraus; siehe [Releaseumfang](../scripts/release/feature-scope.json).

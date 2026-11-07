@@ -2230,11 +2230,16 @@ function validateInventoryDocument(inventory, scan, options = {}) {
   const warnings = [];
   let coreCandidateRegistration = null;
   let coreUnreleasedRegistration = null;
+  let classicInputRegistration = null;
   if (providerProfile === CORE_CANDIDATE_PROFILE) {
     try { coreCandidateRegistration = assertCoreCandidateAuthority(inventory, scan, provider); }
     catch (error) { errors.push(issue('core-candidate-authority', error.message)); }
     try { coreUnreleasedRegistration = assertCoreUnreleasedContracts(inventory, scan, provider); }
     catch (error) { errors.push(issue('core-unreleased-contract-registration', error.message)); }
+    if (provider.hasCurrent('tools/rmt-language/classic-compiler.js')) {
+      try { classicInputRegistration = require('./classic-input-contract.cjs').assertClassicInputContract(inventory, scan, provider); }
+      catch (error) { errors.push(issue('core-classic-input-registration', error.message)); }
+    }
   }
   if (!inventory || inventory.inventoryVersion !== 2) errors.push(issue('invalid-version', 'inventoryVersion must equal 2.'));
   const evolutionPolicy = inventory && inventory.evolutionPolicy;
@@ -2372,9 +2377,12 @@ function validateInventoryDocument(inventory, scan, options = {}) {
       && stableEqual(authoritative, [INITIAL_CANDIDATE_AUTHORITY.fingerprint]);
     const mayRegisterCoreUnreleasedContract = coreUnreleasedRegistration !== null
       && coreUnreleasedRegistration.schemaIds.includes(entry.schemaId) && entry.releasedFingerprintSetHash === null;
+    const mayRegisterClassicInput = classicInputRegistration !== null
+      && classicInputRegistration.schemaId === entry.schemaId && entry.releasedFingerprintSetHash === null;
     if (entry.releasedFingerprintSetHash !== currentReleasedHash && !mayRetainHistoricalReleasedHash
       && !mayRetainCoreV1Continuity
       && !mayRegisterCoreUnreleasedContract
+      && !mayRegisterClassicInput
       && !mayBindInitialCandidateAuthority) {
       errors.push(issue('released-fingerprint-drift', 'A released authoritative fingerprint changed in place; publish a new major schema ID.', {
         schemaId: entry.schemaId,

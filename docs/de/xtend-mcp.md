@@ -11,7 +11,7 @@ XTend MCP macht die kanonische XTend-Dokumentation, das kuratierte RMT AI Develo
 
 Der deterministische Knowledge-Build übernimmt vollständige Markdown-Dateien einschließlich Überschriften und Codeblöcken. Jede Ressource trägt Locale, Slug, Quellpfad und SHA-256. Der verkürzte Browser-Suchindex wird nicht als MCP-Quelle verwendet.
 
-Für RMT-Authoring-Konventionen und die zugrunde liegende Sprachgrenze folgt der [RMT-vNext-Authoring-Guide](rmt-vnext-authoring.md).
+Für RMT-Authoring-Konventionen und die zugrunde liegende Sprachgrenze folgt der [RMT-RMT Classic-Authoring-Guide](rmt-vnext-authoring.md).
 
 ## Installation und stdio
 

@@ -18,9 +18,9 @@ function body(lines) {
 const RMT_SNIPPETS = Object.freeze([
   {
     id: 'rmt-vnext-template',
-    name: 'RMT vNext Template',
-    prefix: 'rmt-vnext-template',
-    description: 'Native vNext Template mit Surface, Lane und Lifecycle Operation.',
+    name: 'RMT Classic Template',
+    prefix: 'rmt-classic-template',
+    description: 'Native RMT Classic Template mit Surface, Lane und Lifecycle Operation.',
     scope: 'rmt',
     tags: ['vnext', 'template', 'surface', 'lane'],
     body: body([
@@ -36,8 +36,8 @@ const RMT_SNIPPETS = Object.freeze([
 
   {
     id: 'rmt-vnext-resumability',
-    name: 'RMT vNext Resumability Policy',
-    prefix: 'rmt-vnext-resumability',
+    name: 'RMT Classic Resumability Policy',
+    prefix: 'rmt-classic-resumability',
     description: 'SSR-Resumability mit Resume-Snapshot, Event-Replay und Integrity-Handoff deklarieren.',
     scope: 'rmt',
     tags: ['vnext', 'resumability', 'ssr'],
@@ -53,9 +53,9 @@ const RMT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-stream',
-    name: 'RMT vNext Stream',
-    prefix: 'rmt-vnext-stream',
-    description: 'vNext Stream mit Data Source, Trust Boundary und Sanitizing.',
+    name: 'RMT Classic Stream',
+    prefix: 'rmt-classic-stream',
+    description: 'RMT Classic Stream mit Data Source, Trust Boundary und Sanitizing.',
     scope: 'rmt',
     tags: ['vnext', 'stream', 'security'],
     body: body([
@@ -67,9 +67,9 @@ const RMT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-action',
-    name: 'RMT vNext Event Action',
-    prefix: 'rmt-vnext-action',
-    description: 'vNext Event Binding auf eine referenzielle Action.',
+    name: 'RMT Classic Event Action',
+    prefix: 'rmt-classic-action',
+    description: 'RMT Classic Event Binding auf eine referenzielle Action.',
     scope: 'rmt',
     tags: ['vnext', 'event', 'action'],
     body: body([
@@ -78,9 +78,9 @@ const RMT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-primitive-shell',
-    name: 'RMT vNext Primitive Shell',
-    prefix: 'rmt-vnext-primitive-shell',
-    description: 'Granulare App Shell mit State, Selector, Action, Portal, Surface, Lane und Event nur in vNext.',
+    name: 'RMT Classic Primitive Shell',
+    prefix: 'rmt-classic-primitive-shell',
+    description: 'Granulare App Shell mit State, Selector, Action, Portal, Surface, Lane und Event nur in RMT Classic.',
     scope: 'rmt',
     tags: ['vnext', 'primitive', 'state', 'surface', 'action'],
     body: body([
@@ -122,8 +122,8 @@ const RMT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-validation',
-    name: 'RMT vNext Validation',
-    prefix: 'rmt-vnext-validation',
+    name: 'RMT Classic Validation',
+    prefix: 'rmt-classic-validation',
     description: 'Blocking Validation-Gruppe mit Field Rules und Action Gate.',
     scope: 'rmt',
     tags: ['vnext', 'validation', 'form', 'action-gate'],
@@ -137,8 +137,8 @@ const RMT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-animation',
-    name: 'RMT vNext AnimationEngine Preset',
-    prefix: 'rmt-vnext-animation',
+    name: 'RMT Classic AnimationEngine Preset',
+    prefix: 'rmt-classic-animation',
     description: 'Wiederverwendbares AnimationEngine-Preset mit Effekt, Dauer, Reduced Motion und Keyframes.',
     scope: 'rmt',
     tags: ['vnext', 'animation', 'motion', 'transition'],
@@ -158,8 +158,8 @@ const RMT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-transition',
-    name: 'RMT vNext Surface Transition',
-    prefix: 'rmt-vnext-transition',
+    name: 'RMT Classic Surface Transition',
+    prefix: 'rmt-classic-transition',
     description: 'Surface Transition mit Trigger, Surface-Gruppen, Effekt und Dauer.',
     scope: 'rmt',
     tags: ['vnext', 'transition', 'surface', 'motion'],
@@ -181,8 +181,8 @@ const RMT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-maraca-orchestration-app',
-    name: 'RMT vNext Maraca Orchestration App',
-    prefix: 'rmt-vnext-maraca-orchestration-app',
+    name: 'RMT Classic Maraca Orchestration App',
+    prefix: 'rmt-classic-maraca-orchestration-app',
     description: 'Kompakte Maraca App mit State, Action, Validation, Transition und XTend Surfaces.',
     scope: 'rmt',
     tags: ['vnext', 'maraca', 'orchestration', 'validation', 'transition'],
@@ -254,8 +254,8 @@ const RMT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-remote-surface',
-    name: 'RMT vNext Remote Surface',
-    prefix: 'rmt-vnext-remote-surface',
+    name: 'RMT Classic Remote Surface',
+    prefix: 'rmt-classic-remote-surface',
     description: 'Remote Surface mit Owner, Integrity, Fallback, Exposes und Events.',
     scope: 'rmt',
     tags: ['vnext', 'remote', 'surface', 'mfe'],
@@ -274,8 +274,8 @@ const RMT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-remote-event',
-    name: 'RMT vNext Remote Event',
-    prefix: 'rmt-vnext-remote-event',
+    name: 'RMT Classic Remote Event',
+    prefix: 'rmt-classic-remote-event',
     description: 'Remote emits/consumes Event mit Owner, Richtung, Lane und Payload.',
     scope: 'rmt',
     tags: ['vnext', 'remote', 'event'],
@@ -290,8 +290,8 @@ const RMT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-remote-fallback',
-    name: 'RMT vNext Remote Fallback',
-    prefix: 'rmt-vnext-remote-fallback',
+    name: 'RMT Classic Remote Fallback',
+    prefix: 'rmt-classic-remote-fallback',
     description: 'Fallback Surface fuer Remote Degradation deklarieren.',
     scope: 'rmt',
     tags: ['vnext', 'remote', 'fallback', 'degradation'],
@@ -301,8 +301,8 @@ const RMT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-remote-degradation',
-    name: 'RMT vNext Remote Degradation Policy',
-    prefix: 'rmt-vnext-remote-degradation',
+    name: 'RMT Classic Remote Degradation Policy',
+    prefix: 'rmt-classic-remote-degradation',
     description: 'Degradation-relevante Remote-Fakten im Authoring sichtbar machen.',
     scope: 'rmt',
     tags: ['vnext', 'remote', 'degradation'],
@@ -642,7 +642,7 @@ function createRmtSnippetCatalog(options = {}) {
 function toVsCodeSnippet(snippet) {
   return {
     scope: snippet.scope || 'rmt',
-    prefix: snippet.prefix,
+    prefix: snippet.prefix.startsWith('rmt-classic-') ? [snippet.prefix, snippet.prefix.replace('rmt-classic-', 'rmt-vnext-')] : snippet.prefix,
     body: snippet.body.slice(),
     description: snippet.description
   };

@@ -11,7 +11,7 @@ Die Einheit ist im Demo-Inventar als stabiles Tutorial klassifiziert. Ihr `gener
 ## Öffentliche Bausteine
 
 - `demos/xtendrmt/examples/first-app/source.rmt` ist die bearbeitbare Source.
-- `demos/xtendrmt/examples/first-app/generated/core.json` zeigt das vNext Compile-Ergebnis.
+- `demos/xtendrmt/examples/first-app/generated/core.json` zeigt das RMT Classic Compile-Ergebnis.
 - `demos/xtendrmt/examples/first-app/browser-smoke.html` beweist die Host-Materialisierung.
 
 ## Empfohlener Ablauf

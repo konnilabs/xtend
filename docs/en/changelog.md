@@ -1,4 +1,6 @@
-# Changelog – XTend 0.8.0
+# Changelog – XTend 0.9.0 in preparation
+
+RMTX and XTensions 2.0 are required for 0.9.0. The [release plan](./release-0-9.md) records the outstanding acceptance work. The shared [RMT Classic compiler contract](./rmt-classic-contract.md) and Classic rebranding are implemented foundations. The two features remain in implementation preparation.
 
 This page describes the 0.8.0 codebase and its migrations. A package version alone does not establish publication; manifests, exports and build artifacts identify the delivered revision.
 
@@ -55,4 +57,4 @@ A release is more than a version number. The export-lock check must agree with T
 
 ## Upgrade path
 
-Identify affected public symbols before upgrading. Use the [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md), [Component Long-Tail Migration](./component-long-tail-migration.md), or [XTensions Coexistence Guide](./xtensions-migration-coexistence-guide.md) for the relevant surface. Update source, fixture, and tests together instead of replacing compiled output alone.
+Identify affected public symbols before upgrading. Use the [RMT Classic Migration Notes](./rmt-vnext-migration-notes.md), [Component Long-Tail Migration](./component-long-tail-migration.md), or [XTensions Coexistence Guide](./xtensions-migration-coexistence-guide.md) for the relevant surface. Update source, fixture, and tests together instead of replacing compiled output alone.

@@ -442,7 +442,7 @@ function createVsCodeTaskDefinitions(options = {}) {
       {
         id: 'vnext-primitive-gate',
         type: 'xtendRmt',
-        label: 'XTendRMT: vNext primitive gate',
+        label: 'XTendRMT: RMT Classic primitive gate',
         command: 'npm',
         args: ['run', 'test:rmt-vnext-primitives:report'],
         problemMatcher: [],
@@ -570,7 +570,7 @@ function summarizePrimitiveAuthoringAction(action = {}, index = 0) {
 
   return {
     index,
-    title: action.title || `RMT vNext Primitive Action ${index + 1}`,
+    title: action.title || `RMT Classic Primitive Action ${index + 1}`,
     kind: action.kind || 'quickfix',
     mode,
     diagnosticCode: getActionDiagnosticCode(action),
@@ -1656,7 +1656,7 @@ function createActiveDocumentPrimitiveAuthoringExperience(context = {}, options 
 
 function renderPrimitiveAuthoringApplyExperience(experience = {}) {
   const lines = [
-    'XTendRMT vNext Primitive Authoring',
+    'XTendRMT Classic Primitive Authoring',
     `Status: ${experience.status || 'unknown'}`,
     `Actions: ${experience.actionCount || 0}`,
     `Safe Quick-Fixes: ${experience.safeQuickFixCount || 0}`,
@@ -1711,7 +1711,7 @@ function applyPrimitiveAuthoringWorkspaceEdit(actionOrEdit = {}, options = {}) {
     Object.prototype.hasOwnProperty.call(actionOrEdit, 'kind')
   );
   const action = looksLikeAction ? actionOrEdit : {
-    title: options.title || 'RMT vNext Primitive WorkspaceEdit',
+    title: options.title || 'RMT Classic Primitive WorkspaceEdit',
     kind: options.kind || 'quickfix',
     safe: options.safe !== false,
     edit: actionOrEdit
@@ -1786,7 +1786,7 @@ function actionQuickPickItems(experience = {}, rawActions = []) {
 
 function showPrimitiveAuthoringHandoff(output, action = {}, handoff = null) {
   const lines = [
-    'XTendRMT vNext Primitive Command Handoff',
+    'XTendRMT Classic Primitive Command Handoff',
     `Command: ${action.command ? action.command.command : action.command || RMT_VNEXT_PRIMITIVE_KERNEL_BOUNDARY_COMMAND}`,
     'Status: manual_handoff',
     'WorkspaceEdit: none'
@@ -1905,7 +1905,7 @@ function activate(context) {
       });
       showPrimitiveAuthoringApplyExperience(output, activeExperience, { source: 'vscode-active-document-command' });
       const selected = await vscode.window.showQuickPick(actionQuickPickItems(activeExperience, activeExperience.rawActions), {
-        placeHolder: 'RMT vNext Primitive Action anwenden oder Handoff anzeigen'
+        placeHolder: 'RMT Classic Primitive Action anwenden oder Handoff anzeigen'
       });
       if (!selected) return activeExperience;
       if (selected.summary.mode === 'manual-command') {

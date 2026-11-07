@@ -1,10 +1,10 @@
 # RMT Next Steps
 
-You now know the core RMT-vNext flow: templates define boundaries, surfaces define renderable units, state and selectors define data, actions handle intent, resources describe lifecycle ownership and lanes express scheduling priority.
+You now know the core RMT-RMT Classic flow: templates define boundaries, surfaces define renderable units, state and selectors define data, actions handle intent, resources describe lifecycle ownership and lanes express scheduling priority.
 
 ## Where To Go Next
 
-Use [RMT vNext Authoring](./rmt-vnext-authoring.md) as the guided entry point and [RMT Reference](./rmt-reference.md) for the complete operator syntax. Read the [App DSL](./xtendrmt-app-dsl.md) when you want to model full applications, then continue with [XTend Maraca](./xtend-maraca.md), the [Runtime Bridge](./xtendrmt-runtime-bridge.md), [RMT Linter](./rmt-linter.md) and [Language Server](./rmt-language-server.md).
+Use [RMT Classic Authoring](./rmt-vnext-authoring.md) as the guided entry point and [RMT Reference](./rmt-reference.md) for the complete operator syntax. Read the [App DSL](./xtendrmt-app-dsl.md) when you want to model full applications, then continue with [XTend Maraca](./xtend-maraca.md), the [Runtime Bridge](./xtendrmt-runtime-bridge.md), [RMT Linter](./rmt-linter.md) and [Language Server](./rmt-language-server.md).
 
 For UI integration, read [SurfaceManager Authoring](./surface-manager-authoring-guide.md) and [XTend Fabric RMT Lane Mapping](./xtend-fabric-rmt-lane-mapping.md).
 

@@ -119,6 +119,14 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/test-runner/nightly.js phase install_1
 
+      - name: Check 0.9 development preparation
+        id: release_preparation
+        continue-on-error: true
+        if: ${{ !cancelled() && steps.nightly_begin.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: node scripts/test-runner/nightly.js phase release_preparation
+
       - name: Run pinned independent product candidate acceptance
         id: product_candidate
         continue-on-error: true
@@ -453,6 +461,7 @@ jobs:
           if [ "${{ steps.nightly_begin.outcome }}" != "success" ]; then echo "nightly_begin failed"; failed=1; fi
           if [ "${{ steps.lock_guard.outcome }}" != "success" ]; then echo "lock_guard failed"; failed=1; fi
           if [ "${{ steps.install_1.outcome }}" != "success" ]; then echo "install_1 failed"; failed=1; fi
+          if [ "${{ steps.release_preparation.outcome }}" != "success" ]; then echo "release_preparation failed"; failed=1; fi
           if [ "${{ steps.product_candidate.outcome }}" != "success" ]; then echo "product_candidate failed"; failed=1; fi
           if [ "${{ steps.capabilities.outcome }}" != "success" ]; then echo "capabilities failed"; failed=1; fi
           if [ "${{ steps.nightly_finalize.outcome }}" != "success" ]; then echo "nightly_finalize failed"; failed=1; fi

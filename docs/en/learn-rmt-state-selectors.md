@@ -4,7 +4,7 @@ State declares data owned by the template. Selectors expose stable view models f
 
 ## Keep State Explicit
 
-Use `state` for durable template data and `selector` for the shape a component should consume. This keeps render contracts readable and makes compiler diagnostics more useful. The vNext normalization in `tools/rmt-language/vnext-compiler.js` keeps state and selector references together in the core document.
+Use `state` for durable template data and `selector` for the shape a component should consume. This keeps render contracts readable and makes compiler diagnostics more useful. The RMT Classic normalization in `tools/rmt-language/vnext-compiler.js` keeps state and selector references together in the core document.
 
 ```rmt
 template learn.rmt.stateflow {

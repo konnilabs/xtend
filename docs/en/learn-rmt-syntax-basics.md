@@ -1,6 +1,6 @@
 # RMT Syntax Basics
 
-This page introduces the shape of a valid RMT-vNext source file. You only need basic HTML and JavaScript knowledge before you start.
+This page introduces the shape of a valid RMT-RMT Classic source file. You only need basic HTML and JavaScript knowledge before you start.
 
 ## Document Shape
 
@@ -58,7 +58,7 @@ transition demo.contactToIssue {
 }
 ```
 
-`required`, `email`, `minLength`, `maxLength`, `pattern`, `message`, `target action`, `from surfaces`, `to surfaces`, `effect` and `durationMs` are part of the vNext syntax. `lane transition` lets the kernel scheduler plan the change.
+`required`, `email`, `minLength`, `maxLength`, `pattern`, `message`, `target action`, `from surfaces`, `to surfaces`, `effect` and `durationMs` are part of the RMT Classic syntax. `lane transition` lets the kernel scheduler plan the change.
 
 ## Maraca Relevance
 

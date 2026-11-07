@@ -2,7 +2,11 @@
 
 Willkommen im XTend Developer Center. Diese Dokumentation erklärt XTend für Entwickler, die Web Components, RMT App Shells, lokale Module und SSR in eigenen Produkten einsetzen möchten.
 
-## Aktueller Stand: 0.8.0
+## Releaseziel: 0.9.0 in Vorbereitung
+
+**RMTX und XTensions 2.0 gehören zum verbindlichen Umfang von 0.9.** Der [Releaseplan 0.9](./release-0-9.md) trennt implementierte Grundlagen und noch offene Feature-Abnahmen. Die bisherige RMT-RMT Classic-Sprache heißt [RMT Classic](./rmt-classic-contract.md). Die Paketversion ist bereits 0.9.0; die Freigabe setzt die Abnahme beider neuen Features voraus.
+
+### Vorheriger Funktionsstand: 0.8.0
 
 Der [0.8.0-Changelog](./changelog.md) bündelt Migrationen und neue Funktionen: eine gemeinsame Scheduler-Autorität, [Maraca FastPass und Abort Boundaries](./maraca-fastpass-abort-boundary.md), bedarfsgesteuerte Diagnosen, [Hydrangea JIT](./rmt-jit-hydrangea.md) und die [Seitenlaufzeit für Node und Laravel](./ssr-pages.md). Die Paketvoraussetzung ist Node >=24.
 
@@ -13,10 +17,10 @@ Der [0.8.0-Changelog](./changelog.md) bündelt Migrationen und neue Funktionen: 
 | Eine ESM-JavaScript- oder SSR-App bauen | [ESM-Registry](./esm-registry.md), [Quick Start Guide](./quick-start-guide.md) |
 | Direkt mit HTML und JavaScript entwickeln | [XTend Classic](./xtend-classic.md), [Quick Start Guide](./quick-start-guide.md) |
 | RMT verstehen | [XTendRMT Überblick](./xtendrmt-overview.md) |
-| RMT vNext schreiben | [RMT vNext Authoring Guide](./rmt-vnext-authoring.md), [RMT AnimationEngine](./rmt-animation-engine.md), [RMT Reference](./rmt-reference.md), [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md), [RMT vNext Releasevertrag](./rmt-vnext-migration-notes.md), [RMT Syntax Basics](./learn-rmt-syntax-basics.md) |
+| RMT Classic schreiben | [RMT Classic Authoring Guide](./rmt-vnext-authoring.md), [RMT AnimationEngine](./rmt-animation-engine.md), [RMT Reference](./rmt-reference.md), [RMT Classic Migration Notes](./rmt-vnext-migration-notes.md), [RMT Classic Releasevertrag](./rmt-vnext-migration-notes.md), [RMT Syntax Basics](./learn-rmt-syntax-basics.md) |
 | Native-First XTend schreiben | [Native-First Authoring Guide](./native-first-authoring-guide.md), [Native-First RMT Recipes](./native-first-rmt-recipes.md), [Native-First Migration Guide](./native-first-migration-guide.md), [Native-First Release Review](./native-first-release-review.md) |
 | Maraca App-Orchestrierung und PWA-Output bauen | [XTend Maraca](./xtend-maraca.md), [Maraca Orchestrierung](./xtend-maraca-orchestration.md) |
-| Enterprise Remote Surfaces prüfen | [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md), [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md), [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md), [RMT vNext Enterprise MFE Vertrag](./rmt-vnext-remote-surfaces.md) |
+| Enterprise Remote Surfaces prüfen | [RMT Classic Remote Surfaces](./rmt-vnext-remote-surfaces.md), [RMT Classic Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md), [RMT Classic Cross Surface Events](./rmt-vnext-cross-surface-events.md), [RMT Classic Enterprise MFE Vertrag](./rmt-vnext-remote-surfaces.md) |
 | Komponenten nutzen oder migrieren | [Komponenten-Entwicklung](./components.md), [Component Long-Tail Migration](./component-long-tail-migration.md) |
 | Verwaltete Workspaces bauen | [SurfaceManager Authoring Guide](./surface-manager-authoring-guide.md), [SurfaceManager Controller](./surface-manager-controller.md), [SurfaceManager Runtime](./surface-manager-runtime.md), [SurfaceManager Migration Guide](./surface-manager-migration-guide.md) |
 | Design Tokens prüfen | [Design Tokens](./design-tokens.md) |
@@ -42,15 +46,15 @@ XTend UI liefert die sichtbaren Web Components. XTendRMT beschreibt App Shells, 
 
 Wähle die [ESM-Registry](./esm-registry.md) für vertraute Named Imports in einer JavaScript-, TypeScript-, Bundler- oder SSR-App. Wähle XTend Classic für buildlose HTML-first-Seiten, dynamische Kataloge und Progressive Enhancement. Wähle [XTend Maraca](./xtend-maraca.md), wenn RMT-Quelltext zu einem ausgelieferten App-Bundle mit Inline Registry, Kernel Scheduling, SSR/Hydration, Validation, Surface Transitions, mobilem Manifest, generiertem App-Shell-Service-Worker oder Build-Nachweisen werden soll. Die Projektgröße allein entscheidet nicht zwischen den Pfaden.
 
-## RMT vNext Release Surface
+## RMT Classic Release Surface
 
-Der RMT vNext Authoring Guide, die RMT vNext Migration Notes und der RMT vNext Releasevertrag gehören zusammen. Die Release-Spur verweist auf `demos/xtendrmt/fixtures/vnext-reference/source.rmt` und `demos/xtendrmt/fixtures/vnext-reference/generated/core.json`, damit ein Integrator Authoring-Beispiel, Compiler-Output und gate matrix im selben Review prüfen kann.
+Der RMT Classic Authoring Guide, die RMT Classic Migration Notes und der RMT Classic Releasevertrag gehören zusammen. Die Release-Spur verweist auf `demos/xtendrmt/fixtures/vnext-reference/source.rmt` und `demos/xtendrmt/fixtures/vnext-reference/generated/core.json`, damit ein Integrator Authoring-Beispiel, Compiler-Output und gate matrix im selben Review prüfen kann.
 
-Für die englischen Prüfsuiten bleiben die öffentlichen Aliasnamen sichtbar: RMT vNext Release contract und RMT vNext Enterprise MFE contract.
+Für die englischen Prüfsuiten bleiben die öffentlichen Aliasnamen sichtbar: RMT Classic Release contract und RMT Classic Enterprise MFE contract.
 
-## RMT vNext Enterprise Surface
+## RMT Classic Enterprise Surface
 
-RMT vNext Remote Surfaces, RMT vNext Enterprise Surface Registry, RMT vNext Cross Surface Events und der RMT vNext Enterprise MFE Vertrag beschreiben den Enterprise-MFE-Pfad bis `rmt-vnext-enterprise-mfe-ready`. Dieser Pfad bleibt netzwerkfrei prüfbar: Remote-Manifeste, Surface Registry, Cross-Surface Events und Browser-Smoke-Artefakte liegen als lokale Fixtures vor.
+RMT Classic Remote Surfaces, RMT Classic Enterprise Surface Registry, RMT Classic Cross Surface Events und der RMT Classic Enterprise MFE Vertrag beschreiben den Enterprise-MFE-Pfad bis `rmt-vnext-enterprise-mfe-ready`. Dieser Pfad bleibt netzwerkfrei prüfbar: Remote-Manifeste, Surface Registry, Cross-Surface Events und Browser-Smoke-Artefakte liegen als lokale Fixtures vor.
 
 ## Tooling
 
@@ -78,19 +82,19 @@ Der Tooling-Pfad verwendet das öffentliche Schema `xtend.rmt.tooling-docs.v1`. 
 - [XTend DEV API](./xtend-dev-api.md)
 - [XTend Maraca](./xtend-maraca.md)
 - [Maraca Orchestrierung](./xtend-maraca-orchestration.md)
-- [RMT vNext Authoring Guide](./rmt-vnext-authoring.md)
+- [RMT Classic Authoring Guide](./rmt-vnext-authoring.md)
 - [RMT AnimationEngine](./rmt-animation-engine.md)
 - [RMT Reference](./rmt-reference.md)
-- [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md)
-- [RMT vNext Releasevertrag](./rmt-vnext-migration-notes.md)
+- [RMT Classic Migration Notes](./rmt-vnext-migration-notes.md)
+- [RMT Classic Releasevertrag](./rmt-vnext-migration-notes.md)
 - [Native-First Authoring Guide](./native-first-authoring-guide.md)
 - [Native-First RMT Recipes](./native-first-rmt-recipes.md)
 - [Native-First Migration Guide](./native-first-migration-guide.md)
 - [Native-First Release Review](./native-first-release-review.md)
-- [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md)
-- [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
-- [RMT vNext Cross Surface Events](./rmt-vnext-cross-surface-events.md)
-- [RMT vNext Enterprise MFE Vertrag](./rmt-vnext-remote-surfaces.md)
+- [RMT Classic Remote Surfaces](./rmt-vnext-remote-surfaces.md)
+- [RMT Classic Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
+- [RMT Classic Cross Surface Events](./rmt-vnext-cross-surface-events.md)
+- [RMT Classic Enterprise MFE Vertrag](./rmt-vnext-remote-surfaces.md)
 - [Best Practices](./best-practices.md)
 - [Trusted DOM und Sanitizing](./trusted-dom-sanitizing.md)
 - [Trusted DOM Boundary Browser Proof](./trusted-dom-boundary-browser-proof.md)

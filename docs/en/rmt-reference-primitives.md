@@ -1,13 +1,13 @@
 # RMT Reference: Primitives
 
-Primitives are the stable App Platform records in RMT vNext.
+Primitives are the stable App Platform records in RMT Classic.
 
 ## Syntax
 
 | Operator | Form | Allowed contexts | Parameters | Function | Diagnostics | Related operators |
 | --- | --- | --- | --- | --- | --- | --- |
 | <a id="state"></a>`state` | `state app.status type object preserve { ... }` | Top-level, `template`, primitive `surface` | identifier, `type`, `initial`, `preserve` | Declares persistent or lifecycle-owned app state. | State blocks may contain `initial` only. | `selector`, `reduce` |
-| <a id="selector"></a>`selector` | `selector view from state app.status { ... }` | Top-level, `template`, primitive `surface` | identifier, source reference | Derives a view model from state or datasource. | Selector blocks allow only `where`, `find`, `sort by`, `output`. | `from state`, `from datasource` |
+| <a id="selector"></a>`selector` | `selector view from state app.status { ... }` | Top-level, `template`, primitive `surface` | identifier, source reference | Derives a view model from state or another selector. | A source is required; only `state` and `selector` are allowed. Blocks allow `where`, `find`, `sort by`, `output`. | `from state`, `from selector` |
 | <a id="datasource"></a>`datasource` | `datasource list from endpoint "/api" { ... }` | Top-level, `template`, primitive `surface` | identifier, source kind, source target | Describes data access without free runtime execution. | DataSource blocks allow only `method`, `contract`, `result`, `fallback`. | `endpoint`, `fixture`, `worker` |
 | <a id="action"></a>`action` | `action save { ... }` | Top-level, `template`, primitive `surface` | identifier | Declares typed inputs, reducers, effects and events. | Action blocks allow only `input`, `status`, `effect`, `reduce`, `emit`, `on`. | `emit`, `reduce`, `on success ->` |
 | <a id="portal"></a>`portal` | `portal app.root root "#app" layer surface` | Top-level, `template` | `root`, `layer`, optional `z` | Binds surfaces to a host root and layer. | Unexpected inline attributes are rejected. | `surface`, `overlay` |
@@ -33,6 +33,7 @@ Primitives bridge RMT authoring and Core format. They compile to state, selector
 
 ```rmt
 template reference.primitives {
+  state app.email type string initial ""
   state app.status type object preserve {
     initial {
       text "Ready"
@@ -86,6 +87,8 @@ template reference.primitives {
     reducedMotion fade
     lane transition
   }
+
+  surface done kind card component x-status {}
 
   surface home kind card component x-status {
     portal app.root

@@ -1,7 +1,10 @@
 {
-  "RMT vNext Template": {
+  "RMT Classic Template": {
     "scope": "rmt",
-    "prefix": "rmt-vnext-template",
+    "prefix": [
+      "rmt-classic-template",
+      "rmt-vnext-template"
+    ],
     "body": [
       "template ${1:app.page} {",
       "  surface root {",
@@ -11,11 +14,14 @@
       "  }",
       "}"
     ],
-    "description": "Native vNext Template mit Surface, Lane und Lifecycle Operation."
+    "description": "Native RMT Classic Template mit Surface, Lane und Lifecycle Operation."
   },
-  "RMT vNext Resumability Policy": {
+  "RMT Classic Resumability Policy": {
     "scope": "rmt",
-    "prefix": "rmt-vnext-resumability",
+    "prefix": [
+      "rmt-classic-resumability",
+      "rmt-vnext-resumability"
+    ],
     "body": [
       "hydrate ${1:app-shell} from selector ${2:app.view} {",
       "  hydration mode server_prerender_resume",
@@ -27,28 +33,37 @@
     ],
     "description": "SSR-Resumability mit Resume-Snapshot, Event-Replay und Integrity-Handoff deklarieren."
   },
-  "RMT vNext Stream": {
+  "RMT Classic Stream": {
     "scope": "rmt",
-    "prefix": "rmt-vnext-stream",
+    "prefix": [
+      "rmt-classic-stream",
+      "rmt-vnext-stream"
+    ],
     "body": [
       "stream ${1:live-feed} from ${2|endpoint,sse,worker|} ${3:feed.live} {",
       "  trust boundary \"${4:xtend.security.streaming-boundary.v1}\"",
       "  sanitize ${5:html}",
       "}"
     ],
-    "description": "vNext Stream mit Data Source, Trust Boundary und Sanitizing."
+    "description": "RMT Classic Stream mit Data Source, Trust Boundary und Sanitizing."
   },
-  "RMT vNext Event Action": {
+  "RMT Classic Event Action": {
     "scope": "rmt",
-    "prefix": "rmt-vnext-action",
+    "prefix": [
+      "rmt-classic-action",
+      "rmt-vnext-action"
+    ],
     "body": [
       "on ${1:submit} -> action ${2:settings.save}"
     ],
-    "description": "vNext Event Binding auf eine referenzielle Action."
+    "description": "RMT Classic Event Binding auf eine referenzielle Action."
   },
-  "RMT vNext Primitive Shell": {
+  "RMT Classic Primitive Shell": {
     "scope": "rmt",
-    "prefix": "rmt-vnext-primitive-shell",
+    "prefix": [
+      "rmt-classic-primitive-shell",
+      "rmt-vnext-primitive-shell"
+    ],
     "body": [
       "template ${1:app.shell} {",
       "  state ${2:app.status} type object preserve {",
@@ -85,11 +100,14 @@
       "  }",
       "}"
     ],
-    "description": "Granulare App Shell mit State, Selector, Action, Portal, Surface, Lane und Event nur in vNext."
+    "description": "Granulare App Shell mit State, Selector, Action, Portal, Surface, Lane und Event nur in RMT Classic."
   },
-  "RMT vNext Validation": {
+  "RMT Classic Validation": {
     "scope": "rmt",
-    "prefix": "rmt-vnext-validation",
+    "prefix": [
+      "rmt-classic-validation",
+      "rmt-vnext-validation"
+    ],
     "body": [
       "validation ${1:app.contact} {",
       "  mode blocking",
@@ -99,9 +117,12 @@
     ],
     "description": "Blocking Validation-Gruppe mit Field Rules und Action Gate."
   },
-  "RMT vNext AnimationEngine Preset": {
+  "RMT Classic AnimationEngine Preset": {
     "scope": "rmt",
-    "prefix": "rmt-vnext-animation",
+    "prefix": [
+      "rmt-classic-animation",
+      "rmt-vnext-animation"
+    ],
     "body": [
       "animation ${1:app.motion.pop} {",
       "  effect ${2|fade,crossfade,slide-left,slide-right,slide-up,slide-down,scale,pop,zoom,flip,rotate,expand,collapse,fade-blur,shared-element,layout-flip,none|}",
@@ -117,9 +138,12 @@
     ],
     "description": "Wiederverwendbares AnimationEngine-Preset mit Effekt, Dauer, Reduced Motion und Keyframes."
   },
-  "RMT vNext Surface Transition": {
+  "RMT Classic Surface Transition": {
     "scope": "rmt",
-    "prefix": "rmt-vnext-transition",
+    "prefix": [
+      "rmt-classic-transition",
+      "rmt-vnext-transition"
+    ],
     "body": [
       "transition ${1:app.contactToIssue} {",
       "  trigger action ${2:app.nextContact}",
@@ -137,9 +161,12 @@
     ],
     "description": "Surface Transition mit Trigger, Surface-Gruppen, Effekt und Dauer."
   },
-  "RMT vNext Maraca Orchestration App": {
+  "RMT Classic Maraca Orchestration App": {
     "scope": "rmt",
-    "prefix": "rmt-vnext-maraca-orchestration-app",
+    "prefix": [
+      "rmt-classic-maraca-orchestration-app",
+      "rmt-vnext-maraca-orchestration-app"
+    ],
     "body": [
       "template ${1:app.service} {",
       "  state ${2:app.step} type object preserve {",
@@ -207,9 +234,12 @@
     ],
     "description": "Kompakte Maraca App mit State, Action, Validation, Transition und XTend Surfaces."
   },
-  "RMT vNext Remote Surface": {
+  "RMT Classic Remote Surface": {
     "scope": "rmt",
-    "prefix": "rmt-vnext-remote-surface",
+    "prefix": [
+      "rmt-classic-remote-surface",
+      "rmt-vnext-remote-surface"
+    ],
     "body": [
       "remote surface ${1:checkout.cart} from remote \"${2:@xtend/checkout-cart}\" {",
       "  owner team \"${3:checkout-platform}\"",
@@ -224,9 +254,12 @@
     ],
     "description": "Remote Surface mit Owner, Integrity, Fallback, Exposes und Events."
   },
-  "RMT vNext Remote Event": {
+  "RMT Classic Remote Event": {
     "scope": "rmt",
-    "prefix": "rmt-vnext-remote-event",
+    "prefix": [
+      "rmt-classic-remote-event",
+      "rmt-vnext-remote-event"
+    ],
     "body": [
       "${1|emits,consumes|} ${2:checkout.cart.updated.v1} {",
       "  owner team \"${3:checkout-platform}\"",
@@ -237,17 +270,23 @@
     ],
     "description": "Remote emits/consumes Event mit Owner, Richtung, Lane und Payload."
   },
-  "RMT vNext Remote Fallback": {
+  "RMT Classic Remote Fallback": {
     "scope": "rmt",
-    "prefix": "rmt-vnext-remote-fallback",
+    "prefix": [
+      "rmt-classic-remote-fallback",
+      "rmt-vnext-remote-fallback"
+    ],
     "body": [
       "fallback surface ${1:checkout.cart.fallback}"
     ],
     "description": "Fallback Surface fuer Remote Degradation deklarieren."
   },
-  "RMT vNext Remote Degradation Policy": {
+  "RMT Classic Remote Degradation Policy": {
     "scope": "rmt",
-    "prefix": "rmt-vnext-remote-degradation",
+    "prefix": [
+      "rmt-classic-remote-degradation",
+      "rmt-vnext-remote-degradation"
+    ],
     "body": [
       "fallback surface ${1:checkout.cart.fallback}",
       "exposes lane ${2|critical,visible,idle,background|} -> shell.slot \"${3:sidebar.cart}\""

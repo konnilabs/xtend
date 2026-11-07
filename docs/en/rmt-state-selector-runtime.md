@@ -9,7 +9,8 @@ The state selector runtime separates canonical RMT state from derived view model
 ## Public building blocks
 
 - `xtendrmt/rmt-state-selector-runtime.js` implements state, selectors, and reducers without a DOM capability.
-- `xtendrmt/rmt-state-binding-view-projector.js` projects frozen model snapshots through the shared DOM renderer; the former binding helpers remain compatibility delegates.
+- `xtendrmt/rmt-state-host-adapter.js` provides the explicitly injected state projection boundary.
+- `xtendrmt/rmt-state-binding-view-projector.js` projects frozen model snapshots through the shared DOM renderer.
 - `xtendrmt/rmt-state-selector-runtime.d.ts` describes the public runtime surface.
 - `tests/fixtures/rmt-state-selector-runtime.rmt` covers compile and host integration.
 
@@ -23,6 +24,10 @@ next workpackage: WP-E18-08
 ## Recommended workflow
 
 Define state and selector in source, compile references, and only then inject the host-state adapter. A selector must not perform DOM work or side effects; missing paths produce diagnostics.
+
+The Model entrypoint imports neither a host adapter nor a View projector. When using `stateProjectionTarget`, explicitly inject `createStateProjectionPort: createRmtStateHostAdapter`; alternatively supply a ready-made `stateProjectionPort` implementing `batchUpdate()`. A port instance alone does not provide a factory for later `connectStateProjection()` calls. Strict connections continue to require atomic host batches.
+
+For DOM bindings, use `createRmtStateBindingViewProjector().project(root, bindings, runtime.modelReader.snapshot())`. The `rmt-state-selector-runtime.compat.js` facade and its `applyRmtStateBindings` and `createRmtStateBindingAdapter` functions were removed with RMT 0.8 and are not current runtime exports. Declarations and tests follow the existing Model, host and View interfaces.
 
 ## Next steps
 

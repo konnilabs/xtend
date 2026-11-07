@@ -218,7 +218,9 @@ function toLspDiagnostic(diagnostic = {}) {
       schema: diagnostic.schema || 'xtend.rmt.linter.diagnostic.v1',
       pointer: diagnostic.pointer || null,
       repair: diagnostic.repair || null,
-      workpackage: diagnostic.workpackage || RMT_LANGUAGE_SERVER_WORKPACKAGE
+      workpackage: diagnostic.workpackage || RMT_LANGUAGE_SERVER_WORKPACKAGE,
+      ...(diagnostic.stage ? { stage: diagnostic.stage, plan: diagnostic.plan,
+        sourceRef: diagnostic.sourceRef, corePointer: diagnostic.corePointer } : {})
     }
   };
 }

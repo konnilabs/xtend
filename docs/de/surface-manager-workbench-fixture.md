@@ -4,7 +4,7 @@ Contract: `xtend.surface.workbench-fixture.v1`
 
 Die Workbench Fixture beweist eine RMT-first Surface App mit Route, Manager, Fenstern, Side Panel und gemeinsamem Snapshot.
 
-Sie ist als stabile Regression-Fixture unter `demos/xtendrmt/fixtures/surface-workbench/` registriert. Die `.rmt`-Source und der reproduzierbare vNext-Core sind die alleinige Source-of-Truth-Kette.
+Sie ist als stabile Regression-Fixture unter `demos/xtendrmt/fixtures/surface-workbench/` registriert. Die `.rmt`-Source und der reproduzierbare RMT Classic-Core sind die alleinige Source-of-Truth-Kette.
 
 Gate:
 

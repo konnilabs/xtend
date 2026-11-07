@@ -55,6 +55,15 @@
       "types": "./rmt-language/vnext-compiler.d.ts",
       "default": "./rmt-language/vnext-compiler.js"
     },
+    "./rmt-language/classic-compiler": {
+      "types": "./rmt-language/classic-compiler.d.ts",
+      "default": "./rmt-language/classic-compiler.js"
+    },
+    "./rmt-language/classic-parser": {
+      "types": "./rmt-language/classic-parser.d.ts",
+      "default": "./rmt-language/classic-parser.js"
+    },
+    "./rmt-language/classic-ast.schema.json": "./rmt-language/contracts/classic-ast.v1.schema.json",
     "./rmt-language/vnext-compiler": {
       "types": "./rmt-language/vnext-compiler.d.ts",
       "default": "./rmt-language/vnext-compiler.js"

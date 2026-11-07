@@ -5,7 +5,7 @@ Die RMT AnimationEngine beschreibt UI-Übergänge zusammen mit den Surfaces und 
 
 ## Voraussetzungen
 
-Du benötigst eine RMT-vNext-Quelle mit mindestens zwei Surfaces und einer Action, die zwischen ihnen wechselt. Für ein ausgeliefertes Bundle muss der Maraca-Build mit Orchestrierung und Transitions aktiviert sein. Der lokale Compiler liegt in `tools/rmt-language/vnext-compiler.js`; die Browser-Runtime wird über `xtendrmt/rmt-animation-engine-runtime.js` bereitgestellt.
+Du benötigst eine RMT-RMT Classic-Quelle mit mindestens zwei Surfaces und einer Action, die zwischen ihnen wechselt. Für ein ausgeliefertes Bundle muss der Maraca-Build mit Orchestrierung und Transitions aktiviert sein. Der lokale Compiler liegt in `tools/rmt-language/vnext-compiler.js`; die Browser-Runtime wird über `xtendrmt/rmt-animation-engine-runtime.js` bereitgestellt.
 
 ```bash
 xt rmt lint app.rmt --json

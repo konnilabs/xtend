@@ -23,6 +23,7 @@ async function runSsrPagesSuite(options = {}) {
   const php = input => JSON.parse(execFileSync(process.env.XTEND_PHP_BINARY || 'php', [path.join(__dirname, 'portable_probe.php'), rootDir], { input: JSON.stringify(input), encoding: 'utf8', timeout: 10000 }));
   await require('./page_wire_checks').pageWireChecks({check,checkPhp,load,php});
   await require('./contract_evolution_checks').contractEvolutionChecks({check,checkPhp,load,php});
+  await require('./portable_capability_checks').portableCapabilityChecks({check,checkPhp,load,php});
   await runCheck('missing explicit references select the same text fallback in DOM, Node and PHP', async () => {
     const artifact=portable.createPortableRenderArtifact({descriptor:{type:'element',tag:'p',attributes:{title:'$model.view.title'},children:[
       {type:'text',text:{op:'if',test:'$model.view.title',then:'$model.view.title',else:'Readable fallback'}},

@@ -214,15 +214,3 @@ export type RmtStateBindingOptions = import('./rmt-state-binding-view-projector.
 
 export function createRmtStateSelectorRuntime(options?: RmtStateSelectorRuntimeOptions): RmtStateSelectorRuntime;
 export function planRmtStatePatch(previousSnapshot: RmtStateSelectorSnapshot, nextSnapshot: RmtStateSelectorSnapshot, options?: Record<string, unknown>): RmtStatePatchPlan;
-/** @deprecated Use createRmtStateBindingViewProjector().project() with model.snapshot(). */
-export function applyRmtStateBindings(root: Element, bindings: unknown[], runtime: RmtStateSelectorRuntime, options?: RmtStateBindingOptions): RmtStateBindingApplication;
-/** @deprecated Use createRmtStateBindingViewProjector(). */
-export function createRmtStateBindingAdapter(options?: RmtStateBindingOptions): {
-  schema: typeof RMT_STATE_SELECTOR_RUNTIME_SCHEMA;
-  apply(root: Element, bindings: unknown[], runtime: RmtStateSelectorRuntime): RmtStateBindingApplication;
-  dispose(): {
-    schema: typeof RMT_STATE_SELECTOR_RUNTIME_SCHEMA;
-    disposed: true;
-    alreadyDisposed: boolean;
-  };
-};

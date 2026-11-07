@@ -13,9 +13,9 @@ const RMT_VNEXT_RELEASE_MODULE_PATH = 'tools/rmt-language/vnext-release.js';
 const RMT_VNEXT_RELEASE_SUITE_PATH = 'tests/rmt-language/rmt_vnext_release_handoff_suite.js';
 const RMT_VNEXT_RELEASE_CONTRACT_PATH = 'development/XTendRMT-vNext-Release-Handoff-Contract.md';
 const RMT_VNEXT_RELEASE_WORKPACKAGE_PATH = 'development/WP-E15-18-Docs-Reference-Demo-Release-Gates-und-Handoff-finalisieren.md';
-const RMT_VNEXT_AUTHORING_GUIDE_PATH = 'docs/rmt-vnext-authoring.md';
-const RMT_VNEXT_MIGRATION_NOTES_PATH = 'docs/rmt-vnext-migration-notes.md';
-const RMT_VNEXT_RELEASE_HANDOFF_DOC_PATH = 'docs/rmt-vnext-release-handoff.md';
+const RMT_VNEXT_AUTHORING_GUIDE_PATH = 'docs/en/rmt-vnext-authoring.md';
+const RMT_VNEXT_MIGRATION_NOTES_PATH = 'docs/en/rmt-vnext-migration-notes.md';
+const RMT_VNEXT_RELEASE_HANDOFF_DOC_PATH = 'docs/en/rmt-vnext-migration-notes.md';
 const RMT_VNEXT_REFERENCE_DEMO_PATH = 'demos/xtendrmt/fixtures/vnext-reference/source.rmt';
 const RMT_VNEXT_REFERENCE_CORE_PATH = 'demos/xtendrmt/fixtures/vnext-reference/generated/core.json';
 const RMT_VNEXT_RELEASE_PACKAGE_SCRIPT = 'npm run test:rmt-vnext-release';
@@ -81,12 +81,12 @@ const RMT_VNEXT_ACCEPTED_CONTRACTS = Object.freeze([
 const RMT_VNEXT_FOLLOW_UP_EPICS = Object.freeze([
   {
     id: 'rmt-vnext-runtime-adapters',
-    title: 'vNext Core an produktive Runtime Adapter anbinden',
+    title: 'RMT Classic Core an produktive Runtime Adapter anbinden',
     scope: 'Surface-, Lifecycle-, Scheduler-, Security- und Streaming-Core in Host-Adapter ueberfuehren.'
   },
   {
     id: 'rmt-vnext-formatter-writer',
-    title: 'Formatter und Writer API fuer vNext Authoring',
+    title: 'Formatter und Writer API fuer RMT Classic Authoring',
     scope: 'Format-preserving Edits, stabile Pretty-Print-Regeln und LSP-Formatierung.'
   },
   {
@@ -97,7 +97,7 @@ const RMT_VNEXT_FOLLOW_UP_EPICS = Object.freeze([
   {
     id: 'rmt-vnext-editor-distribution',
     title: 'Editor Packages und Marketplace Distribution',
-    scope: 'VS Code, JetBrains, Neovim und Helix Packaging auf dem vNext Language Layer.'
+    scope: 'VS Code, JetBrains, Neovim und Helix Packaging auf dem RMT Classic Language Layer.'
   }
 ]);
 

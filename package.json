@@ -475,6 +475,15 @@
       "types": "./tools/rmt-language/parser.d.ts",
       "default": "./tools/rmt-language/parser.js"
     },
+    "./rmt-language/classic-parser": {
+      "types": "./tools/rmt-language/classic-parser.d.ts",
+      "default": "./tools/rmt-language/classic-parser.js"
+    },
+    "./rmt-language/classic-compiler": {
+      "types": "./tools/rmt-language/classic-compiler.d.ts",
+      "default": "./tools/rmt-language/classic-compiler.js"
+    },
+    "./rmt-language/classic-ast.schema.json": "./tools/rmt-language/contracts/classic-ast.v1.schema.json",
     "./rmt-language/vnext-parser": {
       "types": "./tools/rmt-language/vnext-parser.d.ts",
       "default": "./tools/rmt-language/vnext-parser.js"
@@ -3671,9 +3680,8 @@
       "contract": "development/XTendRMT-vNext-Release-Handoff-Contract.md",
       "workpackageDocument": "development/WP-E15-18-Docs-Reference-Demo-Release-Gates-und-Handoff-finalisieren.md",
       "docs": [
-        "docs/rmt-vnext-authoring.md",
-        "docs/rmt-vnext-migration-notes.md",
-        "development/docs-evidence/legacy-routes/en/rmt-vnext-release-handoff.md"
+        "docs/en/rmt-vnext-authoring.md",
+        "docs/en/rmt-vnext-migration-notes.md"
       ],
       "referenceDemo": "demos/xtendrmt/fixtures/vnext-reference/source.rmt",
       "referenceCoreOutput": "demos/xtendrmt/fixtures/vnext-reference/generated/core.json",
@@ -17882,6 +17890,7 @@
     "test:rmt-source-model": "node scripts/run_xtend_tests.js rmt-source-model",
     "test:rmt-parser": "node scripts/run_xtend_tests.js rmt-parser",
     "test:rmt-vnext-parser": "node scripts/run_xtend_tests.js rmt-vnext-parser",
+    "check:rmt-classic-contract": "node scripts/generate_rmt_classic_contract.js --check",
     "test:rmt-vnext-compiler": "node scripts/run_xtend_tests.js rmt-vnext-compiler",
     "test:rmt-vnext-lifecycle": "node scripts/run_xtend_tests.js rmt-vnext-lifecycle",
     "test:xtensions-host-controller": "node scripts/run_xtend_tests.js xtensions-host-controller",
@@ -18155,7 +18164,9 @@
     "security:supply-chain": "node scripts/verify_supply_chain_policy.js",
     "security:manifest-policy": "node scripts/verify_manifest_import_policy.js",
     "security:xss-pentest": "node scripts/run_xtend_tests.js xss-pentest --json",
-    "release:check": "npm run test:release:full:report",
+    "release:features:plan": "node scripts/release/feature-scope.cjs --check-plan",
+    "release:features:check": "node scripts/release/feature-scope.cjs --check-ready",
+    "release:check": "npm run release:features:check && npm run test:release:full:report",
     "release:report": "node scripts/run_xtend_tests.js --profile release --report .xtend-test-results/xtend-release-report.json",
     "nightly:manifest": "node scripts/create_xtend_nightly_manifest.js",
     "pack:dry-run": "node scripts/capture_pack_dry_run.js",
@@ -18292,7 +18303,8 @@
     "release:canary": "node scripts/release/consumer.cjs",
     "test:release-safety": "node scripts/run_xtend_tests.js release-safety",
     "test:release-safety:unit": "node --test --test-isolation=none tests/release/*.test.cjs",
-    "release:verify-core-evidence": "node scripts/run_xtend_tests.js core-release-evidence --json"
+    "release:verify-core-evidence": "node scripts/run_xtend_tests.js core-release-evidence --json",
+    "check:release-preparation": "node scripts/check_release_preparation.cjs"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",

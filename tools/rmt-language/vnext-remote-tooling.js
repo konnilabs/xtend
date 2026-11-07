@@ -130,8 +130,8 @@ const REMOTE_SHELL_TARGETS = Object.freeze([
 const REMOTE_SNIPPETS = Object.freeze([
   {
     id: 'rmt-vnext-remote-surface',
-    label: 'RMT vNext Remote Surface',
-    prefix: 'rmt-vnext-remote-surface',
+    label: 'RMT Classic Remote Surface',
+    prefix: 'rmt-classic-remote-surface',
     description: 'Remote Surface mit Owner, Integrity, Fallback, Exposes und Events.',
     body: [
       'remote surface ${1:checkout.cart} from remote "${2:@xtend/checkout-cart}" {',
@@ -148,8 +148,8 @@ const REMOTE_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-remote-event',
-    label: 'RMT vNext Remote Event',
-    prefix: 'rmt-vnext-remote-event',
+    label: 'RMT Classic Remote Event',
+    prefix: 'rmt-classic-remote-event',
     description: 'Remote emits/consumes Event mit Owner, Richtung, Lane und Payload.',
     body: [
       '${1|emits,consumes|} ${2:checkout.cart.updated.v1} {',
@@ -162,8 +162,8 @@ const REMOTE_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-remote-fallback',
-    label: 'RMT vNext Remote Fallback',
-    prefix: 'rmt-vnext-remote-fallback',
+    label: 'RMT Classic Remote Fallback',
+    prefix: 'rmt-classic-remote-fallback',
     description: 'Fallback Surface fuer Remote Degradation deklarieren.',
     body: [
       'fallback surface ${1:checkout.cart.fallback}'
@@ -171,8 +171,8 @@ const REMOTE_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-remote-degradation',
-    label: 'RMT vNext Remote Degradation Policy',
-    prefix: 'rmt-vnext-remote-degradation',
+    label: 'RMT Classic Remote Degradation Policy',
+    prefix: 'rmt-classic-remote-degradation',
     description: 'Degradation-relevante Remote-Fakten im Authoring sichtbar machen.',
     body: [
       'fallback surface ${1:checkout.cart.fallback}',

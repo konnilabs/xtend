@@ -11,7 +11,7 @@ The demo inventory classifies it as a stable tutorial. Its `generated/core.json`
 ## Public building blocks
 
 - `demos/xtendrmt/examples/first-app/source.rmt` is the editable source.
-- `demos/xtendrmt/examples/first-app/generated/core.json` shows vNext compile output.
+- `demos/xtendrmt/examples/first-app/generated/core.json` shows RMT Classic compile output.
 - `demos/xtendrmt/examples/first-app/browser-smoke.html` proves host materialization.
 
 ## Recommended workflow

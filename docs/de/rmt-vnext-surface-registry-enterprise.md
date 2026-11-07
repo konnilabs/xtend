@@ -1,4 +1,4 @@
-# RMT vNext Enterprise Surface Registry
+# RMT Classic Enterprise Surface Registry
 
 Die Enterprise Surface Registry beschreibt, welche lokalen und remote Surfaces ein Host finden darf, ohne daraus einen Runtime-Manager zu machen. Sie ist ein Discovery- und Audit-Artefakt für Micro-Frontend-Shells: Owner, Shell Target, Fallback, Version, Integrity und Governance werden hier zusammengeführt.
 

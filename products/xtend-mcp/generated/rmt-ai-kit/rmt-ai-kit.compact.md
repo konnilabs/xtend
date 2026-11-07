@@ -5,6 +5,9 @@ Always load this file before asking an agent to write, repair or ship RMT.
 ## Mental Model
 
 - RMT is declarative app structure, not JavaScript.
+- The existing `.rmt` authoring language is RMT Classic; legacy vNext API and wire identifiers remain compatible.
+- Use `rmt-language/classic-parser` and `rmt-language/classic-compiler`; the shared AST contract is version 1.0.0. Validate foreign AST input before lowering.
+- RMTX and XTensions 2.0 are required for XTend 0.9 and remain in preparation. Do not invent their syntax or adapter capabilities; read `docs/en/release-0-9.md`.
 - Humans write `.rmt`; tools compile to Core records, source maps and diagnostics.
 - Runtime behavior must be separated into Compiler Record, Host Adapter and Scheduler Signal.
 - Maraca is the production path for loaderless RMT-first XTend app bundles.
@@ -69,7 +72,7 @@ template ai.minimal {
 
 - `template`: document root for declarations.
 - `state`: owned app state; always give `type`.
-- `selector`: view-model from `state`, `datasource` or another supported source.
+- `selector`: view-model from declared `state` or `selector` sources. DataSource results must first be reduced into State.
 - `surface`: UI surface with `kind`, `component`, `portal`, `lane`.
 - `bounds`: fixed numbers stay pixel-exact; `mode responsive` accepts quoted CSS lengths.
 - `lane`: scheduling block; lifecycle operations belong here.

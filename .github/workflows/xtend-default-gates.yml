@@ -187,6 +187,12 @@ jobs:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/check-core-source.cjs
 
+      - name: Check 0.9 development preparation
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run check:release-preparation
+
       - name: Required command-binding metadata ownership regression
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
         env:
@@ -455,6 +461,12 @@ jobs:
         env:
           NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
         run: node scripts/check-core-source.cjs
+
+      - name: Check 0.9 development preparation
+        if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}
+        env:
+          NODE_OPTIONS: --trace-warnings --trace-deprecation --require=${{ github.workspace }}/scripts/node_warning_policy.cjs
+        run: npm run check:release-preparation
 
       - name: Required browser gate separation regression
         if: ${{ !cancelled() && steps.install_1.outcome == 'success' }}

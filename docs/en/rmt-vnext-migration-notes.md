@@ -1,21 +1,21 @@
-# RMT vNext Migration Notes
+# RMT Classic Migration Notes
 
-These notes help teams move existing XTendRMT JSON documents toward the additive vNext syntax without destabilizing the production host. The path is intentionally reviewable: analyze first, produce a preview, then decide which records should really become `.rmt` sources.
+These notes help teams move existing XTendRMT JSON documents toward the additive RMT Classic syntax without destabilizing the production host. The path is intentionally reviewable: analyze first, produce a preview, then decide which records should really become `.rmt` sources.
 
 ## When this page matters
 
-Use this page when a project already owns classic RMT documents, `docs/xtendrmt-docs-shell-vnext.rmt` examples or host adapters and wants to evaluate the new authoring path. Migration does not mean the runtime adapter changes. The compiler still emits Core records, source maps and diagnostics; the production adapter decision stays with the host.
+Use this page when a project already owns legacy RMT JSON documents, `docs/xtendrmt-docs-shell-vnext.rmt` examples or host adapters and wants to evaluate the new authoring path. Migration does not mean the runtime adapter changes. The compiler still emits Core records, source maps and diagnostics; the production adapter decision stays with the host.
 
 The public contract is deliberately conservative:
 
 - Existing JSON sources remain valid while the host keeps accepting them.
-- vNext sources are additive and can be carried in parallel as `preview` output.
+- RMT Classic sources are additive and can be carried in parallel as `preview` output.
 - Automatic migration must not silently hide lossy domains.
 - The kernel stays free of host imports and UI component types.
 
 ## Compatibility matrix
 
-The compatibility check is implemented by `tools/rmt-language/vnext-compatibility.js` and reports the schema `xtend.rmt.vnext-compatibility-matrix.v1`. It separates three questions that are often conflated in integration work: can the source be read, can it be represented semantically as vNext, and is the roundtrip to the previous Core shape stable enough for review?
+The compatibility check is implemented by `tools/rmt-language/vnext-compatibility.js` and reports the schema `xtend.rmt.vnext-compatibility-matrix.v1`. It separates three questions that are often conflated in integration work: can the source be read, can it be represented semantically as RMT Classic, and is the roundtrip to the previous Core shape stable enough for review?
 
 Important anchors:
 
@@ -37,7 +37,7 @@ node scripts/run_xtend_tests.js rmt-vnext-compatibility --json
 node scripts/run_xtend_tests.js rmt-vnext-regression --json
 ```
 
-A green signal means the parser, compiler, compatibility matrix and regression gate can read the referenced sources. It does not mean every production app should automatically move to vNext. Review the source maps and diagnosed domains next.
+A green signal means the parser, compiler, compatibility matrix and regression gate can read the referenced sources. It does not mean every production app should automatically move to RMT Classic. Review the source maps and diagnosed domains next.
 
 ## preview and apply plan
 
@@ -56,16 +56,16 @@ template xtend.vnext.reference {
 }
 ```
 
-If a host already uses Maraca, this preview is still a language migration. The bundle is still produced through `xt maraca build app.rmt --orchestration strict --kernel strict --transitions strict --json`; the migration only decides whether the source is a valid vNext authoring document. Existing `transition` blocks remain compatible. Add `animation` presets, `use animation`, `interrupt`, `reducedMotion`, `timeline` and `layoutKey` incrementally when an app needs richer motion.
+If a host already uses Maraca, this preview is still a language migration. The bundle is still produced through `xt maraca build app.rmt --orchestration strict --kernel strict --transitions strict --json`; the migration only decides whether the source is a valid RMT Classic authoring document. Existing `transition` blocks remain compatible. Add `animation` presets, `use animation`, `interrupt`, `reducedMotion`, `timeline` and `layoutKey` incrementally when an app needs richer motion.
 
 ## Lossy domains
 
-The most important warning is `rmt.vnext.migration.lossy_domain`. It appears when a legacy domain can be read but cannot be represented in vNext without losing meaning. Common causes are free-form host extensions, implicit adapter conventions, unnamed schedule endpoints or records that only make sense through application code.
+The most important warning is `rmt.vnext.migration.lossy_domain`. It appears when a legacy domain can be read but cannot be represented in RMT Classic without losing meaning. Common causes are free-form host extensions, implicit adapter conventions, unnamed schedule endpoints or records that only make sense through application code.
 
 Treat this warning as a review blocker for automatic changes:
 
 - Document the domain that would lose meaning.
-- Decide whether the host needs an explicit vNext extension.
+- Decide whether the host needs an explicit RMT Classic extension.
 - Add missing payload contracts or resource ownership before a build becomes strict.
 - Keep the legacy source as the source of truth until the new `.rmt` source explains the same Core output.
 
@@ -90,3 +90,7 @@ The release gate also checks that the migration notes, authoring guide and hando
 ## Related reading
 
 The authoring guide provides the target syntax used by every migration step on this page. [Related article](./rmt-vnext-authoring.md)
+
+## Classic release contract
+
+The existing `xtend.rmt.vnext-release-handoff.v1` contract belongs to RMT Classic. The reference and expected Core live at `demos/xtendrmt/fixtures/vnext-reference/source.rmt` and `demos/xtendrmt/fixtures/vnext-reference/generated/core.json`. Follow-ups `rmt-vnext-runtime-adapters` and `rmt-vnext-formatter-writer` retain their technical IDs. This historical handoff does not replace [0.9 feature acceptance](./release-0-9.md).

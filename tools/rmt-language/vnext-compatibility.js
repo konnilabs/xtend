@@ -119,7 +119,7 @@ function createCompatibilityDiagnostic(input = {}, base = {}) {
     ruleId: input.ruleId || `vnext.compatibility.${input.code || 'diagnostic'}`,
     severity: input.severity || 'warning',
     category: input.category || 'migration',
-    message: input.message || input.code || 'RMT vNext compatibility diagnostic',
+    message: input.message || input.code || 'RMT Classic compatibility diagnostic',
     uri: input.uri || base.uri || null,
     file: input.file || base.file || null,
     pointer: input.pointer || null,
@@ -617,7 +617,7 @@ function createAppPlatformPrimitiveMigrationPreview(input = {}, options = {}) {
     diagnostics.push(createCompatibilityDiagnostic({
       code: MIGRATION_PRIMITIVE_COMPILE_FAILED_CODE,
       severity: 'error',
-      message: 'Der App-Platform-Primitive-vNext-Draft konnte nicht kompiliert werden.',
+      message: 'Der App-Platform-Primitive-RMT Classic-Draft konnte nicht kompiliert werden.',
       details: {
         diagnosticCodes: toArray(compileResult.diagnostics).map((diagnostic) => diagnostic.code)
       }
@@ -786,7 +786,7 @@ function createBoundaryDiagnostics(document, base = {}) {
     diagnostics.push(createCompatibilityDiagnostic({
       code: MIGRATION_LOSSY_DOMAIN_CODE,
       severity: 'warning',
-      message: 'Legacy adapters bleiben Host-Contracts und werden nicht automatisch in vNext Authoring umgeschrieben.',
+      message: 'Legacy adapters bleiben Host-Contracts und werden nicht automatisch in RMT Classic Authoring umgeschrieben.',
       details: { domain: 'adapters', count: domains.adapters }
     }, base));
   }
@@ -813,7 +813,7 @@ function createBoundaryDiagnostics(document, base = {}) {
     diagnostics.push(createCompatibilityDiagnostic({
       code: MIGRATION_LOSSY_DOMAIN_CODE,
       severity: 'warning',
-      message: 'Legacy Template Nodes werden nicht automatisch in vNext Orchestrierungs-Syntax serialisiert.',
+      message: 'Legacy Template Nodes werden nicht automatisch in RMT Classic Orchestrierungs-Syntax serialisiert.',
       details: { domain: 'templates', count: domains.templates }
     }, base));
   }
@@ -840,7 +840,7 @@ function createBoundaryDiagnostics(document, base = {}) {
     diagnostics.push(createCompatibilityDiagnostic({
       code: MIGRATION_UNSUPPORTED_DOMAIN_CODE,
       severity: 'error',
-      message: `Legacy Domain "${domain}" ist nicht Teil der kontrollierten vNext-Migration.`,
+      message: `Legacy Domain "${domain}" ist nicht Teil der kontrollierten RMT Classic-Migration.`,
       details: { domain }
     }, base));
   });
@@ -1065,7 +1065,7 @@ function createMigrationReport(input = {}, options = {}) {
       diagnostics.push(createCompatibilityDiagnostic({
         code: MIGRATION_VNEXT_COMPILE_FAILED_CODE,
         severity: 'error',
-        message: 'vNext Source konnte nicht in Core kompiliert werden.'
+        message: 'RMT Classic Source konnte nicht in Core kompiliert werden.'
       }, { file: sourceFile(input) }));
     }
     const status = compileResult.ok ? 'ready' : 'blocked';
@@ -1096,12 +1096,12 @@ function createMigrationReport(input = {}, options = {}) {
       createCompatibilityDiagnostic({
         code: MIGRATION_OPT_IN_REQUIRED_CODE,
         severity: 'warning',
-        message: 'Migration bleibt opt-in. Nutze migrationMode "preview", um einen vNext Primitive Authoring-Draft zu erzeugen.'
+        message: 'Migration bleibt opt-in. Nutze migrationMode "preview", um einen Classic Primitive Authoring-Draft zu erzeugen.'
       }, { file: sourceFile(input) }),
       createCompatibilityDiagnostic({
         code: MIGRATION_PRIMITIVE_PREVIEW_AVAILABLE_CODE,
         severity: 'info',
-        message: 'App-Platform JSON kann als RMT vNext Primitive Authoring-Draft gespiegelt werden.',
+        message: 'App-Platform JSON kann als RMT Classic Primitive Authoring-Draft gespiegelt werden.',
         details: {
           schema: RMT_VNEXT_PRIMITIVE_MIGRATION_SCHEMA
         }
@@ -1131,7 +1131,7 @@ function createMigrationReport(input = {}, options = {}) {
       boundaries: [{
         code: MIGRATION_LEGACY_BACKGROUNDED_CODE,
         severity: 'info',
-        message: 'App-Platform JSON bleibt Mirror/Target; vNext Primitive ist Authoring-Default.',
+        message: 'App-Platform JSON bleibt Mirror/Target; Classic Primitive ist Authoring-Default.',
         details: appPlatformPreview.legacyAuthoring
       }],
       compatibleWarningCodes: ROUNDTRIP_COMPATIBLE_WARNINGS.concat(MIGRATION_PRIMITIVE_PREVIEW_AVAILABLE_CODE),
@@ -1153,7 +1153,7 @@ function createMigrationReport(input = {}, options = {}) {
     createCompatibilityDiagnostic({
       code: MIGRATION_OPT_IN_REQUIRED_CODE,
       severity: 'warning',
-      message: 'Migration bleibt opt-in. Nutze migrationMode "preview", um einen vNext Authoring-Draft zu erzeugen.'
+      message: 'Migration bleibt opt-in. Nutze migrationMode "preview", um einen RMT Classic Authoring-Draft zu erzeugen.'
     }, base)
   ] : [];
   const diagnostics = sourceDiagnostics.concat(boundaryDiagnostics).concat(optInDiagnostics).concat(roundtrip.diagnostics.filter((diagnostic) => diagnostic.severity === 'error'));
@@ -1169,7 +1169,7 @@ function createMigrationReport(input = {}, options = {}) {
     diagnostics.push(createCompatibilityDiagnostic({
       code: MIGRATION_VNEXT_COMPILE_FAILED_CODE,
       severity: 'error',
-      message: 'Der vNext Authoring-Draft konnte nicht kompiliert werden.',
+      message: 'Der RMT Classic Authoring-Draft konnte nicht kompiliert werden.',
       details: {
         diagnosticCodes: draftCompileResult.diagnostics.map((diagnostic) => diagnostic.code)
       }

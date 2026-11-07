@@ -172,6 +172,8 @@ async function assertSealedArtifact(artifact) {
   require('../scan_schema_inventory').assertCandidateInitialAuthorityRetiredForRelease();
   const binding = sealedArtifacts.get(artifact);
   check(binding, 'Actual publishing requires a fully verified sealed production artifact');
+  for (const version of new Set(artifact.packages.map(entry => entry.version)))
+    require('./feature-scope.cjs').assertReleaseFeatureReadiness(binding.rootDir, { version, sourceSha: binding.sourceSha });
   const checked = await verifyArtifact({ ...binding, phase: 'sealed' });
   for (const key of ['manifest', 'manifestIntegrity', 'sourceSha', 'toolchain', 'tarballSetIntegrity', 'packages', 'order', 'registryDependencies', 'inventory'])
     check(isDeepStrictEqual(artifact[key], checked[key]), `Verified sealed artifact changed: ${key}`);

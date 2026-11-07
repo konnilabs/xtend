@@ -37,6 +37,10 @@ async function contractEvolutionChecks({check, checkPhp, load, php}) {
       for(const create of factories)for(const legacy of [false,true]) {
         const documentTarget=createFakeDocument();
         const renderer=create({documentTarget,...(legacy?{rendererSchema:'xtend.epic18.rmt-dom-descriptor-renderer.v1'}:{})});
+        for (const op of ['literal','const','static']) {
+          const data = {op:'replace',value:'literal data',search:'['};
+          assert.deepEqual(renderer.resolveValue({op,value:data}),data,'Literal data cannot execute nested expression records');
+        }
         const root=documentTarget.createElement('main');
         renderer.render(root,input.descriptor,{model:props,source:{pointer:'/descriptor/attributes/type'}});
         assert.equal(root.childNodes[0].getAttribute('type'),legacy?'email':'search');

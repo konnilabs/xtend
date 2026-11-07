@@ -1,4 +1,4 @@
-# RMT vNext Source-to-Sea
+# RMT Classic Source-to-Sea
 
 Die Source-to-Sea-Prüfung verbindet eine `.rmt` Quelle mit Compiler-Core, Kernel-Schedules, Fabric-Fasern, Host-Adapter, XTend UI und Browser-Evidenz. Sie ist absichtlich kein Default-CI-Pfad, weil der Browser-Driver lokal und in GitHub Actions eine eigene Umgebung braucht. Für Release-Kandidaten ist sie trotzdem die dichteste Beweiskette: Ein Drittentwickler sieht nicht nur, dass der Compiler JSON erzeugt, sondern dass Route-Wechsel, Cross-Primitive-Events und Ressourcen-Cleanup im Browser korrelieren.
 

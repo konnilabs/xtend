@@ -1,0 +1,38 @@
+{
+  "schema": "xtend.release.feature-scope.v1",
+  "targetVersion": "0.9.0",
+  "releaseTrain": "0.9",
+  "state": "preparing",
+  "features": [
+    {
+      "id": "rmtx",
+      "name": "RMTX",
+      "required": true,
+      "targetVersion": "0.9.0",
+      "status": "preparing",
+      "acceptance": [
+        "Versioned common compiler input and Classic compatibility",
+        "RMTX parser/lowering and agreed template syntax",
+        "Compiler, editor diagnostics and mixed Classic/RMTX project",
+        "Executed browser and supported SSR target parity"
+      ],
+      "testProfile": null,
+      "executionEvidence": null
+    },
+    {
+      "id": "xtensions-2",
+      "name": "XTensions 2.0",
+      "required": true,
+      "targetVersion": "0.9.0",
+      "status": "preparing",
+      "acceptance": [
+        "Stable instance identities and declared State slices with a return channel",
+        "Executed cooperative kernel jobs and per-adapter capabilities",
+        "Declaration, manifest, build/provider, host instance and cleanup chain",
+        "Framework ownership, SSR/adoption, restore-before-replay and explicit fallback"
+      ],
+      "testProfile": null,
+      "executionEvidence": null
+    }
+  ]
+}

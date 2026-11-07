@@ -52,6 +52,8 @@ async function prepare({ directory, selection }) {
   const toolchain = pinnedRuntime();
   source.provider.files();
   loadInventory(rootDir);
+  // CI also packs candidates for development consumer/security checks.
+  require('./feature-scope.cjs').assertReleaseFeaturePlan(rootDir, { sourceSha });
   const preparedAt = new Date().toISOString();
   const build = { schema: 'xtend.release.build.v1', sourceSha, toolchain, ...buildCommittedSource(sourceSha) };
   // The sole production packer: unchanged reviewed packCandidates function.
@@ -106,6 +108,9 @@ async function consumers({ directory, candidateSha256, manifestIntegrity, output
 async function seal({ directory, manifestIntegrity, resume = false, artifactId }) {
   const sourceSha=git(['rev-parse','HEAD']);
   const artifact=await verifyArtifact({directory,manifestIntegrity,sourceSha,rootDir,requireCanary:resume,phase:resume?'sealed':'prepared'});
+  // Pending features may be exercised as candidates, but cannot be sealed.
+  for (const version of new Set(artifact.packages.map(entry => entry.version)))
+    require('./feature-scope.cjs').assertReleaseFeatureReadiness(rootDir, { version, sourceSha });
   const needs=JSON.parse(process.env.XTEND_RELEASE_NEEDS||'{}');verifyNeeds(needs);
   const temporary=resume?fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(),'xtend-core-resume-proof-'))):null;
   const evidenceRoot=resume?temporary:directory, evidenceDirectory=path.join(evidenceRoot,'core-evidence');

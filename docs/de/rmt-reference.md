@@ -1,12 +1,12 @@
 # RMT Reference
 
-Diese Rubrik ist die alphabetisch und thematisch geordnete Referenz für RMT vNext. Der Lernpfad erklärt den Einstieg; die Referenz erklärt die genaue Bedeutung jedes Operators, jedes Schlüsselworts und der festen Katalogwerte.
+Diese Rubrik ist die alphabetisch und thematisch geordnete Referenz für RMT Classic. Der Lernpfad erklärt den Einstieg; die Referenz erklärt die genaue Bedeutung jedes Operators, jedes Schlüsselworts und der festen Katalogwerte.
 
 JSON-RMT ist kein normaler Authoring-Pfad mehr. Es bleibt nur als Compatibility-Testmaterial erhalten.
 
 ## Syntax
 
-RMT vNext ist blockbasiert. Ein Dokument besteht aus Top-Level-Deklarationen wie `import`, `template`, `surface`, `remote surface`, `state`, `selector`, `datasource`, `action`, `portal`, `overlay`, `resource`, `validation` und `transition`.
+RMT Classic ist blockbasiert. Ein Dokument besteht aus Top-Level-Deklarationen wie `import`, `template`, `surface`, `remote surface`, `state`, `selector`, `datasource`, `action`, `portal`, `overlay`, `resource`, `validation` und `transition`.
 
 ## Allowed contexts
 
@@ -14,7 +14,7 @@ Operatoren sind kontextabhängig. `lane` ist nur in `surface` erlaubt, Lifecycle
 
 ## Parameters
 
-Parameter sind statische Werte, Identifier, Pfade, Strings, Zahlen, Booleans, Arrays oder einfache Condition-Ausdrücke. RMT vNext erlaubt keine Funktionsaufrufe in `when`.
+Parameter sind statische Werte, Identifier, Pfade, Strings, Zahlen, Booleans, Arrays oder einfache Condition-Ausdrücke. RMT Classic erlaubt keine Funktionsaufrufe in `when`.
 
 ## Description
 

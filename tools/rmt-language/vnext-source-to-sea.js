@@ -597,8 +597,8 @@ function createRmtVNextFabricBridgeEvidence(input = {}) {
   const routeComponentFibers = summarizeRouteAndComponentFibers(routeComponentPlan, fabricFibers, telemetrySnapshot);
   const checks = [
     createCheck('fabric bridge mapping resolved', mapping.ok === true && mapping.schema === FABRIC_RMT_CONTRACTS.mapping, mapping.scheduleRef),
-    createCheck('fabric runtime records vNext fiber', Boolean(completedFiber && completedFiber.schema === FABRIC_CONTRACTS.fiber && completedFiber.status === 'completed'), completedFiber && completedFiber.id),
-    createCheck('fabric runtime keeps vNext lane', Boolean(completedFiber && completedFiber.lane === lane), completedFiber && completedFiber.lane),
+    createCheck('fabric runtime records RMT Classic fiber', Boolean(completedFiber && completedFiber.schema === FABRIC_CONTRACTS.fiber && completedFiber.status === 'completed'), completedFiber && completedFiber.id),
+    createCheck('fabric runtime keeps RMT Classic lane', Boolean(completedFiber && completedFiber.lane === lane), completedFiber && completedFiber.lane),
     createCheck('fabric telemetry records lane', Boolean(laneTelemetry && laneTelemetry.fiberCount >= 1), laneTelemetry && laneTelemetry.lane),
     createCheck('fabric telemetry records schedule', Boolean(laneTelemetry && laneTelemetry.scheduleRefs.includes(mapping.scheduleRef)), mapping.scheduleRef),
     createCheck('fabric bridge lane matrix covers target lanes', expectedMatrixLanes.every((matrixLane) => actualMatrixLanes.includes(matrixLane)), actualMatrixLanes),
@@ -1167,7 +1167,7 @@ function createRouteLifecycleMatrix(routeLifecycleCycles, coreDocument, objects)
         diagnostics.push({
           code: RMT_VNEXT_SOURCE_TO_SEA_CLEANUP_DIAGNOSTIC_CODES.resourceMissing,
           level: 'error',
-          message: `Route lifecycle cleanup resource ${spec.resourceId || '<missing>'} was not emitted by vNext lowering.`,
+          message: `Route lifecycle cleanup resource ${spec.resourceId || '<missing>'} was not emitted by RMT Classic lowering.`,
           targetPrimitiveId: cycle.targetPrimitiveId || null,
           resourceId: spec.resourceId || null
         });
@@ -1590,7 +1590,7 @@ async function runRmtVNextSourceToSeaBrowserExecution(evidence, options = {}) {
       ok: options.requireBrowserExecution !== true,
       status: options.requireBrowserExecution === true ? 'failed' : 'skipped',
       mode: 'unsupported-driver',
-      reason: `unsupported RMT vNext source-to-sea browser driver: ${driver}`,
+      reason: `unsupported RMT Classic source-to-sea browser driver: ${driver}`,
       checks: [
         createCheck('browser execution driver supported', false, driver)
       ]

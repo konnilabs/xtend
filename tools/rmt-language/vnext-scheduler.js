@@ -265,7 +265,7 @@ function detectDuplicateLaneIds(coreDocument, lanes) {
         coreDocument,
         lane,
         SCHEDULER_LANE_DUPLICATE_CODE,
-        `Lane id "${lane.id}" is duplicated in the vNext Core document.`
+        `Lane id "${lane.id}" is duplicated in the RMT Classic Core document.`
       ));
     } else {
       seen.set(lane.id, lane);

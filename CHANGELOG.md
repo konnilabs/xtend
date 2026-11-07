@@ -2,9 +2,13 @@
 
 Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend ist fuer RC1-Publish-Prep auf `private: false` geoeffnet; der eigentliche Publish-Befehl bleibt ein separater manueller Owner-Schritt.
 
-## Unreleased
+## Unreleased – 0.9.0
 
-## 0.9.0 - 2026-10-03
+- RMTX und XTensions 2.0 sind verbindlicher Umfang von 0.9. Ein gemeinsamer Featureplan prüft den Umsetzungsstand und die Nachweise bei Releasevorbereitung und Publish. Beide Features sind noch in Vorbereitung.
+- Die bisherige RMT-vNext-Autorensprache heißt nun **RMT Classic**. Classic-Compiler-/Parser-Einstiege, Editorbeschriftungen und Snippetpräfixe sind ergänzt; bestehende vNext-APIs, Wire-IDs und Snippet-Aliasse bleiben erhalten.
+- Ein versionierter gemeinsamer Classic-AST-Vertrag prüft alle 122 Knotentypen, Feld-/Kontextregeln, Referenzen, grundlegende State-Typen und zyklische Abhängigkeiten. Selektorpläne werden nach Abhängigkeiten geordnet. JSON-Schema und TypeScript-Typen werden aus kuratierten Regeln erzeugt.
+
+## Bereits vorbereitete 0.9-Grundlagen – Stand 2026-10-03
 
 - Renderer v2 behandelt Attributstrings literal; portable v1 und alte Seitenverträge bleiben mindestens in 0.9/0.10 unterstützt. Entfernung frühestens mit 1.0 nach Migration.
 - SSR-Coverage liegt als eigener Vertrag in Telemetry; initiale Node-/Laravel-Resume-Dokumente verwenden einen eigenen Descriptor-Transport bei unveränderten Signaturen und vollständigen Page-API-Antworten.

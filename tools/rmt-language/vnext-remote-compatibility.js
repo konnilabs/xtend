@@ -132,7 +132,7 @@ function createRemoteCompatibilityDiagnostic(input = {}, base = {}) {
     ruleId: input.ruleId || `vnext.remote-compatibility.${input.code || 'diagnostic'}`,
     severity: input.severity || 'warning',
     category: input.category || 'remote-migration',
-    message: input.message || input.code || 'RMT vNext remote compatibility diagnostic',
+    message: input.message || input.code || 'RMT Classic remote compatibility diagnostic',
     uri: input.uri || base.uri || null,
     file: input.file || base.file || null,
     pointer: input.pointer || null,
@@ -641,7 +641,7 @@ function createRemoteSurfaceMigrationReport(input = {}, options = {}) {
       diagnostics.push(createRemoteCompatibilityDiagnostic({
         code: REMOTE_MIGRATION_REMOTE_COMPILE_FAILED_CODE,
         severity: 'error',
-        message: 'Remote vNext Source konnte nicht kompiliert werden.'
+        message: 'Remote RMT Classic Source konnte nicht kompiliert werden.'
       }, { file: sourceFile(input) }));
     }
     const status = compileResult.ok ? 'ready' : 'blocked';

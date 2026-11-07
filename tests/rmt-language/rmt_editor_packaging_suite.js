@@ -1,3 +1,7 @@
+function hasClassicPrefix(prefix, legacy) {
+  return Array.isArray(prefix) && prefix[0] === legacy.replace('rmt-vnext-', 'rmt-classic-') && prefix.includes(legacy);
+}
+
 const fs = require('fs');
 const path = require('path');
 const {
@@ -127,19 +131,19 @@ function runSnippetCatalogChecks(context, rootDir) {
   context.assert(ownedCommandSearch && joinedSnippetBody(ownedCommandSearch).includes('"searchSources"'), 'Owned command/search snippet includes searchSources domain');
   context.assert(catalog.snippets.every((snippet) => !joinedSnippetBody(snippet).includes('.rmt.json')), 'Snippets do not generate .rmt.json documents');
   context.assert(vscodeSnippets['RMT Minimal App'].prefix === 'rmt-app', 'VS Code snippet document exposes minimal app prefix');
-  context.assert(vscodeSnippets['RMT vNext Validation'].prefix === 'rmt-vnext-validation', 'VS Code snippet document exposes validation prefix');
-  context.assert(vscodeSnippets['RMT vNext AnimationEngine Preset'].prefix === 'rmt-vnext-animation', 'VS Code snippet document exposes animation prefix');
-  context.assert(vscodeSnippets['RMT vNext Surface Transition'].prefix === 'rmt-vnext-transition', 'VS Code snippet document exposes transition prefix');
-  context.assert(vscodeSnippets['RMT vNext Resumability Policy'].prefix === 'rmt-vnext-resumability', 'VS Code snippet document exposes resumability prefix');
-  context.assert(vscodeSnippets['RMT vNext Maraca Orchestration App'].prefix === 'rmt-vnext-maraca-orchestration-app', 'VS Code snippet document exposes Maraca orchestration prefix');
+  context.assert(hasClassicPrefix(vscodeSnippets['RMT Classic Validation'].prefix, 'rmt-vnext-validation'), 'VS Code snippet document exposes validation prefix');
+  context.assert(hasClassicPrefix(vscodeSnippets['RMT Classic AnimationEngine Preset'].prefix, 'rmt-vnext-animation'), 'VS Code snippet document exposes animation prefix');
+  context.assert(hasClassicPrefix(vscodeSnippets['RMT Classic Surface Transition'].prefix, 'rmt-vnext-transition'), 'VS Code snippet document exposes transition prefix');
+  context.assert(hasClassicPrefix(vscodeSnippets['RMT Classic Resumability Policy'].prefix, 'rmt-vnext-resumability'), 'VS Code snippet document exposes resumability prefix');
+  context.assert(hasClassicPrefix(vscodeSnippets['RMT Classic Maraca Orchestration App'].prefix, 'rmt-vnext-maraca-orchestration-app'), 'VS Code snippet document exposes Maraca orchestration prefix');
   context.assert(vscodeSnippets['RMT Owned Collection View'].prefix === 'rmt-owned-collection-view', 'VS Code snippet document exposes owned collection prefix');
   context.assert(vscodeSnippets['RMT Owned Command Search'].prefix === 'rmt-owned-command-search', 'VS Code snippet document exposes owned command/search prefix');
-  context.assert(staticVscodeSnippets['RMT Minimal App'].prefix === vscodeSnippets['RMT Minimal App'].prefix, 'Static VS Code snippets match generated prefix');
-  context.assert(staticVscodeSnippets['RMT vNext Validation'].prefix === vscodeSnippets['RMT vNext Validation'].prefix, 'Static VS Code snippets include generated validation prefix');
-  context.assert(staticVscodeSnippets['RMT vNext AnimationEngine Preset'].prefix === vscodeSnippets['RMT vNext AnimationEngine Preset'].prefix, 'Static VS Code snippets include generated animation prefix');
-  context.assert(staticVscodeSnippets['RMT vNext Surface Transition'].prefix === vscodeSnippets['RMT vNext Surface Transition'].prefix, 'Static VS Code snippets include generated transition prefix');
-  context.assert(staticVscodeSnippets['RMT Owned Collection View'].prefix === vscodeSnippets['RMT Owned Collection View'].prefix, 'Static VS Code snippets include generated owned collection prefix');
-  context.assert(staticVscodeSnippets['RMT Owned Command Search'].prefix === vscodeSnippets['RMT Owned Command Search'].prefix, 'Static VS Code snippets include generated owned command/search prefix');
+  context.assert(JSON.stringify(staticVscodeSnippets['RMT Minimal App'].prefix) === JSON.stringify(vscodeSnippets['RMT Minimal App'].prefix), 'Static VS Code snippets match generated prefix');
+  context.assert(JSON.stringify(staticVscodeSnippets['RMT Classic Validation'].prefix) === JSON.stringify(vscodeSnippets['RMT Classic Validation'].prefix), 'Static VS Code snippets include generated validation prefix');
+  context.assert(JSON.stringify(staticVscodeSnippets['RMT Classic AnimationEngine Preset'].prefix) === JSON.stringify(vscodeSnippets['RMT Classic AnimationEngine Preset'].prefix), 'Static VS Code snippets include generated animation prefix');
+  context.assert(JSON.stringify(staticVscodeSnippets['RMT Classic Surface Transition'].prefix) === JSON.stringify(vscodeSnippets['RMT Classic Surface Transition'].prefix), 'Static VS Code snippets include generated transition prefix');
+  context.assert(JSON.stringify(staticVscodeSnippets['RMT Owned Collection View'].prefix) === JSON.stringify(vscodeSnippets['RMT Owned Collection View'].prefix), 'Static VS Code snippets include generated owned collection prefix');
+  context.assert(JSON.stringify(staticVscodeSnippets['RMT Owned Command Search'].prefix) === JSON.stringify(vscodeSnippets['RMT Owned Command Search'].prefix), 'Static VS Code snippets include generated owned command/search prefix');
 }
 
 function runEditorPackagingChecks(context, rootDir) {
@@ -312,7 +316,7 @@ function runVsCodeBridgeChecks(context, rootDir) {
         }
       },
       {
-        title: 'Alle sicheren vNext-Primitive Quick-Fixes anwenden (3)',
+        title: 'Alle sicheren RMT Classic-Primitive Quick-Fixes anwenden (3)',
         kind: 'source.fixAll.rmt.vnext.primitives',
         safe: true,
         edit: { changes: { 'file:///demo.rmt': [] } },
@@ -439,9 +443,9 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(vscodePackage.files.includes('XTend-Logo.png'), 'VS Code package includes XTend logo icon in packaged files');
   context.assert(vscodePackage.files.includes('snippets/**'), 'VS Code package includes snippets in packaged files');
   context.assert(packagedSnippets['RMT Minimal App'].prefix === 'rmt-app', 'VS Code packaged snippets mirror RMT app snippet');
-  context.assert(packagedSnippets['RMT vNext Validation'].prefix === 'rmt-vnext-validation', 'VS Code packaged snippets include validation snippet');
-  context.assert(packagedSnippets['RMT vNext Surface Transition'].prefix === 'rmt-vnext-transition', 'VS Code packaged snippets include transition snippet');
-  context.assert(packagedSnippets['RMT vNext Maraca Orchestration App'].prefix === 'rmt-vnext-maraca-orchestration-app', 'VS Code packaged snippets include Maraca orchestration snippet');
+  context.assert(hasClassicPrefix(packagedSnippets['RMT Classic Validation'].prefix, 'rmt-vnext-validation'), 'VS Code packaged snippets include validation snippet');
+  context.assert(hasClassicPrefix(packagedSnippets['RMT Classic Surface Transition'].prefix, 'rmt-vnext-transition'), 'VS Code packaged snippets include transition snippet');
+  context.assert(hasClassicPrefix(packagedSnippets['RMT Classic Maraca Orchestration App'].prefix, 'rmt-vnext-maraca-orchestration-app'), 'VS Code packaged snippets include Maraca orchestration snippet');
   context.assert(packagedSnippets['RMT Owned Collection View'].prefix === 'rmt-owned-collection-view', 'VS Code packaged snippets include owned collection snippet');
   context.assert(packagedSnippets['RMT Owned Command Search'].prefix === 'rmt-owned-command-search', 'VS Code packaged snippets include owned command/search snippet');
   context.assert(JSON.stringify(packagedSnippets) === JSON.stringify(sourceSnippets), 'VS Code packaged snippets stay in sync with source snippets');
@@ -455,7 +459,7 @@ function runVsCodeBridgeChecks(context, rootDir) {
   context.assert(languageConfiguration.comments.lineComment === '//', 'VS Code language configuration defines RMT line comments');
   context.assert(languageConfiguration.brackets.length >= 3, 'VS Code language configuration defines JSON brackets');
   context.assert(grammar.scopeName === 'source.rmt', 'VS Code grammar uses source.rmt scope');
-  context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('template'), 'VS Code grammar highlights RMT vNext keywords');
+  context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('template'), 'VS Code grammar highlights RMT Classic keywords');
   context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('validation'), 'VS Code grammar highlights validation keyword');
   context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('transition'), 'VS Code grammar highlights transition keyword');
   context.assert(grammar.repository && grammar.repository.keywords.patterns[0].match.includes('datasource'), 'VS Code grammar highlights datasource keyword');
@@ -511,7 +515,7 @@ function runDocumentationAndMetadataChecks(context, rootDir) {
   context.assert(architecture.includes('xtend.rmt.editor-packaging.v1'), 'Architecture documents editor packaging schema');
   context.assert(docs.includes('VS Code') && docs.includes('JetBrains') && docs.includes('Neovim') && docs.includes('Helix'), 'Docs cover VS Code, JetBrains, Neovim and Helix');
   context.assert(docs.includes('node tools/rmt-language-server/server.js'), 'Docs expose LSP start command');
-  context.assert(docs.includes('XTendRMT: Show vNext Primitive Apply Experience'), 'Docs expose vNext primitive apply experience command');
+  context.assert(docs.includes('XTendRMT: Show Classic Primitive Apply Experience'), 'Docs expose vNext primitive apply experience command');
   context.assert(docs.includes('XTendRMT: Run Active RMT Lint'), 'Docs expose VS Code RMT lint task command');
   context.assert(docs.includes('xt rmt lint app.rmt --format problem-matcher --fail-on warning'), 'Docs expose VS Code problem matcher linter format');
   context.assert(docs.includes('tools/rmt-editor/vscode/templates/launch.json'), 'Docs expose VS Code launch template');

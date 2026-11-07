@@ -20,8 +20,8 @@ Registriere zuerst einen lokalen Fallback. Validiere dann Origin, Version und In
 
 - [XTendRMT Überblick](./xtendrmt-overview.md)
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
-- [RMT vNext Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
-- [RMT vNext Enterprise MFE Vertrag](./rmt-vnext-remote-surfaces.md)
+- [RMT Classic Enterprise Surface Registry](./rmt-vnext-surface-registry-enterprise.md)
+- [RMT Classic Enterprise MFE Vertrag](./rmt-vnext-remote-surfaces.md)
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 

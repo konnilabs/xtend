@@ -1,21 +1,21 @@
-# RMT vNext Migration Notes
+# RMT Classic Migration Notes
 
-Diese Notizen helfen Teams, vorhandene XTendRMT JSON-Dokumente in die additive vNext-Syntax zu überführen, ohne den produktiven Host zu destabilisieren. Der Fokus liegt auf nachvollziehbaren Zwischenergebnissen: erst analysieren, dann eine Vorschau erzeugen, danach manuell entscheiden, welche Records wirklich in `.rmt` Quellen wandern.
+Diese Notizen helfen Teams, vorhandene XTendRMT JSON-Dokumente in die additive RMT Classic-Syntax zu überführen, ohne den produktiven Host zu destabilisieren. Der Fokus liegt auf nachvollziehbaren Zwischenergebnissen: erst analysieren, dann eine Vorschau erzeugen, danach manuell entscheiden, welche Records wirklich in `.rmt` Quellen wandern.
 
 ## Wann diese Seite relevant ist
 
-Nutze diese Seite, wenn ein Projekt bereits klassische RMT-Dokumente, `docs/xtendrmt-docs-shell-vnext.rmt` Beispiele oder Host-Adapter besitzt und den neuen Authoring-Pfad prüfen will. Migration bedeutet hier nicht, dass der Runtime-Adapter gewechselt wird. Der Compiler erzeugt weiterhin Core Records, Source Maps und Diagnostics; die Entscheidung über produktive Adapter bleibt beim Host.
+Nutze diese Seite, wenn ein Projekt bereits bestehende RMT-JSON-Dokumente, `docs/xtendrmt-docs-shell-vnext.rmt` Beispiele oder Host-Adapter besitzt und den neuen Authoring-Pfad prüfen will. Migration bedeutet hier nicht, dass der Runtime-Adapter gewechselt wird. Der Compiler erzeugt weiterhin Core Records, Source Maps und Diagnostics; die Entscheidung über produktive Adapter bleibt beim Host.
 
 Der öffentliche Vertrag ist bewusst defensiv:
 
 - Bestehende JSON-Quellen bleiben gültig, solange der Host sie weiter akzeptiert.
-- vNext-Quellen sind additiv und können parallel als `preview` geführt werden.
+- RMT Classic-Quellen sind additiv und können parallel als `preview` geführt werden.
 - Automatische Migration darf keine lossy Domains stillschweigend verschlucken.
 - Der Kernel bleibt frei von Host-Imports und UI-Komponenten-Typen.
 
 ## Kompatibilitätsmatrix
 
-Die Kompatibilitätsprüfung wird durch `tools/rmt-language/vnext-compatibility.js` beschrieben und meldet das Schema `xtend.rmt.vnext-compatibility-matrix.v1`. Sie trennt drei Fragen, die bei Drittentwicklern oft vermischt werden: Kann die Quelle gelesen werden, kann sie semantisch als vNext abgebildet werden, und ist der Roundtrip zur bisherigen Core-Form stabil genug für einen Review?
+Die Kompatibilitätsprüfung wird durch `tools/rmt-language/vnext-compatibility.js` beschrieben und meldet das Schema `xtend.rmt.vnext-compatibility-matrix.v1`. Sie trennt drei Fragen, die bei Drittentwicklern oft vermischt werden: Kann die Quelle gelesen werden, kann sie semantisch als RMT Classic abgebildet werden, und ist der Roundtrip zur bisherigen Core-Form stabil genug für einen Review?
 
 Wichtige Anker:
 
@@ -37,7 +37,7 @@ node scripts/run_xtend_tests.js rmt-vnext-compatibility --json
 node scripts/run_xtend_tests.js rmt-vnext-regression --json
 ```
 
-Ein grünes Signal bedeutet: Parser, Compiler, Compatibility-Matrix und Regression-Gate können die referenzierten Quellen lesen. Es bedeutet nicht, dass jede produktive App automatisch auf vNext wechseln sollte. Prüfe danach die Source Maps und die diagnostizierten Domains in der Review.
+Ein grünes Signal bedeutet: Parser, Compiler, Compatibility-Matrix und Regression-Gate können die referenzierten Quellen lesen. Es bedeutet nicht, dass jede produktive App automatisch auf RMT Classic wechseln sollte. Prüfe danach die Source Maps und die diagnostizierten Domains in der Review.
 
 ## preview und Apply-Plan
 
@@ -56,16 +56,16 @@ template xtend.vnext.reference {
 }
 ```
 
-Wenn ein Host bereits Maraca nutzt, bleibt diese Preview trotzdem eine Sprachmigration. Das Bundle entsteht weiterhin über `xt maraca build app.rmt --orchestration strict --kernel strict --transitions strict --json`; die Migration entscheidet nur, ob die Quelle als vNext Authoring-Dokument taugt. Bestehende `transition`-Blöcke bleiben kompatibel. `animation`-Presets, `use animation`, `interrupt`, `reducedMotion`, `timeline` und `layoutKey` können schrittweise ergänzt werden, wenn eine App reichere Motion braucht.
+Wenn ein Host bereits Maraca nutzt, bleibt diese Preview trotzdem eine Sprachmigration. Das Bundle entsteht weiterhin über `xt maraca build app.rmt --orchestration strict --kernel strict --transitions strict --json`; die Migration entscheidet nur, ob die Quelle als RMT Classic Authoring-Dokument taugt. Bestehende `transition`-Blöcke bleiben kompatibel. `animation`-Presets, `use animation`, `interrupt`, `reducedMotion`, `timeline` und `layoutKey` können schrittweise ergänzt werden, wenn eine App reichere Motion braucht.
 
 ## Verlustbehaftete Domains
 
-Die wichtigste Warnung ist `rmt.vnext.migration.lossy_domain`. Sie erscheint, wenn ein Legacy-Domainbereich zwar lesbar ist, aber nicht ohne Bedeutungsverlust in vNext ausgedrückt werden kann. Typische Ursachen sind freie Host-Erweiterungen, implizite Adapter-Konventionen, unbenannte Schedule-Endpunkte oder Records, die erst durch Anwendungscode Sinn bekommen.
+Die wichtigste Warnung ist `rmt.vnext.migration.lossy_domain`. Sie erscheint, wenn ein Legacy-Domainbereich zwar lesbar ist, aber nicht ohne Bedeutungsverlust in RMT Classic ausgedrückt werden kann. Typische Ursachen sind freie Host-Erweiterungen, implizite Adapter-Konventionen, unbenannte Schedule-Endpunkte oder Records, die erst durch Anwendungscode Sinn bekommen.
 
 Behandle diese Warnung als Review-Blocker für automatische Änderungen:
 
 - Dokumentiere die Domain, die Bedeutung verlieren würde.
-- Entscheide, ob der Host eine explizite vNext-Erweiterung braucht.
+- Entscheide, ob der Host eine explizite RMT Classic-Erweiterung braucht.
 - Ergänze fehlende Payload Contracts oder Resource Ownership, bevor ein Build strict wird.
 - Halte die Legacy-Quelle so lange als Source of Truth, bis die neue `.rmt` Quelle denselben Core-Output erklärt.
 
@@ -90,3 +90,7 @@ Der Release-Gate-Lauf prüft zusätzlich, dass die Migrationsnotizen, der Author
 ## Weiterführend
 
 Der Authoring Guide zeigt die Zielsprache für jeden Migrationsschritt dieser Seite. [Verwandter Artikel](./rmt-vnext-authoring.md)
+
+## Classic-Releasevertrag
+
+Der bisherige Vertrag `xtend.rmt.vnext-release-handoff.v1` gehört zu RMT Classic. Referenz und erwarteter Core liegen unter `demos/xtendrmt/fixtures/vnext-reference/source.rmt` und `demos/xtendrmt/fixtures/vnext-reference/generated/core.json`. Die Folgearbeiten `rmt-vnext-runtime-adapters` und `rmt-vnext-formatter-writer` behalten ihre technischen IDs. Dieser historische Übergabevertrag ersetzt keine [Feature-Abnahme für 0.9](./release-0-9.md).

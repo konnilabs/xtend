@@ -10,7 +10,7 @@ This guide replaces imperative application wiring with RMT records without requi
 
 - `tools/rmt-language/vnext-parser.js` validates new source.
 - `xtendrmt/rmt-app-runtime.js` accepts compiled core records.
-- `rmt-vnext-migration-notes` documents changes within the vNext language.
+- `rmt-vnext-migration-notes` documents changes within the RMT Classic language.
 
 ## Recommended workflow
 

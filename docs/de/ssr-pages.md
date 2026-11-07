@@ -12,7 +12,7 @@ keine Inertia-Abhängigkeit.
 ## Build und Verträge
 
 `xt pages build --root /pfad/zur/app --target both --json` verwendet den bestehenden
-vNext-Compiler und Importresolver. `node`, `php` und `both` sind Renderziele;
+RMT Classic-Compiler und Importresolver. `node`, `php` und `both` sind Renderziele;
 `--host laravel` wählt den Laravel-Ausgabepfad. Die bisherigen CLI-Serverziele bleiben erhalten.
 
 Eine `xtend.pages.json` beschreibt die Zuordnung:
@@ -45,6 +45,8 @@ JSON-Objekte bleiben bei der PHP-Dekodierung von Listen unterscheidbar.
 PHP unterstützt die im portablen Renderer ausgewiesenen Ausdrücke. Beispielsweise
 Regex-Ersetzung und JavaScript-Funktionen gehören nicht zu diesem Ziel. Ein PHP-Build
 meldet solche Fähigkeiten als Diagnose. Node-Compiler-/Adapterzugänge bleiben nutzbar.
+
+Portable Artefakte prüfen Node- und PHP-Fähigkeiten getrennt. `target: 'node'` erhält Node-Formatter wie `uppercase`, Regex-`replace` und `formatDateShort`, weist aber nicht unterstützte Renderausdrücke wie `gt` ab. Relationale Vergleiche bleiben in unterstützten Filterregeln und Node-Model-Ausdrücken verfügbar. Unbekannte Operatoren werden mit Ziel, Kontext und JSON-Pointer diagnostiziert, auch in benannten Slots und Zweigen. `targets` nennt nur geprüfte Profile; `projectPortableRender()` verlangt Node-Unterstützung und prüft importierte Artefakte erneut. Literalinhalte sowie Attribut-/Property-/Klassennamen bleiben Daten. Diese Prüfungen betreffen portable Artefakte; allgemeine Hostadapter besitzen eigene Verträge.
 
 `assets.entry` und `assets.css` enthalten URLs desselben Ursprungs. Alternativ übernimmt
 `"vite": {"manifest": "public/build/manifest.json", "entry": "resources/js/app.js"}`

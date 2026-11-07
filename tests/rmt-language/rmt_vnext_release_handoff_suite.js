@@ -135,7 +135,7 @@ function runReferenceDemoChecks(context, rootDir) {
   context.assert(compileResult.coreJson === expectedCore, 'reference demo core output is byte-stable');
   context.assert(parsedCore.schema === RMT_VNEXT_CORE_SCHEMA, 'reference core output uses vNext core schema');
   context.assert(core.manifest.documentId === 'xtend.vnext.reference', 'reference demo documentId is stable');
-  context.assert(core.imports.length === 1, 'reference demo covers static imports');
+  context.assert(core.imports.length === 0, 'canonical reference demo has no external import dependency');
   context.assert(core.templates.length === 1, 'reference demo covers templates');
   context.assert(core.surfaces.length === 3, 'reference demo covers multiple surfaces');
   context.assert(core.lanes.length === 4, 'reference demo covers weighted lanes');
@@ -161,12 +161,12 @@ function runDocumentationChecks(context, rootDir) {
   const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
 
   ['rmt-vnext-authoring', 'rmt-vnext-migration-notes', 'rmt-vnext-release-handoff'].forEach((slug) => {
-    context.assert(docsMenu.some((entry) => entry.slug === slug), `docs menu includes ${slug}`);
+    context.assert(docsMenu.some((entry) => entry.slug === slug || (entry.aliases || []).includes(slug)), `docs menu includes ${slug}`);
   });
   assertIncludesAll(context, docsReadme, [
-    'RMT vNext Authoring Guide',
-    'RMT vNext Migration Notes',
-    'RMT vNext Release contract',
+    'RMT Classic Authoring Guide',
+    'RMT Classic Migration Notes',
+    'RMT Classic Release contract',
     RMT_VNEXT_REFERENCE_DEMO_PATH,
     RMT_VNEXT_REFERENCE_CORE_PATH
   ], 'Docs README');
@@ -223,7 +223,7 @@ function runRmtVNextReleaseHandoffSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
     id: 'rmt-vnext-release',
-    label: 'Epic 15 RMT vNext Release Handoff'
+    label: 'Epic 15 RMT Classic Release Handoff'
   });
   const moduleSyntax = syntaxCheckFile(RMT_VNEXT_RELEASE_MODULE_PATH, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(RMT_VNEXT_RELEASE_SUITE_PATH, { rootDir, extension: '.js' });
@@ -261,8 +261,8 @@ function runRmtVNextReleaseHandoffSuite(options = {}) {
 
 function printRmtVNextReleaseHandoffReport(result) {
   printSuiteReport(result, {
-    successTitle: 'Epic 15 RMT vNext Release Handoff erfolgreich.',
-    failureTitle: 'Epic 15 RMT vNext Release Handoff fehlgeschlagen:'
+    successTitle: 'Epic 15 RMT Classic Release Handoff erfolgreich.',
+    failureTitle: 'Epic 15 RMT Classic Release Handoff fehlgeschlagen:'
   });
 }
 

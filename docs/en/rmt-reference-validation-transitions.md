@@ -58,6 +58,10 @@ template reference.validation {
     emit contact.nextRequested with email input.email
   }
 
+  validation shared.email {
+    field contact.email required email
+  }
+
   validation contact.form {
     mode blocking
     target action contact.next
@@ -87,6 +91,8 @@ template reference.validation {
   }
 
   portal app.root root "#app" layer surface
+  surface contact.summary kind card component x-status {}
+
   surface contact.form kind form component x-form {
     portal app.root
     lane user-blocking weight 85 {

@@ -257,6 +257,7 @@ function createBrowserSmokeProbe(coreDocument = {}, options = {}) {
   const operations = toArray(coreDocument.operations);
   const lanes = toArray(coreDocument.lanes);
   const securityPolicies = toArray(coreDocument.securityPolicies);
+  // Stable check names belong to the existing browser-smoke wire contract.
   const checks = [
     {
       name: 'vNext surface root visible',

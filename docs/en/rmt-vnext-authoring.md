@@ -1,14 +1,14 @@
-# RMT Authoring Guide
+# RMT Classic Authoring Guide
 
 Write app shells, routes, surfaces and interactions in one RMT source.
 
 ## What it covers
 
-RMT vNext authoring moves from readable `.rmt` source to validated core records. The language separates declarative app structure from host services and makes references, ownership, and scheduling checkable before runtime.
+RMT Classic authoring moves from readable `.rmt` source to validated core records. The language separates declarative app structure from host services and makes references, ownership, and scheduling checkable before runtime.
 
 ## Public building blocks
 
-- `tools/rmt-language/vnext-parser.js` reads vNext records.
+- `tools/rmt-language/vnext-parser.js` reads RMT Classic records.
 - `tools/rmt-language/vnext-compiler.js` emits the core document.
 - `docs/xtendrmt-docs-shell-vnext.rmt` is a larger real-world source fixture.
 
@@ -21,14 +21,14 @@ Write a template, state, and one surface first. Run parser and linter, then add 
 - [XTendRMT overview](./xtendrmt-overview.md)
 - [RMT AnimationEngine](./rmt-animation-engine.md)
 - [RMT Reference](./rmt-reference.md)
-- [RMT vNext Migration Notes](./rmt-vnext-migration-notes.md)
-- [RMT vNext Release contract](./rmt-vnext-migration-notes.md)
+- [RMT Classic Migration Notes](./rmt-vnext-migration-notes.md)
+- [RMT Classic Release contract](./rmt-vnext-migration-notes.md)
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 
 ## Orchestration Primitives
 
-RMT vNext can now describe the full app orchestration that Maraca materializes into a loaderless bundle. In addition to `state`, `selector`, `action`, `resource`, `event`, `surface`, `portal` and `overlay`, `validation`, `animation` and `transition` are native authoring blocks. The compiler lowers them into `xtend.rmt.app-orchestration.v1`, `xtend.rmt.form-validation.v1`, `xtend.rmt.surface-transitions.v1` and `xtend.rmt.animation-engine.v1`, then emits scheduler targets, patch plans, source maps and redacted diagnostics.
+RMT Classic can now describe the full app orchestration that Maraca materializes into a loaderless bundle. In addition to `state`, `selector`, `action`, `resource`, `event`, `surface`, `portal` and `overlay`, `validation`, `animation` and `transition` are native authoring blocks. The compiler lowers them into `xtend.rmt.app-orchestration.v1`, `xtend.rmt.form-validation.v1`, `xtend.rmt.surface-transitions.v1` and `xtend.rmt.animation-engine.v1`, then emits scheduler targets, patch plans, source maps and redacted diagnostics.
 
 ```rmt
 validation product.service.contact {
@@ -84,7 +84,7 @@ ID target must be unique across local surface templates.
 
 ## Reference demo and release contract
 
-The RMT vNext Authoring Guide is bound to the release handoff `xtend.rmt.vnext-release-handoff.v1`. The reference source `demos/xtendrmt/fixtures/vnext-reference/source.rmt` shows the smallest complete combination of `template`, `surface`, `lane`, `when`, `slot`, `stream`, `trust boundary`, `sanitize html` and event-action binding. The expected Core output lives in `demos/xtendrmt/fixtures/vnext-reference/generated/core.json`.
+The RMT Classic Authoring Guide is bound to the release handoff `xtend.rmt.vnext-release-handoff.v1`. The reference source `demos/xtendrmt/fixtures/vnext-reference/source.rmt` shows the smallest complete combination of `template`, `surface`, `lane`, `when`, `slot`, `stream`, `trust boundary`, `sanitize html` and event-action binding. The expected Core output lives in `demos/xtendrmt/fixtures/vnext-reference/generated/core.json`.
 
 ```rmt
 template xtend.vnext.reference {
@@ -97,6 +97,22 @@ template xtend.vnext.reference {
 }
 ```
 
-When an example in this guide grows, it must either stay compatible with the reference demo or be covered as a new fixture in `tests/rmt-language`. The [RMT vNext Release contract](./rmt-vnext-migration-notes.md) page describes which gates are authoritative for this contract.
+When an example in this guide grows, it must either stay compatible with the reference demo or be covered as a new fixture in `tests/rmt-language`. The [RMT Classic Release contract](./rmt-vnext-migration-notes.md) page describes which gates are authoritative for this contract.
 
 Continue with the [AnimationEngine guide](./rmt-animation-engine.md) for a focused path through AOT presets, transitions, keyframes and reduced-motion policies.
+
+## Compiler entrypoints and validation boundary
+
+`compileRmtVNextSource(input, options)` parses RMT and returns a compiler result containing `ok`, diagnostics, Core and derived plans. `compileRmtVNextAst(ast, options)` and the factory's `compileAst()` accept a syntactically valid `xtend.rmt.vnext.ast.v1` tree. Both entrypoints then use the same semantic validation, lowering, AppService and orchestration pipeline.
+
+The AST entrypoint preserves its Core-only success result. On rejection it throws a `RmtAstCompilationError` with `code: rmt.vnext.ast.compilation_failed`, `phase` and `diagnostics`, instead of returning an invalid Core as a successful result. Pass the successful parser result's source model as `options.sourceModel` to preserve file, URI and diagnostic context. Without a source model, `filePath` and `uri` may be supplied; AST ranges remain part of the input contract.
+
+The shared boundary checks the AST version, document root, top-level declarations and data-only tree representation. It does not replace frontend syntax validation or the complete schema still to be defined for other frontends. This change does not define an RMTX frontend or its syntax-neutral representation.
+
+### Unique Core identities
+
+Source names remain case-sensitive; the existing Core ID normalization includes lowercasing and trimming outer underscores. If states such as `app.One` and `app.one` map to the same ID, compilation stops with `rmt.vnext.core.id_collision` before projection. The diagnostic identifies both locations. No Core, service or orchestration artifacts are emitted. This also applies to colliding template, lane and slot identities; existing unique IDs remain unchanged. Different domains and supported separate scopes may still use the same record names when the generated IDs are unique.
+
+### Complete compiler diagnostics
+
+Read the compiler result's `diagnostics` for parser, applicable semantic, compiler and all orchestration-plan messages. `compilerDiagnostics` includes lowering, AppService and all plan diagnostics; nested plan channels remain available. Plan messages carry `stage: orchestration`, their `plan` and source-map context where available. Identical messages are deduplicated; different fields or locations remain distinct. Warnings preserve a successful compile, while errors set `ok: false` and reject the AST entrypoint with the same diagnostic set.

@@ -2135,6 +2135,21 @@ function runSchemaInventorySuite(options = {}) {
     );
   }
 
+  if (coreContext && sourceProvider.hasCurrent('tools/rmt-language/classic-compiler.js')) {
+    // One complete source-bound validation is enough for a forged caller
+    // registration; do not repeat the full 2,000-entry inventory per field.
+    const changed = JSON.parse(JSON.stringify(inventory));
+    const entry = changed.entries.find(entry => entry.schemaId === 'xtend.rmt.vnext.ast.v1');
+    entry.currentAuthorityRegistration.sources[0].sha256 = '0'.repeat(64);
+    entry.shapePolicy.authoritativeFingerprints = [];
+    entry.releasedFingerprintSetHash = 'sha256:' + '0'.repeat(64);
+    entry.canonicalDefinition.path = 'tools/rmt-language/vnext-parser.js';
+    entry.aliasOf = 'xtend.rmt.core-format.vnext.v1';
+    const result = validateInventoryDocument(changed, scan, { rootDir, sourceProvider });
+    context.assert(!result.valid && result.errors.some(error => error.code === 'core-classic-input-registration'),
+      'unreleased Classic registration rejects a forged caller registration and release claim');
+  }
+
   const warnings = Array.isArray(validation && validation.warnings) ? validation.warnings : [];
   const validationSummary = isRecord(validation && validation.summary) ? validation.summary : {};
   const rollout = ROLLOUT_STATUSES.reduce((summary, status) => {

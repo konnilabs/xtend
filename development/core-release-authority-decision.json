@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "34202c19a1090d5eccf95c15e62ec1d6dca21ab9b639ac29960c3d90d9101ba2",
-  "sourceMembershipSha256": "4415792aa51fd8675cbe2fe7b0c274e200d203f7c3e1ac35a6d387863ec116d4",
+  "inventorySha256": "b479bb134bbf15372315ae18679b360983affc11200fb78324707787b91ab0e9",
+  "sourceMembershipSha256": "f11bcab2f37115805b64f06aeb51f3b3c3981d7f23d17ac37696720c0ffe8f8b",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -107,7 +107,7 @@
           },
           {
             "path": "scripts/release/artifact.cjs",
-            "sha256": "2ffbae9071753d70ffa1811bbf8c01a6c41326ab4c494fbbaedd4a8f06a3348d"
+            "sha256": "029e81490cef0cb827e5549581a8778514f18028795b5e315c4d6dd0c1051756"
           },
           {
             "path": "scripts/release/candidates.cjs",
@@ -119,7 +119,7 @@
           },
           {
             "path": "scripts/release/pipeline.cjs",
-            "sha256": "c72cd48e860caf58c35a1cd13891ede6ed0c5b3279b80d6339deee0dcbe2f70a"
+            "sha256": "76a7305ffe7c6affc8229b5da802a3873a0d85131b9b31b420feb0830b1d1a71"
           },
           {
             "path": "scripts/release/profile.cjs",
@@ -180,7 +180,7 @@
           },
           {
             "path": "scripts/release/artifact.cjs",
-            "sha256": "2ffbae9071753d70ffa1811bbf8c01a6c41326ab4c494fbbaedd4a8f06a3348d"
+            "sha256": "029e81490cef0cb827e5549581a8778514f18028795b5e315c4d6dd0c1051756"
           },
           {
             "path": "scripts/release/consumer.cjs",
@@ -247,7 +247,7 @@
           },
           {
             "path": "scripts/release/artifact.cjs",
-            "sha256": "2ffbae9071753d70ffa1811bbf8c01a6c41326ab4c494fbbaedd4a8f06a3348d"
+            "sha256": "029e81490cef0cb827e5549581a8778514f18028795b5e315c4d6dd0c1051756"
           },
           {
             "path": "scripts/release/core-auth.cjs",
@@ -523,5 +523,150 @@
     "publicationGuardRetired": false,
     "acceptedForMerge": false,
     "acceptedForRelease": false
+  },
+  "classicInputContractReview": {
+    "format": 1,
+    "status": "reviewed-unreleased-classic-input",
+    "released": false,
+    "publicationGuardRetired": false,
+    "registration": {
+      "schemaId": "xtend.rmt.vnext.ast.v1",
+      "familyId": "xtend.rmt.vnext.ast",
+      "version": 1,
+      "status": "reviewed-current-source",
+      "canonicalDefinition": {
+        "path": "tools/rmt-language/contracts/classic-ast.v1.schema.json",
+        "symbol": null,
+        "definitionType": "json-schema",
+        "role": "definition",
+        "visibility": "internal"
+      },
+      "historicalInventorySha256": "0c1ca03e989f4c1cfa5e07b2296e163ddda0090fd138677bc410feafce9661f3",
+      "sources": [
+        {
+          "path": "development/WP-E15-04-Lexer-Parser-MVP-fuer-Templates-Surfaces-Lanes-und-Lifecycle-Ops-bauen.md",
+          "sha256": "bb8e69a32f674ba75d12751029a8911dd9a5bb5015c42f6c97894e499c9ea025"
+        },
+        {
+          "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
+          "sha256": "8d055f6467f527dbdb31a8bd95b1c56837bf3e325dc6c2d52692fec86d89d1d0"
+        },
+        {
+          "path": "development/rmtx-a01/README.md",
+          "sha256": "0acbe44c67d9f2466bbac55ddf5e9eb6681b54783875be2a52188c0bcf48af5b"
+        },
+        {
+          "path": "development/rmtx-a01/compiler-contract.md",
+          "sha256": "81654c6989229a7dfc6ec710194b097eb5848442a4405cec1b877a5fe19ef7a2"
+        },
+        {
+          "path": "development/rmtx-a01/inventory.json",
+          "sha256": "bfdc3130a6ba81339712a0dde0f9aa1356e6b2d8492b449f276fae325b4e2406"
+        },
+        {
+          "path": "docs/de/rmt-vnext-authoring.md",
+          "sha256": "5cd16fd84398b68db17d26d93d422cc75de8ce231bbd2ecee78d1f91cd50ce1b"
+        },
+        {
+          "path": "docs/en/rmt-vnext-authoring.md",
+          "sha256": "4204cec5c64b9c429532b1ab5d92583efa2d040717a38a813ceb4b7b5937adf1"
+        },
+        {
+          "path": "docs/generated/search/en.fulltext.json",
+          "sha256": "50e39ec3391d010e479d60529e4c2a732b67739063ad6a55d02a925f7119246a"
+        },
+        {
+          "path": "package.json",
+          "sha256": "0828484e3bdff15e5e52ad9f48bc49d3ece847c22d66cf35115ddf3c0725dc32"
+        },
+        {
+          "path": "scripts/generate_rmt_classic_contract.js",
+          "sha256": "72a7cb793be6a11a169fd6aea281e3eb529a22ba9bdbd1c3b27d0f5143cbaa22"
+        },
+        {
+          "path": "tests/rmt-language/fixtures/classic-contract-consumer.ts",
+          "sha256": "ef66c2a793606534522abacd949d738d0596411657200eee9c5903e1d09fa9ea"
+        },
+        {
+          "path": "tests/rmt-language/rmt_classic_contract_checks.js",
+          "sha256": "9f77acee56aa8c9a1330cd60c870c90aadf637c7abba66acaf88d737c11620ee"
+        },
+        {
+          "path": "tools/rmt-language/classic-ast-contract.js",
+          "sha256": "3e17596b6615c7ca5528bb5a72551143e1d3403d8a8c606cf83569d71a3c79d4"
+        },
+        {
+          "path": "tools/rmt-language/classic-ast-rules.js",
+          "sha256": "269c0ad5d14ba86a149e33877e7db28b3a4004d0217b8c6b829b26931a327b0d"
+        },
+        {
+          "path": "tools/rmt-language/classic-ast-types.d.ts",
+          "sha256": "5487aa747c0b647acd2d2ef02275d5af03e14b24f7ac69ae58bedc6bcedb3c52"
+        },
+        {
+          "path": "tools/rmt-language/classic-compiler.d.ts",
+          "sha256": "f2cb4326524e117e1d1c65924be85f95837c76ea81d00278efe17e09012597a0"
+        },
+        {
+          "path": "tools/rmt-language/classic-compiler.js",
+          "sha256": "87c974f17361ba40520f4a2003ecba67d2396da59283535649474f80983e5d9c"
+        },
+        {
+          "path": "tools/rmt-language/classic-parser.d.ts",
+          "sha256": "efd754914ccb1c0067fd85d07f9131e96bc4fde1f03379648ac27baa6fc9a9d9"
+        },
+        {
+          "path": "tools/rmt-language/classic-parser.js",
+          "sha256": "f4d051313259d160d3a46892df3607ae68f6c3a69e5d62731cf0b028b3721b42"
+        },
+        {
+          "path": "tools/rmt-language/classic-semantic-rules.js",
+          "sha256": "2d4211c044b6682a952b85057e9172dac50c142125b203152a857e0a6e1bb10d"
+        },
+        {
+          "path": "tools/rmt-language/contracts/classic-ast.v1.schema.json",
+          "sha256": "2f0b45c8c05dbc38adb7355fcc3ae36bbf8eb2f3b26c4ec024b71ed04fb2b457"
+        },
+        {
+          "path": "tools/rmt-language/semantic-graph.js",
+          "sha256": "e3706bcca6f8b5155b1292889b44767f177bdedb9dc73d5ddd98dea1e0b11762"
+        },
+        {
+          "path": "tools/rmt-language/vnext-compiler.js",
+          "sha256": "dab92cfe582f1ec9342a5756ec157b70078878020a6e5703e020ad53ca4d3d01"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "sha256": "80668bc8c738f5fda9ed3149b367c3e3388eac9f1ae4f90650d65910a5359579"
+        },
+        {
+          "path": "tools/schema-inventory/classic-input-contract.cjs",
+          "sha256": "413b83a7f6522a785d68fd5c860f9a627ca6dea91303f63be6437974ab6877e4"
+        }
+      ],
+      "observedFingerprints": [
+        "sha256:03c80a608f4ba37515a2ebef034b757c7afd071257a0f54ee5fde41dd95d7913",
+        "sha256:4f346f0bf7f896c8da451702772f3ebcd61a9137f288896a95c3b967df948e3e"
+      ],
+      "acceptedFingerprints": [
+        "sha256:03c80a608f4ba37515a2ebef034b757c7afd071257a0f54ee5fde41dd95d7913",
+        "sha256:4f346f0bf7f896c8da451702772f3ebcd61a9137f288896a95c3b967df948e3e"
+      ],
+      "authoritativeFingerprints": [
+        "sha256:4f346f0bf7f896c8da451702772f3ebcd61a9137f288896a95c3b967df948e3e"
+      ],
+      "releasedFingerprintSetHash": null
+    }
+  },
+  "release09PreparationReview": {
+    "status": "user-requested-scoped-development-gates",
+    "date": "2026-11-07",
+    "request": "GitHub-Gates nachziehen, damit der Worktree committet werden kann.",
+    "scope": "Current source membership, unchanged release-contract payload byte bindings, three new planning/Classic manifest records, scoped non-authoritative observations and the first unreleased Classic AST formal authority.",
+    "previousInventorySha256": "34202c19a1090d5eccf95c15e62ec1d6dca21ab9b639ac29960c3d90d9101ba2",
+    "reviewDocument": "development/rmtx-a01/README.md",
+    "publicationGuardRetired": false,
+    "acceptedForRelease": false,
+    "freshCommittedCaptureRequired": true
   }
 }

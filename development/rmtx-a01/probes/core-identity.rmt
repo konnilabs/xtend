@@ -1,0 +1,5 @@
+// A01-F02: Distinct source names with colliding Core identities must be rejected.
+template inventory.identity {
+  state app.One type number initial 1
+  state app.one type number initial 2
+}

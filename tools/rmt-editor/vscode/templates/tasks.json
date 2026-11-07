@@ -152,7 +152,7 @@
       }
     },
     {
-      "label": "XTendRMT: vNext primitive gate",
+      "label": "XTendRMT: RMT Classic primitive gate",
       "type": "shell",
       "command": "npm",
       "args": [

@@ -4,7 +4,7 @@ State deklariert Daten, die dem Template gehören. Selectors stellen stabile Vie
 
 ## State Explizit Halten
 
-Nutze `state` für dauerhafte Template-Daten und `selector` für die Form, die eine Komponente konsumieren soll. Dadurch bleiben Renderverträge lesbar und Compiler-Diagnosen hilfreicher. Die vNext-Normalisierung in `tools/rmt-language/vnext-compiler.js` hält State- und Selector-Referenzen im Core-Dokument zusammen.
+Nutze `state` für dauerhafte Template-Daten und `selector` für die Form, die eine Komponente konsumieren soll. Dadurch bleiben Renderverträge lesbar und Compiler-Diagnosen hilfreicher. Die RMT Classic-Normalisierung in `tools/rmt-language/vnext-compiler.js` hält State- und Selector-Referenzen im Core-Dokument zusammen.
 
 ```rmt
 template learn.rmt.stateflow {

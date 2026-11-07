@@ -1277,21 +1277,21 @@
   {
     "slug": "rmt-vnext-authoring",
     "id": "docs.rmt.vnext.authoring",
-    "label": "RMT Authoring Guide",
+    "label": "RMT Classic Authoring Guide",
     "group": "rmt",
     "parent": "xtendrmt-overview",
     "tier": "basic",
     "rank": 96,
     "labels": {
-      "de": "RMT Authoring Guide",
-      "en": "RMT Authoring Guide"
+      "de": "RMT Classic Authoring Guide",
+      "en": "RMT Classic Authoring Guide"
     },
     "contentType": "tutorial",
     "trunk": "build",
     "section": "rmt-authoring",
     "keywords": {
       "de": [
-        "RMT Authoring Guide",
+        "RMT Classic Authoring Guide",
         "rmt",
         "vnext",
         "authoring",
@@ -1300,7 +1300,7 @@
         "rmt-authoring"
       ],
       "en": [
-        "RMT Authoring Guide",
+        "RMT Classic Authoring Guide",
         "rmt",
         "vnext",
         "authoring",
@@ -1544,14 +1544,14 @@
   {
     "slug": "rmt-vnext-migration-notes",
     "id": "docs.rmt.vnext.migration.notes",
-    "label": "RMT vNext Migration Notes",
+    "label": "RMT Classic Migration Notes",
     "group": "rmt",
     "parent": "rmt-vnext-authoring",
     "tier": "deep-dive",
     "rank": 93,
     "labels": {
-      "de": "RMT vNext Migration Notes",
-      "en": "RMT vNext Migration Notes"
+      "de": "RMT Classic Migration Notes",
+      "en": "RMT Classic Migration Notes"
     },
     "contentType": "tutorial",
     "aliases": [
@@ -1561,7 +1561,7 @@
     "section": "rmt-authoring",
     "keywords": {
       "de": [
-        "RMT vNext Migration Notes",
+        "RMT Classic Migration Notes",
         "rmt",
         "vnext",
         "migration",
@@ -1572,7 +1572,7 @@
         "rmt-authoring"
       ],
       "en": [
-        "RMT vNext Migration Notes",
+        "RMT Classic Migration Notes",
         "rmt",
         "vnext",
         "migration",
@@ -1975,21 +1975,21 @@
   {
     "slug": "rmt-vnext-source-to-sea-gate",
     "id": "docs.rmt.vnext.source.to.sea.gate",
-    "label": "RMT vNext Source-to-Sea",
+    "label": "RMT Classic Source-to-Sea",
     "group": "rmt",
     "parent": "rmt-vnext-release-handoff",
     "tier": "deep-dive",
     "rank": 89,
     "labels": {
-      "de": "RMT vNext Source-to-Sea",
-      "en": "RMT vNext Source-to-Sea"
+      "de": "RMT Classic Source-to-Sea",
+      "en": "RMT Classic Source-to-Sea"
     },
     "contentType": "operations",
     "trunk": "build",
     "section": "rmt-tooling",
     "keywords": {
       "de": [
-        "RMT vNext Source-to-Sea",
+        "RMT Classic Source-to-Sea",
         "rmt",
         "vnext",
         "source",
@@ -2000,7 +2000,7 @@
         "rmt-tooling"
       ],
       "en": [
-        "RMT vNext Source-to-Sea",
+        "RMT Classic Source-to-Sea",
         "rmt",
         "vnext",
         "source",
@@ -2482,21 +2482,21 @@
   {
     "slug": "rmt-vnext-surface-registry-enterprise",
     "id": "docs.rmt.vnext.surface.registry.enterprise",
-    "label": "RMT vNext Enterprise Surface Registry",
+    "label": "RMT Classic Enterprise Surface Registry",
     "group": "rmt",
     "parent": "rmt-vnext-remote-surfaces",
     "tier": "deep-dive",
     "rank": 73,
     "labels": {
-      "de": "RMT vNext Enterprise Surface Registry",
-      "en": "RMT vNext Enterprise Surface Registry"
+      "de": "RMT Classic Enterprise Surface Registry",
+      "en": "RMT Classic Enterprise Surface Registry"
     },
     "contentType": "concept",
     "trunk": "build",
     "section": "surfaces",
     "keywords": {
       "de": [
-        "RMT vNext Enterprise Surface Registry",
+        "RMT Classic Enterprise Surface Registry",
         "rmt",
         "vnext",
         "surface",
@@ -2507,7 +2507,7 @@
         "surfaces"
       ],
       "en": [
-        "RMT vNext Enterprise Surface Registry",
+        "RMT Classic Enterprise Surface Registry",
         "rmt",
         "vnext",
         "surface",
@@ -6494,6 +6494,74 @@
         "operations",
         "operate",
         "security"
+      ]
+    }
+  },
+  {
+    "slug": "rmt-classic-contract",
+    "id": "docs.rmt.classic.contract",
+    "label": "RMT Classic Compiler Contract",
+    "group": "rmt",
+    "parent": "rmt-vnext-authoring",
+    "tier": "basic",
+    "rank": 96,
+    "labels": {
+      "de": "RMT Classic Compiler Contract",
+      "en": "RMT Classic Compiler Contract"
+    },
+    "contentType": "reference",
+    "trunk": "build",
+    "section": "rmt-runtime",
+    "keywords": {
+      "de": [
+        "RMT Classic Compiler Contract",
+        "rmt",
+        "classic",
+        "contract",
+        "reference",
+        "build",
+        "rmt-runtime"
+      ],
+      "en": [
+        "RMT Classic Compiler Contract",
+        "rmt",
+        "classic",
+        "contract",
+        "reference",
+        "build",
+        "rmt-runtime"
+      ]
+    }
+  },
+  {
+    "slug": "release-0-9",
+    "id": "docs.release.0.9",
+    "label": "XTend 0.9 Release Preparation",
+    "group": "start",
+    "parent": "readme",
+    "tier": "basic",
+    "rank": 99,
+    "labels": {
+      "de": "XTend 0.9 Release Preparation",
+      "en": "XTend 0.9 Release Preparation"
+    },
+    "contentType": "reference",
+    "trunk": "start",
+    "section": "first-app",
+    "keywords": {
+      "de": [
+        "XTend 0.9 Release Preparation",
+        "release",
+        "reference",
+        "start",
+        "first-app"
+      ],
+      "en": [
+        "XTend 0.9 Release Preparation",
+        "release",
+        "reference",
+        "start",
+        "first-app"
       ]
     }
   }

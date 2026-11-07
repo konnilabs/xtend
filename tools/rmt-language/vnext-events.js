@@ -340,7 +340,7 @@ function createEventBindingRecord(coreDocument, event, context) {
       coreDocument,
       event,
       EVENT_ACTION_UNKNOWN_CODE,
-      `Action reference "${event.action}" is not present in the vNext action catalog.`,
+      `Action reference "${event.action}" is not present in the RMT Classic action catalog.`,
       'error',
       { knownActions: context.actionCatalog.ids.slice() }
     ));
@@ -454,7 +454,7 @@ function createDataSourceRecord(coreDocument, dataSource, context) {
       coreDocument,
       dataSource,
       DATA_SOURCE_KIND_UNSUPPORTED_CODE,
-      `Data source kind "${dataSource && dataSource.kind || 'unknown'}" is not part of the vNext data source contract.`,
+      `Data source kind "${dataSource && dataSource.kind || 'unknown'}" is not part of the RMT Classic data source contract.`,
       'error',
       { allowedKinds: DATA_SOURCE_KINDS.slice() }
     ));
@@ -465,7 +465,7 @@ function createDataSourceRecord(coreDocument, dataSource, context) {
       coreDocument,
       dataSource,
       DATA_SOURCE_UNKNOWN_CODE,
-      `Data source reference "${dataSource.target}" is not present in the vNext data source catalog.`,
+      `Data source reference "${dataSource.target}" is not present in the RMT Classic data source catalog.`,
       'error',
       { knownDataSources: context.dataSourceCatalog.ids.slice() }
     ));

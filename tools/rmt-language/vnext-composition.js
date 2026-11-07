@@ -307,7 +307,7 @@ function createComponentBinding(coreDocument, operation, context) {
         componentRef: target.ref || null
       },
       COMPOSITION_COMPONENT_UNKNOWN_CODE,
-      `Component reference "${target.ref || 'unknown'}" is not present in the vNext component catalog.`,
+      `Component reference "${target.ref || 'unknown'}" is not present in the RMT Classic component catalog.`,
       'error',
       { knownComponents: context.componentCatalog.ids.slice() }
     ));

@@ -81,7 +81,7 @@ The renderer is the completed prerequisite for `WP-E18-06`.
 
 ## Related pages
 
-- [RMT vNext Component Primitives](./rmt-vnext-component-primitives.md)
+- [RMT Classic Component Primitives](./rmt-vnext-component-primitives.md)
 - [Trusted DOM and Sanitizing](./trusted-dom-sanitizing.md)
 - [RMT App Platform Fixture](./rmt-app-platform-fixture.md)
 - [RMT Security Policies](./rmt-reference-security-policies.md)

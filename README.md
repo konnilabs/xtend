@@ -8,6 +8,8 @@
 
 XTend is a native-first Web Component, XTendRMT, Fabric, Maraca, XScaler, and XSurface Shard application-orchestration toolkit. It gives teams browser-native primitives, owned UI components, auditable contracts, and a path from small HTML hosts to declarative RMT-driven application shells without requiring a heavyweight UI framework.
 
+Release **0.9.0 is in preparation**, with **RMTX and XTensions 2.0 both required**. See the [release scope and acceptance status](docs/en/release-0-9.md). The existing RMT authoring language is now **RMT Classic**; existing technical identifiers remain compatible.
+
 ### Package portfolio
 
 | Package | Use it for |
@@ -94,6 +96,8 @@ The loader reads `components/manifest.json`, loads requested custom elements, an
 [XTend 0.8.0 release overview](./docs/en/changelog.md): shared kernel scheduling, Maraca FastPass, presentation Abort Boundaries and demand-driven diagnostics; opt-in Hydrangea JIT and independent Node/Laravel page hosts with Page Wire.
 
 XTendRMT keeps state, selectors, actions, events, resources, surfaces, and scheduling in `.rmt` source. Host adapters connect compiled records to XTend UI, XRouter, Fabric, browser APIs, and server rendering. Maraca turns that source into loaderless modern ESM application bundles and emits reviewable production evidence.
+
+The existing declarative authoring language is **RMT Classic** (formerly RMT vNext). RMTX is the forthcoming template frontend. Both can target the versioned [Classic compiler contract](./docs/en/rmt-classic-contract.md). New integrations use `@ccslabs/xtend/rmt-language/classic-parser` and `classic-compiler`; existing `vnext-*` APIs, artifact discriminators and documentation URLs remain compatible.
 
 ```bash
 xt rmt lint app.rmt --json

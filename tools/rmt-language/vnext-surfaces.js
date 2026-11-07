@@ -325,7 +325,7 @@ function createSurfaceRecord(coreDocument, surface, indexes) {
       coreDocument,
       surface,
       SURFACE_KIND_UNKNOWN_CODE,
-      `Surface "${typeResult.rawName}" does not map to a known vNext surface type.`,
+      `Surface "${typeResult.rawName}" does not map to a known RMT Classic surface type.`,
       'error',
       { allowedTypes: listSurfaceTypes() }
     ));
@@ -374,7 +374,7 @@ function detectDuplicateSurfaceIds(coreDocument, surfaces) {
         coreDocument,
         surface,
         SURFACE_ID_DUPLICATE_CODE,
-        `Surface id "${surface.id}" is duplicated in the vNext Core document.`
+        `Surface id "${surface.id}" is duplicated in the RMT Classic Core document.`
       ));
     } else {
       seen.set(surface.id, surface);

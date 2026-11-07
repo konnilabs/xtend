@@ -304,7 +304,7 @@ function createTrustBoundaryRecord(coreDocument, policy, context) {
       coreDocument,
       policy,
       SECURITY_TRUST_BOUNDARY_UNKNOWN_CODE,
-      `Trust boundary "${boundary || 'unknown'}" is not declared in the vNext trust boundary catalog.`,
+      `Trust boundary "${boundary || 'unknown'}" is not declared in the RMT Classic trust boundary catalog.`,
       'error',
       { knownBoundaries: context.trustBoundaryCatalog.ids.slice() }
     ));
@@ -344,7 +344,7 @@ function createSanitizeRecord(coreDocument, policy, context) {
       coreDocument,
       policy,
       SECURITY_SANITIZE_FORMAT_UNSUPPORTED_CODE,
-      `Sanitize format "${format || 'unknown'}" is not part of the vNext security policy contract.`,
+      `Sanitize format "${format || 'unknown'}" is not part of the RMT Classic security policy contract.`,
       'error',
       { allowedFormats: SECURITY_ALLOWED_SANITIZE_FORMATS.slice() }
     ));

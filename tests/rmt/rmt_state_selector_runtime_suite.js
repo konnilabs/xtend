@@ -51,7 +51,7 @@ let stateHostAdapterModulePromise = null;
 
 function loadStateRuntimeModule(rootDir) {
   if (!stateRuntimeModulePromise) {
-    stateRuntimeModulePromise = import(`file://${resolveRepoPath('xtendrmt/rmt-state-selector-runtime.compat.js', rootDir)}`);
+    stateRuntimeModulePromise = import(`file://${resolveRepoPath('xtendrmt/rmt-state-selector-runtime.js', rootDir)}`);
   }
   return stateRuntimeModulePromise;
 }
@@ -284,7 +284,8 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
     selectors: fixture.selectors,
     derive: fixture.derive,
     reducers: fixture.reducers,
-    stateProjectionTarget: stateHost
+    stateProjectionTarget: stateHost,
+    createStateProjectionPort: stateHostAdapterModule.createRmtStateHostAdapter
   });
   context.assert(runtime.schema === RMT_STATE_SELECTOR_RUNTIME_SCHEMA, 'state selector runtime exposes schema');
   context.assert(runtime.select('selector.filtered-items').length === 3, 'selector returns initial collection');
@@ -440,27 +441,20 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
   }
   context.assert(mutableSnapshotRejected, 'state binding View projector rejects mutable model snapshots');
 
-  const legacyDiagnostics = [];
-  const legacyApplication = stateRuntimeModule.applyRmtStateBindings(root, fixture.bindings, runtime, {
-    domRenderer: renderer,
-    publishDiagnostic: (diagnostic) => legacyDiagnostics.push(diagnostic)
-  });
-  context.assert(legacyApplication.projectorSchema === stateBindingProjectorModule.RMT_STATE_BINDING_VIEW_PROJECTOR_SCHEMA, 'legacy binding function delegates to the canonical View projector');
-  context.assert(legacyApplication.diagnostics.some((diagnostic) => diagnostic.code === 'rmt.state-binding.legacy-adapter'), 'legacy binding function returns its one-time compatibility diagnostic');
-  const adapter = stateRuntimeModule.createRmtStateBindingAdapter({
-    domRenderer: renderer,
-    publishDiagnostic: (diagnostic) => legacyDiagnostics.push(diagnostic)
-  });
-  context.assert(adapter.apply(root, fixture.bindings, runtime).strategy === 'attribute-sync', 'state binding adapter applies attribute sync');
+  const projector = stateBindingProjectorModule.createRmtStateBindingViewProjector({ domRenderer: renderer });
+  const projected = projector.project(root, fixture.bindings, runtime.modelReader.snapshot());
+  context.assert(projected.projectorSchema === stateBindingProjectorModule.RMT_STATE_BINDING_VIEW_PROJECTOR_SCHEMA,
+    'explicit View projector consumes the canonical read-only Model snapshot');
+  context.assert(projected.strategy === 'attribute-sync', 'explicit View projector applies attribute sync');
   context.assert(
-    legacyDiagnostics.filter((diagnostic) => diagnostic.code === 'rmt.state-binding.legacy-adapter').length === 1,
-    'legacy state binding APIs diagnose exactly once per model runtime'
+    !('applyRmtStateBindings' in stateRuntimeModule) && !('createRmtStateBindingAdapter' in stateRuntimeModule),
+    'Model package exports no removed compatibility binding functions'
   );
-  const firstAdapterDispose = adapter.dispose();
-  const secondAdapterDispose = adapter.dispose();
+  const firstAdapterDispose = projector.dispose();
+  const secondAdapterDispose = projector.dispose();
   context.assert(
     firstAdapterDispose.alreadyDisposed === false && secondAdapterDispose.alreadyDisposed === true,
-    'state binding adapter compatibility renderer lifecycle is idempotently disposable'
+    'explicit View projector lifecycle is idempotently disposable'
   );
   context.assert(stateRuntimeModule.planRmtStatePatch(selectionEvent.previous, selectionEvent.next, {
     selectors: fixture.selectors,
@@ -639,7 +633,8 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
       type: 'string',
       initial: 'projected'
     }],
-    stateProjectionTarget: customKeyHost
+    stateProjectionTarget: customKeyHost,
+    createStateProjectionPort: stateHostAdapterModule.createRmtStateHostAdapter
   });
   context.assert(
     customKeyHost.batchUpdates.length === 1
@@ -648,7 +643,10 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
     'atomic state projection preserves declared host keys'
   );
   const emptyHost = createFakeStateHost();
-  const emptyRuntime = stateRuntimeModule.createRmtStateSelectorRuntime({ stateProjectionTarget: emptyHost });
+  const emptyRuntime = stateRuntimeModule.createRmtStateSelectorRuntime({
+    stateProjectionTarget: emptyHost,
+    createStateProjectionPort: stateHostAdapterModule.createRmtStateHostAdapter
+  });
   emptyRuntime.transaction(() => undefined, { actionId: 'action.empty-commit' });
   context.assert(emptyHost.batchUpdates.length === 2, 'even an empty completed transaction emits exactly one state projection batch boundary');
 
@@ -680,6 +678,7 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
   const portInjectedRuntime = stateRuntimeModule.createRmtStateSelectorRuntime({
     states: [{ id: 'state.port-injected', type: 'number', initial: 3 }],
     stateProjectionPort: injectedPort,
+    createStateProjectionPort: stateHostAdapterModule.createRmtStateHostAdapter,
     strictMaraca: true
   });
   context.assert(
@@ -697,12 +696,19 @@ function runRuntimeAssertions(context, fixture, stateRuntimeModule, rendererModu
     strictConnectionError && strictConnectionError.code === 'rmt.state.projection-batch-required',
     'connections created after strict Model boot inherit the atomic batchUpdate requirement'
   );
+  const portOnlyRuntime = stateRuntimeModule.createRmtStateSelectorRuntime({ stateProjectionPort: injectedPort });
+  let missingFactoryError = null;
+  try { portOnlyRuntime.connectStateProjection(createFakeStateHost()); }
+  catch (error) { missingFactoryError = error; }
+  context.assert(missingFactoryError?.code === 'rmt.state.projection-factory-required',
+    'a supplied port does not implicitly grant a factory for later host connections');
   const projectionOnlyHost = createFakeStateHost();
   projectionOnlyHost.store['host.authority'] = false;
   const authoritativeRuntime = stateRuntimeModule.createRmtStateSelectorRuntime({
     states: [{ id: 'state.authority', projectionKey: 'host.authority', type: 'boolean', initial: false }],
     initialState: { 'state.authority': true },
     stateProjectionTarget: projectionOnlyHost,
+    createStateProjectionPort: stateHostAdapterModule.createRmtStateHostAdapter,
     strictMaraca: true
   });
   context.assert(
@@ -805,7 +811,6 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
   const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);
   const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const runtimeSource = readText(RMT_STATE_SELECTOR_RUNTIME_RUNTIME, rootDir);
-  const compatibilitySource = readText('xtendrmt/rmt-state-selector-runtime.compat.js', rootDir);
   const stateHostAdapterSource = readText('xtendrmt/rmt-state-host-adapter.js', rootDir);
   const typeSource = readText(RMT_STATE_SELECTOR_RUNTIME_TYPES, rootDir);
   const stateHostAdapterTypes = readText('xtendrmt/rmt-state-host-adapter.d.ts', rootDir);
@@ -819,7 +824,6 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
   const moduleSyntax = syntaxCheckFile(RMT_STATE_SELECTOR_RUNTIME_MODULE, { rootDir, extension: '.js' });
   const suiteSyntax = syntaxCheckFile(RMT_STATE_SELECTOR_RUNTIME_SUITE, { rootDir, extension: '.js' });
   const runtimeSyntax = syntaxCheckFile(RMT_STATE_SELECTOR_RUNTIME_RUNTIME, { rootDir, extension: '.js' });
-  const compatibilitySyntax = syntaxCheckFile('xtendrmt/rmt-state-selector-runtime.compat.js', { rootDir, extension: '.js' });
   const stateBindingProjectorSyntax = syntaxCheckFile('xtendrmt/rmt-state-binding-view-projector.js', { rootDir, extension: '.js' });
   const stateHostAdapterSyntax = syntaxCheckFile('xtendrmt/rmt-state-host-adapter.js', { rootDir, extension: '.js' });
 
@@ -833,7 +837,6 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
   context.assert(moduleSyntax.ok, `State selector runtime contract syntax passes${moduleSyntax.ok ? '' : ` (${moduleSyntax.message})`}`);
   context.assert(suiteSyntax.ok, `State selector runtime suite syntax passes${suiteSyntax.ok ? '' : ` (${suiteSyntax.message})`}`);
   context.assert(runtimeSyntax.ok, `State selector runtime syntax passes${runtimeSyntax.ok ? '' : ` (${runtimeSyntax.message})`}`);
-  context.assert(compatibilitySyntax.ok, `State selector compatibility facade syntax passes${compatibilitySyntax.ok ? '' : ` (${compatibilitySyntax.message})`}`);
   context.assert(stateBindingProjectorSyntax.ok, `State binding View projector syntax passes${stateBindingProjectorSyntax.ok ? '' : ` (${stateBindingProjectorSyntax.message})`}`);
   context.assert(stateHostAdapterSyntax.ok, `State host adapter syntax passes${stateHostAdapterSyntax.ok ? '' : ` (${stateHostAdapterSyntax.message})`}`);
   assertFileExists(context, 'xtendrmt/rmt-state-host-adapter.js', rootDir, 'State host adapter runtime exists');
@@ -883,13 +886,8 @@ async function runRmtStateSelectorRuntimeSuite(options = {}) {
   context.assert(!/components\/|xtend-loader|api\.js/u.test(runtimeSource), 'State selector runtime avoids XTend UI imports');
   context.assert(!/querySelector|domRenderer\.commit\s*\(/u.test(runtimeSource), 'Model runtime contains no State Binding DOM projection');
   context.assert(!/StateBindingViewProjector|applyRmtStateBindings|createRmtStateBindingAdapter/u.test(runtimeSource), 'Model runtime contains no View or compatibility composition dependency');
-  assertTextIncludesAll(context, compatibilitySource, [
-    'createRmtStateHostAdapter',
-    'createRmtStateBindingViewProjector',
-    'applyRmtStateBindings',
-    'createRmtStateBindingAdapter',
-    'rmt.state-binding.legacy-adapter'
-  ], 'State selector compatibility facade');
+  context.assert(!/export function (?:applyRmtStateBindings|createRmtStateBindingAdapter)\b/u.test(typeSource),
+    'Model declarations expose only runtime functions that are actually exported');
   assertTextIncludesAll(context, stateHostAdapterSource, [
     'RMT_STATE_PROJECTION_PORT_SCHEMA',
     'createRmtStateHostAdapter',

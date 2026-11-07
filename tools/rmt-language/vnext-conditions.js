@@ -144,7 +144,7 @@ function analyzeExpression(coreDocument, operation, condition, expression, conte
       operation,
       condition,
       CONDITION_EXPRESSION_KIND_UNSUPPORTED_CODE,
-      `Expression kind "${expression.kind || 'unknown'}" is not part of the vNext condition subset.`,
+      `Expression kind "${expression.kind || 'unknown'}" is not part of the RMT Classic condition subset.`,
       'error',
       { allowedKinds: CONDITION_EXPRESSION_KINDS.slice() }
     );
@@ -182,7 +182,7 @@ function analyzeExpression(coreDocument, operation, condition, expression, conte
         operation,
         condition,
         CONDITION_PATH_UNKNOWN_CODE,
-        `Condition path "${path || 'unknown'}" is not declared in the vNext condition path catalog.`,
+        `Condition path "${path || 'unknown'}" is not declared in the RMT Classic condition path catalog.`,
         'error',
         { path }
       ));
@@ -226,7 +226,7 @@ function analyzeExpression(coreDocument, operation, condition, expression, conte
         operation,
         condition,
         CONDITION_OPERATOR_UNSUPPORTED_CODE,
-        `Unary operator "${expression.op || 'unknown'}" is not allowed in vNext conditions.`,
+        `Unary operator "${expression.op || 'unknown'}" is not allowed in RMT Classic conditions.`,
         'error',
         { allowedOperators: CONDITION_UNARY_OPERATORS.slice() }
       ));
@@ -269,7 +269,7 @@ function analyzeExpression(coreDocument, operation, condition, expression, conte
         operation,
         condition,
         CONDITION_OPERATOR_UNSUPPORTED_CODE,
-        `Logical operator "${expression.op || 'unknown'}" is not allowed in vNext conditions.`,
+        `Logical operator "${expression.op || 'unknown'}" is not allowed in RMT Classic conditions.`,
         'error',
         { allowedOperators: CONDITION_LOGICAL_OPERATORS.slice() }
       ));
@@ -313,7 +313,7 @@ function analyzeExpression(coreDocument, operation, condition, expression, conte
       operation,
       condition,
       CONDITION_OPERATOR_UNSUPPORTED_CODE,
-      `Binary operator "${expression.op || 'unknown'}" is not allowed in vNext conditions.`,
+      `Binary operator "${expression.op || 'unknown'}" is not allowed in RMT Classic conditions.`,
       'error',
       { allowedOperators: CONDITION_BINARY_OPERATORS.slice() }
     ));

@@ -20,8 +20,8 @@ Definiere Owner, Eventname, Version und Payload-Schema. Registriere den Empfäng
 
 - [XTendRMT Überblick](./xtendrmt-overview.md)
 - [RMT Authoring Guide](./rmt-vnext-authoring.md)
-- [RMT vNext Remote Surfaces](./rmt-vnext-remote-surfaces.md)
-- [RMT vNext Enterprise MFE Vertrag](./rmt-vnext-remote-surfaces.md)
+- [RMT Classic Remote Surfaces](./rmt-vnext-remote-surfaces.md)
+- [RMT Classic Enterprise MFE Vertrag](./rmt-vnext-remote-surfaces.md)
 - [RMT Linter](./rmt-linter.md)
 - [RMT Language Server](./rmt-language-server.md)
 

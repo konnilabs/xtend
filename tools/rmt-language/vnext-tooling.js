@@ -41,7 +41,7 @@ const RMT_CODE_ACTION_SCHEMA = 'xtend.rmt.code-action.v1';
 const RMT_WORKSPACE_EDIT_SCHEMA = 'xtend.rmt.workspace-edit.v1';
 
 const VNEXT_COMPLETION_KEYWORDS = Object.freeze([
-  ['import', 'Statischen vNext Modulimport deklarieren.'],
+  ['import', 'Statischen RMT Classic Modulimport deklarieren.'],
   ['template', 'Orchestrierungs-Template starten.'],
   ['remote surface', 'Remote Surface mit Manifest-, Owner- und Fallback-Fakten deklarieren.'],
   ['surface', 'Host-neutrale Surface deklarieren.'],
@@ -66,7 +66,7 @@ const VNEXT_COMPLETION_KEYWORDS = Object.freeze([
 ]);
 
 const VNEXT_PRIMITIVE_KEYWORDS = Object.freeze([
-  ['state', 'App-State Primitive in vNext deklarieren.'],
+  ['state', 'App-State Primitive in RMT Classic deklarieren.'],
   ['selector', 'Derived Selector aus State oder DataSource ableiten.'],
   ['datasource', 'DataSource Primitive mit Endpoint, Fixture, SSE oder Worker deklarieren.'],
   ['action', 'Action Primitive mit Inputs, Reducern, Effects und Emits deklarieren.'],
@@ -250,8 +250,8 @@ const VNEXT_TRUST_BOUNDARIES = Object.freeze([
 const VNEXT_SNIPPETS = Object.freeze([
   {
     id: 'rmt-vnext-resumability',
-    label: 'RMT vNext Resumability Policy',
-    prefix: 'rmt-vnext-resumability',
+    label: 'RMT Classic Resumability Policy',
+    prefix: 'rmt-classic-resumability',
     description: 'SSR-Resumability mit Resume-Snapshot, Event-Replay und Integrity-Handoff deklarieren.',
     body: [
       'hydrate ${1:app-shell} from selector ${2:app.view} {',
@@ -265,8 +265,8 @@ const VNEXT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-validation',
-    label: 'RMT vNext Validation',
-    prefix: 'rmt-vnext-validation',
+    label: 'RMT Classic Validation',
+    prefix: 'rmt-classic-validation',
     description: 'Blocking Validation-Gruppe mit Field Rules und Action Gate.',
     body: [
       'validation ${1:app.contact} {',
@@ -278,8 +278,8 @@ const VNEXT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-animation',
-    label: 'RMT vNext AnimationEngine Preset',
-    prefix: 'rmt-vnext-animation',
+    label: 'RMT Classic AnimationEngine Preset',
+    prefix: 'rmt-classic-animation',
     description: 'Wiederverwendbares AnimationEngine-Preset mit Effekt, Dauer und Reduced Motion.',
     body: [
       'animation ${1:app.motion.pop} {',
@@ -297,8 +297,8 @@ const VNEXT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-transition',
-    label: 'RMT vNext Surface Transition',
-    prefix: 'rmt-vnext-transition',
+    label: 'RMT Classic Surface Transition',
+    prefix: 'rmt-classic-transition',
     description: 'Surface Transition mit Trigger, Surface-Gruppen, Effekt und Dauer.',
     body: [
       'transition ${1:app.contactToIssue} {',
@@ -317,8 +317,8 @@ const VNEXT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-maraca-orchestration-app',
-    label: 'RMT vNext Maraca Orchestration App',
-    prefix: 'rmt-vnext-maraca-orchestration-app',
+    label: 'RMT Classic Maraca Orchestration App',
+    prefix: 'rmt-classic-maraca-orchestration-app',
     description: 'Kompakte Maraca App mit State, Action, Validation, Transition und XTend Surfaces.',
     body: [
       'template ${1:app.service} {',
@@ -388,9 +388,9 @@ const VNEXT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-template',
-    label: 'RMT vNext Template',
-    prefix: 'rmt-vnext-template',
-    description: 'Native vNext Template/Surface/Lane-Struktur.',
+    label: 'RMT Classic Template',
+    prefix: 'rmt-classic-template',
+    description: 'Native RMT Classic Template/Surface/Lane-Struktur.',
     body: [
       'template ${1:app.page} {',
       '  surface root {',
@@ -403,8 +403,8 @@ const VNEXT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-stream',
-    label: 'RMT vNext Stream',
-    prefix: 'rmt-vnext-stream',
+    label: 'RMT Classic Stream',
+    prefix: 'rmt-classic-stream',
     description: 'Stream mit Data Source, Trust Boundary und Sanitizer.',
     body: [
       'stream ${1:live-feed} from ${2|endpoint,sse,worker|} ${3:feed.live} {',
@@ -415,8 +415,8 @@ const VNEXT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-action',
-    label: 'RMT vNext Event Action',
-    prefix: 'rmt-vnext-action',
+    label: 'RMT Classic Event Action',
+    prefix: 'rmt-classic-action',
     description: 'Event Binding auf eine referenzielle Action.',
     body: [
       'on ${1:submit} -> action ${2:settings.save}'
@@ -424,9 +424,9 @@ const VNEXT_SNIPPETS = Object.freeze([
   },
   {
     id: 'rmt-vnext-primitive-shell',
-    label: 'RMT vNext Primitive Shell',
-    prefix: 'rmt-vnext-primitive-shell',
-    description: 'Granulare App Shell mit State, Selector, Action, Portal, Surface, Lane und Event nur in vNext.',
+    label: 'RMT Classic Primitive Shell',
+    prefix: 'rmt-classic-primitive-shell',
+    description: 'Granulare App Shell mit State, Selector, Action, Portal, Surface, Lane und Event nur in RMT Classic.',
     body: [
       'template ${1:app.shell} {',
       '  state ${2:app.status} type object preserve {',
@@ -699,14 +699,16 @@ function normalizeDiagnostic(diagnostic = {}, sourceModel = null) {
     ruleId: diagnostic.ruleId || `vnext.${diagnostic.code || 'diagnostic'}`,
     severity: diagnostic.severity || 'error',
     category: diagnostic.category || 'vnext',
-    message: diagnostic.message || diagnostic.code || 'RMT vNext diagnostic',
+    message: diagnostic.message || diagnostic.code || 'RMT Classic diagnostic',
     uri: diagnostic.uri || (sourceModel ? sourceModel.uri : null),
     file: diagnostic.file || (sourceModel ? sourceModel.filePath : null),
     pointer: diagnostic.pointer || null,
     range: diagnostic.range || (sourceModel && sourceModel.lineRange ? sourceModel.lineRange(0) : null),
     workpackage: RMT_VNEXT_TOOLING_WORKPACKAGE,
     repair: diagnostic.repair || null,
-    relatedInformation: diagnostic.relatedInformation || []
+    relatedInformation: diagnostic.relatedInformation || [],
+    ...(diagnostic.stage ? { stage: diagnostic.stage, plan: diagnostic.plan,
+      sourceRef: diagnostic.sourceRef, corePointer: diagnostic.corePointer } : {})
   };
 }
 
@@ -1018,37 +1020,37 @@ function getRmtVNextToolingCompletions(input = {}, options = {}) {
   let items = [];
 
   if (context === 'vnext-lanes') {
-    items = staticCompletionItems(VNEXT_LANES, { kind: 'enum', detail: 'vNext Scheduler Lane' });
+    items = staticCompletionItems(VNEXT_LANES, { kind: 'enum', detail: 'RMT Classic Scheduler Lane' });
   } else if (context === 'vnext-source-kinds') {
-    items = staticCompletionItems(VNEXT_SOURCE_KINDS, { kind: 'enum', detail: 'vNext Data Source Kind' });
+    items = staticCompletionItems(VNEXT_SOURCE_KINDS, { kind: 'enum', detail: 'RMT Classic Data Source Kind' });
   } else if (context === 'vnext-primitive-keywords') {
-    items = staticCompletionItems(VNEXT_PRIMITIVE_KEYWORDS, { kind: 'keyword', detail: 'vNext App-Platform Primitive' });
+    items = staticCompletionItems(VNEXT_PRIMITIVE_KEYWORDS, { kind: 'keyword', detail: 'RMT Classic App-Platform Primitive' });
   } else if (context === 'vnext-primitive-state-clauses') {
-    items = staticCompletionItems(VNEXT_PRIMITIVE_STATE_CLAUSES, { kind: 'keyword', detail: 'vNext State Clause' });
+    items = staticCompletionItems(VNEXT_PRIMITIVE_STATE_CLAUSES, { kind: 'keyword', detail: 'RMT Classic State Clause' });
   } else if (context === 'vnext-primitive-selector-clauses') {
-    items = staticCompletionItems(VNEXT_PRIMITIVE_SELECTOR_CLAUSES, { kind: 'keyword', detail: 'vNext Selector Clause' });
+    items = staticCompletionItems(VNEXT_PRIMITIVE_SELECTOR_CLAUSES, { kind: 'keyword', detail: 'RMT Classic Selector Clause' });
   } else if (context === 'vnext-primitive-action-clauses') {
-    items = staticCompletionItems(VNEXT_PRIMITIVE_ACTION_CLAUSES, { kind: 'keyword', detail: 'vNext Action Clause' });
+    items = staticCompletionItems(VNEXT_PRIMITIVE_ACTION_CLAUSES, { kind: 'keyword', detail: 'RMT Classic Action Clause' });
   } else if (context === 'vnext-primitive-surface-clauses') {
-    items = staticCompletionItems(VNEXT_PRIMITIVE_SURFACE_CLAUSES, { kind: 'keyword', detail: 'vNext Surface Clause' });
+    items = staticCompletionItems(VNEXT_PRIMITIVE_SURFACE_CLAUSES, { kind: 'keyword', detail: 'RMT Classic Surface Clause' });
   } else if (context === 'vnext-primitive-validation-clauses') {
-    items = staticCompletionItems(VNEXT_PRIMITIVE_VALIDATION_CLAUSES, { kind: 'keyword', detail: 'vNext Validation Clause' });
+    items = staticCompletionItems(VNEXT_PRIMITIVE_VALIDATION_CLAUSES, { kind: 'keyword', detail: 'RMT Classic Validation Clause' });
   } else if (context === 'vnext-primitive-animation-clauses') {
-    items = staticCompletionItems(VNEXT_PRIMITIVE_ANIMATION_CLAUSES, { kind: 'keyword', detail: 'vNext Animation Clause' });
+    items = staticCompletionItems(VNEXT_PRIMITIVE_ANIMATION_CLAUSES, { kind: 'keyword', detail: 'RMT Classic Animation Clause' });
   } else if (context === 'vnext-primitive-transition-clauses') {
-    items = staticCompletionItems(VNEXT_PRIMITIVE_TRANSITION_CLAUSES, { kind: 'keyword', detail: 'vNext Surface Transition Clause' });
+    items = staticCompletionItems(VNEXT_PRIMITIVE_TRANSITION_CLAUSES, { kind: 'keyword', detail: 'RMT Classic Surface Transition Clause' });
   } else if (context === 'vnext-validation-modes') {
-    items = staticCompletionItems(VNEXT_VALIDATION_MODES, { kind: 'enum', detail: 'vNext Validation Mode' });
+    items = staticCompletionItems(VNEXT_VALIDATION_MODES, { kind: 'enum', detail: 'RMT Classic Validation Mode' });
   } else if (context === 'vnext-validation-rules') {
-    items = staticCompletionItems(VNEXT_VALIDATION_RULES, { kind: 'enum', detail: 'vNext Validation Rule' });
+    items = staticCompletionItems(VNEXT_VALIDATION_RULES, { kind: 'enum', detail: 'RMT Classic Validation Rule' });
   } else if (context === 'vnext-transition-effects') {
-    items = staticCompletionItems(VNEXT_TRANSITION_EFFECTS, { kind: 'enum', detail: 'vNext Surface Transition Effect' });
+    items = staticCompletionItems(VNEXT_TRANSITION_EFFECTS, { kind: 'enum', detail: 'RMT Classic Surface Transition Effect' });
   } else if (context === 'vnext-primitive-resource-kinds') {
-    items = staticCompletionItems(VNEXT_PRIMITIVE_RESOURCE_KINDS, { kind: 'enum', detail: 'vNext Resource Kind' });
+    items = staticCompletionItems(VNEXT_PRIMITIVE_RESOURCE_KINDS, { kind: 'enum', detail: 'RMT Classic Resource Kind' });
   } else if (context === 'vnext-primitive-overlay-kinds') {
-    items = staticCompletionItems(VNEXT_PRIMITIVE_OVERLAY_KINDS, { kind: 'enum', detail: 'vNext Overlay Kind' });
+    items = staticCompletionItems(VNEXT_PRIMITIVE_OVERLAY_KINDS, { kind: 'enum', detail: 'RMT Classic Overlay Kind' });
   } else if (context === 'vnext-security') {
-    items = staticCompletionItems(VNEXT_TRUST_BOUNDARIES, { kind: 'reference', detail: 'vNext Trust Boundary' })
+    items = staticCompletionItems(VNEXT_TRUST_BOUNDARIES, { kind: 'reference', detail: 'RMT Classic Trust Boundary' })
       .concat(createCompletionItem({
         label: 'html',
         kind: 'enum',
@@ -1066,7 +1068,7 @@ function getRmtVNextToolingCompletions(input = {}, options = {}) {
       sortText: `${String(index).padStart(3, '0')}:${snippet.label}`
     }));
   } else {
-    items = staticCompletionItems(VNEXT_COMPLETION_KEYWORDS, { kind: 'keyword', detail: 'vNext Keyword' });
+    items = staticCompletionItems(VNEXT_COMPLETION_KEYWORDS, { kind: 'keyword', detail: 'RMT Classic Keyword' });
   }
 
   const filtered = prefix ? items.filter((item) => item.label.startsWith(prefix)) : items;
@@ -1090,7 +1092,7 @@ function getRmtVNextToolingCompletions(input = {}, options = {}) {
 }
 
 function createHover(input = {}) {
-  const title = input.title || input.kind || 'RMT vNext';
+  const title = input.title || input.kind || 'RMT Classic';
   const lines = [title, input.documentation || '', input.detail || ''].filter(Boolean);
   return {
     schema: RMT_HOVER_SCHEMA,
@@ -1165,7 +1167,7 @@ function getRmtVNextToolingDocumentSymbols(input = {}, options = {}) {
       return createDocumentSymbol({
         name: domain,
         kind: 'namespace',
-        detail: `vNext ${config.label} Records`,
+        detail: `RMT Classic ${config.label} Records`,
         pointer: `/${domain}`,
         range: toArray(analysis.indexes[domain].records)[0].range,
         children: analysis.indexes[domain].records.map((entry) => createDocumentSymbol({
@@ -1981,9 +1983,9 @@ function createRmtVNextPrimitiveCommandHandoff(input = {}, options = {}) {
     boundary: 'no-kernel-fabric-imports-in-vnext-source',
     hostAdapterTarget: 'xtend-rmt-host-adapter',
     manualSteps: supported ? [
-      'Move Kernel/Fabric imports out of the vNext source file.',
+      'Move Kernel/Fabric imports out of the RMT Classic source file.',
       'Expose the runtime dependency through a host adapter or scaffold/runtime boundary.',
-      'Keep RMT vNext source limited to primitive declarations and host-neutral references.',
+      'Keep RMT Classic source limited to primitive declarations and host-neutral references.',
       'Re-run node scripts/run_xtend_tests.js rmt-vnext-tooling --json and the primitive aggregate gate.'
     ] : [],
     reason: normalizeString(input.reason || firstArg.reason || options.reason) || null
@@ -2124,7 +2126,7 @@ function createVNextPrimitiveFixAllAction(analysis, actions) {
   const diagnosticCodes = Array.from(new Set(safeActions.map((action) => action.diagnosticCode).filter(Boolean))).sort();
 
   return createVNextPrimitiveCodeAction({
-    title: `Alle sicheren vNext-Primitive Quick-Fixes anwenden (${safeActions.length})`,
+    title: `Alle sicheren RMT Classic-Primitive Quick-Fixes anwenden (${safeActions.length})`,
     kind: RMT_VNEXT_PRIMITIVE_FIX_ALL_KIND,
     diagnosticCode: 'rmt.vnext.primitive.fix-all-safe',
     pointer: null,

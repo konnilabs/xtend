@@ -204,7 +204,7 @@ function buildHelpText() {
     '  typing   Create the dry-run component type and XTendRMT attachment contract.',
     '  preview  Create the dry-run component preview and reference-gate contract.',
     '  extensions Create the dry-run templating, rendering and root-lifecycle extension contract.',
-    '  rmt-build Compile an RMT vNext template or --demo manifest into XTend app build artifacts.',
+    '  rmt-build Compile an RMT Classic template or --demo manifest into XTend app build artifacts.',
     '  rmt-app-platform Build App Platform diagnostics, source maps and scaffold reports.',
     '  workflow  Print the local dry-run developer workflow.',
     '  verify    Print the local scaffold verification plan.',

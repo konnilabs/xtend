@@ -2,7 +2,7 @@
 
 Die Parser-Implementierung für diese Formen liegt in `tools/rmt-language/vnext-parser.js`.
 
-Diese Seite beschreibt die äußere Dokumentform von RMT vNext.
+Diese Seite beschreibt die äußere Dokumentform von RMT Classic.
 
 ## Syntax
 

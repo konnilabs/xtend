@@ -1,0 +1,10 @@
+// A01-F01: Reject a non-executable Model source before emitting selector plans.
+template inventory.sources {
+  datasource remote from endpoint "/api/items" {
+    contract Items
+    result records
+  }
+  selector picked from datasource remote {
+    output object[]
+  }
+}

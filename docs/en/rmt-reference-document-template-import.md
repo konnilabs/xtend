@@ -2,7 +2,7 @@
 
 The parser implementation for these forms lives in `tools/rmt-language/vnext-parser.js`.
 
-This page describes the outer document shape of RMT vNext.
+This page describes the outer document shape of RMT Classic.
 
 ## Syntax
 

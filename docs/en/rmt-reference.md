@@ -1,12 +1,12 @@
 # RMT Reference
 
-This section is the thematic reference for RMT vNext. The learning path teaches the flow; the reference explains the exact meaning of each operator, keyword and fixed catalog value.
+This section is the thematic reference for RMT Classic. The learning path teaches the flow; the reference explains the exact meaning of each operator, keyword and fixed catalog value.
 
 JSON-RMT is no longer the normal authoring path. It remains only as compatibility test material.
 
 ## Syntax
 
-RMT vNext is block-based. A document consists of top-level declarations such as `import`, `template`, `surface`, `remote surface`, `state`, `selector`, `datasource`, `action`, `portal`, `overlay`, `resource`, `validation` and `transition`.
+RMT Classic is block-based. A document consists of top-level declarations such as `import`, `template`, `surface`, `remote surface`, `state`, `selector`, `datasource`, `action`, `portal`, `overlay`, `resource`, `validation` and `transition`.
 
 ## Allowed contexts
 
@@ -14,7 +14,7 @@ Operators are context-sensitive. `lane` is only valid in `surface`, lifecycle op
 
 ## Parameters
 
-Parameters are static values, identifiers, paths, strings, numbers, booleans, arrays or simple condition expressions. RMT vNext does not allow function calls in `when`.
+Parameters are static values, identifiers, paths, strings, numbers, booleans, arrays or simple condition expressions. RMT Classic does not allow function calls in `when`.
 
 ## Description
 

@@ -313,7 +313,7 @@ function resolveGlobImport(moduleRecord, importRecord, context) {
       moduleRecord,
       importRecord,
       IMPORT_GLOB_UNSUPPORTED_CODE,
-      `Glob import "${importPath || 'unknown'}" is not one of the supported static vNext glob forms.`,
+      `Glob import "${importPath || 'unknown'}" is not one of the supported static RMT Classic glob forms.`,
       'error',
       { allowedForms: ALLOWED_GLOB_FORMS.slice() }
     ));
@@ -382,7 +382,7 @@ function resolveImportEdge(moduleRecord, importRecord, context) {
         moduleRecord,
         importRecord,
         IMPORT_PATH_UNSUPPORTED_CODE,
-        `Import mode "${importRecord.mode || 'unknown'}" is not supported by the vNext import resolver.`,
+        `Import mode "${importRecord.mode || 'unknown'}" is not supported by the RMT Classic import resolver.`,
         'error',
         { allowedModes: ALLOWED_IMPORT_MODES.slice() }
       )
@@ -466,7 +466,7 @@ function compileModule(filePath, context) {
       moduleRecord,
       null,
       IMPORT_COMPILE_FAILED_CODE,
-      `Module "${moduleRecord.relativePath}" failed vNext compilation.`
+      `Module "${moduleRecord.relativePath}" failed RMT Classic compilation.`
     ));
   }
 
@@ -694,7 +694,7 @@ function detectDuplicateModuleIds(modules = []) {
         moduleRecord,
         null,
         IMPORT_DUPLICATE_MODULE_CODE,
-        `Module id "${moduleRecord.id}" appears more than once in the vNext module graph.`,
+        `Module id "${moduleRecord.id}" appears more than once in the RMT Classic module graph.`,
         'error',
         { firstPath: seen.get(moduleRecord.id), duplicatePath: moduleRecord.filePath }
       ));

@@ -8,7 +8,7 @@
 - Language ID: `rmt`
 - Primary extension: `.rmt`
 
-This extension contributes the native `.rmt` language id, RMT vNext-aware TextMate grammar, snippets, a real `vscode-languageclient` wrapper, XTend CLI tasks, a VS Code problem matcher, Debug Console launch templates, and the bundled XTend MCP 0.1 server.
+This extension contributes the native `.rmt` language id, RMT Classic-aware TextMate grammar, snippets, a real `vscode-languageclient` wrapper, XTend CLI tasks, a VS Code problem matcher, Debug Console launch templates, and the bundled XTend MCP 0.1 server.
 
 The RMT Language Server remains the only source of truth for diagnostics, completion, hover, symbols, definitions and code actions. The extension does not implement RMT analysis and does not import XTend UI runtime modules.
 
@@ -53,7 +53,7 @@ Useful commands:
 
 - `XTendRMT: Start/Restart Language Server`
 - `XTendRMT: Show Language Server Command`
-- `XTendRMT: Show vNext Primitive Apply Experience`
+- `XTendRMT: Show Classic Primitive Apply Experience`
 
 ## Tasks and Problem Matcher
 
@@ -71,7 +71,7 @@ Default task coverage:
 - AI-agent repair report
 - RMT build check and explicit RMT build write
 - Scaffold verify and scaffold dry-run
-- vNext primitive report gate
+- RMT Classic primitive report gate
 - Native-First RMT Owned release report gate
 - Maraca report gate
 

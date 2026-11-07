@@ -1,6 +1,6 @@
 # RMT Playground
 
-Der RMT Playground kompiliert RMT-vNext-Quelle direkt im Developer Center. Er nutzt `x-surface-manager` als Arbeitsfläche, `x-textarea` für die erste Editor-Version, Diagnose- und JSON-Ausgabeflächen sowie ein sicheres Preview-Ziel, das niemals rohes Compiler-HTML rendert.
+Der RMT Playground kompiliert RMT-RMT Classic-Quelle direkt im Developer Center. Er nutzt `x-surface-manager` als Arbeitsfläche, `x-textarea` für die erste Editor-Version, Diagnose- und JSON-Ausgabeflächen sowie ein sicheres Preview-Ziel, das niemals rohes Compiler-HTML rendert.
 
 ## Ausprobieren
 
