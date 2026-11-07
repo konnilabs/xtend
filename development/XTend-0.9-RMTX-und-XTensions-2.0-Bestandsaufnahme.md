@@ -4,6 +4,8 @@ Stand: **5. November 2026**. Untersucht: lokaler Checkout `main`, Commit `16902d
 
 Planungsgrundlage: [RMTX – Konzept für die Einführung einer integrierten Template-Syntax in RMT](</home/konni/Downloads/RMTX_ Konzept für die Einführung einer integrierten Template-Syntax in RMT.md>), Arbeitsstand 4. November 2026. Das Konzept wird als Entwurf ausgewertet; seine Syntaxbeispiele, Checklisten und eingebetteten Gesprächsprompts sind keine beschlossenen Implementierungsvorgaben.
 
+**Nachtrag vom 7. November 2026:** B01 ist im lokalen Arbeitsstand auf Basis von Commit `08c2e4be` korrigiert. Die folgenden Abschnitte bleiben die historische Bestandsaufnahme vom 5. November; Umsetzung und neue Prüfergebnisse stehen im [Korrekturvermerk](#korrekturvermerk-vom-7-november-2026-b01).
+
 ## 1. Ergebnis und Reichweite
 
 **RMTX und XTensions 2.0 können auf einer erheblichen vorhandenen Infrastruktur aufbauen. Der wichtigste gemeinsame Arbeitsgegenstand ist ein geprüfter semantischer Vertrag zwischen Autorensprache, Compiler, App-Orchestrierung und Framework-Hosts.** Nur einen JSX-Parser anzuschließen würde die entscheidenden Integrationslücken nicht schließen.
@@ -337,3 +339,15 @@ Der erste gemeinsame Durchstich sollte mindestens folgende Beobachtungen ermögl
 - Frischer Mount, kooperative Suspension, terminales Dispose und spätere SSR-Adoption haben jeweils eigene Nachweise. DOM-/State-Erhalt und vollständiger Cleanup werden tatsächlich beobachtet.
 
 **Planerische Konsequenz:** Zuerst den gemeinsamen semantischen und XTension-Instanzvertrag stabilisieren und an einer realen Kette prüfen. Auf dieser Basis lässt sich entscheiden, welche RMTX-Syntax JSX-Nutzern einen verlässlichen Einstieg bietet und welche zusätzliche Orchestrierungsgranularität XTensions 2.0 pro Framework wirklich zusichern kann.
+
+## Korrekturvermerk vom 7. November 2026: B01
+
+Der Parser erfasst `where`-/`find`-Ausdrücke jetzt strukturiert und prüft Ausdrucksumfang, Scopes, Sortierpfade und Richtungen. Der Compiler erzeugt daraus ausführbare `where`, `find` und `sort` im bestehenden State-Plan; die ursprünglichen Clauses bleiben als Metadaten erhalten. `record`/`item` werden auf die aktuelle Zeile, `input` auf Select-Parameter abgebildet. State-/Selector-Referenzen innerhalb der Ausdrücke werden semantisch geprüft. Selector-Quellen behalten bei der Übergabe ihren State-/Selector-Namensraum.
+
+Die Model-Runtime unterstützt die dafür verwendeten Literal-, Vergleichs-, Negations- und bedingten Ausdrucksrecords. Es wird kein Quelltext zur Laufzeit als JavaScript ausgewertet. `find` erhält auch passende Werte wie `0`, `false` und `""`. Die PHP-Projektion interpretiert Literal-Listendaten nicht mehr vorzeitig als Ausdrücke. Vorhandene strukturierte Selector-Eingaben bleiben nutzbar. Bereits vorcompilierte Artefakte mit ausschließlich textuellen Clauses müssen neu gebaut werden.
+
+Nachweise: Die [Compiler-Suite](../tests/rmt-language/rmt_vnext_compiler_suite.js) prüft die Kette RMT-Quelle → serialisierter Orchestrierungsplan → echte Model-Auswertung mit State-Änderungen, verketteten Selectors, Parametern, Literalen, Operatoren und Negativfällen. Die neue Regression schlug vor der Korrektur fehl. Die [SSR-Suite](../tests/ssr-pages/ssr_pages_suite.js) vergleicht kompilierte Filter mit logischen Ausdrücken und `contains` in Node und PHP bei mehreren Eingaben. `find`/`sort` und nicht portable Ausdrücke bleiben entsprechend dem bestehenden Zielvertrag für PHP gesperrt; diese Korrektur erweitert dessen unterstützten Funktionsumfang nicht pauschal.
+
+Unter **Node v24.22.1** bestanden neun gezielte Suiten: `rmt-vnext-compiler` (354 Assertions), `rmt-vnext-parser` (89), `rmt-vnext-conditions` (59), `rmt-semantic-graph` (148), `maraca-plan` (115), `rmt-artifact-parity` (291), `rmt-reference-docs` (694), `ssr-pages` (47) und `ssr-pages-php` (15). Die DE-/EN-Referenzbeispiele kompilieren ebenfalls ohne Diagnosen. Die benötigten, versionsgebundenen Testabhängigkeiten wurden isoliert unter `/tmp` installiert und temporär verknüpft; Paketmanifeste und Lockfiles wurden nicht geändert. Berichte: `/tmp/xtend-selector-before.json`, `/tmp/xtend-selector-final.json`, `/tmp/xtend-selector-ssr-final.json` und `/tmp/xtend-selector-node-ssr-final.json`; spätere Läufe ersetzen darin die zuvor durch fehlende Testabhängigkeiten blockierten SSR-Ergebnisse.
+
+**Weiter offen:** B02 (Prüfgrenze des AST-Einstiegs) und B03 (fehlende `rmt-state-selector-runtime.compat.js`). B03 wurde auch unter Node 24 reproduziert; die separate State-Suite bricht weiterhin vor ihren Runtime-Assertions ab. Die neuen Compiler-Regressionen führen die tatsächliche State-Runtime unabhängig davon aus. Ein vollständiges 0.9-Release-Gate wurde nicht ausgeführt.

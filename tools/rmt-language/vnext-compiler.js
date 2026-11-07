@@ -624,18 +624,53 @@ function compileInitialBlock(node) {
   }, {});
 }
 
+// Lower selector predicates to the same JSON value expressions consumed by
+// the Model. Source text is retained for diagnostics, never evaluated as JS.
+function compileSelectorExpression(node) {
+  if (node.kind === 'literal') return { op: 'literal', value: node.value };
+  if (node.kind === 'path') {
+    const [scope, ...parts] = node.path;
+    if (scope === 'record' || scope === 'item') return ['$item', ...parts].join('.');
+    if (scope === 'input') return ['$params', ...parts].join('.');
+    return node.path.join('.');
+  }
+  if (node.kind === 'group') return compileSelectorExpression(node.expression);
+  if (node.kind === 'unary') return { op: 'not', value: compileSelectorExpression(node.argument) };
+  if (node.kind === 'binary') {
+    return {
+      op: { '==': 'equals', '!=': 'not-equals', '>': 'gt', '>=': 'gte', '<': 'lt', '<=': 'lte' }[node.op],
+      left: compileSelectorExpression(node.left),
+      right: compileSelectorExpression(node.right)
+    };
+  }
+  if (node.kind === 'logical') {
+    return {
+      op: 'if',
+      test: compileSelectorExpression(node.left),
+      then: node.op === '&&' ? compileSelectorExpression(node.right) : { op: 'literal', value: true },
+      else: node.op === '||' ? compileSelectorExpression(node.right) : { op: 'literal', value: false }
+    };
+  }
+  if (node.kind === 'call' && node.name === 'contains') {
+    return { op: 'contains', value: compileSelectorExpression(node.args[0]), search: compileSelectorExpression(node.args[1]) };
+  }
+  throw new TypeError(`Unsupported selector expression: ${node.kind}.`);
+}
+
 function compileSelectorClause(node) {
   if (node.type === 'RmtSelectorWhereClause') {
     return {
       kind: 'where',
-      text: node.text || ''
+      text: node.text || '',
+      expression: compileSelectorExpression(node.expression)
     };
   }
 
   if (node.type === 'RmtSelectorFindClause') {
     return {
       kind: 'find',
-      text: node.text || ''
+      text: node.text || '',
+      expression: compileSelectorExpression(node.expression)
     };
   }
 
@@ -1682,14 +1717,24 @@ function createKernelOrchestrationArtifact(core) {
   };
 }
 
-function normalizeSelectorForStateRuntime(selector) {
+function normalizeSelectorForStateRuntime(selector, sourceKind = 'state') {
   const from = selector && selector.from ? String(selector.from) : '';
-  return {
+  const normalized = {
     id: selector.id,
-    from: from.startsWith('state.') || from.startsWith('selector.') ? from : `state.${from}`,
+    from: `${sourceKind}.${from}`,
     clauses: selector.clauses,
     output: selector.output
   };
+  for (const clause of toArray(selector.clauses)) {
+    if (clause.kind === 'where') {
+      (normalized.where ||= []).push({ op: 'truthy', left: clause.expression });
+    } else if (clause.kind === 'find') {
+      normalized.find = { op: 'truthy', left: clause.expression };
+    } else if (clause.kind === 'sort') {
+      normalized.sort = { by: String(clause.by || '').replace(/^(?:record|item)\./u, ''), direction: clause.direction };
+    }
+  }
+  return normalized;
 }
 
 const UNSAFE_STATE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
@@ -4051,6 +4096,7 @@ function createRmtAppOrchestrationArtifacts(core) {
   if (!core || !core.appPlatform) return null;
 
   const appPlatform = core.appPlatform;
+  const selectorSourceKinds = new Map(toArray(core.selectors).map(selector => [selector.name, selector.source && selector.source.kind]));
   const eventBindings = createEventBindingRecords(appPlatform);
   const reducers = createActionReducerRecords(appPlatform);
   const resources = createResourceRecords(appPlatform);
@@ -4097,7 +4143,7 @@ function createRmtAppOrchestrationArtifacts(core) {
     kernel: createKernelOrchestrationArtifact(core),
     state: {
       states: toArray(appPlatform.state),
-      selectors: toArray(appPlatform.selectors).map(normalizeSelectorForStateRuntime),
+      selectors: toArray(appPlatform.selectors).map(selector => normalizeSelectorForStateRuntime(selector, selectorSourceKinds.get(selector.id))),
       reducers
     },
     actions: {

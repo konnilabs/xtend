@@ -132,6 +132,35 @@ async function runSsrPagesSuite(options = {}) {
     assert.match(node.html, /data-rmt-primitive-id="demo.orchestration.status"/);
     assert.match(node.html, />Controller data<\/x-status>/);
   });
+  await checkPhp('compiled selector predicates produce the same Model in Node and PHP', () => {
+    const { compileRmtVNextSource } = require('../../tools/rmt-language/vnext-compiler');
+    const compiled = compileRmtVNextSource({ text: `template portable.selectors {
+      state rows type array initial []
+      state filters type object initial { kind "image", query "" }
+      selector visible from state rows {
+        where (item.kind == state.filters.kind || state.filters.kind == "all") && !item.hidden
+        where contains(item.name, state.filters.query)
+        output object[]
+      }
+    }` });
+    assert.equal(compiled.ok, true);
+    const artifact = portable.createPortableRenderArtifact(compiled);
+    const rows = [
+      { id: 'audio', kind: 'audio', name: 'Zulu', hidden: false },
+      { id: 'beta', kind: 'image', name: 'Beta', hidden: false },
+      { id: 'alpha', kind: 'image', name: 'Alpha', hidden: false },
+      { id: 'hidden', kind: 'image', name: 'Hidden', hidden: true }
+    ];
+    for (const [filters, expected] of [
+      [{ kind: 'image', query: '' }, ['beta', 'alpha']],
+      [{ kind: 'image', query: 'eta' }, ['beta']],
+      [{ kind: 'all', query: '' }, ['audio', 'beta', 'alpha']]
+    ]) {
+      const props = { rows, filters };
+      assert.deepEqual(portable.projectPortableRender(artifact, props).model.visible.map(row => row.id), expected);
+      assert.deepEqual(php({ artifact, props }).projected.model.visible.map(row => row.id), expected);
+    }
+  });
   await checkPhp('projected data is evaluated once even if it resembles an expression', async () => {
     const props = {title:'$model.visible', visible:true, orders:[]};
     const projected = portable.projectPortableRender(artifact, props);

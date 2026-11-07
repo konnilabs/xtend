@@ -89,13 +89,17 @@ final class RmtPortableRender
         if (is_array($value)) {
             if (array_is_list($value)) return array_map(fn($v) => self::value($v, $model, $item), $value);
             $op = $value['op'] ?? $value['operator'] ?? $value['kind'] ?? $value['format'] ?? '';
+            // Literal data may contain fields named kind/op or path-like strings.
+            // Do not recursively interpret it before selecting the literal case.
+            if (in_array($op, ['literal', 'const', 'static'], true)) {
+                return array_key_exists('value', $value) ? $value['value'] : ($value['source'] ?? null);
+            }
             $v = fn($v) => self::value($v, $model, $item);
             $hasSource = array_key_exists('value',$value) || array_key_exists('from',$value) || array_key_exists('source',$value);
             $source = $hasSource ? $v(array_key_exists('value', $value) ? $value['value'] : (array_key_exists('from', $value) ? $value['from'] : $value['source'])) : (isset($value['path']) ? self::reference($value['path'],$model,$item,$found) : self::missing());
             $right = array_key_exists('right',$value) ? $v($value['right']) : (array_key_exists('value',$value) ? $v($value['value']) : self::missing());
             $left = array_key_exists('left', $value) ? $v($value['left']) : $source;
             $result = match ($op) {
-                'literal', 'const', 'static' => array_key_exists('value', $value) ? $value['value'] : ($value['source'] ?? null),
                 '', 'path' => isset($value['path']) ? self::reference($value['path'], $model, $item, $found) : $source,
                 'fallback' => $source,
                 'truthy' => self::truth($source),

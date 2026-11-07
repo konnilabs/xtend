@@ -15,7 +15,7 @@ Diese Seite beschreibt Datenquellen, State und deklarative Ableitungen.
 | <a id="worker"></a>`worker` | `prewarm index from worker search.prepare` | Operationen, `datasource` | Worker-Identifier | Beschreibt Worker-basierte Vorbereitung. | Source-Art muss statisch sein. | `prewarm` |
 | <a id="fixture"></a>`fixture` | `fallback fixture app.sample` | `datasource`, Operationen | Fixture-Identifier | Bindet Test- oder Fallbackdaten. | Unbekannte Referenzen werden semantisch gemeldet. | `fallback` |
 | <a id="resource-source"></a>`resource` | `from resource app.file` | Operationen, `resource` | Resource-Identifier | Verwendet eine owner-scoped Resource als Quelle. | Fehlende Resource erzeugt Semantikdiagnosen. | `resource`, `dispose` |
-| <a id="where"></a>`where` | `where item.active == true` | `selector` | deklarativer Ausdruck | Filtert Selector-Ergebnisse. | Funktionsaufrufe sind nicht erlaubt. | `find`, `sort by` |
+| <a id="where"></a>`where` | `where item.active == true` | `selector` | deklarativer Ausdruck | Filtert Selector-Ergebnisse. | Nur der deklarative Aufruf `contains(value, search)` ist erlaubt. | `find`, `sort by` |
 | <a id="find"></a>`find` | `find item.id == input.id` | `selector` | deklarativer Ausdruck | Wählt einen Datensatz. | Ungültige Ausdrücke werden parserseitig gemeldet. | `where` |
 | <a id="sort-by"></a>`sort by` | `sort by item.createdAt desc` | `selector` | Pfad, Richtung | Sortiert Selector-Ergebnisse stabil. | Sort-Clause muss vollständig sein. | `output` |
 | <a id="output"></a>`output` | `output MessageList` | `selector` | Typname | Benennt den Output-Contract. | Fehlender Typ erzeugt Syntaxdiagnose. | `selector` |
@@ -36,6 +36,10 @@ Identifier referenzieren Records; Strings beschreiben externe Pfade oder Contrac
 
 RMT trennt gespeicherten Zustand, abgeleitete Sichtmodelle und Host-Datenquellen. Dadurch kann der Compiler Abhängigkeiten erkennen, ohne Host-JavaScript auszuwerten.
 
+`where` und `find` werden beim Kompilieren in strukturierte Runtime-Regeln übersetzt. Bereits erzeugte Artefakte mit reinen Text-Clauses müssen neu kompiliert werden. Erlaubt sind Literale, Pfade, Klammern, `!`, `&&`, `||`, `==`, `!=`, `>`, `>=`, `<`, `<=` und `contains(value, search)`. `item` und `record` bezeichnen das aktuelle Listenelement; `state` und `selector` referenzieren deklarierte Records. `input` liest die Parameter von `modelReader.select(id, params)`. Strings bleiben Literale, auch wenn sie wie State-Pfade aussehen.
+
+Mehrere `where`-Clauses filtern gemeinsam. `find` liefert das erste passende Element oder `null`, auch bei gültigen Treffern wie `0`, `false` oder `""`. Pro Selector sind höchstens ein `find` und ein `sort` erlaubt. `sort by item.name` verwendet standardmäßig `asc`; `record.name` und der direkte Feldpfad `name` sind ebenfalls zulässig. Die bestehende Runtime sortiert stabil anhand der Stringdarstellung der Feldwerte, ohne die Quellliste zu verändern. Für eine Auswahl aus einer sortierten Liste einen zweiten Selector mit `from selector ...` und `find` verwenden. SSR-Ziele prüfen die tatsächlich unterstützten Ausdrucksoperationen; insbesondere `find` und `sort` bleiben im portablen PHP-Ziel abgewiesen.
+
 ## Examples
 
 ```rmt
@@ -53,11 +57,17 @@ template reference.data {
     fallback fixture tickets.empty
   }
 
-  selector openTickets from datasource tickets {
-    where ticket.status == "open"
-    find ticket.id == app.filter.text
-    sort by ticket.createdAt desc
+  state app.rows type array initial []
+
+  selector openTickets from state app.rows {
+    where item.status == "open"
+    sort by item.createdAt desc
     output TicketList
+  }
+
+  selector selectedTicket from selector openTickets {
+    find item.id == state.app.filter.text
+    output Ticket
   }
 
   portal app.root root "#app" layer surface

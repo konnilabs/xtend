@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { pathToFileURL } = require('url');
 const {
   createSuiteContext,
   printSuiteReport
@@ -85,12 +86,143 @@ function assertSourceMapForRecord(context, core, domain, index, message) {
   );
 }
 
-function runRmtVNextCompilerSuite(options = {}) {
+async function assertSelectorSourceRuntime(context, rootDir) {
+  const { createRmtStateSelectorRuntime } = await import(pathToFileURL(resolveRepoPath('xtendrmt/rmt-state-selector-runtime.js', rootDir)).href);
+  const text = `template selector.regression {
+  state demo.rows type array initial []
+  state demo.filter type object initial { kind "all", query "", minimum 0, id "b" }
+  selector demo.filtered from state demo.rows {
+    where (record.kind == state.demo.filter.kind || state.demo.filter.kind == "all") && !record.hidden
+    where contains(record.name, state.demo.filter.query)
+    where record.score >= state.demo.filter.minimum
+    sort by record.name asc
+    output object[]
+  }
+  selector demo.descending from state demo.rows {
+    sort by item.name desc
+    output object[]
+  }
+  selector demo.selected from state demo.rows {
+    find item.id == state.demo.filter.id
+    output object
+  }
+  selector demo.parameterized from state demo.rows {
+    find record.id == input.id
+    output object
+  }
+  selector demo.chained from selector demo.filtered {
+    where item.score != 0
+    output object[]
+  }
+  selector demo.literal from state demo.rows {
+    where item.kind == "state.not.a.reference"
+    where contains(item.name, "\${literal}")
+    output object[]
+  }
+}`;
+  const input = { text, filePath: resolveRepoPath('tmp/selector-source-runtime.rmt', rootDir) };
+  const result = compileRmtVNextSource(input);
+  context.assert(result.ok, 'selector predicates and sort compile from RMT source');
+  if (!result.ok) return;
+  context.assert(result.coreJson === compileRmtVNextSource(input).coreJson, 'selector lowering is deterministic');
+  // Consume the exact JSON artifact used by Maraca, not handcrafted selector records.
+  const runtime = createRmtStateSelectorRuntime(JSON.parse(JSON.stringify(result.orchestrationArtifacts.state)));
+  const rows = [
+    { id: 'a', kind: 'audio', name: 'Zulu', score: 2, hidden: false },
+    { id: 'b', kind: 'image', name: 'Beta', score: 10, hidden: false },
+    { id: 'c', kind: 'image', name: 'Alpha', score: 0, hidden: false },
+    { id: 'd', kind: 'image', name: 'Hidden', score: 20, hidden: true },
+    { id: 'e', kind: 'state.not.a.reference', name: '${literal}', score: 0, hidden: true }
+  ];
+  runtime.modelCommandPort.apply([{ operation: 'set', state: 'demo.rows', value: rows }]);
+  const ids = id => {
+    const value = runtime.modelReader.select(id);
+    return Array.isArray(value) ? value.map(row => row.id).join(',') : '<not-array>';
+  };
+  context.assert(ids('demo.filtered') === 'c,b,a', 'compiled where, logical predicates, contains and ascending sort execute together');
+  context.assert(ids('demo.descending') === 'a,d,b,c,e', 'compiled descending sort uses the item path');
+  context.assert(runtime.modelReader.select('demo.selected')?.id === 'b', 'compiled find resolves the current state path');
+  context.assert(runtime.modelReader.select('demo.parameterized', { id: 'a' })?.id === 'a', 'compiled find resolves select parameters through input');
+  context.assert(ids('demo.chained') === 'b,a', 'selector sources retain their selector namespace and executable filters');
+  context.assert(ids('demo.literal') === 'e', 'quoted state paths and interpolation syntax remain literal data');
+  context.assert(runtime.modelReader.getState('demo.rows').map(row => row.id).join(',') === 'a,b,c,d,e', 'selector sorting does not mutate source state');
+  runtime.modelCommandPort.apply([{ operation: 'patch', state: 'demo.filter', patch: { kind: 'image', query: 'eta', minimum: 3, id: 'missing' } }]);
+  context.assert(ids('demo.filtered') === 'b' && ids('demo.chained') === 'b', 'source selectors recompute after an atomic state update');
+  context.assert(runtime.modelReader.select('demo.selected') === null, 'compiled find returns null when no row matches');
+  runtime.modelCommandPort.apply([{ operation: 'set', state: 'demo.rows', value: [] }]);
+  context.assert(ids('demo.filtered') === '' && runtime.modelReader.select('demo.selected') === null, 'compiled selectors handle an empty collection');
+
+  const grammarFixture = parseFixture(VALID_PRIMITIVE_FIXTURE, rootDir);
+  const media = createRmtStateSelectorRuntime(grammarFixture.orchestrationArtifacts.state);
+  media.modelCommandPort.apply([
+    { operation: 'set', state: 'media.records', value: rows.slice(0, 3) },
+    { operation: 'patch', state: 'media.filters', patch: { kind: 'image', query: 'a' } },
+    { operation: 'patch', state: 'media.selection', patch: { activeId: 'b' } }
+  ]);
+  context.assert(media.modelReader.select('media.filtered').map(row => row.id).join(',') === 'c,b', 'existing grammar fixture filters and sorts real records');
+  context.assert(media.modelReader.select('media.activeRecord')?.id === 'b', 'existing grammar fixture executes find');
+
+  const structured = createRmtStateSelectorRuntime({
+    states: [{ id: 'rows', type: 'array', initial: rows }],
+    selectors: [{ id: 'images', from: 'state.rows', where: [{ path: 'kind', op: 'equals', value: 'image' }], sort: { by: 'name' } }]
+  });
+  context.assert(structured.modelReader.select('images').map(row => row.id).join(',') === 'c,b,d', 'existing structured selector input remains compatible');
+
+  const selectExpression = (clause, values) => {
+    const compiled = compileRmtVNextSource({
+      text: `template scalar.selector {\n state rows type array initial []\n selector selected from state rows {\n ${clause}\n }\n}`,
+      filePath: input.filePath
+    });
+    if (!compiled.ok) throw new Error(JSON.stringify(compiled.diagnostics));
+    const scalar = createRmtStateSelectorRuntime(compiled.orchestrationArtifacts.state);
+    scalar.modelCommandPort.apply([{ operation: 'set', state: 'rows', value: values }]);
+    return scalar.modelReader.select('selected');
+  };
+  for (const [predicate, expected] of [
+    ['item > 1', [2]], ['item >= 1', [1, 2]], ['item < 1', [0]], ['item <= 1', [0, 1]],
+    ['item == 1', [1]], ['item != 1', [0, 2]], ['false', []], ['0', []], ['null', []], ['""', []],
+    ['true || false && false', [0, 1, 2]], ['!(true || false) && true', []]
+  ]) {
+    context.assert(JSON.stringify(selectExpression(`where ${predicate}`, [0, 1, 2])) === JSON.stringify(expected), `compiled predicate ${predicate} has the declared semantics`);
+  }
+  for (const [literal, expected] of [['0', 0], ['false', false], ['""', '']]) {
+    context.assert(selectExpression(`find item == ${literal}`, [0, false, '']) === expected, `compiled find preserves the matching falsy value ${literal}`);
+  }
+
+  const negatives = [
+    ['where run(item.id)', 'arbitrary calls'],
+    ['where contains(item.name)', 'missing contains argument'],
+    ['where contains(item.name, "a", "b")', 'extra contains argument'],
+    ['where item.id = "a"', 'assignment'],
+    ['where item.id ==', 'incomplete comparison'],
+    ['where unknown.id == "a"', 'unknown expression scope'],
+    ['where item.constructor.name == "Object"', 'unsafe expression path'],
+    ['where item.id == state.missing.id', 'unknown state reference'],
+    ['where contains(item.name, state.missing.query)', 'unknown state in contains'],
+    ['where item.id == selector.missing.id', 'unknown selector reference'],
+    ['sort by item.name sideways', 'invalid sort direction'],
+    ['sort desc', 'missing sort path'],
+    ['sort by item', 'missing item field'],
+    ['sort by item.__proto__.name', 'unsafe sort path'],
+    ['sort by item.name asc\n sort by item.id desc', 'duplicate sort'],
+    ['find true\n find false', 'duplicate find']
+  ];
+  for (const [clause, name] of negatives) {
+    const invalid = compileRmtVNextSource({
+      text: `template invalid.selector {\n state rows type array initial []\n selector filtered from state rows {\n ${clause}\n output object[]\n }\n}`,
+      filePath: input.filePath
+    });
+    context.assert(!invalid.ok && invalid.diagnostics.some(d => d.severity === 'error' && d.range?.start.line >= 3), `selector ${name} is rejected with a source range`);
+  }
+}
+
+async function runRmtVNextCompilerSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({
     id: 'rmt-vnext-compiler',
     label: 'Epic 15 RMT vNext Compiler to Core'
   });
+  await assertSelectorSourceRuntime(context, rootDir);
   const packageManifest = require("../utils/test-catalog").resolveManifestProfiles(readJson('package.json', rootDir));
   const metadata = packageManifest.xtend && packageManifest.xtend.rmtVNextCompiler;
   const runner = require("../utils/test-catalog").readRunnerCatalog(rootDir);

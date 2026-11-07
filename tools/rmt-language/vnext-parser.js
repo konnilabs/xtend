@@ -646,9 +646,15 @@ class VNextParser {
     const start = this.expectValue('selector', 'Expected selector declaration.');
     const name = this.parseQualifiedIdentifierAllowReserved('Expected selector identifier.');
     const source = this.matches('from') ? this.parsePrimitiveSourceReference() : null;
+    const singularClauses = new Set();
     const body = this.parseBlock(() => {
-      if (this.matches('where')) return this.parseRawPrimitiveClause('where', 'RmtSelectorWhereClause');
-      if (this.matches('find')) return this.parseRawPrimitiveClause('find', 'RmtSelectorFindClause');
+      if (this.matches('find') || this.matches('sort')) {
+        const keyword = this.current().value;
+        if (singularClauses.has(keyword)) this.addDiagnostic(this.current(), `Selector may declare ${keyword} only once.`);
+        singularClauses.add(keyword);
+      }
+      if (this.matches('where')) return this.parseSelectorPredicateClause('where', 'RmtSelectorWhereClause');
+      if (this.matches('find')) return this.parseSelectorPredicateClause('find', 'RmtSelectorFindClause');
       if (this.matches('sort')) return this.parseSelectorSortClause();
       if (this.matches('output')) return this.parseOutputClause();
       this.addDiagnostic(this.current(), 'Selector blocks may contain where, find, sort and output clauses only.', RMT_VNEXT_CONTEXT_ERROR_CODE);
@@ -1438,14 +1444,13 @@ class VNextParser {
 
   parseSelectorSortClause() {
     const start = this.expectValue('sort', 'Expected sort clause.');
-    let by = null;
-    if (this.matches('by')) {
-      this.consume();
-      by = this.parseQualifiedIdentifierAllowReserved('Expected sort path.');
-    }
+    this.expectValue('by', 'Expected by and an item path after sort.');
+    const by = this.parseQualifiedIdentifierAllowReserved('Expected sort path.');
+    this.validateSelectorPath(by, true);
     let direction = null;
     if (!this.isStatementBoundary()) {
       direction = this.current().value;
+      if (!['asc', 'desc'].includes(direction)) this.addDiagnostic(this.current(), 'Sort direction must be asc or desc.');
       this.consume();
     }
     this.consumeStatementEnd('Expected statement end after sort clause.');
@@ -1455,6 +1460,35 @@ class VNextParser {
       byNode: by,
       direction
     });
+  }
+
+  parseSelectorPredicateClause(keyword, nodeType) {
+    const start = this.expectValue(keyword, `Expected ${keyword} clause.`);
+    const firstToken = this.index;
+    const expression = this.parseExpression({ selector: true });
+    const tokens = this.tokens.slice(firstToken, this.index);
+    const end = this.previous();
+    this.consumeStatementEnd(`Expected statement end after ${keyword} expression.`);
+    return this.createNode(nodeType, start, end, {
+      keyword,
+      text: this.rawTextFromTokens(tokens),
+      tokens: tokens.map(token => this.tokenText(token)),
+      expression
+    });
+  }
+
+  validateSelectorPath(path, sort = false) {
+    const parts = path.parts || [];
+    if (sort && ['record', 'item'].includes(parts[0]) && parts.length < 2) {
+      this.addDiagnostic(path.startToken, 'Sort requires an item field path.');
+    }
+    if (parts.some(part => String(part).split('.').some(segment => ['__proto__', 'prototype', 'constructor'].includes(segment)))) {
+      this.addDiagnostic(path.startToken, 'Unsafe selector path segment.');
+    }
+    if (!sort && (!['record', 'item', 'state', 'selector', 'input'].includes(parts[0])
+      || (['state', 'selector'].includes(parts[0]) && parts.length < 2))) {
+      this.addDiagnostic(path.startToken, 'Selector paths must use record, item, state, selector or input scope.');
+    }
   }
 
   parseOutputClause() {
@@ -2138,15 +2172,15 @@ class VNextParser {
     });
   }
 
-  parseExpression() {
-    return this.parseOrExpression();
+  parseExpression(options = {}) {
+    return this.parseOrExpression(options);
   }
 
-  parseOrExpression() {
-    let left = this.parseAndExpression();
+  parseOrExpression(options = {}) {
+    let left = this.parseAndExpression(options);
     while (this.matches('||')) {
       const operator = this.consume();
-      const right = this.parseAndExpression();
+      const right = this.parseAndExpression(options);
       left = this.createNode('RmtConditionExpression', getNodeStartToken(left), getNodeEndToken(right || left), {
         kind: 'logical',
         op: operator.value,
@@ -2157,11 +2191,11 @@ class VNextParser {
     return left;
   }
 
-  parseAndExpression() {
-    let left = this.parseUnaryExpression();
+  parseAndExpression(options = {}) {
+    let left = this.parseUnaryExpression(options);
     while (this.matches('&&')) {
       const operator = this.consume();
-      const right = this.parseUnaryExpression();
+      const right = this.parseUnaryExpression(options);
       left = this.createNode('RmtConditionExpression', getNodeStartToken(left), getNodeEndToken(right || left), {
         kind: 'logical',
         op: operator.value,
@@ -2172,24 +2206,24 @@ class VNextParser {
     return left;
   }
 
-  parseUnaryExpression() {
+  parseUnaryExpression(options = {}) {
     if (this.matches('!')) {
       const operator = this.consume();
-      const argument = this.parseUnaryExpression();
+      const argument = this.parseUnaryExpression(options);
       return this.createNode('RmtConditionExpression', operator, getNodeEndToken(argument || operator), {
         kind: 'unary',
         op: '!',
         argument
       });
     }
-    return this.parseCompareExpression();
+    return this.parseCompareExpression(options);
   }
 
-  parseCompareExpression() {
-    let left = this.parsePrimaryExpression();
+  parseCompareExpression(options = {}) {
+    let left = this.parsePrimaryExpression(options);
     if (COMPARISON_OPERATORS.has(this.current().value)) {
       const operator = this.consume();
-      const right = this.parsePrimaryExpression();
+      const right = this.parsePrimaryExpression(options);
       left = this.createNode('RmtConditionExpression', getNodeStartToken(left), getNodeEndToken(right || left), {
         kind: 'binary',
         op: operator.value,
@@ -2200,12 +2234,12 @@ class VNextParser {
     return left;
   }
 
-  parsePrimaryExpression() {
+  parsePrimaryExpression(options = {}) {
     const token = this.current();
 
     if (token.value === '(') {
       const start = this.consume();
-      const expression = this.parseExpression();
+      const expression = this.parseExpression(options);
       const end = this.expectValue(')', 'Expected closing parenthesis in condition.');
       return this.createNode('RmtConditionExpression', start, end || getNodeEndToken(expression), {
         kind: 'group',
@@ -2225,15 +2259,31 @@ class VNextParser {
       });
     }
 
-    if (this.isIdentifierToken(token)) {
-      const path = this.parseQualifiedIdentifier('Expected condition path.');
+    if (this.isIdentifierToken(token) || (options.selector && token.type === 'identifier')) {
+      const path = options.selector
+        ? this.parseQualifiedIdentifierAllowReserved('Expected selector path.')
+        : this.parseQualifiedIdentifier('Expected condition path.');
 
       if (this.matches('(')) {
-        this.addDiagnostic(this.current(), 'Function calls are not allowed in RMT vNext conditions.');
+        if (options.selector && path.value === 'contains') {
+          this.consume();
+          const args = [];
+          if (!this.matches(')')) {
+            args.push(this.parseExpression(options));
+            while (this.match(',')) args.push(this.parseExpression(options));
+          }
+          const end = this.expectValue(')', 'Expected closing parenthesis after contains arguments.') || this.previous();
+          if (args.length !== 2) this.addDiagnostic(path.startToken, 'Selector contains requires exactly two arguments.');
+          return this.createNode('RmtSelectorExpression', path.startToken, end, { kind: 'call', name: 'contains', args });
+        }
+        this.addDiagnostic(this.current(), options.selector
+          ? 'Only the declarative contains(value, search) operation is allowed in selector expressions.'
+          : 'Function calls are not allowed in RMT vNext conditions.');
         this.skipParenthesized();
       }
 
-      return this.createNode('RmtConditionExpression', path.startToken, path.endToken, {
+      if (options.selector) this.validateSelectorPath(path);
+      return this.createNode(options.selector ? 'RmtSelectorExpression' : 'RmtConditionExpression', path.startToken, path.endToken, {
         kind: 'path',
         path: path.parts,
         value: path.value
@@ -2749,7 +2799,7 @@ function assignAstPointers(node, pointer = '') {
     node.astPointer = pointer || '/';
   }
 
-  ['body', 'attributes', 'metadata', 'payload', 'fields', 'items', 'rules'].forEach((key) => {
+  ['body', 'attributes', 'metadata', 'payload', 'fields', 'items', 'rules', 'args'].forEach((key) => {
     const value = node[key];
     if (!Array.isArray(value)) return;
     value.forEach((child, index) => {

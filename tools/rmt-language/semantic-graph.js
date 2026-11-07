@@ -150,7 +150,8 @@ const RMT_VNEXT_AST_CHILD_KEYS = [
   'value',
   'dataType',
   'initial',
-  'rules'
+  'rules',
+  'args'
 ];
 
 function toArray(value) {
@@ -1326,6 +1327,26 @@ function collectVNextPrimitiveReferences(graphState, ast) {
       sourceDomain: state.currentDomain || (state.surface ? 'surfaces' : RMT_VNEXT_PRIMITIVE_TYPE_TO_DOMAIN[node.type]),
       sourceId: state.currentId || currentSurfaceId || normalizeString(node.name)
     };
+
+    if (sourceInfo.sourceDomain === 'selectors' && node.type === 'RmtSelectorExpression' && node.kind === 'path'
+      && ['state', 'selector'].includes(node.path[0])) {
+      const domain = node.path[0] === 'state' ? 'states' : 'selectors';
+      const parts = node.path.slice(1);
+      let target = null;
+      while (parts.length && !target) {
+        target = resolveVNextPrimitiveTarget(graphState.indexes, domain, parts.join('.'));
+        if (!target) parts.pop();
+      }
+      addVNextPrimitiveReference(graphState, {
+        ...sourceInfo,
+        field: 'expression',
+        relationship: `selector.expression.${node.path[0]}`,
+        targetDomain: domain,
+        targetId: target ? target.id : node.path.slice(1).join('.'),
+        target,
+        node
+      });
+    }
 
     if (node.type === 'RmtSelectorDeclaration') {
       addVNextSourceReference(graphState, {

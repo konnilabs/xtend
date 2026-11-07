@@ -331,6 +331,10 @@ function createRmtStateSelectorRuntimeModule() {
   function evaluateTransformExpression(recordInput, context, item) {
     const record = objectRecord(recordInput);
     const op = clampString(record.op || record.operator || record.kind || record.compute || record.format, '');
+    // Literal strings must not be interpreted as paths or interpolation.
+    if (['literal', 'const', 'static'].includes(op)) {
+      return Object.prototype.hasOwnProperty.call(record, 'value') ? record.value : record.source;
+    }
     const hasValue = Object.prototype.hasOwnProperty.call(record, 'value') || Object.prototype.hasOwnProperty.call(record, 'from') || Object.prototype.hasOwnProperty.call(record, 'source');
     const sourceExpression = Object.prototype.hasOwnProperty.call(record, 'value')
       ? record.value
@@ -342,6 +346,34 @@ function createRmtStateSelectorRuntimeModule() {
       case '':
       case 'path':
         result = record.path && !hasValue ? readPath(item, record.path) : source;
+        break;
+      case 'equals':
+      case 'eq':
+      case 'not-equals':
+      case 'neq':
+      case 'gt':
+      case 'gte':
+      case 'lt':
+      case 'lte':
+        result = compareValues(
+          Object.prototype.hasOwnProperty.call(record, 'left') ? resolveReference(record.left, context, item) : source,
+          Object.prototype.hasOwnProperty.call(record, 'right') ? resolveReference(record.right, context, item) : source,
+          op,
+          record
+        );
+        break;
+      case 'truthy':
+        result = !!source;
+        break;
+      case 'falsy':
+      case 'not':
+        result = !source;
+        break;
+      case 'if':
+      case 'ternary':
+        result = resolveReference(record.test ?? record.when ?? record.condition, context, item)
+          ? resolveReference(record.then, context, item)
+          : resolveReference(record.else ?? record.fallback, context, item);
         break;
       case 'uppercase':
       case 'upper':
@@ -441,6 +473,10 @@ function createRmtStateSelectorRuntimeModule() {
     if ((right === '' || right == null) && options.empty === 'pass') return true;
     if (normalizedOp === 'equals' || normalizedOp === 'eq') return left === right;
     if (normalizedOp === 'not-equals' || normalizedOp === 'neq') return left !== right;
+    if (normalizedOp === 'gt') return left > right;
+    if (normalizedOp === 'gte') return left >= right;
+    if (normalizedOp === 'lt') return left < right;
+    if (normalizedOp === 'lte') return left <= right;
     if (normalizedOp === 'truthy') return !!left;
     if (normalizedOp === 'falsy') return !left;
     if (normalizedOp === 'in') return Array.isArray(right) && right.includes(left);
@@ -477,7 +513,7 @@ function createRmtStateSelectorRuntimeModule() {
     if (selector.find) {
       const rules = toArray(selector.find).filter(Boolean);
       value = Array.isArray(value)
-        ? value.find((item) => rules.every((rule) => evaluateRule(rule, context, item))) || null
+        ? value.find((item) => rules.every((rule) => evaluateRule(rule, context, item))) ?? null
         : null;
     }
     if (selector.sort && Array.isArray(value)) {

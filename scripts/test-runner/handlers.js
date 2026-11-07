@@ -347,8 +347,8 @@ module.exports = {
       load("../tests/rmt-language/rmt_vnext_parser_suite")["printRmtVNextParserReport"](result);
       return toRunnerResult('rmt-vnext-parser', 'Epic 15 RMT vNext Lexer and Parser MVP', result);
     },
-"rmt-vnext-compiler": () => {
-      const result = load("../tests/rmt-language/rmt_vnext_compiler_suite")["runRmtVNextCompilerSuite"]({ rootDir });
+"rmt-vnext-compiler": async () => {
+      const result = await load("../tests/rmt-language/rmt_vnext_compiler_suite")["runRmtVNextCompilerSuite"]({ rootDir });
       load("../tests/rmt-language/rmt_vnext_compiler_suite")["printRmtVNextCompilerReport"](result);
       return toRunnerResult('rmt-vnext-compiler', 'Epic 15 RMT vNext Compiler to Core', result);
     },

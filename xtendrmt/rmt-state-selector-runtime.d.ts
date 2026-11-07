@@ -62,7 +62,7 @@ export interface RmtDerivedDefinition {
 }
 
 export interface RmtTransformExpression {
-  op?: 'path' | 'map' | 'filter' | 'reduce' | 'countBy' | 'slice' | 'contains' | 'uppercase' | 'lowercase' | 'replace' | 'concat' | 'interpolate' | 'formatBytes' | 'formatDateShort' | 'formatDuration' | 'fallback' | string;
+  op?: 'literal' | 'const' | 'static' | 'equals' | 'eq' | 'not-equals' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'truthy' | 'falsy' | 'not' | 'if' | 'ternary' | 'path' | 'map' | 'filter' | 'reduce' | 'countBy' | 'slice' | 'contains' | 'uppercase' | 'lowercase' | 'replace' | 'concat' | 'interpolate' | 'formatBytes' | 'formatDateShort' | 'formatDuration' | 'fallback' | string;
   operator?: string;
   kind?: string;
   compute?: string;
@@ -70,6 +70,11 @@ export interface RmtTransformExpression {
   value?: unknown;
   from?: unknown;
   source?: unknown;
+  left?: unknown;
+  right?: unknown;
+  test?: unknown;
+  then?: unknown;
+  else?: unknown;
   path?: string;
   expression?: unknown;
   where?: unknown[] | unknown;

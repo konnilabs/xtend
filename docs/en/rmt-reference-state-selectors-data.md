@@ -15,7 +15,7 @@ This page describes data sources, state and declarative derivations.
 | <a id="worker"></a>`worker` | `prewarm index from worker search.prepare` | operations, `datasource` | worker identifier | Describes worker-based preparation. | Source kind must be static. | `prewarm` |
 | <a id="fixture"></a>`fixture` | `fallback fixture app.sample` | `datasource`, operations | fixture identifier | Binds test or fallback data. | Unknown references are reported semantically. | `fallback` |
 | <a id="resource-source"></a>`resource` | `from resource app.file` | operations, `resource` | resource identifier | Uses an owner-scoped resource as source. | Missing resources produce semantic diagnostics. | `resource`, `dispose` |
-| <a id="where"></a>`where` | `where item.active == true` | `selector` | declarative expression | Filters selector results. | Function calls are not allowed. | `find`, `sort by` |
+| <a id="where"></a>`where` | `where item.active == true` | `selector` | declarative expression | Filters selector results. | Only the declarative `contains(value, search)` call is allowed. | `find`, `sort by` |
 | <a id="find"></a>`find` | `find item.id == input.id` | `selector` | declarative expression | Selects one record. | Invalid expressions are parser diagnostics. | `where` |
 | <a id="sort-by"></a>`sort by` | `sort by item.createdAt desc` | `selector` | path, direction | Sorts selector results stably. | Sort clause must be complete. | `output` |
 | <a id="output"></a>`output` | `output MessageList` | `selector` | type name | Names the output contract. | Missing type produces syntax diagnostics. | `selector` |
@@ -36,6 +36,10 @@ Identifiers reference records; strings describe external paths or contracts; dir
 
 RMT separates stored state, derived view models and host data sources. This lets the compiler understand dependencies without evaluating host JavaScript.
 
+`where` and `find` compile to structured runtime rules. Rebuild existing artifacts that contain only text clauses. Supported expressions are literals, paths, parentheses, `!`, `&&`, `||`, `==`, `!=`, `>`, `>=`, `<`, `<=` and `contains(value, search)`. `item` and `record` address the current list element; `state` and `selector` reference declared records. `input` reads the parameters passed to `modelReader.select(id, params)`. Quoted strings remain literals even when they resemble state paths.
+
+Multiple `where` clauses filter together. `find` returns the first match or `null`, preserving valid matches such as `0`, `false` and `""`. Each selector accepts at most one `find` and one `sort`. `sort by item.name` defaults to `asc`; `record.name` and the direct field path `name` are also accepted. The existing runtime sorts stably by the string representation of field values without mutating the source list. To select from sorted results, use a second selector with `from selector ...` and `find`. SSR targets validate their supported expression subset; in particular, portable PHP still rejects `find` and `sort`.
+
 ## Examples
 
 ```rmt
@@ -53,11 +57,17 @@ template reference.data {
     fallback fixture tickets.empty
   }
 
-  selector openTickets from datasource tickets {
-    where ticket.status == "open"
-    find ticket.id == app.filter.text
-    sort by ticket.createdAt desc
+  state app.rows type array initial []
+
+  selector openTickets from state app.rows {
+    where item.status == "open"
+    sort by item.createdAt desc
     output TicketList
+  }
+
+  selector selectedTicket from selector openTickets {
+    find item.id == state.app.filter.text
+    output Ticket
   }
 
   portal app.root root "#app" layer surface
