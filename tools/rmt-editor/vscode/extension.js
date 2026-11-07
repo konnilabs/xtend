@@ -160,14 +160,15 @@ function registerXtendMcpServerDefinitionProvider(vscodeApi, context = {}, outpu
     provideMcpServerDefinitions: async () => {
       if (!enabled()) return [];
       const definition = createXtendMcpServerDefinitionConfig(vscodeApi, context, options);
-      return [new vscodeApi.McpStdioServerDefinition({
-        label: definition.label,
-        command: definition.command,
-        args: definition.args,
-        cwd: vscodeApi.Uri.file(definition.cwd),
-        env: definition.env,
-        version: definition.version
-      })];
+      const server = new vscodeApi.McpStdioServerDefinition(
+        definition.label,
+        definition.command,
+        definition.args,
+        definition.env,
+        definition.version
+      );
+      server.cwd = vscodeApi.Uri.file(definition.cwd);
+      return [server];
     },
     resolveMcpServerDefinition: async (server) => {
       const definition = createXtendMcpServerDefinitionConfig(vscodeApi, context, options);
