@@ -14,6 +14,7 @@ const {
 
 const RMT_VNEXT_CORE_SCHEMA = 'xtend.rmt.core-format.vnext.v1';
 const RMT_VNEXT_COMPILER_SCHEMA = 'xtend.rmt.vnext-compiler.v1';
+const RMT_VNEXT_COMPILER_API_VERSION = '1.1.0';
 const RMT_VNEXT_COMPILER_REPORT_SCHEMA = 'xtend.rmt.vnext-compiler-report.v1';
 const RMT_VNEXT_COMPILER_WORKPACKAGE = 'WP-E15-05';
 const RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA = 'xtend.rmt.vnext.primitive-lowering.v1';
@@ -5672,6 +5673,7 @@ function createRmtVNextCompiler(defaultOptions = {}) {
 
   return Object.freeze({
     schema: RMT_VNEXT_COMPILER_SCHEMA,
+    apiVersion: RMT_VNEXT_COMPILER_API_VERSION,
     coreSchema: RMT_VNEXT_CORE_SCHEMA,
     primitiveLoweringSchema: RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA,
     appOrchestrationSchema: RMT_APP_ORCHESTRATION_SCHEMA,
@@ -5688,6 +5690,7 @@ function createRmtVNextCompiler(defaultOptions = {}) {
 }
 
 module.exports = {
+  RMT_VNEXT_COMPILER_API_VERSION,
   RMT_FILE_FALLBACK_CODE,
   RMT_VNEXT_COMPILER_DIAGNOSTIC_CODE,
   RMT_VNEXT_COMPILER_MODULE_PATH,
@@ -5714,6 +5717,7 @@ module.exports = {
   compileRmtVNextAst,
   compileRmtVNextSource,
   createRmtAppServiceDemands,
+  createRmtAppOrchestrationArtifacts,
   createRmtVNextCompiler,
   serializeRmtVNextCore
 };

@@ -29,8 +29,8 @@ const TYPE_EXPORTS_RELEASE_STATUS = 'accepted-productive-type-exports-release-ga
 const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready';
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
-const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 207;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = "d052ac3e171c4e4d9e29423d0a267fcb6f569db3c333ca6208a1a3ef37a2cbab";
+const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 211;
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = "d54e84d640476e46386fdcee3eb3273a9f2103bb3a80e066cc2b7117c48e4a58";
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',
@@ -75,6 +75,7 @@ const TYPE_EXPORTS_RELEASE_DOCS = Object.freeze([
 ]);
 
 const ASSET_EXPORTS = Object.freeze([
+  './rmt-language/classic-ast.schema.json',
   './style.css',
   './manifest',
   './components/manifest.json',

@@ -1,8 +1,9 @@
-import type { XTensionHostControllerResult, XTensionLifecycleRecord, XTensionDiagnostic, XTENSIONS_HOST_CONTROLLER_SCHEMA } from './host-controller-contract';
+import type { XTensionHostControllerResult, XTensionLifecycleRecord, XTensionDiagnostic } from './host-controller-contract';
 import type { HostResourceCleanupRecord } from './host-resource-cleanup-record';
 import type { XTensionsSurfaceEvent } from './signal-bridge-contract';
 
 export type RuntimeProps = Record<string, unknown>;
+export const RUNTIME_HOST_CONTROLLER_SCHEMA: 'xtend.xtensions.runtime-host-controller.v2';
 export interface ResourceContext {
   readonly signal: AbortSignal;
   isCurrent(): boolean;
@@ -55,14 +56,17 @@ export interface RuntimeHostSnapshot {
   diagnostics: XTensionDiagnostic[];
 }
 export interface RuntimeHostController {
-  readonly schema: typeof XTENSIONS_HOST_CONTROLLER_SCHEMA;
+  readonly schema: typeof RUNTIME_HOST_CONTROLLER_SCHEMA;
+  /** SemVer metadata; the schema discriminator identifies the contract major. */
+  readonly apiVersion: string;
   readonly adapterSchema: string;
   readonly framework: 'react' | 'vue';
   mount(target?: Element, props?: RuntimeProps, options?: { lane?: string }): Promise<RuntimeHostResult>;
   /** Full props replacement. Vue requires applyPropsUpdate or type props.update. */
   update(signal: { props?: RuntimeProps; payload?: RuntimeProps; updateAdapter?: 'applyPropsUpdate'; type?: 'props.update' }): Promise<RuntimeHostResult>;
   suspend(reason?: string): Promise<RuntimeHostResult>;
-  resume(reason?: string): Promise<RuntimeHostResult>;
+  /** Optional full replacement is committed while suspended, before resources restart. */
+  resume(reason?: string, options?: { props: RuntimeProps }): Promise<RuntimeHostResult>;
   unmount(reason?: string): Promise<RuntimeHostResult>;
   reportError(error: unknown, metadata?: { phase?: string }): RuntimeHostResult;
   emit: ComponentCapabilities['emit'];

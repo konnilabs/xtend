@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "b479bb134bbf15372315ae18679b360983affc11200fb78324707787b91ab0e9",
-  "sourceMembershipSha256": "f11bcab2f37115805b64f06aeb51f3b3c3981d7f23d17ac37696720c0ffe8f8b",
+  "inventorySha256": "c1697297885f7190a8f73e9b209c8e1a9c5ea080802a8d2a2d1e4f84ad9f4c95",
+  "sourceMembershipSha256": "408ba6b100e3d584875225c6fbb6021482c7f306f059da531b7f1c732d1e1e69",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "8d055f6467f527dbdb31a8bd95b1c56837bf3e325dc6c2d52692fec86d89d1d0"
+          "sha256": "a71321e31614f239891c25eb0bcc7043d80e911dc649fa9e2e72a5531b0c432e"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "bfdc3130a6ba81339712a0dde0f9aa1356e6b2d8492b449f276fae325b4e2406"
+          "sha256": "164f61e37364183deb222b54e2b7f581b950f3386aa6bfc31279a3d0f88db8ec"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -573,11 +573,11 @@
         },
         {
           "path": "docs/generated/search/en.fulltext.json",
-          "sha256": "50e39ec3391d010e479d60529e4c2a732b67739063ad6a55d02a925f7119246a"
+          "sha256": "9a711e7e91be4e61c8bb9271d7bc623fd2f9b18e58e9e2ddfc804fb7541d2ad9"
         },
         {
           "path": "package.json",
-          "sha256": "0828484e3bdff15e5e52ad9f48bc49d3ece847c22d66cf35115ddf3c0725dc32"
+          "sha256": "a0ee17c552c2d7ac527af60dd4838b3d98c94f46853c8fd9d1da72d87d98dbcb"
         },
         {
           "path": "scripts/generate_rmt_classic_contract.js",
@@ -605,11 +605,11 @@
         },
         {
           "path": "tools/rmt-language/classic-compiler.d.ts",
-          "sha256": "f2cb4326524e117e1d1c65924be85f95837c76ea81d00278efe17e09012597a0"
+          "sha256": "62b0631474db60c71179d340ad544245934b778279668ac857ff708fcee4b952"
         },
         {
           "path": "tools/rmt-language/classic-compiler.js",
-          "sha256": "87c974f17361ba40520f4a2003ecba67d2396da59283535649474f80983e5d9c"
+          "sha256": "a8abff577628966f207634117864d63617052c0ab87f9d9785ec6cb4433ad7b1"
         },
         {
           "path": "tools/rmt-language/classic-parser.d.ts",
@@ -633,7 +633,7 @@
         },
         {
           "path": "tools/rmt-language/vnext-compiler.js",
-          "sha256": "dab92cfe582f1ec9342a5756ec157b70078878020a6e5703e020ad53ca4d3d01"
+          "sha256": "043ea70d12d724cbb32872c8e4c1bca19d06d13da09c75abeefbfa3eabf45c66"
         },
         {
           "path": "tools/rmt-language/vnext-parser.js",
@@ -665,6 +665,108 @@
     "scope": "Current source membership, unchanged release-contract payload byte bindings, three new planning/Classic manifest records, scoped non-authoritative observations and the first unreleased Classic AST formal authority.",
     "previousInventorySha256": "34202c19a1090d5eccf95c15e62ec1d6dca21ab9b639ac29960c3d90d9101ba2",
     "reviewDocument": "development/rmtx-a01/README.md",
+    "publicationGuardRetired": false,
+    "acceptedForRelease": false,
+    "freshCommittedCaptureRequired": true
+  },
+  "a02StateBindingReview": {
+    "status": "user-requested-scoped-development-gates",
+    "date": "2026-11-08",
+    "request": "A02 starten: Instanz-/State-Vertrag und ausführbare Referenzintegration.",
+    "scope": "Five new Core source members; first unreleased XTension state-binding declaration; unchanged payloads of all existing schemas and refreshed source-byte bindings. Compiler/Maraca artifact lowering, kernel delivery and URL/SSR semantics remain pending.",
+    "previousInventorySha256": "b479bb134bbf15372315ae18679b360983affc11200fb78324707787b91ab0e9",
+    "reviewDocument": "development/rmtx-a02/README.md",
+    "publicationGuardRetired": false,
+    "acceptedForRelease": false,
+    "freshCommittedCaptureRequired": true
+  },
+  "a022CompilerBindingReview": {
+    "status": "user-requested-scoped-development-gates",
+    "date": "2026-11-08",
+    "request": "A02.2 starten und geänderte Schema-/API-Verträge gegenüber Legacy versionieren.",
+    "scope": "Compiled Source/AST binding sidecar, static Maraca Action/Model/View/React path, explicit schema/API version transitions, preserved released Legacy v3 declaration and regenerated documentation assets. Only scoped non-authoritative observations change for existing contracts.",
+    "versionTransitions": {
+      "xtend.maraca.build-plan.v1": "xtend.maraca.build-plan.v2",
+      "xtend.maraca.build-config.v1": "xtend.maraca.build-config.v2",
+      "xtend.maraca.plan-runtime.v3": "xtend.maraca.plan-runtime.v4",
+      "xtend.maraca.browser-composition-root.v1": "xtend.maraca.browser-composition-root.v2",
+      "xtend.xtensions.runtime-acceptance-report.v1": "xtend.xtensions.runtime-acceptance-report.v2"
+    },
+    "newAuthorityBaselines": [
+      {
+        "schemaId": "xtend.maraca.plan-runtime.v4",
+        "authoritativeFingerprints": [
+          "sha256:62c08f3745ee0ba1b374694cce49c50aae84cf7a097a9d3992c8742d25576ca7"
+        ],
+        "frozenFingerprintSetHash": "sha256:21df715444723cc936000ece30ed7654c2c61ffe9332a8e0e6c9872cbdcd1e6d",
+        "meaning": "First immutable declared-type baseline; not feature acceptance or publication authority."
+      },
+      {
+        "schemaId": "xtend.xtensions.runtime-host-controller.v2",
+        "authoritativeFingerprints": [
+          "sha256:6793f33eedcbbcb9fc4da872a3a6bb58f1fe9f3ce599b446298f5f7f0bf57479"
+        ],
+        "frozenFingerprintSetHash": "sha256:6958b4bd0a72f87e982b269078acc4c85d6d3b720237e6486063fb357770227b",
+        "meaning": "First immutable declared-type baseline; not feature acceptance or publication authority."
+      }
+    ],
+    "reviewedSchemaIds": [
+      "xtend.component.x-icon.state.v1",
+      "xtend.epic18.rmt-action-result.v1",
+      "xtend.epic18.rmt-dom-descriptor-renderer.v1",
+      "xtend.epic18.rmt-dom-descriptor-renderer.v2",
+      "xtend.epic18.rmt-state-patch-plan.v1",
+      "xtend.epic18.rmt-surface-resource-graph-snapshot.v1",
+      "xtend.maraca.app-services-runtime.v1",
+      "xtend.maraca.browser-composition-root.v1",
+      "xtend.maraca.browser-composition-root.v2",
+      "xtend.maraca.build-config.v1",
+      "xtend.maraca.build-config.v2",
+      "xtend.maraca.build-plan.v1",
+      "xtend.maraca.build-plan.v2",
+      "xtend.maraca.bundle-report.v1",
+      "xtend.maraca.component-command-context.v1",
+      "xtend.maraca.component-command-result.v1",
+      "xtend.maraca.diagnostic.v1",
+      "xtend.maraca.hydration-plan.v1",
+      "xtend.maraca.hydration-snapshot.v1",
+      "xtend.maraca.kernel-snapshot.v1",
+      "xtend.maraca.orchestration-boot.v1",
+      "xtend.maraca.orchestration-plan.v1",
+      "xtend.maraca.plan-runtime.scheduler-kernel.v1",
+      "xtend.maraca.plan-runtime.v3",
+      "xtend.maraca.plan-runtime.v4",
+      "xtend.maraca.presentation-effect-context.v1",
+      "xtend.maraca.production-bundle-capability.v1",
+      "xtend.maraca.production-bundle-closure.v1",
+      "xtend.maraca.pwa-registration.v1",
+      "xtend.maraca.remote-play.v1",
+      "xtend.maraca.server-prerender-shell.v1",
+      "xtend.maraca.state-change.v1",
+      "xtend.maraca.state-transaction.v1",
+      "xtend.maraca.surface-change.v1",
+      "xtend.maraca.tune-report.v1",
+      "xtend.maraca.validation-projection.v1",
+      "xtend.rmt.app-hydration-plan.v1",
+      "xtend.rmt.app-orchestration.v1",
+      "xtend.rmt.app-runtime-performance-telemetry.v1",
+      "xtend.rmt.classic.compile-result.v2",
+      "xtend.rmt.command.v1",
+      "xtend.rmt.form-validation-action-gate.v1",
+      "xtend.rmt.form-validation-view-projection-plan.v1",
+      "xtend.rmt.host-service-stream.v1",
+      "xtend.rmt.stream-post-commit-effect.v1",
+      "xtend.rmt.vnext-compiler.v1",
+      "xtend.surface.controller.v2",
+      "xtend.surface.record.v1",
+      "xtend.xtensions.runtime-acceptance-report.v1",
+      "xtend.xtensions.runtime-acceptance-report.v2",
+      "xtend.xtensions.runtime-host-controller.v2",
+      "xtend.xtensions.state-binding-artifact.v1",
+      "xtend.xtensions.state-binding.v1"
+    ],
+    "previousInventorySha256": "22d5882da7a9df5aecf747164b2a55f25fd4db943a95b0038fa6de0890ec1f98",
+    "reviewDocument": "development/rmtx-a02/README.md",
     "publicationGuardRetired": false,
     "acceptedForRelease": false,
     "freshCommittedCaptureRequired": true

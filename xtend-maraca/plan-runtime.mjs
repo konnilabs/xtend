@@ -2,7 +2,8 @@ import { createMaracaAbortBoundary } from './abort-boundary.mjs';
 import { createMaracaFastPass } from './fastpass.mjs';
 export { createMaracaAbortBoundary } from './abort-boundary.mjs';
 
-const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v3';
+const LEGACY_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v3';
+const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v4';
 const DOM_COMMIT_SCHEMA = 'xtend.rmt.dom-commit-result.v1';
 const DOM_COMMIT_EVENT = 'xtend-maraca:dom-commit';
 const SYSTEM_REFRESH_COMMAND = 'xtend.system.refresh';
@@ -165,6 +166,18 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const dataSourceAdapters = Object.freeze({ ...asRecord(options.dataSourceAdapters) });
   const orchestration = asRecord(plan.orchestration);
   const artifact = asRecord(orchestration.artifact || plan.artifact);
+  const bindingRuntime = options.xtensionBindingsRuntime;
+  let bindingArtifact = null;
+  if (hasOwn(asRecord(options.plan), 'xtensionBindings')) {
+    if (!bindingRuntime || typeof bindingRuntime.validateStateBindingArtifact !== 'function' || typeof bindingRuntime.createXTensionStateRegistry !== 'function') {
+      throw new TypeError('XTension binding artifacts require the explicit state-binding runtime port.');
+    }
+    bindingArtifact = bindingRuntime.validateStateBindingArtifact(options.plan.xtensionBindings, artifact);
+    if (bindingArtifact.bindings.length && typeof options.createXTensionHost !== 'function') throw new TypeError('Bound Maraca plans require a trusted createXTensionHost factory.');
+  }
+  let xtensionRegistry = null, xtensionDisposal = null, xtensionsClosed = false;
+  const boundXTensions = [];
+  const boundXTensionSurfaces = new Set(bindingArtifact?.bindings.map((entry) => entry.surface) || []);
   const strict = orchestration.strict === true || orchestration.mode === 'strict';
   const surfaces = asArray(artifact.surfaces).length ? asArray(artifact.surfaces) : asArray(plan.surfaces);
   const declaredActions = asArray(asRecord(artifact.actions).actions);
@@ -381,9 +394,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         next.attributes = { ...asRecord(next.attributes), hidden: '', 'aria-hidden': 'true' };
         if (next.bindings) { next.bindings = { ...next.bindings }; delete next.bindings.hidden; }
       }
+      if (value.surface && boundXTensionSurfaces.has(String(value.surface))) {
+        // Bound host keys are identities, even if a Model state has that name.
+        next.key = { op: 'literal', value: String(value.surface) };
+      }
       return next;
     };
-    return projected == null ? { type: 'fragment', children: [] } : shellClosedSurfaces.size ? retainShellVisibility(projected) : projected;
+    return projected == null ? { type: 'fragment', children: [] } : shellClosedSurfaces.size || boundXTensionSurfaces.size ? retainShellVisibility(projected) : projected;
   }
 
   function publish(type, detail = {}) {
@@ -926,9 +943,10 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       validationStage
     );
     const report = rendererCommit({
-      operation: 'replace-children',
+      operation: bindingArtifact?.bindings.length ? 'reconcile-children' : 'replace-children',
       target: root,
       descriptor,
+      ...(bindingArtifact?.bindings.length ? { descriptors: [descriptor] } : {}),
       context: createRenderContext(metadata, stateSnapshot),
       ownership: ownershipForCommit(validationStage)
     }, metadata);
@@ -1786,7 +1804,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     return () => entries.every(([boundary, version]) => !boundary.disposed && commandPresentationVersions.get(boundary) === version);
   }
 
-  async function prepareCommand(commandId, payload, metadata, commandGeneration, commandShellEpoch) {
+  async function prepareCommand(commandId, payload, metadata, commandGeneration, commandShellEpoch, lifetime) {
     const reducers = asArray(asRecord(artifact.state).reducers)
       .filter((entry) => entry && entry.action === commandId && entry.state);
     let presentationGuard = captureCommandPresentationGuard();
@@ -1822,12 +1840,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           throw error;
         }
         result = runtimes.action && typeof runtimes.action.runAction === 'function'
-          ? await runtimes.action.runAction(commandId, clone(payload, {}), { ...metadata, isPresentationCurrent: () => phase !== 'disposed' && currentPresentation() })
+          ? await runtimes.action.runAction(commandId, clone(payload, {}), { ...metadata, ...(lifetime ? { signal: lifetime.signal } : {}), isPresentationCurrent: () => phase !== 'disposed' && (!lifetime || lifetime.isCurrent()) && currentPresentation() })
           : await Promise.resolve(hostServices.dispatchCommand
               ? hostServices.dispatchCommand(commandId, payload, metadata)
               : { status: 'success', data: payload });
       }
       if (phase === 'disposed' || generation !== commandGeneration) throw runtimeDisposedError();
+      if (lifetime && (lifetime.signal.aborted || !lifetime.isCurrent())) return { status: 'superseded' };
       const resultRecord = asRecord(result);
       if (resultRecord.status === 'error' && resultRecord.error?.code === 'xtend.maraca.app-service.validation' && resultRecord.error.details?.errors) {
         validationStage = evaluateCommandValidation(commandId, metadata, null, {serverErrors:resultRecord.error.details.errors});
@@ -1978,6 +1997,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       bufferedEventCount: prepared.stateEvents.length
     });
     notifyModelSubscribers(stateEvent);
+    if (xtensionRegistry) await xtensionRegistry.flush();
     publish('command', {
       command: prepared.commandId,
       status: prepared.result && prepared.result.status || (prepared.blocked ? 'blocked' : 'success')
@@ -1985,8 +2005,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     return immutableClone(prepared.result, null);
   }
 
-  async function dispatchCommandNow(command, payload = {}, metadata = {}, commandShellEpoch = shellEpoch) {
+  async function dispatchCommandNow(command, payload = {}, metadata = {}, commandShellEpoch = shellEpoch, lifetime) {
     if (phase !== 'ready') throw new Error('Maraca plan runtime is not booted.');
+    if (lifetime && (lifetime.signal.aborted || !lifetime.isCurrent())) return { status: 'superseded' };
     const commandRecord = typeof command === 'string' ? null : asRecord(command);
     const commandId = typeof command === 'string'
       ? command
@@ -2020,9 +2041,10 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     }
     const prepared = await scheduleWork(
       'action',
-      () => prepareCommand(commandId, commandPayload, actionMetadata, commandGeneration, commandShellEpoch),
+      () => prepareCommand(commandId, commandPayload, actionMetadata, commandGeneration, commandShellEpoch, lifetime),
       actionMetadata
     );
+    if (prepared?.status === 'superseded') return prepared;
     return scheduleWork(
       'state-change',
       () => commitCommand(prepared, actionMetadata, commandGeneration),
@@ -2034,7 +2056,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     );
   }
 
-  function dispatchCommand(command, payload = {}, metadata = {}) {
+  function dispatchCommand(command, payload = {}, metadata = {}, lifetime) {
     const id = typeof command === 'string' ? command : command && (command.command || command.id || command.action);
     if (fastPass.has(id)) {
       const run = () => dispatchFastPass(id, typeof command === 'object' && hasOwn(command, 'payload') ? command.payload : payload, metadata).result;
@@ -2045,7 +2067,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     const queued = commandQueue.then(async () => {
       if (phase === 'booting' && bootPromise) await bootPromise;
       if (phase === 'disposed') throw runtimeDisposedError();
-      return dispatchCommandNow(command, payload, metadata, commandShellEpoch);
+      return dispatchCommandNow(command, payload, metadata, commandShellEpoch, lifetime);
     });
     commandQueue = queued.then(() => undefined, () => undefined);
     return queued;
@@ -2151,6 +2173,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         bufferedEventCount: stateBuffer.events.length
       });
       notifyModelSubscribers(stateEvent);
+      if (xtensionRegistry) await xtensionRegistry.flush();
       return immutableClone({
         ...asRecord(applied),
         transaction: {
@@ -2970,6 +2993,20 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       }, initialStateSnapshot, initialCommit);
       assertCurrentBoot();
       reconcileEvents(initialCommit);
+      if (bindingArtifact?.bindings.length) {
+        xtensionRegistry = bindingRuntime.createXTensionStateRegistry({ modelReader,
+          commandDispatcher: { dispatch: (command, payload, metadata, lifetime) => dispatchCommand(command, payload, metadata, lifetime) },
+          onDiagnostic: (diagnostic) => recordDiagnostic('xtend.maraca.xtension.binding', 'error', diagnostic.message, diagnostic) });
+        for (const entry of bindingArtifact.bindings) {
+          assertCurrentBoot();
+          const container = surfaceElement(entry.surface);
+          if (!container) throw new Error(`XTension host ${entry.surface} was not rendered.`);
+          const instance = xtensionRegistry.bind(entry.binding, (context) => options.createXTensionHost(Object.freeze({ ...context, container, surface: entry.surface, binding: entry.binding })));
+          boundXTensions.push(Object.freeze({ surface: entry.surface, instance }));
+          await instance.mount(container);
+        }
+        assertCurrentBoot();
+      }
       if (options.hydrateOnBoot !== false) {
         await hydrate(null, { operation: options.adoptExisting === true ? 'maraca.boot.adopt-existing' : 'maraca.boot' });
         assertCurrentBoot();
@@ -3049,6 +3086,12 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
 
   function teardownAdapters(clearOwnedDom) {
     if (adaptersDisposed) return;
+    if (xtensionRegistry && !xtensionsClosed) {
+      if (!xtensionDisposal) xtensionDisposal = xtensionRegistry.dispose().catch((error) => {
+        recordDiagnostic('xtend.maraca.xtension.cleanup', 'error', error.message);
+      }).then(() => { xtensionsClosed = true; teardownAdapters(clearOwnedDom); });
+      return;
+    }
     adaptersDisposed = true;
     [...pendingScheduledWork].forEach((cancel) => cancel());
     pendingScheduledWork.clear();
@@ -3175,6 +3218,11 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     schema: PLAN_RUNTIME_SCHEMA,
     boot,
     dispatchCommand,
+    getXTensionBindings: () => Object.freeze([...boundXTensions]),
+    async whenXTensionsIdle() {
+      if (xtensionDisposal) await xtensionDisposal;
+      else await Promise.all(boundXTensions.map(({ instance }) => instance.whenIdle()));
+    },
     dispatchFastPass,
     getSurfaceBoundary,
     dispatchStreamPatch,
@@ -3211,5 +3259,5 @@ export async function bootMaracaPlan(options = {}) {
   return runtime;
 }
 
-export { PLAN_RUNTIME_SCHEMA };
-export default Object.freeze({ PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });
+export { PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
+export default Object.freeze({ PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });

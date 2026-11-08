@@ -218,16 +218,16 @@
       "artifactFingerprints": []
     }
   },
-  "entry": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/xtend.maraca.mjs",
+  "entry": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/xtend.maraca.mjs",
   "entryRelative": "docs/generated/shell/xtend.maraca.mjs",
-  "entryBytes": 562424,
-  "bytes": 989721,
+  "entryBytes": 569478,
+  "bytes": 970486,
   "bundleFiles": [
     {
       "type": "chunk",
       "fileName": "xtend.maraca.mjs",
       "path": "docs/generated/shell/xtend.maraca.mjs",
-      "bytes": 562424,
+      "bytes": 569478,
       "isEntry": true,
       "isDynamicEntry": false,
       "imports": [
@@ -235,260 +235,270 @@
         "./runtime/xtend-maraca-browser-composition-runtime.mjs"
       ],
       "dynamicImports": [
-        "chunks/x-footer-C9fHGuaa.mjs",
-        "chunks/x-header-D1P7B2qE.mjs",
-        "chunks/x-hero-BIbvPwnc.mjs",
-        "chunks/x-router-th8bK0R-.mjs",
-        "chunks/x-section-Br5P_W-G.mjs",
-        "chunks/x-status-BbVXEOVj.mjs",
-        "chunks/x-theme-CYxP2tAz.mjs"
+        "chunks/x-footer-jm0ALW_Q.mjs",
+        "chunks/x-header-BLHF6s_L.mjs",
+        "chunks/x-hero-CMnadzoG.mjs",
+        "chunks/x-router-_tnztVCo.mjs",
+        "chunks/x-section-DBUiS6SD.mjs",
+        "chunks/x-status-DY32VVPL.mjs",
+        "chunks/x-theme-kv6Hzf7a.mjs"
       ],
       "modules": [
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-surface-resource-graph-runtime.js",
-          "renderedLength": 77455,
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "renderedLength": 77798,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-state-selector-runtime.js",
-          "renderedLength": 46825,
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-state-selector-runtime.js",
+          "renderedLength": 48456,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-state-host-adapter.js",
-          "renderedLength": 5637,
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-state-host-adapter.js",
+          "renderedLength": 6252,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-state-binding-view-projector.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-state-binding-view-projector.js",
           "renderedLength": 25433,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-resume-protocol.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-resume-protocol.js",
           "renderedLength": 2898,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-resume-capture-adapter.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-resume-capture-adapter.js",
           "renderedLength": 4578,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-resume-host-adapter.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-resume-host-adapter.js",
           "renderedLength": 3408,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-resume-command-adapter.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-resume-command-adapter.js",
           "renderedLength": 4253,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-resume-command-controller.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-resume-command-controller.js",
           "renderedLength": 15638,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-resume-runtime.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-resume-runtime.js",
           "renderedLength": 1258,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-presentation-effect-adapter.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-presentation-effect-adapter.js",
           "renderedLength": 26406,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-maraca-view-projection-adapter.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-maraca-view-projection-adapter.js",
           "renderedLength": 9079,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-event-routing-runtime.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-event-routing-runtime.js",
           "renderedLength": 51845,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-dom-descriptor-renderer.js",
-          "renderedLength": 147438,
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-dom-descriptor-renderer.js",
+          "renderedLength": 155690,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-app-runtime.js",
-          "renderedLength": 103134,
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-app-runtime.js",
+          "renderedLength": 103710,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/xtendrmt/rmt-action-effect-runtime.js",
-          "renderedLength": 39170,
+          "id": "/home/konni/Downloads/xtend-dev/xtend/xtendrmt/rmt-action-effect-runtime.js",
+          "renderedLength": 40503,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/xsurfacemanager-controller.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/xsurfacemanager-controller.js",
           "renderedLength": 44590,
           "appService": false
         },
         {
           "id": "\u0000xtend-maraca-entry",
-          "renderedLength": 442219,
+          "renderedLength": 445210,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 562424
+      "frameworkBytes": 569478
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-footer-C9fHGuaa.mjs",
-      "path": "docs/generated/shell/chunks/x-footer-C9fHGuaa.mjs",
-      "bytes": 17454,
+      "fileName": "chunks/x-footer-jm0ALW_Q.mjs",
+      "path": "docs/generated/shell/chunks/x-footer-jm0ALW_Q.mjs",
+      "bytes": 17622,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [],
       "dynamicImports": [],
       "modules": [
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/xtend-state.js",
-          "renderedLength": 15558,
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/xtend-state.js",
+          "renderedLength": 15754,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/xfooter.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/xfooter.js",
           "renderedLength": 12280,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 17454
+      "frameworkBytes": 17622
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-header-D1P7B2qE.mjs",
-      "path": "docs/generated/shell/chunks/x-header-D1P7B2qE.mjs",
-      "bytes": 51819,
+      "fileName": "chunks/x-header-BLHF6s_L.mjs",
+      "path": "docs/generated/shell/chunks/x-header-BLHF6s_L.mjs",
+      "bytes": 51988,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-footer-C9fHGuaa.mjs"
+        "chunks/x-footer-jm0ALW_Q.mjs"
       ],
       "dynamicImports": [],
       "modules": [
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/style-nonce.js",
-          "renderedLength": 479,
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/style-nonce.js",
+          "renderedLength": 904,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/xheader.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/xheader.js",
           "renderedLength": 66276,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 51819
+      "frameworkBytes": 51988
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-hero-BIbvPwnc.mjs",
-      "path": "docs/generated/shell/chunks/x-hero-BIbvPwnc.mjs",
-      "bytes": 37560,
+      "fileName": "chunks/x-hero-CMnadzoG.mjs",
+      "path": "docs/generated/shell/chunks/x-hero-CMnadzoG.mjs",
+      "bytes": 38138,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-footer-C9fHGuaa.mjs",
-        "chunks/x-header-D1P7B2qE.mjs"
+        "chunks/x-footer-jm0ALW_Q.mjs",
+        "chunks/x-header-BLHF6s_L.mjs"
       ],
       "dynamicImports": [],
       "modules": [
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/icon-packs/core.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/icon-dom.js",
+          "renderedLength": 4503,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/icon-packs/core.js",
           "renderedLength": 6002,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/icon-packs/lucide.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/icon-packs/lucide.js",
           "renderedLength": 4716,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/xicon.js",
-          "renderedLength": 21069,
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/xicon.js",
+          "renderedLength": 17696,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/xhero.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/xhero.js",
           "renderedLength": 20139,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 37560
+      "frameworkBytes": 38138
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-router-th8bK0R-.mjs",
-      "path": "docs/generated/shell/chunks/x-router-th8bK0R-.mjs",
-      "bytes": 58728,
+      "fileName": "chunks/x-router-_tnztVCo.mjs",
+      "path": "docs/generated/shell/chunks/x-router-_tnztVCo.mjs",
+      "bytes": 59128,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-footer-C9fHGuaa.mjs"
+        "chunks/x-footer-jm0ALW_Q.mjs"
       ],
       "dynamicImports": [],
       "modules": [
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/xrouter.js",
-          "renderedLength": 106247,
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/xrouter.js",
+          "renderedLength": 107447,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 58728
+      "frameworkBytes": 59128
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-section-Br5P_W-G.mjs",
-      "path": "docs/generated/shell/chunks/x-section-Br5P_W-G.mjs",
-      "bytes": 8026,
+      "fileName": "chunks/x-section-DBUiS6SD.mjs",
+      "path": "docs/generated/shell/chunks/x-section-DBUiS6SD.mjs",
+      "bytes": 8372,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-header-D1P7B2qE.mjs",
-        "chunks/x-footer-C9fHGuaa.mjs"
+        "chunks/x-footer-jm0ALW_Q.mjs",
+        "chunks/x-header-BLHF6s_L.mjs"
       ],
       "dynamicImports": [],
       "modules": [
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/xsection.js",
-          "renderedLength": 9509,
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/component-dom.js",
+          "renderedLength": 546,
+          "appService": false
+        },
+        {
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/xsection.js",
+          "renderedLength": 9925,
           "appService": false
         }
       ],
       "appServiceBytes": 0,
-      "frameworkBytes": 8026
+      "frameworkBytes": 8372
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-status-BbVXEOVj.mjs",
-      "path": "docs/generated/shell/chunks/x-status-BbVXEOVj.mjs",
+      "fileName": "chunks/x-status-DY32VVPL.mjs",
+      "path": "docs/generated/shell/chunks/x-status-DY32VVPL.mjs",
       "bytes": 10936,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-header-D1P7B2qE.mjs",
-        "chunks/x-footer-C9fHGuaa.mjs",
-        "chunks/x-hero-BIbvPwnc.mjs"
+        "chunks/x-header-BLHF6s_L.mjs",
+        "chunks/x-footer-jm0ALW_Q.mjs",
+        "chunks/x-hero-CMnadzoG.mjs"
       ],
       "dynamicImports": [],
       "modules": [
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/rmt-command.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/rmt-command.js",
           "renderedLength": 2578,
           "appService": false
         },
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/xstatus.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/xstatus.js",
           "renderedLength": 12262,
           "appService": false
         }
@@ -498,18 +508,18 @@
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-theme-CYxP2tAz.mjs",
-      "path": "docs/generated/shell/chunks/x-theme-CYxP2tAz.mjs",
+      "fileName": "chunks/x-theme-kv6Hzf7a.mjs",
+      "path": "docs/generated/shell/chunks/x-theme-kv6Hzf7a.mjs",
       "bytes": 33978,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [],
       "dynamicImports": [
-        "chunks/x-footer-C9fHGuaa.mjs"
+        "chunks/x-footer-jm0ALW_Q.mjs"
       ],
       "modules": [
         {
-          "id": "/home/konni/Downloads/xtend-main/xtend/components/xtheme.js",
+          "id": "/home/konni/Downloads/xtend-dev/xtend/components/xtheme.js",
           "renderedLength": 52620,
           "appService": false
         }
@@ -521,7 +531,7 @@
       "type": "asset",
       "fileName": "runtime/xtend-maraca-plan-runtime.mjs",
       "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-      "bytes": 140063,
+      "bytes": 118984,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [
@@ -532,46 +542,46 @@
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 140063
+      "frameworkBytes": 118984
     },
     {
       "type": "asset",
       "fileName": "runtime/abort-boundary.mjs",
       "path": "docs/generated/shell/runtime/abort-boundary.mjs",
-      "bytes": 3594,
+      "bytes": 2756,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 3594
+      "frameworkBytes": 2756
     },
     {
       "type": "asset",
       "fileName": "runtime/fastpass-contract.js",
       "path": "docs/generated/shell/runtime/fastpass-contract.js",
-      "bytes": 2674,
+      "bytes": 3294,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 2674
+      "frameworkBytes": 3294
     },
     {
       "type": "asset",
       "fileName": "runtime/fastpass.mjs",
       "path": "docs/generated/shell/runtime/fastpass.mjs",
-      "bytes": 4079,
+      "bytes": 3507,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 4079
+      "frameworkBytes": 3507
     },
     {
       "type": "asset",
@@ -590,27 +600,27 @@
       "type": "asset",
       "fileName": "runtime/xtend-maraca-browser-composition-runtime.mjs",
       "path": "docs/generated/shell/runtime/xtend-maraca-browser-composition-runtime.mjs",
-      "bytes": 32604,
+      "bytes": 29647,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 32604
+      "frameworkBytes": 29647
     },
     {
       "type": "asset",
       "fileName": "runtime/browser-host-adapter.mjs",
       "path": "docs/generated/shell/runtime/browser-host-adapter.mjs",
-      "bytes": 22928,
+      "bytes": 19804,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 22928
+      "frameworkBytes": 19804
     },
     {
       "type": "asset",
@@ -1096,7 +1106,24 @@
             "code": "rmt.app_orchestration.hydration_policy_missing",
             "severity": "warning",
             "message": "Surface docs.diagnostics has no explicit lifecycle hydration record; runtime will use component lazy loading policy.",
-            "surface": "docs.diagnostics"
+            "surface": "docs.diagnostics",
+            "stage": "orchestration",
+            "plan": "hydration",
+            "sourceRef": "src:surface:xtend.docs.php_ssr_shell/docs.diagnostics",
+            "pointer": "/body/0/body/28",
+            "corePointer": "/surfaces/6",
+            "range": {
+              "start": {
+                "line": 261,
+                "character": 2
+              },
+              "end": {
+                "line": 272,
+                "character": 3
+              },
+              "startOffset": 7631,
+              "endOffset": 7978
+            }
           }
         ],
         "sourceToSea": {
@@ -1387,7 +1414,7 @@
         "sourceToSea": {},
         "evidence": {
           "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-          "artifactBundleFingerprint": "fnv1a:76525cea",
+          "artifactBundleFingerprint": "fnv1a:b3fc0f23",
           "bundleFingerprint": null
         }
       }
@@ -1411,8 +1438,8 @@
       "status": "within_budget",
       "mode": "strict",
       "profile": "max",
-      "baselineBytes": 1133128,
-      "bundleBytes": 989721,
+      "baselineBytes": 1148375,
+      "bundleBytes": 970486,
       "runtimeExpectedStatus": "report-only"
     },
     "releaseConstraint": {
@@ -1429,13 +1456,13 @@
       "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
       "artifactFingerprints": {
         "templateSource": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-        "templateBundle": "fnv1a:76525cea",
+        "templateBundle": "fnv1a:b3fc0f23",
         "bundle": null
       },
       "bundle": {
         "fileCount": 16,
         "entry": "xtend.maraca.mjs",
-        "bytes": 989721
+        "bytes": 970486
       },
       "runtimeFeatureStatus": [
         {
@@ -1698,7 +1725,24 @@
             "code": "rmt.app_orchestration.hydration_policy_missing",
             "severity": "warning",
             "message": "Surface docs.diagnostics has no explicit lifecycle hydration record; runtime will use component lazy loading policy.",
-            "surface": "docs.diagnostics"
+            "surface": "docs.diagnostics",
+            "stage": "orchestration",
+            "plan": "hydration",
+            "sourceRef": "src:surface:xtend.docs.php_ssr_shell/docs.diagnostics",
+            "pointer": "/body/0/body/28",
+            "corePointer": "/surfaces/6",
+            "range": {
+              "start": {
+                "line": 261,
+                "character": 2
+              },
+              "end": {
+                "line": 272,
+                "character": 3
+              },
+              "startOffset": 7631,
+              "endOffset": 7978
+            }
           }
         ],
         "sourceToSea": {
@@ -1989,7 +2033,7 @@
         "sourceToSea": {},
         "evidence": {
           "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-          "artifactBundleFingerprint": "fnv1a:76525cea",
+          "artifactBundleFingerprint": "fnv1a:b3fc0f23",
           "bundleFingerprint": null
         }
       }
@@ -2013,8 +2057,8 @@
       "status": "within_budget",
       "mode": "strict",
       "profile": "max",
-      "baselineBytes": 1133128,
-      "bundleBytes": 989721,
+      "baselineBytes": 1148375,
+      "bundleBytes": 970486,
       "runtimeExpectedStatus": "report-only"
     },
     "releaseConstraint": {
@@ -2031,13 +2075,13 @@
       "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
       "artifactFingerprints": {
         "templateSource": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-        "templateBundle": "fnv1a:76525cea",
+        "templateBundle": "fnv1a:b3fc0f23",
         "bundle": null
       },
       "bundle": {
         "fileCount": 16,
         "entry": "xtend.maraca.mjs",
-        "bytes": 989721
+        "bytes": 970486
       },
       "runtimeFeatureStatus": [
         {
@@ -2290,8 +2334,8 @@
     "documentCount": 1,
     "templateCount": 1,
     "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-    "artifactBundleFingerprint": "fnv1a:76525cea",
-    "bundleFingerprint": "sha256:23acda535ee0f84a327cd69d11f016d71418e1ad90d0f846a7be6ff123c8ff10",
+    "artifactBundleFingerprint": "fnv1a:b3fc0f23",
+    "bundleFingerprint": "sha256:c790f88e0497a99596884f7d10b9862643bd4e603a86d37931f264266e1173e1",
     "runtimeProfileHints": [
       "browser",
       "detached_dom",
@@ -2302,7 +2346,7 @@
       {
         "kind": "rmt_template_artifact_document",
         "version": "1.0",
-        "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:ce9f588b",
+        "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:50f2f165",
         "documentId": "xtend.docs.php_ssr_shell",
         "namespace": "xtend",
         "sourceUrl": "docs/xtendrmt-docs-document-v2.rmt",
@@ -2315,11 +2359,11 @@
           "maraca": true,
           "sourceHash": "56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
           "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-          "compilerSchema": "xtend.rmt.vnext-compiler.v1"
+          "compilerSchema": "xtend.rmt.classic.compile-result.v2"
         },
         "reactivityHints": {},
-        "fingerprint": "fnv1a:ce9f588b",
-        "sourceFingerprint": "fnv1a:2e183e4d",
+        "fingerprint": "fnv1a:50f2f165",
+        "sourceFingerprint": "fnv1a:3a729356",
         "templates": [
           {
             "kind": "rmt_prepared_template",
@@ -2384,17 +2428,17 @@
         "metadata": {
           "source": "docs/xtendrmt-docs-document-v2.rmt",
           "sourceHash": "56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-          "compilerSchema": "xtend.rmt.vnext-compiler.v1"
+          "compilerSchema": "xtend.rmt.classic.compile-result.v2"
         },
         "documentCount": 1,
         "templateCount": 1,
-        "fingerprint": "fnv1a:76525cea"
+        "fingerprint": "fnv1a:b3fc0f23"
       },
       "documents": [
         {
           "kind": "rmt_template_artifact_document",
           "version": "1.0",
-          "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:ce9f588b",
+          "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:50f2f165",
           "documentId": "xtend.docs.php_ssr_shell",
           "namespace": "xtend",
           "sourceUrl": "docs/xtendrmt-docs-document-v2.rmt",
@@ -2407,11 +2451,11 @@
             "maraca": true,
             "sourceHash": "56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
             "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-            "compilerSchema": "xtend.rmt.vnext-compiler.v1"
+            "compilerSchema": "xtend.rmt.classic.compile-result.v2"
           },
           "reactivityHints": {},
-          "fingerprint": "fnv1a:ce9f588b",
-          "sourceFingerprint": "fnv1a:2e183e4d",
+          "fingerprint": "fnv1a:50f2f165",
+          "sourceFingerprint": "fnv1a:3a729356",
           "templates": [
             {
               "kind": "rmt_prepared_template",
@@ -2482,7 +2526,7 @@
         "template:xtend.docs.php_ssr_shell"
       ],
       "bundleFileCount": 16,
-      "bundleFingerprint": "sha256:23acda535ee0f84a327cd69d11f016d71418e1ad90d0f846a7be6ff123c8ff10"
+      "bundleFingerprint": "sha256:c790f88e0497a99596884f7d10b9862643bd4e603a86d37931f264266e1173e1"
     },
     "diagnostics": []
   },
@@ -3576,7 +3620,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "report-only",
-      "bundleFingerprint": "sha256:23acda535ee0f84a327cd69d11f016d71418e1ad90d0f846a7be6ff123c8ff10"
+      "bundleFingerprint": "sha256:c790f88e0497a99596884f7d10b9862643bd4e603a86d37931f264266e1173e1"
     },
     "diagnostics": [
       {
@@ -3596,7 +3640,7 @@
         ]
       }
     ],
-    "bundleFingerprint": "sha256:23acda535ee0f84a327cd69d11f016d71418e1ad90d0f846a7be6ff123c8ff10"
+    "bundleFingerprint": "sha256:c790f88e0497a99596884f7d10b9862643bd4e603a86d37931f264266e1173e1"
   },
   "panicRecovery": {
     "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
@@ -3804,7 +3848,24 @@
         "code": "rmt.app_orchestration.hydration_policy_missing",
         "severity": "warning",
         "message": "Surface docs.diagnostics has no explicit lifecycle hydration record; runtime will use component lazy loading policy.",
-        "surface": "docs.diagnostics"
+        "surface": "docs.diagnostics",
+        "stage": "orchestration",
+        "plan": "hydration",
+        "sourceRef": "src:surface:xtend.docs.php_ssr_shell/docs.diagnostics",
+        "pointer": "/body/0/body/28",
+        "corePointer": "/surfaces/6",
+        "range": {
+          "start": {
+            "line": 261,
+            "character": 2
+          },
+          "end": {
+            "line": 272,
+            "character": 3
+          },
+          "startOffset": 7631,
+          "endOffset": 7978
+        }
       }
     ]
   },
@@ -4503,7 +4564,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "report-only",
-      "bundleFingerprint": "sha256:23acda535ee0f84a327cd69d11f016d71418e1ad90d0f846a7be6ff123c8ff10"
+      "bundleFingerprint": "sha256:c790f88e0497a99596884f7d10b9862643bd4e603a86d37931f264266e1173e1"
     },
     "summary": {
       "schema": null,
@@ -4786,7 +4847,24 @@
         "code": "rmt.app_orchestration.hydration_policy_missing",
         "severity": "warning",
         "message": "Surface docs.diagnostics has no explicit lifecycle hydration record; runtime will use component lazy loading policy.",
-        "surface": "docs.diagnostics"
+        "surface": "docs.diagnostics",
+        "stage": "orchestration",
+        "plan": "hydration",
+        "sourceRef": "src:surface:xtend.docs.php_ssr_shell/docs.diagnostics",
+        "pointer": "/body/0/body/28",
+        "corePointer": "/surfaces/6",
+        "range": {
+          "start": {
+            "line": 261,
+            "character": 2
+          },
+          "end": {
+            "line": 272,
+            "character": 3
+          },
+          "startOffset": 7631,
+          "endOffset": 7978
+        }
       }
     ]
   },
@@ -5152,8 +5230,8 @@
           "type": "image/png",
           "purpose": "any",
           "manifestIcon": true,
-          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/icons/android-chrome-192x192.png",
-          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/android-chrome-192x192.png",
+          "sourcePath": "/home/konni/Downloads/xtend-dev/xtend/icons/android-chrome-192x192.png",
+          "outputPath": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/icons/android-chrome-192x192.png",
           "sourceExists": true,
           "fileName": "icons/android-chrome-192x192.png",
           "replacementPath": "icons/android-chrome-192x192.png"
@@ -5166,8 +5244,8 @@
           "type": "image/png",
           "purpose": "any",
           "manifestIcon": true,
-          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/icons/android-chrome-512x512.png",
-          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/android-chrome-512x512.png",
+          "sourcePath": "/home/konni/Downloads/xtend-dev/xtend/icons/android-chrome-512x512.png",
+          "outputPath": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/icons/android-chrome-512x512.png",
           "sourceExists": true,
           "fileName": "icons/android-chrome-512x512.png",
           "replacementPath": "icons/android-chrome-512x512.png"
@@ -5182,8 +5260,8 @@
             "rel": "apple-touch-icon",
             "sizes": "180x180"
           },
-          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/icons/apple-touch-icon.png",
-          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/apple-touch-icon.png",
+          "sourcePath": "/home/konni/Downloads/xtend-dev/xtend/icons/apple-touch-icon.png",
+          "outputPath": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/icons/apple-touch-icon.png",
           "sourceExists": true,
           "fileName": "icons/apple-touch-icon.png",
           "replacementPath": "icons/apple-touch-icon.png"
@@ -5199,8 +5277,8 @@
             "sizes": "32x32",
             "type": "image/png"
           },
-          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/icons/favicon-32x32.png",
-          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/favicon-32x32.png",
+          "sourcePath": "/home/konni/Downloads/xtend-dev/xtend/icons/favicon-32x32.png",
+          "outputPath": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/icons/favicon-32x32.png",
           "sourceExists": true,
           "fileName": "icons/favicon-32x32.png",
           "replacementPath": "icons/favicon-32x32.png"
@@ -5216,8 +5294,8 @@
             "sizes": "16x16",
             "type": "image/png"
           },
-          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/icons/favicon-16x16.png",
-          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/favicon-16x16.png",
+          "sourcePath": "/home/konni/Downloads/xtend-dev/xtend/icons/favicon-16x16.png",
+          "outputPath": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/icons/favicon-16x16.png",
           "sourceExists": true,
           "fileName": "icons/favicon-16x16.png",
           "replacementPath": "icons/favicon-16x16.png"
@@ -5232,8 +5310,8 @@
             "rel": "icon",
             "type": "image/x-icon"
           },
-          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/icons/favicon.ico",
-          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/favicon.ico",
+          "sourcePath": "/home/konni/Downloads/xtend-dev/xtend/icons/favicon.ico",
+          "outputPath": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/icons/favicon.ico",
           "sourceExists": true,
           "fileName": "icons/favicon.ico",
           "replacementPath": "icons/favicon.ico"
@@ -5243,8 +5321,8 @@
           "source": "logo.svg",
           "output": "icons/logo.svg",
           "type": "image/svg+xml",
-          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/logo.svg",
-          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/logo.svg",
+          "sourcePath": "/home/konni/Downloads/xtend-dev/xtend/logo.svg",
+          "outputPath": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/icons/logo.svg",
           "sourceExists": true,
           "fileName": "icons/logo.svg",
           "replacementPath": "icons/logo.svg"
@@ -5255,8 +5333,8 @@
           "output": "icons/XTend-Logo.png",
           "sizes": "1024x1024",
           "type": "image/png",
-          "sourcePath": "/home/konni/Downloads/xtend-main/xtend/XTend-Logo.png",
-          "outputPath": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons/XTend-Logo.png",
+          "sourcePath": "/home/konni/Downloads/xtend-dev/xtend/XTend-Logo.png",
+          "outputPath": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/icons/XTend-Logo.png",
           "sourceExists": true,
           "fileName": "icons/XTend-Logo.png",
           "replacementPath": "icons/XTend-Logo.png"
@@ -5316,9 +5394,9 @@
         "report": "docs/generated/shell/xtend.webmanifest.report.json"
       },
       "outputs": {
-        "manifest": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/xtend.webmanifest",
-        "iconDirectory": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/icons",
-        "report": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/xtend.webmanifest.report.json"
+        "manifest": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/xtend.webmanifest",
+        "iconDirectory": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/icons",
+        "report": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/xtend.webmanifest.report.json"
       },
       "diagnostics": [],
       "summary": {
@@ -5537,7 +5615,7 @@
     "click",
     "submit",
     "xtend.rmt.core-format.vnext.v1",
-    "xtend.maraca.build-plan.v1",
+    "xtend.maraca.build-plan.v2",
     "xtend.maraca.bundle-report.v1",
     "xtend.maraca.size-budget-report.v1",
     "xtend.maraca.performance-report.v1",
@@ -5580,7 +5658,11 @@
     "warnings": [
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-state-host-adapter.js (159:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-state-host-adapter.js (164:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+      },
+      {
+        "code": "THIS_IS_UNDEFINED",
+        "message": "xtendrmt/rmt-presentation-effect-adapter.js (597:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -5592,18 +5674,14 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-presentation-effect-adapter.js (597:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-surface-resource-graph-runtime.js (1749:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-surface-resource-graph-runtime.js (1744:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
-      },
-      {
-        "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-dom-descriptor-renderer.js (3599:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-dom-descriptor-renderer.js (3728:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       }
     ],
-    "nameCache": "/home/konni/Downloads/xtend-main/xtend/docs/generated/shell/xtend.maraca.name-cache.json"
+    "nameCache": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/xtend.maraca.name-cache.json"
   },
   "sizeBudget": {
     "schema": "xtend.maraca.size-budget-report.v1",
@@ -5614,16 +5692,16 @@
     "baseline": {
       "mode": "legacy-loader-plus-selected-component-modules-plus-stack-modules",
       "loaderBytes": 70038,
-      "selectedComponentBytes": 279895,
-      "stackModuleBytes": 581928,
-      "contractPayloadBytes": 201267,
-      "bytes": 1133128
+      "selectedComponentBytes": 281529,
+      "stackModuleBytes": 594698,
+      "contractPayloadBytes": 202110,
+      "bytes": 1148375
     },
-    "baselineBytes": 1133128,
-    "bundleBytes": 989721,
+    "baselineBytes": 1148375,
+    "bundleBytes": 970486,
     "framework": {
-      "bytes": 989721,
-      "baselineBytes": 1133128,
+      "bytes": 970486,
+      "baselineBytes": 1148375,
       "withinBudget": true
     },
     "microkernel": {
@@ -5657,11 +5735,11 @@
         }
       ]
     },
-    "ratio": 0.8734414823391532,
+    "ratio": 0.8450950255796233,
     "budgets": {
       "modernEsmEntryMustBeSmallerThanBaseline": true,
       "enforcement": "strict",
-      "frameworkBytes": 1133128,
+      "frameworkBytes": 1148375,
       "clientAppServiceBytes": null,
       "serverAppServiceBytes": null
     }

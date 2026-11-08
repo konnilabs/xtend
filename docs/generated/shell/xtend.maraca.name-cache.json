@@ -227,7 +227,14 @@
       "$MARACA_BOOT_CONFIGURATION": "yr",
       "$createXtendMaraca": "br",
       "$componentStyleNonce": "Fn",
-      "$xheader": "Hn"
+      "$xheader": "Hn",
+      "$RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA": "gr",
+      "$MARACA_XTENSION_BINDINGS": "_r",
+      "$styleNonce": "Wn",
+      "$createComponentStyle": "Dn",
+      "$normalizeName$1": "Zn",
+      "$XROUTER_SAFE_DOCUMENT_PROTOCOLS": "Kn",
+      "$componentNode": "Qn"
     }
   },
   "props": {

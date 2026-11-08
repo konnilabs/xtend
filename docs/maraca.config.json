@@ -1,5 +1,5 @@
 {
-  "schema": "xtend.maraca.build-config.v1",
+  "schema": "xtend.maraca.build-config.v2",
   "source": "docs/xtendrmt-docs-document-v2.rmt",
   "sourceFingerprint": "56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
   "serviceGraphFingerprint": null,
@@ -65,5 +65,5 @@
     "mode": "rollup-terser"
   },
   "candidateMatrixFingerprint": "851a22f28bd3feb6e4d17dd38c80a63cd84a7374bde8d535e49b6b934a0836c7",
-  "configFingerprint": "87c4534f59be39aa243c26f02c036bbfdd68619ff026276b1a73e5a90da9d921"
+  "configFingerprint": "123ea1cf51a3b920d067be555473a9038225215f6c12f198ccc6ee517e121308"
 }

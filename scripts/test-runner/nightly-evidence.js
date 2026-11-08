@@ -62,7 +62,7 @@ function inspectArtifact(definition, options = {}) {
         if (definition.kind === 'outcome' && value.ok !== true && value.status !== 'passed') throw new Error('Artifact has no positive outcome');
         if (definition.expectedSchema && value.schema !== definition.expectedSchema) throw new Error('Unexpected outcome schema');
         if (definition.expectedMode && value.mode !== definition.expectedMode) throw new Error('Unexpected Runtime execution mode');
-        if (value.schema === 'xtend.xtensions.runtime-acceptance-report.v1') {
+        if (value.schema === 'xtend.xtensions.runtime-acceptance-report.v2') {
           if (value.ok !== true || !Array.isArray(value.passed) || value.passed.length < 86 || new Set(value.passed).size !== value.passed.length || !Array.isArray(value.failed) || value.failed.length || !Array.isArray(value.pageErrors) || value.pageErrors.length) throw new Error('Incomplete or negative actual Runtime acceptance');
           if (!value.exports?.legacySynchronousContracts || !value.exports?.declarationExportParity || !value.exports?.browserConditionParity || !value.versions?.react || !value.versions?.vue || !value.node || !['jsdom','chromium'].includes(value.mode)) throw new Error('Missing actual Runtime identities or export checks');
           if (value.mode === 'chromium' && (!value.browser || !value.exports.actualBrowserParity)) throw new Error('Missing actual Chromium evidence');

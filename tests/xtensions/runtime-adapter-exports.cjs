@@ -5,11 +5,17 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { XTENSIONS_HOST_CONTROLLER_RESULT_SCHEMA } = require('../../tools/xtensions/host-controller-contract');
+const LEGACY_RUNTIME_ACCEPTANCE_REPORT_SCHEMA = 'xtend.xtensions.runtime-acceptance-report.v1';
 
 function runExportChecks() {
   const root = path.resolve(__dirname, '../..');
   const metadata = require('../../package.json');
   const runtime = {}, all = {};
+  const bindingName = '@ccslabs/xtend/xtensions/state-binding';
+  const binding = require(bindingName);
+  assert.deepEqual(Object.keys(binding).sort(), ['XTENSION_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_STATE_BINDING_SCHEMA', 'createXTensionStateRegistry', 'validateStateBinding', 'validateStateBindingArtifact']);
+  assert.equal(require('@ccslabs/xtend-compiler/xtensions/state-binding').createXTensionStateRegistry, binding.createXTensionStateRegistry);
+  all[bindingName] = Object.entries(binding).map(([key, value]) => [key, typeof value]).sort();
   for (const framework of ['react', 'vue']) {
     const title = framework[0].toUpperCase() + framework.slice(1);
     for (const kind of ['host', 'runtime']) {
@@ -20,6 +26,13 @@ function runExportChecks() {
       assert.equal(entry.types, `./tools/xtensions/${framework}-${kind}-adapter.d.ts`);
       assert.equal(entry.browser, undefined, 'no alternate API under browser conditions');
       const exports = require(name);
+        if (kind === 'runtime') {
+          const target = {};
+          const controller = exports[`create${title}RuntimeAdapter`]({ container: target, component: {} });
+          assert.equal(controller.apiVersion, '2.0.0');
+          assert.equal(controller.schema, 'xtend.xtensions.runtime-host-controller.v2');
+          assert.equal(controller.adapterSchema, `xtend.xtensions.${framework}-runtime-adapter.v2`);
+        }
       all[name] = Object.entries(exports).map(([key, value]) => [key, typeof value]).sort();
       if (kind === 'runtime') {
         runtime[framework] = all[name];
@@ -50,7 +63,8 @@ function runExportChecks() {
     `const names=${JSON.stringify(Object.keys(all))};console.log(JSON.stringify(Object.fromEntries(names.map(name=>[name,Object.entries(require(name)).map(([key,value])=>[key,typeof value]).sort()]))));`
   ], { cwd: root, encoding: 'utf8' }));
   assert.deepEqual(browserConditions, all, 'Node browser condition preserves complete host and runtime exports');
-  return { ok: true, runtime, legacySynchronousContracts: true, browserConditionParity: true, declarationExportParity: true };
+  return { ok: true, runtime, legacyAcceptanceReportSchema: LEGACY_RUNTIME_ACCEPTANCE_REPORT_SCHEMA,
+    legacySynchronousContracts: true, browserConditionParity: true, declarationExportParity: true };
 }
 
-module.exports = { runExportChecks };
+module.exports = { runExportChecks, LEGACY_RUNTIME_ACCEPTANCE_REPORT_SCHEMA };

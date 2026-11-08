@@ -13,6 +13,7 @@ export interface RmtAstCompilationError extends Error {
   diagnostics: RmtToolingDiagnostic[];
 }
 export interface RmtVNextCompiler {
+  readonly apiVersion: '1.1.0';
   readonly schema: string;
   readonly coreSchema: string;
   readonly compileSource: typeof compileRmtVNextSource;
@@ -42,6 +43,7 @@ export declare const RMT_VNEXT_COMPILER_MODULE_PATH: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_PACKAGE_SCRIPT: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_REPORT_SCHEMA: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_SCHEMA: RmtToolingConstant;
+export declare const RMT_VNEXT_COMPILER_API_VERSION: '1.1.0';
 export declare const RMT_VNEXT_COMPILER_SUITE_PATH: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_WORKPACKAGE: RmtToolingConstant;
 export declare const RMT_VNEXT_CORE_SCHEMA: RmtToolingConstant;
@@ -49,3 +51,4 @@ export declare const RMT_VNEXT_PARSER_WORKPACKAGE: RmtToolingConstant;
 export declare const RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA: RmtToolingConstant;
 export declare const RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE: RmtToolingConstant;
 export declare function serializeRmtVNextCore(coreDocument: RmtVNextCoreDocument): string;
+export declare function createRmtAppOrchestrationArtifacts(coreDocument: RmtVNextCoreDocument): RmtJsonValue | null;

@@ -30,6 +30,8 @@ async function runXTensionsConsumerPackageSuite({ rootDir } = {}) {
         const entry=manifest.exports[`./xtensions/${framework}-runtime-adapter`];
         for(const condition of ['types','default'])assert(fs.existsSync(path.join(target,entry[condition])),`${pack.name} packs ${framework} ${condition} target`);
       }
+      const bindingEntry=manifest.exports['./xtensions/state-binding'];
+      for(const condition of ['types','default'])assert(fs.existsSync(path.join(target,bindingEntry[condition])),`${pack.name} packs state binding ${condition} target`);
       context.pass(`${pack.name}: actual npm tarball contains the reviewed runtime targets and no framework dependencies`);
     }
     const fixture=path.join(temp,'consumer.cjs');
@@ -41,10 +43,23 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
 (async()=>{
  for(const name of ['react','react-dom','vue'])assert.throws(()=>require.resolve(name),{code:'MODULE_NOT_FOUND'});
  await import('@ccslabs/xtend');
+ const {createRmtStateSelectorRuntime}=await import('@ccslabs/xtend/rmt/state-selector-runtime');
  const {JSDOM}=peers('jsdom');const dom=new JSDOM('<!doctype html><body></body>',{pretendToBeVisual:true});
  for(const key of ['window','document','Node','Element','HTMLElement','SVGElement','navigator','MutationObserver'])Object.defineProperty(globalThis,key,{configurable:true,value:dom.window[key]});
  const React=peers('react'),ReactDOM={...peers('react-dom/client'),version:peers('react-dom').version},Vue=peers('vue');
  try{
+  for(const pkg of ['@ccslabs/xtend','@ccslabs/xtend-compiler']){
+   const {createXTensionStateRegistry,XTENSION_STATE_BINDING_SCHEMA}=require(pkg+'/xtensions/state-binding');
+   const model=createRmtStateSelectorRuntime({states:[{id:'title',type:'string',initial:'packed binding'}]});
+   const registry=createXTensionStateRegistry({modelReader:model.modelReader,modelCommandPort:model.modelCommandPort});
+   const container=document.createElement('section');document.body.append(container);
+   const bound=registry.bind({schema:XTENSION_STATE_BINDING_SCHEMA,address:{documentId:pkg,declarationId:'title',keys:[]},
+    props:{title:{state:'title',path:[],type:'string'}},intents:{}},context=>require(pkg+'/xtensions/react-runtime-adapter').createReactRuntimeAdapter({
+     ...context,container,component:props=>React.createElement('p',null,props.title),peers:{React,ReactDOM},policy:{events:context.events}}));
+   await bound.mount();assert.equal(container.textContent,'packed binding');
+   model.setState('title','updated binding');await bound.whenIdle();assert.equal(container.textContent,'updated binding');
+   await registry.dispose();assert.equal(container.childNodes.length,0);container.remove();
+  }
   for(const pkg of ['@ccslabs/xtend','@ccslabs/xtend-compiler'])for(const framework of ['react','vue']){
    const title=framework[0].toUpperCase()+framework.slice(1),api=require(pkg+'/xtensions/'+framework+'-runtime-adapter');
    assert.throws(()=>api['normalize'+title+'Peers']({}),TypeError);
@@ -62,8 +77,15 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
 `);
     console.log(command(process.execPath,[fixture],{cwd:temp,env:{...process.env,XTENSIONS_TEST_PEERS:peers.peerRoot}}));
     context.pass('Isolated packed root/compiler Node consumer resolves all Runtime APIs, renders with injected peers, rejects missing peers and payload leaks');
+    const typing=path.join(temp,'binding-consumer.ts');
+    fs.writeFileSync(typing,`import { createXTensionStateRegistry as root } from '@ccslabs/xtend/xtensions/state-binding';
+import { createXTensionStateRegistry as compiler } from '@ccslabs/xtend-compiler/xtensions/state-binding';
+import { compileRmtClassicAstWithBindings } from '@ccslabs/xtend-compiler/rmt-language/classic-compiler';
+const same: typeof root = compiler; void same; void compileRmtClassicAstWithBindings;\n`);
+    command(process.execPath,[path.join(rootDir,'node_modules/typescript/bin/tsc'),'--strict','--noEmit','--lib','es2022,dom','--module','node16','--moduleResolution','node16',typing],{cwd:temp});
+    context.pass('Packed root/compiler state binding declarations resolve strictly without source-tree RMT imports');
     const { build } = require('esbuild');
-    const bundle=await build({stdin:{contents:"import * as XTend from '@ccslabs/xtend'; import * as ReactAdapter from '@ccslabs/xtend/xtensions/react-runtime-adapter'; import * as VueAdapter from '@ccslabs/xtend/xtensions/vue-runtime-adapter'; globalThis.consumer={XTend,ReactAdapter,VueAdapter};",resolveDir:temp},absWorkingDir:temp,bundle:true,platform:'browser',write:false,metafile:true});
+    const bundle=await build({stdin:{contents:"import * as XTend from '@ccslabs/xtend'; import * as ReactAdapter from '@ccslabs/xtend/xtensions/react-runtime-adapter'; import * as VueAdapter from '@ccslabs/xtend/xtensions/vue-runtime-adapter'; import * as StateBinding from '@ccslabs/xtend/xtensions/state-binding'; globalThis.consumer={XTend,ReactAdapter,VueAdapter,StateBinding};",resolveDir:temp},absWorkingDir:temp,bundle:true,platform:'browser',write:false,metafile:true});
     assert(Object.keys(bundle.metafile.inputs).some(input=>input.endsWith('/xtend.js')),'Neutral Core must actually be included, not tree-shaken out of the consumer test');
     assert(!Object.keys(bundle.metafile.inputs).some(input=>/node_modules[\\/](react|react-dom|vue|@vue)[\\/]/.test(input)),'Neutral core and adapter bundle must not include peer runtimes');
     context.pass('Actual packed browser consumer bundles neutral Core and Runtime factories without React/Vue');

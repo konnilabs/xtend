@@ -997,6 +997,10 @@
       "types": "./tools/xtensions/react-runtime-adapter.d.ts",
       "default": "./tools/xtensions/react-runtime-adapter.js"
     },
+    "./xtensions/state-binding": {
+      "types": "./tools/xtensions/state-binding.d.ts",
+      "default": "./tools/xtensions/state-binding.js"
+    },
     "./xtensions/vue-runtime-adapter": {
       "types": "./tools/xtensions/vue-runtime-adapter.d.ts",
       "default": "./tools/xtensions/vue-runtime-adapter.js"
@@ -15628,7 +15632,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 207,
+      "expectedExportCount": 211,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15653,8 +15657,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 207,
-      "lockedExportFingerprint": "d052ac3e171c4e4d9e29423d0a267fcb6f569db3c333ca6208a1a3ef37a2cbab",
+      "expectedExportCount": 211,
+      "lockedExportFingerprint": "d54e84d640476e46386fdcee3eb3273a9f2103bb3a80e066cc2b7117c48e4a58",
       "p0Exports": [
         ".",
         "./loader",
@@ -17648,7 +17652,7 @@
       "packageName": "@ccslabs/xtend-maraca",
       "rootExport": "./maraca",
       "runtimeExport": "./maraca/runtime",
-      "buildPlanSchema": "xtend.maraca.build-plan.v1",
+      "buildPlanSchema": "xtend.maraca.build-plan.v2",
       "bundleReportSchema": "xtend.maraca.bundle-report.v1",
       "sizeBudgetReportSchema": "xtend.maraca.size-budget-report.v1",
       "performanceReportSchema": "xtend.maraca.performance-report.v1",

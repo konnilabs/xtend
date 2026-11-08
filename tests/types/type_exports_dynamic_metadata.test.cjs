@@ -7,11 +7,11 @@ const source=fs.readFileSync(file,'utf8'),compiled=new Module(path.join(root,'ca
 compiled.filename=path.join(root,'catalog/type-exports.js');compiled.paths=Module._nodeModulePaths(path.dirname(compiled.filename));compiled._compile(source,compiled.filename);
 const api=compiled.exports;const manifest=()=>JSON.parse(fs.readFileSync(path.join(root,'package.json')));
 const plan=p=>api.createTypeExportsPlan({rootDir:root,packageManifest:p});
-test('actual metadata remains numeric/string and strict current207-key validation passes',()=>{
+test('actual metadata remains numeric/string and strict current211-key validation passes',()=>{
  const p=manifest(),result=plan(p);assert.equal(result.lockedExportCount,p.xtend.typeExports.expectedExportCount);
  assert.equal(result.lockedExportFingerprint,p.xtend.typeExports.lockedExportFingerprint);
  assert.equal(typeof result.lockedExportCount,'number');assert.equal(typeof result.lockedExportFingerprint,'string');
- assert.equal(Object.keys(p.exports).length,207);assert.deepEqual(api.validateTypeExportsPlan(result).errors,[]);
+ assert.equal(Object.keys(p.exports).length,211);assert.deepEqual(api.validateTypeExportsPlan(result).errors,[]);
 });
 test('producer retains changed dynamic values while consumer rejects semantic drift',()=>{
  for(const value of [0,206,208,999]){const p=manifest();p.xtend.typeExports.expectedExportCount=value;const result=plan(p);assert.equal(result.lockedExportCount,value);assert.equal(api.validateTypeExportsPlan(result).ok,false);}
@@ -25,7 +25,7 @@ for(const [name,mutate]of [
  ['null fingerprint',p=>p.xtend.typeExports.lockedExportFingerprint=null],['malformed fingerprint',p=>p.xtend.typeExports.lockedExportFingerprint='not-a-digest']
 ])test('invalid metadata still returns original dynamic values and is rejected by the validator '+name,()=>{const p=manifest();mutate(p);const result=plan(p),metadata=p.xtend.typeExports;assert.equal(result.lockedExportCount,metadata&&metadata.expectedExportCount);assert.equal(result.lockedExportFingerprint,metadata&&metadata.lockedExportFingerprint);assert.equal(api.validateTypeExportsPlan(result).ok,false);});
 test('strict export addition/substitution/order and existing declaration checks remain enforced',()=>{
- for(const mutate of [p=>p.exports['./unreviewed-helper']='./api.js',p=>{delete p.exports['./schema-inventory'];p.exports['./unreviewed-helper']='./api.js';},p=>p.exports=Object.fromEntries(Object.entries(p.exports).reverse()),p=>p.exports['./schema-inventory'].default='./api.js']){
+ for(const mutate of [p=>p.exports['./unreviewed-helper']='./api.js',p=>{delete p.exports['./candidate-integrity'];p.exports['./unreviewed-helper']='./api.js';},p=>p.exports=Object.fromEntries(Object.entries(p.exports).reverse()),p=>p.exports['./candidate-integrity'].default='./api.js']){
   const p=manifest();mutate(p);assert.equal(api.validateTypeExportsPlan(plan(p)).ok,false);
  }
 });

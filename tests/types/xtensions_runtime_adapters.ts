@@ -5,10 +5,27 @@ import { createReactHostAdapter } from '@ccslabs/xtend/xtensions/react-host-adap
 import { createVueHostAdapter } from '@ccslabs/xtend/xtensions/vue-host-adapter';
 import { createReactRuntimeAdapter as compilerReact } from '@ccslabs/xtend-compiler/xtensions/react-runtime-adapter';
 import { createVueRuntimeAdapter as compilerVue } from '@ccslabs/xtend-compiler/xtensions/vue-runtime-adapter';
+import { createXTensionStateRegistry, XTENSION_STATE_BINDING_SCHEMA } from '@ccslabs/xtend/xtensions/state-binding';
+import { createXTensionStateRegistry as compilerStateRegistry } from '@ccslabs/xtend-compiler/xtensions/state-binding';
+import type { RmtModelReader, RmtModelCommandPort } from '../../xtendrmt/rmt-state-selector-runtime.js' with { 'resolution-mode': 'import' };
 import { createXtendFabric } from '../../fabric/xtend-fabric';
 declare const container: HTMLElement;
 declare const peers: unknown;
 declare const component: unknown;
+declare const modelReader: RmtModelReader;
+declare const modelCommandPort: RmtModelCommandPort;
+const sameStateRegistry: typeof createXTensionStateRegistry = compilerStateRegistry;
+const registry = createXTensionStateRegistry({ modelReader, modelCommandPort });
+const bound = registry.bind({ schema: XTENSION_STATE_BINDING_SCHEMA,
+  address: { documentId: 'doc', declarationId: 'panel', keys: ['item-1'] },
+  props: { title: { state: 'panel', path: ['title'], type: 'string' } },
+  intents: { change: { command: 'panel.change', payloadSchema: 'xtend.schemas.xtension.intent.v1', fields: {
+    selection: { type: 'object', fields: { ids: { type: 'array', items: { type: 'string' } } } }
+  } } }
+}, (context) => createReactRuntimeAdapter({ container, component, peers, ...context, policy: { events: context.events } }));
+// @ts-expect-error Object rules require an explicit field contract.
+registry.bind({ schema: XTENSION_STATE_BINDING_SCHEMA, address: { documentId: 'doc', declarationId: 'bad', keys: [] }, props: { x: { state: 'x', path: [], type: 'object' } }, intents: {} }, () => react);
+void bound; void sameStateRegistry;
 const react = createReactRuntimeAdapter({ container, component, peers, policy: { events: { selected: 'selection.v1' }, allowedResources: ['timer'] } });
 const vue = createVueRuntimeAdapter({ container, component, loadRuntime: async ({ signal }) => { signal.throwIfAborted(); return peers; } });
 const legacyReact: Record<string, unknown> = createReactHostAdapter();
@@ -26,7 +43,7 @@ async function lifecycle() {
   const result: RuntimeHostResult = await react.mount(container, { label: 'initial' });
   const identity: string | undefined = result.cleanupRecords[0]?.xtensionId;
   await vue.update({ updateAdapter: 'applyPropsUpdate', props: { label: 'next' } });
-  await react.suspend(); await react.resume(); await react.unmount();
+  await react.suspend(); await react.resume('latest-state', { props: { label: 'current' } }); await react.unmount();
   return identity;
 }
 declare const capabilities: ComponentCapabilities;

@@ -4,6 +4,8 @@ import {
   COMPONENT_COMMAND_SCHEMA,
   createMaracaBrowserHostAdapter
 } from './browser-host-adapter.mjs';
+export const MARACA_BROWSER_API_VERSION = '2.0.0';
+export const LEGACY_BROWSER_COMPOSITION_SCHEMA = 'xtend.maraca.browser-composition-root.v1';
 
 function clone(value) {
   if (value === undefined) return undefined;
@@ -201,6 +203,7 @@ function createRuntimeConfiguration(config, options, host, handles) {
   return Object.freeze({
     plan: {
       orchestration: config.orchestration,
+      ...(Object.hasOwn(config, 'xtensionBindings') ? { xtensionBindings: config.xtensionBindings } : {}),
       kernel: config.kernel,
       hydration: config.hydration,
       validation: config.validation,
@@ -211,6 +214,8 @@ function createRuntimeConfiguration(config, options, host, handles) {
     },
     root,
     initialState: options.initialState || config.state || {},
+    xtensionBindingsRuntime: options.xtensionBindingsRuntime,
+    createXTensionHost: options.createXTensionHost,
     fastPassActions: options.fastPassActions || [],
     actionHistoryLimit: options.actionHistoryLimit,
     commandHistoryLimit: options.commandHistoryLimit,
@@ -300,6 +305,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
   const host = createMaracaBrowserHostAdapter(config, { ...dependencies, runtimeApis, platformTarget, windowTarget, documentTarget });
   let generation = 0;
   let runtime = null;
+  let xtensionDrain = Promise.resolve();
   let runtimeUnsubscribe = null;
   const facadeSubscriptions = new Set();
   function attachSubscription(entry, target) {
@@ -386,6 +392,8 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
     if (!documentTarget) return deepFreeze({ ok: false, status: 'no_document', schema: config.schema });
     const disposed = {};
     try {
+      assertActiveBoot(attempt);
+      await xtensionDrain;
       assertActiveBoot(attempt);
       attempt.root = host.resolveRoot(options.root || null);
       attempt.appServices = createAppServicesPort(config, dependencies, options, host.publish);
@@ -580,6 +588,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
   function dispose(reason = 'XTend Maraca app disposed.') {
     generation += 1;
     const pendingAttempt = bootAttempt;
+    const closingRuntimes = [...new Set([runtime, pendingAttempt?.runtime].filter(Boolean))];
     if (pendingAttempt) pendingAttempt.cancel(reason);
     if (bootAttempt === pendingAttempt) bootAttempt = null;
     if (typeof runtimeUnsubscribe === 'function') runtimeUnsubscribe();
@@ -594,6 +603,8 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
     closeHandle(disposed, 'telemetry', telemetry);
     closeHandle(disposed, 'renderer', renderer, root || undefined, { clearOwnedDom: false });
     disposed.host = host.dispose() > 0;
+    xtensionDrain = Promise.all([xtensionDrain, ...closingRuntimes.map((closing) => closing.whenXTensionsIdle?.())]).then(() => undefined);
+    xtensionDrain.catch(() => {});
     runtime = null; resume = null; hydration = null; kernel = null; appServices = null; renderer = null; root = null; bootResult = null;
     templateArtifactsRegistration = null; pwaRegistration = null; telemetry = null;
     host.clearPublicFacades();
@@ -603,6 +614,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
   }
 
   const facadeMembers = {
+    apiVersion: MARACA_BROWSER_API_VERSION,
     schema: config.schema,
     components: config.components || [],
     surfaces: config.surfaces || [],
@@ -632,6 +644,11 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
       if (!runtime) throw new Error('Maraca orchestration is not booted.');
       return runtime.getSurfaceBoundary(id);
     },
+    getXTensionBindings() {
+      if (!runtime) throw new Error('Maraca orchestration is not booted.');
+      return runtime.getXTensionBindings();
+    },
+    whenXTensionsIdle() { return runtime ? runtime.whenXTensionsIdle() : xtensionDrain; },
     dispatchStreamPatch,
     snapshot,
     subscribe,
@@ -650,7 +667,8 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
   facade = deepFreeze(facadeMembers);
 
   return deepFreeze({
-    schema: 'xtend.maraca.browser-composition-root.v1',
+    schema: 'xtend.maraca.browser-composition-root.v2',
+    apiVersion: MARACA_BROWSER_API_VERSION,
     config,
     facade,
     boot,

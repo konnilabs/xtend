@@ -7,7 +7,7 @@ const { normalizeHostResourceCleanupRecord } = require('../../tools/xtensions/ho
 const { createXtendFabric } = require('../../fabric/xtend-fabric');
 
 // Shared by jsdom and Chromium: no substitute framework roots or DOM stubs.
-async function runRuntimeAcceptance({ React: R, ReactDOM, Vue: V, document }) {
+async function runRuntimeAcceptance({ React: R, ReactDOM, Vue: V, document, compiledBindingPlan }) {
   const passed = [], failed = [];
   const check = (condition, message) => { if (!condition) throw new Error(message); };
   const equal = (a, b, message) => check(JSON.stringify(a) === JSON.stringify(b), `${message}: ${JSON.stringify(a)} != ${JSON.stringify(b)}`);
@@ -509,6 +509,28 @@ async function runRuntimeAcceptance({ React: R, ReactDOM, Vue: V, document }) {
         equal(f.stats.stops, 1, 'resources still released'); equal(f.stats.destroys, 1, 'framework cleanup attempted once');
       } finally { await f.close(); }
     });
+    await test(`${framework}: resume replacement validates props and authority before rendering`, async () => {
+      const f = fixture(framework, { policy: { allowedResources: ['timer'], validateProps: (props) => typeof props.title === 'string' } });
+      try {
+        check((await f.adapter.mount(f.container, { title: 'before' })).ok, 'resource host mounted'); await f.adapter.suspend();
+        const starts = f.stats.starts;
+        check((await f.adapter.resume('state', { props: { title: 1 } })).status === 'policy-blocked', 'invalid resume props denied');
+        check((await f.adapter.resume('state', { props: { title: 'bad', xtension: {} } })).status === 'policy-blocked', 'props cannot inject runtime authority');
+        check(f.adapter.snapshot().suspended && f.stats.starts === starts && f.adapter.snapshot().resources.active === 0, 'rejected resume leaves resource scope paused');
+        check((await f.adapter.resume('state', { props: { title: 'latest' } })).ok, 'valid replacement resumes');
+        check(f.container.textContent.includes('latest'), 'actual framework commits replacement');
+      } finally { await f.close(); }
+    });
+    await test(`${framework}: resume replacement obeys update policy while preserving suspended state`, async () => {
+      const f = fixture(framework, { policy: { allowedResources: ['timer'], authorize: ({ operation }) => operation !== 'update' } });
+      try {
+        await f.adapter.mount(f.container, { title: 'before' }); await f.adapter.suspend();
+        const starts = f.stats.starts;
+        check((await f.adapter.resume('state', { props: { title: 'denied' } })).status === 'policy-blocked', 'update policy checked on resume');
+        check(f.adapter.snapshot().suspended && f.stats.starts === starts && f.container.textContent.includes('before'), 'denial causes no render or resource restart');
+        check((await f.adapter.resume()).ok, 'legacy resume without replacement remains supported');
+      } finally { await f.close(); }
+    });
     await test(`${framework}: host policy also restricts suspend and props validation`, async () => {
       const f = fixture(framework, { policy: { allowedResources: ['timer'], authorize: ({ operation }) => operation !== 'suspend', validateProps: (props) => typeof props.title === 'string' } });
       try {
@@ -525,6 +547,8 @@ async function runRuntimeAcceptance({ React: R, ReactDOM, Vue: V, document }) {
       finally { await f.close(); }
     });
   }
+  await require('./state-binding-acceptance').runStateBindingAcceptance({ React: R, ReactDOM, document, test, check, equal });
+  await require('./compiled-state-binding-acceptance').runCompiledStateBindingAcceptance({ React: R, ReactDOM, document, test, check, equal, plan: compiledBindingPlan });
   return { ok: failed.length === 0, passed, failed, versions: { react: R.version, reactDOM: ReactDOM.version, vue: V.version }, retainedCyclesPerFramework: 50 };
 }
 module.exports = { runRuntimeAcceptance };

@@ -2,7 +2,8 @@
 // Local extraction provenance and third-party notices: ./NOTICE
 'use strict';
 
-const { XTENSIONS_HOST_CONTROLLER_SCHEMA, createLifecycleRecord, normalizeHostControllerResult } = require('./host-controller-contract');
+const { createLifecycleRecord, normalizeHostControllerResult } = require('./host-controller-contract');
+const RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v2';
 const { createHostResourceCleanupRecord } = require('./host-resource-cleanup-record');
 const { createSurfaceEvent } = require('./signal-bridge-contract');
 const { createCooperativeResourceScope } = require('./cooperative-resource-scope');
@@ -165,8 +166,8 @@ function createRuntimeHostController(options, driver) {
     return teardownPromise;
   }
   const api = {
-    schema: XTENSIONS_HOST_CONTROLLER_SCHEMA,
-    adapterSchema: `xtend.xtensions.${framework}-adapter.v1`, framework,
+    schema: RUNTIME_HOST_CONTROLLER_SCHEMA,
+    apiVersion: '2.0.0', adapterSchema: `xtend.xtensions.${framework}-runtime-adapter.v2`, framework,
     mount(target = container, initialProps = {}, mountOptions = {}) {
       if (disposed) return Promise.resolve(result('mount', 'failed', { reason: 'already-destroyed' }));
       if (target !== container) return Promise.resolve(result('mount', 'policy-blocked', { reason: 'host-container-mismatch' }));
@@ -257,13 +258,28 @@ function createRuntimeHostController(options, driver) {
         return result('suspend', before === diagnostics.length ? 'ok' : 'degraded', { reason: String(reason) }, diagnostics.slice(before));
       });
     },
-    resume(reason = 'host-policy') {
+    resume(reason = 'host-policy', options = {}) {
+      let next;
+      try {
+        inspectData(options);
+        if (Object.keys(options).some((key) => key !== 'props')) throw new TypeError('Resume accepts only replacement props.');
+        if (Object.hasOwn(options, 'props')) next = dataProps(options.props);
+      } catch (error) { return Promise.resolve(result('resume', 'policy-blocked', {}, error.diagnostics || [diagnostic(error, 'resume')])); }
       return run('resume', async () => {
         if (disposed || !instance) return result('resume', 'failed', { reason: 'not-mounted' });
         if (!suspended) return result('resume', 'skipped');
-        permit('resume', props);
+        if (next) permit('update', next);
+        permit('resume', next || props);
         const token = generation;
         try {
+          if (next) {
+            const before = diagnostics.length;
+            const rendered = await Promise.race([Promise.resolve(instance.render(next)).then(() => ({ done: true })), cancelled]);
+            if (fatalError) throw fatalError;
+            if (rendered.cancelled || disposed) { await teardown(); return result('resume', 'skipped', { reason: 'disposed-during-resume' }); }
+            if (diagnostics.length !== before) throw new Error('Framework render failed.');
+            props = next;
+          }
           if (!startResources(token)) { await teardown(); return result('resume', 'skipped', { reason: 'disposed-during-resume' }); }
           suspended = false; phase = 'active';
           return result('resume', 'ok', { reason: String(reason) });
@@ -328,4 +344,4 @@ function createRuntimeHostController(options, driver) {
   const facade = Object.freeze({ emit: api.emit, resources: Object.freeze({ register: resources.register }) });
   return Object.freeze(api);
 }
-module.exports = { createRuntimeHostController };
+module.exports = { RUNTIME_HOST_CONTROLLER_SCHEMA, createRuntimeHostController };

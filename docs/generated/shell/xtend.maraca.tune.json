@@ -22,11 +22,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 8,
       "metrics": {
-        "frameworkBytes": 1005115,
+        "frameworkBytes": 985887,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 772349,
-        "totalBytes": 1005115,
+        "eagerBytes": 751460,
+        "totalBytes": 985887,
         "cssBytes": 255,
         "eagerRequests": 9,
         "chunkCount": 8
@@ -47,11 +47,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 8,
       "metrics": {
-        "frameworkBytes": 1005325,
+        "frameworkBytes": 986097,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 772559,
-        "totalBytes": 1005325,
+        "eagerBytes": 751670,
+        "totalBytes": 986097,
         "cssBytes": 255,
         "eagerRequests": 10,
         "chunkCount": 8
@@ -72,11 +72,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 8,
       "metrics": {
-        "frameworkBytes": 1005263,
+        "frameworkBytes": 986035,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 772497,
-        "totalBytes": 1005263,
+        "eagerBytes": 751608,
+        "totalBytes": 986035,
         "cssBytes": 255,
         "eagerRequests": 9,
         "chunkCount": 8
@@ -97,11 +97,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 8,
       "metrics": {
-        "frameworkBytes": 1005473,
+        "frameworkBytes": 986245,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 772707,
-        "totalBytes": 1005473,
+        "eagerBytes": 751818,
+        "totalBytes": 986245,
         "cssBytes": 255,
         "eagerRequests": 10,
         "chunkCount": 8
@@ -122,11 +122,11 @@
       "declaredPolicyPreserved": false,
       "declaredDeferredPolicyCount": 8,
       "metrics": {
-        "frameworkBytes": 1004034,
+        "frameworkBytes": 984802,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 1004034,
-        "totalBytes": 1004034,
+        "eagerBytes": 984802,
+        "totalBytes": 984802,
         "cssBytes": 255,
         "eagerRequests": 9,
         "chunkCount": 1
@@ -147,11 +147,11 @@
       "declaredPolicyPreserved": false,
       "declaredDeferredPolicyCount": 8,
       "metrics": {
-        "frameworkBytes": 1004244,
+        "frameworkBytes": 985012,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 1004244,
-        "totalBytes": 1004244,
+        "eagerBytes": 985012,
+        "totalBytes": 985012,
         "cssBytes": 255,
         "eagerRequests": 10,
         "chunkCount": 1
@@ -172,11 +172,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 8,
       "metrics": {
-        "frameworkBytes": 990503,
+        "frameworkBytes": 971275,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 772002,
-        "totalBytes": 990503,
+        "eagerBytes": 751113,
+        "totalBytes": 971275,
         "cssBytes": 255,
         "eagerRequests": 9,
         "chunkCount": 8
@@ -197,11 +197,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 8,
       "metrics": {
-        "frameworkBytes": 990713,
+        "frameworkBytes": 971485,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 772212,
-        "totalBytes": 990713,
+        "eagerBytes": 751323,
+        "totalBytes": 971485,
         "cssBytes": 255,
         "eagerRequests": 10,
         "chunkCount": 8
@@ -222,11 +222,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 8,
       "metrics": {
-        "frameworkBytes": 990651,
+        "frameworkBytes": 971423,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 772150,
-        "totalBytes": 990651,
+        "eagerBytes": 751261,
+        "totalBytes": 971423,
         "cssBytes": 255,
         "eagerRequests": 9,
         "chunkCount": 8
@@ -247,11 +247,11 @@
       "declaredPolicyPreserved": true,
       "declaredDeferredPolicyCount": 8,
       "metrics": {
-        "frameworkBytes": 990861,
+        "frameworkBytes": 971633,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 772360,
-        "totalBytes": 990861,
+        "eagerBytes": 751471,
+        "totalBytes": 971633,
         "cssBytes": 255,
         "eagerRequests": 10,
         "chunkCount": 8
@@ -272,11 +272,11 @@
       "declaredPolicyPreserved": false,
       "declaredDeferredPolicyCount": 8,
       "metrics": {
-        "frameworkBytes": 989503,
+        "frameworkBytes": 970271,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 989503,
-        "totalBytes": 989503,
+        "eagerBytes": 970271,
+        "totalBytes": 970271,
         "cssBytes": 255,
         "eagerRequests": 9,
         "chunkCount": 1
@@ -297,11 +297,11 @@
       "declaredPolicyPreserved": false,
       "declaredDeferredPolicyCount": 8,
       "metrics": {
-        "frameworkBytes": 989713,
+        "frameworkBytes": 970481,
         "appServiceBytes": 0,
         "serverAppServiceBytes": 0,
-        "eagerBytes": 989713,
-        "totalBytes": 989713,
+        "eagerBytes": 970481,
+        "totalBytes": 970481,
         "cssBytes": 255,
         "eagerRequests": 10,
         "chunkCount": 1
@@ -318,18 +318,18 @@
     "lazy": "route",
     "css": "inline",
     "metrics": {
-      "frameworkBytes": 990503,
+      "frameworkBytes": 971275,
       "appServiceBytes": 0,
       "serverAppServiceBytes": 0,
-      "eagerBytes": 772002,
-      "totalBytes": 990503,
+      "eagerBytes": 751113,
+      "totalBytes": 971275,
       "cssBytes": 255,
       "eagerRequests": 9,
       "chunkCount": 8
     }
   },
   "config": {
-    "schema": "xtend.maraca.build-config.v1",
+    "schema": "xtend.maraca.build-config.v2",
     "source": "docs/xtendrmt-docs-document-v2.rmt",
     "sourceFingerprint": "56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
     "serviceGraphFingerprint": null,
@@ -395,12 +395,12 @@
       "mode": "rollup-terser"
     },
     "candidateMatrixFingerprint": "851a22f28bd3feb6e4d17dd38c80a63cd84a7374bde8d535e49b6b934a0836c7",
-    "configFingerprint": "87c4534f59be39aa243c26f02c036bbfdd68619ff026276b1a73e5a90da9d921"
+    "configFingerprint": "123ea1cf51a3b920d067be555473a9038225215f6c12f198ccc6ee517e121308"
   },
   "configMatches": true,
   "finalBuild": {
     "status": "built",
-    "bytes": 989721,
+    "bytes": 970486,
     "entry": "docs/generated/shell/xtend.maraca.mjs",
     "toolchain": "rollup-terser"
   },

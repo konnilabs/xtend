@@ -74,7 +74,7 @@ Shared prewarming can keep valid cached data and component definitions. Business
 
 See `demos/xtendrmt/maraca-fastpass/` for native RMT authoring. The `maraca-responsiveness` and `rmt-kernel-scheduler` suites cover ordering and suppressed commits deterministically; browser checks supplement them with visible shell response measurements.
 
-The extended public runtime and presentation adapter use `xtend.maraca.plan-runtime.v3` and `xtend.rmt.presentation-effect-adapter.v2`, following the repository’s major-only schema policy. Existing methods retain their behavior. The additive authoring contract is published in `xtend-maraca/fastpass.schema.json`; the released RMT v2 document schema stays unchanged.
+The current public runtime uses `xtend.maraca.plan-runtime.v4`; v3 is the Legacy contract. A02.2 adds versioned XTension bindings, an Action/props completion boundary and foreign-root cleanup. The presentation adapter remains `xtend.rmt.presentation-effect-adapter.v2`. Schema changes use major versions; the unchanged Classic AST and released RMT v2 document schema keep their versions. The additive FastPass authoring contract is published in `xtend-maraca/fastpass.schema.json`.
 
 ## Related pages
 

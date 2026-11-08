@@ -1,0 +1,26 @@
+// A02.2: existing Classic syntax; XTension bindings travel in a versioned sidecar.
+template filters {
+  state filter.left type object preserve {
+    initial { query "left"; selection { activeId null } }
+  }
+  state filter.right type object preserve {
+    initial { query "right"; selection { activeId null } }
+  }
+  action filter.left.replace {
+    input filter object
+    reduce state.filter.left = input.filter
+  }
+  action filter.right.replace {
+    input filter object
+    reduce state.filter.right = input.filter
+  }
+  portal surface.root root "#xtend-maraca-root" layer surface
+  surface filter.left kind region component div {
+    portal surface.root
+    lane visible { mount filter-left }
+  }
+  surface filter.right kind region component div {
+    portal surface.root
+    lane visible { mount filter-right }
+  }
+}

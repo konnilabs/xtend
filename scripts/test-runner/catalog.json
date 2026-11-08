@@ -13651,14 +13651,14 @@
           "path": ".xtend-test-results/xtend-xtensions-runtime-report.json",
           "kind": "outcome",
           "producer": "full_release",
-          "expectedSchema": "xtend.xtensions.runtime-acceptance-report.v1",
+          "expectedSchema": "xtend.xtensions.runtime-acceptance-report.v2",
           "expectedMode": "jsdom"
         },
         {
           "path": ".xtend-test-results/xtend-xtensions-runtime-browser-report.json",
           "kind": "outcome",
           "producer": "full_release",
-          "expectedSchema": "xtend.xtensions.runtime-acceptance-report.v1",
+          "expectedSchema": "xtend.xtensions.runtime-acceptance-report.v2",
           "expectedMode": "chromium"
         },
         {

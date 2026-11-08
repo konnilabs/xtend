@@ -50,7 +50,7 @@ XTend.store ergänzt genau fünf typisierte Exports: `maraca/page-client`, `mara
 
 ## Unapplied product-migration wiring proposal (2026-10-09)
 
-The historical counts and fingerprints above describe earlier snapshots. The proposed current contract is exactly 207 ordered export keys, SHA-256 `c2224955e47635f60bb9f69dd673b5753d18d2229d6091334f412887ae95db11` (UTF-8 keys joined by newline, without a final newline). It supersedes the count-only proposal; count alone cannot prove key identity or target/type correctness. No export key or runtime target is added or changed.
+The historical counts and fingerprints above describe earlier snapshots. The current A02.1 contract is exactly 211 ordered export keys, SHA-256 `d54e84d640476e46386fdcee3eb3273a9f2103bb3a80e066cc2b7117c48e4a58` (UTF-8 keys joined by newline, without a final newline). The exact lock now includes the three existing RMT Classic parser/compiler/schema entries and the new `./xtensions/state-binding` entry. Existing targets retain their declarations and runtime paths. Unknown additions, substitutions, reordered keys and mismatched types still fail; count alone cannot prove key identity or target/type correctness. See [A02.1](rmtx-a02/README.md).
 
 All seven existing helpers are explicitly classified as P1 Node helper APIs with declarations, rather than assets or an unrestricted prefix group:
 

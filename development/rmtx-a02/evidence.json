@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "source": "development/rmtx-a02/controlled-filters.rmt",
+  "sourceSha256": "cc69a50496dd16930a3a22da98e913c5f19878ae7830627e68f96778c0a4103a",
+  "astContractVersion": "1.0.0",
+  "compilerApiVersion": "2.0.0",
+  "compileResultSchema": "xtend.rmt.classic.compile-result.v2",
+  "maracaBuildPlanSchema": "xtend.maraca.build-plan.v2",
+  "bindingSchema": "xtend.xtensions.state-binding-artifact.v1",
+  "bindingArtifactSha256": "446f1564da7bf5f4d2e8e99ef671d957d56f24ec62bf23a65900eda8a8ecfc08",
+  "programSha256": "c315d787adf635a106fcd9f4b46c7760fe6bd5e4cadd8dd5011d7e2e63afcde9",
+  "sourceAstParity": true,
+  "maracaTransport": true
+}

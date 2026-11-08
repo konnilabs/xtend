@@ -8,7 +8,9 @@
 | --- | --- | --- |
 | RMT Classic | Renaming and shared compiler contract implemented | Compatibility and regressions |
 | RMTX | Backend prepared; syntax and frontend pending | Parser/lowering, editor, mixed projects, browser/SSR |
-| XTensions 2.0 | Inventory available; integration pending | Instance addresses, state slices/feedback, cooperative kernel jobs, adapter/provider/host chain, cleanup, SSR/resume |
+| XTensions 2.0 | Static instance/state/Action integration through compiler and Maraca implemented | Dynamic hosts, URL/history, cooperative kernel jobs, automatic adapter/provider/host chain and SSR/resume remain pending |
+
+A02.2 takes a Classic document through to two actual React roots. Current versions: Maraca plan/configuration v2, runtime v4, browser/host/compiler API 2.0.0. The Classic AST remains 1.0.0; RMTX syntax is still pending. See the [contract and evidence](../../development/rmtx-a02/README.md).
 
 ## Release checks
 
