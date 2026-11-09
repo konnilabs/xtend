@@ -17652,7 +17652,7 @@
       "packageName": "@ccslabs/xtend-maraca",
       "rootExport": "./maraca",
       "runtimeExport": "./maraca/runtime",
-      "buildPlanSchema": "xtend.maraca.build-plan.v3",
+      "buildPlanSchema": "xtend.maraca.build-plan.v4",
       "bundleReportSchema": "xtend.maraca.bundle-report.v1",
       "sizeBudgetReportSchema": "xtend.maraca.size-budget-report.v1",
       "performanceReportSchema": "xtend.maraca.performance-report.v1",

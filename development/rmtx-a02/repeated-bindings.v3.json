@@ -1,0 +1,105 @@
+{
+  "schema": "xtend.xtensions.state-binding-artifact.v3",
+  "documentId": "repeated-filter-example",
+  "bindings": [
+    {
+      "surface": "filter",
+      "repeat": [
+        {
+          "state": "groups",
+          "path": [
+            "items"
+          ],
+          "key": [
+            "id"
+          ]
+        },
+        {
+          "path": [
+            "filters"
+          ],
+          "key": [
+            "id"
+          ]
+        }
+      ],
+      "presence": {
+        "state": "groups",
+        "path": [
+          "items",
+          {
+            "repeat": 0
+          },
+          "filters",
+          {
+            "repeat": 1
+          },
+          "enabled"
+        ]
+      },
+      "binding": {
+        "schema": "xtend.xtensions.state-binding.v2",
+        "address": {
+          "documentId": "repeated-filter-example",
+          "declarationId": "filter-panel",
+          "keys": []
+        },
+        "props": {
+          "query": {
+            "state": "groups",
+            "path": [
+              "items",
+              {
+                "repeat": 0
+              },
+              "filters",
+              {
+                "repeat": 1
+              },
+              "query"
+            ],
+            "type": "string"
+          },
+          "activeId": {
+            "state": "groups",
+            "path": [
+              "items",
+              {
+                "repeat": 0
+              },
+              "filters",
+              {
+                "repeat": 1
+              },
+              "selection",
+              "activeId"
+            ],
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "intents": {
+          "change": {
+            "command": "filters.update",
+            "payloadSchema": "repeated-filter-example.change.v1",
+            "fields": {
+              "query": {
+                "type": "string"
+              }
+            },
+            "keyFields": {
+              "groupId": {
+                "index": 0,
+                "type": "json"
+              },
+              "filterId": {
+                "index": 1,
+                "type": "json"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -28,3 +28,19 @@ void runtime.getXTensionBindings()[0]?.instance.identity;
 // @ts-expect-error Legacy v1 cannot carry the v2 presence contract.
 const legacyPresence: bindings.XTensionStateBindingArtifact = { schema: 'xtend.xtensions.state-binding-artifact.v1', documentId: 'doc', bindings: [{ surface: 'panel', binding: declaration, presence: { state: 'hosts', path: [] } }] };
 void legacyPresence;
+
+const template: bindings.XTensionBindingTemplate = {
+  schema: bindings.XTENSION_STATE_BINDING_SCHEMA, address: { documentId: 'doc', declarationId: 'row', keys: [] },
+  props: { title: { state: 'items', path: [{ repeat: 0 }, 'title'], type: 'string' } },
+  intents: { change: { command: 'items.change', payloadSchema: 'items.change.v1', fields: { title: { type: 'string' } }, keyFields: { itemId: { index: 0, type: 'json' } } } }
+};
+const repeatedArtifact: bindings.XTensionStateBindingArtifact = { schema: bindings.XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, documentId: 'doc',
+  bindings: [{ surface: 'row', binding: template, repeat: [{ state: 'items', path: [], key: ['id'] }] }] };
+const materialized = bindings.materializeStateBindingArtifact(repeatedArtifact, modelReader.snapshot());
+const concrete: bindings.XTensionStateBinding = materialized[0].binding;
+const hostSurface: string = runtime.getXTensionBindings()[0].hostSurface;
+// @ts-expect-error Legacy concrete bindings cannot contain key selectors.
+const legacySelectors: bindings.XTensionStateBinding = { schema: 'xtend.xtensions.state-binding.v1', address: { documentId: 'doc', declarationId: 'row', keys: [] }, props: { title: { state: 'items', path: [{ key: { path: ['id'], value: 'a' } }], type: 'string' } }, intents: {} };
+// @ts-expect-error Legacy artifacts cannot instantiate repeated templates.
+const legacyRepeat: bindings.XTensionStateBindingArtifact = { schema: 'xtend.xtensions.state-binding-artifact.v2', documentId: 'doc', bindings: [{ surface: 'row', binding: template, repeat: [{ state: 'items', path: [], key: ['id'] }] }] };
+void concrete; void hostSurface; void legacySelectors; void legacyRepeat;

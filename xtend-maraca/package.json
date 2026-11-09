@@ -97,6 +97,7 @@
     "plan-runtime.d.ts",
     "plan-runtime.v3.d.ts",
     "plan-runtime.v4.d.ts",
+    "plan-runtime.v5.d.ts",
     "browser-composition-runtime.mjs",
     "browser-composition-runtime.d.ts",
     "browser-host-adapter.mjs",

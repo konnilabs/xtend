@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "source": "development/rmtx-a02/repeated-filters.rmt",
+  "sourceSha256": "507b03ff998e94be43df9b25634011d7ed064c281ab0c7cce1c1ddf1b472e1ef",
+  "astContractVersion": "1.0.0",
+  "compilerApiVersion": "4.0.0",
+  "compileResultSchema": "xtend.rmt.classic.compile-result.v4",
+  "maracaBuildPlanSchema": "xtend.maraca.build-plan.v4",
+  "bindingSchema": "xtend.xtensions.state-binding-artifact.v3",
+  "bindingArtifactSha256": "4297a45d2f1e367c1de8860de59c542100a53ccabc7a4a030364e4f8d6b1fa7d",
+  "programSha256": "b3e911badc88fc4b90b7fbf9131cbd55a3d7f1374a66f4c09a4d84bc209512b2",
+  "sourceAstParity": true,
+  "maracaTransport": true
+}

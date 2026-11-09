@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "05be85456f7579d4e78fb12cbb9ac6e31a6b73881214caf53eddc51d68ee7e19",
-  "sourceMembershipSha256": "c08293cfbc06ab9383f14579905be188de92f26f629c15b2d81e9a26cc0b40a3",
+  "inventorySha256": "1da87b406cc3fe1f4a5efc0e61e3c74ef118e722aa13911c64f948520fcfd7bc",
+  "sourceMembershipSha256": "9a5dc5c8856517f039f4ca485f0d50a87f2d138f0a2a54e4e5624e1ac3ed8ba7",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "db314a6e7248eed63c388fb90b36566f19da8041b6c511ca9880ea3aa5d3fa73"
+          "sha256": "c507284390293a4f658d48c6772dfaef443d63c26b0dfd3310d87128b96ae4ad"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "68bdb86faf5dc2c0a080fb5253046bc28b3f3e9f3abf48b508a13b70ce9d4beb"
+          "sha256": "c2d99a6ab75541ffe4a39be4ef9c267844560094fe1a4825fa62234dfadf6c18"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -573,11 +573,11 @@
         },
         {
           "path": "docs/generated/search/en.fulltext.json",
-          "sha256": "7ec2c90c42ff3bb08d51c94c1a6f9275f5e7ecf45a4e63727668fd67d269f1f6"
+          "sha256": "e8efcdb484039592b1c328a042a82bb543303d52c192c745817f6477d1469f4f"
         },
         {
           "path": "package.json",
-          "sha256": "70fb483792ead3d55c009d976150e628cea6bd61559a8c4328ee343431a78f22"
+          "sha256": "43d49d160e1821d19173e7bca6a9a67950e3be038273e13c124d4dbbf81cf83f"
         },
         {
           "path": "scripts/generate_rmt_classic_contract.js",
@@ -605,11 +605,11 @@
         },
         {
           "path": "tools/rmt-language/classic-compiler.d.ts",
-          "sha256": "ba345f1e199f231435a4c15e25cacc6673cbc06c2ea3b0f1c875c27cb0aa7f5e"
+          "sha256": "11d778c3a3032c2e237d2c2660e47264e577870e51b60811f6f4982c8be27801"
         },
         {
           "path": "tools/rmt-language/classic-compiler.js",
-          "sha256": "145865c16e4a33d243ae1cd4957222c71cf6ab5142dd41a11ec591260ccb068b"
+          "sha256": "a742ec4561bb64ced5d3909aa0fc49e277f7687ded49c55c13e7f3463e721468"
         },
         {
           "path": "tools/rmt-language/classic-parser.d.ts",
@@ -874,6 +874,70 @@
       "xtend.xtensions.state-binding-artifact.v1",
       "xtend.xtensions.state-binding-artifact.v2",
       "xtend.xtensions.state-binding.v1",
+      "xtend.xtensions.three-cleanup-record.v1",
+      "xtend.xtensions.vue-host-controller-cleanup-record.v1"
+    ],
+    "publicationGuardRetired": false,
+    "acceptedForRelease": false,
+    "freshCommittedCaptureRequired": true
+  },
+  "a024RepeatedHostReview": {
+    "status": "user-requested-scoped-development-gates",
+    "date": "2026-11-09",
+    "request": "Wiederholte Hosts mit stabilen Elementschlüsseln starten; geänderte Schema-/API-Verträge gemäß bestehender Anweisung gegenüber Legacy versionieren.",
+    "scope": "Nested Model-array scopes with typed stable item keys, shared compiler/runtime materialization, v2 keyed prop paths and trusted intent key fields, concrete host identities, retained lifetimes across reorder and safe removal. Static and conditional Legacy contracts remain closed. Native template event/resource instancing, full Surface/kernel registration and URL/history/adoption remain open.",
+    "sourceBindingRefresh": [
+      "xtend.rmt.vnext.ast.v1"
+    ],
+    "versionTransitions": {
+      "xtend.maraca.build-plan.v3": "xtend.maraca.build-plan.v4",
+      "xtend.maraca.build-config.v3": "xtend.maraca.build-config.v4",
+      "xtend.maraca.plan-runtime.v5": "xtend.maraca.plan-runtime.v6",
+      "xtend.maraca.browser-composition-root.v3": "xtend.maraca.browser-composition-root.v4",
+      "xtend.rmt.classic.compile-result.v3": "xtend.rmt.classic.compile-result.v4",
+      "xtend.xtensions.state-binding-artifact.v2": "xtend.xtensions.state-binding-artifact.v3",
+      "xtend.xtensions.state-binding.v1": "xtend.xtensions.state-binding.v2"
+    },
+    "newAuthorityBaselines": [
+      {
+        "schemaId": "xtend.maraca.plan-runtime.v6",
+        "authoritativeFingerprints": [
+          "sha256:62c08f3745ee0ba1b374694cce49c50aae84cf7a097a9d3992c8742d25576ca7"
+        ],
+        "releasedFingerprintSetHash": "sha256:21df715444723cc936000ece30ed7654c2c61ffe9332a8e0e6c9872cbdcd1e6d"
+      }
+    ],
+    "reviewedSchemaIds": [
+      "items.change.v1",
+      "repeated-filter-example.change.v1",
+      "xtend.maraca.action-runtime-compat.v1",
+      "xtend.maraca.browser-composition-root.v3",
+      "xtend.maraca.browser-composition-root.v4",
+      "xtend.maraca.build-config.v2",
+      "xtend.maraca.build-config.v3",
+      "xtend.maraca.build-config.v4",
+      "xtend.maraca.build-plan.v1",
+      "xtend.maraca.build-plan.v3",
+      "xtend.maraca.build-plan.v4",
+      "xtend.maraca.bundle-report.v1",
+      "xtend.maraca.plan-runtime.v3",
+      "xtend.maraca.plan-runtime.v5",
+      "xtend.maraca.plan-runtime.v6",
+      "xtend.maraca.post-commit-context.v1",
+      "xtend.rmt.classic.compile-result.v3",
+      "xtend.rmt.classic.compile-result.v4",
+      "xtend.rmt.command.v1",
+      "xtend.rmt.model-reader.v1",
+      "xtend.rmt.stream-patch-commit.v1",
+      "xtend.xkeymap.surface-contract.v1",
+      "xtend.xtensions.chart-cleanup-record.v1",
+      "xtend.xtensions.leaflet-cleanup-record.v1",
+      "xtend.xtensions.react-host-controller-cleanup-record.v1",
+      "xtend.xtensions.state-binding-artifact.v1",
+      "xtend.xtensions.state-binding-artifact.v2",
+      "xtend.xtensions.state-binding-artifact.v3",
+      "xtend.xtensions.state-binding.v1",
+      "xtend.xtensions.state-binding.v2",
       "xtend.xtensions.three-cleanup-record.v1",
       "xtend.xtensions.vue-host-controller-cleanup-record.v1"
     ],

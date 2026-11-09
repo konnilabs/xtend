@@ -3,7 +3,7 @@ import { createMaracaFastPass } from './fastpass.mjs';
 export { createMaracaAbortBoundary } from './abort-boundary.mjs';
 
 const LEGACY_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v3';
-const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v5';
+const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v6';
 const DOM_COMMIT_SCHEMA = 'xtend.rmt.dom-commit-result.v1';
 const DOM_COMMIT_EVENT = 'xtend-maraca:dom-commit';
 const SYSTEM_REFRESH_COMMAND = 'xtend.system.refresh';
@@ -169,12 +169,12 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const bindingRuntime = options.xtensionBindingsRuntime;
   let bindingArtifact = null;
   if (hasOwn(asRecord(options.plan), 'xtensionBindings')) {
-    if (!bindingRuntime || typeof bindingRuntime.validateStateBindingArtifact !== 'function' || typeof bindingRuntime.createXTensionStateRegistry !== 'function') {
+    if (!bindingRuntime || typeof bindingRuntime.validateStateBindingArtifact !== 'function' || typeof bindingRuntime.materializeStateBindingArtifact !== 'function' || typeof bindingRuntime.createXTensionStateRegistry !== 'function') {
       throw new TypeError('XTension binding artifacts require the explicit state-binding runtime port.');
     }
     bindingArtifact = bindingRuntime.validateStateBindingArtifact(options.plan.xtensionBindings, artifact);
     if (bindingArtifact.bindings.length && typeof options.createXTensionHost !== 'function') throw new TypeError('Bound Maraca plans require a trusted createXTensionHost factory.');
-    if (options.adoptExisting === true && bindingArtifact.bindings.some((entry) => entry.presence)) {
+    if (options.adoptExisting === true && bindingArtifact.bindings.some((entry) => entry.presence || entry.repeat)) {
       throw new TypeError('Conditional XTension hosts require client rendering; adoption requires the separate restore contract.');
     }
   }
@@ -184,24 +184,15 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const xtensionRetirements = new Set();
 
   function presentXTensionEntries(snapshot) {
-    return (bindingArtifact?.bindings || []).filter((entry) => {
-      if (!entry.presence) return true;
-      let value = asRecord(snapshot.states)[entry.presence.state];
-      for (const part of entry.presence.path) {
-        if (!value || typeof value !== 'object' || !hasOwn(value, part)) value = undefined;
-        else value = value[part];
-      }
-      if (typeof value !== 'boolean') throw new TypeError(`XTension host ${entry.surface} requires a boolean Model presence value.`);
-      return value;
-    });
+    return bindingArtifact ? bindingRuntime.materializeStateBindingArtifact(bindingArtifact, snapshot) : [];
   }
 
   async function retireAbsentXTensions(snapshot) {
     if (!bindingArtifact) return;
     try {
       // Validate the complete next set before changing any existing lifetime.
-      const present = new Set(presentXTensionEntries(snapshot).map((entry) => entry.surface));
-      const removed = boundXTensions.filter((entry) => !present.has(entry.surface));
+      const present = new Set(presentXTensionEntries(snapshot).map((entry) => entry.hostSurface));
+      const removed = boundXTensions.filter((entry) => !present.has(entry.hostSurface));
       for (const entry of removed) {
         boundXTensions.splice(boundXTensions.indexOf(entry), 1);
         // dispose() revokes callbacks synchronously, before awaiting foreign cleanup.
@@ -225,11 +216,11 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     try {
       for (const entry of presentXTensionEntries(modelReader.snapshot())) {
         if (phase === 'disposed') throw runtimeDisposedError();
-        if (boundXTensions.some((bound) => bound.surface === entry.surface)) continue;
-        const container = surfaceElement(entry.surface);
+        if (boundXTensions.some((bound) => bound.hostSurface === entry.hostSurface)) continue;
+        const container = surfaceElement(entry.hostSurface);
         if (!container) throw new Error(`XTension host ${entry.surface} was not rendered.`);
-        const instance = xtensionRegistry.bind(entry.binding, (context) => options.createXTensionHost(Object.freeze({ ...context, container, surface: entry.surface, binding: entry.binding })));
-        boundXTensions.push(Object.freeze({ surface: entry.surface, instance }));
+        const instance = xtensionRegistry.bind(entry.binding, (context) => options.createXTensionHost(Object.freeze({ ...context, container, surface: entry.surface, hostSurface: entry.hostSurface, binding: entry.binding })));
+        boundXTensions.push(Object.freeze({ surface: entry.surface, hostSurface: entry.hostSurface, instance }));
         await raceDisposed(instance.mount(container));
       }
     } catch (error) {
@@ -442,7 +433,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   });
 
   function projectDescriptor(descriptor) {
-    const present = new Set(presentXTensionEntries(runtimes?.state?.snapshot() || { states: {} }).map((entry) => entry.surface));
+    const present = presentXTensionEntries(runtimes?.state?.snapshot() || { states: {} });
     const projected = typeof options.projectDescriptor === 'function'
       ? options.projectDescriptor(descriptor, {
           ownership,
@@ -459,9 +450,12 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         if (next.bindings) { next.bindings = { ...next.bindings }; delete next.bindings.hidden; }
       }
       if (value.surface && boundXTensionSurfaces.has(String(value.surface))) {
-        if (!present.has(String(value.surface))) return { type: 'fragment', children: [] };
-        // Bound host keys are identities, even if a Model state has that name.
-        next.key = { op: 'literal', value: String(value.surface) };
+        return { type: 'fragment', children: present.filter(entry => entry.surface === value.surface).map(entry => ({
+          ...next, surface: entry.hostSurface, key: { op: 'literal', value: entry.hostSurface },
+          attributes: { ...asRecord(next.attributes),
+            'data-maraca-surface': { op: 'literal', value: entry.hostSurface },
+            'data-rmt-surface': { op: 'literal', value: entry.hostSurface } }
+        })) };
       }
       return next;
     };
@@ -1927,7 +1921,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         metadata,
         validationStage
       );
-      if (bindingArtifact?.bindings.some((entry) => entry.presence)) {
+      if (bindingArtifact?.bindings.some((entry) => entry.presence || entry.repeat)) {
         // Revoke at the Model commit, before an awaited exit transition can
         // leave a disappearing component with an apparently current callback.
         await retireAbsentXTensions(transaction.next);

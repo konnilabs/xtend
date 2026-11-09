@@ -3,7 +3,7 @@ const bindingRuntime = require('@ccslabs/xtend/xtensions/state-binding');
 const { createReactRuntimeAdapter } = require('@ccslabs/xtend/xtensions/react-runtime-adapter');
 const { createFilterPanel } = require('../../development/rmtx-a02/controlled-filters');
 
-async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, test, check, equal, plan, conditionalPlan }) {
+async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, test, check, equal, plan, conditionalPlan, repeatedPlan }) {
   const { createMaracaPlanRuntime } = await import('../../xtend-maraca/plan-runtime.mjs');
   const modules = {
     state: await import('../../xtendrmt/rmt-state-selector-runtime.js'),
@@ -37,13 +37,14 @@ async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, te
       stateProjectionTarget: xtendState, xtensionBindingsRuntime: bindingRuntime,
       viewProjectionPort: modules.viewProjection.createRmtMaracaViewProjectionAdapter({ root, documentTarget: document }),
       createXTensionHost(context) {
-        const host = createReactRuntimeAdapter({ ...context, component: createFilterPanel(React), peers: { React, ReactDOM }, policy: { events: context.events } });
+        const host = createReactRuntimeAdapter({ ...context, component: extra.component || createFilterPanel(React), peers: { React, ReactDOM }, policy: { events: context.events } });
         hosts.push({ context, host }); return host;
       }, ...extra }); } catch (error) { scheduler.dispose(); root.remove(); throw error; }
     return { root, runtime, hosts, async close() {
       runtime.dispose(); await runtime.whenXTensionsIdle(); scheduler.dispose(); root.remove(); xtendState.clear(); xtendState.batchUpdate(previous);
     } };
   }
+  await require('./repeated-state-binding-acceptance').runRepeatedStateBindingAcceptance({ React, ReactDOM, document, test, check, equal, fixture, plan: repeatedPlan, modules, bindingRuntime, xtendState, within, rejected, deferred });
   const filter = (query, activeId = null) => ({ filter: { query, selection: { activeId } } });
 
   await test('A02.3: invalid presence and unsupported adoption reject before host authority exists', async () => {
@@ -253,8 +254,8 @@ async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, te
       const facade = await composition.boot(bootOptions);
       // boot returns a snapshot; operations live on the composition facade.
       check(!!facade && composition.facade.getXTensionBindings().length === 2, 'composition exposes compiled bindings');
-      equal(composition.schema, 'xtend.maraca.browser-composition-root.v3', 'composition has a distinct current schema');
-      equal(composition.facade.apiVersion, '3.0.0', 'browser API version differs from Legacy');
+      equal(composition.schema, 'xtend.maraca.browser-composition-root.v4', 'composition has a distinct current schema');
+      equal(composition.facade.apiVersion, '4.0.0', 'browser API version differs from Legacy');
       await composition.facade.dispatchCommand('filter.right.replace', filter('composition', 'right'));
       equal(root.querySelectorAll('output')[1].textContent, 'composition:right', 'browser composition uses the same Action/props barrier');
       composition.dispose(); composition.dispose(); await composition.facade.whenXTensionsIdle();
@@ -268,7 +269,7 @@ async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, te
     const f = fixture();
     try {
       await f.runtime.boot(); const bindings = f.runtime.getXTensionBindings();
-      equal(f.runtime.schema, 'xtend.maraca.plan-runtime.v5', 'extended API has its own schema version');
+      equal(f.runtime.schema, 'xtend.maraca.plan-runtime.v6', 'extended API has its own schema version');
       equal(bindings.length, 2, 'compiled artifact creates exactly two instances');
       const inputs = [...f.root.querySelectorAll('input')], commands = [], changes = [];
       const stopState = f.runtime.model.subscribe((event) => changes.push(event));

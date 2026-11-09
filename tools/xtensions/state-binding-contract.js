@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 'use strict';
 
-const XTENSION_STATE_BINDING_SCHEMA = 'xtend.xtensions.state-binding.v1';
+const XTENSION_STATE_BINDING_SCHEMA = 'xtend.xtensions.state-binding.v2';
+const LEGACY_BINDING_SCHEMA = 'xtend.xtensions.state-binding.v1';
 const unsafe = new Set(['__proto__', 'prototype', 'constructor']);
 const reservedProps = new Set(['xtension', 'key', 'ref', 'dangerouslySetInnerHTML', 'innerHTML', 'outerHTML', 'srcdoc']);
 const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -45,6 +46,36 @@ function segments(value) {
     else if (!Number.isSafeInteger(part) || part < 0 || Object.is(part, -0)) throw new TypeError('Numeric path segments must be nonnegative safe integers.');
   }
 }
+function bindingPath(value, keyed) {
+  if (!Array.isArray(value)) throw new TypeError('Binding paths must be segment arrays.');
+  for (const part of value) {
+    if (!keyed || !part || typeof part !== 'object') { segments([part]); continue; }
+    fields(part, ['key'], 'Key selector'); fields(part.key, ['path', 'value'], 'Key selector');
+    segments(part.key.path); if (!part.key.path.length) throw new TypeError('Key selectors need a nonempty item path.');
+    segments([part.key.value]);
+  }
+}
+function readBindingPath(value, path) {
+  for (const part of path) {
+    if (part && typeof part === 'object') {
+      if (!Array.isArray(value)) throw new TypeError('A keyed path requires a Model array.');
+      const seen = new Set(); let match, found = false;
+      for (const item of value) {
+        const key = readBindingPath(item, part.key.path); segments([key]);
+        const token = JSON.stringify(key);
+        if (seen.has(token)) throw new TypeError('Model item keys must be unique within their collection.');
+        seen.add(token);
+        if (key === part.key.value) { match = item; found = true; }
+      }
+      if (!found) throw new TypeError('The keyed Model item does not exist.');
+      value = match;
+    } else {
+      if (!value || typeof value !== 'object' || !Object.hasOwn(value, part)) throw new TypeError('The Model path does not exist.');
+      value = value[part];
+    }
+  }
+  return value;
+}
 function rule(value, extra = []) {
   fields(value, ['type', 'nullable', 'fields', 'items', ...extra], 'Value rule');
   if (!['string', 'number', 'boolean', 'object', 'array', 'json'].includes(value.type) || value.nullable !== undefined && typeof value.nullable !== 'boolean') throw new TypeError('Unsupported binding value rule.');
@@ -77,32 +108,37 @@ function addressKey(address) {
 function validateStateBinding(input) {
   data(input);
   fields(input, ['schema', 'address', 'props', 'intents'], 'State binding');
-  if (input.schema !== XTENSION_STATE_BINDING_SCHEMA) throw new TypeError('Unsupported state binding schema.');
+  if (![XTENSION_STATE_BINDING_SCHEMA, LEGACY_BINDING_SCHEMA].includes(input.schema)) throw new TypeError('Unsupported state binding schema.');
   addressKey(input.address);
   record(input.props, 'Props'); record(input.intents, 'Intents');
   for (const [prop, spec] of Object.entries(input.props)) {
     name(prop); if (reservedProps.has(prop)) throw new TypeError('A controlled prop cannot grant runtime authority.');
-    rule(spec, ['state', 'path']); name(spec.state); segments(spec.path);
+    rule(spec, ['state', 'path']); name(spec.state); bindingPath(spec.path, input.schema === XTENSION_STATE_BINDING_SCHEMA);
   }
   for (const [event, spec] of Object.entries(input.intents)) {
-    name(event); fields(spec, ['command', 'payloadSchema', 'fields'], 'Intent');
+    name(event); fields(spec, ['command', 'payloadSchema', 'fields', ...(input.schema === XTENSION_STATE_BINDING_SCHEMA ? ['keyFields'] : [])], 'Intent');
     name(spec.command); name(spec.payloadSchema); record(spec.fields, 'Intent fields');
     for (const [key, field] of Object.entries(spec.fields)) { name(key); rule(field); }
+    if (Object.hasOwn(spec, 'keyFields')) {
+      record(spec.keyFields, 'Intent key fields');
+      for (const [key, field] of Object.entries(spec.keyFields)) {
+        name(key); fields(field, ['index', 'type'], 'Intent key field');
+        if (Object.hasOwn(spec.fields, key) || !Number.isSafeInteger(field.index) || field.index < 0 || Object.is(field.index, -0) || field.index >= input.address.keys.length ||
+          !['string', 'number', 'json'].includes(field.type)) throw new TypeError('Intent key fields require distinct names, valid address indices and primitive key types.');
+        typed(input.address.keys[field.index], field, `Intent key ${key}`);
+      }
+    }
   }
   return freeze(clone(input));
 }
 function propsFrom(snapshot, definition) {
   const props = {};
   for (const [prop, spec] of Object.entries(definition.props)) {
-    let value = snapshot.states;
-    for (const part of [spec.state, ...spec.path]) {
-      if (!value || typeof value !== 'object' || !Object.hasOwn(value, part)) throw new TypeError(`Controlled prop ${prop} has no Model source.`);
-      value = value[part];
-    }
+    const value = readBindingPath(snapshot.states, [spec.state, ...spec.path]);
     typed(value, spec, `Controlled prop ${prop}`);
     props[prop] = value;
   }
   return freeze(clone(props));
 }
 
-module.exports = { XTENSION_STATE_BINDING_SCHEMA, validateStateBinding, addressKey, propsFrom, clone, freeze, data, record, fields, name, typed };
+module.exports = { XTENSION_STATE_BINDING_SCHEMA, validateStateBinding, addressKey, propsFrom, clone, freeze, data, record, fields, name, typed, segments, bindingPath, readBindingPath };

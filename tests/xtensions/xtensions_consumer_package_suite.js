@@ -49,7 +49,13 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
  const React=peers('react'),ReactDOM={...peers('react-dom/client'),version:peers('react-dom').version},Vue=peers('vue');
  try{
   for(const pkg of ['@ccslabs/xtend','@ccslabs/xtend-compiler']){
-   const {createXTensionStateRegistry,XTENSION_STATE_BINDING_SCHEMA}=require(pkg+'/xtensions/state-binding');
+   const {createXTensionStateRegistry,XTENSION_STATE_BINDING_SCHEMA,validateStateBindingArtifact,materializeStateBindingArtifact}=require(pkg+'/xtensions/state-binding');
+   const repeatedPlan=${JSON.stringify(require('../../development/rmtx-a02/inspect.cjs').inspectRepeated())};
+   const validated=validateStateBindingArtifact(repeatedPlan.xtensionBindings,repeatedPlan.orchestration.artifact);
+   const repeatedStates=Object.fromEntries(repeatedPlan.orchestration.artifact.state.states.map(state=>[state.id,state.initial]));
+   const rows=materializeStateBindingArtifact(validated,{states:repeatedStates});
+   assert.equal(rows.length,3);assert.notEqual(rows[0].hostSurface,rows[1].hostSurface);
+   assert.throws(()=>materializeStateBindingArtifact(JSON.parse(JSON.stringify(validated)),{states:repeatedStates}),/validated/);
    const model=createRmtStateSelectorRuntime({states:[{id:'title',type:'string',initial:'packed binding'}]});
    const registry=createXTensionStateRegistry({modelReader:model.modelReader,modelCommandPort:model.modelCommandPort});
    const container=document.createElement('section');document.body.append(container);
@@ -79,9 +85,9 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
     context.pass('Isolated packed root/compiler Node consumer resolves all Runtime APIs, renders with injected peers, rejects missing peers and payload leaks');
     const typing=path.join(temp,'binding-consumer.ts');
     fs.writeFileSync(typing,`import { createXTensionStateRegistry as root } from '@ccslabs/xtend/xtensions/state-binding';
-import { createXTensionStateRegistry as compiler } from '@ccslabs/xtend-compiler/xtensions/state-binding';
+import { createXTensionStateRegistry as compiler, materializeStateBindingArtifact } from '@ccslabs/xtend-compiler/xtensions/state-binding';
 import { compileRmtClassicAstWithBindings } from '@ccslabs/xtend-compiler/rmt-language/classic-compiler';
-const same: typeof root = compiler; void same; void compileRmtClassicAstWithBindings;\n`);
+const same: typeof root = compiler; void same; void compileRmtClassicAstWithBindings; void materializeStateBindingArtifact;\n`);
     command(process.execPath,[path.join(rootDir,'node_modules/typescript/bin/tsc'),'--strict','--noEmit','--lib','es2022,dom','--module','node16','--moduleResolution','node16',typing],{cwd:temp});
     context.pass('Packed root/compiler state binding declarations resolve strictly without source-tree RMT imports');
     const { build } = require('esbuild');

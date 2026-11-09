@@ -4,7 +4,7 @@ import {
   COMPONENT_COMMAND_SCHEMA,
   createMaracaBrowserHostAdapter
 } from './browser-host-adapter.mjs';
-export const MARACA_BROWSER_API_VERSION = '3.0.0';
+export const MARACA_BROWSER_API_VERSION = '4.0.0';
 export const LEGACY_BROWSER_COMPOSITION_SCHEMA = 'xtend.maraca.browser-composition-root.v1';
 
 function clone(value) {
@@ -667,7 +667,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
   facade = deepFreeze(facadeMembers);
 
   return deepFreeze({
-    schema: 'xtend.maraca.browser-composition-root.v3',
+    schema: 'xtend.maraca.browser-composition-root.v4',
     apiVersion: MARACA_BROWSER_API_VERSION,
     config,
     facade,

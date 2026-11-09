@@ -59,8 +59,8 @@ function runCompilerChecks() {
   const enlarged = copy(result.parserResult.ast); enlarged.xtensionBindings = declarations;
   assert.throws(() => compiler.compileRmtClassicAst(enlarged)); checks++;
   assert.throws(() => compiler.compileRmtClassicAst(result.parserResult.ast, { xtensionBindings: declarations })); checks++;
-  assert.equal(result.schema, 'xtend.rmt.classic.compile-result.v3');
-  assert.equal(compiler.createRmtClassicCompiler().apiVersion, '3.0.0');
+  assert.equal(result.schema, 'xtend.rmt.classic.compile-result.v4');
+  assert.equal(compiler.createRmtClassicCompiler().apiVersion, '4.0.0');
   assert.equal(compiler.RMT_CLASSIC_COMPILER_CONTRACT.version, '1.0.0'); checks++;
   const conditionalInput = { text: fs.readFileSync(path.join(root, 'development/rmtx-a02/conditional-filters.rmt'), 'utf8'), filePath: 'conditional-filters.rmt' };
   const conditionalBindings = require('../../development/rmtx-a02/conditional-bindings.v2.json');
@@ -97,7 +97,7 @@ function runCompilerChecks() {
       const plan = maraca.createMaracaBuildPlan({ sourceText: input.text, virtualSourcePath: input.filePath, configPath: file,
         orchestration: 'strict', kernel: 'off', hydration: 'off', validation: 'off', transitions: 'off' }, { rootDir: root, inspectToolchain: false });
       assert.equal(plan.ok, accepted, JSON.stringify(plan.diagnostics));
-      assert.equal(plan.schema, 'xtend.maraca.build-plan.v3');
+      assert.equal(plan.schema, 'xtend.maraca.build-plan.v4');
       if (!accepted) assert(plan.diagnostics.some((item) => item.code === 'xtend.maraca.xtension_config_version'));
       checks++;
     }
@@ -109,7 +109,18 @@ function runCompilerChecks() {
       assert.equal(plan.ok, accepted, JSON.stringify(plan.diagnostics));
       if (!accepted) assert(plan.diagnostics.some((item) => item.code === 'xtend.maraca.xtension_config_version')); checks++;
     }
+    const repeated = require('../../development/rmtx-a02/repeated-filters').repeatedBindings();
+    const repeatedText = fs.readFileSync(path.join(root, 'development/rmtx-a02/repeated-filters.rmt'), 'utf8');
+    for (const [schema, accepted] of [['xtend.maraca.build-config.v3', false], ['xtend.maraca.build-config.v4', true]]) {
+      const file = path.join(temp, 'config.json');
+      fs.writeFileSync(file, JSON.stringify({ schema, options: { xtensionBindings: repeated } }));
+      const plan = maraca.createMaracaBuildPlan({ sourceText: repeatedText, virtualSourcePath: 'repeated-filters.rmt', configPath: file,
+        orchestration: 'strict', kernel: 'off', hydration: 'off', validation: 'off', transitions: 'off' }, { rootDir: root, inspectToolchain: false });
+      assert.equal(plan.ok, accepted, JSON.stringify(plan.diagnostics));
+      if (!accepted) assert(plan.diagnostics.some(item => item.code === 'xtend.maraca.xtension_config_version')); checks++;
+    }
   } finally { fs.rmSync(temp, { recursive: true, force: true }); }
+  checks += require('./repeated-state-binding-compiler.cjs').runRepeatedCompilerChecks().checks;
   return { ok: true, checks };
 }
 module.exports = { runCompilerChecks };

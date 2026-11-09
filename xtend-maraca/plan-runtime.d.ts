@@ -16,7 +16,7 @@ import type {
 } from '../components/xsurfacemanager-controller.js';
 
 export interface MaracaPlanRuntimeSnapshot {
-  readonly schema: 'xtend.maraca.plan-runtime.v5';
+  readonly schema: 'xtend.maraca.plan-runtime.v6';
   readonly phase: 'created' | 'booting' | 'ready' | 'failed' | 'disposed';
   readonly generation: number;
   readonly renderCount: number;
@@ -213,7 +213,7 @@ export interface MaracaFastPassResult {
 }
 
 export interface MaracaPlanRuntime {
-  readonly schema: 'xtend.maraca.plan-runtime.v5';
+  readonly schema: 'xtend.maraca.plan-runtime.v6';
   readonly model: RmtModelReader;
   /** @deprecated Use model. Removed in 0.7. */
   readonly stateRuntime: RmtModelReader;
@@ -221,7 +221,7 @@ export interface MaracaPlanRuntime {
   readonly actionRuntime: MaracaLegacyActionRuntime;
   boot(): Promise<MaracaPlanRuntimeSnapshot>;
   dispatchCommand(command: string | MaracaCommand, payload?: unknown, metadata?: Record<string, unknown>, lifetime?: XTensionBindings.XTensionBindingCommandLifetime): Promise<MaracaCommandResult>;
-  getXTensionBindings(): readonly { readonly surface: string; readonly instance: XTensionBindings.XTensionBoundInstance }[];
+  getXTensionBindings(): readonly { readonly surface: string; readonly hostSurface: string; readonly instance: XTensionBindings.XTensionBoundInstance }[];
   /** Also drains asynchronous foreign-root cleanup after dispose(). */
   /** Drains the current command queue, host deliveries and retiring foreign roots. */
   whenXTensionsIdle(): Promise<void>;
@@ -255,9 +255,9 @@ export interface MaracaHydrationContext extends Record<string, unknown> {
 }
 
 export interface MaracaPlanRuntimeOptions {
-  xtensionBindingsRuntime?: Pick<typeof XTensionBindings, 'validateStateBindingArtifact' | 'createXTensionStateRegistry'>;
+  xtensionBindingsRuntime?: Pick<typeof XTensionBindings, 'validateStateBindingArtifact' | 'materializeStateBindingArtifact' | 'createXTensionStateRegistry'>;
   createXTensionHost?(context: XTensionBindings.XTensionBindingHostContext & {
-    readonly container: Element; readonly surface: string; readonly binding: XTensionBindings.XTensionStateBinding;
+    readonly container: Element; readonly surface: string; readonly hostSurface: string; readonly binding: XTensionBindings.XTensionStateBinding;
   }): XTensionBindings.RuntimeHostController;
   /** Completed Action and Command history limits (default 100 each). 0 disables storage; Infinity is unbounded. */
   actionHistoryLimit?: number;
@@ -360,7 +360,7 @@ export interface MaracaPlanRuntimeOptions {
   moduleUrls?: string[];
 }
 
-export declare const PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v5';
+export declare const PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v6';
 export declare const LEGACY_PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v3';
 export declare function createMaracaPlanRuntime(options: MaracaPlanRuntimeOptions): MaracaPlanRuntime;
 export declare function bootMaracaPlan(options: MaracaPlanRuntimeOptions): Promise<MaracaPlanRuntime>;

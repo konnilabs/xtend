@@ -2,9 +2,9 @@
 'use strict';
 
 const { XTENSION_STATE_BINDING_SCHEMA, validateStateBinding, addressKey, propsFrom, clone, freeze, data, record, typed } = require('./state-binding-contract');
-const { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact } = require('./state-binding-artifact');
+const { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact } = require('./state-binding-artifact');
 const { RUNTIME_HOST_CONTROLLER_SCHEMA } = require('./runtime-host-controller');
-const XTENSION_STATE_BINDING_API_VERSION = '1.2.0';
+const XTENSION_STATE_BINDING_API_VERSION = '2.0.0';
 
 /** One registry per Model session. Factories and ports are trusted host capabilities. */
 function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDispatcher, onDiagnostic } = {}) {
@@ -114,16 +114,18 @@ function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDis
         const keys = Object.keys(spec.fields);
         if (Object.keys(event.payload).length !== keys.length || keys.some((field) => !Object.hasOwn(event.payload, field))) throw new TypeError('Intent payload fields must match the declaration exactly.');
         for (const field of keys) typed(event.payload[field], spec.fields[field], `Intent field ${field}`);
+        const commandPayload = clone(event.payload);
+        for (const [field, source] of Object.entries(spec.keyFields || {})) commandPayload[field] = definition.address.keys[source.index];
         const metadata = { source: 'xtension-state-binding', identity: clone(identity), event: event.event };
         if (commandDispatcher) {
-          const result = commandDispatcher.dispatch(spec.command, clone(event.payload), metadata,
+          const result = commandDispatcher.dispatch(spec.command, commandPayload, metadata,
             Object.freeze({ signal: abort.signal, isCurrent: live }));
           let pending;
           pending = Promise.race([Promise.resolve(result), cancelled]).then((value) => {
             if (live() && value && ['error', 'failed', 'blocked'].includes(value.status)) report(new Error(`Action ${spec.command} returned ${value.status}.`), 'intent');
           }, (error) => { if (live()) report(error, 'intent'); }).finally(() => pendingCommands.delete(pending));
           pendingCommands.add(pending);
-        } else modelCommandPort.apply({ operation: 'dispatch', command: spec.command, payload: clone(event.payload) }, metadata);
+        } else modelCommandPort.apply({ operation: 'dispatch', command: spec.command, payload: commandPayload }, metadata);
         return true;
       } catch (error) { report(error, 'intent'); return false; }
     }
@@ -178,4 +180,4 @@ function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDis
   } });
 }
 
-module.exports = { XTENSION_STATE_BINDING_API_VERSION, XTENSION_STATE_BINDING_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBinding, validateStateBindingArtifact, createXTensionStateRegistry };
+module.exports = { XTENSION_STATE_BINDING_API_VERSION, XTENSION_STATE_BINDING_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBinding, validateStateBindingArtifact, materializeStateBindingArtifact, createXTensionStateRegistry };

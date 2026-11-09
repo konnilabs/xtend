@@ -28,7 +28,7 @@ const {
 
 const MARACA_PACKAGE_SCHEMA = 'xtend.maraca.package-metadata.v1';
 const LEGACY_MARACA_BUILD_PLAN_SCHEMA = 'xtend.maraca.build-plan.v1';
-const MARACA_BUILD_PLAN_SCHEMA = 'xtend.maraca.build-plan.v3';
+const MARACA_BUILD_PLAN_SCHEMA = 'xtend.maraca.build-plan.v4';
 const MARACA_BUNDLE_REPORT_SCHEMA = 'xtend.maraca.bundle-report.v1';
 const MARACA_SIZE_BUDGET_REPORT_SCHEMA = 'xtend.maraca.size-budget-report.v1';
 const MARACA_PERFORMANCE_REPORT_SCHEMA = 'xtend.maraca.performance-report.v1';
@@ -49,7 +49,7 @@ const MARACA_VALIDATION_PLAN_SCHEMA = 'xtend.maraca.validation-plan.v1';
 const MARACA_TRANSITION_PLAN_SCHEMA = 'xtend.maraca.transition-plan.v1';
 const MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA = 'xtend.maraca.production-bundle-closure.v1';
 const LEGACY_MARACA_BUILD_CONFIG_SCHEMA = 'xtend.maraca.build-config.v1';
-const MARACA_BUILD_CONFIG_SCHEMA = 'xtend.maraca.build-config.v3';
+const MARACA_BUILD_CONFIG_SCHEMA = 'xtend.maraca.build-config.v4';
 const MARACA_TUNE_REPORT_SCHEMA = 'xtend.maraca.tune-report.v1';
 const MARACA_COMPONENT_COMMAND_SCHEMA = 'xtend.rmt.component-command.v1';
 const MARACA_COMPONENT_COMMAND_RESULT_SCHEMA = 'xtend.maraca.component-command-result.v1';
@@ -1896,7 +1896,7 @@ function loadMaracaBuildConfig(values, rootDir) {
   }
   try {
     const config = readJson(configPath);
-    if (!config || ![MARACA_BUILD_CONFIG_SCHEMA, 'xtend.maraca.build-config.v2', LEGACY_MARACA_BUILD_CONFIG_SCHEMA].includes(config.schema)) {
+    if (!config || ![MARACA_BUILD_CONFIG_SCHEMA, 'xtend.maraca.build-config.v3', 'xtend.maraca.build-config.v2', LEGACY_MARACA_BUILD_CONFIG_SCHEMA].includes(config.schema)) {
       return {
         path: configPath,
         config,
@@ -1926,6 +1926,11 @@ function loadMaracaBuildConfig(values, rootDir) {
       config.options.xtensionBindings.schema !== 'xtend.xtensions.state-binding-artifact.v1') {
       return { path: configPath, config, diagnostics: [{ code: 'xtend.maraca.xtension_config_version', severity: 'error',
         message: `Conditional XTension bindings require ${MARACA_BUILD_CONFIG_SCHEMA}.` }] };
+    }
+    if (config.schema === 'xtend.maraca.build-config.v3' && config.options?.xtensionBindings &&
+      !['xtend.xtensions.state-binding-artifact.v1', 'xtend.xtensions.state-binding-artifact.v2'].includes(config.options.xtensionBindings.schema)) {
+      return { path: configPath, config, diagnostics: [{ code: 'xtend.maraca.xtension_config_version', severity: 'error',
+        message: `Repeated XTension bindings require ${MARACA_BUILD_CONFIG_SCHEMA}.` }] };
     }
     return { path: configPath, config, diagnostics: [] };
   } catch (error) {
@@ -7545,7 +7550,7 @@ async function tuneMaracaBuild(input = {}, options = {}) {
   const requestedConfigPath = explicit.config || explicit.configPath || explicit['build-config'];
   const configPath = path.resolve(rootDir, String(requestedConfigPath || 'maraca.config.json'));
   const existingConfig = fs.existsSync(configPath) ? readJson(configPath) : null;
-  const configuredOptions = existingConfig && [MARACA_BUILD_CONFIG_SCHEMA, 'xtend.maraca.build-config.v2', LEGACY_MARACA_BUILD_CONFIG_SCHEMA].includes(existingConfig.schema) && existingConfig.options && typeof existingConfig.options === 'object'
+  const configuredOptions = existingConfig && [MARACA_BUILD_CONFIG_SCHEMA, 'xtend.maraca.build-config.v3', 'xtend.maraca.build-config.v2', LEGACY_MARACA_BUILD_CONFIG_SCHEMA].includes(existingConfig.schema) && existingConfig.options && typeof existingConfig.options === 'object'
     ? existingConfig.options
     : {};
   const mergedInput = { ...configuredOptions, ...explicit };

@@ -13,7 +13,7 @@ function runExportChecks() {
   const runtime = {}, all = {};
   const bindingName = '@ccslabs/xtend/xtensions/state-binding';
   const binding = require(bindingName);
-  assert.deepEqual(Object.keys(binding).sort(), ['XTENSION_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_STATE_BINDING_SCHEMA', 'createXTensionStateRegistry', 'validateStateBinding', 'validateStateBindingArtifact']);
+  assert.deepEqual(Object.keys(binding).sort(), ['XTENSION_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_STATE_BINDING_SCHEMA', 'createXTensionStateRegistry', 'materializeStateBindingArtifact', 'validateStateBinding', 'validateStateBindingArtifact']);
   assert.equal(require('@ccslabs/xtend-compiler/xtensions/state-binding').createXTensionStateRegistry, binding.createXTensionStateRegistry);
   all[bindingName] = Object.entries(binding).map(([key, value]) => [key, typeof value]).sort();
   for (const framework of ['react', 'vue']) {

@@ -159,7 +159,7 @@ test('knowledge and source tools return the common structuredContent envelope an
   const maraca = await handle.client.callTool({ name: 'xtend_maraca_plan', arguments: { source: validSource } });
   assert.equal(maraca.structuredContent.data.schema, 'xtend.mcp.maraca-plan.v1');
   assert.equal(maraca.structuredContent.data.status, 'planned');
-  assert.equal(maraca.structuredContent.data.plan.schema, 'xtend.maraca.build-plan.v3');
+  assert.equal(maraca.structuredContent.data.plan.schema, 'xtend.maraca.build-plan.v4');
 
   const failure = await handle.client.callTool({
     name: 'xtend_rmt_repair_plan',

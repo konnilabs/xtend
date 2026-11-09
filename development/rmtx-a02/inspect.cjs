@@ -5,18 +5,20 @@ const assert = require('node:assert/strict');
 const { createHash } = require('node:crypto');
 const { compileRmtClassicSource, compileRmtClassicAstWithBindings } = require('../../tools/rmt-language/classic-compiler');
 const { createMaracaBuildPlan } = require('../../xtend-maraca');
-const { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA } = require('../../tools/xtensions/state-binding');
 const { filterBinding } = require('./controlled-filters');
 const rootDir = path.resolve(__dirname, '../..');
 const source = 'development/rmtx-a02/controlled-filters.rmt';
 function inspect(conditional = false) {
   const sourcePath = conditional ? 'development/rmtx-a02/conditional-filters.rmt' : source;
-  const declarations = { schema: conditional ? XTENSION_STATE_BINDING_ARTIFACT_SCHEMA : 'xtend.xtensions.state-binding-artifact.v1', documentId: 'filter-example',
+  const declarations = { schema: conditional ? 'xtend.xtensions.state-binding-artifact.v2' : 'xtend.xtensions.state-binding-artifact.v1', documentId: 'filter-example',
     bindings: ['left', 'right'].map((key) => ({ surface: `filter.${key}`, binding: filterBinding(key), ...(conditional ? { presence: { state: 'hosts', path: [key] } } : {}) })) };
   if (conditional) for (const entry of declarations.bindings) entry.binding.intents.presence = {
     command: 'hosts.replace', payloadSchema: 'filter-example.host-presence.v1',
     fields: { hosts: { type: 'object', fields: { left: { type: 'boolean' }, right: { type: 'boolean' } } } }
   };
+  return compileReference(sourcePath, declarations);
+}
+function compileReference(sourcePath, declarations) {
   const input = { text: fs.readFileSync(path.join(rootDir, sourcePath), 'utf8'), filePath: sourcePath };
   const compiled = compileRmtClassicSource(input, { xtensionBindings: declarations });
   assert(compiled.ok, JSON.stringify(compiled.diagnostics));
@@ -51,11 +53,21 @@ if (require.main === module) {
     maracaBuildPlanSchema: require('../../xtend-maraca').MARACA_BUILD_PLAN_SCHEMA,
     bindingSchema: conditional.xtensionBindings.schema, bindingArtifactSha256: hash(JSON.stringify(conditional.xtensionBindings)),
     programSha256: hash(JSON.stringify(conditional.orchestration.artifact)), sourceAstParity: true, maracaTransport: true };
+  const repeated = inspectRepeated();
+  outputs['repeated-bindings.v3.json'] = repeated.xtensionBindings;
+  outputs['repeated-evidence.json'] = { format: 1, source: 'development/rmtx-a02/repeated-filters.rmt',
+    sourceSha256: hash(fs.readFileSync(path.join(__dirname, 'repeated-filters.rmt'))), astContractVersion: '1.0.0',
+    compilerApiVersion: require('../../tools/rmt-language/classic-compiler').RMT_CLASSIC_COMPILER_API_VERSION,
+    compileResultSchema: require('../../tools/rmt-language/classic-compiler').RMT_CLASSIC_COMPILE_RESULT_SCHEMA,
+    maracaBuildPlanSchema: require('../../xtend-maraca').MARACA_BUILD_PLAN_SCHEMA, bindingSchema: repeated.xtensionBindings.schema,
+    bindingArtifactSha256: hash(JSON.stringify(repeated.xtensionBindings)), programSha256: hash(JSON.stringify(repeated.orchestration.artifact)),
+    sourceAstParity: true, maracaTransport: true };
   for (const [name, value] of Object.entries(outputs)) {
     const text = JSON.stringify(value, null, 2) + '\n', output = path.join(__dirname, name);
     if (process.argv.includes('--write')) fs.writeFileSync(output, text);
-    if (process.argv.includes('--check')) assert.equal(fs.readFileSync(output, 'utf8'), text, `A02.2 ${name} drift`);
+    if (process.argv.includes('--check')) assert.equal(fs.readFileSync(output, 'utf8'), text, `A02 ${name} drift`);
   }
-  console.log('A02.2: Source/AST parity and strict Maraca binding artifact verified.');
+  console.log('A02: static, conditional and repeated Source/AST parity and strict Maraca binding artifacts verified.');
 }
-module.exports = { inspect, inspectConditional: () => inspect(true) };
+function inspectRepeated() { return compileReference('development/rmtx-a02/repeated-filters.rmt', require('./repeated-filters').repeatedBindings()); }
+module.exports = { inspect, inspectConditional: () => inspect(true), inspectRepeated };

@@ -1,0 +1,37 @@
+// A02.4: nested Model collections; the v3 sidecar supplies stable scopes.
+template repeated.filters {
+  state groups type object preserve {
+    initial {
+      items [
+        { id "a"; filters [
+          { id 1; query "numeric"; selection { activeId null }; enabled true }
+          { id "1"; query "string"; selection { activeId null }; enabled true }
+        ] }
+        { id "b"; filters [
+          { id 1; query "other-parent"; selection { activeId null }; enabled true }
+        ] }
+      ]
+    }
+  }
+  datasource filters.update from endpoint "/filters/update" {
+    method POST
+    contract FiltersResult
+    result record
+  }
+  action filters.update {
+    input groupId json
+    input filterId json
+    input query string
+    effect fetch datasource filters.update
+    reduce state.groups = result.groups
+  }
+  action groups.replace {
+    input groups object
+    reduce state.groups = input.groups
+  }
+  portal surface.root root "#xtend-maraca-root" layer surface
+  surface filter kind region component div {
+    portal surface.root
+    lane visible { mount filter-panel }
+  }
+}

@@ -2,14 +2,13 @@
 
 // Executable A02.1 reference: real React, existing RMT Model, existing XTend State.
 // The binding declaration is runtime data; this does not propose RMTX source syntax.
-const { XTENSION_STATE_BINDING_SCHEMA } = require('../../tools/xtensions/state-binding');
 const filterRule = { type: 'object', fields: {
   query: { type: 'string' },
   selection: { type: 'object', fields: { activeId: { type: 'string', nullable: true } } }
 } };
 function filterBinding(itemKey) {
   return {
-    schema: XTENSION_STATE_BINDING_SCHEMA,
+    schema: 'xtend.xtensions.state-binding.v1',
     address: { documentId: 'filter-example', declarationId: 'filter-panel', keys: [itemKey] },
     props: {
       query: { state: `filter.${itemKey}`, path: ['query'], type: 'string' },

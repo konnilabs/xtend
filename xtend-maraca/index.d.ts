@@ -3,7 +3,7 @@ import type { MaracaServiceBuildPlan, MaracaServiceBuildReport, MaracaServicesCo
 import type { XTensionStateBindingArtifact } from '@ccslabs/xtend/xtensions/state-binding';
 
 export const MARACA_PACKAGE_SCHEMA: 'xtend.maraca.package-metadata.v1';
-export const MARACA_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v3';
+export const MARACA_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v4';
 export const LEGACY_MARACA_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v1';
 export const MARACA_BUNDLE_REPORT_SCHEMA: 'xtend.maraca.bundle-report.v1';
 export const MARACA_SIZE_BUDGET_REPORT_SCHEMA: 'xtend.maraca.size-budget-report.v1';
@@ -23,7 +23,7 @@ export const MARACA_VALIDATION_PLAN_SCHEMA: 'xtend.maraca.validation-plan.v1';
 export const MARACA_TRANSITION_PLAN_SCHEMA: 'xtend.maraca.transition-plan.v1';
 export const MARACA_TEMPLATE_ARTIFACTS_REPORT_SCHEMA: 'xtend.maraca.template-artifacts-report.v1';
 export const MARACA_PRODUCTION_BUNDLE_CLOSURE_SCHEMA: 'xtend.maraca.production-bundle-closure.v1';
-export const MARACA_BUILD_CONFIG_SCHEMA: 'xtend.maraca.build-config.v3';
+export const MARACA_BUILD_CONFIG_SCHEMA: 'xtend.maraca.build-config.v4';
 export const LEGACY_MARACA_BUILD_CONFIG_SCHEMA: 'xtend.maraca.build-config.v1';
 export const MARACA_TUNE_REPORT_SCHEMA: 'xtend.maraca.tune-report.v1';
 export const MARACA_APP_SERVICE_MANIFEST_SCHEMA: 'xtend.maraca.app-services-manifest.v1';
